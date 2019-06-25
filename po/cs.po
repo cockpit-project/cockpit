@@ -10,11 +10,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-06-10 11:42+0000\n"
+"POT-Creation-Date: 2019-06-25 16:37+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2019-06-03 01:09+0000\n"
+"PO-Revision-Date: 2019-06-20 12:46+0000\n"
 "Last-Translator: Pavel Borecki <pavel.borecki@gmail.com>\n"
 "Language-Team: Czech\n"
 "Language: cs\n"
@@ -24,10 +24,6 @@ msgstr ""
 #: pkg/docker/storage.jsx:259
 msgid " (shared with the OS)"
 msgstr "(sdíleno s operačním systémem)"
-
-#: pkg/kubernetes/views/node-delete.html:8
-msgid " 1\"Do you want to delete the following Nodes?"
-msgstr "1\"Chcete smazat následující uzly?"
 
 #: pkg/storaged/others-panel.jsx:57
 msgid "$0 Block Device"
@@ -90,8 +86,8 @@ msgid "$0 data + $1 overhead used of $2 ($3)"
 msgstr "$0 data + $1 režie využito z $2 ($3)"
 
 #: src/base1/test-locale.js:62 src/base1/test-locale.js:63
-#: src/base1/test-locale.js:64 pkg/playground/translate.js:28
-#: pkg/playground/translate.js:31 pkg/storaged/mdraid-details.jsx:213
+#: src/base1/test-locale.js:64 pkg/playground/translate.js:26
+#: pkg/playground/translate.js:29 pkg/storaged/mdraid-details.jsx:213
 msgid "$0 disk is missing"
 msgid_plural "$0 disks are missing"
 msgstr[0] "$0 disk chybí"
@@ -99,8 +95,8 @@ msgstr[1] "$0 disky chybí"
 msgstr[2] "$0 disků chybí"
 
 #: src/base1/test-locale.js:65 src/base1/test-locale.js:67
-#: src/base1/test-locale.js:69 pkg/playground/translate.js:34
-#: pkg/playground/translate.js:37
+#: src/base1/test-locale.js:69 pkg/playground/translate.js:32
+#: pkg/playground/translate.js:35
 msgctxt "disk-non-rotational"
 msgid "$0 disk is missing"
 msgid_plural "$0 disks are missing"
@@ -186,27 +182,9 @@ msgstr[2] "$0 aktualizací"
 msgid "$0 used of $1 ($2 saved)"
 msgstr "použito $0 z $1 ($2 ušetřeno)"
 
-#: pkg/ovirt/components/vcpuModal.jsx:98
-msgid "$0 vCPU Details"
-msgstr "Podrobnosti o virt. procesoru $0"
-
 #: pkg/lib/cockpit-components-install-dialog.jsx:106
 msgid "$0 will be installed."
 msgstr "$0 bude nainstalováno."
-
-#: pkg/kubernetes/scripts/nodes.js:871
-msgid "$0% Free"
-msgid_plural "$0% Free"
-msgstr[0] "$0% volný"
-msgstr[1] "$0% volné"
-msgstr[2] "$0% volných"
-
-#: pkg/kubernetes/scripts/nodes.js:873
-msgid "$0% Used"
-msgid_plural "$0% Used"
-msgstr[0] "$0% využitý"
-msgstr[1] "$0% využité"
-msgstr[2] "$0% využitých"
 
 #: pkg/storaged/vgroup-details.jsx:118
 msgid "$0, $1 free"
@@ -540,12 +518,8 @@ msgstr "ARP monitorování"
 msgid "ARP Ping"
 msgstr "ARP ping"
 
-#: pkg/kubernetes/scripts/volumes.js:193
-msgid "AWS Elastic Block Store"
-msgstr "AWS Elastic blokové úložiště"
-
 #: pkg/shell/index.html:56 pkg/shell/index.html:82 pkg/shell/simple.html:42
-#: pkg/shell/simple.html:58 pkg/shell/stub.html:46 pkg/shell/stub.html:65
+#: pkg/shell/simple.html:58
 msgid "About Cockpit"
 msgstr "O Cockpit"
 
@@ -553,12 +527,6 @@ msgstr "O Cockpit"
 msgid "Access"
 msgstr "Přístup"
 
-#: pkg/kubernetes/views/pv-body.html:9 pkg/kubernetes/views/pv-claim.html:9
-#: pkg/kubernetes/views/pv-modify.html:69 pkg/kubernetes/views/pvc-body.html:18
-msgid "Access Modes"
-msgstr "Režimy přístupu"
-
-#: pkg/kubernetes/views/project-modify.html:49
 #: node_modules/registry-image-widgets/views/imagestream-body.html:12
 msgid "Access Policy"
 msgstr "Politika přístupu"
@@ -589,13 +557,8 @@ msgctxt "page-title"
 msgid "Accounts"
 msgstr "Účty"
 
-#: pkg/ovirt/components/ClusterTemplates.jsx:136
-#: pkg/ovirt/components/ClusterVms.jsx:183
-msgid "Action"
-msgstr "Akce"
-
 #: pkg/machines/components/networks/network.jsx:147
-#: pkg/machines/components/storagePools/storagePool.jsx:167
+#: pkg/machines/components/storagePools/storagePool.jsx:170
 #: pkg/storaged/content-views.jsx:256
 msgid "Activate"
 msgstr "Aktivovat"
@@ -617,7 +580,7 @@ msgstr "Aktivní"
 msgid "Active Backup"
 msgstr "Aktivní záloha"
 
-#: pkg/shell/index.html:59 pkg/shell/stub.html:49 pkg/shell/active-pages.js:95
+#: pkg/shell/index.html:59 pkg/shell/active-pages.js:95
 msgid "Active Pages"
 msgstr "Aktivní stránky"
 
@@ -629,10 +592,6 @@ msgstr "Aktivní od"
 msgid "Active zones"
 msgstr "Aktivní zóny"
 
-#: pkg/kubernetes/views/pvc-body.html:25 pkg/kubernetes/views/pvc-body.html:45
-msgid "Actual"
-msgstr "Aktuální"
-
 #: pkg/networkmanager/interfaces.js:1980
 msgid "Adaptive load balancing"
 msgstr "Přizpůsobující se rozkládání zátěže"
@@ -642,16 +601,11 @@ msgid "Adaptive transmit load balancing"
 msgstr "Přizpůsobující se rozkládání přenosové zátěže odesílání"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId: po/ipa
-#: pkg/kubernetes/views/add-member-role-dialog.html:61
-#: pkg/kubernetes/views/add-role-dialog.html:8
-#: pkg/kubernetes/views/add-user-dialog.html:27
-#: pkg/kubernetes/views/node-add.html:50
-#: pkg/kubernetes/views/user-add-membership.html:49
-#: pkg/kubernetes/views/user-group-add.html:30 pkg/lib/machine-add.html:43
-#: pkg/shell/index.html:181 pkg/machines/components/diskAdd.jsx:534
-#: pkg/storaged/crypto-keyslots.jsx:228 pkg/storaged/iscsi-panel.jsx:132
-#: pkg/storaged/iscsi-panel.jsx:155 pkg/storaged/mdraid-details.jsx:57
-#: pkg/storaged/nfs-details.jsx:191 pkg/storaged/vgroup-details.jsx:63
+#: pkg/lib/machine-add.html:43 pkg/shell/index.html:181
+#: pkg/machines/components/diskAdd.jsx:534 pkg/storaged/crypto-keyslots.jsx:228
+#: pkg/storaged/iscsi-panel.jsx:132 pkg/storaged/iscsi-panel.jsx:155
+#: pkg/storaged/mdraid-details.jsx:57 pkg/storaged/nfs-details.jsx:191
+#: pkg/storaged/vgroup-details.jsx:63
 msgid "Add"
 msgstr "Přidat"
 
@@ -671,10 +625,6 @@ msgstr "Přidat sloučení linek"
 msgid "Add Bridge"
 msgstr "Přidat síťový most"
 
-#: pkg/kubernetes/views/node-add.html:3
-msgid "Add Cluster Node"
-msgstr "Přidat uzel clusteru"
-
 #: pkg/machines/components/diskAdd.jsx:356
 msgid "Add Disk"
 msgstr "Přidat disk"
@@ -683,52 +633,17 @@ msgstr "Přidat disk"
 msgid "Add Disks"
 msgstr "Přidat disky"
 
-#: pkg/kubernetes/views/add-group-dialog.html:3
-msgid "Add Group"
-msgstr "Přidat skupinu"
-
 #: pkg/storaged/crypto-keyslots.jsx:200
 msgid "Add Key"
 msgstr "Přidat klíč"
-
-#: pkg/kubernetes/views/nodes-page.html:34
-msgid "Add Kubernetes Node"
-msgstr "Přidat uzel Kubernetes"
 
 #: pkg/lib/machine-add.html:4
 msgid "Add Machine to Dashboard"
 msgstr "Přidat stroj na přehled"
 
-#: pkg/kubernetes/views/add-member-role-dialog.html:4
-#: pkg/kubernetes/views/group-page.html:38
-#: pkg/kubernetes/views/group-panel.html:29
-#: pkg/kubernetes/views/project-body.html:108
-#: pkg/kubernetes/views/user-group-add.html:3
-msgid "Add Member"
-msgstr "Přidat člena"
-
-#: pkg/kubernetes/views/user-body.html:67
-#: pkg/kubernetes/views/user-panel.html:76
-msgid "Add Membership"
-msgstr "Přidat členství"
-
-#: pkg/kubernetes/views/auth-form.html:11
-#: pkg/kubernetes/views/auth-form.html:20
-msgid "Add New Cluster"
-msgstr "Přidat nový cluster"
-
-#: pkg/kubernetes/views/auth-form.html:67
-#: pkg/kubernetes/views/auth-form.html:76
-msgid "Add New User"
-msgstr "Přidat nového uživatele"
-
 #: pkg/networkmanager/firewall.jsx:457
 msgid "Add Ports"
 msgstr "Přidat porty"
-
-#: pkg/kubernetes/views/add-role-dialog.html:3
-msgid "Add Role"
-msgstr "Přidat roli"
 
 #: pkg/networkmanager/firewall.jsx:457 pkg/networkmanager/firewall.jsx:872
 #: pkg/networkmanager/firewall.jsx:884
@@ -742,12 +657,6 @@ msgstr "Přidat úložiště"
 #: pkg/networkmanager/index.html:111
 msgid "Add Team"
 msgstr "Přidat tým"
-
-# auto translated by TM merge from project: selinux (policycoreutils), version: master, DocId: policycoreutils
-#: pkg/kubernetes/views/add-user-dialog.html:3
-#: pkg/kubernetes/views/project-listing.html:83
-msgid "Add User"
-msgstr "Přidat uživatele"
 
 #: pkg/networkmanager/index.html:113
 msgid "Add VLAN"
@@ -765,10 +674,6 @@ msgstr "Přidat iSCSI portál"
 #: pkg/shell/index.html:172 pkg/users/index.html:414
 msgid "Add key"
 msgstr "Přidat klíč"
-
-#: pkg/kubernetes/views/user-add-membership.html:3
-msgid "Add membership"
-msgstr "Přidat členství"
 
 #: pkg/networkmanager/firewall.jsx:458
 msgid "Add ports to the following zones:"
@@ -827,14 +732,11 @@ msgid "Additional packages:"
 msgstr "Další balíčky:"
 
 # auto translated by TM merge from project: firewalld, version: master, DocId: po/firewalld
-#: pkg/kubernetes/views/auth-form.html:29
-#: pkg/kubernetes/views/dashboard-page.html:157
-#: pkg/kubernetes/views/details-page.html:174
-#: pkg/kubernetes/views/node-add.html:8 pkg/kubernetes/views/node-body.html:5
-#: pkg/kubernetes/views/nodes-page.html:43 pkg/lib/machine-add.html:11
+#: pkg/lib/machine-add.html:11
 #: pkg/machines/components/networks/networkOverviewTab.jsx:107
 #: pkg/machines/components/networks/networkOverviewTab.jsx:130
-#: pkg/machines/components/vmnetworktab.jsx:77 pkg/storaged/iscsi-panel.jsx:127
+#: pkg/machines/components/vmnetworktab.jsx:107
+#: pkg/storaged/iscsi-panel.jsx:127
 msgid "Address"
 msgstr "Adresa"
 
@@ -852,39 +754,13 @@ msgstr "Do adresy nebyla vyplněná platná URL"
 
 # auto translated by TM merge from project: virt-manager, version: master, DocId: virt-manager
 #: pkg/machines/components/desktopConsole.jsx:153
-#: pkg/ovirt/components/VmOverviewColumn.jsx:53
 msgid "Address:"
 msgstr "Adresa:"
 
 # auto translated by TM merge from project: Spacewalk Web UI, version: master, DocId: java/code/src/com/redhat/rhn/frontend/strings/java/StringResource
-#: pkg/kubernetes/views/details-page.html:37
 #: pkg/networkmanager/interfaces.js:3309
 msgid "Addresses"
 msgstr "Adresy"
-
-#: pkg/kubernetes/views/service-modify.html:25
-msgid "Adjust"
-msgstr "Upravit"
-
-#: pkg/kubernetes/views/pv-modify.html:3
-msgid "Adjust Persistent Volume '{{ item.metadata.name }}'"
-msgstr "Upravit trvalý oddíl „{{ item.metadata.name }}“"
-
-#: pkg/kubernetes/views/replicationcontroller-modify.html:3
-msgid "Adjust Replication Controller {{ item.metadata.name }}"
-msgstr "Upravit řadič replikace {{ item.metadata.name }}"
-
-#: pkg/kubernetes/views/route-modify.html:3
-msgid "Adjust Route"
-msgstr "Upravit trasu"
-
-#: pkg/kubernetes/views/service-modify.html:3
-msgid "Adjust Service"
-msgstr "Upravit službu"
-
-#: pkg/kubernetes/views/project-body.html:56
-msgid "Admin"
-msgstr "Správce"
 
 #: org.cockpit-project.cockpit-bridge.policy.in.h:1
 msgid "Administration with Cockpit Web Console"
@@ -930,14 +806,6 @@ msgstr "Vše"
 msgid "All In One"
 msgstr "Vše v jednom"
 
-#: pkg/kubernetes/views/filter-project.html:4
-msgid "All Projects"
-msgstr "Všechny projekty"
-
-#: pkg/kubernetes/views/details-page.html:6
-msgid "All Types"
-msgstr "Všechny typy"
-
 #: pkg/docker/storage.jsx:381
 msgid ""
 "All data on selected disks will be erased and disks will be added to the "
@@ -945,26 +813,6 @@ msgid ""
 msgstr ""
 "Všechna data na vybraných discích budou vymazána a disky budou přidány do "
 "fondu úložiště."
-
-#: pkg/kubernetes/views/dashboard-page.html:112
-msgid "All healthy"
-msgstr "Všechny v pořádku"
-
-#: pkg/kubernetes/views/registry-dashboard-page.html:74
-msgid "All images"
-msgstr "Všechny obrazy"
-
-#: pkg/kubernetes/views/dashboard-page.html:69
-msgid "All in use"
-msgstr "Všechny používané"
-
-#: pkg/kubernetes/views/dashboard-page.html:37
-msgid "All running"
-msgstr "Všechny spuštěné"
-
-#: pkg/ovirt/components/HostToMaintenance.jsx:36
-msgid "All running virtual machines will be turned off."
-msgstr "Všechny spuštěné virtuální stroje budou vypnuty."
 
 #: pkg/networkmanager/firewall.jsx:749
 msgid "Allowed Addresses"
@@ -983,15 +831,9 @@ msgstr "Vždy"
 msgid "Always attach"
 msgstr "Vždy připojit"
 
-#: pkg/kubernetes/views/node-body.html:57
-#: pkg/kubernetes/views/route-body.html:27
 #: node_modules/registry-image-widgets/views/annotations.html:1
 msgid "Annotations"
 msgstr "Anotace"
-
-#: pkg/kubernetes/scripts/projects.js:1044
-msgid "Anonymous: Allow all unauthenticated users to pull images"
-msgstr "Anonymní: Povolit i nepřihlášeným uživatelům stahovat obrazy"
 
 #: pkg/systemd/terminal.jsx:94
 msgid "Appearance:"
@@ -1008,8 +850,7 @@ msgstr "Aplikace"
 #: pkg/networkmanager/index.html:574 pkg/networkmanager/index.html:598
 #: pkg/networkmanager/index.html:622 pkg/networkmanager/index.html:646
 #: pkg/networkmanager/index.html:670 pkg/kdump/kdump-view.jsx:352
-#: pkg/machines/components/vcpuModal.jsx:235
-#: pkg/ovirt/components/vcpuModal.jsx:104 pkg/storaged/crypto-tab.jsx:76
+#: pkg/machines/components/vcpuModal.jsx:235 pkg/storaged/crypto-tab.jsx:76
 #: pkg/storaged/crypto-tab.jsx:105 pkg/storaged/fsys-tab.jsx:78
 #: pkg/storaged/fsys-tab.jsx:126 pkg/storaged/nfs-details.jsx:191
 msgid "Apply"
@@ -1070,9 +911,8 @@ msgstr "Záznam auditu"
 msgid "Authenticating"
 msgstr "Ověřování"
 
-#: pkg/kubernetes/views/auth-form.html:85 pkg/lib/machine-change-auth.html:32
-#: pkg/realmd/operation.html:47 pkg/shell/index.html:66
-#: pkg/shell/index.html:149
+#: pkg/lib/machine-change-auth.html:32 pkg/realmd/operation.html:47
+#: pkg/shell/index.html:66 pkg/shell/index.html:149
 msgid "Authentication"
 msgstr "Ověření"
 
@@ -1136,10 +976,6 @@ msgstr "Automatické spouštění"
 msgid "Automatic Updates"
 msgstr "Automatické aktualizace"
 
-#: pkg/ovirt/components/OVirtTab.jsx:81
-msgid "Automatically selected host"
-msgstr "Automaticky vybraný stroj"
-
 #: pkg/machines/components/libvirtSlate.jsx:90
 msgid "Automatically start libvirt on boot"
 msgstr "Spouštět libvirt automaticky při startu"
@@ -1177,10 +1013,6 @@ msgstr "Cíle dostupné na $0"
 msgid "Avatar"
 msgstr "Avatar"
 
-#: pkg/kubernetes/scripts/volumes.js:207
-msgid "Azure"
-msgstr "Azure"
-
 #: pkg/systemd/hwinfo.jsx:92
 msgid "BIOS"
 msgstr "BIOS"
@@ -1208,18 +1040,6 @@ msgstr "Data předaná mechanizmu passwd1 jsou chybná"
 #: pkg/networkmanager/index.html:333
 msgid "Balancer"
 msgstr "Rozkládání zátěže"
-
-#: pkg/ovirt/components/ClusterTemplates.jsx:135
-msgid "Base Template"
-msgstr "Základní šablona"
-
-#: pkg/ovirt/components/ClusterVms.jsx:83
-msgid "Base template"
-msgstr "Základní šablona"
-
-#: pkg/ovirt/components/OVirtTab.jsx:106 pkg/ovirt/components/OVirtTab.jsx:113
-msgid "Base template:"
-msgstr "Základní šablona:"
 
 #: pkg/systemd/init.js:729
 msgid "Before"
@@ -1262,10 +1082,6 @@ msgstr "Vazba"
 #: pkg/networkmanager/index.html:490
 msgid "Bond Settings"
 msgstr "Nastavení vazby"
-
-#: pkg/kubernetes/views/node-body.html:17
-msgid "Boot ID"
-msgstr "Identif. zavádění"
 
 #: pkg/machines/components/vm/bootOrderModal.jsx:312
 #: pkg/machines/components/vmOverviewTabLibvirt.jsx:153
@@ -1330,9 +1146,7 @@ msgid "Bus Expansion Chassis"
 msgstr "Skříň rozšíření sběrnice"
 
 #: pkg/dashboard/index.html:70 pkg/docker/index.html:270
-#: pkg/docker/containers-view.jsx:359 pkg/kubernetes/scripts/graphs.js:603
-#: pkg/kubernetes/scripts/nodes.js:711 pkg/kubernetes/scripts/nodes.js:818
-#: pkg/systemd/hwinfo.jsx:108
+#: pkg/docker/containers-view.jsx:359 pkg/systemd/hwinfo.jsx:108
 msgid "CPU"
 msgstr "Procesor"
 
@@ -1353,10 +1167,6 @@ msgstr "Stav procesoru"
 msgid "CPU Type"
 msgstr "Typ procesoru"
 
-#: pkg/kubernetes/scripts/nodes.js:712
-msgid "CPU Utilization: $0%"
-msgstr "Využití procesoru: $0%"
-
 #: pkg/docker/index.html:469 pkg/docker/index.html:641
 msgid "CPU priority"
 msgstr "Priorita procesoru"
@@ -1364,10 +1174,6 @@ msgstr "Priorita procesoru"
 #: pkg/docker/index.html:217
 msgid "CPU usage:"
 msgstr "Využití procesoru:"
-
-#: pkg/ovirt/provider.js:256
-msgid "CREATE VM action failed"
-msgstr "Akce VYTVOŘIT VIRT. STROJ se nezdařila"
 
 #: pkg/machines/components/diskAdd.jsx:235
 #: pkg/machines/components/vmDiskColumns.jsx:75
@@ -1393,51 +1199,22 @@ msgstr "Obraz se nedaří smazat"
 #: pkg/dashboard/index.html:175 pkg/docker/index.html:563
 #: pkg/docker/index.html:597 pkg/docker/index.html:661
 #: pkg/docker/index.html:715 pkg/docker/index.html:755
-#: pkg/docker/index.html:784 pkg/kubernetes/views/add-group-dialog.html:18
-#: pkg/kubernetes/views/add-member-role-dialog.html:60
-#: pkg/kubernetes/views/add-role-dialog.html:7
-#: pkg/kubernetes/views/add-user-dialog.html:26
-#: pkg/kubernetes/views/auth-form.html:128
-#: pkg/kubernetes/views/auth-rejected-cert.html:31
-#: pkg/kubernetes/views/deploy.html:61
-#: pkg/kubernetes/views/group-delete.html:20
-#: pkg/kubernetes/views/image-delete.html:7
-#: pkg/kubernetes/views/imagestream-delete.html:7
-#: pkg/kubernetes/views/imagestream-modify.html:96
-#: pkg/kubernetes/views/item-delete.html:10
-#: pkg/kubernetes/views/node-add.html:49
-#: pkg/kubernetes/views/node-delete.html:14
-#: pkg/kubernetes/views/project-delete.html:8
-#: pkg/kubernetes/views/project-modify.html:71
-#: pkg/kubernetes/views/pv-delete.html:10
-#: pkg/kubernetes/views/pv-modify.html:203
-#: pkg/kubernetes/views/pvc-delete.html:14
-#: pkg/kubernetes/views/remove-role-dialog.html:7
-#: pkg/kubernetes/views/replicationcontroller-modify.html:16
-#: pkg/kubernetes/views/route-modify.html:16
-#: pkg/kubernetes/views/service-modify.html:24
-#: pkg/kubernetes/views/user-add-membership.html:48
-#: pkg/kubernetes/views/user-delete.html:24
-#: pkg/kubernetes/views/user-group-add.html:29
-#: pkg/kubernetes/views/user-group-remove.html:9
-#: pkg/kubernetes/views/user-modify.html:26
-#: pkg/kubernetes/views/user-remove-membership.html:9
-#: pkg/lib/machine-add.html:42 pkg/lib/machine-change-auth.html:80
-#: pkg/lib/machine-change-port.html:40 pkg/lib/machine-sync-users.html:74
-#: pkg/networkmanager/index.html:477 pkg/networkmanager/index.html:501
-#: pkg/networkmanager/index.html:525 pkg/networkmanager/index.html:549
-#: pkg/networkmanager/index.html:573 pkg/networkmanager/index.html:597
-#: pkg/networkmanager/index.html:621 pkg/networkmanager/index.html:645
-#: pkg/networkmanager/index.html:669 pkg/playground/translate.html:39
-#: pkg/realmd/operation.html:81 pkg/shell/index.html:122
-#: pkg/shell/simple.html:90 pkg/shell/stub.html:105 pkg/systemd/index.html:332
+#: pkg/docker/index.html:784 pkg/lib/machine-add.html:42
+#: pkg/lib/machine-change-auth.html:80 pkg/lib/machine-change-port.html:40
+#: pkg/lib/machine-sync-users.html:74 pkg/networkmanager/index.html:477
+#: pkg/networkmanager/index.html:501 pkg/networkmanager/index.html:525
+#: pkg/networkmanager/index.html:549 pkg/networkmanager/index.html:573
+#: pkg/networkmanager/index.html:597 pkg/networkmanager/index.html:621
+#: pkg/networkmanager/index.html:645 pkg/networkmanager/index.html:669
+#: pkg/playground/translate.html:39 pkg/realmd/operation.html:81
+#: pkg/shell/index.html:122 pkg/shell/simple.html:90 pkg/systemd/index.html:332
 #: pkg/systemd/index.html:419 pkg/systemd/index.html:471
 #: pkg/systemd/index.html:487 pkg/systemd/services.html:522
 #: pkg/users/index.html:198 pkg/users/index.html:237 pkg/users/index.html:276
 #: pkg/users/index.html:315 pkg/users/index.html:332 pkg/users/index.html:356
 #: pkg/users/index.html:413 pkg/apps/utils.jsx:86
 #: pkg/lib/cockpit-components-dialog.jsx:159
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:654
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:719
 #: pkg/machines/components/deleteDialog.jsx:158
 #: pkg/machines/components/diskAdd.jsx:531
 #: pkg/machines/components/nicEdit.jsx:296
@@ -1447,10 +1224,7 @@ msgstr "Obraz se nedaří smazat"
 #: pkg/machines/components/vm/bootOrderModal.jsx:327
 #: pkg/machines/components/vm/memoryModal.jsx:214
 #: pkg/networkmanager/firewall.jsx:558 pkg/networkmanager/firewall.jsx:626
-#: pkg/networkmanager/firewall.jsx:769
-#: pkg/ovirt/components/ClusterTemplates.jsx:75
-#: pkg/ovirt/components/OVirtTab.jsx:66 pkg/ovirt/components/VdsmView.jsx:97
-#: pkg/ovirt/components/VdsmView.jsx:111 pkg/packagekit/updates.jsx:179
+#: pkg/networkmanager/firewall.jsx:769 pkg/packagekit/updates.jsx:179
 #: pkg/sosreport/index.js:51 pkg/storaged/dialog.jsx:393
 #: pkg/storaged/jobs-panel.jsx:123 pkg/systemd/hwinfo.jsx:216
 msgid "Cancel"
@@ -1459,10 +1233,6 @@ msgstr "Storno"
 #: pkg/shell/indexes.js:416
 msgid "Cannot connect to an unknown machine"
 msgstr "Nelze se připojit k neznámému stroji"
-
-#: src/ws/cockpitcertificate.c:483
-msgid "Cannot decrypt PEM-encoded private key"
-msgstr "Nedaří rozšifrovat PEM kódovaný privátní klíč"
 
 #: src/base1/cockpit.js:4031
 msgid "Cannot forward login credentials"
@@ -1473,8 +1243,6 @@ msgid "Cannot schedule event in the past"
 msgstr "Nelze naplánovat událost v minulosti"
 
 # auto translated by TM merge from project: anaconda, version: f25, DocId: main
-#: pkg/kubernetes/views/node-page.html:17 pkg/kubernetes/views/pv-body.html:13
-#: pkg/kubernetes/views/pv-modify.html:44 pkg/kubernetes/views/pvc-body.html:32
 #: pkg/machines/components/vmDisksTab.jsx:70
 msgid "Capacity"
 msgstr "Kapacita"
@@ -1483,18 +1251,7 @@ msgstr "Kapacita"
 msgid "Carrier"
 msgstr "Nosný signál"
 
-#: pkg/kubernetes/scripts/volumes.js:203
-msgid "Ceph Filesystem Mount"
-msgstr "Připojení souborového systému Ceph"
-
-#: pkg/kubernetes/views/volume-body.html:97
-msgid "Ceph Monitors"
-msgstr "Ceph monitory"
-
-#: pkg/docker/index.html:662 pkg/kubernetes/views/project-modify.html:74
-#: pkg/kubernetes/views/pv-modify.html:205
-#: pkg/kubernetes/views/replicationcontroller-modify.html:17
-#: pkg/kubernetes/views/route-modify.html:17 pkg/systemd/index.html:333
+#: pkg/docker/index.html:662 pkg/systemd/index.html:333
 #: pkg/systemd/index.html:420 pkg/users/index.html:277 pkg/users/index.html:316
 #: pkg/storaged/iscsi-panel.jsx:181
 msgid "Change"
@@ -1520,25 +1277,13 @@ msgstr "Změnit profil"
 msgid "Change System Time"
 msgstr "Změnit systémový čas"
 
-#: pkg/kubernetes/views/user-modify.html:3
-msgid "Change User"
-msgstr "Změnit uživatele"
-
 #: pkg/storaged/iscsi-panel.jsx:176
 msgid "Change iSCSI Initiator Name"
 msgstr "Změnit název iSCSI iniciátoru"
 
-#: pkg/kubernetes/views/imagestream-modify.html:4
-msgid "Change image stream"
-msgstr "Změnit proud obrazů"
-
 #: pkg/storaged/crypto-keyslots.jsx:247
 msgid "Change passphrase"
 msgstr "Změnit heslovou frázi"
-
-#: pkg/kubernetes/views/project-modify.html:10
-msgid "Change project"
-msgstr "Změnit projekt"
 
 #: pkg/docker/index.html:228
 msgid "Change resource limits"
@@ -1603,25 +1348,13 @@ msgstr "Zjišťování případných aktualizací…"
 msgid "Checking installed software"
 msgstr "Zjišťuje se nainstalovaný sofware"
 
-#: pkg/shell/index.html:117 pkg/shell/simple.html:85 pkg/shell/stub.html:100
+#: pkg/shell/index.html:117 pkg/shell/simple.html:85
 msgid "Choose the language to be used in the application"
 msgstr "Vyberte jazyk aplikace"
 
 #: pkg/storaged/mdraids-panel.jsx:57
 msgid "Chunk Size"
 msgstr "Velikost bloku"
-
-#: pkg/kubernetes/scripts/volumes.js:202
-msgid "Cinder"
-msgstr "Cinder"
-
-#: pkg/kubernetes/views/pv-page.html:16 pkg/kubernetes/views/pv-panel.html:13
-msgid "Claim"
-msgstr "Nárok"
-
-#: pkg/kubernetes/views/pvc-body.html:4
-msgid "Claim Name"
-msgstr "Název nároku"
 
 # auto translated by TM merge from project: libosinfo, version: master, DocId: libosinfo
 #: pkg/systemd/hwinfo.jsx:249
@@ -1647,10 +1380,6 @@ msgstr ""
 "Kliknutím na „Spustit vzdálený prohlížeč“ se stáhne soubor ve formátu .vv a "
 "spustí se $0."
 
-#: pkg/kubernetes/views/auth-form.html:88
-msgid "Client Certificate"
-msgstr "Klientský certifikát"
-
 #: pkg/realmd/operation.html:20
 msgid "Client Software"
 msgstr "Klientský software"
@@ -1661,30 +1390,16 @@ msgstr "Klientský software"
 #: pkg/lib/machine-not-supported.html:8 pkg/lib/machine-unknown-hostkey.html:19
 #: pkg/networkmanager/index.html:688 pkg/shell/index.html:96
 #: pkg/shell/index.html:139 pkg/shell/index.html:323 pkg/shell/simple.html:72
-#: pkg/shell/stub.html:79 pkg/shell/stub.html:122 pkg/systemd/index.html:278
-#: pkg/systemd/services.html:363 pkg/systemd/services.html:381
-#: pkg/users/index.html:45 pkg/apps/utils.jsx:108 pkg/sosreport/index.js:45
-#: pkg/sosreport/index.js:127 pkg/storaged/dialog.jsx:393
+#: pkg/systemd/index.html:278 pkg/systemd/services.html:363
+#: pkg/systemd/services.html:381 pkg/users/index.html:45 pkg/apps/utils.jsx:108
+#: pkg/sosreport/index.js:45 pkg/sosreport/index.js:127
+#: pkg/storaged/dialog.jsx:393
 msgid "Close"
 msgstr "Zavřít"
 
 #: pkg/shell/active-pages.js:103
 msgid "Close Selected Pages"
 msgstr "Zavřít vybrané stránky"
-
-# auto translated by TM merge from project: Fedora Release Notes, version: f23, DocId: pot/Cluster
-#: pkg/kubernetes/index.html:37 pkg/kubernetes/views/auth-form.html:5
-#: pkg/ovirt/components/App.jsx:107
-msgid "Cluster"
-msgstr "Cluster"
-
-#: pkg/ovirt/components/ClusterTemplates.jsx:128
-msgid "Cluster Templates"
-msgstr "Šablony clusterů"
-
-#: pkg/ovirt/components/ClusterVms.jsx:174
-msgid "Cluster Virtual Machines"
-msgstr "Cluster virtuálních strojů"
 
 #: src/ws/login.js:346
 msgid "Cockpit authentication is configured incorrectly."
@@ -1727,7 +1442,7 @@ msgstr ""
 "zastavena v terminálu. Podobně, pokud dojde k chybě v terminálu, je toto "
 "vidět v rozhraní žurnálu v Cockpit."
 
-#: pkg/shell/index.html:85 pkg/shell/simple.html:61 pkg/shell/stub.html:68
+#: pkg/shell/index.html:85 pkg/shell/simple.html:61
 msgid "Cockpit is an interactive Linux server admin interface."
 msgstr "Cockpit je interaktivní rozhraní pro správu linuxového serveru."
 
@@ -1885,23 +1600,10 @@ msgstr "Podmínka $0=$1 nebyla splněna"
 msgid "Condition failed"
 msgstr "Podmínka nebyla úspěšná"
 
-# auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId: po/ipa
-#: pkg/kubernetes/views/node-add.html:24
-msgid "Configuration"
-msgstr "Nastavení"
-
 # auto translated by TM merge from project: system-config-printer, version: master, DocId: system-config-printer
 #: pkg/networkmanager/interfaces.js:2725
 msgid "Configure"
 msgstr "Nastavit"
-
-#: pkg/kubernetes/views/node-add.html:42
-msgid "Configure Flannel networking"
-msgstr "Nastavit síť Flannel"
-
-#: pkg/kubernetes/views/node-add.html:32
-msgid "Configure Kubelet and Proxy"
-msgstr "Nastavit Kubelet a proxy"
 
 #: pkg/docker/storage.jsx:331
 msgid "Configure storage..."
@@ -1925,21 +1627,9 @@ msgstr "Potvrdit"
 msgid "Confirm New Password"
 msgstr "Potvrdit nové heslo"
 
-#: pkg/ovirt/components/OVirtTab.jsx:65
-msgid "Confirm migration"
-msgstr "Potvrdit migraci"
-
-#: pkg/ovirt/components/VdsmView.jsx:95
-msgid "Confirm reload:"
-msgstr "Potvrdit opětovné načtení:"
-
 #: pkg/storaged/crypto-keyslots.jsx:364
 msgid "Confirm removal with passphrase"
 msgstr "Potvrdit odebrání pomocí heslové fráze"
-
-#: pkg/ovirt/components/VdsmView.jsx:108
-msgid "Confirm save:"
-msgstr "Potvrdit uložení:"
 
 #: pkg/systemd/init.js:728
 msgid "Conflicted By"
@@ -1950,8 +1640,6 @@ msgid "Conflicts"
 msgstr "Konflikty"
 
 # auto translated by TM merge from project: system-config-printer, version: master, DocId: system-config-printer
-#: pkg/kubernetes/views/auth-form.html:130
-#: pkg/kubernetes/views/auth-rejected-cert.html:33
 #: pkg/lib/machine-unknown-hostkey.html:22
 msgid "Connect"
 msgstr "Připojit"
@@ -1964,10 +1652,6 @@ msgstr "Připojit se automaticky"
 msgid "Connect to"
 msgstr "Připojit se k"
 
-#: pkg/ovirt/components/InstallationDialog.jsx:102
-msgid "Connect to oVirt Engine"
-msgstr "Připojit k oVirt Engine"
-
 #: pkg/machines/components/desktopConsole.jsx:188
 msgid "Connect with any $0 viewer application."
 msgstr "Připojte se libovolnou aplikací pro zobrazování $0."
@@ -1976,7 +1660,7 @@ msgstr "Připojte se libovolnou aplikací pro zobrazování $0."
 msgid "Connect with any SPICE or VNC viewer application."
 msgstr "Připojte se libovolnou aplikací pro zobrazování SPICE nebo VNC."
 
-#: pkg/machines/components/vnc.jsx:107
+#: pkg/machines/components/vnc.jsx:106
 msgid "Connecting"
 msgstr "Připojování"
 
@@ -2001,13 +1685,8 @@ msgstr "Připojuje se ke službě virtualizace"
 msgid "Connecting to the machine"
 msgstr "Připojování ke stroji"
 
-# auto translated by TM merge from project: anaconda, version: f25, DocId: main
-#: pkg/kubernetes/index.html:104 pkg/kubernetes/registry.html:71
-msgid "Connecting..."
-msgstr "Připojování…"
-
 # auto translated by TM merge from project: system-config-printer, version: master, DocId: system-config-printer
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:573
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:637
 #: pkg/machines/components/networks/networkList.jsx:47
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:40
 #: pkg/machines/components/storagePools/storagePoolList.jsx:49
@@ -2015,17 +1694,9 @@ msgstr "Připojování…"
 msgid "Connection"
 msgstr "Spojení"
 
-#: pkg/kubernetes/views/auth-dialog.html:4 pkg/dashboard/list.js:406
+#: pkg/dashboard/list.js:406
 msgid "Connection Error"
 msgstr "Chyba připojení"
-
-#: pkg/kubernetes/scripts/connection.js:512
-msgid "Connection Error: $0"
-msgstr "Chyba připojení: $0"
-
-#: pkg/kubernetes/views/auth-dialog.html:3
-msgid "Connection Settings"
-msgstr "Nastavení připojení"
 
 #: src/base1/cockpit.js:4027
 msgid "Connection has timed out."
@@ -2051,10 +1722,7 @@ msgstr "Konzole"
 msgid "Contacted domain"
 msgstr "Připojená doména"
 
-#: pkg/docker/console.html:4 pkg/kubernetes/views/container-body.html:4
-#: pkg/kubernetes/views/container-page-inline.html:2
-#: pkg/kubernetes/views/container-panel.html:4
-#: pkg/kubernetes/views/image-page.html:23
+#: pkg/docker/console.html:4
 #: node_modules/registry-image-widgets/views/image-panel.html:12
 msgid "Container"
 msgstr "Kontejner"
@@ -2063,18 +1731,10 @@ msgstr "Kontejner"
 msgid "Container Administrator"
 msgstr "Správce kontejneru"
 
-#: pkg/kubernetes/views/container-body.html:10
-msgid "Container ID"
-msgstr "Identif. kontejneru"
-
 #: pkg/docker/index.html:438 pkg/docker/index.html:618
 #: pkg/docker/index.html:682
 msgid "Container Name"
 msgstr "Název kontejneru"
-
-#: pkg/kubernetes/views/node-body.html:21
-msgid "Container Runtime Version"
-msgstr "Verze běhového prostředí kontejneru"
 
 #: pkg/docker/util.js:506
 msgid ""
@@ -2092,10 +1752,7 @@ msgstr "Kontejner:"
 
 # auto translated by TM merge from project: Fedora Release Notes, version: f24, DocId: pot/Containers
 #: pkg/docker/index.html:23 pkg/docker/index.html:287
-#: pkg/kubernetes/index.html:55 pkg/kubernetes/views/containers-listing.html:5
-#: pkg/kubernetes/views/dashboard-page.html:158
-#: pkg/kubernetes/views/dashboard-page.html:199
-#: pkg/kubernetes/views/pod-page.html:36 pkg/docker/containers-view.jsx:375
+#: pkg/docker/containers-view.jsx:375
 msgid "Containers"
 msgstr "Kontejnery"
 
@@ -2111,12 +1768,12 @@ msgid "Content"
 msgstr "Obsah"
 
 #: src/base1/test-locale.js:42 src/base1/test-locale.js:53
-#: pkg/playground/translate.js:22
+#: pkg/playground/translate.js:20
 msgid "Control"
 msgstr "Ovládání"
 
 #: src/base1/test-locale.js:43 src/base1/test-locale.js:55
-#: pkg/playground/translate.js:25
+#: pkg/playground/translate.js:23
 msgctxt "key"
 msgid "Control"
 msgstr "Ovládání"
@@ -2130,7 +1787,6 @@ msgid "Copy"
 msgstr "Zkopírovat"
 
 #: pkg/machines/components/vcpuModal.jsx:209
-#: pkg/ovirt/components/vcpuModal.jsx:67
 msgid "Cores per socket"
 msgstr "Jader na patici"
 
@@ -2141,18 +1797,6 @@ msgstr "Nedaří se přidat všechny disky"
 #: pkg/lib/machine-change-port.html:4
 msgid "Could not contact {{host}}"
 msgstr "Nedaří se kontaktovat {{host}}"
-
-#: pkg/kubernetes/views/dashboard-page.html:142
-msgid "Could not list services"
-msgstr "Služby se nedaří vypsat"
-
-#: src/ws/cockpitcertificate.c:531
-msgid "Could not parse PEM-encoded certificate"
-msgstr "Nedaří se zpracovat certifikát kódovaný PEM"
-
-#: src/ws/cockpitcertificate.c:498
-msgid "Could not parse PEM-encoded private key"
-msgstr "Nedaří se zpracovat soukromý klíč kódovaný PEM"
 
 #: pkg/docker/storage.jsx:468
 msgid "Could not reset the storage pool"
@@ -2166,10 +1810,6 @@ msgstr "Nedaří se změnit skupiny uživatele"
 msgid "Couldn't change user password"
 msgstr "Nedaří se změnit heslo uživatele"
 
-#: pkg/kubernetes/index.html:105 pkg/kubernetes/registry.html:72
-msgid "Couldn't connect to server"
-msgstr "Nedaří se připojit k serveru"
-
 #: pkg/shell/indexes.js:414
 msgid "Couldn't connect to the machine"
 msgstr "Nedaří se připojit ke stroji"
@@ -2177,11 +1817,6 @@ msgstr "Nedaří se připojit ke stroji"
 #: src/bridge/cockpitdbussetup.c:544
 msgid "Couldn't create new users"
 msgstr "Nedaří se vytvořit nové uživatele"
-
-#: pkg/kubernetes/scripts/connection.js:510
-#: pkg/kubernetes/scripts/kube-client-cockpit.js:957
-msgid "Couldn't find running API server"
-msgstr "Nedaří se nalézt spuštěný server aplikačního programového rozhraní"
 
 #: pkg/subscriptions/subscriptions-view.jsx:218
 msgid ""
@@ -2211,11 +1846,9 @@ msgstr "Umístění výpisu paměti pádu"
 msgid "Crash system"
 msgstr "Zhavarovat systém"
 
-#: pkg/kubernetes/views/add-group-dialog.html:19
-#: pkg/kubernetes/views/project-modify.html:72 pkg/users/index.html:199
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:657
+#: pkg/users/index.html:199
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:722
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:488
-#: pkg/ovirt/components/ClusterTemplates.jsx:76
 #: pkg/storaged/content-views.jsx:123 pkg/storaged/content-views.jsx:689
 #: pkg/storaged/lvol-tabs.jsx:352 pkg/storaged/mdraids-panel.jsx:86
 #: pkg/storaged/vdos-panel.jsx:105 pkg/storaged/vgroups-panel.jsx:69
@@ -2233,10 +1866,6 @@ msgstr "Vytvořit nový"
 #: pkg/users/index.html:52 pkg/users/index.html:163
 msgid "Create New Account"
 msgstr "Vytvořit nový účet"
-
-#: pkg/ovirt/components/App.jsx:162
-msgid "Create New VM"
-msgstr "Vytvořit nový virt. stroj"
 
 # auto translated by TM merge from project: anaconda, version: rhel6-branch, DocId: anaconda
 #: pkg/storaged/content-views.jsx:434 pkg/storaged/format-dialog.jsx:323
@@ -2283,8 +1912,7 @@ msgstr "Vytvořit časovače"
 msgid "Create VDO Device"
 msgstr "Vytvořit VDO zařízení"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:690
-#: pkg/ovirt/components/ClusterTemplates.jsx:81
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:755
 msgid "Create VM"
 msgstr "Vytvořit virt. stroj"
 
@@ -2296,14 +1924,6 @@ msgstr "Vytvořit skupinu svazků"
 msgid "Create diagnostic report"
 msgstr "Vytvořit diagnostické hlášení"
 
-#: pkg/kubernetes/scripts/images.js:643
-msgid "Create empty image stream"
-msgstr "Vytvořit prázdný proud obrazů"
-
-#: pkg/kubernetes/views/imagestream-modify.html:3
-msgid "Create image stream"
-msgstr "Vytvořit proud obrazů"
-
 #: pkg/networkmanager/interfaces.js:3822 pkg/networkmanager/interfaces.js:4021
 #: pkg/networkmanager/interfaces.js:4275 pkg/networkmanager/interfaces.js:4480
 msgid "Create it"
@@ -2313,12 +1933,8 @@ msgstr "Vytvořit to"
 msgid "Create new Logical Volume"
 msgstr "Vytvořit nový logický svazek"
 
-#: pkg/kubernetes/views/deploymentconfig-body.html:7
-#: pkg/kubernetes/views/node-body.html:3 pkg/kubernetes/views/pod-body.html:7
-#: pkg/kubernetes/views/replicationcontroller-body.html:7
-#: pkg/kubernetes/views/route-body.html:7
-#: pkg/kubernetes/views/service-body.html:7 pkg/docker/containers-view.jsx:129
-#: pkg/docker/containers-view.jsx:412 pkg/docker/containers-view.jsx:683
+#: pkg/docker/containers-view.jsx:129 pkg/docker/containers-view.jsx:412
+#: pkg/docker/containers-view.jsx:683
 msgid "Created"
 msgstr "Vytvořeno"
 
@@ -2382,7 +1998,7 @@ msgstr ""
 msgid "Creating volume group $target"
 msgstr "Vytváření skupiny svazků $target"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:559
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:623
 msgid "Creation of VM $0 failed"
 msgstr "Vytvoření virt. stroje $0 se nezdařilo"
 
@@ -2390,7 +2006,7 @@ msgstr "Vytvoření virt. stroje $0 se nezdařilo"
 msgid "Critical and above"
 msgstr "Kritické a závažnější"
 
-#: pkg/machines/components/vnc.jsx:110
+#: pkg/machines/components/vnc.jsx:109
 msgid "Ctrl+Alt+Del"
 msgstr "Ctrl+Alt+Del"
 
@@ -2449,10 +2065,6 @@ msgstr "DNS"
 msgid "DNS $val"
 msgstr "DNS $val"
 
-#: pkg/kubernetes/views/pod-body.html:14
-msgid "DNS Policy"
-msgstr "DNS zásada"
-
 #: pkg/networkmanager/interfaces.js:3320
 msgid "DNS Search Domains"
 msgstr "DNS prohledávané domény"
@@ -2474,7 +2086,7 @@ msgid "Data Used"
 msgstr "Využito dat"
 
 #: pkg/machines/components/networks/network.jsx:143
-#: pkg/machines/components/storagePools/storagePool.jsx:163
+#: pkg/machines/components/storagePools/storagePool.jsx:165
 #: pkg/storaged/content-views.jsx:254
 msgid "Deactivate"
 msgstr "Deaktivovat"
@@ -2509,18 +2121,9 @@ msgstr "Prodleva"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId: po/ipa
 #: pkg/docker/index.html:136 pkg/docker/index.html:246
-#: pkg/kubernetes/views/image-delete.html:8
-#: pkg/kubernetes/views/imagestream-delete.html:8
-#: pkg/kubernetes/views/item-delete.html:11
-#: pkg/kubernetes/views/node-delete.html:15
-#: pkg/kubernetes/views/project-delete.html:9
-#: pkg/kubernetes/views/pv-delete.html:11
-#: pkg/kubernetes/views/pvc-delete.html:15
-#: pkg/kubernetes/views/user-remove-membership.html:10
 #: pkg/networkmanager/index.html:433 pkg/users/index.html:79
 #: pkg/users/index.html:357 pkg/docker/containers-view.jsx:202
 #: pkg/docker/details.js:292 pkg/docker/util.js:641
-#: pkg/kubernetes/scripts/volumes.js:218
 #: pkg/machines/components/deleteDialog.jsx:145
 #: pkg/machines/components/deleteDialog.jsx:161
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:114
@@ -2536,10 +2139,6 @@ msgstr "Smazat"
 msgid "Delete $0"
 msgstr "Smazat $0"
 
-#: pkg/playground/translate.html:189
-msgid "Delete '{{ name }}'"
-msgstr "Smazat „{{ name }}“"
-
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:97
 msgid "Delete Content"
 msgstr "Smazat obsah"
@@ -2547,26 +2146,6 @@ msgstr "Smazat obsah"
 #: pkg/users/index.html:351
 msgid "Delete Files"
 msgstr "Smazat soubory"
-
-#: pkg/kubernetes/views/node-delete.html:4
-msgid "Delete Node"
-msgstr "Smazat uzel"
-
-#: pkg/kubernetes/views/pv-delete.html:3
-msgid "Delete Persistent Volume"
-msgstr "Smazat trvalý svazek"
-
-#: pkg/kubernetes/views/pvc-delete.html:3
-msgid "Delete Persistent Volume Claim"
-msgstr "Smazat nárok na trvalý svazek"
-
-#: pkg/kubernetes/views/project-delete.html:3
-msgid "Delete Project"
-msgstr "Smazat projekt"
-
-#: pkg/kubernetes/views/nodes-page.html:3
-msgid "Delete Selected"
-msgstr "Smazat označené"
 
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:120
 msgid "Delete Storage Pool $0"
@@ -2576,17 +2155,9 @@ msgstr "Smazat fond úložiště $0"
 msgid "Delete associated storage files:"
 msgstr "Smazat související soubory úložiště:"
 
-#: pkg/kubernetes/views/imagestream-delete.html:3
-msgid "Delete image stream"
-msgstr "Smazat proud obrazů"
-
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:104
 msgid "Delete the Volumes inside this Pool"
 msgstr "Smazat svazek v tomto fondu"
-
-#: pkg/kubernetes/views/item-delete.html:3
-msgid "Delete {{ item.kind }}"
-msgstr "Smazat {{ item.kind }}"
 
 #: pkg/storaged/jobs-panel.jsx:53 pkg/storaged/jobs-panel.jsx:67
 msgid "Deleting $target"
@@ -2599,14 +2170,6 @@ msgid ""
 msgstr ""
 "Smazání <b>$0</b> přeruší spojení se serverem a znepřístupní tak rozhraní "
 "pro jeho správu."
-
-#: pkg/kubernetes/views/item-delete.html:7
-msgid ""
-"Deleting a Pod will kill all associated containers. Pods may be "
-"automatically created again in some cases."
-msgstr ""
-"Smazání podu vynuceně ukončí všechny související kontejnery. Pody mohou být "
-"v některých případech znovu vytvořeny."
 
 #: pkg/storaged/mdraid-details.jsx:301
 msgid "Deleting a RAID device will erase all data on it."
@@ -2644,46 +2207,12 @@ msgstr ""
 msgid "Deleting volume group $target"
 msgstr "Maže se skupina svazků $target"
 
-#: pkg/kubernetes/views/dashboard-page.html:131
-#: pkg/kubernetes/views/deploy.html:62
-msgid "Deploy"
-msgstr "Nasadit"
-
-#: pkg/kubernetes/views/deploy.html:3
-msgid "Deploy Application"
-msgstr "Nasadit aplikaci"
-
-#: pkg/kubernetes/views/deploymentconfig-body.html:22
-msgid "Deployment Causes"
-msgstr "Nasazení způsobí"
-
-#: pkg/kubernetes/views/deploymentconfig-page.html:12
-#: pkg/kubernetes/views/deploymentconfig-panel.html:8
-msgid "Deployment Config"
-msgstr "Nastavení nasazení"
-
-#: pkg/kubernetes/views/details-page.html:98
-#: pkg/kubernetes/scripts/details.js:220
-msgid "Deployment Configs"
-msgstr "Nastavení nasazení"
-
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId: po/ipa
-#: pkg/kubernetes/views/project-listing.html:15
-#: pkg/kubernetes/views/project-listing.html:54
-#: pkg/kubernetes/views/project-modify.html:40 pkg/systemd/services.html:413
+#: pkg/systemd/services.html:413
 #: node_modules/registry-image-widgets/views/image-body.html:6
-#: pkg/networkmanager/firewall.jsx:725
-#: pkg/ovirt/components/ClusterTemplates.jsx:135
-#: pkg/ovirt/components/ClusterVms.jsx:83
-#: pkg/ovirt/components/ClusterVms.jsx:181 pkg/systemd/init.js:280
+#: pkg/networkmanager/firewall.jsx:725 pkg/systemd/init.js:280
 msgid "Description"
 msgstr "Popis"
-
-# auto translated by TM merge from project: firewalld, version: master, DocId: po/firewalld
-#: pkg/ovirt/components/OVirtTab.jsx:146
-#: pkg/ovirt/components/VmOverviewColumn.jsx:52
-msgid "Description:"
-msgstr "Popis:"
 
 # auto translated by TM merge from project: Fedora Websites, version: arm.fedoraproject.org, DocId: po/arm.fedoraproject.org
 #: pkg/lib/machine-info.js:66
@@ -2695,11 +2224,11 @@ msgid "Detachable"
 msgstr "Odpojitelné"
 
 # auto translated by TM merge from project: blivet-gui, version: master, DocId: po/blivet-gui
-#: pkg/kubernetes/index.html:67 pkg/shell/index.html:229
-#: pkg/docker/containers-view.jsx:336 pkg/docker/containers-view.jsx:504
-#: pkg/docker/containers-view.jsx:514 pkg/docker/containers-view.jsx:642
-#: pkg/networkmanager/firewall.jsx:94 pkg/packagekit/updates.jsx:383
-#: pkg/subscriptions/subscriptions-view.jsx:232 pkg/systemd/host.js:745
+#: pkg/shell/index.html:229 pkg/docker/containers-view.jsx:336
+#: pkg/docker/containers-view.jsx:504 pkg/docker/containers-view.jsx:514
+#: pkg/docker/containers-view.jsx:642 pkg/networkmanager/firewall.jsx:94
+#: pkg/packagekit/updates.jsx:383 pkg/subscriptions/subscriptions-view.jsx:232
+#: pkg/systemd/host.js:745
 msgid "Details"
 msgstr "Podrobnosti"
 
@@ -2728,7 +2257,6 @@ msgid "Digest"
 msgstr "Otisk"
 
 # auto translated by TM merge from project: usermode, version: default, DocId: usermode
-#: pkg/kubernetes/views/volume-body.html:28
 #: node_modules/registry-image-widgets/views/image-config.html:11
 #: pkg/kdump/kdump-view.jsx:86 pkg/kdump/kdump-view.jsx:126
 msgid "Directory"
@@ -2760,7 +2288,7 @@ msgstr "Vypnuto"
 msgid "Disconnect"
 msgstr "Odpojit"
 
-#: pkg/shell/simple.html:101 pkg/machines/components/vnc.jsx:108
+#: pkg/shell/simple.html:101 pkg/machines/components/vnc.jsx:107
 #: pkg/shell/indexes.js:149 pkg/shell/indexes.js:604
 msgid "Disconnected"
 msgstr "Odpojeno"
@@ -2770,7 +2298,6 @@ msgid "Disconnected from serial console. Click the Reconnect button."
 msgstr "Odpojeno od sériové konzole. Klikněte na tlačítko Znovu připojit"
 
 # auto translated by TM merge from project: anaconda, version: f25, DocId: main
-#: pkg/kubernetes/scripts/nodes.js:719 pkg/kubernetes/scripts/nodes.js:836
 #: pkg/storaged/vdos-panel.jsx:55
 msgid "Disk"
 msgstr "Disk"
@@ -2783,10 +2310,6 @@ msgstr "Disk $0 se nepodařilo odpojit od virt. stroje $1"
 #: pkg/dashboard/index.html:73 pkg/systemd/host.js:549
 msgid "Disk I/O"
 msgstr "Diskový vst/výst."
-
-#: pkg/kubernetes/scripts/nodes.js:720
-msgid "Disk Utilization: $0%"
-msgstr "Využití disku: $0%"
 
 #: pkg/machines/components/diskAdd.jsx:461
 msgid "Disk failed to be attached"
@@ -2816,58 +2339,9 @@ msgid "Disks cannot be removed from $0 VMs"
 msgstr "Disky není možné odebrat z $0 virt. strojů"
 
 #: pkg/shell/index.html:52 pkg/shell/index.html:114 pkg/shell/simple.html:38
-#: pkg/shell/simple.html:82 pkg/shell/stub.html:42 pkg/shell/stub.html:97
+#: pkg/shell/simple.html:82
 msgid "Display Language"
 msgstr "Jazyk zobrazení"
-
-#: pkg/kubernetes/views/project-modify.html:31
-msgid "Display name"
-msgstr "Zobrazovaný název"
-
-#: pkg/kubernetes/views/add-role-dialog.html:5
-msgid "Do you want to add the role '{{ fields.displayRole }}'?"
-msgstr "Opravdu chcete přidat roli „{{ fields.displayRole }}“?"
-
-#: pkg/kubernetes/views/imagestream-delete.html:5
-msgid ""
-"Do you want to delete the '{{stream.metadata.namespace}}/{{stream.metadata."
-"name}}' image stream?"
-msgstr ""
-"Opravdu chcete smazat „{{stream.metadata.namespace}}/{{stream.metadata."
-"name}}“ proud obrazů?"
-
-#: pkg/kubernetes/views/pv-delete.html:6
-msgid "Do you want to delete the Persistent Volume '{{item.metadata.name}}'?"
-msgstr "Opravdu chcete smazat trvalý svazek „{{item.metadata.name}}“?"
-
-#: pkg/kubernetes/views/pvc-delete.html:6
-msgid ""
-"Do you want to delete the Persistent Volume Claim '{{item.metadata.name}}'?"
-msgstr "Opravdu chcete smazat nárok trvalého svazku „{{item.metadata.name}}'?"
-
-#: pkg/kubernetes/views/item-delete.html:6
-msgid "Do you want to delete the {{ item.kind }} '{{item.metadata.name}}'?"
-msgstr "Chcete smazat {{ item.kind }} „{{item.metadata.name}}“?"
-
-#: pkg/kubernetes/views/node-delete.html:7
-msgid "Do you want to delete this Node?"
-msgstr "Opravdu chcete tento uzel smazat?"
-
-#: pkg/kubernetes/views/image-delete.html:5
-msgid ""
-"Do you want to remove the image tagged as '{{stream.metadata.namespace}}/"
-"{{stream.metadata.name}}:{{tag.tag}}'?"
-msgstr ""
-"Opravdu chcete odebrat obraz opatřený štítkem „{{stream.metadata.namespace}}/"
-"{{stream.metadata.name}}:{{tag.tag}}“?"
-
-#: pkg/kubernetes/views/remove-role-dialog.html:5
-msgid ""
-"Do you want to remove the role '{{ fields.displayRole }}' from member {{ "
-"fields.member.metadata.name }}?"
-msgstr ""
-"Opravdu chcete odebrat členovi {{ fields.member.metadata.name }} roli „{{ "
-"fields.displayRole }}“?"
 
 #: node_modules/registry-image-widgets/views/image-meta.html:10
 msgid "Docker Version"
@@ -2915,10 +2389,6 @@ msgstr "Neopakovat"
 msgid "Don't overwrite existing data"
 msgstr "Nepřepisovat existující data"
 
-#: pkg/kubernetes/scripts/images.js:633
-msgid "Don't pull images automatically"
-msgstr "Nestahovat obrazy automaticky"
-
 # auto translated by TM merge from project: appstream-glib, version: master, DocId: appstream-glib
 #: pkg/sosreport/index.html:63
 msgid "Done!"
@@ -2965,11 +2435,6 @@ msgctxt "storage"
 msgid "Drive"
 msgstr "Jednotka"
 
-# auto translated by TM merge from project: udisks, version: udisks, DocId: udisks2
-#: pkg/kubernetes/views/volume-body.html:128
-msgid "Driver"
-msgstr "Ovladač"
-
 #: pkg/storaged/drives-panel.jsx:119
 msgid "Drives"
 msgstr "Jednotky"
@@ -3000,10 +2465,6 @@ msgstr "Upravit Tang server s klíči"
 msgid "Edit image stream"
 msgstr "Upravit proud obrazů"
 
-#: pkg/ovirt/components/VdsmView.jsx:125
-msgid "Edit the vdsm.conf"
-msgstr "Upravit vdsm.conf"
-
 #: pkg/storaged/crypto-keyslots.jsx:535
 msgid "Editing a key requires a free slot"
 msgstr "K upravení klíče je zapotřebí volného slotu"
@@ -3018,20 +2479,16 @@ msgstr "Jednodeskový počítač"
 
 # auto translated by TM merge from project: anaconda, version: f25, DocId: main
 #: pkg/playground/translate.html:57 src/base1/test-locale.js:44
-#: src/base1/test-locale.js:54 pkg/playground/translate.js:13
+#: src/base1/test-locale.js:54 pkg/playground/translate.js:11
 msgid "Empty"
 msgstr "Prázdný"
 
 # auto translated by TM merge from project: udisks, version: udisks, DocId: udisks2
 #: pkg/playground/translate.html:62 src/base1/test-locale.js:45
-#: src/base1/test-locale.js:56 pkg/playground/translate.js:19
+#: src/base1/test-locale.js:56 pkg/playground/translate.js:17
 msgctxt "verb"
 msgid "Empty"
 msgstr "Prázdný"
-
-#: pkg/kubernetes/scripts/volumes.js:196
-msgid "Empty Directory"
-msgstr "Prázdná složka"
 
 #: pkg/storaged/jobs-panel.jsx:75
 msgid "Emptying $target"
@@ -3099,19 +2556,6 @@ msgstr "Šifrování"
 msgid "Encryption Options"
 msgstr "Volby šifrování"
 
-#: pkg/kubernetes/views/pv-modify.html:93
-msgid "Endpoint"
-msgstr "Koncový bod"
-
-#: pkg/kubernetes/views/volume-body.html:40
-msgid "Endpoint Name"
-msgstr "Název koncového bodu"
-
-#: pkg/kubernetes/views/service-page.html:14
-#: pkg/kubernetes/views/service-panel.html:9
-msgid "Endpoints"
-msgstr "Koncové body"
-
 #: pkg/subscriptions/subscriptions-view.jsx:39
 msgid "Ends"
 msgstr "Končí"
@@ -3127,10 +2571,6 @@ msgstr "Jsou k dispozici vylepšující aktualizace"
 #: pkg/lib/machine-dialogs.js:445
 msgid "Enter IP address or host name"
 msgstr "Zadejte IP adresu nebo název stroje"
-
-#: pkg/ovirt/components/ClusterTemplates.jsx:74
-msgid "Enter New VM name"
-msgstr "Zadejte název pro nový virt. stroj"
 
 #: pkg/lib/machine-change-auth.html:57
 msgid ""
@@ -3153,7 +2593,7 @@ msgstr "Položka"
 msgid "Entrypoint"
 msgstr "Koncový bod"
 
-#: pkg/docker/index.html:526 pkg/kubernetes/views/container-body.html:26
+#: pkg/docker/index.html:526
 #: node_modules/registry-image-widgets/views/image-config.html:21
 msgid "Environment"
 msgstr "Prostředí"
@@ -3186,10 +2626,6 @@ msgstr "Chyba"
 msgid "Error and above"
 msgstr "Chyba a závažnější"
 
-#: pkg/kubernetes/scripts/connection.js:646
-msgid "Error getting certificate details: $0"
-msgstr "Chyba při získávání podrobností o certifikátu: $0"
-
 #: pkg/lib/machine-sync-users.html:13
 msgid "Error loading users: {{perm_failed}}"
 msgstr "Chyba při načítání uživatelů: {{perm_failed}}"
@@ -3209,10 +2645,6 @@ msgstr "Chyba při mazání výstrahy: $0"
 #: pkg/selinux/setroubleshoot.js:67
 msgid "Error while setting SELinux mode: '$0'"
 msgstr "Chyba při nastavování SELinux režimu: „$0“"
-
-#: pkg/kubernetes/scripts/connection.js:85
-msgid "Error writing kubectl config"
-msgstr "Chyba při zapisování nastavení pro kubectl"
 
 #: pkg/networkmanager/index.html:658
 msgid "Ethernet MAC"
@@ -3243,11 +2675,11 @@ msgstr "Příkaz: 88,2019,nfs,rsync"
 msgid "Excellent password"
 msgstr "Skvělé heslo"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:222
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:261
 msgid "Existing Disk Image"
 msgstr "Existující obraz disku"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:163
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:202
 msgid "Existing disk image on host's file system"
 msgstr "Existující obraz disku na souborovém systému hostitele"
 
@@ -3272,14 +2704,6 @@ msgstr "Rozšířený oddíl"
 msgid "FAILED"
 msgstr "NEZDAŘILO SE"
 
-#: pkg/ovirt/provider.js:130
-msgid "FORCEOFF action failed: $0"
-msgstr "Akce VYNUTITVYPNUTI se nezdařila: $0"
-
-#: pkg/ovirt/components/InstallationDialog.jsx:47
-msgid "FQDN"
-msgstr "FQDN"
-
 # auto translated by TM merge from project: retrace-server, version: master, DocId: retrace-server
 #: pkg/networkmanager/interfaces.js:842
 msgid "Failed"
@@ -3288,6 +2712,10 @@ msgstr "Neúspěšné"
 #: pkg/lib/machine-dialogs.js:410
 msgid "Failed to add machine: $0"
 msgstr "Nepodařilo se přidat stroj: $0"
+
+#: pkg/networkmanager/firewall.jsx:237
+msgid "Failed to add port"
+msgstr ""
 
 #: pkg/networkmanager/firewall.jsx:237
 msgid "Failed to add service"
@@ -3321,6 +2749,10 @@ msgstr "Nepodařilo se  upravit stroj: $0"
 msgid "Failed to enable tuned"
 msgstr "Nepodařilo se zapnout tuned"
 
+#: pkg/machines/components/vmnetworktab.jsx:55
+msgid "Failed to fetch the IP addresses of the interfaces present in $0"
+msgstr "Nepodařilo se zjistit IP adresy rozhraní nacházející se v $0"
+
 #: pkg/users/index.html:393
 msgid "Failed to load authorized keys."
 msgstr "Nepodařilo se nahrát ověřovací klíče."
@@ -3345,10 +2777,6 @@ msgstr "Nepodařilo se přepnout profil"
 msgid "Fewer than the maximum number of virtual CPUs should be enabled."
 msgstr "Mělo by být zapnuto méně než maximální počet virtuálních procesorů."
 
-#: pkg/kubernetes/scripts/volumes.js:204
-msgid "Fibre Channel"
-msgstr "Fibre Channel"
-
 # auto translated by TM merge from project: system-config-firewall, version: master, DocId: po/system-config-firewall
 #: pkg/machines/components/vm/bootOrderModal.jsx:92
 #: pkg/machines/components/vmDiskColumns.jsx:42
@@ -3371,17 +2799,6 @@ msgstr "Připojování souborového systému"
 #: pkg/storaged/fsys-tab.jsx:70
 msgid "Filesystem Name"
 msgstr "Název souborového systému"
-
-#: pkg/kubernetes/views/pv-modify.html:181
-#: pkg/kubernetes/views/volume-body.html:6
-#: pkg/kubernetes/views/volume-body.html:16
-#: pkg/kubernetes/views/volume-body.html:62
-#: pkg/kubernetes/views/volume-body.html:83
-#: pkg/kubernetes/views/volume-body.html:91
-#: pkg/kubernetes/views/volume-body.html:120
-#: pkg/kubernetes/views/volume-body.html:132
-msgid "Filesystem Type"
-msgstr "Typ souborového systému"
 
 # auto translated by TM merge from project: comps, version: master, DocId: comps
 #: pkg/storaged/fsys-panel.jsx:103
@@ -3409,18 +2826,6 @@ msgstr "Brána firewall"
 #: pkg/networkmanager/firewall.jsx:861
 msgid "Firewall is not available"
 msgstr "Brána firewall není k dispozici"
-
-#: pkg/kubernetes/scripts/volumes.js:206
-msgid "Flex"
-msgstr "Flex"
-
-#: pkg/kubernetes/scripts/volumes.js:205
-msgid "Flocker"
-msgstr "Flocker"
-
-#: pkg/kubernetes/views/volume-body.html:125
-msgid "Flocker Dataset Name"
-msgstr "Název Flocker datové sady"
 
 #: node_modules/registry-image-widgets/views/imagestream-body.html:35
 msgid "Follows docker repo"
@@ -3524,10 +2929,6 @@ msgstr "Z"
 msgid "Full Name"
 msgstr "Celé jméno"
 
-#: pkg/kubernetes/scripts/volumes.js:192
-msgid "GCE Persistent Disk"
-msgstr "GCE trvalý disk"
-
 # auto translated by TM merge from project: Cockpit, version: rhel-7.4, DocId: cockpit
 #: pkg/docker/index.html:183
 msgid "Gateway:"
@@ -3556,18 +2957,6 @@ msgstr "Získat nový obraz"
 msgid "GiB"
 msgstr "GiB"
 
-#: pkg/kubernetes/scripts/volumes.js:194
-msgid "Git Repository"
-msgstr "Git repozitář"
-
-#: pkg/kubernetes/scripts/volumes.js:198
-msgid "Gluster FS"
-msgstr "Gluster FS"
-
-#: pkg/kubernetes/scripts/volumes.js:877
-msgid "GlusterFS"
-msgstr "GlusterFS"
-
 #: pkg/systemd/logs.js:199
 msgid "Go to"
 msgstr "Jít na"
@@ -3582,12 +2971,6 @@ msgstr "Přejít na aplikaci"
 msgid "Go to now"
 msgstr "Přejít na nyní"
 
-#: pkg/kubernetes/views/project-body.html:3
-#: pkg/kubernetes/views/project-body.html:8
-msgid "Grant additional push or admin access to specific members below."
-msgstr ""
-"Níže udělte další přístup pro nahrávání nebo správu konkrétním členům."
-
 #: pkg/machines/components/consoles.jsx:51
 msgid "Graphics Console (VNC)"
 msgstr "Grafická konzole (VNC)"
@@ -3595,21 +2978,6 @@ msgstr "Grafická konzole (VNC)"
 #: pkg/machines/components/consoles.jsx:60
 msgid "Graphics Console in Desktop Viewer"
 msgstr "Grafická konzole v desktopovém prohlížeči"
-
-#: pkg/kubernetes/views/group-page.html:21
-#: pkg/kubernetes/views/group-panel.html:12
-msgid "Group Members"
-msgstr "Členové skupiny"
-
-#: pkg/kubernetes/views/user-add-membership.html:9
-msgid "Group or Project"
-msgstr "Skupina nebo projekt"
-
-# auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId: po/ipa
-#: pkg/kubernetes/views/project-listing.html:48
-#: pkg/kubernetes/views/user-delete.html:14
-msgid "Groups"
-msgstr "Skupiny"
 
 #: pkg/storaged/lvol-tabs.jsx:235 pkg/storaged/lvol-tabs.jsx:399
 #: pkg/storaged/lvol-tabs.jsx:451 pkg/storaged/vdo-details.jsx:229
@@ -3632,15 +3000,6 @@ msgstr "Zvětšit logickou velikost $0"
 #: pkg/storaged/vdo-details.jsx:130
 msgid "Grow to take all space"
 msgstr "Zvětšit a využít veškerý dostupný prostor"
-
-#: pkg/ovirt/components/ClusterTemplates.jsx:136
-#: pkg/ovirt/components/ClusterVms.jsx:182
-msgid "HA"
-msgstr "HA"
-
-#: pkg/ovirt/components/OVirtTab.jsx:128
-msgid "HA:"
-msgstr "HA:"
 
 #: pkg/networkmanager/index.html:252
 msgid "Hair Pin mode"
@@ -3683,15 +3042,10 @@ msgid "Hide Performance Options"
 msgstr "Předvolby pro výkonnost"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId: po/ipa
-#: pkg/kubernetes/views/details-page.html:73
-#: pkg/kubernetes/views/route-body.html:9
-#: pkg/kubernetes/views/route-modify.html:8
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:150
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:35
 #: pkg/machines/components/vm/bootOrderModal.jsx:97
-#: pkg/machines/components/vmDiskColumns.jsx:47
-#: pkg/ovirt/components/App.jsx:103 pkg/ovirt/components/ClusterVms.jsx:65
-#: pkg/ovirt/components/ClusterVms.jsx:182 pkg/shell/indexes.js:334
+#: pkg/machines/components/vmDiskColumns.jsx:47 pkg/shell/indexes.js:334
 msgid "Host"
 msgstr "Počítač"
 
@@ -3705,10 +3059,6 @@ msgstr "Zařízení hostitele"
 msgid "Host Name"
 msgstr "Název počítače"
 
-#: pkg/kubernetes/scripts/volumes.js:197 pkg/kubernetes/scripts/volumes.js:869
-msgid "Host Path"
-msgstr "Popis umístění hostitele"
-
 #: src/base1/cockpit.js:4023
 msgid "Host key is incorrect"
 msgstr "Klíč stroje není správný"
@@ -3720,10 +3070,6 @@ msgstr "Název stroje není v doméně možné měnit"
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:161
 msgid "Host should not be empty"
 msgstr "Hostitele je třeba vyplnit"
-
-#: pkg/ovirt/components/HostToMaintenance.jsx:75
-msgid "Host to Maintenance"
-msgstr "Stroj do údržby"
 
 #: pkg/systemd/services.html:499
 msgid "Hour : Minute"
@@ -3742,13 +3088,9 @@ msgstr "Hodin"
 msgid "I/O Wait"
 msgstr "Čekání na vst./výst."
 
-#: pkg/kubernetes/views/node-body.html:10
-#: pkg/kubernetes/views/service-body.html:9
-msgid "IP"
-msgstr "IP adresa"
-
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId: po/ipa
 #: pkg/networkmanager/index.html:120 pkg/networkmanager/index.html:138
+#: pkg/machines/components/vmnetworktab.jsx:133
 msgid "IP Address"
 msgstr "IP adresa"
 
@@ -3795,10 +3137,6 @@ msgstr "IPv6 adresa"
 msgid "IPv6 Settings"
 msgstr "Nastavení IPv6"
 
-#: pkg/kubernetes/scripts/volumes.js:201 pkg/kubernetes/scripts/volumes.js:873
-msgid "ISCSI"
-msgstr "iSCSI"
-
 # auto translated by TM merge from project: libvirt, version: master, DocId: libvirt
 #: pkg/docker/containers-view.jsx:128 pkg/docker/containers-view.jsx:408
 msgid "Id"
@@ -3819,17 +3157,6 @@ msgstr "Identif.:"
 msgid "Identifier"
 msgstr "Identifikátor"
 
-#: pkg/kubernetes/views/user-page.html:22
-#: pkg/kubernetes/views/user-panel.html:18
-msgid "Identities"
-msgstr "Identity"
-
-#: pkg/kubernetes/views/add-user-dialog.html:17
-#: pkg/kubernetes/views/project-listing.html:91
-#: pkg/kubernetes/views/user-modify.html:17
-msgid "Identity"
-msgstr "Identita"
-
 #: pkg/storaged/crypto-keyslots.jsx:325
 msgid "If tang-show-keys is not available, run the following:"
 msgstr "Pokud tang-show-keys není k dispozici, spusťte následující:"
@@ -3840,8 +3167,6 @@ msgid "Ignore"
 msgstr "Ignorovat"
 
 #: pkg/docker/index.html:268 pkg/docker/index.html:431
-#: pkg/kubernetes/views/container-body.html:6
-#: pkg/kubernetes/views/image-page.html:15
 #: node_modules/registry-image-widgets/views/image-panel.html:9
 #: pkg/docker/containers-view.jsx:131 pkg/docker/containers-view.jsx:359
 msgid "Image"
@@ -3855,29 +3180,9 @@ msgstr "Obraz $0"
 msgid "Image Builder"
 msgstr "Tvorba obrazů"
 
-#: pkg/kubernetes/views/container-body.html:8
-msgid "Image ID"
-msgstr "Identifikátor obrazu"
-
-#: pkg/kubernetes/views/volume-body.html:58
-msgid "Image Name"
-msgstr "Název obrazu"
-
-#: pkg/kubernetes/registry.html:23
-msgid "Image Registry"
-msgstr "Registr obrazů"
-
 #: pkg/docker/index.html:578
 msgid "Image Search"
 msgstr "Hledání obrazu"
-
-#: pkg/kubernetes/views/imagestream-page.html:16
-msgid "Image Stream"
-msgstr "Proud obrazů"
-
-#: pkg/kubernetes/views/registry-dashboard-page.html:135
-msgid "Image commands"
-msgstr "Příkazy obrazu"
 
 #: node_modules/registry-image-widgets/views/imagestream-body.html:41
 msgid "Image count"
@@ -3891,10 +3196,6 @@ msgstr "Proud obrazu"
 msgid "Image:"
 msgstr "Obraz:"
 
-#: pkg/kubernetes/index.html:81 pkg/kubernetes/registry.html:49
-#: pkg/kubernetes/views/images-page.html:13
-#: pkg/kubernetes/views/imagestream-page.html:24
-#: pkg/kubernetes/views/registry-dashboard-page.html:19
 #: pkg/docker/containers-view.jsx:711
 msgid "Images"
 msgstr "Obrazy"
@@ -3907,10 +3208,6 @@ msgstr "Obrazy"
 #: pkg/docker/containers-view.jsx:109
 msgid "Images and running containers"
 msgstr "Obrazy a spuštěné kontejnery"
-
-#: pkg/kubernetes/views/registry-dashboard-page.html:17
-msgid "Images by project"
-msgstr "Obrazy podle projektů"
 
 #: node_modules/registry-image-widgets/views/imagestream-body.html:15
 #: node_modules/registry-image-widgets/views/imagestream-body.html:16
@@ -3928,11 +3225,7 @@ msgstr ""
 msgid "Images may only be pulled by specific users or groups"
 msgstr "Obrazy mohou být stahovány pouze konkrétními uživateli či skupinami"
 
-#: pkg/kubernetes/views/registry-dashboard-page.html:54
-msgid "Images pushed recently"
-msgstr "Nedávno nahrané obrazy"
-
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:637
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:702
 msgid "Immediately Start VM"
 msgstr "Okamžitě spustit virt. stroj"
 
@@ -3940,24 +3233,12 @@ msgstr "Okamžitě spustit virt. stroj"
 msgid "In Sync"
 msgstr "Synchronní"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:171
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:210
 msgid ""
 "In most configurations, macvtap does not work for host to guest network "
 "communication."
 msgstr ""
 "Ve většině uspořádání, macvtap nefunguje pro komunikaci hostitel-host."
-
-#: pkg/kubernetes/views/registry-dashboard-page.html:81
-msgid ""
-"In order to begin pushing images to the registry, use the commands below."
-msgstr ""
-"Pro zahájení nahrávání obrazů do registru použijte níže uvedené příkazy."
-
-#: pkg/kubernetes/views/registry-dashboard-page.html:6
-msgid ""
-"In order to begin pushing images to the registry, you need to create a "
-"project."
-msgstr "Pro zahájení nahrávání obrazů do registru je třeba vytvořit projekt."
 
 #: pkg/lib/machine-sync-users.html:50
 msgid ""
@@ -4041,15 +3322,15 @@ msgid "Install setroubleshoot-server to troubleshoot SELinux events."
 msgstr "Nainstalovat setroubleshoot-server pro řešení potíží s SELinux."
 
 # auto translated by TM merge from project: Fedora Installation Guide, version: f22, DocId: pot/SourceSpoke
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:226
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:265
 msgid "Installation Source"
 msgstr "Zdroj instalace"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:212
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:251
 msgid "Installation Source Type"
 msgstr "Typ zdroje instalace"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:113
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:152
 msgid "Installation Source should not be empty"
 msgstr "Zdroj instalace je třeba vyplnit"
 
@@ -4076,19 +3357,14 @@ msgstr "Instaluje se $0"
 msgid "Instantiate"
 msgstr "Vytvořit instanci a spustit"
 
-# auto translated by TM merge from project: firewalld, version: master, DocId: po/firewalld
-#: pkg/kubernetes/views/pv-modify.html:170
-#: pkg/kubernetes/views/volume-body.html:81
-msgid "Interface"
-msgstr "Rozhraní"
-
 #: pkg/machines/components/nicEdit.jsx:123
 msgid "Interface Type"
 msgstr "Typ rozhraní"
 
 # auto translated by TM merge from project: firewalld, version: master, DocId: po/firewalld
-#: pkg/networkmanager/index.html:108 pkg/networkmanager/firewall.jsx:735
-#: pkg/networkmanager/firewall.jsx:923
+#: pkg/networkmanager/index.html:108 pkg/networkmanager/index.html:266
+#: pkg/networkmanager/firewall.jsx:735 pkg/networkmanager/firewall.jsx:923
+#: pkg/networkmanager/interfaces.js:2986
 msgid "Interfaces"
 msgstr "Rozhraní"
 
@@ -4129,7 +3405,7 @@ msgstr "Neplatné datum skončení platnosti"
 msgid "Invalid file permissions"
 msgstr "Neplatná souborová práva"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:100
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:139
 msgid "Invalid filename"
 msgstr "Neplatný název souboru"
 
@@ -4262,14 +3538,6 @@ msgstr "Jádro"
 msgid "Kernel Dump"
 msgstr "Výpis paměti jádra"
 
-#: pkg/kubernetes/views/node-body.html:19
-msgid "Kernel Version"
-msgstr "Verze jádra"
-
-#: pkg/kubernetes/views/volume-body.html:67
-msgid "Key Ring Path"
-msgstr "Popis umístění klíčenky"
-
 #: pkg/storaged/crypto-keyslots.jsx:563
 msgid "Key slots with unknown types can not be edited here"
 msgstr "Sloty klíčů s neznámým typem zde není možné upravovat"
@@ -4294,24 +3562,11 @@ msgstr "Adresa serveru s klíči"
 msgid "Keyserver removal may prevent unlocking $0."
 msgstr "Odebrání serveru s klíči může zabránit odemčení $0."
 
-#: pkg/kubernetes/views/node-body.html:23
-msgid "Kubelet Version"
-msgstr "Verze kubelet"
-
-#: pkg/kubernetes/index.html:23
-msgid "Kubernetes Cluster"
-msgstr "Kubernetes cluster"
-
 #: pkg/networkmanager/index.html:377
 msgid "LACP Key"
 msgstr "LACP klíč"
 
 # auto translated by TM merge from project: system-config-printer, version: master, DocId: system-config-printer
-#: pkg/kubernetes/views/deploymentconfig-body.html:41
-#: pkg/kubernetes/views/node-body.html:31 pkg/kubernetes/views/pod-body.html:26
-#: pkg/kubernetes/views/replicationcontroller-body.html:17
-#: pkg/kubernetes/views/route-body.html:22
-#: pkg/kubernetes/views/service-body.html:26
 #: node_modules/registry-image-widgets/views/image-meta.html:3
 msgid "Labels"
 msgstr "Štítky"
@@ -4328,17 +3583,9 @@ msgstr "Uplynulých 24 hodin"
 msgid "Last 7 days"
 msgstr "Uplynulých 7 dnů"
 
-#: pkg/kubernetes/views/node-body.html:49
-msgid "Last Heartbeat"
-msgstr "Poslední kontrola"
-
 #: pkg/users/index.html:100
 msgid "Last Login"
 msgstr "Poslední přihlášení"
-
-#: pkg/kubernetes/views/node-body.html:51
-msgid "Last Status Change"
-msgstr "Poslední změna stavu"
 
 #: pkg/systemd/init.js:284
 msgid "Last Trigger"
@@ -4351,11 +3598,6 @@ msgstr "Naposledy aktualizováno"
 #: pkg/packagekit/updates.jsx:177
 msgid "Last checked: $0 ago"
 msgstr "Naposledy zkontrolováno: před $0 dny"
-
-#: pkg/kubernetes/views/deploymentconfig-body.html:15
-#: pkg/kubernetes/views/details-page.html:107
-msgid "Latest Version"
-msgstr "Nejnovější verze"
 
 #: pkg/machines/components/desktopConsole.jsx:128
 msgid "Launch Remote Viewer"
@@ -4387,7 +3629,7 @@ msgstr ""
 "jiné uživatelské jméno, tento uživatel bude vždy použit při připojování k "
 "tomuto stroji."
 
-#: pkg/shell/index.html:90 pkg/shell/simple.html:66 pkg/shell/stub.html:73
+#: pkg/shell/index.html:90 pkg/shell/simple.html:66
 msgid "Licensed under:"
 msgstr "Licencováno pod:"
 
@@ -4447,10 +3689,6 @@ msgstr "Načtení dostupných aktualizací se nezdařilo"
 msgid "Loading available updates, please wait..."
 msgstr "Načítání dostupných aktualizací, čekejte…"
 
-#: pkg/ovirt/components/VdsmView.jsx:34
-msgid "Loading data ..."
-msgstr "Načítání dat…"
-
 #: pkg/systemd/services.html:84 pkg/kdump/kdump-view.jsx:367
 #: pkg/storaged/devices.jsx:65 pkg/systemd/logs.js:144 pkg/systemd/logs.js:159
 #: pkg/systemd/logs.js:206 pkg/systemd/logs.js:255 pkg/systemd/logs.js:317
@@ -4469,7 +3707,7 @@ msgstr "Místní disky"
 msgid "Local Filesystem"
 msgstr "Místní souborový systém"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:218
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:257
 msgid "Local Install Media"
 msgstr "Místní instalační médium"
 
@@ -4505,7 +3743,7 @@ msgid "Log In"
 msgstr "Přihlásit"
 
 # auto translated by TM merge from project: im-chooser , version: master, DocId: im-chooser
-#: pkg/shell/index.html:70 pkg/shell/simple.html:46 pkg/shell/stub.html:53
+#: pkg/shell/index.html:70 pkg/shell/simple.html:46
 msgid "Log Out"
 msgstr "Odhlásit"
 
@@ -4520,14 +3758,6 @@ msgstr "Přihlásit na {{host}}"
 #: src/ws/login.js:515
 msgid "Log in with your server user account."
 msgstr "Přihlášení pomocí uživatelského účtu na tomto serveru"
-
-#: pkg/kubernetes/views/registry-dashboard-page.html:116
-msgid "Log into OpenShift command line tools:"
-msgstr "Přihlášení do nástrojů pro příkazový řádek pro OpenShift:"
-
-#: pkg/kubernetes/views/registry-dashboard-page.html:101
-msgid "Log into the registry:"
-msgstr "Přihlášení do registru:"
 
 #: pkg/systemd/index.html:65
 msgid "Log messages"
@@ -4545,12 +3775,6 @@ msgstr "Logický"
 #: pkg/storaged/vdo-details.jsx:220 pkg/storaged/vdos-panel.jsx:63
 msgid "Logical Size"
 msgstr "Logická velikost"
-
-#: pkg/kubernetes/views/pv-modify.html:159
-#: pkg/kubernetes/views/volume-body.html:79
-#: pkg/kubernetes/views/volume-body.html:118
-msgid "Logical Unit Number"
-msgstr "Číslo logické jednotky"
 
 #: pkg/storaged/utils.js:197
 msgid "Logical Volume"
@@ -4581,10 +3805,6 @@ msgstr "Formát přihlašování"
 msgid "Login Password"
 msgstr "Přihlašovací heslo"
 
-#: pkg/kubernetes/views/registry-dashboard-page.html:96
-msgid "Login commands"
-msgstr "Přihlašovací příkazy"
-
 #: src/base1/cockpit.js:4015
 msgid "Login failed"
 msgstr "Přihlášení se nezdařilo"
@@ -4603,8 +3823,7 @@ msgstr ""
 msgid "Logout Successful"
 msgstr "Odhlášení úspěšné"
 
-#: pkg/kubernetes/views/container-page-inline.html:8
-#: pkg/kubernetes/views/container-panel.html:6 pkg/systemd/logs.html:82
+#: pkg/systemd/logs.html:82
 msgid "Logs"
 msgstr "Záznamy událostí"
 
@@ -4625,17 +3844,13 @@ msgid "MAC"
 msgstr "MAC"
 
 # auto translated by TM merge from project: libvirt, version: master, DocId: libvirt
-#: pkg/machines/components/vmnetworktab.jsx:102
+#: pkg/machines/components/vmnetworktab.jsx:132
 msgid "MAC Address"
 msgstr "MAC adresa"
 
 #: pkg/docker/index.html:187
 msgid "MAC Address:"
 msgstr "MAC adresa"
-
-#: pkg/ovirt/provider.js:283
-msgid "MIGRATE action failed"
-msgstr "Akce MIGRACE se nezdařila"
 
 #: pkg/networkmanager/interfaces.js:1985
 msgid "MII (Recommended)"
@@ -4657,7 +3872,7 @@ msgstr "Mac"
 msgid "Mac Address"
 msgstr "MAC adresa"
 
-#: pkg/kubernetes/views/node-body.html:15 pkg/systemd/index.html:95
+#: pkg/systemd/index.html:95
 msgid "Machine ID"
 msgstr "Identif. stroje"
 
@@ -4676,10 +3891,6 @@ msgstr "Hlavní skříň serveru"
 #: pkg/storaged/crypto-keyslots.jsx:319
 msgid "Make sure the key hash from the Tang server matches:"
 msgstr "Ověřte, že otisk klíče z Tang serveru odpovídá:"
-
-#: pkg/kubernetes/scripts/dashboard.js:457
-msgid "Manifest"
-msgstr "Manifest"
 
 # auto translated by TM merge from project: Entangle, version: master, DocId: entangle
 #: pkg/networkmanager/interfaces.js:1958 pkg/networkmanager/interfaces.js:1968
@@ -4738,17 +3949,6 @@ msgstr ""
 "Maximální počet virtuálních procesorů, přiřazených operačnímu systému hosta. "
 "Je třeba, aby bylo z rozmezí 1 až $0"
 
-# auto translated by TM merge from project: tvtime, version: 1.0.7, DocId: tvtime
-#: pkg/kubernetes/views/volume-body.html:34
-msgid "Medium"
-msgstr "Středně"
-
-#: pkg/kubernetes/views/project-listing.html:92
-#: pkg/kubernetes/views/user-body.html:4
-#: pkg/kubernetes/views/user-panel.html:27
-msgid "Member of"
-msgstr "Členem"
-
 #: pkg/storaged/content-views.jsx:345
 msgid "Member of RAID Device"
 msgstr "Člen RAID zařízení"
@@ -4757,28 +3957,12 @@ msgstr "Člen RAID zařízení"
 msgid "Member of RAID Device $0"
 msgstr "Člen RAID zařízení $0"
 
-# auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId: po/ipa
-#: pkg/kubernetes/views/project-listing.html:16
-#: pkg/kubernetes/views/project-listing.html:55
-#: pkg/networkmanager/index.html:266 pkg/networkmanager/interfaces.js:2986
-msgid "Members"
-msgstr "Členové"
-
-#: pkg/kubernetes/views/project-page.html:29
-#: pkg/kubernetes/views/user-page.html:25
-#: pkg/kubernetes/views/user-panel.html:11
-msgid "Membership"
-msgstr "Členství"
-
 # auto translated by TM merge from project: virt-manager, version: master, DocId: virt-manager
 #: pkg/dashboard/index.html:71 pkg/docker/index.html:271
 #: pkg/playground/translate.html:90 pkg/systemd/index.html:204
-#: pkg/docker/containers-view.jsx:359 pkg/kubernetes/scripts/graphs.js:608
-#: pkg/kubernetes/scripts/nodes.js:715 pkg/kubernetes/scripts/nodes.js:827
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:304
+#: pkg/docker/containers-view.jsx:359
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:343
 #: pkg/machines/components/vmOverviewTab.jsx:74
-#: pkg/ovirt/components/ClusterTemplates.jsx:135
-#: pkg/ovirt/components/ClusterVms.jsx:181
 msgid "Memory"
 msgstr "Paměť"
 
@@ -4791,10 +3975,6 @@ msgstr "Paměť"
 #: pkg/systemd/index.html:205
 msgid "Memory & Swap"
 msgstr "Operační paměť a odkládací prostor stránek"
-
-#: pkg/kubernetes/scripts/nodes.js:716
-msgid "Memory Utilization: $0%"
-msgstr "Využití paměti: $0%"
 
 #: pkg/machines/components/vm/memoryModal.jsx:103
 #: pkg/machines/components/vm/memoryModal.jsx:113
@@ -4813,18 +3993,10 @@ msgstr "Velikost paměti z rozmezí 128 MiB a maxima"
 msgid "Memory usage:"
 msgstr "Využití paměti:"
 
-# auto translated by TM merge from project: system-config-printer, version: master, DocId: system-config-printer
-#: pkg/kubernetes/views/node-body.html:47 pkg/kubernetes/views/pv-body.html:27
-#: pkg/kubernetes/views/pv-claim.html:32 pkg/kubernetes/views/pvc-body.html:15
-msgid "Message"
-msgstr "Zpráva"
-
 #: pkg/systemd/shutdown.js:79
 msgid "Message to logged in users"
 msgstr "Zpráva přihlášeným uživatelům"
 
-#: pkg/kubernetes/views/image-page.html:29
-#: pkg/kubernetes/views/imagestream-page.html:30
 #: node_modules/registry-image-widgets/views/image-panel.html:15
 #: node_modules/registry-image-widgets/views/imagestream-panel.html:14
 msgid "Metadata"
@@ -4842,10 +4014,6 @@ msgstr "Využito metadat"
 #: pkg/machines/components/vm/memoryModal.jsx:188
 msgid "MiB"
 msgstr "MiB"
-
-#: pkg/ovirt/components/OVirtTab.jsx:70
-msgid "Migrate To:"
-msgstr "Migrovat na:"
 
 #: pkg/lib/machine-info.js:98
 msgid "Mini PC"
@@ -4877,14 +4045,9 @@ msgstr "Režim"
 msgid "Model"
 msgstr "Model"
 
-#: pkg/machines/components/vmnetworktab.jsx:93
+#: pkg/machines/components/vmnetworktab.jsx:123
 msgid "Model type"
 msgstr "Typ modelu"
-
-# auto translated by TM merge from project: selinux (policycoreutils), version: master, DocId: policycoreutils
-#: pkg/kubernetes/views/user-modify.html:27
-msgid "Modify"
-msgstr "Upravit"
 
 #: pkg/storaged/jobs-panel.jsx:39 pkg/storaged/jobs-panel.jsx:45
 #: pkg/storaged/jobs-panel.jsx:52
@@ -4908,10 +4071,6 @@ msgstr "Interval monitorování"
 msgid "Monitoring Targets"
 msgstr "Cíle monitorování"
 
-#: pkg/kubernetes/views/volume-body.html:54
-msgid "Monitors"
-msgstr "Monitory"
-
 # auto translated by TM merge from project: system-config-printer, version: master, DocId: system-config-printer
 #: pkg/realmd/operation.js:530
 msgid "More"
@@ -4931,10 +4090,6 @@ msgstr "Další podrobnosti"
 #: pkg/storaged/fsys-tab.jsx:186 pkg/storaged/nfs-details.jsx:301
 msgid "Mount"
 msgstr "Připojit (mount)"
-
-#: pkg/kubernetes/views/pod-page.html:25 pkg/kubernetes/views/pod-panel.html:51
-msgid "Mount Location"
-msgstr "Připojit umístění"
 
 #: pkg/storaged/format-dialog.jsx:81 pkg/storaged/fsys-tab.jsx:171
 #: pkg/storaged/nfs-details.jsx:172
@@ -4992,12 +4147,7 @@ msgstr "Skříň pro více systémů"
 msgid "NAT to $0"
 msgstr "NAT na $0"
 
-# auto translated by TM merge from project: Cockpit, version: rhel-7.4, DocId: cockpit
-#: pkg/kubernetes/scripts/volumes.js:865
-msgid "NFS"
-msgstr "NFS"
-
-#: pkg/kubernetes/scripts/volumes.js:199 pkg/storaged/nfs-details.jsx:140
+#: pkg/storaged/nfs-details.jsx:140
 msgid "NFS Mount"
 msgstr "NFS připojení"
 
@@ -5009,7 +4159,7 @@ msgstr "NFS připojení"
 msgid "NFS Support not installed"
 msgstr "Podpora pro NFS není nainstalovaná"
 
-#: pkg/machines/components/vmnetworktab.jsx:67
+#: pkg/machines/components/vmnetworktab.jsx:97
 msgid "NIC $0 of VM $1 failed to change state"
 msgstr "Nepodařilo se změnit stav síť. rozhraní $0 virt. stroje $1 "
 
@@ -5022,44 +4172,20 @@ msgid "NTP Server"
 msgstr "NTP server"
 
 # auto translated by TM merge from project: Cockpit, version: rhel-7.4, DocId: cockpit
-#: pkg/docker/index.html:267 pkg/kubernetes/views/add-group-dialog.html:9
-#: pkg/kubernetes/views/add-user-dialog.html:9
-#: pkg/kubernetes/views/containers-listing.html:11
-#: pkg/kubernetes/views/dashboard-page.html:156
-#: pkg/kubernetes/views/dashboard-page.html:198
-#: pkg/kubernetes/views/details-page.html:34
-#: pkg/kubernetes/views/details-page.html:70
-#: pkg/kubernetes/views/details-page.html:103
-#: pkg/kubernetes/views/details-page.html:137
-#: pkg/kubernetes/views/details-page.html:171
-#: pkg/kubernetes/views/imagestream-modify.html:10
-#: pkg/kubernetes/views/node-add.html:16
-#: pkg/kubernetes/views/nodes-page.html:41
-#: pkg/kubernetes/views/project-listing.html:14
-#: pkg/kubernetes/views/project-listing.html:53
-#: pkg/kubernetes/views/project-listing.html:90
-#: pkg/kubernetes/views/project-modify.html:16
-#: pkg/kubernetes/views/pv-claim.html:4 pkg/kubernetes/views/pv-modify.html:32
-#: pkg/kubernetes/views/service-modify.html:9
-#: pkg/kubernetes/views/user-modify.html:9
-#: pkg/kubernetes/views/volume-body.html:31
-#: pkg/kubernetes/views/volumes-page.html:19
-#: pkg/kubernetes/views/volumes-page.html:57 pkg/networkmanager/index.html:119
+#: pkg/docker/index.html:267 pkg/networkmanager/index.html:119
 #: pkg/networkmanager/index.html:137 pkg/networkmanager/index.html:165
 #: pkg/networkmanager/index.html:209 pkg/networkmanager/index.html:262
 #: pkg/networkmanager/index.html:319
 #: node_modules/registry-image-widgets/views/image-body.html:2
 #: node_modules/registry-image-widgets/views/imagestream-listing.html:5
 #: pkg/docker/containers-view.jsx:359 pkg/docker/containers-view.jsx:683
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:125
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:164
 #: pkg/machines/components/diskAdd.jsx:126
 #: pkg/machines/components/networks/networkList.jsx:47
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:56
 #: pkg/machines/components/storagePools/storagePoolList.jsx:49
 #: pkg/machines/components/storagePools/storagePoolVolumesTab.jsx:65
-#: pkg/machines/hostvmslist.jsx:83
-#: pkg/ovirt/components/ClusterTemplates.jsx:135
-#: pkg/ovirt/components/ClusterVms.jsx:181 pkg/packagekit/updates.jsx:380
+#: pkg/machines/hostvmslist.jsx:83 pkg/packagekit/updates.jsx:380
 #: pkg/storaged/content-views.jsx:111 pkg/storaged/content-views.jsx:641
 #: pkg/storaged/format-dialog.jsx:286 pkg/storaged/fsys-panel.jsx:108
 #: pkg/storaged/fsys-tab.jsx:72 pkg/storaged/fsys-tab.jsx:150
@@ -5101,7 +4227,7 @@ msgstr "Název nemůže obsahovat znak „$0“."
 msgid "Name cannot contain whitespace."
 msgstr "Název nemůže obsahovat prázdné znaky."
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:82
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:121
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:67
 msgid "Name should not be empty"
 msgstr "Název je třeba vyplnit"
@@ -5109,26 +4235,6 @@ msgstr "Název je třeba vyplnit"
 #: pkg/machines/components/networks/networkOverviewTab.jsx:36
 msgid "Name: "
 msgstr "Název:"
-
-#: pkg/kubernetes/views/containers-listing.html:14
-#: pkg/kubernetes/views/dashboard-page.html:160
-#: pkg/kubernetes/views/deploymentconfig-body.html:5
-#: pkg/kubernetes/views/details-page.html:36
-#: pkg/kubernetes/views/details-page.html:72
-#: pkg/kubernetes/views/details-page.html:105
-#: pkg/kubernetes/views/details-page.html:139
-#: pkg/kubernetes/views/details-page.html:173
-#: pkg/kubernetes/views/pod-body.html:5 pkg/kubernetes/views/pv-claim.html:6
-#: pkg/kubernetes/views/replicationcontroller-body.html:5
-#: pkg/kubernetes/views/route-body.html:5
-#: pkg/kubernetes/views/service-body.html:5
-#: pkg/kubernetes/views/volumes-page.html:59
-msgid "Namespace"
-msgstr "Jmenný prostor"
-
-#: pkg/kubernetes/scripts/dashboard.js:374
-msgid "Namespace cannot be empty."
-msgstr "Jmenný prostor je třeba vyplnit."
 
 #: pkg/systemd/host.js:1348
 msgid "Need at least one NTP server"
@@ -5140,7 +4246,6 @@ msgstr "Maska sítě"
 
 # auto translated by TM merge from project: Cockpit, version: rhel-7.4, DocId: cockpit
 #: pkg/dashboard/index.html:72 pkg/playground/translate.html:95
-#: pkg/kubernetes/scripts/graphs.js:613
 msgid "Network"
 msgstr "Síť"
 
@@ -5152,7 +4257,7 @@ msgstr "Síť $0 se nepodařilo aktivovat"
 msgid "Network $0 failed to get deactivated"
 msgstr "Síť $0 se nepodařilo deaktivovat"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:221
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:260
 msgid "Network Boot (PXE)"
 msgstr "Zavádění ze sítě (PXE)"
 
@@ -5164,7 +4269,7 @@ msgstr "Síťový souborový systém"
 msgid "Network Interfaces"
 msgstr "Síťová rozhraní"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:177
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:216
 msgid "Network Selection does not support PXE."
 msgstr "Síťový výběr nepodporuje PXE."
 
@@ -5217,10 +4322,6 @@ msgstr "Heslo platí napořád"
 msgid "Never lock account"
 msgstr "Účet nikdy nezamykat"
 
-#: pkg/kubernetes/views/project-listing.html:46
-msgid "New Group"
-msgstr "Nová skupina"
-
 #: pkg/storaged/nfs-details.jsx:140
 msgid "New NFS Mount"
 msgstr "Nové NFS připojení"
@@ -5229,19 +4330,9 @@ msgstr "Nové NFS připojení"
 msgid "New Password"
 msgstr "Nové heslo"
 
-# auto translated by TM merge from project: Fedora Websites, version: fedorahosted.org, DocId: po/fedorahosted
-#: pkg/kubernetes/views/project-listing.html:7
-msgid "New Project"
-msgstr "Nový projekt"
-
 #: pkg/machines/components/diskAdd.jsx:132
 msgid "New Volume Name"
 msgstr "Název pro nový svazek"
-
-#: pkg/kubernetes/views/images-page.html:11
-#: pkg/kubernetes/views/registry-dashboard-page.html:86
-msgid "New image stream"
-msgstr "Nový proud obrazů"
 
 #: pkg/storaged/crypto-keyslots.jsx:210 pkg/storaged/crypto-keyslots.jsx:253
 msgid "New passphrase"
@@ -5250,12 +4341,6 @@ msgstr "Nová heslová fráze"
 #: pkg/lib/credentials.js:237 pkg/users/local.js:139
 msgid "New password was not accepted"
 msgstr "Nové heslo nebylo přijato"
-
-#: pkg/kubernetes/views/project-modify.html:4
-#: pkg/kubernetes/views/registry-dashboard-page.html:9
-#: pkg/kubernetes/views/registry-dashboard-page.html:48
-msgid "New project"
-msgstr "Nový projekt"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId: po/ipa
 #: pkg/realmd/operation.html:82 pkg/storaged/iscsi-panel.jsx:50
@@ -5271,8 +4356,7 @@ msgid "Nice"
 msgstr "Nice"
 
 #: pkg/docker/index.html:542 pkg/docker/index.html:546 pkg/docker/run.js:239
-#: pkg/docker/util.js:103 pkg/kubernetes/scripts/volumes.js:998
-#: pkg/networkmanager/interfaces.js:2594
+#: pkg/docker/util.js:103 pkg/networkmanager/interfaces.js:2594
 msgid "No"
 msgstr "Ne"
 
@@ -5296,18 +4380,6 @@ msgstr "Žádné shodující se výsledky"
 msgid "No NFS mounts set up"
 msgstr "Nejsou nastavená žádná NFS připojení"
 
-#: src/ws/cockpitcertificate.c:522
-msgid "No PEM-encoded certificate found"
-msgstr "Nenalezen žádný certifikát v PEM kódování"
-
-#: src/ws/cockpitcertificate.c:488
-msgid "No PEM-encoded private key found"
-msgstr "Nenalezen žádný soukromý klíč v PEM kódování"
-
-#: pkg/kubernetes/views/pv-claim.html:39
-msgid "No Pods are using this claim"
-msgstr "Tento nárok nepoužívají žádné pody"
-
 #: pkg/selinux/setroubleshoot-view.jsx:365
 msgid "No SELinux alerts."
 msgstr "Žádné výstrahy SELinux."
@@ -5321,11 +4393,6 @@ msgstr "Nejsou k dispozici žádné fondy úložiště"
 msgid "No Storage Volumes defined for this Storage Pool"
 msgstr "Pro tento fond úložiště nejsou definované žádné úložné svazky"
 
-#: pkg/ovirt/components/ClusterTemplates.jsx:29
-#: pkg/ovirt/components/ClusterVms.jsx:36
-msgid "No VM found in oVirt."
-msgstr "V oVirt nenalezeny žádné virt. stroje."
-
 #: pkg/machines/hostvmslist.jsx:85
 msgid "No VM is running or defined on this host"
 msgstr "Na tomto stroji nejsou spuštěné nebo definované žádné virt. stroje"
@@ -5333,10 +4400,6 @@ msgstr "Na tomto stroji nejsou spuštěné nebo definované žádné virt. stroj
 #: pkg/machines/components/nicEdit.jsx:110
 msgid "No Virtual Networks"
 msgstr "Žádné virtuální sítě"
-
-#: pkg/kubernetes/views/pvc-body.html:10
-msgid "No Volume Bound"
-msgstr "Nenalezen žádný svazek"
 
 #: pkg/networkmanager/firewall.jsx:924
 msgid "No active zones"
@@ -5421,10 +4484,6 @@ msgstr "Žádné volné sloty klíčů"
 msgid "No free space"
 msgstr "Žádné volné místo"
 
-#: pkg/kubernetes/views/project-listing.html:74
-msgid "No groups are present."
-msgstr "Nejsou přítomné žádné skupiny."
-
 #: pkg/systemd/index.html:29
 msgid "No host keys found."
 msgstr "Nenalezeny žádné klíče stroje."
@@ -5440,10 +4499,6 @@ msgstr "Nejsou přítomné žádné proudy obrazů."
 #: pkg/docker/containers-view.jsx:705
 msgid "No images"
 msgstr "Žádné obrazy"
-
-#: pkg/kubernetes/views/registry-dashboard-page.html:80
-msgid "No images pushed"
-msgstr "Nenahrány žádné obrazy"
 
 #: pkg/docker/containers-view.jsx:707
 msgid "No images that match the current filter"
@@ -5479,13 +4534,7 @@ msgstr ""
 "crashkernel (např. v /etc/default/grub) pro vyhrazení paměti při startu. "
 "Příklad: crashkernel=512M"
 
-#: pkg/kubernetes/scripts/dashboard.js:384
-msgid ""
-"No metadata file was selected. Please select a Kubernetes metadata file."
-msgstr ""
-"Nebyl vybrán žádný soubor s metadaty. Vyberte soubor s metadaty Kubernetes"
-
-#: pkg/machines/components/vmnetworktab.jsx:40
+#: pkg/machines/components/vmnetworktab.jsx:70
 msgid "No network interfaces defined for this VM"
 msgstr "Pro tento virt. stroj nebyla určena žádná síťová rozhraní"
 
@@ -5497,14 +4546,6 @@ msgstr "Na tomto hostiteli není definována žádná síť"
 msgid "No networks available"
 msgstr "Žádné sítě k dispozici"
 
-#: pkg/kubernetes/views/dashboard-page.html:117
-msgid "No nodes in cluster"
-msgstr "Žádné uzly v clusteru"
-
-#: pkg/ovirt/components/App.jsx:61
-msgid "No oVirt connection"
-msgstr "Žádné připojení k oVirt"
-
 #: pkg/networkmanager/firewall.jsx:937
 msgid "No open ports"
 msgstr "Žádné otevřené porty"
@@ -5512,26 +4553,6 @@ msgstr "Žádné otevřené porty"
 #: pkg/storaged/content-views.jsx:526
 msgid "No partitioning"
 msgstr "Žádný oddíl"
-
-#: pkg/kubernetes/views/dashboard-page.html:40
-msgid "No pods deployed"
-msgstr "Nejsou nasazené žádné pody"
-
-#: pkg/kubernetes/views/replicationcontroller-pods.html:6
-msgid "No pods replicated"
-msgstr "Nejsou replikovány žádné pody"
-
-#: pkg/kubernetes/views/node-capacity.html:11
-msgid "No pods scheduled"
-msgstr "Nejsou naplánovány žádné pody"
-
-#: pkg/kubernetes/views/service-endpoint.html:10
-msgid "No pods selected"
-msgstr "Nejsou vybrány žádné pody"
-
-#: pkg/kubernetes/views/project-listing.html:37
-msgid "No projects are present."
-msgstr "Nejsou přítomné žádné projekty."
 
 #: pkg/users/local.js:449
 msgid "No real name specified"
@@ -5577,41 +4598,10 @@ msgstr "Žádné čekající aktualizace"
 msgid "No user name specified"
 msgstr "Nebylo zadáno uživatelské jméno"
 
-#: pkg/kubernetes/views/project-listing.html:112
-msgid "No users are present."
-msgstr "Nejsou přítomní žádní uživatelé"
-
 #: pkg/storaged/vgroups-panel.jsx:114
 msgid "No volume groups created"
 msgstr "Nejsou vytvořené žádné skupiny svazků"
 
-#: pkg/kubernetes/views/volumes-page.html:44
-msgid "No volumes are present."
-msgstr "Nejsou přítomné žádné svazky."
-
-#: pkg/kubernetes/views/dashboard-page.html:73
-msgid "No volumes in use"
-msgstr "Žádné svazky v používání"
-
-#: pkg/kubernetes/views/containers-listing.html:15
-#: pkg/kubernetes/views/node-page.html:14
-#: pkg/kubernetes/views/node-panel.html:7 pkg/kubernetes/views/pod-body.html:18
-#: pkg/kubernetes/views/topology-page.html:38
-msgid "Node"
-msgstr "Uzel"
-
-#: pkg/kubernetes/index.html:49 pkg/kubernetes/views/dashboard-page.html:90
-#: pkg/kubernetes/views/dashboard-page.html:192
-#: pkg/kubernetes/views/nodes-page.html:36
-msgid "Nodes"
-msgstr "Uzly"
-
-#: pkg/kubernetes/views/topology-page.html:39
-msgid "Nodes are the machines that run your containers."
-msgstr "Uzly jsou stroje na kterých jsou spouštěné kontejnery."
-
-#: pkg/kubernetes/views/pod-page.html:27 pkg/kubernetes/views/pod-panel.html:53
-#: pkg/kubernetes/views/service-body.html:15
 #: node_modules/registry-image-widgets/views/image-config.html:29
 #: pkg/kdump/kdump-view.jsx:419 pkg/networkmanager/firewall.jsx:732
 #: pkg/tuned/dialog.js:231
@@ -5622,23 +4612,13 @@ msgstr "Žádný"
 msgid "None (Isolated Network)"
 msgstr "Žádné (izolovaná síť)"
 
-#: pkg/kubernetes/views/details-page.html:53
-#: pkg/kubernetes/views/node-body.html:42 pkg/playground/translate.html:29
-#: pkg/kubernetes/scripts/nodes.js:319
+#: pkg/playground/translate.html:29
 msgid "Not Ready"
 msgstr "Nepřipraveno"
-
-#: pkg/kubernetes/scripts/details.js:496 pkg/kubernetes/scripts/details.js:618
-msgid "Not a valid number of replicas"
-msgstr "Neplatný počet replik"
 
 #: pkg/lib/credentials.js:255
 msgid "Not a valid private key"
 msgstr "Není platná soukromá část klíče"
-
-#: pkg/kubernetes/scripts/details.js:547
-msgid "Not a valid value for Host"
-msgstr "Není platná hodnota pro stroj"
 
 #: pkg/docker/index.html:57
 msgid "Not authorized to access Docker on this system"
@@ -5655,11 +4635,6 @@ msgstr "Není k dispozici"
 #: pkg/selinux/setroubleshoot.js:240
 msgid "Not connected"
 msgstr "Nepřipojeno"
-
-#: pkg/kubernetes/views/deploymentconfig-body.html:17
-#: pkg/kubernetes/views/details-page.html:122
-msgid "Not deployed"
-msgstr "Nenasazeno"
 
 #: pkg/storaged/lvol-tabs.jsx:369
 msgid "Not enough space to grow."
@@ -5703,34 +4678,9 @@ msgstr "Notebook"
 msgid "Notice and above"
 msgstr "Oznámení a závažnější"
 
-#: pkg/ovirt/components/vcpuModal.jsx:55
-msgid "Number of virtual CPUs that gonna be used."
-msgstr "Počet virtuálních procesorů které mají být použity."
-
-# auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId: po/ipa
-#: pkg/ovirt/components/HostToMaintenance.jsx:47
-#: pkg/ovirt/components/VdsmView.jsx:96 pkg/ovirt/components/VdsmView.jsx:109
-msgid "OK"
-msgstr "OK"
-
-#: pkg/kubernetes/views/node-body.html:13
-#: pkg/ovirt/components/ClusterTemplates.jsx:135
-#: pkg/ovirt/components/ClusterVms.jsx:181
-msgid "OS"
-msgstr "Operační systém"
-
-# auto translated by TM merge from project: libvirt, version: master, DocId: libvirt
-#: pkg/ovirt/components/OVirtTab.jsx:148
-msgid "OS Type:"
-msgstr "Druh oper. systému:"
-
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:274
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:313
 msgid "OS Vendor"
 msgstr "Výrobce oper. systému"
-
-#: pkg/kubernetes/views/nodes-page.html:19
-msgid "OS Versions"
-msgstr "Verze oper. systému"
 
 #: pkg/selinux/setroubleshoot-view.jsx:394
 msgid "Occurred $0"
@@ -5820,7 +4770,7 @@ msgstr ""
 msgid "Only editable when the guest is shut off"
 msgstr "Upravit je možné pouze pokud je host vypnutý"
 
-#: pkg/shell/index.html:43 pkg/shell/simple.html:29 pkg/shell/stub.html:33
+#: pkg/shell/index.html:43 pkg/shell/simple.html:29
 msgid "Ooops!"
 msgstr "Jejda!"
 
@@ -5828,8 +4778,8 @@ msgstr "Jejda!"
 msgid "Open"
 msgstr "Otevřít"
 
-#: pkg/kubernetes/views/nodes-page.html:42 pkg/systemd/index.html:98
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:289
+#: pkg/systemd/index.html:98
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:328
 msgid "Operating System"
 msgstr "Operační systém"
 
@@ -5837,18 +4787,18 @@ msgstr "Operační systém"
 msgid "Operation '$operation' on $target"
 msgstr "Operace „$operation“ na $target"
 
+#: pkg/machines/components/storagePools/storagePool.jsx:175
+#: pkg/machines/components/storagePools/storagePool.jsx:180
+msgid "Operation is in progress"
+msgstr ""
+
 #: pkg/storaged/drives-panel.jsx:94
 msgctxt "storage"
 msgid "Optical Drive"
 msgstr "Mechanika optických disků"
 
-#: pkg/ovirt/components/OVirtTab.jsx:157
-msgid "Optimized for:"
-msgstr "Optimalizováno pro:"
-
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId: po/ipa
-#: pkg/kubernetes/views/volume-body.html:130 pkg/storaged/crypto-tab.jsx:134
-#: pkg/storaged/vdos-panel.jsx:78
+#: pkg/storaged/crypto-tab.jsx:134 pkg/storaged/vdos-panel.jsx:78
 msgid "Options"
 msgstr "Přepínače"
 
@@ -5878,9 +4828,7 @@ msgid "Other Options"
 msgstr "Ostatní volby"
 
 # auto translated by TM merge from project: Fedora Release Notes, version: f23, DocId: pot/Overview
-#: pkg/docker/index.html:297 pkg/kubernetes/index.html:43
-#: pkg/kubernetes/registry.html:43
-#: pkg/machines/components/networks/network.jsx:71
+#: pkg/docker/index.html:297 pkg/machines/components/networks/network.jsx:71
 #: pkg/machines/components/storagePools/storagePool.jsx:83
 #: pkg/machines/components/vm/vm.jsx:47
 msgid "Overview"
@@ -5893,10 +4841,6 @@ msgstr "Přepsat existující data nulami"
 #: pkg/systemd/hwinfo.jsx:249
 msgid "PCI"
 msgstr "PCI"
-
-#: pkg/kubernetes/views/volume-body.html:4
-msgid "PD Name"
-msgstr "Název PD"
 
 #: pkg/packagekit/updates.jsx:501
 msgid "Package information"
@@ -5932,8 +4876,7 @@ msgid "Part of "
 msgstr "Součástí"
 
 # auto translated by TM merge from project: blivet-gui, version: f23-branch, DocId: blivet-gui
-#: pkg/kubernetes/views/volume-body.html:8
-#: pkg/kubernetes/views/volume-body.html:18 pkg/storaged/content-views.jsx:141
+#: pkg/storaged/content-views.jsx:141
 msgid "Partition"
 msgstr "Oddíl"
 
@@ -5972,10 +4915,10 @@ msgid "Passphrases do not match"
 msgstr "Zadání heslové fráze se neshodují"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId: po/ipa
-#: pkg/kubernetes/views/auth-form.html:105 pkg/lib/machine-auth-failed.html:8
-#: pkg/lib/machine-change-auth.html:52 pkg/lib/machine-sync-users.html:61
-#: pkg/shell/index.html:203 pkg/shell/index.html:231 pkg/shell/index.html:244
-#: pkg/users/index.html:118 pkg/users/index.html:173 src/ws/login.html:50
+#: pkg/lib/machine-auth-failed.html:8 pkg/lib/machine-change-auth.html:52
+#: pkg/lib/machine-sync-users.html:61 pkg/shell/index.html:203
+#: pkg/shell/index.html:231 pkg/shell/index.html:244 pkg/users/index.html:118
+#: pkg/users/index.html:173 src/ws/login.html:50
 #: pkg/storaged/iscsi-panel.jsx:47 pkg/storaged/iscsi-panel.jsx:151
 #: pkg/subscriptions/subscriptions-register.jsx:89
 #: pkg/subscriptions/subscriptions-register.jsx:156
@@ -6018,11 +4961,7 @@ msgid "Paste the contents of your public SSH key file here"
 msgstr "Sem vložte obsah veřejné části svého ssh klíče"
 
 # auto translated by TM merge from project: selinux (policycoreutils), version: master, DocId: policycoreutils
-#: pkg/kubernetes/views/pv-modify.html:126
-#: pkg/kubernetes/views/volume-body.html:37
-#: pkg/kubernetes/views/volume-body.html:49
-#: pkg/kubernetes/views/volume-body.html:101 pkg/systemd/services.html:126
-#: pkg/machines/components/deleteDialog.jsx:45
+#: pkg/systemd/services.html:126 pkg/machines/components/deleteDialog.jsx:45
 msgid "Path"
 msgstr "Popis umístění"
 
@@ -6050,7 +4989,7 @@ msgstr "Popis umístění na serveru je třeba vyplnit."
 msgid "Path on server must start with \"/\"."
 msgstr "Je třeba, aby popis umístění na serveru začínal na „/“."
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:154
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:193
 msgid "Path to ISO file on host's file system"
 msgstr "Popis umístění ISO souboru na souborovém systému hostitele"
 
@@ -6066,10 +5005,6 @@ msgstr "Popisy umístění"
 #: pkg/machines/components/vm/vmActions.jsx:77
 msgid "Pause"
 msgstr "Pozastavit"
-
-#: pkg/kubernetes/views/volumes-page.html:53
-msgid "Pending Volume Claims"
-msgstr "Čekající požadavky svazku"
 
 #: pkg/systemd/index.html:152
 msgid "Performance Profile"
@@ -6097,14 +5032,6 @@ msgstr "Trvalost"
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:61
 msgid "Persistent"
 msgstr "Trvalé"
-
-#: pkg/kubernetes/views/volumes-page.html:14
-msgid "Persistent Volumes"
-msgstr "Trvalé svazky"
-
-#: pkg/kubernetes/views/pod-body.html:16
-msgid "Phase"
-msgstr "Fáze"
 
 #: pkg/storaged/vdo-details.jsx:277
 msgid "Physical"
@@ -6161,14 +5088,6 @@ msgstr "Potvrďte vynucené smazání $0"
 msgid "Please confirm stopping of $0"
 msgstr "Potvrďte zastavení $0"
 
-#: pkg/ovirt/components/HostToMaintenance.jsx:34
-msgid "Please confirm, the host shall be switched to maintenance mode."
-msgstr "Potvrďte že má být stroj přepnut do režimu údržby."
-
-#: pkg/kubernetes/scripts/dashboard.js:439
-msgid "Please create another namespace for $0 \"$1\""
-msgstr "Vytvořte jiný jmenný prostor pro $0 „$1“"
-
 #: pkg/machines/components/diskAdd.jsx:425
 msgid "Please enter new volume name"
 msgstr "Zadejte název pro nový svazek"
@@ -6180,89 +5099,6 @@ msgstr "Zadejte velikost nového svazku"
 #: pkg/networkmanager/firewall.jsx:862
 msgid "Please install the $0 package"
 msgstr "Nainstalujte balíček $0"
-
-#: pkg/kubernetes/scripts/volumes.js:582
-msgid "Please provide a GlusterFS volume name"
-msgstr "Zadejte název GlusterFS svazku"
-
-#: pkg/kubernetes/scripts/connection.js:550
-msgid "Please provide a username"
-msgstr "Zadejte uživatelské jméno"
-
-#: pkg/kubernetes/scripts/volumes.js:640
-msgid "Please provide a valid NFS server"
-msgstr "Zadejte platný NFS server"
-
-#: pkg/kubernetes/scripts/connection.js:535
-msgid "Please provide a valid address"
-msgstr "Zadejte platnou adresu"
-
-#: pkg/kubernetes/scripts/volumes.js:810
-msgid "Please provide a valid filesystem type"
-msgstr "Zadejte platný typ souborového systému"
-
-#: pkg/kubernetes/scripts/volumes.js:818
-msgid "Please provide a valid interface"
-msgstr "Zadejte platné rozhraní"
-
-#: pkg/kubernetes/scripts/volumes.js:802
-msgid "Please provide a valid logical unit number"
-msgstr "Zadejte platné číslo logického svazku"
-
-#: pkg/kubernetes/scripts/volumes.js:483
-msgid "Please provide a valid name"
-msgstr "Zadejte platný název"
-
-#: pkg/kubernetes/scripts/dashboard.js:376
-msgid "Please provide a valid namespace."
-msgstr "Zadejte platný jmenný prostor."
-
-#: pkg/kubernetes/scripts/volumes.js:648 pkg/kubernetes/scripts/volumes.js:703
-msgid "Please provide a valid path"
-msgstr "Zadejte platný popis umístění"
-
-#: pkg/kubernetes/scripts/volumes.js:794
-msgid "Please provide a valid qualified name"
-msgstr "Zadejte platný kvalifikovaný název"
-
-#: pkg/kubernetes/scripts/volumes.js:491
-msgid "Please provide a valid storage capacity."
-msgstr "Zadejte platnou kapacitu úložiště."
-
-#: pkg/kubernetes/scripts/volumes.js:786
-msgid "Please provide a valid target"
-msgstr "Zadejte platný cíl"
-
-#: pkg/ovirt/components/InstallationDialog.jsx:83
-msgid ""
-"Please provide fully qualified domain name and port of the oVirt engine."
-msgstr "Zadejte úplný doménový název a port oVirt engine."
-
-#: pkg/ovirt/components/InstallationDialog.jsx:137
-msgid ""
-"Please provide valid oVirt engine fully qualified domain name (FQDN) and "
-"port (443 by default)"
-msgstr ""
-"Zadejte platný úplný doménový název (FQDN) a port (výchozí je 443) oVirt "
-"engine"
-
-#: pkg/ovirt/components/ConsoleClientResources.jsx:32
-msgid ""
-"Please refer to oVirt's $0 for more information about Remote Viewer setup."
-msgstr ""
-"Pro více informací o nastavení prohlížeče na dálku nahlédněte do $0 k oVirt."
-
-#: pkg/kubernetes/scripts/volumes.js:475
-msgid "Please select a valid access mode"
-msgstr "Zadejte platný přístupový režim"
-
-#: pkg/kubernetes/scripts/volumes.js:573
-msgid "Please select a valid endpoint"
-msgstr "Zadejte platný koncový bod"
-
-#: pkg/kubernetes/scripts/volumes.js:499
-msgid "Please select a valid policy option."
-msgstr "Vyberte platnou volbu zásady."
 
 #: pkg/users/local.js:1232
 msgid "Please specify an expiration date"
@@ -6280,62 +5116,9 @@ msgstr "Pro přístup k jeho konzoli je třeba virtuální stroj napřed zapnout
 msgid "Please try another term"
 msgstr "Zkuste jiný pojem"
 
-#: pkg/kubernetes/scripts/nodes.js:401
-msgid "Please type an address"
-msgstr "Zadejte adresu"
-
-#: pkg/ovirt/components/ClusterVms.jsx:37
-msgid "Please wait till VMs list is loaded from the server."
-msgstr "Vyčkejte na načtení seznamu virt. strojů ze serveru"
-
-#: pkg/ovirt/components/ClusterTemplates.jsx:30
-msgid "Please wait till list of templates is loaded from the server."
-msgstr "Vyčkejte na načtení seznamu šablon ze serveru"
-
-#: pkg/machines/components/vmnetworktab.jsx:139
+#: pkg/machines/components/vmnetworktab.jsx:184
 msgid "Plug"
 msgstr "Připojit"
-
-#: pkg/kubernetes/views/containers-listing.html:12
-#: pkg/kubernetes/views/pod-page.html:12
-#: pkg/kubernetes/views/topology-page.html:14
-msgid "Pod"
-msgstr "Pod"
-
-#: pkg/kubernetes/views/pod-body.html:20
-msgid "Pod Address"
-msgstr "Adresa podu"
-
-#: pkg/kubernetes/views/service-endpoint.html:4
-#: pkg/kubernetes/views/service-endpoint.html:9
-msgid "Pod Endpoints"
-msgstr "Koncové body podu"
-
-#: pkg/kubernetes/views/replicationcontroller-pods.html:4
-msgid "Pod Replicated"
-msgstr "Replikovaný pod"
-
-#: pkg/kubernetes/views/replicationcontroller-pods.html:11
-#: pkg/kubernetes/views/service-endpoint.html:15
-msgid "Pod Selector"
-msgstr "Výběr podu"
-
-#: pkg/kubernetes/views/dashboard-page.html:18
-#: pkg/kubernetes/views/details-page.html:166
-#: pkg/kubernetes/views/pv-claim.html:37
-#: pkg/kubernetes/views/replicationcontroller-page.html:17
-#: pkg/kubernetes/views/replicationcontroller-panel.html:12
-#: pkg/kubernetes/scripts/details.js:227
-msgid "Pods"
-msgstr "Pody"
-
-#: pkg/kubernetes/views/topology-page.html:15
-msgid ""
-"Pods contain one or more containers that run together on a node, containing "
-"your application code."
-msgstr ""
-"Pody obsahují jeden nebo více kontejnerů které jsou společně spuštěné na "
-"uzlu a obsahuje kód vaší aplikace."
 
 # auto translated by TM merge from project: anaconda, version: f25, DocId: main
 #: pkg/machines/components/deleteDialog.jsx:53
@@ -6345,10 +5128,6 @@ msgstr ""
 #: pkg/storaged/content-views.jsx:133
 msgid "Pool"
 msgstr "Úložiště"
-
-#: pkg/kubernetes/views/volume-body.html:60
-msgid "Pool Name"
-msgstr "Název fondu"
 
 #: pkg/storaged/utils.js:191
 msgid "Pool for Thin Logical Volumes"
@@ -6362,17 +5141,12 @@ msgstr "Fond pro thin svazky"
 msgid "Pool for thinly provisioned volumes"
 msgstr "Fond pro tence poskytované svazky"
 
-#: pkg/kubernetes/views/imagestream-modify.html:45
-msgid "Populate"
-msgstr "Osadit"
-
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId: po/ipa
 #: pkg/lib/machine-change-port.html:23
 #: pkg/machines/components/vm/bootOrderModal.jsx:98
 #: pkg/machines/components/vm/bootOrderModal.jsx:110
 #: pkg/machines/components/vmDiskColumns.jsx:48
-#: pkg/machines/components/vmnetworktab.jsx:78
-#: pkg/ovirt/components/InstallationDialog.jsx:65
+#: pkg/machines/components/vmnetworktab.jsx:108
 #: pkg/storaged/iscsi-panel.jsx:127
 msgid "Port"
 msgstr "Port"
@@ -6387,8 +5161,7 @@ msgid "Portable"
 msgstr "Přenosný"
 
 # auto translated by TM merge from project: firewalld, version: master, DocId: po/firewalld
-#: pkg/docker/index.html:504 pkg/kubernetes/views/container-body.html:12
-#: pkg/kubernetes/views/service-body.html:13 pkg/networkmanager/index.html:213
+#: pkg/docker/index.html:504 pkg/networkmanager/index.html:213
 #: pkg/networkmanager/index.html:323
 #: node_modules/registry-image-widgets/views/image-config.html:27
 #: pkg/docker/containers-view.jsx:414 pkg/networkmanager/interfaces.js:2986
@@ -6404,7 +5177,6 @@ msgid "Power Options"
 msgstr "Možnosti napájení"
 
 #: pkg/machines/components/vcpuModal.jsx:206
-#: pkg/ovirt/components/vcpuModal.jsx:64
 msgid "Preferred number of sockets to expose to the guest."
 msgstr "Upřednostňovaný počet patic který odhalit hostovi."
 
@@ -6424,10 +5196,6 @@ msgstr "Délka předpony nebo maska sítě"
 #: pkg/networkmanager/interfaces.js:826
 msgid "Preparing"
 msgstr "Příprava"
-
-#: pkg/ovirt/rephraseUI.js:25
-msgid "Preparing for Maintenance"
-msgstr "Příprava na údržbu"
 
 # auto translated by TM merge from project: anaconda, version: master, DocId: main
 #: pkg/networkmanager/interfaces.js:3631
@@ -6469,11 +5237,6 @@ msgstr "Priorita $priority"
 msgid "Private"
 msgstr "Soukromé"
 
-#: pkg/kubernetes/scripts/projects.js:1042
-msgid "Private: Allow only specific users or groups to pull images"
-msgstr ""
-"Soukromé: umožnit nahrávat obrazy pouze konkrétním uživatelům či skupinám"
-
 #: pkg/shell/index.html:39
 msgid "Privileged"
 msgstr "Privilegované"
@@ -6509,58 +5272,9 @@ msgstr "Identif. produktu"
 msgid "Product name"
 msgstr "Název produktu"
 
-#: pkg/kubernetes/views/containers-listing.html:13
-#: pkg/kubernetes/views/dashboard-page.html:159
-#: pkg/kubernetes/views/deploymentconfig-body.html:4
-#: pkg/kubernetes/views/details-page.html:35
-#: pkg/kubernetes/views/details-page.html:71
-#: pkg/kubernetes/views/details-page.html:104
-#: pkg/kubernetes/views/details-page.html:138
-#: pkg/kubernetes/views/details-page.html:172
-#: pkg/kubernetes/views/imagestream-modify.html:21
-#: pkg/kubernetes/views/pod-body.html:4
-#: pkg/kubernetes/views/replicationcontroller-body.html:4
-#: pkg/kubernetes/views/route-body.html:4
-#: pkg/kubernetes/views/service-body.html:4
-#: pkg/kubernetes/views/volumes-page.html:58
-msgid "Project"
-msgstr "Projekt"
-
-#: pkg/kubernetes/views/project-body.html:20
-msgid "Project Members"
-msgstr "Členové projektu"
-
-#: pkg/kubernetes/views/project-body.html:3
-msgid "Project access policy allows anonymous users to pull images."
-msgstr ""
-"Zásada přístupu k projektu umožňuje nahrávat obrazy anonymním uživatelům."
-
-#: pkg/kubernetes/views/project-body.html:8
-msgid "Project access policy allows any authenticated user to pull images."
-msgstr ""
-"Zásada přístupu k projektu umožňuje nahrávat obrazy jakémukoli přihlášenému "
-"uživateli."
-
-#: pkg/kubernetes/views/project-body.html:13
-msgid "Project access policy only allows specific members to access images."
-msgstr ""
-"Zásada přístupu k projektu umožňuje k obrazům přistupovat pouze konkrétním "
-"členům."
-
-#: pkg/shell/index.html:86 pkg/shell/simple.html:62 pkg/shell/stub.html:69
+#: pkg/shell/index.html:86 pkg/shell/simple.html:62
 msgid "Project website"
 msgstr "Webové stránky projektu"
-
-#: pkg/kubernetes/views/filter-project.html:5
-msgid "Project:"
-msgstr "Projekt:"
-
-#: pkg/kubernetes/index.html:88 pkg/kubernetes/registry.html:55
-#: pkg/kubernetes/views/group-delete.html:10
-#: pkg/kubernetes/views/project-listing.html:9
-#: pkg/kubernetes/views/user-delete.html:10
-msgid "Projects"
-msgstr "Projekty"
 
 #: pkg/users/local.js:91
 msgid "Prompting via passwd timed out"
@@ -6590,10 +5304,6 @@ msgstr "Protokol"
 msgid "Proxy"
 msgstr "Proxy"
 
-#: pkg/kubernetes/views/node-body.html:25
-msgid "Proxy Version"
-msgstr "Verze proxy"
-
 #: pkg/lib/machine-auth-failed.html:9 pkg/shell/index.html:230
 msgid "Public Key"
 msgstr "Veřejná část klíče"
@@ -6602,25 +5312,9 @@ msgstr "Veřejná část klíče"
 msgid "Public pulling repo"
 msgstr "Veřejný repozitář pro stahování"
 
-#: pkg/kubernetes/views/registry-dashboard-page.html:152
-msgid "Pull an image:"
-msgstr "Stáhnout obraz:"
-
-#: pkg/kubernetes/views/imagestream-modify.html:66
-msgid "Pull from"
-msgstr "Stáhnout z"
-
-#: pkg/kubernetes/scripts/images.js:635
-msgid "Pull specific tags from another image repository"
-msgstr "Stáhnout konkrétní štítky z jiného repozitáře obrazů"
-
 #: pkg/storaged/content-views.jsx:645
 msgid "Purpose"
 msgstr "Účel"
-
-#: pkg/kubernetes/views/registry-dashboard-page.html:141
-msgid "Push an image:"
-msgstr "Nahrát obraz:"
 
 #: pkg/machines/components/machinesConnectionSelector.jsx:31
 msgid "QEMU/KVM System connection"
@@ -6629,11 +5323,6 @@ msgstr "Systémové QEMU/KVM spojení"
 #: pkg/machines/components/machinesConnectionSelector.jsx:39
 msgid "QEMU/KVM User connection"
 msgstr "Uživatelské QEMU/KVM spojení"
-
-#: pkg/kubernetes/views/pv-modify.html:148
-#: pkg/kubernetes/views/volume-body.html:77
-msgid "Qualified Name"
-msgstr "Kvalifikovaný název"
 
 #: pkg/storaged/mdraid-details.jsx:186
 msgid "RAID ($0)"
@@ -6713,21 +5402,9 @@ msgstr "RAID úroveň"
 msgid "RAID Member"
 msgstr "Člen RAID"
 
-#: pkg/ovirt/provider.js:179
-msgid "REBOOT action failed"
-msgstr "Akce RESTART se nezdařila"
-
-#: pkg/ovirt/provider.js:164
-msgid "REBOOT_VM action failed: %s0"
-msgstr "Akce RESTART_VIRTSTROJE se nezdařila: %s0"
-
 #: pkg/lib/machine-info.js:86
 msgid "Rack Mount Chassis"
 msgstr "Skříň do stojanu"
-
-#: pkg/kubernetes/scripts/volumes.js:200
-msgid "Rados Block Device"
-msgstr "Rados blokové zařízení"
 
 #: pkg/networkmanager/interfaces.js:3632
 msgid "Random"
@@ -6745,37 +5422,9 @@ msgstr "Je třeba, aby rozsah byl striktně řazený"
 msgid "Raw to a device"
 msgstr "Neupravované na zařízení"
 
-# auto translated by TM merge from project: virt-manager, version: master, DocId: virt-manager
-#: pkg/kubernetes/views/pv-modify.html:195
-#: pkg/kubernetes/views/volume-body.html:10
-#: pkg/kubernetes/views/volume-body.html:20
-#: pkg/kubernetes/views/volume-body.html:44
-#: pkg/kubernetes/views/volume-body.html:51
-#: pkg/kubernetes/views/volume-body.html:71
-#: pkg/kubernetes/views/volume-body.html:85
-#: pkg/kubernetes/views/volume-body.html:93
-#: pkg/kubernetes/views/volume-body.html:110
-#: pkg/kubernetes/views/volume-body.html:122
-#: pkg/kubernetes/views/volume-body.html:136
-#: pkg/kubernetes/views/volume-body.html:143
-msgid "Read Only"
-msgstr "Pouze pro čtení"
-
-#: pkg/kubernetes/scripts/volumes.js:211
-msgid "Read and write from a single node"
-msgstr "Čtení a zápis z jednoho uzlu"
-
-#: pkg/kubernetes/scripts/volumes.js:213
-msgid "Read and write from multiple nodes"
-msgstr "Čtení a zápis z vícero uzlů"
-
 #: pkg/systemd/hwinfo.jsx:193
 msgid "Read more..."
 msgstr "Zjistit více…"
-
-#: pkg/kubernetes/scripts/volumes.js:212
-msgid "Read only from multiple nodes"
-msgstr "Pouze čtení z vícero uzlů"
 
 #: pkg/docker/index.html:363
 msgid "ReadOnly"
@@ -6797,13 +5446,11 @@ msgstr "Načítání…"
 msgid "Readonly"
 msgstr "Pouze pro čtení"
 
-#: pkg/kubernetes/views/details-page.html:52
-#: pkg/kubernetes/views/node-body.html:41 pkg/playground/translate.html:19
-#: pkg/playground/translate.html:179 pkg/kubernetes/scripts/nodes.js:324
+#: pkg/playground/translate.html:19
 msgid "Ready"
 msgstr "Připraveno"
 
-#: pkg/playground/translate.html:24 pkg/playground/translate.html:184
+#: pkg/playground/translate.html:24
 msgctxt "verb"
 msgid "Ready"
 msgstr "Připraveno"
@@ -6824,10 +5471,6 @@ msgstr ""
 msgid "Real host name must be 64 characters or less"
 msgstr "Je třeba, aby skutečný název stroje byl nanejvýš 64 znaků dlouhý"
 
-#: pkg/kubernetes/views/node-body.html:45
-msgid "Reason"
-msgstr "Důvod"
-
 # auto translated by TM merge from project: system-config-kdump, version: master, DocId: system-config-kdump
 #: pkg/lib/cockpit-components-logs-panel.jsx:82 pkg/lib/journal.js:246
 msgid "Reboot"
@@ -6843,16 +5486,11 @@ msgstr "Příchozí"
 msgid "Recent"
 msgstr "Nedávné"
 
-#: pkg/kubernetes/views/pv-body.html:6 pkg/kubernetes/views/pv-modify.html:56
-msgid "Reclaim Policy"
-msgstr "Zásada uvolňování"
-
 #: pkg/storaged/format-dialog.jsx:248
 msgid "Recommended default"
 msgstr "Doporučené výchozí"
 
-#: pkg/kubernetes/index.html:108 pkg/kubernetes/registry.html:75
-#: pkg/shell/index.html:386 pkg/shell/simple.html:138 pkg/shell/stub.html:180
+#: pkg/shell/index.html:386 pkg/shell/simple.html:138
 #: pkg/machines/components/serialConsole.jsx:138
 msgid "Reconnect"
 msgstr "Znovu připojit"
@@ -6864,10 +5502,6 @@ msgstr "Zotavování"
 #: pkg/storaged/jobs-panel.jsx:65
 msgid "Recovering RAID Device $target"
 msgstr "Zotavování RAID zařízení $target"
-
-#: pkg/kubernetes/scripts/volumes.js:219
-msgid "Recycle"
-msgstr "Znovu využít"
 
 #: pkg/docker/storage.jsx:389
 msgid "Reformat and add disks"
@@ -6889,36 +5523,18 @@ msgstr "Odmítá se připojit. Klíč stroje neodpovídá"
 msgid "Refusing to connect. Hostkey is unknown"
 msgstr "Odmítá se připojit. Klíč stroje není znám"
 
-#: pkg/kubernetes/views/pv-modify.html:206 pkg/subscriptions/main.js:46
-#: pkg/subscriptions/subscriptions-view.jsx:159
+#: pkg/subscriptions/main.js:46 pkg/subscriptions/subscriptions-view.jsx:159
 msgid "Register"
 msgstr "Zaregistrovat"
-
-#: pkg/kubernetes/views/volumes-page.html:12
-msgid "Register New Volume"
-msgstr "Zaregistrovat nový svazek"
-
-#: pkg/kubernetes/views/pv-modify.html:4
-msgid "Register Persistent Volume"
-msgstr "Zaregistrovat trvalý svazek"
-
-#: pkg/ovirt/components/InstallationDialog.jsx:108
-msgid "Register oVirt"
-msgstr "Zaregistrovat oVirt"
 
 #: pkg/subscriptions/main.js:73
 msgid "Register system"
 msgstr "Zaregistrovat systém"
 
-#: pkg/ovirt/components/InstallationDialog.jsx:128
-msgid "Registering oVirt to Cockpit"
-msgstr "Registruje se Ovirt do Cockpit"
-
 #: pkg/packagekit/updates.jsx:777
 msgid "Register…"
 msgstr "Zaregistrovat…"
 
-#: pkg/ovirt/components/App.jsx:62 pkg/ovirt/components/VdsmView.jsx:100
 #: pkg/systemd/init.js:546
 msgid "Reload"
 msgstr "Načíst znovu"
@@ -6927,7 +5543,7 @@ msgstr "Načíst znovu"
 msgid "Reload Propagated From"
 msgstr "Znovu načíst propagováno z"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:202
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:241
 msgid "Remote URL"
 msgstr "Vzdálená URL adresa"
 
@@ -6939,10 +5555,6 @@ msgstr "Vzdálené přes NFS"
 msgid "Remote over SSH"
 msgstr "Vzdálené přes SSH"
 
-#: pkg/kubernetes/views/imagestream-modify.html:89
-msgid "Remote registry is insecure"
-msgstr "Vzdálený registr není bezpečný"
-
 #: pkg/storaged/drives-panel.jsx:90 pkg/storaged/drives-panel.jsx:92
 msgctxt "storage"
 msgid "Removable Drive"
@@ -6953,10 +5565,6 @@ msgid "Removals:"
 msgstr "Odebrání:"
 
 # auto translated by TM merge from project: system-config-printer, version: master, DocId: system-config-printer
-#: pkg/kubernetes/views/group-delete.html:21
-#: pkg/kubernetes/views/remove-role-dialog.html:8
-#: pkg/kubernetes/views/user-delete.html:25
-#: pkg/kubernetes/views/user-group-remove.html:10
 #: pkg/apps/application-list.jsx:85 pkg/apps/application.jsx:109
 #: pkg/storaged/crypto-keyslots.jsx:393 pkg/storaged/crypto-keyslots.jsx:429
 #: pkg/storaged/nfs-details.jsx:308
@@ -6971,37 +5579,13 @@ msgstr "Odebrat $0"
 msgid "Remove $0?"
 msgstr "Odebrat $0?"
 
-#: pkg/kubernetes/views/group-delete.html:3
-msgid "Remove Group"
-msgstr "Odebrat skupinu"
-
-#: pkg/kubernetes/views/user-group-remove.html:3
-msgid "Remove Member"
-msgstr "Odebrat člena"
-
-#: pkg/kubernetes/views/remove-role-dialog.html:3
-msgid "Remove Role"
-msgstr "Odebrat roli"
-
 #: pkg/storaged/crypto-keyslots.jsx:423
 msgid "Remove Tang keyserver"
 msgstr "Odebrat Tang server s klíči"
 
-#: pkg/kubernetes/views/user-delete.html:3
-msgid "Remove User"
-msgstr "Odebrat uživatele"
-
 #: pkg/storaged/vdo-details.jsx:116
 msgid "Remove device"
 msgstr "Odebrat zařízení"
-
-#: pkg/kubernetes/views/image-delete.html:3
-msgid "Remove image tag"
-msgstr "Odebrat štítek obrazu"
-
-#: pkg/kubernetes/views/user-remove-membership.html:3
-msgid "Remove membership"
-msgstr "Odebrat člena"
 
 #: pkg/storaged/crypto-keyslots.jsx:387
 msgid "Remove passphrase"
@@ -7090,32 +5674,6 @@ msgstr "Opakovat každý rok"
 msgid "Repeat passphrase"
 msgstr "Zopakovat heslovou frázi"
 
-#: pkg/kubernetes/views/deploymentconfig-body.html:9
-#: pkg/kubernetes/views/details-page.html:141
-#: pkg/kubernetes/views/replicationcontroller-body.html:9
-#: pkg/kubernetes/views/replicationcontroller-modify.html:8
-msgid "Replicas"
-msgstr "Repliky"
-
-#: pkg/kubernetes/views/replicationcontroller-page.html:14
-#: pkg/kubernetes/views/replicationcontroller-panel.html:10
-#: pkg/kubernetes/views/topology-page.html:22
-msgid "Replication Controller"
-msgstr "Řadič replikace"
-
-#: pkg/kubernetes/views/details-page.html:132
-#: pkg/kubernetes/scripts/details.js:224
-msgid "Replication Controllers"
-msgstr "Řadiče replikace"
-
-#: pkg/kubernetes/views/topology-page.html:23
-msgid ""
-"Replication controllers dynamically create instances of pods from templates, "
-"and remove pods when necessary."
-msgstr ""
-"Řadiče replikace dynamicky vytvářejí instance podů ze šablon a v případě "
-"nezbytnosti je také odebírají."
-
 # auto translated by TM merge from project: abrt, version: rhel7, DocId: abrt
 #: pkg/systemd/logs.js:512
 msgid "Report"
@@ -7140,18 +5698,6 @@ msgstr "Hlášení nebylo úspěšné. Zkuste spustit `reporter-ureport -d "
 msgid "Repository"
 msgstr "Repozitář"
 
-#: pkg/kubernetes/views/volume-body.html:24
-msgid "Repository URL"
-msgstr "URL adresa repozitáře"
-
-#: pkg/kubernetes/views/pvc-body.html:21 pkg/kubernetes/views/pvc-body.html:35
-msgid "Requested"
-msgstr "Požadováné"
-
-#: pkg/kubernetes/views/pv-claim.html:13
-msgid "Requests"
-msgstr "Požadavky"
-
 #: pkg/users/local.js:1296
 msgid "Require password change every $0 days"
 msgstr "Vyžadovat změnu hesla každých $0 dnů"
@@ -7167,10 +5713,6 @@ msgstr "Vyžadováno"
 #: pkg/systemd/init.js:717
 msgid "Requires"
 msgstr "Vyžaduje"
-
-#: pkg/kubernetes/views/auth-form.html:54
-msgid "Requires Authentication"
-msgstr "Vyžaduje ověření"
 
 #: pkg/systemd/init.js:718
 msgid "Requisite"
@@ -7221,15 +5763,11 @@ msgstr ""
 msgid "Restart"
 msgstr "Restartovat"
 
-#: pkg/kubernetes/views/container-body.html:20
-msgid "Restart Count"
-msgstr "Počet restartů"
-
 #: pkg/packagekit/updates.jsx:498
 msgid "Restart Now"
 msgstr "Restartovat nyní"
 
-#: pkg/docker/index.html:537 pkg/kubernetes/views/pod-body.html:10
+#: pkg/docker/index.html:537
 msgid "Restart Policy"
 msgstr "Zásada restartu"
 
@@ -7253,10 +5791,6 @@ msgstr "Obnovování spojení"
 msgid "Resume"
 msgstr "Obnovit chod"
 
-#: pkg/kubernetes/scripts/volumes.js:217
-msgid "Retain"
-msgstr "Zachovat"
-
 #: pkg/docker/index.html:553
 msgid "Retries:"
 msgstr "Opětovných pokusů:"
@@ -7275,31 +5809,13 @@ msgid ""
 msgstr ""
 "Použít mé heslo i pro privilegované úlohy a připojování k dalším strojům"
 
-# auto translated by TM merge from project: docbook-locales, version: master, DocId: locale
-#: pkg/kubernetes/views/volume-body.html:26
-msgid "Revision"
-msgstr "Revize"
-
-# auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId: po/ipa
-#: pkg/kubernetes/views/user-add-membership.html:28
-#: pkg/kubernetes/views/user-body.html:5
-#: pkg/kubernetes/views/user-panel.html:28
-msgid "Role"
-msgstr "Role"
-
-#: pkg/kubernetes/views/add-member-role-dialog.html:39
-#: pkg/kubernetes/views/project-body.html:21 pkg/users/index.html:94
+#: pkg/users/index.html:94
 msgid "Roles"
 msgstr "Role"
 
 #: pkg/networkmanager/interfaces.js:1974 pkg/networkmanager/interfaces.js:1991
 msgid "Round Robin"
 msgstr "Round Robin"
-
-#: pkg/kubernetes/views/route-page.html:14
-#: pkg/kubernetes/views/route-panel.html:9
-msgid "Route"
-msgstr "Trasa"
 
 #: pkg/machines/components/create-vm-dialog/pxe-helpers.js:98
 msgid "Route to $0"
@@ -7309,21 +5825,15 @@ msgstr "Trasa na $0"
 msgid "Routed Network"
 msgstr "Směrovaná síť"
 
-#: pkg/kubernetes/views/details-page.html:65
-#: pkg/kubernetes/scripts/details.js:216 pkg/networkmanager/interfaces.js:3325
+#: pkg/networkmanager/interfaces.js:3325
 msgid "Routes"
 msgstr "Trasy"
 
 # auto translated by TM merge from project: virt-manager, version: master, DocId: virt-manager
 #: pkg/docker/index.html:244 pkg/docker/index.html:564
 #: pkg/systemd/services.html:441 pkg/machines/components/vm/vmActions.jsx:91
-#: pkg/ovirt/components/ClusterVms.jsx:92
 msgid "Run"
 msgstr "Spustit"
-
-#: pkg/ovirt/components/ClusterVms.jsx:97
-msgid "Run Here"
-msgstr "Spustit zde"
 
 #: pkg/docker/index.html:425
 msgid "Run Image"
@@ -7351,10 +5861,6 @@ msgstr "Spuštěné"
 msgid "Running Since"
 msgstr "Spuštěno od doby"
 
-#: pkg/ovirt/components/VmOverviewColumn.jsx:54
-msgid "Running Since:"
-msgstr "Spuštěno od:"
-
 #: pkg/selinux/setroubleshoot-view.jsx:364
 msgid "SELinux Access Control Errors"
 msgstr "Chyby řízení přístup SELinux"
@@ -7379,14 +5885,6 @@ msgstr "SELinux je na tomto systému vypnutý."
 msgid "SELinux system status is unknown."
 msgstr "Systémový stav SELinux není znám."
 
-#: pkg/ovirt/provider.js:440
-msgid "SET VCPU SETTINGS action failed"
-msgstr "Akce NASTAVIT NASTAVENÍ VIRT. PROCESORU se nezdařila"
-
-#: pkg/ovirt/provider.js:111 pkg/ovirt/provider.js:145
-msgid "SHUTDOWN action failed"
-msgstr "Akce VYPNOUT se nezdařila"
-
 #: pkg/storaged/jobs-panel.jsx:35
 msgid "SMART self-test of $target"
 msgstr "SMART samotest $target"
@@ -7407,14 +5905,6 @@ msgstr "Port SPICE:"
 msgid "SPICE TLS Port:"
 msgstr "TLS port SPICE:"
 
-#: pkg/ovirt/provider.js:225
-msgid "START action failed"
-msgstr "Akce START se nezdařila"
-
-#: pkg/ovirt/provider.js:203
-msgid "START_VM action failed: %s0"
-msgstr "Akce SPUSTENI_VIRTSTROJE se nezdařila: %s0"
-
 #: pkg/networkmanager/index.html:228
 msgid "STP Forward delay"
 msgstr "STP prodleva přeposílání"
@@ -7431,10 +5921,6 @@ msgstr "STP maximální stáří zprávy"
 msgid "STP Priority"
 msgstr "STP priorita"
 
-#: pkg/ovirt/provider.js:303
-msgid "SUSPEND action failed"
-msgstr "Akce USPAT se nezdařila"
-
 # auto translated by TM merge from project: Cockpit, version: rhel-7.4, DocId: cockpit
 #: pkg/systemd/services.html:240
 msgid "Saturday"
@@ -7448,8 +5934,7 @@ msgstr "Soboty"
 #: pkg/systemd/services.html:523 pkg/machines/components/nicEdit.jsx:299
 #: pkg/machines/components/vm/bootOrderModal.jsx:330
 #: pkg/machines/components/vm/memoryModal.jsx:217
-#: pkg/ovirt/components/VdsmView.jsx:114 pkg/storaged/crypto-keyslots.jsx:261
-#: pkg/storaged/crypto-keyslots.jsx:278
+#: pkg/storaged/crypto-keyslots.jsx:261 pkg/storaged/crypto-keyslots.jsx:278
 msgid "Save"
 msgstr "Uložit"
 
@@ -7473,14 +5958,6 @@ msgstr ""
 "Uložení nové heslové fráze vyžaduje odemknutí disku. Zadejte stávající "
 "heslovou frázi k disku."
 
-#: pkg/kubernetes/views/node-capacity.html:9
-msgid "Scheduled Pods"
-msgstr "Naplánované pody"
-
-#: pkg/kubernetes/scripts/nodes.js:322
-msgid "Scheduling Disabled"
-msgstr "Plánování vypnuto."
-
 #: pkg/lib/machine-info.js:87
 msgid "Sealed-case PC"
 msgstr "Počítač se zapečetěnou skříní"
@@ -7489,25 +5966,6 @@ msgstr "Počítač se zapečetěnou skříní"
 #: pkg/systemd/init.js:1076
 msgid "Seconds"
 msgstr "Sekund"
-
-# auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId: po/ipa
-#: pkg/kubernetes/scripts/volumes.js:195
-msgid "Secret"
-msgstr "Tajné"
-
-#: pkg/kubernetes/views/volume-body.html:106
-msgid "Secret File"
-msgstr "Tajný soubor"
-
-#: pkg/kubernetes/views/volume-body.html:141
-msgid "Secret Name"
-msgstr "Tajný název"
-
-#: pkg/kubernetes/views/volume-body.html:69
-#: pkg/kubernetes/views/volume-body.html:108
-#: pkg/kubernetes/views/volume-body.html:134
-msgid "Secret Volume"
-msgstr "Tajný svazek"
 
 #: pkg/systemd/index.html:106
 msgid "Secure Shell Keys"
@@ -7526,28 +5984,9 @@ msgstr "Zabezpečení"
 msgid "Security Updates Available"
 msgstr "Jsou k dispozici aktualizace zabezpečení"
 
-#: pkg/shell/index.html:123 pkg/shell/simple.html:91 pkg/shell/stub.html:106
+#: pkg/shell/index.html:123 pkg/shell/simple.html:91
 msgid "Select"
 msgstr "Vybrat"
-
-#: pkg/kubernetes/views/file-button.html:4
-msgid "Select Manifest File..."
-msgstr "Vybrat soubor s manifestem…"
-
-#: pkg/kubernetes/scripts/projects.js:899
-#: pkg/kubernetes/scripts/projects.js:1205
-#: pkg/kubernetes/scripts/projects.js:1335
-msgid "Select Member"
-msgstr "Vybrat člena"
-
-#: pkg/kubernetes/scripts/projects.js:901
-#: pkg/kubernetes/scripts/projects.js:1208
-msgid "Select Role"
-msgstr "Vybrat roli"
-
-#: pkg/kubernetes/views/topology-page.html:7
-msgid "Select an object to see more details."
-msgstr "Další podrobnosti získáte výběrem objektu."
 
 #: pkg/lib/machine-sync-users.html:8
 msgid ""
@@ -7561,7 +6000,7 @@ msgstr ""
 msgid "Send Non-Maskable Interrupt"
 msgstr "Poslat nemaskovatelné přerušení"
 
-#: pkg/machines/components/vnc.jsx:109
+#: pkg/machines/components/vnc.jsx:108
 msgid "Send key"
 msgstr "Poslat stisk klávesy"
 
@@ -7576,10 +6015,8 @@ msgid "Serial Console"
 msgstr "Sériová konzole"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId: po/ipa
-#: pkg/kubernetes/views/pv-modify.html:82
-#: pkg/kubernetes/views/volume-body.html:47 src/ws/login.html:94
-#: pkg/kdump/kdump-view.jsx:116 pkg/storaged/nfs-details.jsx:315
-#: pkg/storaged/nfs-panel.jsx:101
+#: src/ws/login.html:94 pkg/kdump/kdump-view.jsx:116
+#: pkg/storaged/nfs-details.jsx:315 pkg/storaged/nfs-panel.jsx:101
 #: pkg/subscriptions/subscriptions-register.jsx:65
 msgid "Server"
 msgstr "Server"
@@ -7614,16 +6051,10 @@ msgid "Servers"
 msgstr "Servery"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId: po/ipa
-#: pkg/kubernetes/views/service-page.html:12
-#: pkg/kubernetes/views/service-panel.html:8
-#: pkg/kubernetes/views/topology-page.html:30 pkg/systemd/logs.html:66
-#: pkg/networkmanager/firewall.jsx:936 pkg/storaged/dialog.jsx:1047
+#: pkg/systemd/logs.html:66 pkg/networkmanager/firewall.jsx:936
+#: pkg/storaged/dialog.jsx:1047
 msgid "Service"
 msgstr "Služba"
-
-#: pkg/kubernetes/views/pod-body.html:12
-msgid "Service Account"
-msgstr "Servisní účet"
 
 #: pkg/systemd/services.html:337
 msgid "Service Logs"
@@ -7654,28 +6085,14 @@ msgid "Service name"
 msgstr "Název služby"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId: po/ipa
-#: pkg/kubernetes/views/dashboard-page.html:134
-#: pkg/kubernetes/views/details-page.html:29 pkg/systemd/services.html:4
-#: pkg/systemd/services.html:330 pkg/kubernetes/scripts/details.js:213
+#: pkg/systemd/services.html:4 pkg/systemd/services.html:330
 #: pkg/networkmanager/firewall.jsx:483
 msgid "Services"
 msgstr "Služby"
 
-#: pkg/kubernetes/views/topology-page.html:31
-msgid ""
-"Services group pods and provide a common DNS name and an optional, load-"
-"balanced IP address to access them."
-msgstr ""
-"Obsluhuje pody skupiny a poskytuje společný DNS název a volitelnou, zátěž "
-"rozkládající IP adresu pro přístup k nim."
-
 #: pkg/machines/helpers.js:185 pkg/storaged/dialog.jsx:1043
 msgid "Session"
 msgstr "Sezení"
-
-#: pkg/kubernetes/views/service-body.html:20
-msgid "Session Affinity"
-msgstr "Přiřazení sezení"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId: po/ipa
 #: pkg/dashboard/index.html:176 pkg/users/index.html:238
@@ -7730,24 +6147,10 @@ msgstr "Závažnost"
 msgid "Severity:"
 msgstr "Závažnost:"
 
-#: pkg/kubernetes/views/volume-body.html:139
-msgid "Share Name"
-msgstr "Název sdílení"
-
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId: po/ipa
 #: pkg/networkmanager/interfaces.js:1959
 msgid "Shared"
 msgstr "Sdílené"
-
-#: pkg/kubernetes/scripts/projects.js:1043
-msgid "Shared: Allow any authenticated user to pull images"
-msgstr "Sdílené: umožnit libovolnému přihlášenému uživateli nahrávat obrazy"
-
-# auto translated by TM merge from project: anaconda, version: f25, DocId: main
-#: pkg/kubernetes/views/container-page-inline.html:14
-#: pkg/kubernetes/views/container-panel.html:9
-msgid "Shell"
-msgstr "Shell"
 
 #: pkg/lib/cockpit-components-context-menu.jsx:105
 msgid "Shift+Insert"
@@ -7765,57 +6168,11 @@ msgstr "Zobrazit vše"
 msgid "Show all $0 drives"
 msgstr "Zobrazit všech $0 jednotek"
 
-#: pkg/kubernetes/views/container-page.html:4
-msgid "Show all Containers"
-msgstr "Zobrazit všechny kontejnery"
-
-#: pkg/kubernetes/views/deploymentconfig-page.html:8
-msgid "Show all Deployment Configs"
-msgstr "Zobrazit všechna nastavení pro nasazení"
-
-#: pkg/kubernetes/views/node-page.html:8
-msgid "Show all Nodes"
-msgstr "Zobrazit všechny uzly"
-
-#: pkg/kubernetes/views/pv-page.html:9
-msgid "Show all Persistent Volumes"
-msgstr "Zobrazit všechny trvalé svazky"
-
-#: pkg/kubernetes/views/pod-container.html:4
-msgid "Show all Pod Containers"
-msgstr "Zobrazit všechny kontejnery podu"
-
-#: pkg/kubernetes/views/pod-page.html:8
-msgid "Show all Pods"
-msgstr "Zobrazit všechny pody"
-
-#: pkg/kubernetes/views/group-page.html:14
-#: pkg/kubernetes/views/project-page.html:23
-#: pkg/kubernetes/views/user-page.html:16
-msgid "Show all Projects"
-msgstr "Zobrazit všechny projekty"
-
-#: pkg/kubernetes/views/replicationcontroller-page.html:10
-msgid "Show all Replication Controllers"
-msgstr "Zobrazit všechny řadiče replikace"
-
-#: pkg/kubernetes/views/route-page.html:10
-msgid "Show all Routes"
-msgstr "Zobrazit všechny trasy"
-
-#: pkg/kubernetes/views/service-page.html:8
-msgid "Show all Services"
-msgstr "Zobrazit všechny služby"
-
 #: pkg/docker/index.html:128
 msgid "Show all containers"
 msgstr "Zobrazit všechny kontejnery"
 
-#: pkg/kubernetes/views/imagestream-page.html:12
-msgid "Show all image streams"
-msgstr "Zobrazit všechny proudy obrazů"
-
-#: pkg/docker/index.html:254 pkg/kubernetes/views/image-page.html:10
+#: pkg/docker/index.html:254
 msgid "Show all images"
 msgstr "Zobrazit všechny obrazy"
 
@@ -7842,13 +6199,9 @@ msgstr "Zmenšit oddíl"
 msgid "Shut Down"
 msgstr "Vypnout"
 
-#: pkg/kubernetes/views/container-body.html:18
-msgid "Since"
-msgstr "Od"
-
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId: po/ipa
-#: pkg/kubernetes/views/volumes-page.html:60 pkg/docker/containers-view.jsx:683
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:376
+#: pkg/docker/containers-view.jsx:683
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:420
 #: pkg/machines/components/diskAdd.jsx:143
 #: pkg/machines/components/storagePools/storagePoolList.jsx:49
 #: pkg/machines/components/storagePools/storagePoolVolumesTab.jsx:65
@@ -7881,11 +6234,6 @@ msgstr "Je třeba, aby velikost byla číslo"
 msgid "Size must be at least $0"
 msgstr "Je třeba, aby velikost byla alespoň $0"
 
-#: pkg/kubernetes/views/auth-form.html:43
-#: pkg/kubernetes/views/auth-rejected-cert.html:11
-msgid "Skip Certificate Verification"
-msgstr "Přeskočit ověřování certifikátu"
-
 #: pkg/systemd/hwinfo.jsx:249
 msgid "Slot"
 msgstr "Slot"
@@ -7895,7 +6243,6 @@ msgid "Slot $0"
 msgstr "Slot $0"
 
 #: pkg/systemd/services.html:58 pkg/machines/components/vcpuModal.jsx:206
-#: pkg/ovirt/components/vcpuModal.jsx:64
 msgid "Sockets"
 msgstr "Sokety"
 
@@ -7940,10 +6287,6 @@ msgid ""
 msgstr ""
 "Správa balíčků je v tuto chvíli používána nějakým jiným programem, vyčkejte…"
 
-#: pkg/kubernetes/scripts/volumes.js:914
-msgid "Sorry, I don't know how to modify this volume"
-msgstr "Je nám líto, ale není známo, jak upravit tento svazek"
-
 #: pkg/networkmanager/firewall.jsx:707
 msgid "Sorted from least trusted to most trusted"
 msgstr "Seřazeno od nejméně po nejvíce důvěryhodné"
@@ -7952,7 +6295,7 @@ msgstr "Seřazeno od nejméně po nejvíce důvěryhodné"
 #: pkg/machines/components/diskAdd.jsx:476
 #: pkg/machines/components/nicEdit.jsx:141
 #: pkg/machines/components/vmDisksTab.jsx:76
-#: pkg/machines/components/vmnetworktab.jsx:103
+#: pkg/machines/components/vmnetworktab.jsx:148
 msgid "Source"
 msgstr "Zdroj"
 
@@ -7976,7 +6319,7 @@ msgstr "Zdrojová URL adresa"
 msgid "Source path should not be empty"
 msgstr "Popis umístění zdroje je třeba vyplnit"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:108
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:147
 msgid "Source should start with http, ftp or nfs protocol"
 msgstr "Zdroj by měl začínat na http, ftp nebo nfs protokol"
 
@@ -8047,14 +6390,11 @@ msgid "Startup"
 msgstr "Při spuštění"
 
 # auto translated by TM merge from project: selinux (policycoreutils), version: master, DocId: policycoreutils
-#: pkg/kubernetes/views/container-body.html:16
-#: pkg/kubernetes/views/details-page.html:38
-#: pkg/kubernetes/views/details-page.html:175
 #: pkg/docker/containers-view.jsx:133 pkg/docker/containers-view.jsx:359
 #: pkg/machines/components/networks/networkList.jsx:47
 #: pkg/machines/components/storagePools/storagePoolList.jsx:49
-#: pkg/machines/components/vmnetworktab.jsx:127 pkg/machines/hostvmslist.jsx:83
-#: pkg/ovirt/components/ClusterVms.jsx:184 pkg/systemd/init.js:285
+#: pkg/machines/components/vmnetworktab.jsx:172 pkg/machines/hostvmslist.jsx:83
+#: pkg/systemd/init.js:285
 msgid "State"
 msgstr "Stav"
 
@@ -8063,26 +6403,12 @@ msgstr "Stav"
 msgid "State:"
 msgstr "Stav:"
 
-#: pkg/ovirt/components/ClusterTemplates.jsx:136
-#: pkg/ovirt/components/ClusterVms.jsx:182
-msgid "Stateless"
-msgstr "Bezstavové"
-
-#: pkg/ovirt/components/OVirtTab.jsx:156
-msgid "Stateless:"
-msgstr "Bezstavové:"
-
 #: pkg/systemd/services.html:74 pkg/systemd/init.js:207
 msgid "Static"
 msgstr "Statické"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId: po/ipa
-#: pkg/kubernetes/views/containers-listing.html:16
-#: pkg/kubernetes/views/node-body.html:39
-#: pkg/kubernetes/views/nodes-page.html:44 pkg/kubernetes/views/pv-body.html:24
-#: pkg/kubernetes/views/pv-claim.html:29 pkg/kubernetes/views/pvc-body.html:13
-#: pkg/kubernetes/views/volumes-page.html:21 pkg/systemd/services.html:121
-#: pkg/networkmanager/interfaces.js:2613
+#: pkg/systemd/services.html:121 pkg/networkmanager/interfaces.js:2613
 #: pkg/subscriptions/subscriptions-view.jsx:37
 msgid "Status"
 msgstr "Stav"
@@ -8146,7 +6472,7 @@ msgstr "Zastavování odkládacího prostoru $target"
 
 # auto translated by TM merge from project: virt-manager, version: master, DocId: virt-manager
 #: pkg/docker/index.html:288 pkg/storaged/index.html:23
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:342
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:383
 #: pkg/storaged/details.jsx:127
 msgid "Storage"
 msgstr "Úložiště"
@@ -8155,11 +6481,11 @@ msgstr "Úložiště"
 msgid "Storage Logs"
 msgstr "Záznamy událostí úložiště"
 
-#: pkg/machines/components/storagePools/storagePool.jsx:137
+#: pkg/machines/components/storagePools/storagePool.jsx:139
 msgid "Storage Pool $0 failed to get activated"
 msgstr "Fond úložiště $0 se nepodařilo aktivovat"
 
-#: pkg/machines/components/storagePools/storagePool.jsx:149
+#: pkg/machines/components/storagePools/storagePool.jsx:153
 msgid "Storage Pool $0 failed to get deactivated"
 msgstr "Fond úložiště $0 se nepodařilo deaktivovat"
 
@@ -8208,10 +6534,6 @@ msgstr "Uložená heslová fráze"
 msgid "Stored passphrase"
 msgstr "Uložená heslová fráze"
 
-#: pkg/kubernetes/views/deploymentconfig-body.html:12
-msgid "Strategy"
-msgstr "Strategie"
-
 #: pkg/lib/machine-info.js:82
 msgid "Sub Chassis"
 msgstr "Dílčí skříň"
@@ -8242,10 +6564,6 @@ msgstr "Neděle"
 msgid "Support is installed."
 msgstr "Podpora je nainstalovaná."
 
-#: pkg/ovirt/components/VmActions.jsx:40
-msgid "Suspend"
-msgstr "Uspat"
-
 # auto translated by TM merge from project: udisks, version: udisks, DocId: udisks2
 #: pkg/storaged/content-views.jsx:157
 msgid "Swap"
@@ -8260,10 +6578,6 @@ msgstr "Odkládací prostor"
 msgid "Swap Used"
 msgstr "Využití odkládacího prostoru"
 
-#: pkg/ovirt/components/HostToMaintenance.jsx:40
-msgid "Switch Host to Maintenance"
-msgstr "Přepnout stroj do režimu údržby"
-
 #: pkg/networkmanager/interfaces.js:2492 pkg/networkmanager/interfaces.js:3039
 msgid "Switch off $0"
 msgstr "Vypnout $0"
@@ -8271,14 +6585,6 @@ msgstr "Vypnout $0"
 #: pkg/networkmanager/interfaces.js:2467 pkg/networkmanager/interfaces.js:3027
 msgid "Switch on $0"
 msgstr "Zapnout $0"
-
-#: pkg/ovirt/provider.js:414
-msgid "Switching host to maintenance mode failed. Received error: "
-msgstr "Přepnutí stroje do režimu údržby se nezdařilo. Obdržena chyba:"
-
-#: pkg/ovirt/provider.js:408
-msgid "Switching host to maintenance mode in progress ..."
-msgstr "Přepínání stroje do režimu údržby…"
 
 #: pkg/networkmanager/interfaces.js:2491
 msgid ""
@@ -8303,10 +6609,6 @@ msgid ""
 msgstr ""
 "Zapnutí <b>$0</b> přeruší spojení se serverem a znepřístupní tak rozhraní "
 "pro jeho správu."
-
-#: pkg/kubernetes/scripts/images.js:634
-msgid "Sync all tags from a remote image repository"
-msgstr "Synchronizovat všechny štítky ze vzdáleného repozitáře obrazů"
 
 #: pkg/lib/machine-sync-users.html:75
 msgid "Synchronize"
@@ -8363,10 +6665,6 @@ msgstr "Systém je aktuální"
 msgid "TCP"
 msgstr "TCP"
 
-#: pkg/kubernetes/views/route-body.html:12
-msgid "TLS Termination"
-msgstr "TLS ukončení"
-
 # auto translated by TM merge from project: virt-manager, version: master, DocId: virt-manager
 #: pkg/lib/machine-info.js:93
 msgid "Tablet"
@@ -8378,7 +6676,6 @@ msgid "Tag"
 msgstr "Štítek"
 
 # auto translated by TM merge from project: ibus, version: head, DocId: ibus10
-#: pkg/kubernetes/views/imagestream-modify.html:76
 #: node_modules/registry-image-widgets/views/image-body.html:29
 #: node_modules/registry-image-widgets/views/imagestream-listing.html:6
 #: node_modules/registry-image-widgets/views/imagestream-panel.html:16
@@ -8391,7 +6688,6 @@ msgid "Tang keyserver"
 msgstr "Tang server s klíči"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId: po/ipa
-#: pkg/kubernetes/views/pv-modify.html:137
 #: pkg/machines/components/vm/bootOrderModal.jsx:133
 msgid "Target"
 msgstr "Cíl"
@@ -8400,14 +6696,6 @@ msgstr "Cíl"
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:57
 msgid "Target Path"
 msgstr "Popis umístění cíle"
-
-#: pkg/kubernetes/views/volume-body.html:75
-msgid "Target Portal"
-msgstr "Cílový portál"
-
-#: pkg/kubernetes/views/volume-body.html:114
-msgid "Target World Wide Names"
-msgstr "World Wide názvy cíle"
 
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:133
 msgid "Target path should not be empty"
@@ -8434,22 +6722,6 @@ msgstr "Nastavení portu týmu"
 #: pkg/networkmanager/index.html:514
 msgid "Team Settings"
 msgstr "Nastavení týmu"
-
-#: pkg/kubernetes/views/deploymentconfig-page.html:15
-#: pkg/kubernetes/views/deploymentconfig-panel.html:10
-#: pkg/kubernetes/views/replicationcontroller-page.html:20
-#: pkg/kubernetes/views/replicationcontroller-panel.html:14
-#: pkg/ovirt/components/ClusterVms.jsx:181
-msgid "Template"
-msgstr "Šablona"
-
-#: pkg/ovirt/components/App.jsx:111
-msgid "Templates"
-msgstr "Šablony"
-
-#: pkg/ovirt/components/ClusterTemplates.jsx:130
-msgid "Templates of $0 cluster"
-msgstr "Šablona clusteru $0"
 
 #: pkg/systemd/terminal.html:4
 msgid "Terminal"
@@ -8543,10 +6815,6 @@ msgstr "Virt. stroj je uspaný svou vlastní správou napájení."
 msgid "The account '$0' will be forced to change their password on next login"
 msgstr "Účet „$0“ bude při příštím přihlášení vyzván k vynucené změně hesla"
 
-#: pkg/kubernetes/scripts/nodes.js:403
-msgid "The address contains invalid characters"
-msgstr "Adresa obsahuje neplatné znaky"
-
 #: pkg/lib/machine-unknown-hostkey.html:6
 msgid ""
 "The authenticity of host {{#strong}}{{host}}{{/strong}} can't be established."
@@ -8563,10 +6831,6 @@ msgstr "Shromážděné informace budou uloženy lokálně na systému."
 msgid "The configured state is unknown, it might change on the next boot."
 msgstr "Nastavený stav není znám, může se změnit při příštím startu."
 
-#: pkg/kubernetes/views/container-page-inline.html:22
-msgid "The container '{{ target }}' does not exist."
-msgstr "Kontejner „{{ target }}“ neexistuje."
-
 #: pkg/storaged/vdo-details.jsx:119
 msgid ""
 "The creation of this VDO device did not finish and the device can't be used."
@@ -8581,10 +6845,6 @@ msgstr ""
 msgid ""
 "The currently logged in user is not permitted to see information about keys."
 msgstr "Stávající uživatel není oprávněn zobrazovat informace o klíčích."
-
-#: pkg/kubernetes/views/deploymentconfig-page.html:25
-msgid "The deployment config '{{ target }}' does not exist."
-msgstr "Nastavení nasazení „{{ target }}“ neexistuje."
 
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:204
 msgid "The directory on the server being exported"
@@ -8627,10 +6887,6 @@ msgstr ""
 "zrevidován organizací, ze které pochází předtím, než bude předán jakékoli "
 "třetí straně."
 
-#: pkg/kubernetes/views/group-page.html:47
-msgid "The group '{{ groupName }}' does not exist."
-msgstr "Skupina „{{ groupName }}“ neexistuje."
-
 #: pkg/lib/machine-invalid-hostkey.html:8
 msgid ""
 "The key of {{#strong}}{{host}}{{/strong}} does not match the key previously "
@@ -8661,26 +6917,6 @@ msgstr "Poslední zbývající fyzický svazek skupiny svazků není možné ode
 msgid "The machine is restarting"
 msgstr "Stroj se restartuje"
 
-#: pkg/kubernetes/scripts/details.js:498 pkg/kubernetes/scripts/details.js:620
-msgid "The maximum number of replicas is 128"
-msgstr "Nejvyšší možný počet replik je 128"
-
-#: pkg/kubernetes/scripts/nodes.js:411
-msgid "The name contains invalid characters"
-msgstr "Název obsahuje neplatné znaky"
-
-#: pkg/kubernetes/views/node-page.html:23
-msgid "The node '{{ target }}' does not exist."
-msgstr "Uzel „{{ target }}“ neexistuje."
-
-#: pkg/kubernetes/views/node-alerts.html:7
-msgid "The node doesn't have enough disk space"
-msgstr "Na disku tohoto uzlu není dostatek prostoru"
-
-#: pkg/kubernetes/views/node-alerts.html:11
-msgid "The node doesn't have enough free memory"
-msgstr "Uzel nemá dostatek volné paměti"
-
 #: pkg/users/local.js:439 pkg/users/local.js:1395
 msgid "The passwords do not match"
 msgstr "Zadání hesla se neshodují"
@@ -8689,29 +6925,9 @@ msgstr "Zadání hesla se neshodují"
 msgid "The passwords do not match."
 msgstr "Zadání hesla se neshodují."
 
-#: pkg/kubernetes/views/pv-page.html:21
-msgid "The persistent volume '{{ target }}' does not exist."
-msgstr "Trvalý svazek „{{ target }}“ neexistuje."
-
-#: pkg/kubernetes/views/pod-page.html:40
-msgid "The pod '{{ target }}' does not exist."
-msgstr "Pod „{{ target }}“ neexistuje."
-
 #: pkg/machines/components/diskAdd.jsx:80
 msgid "The pool is empty"
 msgstr "Fond je prázdný"
-
-#: pkg/kubernetes/views/project-page.html:34
-msgid "The project '{{ projName }}' does not exist."
-msgstr "Projekt „{{ projName }}“ neexistuje."
-
-#: pkg/kubernetes/views/replicationcontroller-page.html:30
-msgid "The replication controller '{{ target }}' does not exist."
-msgstr "Řadič replikace „{{ target }}“ neexistuje."
-
-#: pkg/kubernetes/views/route-page.html:19
-msgid "The route '{{ target }}' does not exist."
-msgstr "Trasa „{{ target }}“ neexistuje."
 
 #: pkg/docker/containers-view.jsx:434
 msgid "The scan from $time ($type) found no vulnerabilities."
@@ -8720,10 +6936,6 @@ msgstr "Sken z $time ($type) nenalezl žádné zranitelnosti."
 #: pkg/docker/containers-view.jsx:432
 msgid "The scan from $time ($type) was not successful."
 msgstr "Sken z $time ($type) nebyl úspěšný."
-
-#: pkg/kubernetes/scripts/dashboard.js:386
-msgid "The selected file is not a valid Kubernetes application manifest."
-msgstr "Vybraný soubor není platným Kubernetes manifestem aplikace."
 
 #: src/ws/login.js:645
 msgid ""
@@ -8737,22 +6949,10 @@ msgstr ""
 msgid "The server refused to authenticate using any supported methods."
 msgstr "Server odmítl ověřit u všech podporovaných metod."
 
-#: pkg/kubernetes/views/auth-rejected-cert.html:2
-msgid "The server uses a certificate signed by an unknown authority."
-msgstr "Server používá certifikát podepsaný neznámou autoritou."
-
-#: pkg/kubernetes/views/service-page.html:19
-msgid "The service '{{ target }}' does not exist."
-msgstr "Služba „{{ target }}“ neexistuje."
-
 #: pkg/systemd/hwinfo.jsx:65
 msgid "The user $0 is not permitted to change cpu security mitigations"
 msgstr ""
 "Uživatel $0 není oprávněn měnit zmírňování dopadu chyb zabezpečení procesoru"
-
-#: pkg/kubernetes/views/user-page.html:29
-msgid "The user '{{ userName }}' does not exist."
-msgstr "Uživatel „{{ userName }}“ neexistuje."
 
 #: pkg/systemd/init.js:922
 msgid "The user <b>$0</b> does not have permissions for creating timers"
@@ -8853,13 +7053,6 @@ msgstr "Toto NFS připojení je používáno a měnit je možné jen jeho volby.
 msgid "This VDO device does not use all of its backing device."
 msgstr "Toto VDO zařízení nepoužívá ze svého podkladového zařízení vše."
 
-#: pkg/kubernetes/views/pvc-delete.html:8
-msgid ""
-"This claim is in use. Deleting it may cause issues with the following pod:"
-msgstr ""
-"Tento nárok je používán. Smazání může způsobit problémy s následujícím podem:"
-""
-
 #: pkg/systemd/init.js:1371
 msgid ""
 "This day doesn't exist in all months.<br> The timer will only be executed in "
@@ -8916,14 +7109,6 @@ msgstr "Disk není možné vyjmout v průběhu zotavování zařízení."
 msgid "This field cannot be empty."
 msgstr "Tuto kolonku je třeba vyplnit."
 
-#: pkg/ovirt/components/App.jsx:155
-msgid ""
-"This host is managed by a virtualization manager, so creation of new VMs "
-"from the host is not possible."
-msgstr ""
-"Tento stroj je spravován správou virtualizace, takže vytváření nových virt. "
-"strojů z něj není možné."
-
 #: pkg/docker/containers-view.jsx:494
 msgid "This image does not exist."
 msgstr "Tento obraz neexistuje."
@@ -8940,14 +7125,6 @@ msgstr "Tento stroj už byl přidán."
 #: pkg/realmd/operation.html:80
 msgid "This may take a while"
 msgstr "Toto může chvíli trvat"
-
-#: pkg/kubernetes/views/pv-modify.html:24
-msgid ""
-"This option is for single node testing only – local storage will not work in "
-"a multi-node cluster"
-msgstr ""
-"Tato volba je určena pouze pro zkoušení s jedním uzlem – místní úložiště "
-"nebude fungovat v clusteru s více uzly"
 
 #: src/bridge/cockpitpackages.c:506
 msgid "This package is not compatible with this version of Cockpit"
@@ -8998,25 +7175,7 @@ msgstr ""
 "Tato verze cockpit-ws nepodporuje připojování ke stroji pomocí "
 "alternativního uživatele nebo portu"
 
-#: pkg/ovirt/components/OVirtTab.jsx:134
-msgid "This virtual machine is not managed by oVirt"
-msgstr "Tento virtuální stroj není spravován prostřednictvím oVirt"
-
-#: pkg/kubernetes/views/pv-delete.html:7
-msgid ""
-"This volume has been claimed by {{ item.item.spec.claimRef.namespace }} / {{ "
-"item.item.spec.claimRef.name }}. Deleting it will break that claim and may "
-"cause issues with any pods depending on it."
-msgstr ""
-"Tento svazek byl nárokován {{ item.item.spec.claimRef.namespace }} / {{ item."
-"item.spec.claimRef.name }}. Jeho smazání tento nárok rozbije a může způsobit "
-"problémy s jakýmikoli pody, které na něm závisejí."
-
-#: pkg/kubernetes/views/pv-claim.html:23
-msgid "This volume has not been claimed"
-msgstr "Tento svazek nebyl nárokován"
-
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:369
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:413
 msgid "This volume is already used by another VM."
 msgstr "Tento svazek už je využíván jiným virt. strojem"
 
@@ -9050,7 +7209,6 @@ msgid "This will test the kdump configuration by crashing the kernel."
 msgstr "Toto vyzkouší nastavení kdump vyvoláním havárie jádra."
 
 #: pkg/machines/components/vcpuModal.jsx:212
-#: pkg/ovirt/components/vcpuModal.jsx:70
 msgid "Threads per core"
 msgstr "Vláken na jádro"
 
@@ -9102,10 +7260,6 @@ msgid ""
 msgstr ""
 "Pro vyzkoušení jiného portu bude třeba přejít na novější verzi cockpit-ws."
 
-#: pkg/kubernetes/views/auth-form.html:116
-msgid "Token"
-msgstr "Token"
-
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:148
 msgid "Too many files found"
 msgstr "Nalezeno příliš mnoho souborů"
@@ -9113,10 +7267,6 @@ msgstr "Nalezeno příliš mnoho souborů"
 #: src/base1/cockpit.js:4039
 msgid "Too much data"
 msgstr "Příliš mnoho dat"
-
-#: pkg/kubernetes/index.html:61
-msgid "Topology"
-msgstr "Topologie"
 
 # auto translated by TM merge from project: retrace-server, version: master, DocId: retrace-server
 #: pkg/docker/storage.jsx:341
@@ -9135,13 +7285,12 @@ msgstr "Věž"
 msgid "Triggered By"
 msgstr "Spuštěno na základě"
 
-#: pkg/kubernetes/views/deploymentconfig-body.html:32 pkg/systemd/init.js:732
+#: pkg/systemd/init.js:732
 msgid "Triggers"
 msgstr "Spouštěče"
 
 # auto translated by TM merge from project: SETroubleShoot, version: master, DocId: framework/po/setroubleshoot
-#: pkg/kubernetes/index.html:109 pkg/shell/index.html:387
-#: pkg/shell/simple.html:139 pkg/shell/stub.html:181
+#: pkg/shell/index.html:387 pkg/shell/simple.html:139
 #: pkg/machines/components/libvirtSlate.jsx:99
 msgid "Troubleshoot"
 msgstr "Řešit potíže"
@@ -9153,10 +7302,6 @@ msgstr "Důvěryhodný klíč"
 #: pkg/networkmanager/firewall.jsx:703
 msgid "Trust level"
 msgstr "Stupeň důvěryhodnosti"
-
-#: pkg/kubernetes/views/auth-rejected-cert.html:21
-msgid "Trust this certificate for this connection"
-msgstr "Pro toto spojení certifikátu věřit"
 
 #: src/ws/login.html:111
 msgid "Try Again"
@@ -9200,9 +7345,7 @@ msgid "Tuned is off"
 msgstr "Tuned je vypnuté"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId: po/ipa
-#: pkg/kubernetes/views/deploy.html:9 pkg/kubernetes/views/pv-modify.html:10
-#: pkg/kubernetes/views/service-body.html:11
-#: pkg/kubernetes/views/volumes-page.html:20 pkg/shell/index.html:265
+#: pkg/shell/index.html:265
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:99
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:67
 #: pkg/machines/components/vm/bootOrderModal.jsx:108
@@ -9211,7 +7354,7 @@ msgstr "Tuned je vypnuté"
 #: pkg/machines/components/vm/bootOrderModal.jsx:131
 #: pkg/machines/components/vm/bootOrderModal.jsx:138
 #: pkg/machines/components/vm/bootOrderModal.jsx:144
-#: pkg/machines/components/vmnetworktab.jsx:84
+#: pkg/machines/components/vmnetworktab.jsx:114
 #: pkg/storaged/format-dialog.jsx:283 pkg/storaged/part-tab.jsx:42
 #: pkg/storaged/unrecognized-tab.jsx:33 pkg/systemd/hwinfo.jsx:75
 msgid "Type"
@@ -9229,17 +7372,12 @@ msgstr "Zadejte heslo"
 msgid "Type to filter…"
 msgstr "Filtrujte psaním…"
 
-# auto translated by TM merge from project: firewalld, version: master, DocId: po/firewalld
-#: pkg/kubernetes/views/details-page.html:7
-msgid "Type:"
-msgstr "Typ:"
-
 #: pkg/docker/index.html:332 pkg/networkmanager/firewall.jsx:936
 msgid "UDP"
 msgstr "UDP"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId: po/ipa
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:219
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:258
 #: pkg/subscriptions/subscriptions-register.jsx:112
 msgid "URL"
 msgstr "URL"
@@ -9265,10 +7403,6 @@ msgstr "Nedaří se připojit"
 msgid "Unable to connect to that address"
 msgstr "K této adrese se nedaří připojit"
 
-#: pkg/kubernetes/scripts/dashboard.js:412
-msgid "Unable to decode Kubernetes application manifest."
-msgstr "Nedaří se dekódovat Kubernetes manifest aplikace."
-
 #: pkg/users/local.js:58
 msgid "Unable to delete root account"
 msgstr "Účet správce (root) není možné smazat"
@@ -9285,10 +7419,6 @@ msgstr "Nedaří se získat výstrahu: $0"
 #: pkg/storaged/iscsi-panel.jsx:88
 msgid "Unable to reach server"
 msgstr "Server se nedaří dosáhnout"
-
-#: pkg/kubernetes/scripts/dashboard.js:400
-msgid "Unable to read the Kubernetes application manifest. Code $0."
-msgstr "Nedaří se číst Kubernetes manifest aplikace. Kód $0."
 
 #: pkg/storaged/nfs-details.jsx:282
 msgid "Unable to remove mount"
@@ -9316,7 +7446,6 @@ msgstr "Nedaří se odpojit souborový systém"
 
 # auto translated by TM merge from project: anaconda, version: f25, DocId: main
 #: pkg/playground/translate.html:34 pkg/playground/translate.html:39
-#: pkg/kubernetes/scripts/charts.js:110
 msgid "Unavailable"
 msgstr "Nedostupné"
 
@@ -9325,7 +7454,7 @@ msgstr "Nedostupné"
 msgid "Unexpected error"
 msgstr "Neočekávaná chyba"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:132
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:171
 msgid "Unique name"
 msgstr "Neopakující se název"
 
@@ -9335,19 +7464,13 @@ msgid "Unit"
 msgstr "Jednotka"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId: po/ipa
-#: pkg/kubernetes/views/node-body.html:12
-#: pkg/kubernetes/views/node-body.html:43 pkg/kubernetes/views/pv-body.html:26
-#: pkg/kubernetes/views/pv-claim.html:31
-#: pkg/kubernetes/views/volumes-page.html:35
 #: node_modules/registry-image-widgets/views/image-body.html:16
 #: node_modules/registry-image-widgets/views/imagestream-body.html:30
 #: node_modules/registry-image-widgets/views/imagestream-body.html:31
-#: pkg/kubernetes/scripts/nodes.js:316 pkg/kubernetes/scripts/nodes.js:660
-#: pkg/kubernetes/scripts/nodes.js:754 pkg/kubernetes/scripts/volumes.js:267
-#: pkg/lib/machine-info.js:65 pkg/networkmanager/interfaces.js:596
-#: pkg/networkmanager/interfaces.js:1067 pkg/networkmanager/interfaces.js:2532
-#: pkg/networkmanager/interfaces.js:2534 pkg/storaged/fsys-tab.jsx:64
-#: pkg/storaged/swap-tab.jsx:57
+#: pkg/lib/machine-info.js:65 pkg/machines/components/vmnetworktab.jsx:139
+#: pkg/networkmanager/interfaces.js:596 pkg/networkmanager/interfaces.js:1067
+#: pkg/networkmanager/interfaces.js:2532 pkg/networkmanager/interfaces.js:2534
+#: pkg/storaged/fsys-tab.jsx:64 pkg/storaged/swap-tab.jsx:57
 msgid "Unknown"
 msgstr "Neznámé"
 
@@ -9433,7 +7556,7 @@ msgstr "Odpojování $target"
 msgid "Unnamed"
 msgstr "Bez názvu"
 
-#: pkg/machines/components/vmnetworktab.jsx:139
+#: pkg/machines/components/vmnetworktab.jsx:184
 msgid "Unplug"
 msgstr "Odpojit"
 
@@ -9479,7 +7602,11 @@ msgstr "Nedůvěryhodný stroj"
 msgid "Up since $0"
 msgstr "Zapnuto od $0"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:316
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:432
+msgid "Up to $0 $1 available in the default location"
+msgstr ""
+
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:355
 msgid "Up to $0 $1 available on the host"
 msgstr "Až $0 $1 k dispozici na tomto stroji"
 
@@ -9513,10 +7640,6 @@ msgstr "Jsou k dispozici aktualizace"
 msgid "Updating"
 msgstr "Aktualizuje se"
 
-#: pkg/kubernetes/scripts/details.js:654
-msgid "Updating $0..."
-msgstr "Aktualizace $0…"
-
 # auto translated by TM merge from project: audit-viewer, version: default, DocId: audit-viewer
 #: pkg/machines/components/vm/vm.jsx:48 pkg/storaged/unrecognized-tab.jsx:30
 msgid "Usage"
@@ -9546,7 +7669,6 @@ msgid "Use the following keys to authenticate against other systems"
 msgstr "Pro ověřování vůči ostatním systémům použít následující klíče"
 
 #: pkg/systemd/index.html:256 pkg/docker/storage.jsx:340
-#: pkg/kubernetes/scripts/nodes.js:829 pkg/kubernetes/scripts/nodes.js:838
 #: pkg/machines/components/vm/vmUsageTab.jsx:64
 #: pkg/machines/components/vm/vmUsageTab.jsx:75
 #: pkg/machines/components/vmDisksTab.jsx:68 pkg/storaged/fsys-tab.jsx:193
@@ -9563,12 +7685,7 @@ msgid "Used by Containers"
 msgstr "Využito kontejnery"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId: po/ipa
-#: pkg/dashboard/index.html:144 pkg/kubernetes/views/auth-form.html:61
-#: pkg/kubernetes/views/user-group-add.html:9
-#: pkg/kubernetes/views/user-page.html:20
-#: pkg/kubernetes/views/user-panel.html:9
-#: pkg/kubernetes/views/volume-body.html:64
-#: pkg/kubernetes/views/volume-body.html:103 pkg/playground/translate.html:85
+#: pkg/dashboard/index.html:144 pkg/playground/translate.html:85
 #: pkg/playground/translate.html:105 pkg/systemd/index.html:230
 #: pkg/subscriptions/subscriptions-register.jsx:77 pkg/systemd/host.js:1584
 msgid "User"
@@ -9594,20 +7711,10 @@ msgstr "Uživatelské jméno"
 msgid "User name cannot be empty"
 msgstr "Uživatelské jméno je třeba vyplnit"
 
-#: pkg/kubernetes/views/add-member-role-dialog.html:15
-msgid "User or Group"
-msgstr "Uživatel nebo skupina"
-
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId: po/ipa
-#: pkg/kubernetes/views/auth-form.html:94 pkg/storaged/iscsi-panel.jsx:46
-#: pkg/storaged/iscsi-panel.jsx:149
+#: pkg/storaged/iscsi-panel.jsx:46 pkg/storaged/iscsi-panel.jsx:149
 msgid "Username"
 msgstr "Uživatelské jméno"
-
-# auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId: po/ipa
-#: pkg/kubernetes/views/project-listing.html:85
-msgid "Users"
-msgstr "Uživatelé"
 
 #: pkg/lib/machine-change-auth.html:44
 msgid "Using available credentials"
@@ -9646,14 +7753,6 @@ msgstr "Zařízení, která jsou podkladem pro VDO, není možné zmenšovat"
 msgid "VDO support not installed"
 msgstr "Podpora pro VDO není nainstalovaná"
 
-#: pkg/ovirt/components/App.jsx:115
-msgid "VDSM"
-msgstr "VDSM"
-
-#: pkg/ovirt/components/VdsmView.jsx:128
-msgid "VDSM Service Management"
-msgstr "Správa služby VDSM"
-
 # auto translated by TM merge from project: anaconda, version: f25, DocId: main
 #: pkg/networkmanager/interfaces.js:2514 pkg/networkmanager/interfaces.js:2526
 #: pkg/networkmanager/interfaces.js:2906
@@ -9684,7 +7783,7 @@ msgstr "Nepodařilo se vynutit vypnutí virt. stroje $0"
 msgid "VM $0 failed to get deleted"
 msgstr "Virt. stroj $0 se nezdařilo smazat"
 
-#: pkg/machines/hostvmslist.jsx:110 pkg/machines/libvirt-common.js:1317
+#: pkg/machines/hostvmslist.jsx:110 pkg/machines/libvirt-common.js:1320
 msgid "VM $0 failed to get installed"
 msgstr "Virt. stroj $0 se nezdařilo nainstalovat"
 
@@ -9707,10 +7806,6 @@ msgstr "Virt. stroj $0 se nepodařilo vypnout"
 #: pkg/machines/hostvmslist.jsx:104
 msgid "VM $0 failed to start"
 msgstr "Virt. stroj $0 se nepodařilo zapnout"
-
-#: pkg/ovirt/components/VmOverviewColumn.jsx:37
-msgid "VM icon"
-msgstr "Ikona virt. stroje"
 
 # auto translated by TM merge from project: anaconda, version: f25, DocId: main
 #: pkg/machines/components/desktopConsole.jsx:187
@@ -9761,16 +7856,11 @@ msgid "Verifying"
 msgstr "Ověřuje se"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId: po/ipa
-#: pkg/shell/index.html:88 pkg/shell/simple.html:64 pkg/shell/stub.html:71
-#: pkg/systemd/index.html:110 pkg/ovirt/components/ClusterTemplates.jsx:135
-#: pkg/ovirt/components/ClusterVms.jsx:83 pkg/packagekit/updates.jsx:381
-#: pkg/subscriptions/subscriptions-view.jsx:35 pkg/systemd/hwinfo.jsx:83
+#: pkg/shell/index.html:88 pkg/shell/simple.html:64 pkg/systemd/index.html:110
+#: pkg/packagekit/updates.jsx:381 pkg/subscriptions/subscriptions-view.jsx:35
+#: pkg/systemd/hwinfo.jsx:83
 msgid "Version"
 msgstr "Verze"
-
-#: pkg/ovirt/components/ClusterVms.jsx:83
-msgid "Version num"
-msgstr "Číslo verze"
 
 #: pkg/storaged/jobs-panel.jsx:57
 msgid "Very securely erasing $target"
@@ -9781,10 +7871,6 @@ msgstr "Velmi jisté vymazávání $target"
 #: pkg/machines/hostvmslist.jsx:82
 msgid "Virtual Machines"
 msgstr "Virtuální stroje"
-
-#: pkg/ovirt/components/ClusterVms.jsx:176
-msgid "Virtual Machines of $0 cluster"
-msgstr "Virtuální stroje clusteru $0"
 
 #: pkg/machines/components/create-vm-dialog/pxe-helpers.js:161
 msgid "Virtual Network"
@@ -9799,9 +7885,7 @@ msgid "Virtualization Service is Available"
 msgstr "Virtualizační služba je k dispozici"
 
 # auto translated by TM merge from project: anaconda, version: master, DocId: main
-#: pkg/kubernetes/views/pv-page.html:13 pkg/kubernetes/views/pv-panel.html:10
-#: pkg/kubernetes/views/pvc-body.html:6
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:359
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:403
 #: pkg/machines/components/deleteDialog.jsx:50
 #: pkg/machines/components/diskAdd.jsx:89
 #: pkg/machines/components/vm/bootOrderModal.jsx:96
@@ -9823,27 +7907,11 @@ msgstr "Skupina svazků $0"
 msgid "Volume Groups"
 msgstr "Skupiny svazků"
 
-#: pkg/kubernetes/views/volume-body.html:14
-#: pkg/kubernetes/views/volume-body.html:89
-msgid "Volume ID"
-msgstr "Identif. svazku"
-
-#: pkg/kubernetes/views/pv-modify.html:115
-#: pkg/kubernetes/views/volume-body.html:42
-msgid "Volume Name"
-msgstr "Název svazku"
-
-#: pkg/kubernetes/views/pvc-body.html:2 pkg/kubernetes/views/volume-body.html:1
-msgid "Volume Type"
-msgstr "Typ svazku"
-
 #: pkg/storaged/lvol-tabs.jsx:410
 msgid "Volume size is $0. Content size is $1."
 msgstr "Velikost svazku je $0. Velikost obsahu na něm je $1."
 
-#: pkg/docker/index.html:515 pkg/kubernetes/index.html:74
-#: pkg/kubernetes/views/dashboard-page.html:47
-#: pkg/kubernetes/views/pod-page.html:18
+#: pkg/docker/index.html:515
 #: node_modules/registry-image-widgets/views/image-config.html:32
 msgid "Volumes"
 msgstr "Svazky"
@@ -9886,10 +7954,6 @@ msgstr "Vyžaduje"
 msgid "Warning and above"
 msgstr "Varování a závažnější"
 
-#: pkg/kubernetes/views/pv-modify.html:24
-msgid "Warning:"
-msgstr "Varování:"
-
 #: cockpit.appdata.xml.in.h:1
 msgid "Web Console for Linux servers"
 msgstr "Webová konzole pro linuxové servery"
@@ -9907,17 +7971,9 @@ msgstr "Středy"
 msgid "Weeks"
 msgstr "Týdny"
 
-#: pkg/kubernetes/views/registry-dashboard-page.html:5
-msgid "Welcome to the Image Registry"
-msgstr "Vítejte v registru obrazů"
-
 #: pkg/storaged/crypto-keyslots.jsx:324
 msgid "What if tang-show-keys is not available?"
 msgstr "Co když příkaz tang-show-keys není k dispozici?"
-
-#: pkg/kubernetes/views/volumes-page.html:61
-msgid "When"
-msgstr "Kdy"
 
 #: pkg/systemd/terminal.jsx:101
 msgid "White"
@@ -9945,7 +8001,7 @@ msgid "XOR"
 msgstr "XOR"
 
 # auto translated by TM merge from project: selinux (policycoreutils), version: master, DocId: policycoreutils
-#: pkg/kubernetes/scripts/volumes.js:996 pkg/networkmanager/interfaces.js:2593
+#: pkg/networkmanager/interfaces.js:2593
 msgid "Yes"
 msgstr "Ano"
 
@@ -9970,18 +8026,6 @@ msgstr ""
 msgid "You are not authorized to modify the firewall."
 msgstr "Nemáte oprávnění upravovat bránu firewall"
 
-#: pkg/kubernetes/views/auth-rejected-cert.html:3
-msgid ""
-"You can bypass the certificate check, but any data you send to the server "
-"could be intercepted by others."
-msgstr ""
-"Ověření certifikátu sice je možné obejít, pak ale všechna data, která "
-"pošlete serveru, mohou být kýmkoli zachycena."
-
-#: pkg/kubernetes/views/dashboard-page.html:150
-msgid "You can deploy an application to your cluster."
-msgstr "Aplikaci je možné nasadit na váš cluster."
-
 #: pkg/users/index.html:390
 msgid ""
 "You do not have permission to view the authorized public keys for this "
@@ -9996,7 +8040,7 @@ msgstr "Nemáte oprávnění spravovat fond úložiště pro Docker."
 msgid "You must wait longer to change your password"
 msgstr "Pro změnu hesla je třeba vyčkat déle"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:89
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:128
 msgid ""
 "You need to select the most closely matching OS vendor and Operating System"
 msgstr "Je třeba vybrat nejpodobnějšího výrobce a vydání operačního systému"
@@ -10008,14 +8052,6 @@ msgid ""
 msgstr ""
 "Váš prohlížeč se odpojí, ale to neovlivní proces aktualizace. Můžete se "
 "kdykoli znovu připojit a podívat se na postup."
-
-#: pkg/kubernetes/views/registry-dashboard-page.html:112
-msgid ""
-"Your login credentials do not give you access to use the docker registry "
-"from the command line."
-msgstr ""
-"Vaše přihlašovací údaje vám nedávají přístup k použití docker registru z "
-"příkazového řádku."
 
 #: pkg/packagekit/updates.jsx:865
 msgid ""
@@ -10091,17 +8127,9 @@ msgstr "bajtů"
 msgid "cdrom"
 msgstr "cdrom"
 
-#: pkg/ovirt/rephraseUI.js:35
-msgid "connecting"
-msgstr "připojuje se"
-
 #: pkg/machines/components/infoRecord.jsx:29
 msgid "control-label $0"
 msgstr "control-label $0"
-
-#: pkg/ovirt/components/ClusterVms.jsx:46
-msgid "cores"
-msgstr "jádra"
 
 # auto translated by TM merge from project: libvirt, version: master, DocId: libvirt
 #: pkg/machines/helpers.js:193
@@ -10123,7 +8151,6 @@ msgstr "přímé"
 
 # auto translated by TM merge from project: dnf, version: master, DocId: po/dnf
 #: pkg/machines/helpers.js:177 pkg/machines/helpers.js:180
-#: pkg/ovirt/components/OVirtTab.jsx:123
 msgid "disabled"
 msgstr "zakázáno"
 
@@ -10131,7 +8158,7 @@ msgstr "zakázáno"
 msgid "disk"
 msgstr "disk"
 
-#: pkg/machines/helpers.js:238 pkg/ovirt/rephraseUI.js:27
+#: pkg/machines/helpers.js:238
 msgid "down"
 msgstr "vypnuté"
 
@@ -10143,24 +8170,14 @@ msgstr "vypíná se"
 msgid "e.g. \"$0\""
 msgstr "např. „$0“"
 
-#: pkg/kubernetes/scripts/images.js:639
-msgid "eg: my-image-stream"
-msgstr "např.: muj-proud-obrazu"
-
 # auto translated by TM merge from project: dnf, version: master, DocId: po/dnf
 #: pkg/machines/helpers.js:178 pkg/machines/helpers.js:181
-#: pkg/ovirt/components/OVirtTab.jsx:125
 msgid "enabled"
 msgstr "povoleno"
 
 #: pkg/packagekit/updates.jsx:267
 msgid "enhancement"
 msgstr "vylepšení"
-
-# auto translated by TM merge from project: SSSD, version: master, DocId: po/sssd
-#: pkg/ovirt/rephraseUI.js:28
-msgid "error"
-msgstr "chyba"
 
 #: pkg/machines/helpers.js:214
 msgid "ethernet"
@@ -10216,18 +8233,6 @@ msgstr "nečinný"
 msgid "inactive"
 msgstr "neaktivní"
 
-#: pkg/ovirt/rephraseUI.js:29
-msgid "initializing"
-msgstr "inicializuje se"
-
-#: pkg/ovirt/rephraseUI.js:30
-msgid "installation failed"
-msgstr "instalace se nezdařila"
-
-#: pkg/ovirt/rephraseUI.js:38
-msgid "installing OS"
-msgstr "instaluje se operační systém"
-
 #: pkg/kdump/kdump-view.jsx:376
 msgid "invalid: multiple targets defined"
 msgstr "neplatné: definováno vícero cílů"
@@ -10235,10 +8240,6 @@ msgstr "neplatné: definováno vícero cílů"
 #: pkg/kdump/kdump-view.jsx:493
 msgid "kdump status"
 msgstr "stav kdump"
-
-#: pkg/ovirt/rephraseUI.js:39
-msgid "kdumping"
-msgstr "výpispamětijádra"
 
 #: pkg/docker/run.js:527
 msgid "key"
@@ -10252,10 +8253,6 @@ msgstr "slot pro klíč $0"
 msgid "locally in $0"
 msgstr "místně v $0"
 
-#: pkg/ovirt/rephraseUI.js:31
-msgid "maintenance"
-msgstr "údržba"
-
 #: pkg/machines/helpers.js:216
 msgid "mcast"
 msgstr "vícesměrvysílání"
@@ -10268,65 +8265,19 @@ msgstr "síť"
 msgid "nfs dump target isn't formated as server:path"
 msgstr "cíl výpisu nfs nemá podobu server:umisteni"
 
-#: pkg/kubernetes/views/route-body.html:14
 #: pkg/machines/components/networks/networkOverviewTab.jsx:84
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:62
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:65
 #: pkg/machines/components/vmDisksTab.jsx:102 pkg/machines/helpers.js:234
-#: pkg/ovirt/components/ClusterVms.jsx:38 pkg/ovirt/rephraseUI.js:43
 msgid "no"
 msgstr "ne"
 
-#: pkg/ovirt/rephraseUI.js:32
-msgid "non operational"
-msgstr "nefunkční"
-
-#: pkg/ovirt/rephraseUI.js:33
-msgid "non responsive"
-msgstr "neodpovídá"
-
 # auto translated by TM merge from project: anaconda, version: rhel8-alpha-branch, DocId: anaconda
-#: pkg/kubernetes/views/node-body.html:33
-#: pkg/kubernetes/views/node-body.html:59
-#: pkg/kubernetes/views/route-body.html:24
-#: pkg/kubernetes/views/route-body.html:29
 #: node_modules/registry-image-widgets/views/image-listing.html:53
 #: pkg/docker/run.js:419 pkg/docker/run.js:475 pkg/docker/run.js:529
 #: pkg/docker/run.js:574 pkg/tuned/dialog.js:105
 msgid "none"
 msgstr "nic"
-
-#: pkg/ovirt/provider.js:62
-msgid "oVirt"
-msgstr "oVirt"
-
-#: pkg/ovirt/components/HostStatus.jsx:37
-msgid "oVirt Host State:"
-msgstr "Stav oVirt hostitele:"
-
-#: pkg/ovirt/components/InstallationDialog.jsx:35
-msgid "oVirt Provider installation script failed due to missing arguments."
-msgstr ""
-"Vykonání instalačního skriptu oVirt poskytovatele se nezdařilo kvůli "
-"chybějícím argumentům."
-
-#: pkg/ovirt/components/InstallationDialog.jsx:36
-msgid ""
-"oVirt Provider installation script failed: Can't write to /etc/cockpit/"
-"machines-ovirt.config, try as root."
-msgstr ""
-"Vykonání instalačního skriptu oVirt poskytovatele se nezdařilo: Nedaří se "
-"zapisovat do /etc/cockpit/machines-ovirt.config. Zkuste to s právy správce."
-
-#: pkg/ovirt/components/InstallationDialog.jsx:164
-msgid "oVirt installation script failed with following output: "
-msgstr ""
-"Vykonání instalačního skriptu oVirt poskytovatele se nezdařilo s "
-"následujícím výstupem:"
-
-#: pkg/ovirt/components/App.jsx:51
-msgid "oVirt login in progress"
-msgstr "oVirt přihlášení v běhu"
 
 #: pkg/systemd/host.js:691
 msgid "of $0 CPU core"
@@ -10339,14 +8290,6 @@ msgstr[2] "z $0 jader procesoru"
 msgid "paused"
 msgstr "pozastaveno"
 
-#: pkg/ovirt/rephraseUI.js:34
-msgid "pending approval"
-msgstr "čeká na schválení"
-
-#: pkg/kubernetes/views/dashboard-page.html:83
-msgid "pending volume claims"
-msgstr "čekající nároky na svazky"
-
 #: pkg/machines/components/diskAdd.jsx:174
 msgid "qcow2"
 msgstr "qcow2"
@@ -10354,10 +8297,6 @@ msgstr "qcow2"
 #: pkg/machines/components/diskAdd.jsx:177
 msgid "raw"
 msgstr "raw"
-
-#: pkg/ovirt/rephraseUI.js:36
-msgid "reboot"
-msgstr "restart"
 
 #: pkg/tuned/change-profile.jsx:42
 msgid "recommended"
@@ -10409,10 +8348,6 @@ msgstr "vypnuto"
 msgid "shutdown"
 msgstr "vypnout"
 
-#: pkg/ovirt/components/ClusterVms.jsx:46
-msgid "sockets"
-msgstr "patic"
-
 #: pkg/selinux/setroubleshoot-view.jsx:123
 msgid "solution details"
 msgstr "podrobnosti řešení"
@@ -10433,10 +8368,6 @@ msgstr "není vyplněná kolonka ssh server"
 msgid "suspended (PM)"
 msgstr "uspáno (správou napájení)"
 
-#: pkg/ovirt/components/ClusterVms.jsx:46
-msgid "threads"
-msgstr "vlákna"
-
 #: pkg/docker/run.js:474
 msgid "to host path"
 msgstr "do umístění stroje"
@@ -10453,10 +8384,6 @@ msgstr "přeložitelné"
 #: pkg/machines/helpers.js:218
 msgid "udp"
 msgstr "udp"
-
-#: pkg/ovirt/rephraseUI.js:37
-msgid "unassigned"
-msgstr "nepřiřazeno"
 
 #: pkg/lib/cockpit-components-select.jsx:28
 msgid "undefined"
@@ -10476,7 +8403,7 @@ msgstr "neznámý cíl"
 msgid "unpartitioned space on $0"
 msgstr "nerozdělené místo na $0"
 
-#: pkg/machines/helpers.js:237 pkg/ovirt/rephraseUI.js:26
+#: pkg/machines/helpers.js:237
 msgid "up"
 msgstr "zapnuto"
 
@@ -10486,7 +8413,6 @@ msgid "user"
 msgstr "uživatel"
 
 #: pkg/machines/components/vcpuModal.jsx:192
-#: pkg/ovirt/components/vcpuModal.jsx:54
 msgid "vCPU Count"
 msgstr "Počet virt. procesorů"
 
@@ -10495,8 +8421,6 @@ msgid "vCPU Maximum"
 msgstr "Maximum virt. procesorů"
 
 #: pkg/machines/components/vmOverviewTab.jsx:75
-#: pkg/ovirt/components/ClusterTemplates.jsx:135
-#: pkg/ovirt/components/ClusterVms.jsx:181
 msgid "vCPUs"
 msgstr "virt. procesorů"
 
@@ -10509,12 +8433,10 @@ msgid "vhostuser"
 msgstr "uzivatelvirtstroje"
 
 # auto translated by TM merge from project: Pulseaudio, version: master, DocId: pulseaudio.pot
-#: pkg/kubernetes/views/route-body.html:13
 #: pkg/machines/components/networks/networkOverviewTab.jsx:84
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:62
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:65
 #: pkg/machines/components/vmDisksTab.jsx:102 pkg/machines/helpers.js:233
-#: pkg/ovirt/components/ClusterVms.jsx:38 pkg/ovirt/rephraseUI.js:42
 msgid "yes"
 msgstr "ano"
 

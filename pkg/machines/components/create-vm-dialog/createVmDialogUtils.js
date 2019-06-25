@@ -24,9 +24,6 @@ import {
 import * as python from "python.js";
 import autoDetectOSScript from 'raw-loader!./autoDetectOS.py';
 
-export const OTHER_OS = "Other OS";
-export const OTHER_OS_SHORT_ID = "other-os";
-
 const ACCEPT_RELEASE_DATES_AFTER = getTodayYearShifted(-3);
 const ACCEPT_EOL_DATES_AFTER = getTodayYearShifted(-1);
 

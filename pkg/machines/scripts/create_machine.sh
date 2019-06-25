@@ -53,10 +53,6 @@ if [ -z "$GRAPHICS_PARAM" ]; then
     GRAPHICS_PARAM="--graphics none"
 fi
 
-if [ "$OS" = "other-os" -o  -z "$OS" ]; then
-    OS="auto"
-fi
-
 if [ "$SOURCE_TYPE" = "pxe" ]; then
     INSTALL_METHOD="--pxe --network $SOURCE"
 elif [ "$START_VM" = "true" ]; then

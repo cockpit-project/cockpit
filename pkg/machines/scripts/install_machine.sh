@@ -30,10 +30,6 @@ createOptions(){
 EOF
 }
 
-if [ -z "$OS" ]; then
-    OS="auto"
-fi
-
 if [ -z "$DISKS" ]; then
     DISKS_PARAM="--disk none"
 else

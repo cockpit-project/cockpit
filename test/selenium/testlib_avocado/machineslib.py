@@ -202,7 +202,7 @@ class MachinesLib(SeleniumTest):
                         source_type='file',
                         source='/var/lib/libvirt/images/staticvm.qcow2',
                         os_vender='unspecified',
-                        os='other',
+                        os=None,
                         mem=1,
                         mem_unit='G',
                         storage=10,
@@ -236,7 +236,7 @@ class MachinesLib(SeleniumTest):
             if element:
                 self.click(element)
 
-        if os != 'other':
+        if os is not None:
             self.send_keys(self.wait_css("label:contains('Operating System') + div > div > div > input"), os)
 
         if mem_unit == 'M':

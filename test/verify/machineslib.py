@@ -1538,7 +1538,7 @@ class TestMachines(NetworkCase):
 
         def __init__(self, test_obj, name=None,
                      sourceType='file', sourceTypeSecondChoice=None, location='',
-                     memory_size=1, memory_size_unit='GiB',
+                     memory_size=256, memory_size_unit='MiB',
                      storage_size=None, storage_size_unit='GiB',
                      os_vendor=None,
                      os_name=None,

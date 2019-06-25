@@ -361,7 +361,11 @@ class PullTask(object):
         elif prefix == "selenium":
             if value not in ['firefox', 'chrome', 'edge']:
                 ret = "Unknown browser for selenium test"
-            cmd = [ "timeout", "60m", os.path.join(test, "avocado", "run-tests"),
+            # double timeout for Edge, it's so slow
+            timeout = "60m"
+            if value == "edge":
+                timeout = "120m"
+            cmd = [ "timeout", timeout, os.path.join(test, "avocado", "run-tests"),
                     "--quick", "--selenium-tests", "--browser", value]
         elif prefix == "image" or prefix == "container":
             cmd = [ "timeout", "90m", os.path.join(test, "containers", "run-tests"),

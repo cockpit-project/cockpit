@@ -329,9 +329,8 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
         if (!machine)
             machine = default_machine();
 
-        $("#host-nav-link span.list-group-item-value").text(machine ? machine.label : "");
+        $("#host-nav-link span.list-group-item-value").text(_("Host"));
         $("#host-nav-link")
-                .attr("aria-label", _("Host"))
                 .attr("data-machine", machine ? machine.address : "")
                 .attr("href", index.href({ host: machine ? machine.address : undefined }, true));
 

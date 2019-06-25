@@ -53,7 +53,6 @@ struct _CockpitWebServer {
   GString *url_root;
   gint request_timeout;
   gint request_max;
-  gboolean redirect_tls;
   CockpitWebServerFlags flags;
 
   GSocketService *socket_service;
@@ -69,7 +68,6 @@ enum
   PROP_CERTIFICATE,
   PROP_SSL_EXCEPTION_PREFIX,
   PROP_SOCKET_ACTIVATED,
-  PROP_REDIRECT_TLS,
   PROP_FLAGS,
   PROP_URL_ROOT,
 };
@@ -98,7 +96,6 @@ cockpit_web_server_init (CockpitWebServer *server)
   server->main_context = g_main_context_ref_thread_default ();
   server->ssl_exception_prefix = g_string_new ("");
   server->url_root = g_string_new ("");
-  server->redirect_tls = TRUE;
   server->address = NULL;
 }
 
@@ -160,10 +157,6 @@ cockpit_web_server_get_property (GObject *object,
 
     case PROP_SOCKET_ACTIVATED:
       g_value_set_boolean (value, server->socket_activated);
-      break;
-
-    case PROP_REDIRECT_TLS:
-      g_value_set_boolean (value, server->redirect_tls);
       break;
 
     case PROP_FLAGS:
@@ -228,10 +221,6 @@ cockpit_web_server_set_property (GObject *object,
         g_string_assign (server->url_root, str->str);
 
       g_string_free (str, TRUE);
-      break;
-
-    case PROP_REDIRECT_TLS:
-      server->redirect_tls = g_value_get_boolean (value);
       break;
 
     case PROP_FLAGS:
@@ -421,10 +410,6 @@ cockpit_web_server_class_init (CockpitWebServerClass *klass)
                                    g_param_spec_boolean ("socket-activated", NULL, NULL, FALSE,
                                                         G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_class, PROP_REDIRECT_TLS,
-                                   g_param_spec_boolean ("redirect-tls", NULL, NULL, TRUE,
-                                                         G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
-
   g_object_class_install_property (gobject_class, PROP_FLAGS,
                                    g_param_spec_int ("flags", NULL, NULL, 0, COCKPIT_WEB_SERVER_FLAGS_MAX, 0,
                                                      G_PARAM_READABLE |
@@ -505,23 +490,6 @@ cockpit_web_server_get_port (CockpitWebServer *self)
 {
   g_return_val_if_fail (COCKPIT_IS_WEB_SERVER (self), -1);
   return self->port;
-}
-
-void
-cockpit_web_server_set_redirect_tls (CockpitWebServer *self,
-                                     gboolean          redirect_tls)
-{
-  g_return_if_fail (COCKPIT_IS_WEB_SERVER (self));
-
-  self->redirect_tls = redirect_tls;
-}
-
-gboolean
-cockpit_web_server_get_redirect_tls (CockpitWebServer *self)
-{
-  g_return_val_if_fail (COCKPIT_IS_WEB_SERVER (self), FALSE);
-
-  return self->redirect_tls;
 }
 
 CockpitWebServerFlags
@@ -1159,7 +1127,7 @@ on_socket_input (GSocket *socket,
   if (first_byte != 22 && first_byte != 0x80)
     {
       is_tls = FALSE;
-      redirect_tls = request->web_server->redirect_tls;
+      redirect_tls = cockpit_web_server_get_flags (request->web_server) & COCKPIT_WEB_SERVER_REDIRECT_TLS;
       if (redirect_tls)
         {
           addr = g_socket_connection_get_local_address (G_SOCKET_CONNECTION (request->io), NULL);

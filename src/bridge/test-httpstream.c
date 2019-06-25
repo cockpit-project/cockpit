@@ -72,7 +72,6 @@ setup_general (TestGeneral *tt,
                gconstpointer host_fixture)
 {
   tt->web_server = cockpit_web_server_new (NULL, 0, NULL, COCKPIT_WEB_SERVER_NONE, NULL, NULL);
-  cockpit_web_server_set_redirect_tls (tt->web_server, FALSE);
   cockpit_web_server_start (tt->web_server);
   tt->port = cockpit_web_server_get_port (tt->web_server);
   tt->transport = mock_transport_new ();

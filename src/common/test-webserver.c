@@ -30,17 +30,16 @@
 #include <string.h>
 
 typedef struct {
-    CockpitWebServer *web_server;
-    gchar *localport;
-    gchar *hostport;
+  CockpitWebServer *web_server;
+  gchar *localport;
+  gchar *hostport;
 } TestCase;
 
 typedef struct {
-    const gchar *cert_file;
-    gboolean local_only;
-    gboolean inet_only;
-    gboolean for_tls_proxy;
-    gboolean redirect_tls;
+  const gchar *cert_file;
+  gboolean local_only;
+  gboolean inet_only;
+  CockpitWebServerFlags server_flags;
 } TestFixture;
 
 #define SKIP_NO_HOSTPORT if (!tc->hostport) { g_test_skip ("No non-loopback network interface available"); return; }
@@ -78,13 +77,11 @@ setup (TestCase *tc,
   tc->web_server = cockpit_web_server_new (address,
                                            0,
                                            cert,
-                                           (fixture && fixture->for_tls_proxy) ? COCKPIT_WEB_SERVER_FOR_TLS_PROXY : COCKPIT_WEB_SERVER_NONE,
+                                           fixture ? fixture->server_flags : COCKPIT_WEB_SERVER_NONE,
                                            NULL,
                                            &error);
   g_assert_no_error (error);
   g_clear_object (&cert);
-
-  cockpit_web_server_set_redirect_tls (tc->web_server, fixture ? fixture->redirect_tls : FALSE);
 
   cockpit_web_server_start (tc->web_server);
 
@@ -460,7 +457,7 @@ static const TestFixture fixture_with_cert = {
 };
 
 static const TestFixture fixture_with_cert_redirect = {
-    .redirect_tls = TRUE,
+    .server_flags = COCKPIT_WEB_SERVER_REDIRECT_TLS,
     .cert_file = SRCDIR "/src/ws/mock_cert"
 };
 
@@ -472,7 +469,7 @@ test_webserver_redirect_notls (TestCase *tc,
 
   SKIP_NO_HOSTPORT;
 
-  g_assert (cockpit_web_server_get_flags (tc->web_server) == COCKPIT_WEB_SERVER_NONE);
+  g_assert (cockpit_web_server_get_flags (tc->web_server) == COCKPIT_WEB_SERVER_REDIRECT_TLS);
 
   g_signal_connect (tc->web_server, "handle-resource", G_CALLBACK (on_shell_index_html), NULL);
   resp = perform_http_request (tc->hostport, "GET /shell/index.html HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
@@ -485,6 +482,8 @@ test_webserver_noredirect_localhost (TestCase *tc,
                                      gconstpointer data)
 {
   gchar *resp;
+
+  g_assert (cockpit_web_server_get_flags (tc->web_server) == COCKPIT_WEB_SERVER_REDIRECT_TLS);
 
   g_signal_connect (tc->web_server, "handle-resource", G_CALLBACK (on_shell_index_html), NULL);
   resp = perform_http_request (tc->localport, "GET /shell/index.html HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
@@ -872,7 +871,7 @@ test_bad_address (TestCase *tc,
 
 static const TestFixture fixture_for_tls_proxy = {
     .local_only = TRUE,
-    .for_tls_proxy = TRUE
+    .server_flags = COCKPIT_WEB_SERVER_FOR_TLS_PROXY,
 };
 
 static void

@@ -127,6 +127,7 @@ main (int argc,
   g_autofree gchar *login_html = NULL;
   g_autofree gchar *login_po_html = NULL;
   g_autoptr(CockpitWebServer) server = NULL;
+  CockpitWebServerFlags server_flags = COCKPIT_WEB_SERVER_NONE;
   CockpitHandlerData data;
   int outfd = -1;
 
@@ -197,10 +198,15 @@ main (int argc,
   login_po_html = g_strdup (DATADIR "/cockpit/static/login.po.html");
   data.login_po_html = (const gchar *)login_po_html;
 
+  if (opt_for_tls_proxy)
+    server_flags |= COCKPIT_WEB_SERVER_FOR_TLS_PROXY;
+  if (!cockpit_conf_bool ("WebService", "AllowUnencrypted", FALSE))
+    server_flags |= COCKPIT_WEB_SERVER_REDIRECT_TLS;
+
   server = cockpit_web_server_new (opt_address,
                                    opt_port,
                                    certificate,
-                                   opt_for_tls_proxy ? COCKPIT_WEB_SERVER_FOR_TLS_PROXY : COCKPIT_WEB_SERVER_NONE,
+                                   server_flags,
                                    NULL,
                                    &error);
   if (server == NULL)
@@ -208,8 +214,6 @@ main (int argc,
       g_prefix_error (&error, "Error starting web server: ");
       goto out;
     }
-
-  cockpit_web_server_set_redirect_tls (server, !cockpit_conf_bool ("WebService", "AllowUnencrypted", FALSE));
 
   if (cockpit_conf_string ("WebService", "UrlRoot"))
     {

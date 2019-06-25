@@ -111,10 +111,9 @@ def main():
     arguments = {
         "x-max-priority": MAX_PRIORITY
     }
-    declare_webhook_result = channel.queue_declare(queue='webhook', auto_delete=False)
+    channel.queue_declare(queue='webhook', auto_delete=False)
     declare_public_result = channel.queue_declare(queue='public', arguments=arguments, auto_delete=False)
     declare_rhel_result = channel.queue_declare(queue='rhel', arguments=arguments, auto_delete=False)
-
 
     cmd, delivery_tag = consume_webhook_queue(channel, opts.amqp)
     if not cmd:

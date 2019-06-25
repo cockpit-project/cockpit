@@ -25,8 +25,6 @@ import unittest
 
 sys.dont_write_bytecode = True
 
-import tap
-
 BOTS_DIR = os.path.dirname(__file__)
 
 def main():
@@ -38,7 +36,7 @@ def main():
         module = imp.load_source(name.replace("-", "_"), filename)
         suite.addTest(loader.loadTestsFromModule(module))
 
-    runner = tap.TapRunner()
+    runner = unittest.TextTestRunner()
     result = runner.run(suite)
     if result.wasSuccessful():
         return 0

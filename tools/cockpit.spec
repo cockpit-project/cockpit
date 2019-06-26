@@ -275,9 +275,6 @@ rm -f %{buildroot}%{_datadir}/pixmaps/cockpit-sosreport.png
 %find_lang cockpit
 %endif
 
-# dwz has trouble with the go binaries
-# https://fedoraproject.org/wiki/PackagingDrafts/Go
-%global _dwz_low_mem_die_limit 0
 %global _debugsource_packages 1
 %global _debuginfo_subpackages 0
 

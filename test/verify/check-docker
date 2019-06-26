@@ -565,7 +565,7 @@ CMD ["/bin/sh"]
         # crash in container
         m.execute('docker exec crashing_container sh -c "sleep 5 & sleep 1; pkill -ABRT sleep"')
 
-        # login and go to docker page (Containers)
+        # login and go to docker page (Docker Containers)
         self.login_and_go("/docker")
 
         sel = "#containers-containers .listing-ct-item .listing-ct-toggle"

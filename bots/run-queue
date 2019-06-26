@@ -22,15 +22,13 @@ MAX_PRIORITY = 9
 import argparse
 import json
 import random
-import ssl
 import subprocess
 import sys
 import time
 import logging
 import pipes
 
-import pika
-from task import redhat_network
+from task import redhat_network, distributed_queue
 
 logging.basicConfig(level=logging.INFO)
 
@@ -90,45 +88,23 @@ def main():
                         help='The host:port of the AMQP server to consume from (default: %(default)s)')
     opts = parser.parse_args()
 
-    try:
-        host, port = opts.amqp.split(':')
-    except ValueError:
-        parser.error('Please format --amqp as host:port')
+    with distributed_queue.DistributedQueue(opts.amqp, ['webhook', 'rhel', 'public']) as q:
+        channel = q.channel
+        cmd, delivery_tag = consume_webhook_queue(channel, opts.amqp)
+        if not cmd:
+            cmd, delivery_tag = consume_task_queue(channel, opts.amqp, q.declare_results['public'], q.declare_results['rhel'])
+        if not cmd:
+            logging.info("All queues are empty")
+            return 1
 
-    context = ssl.create_default_context(cafile='/run/secrets/webhook/ca.pem')
-    context.load_cert_chain(keyfile='/run/secrets/webhook/amqp-client.key',
-        certfile='/run/secrets/webhook/amqp-client.pem')
-    context.check_hostname = False
-    connection = pika.BlockingConnection(pika.ConnectionParameters(
-        host=host,
-        port=int(port),
-        ssl_options=pika.SSLOptions(context, server_hostname=host),
-        credentials=pika.credentials.ExternalCredentials()))
-    channel = connection.channel()
+        logging.info("Consuming message with command: {0}\n".format(' '.join(cmd) if type(cmd) is list else cmd))
+        p = subprocess.Popen(cmd, shell=type(cmd) is str)
+        while p.poll() is None:
+            q.connection.process_data_events()
+            time.sleep(3)
+        if p.returncode in [0, 2]:
+            channel.basic_ack(delivery_tag)
 
-    arguments = {
-        "x-max-priority": MAX_PRIORITY
-    }
-    channel.queue_declare(queue='webhook', auto_delete=False)
-    declare_public_result = channel.queue_declare(queue='public', arguments=arguments, auto_delete=False)
-    declare_rhel_result = channel.queue_declare(queue='rhel', arguments=arguments, auto_delete=False)
-
-    cmd, delivery_tag = consume_webhook_queue(channel, opts.amqp)
-    if not cmd:
-        cmd, delivery_tag = consume_task_queue(channel, opts.amqp, declare_public_result, declare_rhel_result)
-    if not cmd:
-        logging.info("All queues are empty")
-        return 1
-
-    logging.info("Consuming message with command: {0}\n".format(' '.join(cmd) if type(cmd) is list else cmd))
-    p = subprocess.Popen(cmd, shell=type(cmd) is str)
-    while p.poll() is None:
-        connection.process_data_events()
-        time.sleep(3)
-    if p.returncode in [0, 2]:
-        channel.basic_ack(delivery_tag)
-
-    connection.close()
     return 0
 
 if __name__ == '__main__':

@@ -18,9 +18,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-BASELINE_PRIORITY = 5
-MAX_PRIORITY = 9
-
 REPO_BRANCH_CONTEXT = {
     'cockpit-project/cockpit': {
         'master': ['avocado/fedora', 'container/bastion',
@@ -128,11 +125,9 @@ REPO_EXTRA_INVOKE_OPTIONS = {
 LABEL_TEST_EXTERNAL = "test-external"
 
 import argparse
-import contextlib
 import os
 import json
 import pipes
-import ssl
 import sys
 import time
 import logging
@@ -142,7 +137,7 @@ import urllib.request
 sys.dont_write_bytecode = True
 logging.basicConfig(level=logging.INFO)
 
-from task import github, label, redhat_network, labels_of_pull
+from task import github, label, redhat_network, labels_of_pull, distributed_queue
 
 no_amqp = False
 try:
@@ -209,33 +204,6 @@ def main():
             sys.stdout.write(result + "\n")
 
     return 0
-
-@contextlib.contextmanager
-def distributed_queue(amqp_server):
-    try:
-        host, port = amqp_server.split(':')
-    except ValueError:
-        logging.error('Please format --amqp as host:port')
-        sys.exit(1)
-
-    context = ssl.create_default_context(cafile='/run/secrets/webhook/ca.pem')
-    context.load_cert_chain(keyfile='/run/secrets/webhook/amqp-client.key',
-        certfile='/run/secrets/webhook/amqp-client.pem')
-    context.check_hostname = False
-    connection = pika.BlockingConnection(pika.ConnectionParameters(
-        host=host,
-        port=int(port),
-        ssl_options=pika.SSLOptions(context, server_hostname=host),
-        credentials=pika.credentials.ExternalCredentials()))
-    channel = connection.channel()
-
-    arguments = {
-        "x-max-priority": MAX_PRIORITY
-    }
-    channel.queue_declare(queue='public', arguments=arguments, auto_delete=False)
-    channel.queue_declare(queue='rhel', arguments=arguments, auto_delete=False)
-    yield channel
-    connection.close()
 
 # Prepare a human readable output
 def tests_human(priority, name, number, revision, ref, context, base, repo, bots_ref):
@@ -317,11 +285,11 @@ def tests_invoke(priority, name, number, revision, ref, context, base, repo, bot
         repo=pipes.quote(repo),
     )
 
-def queue_test(priority, name, number, revision, ref, context, base, repo, bots_ref, queue, options):
+def queue_test(priority, name, number, revision, ref, context, base, repo, bots_ref, channel, options):
     command = tests_invoke(priority, name, number, revision, ref, context, base, repo, bots_ref, options)
     if command:
-        if priority > MAX_PRIORITY:
-            priority = MAX_PRIORITY
+        if priority > distributed_queue.MAX_PRIORITY:
+            priority = distributed_queue.MAX_PRIORITY
 
         body = {
             "command": command,
@@ -330,12 +298,8 @@ def queue_test(priority, name, number, revision, ref, context, base, repo, bots_
             "ref": ref,
             "name": name,
         }
-        # repo will be set if it's an external project on a cockpit PR
-        # options.repo will be set if it's an external project's PR
-        if is_internal_context(context):
-            queue.basic_publish('', 'rhel', json.dumps(body), properties=pika.BasicProperties(priority=priority))
-        else:
-            queue.basic_publish('', 'public', json.dumps(body), properties=pika.BasicProperties(priority=priority))
+        queue = 'rhel' if is_internal_context(context) else 'public'
+        channel.basic_publish('', queue, json.dumps(body), properties=pika.BasicProperties(priority=priority))
         logging.info("Published '{0}' on '{1}' with command: '{2}'".format(name, revision, command))
 
 def prioritize(status, title, labels, priority, context, number):
@@ -447,7 +411,7 @@ def cockpit_tasks(api, update, branch_contexts, repo, pull_data, pull_number, sh
         # Do we have any statuses for this commit?
         have = len(statuses.keys()) > 0
 
-        baseline = BASELINE_PRIORITY
+        baseline = distributed_queue.BASELINE_PRIORITY
         # amqp automatically prioritizes on age
         if not amqp:
             # modify the baseline slightly to favor older pull requests, so that we don't
@@ -530,8 +494,8 @@ def scan_for_pull_tasks(api, policy, opts, repo):
     if not opts.amqp:
         func = lambda x: tests_invoke(*x, options=opts)
         return list(map(func, results))
-    with distributed_queue(opts.amqp) as queue:
-        func = lambda x: queue_test(*x, queue=queue, options=opts)
+    with distributed_queue.DistributedQueue(opts.amqp, ['rhel', 'public']) as q:
+        func = lambda x: queue_test(*x, channel=q.channel, options=opts)
         return list(map(func, results))
 
 def scan_external_projects(opts):

@@ -38,6 +38,8 @@ for x in $(seq 1 60); do
         systemctl status --lines=100 sssd.service >&2
         exit 1
     fi
+    sss_cache -E || true
+    systemctl restart sssd.service
     sleep $x
 done
 # ensure this works now, if the above loop timed out
@@ -51,6 +53,8 @@ for x in $(seq 1 60); do
     if ssh -oStrictHostKeyChecking=no -oBatchMode=yes -l {0} x0.cockpit.lan true; then
         break
     fi
+    sss_cache -E || true
+    systemctl restart sssd.service
     sleep $x
 done
 """
@@ -165,7 +169,7 @@ class TestRealms(MachineCase):
         m.start_cockpit()
 
         # wait until IPA user works
-        m.execute('while ! su - -c "echo foobarfoo | sudo -S true" admin@cockpit.lan; do sleep 5; done',
+        m.execute('while ! su - -c "echo foobarfoo | sudo -S true" admin@cockpit.lan; do sleep 5; sss_cache -E || true; systemctl try-restart sssd; done',
                   timeout=300)
 
         # log in as IPA admin and check that we can do privileged operations
@@ -293,7 +297,7 @@ class TestRealms(MachineCase):
         m.execute("echo foobarfoo | realm join -vU admin cockpit.lan")
 
         # wait until IPA user works
-        m.execute('while ! su - -c "echo foobarfoo | sudo -S true" admin; do sleep 5; done',
+        m.execute('while ! su - -c "echo foobarfoo | sudo -S true" admin; do sleep 5; sss_cache -E || true; systemctl try-restart sssd; done',
                   timeout=300)
 
         # login should now work with the IPA admin user

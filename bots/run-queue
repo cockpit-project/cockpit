@@ -52,6 +52,8 @@ def consume_webhook_queue(channel, amqp):
         sha = request['sha']
         context = pipes.quote(request['context'])
         cmd = ['bots/tests-scan', '--sha', sha, '--amqp', amqp, '--context', context]
+    elif event == 'issues':
+        cmd = ['bots/issue-scan', '--amqp', amqp]
     else:
         logging.error('Unkown event type in the webhook queue')
         return None, None

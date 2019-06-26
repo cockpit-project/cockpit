@@ -60,7 +60,7 @@ import json
 
 sys.dont_write_bytecode = True
 
-from task import github, redhat_network, distributed_queue
+from task import github, redhat_network, distributed_queue, labels_of_pull
 
 BOTS = os.path.normpath(os.path.join(os.path.dirname(__file__)))
 BASE = os.path.normpath(os.path.join(BOTS, ".."))
@@ -78,6 +78,8 @@ def main():
          dest="verbose", help="Print verbose information")
     parser.add_argument('--amqp', default=None,
                         help='The host:port of the AMQP server to publish to (format host:port)')
+    parser.add_argument('--issue-data', default=None,
+                        help='issues GitHub JSON data to evaluate')
     opts = parser.parse_args()
 
     if opts.amqp and no_amqp:
@@ -94,7 +96,7 @@ def main():
     except IOError:
         namespace = None
 
-    for result in scan(opts.verbose):
+    for result in scan(opts.issue_data, opts.verbose):
         if opts.amqp:
             with distributed_queue.DistributedQueue(opts.amqp, queues=['rhel', 'public']) as q:
                 queue_task(q.channel, result)
@@ -128,11 +130,21 @@ def contains_any(string, matches):
     return False
 
 # Map all checkable work items to fixtures
-def tasks_for_issues():
+def tasks_for_issues(issue_data):
     results = [ ]
     api = github.GitHub()
     whitelist = api.whitelist()
-    for issue in api.issues(state="open"):
+    issues = [ ]
+
+    if issue_data:
+        issue = json.loads(issue_data)
+        labels = labels_of_pull(issue)
+        if 'bot' in labels:
+            issues.append(issue)
+    else:
+        issues = api.issues(state="open")
+
+    for issue in issues:
         if issue["title"].strip().startswith("WIP"):
             continue
         login = issue.get("user", { }).get("login", { })
@@ -195,13 +207,13 @@ def queue_task(channel, result):
     channel.basic_publish('', queue, json.dumps(body), properties=pika.BasicProperties(priority=distributed_queue.MAX_PRIORITY))
 
 # Default scan behavior run for each task
-def scan(verbose):
+def scan(issue_data, verbose):
     global issues
 
     results = [ ]
 
     # Now go through each fixture
-    for (command, issue) in tasks_for_issues():
+    for (command, issue) in tasks_for_issues(issue_data):
         result = output_task(command, issue, verbose)
         if result is not None:
             results.append(result)

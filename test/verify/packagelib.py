@@ -251,7 +251,7 @@ rm -rf ~/rpmbuild
                                     xz -c Packages > Packages.xz
                                     O=$(apt-ftparchive -o APT::FTPArchive::Release::Origin=cockpittest release .); echo "$O" > Release
                                     echo 'Changelogs: http://localhost:12345/changelogs/@CHANGEPATH@' >> Release
-                                    setsid python -m SimpleHTTPServer 12345 >/dev/null 2>&1 < /dev/null &
+                                    setsid python3 -m http.server 12345 >/dev/null 2>&1 < /dev/null &
                                     '''.format(self.repo_dir))
             self.machine.wait_for_cockpit_running(port=12345)  # wait for changelog HTTP server to start up
         else:

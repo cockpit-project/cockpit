@@ -43,12 +43,6 @@
 
 %define __lib lib
 
-# on RHEL 7.x we build subscriptions; superseded later by
-# external subscription-manager-cockpit
-%if (0%{?rhel} >= 7 && 0%{?rhel} < 8) && 0%{?centos} == 0
-%define build_subscriptions 1
-%endif
-
 %if 0%{?rhel} >= 7
 %define vdo_on_demand 1
 %endif
@@ -121,9 +115,7 @@ Recommends: (cockpit-docker if /usr/bin/docker)
 Recommends: (cockpit-networkmanager if NetworkManager)
 Recommends: (cockpit-storaged if udisks2)
 Recommends: cockpit-packagekit
-%if 0%{?rhel} >= 8 && 0%{?centos} == 0
 Recommends: subscription-manager-cockpit
-%endif
 Suggests: cockpit-pcp
 Suggests: cockpit-selinux
 %endif
@@ -204,13 +196,6 @@ find %{buildroot}%{_datadir}/cockpit/kdump -type f >> kdump.list
 
 echo '%dir %{_datadir}/cockpit/sosreport' > sosreport.list
 find %{buildroot}%{_datadir}/cockpit/sosreport -type f >> sosreport.list
-
-%if %{defined build_subscriptions}
-echo '%dir %{_datadir}/cockpit/subscriptions' >> system.list
-find %{buildroot}%{_datadir}/cockpit/subscriptions -type f >> system.list
-%else
-rm -rf %{buildroot}/%{_datadir}/cockpit/subscriptions
-%endif
 
 echo '%dir %{_datadir}/cockpit/storaged' > storaged.list
 find %{buildroot}%{_datadir}/cockpit/storaged -type f >> storaged.list
@@ -410,10 +395,6 @@ Recommends: setroubleshoot-server >= 3.3.3
 %endif
 Provides: cockpit-selinux = %{version}-%{release}
 Provides: cockpit-sosreport = %{version}-%{release}
-%endif
-%if %{defined build_subscriptions}
-Provides: cockpit-subscriptions = %{version}-%{release}
-Requires: subscription-manager >= 1.13
 %endif
 # NPM modules which are also available as packages
 Provides: bundled(js-jquery) = %{npm-version:jquery}

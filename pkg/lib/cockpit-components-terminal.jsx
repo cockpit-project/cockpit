@@ -253,8 +253,8 @@ export class Terminal extends React.Component {
         var padding = 2 * 11;
         var node = ReactDOM.findDOMNode(this);
 
-        var realHeight = this.state.terminal._core._renderCoordinator.dimensions.actualCellHeight;
-        var realWidth = this.state.terminal._core._renderCoordinator.dimensions.actualCellWidth;
+        var realHeight = this.state.terminal._core.renderer.dimensions.actualCellHeight;
+        var realWidth = this.state.terminal._core.renderer.dimensions.actualCellWidth;
         this.setState({
             rows: Math.floor((node.parentElement.clientHeight - padding) / realHeight),
             cols: Math.floor((node.parentElement.clientWidth - padding) / realWidth)

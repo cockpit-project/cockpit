@@ -9,7 +9,7 @@ ifneq ($(shell dpkg -s libpcp3-dev >/dev/null 2>&1 && echo yes),yes)
 endif
 
 # newer firewalld ships cockpit.xml, but keep it for backports
-FIREWALLD_SERVICE = $(findstring $(shell . /etc/os-release; echo $$VERSION_ID),8 9 16.04 18.04)
+FIREWALLD_SERVICE = $(findstring $(shell . /etc/os-release; echo $$VERSION_ID),9 18.04)
 ifeq ($(FIREWALLD_SERVICE),)
 	WS_CONFLICTS = firewalld (<< 0.6.0)
 endif

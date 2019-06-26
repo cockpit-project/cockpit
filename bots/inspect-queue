@@ -21,9 +21,8 @@ MAX_PRIORITY = 9
 
 import argparse
 import sys
-import ssl
 
-import pika
+from task import distributed_queue
 
 def main():
     parser = argparse.ArgumentParser(description='Read and print messages from the queue without acknowleding them')
@@ -31,38 +30,24 @@ def main():
                         help='The host:port of the AMQP server to consume from (default: %(default)s)')
     opts = parser.parse_args()
 
-    try:
-        host, port = opts.amqp.split(':')
-    except ValueError:
-        parser.error('Please format --amqp as host:port')
+    with distributed_queue.DistributedQueue(opts.amqp, ['public', 'rhel'], passive=True) as q:
+        def print_queue(queue):
+            if q.declare_results[queue] is None:
+                print("queue {} does not exist".format(queue))
+                return
+            message_count = q.declare_results[queue].method.message_count
+            if message_count == 0:
+                print("queue {} is empty".format(queue))
+                return
+            for i in range(message_count):
+                method_frame, header_frame, body = q.channel.basic_get(queue=queue)
+                if method_frame:
+                    print(body)
 
-    context = ssl.create_default_context(cafile='/run/secrets/webhook/ca.pem')
-    context.load_cert_chain(keyfile='/run/secrets/webhook/amqp-client.key',
-        certfile='/run/secrets/webhook/amqp-client.pem')
-    context.check_hostname = False
-    connection = pika.BlockingConnection(pika.ConnectionParameters(
-        host=host,
-        port=int(port),
-        ssl_options=pika.SSLOptions(context, server_hostname=host),
-        credentials=pika.credentials.ExternalCredentials()))
-    channel = connection.channel()
-
-    def print_queue(queue):
-        try:
-            declare_result = channel.queue_declare(queue=queue, passive=True, auto_delete=False)
-        except pika.exceptions.ChannelClosed:
-            print("queue {0} doesn't exist".format(queue))
-            return
-        for i in range(declare_result.method.message_count):
-            method_frame, header_frame, body = channel.basic_get(queue=queue)
-            if method_frame:
-                print(body)
-
-    print('public queue:')
-    print_queue('public')
-    print('rhel queue:')
-    print_queue('rhel')
-    connection.close()
+        print('public queue:')
+        print_queue('public')
+        print('rhel queue:')
+        print_queue('rhel')
 
 if __name__ == '__main__':
     sys.exit(main())

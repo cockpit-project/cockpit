@@ -95,11 +95,6 @@ var info = {
             "storaged/devices.jsx"
         ],
 
-        "subscriptions/subscriptions": [
-            "subscriptions/main.js",
-            "subscriptions/subscriptions.css",
-        ],
-
         "systemd/services": [
             "systemd/init.js",
             "systemd/services.css",

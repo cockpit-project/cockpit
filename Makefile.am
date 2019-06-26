@@ -165,7 +165,6 @@ WEBPACK_PACKAGES = \
 	sosreport \
 	ssh \
 	storaged \
-	subscriptions \
 	systemd \
 	tuned \
 	users \

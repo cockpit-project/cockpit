@@ -18,8 +18,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-PRIORITY = 9
-
 NAMES = [
     "example-task",
     "po-refresh",
@@ -58,19 +56,32 @@ import argparse
 import pipes
 import os
 import sys
+import json
 
 sys.dont_write_bytecode = True
 
-from task import github, redhat_network
+from task import github, redhat_network, distributed_queue
 
 BOTS = os.path.normpath(os.path.join(os.path.dirname(__file__)))
 BASE = os.path.normpath(os.path.join(BOTS, ".."))
+
+no_amqp = False
+try:
+    import pika
+except ImportError:
+    no_amqp = True
+
 
 def main():
     parser = argparse.ArgumentParser(description="Scan issues for tasks")
     parser.add_argument("-v", "--human-readable", "--verbose", action="store_true", default=False,
          dest="verbose", help="Print verbose information")
+    parser.add_argument('--amqp', default=None,
+                        help='The host:port of the AMQP server to publish to (format host:port)')
     opts = parser.parse_args()
+
+    if opts.amqp and no_amqp:
+        parser.error("AMQP host:port specified but python-amqp not available")
 
     kvm = os.access("/dev/kvm", os.R_OK | os.W_OK)
     if not kvm:
@@ -84,6 +95,11 @@ def main():
         namespace = None
 
     for result in scan(opts.verbose):
+        if opts.amqp:
+            with distributed_queue.DistributedQueue(opts.amqp, queues=['rhel', 'public']) as q:
+                queue_task(q.channel, result)
+            continue
+
         if not kvm and contains_any(result, KVM_TASKS):
             sys.stderr.write("issue-scan: skipping (no kvm): {0}\n".format(result))
             continue
@@ -156,7 +172,7 @@ def output_task(command, issue, verbose):
     if verbose:
         return "issue-{issue} {name} {context}    {priority}".format(
             issue=int(number),
-            priority=PRIORITY,
+            priority=distributed_queue.MAX_PRIORITY,
             name=name,
             context=context
         )
@@ -165,10 +181,18 @@ def output_task(command, issue, verbose):
             context = pipes.quote(context)
         return (checkout + cmd).format(
             issue=int(number),
-            priority=PRIORITY,
+            priority=distributed_queue.MAX_PRIORITY,
             name=name,
             context=context,
         )
+
+def queue_task(channel, result):
+    body = {
+        "command": result,
+        "type": "issue",
+    }
+    queue = 'rhel' if contains_any(result, REDHAT_TASKS) else 'public'
+    channel.basic_publish('', queue, json.dumps(body), properties=pika.BasicProperties(priority=distributed_queue.MAX_PRIORITY))
 
 # Default scan behavior run for each task
 def scan(verbose):

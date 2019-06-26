@@ -43,7 +43,7 @@
 
 %define __lib lib
 
-%if 0%{?rhel} >= 7
+%if 0%{?rhel}
 %define vdo_on_demand 1
 %endif
 
@@ -69,11 +69,7 @@ BuildRequires: pkgconfig(polkit-agent-1) >= 0.105
 BuildRequires: pam-devel
 
 BuildRequires: autoconf automake
-%if 0%{?fedora} || 0%{?rhel} >= 8
 BuildRequires: /usr/bin/python3
-%else
-BuildRequires: /usr/bin/python2
-%endif
 BuildRequires: intltool
 %if %{defined build_dashboard}
 BuildRequires: libssh-devel >= 0.7.1
@@ -105,12 +101,10 @@ Requires: cockpit-ws
 Requires: cockpit-system
 
 # Optional components
-%if 0%{?fedora} || 0%{?rhel} >= 8
 %if 0%{?rhel} == 0
 Recommends: cockpit-dashboard
 %ifarch x86_64 %{arm} aarch64 ppc64le i686 s390x
 Recommends: (cockpit-docker if /usr/bin/docker)
-%endif
 %endif
 Recommends: (cockpit-networkmanager if NetworkManager)
 Recommends: (cockpit-storaged if udisks2)
@@ -129,9 +123,6 @@ exec 2>&1
     --disable-silent-rules \
     --with-cockpit-user=cockpit-ws \
     --with-selinux-config-type=etc_t \
-%if 0%{?rhel} >= 7 && 0%{?rhel} < 8
-    --without-storaged-iscsi-sessions \
-%endif
     --with-appstream-data-packages='[ "appstream-data" ]' \
     --with-nfs-client-package='"nfs-utils"' \
     %{?vdo_on_demand:--with-vdo-package='"vdo"'}
@@ -156,14 +147,8 @@ echo '%dir %{_datadir}/cockpit/base1' > base.list
 find %{buildroot}%{_datadir}/cockpit/base1 -type f >> base.list
 echo '%{_sysconfdir}/cockpit/machines.d' >> base.list
 echo %{buildroot}%{_datadir}/polkit-1/actions/org.cockpit-project.cockpit-bridge.policy >> base.list
-# RHEL 7 needs to keep cockpit-ssh in dashboard for backwards compat
-%if 0%{?rhel} == 7
-find %{buildroot}%{_datadir}/cockpit/ssh -type f >> dashboard.list
-echo '%{_libexecdir}/cockpit-ssh' >> dashboard.list
-%else
 find %{buildroot}%{_datadir}/cockpit/ssh -type f >> base.list
 echo '%{_libexecdir}/cockpit-ssh' >> base.list
-%endif
 
 %if %{defined build_dashboard}
 echo '%dir %{_datadir}/cockpit/dashboard' >> dashboard.list
@@ -219,7 +204,7 @@ echo '%dir %{_datadir}/cockpit/playground' > tests.list
 find %{buildroot}%{_datadir}/cockpit/playground -type f >> tests.list
 
 %ifarch x86_64 %{arm} aarch64 ppc64le i686 s390x
-%if 0%{?fedora} || 0%{?rhel} < 8
+%if 0%{?fedora}
 echo '%dir %{_datadir}/cockpit/docker' > docker.list
 find %{buildroot}%{_datadir}/cockpit/docker -type f >> docker.list
 %else
@@ -282,11 +267,8 @@ rm -rf %{buildroot}/usr/src/debug
 cat kdump.list sosreport.list networkmanager.list selinux.list >> system.list
 rm -f %{buildroot}%{_datadir}/metainfo/org.cockpit-project.cockpit-sosreport.metainfo.xml
 rm -f %{buildroot}%{_datadir}/metainfo/org.cockpit-project.cockpit-kdump.metainfo.xml
-rm -f %{buildroot}%{_datadir}/pixmaps/cockpit-sosreport.png
-%endif
-
-%if 0%{?rhel}
 rm -f %{buildroot}%{_datadir}/metainfo/org.cockpit-project.cockpit-selinux.metainfo.xml
+rm -f %{buildroot}%{_datadir}/pixmaps/cockpit-sosreport.png
 %endif
 
 %if 0%{?build_basic}
@@ -296,10 +278,8 @@ rm -f %{buildroot}%{_datadir}/metainfo/org.cockpit-project.cockpit-selinux.metai
 # dwz has trouble with the go binaries
 # https://fedoraproject.org/wiki/PackagingDrafts/Go
 %global _dwz_low_mem_die_limit 0
-%if 0%{?fedora} || 0%{?rhel} >= 8
 %global _debugsource_packages 1
 %global _debuginfo_subpackages 0
-%endif
 
 %define find_debug_info %{_rpmconfigdir}/find-debuginfo.sh %{?_missing_build_ids_terminate_build:--strict-build-id} %{?_include_minidebuginfo:-m} %{?_find_debuginfo_dwz_opts} %{?_find_debuginfo_opts} %{?_debugsource_packages:-S debugsourcefiles.list} "%{_builddir}/%{?buildsubdir}"
 
@@ -334,13 +314,11 @@ troubleshooting, interactive command-line sessions, and more.
 %package bridge
 Summary: Cockpit bridge server-side component
 Requires: glib-networking
-%if 0%{?rhel} != 7
 Provides: cockpit-ssh = %{version}-%{release}
 # cockpit-ssh moved from dashboard to bridge in 171
 Conflicts: cockpit-dashboard < 170.x
 # PR #10430 dropped workaround for ws' inability to understand x-host-key challenge
 Conflicts: cockpit-ws < 181.x
-%endif
 
 %description bridge
 The Cockpit bridge component installed server side and runs commands on the
@@ -385,14 +363,9 @@ Obsoletes: cockpit-networkmanager
 Requires: NetworkManager
 Provides: cockpit-kdump = %{version}-%{release}
 Requires: kexec-tools
-# Optional components (only when soft deps are supported)
-%if 0%{?fedora} || 0%{?rhel} >= 8
 Recommends: polkit
-%endif
-%if 0%{?rhel} >= 8
 Recommends: NetworkManager-team
 Recommends: setroubleshoot-server >= 3.3.3
-%endif
 Provides: cockpit-selinux = %{version}-%{release}
 Provides: cockpit-sosreport = %{version}-%{release}
 %endif
@@ -414,10 +387,8 @@ Requires: glib-networking
 Requires: openssl
 Requires: glib2 >= 2.37.4
 Conflicts: firewalld < 0.6.0-1
-%if 0%{?fedora} || 0%{?rhel} >= 8
 Recommends: sscg >= 2.3
 Recommends: system-logos
-%endif
 Requires(post): systemd
 Requires(preun): systemd
 Requires(postun): systemd
@@ -504,10 +475,8 @@ Summary: Cockpit user interface for networking, using NetworkManager
 Requires: cockpit-bridge >= %{required_base}
 Requires: cockpit-shell >= %{required_base}
 Requires: NetworkManager
-# Optional components (only when soft deps are supported)
-%if 0%{?fedora} || 0%{?rhel} >= 8
+# Optional components
 Recommends: NetworkManager-team
-%endif
 BuildArch: noarch
 
 %description networkmanager
@@ -523,9 +492,7 @@ The Cockpit component for managing networking.  This package uses NetworkManager
 Summary: Cockpit SELinux package
 Requires: cockpit-bridge >= %{required_base}
 Requires: cockpit-shell >= %{required_base}
-%if 0%{?fedora} || 0%{?rhel} >= 8
 Requires: setroubleshoot-server >= 3.3.3
-%endif
 BuildArch: noarch
 
 %description selinux
@@ -554,21 +521,12 @@ Dummy package from building optional packages only; never install or publish me.
 Summary: Cockpit user interface for storage, using udisks
 Requires: cockpit-shell >= %{required_base}
 Requires: udisks2 >= 2.6
-%if 0%{?rhel} == 7
-# Recommends: not supported in RHEL <= 7
-Requires: udisks2-lvm2 >= 2.6
-Requires: udisks2-iscsi >= 2.6
-Requires: device-mapper-multipath
-Requires: python
-Requires: python-dbus
-%else
 Recommends: udisks2-lvm2 >= 2.6
 Recommends: udisks2-iscsi >= 2.6
 Recommends: device-mapper-multipath
 Recommends: clevis-luks
 Requires: %{__python3}
 Requires: python3-dbus
-%endif
 BuildArch: noarch
 
 %description -n cockpit-storaged
@@ -597,19 +555,13 @@ BuildArch: noarch
 Summary: Cockpit user interface for virtual machines
 Requires: cockpit-bridge >= %{required_base}
 Requires: cockpit-system >= %{required_base}
-%if 0%{?rhel} == 7
-Requires: libvirt
-%else
 Requires: (libvirt-daemon-kvm or libvirt)
-%endif
 Requires: libvirt-client
-%if 0%{?fedora} || 0%{?rhel} >= 8
 Requires: libvirt-dbus >= 1.2.0
 # Optional components
 Recommends: virt-install
 Recommends: libosinfo
 Recommends: python3-gobject-base
-%endif
 
 %description -n cockpit-machines
 The Cockpit components for managing virtual machines.
@@ -640,17 +592,9 @@ Cockpit support for reading PCP metrics and loading PCP archives.
 %if %{defined build_dashboard}
 %package -n cockpit-dashboard
 Summary: Cockpit remote servers and dashboard
-%if 0%{?rhel} == 7
-Provides: cockpit-ssh = %{version}-%{release}
-# nothing depends on the dashboard, but we can't use it with older versions of the bridge
-Conflicts: cockpit-bridge < 135
-# PR #10430 dropped workaround for ws' inability to understand x-host-key challenge
-Conflicts: cockpit-ws < 173.1
-%else
 BuildArch: noarch
 Requires: cockpit-ssh >= 135
 Conflicts: cockpit-ws < 135
-%endif
 
 %description -n cockpit-dashboard
 Cockpit support for connecting to remote servers (through ssh),
@@ -661,19 +605,14 @@ bastion hosts, and a basic dashboard.
 %endif
 
 %ifarch x86_64 %{arm} aarch64 ppc64le i686 s390x
-
-%if 0%{?fedora} || 0%{?rhel} < 8
+%if 0%{?fedora}
 %package -n cockpit-docker
 Summary: Cockpit user interface for Docker containers
 Requires: cockpit-bridge >= %{required_base}
 Requires: cockpit-shell >= %{required_base}
 Requires: /usr/bin/docker
 Requires: /usr/lib/systemd/system/docker.service
-%if 0%{?fedora}
 Requires: %{__python3}
-%else
-Requires: python2
-%endif
 
 %description -n cockpit-docker
 The Cockpit components for interacting with Docker and user interface.

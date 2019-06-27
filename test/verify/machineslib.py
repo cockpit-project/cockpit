@@ -1228,11 +1228,12 @@ class TestMachines(NetworkCase):
         def createTest(dialog):
             runner.tryCreate(dialog) \
 
-            # We call virt-install always with --wait 0 which means we should
-            # check for virt-install script to always finish and the domain to get
-            # defined when creating new VMs.
-            runner.assertScriptFinished() \
-                  .assertDomainDefined(dialog.name, dialog.connection)
+            # When not booting the actual OS from either existing image or PXE
+            # configure virt-install to wait for the installation to complete.
+            # Thus we should only check that virt-install exited when using existing disk images.
+            if dialog.sourceType == 'disk_image' or dialog.sourceType == 'pxe':
+                runner.assertScriptFinished() \
+                    .assertDomainDefined(dialog.name, dialog.connection)
 
             if dialog.delete:
                 runner.deleteVm(dialog) \

@@ -519,7 +519,7 @@ export class CreateStoragePoolAction extends React.Component {
 
     render() {
         return (
-            <div>
+            <React.Fragment>
                 <Button className='pull-right' id='create-storage-pool' bsStyle='default' onClick={this.open} >
                     {_("Create Storage Pool")}
                 </Button>
@@ -529,7 +529,7 @@ export class CreateStoragePoolAction extends React.Component {
                     dispatch={this.props.dispatch}
                     libvirtVersion={this.props.libvirtVersion}
                     loggedUser={this.props.loggedUser} /> }
-            </div>
+            </React.Fragment>
         );
     }
 }

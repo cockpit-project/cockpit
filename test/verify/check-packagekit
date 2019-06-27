@@ -588,6 +588,8 @@ class TestUpdates(PackageCase):
         b.wait_in_text("table.available", "cockpit-ws")
         b.wait_in_text("#app div.alert-warning", "This web console will be updated.")
 
+        self.allow_restart_journal_messages()
+
     def testPackageKitCrash(self):
         b = self.browser
         m = self.machine

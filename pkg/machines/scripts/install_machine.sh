@@ -104,8 +104,8 @@ else
     if vmExists "$VM_NAME"; then
         # undefine if the domain was created but still failed
         virsh -c "$CONNECTION_URI" -q undefine "$VM_NAME" --managed-save
+        virsh -c "$CONNECTION_URI" -q define "$DOMAIN_FILE"
     fi
-    virsh -c "$CONNECTION_URI" -q define "$DOMAIN_FILE"
     rm -f "$DOMAIN_FILE"
-    exit 1
+    exit $EXIT_STATUS
 fi

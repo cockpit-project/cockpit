@@ -99,7 +99,7 @@ class VmOverviewTabLibvirt extends React.Component {
     }
 
     render() {
-        const runningVmChanged = () => {
+        const bootOrderChanged = () => {
             const activeDevices = getBootOrderDevices(vm);
             const inactiveDevices = getBootOrderDevices(vm.inactiveXML);
 
@@ -134,7 +134,7 @@ class VmOverviewTabLibvirt extends React.Component {
                     <a id={`${vmId(vm.name)}-boot-order`} onClick={this.openBootOrder}>
                         {getBootOrder(vm)}
                     </a>
-                    { vm.state === "running" && runningVmChanged() && <WarningInactive iconId="boot-order-tooltip" tooltipId="tip-boot-order" /> }
+                    { vm.state === "running" && bootOrderChanged() && <WarningInactive iconId="boot-order-tooltip" tooltipId="tip-boot-order" /> }
                 </div>
             );
 

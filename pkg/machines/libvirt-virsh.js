@@ -281,7 +281,10 @@ LIBVIRT_PROVIDER = {
                             const poolInfoParams = parseStoragePoolInfo(poolInfo);
 
                             dispatch(updateOrAddStoragePool(Object.assign({}, dumpxmlParams, poolInfoParams)));
-                            dispatch(getStorageVolumes({ connectionName, poolName: name }));
+                            if (poolInfoParams.active)
+                                dispatch(getStorageVolumes({ connectionName, poolName: name }));
+                            else
+                                dispatch(updateStorageVolumes({ connectionName, poolName: name, volumes: [] }));
                         });
             }
         };

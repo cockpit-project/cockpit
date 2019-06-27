@@ -64,14 +64,6 @@ export function finishVmCreateInProgress(dispatch, name, settings) {
     dispatch(updateUiVm(vm));
 }
 
-export function finishVmInstallInProgress(dispatch, name, settings) {
-    const vm = Object.assign({}, {
-        name,
-        installInProgress: false,
-    }, settings);
-    dispatch(updateUiVm(vm));
-}
-
 export function removeVmCreateInProgress(dispatch, name, settings) {
     if (clearTimeout(name, CREATE_TIMEOUT)) {
         finishVmCreateInProgress(dispatch, name, settings);

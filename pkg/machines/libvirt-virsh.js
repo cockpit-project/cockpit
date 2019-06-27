@@ -402,7 +402,12 @@ LIBVIRT_PROVIDER = {
             if (options.destroy) {
                 return destroy().then(undefine);
             } else {
-                return undefine();
+                return undefine()
+                        .catch(ex => {
+                            // Transient domains get undefined after shut off
+                            if (!ex.message.includes("failed to get domain"))
+                                return cockpit.reject(ex);
+                        });
             }
         };
     },

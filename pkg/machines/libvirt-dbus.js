@@ -379,11 +379,15 @@ LIBVIRT_DBUS_PROVIDER = {
                     });
         }
 
-        if (options.destroy) {
+        if (options.destroy)
             return destroy().then(undefine());
-        } else {
-            return undefine();
-        }
+        else
+            return undefine()
+                    .catch(ex => {
+                        // Transient domains get undefined after shut off
+                        if (!ex.message.includes("Domain not found"))
+                            return cockpit.reject(ex);
+                    });
     },
 
     DETACH_DISK({

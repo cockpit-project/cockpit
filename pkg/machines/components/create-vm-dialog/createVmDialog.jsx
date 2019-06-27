@@ -196,7 +196,7 @@ const SourceRow = ({ source, sourceType, networks, nodeDevices, providerName, on
             <FileAutoComplete id={installationSourceId}
                 placeholder={_("Path to ISO file on host's file system")}
                 onChange={value => onValueChanged('source', value)}
-                superUser="try" />
+                superuser="try" />
         );
         break;
     case EXISTING_DISK_IMAGE_SOURCE:

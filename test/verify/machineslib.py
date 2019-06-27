@@ -910,10 +910,16 @@ class TestMachines(NetworkCase):
         b.click("#machines-vcpu-modal-dialog-apply")
         b.wait_not_present(".modal-body")
 
+        # Make sure warning next to vcpus appears
+        b.wait_present("#vcpus-tooltip")
+
         # Shut off VM for applying changes after save
         b.click("#vm-subVmTest1-off-caret")
         b.click("#vm-subVmTest1-forceOff")
         b.wait_in_text("#vm-subVmTest1-state", "shut off")
+
+        # Make sure warning is gone after shut off
+        b.wait_not_present("#vcpus-tooltip")
 
         # Check changes
         b.wait_in_text("#vm-subVmTest1-vcpus-count", "3")

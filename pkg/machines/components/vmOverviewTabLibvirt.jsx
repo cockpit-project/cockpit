@@ -114,6 +114,12 @@ class VmOverviewTabLibvirt extends React.Component {
         const { vm, dispatch, config, nodeDevices } = this.props;
         const idPrefix = vmId(vm.name);
 
+        const vcpusChanged = (vm.vcpus.count !== vm.inactiveXML.vcpus.count) ||
+                             (vm.vcpus.max !== vm.inactiveXML.vcpus.max) ||
+                             (vm.cpu.sockets !== vm.inactiveXML.cpu.sockets) ||
+                             (vm.cpu.threads !== vm.inactiveXML.cpu.threads) ||
+                             (vm.cpu.cores !== vm.inactiveXML.cpu.cores);
+
         let autostart = rephraseUI('autostart', vm.autostart);
         let bootOrder = getBootOrder(vm);
         let memoryLink = cockpit.format_bytes(vm.currentMemory * 1024);
@@ -144,7 +150,12 @@ class VmOverviewTabLibvirt extends React.Component {
                 </a>
             );
         }
-        const vcpuLink = (<a id={`${vmId(vm.name)}-vcpus-count`} onClick={this.openVcpu}>{vm.vcpus.count}</a>);
+        const vcpuLink = (
+            <React.Fragment>
+                <a id={`${vmId(vm.name)}-vcpus-count`} onClick={this.openVcpu}>{vm.vcpus.count}</a>
+                { vm.state === "running" && vcpusChanged && <WarningInactive iconId="vcpus-tooltip" tooltipId="tip-vcpus" /> }
+            </React.Fragment>
+        );
 
         let items = [
             { title: commonTitles.MEMORY, value: memoryLink, idPostfix: 'memory' },

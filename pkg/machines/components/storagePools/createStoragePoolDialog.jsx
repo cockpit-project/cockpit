@@ -126,6 +126,7 @@ const StoragePoolTargetRow = ({ onValueChanged, dialogValues }) => {
                 </label>
                 <FormGroup validationState={validationState} controlId='target'>
                     <FileAutoComplete id='storage-pool-dialog-target'
+                        superuser='try'
                         placeholder={_("Path on host's filesystem")}
                         onChange={value => onValueChanged('target', value)} />
                     { validationState == 'error' &&
@@ -247,6 +248,7 @@ const StoragePoolSourceRow = ({ onValueChanged, dialogValues }) => {
                            validationState={validationState}
                            controlId='source'>
                     <FileAutoComplete id='storage-pool-dialog-source'
+                        superuser='try'
                         placeholder={placeholder}
                         onChange={value => onValueChanged('source', { 'device': value })} />
                     { validationState == 'error' &&

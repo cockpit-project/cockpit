@@ -1136,6 +1136,17 @@ class TestMachines(NetworkCase):
         self.browser.reload()
         b.wait_not_present("tbody tr[data-row-id=vm-{0}] th".format(name)) # click on the row header
 
+        # Try to delete a transient VM
+        name = "transient-VM"
+        args = self.startVm(name)
+        b.reload()
+        self.browser.enter_page('/machines')
+        b.click("tbody tr[data-row-id=vm-{0}] th".format(name)) # click on the row header
+        b.click("#vm-{0}-delete".format(name))
+        b.click("#vm-{0}-delete-modal-dialog button:contains(Delete)".format(name))
+        b.wait_not_present("tbody tr[data-row-id=vm-{0}] th".format(name))
+        b.wait_not_present(".toast-notifications.list-pf div.alert")
+
     def testSerialConsole(self):
         b = self.browser
         name = "vmWithSerialConsole"

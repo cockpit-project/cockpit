@@ -72,10 +72,12 @@ fi
 XMLS_FILE="`mktemp`"
 
 if [ "$START_VM" = "true" ]; then
-    # Use --wait 0 to not wait till guest console closes.
-    # Simply kick off the install and exit
-    STARTUP_PARAMS="--noautoconsole --wait 0"
+    STARTUP_PARAMS="--noautoconsole"
     HAS_INSTALL_PHASE="false"
+    # Wait for the installer to complete in case we don't use existing image or we don't boot with PXE
+    if [ "$SOURCE_TYPE" != "pxe" ] && [ "$SOURCE_TYPE" != "disk_image" ]; then
+        STARTUP_PARAMS="$STARTUP_PARAMS --wait -1 --noreboot"
+    fi
 else
     # 2 = last phase only
     STARTUP_PARAMS="--print-xml"

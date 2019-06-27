@@ -867,6 +867,16 @@ class TestMachines(NetworkCase):
             b.wait_present("#vm-subVmTest1-disks-adddisk-dialog-add:disabled")
             b.click("label:contains(Use Existing)")
             b.wait_present("#vm-subVmTest1-disks-adddisk-dialog-add:disabled")
+            b.click(".modal-footer button:contains(Cancel)")
+
+            # Make sure that trying to inspect the Disks tab will just show the fields that are available when a pool is inactive
+            b.reload()
+            b.enter_page('/machines')
+            b.wait_in_text("body", "Virtual Machines")
+            b.click("tbody tr[data-row-id=vm-subVmTest1] th") # click on the row header
+            b.click("#vm-subVmTest1-disks") # open the "Disks" subtab
+            # Check that usage information can't be fetched since the pool is inactive
+            b.wait_not_present("#vm-subVmTest1-disks-vdd-used")
 
         prepareDisk(self.machine)
         cmds = [

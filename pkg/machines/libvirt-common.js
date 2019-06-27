@@ -36,7 +36,6 @@ import {
 
 import {
     finishVmCreateInProgress,
-    finishVmInstallInProgress,
     removeVmCreateInProgress,
     setVmCreateInProgress,
     setVmInstallInProgress,
@@ -1213,7 +1212,7 @@ export function CREATE_VM({ connectionName, vmName, source, sourceType, os, memo
                 .done(() => {
                     finishVmCreateInProgress(dispatch, vmName);
                     if (startVm) {
-                        finishVmInstallInProgress(dispatch, vmName);
+                        clearVmUiState(dispatch, vmName);
                     }
                 })
                 .fail((exception, data) => {
@@ -1298,9 +1297,9 @@ export function INSTALL_VM({ name, vcpus, currentMemory, metadata, disks, displa
             prepareDisksParam(disks),
             prepareDisplaysParam(displays),
         ], { err: "message", environ: ['LC_ALL=C'] })
-                .done(() => finishVmInstallInProgress(dispatch, name))
+                .done(() => clearVmUiState(dispatch, name))
                 .fail(ex => {
-                    finishVmInstallInProgress(dispatch, name, { openConsoleTab: false });
+                    clearVmUiState(dispatch, name); // inProgress cleanup
                     buildScriptTimeoutFailHandler(
                         () => onAddErrorNotification({ text: cockpit.format(_("VM $0 failed to get installed"), name), detail: ex.message })
                         , VMS_CONFIG.WaitForRetryInstallVm);

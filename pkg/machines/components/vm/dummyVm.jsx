@@ -38,7 +38,7 @@ const DummyVm = ({ vm }) => {
     } else if (vm.createInProgress) {
         state = 'creating VM';
     } else {
-        state = 'in transition'; // install script finished and new vm is expected to appear any moment
+        return null;
     }
 
     const stateIcon = (<StateIcon state={state} valueId={`${vmId(vm.name)}-state`} />);

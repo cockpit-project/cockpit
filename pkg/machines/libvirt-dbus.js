@@ -340,11 +340,11 @@ LIBVIRT_DBUS_PROVIDER = {
         id: objPath,
         options
     }) {
-        function destroy(dispatch) {
+        function destroy() {
             return call(connectionName, objPath, 'org.libvirt.Domain', 'Destroy', [0], TIMEOUT);
         }
 
-        function undefine(dispatch) {
+        function undefine() {
             let storageVolPromises = [];
             let flags = Enum.VIR_DOMAIN_UNDEFINE_MANAGED_SAVE | Enum.VIR_DOMAIN_UNDEFINE_SNAPSHOTS_METADATA | Enum.VIR_DOMAIN_UNDEFINE_NVRAM;
 
@@ -373,7 +373,7 @@ LIBVIRT_DBUS_PROVIDER = {
             // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
             // https://github.com/cockpit-project/cockpit/issues/10956
             // eslint-disable-next-line cockpit/no-cockpit-all
-            return dispatch => cockpit.all(storageVolPromises)
+            return cockpit.all(storageVolPromises)
                     .then(() => {
                         return call(connectionName, objPath, 'org.libvirt.Domain', 'Undefine', [flags], TIMEOUT);
                     });

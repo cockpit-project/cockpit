@@ -157,6 +157,9 @@ fi
 
 opsys=$(cut -d '-' -f 1 <<< "$IMAGE")
 version=$(cut -d '-' -f 2 <<< "$IMAGE")
+# If version is not number (testing/i386) then use Fedora 30
+if ! [ "$version" -eq "$version" ] 2>/dev/null; then version=30; fi
+
 su builder -c "/usr/bin/mock --no-bootstrap-chroot --verbose -i $(/var/lib/testvm/build-deps.sh "$opsys $version")"
 su builder -c "/usr/bin/mock --install --verbose rpmlint"
 

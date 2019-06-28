@@ -2007,7 +2007,7 @@ class TestMachines(NetworkCase):
 
             # Close the notificaton
             b.click(".toast-notifications-list-pf div.alert button.close")
-            b.wait_not_present(".toast-notifications.list-pf div.alert")
+            b.wait_not_present(".toast-notifications-list-pf div.alert")
 
             return self
 
@@ -2191,10 +2191,10 @@ class TestMachines(NetworkCase):
             b.wait(lambda: self.machine.execute(
                 "ls /home/admin/.local/share/libvirt/images/ 2>/dev/null | wc -l") == '0\n')
 
-            if b.is_present(".toast-notifications.list-pf div.alert .close"):
-                b.click(".toast-notifications.list-pf div.alert .close")
+            if b.is_present(".toast-notifications-list-pf div.alert .close"):
+                b.click(".toast-notifications-list-pf div.alert .close")
 
-            b.wait_not_present(".toast-notifications.list-pf div.alert")
+            b.wait_not_present(".toast-notifications-list-pf div.alert")
 
             return self
 

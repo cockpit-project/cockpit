@@ -7,6 +7,27 @@ import sys
 import json
 
 
+class _OsinfoIter:
+    """
+    Helper to turn osinfo style get_length/get_nth lists into python
+    iterables
+    """
+    def __init__(self, listobj):
+        self.current = 0
+        self.listobj = listobj
+        self.high = -1
+        if self.listobj:
+            self.high = self.listobj.get_length() - 1
+
+    def __iter__(self):
+        return self
+    def __next__(self):
+        if self.current > self.high:
+            raise StopIteration
+        ret = self.listobj.get_nth(self.current)
+        self.current += 1
+        return ret
+
 loader = Libosinfo.Loader()
 loader.process_default_path()
 db = loader.get_db()
@@ -26,6 +47,10 @@ for i in range(oses.get_length()):
     osObj['releaseDate'] = os.get_release_date_string() or ""
     osObj['eolDate'] = os.get_eol_date_string() or ""
     osObj['codename'] = os.get_codename() or ""
+    osObj['availableProfiles'] = []
+    osInstallScripts = os.get_install_script_list()
+    for script in list(_OsinfoIter(osInstallScripts)):
+        osObj['availableProfiles'].append(script.get_profile())
 
     res.append(osObj)
 

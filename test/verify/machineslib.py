@@ -37,6 +37,10 @@ def readFile(name):
     return content
 
 
+def versiontuple(v):
+    return tuple(map(int, (v.split("."))))
+
+
 SPICE_XML = """
     <video>
       <model type='vga' heads='1' primary='yes'/>
@@ -94,7 +98,7 @@ DOMAIN_XML = """
   </features>
   <devices>
     <disk type='block' device='disk'>
-      <driver name='qemu' type='raw'/>
+      <driher name='qemu' type='raw'/>
       <source dev='/dev/{disk}'/>
       <target dev='vda' bus='virtio'/>
       <serial>ROOT</serial>
@@ -1178,6 +1182,7 @@ class TestMachines(NetworkCase):
 
         runner = TestMachines.CreateVmRunner(self)
         config = TestMachines.TestCreateConfig
+        virtInstallVersion = self.machine.execute("virt-install --version").strip()
 
         self.login_and_go("/machines")
         self.browser.wait_in_text("body", "Virtual Machines")
@@ -1427,7 +1432,6 @@ class TestMachines(NetworkCase):
                                          storage_pool="No Storage",
                                          start_vm=True,))
 
-        virtInstallVersion = self.machine.execute("virt-install --version")
         if virtInstallVersion >= "2":
             self.machine.upload(["verify/files/min-openssl-config.cnf", "verify/files/mock-range-server.py"], "/tmp/")
 
@@ -1607,6 +1611,17 @@ class TestMachines(NetworkCase):
                                          os_name=config.OPENBSD_5_4,
                                          start_vm=False))
 
+        # We need virt-install >= 2.2.0
+        if versiontuple(virtInstallVersion) >= versiontuple("2.2.0"):
+            createTest(TestMachines.VmDialog(self, is_unattended=True,
+                                             storage_size=1,
+                                             os_vendor=config.FEDORA_VENDOR,
+                                             os_name=config.FEDORA_29,
+                                             os_short_id=config.FEDORA_29_SHORT_ID,
+                                             os_profile='jeos',
+                                             root_password='yetanotheradminpassword',
+                                             user_password='yetanotheruserpassword'))
+
         # Test that removing virt-install executable will disable Create VM button
         self.machine.execute('rm $(which virt-install)')
         self.browser.reload()
@@ -1651,6 +1666,10 @@ class TestMachines(NetworkCase):
         OPENBSD_VENDOR = 'OpenBSD Project'
         OPENBSD_5_4 = 'OpenBSD 5.4'
 
+        FEDORA_VENDOR = 'Fedora Project'
+        FEDORA_29 = 'Fedora 29'
+        FEDORA_29_SHORT_ID = 'fedora29'
+
         MICROSOFT_VENDOR = 'Microsoft Corporation'
         MICROSOFT_MILLENNIUM_OS = 'Microsoft Windows Millennium Edition'
         MICROSOFT_XP_OS = 'Microsoft Windows XP'
@@ -1675,19 +1694,24 @@ class TestMachines(NetworkCase):
             'session': 'QEMU/KVM User connection',
             'system': 'QEMU/KVM System connection'}
 
-    class VmDialog:
+    class VmDialog(unittest.TestCase):
         vmId = 0
 
         def __init__(self, test_obj, name=None,
+                     is_unattended=False,
                      sourceType='file', sourceTypeSecondChoice=None, location='',
                      memory_size=256, memory_size_unit='MiB',
                      storage_size=None, storage_size_unit='GiB',
                      os_vendor=None,
                      os_name=None,
+                     os_short_id=None,
+                     os_profile=None,
                      storage_pool='Create New Volume', storage_volume='',
                      start_vm=False,
                      delete=True,
-                     connection=None):
+                     connection=None,
+                     root_password=None,
+                     user_password=None):
 
             TestMachines.VmDialog.vmId += 1 # This variable is static - don't use self here
 
@@ -1700,6 +1724,7 @@ class TestMachines(NetworkCase):
             self.machine = test_obj.machine
             self.assertTrue = test_obj.assertTrue
 
+            self.is_unattended = is_unattended
             self.sourceType = sourceType
             self.sourceTypeSecondChoice = sourceTypeSecondChoice
             self.location = location
@@ -1709,11 +1734,15 @@ class TestMachines(NetworkCase):
             self.storage_size_unit = storage_size_unit
             self.os_vendor = os_vendor if os_vendor else TestMachines.TestCreateConfig.UNSPECIFIED_VENDOR
             self.os_name = os_name if os_name else TestMachines.TestCreateConfig.OTHER_OS
+            self.os_short_id = os_short_id
+            self.os_profile = os_profile
             self.start_vm = start_vm
             self.storage_pool = storage_pool
             self.storage_volume = storage_volume
             self.delete = delete
             self.connection = connection
+            self.root_password = root_password
+            self.user_password = user_password
             if self.connection:
                 self.connectionText = TestMachines.TestCreateConfig.LIBVIRT_CONNECTION[connection]
 
@@ -1788,17 +1817,31 @@ class TestMachines(NetworkCase):
                 return expected_source_type
 
             b = self.browser
+
+            if not self.is_unattended:
+                b.click("#is-unattended")
+
             b.set_input_text("#vm-name", self.name)
 
-            b.select_from_dropdown("#source-type", getSourceTypeLabel(self.sourceType))
-            if self.sourceType == 'file':
-                b.set_file_autocomplete_val("#source-file", self.location)
-            elif self.sourceType == 'disk_image':
-                b.set_file_autocomplete_val("#source-disk", self.location)
-            elif self.sourceType == 'pxe':
-                b.select_from_dropdown("#network-select", self.location)
+            if self.is_unattended:
+                b.wait_not_present("#source-type")
             else:
-                b.set_input_text("#source-url", self.location)
+                b.select_from_dropdown("#source-type", getSourceTypeLabel(self.sourceType))
+
+            if not self.is_unattended:
+                if self.sourceType == 'file':
+                    b.set_file_autocomplete_val("#source-file", self.location)
+                elif self.sourceType == 'disk_image':
+                    b.set_file_autocomplete_val("#source-disk", self.location)
+                elif self.sourceType == 'pxe':
+                    b.select_from_dropdown("#network-select", self.location)
+                else:
+                    b.set_input_text("#source-url", self.location)
+            else:
+                b.wait_not_present('#source-file')
+                b.wait_not_present('#source-disk')
+                b.wait_not_present('#source-url')
+                b.wait_not_present('#network-select')
 
             if self.sourceTypeSecondChoice:
                 b.select_from_dropdown("#source-type", getSourceTypeLabel(self.sourceTypeSecondChoice))
@@ -1829,6 +1872,8 @@ class TestMachines(NetworkCase):
 
             b.select_from_dropdown("#vendor-select", self.os_vendor, substring=True)
             b.select_from_dropdown("#system-select", self.os_name, substring=True)
+            if self.os_profile:
+                b.select_from_dropdown("#profile-select", self.os_profile)
 
             # First select the unit so that UI will auto-adjust the memory input
             # value according to the available total memory on the host
@@ -1840,13 +1885,26 @@ class TestMachines(NetworkCase):
             self.memory_size = min(self.memory_size, host_total_memory)
             b.wait_val("#memory-size", self.memory_size)
 
-            b.wait_visible("#start-vm")
-            if self.start_vm:
-                b.click("#start-vm") # TODO: fix this, do not assume initial state of the checkbox
-            # b.set_checked("#start-vm", self.start_vm)
+            if not self.is_unattended:
+                b.wait_visible("#start-vm")
+                if self.start_vm:
+                    b.click("#start-vm") # TODO: fix this, do not assume initial state of the checkbox
+                # b.set_checked("#start-vm", self.start_vm)
+            else:
+                b.wait_not_present("#start-vm")
 
             if (self.connection):
                 b.select_from_dropdown("#connection", self.connectionText)
+
+            if self.is_unattended:
+                b.set_input_text("label:contains(Root Password) + div > div > input", self.root_password)
+                b.wait_present("label:contains(Root Password) + div div.password-strength-meter.excellent")
+
+                b.set_input_text("label:contains(User Password) + div > div > input", self.user_password)
+                b.wait_present("label:contains(User Password) + div div.password-strength-meter.excellent")
+            else:
+                b.wait_not_present("label:contains(Root Password)")
+                b.wait_not_present("label:contains(User Password)")
 
             return self
 
@@ -1862,11 +1920,15 @@ class TestMachines(NetworkCase):
         def create(self):
             b = self.browser
             b.click(".modal-footer button:contains(Create)")
+            b.wait_not_present("#create-vm-dialog")
+
+            if self.is_unattended:
+                return self
+
             init_state = "creating VM installation" if self.start_vm else "creating VM"
             second_state = "running" if self.start_vm else "shut off"
 
             TestMachines.CreateVmRunner.assertVmStates(self, self.name, init_state, second_state)
-            b.wait_not_present("#create-vm-dialog")
             return self
 
         def createAndExpectInlineValidationErrors(self, errors):
@@ -1914,10 +1976,23 @@ class TestMachines(NetworkCase):
 
             b.click(".modal-footer button:contains(Create)")
 
-            error_location = ".modal-footer div.alert"
-
             b.wait_present(".modal-footer .spinner")
+
+            # For unattended installations we don't really have a way to verify that the parameters
+            # we passed to virt-install are correct
+            # The installation will fail since we don't have access to the network
+            # so just check the CLI parameters of the generated virt-install command
+            if self.is_unattended:
+                wait(lambda: m.execute("ps aux | grep 'virt-install \-\-connect'"))
+                virt_install_cmd = self.machine.execute("ps aux | grep 'virt-install \-\-connect'")
+                print(virt_install_cmd)
+                self.assertIn("admin-password={0}".format(self.root_password), virt_install_cmd)
+                self.assertIn("user-password={0}".format(self.user_password), virt_install_cmd)
+                self.assertIn("--install {0}".format(self.os_short_id), virt_install_cmd)
+                self.assertIn("--unattended", virt_install_cmd)
+
             b.wait_not_present(".modal-footer .spinner")
+            error_location = ".modal-footer div.alert"
             try:
                 with b.wait_timeout(10):
                     b.wait_present(error_location)
@@ -1990,6 +2065,11 @@ class TestMachines(NetworkCase):
                 .fill() \
                 .create()
 
+            # Unattended more in the test will never give an actual VM since we don't have network
+            # to download the installation media
+            if dialog.is_unattended:
+                return self
+
             # successfully created
             b.wait_in_text("#vm-{0}-row".format(name), name)
 
@@ -2051,12 +2131,16 @@ class TestMachines(NetworkCase):
 
         def deleteVm(self, dialog):
             b = self.browser
-            vm_delete_button = "#vm-{0}-delete".format(dialog.name)
 
-            b.click(vm_delete_button)
-            b.wait_present("#vm-{0}-delete-modal-dialog".format(dialog.name))
-            b.click("#vm-{0}-delete-modal-dialog button:contains(Delete)".format(dialog.name))
-            b.wait_not_present("#vm-{0}-delete-modal-dialog".format(dialog.name))
+            if not dialog.is_unattended:
+                vm_delete_button = "#vm-{0}-delete".format(dialog.name)
+
+                b.click(vm_delete_button)
+                b.wait_present("#vm-{0}-delete-modal-dialog".format(dialog.name))
+                b.click("#vm-{0}-delete-modal-dialog button:contains(Delete)".format(dialog.name))
+                b.wait_not_present("#vm-{0}-delete-modal-dialog".format(dialog.name))
+            else:
+                self.machine.execute("pkill virt-install")
             b.wait_not_present("vm-{0}-row".format(dialog.name))
 
             return self

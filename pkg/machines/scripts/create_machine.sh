@@ -11,6 +11,10 @@ STORAGE_SIZE="$7" # in GiB
 START_VM="$8"
 STORAGE_POOL="$9"
 STORAGE_VOLUME="${10}"
+IS_UNATTENDED="${11}"
+OS_PROFILE="${12}"
+ROOT_PASSWORD="${13}"
+USER_PASSWORD="${14}"
 
 vmExists(){
    virsh -c "$CONNECTION_URI" list --all | awk  '{print $2}' | grep -q --line-regexp --fixed-strings "$1"
@@ -52,22 +56,24 @@ if [ "$OS" = "other-os" -o  -z "$OS" ]; then
     OS="auto"
 fi
 
-if [ "$SOURCE_TYPE" = "pxe" ]; then
-    INSTALL_METHOD="--pxe --network $SOURCE"
-elif [ "$START_VM" = "true" ]; then
-    if [ "$SOURCE_TYPE" = "disk_image" ]; then
-        INSTALL_METHOD="--import"
-    elif ( [ "${SOURCE#/}" != "$SOURCE" ] && [ -f "${SOURCE}" ] ) || ( [ "$SOURCE_TYPE" = "url" ] && [ "${SOURCE%.iso}" != "$SOURCE" ] ); then
-        INSTALL_METHOD="--cdrom $SOURCE"
+INSTALL_METHOD=""
+if [ $IS_UNATTENDED = "false" ]; then
+    if [ "$SOURCE_TYPE" = "pxe" ]; then
+        INSTALL_METHOD="--pxe --network $SOURCE"
+    elif [ "$START_VM" = "true" ]; then
+        if [ "$SOURCE_TYPE" = "disk_image" ]; then
+            INSTALL_METHOD="--import"
+        elif ( [ "${SOURCE#/}" != "$SOURCE" ] && [ -f "${SOURCE}" ] ) || ( [ "$SOURCE_TYPE" = "url" ] && [ "${SOURCE%.iso}" != "$SOURCE" ] ); then
+            INSTALL_METHOD="--cdrom $SOURCE"
+        else
+            INSTALL_METHOD="--location $SOURCE"
+        fi
     else
-        INSTALL_METHOD="--location $SOURCE"
+        # prevents creating duplicate cdroms if start vm is false
+        # or if no source received
+        INSTALL_METHOD=""
     fi
-else
-    # prevents creating duplicate cdroms if start vm is false
-    # or if no source received
-    INSTALL_METHOD=""
 fi
-
 
 XMLS_FILE="`mktemp`"
 
@@ -98,12 +104,20 @@ else
     CHECK_PARAM=""
 fi
 
+if [ "$IS_UNATTENDED" = "true" ]; then
+    UNATTENDED_PARAM="--unattended admin-password=$ROOT_PASSWORD,user-password=$USER_PASSWORD"
+    OS_VARIANT_PARAM="--install $OS"
+else
+    UNATTENDED_PARAM=""
+    OS_VARIANT_PARAM="--os-variant $OS"
+fi
+
 virt-install \
     --connect "$CONNECTION_URI" \
     --name "$VM_NAME" \
-    --os-variant "$OS" \
+    $OS_VARIANT_PARAM \
+    $UNATTENDED_PARAM \
     --memory "$MEMORY_SIZE" \
-    --quiet \
     --disk  "$DISK_OPTIONS" \
     $CHECK_PARAM \
     $STARTUP_PARAMS \

@@ -22,6 +22,7 @@ import PropTypes from 'prop-types';
 import { Button, FormGroup, HelpBlock, Modal, OverlayTrigger, Tooltip } from 'patternfly-react';
 
 import cockpit from 'cockpit';
+import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 import { MachinesConnectionSelector } from '../machinesConnectionSelector.jsx';
 import * as Select from "cockpit-components-select.jsx";
 import { FileAutoComplete } from "cockpit-components-file-autocomplete.jsx";
@@ -50,6 +51,7 @@ import {
     getOSStringRepresentation,
 } from "./createVmDialogUtils.js";
 import MemorySelectRow from '../memorySelectRow.jsx';
+import { Password } from './Password.jsx';
 
 import './createVmDialog.less';
 import 'form-layout.less';
@@ -148,7 +150,7 @@ function validateParams(vmParams) {
             }
             break;
         }
-    } else {
+    } else if (!vmParams.isUnattended) {
         validationFailed['source'] = _("Installation Source should not be empty");
     }
 
@@ -156,8 +158,34 @@ function validateParams(vmParams) {
         validationFailed['memory'] = _("Memory must not be 0");
     }
 
+    if (vmParams.isUnattended && !vmParams.profile) {
+        validationFailed['os'] = _("The selected Operating system does not support unattended installation");
+    }
+
+    if (vmParams.isUnattended && !vmParams.rootpassword) {
+        validationFailed['rootpassword'] = _("Please insert a valid root password");
+    }
+
+    if (vmParams.isUnattended && !vmParams.userpassword) {
+        validationFailed['userpassword'] = _("Please insert a valid user password");
+    }
+
     return validationFailed;
 }
+
+const UnattendedRow = ({ isUnattended, onValueChanged }) => {
+    return (
+        <React.Fragment>
+            <label className="control-label" htmlFor="is-unattended">
+                {_("Unattended mode")}
+            </label>
+            <OnOffSwitch
+                id='is-unattended'
+                state={isUnattended}
+                onChange={value => onValueChanged('isUnattended', value)} />
+        </React.Fragment>
+    );
+};
 
 const NameRow = ({ vmName, onValueChanged, validationFailed }) => {
     const validationStateName = validationFailed.vmName ? 'error' : undefined;
@@ -279,8 +307,9 @@ const SourceRow = ({ source, sourceType, networks, nodeDevices, providerName, on
     );
 };
 
-const OSRow = ({ vendor, osInfoList, os, vendors, onValueChanged, validationFailed }) => {
-    const validationStateOsVendor = validationFailed.vendor ? 'error' : undefined;
+const OSRow = ({ vendor, osInfoList, os, vendors, profile, isUnattended, onValueChanged, validationFailed }) => {
+    const validationStateVendor = validationFailed.vendor ? 'error' : undefined;
+    const validationStateOs = validationFailed.os ? 'error' : undefined;
     const familyList = vendors.familyList;
     const familyMap = vendors.familyMap;
     const vendorMap = vendors.vendorMap;
@@ -303,10 +332,22 @@ const OSRow = ({ vendor, osInfoList, os, vendors, onValueChanged, validationFail
             </optgroup>);
     });
 
+    const currentOsObj = osInfoList.find(elem => elem.shortId == os) || {};
+
     const osEntries = (
         vendorMap[vendor]
                 .map(os => (
-                    <Select.SelectEntry data={os.shortId} key={os.shortId}>
+                    // * other-os is made up from us, doesn't not support unattended installations
+                    // * Windows require product-key, we don't support unattended installations for any OS in the windows family for now
+                    // * Red Hat Enterprise Linux can't be installed using unattended installation for now
+                    // because the internal Red Hat URLs can't be included in the osinfo-db
+                    <Select.SelectEntry
+                        disabled={isUnattended && (
+                            os.shortId == 'other-os' ||
+                            os.vendor.includes('Microsoft') ||
+                            os.vendor.includes('Red Hat') ||
+                            os.availableProfiles.length == 0)}
+                        data={os.shortId} key={os.shortId}>
                         {getOSStringRepresentation(os)}
                     </Select.SelectEntry>))
     );
@@ -316,7 +357,7 @@ const OSRow = ({ vendor, osInfoList, os, vendors, onValueChanged, validationFail
             <label className="control-label" htmlFor="vendor-select">
                 {_("OS Vendor")}
             </label>
-            <FormGroup validationState={validationStateOsVendor} bsClass='form-group ct-validation-wrapper'>
+            <FormGroup validationState={validationStateVendor} bsClass='form-group ct-validation-wrapper'>
                 <Select.Select id="vendor-select"
                     initial={vendor}
                     onChange={value => onValueChanged('vendor', value)}>
@@ -331,11 +372,33 @@ const OSRow = ({ vendor, osInfoList, os, vendors, onValueChanged, validationFail
             <label className="control-label" htmlFor="vendor-select">
                 {_("Operating System")}
             </label>
-            <Select.StatelessSelect id="system-select"
-                selected={os}
-                onChange={value => onValueChanged('os', value)}>
-                {osEntries}
-            </Select.StatelessSelect>
+            <FormGroup validationState={validationStateOs} bsClass='form-group ct-validation-wrapper'>
+                <Select.Select id="system-select"
+                    initial={os}
+                    onChange={value => onValueChanged('os', value)}>
+                    {osEntries}
+                </Select.Select>
+                <HelpBlock>
+                    <p className="text-danger">{validationFailed.os}</p>
+                </HelpBlock>
+            </FormGroup>
+
+            {isUnattended && currentOsObj.availableProfiles && currentOsObj.availableProfiles.length > 0 && (
+                <React.Fragment>
+                    <label className="control-label" htmlFor="profile-select">
+                        {_("Profile")}
+                    </label>
+                    <Select.StatelessSelect id="profile-select"
+                        selected={profile}
+                        onChange={value => onValueChanged('profile', value)}>
+                        { currentOsObj.availableProfiles
+                                .map(profile => (
+                                    <Select.SelectEntry data={profile} key={profile}>
+                                        {profile}
+                                    </Select.SelectEntry>)) }
+                    </Select.StatelessSelect>
+                </React.Fragment>
+            )}
         </React.Fragment>
     );
 };
@@ -450,34 +513,103 @@ const StorageRow = ({ connectionName, storageSize, storageSizeUnit, onValueChang
     );
 };
 
+const RootPasswordRow = ({ validationFailed, onValueChanged }) => {
+    const validationStateRootPassword = validationFailed.rootpassword ? 'error' : undefined;
+
+    return (
+        <React.Fragment>
+            <label htmlFor='root-password' className='control-label'>
+                {_("Root Password")}
+            </label>
+            <FormGroup validationState={validationStateRootPassword} bsClass='form-group ct-validation-wrapper' controlId='root-password'>
+                <Password onValueChanged={(value) => onValueChanged('rootpassword', value)} />
+                <HelpBlock>
+                    <p className="text-danger">{validationFailed.rootpassword}</p>
+                </HelpBlock>
+            </FormGroup>
+        </React.Fragment>
+    );
+};
+
+const UserPasswordRow = ({ validationFailed, onValueChanged }) => {
+    const validationStateUserPassword = validationFailed.userpassword ? 'error' : undefined;
+
+    return (
+        <React.Fragment>
+            <label htmlFor='user-password' className='control-label'>
+                {_("User Password")}
+            </label>
+            <FormGroup validationState={validationStateUserPassword} bsClass='form-group ct-validation-wrapper' controlId='user-password'>
+                <Password onValueChanged={(value) => onValueChanged('userpassword', value)} />
+                <HelpBlock>
+                    <p className="text-danger">{validationFailed.userpassword}</p>
+                </HelpBlock>
+            </FormGroup>
+        </React.Fragment>
+    );
+};
+
 class CreateVmModal extends React.Component {
     constructor(props) {
         super(props);
+
+        const extraState = this.getUnattatendedInstallationSupport() ? this.getUnattendedSpecificState() : this.getNonUnattendedSpecificState();
+
         this.state = {
+            isUnattended: this.getUnattatendedInstallationSupport(),
             inProgress: false,
             validate: false,
             vmName: '',
             connectionName: LIBVIRT_SYSTEM_CONNECTION,
-            sourceType: LOCAL_INSTALL_MEDIA_SOURCE,
-            source: '',
             vendor: NOT_SPECIFIED,
-            vendors: prepareVendors(props.osInfoList),
+            vendors: prepareVendors(this.props.osInfoList),
             os: OTHER_OS_SHORT_ID,
             memorySize: Math.min(convertToUnit(1024, units.MiB, units.GiB), // tied to Unit
-                                 Math.floor(convertToUnit(props.nodeMaxMemory, units.KiB, units.GiB))),
+                                 Math.floor(convertToUnit(this.props.nodeMaxMemory, units.KiB, units.GiB))),
             memorySizeUnit: units.GiB.name,
             storageSize: 10, // GiB
             storageSizeUnit: units.GiB.name,
             storagePool: 'NewVolume',
             storageVolume: '',
-            startVm: false,
+            ...extraState,
         };
         this.onCreateClicked = this.onCreateClicked.bind(this);
         this.onValueChanged = this.onValueChanged.bind(this);
     }
 
+    getUnattatendedInstallationSupport() {
+        const virtInstallVersionArr = this.props.virtInstallVersion.split('.');
+
+        return (Number(virtInstallVersionArr[0]) * 100 + Number(virtInstallVersionArr[1]) * 10 + Number(virtInstallVersionArr[2])) >= 220;
+    }
+
+    getUnattendedSpecificState() {
+        return {
+            profile: undefined,
+            rootpassword: undefined,
+            userpassword: undefined,
+            startVm: true,
+        };
+    }
+
+    getNonUnattendedSpecificState() {
+        return {
+            sourceType: LOCAL_INSTALL_MEDIA_SOURCE,
+            source: '',
+            startVm: false,
+        };
+    }
+
     onValueChanged(key, value) {
         switch (key) {
+        case 'isUnattended': {
+            this.setState({ [key]: value });
+            if (value)
+                this.setState(this.getUnattendedSpecificState());
+            else
+                this.setState(this.getNonUnattendedSpecificState());
+            break;
+        }
         case 'vmName': {
             this.setState({ [key]: value });
             break;
@@ -486,11 +618,26 @@ class CreateVmModal extends React.Component {
             const os = this.state.vendors.vendorMap[value][0].shortId;
             this.setState({
                 [key]: value,
-                os,
             });
+            this.onValueChanged('os', os);
             break;
         }
         case 'os':
+            this.setState({ [key]: value });
+
+            if (this.state.isUnattended) {
+                const currentOsObj = this.props.osInfoList.find(elem => elem.shortId == value);
+
+                this.setState({ profile: currentOsObj && currentOsObj.availableProfiles.length > 0 ? currentOsObj.availableProfiles[0] : undefined });
+            }
+            break;
+        case 'profile':
+            this.setState({ [key]: value });
+            break;
+        case 'rootpassword':
+            this.setState({ [key]: value });
+            break;
+        case 'userpassword':
             this.setState({ [key]: value });
             break;
         case 'source':
@@ -618,11 +765,15 @@ class CreateVmModal extends React.Component {
                 source: this.state.source,
                 sourceType: this.state.sourceType,
                 os: this.state.os,
+                profile: this.state.profile,
                 memorySize: convertToUnit(this.state.memorySize, this.state.memorySizeUnit, units.MiB),
                 storageSize: convertToUnit(this.state.storageSize, this.state.storageSizeUnit, units.GiB),
                 storagePool: this.state.storagePool,
                 storageVolume: this.state.storageVolume,
                 startVm: this.state.startVm,
+                isUnattended: this.state.isUnattended,
+                rootpassword: this.state.rootpassword,
+                userpassword: this.state.userpassword,
             };
 
             return timeoutedPromise(
@@ -644,6 +795,16 @@ class CreateVmModal extends React.Component {
         const validationFailed = this.state.validate && validateParams(this.state);
         const dialogBody = (
             <form className="ct-form-layout">
+
+                { this.getUnattatendedInstallationSupport() &&
+                <React.Fragment>
+                    <UnattendedRow
+                        isUnattended={this.state.isUnattended}
+                        onValueChanged={this.onValueChanged} />
+                    <hr />
+                </React.Fragment>
+                }
+
                 <label className="control-label" htmlFor="connection">
                     {_("Connection")}
                 </label>
@@ -661,16 +822,18 @@ class CreateVmModal extends React.Component {
 
                 <hr />
 
-                <SourceRow
-                    networks={networks.filter(network => network.connectionName == this.state.connectionName)}
-                    nodeDevices={nodeDevices.filter(nodeDevice => nodeDevice.connectionName == this.state.connectionName)}
-                    providerName={providerName}
-                    source={this.state.source}
-                    sourceType={this.state.sourceType}
-                    onValueChanged={this.onValueChanged}
-                    validationFailed={validationFailed} />
-
-                <hr />
+                {!this.state.isUnattended &&
+                <React.Fragment>
+                    <SourceRow
+                        networks={networks.filter(network => network.connectionName == this.state.connectionName)}
+                        nodeDevices={nodeDevices.filter(nodeDevice => nodeDevice.connectionName == this.state.connectionName)}
+                        providerName={providerName}
+                        source={this.state.source}
+                        sourceType={this.state.sourceType}
+                        onValueChanged={this.onValueChanged}
+                        validationFailed={validationFailed} />
+                    <hr />
+                </React.Fragment>}
 
                 { this.state.sourceType != EXISTING_DISK_IMAGE_SOURCE &&
                 <React.Fragment>
@@ -702,17 +865,33 @@ class CreateVmModal extends React.Component {
                     vendors={this.state.vendors}
                     os={this.state.os}
                     osInfoList={osInfoList}
+                    profile={this.state.profile}
+                    isUnattended={this.state.isUnattended}
                     onValueChanged={this.onValueChanged}
                     validationFailed={validationFailed} />
 
                 <hr />
 
-                <label className="checkbox-inline">
+                {this.state.isUnattended && (
+                    <RootPasswordRow
+                        passord={this.state.rootpassword}
+                        validationFailed={validationFailed}
+                        onValueChanged={this.onValueChanged} />
+                )}
+
+                {this.state.isUnattended && (
+                    <UserPasswordRow
+                        passord={this.state.userpassword}
+                        validationFailed={validationFailed}
+                        onValueChanged={this.onValueChanged} />
+                )}
+
+                {!this.state.isUnattended && <label className="checkbox-inline">
                     <input id="start-vm" type="checkbox"
                         checked={this.state.startVm}
                         onChange={e => this.onValueChanged('startVm', e.target.checked)} />
                     {_("Immediately Start VM")}
-                </label>
+                </label>}
             </form>
         );
 
@@ -747,13 +926,18 @@ export class CreateVmAction extends React.Component {
         this.state = { showModal: false };
         this.open = this.open.bind(this);
         this.close = this.close.bind(this);
-        this.state = { virtInstallAvailable: undefined };
+        this.state = { virtInstallAvailable: undefined, virtInstallVersion: undefined };
     }
 
     componentWillMount() {
         cockpit.spawn(['which', 'virt-install'], { err: 'message' })
-                .then(() => this.setState({ virtInstallAvailable: true })
-                    , () => this.setState({ virtInstallAvailable: false }));
+                .then(() => {
+                    this.setState({ virtInstallAvailable: true });
+                    cockpit.spawn(['virt-install', '--version'], { err: 'message' })
+                            .then(version => {
+                                this.setState({ virtInstallVersion: version.trim() });
+                            });
+                }, () => this.setState({ virtInstallAvailable: false }));
     }
 
     // That will stop any state setting on unmounted/unmounting components
@@ -770,7 +954,7 @@ export class CreateVmAction extends React.Component {
     }
 
     render() {
-        if (this.state.virtInstallAvailable == undefined)
+        if (this.state.virtInstallAvailable == undefined || (this.state.virtInstallAvailable && this.state.virtInstallVersion == undefined))
             return null;
 
         let createButton = (
@@ -790,6 +974,7 @@ export class CreateVmAction extends React.Component {
                 { createButton }
                 { this.state.showModal &&
                 <CreateVmModal
+                    virtInstallVersion={this.state.virtInstallVersion}
                     providerName={this.props.providerName}
                     close={this.close} dispatch={this.props.dispatch}
                     networks={this.props.networks}

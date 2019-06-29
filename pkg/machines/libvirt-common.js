@@ -766,24 +766,9 @@ export function parseNodeDeviceDumpxml(nodeDevice) {
 }
 
 export function parseOsInfoList(dispatch, osList) {
-    const osColumnsNames = ['id', 'shortId', 'name', 'version', 'family', 'vendor', 'releaseDate', 'eolDate', 'codename'];
-    let parsedList = [];
+    const osinfodata = JSON.parse(osList);
 
-    osList.split('\n').forEach(line => {
-        const osColumns = line.split('|');
-
-        const result = {};
-
-        for (let i = 0; i < osColumnsNames.length; i++) {
-            result[osColumnsNames[i]] = osColumns.length > i ? osColumns[i] : null;
-        }
-
-        if (result.shortId) {
-            parsedList.push(result);
-        }
-    });
-
-    dispatch(updateOsInfoList(parsedList));
+    dispatch(updateOsInfoList(osinfodata.filter(os => os['shortId'])));
 }
 
 export function parseStoragePoolDumpxml(connectionName, storagePoolXml, id_overwrite) {

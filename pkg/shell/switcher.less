@@ -7,13 +7,13 @@
 }
 
 .nav-item-pf-header {
-    color: #fff;
+    color: var(--color-gray-1);
     font-size: 16px;
     margin: 18px 20px 10px 20px;
 }
 
 .area-ct-subnav {
-    background: #393f44;
+    background: var(--color-ct-nav-sub);
     border-right: 1px solid #292e34;
     -webkit-flex: none;
     flex: none;
@@ -50,16 +50,16 @@
             z-index: 3;
 
             a {
-                color: #fff;
+                color: var(--color-ct-nav-active-text);
             }
         }
 
         &:hover {
-            background: rgba(77, 82, 88, 0.5);
+            background: var(--color-ct-nav-hover);
         }
 
         &.active {
-            background: #4d5258;
+            background: var(--color-ct-nav-active);
 
             a {
                 font-weight: 600;
@@ -69,7 +69,7 @@
         a {
             padding: 10px 15px;
             display: block;
-            color: #d1d1d1;
+            color: var(--color-ct-nav-text);
             text-decoration: none;
             transition: all 300ms
         }
@@ -97,13 +97,13 @@
     }
 
     .dropdown-toggle:after {
-        background: linear-gradient(to bottom, #393f44, rgba(57, 63, 68, 0));
+        background: linear-gradient(to bottom, var(--color-ct-nav-sub), rgba(57, 63, 68, 0));
         margin-top: 1px;
         bottom: -2rem; // Move down by the same size as the height
     }
 
     &:after {
-        background: linear-gradient(to top, #393f44, rgba(57, 63, 68, 0));
+        background: linear-gradient(to top, var(--color-ct-nav-sub), rgba(57, 63, 68, 0));
         bottom: 0;
         height: 4rem;
     }
@@ -114,7 +114,7 @@
         display: block;
 
         &:not(.active) .fa {
-            color: #72767b !important;
+            color: var(--color-subtle-copy) !important;
         }
     }
 }
@@ -137,7 +137,7 @@
         right: 0;
         bottom: 0;
         height: 1px;
-        background: #4d5258;
+        background: var(--color-gray-11);
     }
 }
 
@@ -242,7 +242,7 @@
         height: 100%;
         transition: all 150ms ease-out;
         box-shadow: 0 0;
-        background: linear-gradient(to left, #030303, #292e34 1px);
+        background: linear-gradient(to left, var(--color-ct-nav-border), #292e34 1px);
 
         span.first-letter {
             font-size: 0px !important;
@@ -443,13 +443,13 @@
 
     .navbar-header {
         grid-area: header;
-        background: #292e34;
+        background: var(--color-ct-nav);
     }
 
     .navbar-collapse {
         grid-area: menu;
         align-self: end;
-        background: #292e34;
+        background: var(--color-ct-nav);
     }
 
     .navbar-brand {
@@ -488,7 +488,7 @@
         max-width: 100%;
         overflow: hidden;
         overflow-x: auto;
-        background: linear-gradient(to bottom, #030303, #292e34 1px);
+        background: linear-gradient(to bottom, var(--color-ct-nav-border), var(--color-ct-nav) 1px);
 
         ul, li {
             padding: 0;
@@ -530,7 +530,7 @@
                 z-index: 2;
 
                 a {
-                    background: #393f44 !important;
+                    background: var(--color-ct-nav-sub) !important;
 
                     &:before {
                         bottom: 0 !important;
@@ -549,7 +549,7 @@
                         right: 0;
                         bottom: 0;
                         left: 0;
-                        border: 1px solid black;
+                        border: 1px solid var(--color-ct-nav-border);
                         border-width: 0 1px;
                         pointer-events: none;
                         opacity: 0.5;
@@ -647,7 +647,7 @@
                 position: absolute;
                 bottom: 0.25rem;
                 right: -1.5rem;
-                color: #fff;
+                color: var(--color-button-text);
                 opacity: 0.5;
                 transition: all 300ms;
             }

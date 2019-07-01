@@ -1,13 +1,13 @@
 label.onoff-ct {
   --switch-width: 40px;
   --switch-height: 24px;
-  --switch-background: #d1d1d1; /* pf-black-300 */
+  --switch-background: var(--color-gray-3);
   --switch-border-color: transparent;
   --switch-border-style: solid;
   --switch-border-width: 1px;
   --switch-text: inherit;
   --switch-dot-size: 14px;
-  --switch-dot: #fff;
+  --switch-dot: var(--color-bg);
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -66,12 +66,12 @@ label.onoff-ct {
     }
 
     ~ .switch-off {
-      --switch-text: #72767b; /* pf-black-600 */
+      --switch-text: var(--color-subtle-copy);
     }
 
     &:checked {
       ~ .switch-toggle {
-        --switch-background: #0088ce; /* pf-blue-400 */
+        --switch-background: var(--color-link);
         --switch-dot-offset-x: calc(100% - var(--switch-dot-size) * 1.333333 + var(--switch-border-width));
 
         &:last-child {
@@ -82,8 +82,8 @@ label.onoff-ct {
     }
 
     &:disabled ~ .switch-toggle {
-      --switch-background: #72767b; /* pf-black-600 */
-      --switch-dot: #d1d1d1; /* pf-black-300 */
+      --switch-background: var(--color-subtle-copy);
+      --switch-dot: var(--color-gray-3);
     }
 
     &:disabled ~ * {
@@ -100,7 +100,7 @@ label.onoff-ct {
   :disabled {
     ~ .switch-on,
     ~ .switch-off {
-      --switch-text: #72767b; /* pf-black-600 */
+      --switch-text: var(--color-subtle-copy);
     }
   }
 

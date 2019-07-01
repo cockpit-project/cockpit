@@ -25,7 +25,7 @@
 #storage .empty-panel-text {
     text-align: center;
     margin: 5px;
-    color: #545454;
+    color: var(--color-gray-9);
 }
 
 #storage .storage-mounts .table {
@@ -182,7 +182,7 @@
 .dialog-select-row-table th {
     font-weight: bold;
     text-align: left;
-    color: #4D5258;
+    color: var(--color-gray-11);
     padding: 0px;
     padding-top: 0.75em;
     padding-bottom: 0.75em;
@@ -244,7 +244,7 @@
 
 .slider > div:first-child {
     float: left;
-    background-color: #00a8e1;
+    background-color: var(--color-link);
 }
 
 .slider-disabled > div:first-child {
@@ -255,7 +255,7 @@
 .slider-thumb {
     position: absolute;
     border-radius: 9px;
-    background-color: #0085cf;
+    background-color: var(--color-link);
     width: 18px;
     height: 18px;
     top: -6px;
@@ -263,7 +263,7 @@
     content: '.';
     cursor: pointer;
     border: 1px solid #006e9c;
-    background-image: linear-gradient(to bottom,#00a8e1 0%,#0085cf 100%);
+    background-image: linear-gradient(to bottom,var(--color-link) 0%,var(--color-link) 100%);
     z-index: 1;
 }
 
@@ -513,7 +513,7 @@ td.vgroup-action {
 }
 
 a.disabled {
-    color: #7dc3e8;
+    color: var(--color-blue-5);
     text-decoration: none;
     cursor: not-allowed;
 }
@@ -679,7 +679,7 @@ td.storage-action {
 }
 
 .modal-dialog .slot-warning {
-    color: #a30000; /* pf-red-200 */
+    color: var(--color-form-field-error-text);
 }
 
 .modal-dialog .key-source .radio-horizontal {

@@ -171,7 +171,7 @@ h1 .onoff-ct {
 
 #networking-firewall-summary:hover {
     cursor: pointer;
-    background-color: #def3ff;
+    background-color: var(--color-ct-list-hover-bg);
 }
 
 /* set min-height to the same as max-height, so that the list doesn't shrink
@@ -293,7 +293,7 @@ h1 .onoff-ct {
 
 #add-zone-dialog .add-zone-zones legend {
     all: unset;
-    color: #72767b; /* pf-black-600 */
+    color: var(--color-subtle-copy);
     display: block;
     font: inherit;
     line-height: 26px;
@@ -325,7 +325,7 @@ h1 .onoff-ct {
 
 /* Add lines behind the radio buttons */
 .add-zone-zones-firewalld > label::after {
-    border-bottom: 1px solid #d1d1d1; /* pf-black-300 */
+    border-bottom: 1px solid #d1d1d1;
     content: "";
     position: absolute;
     top: 1em;

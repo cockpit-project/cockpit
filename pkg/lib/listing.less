@@ -74,7 +74,7 @@ tbody > tr.listing-ct-item.listing-ct-warning {
 }
 
 tbody.open > tr.listing-ct-item {
-    background-color: @color-pf-blue-50;
+    background-color: @listing-ct-active;
     border-bottom: none;
     border-top: none;
     border-left: 1px solid @listing-ct-border;
@@ -116,7 +116,7 @@ tbody:not(.open) > tr.listing-ct-item:not(.listing-ct-nonavigate):hover {
 
 /* if we can't navigate to a row but expand is available, highlight the caret */
 tbody:not(.open) > tr.listing-ct-item.listing-ct-nonavigate:hover td.listing-ct-toggle {
-    color: @listing-ct-active;
+    color: @listing-ct-hover-icon;
 }
 
 /* use hover color expanded rows even if navigation isn't available */
@@ -150,7 +150,7 @@ tbody.open .listing-ct-toggle {
 
 .listing-ct-item > .listing-ct-toggle:not(:empty) + th::before,
 .listing-ct-item > .listing-ct-toggle:not(:empty) + td::before {
-    border-left: 1px solid rgba(0, 0, 0, 0.18); /* pf-black-300 */
+    border-left: 1px solid rgba(0, 0, 0, 0.18);
     content: "";
     height: @line-height-base * 1em;
     left: -5px;
@@ -284,7 +284,7 @@ div.listing-ct-maybe div.listing-ct-body {
 }
 
 tbody.active .listing-ct-head {
-    border-top: @listing-ct-open-width solid #0099d3;
+    border-top: @listing-ct-open-width solid var(--color-link);
 }
 
 .listing-ct-head h3 {
@@ -495,7 +495,7 @@ tbody.open tr.listing-ct-head {
     border-color: @listing-ct-border;
     border-style: solid;
     border-width: 1px 1px 0 1px;
-    border-top: @listing-ct-open-width solid #0099d3;
+    border-top: @listing-ct-open-width solid var(--color-link);
     background-color: @listing-ct-open;
 }
 
@@ -513,7 +513,7 @@ tr.listing-ct-body td {
 }
 
 .listing-ct-empty {
-    color: #888;
+    color: var(--color-subtle-copy);
     text-align: center;
     border-top: 1px solid @listing-ct-border-light;
     border-bottom: 1px solid @listing-ct-border-light;

@@ -4,7 +4,7 @@
 .cockpit-account {
     width: 250px;
     height: 70px;
-    background: #FFF;
+    background: var(--color-bg);
     margin-top: 15px;
     margin-right: 15px;
     border: 1px solid #ddd;
@@ -13,7 +13,7 @@
 }
 
 .cockpit-account:hover {
-    background-color: #edf8ff;
+    background-color: var(--color-link-hover-bg);
     cursor: pointer;
 }
 
@@ -55,7 +55,7 @@
 }
 
 #dashboard_setup_address_discovered li:hover {
-    background-color: #edf8ff;
+    background-color: var(--color-link-hover-bg);
 }
 
 #account-pic {
@@ -112,7 +112,7 @@
 
 .password-strength-meter div {
     width: 25%;
-    border-right: 3px solid #fff;
+    border-right: 3px solid var(--color-bg);
     background-color: transparent;
 }
 
@@ -129,11 +129,11 @@
 }
 
 .password-strength-meter.good div:nth-child(-n+3) {
-    background-color: #3F9C35;
+    background-color: var(--color-alert-success-text);
 }
 
 .password-strength-meter.excellent div:nth-child(-n+4) {
-    background-color: #3F9C35;
+    background-color: var(--color-alert-success-text);
 }
 
 .size-text-ct {

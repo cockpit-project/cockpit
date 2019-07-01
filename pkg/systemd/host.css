@@ -12,7 +12,7 @@ a.disabled {
     text-decoration: none;
     pointer-events: none;
     cursor: default;
-    color: #000;
+    color: var(--color-text);
 }
 
 .popover {
@@ -193,35 +193,35 @@ body {
 }
 
 .server-graph-legend .cpu-io-wait i {
-    color: #cc0000; /* pf-red-100 */
+    color: var(--color-red-1);
 }
 
 .server-graph-legend .cpu-kernel i {
-    color: #f5c12e; /* pf-orange-300 */
+    color: var(--color-gold);
 }
 
 .server-graph-legend .cpu-user i {
-    color: #8461f2; /* pf-purple-300 */
+    color: var(--color-purple-6);
 }
 
 .server-graph-legend .cpu-nice i {
-    color: #6eb664; /* pf-green-300 */
+    color: var(--color-green);
 }
 
 .server-graph-legend .memory-swap i {
-    color: #cc0000; /* pf-red-100 */
+    color: var(--color-red-1);
 }
 
 .server-graph-legend .memory-cached i {
-    color: #c8eb79; /* pf-light-green-200 */
+    color: #c8eb79;
 }
 
 .server-graph-legend .memory-used i {
-    color: #0088ce; /* pf-blue-400 */
+    color: var(--color-blue);
 }
 
 .server-graph-legend .memory-free i {
-    color: #3f9c35; /* pf-green-400 */
+    color: var(--color-green);
 }
 
 #cpu_status_title {

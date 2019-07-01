@@ -1,11 +1,18 @@
 /* Login page is standalone, all related CSS is here */
 
+*,
+:after,
+:before {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
 html {
   font-family: sans-serif;
   -ms-text-size-adjust: 100%;
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
-  font-size: 62.5%;
 }
 
 body {
@@ -13,7 +20,7 @@ body {
   font-family: RedHatText, Helvetica, Arial, sans-serif;
   background-color: #333;
   color: #fff;
-  line-height: 1.66666667;
+  line-height: 1.5;
 }
 
 .btn,
@@ -24,11 +31,6 @@ label {
 .btn,
 img {
   vertical-align: middle;
-}
-
-.form-control,
-body {
-  line-height: inherit;
 }
 
 #login-wait-validating div,
@@ -48,14 +50,8 @@ button {
   opacity: .7;
 }
 
-.btn,
-body {
-  font-size: 12px;
-}
-
 a {
-  background: 0 0;
-  color: #0099d3;
+  color: inherit;
   text-decoration: none;
 }
 
@@ -73,7 +69,7 @@ a:hover {
 
 a:focus,
 a:hover {
-  color: #00618a;
+  color: #fff;
   text-decoration: underline;
 }
 
@@ -91,16 +87,6 @@ textarea {
   line-height: inherit;
 }
 
-button,
-input {
-  line-height: normal;
-}
-
-button,
-select {
-  text-transform: none;
-}
-
 button {
   -webkit-appearance: button;
   overflow: visible;
@@ -112,14 +98,6 @@ input::-moz-focus-inner {
   padding: 0;
 }
 
-*,
-:after,
-:before {
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
-}
-
 p {
   margin: 0 0 10px;
 }
@@ -127,15 +105,15 @@ p {
 .container {
   margin-right: auto;
   margin-left: auto;
-  padding-left: 20px;
-  padding-right: 20px;
 }
 
-#option-group,
-.form-group,
-.row {
-  margin-left: -20px;
-  margin-right: -20px;
+#option-group {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+#server-group {
+  margin-top: -1rem;
+  margin-bottom: 2rem;
 }
 
 .container:after,
@@ -179,35 +157,53 @@ p {
 
 label {
   display: inline-block;
-  margin-bottom: 5px;
+}
+
+#option-group,
+.control-label {
+  font-size: 0.875rem;
+}
+
+[role=form] .control-label,
+form .control-label {
+  display: flex;
+  align-items: center;
+  min-height: 2rem;
 }
 
 .form-control {
-  height: 26px;
-  color: #333;
+  color: #151515;
 }
 
 .form-control[type=password],
 .form-control[type=text] {
   display: block;
   width: 100%;
-  padding: 2px 6px;
-  font-size: 12px;
+  padding: 0.25rem 0.5rem;
   background-color: #fff;
   background-image: none;
-  border: 1px solid #bababa;
+  border: 1px solid #ededed;
+  border-bottom-color: #72767b;
   border-radius: 1px;
-  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
-  box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
-  -webkit-transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
-  transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+  transition: border-color .15s ease-in-out;
+  color: #151515;
+}
+
+.form-control[type=password]:hover,
+.form-control[type=text]:hover,
+.form-control[type=password]:focus,
+.form-control[type=text]:focus {
+  border-bottom-color: #06c;
+}
+
+.form-control[type=password]:focus,
+.form-control[type=text]:focus {
+  padding-bottom: calc(0.25rem - 1px);
+  border-bottom-width: 2px;
 }
 
 .form-control:focus {
-  border-color: #66afe9;
   outline: 0;
-  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
-  box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
 }
 
 .form-control:-moz-placeholder {
@@ -231,6 +227,26 @@ label {
   font-style: italic;
 }
 
+.checkbox-row {
+  margin: 1rem 0 0;
+  display: flex;
+  align-items: baseline;
+}
+
+.checkbox-row > input[type=checkbox] {
+  width: 16px;
+  height: 16px;
+  align-self: start;
+  margin-top: calc((1.5rem - 16px) / 2);
+  margin-right: 0.5rem;
+}
+
+label.checkbox {
+  font: inherit;
+}
+
+
+
 .help-block {
   display: block;
   margin-top: 5px;
@@ -238,10 +254,13 @@ label {
   color: #737373;
 }
 
-#login-button[disabled] .spinner,
 .btn,
 .caret {
   display: inline-block;
+}
+
+#login-button[disabled] .spinner {
+  display: inline-flex;
 }
 
 .btn,
@@ -282,15 +301,6 @@ label {
 .btn:active {
   outline: 0;
   background-image: none;
-  -webkit-box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125);
-  box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125);
-}
-
-.btn-lg {
-  padding: 6px 10px;
-  font-size: 14px;
-  line-height: 1.33;
-  border-radius: 1px;
 }
 
 @-ms-viewport {
@@ -298,30 +308,22 @@ label {
 }
 
 .btn {
-  -webkit-box-shadow: 0 2px 3px rgba(0, 0, 0, .1);
-  box-shadow: 0 2px 3px rgba(0, 0, 0, .1);
-}
-
-.btn:active {
-  -webkit-box-shadow: inset 0 2px 8px rgba(0, 0, 0, .2);
-  box-shadow: inset 0 2px 8px rgba(0, 0, 0, .2);
+  padding: 0.25rem 0.5rem;
+  border-radius: 1px;
+  font-size: inherit;
 }
 
 .btn-primary {
-  background-color: #189ad1;
-  background-image: -webkit-linear-gradient(top, #1cace8 0, #1998cc 100%);
-  background-image: linear-gradient(to bottom, #1cace8 0, #1998cc 100%);
-  background-repeat: repeat-x;
-  border-color: #267da1;
+  background-color: #06c;
+  border-color: #06c;
   color: #fff;
 }
 
 .btn-primary:active,
 .btn-primary:focus,
 .btn-primary:hover {
-  background-color: #189ad1;
-  background-image: none;
-  border-color: #267da1;
+  background-color: #004080;
+  border-color: #004080;
   color: #fff;
 }
 
@@ -341,10 +343,6 @@ label {
   font-style: normal;
   font-weight: 700;
   src: url(cockpit/static/fonts/RedHatText-Medium.woff2) format('woff2');
-}
-
-.form-control:hover {
-  border-color: #7bb2dd;
 }
 
 .login-pf {
@@ -388,9 +386,7 @@ label {
 }
 
 .login-pf .container .control-label {
-  font-size: 13px;
   font-weight: 400;
-  text-align: left;
 }
 
 .login-pf .container .help-block {
@@ -410,10 +406,10 @@ label {
   border-right: 4px solid rgba(0, 0, 0, .25);
   border-radius: 100%;
   border-top: 4px solid rgba(0, 0, 0, .75);
-  height: 24px;
-  margin: 4px 0 0;
+  height: 1.5rem;
+  width: 1.5rem;
   position: relative;
-  width: 24px;
+  margin: 0.25rem 1rem;
 }
 
 .alert {
@@ -424,14 +420,10 @@ label {
 }
 
 .alert-danger {
-  background: 0 0;
-  color: #fff;
+  background: #c00;
   border-color: #c00;
+  color: #fff;
   font-weight: 700;
-}
-
-#option-group a {
-  color: inherit;
 }
 
 #server-group:before {
@@ -477,7 +469,6 @@ label {
 
 .control-label {
   white-space: nowrap;
-  font-size: 13px;
 }
 
 .spinner {
@@ -516,11 +507,17 @@ label {
 }
 
 .cross {
-  position: absolute;
-  right: 25px;
-  top: 2px;
-  font-weight: 700;
+  align-items: center;
+  bottom: 0;
+  display: flex;
   font-size: 14px;
+  font-weight: 700;
+  justify-content: center;
+  position: absolute;
+  /* 20px = padding of col-* */
+  right: 20px;
+  top: 0;
+  width: 2rem;
 }
 
 #option-group:hover svg,
@@ -532,14 +529,6 @@ label {
   margin-left: -3px;
   margin-top: 3px;
   margin-bottom: 10px;
-}
-
-#authorized-input {
-  width: 13px;
-  height: 13px;
-  padding: 0;
-  margin: 8px 5px 3px 0;
-  vertical-align: bottom;
 }
 
 #login-button {
@@ -557,7 +546,7 @@ label {
 
 /** Bootstrap breakpoints **/
 
-@media (min-width: 768px) {
+@media (min-width: 1024) {
   .container { width: 760px; }
 
   .col-sm-1,
@@ -608,7 +597,7 @@ label {
   }
 }
 
-@media (min-width: 992px) {
+@media (min-width: 1024px) {
   .container {
     width: 980px;
   }
@@ -747,10 +736,16 @@ label {
 }
 
 /* Desktop only */
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
 
   .control-label {
     text-align: right;
+  }
+
+  [role=form] .control-label,
+  form .control-label {
+    justify-content: end;
+    padding: 0;
   }
 
   .login-pf #brand img {
@@ -785,10 +780,6 @@ label {
     margin-top: 0;
   }
 
-  .login-button-container {
-    float: right;
-  }
-
 }
 
 /* Animation */
@@ -810,5 +801,164 @@ label {
 
   to {
     transform: rotate(359deg);
+  }
+}
+
+/* PF4-ish style overrides (depending on grid & CSS variables */
+
+@supports (display: grid) {
+  [class*=col-] {
+    padding: 0;
+  }
+
+  .col-sm-12 {
+    padding: 3rem 3rem 0;
+  }
+
+  .row {
+    display: flex;
+    flex-flow: column;
+    margin: 0;
+  }
+
+  body.login-pf {
+    color: #151515;
+    display: grid;
+    grid-template-columns: 34rem minmax(34rem, auto);
+    grid-template-areas: "login" "logo";
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(min-content, max-content);
+    background-position: 0 0 !important;
+    height: 100vh;
+    grid-gap: 0 4rem;
+    padding: 0;
+  }
+
+  .login-pf .container .details p:first-child {
+    border-top: 0;
+    padding-top: 0;
+    margin-top: 0;
+  }
+
+  .container > .row > .col-sm-12 {
+    order: inherit;
+    position: static;
+    text-align: left;
+  }
+
+  .login-button-container {
+    width: 100%;
+    float: none;
+  }
+
+  .login-pf .container {
+    position: static;
+    background: white;
+    color: #333;
+    grid-area: login;
+    margin: 0;
+    padding: 0;
+  }
+
+  .login-pf #badge {
+    grid-area: logo;
+    margin: 0 !important;
+  }
+
+  .login-pf .container .login-area {
+    border: none;
+    width: auto;
+    padding: 0 3rem 1.5rem;
+  }
+  .login-pf .container .details {
+    padding: 1.5rem 3rem;
+    width: auto !important;
+    background: #ededed;
+  }
+
+  .login-pf #brand {
+    font-size: 1.75rem;
+    line-height: 1.3;
+    padding: 0 0 2rem;
+    position: static;
+    text-transform: initial;
+  }
+
+  .unsupported-browser a,
+  a {
+    color: #06c;
+  }
+
+  .unsupported-browser a:focus,
+  .unsupported-browser a:hover,
+  a:focus,
+  a:hover {
+    color: #004080;
+  }
+
+  .caret polygon {
+    fill: #06c;
+  }
+
+  [role=form] .col-md-10,
+  form .col-md-10 {
+    display: flex;
+  }
+
+  .cross {
+    right: 0;
+  }
+
+  /* Mobile-specific */
+  @media (max-width: 1023px) {
+    body.login-pf {
+      justify-items: center;
+    }
+  }
+
+  /* Desktop-specific */
+  @media (min-width: 1024px) {
+    .container::before {
+      background: rgba(0,0,0, 0.3);
+      content: "";
+      position: absolute;
+      height: 100%;
+      width: 370px;
+      top: 0;
+      left: 0;
+      z-index: -1;
+    }
+
+    body.login-pf {
+      grid-template-areas: ". . . ." ". login logo ." ". . . . ";
+      grid-template-rows: 1fr minmax(min-content,max-content) 1fr;
+      grid-template-columns: minmax(0, 2.125rem) 35rem 1fr minmax(0, 2.125rem);
+    }
+
+    .form-group .form-control {
+      margin-left: 1rem;
+    }
+  }
+
+  body.login-pf.brand-unsupported-browser {
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto;
+  }
+
+  .unsupported-browser {
+    padding: 2rem;
+    margin: 0;
+    font-size: inherit;
+  }
+
+  .unsupported-browser ul {
+    color: #555;
+    margin: 0 0 2rem;
+  }
+
+  .login-browser-recommendations {
+    margin: 0;
+    display: flex;
+    justify-content: space-around;
   }
 }

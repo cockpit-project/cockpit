@@ -26,6 +26,7 @@ import {
     networkId
 } from '../../helpers.js';
 import { NetworkOverviewTab } from './networkOverviewTab.jsx';
+import { NetworkDelete } from './networkDelete.jsx';
 import {
     networkActivate,
     networkDeactivate
@@ -147,6 +148,7 @@ class NetworkActions extends React.Component {
                     {_("Activate")}
                 </Button>
                 }
+                <NetworkDelete network={network} />
             </React.Fragment>
         );
     }

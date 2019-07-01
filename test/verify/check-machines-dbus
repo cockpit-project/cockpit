@@ -510,6 +510,19 @@ class TestMachinesDBus(machineslib.TestMachines):
         # check virsh state
         wait(lambda: "no" == m.execute("virsh net-info test_network2 | grep 'Active:' | awk '{print $2}'").strip(), tries=5)
 
+        # Delete an inactive network
+        b.click('#delete-network-test_network2-{0}'.format(connectionName))
+        b.click(".modal-footer button:contains(Delete)")
+        b.wait_not_present("tbody tr[data-row-id=network-test_network2-{0}] th".format(connectionName))
+
+        # Delete an active network
+        m.execute("echo \"{0}\" > /tmp/xml && virsh net-define /tmp/xml && virsh net-start test_network2".format(TEST_NETWORK2_XML))
+        b.wait_in_text("#network-test_network2-{0}-state".format(connectionName), "active")
+        b.click("tbody tr[data-row-id=network-test_network2-{0}] th".format(connectionName)) # click on the row header
+        b.click('#delete-network-test_network2-{0}'.format(connectionName))
+        b.click(".modal-footer button:contains(Delete)")
+        b.wait_not_present("tbody tr[data-row-id=network-test_network2-{0}] th".format(connectionName))
+
     def testNetworks(self):
         b = self.browser
         m = self.machine

@@ -4,6 +4,7 @@ import gi
 gi.require_version('Libosinfo', '1.0')
 from gi.repository import Libosinfo
 import sys
+import json
 
 
 loader = Libosinfo.Loader()
@@ -11,19 +12,21 @@ loader.process_default_path()
 db = loader.get_db()
 
 oses = db.get_os_list()
+res = []
 for i in range(oses.get_length()):
     os = oses.get_nth(i)
 
-    osId = os.get_id() or ""
-    osShortId = os.get_short_id() or ""
-    osName = os.get_name() or ""
-    osVersion = os.get_version() or ""
-    osFamily = os.get_family() or ""
-    osVendor = os.get_vendor() or ""
-    osReleaseDate = os.get_release_date_string() or ""
-    osEOLDate = os.get_eol_date_string() or ""
-    osCodename = os.get_codename() or ""
+    osObj = {}
+    osObj['id'] = os.get_id() or ""
+    osObj['shortId'] = os.get_short_id() or ""
+    osObj['name'] = os.get_name() or ""
+    osObj['version'] = os.get_version() or ""
+    osObj['family'] = os.get_family() or ""
+    osObj['vendor'] = os.get_vendor() or ""
+    osObj['releaseDate'] = os.get_release_date_string() or ""
+    osObj['eolDate'] = os.get_eol_date_string() or ""
+    osObj['codename'] = os.get_codename() or ""
 
-    print("%s|%s|%s|%s|%s|%s|%s|%s|%s" %
-          (osId, osShortId, osName, osVersion, osFamily, osVendor,
-           osReleaseDate, osEOLDate, osCodename))
+    res.append(osObj)
+
+print(json.dumps(res))

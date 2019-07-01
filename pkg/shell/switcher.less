@@ -2,8 +2,11 @@
 
 /* Navigation base, used for both desktop & mobile navigation */
 
+.nav-sidebar .dashboard-link:not(.active) a:focus,
 .nav-sidebar .dashboard-link:not(.active) a:hover {
-    background: rgba(57, 63, 68, 0.5) !important;
+    background: var(--color-ct-nav-main-hover);
+    color: var(--color-ct-nav-hover-text);
+    border-color: var(--color-ct-nav-main-border);
 }
 
 .nav-item-pf-header {
@@ -14,7 +17,7 @@
 
 .area-ct-subnav {
     background: var(--color-ct-nav-sub);
-    border-right: 1px solid #292e34;
+    border-right: 1px solid var(--color-ct-nav-border);
     -webkit-flex: none;
     flex: none;
     display: -webkit-flex;
@@ -40,53 +43,44 @@
         border: none;
         z-index: 1;
 
-        &, > a {
-            transition: all 300ms;
+        a {
+            padding: 10px 15px;
+            display: block;
+            color: var(--color-ct-nav-text);
+            text-decoration: none;
+            border-left: 3px solid transparent;
         }
 
-        &:hover, &:hover > a {
-            transition: all 150ms; // Speed up animation on hover
-        }
-
+        &:focus,
         &:hover,
         &.active {
             /* Move hover & selected above overflow fade */
             z-index: 3;
-
-            a {
-                color: var(--color-ct-nav-active-text);
-            }
         }
 
+        &:focus,
         &:hover {
             background: var(--color-ct-nav-hover);
+
+            a {
+                border-color: var(--pf-global--hover-color--100);
+                color: var(--color-ct-nav-hover-text);
+            }
         }
 
         &.active {
             background: var(--color-ct-nav-active);
 
             a {
-                font-weight: 600;
+                border-color: var(--pf-global--active-color--100);
+                color: var(--color-ct-nav-active-text);
             }
-        }
-
-        a {
-            padding: 10px 15px;
-            display: block;
-            color: var(--color-ct-nav-text);
-            text-decoration: none;
-            transition: all 300ms
         }
     }
 
     /* Fade start and end of the host menu to indicate more content is available */
 
-    .dropdown-toggle {
-        position: relative;
-        overflow: visible !important;
-    }
-
-    .dropdown-toggle:after,
+    &:before,
     &:after {
         content: '';
         display: block;
@@ -100,10 +94,9 @@
         margin-right: 18px;
     }
 
-    .dropdown-toggle:after {
+    &:before {
         background: var(--color-ct-nav-cover-up);
-        margin-top: 1px;
-        bottom: -2rem; // Move down by the same size as the height
+        top: 4rem; // Move down by the same size as the dropdown
     }
 
     &:after {
@@ -231,18 +224,24 @@
 
             .list-group-item-value {
                 opacity: 0;
-                transition: opacity 150ms ease-out;
             }
         }
     }
 
-    .nav-sidebar {
+    .nav-sidebar-wrap.expanded .nav-sidebar {
+        width: auto;
+    }
+
+    .nav-sidebar-wrap:not(.expanded) .nav-sidebar {
         /* Use absolute position to make old Chrome (2015 Dec) tests pass */
         position: absolute !important;
+    }
+
+    .nav-sidebar {
         height: 100%;
         transition: all 150ms ease-out;
         box-shadow: 0 0;
-        background: linear-gradient(to left, var(--color-ct-nav-border), #292e34 1px);
+        background: var(--color-ct-nav-main);
 
         span.first-letter {
             font-size: 0px !important;
@@ -270,6 +269,11 @@
                 // Patternfly now sets & unsets padding-right;
                 // ...so we'll set it once again
                 padding-right: 20px;
+
+                .nav-sidebar-wrap.expanded & {
+                    padding-right: 1rem;
+                    width: auto;
+                }
             }
 
             &:focus {
@@ -278,20 +282,52 @@
         }
     }
 
+    .nav-sidebar-wrap.expanded {
+        .list-group-item > a {
+            padding: 0.5rem 1rem 0.25rem;
+            font-size: var(--pf-global--FontSize--sm);
+            min-height: 4rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            height: auto;
+            white-space: normal;
+
+            > .fa,
+            > .pficon,
+            > .list-group-item-value {
+                margin: 0;
+                padding: 0 !important;
+            }
+
+            > .list-group-item-value {
+                max-width: 8em;
+            }
+        }
+    }
+
+    .nav-sidebar-wrap:not(.expanded) .nav-sidebar:not(.clicked):focus-within,
     .nav-sidebar-wrap:not(.expanded) .nav-sidebar:not(.clicked):hover {
         width: unit(@sidebar-width-full, px);
         box-shadow: 0 0 3px rgba(0,0,0,0.5), 0 0 32px rgba(0,0,0,0.75);
-        transition-duration: 500ms;
+        transition-duration: 300ms;
         transition-timing-function: cubic-bezier(0,1.2,0.8,1);
+        transition-delay: 300ms;
 
         .list-group-item-value {
             transition-duration: 300ms;
+            transition-delay: 300ms;
             opacity: 1;
         }
 
         .first-letter {
             opacity: 0;
         }
+    }
+
+    .nav-sidebar-wrap:not(.expanded) .nav-sidebar:not(.clicked):focus-within {
+        transition-delay: 0;
     }
 
     .single-nav {
@@ -490,7 +526,8 @@
         max-width: 100%;
         overflow: hidden;
         overflow-x: auto;
-        background: linear-gradient(to bottom, var(--color-ct-nav-border), var(--color-ct-nav) 1px);
+        background: linear-gradient(to bottom, var(--color-ct-nav-main-border), var(--color-ct-nav-main) 1px);
+        border: none;
 
         ul, li {
             padding: 0;
@@ -514,7 +551,24 @@
             margin: 0 !important;
             padding: 0 !important;
             position: static;
-            max-width: 33vw;
+
+            &:first-child {
+                // Re-add border that PF takes away
+                border-top-width: 1px !important;
+                border-top-style: solid !important;
+            }
+
+            &:first-child {
+                border-color: var(--color-ct-nav-main-border);
+            }
+
+            &.menu-visible:first-child {
+                border-color: var(--color-ct-nav-main);
+            }
+
+            &:only-child {
+                max-width: 25vw;
+            }
 
             a {
                 display: inline-block !important;
@@ -531,7 +585,12 @@
             &.active {
                 z-index: 2;
 
-                &, &:hover {
+                &:hover, &:focus {
+                    // Override PF border
+                    border-color: var(--color-ct-nav-main-border);
+                }
+
+                &.menu-visible {
                     border-color: var(--color-ct-nav-main-active);
                 }
 
@@ -670,6 +729,36 @@
         &:not(.active) .pficon-container-node:after {
             opacity: 0;
         }
+    }
+}
+
+/* Apply Cockpit colors to main nav */
+.main-navbar .list-group-item {
+    border-color: var(--color-ct-nav-main-border);
+
+    > a {
+        color: var(--color-ct-nav-main-text);
+        background: var(--color-ct-nav-main);
+
+        > span {
+            font-weight: 400;
+        }
+    }
+
+    &:focus > a,
+    &:hover > a {
+        background: var(--color-ct-nav-main-hover);
+        color: var(--color-ct-nav-main-hover-text);
+    };
+
+    &.active > a {
+        background: var(--color-ct-nav-main-active);
+        color: var(--color-ct-nav-main-active-text);
+    }
+
+    &.active:hover {
+        // Override PF3
+        border-color: var(--color-ct-nav-main-border);
     }
 }
 

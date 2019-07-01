@@ -610,6 +610,18 @@ run_bridge (const gchar *interactive,
   g_source_remove (sig_term);
   g_source_remove (sig_int);
 
+  /* HACK: Valgrind contains a bug that causes it to hang when the main
+   * thread exits quickly in response to a signal received by a handler
+   * in another thread, when that other thread is waiting in a syscall.
+   * Avoid that situation by delaying our exit here, but only under
+   * Valgrind.
+   *
+   * Remove this when https://bugs.kde.org/show_bug.cgi?id=409367 is
+   * fixed and widely distributed.
+   */
+  if (strstr (g_getenv ("LD_PRELOAD") ?: "", "valgrind") != NULL)
+    g_usleep (5 * G_TIME_SPAN_SECOND);
+
   /* So the caller gets the right signal */
   if (terminated)
     raise (SIGTERM);

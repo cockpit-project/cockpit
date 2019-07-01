@@ -1,7 +1,7 @@
 /* Timeline pattern used together with listing.less */
 
 div.timeline-ct {
-    border-left: 6px solid #ccc;
+    border-left: 6px solid var(--color-light-gray);
     position: relative;
     margin-left: 25px;
     padding-left: 30px;
@@ -20,11 +20,11 @@ div.timeline-ct .timeline-ct-point {
     line-height: 21px;
     background-color: white;
     padding: 3px 0px;
-    color: #ccc;
+    color: var(--color-light-gray);
 }
 
 div.timeline-ct .timeline-ct-point.active {
-    color: #3f9c35;
+    color: var(--color-alert-success-text);
 }
 
 div.timeline-ct .timeline-ct-md {
@@ -61,7 +61,7 @@ div.timeline-ct.timeline-ct-end {
     background-repeat: repeat-y;
     background-position: 0% 100%;
     background-size: 6px 5px;
-    background-image: linear-gradient(#ccc 33%, #fff 0%);
+    background-image: linear-gradient(var(--color-light-gray) 33%, var(--color-gray-1) 0%);
     border-left: none;
 }
 

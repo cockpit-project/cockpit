@@ -43,7 +43,7 @@ a.disabled:hover {
 .dropdown-menu > li > a.disabled,
 .dropdown-menu > li > a.disabled:hover,
 .dropdown-menu > li > a.disabled:focus {
-  color: #999999;
+  color: var(--color-subtle-copy);
 }
 
 .dropdown-menu > li > a.disabled:hover,
@@ -75,7 +75,7 @@ a.disabled:hover {
 }
 
 .highlight-ct {
-    background-color: #edf8ff;
+    background-color: var(--color-link-hover-bg);
 }
 
 /* Well and Blankslate */
@@ -91,7 +91,7 @@ a.disabled:hover {
     margin-bottom: 0px;
     border: none;
     border-radius: 0px;
-    background-color: #FAFAFA;
+    background-color: var(--color-gray-1);
 }
 
 .well.blank-slate-pf {
@@ -124,7 +124,7 @@ a.disabled:hover {
 }
 
 .btn-control-ct {
-    background-color: #eeeeee;
+    background-color: var(--color-gray-2);
 }
 
 .btn-control-ct:hover {
@@ -141,7 +141,7 @@ a.disabled:hover {
 
 .btn-onoff-ct .btn {
     color: transparent;
-    border-color: #B7B7B7;
+    border-color: var(--color-gray-4);
     padding: 2px 6px 1px 6px;
     background-color: white;
     background-image: linear-gradient(to bottom, rgb(250, 250, 250) 0px, rgb(237, 237, 237) 100%);
@@ -165,13 +165,13 @@ a.disabled:hover {
 }
 
 .btn-onoff-ct .btn.active:first-child {
-    background-color: #0086CF;
+    background-color: var(--color-link);
     color: white;
     border-right: 1px solid #0071b0;
 }
 
 .btn-onoff-ct .btn.active:last-child {
-    color: #000;
+    color: var(--color-text);
     border-left: 1px solid #d6d6d6;
 }
 
@@ -181,7 +181,7 @@ a.disabled:hover {
 }
 
 .btn-onoff-ct .btn.active.disabled {
-    background-color: #888 !important;
+    background-color: var(--color-subtle-copy) !important;
     color: white !important;
 }
 
@@ -227,7 +227,7 @@ a.disabled:hover {
 .dialog-list-ct {
     max-height: 230px;
     overflow-x: auto;
-    border: 1px solid #CCC;
+    border: 1px solid var(--color-light-gray);
     margin-bottom: 0px;
 }
 
@@ -243,17 +243,17 @@ input[type=number] {
 
 .ct-select {
     --dropdown-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2237%22 height=%2224%22 viewBox=%220 0 9.487 6%22%3E%3Cpath fill=%22%234d5258%22 d=%22M5.623 2.831l-.09-.09c-.02-.02-.063-.02-.083 0l-.706.707-.707-.708c-.02-.02-.063-.018-.082.001l-.091.09c-.02.02-.02.063 0 .082l.838.838c.02.02.063.02.082 0l.84-.837c.02-.02.019-.063-.001-.083z%22/%3E%3C/svg%3E%0A");
-    --dropdown-background: linear-gradient(#fafafa, #ededed);
+    --dropdown-background: linear-gradient(var(--color-gray-1), var(--color-gray-2));
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
     max-width: 100%;
     padding: 1px 28px 1px 5px;
-    border: 1px solid #bbb;
+    border: 1px solid var(--color-gray-5);
     background: var(--dropdown-image) no-repeat 100% 50%, var(--dropdown-background);
     box-shadow: 0 2px 3px rgba(3, 3, 3, 0.1);
     border-radius: 1px;
-    color: #4d5258;
+    color: var(--color-gray-11);
     cursor: pointer;
     transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
     font-weight: 600;
@@ -269,18 +269,18 @@ input[type=number] {
 
 .ct-select:hover,
 .ct-select:active {
-    --dropdown-background: #f1f1f1;
+    --dropdown-background: var(--color-gray-1);
 }
 
 .ct-select:hover {
-    border-color: #7dc3e8;
+    border-color: var(--color-blue-5);
 }
 
 .ct-select:focus {
-    border-color: #0088ce; /* pf-blue-400 */
+    border-color: var(--color-link);
     /* Outer blue glow */
     box-shadow: inset 0 1px 1px rgba(3, 3, 3, 0.075), 0 0 8px rgba(0, 136, 206, 0.6);
-    color: #4d5258;
+    color: var(--color-gray-11);
 }
 
 .ct-select:active {
@@ -289,7 +289,7 @@ input[type=number] {
 
 .ct-select optgroup,
 .ct-select option {
-    background-color: #fff;
+    background-color: var(--color-bg);
 }
 
 :root {

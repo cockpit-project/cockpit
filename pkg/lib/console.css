@@ -30,7 +30,7 @@
 }
 
 .console-ct > .terminal {
-    color: #F0F0F0;
+    color: var(--color-gray-1);
     text-align: left;
     outline: medium none;
     background-color: black;
@@ -42,7 +42,7 @@
 }
 
 .terminal .terminal-cursor {
-    border: 1px solid #f0f0f0;
+    border: 1px solid var(--color-gray-1);
 }
 
 .terminal:focus .terminal-cursor {
@@ -52,11 +52,11 @@
 
 @keyframes blink {
     from {
-        color: #000;
-        background: #f0f0f0;
+        color: var(--color-text);
+        background: var(--color-gray-1);
     }
     50% {
-        color: #f0f0f0;
-        background: #000;
+        color: var(--color-gray-1);
+        background: var(--color-text);
     }
 }

@@ -179,7 +179,7 @@ class SeleniumTest(Test):
         except WebDriverException as e:
             self.log.info("ERR: Unable to get logs: " + e.msg)
 
-    def _driver_excecute(self, *args, fatal=True):
+    def execute_script(self, *args, fatal=True):
 
         try:
             return self.driver.execute_script(*args)
@@ -197,7 +197,7 @@ This function is only for internal purposes:
     It via javascript check that attribute data-loaded is in element
         """
         if javascript_operations:
-            return self._driver_excecute("return arguments[0].getAttribute('data-loaded')", element)
+            return self.execute_script("return arguments[0].getAttribute('data-loaded')", element)
         else:
             return True
 
@@ -207,7 +207,7 @@ This function is only for internal purposes:
         for foo in range(0, self.default_try):
             try:
                 if javascript_operations:
-                    self._driver_excecute("arguments[0].click();", element)
+                    self.execute_script("arguments[0].click();", element)
                 else:
                     element.click()
                 failure = None
@@ -235,8 +235,8 @@ This function is only for internal purposes:
             self.take_screenshot(fatal=False)
             raise SeleniumElementFailure('Unable to SEND_KEYS to element ({})'.format(e))
         if javascript_operations:
-            self._driver_excecute('var ev = new Event("change", { bubbles: true, cancelable: false }); arguments[0].dispatchEvent(ev);', element)
-            self._driver_excecute('var ev = new Event("change", { bubbles: true, cancelable: false }); arguments[0].dispatchEvent(ev);', element)
+            self.execute_script('var ev = new Event("change", { bubbles: true, cancelable: false }); arguments[0].dispatchEvent(ev);', element)
+            self.execute_script('var ev = new Event("change", { bubbles: true, cancelable: false }); arguments[0].dispatchEvent(ev);', element)
 
     def check_box(self, element, checked=True):
         try:

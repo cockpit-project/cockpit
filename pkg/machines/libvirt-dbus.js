@@ -1286,6 +1286,10 @@ export function networkDeactivate(connectionName, objPath) {
     return call(connectionName, objPath, 'org.libvirt.Network', 'Destroy', [], TIMEOUT);
 }
 
+export function networkUndefine(connectionName, objPath) {
+    return call(connectionName, objPath, 'org.libvirt.Network', 'Undefine', [], TIMEOUT);
+}
+
 export function storagePoolActivate(connectionName, objPath) {
     return call(connectionName, objPath, 'org.libvirt.StoragePool', 'Create', [Enum.VIR_STORAGE_POOL_CREATE_NORMAL], TIMEOUT);
 }

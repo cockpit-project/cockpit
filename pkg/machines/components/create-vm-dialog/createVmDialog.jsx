@@ -19,7 +19,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, FormGroup, HelpBlock, Modal } from 'patternfly-react';
+import { Button, FormGroup, HelpBlock, Modal, OverlayTrigger, Tooltip } from 'patternfly-react';
 
 import cockpit from 'cockpit';
 import { MachinesConnectionSelector } from '../machinesConnectionSelector.jsx';
@@ -747,6 +747,13 @@ export class CreateVmAction extends React.Component {
         this.state = { showModal: false };
         this.open = this.open.bind(this);
         this.close = this.close.bind(this);
+        this.state = { virtInstallAvailable: undefined };
+    }
+
+    componentWillMount() {
+        cockpit.spawn(['which', 'virt-install'], { err: 'message' })
+                .then(() => this.setState({ virtInstallAvailable: true })
+                    , () => this.setState({ virtInstallAvailable: false }));
     }
 
     // That will stop any state setting on unmounted/unmounting components
@@ -763,11 +770,24 @@ export class CreateVmAction extends React.Component {
     }
 
     render() {
+        if (this.state.virtInstallAvailable == undefined)
+            return null;
+
+        let createButton = (
+            <Button disabled={!this.props.systemInfo.osInfoList || !this.state.virtInstallAvailable} className="pull-right" id="create-new-vm" bsStyle='default' onClick={this.open} >
+                {_("Create VM")}
+            </Button>
+        );
+        if (!this.state.virtInstallAvailable)
+            createButton = (
+                <OverlayTrigger overlay={ <Tooltip id='virt-install-not-available-tooltip'>{ _("virt-install package needs to be installed on the system in order to create new VMs") }</Tooltip> } placement='top'>
+                    {createButton}
+                </OverlayTrigger>
+            );
+
         return (
             <React.Fragment>
-                <Button disabled={this.props.systemInfo.osInfoList == null} className="pull-right" id="create-new-vm" bsStyle='default' onClick={this.open} >
-                    {_("Create VM")}
-                </Button>
+                { createButton }
                 { this.state.showModal &&
                 <CreateVmModal
                     providerName={this.props.providerName}

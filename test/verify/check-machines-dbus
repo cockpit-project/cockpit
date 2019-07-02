@@ -304,6 +304,43 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_in_text("#vm-subVmTest1-state", "paused")
         b.wait_attr("#vm-subVmTest1-disks-vdf-detach", "disabled", "")
 
+    def testMultipleSettings(self):
+        b = self.browser
+
+        self.startVm("subVmTest1")
+
+        self.login_and_go("/machines")
+        b.wait_in_text("body", "Virtual Machines")
+        b.wait_in_text("tbody tr th", "subVmTest1")
+
+        b.click("tbody tr th") # click on the row header
+        b.wait_in_text("#vm-subVmTest1-state", "running")
+
+        # Change Boot Order setting
+        bootOrder = b.text("#vm-subVmTest1-boot-order")
+        b.click("#vm-subVmTest1-boot-order") # Open dialog
+        b.wait_present(".modal-body")
+        b.click("#vm-subVmTest1-order-modal-device-row-0 #vm-subVmTest1-order-modal-down") # Change order
+        b.click("#vm-subVmTest1-order-modal-save") # Save
+        b.wait_not_present(".modal-body")
+
+        # Change vCPUs setting
+        b.click("#vm-subVmTest1-vcpus-count") # Open dialog
+        b.wait_present(".modal-body")
+        b.set_input_text("#machines-vcpu-max-field", "3") # Change values
+        b.set_input_text("#machines-vcpu-count-field", "3")
+        b.click("#machines-vcpu-modal-dialog-apply") # Save
+        b.wait_not_present(".modal-body")
+
+        # Shut off domain
+        b.click("#vm-subVmTest1-off-caret")
+        b.click("#vm-subVmTest1-forceOff")
+        b.wait_in_text("#vm-subVmTest1-state", "shut off")
+
+        # Check both changes have been applied
+        b.wait_not_in_text("#vm-subVmTest1-boot-order", bootOrder)
+        b.wait_in_text("#vm-subVmTest1-vcpus-count", "3")
+
     def testNetworkSettings(self):
         b = self.browser
         m = self.machine

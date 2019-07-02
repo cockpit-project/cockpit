@@ -213,7 +213,7 @@ LIBVIRT_DBUS_PROVIDER = {
         connectionName,
         devices,
     }) {
-        return call(connectionName, objPath, 'org.libvirt.Domain', 'GetXMLDesc', [0], TIMEOUT)
+        return call(connectionName, objPath, 'org.libvirt.Domain', 'GetXMLDesc', [Enum.VIR_DOMAIN_XML_INACTIVE], TIMEOUT)
                 .then(domXml => {
                     let updatedXML = updateBootOrder(domXml, devices);
                     return call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'DomainDefineXML', [updatedXML], TIMEOUT);
@@ -238,7 +238,7 @@ LIBVIRT_DBUS_PROVIDER = {
         flags |= Enum.VIR_DOMAIN_AFFECT_CONFIG;
 
         // Error handling inside the modal dialog this function is called
-        return clientLibvirt[connectionName].call(objPath, 'org.libvirt.Domain', 'GetXMLDesc', [0], TIMEOUT)
+        return clientLibvirt[connectionName].call(objPath, 'org.libvirt.Domain', 'GetXMLDesc', [Enum.VIR_DOMAIN_XML_INACTIVE], TIMEOUT)
                 .then(domXml => {
                     let updatedXml = updateNetworkIface({
                         domXml: domXml[0],
@@ -786,7 +786,7 @@ LIBVIRT_DBUS_PROVIDER = {
         threads,
         isRunning
     }) {
-        return call(connectionName, objPath, 'org.libvirt.Domain', 'GetXMLDesc', [0], TIMEOUT)
+        return call(connectionName, objPath, 'org.libvirt.Domain', 'GetXMLDesc', [Enum.VIR_DOMAIN_XML_INACTIVE], TIMEOUT)
                 .then(domXml => {
                     let updatedXML = updateVCPUSettings(domXml[0], count, max, sockets, cores, threads);
                     return call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'DomainDefineXML', [updatedXML], TIMEOUT);

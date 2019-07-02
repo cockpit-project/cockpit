@@ -95,7 +95,7 @@ else
 fi
 
 # Valid JSON files
-if [ -d .git ]; then
+if [ -e .git ]; then
     for f in $(git ls-tree --name-only -r --full-name HEAD | grep '\.json$'); do
         if ! python3 -m json.tool $f /dev/null; then
             echo "ERROR: $f is invalid JSON" >&2

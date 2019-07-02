@@ -49,6 +49,9 @@ class TestKdump(SeleniumTest):
         super().setUp()
         self.login()
         self.requirements()
+        if os.environ.get("BROWSER") == 'edge':
+            # HACK: Edge does not see elements (kdump menu entry) which are below the visible window area
+            self._driver_excecute('''document.querySelector("#host-nav a[href='/kdump']").scrollIntoView()''')
         self.click(self.wait_link("Kernel Dump"))
         self.wait_frame("localhost/kdump")
         self.base_element = self.wait_id("app", jscheck=True)

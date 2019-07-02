@@ -1384,6 +1384,12 @@ class TestMachines(NetworkCase):
                                          os_name=config.OPENBSD_5_4,
                                          start_vm=False))
 
+        # Test that removing virt-install executable will disable Create VM button
+        self.machine.execute('rm $(which virt-install)')
+        self.browser.reload()
+        self.browser.enter_page('/machines')
+        self.browser.wait_visible("#create-new-vm:disabled")
+
         # TODO: add use cases with start_vm=True and check that vm started
         # - for install when creating vm
         # - for create vm and then install

@@ -43,6 +43,7 @@ def consume_webhook_queue(channel, amqp):
     body = json.loads(body)
     event = body['event']
     request = body['request']
+    repo = None
     if event == 'pull_request':
         pull_request = request['pull_request']
         # scan for possible checkboxes and the bots label

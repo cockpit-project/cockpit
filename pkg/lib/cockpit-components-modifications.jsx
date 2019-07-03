@@ -37,14 +37,31 @@ class ModificationsExportDialog extends React.Component {
         super(props);
 
         this.state = {
-            active_tab: "shell"
+            active_tab: "shell",
+            copied: false
         };
 
         this.handleSelect = this.handleSelect.bind(this);
+        this.copyToClipboard = this.copyToClipboard.bind(this);
     }
 
     handleSelect(active_tab) {
         this.setState({ active_tab });
+    }
+
+    copyToClipboard() {
+        try {
+            navigator.clipboard.writeText(this.props[this.state.active_tab])
+                    .then(() => {
+                        this.setState({ copied: true });
+                        setTimeout(() => {
+                            this.setState({ copied: false });
+                        }, 3000);
+                    })
+                    .catch(e => console.error('Text could not be copied: ', e ? e.toString() : ""));
+        } catch (error) {
+            console.error('Text could not be copied: ', error.toString());
+        }
     }
 
     render() {
@@ -84,6 +101,10 @@ class ModificationsExportDialog extends React.Component {
                     </TabContainer>
                 </Modal.Body>
                 <Modal.Footer>
+                    <Button bsStyle='default' className='btn' onClick={this.copyToClipboard}>
+                        { this.state.copied ? <span className="fa fa-check fa-xs green-icon" /> : <span className="fa fa-clipboard fa-xs" /> }
+                        <span>{ _("Copy to clipboard") }</span>
+                    </Button>
                     <Button bsStyle='default' className='btn-cancel' onClick={this.props.onClose}>
                         { _("Close") }
                     </Button>

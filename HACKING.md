@@ -130,10 +130,10 @@ Violations of some rules can be fixed automatically by:
 
 Rules configuration can be found in the `.eslintrc.json` file.
 
-## Working on your local machine
+## Working on your local machine: Cockpit's session pages
 
 It's easy to set up your local Linux machine for rapid development of Cockpit's
-JavaScript code. First install Cockpit on your local machine as described in:
+JavaScript code (in pkg/). First install Cockpit on your local machine as described in:
 
 https://cockpit-project.org/running.html
 
@@ -158,6 +158,25 @@ To make Cockpit again use the installed code, rather than that from your
 git checkout directory, run the following, and log into Cockpit again:
 
     $ rm ~/.local/share/cockpit
+
+## Working on your local machine: Web server resources
+
+To test changes to the login page or any other resources, you can bind-mount
+the build tree's `dist/static/` directory over the  system one:
+
+    $ sudo mount -o bind dist/static/ /usr/share/cockpit/static/
+
+Likewise, to test changes to the branding, use
+
+    $ sudo mount -o bind src/branding/ /usr/share/cockpit/branding/
+
+After that, run `systemctl stop cockpit.service` to ensure that the web server
+restarts on the next browser request.
+
+To make Cockpit again use the system-installed code, simply umount these again:
+
+   $ sudo umount /usr/share/cockpit/static/ /usr/share/cockpit/branding/
+   $ systemctl stop cockpit.service
 
 ## Working on Cockpit using Vagrant
 

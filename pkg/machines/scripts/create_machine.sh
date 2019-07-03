@@ -16,10 +16,15 @@ vmExists(){
    virsh -c "$CONNECTION_URI" list --all | awk  '{print $2}' | grep -q --line-regexp --fixed-strings "$1"
 }
 
-handleFailure(){
+err_handler () {
     rm -f "$XMLS_FILE"
+}
+
+handleFailure(){
     exit $1
 }
+
+trap err_handler EXIT
 
 # prepare virt-install parameters
 if [ "$SOURCE_TYPE" = "disk_image" ]; then
@@ -111,6 +116,11 @@ virt-install \
     $GRAPHICS_PARAM \
 > "$XMLS_FILE" || handleFailure $?
 
+# The VM got deleted while being installed
+if ! $(vmExists "$VM_NAME") && [ "$START_VM" = "true" ]; then
+    exit 0
+fi
+
 # add metadata to domain
 
 if [ "$START_VM" = "true" ]; then
@@ -153,5 +163,3 @@ echo "$DOMAIN_MATCHES"  |  sed 's/[^0-9]//g' | while read -r FINISH_LINE ; do
             CURRENT_STEP="`expr $CURRENT_STEP + 1`"
         fi
 done
-
-rm -f "$XMLS_FILE"

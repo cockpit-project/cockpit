@@ -18,6 +18,8 @@ if [ -n "$AMQP_SERVER" ]; then
     echo bots/run-queue --amqp "$AMQP_SERVER"
 else
     bots/tests-scan
+    # Any tasks related to issues
+    bots/issue-scan
 fi
 
 # When run automated, randomize to minimize stampeding herd
@@ -35,6 +37,3 @@ if [ $chance -gt 9 ]; then
     bots/naughty-trigger
     bots/learn-trigger
 fi
-
-# Any tasks related to issues
-bots/issue-scan

@@ -47,7 +47,7 @@ def consume_webhook_queue(channel, amqp):
     if event == 'pull_request':
         pull_request = request['pull_request']
         # scan for possible checkboxes and the bots label
-        if pull_request['action'] in ['edited', 'labeled']:
+        if request['action'] in ['edited', 'labeled']:
             pull_request = request['pull_request']
             cmd = ['bots/issue-scan', '--issue-data', json.dumps(pull_request), '--amqp', amqp]
         else:

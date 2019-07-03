@@ -85,6 +85,15 @@ mallocx (size_t size)
   return r;
 }
 
+void *
+callocx (size_t nmemb, size_t size)
+{
+  void *r = calloc (nmemb, size);
+  if (r == NULL)
+    abort_errno ("failed to allocate memory");
+  return r;
+}
+
 char *
 strdupx (const char *s)
 {

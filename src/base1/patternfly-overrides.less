@@ -125,8 +125,15 @@ h4 {
 .bootstrap-select.btn-group .btn,
 .content-header-extra .dropdown-toggle,
 .dropdown-toggle,
-.form-control:not(.ct-select) {
+.form-control:not(.ct-select):not(select) {
   background-image: none !important;
+}
+
+.input-group-addon,
+.bootstrap-select.btn-group .btn,
+.content-header-extra .dropdown-toggle,
+.dropdown-toggle,
+.form-control:not(.ct-select) {
   border-radius: 3px;
   border-color: var(--pf-global--BorderColor--300);
   border-bottom-color: var(--pf-global--Color--200);
@@ -163,6 +170,7 @@ h4 {
     border-bottom-width: 2px;
   }
 
+  &[aria-disabled=true],
   &:disabled {
     background-color: var(--pf-global--disabled-color--300);
     border-color: var(--pf-global--disabled-color--300);
@@ -202,12 +210,52 @@ h4 {
     align-items: stretch;
   }
 
-  > .input-group-btn > .btn {
-    min-width: 2.5rem;
+  > .input-group-btn {
+    width: auto;
+
+    > .btn {
+      min-width: 2.5rem;
+    }
+  }
+}
+
+// Select dropdowns in Composer
+select.form-control {
+  --dropdown-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='46' height='8'%3E%3Cpath fill='%23151515' d='M18.804 1h8.392c.58 0 .87.701.46 1.112L23.46 6.31a.653.653 0 0 1-.922 0l-4.194-4.197A.651.651 0 0 1 18.805 1z'/%3E%3C/svg%3E");
+  --dropdown-background: var(--pf-global--BackgroundColor--100);
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background: var(--dropdown-image) no-repeat 100% 50%, var(--dropdown-background) !important;
+  padding-right: 2.5em !important;
+}
+
+// Adjust dropdown menus
+.dropdown-menu {
+  > li {
+    padding: 0;
+
+    > a {
+      padding: 0.5rem 1rem;
+    }
+
+    &:not(.disabled) > a {
+      color: var(--pf-global--Color--100);
+
+      &:active,
+      &:focus,
+      &:hover {
+        background-color: var(--pf-global--BackgroundColor--light-300);
+        border-color: var(--pf-global--BackgroundColor--light-300);
+      }
+
+    }
+
   }
 }
 
 // Restyle buttons
+.pagination a[role=button],
 .btn {
   padding: 0.375rem 1rem;
   transition: background 0.3s, border 0.3s, color 0.3s;
@@ -220,19 +268,19 @@ h4 {
       box-shadow: none !important;
     }
 
-    &:not([disabled]):not(.btn-link) {
+    &:not(:disabled):not([aria-disabled=true]):not(.btn-link) {
       &:not(.btn-primary):not(.btn-success):not(.btn-info):not(.btn-warning):not(.btn-danger) {
         &:active, &:focus, &:hover {
-          border-color: var(--pf-global--primary-color--200);
-          box-shadow: inset 0 0 0 1px var(--pf-global--primary-color--200);
+          border-color: var(--pf-global--primary-color--100);
+          box-shadow: inset 0 0 0 1px var(--pf-global--primary-color--100);
         }
       }
     }
 
     &.btn-primary {
       &:active, &:focus, &:hover {
-        background-color: var(--pf-global--primary-color--200);
-        border-color: var(--pf-global--primary-color--200);
+        background-color: var(--pf-global--primary-color--100);
+        border-color: var(--pf-global--primary-color--100);
       }
     }
     &.btn-success {
@@ -260,7 +308,10 @@ h4 {
       }
     }
 
-    &[disabled] {
+    &[aria-disabled=true],
+    &.disabled,
+    &:disabled {
+      &:not(.btn-link):not(a) {
         &, &:hover {
           background-color: var(--pf-global--disabled-color--200) !important;
           border-color: var(--pf-global--disabled-color--200) !important;
@@ -272,6 +323,7 @@ h4 {
             background-color: var(--pf-global--disabled-color--300) !important;
           }
         }
+      }
     }
   }
 
@@ -334,6 +386,41 @@ h4 {
     border-top-right-radius: 0 !important;
     border-bottom-right-radius: 0 !important;
   }
+}
+
+//
+.form-control-pf-editable > button {
+  max-height: 100%;
+}
+
+// Pagination buttons
+.pagination {
+  ul, li {
+    margin: 0;
+    padding: 0;
+  }
+
+  li {
+    display: flex;
+  }
+
+  a[role=button] {
+    display: flex;
+    height: 2.25rem;
+    align-items: center;
+
+    &[aria-disabled=true],
+    &:disabled {
+      // Backgrounds are a bit too visually weighty in pagination
+      background-color: var(--pf-global--disabled-color--300) !important;
+    }
+  }
+}
+
+// Kebab menu buttons should get special treatment
+.dropdown-kebab-pf > button {
+  border: none;
+  padding: 0.5rem 1rem !important;
 }
 
 // Restyle modals
@@ -455,12 +542,37 @@ th > label {
   padding: 0.125rem 0.25rem 0 0.5rem;
 }
 
-// Adjust tab sizes
+// Adjust nav tab sizes
 .nav-tabs {
   font-size: var(--font-size-s);
 
-  > li > a {
-    padding: 0.75rem 1rem;
+  > li {
+
+    > a {
+      padding: 0.75rem 1rem;
+      position: relative;
+    }
+
+    &.active > a {
+
+      &::before {
+        position: absolute;
+        height: 2px;
+        top: -1px;
+        left: -1px;
+        right: -1px;
+        content: "";
+        background: var(--pf-global--active-color--100);
+        pointer-events: none;
+      }
+
+      // listing-ct uses tertitiary nav, which has a bottom line
+      .listing-ct-panel &::before {
+        top: auto;
+        bottom: 0;
+      }
+    }
+
   }
 }
 

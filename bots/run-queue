@@ -66,7 +66,7 @@ def consume_webhook_queue(channel, amqp):
 
     # HACK: the cockpit repo itself is treated as a special case in tests-scan, in
     # order to avoid complexity avoid supplying the repo option for now
-    if repo != 'cockpit-project/cockpit':
+    if repo and repo != 'cockpit-project/cockpit':
         cmd += ['--repo', repo]
     return cmd, method_frame.delivery_tag
 

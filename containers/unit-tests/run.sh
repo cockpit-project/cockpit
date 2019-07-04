@@ -27,19 +27,6 @@ git clone /source /tmp/source
 [ ! -d /source/node_modules ] || cp -r /source/node_modules /tmp/source/
 cd /tmp/source
 
-# cross-build flags
-ARCH=$(cat /arch)
-case $ARCH in
-    amd64) ;;
-    i386)
-        export CFLAGS=-m32
-        export LDFLAGS=-m32
-        ;;
-    *)
-        echo "Unknown architecture '$ARCH'" >&2
-        exit 1
-esac
-
 if [ -d bots ]; then
     # Set GITHUB_BASE so that "import task" works without failure.
     # https://github.com/cockpit-project/cockpit/issues/10578
@@ -66,7 +53,7 @@ fi
 # not yet been able to figure out what is putting it non-blocknig.
 python3 -c "import fcntl, os; map(lambda fd: fcntl.fcntl(fd, fcntl.F_SETFL, fcntl.fcntl(fd, fcntl.F_GETFL) &~ os.O_NONBLOCK), [0, 1, 2])"
 
-if [ "$ARCH" = amd64 ]; then
+if dpkg-architecture --is amd64; then
     # run distcheck on main arch
     make distcheck 2>&1
 else

@@ -109,9 +109,11 @@ Recommends: (cockpit-docker if /usr/bin/docker)
 Recommends: (cockpit-networkmanager if NetworkManager)
 Recommends: (cockpit-storaged if udisks2)
 Recommends: cockpit-packagekit
-Recommends: subscription-manager-cockpit
 Suggests: cockpit-pcp
 Suggests: cockpit-selinux
+%endif
+%if 0%{?rhel} && 0%{?centos} == 0
+Recommends: subscription-manager-cockpit
 %endif
 
 %prep

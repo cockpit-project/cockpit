@@ -143,11 +143,7 @@ def prune_images(force, dryrun, quiet=False, open_pull_requests=True, offline=Fa
             continue
 
         target = os.readlink(path)
-        if not os.path.isabs(target):
-            targets.add(os.path.join(testvm.IMAGES_DIR, target))
-            targets.add(os.path.join(testvm.get_images_data_dir(), target))
-        else:
-            targets.add(target)
+        targets.add(target)
 
     expiry_threshold = now - IMAGE_EXPIRE * 86400
     for filename in os.listdir(testvm.get_images_data_dir()):

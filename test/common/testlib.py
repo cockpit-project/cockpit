@@ -1314,6 +1314,17 @@ class TapRunner(object):
         return failed, b"# RETRY " in output
 
 
+def print_tests(tests):
+    for test in tests:
+        if isinstance(test, unittest.TestSuite):
+            print_tests(test)
+        elif isinstance(test, unittest.loader._FailedTest):
+            name = test.id().replace("unittest.loader._FailedTest.", "")
+            print("Error: '{0}' does not match a test".format(name), file=sys.stderr)
+        else:
+            print(test.id().replace("__main__.", ""))
+
+
 def arg_parser():
     parser = argparse.ArgumentParser(description='Run Cockpit test(s)')
     parser.add_argument('-j', '--jobs', dest="jobs", type=int,
@@ -1331,6 +1342,7 @@ def arg_parser():
     parser.add_argument('--nonet', dest="fetch", action="store_false",
                         help="Don't go online to download images or data")
     parser.add_argument('tests', nargs='*')
+    parser.add_argument("-l", "--list", action="store_true", help="Print the list of tests that would be executed")
 
     parser.set_defaults(verbosity=1, fetch=True)
     return parser
@@ -1388,6 +1400,10 @@ def test_main(options=None, suite=None, attachments=None, **kwargs):
         suite = unittest.TestLoader().loadTestsFromNames(opts.tests, module=__main__)
     elif not suite:
         suite = unittest.TestLoader().loadTestsFromModule(__main__)
+
+    if options.list:
+        print_tests(suite)
+        return 0
 
     runner = TapRunner(verbosity=opts.verbosity, jobs=opts.jobs, thorough=opts.thorough)
     ret = runner.run(suite)

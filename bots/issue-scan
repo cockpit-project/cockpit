@@ -178,7 +178,8 @@ def output_task(command, issue, verbose):
     checkout = "PRIORITY={priority:04d} "
     cmd = "bots/{name} --verbose --issue='{issue}' {context}"
 
-    if "pull_request" in issue:
+    # direct API scan gets the full information (first case), while --issue-data only gets the info["pull_request"] parts; cover both
+    if "pull_request" in issue or "commits" in issue:
         checkout += "bots/make-checkout --verbose pull/{issue}/head && "
 
     if verbose:

@@ -1291,7 +1291,7 @@ class TestMachines(NetworkCase):
         createTest(TestMachines.VmDialog(self, sourceType='url',
                                          location=config.VALID_URL,
                                          storage_size=1,
-                                         os_name=config.NOVELL_NETWARE_4))
+                                         os_name=config.CIRROS))
 
         # test just the DIALOG CREATION and cancel
         print("    *\n    * validation errors and ui info/warn messages expected:\n    * ")
@@ -1305,7 +1305,7 @@ class TestMachines(NetworkCase):
                                                location=config.VALID_URL,
                                                memory_size=256, memory_size_unit='MiB',
                                                storage_size=0, storage_size_unit='MiB',
-                                               os_name=config.NOVELL_NETWARE_4,
+                                               os_name=config.FEDORA_28,
                                                start_vm=False))
 
         # check if older os are filtered
@@ -1323,7 +1323,7 @@ class TestMachines(NetworkCase):
         # location
         checkDialogFormValidationTest(TestMachines.VmDialog(self, sourceType='url',
                                                             location="invalid/url", storage_size=1,
-                                                            os_name=config.NOVELL_NETWARE_4), {"Source": "Source should start with"})
+                                                            os_name=config.FEDORA_28), {"Source": "Source should start with"})
 
         # memory
         checkDialogFormValidationTest(TestMachines.VmDialog(self, storage_size=1, memory_size=0), {"Memory": "Memory must not be 0"})
@@ -1335,7 +1335,7 @@ class TestMachines(NetworkCase):
 
         # start vm
         checkDialogFormValidationTest(TestMachines.VmDialog(self, storage_size=1,
-                                                            os_name=config.NOVELL_NETWARE_6, start_vm=True),
+                                                            os_name=config.FEDORA_28, start_vm=True),
                                       {"Source": "Installation Source should not be empty"})
 
         # disallow empty OS in case of URL installation media and start_vm=False
@@ -1347,27 +1347,28 @@ class TestMachines(NetworkCase):
         # try to CREATE few machines
         createTest(TestMachines.VmDialog(self, sourceType='url',
                                          location=config.VALID_URL,
+                                         memory_size=512, memory_size_unit='MiB',
                                          storage_size=1,
-                                         os_name=config.MICROSOFT_VISTA))
+                                         os_name=config.MICROSOFT_SERVER_2016))
 
         createTest(TestMachines.VmDialog(self, sourceType='url',
                                          location=config.VALID_URL,
                                          memory_size=512, memory_size_unit='MiB',
                                          storage_size=100, storage_size_unit='MiB',
-                                         os_name=config.MICROSOFT_XP_OS,
+                                         os_name=config.MICROSOFT_SERVER_2016,
                                          start_vm=False))
 
         createTest(TestMachines.VmDialog(self, sourceType='url',
                                          location=config.VALID_URL,
                                          memory_size=256, memory_size_unit='MiB',
                                          storage_size=100, storage_size_unit='MiB',
-                                         os_name=config.MACOS_X_TIGER,
+                                         os_name=config.CIRROS,
                                          start_vm=False))
         createTest(TestMachines.VmDialog(self, sourceType='file',
                                          location=config.NOVELL_MOCKUP_ISO_PATH,
                                          memory_size=256, memory_size_unit='MiB',
                                          storage_size=0, storage_size_unit='MiB',
-                                         os_name=config.MACOS_X_TIGER,
+                                         os_name=config.CIRROS,
                                          start_vm=False,
                                          connection='session'))
 
@@ -1375,9 +1376,9 @@ class TestMachines(NetworkCase):
         # The dialog should auto-adjust it to match the pool's available space
         createTest(TestMachines.VmDialog(self, sourceType='file',
                                          location=config.NOVELL_MOCKUP_ISO_PATH,
-                                         memory_size=100, memory_size_unit='MiB',
+                                         memory_size=256, memory_size_unit='MiB',
                                          storage_size=100000, storage_size_unit='GiB',
-                                         os_name=config.MACOS_X_TIGER,
+                                         os_name=config.CIRROS,
                                          start_vm=False))
 
         # Try setting the memory to value bigger than it's available on the OS
@@ -1386,14 +1387,14 @@ class TestMachines(NetworkCase):
                                          location=config.NOVELL_MOCKUP_ISO_PATH,
                                          memory_size=100000, memory_size_unit='MiB',
                                          storage_size=0, storage_size_unit='MiB',
-                                         os_name=config.MACOS_X_TIGER,
+                                         os_name=config.OPENBSD_6_3,
                                          start_vm=False))
 
         # Start of tests for import existing disk as installation option
         createTest(TestMachines.VmDialog(self, sourceType='disk_image',
                                          location=config.VALID_DISK_IMAGE_PATH,
                                          memory_size=256, memory_size_unit='MiB',
-                                         os_name=config.OPENBSD_5_4,
+                                         os_name=config.CIRROS,
                                          start_vm=False))
 
         # Recreate the image the previous test just deleted to reuse it
@@ -1409,7 +1410,7 @@ class TestMachines(NetworkCase):
         createTest(TestMachines.VmDialog(self, sourceType='disk_image',
                                          location=config.VALID_DISK_IMAGE_PATH,
                                          memory_size=256, memory_size_unit='MiB',
-                                         os_name=config.OPENBSD_5_4,
+                                         os_name=config.CIRROS,
                                          start_vm=True))
         # End of tests for import existing disk as installation option
 
@@ -1429,8 +1430,8 @@ class TestMachines(NetworkCase):
         # Check choosing existing volume as destination storage
         createTest(TestMachines.VmDialog(self, sourceType='file',
                                          location=config.NOVELL_MOCKUP_ISO_PATH,
-                                         memory_size=50, memory_size_unit='MiB',
-                                         os_name=config.NOVELL_NETWARE_6,
+                                         memory_size=256, memory_size_unit='MiB',
+                                         os_name=config.CIRROS,
                                          storage_pool="tmpPool",
                                          storage_volume="vmTmpDestination.qcow2",
                                          start_vm=True,))
@@ -1438,8 +1439,8 @@ class TestMachines(NetworkCase):
         # Check "No Storage" option (only define VM)
         createTest(TestMachines.VmDialog(self, sourceType='file',
                                          location=config.NOVELL_MOCKUP_ISO_PATH,
-                                         memory_size=50, memory_size_unit='MiB',
-                                         os_name=config.NOVELL_NETWARE_6,
+                                         memory_size=256, memory_size_unit='MiB',
+                                         os_name=config.CIRROS,
                                          storage_pool="No Storage",
                                          start_vm=True,))
 
@@ -1460,7 +1461,7 @@ class TestMachines(NetworkCase):
         # Check choosing existing volume as destination storage
         createThenInstallTest(TestMachines.VmDialog(self, sourceType='file',
                                                     location=config.NOVELL_MOCKUP_ISO_PATH,
-                                                    memory_size=50, memory_size_unit='MiB',
+                                                    memory_size=256, memory_size_unit='MiB',
                                                     storage_pool="poolDisk",
                                                     storage_volume="sda1"))
 
@@ -1484,7 +1485,7 @@ class TestMachines(NetworkCase):
             # Check choosing existing volume as destination storage
             createThenInstallTest(TestMachines.VmDialog(self, sourceType='file',
                                                         location=config.NOVELL_MOCKUP_ISO_PATH,
-                                                        memory_size=50, memory_size_unit='MiB',
+                                                        memory_size=256, memory_size_unit='MiB',
                                                         storage_pool="poolIscsi",
                                                         storage_volume="unit:0:0:0"))
 
@@ -1582,9 +1583,9 @@ class TestMachines(NetworkCase):
             # to have serial console at bios and also redirect serial console to a file
             createTest(TestMachines.VmDialog(self, name='pxe-guest', sourceType='pxe',
                                              location="Virtual Network pxe-nat: NAT",
-                                             memory_size=50, memory_size_unit='MiB',
+                                             memory_size=256, memory_size_unit='MiB',
                                              storage_size=0, storage_size_unit='MiB',
-                                             os_name=config.NOVELL_NETWARE_6,
+                                             os_name=config.CIRROS,
                                              start_vm=True, delete=False))
 
             # We don't want to use start_vm == False because if we get a seperate install phase
@@ -1637,9 +1638,9 @@ class TestMachines(NetworkCase):
             # Check that host network devices are appearing in the options for PXE boot sources
             createTest(TestMachines.VmDialog(self, sourceType='pxe',
                                              location="Host Device {0}: macvtap".format(iface),
-                                             memory_size=50, memory_size_unit='MiB',
+                                             memory_size=256, memory_size_unit='MiB',
                                              storage_size=0, storage_size_unit='MiB',
-                                             os_name=config.NOVELL_NETWARE_6,
+                                             os_name=config.CIRROS,
                                              start_vm=False))
 
             # When switching from PXE mode to anything else make sure that the source input is empty
@@ -1647,7 +1648,7 @@ class TestMachines(NetworkCase):
                                                                 sourceType='pxe',
                                                                 location="Host Device {0}: macvtap".format(iface),
                                                                 sourceTypeSecondChoice='url',
-                                                                os_name=config.NOVELL_NETWARE_6, start_vm=False),
+                                                                os_name=config.CIRROS, start_vm=False),
                                           {"Source": "Installation Source should not be empty"})
 
         # When switching between no pxe installation modes with the source already set
@@ -1656,7 +1657,7 @@ class TestMachines(NetworkCase):
                                          sourceTypeSecondChoice='disk_image',
                                          location=config.NOVELL_MOCKUP_ISO_PATH,
                                          memory_size=256, memory_size_unit='MiB',
-                                         os_name=config.OPENBSD_5_4,
+                                         os_name=config.OPENBSD_6_3,
                                          start_vm=False))
 
         # Test that removing virt-install executable will disable Create VM button
@@ -1695,24 +1696,16 @@ class TestMachines(NetworkCase):
         NOT_EXISTENT_PATH = '/tmp/not-existent.iso'
         ISO_URL = 'https://localhost:8000/novell.iso'
 
-        NOVELL_NETWARE_4 = 'Novell Netware 4'
-        NOVELL_NETWARE_5 = 'Novell Netware 5'
-        NOVELL_NETWARE_6 = 'Novell Netware 6'
+        OPENBSD_6_3 = 'OpenBSD 6.3'
 
-        OPENBSD_5_4 = 'OpenBSD 5.4'
-
-        MICROSOFT_MILLENNIUM_OS = 'Microsoft Windows Millennium Edition'
-        MICROSOFT_XP_OS = 'Microsoft Windows XP'
-        MICROSOFT_VISTA = 'Microsoft Windows Vista'
-        MICROSOFT_10_OS = 'Microsoft Windows 10'
-
-        MACOS_X_TIGER = 'MacOS X Tiger'
-        MACOS_X_LEOPARD = 'MacOS X Leopard'
+        MICROSOFT_SERVER_2016 = 'Microsoft Windows Server 2016'
 
         # LINUX can be filtered if 3 years old
         REDHAT_RHEL_4_7_FILTERED_OS = 'Red Hat Enterprise Linux 4.9'
 
         FEDORA_28 = 'Fedora 28'
+
+        CIRROS = 'CirrOS'
 
         MANDRIVA_2011_FILTERED_OS = 'Mandriva Linux 2011'
 

@@ -58,9 +58,12 @@ export function getOSStringRepresentation(os) {
 }
 
 export function filterReleaseEolDates(os) {
-    return !(!os.releaseDate && !os.eolDate) && // presume rolling release
-        compareDates(ACCEPT_RELEASE_DATES_AFTER, os.releaseDate) < 0 && // if release/eol dates less than accepted dates
-        compareDates(ACCEPT_EOL_DATES_AFTER, os.eolDate) < 0; // empty date is also less than accepted date
+    // Filter out all OSes their EOL date exists and is olrder than allowed
+    // or their EOL date does not exist but their release date is too old
+    return !(
+        (os.eolDate && compareDates(ACCEPT_EOL_DATES_AFTER, os.eolDate) < 0) ||
+        (!os.eolDate && os.releaseDate && compareDates(ACCEPT_RELEASE_DATES_AFTER, os.releaseDate) < 0)
+    );
 }
 
 export function compareDates(a, b, emptyFirst = false) {

@@ -5,6 +5,7 @@
 .nav-sidebar .dashboard-link:not(.active) a:focus,
 .nav-sidebar .dashboard-link:not(.active) a:hover {
     background: var(--color-ct-nav-main-hover);
+    background-image: linear-gradient(to left, var(--color-ct-nav-main-border) 1px, var(--color-ct-nav-main-hover) 1px);
     color: var(--color-ct-nav-hover-text);
     border-color: var(--color-ct-nav-main-border);
 }
@@ -30,10 +31,20 @@
 
     .list-group {
         border: none;
-        margin: 1rem 0;
+        margin: 0.5rem 0;
+        position: relative;
 
         + .list-group {
-            margin-top: 1.5rem;
+            padding-top: calc(0.5rem + 1px);
+
+            &::before {
+                border-top: 1px solid var(--pf-global--BorderColor--100);
+                content: '';
+                position: absolute;
+                top: 0;
+                right: 1.5rem;
+                left: 1.5rem;
+            }
         }
     }
 
@@ -44,11 +55,10 @@
         z-index: 1;
 
         a {
-            padding: 10px 15px;
+            padding: 0.5rem 1.5rem;
             display: block;
             color: var(--color-ct-nav-text);
             text-decoration: none;
-            border-left: 3px solid transparent;
         }
 
         &:focus,
@@ -63,7 +73,6 @@
             background: var(--color-ct-nav-hover);
 
             a {
-                border-color: var(--pf-global--hover-color--100);
                 color: var(--color-ct-nav-hover-text);
             }
         }
@@ -72,8 +81,8 @@
             background: var(--color-ct-nav-active);
 
             a {
-                border-color: var(--pf-global--active-color--100);
                 color: var(--color-ct-nav-active-text);
+                font-weight: 500;
             }
         }
     }
@@ -242,6 +251,7 @@
         transition: all 150ms ease-out;
         box-shadow: 0 0;
         background: var(--color-ct-nav-main);
+        background-image: linear-gradient(to left, var(--color-ct-nav-main-border) 1px, var(--color-ct-nav-main) 1px);
 
         span.first-letter {
             font-size: 0px !important;
@@ -739,6 +749,7 @@
     > a {
         color: var(--color-ct-nav-main-text);
         background: var(--color-ct-nav-main);
+        background-image: linear-gradient(to left, var(--color-ct-nav-main-border) 1px, var(--color-ct-nav-main) 1px);
 
         > span {
             font-weight: 400;

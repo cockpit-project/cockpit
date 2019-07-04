@@ -111,8 +111,8 @@ def main():
         while p.poll() is None:
             q.connection.process_data_events()
             time.sleep(3)
-        if p.returncode in [0, 2]:
-            channel.basic_ack(delivery_tag)
+
+        channel.basic_ack(delivery_tag)
 
     return 0
 

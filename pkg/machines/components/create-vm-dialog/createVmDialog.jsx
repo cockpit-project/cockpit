@@ -154,6 +154,18 @@ function validateParams(vmParams) {
 
     if (vmParams.memorySize === 0) {
         validationFailed['memory'] = _("Memory must not be 0");
+    } else {
+        const osObj = vmParams.osInfoList.find(osElem => osElem.shortId == vmParams.os);
+        if (osObj &&
+            osObj['minimumResources']['ram'] &&
+            (convertToUnit(vmParams.memorySize, vmParams.memorySizeUnit, units.B) < osObj['minimumResources']['ram'])) {
+            validationFailed['memory'] = (
+                cockpit.format(
+                    _("The selected Operating System has minimum memory requirement of $0 $1"),
+                    convertToUnit(osObj['minimumResources']['ram'], units.B, vmParams.memorySizeUnit),
+                    vmParams.memorySizeUnit)
+            );
+        }
     }
 
     return validationFailed;
@@ -340,8 +352,14 @@ const OSRow = ({ vendor, osInfoList, os, vendors, onValueChanged, validationFail
     );
 };
 
-const MemoryRow = ({ memorySize, memorySizeUnit, nodeMaxMemory, onValueChanged, validationFailed }) => {
+const MemoryRow = ({ memorySize, memorySizeUnit, nodeMaxMemory, recommendedMemory, onValueChanged, validationFailed }) => {
     const validationStateMemory = validationFailed.memory ? 'error' : undefined;
+    let recommendedMemoryHelpBlock = null;
+    if (recommendedMemory && recommendedMemory > memorySize) {
+        recommendedMemoryHelpBlock = <p>{cockpit.format(
+            "The selected Operating System has recommended memory $0 $1",
+            recommendedMemory, memorySizeUnit)}</p>;
+    }
 
     return (
         <React.Fragment>
@@ -355,18 +373,15 @@ const MemoryRow = ({ memorySize, memorySizeUnit, nodeMaxMemory, onValueChanged, 
                     initialUnit={memorySizeUnit}
                     onValueChange={e => onValueChanged('memorySize', e.target.value)}
                     onUnitChange={value => onValueChanged('memorySizeUnit', value)} />
-                {validationStateMemory === "error" &&
-                <HelpBlock>
-                    <p className="text-danger">{validationFailed.memory}</p>
-                </HelpBlock> }
-                {nodeMaxMemory &&
                 <HelpBlock id="memory-size-helpblock">
-                    {cockpit.format(
+                    {validationStateMemory === "error" && <p>{validationFailed.memory}</p>}
+                    {recommendedMemoryHelpBlock}
+                    {nodeMaxMemory && <p> {cockpit.format(
                         _("Up to $0 $1 available on the host"),
                         Math.floor(convertToUnit(nodeMaxMemory, units.KiB, memorySizeUnit)),
                         memorySizeUnit,
-                    )}
-                </HelpBlock>}
+                    )}</p>}
+                </HelpBlock>
             </FormGroup>
         </React.Fragment>
     );
@@ -604,7 +619,7 @@ class CreateVmModal extends React.Component {
     onCreateClicked() {
         const { dispatch } = this.props;
 
-        if (Object.getOwnPropertyNames(validateParams(this.state)).length > 0) {
+        if (Object.getOwnPropertyNames(validateParams({ ...this.state, osInfoList: this.props.osInfoList })).length > 0) {
             this.setState({ inProgress: false, validate: true });
         } else {
             // leave dialog open to show immediate errors from the backend
@@ -641,7 +656,12 @@ class CreateVmModal extends React.Component {
 
     render() {
         const { nodeMaxMemory, nodeDevices, networks, osInfoList, loggedUser, providerName, storagePools, vms } = this.props;
-        const validationFailed = this.state.validate && validateParams(this.state);
+        const validationFailed = this.state.validate && validateParams({ ...this.state, osInfoList });
+        const osObj = osInfoList.find(osElem => osElem.shortId == this.state.os);
+        let recommendedMemory;
+        if (osObj && osObj['recommendedResources']['ram'])
+            recommendedMemory = convertToUnit(osObj['recommendedResources']['ram'], units.B, this.state.memorySizeUnit);
+
         const dialogBody = (
             <form className="ct-form">
                 <label className="control-label" htmlFor="connection">
@@ -693,6 +713,7 @@ class CreateVmModal extends React.Component {
                     nodeMaxMemory={nodeMaxMemory}
                     onValueChanged={this.onValueChanged}
                     validationFailed={validationFailed}
+                    recommendedMemory={recommendedMemory}
                 />
 
                 <hr />

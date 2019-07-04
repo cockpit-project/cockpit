@@ -1328,6 +1328,12 @@ class TestMachines(NetworkCase):
         # memory
         checkDialogFormValidationTest(TestMachines.VmDialog(self, storage_size=1, memory_size=0), {"Memory": "Memory must not be 0"})
 
+        # memory
+        checkDialogFormValidationTest(TestMachines.VmDialog(self, storage_size=1,
+                                                            os_vendor=config.FEDORA_VENDOR,
+                                                            os_name=config.FEDORA_28,
+                                                            memory_size=256, memory_size_unit='MiB'), {"Memory": "minimum memory requirement of 1024 MiB"})
+
         # start vm
         checkDialogFormValidationTest(TestMachines.VmDialog(self, storage_size=1,
                                                             os_vendor=config.NOVELL_VENDOR,
@@ -1345,12 +1351,13 @@ class TestMachines(NetworkCase):
         createTest(TestMachines.VmDialog(self, sourceType='url',
                                          location=config.VALID_URL,
                                          storage_size=1,
+                                         memory_size=512, memory_size_unit='MiB',
                                          os_vendor=config.MICROSOFT_VENDOR,
                                          os_name=config.MICROSOFT_VISTA))
 
         createTest(TestMachines.VmDialog(self, sourceType='url',
                                          location=config.VALID_URL,
-                                         memory_size=256, memory_size_unit='MiB',
+                                         memory_size=512, memory_size_unit='MiB',
                                          storage_size=100, storage_size_unit='MiB',
                                          os_vendor=config.MICROSOFT_VENDOR,
                                          os_name=config.MICROSOFT_XP_OS,
@@ -1737,6 +1744,9 @@ class TestMachines(NetworkCase):
         REDHAT_VENDOR = 'Red Hat, Inc'
         REDHAT_RHEL_4_7_FILTERED_OS = 'Red Hat Enterprise Linux 4.9'
 
+        FEDORA_VENDOR = 'Fedora Project'
+        FEDORA_28 = 'Fedora 28'
+
         MANDRIVA_FILTERED_VENDOR = 'Mandriva'
         MANDRIVA_2011_FILTERED_OS = 'Mandriva Linux 2011'
 
@@ -1947,7 +1957,7 @@ class TestMachines(NetworkCase):
             b.click(".modal-footer button:contains(Create)")
 
             for error, error_msg in errors.items():
-                error_location = ".modal-body label:contains('{0}') + div.form-group.has-error span p".format(error)
+                error_location = ".modal-body label:contains('{0}') + div.form-group.has-error span.help-block".format(error)
                 b.wait_visible(error_location)
                 if (error_msg):
                     b.wait_in_text(error_location, error_msg)

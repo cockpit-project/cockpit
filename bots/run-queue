@@ -44,13 +44,15 @@ def consume_webhook_queue(channel, amqp):
     event = body['event']
     request = body['request']
     repo = None
+    cmd = None
     if event == 'pull_request':
         pull_request = request['pull_request']
-        # scan for possible checkboxes and the bots label
-        if request['action'] in ['edited', 'labeled']:
+        action = request['action']
+        # scan for body changes (edited) and the bots label
+        if action == 'labeled' or (action == 'edited' and 'body' in request.get('changes', {})):
             pull_request = request['pull_request']
             cmd = ['bots/issue-scan', '--issue-data', json.dumps(pull_request), '--amqp', amqp]
-        else:
+        if request['action'] in ['opened', 'synchronize']:
             repo = pull_request['base']['repo']['full_name']
             cmd = ['bots/tests-scan', '--pull-data', json.dumps(pull_request), '--amqp', amqp]
     elif event == 'status':
@@ -59,8 +61,11 @@ def consume_webhook_queue(channel, amqp):
         context = pipes.quote(request['context'])
         cmd = ['bots/tests-scan', '--sha', sha, '--amqp', amqp, '--context', context]
     elif event == 'issues':
-        issue = request['issue']
-        cmd = ['bots/issue-scan', '--issue-data', json.dumps(issue), '--amqp', amqp]
+        action = request['action']
+        # scan for opened, body changes (edited), and the bots label
+        if action in ['opened',' labeled'] or (action == 'edited' and 'body' in request.get('changes', {})):
+            issue = request['issue']
+            cmd = ['bots/issue-scan', '--issue-data', json.dumps(issue), '--amqp', amqp]
     else:
         logging.error('Unkown event type in the webhook queue')
         return None, None
@@ -99,7 +104,13 @@ def main():
 
     with distributed_queue.DistributedQueue(opts.amqp, ['webhook', 'rhel', 'public']) as q:
         channel = q.channel
+
         cmd, delivery_tag = consume_webhook_queue(channel, opts.amqp)
+        if not cmd and delivery_tag:
+            logging.info("Webhook message interpretation resulted in nop")
+            channel.basic_ack(delivery_tag)
+            return 0
+
         if not cmd:
             cmd, delivery_tag = consume_task_queue(channel, opts.amqp, q.declare_results['public'], q.declare_results['rhel'])
         if not cmd:

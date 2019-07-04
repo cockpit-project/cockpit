@@ -272,6 +272,7 @@ div.listing-ct-head {
     overflow: hidden;
     display: flex;
     flex-flow: row-reverse wrap;
+    align-items: center;
 }
 
 div.listing-ct-head:last-child {
@@ -433,36 +434,46 @@ tbody.active .listing-ct-head {
     margin-left: 0px;
 }
 
-table.listing-ct tbody {
-    position: relative;
-    transition: all 100ms ease-out;
+table.listing-ct > tbody {
+    > tr > td:first-child {
+        position: relative;
+        transition: all 100ms ease-out;
 
-    &::before,
-    &::after {
-        content: "";
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        opacity: 0;
-        pointer-events: none;
-        transition: all 300ms;
+        &::before,
+        &::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 300ms;
+        }
+
+        &::before {
+            /*
+            border: 1px solid var(--color-border);
+            */
+        }
+
+        &::after {
+            right: auto;
+            width: 0;
+            background-color: var(--pf-global--active-color--100);
+        }
     }
 
-    &::before {
-        border: 1px solid var(--color-border);
+    /* Nudge blue line above row border */
+    > tr:not(:first-child) > td:first-child {
+        &::after {
+            top: -1px;
+        }
     }
 
-    &::after {
-        right: auto;
-        width: 0;
-        background-color: var(--pf-global--active-color--100);
-    }
-
-    &.open {
+    &.open > tr > td:first-child {
         transition: all 100ms ease-in;
-        box-shadow: 0 0.3125rem 0.625rem -0.25rem rgba(3,3,3, 0.25);
 
         &::before,
         &::after {
@@ -472,6 +483,11 @@ table.listing-ct tbody {
         &::after {
             width: 3px;
         }
+    }
+
+    &.open {
+        transition: all 100ms ease-in;
+        box-shadow: 0 0.3125rem 0.625rem -0.25rem rgba(3,3,3, 0.25);
     }
 }
 

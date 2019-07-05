@@ -2101,16 +2101,29 @@ class TestMachines(NetworkCase):
 
             # Test disk got imported/created
             if dialog.sourceType == 'disk_image' or dialog.sourceTypeSecondChoice == 'disk_image':
-                b.wait_present("#vm-{0}-disks-vda-device".format(name))
-                b.wait_in_text("#vm-{0}-disks-vda-source-file".format(name), dialog.location)
+                if b.is_present("#vm-{0}-disks-vda-device".format(name)):
+                    b.wait_in_text("#vm-{0}-disks-vda-source-file".format(name), dialog.location)
+                elif b.is_present("#vm-{0}-disks-hda-device".format(name)):
+                    b.wait_in_text("#vm-{0}-disks-hda-source-file".format(name), dialog.location)
+                else:
+                    raise AssertionError("Unknown disk device")
             # New volume was created or existing volume was already chosen as destination
             elif (dialog.storage_size is not None and dialog.storage_size > 0) or dialog.storage_pool not in ["No Storage", "Create New Volume"]:
                 if b.is_present("#vm-{0}-disks-vda-device".format(name)):
                     b.wait_in_text("#vm-{0}-disks-vda-device".format(name), "disk")
-                else:
+                elif b.is_present("#vm-{0}-disks-hda-device".format(name)):
                     b.wait_in_text("#vm-{0}-disks-hda-device".format(name), "disk")
+                elif b.is_present("#vm-{0}-disks-sda-device".format(name)):
+                    b.wait_in_text("#vm-{0}-disks-sda-device".format(name), "disk")
+                else:
+                    raise AssertionError("Unknown disk device")
             elif dialog.start_vm and (((dialog.storage_pool == 'No Storage' or dialog.storage_size == 0) and dialog.sourceType == 'file') or dialog.sourceType == 'url'):
-                b.wait_in_text("#vm-{0}-disks-hda-device".format(name), "cdrom")
+                if b.is_present("#vm-{0}-disks-sda-device".format(name)):
+                    b.wait_in_text("#vm-{0}-disks-sda-device".format(name), "cdrom")
+                elif b.is_present("#vm-{0}-disks-hda-device".format(name)):
+                    b.wait_in_text("#vm-{0}-disks-hda-device".format(name), "cdrom")
+                else:
+                    raise AssertionError("Unknown disk device")
             else:
                 b.wait_in_text("tbody tr td div.listing-ct-body", "No disks defined")
             return self

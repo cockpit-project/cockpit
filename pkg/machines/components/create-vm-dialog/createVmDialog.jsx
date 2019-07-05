@@ -320,6 +320,7 @@ class OSRow extends React.Component {
     render() {
         const { os, onValueChanged, isLoading, validationFailed } = this.props;
         const validationStateOS = validationFailed.os ? 'error' : undefined;
+        const filterByFields = ['shortId', 'displayName'];
 
         return (
             <React.Fragment>
@@ -330,6 +331,7 @@ class OSRow extends React.Component {
                     <TypeAheadSelect
                         key={this.state.typeAheadKey}
                         id='os-select'
+                        labelKey='displayName'
                         selected={os != undefined ? [getOSStringRepresentation(os)] : []}
                         isLoading={isLoading}
                         placeholder={_("Choose an operating system")}
@@ -346,7 +348,8 @@ class OSRow extends React.Component {
                                 this.setState({ typeAheadKey: Math.random() });
                             }
                         }}
-                        options={this.state.osEntries.map(os => getOSStringRepresentation(os))} />
+                        filterBy={filterByFields}
+                        options={this.state.osEntries.map(os => ({ 'displayName': getOSStringRepresentation(os), 'shortId': os.shortId }))} />
                     { validationFailed.os && os == undefined &&
                     <HelpBlock>
                         <p className="text-danger">{validationFailed.os}</p>

@@ -63,7 +63,7 @@ def consume_webhook_queue(channel, amqp):
     elif event == 'issues':
         action = request['action']
         # scan for opened, body changes (edited), and the bots label
-        if action in ['opened',' labeled'] or (action == 'edited' and 'body' in request.get('changes', {})):
+        if action in ['opened', 'labeled'] or (action == 'edited' and 'body' in request.get('changes', {})):
             issue = request['issue']
             cmd = ['bots/issue-scan', '--issue-data', json.dumps(issue), '--amqp', amqp]
     else:

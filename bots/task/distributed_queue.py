@@ -19,13 +19,21 @@
 # our GitHub interacition.
 
 import ssl
+import logging
 
-import pika
+no_amqp = False
+try:
+    import pika
+except ImportError:
+    no_amqp = True
+
+logging.getLogger("pika").propagate = False
 
 __all__ = (
     'DistributedQueue',
     'BASELINE_PRIORITY',
     'MAX_PRIORITY',
+    'no_amqp',
 )
 
 BASELINE_PRIORITY = 5
@@ -57,6 +65,9 @@ class DistributedQueue(object):
         when passive=True is passed to queue_declare() and the queue does not
         exist, the declare result will be None
         """
+        if no_amqp:
+            raise ImportError('pika is not available')
+
         try:
             host, port = amqp_server.split(':')
         except ValueError:

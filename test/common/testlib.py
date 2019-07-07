@@ -927,10 +927,6 @@ class MachineCase(unittest.TestCase):
             # Fedora 30 switched to dbus-broker
             self.allowed_messages.append("dbus-daemon didn't send us a dbus address; not installed?.*")
 
-        # these images don't have tuned; keep in sync with bots/images/scripts/debian.setup
-        if self.image in ["debian-stable"]:
-            self.allowed_messages.append('com.redhat.tuned: .*org.freedesktop.DBus.Error.ServiceUnknown.*')
-
         all_found = True
         first = None
         for m in messages:

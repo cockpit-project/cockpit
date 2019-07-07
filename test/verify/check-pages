@@ -436,7 +436,7 @@ OnCalendar=daily
         b.key_press(" ")
         b.wait_text(".file-autocomplete-ct .dropdown-menu", "dir1/file1.txtother")
 
-    @skipImage("No PCP available", "fedora-atomic", "debian-stable")
+    @skipImage("No PCP available", "fedora-atomic")
     def testPlots(self):
         b = self.browser
         m = self.machine

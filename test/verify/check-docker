@@ -26,7 +26,7 @@ from testlib import *
 
 
 @skipPackage("cockpit-docker")
-@skipImage("No docker packaged", "debian-stable", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1")
+@skipImage("No docker packaged", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1")
 class TestDocker(MachineCase):
 
     def setUp(self):

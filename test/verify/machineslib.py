@@ -517,12 +517,9 @@ class TestMachines(NetworkCase):
         url_location = "/system/services#/{0}".format(libvirtServiceName)
         b.wait(lambda: url_location in b.eval_js("window.location.href"))
 
-        # Make sure that unpriviledged users can see the VM list when libvirtd is not running
+        # Make sure that unprivileged users can see the VM list when libvirtd is not running
         m.execute("systemctl stop libvirtd.service")
-        if m.image == "debian-stable":
-            m.execute("useradd --shell /bin/bash nonadmin; echo nonadmin:foobar | chpasswd")
-        else:
-            m.execute("useradd nonadmin; echo nonadmin:foobar | chpasswd")
+        m.execute("useradd nonadmin; echo nonadmin:foobar | chpasswd")
         self.login_and_go("/machines", user="nonadmin", authorized=False)
         b.wait_in_text("body", "Virtual Machines")
         b.wait_in_text("#virtual-machines-listing thead tr td", "No VM is running")
@@ -1943,7 +1940,6 @@ class TestMachines(NetworkCase):
 
         def createAndExpectError(self, errors):
             b = self.browser
-            m = self.machine
 
             def waitForError(errors, error_location):
                 for retry in range(0, 60):
@@ -1952,11 +1948,8 @@ class TestMachines(NetworkCase):
                         break
                     time.sleep(5)
                 else:
-                    if m.image == "debian-stable" and "internal error: process exited while connecting to monitor" in error_message:
-                        return unittest.skip("QEMU binary crashed in TCG code and error message from QEMU was not printed")
-                    else:
-                        raise Error("Retry limit exceeded: None of [%s] is part of the error message '%s'" % (
-                            ', '.join(errors), b.text(error_location)))
+                    raise Error("Retry limit exceeded: None of [%s] is part of the error message '%s'" % (
+                        ', '.join(errors), b.text(error_location)))
 
             def allowBugErrors(location, original_exception):
                 # CPU must be supported to detect errors

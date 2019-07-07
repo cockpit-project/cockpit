@@ -21,7 +21,7 @@ set -x
 # Remove PCP build dependencies, binary package, and Suggests: while pcp is not in stable
 # (https://tracker.debian.org/pcp)
 case "$release" in
-    stable|stretch)
+    stretch)
         sed -i '/libpcp.*-dev/d; /^Package: cockpit-pcp/,/^$/ d; /cockpit-pcp/d' $debian_dir/control
         # also remove the files, otherwise --fail-missing breaks the build
         sed -i 's/for m in /&pcp /' $debian_dir/rules

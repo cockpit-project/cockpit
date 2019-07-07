@@ -36,7 +36,7 @@ def can_manage(machine):
 
 
 @skipImage("No cockpit-docker on i386", "fedora-i386")
-@skipImage("No docker packaged", "debian-stable", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1")
+@skipImage("No docker packaged", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1")
 @skipPackage("cockpit-docker")
 class TestDockerStorageDirect(MachineCase):
 
@@ -55,7 +55,7 @@ class TestDockerStorageDirect(MachineCase):
 
 
 @skipImage("No cockpit-docker on i386", "fedora-i386")
-@skipImage("No docker packaged", "debian-stable", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1")
+@skipImage("No docker packaged", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1")
 @skipPackage("cockpit-docker")
 class TestDockerStorage(MachineCase):
     provision = {"machine1": {"address": "10.111.113.1/20"}}

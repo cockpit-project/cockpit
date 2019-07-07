@@ -179,7 +179,7 @@ class TestMetrics(MachineCase):
 
         m.execute("kill %d" % net_pid)
 
-    @skipImage("No PCP available", "fedora-atomic", "debian-stable")
+    @skipImage("No PCP available", "fedora-atomic")
     def testPcp(self):
         m = self.machine
 

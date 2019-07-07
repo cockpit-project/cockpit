@@ -42,10 +42,6 @@ class TestFirewall(NetworkCase):
         b = self.browser
         m = self.machine
 
-        # default zone has no interface in permanent configuration
-        # https://github.com/cockpit-project/cockpit/issues/11748
-        if m.image in ["debian-stable"]:
-            m.execute("firewall-cmd --permanent --zone=public --add-interface=eth1")
         m.execute("systemctl stop firewalld")
 
         self.login_and_go("/network")
@@ -82,11 +78,6 @@ class TestFirewall(NetworkCase):
     def testFirewallPage(self):
         b = self.browser
         m = self.machine
-
-        # default zone has no interface in permanent configuration
-        # https://github.com/cockpit-project/cockpit/issues/11748
-        if m.image in ["debian-stable"]:
-            m.execute("firewall-cmd --permanent --zone=public --add-interface=eth1")
 
         m.execute("systemctl stop firewalld")
         self.login_and_go("/network/firewall")
@@ -251,11 +242,6 @@ class TestFirewall(NetworkCase):
     def testAddCustomServices(self):
         b = self.browser
         m = self.machine
-
-        # default zone has no interface in permanent configuration
-        # https://github.com/cockpit-project/cockpit/issues/11748
-        if m.image in ["debian-stable"]:
-            m.execute("firewall-cmd --permanent --zone=public --add-interface=eth1")
 
         self.login_and_go("/network/firewall")
         b.wait_in_text("#zones-listing", "Public")

@@ -23,7 +23,6 @@ from storagelib import *
 from testlib import *
 
 
-@skipImage("UDisks doesn't have support for LVM", "debian-stable")
 class TestStorage(StorageCase):
 
     def testHiddenLuks(self):

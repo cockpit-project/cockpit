@@ -202,8 +202,7 @@ class TestAccounts(MachineCase):
         new_password = "tqymuVh.Zf5"
         new_password_2 = "cEwghLYX"
 
-        # defaults to empty shell on debian-stable (Debian 9 only), so specify it explicitly
-        m.execute("useradd --shell /bin/bash anton; echo anton:foobar | chpasswd")
+        m.execute("useradd anton; echo anton:foobar | chpasswd")
         self.login_and_go("/users", user="anton", authorized=False)
         b.go("#/anton")
         b.wait_text("#account-user-name", "anton")
@@ -248,8 +247,7 @@ class TestAccounts(MachineCase):
         b = self.browser
         new_password = "tqymuVh.Zf5"
 
-        # defaults to empty shell on debian-stable (Debian 9 only), so specify it explicitly
-        m.execute("useradd --shell /bin/bash anton; echo anton:foobar | chpasswd")
+        m.execute("useradd anton; echo anton:foobar | chpasswd")
         self.login_and_go("/users", user="root", authorized=False)
 
         # test this on root and a normal user account

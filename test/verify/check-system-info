@@ -63,7 +63,7 @@ class TestSystemInfo(MachineCase):
         # Debian will not allow timesyncd to start if any other NTP packge is installed
         # We only support timesyncd for NTP configuration, so make sure chrony
         # is not installed in the debian test images
-        if self.machine.image == "debian-testing":
+        if self.machine.image in ["debian-stable", "debian-testing"]:
             self.machine.execute("dpkg --remove chrony");
 
     @enableAxe
@@ -543,7 +543,6 @@ fi
 class TestPcp(packagelib.PackageCase):
 
     @skipImage("cockpit-system doesn't have the install-on-demand feature")
-    @skipImage("doesn't have pcp", "debian-stable")
     def testEnablePcpLink(self):
         m = self.machine
         b = self.browser

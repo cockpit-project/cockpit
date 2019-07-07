@@ -26,7 +26,6 @@ from storagelib import *
 from testlib import *
 
 
-@skipImage("UDisks doesn't have support for LVM", "debian-stable")
 class TestStorage(StorageCase):
 
     def checkResize(self, fsys, crypto, can_shrink, can_grow, shrink_needs_unmount=None, grow_needs_unmount=None,
@@ -131,7 +130,7 @@ class TestStorage(StorageCase):
 
     def testResizeLuks(self):
         # Older versions of UDisks don't support resizing encrypted block devices
-        if self.machine.image in ["debian-stable", "ubuntu-1804"]:
+        if self.machine.image in ["ubuntu-1804"]:
             self.checkResize("ext4", True,
                              can_shrink=False,
                              can_grow=False)

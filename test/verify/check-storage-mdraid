@@ -159,7 +159,7 @@ class TestStorage(StorageCase):
 
         # HACK - wait a bit before stopping newly created device
         # https://github.com/storaged-project/udisks/issues/643
-        if m.image == "debian-testing":
+        if m.image in ["debian-stable",  "debian-testing"]:
             sleep(10)
 
         # Turn it off and on again

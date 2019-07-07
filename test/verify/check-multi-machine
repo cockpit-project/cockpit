@@ -199,7 +199,7 @@ class TestMultiMachineAdd(MachineCase):
                                     ".*: bridge failed: .*",
                                     ".*: bridge program failed: Child process exited with code .*")
 
-    @skipImage("Newer version (>= 0.8.5) of libssh required", "debian-stable",
+    @skipImage("Newer version (>= 0.8.5) of libssh required",
                "ubuntu-1804", "fedora-atomic", "rhel-8-0", "rhel-8-0-distropkg")
     def testGlobalSSHConfig(self):
         b = self.browser
@@ -836,7 +836,7 @@ class TestMultiMachine(MachineCase):
         b.set_val("#edit-machine-port", "2222")
         b.click('#troubleshoot-dialog .btn-primary')
         # Using libssh's knownhosts api port is taken into account when verifying a host
-        if m1.image not in ['debian-stable', 'ubuntu-1804']:
+        if m1.image not in [ 'ubuntu-1804']:
             b.wait_in_text('#troubleshoot-dialog h4', "Unknown Host Key")
             b.wait_in_text('#troubleshoot-dialog .btn-primary', "Connect")
             b.click('#troubleshoot-dialog .btn-primary')

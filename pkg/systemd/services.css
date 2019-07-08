@@ -9,11 +9,12 @@
 }
 
 .comma-list > li {
-  display: inline;
+  display: inline-block;
 }
 
 .comma-list > li:not(:last-child):after {
   content: ",";
+  margin-right: 0.5em;
 }
 
 table.systemd-unit-relationship-table td:first-child {

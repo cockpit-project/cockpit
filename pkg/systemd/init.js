@@ -6,6 +6,7 @@ import moment from "moment";
 import React from "react";
 import ReactDOM from 'react-dom';
 import { ServiceTabs } from "./services.jsx";
+import { ServiceDetails, ServiceTemplate } from "./service-details.jsx";
 import { journal } from "journal";
 import "patterns";
 import "bootstrap-datepicker/dist/js/bootstrap-datepicker";
@@ -270,6 +271,9 @@ $(function() {
         var units_template = $("#services-units-tmpl").html();
         mustache.parse(units_template);
 
+        var empty_template = $("#service-empty-tmpl").html();
+        mustache.parse(empty_template);
+
         function render_now() {
             $("#loading-fallback").hide();
             var current_text_filter = $('#services-text-filter').val()
@@ -508,265 +512,71 @@ $(function() {
         update_all();
     }
 
-    /* UNIT PAGE
-     *
-     * The unit page mostly uses a regular DBusProxy (cur_unit) that
-     * drives a Mustache template.  The UnitFileState property is not
-     * used via the proxy but is updated separately via GetUnitFile
-     * state so that it is consistent with the value shown on the
-     * overview page.
-     *
-     * Templates are not exposed on D-Bus, but they also have no
-     * interesting properties (unfortunately), so they are handled as
-     * a very simple special case (cur_unit_is_template is true).
-     *
-     */
-
     var cur_unit_id;
     var cur_unit;
-    var cur_unit_file_state;
     var cur_unit_is_template;
     var cur_unit_template;
     var cur_journal_watcher;
 
-    var action_btn_template = $("#action-btn-tmpl").html();
-    mustache.parse(action_btn_template);
-
-    var unit_template = $("#service-unit-tmpl").html();
-    mustache.parse(unit_template);
-
-    var template_template = $("#service-template-tmpl").html();
-    mustache.parse(template_template);
-
-    var empty_template = $("#service-empty-tmpl").html();
-    mustache.parse(empty_template);
-
-    var unit_primary_actions = [ // <method>:<mode>
-        { title: _("Start"), action: 'StartUnit' },
-        { title: _("Stop"), action: 'StopUnit' },
-    ];
-    var unit_secondary_actions = [
-        { title: _("Restart"), action: 'RestartUnit' },
-        { title: _("Reload"), action: 'ReloadUnit' }
-    ];
-
-    var permission = cockpit.permission({ admin: true });
-    $(permission).on('changed', unit_action_update_privilege);
-
-    function unit_action() {
-        var parsed_action = $(this)
-                .attr("data-action")
-                .split(":");
-        var method = parsed_action[0];
-        var mode = parsed_action[1];
-
-        if (cur_unit) {
-            systemd_manager.call(method, [ cur_unit_id, mode || "fail" ])
-                    .fail(function(error) {
-                        $('#service-error-dialog-message').text(error.toString());
-                        $('#service-error-dialog').modal('show');
-                    });
-        }
-    }
-
-    var file_actions = [ // <method>:<force>
-        { title: _("Enable"), action: 'EnableUnitFiles:false' },
-        { title: _("Enable Forcefully"), action: 'EnableUnitFiles:true' },
-        { title: _("Disable"), action: 'DisableUnitFiles' },
-        { title: _("Preset"), action: 'PresetUnitFiles:false' },
-        { title: _("Preset Forcefully"), action: 'PresetUnitFiles:true' },
-        { title: _("Mask"), action: 'MaskUnitFiles:false' },
-        { title: _("Mask Forcefully"), action: 'MaskUnitFiles:true' },
-        { title: _("Unmask"), action: 'UnmaskUnitFiles' }
-    ];
-
-    function unit_file_action() {
-        var parsed_action = $(this)
-                .attr("data-action")
-                .split(":");
-        var method = parsed_action[0];
-        var force = parsed_action[1];
-
-        if (cur_unit) {
-            var args = [ [ cur_unit_id ], false ];
-            if (force !== undefined)
-                args.push(force == "true");
-            systemd_manager.call(method, args)
-                    .done(function(results) {
-                        if (results.length == 2 && !results[0])
-                            $('#service-no-install-info-dialog').modal('show');
-                        systemd_manager.Reload();
-                    })
-                    .fail(function(error) {
-                        $('#service-error-dialog-message').text(error.toString());
-                        $('#service-error-dialog').modal('show');
-                    });
-        }
-    }
-
-    function unit_action_update_privilege() {
-        $('#service-unit-primary-action>button').update_privileged(
-            permission, cockpit.format(
-                _("The user <b>$0</b> is not permitted to start or stop services"),
-                permission.user ? permission.user.name : ''));
-        $('#service-unit-action>button').update_privileged(
-            permission, cockpit.format(
-                _("The user <b>$0</b> is not permitted to start or stop services"),
-                permission.user ? permission.user.name : ''));
-        $('#service-file-action>button').update_privileged(
-            permission, cockpit.format(
-                _("The user <b>$0</b> is not permitted to enable or disable services"),
-                permission.user ? permission.user.name : ''));
-    }
-
+    // Show and manage all unit details
     function show_unit(unit_id) {
-        if (cur_unit) {
-            $(cur_unit).off('changed');
-            cur_unit = null;
-            cur_unit_file_state = null;
+        function unit_instantiate(param) {
+            if (cur_unit_id) {
+                var tp = cur_unit_id.indexOf("@");
+                var sp = cur_unit_id.lastIndexOf(".");
+                if (tp != -1) {
+                    var s = cur_unit_id.substring(0, tp + 1);
+                    s = s + systemd_escape(param);
+                    if (sp != -1)
+                        s = s + cur_unit_id.substring(sp);
+                    cockpit.location.go([ s ]);
+                }
+            }
         }
-        if (cur_journal_watcher) {
-            cur_journal_watcher.stop();
-            cur_journal_watcher = null;
+
+        function is_valid(id) {
+            let unit = units_by_path[path_by_id[id]];
+            return (unit && unit.LoadState !== "not-found");
         }
 
         function render() {
-            if (!cur_unit.valid)
-                return;
-
-            var primary_action;
-            var active_state = cur_unit.ActiveState;
-            if (active_state == 'active' || active_state == 'reloading' ||
-                active_state == 'activating')
-                primary_action = 1; // Stop
-            else
-                primary_action = 0; // Start
-
-            var file_def;
-            var load_state = cur_unit.LoadState;
-            var file_state = cur_unit.UnitFileState;
-            if (load_state == 'masked')
-                file_def = 7; // Unmask
-            else if (file_state == 'static')
-                file_def = 5; // Mask
-            else if (file_state == 'enabled')
-                file_def = 2; // Disable
-            else
-                file_def = 0; // Enable
-
-            var timestamp;
-            if (active_state == 'active' || active_state == 'reloading')
-                timestamp = cur_unit.ActiveEnterTimestamp;
-            else if (active_state == 'inactive' || active_state == 'failed')
-                timestamp = cur_unit.InactiveEnterTimestamp;
-            else if (active_state == 'activating')
-                timestamp = cur_unit.InactiveExitTimestamp;
-            else
-                timestamp = cur_unit.ActiveExitTimestamp;
-
-            var since = "";
-            if (timestamp)
-                since = moment(timestamp / 1000).format('LLL');
-
-            var unit_action_btn = mustache.render(action_btn_template,
-                                                  {
-                                                      id: "service-unit-action",
-                                                      'primary-id': 'service-unit-primary-action',
-                                                      'primary-action': unit_primary_actions[primary_action],
-                                                      def: unit_secondary_actions[0],
-                                                      actions: unit_secondary_actions
-                                                  });
-            var file_action_btn = mustache.render(action_btn_template,
-                                                  {
-                                                      id: "service-file-action",
-                                                      def: file_actions[file_def],
-                                                      actions: file_actions
-                                                  });
-            var template_description = null;
-            if (cur_unit_template) {
-                var link = mustache.render('<a tabindex="0" data-goto-unit="{{unit}}">{{unit}}</a>',
-                                           { unit: cur_unit_template });
-                template_description = cockpit.format(_("This unit is an instance of the $0 template."), link);
-            }
-
-            var conditions = cur_unit.Conditions;
-            var not_met_conditions = [];
-            for (var i = 0; i < conditions.length; i++) {
-                if (conditions[i][4] < 0) {
-                    not_met_conditions.push(cockpit.format(_("Condition $0=$1 was not met"), conditions[i][0], conditions[i][3]));
-                }
-            }
-
-            function runits(ids) {
-                if (ids) {
-                    return ids.map(id => {
-                        let unit = units_by_path[path_by_id[id]];
-                        return { Id: id, disabled: !unit || unit.LoadState == "not-found" };
-                    });
-                }
-            }
-
-            var text = mustache.render(unit_template,
-                                       {
-                                           Unit: cur_unit,
-                                           Since: since,
-                                           HasLoadError: cur_unit.LoadState !== "loaded",
-                                           LoadError: cur_unit.LoadError ? cur_unit.LoadError[1] : null,
-                                           UnitFileState: cur_unit_file_state,
-                                           TemplateDescription: template_description,
-                                           UnitButton: unit_action_btn,
-                                           FileButton: file_action_btn,
-                                           NotMetConditions: not_met_conditions,
-                                           Relationships: [
-                                               { Name: _("Requires"), Units: runits(cur_unit.Requires) },
-                                               { Name: _("Requisite"), Units: runits(cur_unit.Requisite) },
-                                               { Name: _("Wants"), Units: runits(cur_unit.Wants) },
-                                               { Name: _("Binds To"), Units: runits(cur_unit.BindsTo) },
-                                               { Name: _("Part Of"), Units: runits(cur_unit.PartOf) },
-                                               { Name: _("Required By"), Units: runits(cur_unit.RequiredBy) },
-                                               { Name: _("Requisite Of"), Units: runits(cur_unit.RequisiteOf) },
-                                               { Name: _("Wanted By"), Units: runits(cur_unit.WantedBy) },
-                                               { Name: _("Bound By"), Units: runits(cur_unit.BoundBy) },
-                                               { Name: _("Consists Of"), Units: runits(cur_unit.ConsistsOf) },
-                                               { Name: _("Conflicts"), Units: runits(cur_unit.Conflicts) },
-                                               { Name: _("Conflicted By"), Units: runits(cur_unit.ConflictedBy) },
-                                               { Name: _("Before"), Units: runits(cur_unit.Before) },
-                                               { Name: _("After"), Units: runits(cur_unit.After) },
-                                               { Name: _("On Failure"), Units: runits(cur_unit.OnFailure) },
-                                               { Name: _("Triggers"), Units: runits(cur_unit.Triggers) },
-                                               { Name: _("Triggered By"), Units: runits(cur_unit.TriggeredBy) },
-                                               { Name: _("Propagates Reload To"), Units: runits(cur_unit.PropagatesReloadTo) },
-                                               { Name: _("Reload Propagated From"), Units: runits(cur_unit.ReloadPropagatedFrom) },
-                                               { Name: _("Joins Namespace Of"), Units: runits(cur_unit.JoinsNamespaceOf) }
-                                           ]
-                                       });
-            $('#service-unit').html(text);
-            $('#service-unit-action').on('click', "[data-action]", unit_action);
-            $('#service-unit-primary-action').on('click', '[data-action]', unit_action);
-            $('#service-file-action').on('click', "[data-action]", unit_file_action);
-            unit_action_update_privilege();
+            ReactDOM.render(
+                React.createElement(ServiceDetails, {
+                    unit: cur_unit,
+                    originTemplate: cur_unit_template,
+                    permitted: permission.allowed,
+                    systemdManager: systemd_manager,
+                    isValid: is_valid,
+                }),
+                document.getElementById("service-details"));
         }
 
-        function render_template() {
-            var text = mustache.render(template_template,
-                                       {
-                                           Description: cockpit.format(_("$0 Template"), cur_unit_id)
-                                       });
-            $('#service-template').html(text);
-        }
+        /* HACK - Since there is jquery and patternfly on the same page
+         * and both provide key navigation through dropdown, focus was moving two
+         * items on each arrow click (once moved jquery and once moved patternfly)
+         *
+         * Patterfly has event on <a> elements, jquery on <ul> element.
+         * Stopping propagation in-between works the best.
+         *
+         * Remove once jquery is not used anymore.
+         */
+        $(document).on('keydown', "ul.dropdown-menu li", function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        });
 
-        $("#service-valid").hide();
-        $("#service-template").hide();
-        $("#service-invalid").hide();
+        var permission = cockpit.permission({ admin: true });
+
         $("#service").hide();
-
-        cur_unit_id = unit_id;
-
-        if (!cur_unit_id)
+        if (unit_id === null) {
             return;
+        }
 
+        $('#service-log-box').hide();
+        $("#service-invalid").hide();
         $('#service .breadcrumb .active').text(unit_id);
 
+        cur_unit_id = unit_id;
         var tp = cur_unit_id.indexOf("@");
         var sp = cur_unit_id.lastIndexOf(".");
         cur_unit_is_template = (tp != -1 && (tp + 1 == sp || tp + 1 == cur_unit_id.length));
@@ -778,59 +588,58 @@ $(function() {
         }
 
         if (cur_unit_is_template) {
-            render_template();
-            $("#service-template").show();
+            ReactDOM.render(
+                React.createElement(ServiceTemplate, {
+                    template: cur_unit_id,
+                    instantiateCallback: unit_instantiate,
+                }),
+                document.getElementById("service-details"));
             $("#service").show();
-            return;
+        } else {
+            systemd_manager.LoadUnit(unit_id)
+                    .done(function(path) {
+                        if (cur_unit_id == unit_id) {
+                            var unit = systemd_client.proxy('org.freedesktop.systemd1.Unit', path);
+                            cur_unit = unit;
+                            unit.wait(function() {
+                                if (cur_unit == unit) {
+                                    render();
+                                    $("#service").show();
+
+                                    refresh_unit_file_state();
+                                    if (cur_unit.LoadState === "loaded" || cur_unit.LoadState === "masked") {
+                                        // Attach journal
+                                        if (cur_journal_watcher) {
+                                            cur_journal_watcher.stop();
+                                            cur_journal_watcher = null;
+                                        }
+                                        $('#service-log-box').show();
+                                    }
+
+                                    cur_journal_watcher = journal.logbox([ "_SYSTEMD_UNIT=" + cur_unit_id, "+",
+                                        "COREDUMP_UNIT=" + cur_unit_id, "+",
+                                        "UNIT=" + cur_unit_id ], 10);
+                                    $('#service-log')
+                                            .empty()
+                                            .append(cur_journal_watcher);
+
+                                    $(cur_unit).on('changed', render);
+                                }
+                            });
+                        }
+                    })
+                    .fail(function(error) {
+                        console.log(error);
+                        $("#service-error-message").text(error.toString());
+                        $("#service-invalid").show();
+                        $("#service").show();
+                        $("#service-details").hide();
+                    });
         }
-
-        systemd_manager.LoadUnit(unit_id)
-                .done(function(path) {
-                    if (cur_unit_id == unit_id) {
-                        var unit = systemd_client.proxy('org.freedesktop.systemd1.Unit', path);
-                        cur_unit = unit;
-                        unit.wait(function() {
-                            if (cur_unit == unit) {
-                                render();
-                                $(cur_unit).on('changed', render);
-                                $("#service-valid").show();
-                                $("#service").show();
-                            }
-                        });
-                    }
-                })
-                .fail(function(error) {
-                    $("#service-error-message").text(error.toString());
-                    $("#service-invalid").show();
-                    $("#service").show();
-                });
-
-        refresh_unit_file_state();
-
-        cur_journal_watcher = journal.logbox([ "_SYSTEMD_UNIT=" + cur_unit_id, "+",
-            "COREDUMP_UNIT=" + cur_unit_id, "+",
-            "UNIT=" + cur_unit_id ], 10);
-        $('#service-log')
-                .empty()
-                .append(cur_journal_watcher);
     }
 
     function unit_goto() {
         cockpit.location.go([ $(this).attr("data-goto-unit") ]);
-    }
-
-    function unit_instantiate(param) {
-        if (cur_unit_id) {
-            var tp = cur_unit_id.indexOf("@");
-            var sp = cur_unit_id.lastIndexOf(".");
-            if (tp != -1) {
-                var s = cur_unit_id.substring(0, tp + 1);
-                s = s + systemd_escape(param);
-                if (sp != -1)
-                    s = s + cur_unit_id.substring(sp);
-                cockpit.location.go([ s ]);
-            }
-        }
     }
 
     function refresh_unit() {
@@ -861,7 +670,6 @@ $(function() {
             systemd_manager.GetUnitFileState(unit_id)
                     .done(function(state) {
                         if (cur_unit_id == unit_id) {
-                            cur_unit_file_state = state;
                             if (cur_unit)
                                 $(cur_unit).triggerHandler("changed");
                         }
@@ -894,6 +702,7 @@ $(function() {
             $("#services").show();
         } else if (path.length == 1) {
             $("#services").hide();
+            $('#service-log-box').hide();
             show_unit(cockpit.location.path[0]);
         } else { /* redirect */
             console.warn("not a init location: " + path);
@@ -911,13 +720,10 @@ $(function() {
 
     $('body').on('click', "[data-goto-unit]", unit_goto);
 
-    $('#service-template').on('click', 'button', function() {
-        unit_instantiate($('#service-template input').val());
-    });
-
     /* Timer Creation
      * timer_unit contains all the user's valid inputs from create-timer modal.
      */
+    var permission = cockpit.permission({ admin: true });
     $(permission).on("changed", function() {
         if (permission.allowed === false) {
             $("#create-timer").addClass("accounts-privileged");

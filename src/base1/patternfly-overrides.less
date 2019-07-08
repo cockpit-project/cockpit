@@ -251,6 +251,22 @@ select.form-control {
 
     }
 
+    > a:active {
+      // PF3 reverts the active color with an !important
+      // so we also use an !important here to override it
+      color: var(--pf-global--Color--100) !important;
+    }
+
+    &.selected > a {
+      color: var(--pf-global--Color--100);
+      background-color: var(--pf-global--BackgroundColor--light-300);
+      border-color: var(--pf-global--BackgroundColor--light-300);
+  }
+  }
+
+  // Stretch dropdown menus to at least the width of the dropdown
+  .dropdown > & {
+    min-width: 100%;
   }
 }
 
@@ -279,8 +295,8 @@ select.form-control {
 
     &.btn-primary {
       &:active, &:focus, &:hover {
-        background-color: var(--pf-global--primary-color--100);
-        border-color: var(--pf-global--primary-color--100);
+        background-color: var(--pf-global--primary-color--200);
+        border-color: var(--pf-global--primary-color--200);
       }
     }
     &.btn-success {
@@ -388,7 +404,7 @@ select.form-control {
   }
 }
 
-//
+// Adjust height of inline edit buttons
 .form-control-pf-editable > button {
   max-height: 100%;
 }
@@ -629,6 +645,23 @@ th > label {
 // Flatten the progress bar trough
 .progress {
   box-shadow: none;
+}
+
+// Adjust spacing of expand/collapse divider
+.expand-collapse-pf .expand-collapse-pf-separator.bordered {
+  margin-top: 1rem;
+}
+
+// Fix small icon size (for Composer)
+.pf-icon-small::before {
+  // PF3 uses (1.7em * 12px = 20.4px); PF4 1.25rem = 20px
+  font-size: 1.25rem;
+}
+
+// Fix small list icon size (for Composer)
+.list-pf-icon-small::before {
+  // PF3 uses (1.4em * 12px = 16.8px); PF4 1rem = 16px
+  font-size: 1rem;
 }
 
 :root {

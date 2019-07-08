@@ -137,7 +137,9 @@
 .table-hover > tbody > tr:hover > td,
 .table-hover > tbody > tr:hover > th,
 .dialog-list-ct .list-group-item:hover:not(.active) {
-    background-color: var(--color-ct-list-hover-bg);
+    /* PF3 uses a light blue; we have to force the override for hover colors */
+    background-color: var(--color-ct-list-hover-bg) !important;
+    color: var(--color-ct-list-hover-text) !important;
 }
 
 /* Override patternfly to fit buttons and such */

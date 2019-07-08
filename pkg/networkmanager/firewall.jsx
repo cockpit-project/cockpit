@@ -21,6 +21,7 @@ import cockpit from "cockpit";
 import React from "react";
 import ReactDOM from "react-dom";
 import {
+    Alert,
     Button,
     ListView,
     Modal,
@@ -226,8 +227,7 @@ class AddServicesModal extends React.Component {
     save() {
         let p;
         if (this.state.custom) {
-            p = firewall.createService(this.state.custom_id, this.state.custom_name, this.createPorts())
-                    .then(firewall.enableService(this.state.zones, this.state.custom_id));
+            p = firewall.createService(this.state.custom_id, this.state.custom_name, this.createPorts(), this.state.zones);
         } else {
             p = firewall.addServices(this.state.zones, [...this.state.selected]);
         }
@@ -555,6 +555,11 @@ class AddServicesModal extends React.Component {
                 <Modal.Footer>
                     {
                         this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />
+                    }
+                    { !this.state.custom ||
+                        <Alert type="warning">
+                            { _("Adding custom ports will reload firewalld. A reload will result in the loss of any runtime-only configuration!")}
+                        </Alert>
                     }
                     <Button bsStyle='default' className='btn-cancel' onClick={this.props.close}>
                         {_("Cancel")}

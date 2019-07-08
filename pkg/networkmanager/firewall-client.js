@@ -109,12 +109,7 @@ function initFirewalldDbus() {
         member: 'Reloaded'
     }, () => getZones().then(() => getServices()));
 
-    getDefaultZonePath()
-            .then(path => firewalld_dbus.subscribe({
-                interface: 'org.fedoraproject.FirewallD1.config.zone',
-                path: path,
-                member: 'Updated'
-            }, firewall.reload));
+    getDefaultZonePath();
 }
 
 firewalld_service.addEventListener('changed', () => {
@@ -257,6 +252,10 @@ firewall.getAvailableServices = () => {
             .catch(error => console.warn(error));
 };
 
+/*
+ * Only call this after defining a new service, as it will remove existing
+ * non-permanent configurations.
+ */
 firewall.reload = () => {
     return firewalld_dbus.call('/org/fedoraproject/FirewallD1',
                                'org.fedoraproject.FirewallD1',
@@ -295,29 +294,21 @@ firewall.removeService = (zone, service) => {
  * Create new firewalld service.
  *
  * Returns a promise that resolves when the service is created.
+ * It will also reload firewalld and enable the new service.
  */
-firewall.createService = (service, name, ports) => {
+firewall.createService = (service, name, ports, zones) => {
+    let subscription = firewalld_dbus.subscribe({
+        interface: 'org.fedoraproject.FirewallD1',
+        path: '/org/fedoraproject/FirewallD1',
+        member: 'Reloaded'
+    }, () => {
+        firewall.addServices(zones, [service]);
+        subscription.remove();
+    });
     return firewalld_dbus.call('/org/fedoraproject/FirewallD1/config',
                                'org.fedoraproject.FirewallD1.config',
-                               'addService', [service,
-                                   ["", name, "", ports, [], {}, [], []]
-                               ]);
-};
-
-firewall.enableService = (zones, service) => {
-    // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
-    // https://github.com/cockpit-project/cockpit/issues/10956
-    // eslint-disable-next-line cockpit/no-cockpit-all
-    let promises = cockpit.all(
-        zones.map(z => firewalld_dbus.call('/org/fedoraproject/FirewallD1/config',
-                                           'org.fedoraproject.FirewallD1.config',
-                                           'getZoneByName', [z])
-                .then(path => firewalld_dbus.call(path[0], 'org.fedoraproject.FirewallD1.config.zone',
-                                                  'addService', [service]))));
-    return promises.then(() => fetchZoneInfos(zones))
-            .then(() => fetchServiceInfos([service]))
-            .then(info => firewall.enabledServices.add(info[0].id))
-            .then(() => firewall.debouncedEvent('changed'));
+                               'addService', [service, ["", name, "", ports, [], {}, [], []]])
+            .then(() => firewall.reload());
 };
 
 /*

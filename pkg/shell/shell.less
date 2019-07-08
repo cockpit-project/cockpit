@@ -166,21 +166,49 @@ html.index-page body {
     }
 }
 
-
 .zoom-controls {
+    --dropdown-max: 1fr;
     display: none;
+}
+
+@media (min-width: 640px) {
+    .zoom-controls {
+        --dropdown-max: 10rem;
+    }
 }
 
 .show-zoom-controls .zoom-controls {
     display: grid;
     grid-auto-flow: column;
     grid-gap: 0.5rem;
-    align-items: stretch;
     justify-content: end;
+    margin: 0 0 0.5rem 0;
+    position: relative;
+    /* Put size constraints on the first column, the dropdown */
+    grid-template-columns: minmax(5rem, var(--dropdown-max)) 2.5rem min-content;
+    min-height: 2.25rem;
 }
 
-.show-zoom-controls > .dropdown {
+/* Make the dropdown take up space vertically */
+.zoom-controls > .dropdown,
+.standard-zoom-controls > .dropdown {
     display: inline-flex;
+}
+
+/* Ensure zoom button is proper width */
+.zoom-controls > .btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Make the custom dropdown button properly stretchy */
+.zoom-controls > .dropdown > .btn,
+.standard-zoom-controls > .dropdown > .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
 }
 
 .show-zoom-cursor .zoomable-plot {
@@ -468,23 +496,23 @@ html.index-page body {
         // Dropdown menu triangle pointer & border
         &::before,
         &::after {
-        border: 10px solid transparent;
-        border-top-width: 0;
-        border-bottom-color: var(--color-bg);
-        top: -8px;
-        content: '';
-        height: 0;
-        left: 50%;
-        margin: 0 0 0 -5px;
-        position: absolute;
-        width: 0;
-        z-index: 10;
-    }
+            border: 10px solid transparent;
+            border-top-width: 0;
+            border-bottom-color: var(--color-bg);
+            top: -8px;
+            content: '';
+            height: 0;
+            left: 50%;
+            margin: 0 0 0 -5px;
+            position: absolute;
+            width: 0;
+            z-index: 10;
+        }
 
         // Triangle border
         &::after {
-        border-bottom-color: var(--color-border);
-        top: -10px;
+            border-bottom-color: var(--color-border);
+            top: -10px;
             z-index: -1;
         }
     }

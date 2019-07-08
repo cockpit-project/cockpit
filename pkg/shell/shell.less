@@ -352,14 +352,23 @@ html.index-page body {
         padding: 0;
 
         > .form-group {
-            padding: 10px;
             margin: 0;
+            padding: 0.5rem;
+            padding-bottom: 0;
             position: relative;
 
             > .form-control-feedback {
                 color: var(--color-subtle-copy);
-                left: 10px;
-                top: 1rem
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                height: auto;
+                width: 2.5rem;
+                margin: 0.5rem;
+                margin-bottom: 0;
             }
         }
 
@@ -369,14 +378,27 @@ html.index-page body {
             overflow-x: hidden;
             padding: 0;
             position: relative;
+            margin: 0 0 0.5rem;
 
             > li {
                 position: relative;
                 padding: 0;
 
+                &:not(.hidden) {
+                    // Bump up the first non-hidden li
+                    margin-top: 0.5rem;
+
+                    ~ :not(.hidden) {
+                        // And reset margin for any following
+                        margin-top: 0;
+                    }
+                }
+
                 a {
-                    padding: 1ex 2ex;
+                    padding: 0.5rem;
                     display: block;
+                    background: var(--color-ct-list-bg);
+                    color: var(--color-ct-list-text);
 
                     > span {
                         display: block;
@@ -442,8 +464,10 @@ html.index-page body {
         }
     }
 
-    .dropdown-menu:before,
-    .dropdown-menu:after {
+    .dropdown-menu {
+        // Dropdown menu triangle pointer & border
+        &::before,
+        &::after {
         border: 10px solid transparent;
         border-top-width: 0;
         border-bottom-color: var(--color-bg);
@@ -457,14 +481,17 @@ html.index-page body {
         z-index: 10;
     }
 
-    .dropdown-menu:after {
+        // Triangle border
+        &::after {
         border-bottom-color: var(--color-border);
         top: -10px;
+            z-index: -1;
+        }
     }
 
     input {
-        padding-left: 25px;
-        padding-right: 5px;
+        padding-left: 2.125rem;
+        padding-right: 0.5rem;
     }
 
     i.fa-search {

@@ -150,6 +150,11 @@ class TestFirewall(NetworkCase):
         b.wait_in_text("#zones-listing", "Public")
         b.wait_in_text("#zones-listing", "default")
 
+        # add a service to the runtime configuration via the cli, after all the
+        # operations it should still be there, indicating no reload took place
+        m.execute("firewall-cmd --add-service=http")
+        b.wait_present("tr[data-row-id='http']")
+
         # click on the "Add Services" button
         b.wait_present("caption #add-services-button:enabled")
         b.click("caption #add-services-button")
@@ -204,6 +209,9 @@ class TestFirewall(NetworkCase):
         b.click("#add-services-dialog .modal-footer .btn-cancel")
         b.wait_not_present("#cockpit_modal_dialog")
 
+        # should still be here
+        b.wait_present("tr[data-row-id='http']")
+
         # Service without name should appear in the dialog
         if m.image != "rhel-7-6-distropkg": # Fixed in #11318
             m.execute("firewall-cmd --permanent --new-service=empty && firewall-cmd --reload")
@@ -248,7 +256,7 @@ class TestFirewall(NetworkCase):
         # remove service while the dialog is open
         m.execute("firewall-cmd --remove-service=pop3")
         b.click("#remove-services-dialog button.btn-primary")
-        b.wait_in_text("#remove-services-dialog div.alert", "org.fedoraproject.FirewallD1.Exception: NOT_ENABLED: 'pop3' not in 'public'")
+        b.wait_in_text("#remove-services-dialog div.alert-danger", "org.fedoraproject.FirewallD1.Exception: NOT_ENABLED: 'pop3' not in 'public'")
 
     @skipImage("Custom ports were introduced in #11420", "rhel-7-6-distropkg", "rhel-8-0-distropkg")
     def testAddCustomServices(self):
@@ -263,6 +271,11 @@ class TestFirewall(NetworkCase):
         self.login_and_go("/network/firewall")
         b.wait_in_text("#zones-listing", "Public")
         b.wait_in_text("#zones-listing", "default")
+
+        # add a service to the runtime configuration via the cli, after all the
+        # operations it should be removed, indicating a reload took place
+        m.execute("firewall-cmd --add-service=http")
+        b.wait_present("tr[data-row-id='http']")
 
         def open_dialog():
             b.wait_present("caption #add-services-button:enabled")
@@ -345,7 +358,10 @@ class TestFirewall(NetworkCase):
         open_dialog()
         set_field("#udp-ports", "19834", "19834")
         b.click("#add-services-dialog button.btn-primary")
-        b.wait_in_text("#add-services-dialog div.alert", "org.fedoraproject.FirewallD1.Exception: NAME_CONFLICT: new_service(): 'custom--19834'")
+        b.wait_in_text("#add-services-dialog div.alert-danger", "org.fedoraproject.FirewallD1.Exception: NAME_CONFLICT: new_service(): 'custom--19834'")
+
+        # should have been removed in the reload
+        b.wait_not_present("tr[data-row-id='http']")
 
 
     @skipImage("Zones were introduced in #11745", "rhel-7-6-distropkg", "rhel-8-0-distropkg")
@@ -377,7 +393,7 @@ class TestFirewall(NetworkCase):
             b.click("#add-zone-dialog .modal-footer button.btn-primary:enabled")
 
             if error:
-                b.wait_in_text("#add-zone-dialog div.alert", error)
+                b.wait_in_text("#add-zone-dialog div.alert-danger", error)
                 b.click("#add-zone-dialog .modal-footer button.btn-cancel")
                 b.wait_not_present("#add-zone-dialog")
                 return

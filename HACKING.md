@@ -45,14 +45,14 @@ The following should work in a fresh Git clone:
       sudo dnf builddep --spec $TEMPFILE && \
       rm $TEMPFILE
 
-In addition, for testing, the following dependencies are required:
+For running integration tests, the following dependencies are required:
 
-    $ sudo dnf install curl expect \
-        libvirt libvirt-client libvirt-daemon libvirt-python \
-        python python-libguestfs python-lxml libguestfs-xfs \
-        python3 libvirt-python3 \
-        libguestfs-tools qemu qemu-kvm rpm-build rsync xz \
-        chromium-headless
+    $ sudo dnf install curl expect xz rpm-build chromium-headless \
+        libvirt-daemon-kvm libvirt-client python3-libvirt
+
+Creating VM images locally (not necessary for running tests) needs the following:
+
+    $ sudo dnf install virt-install libguestfs-tools-c
 
 ## Building
 

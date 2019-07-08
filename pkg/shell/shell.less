@@ -423,15 +423,17 @@ html.index-page body {
                 }
 
                 a {
-                    padding: 0.5rem;
+                    padding: 0.5rem 1rem;
                     display: block;
                     background: var(--color-ct-list-bg);
                     color: var(--color-ct-list-text);
+                    text-decoration: none;
 
                     > span {
                         display: block;
-                        text-indent: ~"calc(1ex - 18px)";
-                        padding-left: ~"calc(1ex + 18px)";
+                        text-overflow: ellipsis;
+                        overflow: hidden;
+                        white-space: nowrap;
                     }
 
                     &:hover {
@@ -452,9 +454,7 @@ html.index-page body {
             .fa-li {
                 position: static;
                 width: auto;
-                padding: 0 1ex 0 0;
-                font-size: 16px;
-                vertical-align: baseline;
+                margin: 0 1ex 0 0;
             }
         }
     }

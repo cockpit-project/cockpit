@@ -189,6 +189,12 @@ h4 {
   }
 }
 
+// Truncate text in Cockpit/PF3 dropdowns (when necessary)
+.dropdown-toggle > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 // Fix split dropdowns
 .input-group {
   display: inline-flex;

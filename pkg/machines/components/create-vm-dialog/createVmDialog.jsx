@@ -526,13 +526,7 @@ class CreateVmModal extends React.Component {
                                         os: osEntry[0].shortId
                                     });
                                 }
-                            }, ex => {
-                                console.log("osinfo-detect command failed: ", ex.message);
-                                this.setState({
-                                    vendor: NOT_SPECIFIED,
-                                    os: OTHER_OS_SHORT_ID,
-                                });
-                            });
+                            }, ex => console.log("osinfo-detect command failed: ", ex.message));
                 };
                 this.typingTimeout = setTimeout(() => onOsAutodetect(value), 250);
             }

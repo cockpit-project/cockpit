@@ -63,7 +63,7 @@ function getUIBootOrderDevices(vm) {
 
 const DeviceInfo = ({ descr, value }) => {
     return (
-        <div className='ct-form-layout'>
+        <div className='ct-form'>
             <label className='control-label' htmlFor={value}>
                 {descr}
             </label>

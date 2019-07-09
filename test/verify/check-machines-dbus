@@ -752,7 +752,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         # Delete an inactive Pool. It's volumes won't be deleted
         b.wait_present("#delete-pool-myPoolTwo-{0}".format(connectionName))
         b.click("#delete-pool-myPoolTwo-{0}".format(connectionName))
-        b.wait_in_text("div.modal-dialog div.modal-body div.ct-form-layout", "Its content will not be deleted.")
+        b.wait_in_text("div.modal-dialog div.modal-body div.ct-form", "Its content will not be deleted.")
         b.click('div.modal-footer button:contains("Delete")')
         b.wait_not_present("div.modal-dialog")
         b.wait_not_present("#pool-myPoolTwo-{0}-storage-volumes-list".format(connectionName))

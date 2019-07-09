@@ -141,7 +141,7 @@ class KdumpTargetBody extends React.Component {
         var storageDest = this.state.storeDest;
         return (
             <div className="modal-body">
-                <form className="ct-form-layout">
+                <form className="ct-form">
                     <label className="control-label" htmlFor="kdump-settings-location">{_("Location")}</label>
                     <Select.Select key="location" onChange={this.changeLocation}
                                    id="kdump-settings-location" initial={storageDest}>
@@ -489,7 +489,7 @@ export class KdumpPage extends React.Component {
         const tooltip_info = _("This will test the kdump configuration by crashing the kernel.");
         return (
             <div className="container-fluid">
-                <form className="ct-form-layout">
+                <form className="ct-form">
                     <label className="control-label">{_("kdump status")}</label>
                     <div role="group">
                         <OnOffSwitch state={!!serviceRunning} onChange={this.props.onSetServiceState}

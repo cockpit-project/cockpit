@@ -29,7 +29,7 @@ export class PartitionTab extends React.Component {
         var block_part = this.props.client.blocks_part[this.props.block.path];
 
         return (
-            <div className="ct-form-layout">
+            <div className="ct-form">
                 <label className="control-label">{_("Name")}</label>
                 <div>{block_part.Name || "-"}</div>
 

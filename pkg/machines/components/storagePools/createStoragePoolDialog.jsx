@@ -244,7 +244,7 @@ const StoragePoolSourceRow = ({ onValueChanged, dialogValues }) => {
                 <label className='control-label' htmlFor='storage-pool-dialog-source'>
                     {_("Source Path")}
                 </label>
-                <FormGroup className='ct-form-layout-split'
+                <FormGroup className='ct-form-split'
                            validationState={validationState}
                            controlId='source'>
                     <FileAutoComplete id='storage-pool-dialog-source'
@@ -260,7 +260,7 @@ const StoragePoolSourceRow = ({ onValueChanged, dialogValues }) => {
                     {_("Format")}
                 </label>
                 <Select.Select id='storage-pool-dialog-source-format'
-                               extraClass='form-control ct-form-layout-split'
+                               extraClass='form-control ct-form-split'
                                initial={dialogValues.source.format}
                                onChange={value => onValueChanged('source', { 'format': value })}>
                     { diskPoolSourceFormatTypes
@@ -446,7 +446,7 @@ class CreateStoragePoolModal extends React.Component {
 
     render() {
         const defaultBody = (
-            <form className="ct-form-layout ct-form-layout-maxmin">
+            <form className="ct-form ct-form-maxmin">
                 <StoragePoolConnectionRow dialogValues={this.state}
                                           onValueChanged={this.onValueChanged}
                                           loggedUser={this.props.loggedUser} />

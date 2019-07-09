@@ -32,7 +32,7 @@ export class PatternDialogBody extends React.Component {
     render() {
         return (
             <div className="modal-body">
-                <form className="ct-form-layout">
+                <form className="ct-form">
                     <label className="control-label" htmlFor="control-1">Label</label>
                     <input id="control-1" className="form-control" type="text" />
 

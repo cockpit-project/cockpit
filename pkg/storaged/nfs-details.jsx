@@ -311,7 +311,7 @@ export class NFSDetails extends React.Component {
                     </span>
                 </div>
                 <div className="panel-body">
-                    <div className="ct-form-layout">
+                    <div className="ct-form">
                         <label className="control-label">{_("Server")}</label>
                         <div>{entry.fields[0]}</div>
 
@@ -319,13 +319,13 @@ export class NFSDetails extends React.Component {
                         <div>{entry.fields[1]}</div>
 
                         <label className="control-label">{_("Size")}</label>
-                        <div className="ct-form-layout-split">
+                        <div className="ct-form-split">
                             { entry.mounted
                                 ? <StorageUsageBar stats={fsys_size} critical={0.95} />
                                 : _("--")
                             }
                         </div>
-                        <div className="ct-form-layout-split">
+                        <div className="ct-form-split">
                             { entry.mounted && fsys_size
                                 ? format_fsys_usage(fsys_size[0], fsys_size[1])
                                 : null

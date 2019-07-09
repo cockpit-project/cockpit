@@ -146,7 +146,7 @@ export class FilesystemTab extends React.Component {
 
         return (
             <div>
-                <div className="ct-form-layout">
+                <div className="ct-form">
                     <label className="control-label">{_("Name")}</label>
                     <StorageLink onClick={rename_dialog}>
                         {this.props.block.IdLabel || "-"}

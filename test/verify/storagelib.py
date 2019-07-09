@@ -142,7 +142,7 @@ class StorageCase(MachineCase):
             row_item = row + " tr.listing-ct-item"
             tab_btn = row + " .listing-ct-head li:nth-child(%d) a" % tab_index
             tab = row + " .listing-ct-body:nth-child(%d)" % (tab_index + 1)
-            cell = tab + " div.ct-form-layout label:contains(%s) + *" % title
+            cell = tab + " div.ct-form label:contains(%s) + *" % title
 
             if not b.is_present(row + ".open"):
                 if not b.is_present(row_item):
@@ -168,7 +168,7 @@ class StorageCase(MachineCase):
 
     def content_tab_info_label(self, row_index, tab_index, title):
         tab = self.content_tab_expand(row_index, tab_index)
-        return tab + " div.ct-form-layout label:contains(%s)" % title
+        return tab + " div.ct-form label:contains(%s)" % title
 
     def content_tab_info_action(self, row_index, tab_index, title, wrapped=False):
         label = self.content_tab_info_label(row_index, tab_index, title)

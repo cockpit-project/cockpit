@@ -67,7 +67,7 @@ export class DriveDetails extends React.Component {
             <div className="panel panel-default">
                 <div className="panel-heading">{_("Drive")}</div>
                 <div className="panel-body">
-                    <div className="ct-form-layout">
+                    <div className="ct-form">
                         <DriveDetailsRow title={_("storage", "Model")} value={drive.Model} />
                         <DriveDetailsRow title={_("storage", "Firmware Version")} value={drive.Revision} />
                         <DriveDetailsRow title={_("storage", "Serial Number")} value={drive.Serial} />

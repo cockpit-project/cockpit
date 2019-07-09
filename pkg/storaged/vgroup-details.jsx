@@ -237,7 +237,7 @@ export class VGroupDetails extends React.Component {
                     </span>
                 </div>
                 <div className="panel-body">
-                    <div className="ct-form-layout">
+                    <div className="ct-form">
                         <label className="control-label">{_("storage", "UUID")}</label>
                         <div>{ vgroup.UUID }</div>
 

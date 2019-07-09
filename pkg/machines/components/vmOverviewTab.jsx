@@ -29,14 +29,14 @@ const Items = ({ items, idPrefix }) => {
     }
 
     return (
-        <div className="ct-form-layout">
+        <div className="ct-form">
             {items.map(item => {
                 let content = item.value;
                 if (item.title) {
                     content = (
                         <React.Fragment key={item.title}>
                             <label className="control-label" htmlFor={`${idPrefix}-${item.idPostfix}`}>{item.title}</label>
-                            <div id={`${idPrefix}-${item.idPostfix}`} className="ct-form-layout-split">{item.value}</div>
+                            <div id={`${idPrefix}-${item.idPostfix}`} className="ct-form-split">{item.value}</div>
                         </React.Fragment>
                     );
                 }

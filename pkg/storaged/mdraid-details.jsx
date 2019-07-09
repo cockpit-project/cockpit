@@ -323,7 +323,7 @@ export class MDRaidDetails extends React.Component {
                     </span>
                 </div>
                 <div className="panel-body">
-                    <div className="ct-form-layout">
+                    <div className="ct-form">
                         <label className="control-label">{_("storage", "Device")}</label>
                         <div>{ block ? utils.decode_filename(block.PreferredDevice) : "-" }</div>
 

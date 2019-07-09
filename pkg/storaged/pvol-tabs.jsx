@@ -31,7 +31,7 @@ export class PVolTab extends React.Component {
 
         return (
             <div>
-                <div className="ct-form-layout">
+                <div className="ct-form">
                     <label className="control-label">{_("Volume Group")}</label>
                     <div>{vgroup
                         ? <a role="link" tabIndex="0" onClick={() => cockpit.location.go([ "vg", vgroup.Name ])}>
@@ -55,7 +55,7 @@ export class MDRaidMemberTab extends React.Component {
 
         return (
             <div>
-                <div className="ct-form-layout">
+                <div className="ct-form">
                     <label className="control-label">{_("RAID Device")}</label>
                     <div>{mdraid
                         ? <a role="link" tabIndex="0" onClick={() => cockpit.location.go([ "mdraid", mdraid.UUID ])}>
@@ -76,7 +76,7 @@ export class VDOBackingTab extends React.Component {
 
         return (
             <div>
-                <div className="ct-form-layout">
+                <div className="ct-form">
                     <label className="control-label">{_("VDO Device")}</label>
                     <div>{vdo
                         ? <a role="link" tabIndex="0" onClick={() => cockpit.location.go([ "vdo", vdo.name ])}>

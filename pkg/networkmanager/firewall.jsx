@@ -465,7 +465,7 @@ class AddServicesModal extends React.Component {
                     <Modal.Body id="add-services-dialog-body">
                         { firewall.activeZones.size > 1 &&
                             <React.Fragment>
-                                <form className="ct-form-layout horizontal">
+                                <form className="ct-form horizontal">
                                     <label htmlFor="zone-input">{zonesText}</label>
                                     <fieldset id="zone-input">
                                         { Array.from(firewall.activeZones).sort((a, b) => a.localeCompare(b))
@@ -477,8 +477,8 @@ class AddServicesModal extends React.Component {
                                 </form>
                                 <hr />
                             </React.Fragment>}
-                        <form action="" className="toggle-body ct-form-layout">
-                            <label className="radio ct-form-layout-full">
+                        <form action="" className="toggle-body ct-form">
+                            <label className="radio ct-form-full">
                                 <input type="radio" name="type" value="services" onChange={this.onToggleType} defaultChecked />
                                 {_("Services")}
                             </label>
@@ -486,7 +486,7 @@ class AddServicesModal extends React.Component {
                                 <React.Fragment>
                                     { services ? (
                                         <fieldset>
-                                            <div className="ct-form-layout">
+                                            <div className="ct-form">
                                                 <label htmlFor="filter-services-input" className="control-label">
                                                     {_("Filter Services")}
                                                 </label>
@@ -494,7 +494,7 @@ class AddServicesModal extends React.Component {
                                                     value={this.state.filter}
                                                     className="form-control"
                                                     onChange={this.onFilterChanged} />
-                                                <ListView className="list-group dialog-list-ct ct-form-layout-full">
+                                                <ListView className="list-group dialog-list-ct ct-form-full">
                                                     {
                                                         services.map(s => (
                                                             <ListView.Item key={s.id}
@@ -518,7 +518,7 @@ class AddServicesModal extends React.Component {
                                     )}
                                 </React.Fragment>
                             }
-                            <label className="radio ct-form-layout-full">
+                            <label className="radio ct-form-full">
                                 <input type="radio" name="type" value="ports" onChange={this.onToggleType} disabled={this.state.avail_services == null} />
                                 {_("Custom Ports")}
                             </label>
@@ -610,7 +610,7 @@ class RemoveServicesModal extends React.Component {
                     <Modal.Title>{ _("Remove service from zones") }</Modal.Title>
                 </Modal.Header>
                 <Modal.Body id="remove-services-dialog-body">
-                    <form className="ct-form-layout horizontal">
+                    <form className="ct-form horizontal">
                         <fieldset id="zone-input">
                             { this.zonesWithService.map(z =>
                                 <label className="radio" key={z}>
@@ -700,7 +700,7 @@ class ActivateZoneModal extends React.Component {
                     <Modal.Title>{ _("Add Zone") }</Modal.Title>
                 </Modal.Header>
                 <Modal.Body id="add-zone-dialog-body">
-                    <form className="ct-form-layout">
+                    <form className="ct-form">
                         <label htmlFor="add-zone-services-readonly" className="control-label">
                             { _("Trust level") }
                         </label>

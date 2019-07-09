@@ -30,7 +30,7 @@ export const StoragePoolOverviewTab = ({ storagePool }) => {
     const idPrefix = `${storagePoolId(storagePool.name, storagePool.connectionName)}`;
 
     return (
-        <div className='ct-form-layout'>
+        <div className='ct-form'>
             { storagePool.source && storagePool.source.host && <React.Fragment>
                 <label className='control-label' htmlFor={`${idPrefix}-host`}> {_("Host")} </label>
                 <div id={`${idPrefix}-host`}>

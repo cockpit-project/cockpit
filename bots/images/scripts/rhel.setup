@@ -70,6 +70,18 @@ name=base-rhel
 baseurl=http://download.devel.redhat.com/nightly/latest-RHEL-7/compose/Server/x86_64/os
 enabled=1
 gpgcheck=0
+
+[EXTRAS-7.7-LATEST-DEBUG]
+name=rhel-extras-compose-debug
+baseurl=http://download.devel.redhat.com/rhel-7/nightly/EXTRAS-7/latest-EXTRAS-7.7-RHEL-7/compose/Server/x86_64/debug/tree
+enabled=0
+gpgcheck=0
+
+[RHEL-7.7-NIGHTLY-DEBUG]
+name=base-rhel-debug
+baseurl=http://download.devel.redhat.com/nightly/latest-RHEL-7/compose/Server/x86_64/debug/tree
+enabled=0
+gpgcheck=0
 EOF
         $YUM_INSTALL yum-utils
 
@@ -90,6 +102,18 @@ gpgcheck=0
 name=appstream
 baseurl=http://download.devel.redhat.com/rhel-8/nightly/RHEL-8/$REPO/compose/AppStream/x86_64/os/
 enabled=1
+gpgcheck=0
+
+[RHEL-8-NIGHTLY-BaseOS-Debug]
+name=baseos-debug
+baseurl=http://download-ipv4.eng.brq.redhat.com/rhel-8/nightly/RHEL-8/$REPO/compose/BaseOS/x86_64/debug/tree/
+enabled=0
+gpgcheck=0
+
+[RHEL-8-NIGHTLY-AppStream-Debug]
+name=appstream-debug
+baseurl=http://download-ipv4.eng.brq.redhat.com/rhel-8/nightly/RHEL-8/$REPO/compose/AppStream/x86_64/debug/tree/
+enabled=0
 gpgcheck=0
 EOF
         # make ipa-client available

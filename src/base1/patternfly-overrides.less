@@ -125,7 +125,7 @@ h4 {
 .bootstrap-select.btn-group .btn,
 .content-header-extra .dropdown-toggle,
 .dropdown-toggle,
-.form-control:not(.ct-select):not(select) {
+.form-control:not(.ct-select):not(.rbt-input):not(select) {
   background-image: none !important;
 }
 
@@ -225,7 +225,8 @@ h4 {
   }
 }
 
-// Select dropdowns in Composer
+// Select dropdowns in Composer & typeahead find
+.rbt-input.form-control,
 select.form-control {
   --dropdown-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='46' height='8'%3E%3Cpath fill='%23151515' d='M18.804 1h8.392c.58 0 .87.701.46 1.112L23.46 6.31a.653.653 0 0 1-.922 0l-4.194-4.197A.651.651 0 0 1 18.805 1z'/%3E%3C/svg%3E");
   --dropdown-background: var(--pf-global--BackgroundColor--100);
@@ -267,7 +268,7 @@ select.form-control {
       color: var(--pf-global--Color--100);
       background-color: var(--pf-global--BackgroundColor--light-300);
       border-color: var(--pf-global--BackgroundColor--light-300);
-  }
+    }
   }
 
   // Stretch dropdown menus to at least the width of the dropdown

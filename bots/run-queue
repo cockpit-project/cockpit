@@ -50,8 +50,7 @@ def consume_webhook_queue(channel, amqp):
         action = request['action']
         # scan for body changes (edited) and the bots label
         if action == 'labeled' or (action == 'edited' and 'body' in request.get('changes', {})):
-            pull_request = request['pull_request']
-            cmd = ['bots/issue-scan', '--issue-data', json.dumps(pull_request), '--amqp', amqp]
+            cmd = ['bots/issue-scan', '--issues-data', json.dumps(request), '--amqp', amqp]
         if request['action'] in ['opened', 'synchronize']:
             repo = pull_request['base']['repo']['full_name']
             cmd = ['bots/tests-scan', '--pull-data', json.dumps(pull_request), '--amqp', amqp]
@@ -64,8 +63,7 @@ def consume_webhook_queue(channel, amqp):
         action = request['action']
         # scan for opened, body changes (edited), and the bots label
         if action in ['opened', 'labeled'] or (action == 'edited' and 'body' in request.get('changes', {})):
-            issue = request['issue']
-            cmd = ['bots/issue-scan', '--issue-data', json.dumps(issue), '--amqp', amqp]
+            cmd = ['bots/issue-scan', '--issues-data', json.dumps(request), '--amqp', amqp]
     else:
         logging.error('Unkown event type in the webhook queue')
         return None, None

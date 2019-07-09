@@ -1414,10 +1414,10 @@ class TestMachines(NetworkCase):
         # End of tests for import existing disk as installation option
 
         cmds = [
-            "mkdir /mnt/tmpPool; chmod a+rwx /mnt/tmpPool",
-            "virsh pool-define-as tmpPool --type dir --target /mnt/tmpPool",
+            "mkdir -p /var/lib/libvirt/pools/tmpPool; chmod a+rwx /var/lib/libvirt/pools/tmpPool",
+            "virsh pool-define-as tmpPool --type dir --target /var/lib/libvirt/pools/tmpPool",
             "virsh pool-start tmpPool",
-            "qemu-img create -f qcow2 /mnt/tmpPool/vmTmpDestination.qcow2 128M",
+            "qemu-img create -f qcow2 /var/lib/libvirt/pools/tmpPool/vmTmpDestination.qcow2 128M",
             "virsh pool-refresh tmpPool"
         ]
         self.machine.execute(" && ".join(cmds))

@@ -78,8 +78,8 @@ def main():
          dest="verbose", help="Print verbose information")
     parser.add_argument('--amqp', default=None,
                         help='The host:port of the AMQP server to publish to (format host:port)')
-    parser.add_argument('--issue-data', default=None,
-                        help='issues GitHub JSON data to evaluate')
+    parser.add_argument('--issues-data', default=None,
+                        help='issues or pull request event GitHub JSON data to evaluate')
     opts = parser.parse_args()
 
     if opts.amqp and no_amqp:
@@ -96,7 +96,7 @@ def main():
     except IOError:
         namespace = None
 
-    for result in scan(opts.issue_data, opts.verbose):
+    for result in scan(opts.issues_data, opts.verbose):
         if opts.amqp:
             with distributed_queue.DistributedQueue(opts.amqp, queues=['rhel', 'public']) as q:
                 queue_task(q.channel, result)
@@ -130,19 +130,22 @@ def contains_any(string, matches):
     return False
 
 # Map all checkable work items to fixtures
-def tasks_for_issues(issue_data):
+def tasks_for_issues(issues_data):
     results = [ ]
-    api = github.GitHub()
-    whitelist = api.whitelist()
     issues = [ ]
 
-    if issue_data:
-        issue = json.loads(issue_data)
+    if issues_data:
+        event = json.loads(issues_data)
+        repo = event["repository"]["full_name"]
+        issue = event.get("issue") or event.get("pull_request")
         labels = labels_of_pull(issue)
         if 'bot' in labels:
             issues.append(issue)
+        api = github.GitHub(repo=repo)
     else:
+        api = github.GitHub()
         issues = api.issues(state="open")
+    whitelist = api.whitelist()
 
     for issue in issues:
         if issue["title"].strip().startswith("WIP"):
@@ -178,7 +181,8 @@ def output_task(command, issue, verbose):
     checkout = "PRIORITY={priority:04d} "
     cmd = "bots/{name} --verbose --issue='{issue}' {context}"
 
-    # direct API scan gets the full information (first case), while --issue-data only gets the info["pull_request"] parts; cover both
+    # `--issues-data` should also be able to receive pull_request events, in that
+    # case pull_request won't be present in the object, but commits will be
     if "pull_request" in issue or "commits" in issue:
         checkout += "bots/make-checkout --verbose pull/{issue}/head && "
 
@@ -208,13 +212,13 @@ def queue_task(channel, result):
     channel.basic_publish('', queue, json.dumps(body), properties=pika.BasicProperties(priority=distributed_queue.MAX_PRIORITY))
 
 # Default scan behavior run for each task
-def scan(issue_data, verbose):
+def scan(issues_data, verbose):
     global issues
 
     results = [ ]
 
     # Now go through each fixture
-    for (command, issue) in tasks_for_issues(issue_data):
+    for (command, issue) in tasks_for_issues(issues_data):
         result = output_task(command, issue, verbose)
         if result is not None:
             results.append(result)

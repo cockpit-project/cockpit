@@ -355,7 +355,7 @@ const RemovePassphraseField = (tag, key, dev) => {
                     </h3>
                     <p>{ fmt_to_fragments(_("Passphrase removal may prevent unlocking $0."), <b>{dev}</b>) }</p>
 
-                    <div name="remove-passphrase" className="progressive-disclosure ct-form-layout">
+                    <div name="remove-passphrase" className="progressive-disclosure ct-form">
                         <div className="form-group">
                             <label>
                                 <input type="radio" checked={val !== false}

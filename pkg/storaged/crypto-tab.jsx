@@ -120,11 +120,11 @@ export class CryptoTab extends React.Component {
 
         return (
             <div>
-                <div className="ct-form-layout">
+                <div className="ct-form">
                     { !self.props.client.is_old_udisks2
                         ? <React.Fragment>
                             <label className="control-label">{_("Stored passphrase")}</label>
-                            <div className="ct-form-layout-stretch">
+                            <div className="ct-form-stretch">
                                 <StorageButton onClick={edit_stored_passphrase}>{_("Edit")}</StorageButton>
                             </div>
                         </React.Fragment> : null

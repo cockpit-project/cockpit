@@ -26,7 +26,7 @@ export const DiskSourceCell = ({ diskSource, idPrefix }) => {
     const addOptional = (chunks, value, type, descr) => {
         if (value) {
             chunks.push(
-                <div className='ct-form-layout' key={descr}>
+                <div className='ct-form' key={descr}>
                     <label htmlFor={`${idPrefix}-source-${type}`} className='control-label'>
                         {descr}
                     </label>
@@ -59,7 +59,7 @@ export const DiskExtras = ({ idPrefix, cache, io, discard, errorPolicy }) => {
     const addOptional = (chunks, value, type, descr) => {
         if (value) {
             chunks.push(
-                <div className='ct-form-layout' key={descr}>
+                <div className='ct-form' key={descr}>
                     <label htmlFor={`${idPrefix}-${type}`} className='control-label'>
                         {descr}
                     </label>

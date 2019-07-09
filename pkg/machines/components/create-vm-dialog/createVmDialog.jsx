@@ -643,7 +643,7 @@ class CreateVmModal extends React.Component {
         const { nodeMaxMemory, nodeDevices, networks, osInfoList, loggedUser, providerName, storagePools, vms } = this.props;
         const validationFailed = this.state.validate && validateParams(this.state);
         const dialogBody = (
-            <form className="ct-form-layout">
+            <form className="ct-form">
                 <label className="control-label" htmlFor="connection">
                     {_("Connection")}
                 </label>

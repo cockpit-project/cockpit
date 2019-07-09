@@ -26,7 +26,7 @@ export class UnrecognizedTab extends React.Component {
     render() {
         return (
             <div>
-                <div className="ct-form-layout">
+                <div className="ct-form">
                     <label className="control-label">{_("Usage")}</label>
                     <div>{this.props.block.IdUsage || "-"}</div>
 

@@ -31,10 +31,10 @@ class TestStorage(StorageCase):
         b = self.browser
 
         def detail_row_name(index):
-            return '#detail-header div.ct-form-layout label:nth-of-type(%s)' % index
+            return '#detail-header div.ct-form label:nth-of-type(%s)' % index
 
         def detail_row_value(index):
-            return '#detail-header div.ct-form-layout label:nth-of-type(%s) + div' % index
+            return '#detail-header div.ct-form label:nth-of-type(%s) + div' % index
 
         def wait_detail_row(index, name):
             b.wait_present(detail_row_name(index))

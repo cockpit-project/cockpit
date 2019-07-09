@@ -91,7 +91,7 @@ export class StoragePoolDelete extends React.Component {
         const volumes = storagePool.volumes || [];
 
         let defaultBody = (
-            <div className='ct-form-layout'>
+            <div className='ct-form'>
                 { storagePool.active && volumes.length > 0 && <React.Fragment>
                     <label className='control-label'>
                         {_("Delete Content")}

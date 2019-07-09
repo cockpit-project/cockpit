@@ -77,7 +77,7 @@ export class SwapTab extends React.Component {
                         : <StorageButton onClick={start}>{_("Start")}</StorageButton>
                     }
                 </div>
-                <div className="ct-form-layout">
+                <div className="ct-form">
                     <label className="control-label">{_("Used")}</label>
                     <div>{used}</div>
                 </div>

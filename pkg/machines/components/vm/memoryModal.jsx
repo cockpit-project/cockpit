@@ -125,7 +125,7 @@ export class MemoryModal extends React.Component {
         const vm = this.props.vm;
         const idPrefix = vmId(vm.name) + '-memory-modal';
         const defaultBody = (
-            <div id='memory-config-dialog' className='ct-form-layout'>
+            <div id='memory-config-dialog' className='ct-form'>
                 <label className='control-label'>
                     {_("Current Allocation")}
                 </label>
@@ -167,7 +167,7 @@ export class MemoryModal extends React.Component {
                 <div className='form-group ct-validation-wrapper'>
                     <div role='group'>
                         <input id={`${idPrefix}-max-memory`}
-                            className='form-control ct-form-layout-split'
+                            className='form-control ct-form-split'
                             type='number'
                             value={toFixedPrecision(convertToUnit(this.state.maxMemory, 'KiB', this.state.maxMemoryUnit))}
                             min={toFixedPrecision(convertToUnit(128, 'MiB', this.state.memoryUnit))}
@@ -180,7 +180,7 @@ export class MemoryModal extends React.Component {
                             onBlur={e => this.onValueBlurred('maxMemory', e.target.value)}
                             readOnly={vm.state != 'shut off'} />
                         <Select.Select id={`${idPrefix}-max-memory-unit`}
-                            className='ct-form-layout-split'
+                            className='ct-form-split'
                             initial={this.state.maxMemoryUnit}
                             onChange={value => this.onValueChanged('maxMemoryUnit', value)}
                             enabled={vm.state !== 'running'}>

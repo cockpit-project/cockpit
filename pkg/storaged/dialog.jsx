@@ -296,9 +296,9 @@ const Body = ({ body, fields, values, errors, onChange }) => {
         if (rows.length === 0)
             return null;
         else if (index === undefined) // top-level
-            return <form className="ct-form-layout">{ rows }</form>;
+            return <form className="ct-form">{ rows }</form>;
         else // nested
-            return <div key={index} className="ct-form-layout ct-form-box">{ rows }</div>;
+            return <div key={index} className="ct-form ct-form-box">{ rows }</div>;
     }
 
     return (
@@ -745,7 +745,7 @@ export const CheckBoxes = (tag, title, options) => {
             });
 
             return (
-                <div role="group" className="ct-form-layout-vertical">
+                <div role="group" className="ct-form-vertical">
                     { fieldset }
                 </div>
             );
@@ -756,14 +756,14 @@ export const CheckBoxes = (tag, title, options) => {
 const TextInputCheckedComponent = ({ tag, val, title, update_function }) => {
     return (
         <React.Fragment key={tag}>
-            <div className="checkbox ct-form-layout-split dialog-checkbox-text" data-field={tag} data-field-type="text-input-checked">
+            <div className="checkbox ct-form-split dialog-checkbox-text" data-field={tag} data-field-type="text-input-checked">
                 <label>
                     <input type="checkbox" checked={val !== false}
                         onChange={event => update_function(event.target.checked ? "" : false)} />
                     {title}
                 </label>
             </div>
-            <input className="form-control ct-form-layout-split" type="text" hidden={val === false}
+            <input className="form-control ct-form-split" type="text" hidden={val === false}
                    value={val} onChange={event => update_function(event.target.value)} />
         </React.Fragment>
     );

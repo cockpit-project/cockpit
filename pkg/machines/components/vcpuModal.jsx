@@ -187,11 +187,11 @@ export class VCPUModal extends React.Component {
 
         const defaultBody = (
             <div className="vcpu-modal-grid">
-                <div className="ct-form-layout">
+                <div className="ct-form">
                     <InfoRecord
                         descr={_("vCPU Count")}
                         tooltip={_("Fewer than the maximum number of virtual CPUs should be enabled.")}
-                        value={<input id="machines-vcpu-count-field" type="number" className="form-control ct-form-layout-stretch" value={this.state.count} onChange={this.onCountSelect} />}
+                        value={<input id="machines-vcpu-count-field" type="number" className="form-control ct-form-stretch" value={this.state.count} onChange={this.onCountSelect} />}
                     />
                     <InfoRecord
                         descr={_("vCPU Maximum")}
@@ -199,18 +199,18 @@ export class VCPUModal extends React.Component {
                             _("Maximum number of virtual CPUs allocated for the guest OS, which must be between 1 and $0"),
                             parseInt(this.props.config.hypervisorMaxVCPU[vm.connectionName])
                         )}
-                        value={<input id="machines-vcpu-max-field" type="number" className="form-control ct-form-layout-stretch" onChange={this.onMaxChange} value={this.state.max} />}
+                        value={<input id="machines-vcpu-max-field" type="number" className="form-control ct-form-stretch" onChange={this.onMaxChange} value={this.state.max} />}
                     />
                 </div>
-                <div className="ct-form-layout">
+                <div className="ct-form">
                     <InfoRecord descr={_("Sockets")} tooltip={_("Preferred number of sockets to expose to the guest.")} value={
-                        <Select extraClass='ct-form-layout-stretch' id='socketsSelect' value={this.state.sockets.toString()} onChange={this.onSocketChange} items={dividers(this.state.max).map((t) => t.toString())} />
+                        <Select extraClass='ct-form-stretch' id='socketsSelect' value={this.state.sockets.toString()} onChange={this.onSocketChange} items={dividers(this.state.max).map((t) => t.toString())} />
                     } />
                     <InfoRecord descr={_("Cores per socket")} value={
-                        <Select extraClass="ct-form-layout-stretch" id='coresSelect' value={this.state.cores.toString()} onChange={this.onCoresChange} items={dividers(this.state.max).map((t) => t.toString())} />
+                        <Select extraClass="ct-form-stretch" id='coresSelect' value={this.state.cores.toString()} onChange={this.onCoresChange} items={dividers(this.state.max).map((t) => t.toString())} />
                     } />
                     <InfoRecord descr={_("Threads per core")} value={
-                        <Select extraClass="ct-form-layout-stretch" id='threadsSelect' value={this.state.threads.toString()} onChange={this.onThreadsChange} items={dividers(this.state.max).map((t) => t.toString())} />
+                        <Select extraClass="ct-form-stretch" id='threadsSelect' value={this.state.threads.toString()} onChange={this.onThreadsChange} items={dividers(this.state.max).map((t) => t.toString())} />
                     } />
                 </div>
             </div>

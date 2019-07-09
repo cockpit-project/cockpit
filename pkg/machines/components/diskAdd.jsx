@@ -149,7 +149,7 @@ const VolumeDetails = ({ idPrefix, size, unit, diskFileFormat, storagePoolType, 
                 <Select.Select id={`${idPrefix}-diskfileformat`}
                     onChange={value => onValueChanged('diskFileFormat', value)}
                     initial={diskFileFormat}
-                    extraClass='form-control ct-form-layout-split'>
+                    extraClass='form-control ct-form-split'>
                     <Select.SelectEntry data='qcow2' key='qcow2'>
                         {_("qcow2")}
                     </Select.SelectEntry>
@@ -166,7 +166,7 @@ const VolumeDetails = ({ idPrefix, size, unit, diskFileFormat, storagePoolType, 
             <label className='control-label' htmlFor={`${idPrefix}-size`}>
                 {_("Size")}
             </label>
-            <div role="group" className="ct-form-layout-split">
+            <div role="group" className="ct-form-split">
                 <input id={`${idPrefix}-size`}
                        className="form-control add-disk-size"
                        type="number"
@@ -248,7 +248,7 @@ class PerformanceOptions extends React.Component {
                     <Select.Select id={'cache-mode'}
                         onChange={value => this.props.onValueChanged('cacheMode', value)}
                         initial={this.props.cacheMode || cacheModes[0]}
-                        extraClass='form-control ct-form-layout-split'>
+                        extraClass='form-control ct-form-split'>
                         {cacheModes.map(cacheMode => {
                             return (
                                 <Select.SelectEntry data={cacheMode} key={cacheMode}>
@@ -499,7 +499,7 @@ class AddDiskModalBody extends React.Component {
         const idPrefix = `${this.props.idPrefix}-adddisk`;
 
         const defaultBody = (
-            <div className='ct-form-layout'>
+            <div className='ct-form'>
                 <label className='control-label' htmlFor={`${idPrefix}-source`}>
                     {_("Source")}
                 </label>

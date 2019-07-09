@@ -386,7 +386,7 @@ export class BlockVolTab extends React.Component {
                 <div className="tab-actions">
                     { pool && <StorageButton onClick={create_snapshot}>{_("Create Snapshot")}</StorageButton> }
                 </div>
-                <div className="ct-form-layout">
+                <div className="ct-form">
                     <label className="control-label">{_("Name")}</label>
                     <StorageLink onClick={rename}>{this.props.lvol.Name}</StorageLink>
                     { !unused_space &&
@@ -440,7 +440,7 @@ export class PoolVolTab extends React.Component {
         }
 
         return (
-            <div className="ct-form-layout">
+            <div className="ct-form">
                 <label className="control-label">{_("Name")}</label>
                 <StorageLink onClick={rename}>{this.props.lvol.Name}</StorageLink>
 

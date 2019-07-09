@@ -56,7 +56,7 @@ const NetworkModelRow = ({ idPrefix, onValueChanged, dialogValues, network, osTy
             <Select.Select id={`${idPrefix}-select-model`}
                            onChange={value => onValueChanged('networkModel', value)}
                            initial={defaultModelType}
-                           extraClass='form-control ct-form-layout-split'>
+                           extraClass='form-control ct-form-split'>
                 {availableModelTypes
                         .map(networkModel => {
                             return (
@@ -125,7 +125,7 @@ const NetworkTypeAndSourceRow = ({ idPrefix, onValueChanged, dialogValues, netwo
             <Select.Select id={`${idPrefix}-select-type`}
                            onChange={value => onValueChanged('networkType', value)}
                            initial={defaultNetworkType}
-                           extraClass='form-control ct-form-layout-split'>
+                           extraClass='form-control ct-form-split'>
                 {availableNetworkTypes
                         .map(networkType => {
                             return (
@@ -144,7 +144,7 @@ const NetworkTypeAndSourceRow = ({ idPrefix, onValueChanged, dialogValues, netwo
                                    onChange={value => onValueChanged('networkSource', value)}
                                    enabled={networkSourceEnabled}
                                    initial={defaultNetworkSource}
-                                   extraClass='form-control ct-form-layout-split'>
+                                   extraClass='form-control ct-form-split'>
                         {networkSourcesContent}
                     </Select.Select>
                 </React.Fragment>
@@ -240,7 +240,7 @@ export class EditNICAction extends React.Component {
     render() {
         const { idPrefix, vm, network, networks } = this.props;
         const defaultBody = (
-            <form className='ct-form-layout'>
+            <form className='ct-form'>
                 <NetworkTypeAndSourceRow idPrefix={idPrefix}
                                          dialogValues={this.state}
                                          onValueChanged={this.onValueChanged}

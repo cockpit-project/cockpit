@@ -4,13 +4,16 @@ set -ex
 ORIGIN="$1"
 VM_NAME=win10
 
-test -e MSEdge.Win10.VMWare.zip || wget https://az792536.vo.msecnd.net/vms/VMBuild_20180425/VMWare/MSEdge/MSEdge.Win10.VMWare.zip -O MSEdge.Win10.VMWare.zip
-test -e MicrosoftWebDriver.exe || wget https://download.microsoft.com/download/F/8/A/F8AF50AB-3C3A-4BC4-8773-DC27B32988DD/MicrosoftWebDriver.exe -O MicrosoftWebDriver.exe
-test -e java-installer.exe || wget http://javadl.oracle.com/webapps/download/AutoDL?BundleId=233172_512cd62ec5174c3487ac17c61aaa89e8 -O java-installer.exe
-test -e selenium.jar || wget https://selenium-release.storage.googleapis.com/3.13/selenium-server-standalone-3.13.0.jar -O selenium.jar
-test -e virtio-win.iso || wget https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/archive-virtio/virtio-win-0.1.141-1/virtio-win.iso -O virtio-win.iso
+# from https://developer.microsoft.com/en-us/microsoft-edge/tools/vms/
+wget --continue https://az792536.vo.msecnd.net/vms/VMBuild_20180425/VMWare/MSEdge/MSEdge.Win10.VMWare.zip -O MSEdge.Win10.VMWare.zip
+# from https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/
+wget --continue https://download.microsoft.com/download/F/8/A/F8AF50AB-3C3A-4BC4-8773-DC27B32988DD/MicrosoftWebDriver.exe -O MicrosoftWebDriver.exe
+wget --continue http://javadl.oracle.com/webapps/download/AutoDL?BundleId=233172_512cd62ec5174c3487ac17c61aaa89e8 -O java-installer.exe
+# from https://selenium-release.storage.googleapis.com/
+wget --continue https://selenium-release.storage.googleapis.com/3.13/selenium-server-standalone-3.13.0.jar -O selenium.jar
+wget --continue https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/archive-virtio/virtio-win-0.1.141-1/virtio-win.iso -O virtio-win.iso
 
-unzip -o MSEdge.Win10.VMWare.zip
+[ -e disk.vmdk ] || unzip -o MSEdge.Win10.VMWare.zip
 
 cat <<'EOF' > Autorun.inf
 [autorun]
@@ -34,11 +37,7 @@ goto :eof
 netsh advfirewall firewall add rule name="Open Port 4444" dir=in action=allow protocol=TCP localport=4444
 netsh advfirewall firewall add rule name="Open Port 5555" dir=in action=allow protocol=TCP localport=5555
 netsh advfirewall set allprofiles state off
-powershell -Command "(Mount-DiskImage 'C:\virtio-win.iso')"
-powershell -Command "(Get-DiskImage 'C:\virtio-win.iso' | Get-Volume).DriveLetter" > result.txt
-set /p VOLUME=<result.txt
-del result.txt
-pnputil.exe -i -a %VOLUME%:\qxldod\w10\amd64\qxldod.inf
+pnputil.exe -i -a E:\qxldod\w10\amd64\qxldod.inf
 mkdir c:\selenium
 echo f | xcopy /f /y d:\selenium.jar c:\selenium\selenium.jar
 echo f | xcopy /f /y d:\selenium.bat c:\selenium\selenium.bat
@@ -54,11 +53,13 @@ sed -i "s/\$/$CR/" *.bat Autorun.inf
 genisoimage -output wininit.iso -volid cidata -joliet *.bat *.exe selenium.jar Autorun.inf
 echo "Converting vmdk to qcow2..."
 qemu-img convert -f vmdk -O qcow2 disk.vmdk "$ORIGIN"
-virt-install -n "$VM_NAME" -r 4000 --vcpus=4 --os-type=windows --os-variant=win10 \
+virsh destroy "$VM_NAME" || true
+virsh undefine --nvram "$VM_NAME" || true
+virt-install -n "$VM_NAME" -r 4000 --vcpus=4 --os-variant=win10 \
              --disk "$ORIGIN",device=disk --network user --boot uefi \
              --noautoconsole --wait=-1 --noreboot \
-             --disk wininit.iso,device=cdrom
-virt-copy-in -d "$VM_NAME" virtio-win.iso 'win:c:\'
+             --disk wininit.iso,device=cdrom \
+             --disk virtio-win.iso,device=cdrom
 virsh start "$VM_NAME"
 
 echo "Manual part of installation, open graphics console and run D:\install.bat"

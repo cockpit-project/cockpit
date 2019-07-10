@@ -602,6 +602,13 @@ test_echo_large (TestCase *tc,
   GBytes *sent;
   JsonObject *init = NULL;
 
+  /* HACK: TODO: find out exactly why this test is so slow under Valgrind */
+  if (cockpit_test_skip_slow ())
+    {
+      tc->closed = TRUE;
+      return;
+    }
+
   do_fixture_auth (tc->transport, data);
   init = wait_until_transport_init (tc->transport, NULL);
 

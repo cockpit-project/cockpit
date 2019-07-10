@@ -305,6 +305,7 @@ valgrind-suppressions: $(VALGRIND_SUPPRESSIONS)
 check-memory: valgrind-suppressions
 	$(MAKE) LOG_FLAGS="valgrind $(VALGRIND_ARGS)" \
 	        HTML_LOG_FLAGS="valgrind $(VALGRIND_ARGS)" \
+		COCKPIT_SKIP_SLOW_TESTS=1 \
 		$(AM_MAKEFLAGS) check TESTS="$(filter-out tools/% bots/%,$(TESTS))"
 recheck-memory: valgrind-suppressions
 	$(MAKE) LOG_FLAGS="-- valgrind $(VALGRIND_ARGS)" \

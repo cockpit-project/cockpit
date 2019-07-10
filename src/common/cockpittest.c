@@ -731,3 +731,15 @@ cockpit_test_reset_warnings (void)
       orig_g_debug = NULL;
     }
 }
+
+gboolean
+cockpit_test_skip_slow (void)
+{
+  if (g_getenv ("COCKPIT_SKIP_SLOW_TESTS"))
+    {
+      g_test_skip ("Skipping slow tests");
+      return TRUE;
+    }
+
+  return FALSE;
+}

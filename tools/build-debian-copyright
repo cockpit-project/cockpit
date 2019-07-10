@@ -107,7 +107,15 @@ def module_copyright(moddir):
         # fall back to package.json's author
         try:
             with open(os.path.join(moddir, 'package.json')) as f:
-                copyrights.add(' ' + json.load(f)['author']['name'])
+                author = json.load(f)['author']
+
+                # `author` can be either a string or a dict
+                # https://flaviocopes.com/package-json/#author
+                if isinstance(author, dict):
+                    author = author['name']
+                assert isinstance(author, str)
+
+                copyrights.add(' ' + author)
         except (IOError, KeyError):
             pass
 

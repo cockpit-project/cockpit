@@ -55,7 +55,7 @@ python3 -c "import fcntl, os; map(lambda fd: fcntl.fcntl(fd, fcntl.F_SETFL, fcnt
 
 if dpkg-architecture --is amd64; then
     # run distcheck on main arch
-    make distcheck 2>&1
+    make XZ_COMPRESS_FLAGS='-0' distcheck 2>&1
 else
     # on i386, validate that "distclean" does not remove too much
     make dist-gzip

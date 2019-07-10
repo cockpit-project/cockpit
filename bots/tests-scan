@@ -158,7 +158,7 @@ def main():
     parser.add_argument('-p', '--pull-number', default=None,
                         help='Single pull request to scan for tasks')
     parser.add_argument('--pull-data', default=None,
-                        help='pull_request GitHub JSON data to evaluate; mutualy exclusive with -p and -s')
+                        help='pull_request event GitHub JSON data to evaluate; mutualy exclusive with -p and -s')
     parser.add_argument('-s', '--sha', default=None,
                         help='SHA beloging to pull request to scan for tasks')
     parser.add_argument('--amqp', default=None,
@@ -380,7 +380,7 @@ def cockpit_tasks(api, update, branch_contexts, repo, pull_data, pull_number, sh
     contexts = set(itertools.chain(*branch_contexts.values()))
 
     if pull_data:
-        pulls.append(json.loads(pull_data))
+        pulls.append(json.loads(pull_data)['pull_request'])
     elif pull_number:
         pull = api.get("pulls/{0}".format(pull_number))
         if pull:

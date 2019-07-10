@@ -420,13 +420,16 @@ DIST_ARCHIVES = \
 	cockpit-$(VERSION).tar.xz \
 	cockpit-cache-$(VERSION).tar.xz
 
+# used from containers/unit-tests/run.sh
+XZ_COMPRESS_FLAGS = --extreme
+
 dist-gzip: distdir
 	$(DIST_TAR_MAIN) | GZIP=$(GZIP_ENV) gzip -c > $(distdir).tar.gz
 	$(DIST_TAR_CACHE) | GZIP=$(GZIP_ENV) gzip -c > cockpit-cache-$(VERSION).tar.gz
 	find "$(distdir)" -type d ! -perm -200 -exec chmod u+w {} ';' && rm -rf "$(distdir)"
 dist-xz: distdir
-	$(DIST_TAR_MAIN) | xz -ec > $(distdir).tar.xz
-	$(DIST_TAR_CACHE) | xz -ec > cockpit-cache-$(VERSION).tar.xz
+	$(DIST_TAR_MAIN) | xz $(XZ_COMPRESS_FLAGS) > $(distdir).tar.xz
+	$(DIST_TAR_CACHE) | xz $(XZ_COMPRESS_FLAGS) > cockpit-cache-$(VERSION).tar.xz
 	find "$(distdir)" -type d ! -perm -200 -exec chmod u+w {} ';' && rm -rf "$(distdir)"
 
 distcheck-hook::

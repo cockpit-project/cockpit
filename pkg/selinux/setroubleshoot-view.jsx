@@ -486,8 +486,8 @@ export class SETroubleshootPage extends React.Component {
                     dismissError={this.props.dismissStatusError}
                 />
                 {errorMessage}
-                {troubleshooting}
                 {modifications}
+                {troubleshooting}
             </div>
         );
     }

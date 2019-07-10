@@ -9,6 +9,10 @@ It assumes that the Cockpit source git checkout is available in `/source`. It
 will not modify that directory or take uncommitted changes into account, but it
 will re-use an already existing `node_modules/` directory.
 
+The scripts can use either podman (preferred) or docker. If you use docker, you
+need to run all commands as root. With podman the containers work as either user
+or root.
+
 ## Building
 
 The `build` script will build the `cockpit/unit-tests` and
@@ -29,17 +33,17 @@ to modify its behaviour:
 
 Some examples:
 
-    $ sudo ./start           # run the unit tests on amd64
+    $ ./start           # run the unit tests on amd64
 
-    $ sudo ./start CC=clang  # run the unit tests on amd64, compiled with clang
+    $ ./start CC=clang  # run the unit tests on amd64, compiled with clang
 
-    $ sudo ./start :i386     # run the unit tests on i386
+    $ ./start :i386     # run the unit tests on i386
 
 ## Debugging tests
 
 For interactive debugging, run a shell in the container:
 
-    $ sudo ./start shell     # start an interactive shell on i386
+    $ ./start shell     # start an interactive shell on i386
 
 You will find the cockpit source tree (from the host) mounted at `/source` in
 the container.
@@ -52,9 +56,9 @@ will checkout and build the source, but not run any tests.
 
 You can also attach to another container using the provided `exec` script.  For example:
 
-    $ sudo ./exec uname -a   # run a command as the "builder" user
+    $ ./exec uname -a   # run a command as the "builder" user
 
-    $ sudo ./exec --root     # start a shell as root
+    $ ./exec --root     # start a shell as root
 
 ## More Info
 

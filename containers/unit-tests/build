@@ -2,7 +2,12 @@
 
 dir=$(dirname "$0")
 
-docker build --build-arg debian_arch=amd64 --build-arg personality=linux64 -t cockpit/unit-tests ${dir}
-docker tag  cockpit/unit-tests:latest docker.io/cockpit/unit-tests:latest
-docker build --build-arg debian_arch=i386 --build-arg personality=linux32 -t cockpit/unit-tests:i386 ${dir}
-docker tag  cockpit/unit-tests:i386 docker.io/cockpit/unit-tests:i386
+if test -z "${docker:=$(which podman || which docker || true)}"; then
+  echo 'Neither podman nor docker are installed'
+  exit 1
+fi
+
+$docker build --build-arg debian_arch=amd64 --build-arg personality=linux64 -t cockpit/unit-tests ${dir}
+$docker tag  cockpit/unit-tests:latest docker.io/cockpit/unit-tests:latest
+$docker build --build-arg debian_arch=i386 --build-arg personality=linux32 -t cockpit/unit-tests:i386 ${dir}
+$docker tag  cockpit/unit-tests:i386 docker.io/cockpit/unit-tests:i386

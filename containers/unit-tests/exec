@@ -10,6 +10,8 @@ id=''
 
 while test $# -gt 0; do
   case "$1" in
+    --docker) docker="docker";;
+    --podman) docker="podman";;
     --root) args="$args -uroot";;
     --id=*) id="${1#--id=}";;
     -it) args="$args -it"; defaultargs='';;
@@ -20,8 +22,13 @@ while test $# -gt 0; do
   shift
 done
 
+if test -z "${docker:=$(which podman || which docker || true)}"; then
+  echo 'Neither podman nor docker are installed'
+  exit 1
+fi
+
 if [ -z "$id" ]; then
-  id="$(docker ps -qf "${filter}")"
+  id="$(${docker} ps -qf "${filter}")"
 
   if checkargs 2 $id; then :
   elif checkargs 1 $id; then
@@ -30,7 +37,7 @@ if [ -z "$id" ]; then
   else
     echo 'More than one running cockpit-unit/tests container:'
     echo
-    docker ps -f "${filter}" | sed -e 's/^/  /'
+    ${docker} ps -f "${filter}" | sed -e 's/^/  /'
     echo
     echo 'Use --id= to specify which one.'
     exit 1
@@ -42,5 +49,6 @@ if test $# -eq 0; then
   set -- $defaultcmd
 fi
 
+
 set -ex
-exec docker exec ${args} -- "${id}" /entrypoint "$@"
+exec ${docker} exec ${args} -- "${id}" /entrypoint "$@"

@@ -59,9 +59,16 @@ a.disabled:hover {
 /* Limit dropdown menus to 90% of the viewport size */
 .dropdown-menu {
     height: auto;
-    overflow-x: hidden;
+    overflow-y: auto;
     max-height: 90vh;
 }
+
+/* Allow kebab menus to have a ^ with overflowing */
+/* Note: This means kebab menus cannot be _too_ long */
+.dropdown-kebab-pf > .dropdown-menu {
+    overflow: visible;
+}
+
 /* Align these buttons more nicely */
 .btn.fa-minus,
 .btn.fa-plus {

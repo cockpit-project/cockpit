@@ -30,6 +30,9 @@
 
 #include <string.h>
 
+/* Declared in cockpitwebserver.c */
+extern gboolean cockpit_webserver_want_certificate;
+
 /* JSON dict snippet for headers that are present in every request */
 #define STATIC_HEADERS "\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\",\"X-Content-Type-Options\":\"nosniff\""
 
@@ -506,6 +509,7 @@ teardown_tls (TestTls *test,
   g_object_unref (test->web_server);
   g_object_unref (test->transport);
   g_clear_object (&test->peer);
+  cockpit_webserver_want_certificate = FALSE;
 }
 
 static void
@@ -677,6 +681,9 @@ test_tls_certificate (TestTls *test,
   const gchar *control;
   GBytes *bytes;
   GBytes *data;
+
+  /* tell server to request client cert */
+  cockpit_webserver_want_certificate = TRUE;
 
   tls = cockpit_json_parse_object (json, -1, &error);
   g_assert_no_error (error);
@@ -851,17 +858,12 @@ test_tls_authority_bad (TestTls *test,
   g_free (expected_json);
 }
 
-/* Declared in cockpitwebserver.c */
-extern gboolean cockpit_webserver_want_certificate;
-
 int
 main (int argc,
       char *argv[])
 {
   char *ip = non_local_ip ();
   int result;
-
-  cockpit_webserver_want_certificate = TRUE;
 
   cockpit_test_init (&argc, &argv);
 

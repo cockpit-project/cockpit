@@ -122,7 +122,7 @@ function ZoneRow(props) {
 
     let columns = [
         { name: props.zone.name, header: true },
-        <React.Fragment>{ props.zone.id === firewall.defaultZone ? <span className="fa fa-check">default</span> : '' }</React.Fragment>,
+        <React.Fragment>{ props.zone.id === firewall.defaultZone ? <React.Fragment><span className="fa fa-check" /> default</React.Fragment> : '' }</React.Fragment>,
         <React.Fragment>{ props.zone.interfaces.length > 0 ? props.zone.interfaces.join(', ') : '*' }</React.Fragment>,
         <React.Fragment>{ props.zone.source.length > 0 ? props.zone.source.join(', ') : '*' }</React.Fragment>,
         deleteButton,

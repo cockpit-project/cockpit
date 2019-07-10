@@ -519,6 +519,12 @@ test_tls_basic (TestTls *test,
   GBytes *bytes;
   GBytes *data;
 
+  if (GLIB_CHECK_VERSION (2, 61, 1) && !GLIB_CHECK_VERSION (2, 61, 2))
+    {
+      g_test_skip ("2.61.1 breaks G_TLS_AUTHENTICATION_REQUESTED: https://gitlab.gnome.org/GNOME/glib-networking/issues/92");
+      return;
+    }
+
   options = json_object_new ();
   json_object_set_int_member (options, "port", test->port);
   json_object_set_string_member (options, "payload", "http-stream1");
@@ -742,6 +748,12 @@ test_tls_authority_good (TestTls *test,
   const gchar *control;
   GBytes *bytes;
   GBytes *data;
+
+  if (GLIB_CHECK_VERSION (2, 61, 1) && !GLIB_CHECK_VERSION (2, 61, 2))
+    {
+      g_test_skip ("2.61.1 breaks G_TLS_AUTHENTICATION_REQUESTED: https://gitlab.gnome.org/GNOME/glib-networking/issues/92");
+      return;
+    }
 
   tls = cockpit_json_parse_object (json, -1, &error);
   g_assert_no_error (error);

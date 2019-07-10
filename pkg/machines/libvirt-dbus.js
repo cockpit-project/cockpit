@@ -695,7 +695,7 @@ LIBVIRT_DBUS_PROVIDER = {
         let domainXML;
 
         return dispatch => {
-            call(connectionName, objPath, 'org.libvirt.Domain', 'GetXMLDesc', [0], TIMEOUT)
+            return call(connectionName, objPath, 'org.libvirt.Domain', 'GetXMLDesc', [0], TIMEOUT)
                     .then(domXml => {
                         domainXML = domXml[0];
                         return call(connectionName, objPath, 'org.libvirt.Domain', 'GetXMLDesc', [Enum.VIR_DOMAIN_XML_INACTIVE], TIMEOUT);
@@ -748,7 +748,7 @@ LIBVIRT_DBUS_PROVIDER = {
                         else
                             dispatch(updateOrAddVm(Object.assign({}, props, dumpxmlParams)));
                     })
-                    .catch(function(ex) { console.warn("GET_VM action failed failed for path", objPath, ex) });
+                    .catch(function(ex) { console.warn("GET_VM action failed failed for path", objPath, ex); return cockpit.reject(ex) });
         };
     },
 
@@ -1046,9 +1046,12 @@ function startEventMonitorDomains(connectionName, dispatch) {
                     connectionName,
                     id: objPath,
                     updateOnly: true,
-                }));
-                // transient VMs don't have a separate Undefined event, so remove them on stop
-                dispatch(undefineVm({ connectionName, id: objPath, transientOnly: true }));
+                }))
+                        .catch(ex => {
+                            if (ex.message.includes('Domain not found'))
+                                // transient VMs don't have a separate Undefined event, so remove them on stop
+                                dispatch(undefineVm({ connectionName, id: objPath, transientOnly: true }));
+                        });
                 break;
 
             default:

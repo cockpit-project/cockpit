@@ -43,4 +43,4 @@ if test $# -eq 0; then
 fi
 
 set -ex
-exec docker exec ${args} -- "${id}" "$@"
+exec docker exec ${args} -- "${id}" /entrypoint "$@"

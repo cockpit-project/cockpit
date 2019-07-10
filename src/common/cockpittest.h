@@ -114,6 +114,8 @@ GInetAddress *  cockpit_test_find_non_loopback_address (void);
 void             cockpit_test_allow_warnings           (void);
 void             cockpit_test_reset_warnings           (void);
 
+gboolean         cockpit_test_skip_slow                (void);
+
 G_END_DECLS
 
 #endif /* __COCKPIT_TEST_H__ */

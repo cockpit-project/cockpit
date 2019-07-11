@@ -76,7 +76,7 @@ abort_errno (const char *msg)
   abort ();
 }
 
-void*
+void *
 mallocx (size_t size)
 {
   void *r = malloc (size);
@@ -85,7 +85,7 @@ mallocx (size_t size)
   return r;
 }
 
-char*
+char *
 strdupx (const char *s)
 {
   char *r = strdup (s);
@@ -94,7 +94,7 @@ strdupx (const char *s)
   return r;
 }
 
-char*
+char *
 strndupx (const char *s,
          size_t n)
 {
@@ -122,7 +122,7 @@ asprintfx (char **strp,
   return r;
 }
 
-void*
+void *
 reallocx (void *ptr,
           size_t size)
 {
@@ -134,7 +134,7 @@ reallocx (void *ptr,
 
 /* this is like reallocarray(3), but this does not yet exist everywhere; plus
  * abort() on ENOMEM */
-void*
+void *
 reallocarrayx (void *ptr,
                size_t nmemb,
                size_t size)

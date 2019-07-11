@@ -465,12 +465,20 @@ LIBVIRT_DBUS_PROVIDER = {
         connectionName,
     }) {
         return dispatch => {
-            call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'ListStoragePools', [0], TIMEOUT)
+            return call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'ListStoragePools', [0], TIMEOUT)
                     .then(objPaths => {
                         // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
                         // https://github.com/cockpit-project/cockpit/issues/10956
                         // eslint-disable-next-line cockpit/no-cockpit-all
-                        return cockpit.all(objPaths[0].map((path) => dispatch(getStoragePool({ connectionName, id:path }))));
+                        return cockpit.all(objPaths[0].map(path => {
+                            return call(connectionName, path, 'org.freedesktop.DBus.Properties', 'Get', ['org.libvirt.StoragePool', 'Active'], TIMEOUT)
+                                    .then(active => {
+                                        if (active[0].v)
+                                            return storagePoolRefresh(connectionName, path);
+                                        else
+                                            return dispatch(getStoragePool({ connectionName, id:path }));
+                                    });
+                        }));
                     })
                     .fail(ex => console.warn('GET_ALL_STORAGE_POOLS action failed:', JSON.stringify(ex)));
         };

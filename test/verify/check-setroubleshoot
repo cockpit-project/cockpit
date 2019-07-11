@@ -171,6 +171,7 @@ class TestSelinux(MachineCase):
         # Right click and paste
         b.mouse(".terminal", "contextmenu", btn=2)
         b.click('.contextMenu .contextMenuOption:nth-child(2)')
+        b.wait_in_text(".xterm-accessibility-tree", "semanage import <<EOF")
         b.wait_in_text(".xterm-accessibility-tree", "boolean -D")
         b.wait_in_text(".xterm-accessibility-tree", "boolean -m -1 zebra_write_config")
         b.wait_in_text(".xterm-accessibility-tree", "fcontext -a -f a -t samba_share_t -r 's0' '/var/tmp/'")

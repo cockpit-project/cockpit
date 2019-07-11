@@ -14,11 +14,17 @@ Cockpit uses Node.js during development. Node.js is not used at runtime.
 To make changes on Cockpit you'll want to install Node.js, NPM and
 various development dependencies like Webpack.
 
-On Debian or Ubuntu:
+On Debian and Ubuntu, the available versions of nodejs and npm are old
+and/or incompatible with each other.  You should not try to use them to
+build cockpit.  You can use the helpful "n" utility to get a more
+reasonable environment to work with.
 
     $ sudo apt-get install nodejs npm
+    $ sudo npm install -g n
+    $ sudo apt-get remove nodejs npm
+    $ sudo n lts
 
-On Fedora:
+On Fedora, the distribution verisons are sufficient:
 
     $ sudo dnf install nodejs npm
 

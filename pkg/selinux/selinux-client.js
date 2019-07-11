@@ -36,6 +36,7 @@ var status = {
     shell: "",
     modifications: null,
     permitted: true,
+    failed: false,
 };
 
 /* initializes the selinux status updating, returns initial status
@@ -48,6 +49,7 @@ var status = {
  *   - shell:           Output of `semanage export`
  *   - modifications:   List of all local modifications in selinux policy
  *   - permitted:       Set to false if user is not allowed to see local modifications
+ *   - failed:          Reading of modifications failed in unexpected way
  * errorMessage:    optional, if getting the status failed, here will be additional info
  *
  * Since we're screenscraping we need to run this in LC_ALL=C mode
@@ -153,11 +155,12 @@ export function init(statusChangedCallback) {
                     statusChangedCallback(status, undefined);
                 })
                 .catch(e => {
+                    status.modifications = [];
                     if (e.message.indexOf("ValueError:") >= 0) {
                         status.permitted = false;
-                        status.modifications = [];
                         statusChangedCallback(status, undefined);
                     } else {
+                        status.failed = true;
                         statusChangedCallback(status, e.message);
                     }
                 });

@@ -141,6 +141,8 @@ export class Modifications extends React.Component {
 
     render() {
         let emptyRow = null;
+        let fail_message = this.props.permitted ? _("No System Modifications") : _("The logged in user is not permitted to view system modifications");
+        fail_message = this.props.failed ? _("Error running semanage to discover system modifications") : fail_message;
         if (this.props.entries === null) {
             emptyRow = <thead className={"listing-ct-empty"}>
                 <tr className="modification-row">
@@ -155,7 +157,7 @@ export class Modifications extends React.Component {
             emptyRow = <thead className={"listing-ct-empty"}>
                 <tr className="modification-row">
                     <td>
-                        { this.props.permitted ? _("No System Modifications") : _("The logged in user is not permitted to view system modifications") }
+                        { fail_message }
                     </td>
                 </tr>
             </thead>;

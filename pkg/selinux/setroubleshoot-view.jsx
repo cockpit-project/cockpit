@@ -460,6 +460,7 @@ export class SETroubleshootPage extends React.Component {
                 permitted={ this.props.selinuxStatus.permitted }
                 shell={ this.props.selinuxStatus.shell }
                 entries={ this.props.selinuxStatus.modifications }
+                failed={ this.props.selinuxStatus.failed }
             />
         );
 

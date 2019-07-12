@@ -460,6 +460,7 @@ export class SETroubleshootPage extends React.Component {
                 permitted={ this.props.selinuxStatus.permitted }
                 shell={ "semanage import <<EOF\n" + this.props.selinuxStatus.shell.trim() + "\nEOF" }
                 entries={ this.props.selinuxStatus.modifications }
+                failed={ this.props.selinuxStatus.failed }
             />
         );
 

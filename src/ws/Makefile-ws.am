@@ -94,6 +94,7 @@ libcockpit_ws_a_CFLAGS = \
 libcockpit_ws_LIBS = \
 	libcockpit-ws.a \
 	libcockpit-common.a \
+	libcockpit-common-nodeps.a \
 	libwebsocket.a \
 	$(COCKPIT_WS_LIBS) \
 	$(NULL)
@@ -118,19 +119,14 @@ sbin_PROGRAMS += remotectl
 libexec_PROGRAMS += cockpit-ws cockpit-session
 
 cockpit_session_SOURCES = \
-	src/common/cockpitauthorize.c \
-	src/common/cockpitauthorize.h \
-	src/common/cockpitbase64.c \
-	src/common/cockpitbase64.h \
-	src/common/cockpitframe.c \
-	src/common/cockpitframe.h \
-	src/common/cockpitmemory.c \
-	src/common/cockpitmemory.h \
 	src/ws/session-utils.c \
 	src/ws/session-utils.h \
 	src/ws/session.c \
 	$(NULL)
-cockpit_session_LDADD = $(COCKPIT_SESSION_LIBS)
+cockpit_session_LDADD = \
+	libcockpit-common-nodeps.a \
+	$(COCKPIT_SESSION_LIBS) \
+	$(NULL)
 
 cockpit_ws_SOURCES =					\
 	src/ws/main.c					\
@@ -161,6 +157,7 @@ remotectl_CFLAGS = \
 
 remotectl_LDADD = \
 	libcockpit-common.a \
+	libcockpit-common-nodeps.a \
 	$(COCKPIT_LIBS) \
 	$(NULL)
 
@@ -365,6 +362,7 @@ test_remotectlcertificate_SOURCES = \
 	$(NULL)
 test_remotectlcertificate_LDADD = \
 	libcockpit-common.a \
+	libcockpit-common-nodeps.a \
 	$(COCKPIT_LIBS) \
 	$(NULL)
 
@@ -390,17 +388,8 @@ mock_echo_SOURCES = src/ws/mock-echo.c
 mock_echo_CFLAGS = $(COCKPIT_WS_CFLAGS)
 mock_echo_LDADD = $(COCKPIT_WS_LIBS)
 
-mock_auth_command_SOURCES = \
-	src/common/cockpitauthorize.c \
-	src/common/cockpitauthorize.h \
-	src/common/cockpitbase64.c \
-	src/common/cockpitbase64.h \
-	src/common/cockpitframe.c \
-	src/common/cockpitframe.h \
-	src/common/cockpitmemory.c \
-	src/common/cockpitmemory.h \
-	src/ws/mock-auth-command.c \
-	$(NULL)
+mock_auth_command_SOURCES = src/ws/mock-auth-command.c
+mock_auth_command_LDADD = libcockpit-common-nodeps.a
 
 noinst_PROGRAMS += \
 	$(WS_CHECKS) \

@@ -21,24 +21,41 @@ EXTRA_DIST += \
 	$(test_locale_PO) \
 	$(NULL)
 
-noinst_LIBRARIES += libcockpit-common.a
+noinst_LIBRARIES += libcockpit-common-nodeps.a
 
-libcockpit_common_a_SOURCES = \
+# Code that has no dependencies other than libc
+libcockpit_common_nodeps_a_SOURCES = \
 	src/common/cockpitauthorize.c \
 	src/common/cockpitauthorize.h \
 	src/common/cockpitbase64.c \
 	src/common/cockpitbase64.h \
+	src/common/cockpitconf.h \
+	src/common/cockpitconf.c \
+	src/common/cockpitframe.c \
+	src/common/cockpitframe.h \
+	src/common/cockpithex.c \
+	src/common/cockpithex.h \
+	src/common/cockpitmemory.c \
+	src/common/cockpitmemory.h \
+	src/common/cockpitwebcertificate.h \
+	src/common/cockpitwebcertificate.c \
+	$(NULL)
+
+libcockpit_common_nodeps_a_CFLAGS = \
+	-fPIC \
+	$(NULL)
+
+noinst_LIBRARIES += libcockpit-common.a
+
+# Code that has other dependencies, like glib or libsystemd
+libcockpit_common_a_SOURCES = \
 	src/common/cockpitchannel.c \
 	src/common/cockpitchannel.h \
 	src/common/cockpiterror.h src/common/cockpiterror.c \
 	src/common/cockpitflow.c \
 	src/common/cockpitflow.h \
-	src/common/cockpitframe.c \
-	src/common/cockpitframe.h \
 	src/common/cockpithash.c \
 	src/common/cockpithash.h \
-	src/common/cockpithex.c \
-	src/common/cockpithex.h \
 	src/common/cockpitjson.c \
 	src/common/cockpitjson.h \
 	src/common/cockpitlog.h src/common/cockpitlog.c \
@@ -48,8 +65,6 @@ libcockpit_common_a_SOURCES = \
 	src/common/cockpitloopback.h \
 	src/common/cockpitmachinesjson.c \
 	src/common/cockpitmachinesjson.h \
-	src/common/cockpitmemory.c \
-	src/common/cockpitmemory.h \
 	src/common/cockpitpipe.c \
 	src/common/cockpitpipe.h \
 	src/common/cockpitpipetransport.c \
@@ -70,8 +85,6 @@ libcockpit_common_a_SOURCES = \
 	src/common/cockpitunixsignal.h \
 	src/common/cockpitversion.c \
 	src/common/cockpitversion.h \
-	src/common/cockpitwebcertificate.h \
-	src/common/cockpitwebcertificate.c \
 	src/common/cockpitwebfilter.h \
 	src/common/cockpitwebfilter.c \
 	src/common/cockpitwebinject.h \
@@ -80,8 +93,6 @@ libcockpit_common_a_SOURCES = \
 	src/common/cockpitwebresponse.c \
 	src/common/cockpitwebserver.h \
 	src/common/cockpitwebserver.c \
-	src/common/cockpitconf.h \
-	src/common/cockpitconf.c \
 	$(NULL)
 
 nodist_libcockpit_common_a_SOURCES = \
@@ -96,6 +107,7 @@ libcockpit_common_a_CFLAGS = \
 
 libcockpit_common_a_LIBS = \
 	libcockpit-common.a \
+	libcockpit-common-nodeps.a \
 	libwebsocket.a \
 	$(COCKPIT_LIBS) \
 	$(NULL)
@@ -124,24 +136,12 @@ COCKPIT_CHECKS = \
 	$(NULL)
 
 test_authorize_CFLAGS = $(libcockpit_common_a_CFLAGS)
-test_authorize_SOURCES = \
-	src/common/cockpitauthorize.c \
-	src/common/cockpitauthorize.h \
-	src/common/cockpitbase64.c \
-	src/common/cockpitbase64.h \
-	src/common/cockpitmemory.c \
-	src/common/cockpitmemory.h \
-	src/common/test-authorize.c \
-	$(NULL)
-test_authorize_LDADD = libretest.a
+test_authorize_SOURCES = src/common/test-authorize.c
+test_authorize_LDADD = libcockpit-common-nodeps.a libretest.a
 
 test_base64_CFLAGS = $(COCKPIT_SESSION_CFLAGS)
-test_base64_SOURCES = \
-	src/common/test-base64.c \
-	src/common/cockpitbase64.h \
-	src/common/cockpitbase64.c \
-	$(NULL)
-test_base64_LDADD = libretest.a
+test_base64_SOURCES = src/common/test-base64.c
+test_base64_LDADD = libcockpit-common-nodeps.a libretest.a
 
 test_channel_SOURCES = \
 	src/common/test-channel.c \

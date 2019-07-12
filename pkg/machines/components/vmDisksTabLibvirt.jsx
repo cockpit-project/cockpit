@@ -87,6 +87,7 @@ class VmDisksTabLibvirt extends React.Component {
             capacity: capacity,
 
             device: disk.device,
+            driver: disk.driver,
             target: disk.target,
             bus: disk.bus,
             readonly: disk.readonly,

@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
+import "form-layout.less";
 import React from 'react';
 import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
@@ -26,10 +27,12 @@ import {
     TableBody,
 } from '@patternfly/react-table';
 
-import { convertToUnit, toReadableNumber, units } from "../helpers.js";
+import { convertToUnit, diskPropertyChanged, toReadableNumber, units } from "../helpers.js";
 import RemoveDiskAction from './diskRemove.jsx';
 import { AddDiskModalBody } from './diskAdd.jsx';
 import { getAllStoragePools } from '../actions/provider-actions.js';
+import { EditDiskAction } from './diskEdit.jsx';
+import WarningInactive from './warningInactive.jsx';
 
 const _ = cockpit.gettext;
 
@@ -97,11 +100,11 @@ class VmDisksTab extends React.Component {
             </>
         );
         const columnTitles = [_("Device")];
-        let renderCapacityUsed, renderReadOnly, renderAdditional;
+        let renderCapacityUsed, renderAccess, renderAdditional;
 
         if (disks && disks.length > 0) {
             renderCapacityUsed = !!disks.find(disk => (!!disk.used));
-            renderReadOnly = !!disks.find(disk => (typeof disk.readonly !== "undefined"));
+            renderAccess = !!disks.find(disk => (typeof disk.readonly !== "undefined") || (typeof disk.shareable !== "undefined"));
             renderAdditional = !!disks.find(disk => (!!disk.diskExtras));
 
             if (renderCapacity) {
@@ -111,7 +114,7 @@ class VmDisksTab extends React.Component {
                 columnTitles.push(_("Capacity"));
             }
             columnTitles.push(_("Bus"));
-            if (renderReadOnly) {
+            if (renderAccess) {
                 columnTitles.push(_("Access"));
             }
             columnTitles.push(_("Source"));
@@ -142,16 +145,16 @@ class VmDisksTab extends React.Component {
 
             columns.push({ title: <VmDiskCell value={disk.bus} id={`${idPrefixRow}-bus`} key={`${idPrefixRow}-bus`} /> });
 
-            if (renderReadOnly) {
-                const readOnly = (
-                    <span id={`${idPrefixRow}-readonly`}>
-                        { disk.readonly ? _("Read-Only") : disk.shareable ? _("Read-Write and Shared") : _("Read-Write") }
+            if (renderAccess) {
+                const access = (
+                    <span id={`${idPrefixRow}-access`}>
+                        { disk.readonly ? _("Read-only") : disk.shareable ? _("Writeable and shared") : _("Writeable") }
                         { vm.state === "running" &&
                         (diskPropertyChanged(vm, disk.target, "readonly") || diskPropertyChanged(vm, disk.target, "shareable")) &&
                             <WarningInactive iconId={`${idPrefixRow}-access-tooltip`} tooltipId={`tip-${idPrefixRow}-access`} /> }
                     </span>
                 );
-                columns.push(readOnly);
+                columns.push(access);
             }
 
             columns.push({ title: disk.diskSourceCell });
@@ -159,15 +162,24 @@ class VmDisksTab extends React.Component {
                 columns.push({ title: disk.diskExtras || '' });
 
             if (provider.name === 'LibvirtDBus') {
-                const removeDiskAction = RemoveDiskAction({
-                    dispatch,
-                    vm,
-                    target: disk.target,
-                    idPrefixRow,
-                    onAddErrorNotification,
-                });
-                columns.push({ title: removeDiskAction });
+                const diskActions = (
+                    <div className='machines-listing-actions'>
+                        <RemoveDiskAction dispatch={dispatch}
+                            vm={vm}
+                            target={disk.target}
+                            idPrefixRow={idPrefixRow}
+                            onAddErrorNotification={onAddErrorNotification} />
+                        { vm.inactiveXML.disks[disk.target] && // supported only  for persistent disks
+                        <EditDiskAction disk={disk}
+                            vm={vm}
+                            provider={provider}
+                            idPrefix={idPrefixRow}
+                            onAddErrorNotification={onAddErrorNotification} /> }
+                    </div>
+                );
+                columns.push({ title: diskActions });
             }
+
             return columns;
         });
 

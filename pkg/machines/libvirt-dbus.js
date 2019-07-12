@@ -97,6 +97,7 @@ import {
     serialConsoleCommand,
     unknownConnectionName,
     updateBootOrder,
+    updateDisk,
     updateMaxMemory,
     updateVCPUSettings,
     CONSOLE_VM,
@@ -1336,6 +1337,14 @@ export function attachIface({ connectionName, vmId, mac, permanent, hotplug, sou
     const xmlDesc = getIfaceXML(sourceType, source, model, mac);
 
     return attachDevice({ connectionName, vmId, permanent, hotplug, xmlDesc });
+}
+
+export function changeDiskAccessPolicy(connectionName, objPath, target, readonly, shareable) {
+    return call(connectionName, objPath, 'org.libvirt.Domain', 'GetXMLDesc', [Enum.VIR_DOMAIN_XML_INACTIVE], TIMEOUT)
+            .then(domXml => {
+                const updatedXML = updateDisk(domXml, target, readonly, shareable);
+                return call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'DomainDefineXML', [updatedXML], TIMEOUT);
+            });
 }
 
 export function changeNetworkAutostart(network, autostart, dispatch) {

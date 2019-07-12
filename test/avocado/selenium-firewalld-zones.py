@@ -1,10 +1,10 @@
 import os
 import sys
+from testlib_avocado.seleniumlib import SeleniumTest, clickable, visible
 
 machine_test_dir = os.path.dirname(os.path.realpath(__file__))
 if machine_test_dir not in sys.path:
     sys.path.insert(1, machine_test_dir)
-from testlib_avocado.seleniumlib import SeleniumTest, clickable, invisible, visible
 
 
 class FirewalldZones(SeleniumTest):

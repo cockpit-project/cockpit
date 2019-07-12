@@ -164,6 +164,15 @@ function ph_mouse(sel, type, x, y, btn, ctrlKey, shiftKey, altKey, metaKey) {
         throw sel + " is disabled or somehow doesn't process events";
 }
 
+function ph_get_checked (sel)
+{
+    var el = ph_find(sel);
+    if (el.checked === undefined)
+        throw sel + " is not checkable";
+
+    return el.checked;
+}
+
 function ph_set_checked (sel, val)
 {
     var el = ph_find(sel);

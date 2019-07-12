@@ -233,6 +233,10 @@ class Browser:
         self.wait_present(selector + ':not([disabled])')
         self.call_js_func('ph_set_attr', selector, attr, val and 'true' or 'false')
 
+    def get_checked(self, selector):
+        self.wait_visible(selector + ':not([disabled])')
+        return self.call_js_func('ph_get_checked', selector)
+
     def set_checked(self, selector, val):
         self.wait_visible(selector + ':not([disabled])')
         self.call_js_func('ph_set_checked', selector, val)

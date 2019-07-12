@@ -676,3 +676,77 @@ export function getDefaultVolumeFormat(pool) {
 
     return undefined;
 }
+
+/**
+ * Returns whetever disk property of VM's inactive XML has changed
+ * compared to live XML.
+ * Mainly used for readonly and shareable properties.
+ *
+ * @param {object} vm
+ * @param {string} diskTarget
+ * @param {string} property
+ * @returns {boolean}
+ */
+export function diskPropertyChanged(vm, diskTarget, property) {
+    const disk = vm.disks[diskTarget];
+    const inactiveDisk = vm.inactiveXML.disks[diskTarget];
+
+    if (disk && inactiveDisk) // only persistent disks
+        return disk[property] !== inactiveDisk[property];
+    else
+        return false;
+}
+
+/**
+ * Returns an identifying value which can be used as disk name.
+ * Can be file path, url, pool/volume or disk device type (fallback)
+ *
+ * @param {object} disk
+ * @returns {string}
+ */
+export function getDiskFullName(disk) {
+    let name;
+
+    if (["file", "block", "dir"].includes(disk.type)) {
+        // file path
+        let path;
+        if (disk.type === "file")
+            path = disk.source.file;
+        else if (disk.type === "block")
+            path = disk.source.dev;
+        else if (disk.type === "dir")
+            path = disk.source.dir;
+
+        name = path;
+    } else if (disk.type === "network") {
+        // url
+        name = disk.source.name;
+    } else if (disk.type === "volume") {
+        // pool/volume
+        name = disk.source.pool + '/' + disk.source.volume;
+    }
+
+    // fallback
+    if (name === undefined)
+        name = disk.device;
+
+    return name;
+}
+
+/**
+ * Returns a shortened pretty version of disk name.
+ * File path or pool/volume gets parsed, rest is unmodified.
+ *
+ * @param {object} disk
+ * @returns {string}
+ */
+export function getDiskPrettyName(disk) {
+    let name = getDiskFullName(disk);
+
+    if (["file", "block", "dir"].includes(disk.type) || disk.type === "volume") {
+        const parts = name.split('/');
+        name = parts[parts.length - 1];
+    }
+
+    return name;
+}

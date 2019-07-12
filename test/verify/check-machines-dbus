@@ -177,6 +177,85 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_not_in_text("#vm-subVmTest1-boot-order", bootOrder)
         b.wait_not_present("#boot-order-tooltip")
 
+    def testDiskEdit(self):
+        b = self.browser
+        m = self.machine
+
+        self.startVm("subVmTest1")
+
+        # prepare libvirt storage pools
+        m.execute("mkdir /mnt/vm_one; chmod a+rwx /mnt/vm_one")
+        m.execute("virsh pool-create-as myPoolOne --type dir --target /mnt/vm_one")
+        m.execute("virsh vol-create-as myPoolOne mydisk --capacity 100M --format raw") # raw support shareable
+        m.execute("virsh vol-create-as myPoolOne mydisk2 --capacity 100M --format raw")
+        m.execute("virsh vol-create-as myPoolOne mydisk3 --capacity 100M --format qcow2")
+        wait(lambda: "mydisk" in m.execute("virsh vol-list myPoolOne"))
+        wait(lambda: "mydisk2" in m.execute("virsh vol-list myPoolOne"))
+        wait(lambda: "mydisk3" in m.execute("virsh vol-list myPoolOne"))
+
+        m.execute("virsh attach-disk --domain subVmTest1 --source /mnt/vm_one/mydisk --target vde --targetbus virtio --persistent")
+        m.execute("virsh attach-disk --domain subVmTest1 --source /mnt/vm_one/mydisk2 --target vdf --targetbus virtio")
+        m.execute("virsh attach-disk --domain subVmTest1 --source /mnt/vm_one/mydisk3 --target vdg --targetbus virtio --subdriver qcow2 --persistent")
+
+        self.login_and_go("/machines")
+        b.wait_in_text("body", "Virtual Machines")
+        b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
+        b.click("tbody tr[data-row-id=vm-subVmTest1] th") # click on the row header
+        b.wait_in_text("#vm-subVmTest1-state", "running")
+        b.click("#vm-subVmTest1-disks") # open the "Disks" subtab
+
+        # Test non-persistent disks are not configurable
+        b.wait_not_present("#vm-subVmTest1-disks-vdf-edit")
+
+        # Test qcow2 disk has only readonly attribute configurable
+        b.click("#vm-subVmTest1-disks-vdg-edit")
+        b.wait_present("#vm-subVmTest1-disks-vdg-edit-dialog")
+        b.wait_present("#vm-subVmTest1-disks-vdg-edit-readonly")
+        b.wait_present("#vm-subVmTest1-disks-vdg-edit-writable")
+        b.wait_not_present("#vm-subVmTest1-disks-vdg-edit-writable-shareable")
+        b.click("#vm-subVmTest1-disks-vdg-edit-dialog-cancel")
+        b.wait_not_present("#vm-subVmTest1-disks-vdg-edit-dialog")
+
+        # Test configuration of readonly and shareable attributes
+        b.click("#vm-subVmTest1-disks-vde-edit")
+        b.wait_present("#vm-subVmTest1-disks-vde-edit-dialog")
+
+        # Changing readonly with running VM
+        b.click("#vm-subVmTest1-disks-vde-edit-readonly")
+
+        # Tooltip in dialog should show
+        b.wait_present("#vm-subVmTest1-disks-vde-edit-idle-message")
+
+        # Save changes
+        b.click("#vm-subVmTest1-disks-vde-edit-dialog-save")
+        b.wait_not_present("#vm-subVmTest1-disks-vde-edit-dialog")
+        # See tooltip present in disk listing table
+        b.wait_present("#vm-subVmTest1-disks-vde-access-tooltip")
+
+        # Shut off VM and see state has changed
+        b.click("#vm-subVmTest1-off-caret")
+        b.click("#vm-subVmTest1-forceOff")
+        b.wait_in_text("#vm-subVmTest1-state", "shut off")
+        # Check change has been applied after shutoff
+        b.wait_in_text("#vm-subVmTest1-disks-vde-access", "Read-only")
+        # See tooltip no longer present in disk listing table
+        b.wait_not_present("#vm-subVmTest1-disks-vde-access-tooltip")
+
+        # Test configuration of readonly and shareable attributes for Shut off VM
+        b.click("#vm-subVmTest1-disks-vde-edit")
+        b.wait_present("#vm-subVmTest1-disks-vde-edit-dialog")
+
+        # Changing readonly
+        b.click("#vm-subVmTest1-disks-vde-edit-writable-shareable")
+        # Tooltip in dialog should not be present
+        b.wait_not_present("#vm-subVmTest1-disks-vde-edit-idle-message")
+
+        # Close dialog
+        b.click("#vm-subVmTest1-disks-vde-edit-dialog-save")
+        b.wait_not_present("#vm-subVmTest1-disks-vde-edit-dialog")
+        b.wait_in_text("#vm-subVmTest1-disks-vde-access", "Writeable and shared")
+        b.wait_not_present("#vm-subVmTest1-disks-vde-access-tooltip")
+
     def testDomainMemorySettings(self):
         b = self.browser
 

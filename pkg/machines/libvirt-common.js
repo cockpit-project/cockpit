@@ -373,6 +373,7 @@ export function parseDumpxmlForDisks(devicesElem) {
                     pool: sourceElem ? sourceElem.getAttribute('pool') : undefined,
                     volume: sourceElem ? sourceElem.getAttribute('volume') : undefined,
                     protocol: sourceElem ? sourceElem.getAttribute('protocol') : undefined,
+                    name: sourceElem ? sourceElem.getAttribute('name') : undefined,
                     host: {
                         name: sourceHostElem ? sourceHostElem.getAttribute('name') : undefined,
                         port: sourceHostElem ? sourceHostElem.getAttribute('port') : undefined,
@@ -867,6 +868,41 @@ export function resolveUiState(dispatch, name) {
     }
 
     return result;
+}
+
+export function updateDisk(domXml, diskTarget, readonly, shareable) {
+    const domainElem = getDomainElem(domXml);
+
+    const deviceElem = domainElem.getElementsByTagName("devices")[0];
+    const disks = deviceElem.getElementsByTagName("disk");
+
+    for (let i = 0; i < disks.length; i++) {
+        const disk = disks[i];
+        const target = disk.getElementsByTagName("target")[0].getAttribute("dev");
+        if (target == diskTarget) {
+            let shareAbleElem = getSingleOptionalElem(disk, "shareable");
+            if (!shareAbleElem && shareable) {
+                shareAbleElem = document.createElement("shareable");
+                disk.appendChild(shareAbleElem);
+            } else if (shareAbleElem && !shareable) {
+                shareAbleElem.remove();
+            }
+
+            let readOnlyElem = getSingleOptionalElem(disk, "readonly");
+            if (!readOnlyElem && readonly) {
+                readOnlyElem = document.createElement("readonly");
+                disk.appendChild(readOnlyElem);
+            } else if (readOnlyElem && !readonly) {
+                readOnlyElem.remove();
+            }
+        }
+    }
+
+    const tmp = document.createElement("div");
+
+    tmp.appendChild(domainElem);
+
+    return tmp.innerHTML;
 }
 
 export function unknownConnectionName(action, libvirtServiceName) {

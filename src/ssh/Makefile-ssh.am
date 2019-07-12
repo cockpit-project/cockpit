@@ -8,8 +8,6 @@ libcockpit_ssh_a_SOURCES = \
 	src/ssh/cockpitsshoptions.h \
 	src/ssh/cockpitsshrelay.h \
 	src/ssh/cockpitsshrelay.c \
-	src/common/cockpitauthorize.c \
-	src/common/cockpitauthorize.h \
 	$(NULL)
 
 if !HAVE_SSH_SESSION_HAS_KNOWN_HOSTS_ENTRY
@@ -30,6 +28,7 @@ libcockpit_ssh_a_CFLAGS = \
 libcockpit_ssh_LIBS = \
 	libcockpit-ssh.a \
 	libcockpit-common.a \
+	libcockpit-common-nodeps.a \
 	$(COCKPIT_SSH_SESSION_LIBS) \
 	$(NULL)
 

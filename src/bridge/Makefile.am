@@ -89,6 +89,7 @@ libcockpit_bridge_a_CFLAGS = \
 libcockpit_bridge_LIBS = \
 	libcockpit-bridge.a \
 	libcockpit-common.a \
+	libcockpit-common-nodeps.a \
 	libwebsocket.a \
 	$(COCKPIT_BRIDGE_LIBS) \
 	$(NULL)
@@ -305,6 +306,7 @@ libcockpit_pcp_a_CFLAGS = \
 libcockpit_pcp_LIBS = \
 	libcockpit-pcp.a \
 	libcockpit-common.a \
+	libcockpit-common-nodeps.a \
 	$(COCKPIT_PCP_LIBS) \
 	$(NULL)
 

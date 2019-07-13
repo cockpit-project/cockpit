@@ -264,6 +264,8 @@ class PerformanceOptions extends React.Component {
 }
 
 const CreateNewDisk = ({ idPrefix, onValueChanged, dialogValues, vmStoragePools, provider, vm }) => {
+    const storagePool = vmStoragePools.find(pool => pool.name == dialogValues.storagePoolName);
+
     return (
         <React.Fragment>
             <hr />
@@ -271,7 +273,7 @@ const CreateNewDisk = ({ idPrefix, onValueChanged, dialogValues, vmStoragePools,
                      storagePoolName={dialogValues.storagePoolName}
                      onValueChanged={onValueChanged}
                      vmStoragePools={vmStoragePools} />
-            {vmStoragePools.length > 0 &&
+            {storagePool &&
             <React.Fragment>
                 <hr />
                 <VolumeName idPrefix={idPrefix}
@@ -281,7 +283,7 @@ const CreateNewDisk = ({ idPrefix, onValueChanged, dialogValues, vmStoragePools,
                                size={dialogValues.size}
                                unit={dialogValues.unit}
                                diskFileFormat={dialogValues.diskFileFormat}
-                               storagePoolType={vmStoragePools.find(pool => pool.name == dialogValues.storagePoolName).type}
+                               storagePoolType={storagePool.type}
                                onValueChanged={onValueChanged} />
                 <hr />
                 <PermanentChange idPrefix={idPrefix}

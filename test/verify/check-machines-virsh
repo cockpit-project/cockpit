@@ -22,8 +22,7 @@ import parent
 from testlib import *
 
 
-@skipImage("LibvirtDBus is the only available provider",
-           "fedora-30", "fedora-i386", "fedora-testing", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1")
+@allowImage("LibvirtDBus is the only available provider", "ubuntu-1804")
 class TestMachinesVirsh(machineslib.TestMachines):
 
     def removeLibvirtDBus(self):

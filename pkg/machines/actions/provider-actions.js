@@ -190,8 +190,8 @@ export function getNodeMaxMemory(connectionName) {
     return virt(GET_NODE_MAX_MEMORY, { connectionName });
 }
 
-export function getStoragePool({ connectionName, id, name }) {
-    return virt(GET_STORAGE_POOL, { connectionName, id, name });
+export function getStoragePool({ connectionName, id, name, updateOnly }) {
+    return virt(GET_STORAGE_POOL, { connectionName, id, name, updateOnly });
 }
 
 export function getStorageVolumes({ connectionName, poolName }) {

@@ -1,7 +1,4 @@
-import os
-import sys
-import time
-from testlib_avocado.seleniumlib import SeleniumTest, clickable, invisible, visible
+from testlib_avocado.seleniumlib import SeleniumTest
 
 
 class TextInBashRC(SeleniumTest):
@@ -38,8 +35,6 @@ class SessionLoggingShell(SeleniumTest):
         self.machine.execute("rpm -q tlog || sudo yum  install -y tlog", timeout=240)
         self.machine.execute("sudo useradd -m {}".format(self.user))
         self.machine.execute("echo '{}:{}' | sudo chpasswd".format(self.user, self.password))
-
-
 
     def testShell(self):
         self.login(tmpuser=self.user, tmppasswd=self.password, add_ssh_key=False, authorized=False)

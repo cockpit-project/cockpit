@@ -222,8 +222,8 @@ class MachinesLib(SeleniumTest):
             self.select_by_value(self.wait_css('#source-type'), source_type)
 
         filename = source.rsplit("/", 1)[-1]
-        if source_type in ['file', 'disk_image']:
-            self.send_keys(self.wait_css('#source-file > div > input'), source, ctrla=True)
+        if source_type in ['file', 'disk_image', 'pxe']:
+            self.send_keys(self.wait_css('label[for=source-file] + div input[type=text]'), source, ctrla=True)
             # click on filename link if appear dialog window
             element = self.wait_link(filename, fatal=False, overridetry=3, cond=clickable)
             if element:
@@ -282,7 +282,7 @@ class MachinesLib(SeleniumTest):
             self.select_by_value(self.wait_css('#storage-pool-dialog-type'), storage_type)
 
         if storage_type != 'iscsi-direct':
-            self.send_keys(self.wait_css('#storage-pool-dialog-target > div > input'), target_path, ctrla=True)
+            self.send_keys(self.wait_css('label[for=storage-pool-dialog-target] + div input[type=text]'), target_path, ctrla=True)
             element = self.wait_link(target_path.rsplit('/', 1)[-1], fatal=False, overridetry=3, cond=clickable)
             if element:
                 self.click(element)

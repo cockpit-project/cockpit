@@ -281,23 +281,23 @@ class Browser:
             self.wait_val(selector, val)
         self.blur(selector)
 
-    def set_file_autocomplete_val(self, selector, location):
-        caret_selector = "{0} span.caret".format(selector)
-        spinner_selector = "{0} .spinner".format(selector)
-        file_item_selector_template = "{0} ul li a:contains({1})"
+    def set_file_autocomplete_val(self, identifier, location):
+        file_item_selector_template = "#{0} li a:contains({1})"
 
-        self.wait_visible(selector + ':not([disabled])')
-
+        path = ''
+        index = 0
         for path_part in filter(None, location.split('/')):
-            self.wait_not_present(spinner_selector)
-            file_item_selector = file_item_selector_template.format(selector, path_part)
-            if not self.is_present(file_item_selector) or not self.is_visible(file_item_selector):
-                self.click(caret_selector)
-            self.wait_visible(file_item_selector)
+            path += '/' + path_part
+            file_item_selector = file_item_selector_template.format(identifier, path_part)
+            self.click("label[for={0}] + div input[type=text]".format(identifier))
             self.click(file_item_selector)
+            if index != len(list(filter(None, location.split('/')))) - 1 or location[-1] == '/':
+                self.wait_val("label[for={0}] + div input[type=text]".format(identifier), path + '/')
+            else:
+                self.wait_val("label[for={0}] + div input[type=text]".format(identifier), path)
+            index += 1
 
-        self.wait_not_present(spinner_selector)
-        self.wait_val(selector + " input", location)
+        self.wait_val("label[for={0}] + div input[type=text]".format(identifier), location)
 
     def wait_timeout(self, timeout):
         browser = self

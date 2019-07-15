@@ -1180,13 +1180,13 @@ class TestMachinesDBus(machineslib.TestMachines):
                     b.set_val("#storage-pool-dialog-type", self.pool_type)
 
                 if self.target:
-                    b.set_file_autocomplete_val("#storage-pool-dialog-target", self.target)
+                    b.set_file_autocomplete_val("storage-pool-dialog-target", self.target)
 
                 if 'source_path' in self.source:
                     if self.pool_type != 'disk':
                         b.set_input_text("#storage-pool-dialog-source", self.source['source_path'])
                     else:
-                        b.set_file_autocomplete_val("#storage-pool-dialog-source", self.source['source_path'])
+                        b.set_file_autocomplete_val("storage-pool-dialog-source", self.source['source_path'])
 
                 if 'format' in self.source:
                     b.select_from_dropdown("#storage-pool-dialog-source-format", self.source['format'])
@@ -1221,7 +1221,7 @@ class TestMachinesDBus(machineslib.TestMachines):
                         b.wait_present("#create-storage-pool-dialog .modal-body form div.has-error #storage-pool-dialog-name")
 
                     if (not self.target):
-                        b.wait_present("#create-storage-pool-dialog .modal-body form div.has-error #storage-pool-dialog-target")
+                        b.wait_present("#create-storage-pool-dialog .modal-body label:contains(Target) + div.has-error")
                     # Check errors from backend
                     if self.xfail_error:
                         error_location = "#create-storage-pool-dialog .modal-footer .alert-danger"

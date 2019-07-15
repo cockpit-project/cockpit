@@ -23,5 +23,5 @@ import ReactDOM from "react-dom";
 import { FileAutoComplete } from "cockpit-components-file-autocomplete.jsx";
 
 export function showFileAcDemo(rootElement) {
-    ReactDOM.render(<FileAutoComplete />, rootElement);
+    ReactDOM.render(<FileAutoComplete id='file-autocomplete-widget' />, rootElement);
 }

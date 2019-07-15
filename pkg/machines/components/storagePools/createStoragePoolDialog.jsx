@@ -107,7 +107,7 @@ const StoragePoolTargetRow = ({ onValueChanged, dialogValues }) => {
     if (['dir', 'netfs', 'iscsi', 'disk'].includes(dialogValues.type)) {
         return (
             <>
-                <label className='control-label'>
+                <label htmlFor='storage-pool-dialog-target' className='control-label'>
                     {_("Target Path")}
                 </label>
                 <FormGroup validationState={validationState} controlId='target'>

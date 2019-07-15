@@ -315,11 +315,17 @@ class TestKeys(MachineCase):
         b.wait_visible("tr.load-custom-key")
         b.wait_visible("tr.load-custom-key button")
         b.wait_visible("#ssh-file-container")
-        b.set_val("#ssh-file-container input", "/bad")
+        if m.image in ["rhel-8-0-distropkg"]:
+            b.set_val("#ssh-file-container input", "/bad")
+        else:
+            b.set_val("#ssh-file-container input[type=text]", "/bad")
         b.click("tr.load-custom-key button")
         b.wait_text("tr.load-custom-key div.dialog-error", "Not a valid private key")
 
-        b.set_val("#ssh-file-container input", "/tmp/new.rsa")
+        if m.image in ["rhel-8-0-distropkg"]:
+            b.set_val("#ssh-file-container input", "/tmp/new.rsa")
+        else:
+            b.set_val("#ssh-file-container input[type=text]", "/tmp/new.rsa")
         b.click("tr.load-custom-key button")
         b.wait_not_visible("tr.load-custom-key")
         # OpenSSH 7.8 and up has a new default key format where
@@ -364,10 +370,16 @@ class TestKeys(MachineCase):
             b.click("#credential-keys a")
             b.wait_visible("tr.load-custom-key")
             b.wait_visible("tr.load-custom-key button")
-            b.set_val("#ssh-file-container input", "/bad")
+            if m.image in ["rhel-8-0-distropkg"]:
+                b.set_val("#ssh-file-container input", "/bad")
+            else:
+                b.set_val("#ssh-file-container input[type=text]", "/bad")
             b.click("tr.load-custom-key button")
 
-            b.set_val("#ssh-file-container input", "/tmp/new.rsa")
+            if m.image in ["rhel-8-0-distropkg"]:
+                b.set_val("#ssh-file-container input", "/tmp/new.rsa")
+            else:
+                b.set_val("#ssh-file-container input[type=text]", "/tmp/new.rsa")
             b.click("tr.load-custom-key button")
             b.wait_not_visible("tr.load-custom-key")
             b.wait_present("tbody.ssh-add-key-body[data-name='/tmp/new.rsa']")

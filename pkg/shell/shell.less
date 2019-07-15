@@ -746,13 +746,21 @@ iframe.container-frame {
 }
 
 /* Credentials dialog */
+#ssh-file-container, #ssh-file-add {
+  display: inline-block;
+}
 
 #credentials-dialog {
-    .modal-body {
+    div.table-scrollable {
         max-height: 500px;
+        overflow-y: auto;
+        margin-right: 7px;
+        padding-right: 8px;
+        margin-top: 15px;
+        padding-top: 0px;
     }
 
-    table.credential-listing {
+    table {
         margin-top: 0px;
         width: 100%;
 
@@ -875,16 +883,6 @@ iframe.container-frame {
     border-left: 4px solid rgba(255, 255, 255, 0.25);
     border-right: 4px solid rgba(255, 255, 255, 0.25);
     border-top: 4px solid rgba(255, 255, 255, 0.75);
-}
-
-
-/* Scrollable modal body, needs max-height set elsewhere */
-.modal-scrollable {
-    overflow-y: auto;
-    margin-right: 7px;
-    padding-right: 8px;
-    margin-top: 15px;
-    padding-top: 0px;
 }
 
 /* allow text only branding */

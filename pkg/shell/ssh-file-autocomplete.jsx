@@ -23,7 +23,7 @@ import ReactDOM from "react-dom";
 import { FileAutoComplete } from "cockpit-components-file-autocomplete.jsx";
 
 export function render(rootElement) {
-    ReactDOM.render(<FileAutoComplete />, rootElement);
+    ReactDOM.render(<FileAutoComplete id='ssh-key-path' />, rootElement);
 }
 
 export function remove(rootElement) {

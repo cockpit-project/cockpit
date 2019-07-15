@@ -1853,9 +1853,9 @@ class TestMachines(NetworkCase):
             else:
                 b.wait_not_present("#source-type")
             if self.sourceType == 'file':
-                b.set_file_autocomplete_val("#source-file", self.location)
+                b.set_file_autocomplete_val("source-file", self.location)
             elif self.sourceType == 'disk_image':
-                b.set_file_autocomplete_val("#source-disk", self.location)
+                b.set_file_autocomplete_val("source-disk", self.location)
             elif self.sourceType == 'pxe':
                 b.select_from_dropdown("#network-select", self.location)
             else:

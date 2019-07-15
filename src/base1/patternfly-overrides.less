@@ -258,10 +258,23 @@ select.form-control {
 
     }
 
+    &.active > a,
     > a:active {
       // PF3 reverts the active color with an !important
       // so we also use an !important here to override it
       color: var(--pf-global--Color--100) !important;
+    }
+
+    &.active > a {
+      // PF3 also modifies these colors with an !important
+      &,
+      &:active,
+      &:focus,
+      &:hover {
+        color: var(--pf-global--Color--100) !important;
+        background-color: var(--pf-global--BackgroundColor--light-300) !important;
+        border-color: var(--pf-global--BackgroundColor--light-300) !important;
+      }
     }
 
     &.selected > a {

@@ -17,37 +17,34 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-.cockpit-log-panel {
-    border: 0;
-}
-
-.cockpit-log-panel .panel-heading {
-    background-color: var(--color-gray-11);
-    border-color: var(--color-gray-11);
-    color: var(--color-ct-list-bg);
+.cockpit-log-panel:empty {
+    border: none;
 }
 
 .cockpit-log-panel .panel-body {
     padding: 0;
-    border-bottom: 1px var(--color-ct-list-border) solid;
 }
 
 .cockpit-log-panel .panel-body .panel-heading {
-    border-left: 1px var(--color-ct-list-border) solid;
-    border-right: 1px var(--color-ct-list-border) solid;
     border-top: 0;
-    border-bottom: 1px var(--color-ct-list-border) solid;
     background-color: var(--color-bg);
     font-weight: bold;
-    padding-top: 2px;
-    padding-bottom: 2px;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
     width: auto;
     color: var(--color-ct-list-text);
+    display: flex;
+}
+
+.cockpit-log-panel .panel-body .panel-heading:not(:first-child)::after {
+    content: '\a0';
+    display: block;
+    flex: auto;
+    background: linear-gradient(var(--color-bg) 50%, var(--color-border) calc(50% + 1px), var(--color-bg) calc(50% + 2px));
+    margin: 0 0 0 0.5rem;
 }
 
 .cockpit-logline {
-    border-left: 1px var(--color-ct-list-border) solid;
-    border-right: 1px var(--color-ct-list-border) solid;
     background-color: var(--color-ct-list-bg);
     font-size: var(--font-small);
     padding: 0.5rem 1rem;
@@ -69,6 +66,10 @@
 
 .cockpit-log-panel > .cockpit-logline:hover {
     cursor: pointer;
+}
+
+.cockpit-log-panel .cockpit-logline + .panel-heading {
+    border-top-width: 1px;
 }
 
 .cockpit-logmsg-reboot {

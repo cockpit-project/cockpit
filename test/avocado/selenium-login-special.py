@@ -34,12 +34,12 @@ class SessionLoggingShell(SeleniumTest):
         self.user = "admin1"
         self.password = "secretpass"
         self.login()
-
-        self.machine.execute("sudo yum  install -y tlog")
+        self.logout()
+        self.machine.execute("rpm -q tlog || sudo yum  install -y tlog", timeout=240)
         self.machine.execute("sudo useradd -m {}".format(self.user))
         self.machine.execute("echo '{}:{}' | sudo chpasswd".format(self.user, self.password))
 
-        self.logout()
+
 
     def testShell(self):
         self.login(tmpuser=self.user, tmppasswd=self.password, add_ssh_key=False, authorized=False)

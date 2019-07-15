@@ -259,6 +259,10 @@ Unit=test.service
         self.assertEqual(b.val("#services-text-filter"), "")
         self.assertEqual(b.val("#services-dropdown"), "0")
 
+        # Check that journalbox shows empty state
+        b.click(svc_sel("systemd-halt.service"))
+        b.wait_text('#service-log', "No log entries")
+
     def testApi(self):
         m = self.machine
         b = self.browser

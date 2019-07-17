@@ -234,6 +234,10 @@ class SeleniumTestSuite(AvocadoTestSuite):
     machine_selenium = None
     ipaddr_selenium = "10.111.112.10"
     selenium_grid_restarts = 2
+    error_messages = [["urlopen error [Errno 113] No route to host"],
+                      ["Timeout: Unable to attach remote Browser on hub"],
+                      ["Terminated", "Running 'kill"]
+                      ]
 
     def __init__(self, browser, **kwargs):
         super().__init__(**kwargs)
@@ -312,13 +316,15 @@ class SeleniumTestSuite(AvocadoTestSuite):
         self.selenium_grid_restarts -= 1
 
     def _run_one_avocado_test(self, test):
+
         status, cmd_output, duration = super()._run_one_avocado_test(test)
         if self.selenium_grid_restarts and not status:
             # restart test again if it lost selenium grid location
-            if ("urlopen error [Errno 113] No route to host" in cmd_output) or\
-                    (("Terminated" in cmd_output) and ("Running 'kill" in cmd_output)):
-                self._restart_grid_and_cockpit()
-                status, cmd_output, duration = super()._run_one_avocado_test(test)
+            for error in self.error_messages:
+                if all([x in cmd_output for x in error]):
+                    self._restart_grid_and_cockpit()
+                    status, cmd_output, duration = super()._run_one_avocado_test(test)
+                    break
         return status, cmd_output, duration
 
 

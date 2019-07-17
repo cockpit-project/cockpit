@@ -15,11 +15,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-10 05:06+0000\n"
+"POT-Creation-Date: 2019-07-17 06:21+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2019-05-30 01:12+0000\n"
+"PO-Revision-Date: 2019-07-15 03:25+0000\n"
 "Last-Translator: Tony Fu <tfu@redhat.com>\n"
 "Language-Team: Chinese (Simplified)\n"
 "Language: zh_CN\n"
@@ -785,7 +785,7 @@ msgstr "注释"
 
 #: pkg/lib/cockpit-components-modifications.jsx:82
 msgid "Ansible Playbook"
-msgstr ""
+msgstr "Ansible Playbook"
 
 #: pkg/systemd/terminal.jsx:93
 msgid "Appearance:"
@@ -934,7 +934,7 @@ msgstr "自动使用指定的 NTP 服务器"
 
 #: pkg/lib/cockpit-components-modifications.jsx:71
 msgid "Automation Script"
-msgstr ""
+msgstr "自动化脚本"
 
 #: pkg/machines/components/networks/networkOverviewTab.jsx:86
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:64
@@ -1548,7 +1548,7 @@ msgstr "确认新密码"
 
 #: pkg/machines/components/networks/networkDelete.jsx:95
 msgid "Confirm deletion of the Virtual Network"
-msgstr ""
+msgstr "确认删除虚拟网络"
 
 #: pkg/storaged/crypto-keyslots.jsx:364
 msgid "Confirm removal with passphrase"
@@ -1705,7 +1705,7 @@ msgstr "复制"
 
 #: pkg/lib/cockpit-components-modifications.jsx:106
 msgid "Copy to clipboard"
-msgstr ""
+msgstr "复制到剪贴板"
 
 #: pkg/machines/components/vcpuModal.jsx:209
 msgid "Cores per socket"
@@ -2046,7 +2046,7 @@ msgstr "删除文件"
 
 #: pkg/machines/components/networks/networkDelete.jsx:92
 msgid "Delete Network $0"
-msgstr ""
+msgstr "删除网络 $0"
 
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:120
 msgid "Delete Storage Pool $0"
@@ -2504,6 +2504,10 @@ msgstr "加载用户: {{perm_failed}} 出错"
 msgid "Error message from Docker:"
 msgstr "来自 Docker 的错误消息："
 
+#: pkg/lib/cockpit-components-modifications.jsx:145
+msgid "Error running semanage to discover system modifications"
+msgstr ""
+
 #: pkg/users/authorized-keys.js:121
 msgid "Error saving authorized keys: "
 msgstr "保存授权密钥时出错: "
@@ -2582,7 +2586,7 @@ msgstr "添加主机失败: $0"
 
 #: pkg/networkmanager/firewall.jsx:237
 msgid "Failed to add port"
-msgstr ""
+msgstr "添加端口失败"
 
 #: pkg/networkmanager/firewall.jsx:237
 msgid "Failed to add service"
@@ -2618,7 +2622,7 @@ msgstr "启用 tuned 失败"
 
 #: pkg/machines/components/vmnetworktab.jsx:55
 msgid "Failed to fetch the IP addresses of the interfaces present in $0"
-msgstr ""
+msgstr "获取在 $0 中的接口的 IP 地址失败"
 
 #: pkg/users/index.html:393
 msgid "Failed to load authorized keys."
@@ -3494,9 +3498,9 @@ msgstr "加载可用的更新失败"
 msgid "Loading available updates, please wait..."
 msgstr "正在加载可用的更新，请等待..."
 
-#: pkg/lib/cockpit-components-modifications.jsx:149
+#: pkg/lib/cockpit-components-modifications.jsx:151
 msgid "Loading system modifications..."
-msgstr ""
+msgstr "加载系统改变..."
 
 #: pkg/systemd/services.html:84 pkg/kdump/kdump-view.jsx:367
 #: pkg/storaged/devices.jsx:65 pkg/systemd/logs.js:144 pkg/systemd/logs.js:159
@@ -3774,7 +3778,7 @@ msgstr "内存限制"
 
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:156
 msgid "Memory must not be 0"
-msgstr ""
+msgstr "内存不能为 0"
 
 #: pkg/machines/components/vm/memoryModal.jsx:158
 msgid "Memory size between 128 MiB and the maximum allocation"
@@ -4172,9 +4176,9 @@ msgstr "没有可用的存储池"
 msgid "No Storage Volumes defined for this Storage Pool"
 msgstr "没有为这个存储池定义存储卷"
 
-#: pkg/lib/cockpit-components-modifications.jsx:158
+#: pkg/lib/cockpit-components-modifications.jsx:144
 msgid "No System Modifications"
-msgstr ""
+msgstr "没有系统改变"
 
 #: pkg/machines/hostvmslist.jsx:85
 msgid "No VM is running or defined on this host"
@@ -4550,7 +4554,7 @@ msgstr "在 $target 操作 '$operation'"
 #: pkg/machines/components/storagePools/storagePool.jsx:175
 #: pkg/machines/components/storagePools/storagePool.jsx:180
 msgid "Operation is in progress"
-msgstr ""
+msgstr "操作进行中"
 
 #: pkg/storaged/drives-panel.jsx:94
 msgctxt "storage"
@@ -5823,7 +5827,7 @@ msgstr "共享"
 
 #: pkg/lib/cockpit-components-modifications.jsx:78
 msgid "Shell Script"
-msgstr ""
+msgstr "Shell 脚本"
 
 #: pkg/lib/cockpit-components-context-menu.jsx:105
 msgid "Shift+Insert"
@@ -6274,7 +6278,7 @@ msgstr "系统信息"
 
 #: pkg/selinux/setroubleshoot-view.jsx:459
 msgid "System Modifications"
-msgstr ""
+msgstr "系统改变"
 
 #: pkg/systemd/host.js:480
 msgid "System Not Registered"
@@ -6524,9 +6528,9 @@ msgstr "无法删除最后一个密钥槽"
 msgid "The last physical volume of a volume group cannot be removed."
 msgstr "不能删除一个卷组的最后一个物理卷。"
 
-#: pkg/lib/cockpit-components-modifications.jsx:158
+#: pkg/lib/cockpit-components-modifications.jsx:144
 msgid "The logged in user is not permitted to view system modifications"
-msgstr ""
+msgstr "登陆的用户没有权限查看系统改变"
 
 #: pkg/shell/indexes.js:407
 msgid "The machine is restarting"
@@ -6534,7 +6538,7 @@ msgstr "正在重启主机"
 
 #: pkg/machines/components/networks/networkDelete.jsx:76
 msgid "The network could not be deleted"
-msgstr ""
+msgstr "网络不能被删除"
 
 #: pkg/users/local.js:443 pkg/users/local.js:1399
 msgid "The passwords do not match"
@@ -7166,7 +7170,7 @@ msgstr "运行自 $0"
 
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:442
 msgid "Up to $0 $1 available in the default location"
-msgstr ""
+msgstr "在默认位置中最多有 $0 $1可用"
 
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:365
 msgid "Up to $0 $1 available on the host"
@@ -7409,9 +7413,9 @@ msgstr "版本"
 msgid "Very securely erasing $target"
 msgstr "非常安全地擦除 $target"
 
-#: pkg/lib/cockpit-components-modifications.jsx:172
+#: pkg/lib/cockpit-components-modifications.jsx:174
 msgid "View automation script"
-msgstr ""
+msgstr "查看自动化脚本"
 
 #: pkg/machines/components/networks/networkList.jsx:39
 #: pkg/machines/components/storagePools/storagePoolList.jsx:41
@@ -7953,7 +7957,7 @@ msgstr "vhostuser"
 msgid ""
 "virt-install package needs to be installed on the system in order to create "
 "new VMs"
-msgstr ""
+msgstr "为了创建新虚拟机需要在系统上安装 virt-install 软件包"
 
 #: pkg/machines/components/networks/networkOverviewTab.jsx:84
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:62

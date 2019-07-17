@@ -153,7 +153,10 @@ Unit=test.service
         m.execute("systemctl stop test-onboot.timer")
 
         # Selects Services tab
-        self.pick_tab(2)
+        if self.machine.image in ["rhel-8-0-distropkg"]: # Changed in #12349
+            self.pick_tab(2)
+        else:
+            self.pick_tab(1)
         b.wait_present(svc_sel('test.service'))
         b.click(svc_sel("test.service"))
         b.wait_in_text('#service-valid', "inactive")
@@ -615,7 +618,10 @@ WantedBy=multi-user.target
         unit_primary_action_btn = '#service-unit-primary-action'
 
         # Selects Services tab
-        self.pick_tab(2)
+        if self.machine.image in ["rhel-8-0-distropkg"]: # Changed in #12349
+            self.pick_tab(2)
+        else:
+            self.pick_tab(1)
         b.wait_present(svc_sel('condtest.service'))
         b.click(svc_sel("condtest.service"))
         b.wait_in_text('#service-valid', "inactive")

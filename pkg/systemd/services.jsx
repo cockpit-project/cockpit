@@ -35,8 +35,8 @@ export class ServiceTabs extends React.Component {
     render() {
         return (
             <Tabs defaultActiveKey=".service$" id="service-tabs" onSelect={this.props.onChange}>
-                <Tab eventKey=".target$" title={ _("Targets") } />
                 <Tab eventKey=".service$" title={ _("System Services") } />
+                <Tab eventKey=".target$" title={ _("Targets") } />
                 <Tab eventKey=".socket$" title={ _("Sockets") } />
                 <Tab eventKey=".timer$" title={ _("Timers") } />
                 <Tab eventKey=".path$" title={ _("Paths") } />

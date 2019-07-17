@@ -3,6 +3,9 @@ import { mustache } from "mustache";
 
 import cockpit from "cockpit";
 import moment from "moment";
+import React from "react";
+import ReactDOM from 'react-dom';
+import { ServiceTabs } from "./services.jsx";
 import { journal } from "journal";
 import "patterns";
 import "bootstrap-datepicker/dist/js/bootstrap-datepicker";
@@ -147,6 +150,7 @@ $(function() {
 
     var units_by_path = { };
     var path_by_id = { };
+    var pattern = ".service$";
 
     function ensure_units() {
         if (!units_initialized) {
@@ -268,7 +272,6 @@ $(function() {
 
         function render_now() {
             $("#loading-fallback").hide();
-            var pattern = $('#services-filter li.active').attr('data-pattern');
             var current_text_filter = $('#services-text-filter').val()
                     .toLowerCase();
             var current_type_filter = parseInt($('#services-dropdown').val());
@@ -339,6 +342,17 @@ $(function() {
             $('#services-dropdown').val(0);
             render();
         }
+
+        function tab_changed(new_tab) {
+            pattern = new_tab;
+            render();
+        }
+
+        ReactDOM.render(
+            React.createElement(ServiceTabs, {
+                onChange: tab_changed,
+            }),
+            document.getElementById("services-filter"));
 
         $("#services-text-filter").on("input", render);
         $(document).on("click", "#clear-all-filters", clear_filters);
@@ -487,16 +501,6 @@ $(function() {
 
         $(systemd_manager).on("UnitFilesChanged", function(event) {
             update_all();
-        });
-
-        $('#services-filter li').on('click', function() {
-            $('#services-filter li')
-                    .removeClass('active')
-                    .removeAttr('aria-current');
-            $(this)
-                    .addClass('active')
-                    .attr('aria-current', true);
-            render();
         });
 
         $('#services-dropdown').on('change', render);

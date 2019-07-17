@@ -1,0 +1,20 @@
+#!/bin/sh -e
+
+top_srcdir=$(realpath -m "$0"/../../..)
+image=cockpit/unit-tests:latest
+flags=''
+cmd=''
+
+while test $# -gt 0; do
+  case "$1" in
+    CC=*) ccarg="--env=$1";;
+    shell) flags=-it; cmd=/bin/bash;;
+    :*) image=cockpit/unit-tests"$1";;
+    *) echo "Unknown option '$1'"; exit 1;;
+  esac
+  shift
+done
+
+set -ex
+exec docker run --shm-size=512M --volume "${top_srcdir}":/source:ro \
+       ${ccarg:+"$ccarg"} $flags -- "$image" $cmd

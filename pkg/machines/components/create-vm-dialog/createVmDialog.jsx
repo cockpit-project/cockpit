@@ -814,3 +814,6 @@ CreateVmAction.propTypes = {
     providerName: PropTypes.string.isRequired,
     systemInfo: PropTypes.object.isRequired,
 };
+CreateVmAction.defaultProps = {
+    nodeMaxMemory: 1048576, // 1GiB
+};

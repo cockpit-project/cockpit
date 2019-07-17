@@ -33,6 +33,12 @@ class TestServices(MachineCase):
         # we don't race with the boot process
         self.machine.execute("systemctl start default.target")
 
+    def pick_tab(self, n):
+        if self.machine.image in ["rhel-8-0-distropkg"]: # Changed in #12349
+            self.browser.click('#services-filter :nth-child({0})'.format(n))
+        else:
+            self.browser.click('#services-filter li:nth-child({0}) a'.format(n))
+
     def testBasic(self):
         m = self.machine
         b = self.browser
@@ -129,7 +135,7 @@ Unit=test.service
         file_action_btn = '#service-file-action'
 
         # Selects Timer tab
-        b.click('#services-filter :nth-child(4)')
+        self.pick_tab(4)
         b.wait_present(svc_sel('test.timer'))
         b.wait_text(svc_sel('test.timer') + ' td:nth-child(3)', '')  # next run
         b.wait_text(svc_sel('test.timer') + ' td:nth-child(4)', '')  # last trigger
@@ -147,7 +153,7 @@ Unit=test.service
         m.execute("systemctl stop test-onboot.timer")
 
         # Selects Services tab
-        b.click('#services-filter :nth-child(2)')
+        self.pick_tab(2)
         b.wait_present(svc_sel('test.service'))
         b.click(svc_sel("test.service"))
         b.wait_in_text('#service-valid', "inactive")
@@ -324,7 +330,7 @@ WantedBy=default.target
         self.login_and_go("/system/services")
         if m.image not in ["rhel-8-0-distropkg"]: # Introduced in #11280
             b.wait_not_visible("#loading-fallback")
-        b.click('#services-filter :nth-child(4)')
+        self.pick_tab(4)
         b.wait_visible("#create-timer")
         b.click('#create-timer')
         b.wait_popup("timer-dialog")
@@ -609,7 +615,7 @@ WantedBy=multi-user.target
         unit_primary_action_btn = '#service-unit-primary-action'
 
         # Selects Services tab
-        b.click('#services-filter :nth-child(2)')
+        self.pick_tab(2)
         b.wait_present(svc_sel('condtest.service'))
         b.click(svc_sel("condtest.service"))
         b.wait_in_text('#service-valid', "inactive")

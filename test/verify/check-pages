@@ -159,7 +159,7 @@ OnCalendar=daily
         if m.image in ["rhel-8-0-distropkg"]:
             b.click('#services-filter button[data-pattern=\'\\\.timer\$\']')
         else:
-            b.click('#services-filter li[data-pattern=\'\\\.timer\$\']')
+            b.click('#services-filter li:nth-child(4) a')
         # HACK: the timers' next run/last trigger (col 3/4) don't always get filled (issue #9439)
         # b.wait_in_text("tr[data-goto-unit='test\.timer'] td:nth-child(3)", "morgen um")
 
@@ -306,7 +306,7 @@ OnCalendar=daily
         if m.image in ["rhel-8-0-distropkg"]:
             b.click('#services-filter button[data-pattern=\'\\\.timer\$\']')
         else:
-            b.click('#services-filter li[data-pattern=\'\\\.timer\$\']')
+            b.click('#services-filter li:nth-child(4) a')
         # HACK: the timers' next run/last trigger (col 3/4) don't always get filled (issue #9439)
         # b.wait_in_text('tr[data-goto-unit=\'test\.timer\'] td:nth-child(3)', 'morgen um')
 

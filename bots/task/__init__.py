@@ -52,7 +52,7 @@ __all__ = (
 )
 
 # Server which has the private RHEL/Windows images
-REDHAT_STORE = "https://cockpit-7.e2e.bos.redhat.com:8493"
+REDHAT_STORE = "https://cockpit-11.e2e.bos.redhat.com:8493"
 
 api = github.GitHub()
 verbose = False

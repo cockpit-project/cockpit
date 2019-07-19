@@ -93,6 +93,8 @@ class TestNetworking(NetworkCase):
         self.login_and_go("/network")
         self.wait_for_iface(iface)
 
+        # IPv4 address sharing
+
         b.click("#networking-interfaces tr[data-interface='%s'] td:first-child" % iface)
         b.wait_visible("#network-interface")
 
@@ -107,6 +109,43 @@ class TestNetworking(NetworkCase):
                          "shared")
         self.assertEqual(m.execute("nmcli -m tabular -t -f connection.gateway-ping-timeout con show '%s'" % con_id).strip(),
                          "12")
+
+        # IPv6 route
+
+        # by default there's a route to link-local only (fe80::)
+        show_cmd = "ip -6 route show dev %s" % iface
+        wait(lambda: "fe80::/64" in m.execute(show_cmd))
+        # add a manual one
+        b.click("tr:contains('IPv6') a")
+        b.wait_popup("network-ip-settings-dialog")
+        b.click('.network-ip-settings-row[data-field="routes"] button')  # +
+        b.set_val('#network-ip-settings-dialog input[placeholder="Address"]', "fe80:2::")
+        b.set_val('#network-ip-settings-dialog input[placeholder="Prefix length"]', "60")
+        b.set_val('#network-ip-settings-dialog input[placeholder="Gateway"]', "fe80:2::3")
+        b.set_val('#network-ip-settings-dialog input[placeholder="Metric"]', "42")
+        b.click('#network-ip-settings-apply')
+        b.wait_popdown("network-ip-settings-dialog")
+
+        # setting should be applied
+        wait(lambda: "metric 42" in m.execute(show_cmd))
+        out = m.execute(show_cmd)
+        self.assertIn("fe80:2::/60 via fe80:2::3 proto static metric 42", out)
+        self.assertIn("fe80:2::3 proto static metric 42", out)
+        # original link-local route still exists
+        self.assertIn("fe80::/64", out)
+
+        # dialog prefills fields with current settings
+        b.click("tr:contains('IPv6') a")
+        b.wait_popup("network-ip-settings-dialog")
+
+        b.wait_val('#network-ip-settings-dialog input[placeholder="Address"]', "fe80:2:0:0:0:0:0:0")
+        b.wait_val('#network-ip-settings-dialog input[placeholder="Prefix length"]', "60")
+        b.wait_val('#network-ip-settings-dialog input[placeholder="Gateway"]', "fe80:2:0:0:0:0:0:3")
+        if m.image not in ["rhel-8-0-distropkg"]:
+            # fixed in PR #12366
+            b.wait_val('#network-ip-settings-dialog input[placeholder="Metric"]', "42")
+        b.click('#network-ip-settings-cancel')
+        b.wait_popdown("network-ip-settings-dialog")
 
 
 if __name__ == '__main__':

@@ -37,8 +37,6 @@ DEVNULL = open("/dev/null", "r+")
 
 def main():
     parser = argparse.ArgumentParser(description='Run integration tests')
-    parser.add_argument('-j', '--jobs', dest="jobs", type=int,
-            default=os.environ.get("TEST_JOBS", 1), help="Number of concurrent jobs")
     parser.add_argument('--rebase', help="Rebase onto the specific branch before testing")
     parser.add_argument('--remote', help="The Git remote to use (instead of 'origin')",
                         default="origin")
@@ -181,7 +179,7 @@ class PullTask(object):
             # explicit request for html logs
             status["link"] = "log.html"
             status["extras"] = [ "https://raw.githubusercontent.com/cockpit-project/cockpit/master/bots/task/log.html" ]
-        elif self.context.startswith("cockpit/"):
+        elif self.test_project != "cockpit/cockpit-project":
             # third-party project, link directly to text log
             status["link"] = "log"
         else:
@@ -197,7 +195,6 @@ class PullTask(object):
                                              universal_newlines=True).strip()
             status["base"] = commit
 
-        (prefix, unused, image) = self.context.partition("/")
         if not self.base:
             status['irc'] = { }    # Only send to IRC when master
 
@@ -221,43 +218,6 @@ class PullTask(object):
             return "Rebase failed"
 
         return None
-
-    def prepare(self, prefix, value, image, verbose=False):
-        sys.stderr.write("Preparing image: building and installing Cockpit ...\n")
-
-        try:
-            # Download all the additional images so that even older branches find them
-            subprocess.check_call([ os.path.join(BOTS, "image-download"),
-                "candlepin", "fedora-stock", "fedora-23-stock",
-                "ipa", "openshift", "selenium"
-            ])
-
-        except subprocess.CalledProcessError:
-            return "Downloading of additional images failed"
-
-        # COMPAT: Create a legacy tmp/run directory to prevent races during testing
-        os.makedirs(os.path.join(BASE, "test", "tmp", "run"), exist_ok=True)
-
-        # Now actually run the prepare tooling
-        cmd = [ os.path.join(BASE, "test", "image-prepare") ]
-        if prefix == "image" or prefix == "container":
-            cmd += [ "--containers" ]
-        cmd += [ "--verbose" ]
-
-        # Flush our own output before invoking the command
-        sys.stdout.flush()
-        sys.stderr.flush()
-
-        try:
-            # Do the basic prepare
-            subprocess.check_call(cmd + [ image ])
-
-            # For containers tests we install to openshift too
-            if value == "kubernetes":
-                subprocess.check_call(cmd + [ "--install-only", "openshift" ])
-
-        except subprocess.CalledProcessError:
-            return "Preparation of testable image failed"
 
     def stop_publishing(self, ret):
         sink = self.sink
@@ -325,17 +285,10 @@ class PullTask(object):
         os.environ["TEST_NAME"] = self.name
         os.environ["TEST_REVISION"] = self.revision
 
-        # Split a value like verify/fedora-atomic
-        (prefix, unused, value) = self.context.partition("/")
-
-        if prefix in [ 'container', 'selenium', 'avocado' ]:
-            image = 'fedora-30'
-        elif prefix == 'cockpit':
-            (image, _, scenario) = value.partition('/')
-            if scenario:
-                os.environ["TEST_SCENARIO"] = scenario
-        else:
-            image = value
+        # Split OS and potential scenario
+        (image, _, scenario) = self.context.partition("/")
+        if scenario:
+            os.environ["TEST_SCENARIO"] = scenario
         os.environ["TEST_OS"] = image
 
         msg = "Testing {0} for {1} with {2} on {3}...\n".format(self.github_revision, self.name,
@@ -347,43 +300,13 @@ class PullTask(object):
         if self.base:
             ret = self.rebase()
 
-        test = os.path.join(BOTS, "..", "test")
-
-        # Figure out what to do next
-        if prefix == "verify":
-            cmd = [ "timeout", "120m", os.path.join(test, "verify", "run-tests"),
-                    "--jobs", str(opts.jobs) ]
-        elif prefix == "avocado":
-            cmd = [ "timeout", "60m", os.path.join(test, "avocado", "run-tests"),
-                    "--quick", "--tests" ]
-        elif prefix == "selenium":
-            if value not in ['firefox', 'chrome', 'edge']:
-                ret = "Unknown browser for selenium test"
-            # double timeout for Edge, it's so slow
-            timeout = "60m"
-            if value == "edge":
-                timeout = "120m"
-            cmd = [ "timeout", timeout, os.path.join(test, "avocado", "run-tests"),
-                    "--quick", "--selenium-tests", "--browser", value]
-        elif prefix == "image" or prefix == "container":
-            cmd = [ "timeout", "90m", os.path.join(test, "containers", "run-tests"),
-                    "--container", value]
-        elif prefix == "cockpit":
-            cmd = [ "timeout", "120m", os.path.join(test, "run") ]
-        else:
-            ret = "Unknown context"
-
-
-        # Prepare the image to run
-        if not ret and prefix != "cockpit":
-            ret = self.prepare(prefix, value, image, opts.verbose)
-
         # Flush our own output before running command
         sys.stdout.flush()
         sys.stderr.flush()
 
         # Actually run the tests
         if not ret:
+            cmd = [ "timeout", "120m", os.path.join(BOTS, "..", "test", "run") ]
             if opts.verbose:
                 cmd.append("--verbose")
             ret = subprocess.call(cmd)

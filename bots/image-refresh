@@ -28,79 +28,79 @@ from task import github, REDHAT_STORE
 
 TRIGGERS = {
     "centos-7": [
-        "cockpit/centos-7@cockpit-project/starter-kit",
+        "centos-7@cockpit-project/starter-kit",
     ],
     "continuous-atomic": [
-        "cockpit/continuous-atomic@cockpit-project/cockpit-ostree",
+        "continuous-atomic@cockpit-project/cockpit-ostree",
     ],
     "debian-testing": [
-        "verify/debian-testing"
+        "debian-testing"
     ],
     "debian-stable": [
-        "verify/debian-stable"
+        "debian-stable"
     ],
     "fedora-29": [
-        "verify/fedora-atomic",
-        "cockpit/fedora-29@cockpit-project/cockpit-podman",
+        "fedora-atomic",
+        "fedora-29@cockpit-project/cockpit-podman",
     ],
     "fedora-30": [
-        "verify/fedora-30",
-        "selenium/chrome",
-        "selenium/firefox",
-        "selenium/edge",
-        "avocado/fedora",
-        "container/bastion",
-        "cockpit/fedora-30@cockpit-project/starter-kit",
-        "cockpit/fedora-30@cockpit-project/cockpit-podman",
-        "cockpit/fedora-30@weldr/lorax",
-        "cockpit/fedora-30/live-iso@weldr/lorax",
-        "cockpit/fedora-30/qcow2@weldr/lorax",
-        "cockpit/fedora-30/chrome@weldr/cockpit-composer",
-        "cockpit/fedora-30/firefox@weldr/cockpit-composer",
-        "cockpit/fedora-30/edge@weldr/cockpit-composer",
+        "fedora-30",
+        "fedora-30/selenium-chrome",
+        "fedora-30/selenium-firefox",
+        "fedora-30/selenium-edge",
+        "fedora-30/avocado",
+        "fedora-30/container-bastion",
+        "fedora-30@cockpit-project/starter-kit",
+        "fedora-30@cockpit-project/cockpit-podman",
+        "fedora-30@weldr/lorax",
+        "fedora-30/live-iso@weldr/lorax",
+        "fedora-30/qcow2@weldr/lorax",
+        "fedora-30/chrome@weldr/cockpit-composer",
+        "fedora-30/firefox@weldr/cockpit-composer",
+        "fedora-30/edge@weldr/cockpit-composer",
     ],
     "fedora-atomic": [
-        "verify/fedora-atomic",
-        "cockpit/fedora-atomic@cockpit-project/cockpit-ostree",
+        "fedora-atomic",
+        "fedora-atomic@cockpit-project/cockpit-ostree",
     ],
     "fedora-testing": [
-        "verify/fedora-testing"
+        "fedora-testing"
     ],
     "fedora-i386": [
-        "verify/fedora-i386"
+        "fedora-i386"
     ],
     "ubuntu-1804": [
-        "verify/ubuntu-1804"
+        "ubuntu-1804"
     ],
     "ubuntu-stable": [
-        "verify/ubuntu-stable"
+        "ubuntu-stable"
     ],
     "openshift": [
         # FIXME: need to test a rhel-7.x branch here, once we can
     ],
     "ipa": [
-        "verify/fedora-30",
-        "verify/ubuntu-1804",
-        "verify/debian-stable"
+        "fedora-30",
+        "ubuntu-1804",
+        "debian-stable"
     ],
     "selenium": [
-        "selenium/chrome",
-        "selenium/firefox",
+        "fedora-30/selenium-chrome",
+        "fedora-30/selenium-firefox",
     ],
     "rhel-7-7": [
-        "cockpit/rhel-7-7/firefox@weldr/cockpit-composer",
+        "rhel-7-7/firefox@weldr/cockpit-composer",
     ],
     "rhel-8-0": [
-        "verify/rhel-8-0",
-        "verify/rhel-8-0-distropkg",
+        "rhel-8-0",
+        "rhel-8-0-distropkg",
     ],
     "rhel-8-1": [
-        "verify/rhel-8-1",
-        "cockpit/rhel-8-1/chrome@weldr/cockpit-composer",
-        "cockpit/rhel-8-1@cockpit-project/cockpit-podman",
+        "rhel-8-1",
+        "rhel-8-1/chrome@weldr/cockpit-composer",
+        "rhel-8-1@cockpit-project/cockpit-podman",
     ],
     "rhel-atomic": [
-        "cockpit/rhel-atomic@cockpit-project/cockpit-ostree",
+        "rhel-atomic@cockpit-project/cockpit-ostree",
     ]
 }
 

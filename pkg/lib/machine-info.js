@@ -193,3 +193,83 @@ export function udev_info(address) {
     }
     return pr;
 }
+
+const memoryRE = /^([ \w]+): (.*)/;
+
+// Process the dmidecode output and create a mapping of locator to DIMM properties
+function parseMemoryInfo(text) {
+    var info = {};
+    text.split("\n\n").map(paragraph => {
+        let locator = null;
+        let props = {};
+        paragraph = paragraph.trim();
+        if (!paragraph)
+            return;
+
+        paragraph.split("\n").map(line => {
+            line = line.trim();
+            let match = line.match(memoryRE);
+            if (match)
+                props[match[1]] = match[2];
+        });
+
+        locator = props["Locator"];
+        if (locator)
+            info[locator] = props;
+    });
+    return processMemory(info);
+}
+
+// Select the useful properties to display
+function processMemory(info) {
+    let memoryArray = [];
+
+    for (let dimm in info) {
+        let memoryProperty = info[dimm];
+
+        let memorySize = memoryProperty["Size"];
+        if (memorySize.includes("MB")) {
+            let memorySizeValue = parseInt(memorySize, 10);
+            memorySize = memorySizeValue / 1024 + " GB";
+        }
+
+        let memoryTechnology = memoryProperty["Memory Technology"];
+        if (!memoryTechnology || memoryTechnology == "<OUT OF SPEC>")
+            memoryTechnology = _("Unknown");
+
+        let memoryRank = memoryProperty["Rank"];
+        if (memoryRank == 1)
+            memoryRank = _("Single Rank");
+        if (memoryRank == 2)
+            memoryRank = _("Dual Rank");
+
+        memoryArray.push({
+            locator: memoryProperty["Locator"],
+            technology: memoryTechnology,
+            type: memoryProperty["Type"],
+            size: memorySize,
+            state: memoryProperty["Total Width"] == "Unknown" ? _("Absent") : _("Present"),
+            rank: memoryRank,
+            speed: memoryProperty["Speed"]
+        });
+    }
+
+    return memoryArray;
+}
+
+var memory_info_promises = {};
+
+export function memory_info(address) {
+    var pr = memory_info_promises[address];
+
+    if (!pr) {
+        memory_info_promises[address] = pr = new Promise((resolve, reject) => {
+            cockpit.spawn(["dmidecode", "-t", "memory"],
+                          { environ: ["LC_ALL=C"], err: "message", superuser: "try" })
+                    .done(output => resolve(parseMemoryInfo(output)))
+                    .fail(exception => reject(exception.message));
+        });
+    }
+
+    return pr;
+}

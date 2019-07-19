@@ -119,7 +119,7 @@ if [ -z "${PYTHON_STYLE_CHECKER-}" ]; then
     echo "ok 7 pycodestyle test # SKIP pycodestyle not installed"
 else
     # FIXME: Fix code for the warnings and re-enable them
-    out=$(python3 -m "$PYTHON_STYLE_CHECKER" --ignore E501,E265,E261,W504,W605 test/* --exclude=test/verify/nested-kvm,test/README.md) || true
+    out=$(python3 -m "$PYTHON_STYLE_CHECKER" --ignore E501,E265,E261,W504,W605 test/* --exclude=test/verify/nested-kvm,test/README.md,test/run) || true
     if [ -n "$out" ]; then
         echo "$out" >&2
         echo "not ok 7 $PYTHON_STYLE_CHECKER test"

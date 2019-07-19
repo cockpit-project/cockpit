@@ -1,0 +1,34 @@
+#!/bin/sh
+
+# This is the expected entry point for Cockpit CI; will be called without
+# arguments but with an appropriate $TEST_OS, and optionally $TEST_SCENARIO
+
+set -eu
+
+TEST_SCENARIO=${TEST_SCENARIO:-verify}
+case $TEST_SCENARIO in
+    verify)
+        test/image-prepare --verbose $TEST_OS
+        test/verify/run-tests --jobs ${TEST_JOBS:-1}
+        ;;
+    avocado)
+        test/image-prepare --verbose $TEST_OS
+        test/avocado/run-tests --quick --tests
+        ;;
+    selenium-*)
+        test/image-prepare --verbose $TEST_OS
+        test/avocado/run-tests --quick --selenium-tests --browser ${TEST_SCENARIO#*-}
+        ;;
+    container-kubernetes)
+        test/image-prepare --containers --verbose $TEST_OS
+        test/image-prepare --containers --verbose --install-only openshift
+        test/containers/run-tests --container kubernetes
+        ;;
+    container-*)
+        test/image-prepare --containers --verbose $TEST_OS
+        test/containers/run-tests --container ${TEST_SCENARIO#*-}
+        ;;
+    *)
+        echo "Unknown test scenario: $TEST_SCENARIO"
+        exit 1
+esac

@@ -555,7 +555,7 @@ function NetworkManagerModel() {
         return [ utils.ip6_to_text(addr[0]),
             utils.ip_prefix_to_text(addr[1]),
             utils.ip6_to_text(addr[2], true),
-            utils.ip_metric_to_text(addr[1]),
+            utils.ip_metric_to_text(addr[3]),
         ];
     }
 

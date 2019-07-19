@@ -387,6 +387,9 @@ class Browser:
         self.wait_visible(selector)
         self.wait_js_func('!ph_in_text', selector, text)
 
+    def wait_collected_text(self, selector, text):
+        self.wait_js_func('ph_collected_text_is', selector, text)
+
     def wait_text(self, selector, text):
         self.wait_visible(selector)
         self.wait_js_func('ph_text_is', selector, text)

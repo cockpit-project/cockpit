@@ -61,6 +61,17 @@ function ph_has_val (sel, val)
     return ph_val(sel) == val;
 }
 
+function ph_collected_text_is (sel, val)
+{
+    var els = ph_select(sel);
+    var rest = els.map(el => {
+        if (el.textContent === undefined)
+            throw sel + " can not have text";
+        return el.textContent.replace(/\xa0/g, " ")
+    }).join("");
+    return rest === val;
+}
+
 function ph_text (sel)
 {
     var el = ph_find(sel);

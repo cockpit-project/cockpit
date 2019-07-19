@@ -79,108 +79,6 @@
     </div>
   </div>
 
-  <script id="action-btn-tmpl"  type="x-template/mustache">
-    {{#primary-id}}
-    <div class="btn-group service-action-btn" id="{{primary-id}}">
-        <button data-action="{{primary-action.action}}" data-container="body" class="btn btn-default">{{primary-action.title}}</button>
-    </div>
-    {{/primary-id}}
-    <div class="btn-group service-action-btn" id="{{id}}">
-      <button data-action="{{def.action}}" data-container="body" class="btn btn-default">{{def.title}}</button>
-      <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-        <span class="caret"></span>
-      </button>
-      <ul class="dropdown-menu" role="menu">
-        {{#actions}}
-        <li class="presentation">
-          <a tabindex="0" data-action="{{action}}" role="menuitem">{{title}}</a>
-        </li>
-        {{/actions}}
-      </ul>
-    </div>
-  </script>
-
-  <script id="service-unit-tmpl" type="x-template/mustache">
-    <div class="panel panel-default service-panel">
-      <div class="panel-heading">{{Unit.Description}}</div>
-      <div class="list-group">
-        <div class="list-group-item">
-          {{#HasLoadError}}
-            <div class="alert alert-danger">
-              <span class="pficon pficon-error-circle-o"></span>
-              <strong>{{Unit.LoadState}}</strong> {{LoadError}}
-            </div>
-          {{/HasLoadError}}
-          <table class="form-table-ct">
-            <tr><td class="top-right" translate>Status</td><td><span>{{Unit.ActiveState}}</span> ({{Unit.LoadState}}) {{{UnitButton}}}</td></tr>
-            {{#Since}}
-              <tr><td class="top-right" translate>Running Since</td><td>{{Since}}</td></tr>
-            {{/Since}}
-            <tr><td class="top-right" translate>Automatic Startup</td><td>{{Unit.UnitFileState}} {{{FileButton}}}</td></tr>
-            <tr><td class="top-right" translate>Path</td><td>{{Unit.FragmentPath}}</td></tr>
-          </table>
-        </div>
-        {{#TemplateDescription}}
-        <div class="list-group-item">
-          <table>
-            <tr>
-              <td>{{{.}}}</td>
-            </tr>
-          </table>
-        </div>
-        {{/TemplateDescription}}
-        {{#NotMetConditions.length}}
-        <div class="list-group-item cond-fail">
-          <table>
-            <tr>
-              <td>
-                <span translate>Condition failed</span>
-                <ul>
-                {{#NotMetConditions}}
-                  <li>{{.}}</li>
-                {{/NotMetConditions}}
-               </ul>
-             </td>
-             <td></td>
-            </tr>
-          </table>
-        </div>
-        {{/NotMetConditions.length}}
-        <div class="list-group-item">
-          <table class="form-table-ct systemd-unit-relationship-table">
-          {{#Relationships}}
-          {{#Units.length}}
-            <tr>
-              <td class="top-right">{{Name}}</td>
-              <td>
-                <ul class="comma-list">
-                {{#Units}}
-                  <li><a {{#disabled}}class="disabled"{{/disabled}} href='#/{{Id}}'>{{Id}}</a></li>
-                {{/Units}}
-                </ul>
-              </td>
-              <td></td>
-            </tr>
-          {{/Units.length}}
-          {{/Relationships}}
-          </table>
-        </div>
-      </div>
-    </div>
-  </script>
-
-  <script id="service-template-tmpl" type="x-template/mustache">
-    <div class="panel panel-default service-template">
-      <div class="panel-heading">{{Description}}</div>
-      <div class="list-group">
-        <div class="list-group-item">
-          <input/>
-          <button translatable="yes">Instantiate</button>
-        </div>
-      </div>
-    </div>
-  </script>
-
   <script id="service-empty-tmpl" type="x-template/mustache">
     <div id="empty-search" class="blank-slate-pf blank-screen">
       <h1 translate>No Matching Results</h1>
@@ -325,12 +223,11 @@
       <li class="active"></li>
     </ol>
 
-    <div id="service-valid">
-      <div id="service-unit"></div>
-      <div class="panel panel-default cockpit-log-panel" id="service-log-box" role="table" aria-describedby="service-log-box-heading">
+    <div id="service-details"></div>
+
+    <div class="panel panel-default cockpit-log-panel" id="service-log-box" role="table" aria-describedby="service-log-box-heading" hidden>
         <div class="panel-heading" id="service-log-box-heading" translatable="yes">Service Logs</div>
         <div class="panel-body" id="service-log" role="rowgroup"></div>
-      </div>
     </div>
 
     <div id="service-template">
@@ -340,42 +237,6 @@
       <div id="service-error-message"></div>
     </div>
 
-  </div>
-
-  <div class="modal" id="service-no-install-info-dialog"
-       tabindex="-1" role="dialog"
-       data-backdrop="static">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h4 class="modal-title" translatable="yes">Note</h4>
-        </div>
-        <div class="modal-body">
-          <p translatable="yes">This unit is not designed to be enabled explicitly.</p>
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-primary" data-dismiss="modal" translatable="yes">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal" id="service-error-dialog"
-       tabindex="-1" role="dialog"
-       data-backdrop="static">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h4 class="modal-title" translatable="yes">Error</h4>
-        </div>
-        <div class="modal-body">
-          <p id="service-error-dialog-message"></p>
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-primary" data-dismiss="modal" translatable="yes">Close</button>
-        </div>
-      </div>
-    </div>
   </div>
 
   <div class="modal" id="timer-dialog"

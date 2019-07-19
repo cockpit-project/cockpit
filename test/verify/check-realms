@@ -176,9 +176,15 @@ class TestRealms(MachineCase):
         b.password = 'foobarfoo'
 
         self.login_and_go('/system/services#/systemd-tmpfiles-clean.timer', user='admin@cockpit.lan')
-        b.wait_in_text('#service-unit', "active")
-        b.click('#service-unit-primary-action button[data-action="StopUnit"]')
-        b.wait_in_text('#service-unit', "inactive")
+        if m.image in ["rhel-8-0-distropkg"]: # Changed in #12265
+            b.wait_in_text('#service-unit', "active")
+            b.click('#service-unit-primary-action button[data-action="StopUnit"]')
+            b.wait_in_text('#service-unit', "inactive")
+        else:
+            b.wait_in_text("#statuses", "Running")
+            b.click(".service-top-panel .dropdown-kebab-pf button")
+            b.click(".service-top-panel .dropdown-menu a:contains('Stop')")
+            b.wait_in_text("#statuses", "Not running")
         b.logout()
         b.password = orig_password
         m.execute("chown -R admin /home/admin")
@@ -318,9 +324,17 @@ class TestRealms(MachineCase):
         # should be able to run admin operations
         b.go('/system/services#/systemd-tmpfiles-clean.timer')
         b.enter_page('/system/services')
-        b.wait_in_text('#service-unit', "active")
-        b.click('#service-unit-primary-action button[data-action="StopUnit"]')
-        b.wait_in_text('#service-unit', "inactive")
+
+
+        if m.image in ["rhel-8-0-distropkg"]: # Changed in #12265
+            b.wait_in_text('#service-unit', "active")
+            b.click('#service-unit-primary-action button[data-action="StopUnit"]')
+            b.wait_in_text('#service-unit', "inactive")
+        else:
+            b.wait_in_text("#statuses", "Running")
+            b.click(".service-top-panel .dropdown-kebab-pf button")
+            b.click(".service-top-panel .dropdown-menu a:contains('Stop')")
+            b.wait_in_text("#statuses", "Not running")
 
         b.go('/system')
         b.enter_page('/system')

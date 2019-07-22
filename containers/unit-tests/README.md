@@ -11,35 +11,50 @@ will re-use an already existing `node_modules/` directory.
 
 ## Building
 
-In a built cockpit tree you can run
-
-    $ make unit-tests-container
-
-which will build the `cockpit/unit-tests` and `cockpit/unit-tests:i386`
-containers.
+The `build` script will build the `cockpit/unit-tests` and
+`cockpit/unit-tests:i386` containers.  It should be run as root.
 
 ## Running tests
 
-Tests in that container for the default configuration get started with
+Tests in that container get started with the `start` script.  By default, this
+script runs the unit tests on amd64.  The script accepts a number of arguments
+to modify its behaviour:
 
-    $ make unit-tests-container-run
+ - `CC=othercc` to set the `CC` environment variable inside the container (ie:
+   to build with a different compiler)
+ - `:tag` to specify a different tag to use for the `cockpit/unit-tests` image
+   (eg: `i386`)
+ - `shell` to specify that an interactive shell should be launched instead of
+   running the unit tests
 
-or equivalently with
+Some examples:
 
-    $ sudo docker run --shm-size=512M -ti --volume `pwd`:/source:ro cockpit/unit-tests
+    $ sudo ./start           # run the unit tests on amd64
 
-You can pass `--env=CC=clang` to build with Clang instead of gcc, or run
-`cockpit/unit-tests:i386` to run on a 32 bit architecture.
+    $ sudo ./start CC=clang  # run the unit tests on amd64, compiled with clang
+
+    $ sudo ./start :i386     # run the unit tests on i386
 
 ## Debugging tests
 
 For interactive debugging, run a shell in the container:
 
-    $ make unit-tests-container-shell
+    $ sudo ./start shell     # start an interactive shell on i386
 
-or start the container with `bash` as the entry point.
+You will find the cockpit source tree (from the host) mounted at `/source` in
+the container.
+
 `/source/containers/unit-tests/run.sh` will start the builds and test run, then
 you can investigate in the build tree at `/tmp/source/`.
+
+`/source/containers/unit-tests/run.sh` also includes a `--build` argument which
+will checkout and build the source, but not run any tests.
+
+You can also attach to another container using the provided `exec` script.  For example:
+
+    $ sudo ./exec uname -a   # run a command as the "builder" user
+
+    $ sudo ./exec --root     # start a shell as root
 
 ## More Info
 

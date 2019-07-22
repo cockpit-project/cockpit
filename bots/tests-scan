@@ -242,7 +242,7 @@ def tests_invoke(priority, name, number, revision, ref, context, base, repo, bot
     current = time.strftime('%Y%m%d-%H%M%M')
 
     checkout = "PRIORITY={priority:04d} bots/make-checkout --verbose"
-    cmd = "TEST_NAME={name}-{current} TEST_REVISION={revision} bots/tests-invoke --pull-number={pull_number} "
+    cmd = "TEST_PROJECT={repo} TEST_NAME={name}-{current} TEST_REVISION={revision} bots/tests-invoke --pull-number={pull_number} "
     if base:
         cmd += " --rebase={base}"
         checkout += " --base={base}"
@@ -250,9 +250,6 @@ def tests_invoke(priority, name, number, revision, ref, context, base, repo, bot
     checkout += " --repo={repo}"
 
     if bots_ref:
-        # we are checking the external repo on a cockpit PR, so keep GITHUB_BASE for cockpit and just set
-        # TEST_PROJECT for correct statuses
-        cmd = "TEST_PROJECT={repo} " + cmd
         checkout += " --bots-ref={bots_ref}"
     else:
         # we are checking the external repo on a PR of that external repo

@@ -2316,7 +2316,7 @@ PageNetworkInterface.prototype = {
                 firewall.disable().then(() => renderFirewallState());
         }
 
-        firewall.addEventListener('changed', function () {
+        function onFirewallChanged() {
             if (!firewall.installed) {
                 $('#networking-firewall').hide();
                 return;
@@ -2331,7 +2331,10 @@ PageNetworkInterface.prototype = {
             var summary = cockpit.format(cockpit.ngettext('$0 Active Rule', '$0 Active Rules', n), n.toString());
 
             $('#networking-firewall-summary').text(summary);
-        });
+        }
+
+        firewall.addEventListener('changed', onFirewallChanged);
+        onFirewallChanged();
 
         $(window).on('resize', function () {
             self.rx_plot.resize();

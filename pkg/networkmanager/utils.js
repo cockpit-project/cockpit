@@ -67,11 +67,13 @@ function bytes_from_nm32(num) {
             bytes[i] = num & 0xFF;
             num = num >>> 8;
         }
-    } else {
+    } else if (byteorder == "le") {
         for (i = 0; i < 4; i++) {
             bytes[i] = num & 0xFF;
             num = num >>> 8;
         }
+    } else {
+        throw new Error("byteorder is unset or has invalid value " + JSON.stringify(byteorder));
     }
     return bytes;
 }
@@ -114,10 +116,12 @@ export function ip4_from_text(text, empty_is_zero) {
         for (i = 0; i < 4; i++) {
             shift(bytes[i]);
         }
-    } else {
+    } else if (byteorder == "le") {
         for (i = 3; i >= 0; i--) {
             shift(bytes[i]);
         }
+    } else {
+        throw new Error("byteorder is unset or has invalid value " + JSON.stringify(byteorder));
     }
 
     return num;

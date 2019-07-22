@@ -18,105 +18,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-REPO_BRANCH_CONTEXT = {
-    'cockpit-project/cockpit': {
-        'master': ['avocado/fedora', 'container/bastion',
-            'selenium/firefox', 'selenium/chrome', 'selenium/edge',
-            'verify/debian-stable', 'verify/debian-testing',
-            'verify/ubuntu-1804', 'verify/ubuntu-stable',
-            'verify/fedora-30', 'verify/fedora-atomic',
-            'verify/rhel-8-0-distropkg', 'verify/rhel-8-1',
-        ],
-        'rhel-7.6': ['avocado/fedora', 'container/kubernetes', 'container/bastion',
-            'selenium/firefox', 'selenium/chrome', 'verify/rhel-7-6',
-        ],
-        'rhel-7.7': ['avocado/fedora', 'container/kubernetes', 'container/bastion',
-            'selenium/firefox', 'selenium/chrome', 'verify/rhel-7-7',
-        ],
-        'rhel-8.0': ['avocado/fedora', 'container/bastion', 'selenium/firefox', 'selenium/chrome',
-            'verify/rhel-8-0',
-        ],
-        'rhel-8-appstream': ['avocado/fedora', 'container/bastion', 'selenium/firefox',
-            'selenium/chrome', 'verify/rhel-8-0-distropkg', 'verify/rhel-8-1',
-        ],
-        'rhel-8.1': ['verify/rhel-8-1',
-        ],
-        # These can be triggered manually with bots/tests-trigger
-        '_manual': ['verify/fedora-i386', 'verify/fedora-testing',
-        ],
-    },
-    'cockpit-project/starter-kit': {
-        'master': [
-            'cockpit/centos-7',
-            'cockpit/fedora-30',
-        ],
-    },
-    'cockpit-project/cockpit-ostree': {
-        'master': [
-            'cockpit/fedora-atomic',
-            'cockpit/continuous-atomic',
-            'cockpit/rhel-atomic',
-        ],
-    },
-    'cockpit-project/cockpit-podman': {
-        'master': [
-            'cockpit/fedora-29',
-            'cockpit/fedora-30',
-            'cockpit/rhel-8-1',
-        ],
-    },
-    'weldr/lorax': {
-        'master': [
-            'cockpit/fedora-30',
-            'cockpit/fedora-30/live-iso',
-            'cockpit/fedora-30/qcow2',
-            'cockpit/fedora-30/aws',
-            'cockpit/fedora-30/openstack',
-            'cockpit/fedora-30/vmware',
-        ],
-        '_manual': [
-            'cockpit/fedora-30/azure',
-
-            'cockpit/rhel-8-1',
-            'cockpit/rhel-8-1/live-iso',
-            'cockpit/rhel-8-1/qcow2',
-            'cockpit/rhel-8-1/aws',
-            'cockpit/rhel-8-1/azure',
-            'cockpit/rhel-8-1/openstack',
-            'cockpit/rhel-8-1/vmware',
-        ],
-        'rhel7-extras': [
-            'cockpit/rhel-7-7',
-            'cockpit/rhel-7-7/live-iso',
-            'cockpit/rhel-7-7/qcow2',
-            'cockpit/rhel-7-7/aws',
-            'cockpit/rhel-7-7/azure',
-            'cockpit/rhel-7-7/openstack',
-            'cockpit/rhel-7-7/vmware',
-        ],
-    },
-    'weldr/cockpit-composer': {
-        'master': [
-            'cockpit/fedora-30/chrome',
-            'cockpit/fedora-30/firefox',
-            'cockpit/fedora-30/edge',
-            'cockpit/rhel-7-7/firefox',
-            'cockpit/rhel-8-1/chrome',
-        ],
-        'rhel-8.0': ['cockpit/rhel-8-0/chrome', 'cockpit/rhel-8-0/firefox', 'cockpit/rhel-8-0/edge'
-        ],
-        'rhel-8.1': ['cockpit/rhel-8-1/chrome', 'cockpit/rhel-8-1/firefox', 'cockpit/rhel-8-1/edge'
-        ],
-    },
-    'mvollmer/subscription-manager': {
-        '_manual': [
-            'cockpit/rhel-8-0',
-        ],
-    }
-}
-
 # Random extra options for tests-invoke
-
 REPO_EXTRA_INVOKE_OPTIONS = {
     'mvollmer/subscription-manager': [ "--html-logs" ]
 }
@@ -137,7 +39,7 @@ import urllib.request
 sys.dont_write_bytecode = True
 logging.basicConfig(level=logging.INFO)
 
-from task import github, label, redhat_network, labels_of_pull, distributed_queue
+from task import github, label, redhat_network, labels_of_pull, distributed_queue, testmap
 
 no_amqp = False
 try:
@@ -179,13 +81,13 @@ def main():
     opts.repo = api.repo
 
     try:
-        policy = REPO_BRANCH_CONTEXT[opts.repo]
+        policy = testmap.tests_for_project(opts.repo)
         if opts.context:
             policy = {}
-            for branch in REPO_BRANCH_CONTEXT[opts.repo]:
+            for (branch, contexts) in testmap.tests_for_project(opts.repo).items():
                 branch_context = []
                 for context in opts.context:
-                    if context in REPO_BRANCH_CONTEXT[opts.repo][branch]:
+                    if context in contexts:
                         branch_context.append(context)
                 if branch_context:
                     policy[branch] = branch_context
@@ -458,10 +360,10 @@ def cockpit_tasks(api, update, branch_contexts, repo, pull_data, pull_number, sh
             return False
 
         if trigger_externals():
-            for proj_repo in REPO_BRANCH_CONTEXT:
+            for proj_repo in testmap.projects():
                 if proj_repo == "cockpit-project/cockpit":
                     continue
-                for context in REPO_BRANCH_CONTEXT[proj_repo].get("master", []):
+                for context in testmap.tests_for_project(proj_repo).get("master", []):
                     repo_context = context + "@" + proj_repo
 
                     status = statuses.get(repo_context, {})
@@ -497,9 +399,9 @@ def scan_for_pull_tasks(api, policy, opts, repo):
 
 def scan_external_projects(opts):
     tests = []
-    for repo in REPO_BRANCH_CONTEXT:
+    for repo in testmap.projects():
         if repo != "cockpit-project/cockpit":
-            tests += scan_for_pull_tasks(github.GitHub(repo=repo), REPO_BRANCH_CONTEXT[repo], opts, repo)
+            tests += scan_for_pull_tasks(github.GitHub(repo=repo), testmap.tests_for_project(repo), opts, repo)
     return tests
 
 if __name__ == '__main__':

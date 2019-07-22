@@ -55,7 +55,7 @@ function findPCI(udevdb, info) {
 }
 
 export default function detect() {
-    let info = { system: {}, pci: [], memory: [] };
+    let info = { system: {}, pci: [], memory: [], persistent_memory: {} };
     var tasks = [];
 
     tasks.push(new Promise((resolve, reject) => {
@@ -98,6 +98,17 @@ export default function detect() {
                 .catch(error => {
                     console.warn("Failed to get dmidecode information: ", error.toString());
                     resolve();
+                });
+    }));
+
+    tasks.push(new Promise((resolve, reject) => {
+        machine_info.persistent_memory_info()
+                .done(result => {
+                    info.persistent_memory = result;
+                    resolve();
+                })
+                .catch(error => {
+                    console.warn("Failed to get ndctl information: ", error.toString());
                 });
     }));
 

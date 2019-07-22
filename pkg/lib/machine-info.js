@@ -195,6 +195,7 @@ export function udev_info(address) {
 }
 
 const memoryRE = /^([ \w]+): (.*)/;
+var phys_locator_mapping = {};
 
 // Process the dmidecode output and create a mapping of locator to DIMM properties
 function parseMemoryInfo(text) {
@@ -202,6 +203,7 @@ function parseMemoryInfo(text) {
     text.split("\n\n").map(paragraph => {
         let locator = null;
         let props = {};
+        // let handle= null;
         paragraph = paragraph.trim();
         if (!paragraph)
             return;
@@ -209,17 +211,25 @@ function parseMemoryInfo(text) {
         paragraph.split("\n").map(line => {
             line = line.trim();
             let match = line.match(memoryRE);
+            let match_handle = line.match("Handle ");
             if (match)
                 props[match[1]] = match[2];
+
+            if (match_handle) {
+                props["Handle"] = match_handle["input"].split(",")[0].split(" ")[1];
+            }
         });
 
         locator = props["Locator"];
+        if (locator && props["Handle"]) {
+            phys_locator_mapping[props["Handle"]] = locator;
+        }
         if (locator)
             info[locator] = props;
     });
     return processMemory(info);
 }
-
+console.log(phys_locator_mapping);
 // Select the useful properties to display
 function processMemory(info) {
     let memoryArray = [];
@@ -269,6 +279,74 @@ export function memory_info(address) {
                     .done(output => resolve(parseMemoryInfo(output)))
                     .fail(exception => reject(exception.message));
         });
+    }
+
+    return pr;
+}
+
+function parsePersistentMemoryInfo(text) {
+    let textObject = JSON.parse(text);
+    let regionsArray = [];
+    let dimm_nspace_mapping = {};
+    let sizeRE = /\(([^)]+)\)/;
+
+    if (textObject.dimms.length > 0) {
+        for (let dimm in textObject.dimms) {
+            let phys_id = textObject.dimms[dimm]["phys_id"];
+            let nspace = textObject.dimms[dimm]["dev"];
+            dimm_nspace_mapping[nspace] = phys_locator_mapping[phys_id];
+        }
+    }
+    if (textObject.regions.length > 0) {
+        for (let region in textObject.regions) {
+            let pmRegionName = textObject.regions[region]["dev"];
+            let pmSize = textObject.regions[region]["size"].match(sizeRE)[1];
+            let pmType = textObject.regions[region]["type"];
+            let pmNamespaces = textObject.regions[region]["mappings"];
+            let namespaceArray = [];
+            let namespaceStr = "";
+            let dimmStr = "";
+
+            for (let namespace in pmNamespaces) {
+                let name_space = pmNamespaces[namespace]["dimm"];
+                if ((parseInt(namespace) + 1) == pmNamespaces.length) namespaceStr = namespaceStr + name_space;
+                else namespaceStr = namespaceStr + name_space + "  ,  ";
+
+                if (dimm_nspace_mapping[name_space]) {
+                    if ((parseInt(namespace) + 1) == pmNamespaces.length) dimmStr = dimmStr + dimm_nspace_mapping[name_space];
+                    else dimmStr = dimmStr + dimm_nspace_mapping[name_space] + "  ,  ";
+                }
+                namespaceArray.push({
+                    dev: pmNamespaces[namespace]["dimm"],
+                });
+            }
+
+            regionsArray.push({
+                regionName: pmRegionName,
+                size: pmSize,
+                type: pmType,
+                nmspaces: namespaceStr,
+                dimms: dimmStr
+            });
+        }
+    }
+
+    return { "pmem_array": regionsArray };
+}
+
+var persistent_memory_info_promises = {};
+
+export function persistent_memory_info(address) {
+    var pr = persistent_memory_info_promises[address];
+    var dfd;
+
+    if (!pr) {
+        dfd = cockpit.defer();
+        persistent_memory_info_promises[address] = pr = dfd.promise();
+        cockpit.spawn(["/usr/bin/ndctl", "list", "-DHNRu"],
+                      { environ: ["LC_aLL=C"], err: "message", superuser: "try" })
+                .done(output => dfd.resolve(parsePersistentMemoryInfo(output)))
+                .fail(exception => dfd.reject(exception.message));
     }
 
     return pr;

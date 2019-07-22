@@ -241,6 +241,7 @@ class HardwareInfo extends React.Component {
     render() {
         let pci = null;
         let memory = null;
+        let persistent_memory = null;
 
         if (this.props.info.pci.length > 0) {
             let sortedPci = this.props.info.pci.concat();
@@ -258,6 +259,18 @@ class HardwareInfo extends React.Component {
             memory = (
                 <Listing title={ _("Memory") } columnTitles={ [_("ID"), _("Memory Technology"), _("Type"), _("Size"), _("State"), _("Rank"), _("Speed")]}>
                     { this.props.info.memory.map(dimm => <ListingRow key={dimm.locator} columns={[dimm.locator, dimm.technology, dimm.type, dimm.size, dimm.state, dimm.rank, dimm.speed]} />) }
+                </Listing>
+            );
+        }
+
+        if (this.props.info.persistent_memory.pmem_array.length > 0) {
+            persistent_memory = (
+                <Listing title={_("Persistent Memory") } columnTitles={ [_("Region Name"), _("Name Spaces"), _("DIMMS"), _("Size"), _("Type")]} >
+                    { this.props.info.persistent_memory.pmem_array.map(region => {
+                        let regionList = null;
+                        regionList = <ListingRow columns={[region.regionName, region.nmspaces, region.dimms, region.size, region.type]} />;
+                        return regionList;
+                    })}
                 </Listing>
             );
         }
@@ -280,6 +293,7 @@ class HardwareInfo extends React.Component {
                 <div id="memory-listing">
                     { memory }
                 </div>
+                { persistent_memory }
             </div>
         );
     }

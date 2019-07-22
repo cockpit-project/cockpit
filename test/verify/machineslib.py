@@ -600,7 +600,8 @@ class TestMachines(NetworkCase):
                 vm_name='subVmTest1',
                 volume_size=1, volume_size_unit='GiB',
                 use_existing_volume=False,
-                expected_target='vda', permanent=False, cache_mode=None
+                expected_target='vda', permanent=False, cache_mode=None,
+                verify=True, pool_type=None,
             ):
                 print(pool_name, volume_name)
                 self.test_obj = test_obj
@@ -613,12 +614,15 @@ class TestMachines(NetworkCase):
                 self.expected_target = expected_target
                 self.permanent = permanent
                 self.cache_mode = cache_mode
+                self.verify = verify
+                self.pool_type = pool_type
 
             def execute(self):
                 self.open()
                 self.fill()
-                self.add_disk()
-                self.verify_disk_added()
+                if self.verify:
+                    self.add_disk()
+                    self.verify_disk_added()
 
             def open(self):
                 b.click("#vm-{0}-disks-adddisk".format(self.vm_name)) # button
@@ -633,7 +637,13 @@ class TestMachines(NetworkCase):
             def fill(self):
                 if not self.use_existing_volume:
                     # Choose storage pool
-                    b.select_from_dropdown("#vm-{0}-disks-adddisk-new-select-pool".format(self.vm_name), self.pool_name)
+                    if not self.pool_type or self.pool_type not in ['iscsi', 'iscsi-direct']:
+                        b.select_from_dropdown("#vm-{0}-disks-adddisk-new-select-pool".format(self.vm_name), self.pool_name)
+                    else:
+                        b.click("#vm-{0}-disks-adddisk-new-select-pool".format(self.vm_name))
+                        b.wait_present(".modal-dialog option[data-value={0}]:disabled".format(self.pool_name))
+                        return self
+
                     # Insert name for the new volume
                     b.set_input_text("#vm-{0}-disks-adddisk-new-name".format(self.vm_name), self.volume_name)
                     # Insert size for the new volume
@@ -805,6 +815,13 @@ class TestMachines(NetworkCase):
 
         if "debian" not in m.image and "ubuntu" not in m.image:
             # ISCSI driver does not support virStorageVolCreate API
+            VMAddDiskDialog(
+                self,
+                pool_name='iscsi-pool',
+                pool_type='iscsi',
+                verify=False
+            ).execute()
+
             VMAddDiskDialog(
                 self,
                 pool_name='iscsi-pool',

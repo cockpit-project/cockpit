@@ -609,8 +609,7 @@ bastion hosts, and a basic dashboard.
 Summary: Cockpit user interface for Docker containers
 Requires: cockpit-bridge >= %{required_base}
 Requires: cockpit-shell >= %{required_base}
-Requires: /usr/bin/docker
-Requires: /usr/lib/systemd/system/docker.service
+Requires: (docker or moby-engine)
 Requires: %{__python3}
 
 %description -n cockpit-docker

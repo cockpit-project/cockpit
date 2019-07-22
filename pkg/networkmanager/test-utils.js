@@ -150,6 +150,12 @@ QUnit.test("ip4_from_text empty", function (assert) {
     assert.strictEqual(utils.ip4_from_text("", true), 0);
 });
 
+QUnit.test("ip4_to/from_text invalid byteorder", function (assert) {
+    utils.set_byteorder(undefined);
+    assert.throws(function() { utils.ip4_from_text("1.2.3.4") });
+    assert.throws(function() { utils.ip4_to_text(0x01020304) });
+});
+
 QUnit.test("ip4_prefix_from_text", function (assert) {
     var checks = [
         "0.0.0.0",

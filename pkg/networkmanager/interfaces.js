@@ -219,6 +219,23 @@ function NetworkManagerModel() {
 
     self.client = client;
 
+    /* resolved once first stage of initialization is done */
+    self.preinit = new Promise((resolve, reject) => {
+        client.call("/org/freedesktop/NetworkManager",
+                    "org.freedesktop.DBus.Properties", "Get",
+                    ["org.freedesktop.NetworkManager", "State"], { flags: "" })
+                .fail(complain)
+                .done((reply, options) => {
+                    if (options.flags) {
+                        if (options.flags.indexOf(">") !== -1)
+                            utils.set_byteorder("be");
+                        else if (options.flags.indexOf("<") !== -1)
+                            utils.set_byteorder("le");
+                        resolve();
+                    }
+                });
+    });
+
     /* Mostly generic D-Bus stuff.  */
 
     var objects = { };
@@ -472,28 +489,20 @@ function NetworkManagerModel() {
         nm_service.start();
     });
 
-    client.call("/org/freedesktop/NetworkManager",
-                "org.freedesktop.DBus.Properties", "Get",
-                ["org.freedesktop.NetworkManager", "State"], { flags: "" })
-            .fail(complain)
-            .done(function(reply, options) {
-                if (options.flags) {
-                    if (options.flags.indexOf(">") !== -1)
-                        utils.set_byteorder("be");
-                    else if (options.flags.indexOf("<") !== -1)
-                        utils.set_byteorder("le");
-                }
-            });
+    var subscription;
+    var watch;
 
-    var subscription = client.subscribe({ }, signal_emitted);
-    var watch = client.watch({ });
-    $(client).on("notify", function(event, data) {
-        $.each(data, function(path, ifaces) {
-            $.each(ifaces, function(iface, props) {
-                if (props)
-                    interface_properties(path, iface, props);
-                else
-                    interface_removed(path, iface);
+    self.preinit.then(() => {
+        subscription = client.subscribe({ }, signal_emitted);
+        watch = client.watch({ });
+        $(client).on("notify", function(event, data) {
+            $.each(data, function(path, ifaces) {
+                $.each(ifaces, function(iface, props) {
+                    if (props)
+                        interface_properties(path, iface, props);
+                    else
+                        interface_removed(path, iface);
+                });
             });
         });
     });
@@ -4705,24 +4714,26 @@ function init() {
 
     model = new NetworkManagerModel();
 
-    overview_page = new PageNetworking(model);
-    overview_page.setup();
+    model.preinit.then(() => {
+        overview_page = new PageNetworking(model);
+        overview_page.setup();
 
-    interface_page = new PageNetworkInterface(model);
-    interface_page.setup();
+        interface_page = new PageNetworkInterface(model);
+        interface_page.setup();
 
-    dialog_setup(new PageNetworkIpSettings());
-    dialog_setup(new PageNetworkBondSettings());
-    dialog_setup(new PageNetworkTeamSettings());
-    dialog_setup(new PageNetworkTeamPortSettings());
-    dialog_setup(new PageNetworkBridgeSettings());
-    dialog_setup(new PageNetworkBridgePortSettings());
-    dialog_setup(new PageNetworkVlanSettings());
-    dialog_setup(new PageNetworkMtuSettings());
-    dialog_setup(new PageNetworkMacSettings());
+        dialog_setup(new PageNetworkIpSettings());
+        dialog_setup(new PageNetworkBondSettings());
+        dialog_setup(new PageNetworkTeamSettings());
+        dialog_setup(new PageNetworkTeamPortSettings());
+        dialog_setup(new PageNetworkBridgeSettings());
+        dialog_setup(new PageNetworkBridgePortSettings());
+        dialog_setup(new PageNetworkVlanSettings());
+        dialog_setup(new PageNetworkMtuSettings());
+        dialog_setup(new PageNetworkMacSettings());
 
-    $(cockpit).on("locationchanged", navigate);
-    navigate();
+        $(cockpit).on("locationchanged", navigate);
+        navigate();
+    });
 }
 
 $(init);

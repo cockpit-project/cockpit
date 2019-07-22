@@ -113,9 +113,7 @@ class PullTask(object):
         api = github.GitHub()
 
         # build a unique file name for this test run
-        id_context = self.context
-        if self.test_project:  # disambiguate when running several external projects
-            id_context = self.test_project + "-" + id_context
+        id_context = "-".join([self.test_project, self.context])
         identifier = "-".join([
             self.name.replace("/", "-"),
             self.github_revision[0:8],
@@ -126,7 +124,7 @@ class PullTask(object):
 
         # build a globally unique test context for GitHub statuses
         github_context = self.context
-        if self.test_project:  # disambiguate tests for external projects
+        if self.test_project != api.repo :  # disambiguate test name for foreign project tests
             github_context += "@" + self.test_project
 
         self.github_status_data = {

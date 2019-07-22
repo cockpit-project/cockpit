@@ -112,7 +112,7 @@ class VmDisksTab extends React.Component {
             }
             columnTitles.push(_("Bus"));
             if (renderReadOnly) {
-                columnTitles.push(_("Readonly"));
+                columnTitles.push(_("Access"));
             }
             columnTitles.push(_("Source"));
             if (renderAdditional)
@@ -143,7 +143,15 @@ class VmDisksTab extends React.Component {
             columns.push({ title: <VmDiskCell value={disk.bus} id={`${idPrefixRow}-bus`} key={`${idPrefixRow}-bus`} /> });
 
             if (renderReadOnly) {
-                columns.push(disk.readonly ? _("yes") : _("no"));
+                const readOnly = (
+                    <span id={`${idPrefixRow}-readonly`}>
+                        { disk.readonly ? _("Read-Only") : disk.shareable ? _("Read-Write and Shared") : _("Read-Write") }
+                        { vm.state === "running" &&
+                        (diskPropertyChanged(vm, disk.target, "readonly") || diskPropertyChanged(vm, disk.target, "shareable")) &&
+                            <WarningInactive iconId={`${idPrefixRow}-access-tooltip`} tooltipId={`tip-${idPrefixRow}-access`} /> }
+                    </span>
+                );
+                columns.push(readOnly);
             }
 
             columns.push({ title: disk.diskSourceCell });

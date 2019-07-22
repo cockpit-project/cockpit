@@ -90,6 +90,7 @@ class VmDisksTabLibvirt extends React.Component {
             target: disk.target,
             bus: disk.bus,
             readonly: disk.readonly,
+            shareable: disk.shareable,
 
             // ugly hack due to complexity, refactor if abstraction is really needed
             diskSourceCell: (<DiskSourceCell diskSource={disk.source} idPrefix={idPrefix} />),

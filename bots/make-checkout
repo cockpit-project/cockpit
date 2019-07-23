@@ -19,6 +19,7 @@
 
 import argparse
 import os
+import shutil
 import subprocess
 import sys
 from task import github
@@ -30,6 +31,7 @@ sys.dont_write_bytecode = True
 
 BOTS = os.path.dirname(__file__)
 BASE = os.path.normpath(os.path.join(BOTS, ".."))
+TARGET_DIR = os.path.join(BOTS, "make-checkout-workdir")
 
 def main():
     parser = argparse.ArgumentParser(description="Fetch and checkout specific revision")
@@ -46,54 +48,33 @@ def main():
 
     api = github.GitHub(repo=opts.repo)
 
-    def execute(*args):
+    def execute(*args, cwd=BASE, error_on_fail=True):
+        output = None
         if opts.verbose:
             sys.stderr.write("+ " + " ".join(args) + "\n")
         try:
-            output = subprocess.check_output(args, cwd=BASE, universal_newlines=True)
+            output = subprocess.check_output(args, cwd=cwd, universal_newlines=True)
         except subprocess.CalledProcessError as ex:
-            sys.exit(ex.returncode)
-        if opts.verbose and output:
-            sys.stderr.write("> " + output + "\n")
+            sys.exit(ex.returncode if error_on_fail else 0)
+        finally:
+            if opts.verbose and output:
+                sys.stderr.write("> " + output + "\n")
         return output
 
-    # do this before fetching the actual test repo, so that FETCH_HEAD always points to that at the end
-    if opts.bots_ref:
-        execute("git", "fetch", "origin", opts.bots_ref)
-        bots_ref = execute("git", "rev-parse", "FETCH_HEAD").strip()
-    else:
-        bots_ref = "origin/master"
+    if os.path.exists(TARGET_DIR):
+        shutil.rmtree(TARGET_DIR)
 
-    # Testing external project, firstly we needs to add remote
-    if api.repo != "cockpit-project/cockpit":
-        if "test\n" in subprocess.check_output([ "git", "remote" ], universal_newlines=True):
-            execute("git", "remote", "remove", "test")
-        execute("git", "remote", "add", "test", "https://github.com/" + api.repo)
+    cache = os.getenv('XDG_CACHE_HOME', ".")
+    execute("git", "clone", "--reference-if-able", "{}/{}".format(cache, api.repo), "https://github.com/{}".format(api.repo), TARGET_DIR)
+    execute("git", "fetch", "origin", opts.ref, cwd=TARGET_DIR, error_on_fail=False)
+    execute("git", "checkout", "--detach", opts.revision, cwd=TARGET_DIR, error_on_fail=False)
 
-    # if the pr was updated while the command was in the queue, the revision
-    # won't be tied to the ref anymore, and it won't exist locally, so exit
-    # silently
-    output = None
-    try:
-        args = ["git", "fetch", "test" if api.repo != "cockpit-project/cockpit" else "origin", opts.ref]
-        if opts.verbose:
-            sys.stderr.write("+ {0}\n".format(" ".join(args)))
-        output = subprocess.check_output(args, cwd=BASE, universal_newlines=True)
-        args = ["git", "checkout", "--detach", opts.revision]
-        if opts.verbose:
-            sys.stderr.write("+ {0}\n".format(" ".join(args)))
-        output = subprocess.check_output(args, cwd=BASE, universal_newlines=True)
-    except subprocess.CalledProcessError:
-        return 0
-    finally:
-        if opts.verbose and output:
-            sys.stderr.write("> " + output + "\n")
-
-    # If the bots directory doesn't exist in this branch or repo, check it out from master
+    # get bots/
     if api.repo != "cockpit-project/cockpit" or (opts.base and opts.base != "master"):
-        sys.stderr.write("Checking out bots directory from Cockpit %s ...\n" % (opts.bots_ref or bots_ref))
-        execute("git", "checkout", "--force", bots_ref, "--", "bots/")
-
+        execute("git", "remote", "add", "bots_origin", "https://github.com/cockpit-project/cockpit", cwd=TARGET_DIR)
+        execute("git", "fetch", "--depth=1", "bots_origin", opts.bots_ref or "master", cwd=TARGET_DIR)
+        bots_ref = execute("git", "rev-parse", "FETCH_HEAD", cwd=TARGET_DIR).strip()
+        execute("git", "checkout", "--force", bots_ref or "bots_origin/master", "--", "bots/", cwd=TARGET_DIR, error_on_fail=False)
 
 if __name__ == '__main__':
     sys.exit(main())

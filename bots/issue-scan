@@ -163,11 +163,11 @@ def tasks_for_issues(issues_data):
         checklist = github.Checklist(issue["body"])
         for item, checked in checklist.items.items():
             if not checked:
-                results.append((item, issue))
+                results.append((item, issue, api.repo))
                 break
     return results
 
-def output_task(command, issue, verbose):
+def output_task(command, issue, repo, verbose):
     name, unused, context = command.partition(" ")
     if name not in NAMES:
         return None
@@ -182,7 +182,9 @@ def output_task(command, issue, verbose):
     # `--issues-data` should also be able to receive pull_request events, in that
     # case pull_request won't be present in the object, but commits will be
     if "pull_request" in issue or "commits" in issue:
-        checkout += "bots/make-checkout --verbose pull/{issue}/head && "
+        checkout += "bots/make-checkout --verbose --repo {repo} pull/{issue}/head && "
+    else:
+        checkout += "bots/make-checkout --verbose --repo {repo} master && "
 
     if verbose:
         return "issue-{issue} {name} {context}    {priority}".format(
@@ -194,11 +196,12 @@ def output_task(command, issue, verbose):
     else:
         if context:
             context = pipes.quote(context)
-        return (checkout + cmd).format(
+        return (checkout + "cd bots/make-checkout-workdir && " + cmd + " ; cd ../..").format(
             issue=int(number),
             priority=distributed_queue.MAX_PRIORITY,
             name=name,
             context=context,
+            repo=repo,
         )
 
 def queue_task(channel, result):
@@ -216,8 +219,8 @@ def scan(issues_data, verbose):
     results = [ ]
 
     # Now go through each fixture
-    for (command, issue) in tasks_for_issues(issues_data):
-        result = output_task(command, issue, verbose)
+    for (command, issue, repo) in tasks_for_issues(issues_data):
+        result = output_task(command, issue, repo, verbose)
         if result is not None:
             results.append(result)
 

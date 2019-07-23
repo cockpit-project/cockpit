@@ -157,12 +157,10 @@ def tests_invoke(priority, name, number, revision, ref, context, base, original_
 
     if bots_ref:
         checkout += " --bots-ref={bots_ref}"
-    else:
-        # we are checking the external repo on a PR of that external repo
-        cmd = "GITHUB_BASE={repo} " + cmd
 
-    if repo != "cockpit-project/cockpit":
-        cmd = cmd + " --remote=test"
+    # The repo of this test differs from the PR's repo
+    if options.repo != repo:
+        cmd = "GITHUB_BASE={github_base} " + cmd
 
     if repo in REPO_EXTRA_INVOKE_OPTIONS:
         cmd += " " + " ".join(REPO_EXTRA_INVOKE_OPTIONS[repo])
@@ -179,7 +177,7 @@ def tests_invoke(priority, name, number, revision, ref, context, base, original_
         # we are testing the repo itself, checkout revision from the PR
         checkout += " {ref} {revision} && "
 
-    return (checkout + cmd).format(
+    return (checkout + "cd bots/make-checkout-workdir && " + cmd + " ; cd ../..").format(
         priority=priority,
         name=pipes.quote(name),
         revision=pipes.quote(revision),
@@ -190,6 +188,7 @@ def tests_invoke(priority, name, number, revision, ref, context, base, original_
         current=current,
         pull_number=number,
         repo=pipes.quote(repo),
+        github_base=pipes.quote(options.repo),
     )
 
 def queue_test(priority, name, number, revision, ref, context, base, original_base, repo, bots_ref, channel, options):

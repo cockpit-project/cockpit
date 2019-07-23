@@ -89,6 +89,12 @@ class TestNetworking(NetworkCase):
         b.wait_visible("#networking")
         b.wait_not_present("#networking-interfaces tr[data-interface='tbond']")
 
+        # Check that the former members are displayed and both On
+        # Fixed in PR #12400
+        if m.image not in ["rhel-8-0-distropkg"]:
+            self.wait_for_iface(iface1)
+            self.wait_for_iface(iface2)
+
         # Due to above reload
         self.allow_journal_messages(".*Connection reset by peer.*",
                                     "connection unexpectedly closed by peer")

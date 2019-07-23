@@ -32,7 +32,7 @@ import urllib.parse
 import subprocess
 import re
 
-from . import cache
+from . import cache, testmap
 
 __all__ = (
     'GitHub',
@@ -55,16 +55,6 @@ NOT_TESTED = "Not yet tested"
 # it will publish a test task to the queue (used to trigger specific contexts)
 NOT_TESTED_DIRECT = "Not yet tested (direct trigger)"
 
-OUR_CONTEXTS = [
-    "verify/",
-    "avocado/",
-    "container/",
-    "selenium/",
-
-    # generic prefix for external repos
-    "cockpit/",
-]
-
 ISSUE_TITLE_IMAGE_REFRESH = "Image refresh for {0}"
 
 BASE = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -73,9 +63,10 @@ TOKEN = "~/.config/github-token"
 TEAM_CONTRIBUTORS = "Contributors"
 
 def known_context(context):
-    for prefix in OUR_CONTEXTS:
-        if context.startswith(prefix):
-            return True
+    for project in testmap.projects():
+        for branch_tests in testmap.tests_for_project(project).values():
+            if context in branch_tests:
+                return True
     return False
 
 class Logger(object):

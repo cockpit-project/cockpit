@@ -267,7 +267,6 @@ class TestMachines(NetworkCase):
         m.execute('[ "$(virsh domstate {0})" = running ] || '
                   '{{ virsh dominfo {0} >&2; cat /var/log/libvirt/qemu/{0}.log >&2; exit 1; }}'.format(name))
 
-        self.allow_journal_messages('.*denied.*search.*"qemu-.*".*dev="proc".*')
         self.allow_journal_messages('.*denied.*comm="pmsignal".*')
 
         return args

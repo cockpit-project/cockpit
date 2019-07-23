@@ -62,6 +62,7 @@ TOKEN = "~/.config/github-token"
 TEAM_CONTRIBUTORS = "Contributors"
 
 def known_context(context):
+    context = context.split("@")[0]
     for project in testmap.projects():
         for branch_tests in testmap.tests_for_project(project).values():
             if context in branch_tests:

@@ -3058,8 +3058,8 @@ PageNetworkInterface.prototype = {
                                                         with_checkpoint(
                                                             self.model,
                                                             function () {
-                                                                return slave_con.delete_()
-                                                                        .fail(show_unexpected_error);
+                                                                return (free_slave_connection(slave_con)
+                                                                        .fail(show_unexpected_error));
                                                             },
                                                             {
                                                                 devices: dev ? [ dev ] : [ ],
@@ -3489,7 +3489,7 @@ function free_slave_connection(con) {
         delete cs.master;
         delete con.Settings.team_port;
         delete con.Settings.bridge_port;
-        return con.apply_settings(con.Settings);
+        return con.apply_settings(con.Settings).then(() => { con.activate(null, null) });
     }
 }
 

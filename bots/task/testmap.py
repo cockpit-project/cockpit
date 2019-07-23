@@ -37,7 +37,8 @@ REPO_BRANCH_CONTEXT = {
         'rhel-8-appstream': ['fedora-30/avocado', 'fedora-30/container-bastion',
             'fedora-30/selenium-firefox', 'fedora-30/selenium-chrome', 'rhel-8-0-distropkg', 'rhel-8-1',
         ],
-        'rhel-8.1': ['rhel-8-1',
+        'rhel-8-1': ['fedora-30/avocado', 'fedora-30/container-bastion',
+            'fedora-30/selenium-firefox', 'fedora-30/selenium-chrome', 'rhel-8-1',
         ],
         # These can be triggered manually with bots/tests-trigger
         '_manual': ['fedora-i386', 'fedora-testing',

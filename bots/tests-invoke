@@ -37,8 +37,6 @@ DEVNULL = open("/dev/null", "r+")
 def main():
     parser = argparse.ArgumentParser(description='Run integration tests')
     parser.add_argument('--rebase', help="Rebase onto the specific branch before testing")
-    parser.add_argument('--remote', help="The Git remote to use (instead of 'origin')",
-                        default="origin")
     parser.add_argument('-o', "--offline", action='store_true',
             help="Work offline, don''t fetch new data from origin for rebase")
     parser.add_argument('--publish', dest='publish', default=os.environ.get("TEST_PUBLISH", ""),
@@ -58,8 +56,9 @@ def main():
     test_branch = os.environ.get("TEST_BRANCH")
 
     try:
-        task = PullTask(name, revision, opts.context, opts.rebase, opts.remote,
-                        test_project=test_project, test_branch=test_branch, html_logs=opts.html_logs)
+        task = PullTask(name, revision, opts.context, opts.rebase,
+                        test_project=test_project, test_branch=test_branch,
+                        html_logs=opts.html_logs)
         ret = task.run(opts)
     except RuntimeError as ex:
         ret = str(ex)
@@ -70,12 +69,11 @@ def main():
     return 0
 
 class PullTask(object):
-    def __init__(self, name, revision, context, base, remote, test_project, test_branch, html_logs):
+    def __init__(self, name, revision, context, base, test_project, test_branch, html_logs):
         self.name = name
         self.revision = revision
         self.context = context
         self.base = base
-        self.remote = remote
         self.test_project = test_project
         self.test_branch = test_branch
         self.html_logs = html_logs
@@ -193,8 +191,8 @@ class PullTask(object):
 
         # Include information about which base we're testing against
         if self.base:
-            subprocess.check_call([ "git", "fetch", self.remote, self.base ])
-            commit = subprocess.check_output([ "git", "rev-parse", self.remote + "/" + self.base ],
+            subprocess.check_call([ "git", "fetch", "origin", self.base ])
+            commit = subprocess.check_output([ "git", "rev-parse", "origin/" + self.base ],
                                              universal_newlines=True).strip()
             status["base"] = commit
 
@@ -206,7 +204,7 @@ class PullTask(object):
         self.sink = sink.Sink(host, identifier, status)
 
     def rebase(self):
-        remote_base = self.remote + "/" + self.base
+        remote_base = "origin" + "/" + self.base
 
         # Rebase this branch onto the base, but only if it's not already an ancestor
         try:
@@ -271,7 +269,7 @@ class PullTask(object):
 
         # Retrieve information about our base branch and master (for bots/)
         if self.base and not opts.offline:
-            subprocess.check_call([ "git", "fetch", self.remote, self.base, "master" ])
+            subprocess.check_call([ "git", "fetch", "origin", self.base, "master" ])
 
         # Clean out the test directory
         subprocess.check_call([ "git", "clean", "-d", "--force", "--quiet", "-x", "--", "test/" ])

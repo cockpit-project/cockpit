@@ -18,7 +18,7 @@
  */
 import React from 'react';
 import cockpit from 'cockpit';
-import { Tooltip, OverlayTrigger } from 'patternfly-react';
+import { Button, Tooltip, OverlayTrigger } from 'patternfly-react';
 
 import { detachDisk, getVm } from '../actions/provider-actions.js';
 
@@ -40,10 +40,13 @@ const onDetachDisk = (dispatch, vm, target, onAddErrorNotification) => {
 const RemoveDiskAction = ({ dispatch, vm, target, idPrefixRow, onAddErrorNotification }) => {
     const getRemoveButton = (disabled) => {
         return (
-            <button id={`${idPrefixRow}-detach`}
+            <Button id={`${idPrefixRow}-detach`}
                     disabled={disabled}
-                    className="btn btn-default btn-control-ct fa fa-minus"
-                    onClick={onDetachDisk(dispatch, vm, target, onAddErrorNotification)} />
+                    bsStyle='default'
+                    className='pull-right'
+                    onClick={onDetachDisk(dispatch, vm, target, onAddErrorNotification)}>
+                {_("Detach")}
+            </Button>
         );
     };
 

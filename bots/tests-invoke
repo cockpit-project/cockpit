@@ -178,7 +178,7 @@ class PullTask(object):
             # explicit request for html logs
             status["link"] = "log.html"
             status["extras"] = [ "https://raw.githubusercontent.com/cockpit-project/cockpit/master/bots/task/log.html" ]
-        elif self.test_project != "cockpit/cockpit-project":
+        elif self.test_project != "cockpit-project/cockpit":
             # third-party project, link directly to text log
             status["link"] = "log"
         else:

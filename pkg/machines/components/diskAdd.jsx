@@ -203,12 +203,12 @@ const PoolRow = ({ idPrefix, onValueChanged, storagePoolName, vmStoragePools }) 
                            onChange={value => onValueChanged('storagePoolName', value)}
                            initial={storagePoolName || _("No Storage Pools available")}
                            extraClass="form-control">
-                {vmStoragePools.length > 0 ? vmStoragePools.map(pool => pool.name)
-                        .sort((a, b) => a.localeCompare(b))
-                        .map(poolName => {
+                {vmStoragePools.length > 0 ? vmStoragePools
+                        .sort((a, b) => a.name.localeCompare(b.name))
+                        .map(pool => {
                             return (
-                                <Select.SelectEntry data={poolName} key={poolName}>
-                                    {poolName}
+                                <Select.SelectEntry disabled={pool.disabled} title={pool.disabled ? _("This pool type does not support Storage Volume creation") : null} data={pool.name} key={pool.name}>
+                                    {pool.name}
                                 </Select.SelectEntry>
                             );
                         })
@@ -265,6 +265,7 @@ class PerformanceOptions extends React.Component {
 
 const CreateNewDisk = ({ idPrefix, onValueChanged, dialogValues, vmStoragePools, provider, vm }) => {
     const storagePool = vmStoragePools.find(pool => pool.name == dialogValues.storagePoolName);
+    const poolTypesNotSupportingVolumeCreation = ['iscsi', 'iscsi-direct', 'gluster', 'mpath'];
 
     return (
         <React.Fragment>
@@ -272,7 +273,7 @@ const CreateNewDisk = ({ idPrefix, onValueChanged, dialogValues, vmStoragePools,
             <PoolRow idPrefix={idPrefix}
                      storagePoolName={dialogValues.storagePoolName}
                      onValueChanged={onValueChanged}
-                     vmStoragePools={vmStoragePools} />
+                     vmStoragePools={vmStoragePools.map(pool => ({ ...pool, disabled: poolTypesNotSupportingVolumeCreation.includes(pool.type) }))} />
             {storagePool &&
             <React.Fragment>
                 <hr />

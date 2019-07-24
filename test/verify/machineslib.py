@@ -1192,10 +1192,9 @@ class TestMachines(NetworkCase):
             runner.assertScriptFinished() \
                 .checkEnvIsEmpty()
 
-        def checkSourceNetworkAbsentTest(dialog):
+        def checkPXENotAvailableSessionTest(dialog):
             dialog.open() \
-                .fill() \
-                .checkSourceNetworkAbsent() \
+                .checkPXENotAvailableSession() \
                 .cancel(True)
             runner.assertScriptFinished() \
                 .checkEnvIsEmpty()
@@ -1475,6 +1474,12 @@ class TestMachines(NetworkCase):
 
         # test PXE Source
         if self.provider == "libvirt-dbus":
+            # check that the pxe booting is not available on session connection
+            checkPXENotAvailableSessionTest(TestMachines.VmDialog(self, name='pxe-guest',
+                                                                  sourceType='pxe',
+                                                                  storage_size=0, storage_size_unit='MiB',
+                                                                  connection="session"))
+
             # test PXE Source
             self.machine.execute("virsh net-destroy default && virsh net-undefine default")
 
@@ -1504,13 +1509,6 @@ class TestMachines(NetworkCase):
             self.browser.reload()
             self.browser.enter_page('/machines')
             self.browser.wait_in_text("body", "Virtual Machines")
-
-            # check that the pxe-nat network is not available on session connection
-            checkSourceNetworkAbsentTest(TestMachines.VmDialog(self, name='pxe-guest',
-                                                               sourceType='pxe',
-                                                               location="Virtual Network pxe-nat: NAT",
-                                                               storage_size=0, storage_size_unit='MiB',
-                                                               connection="session"))
 
             # First create the PXE VM but do not start it. We 'll need to tweak a bit the XML
             # to have serial console at bios and also redirect serial console to a file
@@ -1754,8 +1752,9 @@ class TestMachines(NetworkCase):
                 # os not found which is ok
                 return self
 
-        def checkSourceNetworkAbsent(self):
-            self.browser.wait_not_present("#network-select option[data-value*='{0}']".format(self.location))
+        def checkPXENotAvailableSession(self):
+            self.browser.select_from_dropdown("#connection", self.connectionText)
+            self.browser.wait_present("#source-type option[value*='{0}']:disabled".format(self.sourceType))
             return self
 
         def fill(self):

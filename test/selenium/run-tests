@@ -298,7 +298,7 @@ class SeleniumTestSuite(AvocadoTestSuite):
         self.machine_selenium.wait_boot()
         self.machine_selenium.set_address("%s/20" % self.ipaddr_selenium)
         # start selenium on the server
-        self.machine_selenium.upload(["avocado/selenium_start.sh"], "/root")
+        self.machine_selenium.upload(["selenium/selenium_start.sh"], "/root")
         self.machine_selenium.execute(command="/root/selenium_start.sh")
 
     def _restart_grid_and_cockpit(self):

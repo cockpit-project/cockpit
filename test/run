@@ -13,7 +13,7 @@ case $TEST_SCENARIO in
         ;;
     selenium-*)
         test/image-prepare --verbose $TEST_OS
-        test/avocado/run-tests --browser ${TEST_SCENARIO#*-}
+        test/selenium/run-tests --browser ${TEST_SCENARIO#*-}
         ;;
     container-*)
         test/image-prepare --containers --verbose $TEST_OS

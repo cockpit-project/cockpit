@@ -278,7 +278,7 @@ dispatch_output (gint fd,
 
       if (ret < 0)
         {
-          if (errno == EAGAIN && errno == EINTR)
+          if (errno == EAGAIN || errno == EINTR || errno == ENOBUFS)
             {
               break;
             }

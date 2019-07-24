@@ -1,8 +1,6 @@
-# Tests using Avocado
+# Selenium tests using Avocado
 
-There are two types of tests:
- - **pure avocado** tests which are using [testlib](https://github.com/cockpit-project/cockpit/blob/master/test/common/testlib.py) and [testvm](https://github.com/cockpit-project/cockpit/blob/master/bots/machine/testvm.py) with [sizzle.js](https://www.npmjs.com/package/sizzle) CSS selector engine
- - **selenium** based tests which are using [seleniumlib.py](https://github.com/cockpit-project/cockpit/blob/master/test/avocado/testlib_avocado/seleniumlib.py) wrappers around [selenium](https://www.seleniumhq.org/)
+These use [seleniumlib.py](https://github.com/cockpit-project/cockpit/blob/master/test/avocado/testlib_avocado/seleniumlib.py) wrappers around [selenium](https://www.seleniumhq.org/)
 
 Libraries are accessible in [testlib_avocado module](./testlib_avocado).
 
@@ -17,14 +15,12 @@ avocado installed.
 $ test/image-prepare fedora-30 # Install code to test
 ```
 
-Run the [run-tests script](https://github.com/cockpit-project/cockpit/blob/master/test/avocado/run-tests) changing the parameters accordingly for selenium vs pure avocado tests.
+Run the [run-tests script](https://github.com/cockpit-project/cockpit/blob/master/test/avocado/run-tests) with appropriate parameters.
 
-- For **pure avocado** tests: ``TEST_OS=fedora-30 test/avocado/run-tests``
-- For **selenium** tests:
   - ``bots/image-download selenium # Download a VM image with pre-installed selenium``
-  - ``TEST_OS=fedora-30 test/avocado/run-tests --selenium-tests --browser firefox -v``
- 
-Although this is the default way to run avocado tests the run-tests script is configurable and can be changed to run tests against different machines. This can be usefull for developing or debugging tests. Check bellow the HACKING section for more details.
+  - ``TEST_OS=fedora-30 test/avocado/run-tests --browser firefox -v``
+
+Although this is the default way to run avocado tests the run-tests script is configurable and can be changed to run tests against different machines. This can be useful for developing or debugging tests. Check bellow the HACKING section for more details.
 
 ## Hacking
 

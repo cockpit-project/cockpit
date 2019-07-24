@@ -11,13 +11,9 @@ case $TEST_SCENARIO in
         test/image-prepare --verbose $TEST_OS
         test/verify/run-tests --jobs ${TEST_JOBS:-1}
         ;;
-    avocado)
-        test/image-prepare --verbose $TEST_OS
-        test/avocado/run-tests --quick --tests
-        ;;
     selenium-*)
         test/image-prepare --verbose $TEST_OS
-        test/avocado/run-tests --quick --selenium-tests --browser ${TEST_SCENARIO#*-}
+        test/avocado/run-tests --browser ${TEST_SCENARIO#*-}
         ;;
     container-*)
         test/image-prepare --containers --verbose $TEST_OS

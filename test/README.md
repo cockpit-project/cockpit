@@ -192,7 +192,7 @@ you run `test/containers/run-tests` you need to use the `-i` option to
 build/install cockpit into the test VM. This needs to be done with a compatible
 `TEST_OS` (usually a recent `fedora-*`).
 
-### Avocado and Selenium tests
+### Selenium tests
 The third class of integration tests use avocado and selenium to cover
 different browsers.
 

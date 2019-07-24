@@ -196,7 +196,7 @@ build/install cockpit into the test VM. This needs to be done with a compatible
 The third class of integration tests use avocado and selenium to cover
 different browsers.
 
-For more details on how to run and debug these tests see [selenium hacking guide](./avocado/README.md)
+For more details on how to run and debug these tests see [selenium hacking guide](./selenium/README.md)
 
 
 ## Debugging tests

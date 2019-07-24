@@ -1,12 +1,12 @@
 # Selenium tests using Avocado
 
-These use [seleniumlib.py](https://github.com/cockpit-project/cockpit/blob/master/test/avocado/testlib_avocado/seleniumlib.py) wrappers around [selenium](https://www.seleniumhq.org/)
+These use [seleniumlib.py](https://github.com/cockpit-project/cockpit/blob/master/test/selenium/testlib_avocado/seleniumlib.py) wrappers around [selenium](https://www.seleniumhq.org/)
 
 Libraries are accessible in [testlib_avocado module](./testlib_avocado).
 
 ## How to run tests
 
-The default way to run avocado tests is to use the [testing images](https://github.com/cockpit-project/cockpit/blob/master/bots/images/) that CI uses and test cockpit installation inside a test VM.
+The default way to run selenium tests is to use the [testing images](https://github.com/cockpit-project/cockpit/blob/master/bots/images/) that CI uses and test cockpit installation inside a test VM.
 
 Currently, these tests run on Fedora 30. Other images don't have selenium and
 avocado installed.
@@ -15,17 +15,17 @@ avocado installed.
 $ test/image-prepare fedora-30 # Install code to test
 ```
 
-Run the [run-tests script](https://github.com/cockpit-project/cockpit/blob/master/test/avocado/run-tests) with appropriate parameters.
+Run the [run-tests script](https://github.com/cockpit-project/cockpit/blob/master/test/selenium/run-tests) with appropriate parameters.
 
   - ``bots/image-download selenium # Download a VM image with pre-installed selenium``
-  - ``TEST_OS=fedora-30 test/avocado/run-tests --browser firefox -v``
+  - ``TEST_OS=fedora-30 test/selenium/run-tests --browser firefox -v``
 
-Although this is the default way to run avocado tests the run-tests script is configurable and can be changed to run tests against different machines. This can be useful for developing or debugging tests. Check bellow the HACKING section for more details.
+Although this is the default way to run selenium tests the run-tests script is configurable and can be changed to run tests against different machines. This can be useful for developing or debugging tests. Check bellow the HACKING section for more details.
 
 ## Hacking
 
 ### Selenium tests
-[run-tests script](https://github.com/cockpit-project/cockpit/blob/master/test/avocado/run-tests) can change it's behavior by the environment variables specified bellow.
+[run-tests script](https://github.com/cockpit-project/cockpit/blob/master/test/selenium/run-tests) can change it's behavior by the environment variables specified bellow.
 
 #### Where cockpit is running
 Defines where is the cockpit instance that you want to test. This cannot be used together with ``TEST_OS`` variable.
@@ -94,10 +94,10 @@ cp geckodriver /usr/local/bin
 ```
 
 #### Other requirements
-When not using selenium image you need to have the created an ``test`` user with credentials defined in [seleniumlib](https://github.com/cockpit-project/cockpit/blob/master/test/avocado/testlib_avocado/seleniumlib.py#L40)
+When not using selenium image you need to have the created an ``test`` user with credentials defined in [seleniumlib](https://github.com/cockpit-project/cockpit/blob/master/test/selenium/testlib_avocado/seleniumlib.py#L40)
 
 
-**And finally run selected test(s)** ``LOCAL=yes BROWSER=firefox avocado-3 run test/avocado/selenium-base.py``
+**And finally run selected test(s)** ``LOCAL=yes BROWSER=firefox avocado-3 run test/selenium/selenium-base.py``
 
 
 # How to write tests

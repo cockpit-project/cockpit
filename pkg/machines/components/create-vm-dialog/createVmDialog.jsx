@@ -33,6 +33,7 @@ import {
     units,
     getStorageVolumesUsage,
     LIBVIRT_SYSTEM_CONNECTION,
+    LIBVIRT_SESSION_CONNECTION,
 } from "../../helpers.js";
 import {
     getPXEInitialNetworkSource,
@@ -183,7 +184,7 @@ const NameRow = ({ vmName, onValueChanged, validationFailed }) => {
     );
 };
 
-const SourceRow = ({ source, sourceType, networks, nodeDevices, providerName, onValueChanged, validationFailed }) => {
+const SourceRow = ({ connectionName, source, sourceType, networks, nodeDevices, providerName, onValueChanged, validationFailed }) => {
     let installationSource;
     let installationSourceId;
     let installationSourceWarning;
@@ -261,7 +262,11 @@ const SourceRow = ({ source, sourceType, networks, nodeDevices, providerName, on
                     key={LOCAL_INSTALL_MEDIA_SOURCE}>{_("Local Install Media")}</Select.SelectEntry>
                 <Select.SelectEntry data={URL_SOURCE} key={URL_SOURCE}>{_("URL")}</Select.SelectEntry>
                 { providerName == 'LibvirtDBus' &&
-                <Select.SelectEntry data={PXE_SOURCE} key={PXE_SOURCE}>{_("Network Boot (PXE)")}</Select.SelectEntry> }
+                <Select.SelectEntry title={connectionName == 'session' ? _("Network Boot is available only when using System connection") : null}
+                    disabled={connectionName == 'session'}
+                    data={PXE_SOURCE}
+                    key={PXE_SOURCE}>{_("Network Boot (PXE)")}
+                </Select.SelectEntry>}
                 <Select.SelectEntry data={EXISTING_DISK_IMAGE_SOURCE} key={EXISTING_DISK_IMAGE_SOURCE}>{_("Existing Disk Image")}</Select.SelectEntry>
             </Select.Select>
 
@@ -585,9 +590,9 @@ class CreateVmModal extends React.Component {
         }
         case 'connectionName':
             this.setState({ [key]: value });
-            if (this.state.sourceType == PXE_SOURCE) {
-                // If the installation source mode is PXE refresh the list of available networks
-                this.onValueChanged('sourceType', PXE_SOURCE);
+            if (this.state.sourceType == PXE_SOURCE && value == LIBVIRT_SESSION_CONNECTION) {
+                // When changing to session connection, reset media source
+                this.onValueChanged('sourceType', LOCAL_INSTALL_MEDIA_SOURCE);
             }
 
             // specific storage pool is selected
@@ -662,6 +667,7 @@ class CreateVmModal extends React.Component {
                 <hr />
 
                 <SourceRow
+                    connectionName={this.state.connectionName}
                     networks={networks.filter(network => network.connectionName == this.state.connectionName)}
                     nodeDevices={nodeDevices.filter(nodeDevice => nodeDevice.connectionName == this.state.connectionName)}
                     providerName={providerName}

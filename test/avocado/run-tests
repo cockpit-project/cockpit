@@ -340,41 +340,16 @@ def main():
     parser = argparse.ArgumentParser(description='Run Cockpit Avocado test(s)')
     parser.add_argument('-v', '--verbose', dest="verbosity", action='store_true',
                         help='Verbose output')
-    parser.add_argument('-q', '--quick', action='store_true', help='Build faster')
-    parser.add_argument("-b", "--browser", choices=['none', 'firefox', 'chrome', 'edge'],
-                    default='none',
-                    help="selenium browser choice - in case of none, selenium isn't started")
-    parser.add_argument("-s", "--selenium-tests", dest='selenium_tests', action='store_true',
-                        help="Run known browser/selenium tests")
-    parser.add_argument("-t", "--tests", dest='regular_tests', action='store_true',
-                        help="Run known regular (non-selenium) tests")
+    parser.add_argument("-b", "--browser", choices=['firefox', 'chrome', 'edge'],
+                    default='firefox',
+                    help="selenium browser choice (default: %(default)s)")
     parser.add_argument("-l", "--logs", dest='download_logs', action='store_true',
                         help="Always download avocado logs, even on success")
     parser.add_argument("--sit", dest='sit', action='store_true',
                         help="Sit and wait after test failure")
-    parser.add_argument('tests', nargs='*')
+    parser.add_argument('tests', nargs='*', default=["selenium-*.py"])
 
     opts = parser.parse_args()
-
-    regular_tests = ["check*.py"]
-    browser_tests = ["selenium-*.py"]
-
-    if not opts.tests:
-        if opts.regular_tests:
-            opts.tests = regular_tests
-        if opts.selenium_tests:
-            opts.tests = browser_tests
-
-    # if we don't have a browser but are supposed to run selenium related tests, fail
-    if opts.browser == 'none':
-        for t in browser_tests:
-            if t in opts.tests:
-                sys.stderr.write("Unable to run test {0} because browser isn't set.\n".format(t))
-                return 1
-
-    if len(opts.tests) == 0:
-        sys.stderr.write("No tests specified.\n")
-        return 0
 
     network = testvm.VirtNetwork()
     image = BASE_IMAGE
@@ -382,16 +357,13 @@ def main():
     test_timeout = 300
     testsuite = None
     try:
-        if opts.selenium_tests:
-            machine = testvm.VirtMachine(verbose=opts.verbosity, networking=network.host(), image=image)
-            machine.start()
-            if 'edge' in opts.browser:
-                testsuite = SeleniumWinTestSuite(browser=opts.browser, machine_cockpit=machine, network=network, verbose=opts.verbosity)
-                test_timeout = 900
-            else:
-                testsuite = SeleniumTestSuite(browser=opts.browser, machine_cockpit=machine, network=network, verbose=opts.verbosity)
+        machine = testvm.VirtMachine(verbose=opts.verbosity, networking=network.host(), image=image)
+        machine.start()
+        if 'edge' in opts.browser:
+            testsuite = SeleniumWinTestSuite(browser=opts.browser, machine_cockpit=machine, network=network, verbose=opts.verbosity)
+            test_timeout = 900
         else:
-            testsuite = AvocadoTestSuite(network=network, verbose=opts.verbosity)
+            testsuite = SeleniumTestSuite(browser=opts.browser, machine_cockpit=machine, network=network, verbose=opts.verbosity)
 
         success = testsuite.run(opts.tests, timeout=test_timeout)
         if not success and opts.sit:

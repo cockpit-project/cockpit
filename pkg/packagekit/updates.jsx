@@ -756,7 +756,9 @@ class OsUpdates extends React.Component {
                 .catch(ex => {
                     this.state.errorMessages.push(ex.message);
                     this.setState({ state: "updateError" });
-                });
+                })
+                // tell the System page to refresh its "Available Updates" status
+                .finally(() => window.sessionStorage.removeItem("last_sw_update_check"));
     }
 
     renderContent() {
@@ -892,6 +894,8 @@ class OsUpdates extends React.Component {
         PK.cancellableTransaction("RefreshCache", [true], data => this.setState({ loadPercent: data.percentage }))
                 .then(() => {
                     this.setState({ timeSinceRefresh: 0 });
+                    // tell the System page to refresh its "Available Updates" status
+                    window.sessionStorage.removeItem("last_sw_update_check");
                     this.loadUpdates();
                 })
                 .catch(this.handleLoadError);

@@ -506,8 +506,18 @@ PageServer.prototype = {
 
         function check_for_updates() {
             var os_updates = { };
-            self.os_updates = null;
 
+            // skip update check when becoming invisible
+            if (document.visibilityState != "visible")
+                return;
+            const lastCheck = window.sessionStorage.getItem("last_sw_update_check");
+            // check at most once per hour, as this is expensive on embedded machines
+            // this gets reset on applying software updates updates
+            if (self.os_updates && lastCheck && Date.now() - lastCheck < 3600000)
+                return;
+            window.sessionStorage.setItem("last_sw_update_check", Date.now());
+
+            self.os_updates = null;
             packagekit.cancellableTransaction(
                 "GetUpdates", [0],
                 function(data) {

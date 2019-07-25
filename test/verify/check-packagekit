@@ -43,8 +43,10 @@ class TestUpdates(PackageCase):
     def setUp(self):
         PackageCase.setUp(self)
 
-        # Disable Subscription Manager for these tests; subscriptions are tested in a separate class
-        self.machine.execute("[ ! -f /usr/libexec/rhsmd ] || mv /usr/libexec/rhsmd /usr/libexec/rhsmd.disabled")
+        # Disable Subscription Manager on RHEL for these tests; subscriptions are tested in a separate class
+        # On other OSes (Fedora/CentOS) we expect sub-man to be disabled in yum, so it should not get in the way there
+        if self.machine.image.startswith("rhel"):
+            self.machine.execute("mv /usr/libexec/rhsmd /usr/libexec/rhsmd.disabled")
 
         # only the yum backend properly recognizes "enhancement" severity; apt
         # does not have that metadata and PackageKit-dnf does not parse it
@@ -781,8 +783,10 @@ class TestAutoUpdates(PackageCase):
     def setUp(self):
         PackageCase.setUp(self)
 
-        # Disable Subscription Manager for these tests; subscriptions are tested in a separate class
-        self.machine.execute("[ ! -f /usr/libexec/rhsmd ] || mv /usr/libexec/rhsmd /usr/libexec/rhsmd.disabled")
+        # Disable Subscription Manager on RHEL for these tests; subscriptions are tested in a separate class
+        # On other OSes (Fedora/CentOS) we expect sub-man to be disabled in yum, so it should not get in the way there
+        if self.machine.image.startswith("rhel"):
+            self.machine.execute("mv /usr/libexec/rhsmd /usr/libexec/rhsmd.disabled")
 
         # not implemented for yum and apt yet, only dnf
         self.supported_backend = self.backend in ["dnf"]

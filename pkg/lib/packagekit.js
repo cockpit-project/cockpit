@@ -300,32 +300,43 @@ export function getSeverityIcon(info, secSeverity) {
 // we accept RHSM_VALID(0), RHN_CLASSIC(3), and RHSM_PARTIALLY_VALID(4)
 const validSubscriptionStates = [0, 3, 4];
 
+const yum_plugin_enabled_re = /^\s*enabled\s*=\s*1\s*$/m;
+
 /**
  * Check Red Hat subscription-manager if if this is an unregistered RHEL
- * system. If subscription-manager is not installed, nothing happens.
+ * system. If subscription-manager is not installed or enabled in yum/dnf,
+ * nothing happens.
  *
  * callback: Called with a boolean (true: registered, false: not registered)
  *           after querying subscription-manager once, and whenever the value
  *           changes.
  */
 export function watchRedHatSubscription(callback) {
-    // check if this is an unregistered RHEL system; if subscription-manager is not installed, ignore
-    var sm = cockpit.dbus("com.redhat.SubscriptionManager");
-    sm.subscribe(
-        { path: "/EntitlementStatus",
-          interface: "com.redhat.SubscriptionManager.EntitlementStatus",
-          member: "entitlement_status_changed"
-        },
-        (path, iface, signal, args) => callback(validSubscriptionStates.indexOf(args[0]) >= 0)
-    );
-    sm.call(
-        "/EntitlementStatus", "com.redhat.SubscriptionManager.EntitlementStatus", "check_status")
-            .done(result => callback(validSubscriptionStates.indexOf(result[0]) >= 0))
-            .fail(ex => {
-                if (ex.problem != "not-found")
-                    console.warn("Failed to query RHEL subscription status:", JSON.stringify(ex));
-            }
-            );
+    // first check if subscription-manager is enabled in yum/dnf
+    cockpit.file("/etc/yum/pluginconf.d/subscription-manager.conf").read()
+            .then(contents => {
+                if (!contents || !yum_plugin_enabled_re.test(contents))
+                    return;
+
+                // check if this is an unregistered RHEL system; if subscription-manager is not installed, ignore
+                var sm = cockpit.dbus("com.redhat.SubscriptionManager");
+                sm.subscribe(
+                    { path: "/EntitlementStatus",
+                      interface: "com.redhat.SubscriptionManager.EntitlementStatus",
+                      member: "entitlement_status_changed"
+                    },
+                    (path, iface, signal, args) => callback(validSubscriptionStates.indexOf(args[0]) >= 0)
+                );
+                sm.call(
+                    "/EntitlementStatus", "com.redhat.SubscriptionManager.EntitlementStatus", "check_status")
+                        .done(result => callback(validSubscriptionStates.indexOf(result[0]) >= 0))
+                        .fail(ex => {
+                            if (ex.problem != "not-found")
+                                console.warn("Failed to query RHEL subscription status:", JSON.stringify(ex));
+                        });
+            })
+            // non-existing files don't error (contents is null for them), so we don't expect this
+            .catch(ex => console.warn("Failed to read /etc/yum/pluginconf.d/subscription-manager.conf:", ex));
 }
 
 /* Support for installing missing packages.

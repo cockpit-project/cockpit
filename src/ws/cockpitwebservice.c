@@ -1116,7 +1116,10 @@ on_web_socket_open (WebSocketConnection *connection,
   JsonObject *object;
   JsonObject *info;
 
-  g_info ("New connection to session from %s", cockpit_creds_get_rhost (self->creds));
+  if (cockpit_creds_get_rhost (self->creds))
+      g_info ("New connection to session from %s", cockpit_creds_get_rhost (self->creds));
+  else
+      g_info ("New connection to session");
 
   socket = cockpit_socket_lookup_by_connection (&self->sockets, connection);
   g_return_if_fail (socket != NULL);

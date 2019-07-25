@@ -224,7 +224,7 @@ def prioritize(status, title, labels, priority, context, number):
         priority -= 2
 
     elif state in [ "pending" ]:
-        logging.info("Skipping '{0}' on #{1} because it is pending".format(context, number))
+        logging.info("Not updating status for '{0}' on #{1} because it is pending".format(context, number))
         update = None
 
     # Ignore context when the PR has [no-test] in the title or as label, unless
@@ -254,7 +254,7 @@ def prioritize(status, title, labels, priority, context, number):
 
     if update:
         if priority <= 0:
-            logging.info("Skipping '{0}' on #{1} because of low priority".format(context, number))
+            logging.info("Not updating status for '{0}' on #{1} because of low priority".format(context, number))
             update = None
         else:
             update["description"] = github.NOT_TESTED

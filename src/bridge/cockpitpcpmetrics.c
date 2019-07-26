@@ -666,7 +666,7 @@ prepare_current_context (CockpitPcpMetrics *self,
 
 static void start_archive (CockpitPcpMetrics *self, gint64 timestamp);
 
-static gboolean
+static void
 add_archive (CockpitPcpMetrics *self,
              const gchar *name)
 {
@@ -681,32 +681,28 @@ add_archive (CockpitPcpMetrics *self,
       if (info->context == -ENOENT)
         {
           g_debug ("%s: couldn't find pcp archive for %s", self->name, name);
-          cockpit_channel_close (COCKPIT_CHANNEL (self), "not-found");
         }
-      else
+      else if (info->context != PM_ERR_NODATA)
         {
-          cockpit_channel_fail (COCKPIT_CHANNEL (self), "internal-error",
-                                "%s: couldn't create pcp archive context for %s: %s",
-                                self->name, name, pmErrStr (info->context));
+          g_warning ("%s: couldn't create pcp archive context for %s: %s (%d)",
+                     self->name, name, pmErrStr (info->context), info->context);
         }
       g_free (info);
-      return FALSE;
+      return;
     }
 
   rc = pmGetArchiveLabel (&label);
   if (rc < 0)
     {
-      cockpit_channel_fail (COCKPIT_CHANNEL (self), "internal-error",
-                            "%s: couldn't read archive label of %s: %s",
-                            self->name, name, pmErrStr (rc));
+      g_warning ("%s: couldn't read archive label of %s: %s", self->name, name, pmErrStr (rc));
       pmDestroyContext (info->context);
       g_free (info);
-      return FALSE;
+      return;
     }
 
   info->start = label.ll_start.tv_sec * 1000 + label.ll_start.tv_usec / 1000;
   self->archives = g_list_prepend (self->archives, info);
-  return TRUE;
+  return;
 }
 
 static gint
@@ -729,7 +725,6 @@ prepare_archives (CockpitPcpMetrics *self,
                   const gchar *name,
                   gint64 timestamp)
 {
-  gboolean ret = TRUE;
   GDir *dir;
   int count;
   GError *error = NULL;
@@ -745,8 +740,7 @@ prepare_archives (CockpitPcpMetrics *self,
             {
               gchar *path = g_build_filename (name, entry, NULL);
               path[strlen(path)-strlen(".meta")] = '\0';
-              if (!add_archive (self, path))
-                ret = FALSE;
+              add_archive (self, path);
               g_free (path);
               count += 1;
             }
@@ -755,22 +749,19 @@ prepare_archives (CockpitPcpMetrics *self,
     }
   else if (g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NOENT))
     {
-      if (!add_archive (self, name))
-        ret = FALSE;
+      add_archive (self, name);
     }
   else
     {
       cockpit_channel_fail (COCKPIT_CHANNEL (self), "internal-error",
                             "%s: %s", name, error->message);
-      ret = FALSE;
+      g_clear_error (&error);
+      return FALSE;
     }
-
-  g_clear_error (&error);
 
   if (self->archives == NULL)
     {
-      if (ret)
-        cockpit_channel_close (COCKPIT_CHANNEL (self), "not-found");
+      cockpit_channel_close (COCKPIT_CHANNEL (self), "not-found");
       return FALSE;
     }
 

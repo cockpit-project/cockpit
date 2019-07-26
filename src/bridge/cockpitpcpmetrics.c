@@ -736,10 +736,10 @@ prepare_archives (CockpitPcpMetrics *self,
       count = 0;
       while ((entry = g_dir_read_name (dir)) && count < 200)
         {
-          if (g_str_has_suffix (entry, ".meta"))
+          if (g_str_has_suffix (entry, ".index"))
             {
               gchar *path = g_build_filename (name, entry, NULL);
-              path[strlen(path)-strlen(".meta")] = '\0';
+              path[strlen(path)-strlen(".index")] = '\0';
               add_archive (self, path);
               g_free (path);
               count += 1;
@@ -749,6 +749,7 @@ prepare_archives (CockpitPcpMetrics *self,
     }
   else if (g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NOENT))
     {
+      g_clear_error (&error);
       add_archive (self, name);
     }
   else

@@ -165,7 +165,7 @@ class ServiceActions extends React.Component {
                     <MenuItem key="stop" onClick={() => this.props.actionCallback("StopUnit")}>{ _("Stop") }</MenuItem>,
                 );
             }
-            if (!this.props.isStatic && (this.props.enabled || this.props.active)) {
+            if (this.props.enabled || this.props.active) {
                 if (actions.length > 0) {
                     actions.push(
                         <MenuItem key="divider1" divider />
@@ -217,7 +217,6 @@ ServiceActions.propTypes = {
     masked: PropTypes.bool.isRequired,
     active: PropTypes.bool.isRequired,
     enabled: PropTypes.bool.isRequired,
-    isStatic: PropTypes.bool.isRequired,
     actionCallback: PropTypes.func.isRequired,
     fileActionCallback: PropTypes.func.isRequired,
     disabled: PropTypes.bool,
@@ -464,7 +463,7 @@ export class ServiceDetails extends React.Component {
                                             </span>
                                         </OverlayTrigger>
                                     }
-                                    <ServiceActions { ...{ active, enabled, isStatic, masked } } actionCallback={this.unitAction} fileActionCallback={this.unitFileAction} disabled={this.state.waitsAction || this.state.waitsFileAction} />
+                                    <ServiceActions { ...{ active, enabled, masked } } actionCallback={this.unitAction} fileActionCallback={this.unitFileAction} disabled={this.state.waitsAction || this.state.waitsFileAction} />
                                 </React.Fragment>
                             }
                         </div>

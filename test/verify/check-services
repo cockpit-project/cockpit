@@ -62,6 +62,16 @@ class TestServices(MachineCase):
         else:
             self.browser.wait_not_present(".service-top-panel .dropdown-kebab-pf")
 
+    def wait_service_present(self, service):
+        if self.machine.image in ["rhel-8-0-distropkg"]: # Changed in #12381
+            self.browser.wait_text('tr[data-goto-unit="{0}"] td:nth-child(2)'.format(service), service)
+        else:
+            service_name = service
+            if service.endswith(".service"):
+                service_name = service[:-8]
+            self.browser.wait_text('tr[data-goto-unit="{0}"] td:first-child'.format(service), service_name)
+
+
     def testBasic(self):
         m = self.machine
         b = self.browser
@@ -144,7 +154,7 @@ Unit=test.service
             else:
                 wait_service_state(service, title)
 
-        b.wait_in_text("#services", "test.service")
+        self.wait_service_present("test.service")
         wait_service_in_panel("test.service", "Disabled")
 
         m.execute("systemctl start test.service")
@@ -211,7 +221,7 @@ Unit=test.service
         self.check_service_details(["Failed to start", "Automatically starts"], ["Start", "Reload", "Disallow running (mask)"], True)
         b.wait_visible(".action-button:contains('Start Service')")
         b.go("#/")
-        b.wait_in_text("#services", "test-fail.service")
+        self.wait_service_present("test-fail.service")
         wait_service_state("test-fail.service", "failed")
 
         # Check static service
@@ -228,6 +238,7 @@ Unit=test.service
 
         # Instantiate a template
         b.go("#/")
+        self.wait_service_present("test-template@.service")
         b.click(svc_sel("test-template@.service"))
         b.set_input_text("#service-details input", "//param-f//o//o//")
         b.click("#service-details button")
@@ -237,16 +248,13 @@ Unit=test.service
         b.click("#service-details .ct-form a:contains('test-template@.service')")
         b.wait_visible("#service-details input")
 
-        def wait_service_present(service):
-            b.wait_visible(svc_sel(service))
-
         def wait_service_not_present(service):
             b.wait_not_present(svc_sel(service))
 
         def init_filter_state():
             b.set_input_text("#services-text-filter", "")
-            wait_service_present("test.service")
-            wait_service_present("test-fail.service")
+            self.wait_service_present("test.service")
+            self.wait_service_present("test-fail.service")
             b.select_from_dropdown("#services-dropdown", "All")
 
         b.go("#/")
@@ -255,24 +263,24 @@ Unit=test.service
         init_filter_state()
         b.set_input_text("#services-text-filter", "fail.ser")
         wait_service_not_present("test.service")
-        wait_service_present("test-fail.service")
+        self.wait_service_present("test-fail.service")
 
         # Filter by description
         init_filter_state()
         b.set_input_text("#services-text-filter", "failing")
         wait_service_not_present("test.service")
-        wait_service_present("test-fail.service")
+        self.wait_service_present("test-fail.service")
 
         # Select only static services
         init_filter_state()
         b.select_from_dropdown("#services-dropdown", "Static")
         wait_service_not_present("test.service")
         wait_service_not_present("test-fail.service")
-        wait_service_present("systemd-halt.service")
+        self.wait_service_present("systemd-halt.service")
 
         # Select only disabled services
         b.select_from_dropdown("#services-dropdown", "Disabled")
-        wait_service_present("test.service")
+        self.wait_service_present("test.service")
         wait_service_not_present("test-fail.service")
         wait_service_not_present("systemd-halt.service")
 
@@ -283,9 +291,9 @@ Unit=test.service
 
         # Check resetting filter
         b.click("#clear-all-filters")
-        wait_service_present("test.service")
-        wait_service_present("test-fail.service")
-        wait_service_present("systemd-halt.service")
+        self.wait_service_present("test.service")
+        self.wait_service_present("test-fail.service")
+        self.wait_service_present("systemd-halt.service")
         self.assertEqual(b.val("#services-text-filter"), "")
         self.assertEqual(b.val("#services-dropdown"), "0")
 
@@ -703,7 +711,7 @@ ExecStart=/bin/sh -c "while true; do sleep 5; done"
 
         # services page
         self.login_and_go("/system/services")
-        b.wait_in_text("#services", "test-a.service")
+        self.wait_service_present("test-a.service")
         b.click(svc_sel("test-a.service"))
 
         # service a

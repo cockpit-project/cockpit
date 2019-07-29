@@ -33,7 +33,7 @@
 
         {{#units}}
         <tr data-goto-unit="{{Id}}">
-          <td class="service-unit-id">{{Id}}</td>
+          <td class="service-unit-id">{{shortId}}</td>
           <th scope="row" class="service-unit-description">{{Description}}</th>
           {{#is_timer}}
             <td class="service-unit-next">{{#NextRunTime}}{{NextRunTime}}{{/NextRunTime}}</td>

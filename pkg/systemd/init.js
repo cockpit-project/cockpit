@@ -307,6 +307,10 @@ $(function() {
                     return;
                 if (current_type_filter !== 0 && current_type_filter !== unit.AutomaticStartupIndex)
                     return;
+                unit.shortId = unit.Id;
+                // Remove ".service" from services as this is not necessary
+                if (unit.Id.endsWith(".service"))
+                    unit.shortId = unit.Id.substring(0, unit.Id.length - 8);
                 units.push(unit);
             });
 

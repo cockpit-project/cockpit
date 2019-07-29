@@ -1144,6 +1144,7 @@ class TestMachines(NetworkCase):
             b.click("#vm-subVmTest1-disks") # open the "Disks" subtab
 
             b.click("#vm-subVmTest1-disks-adddisk") # button
+            b.wait_present("#vm-subVmTest1-disks-adddisk-dialog-modal-window")
             b.wait_present("label:contains(Create New)") # radio button label in the modal dialog
 
             b.select_from_dropdown("#vm-subVmTest1-disks-adddisk-new-select-pool", poolName)
@@ -1153,7 +1154,7 @@ class TestMachines(NetworkCase):
             b.click("#vm-subVmTest1-disks-adddisk-new-permanent")
 
             b.click("#vm-subVmTest1-disks-adddisk-dialog-add")
-            b.wait_not_present("#vm-subVmTest1-test-disks-adddisk-dialog-modal-window")
+            b.wait_not_present("#vm-subVmTest1-disks-adddisk-dialog-modal-window")
 
             if self.provider == "libvirt-dbus":
                 b.wait_present("#vm-subVmTest1-disks-vdc-source-volume")
@@ -1164,6 +1165,7 @@ class TestMachines(NetworkCase):
         secondDiskVolName = "mydisk"
         poolName = "images"
         secondDiskPoolPath = "/var/lib/libvirt/images/"
+
         addDisk(secondDiskVolName, poolName)
 
         b.click("#vm-{0}-delete".format(name))
@@ -2166,7 +2168,7 @@ class TestMachines(NetworkCase):
                 else:
                     raise AssertionError("Unknown disk device")
             else:
-                b.wait_in_text("tbody tr td div.listing-ct-body", "No disks defined")
+                b.wait_in_text("div.listing-ct-body", "No disks defined")
             return self
 
         def assertScriptFinished(self):

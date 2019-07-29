@@ -587,24 +587,6 @@ tbody + thead.listing-ct-empty {
     width: 100%;
 }
 
-/* Listing pattern mod to redce the padding */
-.listing-ct-compact {
-    > thead > tr > th,
-    > tbody > tr > th,
-    > tbody > tr > td {
-        padding: @listing-ct-padding / 2;
-    }
-
-    > tbody > tr > .listing-ct-toggle:not(:empty) + th,
-    > tbody > tr > .listing-ct-toggle:not(:empty) + td {
-        padding-left: @listing-ct-padding / 2;
-
-        &::before {
-            top: @listing-ct-padding / 2;
-        }
-    }
-}
-
 div.listing-ct-head {
     overflow: visible;
 }

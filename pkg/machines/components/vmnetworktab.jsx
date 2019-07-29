@@ -18,10 +18,14 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import {
+    Table,
+    TableHeader,
+    TableBody,
+} from '@patternfly/react-table';
 
 import cockpit from 'cockpit';
 import { changeNetworkState, getVm } from "../actions/provider-actions.js";
-import { Listing, ListingRow } from 'cockpit-components-listing.jsx';
 import { rephraseUI, vmId } from "../helpers.js";
 import EditNICAction from './nicEdit.jsx';
 import WarningInactive from './warningInactive.jsx';
@@ -211,28 +215,33 @@ class VmNetworkTab extends React.Component {
         let networkId = 1;
         detailMap = detailMap.filter(d => !d.hidden);
 
-        return (
-            <div className="machines-network-list">
-                <Listing compact columnTitles={detailMap.map(target => target.name)} actions={null} emptyCaption=''>
-                    {vm.interfaces.sort().map(target => {
-                        const columns = detailMap.map(d => {
-                            let column = null;
-                            if (typeof d.value === 'string') {
-                                if (target[d.value] !== undefined) {
-                                    column = { name: (<div id={`${id}-network-${networkId}-${d.value}`}>{target[d.value]}</div>), header: d.header };
-                                }
-                            }
-                            if (typeof d.value === 'function') {
-                                column = d.value(target, networkId, vm.connectionName);
-                            }
-                            return column;
-                        });
-                        networkId++;
+        const columnTitles = detailMap.map(target => target.name);
+        const rows = vm.interfaces.sort().map(target => {
+            const columns = detailMap.map(d => {
+                let column = null;
+                if (typeof d.value === 'string') {
+                    if (target[d.value] !== undefined) {
+                        column = { title: <div id={`${id}-network-${networkId}-${d.value}`}>{target[d.value]}</div> };
+                    }
+                }
+                if (typeof d.value === 'function') {
+                    column = { title: d.value(target, networkId, vm.connectionName) };
+                }
+                return column;
+            });
+            networkId++;
+            return columns;
+        });
 
-                        return (<ListingRow columns={columns} key={networkId} />);
-                    })}
-                </Listing>
-            </div>
+        return (
+            <Table className='machines-network-list'
+                aria-label={`VM ${vm.name} Network Interface Cards`}
+                variant='compact'
+                cells={columnTitles}
+                rows={rows}>
+                <TableHeader />
+                <TableBody />
+            </Table>
         );
     }
 }

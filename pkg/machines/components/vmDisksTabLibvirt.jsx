@@ -20,7 +20,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { vmId } from '../helpers.js';
-import { AddDiskAction } from './diskAdd.jsx';
 import VmDisksTab from './vmDisksTab.jsx';
 import { DiskSourceCell, DiskExtras } from './vmDiskColumns.jsx';
 
@@ -117,19 +116,14 @@ class VmDisksTabLibvirt extends React.Component {
                                                     vm.disksStats && vm.disksStats[target],
                                                     `${idPrefix}-${target}`,
                                                     storagePools));
-        let actions = [];
-
-        if (config.provider.name != 'oVirt')
-            actions = [<AddDiskAction dispatch={dispatch} provider={config.provider} idPrefix={idPrefix} key='add-disk' vm={vm} storagePools={storagePools} />];
-
         return (
             <VmDisksTab idPrefix={idPrefix}
-                actions={actions}
                 vm={vm}
                 disks={disks}
                 renderCapacity={areDiskStatsSupported}
                 dispatch={dispatch}
-                provider={config.provider.name}
+                provider={config.provider}
+                storagePools={storagePools}
                 onAddErrorNotification={this.props.onAddErrorNotification} />
         );
     }

@@ -23,7 +23,7 @@ import cockpit from 'cockpit';
 import * as Select from "cockpit-components-select.jsx";
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { units, convertToUnit, getDefaultVolumeFormat } from '../helpers.js';
-import { volumeCreateAndAttach, attachDisk, getVm, getAllStoragePools } from '../actions/provider-actions.js';
+import { volumeCreateAndAttach, attachDisk, getVm } from '../actions/provider-actions.js';
 import { VolumeCreateBody } from './storagePools/storageVolumeCreateBody.jsx';
 
 import 'form-layout.less';
@@ -252,46 +252,7 @@ const UseExistingDisk = ({ idPrefix, onValueChanged, dialogValues, vmStoragePool
     );
 };
 
-export class AddDiskAction extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = { showModal: false };
-        this.open = this.open.bind(this);
-        this.close = this.close.bind(this);
-    }
-
-    close() {
-        this.setState({ showModal: false });
-    }
-
-    open() {
-        // Refresh storage volume list before displaying the dialog.
-        // There are recently no Libvirt events for storage volumes and polling is ugly.
-        // https://bugzilla.redhat.com/show_bug.cgi?id=1578836
-        this.props.dispatch(getAllStoragePools(this.props.vm.connectionName))
-                .then(() => {
-                    this.setState({ showModal: true });
-                });
-    }
-
-    render() {
-        const { vm, storagePools, provider, dispatch } = this.props;
-        const idPrefix = `${this.props.idPrefix}-adddisk`;
-        const filteredStoragePools = storagePools
-                .filter(pool => pool.active);
-
-        return (
-            <div id={`${idPrefix}-add-dialog-full`}>
-                <Button id={`${idPrefix}`} bsStyle='primary' onClick={this.open} className='pull-right'>
-                    {_("Add Disk")}
-                </Button>
-                { this.state.showModal && <AddDiskModalBody close={this.close} dispatch={dispatch} idPrefix={this.props.idPrefix} vm={vm} storagePools={filteredStoragePools} provider={provider} /> }
-            </div>
-        );
-    }
-}
-
-class AddDiskModalBody extends React.Component {
+export class AddDiskModalBody extends React.Component {
     constructor(props) {
         super(props);
         this.state = this.initialState;
@@ -442,8 +403,8 @@ class AddDiskModalBody extends React.Component {
 
     render() {
         const { vm, storagePools, provider } = this.props;
-        const storagePoolsFiltered = storagePools.filter(pool => pool != undefined);
         const idPrefix = `${this.props.idPrefix}-adddisk`;
+        const storagePoolsFiltered = storagePools.filter(pool => pool && pool.active);
 
         const defaultBody = (
             <div className='ct-form'>

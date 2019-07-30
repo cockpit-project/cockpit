@@ -27,6 +27,7 @@ import sys
 
 from . import exceptions
 from . import timeout as timeoutlib
+from .directories import get_temp_dir
 
 
 class SSHConnection(object):
@@ -135,7 +136,7 @@ class SSHConnection(object):
     def _start_ssh_master(self):
         self._kill_ssh_master()
 
-        control = os.path.join(tempfile.gettempdir(), "ssh-%h-%p-%r-" + str(os.getpid()))
+        control = os.path.join(get_temp_dir(), "ssh-%h-%p-%r-" + str(os.getpid()))
 
         cmd = [
             "ssh",

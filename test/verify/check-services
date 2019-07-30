@@ -244,7 +244,7 @@ Unit=test.service
         b.click("#service-details button")
         b.wait_text(".service-name", "Test Template for param-f/o/o")
         self.check_service_details(["Static", "Not running"], ["Disallow running (mask)"], True, onoff=False)
-        b.wait_in_text("#service-details", "This unit is an instanced from test-template@.service template.")
+        b.wait_in_text("#service-details", "Instance of template: test-template@.service")
         b.click("#service-details .ct-form a:contains('test-template@.service')")
         b.wait_visible("#service-details input")
 

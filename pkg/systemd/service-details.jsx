@@ -480,7 +480,7 @@ export class ServiceDetails extends React.Component {
                             { this.props.originTemplate &&
                                 <React.Fragment>
                                     <label className="control-label" />
-                                    <span>{_("This unit is an instanced from ")}<a href={"#/" + this.props.originTemplate}>{this.props.originTemplate}</a>{ _(" template.")}</span>
+                                    <span>{_("Instance of template: ")}<a href={"#/" + this.props.originTemplate}>{this.props.originTemplate}</a></span>
                                 </React.Fragment>
                             }
                             { notMetConditions.length > 0 &&

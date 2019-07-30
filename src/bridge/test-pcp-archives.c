@@ -69,6 +69,17 @@ init_mock_archives (void)
   g_assert (pmiPutValue ("mock.late", NULL, "32") >= 0);
   g_assert (pmiWrite (5, 0) >= 0);
   g_assert (pmiEnd () >= 0);
+
+  // Broken archives should be skipped with a warning
+  g_assert (g_file_set_contents ("mock-archives/2.index", "not a pcp index file", -1, NULL));
+  g_assert (g_file_set_contents ("mock-archives/2.meta", "not a pcp meta file", -1, NULL));
+  g_assert (g_file_set_contents ("mock-archives/2.0", "not a pcp sample file", -1, NULL));
+}
+
+static void
+expect_broken_archive_warning (void)
+{
+  cockpit_expect_warning("*couldn't create pcp archive context for /*/mock-archives/2*");
 }
 
 typedef struct AtTeardown {
@@ -292,12 +303,13 @@ static void
 test_metrics_archive_directory (TestCase *tc,
                                 gconstpointer unused)
 {
+  expect_broken_archive_warning();
+
   JsonObject *meta;
   JsonObject *options = json_obj("{ 'source': '" BUILDDIR "/mock-archives',"
                                  "  'metrics': [ { 'name': 'mock.value' } ],"
                                  "  'interval': 1000"
                                  "}");
-
   setup_metrics_channel_json (tc, options);
 
   meta = recv_json_object (tc);
@@ -317,6 +329,8 @@ static void
 test_metrics_archive_directory_timestamp (TestCase *tc,
                                           gconstpointer unused)
 {
+  expect_broken_archive_warning();
+
   JsonObject *meta;
   JsonObject *options = json_obj("{ 'source': '" BUILDDIR "/mock-archives',"
                                  "  'metrics': [ { 'name': 'mock.value' } ],"
@@ -338,6 +352,7 @@ static void
 test_metrics_archive_directory_late_metric (TestCase *tc,
                                             gconstpointer unused)
 {
+  expect_broken_archive_warning();
   cockpit_expect_message ("*no such metric: mock.late: Unknown metric name*");
 
   JsonObject *meta;

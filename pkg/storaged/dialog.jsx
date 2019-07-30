@@ -379,7 +379,7 @@ export const dialog_open = (def) => {
 
         let extra = <div>
             { def.Footer }
-            { def.Action && def.Action.Danger ? <div className="modal-footer-danger">{def.Action.Danger}</div> : null }
+            { def.Action && def.Action.Danger ? <div className="alert alert-danger"><div className="pficon pficon-error-circle-o" />{def.Action.Danger}</div> : null }
         </div>;
 
         return {

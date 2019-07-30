@@ -26,6 +26,7 @@ import {
 
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import * as Select from 'cockpit-components-select.jsx';
+import { getNetworkDevices } from '../helpers.js';
 import {
     changeNetworkSettings,
     getVm
@@ -70,20 +71,21 @@ const NetworkModelRow = ({ idPrefix, onValueChanged, dialogValues, network, osTy
     );
 };
 
-const NetworkTypeAndSourceRow = ({ idPrefix, onValueChanged, dialogValues, network, connectionName, networks }) => {
+const NetworkTypeAndSourceRow = ({ idPrefix, onValueChanged, dialogValues, network, connectionName, networks, nodeDevices, interfaces }) => {
     let defaultNetworkType = dialogValues.networkType;
     let availableNetworkTypes = [];
     let defaultNetworkSource = dialogValues.networkSource;
-    let availableNetworkSources = [];
+    let availableSources = [];
     let networkSourcesContent;
     let networkSourceEnabled = true;
+    const networkDevices = getNetworkDevices(connectionName, nodeDevices, interfaces);
 
     if (connectionName !== 'session')
         availableNetworkTypes = [
             { 'name': 'network', 'desc': 'Virtual network' },
             { 'name': 'bridge', 'desc': 'Bridge to LAN', 'disabled': true },
             { 'name': 'ethernet', 'desc': 'Generic ethernet connection', 'disabled': true },
-            { 'name': 'direct', 'desc': 'Direct attachment', 'disabled': true },
+            { 'name': 'direct', 'desc': 'Direct attachment' },
         ];
     else
         availableNetworkTypes = [
@@ -94,11 +96,14 @@ const NetworkTypeAndSourceRow = ({ idPrefix, onValueChanged, dialogValues, netwo
     // Bring to the first position in dropdown list the initial selection which reflects the current nic type
     availableNetworkTypes.sort(function(x, y) { return x.name == defaultNetworkType ? -1 : y.name == defaultNetworkType ? 1 : 0 });
 
-    if (dialogValues.networkType == 'network') {
-        availableNetworkSources = networks.map(network => network.name);
+    if (["network", "direct"].includes(dialogValues.networkType)) {
+        if (dialogValues.networkType === "network")
+            availableSources = networks.map(network => network.name);
+        else if (dialogValues.networkType === "direct")
+            availableSources = networkDevices;
 
-        if (availableNetworkSources.length > 0) {
-            networkSourcesContent = availableNetworkSources
+        if (availableSources.length > 0) {
+            networkSourcesContent = availableSources
                     .map(networkSource => {
                         return (
                             <Select.SelectEntry data={networkSource} key={networkSource}>
@@ -107,7 +112,11 @@ const NetworkTypeAndSourceRow = ({ idPrefix, onValueChanged, dialogValues, netwo
                         );
                     });
         } else {
-            defaultNetworkSource = _("No Virtual Networks");
+            if (dialogValues.networkType === "network")
+                defaultNetworkSource = _("No Virtual Networks");
+            else if (dialogValues.networkType === "direct")
+                defaultNetworkSource = _("No Network Devices");
+
             networkSourcesContent = (
                 <Select.SelectEntry data='empty-list' key='empty-list'>
                     {defaultNetworkSource}
@@ -135,7 +144,7 @@ const NetworkTypeAndSourceRow = ({ idPrefix, onValueChanged, dialogValues, netwo
                             );
                         })}
             </Select.Select>
-            {(dialogValues.networkType === 'network') && (
+            {["network", "direct"].includes(dialogValues.networkType) && (
                 <React.Fragment>
                     <label className='control-label' htmlFor={`${idPrefix}-select-source`}>
                         {_("Source")}
@@ -174,7 +183,7 @@ export class EditNICAction extends React.Component {
             showModal: false,
             dialogError: undefined,
             networkType: props.network.type,
-            networkSource: props.network.source[props.network.type],
+            networkSource: props.network.source.network || props.network.source.dev,
             networkModel: props.network.model,
             saveDisabled: false,
         };
@@ -193,11 +202,15 @@ export class EditNICAction extends React.Component {
         if (key == 'networkType') {
             let saveDisabled = false;
 
-            if (value == 'network') {
-                const availableNetworkSources = this.props.networks.map(network => network.name);
+            if (value == 'network' || value == 'direct') {
+                let availableSources;
+                if (value == 'network')
+                    availableSources = this.props.networks.map(network => network.name);
+                else if (['direct'].includes(value))
+                    availableSources = getNetworkDevices(this.props.vm.connectionName, this.props.nodeDevices, this.props.interfaces);
 
-                if (availableNetworkSources.length > 0) {
-                    this.setState({ 'networkSource': availableNetworkSources[0] });
+                if (availableSources.length > 0) {
+                    this.setState({ 'networkSource': availableSources[0] });
                 } else {
                     this.setState({ 'networkSource': undefined });
                     saveDisabled = true;
@@ -238,7 +251,7 @@ export class EditNICAction extends React.Component {
     }
 
     render() {
-        const { idPrefix, vm, network, networks } = this.props;
+        const { idPrefix, vm, network, networks, nodeDevices, interfaces } = this.props;
         const defaultBody = (
             <form className='ct-form'>
                 <NetworkTypeAndSourceRow idPrefix={idPrefix}
@@ -246,6 +259,8 @@ export class EditNICAction extends React.Component {
                                          onValueChanged={this.onValueChanged}
                                          network={network}
                                          networks={networks}
+                                         interfaces={interfaces}
+                                         nodeDevices={nodeDevices}
                                          connectionName={vm.connectionName}
                                          isRunning={vm.state == 'running'} />
                 <hr />
@@ -311,6 +326,8 @@ EditNICAction.propTypes = {
     vm: PropTypes.object.isRequired,
     network: PropTypes.object.isRequired,
     networks: PropTypes.array.isRequired,
+    interfaces: PropTypes.array.isRequired,
+    nodeDevices: PropTypes.array.isRequired,
 };
 
 export default EditNICAction;

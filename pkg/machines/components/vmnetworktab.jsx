@@ -59,7 +59,7 @@ class VmNetworkTab extends React.Component {
     }
 
     render() {
-        const { vm, dispatch, config, hostDevices, networks, onAddErrorNotification } = this.props;
+        const { vm, dispatch, config, hostDevices, networks, nodeDevices, interfaces, onAddErrorNotification } = this.props;
         const id = vmId(vm.name);
 
         const nicLookupByMAC = (interfacesList, mac) => {
@@ -176,7 +176,13 @@ class VmNetworkTab extends React.Component {
                 const isUp = network.state === 'up';
                 const editNICAction = (providerName) => {
                     if (providerName === "LibvirtDBus")
-                        return <EditNICAction dispatch={dispatch} idPrefix={`${id}-network-${networkId}`} vm={vm} network={network} networks={networks} />;
+                        return <EditNICAction dispatch={dispatch}
+                                   idPrefix={`${id}-network-${networkId}`}
+                                   vm={vm}
+                                   network={network}
+                                   networks={networks}
+                                   nodeDevices={nodeDevices}
+                                   interfaces={interfaces} />;
                 };
 
                 return (
@@ -222,6 +228,8 @@ class VmNetworkTab extends React.Component {
 VmNetworkTab.propTypes = {
     vm: PropTypes.object.isRequired,
     networks: PropTypes.array.isRequired,
+    interfaces: PropTypes.array.isRequired,
+    nodeDevices: PropTypes.array.isRequired,
     onAddErrorNotification: PropTypes.func.isRequired,
 };
 

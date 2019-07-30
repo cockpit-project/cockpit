@@ -65,8 +65,6 @@ static struct {
   struct sigaction old_sigchld;
 } server;
 
-enum DataSource { CLIENT, WS };
-
 /***********************************
  *
  * Helper functions
@@ -162,7 +160,7 @@ check_sd_listen_pid (void)
  *          a client #Connection, or #WS if it came from a #WsInstance
  */
 static Connection *
-get_fd_connection (int fd, enum DataSource* source)
+get_fd_connection (int fd, DataSource* source)
 {
   Connection* ret = NULL;
   block_sigchld (true);
@@ -420,55 +418,6 @@ handle_connection_data_first (int fd, Connection *con)
     remove_connection (fd, NULL);
 }
 
-static int
-send_all (int socket, const char *data, size_t data_size, int flags)
-{
-  int r;
-
-  while (data_size > 0)
-  {
-    r = send (socket, data, data_size, flags);
-
-    if (r < 0)
-      {
-        if (errno == EAGAIN || errno == EINTR)
-          continue;
-        return -1;
-      }
-    if (r == 0) /* Should Not Happen™, as data_size > 0 */
-      {
-        errno = EIO;
-        return -1;
-      }
-
-    data += r;
-    data_size -= r;
-  }
-  return 0;
-}
-
-static int
-gnutls_send_all (gnutls_session_t session, const char *data, size_t data_size)
-{
-  int r;
-
-  while (data_size > 0)
-  {
-    r = gnutls_record_send (session, data, data_size);
-
-    if (r == GNUTLS_E_AGAIN || r == GNUTLS_E_INTERRUPTED)
-      continue;
-    if (r < 0)
-      return r;
-    if (r == 0) /* Should Not Happen™, as data_size > 0 */
-      return GNUTLS_E_PUSH_ERROR;
-
-    data += r;
-    data_size -= r;
-  }
-  return 0;
-}
-
 /**
  * handle_connection_data: Handle event on client or ws fd
  *
@@ -480,10 +429,9 @@ gnutls_send_all (gnutls_session_t session, const char *data, size_t data_size)
 static void
 handle_connection_data (int fd)
 {
-  enum DataSource src;
+  DataSource src;
   Connection *con;
-  int ret;
-  char buffer[1024 * 1024];
+  ConnectionResult r;
 
   con = get_fd_connection (fd, &src);
   assert (con);
@@ -500,86 +448,20 @@ handle_connection_data (int fd)
       return;
     }
 
-  /* TLS connections */
-  if (con->is_tls)
+  do
     {
-      if (src == CLIENT)
+      r = connection_read (con, src);
+    } while (r == RETRY);
+  if (r == SUCCESS)
+    {
+      do
         {
-          TLS_RETRY (ret, gnutls_record_recv (con->session, buffer, sizeof (buffer)));
-          if (ret == 0)
-            {
-              debug ("peer has closed the TLS connection");
-              TLS_RETRY_BLOCK (ret, gnutls_bye (con->session, GNUTLS_SHUT_WR));
-              remove_connection (fd, NULL);
-            }
-          else if (ret < 0)
-            {
-              if (gnutls_error_is_fatal (ret))
-                {
-                  warnx ("%s", gnutls_strerror (ret));
-                  remove_connection (fd, NULL);
-                }
-            }
-          else
-            {
-              int r = send_all (con->ws_fd, buffer, ret, 0);
-              if (r < 0)
-                {
-                  warn ("failed to send data");
-                  remove_connection (con->client_fd, NULL);
-                }
-            }
-        }
-      else /* src == WS */
-        {
-          RETRY (ret, recv (con->ws_fd, buffer, sizeof (buffer), MSG_DONTWAIT));
-          if (ret == 0)
-            {
-              debug ("peer has closed the connection");
-              remove_connection (con->client_fd, NULL);
-            }
-          else if (ret < 0)
-            {
-              warn ("failed to receive data");
-              remove_connection (con->client_fd, NULL);
-            }
-          else
-            {
-              int r = gnutls_send_all (con->session, buffer, ret);
-              if (r < 0)
-                {
-                  warnx ("%s", gnutls_strerror (r));
-                  remove_connection (fd, NULL);
-                }
-            }
-        }
+          r = connection_write (con, src);
+        } while (r == RETRY || r == PARTIAL);
     }
-  else /* unencrypted connections */
-    {
-      int in_fd = (src == CLIENT) ? con->client_fd : con->ws_fd;
-      int out_fd = (src == CLIENT) ? con->ws_fd : con->client_fd;
 
-      RETRY (ret, recv (in_fd, buffer, sizeof (buffer), MSG_DONTWAIT));
-      if (ret == 0)
-        {
-          debug ("peer has closed the connection");
-          remove_connection (con->client_fd, NULL);
-        }
-      else if (ret < 0)
-        {
-          warn ("failed to receive data");
-          remove_connection (con->client_fd, NULL);
-        }
-      else
-      {
-        int r = send_all (out_fd, buffer, ret, 0);
-        if (r < 0)
-          {
-            warn ("failed to send data");
-            remove_connection (con->client_fd, NULL);
-          }
-      }
-    }
+  if (r != SUCCESS)
+    remove_connection (con->client_fd, NULL);
 }
 
 static void

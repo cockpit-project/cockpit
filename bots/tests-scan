@@ -82,10 +82,13 @@ def main():
     try:
         policy = testmap.tests_for_project(opts.repo)
         if opts.context:
+            short_contexts = []
+            for context in opts.context:
+                short_contexts.append(context.split("@")[0])
             policy = {}
             for (branch, contexts) in testmap.tests_for_project(opts.repo).items():
                 branch_context = []
-                for context in opts.context:
+                for context in short_contexts:
                     if context in contexts:
                         branch_context.append(context)
                 if branch_context:
@@ -145,7 +148,8 @@ def tests_invoke(priority, name, number, revision, ref, context, base, repo, bot
     checkout = "PRIORITY={priority:04d} bots/make-checkout --verbose"
     cmd = "TEST_PROJECT={repo} TEST_NAME={name}-{current} TEST_REVISION={revision} bots/tests-invoke --pull-number={pull_number} "
     if base:
-        cmd += " --rebase={base}"
+        if base != ref:
+            cmd += " --rebase={base}"
         checkout += " --base={base}"
 
     checkout += " --repo={repo}"
@@ -306,37 +310,12 @@ def cockpit_tasks(api, update, branch_contexts, repo, pull_data, pull_number, sh
 
         labels = labels_of_pull(pull)
 
-        # Do we have any statuses for this commit?
-        have = len(statuses.keys()) > 0
-
         baseline = distributed_queue.BASELINE_PRIORITY
         # amqp automatically prioritizes on age
         if not amqp:
             # modify the baseline slightly to favor older pull requests, so that we don't
             # end up with a bunch of half tested pull requests
             baseline += 1.0 - (min(100000, float(number)) / 100000)
-
-        for context in contexts:
-            status = statuses.get(context, None)
-
-            # Only create new status for requests that have none
-            if not status:
-                if have or (base not in branch_contexts or context not in branch_contexts[base]):
-                    continue
-                status = { }
-
-            # For unmarked and untested status, user must be in whitelist
-            # Not this only applies to this specific commit. A new status
-            # will apply if the user pushes a new commit.
-            if login not in whitelist and status.get("description", github.NO_TESTING) == github.NO_TESTING:
-                priority = github.NO_TESTING
-                changes = { "description": github.NO_TESTING, "context": context, "state": "pending" }
-            else:
-                (priority, changes) = prioritize(status, title, labels, baseline, context, number)
-            if not update or update_status(api, revision, context, status, changes):
-                results.append((priority, "pull-%d" % number, number, revision, "pull/%d/head" % number, context, base, repo, None))
-
-        # if a cockpit repo PR changes bots/, also trigger all external tests against this cockpit PR
 
         def trigger_externals():
             if repo != "cockpit-project/cockpit":  # already a non-cockpit project
@@ -346,7 +325,7 @@ def cockpit_tasks(api, update, branch_contexts, repo, pull_data, pull_number, sh
             if LABEL_TEST_EXTERNAL in labels:  # already checked before?
                 return True
 
-            if not have:
+            if not statuses:
                 # this is the first time tests-scan looks at a PR, so determine if it changes bots/
                 with urllib.request.urlopen(pull["patch_url"]) as f:
                     # enough to look at the git commit header, it lists all changed files
@@ -358,22 +337,76 @@ def cockpit_tasks(api, update, branch_contexts, repo, pull_data, pull_number, sh
 
             return False
 
-        if trigger_externals():
+        def get_externals():
+            result = []
             for proj_repo in testmap.projects():
                 if proj_repo == "cockpit-project/cockpit":
                     continue
                 for context in testmap.tests_for_project(proj_repo).get("master", []):
-                    repo_context = context + "@" + proj_repo
+                    result.append(context + "@" + proj_repo)
+            return result
 
-                    status = statuses.get(repo_context, {})
-                    if login not in whitelist and status.get("description", github.NO_TESTING) == github.NO_TESTING:
-                        priority = github.NO_TESTING
-                        changes = { "description": github.NO_TESTING, "context": repo_context, "state": "pending" }
-                    else:
-                        (priority, changes) = prioritize(status, title, labels, baseline, repo_context, number)
-                    if not update or update_status(api, revision, repo_context, status, changes):
-                        # don't specify a ref to check out; make-source already checks out project master
-                        results.append((priority, "pull-%d" % number, number, revision, "", context, base, proj_repo, "pull/%s/head" % number))
+        def is_valid_context(context):
+            (os_scenario, _, repo_branch) = context.partition("@")
+            if repo_branch:
+                repo_branch = "/".join(repo_branch.split("/")[:2])
+                repo_contexts = testmap.tests_for_project(repo_branch).values()
+                return os_scenario in set(itertools.chain(*repo_contexts))
+            else:
+                return os_scenario in contexts
+
+        # Create list of statuses to process
+        todos = {}
+        for status in statuses: # Firstly add all valid contexts that already exist in github
+            if is_valid_context(status):
+                todos[status] = statuses[status]
+        if not statuses: # If none defined in github add basic set of contexts
+            for context in branch_contexts.get(base, contexts):
+                todos[context] = {}
+        if trigger_externals():
+            for context in get_externals():
+                if context not in todos:
+                    todos[context] = {}
+
+        for context in todos:
+            # Get correct project and branch. Ones from test name have priority
+            project = repo
+            branch = base
+            (os_scenario, _, repo_branch) = context.partition("@")
+            repo_branch = repo_branch.split("/")
+            if len(repo_branch) == 2:
+                project = "/".join(repo_branch)
+                branch = "master"
+            elif len(repo_branch) == 3:
+                project = "/".join(repo_branch[:2])
+                branch = repo_branch[2]
+
+            ref = "pull/%d/head" % number
+
+            # For unmarked and untested status, user must be in whitelist
+            # Not this only applies to this specific commit. A new status
+            # will apply if the user pushes a new commit.
+            status = todos[context]
+            if login not in whitelist and status.get("description", github.NO_TESTING) == github.NO_TESTING:
+                priority = github.NO_TESTING
+                changes = { "description": github.NO_TESTING, "context": context, "state": "pending" }
+            else:
+                (priority, changes) = prioritize(status, title, labels, baseline, context, number)
+            if not update or update_status(api, revision, context, status, changes):
+                checkout_ref = ref
+                if project != repo:
+                    checkout_ref = "master"
+                if base != branch:
+                    checkout_ref = branch
+                results.append((priority,
+                                "pull-%d" % number,
+                                number,
+                                revision,
+                                checkout_ref,
+                                os_scenario,
+                                branch,
+                                project,
+                                ref if project != repo or base != branch else None))
 
     return results
 

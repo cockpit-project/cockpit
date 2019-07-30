@@ -50,5 +50,6 @@ def get_temp_dir():
 
     if _temp_dir is None:
         _temp_dir = os.path.join(os.environ.get("TEST_DATA", BASE_DIR), "tmp")
+        os.makedirs(_temp_dir, exist_ok=True)
 
     return _temp_dir

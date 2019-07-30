@@ -601,6 +601,7 @@ class TestMachines(NetworkCase):
                 use_existing_volume=False,
                 expected_target='vda', permanent=False, cache_mode=None,
                 verify=True, pool_type=None,
+                volume_format=None,
             ):
                 print(pool_name, volume_name)
                 self.test_obj = test_obj
@@ -615,6 +616,7 @@ class TestMachines(NetworkCase):
                 self.cache_mode = cache_mode
                 self.verify = verify
                 self.pool_type = pool_type
+                self.volume_format = volume_format
 
             def execute(self):
                 self.open()
@@ -649,9 +651,8 @@ class TestMachines(NetworkCase):
                     b.set_input_text("#vm-{0}-disks-adddisk-new-size".format(self.vm_name), str(self.volume_size))
                     b.select_from_dropdown("#vm-{0}-disks-adddisk-new-unit".format(self.vm_name), self.volume_size_unit)
 
-                    # Switch between format types to ensure availability
-                    b.select_from_dropdown("#vm-{0}-disks-adddisk-new-diskfileformat".format(self.vm_name), "raw") # verify content of the dropdown box
-                    b.select_from_dropdown("#vm-{0}-disks-adddisk-new-diskfileformat".format(self.vm_name), "qcow2") # and switch it back
+                    if self.volume_format:
+                        b.select_from_dropdown("#vm-{0}-disks-adddisk-new-diskfileformat".format(self.vm_name), self.volume_format)
 
                     # Configure persistency - by default the check box in unchecked for running VMs
                     if self.permanent:
@@ -686,16 +687,26 @@ class TestMachines(NetworkCase):
                 b.wait_in_text("#vm-{0}-disks-{1}-device".format(self.vm_name, self.expected_target), "disk")
 
                 # Detect volume format
-                detect_format_cmd = "virsh dumpxml {0} | xmllint --xpath '/domain/devices/disk[@type=\"{1}\"]/driver[@type=\"qcow2\"]' -"
+                detect_format_cmd = "virsh vol-dumpxml {0} {1} | xmllint --xpath '/volume/target/format' -".format(self.volume_name, self.pool_name)
 
                 if self.test_obj.provider == "libvirt-dbus":
                     b.wait_in_text('#vm-{0}-disks-{1}-source-volume'.format(self.vm_name, self.expected_target), self.volume_name)
                     if self.cache_mode:
                         b.wait_in_text("#vm-{0}-disks-{1}-cache".format(self.vm_name, self.expected_target), self.cache_mode)
-                    m.execute(detect_format_cmd.format(self.vm_name, "volume"))
+                    # Guess by the name of the pool it's format to avoid passing more parameters
+                    if self.pool_type == 'iscsi':
+                        expected_format = 'unknown'
+                    else:
+                        expected_format = 'qcow2'
+                    self.test_obj.assertEqual(
+                        m.execute(detect_format_cmd).rstrip(),
+                        '<format type="{0}"/>'.format(self.volume_format or expected_format)
+                    )
                 else:
-                    b.wait_in_text('#vm-{0}-disks-{1}-source-file'.format(self.vm_name, self.expected_target), self.volume_name)
-                    m.execute(detect_format_cmd.format(self.vm_name, "file"))
+                    if self.pool_type == 'disk':
+                        b.wait_in_text('#vm-{0}-disks-{1}-source-device'.format(self.vm_name, self.expected_target), self.volume_name)
+                    else:
+                        b.wait_in_text('#vm-{0}-disks-{1}-source-file'.format(self.vm_name, self.expected_target), self.volume_name)
 
                 return self
 
@@ -824,6 +835,7 @@ class TestMachines(NetworkCase):
             VMAddDiskDialog(
                 self,
                 pool_name='iscsi-pool',
+                pool_type='iscsi',
                 volume_name='unit:0:0:0',
                 expected_target='vdi',
                 use_existing_volume='True',
@@ -865,6 +877,25 @@ class TestMachines(NetworkCase):
             b.click("#vm-subVmTest1-disks") # open the "Disks" subtab
             # Check that usage information can't be fetched since the pool is inactive
             b.wait_not_present("#vm-subVmTest1-disks-vdd-used")
+
+        prepareDisk(self.machine)
+        cmds = [
+            "virsh pool-define-as disk-pool disk - - /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 - /tmp/poolDiskImages",
+            "virsh pool-build disk-pool --overwrite",
+            "virsh pool-start disk-pool",
+        ]
+        self.machine.execute(" && ".join(cmds))
+        partition = str(self.machine.execute("readlink -f /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 | cut -d '/' -f 3").strip()) + "1"
+        VMAddDiskDialog(
+            self,
+            pool_name='disk-pool',
+            pool_type='disk',
+            volume_name=partition,
+            volume_size=10,
+            volume_size_unit='MiB',
+            expected_target='vdc',
+            volume_format='none',
+        ).execute()
 
     def testVmNICs(self):
         b = self.browser

@@ -66,11 +66,13 @@ export function getPoolXML({ name, type, source, target }) {
     nameElem.appendChild(doc.createTextNode(name));
     poolElem.appendChild(nameElem);
 
-    let targetElem = doc.createElement('target');
-    let pathElem = doc.createElement('path');
-    pathElem.appendChild(doc.createTextNode(target));
-    targetElem.appendChild(pathElem);
-    poolElem.appendChild(targetElem);
+    if (target) {
+        let targetElem = doc.createElement('target');
+        let pathElem = doc.createElement('path');
+        pathElem.appendChild(doc.createTextNode(target));
+        targetElem.appendChild(pathElem);
+        poolElem.appendChild(targetElem);
+    }
 
     let sourceElem = doc.createElement('source');
     if (source.dir) {
@@ -84,6 +86,12 @@ export function getPoolXML({ name, type, source, target }) {
 
         deviceElem.setAttribute('path', source.device);
         sourceElem.appendChild(deviceElem);
+    }
+    if (source.name) {
+        let sourceNameElem = doc.createElement('name');
+
+        sourceNameElem.appendChild(doc.createTextNode(source.name));
+        sourceElem.appendChild(sourceNameElem);
     }
     if (source.host) {
         let hostElem = doc.createElement('host');
@@ -105,7 +113,7 @@ export function getPoolXML({ name, type, source, target }) {
         formatElem.setAttribute('type', source.format);
         sourceElem.appendChild(formatElem);
     }
-    if (source.host || source.dir || source.device || source.initiator || source.format)
+    if (source.host || source.dir || source.device || source.name || source.initiator || source.format)
         poolElem.appendChild(sourceElem);
 
     doc.appendChild(poolElem);

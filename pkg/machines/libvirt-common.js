@@ -805,6 +805,10 @@ export function parseStoragePoolDumpxml(connectionName, storagePoolXml, id_overw
         if (dirElem[0])
             result['source']['dir'] = { 'path': dirElem[0].getAttribute('path') };
 
+        const sourceNameElem = sourceElem.getElementsByTagName('name');
+        if (sourceNameElem[0])
+            result['source']['name'] = sourceNameElem[0].childNodes[0].nodeValue;
+
         const formatElem = sourceElem.getElementsByTagName('format');
         if (formatElem[0])
             result['source']['format'] = { 'type': formatElem[0].getAttribute('type') };

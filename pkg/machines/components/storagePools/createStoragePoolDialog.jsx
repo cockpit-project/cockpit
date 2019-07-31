@@ -77,6 +77,7 @@ const StoragePoolTypeRow = ({ onValueChanged, dialogValues, libvirtVersion }) =>
         { type: 'netfs', detail:_("Network File System") },
         { type: 'iscsi', detail: _("iSCSI Target") },
         { type: 'disk', detail: _("Physical Disk Device") },
+        { type: 'logical', detail: _("LVM Volume Group") },
     ];
     // iscsi-direct exists since 4.7.0
     if (libvirtVersion && libvirtVersion >= 4007000)
@@ -85,7 +86,6 @@ const StoragePoolTypeRow = ({ onValueChanged, dialogValues, libvirtVersion }) =>
     /* TODO
         { type: 'fs', detail _("Pre-formated Block Device") },
         { type: 'gluster', detail _("Gluster Filesystem") },
-        { type: 'logical', detail _("LVM Volume Group") },
         { type: 'mpath', detail _("Multipath Device Enumerator") },
         { type: 'rbd', detail _("RADOS Block Device/Ceph") },
         { type: 'scsi', detail _("SCSI Host Adapter") },
@@ -209,6 +209,9 @@ const StoragePoolSourceRow = ({ onValueChanged, dialogValues }) => {
     } else if (dialogValues.type == 'disk') {
         validationState = dialogValues.source.device.length == 0 && dialogValues.validationFailed.source ? 'error' : undefined;
         placeholder = _("Physical disk device on host");
+    } else if (dialogValues.type == 'logical') {
+        validationState = dialogValues.source.name && dialogValues.validationFailed.source ? 'error' : undefined;
+        placeholder = _("Volume Group name");
     }
 
     if (['netfs', 'iscsi', 'iscsi-direct'].includes(dialogValues.type))
@@ -276,6 +279,28 @@ const StoragePoolSourceRow = ({ onValueChanged, dialogValues }) => {
                 <hr />
             </React.Fragment>
         );
+    else if (dialogValues.type == 'logical')
+        return (
+            <React.Fragment>
+                <label className='control-label' htmlFor='storage-pool-dialog-source'>
+                    {_("Source Volume Group")}
+                </label>
+                <FormGroup validationState={validationState} controlId='source'>
+                    <input id='storage-pool-dialog-source'
+                           type='text'
+                           minLength={1}
+                           value={dialogValues.source.name || ''}
+                           onChange={e => onValueChanged('source', { 'name': e.target.value })}
+                           placeholder={placeholder}
+                           className='form-control' />
+                    { validationState == 'error' &&
+                    <HelpBlock>
+                        <p className="text-danger">{_("Volume Group name should not be empty")}</p>
+                    </HelpBlock> }
+                </FormGroup>
+                <hr />
+            </React.Fragment>
+        );
     return null;
 };
 
@@ -305,7 +330,10 @@ class CreateStoragePoolModal extends React.Component {
             name: '',
             connectionName: LIBVIRT_SYSTEM_CONNECTION,
             type: 'dir',
-            source: { 'host': '', 'dir': '', 'device': '', 'initiator': '', 'format': undefined },
+            source: {
+                'host': '', 'dir': '', 'device': '', 'name': '',
+                'initiator': '', 'format': undefined
+            },
             target: '',
             autostart: true,
             validationFailed: {},
@@ -426,6 +454,14 @@ class CreateStoragePoolModal extends React.Component {
             if (this.state.target.length == 0) {
                 modalIsIncomplete = true;
                 validationFailed.target = true;
+            }
+        }
+
+        // Mandatory props for logical pool type
+        if (this.state.type == 'logical') {
+            if (this.state.source.name.length == 0) {
+                modalIsIncomplete = true;
+                validationFailed.source = true;
             }
         }
 

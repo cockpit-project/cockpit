@@ -48,6 +48,11 @@ export const StoragePoolOverviewTab = ({ storagePool }) => {
                 <div id={`${idPrefix}-source-path`}> {storagePool.source.dir.path} </div>
             </React.Fragment> }
 
+            { storagePool.source && storagePool.source.name && <React.Fragment>
+                <label className='control-label' htmlFor={`${idPrefix}-source-path`}> {_("Source")} </label>
+                <div id={`${idPrefix}-source-path`}> {storagePool.source.name} </div>
+            </React.Fragment> }
+
             { storagePool.source && storagePool.source.format && <React.Fragment>
                 <label className='control-label' htmlFor={`${idPrefix}-source-format`}> {_("Source Format")} </label>
                 <div id={`${idPrefix}-source-format`}> {storagePool.source.format.type} </div>

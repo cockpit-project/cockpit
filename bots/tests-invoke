@@ -46,6 +46,7 @@ def main():
     parser.add_argument('-v', '--verbose', action='store_true', help='Verbose output')
     parser.add_argument('--pull-number', help="The number of the pull request to test")
     parser.add_argument('--html-logs', action='store_true', help="Use log.html to prettify the raw logs")
+    parser.add_argument('--run', default="test/run", help="Entry point for running tests")
     parser.add_argument('context', help="The context or type of integration tests to run")
     parser.add_argument('ref', nargs='?', help="The Git remote ref to pull")
     opts = parser.parse_args()
@@ -305,7 +306,7 @@ class PullTask(object):
 
         # Actually run the tests
         if not ret:
-            cmd = [ "timeout", "120m", os.path.join(BOTS, "..", "test", "run") ]
+            cmd = [ "timeout", "120m", os.path.join(BOTS, "..", opts.run) ]
             if opts.verbose:
                 cmd.append("--verbose")
             ret = subprocess.call(cmd)

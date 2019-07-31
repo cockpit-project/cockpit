@@ -43,6 +43,7 @@ import {
     GET_ALL_VMS,
     GET_API_DATA,
     GET_HYPERVISOR_MAX_VCPU,
+    GET_INTERFACE,
     GET_LOGGED_IN_USER,
     GET_OS_INFO_LIST,
     GET_NETWORK,
@@ -180,6 +181,10 @@ export function getOsInfoList() {
 
 export function getNetwork({ connectionName, id, name }) {
     return virt(GET_NETWORK, { connectionName, id, name });
+}
+
+export function getInterface({ connectionName, id }) {
+    return virt(GET_INTERFACE, { connectionName, id });
 }
 
 export function getNodeDevice({ connectionName, id }) {

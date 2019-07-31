@@ -33,6 +33,7 @@ import {
     getAllVms,
     getApiData,
     getHypervisorMaxVCPU,
+    getInterface,
     getNetwork,
     getNodeDevice,
     getNodeMaxMemory,
@@ -47,6 +48,7 @@ import {
     undefineStoragePool,
     undefineVm,
     updateLibvirtVersion,
+    updateOrAddInterface,
     updateOrAddNetwork,
     updateOrAddNodeDevice,
     updateOrAddVm,
@@ -124,6 +126,8 @@ const Enum = {
     VIR_DOMAIN_STATS_BLOCK: 32,
     VIR_DOMAIN_STATS_STATE: 1,
     VIR_DOMAIN_XML_INACTIVE: 2,
+    VIR_CONNECT_LIST_INTERFACES_INACTIVE: 1,
+    VIR_CONNECT_LIST_INTERFACES_ACTIVE: 2,
     VIR_CONNECT_LIST_NETWORKS_ACTIVE: 2,
     VIR_CONNECT_LIST_STORAGE_POOLS_ACTIVE: 2,
     VIR_CONNECT_LIST_STORAGE_POOLS_DIR: 64,
@@ -507,6 +511,7 @@ LIBVIRT_DBUS_PROVIDER = {
                 startEventMonitor(dispatch, connectionName, libvirtServiceName);
                 dispatch(getAllVms(connectionName));
                 dispatch(getAllStoragePools(connectionName));
+                getAllInterfaces(dispatch, connectionName);
                 dispatch(getAllNetworks(connectionName));
                 dispatch(getAllNodeDevices(connectionName));
                 dispatch(getHypervisorMaxVCPU(connectionName));
@@ -569,6 +574,39 @@ LIBVIRT_DBUS_PROVIDER = {
                         dispatch(updateOrAddNetwork(Object.assign({}, props, network), updateOnly));
                     })
                     .catch(ex => console.warn('GET_NETWORK action failed failed for path', objPath, ex));
+        };
+    },
+
+    /*
+     * Read properties of a single Interface
+     *
+     * @param {object} objPath interface object path
+     * @param {string} connectionName
+     */
+    GET_INTERFACE({
+        id: objPath,
+        connectionName,
+    }) {
+        let props = {};
+
+        return dispatch => {
+            call(connectionName, objPath, 'org.freedesktop.DBus.Properties', 'GetAll', ['org.libvirt.Interface'], TIMEOUT)
+                    .then(resultProps => {
+                        /* Sometimes not all properties are returned; for example when some network got deleted while part
+                         * of the properties got fetched from libvirt. Make sure that there is check before reading the attributes.
+                         */
+                        if ("Active" in resultProps[0])
+                            props.active = resultProps[0].Active.v.v;
+                        if ("MAC" in resultProps[0])
+                            props.mac = resultProps[0].MAC.v.v;
+                        if ("Name" in resultProps[0])
+                            props.name = resultProps[0].Name.v.v;
+                        props.id = objPath;
+                        props.connectionName = connectionName;
+
+                        dispatch(updateOrAddInterface(props));
+                    })
+                    .catch(ex => console.log('listInactiveInterfaces action failed for path', objPath, ex));
         };
     },
 
@@ -1292,6 +1330,16 @@ export function changeNetworkAutostart(network, autostart, dispatch) {
                 return call(network.connectionName, networkPath[0], 'org.freedesktop.DBus.Properties', 'Set', args, TIMEOUT);
             })
             .then(() => dispatch(getNetwork({ connectionName: network.connectionName, id: network.id, name: network.name })));
+}
+
+export function getAllInterfaces(dispatch, connectionName) {
+    const flags = Enum.VIR_CONNECT_LIST_INTERFACES_ACTIVE | Enum.VIR_CONNECT_LIST_INTERFACES_INACTIVE;
+
+    call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'ListInterfaces', [flags], TIMEOUT)
+            .then((ifaces) => {
+                return Promise.all(ifaces[0].map(path => dispatch(getInterface({ connectionName, id:path }))));
+            })
+            .fail(ex => console.warn('getAllInterfaces action failed:', JSON.stringify(ex)));
 }
 
 export function networkActivate(connectionName, objPath) {

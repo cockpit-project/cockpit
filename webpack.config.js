@@ -195,8 +195,6 @@ var info = {
         "storaged/images/storage-array.png",
         "storaged/images/storage-disk.png",
 
-        "subscriptions/index.html",
-
         "systemd/index.html",
         "systemd/logs.html",
         "systemd/services.html",

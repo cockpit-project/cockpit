@@ -54,6 +54,13 @@ function ServiceRow(props) {
     var tcp = props.service.ports.filter(p => p.protocol.toUpperCase() == 'TCP');
     var udp = props.service.ports.filter(p => p.protocol.toUpperCase() == 'UDP');
 
+    for (let s of props.service.includes) {
+        if (firewall.services[s]) {
+            tcp = tcp.concat(firewall.services[s].ports.filter(p => p.protocol.toUpperCase() == 'TCP'));
+            udp = udp.concat(firewall.services[s].ports.filter(p => p.protocol.toUpperCase() == 'UDP'));
+        }
+    }
+
     function onRemoveService(event) {
         if (event.button !== 0)
             return;
@@ -89,14 +96,26 @@ function ServiceRow(props) {
         deleteButton
     ];
 
-    var tabs = [];
+    let description, includes, simpleBody;
     if (props.service.description)
-        tabs.push({ name: _("Details"), renderer: () => <p>{props.service.description}</p> });
+        description = <p>{props.service.description}</p>;
+
+    if (props.service.includes.length > 0) {
+        includes = <React.Fragment>
+            <h5>Included Services</h5>
+            <ul>{props.service.includes.map(s => {
+                let service = firewall.services[s];
+                if (service && service.description)
+                    return <li key={service.id}><strong>{service.name}</strong>: {service.description}</li>;
+            })} </ul></React.Fragment>;
+    }
+    if (description || includes)
+        simpleBody = <React.Fragment>{description}{includes}</React.Fragment>;
 
     return <ListingRow key={props.service.id}
                        rowId={props.service.id}
                        columns={columns}
-                       tabRenderers={tabs} />;
+                       simpleBody={simpleBody} />;
 }
 
 function ZoneRow(props) {
@@ -162,15 +181,21 @@ class SearchInput extends React.Component {
     }
 }
 
-const renderPorts = ports => {
+const renderPorts = service => {
     let tcpPorts = [];
     let udpPorts = [];
-    for (let port of ports) {
-        if (port.protocol === "tcp")
-            tcpPorts.push(port.port);
-        else
-            udpPorts.push(port.port);
+    function addPorts(ports) {
+        for (let port of ports) {
+            if (port.protocol === "tcp")
+                tcpPorts.push(port.port);
+            else
+                udpPorts.push(port.port);
+        }
     }
+    addPorts(service.ports);
+    for (let s of service.includes)
+        addPorts(firewall.services[s].ports);
+
     return (
         <React.Fragment>
             { tcpPorts.length > 0 && <span className="service-ports tcp"><strong>TCP: </strong>{ tcpPorts.join(', ') }</span> }
@@ -485,31 +510,33 @@ class AddServicesModal extends React.Component {
                             { this.state.custom ||
                                 <React.Fragment>
                                     { services ? (
-                                        <fieldset className="ct-form-layout">
-                                            <label htmlFor="filter-services-input" className="control-label">
-                                                {_("Filter Services")}
-                                            </label>
-                                            <SearchInput id="filter-services-input"
-                                                value={this.state.filter}
-                                                className="form-control"
-                                                onChange={this.onFilterChanged} />
-                                            <ListView className="list-group dialog-list-ct ct-form-layout-full">
-                                                {
-                                                    services.map(s => (
-                                                        <ListView.Item key={s.id}
-                                                                       className="list-group-item"
-                                                                       checkboxInput={ <input data-id={s.id}
-                                                                                              id={"firewall-service-" + s.id}
-                                                                                              type="checkbox"
-                                                                                              checked={this.state.selected.has(s.id)}
-                                                                                              onChange={this.onToggleService} /> }
-                                                                       stacked
-                                                                       heading={ <label htmlFor={"firewall-service-" + s.id}>{s.name}</label> }
-                                                                       description={ renderPorts(s.ports) }>
-                                                        </ListView.Item>
-                                                    ))
-                                                }
-                                            </ListView>
+                                        <fieldset>
+                                            <div className="ct-form">
+                                                <label htmlFor="filter-services-input" className="control-label">
+                                                    {_("Filter Services")}
+                                                </label>
+                                                <SearchInput id="filter-services-input"
+                                                    value={this.state.filter}
+                                                    className="form-control"
+                                                    onChange={this.onFilterChanged} />
+                                                <ListView className="list-group dialog-list-ct ct-form-full">
+                                                    {
+                                                        services.map(s => (
+                                                            <ListView.Item key={s.id}
+                                                                        className="list-group-item"
+                                                                        checkboxInput={ <input data-id={s.id}
+                                                                                                id={"firewall-service-" + s.id}
+                                                                                                type="checkbox"
+                                                                                                checked={this.state.selected.has(s.id)}
+                                                                                                onChange={this.onToggleService} /> }
+                                                                        stacked
+                                                                        heading={ <label htmlFor={"firewall-service-" + s.id}>{s.name}</label> }
+                                                                        description={ renderPorts(s) }>
+                                                            </ListView.Item>
+                                                        ))
+                                                    }
+                                                </ListView>
+                                            </div>
                                         </fieldset>
                                     ) : (
                                         <div className="spinner spinner-lg" />

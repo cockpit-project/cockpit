@@ -49,6 +49,8 @@ import './listing.less';
  * addCheckbox optional: if set a checkbox will appear in the start of the row and the selectChanged
  *                       callback can be used to track row's checked status. Note that rows with checkboxes can't
  *                       be selected outside of the checkbox.
+ * simpleBody optional: if set the expansion will just contain this simple body without tabs,
+ *                      this does not work well with tabRenderers.
  */
 export class ListingRow extends React.Component {
     constructor(props) {
@@ -78,7 +80,7 @@ export class ListingRow extends React.Component {
         if (!e || e.button !== 0)
             return;
 
-        let willBeExpanded = !this.state.expanded && this.props.tabRenderers.length > 0;
+        let willBeExpanded = !this.state.expanded && (this.props.tabRenderers.length > 0 || this.props.simpleBody);
         this.setState({ expanded: willBeExpanded });
 
         let loadedTabs = {};
@@ -165,7 +167,7 @@ export class ListingRow extends React.Component {
                 return (<td key={index}>{itm.name}</td>);
         });
 
-        let allowExpand = (this.props.tabRenderers.length > 0);
+        let allowExpand = (this.props.tabRenderers.length > 0 || this.props.simpleBody);
         let expandToggle;
         if (allowExpand) {
             expandToggle = <td key="expandToggle" className="listing-ct-toggle" onClick={ allowNavigate ? this.handleExpandClick : undefined }>
@@ -253,21 +255,30 @@ export class ListingRow extends React.Component {
                 );
             }
 
+            let simpleBody, heading;
+            if ('simpleBody' in this.props) {
+                simpleBody = (
+                    <div className="listing-ct-body" key="simplebody">{this.props.simpleBody}</div>
+                );
+            } else {
+                heading = (<div className="listing-ct-head">
+                    <div className="listing-ct-actions">
+                        {listingDetail}
+                        {this.props.listingActions}
+                    </div>
+                    <ul className="nav nav-tabs nav-tabs-pf">
+                        {links}
+                    </ul>
+                </div>);
+            }
+
             return (
                 <tbody className="open">
                     {listingItem}
                     <tr className="listing-ct-panel">
                         <td colSpan={ headerEntries.length + (expandToggle ? 1 : 0) + (this.props.addCheckbox ? 1 : 0) }>
-                            <div className="listing-ct-head">
-                                <div className="listing-ct-actions">
-                                    {listingDetail}
-                                    {this.props.listingActions}
-                                </div>
-                                <ul className="nav nav-tabs nav-tabs-pf">
-                                    {links}
-                                </ul>
-                            </div>
-                            {tabs}
+                            {heading}
+                            {simpleBody || tabs}
                         </td>
                     </tr>
                 </tbody>
@@ -303,7 +314,8 @@ ListingRow.propTypes = {
     initiallyExpanded: PropTypes.bool,
     expandChanged: PropTypes.func,
     initiallyActiveTab: PropTypes.number,
-    extraClasses: PropTypes.array
+    extraClasses: PropTypes.array,
+    simpleBody: PropTypes.node,
 };
 /* Implements a PatternFly 'List View' pattern
  * https://www.patternfly.org/list-view/

@@ -55,6 +55,13 @@ function ServiceRow(props) {
     var tcp = props.service.ports.filter(p => p.protocol.toUpperCase() == 'TCP');
     var udp = props.service.ports.filter(p => p.protocol.toUpperCase() == 'UDP');
 
+    for (let s of props.service.includes) {
+        if (firewall.services[s]) {
+            tcp = tcp.concat(firewall.services[s].ports.filter(p => p.protocol.toUpperCase() == 'TCP'));
+            udp = udp.concat(firewall.services[s].ports.filter(p => p.protocol.toUpperCase() == 'UDP'));
+        }
+    }
+
     function onRemoveService(event) {
         if (event.button !== 0)
             return;
@@ -90,14 +97,26 @@ function ServiceRow(props) {
         deleteButton
     ];
 
-    var tabs = [];
+    let description, includes, simpleBody;
     if (props.service.description)
-        tabs.push({ name: _("Details"), renderer: () => <p>{props.service.description}</p> });
+        description = <p>{props.service.description}</p>;
+
+    if (props.service.includes.length > 0) {
+        includes = <React.Fragment>
+            <h5>Included Services</h5>
+            <ul>{props.service.includes.map(s => {
+                let service = firewall.services[s];
+                if (service && service.description)
+                    return <li key={service.id}><strong>{service.name}</strong>: {service.description}</li>;
+            })} </ul></React.Fragment>;
+    }
+    if (description || includes)
+        simpleBody = <React.Fragment>{description}{includes}</React.Fragment>;
 
     return <ListingRow key={props.service.id}
                        rowId={props.service.id}
                        columns={columns}
-                       tabRenderers={tabs} />;
+                       simpleBody={simpleBody} />;
 }
 
 function ZoneRow(props) {
@@ -163,15 +182,21 @@ class SearchInput extends React.Component {
     }
 }
 
-const renderPorts = ports => {
+const renderPorts = service => {
     let tcpPorts = [];
     let udpPorts = [];
-    for (let port of ports) {
-        if (port.protocol === "tcp")
-            tcpPorts.push(port.port);
-        else
-            udpPorts.push(port.port);
+    function addPorts(ports) {
+        for (let port of ports) {
+            if (port.protocol === "tcp")
+                tcpPorts.push(port.port);
+            else
+                udpPorts.push(port.port);
+        }
     }
+    addPorts(service.ports);
+    for (let s of service.includes)
+        addPorts(firewall.services[s].ports);
+
     return (
         <React.Fragment>
             { tcpPorts.length > 0 && <span className="service-ports tcp"><strong>TCP: </strong>{ tcpPorts.join(', ') }</span> }
@@ -506,7 +531,7 @@ class AddServicesModal extends React.Component {
                                                                                                 onChange={this.onToggleService} /> }
                                                                         stacked
                                                                         heading={ <label htmlFor={"firewall-service-" + s.id}>{s.name}</label> }
-                                                                        description={ renderPorts(s.ports) }>
+                                                                        description={ renderPorts(s) }>
                                                             </ListView.Item>
                                                         ))
                                                     }

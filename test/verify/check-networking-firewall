@@ -180,16 +180,30 @@ class TestFirewall(NetworkCase):
         b.click("#add-services-dialog .modal-footer .btn-primary")
         b.wait_not_present("#cockpit_modal_dialog")
 
+        def addService(service):
+            b.click("#services-listing caption button.btn-primary")
+            # rhel-8 comes with an extra preconfigured libvirt zone
+            if m.image in ["rhel-8-0", "rhel-8-1", "rhel-8-0-distropkg"]:
+                b.click("#add-services-dialog input[value='public']")
+                b.click("#add-services-dialog input[value='libvirt']")
+            b.click("#cockpit_modal_dialog .list-view-pf input[data-id='%s']" % service)
+            b.click("#add-services-dialog .modal-footer .btn-primary")
+            b.wait_not_present("#cockpit_modal_dialog")
+            b.wait_present("tr[data-row-id='%s']" % service)
+
         # now add pop3
-        b.click("#services-listing caption button.btn-primary")
-        # rhel-8 comes with an extra preconfigured libvirt zone
-        if m.image in ["rhel-8-0", "rhel-8-1", "rhel-8-0-distropkg"]:
-            b.click("#add-services-dialog input[value='public']")
-            b.click("#add-services-dialog input[value='libvirt']")
-        b.click("#cockpit_modal_dialog .list-view-pf input[data-id='pop3']")
-        b.click("#add-services-dialog .modal-footer .btn-primary")
-        b.wait_not_present("#cockpit_modal_dialog")
-        b.wait_present("tr[data-row-id='pop3']")
+        addService('pop3')
+        # firewalld > 0.7.0 supports including services into another service
+        if m.image in ['rhel-8-1']:
+            addService('freeipa-4')
+            b.click("tr[data-row-id='freeipa-4']")
+            b.wait_present("tbody.open .listing-ct-body:contains(Included Services)")
+        else:
+            b.click("caption #add-services-button")
+            b.wait_present("#cockpit_modal_dialog .list-view-pf input[data-id='imap']")
+            b.wait_not_present("#cockpit_modal_dialog .list-view-pf input[data-id='freeipa-4']")
+            b.click("#add-services-dialog .modal-footer .btn-cancel")
+            b.wait_not_present("#cockpit_modal_dialog")
 
         # pop3 should now not appear any more in Add Services dialog
         b.click("caption #add-services-button")

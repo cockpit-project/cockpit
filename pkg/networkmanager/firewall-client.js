@@ -155,7 +155,18 @@ function getServices() {
                                    'org.fedoraproject.FirewallD1.zone',
                                    'getServices', [z])
                 .then(reply => fetchServiceInfos(reply[0]))
-                .then(services => services.map(s => firewall.enabledServices.add(s.id)));
+                .then(services => {
+                    let promises = [];
+                    for (let s of services) {
+                        firewall.enabledServices.add(s.id);
+                        if (s.includes.length)
+                            promises.push(fetchServiceInfos(s.includes));
+                    }
+                    // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
+                    // https://github.com/cockpit-project/cockpit/issues/10956
+                    // eslint-disable-next-line cockpit/no-cockpit-all
+                    return cockpit.all(promises);
+                });
     })).then(() => firewall.debouncedEvent('changed'));
 }
 
@@ -167,21 +178,39 @@ function fetchServiceInfos(services) {
         if (firewall.services[service])
             return firewall.services[service];
 
+        let info;
         return firewalld_dbus.call('/org/fedoraproject/FirewallD1',
                                    'org.fedoraproject.FirewallD1',
                                    'getServiceSettings', [service])
                 .then(reply => {
-                    const [ , name, description, ports ] = reply[0];
-
-                    let info = {
+                    const [ , name, description, ports, , , , ] = reply[0];
+                    info = {
                         id: service,
                         name: name,
                         description: description,
-                        ports: ports.map(p => ({ port: p[0], protocol: p[1] }))
+                        ports: ports.map(p => ({ port: p[0], protocol: p[1] })),
+                        includes: [],
                     };
 
                     firewall.services[service] = info;
+                    return firewalld_dbus.call('/org/fedoraproject/FirewallD1/config',
+                                               'org.fedoraproject.FirewallD1.config',
+                                               'getServiceByName', [service]);
+                })
+                .then(path => firewalld_dbus.call(path[0],
+                                                  'org.fedoraproject.FirewallD1.config.service',
+                                                  'getSettings2', []))
+                .then(reply => {
+                    if (reply[0].includes) {
+                        info.includes = reply[0].includes.v;
+                        firewall.services[service] = info;
+                    }
                     return info;
+                })
+                .catch(error => {
+                    if (error.name === 'org.freedesktop.DBus.Error.UnknownMethod')
+                        return info;
+                    Promise.reject(error);
                 });
     }));
 

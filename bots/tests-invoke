@@ -305,7 +305,11 @@ class PullTask(object):
 
         # Actually run the tests
         if not ret:
-            cmd = [ "timeout", "120m", os.path.join(BOTS, "..", "test", "run") ]
+            entry_point = os.path.join(BOTS, "..", ".cockpit-ci", "run")
+            alt_entry_point = os.path.join(BOTS, "..", "test", "run")
+            if not os.path.exists(entry_point) and os.path.exists(alt_entry_point):
+                entry_point = alt_entry_point
+            cmd = [ "timeout", "120m", entry_point ]
             if opts.verbose:
                 cmd.append("--verbose")
             ret = subprocess.call(cmd)

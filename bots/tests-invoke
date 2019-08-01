@@ -182,9 +182,12 @@ class PullTask(object):
             # third-party project, link directly to text log
             status["link"] = "log"
         else:
-            # testing cockpit itself, use HTML log from current revision
+            # Testing cockpit itself, use HTML log from current
+            # revision.  Use log.html from code under test, but only
+            # if we are on master.  Other branches don't have a bots/
+            # in their repo.
             status["link"] = "log.html"
-            status["extras"] = [ "https://raw.githubusercontent.com/cockpit-project/cockpit/{0}/bots/task/log.html".format(self.github_revision) ]
+            status["extras"] = [ "https://raw.githubusercontent.com/cockpit-project/cockpit/{0}/bots/task/log.html".format(self.github_revision if not self.base else "master") ]
 
 
         # Include information about which base we're testing against

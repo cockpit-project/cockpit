@@ -330,7 +330,8 @@ LIBVIRT_PROVIDER = {
                 .then((volPath) => {
                     let scope = permanent ? '--config' : '';
                     scope = scope + (hotplug ? ' --live' : '');
-                    const command = `virsh ${connection} attach-disk ${vmName} --driver qemu --subdriver ${format} ${volPath.trim()} ${target} ${scope}`;
+                    const subdriver = (format && ['qcow2', 'raw'].includes(format)) ? `--subdriver ${format}` : '';
+                    const command = `virsh ${connection} attach-disk ${vmName} --driver qemu ${subdriver} ${volPath.trim()} ${target} ${scope}`;
 
                     logDebug('ATTACH_DISK command: ', command);
                     return cockpit.script(command, null, { err: "message", environ: ['LC_ALL=en_US.UTF-8'] });

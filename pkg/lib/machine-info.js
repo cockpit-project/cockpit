@@ -221,15 +221,15 @@ function parseMemoryInfo(text) {
         });
 
         locator = props["Locator"];
-        if (locator && props["Handle"]) {
+        if (locator && props["Handle"])
             phys_locator_mapping[props["Handle"]] = locator;
-        }
+
         if (locator)
             info[locator] = props;
     });
     return processMemory(info);
 }
-console.log(phys_locator_mapping);
+
 // Select the useful properties to display
 function processMemory(info) {
     let memoryArray = [];
@@ -284,12 +284,17 @@ export function memory_info(address) {
     return pr;
 }
 
+// Process the ndctl output and display useful properties
 function parsePersistentMemoryInfo(text) {
+    // Check if text object is empty or not.
+    if (text == "")
+        return {};
     let textObject = JSON.parse(text);
     let regionsArray = [];
     let dimm_nspace_mapping = {};
     let sizeRE = /\(([^)]+)\)/;
 
+    // Mapping of DIMMs to a region using dmidecode and ndctl
     if (textObject.dimms.length > 0) {
         for (let dimm in textObject.dimms) {
             let phys_id = textObject.dimms[dimm]["phys_id"];
@@ -309,12 +314,16 @@ function parsePersistentMemoryInfo(text) {
 
             for (let namespace in pmNamespaces) {
                 let name_space = pmNamespaces[namespace]["dimm"];
-                if ((parseInt(namespace) + 1) == pmNamespaces.length) namespaceStr = namespaceStr + name_space;
-                else namespaceStr = namespaceStr + name_space + "  ,  ";
+                if ((parseInt(namespace) + 1) == pmNamespaces.length)
+                    namespaceStr = namespaceStr + name_space;
+                else
+                    namespaceStr = namespaceStr + name_space + "  ,  ";
 
                 if (dimm_nspace_mapping[name_space]) {
-                    if ((parseInt(namespace) + 1) == pmNamespaces.length) dimmStr = dimmStr + dimm_nspace_mapping[name_space];
-                    else dimmStr = dimmStr + dimm_nspace_mapping[name_space] + "  ,  ";
+                    if ((parseInt(namespace) + 1) == pmNamespaces.length)
+                        dimmStr = dimmStr + dimm_nspace_mapping[name_space];
+                    else
+                        dimmStr = dimmStr + dimm_nspace_mapping[name_space] + "  ,  ";
                 }
                 namespaceArray.push({
                     dev: pmNamespaces[namespace]["dimm"],
@@ -338,15 +347,14 @@ var persistent_memory_info_promises = {};
 
 export function persistent_memory_info(address) {
     var pr = persistent_memory_info_promises[address];
-    var dfd;
 
     if (!pr) {
-        dfd = cockpit.defer();
-        persistent_memory_info_promises[address] = pr = dfd.promise();
-        cockpit.spawn(["/usr/bin/ndctl", "list", "-DHNRu"],
-                      { environ: ["LC_aLL=C"], err: "message", superuser: "try" })
-                .done(output => dfd.resolve(parsePersistentMemoryInfo(output)))
-                .fail(exception => dfd.reject(exception.message));
+        memory_info_promises[address] = pr = new Promise((resolve, reject) => {
+            cockpit.spawn(["ndctl", "list", "-DHNRu"],
+                          { environ: ["LC_ALL=C"], err: "message", superuser: "try" })
+                    .done(output => resolve(parsePersistentMemoryInfo(output)))
+                    .fail(exception => reject(exception.message));
+        });
     }
 
     return pr;

@@ -55,7 +55,7 @@ function findPCI(udevdb, info) {
 }
 
 export default function detect() {
-    let info = { system: {}, pci: [], memory: [], persistent_memory: {} };
+    let info = { system: {}, pci: [], memory: [], persistent_memory: [] };
     var tasks = [];
 
     tasks.push(new Promise((resolve, reject) => {
@@ -103,7 +103,7 @@ export default function detect() {
 
     tasks.push(new Promise((resolve, reject) => {
         machine_info.persistent_memory_info()
-                .done(result => {
+                .then(result => {
                     info.persistent_memory = result;
                     resolve();
                 })

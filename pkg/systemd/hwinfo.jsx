@@ -293,7 +293,9 @@ class HardwareInfo extends React.Component {
                 <div id="memory-listing">
                     { memory }
                 </div>
-                { persistent_memory }
+                <div id="persistent-memory-listing">
+                    { persistent_memory }
+                </div>
             </div>
         );
     }

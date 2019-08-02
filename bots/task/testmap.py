@@ -108,7 +108,7 @@ REPO_BRANCH_CONTEXT = {
         ],
     },
     'mvollmer/subscription-manager': {
-        '_manual': [
+        'master': [
             'rhel-8-0',
         ],
     }

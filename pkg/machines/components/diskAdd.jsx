@@ -138,9 +138,19 @@ const VolumeName = ({ idPrefix, volumeName, onValueChanged }) => {
 
 const VolumeDetails = ({ idPrefix, size, unit, diskFileFormat, storagePoolType, onValueChanged }) => {
     let formatRow;
+    let validVolumeFormats;
 
     // For the valid volume format types for different pool types see https://libvirt.org/storage.html
-    if (['dir', 'fs', 'netfs', 'gluster', 'vstorage'].indexOf(storagePoolType) > -1) {
+    if (['disk'].indexOf(storagePoolType) > -1) {
+        validVolumeFormats = [
+            'none', 'linux', 'fat16', 'fat32', 'linux-swap', 'linux-lvm',
+            'linux-raid', 'extended'
+        ];
+    } else if (['dir', 'fs', 'netfs', 'gluster', 'vstorage'].indexOf(storagePoolType) > -1) {
+        validVolumeFormats = ['qcow2', 'raw'];
+    }
+
+    if (validVolumeFormats) {
         formatRow = (
             <React.Fragment>
                 <label className='control-label' htmlFor={`${idPrefix}-fileformat`}>
@@ -150,12 +160,7 @@ const VolumeDetails = ({ idPrefix, size, unit, diskFileFormat, storagePoolType, 
                     onChange={value => onValueChanged('diskFileFormat', value)}
                     initial={diskFileFormat}
                     extraClass='form-control ct-form-layout-split'>
-                    <Select.SelectEntry data='qcow2' key='qcow2'>
-                        {_("qcow2")}
-                    </Select.SelectEntry>
-                    <Select.SelectEntry data='raw' key='raw'>
-                        {_("raw")}
-                    </Select.SelectEntry>
+                    { validVolumeFormats.map(format => <Select.SelectEntry data={format} key={format}>{format}</Select.SelectEntry>) }
                 </Select.Select>
             </React.Fragment>
         );
@@ -378,8 +383,13 @@ class AddDiskModalBody extends React.Component {
 
     getDefaultVolumeFormat(pool) {
         // For the valid volume format types for different pool types see https://libvirt.org/storage.html
+        if (['disk'].indexOf(pool.type) > -1)
+            return 'none';
+
         if (['dir', 'fs', 'netfs', 'gluster', 'vstorage'].indexOf(pool.type) > -1)
             return 'qcow2';
+
+        return undefined;
     }
 
     get initialState() {

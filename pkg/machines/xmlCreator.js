@@ -7,7 +7,7 @@ export function getDiskXML(poolName, volumeName, format, target, cacheMode) {
 
     var driverElem = doc.createElement('driver');
     driverElem.setAttribute('name', 'qemu');
-    if (format)
+    if (format && ['qcow2', 'raw'].includes(format))
         driverElem.setAttribute('type', format);
     if (cacheMode)
         driverElem.setAttribute('cache', cacheMode);
@@ -45,9 +45,11 @@ export function getVolumeXML(volumeName, size, format, target) {
 
     var targetElem = doc.createElement('target');
 
-    var formatElem = doc.createElement('format');
-    formatElem.setAttribute('type', format);
-    targetElem.appendChild(formatElem);
+    if (format) {
+        var formatElem = doc.createElement('format');
+        formatElem.setAttribute('type', format);
+        targetElem.appendChild(formatElem);
+    }
 
     volElem.appendChild(targetElem);
 

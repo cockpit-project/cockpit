@@ -130,6 +130,9 @@ class Browser:
         self.cdp.invoke("Page.navigate", url=href)
         self.expect_load()
 
+    def set_user_agent(self, ua):
+        self.cdp.invoke("Emulation.setUserAgentOverride", userAgent=ua)
+
     def reload(self, ignore_cache=False):
         self.switch_to_top()
         self.wait_js_cond("ph_select('iframe.container-frame').every(function (e) { return e.getAttribute('data-loaded'); })")

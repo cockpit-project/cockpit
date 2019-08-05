@@ -156,6 +156,18 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
     });
 
     function show_disconnected() {
+        if (!ready) {
+            const ca_cert_url = window.sessionStorage.getItem("CACertUrl");
+            if (window.navigator.userAgent.indexOf("Safari") >= 0 && ca_cert_url) {
+                $("#safari-cert-help a").attr("href", ca_cert_url);
+                $("#safari-cert-help").show();
+            }
+            $("#early-failure").show();
+            $("#main").hide();
+            $("body").show();
+            return;
+        }
+
         var current_frame = index.current_frame();
 
         if (current_frame)

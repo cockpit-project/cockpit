@@ -33,20 +33,6 @@ import './createStoragePoolDialog.css';
 
 const _ = cockpit.gettext;
 
-const StoragePoolConnectionRow = ({ onValueChanged, dialogValues, loggedUser }) => {
-    return (
-        <React.Fragment>
-            <label className='control-label'>
-                {_("Connection")}
-            </label>
-            <MachinesConnectionSelector id='storage-pool-dialog-connection'
-                dialogValues={dialogValues}
-                onValueChanged={onValueChanged}
-                loggedUser={loggedUser} />
-        </React.Fragment>
-    );
-};
-
 const StoragePoolNameRow = ({ onValueChanged, dialogValues }) => {
     const validationState = dialogValues.name.length == 0 && dialogValues.validationFailed.name ? 'error' : undefined;
 
@@ -483,10 +469,12 @@ class CreateStoragePoolModal extends React.Component {
     render() {
         const defaultBody = (
             <form className="ct-form ct-form-maxmin">
-                <StoragePoolConnectionRow dialogValues={this.state}
-                                          onValueChanged={this.onValueChanged}
-                                          loggedUser={this.props.loggedUser} />
+                <MachinesConnectionSelector id='storage-pool-dialog-connection'
+                    connectionName={this.state.connectionName}
+                    onValueChanged={this.onValueChanged}
+                    loggedUser={this.props.loggedUser} />
                 <hr />
+
                 <StoragePoolNameRow dialogValues={this.state}
                                     onValueChanged={this.onValueChanged} />
                 <hr />

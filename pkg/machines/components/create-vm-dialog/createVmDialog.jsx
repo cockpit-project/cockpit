@@ -695,9 +695,6 @@ class CreateVmModal extends React.Component {
 
         const dialogBody = (
             <form className="ct-form">
-                <label className="control-label" htmlFor="connection">
-                    {_("Connection")}
-                </label>
                 <MachinesConnectionSelector id='connection'
                     connectionName={this.state.connectionName}
                     onValueChanged={this.onValueChanged}

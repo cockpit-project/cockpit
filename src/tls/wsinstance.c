@@ -117,7 +117,6 @@ ws_instance_new (const char *ws_path,
   WsInstance *ws;
   int fd;
   pid_t pid;
-  static unsigned long ws_socket_id = 0; /* generate unique Unix socket names */
   static char pid_str[20];
 
   ws = callocx (1, sizeof (WsInstance));
@@ -127,9 +126,7 @@ ws_instance_new (const char *ws_path,
   if (fd < 0)
     err (1, "failed to create cockpit-ws socket");
   ws->socket.sun_family = AF_UNIX;
-  /* Generate unique Unix socket name; theoretical wrap-around on ULONG_MAX */
-  assert (++ws_socket_id > 0);
-  snprintf_checked (ws->socket.sun_path, sizeof (ws->socket.sun_path), "%s/ws.%lu.sock", state_dir, ws_socket_id);
+  snprintf_checked (ws->socket.sun_path, sizeof (ws->socket.sun_path), "%s/ws.%i.sock", state_dir, fd);
   unlink (ws->socket.sun_path);
   if (bind (fd, (const struct sockaddr *) &ws->socket, sizeof (ws->socket)) < 0)
     err (1, "failed to bind cockpit-ws socket %s", ws->socket.sun_path);

@@ -210,7 +210,7 @@ class MachinesLib(SeleniumTest):
         self.wait_css('#create-vm-dialog')
 
         if connection == 'session':
-            self.select_by_text(self.wait_css('#connection'), 'QEMU/KVM User connection')
+            self.click(self.wait_css("#connection label:last-of-type", cond=clickable))
 
         self.send_keys(self.wait_css('#vm-name'), name)
 

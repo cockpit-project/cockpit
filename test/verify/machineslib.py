@@ -1750,8 +1750,8 @@ class TestMachines(NetworkCase):
         MAGEIA_3_FILTERED_OS = 'Mageia 3'
 
         LIBVIRT_CONNECTION = {
-            'session': 'QEMU/KVM User connection',
-            'system': 'QEMU/KVM System connection'}
+            'session': 'Session',
+            'system': 'System'}
 
     class VmDialog:
         vmId = 0
@@ -1828,7 +1828,7 @@ class TestMachines(NetworkCase):
                 raise AssertionError("{0} was not filtered".format(self.os_name))
 
         def checkPXENotAvailableSession(self):
-            self.browser.select_from_dropdown("#connection", self.connectionText)
+            self.browser.click("#connection label:contains('{0}')".format(self.connectionText))
             self.browser.wait_present("#source-type option[value*='{0}']:disabled".format(self.sourceType))
             return self
 
@@ -1906,7 +1906,7 @@ class TestMachines(NetworkCase):
             # b.set_checked("#start-vm", self.start_vm)
 
             if (self.connection):
-                b.select_from_dropdown("#connection", self.connectionText)
+                b.click("#connection label:contains('{0}')".format(self.connectionText))
 
             return self
 

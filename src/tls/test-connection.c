@@ -43,6 +43,9 @@ test_no_ws (void)
   c = connection_new (fd);
   g_assert (c);
   g_assert_cmpint (c->client_fd, ==, fd);
+  /* back references from buffer to connection */
+  g_assert (c->buf_client.connection == c);
+  g_assert (c->buf_ws.connection == c);
 
   /* other fields are clear */
   g_assert (!c->is_tls);

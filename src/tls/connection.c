@@ -38,6 +38,8 @@ connection_new (int client_fd)
 
   con = callocx (1, sizeof (Connection));
   con->client_fd = client_fd;
+  con->buf_client.connection = con;
+  con->buf_ws.connection = con;
 
   debug ("new connection on fd %i", con->client_fd);
   return con;

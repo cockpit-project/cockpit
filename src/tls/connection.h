@@ -20,6 +20,7 @@
 #pragma once
 
 #include <stdbool.h>
+#include <sys/epoll.h>
 
 #include "wsinstance.h"
 
@@ -32,6 +33,7 @@ typedef struct Connection Connection;
 struct ConnectionBuffer {
   char data[256 * 1024];
   size_t length;
+  struct epoll_event epoll_ev;
   Connection *connection;
 };
 

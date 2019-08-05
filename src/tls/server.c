@@ -213,7 +213,6 @@ connection_init_ws (Connection *c)
   WsInstance *ws = NULL;
   bool ws_add_tls = false;
   bool ws_add_notls = false;
-  struct epoll_event ev = { .events = EPOLLIN };
 
   if (c->is_tls)
     {
@@ -267,8 +266,9 @@ connection_init_ws (Connection *c)
     server.ws_notls = ws;
 
   /* epoll the fd */
-  ev.data.ptr = &c->buf_ws;
-  if (epoll_ctl (server.epollfd, EPOLL_CTL_ADD, fd, &ev) < 0)
+  c->buf_ws.epoll_ev.data.ptr = &c->buf_ws;
+  c->buf_ws.epoll_ev.events = EPOLLIN;
+  if (epoll_ctl (server.epollfd, EPOLL_CTL_ADD, fd, &c->buf_ws.epoll_ev) < 0)
     err (1, "Failed to epoll cockpit-ws client fd");
 
   c->ws_fd = fd;
@@ -285,7 +285,6 @@ handle_accept (void)
 {
   int fd;
   Connection *con;
-  struct epoll_event ev = { .events = EPOLLIN };
 
   debug ("epoll_wait event on server listen fd %i", server.listen_fd);
 
@@ -300,8 +299,9 @@ handle_accept (void)
   con = connection_new (fd);
 
   /* epoll the connection fd */
-  ev.data.ptr = &con->buf_client;
-  if (epoll_ctl (server.epollfd, EPOLL_CTL_ADD, fd, &ev) < 0)
+  con->buf_client.epoll_ev.data.ptr = &con->buf_client;
+  con->buf_client.epoll_ev.events = EPOLLIN;
+  if (epoll_ctl (server.epollfd, EPOLL_CTL_ADD, fd, &con->buf_client.epoll_ev) < 0)
     err (1, "Failed to epoll connection fd");
 
   /* add to our Connections list */
@@ -379,7 +379,7 @@ handle_connection_data_first (Connection *con)
 }
 
 /**
- * handle_connection_data: Handle event on client or ws fd
+ * handle_connection_data_in: Handle incoming data event on client or ws
  *
  * We want to avoid any interpretation of data to avoid vulnerabilities, so for
  * the most part this just means shovelling data between the client and ws. The
@@ -387,11 +387,10 @@ handle_connection_data_first (Connection *con)
  * from plain HTTP (handled by handle_connection_data_first).
  */
 static void
-handle_connection_data (struct ConnectionBuffer *buf)
+handle_connection_data_in (struct ConnectionBuffer *buf)
 {
   Connection *con = buf->connection;
   DataSource src = buf == &con->buf_client ? CLIENT : WS;
-  ConnectionResult r;
 
   assert (con);
   debug ("%s connection fd %i has data from %s; ws %s",
@@ -407,20 +406,94 @@ handle_connection_data (struct ConnectionBuffer *buf)
       return;
     }
 
-  do
-    {
-      r = connection_read (con, src);
-    } while (r == RETRY);
-  if (r == SUCCESS)
-    {
-      do
-        {
-          r = connection_write (con, src);
-        } while (r == RETRY || r == PARTIAL);
-    }
+  assert (con->client_fd);
+  assert (con->ws_fd);
 
-  if (r != SUCCESS)
-    remove_connection (con->client_fd, NULL);
+  switch (connection_read (con, src))
+    {
+      case RETRY:
+        break;
+
+      case CLOSED:
+      case FATAL:
+        remove_connection (con->client_fd, NULL);
+        break;
+
+      case FULL: /* FIXME: this cannot happen yet with single _reads(), but will happen once we do multiple _reads() with edge triggering */
+      case SUCCESS:
+        /* stop polling src for reading, start polling destination for writing */
+        if (src == CLIENT)
+          {
+            con->buf_client.epoll_ev.events &= ~EPOLLIN;
+            con->buf_ws.epoll_ev.events |= EPOLLOUT;
+          }
+        else
+          {
+            con->buf_ws.epoll_ev.events &= ~EPOLLIN;
+            con->buf_client.epoll_ev.events |= EPOLLOUT;
+          }
+        if (epoll_ctl (server.epollfd, EPOLL_CTL_MOD, con->client_fd, &con->buf_client.epoll_ev) < 0)
+          err (1, "Failed to modify connection client epoll fd");
+        if (epoll_ctl (server.epollfd, EPOLL_CTL_MOD, con->ws_fd, &con->buf_ws.epoll_ev) < 0)
+          err (1, "Failed to modify connection ws epoll fd");
+        break;
+
+      case PARTIAL:
+        errx (1, "internal error: connection_read() returned unexpected PARTIAL");
+    }
+}
+
+/**
+ * handle_connection_data_out: Handle 'ready to write' data event on client or ws
+ */
+static void
+handle_connection_data_out (struct ConnectionBuffer *wrbuf)
+{
+  Connection *con = wrbuf->connection;
+  /* wrbuf is for the *write* fd, so the original source is the other one */
+  DataSource src = wrbuf == &con->buf_ws ? CLIENT : WS;
+  struct ConnectionBuffer *buf = src == CLIENT ? &con->buf_client : &con->buf_ws;
+
+  assert (con->client_fd);
+  assert (con->ws_fd);
+  assert (buf->length > 0);
+  debug ("%s connection fd %i from %s is ready to write; connection has %zu bytes left",
+         con->is_tls ? "TLS" : "unencrypted", con->client_fd,
+         src == WS ? "ws" : "client",
+         buf->length);
+
+  switch (connection_write (con, src))
+    {
+      case RETRY:
+      case PARTIAL:
+        break;
+
+      case CLOSED:
+      case FATAL:
+        remove_connection (con->client_fd, NULL);
+        break;
+
+      case SUCCESS:
+        /* stop polling dest for writing, start polling src for reading */
+        if (src == CLIENT)
+          {
+            con->buf_client.epoll_ev.events |= EPOLLIN;
+            con->buf_ws.epoll_ev.events &= ~EPOLLOUT;
+          }
+        else
+          {
+            con->buf_ws.epoll_ev.events |= EPOLLIN;
+            con->buf_client.epoll_ev.events &= ~EPOLLOUT;
+          }
+        if (epoll_ctl (server.epollfd, EPOLL_CTL_MOD, con->client_fd, &con->buf_client.epoll_ev) < 0)
+          err (1, "Failed to modify connection client epoll fd");
+        if (epoll_ctl (server.epollfd, EPOLL_CTL_MOD, con->ws_fd, &con->buf_ws.epoll_ev) < 0)
+          err (1, "Failed to modify connection ws epoll fd");
+        break;
+
+      case FULL:
+        errx (1, "internal error: connection_write() returned unexpected FULL");
+    }
 }
 
 static void
@@ -646,7 +719,9 @@ server_poll_event (int timeout)
       else if (ev.data.ptr == handle_child_exit)
         handle_child_exit ();
       else if (ev.events & EPOLLIN)
-        handle_connection_data (ev.data.ptr);
+        handle_connection_data_in (ev.data.ptr);
+      else if (ev.events & EPOLLOUT)
+        handle_connection_data_out (ev.data.ptr);
       else if (ev.events & EPOLLHUP)
         /* this ought to be handled by recv() == 0 (EOF) already, but make sure
          * we clean up hanged up connections */

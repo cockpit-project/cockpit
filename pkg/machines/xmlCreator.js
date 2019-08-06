@@ -28,6 +28,72 @@ export function getDiskXML(poolName, volumeName, format, target, cacheMode) {
     return new XMLSerializer().serializeToString(doc.documentElement);
 }
 
+export function getNetworkXML({ name, forwardMode, physicalDevice, ipv4, netmask, ipv6, prefix, ipv4DhcpRangeStart, ipv4DhcpRangeEnd, ipv6DhcpRangeStart, ipv6DhcpRangeEnd }) {
+    let doc = document.implementation.createDocument('', '', null);
+
+    let networkElem = doc.createElement('network');
+
+    let nameElem = doc.createElement('name');
+    nameElem.appendChild(doc.createTextNode(name));
+    networkElem.appendChild(nameElem);
+
+    if (forwardMode !== 'none') {
+        let forwardElem = doc.createElement('forward');
+        forwardElem.setAttribute('mode', forwardMode);
+        if ((forwardMode === 'nat' || forwardMode === 'route') && physicalDevice !== 'automatic')
+            forwardElem.setAttribute('dev', physicalDevice);
+        networkElem.appendChild(forwardElem);
+    }
+
+    if (forwardMode === 'none' ||
+        forwardMode === 'nat' ||
+        forwardMode === 'route' ||
+        forwardMode === 'open') {
+        let domainElem = doc.createElement('domain');
+        domainElem.setAttribute('name', name);
+        networkElem.appendChild(domainElem);
+    }
+
+    if (ipv4) {
+        let ipElem = doc.createElement('ip');
+        ipElem.setAttribute('address', ipv4);
+        ipElem.setAttribute('netmask', netmask);
+        networkElem.appendChild(ipElem);
+
+        if (ipv4DhcpRangeStart) {
+            let dhcpElem = doc.createElement('dhcp');
+            ipElem.appendChild(dhcpElem);
+
+            let rangeElem = doc.createElement('range');
+            rangeElem.setAttribute('start', ipv4DhcpRangeStart);
+            rangeElem.setAttribute('end', ipv4DhcpRangeEnd);
+            dhcpElem.appendChild(rangeElem);
+        }
+    }
+
+    if (ipv6) {
+        let ipv6Elem = doc.createElement('ip');
+        ipv6Elem.setAttribute('family', 'ipv6');
+        ipv6Elem.setAttribute('address', ipv6);
+        ipv6Elem.setAttribute('prefix', prefix);
+        networkElem.appendChild(ipv6Elem);
+
+        if (ipv6DhcpRangeStart) {
+            let dhcpElem = doc.createElement('dhcp');
+            ipv6Elem.appendChild(dhcpElem);
+
+            let rangeElem = doc.createElement('range');
+            rangeElem.setAttribute('start', ipv6DhcpRangeStart);
+            rangeElem.setAttribute('end', ipv6DhcpRangeEnd);
+            dhcpElem.appendChild(rangeElem);
+        }
+    }
+
+    doc.appendChild(networkElem);
+
+    return new XMLSerializer().serializeToString(doc.documentElement);
+}
+
 export function getVolumeXML(volumeName, size, format, target) {
     var doc = document.implementation.createDocument('', '', null);
 

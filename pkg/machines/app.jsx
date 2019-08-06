@@ -102,7 +102,7 @@ class App extends React.Component {
     }
 
     render() {
-        const { vms, config, storagePools, systemInfo, ui, networks, nodeDevices } = this.props.store.getState();
+        const { vms, config, storagePools, systemInfo, ui, networks, nodeDevices, interfaces } = this.props.store.getState();
         const path = this.state.path;
         const dispatch = this.props.store.dispatch;
         const createVmAction = (
@@ -169,8 +169,12 @@ class App extends React.Component {
                 {config.provider.name === 'LibvirtDBus' && path.length > 0 && path[0] == 'networks' &&
                 <NetworkList networks={networks}
                     dispatch={dispatch}
+                    loggedUser={systemInfo.loggedUser}
                     resourceHasError={this.state.resourceHasError}
-                    onAddErrorNotification={this.onAddErrorNotification} />
+                    onAddErrorNotification={this.onAddErrorNotification}
+                    vms={vms}
+                    nodeDevices={nodeDevices}
+                    interfaces={interfaces} />
                 }
             </div>
         );

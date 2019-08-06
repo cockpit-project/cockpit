@@ -26,20 +26,6 @@ df -Th /
 # all actions regarding the repositories will be skipped:
 # subscriptions, adding repos, deleting existing entries
 SKIP_REPO_FLAG="/root/.skip_repos"
-SUBSCRIBED=
-
-# register images which use the CDN repo (not nightly)
-if [ "$IMAGE" = "rhel-7-6" ] && [ ! -f "$SKIP_REPO_FLAG" ]; then
-    # Remove any internal files
-    rm -f /etc/yum.repos.d/download.devel.redhat.com.repo
-
-    # register system
-    subscription-manager register --auto-attach --username=`cat ~/.rhel/login` --password=`cat ~/.rhel/pass`
-    # remove credentials from test machine
-    rm -rf ~/.rhel
-    SUBSCRIBED=1
-fi
-
 
 # Only start logging here.  Otherwise the subscription credentials
 # appear in the output above.
@@ -49,13 +35,7 @@ set -x
 if [ ! -f "$SKIP_REPO_FLAG" ]; then
     # Configure repositories.
 
-    if [ "$IMAGE" = "rhel-7-6" ]; then
-        # if disabling the repos doesn't work, do without
-        $YUM_INSTALL --disablerepo=rhel-7-server-htb-rpms --disablerepo=rhel-sjis-for-rhel-7-server-rpms yum-utils || $YUM_INSTALL yum-utils
-        yum-config-manager --enable rhel-7-server-optional-rpms
-        yum-config-manager --enable rhel-7-server-extras-rpms
-
-    elif [ "$IMAGE" = "rhel-7-7" ]; then
+    if [ "$IMAGE" = "rhel-7-7" ]; then
         # disable all default repos
         rm -f --verbose /etc/yum.repos.d/*.repo
 cat <<EOF > /etc/yum.repos.d/nightly.repo
@@ -305,8 +285,6 @@ EOF
 fi
 
 yum clean all || true
-
-[ -z "$SUBSCRIBED" ] || subscription-manager unregister
 
 # For the D-Bus test server
 if type "firewall-cmd" >/dev/null 2>&1; then

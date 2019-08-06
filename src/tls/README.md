@@ -62,7 +62,7 @@ Code layout
    process for a particular client side certificate (or no certificate),
    together with a Unix socket that is connected to it.
  * A `Server` (in `server.[hc]`) object represents the cockpit-tls logic. It is
-   usually a singleton, and mostly split out into a separate object so that it
-   can be properly unit tested. It maintains a list of `Connection` and
-   `WsInstance` objects according to incoming requests.
- * `main.c` does the CLI option parsing and instantiation of a `Server` object.
+   a singleton (not instantiated), and mostly split out into a separate object
+   so that it can be properly unit tested. It maintains a list of `Connection`
+   and `WsInstance` objects according to incoming requests.
+ * `main.c` does the CLI option parsing and runs `Server`.

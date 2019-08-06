@@ -38,28 +38,58 @@ if [ ! -f "$SKIP_REPO_FLAG" ]; then
     if [ "$IMAGE" = "rhel-7-7" ]; then
         # disable all default repos
         rm -f --verbose /etc/yum.repos.d/*.repo
-cat <<EOF > /etc/yum.repos.d/nightly.repo
-[EXTRAS-7.7-LATEST]
-name=rhel-extras-compose
-baseurl=http://download.devel.redhat.com/rhel-7/nightly/EXTRAS-7/latest-EXTRAS-7.7-RHEL-7/compose/Server/x86_64/os
+cat <<EOF > /etc/yum.repos.d/internal.repo
+[RHEL-7.7]
+name=base-rhel
+baseurl=http://download.devel.redhat.com/rhel-7/rel-eng/latest-RHEL-7.7/compose/Server/x86_64/os
 enabled=1
 gpgcheck=0
 
-[RHEL-7.7-NIGHTLY]
+[EXTRAS-7.7-LATEST]
+name=rhel-extras-compose
+baseurl=http://download.devel.redhat.com/rhel-7/rel-eng/latest-EXTRAS-7.7-RHEL-7/compose/Server/x86_64/os/
+enabled=1
+gpgcheck=0
+
+[RHEL-7.7-DEBUG]
+name=base-rhel-debug
+baseurl=http://download-ipv4.eng.brq.redhat.com/rhel-7/rel-eng/latest-RHEL-7.7/compose/Server/x86_64/debug/tree/
+enabled=0
+gpgcheck=0
+
+[EXTRAS-7.7-DEBUG]
+name=rhel-extras-compose-debug
+baseurl=http://download.devel.redhat.com/rhel-7/rel-eng/latest-EXTRAS-7.7-RHEL-7/compose/Server/x86_64/debug/tree/
+enabled=0
+gpgcheck=0
+EOF
+        $YUM_INSTALL yum-utils
+
+    elif [ "$IMAGE" = "rhel-7-8" ]; then
+        # disable all default repos
+        rm -f --verbose /etc/yum.repos.d/*.repo
+cat <<EOF > /etc/yum.repos.d/nightly.repo
+[RHEL-7.8]
 name=base-rhel
 baseurl=http://download.devel.redhat.com/nightly/latest-RHEL-7/compose/Server/x86_64/os
 enabled=1
 gpgcheck=0
 
-[EXTRAS-7.7-LATEST-DEBUG]
-name=rhel-extras-compose-debug
-baseurl=http://download.devel.redhat.com/rhel-7/nightly/EXTRAS-7/latest-EXTRAS-7.7-RHEL-7/compose/Server/x86_64/debug/tree
+[EXTRAS-7.8]
+name=rhel-extras-compose
+baseurl=http://download.devel.redhat.com/rhel-7/nightly/EXTRAS-7/latest-EXTRAS-7.8-RHEL-7/compose/Server/x86_64/os
+enabled=1
+gpgcheck=0
+
+[RHEL-7.8-DEBUG]
+name=base-rhel-debug
+baseurl=http://download.devel.redhat.com/nightly/latest-RHEL-7/compose/Server/x86_64/debug/tree
 enabled=0
 gpgcheck=0
 
-[RHEL-7.7-NIGHTLY-DEBUG]
-name=base-rhel-debug
-baseurl=http://download.devel.redhat.com/nightly/latest-RHEL-7/compose/Server/x86_64/debug/tree
+[EXTRAS-7.8-DEBUG]
+name=rhel-extras-compose-debug
+baseurl=http://download.devel.redhat.com/rhel-7/nightly/EXTRAS-7/latest-EXTRAS-7.8-RHEL-7/compose/Server/x86_64/debug/tree
 enabled=0
 gpgcheck=0
 EOF

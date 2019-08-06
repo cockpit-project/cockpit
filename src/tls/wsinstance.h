@@ -28,8 +28,10 @@ enum WsInstanceMode { WS_INSTANCE_HTTP, WS_INSTANCE_HTTP_REDIRECT, WS_INSTANCE_H
 
 /* a single cockpit-ws child process */
 typedef struct WsInstance {
+  const char *state_dir;
   gnutls_datum_t peer_cert;      /* DER format */
   gnutls_datum_t peer_cert_info; /* human readable string */
+  char *peer_cert_file;
   struct sockaddr_un socket;
   pid_t pid;
   struct WsInstance *next;

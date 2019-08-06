@@ -658,7 +658,6 @@ function Transport() {
     /* The channel/control arguments is used by filters, and auto-populated if necessary */
     self.send_data = function send_data(data, channel, control) {
         if (!ws) {
-            console.log("transport closed, dropped message: ", data);
             return false;
         }
 

@@ -870,7 +870,6 @@ class TestMachinesDBus(machineslib.TestMachines):
                     else:
                         b.set_file_autocomplete_val("#storage-pool-dialog-source", self.source['source_path'])
 
-
                 if 'format' in self.source:
                     b.select_from_dropdown("#storage-pool-dialog-source-format", self.source['format'])
 
@@ -936,8 +935,9 @@ class TestMachinesDBus(machineslib.TestMachines):
 
                 source_path_dir = m.execute(xmllint_element.format(prop="source/dir/@path")).strip()
                 source_path_device = m.execute(xmllint_element.format(prop="source/device/@path")).strip()
+                source_name = m.execute(xmllint_element.format(prop="source/name")).strip()
                 if "source_path" in self.source:
-                    self.test_obj.assertTrue(self.source["source_path"] in [source_path_dir, source_path_device])
+                    self.test_obj.assertTrue(self.source["source_path"] in [source_path_dir, source_path_device, source_name])
                 else:
                     self.test_obj.assertEqual("", host.rstrip())
 
@@ -953,6 +953,8 @@ class TestMachinesDBus(machineslib.TestMachines):
                 else:
                     if self.pool_type == 'netfs':
                         self.test_obj.assertEqual("auto", sourceFormat)
+                    elif self.pool_type == 'logical':
+                        self.test_obj.assertEqual("lvm2", sourceFormat)
                     else:
                         self.test_obj.assertEqual("", sourceFormat.rstrip())
 
@@ -1057,6 +1059,26 @@ class TestMachinesDBus(machineslib.TestMachines):
                 b.wait_not_present("#storage-pool-dialog-type option[value*='isci-direct']")
                 b.click(".modal-footer button:contains(Cancel)")
                 b.wait_not_present("#create-storage-pool-dialog")
+
+        # Prepare a Volume Group to be used as source for the LVM pool
+        m.add_disk("50M", serial="DISK2")
+        m.add_disk("50M", serial="DISK3")
+        b.go("/storage")
+        b.enter_page("/storage")
+        b.wait_in_text("#drives", "DISK2")
+        b.wait_in_text("#drives", "DISK3")
+        dev_2 = "/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK2"
+        dev_3 = "/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK3"
+        m.execute("pvcreate {0} {1} && vgcreate vol_grp1 {0} {1}".format(dev_2, dev_3))
+        b.go("/machines")
+        b.enter_page("/machines")
+
+        StoragePoolCreateDialog(
+            self,
+            name="my_logical_pool",
+            pool_type="logical",
+            source={"source_path": "vol_grp1"},
+        ).execute()
 
 
 if __name__ == '__main__':

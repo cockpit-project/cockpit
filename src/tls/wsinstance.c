@@ -21,6 +21,7 @@
 
 #include <assert.h>
 #include <err.h>
+#include <fcntl.h>
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdlib.h>
@@ -60,6 +61,32 @@ snprintf_checked (char *str,
     }
 }
 
+static void
+ws_write_peer_cert (WsInstance *ws, const char *cert_pem, size_t cert_pem_size)
+{
+  char *tempname;
+  int fd;
+  int r;
+
+  asprintfx (&ws->peer_cert_file, "%s/ws.%u.crt", ws->state_dir, ws->pid);
+  asprintfx (&tempname, "%s.tmp", ws->peer_cert_file);
+
+  fd = open (tempname, O_CREAT | O_WRONLY | O_EXCL, 0644);
+  if (fd < 0)
+    err (1, "Could not open certificate file %s", tempname);
+  r = write (fd, cert_pem, cert_pem_size);
+  if (r < 0)
+    err (1, "Could not write certificate file");
+  if (r != cert_pem_size)
+    errx (1, "Could not write certificate file: wrote %i out of %zu bytes", r, cert_pem_size);
+  close (fd);
+
+  if (rename (tempname, ws->peer_cert_file) < 0)
+    err (1, "Could not rename %s", tempname);
+  free (tempname);
+
+  debug ("Wrote TLS peer certificate PEM to %s", ws->peer_cert_file);
+}
 
 /**
  * ws_init_peer_cert: Retrieve and publish information about the client-side TLS certificate
@@ -72,6 +99,7 @@ ws_init_peer_cert (WsInstance *ws, const gnutls_datum_t *der)
   size_t cert_pem_size = sizeof (cert_pem);
 
   assert (der);
+  assert (ws->pid);
 
   /* clone DER certificate */
   ws->peer_cert.size = der->size;
@@ -89,8 +117,8 @@ ws_init_peer_cert (WsInstance *ws, const gnutls_datum_t *der)
   assert (cert_pem[cert_pem_size] == '\0');
   debug ("TLS peer certificate: %s", ws->peer_cert_info.data);
 
-  /* TODO: write X.509 certificate to our $RUNTIME_DIRECTORY, so that PAM modules can check that these got validated */
-  debug ("TLS peer certificate PEM:\n%s", cert_pem);
+  /* write X.509 certificate to our state dir, so that PAM modules can check that these got validated */
+  ws_write_peer_cert (ws, cert_pem, cert_pem_size);
 
   gnutls_x509_crt_deinit (cert);
 }
@@ -120,6 +148,7 @@ ws_instance_new (const char *ws_path,
   static char pid_str[20];
 
   ws = callocx (1, sizeof (WsInstance));
+  ws->state_dir = state_dir;
 
   /* create a listening socket for cockpit-ws */
   fd = socket (AF_UNIX, SOCK_STREAM, 0);
@@ -193,6 +222,11 @@ ws_instance_free (WsInstance *ws)
     }
 
   unlink (ws->socket.sun_path);
+  if (ws->peer_cert_file)
+    {
+      unlink (ws->peer_cert_file);
+      free (ws->peer_cert_file);
+    }
   free (ws);
 }
 

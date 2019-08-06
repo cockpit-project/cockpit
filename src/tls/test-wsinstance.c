@@ -223,6 +223,11 @@ static const TestFixture fixture_https_cert = {
 static void
 test_https_cert (TestCase *tc, gconstpointer data)
 {
+  const TestFixture *fixture = data;
+  g_autofree char *cert_file_path = NULL;
+  g_autofree char *cert_file = NULL;
+  g_autofree char *expected_pem = NULL;
+
   gnutls_datum_t crt = { .size = 0 };
 
   g_assert_cmpuint (tc->ws->peer_cert.size, >, 0);
@@ -245,6 +250,12 @@ test_https_cert (TestCase *tc, gconstpointer data)
   /* modified crt should not match */
   crt.data[0]++;
   g_assert (!ws_instance_has_peer_cert (tc->ws, &crt));
+
+  /* writes expected certificate file */
+  cert_file_path = g_strdup_printf ("%s/ws.%u.crt", tc->state_dir, tc->ws->pid);
+  g_assert (g_file_get_contents (cert_file_path, &cert_file, NULL, NULL));
+  g_assert (g_file_get_contents (fixture->cert_pem, &expected_pem, NULL, NULL));
+  g_assert_cmpstr (g_strchomp (cert_file), ==, g_strchomp (expected_pem));
 
   gnutls_free (crt.data);
 }

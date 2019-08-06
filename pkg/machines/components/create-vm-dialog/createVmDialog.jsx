@@ -277,23 +277,25 @@ const SourceRow = ({ connectionName, source, sourceType, networks, nodeDevices, 
 
     return (
         <React.Fragment>
-            <label className="control-label" htmlFor="source-type">
-                {_("Installation Source Type")}
-            </label>
-            <Select.Select id="source-type"
-                initial={sourceType}
-                onChange={value => onValueChanged('sourceType', value)}>
-                <Select.SelectEntry data={LOCAL_INSTALL_MEDIA_SOURCE}
-                    key={LOCAL_INSTALL_MEDIA_SOURCE}>{_("Local Install Media")}</Select.SelectEntry>
-                <Select.SelectEntry data={URL_SOURCE} key={URL_SOURCE}>{_("URL")}</Select.SelectEntry>
-                { providerName == 'LibvirtDBus' &&
-                <Select.SelectEntry title={connectionName == 'session' ? _("Network Boot is available only when using System connection") : null}
-                    disabled={connectionName == 'session'}
-                    data={PXE_SOURCE}
-                    key={PXE_SOURCE}>{_("Network Boot (PXE)")}
-                </Select.SelectEntry>}
-                <Select.SelectEntry data={EXISTING_DISK_IMAGE_SOURCE} key={EXISTING_DISK_IMAGE_SOURCE}>{_("Existing Disk Image")}</Select.SelectEntry>
-            </Select.Select>
+            {sourceType != EXISTING_DISK_IMAGE_SOURCE &&
+            <React.Fragment>
+                <label className="control-label" htmlFor="source-type">
+                    {_("Installation Source Type")}
+                </label>
+                <Select.Select id="source-type"
+                    initial={sourceType}
+                    onChange={value => onValueChanged('sourceType', value)}>
+                    <Select.SelectEntry data={LOCAL_INSTALL_MEDIA_SOURCE}
+                        key={LOCAL_INSTALL_MEDIA_SOURCE}>{_("Local Install Media")}</Select.SelectEntry>
+                    <Select.SelectEntry data={URL_SOURCE} key={URL_SOURCE}>{_("URL")}</Select.SelectEntry>
+                    { providerName == 'LibvirtDBus' &&
+                    <Select.SelectEntry title={connectionName == 'session' ? _("Network Boot is available only when using System connection") : null}
+                        disabled={connectionName == 'session'}
+                        data={PXE_SOURCE}
+                        key={PXE_SOURCE}>{_("Network Boot (PXE)")}
+                    </Select.SelectEntry>}
+                </Select.Select>
+            </React.Fragment>}
 
             <label className="control-label" htmlFor={installationSourceId}>
                 {_("Installation Source")}
@@ -506,7 +508,7 @@ class CreateVmModal extends React.Component {
             validate: false,
             vmName: '',
             connectionName: LIBVIRT_SYSTEM_CONNECTION,
-            sourceType: LOCAL_INSTALL_MEDIA_SOURCE,
+            sourceType: props.mode == 'create' ? LOCAL_INSTALL_MEDIA_SOURCE : EXISTING_DISK_IMAGE_SOURCE,
             source: '',
             os: undefined,
             memorySize: Math.min(convertToUnit(1024, units.MiB, units.GiB), // tied to Unit
@@ -825,8 +827,11 @@ export class CreateVmAction extends React.Component {
             return null;
 
         let createButton = (
-            <Button disabled={!this.props.systemInfo.osInfoList || !this.state.virtInstallAvailable} id="create-new-vm" bsStyle='default' onClick={this.open} >
-                {_("Create VM")}
+            <Button disabled={!this.props.systemInfo.osInfoList || !this.state.virtInstallAvailable}
+                    id={this.props.mode == 'create' ? 'create-new-vm' : 'import-vm-disk'}
+                    bsStyle='default'
+                    onClick={this.open} >
+                {this.props.mode == 'create' ? _("Create VM") : _("Import VM")}
             </Button>
         );
         if (!this.state.virtInstallAvailable)
@@ -841,6 +846,7 @@ export class CreateVmAction extends React.Component {
                 { createButton }
                 { this.state.showModal &&
                 <CreateVmModal
+                    mode={this.props.mode}
                     providerName={this.props.providerName}
                     close={this.close} dispatch={this.props.dispatch}
                     networks={this.props.networks}
@@ -857,6 +863,7 @@ export class CreateVmAction extends React.Component {
 }
 
 CreateVmAction.propTypes = {
+    mode: PropTypes.string.isRequired,
     dispatch: PropTypes.func.isRequired,
     networks: PropTypes.array.isRequired,
     nodeDevices: PropTypes.array.isRequired,

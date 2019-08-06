@@ -1689,15 +1689,6 @@ class TestMachines(NetworkCase):
                                                                 os_name=config.CIRROS, start_vm=False),
                                           {"Source": "Installation Source should not be empty"})
 
-        # When switching between no pxe installation modes with the source already set
-        # make sure that the source is intact
-        createTest(TestMachines.VmDialog(self, sourceType='file',
-                                         sourceTypeSecondChoice='disk_image',
-                                         location=config.NOVELL_MOCKUP_ISO_PATH,
-                                         memory_size=256, memory_size_unit='MiB',
-                                         os_name=config.OPENBSD_6_3,
-                                         start_vm=False))
-
         # Test that removing virt-install executable will disable Create VM button
         self.machine.execute('rm $(which virt-install)')
         self.browser.reload()
@@ -1799,7 +1790,11 @@ class TestMachines(NetworkCase):
         def open(self):
             b = self.browser
 
-            b.click("#create-new-vm")
+            if self.sourceType == 'disk_image':
+                b.click("#import-vm-disk")
+            else:
+                b.click("#create-new-vm")
+
             b.wait_present("#create-vm-dialog")
             b.wait_in_text(".modal-dialog .modal-header .modal-title", "Create New Virtual Machine")
 
@@ -1848,7 +1843,10 @@ class TestMachines(NetworkCase):
             b = self.browser
             b.set_input_text("#vm-name", self.name)
 
-            b.select_from_dropdown("#source-type", getSourceTypeLabel(self.sourceType))
+            if self.sourceType != 'disk_image':
+                b.select_from_dropdown("#source-type", getSourceTypeLabel(self.sourceType))
+            else:
+                b.wait_not_present("#source-type")
             if self.sourceType == 'file':
                 b.set_file_autocomplete_val("#source-file", self.location)
             elif self.sourceType == 'disk_image':
@@ -1861,7 +1859,7 @@ class TestMachines(NetworkCase):
             if self.sourceTypeSecondChoice:
                 b.select_from_dropdown("#source-type", getSourceTypeLabel(self.sourceTypeSecondChoice))
 
-            if not self.sourceType == 'disk_image' and not self.sourceTypeSecondChoice == 'disk_image':
+            if self.sourceType != 'disk_image':
                 b.wait_visible("#storage-pool-select")
                 b.select_from_dropdown("#storage-pool-select", self.storage_pool)
 
@@ -2138,7 +2136,7 @@ class TestMachines(NetworkCase):
             b.click("#vm-{0}-disks".format(name)) # open the "Disks" subtab
 
             # Test disk got imported/created
-            if dialog.sourceType == 'disk_image' or dialog.sourceTypeSecondChoice == 'disk_image':
+            if dialog.sourceType == 'disk_image':
                 if b.is_present("#vm-{0}-disks-vda-device".format(name)):
                     b.wait_in_text("#vm-{0}-disks-vda-source-file".format(name), dialog.location)
                 elif b.is_present("#vm-{0}-disks-hda-device".format(name)):

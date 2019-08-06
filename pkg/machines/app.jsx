@@ -105,17 +105,14 @@ class App extends React.Component {
         const { vms, config, storagePools, systemInfo, ui, networks, nodeDevices, interfaces } = this.props.store.getState();
         const path = this.state.path;
         const dispatch = this.props.store.dispatch;
-        const createVmAction = (
-            <CreateVmAction dispatch={dispatch}
-                providerName={config.provider ? config.provider.name : 'Libvirt'}
-                networks={networks}
-                nodeDevices={nodeDevices}
-                nodeMaxMemory={config.nodeMaxMemory}
-                onAddErrorNotification={this.onAddErrorNotification}
-                storagePools={storagePools}
-                systemInfo={systemInfo}
-                vms={vms} />
-        );
+        let properties = {
+            dispatch, providerName:config.provider ? config.provider.name : 'Libvirt',
+            networks, nodeDevices, nodeMaxMemory: config.nodeMaxMemory,
+            onAddErrorNotification: this.onAddErrorNotification,
+            storagePools, systemInfo, vms };
+        const createVmAction = <CreateVmAction {...properties} mode='create' />;
+        const importDiskAction = <CreateVmAction {...properties} mode='import' />;
+        const vmActions = <div> {createVmAction} {importDiskAction} </div>;
 
         // Show libvirtSlate component if libvirtd is not running only to users that are allowed to start the service.
         if (systemInfo.libvirtService.activeState !== 'running' && (this.state.allowed === undefined || this.state.allowed)) {
@@ -153,7 +150,7 @@ class App extends React.Component {
                     dispatch={dispatch}
                     interfaces={interfaces}
                     networks={networks}
-                    actions={createVmAction}
+                    actions={vmActions}
                     resourceHasError={this.state.resourceHasError}
                     onAddErrorNotification={this.onAddErrorNotification}
                     nodeDevices={nodeDevices} />

@@ -206,7 +206,10 @@ class MachinesLib(SeleniumTest):
                         storage=10,
                         storage_unit='G',
                         immediately_start=False):
-        self.click(self.wait_css('#create-new-vm', cond=clickable))
+        if source_type == 'disk_image':
+            self.click(self.wait_css('#import-vm-disk', cond=clickable))
+        else:
+            self.click(self.wait_css('#create-new-vm', cond=clickable))
         self.wait_css('#create-vm-dialog')
 
         if connection == 'session':
@@ -214,7 +217,8 @@ class MachinesLib(SeleniumTest):
 
         self.send_keys(self.wait_css('#vm-name'), name)
 
-        self.select_by_value(self.wait_css('#source-type'), source_type)
+        if source_type != 'disk_image':
+            self.select_by_value(self.wait_css('#source-type'), source_type)
 
         filename = source.rsplit("/", 1)[-1]
         if source_type in ['file', 'disk_image']:

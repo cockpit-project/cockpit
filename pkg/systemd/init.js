@@ -378,6 +378,30 @@ $(function() {
         $("#services-text-filter").on("input", render);
         $(document).on("click", "#clear-all-filters", clear_filters);
 
+        let some_failed = false;
+
+        function process_failed_units() {
+            let old_some_failed = some_failed;
+            some_failed = false;
+            for (let p in units_by_path) {
+                if (units_by_path[p].ActiveState == "failed") {
+                    some_failed = true;
+                    break;
+                }
+            }
+            if (some_failed != old_some_failed) {
+                console.log("SOME FAILED", some_failed);
+                cockpit.transport.control("notify",
+                                          { "notify":
+                                            { "page_status":
+                                              { "path": "system/services",
+                                                "status": some_failed ? "warning" : null
+                                              }
+                                            }
+                                          });
+            }
+        }
+
         var update_run = 0;
 
         function update_all() {
@@ -482,6 +506,7 @@ $(function() {
                             return;
                         for (var i = 0; i < result.length; i++)
                             record_unit_state(result[i]);
+                        process_failed_units();
                         systemd_manager.ListUnitFiles()
                                 .fail(fail)
                                 .done(function(result) {
@@ -507,8 +532,10 @@ $(function() {
 
         $(systemd_manager).on("JobNew JobRemoved", function(event, number, path, unit_id, result) {
             var unit_path = path_by_id[unit_id];
-            if (unit_path)
+            if (unit_path) {
                 refresh_properties(unit_path);
+                process_failed_units();
+            }
         });
 
         systemd_client.subscribe({ 'interface': "org.freedesktop.DBus.Properties",
@@ -519,6 +546,7 @@ $(function() {
                                      if (unit) {
                                          update_properties(unit, args[1]);
                                          render();
+                                         process_failed_units();
                                      }
                                  });
 

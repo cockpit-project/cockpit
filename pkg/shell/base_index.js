@@ -423,6 +423,9 @@ function Router(index) {
             } else if (control.command == "oops") {
                 index.show_oops();
                 return;
+            } else if (control.command == "notify") {
+                index.handle_notifications(source.default_host, control.notify);
+                return;
 
             /* Only control messages with a channel are forwardable */
             } else if (control.channel === undefined && !forward_command) {

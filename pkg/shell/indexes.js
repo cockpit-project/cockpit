@@ -33,6 +33,10 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
     index_options.navigate = function (state, sidebar) {
         return navigate(state, sidebar);
     };
+    index_options.handle_notifications = function (host, data) {
+        if (data.page_status)
+            machines.overlay(host, { "page_status": { [data.page_status.path]: data.page_status.status } });
+    };
     var index = base_index.new_index_from_proto(index_options);
 
     /* Restarts */
@@ -268,12 +272,21 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
         function links(component) {
             var active = state.component === component.path;
             var listItem;
+            var status = null;
+
+            if (machine.page_status)
+                status = machine.page_status[component.path];
+
+            if (status)
+                status = " (" + status + ")";
+            else
+                status = "";
 
             listItem = $("<li class='list-group-item'>")
                     .toggleClass("active", active)
                     .append($("<a>")
                             .attr("href", index.href({ host: machine.address, component: component.path, hash: component.hash }))
-                            .append($("<span>").text(component.label)));
+                            .append($("<span>").text(component.label + status)));
 
             if (active)
                 listItem.find('a').attr("aria-current", "page");

@@ -486,6 +486,11 @@ test_ws_idle (TestCase *tc, gconstpointer data)
 
   /* ws process should disappear after idle wait */
   sleep (3);
+
+  /* run the mainloop to collect the zombie */
+  while (server_poll_event (0))
+    ;
+
   /* process is gone */
   g_assert_cmpint (waitpid (0, NULL, WNOHANG), ==, -1);
   g_assert_cmpint (errno, ==, ECHILD);

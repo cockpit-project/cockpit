@@ -36,6 +36,7 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <sys/epoll.h>
+#include <sys/eventfd.h>
 #include <sys/wait.h>
 
 #include <gnutls/gnutls.h>
@@ -84,12 +85,28 @@ static struct {
                 rval = cmd; \
         } while(rval == GNUTLS_E_AGAIN || rval == GNUTLS_E_INTERRUPTED)
 
+static int cleanup_children_eventfd = -1;
+
 static void
 handle_sigchld (int signal)
 {
-  /* we can't use SA_SIGINFO and si_pid, as multiple queued SIGCHLDs get merged
-   * into one handler call, see signal(7); mop up all children */
+  const uint64_t one = 1;
+  ssize_t s;
+
+  s = write (cleanup_children_eventfd, &one, sizeof one);
+  assert (s == sizeof one);
+}
+
+static void
+handle_child_exit (void)
+{
+  uint64_t value;
+  ssize_t s;
+
   debug ("got SIGCHLD");
+  s = read (cleanup_children_eventfd, &value, sizeof value);
+  assert (s == sizeof value);
+
   for (;;)
     {
       int status;
@@ -100,26 +117,6 @@ handle_sigchld (int signal)
       debug ("pid %u exited with status %x", pid, status);
       server_remove_ws (pid);
     }
-}
-
-/* This needs to be used in functions changing server.connections and
- * server.wss, so that these get modified without interference from SIGCHLD
- * handler */
-static void block_sigchld (bool block)
-{
-  static sigset_t set;
-  static bool set_inited;
-
-  /* lazy initialization */
-  if (!set_inited)
-    {
-      if (sigemptyset (&set) < 0 || sigaddset (&set, SIGCHLD) < 0)
-        err (1, "failed to initialize SIGCHLD sigset");
-      set_inited = true;
-    }
-
-  if (sigprocmask (block ? SIG_BLOCK : SIG_UNBLOCK, &set, NULL) < 0)
-    err (1, "failed to block SIGCHLD signal");
 }
 
 /**
@@ -167,7 +164,6 @@ remove_connection (int fd, WsInstance *ws)
   Connection *c, *cprev;
   bool found = false;
 
-  block_sigchld (true);
   for (c = server.connections, cprev = NULL; c; )
     {
       Connection *cnext = c->next;
@@ -197,7 +193,6 @@ remove_connection (int fd, WsInstance *ws)
 
       c = cnext;
     }
-  block_sigchld (false);
 
   if (!found)
     debug ("remove_connection: fd %i or ws %s not found in connections", fd, ws ? ws->socket.sun_path : "(unset)");
@@ -225,11 +220,9 @@ connection_init_ws (Connection *c)
       peer_der = gnutls_certificate_get_peers (c->session, NULL);
 
       /* find existing ws server for this peer cert */
-      block_sigchld (true);
       for (ws = server.wss; ws; ws = ws->next)
         if (ws_instance_has_peer_cert (ws, peer_der))
           break;
-      block_sigchld (false);
 
       if (!ws)
         {
@@ -267,10 +260,8 @@ connection_init_ws (Connection *c)
   /* connected, so it's valid; add it to our ws list */
   if (ws_add_tls)
     {
-      block_sigchld (true);
       ws->next = server.wss;
       server.wss = ws;
-      block_sigchld (false);
     }
   if (ws_add_notls)
     server.ws_notls = ws;
@@ -314,10 +305,8 @@ handle_accept (void)
     err (1, "Failed to epoll connection fd");
 
   /* add to our Connections list */
-  block_sigchld (true);
   con->next = server.connections;
   server.connections = con;
-  block_sigchld (false);
 }
 
 /**
@@ -565,8 +554,16 @@ server_init (const char *ws_path,
     err (1, "Failed to epoll server listening fd");
 
   /* track cockpit-ws children */
+  cleanup_children_eventfd = eventfd (0, EFD_NONBLOCK | EFD_CLOEXEC);
+  if (cleanup_children_eventfd == -1)
+    err (1, "failed to create eventfd");
+
+  ev.data.ptr = handle_child_exit;
+  if (epoll_ctl (server.epollfd, EPOLL_CTL_ADD, cleanup_children_eventfd, &ev) < 0)
+    err (1, "Failed to epoll add sigchld handler fd");
+
   if (sigaction (SIGCHLD, &child_action, &server.old_sigchld) < 0)
-      err (1, "Failed to set up SIGCHLD handler");
+    err (1, "Failed to set up SIGCHLD handler");
 
   server.initialized = true;
 }
@@ -585,10 +582,11 @@ server_cleanup (void)
 
   assert (server.initialized);
 
-  block_sigchld (true);
   if (sigaction (SIGCHLD, &server.old_sigchld, NULL) < 0)
-      err (1, "Failed to reset SIGCHLD handler");
-  block_sigchld (false);
+    err (1, "Failed to reset SIGCHLD handler");
+
+  close (cleanup_children_eventfd);
+  cleanup_children_eventfd = -1;
 
   for (Connection *c = server.connections; c; )
     {
@@ -645,12 +643,15 @@ server_poll_event (int timeout)
     {
       if (ev.data.ptr == &server)
         handle_accept ();
+      else if (ev.data.ptr == handle_child_exit)
+        handle_child_exit ();
       else if (ev.events & EPOLLIN)
         handle_connection_data (ev.data.ptr);
-      /* this ought to be handled by recv() == 0 (EOF) already, but make sure
-       * we clean up hanged up connections */
       else if (ev.events & EPOLLHUP)
+        /* this ought to be handled by recv() == 0 (EOF) already, but make sure
+         * we clean up hanged up connections */
         handle_hangup (ev.data.ptr);
+
       return true;
     }
 

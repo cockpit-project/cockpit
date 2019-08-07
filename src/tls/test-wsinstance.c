@@ -59,8 +59,10 @@ setup (TestCase *tc, gconstpointer data)
    {
      gnutls_datum_t peer_pem;
      gnutls_x509_crt_t peer_cert;
+     gsize cert_pem_length;
 
-     g_assert (g_file_get_contents (fixture->cert_pem, (gchar**) &peer_pem.data, (gsize*) &peer_pem.size, NULL));
+     g_assert (g_file_get_contents (fixture->cert_pem, (gchar**) &peer_pem.data, &cert_pem_length, NULL));
+     peer_pem.size = cert_pem_length;
      g_assert (gnutls_x509_crt_init (&peer_cert) >= 0);
      g_assert (gnutls_x509_crt_import (peer_cert, &peer_pem, GNUTLS_X509_FMT_PEM) >= 0);
      g_assert (gnutls_x509_crt_export2 (peer_cert, GNUTLS_X509_FMT_DER, &peer_der) >= 0);

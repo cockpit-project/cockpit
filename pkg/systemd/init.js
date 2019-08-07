@@ -282,8 +282,19 @@ $(function() {
                     .toLowerCase();
             var current_type_filter = parseInt($('#services-dropdown').val());
 
-            function cmp_path(a, b) { return units_by_path[a].Id.localeCompare(units_by_path[b].Id) }
-            var sorted_keys = Object.keys(units_by_path).sort(cmp_path);
+            function cmp_units(a, b) {
+                let unit_a = units_by_path[a];
+                let unit_b = units_by_path[b];
+                let failed_a = unit_a.ActiveState == "failed" ? 1 : 0;
+                let failed_b = unit_b.ActiveState == "failed" ? 1 : 0;
+
+                if (failed_a != failed_b)
+                    return failed_b - failed_a;
+                else
+                    return unit_a.Id.localeCompare(unit_b.Id);
+            }
+
+            var sorted_keys = Object.keys(units_by_path).sort(cmp_units);
             var units = [ ];
             var header = {
                 Description: _("Description"),

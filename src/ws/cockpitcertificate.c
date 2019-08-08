@@ -199,13 +199,12 @@ sscg_make_dummy_cert (const gchar *key_file,
                       const gchar *ca_file,
                       GError **error)
 {
-  gboolean ret = FALSE;
   gint exit_status;
-  gchar *stderr_str = NULL;
-  gchar *command_line = NULL;
-  gchar *cn = get_common_name ();
-  gchar *machine_id = get_machine_id ();
-  gchar *org;
+  g_autofree gchar *stderr_str = NULL;
+  g_autofree gchar *command_line = NULL;
+  g_autofree gchar *cn = get_common_name ();
+  g_autofree gchar *machine_id = get_machine_id ();
+  const gchar *org = NULL;
 
   if (machine_id)
     org = machine_id;
@@ -237,30 +236,23 @@ sscg_make_dummy_cert (const gchar *key_file,
       g_info ("Error generating temporary dummy cert using sscg, "
               "falling back to openssl");
       g_clear_error (error);
-      goto out;
+      return FALSE;
     }
 
-  ret = TRUE;
-
-out:
-  g_free (stderr_str);
-  g_free (command_line);
-  g_free (machine_id);
-  g_free (cn);
-  return ret;
+  return TRUE;
 }
 
 gchar *
 cockpit_certificate_create_selfsigned (GError **error)
 {
-  gchar *dir = NULL;
-  gchar *cert_path = NULL;
-  gchar *ca_path = NULL;
-  gchar *tmp_key = NULL;
-  gchar *tmp_pem = NULL;
-  gchar *cert_data = NULL;
-  gchar *pem_data = NULL;
-  gchar *key_data = NULL;
+  g_autofree gchar *dir = NULL;
+  g_autofree gchar *cert_path = NULL;
+  g_autofree gchar *ca_path = NULL;
+  g_autofree gchar *tmp_key = NULL;
+  g_autofree gchar *tmp_pem = NULL;
+  g_autofree gchar *cert_data = NULL;
+  g_autofree gchar *pem_data = NULL;
+  g_autofree gchar *key_data = NULL;
   gchar *ret = NULL;
 
   dir = g_build_filename (cockpit_conf_get_dirs ()[0], "cockpit", "ws-certs.d", NULL);
@@ -321,20 +313,12 @@ cockpit_certificate_create_selfsigned (GError **error)
   cert_path = NULL;
 
 out:
-  g_free (cert_path);
-  g_free (ca_path);
   cockpit_memory_clear (key_data, -1);
-  g_free (key_data);
-  g_free (pem_data);
   cockpit_memory_clear (cert_data, -1);
-  g_free (cert_data);
   if (tmp_key)
     g_unlink (tmp_key);
   if (tmp_pem)
     g_unlink (tmp_pem);
-  g_free (tmp_key);
-  g_free (tmp_pem);
-  g_free (dir);
   return ret;
 }
 

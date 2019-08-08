@@ -560,7 +560,7 @@ server_init (const char *ws_path,
   server.epollfd = epoll_create1 (EPOLL_CLOEXEC);
   if (server.epollfd < 0)
     err (1, "Failed to create epoll fd");
-  ev.data.fd = server.listen_fd;
+  ev.data.ptr = &server;
   if (epoll_ctl (server.epollfd, EPOLL_CTL_ADD, server.listen_fd, &ev) < 0)
     err (1, "Failed to epoll server listening fd");
 
@@ -643,7 +643,7 @@ server_poll_event (int timeout)
     }
   else if (ret > 0)
     {
-      if (ev.data.fd == server.listen_fd)
+      if (ev.data.ptr == &server)
         handle_accept ();
       else if (ev.events & EPOLLIN)
         handle_connection_data (ev.data.ptr);

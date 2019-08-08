@@ -191,17 +191,17 @@ Unit=test.service
 
         # Check test.service and then start it
         b.click(svc_sel("test.service"))
-        self.check_service_details(["Not running", "Automatically starts"], ["Start", "Reload", "Disallow running (mask)"], True)
+        self.check_service_details(["Not running", "Automatically starts"], ["Start", "Disallow running (mask)"], True)
         self.do_action("Start")
-        self.check_service_details(["Running", "Automatically starts"], ["Restart", "Reload", "Disallow running (mask)"], True)
+        self.check_service_details(["Running", "Automatically starts"], ["Reload", "Restart", "Stop", "Disallow running (mask)"], True)
         b.wait_in_text('#service-log', "START")
         b.wait_in_text('#service-log', "WORKING")
 
         # Stop and disable and back again
         self.toggle_onoff()
-        self.check_service_details(["Disabled"], ["Disallow running (mask)"], False)
+        self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)"], False)
         self.toggle_onoff()
-        self.check_service_details(["Running", "Automatically starts"], ["Restart", "Reload", "Disallow running (mask)"], True)
+        self.check_service_details(["Running", "Automatically starts"], ["Reload", "Restart", "Stop", "Disallow running (mask)"], True)
 
         # Check without permissions
         self.allow_authorize_journal_messages()
@@ -211,14 +211,14 @@ Unit=test.service
         b.relogin('/system/services#/test.service', authorized=True)
 
         self.toggle_onoff() # later on we need some disabled test
-        self.check_service_details(["Disabled"], ["Disallow running (mask)"], False)
+        self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)"], False)
 
         # Check service that fails to start
         b.go("#/")
         b.click(svc_sel("test-fail.service"))
-        self.check_service_details(["Disabled"], ["Disallow running (mask)"], False)
+        self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)"], False)
         self.toggle_onoff()
-        self.check_service_details(["Failed to start", "Automatically starts"], ["Start", "Reload", "Disallow running (mask)"], True)
+        self.check_service_details(["Failed to start", "Automatically starts"], ["Start", "Disallow running (mask)"], True)
         b.click(".action-button:contains('Start Service')")
         b.go("#/")
         self.wait_service_present("test-fail.service")
@@ -226,14 +226,14 @@ Unit=test.service
 
         # Check static service
         b.click(svc_sel("systemd-halt.service"))
-        self.check_service_details(["Static", "Not running"], ["Disallow running (mask)"], True, onoff=False)
+        self.check_service_details(["Static", "Not running"], ["Start", "Disallow running (mask)"], True, onoff=False)
 
         # Mask and unmask
         self.do_action("Disallow running (mask)")
         b.click(".modal-dialog .btn-danger")
         self.check_service_details(["Masked"], ["Allow running (unmask)"], False, onoff=False)
         self.do_action("Allow running (unmask)")
-        self.check_service_details(["Static", "Not running"], ["Disallow running (mask)"], True, onoff=False)
+        self.check_service_details(["Static", "Not running"], ["Start", "Disallow running (mask)"], True, onoff=False)
 
 
         # Instantiate a template
@@ -243,7 +243,7 @@ Unit=test.service
         b.set_input_text("#service-details input", "//param-f//o//o//")
         b.click("#service-details button")
         b.wait_text(".service-name", "Test Template for param-f/o/o")
-        self.check_service_details(["Static", "Not running"], ["Disallow running (mask)"], True, onoff=False)
+        self.check_service_details(["Static", "Not running"], ["Start", "Disallow running (mask)"], True, onoff=False)
         b.wait_in_text("#service-details", "Instance of template: test-template@.service")
         b.click("#service-details .ct-form a:contains('test-template@.service')")
         b.wait_visible("#service-details input")
@@ -653,14 +653,14 @@ WantedBy=multi-user.target
 
         b.wait_in_text(svc_sel("condtest.service"), "Enabled")
         b.click(svc_sel("condtest.service"))
-        self.check_service_details(["Not running", "Automatically starts"], ["Start", "Reload", "Disallow running (mask)"], True)
+        self.check_service_details(["Not running", "Automatically starts"], ["Start", "Disallow running (mask)"], True)
         self.do_action("Start")
         b.wait_text("#condition", "Condition ConditionDirectoryNotEmpty=/var/tmp/empty was not met")
 
         # If the condition succeeds the message disappears
         m.execute("touch /var/tmp/empty/non-empty")
         self.do_action("Start")
-        self.check_service_details(["Running", "Automatically starts"], ["Restart", "Reload", "Disallow running (mask)"], True)
+        self.check_service_details(["Running", "Automatically starts"], ["Reload", "Restart", "Stop", "Disallow running (mask)"], True)
         b.wait_not_present("#condition")
 
     @skipImage("Reworked in #12265", "rhel-8-0-distropkg")

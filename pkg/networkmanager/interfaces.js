@@ -1157,7 +1157,7 @@ function NetworkManagerModel() {
 
     var type_ActiveConnection = {
         interfaces: [
-            "org.freedesktop.NetworkManager.Connection.Active",
+            "org.freedesktop.NetworkManager.Connection.Active"
         ],
 
         props: {
@@ -1337,26 +1337,6 @@ function NetworkManagerModel() {
                     dfd.reject(e);
                 }
                 return dfd.promise();
-            },
-            list_connections: function() {
-                var dfd = $.Deferred();
-                try {
-                    call_object_method(this,
-                                       'org.freedesktop.NetworkManager.Settings',
-                                       'ListConnection')
-                            .done(function (path) {
-                                dfd.resolve(get_object(path, type_Connection));
-                            })
-                            .fail(function (error) {
-                                dfd.reject(error);
-                            });
-                } catch (e) {
-                    dfd.reject(e);
-                }
-                return dfd.promise();
-                /*    return call_object_method(this,
-                                              'org.freedesktop.NetworkManager.Settings',
-                                              'ListConnections'); */
             }
         },
 
@@ -5334,11 +5314,12 @@ PageNetworkModemSettings.prototype = {
 
         var device_choices = [];
         PageNetworkModemSettings.model.list_interfaces().forEach(function (i) {
-            if (!i.Device)
-                device_choices.push({ title: "Not detected", choice: "" });
-            else if (is_interesting_interface(i) && i.Device && i.Device.DeviceType === "modem")
+            if (is_interesting_interface(i) && i.Device && i.Device.DeviceType === "modem")
                 device_choices.push({ title: i.Name, choice: i.Device.Interface });
         });
+
+        if (device_choices.length == 0)
+            device_choices.push({ title: "Not detected", choice: "" });
 
         function choicebox(env, subenv, choices, klass) {
             var btn = select_btn(
@@ -5720,11 +5701,12 @@ PageNetworkWiFiSettings.prototype = {
 
         var device_choices = [];
         PageNetworkWiFiSettings.model.list_interfaces().forEach(function (i) {
-            if (!i.Device)
-                device_choices.push({ title: "Not detected", choice: "" });
-            else if (is_interesting_interface(i) && i.Device && i.Device.DeviceType === "wifi")
+            if (is_interesting_interface(i) && i.Device && i.Device.DeviceType === "wifi")
                 device_choices.push({ title: i.Name, choice: i.Device.Interface });
         });
+
+        if (device_choices.length == 0)
+            device_choices.push({ title: "Not detected", choice: "" });
 
         function search_choices(array, value) {
             for (var i = 0; i < array.length; i++) {

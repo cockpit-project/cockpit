@@ -755,6 +755,9 @@ $(function() {
     function update() {
         var path = cockpit.location.path;
 
+        if (!systemd_manager.valid)
+            return;
+
         if (path.length === 0) {
             show_unit(null);
             $("#services").show();
@@ -771,6 +774,7 @@ $(function() {
     }
 
     $(cockpit).on("locationchanged", update);
+    $(cockpit).on("visibilitychange", update);
 
     $('#service-navigate-home').on("click", function() {
         cockpit.location.go('/');

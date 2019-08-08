@@ -102,7 +102,7 @@ setup (TestCase *tc,
   if (fix->ensure)
     {
       cockpit_expect_info ("Generating temporary certificate*");
-      cockpit_expect_info ("Error generating temporary dummy cert using sscg, falling back to openssl*");
+      cockpit_expect_info ("Error generating temporary dummy cert using sscg:*; falling back to openssl*");
       g_ptr_array_add (ptr, "--ensure");
     }
   g_ptr_array_add (ptr, "--user");

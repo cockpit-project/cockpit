@@ -31,6 +31,8 @@
 
 #include <errno.h>
 #include <string.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 static gchar *
 get_common_name (void)
@@ -194,8 +196,7 @@ out:
 }
 
 static gboolean
-sscg_make_dummy_cert (const gchar *key_file,
-                      const gchar *cert_file,
+sscg_make_dummy_cert (const gchar *cert_key_file,
                       const gchar *ca_file,
                       GError **error)
 {
@@ -204,7 +205,12 @@ sscg_make_dummy_cert (const gchar *key_file,
   g_autofree gchar *command_line = NULL;
   g_autofree gchar *cn = get_common_name ();
   g_autofree gchar *machine_id = get_machine_id ();
+  g_autofree gchar *cert_key_file_tmp = g_strdup_printf ("%s.tmp", cert_key_file);
+  g_autofree gchar *ca_pem = NULL;
   const gchar *org = NULL;
+  gsize ca_pem_length;
+  int fd;
+  int r;
 
   if (machine_id)
     org = machine_id;
@@ -215,8 +221,8 @@ sscg_make_dummy_cert (const gchar *key_file,
     "sscg", "--quiet",
     "--lifetime", "3650",
     "--key-strength", "2048",
-    "--cert-key-file", key_file,
-    "--cert-file", cert_file,
+    "--cert-key-file", cert_key_file_tmp,
+    "--cert-file", cert_key_file_tmp,
     "--ca-file", ca_file,
     "--hostname", cn,
     "--organization", org,
@@ -231,11 +237,37 @@ sscg_make_dummy_cert (const gchar *key_file,
   if (!g_spawn_sync (NULL, (gchar **)argv, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL,
                      NULL, &stderr_str, &exit_status, error) ||
       !g_spawn_check_exit_status (exit_status, error))
+    return FALSE;
+
+  /* append the CA to the .cert file, so that the web server sends the whole chain */
+  if (!g_file_get_contents (ca_file, &ca_pem, &ca_pem_length, error))
+    return FALSE;
+
+  fd = open (cert_key_file_tmp, O_WRONLY | O_APPEND);
+  if (fd < 0)
     {
-      /* Failure of SSCG is non-fatal */
-      g_info ("Error generating temporary dummy cert using sscg, "
-              "falling back to openssl");
-      g_clear_error (error);
+      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errno), "Failed to open %s for appending: %s", cert_key_file_tmp, g_strerror (errno));
+      return FALSE;
+    }
+  r = write (fd, ca_pem, ca_pem_length);
+  if (r < 0)
+    {
+      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errno), "Failed to write to %s: %s", cert_key_file_tmp, g_strerror (errno));
+      close (fd);
+      return FALSE;
+    }
+  close (fd);
+  if (r != ca_pem_length)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Short write to %s, only %i out of %" G_GSIZE_FORMAT " bytes",
+                   cert_key_file_tmp, r, ca_pem_length);
+      return FALSE;
+    }
+
+  if (rename (cert_key_file_tmp, cert_key_file) < 0)
+    {
+      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errno), "Failed to rename %s: %s", cert_key_file_tmp, g_strerror (errno));
       return FALSE;
     }
 
@@ -280,16 +312,18 @@ cockpit_certificate_create_selfsigned (GError **error)
     }
 
   /* First, try to create a private CA and certificate using SSCG */
-  if (sscg_make_dummy_cert (cert_path, cert_path, ca_path, error))
+  if (sscg_make_dummy_cert (cert_path, ca_path, error))
     {
       /* Creation with SSCG succeeded, so we are done now */
       ret = cert_path;
       cert_path = NULL;
       goto out;
     }
-  g_clear_error (error);
 
-  /* Fall back to using the openssl CLI */
+  /* Failure of SSCG is non-fatal; fall back to using the openssl CLI */
+  g_info ("Error generating temporary dummy cert using sscg: %s; falling back to openssl",
+          (*error)->message);
+  g_clear_error (error);
 
   tmp_key = create_temp_file (dir, "0-self-signed.XXXXXX.tmp", error);
   if (!tmp_key)

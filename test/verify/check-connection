@@ -232,6 +232,27 @@ class TestConnection(MachineCase):
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --head http://127.0.0.1:9090"))
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --head http://172.27.0.15:9090"))
 
+    @skipImage("Fixed in PR #12530", "rhel-8-0-distropkg")
+    def testSSCG(self):
+        m = self.machine
+
+        m.start_cockpit(tls=True)
+        output = m.execute("openssl s_client -connect 172.27.0.15:9090 2>&1")
+        self.assertIn("DONE", output)
+        self.assertRegex(output, "0 s:.*CN *=")
+        self.assertRegex(output, "i:.*CN *=")
+
+        # on OSes without sscg we expect a self-signed certificate
+        if m.image in ["debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-1804"]:
+            # no intermediate
+            self.assertNotRegex(output, "i:.*OU *= *ca-")
+            # no second certificate
+            self.assertNotIn("\n1 s", output)
+        else:
+            # has intermediate
+            self.assertRegex(output, "i:.*OU *= *ca-")
+            self.assertRegex(output, "1 s:.*CN *= *")
+
     def testConfigOrigins(self):
         m = self.machine
         m.execute(

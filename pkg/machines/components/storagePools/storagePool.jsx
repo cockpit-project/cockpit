@@ -110,7 +110,7 @@ export class StoragePool extends React.Component {
                 extraClasses={extraClasses}
                 columns={cols}
                 tabRenderers={tabRenderers}
-                listingActions={<StoragePoolActions onAddErrorNotification={this.props.onAddErrorNotification} storagePool={storagePool} />} />
+                listingActions={<StoragePoolActions onAddErrorNotification={this.props.onAddErrorNotification} storagePool={storagePool} vms={vms} />} />
         );
     }
 }
@@ -153,7 +153,7 @@ class StoragePoolActions extends React.Component {
     }
 
     render() {
-        const { storagePool } = this.props;
+        const { storagePool, vms } = this.props;
         const id = storagePoolId(storagePool.name, storagePool.connectionName);
 
         return (
@@ -167,7 +167,7 @@ class StoragePoolActions extends React.Component {
                     {_("Activate")}
                 </Button>
                 }
-                <StoragePoolDelete storagePool={storagePool} />
+                <StoragePoolDelete storagePool={storagePool} vms={vms} />
             </React.Fragment>
         );
     }

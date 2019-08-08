@@ -110,7 +110,7 @@ export class StoragePool extends React.Component {
                 extraClasses={extraClasses}
                 columns={cols}
                 tabRenderers={tabRenderers}
-                listingActions={<StoragePoolActions onAddErrorNotification={this.props.onAddErrorNotification} storagePool={storagePool} />} />
+                listingActions={<StoragePoolActions onAddErrorNotification={this.props.onAddErrorNotification} storagePool={storagePool} vms={vms} />} />
         );
     }
 }
@@ -158,7 +158,7 @@ class StoragePoolActions extends React.Component {
     }
 
     render() {
-        const { storagePool } = this.props;
+        const { storagePool, vms } = this.props;
         const id = storagePoolId(storagePool.name, storagePool.connectionName);
         let deactivateButton = (
             <Button id={`deactivate-${id}`} disabled={this.state.operationInProgress} onClick={this.onDeactivate}>
@@ -187,7 +187,7 @@ class StoragePoolActions extends React.Component {
             <React.Fragment>
                 { storagePool.active && deactivateButton }
                 { !storagePool.active && activateButton }
-                <StoragePoolDelete storagePool={storagePool} />
+                <StoragePoolDelete storagePool={storagePool} vms={vms} />
             </React.Fragment>
         );
     }

@@ -396,6 +396,27 @@ OnCalendar=daily
 
         self.allow_restart_journal_messages()
 
+    @skipImage("Preloading implemented in #12534", "rhel-8-0-distropkg")
+    def testShellPreload(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go()
+
+        # Check what's going on while playground/preloaded is still invisible
+        b.switch_to_top()
+        b.wait_present('iframe[name="cockpit1:localhost/playground/preloaded"][data-loaded]')
+        b.switch_to_frame("cockpit1:localhost/playground/preloaded")
+        b.wait_js_func('ph_text_is', "#host", m.execute("hostname").replace("\n", ""))
+        time.sleep(3)
+        b.wait_js_func('ph_text_is', "#release", "")
+
+        # Now navigate to it.
+        b.switch_to_top()
+        b.click("a[href='/playground/preloaded']")
+        b.enter_page("/playground/preloaded")
+        b.wait_text("#release", m.execute("cat /etc/os-release").replace("\n", ""))
+
     def testReactPatterns(self):
         b = self.browser
         m = self.machine

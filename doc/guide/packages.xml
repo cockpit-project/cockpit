@@ -118,6 +118,21 @@ $ cockpit-bridge --packages
         <term>version</term>
         <listitem><para>An informational version number for the package.</para></listitem>
       </varlistentry>
+      <varlistentry>
+        <term>preload</term>
+        <listitem><para>A list of identifiers of the
+        components that should be preloaded.  Normally, the files of a
+        component are loaded when the user navigates to it for the
+        first time.  The files of a preloaded component are loaded
+        immediately after the user logs in, and the initialization
+        code of the component is invoked.
+        </para><para>
+        The value of this field is an array of strings, where each
+        string is one of the keys used in the <code>dashboard</code>,
+        <code>menu</code>, or <code>tool</code> fields that are
+        explained below.
+        </para></listitem>
+      </varlistentry>
     </variablelist>
 
     <para>In addition, the following keys contain information about where components of the package
@@ -147,7 +162,7 @@ $ cockpit-bridge --packages
       </varlistentry>
       <varlistentry>
         <term>tools</term>
-        <listitem><para>These items also appear in the sidebar for an individual machine, but are 
+        <listitem><para>These items also appear in the sidebar for an individual machine, but are
         put in a lower position, next to Cockpit's <emphasis>Terminal</emphasis>.
         </para></listitem>
       </varlistentry>

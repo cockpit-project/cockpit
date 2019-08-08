@@ -106,6 +106,11 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
         index.ready();
     }
 
+    function preload_frames () {
+        for (let m of machines.list)
+            index.preload_frames(m, m.manifests);
+    }
+
     /* When the machine list is ready we start processing navigation */
     $(machines)
             .on("ready", on_ready)
@@ -116,6 +121,7 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
                     index.frames.remove(machine);
 
                 update_machines();
+                preload_frames();
                 if (ready)
                     navigate();
             })

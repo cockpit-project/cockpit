@@ -68,6 +68,9 @@ var info = {
         "playground/translate": [
             "playground/translate",
         ],
+        "playground/preloaded": [
+            "playground/preloaded.js",
+        ],
 
         "realmd/domain": [
             "realmd/operation.js",
@@ -178,6 +181,7 @@ var info = {
         "playground/speed.html",
         "playground/test.html",
         "playground/translate.html",
+        "playground/preloaded.html",
 
         "selinux/setroubleshoot.html",
 

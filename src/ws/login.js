@@ -764,6 +764,10 @@
          */
         if (url_root)
             localStorage.setItem('url-root', url_root);
+
+        var ca_cert_url = environment["CACertUrl"];
+        if (ca_cert_url)
+            window.sessionStorage.setItem('CACertUrl', ca_cert_url);
     }
 
     function run(response) {

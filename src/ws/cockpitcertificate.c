@@ -335,6 +335,32 @@ cockpit_certificate_locate_gerror (GError **error)
   return path;
 }
 
+gchar *
+cockpit_certificate_locate_selfsign_ca ()
+{
+  g_autofree gchar *cert_path = NULL;
+  g_autofree gchar *base = NULL;
+  gchar *ca_path = NULL;
+
+  cert_path = cockpit_certificate_locate_gerror (NULL);
+  if (cert_path)
+    {
+      base = g_path_get_basename (cert_path);
+      if (g_strcmp0 (base, "0-self-signed.cert") == 0)
+        {
+          g_autofree gchar *dir = g_path_get_dirname (cert_path);
+          ca_path = g_build_filename (dir, "0-self-signed-ca.pem", NULL);
+          if (!g_file_test (ca_path, G_FILE_TEST_EXISTS))
+            {
+              g_free (ca_path);
+              ca_path = NULL;
+            }
+        }
+    }
+
+  return ca_path;
+}
+
 static gint
 tls_certificate_count (GTlsCertificate *cert)
 {

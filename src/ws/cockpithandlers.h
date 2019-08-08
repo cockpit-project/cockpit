@@ -71,4 +71,10 @@ gboolean       cockpit_handler_ping              (CockpitWebServer *server,
                                                   CockpitWebResponse *response,
                                                   CockpitHandlerData *ws);
 
+gboolean       cockpit_handler_ca_cert           (CockpitWebServer *server,
+                                                  const gchar *path,
+                                                  GHashTable *headers,
+                                                  CockpitWebResponse *response,
+                                                  CockpitHandlerData *ws);
+
 #endif /* __COCKPIT_HANDLERS_H__ */

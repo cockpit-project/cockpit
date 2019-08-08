@@ -26,6 +26,7 @@
 #include "cockpitchannelsocket.h"
 #include "cockpitwebservice.h"
 #include "cockpitws.h"
+#include "cockpitcertificate.h"
 
 #include "common/cockpitconf.h"
 #include "common/cockpitjson.h"
@@ -309,6 +310,7 @@ build_environment (GHashTable *os_release)
   JsonObject *object;
   const gchar *value;
   gchar *hostname;
+  g_autofree gchar *ca_path;
   JsonObject *osr;
   gint i;
 
@@ -334,6 +336,10 @@ build_environment (GHashTable *os_release)
     }
 
   add_oauth_to_environment (object);
+
+  ca_path = cockpit_certificate_locate_selfsign_ca ();
+  if (ca_path)
+    json_object_set_string_member (object, "CACertUrl", "/ca.cer");
 
   bytes = cockpit_json_write_bytes (object);
   json_object_unref (object);
@@ -718,5 +724,25 @@ cockpit_handler_ping (CockpitWebServer *server,
   g_bytes_unref (content);
   g_hash_table_unref (out_headers);
 
+  return TRUE;
+}
+
+gboolean
+cockpit_handler_ca_cert (CockpitWebServer *server,
+                         const gchar *path,
+                         GHashTable *headers,
+                         CockpitWebResponse *response,
+                         CockpitHandlerData *ws)
+{
+  g_autofree gchar *ca_path = NULL;
+
+  ca_path = cockpit_certificate_locate_selfsign_ca ();
+  if (ca_path == NULL) {
+    cockpit_web_response_error (response, 404, NULL, "CA certificate not found");
+    return TRUE;
+  }
+
+  const gchar *root_dir[] = { "/", NULL };
+  cockpit_web_response_file (response, ca_path, root_dir);
   return TRUE;
 }

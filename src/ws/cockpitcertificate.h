@@ -26,6 +26,7 @@
 G_BEGIN_DECLS
 
 gchar *             cockpit_certificate_locate_gerror      (GError **error);
+gchar *             cockpit_certificate_locate_selfsign_ca (void);
 
 gchar *             cockpit_certificate_create_selfsigned  (GError **error);
 

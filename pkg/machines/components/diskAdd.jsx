@@ -403,7 +403,6 @@ class AddDiskModalBody extends React.Component {
         if (storagePools.length > 0)
             defaultPool = storagePools
                     .map(pool => ({ name: pool.name, type: pool.type }))
-                    .filter(pool => pool != undefined)
                     .sort(sortFunction)[0];
 
         return {
@@ -509,6 +508,7 @@ class AddDiskModalBody extends React.Component {
 
     render() {
         const { vm, storagePools, provider } = this.props;
+        const storagePoolsFiltered = storagePools.filter(pool => pool != undefined);
         const idPrefix = `${this.props.idPrefix}-adddisk`;
 
         const defaultBody = (
@@ -542,7 +542,7 @@ class AddDiskModalBody extends React.Component {
                     <CreateNewDisk idPrefix={`${idPrefix}-new`}
                                    onValueChanged={this.onValueChanged}
                                    dialogValues={this.state}
-                                   vmStoragePools={storagePools}
+                                   vmStoragePools={storagePoolsFiltered}
                                    provider={provider}
                                    vm={vm} />
                 )}
@@ -550,7 +550,7 @@ class AddDiskModalBody extends React.Component {
                     <UseExistingDisk idPrefix={`${idPrefix}-existing`}
                                      onValueChanged={this.onValueChanged}
                                      dialogValues={this.state}
-                                     vmStoragePools={storagePools}
+                                     vmStoragePools={storagePoolsFiltered}
                                      provider={provider}
                                      vm={vm} />
                 )}

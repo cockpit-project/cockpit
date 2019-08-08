@@ -131,10 +131,8 @@ ServiceConfirmDialog.propTypes = {
  *     Unit is masked
  *  - active
  *     Unit is active (running)
- *  - enabled
- *     Unit is enabled
- *  - isStatic
- *     Unit is static
+ *  - canReload
+ *      Unit can be reloaded
  *  - actionCallback
  *      Method for calling unit methods like `UnitStart`
  *  - fileActionCallback
@@ -160,7 +158,7 @@ class ServiceActions extends React.Component {
             );
         } else { // All cases when not masked
             if (this.props.active) {
-                if (this.props.enabled) {
+                if (this.props.canReload) {
                     actions.push(
                         <MenuItem key="reload" onClick={() => this.props.actionCallback("ReloadUnit")}>{ _("Reload") }</MenuItem>
                     );
@@ -207,7 +205,7 @@ class ServiceActions extends React.Component {
 ServiceActions.propTypes = {
     masked: PropTypes.bool.isRequired,
     active: PropTypes.bool.isRequired,
-    enabled: PropTypes.bool.isRequired,
+    canReload: PropTypes.bool,
     actionCallback: PropTypes.func.isRequired,
     fileActionCallback: PropTypes.func.isRequired,
     disabled: PropTypes.bool,
@@ -454,7 +452,7 @@ export class ServiceDetails extends React.Component {
                                             </span>
                                         </OverlayTrigger>
                                     }
-                                    <ServiceActions { ...{ active, enabled, masked } } actionCallback={this.unitAction} fileActionCallback={this.unitFileAction} disabled={this.state.waitsAction || this.state.waitsFileAction} />
+                                    <ServiceActions { ...{ active, enabled, masked } } canReload={this.props.unit.CanReload} actionCallback={this.unitAction} fileActionCallback={this.unitFileAction} disabled={this.state.waitsAction || this.state.waitsFileAction} />
                                 </React.Fragment>
                             }
                         </div>

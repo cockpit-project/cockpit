@@ -83,6 +83,7 @@ Description=Test Service
 
 [Service]
 ExecStart=/bin/sh /usr/local/bin/test-service
+ExecReload=/bin/sh true
 
 [Install]
 WantedBy=default.target
@@ -660,7 +661,7 @@ WantedBy=multi-user.target
         # If the condition succeeds the message disappears
         m.execute("touch /var/tmp/empty/non-empty")
         self.do_action("Start")
-        self.check_service_details(["Running", "Automatically starts"], ["Reload", "Restart", "Stop", "Disallow running (mask)"], True)
+        self.check_service_details(["Running", "Automatically starts"], ["Restart", "Stop", "Disallow running (mask)"], True)
         b.wait_not_present("#condition")
 
     @skipImage("Reworked in #12265", "rhel-8-0-distropkg")

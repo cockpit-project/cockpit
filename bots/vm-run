@@ -29,9 +29,9 @@ BOTS = os.path.abspath(os.path.dirname(__file__))
 
 NETWORK_SCRIPT=b"""
     set -ex
-    /bin/virsh net-destroy cockpit1 || true
-    /bin/virsh net-undefine cockpit1 || true
-    /bin/virsh net-define /dev/stdin <<EOF
+    virsh net-destroy cockpit1 || true
+    virsh net-undefine cockpit1 || true
+    virsh net-define /dev/stdin <<EOF
 
 <network ipv6='yes'>
   <name>cockpit1</name>
@@ -62,8 +62,8 @@ EOF
        fi
     done
 
-    /bin/virsh net-autostart cockpit1
-    /bin/virsh net-start cockpit1
+    virsh net-autostart cockpit1
+    virsh net-start cockpit1
 """
 
 parser = argparse.ArgumentParser(description='Run a test machine')

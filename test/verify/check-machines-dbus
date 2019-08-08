@@ -694,6 +694,16 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.click("#activate-pool-myPoolOne-{0}".format(connectionName))
         b.wait_in_text("#pool-myPoolOne-{0}-state".format(connectionName), "active")
 
+        # See deletion of Pool is disabled because this pool is referenced by VM's disk
+        b.wait_present("#delete-pool-myPoolTwo-{0}:disabled".format(connectionName))
+
+        # Detach disk so pool can be deleted
+        m.execute("virsh detach-disk --domain subVmTest1 --target vdc --config")
+        b.reload()
+        b.enter_page('/machines')
+        b.click("tbody tr[data-row-id=pool-myPoolTwo-{0}] th".format(connectionName)) # click on the row header
+        b.click("#pool-myPoolTwo-{0}-storage-volumes".format(connectionName)) # open the "Storage Volumes" subtab
+
         # Backup pool XML to redefine right after
         m.execute("virsh pool-dumpxml myPoolTwo > /tmp/myPoolTwo.xml")
 
@@ -739,6 +749,10 @@ class TestMachinesDBus(machineslib.TestMachines):
         </disk>'""".replace("\n", "")
 
         m.execute("echo {0} > /tmp/disk.xml; virsh attach-device --config --file /tmp/disk.xml subVmTest1".format(diskXML))
+
+        # VM is not running, so we need to reload the page
+        b.reload()
+        b.enter_page('/machines')
 
         # Expand row for myPoolTwo and check list of storage volumes
         b.wait_present("tbody tr[data-row-id=pool-myPoolTwo-{0}] th".format(connectionName))

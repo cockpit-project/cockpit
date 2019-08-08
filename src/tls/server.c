@@ -486,7 +486,12 @@ handle_connection_data (int fd)
   char buffer[1024 * 1024];
 
   con = get_fd_connection (fd, &src);
-  assert (con);
+  if (con == NULL)
+    {
+      debug ("no connection for fd %i, ignoring", fd);
+      return;
+    }
+
   debug ("%s connection fd %i has data from %s; ws %s",
          con->is_tls ? "TLS" : "unencrypted", con->client_fd,
          src == WS ? "ws" : "client",

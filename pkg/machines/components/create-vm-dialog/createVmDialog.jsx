@@ -167,6 +167,21 @@ function validateParams(vmParams) {
         }
     }
 
+    if (vmParams.storagePool === "NewVolume") {
+        if (vmParams.storageSize === 0) {
+            validationFailed['storage'] = _("Storage size must not be 0");
+        } else if (vmParams.os &&
+                   vmParams.os['minimumResources']['storage'] &&
+                   (convertToUnit(vmParams.storageSize, vmParams.storageSizeUnit, units.B) < vmParams.os['minimumResources']['storage'])) {
+            validationFailed['storage'] = (
+                cockpit.format(
+                    _("The selected Operating System has minimum storage size requirement of $0 $1"),
+                    convertToUnit(vmParams.os['minimumResources']['storage'], units.B, vmParams.storageSizeUnit),
+                    vmParams.storageSizeUnit)
+            );
+        }
+    }
+
     return validationFailed;
 }
 
@@ -395,7 +410,15 @@ const MemoryRow = ({ memorySize, memorySizeUnit, nodeMaxMemory, recommendedMemor
     );
 };
 
-const StorageRow = ({ connectionName, storageSize, storageSizeUnit, onValueChanged, storagePoolName, storagePools, storageVolume, vms }) => {
+const StorageRow = ({ connectionName, storageSize, storageSizeUnit, onValueChanged, recommendedStorage, storagePoolName, storagePools, storageVolume, vms, validationFailed }) => {
+    const validationStateStorage = validationFailed.storage ? 'error' : undefined;
+    let recommendedStorageHelpBlock = null;
+    if (recommendedStorage && recommendedStorage > storageSize) {
+        recommendedStorageHelpBlock = <p>{cockpit.format(
+            "The selected Operating System has recommended storage size of $0 $1",
+            recommendedStorage, storageSizeUnit)}</p>;
+    }
+
     let volumeEntries;
     let isVolumeUsed = {};
     // Existing storage pool is chosen
@@ -452,7 +475,7 @@ const StorageRow = ({ connectionName, storageSize, storageSizeUnit, onValueChang
                 <label htmlFor='storage-size' className='control-label'>
                     {_("Size")}
                 </label>
-                <FormGroup bsClass='ct-validation-wrapper' controlId='storage'>
+                <FormGroup validationState={validationStateStorage} bsClass='form-group ct-validation-wrapper' controlId='storage'>
                     <MemorySelectRow id={"storage-size"}
                         value={storageSize}
                         maxValue={poolSpaceAvailable && convertToUnit(poolSpaceAvailable, units.B, storageSizeUnit)}
@@ -461,6 +484,8 @@ const StorageRow = ({ connectionName, storageSize, storageSizeUnit, onValueChang
                         onUnitChange={value => onValueChanged('storageSizeUnit', value)} />
                     {poolSpaceAvailable &&
                     <HelpBlock id="storage-size-helpblock">
+                        {validationStateStorage === "error" && <p>{validationFailed.storage}</p>}
+                        {recommendedStorageHelpBlock}
                         {cockpit.format(
                             _("Up to $0 $1 available in the default location"),
                             Math.floor(convertToUnit(poolSpaceAvailable, units.B, storageSizeUnit)),
@@ -492,6 +517,8 @@ class CreateVmModal extends React.Component {
             storagePool: 'NewVolume',
             storageVolume: '',
             startVm: false,
+            recommendedMemory: undefined,
+            recommendedStorage: undefined,
         };
         this.onCreateClicked = this.onCreateClicked.bind(this);
         this.onValueChanged = this.onValueChanged.bind(this);
@@ -514,9 +541,9 @@ class CreateVmModal extends React.Component {
 
                                 if (osEntry && osEntry[0]) {
                                     this.setState({
-                                        os: osEntry[0],
                                         autodetectOSInProgress: false,
                                     });
+                                    this.onValueChanged('os', osEntry[0]);
                                 }
                             }, ex => {
                                 console.log("osinfo-detect command failed: ", ex.message);
@@ -602,6 +629,22 @@ class CreateVmModal extends React.Component {
                 this.setState({ storagePool: "NewVolume" });
             }
             break;
+        case 'os': {
+            this.setState(prevState => { // to prevent asynchronous calls
+                const stateDelta = { [key]: value };
+                if (value && value['recommendedResources']['ram'])
+                    stateDelta.recommendedMemory = convertToUnit(value['recommendedResources']['ram'], units.B, prevState.memorySizeUnit);
+                else
+                    stateDelta.recommendedMemory = undefined;
+                if (value && value['recommendedResources']['storage'])
+                    stateDelta.recommendedStorage = convertToUnit(value['recommendedResources']['storage'], units.B, prevState.storageSizeUnit);
+                else
+                    stateDelta.recommendedStorage = undefined;
+
+                return stateDelta;
+            });
+            break;
+        }
         default:
             this.setState({ [key]: value });
             break;
@@ -649,9 +692,6 @@ class CreateVmModal extends React.Component {
     render() {
         const { nodeMaxMemory, nodeDevices, networks, osInfoList, loggedUser, providerName, storagePools, vms } = this.props;
         const validationFailed = this.state.validate && validateParams({ ...this.state, osInfoList });
-        let recommendedMemory;
-        if (this.state.os && this.state.os['recommendedResources']['ram'])
-            recommendedMemory = convertToUnit(this.state.os['recommendedResources']['ram'], units.B, this.state.memorySizeUnit);
 
         const dialogBody = (
             <form className="ct-form">
@@ -695,6 +735,8 @@ class CreateVmModal extends React.Component {
                         storagePools={storagePools.filter(pool => pool.connectionName === this.state.connectionName)}
                         storageVolume={this.state.storageVolume}
                         vms={vms}
+                        recommendedStorage={this.state.recommendedStorage}
+                        validationFailed={validationFailed}
                     />
                     <hr />
                 </React.Fragment>}
@@ -705,7 +747,7 @@ class CreateVmModal extends React.Component {
                     nodeMaxMemory={nodeMaxMemory}
                     onValueChanged={this.onValueChanged}
                     validationFailed={validationFailed}
-                    recommendedMemory={recommendedMemory}
+                    recommendedMemory={this.state.recommendedMemory}
                 />
 
                 <hr />

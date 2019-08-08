@@ -159,30 +159,21 @@ class ServiceActions extends React.Component {
                 <MenuItem key="unmask" onClick={() => this.props.fileActionCallback("UnmaskUnitFiles", undefined)}>{ _("Allow running (unmask)") }</MenuItem>
             );
         } else { // All cases when not masked
-            // Only show stop when running but not enabled
-            if (this.props.active && !this.props.enabled) {
+            if (this.props.active) {
+                if (this.props.enabled) {
+                    actions.push(
+                        <MenuItem key="reload" onClick={() => this.props.actionCallback("ReloadUnit")}>{ _("Reload") }</MenuItem>
+                    );
+                }
+                actions.push(
+                    <MenuItem key="restart" onClick={() => this.props.actionCallback("RestartUnit")}>{ _("Restart") }</MenuItem>
+                );
                 actions.push(
                     <MenuItem key="stop" onClick={() => this.props.actionCallback("StopUnit")}>{ _("Stop") }</MenuItem>,
                 );
-            }
-            if (this.props.enabled || this.props.active) {
-                if (actions.length > 0) {
-                    actions.push(
-                        <MenuItem key="divider1" divider />
-                    );
-                }
-                if (this.props.active) {
-                    actions.push(
-                        <MenuItem key="restart" onClick={() => this.props.actionCallback("RestartUnit")}>{ _("Restart") }</MenuItem>
-                    );
-                } else {
-                    actions.push(
-                        <MenuItem key="start" onClick={() => this.props.actionCallback("StartUnit")}>{ _("Start") }</MenuItem>
-                    );
-                }
-
+            } else {
                 actions.push(
-                    <MenuItem key="reload" onClick={() => this.props.actionCallback("ReloadUnit")}>{ _("Reload") }</MenuItem>
+                    <MenuItem key="start" onClick={() => this.props.actionCallback("StartUnit")}>{ _("Start") }</MenuItem>
                 );
             }
 

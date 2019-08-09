@@ -3,6 +3,7 @@ import re
 import time
 from avocado import skipIf
 from testlib_avocado.timeoutlib import wait
+from testlib_avocado.timeoutlib import TimeoutError
 from testlib_avocado.seleniumlib import clickable, invisible, text_in
 from testlib_avocado.machineslib import MachinesLib
 
@@ -20,11 +21,7 @@ class MachinesBasicTestSuite(MachinesLib):
         name = "staticvm"
         self.create_vm(name)
 
-        self.wait_css('#vm-{}-memory'.format(name), cond=text_in, text_='256 MiB')
-        self.wait_css('#vm-{}-vcpus-count'.format(name), cond=text_in, text_='1')
-        self.wait_css('#vm-{}-cputype'.format(name), cond=text_in, text_='custom')
-        self.wait_css('#vm-{}-emulatedmachine'.format(name), cond=text_in, text_='pc')
-        self.wait_css('#vm-{}-bootorder'.format(name), cond=text_in, text_='disk,network')
+        self.check_vm_info(name)
 
     def testRunVm(self):
         name = "staticvm"
@@ -46,15 +43,24 @@ class MachinesBasicTestSuite(MachinesLib):
         wait(lambda: "reboot: Power down" in self.machine.execute("sudo cat {0}".format(args.get('logfile'))), delay=3)
         self.wait_css('#vm-{}-state'.format(name), cond=text_in, text_='running')
 
-    @skipIf(os.environ.get('HUB') == '10.111.112.10', "Doesn't work when using run-tests")
     def testForceRestartVm(self):
         name = "staticvm"
         args = self.create_vm(name, wait=True)
 
-        self.click(self.wait_css('#vm-{}-reboot-caret'.format(name), cond=clickable))
-        self.click(self.wait_css('#vm-{}-forceReboot'.format(name), cond=clickable))
-        wait(lambda: re.search("login:.*Initializing cgroup",
-                               self.machine.execute("sudo cat {0}".format(args.get('logfile')))), delay=3)
+        def force_reboot_operation():
+            self.click(self.wait_css('#vm-{}-reboot-caret'.format(name), cond=clickable))
+            self.click(self.wait_css('#vm-{}-forceReboot'.format(name), cond=clickable))
+            wait(lambda: re.search("login:.*Initializing cgroup",
+                                   self.machine.execute("sudo cat {0}".format(args.get('logfile')))), tries=10)
+
+        # Retry when running in edge
+        # because the first operations will not take effect in some edge browser
+        # The error will be throw if timeout at the second time
+        try:
+            force_reboot_operation()
+        except TimeoutError:
+            force_reboot_operation()
+
         self.wait_css('#vm-{}-state'.format(name), cond=text_in, text_='running')
 
     def testShutdownVm(self):
@@ -117,7 +123,8 @@ class MachinesBasicTestSuite(MachinesLib):
             self.machine.execute('sudo virsh domstate {}'.format(name)).rstrip(),
             self.wait_css('#vm-{}-state'.format(name)).text)
 
-    @skipIf(os.environ.get('HUB') == '10.111.112.10', "It may cause some problem when use 'run-test'")
+    @skipIf(os.environ.get("BROWSER") == 'edge',
+            "Timeout with edge when using run-test")
     def testCreate20VMs(self):
         iso_source = '/home/{}.iso'.format('test' + str(time.time()).split('.')[0])
         self.machine.execute('sudo touch {}'.format(iso_source))
@@ -136,7 +143,8 @@ class MachinesBasicTestSuite(MachinesLib):
         self.create_vm_by_ui(connection='session', name=name, source=iso, mem_unit='M', storage_unit='M')
         self.vm_stop_list.append(name)
 
-    @skipIf(os.environ.get('URLSOURCE') is None, "The environment variable which is URLSOURCE is needed")
+    @skipIf(os.environ.get('URLSOURCE') is None,
+            "Need an environment variable named 'URLSOURCE'")
     def testCreateVMWithUrl(self):
         name = 'test_url'
 

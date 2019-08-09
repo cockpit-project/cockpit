@@ -263,11 +263,11 @@ This function is only for internal purposes:
         for _ in range(self.default_try):
             try:
                 s1 = Select(element)
-                select_function = getattr(s1, select_function)
+                select_function_temp = getattr(s1, select_function)
                 if value is None:
-                    output = select_function()
+                    output = select_function_temp()
                 else:
-                    output = select_function(value)
+                    output = select_function_temp(value)
                 failure = None
                 break
             except WebDriverException as e:

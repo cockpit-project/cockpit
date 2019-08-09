@@ -210,6 +210,7 @@ log in without authentication:
 
     Host 127.0.0.2
         User root
+        Port 2201
         StrictHostKeyChecking no
         UserKnownHostsFile /dev/null
         IdentityFile ~/src/cockpit/bots/machine/identity

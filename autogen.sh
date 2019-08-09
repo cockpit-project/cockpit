@@ -47,8 +47,6 @@ npm prune
 # npm install is flaky, so give it a few tries
 npm install || { sleep 30; npm install; } || { sleep 30; npm install; }
 
-find node_modules -name test | xargs rm -rf
-
 rm -rf autom4te.cache
 
 autoreconf -f -i -I tools

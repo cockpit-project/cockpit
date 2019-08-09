@@ -414,7 +414,7 @@ dist-hook:: $(WEBPACK_PACKAGES:%=dist/%/manifest.json)
 	[ ! -e $(distdir)/tools/cockpit.spec ] || $(srcdir)/tools/gen-spec-dependencies $(distdir)/tools/cockpit.spec
 
 DIST_TAR_MAIN = tar --format=posix -cf - "$(distdir)"
-DIST_TAR_CACHE = tar --format=posix -cf - --transform="flags=r;s|^\./||" --transform="flags=r;s|^|$(distdir)/|" \
+DIST_TAR_CACHE = tar --format=posix -cf - --transform="flags=r;s|^\./||" --transform="flags=r;s|^|$(distdir)/|" --exclude test \
 	"$(srcdir)/node_modules" "$(srcdir)/package.json"
 
 DIST_ARCHIVES = \

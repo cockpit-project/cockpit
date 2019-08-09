@@ -24,7 +24,7 @@
 #include "wsinstance.h"
 
 typedef enum { CLIENT, WS } DataSource;
-typedef enum { SUCCESS, PARTIAL, CLOSED, RETRY, FATAL } ConnectionResult;
+typedef enum { SUCCESS, PARTIAL, CLOSED, RETRY, FATAL, FULL } ConnectionResult;
 
 typedef struct Connection Connection;
 
@@ -32,7 +32,6 @@ typedef struct Connection Connection;
 struct ConnectionBuffer {
   char data[256 * 1024];
   size_t length;
-  size_t offset; /* for partial writes */
   Connection *connection;
 };
 

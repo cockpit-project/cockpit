@@ -72,7 +72,7 @@ connection_free (Connection *c)
  * connection_read; Read a data block from source
  *
  * Buffer must be empty for this.
- * Returns SUCCESS, CLOSED, FATAL, or RETRY.
+ * Returns SUCCESS, FULL, CLOSED, FATAL, or RETRY.
  */
 ConnectionResult
 connection_read (Connection *c, DataSource source)
@@ -81,12 +81,11 @@ connection_read (Connection *c, DataSource source)
   struct ConnectionBuffer *buf = source == CLIENT ? &c->buf_client : &c->buf_ws;
   int fd = source == CLIENT ? c->client_fd : c->ws_fd;
 
-  assert (buf->length == 0);
-  assert (buf->offset == 0);
+  assert (buf->length < sizeof (buf->data));
 
   if (c->is_tls && source == CLIENT)
     {
-      r = gnutls_record_recv (c->session, buf->data, sizeof (buf->data));
+      r = gnutls_record_recv (c->session, buf->data + buf->length, sizeof (buf->data) - buf->length);
       if (r == 0)
         {
           debug ("client fd %i closed the TLS connection", fd);
@@ -110,7 +109,7 @@ connection_read (Connection *c, DataSource source)
     }
   else
     {
-      r = recv (fd, buf->data, sizeof (buf->data), MSG_DONTWAIT);
+      r = recv (fd, buf->data + buf->length, sizeof (buf->data) - buf->length, MSG_DONTWAIT);
       if (r == 0)
       {
         debug ("fd %i has closed the connection", fd);
@@ -126,11 +125,12 @@ connection_read (Connection *c, DataSource source)
           warn ("reading from fd %i failed", fd);
           return FATAL;
         }
-      debug ("read %i bytes from fd %i", r, fd);
+      debug ("read %i bytes from fd %i (buffer length %zu)", r, fd, buf->length);
     }
 
-  buf->length = r;
-  return SUCCESS;
+  buf->length += r;
+  assert (buf->length <= sizeof (buf->data));
+  return buf->length == sizeof (buf->data) ? FULL : SUCCESS;
 }
 
 /**
@@ -145,18 +145,15 @@ ConnectionResult
 connection_write (Connection *c, DataSource source)
 {
   int r;
-  ssize_t size;
   struct ConnectionBuffer *buf = source == CLIENT ? &c->buf_client : &c->buf_ws;
   /* write the buffer to the *other* peer */
   int fd = source == CLIENT ? c->ws_fd : c->client_fd;
 
   assert (buf->length > 0);
-  assert (buf->offset < buf->length);
-  size = buf->length - buf->offset;
 
   if (c->is_tls && source == WS)
     {
-      r = gnutls_record_send (c->session, buf->data + buf->offset, size);
+      r = gnutls_record_send (c->session, buf->data, buf->length);
       if (r == 0) /* Should Not Happen™, as data_size > 0 */
         return FATAL;
       if (r < 0)
@@ -170,11 +167,11 @@ connection_write (Connection *c, DataSource source)
           return FATAL;
         }
 
-      debug ("wrote %i bytes out of %zi to TLS connection client fd %i", r, size, fd);
+      debug ("wrote %i bytes out of %zi to TLS connection client fd %i", r, buf->length, fd);
     }
   else
   {
-    r = send (fd, buf->data + buf->offset, size, 0);
+    r = send (fd, buf->data, buf->length, 0);
     if (r == 0) /* Should Not Happen™, as data_size > 0 */
       return FATAL;
     if (r < 0)
@@ -187,15 +184,17 @@ connection_write (Connection *c, DataSource source)
         warn ("writing to fd %i failed", fd);
         return FATAL;
       }
-    debug ("wrote %i bytes out of %zi to fd %i", r, size, fd);
+    debug ("wrote %i bytes out of %zi to fd %i", r, buf->length, fd);
   }
 
-  assert (r <= size);
-  buf->offset += r;
-  if (buf->offset < buf->length)
-    return PARTIAL;
+  assert (r <= buf->length);
+  buf->length -= r;
+  if (buf->length > 0)
+    {
+      /* FIXME: this is lame; use buf->data as a ring buffer instead, with a write offset pointer */
+      memmove (buf->data, buf->data + r, buf->length);
+      return PARTIAL;
+    }
 
-  /* all written, reset indexes */
-  buf->offset = buf->length = 0;
   return SUCCESS;
 }

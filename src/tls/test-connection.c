@@ -22,6 +22,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/socket.h>
+#include <sys/un.h>
 
 #include "connection.h"
 #include "common/cockpittest.h"
@@ -98,18 +99,28 @@ test_tls_session (void)
   connection_free (c);
 }
 
+#define msg1 "hello"
+#define msg2 "world!"
+
 static void
 test_read_write (void)
 {
-  int client_fds[2];
-  int ws_fds[2];
-  char buffer[10];
-  const char *msg = "hello";
-  const size_t msglen = strlen (msg);
+  int client_fds[2]; /* [Connection client fd, our 'browser' client fd] */
+  int ws_fds[2];     /* [Connection ws fd, our 'ws' side fd] */
+  int sendbuf;
+  char buffer[20];
+  const size_t msg1len = strlen (msg1);
+  const size_t msg2len = strlen (msg2);
   Connection *c;
+  size_t s;
 
-  g_assert_cmpint (socketpair (AF_UNIX, SOCK_STREAM, 0, client_fds), ==, 0);
-  g_assert_cmpint (socketpair (AF_UNIX, SOCK_STREAM, 0, ws_fds), ==, 0);
+  g_assert_cmpint (socketpair (AF_UNIX, SOCK_STREAM | SOCK_NONBLOCK, 0, client_fds), ==, 0);
+  g_assert_cmpint (socketpair (AF_UNIX, SOCK_STREAM | SOCK_NONBLOCK, 0, ws_fds), ==, 0);
+
+  /* limit socket buffer size, so that we can test partial writes */
+  sendbuf = 4096;
+  g_assert_cmpint (setsockopt (ws_fds[0], SOL_SOCKET, SO_SNDBUF, &sendbuf, sizeof (sendbuf)), ==, 0);
+
   c = connection_new (client_fds[0]);
   g_assert (c);
   c->ws_fd = ws_fds[0];
@@ -117,38 +128,72 @@ test_read_write (void)
   /* client → ws */
   g_assert_cmpint (connection_read (c, CLIENT), ==, RETRY);
   g_assert_cmpint (c->buf_client.length, ==, 0);
-  g_assert_cmpint (send (client_fds[1], msg, msglen, 0), ==, msglen);
+  g_assert_cmpint (send (client_fds[1], msg1, msg1len, 0), ==, msg1len);
   g_assert_cmpint (connection_read (c, CLIENT), ==, SUCCESS);
-  g_assert_cmpint (c->buf_client.length, ==, msglen);
+  g_assert_cmpint (c->buf_client.length, ==, msg1len);
   g_assert_cmpint (c->buf_ws.length, ==, 0);
 
+  /* second block */
+  g_assert_cmpint (send (client_fds[1], msg2, msg2len, 0), ==, msg2len);
+  g_assert_cmpint (connection_read (c, CLIENT), ==, SUCCESS);
+  g_assert_cmpint (c->buf_client.length, ==, msg1len + msg2len);
+
+  /* write both blocks */
   g_assert_cmpint (connection_write (c, CLIENT), ==, SUCCESS);
   g_assert_cmpint (c->buf_client.length, ==, 0);
-  g_assert_cmpint (c->buf_client.offset, ==, 0);
 
-  g_assert_cmpint (recv (ws_fds[1], buffer, sizeof (buffer), 0), ==, msglen);
-  buffer[msglen] = '\0';
-  g_assert_cmpstr (buffer, ==, msg);
+  g_assert_cmpint (recv (ws_fds[1], buffer, sizeof (buffer), 0), ==, msg1len + msg2len);
+  buffer[msg1len + msg2len] = '\0';
+  g_assert_cmpstr (buffer, ==, msg1 msg2);
 
   g_assert_cmpint (connection_read (c, CLIENT), ==, RETRY);
 
   /* ws → client */
   g_assert_cmpint (connection_read (c, WS), ==, RETRY);
 
-  g_assert_cmpint (send (ws_fds[1], msg, msglen, 0), ==, msglen);
+  g_assert_cmpint (send (ws_fds[1], msg1, msg1len, 0), ==, msg1len);
   g_assert_cmpint (connection_read (c, WS), ==, SUCCESS);
-  g_assert_cmpint (c->buf_ws.length, ==, msglen);
+  g_assert_cmpint (c->buf_ws.length, ==, msg1len);
   g_assert_cmpint (c->buf_client.length, ==, 0);
 
   g_assert_cmpint (connection_write (c, WS), ==, SUCCESS);
   g_assert_cmpint (c->buf_ws.length, ==, 0);
 
   bzero (buffer, sizeof (buffer));
-  g_assert_cmpint (recv (client_fds[1], buffer, sizeof (buffer), 0), ==, msglen);
-  buffer[msglen] = '\0';
-  g_assert_cmpstr (buffer, ==, msg);
+  g_assert_cmpint (recv (client_fds[1], buffer, sizeof (buffer), 0), ==, msg1len);
+  buffer[msg1len] = '\0';
+  g_assert_cmpstr (buffer, ==, msg1);
 
   g_assert_cmpint (connection_read (c, WS), ==, RETRY);
+
+  /* fill up buf_client */
+  for (s = 0; s < sizeof (c->buf_client.data) - msg1len; s += msg1len)
+    {
+      g_assert_cmpint (send (client_fds[1], msg1, msg1len, 0), ==, msg1len);
+      g_assert_cmpint (connection_read (c, CLIENT), ==, SUCCESS);
+    }
+  g_assert_cmpint (send (client_fds[1], msg1, msg1len, 0), ==, msg1len);
+  g_assert_cmpint (connection_read (c, CLIENT), ==, FULL);
+  g_assert_cmpint (c->buf_client.length, ==, sizeof (c->buf_client.data));
+
+  /* write to ws should be partial due to our SO_SNDBUF from above */
+  g_assert_cmpint (connection_write (c, CLIENT), ==, PARTIAL);
+  g_assert_cmpint (c->buf_client.length, >, 0);
+  g_assert_cmpint (c->buf_client.length, <, sizeof (c->buf_client.data));
+
+  /* now there is some buffer space again to read the tail of the above fill loop */
+  g_assert_cmpint (connection_read (c, CLIENT), ==, SUCCESS);
+
+  /* flush the buffer to ws */
+  while (c->buf_client.length > 0)
+    {
+      ConnectionResult r = connection_write (c, CLIENT);
+      if (r != SUCCESS && r != RETRY)
+        g_assert_cmpint (r, ==, PARTIAL);
+
+      while (recv (ws_fds[1], buffer, sizeof (buffer), 0) > 0)
+        ;
+    }
 
   /* EOF detection */
   close (client_fds[1]);

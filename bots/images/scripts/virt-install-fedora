@@ -33,19 +33,6 @@ out=$1
 arch=$2
 url=$3
 
-subscription_args=""
-
-# If we have subscription details as an arg, upload those into the vm
-# Otherwise ensure subscription is skipped during setup
-if [ "$#" -gt 3 ]; then
-    subscription_path=$4
-    subscription_args="--mkdir /root/.rhel \
-      --upload $subscription_path/login:/root/.rhel/login \
-      --upload $subscription_path/pass:/root/.rhel/pass"
-else
-    subscription_args="--touch /root/.skip_repos:"
-fi
-
 base=$(dirname $0)
 ks=fedora.ks
 
@@ -163,8 +150,3 @@ fi
 rm $ks
 
 cleanup_builder_vm
-
-BASE=$(dirname $0)
-
-# Either upload subscription credentials or touch file to ensure we don't want to subscribe
-virt-customize --add $out --upload $BASE/network-ifcfg-eth0:/etc/sysconfig/network-scripts/ifcfg-eth0 --upload $BASE/network-ifcfg-eth1:/etc/sysconfig/network-scripts/ifcfg-eth1 $subscription_args

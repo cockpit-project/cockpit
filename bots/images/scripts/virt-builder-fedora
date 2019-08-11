@@ -25,32 +25,6 @@ if [ "$#" -lt 3 ]; then
     exit 1
 fi
 
-subscription_args=""
-
-# If we have subscription details as an arg, upload those into the vm
-# Otherwise ensure subscription is skipped during setup
-if [ "$#" -gt 3 ]; then
-    subscription_path=$4
-    subscription_args="--mkdir /root/.rhel \
-      --upload $subscription_path/login:/root/.rhel/login \
-      --upload $subscription_path/pass:/root/.rhel/pass"
-
-    # Write out a custom virt-builder conf for RHEL images
-    TEMP=$(mktemp -d)
-    trap "rm -rf $TEMP" EXIT
-    mkdir -p $TEMP/virt-builder/repos.d
-    cat > $TEMP/virt-builder/repos.d/rjones.conf <<EOF
-[rjones]
-uri=http://file.rdu.redhat.com/~rjones/builder/index.asc
-gpgkey=file:///etc/xdg/virt-builder/repos.d/libguestfs.gpg
-enabled=1
-EOF
-    # Tell virt-builder about the above config
-    export XDG_CONFIG_DIRS=${XDG_CONFIG_DIRS:-/etc/xdg}:$TEMP
-else
-    subscription_args="--write /root/.skip_repos:"
-fi
-
 BASE=$(dirname $0)
 
 out=$1
@@ -84,5 +58,4 @@ virt-builder "$os" \
              --upload $BASE/network-ifcfg-eth1:/etc/sysconfig/network-scripts/ifcfg-eth1 \
              --run-command "sed -i 's/GRUB_TIMEOUT.*/GRUB_TIMEOUT=0/; /GRUB_CMDLINE_LINUX=/ s/"'"'"$/ net.ifnames=0 biosdevname=0"'"'"/' /etc/default/grub" \
              --run-command 'grub2-mkconfig -o /boot/grub2/grub.cfg' \
-             --selinux-relabel \
-             $subscription_args
+             --selinux-relabel

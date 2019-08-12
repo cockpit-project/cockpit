@@ -52,11 +52,10 @@ def main():
     name = os.environ.get("TEST_NAME", "tests")
     revision = os.environ.get("TEST_REVISION")
     test_project = os.environ.get("TEST_PROJECT")
-    github_revision = os.environ.get("GITHUB_REVISION")
 
     try:
         task = PullTask(name, revision, opts.context, opts.rebase, opts.remote,
-                        test_project=test_project, github_revision=github_revision, html_logs=opts.html_logs)
+                        test_project=test_project, html_logs=opts.html_logs)
         ret = task.run(opts)
     except RuntimeError as ex:
         ret = str(ex)
@@ -67,14 +66,13 @@ def main():
     return 0
 
 class PullTask(object):
-    def __init__(self, name, revision, context, base, remote, test_project, github_revision, html_logs):
+    def __init__(self, name, revision, context, base, remote, test_project, html_logs):
         self.name = name
         self.revision = revision
         self.context = context
         self.base = base
         self.remote = remote
         self.test_project = test_project
-        self.github_revision = github_revision
         self.html_logs = html_logs
 
         self.sink = None
@@ -82,8 +80,6 @@ class PullTask(object):
 
     def detect_collisions(self, opts):
         api = github.GitHub()
-        if not self.github_revision:
-            self.github_revision = self.revision
 
         if opts.pull_number:
             pull = api.get("pulls/{0}".format(opts.pull_number))
@@ -93,10 +89,10 @@ class PullTask(object):
                 if pull["state"] != "open":
                     return "Pull request isn't open"
 
-        if not self.github_revision:
+        if not self.revision:
             return None
 
-        statuses = api.get("commits/{0}/statuses".format(self.github_revision))
+        statuses = api.get("commits/{0}/statuses".format(self.revision))
         for status in statuses:
             if status.get("context") == self.context:
                 if status.get("state") == "pending" and status.get("description") not in [github.NOT_TESTED, github.NOT_TESTED_DIRECT]:
@@ -111,7 +107,7 @@ class PullTask(object):
         id_context = "-".join([self.test_project, self.context])
         identifier = "-".join([
             self.name.replace("/", "-"),
-            self.github_revision[0:8],
+            self.revision[0:8],
             id_context.replace("/", "-")
         ])
 
@@ -135,12 +131,12 @@ class PullTask(object):
                 "requests": [
                     # Set status to pending
                     { "method": "POST",
-                      "resource": api.qualify("commits/" + self.github_revision + "/statuses"),
+                      "resource": api.qualify("commits/" + self.revision + "/statuses"),
                       "data": self.github_status_data
                     }
                 ],
                 "watches": [{
-                    "resource": api.qualify("commits/" + self.github_revision + "/status?per_page=100"),
+                    "resource": api.qualify("commits/" + self.revision + "/status?per_page=100"),
                     "result": {
                         "statuses": [
                             {
@@ -152,14 +148,14 @@ class PullTask(object):
                     }
                 }]
             },
-            "revision": self.github_revision,
+            "revision": self.revision,
             "onaborted": {
                 "github": {
                     "token": api.token,
                     "requests": [
                         # Set status to error
                         { "method": "POST",
-                          "resource": api.qualify("statuses/" + self.github_revision),
+                          "resource": api.qualify("statuses/" + self.revision),
                           "data": {
                               "state": "error",
                               "context": self.context,
@@ -185,7 +181,7 @@ class PullTask(object):
             # if we are on master.  Other branches don't have a bots/
             # in their repo.
             status["link"] = "log.html"
-            status["extras"] = [ "https://raw.githubusercontent.com/cockpit-project/cockpit/{0}/bots/task/log.html".format(self.github_revision if not self.base else "master") ]
+            status["extras"] = [ "https://raw.githubusercontent.com/cockpit-project/cockpit/{0}/bots/task/log.html".format(self.revision if not self.base else "master") ]
 
 
         # Include information about which base we're testing against
@@ -282,7 +278,7 @@ class PullTask(object):
             os.environ["TEST_SCENARIO"] = scenario
         os.environ["TEST_OS"] = image
 
-        msg = "Testing {0} for {1} with {2} on {3}...\n".format(self.github_revision, self.name,
+        msg = "Testing {0} for {1} with {2} on {3}...\n".format(self.revision, self.name,
                                                                 self.context, HOSTNAME)
         sys.stderr.write(msg)
 

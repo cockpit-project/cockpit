@@ -409,10 +409,12 @@ class TestSystemInfo(MachineCase):
 
         if m.image in ['rhel-8-0-distropkg']:
             pci_selector = '#hwinfo'
+            heading_selector = ' .listing-ct caption'
         else:
             pci_selector = '#hwinfo #pci-listing'
+            heading_selector = ' .listing-ct-heading'
         # PCI
-        b.wait_in_text(pci_selector + ' .listing-ct caption', "PCI")
+        b.wait_in_text(pci_selector + heading_selector, "PCI")
         b.wait_in_text(pci_selector + ' .listing-ct', "0000:00:00.0")
 
         # sorted by device class by default; this makes some assumptions about QEMU devices
@@ -450,7 +452,7 @@ class TestSystemInfo(MachineCase):
         self.assertNotIn('BIOS', b.text('#hwinfo .info-table-ct'))
 
         # PCI should be shown
-        b.wait_in_text(pci_selector + ' .listing-ct caption', "PCI")
+        b.wait_in_text(pci_selector + heading_selector, "PCI")
         b.wait_in_text(pci_selector + ' .listing-ct', "0000:00:00.0")
 
         self.machine.execute("umount /sys/class/dmi")
@@ -458,7 +460,7 @@ class TestSystemInfo(MachineCase):
         # Memory details should be shown for generic QEMU memory
         # demidecode not available on certain images
         if m.image not in ['fedora-atomic']:
-            b.wait_in_text('#hwinfo #memory-listing .listing-ct caption', "Memory")
+            b.wait_in_text('#hwinfo #memory-listing' + heading_selector, "Memory")
             b.wait_in_text('#hwinfo #memory-listing .listing-ct', "DIMM 0")
             b.wait_in_text('#hwinfo #memory-listing .listing-ct', "RAM")
 

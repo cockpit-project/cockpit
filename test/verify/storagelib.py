@@ -70,7 +70,7 @@ class StorageCase(MachineCase):
     # Content
 
     def content_row_tbody(self, index):
-        return "#detail-content > table > tbody:nth-of-type(%d)" % index
+        return "#detail-content > section > table > tbody:nth-of-type(%d)" % index
 
     def content_row_expand(self, index):
         b = self.browser

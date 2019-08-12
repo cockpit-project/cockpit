@@ -828,7 +828,7 @@ export class CreateVmAction extends React.Component {
             return null;
 
         let createButton = (
-            <Button disabled={!this.props.systemInfo.osInfoList || !this.state.virtInstallAvailable} className="pull-right" id="create-new-vm" bsStyle='default' onClick={this.open} >
+            <Button disabled={!this.props.systemInfo.osInfoList || !this.state.virtInstallAvailable} id="create-new-vm" bsStyle='default' onClick={this.open} >
                 {_("Create VM")}
             </Button>
         );

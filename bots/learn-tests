@@ -74,7 +74,7 @@ def tail(url, until, verbose=False):
 
         try:
             req = urllib.request.Request(url, headers={ "Range": "bytes={0}-".format(at) })
-            with urllib.request.urlopen(req) as f:
+            with urllib.request.urlopen(req, cafile=os.path.join(BOTS, "images", "files", "ca.pem")) as f:
                 while True:
                     data = f.read(2048)
                     if not data:
@@ -98,25 +98,16 @@ def train(filename, url, verbose=False):
     if verbose:
         sys.stderr.write(" ^ {0}\n".format(url))
 
-    cmd = [ "curl", "--fail", "--upload-file", filename ]
-    if verbose:
-        cmd.append("--progress-bar")
-    cmd.append(url)
+    cmd = [ os.path.join(BOTS, "image-upload"), "--state", filename, "--store", url ]
 
     # Passing through a non terminal stdout is necessary to make progress work
-    curl = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-    cat = subprocess.Popen(["cat"], stdin=curl.stdout)
-    curl.stdout.close()
-    ret = curl.wait()
-    cat.wait()
-    if ret != 0:
-        raise RuntimeError("{0}: couldn't push training data to learn service".format(url))
+    subprocess.check_call(cmd)
 
     # We run until the file disappears, which means training has taken place
     def until():
         try:
             req = urllib.request.Request(url, method="HEAD")
-            with urllib.request.urlopen(req) as f:
+            with urllib.request.urlopen(req, cafile=os.path.join(BOTS, "images", "files", "ca.pem")) as f:
                 f.read()
         except urllib.error.HTTPError as ex:
             if ex.code == 404:

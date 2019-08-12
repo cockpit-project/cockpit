@@ -310,6 +310,44 @@ handle_accept (void)
 }
 
 /**
+ * verify_peer_certificate: Custom client certificate validation function
+ *
+ * cockpit-tls ignores CA/trusted owner and leaves that to e. g. sssd. But
+ * validate the other properties such as expiry, unsafe algorithms, etc.
+ * This combination cannot be done with gnutls_session_set_verify_cert().
+ */
+static int
+verify_peer_certificate (gnutls_session_t session)
+{
+  int ret;
+  unsigned status;
+
+  TLS_RETRY_BLOCK (ret, gnutls_certificate_verify_peers2 (session, &status));
+  if (ret >= 0)
+    {
+      /* ignore CA/trusted owner and leave that to e. g. sssd */
+      status &= ~(GNUTLS_CERT_INVALID | GNUTLS_CERT_SIGNER_NOT_FOUND | GNUTLS_CERT_SIGNER_NOT_CA);
+      if (status != 0)
+        {
+          gnutls_datum_t msg;
+          ret = gnutls_certificate_verification_status_print (status, gnutls_certificate_type_get (session), &msg, 0);
+          if (ret != GNUTLS_E_SUCCESS)
+            errx (1, "Failed to print verification status: %s", gnutls_strerror (ret));
+          warnx ("Invalid TLS peer certificate: %s", msg.data);
+          gnutls_free (msg.data);
+          return GNUTLS_E_CERTIFICATE_VERIFICATION_ERROR;
+        }
+    }
+  else if (ret != GNUTLS_E_NO_CERTIFICATE_FOUND)
+    {
+      warnx ("Verifying TLS peer failed: %s", gnutls_strerror (ret));
+      return ret;
+    }
+
+  return GNUTLS_E_SUCCESS;
+}
+
+/**
  * handle_connection_data_first: Handle first event on client fd
  *
  * Check the very first byte of a new connection to tell apart TLS from plain
@@ -356,9 +394,12 @@ handle_connection_data_first (Connection *con)
       gnutls_certificate_server_set_request (
           session,
           (server.client_cert_mode == CERT_REQUEST) ? GNUTLS_CERT_REQUEST : GNUTLS_CERT_IGNORE);
+      gnutls_certificate_set_verify_function (server.x509_cred, verify_peer_certificate);
       gnutls_handshake_set_timeout (session, GNUTLS_DEFAULT_HANDSHAKE_TIMEOUT);
 
       gnutls_transport_set_int (session, con->client_fd);
+
+      connection_set_tls_session (con, session);
 
       TLS_RETRY_BLOCK (ret, gnutls_handshake (session));
       if (ret < 0)
@@ -369,8 +410,6 @@ handle_connection_data_first (Connection *con)
         }
 
       debug ("TLS handshake completed");
-
-      connection_set_tls_session (con, session);
     }
 
   connection_init_ws (con);

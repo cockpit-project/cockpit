@@ -357,18 +357,27 @@ export const Listing = (props) => {
     } else {
         headerRow = <tr />;
     }
-    let caption;
+    let heading;
     if (props.title || (props.actions && props.actions.length > 0))
-        caption = <caption className="cockpit-caption">{props.title}{props.actions}</caption>;
+        heading = (
+            <header>
+                {props.title && <h3 className="listing-ct-heading" id="listing-ct-heading">{props.title}</h3>}
+                {props.actions && <div className="listing-ct-actions">
+                    {props.actions}
+                </div>}
+            </header>
+        );
 
     return (
-        <table className={ bodyClasses.join(" ") }>
-            {caption}
-            <thead className={headerClasses}>
-                {headerRow}
-            </thead>
-            {props.children}
-        </table>
+        <section className="ct-listing">
+            {heading}
+            <table aria-labelledby="listing-ct-heading" className={ bodyClasses.join(" ") }>
+                <thead className={headerClasses}>
+                    {headerRow}
+                </thead>
+                {props.children}
+            </table>
+        </section>
     );
 };
 

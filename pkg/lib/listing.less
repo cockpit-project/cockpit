@@ -2,17 +2,39 @@
 
 @import "./variables.less";
 
-table.listing-ct {
-    min-width: 65%;
+.ct-listing {
     font-size: var(--font-size-s);
+    min-width: 65%;
+    // Some parts of Cockpit still float (Docker) and need clearing
+    clear: both;
 
-    + .listing-ct {
-        margin-top: @listing-ct-spacing * 2;
+    > header {
+        display: flex;
+        align-items: center;
+        justify-content: start;
+        flex-flow: wrap;
+
+        > :only-child {
+            flex: auto;
+        }
+    }
+
+    + .ct-listing {
+        margin-top: 1rem;
     }
 }
 
-table.listing-ct > caption,
-table.listing-ct > thead h3 {
+.listing-ct-heading,
+.listing-ct-actions {
+    margin: 0.5rem 0;
+}
+
+.listing-ct-heading {
+    flex: auto;
+    padding: 0.25rem 1em 0.25rem 0;
+}
+
+.ct-listing > table > thead h3 {
     font-size: var(--pf-global--FontSize--2xl);
     padding: 1rem 0;
     font-weight: 400;
@@ -27,35 +49,30 @@ table.listing-ct > thead h3 {
     }
 }
 
-table.listing-ct > caption {
-    color: inherit;
-    line-height: 1.1;
-}
-
-table.listing-ct > thead td {
+.ct-listing > table > thead td {
     padding-top: @listing-ct-padding * 2;
 }
 
-table.listing-ct > thead:first-child td {
+.ct-listing > table > thead:first-child td {
     padding-top: 0;
 }
 
-table.listing-ct > thead td > a {
+.ct-listing > table > thead td > a {
     line-height: 30px;
     padding: @listing-ct-padding 0 @listing-ct-padding;
 }
 
-table.listing-ct > thead th {
+.ct-listing > table > thead th {
     font-weight: normal;
     padding: @listing-ct-padding @listing-ct-padding * 2;
     color: @listing-ct-metadata;
 }
 
-table.listing-ct > thead th:first-child {
+.ct-listing > table > thead th:first-child {
     padding-left: @listing-ct-padding * 2;
 }
 
-table.listing-ct > thead th:last-child {
+.ct-listing > table > thead th:last-child {
     text-align: right;
 }
 
@@ -67,16 +84,16 @@ tbody > tr.listing-ct-item {
     cursor: pointer;
 }
 
-table.listing-ct > tbody:last-child {
+.ct-listing > table > tbody:last-child {
     border-bottom: 1px solid var(--color-ct-list-border);
 }
-table.listing-ct > tbody + thead {
+.ct-listing > table > tbody + thead {
     border-top: 1px solid var(--color-ct-list-border);
 }
-table.listing-ct > tbody.open:last-child {
+.ct-listing > table > tbody.open:last-child {
     border-bottom: none;
 }
-table.listing-ct > tbody.open + thead {
+.ct-listing > table > tbody.open + thead {
     border-top: none;
 }
 
@@ -201,14 +218,6 @@ tr.listing-ct-item > td {
         margin-top: -3px;
         margin-bottom: -3px;
     }
-}
-
-/* Listing caption is text next to the actions, text should be similar to nav (.nav-tabs-pf > li > a)*/
-.listing-ct-actions > .listing-ct-caption {
-    font-size: @font-size-h5;
-    vertical-align: middle;
-    color: @link-color;
-    padding-right: @listing-ct-padding / 2;
 }
 
 /* Listing actions can be used directly as a cell */
@@ -429,7 +438,7 @@ tbody.active .listing-ct-head {
     margin-left: 0px;
 }
 
-table.listing-ct > tbody {
+.ct-listing > table > tbody {
     > tr > td:first-child {
         position: relative;
         transition: all 100ms ease-out;
@@ -565,7 +574,7 @@ tr.listing-ct-body td {
 
 /* Used at the end of a group of tbody to show an 'empty' message */
 thead.listing-ct-empty td,
-table.listing-ct > thead.listing-ct-empty td {
+.ct-listing > table > thead.listing-ct-empty td {
     padding: @listing-ct-padding;
 }
 
@@ -603,10 +612,6 @@ div.listing-ct-head {
 .listing-ct-head .btn-group,
 .listing-ct-head button:not(.dropdown-toggle) {
     margin-left: 0.3em;
-}
-
-table.listing-ct > caption a {
-    font-size: var(--font-size-md);
 }
 
 tbody tr.listing-ct-noexpand {

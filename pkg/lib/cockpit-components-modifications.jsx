@@ -164,24 +164,24 @@ export class Modifications extends React.Component {
         }
 
         return (
-            <React.Fragment>
+            <section className="ct-listing">
                 <ModificationsExportDialog show={this.state.showDialog} shell={this.props.shell} ansible={this.props.ansible} onClose={ () => this.setState({ showDialog: false }) } />
+                <header>
+                    <h3 className="listing-ct-heading">{this.props.title}</h3>
+                    <div className="listing-ct-actions">
+                        { !emptyRow &&
+                            <a className="modifications-export" onClick={ () => this.setState({ showDialog: true }) } >{_("View automation script")}</a>
+                        }
+                    </div>
+                </header>
                 <table className={"listing-ct listing-ct-wide modifications-table"}>
-                    <caption className="cockpit-caption">
-                        <div className="modifications-caption">
-                            {this.props.title}
-                            { !emptyRow &&
-                                <a className="modifications-export" onClick={ () => this.setState({ showDialog: true }) } >{_("View automation script")}</a>
-                            }
-                        </div>
-                    </caption>
                     { emptyRow ||
                         <tbody>
                             {this.props.entries.map(entry => <tr className="modification-row" key={entry.split(' ').join('')}><td>{entry}</td></tr>)}
                         </tbody>
                     }
                 </table>
-            </React.Fragment>
+            </section>
         );
     }
 }

@@ -82,7 +82,7 @@ class TestFirewall(NetworkCase):
         self.login_and_go("/network/firewall")
 
         # "Add Services" button should not be present
-        b.wait_not_present("caption #add-services-button")
+        b.wait_not_present("#add-services-button")
 
         self.wait_onoff("h1", False)
         self.toggle_onoff("h1")
@@ -94,7 +94,7 @@ class TestFirewall(NetworkCase):
         b.wait_in_text("#zones-listing", "default")
 
         # "Add Services" button should be enabled
-        b.wait_present("caption #add-services-button:enabled")
+        b.wait_present("#add-services-button:enabled")
 
         # ensure that pop3 is not enabled (shouldn't be on any of our images),
         # so that we can use it for testing
@@ -127,7 +127,7 @@ class TestFirewall(NetworkCase):
         self.wait_onoff("h1", False)
         wait_unit_state(m, "firewalld", "inactive")
         # "Add Services" button should be hidden again
-        b.wait_not_present("caption #add-services-button")
+        b.wait_not_present("#add-services-button")
 
     @skipImage("Filtering got fixed, IDs changed to data-id, and conversion to ListView in 191",
                "rhel-8-0-distropkg")
@@ -145,8 +145,8 @@ class TestFirewall(NetworkCase):
         b.wait_present("tr[data-row-id='http']")
 
         # click on the "Add Services" button
-        b.wait_present("caption #add-services-button:enabled")
-        b.click("caption #add-services-button")
+        b.wait_present("#add-services-button:enabled")
+        b.click("#add-services-button")
         b.wait_present("#cockpit_modal_dialog .list-view-pf input[data-id='pop3']")
         # rhel-8 comes with an extra preconfigured libvirt zone
         if m.image not in ["rhel-8-0", "rhel-8-1", "rhel-8-0-distropkg"]:
@@ -181,7 +181,7 @@ class TestFirewall(NetworkCase):
         b.wait_not_present("#cockpit_modal_dialog")
 
         def addService(service):
-            b.click("#services-listing caption button.btn-primary")
+            b.click("#services-listing .listing-ct-actions button.btn-primary")
             # rhel-8 comes with an extra preconfigured libvirt zone
             if m.image in ["rhel-8-0", "rhel-8-1", "rhel-8-0-distropkg"]:
                 b.click("#add-services-dialog input[value='public']")
@@ -199,14 +199,14 @@ class TestFirewall(NetworkCase):
             b.click("tr[data-row-id='freeipa-4']")
             b.wait_present("tbody.open .listing-ct-body:contains(Included Services)")
         else:
-            b.click("caption #add-services-button")
+            b.click("#add-services-button")
             b.wait_present("#cockpit_modal_dialog .list-view-pf input[data-id='imap']")
             b.wait_not_present("#cockpit_modal_dialog .list-view-pf input[data-id='freeipa-4']")
             b.click("#add-services-dialog .modal-footer .btn-cancel")
             b.wait_not_present("#cockpit_modal_dialog")
 
         # pop3 should now not appear any more in Add Services dialog
-        b.click("caption #add-services-button")
+        b.click("#add-services-button")
         b.wait_present("#cockpit_modal_dialog .list-view-pf input[data-id='imap']")
         b.wait_not_present("#cockpit_modal_dialog .list-view-pf input[data-id='pop3']")
         b.click("#add-services-dialog .modal-footer .btn-cancel")
@@ -217,7 +217,7 @@ class TestFirewall(NetworkCase):
 
         # Service without name should appear in the dialog
         m.execute("firewall-cmd --permanent --new-service=empty && firewall-cmd --reload")
-        b.click("caption #add-services-button")
+        b.click("#add-services-button")
         b.wait_present("#cockpit_modal_dialog .list-view-pf input[data-id='empty']")
         b.click("#add-services-dialog .modal-footer .btn-cancel")
         b.wait_not_present("#cockpit_modal_dialog")
@@ -274,8 +274,8 @@ class TestFirewall(NetworkCase):
         b.wait_present("tr[data-row-id='http']")
 
         def open_dialog():
-            b.wait_present("caption #add-services-button:enabled")
-            b.click("caption #add-services-button")
+            b.wait_present("#add-services-button:enabled")
+            b.click("#add-services-button")
             b.wait_present("#add-services-dialog input[value='ports']:enabled")
             b.click("#add-services-dialog input[value='ports']")
             b.wait_present("#tcp-ports")
@@ -366,7 +366,7 @@ class TestFirewall(NetworkCase):
         m = self.machine
 
         def addServiceToZone(service, zone):
-            b.click("#services-listing caption button.btn-primary")
+            b.click("#services-listing .listing-ct-actions button.btn-primary")
             b.click("#add-services-dialog input[value='{}']".format(zone))
             b.click("#add-services-dialog .list-view-pf input[data-id='{}']".format(service))
             b.click("#add-services-dialog .modal-footer .btn-primary")
@@ -375,7 +375,7 @@ class TestFirewall(NetworkCase):
             self.assertIn(service, m.execute("firewall-cmd --zone={} --list-services".format(zone)))
 
         def addZone(zone, interfaces=[], sources=None, error=None):
-            b.click("caption #add-zone-button")
+            b.click("#add-zone-button")
             b.wait_present("#add-zone-dialog")
             b.wait_present("#add-zone-dialog .modal-footer button.btn-primary:disabled")
             b.click("#add-zone-dialog .add-zone-zones-firewalld input[value='{}']".format(zone))
@@ -447,7 +447,7 @@ class TestFirewall(NetworkCase):
         addZone("home", interfaces=[interface])
         # Interfaces which already belong to an active zone shouldn't show up in
         # the Add Zone dialog anymore
-        b.click("caption #add-zone-button")
+        b.click("#add-zone-button")
         b.wait_present("#add-zone-dialog")
         b.wait_not_present("#add-zone-body input[value='{}']".format(interface))
         b.click("#add-zone-dialog .modal-footer button.btn-cancel")

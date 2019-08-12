@@ -47,7 +47,6 @@ def main():
     parser.add_argument('--pull-number', help="The number of the pull request to test")
     parser.add_argument('--html-logs', action='store_true', help="Use log.html to prettify the raw logs")
     parser.add_argument('context', help="The context or type of integration tests to run")
-    parser.add_argument('ref', nargs='?', help="The Git remote ref to pull")
     opts = parser.parse_args()
 
     name = os.environ.get("TEST_NAME", "tests")
@@ -56,7 +55,7 @@ def main():
     github_revision = os.environ.get("GITHUB_REVISION")
 
     try:
-        task = PullTask(name, revision, opts.ref, opts.context, opts.rebase, opts.remote,
+        task = PullTask(name, revision, opts.context, opts.rebase, opts.remote,
                         test_project=test_project, github_revision=github_revision, html_logs=opts.html_logs)
         ret = task.run(opts)
     except RuntimeError as ex:
@@ -68,10 +67,9 @@ def main():
     return 0
 
 class PullTask(object):
-    def __init__(self, name, revision, ref, context, base, remote, test_project, github_revision, html_logs):
+    def __init__(self, name, revision, context, base, remote, test_project, github_revision, html_logs):
         self.name = name
         self.revision = revision
-        self.ref = ref
         self.context = context
         self.base = base
         self.remote = remote
@@ -265,15 +263,6 @@ class PullTask(object):
             os.environ["TEST_ATTACHMENTS"] = self.sink.attachments
 
         head = subprocess.check_output([ "git", "rev-parse", "HEAD" ], universal_newlines=True).strip()
-        if self.ref:
-            if not opts.offline:
-                subprocess.check_call([ "git", "fetch", self.remote, self.ref ])
-            if not self.revision:
-                self.revision = subprocess.check_output([ "git", "rev-parse", "FETCH_HEAD" ], universal_newlines=True).strip()
-            # Force a checkout of the ref if not already checked out
-            if not head.lower().startswith(self.revision.lower()):
-                subprocess.check_call([ "git", "checkout", "-f", self.revision ])
-
         if not self.revision:
             self.revision = head
 

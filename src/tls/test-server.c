@@ -42,6 +42,7 @@
 
 #define CLIENT_CERTFILE SRCDIR "/src/bridge/mock-client.crt"
 #define CLIENT_KEYFILE SRCDIR "/src/bridge/mock-client.key"
+#define CLIENT_EXPIRED_CERTFILE SRCDIR "/src/bridge/mock-client-expired.crt"
 
 const unsigned server_port = 9123;
 
@@ -155,7 +156,8 @@ assert_https_outcome (TestCase *tc,
                       const char *client_crt,
                       const char *client_key,
                       unsigned expected_server_certs,
-                      int expected_result)
+                      int expected_handshake_result,
+                      int expected_read_error)
 {
   pid_t pid;
   int status;
@@ -192,7 +194,7 @@ assert_https_outcome (TestCase *tc,
       g_assert_cmpint (gnutls_credentials_set (session, GNUTLS_CRD_CERTIFICATE, xcred), ==, GNUTLS_E_SUCCESS);
 
       ret = gnutls_handshake (session);
-      if (expected_result == GNUTLS_E_SUCCESS)
+      if (expected_handshake_result == GNUTLS_E_SUCCESS)
         {
           const gnutls_datum_t *server_certs;
           unsigned server_certs_len;
@@ -209,6 +211,13 @@ assert_https_outcome (TestCase *tc,
           /* send request, read response */
           g_assert_cmpint (gnutls_record_send (session, request, sizeof (request)), ==, sizeof (request));
           len = gnutls_record_recv (session, buf, sizeof (buf) - 1);
+          if (expected_read_error != 0)
+            {
+              g_assert_cmpint (len, ==, expected_read_error);
+              close (fd);
+              exit (0);
+            }
+
           g_assert_cmpint (len, >=, 100);
           buf[len] = '\0'; /* so that we can use string functions on it */
           /* This succeeds (200 OK) when building in-tree, but fails with dist-check due to missing doc root */
@@ -227,7 +236,7 @@ assert_https_outcome (TestCase *tc,
         }
       else
         {
-          g_assert_cmpint (ret, ==, expected_result);
+          g_assert_cmpint (ret, ==, expected_handshake_result);
         }
 
       close (fd);
@@ -242,7 +251,7 @@ assert_https_outcome (TestCase *tc,
 static void
 assert_https (TestCase *tc, const char *client_crt, const char *client_key, unsigned expected_server_certs)
 {
-  assert_https_outcome (tc, client_crt, client_key, expected_server_certs, GNUTLS_E_SUCCESS);
+  assert_https_outcome (tc, client_crt, client_key, expected_server_certs, GNUTLS_E_SUCCESS, 0);
 }
 
 /* Ensure that all ws instances have no blocked signals inherited from cockpit-tls */
@@ -416,7 +425,7 @@ static void
 test_tls_no_server_cert (TestCase *tc, gconstpointer data)
 {
   assert_http (tc);
-  assert_https_outcome (tc, NULL, NULL, 0, GNUTLS_E_PULL_ERROR);
+  assert_https_outcome (tc, NULL, NULL, 0, GNUTLS_E_PULL_ERROR, 0);
   assert_http (tc);
 }
 
@@ -452,6 +461,20 @@ test_tls_client_cert_disabled (TestCase *tc, gconstpointer data)
   /* no-cert case is handled by same ws, as client certs are disabled server-side */
   assert_https (tc, NULL, NULL, 1);
   g_assert_cmpuint (server_num_ws (), ==, 1);
+}
+
+static void
+test_tls_client_cert_expired (TestCase *tc, gconstpointer data)
+{
+#if GNUTLS_VERSION_NUMBER >= 0x030605
+  /* GnuTLS 3.6.5 introduces TLS 1.3 by default, which has only a two-step
+   * handshake: that does not pick up the server's late failing handshake from the
+   * verify function, only the next read attempt does */
+  assert_https_outcome (tc, CLIENT_EXPIRED_CERTFILE, CLIENT_KEYFILE, 1, GNUTLS_E_SUCCESS, GNUTLS_E_PULL_ERROR);
+#else
+  /* TLS < 1.3 has a three-step handshake which picks up the invalid cert in gnutls_handshake() */
+  assert_https_outcome (tc, CLIENT_EXPIRED_CERTFILE, CLIENT_KEYFILE, 1, GNUTLS_E_PULL_ERROR, 0);
+#endif
 }
 
 static void
@@ -533,6 +556,8 @@ main (int argc, char *argv[])
               setup, test_tls_client_cert, teardown);
   g_test_add ("/server/tls/client-cert-disabled", TestCase, &fixture_separate_crt_key,
               setup, test_tls_client_cert_disabled, teardown);
+  g_test_add ("/server/tls/client-cert-expired", TestCase, &fixture_separate_crt_key_client_cert,
+              setup, test_tls_client_cert_expired, teardown);
   g_test_add ("/server/tls/combined-server-cert-key", TestCase, &fixture_combined_crt_key,
               setup, test_tls_no_client_cert, teardown);
   g_test_add ("/server/tls/cert-chain", TestCase, &fixture_cert_chain,

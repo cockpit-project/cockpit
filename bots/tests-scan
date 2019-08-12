@@ -162,7 +162,7 @@ def tests_invoke(priority, name, number, revision, ref, context, base, repo, bot
     if repo in REPO_EXTRA_INVOKE_OPTIONS:
         cmd += " " + " ".join(REPO_EXTRA_INVOKE_OPTIONS[repo])
 
-    cmd += " {context} {ref}"
+    cmd += " {context}"
     if bots_ref:
         # we are checking the external repo on a cockpit PR, so stay on the project's master
         checkout += " {ref} && "

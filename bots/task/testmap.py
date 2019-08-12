@@ -64,6 +64,7 @@ REPO_BRANCH_CONTEXT = {
     'weldr/lorax': {
         'master': [
             'fedora-30',
+            'fedora-30/tar',
             'fedora-30/live-iso',
             'fedora-30/qcow2',
             'fedora-30/aws',

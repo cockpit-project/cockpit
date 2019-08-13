@@ -85,6 +85,8 @@ if [ -n "$do_install" ]; then
     systemctl disable tuned.service 2>/dev/null || true
 
     firewall-cmd --add-service=cockpit --permanent
+    # not managed by NM, so enable interface manually
+    firewall-cmd --zone=public --permanent --add-interface=eth1
 
     journalctl --flush
     journalctl --sync || killall systemd-journald

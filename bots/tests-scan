@@ -110,20 +110,21 @@ def main():
     return 0
 
 # Prepare a human readable output
-def tests_human(priority, name, number, revision, ref, context, base, repo, bots_ref):
+def tests_human(priority, name, number, revision, ref, context, base, original_base, repo, bots_ref):
     if not priority:
         return
     try:
         priority = int(priority)
     except (ValueError, TypeError):
         pass
-    return "{name:11} {context:25} {revision:10} {priority:2}{repo}{bots_ref}".format(
+    return "{name:11} {context:25} {revision:10} {priority:2}{repo}{bots_ref}{branches}".format(
         priority=priority,
         revision=revision[0:7],
         context=context,
         name=name,
         repo=repo and "  (%s)" % repo or "",
         bots_ref=bots_ref and (" [bots@%s]" % bots_ref) or "",
+        branches=base != original_base and ("   {%s...%s}" % (original_base, base)) or ""
     )
 
 def is_internal_context(context):
@@ -133,7 +134,7 @@ def is_internal_context(context):
     return False
 
 # Prepare a test invocation command
-def tests_invoke(priority, name, number, revision, ref, context, base, repo, bots_ref, options):
+def tests_invoke(priority, name, number, revision, ref, context, base, original_base, repo, bots_ref, options):
     if not options.amqp and not redhat_network() and is_internal_context(context):
         return ''
 
@@ -166,6 +167,10 @@ def tests_invoke(priority, name, number, revision, ref, context, base, repo, bot
     if repo in REPO_EXTRA_INVOKE_OPTIONS:
         cmd += " " + " ".join(REPO_EXTRA_INVOKE_OPTIONS[repo])
 
+    # Let tests-invoke know that we are triggering different branch - it needs to post correct status
+    if base != original_base:
+        cmd = "TEST_BRANCH={base} " + cmd
+
     cmd += " {context}"
     if bots_ref:
         # we are checking the external repo on a cockpit PR, so stay on the project's master
@@ -187,8 +192,8 @@ def tests_invoke(priority, name, number, revision, ref, context, base, repo, bot
         repo=pipes.quote(repo),
     )
 
-def queue_test(priority, name, number, revision, ref, context, base, repo, bots_ref, channel, options):
-    command = tests_invoke(priority, name, number, revision, ref, context, base, repo, bots_ref, options)
+def queue_test(priority, name, number, revision, ref, context, base, original_base, repo, bots_ref, channel, options):
+    command = tests_invoke(priority, name, number, revision, ref, context, base, original_base, repo, bots_ref, options)
     if command:
         if priority > distributed_queue.MAX_PRIORITY:
             priority = distributed_queue.MAX_PRIORITY
@@ -405,6 +410,7 @@ def cockpit_tasks(api, update, branch_contexts, repo, pull_data, pull_number, sh
                                 checkout_ref,
                                 os_scenario,
                                 branch,
+                                base,
                                 project,
                                 ref if project != repo or base != branch else None))
 

@@ -1,6 +1,7 @@
 #! /bin/sh -ex
-ARCH=x86_64
-DEBIAN_LATEST=$(virt-builder -l  | grep "$ARCH" | sort -r | grep -m1 '^debian-' | cut -d' ' -f1)
-exec $(dirname $0)/lib/debian.bootstrap "$1" "$2" "$DEBIAN_LATEST" "deb http://deb.debian.org/debian stable main
-deb http://deb.debian.org/debian stable-updates main
-deb http://security.debian.org/ stable/updates main"
+
+RELEASE=buster
+RELEASENUM=10
+LATEST_DAILY=$(curl -s https://cloud.debian.org/images/cloud/$RELEASE/daily/ | sed -n '/<a href=/ { s/^.*href="//; s_/".*$__; p }'| sort -nu | tail -n1)
+
+exec $(dirname $0)/lib/debian.bootstrap "$1" "https://cloud.debian.org/images/cloud/buster/daily/$LATEST_DAILY/debian-${RELEASENUM}-genericcloud-amd64-daily-${LATEST_DAILY}.qcow2"

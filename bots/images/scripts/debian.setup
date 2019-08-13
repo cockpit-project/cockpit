@@ -73,6 +73,14 @@ case "$RELEASE" in
         ;;
 esac
 
+if [ "${1#ubuntu}" != "$1" ]; then
+    # our tests need scsi_debug, which the cloud kernel does not have; install full kernel
+    TEST_PACKAGES="$TEST_PACKAGES linux-image-generic"
+fi
+
+# our cloud-init.iso does not set up the host name
+echo "127.0.1.1 $(hostname)" >> /etc/hosts
+
 if grep -q 'ID=ubuntu' /etc/os-release; then
     PBUILDER_OPTS='COMPONENTS="main universe"'
 
@@ -81,14 +89,52 @@ if grep -q 'ID=ubuntu' /etc/os-release; then
     touch /etc/NetworkManager/conf.d/10-globally-managed-devices.conf
 fi
 
+# some cloud images have a pre-defined admin user or group, for them cloud-init admin creation fails
+userdel -r admin || true
+groupdel admin || true
 useradd -m -U -c Administrator -G sudo -s /bin/bash admin
 echo admin:foobar | chpasswd
+cp -r ~root/.ssh ~admin/
+chown -R admin:admin ~admin/.ssh
+
+# avoid NM-wait-online hanging on disconnected interfaces
+mkdir -p /etc/NetworkManager/conf.d/
+printf '[main]\nno-auto-default=*\n' > /etc/NetworkManager/conf.d/noauto.conf
+
+if [ "${1#debian}" != "$1" ]; then
+    # HACK: Debian's cloud-init generates a *.cfg file, but /etc/network/interfaces sources extension-less files
+    mv /etc/network/interfaces.d/50-cloud-init.cfg /etc/network/interfaces.d/50-cloud-init
+fi
+
+# debian-testing image gets bootstrapped from debian stable; upgrade
+if [ "$1" = "debian-testing" ]; then
+    rm --verbose -f /etc/apt/sources.list.d/*
+    echo 'deb http://deb.debian.org/debian testing main' > /etc/apt/sources.list
+fi
 
 export DEBIAN_FRONTEND=noninteractive
 apt-get -y update
+# apt go-faster
+echo 'Acquire::Languages "none";' > /etc/apt/apt.conf.d/90nolanguages
+apt-get install -y eatmydata
+# remove packages that we don't need
+for p in lxd snapd landscape-common accountsservice open-vm-tools ufw cloud-init; do eatmydata apt-get purge -y --auto-remove $p || true; done
+
+# HACK: work around fuse 2.9.9-1 install failure (https://bugs.debian.org/935496)
+if [ "$1" = "debian-testing" ]; then
+    rm /dev/fuse
+    # this needs to happen right away, as upgrading other packages triggers udev events which recreate /dev/fuse
+    eatmydata apt-get install -y fuse
+fi
+
+# HACK: debian-stable image got /usr/bin/qemu-img removed, even though qemu-utils package is installed
+if [ "$1" = "debian-stable" ]; then
+    eatmydata apt-get install --reinstall -y qemu-utils
+fi
+
+# install our dependencies
 DEBIAN_FRONTEND=noninteractive eatmydata apt-get -y dist-upgrade
 eatmydata apt-get -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
-[ -z "$COCKPIT_DEPS_EXPERIMENTAL" ] || eatmydata apt-get -y install $COCKPIT_DEPS_EXPERIMENTAL
 
 # Prepare for building
 #
@@ -137,6 +183,14 @@ rm -rf /var/lib/docker/devicemapper
 
 # in case there are unnecessary packages
 eatmydata apt-get -y autoremove || true
+
+# disable udev network names, our tests expect the kernel schema
+sed -i '/GRUB_CMDLINE_LINUX=/ s/"$/ net.ifnames=0 biosdevname=0"/' /etc/default/grub
+rm -f /etc/udev/rules.d/70-persistent-net.rules /etc/udev/rules.d/75-cloud-ifupdown.rules
+update-grub
+sed -i 's/ens[^[:space:]:]*/eth0/' /etc/network/interfaces /etc/network/interfaces.d/* /etc/netplan/*.yaml || true
+update-initramfs -u
+
 
 # reduce image size
 apt-get clean

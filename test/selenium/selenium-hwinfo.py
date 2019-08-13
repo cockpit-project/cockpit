@@ -25,10 +25,10 @@ class TestHWinfo(SeleniumTest):
 
     def setUp(self):
         super().setUp()
-        self.login()
         cmd = "cat | sudo tee '%s'" % self.lscpu_file
         self.machine.execute(command=cmd, input=self.lscpu)
         self.machine.execute('sudo chmod a+x {}'.format(self.lscpu_file))
+        self.login()
         self.click(self.wait_link('System', cond=clickable))
         self.wait_frame("localhost/system")
 

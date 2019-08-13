@@ -26,7 +26,7 @@ def cmd_cli():
     parser.add_argument("image", help="Image name")
     args = parser.parse_args()
 
-    network = machine_virtual.VirtNetwork(0)
+    network = machine_virtual.VirtNetwork(0, image=args.image)
     machine = machine_virtual.VirtMachine(image=args.image, networking=network.host(), memory_mb=args.memory)
     machine.start()
     machine.wait_boot()

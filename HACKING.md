@@ -181,8 +181,8 @@ restarts on the next browser request.
 
 To make Cockpit again use the system-installed code, simply umount these again:
 
-   $ sudo umount /usr/share/cockpit/static/ /usr/share/cockpit/branding/
-   $ systemctl stop cockpit.service
+    $ sudo umount /usr/share/cockpit/static/ /usr/share/cockpit/branding/
+    $ systemctl stop cockpit.service
 
 ## Working on Cockpit using Vagrant
 

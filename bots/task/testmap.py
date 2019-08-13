@@ -38,7 +38,9 @@ REPO_BRANCH_CONTEXT = {
             'fedora-30/selenium-firefox', 'fedora-30/selenium-chrome', 'rhel-8-1',
         ],
         # These can be triggered manually with bots/tests-trigger
-        '_manual': ['fedora-i386', 'fedora-testing',
+        '_manual': [
+            'fedora-i386',
+            'fedora-testing',
         ],
     },
     'cockpit-project/starter-kit': {
@@ -73,7 +75,6 @@ REPO_BRANCH_CONTEXT = {
         ],
         '_manual': [
             'fedora-30/azure',
-
             'rhel-8-1',
             'rhel-8-1/live-iso',
             'rhel-8-1/qcow2',
@@ -100,9 +101,10 @@ REPO_BRANCH_CONTEXT = {
             'rhel-7-7/firefox',
             'rhel-8-1/chrome',
         ],
-        'rhel-8.0': ['rhel-8-0/chrome', 'rhel-8-0/firefox', 'rhel-8-0/edge'
-        ],
-        'rhel-8.1': ['rhel-8-1/chrome', 'rhel-8-1/firefox', 'rhel-8-1/edge'
+        'rhel-8.0': [
+            'rhel-8-0/chrome',
+            'rhel-8-0/firefox',
+            'rhel-8-0/edge',
         ],
     },
     'mvollmer/subscription-manager': {

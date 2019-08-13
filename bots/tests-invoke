@@ -52,10 +52,14 @@ def main():
     name = os.environ.get("TEST_NAME", "tests")
     revision = os.environ.get("TEST_REVISION")
     test_project = os.environ.get("TEST_PROJECT")
+    # branch name when explicitly given in the test status
+    # e.g. PR opened against master for test `rhel-8-0@cockpit-project/cockpit/rhel-8.0`
+    # TEST_BRANCH would be `rhel-8.0`
+    test_branch = os.environ.get("TEST_BRANCH")
 
     try:
         task = PullTask(name, revision, opts.context, opts.rebase, opts.remote,
-                        test_project=test_project, html_logs=opts.html_logs)
+                        test_project=test_project, test_branch=test_branch, html_logs=opts.html_logs)
         ret = task.run(opts)
     except RuntimeError as ex:
         ret = str(ex)
@@ -66,13 +70,14 @@ def main():
     return 0
 
 class PullTask(object):
-    def __init__(self, name, revision, context, base, remote, test_project, html_logs):
+    def __init__(self, name, revision, context, base, remote, test_project, test_branch, html_logs):
         self.name = name
         self.revision = revision
         self.context = context
         self.base = base
         self.remote = remote
         self.test_project = test_project
+        self.test_branch = test_branch
         self.html_logs = html_logs
 
         self.sink = None
@@ -104,7 +109,7 @@ class PullTask(object):
         api = github.GitHub()
 
         # build a unique file name for this test run
-        id_context = "-".join([self.test_project, self.context])
+        id_context = "-".join([self.test_project, self.test_branch or "", self.context])
         identifier = "-".join([
             self.name.replace("/", "-"),
             self.revision[0:8],
@@ -115,7 +120,9 @@ class PullTask(object):
 
         # build a globally unique test context for GitHub statuses
         github_context = self.context
-        if self.test_project != api.repo :  # disambiguate test name for foreign project tests
+        if self.test_branch:
+            github_context += "@" + self.test_project + "/" + self.test_branch
+        elif self.test_project != api.repo :  # disambiguate test name for foreign project tests
             github_context += "@" + self.test_project
 
         self.github_status_data = {

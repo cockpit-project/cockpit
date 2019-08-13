@@ -121,10 +121,7 @@ function validateParams(vmParams) {
         validationFailed['vmName'] = _("Name should not be empty");
     }
 
-    // If we select installation media from URL force the user to select
-    // OS, since virt-install will not detect the OS, in case we don't choose
-    // to start the guest immediately.
-    if (vmParams.os == undefined && vmParams.sourceType == URL_SOURCE && !vmParams.startVm)
+    if (vmParams.os == undefined)
         validationFailed['os'] = _("You need to select the most closely matching Operating System");
 
     let source = vmParams.source ? vmParams.source.trim() : null;

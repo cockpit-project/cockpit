@@ -444,8 +444,8 @@ class ApplyUpdates extends React.Component {
                     <strong>{ PK_STATUS_STRINGS[lastAction.status] || PK_STATUS_STRINGS[PK.Enum.STATUS_UPDATE] }</strong>
                     &nbsp;{lastAction.package}
                 </React.Fragment>);
-            logRows = this.state.actions.slice(0, -1).map(action => (
-                <tr key={action.package}>
+            logRows = this.state.actions.slice(0, -1).map((action, i) => (
+                <tr key={action.package + i}>
                     <th>{PK_STATUS_LOG_STRINGS[action.status] || PK_STATUS_LOG_STRINGS[PK.Enum.STATUS_UPDATE]}</th>
                     <td>{action.package}</td>
                 </tr>));

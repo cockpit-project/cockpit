@@ -156,14 +156,14 @@ TEST_MCAST_XML="""
     <qemu:arg value='-netdev'/>
     <qemu:arg value='socket,mcast=230.0.0.1:{mcast},id=mcast0'/>
     <qemu:arg value='-device'/>
-    <qemu:arg value='rtl8139,netdev=mcast0,mac={mac},bus=pci.0,addr=0x0f'/>
+    <qemu:arg value='{netdriver},netdev=mcast0,mac={mac},bus=pci.0,addr=0x0f'/>
 """
 
 TEST_BRIDGE_XML="""
     <interface type="bridge">
       <source bridge="{bridge}"/>
       <mac address="{mac}"/>
-      <model type="rtl8139"/>
+      <model type="{netdriver}"/>
     </interface>
 """
 
@@ -172,13 +172,14 @@ TEST_REDIR_XML="""
     <qemu:arg value='-netdev'/>
     <qemu:arg value='user,id=base0,restrict={restrict},net=172.27.0.0/24,hostname={name},{forwards}'/>
     <qemu:arg value='-device'/>
-    <qemu:arg value='rtl8139,netdev=base0,bus=pci.0,addr=0x0e'/>
+    <qemu:arg value='{netdriver},netdev=base0,bus=pci.0,addr=0x0e'/>
 """
 
 class VirtNetwork:
-    def __init__(self, network=None, bridge=None):
+    def __init__(self, network=None, bridge=None, image="generic"):
         self.locked = [ ]
         self.bridge = bridge
+        self.image = image
 
         if network is None:
             offset = 0
@@ -250,6 +251,7 @@ class VirtNetwork:
         result["restrict"] = restrict and "on" or "off"
         result["forward"] = { "22": 2200, "9090": 9090 }
         result["forward"].update(forward)
+        result["netdriver"] = ("windows" in self.image) and "rtl8139" or "virtio-net-pci"
         forwards = []
         for remote, local in result["forward"].items():
             local = self._lock(int(local) + result["number"])
@@ -300,7 +302,7 @@ class VirtMachine(Machine):
 
         # Set up some temporary networking info if necessary
         if networking is None:
-            networking = VirtNetwork().host()
+            networking = VirtNetwork(image=image).host()
 
         # Allocate network information about this machine
         self.networking = networking
@@ -672,7 +674,7 @@ class VirtMachine(Machine):
 
     def add_netiface(self, networking=None):
         if not networking:
-            networking = VirtNetwork().interface()
+            networking = VirtNetwork(image=self.image).interface()
         self._qemu_monitor("netdev_add socket,mcast=230.0.0.1:{mcast},id={id}".format(mcast=networking["mcast"], id=networking["hostnet"]))
         cmd = "device_add virtio-net-pci,mac={0},netdev={1}".format(networking["mac"], networking["hostnet"])
         self._qemu_monitor("device_add virtio-net-pci,mac={0},netdev={1}".format(networking["mac"], networking["hostnet"]))

@@ -35,7 +35,7 @@ class TestImageCustomize(unittest.TestCase):
 
     def checkBoot(self, image):
         with testvm.Timeout(seconds=300, error_message="Timed out waiting for image to run"):
-            network = testvm.VirtNetwork(0)
+            network = testvm.VirtNetwork(0, image=image)
             machine = testvm.VirtMachine(image=image, networking=network.host(), memory_mb=512)
             machine.start()
             machine.wait_boot()

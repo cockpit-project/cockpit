@@ -351,8 +351,9 @@ def main():
 
     opts = parser.parse_args()
 
-    network = testvm.VirtNetwork()
     image = BASE_IMAGE
+    # When Windows in use, we need rtl8139, for anything else we want virtio-net-pci
+    network = testvm.VirtNetwork(image="windows-10" if "edge" in opts.browser else image)
     machine = None
     test_timeout = 300
     testsuite = None

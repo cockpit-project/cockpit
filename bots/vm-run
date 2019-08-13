@@ -98,7 +98,7 @@ try:
         memory = 4096
 
     graphics = args.graphics or 'windows' in args.image
-    network = testvm.VirtNetwork(0, bridge=bridge)
+    network = testvm.VirtNetwork(0, bridge=bridge, image=args.image)
 
     machine = testvm.VirtMachine(verbose=args.verbose, image=args.image, maintain=args.maintain,
                                  networking=network.host(restrict=args.no_network),

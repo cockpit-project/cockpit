@@ -636,7 +636,7 @@ class MachineCase(unittest.TestCase):
             if not machine_class:
                 machine_class = testvm.VirtMachine
             if not self.network:
-                network = testvm.VirtNetwork()
+                network = testvm.VirtNetwork(image=image)
                 self.addCleanup(lambda: network.kill())
                 self.network = network
             networking = self.network.host(restrict=True, forward=forward)

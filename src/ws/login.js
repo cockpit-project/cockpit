@@ -246,6 +246,11 @@
 
         translate();
 
+        if (environment.CACertUrl && window.navigator.userAgent.indexOf("Mozilla") >= 0) {
+            id("ca-cert-group").style.display = 'block';
+            id("ca-cert-link").setAttribute("href", environment.CACertUrl);
+        }
+
         setup_path_globals(window.location.pathname);
 
         /* Determine if we are nested or not, and switch styles */

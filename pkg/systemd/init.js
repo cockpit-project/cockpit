@@ -420,14 +420,7 @@ $(function() {
                         "description": cockpit.format(_("$0 services have failed to start"), n_failed)
                     };
                 }
-                cockpit.transport.control("notify",
-                                          { "notify":
-                                            { "page_status":
-                                              { "path": "system/services",
-                                                "status": status
-                                              }
-                                            }
-                                          });
+                cockpit.transport.control("notify", { "page_status": status });
             }
         }
 

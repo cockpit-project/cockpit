@@ -33,9 +33,9 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
     index_options.navigate = function (state, sidebar) {
         return navigate(state, sidebar);
     };
-    index_options.handle_notifications = function (host, data) {
+    index_options.handle_notifications = function (host, page, data) {
         if (data.page_status)
-            machines.overlay(host, { "page_status": { [data.page_status.path]: data.page_status.status } });
+            machines.overlay(host, { "page_status": { [page]: data.page_status } });
     };
     var index = base_index.new_index_from_proto(index_options);
 

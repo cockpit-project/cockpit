@@ -396,28 +396,35 @@ $(function() {
         $("#services-text-filter").on("input", render);
         $(document).on("click", "#clear-all-filters", clear_filters);
 
-        let some_failed = false;
+        let n_failed = null;
 
         function process_failed_units() {
-            let old_some_failed = some_failed;
-            some_failed = false;
+            let old_n_failed = n_failed;
+            n_failed = 0;
             tab_warnings = { };
             for (let p in units_by_path) {
                 let u = units_by_path[p];
                 if (u.ActiveState == "failed" && u.LoadState !== "masked") {
-                    some_failed = true;
+                    n_failed += 1;
                     tab_warnings[u.Id.substr(u.Id.lastIndexOf('.') + 1)] = true;
                 }
             }
 
             render_tabs();
-            if (some_failed != old_some_failed) {
-                console.log("SOME FAILED", some_failed);
+            if (old_n_failed === null || n_failed != old_n_failed) {
+                console.log("FAILED", n_failed);
+                let status = null;
+                if (n_failed) {
+                    status = {
+                        "level": "warning",
+                        "description": cockpit.format(_("$0 services have failed to start"), n_failed)
+                    };
+                }
                 cockpit.transport.control("notify",
                                           { "notify":
                                             { "page_status":
                                               { "path": "system/services",
-                                                "status": some_failed ? "warning" : null
+                                                "status": status
                                               }
                                             }
                                           });

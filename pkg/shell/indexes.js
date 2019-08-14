@@ -273,20 +273,36 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
             var active = state.component === component.path;
             var listItem;
             var status = null;
+            var label;
 
             if (machine.page_status)
                 status = machine.page_status[component.path];
 
+            function icon_class_for_level(level) {
+                if (level == "error")
+                    return 'fa fa-exclamation-circle';
+                else if (level == "warning")
+                    return 'fa fa-exclamation-triangle';
+                else
+                    return 'fa fa-info-circle';
+            }
+
             if (status)
-                status = " (" + status + ")";
+                label = $("<span>").append(component.label,
+                                           " ",
+                                           $("<span>",
+                                             { 'data-toggle': 'tooltip',
+                                               'title': status.description,
+                                               'class': icon_class_for_level(status.level)
+                                             }));
             else
-                status = "";
+                label = $("<span>").text(component.label);
 
             listItem = $("<li class='list-group-item'>")
                     .toggleClass("active", active)
                     .append($("<a>")
                             .attr("href", index.href({ host: machine.address, component: component.path, hash: component.hash }))
-                            .append($("<span>").text(component.label + status)));
+                            .append(label));
 
             if (active)
                 listItem.find('a').attr("aria-current", "page");

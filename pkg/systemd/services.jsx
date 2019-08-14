@@ -37,7 +37,7 @@ export class ServiceTabs extends React.Component {
 
         function title(label, tag) {
             if (warnings[tag])
-                return <span>{label} <span className="pficon pficon-warning-triangle-o" /></span>;
+                return <span>{label} <span className="fa fa-exclamation-triangle" /></span>;
             else
                 return label;
         }

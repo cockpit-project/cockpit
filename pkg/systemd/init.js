@@ -576,6 +576,11 @@ $(function() {
             update_all();
         });
 
+        $(systemd_manager).on("Reloading", function(event, reloading) {
+            if (!reloading)
+                update_all();
+        });
+
         $('#services-dropdown').on('change', render);
 
         update_all();

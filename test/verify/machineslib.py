@@ -1364,6 +1364,13 @@ class TestMachines(NetworkCase):
                                                             os_name=config.FEDORA_28,
                                                             memory_size=256, memory_size_unit='MiB'), {"Memory": "minimum memory requirement of 1024 MiB"})
 
+        # storage
+        checkDialogFormValidationTest(TestMachines.VmDialog(self, storage_size=0), {"Size": "Storage size must not be 0"})
+
+        # storage
+        checkDialogFormValidationTest(TestMachines.VmDialog(self, os_name=config.FEDORA_28,
+                                                            storage_size=1, storage_size_unit='GiB'), {"Size": "minimum storage size requirement"})
+
         # start vm
         checkDialogFormValidationTest(TestMachines.VmDialog(self, storage_size=1,
                                                             os_name=config.FEDORA_28, start_vm=True),
@@ -1379,13 +1386,13 @@ class TestMachines(NetworkCase):
         createTest(TestMachines.VmDialog(self, sourceType='url',
                                          location=config.VALID_URL,
                                          memory_size=512, memory_size_unit='MiB',
-                                         storage_size=1,
+                                         storage_pool="No Storage",
                                          os_name=config.MICROSOFT_SERVER_2016))
 
         createTest(TestMachines.VmDialog(self, sourceType='url',
                                          location=config.VALID_URL,
                                          memory_size=512, memory_size_unit='MiB',
-                                         storage_size=100, storage_size_unit='MiB',
+                                         storage_pool="No Storage",
                                          os_name=config.MICROSOFT_SERVER_2016,
                                          start_vm=False))
 
@@ -1398,7 +1405,7 @@ class TestMachines(NetworkCase):
         createTest(TestMachines.VmDialog(self, sourceType='file',
                                          location=config.NOVELL_MOCKUP_ISO_PATH,
                                          memory_size=256, memory_size_unit='MiB',
-                                         storage_size=0, storage_size_unit='MiB',
+                                         storage_pool="No Storage",
                                          os_name=config.CIRROS,
                                          start_vm=False,
                                          connection='session'))
@@ -1417,7 +1424,7 @@ class TestMachines(NetworkCase):
         createTest(TestMachines.VmDialog(self, sourceType='file',
                                          location=config.NOVELL_MOCKUP_ISO_PATH,
                                          memory_size=100000, memory_size_unit='MiB',
-                                         storage_size=0, storage_size_unit='MiB',
+                                         storage_pool="No Storage",
                                          os_name=config.OPENBSD_6_3,
                                          start_vm=False))
 
@@ -1555,7 +1562,7 @@ class TestMachines(NetworkCase):
             createTest(TestMachines.VmDialog(self, sourceType='url',
                                              location=config.ISO_URL,
                                              memory_size=256, memory_size_unit='MiB',
-                                             storage_size=0, storage_size_unit='MiB',
+                                             storage_pool="No Storage",
                                              start_vm=True))
 
             # This functionality works on debian only because of extra dep.
@@ -1566,7 +1573,7 @@ class TestMachines(NetworkCase):
                 checkDialogErrorTest(TestMachines.VmDialog(self, sourceType='url',
                                                            location=config.ISO_URL,
                                                            memory_size=256, memory_size_unit='MiB',
-                                                           storage_size=0, storage_size_unit='MiB',
+                                                           storage_pool="No Storage",
                                                            start_vm=True), ["qemu", "protocol"])
 
             self.addCleanup(self.machine.execute, "kill {0}".format(server))
@@ -1577,7 +1584,7 @@ class TestMachines(NetworkCase):
             # check that the pxe booting is not available on session connection
             checkPXENotAvailableSessionTest(TestMachines.VmDialog(self, name='pxe-guest',
                                                                   sourceType='pxe',
-                                                                  storage_size=0, storage_size_unit='MiB',
+                                                                  storage_pool="No Storage",
                                                                   connection="session"))
 
             # test PXE Source
@@ -1615,7 +1622,7 @@ class TestMachines(NetworkCase):
             createTest(TestMachines.VmDialog(self, name='pxe-guest', sourceType='pxe',
                                              location="Virtual Network pxe-nat: NAT",
                                              memory_size=256, memory_size_unit='MiB',
-                                             storage_size=0, storage_size_unit='MiB',
+                                             storage_pool="No Storage",
                                              os_name=config.CIRROS,
                                              start_vm=True, delete=False))
 
@@ -1670,7 +1677,7 @@ class TestMachines(NetworkCase):
             createTest(TestMachines.VmDialog(self, sourceType='pxe',
                                              location="Host Device {0}: macvtap".format(iface),
                                              memory_size=256, memory_size_unit='MiB',
-                                             storage_size=0, storage_size_unit='MiB',
+                                             storage_pool="No Storage",
                                              os_name=config.CIRROS,
                                              start_vm=False))
 

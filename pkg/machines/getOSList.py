@@ -29,11 +29,21 @@ for i in range(oses.get_length()):
     osObj['recommendedResources'] = {}
     recommendedResources = os.get_recommended_resources()
     if recommendedResources.get_length():
-        osObj['recommendedResources']['ram'] = recommendedResources.get_nth(0).get_ram()
+        ram = recommendedResources.get_nth(0).get_ram()
+        if ram != -1:
+            osObj['recommendedResources']['ram'] = ram
+        storage = recommendedResources.get_nth(0).get_storage()
+        if storage != -1:
+            osObj['recommendedResources']['storage'] = storage
     osObj['minimumResources'] = {}
     minimumResources = os.get_minimum_resources()
     if minimumResources.get_length():
-        osObj['minimumResources']['ram'] = minimumResources.get_nth(0).get_ram()
+        ram = minimumResources.get_nth(0).get_ram()
+        if ram != -1:
+            osObj['minimumResources']['ram'] = ram
+        storage = minimumResources.get_nth(0).get_storage()
+        if storage != -1:
+            osObj['minimumResources']['storage'] = storage
 
     res.append(osObj)
 

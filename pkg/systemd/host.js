@@ -565,6 +565,25 @@ PageServer.prototype = {
             refresh_os_updates_state();
         });
 
+        function refresh_service_failures() {
+            var page_status = JSON.parse(sessionStorage.getItem("cockpit:page_status"));
+            if (page_status && page_status[cockpit.transport.host]) {
+                var services_status = page_status[cockpit.transport.host]["system/services"];
+                console.log("ST", services_status);
+                if (services_status)
+                    set_page_link("#system_information_service_failures", "system/services",
+                                  services_status.description);
+                else
+                    $("#system_information_service_failures").text("");
+            }
+        }
+
+        refresh_service_failures();
+        window.addEventListener("storage", event => {
+            if (event.key == "cockpit:page_status")
+                refresh_service_failures();
+        });
+
         // Only link from graphs to available pages
         set_page_link("#link-disk", "storage", _("Disk I/O"));
         set_page_link("#link-network", "network", _("Network Traffic"));

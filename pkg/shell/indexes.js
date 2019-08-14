@@ -30,12 +30,21 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
     if (!index_options)
         index_options = {};
 
+    var page_status = { };
+    sessionStorage.removeItem("cockpit:page_status");
+
     index_options.navigate = function (state, sidebar) {
         return navigate(state, sidebar);
     };
     index_options.handle_notifications = function (host, page, data) {
-        if (data.page_status)
-            machines.overlay(host, { "page_status": { [page]: data.page_status } });
+        if (data.page_status !== undefined) {
+            if (!page_status[host])
+                page_status[host] = { };
+            page_status[host][page] = data.page_status;
+            sessionStorage.setItem("cockpit:page_status", JSON.stringify(page_status));
+            // Just for triggering an "updated" event
+            machines.overlay(host, { });
+        }
     };
     var index = base_index.new_index_from_proto(index_options);
 
@@ -275,8 +284,8 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
             var status = null;
             var label;
 
-            if (machine.page_status)
-                status = machine.page_status[component.path];
+            if (page_status[machine.key])
+                status = page_status[machine.key][component.path];
 
             function icon_class_for_level(level) {
                 if (level == "error")

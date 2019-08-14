@@ -470,7 +470,8 @@ PageServer.prototype = {
 
         // if cockpit component "page" is available, set element content to a link to it, otherwise just text
         function set_page_link(element_sel, page, text) {
-            if (cockpit.manifests[page]) {
+            var pkg = page.split("/")[0];
+            if (cockpit.manifests[pkg]) {
                 var link = document.createElement("a");
                 link.innerHTML = text;
                 link.tabIndex = 0;

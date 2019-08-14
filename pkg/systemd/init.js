@@ -380,11 +380,18 @@ $(function() {
             render();
         }
 
-        ReactDOM.render(
-            React.createElement(ServiceTabs, {
-                onChange: tab_changed,
-            }),
-            document.getElementById("services-filter"));
+        let tab_warnings = { };
+
+        function render_tabs() {
+            ReactDOM.render(
+                React.createElement(ServiceTabs, {
+                    onChange: tab_changed,
+                    warnings: tab_warnings,
+                }),
+                document.getElementById("services-filter"));
+        }
+
+        render_tabs();
 
         $("#services-text-filter").on("input", render);
         $(document).on("click", "#clear-all-filters", clear_filters);
@@ -394,12 +401,16 @@ $(function() {
         function process_failed_units() {
             let old_some_failed = some_failed;
             some_failed = false;
+            tab_warnings = { };
             for (let p in units_by_path) {
-                if (units_by_path[p].ActiveState == "failed") {
+                let u = units_by_path[p];
+                if (u.ActiveState == "failed" && u.LoadState !== "masked") {
                     some_failed = true;
-                    break;
+                    tab_warnings[u.Id.substr(u.Id.lastIndexOf('.') + 1)] = true;
                 }
             }
+
+            render_tabs();
             if (some_failed != old_some_failed) {
                 console.log("SOME FAILED", some_failed);
                 cockpit.transport.control("notify",

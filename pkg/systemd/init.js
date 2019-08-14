@@ -8,6 +8,7 @@ import ReactDOM from 'react-dom';
 import { ServiceTabs } from "./services.jsx";
 import { ServiceDetails, ServiceTemplate } from "./service-details.jsx";
 import { journal } from "journal";
+import { page_status } from "notifications";
 import "patterns";
 import "bootstrap-datepicker/dist/js/bootstrap-datepicker";
 
@@ -282,8 +283,19 @@ $(function() {
                     .toLowerCase();
             var current_type_filter = parseInt($('#services-dropdown').val());
 
-            function cmp_path(a, b) { return units_by_path[a].Id.localeCompare(units_by_path[b].Id) }
-            var sorted_keys = Object.keys(units_by_path).sort(cmp_path);
+            function cmp_units(a, b) {
+                const unit_a = units_by_path[a];
+                const unit_b = units_by_path[b];
+                const failed_a = unit_a.ActiveState == "failed" ? 1 : 0;
+                const failed_b = unit_b.ActiveState == "failed" ? 1 : 0;
+
+                if (failed_a != failed_b)
+                    return failed_b - failed_a;
+                else
+                    return unit_a.Id.localeCompare(unit_b.Id);
+            }
+
+            var sorted_keys = Object.keys(units_by_path).sort(cmp_units);
             var units = [];
             var header = {
                 Description: _("Description"),
@@ -369,14 +381,50 @@ $(function() {
             render();
         }
 
-        ReactDOM.render(
-            React.createElement(ServiceTabs, {
-                onChange: tab_changed,
-            }),
-            document.getElementById("services-filter"));
+        let tab_warnings = { };
+
+        function render_tabs() {
+            ReactDOM.render(
+                React.createElement(ServiceTabs, {
+                    onChange: tab_changed,
+                    warnings: tab_warnings,
+                }),
+                document.getElementById("services-filter"));
+        }
+
+        render_tabs();
 
         $("#services-text-filter").on("input", render);
         $(document).on("click", "#clear-all-filters", clear_filters);
+
+        function process_failed_units() {
+            const failed = new Set();
+            tab_warnings = { };
+            for (const p in units_by_path) {
+                const u = units_by_path[p];
+                if (u.ActiveState == "failed") {
+                    failed.add(u.Id);
+                    // The suffix of the unit id determines in which
+                    // tab it shows up.  For example, the unit with id
+                    // "foo.timer" will show up in the "Timers" tab.
+                    tab_warnings[u.Id.substr(u.Id.lastIndexOf('.') + 1)] = true;
+                }
+            }
+
+            render_tabs();
+            if (failed.size > 0) {
+                page_status.set_own({
+                    type: "warning",
+                    title: cockpit.format(cockpit.ngettext("$0 service has failed",
+                                                           "$0 services have failed",
+                                                           failed.size),
+                                          failed.size),
+                    details: [...failed]
+                });
+            } else {
+                page_status.set_own(null);
+            }
+        }
 
         var update_run = 0;
 
@@ -482,6 +530,7 @@ $(function() {
                             return;
                         for (var i = 0; i < result.length; i++)
                             record_unit_state(result[i]);
+                        process_failed_units();
                         systemd_manager.ListUnitFiles()
                                 .fail(fail)
                                 .done(function(result) {
@@ -507,8 +556,10 @@ $(function() {
 
         $(systemd_manager).on("JobNew JobRemoved", function(event, number, path, unit_id, result) {
             var unit_path = path_by_id[unit_id];
-            if (unit_path)
+            if (unit_path) {
                 refresh_properties(unit_path);
+                process_failed_units();
+            }
         });
 
         systemd_client.subscribe({
@@ -520,11 +571,17 @@ $(function() {
                                      if (unit) {
                                          update_properties(unit, args[1]);
                                          render();
+                                         process_failed_units();
                                      }
                                  });
 
         $(systemd_manager).on("UnitFilesChanged", function(event) {
             update_all();
+        });
+
+        $(systemd_manager).on("Reloading", function(event, reloading) {
+            if (!reloading)
+                update_all();
         });
 
         $('#services-dropdown').on('change', render);
@@ -717,6 +774,9 @@ $(function() {
     function update() {
         var path = cockpit.location.path;
 
+        if (!systemd_manager.valid)
+            return;
+
         if (path.length === 0) {
             show_unit(null);
             $("#services").show();
@@ -733,6 +793,7 @@ $(function() {
     }
 
     $(cockpit).on("locationchanged", update);
+    $(cockpit).on("visibilitychange", update);
 
     $('#service-navigate-home').on("click", function() {
         cockpit.location.go('/');

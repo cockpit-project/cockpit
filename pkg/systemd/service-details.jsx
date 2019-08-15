@@ -264,9 +264,11 @@ export class ServiceDetails extends React.Component {
         }
     }
 
-    unitAction(method) {
+    unitAction(method, extra_args) {
+        if (extra_args === undefined)
+            extra_args = [ "fail" ];
         this.setState({ waitsAction: true });
-        this.props.systemdManager.call(method, [ this.props.unit.Names[0], "fail" ])
+        this.props.systemdManager.call(method, [ this.props.unit.Names[0] ].concat(extra_args))
                 .fail(error => this.setState({ error: error.toString() }))
                 .finally(() => this.setState({ waitsAction: false }));
     }
@@ -323,6 +325,7 @@ export class ServiceDetails extends React.Component {
                     <span className="pficon pficon-error-circle-o status-icon" />
                     <span className="status">{ _("Failed to start") }</span>
                     <button className="btn btn-default action-button" onClick={() => this.unitAction("StartUnit") }>{ _("Start Service") }</button>
+                    <button className="btn btn-default action-button" onClick={() => this.unitAction("ResetFailedUnit", [ ]) }>{ _("Clear \"Failed\" Status") }</button>
                 </div>
             );
         }

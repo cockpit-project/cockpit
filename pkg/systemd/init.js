@@ -415,7 +415,7 @@ $(function() {
             tab_warnings = { };
             for (let p in units_by_path) {
                 let u = units_by_path[p];
-                if (u.ActiveState == "failed" && u.LoadState !== "masked") {
+                if (u.ActiveState == "failed") {
                     failed.add(u.Id);
                     tab_warnings[u.Id.substr(u.Id.lastIndexOf('.') + 1)] = true;
                 }

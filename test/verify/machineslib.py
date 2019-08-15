@@ -652,7 +652,7 @@ class TestMachines(NetworkCase):
                     b.select_from_dropdown("#vm-{0}-disks-adddisk-new-unit".format(self.vm_name), self.volume_size_unit)
 
                     if self.volume_format:
-                        b.select_from_dropdown("#vm-{0}-disks-adddisk-new-diskfileformat".format(self.vm_name), self.volume_format)
+                        b.select_from_dropdown("#vm-{0}-disks-adddisk-new-format".format(self.vm_name), self.volume_format)
 
                     # Configure persistency - by default the check box in unchecked for running VMs
                     if self.permanent:

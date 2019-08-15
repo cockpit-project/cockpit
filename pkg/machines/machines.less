@@ -27,7 +27,7 @@
 }
 
 .machines-disks .listing-ct th:nth-last-child(-n+2),
-.machines-disks .listing-ct td:nth-last-child(-n+2) {
+.machines-disks .listing-ct td:nth-last-child(-n+2) :not(.machines-listing-actions) {
     text-align: left;
 }
 
@@ -160,12 +160,12 @@
     color: var(--alert-info-text);
 }
 
-.machines-network-actions {
+.machines-listing-actions {
     display: inline-flex;
     justify-content: space-between;
 }
 
-.machines-network-actions > .btn:not(:last-child) {
+.machines-listing-actions > .btn:not(:last-child) {
     margin-right: 0.5rem;
 }
 

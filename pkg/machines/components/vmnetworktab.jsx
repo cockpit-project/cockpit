@@ -197,7 +197,7 @@ class VmNetworkTab extends React.Component {
                     };
 
                     return (
-                        <div className='machines-network-actions'>
+                        <div className='machines-listing-actions'>
                             <button className='btn btn-default' onClick={onChangeState(network)} title={`${isUp ? _("Unplug") : _("Plug")}`}>
                                 {isUp ? 'Unplug' : 'Plug'}
                             </button>

@@ -219,7 +219,7 @@ Unit=test.service
         b.click(svc_sel("test-fail.service"))
         self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)"], False)
         self.toggle_onoff()
-        self.check_service_details(["Failed to start", "Automatically starts"], ["Start", "Disallow running (mask)"], True)
+        self.check_service_details(["Failed to start", "Automatically starts"], ["Start", "Clear 'Failed to start'", "Disallow running (mask)"], True)
         b.click(".action-button:contains('Start Service')")
         b.go("#/")
         self.wait_service_present("test-fail.service")
@@ -770,6 +770,71 @@ ExecStart=/bin/true
 
         if m.image != "rhel-8-0-distropkg": # Changed in #12265
             b.wait_attr("#Requires a:contains('not-found.service')", "class", "disabled")
+
+    @skipImage("Implemented in #12585", "rhel-8-0-distropkg")
+    def testResetFailed(self):
+        m = self.machine
+        b = self.browser
+
+        # Put it in /run instead of in /etc so that we can mask it,
+        # which needs to put a symlink into /etc.
+        m.write("/run/systemd/system/test-fail.service",
+                """
+[Unit]
+Description=Failing Test Service
+
+[Service]
+ExecStart=/usr/bin/false
+
+[Install]
+WantedBy=default.target
+""")
+
+        m.execute("systemctl daemon-reload")
+        self.machine.execute("systemctl start default.target")
+
+        self.login_and_go("/system/services")
+
+        def svc_sel(service):
+            return 'tr[data-goto-unit="%s"]' % service
+
+        b.click(svc_sel("test-fail.service"))
+        b.wait_js_cond('window.location.hash === "#/test-fail.service"')
+
+        self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)"], False)
+
+        self.wait_onoff(False)
+        self.toggle_onoff()
+
+        self.check_service_details(["Failed to start", "Automatically starts"],
+                                   ["Start", "Clear 'Failed to start'", "Disallow running (mask)"], True)
+
+        # Disabling should reset the "Failed to start" status
+        self.wait_onoff(True)
+        self.toggle_onoff()
+
+        self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)"], False)
+
+        self.wait_onoff(False)
+        self.toggle_onoff()
+
+        self.check_service_details(["Failed to start", "Automatically starts"],
+                                   ["Start", "Clear 'Failed to start'", "Disallow running (mask)"], True)
+
+        # Just reset the failed status, but leave it enabled
+        self.do_action("Clear")
+
+        self.check_service_details(["Not running", "Automatically starts"],
+                                   ["Start", "Disallow running (mask)"], True)
+
+        self.do_action("Start")
+        self.check_service_details(["Failed to start", "Automatically starts"],
+                                   ["Start", "Clear 'Failed to start'", "Disallow running (mask)"], True)
+
+        # Masking should also clear the failed status
+        self.do_action("Disallow running (mask)")
+        b.click(".modal-dialog .btn-danger")
+        self.check_service_details(["Masked"], ["Allow running (unmask)"], False, onoff=False)
 
 
 if __name__ == '__main__':

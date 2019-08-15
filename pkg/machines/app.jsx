@@ -151,6 +151,7 @@ class App extends React.Component {
                     ui={ui}
                     storagePools={storagePools}
                     dispatch={dispatch}
+                    interfaces={interfaces}
                     networks={networks}
                     actions={createVmAction}
                     resourceHasError={this.state.resourceHasError}

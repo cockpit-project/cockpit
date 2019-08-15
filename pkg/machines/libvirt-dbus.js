@@ -1298,13 +1298,27 @@ function updateNetworkIface({ domXml, networkMac, networkState, networkModelType
                 linkElem.setAttribute('state', networkState);
             }
 
+            const typeChanged = networkType !== interfaceElem.getAttribute('type', networkType);
             if (networkType) {
                 interfaceElem.setAttribute('type', networkType);
             }
 
             if (networkSource && networkType) {
                 let sourceElem = getSingleOptionalElem(interfaceElem, 'source');
-                sourceElem.setAttribute(networkType, networkSource);
+                // Source elements of different iface types might contain differently named attributes,
+                // so we delete whole element and create a new one
+                if (typeChanged) {
+                    sourceElem.remove();
+                    sourceElem = undefined;
+                }
+                if (!sourceElem) {
+                    sourceElem = document.createElement("source");
+                    interfaceElem.appendChild(sourceElem);
+                }
+                if (networkType === 'network')
+                    sourceElem.setAttribute('network', networkSource);
+                else if (networkType === 'direct')
+                    sourceElem.setAttribute('dev', networkSource);
             }
 
             if (networkModelType) {

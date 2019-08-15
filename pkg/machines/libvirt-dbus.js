@@ -301,7 +301,7 @@ LIBVIRT_DBUS_PROVIDER = {
         hotplug,
         cacheMode,
     }) {
-        const volXmlDesc = getVolumeXML(volumeName, size, format, target);
+        const volXmlDesc =  getVolumeXML(volumeName, size, format);
 
         return (dispatch) => call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'StoragePoolLookupByName', [poolName], TIMEOUT)
                 .then((storagePoolPath) => {

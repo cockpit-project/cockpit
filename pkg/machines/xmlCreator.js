@@ -93,7 +93,7 @@ export function getNetworkXML({ name, forwardMode, physicalDevice, ipv4, netmask
     return new XMLSerializer().serializeToString(doc.documentElement);
 }
 
-export function getVolumeXML(volumeName, size, format, target) {
+export function getVolumeXML(volumeName, size, format) {
     var doc = document.implementation.createDocument('', '', null);
 
     var volElem = doc.createElement('volume');

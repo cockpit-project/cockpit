@@ -65,7 +65,7 @@ po/POTFILES.js.in:
 	( cd $(srcdir) && find src/base1/ $(TRANSLATE) -name '*.js' -o -name '*.jsx' ) > $@
 po/POTFILES.manifest.in:
 	$(MKDIR_P) $(notdir $@)
-	( cd $(srcdir) && find $(TRANSLATE) -name 'manifest.json' ) > $@
+	( cd $(srcdir) && find $(TRANSLATE) -name 'manifest.json.in' ) > $@
 po/POTFILES.pre.in: prepare-po
 	$(MKDIR_P) $(notdir $@)
 	( cd tmp/ && find . -type f ) > $@

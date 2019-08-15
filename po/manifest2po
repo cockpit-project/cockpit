@@ -67,14 +67,17 @@ function step() {
         return;
     }
 
-    if (path.basename(filename) != "manifest.json")
+    if (path.basename(filename) != "manifest.json.in")
         return step();
 
     fs.readFile(filename, { encoding: "utf-8"}, function(err, data) {
         if (err)
             fatal(err.message);
 
-        process_manifest(JSON.parse(data));
+        // There are variables which when not substituted can cause JSON.parse to fail
+        // Dummy replace them. None variable is going to be translated anyway
+        safe_data = data.replace(/\@.+?\@/gi, 1);
+        process_manifest(JSON.parse(safe_data));
 
         return step();
     });

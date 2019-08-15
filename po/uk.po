@@ -8,11 +8,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-07 20:07+0000\n"
+"POT-Creation-Date: 2019-08-15 04:42+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2019-08-02 05:57+0000\n"
+"PO-Revision-Date: 2019-08-09 04:32+0000\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <kde-i18n-uk@kde.org>\n"
 "Language: uk\n"
@@ -52,7 +52,7 @@ msgstr[0] "$0 пакунок"
 msgstr[1] "$0 пакунки"
 msgstr[2] "$0 пакунків"
 
-#: pkg/systemd/init.js:417 pkg/systemd/service-details.jsx:58
+#: pkg/systemd/init.js:430 pkg/systemd/service-details.jsx:58
 msgid "$0 Template"
 msgstr "Шаблон $0"
 
@@ -573,7 +573,7 @@ msgstr "Активні сторінки"
 msgid "Active since"
 msgstr "Активний з"
 
-#: pkg/systemd/service-details.jsx:347
+#: pkg/systemd/service-details.jsx:336
 msgid "Active since "
 msgstr "Активний з "
 
@@ -719,7 +719,7 @@ msgstr "Додаткові домени пошуку DNS $val"
 msgid "Additional Storage"
 msgstr "Додаткове сховище"
 
-#: pkg/systemd/service-details.jsx:209
+#: pkg/systemd/service-details.jsx:198
 msgid "Additional actions"
 msgstr "Додаткові дії"
 
@@ -756,7 +756,7 @@ msgstr "Адреса є некоректною"
 #: pkg/machines/components/networks/createNetworkDialog.jsx:88
 #: pkg/machines/components/networks/createNetworkDialog.jsx:95
 msgid "Address not within subnet"
-msgstr ""
+msgstr "Адреса поза межами підмережі"
 
 #: pkg/machines/components/desktopConsole.jsx:153
 msgid "Address:"
@@ -778,7 +778,7 @@ msgstr "Пароль адміністратора"
 msgid "Advanced TCA"
 msgstr "Розширене TCA"
 
-#: pkg/systemd/services.html:310 pkg/systemd/service-details.jsx:423
+#: pkg/systemd/services.html:310 pkg/systemd/service-details.jsx:412
 msgid "After"
 msgstr "Після"
 
@@ -794,7 +794,7 @@ msgstr ""
 "та список довірених служб сертифікації."
 
 #: pkg/systemd/services.html:301 pkg/systemd/services.html:305
-#: pkg/systemd/init.js:887
+#: pkg/systemd/init.js:902
 msgid "After system boot"
 msgstr "Після завантаження системи"
 
@@ -818,7 +818,7 @@ msgstr ""
 "Всі дані на позначених дисках буде витерто, а диски буде додано до "
 "резервного сховища даних."
 
-#: pkg/systemd/service-details.jsx:159
+#: pkg/systemd/service-details.jsx:157
 msgid "Allow running (unmask)"
 msgstr "Дозволити запуск (зняти маску)"
 
@@ -974,7 +974,7 @@ msgstr "Автоматично (лише DHCP)"
 msgid "Automatic (DHCP)"
 msgstr "Автоматично (DHCP)"
 
-#: pkg/systemd/init.js:293
+#: pkg/systemd/init.js:295
 msgid "Automatic Startup"
 msgstr "Автоматичний запуск"
 
@@ -986,7 +986,7 @@ msgstr "Автоматичні оновлення"
 msgid "Automatically start libvirt on boot"
 msgstr "Автоматично запускати libvirt при завантаженні"
 
-#: pkg/systemd/service-details.jsx:391
+#: pkg/systemd/service-details.jsx:380
 msgid "Automatically starts"
 msgstr "Запускати автоматично"
 
@@ -1054,11 +1054,11 @@ msgstr "Механізму passwd1 передано помилкові дані"
 msgid "Balancer"
 msgstr "Балансир"
 
-#: pkg/systemd/service-details.jsx:422
+#: pkg/systemd/service-details.jsx:411
 msgid "Before"
 msgstr "До"
 
-#: pkg/systemd/service-details.jsx:413
+#: pkg/systemd/service-details.jsx:402
 msgid "Binds To"
 msgstr "Пов'язано з"
 
@@ -1104,7 +1104,7 @@ msgstr "Порядок завантаження"
 msgid "Boot order settings could not be saved"
 msgstr "Не вдалося зберегти параметри порядку завантаження"
 
-#: pkg/systemd/service-details.jsx:418
+#: pkg/systemd/service-details.jsx:407
 msgid "Bound By"
 msgstr "Пов'язано"
 
@@ -1224,22 +1224,21 @@ msgstr "Не вдалося завантажити образ"
 #: pkg/users/index.html:315 pkg/users/index.html:332 pkg/users/index.html:356
 #: pkg/users/index.html:413 pkg/apps/utils.jsx:86
 #: pkg/lib/cockpit-components-dialog.jsx:159
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:743
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:785
 #: pkg/machines/components/deleteDialog.jsx:158
 #: pkg/machines/components/diskAdd.jsx:597
 #: pkg/machines/components/networks/createNetworkDialog.jsx:486
 #: pkg/machines/components/networks/networkDelete.jsx:100
-#: pkg/machines/components/nicEdit.jsx:296
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:523
-#: pkg/machines/components/storagePools/storagePoolDelete.jsx:128
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:225
 #: pkg/machines/components/vcpuModal.jsx:232
 #: pkg/machines/components/vm/bootOrderModal.jsx:327
 #: pkg/machines/components/vm/memoryModal.jsx:214
-#: pkg/networkmanager/firewall.jsx:590 pkg/networkmanager/firewall.jsx:658
-#: pkg/networkmanager/firewall.jsx:801 pkg/packagekit/updates.jsx:179
-#: pkg/sosreport/index.js:51 pkg/storaged/dialog.jsx:393
-#: pkg/storaged/jobs-panel.jsx:123 pkg/systemd/hwinfo.jsx:216
-#: pkg/systemd/service-details.jsx:107
+#: pkg/machines/components/nicEdit.jsx:311 pkg/networkmanager/firewall.jsx:590
+#: pkg/networkmanager/firewall.jsx:658 pkg/networkmanager/firewall.jsx:801
+#: pkg/packagekit/updates.jsx:179 pkg/sosreport/index.js:51
+#: pkg/storaged/dialog.jsx:393 pkg/storaged/jobs-panel.jsx:123
+#: pkg/systemd/hwinfo.jsx:216 pkg/systemd/service-details.jsx:107
 msgid "Cancel"
 msgstr "Скасувати"
 
@@ -1309,10 +1308,10 @@ msgstr "Змінити обмеження ресурсів"
 msgid "Change the settings"
 msgstr "Змінити параметри"
 
-#: pkg/machines/components/nicEdit.jsx:272
 #: pkg/machines/components/vcpuModal.jsx:183
 #: pkg/machines/components/vm/bootOrderModal.jsx:283
 #: pkg/machines/components/warningInactive.jsx:11
+#: pkg/machines/components/nicEdit.jsx:287
 msgid "Changes will take effect after shutting down the VM"
 msgstr "Зміни буде застосовано після завершення роботи ВМ"
 
@@ -1360,9 +1359,9 @@ msgstr "Шукаємо оновлення…"
 msgid "Checking installed software"
 msgstr "Перевіряємо встановлене програмне забезпечення"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:337
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:352
 msgid "Choose an operating system"
-msgstr ""
+msgstr "Виберіть операційну систему"
 
 #: pkg/shell/index.html:117 pkg/shell/simple.html:85
 msgid "Choose the language to be used in the application"
@@ -1609,11 +1608,11 @@ msgstr "Стискання"
 msgid "Computer OU"
 msgstr "OU комп’ютера"
 
-#: pkg/systemd/service-details.jsx:437
+#: pkg/systemd/service-details.jsx:426
 msgid "Condition $0=$1 was not met"
 msgstr "Умову $0=$1 не виконано"
 
-#: pkg/systemd/service-details.jsx:487
+#: pkg/systemd/service-details.jsx:476
 msgid "Condition failed"
 msgstr "Не виконано умову"
 
@@ -1650,11 +1649,11 @@ msgstr "Підтвердження вилучення віртуальної м�
 msgid "Confirm removal with passphrase"
 msgstr "Підтвердьте вилучення введенням пароля"
 
-#: pkg/systemd/service-details.jsx:421
+#: pkg/systemd/service-details.jsx:410
 msgid "Conflicted By"
 msgstr "Конфліктує за"
 
-#: pkg/systemd/service-details.jsx:420
+#: pkg/systemd/service-details.jsx:409
 msgid "Conflicts"
 msgstr "Конфліктує"
 
@@ -1705,7 +1704,7 @@ msgstr "Встановлюємо зв'язок із службою віртуа�
 msgid "Connecting to the machine"
 msgstr "Встановлюємо з’єднання із комп’ютером"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:659
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:699
 #: pkg/machines/components/networks/createNetworkDialog.jsx:106
 #: pkg/machines/components/networks/networkList.jsx:50
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:40
@@ -1726,7 +1725,7 @@ msgstr "Вичерпано час очікування на з’єднання.
 msgid "Connection will be lost"
 msgstr "З’єднання буде розірвано"
 
-#: pkg/systemd/service-details.jsx:419
+#: pkg/systemd/service-details.jsx:408
 msgid "Consists Of"
 msgstr "Складається з"
 
@@ -1861,7 +1860,7 @@ msgid "Crash system"
 msgstr "Аварійно завершити роботу системи"
 
 #: pkg/users/index.html:199
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:748
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:790
 #: pkg/machines/components/networks/createNetworkDialog.jsx:491
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:526
 #: pkg/storaged/content-views.jsx:123 pkg/storaged/content-views.jsx:689
@@ -1926,14 +1925,14 @@ msgstr "Створити таймери"
 msgid "Create VDO Device"
 msgstr "Створити пристрій VDO"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:790
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:832
 msgid "Create VM"
 msgstr "Створення ВМ"
 
 #: pkg/machines/components/networks/createNetworkDialog.jsx:477
 #: pkg/machines/components/networks/createNetworkDialog.jsx:525
 msgid "Create Virtual Network"
-msgstr ""
+msgstr "Створити віртуальну мережу"
 
 #: pkg/storaged/vgroups-panel.jsx:53
 msgid "Create Volume Group"
@@ -2017,7 +2016,7 @@ msgstr ""
 msgid "Creating volume group $target"
 msgstr "Створюємо групу томів $target"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:641
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:684
 msgid "Creation of VM $0 failed"
 msgstr "Не вдалося створити ВМ $0"
 
@@ -2138,8 +2137,9 @@ msgstr "Затримка"
 #: pkg/machines/components/deleteDialog.jsx:161
 #: pkg/machines/components/networks/networkDelete.jsx:86
 #: pkg/machines/components/networks/networkDelete.jsx:103
-#: pkg/machines/components/storagePools/storagePoolDelete.jsx:114
-#: pkg/machines/components/storagePools/storagePoolDelete.jsx:131
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:194
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:204
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:230
 #: pkg/storaged/content-views.jsx:293 pkg/storaged/content-views.jsx:314
 #: pkg/storaged/mdraid-details.jsx:299 pkg/storaged/mdraid-details.jsx:322
 #: pkg/storaged/vdo-details.jsx:199 pkg/storaged/vdo-details.jsx:262
@@ -2151,7 +2151,7 @@ msgstr "Вилучити"
 msgid "Delete $0"
 msgstr "Вилучити $0"
 
-#: pkg/machines/components/storagePools/storagePoolDelete.jsx:97
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:162
 msgid "Delete Content"
 msgstr "Вилучити дані"
 
@@ -2163,7 +2163,7 @@ msgstr "Вилучити файли"
 msgid "Delete Network $0"
 msgstr "Вилучити мережу $0"
 
-#: pkg/machines/components/storagePools/storagePoolDelete.jsx:120
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:217
 msgid "Delete Storage Pool $0"
 msgstr "Вилучити буфер зберігання даних $0"
 
@@ -2171,7 +2171,7 @@ msgstr "Вилучити буфер зберігання даних $0"
 msgid "Delete associated storage files:"
 msgstr "Вилучити пов’язані файли у сховищі даних:"
 
-#: pkg/machines/components/storagePools/storagePoolDelete.jsx:104
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:170
 msgid "Delete the Volumes inside this Pool"
 msgstr "Вилучити томи у цьому буфері"
 
@@ -2219,7 +2219,7 @@ msgstr ""
 "Вилучення групи томів призведе до витирання усіх даних, що у ній "
 "зберігаються."
 
-#: pkg/machines/components/storagePools/storagePoolDelete.jsx:107
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:174
 msgid ""
 "Deleting an inactive Storage Pool will only undefine the Pool. Its content "
 "will not be deleted."
@@ -2233,13 +2233,19 @@ msgstr "Вилучаємо групу томів $target"
 
 #: pkg/systemd/services.html:268
 #: node_modules/registry-image-widgets/views/image-body.html:6
-#: pkg/networkmanager/firewall.jsx:757 pkg/systemd/init.js:287
+#: pkg/networkmanager/firewall.jsx:757 pkg/systemd/init.js:289
 msgid "Description"
 msgstr "Опис"
 
 #: pkg/lib/machine-info.js:66
 msgid "Desktop"
 msgstr "Робоча станція"
+
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:151
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:187
+msgid ""
+"Detach the disks using this pool from any VMs before attempting deletion."
+msgstr ""
 
 #: pkg/lib/machine-info.js:95
 msgid "Detachable"
@@ -2294,11 +2300,11 @@ msgid "Disable tuned"
 msgstr "Вимкнути tuned"
 
 #: pkg/systemd/services.html:67 pkg/networkmanager/interfaces.js:1969
-#: pkg/systemd/init.js:218 pkg/systemd/service-details.jsx:326
+#: pkg/systemd/init.js:218 pkg/systemd/service-details.jsx:315
 msgid "Disabled"
 msgstr "Вимкнено"
 
-#: pkg/systemd/service-details.jsx:196
+#: pkg/systemd/service-details.jsx:185
 msgid "Disallow running (mask)"
 msgstr "Заборонити запуск (замаскувати)"
 
@@ -2328,11 +2334,11 @@ msgstr "Не вдалося від'єднати диск $0 від віртуа�
 msgid "Disk I/O"
 msgstr "Дисковий ввід/вивід"
 
-#: pkg/machines/components/diskAdd.jsx:526
+#: pkg/machines/components/diskAdd.jsx:525
 msgid "Disk failed to be attached"
 msgstr "Не вдалося долучити диск"
 
-#: pkg/machines/components/diskAdd.jsx:505
+#: pkg/machines/components/diskAdd.jsx:504
 msgid "Disk failed to be created"
 msgstr "Не вдалося створити диск"
 
@@ -2397,7 +2403,7 @@ msgid "Domain Administrator Password"
 msgstr "Пароль адміністратора домену"
 
 #: pkg/systemd/services.html:338 pkg/systemd/services.html:342
-#: pkg/systemd/init.js:1070
+#: pkg/systemd/init.js:1085
 msgid "Don't Repeat"
 msgstr "Не повторювати"
 
@@ -2462,7 +2468,7 @@ msgstr "Дублювання псевдоніма"
 msgid "Duplicate port"
 msgstr "Дублювання порту"
 
-#: pkg/machines/components/nicEdit.jsx:281 pkg/storaged/crypto-tab.jsx:128
+#: pkg/machines/components/nicEdit.jsx:296 pkg/storaged/crypto-tab.jsx:128
 #: pkg/storaged/nfs-details.jsx:306
 msgid "Edit"
 msgstr "Змінити"
@@ -2563,12 +2569,12 @@ msgstr "Параметри шифрування"
 
 #: pkg/machines/components/networks/createNetworkDialog.jsx:252
 msgid "End"
-msgstr ""
+msgstr "Кінець"
 
 #: pkg/machines/components/networks/createNetworkDialog.jsx:63
 #: pkg/machines/components/networks/createNetworkDialog.jsx:91
 msgid "End should not be empty"
-msgstr ""
+msgstr "Кінець не може бути порожнім"
 
 #: pkg/selinux/setroubleshoot-view.jsx:296
 msgid "Enforcing"
@@ -2627,7 +2633,7 @@ msgstr "Помилки:"
 #: pkg/playground/translate.html:100 pkg/playground/translate.html:105
 #: pkg/apps/utils.jsx:100 pkg/storaged/multipath.jsx:57
 #: pkg/storaged/storage-controls.jsx:99 pkg/storaged/storage-controls.jsx:192
-#: pkg/systemd/service-details.jsx:443 pkg/users/local.js:1476
+#: pkg/systemd/service-details.jsx:432 pkg/users/local.js:1476
 msgid "Error"
 msgstr "Помилка"
 
@@ -2687,11 +2693,11 @@ msgstr "Приклад: 88,2019,nfs,rsync"
 msgid "Excellent password"
 msgstr "Чудовий пароль"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:280
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:295
 msgid "Existing Disk Image"
 msgstr "Наявний образ диска"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:217
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:232
 msgid "Existing disk image on host's file system"
 msgstr "Наявний образ диска у файловій системі основної системи"
 
@@ -2771,7 +2777,7 @@ msgstr "Не вдалося завантажити уповноважені кл
 msgid "Failed to remove service"
 msgstr "Не вдалося вилучити службу"
 
-#: pkg/systemd/service-details.jsx:335
+#: pkg/systemd/service-details.jsx:324
 msgid "Failed to start"
 msgstr "Не вдалося запустити"
 
@@ -2846,7 +2852,7 @@ msgstr "Стежить за сховищем docker"
 msgid "For legacy applications only. Reduces performance."
 msgstr "Лише для застарілих програм. Знижує швидкодію."
 
-#: pkg/systemd/service-details.jsx:317
+#: pkg/systemd/service-details.jsx:306
 msgid "Forbidden from running"
 msgstr "Заборонено запускати"
 
@@ -2902,7 +2908,7 @@ msgstr ""
 
 #: pkg/machines/components/networks/createNetworkDialog.jsx:147
 msgid "Forward Mode"
-msgstr ""
+msgstr "Режим переспрямовування"
 
 #: pkg/networkmanager/interfaces.js:2873
 msgid "Forward delay $forward_delay"
@@ -3083,7 +3089,7 @@ msgstr "Вузол не повинен бути порожнім"
 msgid "Hour : Minute"
 msgstr "Година : Хвилина"
 
-#: pkg/systemd/init.js:1146 pkg/systemd/init.js:1175
+#: pkg/systemd/init.js:1161 pkg/systemd/init.js:1190
 msgid "Hour needs to be a number between 0-23"
 msgstr "Години слід вказувати у форматі числа від 0 до 23"
 
@@ -3110,7 +3116,7 @@ msgstr "IP-адреса:"
 
 #: pkg/machines/components/networks/createNetworkDialog.jsx:197
 msgid "IP Configuration"
-msgstr ""
+msgstr "Налаштування IP"
 
 #: pkg/docker/index.html:180
 msgid "IP Prefix Length:"
@@ -3134,11 +3140,11 @@ msgstr "Адреса IPv4"
 
 #: pkg/machines/components/networks/createNetworkDialog.jsx:279
 msgid "IPv4 Network"
-msgstr ""
+msgstr "Мережа IPv4"
 
 #: pkg/machines/components/networks/createNetworkDialog.jsx:45
 msgid "IPv4 Network should not be empty"
-msgstr ""
+msgstr "Мережа IPv4 не повинна бути порожньою"
 
 #: pkg/networkmanager/interfaces.js:3371
 msgid "IPv4 Settings"
@@ -3146,11 +3152,11 @@ msgstr "Параметри IPv4"
 
 #: pkg/machines/components/networks/createNetworkDialog.jsx:213
 msgid "IPv4 and IPv6"
-msgstr ""
+msgstr "IPv4 і IPv6"
 
 #: pkg/machines/components/networks/createNetworkDialog.jsx:207
 msgid "IPv4 only"
-msgstr ""
+msgstr "Лише IPv4"
 
 #: pkg/networkmanager/interfaces.js:2925
 msgid "IPv6"
@@ -3162,11 +3168,11 @@ msgstr "Адреса IPv6"
 
 #: pkg/machines/components/networks/createNetworkDialog.jsx:323
 msgid "IPv6 Network"
-msgstr ""
+msgstr "Мережа IPv6"
 
 #: pkg/machines/components/networks/createNetworkDialog.jsx:73
 msgid "IPv6 Network should not be empty"
-msgstr ""
+msgstr "Мережа IPv6 не повинна бути порожньою"
 
 #: pkg/networkmanager/interfaces.js:3371
 msgid "IPv6 Settings"
@@ -3174,7 +3180,7 @@ msgstr "Параметри IPv6"
 
 #: pkg/machines/components/networks/createNetworkDialog.jsx:210
 msgid "IPv6 only"
-msgstr ""
+msgstr "Лише IPv6"
 
 #: pkg/docker/containers-view.jsx:128 pkg/docker/containers-view.jsx:408
 msgid "Id"
@@ -3262,7 +3268,7 @@ msgid "Images may only be pulled by specific users or groups"
 msgstr ""
 "Образи може бути отримано лише вказаними користувачами або учасниками груп"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:726
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:768
 msgid "Immediately Start VM"
 msgstr "Негайно запустити ВМ"
 
@@ -3270,7 +3276,7 @@ msgstr "Негайно запустити ВМ"
 msgid "In Sync"
 msgstr "Синхронізовано"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:225
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:240
 msgid ""
 "In most configurations, macvtap does not work for host to guest network "
 "communication."
@@ -3359,11 +3365,11 @@ msgstr ""
 "Встановіть setroubleshoot-server, щоб мати змогу діагностувати причини подій "
 "SELinux."
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:284
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:299
 msgid "Installation Source"
 msgstr "Джерело для встановлення"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:266
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:281
 msgid "Installation Source Type"
 msgstr "Тип джерела для встановлення"
 
@@ -3384,7 +3390,7 @@ msgstr "Встановлення"
 msgid "Installing $0"
 msgstr "Встановлюємо $0"
 
-#: pkg/systemd/service-details.jsx:482
+#: pkg/systemd/service-details.jsx:471
 msgid "Instance of template: "
 msgstr "Екземпляр шаблона: "
 
@@ -3392,7 +3398,7 @@ msgstr "Екземпляр шаблона: "
 msgid "Instantiate"
 msgstr "Створити екземпляр"
 
-#: pkg/machines/components/nicEdit.jsx:123
+#: pkg/machines/components/nicEdit.jsx:132
 msgid "Interface Type"
 msgstr "Тип інтерфейсу"
 
@@ -3414,21 +3420,21 @@ msgstr "Внутрішня помилка"
 #: pkg/machines/components/networks/createNetworkDialog.jsx:58
 #: pkg/machines/components/networks/createNetworkDialog.jsx:65
 msgid "Invalid IPv4 address"
-msgstr ""
+msgstr "Некоректна адреса IPv4"
 
 #: pkg/machines/components/networks/createNetworkDialog.jsx:52
 msgid "Invalid IPv4 mask or prefix length"
-msgstr ""
+msgstr "Некоректна довжина маски IPv4 або префікса"
 
 #: pkg/machines/components/networks/createNetworkDialog.jsx:75
 #: pkg/machines/components/networks/createNetworkDialog.jsx:86
 #: pkg/machines/components/networks/createNetworkDialog.jsx:93
 msgid "Invalid IPv6 address"
-msgstr ""
+msgstr "Некоректна адреса IPv6"
 
 #: pkg/machines/components/networks/createNetworkDialog.jsx:80
 msgid "Invalid IPv6 prefix"
-msgstr ""
+msgstr "Некоректний префікс IPv6"
 
 #: pkg/networkmanager/utils.js:90 pkg/networkmanager/utils.js:175
 msgid "Invalid address $0"
@@ -3442,7 +3448,7 @@ msgstr "Некоректний формат дати"
 msgid "Invalid date format and invalid time format"
 msgstr "Некоректний формат дати і часу"
 
-#: pkg/systemd/init.js:1181
+#: pkg/systemd/init.js:1196
 msgid "Invalid date format."
 msgstr "Некоректний формат дати."
 
@@ -3470,7 +3476,7 @@ msgstr "Некоректна метрика $0"
 msgid "Invalid number of days"
 msgstr "Некоректна кількість днів"
 
-#: pkg/systemd/init.js:1128
+#: pkg/systemd/init.js:1143
 msgid "Invalid number."
 msgstr "Некоректне число."
 
@@ -3538,7 +3544,7 @@ msgstr "Долучитися до домену"
 msgid "Joining this domain is not supported"
 msgstr "Підтримки долучення до цього домену не передбачено"
 
-#: pkg/systemd/service-details.jsx:429
+#: pkg/systemd/service-details.jsx:418
 msgid "Joins Namespace Of"
 msgstr "Долучається до простору назв"
 
@@ -3611,7 +3617,7 @@ msgstr "Ключ LACP"
 
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:80
 msgid "LVM Volume Group"
-msgstr ""
+msgstr "Група томів LVM"
 
 #: node_modules/registry-image-widgets/views/image-meta.html:3
 msgid "Labels"
@@ -3633,7 +3639,7 @@ msgstr "Попередні 7 днів"
 msgid "Last Login"
 msgstr "Останній вхід"
 
-#: pkg/systemd/init.js:291
+#: pkg/systemd/init.js:293
 msgid "Last Trigger"
 msgstr "Останній перемикач"
 
@@ -3757,7 +3763,7 @@ msgstr "Локальні диски"
 msgid "Local Filesystem"
 msgstr "Локальна файлова система"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:272
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:287
 msgid "Local Install Media"
 msgstr "Локальні носії для встановлення"
 
@@ -3901,7 +3907,7 @@ msgstr "MTU має бути додатнім числом"
 msgid "Mac"
 msgstr "Mac"
 
-#: pkg/machines/components/nicEdit.jsx:160
+#: pkg/machines/components/nicEdit.jsx:169
 msgid "Mac Address"
 msgstr "Mac-адреса"
 
@@ -3945,23 +3951,23 @@ msgstr "Перевірка вручну за допомогою SSH: "
 msgid "Marking $target as faulty"
 msgstr "Позначаємо $target як помилковий"
 
-#: pkg/systemd/service-details.jsx:203 pkg/systemd/service-details.jsx:206
+#: pkg/systemd/service-details.jsx:192 pkg/systemd/service-details.jsx:195
 msgid "Mask Service"
 msgstr "Замаскувати службу"
 
 #: pkg/machines/components/networks/createNetworkDialog.jsx:293
 msgid "Mask or Prefix Length"
-msgstr ""
+msgstr "Довжина маски або префікса"
 
 #: pkg/machines/components/networks/createNetworkDialog.jsx:50
 msgid "Mask or Prefix Length should not be empty"
-msgstr ""
+msgstr "Довжина маски або префікса повинна бути непорожньою"
 
-#: pkg/systemd/service-details.jsx:316
+#: pkg/systemd/service-details.jsx:305
 msgid "Masked"
 msgstr "Замасковано"
 
-#: pkg/systemd/service-details.jsx:204
+#: pkg/systemd/service-details.jsx:193
 msgid ""
 "Masking service prevents all dependant units from running. This can have "
 "bigger impact than anticipated. Please confirm that you want to mask this "
@@ -4010,7 +4016,7 @@ msgstr "Елемент пристрою RAID $0"
 #: pkg/dashboard/index.html:71 pkg/docker/index.html:273
 #: pkg/playground/translate.html:90 pkg/systemd/index.html:204
 #: pkg/docker/containers-view.jsx:359
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:375
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:390
 #: pkg/machines/components/vmOverviewTab.jsx:74 pkg/systemd/hwinfo.jsx:259
 msgid "Memory"
 msgstr "Пам'ять"
@@ -4078,7 +4084,7 @@ msgstr "Міні-ПК"
 msgid "Mini Tower"
 msgstr "Міні-башточка"
 
-#: pkg/systemd/init.js:1152 pkg/systemd/init.js:1161 pkg/systemd/init.js:1170
+#: pkg/systemd/init.js:1167 pkg/systemd/init.js:1176 pkg/systemd/init.js:1185
 msgid "Minute needs to be a number between 0-59"
 msgstr "Хвилини слід вказувати у форматі числа від 0 до 59"
 
@@ -4094,7 +4100,7 @@ msgstr "Запобіжні заходи"
 msgid "Mode"
 msgstr "Режим"
 
-#: pkg/machines/components/nicEdit.jsx:54 pkg/systemd/hwinfo.jsx:250
+#: pkg/machines/components/nicEdit.jsx:55 pkg/systemd/hwinfo.jsx:250
 msgid "Model"
 msgstr "Модель"
 
@@ -4227,7 +4233,7 @@ msgstr "Сервер NTP"
 #: node_modules/registry-image-widgets/views/image-body.html:2
 #: node_modules/registry-image-widgets/views/imagestream-listing.html:5
 #: pkg/docker/containers-view.jsx:359 pkg/docker/containers-view.jsx:683
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:179
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:194
 #: pkg/machines/components/diskAdd.jsx:126
 #: pkg/machines/components/networks/createNetworkDialog.jsx:122
 #: pkg/machines/components/networks/networkList.jsx:50
@@ -4244,7 +4250,7 @@ msgstr "Сервер NTP"
 #: pkg/storaged/mdraids-panel.jsx:40 pkg/storaged/part-tab.jsx:33
 #: pkg/storaged/vdos-panel.jsx:48 pkg/storaged/vgroup-details.jsx:180
 #: pkg/storaged/vgroups-panel.jsx:55 pkg/systemd/hwinfo.jsx:79
-#: pkg/systemd/init.js:288
+#: pkg/systemd/init.js:290
 msgid "Name"
 msgstr "Назва"
 
@@ -4306,11 +4312,11 @@ msgstr "Не вдалося активувати мережу $0"
 msgid "Network $0 failed to get deactivated"
 msgstr "Не вдалося деактивувати мережу $0"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:278
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:293
 msgid "Network Boot (PXE)"
 msgstr "Мережеве завантаження (PXE)"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:275
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:290
 msgid "Network Boot is available only when using System connection"
 msgstr ""
 "Завантаження з мережі доступне, лише якщо використано з'єднання «Система»"
@@ -4323,7 +4329,7 @@ msgstr "Мережева файлова система"
 msgid "Network Interfaces"
 msgstr "Інтерфейси мережі"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:231
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:246
 msgid "Network Selection does not support PXE."
 msgstr "Для вибору мережі не передбачено підтримки PXE."
 
@@ -4337,7 +4343,7 @@ msgstr ""
 "Для отримання списку пристроїв мережі та графіків слід встановити "
 "NetworkManager."
 
-#: pkg/machines/components/nicEdit.jsx:232
+#: pkg/machines/components/nicEdit.jsx:245
 msgid "Network interface settings could not be saved"
 msgstr "Не вдалося зберегти параметри інтерфейсу мережі"
 
@@ -4400,7 +4406,7 @@ msgstr "Новий пароль не прийнято"
 msgid "Next"
 msgstr "Далі"
 
-#: pkg/systemd/init.js:290
+#: pkg/systemd/init.js:292
 msgid "Next Run"
 msgstr "Наступний запуск"
 
@@ -4433,6 +4439,10 @@ msgstr "Нічого не знайдено"
 msgid "No NFS mounts set up"
 msgstr "Монтувань NFS не налаштовано"
 
+#: pkg/machines/components/nicEdit.jsx:118
+msgid "No Network Devices"
+msgstr ""
+
 #: pkg/selinux/setroubleshoot-view.jsx:375
 msgid "No SELinux alerts."
 msgstr "Немає сповіщень SELinux."
@@ -4454,7 +4464,7 @@ msgstr "Немає модифікацій системи"
 msgid "No VM is running or defined on this host"
 msgstr "У цій основній системі не запущено або не визначено віртуальних машин"
 
-#: pkg/machines/components/nicEdit.jsx:110
+#: pkg/machines/components/nicEdit.jsx:116
 msgid "No Virtual Networks"
 msgstr "Немає віртуальних мереж"
 
@@ -4705,7 +4715,7 @@ msgstr "Не змонтовано"
 msgid "Not permitted to perform this action."
 msgstr "Немає дозволу на виконання цієї дії."
 
-#: pkg/storaged/mdraid-details.jsx:342 pkg/systemd/service-details.jsx:354
+#: pkg/storaged/mdraid-details.jsx:342 pkg/systemd/service-details.jsx:343
 msgid "Not running"
 msgstr "Зупинено"
 
@@ -4717,7 +4727,7 @@ msgstr "Не синхронізовано"
 msgid "Not yet synced"
 msgstr "Ще не синхронізовано"
 
-#: pkg/systemd/service-details.jsx:443
+#: pkg/systemd/service-details.jsx:432
 msgid "Note"
 msgstr "Примітка"
 
@@ -4757,7 +4767,7 @@ msgstr "Старий пароль не прийнято"
 msgid "On Build"
 msgstr "Збирання"
 
-#: pkg/docker/index.html:549 pkg/systemd/service-details.jsx:424
+#: pkg/docker/index.html:549 pkg/systemd/service-details.jsx:413
 msgid "On Failure"
 msgstr "Якщо помилка"
 
@@ -4800,7 +4810,7 @@ msgstr "Використано лише $0 з $1."
 msgid "Only Emergency"
 msgstr "Лише критичне"
 
-#: pkg/systemd/init.js:1102
+#: pkg/systemd/init.js:1117
 msgid "Only alphabets, numbers, : , _ , . , @ , - are allowed."
 msgstr "Можна використовувати лише літери, цифри, : , _ , . , @ , -."
 
@@ -4817,7 +4827,7 @@ msgid "Open"
 msgstr "Відкрита"
 
 #: pkg/systemd/index.html:98
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:328
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:343
 msgid "Operating System"
 msgstr "Операційна система"
 
@@ -4898,7 +4908,7 @@ msgstr "Батьківський"
 msgid "Parent $parent"
 msgstr "Батьківський $parent"
 
-#: pkg/systemd/service-details.jsx:414
+#: pkg/systemd/service-details.jsx:403
 msgid "Part Of"
 msgstr "Частина"
 
@@ -4986,7 +4996,7 @@ msgid "Paste the contents of your public SSH key file here"
 msgstr "Сюди слід вставити вміст файла вашого відкритого ключа SSH"
 
 #: pkg/machines/components/deleteDialog.jsx:45
-#: pkg/systemd/service-details.jsx:476
+#: pkg/systemd/service-details.jsx:465
 msgid "Path"
 msgstr "Шлях"
 
@@ -5014,7 +5024,7 @@ msgstr "Шлях на сервері не може бути порожнім."
 msgid "Path on server must start with \"/\"."
 msgstr "Шлях на сервері має починатися з «/»."
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:208
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:223
 msgid "Path to ISO file on host's file system"
 msgstr "Шлях до ISO у файловій системі основної системи"
 
@@ -5114,11 +5124,11 @@ msgstr "Будь ласка, підтвердьте примусове вилу�
 msgid "Please confirm stopping of $0"
 msgstr "Будь ласка, підтвердьте зупинку $0"
 
-#: pkg/machines/components/diskAdd.jsx:484
+#: pkg/machines/components/diskAdd.jsx:483
 msgid "Please enter new volume name"
 msgstr "Будь ласка, введіть назву нового тому"
 
-#: pkg/machines/components/diskAdd.jsx:487
+#: pkg/machines/components/diskAdd.jsx:486
 msgid "Please enter new volume size"
 msgstr "Будь ласка, введіть розмір нового тому"
 
@@ -5143,7 +5153,7 @@ msgstr ""
 msgid "Please try another term"
 msgstr "Будь ласка, спробуйте інший ключ"
 
-#: pkg/machines/components/vmnetworktab.jsx:184
+#: pkg/machines/components/vmnetworktab.jsx:190
 msgid "Plug"
 msgstr "З'єднати"
 
@@ -5166,6 +5176,11 @@ msgstr "Буфер для тонких томів"
 #: pkg/storaged/content-views.jsx:651
 msgid "Pool for thinly provisioned volumes"
 msgstr "Буфер для тонких резервованих томів"
+
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:149
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:185
+msgid "Pool's volumes are used by VMs "
+msgstr ""
 
 #: pkg/lib/machine-change-port.html:23
 #: pkg/machines/components/vm/bootOrderModal.jsx:98
@@ -5209,11 +5224,11 @@ msgstr "Префікс"
 
 #: pkg/machines/components/networks/createNetworkDialog.jsx:337
 msgid "Prefix Length"
-msgstr ""
+msgstr "Довжина префікса"
 
 #: pkg/machines/components/networks/createNetworkDialog.jsx:78
 msgid "Prefix Length should not be empty"
-msgstr ""
+msgstr "Довжина префікса повинна бути непорожньою"
 
 #: pkg/networkmanager/interfaces.js:3318
 msgid "Prefix length"
@@ -5301,7 +5316,7 @@ msgstr "Час очікування відповіді на запит за до
 msgid "Prompting via ssh-keygen timed out"
 msgstr "Час очікування відповіді на запит за допомогою ssh-keygen вичерпано"
 
-#: pkg/systemd/service-details.jsx:427
+#: pkg/systemd/service-details.jsx:416
 msgid "Propagates Reload To"
 msgstr "Поширює перезавантаження на"
 
@@ -5435,7 +5450,7 @@ msgstr "Без обробки на пристрій"
 msgid "Read more..."
 msgstr "Докладніше…"
 
-#: pkg/systemd/service-details.jsx:381
+#: pkg/systemd/service-details.jsx:370
 msgid "Read-only"
 msgstr "Лише читання"
 
@@ -5539,15 +5554,15 @@ msgstr "Відмовляємо у з’єднанні. Невідомий клю
 msgid "Register…"
 msgstr "Зареєструвати…"
 
-#: pkg/systemd/service-details.jsx:185
+#: pkg/systemd/service-details.jsx:163
 msgid "Reload"
 msgstr "Перезавантажити"
 
-#: pkg/systemd/service-details.jsx:428
+#: pkg/systemd/service-details.jsx:417
 msgid "Reload Propagated From"
 msgstr "Поширене перезавантаження з"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:256
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:271
 msgid "Remote URL"
 msgstr "Віддалена адреса"
 
@@ -5706,27 +5721,27 @@ msgstr "Вимагати зміну пароля кожні $0 днів"
 msgid "Require password change on $0"
 msgstr "Вимагати зміну пароля $0"
 
-#: pkg/systemd/service-details.jsx:415
+#: pkg/systemd/service-details.jsx:404
 msgid "Required By"
 msgstr "Потрібен для"
 
-#: pkg/systemd/service-details.jsx:367
+#: pkg/systemd/service-details.jsx:356
 msgid "Required by "
 msgstr "Потрібен для"
 
-#: pkg/systemd/service-details.jsx:410
+#: pkg/systemd/service-details.jsx:399
 msgid "Requires"
 msgstr "Потребує"
 
-#: pkg/systemd/service-details.jsx:382
+#: pkg/systemd/service-details.jsx:371
 msgid "Requires administration access to edit"
 msgstr "Потребує адміністративного доступу для редагування"
 
-#: pkg/systemd/service-details.jsx:411
+#: pkg/systemd/service-details.jsx:400
 msgid "Requisite"
 msgstr "Потрібний"
 
-#: pkg/systemd/service-details.jsx:416
+#: pkg/systemd/service-details.jsx:405
 msgid "Requisite Of"
 msgstr "Потрібний для"
 
@@ -5767,7 +5782,7 @@ msgstr ""
 #: pkg/docker/index.html:138 pkg/systemd/index.html:134
 #: pkg/systemd/index.html:144 pkg/docker/containers-view.jsx:315
 #: pkg/machines/components/vm/vmActions.jsx:42
-#: pkg/systemd/service-details.jsx:176 pkg/systemd/shutdown.js:95
+#: pkg/systemd/service-details.jsx:167 pkg/systemd/shutdown.js:95
 #: pkg/systemd/shutdown.js:96
 msgid "Restart"
 msgstr "Перезапустити"
@@ -5857,7 +5872,7 @@ msgstr "Запустити під час завантаження основно
 msgid "Runner"
 msgstr "Засіб для запуску"
 
-#: pkg/storaged/mdraid-details.jsx:342 pkg/systemd/service-details.jsx:346
+#: pkg/storaged/mdraid-details.jsx:342 pkg/systemd/service-details.jsx:335
 msgid "Running"
 msgstr "Працює"
 
@@ -5929,10 +5944,11 @@ msgstr "субота"
 msgid "Saturdays"
 msgstr "Суботи"
 
-#: pkg/systemd/services.html:378 pkg/machines/components/nicEdit.jsx:299
+#: pkg/systemd/services.html:378
 #: pkg/machines/components/vm/bootOrderModal.jsx:330
 #: pkg/machines/components/vm/memoryModal.jsx:217
-#: pkg/storaged/crypto-keyslots.jsx:261 pkg/storaged/crypto-keyslots.jsx:278
+#: pkg/machines/components/nicEdit.jsx:314 pkg/storaged/crypto-keyslots.jsx:261
+#: pkg/storaged/crypto-keyslots.jsx:278
 msgid "Save"
 msgstr "Зберегти"
 
@@ -5961,7 +5977,7 @@ msgid "Sealed-case PC"
 msgstr "ПК з опломбованим корпусом"
 
 #: pkg/systemd/services.html:314 pkg/systemd/services.html:318
-#: pkg/systemd/init.js:890
+#: pkg/systemd/init.js:905
 msgid "Seconds"
 msgstr "Секунди"
 
@@ -6092,7 +6108,7 @@ msgstr "Встановити"
 
 #: pkg/machines/components/networks/createNetworkDialog.jsx:231
 msgid "Set DHCP Range"
-msgstr ""
+msgstr "Встановити діапазон DHCP"
 
 #: pkg/systemd/host.js:781
 msgid "Set Host name"
@@ -6199,7 +6215,7 @@ msgid "Single Rank"
 msgstr "Єдиний ранг"
 
 #: pkg/docker/containers-view.jsx:683
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:453
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:476
 #: pkg/machines/components/diskAdd.jsx:172
 #: pkg/machines/components/storagePools/storagePoolList.jsx:49
 #: pkg/machines/components/storagePools/storagePoolVolumesTab.jsx:65
@@ -6291,9 +6307,9 @@ msgid "Sorted from least trusted to most trusted"
 msgstr "Упорядковано від найменшої до найбільшої довіри"
 
 #: pkg/machines/components/diskAdd.jsx:541
-#: pkg/machines/components/nicEdit.jsx:141
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:52
 #: pkg/machines/components/vmDisksTab.jsx:76
+#: pkg/machines/components/nicEdit.jsx:150
 #: pkg/machines/components/vmnetworktab.jsx:148
 msgid "Source"
 msgstr "Джерело"
@@ -6315,7 +6331,7 @@ msgstr "Початкова адреса"
 
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:286
 msgid "Source Volume Group"
-msgstr ""
+msgstr "Початкова група томів"
 
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:238
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:259
@@ -6357,7 +6373,7 @@ msgstr "Стабільний"
 #: pkg/docker/index.html:136 pkg/docker/containers-view.jsx:312
 #: pkg/machines/components/networks/createNetworkDialog.jsx:237
 #: pkg/storaged/mdraid-details.jsx:319 pkg/storaged/swap-tab.jsx:77
-#: pkg/storaged/vdo-details.jsx:259 pkg/systemd/service-details.jsx:180
+#: pkg/storaged/vdo-details.jsx:259 pkg/systemd/service-details.jsx:174
 msgid "Start"
 msgstr "Почати"
 
@@ -6369,11 +6385,11 @@ msgstr "Запустити Docker"
 msgid "Start Multipath"
 msgstr "Запустити Multipath"
 
-#: pkg/networkmanager/index.html:44 pkg/systemd/service-details.jsx:336
+#: pkg/networkmanager/index.html:44 pkg/systemd/service-details.jsx:325
 msgid "Start Service"
 msgstr "Запустити службу"
 
-#: pkg/systemd/service-details.jsx:406
+#: pkg/systemd/service-details.jsx:395
 msgid "Start and Enable"
 msgstr "Запустити і увімкнути"
 
@@ -6388,7 +6404,7 @@ msgstr "Запускати резервне сховище після заван
 #: pkg/machines/components/networks/createNetworkDialog.jsx:56
 #: pkg/machines/components/networks/createNetworkDialog.jsx:84
 msgid "Start should not be empty"
-msgstr ""
+msgstr "Початок повинен бути непорожнім"
 
 #: pkg/storaged/jobs-panel.jsx:59
 msgid "Starting RAID Device $target"
@@ -6406,7 +6422,7 @@ msgstr "Запуск"
 #: pkg/machines/components/networks/networkList.jsx:50
 #: pkg/machines/components/storagePools/storagePoolList.jsx:49
 #: pkg/machines/components/vmnetworktab.jsx:172 pkg/machines/hostvmslist.jsx:83
-#: pkg/systemd/hwinfo.jsx:259 pkg/systemd/init.js:292
+#: pkg/systemd/hwinfo.jsx:259 pkg/systemd/init.js:294
 msgid "State"
 msgstr "Стан"
 
@@ -6415,11 +6431,11 @@ msgid "State:"
 msgstr "Стан:"
 
 #: pkg/systemd/services.html:68 pkg/systemd/init.js:212
-#: pkg/systemd/service-details.jsx:364
+#: pkg/systemd/service-details.jsx:353
 msgid "Static"
 msgstr "Статичний"
 
-#: pkg/networkmanager/interfaces.js:2625 pkg/systemd/service-details.jsx:471
+#: pkg/networkmanager/interfaces.js:2625 pkg/systemd/service-details.jsx:460
 msgid "Status"
 msgstr "Стан"
 
@@ -6434,7 +6450,7 @@ msgstr "Липкий"
 #: pkg/docker/index.html:137 pkg/docker/containers-view.jsx:310
 #: pkg/storaged/mdraid-details.jsx:318 pkg/storaged/swap-tab.jsx:76
 #: pkg/storaged/vdo-details.jsx:157 pkg/storaged/vdo-details.jsx:258
-#: pkg/systemd/service-details.jsx:165
+#: pkg/systemd/service-details.jsx:170
 msgid "Stop"
 msgstr "Зупинити"
 
@@ -6442,7 +6458,7 @@ msgstr "Зупинити"
 msgid "Stop Device"
 msgstr "Зупинити пристрій"
 
-#: pkg/systemd/service-details.jsx:406
+#: pkg/systemd/service-details.jsx:395
 msgid "Stop and Disable"
 msgstr "Зупинити і вимкнути"
 
@@ -6475,7 +6491,7 @@ msgid "Stopping swapspace $target"
 msgstr "Зупиняємо резервну область пам’яті $target"
 
 #: pkg/docker/index.html:290 pkg/storaged/index.html:23
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:416
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:439
 #: pkg/storaged/details.jsx:127
 msgid "Storage"
 msgstr "Сховище даних"
@@ -6520,6 +6536,10 @@ msgstr "У цій системі не можна керувати сховище
 #: pkg/docker/index.html:304
 msgid "Storage pool"
 msgstr "Буфер сховища"
+
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:172
+msgid "Storage size must not be 0"
+msgstr ""
 
 #: pkg/systemd/index.html:155
 msgid "Store Metrics"
@@ -6762,8 +6782,8 @@ msgstr "Для додавання резервних дисків має пра�
 msgid "The RAID device must be running in order to remove disks."
 msgstr "Для вилучення дисків має працювати пристрій RAID."
 
-#: pkg/machines/components/storagePools/storagePoolDelete.jsx:80
-#: pkg/machines/components/storagePools/storagePoolDelete.jsx:84
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:125
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:129
 msgid "The Storage Pool could not be deleted"
 msgstr "Не вдалося вилучити буфер сховища даних"
 
@@ -6951,6 +6971,11 @@ msgstr "Сканування $time ($type) виконати не вдалося.
 msgid "The selected Operating System has minimum memory requirement of $0 $1"
 msgstr "Для вибраної операційної системи мінімальним обсягом пам'яті є $0 $1"
 
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:178
+msgid ""
+"The selected Operating System has minimum storage size requirement of $0 $1"
+msgstr ""
+
 #: src/ws/login.js:645
 msgid ""
 "The server refused to authenticate '$0' using password authentication, and "
@@ -6969,7 +6994,7 @@ msgstr ""
 msgid "The user $0 is not permitted to change cpu security mitigations"
 msgstr "Користувачу $0 заборонено змінювати заходи захисту процесора"
 
-#: pkg/systemd/init.js:736
+#: pkg/systemd/init.js:751
 msgid "The user <b>$0</b> does not have permissions for creating timers"
 msgstr "Користувачу <b>$0</b> заборонено створювати таймери"
 
@@ -7063,7 +7088,7 @@ msgstr ""
 msgid "This VDO device does not use all of its backing device."
 msgstr "Цей пристрій VDO не використовує увесь об'єм резервного пристрою."
 
-#: pkg/systemd/init.js:1185
+#: pkg/systemd/init.js:1200
 msgid ""
 "This day doesn't exist in all months.<br> The timer will only be executed in "
 "months that have 31st."
@@ -7117,7 +7142,7 @@ msgid "This disk cannot be removed while the device is recovering."
 msgstr ""
 "Цей диск не можна вилучати, доки пристрій перебуває у стані відновлення."
 
-#: pkg/systemd/init.js:1097 pkg/systemd/init.js:1111 pkg/systemd/init.js:1120
+#: pkg/systemd/init.js:1112 pkg/systemd/init.js:1126 pkg/systemd/init.js:1135
 msgid "This field cannot be empty."
 msgstr "Вміст цього поля не може бути порожнім."
 
@@ -7172,7 +7197,7 @@ msgstr ""
 "Ця програма збере дані щодо налаштувань системи і діагностичні дані з цієї "
 "системи для виявлення причин проблем у системі."
 
-#: pkg/systemd/service-details.jsx:293
+#: pkg/systemd/service-details.jsx:282
 msgid "This unit is not designed to be enabled explicitly."
 msgstr "Цей модуль не створено для вмикання явним чином."
 
@@ -7188,7 +7213,7 @@ msgstr ""
 "У цій версії cockpit-ws не передбачено підтримки встановлення з’єднання із "
 "вузлом від альтернативного користувача або на альтернативному порті."
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:446
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:469
 msgid "This volume is already used by another VM."
 msgstr "Цей том вже використано іншою ВМ."
 
@@ -7292,11 +7317,11 @@ msgstr "Загальний розмір: $0"
 msgid "Tower"
 msgstr "Башточка"
 
-#: pkg/systemd/service-details.jsx:426
+#: pkg/systemd/service-details.jsx:415
 msgid "Triggered By"
 msgstr "Причина вмикання"
 
-#: pkg/systemd/service-details.jsx:425
+#: pkg/systemd/service-details.jsx:414
 msgid "Triggers"
 msgstr "Умовні зміни"
 
@@ -7385,7 +7410,7 @@ msgstr "Введіть щось для фільтрування…"
 msgid "UDP"
 msgstr "UDP"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:273
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:288
 msgid "URL"
 msgstr "Адреса"
 
@@ -7457,9 +7482,9 @@ msgstr "Неочікувана помилка"
 
 #: pkg/machines/components/networks/createNetworkDialog.jsx:128
 msgid "Unique Network Name"
-msgstr ""
+msgstr "Унікальна назва мережі"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:186
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:201
 msgid "Unique name"
 msgstr "Унікальна назва"
 
@@ -7556,7 +7581,7 @@ msgstr "Демонтуємо $target"
 msgid "Unnamed"
 msgstr "Без назви"
 
-#: pkg/machines/components/vmnetworktab.jsx:184
+#: pkg/machines/components/vmnetworktab.jsx:190
 msgid "Unplug"
 msgstr "Від'єднати"
 
@@ -7594,11 +7619,11 @@ msgstr "Ненадійний вузол"
 msgid "Up since $0"
 msgstr "Працює з $0"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:465
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:490
 msgid "Up to $0 $1 available in the default location"
 msgstr "У типовому місці доступно до $0 $1"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:388
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:403
 msgid "Up to $0 $1 available on the host"
 msgstr "У основній системі доступними є до $0 $1"
 
@@ -7630,7 +7655,7 @@ msgstr "Доступні оновлення"
 msgid "Updating"
 msgstr "Оновлення"
 
-#: pkg/systemd/service-details.jsx:401
+#: pkg/systemd/service-details.jsx:390
 msgid "Updating status..."
 msgstr "Оновлюємо стан…"
 
@@ -7767,7 +7792,7 @@ msgstr "Не вдалося примусово вимкнути віртуаль
 msgid "VM $0 failed to get deleted"
 msgstr "Не вдалося вилучити віртуальну машину $0"
 
-#: pkg/machines/hostvmslist.jsx:110 pkg/machines/libvirt-common.js:1308
+#: pkg/machines/libvirt-common.js:1308 pkg/machines/hostvmslist.jsx:110
 msgid "VM $0 failed to get installed"
 msgstr "Не вдалося встановити віртуальну машину $0"
 
@@ -7861,7 +7886,7 @@ msgstr "Віртуальна мережа"
 
 #: pkg/machines/components/networks/createNetworkDialog.jsx:422
 msgid "Virtual Network failed to be created"
-msgstr ""
+msgstr "Не вдалося створити віртуальну мережу"
 
 #: pkg/machines/components/libvirtSlate.jsx:80
 msgid "Virtualization Service (libvirt) is Not Active"
@@ -7871,7 +7896,7 @@ msgstr "Служба віртуалізації (libvirt) не є активно
 msgid "Virtualization Service is Available"
 msgstr "Доступна служба віртуалізації"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:436
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:459
 #: pkg/machines/components/deleteDialog.jsx:50
 #: pkg/machines/components/diskAdd.jsx:89
 #: pkg/machines/components/vm/bootOrderModal.jsx:96
@@ -7890,11 +7915,11 @@ msgstr "Група томів $0"
 
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:214
 msgid "Volume Group name"
-msgstr ""
+msgstr "Назва групи томів"
 
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:298
 msgid "Volume Group name should not be empty"
-msgstr ""
+msgstr "Назва групи томів має бути непорожньою"
 
 #: pkg/storaged/vgroups-panel.jsx:113
 msgid "Volume Groups"
@@ -7937,11 +7962,11 @@ msgstr ""
 msgid "Waiting for other software management operations to finish"
 msgstr "Очікуємо на завершення інших дій із програмним забезпеченням"
 
-#: pkg/systemd/service-details.jsx:417
+#: pkg/systemd/service-details.jsx:406
 msgid "Wanted By"
 msgstr "Бажаний для"
 
-#: pkg/systemd/service-details.jsx:412
+#: pkg/systemd/service-details.jsx:401
 msgid "Wants"
 msgstr "Бажає"
 
@@ -8037,7 +8062,7 @@ msgstr "Для зміни вашого пароля вам доведеться 
 
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:128
 msgid "You need to select the most closely matching Operating System"
-msgstr ""
+msgstr "Вам слід вибрати найвідповіднішу операційну систему"
 
 #: pkg/packagekit/updates.jsx:836
 msgid ""
@@ -8368,7 +8393,7 @@ msgid "undefined"
 msgstr "не визначено"
 
 #: node_modules/registry-image-widgets/views/imagestream-listing.html:31
-#: pkg/systemd/init.js:254 pkg/systemd/init.js:268
+#: pkg/systemd/init.js:256 pkg/systemd/init.js:270
 msgid "unknown"
 msgstr "невідомо"
 
@@ -8408,7 +8433,7 @@ msgstr "значення"
 msgid "vhostuser"
 msgstr "vhostuser"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:795
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:837
 msgid ""
 "virt-install package needs to be installed on the system in order to create "
 "new VMs"

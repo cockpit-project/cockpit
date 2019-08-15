@@ -296,15 +296,16 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
                     return 'fa fa-info-circle';
             }
 
-            if (status)
-                label = $("<span>").append(component.label,
-                                           " ",
-                                           $("<span>",
-                                             { 'data-toggle': 'tooltip',
-                                               'title': status.description,
-                                               'class': icon_class_for_level(status.level)
-                                             }));
-            else
+            if (status) {
+                label = $("<span>",
+                          { 'data-toggle': 'tooltip',
+                            'title': status.description
+                          }).append(component.label,
+                                    " ",
+                                    $("<span>",
+                                      { 'class': icon_class_for_level(status.level)
+                                      }));
+            } else
                 label = $("<span>").text(component.label);
 
             listItem = $("<li class='list-group-item'>")

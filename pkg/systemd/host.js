@@ -569,13 +569,14 @@ PageServer.prototype = {
         function refresh_service_failures() {
             var page_status = JSON.parse(sessionStorage.getItem("cockpit:page_status"));
             if (page_status && page_status[cockpit.transport.host]) {
+                $("#system_information_service_failures").empty();
                 var services_status = page_status[cockpit.transport.host]["system/services"];
-                console.log("ST", services_status);
-                if (services_status)
-                    set_page_link("#system_information_service_failures", "system/services",
-                                  services_status.description);
-                else
-                    $("#system_information_service_failures").text("");
+                if (services_status) {
+                    $("#system_information_service_failures")
+                            .append(services_status.details.map(u => $('<div>').append(
+                                $('<a>', { 'data-goto-service': u }).text(u),
+                                " has failed")));
+                }
             }
         }
 

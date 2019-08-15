@@ -396,28 +396,40 @@ $(function() {
         $("#services-text-filter").on("input", render);
         $(document).on("click", "#clear-all-filters", clear_filters);
 
-        let n_failed = null;
+        let failed = null;
+
+        function superset(a, b) {
+            for (let e of b)
+                if (!a.has(e))
+                    return false;
+            return true;
+        }
+
+        function set_equal(a, b) {
+            return superset(a, b) && superset(b, a);
+        }
 
         function process_failed_units() {
-            let old_n_failed = n_failed;
-            n_failed = 0;
+            let old_failed = failed;
+            failed = new Set();
             tab_warnings = { };
             for (let p in units_by_path) {
                 let u = units_by_path[p];
                 if (u.ActiveState == "failed" && u.LoadState !== "masked") {
-                    n_failed += 1;
+                    failed.add(u.Id);
                     tab_warnings[u.Id.substr(u.Id.lastIndexOf('.') + 1)] = true;
                 }
             }
 
             render_tabs();
-            if (old_n_failed === null || n_failed != old_n_failed) {
-                console.log("FAILED", n_failed);
+            if (old_failed === null || !set_equal(failed, old_failed)) {
+                console.log("FAILED", failed);
                 let status = null;
-                if (n_failed) {
+                if (failed.size > 0) {
                     status = {
                         "level": "warning",
-                        "description": cockpit.format(_("$0 services have failed to start"), n_failed)
+                        "description": cockpit.format(_("$0 services have failed"), failed.size),
+                        "details": [...failed]
                     };
                 }
                 cockpit.transport.control("notify", { "page_status": status });

@@ -24,7 +24,7 @@ reasonable environment to work with.
     $ sudo apt-get remove nodejs npm
     $ sudo n lts
 
-On Fedora, the distribution verisons are sufficient:
+On Fedora, the distribution versions are sufficient:
 
     $ sudo dnf install nodejs npm
 

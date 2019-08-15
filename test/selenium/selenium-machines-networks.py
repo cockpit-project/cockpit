@@ -37,15 +37,15 @@ class MachinesNetworksTestSuite(MachinesLib):
         self.click(self.wait_css('#vm-{}-networks'.format(name), cond=clickable))
         self.wait_css('#vm-{}-network-1-type'.format(name))
         # Unplug
-        self.wait_css('.machines-network-actions > button', cond=text_in, text_='Unplug')
-        self.click(self.wait_css('.machines-network-actions > button', cond=clickable))
+        self.wait_css('.machines-listing-actions > button', cond=text_in, text_='Unplug')
+        self.click(self.wait_css('.machines-listing-actions > button', cond=clickable))
         self.wait_css('#vm-{}-network-1-state'.format(name), cond=text_in, text_='down')
-        self.wait_css('.machines-network-actions > button', cond=text_in, text_='Plug')
+        self.wait_css('.machines-listing-actions > button', cond=text_in, text_='Plug')
         self.assertIn('down', self.machine.execute('sudo virsh domif-getlink {} vnet0'.format(name)))
         # Plug
-        self.click(self.wait_css('.machines-network-actions > button', cond=clickable))
+        self.click(self.wait_css('.machines-listing-actions > button', cond=clickable))
         self.wait_css('#vm-{}-network-1-state'.format(name), cond=text_in, text_='up')
-        self.wait_css('.machines-network-actions > button', cond=text_in, text_='Unplug')
+        self.wait_css('.machines-listing-actions > button', cond=text_in, text_='Unplug')
         self.assertIn('up', self.machine.execute('sudo virsh domif-getlink {} vnet0'.format(name)))
 
     def testNetworkEditWithRunning(self):

@@ -22,8 +22,9 @@ import cockpit from 'cockpit';
 
 import * as Select from "cockpit-components-select.jsx";
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
-import { units, convertToUnit, digitFilter, toFixedPrecision } from '../helpers.js';
+import { units, convertToUnit, getDefaultVolumeFormat } from '../helpers.js';
 import { volumeCreateAndAttach, attachDisk, getVm, getAllStoragePools } from '../actions/provider-actions.js';
+import { VolumeCreateBody } from './storagePools/storageVolumeCreateBody.jsx';
 
 import 'form-layout.less';
 import './diskAdd.css';
@@ -119,84 +120,6 @@ const PermanentChange = ({ idPrefix, onValueChanged, permanent, provider, vm }) 
     );
 };
 
-const VolumeName = ({ idPrefix, volumeName, onValueChanged }) => {
-    return (
-        <>
-            <label className='control-label' htmlFor={`${idPrefix}-name`}>
-                {_("Name")}
-            </label>
-            <input id={`${idPrefix}-name`}
-                   className="form-control"
-                   type="text"
-                   minLength={1}
-                   placeholder={_("New Volume Name")}
-                   value={volumeName || ""}
-                   onChange={e => onValueChanged('volumeName', e.target.value)} />
-        </>
-    );
-};
-
-const VolumeDetails = ({ idPrefix, size, unit, diskFileFormat, storagePoolType, onValueChanged }) => {
-    let formatRow;
-    let validVolumeFormats;
-
-    // For the valid volume format types for different pool types see https://libvirt.org/storage.html
-    if (['disk'].indexOf(storagePoolType) > -1) {
-        validVolumeFormats = [
-            'none', 'linux', 'fat16', 'fat32', 'linux-swap', 'linux-lvm',
-            'linux-raid', 'extended'
-        ];
-    } else if (['dir', 'fs', 'netfs', 'gluster', 'vstorage'].indexOf(storagePoolType) > -1) {
-        validVolumeFormats = ['qcow2', 'raw'];
-    }
-
-    if (validVolumeFormats) {
-        formatRow = (
-            <>
-                <label className='control-label' htmlFor={`${idPrefix}-fileformat`}>
-                    {_("Format")}
-                </label>
-                <Select.Select id={`${idPrefix}-diskfileformat`}
-                    onChange={value => onValueChanged('diskFileFormat', value)}
-                    initial={diskFileFormat}
-                    extraClass='form-control ct-form-split'>
-                    { validVolumeFormats.map(format => <Select.SelectEntry data={format} key={format}>{format}</Select.SelectEntry>) }
-                </Select.Select>
-            </>
-        );
-    }
-
-    return (
-        <>
-            <label className='control-label' htmlFor={`${idPrefix}-size`}>
-                {_("Size")}
-            </label>
-            <div role="group" className="ct-form-split">
-                <input id={`${idPrefix}-size`}
-                       className="form-control add-disk-size"
-                       type="number"
-                       value={toFixedPrecision(size)}
-                       onKeyPress={digitFilter}
-                       step={1}
-                       min={0}
-                       onChange={e => onValueChanged('size', e.target.value)} />
-
-                <Select.Select id={`${idPrefix}-unit`}
-                               initial={unit}
-                               onChange={value => onValueChanged('unit', value)}>
-                    <Select.SelectEntry data={units.MiB.name} key={units.MiB.name}>
-                        {_("MiB")}
-                    </Select.SelectEntry>
-                    <Select.SelectEntry data={units.GiB.name} key={units.GiB.name}>
-                        {_("GiB")}
-                    </Select.SelectEntry>
-                </Select.Select>
-            </div>
-            {formatRow}
-        </>
-    );
-};
-
 const PoolRow = ({ idPrefix, onValueChanged, storagePoolName, vmStoragePools }) => {
     return (
         <>
@@ -282,15 +205,10 @@ const CreateNewDisk = ({ idPrefix, onValueChanged, dialogValues, vmStoragePools,
             {storagePool &&
             <>
                 <hr />
-                <VolumeName idPrefix={idPrefix}
-                            volumeName={dialogValues.volumeName}
-                            onValueChanged={onValueChanged} />
-                <VolumeDetails idPrefix={idPrefix}
-                               size={dialogValues.size}
-                               unit={dialogValues.unit}
-                               diskFileFormat={dialogValues.diskFileFormat}
-                               storagePoolType={storagePool.type}
-                               onValueChanged={onValueChanged} />
+                <VolumeCreateBody idPrefix={idPrefix}
+                                  storagePool={storagePool}
+                                  dialogValues={dialogValues}
+                                  onValueChanged={onValueChanged} />
                 <hr />
                 <PermanentChange idPrefix={idPrefix}
                                  permanent={dialogValues.permanent}
@@ -381,18 +299,6 @@ class AddDiskModalBody extends React.Component {
         this.dialogErrorSet = this.dialogErrorSet.bind(this);
         this.onAddClicked = this.onAddClicked.bind(this);
         this.getDefaultVolumeName = this.getDefaultVolumeName.bind(this);
-        this.getDefaultVolumeFormat = this.getDefaultVolumeFormat.bind(this);
-    }
-
-    getDefaultVolumeFormat(pool) {
-        // For the valid volume format types for different pool types see https://libvirt.org/storage.html
-        if (['disk'].indexOf(pool.type) > -1)
-            return 'none';
-
-        if (['dir', 'fs', 'netfs', 'gluster', 'vstorage'].indexOf(pool.type) > -1)
-            return 'qcow2';
-
-        return undefined;
     }
 
     get initialState() {
@@ -412,7 +318,7 @@ class AddDiskModalBody extends React.Component {
             existingVolumeName: undefined,
             size: 1,
             unit: units.GiB.name,
-            diskFileFormat: defaultPool && this.getDefaultVolumeFormat(defaultPool),
+            format: defaultPool && getDefaultVolumeFormat(defaultPool),
             target: availableTarget,
             permanent: !provider.isRunning(vm.state), // default true for a down VM; for a running domain, the disk is attached tentatively only
             hotplug: provider.isRunning(vm.state), // must be kept false for a down VM; the value is not being changed by user
@@ -444,11 +350,11 @@ class AddDiskModalBody extends React.Component {
             this.setState(prevState => { // to prevent asynchronous for recursive call with existingVolumeName as a key
                 const { storagePools, vm } = this.props;
                 const pool = storagePools.find(pool => pool.name === prevState.storagePoolName && pool.connectionName === vm.connectionName);
-                stateDelta.diskFileFormat = this.getDefaultVolumeFormat(pool);
+                stateDelta.format = getDefaultVolumeFormat(pool);
                 if (['dir', 'fs', 'netfs', 'gluster', 'vstorage'].indexOf(pool.type) > -1) {
                     const volume = pool.volumes.find(vol => vol.name === value);
                     if (volume && volume.format)
-                        stateDelta.diskFileFormat = volume.format;
+                        stateDelta.format = volume.format;
                 }
                 return stateDelta;
             });
@@ -493,7 +399,7 @@ class AddDiskModalBody extends React.Component {
                 poolName: this.state.storagePoolName,
                 volumeName: this.state.volumeName,
                 size: convertToUnit(this.state.size, this.state.unit, 'MiB'),
-                format: this.state.diskFileFormat,
+                format: this.state.format,
                 target: this.state.target,
                 permanent: this.state.permanent,
                 hotplug: this.state.hotplug,
@@ -516,7 +422,7 @@ class AddDiskModalBody extends React.Component {
             connectionName: vm.connectionName,
             poolName: this.state.storagePoolName,
             volumeName: this.state.existingVolumeName,
-            format: this.state.diskFileFormat,
+            format: this.state.format,
             target: this.state.target,
             permanent: this.state.permanent,
             hotplug: this.state.hotplug,

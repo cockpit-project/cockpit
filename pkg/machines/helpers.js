@@ -665,3 +665,14 @@ export function getNetworkDevices(vms, nodeDevices, interfaces) {
 
     return uniq;
 }
+
+export function getDefaultVolumeFormat(pool) {
+    // For the valid volume format types for different pool types see https://libvirt.org/storage.html
+    if (['disk'].indexOf(pool.type) > -1)
+        return 'none';
+
+    if (['dir', 'fs', 'netfs', 'gluster', 'vstorage'].indexOf(pool.type) > -1)
+        return 'qcow2';
+
+    return undefined;
+}

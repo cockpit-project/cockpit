@@ -301,7 +301,7 @@ LIBVIRT_DBUS_PROVIDER = {
         hotplug,
         cacheMode,
     }) {
-        const volXmlDesc =  getVolumeXML(volumeName, size, format);
+        const volXmlDesc = getVolumeXML(volumeName, size, format);
 
         return (dispatch) => call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'StoragePoolLookupByName', [poolName], TIMEOUT)
                 .then((storagePoolPath) => {
@@ -1399,6 +1399,18 @@ export function storagePoolRefresh(connectionName, objPath) {
 
 export function storagePoolUndefine(connectionName, objPath) {
     return call(connectionName, objPath, 'org.libvirt.StoragePool', 'Undefine', [], TIMEOUT);
+}
+
+export function storageVolumeCreate(connectionName, poolName, volName, size, format) {
+    const volXmlDesc = getVolumeXML(volName, size, format);
+
+    return call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'StoragePoolLookupByName', [poolName], TIMEOUT)
+            .then(path => {
+                return call(connectionName, path[0], 'org.libvirt.StoragePool', 'StorageVolCreateXML', [volXmlDesc, 0], TIMEOUT)
+                        .then(() => {
+                            return storagePoolRefresh(connectionName, path[0]);
+                        });
+            });
 }
 
 export function storageVolumeDelete(connectionName, poolName, volName) {

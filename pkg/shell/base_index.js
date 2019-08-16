@@ -641,6 +641,20 @@ function Index() {
         return null;
     }
 
+    self.preload_frames = function (host, manifests) {
+        for (let c in manifests) {
+            let preload = manifests[c].preload;
+            if (preload && preload.length) {
+                for (let p of preload) {
+                    if (p == "index")
+                        self.frames.lookup(host, c);
+                    else
+                        self.frames.lookup(host, c + "/" + p);
+                }
+            }
+        }
+    };
+
     /* Jumps to a given navigate state */
     self.jump = function (state, replace) {
         if (typeof (state) === "string")

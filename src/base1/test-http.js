@@ -46,8 +46,12 @@ QUnit.test("simple request", function (assert) {
                         },
                         'pkgs': {
                             label: "Packages"
+                        },
+                        'preloaded': {
+                            label: "Preloaded"
                         }
                     },
+                    'preload': [ "preloaded" ],
                     'content-security-policy': "img-src 'self' data:",
                 }, "returned right data");
             })

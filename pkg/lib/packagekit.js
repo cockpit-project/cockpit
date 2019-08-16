@@ -87,13 +87,24 @@ export function call(objectPath, iface, method, args, opts) {
 }
 
 /**
- * Figure out whether PackageKit is available
+ * Figure out whether PackageKit is available and useable
  */
 export function detect() {
-    return call("/org/freedesktop/PackageKit", "org.freedesktop.DBus.Properties",
-                "Get", [ "org.freedesktop.PackageKit", "VersionMajor" ])
-            .then(() => true,
-                  () => false);
+    function dbus_detect() {
+        return call("/org/freedesktop/PackageKit", "org.freedesktop.DBus.Properties",
+                    "Get", [ "org.freedesktop.PackageKit", "VersionMajor" ])
+                .then(() => true,
+                      () => false);
+    }
+
+    return cockpit.spawn([ "findmnt", "-T", "/usr", "-n", "-o", "VFS-OPTIONS" ])
+            .then(options => {
+                if (options.split(",").indexOf("ro") >= 0)
+                    return false;
+                else
+                    return dbus_detect();
+            })
+            .catch(dbus_detect);
 }
 
 /**

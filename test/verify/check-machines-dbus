@@ -1402,6 +1402,164 @@ class TestMachinesDBus(machineslib.TestMachines):
             source={"source_path": "vol_grp1"},
         ).execute()
 
+    def testStorageVolumesCreate(self):
+        b = self.browser
+        m = self.machine
+
+        # Prepare dir pool
+        m.execute("mkdir /mnt/dir_pool ; chmod a+rwx /mnt/dir_pool ")
+        m.execute("virsh pool-define-as dir-pool --type dir --target /mnt/dir_pool && virsh pool-start dir-pool")
+
+        # Prepare net-fs pool
+        m.execute("mkdir /mnt/nfs-pool && mkdir /mnt/exports && echo '/mnt/exports 127.0.0.1/24(rw,sync,no_root_squash,no_subtree_check,fsid=0)' > /etc/exports")
+        m.execute("systemctl restart nfs-server")
+        m.execute("virsh pool-define-as nfs-pool --type netfs --target /mnt/nfs-pool --source-host 127.0.0.1 --source-path /mnt/exports && virsh pool-start nfs-pool")
+
+        # Prepare disk/block pool
+        machineslib.prepareDisk(m)
+        cmds = [
+            "virsh pool-define-as disk-pool disk - - /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 - /tmp/poolDiskImages",
+            "virsh pool-build disk-pool --overwrite",
+            "virsh pool-start disk-pool",
+        ]
+        self.machine.execute(" && ".join(cmds))
+
+        self.login_and_go("/machines")
+        b.wait_in_text("body", "Virtual Machines")
+
+        # Click on Storage Pools card
+        b.wait_in_text(".cards-pf #card-pf-storage-pools .card-pf-title-link", "Storage Pools")
+        b.click(".cards-pf .card-pf-title span:contains(Storage Pools)")
+
+        class StorageVolumeCreateDialog(object):
+            def __init__(
+                self, test_obj, pool_name, vol_name, size="128", unit="MiB", format='qcow2',
+                pool_type = "dir", xfail=False, xfail_error=None, remove=True,
+            ):
+                self.test_obj = test_obj
+                self.pool_name = pool_name
+                self.pool_type = pool_type
+                self.vol_name = vol_name
+                self.size = size
+                self.unit = unit
+                self.format = format
+                self.xfail = xfail
+                self.xfail_error = xfail_error
+                self.remove = remove
+
+            def execute(self):
+                self.open()
+                self.fill()
+                self.create()
+                if not self.xfail:
+                    self.verify()
+                self.close()
+
+            def open(self):
+                b.click("tbody tr[data-row-id=pool-{0}-system] th".format(self.pool_name)) # click on the row header
+
+                b.click("#pool-{0}-system-storage-volumes".format(self.pool_name)) # open the "Storage Volumes" subtab
+
+                b.click("#create-volume-button") # open the "Storage Volumes" subtab
+
+                b.wait_present("#create-volume-dialog-modal")
+                b.wait_in_text(".modal-dialog .modal-header .modal-title", "Create Storage Volume")
+
+            def fill(self):
+                b.set_input_text("#create-volume-dialog-name", self.vol_name)
+
+                if self.size:
+                    b.set_input_text("#create-volume-dialog-size", self.size)
+
+                if self.unit:
+                    b.select_from_dropdown("#create-volume-dialog-unit", self.unit)
+
+                if self.format:
+                    b.select_from_dropdown("#create-volume-dialog-format", self.format)
+
+            def cancel(self):
+                b.click(".modal-footer button:contains(Cancel)")
+                b.wait_not_present("#create-storage-pool-dialog")
+
+            def create(self):
+                b.click(".modal-footer button:contains(Create)")
+
+                if (not self.xfail):
+                    # Creation of volumes might take longer for some pool types
+                    if self.pool_type  in ["disk", "netfs"]:
+                        b.wait_present(".modal-footer div.spinner")
+                        b.wait_present(".modal-footer button:contains(Create):disabled")
+                    b.wait_not_present("#create-volume-dialog-modal")
+
+            def verify(self):
+                # Check that the defined volume is now visible
+                b.wait_present("#pool-{0}-system-volume-{1}-name".format(self.pool_name, self.vol_name))
+
+                # Verify libvirt XML
+                vol_xml = "virsh -c qemu:///system vol-dumpxml --pool {0} --vol {1}".format(self.pool_name, self.vol_name)
+                xmllint_element = "{0} | xmllint --xpath 'string(//volume/{{prop}})' - 2>&1 || true".format(vol_xml)
+
+                self.test_obj.assertEqual(self.vol_name, m.execute(xmllint_element.format(prop='name')).strip())
+
+                if (self.format):
+                    self.test_obj.assertEqual(self.format, m.execute(xmllint_element.format(prop='target/format/@type')).strip())
+
+                size = int(m.execute(xmllint_element.format(prop='capacity')).strip())
+                if self.unit == "GiB":
+                   size = round(size / (1024**3));
+                else:
+                   size = round(size / (1024**2));
+                self.test_obj.assertEqual(size, int(self.size))
+
+            def cleanup(self):
+                m.execute("virsh pool-destroy {0} && virsh pool-undefine {0}".format(self.name))
+
+            def close(self):
+                b.click("#pool-{0}-system-overview".format(self.pool_name)) # open the "Storage Volumes" subtab
+
+                b.click("tbody tr[data-row-id=pool-{0}-system] th".format(self.pool_name)) # click on the row header
+
+        # Check volume creation for various pool types
+        StorageVolumeCreateDialog(
+            self,
+            pool_name="dir-pool",
+            vol_name="volume_of_dir_pool",
+            size="256",
+            unit="MiB",
+            format="qcow2",
+            remove=True,
+        ).execute()
+
+        StorageVolumeCreateDialog(
+            self,
+            pool_name="nfs-pool",
+            pool_type="netfs",
+            vol_name="volume_of_nfs_dir",
+            size="10", #Creation of big nfs vol might take so long it will result in timetout
+            unit="MiB",
+            format="raw", #Creation of qcow2 nfs vol might take so long it will result in timetout
+            remove=True,
+        ).execute()
+
+        StorageVolumeCreateDialog(
+            self,
+            pool_name="disk-pool",
+            pool_type="disk",
+            vol_name="sda1", # Partition names must follow pattern of sda1, sda2...
+            size="10", # Only 50MiB availabl on disk-pool
+            unit="MiB",
+            format="none",
+            remove=True,
+        ).execute()
+
+        # Try raw format
+        StorageVolumeCreateDialog(
+            self,
+            pool_name="dir-pool",
+            vol_name="volume_of_dir_pool2",
+            format="raw",
+            remove=True,
+        ).execute()
 
 if __name__ == '__main__':
     test_main()

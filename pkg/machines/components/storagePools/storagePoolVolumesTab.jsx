@@ -22,6 +22,7 @@ import PropTypes from 'prop-types';
 
 import { ExpandableNotification } from 'cockpit-components-inline-notification.jsx';
 import { StorageVolumeDelete } from './storageVolumeDelete.jsx';
+import { StorageVolumeCreate } from './storageVolumeCreate.jsx';
 import { Listing, ListingRow } from 'cockpit-components-listing.jsx';
 import { storagePoolId, convertToUnit, units, getStorageVolumesUsage } from '../../helpers.js';
 import cockpit from 'cockpit';
@@ -65,21 +66,28 @@ export class StoragePoolVolumesTab extends React.Component {
         const columnTitles = [_("Name"), _("Used by"), _("Size")];
         const volumes = storagePool.volumes || [];
 
-        if (volumes.length === 0) {
-            return (<div id={`${storagePoolIdPrefix}-storage-volumes-list`}>{_("No Storage Volumes defined for this Storage Pool")}</div>);
-        }
-
         const isVolumeUsed = getStorageVolumesUsage(vms, storagePool);
 
         /* Storage Volumes Deletion */
         const actions = [
-            <StorageVolumeDelete key='volume-delete-action'
-                                 storagePool={storagePool}
-                                 isVolumeUsed={isVolumeUsed}
-                                 volumes={this.state.selected}
-                                 resetSelection={this.resetSelection}
-                                 deleteErrorHandler={this.deleteErrorHandler} />
+            <div key='volume-actions' className='machines-listing-actions pull-right'>
+                <StorageVolumeDelete key='volume-delete-action'
+                                     storagePool={storagePool}
+                                     isVolumeUsed={isVolumeUsed}
+                                     volumes={this.state.selected}
+                                     resetSelection={this.resetSelection}
+                                     deleteErrorHandler={this.deleteErrorHandler} />
+                <StorageVolumeCreate key='volume-create-action'
+                                  storagePool={storagePool} />
+            </div>
         ];
+
+        if (volumes.length === 0) {
+            return (<div id={`${storagePoolIdPrefix}-storage-volumes-list`}>
+                {actions[0]}
+                {_("No Storage Volumes defined for this Storage Pool")}
+            </div>);
+        }
 
         return (
             <div id='storage-volumes-list'>

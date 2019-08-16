@@ -30,6 +30,10 @@
             background-color: #F2DEDE;
             border-color: #EBCCD1;
         }
+        .panel-heading.retried {
+            background-color: #f7bd7f;
+            border-color: #b35c00;
+        }
         .panel-heading.skipped {
             color: #8A6D3B;
             background-color: #FCF8E3;
@@ -63,12 +67,16 @@
                 <div class="panel-heading
                             {{#collapsed}}collapsed{{/collapsed}}
                             {{^passed}}failed{{/passed}}
+                            {{#retried}}retried{{/retried}}
                             {{#skipped}}skipped{{/skipped}}" data-toggle="collapse" data-target="#collapse{{id}}"
                             style="cursor: pointer">
                     <h4 class="panel-title">
                         {{#failed}}
                             <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
                         {{/failed}}
+                        {{#retried}}
+                            <span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span>
+                        {{/retried}}
                         <span>
                           {{title}}
                         </span>
@@ -110,14 +118,14 @@
                 {{total}} tests, {{passed}} passed, {{failed}} failed,
                 {{skipped}} skipped, {{left}} to go ({{retries}} retries).<br>
 
-                <span>Failed and skipped tests:</span>
+                <span>Failed and retried tests:</span>
                 <ul>
                 {{#tests}}
-                    {{^entry.passed}}
+                    {{#entry.interesting}}
                         <li
-                        {{^entry.skipped}}
+                        {{^entry.retried}}
                             class="failed"
-                        {{/entry.skipped}}
+                        {{/entry.retried}}
                         >
                         <a href="#{{entry.id}}">
                         {{entry.title}}
@@ -130,7 +138,7 @@
                         {{/entry.journals}}
                         {{#entry.reason}}<span>-- skipped: {{entry.reason}}</span>{{/entry.reason}}
                         </li>
-                    {{/entry.passed}}
+                    {{/entry.interesting}}
                 {{/tests}}
                 </ul>
             </div>
@@ -182,6 +190,7 @@ function extract(text) {
         $('#test-info').text(text.slice(0, text.indexOf('\n')));
 
         var test_links = {};
+        var ids = { };
         segments.forEach(function (segment, segmentIndex) {
             tap_range.lastIndex = 0;
             tap_result.lastIndex = 0;
@@ -190,6 +199,8 @@ function extract(text) {
             journal_file.lastIndex = 0;
             var entry = { passed: true,
                           skipped: false,
+                          retried: false,
+                          interesting: false,
                           screenshots: [],
                           journals: [],
                           text: segment};
@@ -203,6 +214,12 @@ function extract(text) {
             } else if (m = tap_result.exec(segment)) {
                 entry.idx = m[2];
                 entry.id = m[2];
+                r = 0;
+                while (ids[entry.id]) {
+                    r += 1;
+                    entry.id = m[2] + "-" + r;
+                }
+                ids[entry.id] = true;
                 entry.title = entry.id + ": " + m[3];
                 if (m[4])
                     entry.title += ", duration: " + m[4];
@@ -219,9 +236,12 @@ function extract(text) {
                     }
 		} else if (segment.indexOf("# RETRY") !== -1) {
                     retries += 1;
-                    entry.passed = false;
+                    entry.passed = true;
+                    entry.retried = true;
+                    entry.interesting = true;
                 } else {
                     entry.passed = false;
+                    entry.interesting = true;
                     failed += 1;
                 }
             } else {
@@ -277,7 +297,7 @@ function extract(text) {
                                                                 skipped: skipped,
                                                                 retries: retries,
                                                                 total: total,
-                                                                left: total - passed - failed - skipped - retries
+                                                                left: total - passed - failed - skipped
                                                               })
                            );
         $('#testing-progress').html(Mustache.render(progress_template,

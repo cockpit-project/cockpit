@@ -99,11 +99,9 @@ def run(context, verbose=False, **kwargs):
     if verbose:
         sys.stderr.write("Going to create %s new flake issue(s)\n" % create_count)
 
-    host = os.environ.get("COCKPIT_LEARN_SERVICE_HOST")
-    if not host:
-        raise RuntimeError("no learn host environment variable: $COCKPIT_LEARN_SERVICE_HOST")
-    port = os.environ.get("COCKPIT_LEARN_SERVICE_PORT", "8080")
-    url = "http://{0}:{1}/active/".format(host, port)
+    host = os.environ.get("COCKPIT_LEARN_SERVICE_HOST", "learn-cockpit.apps.ci.centos.org")
+    port = os.environ.get("COCKPIT_LEARN_SERVICE_PORT", "443")
+    url = "{0}://{1}:{2}/active/".format("https" if port == "443" else "http", host, port)
 
     failure_logs = slurp_failure_logs(url)
 

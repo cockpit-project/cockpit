@@ -8,6 +8,7 @@ import ReactDOM from 'react-dom';
 import { ServiceTabs } from "./services.jsx";
 import { ServiceDetails, ServiceTemplate } from "./service-details.jsx";
 import { journal } from "journal";
+import { page_status } from "notifications";
 import "patterns";
 import "bootstrap-datepicker/dist/js/bootstrap-datepicker";
 
@@ -424,15 +425,18 @@ $(function() {
             render_tabs();
             if (old_failed === null || !set_equal(failed, old_failed)) {
                 console.log("FAILED", failed);
-                let status = null;
                 if (failed.size > 0) {
-                    status = {
-                        "level": "warning",
-                        "description": cockpit.format(_("$0 services have failed"), failed.size),
+                    page_status.set_own({
+                        "type": "warning",
+                        "description": cockpit.format(cockpit.ngettext("$0 service has failed",
+                                                                       "$0 services have failed",
+                                                                       failed.size),
+                                                      failed.size),
                         "details": [...failed]
-                    };
+                    });
+                } else {
+                    page_status.set_own(null);
                 }
-                cockpit.transport.control("notify", { "page_status": status });
             }
         }
 

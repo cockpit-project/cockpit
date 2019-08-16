@@ -31,6 +31,7 @@ import { install_dialog } from "cockpit-components-install-dialog.jsx";
 import * as plot from "plot.js";
 import * as service from "service.js";
 import { shutdown } from "./shutdown.js";
+import { page_status } from "notifications";
 import host_keys_script from "raw-loader!./ssh-list-host-keys.sh";
 
 import "form-layout.less";
@@ -567,24 +568,18 @@ PageServer.prototype = {
         });
 
         function refresh_service_failures() {
-            var page_status = JSON.parse(sessionStorage.getItem("cockpit:page_status"));
-            if (page_status && page_status[cockpit.transport.host]) {
-                $("#system_information_service_failures").empty();
-                var services_status = page_status[cockpit.transport.host]["system/services"];
-                if (services_status) {
-                    $("#system_information_service_failures")
-                            .append(services_status.details.map(u => $('<div>').append(
-                                $('<a>', { 'data-goto-service': u }).text(u),
-                                " has failed")));
-                }
+            var services_status = page_status.get("system/services");
+            $("#system_information_service_failures").empty();
+            if (services_status) {
+                $("#system_information_service_failures")
+                        .append(services_status.details.map(u => $('<div>').append(
+                            $('<a>', { 'data-goto-service': u }).text(u),
+                            " has failed")));
             }
         }
 
         refresh_service_failures();
-        window.addEventListener("storage", event => {
-            if (event.key == "cockpit:page_status")
-                refresh_service_failures();
-        });
+        page_status.addEventListener("changed", refresh_service_failures);
 
         // Only link from graphs to available pages
         set_page_link("#link-disk", "storage", _("Disk I/O"));

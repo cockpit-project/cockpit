@@ -287,10 +287,10 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
             if (page_status[machine.key])
                 status = page_status[machine.key][component.path];
 
-            function icon_class_for_level(level) {
-                if (level == "error")
+            function icon_class_for_type(type) {
+                if (type == "error")
                     return 'fa fa-exclamation-circle';
-                else if (level == "warning")
+                else if (type == "warning")
                     return 'fa fa-exclamation-triangle';
                 else
                     return 'fa fa-info-circle';
@@ -303,7 +303,7 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
                           }).append(component.label,
                                     " ",
                                     $("<span>",
-                                      { 'class': icon_class_for_level(status.level)
+                                      { 'class': icon_class_for_type(status.type)
                                       }));
             } else
                 label = $("<span>").text(component.label);

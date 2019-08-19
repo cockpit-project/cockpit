@@ -131,6 +131,8 @@ ServiceConfirmDialog.propTypes = {
  *     Unit is masked
  *  - active
  *     Unit is active (running)
+ *  - failed
+ *     Unit has failed
  *  - canReload
  *      Unit can be reloaded
  *  - actionCallback
@@ -181,6 +183,11 @@ class ServiceActions extends React.Component {
                 );
             }
 
+            if (this.props.failed)
+                actions.push(
+                    <MenuItem key="reset" onClick={() => this.props.actionCallback("ResetFailedUnit", [ ]) }>{ _("Clear 'Failed to start'") }</MenuItem>
+                );
+
             actions.push(
                 <MenuItem key="mask" onClick={() => this.setState({ dialogMaskedOpened: true }) }>{ _("Disallow running (mask)") }</MenuItem>
             );
@@ -193,7 +200,11 @@ class ServiceActions extends React.Component {
                                           message={ _("Masking service prevents all dependant units from running. This can have bigger impact than anticipated. Please confirm that you want to mask this unit.")}
                                           close={() => this.setState({ dialogMaskedOpened: false }) }
                                           confirmText={ _("Mask Service") }
-                                          confirmAction={() => { this.props.fileActionCallback("MaskUnitFiles", false); this.setState({ dialogMaskedOpened: false }) }} />
+                                          confirmAction={() => {
+                                              this.props.fileActionCallback("MaskUnitFiles", false);
+                                              this.props.actionCallback("ResetFailedUnit", [ ]);
+                                              this.setState({ dialogMaskedOpened: false });
+                                          }} />
                 }
                 <DropdownKebab id="service-actions" title={ _("Additional actions") } className={this.props.disabled ? "disabled" : "" }>
                     {actions}
@@ -205,6 +216,7 @@ class ServiceActions extends React.Component {
 ServiceActions.propTypes = {
     masked: PropTypes.bool.isRequired,
     active: PropTypes.bool.isRequired,
+    failed: PropTypes.bool.isRequired,
     canReload: PropTypes.bool,
     actionCallback: PropTypes.func.isRequired,
     fileActionCallback: PropTypes.func.isRequired,
@@ -257,6 +269,8 @@ export class ServiceDetails extends React.Component {
             this.unitFileAction("DisableUnitFiles", undefined);
             if (this.props.unit.ActiveState === "active" || this.props.unit.ActiveState === "activating")
                 this.unitAction("StopUnit");
+            if (this.props.unit.ActiveState === "failed")
+                this.unitAction("ResetFailedUnit", [ ]);
         } else {
             this.unitFileAction("EnableUnitFiles", false);
             if (this.props.unit.ActiveState !== "active" && this.props.unit.ActiveState !== "activating")
@@ -264,9 +278,11 @@ export class ServiceDetails extends React.Component {
         }
     }
 
-    unitAction(method) {
+    unitAction(method, extra_args) {
+        if (extra_args === undefined)
+            extra_args = [ "fail" ];
         this.setState({ waitsAction: true });
-        this.props.systemdManager.call(method, [ this.props.unit.Names[0], "fail" ])
+        this.props.systemdManager.call(method, [ this.props.unit.Names[0] ].concat(extra_args))
                 .fail(error => this.setState({ error: error.toString() }))
                 .finally(() => this.setState({ waitsAction: false }));
     }
@@ -452,7 +468,7 @@ export class ServiceDetails extends React.Component {
                                             </span>
                                         </OverlayTrigger>
                                     }
-                                    <ServiceActions { ...{ active, enabled, masked } } canReload={this.props.unit.CanReload} actionCallback={this.unitAction} fileActionCallback={this.unitFileAction} disabled={this.state.waitsAction || this.state.waitsFileAction} />
+                                    <ServiceActions { ...{ active, failed, enabled, masked } } canReload={this.props.unit.CanReload} actionCallback={this.unitAction} fileActionCallback={this.unitFileAction} disabled={this.state.waitsAction || this.state.waitsFileAction} />
                                 </React.Fragment>
                             }
                         </div>

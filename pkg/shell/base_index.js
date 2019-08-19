@@ -302,11 +302,14 @@ function Router(index) {
     }
 
     function register(child) {
-        var host;
+        var host, page;
         var name = child.name || "";
-        if (name.indexOf("cockpit1:") === 0)
-            host = name.substring(9).split("/")[0];
-        if (!name || !host) {
+        if (name.indexOf("cockpit1:") === 0) {
+            var parts = name.substring(9).split("/");
+            host = parts[0];
+            page = parts.slice(1).join("/");
+        }
+        if (!name || !host || !page) {
             console.warn("invalid child window name", child, name);
             return;
         }
@@ -318,6 +321,7 @@ function Router(index) {
             window: child,
             channel_seed: seed,
             default_host: host,
+            page: page,
             inited: false,
         };
         source_by_seed[seed] = source;
@@ -422,6 +426,9 @@ function Router(index) {
                 return;
             } else if (control.command == "oops") {
                 index.show_oops();
+                return;
+            } else if (control.command == "notify") {
+                index.handle_notifications(source.default_host, source.page, control);
                 return;
 
             /* Only control messages with a channel are forwardable */

@@ -71,6 +71,12 @@ var info = {
         "playground/preloaded": [
             "playground/preloaded.js",
         ],
+        "playground/notifications": [
+            "playground/notifications.js",
+        ],
+        "playground/notifications-receiver": [
+            "playground/notifications-receiver.js",
+        ],
 
         "realmd/domain": [
             "realmd/operation.js",
@@ -182,6 +188,8 @@ var info = {
         "playground/test.html",
         "playground/translate.html",
         "playground/preloaded.html",
+        "playground/notifications.html",
+        "playground/notifications-receiver.html",
 
         "selinux/setroubleshoot.html",
 

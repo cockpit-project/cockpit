@@ -30,8 +30,21 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
     if (!index_options)
         index_options = {};
 
+    var page_status = { };
+    sessionStorage.removeItem("cockpit:page_status");
+
     index_options.navigate = function (state, sidebar) {
         return navigate(state, sidebar);
+    };
+    index_options.handle_notifications = function (host, page, data) {
+        if (data.page_status !== undefined) {
+            if (!page_status[host])
+                page_status[host] = { };
+            page_status[host][page] = data.page_status;
+            sessionStorage.setItem("cockpit:page_status", JSON.stringify(page_status));
+            // Just for triggering an "updated" event
+            machines.overlay(host, { });
+        }
     };
     var index = base_index.new_index_from_proto(index_options);
 
@@ -268,12 +281,38 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
         function links(component) {
             var active = state.component === component.path;
             var listItem;
+            var status = null;
+            var label;
+
+            if (page_status[machine.key])
+                status = page_status[machine.key][component.path];
+
+            function icon_class_for_type(type) {
+                if (type == "error")
+                    return 'fa fa-exclamation-circle';
+                else if (type == "warning")
+                    return 'fa fa-exclamation-triangle';
+                else
+                    return 'fa fa-info-circle';
+            }
+
+            if (status && status.type) {
+                label = $("<span>",
+                          {
+                              'data-toggle': 'tooltip',
+                              title: status.title
+                          }).append(
+                    $("<div class='pull-right'>").append(
+                        $('<span>', { class: icon_class_for_type(status.type) })),
+                    component.label);
+            } else
+                label = $("<span>").text(component.label);
 
             listItem = $("<li class='list-group-item'>")
                     .toggleClass("active", active)
                     .append($("<a>")
                             .attr("href", index.href({ host: machine.address, component: component.path, hash: component.hash }))
-                            .append($("<span>").text(component.label)));
+                            .append(label));
 
             if (active)
                 listItem.find('a').attr("aria-current", "page");

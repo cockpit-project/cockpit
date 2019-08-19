@@ -57,6 +57,10 @@ class SystemInfo extends React.Component {
 
     render() {
         let info = this.props.info;
+        if ((!info.name || !info.version) && info.alt_name && info.alt_version) {
+            info.name = info.alt_name;
+            info.version = info.alt_version;
+        }
         let onSecurityClick = this.props.onSecurityClick;
 
         let mitigations = this.state.allowed ? (<a role="link" onClick={onSecurityClick}>{ _("Mitigations") }</a>)

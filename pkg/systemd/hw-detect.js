@@ -23,6 +23,8 @@ import * as machine_info from "machine-info.js";
 const InfoDMIKey = {
     version: "product_version",
     name: "product_name",
+    alt_version: "board_vendor",
+    alt_name: "board_name",
     type: "chassis_type_str",
     bios_vendor: "bios_vendor",
     bios_version: "bios_version",

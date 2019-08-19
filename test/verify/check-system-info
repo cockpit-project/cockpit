@@ -436,7 +436,7 @@ class TestSystemInfo(MachineCase):
             return
 
         b.logout()
-        self.machine.execute("mount -t tmpfs none /sys/class/dmi")
+        self.machine.execute("mount -t tmpfs none /sys/class/dmi/id")
         self.login_and_go("/system")
         b.wait_present('#system_information_hardware_text')
         # asset tag should be hidden
@@ -455,7 +455,22 @@ class TestSystemInfo(MachineCase):
         b.wait_in_text(pci_selector + heading_selector, "PCI")
         b.wait_in_text(pci_selector + ' .listing-ct', "0000:00:00.0")
 
-        self.machine.execute("umount /sys/class/dmi")
+        # Check also variants when only some fields are present
+        m.write("/sys/class/dmi/id/chassis_type", "10")
+        b.go("/system")
+        b.enter_page('/system')
+        b.wait_text('#system_information_hardware_text', "Details")
+
+        m.write("/sys/class/dmi/id/board_vendor", "VENDOR")
+        m.write("/sys/class/dmi/id/board_name", "NAME")
+        b.reload()
+        b.enter_page('/system')
+        b.wait_in_text('#system_information_hardware_text', "VENDOR NAME")
+        b.click("#system_information_hardware_text")
+        b.enter_page("/system/hwinfo")
+        b.wait_in_text('#hwinfo .info-table-ct tbody:nth-of-type(1) tr:nth-of-type(2) td', "NAME")
+        b.wait_in_text('#hwinfo .info-table-ct tbody:nth-of-type(1) tr:nth-of-type(3) td', "VENDOR")
+        self.machine.execute("umount /sys/class/dmi/id")
 
         # Memory details should be shown for generic QEMU memory
         # demidecode not available on certain images

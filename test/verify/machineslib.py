@@ -1321,8 +1321,7 @@ class TestMachines(NetworkCase):
 
         createTest(TestMachines.VmDialog(self, sourceType='url',
                                          location=config.VALID_URL,
-                                         storage_size=1,
-                                         os_name=config.CIRROS))
+                                         storage_size=1))
 
         # test just the DIALOG CREATION and cancel
         print("    *\n    * validation errors and ui info/warn messages expected:\n    * ")
@@ -1376,10 +1375,10 @@ class TestMachines(NetworkCase):
                                                             os_name=config.FEDORA_28, start_vm=True),
                                       {"Source": "Installation Source should not be empty"})
 
-        # disallow empty OS in case of URL installation media and start_vm=False
+        # disallow empty OS
         checkDialogFormValidationTest(TestMachines.VmDialog(self, sourceType='url', location=config.VALID_URL,
                                                             storage_size=100, storage_size_unit='MiB',
-                                                            start_vm=False),
+                                                            start_vm=False, os_name=None),
                                       {"Operating System": "You need to select the most closely matching Operating System"})
 
         # try to CREATE few machines
@@ -1400,13 +1399,11 @@ class TestMachines(NetworkCase):
                                          location=config.VALID_URL,
                                          memory_size=256, memory_size_unit='MiB',
                                          storage_size=100, storage_size_unit='MiB',
-                                         os_name=config.CIRROS,
                                          start_vm=False))
         createTest(TestMachines.VmDialog(self, sourceType='file',
                                          location=config.NOVELL_MOCKUP_ISO_PATH,
                                          memory_size=256, memory_size_unit='MiB',
                                          storage_pool="No Storage",
-                                         os_name=config.CIRROS,
                                          start_vm=False,
                                          connection='session'))
 
@@ -1416,7 +1413,6 @@ class TestMachines(NetworkCase):
                                          location=config.NOVELL_MOCKUP_ISO_PATH,
                                          memory_size=256, memory_size_unit='MiB',
                                          storage_size=100000, storage_size_unit='GiB',
-                                         os_name=config.CIRROS,
                                          start_vm=False))
 
         # Try setting the memory to value bigger than it's available on the OS
@@ -1432,7 +1428,6 @@ class TestMachines(NetworkCase):
         createTest(TestMachines.VmDialog(self, sourceType='disk_image',
                                          location=config.VALID_DISK_IMAGE_PATH,
                                          memory_size=256, memory_size_unit='MiB',
-                                         os_name=config.CIRROS,
                                          start_vm=False))
 
         # Recreate the image the previous test just deleted to reuse it
@@ -1448,7 +1443,6 @@ class TestMachines(NetworkCase):
         createTest(TestMachines.VmDialog(self, sourceType='disk_image',
                                          location=config.VALID_DISK_IMAGE_PATH,
                                          memory_size=256, memory_size_unit='MiB',
-                                         os_name=config.CIRROS,
                                          start_vm=True))
         # End of tests for import existing disk as installation option
 
@@ -1469,7 +1463,6 @@ class TestMachines(NetworkCase):
         createTest(TestMachines.VmDialog(self, sourceType='file',
                                          location=config.NOVELL_MOCKUP_ISO_PATH,
                                          memory_size=256, memory_size_unit='MiB',
-                                         os_name=config.CIRROS,
                                          storage_pool="tmpPool",
                                          storage_volume="vmTmpDestination.qcow2",
                                          start_vm=True,))
@@ -1478,7 +1471,6 @@ class TestMachines(NetworkCase):
         createTest(TestMachines.VmDialog(self, sourceType='file',
                                          location=config.NOVELL_MOCKUP_ISO_PATH,
                                          memory_size=256, memory_size_unit='MiB',
-                                         os_name=config.CIRROS,
                                          storage_pool="No Storage",
                                          start_vm=True,))
 
@@ -1623,7 +1615,6 @@ class TestMachines(NetworkCase):
                                              location="Virtual Network pxe-nat: NAT",
                                              memory_size=256, memory_size_unit='MiB',
                                              storage_pool="No Storage",
-                                             os_name=config.CIRROS,
                                              start_vm=True, delete=False))
 
             # We don't want to use start_vm == False because if we get a seperate install phase
@@ -1678,7 +1669,6 @@ class TestMachines(NetworkCase):
                                              location="Host Device {0}: macvtap".format(iface),
                                              memory_size=256, memory_size_unit='MiB',
                                              storage_pool="No Storage",
-                                             os_name=config.CIRROS,
                                              start_vm=False))
 
             # When switching from PXE mode to anything else make sure that the source input is empty
@@ -1686,7 +1676,7 @@ class TestMachines(NetworkCase):
                                                                 sourceType='pxe',
                                                                 location="Host Device {0}: macvtap".format(iface),
                                                                 sourceTypeSecondChoice='url',
-                                                                os_name=config.CIRROS, start_vm=False),
+                                                                start_vm=False),
                                           {"Source": "Installation Source should not be empty"})
 
         # Test that removing virt-install executable will disable Create VM button
@@ -1751,7 +1741,7 @@ class TestMachines(NetworkCase):
                      sourceType='file', sourceTypeSecondChoice=None, location='',
                      memory_size=256, memory_size_unit='MiB',
                      storage_size=None, storage_size_unit='GiB',
-                     os_name=None,
+                     os_name='CirrOS',
                      storage_pool='Create New Volume', storage_volume='',
                      start_vm=False,
                      delete=True,
@@ -1811,7 +1801,7 @@ class TestMachines(NetworkCase):
         def checkOsFiltered(self):
             b = self.browser
 
-            b.focus("label:contains('Operating System') + div > div > div > input")
+            b.focus("label[for=os-select] + div > div > div > input")
             b.key_press(self.os_name)
             b.key_press("\t")
             try:

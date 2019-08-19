@@ -4,6 +4,7 @@ import secrets
 from time import sleep
 from .timeoutlib import wait
 from .seleniumlib import SeleniumTest, clickable, text_in, invisible
+from selenium.webdriver.common.keys import Keys
 
 
 SPICE_XML = """
@@ -200,7 +201,7 @@ class MachinesLib(SeleniumTest):
                         name='default',
                         source_type='file',
                         source='/var/lib/libvirt/images/cirros.qcow2',
-                        operating_system=None,
+                        operating_system='CirrOS',
                         mem=1,
                         mem_unit='G',
                         storage=10,
@@ -238,7 +239,7 @@ class MachinesLib(SeleniumTest):
                     break
 
         if operating_system is not None:
-            self.send_keys(self.wait_css("label:contains('Operating System') + div > div > div > input"), operating_system)
+            self.send_keys(self.wait_css("label[for=os-select] + div > div > div > input"), operating_system + Keys.ARROW_DOWN + Keys.ENTER)
 
         if mem_unit == 'M':
             self.select_by_text(self.wait_css('#memory-size-unit-select'), 'MiB')

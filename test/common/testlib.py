@@ -1287,7 +1287,7 @@ class TapRunner(object):
         # "output" is bytes, grab corresponding stream
         out = _PY3 and sys.stdout.buffer or sys.stdout
 
-        # Didn't fail, just print output and continue
+        # Didn't fail or retried too much, just print output and continue
         if tries >= 3 or not failed:
             out.write(output)
             return failed, False
@@ -1302,6 +1302,10 @@ class TapRunner(object):
         except OSError as ex:
             if ex.errno != errno.ENOENT:
                 sys.stderr.write("Couldn't run tests-policy: {0}\n".format(str(ex)))
+
+        # Just retry failures always, we don't need to be precious about flakes
+        if b"# SKIP " not in output:
+            output += b"\n# RETRY \n"
 
         # Write the output bytes
         out.write(output)

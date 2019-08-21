@@ -750,7 +750,16 @@ PageServer.prototype = {
         hardware_text.tooltip({ title: _("Click to see system hardware information"), placement: "bottom" });
         machine_info.dmi_info()
                 .done(function(fields) {
-                    hardware_text.text(fields.sys_vendor + " " + fields.product_name);
+                    let vendor = fields.sys_vendor;
+                    let name = fields.product_name;
+                    if (!vendor || !name) {
+                        vendor = fields.board_vendor;
+                        name = fields.board_name;
+                    }
+                    if (!vendor || !name)
+                        hardware_text.text(_("Details"));
+                    else
+                        hardware_text.text(vendor + " " + name);
                     var present = !!(fields.product_serial || fields.chassis_serial);
                     asset_tag_text.text(fields.product_serial || fields.chassis_serial);
                     asset_tag_text.toggle(present);

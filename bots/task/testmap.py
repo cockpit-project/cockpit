@@ -109,7 +109,7 @@ REPO_BRANCH_CONTEXT = {
     },
     'mvollmer/subscription-manager': {
         'master': [
-            'rhel-8-0',
+            'rhel-8-1',
         ],
     }
 }

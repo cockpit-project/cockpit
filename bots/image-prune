@@ -25,6 +25,8 @@ import os
 import subprocess
 import sys
 import time
+import urllib
+import re
 
 from contextlib import contextmanager
 
@@ -58,12 +60,24 @@ def get_refs(open_pull_requests=True, offline=False):
 
     refs = { }
 
+    considerable = {}
     if open_pull_requests:
         if offline:
             raise Exception("Unable to consider open pull requests when in offline mode")
         for p in github.GitHub().pulls():
-            subprocess.call(["git", "fetch", "origin", "pull/{0}/head".format(p["number"])])
-            refs["pull request #{} ({})".format(p["number"], p["title"])] = p["head"]["sha"]
+            with urllib.request.urlopen(p["patch_url"]) as f:
+                images = []
+                # enough to look at the git commit header, it lists all changed files
+                changed = f.read(4000).decode('utf-8').split("\n")
+                for line in changed:
+                    m = re.match("^ bots/images/([^\/]*)\| 2 \+\-$", line)
+                    if m:
+                        images.append(m.group(1).strip())
+                if images:
+                    sha = p["head"]["sha"]
+                    considerable[sha] = images
+                    subprocess.call(["git", "fetch", "origin", "pull/{0}/head".format(p["number"])])
+                    refs["pull request #{} ({})".format(p["number"], p["title"])] = sha
 
     git_cmd = "show-ref" if offline else "ls-remote"
     ref_output = subprocess.check_output(["git", git_cmd], universal_newlines=True).splitlines()
@@ -74,7 +88,7 @@ def get_refs(open_pull_requests=True, offline=False):
         if name.startswith(prefix):
             refs[name[len(prefix):]] = ref
 
-    return refs
+    return (refs, considerable)
 
 def get_image_links(ref, git_path):
     """Return all image links for the given git ref
@@ -112,13 +126,18 @@ def get_image_names(quiet=False, open_pull_requests=True, offline=False):
     # this hinges on being in the top level directory of the the git checkout
     with remember_cwd():
         os.chdir(os.path.join(BOTS, ".."))
-        refs = get_refs(open_pull_requests, offline)
+        (refs, considerable) = get_refs(open_pull_requests, offline)
         # list images present in each branch / pull request
         for name, ref in refs.items():
             if not quiet:
                 sys.stderr.write("Considering images from {0} ({1})\n".format(name, ref))
             for link in get_image_links(ref, "bots/images"):
-                images.add(link)
+                if ref in considerable:
+                    for consider in considerable[ref]:
+                        if link.startswith(consider):
+                            images.add(link)
+                else:
+                    images.add(link)
 
     return images
 

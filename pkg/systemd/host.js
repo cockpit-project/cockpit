@@ -32,6 +32,7 @@ import * as plot from "plot.js";
 import * as service from "service.js";
 import { shutdown } from "./shutdown.js";
 import host_keys_script from "raw-loader!./ssh-list-host-keys.sh";
+import { page_status } from "notifications";
 
 import { PageStatusNotifications } from "./page-status.jsx";
 
@@ -227,8 +228,6 @@ PageServer.prototype = {
         this.server_time = null;
         this.client = null;
         this.hostname_proxy = null;
-        this.os_updates = null; // packagekit.Enum.INFO_* → #count
-        this.os_updates_icon = document.getElementById("system_information_updates_icon");
         this.unregistered = false;
     },
 
@@ -485,88 +484,16 @@ PageServer.prototype = {
         }
 
         function refresh_os_updates_state() {
-            self.os_updates_icon.className = ""; // hide spinner
-
-            // if system is unregistered, always show that
-            if (self.unregistered) {
-                self.os_updates_icon.className = "pficon pficon-warning-triangle-o";
-                set_page_link("#system_information_updates_text", "subscriptions", _("System Not Registered"));
-                return;
-            }
-
-            var infos = Object.keys(self.os_updates || {}).sort();
-            if (infos.length === 0) {
-                $("#system_information_updates_text").text(_("System Up To Date"));
-                return;
-            }
-
-            // show highest severity level
-            var severity = infos[infos.length - 1];
-            var text;
-            self.os_updates_icon.className = packagekit.getSeverityIcon(
-                severity > packagekit.Enum.INFO_UNKNOWN ? severity : packagekit.Enum.INFO_NORMAL);
-            if (severity == packagekit.Enum.INFO_SECURITY)
-                text = _("Security Updates Available");
-            else if (severity >= packagekit.Enum.INFO_NORMAL)
-                text = _("Bug Fix Updates Available");
-            else if (severity >= packagekit.Enum.INFO_LOW)
-                text = _("Enhancement Updates Available");
-            else
-                text = _("Updates Available");
-
-            set_page_link("#system_information_updates_text", "updates", text);
+            const status = page_status.get("updates") || { };
+            const details = status.details || { };
+            $("#system_information_updates_icon").attr("class", details.icon || "");
+            $("#system_information_updates_icon").toggle(!!details.icon);
+            set_page_link("#system_information_updates_text", details.link || "updates",
+                          details.text || status.title || "");
         }
 
-        function check_for_updates() {
-            var os_updates = { };
-
-            // skip update check when becoming invisible
-            if (document.visibilityState != "visible")
-                return;
-            const lastCheck = window.sessionStorage.getItem("last_sw_update_check");
-            // check at most once per hour, as this is expensive on embedded machines
-            // this gets reset on applying software updates updates
-            if (self.os_updates && lastCheck && Date.now() - lastCheck < 3600000)
-                return;
-            window.sessionStorage.setItem("last_sw_update_check", Date.now());
-
-            self.os_updates = null;
-            packagekit.cancellableTransaction(
-                "GetUpdates", [0],
-                function(data) {
-                    // we are getting progress, so PackageKit works; show spinner
-                    if (self.os_updates === null) {
-                        self.os_updates = os_updates;
-                        $("#system_information_updates_text").text(_("Checking for updates…"));
-                        self.os_updates_icon.className = "spinner spinner-xs spinner-inline";
-                    }
-                },
-                {
-                    Package: function(info) {
-                        // dnf backend yields wrong severity (https://bugs.freedesktop.org/show_bug.cgi?id=101070)
-                        if (info < packagekit.Enum.INFO_LOW || info > packagekit.Enum.INFO_SECURITY)
-                            info = packagekit.Enum.INFO_UNKNOWN;
-                        os_updates[info] = (os_updates[info] || 0) + 1;
-                    }
-                })
-                    .then(refresh_os_updates_state)
-                    .catch(function(ex) {
-                        // if PackageKit is not available, hide the table line
-                        console.warn("Checking for available updates failed:", ex.toString());
-                        self.os_updates_icon.className = "";
-                        $("#system_information_updates_text").toggle(false);
-                    });
-        }
-
-        // check for updates now and on page switches, in case they get applied on /updates or terminal
-        $(cockpit).on("visibilitychange", check_for_updates);
-        check_for_updates();
-
-        // check for unregistered system
-        packagekit.watchRedHatSubscription(function(subscribed) {
-            self.unregistered = !subscribed;
-            refresh_os_updates_state();
-        });
+        refresh_os_updates_state();
+        $(page_status).on("changed", refresh_os_updates_state);
 
         var insights_client_timer = service.proxy("insights-client.timer");
 

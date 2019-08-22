@@ -155,23 +155,22 @@ def guessFlake(output, context, verbose=False):
         "log": output
     }
 
-    host = os.environ.get("COCKPIT_LEARN_SERVICE_HOST")
-    port = os.environ.get("COCKPIT_LEARN_SERVICE_PORT", "80")
+    host = os.environ.get("COCKPIT_LEARN_SERVICE_HOST", "learn-cockpit.apps.ci.centos.org")
+    port = os.environ.get("COCKPIT_LEARN_SERVICE_PORT", "443")
     response = { }
     flake = False
 
-    if host:
-        url = "http://{0}:{1}/predict".format(host, port)
-        jsonl = json.dumps(item) + "\n"
-        try:
-            data = urllib.request.urlopen(url, data=jsonl.encode('utf-8')).read()
-        except (ConnectionResetError, urllib.error.URLError, socket.gaierror) as ex:
-            sys.stderr.write("{0}: {1}\n".format(url, ex))
-            data = b"{ }"
-        try:
-            response = json.loads(data.decode('utf-8'))
-        except ValueError as ex:
-            sys.stderr.write("{0}: {1}\n".format(url, ex))
+    url = "{0}://{1}:{2}/predict".format("https" if port == "443" else "http", host, port)
+    jsonl = json.dumps(item) + "\n"
+    try:
+        data = urllib.request.urlopen(url, data=jsonl.encode('utf-8')).read()
+    except (ConnectionResetError, urllib.error.URLError, socket.gaierror) as ex:
+        sys.stderr.write("{0}: {1}\n".format(url, ex))
+        data = b"{ }"
+    try:
+        response = json.loads(data.decode('utf-8'))
+    except ValueError as ex:
+        sys.stderr.write("{0}: {1}\n".format(url, ex))
 
     if verbose and response:
         sys.stderr.write(json.dumps(response, indent=4) + "\n")

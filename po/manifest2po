@@ -70,7 +70,12 @@ function step() {
     if (path.basename(filename) != "manifest.json.in")
         return step();
 
-    fs.readFile(filename, { encoding: "utf-8"}, function(err, data) {
+    /* Qualify the filename if necessary */
+    var full = filename;
+    if (opts.directory)
+        full = path.join(opts.directory, filename);
+
+    fs.readFile(full, { encoding: "utf-8"}, function(err, data) {
         if (err)
             fatal(err.message);
 

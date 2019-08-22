@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-31 11:50+0000\n"
+"POT-Creation-Date: 2019-08-22 07:51+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -51,7 +51,7 @@ msgstr[0] "$0 パッケージ\n"
 "\n"
 "$0 パッケージ"
 
-#: pkg/systemd/init.js:417 pkg/systemd/service-details.jsx:58
+#: pkg/systemd/init.js:430 pkg/systemd/service-details.jsx:58
 msgid "$0 Template"
 msgstr "$0 テンプレート"
 
@@ -193,11 +193,11 @@ msgstr "${hip}:${hport} -> $cport"
 msgid "${size} ${desc}"
 msgstr "${size} ${desc}"
 
-#: pkg/networkmanager/firewall.jsx:549
+#: pkg/networkmanager/firewall.jsx:574
 msgid "(Optional)"
 msgstr "(オプション)"
 
-#: pkg/networkmanager/firewall.jsx:474 pkg/networkmanager/firewall.jsx:623
+#: pkg/networkmanager/firewall.jsx:499 pkg/networkmanager/firewall.jsx:648
 #: pkg/storaged/fsys-tab.jsx:160
 msgid "(default)"
 msgstr "(デフォルト)"
@@ -513,7 +513,7 @@ msgstr "アカウント設定"
 msgid "Account not available or cannot be edited."
 msgstr "アカウントが利用可能でないか、アカウントを編集できません。"
 
-#: pkg/users/index.html:71
+#: pkg/users/index.html:71 pkg/users/manifest.json.in
 msgid "Accounts"
 msgstr "アカウント"
 
@@ -548,11 +548,11 @@ msgstr "アクティブページ"
 msgid "Active since"
 msgstr "以降有効"
 
-#: pkg/systemd/service-details.jsx:348
+#: pkg/systemd/service-details.jsx:352
 msgid "Active since "
 msgstr "以下以降アクティブ"
 
-#: pkg/networkmanager/firewall.jsx:929
+#: pkg/networkmanager/firewall.jsx:954
 msgid "Active zones"
 msgstr "アクティブゾーン"
 
@@ -565,7 +565,7 @@ msgid "Adaptive transmit load balancing"
 msgstr "適応送信のロードバランス"
 
 #: pkg/lib/machine-add.html:43 pkg/shell/index.html:181
-#: pkg/machines/components/diskAdd.jsx:566 pkg/storaged/crypto-keyslots.jsx:228
+#: pkg/machines/components/diskAdd.jsx:600 pkg/storaged/crypto-keyslots.jsx:228
 #: pkg/storaged/iscsi-panel.jsx:132 pkg/storaged/iscsi-panel.jsx:155
 #: pkg/storaged/mdraid-details.jsx:57 pkg/storaged/nfs-details.jsx:191
 #: pkg/storaged/vgroup-details.jsx:63
@@ -588,7 +588,7 @@ msgstr "ボンドの追加"
 msgid "Add Bridge"
 msgstr "ブリッジの追加"
 
-#: pkg/machines/components/diskAdd.jsx:363
+#: pkg/machines/components/diskAdd.jsx:368
 msgid "Add Disk"
 msgstr "ディスクの追加"
 
@@ -604,12 +604,12 @@ msgstr "鍵の追加"
 msgid "Add Machine to Dashboard"
 msgstr "ダッシュボードへのマシンの追加"
 
-#: pkg/networkmanager/firewall.jsx:457
+#: pkg/networkmanager/firewall.jsx:482
 msgid "Add Ports"
 msgstr "ポートの追加"
 
-#: pkg/networkmanager/firewall.jsx:457 pkg/networkmanager/firewall.jsx:879
-#: pkg/networkmanager/firewall.jsx:891
+#: pkg/networkmanager/firewall.jsx:482 pkg/networkmanager/firewall.jsx:904
+#: pkg/networkmanager/firewall.jsx:916
 msgid "Add Services"
 msgstr "サービスの追加"
 
@@ -625,8 +625,8 @@ msgstr "チームの追加"
 msgid "Add VLAN"
 msgstr "VLAN の追加"
 
-#: pkg/networkmanager/firewall.jsx:705 pkg/networkmanager/firewall.jsx:885
-#: pkg/networkmanager/firewall.jsx:896
+#: pkg/networkmanager/firewall.jsx:730 pkg/networkmanager/firewall.jsx:910
+#: pkg/networkmanager/firewall.jsx:921
 msgid "Add Zone"
 msgstr "ゾーンの追加"
 
@@ -638,7 +638,7 @@ msgstr "iSCSI ポータルの追加"
 msgid "Add key"
 msgstr "鍵の追加"
 
-#: pkg/networkmanager/firewall.jsx:458
+#: pkg/networkmanager/firewall.jsx:483
 msgid "Add ports to the following zones:"
 msgstr "以下のゾーンにポートを追加:"
 
@@ -646,11 +646,11 @@ msgstr "以下のゾーンにポートを追加:"
 msgid "Add public key"
 msgstr "公開鍵の追加"
 
-#: pkg/networkmanager/firewall.jsx:458
+#: pkg/networkmanager/firewall.jsx:483
 msgid "Add services to following zones:"
 msgstr "以下のゾーンにサービスを追加:"
 
-#: pkg/networkmanager/firewall.jsx:781
+#: pkg/networkmanager/firewall.jsx:806
 msgid "Add zone"
 msgstr "ゾーンの追加"
 
@@ -660,7 +660,7 @@ msgid ""
 "administration UI unavailable."
 msgstr "<b>$0</b> を追加すると、サーバーへの接続が切断され、管理 UI が利用できなくなります。"
 
-#: pkg/networkmanager/firewall.jsx:561
+#: pkg/networkmanager/firewall.jsx:586
 msgid ""
 "Adding custom ports will reload firewalld. A reload will result in the loss "
 "of any runtime-only configuration!"
@@ -722,6 +722,13 @@ msgstr "アドレスは空欄にできません"
 msgid "Address is not a valid URL"
 msgstr "アドレスは有効ではありません。"
 
+#: pkg/machines/components/networks/createNetworkDialog.jsx:60
+#: pkg/machines/components/networks/createNetworkDialog.jsx:67
+#: pkg/machines/components/networks/createNetworkDialog.jsx:88
+#: pkg/machines/components/networks/createNetworkDialog.jsx:95
+msgid "Address not within subnet"
+msgstr ""
+
 #: pkg/machines/components/desktopConsole.jsx:153
 msgid "Address:"
 msgstr "アドレス: "
@@ -742,7 +749,7 @@ msgstr "管理者パスワード"
 msgid "Advanced TCA"
 msgstr "高度な TCA"
 
-#: pkg/systemd/services.html:310 pkg/systemd/service-details.jsx:424
+#: pkg/systemd/services.html:310 pkg/systemd/service-details.jsx:428
 msgid "After"
 msgstr "後"
 
@@ -756,7 +763,7 @@ msgstr ""
 "の一覧が変更する可能性があるため、他のサービスにも影響を及ぼす場合があります。"
 
 #: pkg/systemd/services.html:301 pkg/systemd/services.html:305
-#: pkg/systemd/init.js:887
+#: pkg/systemd/init.js:902
 msgid "After system boot"
 msgstr "システムブート後"
 
@@ -782,11 +789,11 @@ msgstr "選択されたディスク上のすべてのデータが削除され、
 msgid "Allow running (unmask)"
 msgstr "実行を許可 (マスク解除)"
 
-#: pkg/networkmanager/firewall.jsx:756
+#: pkg/networkmanager/firewall.jsx:781
 msgid "Allowed Addresses"
 msgstr "許可されたアドレス"
 
-#: pkg/networkmanager/firewall.jsx:942
+#: pkg/networkmanager/firewall.jsx:967
 msgid "Allowed Services"
 msgstr "許可されたサービス"
 
@@ -811,7 +818,7 @@ msgid "Appearance:"
 msgstr "Appearance:"
 
 #: pkg/apps/index.html:23 pkg/apps/application-list.jsx:152
-#: pkg/apps/application.jsx:143
+#: pkg/apps/application.jsx:143 pkg/apps/manifest.json.in
 msgid "Applications"
 msgstr "アプリケーション"
 
@@ -916,10 +923,11 @@ msgstr "作成者"
 msgid "Authorized Public SSH Keys"
 msgstr "承認された公開 SSH 鍵"
 
-#: pkg/networkmanager/index.html:176 pkg/networkmanager/interfaces.js:1974
-#: pkg/networkmanager/interfaces.js:2771 pkg/networkmanager/interfaces.js:3329
-#: pkg/networkmanager/interfaces.js:3333 pkg/networkmanager/interfaces.js:3339
-#: pkg/realmd/operation.js:338
+#: pkg/networkmanager/index.html:176
+#: pkg/machines/components/networks/createNetworkDialog.jsx:176
+#: pkg/networkmanager/interfaces.js:1974 pkg/networkmanager/interfaces.js:2771
+#: pkg/networkmanager/interfaces.js:3329 pkg/networkmanager/interfaces.js:3333
+#: pkg/networkmanager/interfaces.js:3339 pkg/realmd/operation.js:338
 msgid "Automatic"
 msgstr "自動"
 
@@ -931,7 +939,7 @@ msgstr "自動 (DHCP のみ)"
 msgid "Automatic (DHCP)"
 msgstr "自動 (DHCP)"
 
-#: pkg/systemd/init.js:293
+#: pkg/systemd/init.js:295
 msgid "Automatic Startup"
 msgstr "自動起動"
 
@@ -943,7 +951,7 @@ msgstr "自動アップデート"
 msgid "Automatically start libvirt on boot"
 msgstr "起動時に libvirt を自動開始"
 
-#: pkg/systemd/service-details.jsx:392
+#: pkg/systemd/service-details.jsx:396
 msgid "Automatically starts"
 msgstr "自動起動"
 
@@ -960,7 +968,7 @@ msgid "Automation Script"
 msgstr "オートメーションスクリプト"
 
 #: pkg/machines/components/networks/networkOverviewTab.jsx:86
-#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:64
+#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:69
 #: pkg/machines/components/vmOverviewTabLibvirt.jsx:166
 msgid "Autostart"
 msgstr "自動起動"
@@ -1011,11 +1019,11 @@ msgstr "passwd1 メカニズムに間違ったデータが渡されました"
 msgid "Balancer"
 msgstr "バランサー"
 
-#: pkg/systemd/service-details.jsx:423
+#: pkg/systemd/service-details.jsx:427
 msgid "Before"
 msgstr "前"
 
-#: pkg/systemd/service-details.jsx:414
+#: pkg/systemd/service-details.jsx:418
 msgid "Binds To"
 msgstr "バインドする"
 
@@ -1061,7 +1069,7 @@ msgstr "ブート順序"
 msgid "Boot order settings could not be saved"
 msgstr "ブート順序の設定は保存できませんでした"
 
-#: pkg/systemd/service-details.jsx:419
+#: pkg/systemd/service-details.jsx:423
 msgid "Bound By"
 msgstr "バインドされた"
 
@@ -1142,7 +1150,7 @@ msgstr "CPU 優先度"
 msgid "CPU usage:"
 msgstr "CPU 使用率:"
 
-#: pkg/machines/components/diskAdd.jsx:246
+#: pkg/machines/components/diskAdd.jsx:251
 #: pkg/machines/components/vmDiskColumns.jsx:75
 msgid "Cache"
 msgstr "キャッシュ"
@@ -1181,25 +1189,26 @@ msgstr "画像を読み込めません。"
 #: pkg/users/index.html:315 pkg/users/index.html:332 pkg/users/index.html:356
 #: pkg/users/index.html:413 pkg/apps/utils.jsx:86
 #: pkg/lib/cockpit-components-dialog.jsx:159
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:752
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:781
 #: pkg/machines/components/deleteDialog.jsx:158
-#: pkg/machines/components/diskAdd.jsx:563
+#: pkg/machines/components/diskAdd.jsx:597
+#: pkg/machines/components/networks/createNetworkDialog.jsx:486
 #: pkg/machines/components/networks/networkDelete.jsx:100
-#: pkg/machines/components/nicEdit.jsx:296
-#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:487
-#: pkg/machines/components/storagePools/storagePoolDelete.jsx:128
+#: pkg/machines/components/nicEdit.jsx:311
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:511
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:225
 #: pkg/machines/components/vcpuModal.jsx:232
 #: pkg/machines/components/vm/bootOrderModal.jsx:327
 #: pkg/machines/components/vm/memoryModal.jsx:214
-#: pkg/networkmanager/firewall.jsx:565 pkg/networkmanager/firewall.jsx:633
-#: pkg/networkmanager/firewall.jsx:776 pkg/packagekit/updates.jsx:179
+#: pkg/networkmanager/firewall.jsx:590 pkg/networkmanager/firewall.jsx:658
+#: pkg/networkmanager/firewall.jsx:801 pkg/packagekit/updates.jsx:179
 #: pkg/sosreport/index.js:51 pkg/storaged/dialog.jsx:393
-#: pkg/storaged/jobs-panel.jsx:123 pkg/systemd/hwinfo.jsx:216
-#: pkg/systemd/service-details.jsx:107
+#: pkg/storaged/jobs-panel.jsx:123 pkg/systemd/service-details.jsx:107
+#: pkg/systemd/hwinfo.jsx:216
 msgid "Cancel"
 msgstr "取り消し"
 
-#: pkg/shell/indexes.js:415
+#: pkg/shell/indexes.js:421
 msgid "Cannot connect to an unknown machine"
 msgstr "不明なマシンには接続できません"
 
@@ -1265,7 +1274,7 @@ msgstr "リソース制限の変更"
 msgid "Change the settings"
 msgstr "設定の変更"
 
-#: pkg/machines/components/nicEdit.jsx:272
+#: pkg/machines/components/nicEdit.jsx:287
 #: pkg/machines/components/vcpuModal.jsx:183
 #: pkg/machines/components/vm/bootOrderModal.jsx:283
 #: pkg/machines/components/warningInactive.jsx:11
@@ -1314,6 +1323,10 @@ msgstr "更新の確認…"
 msgid "Checking installed software"
 msgstr "インストールされたソフトウェアの確認"
 
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:351
+msgid "Choose an operating system"
+msgstr ""
+
 #: pkg/shell/index.html:117 pkg/shell/simple.html:85
 msgid "Choose the language to be used in the application"
 msgstr "アプリケーションで使用する言語の選択"
@@ -1329,6 +1342,10 @@ msgstr "クラス"
 #: pkg/storaged/jobs-panel.jsx:55
 msgid "Cleaning up for $target"
 msgstr "$target のクリーンアップ"
+
+#: pkg/systemd/service-details.jsx:188
+msgid "Clear 'Failed to start'"
+msgstr ""
 
 #: pkg/systemd/services.html:86
 msgid "Clear All Filters"
@@ -1378,7 +1395,7 @@ msgstr ""
 msgid "Cockpit could not contact the given host."
 msgstr "Cockpit は該当するホストに接続できませんでした。"
 
-#: pkg/shell/base_index.js:738
+#: pkg/shell/base_index.js:752
 msgid ""
 "Cockpit had an unexpected internal error. <br/><br/>You can try restarting "
 "Cockpit by pressing refresh in your browser. The javascript console contains "
@@ -1479,7 +1496,7 @@ msgid "Combined usage of $0 CPU core"
 msgid_plural "Combined usage of $0 CPU cores"
 msgstr[0] "$0 CPU コアの合計使用率"
 
-#: pkg/networkmanager/firewall.jsx:529
+#: pkg/networkmanager/firewall.jsx:554
 msgid "Comma-separated ports, ranges, and aliases are accepted"
 msgstr "コンマで区切られたポート、範囲、およびエイリアスは使用できます"
 
@@ -1541,11 +1558,11 @@ msgstr "圧縮"
 msgid "Computer OU"
 msgstr "コンピューター OU"
 
-#: pkg/systemd/service-details.jsx:438
+#: pkg/systemd/service-details.jsx:442
 msgid "Condition $0=$1 was not met"
 msgstr "条件 $0=$1 を満たしていませんでした。"
 
-#: pkg/systemd/service-details.jsx:488
+#: pkg/systemd/service-details.jsx:492
 msgid "Condition failed"
 msgstr "条件が満たされませんでした。"
 
@@ -1582,11 +1599,11 @@ msgstr "仮想ネットワークの削除を確定"
 msgid "Confirm removal with passphrase"
 msgstr "パスフレーズで削除を確認"
 
-#: pkg/systemd/service-details.jsx:422
+#: pkg/systemd/service-details.jsx:426
 msgid "Conflicted By"
 msgstr "競合する"
 
-#: pkg/systemd/service-details.jsx:421
+#: pkg/systemd/service-details.jsx:425
 msgid "Conflicts"
 msgstr "競合"
 
@@ -1631,13 +1648,13 @@ msgstr "SETroubleshoot デーモンへの接続中 ..."
 msgid "Connecting to Virtualization Service"
 msgstr "仮想化サービスへの接続"
 
-#: pkg/shell/indexes.js:410
+#: pkg/shell/indexes.js:416
 msgid "Connecting to the machine"
 msgstr "マシンへの接続"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:667
-#: pkg/machines/components/networks/networkList.jsx:47
-#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:40
+#: pkg/machines/components/machinesConnectionSelector.jsx:34
+#: pkg/machines/components/networks/createNetworkDialog.jsx:106
+#: pkg/machines/components/networks/networkList.jsx:50
 #: pkg/machines/components/storagePools/storagePoolList.jsx:49
 #: pkg/machines/hostvmslist.jsx:83
 msgid "Connection"
@@ -1655,7 +1672,7 @@ msgstr "接続がタイムアウトしました。"
 msgid "Connection will be lost"
 msgstr "接続が失われます"
 
-#: pkg/systemd/service-details.jsx:420
+#: pkg/systemd/service-details.jsx:424
 msgid "Consists Of"
 msgstr "構成するもの"
 
@@ -1759,7 +1776,7 @@ msgstr "ユーザーグループを変更できませんでした"
 msgid "Couldn't change user password"
 msgstr "ユーザーパスワードを変更できませんでした"
 
-#: pkg/shell/indexes.js:413
+#: pkg/shell/indexes.js:419
 msgid "Couldn't connect to the machine"
 msgstr "マシンに接続できませんでした"
 
@@ -1788,8 +1805,9 @@ msgid "Crash system"
 msgstr "クラッシュシステム"
 
 #: pkg/users/index.html:199
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:757
-#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:490
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:786
+#: pkg/machines/components/networks/createNetworkDialog.jsx:491
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:514
 #: pkg/storaged/content-views.jsx:123 pkg/storaged/content-views.jsx:689
 #: pkg/storaged/lvol-tabs.jsx:352 pkg/storaged/mdraids-panel.jsx:86
 #: pkg/storaged/vdos-panel.jsx:105 pkg/storaged/vgroups-panel.jsx:69
@@ -1800,7 +1818,7 @@ msgstr "作成"
 msgid "Create Logical Volume"
 msgstr "論理ボリュームの作成"
 
-#: pkg/machines/components/diskAdd.jsx:518
+#: pkg/machines/components/diskAdd.jsx:552
 msgid "Create New"
 msgstr "新規作成"
 
@@ -1832,7 +1850,7 @@ msgstr "レポートの作成"
 msgid "Create Snapshot"
 msgstr "スナップショットの作成"
 
-#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:524
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:548
 msgid "Create Storage Pool"
 msgstr "ストレージプールの作成"
 
@@ -1852,9 +1870,14 @@ msgstr "タイマーの作成"
 msgid "Create VDO Device"
 msgstr "VDO デバイスの作成"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:799
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:831
 msgid "Create VM"
 msgstr "仮想マシンの作成"
+
+#: pkg/machines/components/networks/createNetworkDialog.jsx:477
+#: pkg/machines/components/networks/createNetworkDialog.jsx:525
+msgid "Create Virtual Network"
+msgstr ""
 
 #: pkg/storaged/vgroups-panel.jsx:53
 msgid "Create Volume Group"
@@ -1930,7 +1953,7 @@ msgstr "このチームを作成すると、サーバーへの接続が切断さ
 msgid "Creating volume group $target"
 msgstr "ボリュームグループ $target の作成"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:648
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:683
 msgid "Creation of VM $0 failed"
 msgstr "VM $0 の作成に失敗"
 
@@ -1958,7 +1981,7 @@ msgstr "現在の起動"
 msgid "Custom"
 msgstr "Custom"
 
-#: pkg/networkmanager/firewall.jsx:523
+#: pkg/networkmanager/firewall.jsx:548
 msgid "Custom Ports"
 msgstr "カスタムポート"
 
@@ -1970,7 +1993,7 @@ msgstr "カスタムの暗号化オプション"
 msgid "Custom mount options"
 msgstr "カスタムのマウントオプション"
 
-#: pkg/networkmanager/firewall.jsx:723
+#: pkg/networkmanager/firewall.jsx:748
 msgid "Custom zones"
 msgstr "カスタムゾーン"
 
@@ -2051,8 +2074,9 @@ msgstr "遅延"
 #: pkg/machines/components/deleteDialog.jsx:161
 #: pkg/machines/components/networks/networkDelete.jsx:86
 #: pkg/machines/components/networks/networkDelete.jsx:103
-#: pkg/machines/components/storagePools/storagePoolDelete.jsx:114
-#: pkg/machines/components/storagePools/storagePoolDelete.jsx:131
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:194
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:204
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:230
 #: pkg/storaged/content-views.jsx:293 pkg/storaged/content-views.jsx:314
 #: pkg/storaged/mdraid-details.jsx:299 pkg/storaged/mdraid-details.jsx:322
 #: pkg/storaged/vdo-details.jsx:199 pkg/storaged/vdo-details.jsx:262
@@ -2064,7 +2088,7 @@ msgstr "削除"
 msgid "Delete $0"
 msgstr "$0 の削除"
 
-#: pkg/machines/components/storagePools/storagePoolDelete.jsx:97
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:162
 msgid "Delete Content"
 msgstr "コンテンツの削除"
 
@@ -2076,7 +2100,7 @@ msgstr "ファイルの削除"
 msgid "Delete Network $0"
 msgstr "ネットワーク $0 の削除"
 
-#: pkg/machines/components/storagePools/storagePoolDelete.jsx:120
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:217
 msgid "Delete Storage Pool $0"
 msgstr "ストレージプール $0 の削除"
 
@@ -2084,7 +2108,7 @@ msgstr "ストレージプール $0 の削除"
 msgid "Delete associated storage files:"
 msgstr "関連するストレージファイルの削除:"
 
-#: pkg/machines/components/storagePools/storagePoolDelete.jsx:104
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:170
 msgid "Delete the Volumes inside this Pool"
 msgstr "このプール内のボリュームを削除します"
 
@@ -2122,7 +2146,7 @@ msgstr "パーティションを削除すると、パーティション内のす
 msgid "Deleting a volume group will erase all data on it."
 msgstr "ボリュームグループを削除すると、ボリュームグループ上のすべてのデータが削除されます。"
 
-#: pkg/machines/components/storagePools/storagePoolDelete.jsx:107
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:174
 msgid ""
 "Deleting an inactive Storage Pool will only undefine the Pool. Its content "
 "will not be deleted."
@@ -2134,13 +2158,23 @@ msgstr "ボリュームグループ $target の削除"
 
 #: pkg/systemd/services.html:268
 #: node_modules/registry-image-widgets/views/image-body.html:6
-#: pkg/networkmanager/firewall.jsx:732 pkg/systemd/init.js:287
+#: pkg/networkmanager/firewall.jsx:757 pkg/systemd/init.js:289
 msgid "Description"
 msgstr "説明"
+
+#: pkg/playground/manifest.json.in
+msgid "Design Patterns"
+msgstr ""
 
 #: pkg/lib/machine-info.js:66
 msgid "Desktop"
 msgstr "デスクトップ"
+
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:151
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:187
+msgid ""
+"Detach the disks using this pool from any VMs before attempting deletion."
+msgstr ""
 
 #: pkg/lib/machine-info.js:95
 msgid "Detachable"
@@ -2148,12 +2182,13 @@ msgstr "割り当て解除可能"
 
 #: pkg/shell/index.html:229 pkg/docker/containers-view.jsx:336
 #: pkg/docker/containers-view.jsx:504 pkg/docker/containers-view.jsx:514
-#: pkg/docker/containers-view.jsx:642 pkg/networkmanager/firewall.jsx:95
-#: pkg/packagekit/updates.jsx:383 pkg/systemd/host.js:762
+#: pkg/docker/containers-view.jsx:642 pkg/packagekit/updates.jsx:383
+#: pkg/systemd/host.js:762
 msgid "Details"
 msgstr "詳細"
 
-#: pkg/machines/components/networks/networkList.jsx:47
+#: pkg/machines/components/networks/createNetworkDialog.jsx:169
+#: pkg/machines/components/networks/networkList.jsx:50
 #: pkg/machines/components/vm/bootOrderModal.jsx:93
 #: pkg/machines/components/vmDiskColumns.jsx:43
 #: pkg/machines/components/vmDisksTab.jsx:58
@@ -2167,6 +2202,10 @@ msgstr "デバイスファイル"
 #: pkg/storaged/content-views.jsx:551
 msgid "Device is read-only"
 msgstr "デバイスは読み取り専用です"
+
+#: pkg/sosreport/manifest.json.in
+msgid "Diagnostic Reports"
+msgstr ""
 
 #: pkg/sosreport/index.html:22
 msgid "Diagnostic reports"
@@ -2194,11 +2233,11 @@ msgid "Disable tuned"
 msgstr "tuned の無効化"
 
 #: pkg/systemd/services.html:67 pkg/networkmanager/interfaces.js:1969
-#: pkg/systemd/init.js:218 pkg/systemd/service-details.jsx:327
+#: pkg/systemd/init.js:218 pkg/systemd/service-details.jsx:331
 msgid "Disabled"
 msgstr "無効"
 
-#: pkg/systemd/service-details.jsx:196
+#: pkg/systemd/service-details.jsx:192
 msgid "Disallow running (mask)"
 msgstr "実行を禁止 (マスク)"
 
@@ -2207,7 +2246,7 @@ msgid "Disconnect"
 msgstr "切断"
 
 #: pkg/shell/simple.html:101 pkg/machines/components/vnc.jsx:107
-#: pkg/shell/indexes.js:149 pkg/shell/indexes.js:603
+#: pkg/shell/indexes.js:155 pkg/shell/indexes.js:609
 msgid "Disconnected"
 msgstr "切断されています"
 
@@ -2227,11 +2266,11 @@ msgstr "ディスク $0 は、VM $1 からの切断に失敗しました"
 msgid "Disk I/O"
 msgstr "ディスク I/O"
 
-#: pkg/machines/components/diskAdd.jsx:492
+#: pkg/machines/components/diskAdd.jsx:525
 msgid "Disk failed to be attached"
 msgstr "ディスクの割り当てに失敗しました"
 
-#: pkg/machines/components/diskAdd.jsx:471
+#: pkg/machines/components/diskAdd.jsx:504
 msgid "Disk failed to be created"
 msgstr "ディスクの作成に失敗しました"
 
@@ -2257,6 +2296,10 @@ msgstr "$0 VM からディスクを削除できません"
 #: pkg/shell/simple.html:82
 msgid "Display Language"
 msgstr "言語の表示"
+
+#: pkg/docker/manifest.json.in
+msgid "Docker Containers"
+msgstr ""
 
 #: node_modules/registry-image-widgets/views/image-meta.html:10
 msgid "Docker Version"
@@ -2296,7 +2339,7 @@ msgid "Domain Administrator Password"
 msgstr "ドメイン管理者パスワード"
 
 #: pkg/systemd/services.html:338 pkg/systemd/services.html:342
-#: pkg/systemd/init.js:1070
+#: pkg/systemd/init.js:1085
 msgid "Don't Repeat"
 msgstr "繰り返さないでください"
 
@@ -2361,7 +2404,7 @@ msgstr "重複するエイリアス"
 msgid "Duplicate port"
 msgstr "重複するポート"
 
-#: pkg/machines/components/nicEdit.jsx:281 pkg/storaged/crypto-tab.jsx:128
+#: pkg/machines/components/nicEdit.jsx:296 pkg/storaged/crypto-tab.jsx:128
 #: pkg/storaged/nfs-details.jsx:306
 msgid "Edit"
 msgstr "編集"
@@ -2458,6 +2501,15 @@ msgstr "暗号化"
 msgid "Encryption Options"
 msgstr "暗号化オプション"
 
+#: pkg/machines/components/networks/createNetworkDialog.jsx:252
+msgid "End"
+msgstr ""
+
+#: pkg/machines/components/networks/createNetworkDialog.jsx:63
+#: pkg/machines/components/networks/createNetworkDialog.jsx:91
+msgid "End should not be empty"
+msgstr ""
+
 #: pkg/selinux/setroubleshoot-view.jsx:296
 msgid "Enforcing"
 msgstr "強制"
@@ -2476,7 +2528,7 @@ msgid ""
 "time you reconnect to this machine"
 msgstr "ここで別のパスワードを入力すると、このマシンに接続するときに毎回そのパスワードを再入力する必要があります"
 
-#: pkg/networkmanager/firewall.jsx:759
+#: pkg/networkmanager/firewall.jsx:784
 msgid "Entire subnet"
 msgstr "サブネット全体"
 
@@ -2512,7 +2564,7 @@ msgstr "エラータ:"
 #: pkg/playground/translate.html:100 pkg/playground/translate.html:105
 #: pkg/apps/utils.jsx:100 pkg/storaged/multipath.jsx:57
 #: pkg/storaged/storage-controls.jsx:99 pkg/storaged/storage-controls.jsx:192
-#: pkg/systemd/service-details.jsx:444 pkg/users/local.js:1476
+#: pkg/systemd/service-details.jsx:448 pkg/users/local.js:1476
 msgid "Error"
 msgstr "エラー"
 
@@ -2560,11 +2612,11 @@ msgstr "Ethtool"
 msgid "Everything"
 msgstr "すべて"
 
-#: pkg/networkmanager/firewall.jsx:536
+#: pkg/networkmanager/firewall.jsx:561
 msgid "Example: 22,ssh,8080,5900-5910"
 msgstr "例: 22,ssh,8080,5900-5910"
 
-#: pkg/networkmanager/firewall.jsx:544
+#: pkg/networkmanager/firewall.jsx:569
 msgid "Example: 88,2019,nfs,rsync"
 msgstr "例: 88,2019,nfs,rsync"
 
@@ -2572,11 +2624,11 @@ msgstr "例: 88,2019,nfs,rsync"
 msgid "Excellent password"
 msgstr "優れたパスワード"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:282
-msgid "Existing Disk Image"
-msgstr "既存のディスクイメージ"
+#: pkg/playground/manifest.json.in
+msgid "Exceptions"
+msgstr ""
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:219
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:229
 msgid "Existing disk image on host's file system"
 msgstr "ホストファイルシステム上の既存のディスクイメージ"
 
@@ -2608,15 +2660,15 @@ msgstr "失敗"
 msgid "Failed to add machine: $0"
 msgstr "マシンの追加に失敗しました: $0"
 
-#: pkg/networkmanager/firewall.jsx:237
+#: pkg/networkmanager/firewall.jsx:262
 msgid "Failed to add port"
 msgstr "ポートの追加に失敗しました"
 
-#: pkg/networkmanager/firewall.jsx:237
+#: pkg/networkmanager/firewall.jsx:262
 msgid "Failed to add service"
 msgstr "サービスの追加に失敗しました"
 
-#: pkg/networkmanager/firewall.jsx:684
+#: pkg/networkmanager/firewall.jsx:709
 msgid "Failed to add zone"
 msgstr "ゾーンの追加に失敗しました"
 
@@ -2652,11 +2704,11 @@ msgstr "$0 のインターフェイスの IP アドレスの取得に失敗し�
 msgid "Failed to load authorized keys."
 msgstr "承認された鍵のロードに失敗しました。"
 
-#: pkg/networkmanager/firewall.jsx:596
+#: pkg/networkmanager/firewall.jsx:621
 msgid "Failed to remove service"
 msgstr "サービスの削除に失敗しました"
 
-#: pkg/systemd/service-details.jsx:336
+#: pkg/systemd/service-details.jsx:340
 msgid "Failed to start"
 msgstr "起動に失敗しました"
 
@@ -2685,7 +2737,7 @@ msgstr "File"
 msgid "Filesystem"
 msgstr "ファイルシステム"
 
-#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:76
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:62
 msgid "Filesystem Directory"
 msgstr "ファイルシステムのディレクトリー"
 
@@ -2701,7 +2753,7 @@ msgstr "ファイルシステム名"
 msgid "Filesystems"
 msgstr "ファイルシステム"
 
-#: pkg/networkmanager/firewall.jsx:491
+#: pkg/networkmanager/firewall.jsx:516
 msgid "Filter Services"
 msgstr "フィルターサービス"
 
@@ -2714,11 +2766,11 @@ msgid "Fingerprint"
 msgstr "フィンガープリント"
 
 #: pkg/networkmanager/firewall.html:22 pkg/networkmanager/index.html:97
-#: pkg/networkmanager/firewall.jsx:920 pkg/networkmanager/firewall.jsx:923
+#: pkg/networkmanager/firewall.jsx:945 pkg/networkmanager/firewall.jsx:948
 msgid "Firewall"
 msgstr "ファイアウォール"
 
-#: pkg/networkmanager/firewall.jsx:868
+#: pkg/networkmanager/firewall.jsx:893
 msgid "Firewall is not available"
 msgstr "ファイアウォールは利用できません"
 
@@ -2730,7 +2782,7 @@ msgstr "Docker リポジトリーに順守"
 msgid "For legacy applications only. Reduces performance."
 msgstr "レガシーアプリケーション専用です。パフォーマンスが低下します。"
 
-#: pkg/systemd/service-details.jsx:318
+#: pkg/systemd/service-details.jsx:322
 msgid "Forbidden from running"
 msgstr "実行が禁止されています"
 
@@ -2758,8 +2810,8 @@ msgstr "パスワード変更の強制"
 msgid "Force remove passphrase in $0"
 msgstr "$0 のパスフレーズの削除を強制します"
 
-#: pkg/machines/components/diskAdd.jsx:147
-#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:260
+#: pkg/machines/components/diskAdd.jsx:157
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:249
 #: pkg/storaged/content-views.jsx:318 pkg/storaged/content-views.jsx:530
 #: pkg/storaged/format-dialog.jsx:323
 msgid "Format"
@@ -2781,11 +2833,15 @@ msgstr "ディスクをフォーマットすると、ディスク上のすべて
 msgid "Formatting a storage device will erase all data on it."
 msgstr "ストレージデバイスをフォーマットすると、そのデバイス上のすべてのデータが削除されます。"
 
+#: pkg/machines/components/networks/createNetworkDialog.jsx:147
+msgid "Forward Mode"
+msgstr ""
+
 #: pkg/networkmanager/interfaces.js:2873
 msgid "Forward delay $forward_delay"
 msgstr "フォワード遅延 $forward_delay"
 
-#: pkg/machines/components/networks/networkList.jsx:47
+#: pkg/machines/components/networks/networkList.jsx:50
 msgid "Forwarding mode"
 msgstr "転送モード"
 
@@ -2837,7 +2893,7 @@ msgstr "レポートの生成"
 msgid "Get new image"
 msgstr "新規イメージの取得"
 
-#: pkg/machines/components/diskAdd.jsx:186
+#: pkg/machines/components/diskAdd.jsx:191
 #: pkg/machines/components/memorySelectRow.jsx:46
 #: pkg/machines/components/vm/memoryModal.jsx:153
 #: pkg/machines/components/vm/memoryModal.jsx:191
@@ -2922,14 +2978,14 @@ msgstr "ハードウェア情報"
 msgid "Hello time $hello_time"
 msgstr "Hello タイム $hello_time"
 
-#: pkg/machines/components/diskAdd.jsx:238
+#: pkg/machines/components/diskAdd.jsx:243
 msgid "Hide Performance Options"
 msgstr "パフォーマンスオプションを非表示にします"
 
-#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:151
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:137
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:35
 #: pkg/machines/components/vm/bootOrderModal.jsx:97
-#: pkg/machines/components/vmDiskColumns.jsx:47 pkg/shell/indexes.js:332
+#: pkg/machines/components/vmDiskColumns.jsx:47 pkg/shell/indexes.js:338
 msgid "Host"
 msgstr "ホスト"
 
@@ -2938,7 +2994,7 @@ msgid "Host Device"
 msgstr "ホストデバイス"
 
 #: pkg/dashboard/index.html:137 pkg/systemd/index.html:113
-#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:156
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:142
 msgid "Host Name"
 msgstr "ホスト名"
 
@@ -2950,7 +3006,7 @@ msgstr "ホスト鍵が正しくありません"
 msgid "Host name should not be changed in a domain"
 msgstr "ドメインでホスト名は変更できません"
 
-#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:162
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:148
 msgid "Host should not be empty"
 msgstr "ホストは空にできません"
 
@@ -2958,7 +3014,7 @@ msgstr "ホストは空にできません"
 msgid "Hour : Minute"
 msgstr "時間: 分"
 
-#: pkg/systemd/init.js:1146 pkg/systemd/init.js:1175
+#: pkg/systemd/init.js:1161 pkg/systemd/init.js:1190
 msgid "Hour needs to be a number between 0-23"
 msgstr "時間は 0〜23 の数字である必要があります"
 
@@ -2983,11 +3039,15 @@ msgstr "IP アドレス"
 msgid "IP Address:"
 msgstr "IP アドレス:"
 
+#: pkg/machines/components/networks/createNetworkDialog.jsx:197
+msgid "IP Configuration"
+msgstr ""
+
 #: pkg/docker/index.html:180
 msgid "IP Prefix Length:"
 msgstr "IP プレフィックスの長さ:"
 
-#: pkg/networkmanager/firewall.jsx:930
+#: pkg/networkmanager/firewall.jsx:955
 msgid "IP Range"
 msgstr "IP 範囲"
 
@@ -3003,9 +3063,25 @@ msgstr "IPv4"
 msgid "IPv4 Address"
 msgstr "IPv4 アドレス"
 
+#: pkg/machines/components/networks/createNetworkDialog.jsx:279
+msgid "IPv4 Network"
+msgstr ""
+
+#: pkg/machines/components/networks/createNetworkDialog.jsx:45
+msgid "IPv4 Network should not be empty"
+msgstr ""
+
 #: pkg/networkmanager/interfaces.js:3371
 msgid "IPv4 Settings"
 msgstr "IPv4 のセッティング"
+
+#: pkg/machines/components/networks/createNetworkDialog.jsx:213
+msgid "IPv4 and IPv6"
+msgstr ""
+
+#: pkg/machines/components/networks/createNetworkDialog.jsx:207
+msgid "IPv4 only"
+msgstr ""
 
 #: pkg/networkmanager/interfaces.js:2925
 msgid "IPv6"
@@ -3015,9 +3091,21 @@ msgstr "IPv6"
 msgid "IPv6 Address"
 msgstr "IPv6 アドレス"
 
+#: pkg/machines/components/networks/createNetworkDialog.jsx:323
+msgid "IPv6 Network"
+msgstr ""
+
+#: pkg/machines/components/networks/createNetworkDialog.jsx:73
+msgid "IPv6 Network should not be empty"
+msgstr ""
+
 #: pkg/networkmanager/interfaces.js:3371
 msgid "IPv6 Settings"
 msgstr "IPv6 のセッティング"
+
+#: pkg/machines/components/networks/createNetworkDialog.jsx:210
+msgid "IPv6 only"
+msgstr ""
 
 #: pkg/docker/containers-view.jsx:128 pkg/docker/containers-view.jsx:408
 msgid "Id"
@@ -3102,15 +3190,19 @@ msgstr "イメージは認証済みユーザーまたはグループがプルで
 msgid "Images may only be pulled by specific users or groups"
 msgstr "イメージは特定のユーザーまたはグループのみがプルできます"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:735
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:764
 msgid "Immediately Start VM"
 msgstr "仮想マシンをすぐに起動"
+
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:831
+msgid "Import VM"
+msgstr ""
 
 #: pkg/storaged/mdraid-details.jsx:100
 msgid "In Sync"
 msgstr "同期"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:227
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:237
 msgid ""
 "In most configurations, macvtap does not work for host to guest network "
 "communication."
@@ -3131,7 +3223,7 @@ msgstr "停止"
 msgid "Inactive volume"
 msgstr "非アクティブなボリューム"
 
-#: pkg/networkmanager/firewall.jsx:737
+#: pkg/networkmanager/firewall.jsx:762
 msgid "Included services"
 msgstr "含まれているサービス"
 
@@ -3155,11 +3247,11 @@ msgstr "Docker ストレージプールに関する情報は利用できませ�
 msgid "Initializing..."
 msgstr "初期化中..."
 
-#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:178
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:164
 msgid "Initiator"
 msgstr "イニシエーター"
 
-#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:189
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:175
 msgid "Initiator IQN should not be empty"
 msgstr "イニシエーター IQN は空にできません"
 
@@ -3193,15 +3285,15 @@ msgstr "VDO サポートをインストール"
 msgid "Install setroubleshoot-server to troubleshoot SELinux events."
 msgstr "setroubleshoot-server をインストールして SELinux イベントをトラブルシュートします。"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:286
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:298
 msgid "Installation Source"
 msgstr "インストールソース"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:268
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:280
 msgid "Installation Source Type"
 msgstr "インストールソースのタイプ"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:153
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:149
 msgid "Installation Source should not be empty"
 msgstr "インストールソースは空欄にできません"
 
@@ -3218,7 +3310,7 @@ msgstr "インストール中"
 msgid "Installing $0"
 msgstr "$0 をインストール中"
 
-#: pkg/systemd/service-details.jsx:483
+#: pkg/systemd/service-details.jsx:487
 msgid "Instance of template: "
 msgstr ""
 
@@ -3226,12 +3318,12 @@ msgstr ""
 msgid "Instantiate"
 msgstr "インスタンス化"
 
-#: pkg/machines/components/nicEdit.jsx:123
+#: pkg/machines/components/nicEdit.jsx:132
 msgid "Interface Type"
 msgstr "インターフェース形式"
 
 #: pkg/networkmanager/index.html:108 pkg/networkmanager/index.html:266
-#: pkg/networkmanager/firewall.jsx:742 pkg/networkmanager/firewall.jsx:930
+#: pkg/networkmanager/firewall.jsx:767 pkg/networkmanager/firewall.jsx:955
 #: pkg/networkmanager/interfaces.js:2998
 msgid "Interfaces"
 msgstr "インターフェース"
@@ -3244,19 +3336,39 @@ msgstr "内部エラー: 無効なチャレンジヘッダー"
 msgid "Internal error"
 msgstr "内部エラー"
 
+#: pkg/machines/components/networks/createNetworkDialog.jsx:47
+#: pkg/machines/components/networks/createNetworkDialog.jsx:58
+#: pkg/machines/components/networks/createNetworkDialog.jsx:65
+msgid "Invalid IPv4 address"
+msgstr ""
+
+#: pkg/machines/components/networks/createNetworkDialog.jsx:52
+msgid "Invalid IPv4 mask or prefix length"
+msgstr ""
+
+#: pkg/machines/components/networks/createNetworkDialog.jsx:75
+#: pkg/machines/components/networks/createNetworkDialog.jsx:86
+#: pkg/machines/components/networks/createNetworkDialog.jsx:93
+msgid "Invalid IPv6 address"
+msgstr ""
+
+#: pkg/machines/components/networks/createNetworkDialog.jsx:80
+msgid "Invalid IPv6 prefix"
+msgstr ""
+
 #: pkg/networkmanager/utils.js:90 pkg/networkmanager/utils.js:175
 msgid "Invalid address $0"
 msgstr "無効なアドレス $0"
 
-#: pkg/systemd/host.js:1469 pkg/systemd/shutdown.js:143
+#: pkg/systemd/shutdown.js:143 pkg/systemd/host.js:1469
 msgid "Invalid date format"
 msgstr "無効な日付形式"
 
-#: pkg/systemd/host.js:1465 pkg/systemd/shutdown.js:139
+#: pkg/systemd/shutdown.js:139 pkg/systemd/host.js:1465
 msgid "Invalid date format and invalid time format"
 msgstr "無効な日付形式と無効な時間形式"
 
-#: pkg/systemd/init.js:1181
+#: pkg/systemd/init.js:1196
 msgid "Invalid date format."
 msgstr "無効な日付形式。"
 
@@ -3268,7 +3380,7 @@ msgstr "無効な有効期限"
 msgid "Invalid file permissions"
 msgstr "無効なファイルパーミッション"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:140
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:136
 msgid "Invalid filename"
 msgstr "無効なファイル名"
 
@@ -3284,7 +3396,7 @@ msgstr "無効なメトリック $0"
 msgid "Invalid number of days"
 msgstr "無効な日数"
 
-#: pkg/systemd/init.js:1128
+#: pkg/systemd/init.js:1143
 msgid "Invalid number."
 msgstr "無効な数字。"
 
@@ -3292,7 +3404,7 @@ msgstr "無効な数字。"
 msgid "Invalid port"
 msgstr "無効なポート"
 
-#: pkg/networkmanager/firewall.jsx:335
+#: pkg/networkmanager/firewall.jsx:360
 msgid "Invalid port number"
 msgstr "無効なポート番号"
 
@@ -3304,11 +3416,11 @@ msgstr "無効なプレフィックス $0"
 msgid "Invalid prefix or netmask $0"
 msgstr "無効なプレフィックスまたはネットマスク $0"
 
-#: pkg/networkmanager/firewall.jsx:362
+#: pkg/networkmanager/firewall.jsx:387
 msgid "Invalid range"
 msgstr "無効な範囲"
 
-#: pkg/systemd/host.js:1467 pkg/systemd/shutdown.js:141
+#: pkg/systemd/shutdown.js:141 pkg/systemd/host.js:1467
 msgid "Invalid time format"
 msgstr "無効な時間形式"
 
@@ -3352,7 +3464,7 @@ msgstr "ドメインの参加"
 msgid "Joining this domain is not supported"
 msgstr "このドメインの参加はサポートされていません"
 
-#: pkg/systemd/service-details.jsx:430
+#: pkg/systemd/service-details.jsx:434
 msgid "Joins Namespace Of"
 msgstr "名前空間に参加"
 
@@ -3389,7 +3501,7 @@ msgstr "Kerberos チケット"
 msgid "Kernel"
 msgstr "カーネル"
 
-#: pkg/kdump/index.html:23
+#: pkg/kdump/index.html:23 pkg/kdump/manifest.json.in
 msgid "Kernel Dump"
 msgstr "カーネルダンプ"
 
@@ -3421,6 +3533,10 @@ msgstr "キーサーバーの削除により、$0 のロック解除ができな
 msgid "LACP Key"
 msgstr "LACP キー"
 
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:66
+msgid "LVM Volume Group"
+msgstr ""
+
 #: node_modules/registry-image-widgets/views/image-meta.html:3
 msgid "Labels"
 msgstr "ラベル"
@@ -3441,7 +3557,7 @@ msgstr "過去 7 日間"
 msgid "Last Login"
 msgstr "最終ログイン"
 
-#: pkg/systemd/init.js:291
+#: pkg/systemd/init.js:293
 msgid "Last Trigger"
 msgstr "最後のトリガー"
 
@@ -3561,7 +3677,7 @@ msgstr "ローカルディスク"
 msgid "Local Filesystem"
 msgstr "ローカルファイルシステム"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:274
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:286
 msgid "Local Install Media"
 msgstr "ローカルインストールメディア"
 
@@ -3661,7 +3777,7 @@ msgstr "ログインで、管理者の権限をエスカレートさせました
 msgid "Logout Successful"
 msgstr "ログアウトが正常に行われました"
 
-#: pkg/systemd/logs.html:82
+#: pkg/systemd/logs.html:82 pkg/systemd/manifest.json.in
 msgid "Logs"
 msgstr "ログ"
 
@@ -3705,7 +3821,7 @@ msgstr "MTU は正の数値である必要があります"
 msgid "Mac"
 msgstr "Mac"
 
-#: pkg/machines/components/nicEdit.jsx:160
+#: pkg/machines/components/nicEdit.jsx:169
 msgid "Mac Address"
 msgstr "Mac アドレス"
 
@@ -3717,7 +3833,7 @@ msgstr "マシン ID"
 msgid "Machine SSH Key Fingerprints"
 msgstr "マシンSSH 鍵フィンガープリント"
 
-#: pkg/shell/indexes.js:296
+#: pkg/shell/indexes.js:302
 msgid "Machines"
 msgstr "マシン"
 
@@ -3749,15 +3865,23 @@ msgstr "手動で SSH を確認します。"
 msgid "Marking $target as faulty"
 msgstr "$target を問題があるものとしてマークする"
 
-#: pkg/systemd/service-details.jsx:203 pkg/systemd/service-details.jsx:206
+#: pkg/systemd/service-details.jsx:199 pkg/systemd/service-details.jsx:202
 msgid "Mask Service"
 msgstr "サービスのマスク"
 
-#: pkg/systemd/service-details.jsx:317
+#: pkg/machines/components/networks/createNetworkDialog.jsx:293
+msgid "Mask or Prefix Length"
+msgstr ""
+
+#: pkg/machines/components/networks/createNetworkDialog.jsx:50
+msgid "Mask or Prefix Length should not be empty"
+msgstr ""
+
+#: pkg/systemd/service-details.jsx:321
 msgid "Masked"
 msgstr "マスク"
 
-#: pkg/systemd/service-details.jsx:204
+#: pkg/systemd/service-details.jsx:200
 msgid ""
 "Masking service prevents all dependant units from running. This can have "
 "bigger impact than anticipated. Please confirm that you want to mask this "
@@ -3802,7 +3926,7 @@ msgstr "RAID デバイス $0 のメンバー"
 #: pkg/dashboard/index.html:71 pkg/docker/index.html:273
 #: pkg/playground/translate.html:90 pkg/systemd/index.html:204
 #: pkg/docker/containers-view.jsx:359
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:372
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:389
 #: pkg/machines/components/vmOverviewTab.jsx:74 pkg/systemd/hwinfo.jsx:259
 msgid "Memory"
 msgstr "メモリ"
@@ -3829,7 +3953,7 @@ msgstr "メモリーは保存できませんでした"
 msgid "Memory limit"
 msgstr "メモリー制限"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:157
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:153
 msgid "Memory must not be 0"
 msgstr "メモリは 0 以外である必要があります"
 
@@ -3855,7 +3979,7 @@ msgid "Metadata Used"
 msgstr "使用済みメタデータ"
 
 #: pkg/docker/index.html:468 pkg/docker/index.html:640
-#: pkg/machines/components/diskAdd.jsx:183
+#: pkg/machines/components/diskAdd.jsx:188
 #: pkg/machines/components/memorySelectRow.jsx:43
 #: pkg/machines/components/vm/memoryModal.jsx:150
 #: pkg/machines/components/vm/memoryModal.jsx:188
@@ -3870,7 +3994,7 @@ msgstr "ミニ PC"
 msgid "Mini Tower"
 msgstr "ミニタワー"
 
-#: pkg/systemd/init.js:1152 pkg/systemd/init.js:1161 pkg/systemd/init.js:1170
+#: pkg/systemd/init.js:1167 pkg/systemd/init.js:1176 pkg/systemd/init.js:1185
 msgid "Minute needs to be a number between 0-59"
 msgstr "分は 0〜59 の数字である必要があります"
 
@@ -3886,7 +4010,7 @@ msgstr "緩和"
 msgid "Mode"
 msgstr "モード"
 
-#: pkg/machines/components/nicEdit.jsx:54 pkg/systemd/hwinfo.jsx:250
+#: pkg/machines/components/nicEdit.jsx:55 pkg/systemd/hwinfo.jsx:250
 msgid "Model"
 msgstr "モデル"
 
@@ -4019,10 +4143,11 @@ msgstr "NTP サーバー"
 #: node_modules/registry-image-widgets/views/image-body.html:2
 #: node_modules/registry-image-widgets/views/imagestream-listing.html:5
 #: pkg/docker/containers-view.jsx:359 pkg/docker/containers-view.jsx:683
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:181
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:191
 #: pkg/machines/components/diskAdd.jsx:126
-#: pkg/machines/components/networks/networkList.jsx:47
-#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:56
+#: pkg/machines/components/networks/createNetworkDialog.jsx:122
+#: pkg/machines/components/networks/networkList.jsx:50
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:42
 #: pkg/machines/components/storagePools/storagePoolList.jsx:49
 #: pkg/machines/components/storagePools/storagePoolVolumesTab.jsx:65
 #: pkg/machines/hostvmslist.jsx:83 pkg/packagekit/updates.jsx:380
@@ -4034,8 +4159,8 @@ msgstr "NTP サーバー"
 #: pkg/storaged/lvol-tabs.jsx:390 pkg/storaged/lvol-tabs.jsx:444
 #: pkg/storaged/mdraids-panel.jsx:40 pkg/storaged/part-tab.jsx:33
 #: pkg/storaged/vdos-panel.jsx:48 pkg/storaged/vgroup-details.jsx:180
-#: pkg/storaged/vgroups-panel.jsx:55 pkg/systemd/hwinfo.jsx:79
-#: pkg/systemd/init.js:288
+#: pkg/storaged/vgroups-panel.jsx:55 pkg/systemd/init.js:290
+#: pkg/systemd/hwinfo.jsx:79
 msgid "Name"
 msgstr "名前"
 
@@ -4067,8 +4192,9 @@ msgstr "名前には文字 '$0' を含めることができません。"
 msgid "Name cannot contain whitespace."
 msgstr "名前にはスペースを含めることができません。"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:122
-#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:67
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:121
+#: pkg/machines/components/networks/createNetworkDialog.jsx:41
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:53
 msgid "Name should not be empty"
 msgstr "名前は空欄にできません"
 
@@ -4096,15 +4222,15 @@ msgstr "ネットワーク $0 のアクティベートに失敗しました"
 msgid "Network $0 failed to get deactivated"
 msgstr "ネットワーク $0 の停止に失敗しました"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:280
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:292
 msgid "Network Boot (PXE)"
 msgstr "ネットワークブート (PXE)"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:277
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:289
 msgid "Network Boot is available only when using System connection"
 msgstr ""
 
-#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:77
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:63
 msgid "Network File System"
 msgstr "ネットワークファイルシステム"
 
@@ -4112,7 +4238,7 @@ msgstr "ネットワークファイルシステム"
 msgid "Network Interfaces"
 msgstr "ネットワークインターフェース"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:233
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:243
 msgid "Network Selection does not support PXE."
 msgstr "ネットワーク選択では PXE がサポートされていません。"
 
@@ -4124,7 +4250,7 @@ msgstr "ネットワークトラフィック"
 msgid "Network devices and graphs require NetworkManager."
 msgstr "ネットワークデバイスおよびグラフには、NetworkManager が必要です。"
 
-#: pkg/machines/components/nicEdit.jsx:232
+#: pkg/machines/components/nicEdit.jsx:245
 msgid "Network interface settings could not be saved"
 msgstr "ネットワークインターフェース設定を保存できませんでした"
 
@@ -4133,7 +4259,7 @@ msgid "NetworkManager is not running."
 msgstr "NetworkManager が実行していません。"
 
 #: pkg/networkmanager/index.html:23 pkg/networkmanager/index.html:385
-#: pkg/networkmanager/firewall.jsx:919
+#: pkg/networkmanager/firewall.jsx:944 pkg/networkmanager/manifest.json.in
 msgid "Networking"
 msgstr "ネットワーキング"
 
@@ -4146,8 +4272,8 @@ msgstr "ネットワーク"
 msgid "Networking Logs"
 msgstr "ネットワークログ"
 
-#: pkg/machines/components/networks/networkList.jsx:42
-#: pkg/machines/components/networks/networkList.jsx:46
+#: pkg/machines/components/networks/networkList.jsx:45
+#: pkg/machines/components/networks/networkList.jsx:49
 msgid "Networks"
 msgstr "ネットワーク"
 
@@ -4187,7 +4313,7 @@ msgstr "新規パスワードは受け入れられませんでした"
 msgid "Next"
 msgstr "次へ"
 
-#: pkg/systemd/init.js:290
+#: pkg/systemd/init.js:292
 msgid "Next Run"
 msgstr "次回の実行日時"
 
@@ -4220,12 +4346,16 @@ msgstr "一致する結果はありません"
 msgid "No NFS mounts set up"
 msgstr "NFS マウントが設定されていません"
 
+#: pkg/machines/components/nicEdit.jsx:118
+msgid "No Network Devices"
+msgstr ""
+
 #: pkg/selinux/setroubleshoot-view.jsx:375
 msgid "No SELinux alerts."
 msgstr "SELinux アラートがありません。"
 
-#: pkg/machines/components/diskAdd.jsx:204
-#: pkg/machines/components/diskAdd.jsx:216
+#: pkg/machines/components/diskAdd.jsx:209
+#: pkg/machines/components/diskAdd.jsx:221
 msgid "No Storage Pools available"
 msgstr "利用可能なストレージプールはありません"
 
@@ -4241,11 +4371,11 @@ msgstr "システム変更がありません"
 msgid "No VM is running or defined on this host"
 msgstr "仮想マシンがこのホストで実行されていないか、定義されていません。"
 
-#: pkg/machines/components/nicEdit.jsx:110
+#: pkg/machines/components/nicEdit.jsx:116
 msgid "No Virtual Networks"
 msgstr "仮想ネットワークはありません"
 
-#: pkg/networkmanager/firewall.jsx:931
+#: pkg/networkmanager/firewall.jsx:956
 msgid "No active zones"
 msgstr "アクティブゾーンはありません"
 
@@ -4297,7 +4427,7 @@ msgstr "コンテナーなし"
 msgid "No containers that match the current filter"
 msgstr "現在のフィルターに一致するコンテナーがありません"
 
-#: pkg/networkmanager/firewall.jsx:734
+#: pkg/networkmanager/firewall.jsx:759
 msgid "No description available"
 msgstr "利用可能な説明はありません"
 
@@ -4376,7 +4506,7 @@ msgstr ""
 msgid "No network interfaces defined for this VM"
 msgstr "この仮想マシンにはネットワークインターフェースが定義されていません"
 
-#: pkg/machines/components/networks/networkList.jsx:48
+#: pkg/machines/components/networks/networkList.jsx:51
 msgid "No network is defined on this host"
 msgstr "このホストで定義されるネットワークはありません"
 
@@ -4384,7 +4514,7 @@ msgstr "このホストで定義されるネットワークはありません"
 msgid "No networks available"
 msgstr "利用可能なネットワークはありません"
 
-#: pkg/networkmanager/firewall.jsx:944
+#: pkg/networkmanager/firewall.jsx:969
 msgid "No open ports"
 msgstr "開いているポートはありません"
 
@@ -4441,8 +4571,9 @@ msgid "No volume groups created"
 msgstr "ボリュームグループが作成されていません"
 
 #: node_modules/registry-image-widgets/views/image-config.html:29
-#: pkg/kdump/kdump-view.jsx:419 pkg/networkmanager/firewall.jsx:739
-#: pkg/tuned/dialog.js:231
+#: pkg/kdump/kdump-view.jsx:419
+#: pkg/machines/components/networks/createNetworkDialog.jsx:204
+#: pkg/networkmanager/firewall.jsx:764 pkg/tuned/dialog.js:231
 msgid "None"
 msgstr "なし"
 
@@ -4490,7 +4621,7 @@ msgstr "マウントされていません"
 msgid "Not permitted to perform this action."
 msgstr "このアクションを実行する権限がありません。"
 
-#: pkg/storaged/mdraid-details.jsx:342 pkg/systemd/service-details.jsx:355
+#: pkg/storaged/mdraid-details.jsx:342 pkg/systemd/service-details.jsx:359
 msgid "Not running"
 msgstr "実行中ではありません"
 
@@ -4502,7 +4633,7 @@ msgstr "同期されていません"
 msgid "Not yet synced"
 msgstr "同期されていません"
 
-#: pkg/systemd/service-details.jsx:444
+#: pkg/systemd/service-details.jsx:448
 msgid "Note"
 msgstr "注記"
 
@@ -4513,10 +4644,6 @@ msgstr "ノートブック"
 #: pkg/systemd/logs.html:61
 msgid "Notice and above"
 msgstr "注意以上のレベル"
-
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:334
-msgid "OS Vendor"
-msgstr "OS ベンダー"
 
 #: pkg/selinux/setroubleshoot-view.jsx:404
 msgid "Occurred $0"
@@ -4546,7 +4673,7 @@ msgstr "古いパスワードは受け入れられません"
 msgid "On Build"
 msgstr "ビルド時"
 
-#: pkg/docker/index.html:549 pkg/systemd/service-details.jsx:425
+#: pkg/docker/index.html:549 pkg/systemd/service-details.jsx:429
 msgid "On Failure"
 msgstr "障害発生時"
 
@@ -4584,7 +4711,7 @@ msgstr "$1 のうち $0 だけが使用されています。"
 msgid "Only Emergency"
 msgstr "緊急時限定"
 
-#: pkg/systemd/init.js:1102
+#: pkg/systemd/init.js:1117
 msgid "Only alphabets, numbers, : , _ , . , @ , - are allowed."
 msgstr "アルファベット、数字、:、 _ 、.、@、- のみを使用できます。"
 
@@ -4601,7 +4728,7 @@ msgid "Open"
 msgstr "開く"
 
 #: pkg/systemd/index.html:98
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:349
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:342
 msgid "Operating System"
 msgstr "オペレーティングシステム"
 
@@ -4662,7 +4789,7 @@ msgstr "PCI"
 msgid "Package information"
 msgstr "パッケージ情報"
 
-#: pkg/lib/packagekit.js:115
+#: pkg/lib/packagekit.js:126
 msgid "PackageKit crashed"
 msgstr "PackageKit がクラッシュしました"
 
@@ -4674,6 +4801,10 @@ msgstr "PackageKit はインストールされていません"
 msgid "PackageKit reported error code $0"
 msgstr "PackageKit が、エラーコード $0 を報告しました"
 
+#: pkg/playground/manifest.json.in
+msgid "Packages"
+msgstr "パッケージ"
+
 #: pkg/networkmanager/index.html:156
 msgid "Parent"
 msgstr "親"
@@ -4682,7 +4813,7 @@ msgstr "親"
 msgid "Parent $parent"
 msgstr "親 $parent"
 
-#: pkg/systemd/service-details.jsx:415
+#: pkg/systemd/service-details.jsx:419
 msgid "Part Of"
 msgstr "一部"
 
@@ -4768,7 +4899,7 @@ msgid "Paste the contents of your public SSH key file here"
 msgstr "公開 SSH 鍵ファイルの内容をここに貼り付けます"
 
 #: pkg/machines/components/deleteDialog.jsx:45
-#: pkg/systemd/service-details.jsx:477
+#: pkg/systemd/service-details.jsx:481
 msgid "Path"
 msgstr "パス"
 
@@ -4784,7 +4915,7 @@ msgstr "パスコスト $path_cost"
 msgid "Path on Server"
 msgstr "サーバーのパス"
 
-#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:130
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:116
 msgid "Path on host's filesystem"
 msgstr "ホストファイルシステム上のパス"
 
@@ -4796,7 +4927,7 @@ msgstr "サーバーのパスは空欄にはできません。"
 msgid "Path on server must start with \"/\"."
 msgstr "サーバーのパスは \"/\" で開始してください。"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:210
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:220
 msgid "Path to ISO file on host's file system"
 msgstr "ホストファイルシステムの ISO ファイルのパス"
 
@@ -4837,7 +4968,7 @@ msgid "Persistence"
 msgstr "永続"
 
 #: pkg/machines/components/networks/networkOverviewTab.jsx:83
-#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:61
+#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:66
 msgid "Persistent"
 msgstr "永続"
 
@@ -4845,7 +4976,7 @@ msgstr "永続"
 msgid "Physical"
 msgstr "物理"
 
-#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:79
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:65
 msgid "Physical Disk Device"
 msgstr "物理ディスクデバイス"
 
@@ -4857,7 +4988,7 @@ msgstr "物理ボリューム"
 msgid "Physical Volumes"
 msgstr "物理ボリューム"
 
-#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:211
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:197
 msgid "Physical disk device on host"
 msgstr "ホスト上の物理ディスクデバイス"
 
@@ -4896,15 +5027,15 @@ msgstr "$0 の強制削除を確定してください"
 msgid "Please confirm stopping of $0"
 msgstr "$0 の停止を確認してください"
 
-#: pkg/machines/components/diskAdd.jsx:450
+#: pkg/machines/components/diskAdd.jsx:483
 msgid "Please enter new volume name"
 msgstr "新しいボリューム名を入力してください"
 
-#: pkg/machines/components/diskAdd.jsx:453
+#: pkg/machines/components/diskAdd.jsx:486
 msgid "Please enter new volume size"
 msgstr "新しいボリュームサイズを入力してください"
 
-#: pkg/networkmanager/firewall.jsx:869
+#: pkg/networkmanager/firewall.jsx:894
 msgid "Please install the $0 package"
 msgstr "$0 パッケージをインストールしてください"
 
@@ -4924,12 +5055,12 @@ msgstr "仮想マシンを起動して、コンソールにアクセスしてく
 msgid "Please try another term"
 msgstr "別の用語を試してください"
 
-#: pkg/machines/components/vmnetworktab.jsx:184
+#: pkg/machines/components/vmnetworktab.jsx:190
 msgid "Plug"
 msgstr "プラグ"
 
 #: pkg/machines/components/deleteDialog.jsx:53
-#: pkg/machines/components/diskAdd.jsx:199
+#: pkg/machines/components/diskAdd.jsx:204
 #: pkg/machines/components/vm/bootOrderModal.jsx:95
 #: pkg/machines/components/vmDiskColumns.jsx:45
 #: pkg/storaged/content-views.jsx:133
@@ -4948,6 +5079,11 @@ msgstr "シンボリューム用プール"
 msgid "Pool for thinly provisioned volumes"
 msgstr "シンプロビジョニングされたボリューム用プール"
 
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:149
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:185
+msgid "Pool's volumes are used by VMs "
+msgstr ""
+
 #: pkg/lib/machine-change-port.html:23
 #: pkg/machines/components/vm/bootOrderModal.jsx:98
 #: pkg/machines/components/vm/bootOrderModal.jsx:110
@@ -4957,7 +5093,7 @@ msgstr "シンプロビジョニングされたボリューム用プール"
 msgid "Port"
 msgstr "ポート"
 
-#: pkg/networkmanager/firewall.jsx:339
+#: pkg/networkmanager/firewall.jsx:364
 msgid "Port number and type do not match"
 msgstr "ポート番号とタイプが一致しません"
 
@@ -4988,6 +5124,14 @@ msgstr "ゲストへの公開用の推奨されるソケットの数。"
 msgid "Prefix"
 msgstr "プレフィックス"
 
+#: pkg/machines/components/networks/createNetworkDialog.jsx:337
+msgid "Prefix Length"
+msgstr ""
+
+#: pkg/machines/components/networks/createNetworkDialog.jsx:78
+msgid "Prefix Length should not be empty"
+msgstr ""
+
 #: pkg/networkmanager/interfaces.js:3318
 msgid "Prefix length"
 msgstr "プレフィックス長"
@@ -4995,6 +5139,10 @@ msgstr "プレフィックス長"
 #: pkg/networkmanager/interfaces.js:3318
 msgid "Prefix length or Netmask"
 msgstr "プレフィックス長またはネットマスク"
+
+#: pkg/playground/manifest.json.in
+msgid "Preloaded"
+msgstr ""
 
 #: pkg/networkmanager/interfaces.js:835
 msgid "Preparing"
@@ -5074,7 +5222,7 @@ msgstr "ssh-add によるプロンプトがタイムアウトしました"
 msgid "Prompting via ssh-keygen timed out"
 msgstr "ssh-keygen によるプロンプトがタイムアウトしました"
 
-#: pkg/systemd/service-details.jsx:428
+#: pkg/systemd/service-details.jsx:432
 msgid "Propagates Reload To"
 msgstr "再読み込み先を伝搬"
 
@@ -5095,14 +5243,6 @@ msgstr "パブリックのプルリポジトリ－"
 #: pkg/storaged/content-views.jsx:645
 msgid "Purpose"
 msgstr "目的"
-
-#: pkg/machines/components/machinesConnectionSelector.jsx:31
-msgid "QEMU/KVM System connection"
-msgstr "QEMU/KVM システム接続"
-
-#: pkg/machines/components/machinesConnectionSelector.jsx:39
-msgid "QEMU/KVM User connection"
-msgstr "QEMU/KVM ユーザー接続"
 
 #: pkg/storaged/mdraid-details.jsx:185
 msgid "RAID ($0)"
@@ -5188,11 +5328,11 @@ msgstr "ラックマウントシャーシ"
 msgid "Random"
 msgstr "ランダム"
 
-#: pkg/networkmanager/firewall.jsx:764
+#: pkg/networkmanager/firewall.jsx:789
 msgid "Range"
 msgstr "範囲"
 
-#: pkg/networkmanager/firewall.jsx:370
+#: pkg/networkmanager/firewall.jsx:395
 msgid "Range must be strictly ordered"
 msgstr "範囲の順序は厳密でなければなりません"
 
@@ -5204,11 +5344,15 @@ msgstr "ランク"
 msgid "Raw to a device"
 msgstr "デバイスに対する Raw"
 
+#: pkg/playground/manifest.json.in
+msgid "React Patterns"
+msgstr ""
+
 #: pkg/systemd/hwinfo.jsx:193
 msgid "Read more..."
 msgstr "さらに読む..."
 
-#: pkg/systemd/service-details.jsx:382
+#: pkg/systemd/service-details.jsx:386
 msgid "Read-only"
 msgstr "読み取り専用"
 
@@ -5273,7 +5417,7 @@ msgstr "最近開いたファイル"
 msgid "Recommended default"
 msgstr "推奨されるデフォルト"
 
-#: pkg/shell/index.html:386 pkg/shell/simple.html:138
+#: pkg/shell/index.html:381 pkg/shell/simple.html:138
 #: pkg/machines/components/serialConsole.jsx:138
 msgid "Reconnect"
 msgstr "再接続"
@@ -5310,15 +5454,15 @@ msgstr "接続を拒否しています。ホストキーが不明です"
 msgid "Register…"
 msgstr "登録中…"
 
-#: pkg/systemd/service-details.jsx:185
+#: pkg/systemd/service-details.jsx:165
 msgid "Reload"
 msgstr "再読み込み"
 
-#: pkg/systemd/service-details.jsx:429
+#: pkg/systemd/service-details.jsx:433
 msgid "Reload Propagated From"
 msgstr "伝搬元を再読み込み"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:258
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:268
 msgid "Remote URL"
 msgstr "リモート URL"
 
@@ -5369,11 +5513,11 @@ msgstr "パスフレーズを削除"
 msgid "Remove passphrase in $0?"
 msgstr "$0 のパスフレーズを削除しますか?"
 
-#: pkg/networkmanager/firewall.jsx:636
+#: pkg/networkmanager/firewall.jsx:661
 msgid "Remove service"
 msgstr "サービスの削除"
 
-#: pkg/networkmanager/firewall.jsx:615
+#: pkg/networkmanager/firewall.jsx:640
 msgid "Remove service from zones"
 msgstr "ゾーンからのサービスの削除"
 
@@ -5474,27 +5618,27 @@ msgstr "$0 日ごとのパスワードの変更が必要"
 msgid "Require password change on $0"
 msgstr "$0 でパスワードの変更が必要"
 
-#: pkg/systemd/service-details.jsx:416
+#: pkg/systemd/service-details.jsx:420
 msgid "Required By"
 msgstr "必要とされる"
 
-#: pkg/systemd/service-details.jsx:368
+#: pkg/systemd/service-details.jsx:372
 msgid "Required by "
 msgstr "以下により必要"
 
-#: pkg/systemd/service-details.jsx:411
+#: pkg/systemd/service-details.jsx:415
 msgid "Requires"
 msgstr "必要"
 
-#: pkg/systemd/service-details.jsx:383
+#: pkg/systemd/service-details.jsx:387
 msgid "Requires administration access to edit"
 msgstr "編集には管理者アクセスが必要"
 
-#: pkg/systemd/service-details.jsx:412
+#: pkg/systemd/service-details.jsx:416
 msgid "Requisite"
 msgstr "必須"
 
-#: pkg/systemd/service-details.jsx:417
+#: pkg/systemd/service-details.jsx:421
 msgid "Requisite Of"
 msgstr "必須の"
 
@@ -5531,7 +5675,7 @@ msgstr "暗号化されたファイルシステムのサイズ変更には、デ
 #: pkg/docker/index.html:138 pkg/systemd/index.html:134
 #: pkg/systemd/index.html:144 pkg/docker/containers-view.jsx:315
 #: pkg/machines/components/vm/vmActions.jsx:42
-#: pkg/systemd/service-details.jsx:176 pkg/systemd/shutdown.js:95
+#: pkg/systemd/service-details.jsx:169 pkg/systemd/shutdown.js:95
 #: pkg/systemd/shutdown.js:96
 msgid "Restart"
 msgstr "再起動"
@@ -5619,9 +5763,13 @@ msgstr "ホスト起動時に実行します"
 msgid "Runner"
 msgstr "ランナー"
 
-#: pkg/storaged/mdraid-details.jsx:342 pkg/systemd/service-details.jsx:347
+#: pkg/storaged/mdraid-details.jsx:342 pkg/systemd/service-details.jsx:351
 msgid "Running"
 msgstr "実行中"
+
+#: pkg/selinux/manifest.json.in
+msgid "SELinux"
+msgstr ""
 
 #: pkg/selinux/setroubleshoot-view.jsx:374
 msgid "SELinux Access Control Errors"
@@ -5691,7 +5839,7 @@ msgstr "土曜日"
 msgid "Saturdays"
 msgstr "毎週土曜日"
 
-#: pkg/systemd/services.html:378 pkg/machines/components/nicEdit.jsx:299
+#: pkg/systemd/services.html:378 pkg/machines/components/nicEdit.jsx:314
 #: pkg/machines/components/vm/bootOrderModal.jsx:330
 #: pkg/machines/components/vm/memoryModal.jsx:217
 #: pkg/storaged/crypto-keyslots.jsx:261 pkg/storaged/crypto-keyslots.jsx:278
@@ -5721,7 +5869,7 @@ msgid "Sealed-case PC"
 msgstr "シールドケース PC"
 
 #: pkg/systemd/services.html:314 pkg/systemd/services.html:318
-#: pkg/systemd/init.js:890
+#: pkg/systemd/init.js:905
 msgid "Seconds"
 msgstr "秒"
 
@@ -5802,7 +5950,7 @@ msgstr "サーバーの接続が終了しました。"
 msgid "Servers"
 msgstr "サーバー"
 
-#: pkg/systemd/logs.html:66 pkg/networkmanager/firewall.jsx:943
+#: pkg/systemd/logs.html:66 pkg/networkmanager/firewall.jsx:968
 #: pkg/storaged/dialog.jsx:1047
 msgid "Service"
 msgstr "サービス"
@@ -5836,10 +5984,11 @@ msgid "Service name"
 msgstr "サービス名"
 
 #: pkg/systemd/services.html:4 pkg/systemd/services.html:222
-#: pkg/networkmanager/firewall.jsx:483
+#: pkg/networkmanager/firewall.jsx:508 pkg/systemd/manifest.json.in
 msgid "Services"
 msgstr "サービス"
 
+#: pkg/machines/components/machinesConnectionSelector.jsx:50
 #: pkg/machines/helpers.js:185 pkg/storaged/dialog.jsx:1043
 msgid "Session"
 msgstr "セッション"
@@ -5847,6 +5996,10 @@ msgstr "セッション"
 #: pkg/dashboard/index.html:176 pkg/users/index.html:238
 msgid "Set"
 msgstr "セット"
+
+#: pkg/machines/components/networks/createNetworkDialog.jsx:231
+msgid "Set DHCP Range"
+msgstr ""
 
 #: pkg/systemd/host.js:781
 msgid "Set Host name"
@@ -5905,7 +6058,7 @@ msgstr "シェルスクリプト"
 msgid "Shift+Insert"
 msgstr "Shift+Insert"
 
-#: pkg/machines/components/diskAdd.jsx:238
+#: pkg/machines/components/diskAdd.jsx:243
 msgid "Show Performance Options"
 msgstr "パフォーマンスオプションを表示します"
 
@@ -5951,8 +6104,8 @@ msgid "Single Rank"
 msgstr "シングルランク"
 
 #: pkg/docker/containers-view.jsx:683
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:450
-#: pkg/machines/components/diskAdd.jsx:167
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:475
+#: pkg/machines/components/diskAdd.jsx:172
 #: pkg/machines/components/storagePools/storagePoolList.jsx:49
 #: pkg/machines/components/storagePools/storagePoolVolumesTab.jsx:65
 #: pkg/storaged/content-views.jsx:115 pkg/storaged/content-views.jsx:684
@@ -5996,7 +6149,7 @@ msgstr "スロット $0"
 msgid "Sockets"
 msgstr "ソケット"
 
-#: pkg/packagekit/index.html:23
+#: pkg/packagekit/index.html:23 pkg/packagekit/manifest.json.in
 msgid "Software Updates"
 msgstr "ソフトウェア更新"
 
@@ -6035,23 +6188,24 @@ msgid ""
 "Some other program is currently using the package manager, please wait..."
 msgstr "別のプログラムがパッケージマネージャーを使用中です。しばらくお待ちください..."
 
-#: pkg/networkmanager/firewall.jsx:714
+#: pkg/networkmanager/firewall.jsx:739
 msgid "Sorted from least trusted to most trusted"
 msgstr "信頼性が最も低い順から最も高い順による並べ替え"
 
-#: pkg/machines/components/diskAdd.jsx:507
-#: pkg/machines/components/nicEdit.jsx:141
+#: pkg/machines/components/diskAdd.jsx:541
+#: pkg/machines/components/nicEdit.jsx:150
+#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:52
 #: pkg/machines/components/vmDisksTab.jsx:76
 #: pkg/machines/components/vmnetworktab.jsx:148
 msgid "Source"
 msgstr "ソース"
 
-#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:52
+#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:57
 msgid "Source Format"
 msgstr "ソースフォーマット"
 
-#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:218
-#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:245
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:207
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:234
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:42
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:47
 msgid "Source Path"
@@ -6061,12 +6215,16 @@ msgstr "ソースパス"
 msgid "Source URL"
 msgstr "ソース URL"
 
-#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:235
-#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:256
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:272
+msgid "Source Volume Group"
+msgstr ""
+
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:224
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:245
 msgid "Source path should not be empty"
 msgstr "ソースパスは空欄にできません"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:148
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:144
 msgid "Source should start with http, ftp or nfs protocol"
 msgstr "ソースは、http、ftp、または nfs プロトコルで開始する必要があります"
 
@@ -6099,8 +6257,9 @@ msgid "Stable"
 msgstr "安定"
 
 #: pkg/docker/index.html:136 pkg/docker/containers-view.jsx:312
+#: pkg/machines/components/networks/createNetworkDialog.jsx:237
 #: pkg/storaged/mdraid-details.jsx:319 pkg/storaged/swap-tab.jsx:77
-#: pkg/storaged/vdo-details.jsx:259 pkg/systemd/service-details.jsx:180
+#: pkg/storaged/vdo-details.jsx:259 pkg/systemd/service-details.jsx:176
 msgid "Start"
 msgstr "開始日"
 
@@ -6112,11 +6271,11 @@ msgstr "Docker の起動"
 msgid "Start Multipath"
 msgstr "マルチパスの開始"
 
-#: pkg/networkmanager/index.html:44 pkg/systemd/service-details.jsx:337
+#: pkg/networkmanager/index.html:44 pkg/systemd/service-details.jsx:341
 msgid "Start Service"
 msgstr "サービスの開始"
 
-#: pkg/systemd/service-details.jsx:407
+#: pkg/systemd/service-details.jsx:411
 msgid "Start and Enable"
 msgstr "起動と有効化"
 
@@ -6124,9 +6283,14 @@ msgstr "起動と有効化"
 msgid "Start libvirt"
 msgstr "libvirt の開始"
 
-#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:293
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:304
 msgid "Start pool when host boots"
 msgstr "ホスト起動時にプールを開始します"
+
+#: pkg/machines/components/networks/createNetworkDialog.jsx:56
+#: pkg/machines/components/networks/createNetworkDialog.jsx:84
+msgid "Start should not be empty"
+msgstr ""
 
 #: pkg/storaged/jobs-panel.jsx:59
 msgid "Starting RAID Device $target"
@@ -6136,15 +6300,15 @@ msgstr "RAID デバイス $target の起動"
 msgid "Starting swapspace $target"
 msgstr "スワップ領域 $target の起動"
 
-#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:286
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:297
 msgid "Startup"
 msgstr "起動"
 
 #: pkg/docker/containers-view.jsx:133 pkg/docker/containers-view.jsx:359
-#: pkg/machines/components/networks/networkList.jsx:47
+#: pkg/machines/components/networks/networkList.jsx:50
 #: pkg/machines/components/storagePools/storagePoolList.jsx:49
 #: pkg/machines/components/vmnetworktab.jsx:172 pkg/machines/hostvmslist.jsx:83
-#: pkg/systemd/hwinfo.jsx:259 pkg/systemd/init.js:292
+#: pkg/systemd/init.js:294 pkg/systemd/hwinfo.jsx:259
 msgid "State"
 msgstr "状態"
 
@@ -6153,11 +6317,11 @@ msgid "State:"
 msgstr "状態:"
 
 #: pkg/systemd/services.html:68 pkg/systemd/init.js:212
-#: pkg/systemd/service-details.jsx:365
+#: pkg/systemd/service-details.jsx:369
 msgid "Static"
 msgstr "静的"
 
-#: pkg/networkmanager/interfaces.js:2625 pkg/systemd/service-details.jsx:472
+#: pkg/networkmanager/interfaces.js:2625 pkg/systemd/service-details.jsx:476
 msgid "Status"
 msgstr "状態"
 
@@ -6172,7 +6336,7 @@ msgstr "スティッキー"
 #: pkg/docker/index.html:137 pkg/docker/containers-view.jsx:310
 #: pkg/storaged/mdraid-details.jsx:318 pkg/storaged/swap-tab.jsx:76
 #: pkg/storaged/vdo-details.jsx:157 pkg/storaged/vdo-details.jsx:258
-#: pkg/systemd/service-details.jsx:165
+#: pkg/systemd/service-details.jsx:172
 msgid "Stop"
 msgstr "停止"
 
@@ -6180,7 +6344,7 @@ msgstr "停止"
 msgid "Stop Device"
 msgstr "デバイスの停止"
 
-#: pkg/systemd/service-details.jsx:407
+#: pkg/systemd/service-details.jsx:411
 msgid "Stop and Disable"
 msgstr "停止と無効化"
 
@@ -6213,8 +6377,8 @@ msgid "Stopping swapspace $target"
 msgstr "スワップ領域 $target の停止"
 
 #: pkg/docker/index.html:290 pkg/storaged/index.html:23
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:413
-#: pkg/storaged/details.jsx:127
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:438
+#: pkg/storaged/details.jsx:127 pkg/storaged/manifest.json.in
 msgid "Storage"
 msgstr "ストレージ"
 
@@ -6230,11 +6394,11 @@ msgstr "ストレージプール $0 は、アクティベートに失敗しま�
 msgid "Storage Pool $0 failed to get deactivated"
 msgstr "ストレージプール $0 は、停止に失敗しました"
 
-#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:61
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:47
 msgid "Storage Pool Name"
 msgstr "ストレージプール名"
 
-#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:439
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:461
 msgid "Storage Pool failed to be created"
 msgstr "ストレージプールの作成に失敗しました"
 
@@ -6258,6 +6422,10 @@ msgstr "ストレージは、このシステムで管理できません。"
 #: pkg/docker/index.html:304
 msgid "Storage pool"
 msgstr "ストレージプール"
+
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:169
+msgid "Storage size must not be 0"
+msgstr ""
 
 #: pkg/systemd/index.html:155
 msgid "Store Metrics"
@@ -6358,8 +6526,10 @@ msgstr "{{Server}} と同期済み"
 msgid "Synchronizing RAID Device $target"
 msgstr "RAID デバイス $target の同期"
 
-#: pkg/systemd/index.html:4 pkg/machines/helpers.js:184
-#: pkg/systemd/hwinfo.jsx:269
+#: pkg/systemd/index.html:4
+#: pkg/machines/components/machinesConnectionSelector.jsx:43
+#: pkg/machines/helpers.js:184 pkg/systemd/hwinfo.jsx:269
+#: pkg/systemd/manifest.json.in
 msgid "System"
 msgstr "システム"
 
@@ -6392,7 +6562,7 @@ msgid "System is up to date"
 msgstr "システムは最新の状態です"
 
 #: pkg/docker/index.html:329 pkg/docker/index.html:333
-#: pkg/networkmanager/firewall.jsx:943
+#: pkg/networkmanager/firewall.jsx:968
 msgid "TCP"
 msgstr "TCP"
 
@@ -6420,12 +6590,12 @@ msgstr "Tang キーサーバー"
 msgid "Target"
 msgstr "ターゲット"
 
-#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:125
-#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:57
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:111
+#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:62
 msgid "Target Path"
 msgstr "ターゲットパス"
 
-#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:134
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:120
 msgid "Target path should not be empty"
 msgstr "ターゲットパスは空欄にできません"
 
@@ -6450,7 +6620,7 @@ msgstr "チームポート設定"
 msgid "Team Settings"
 msgstr "チーム設定"
 
-#: pkg/systemd/terminal.html:4
+#: pkg/systemd/terminal.html:4 pkg/systemd/manifest.json.in
 msgid "Terminal"
 msgstr "端末"
 
@@ -6494,8 +6664,8 @@ msgstr "スペアディスクを追加する場合は、RAID デバイスが実�
 msgid "The RAID device must be running in order to remove disks."
 msgstr "ディスクを取り外す場合は、RAID デバイスが実行中である必要があります。"
 
-#: pkg/machines/components/storagePools/storagePoolDelete.jsx:80
-#: pkg/machines/components/storagePools/storagePoolDelete.jsx:84
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:125
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:129
 msgid "The Storage Pool could not be deleted"
 msgstr "ストレージプールを削除できませんでした"
 
@@ -6563,7 +6733,7 @@ msgid ""
 "The currently logged in user is not permitted to see information about keys."
 msgstr "現在ログイン中のユーザーは、キーに関する情報を見ることを許可されていません。"
 
-#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:205
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:191
 msgid "The directory on the server being exported"
 msgstr "サーバー上のディレクトリーをエクスポート中"
 
@@ -6624,7 +6794,7 @@ msgstr "ボリュームグループの最後の物理ボリュームは削除で
 msgid "The logged in user is not permitted to view system modifications"
 msgstr "ログインしているユーザーには、システム変更を表示する権限がありません"
 
-#: pkg/shell/indexes.js:407
+#: pkg/shell/indexes.js:413
 msgid "The machine is restarting"
 msgstr "マシンが再起動中です"
 
@@ -6652,9 +6822,14 @@ msgstr "$time ($type) のスキャンでは、脆弱性は見つかりません�
 msgid "The scan from $time ($type) was not successful."
 msgstr "$time ($type) のスキャンは成功しませんでした。"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:165
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:160
 msgid "The selected Operating System has minimum memory requirement of $0 $1"
 msgstr "選択したオペレーティングシステムには、必要なメモリー $0 $1 があります"
+
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:175
+msgid ""
+"The selected Operating System has minimum storage size requirement of $0 $1"
+msgstr ""
 
 #: src/ws/login.js:645
 msgid ""
@@ -6670,7 +6845,7 @@ msgstr "サーバーはサポートされた方法を使用した認証を拒否
 msgid "The user $0 is not permitted to change cpu security mitigations"
 msgstr "ユーザー $0 は、cpu セキュリティー緩和の変更を許可されていません"
 
-#: pkg/systemd/init.js:736
+#: pkg/systemd/init.js:751
 msgid "The user <b>$0</b> does not have permissions for creating timers"
 msgstr "ユーザー <b>$0</b> はタイマーを作成するパーミッションを持っていません"
 
@@ -6754,7 +6929,7 @@ msgstr "この NFS マウントは使用中で、そのオプションだけを�
 msgid "This VDO device does not use all of its backing device."
 msgstr "この VDO デバイスは、そのバッキングデバイスをすべて使用していません。"
 
-#: pkg/systemd/init.js:1185
+#: pkg/systemd/init.js:1200
 msgid ""
 "This day doesn't exist in all months.<br> The timer will only be executed in "
 "months that have 31st."
@@ -6798,7 +6973,7 @@ msgstr "このデバイスは現在ボリュームグループに使用されて
 msgid "This disk cannot be removed while the device is recovering."
 msgstr "このディスクは、デバイスが復旧中に取り外すことができません。"
 
-#: pkg/systemd/init.js:1097 pkg/systemd/init.js:1111 pkg/systemd/init.js:1120
+#: pkg/systemd/init.js:1112 pkg/systemd/init.js:1126 pkg/systemd/init.js:1135
 msgid "This field cannot be empty."
 msgstr "このフィールドは空にできません。"
 
@@ -6827,7 +7002,7 @@ msgstr "このパッケージには Cockpit のこのバージョンとの互換
 msgid "This package requires Cockpit version %s or later"
 msgstr "このパッケージには Cockpit バージョン %s 以降が必要です"
 
-#: pkg/machines/components/diskAdd.jsx:210
+#: pkg/machines/components/diskAdd.jsx:215
 msgid "This pool type does not support Storage Volume creation"
 msgstr "このプールタイプは、ストレージボリュームの作成に対応していません"
 
@@ -6849,7 +7024,7 @@ msgid ""
 "this system for use with diagnosing problems with the system."
 msgstr "このツールは、システムの問題の診断で使用するためにシステムからシステム設定と診断情報を収集します。"
 
-#: pkg/systemd/service-details.jsx:294
+#: pkg/systemd/service-details.jsx:298
 msgid "This unit is not designed to be enabled explicitly."
 msgstr "このユニットは明示的に有効にするよう設計されていません。"
 
@@ -6863,7 +7038,7 @@ msgid ""
 "alternate user or port"
 msgstr "cockpit-ws のこのバージョンでは、別のユーザーまたはポートによるホストへの接続がサポートされません"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:443
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:468
 msgid "This volume is already used by another VM."
 msgstr "このボリュームは、別の VM によってすでに使用されています。"
 
@@ -6960,15 +7135,19 @@ msgstr "合計サイズ: $0"
 msgid "Tower"
 msgstr "タワー"
 
-#: pkg/systemd/service-details.jsx:427
+#: pkg/playground/manifest.json.in
+msgid "Translating"
+msgstr ""
+
+#: pkg/systemd/service-details.jsx:431
 msgid "Triggered By"
 msgstr "トリガー元"
 
-#: pkg/systemd/service-details.jsx:426
+#: pkg/systemd/service-details.jsx:430
 msgid "Triggers"
 msgstr "トリガー"
 
-#: pkg/shell/index.html:387 pkg/shell/simple.html:139
+#: pkg/shell/index.html:382 pkg/shell/simple.html:139
 #: pkg/machines/components/libvirtSlate.jsx:99
 msgid "Troubleshoot"
 msgstr "トラブルシュート"
@@ -6977,7 +7156,7 @@ msgstr "トラブルシュート"
 msgid "Trust key"
 msgstr "キーを信頼します"
 
-#: pkg/networkmanager/firewall.jsx:710
+#: pkg/networkmanager/firewall.jsx:735
 msgid "Trust level"
 msgstr "信頼レベル"
 
@@ -7022,8 +7201,8 @@ msgid "Tuned is off"
 msgstr "Tuned がオフです"
 
 #: pkg/shell/index.html:265
-#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:99
-#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:67
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:85
+#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:72
 #: pkg/machines/components/vm/bootOrderModal.jsx:108
 #: pkg/machines/components/vm/bootOrderModal.jsx:119
 #: pkg/machines/components/vm/bootOrderModal.jsx:125
@@ -7049,11 +7228,11 @@ msgstr "パスワードを入力します"
 msgid "Type to filter…"
 msgstr "フィルターのために入力します…"
 
-#: pkg/docker/index.html:334 pkg/networkmanager/firewall.jsx:943
+#: pkg/docker/index.html:334 pkg/networkmanager/firewall.jsx:968
 msgid "UDP"
 msgstr "UDP"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:275
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:287
 msgid "URL"
 msgstr "URL"
 
@@ -7119,11 +7298,15 @@ msgid "Unavailable"
 msgstr "利用できません"
 
 #: pkg/docker/index.html:732 pkg/networkmanager/index.html:682
-#: pkg/shell/base_index.js:737 pkg/users/local.js:1485
+#: pkg/shell/base_index.js:751 pkg/users/local.js:1485
 msgid "Unexpected error"
 msgstr "予期しないエラー"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:188
+#: pkg/machines/components/networks/createNetworkDialog.jsx:128
+msgid "Unique Network Name"
+msgstr ""
+
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:198
 msgid "Unique name"
 msgstr "固有名"
 
@@ -7167,7 +7350,7 @@ msgstr "不明な設定"
 msgid "Unknown host name"
 msgstr "不明なホスト名"
 
-#: pkg/networkmanager/firewall.jsx:333
+#: pkg/networkmanager/firewall.jsx:358
 msgid "Unknown service name"
 msgstr "不明なサービス名"
 
@@ -7220,7 +7403,7 @@ msgstr "$target のアンマウント中"
 msgid "Unnamed"
 msgstr "名前なし"
 
-#: pkg/machines/components/vmnetworktab.jsx:184
+#: pkg/machines/components/vmnetworktab.jsx:190
 msgid "Unplug"
 msgstr "アンプラグ"
 
@@ -7258,11 +7441,11 @@ msgstr "信用できないホスト"
 msgid "Up since $0"
 msgstr "$0 から稼働中"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:462
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:489
 msgid "Up to $0 $1 available in the default location"
 msgstr "デフォルトの場所では、最大 $0 $1 まで利用できます"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:385
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:402
 msgid "Up to $0 $1 available on the host"
 msgstr "このホストでは最大 $0 $1 まで使用できます"
 
@@ -7294,7 +7477,7 @@ msgstr "更新を利用できます"
 msgid "Updating"
 msgstr "更新中"
 
-#: pkg/systemd/service-details.jsx:402
+#: pkg/systemd/service-details.jsx:406
 msgid "Updating status..."
 msgstr "ステータスを更新中..."
 
@@ -7311,7 +7494,7 @@ msgstr[0] "$0 CPU コアの使用率"
 msgid "Use 512 Byte emulation"
 msgstr "512 バイトのエミュレーションを使用します。"
 
-#: pkg/machines/components/diskAdd.jsx:527
+#: pkg/machines/components/diskAdd.jsx:561
 msgid "Use Existing"
 msgstr "既存の使用"
 
@@ -7429,7 +7612,7 @@ msgstr "VM $0 は、強制的にシャットダウンさせることに失敗し
 msgid "VM $0 failed to get deleted"
 msgstr "VM $0 の削除に失敗しました"
 
-#: pkg/machines/hostvmslist.jsx:110 pkg/machines/libvirt-common.js:1304
+#: pkg/machines/hostvmslist.jsx:110 pkg/machines/libvirt-common.js:1308
 msgid "VM $0 failed to get installed"
 msgstr "VM $0 のインストールに失敗しました"
 
@@ -7507,19 +7690,23 @@ msgstr "バージョン"
 msgid "Very securely erasing $target"
 msgstr "$target を非常に安全に削除"
 
-#: pkg/lib/cockpit-components-modifications.jsx:174
+#: pkg/lib/cockpit-components-modifications.jsx:173
 msgid "View automation script"
 msgstr "オートメーションスクリプトの表示"
 
-#: pkg/machines/components/networks/networkList.jsx:39
+#: pkg/machines/components/networks/networkList.jsx:42
 #: pkg/machines/components/storagePools/storagePoolList.jsx:41
-#: pkg/machines/hostvmslist.jsx:82
+#: pkg/machines/hostvmslist.jsx:82 pkg/machines/manifest.json.in
 msgid "Virtual Machines"
 msgstr "仮想マシン"
 
 #: pkg/machines/components/create-vm-dialog/pxe-helpers.js:161
 msgid "Virtual Network"
 msgstr "仮想ネットワーク"
+
+#: pkg/machines/components/networks/createNetworkDialog.jsx:422
+msgid "Virtual Network failed to be created"
+msgstr ""
 
 #: pkg/machines/components/libvirtSlate.jsx:80
 msgid "Virtualization Service (libvirt) is Not Active"
@@ -7529,7 +7716,7 @@ msgstr "仮想化サービス (libvirt) は有効ではありません "
 msgid "Virtualization Service is Available"
 msgstr "仮想化サービスは利用可能です"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:433
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:458
 #: pkg/machines/components/deleteDialog.jsx:50
 #: pkg/machines/components/diskAdd.jsx:89
 #: pkg/machines/components/vm/bootOrderModal.jsx:96
@@ -7545,6 +7732,14 @@ msgstr "ボリュームグループ"
 #: pkg/storaged/utils.js:247 pkg/storaged/vgroup-details.jsx:232
 msgid "Volume Group $0"
 msgstr "ボリュームグループ $0"
+
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:200
+msgid "Volume Group name"
+msgstr ""
+
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:284
+msgid "Volume Group name should not be empty"
+msgstr ""
 
 #: pkg/storaged/vgroups-panel.jsx:113
 msgid "Volume Groups"
@@ -7585,11 +7780,11 @@ msgstr "パッケージマネージャーを使用して、その他のプログ
 msgid "Waiting for other software management operations to finish"
 msgstr "他のソフトウェア管理オペレーションが終了するまで待機中"
 
-#: pkg/systemd/service-details.jsx:418
+#: pkg/systemd/service-details.jsx:422
 msgid "Wanted By"
 msgstr "望まれる"
 
-#: pkg/systemd/service-details.jsx:413
+#: pkg/systemd/service-details.jsx:417
 msgid "Wants"
 msgstr "望む"
 
@@ -7658,8 +7853,8 @@ msgid ""
 "You are currently connected directly to this server. You cannot delete it."
 msgstr "現在このサーバーに直接接続されています。削除できません。"
 
-#: pkg/networkmanager/firewall.jsx:70 pkg/networkmanager/firewall.jsx:116
-#: pkg/networkmanager/firewall.jsx:878 pkg/networkmanager/firewall.jsx:884
+#: pkg/networkmanager/firewall.jsx:77 pkg/networkmanager/firewall.jsx:135
+#: pkg/networkmanager/firewall.jsx:903 pkg/networkmanager/firewall.jsx:909
 msgid "You are not authorized to modify the firewall."
 msgstr "ファイアウォールを修正する権限がありません。"
 
@@ -7677,10 +7872,9 @@ msgstr "Docker ストレージプールを管理するパーミッションが�
 msgid "You must wait longer to change your password"
 msgstr "パスワードを変更するにはより長い時間の経過が必要です。"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:129
-msgid ""
-"You need to select the most closely matching OS vendor and Operating System"
-msgstr "最も合致する OS ベンダーおよびオペレーティングシステムを選択しなければなりません"
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:125
+msgid "You need to select the most closely matching Operating System"
+msgstr ""
 
 #: pkg/packagekit/updates.jsx:836
 msgid ""
@@ -7702,11 +7896,11 @@ msgstr "セッションが終了しました。"
 msgid "Your session has expired. Please log in again."
 msgstr "セッションの有効期限が切れました。再度ログインしてください。"
 
-#: pkg/networkmanager/firewall.jsx:930
+#: pkg/networkmanager/firewall.jsx:955
 msgid "Zone"
 msgstr "ゾーン"
 
-#: pkg/networkmanager/firewall.jsx:943
+#: pkg/networkmanager/firewall.jsx:968
 msgid "Zones"
 msgstr "ゾーン"
 
@@ -7829,11 +8023,11 @@ msgstr "ホストデバイス"
 msgid "hostdev"
 msgstr "hostdev"
 
-#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:183
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:169
 msgid "iSCSI Initiator IQN"
 msgstr "iSCSI イニシエーター IQN"
 
-#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:78
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:64
 msgid "iSCSI Target"
 msgstr "iSCSI ターゲット"
 
@@ -7841,11 +8035,11 @@ msgstr "iSCSI ターゲット"
 msgid "iSCSI Targets"
 msgstr "iSCSI ターゲット"
 
-#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:83
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:70
 msgid "iSCSI direct Target"
 msgstr "iSCSI ダイレクトターゲット"
 
-#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:208
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:194
 msgid "iSCSI target IQN"
 msgstr "iSCSI ターゲット IQN"
 
@@ -7891,8 +8085,8 @@ msgid "nfs dump target isn't formated as server:path"
 msgstr "nfs ダンプターゲットは server:path の形式になっていません"
 
 #: pkg/machines/components/networks/networkOverviewTab.jsx:84
-#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:62
-#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:65
+#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:67
+#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:70
 #: pkg/machines/components/vmDisksTab.jsx:102 pkg/machines/helpers.js:234
 msgid "no"
 msgstr "いいえ"
@@ -7911,14 +8105,6 @@ msgstr[0] "$0 CPU コアの"
 #: pkg/machines/helpers.js:190
 msgid "paused"
 msgstr "一時停止"
-
-#: pkg/machines/components/diskAdd.jsx:154
-msgid "qcow2"
-msgstr "qcow2"
-
-#: pkg/machines/components/diskAdd.jsx:157
-msgid "raw"
-msgstr "raw"
 
 #: pkg/tuned/change-profile.jsx:42
 msgid "recommended"
@@ -8009,7 +8195,7 @@ msgid "undefined"
 msgstr "未定義"
 
 #: node_modules/registry-image-widgets/views/imagestream-listing.html:31
-#: pkg/systemd/init.js:254 pkg/systemd/init.js:268
+#: pkg/systemd/init.js:256 pkg/systemd/init.js:270
 msgid "unknown"
 msgstr "不明"
 
@@ -8049,15 +8235,15 @@ msgstr "value"
 msgid "vhostuser"
 msgstr "vhostuser"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:804
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:836
 msgid ""
 "virt-install package needs to be installed on the system in order to create "
 "new VMs"
 msgstr "新しい VM を作成するには、virt-install パッケージをシステムにインストールする必要があります"
 
 #: pkg/machines/components/networks/networkOverviewTab.jsx:84
-#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:62
-#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:65
+#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:67
+#: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:70
 #: pkg/machines/components/vmDisksTab.jsx:102 pkg/machines/helpers.js:233
 msgid "yes"
 msgstr "はい"

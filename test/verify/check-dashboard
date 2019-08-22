@@ -88,6 +88,14 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
         b = self.browser
         m = self.machine
 
+        # HACK - There is something about page pre-loading that breaks
+        # the CDP of Chromium completely, so we avoid packagekit
+        # completely on machine2.
+        #
+        machine2 = self.machines["machine2"]
+        machine2.needs_writable_usr()
+        machine2.execute("rm -rf /usr/share/cockpit/packagekit")
+
         self.login_and_go("/dashboard")
 
         self.wait_dashboard_addresses(b, ["localhost"])

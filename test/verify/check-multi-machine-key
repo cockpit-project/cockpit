@@ -107,6 +107,13 @@ class TestMultiMachineKeyAuth(MachineCase):
             "( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service", direct=True)
         self.machine2.wait_execute()
 
+        # HACK - There is something about page pre-loading that breaks
+        # the CDP of Chromium completely, so we avoid packagekit
+        # completely on machine2.
+        #
+        self.machine2.needs_writable_usr()
+        self.machine2.execute("rm -rf /usr/share/cockpit/packagekit")
+
     def testBasic(self):
         b = self.browser
         m1 = self.machine

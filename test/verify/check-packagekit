@@ -160,8 +160,7 @@ class TestUpdates(PackageCase):
         b.go("/system")
         b.enter_page("/system")
         self.wait_checking_updates()
-        # PackageKit's dnf backend misparses severities (https://bugs.freedesktop.org/show_bug.cgi?id=101070)
-        if self.backend == "dnf":
+        if m.image == "rhel-8-1-distropkg": #12620
             b.wait_text("#system_information_updates_text", "Updates Available")
         else:
             b.wait_text("#system_information_updates_text", "Bug Fix Updates Available")
@@ -322,13 +321,8 @@ class TestUpdates(PackageCase):
         b.go("/system")
         b.enter_page("/system")
         self.wait_checking_updates()
-        if self.backend == 'dnf':
-            # PackageKit's dnf backend mis-parses severity (https://bugs.freedesktop.org/show_bug.cgi?id=101070)
+        if m.image == "rhel-8-1-distropkg": #12620
             b.wait_text("#system_information_updates_text", "Updates Available")
-            self.assertIn("bug", b.attr("#system_information_updates_icon", "class"))
-        elif self.backend == 'apt':
-            # PackageKit's deb backend always reports "normal"
-            b.wait_text("#system_information_updates_text", "Bug Fix Updates Available")
             self.assertIn("bug", b.attr("#system_information_updates_icon", "class"))
         else:
             b.wait_text("#system_information_updates_text", "Security Updates Available")
@@ -631,8 +625,6 @@ class TestUpdates(PackageCase):
                      rm /usr/share/dbus-1/system-services/org.freedesktop.PackageKit.service
                      systemctl daemon-reload''')
 
-        self.allow_browser_errors("loading available updates failed:.*not-found")
-
         m.start_cockpit()
         b.login_and_go("/updates")
 
@@ -642,8 +634,12 @@ class TestUpdates(PackageCase):
         # update status on front page should be invisible
         b.go("/system")
         b.enter_page("/system")
-        b.wait_not_visible("#system_information_updates_text")
-        self.assertEqual(b.attr("#system_information_updates_icon", "class"), "")
+        if m.image == "rhel-8-1-distropkg": #12620
+            b.wait_not_visible("#system_information_updates_text")
+            self.assertEqual(b.attr("#system_information_updates_icon", "class"), "")
+        else:
+            b.wait_text("#system_information_updates_text", "Loading available updates failed")
+            self.assertIn("exclamation", b.attr("#system_information_updates_icon", "class"))
 
 
 @skipImage("Image uses OSTree", "fedora-atomic")
@@ -772,8 +768,7 @@ class TestUpdatesSubscriptions(PackageCase):
         # show available updates on system page too
         b.go("/system")
         b.enter_page("/system")
-        # PackageKit's dnf backend misparses severities (https://bugs.freedesktop.org/show_bug.cgi?id=101070)
-        if self.backend == "dnf":
+        if m.image == "rhel-8-1-distropkg": #12620
             b.wait_text("#system_information_updates_text", "Updates Available")
         else:
             b.wait_text("#system_information_updates_text", "Bug Fix Updates Available")

@@ -27,6 +27,7 @@ import { OverlayTrigger, Tooltip } from "patternfly-react";
 import { Remarkable } from "remarkable";
 import AutoUpdates from "./autoupdates.jsx";
 import { History, PackageList } from "./history.jsx";
+import { page_status } from "notifications";
 
 import * as PK from "packagekit.js";
 
@@ -140,6 +141,14 @@ function count_security_updates(updates) {
         if (updates[u].severity === PK.Enum.INFO_SECURITY)
             ++num_security;
     return num_security;
+}
+
+function find_highest_severity(updates) {
+    var max = PK.Enum.INFO_LOW;
+    for (const u in updates)
+        if (updates[u].severity > max)
+            max = updates[u].severity;
+    return max;
 }
 
 function HeaderBar(props) {
@@ -560,7 +569,7 @@ class OsUpdates extends React.Component {
     }
 
     handleLoadError(ex) {
-        console.error("loading available updates failed:", JSON.stringify(ex));
+        console.warn("loading available updates failed:", JSON.stringify(ex));
         if (ex.problem === "not-found")
             ex = _("PackageKit is not installed");
         this.state.errorMessages.push(ex.detail || ex.message || ex);
@@ -680,15 +689,29 @@ class OsUpdates extends React.Component {
     initialLoadOrRefresh() {
         PK.watchRedHatSubscription(registered => this.setState({ unregistered: !registered }));
 
+        cockpit.addEventListener("visibilitychange", () => {
+            if (!cockpit.hidden)
+                this.loadOrRefresh(false);
+        });
+
+        if (!cockpit.hidden)
+            this.loadOrRefresh(true);
+        else
+            this.loadUpdates();
+    }
+
+    loadOrRefresh(always_load) {
         PK.call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "GetTimeSinceAction",
                 [PK.Enum.ROLE_REFRESH_CACHE])
-                .done(seconds => {
+                .done(results => {
+                    const seconds = results[0];
+
                     this.setState({ timeSinceRefresh: seconds });
 
                     // automatically trigger refresh for ≥ 1 day or if never refreshed
                     if (seconds >= 24 * 3600 || seconds < 0)
                         this.handleRefresh();
-                    else
+                    else if (always_load)
                         this.loadUpdates();
                 })
                 .fail(this.handleLoadError);
@@ -757,16 +780,25 @@ class OsUpdates extends React.Component {
                 .catch(ex => {
                     this.state.errorMessages.push(ex.message);
                     this.setState({ state: "updateError" });
-                })
-                // tell the System page to refresh its "Available Updates" status
-                .finally(() => window.sessionStorage.removeItem("last_sw_update_check"));
+                });
     }
 
     renderContent() {
         var applySecurity, applyAll, unregisteredWarning;
 
         if (this.state.unregistered) {
-            // always show empty state pattern, even if there are some repositories enabled that don't require subscriptions
+            // always show empty state pattern, even if there are some
+            // repositories enabled that don't require subscriptions
+
+            page_status.set_own({
+                type: "warning",
+                title: _("Not Registered"),
+                details: {
+                    link: "subscriptions",
+                    icon: "pficon pficon-warning-triangle-o"
+                }
+            });
+
             return (
                 <div className="blank-slate-pf">
                     <div className="blank-slate-pf-icon">
@@ -787,6 +819,7 @@ class OsUpdates extends React.Component {
         case "loading":
         case "refreshing":
         case "locked":
+            page_status.set_own(null);
             if (this.state.loadPercent)
                 return (
                     <div className="progress-main-view">
@@ -802,6 +835,8 @@ class OsUpdates extends React.Component {
             {
                 const num_updates = Object.keys(this.state.updates).length;
                 const num_security_updates = count_security_updates(this.state.updates);
+                const highest_severity = find_highest_severity(this.state.updates);
+                let text;
 
                 applyAll = (
                     <button className="pk-update--all btn btn-primary" onClick={ () => this.applyUpdates(false) }>
@@ -815,6 +850,23 @@ class OsUpdates extends React.Component {
                             {_("Install Security Updates")}
                         </button>);
                 }
+
+                if (highest_severity == PK.Enum.INFO_SECURITY)
+                    text = _("Security Updates Available");
+                else if (highest_severity >= PK.Enum.INFO_NORMAL)
+                    text = _("Bug Fix Updates Available");
+                else if (highest_severity >= PK.Enum.INFO_LOW)
+                    text = _("Enhancement Updates Available");
+                else
+                    text = _("Updates Available");
+
+                page_status.set_own({
+                    type: num_security_updates > 0 ? "warning" : "info",
+                    title: text,
+                    details: {
+                        icon: PK.getSeverityIcon(highest_severity)
+                    }
+                });
             }
 
             return (
@@ -850,15 +902,29 @@ class OsUpdates extends React.Component {
 
         case "loadError":
         case "updateError":
+            page_status.set_own({
+                type: "error",
+                title: STATE_HEADINGS[this.state.state],
+                details: {
+                    icon: "fa fa-exclamation-circle"
+                }
+            });
             return this.state.errorMessages.map(m => <pre key={m}>{m}</pre>);
 
         case "applying":
+            page_status.set_own(null);
             return <ApplyUpdates transaction={this.state.applyTransaction} />;
 
         case "updateSuccess":
+            page_status.set_own({
+                type: "warning",
+                title: _("Restart Recommended")
+            });
+
             return <AskRestart onRestart={this.handleRestart} onIgnore={this.loadUpdates} history={this.state.history} />;
 
         case "restart":
+            page_status.set_own(null);
             return (
                 <div className="blank-slate-pf">
                     <div className="blank-slate-pf-icon">
@@ -869,6 +935,13 @@ class OsUpdates extends React.Component {
                 </div>);
 
         case "uptodate":
+            page_status.set_own({
+                details: {
+                    text: _("System Up To Date"),
+                    link: "nowhere"
+                }
+            });
+
             return (
                 <>
                     <AutoUpdates onInitialized={ enabled => this.setState({ autoUpdatesEnabled: enabled }) } />
@@ -886,6 +959,7 @@ class OsUpdates extends React.Component {
                 </>);
 
         default:
+            page_status.set_own(null);
             return null;
         }
     }
@@ -895,8 +969,6 @@ class OsUpdates extends React.Component {
         PK.cancellableTransaction("RefreshCache", [true], data => this.setState({ loadPercent: data.percentage }))
                 .then(() => {
                     this.setState({ timeSinceRefresh: 0 });
-                    // tell the System page to refresh its "Available Updates" status
-                    window.sessionStorage.removeItem("last_sw_update_check");
                     this.loadUpdates();
                 })
                 .catch(this.handleLoadError);

@@ -702,7 +702,7 @@ class TestMachines(NetworkCase):
                     b.click("#vm-subVmTest1-disks") # open the "Disks" subtab
 
                 # Detect volume format
-                detect_format_cmd = "virsh vol-dumpxml {0} {1} | xmllint --xpath '/volume/target/format' -".format(self.volume_name, self.pool_name)
+                detect_format_cmd = "virsh vol-dumpxml {0} {1} | xmllint --xpath '{2}' -"
 
                 if self.test_obj.provider == "libvirt-dbus":
                     b.wait_in_text('#vm-{0}-disks-{1}-source-volume'.format(self.vm_name, self.expected_target), self.volume_name)
@@ -713,10 +713,15 @@ class TestMachines(NetworkCase):
                         expected_format = 'unknown'
                     else:
                         expected_format = 'qcow2'
-                    self.test_obj.assertEqual(
-                        m.execute(detect_format_cmd).rstrip(),
-                        '<format type="{0}"/>'.format(self.volume_format or expected_format)
-                    )
+
+                    # Unknown pool format isn't present in xml anymore
+                    if expected_format == "unknown" and m.execute("virsh --version") >= "5.6.0":
+                        m.execute(detect_format_cmd.format(self.volume_name, self.pool_name, "/volume/target") + " | grep -qv format")
+                    else:
+                        self.test_obj.assertEqual(
+                            m.execute(detect_format_cmd.format(self.volume_name, self.pool_name, "/volume/target/format")).rstrip(),
+                            '<format type="{0}"/>'.format(self.volume_format or expected_format)
+                        )
                 else:
                     if self.pool_type == 'disk':
                         b.wait_in_text('#vm-{0}-disks-{1}-source-device'.format(self.vm_name, self.expected_target), self.volume_name)

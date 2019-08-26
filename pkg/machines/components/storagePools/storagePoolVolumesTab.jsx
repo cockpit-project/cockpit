@@ -101,7 +101,7 @@ export class StoragePoolVolumesTab extends React.Component {
                             { name: (<div id={`${storagePoolIdPrefix}-volume-${volume.name}-usedby`}>{(isVolumeUsed[volume.name] || []).join(', ')}</div>), }
                         );
                         columns.push(
-                            { name: (<div id={`${storagePoolIdPrefix}-volume-${volume.name}-size`}>{`${allocation} / ${capacity} GB`}</div>), }
+                            { name: (<div id={`${storagePoolIdPrefix}-volume-${volume.name}-size`}>{`${allocation} / ${capacity} GiB`}</div>), }
                         );
                         let selectCallback = this.selectedChanged.bind(this, volume.name);
 

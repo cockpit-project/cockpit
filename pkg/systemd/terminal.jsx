@@ -44,7 +44,7 @@ const _ = cockpit.gettext;
             this.onThemeChanged = this.onThemeChanged.bind(this);
         }
 
-        componentWillMount() {
+        componentDidMount() {
             cockpit.user().done(function (user) {
                 this.setState({ user: user, channel: this.createChannel(user) });
             }.bind(this));

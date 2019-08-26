@@ -60,7 +60,7 @@ export class StoragePool extends React.Component {
         );
         const sizeLabel = (
             <React.Fragment>
-                {`${allocation} / ${capacity} GB`}
+                {`${allocation} / ${capacity} GiB`}
             </React.Fragment>
         );
         const state = (

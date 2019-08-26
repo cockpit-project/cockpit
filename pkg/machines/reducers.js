@@ -134,9 +134,11 @@ function networks(state, action) {
         const connectionName = network.connectionName;
         const index = network.id ? getFirstIndexOfResource(state, 'id', network.id, connectionName)
             : getFirstIndexOfResource(state, 'name', network.name, connectionName);
-        if (index < 0 && !updateOnly) { // add
-            return [...state, network];
-        }
+        if (index < 0)
+            if (!updateOnly)
+                return [...state, network];
+            else
+                return state;
 
         const updatedNetwork = Object.assign({}, state[index], network);
         return replaceResource({ state, updatedResource: updatedNetwork, index });
@@ -299,11 +301,13 @@ function storagePools(state, action) {
         const { storagePool, updateOnly, } = action.payload;
         const connectionName = storagePool.connectionName;
         const index = getFirstIndexOfResource(state, 'id', storagePool.id, connectionName);
-        if (index < 0 && !updateOnly) {
-            return [...state, storagePool];
-        }
-        const updatedStoragePool = Object.assign({}, state[index], storagePool);
+        if (index < 0)
+            if (!updateOnly)
+                return [...state, storagePool];
+            else
+                return state;
 
+        const updatedStoragePool = Object.assign({}, state[index], storagePool);
         return replaceResource({ state, updatedResource: updatedStoragePool, index });
     }
     case UPDATE_STORAGE_VOLUMES: {

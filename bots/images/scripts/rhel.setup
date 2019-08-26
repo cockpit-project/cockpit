@@ -97,7 +97,7 @@ EOF
 
     elif [ "${IMAGE#rhel-8*}" != "$IMAGE" ]; then
         case "$IMAGE" in
-            rhel-8-0) REPO="latest-RHEL-8.0" ;;
+            rhel-8-0) REPO="latest-RHEL-8.0.1" ;;
             rhel-8-1) REPO="latest-RHEL-8.1" ;;
             *) echo "Unknown image $IMAGE"; exit 1
         esac

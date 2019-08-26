@@ -144,28 +144,23 @@ export class Terminal extends React.Component {
         this.state.terminal.focus();
     }
 
-    componentWillUpdate(nextProps, nextState) {
-        if (nextState.cols !== this.state.cols || nextState.rows !== this.state.rows) {
-            this.state.terminal.resize(nextState.cols, nextState.rows);
+    componentDidUpdate(prevProps, prevState) {
+        if (prevState.cols !== this.state.cols || prevState.rows !== this.state.rows) {
+            this.state.terminal.resize(this.state.cols, this.state.rows);
             this.props.channel.control({
                 window: {
-                    rows: nextState.rows,
-                    cols: nextState.cols
+                    rows: this.state.rows,
+                    cols: this.state.cols
                 }
             });
         }
 
-        if (nextProps.channel !== this.props.channel) {
-            this.state.terminal.reset();
-            this.disconnectChannel();
-        }
+        if (prevProps.theme !== this.props.theme)
+            this.setTerminalTheme(this.props.theme);
 
-        if (nextProps.theme !== this.props.theme)
-            this.setTerminalTheme(nextProps.theme);
-    }
-
-    componentDidUpdate(prevProps) {
         if (prevProps.channel !== this.props.channel) {
+            this.state.terminal.reset();
+            this.disconnectChannel(prevProps.channel);
             this.connectChannel();
             this.props.channel.control({
                 window: {
@@ -237,10 +232,12 @@ export class Terminal extends React.Component {
         }
     }
 
-    disconnectChannel() {
-        if (this.props.channel) {
-            this.props.channel.removeEventListener('message', this.onChannelMessage);
-            this.props.channel.removeEventListener('close', this.onChannelClose);
+    disconnectChannel(channel) {
+        if (channel === undefined)
+            channel = this.props.channel;
+        if (channel) {
+            channel.removeEventListener('message', this.onChannelMessage);
+            channel.removeEventListener('close', this.onChannelClose);
         }
     }
 

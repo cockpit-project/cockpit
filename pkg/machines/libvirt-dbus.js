@@ -305,7 +305,10 @@ LIBVIRT_DBUS_PROVIDER = {
 
         return (dispatch) => call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'StoragePoolLookupByName', [poolName], TIMEOUT)
                 .then((storagePoolPath) => {
-                    return call(connectionName, storagePoolPath[0], 'org.libvirt.StoragePool', 'StorageVolCreateXML', [volXmlDesc, 0], TIMEOUT);
+                    return call(connectionName, storagePoolPath[0], 'org.libvirt.StoragePool', 'StorageVolCreateXML', [volXmlDesc, 0], TIMEOUT)
+                            .then(() => {
+                                return storagePoolRefresh(connectionName, storagePoolPath[0]);
+                            });
                 })
                 .then((volPath) => {
                     return dispatch(attachDisk({ connectionName, poolName, volumeName, format, target, vmId, permanent, hotplug, cacheMode }));

@@ -686,6 +686,21 @@ class TestMachines(NetworkCase):
                 b.wait_in_text("#vm-{0}-disks-{1}-bus".format(self.vm_name, self.expected_target), "virtio")
                 b.wait_in_text("#vm-{0}-disks-{1}-device".format(self.vm_name, self.expected_target), "disk")
 
+                # Check volume was added to pool's volume list
+                if self.test_obj.provider == "libvirt-dbus" and not self.use_existing_volume:
+                    b.click(".cards-pf .card-pf-title span:contains(Storage Pools)")
+
+                    b.wait_present("tbody tr[data-row-id=pool-{0}-system] th".format(self.pool_name))
+                    b.click("tbody tr[data-row-id=pool-{0}-system] th".format(self.pool_name))
+
+                    b.wait_present("#pool-{0}-system-storage-volumes".format(self.pool_name))
+                    b.click("#pool-{0}-system-storage-volumes".format(self.pool_name)) # open the "Storage Volumes" subtab
+                    b.wait_present("#pool-{0}-system-volume-{1}-name".format(self.pool_name, self.volume_name))
+
+                    b.click(".machines-listing-breadcrumb li a:contains(Virtual Machines)")
+                    b.click("tbody tr[data-row-id=vm-subVmTest1] th")
+                    b.click("#vm-subVmTest1-disks") # open the "Disks" subtab
+
                 # Detect volume format
                 detect_format_cmd = "virsh vol-dumpxml {0} {1} | xmllint --xpath '/volume/target/format' -".format(self.volume_name, self.pool_name)
 

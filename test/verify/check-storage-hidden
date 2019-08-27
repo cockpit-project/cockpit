@@ -62,8 +62,8 @@ class TestStorage(StorageCase):
                      "name": "FS",
                      "passphrase": "einszweidrei",
                      "passphrase2": "einszweidrei",
-                     "mounting": "custom",
                      "mount_point": mount_point_1,
+                     "mount_options.auto": False,
                      "crypto_options.extra": "my-crypto-tag"})
         self.content_row_wait_in_col(2, 1, "ext4 File System")
         self.wait_in_storaged_configuration(mount_point_1)
@@ -71,9 +71,9 @@ class TestStorage(StorageCase):
 
         # Now doubly hide the clear text block device by locking the
         # crypto backing device and deactivating /dev/TEST/lvol
-        self.content_head_action(1, "Lock")
+        self.content_dropdown_action(1, "Lock")
         b.wait_not_in_text("#detail-content", "Filesystem")
-        self.content_head_action(1, "Deactivate")
+        self.content_dropdown_action(1, "Deactivate")
         self.content_row_wait_in_col(1, 1, "48 MiB Inactive volume")
 
         # HACK - https://github.com/storaged-project/storaged/issues/17
@@ -123,7 +123,6 @@ class TestStorage(StorageCase):
         self.content_head_action(1, "Format")
         self.dialog({"type": "ext4",
                      "name": "FS2",
-                     "mounting": "custom",
                      "mount_point": mount_point_2})
         self.content_row_wait_in_col(1, 1, "ext4 File System")
         self.wait_in_storaged_configuration(mount_point_2)

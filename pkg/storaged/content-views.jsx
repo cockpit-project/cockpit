@@ -27,10 +27,10 @@ import * as utils from "./utils.js";
 import React from "react";
 
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
-import { StorageButton, StorageLink } from "./storage-controls.jsx";
+import { StorageButton, StorageLink, StorageBarMenu, StorageMenuItem } from "./storage-controls.jsx";
 import { format_dialog } from "./format-dialog.jsx";
 
-import { FilesystemTab } from "./fsys-tab.jsx";
+import { FilesystemTab, is_mounted, mounting_dialog } from "./fsys-tab.jsx";
 import { CryptoTab } from "./crypto-tab.jsx";
 import { BlockVolTab, PoolVolTab } from "./lvol-tabs.jsx";
 import { PVolTab, MDRaidMemberTab, VDOBackingTab } from "./pvol-tabs.jsx";
@@ -68,6 +68,7 @@ function create_tabs(client, target, is_partition) {
     }
 
     var block = endsWith(target.iface, ".Block") ? target : null;
+    var block_fsys = block && client.blocks_fsys[block.path];
     var block_lvm2 = block && client.blocks_lvm2[block.path];
     var block_pvol = block && client.blocks_pvol[block.path];
 
@@ -145,8 +146,10 @@ function create_tabs(client, target, is_partition) {
         add_tab(_("Partition"), PartitionTab);
     }
 
+    let is_unrecognized = false;
+
     if (is_filesystem) {
-        add_tab(_("Filesystem"), FilesystemTab);
+        add_tab(_("Filesystem"), FilesystemTab, ["mismounted-fsys"]);
     } else if (is_crypto) {
         add_tab(_("Encryption"), CryptoTab);
     } else if ((block && block.IdUsage == "raid" && block.IdType == "LVM2_member") ||
@@ -160,13 +163,19 @@ function create_tabs(client, target, is_partition) {
     } else if (block && block.IdUsage == "other" && block.IdType == "swap") {
         add_tab(_("Swap"), SwapTab);
     } else if (block) {
+        is_unrecognized = true;
         add_tab(_("Unrecognized Data"), UnrecognizedTab);
     }
 
     var tab_actions = [];
+    var tab_menu_actions = [];
 
     function add_action(title, func) {
         tab_actions.push(<StorageButton key={title} onClick={func}>{title}</StorageButton>);
+    }
+
+    function add_menu_action(title, func) {
+        tab_menu_actions.push({ title: title, func: func });
     }
 
     function lock() {
@@ -240,7 +249,7 @@ function create_tabs(client, target, is_partition) {
 
     if (is_crypto) {
         if (client.blocks_cleartext[block.path]) {
-            add_action(_("Lock"), lock);
+            add_menu_action(_("Lock"), lock);
         } else {
             add_action(_("Unlock"), unlock);
         }
@@ -256,7 +265,7 @@ function create_tabs(client, target, is_partition) {
 
     if (lvol) {
         if (lvol.Active) {
-            add_action(_("Deactivate"), deactivate);
+            add_menu_action(_("Deactivate"), deactivate);
         } else {
             add_action(_("Activate"), activate);
         }
@@ -313,16 +322,27 @@ function create_tabs(client, target, is_partition) {
     }
 
     if (is_partition || lvol) {
-        add_action(_("Delete"), delete_);
+        add_menu_action(_("Delete"), delete_);
     }
 
     if (block) {
-        add_action(_("Format"), () => format_dialog(client, block.path));
+        if (is_unrecognized)
+            add_action(_("Format"), () => format_dialog(client, block.path));
+        else
+            add_menu_action(_("Format"), () => format_dialog(client, block.path));
+    }
+
+    if (block_fsys) {
+        if (is_mounted(client, block))
+            add_menu_action(_("Unmount"), () => mounting_dialog(client, block, "unmount"));
+        else
+            add_action(_("Mount"), () => mounting_dialog(client, block, "mount"));
     }
 
     return {
         renderers: tabs,
-        actions: <>{tab_actions}</>,
+        actions: tab_actions,
+        menu_actions: tab_menu_actions,
         row_action: row_action,
         has_warnings: warnings.length > 0
     };
@@ -396,11 +416,21 @@ function append_row(client, rows, level, key, name, desc, tabs, job_object) {
         { name: last_column, tight: true },
     ];
 
+    function menuitem(action) {
+        return <StorageMenuItem key={action.title} onClick={action.func}>{action.title}</StorageMenuItem>;
+    }
+
+    var menu = null;
+    if (tabs.menu_actions && tabs.menu_actions.length > 0)
+        menu = <StorageBarMenu id={"menu-" + name}>{tabs.menu_actions.map(menuitem)}</StorageBarMenu>;
+
+    var actions = <>{tabs.actions}{menu}</>;
+
     rows.push(
         <ListingRow key={key}
                     columns={cols}
                     tabRenderers={tabs.renderers}
-                    listingActions={tabs.actions} />
+                    listingActions={actions} />
     );
 }
 

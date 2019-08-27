@@ -84,7 +84,7 @@ class StorageCase(MachineCase):
     # temporarily disappearing element, so we use self.retry.
 
     def content_row_wait_in_col(self, row_index, col_index, val):
-        col = self.content_row_tbody(row_index) + " .listing-ct-item :nth-child(%d)" % (col_index + 1)
+        col = self.content_row_tbody(row_index) + " .listing-ct-item > :nth-child(%d)" % (col_index + 1)
         self.retry(None, lambda: self.browser.is_present(col) and val in self.browser.text(col), None)
 
     def content_head_action(self, index, title):
@@ -92,8 +92,14 @@ class StorageCase(MachineCase):
         btn = self.content_row_tbody(index) + " .listing-ct-head .listing-ct-actions button:contains(%s)" % title
         self.browser.click(btn)
 
+    def content_dropdown_action(self, index, title):
+        self.content_row_expand(index)
+        dropdown = self.content_row_tbody(index) + " .listing-ct-head .listing-ct-actions .dropdown"
+        self.browser.click(dropdown + " [data-toggle=dropdown]")
+        self.browser.click(dropdown + " a:contains('%s')" % title)
+
     def content_tab_expand(self, row_index, tab_index):
-        tab_btn = self.content_row_tbody(row_index) + " .listing-ct-head li:nth-child(%d) a" % tab_index
+        tab_btn = self.content_row_tbody(row_index) + " .listing-ct-head > ul li:nth-child(%d) a" % tab_index
         tab = self.content_row_tbody(row_index) + " .listing-ct-body:nth-child(%d)" % (tab_index + 1)
         self.content_row_expand(row_index)
         self.browser.click(tab_btn)
@@ -124,7 +130,7 @@ class StorageCase(MachineCase):
     # XXX - Clicking a button in a tab has the same problem, but we
     # ignore that for now.
 
-    def content_tab_wait_in_info(self, row_index, tab_index, title, val, alternate_val=None):
+    def content_tab_wait_in_info(self, row_index, tab_index, title, val=None, alternate_val=None, cond=None):
         b = self.browser
 
         def setup():
@@ -133,7 +139,7 @@ class StorageCase(MachineCase):
         def check():
             row = self.content_row_tbody(row_index)
             row_item = row + " tr.listing-ct-item"
-            tab_btn = row + " .listing-ct-head li:nth-child(%d) a" % tab_index
+            tab_btn = row + " .listing-ct-head > ul li:nth-child(%d) a" % tab_index
             tab = row + " .listing-ct-body:nth-child(%d)" % (tab_index + 1)
             cell = tab + " div.ct-form label:contains(%s) + *" % title
 
@@ -144,16 +150,22 @@ class StorageCase(MachineCase):
                 if not b.is_present(row + ".open"):
                     return False
 
-            if not b.is_present(tab):
+            if not b.is_present(tab) or not b.is_visible(tab):
                 if not b.is_present(tab_btn):
                     return False
                 b.click(tab_btn)
-                if not b.is_present(tab):
+                if not b.is_visible(tab):
                     return False
 
-            if not b.is_present(cell):
+            if not b.is_present(cell) or not b.is_visible(cell):
                 return False
-            return val in b.text(cell) or (alternate_val is not None and alternate_val in b.text(cell))
+            if val is not None and val in b.text(cell):
+                return True
+            if alternate_val is not None and alternate_val in b.text(cell):
+                return True
+            if cond is not None and cond(cell):
+                return True
+            return False
 
         def teardown():
             pass
@@ -382,3 +394,7 @@ class StorageCase(MachineCase):
 
     def wait_not_in_storaged_configuration(self, mount_point):
         wait(lambda: mount_point not in self.machine.execute("%s dump | grep Configuration" % self.storagectl_cmd))
+
+    def wait_mounted(self, row, col):
+        self.content_tab_wait_in_info(row, col, "Mount Point",
+                                      cond=lambda cell: "The filesystem is not mounted" not in self.browser.text(cell))

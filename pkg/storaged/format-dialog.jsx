@@ -26,6 +26,8 @@ import {
     BlockingMessage, TeardownMessage
 } from "./dialog.jsx";
 
+import { get_fstab_config } from "./fsys-tab.jsx";
+
 const _ = cockpit.gettext;
 
 export function parse_options(options) {
@@ -49,65 +51,6 @@ export function extract_option(split, opt) {
     } else {
         return false;
     }
-}
-
-export function mounting_dialog_fields(is_custom, mount_dir, mount_options, visible) {
-    if (!visible)
-        visible = function () { return true };
-
-    var split_options = parse_options(mount_options == "defaults" ? "" : mount_options);
-    var opt_auto = !extract_option(split_options, "noauto");
-    var opt_ro = extract_option(split_options, "ro");
-    var extra_options = unparse_options(split_options);
-
-    return [
-        SelectOne("mounting", _("Mounting"),
-                  {
-                      value: is_custom ? "custom" : "default",
-                      visible: visible,
-                      choices: [
-                          { value: "default", title: _("Default"), selected: !is_custom },
-                          { value: "custom", title: _("Custom"), selected: is_custom }
-                      ]
-                  }),
-        TextInput("mount_point", _("Mount Point"),
-                  {
-                      value: mount_dir,
-                      visible: function (vals) {
-                          return visible(vals) && vals.mounting == "custom";
-                      },
-                      validate: function (val) {
-                          if (val.trim() == "")
-                              return _("Mount point can not be empty");
-                      }
-                  }),
-        CheckBoxes("mount_options", _("Mount Options"),
-                   {
-                       visible: function (vals) { return visible(vals) && vals.mounting == "custom" },
-                       value: {
-                           auto: opt_auto,
-                           ro: opt_ro,
-                           extra: extra_options === "" ? false : extra_options
-                       },
-                       fields: [
-                           { title: _("Mount at boot"), tag: "auto" },
-                           { title: _("Mount read only"), tag: "ro" },
-                           { title: _("Custom mount options"), tag: "extra", type: "checkboxWithInput" },
-                       ]
-                   },
-        ),
-    ];
-}
-
-export function mounting_dialog_options(vals) {
-    var opts = [];
-    if (!vals.mount_options || !vals.mount_options.auto)
-        opts.push("noauto");
-    if (vals.mount_options && vals.mount_options.ro)
-        opts.push("ro");
-    if (vals.mount_options && vals.mount_options.extra !== false)
-        opts = opts.concat(parse_options(vals.mount_options.extra));
-    return unparse_options(opts);
 }
 
 export function crypto_options_dialog_fields(options, visible, include_store_passphrase) {
@@ -225,7 +168,14 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
     }
 
     var crypto_options = initial_crypto_options(client, block);
-    var mount_options = initial_mount_options(client, block);
+    var [, old_dir, old_opts] = get_fstab_config(block);
+    if (!old_opts || old_opts == "defaults")
+        old_opts = initial_mount_options(client, block);
+
+    var split_options = parse_options(old_opts == "defaults" ? "" : old_opts);
+    var opt_noauto = extract_option(split_options, "noauto");
+    var opt_ro = extract_option(split_options, "ro");
+    var extra_options = unparse_options(split_options);
 
     dialog_open({
         Title: title,
@@ -276,8 +226,32 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
                               },
                               visible: is_encrypted
                           })
-            ].concat(crypto_options_dialog_fields(crypto_options, is_encrypted, true))
-        ].concat(mounting_dialog_fields(false, "", mount_options, is_filesystem)),
+            ].concat(crypto_options_dialog_fields(crypto_options, is_encrypted, true)),
+            TextInput("mount_point", _("Mount Point"),
+                      {
+                          visible: is_filesystem,
+                          value: old_dir || "",
+                          validate: function (val) {
+                              if (val === "")
+                                  return _("Mount point cannot be empty");
+                          }
+                      }),
+            CheckBoxes("mount_options", _("Mount Options"),
+                       {
+                           visible: is_filesystem,
+                           value: {
+                               auto: !opt_noauto,
+                               ro: opt_ro,
+                               extra: extra_options || false
+                           },
+                           fields: [
+                               { title: _("Mount now"), tag: "auto" },
+                               { title: _("Mount read only"), tag: "ro" },
+                               { title: _("Custom mount options"), tag: "extra", type: "checkboxWithInput" },
+                           ]
+                       },
+            ),
+        ],
         update: function (dlg, vals, trigger) {
             if (trigger == "crypto_options" && vals.crypto_options.auto == false)
                 dlg.set_nested_values("mount_options", { auto: false });
@@ -294,8 +268,6 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
                 ? null : _("Formatting a storage device will erase all data on it.")),
             action: function (vals) {
                 var options = {
-                    'no-block': { t: 'b', v: true },
-                    'dry-run-first': { t: 'b', v: true },
                     'tear-down': { t: 'b', v: true }
                 };
                 if (vals.erase != "no")
@@ -309,18 +281,6 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
                 }
 
                 var config_items = [];
-                var mount_options = mounting_dialog_options(vals);
-                if (vals.mounting == "custom")
-                    config_items.push([
-                        "fstab", {
-                            dir: { t: 'ay', v: utils.encode_filename(vals.mount_point) },
-                            type: { t: 'ay', v: utils.encode_filename("auto") },
-                            opts: { t: 'ay', v: utils.encode_filename(mount_options || "defaults") },
-                            freq: { t: 'i', v: 0 },
-                            passno: { t: 'i', v: 0 },
-                            "track-parents": { t: 'b', v: true }
-                        }]);
-
                 if (is_encrypted(vals)) {
                     options["encrypt.passphrase"] = { t: 's', v: vals.passphrase };
 
@@ -336,6 +296,29 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
                                   { t: 'ay', v: utils.encode_filename("") };
                     }
                     config_items.push(["crypttab", item]);
+                }
+
+                if (is_filesystem(vals)) {
+                    var mount_options = [];
+                    if (!vals.mount_options.auto)
+                        mount_options.push("noauto");
+                    if (vals.mount_options.ro)
+                        mount_options.push("ro");
+                    if (vals.mount_options.extra)
+                        mount_options.push(vals.mount_options.extra);
+
+                    var mount_point = vals.mount_point;
+                    if (mount_point[0] != "/")
+                        mount_point = "/" + mount_point;
+
+                    config_items.push(["fstab", {
+                        dir: { t: 'ay', v: utils.encode_filename(mount_point) },
+                        type: { t: 'ay', v: utils.encode_filename("auto") },
+                        opts: { t: 'ay', v: utils.encode_filename(mount_options.join(",") || "defaults") },
+                        freq: { t: 'i', v: 0 },
+                        passno: { t: 'i', v: 0 },
+                        "track-parents": { t: 'b', v: true }
+                    }]);
                 }
 
                 if (config_items.length > 0)
@@ -355,7 +338,22 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
                     }
                 }
 
-                return utils.teardown_active_usage(client, usage).then(format);
+                function block_fsys_for_block() {
+                    return (client.blocks_fsys[block.path] ||
+                            (client.blocks_cleartext[block.path] &&
+                             client.blocks_fsys[client.blocks_cleartext[block.path].path]));
+                }
+
+                function maybe_mount() {
+                    if (is_filesystem(vals) && vals.mount_options.auto)
+                        return client.wait_for(block_fsys_for_block).then(block_fsys => block_fsys.Mount({ }));
+                }
+
+                return utils.teardown_active_usage(client, usage)
+                        .then(utils.reload_systemd)
+                        .then(format)
+                        .then(maybe_mount)
+                        .then(utils.reload_systemd);
             }
         }
     });

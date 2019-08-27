@@ -55,8 +55,8 @@ class TestStorage(StorageCase):
         self.dialog_set_val("passphrase2", "vainu-reku-toma-rolle-kaja")
         self.dialog_set_val("crypto_options.store_passphrase", True)
         self.dialog_set_val("crypto_options.extra", "crypto,options")
-        self.dialog_set_val("mounting", "custom")
         self.dialog_set_val("mount_point", mount_point_secret)
+        self.dialog_set_val("mount_options.auto", False)
         self.dialog_apply()
         self.dialog_wait_close()
         self.content_row_wait_in_col(1, 1, "Encrypted data")
@@ -70,7 +70,7 @@ class TestStorage(StorageCase):
         assert m.execute("cat /etc/luks-keys/*") == "vainu-reku-toma-rolle-kaja"
 
         # Lock it
-        self.content_head_action(1, "Lock")
+        self.content_dropdown_action(1, "Lock")
         b.wait_not_in_text("#detail-content", "ext4 File System")
 
         # Unlock, this uses the stored passphrase
@@ -102,7 +102,7 @@ class TestStorage(StorageCase):
         self.wait_in_storaged_configuration("'passphrase-path': <b''>")
 
         # Lock it
-        self.content_head_action(1, "Lock")
+        self.content_dropdown_action(1, "Lock")
         b.wait_not_in_text("#detail-content", "ext4 File System")
 
         # Unlock, this asks for a passphrase
@@ -111,7 +111,7 @@ class TestStorage(StorageCase):
         self.content_row_wait_in_col(2, 1, "ext4 File System")
 
         # Delete the partition.
-        self.content_head_action(1, "Delete")
+        self.content_dropdown_action(1, "Delete")
         self.confirm()
         self.content_row_wait_in_col(1, 1, "Free Space")
         b.wait_not_in_text("#detail-content", "ext4 File System")
@@ -162,6 +162,8 @@ class TestStorage(StorageCase):
         self.dialog({"type": "ext4",
                      "crypto.on": True,
                      "name": "ENCRYPTED",
+                     "mount_point": "/foo",
+                     "mount_options.auto": False,
                      "passphrase": "vainu-reku-toma-rolle-kaja",
                      "passphrase2": "vainu-reku-toma-rolle-kaja"})
         self.content_row_wait_in_col(1, 1, "Encrypted data")
@@ -169,7 +171,7 @@ class TestStorage(StorageCase):
 
         # Lock the disk
         #
-        self.content_head_action(1, "Lock")
+        self.content_dropdown_action(1, "Lock")
         b.wait_not_in_text("#detail-content", "ext4 File System")
 
         self.content_tab_wait_in_info(1, 1, "Options", "(none)")
@@ -241,6 +243,8 @@ class TestStorage(StorageCase):
         self.dialog({"type": "ext4",
                      "crypto.on": True,
                      "name": "ENCRYPTED",
+                     "mount_point": "/foo",
+                     "mount_options.auto": False,
                      "passphrase": "vainu-reku-toma-rolle-kaja",
                      "passphrase2": "vainu-reku-toma-rolle-kaja"})
         self.content_row_wait_in_col(1, 1, "Encrypted data")
@@ -260,13 +264,13 @@ class TestStorage(StorageCase):
         self.dialog_apply()
         self.dialog_wait_close()
         # unlock with first passphrase
-        self.content_head_action(1, "Lock")
+        self.content_dropdown_action(1, "Lock")
         b.wait_not_in_text("#detail-content", "ext4 File System")
         self.content_head_action(1, "Unlock")
         self.dialog({"passphrase": "vainu-reku-toma-rolle-kaja"})
         self.content_row_wait_in_col(2, 1, "ext4 File System")
         # unlock with second passphrase
-        self.content_head_action(1, "Lock")
+        self.content_dropdown_action(1, "Lock")
         b.wait_not_in_text("#detail-content", "ext4 File System")
         self.content_head_action(1, "Unlock")
         self.dialog({"passphrase": "vainu-reku-toma-rolle-kaja-1"})
@@ -278,7 +282,7 @@ class TestStorage(StorageCase):
         self.dialog_apply()
         self.dialog_wait_close()
         # check that it is not possible to unlock with deleted passphrase
-        self.content_head_action(1, "Lock")
+        self.content_dropdown_action(1, "Lock")
         b.wait_not_in_text("#detail-content", "ext4 File System")
         self.content_head_action(1, "Unlock")
         self.dialog_wait_open()

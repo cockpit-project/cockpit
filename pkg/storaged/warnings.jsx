@@ -18,6 +18,7 @@
  */
 
 import { get_parent } from "./utils.js";
+import { check_mismounted_fsys } from "./fsys-tab.jsx";
 
 export function find_warnings(client) {
     const path_warnings = { };
@@ -38,19 +39,19 @@ export function find_warnings(client) {
         push_warning(path, warning);
     }
 
-    for (const path in client.blocks) {
+    function check_unused_space(path) {
         const block = client.blocks[path];
         const lvm2 = client.blocks_lvm2[path];
         const lvol = lvm2 && client.lvols[lvm2.LogicalVolume];
 
         if (!lvol)
-            continue;
+            return;
 
         if (lvol.Size != block.Size) {
             // Let's ignore inconsistent lvol/block combinations.
             // These happen during a resize and the inconsistency will
             // eventually go away.
-            continue;
+            return;
         }
 
         const vgroup = client.vgroups[lvol.VolumeGroup];
@@ -87,6 +88,11 @@ export function find_warnings(client) {
                 content_size: vdo.physical_size
             });
         }
+    }
+
+    for (const path in client.blocks) {
+        check_unused_space(path);
+        check_mismounted_fsys(client, path, enter_warning);
     }
 
     return path_warnings;

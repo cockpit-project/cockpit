@@ -755,3 +755,7 @@ export function fmt_to_array(fmt, arg) {
     else
         return [fmt];
 }
+
+export function reload_systemd() {
+    return cockpit.spawn(["systemctl", "daemon-reload"], { superuser: "require", err: "message" });
+}

@@ -203,7 +203,7 @@ class VmNetworkTab extends React.Component {
                             return <DeleteResource objectType="Network Interface"
                                        objectName={network.mac}
                                        objectId={`${id}-iface-${networkId}`}
-                                       disabled={vm.state != 'shut off' && vm.state != 'running'}
+                                       disabled={vm.state != 'shut off'}
                                        overlayText={_("The VM needs to be running or shut off to detach this device")}
                                        deleteHandler={() => detachIface(network.mac, vm.connectionName, vm.id, vm.state === "running", dispatch)} />;
                     };

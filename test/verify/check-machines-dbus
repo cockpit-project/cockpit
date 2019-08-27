@@ -348,7 +348,8 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_in_text("#vm-subVmTest1-state", "running")
 
         b.click("#vm-subVmTest1-disks") # open the "Disks" subtab
-        b.click("#vm-subVmTest1-disks-vdd-detach")
+        b.click("#delete-subVmTest1-disk-vdd")
+        b.click(".modal-footer button:contains(Remove)")
         b.wait_not_present("vm-subVmTest1-disks-vdd-target")
 
         # Test that detaching disk of a running domain will affect the
@@ -360,7 +361,8 @@ class TestMachinesDBus(machineslib.TestMachines):
 
         # Test detaching permanent disk of a stopped domain
         b.click("#vm-subVmTest1-disks") # open the "Disks" subtab
-        b.click("#vm-subVmTest1-disks-vde-detach")
+        b.click("#delete-subVmTest1-disk-vde")
+        b.click(".modal-footer button:contains(Remove)")
         b.wait_not_present("vm-subVmTest1-disks-vde-target")
 
         # Test detaching disk of a paused domain
@@ -370,7 +372,7 @@ class TestMachinesDBus(machineslib.TestMachines):
             wait(lambda: "Linux version" in m.execute("cat {0}".format(args["logfile"])), delay=3)
         m.execute("virsh suspend subVmTest1")
         b.wait_in_text("#vm-subVmTest1-state", "paused")
-        b.wait_attr("#vm-subVmTest1-disks-vdf-detach", "disabled", "")
+        b.wait_attr("#delete-subVmTest1-disk-vdf", "disabled", "")
 
     def testMultipleSettings(self):
         b = self.browser
@@ -1690,7 +1692,6 @@ class TestMachinesDBus(machineslib.TestMachines):
                 if self.model:
                     b.select_from_dropdown("#vm-subVmTest1-add-iface-select-model", self.model, substring=True)
 
-                b.wait_present("#vm-subVmTest1-add-iface-mac:disabled")
                 if self.mac:
                     b.click("#vm-subVmTest1-add-iface-set-mac")
                     b.set_input_text("#vm-subVmTest1-add-iface-mac", self.mac)
@@ -1739,13 +1740,26 @@ class TestMachinesDBus(machineslib.TestMachines):
                     b.wait_in_text("#vm-subVmTest1-network-2-mac", self.mac)
 
             def cleanup(self):
-                b.click("delete-vm-subVmTest1-iface-2")
-                # Confirm in confirmation windown
-                b.wait_in_text(".modal-dialog .modal-header .modal-title", "Delete Network Interface")
-                b.click(".modal-footer button:contains(Delete)")
+                if self.permanent:
+                    source_type = "direct"
+                    if (self.source_type == "Virtual network"):
+                        source_type = "network"
+                    m.execute("virsh detach-interface --mac {0} --domain subVmTest1 --type {1} --config".format(self.mac, source_type))
 
-                # Check NIC is no longer in list
-                b.wait_not_in_text("#vm-subVmTest1-network-2-mac", self.mac)
+                    # we don't get any signal for interface detaching right now
+                    b.reload()
+                    b.enter_page('/machines')
+                    b.wait_in_text("body", "Virtual Machines")
+                    b.click("tbody tr[data-row-id=vm-subVmTest1] th")
+                    b.click("#vm-subVmTest1-networks") # open the Network Interfaces subtab
+                else:
+                    b.click("#delete-vm-subVmTest1-iface-2")
+                    # Confirm in confirmation windown
+                    b.wait_in_text(".modal-dialog .modal-header .modal-title", "Delete Network Interface")
+                    b.click(".modal-footer button:contains(Delete)")
+
+                    # Check NIC is no longer in list
+                    b.wait_not_present("#vm-subVmTest1-network-2-mac")
 
         # Test network type source
         m.execute("echo \"{0}\" > /tmp/xml && virsh net-define /tmp/xml && virsh net-start test_network".format(TEST_NETWORK_XML))

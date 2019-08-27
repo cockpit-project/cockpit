@@ -26,10 +26,11 @@ import {
     networkId
 } from '../../helpers.js';
 import { NetworkOverviewTab } from './networkOverviewTab.jsx';
-import { NetworkDelete } from './networkDelete.jsx';
+import { DeleteResource } from '../deleteResource.jsx';
 import {
     networkActivate,
-    networkDeactivate
+    networkDeactivate,
+    networkUndefine
 } from '../../libvirt-dbus.js';
 
 import cockpit from 'cockpit';
@@ -136,6 +137,14 @@ class NetworkActions extends React.Component {
     render() {
         const network = this.props.network;
         const id = networkId(network.name, network.connectionName);
+        const deleteHandler = (network) => {
+            if (network.active) {
+                return networkDeactivate(network.connectionName, network.id)
+                        .then(() => networkUndefine(network.connectionName, network.id));
+            } else {
+                return networkUndefine(network.connectionName, network.id);
+            }
+        };
 
         return (
             <>
@@ -148,7 +157,10 @@ class NetworkActions extends React.Component {
                     {_("Activate")}
                 </Button>
                 }
-                <NetworkDelete network={network} />
+                <DeleteResource objectType="Network"
+                    objectId={id}
+                    objectName={network.name}
+                    deleteHandler={() => deleteHandler(network)} />;
             </>
         );
     }

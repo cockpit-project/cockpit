@@ -800,7 +800,7 @@ export class CreateVmAction extends React.Component {
         this.state = { virtInstallAvailable: undefined };
     }
 
-    componentWillMount() {
+    componentDidMount() {
         cockpit.spawn(['which', 'virt-install'], { err: 'message' })
                 .then(() => this.setState({ virtInstallAvailable: true })
                     , () => this.setState({ virtInstallAvailable: false }));

@@ -39,7 +39,7 @@ class VmNetworkTab extends React.Component {
         };
     }
 
-    componentWillMount() {
+    componentDidMount() {
         if (this.props.config.provider.name != 'LibvirtDBus')
             return;
 

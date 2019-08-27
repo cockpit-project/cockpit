@@ -23,7 +23,7 @@ import { cellWidth, SortByDirection } from '@patternfly/react-table';
 
 import { ListingTable } from "cockpit-components-table.jsx";
 import { StorageUsageBar } from "./storage-controls.jsx";
-import { decode_filename, block_name, fmt_size, go_to_block } from "./utils.js";
+import { decode_filename, block_name, fmt_size, go_to_block, array_find } from "./utils.js";
 import { OptionalPanel } from "./optional-panel.jsx";
 
 const _ = cockpit.gettext;
@@ -53,23 +53,17 @@ export class FilesystemsPanel extends React.Component {
 
         function make_mount(path) {
             var block = client.blocks[path];
-            var fsys = client.blocks_fsys[path];
-            var mount_points = fsys.MountPoints.map(decode_filename);
-            var fsys_size;
-            for (var i = 0; i < mount_points.length && !fsys_size; i++)
-                fsys_size = client.fsys_sizes.data[mount_points[i]];
+            var config = array_find(block.Configuration, function (c) { return c[0] == "fstab" });
+            var mount_point = config && decode_filename(config[1].dir.v);
+            var fsys_size = client.fsys_sizes.data[mount_point];
 
             return {
                 props: { path, client },
                 columns: [
                     { title:  block.IdLabel || block_name(block) },
+                    { title: mount_point || "-" },
                     {
-                        title: fsys.MountPoints.length > 0
-                            ? fsys.MountPoints.map((mp) => decode_filename(mp)).join(', ')
-                            : "-"
-                    },
-                    {
-                        title: fsys_size && fsys.MountPoints.length > 0
+                        title: fsys_size
                             ? <StorageUsageBar stats={fsys_size} critical={0.95} />
                             : fmt_size(block.Size)
                     }

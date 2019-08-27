@@ -253,7 +253,7 @@ export class StorageUsageBar extends React.Component {
 
 export class StorageMenuItem extends React.Component {
     render() {
-        return <li><a onClick={this.props.onClick}>{this.props.children}</a></li>;
+        return <li><a onClick={checked(this.props.onClick)}>{this.props.children}</a></li>;
     }
 }
 
@@ -270,7 +270,7 @@ export class StorageBarMenu extends React.Component {
         }
 
         return (
-            <div className="dropdown">
+            <div className="dropdown btn-group">
                 <StorageControl content={toggle} excuse_placement="bottom" />
                 <ul className="dropdown-menu dropdown-menu-right" role="menu">
                     {children}

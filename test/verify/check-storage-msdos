@@ -45,12 +45,14 @@ class TestStorage(StorageCase):
         self.content_row_action(1, "Create Partition")
         self.dialog({"size": 10,
                      "type": "ext4",
+                     "mount_point": "/foo",
+                     "mount_options.auto": False,
                      "name": "FIRST"})
         self.content_row_wait_in_col(1, 1, "ext4 File System")
         self.content_tab_wait_in_info(1, 2, "Name", "FIRST")
 
         # Open dialog for formatting the primary partition and check that "dos-extended" is not offered.
-        self.content_head_action(1, "Format")
+        self.content_dropdown_action(1, "Format")
         self.dialog_wait_open()
         b.wait_not_present("select option[value='dos-extended']")
         self.dialog_cancel()
@@ -62,9 +64,8 @@ class TestStorage(StorageCase):
         b.wait_present("option[value='dos-extended']")
         self.dialog_set_val("type", "dos-extended")
         self.dialog_wait_not_present("name")
-        self.dialog_wait_not_present("mounting")
         self.dialog_wait_not_present("mount_point")
-        self.dialog_wait_not_present("mount_auto")
+        self.dialog_wait_not_present("mount_options")
         self.dialog_apply()
         self.dialog_wait_close()
         self.content_row_wait_in_col(2, 1, "Extended Partition")
@@ -75,13 +76,12 @@ class TestStorage(StorageCase):
         self.content_row_action(3, "Create Partition")
         self.dialog_wait_open()
         b.wait_not_present("select option[value='dos-extended']")
-        self.dialog_apply()
+        self.dialog_cancel()
         self.dialog_wait_close()
-        self.content_row_wait_in_col(3, 1, "xfs File System")
 
         # Delete it
 
-        self.content_head_action(2, "Delete")
+        self.content_dropdown_action(2, "Delete")
         self.confirm()
 
         self.content_row_wait_in_col(2, 1, "Free Space")

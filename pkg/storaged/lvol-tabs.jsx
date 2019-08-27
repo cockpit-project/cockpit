@@ -21,6 +21,7 @@ import cockpit from "cockpit";
 import * as utils from "./utils.js";
 
 import React from "react";
+import { Alert } from "@patternfly/react-core";
 import { StorageButton, StorageLink } from "./storage-controls.jsx";
 import { existing_passphrase_fields, get_existing_passphrase } from "./crypto-keyslots.jsx";
 import { dialog_open, TextInput, SizeSlider, BlockingMessage, TeardownMessage } from "./dialog.jsx";
@@ -411,20 +412,21 @@ export class BlockVolTab extends React.Component {
                     }
                 </div>
                 { unused_space &&
-                <div>
+                <>
                     <br />
-                    <strong>{_("This logical volume is not completely used by its content.")}</strong>
-                    <br />
-                    {cockpit.format(_("Volume size is $0. Content size is $1."),
-                                    utils.fmt_size(unused_space_warning.volume_size),
-                                    utils.fmt_size(unused_space_warning.content_size))}
-                    { "\n" }
-                    <div className="pull-right">
-                        <StorageButton excuse={shrink_excuse} onClick={shrink}>{_("Shrink Volume")}</StorageButton>
-                        {"\n"}
-                        <StorageButton excuse={grow_excuse} onClick={grow}>{_("Grow Content")}</StorageButton>
-                    </div>
-                </div>
+                    <Alert variant="warning"
+                           isInline
+                           title={_("This logical volume is not completely used by its content.")}
+                           action={<>
+                               <StorageButton excuse={shrink_excuse} onClick={shrink}>{_("Shrink Volume")}</StorageButton>
+                               {"\n"}
+                               <StorageButton excuse={grow_excuse} onClick={grow}>{_("Grow Content")}</StorageButton>
+                           </>}>
+                        {cockpit.format(_("Volume size is $0. Content size is $1."),
+                                        utils.fmt_size(unused_space_warning.volume_size),
+                                        utils.fmt_size(unused_space_warning.content_size))}
+                    </Alert>
+                </>
                 }
             </div>
         );

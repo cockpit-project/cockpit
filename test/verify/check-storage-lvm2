@@ -148,23 +148,21 @@ class TestStorage(StorageCase):
         # format and mount it
         self.content_head_action(1, "Format")
         self.dialog({"type": "ext4",
-                     "mounting": "custom",
                      "mount_point": mount_point_one})
         self.content_row_wait_in_col(1, 1, "ext4 File System")
         self.wait_in_storaged_configuration(mount_point_one)
-        self.content_tab_action(1, 2, "Mount")
-        self.content_tab_wait_in_info(1, 2, "Mounted At", mount_point_one)
+        self.content_tab_wait_in_info(1, 2, "Mount Point", mount_point_one)
 
         # unmount it
-        self.content_tab_action(1, 2, "Unmount")
-        b.wait_not_present(self.content_tab_info_label(1, 2, "Mounted At"))
+        self.content_dropdown_action(1, "Unmount")
+        self.content_tab_wait_in_info(1, 2, "Mount Point", "The filesystem is not mounted.")
 
         # shrink it, this time with a filesystem.
         self.content_tab_action(1, 1, "Shrink")
         self.dialog({"size": 10})
 
         # delete it
-        self.content_head_action(1, "Delete")
+        self.content_dropdown_action(1, "Delete")
         self.confirm()
         b.wait_not_in_text("#detail-content", "/dev/vgroup0/lvol0")
         self.assertEqual(m.execute("grep %s /etc/fstab || true" % mount_point_one), "")
@@ -209,7 +207,6 @@ class TestStorage(StorageCase):
         self.content_head_action(2, "Format")
         self.dialog({"erase": "zero",
                      "type": "ext4",
-                     "mounting": "custom",
                      "mount_point": mount_point_thin})
         self.content_row_wait_in_col(2, 1, "ext4 File System")
         self.wait_in_storaged_configuration(mount_point_thin)

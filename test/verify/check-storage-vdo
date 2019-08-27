@@ -77,15 +77,12 @@ class TestStorage(StorageCase):
         self.content_head_action(1, "Format")
         self.dialog({"type": "xfs",
                      "name": "FILESYSTEM",
-                     "mounting": "custom",
                      "mount_point": "/run/data"})
         self.content_row_wait_in_col(1, 1, "xfs File System")
         # _netdev etc should have been prefilled
-        self.content_tab_wait_in_info(1, 1, "Mount Options", "_netdev")
-        self.content_tab_wait_in_info(1, 1, "Mount Options", "x-systemd.device-timeout=0")
-        self.content_tab_wait_in_info(1, 1, "Mount Options", "x-systemd.requires=vdo.service")
-        self.content_tab_action(1, 1, "Mount")
-        self.content_tab_wait_in_info(1, 1, "Mounted At", "/run/data")
+        self.content_tab_wait_in_info(1, 1, "Mount Point", "_netdev")
+        self.content_tab_wait_in_info(1, 1, "Mount Point", "x-systemd.device-timeout=0")
+        self.content_tab_wait_in_info(1, 1, "Mount Point", "x-systemd.requires=vdo.service")
         self.content_tab_wait_in_info(1, 1, "Used", "of 4.99 GiB", "of 5.0 GiB")
 
         # Grow physical

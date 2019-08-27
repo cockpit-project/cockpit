@@ -101,11 +101,10 @@ class TestStorage(StorageCase):
         self.content_head_action(1, "Format")
         self.dialog({"type": "ext4",
                      "name": "FILESYSTEM",
-                     "mounting": "custom",
                      "mount_point": "/data"})
         self.content_row_wait_in_col(1, 1, "ext4 File System")
         # _netdev should have been prefilled
-        self.content_tab_wait_in_info(1, 1, "Mount Options", "_netdev")
+        self.content_tab_wait_in_info(1, 1, "Mount Point", "_netdev")
 
         # Add the target a second time, just to check that the sorting function works
         b.click('#storage-detail .breadcrumb button')

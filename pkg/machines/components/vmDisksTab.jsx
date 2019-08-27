@@ -23,12 +23,12 @@ import cockpit from 'cockpit';
 import { Button } from 'patternfly-react';
 
 import { convertToUnit, diskPropertyChanged, toReadableNumber, units } from "../helpers.js";
-import RemoveDiskAction from './diskRemove.jsx';
 import { AddDiskModalBody } from './diskAdd.jsx';
-import { getAllStoragePools } from '../actions/provider-actions.js';
+import { getAllStoragePools, getVm, detachDisk } from '../actions/provider-actions.js';
 import { EditDiskAction } from './diskEdit.jsx';
 import WarningInactive from './warningInactive.jsx';
 import { ListingTable } from "cockpit-components-table.jsx";
+import { DeleteResource } from './deleteResource.jsx';
 
 const _ = cockpit.gettext;
 
@@ -155,13 +155,27 @@ class VmDisksTab extends React.Component {
                 columns.push({ title: disk.diskExtras || '' });
 
             if (provider.name === 'LibvirtDBus') {
+                const onRemoveDisk = () => {
+                    return dispatch(detachDisk({ connectionName:vm.connectionName, id:vm.id, name:vm.name, target: disk.target, live: vm.state == 'running' }))
+                            .catch(ex => {
+                                onAddErrorNotification({
+                                    text: cockpit.format(_("Disk $0 fail to get detached from VM $1"), disk.target, vm.name),
+                                    detail: ex.message, resourceId: vm.id,
+                                });
+                            })
+                            .then(() => dispatch(getVm({ connectionName: vm.connectionName, id:vm.id })));
+                };
+
                 const diskActions = (
                     <div className='machines-listing-actions'>
-                        <RemoveDiskAction dispatch={dispatch}
-                            vm={vm}
-                            target={disk.target}
-                            idPrefixRow={idPrefixRow}
-                            onAddErrorNotification={onAddErrorNotification} />
+                        <DeleteResource objectType="Disk"
+                           className='machines-listing-actions'
+                           objectName={disk.target}
+                           objectId={vm.name + "-disk-" + disk.target}
+                           disabled={vm.state != 'shut off' && vm.state != 'running'}
+                           overlayText={_("The VM needs to be running or shut off to detach this device")}
+                           actionName={_("Remove")}
+                           deleteHandler={() => onRemoveDisk()} />
                         { vm.inactiveXML.disks[disk.target] && // supported only  for persistent disks
                         <EditDiskAction disk={disk}
                             vm={vm}

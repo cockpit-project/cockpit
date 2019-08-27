@@ -108,12 +108,10 @@ export class Terminal extends React.Component {
         this.setText = this.setText.bind(this);
         this.getText = this.getText.bind(this);
         this.setTerminalTheme = this.setTerminalTheme.bind(this);
-    }
 
-    componentWillMount() {
         var term = new Term({
-            cols: this.props.cols || 80,
-            rows: this.props.rows || 25,
+            cols: props.cols || 80,
+            rows: props.rows || 25,
             screenKeys: true,
             cursorBlink: true,
             fontSize: 16,
@@ -126,10 +124,10 @@ export class Terminal extends React.Component {
                 this.props.channel.send(data);
         }.bind(this));
 
-        if (this.props.onTitleChanged)
-            term.on('title', this.props.onTitleChanged);
+        if (props.onTitleChanged)
+            term.on('title', props.onTitleChanged);
 
-        this.setState({ terminal: term });
+        this.state = { terminal: term };
     }
 
     componentDidMount() {

@@ -44,7 +44,8 @@ class StorageCase(MachineCase):
         else:
             self.storaged_version = [0]
 
-        self.storaged_is_old_udisks = ("udisksctl" in self.storagectl_cmd and self.storaged_version < [2, 6, 0])
+        # We don't support old UDisks2 anymore
+        self.assertFalse("udisksctl" in self.storagectl_cmd and self.storaged_version < [2, 6, 0])
 
         if "debian" in self.machine.image or "ubuntu" in self.machine.image:
             # Debian's udisks has a patch to use FHS /media directory

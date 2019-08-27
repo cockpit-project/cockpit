@@ -67,8 +67,8 @@ class Vnc extends React.Component {
         this.connect(this.props);
     }
 
-    componentWillReceiveProps(nextProps) {
-        this.connect(nextProps);
+    componentDidUpdate() {
+        this.connect(this.props);
     }
 
     getEncrypt() {

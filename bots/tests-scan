@@ -365,7 +365,7 @@ def cockpit_tasks(api, update, branch_contexts, repo, pull_data, pull_number, sh
             if is_valid_context(status):
                 todos[status] = statuses[status]
         if not statuses: # If none defined in github add basic set of contexts
-            for context in branch_contexts.get(base, contexts):
+            for context in branch_contexts.get(base, []):
                 todos[context] = {}
         if trigger_externals():
             for context in get_externals():

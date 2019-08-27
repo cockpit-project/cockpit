@@ -134,7 +134,7 @@ class Consoles extends React.Component {
         return null;
     }
 
-    componentWillMount () {
+    componentDidMount () {
         this.onConsoleTypeSelected(this.getDefaultConsole());
     }
 

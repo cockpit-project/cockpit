@@ -70,7 +70,7 @@ class StoragePage extends React.Component {
             }
         }
 
-        if (client.features == false) {
+        if (client.features == false || client.older_than("2.6")) {
             return (
                 <div className="curtains-ct blank-slate-pf">
                     <h1>{_("Storage can not be managed on this system.")}</h1>

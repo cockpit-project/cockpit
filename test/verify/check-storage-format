@@ -87,13 +87,10 @@ class TestStorage(StorageCase):
 
         check_type("xfs", 12)
         check_type("ext4", 16)
+        check_type("vfat", 11)
 
-        if self.storaged_is_old_udisks:
-            check_unsupported_type("vfat")
-        else:
-            check_type("vfat", 11)
 
-        if self.storaged_is_old_udisks or m.image in ["rhel-8-1", "rhel-8-1-distropkg"]:
+        if m.image in ["rhel-8-1", "rhel-8-1-distropkg"]:
             check_unsupported_type("ntfs")
         else:
             check_type("ntfs", 128)

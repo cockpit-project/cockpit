@@ -25,8 +25,9 @@ import VmDisksTab from './vmDisksTab.jsx';
 import { DiskSourceCell, DiskExtras } from './vmDiskColumns.jsx';
 
 class VmDisksTabLibvirt extends React.Component {
-    componentWillMount() {
-        this.props.onUsageStartPolling();
+    constructor(props) {
+        super(props);
+        props.onUsageStartPolling();
     }
 
     componentWillUnmount() {

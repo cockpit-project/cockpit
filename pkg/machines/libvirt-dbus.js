@@ -86,6 +86,7 @@ import {
     canSendNMI,
     canShutdown,
     getDiskElemByTarget,
+    getIfaceElemByMac,
     getSingleOptionalElem,
     isRunning,
     parseDumpxml,
@@ -1356,6 +1357,29 @@ export function changeNetworkAutostart(network, autostart, dispatch) {
                 return call(network.connectionName, networkPath[0], 'org.freedesktop.DBus.Properties', 'Set', args, TIMEOUT);
             })
             .then(() => dispatch(getNetwork({ connectionName: network.connectionName, id: network.id, name: network.name })));
+}
+
+export function detachIface(mac, connectionName, id, live, dispatch) {
+    let ifaceXML;
+    let detachFlags = Enum.VIR_DOMAIN_AFFECT_CURRENT;
+    if (live)
+        detachFlags |= Enum.VIR_DOMAIN_AFFECT_LIVE;
+
+    return call(connectionName, id, 'org.libvirt.Domain', 'GetXMLDesc', [0], TIMEOUT)
+            .then(domXml => {
+                const getXMLFlags = Enum.VIR_DOMAIN_XML_INACTIVE;
+                ifaceXML = getIfaceElemByMac(domXml[0], mac);
+
+                return call(connectionName, id, 'org.libvirt.Domain', 'GetXMLDesc', [getXMLFlags], TIMEOUT);
+            })
+            .then(domInactiveXml => {
+                const ifaceInactiveXML = getIfaceElemByMac(domInactiveXml[0], mac);
+                if (ifaceInactiveXML)
+                    detachFlags |= Enum.VIR_DOMAIN_AFFECT_CONFIG;
+
+                return call(connectionName, id, 'org.libvirt.Domain', 'DetachDevice', [ifaceXML, detachFlags], TIMEOUT);
+            })
+            .then(() => dispatch(getVm({ connectionName, id })));
 }
 
 export function getAllInterfaces(dispatch, connectionName) {

@@ -118,6 +118,29 @@ export function getDomainElem(domXml) {
     return xmlDoc.getElementsByTagName("domain")[0];
 }
 
+export function getIfaceElemByMac(domxml, mac) {
+    const domainElem = getDomainElem(domxml);
+
+    if (!domainElem) {
+        console.warn(`Can't parse dumpxml, input: "${domainElem}"`);
+        return;
+    }
+
+    const devicesElem = domainElem.getElementsByTagName('devices')[0];
+    const ifaceElems = devicesElem.getElementsByTagName('interface');
+
+    if (ifaceElems) {
+        for (let i = 0; i < ifaceElems.length; i++) {
+            const ifaceElem = ifaceElems[i];
+            const macElem = ifaceElem.getElementsByTagName('mac')[0];
+            const address = macElem.getAttribute('address'); // identifier of the iface
+            if (address === mac) {
+                return new XMLSerializer().serializeToString(ifaceElem);
+            }
+        }
+    }
+}
+
 function getNetworkElem(netXml) {
     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(netXml, "application/xml");

@@ -1739,17 +1739,13 @@ class TestMachinesDBus(machineslib.TestMachines):
                     b.wait_in_text("#vm-subVmTest1-network-2-mac", self.mac)
 
             def cleanup(self):
-                source_type = "direct"
-                if (self.source_type == "Virtual network"):
-                    source_type = "network"
-                m.execute("virsh detach-interface --mac {0} --domain subVmTest1 --type {1} --config".format(self.mac, source_type))
+                b.click("delete-vm-subVmTest1-iface-2")
+                # Confirm in confirmation windown
+                b.wait_in_text(".modal-dialog .modal-header .modal-title", "Delete Network Interface")
+                b.click(".modal-footer button:contains(Delete)")
 
-                # we don't get any signal for interface detaching right now
-                b.reload()
-                b.enter_page('/machines')
-                b.wait_in_text("body", "Virtual Machines")
-                b.click("tbody tr[data-row-id=vm-subVmTest1] th")
-                b.click("#vm-subVmTest1-networks") # open the Network Interfaces subtab
+                # Check NIC is no longer in list
+                b.wait_not_in_text("#vm-subVmTest1-network-2-mac", self.mac)
 
         # Test network type source
         m.execute("echo \"{0}\" > /tmp/xml && virsh net-define /tmp/xml && virsh net-start test_network".format(TEST_NETWORK_XML))

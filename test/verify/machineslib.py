@@ -1296,6 +1296,12 @@ class TestMachines(NetworkCase):
             runner.assertScriptFinished() \
                 .checkEnvIsEmpty()
 
+        def createDownloadAnOSTest(dialog):
+            dialog.open() \
+                .fill() \
+                .createAndVerifyVirtInstallArgs()
+            runner.checkEnvIsEmpty()
+
         def createTest(dialog):
             runner.tryCreate(dialog) \
 
@@ -1362,7 +1368,6 @@ class TestMachines(NetworkCase):
         checkFilteredOsTest(TestMachines.VmDialog(self, storage_size=1, os_name=config.MAGEIA_3_FILTERED_OS))
 
         # try to CREATE WITH DIALOG ERROR
-
         # name
         checkDialogFormValidationTest(TestMachines.VmDialog(self, "", storage_size=1), {"Name": "Name must not be empty"})
 
@@ -1398,6 +1403,32 @@ class TestMachines(NetworkCase):
                                       {"Operating System": "You need to select the most closely matching Operating System"})
 
         # try to CREATE few machines
+        if self.machine.image in ['debian-stable', 'debian-testing', 'ubuntu-stable', 'ubuntu-1804', 'fedora-30']:
+            self.browser.wait_not_present('select option[data-value="Download an OS"]')
+        else:
+            # Fake the osinfo-db data in order that it will allow spawn the installation - of course we don't expect it to succeed -
+            # we just need to check that the VM was spawned
+            fedora_28_xml = self.machine.execute("cat /usr/share/osinfo/os/fedoraproject.org/fedora-28.xml")
+            self.machine.execute("cat /usr/share/osinfo/os/fedoraproject.org/fedora-28.xml > /tmp/fedora-28.xml")
+            root = ET.fromstring(fedora_28_xml)
+            root.find('os').find('resources').find('minimum').find('ram').text = '134217750'
+            root.find('os').find('resources').find('minimum').find('storage').text = '134217750'
+            root.find('os').find('resources').find('recommended').find('ram').text = '268435500'
+            root.find('os').find('resources').find('recommended').find('storage').text = '268435500'
+            new_fedora_28_xml = ET.tostring(root)
+            self.machine.execute("echo \'{0}\' > /usr/share/osinfo/os/fedoraproject.org/fedora-28.xml".format(str(new_fedora_28_xml, 'utf-8')))
+            self.browser.reload()
+            self.browser.enter_page('/machines')
+            self.browser.wait_in_text("body", "Virtual Machines")
+
+            createDownloadAnOSTest(TestMachines.VmDialog(self, sourceType='downloadOS',
+                                                         expected_memory_size=256,
+                                                         expected_storage_size=256,
+                                                         os_name=config.FEDORA_28,
+                                                         os_short_id=config.FEDORA_28_SHORTID))
+
+            self.machine.execute('cat /tmp/fedora-28.xml > /usr/share/osinfo/os/fedoraproject.org/fedora-28.xml')
+
         createTest(TestMachines.VmDialog(self, sourceType='url',
                                          location=config.VALID_URL,
                                          memory_size=512, memory_size_unit='MiB',
@@ -1739,6 +1770,7 @@ class TestMachines(NetworkCase):
         REDHAT_RHEL_4_7_FILTERED_OS = 'Red Hat Enterprise Linux 4.9'
 
         FEDORA_28 = 'Fedora 28'
+        FEDORA_28_SHORTID = 'fedora28'
 
         CIRROS = 'CirrOS'
 
@@ -1756,8 +1788,11 @@ class TestMachines(NetworkCase):
         def __init__(self, test_obj, name=None,
                      sourceType='file', sourceTypeSecondChoice=None, location='',
                      memory_size=256, memory_size_unit='MiB',
+                     expected_memory_size=None,
                      storage_size=None, storage_size_unit='GiB',
+                     expected_storage_size=None,
                      os_name='CirrOS',
+                     os_short_id=None,
                      storage_pool='Create New Volume', storage_volume='',
                      start_vm=False,
                      delete=True,
@@ -1773,15 +1808,19 @@ class TestMachines(NetworkCase):
             self.browser = test_obj.browser
             self.machine = test_obj.machine
             self.assertTrue = test_obj.assertTrue
+            self.assertIn = test_obj.assertIn
 
             self.sourceType = sourceType
             self.sourceTypeSecondChoice = sourceTypeSecondChoice
             self.location = location
             self.memory_size = memory_size
             self.memory_size_unit = memory_size_unit
+            self.expected_memory_size = expected_memory_size
             self.storage_size = storage_size
             self.storage_size_unit = storage_size_unit
+            self.expected_storage_size = expected_storage_size
             self.os_name = os_name
+            self.os_short_id = os_short_id
             self.start_vm = start_vm
             self.storage_pool = storage_pool
             self.storage_volume = storage_volume
@@ -1833,6 +1872,17 @@ class TestMachines(NetworkCase):
             self.browser.wait_present("#source-type option[value*='{0}']:disabled".format(self.sourceType))
             return self
 
+        def createAndVerifyVirtInstallArgs(self):
+            self.browser.click(".modal-footer button:contains(Create)")
+            self.browser.wait_not_present("#create-vm-dialog")
+
+            virt_install_cmd = "ps aux | grep 'virt\-install\ \-\-connect'"
+            wait(lambda: self.machine.execute(virt_install_cmd), delay=3)
+            virt_install_cmd_out = self.machine.execute(virt_install_cmd)
+            self.assertIn("--install os={}".format(self.os_short_id), virt_install_cmd_out)
+
+            self.machine.execute("killall -9 virt-install")
+
         def fill(self):
             def getSourceTypeLabel(sourceType):
                 if sourceType == 'file':
@@ -1841,6 +1891,8 @@ class TestMachines(NetworkCase):
                     expected_source_type = 'Existing Disk Image'
                 elif sourceType == 'pxe':
                     expected_source_type = 'Network Boot (PXE)'
+                elif sourceType == 'downloadOS':
+                    expected_source_type = 'Download an OS'
                 else:
                     expected_source_type = 'URL'
 
@@ -1859,50 +1911,56 @@ class TestMachines(NetworkCase):
                 b.set_file_autocomplete_val("source-disk", self.location)
             elif self.sourceType == 'pxe':
                 b.select_from_dropdown("#network-select", self.location)
-            else:
+            elif self.sourceType == 'url':
                 b.set_input_text("#source-url", self.location)
 
             if self.sourceTypeSecondChoice:
                 b.select_from_dropdown("#source-type", getSourceTypeLabel(self.sourceTypeSecondChoice))
-
-            if self.sourceType != 'disk_image':
-                b.wait_visible("#storage-pool-select")
-                b.select_from_dropdown("#storage-pool-select", self.storage_pool)
-
-                if self.storage_pool == 'Create New Volume' or self.storage_pool == 'No Storage':
-                    b.wait_not_present("#storage-volume-select")
-                else:
-                    b.wait_visible("#storage-volume-select")
-                    b.select_from_dropdown("#storage-volume-select", self.storage_volume)
-
-                if self.storage_size is None or self.storage_pool != 'Create New Volume':
-                    b.wait_not_present("#storage-size")
-                else:
-                    b.select_from_dropdown("#storage-size-unit-select", self.storage_size_unit)
-                    b.set_input_text("#storage-size", str(self.storage_size), value_check=False)
-                    # helpblock will be missing if available storage size could not be calculated (no default storage pool found)
-                    # test images sometimes may not have default storage pool defined for session connection
-                    if self.connection != "session":
-                        help_block_line = b.text("#storage-size-helpblock")
-                        space_available = [int(s) for s in help_block_line.split() if s.isdigit()][0]
-                        # Write the final storage size back to self so that other function can read it
-                        self.storage_size = min(self.storage_size, space_available)
-                        b.wait_val("#storage-size", self.storage_size)
 
             if self.os_name:
                 b.focus("label:contains('Operating System') + div > div > div > input")
                 b.key_press(self.os_name)
                 b.key_press("\t")
 
+            if self.sourceType != 'disk_image':
+                if not self.expected_storage_size:
+                    b.wait_visible("#storage-pool-select")
+                    b.select_from_dropdown("#storage-pool-select", self.storage_pool)
+
+                    if self.storage_pool == 'Create New Volume' or self.storage_pool == 'No Storage':
+                        b.wait_not_present("#storage-volume-select")
+                    else:
+                        b.wait_visible("#storage-volume-select")
+                        b.select_from_dropdown("#storage-volume-select", self.storage_volume)
+
+                    if self.storage_size is None or self.storage_pool != 'Create New Volume':
+                        b.wait_not_present("#storage-size")
+                    else:
+                        b.select_from_dropdown("#storage-size-unit-select", self.storage_size_unit)
+                        b.set_input_text("#storage-size", str(self.storage_size), value_check=False)
+                        # helpblock will be missing if available storage size could not be calculated (no default storage pool found)
+                        # test images sometimes may not have default storage pool defined for session connection
+                        if self.connection != "session":
+                            help_block_line = b.text("#storage-size-helpblock")
+                            space_available = [int(s) for s in help_block_line.split() if s.isdigit()][0]
+                            # Write the final storage size back to self so that other function can read it
+                            self.storage_size = min(self.storage_size, space_available)
+                            b.wait_val("#storage-size", self.storage_size)
+                else:
+                    b.wait_val("#storage-size", self.expected_storage_size)
+
             # First select the unit so that UI will auto-adjust the memory input
             # value according to the available total memory on the host
-            b.select_from_dropdown("#memory-size-unit-select", self.memory_size_unit)
-            b.set_input_text("#memory-size", str(self.memory_size), value_check=False)
-            help_block_line = b.text("#memory-size-helpblock")
-            host_total_memory = [int(s) for s in help_block_line.split() if s.isdigit()][0]
-            # Write the final memory back to self so that other function can read it
-            self.memory_size = min(self.memory_size, host_total_memory)
-            b.wait_val("#memory-size", self.memory_size)
+            if not self.expected_memory_size:
+                b.select_from_dropdown("#memory-size-unit-select", self.memory_size_unit)
+                b.set_input_text("#memory-size", str(self.memory_size), value_check=False)
+                help_block_line = b.text("#memory-size-helpblock")
+                host_total_memory = [int(s) for s in help_block_line.split() if s.isdigit()][0]
+                # Write the final memory back to self so that other function can read it
+                self.memory_size = min(self.memory_size, host_total_memory)
+                b.wait_val("#memory-size", self.memory_size)
+            else:
+                b.wait_val("#memory-size", self.expected_memory_size)
 
             b.wait_visible("#start-vm")
             if not self.start_vm:

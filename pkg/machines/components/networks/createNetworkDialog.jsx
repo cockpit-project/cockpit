@@ -99,20 +99,6 @@ function validateParams(dialogValues) {
     return validationFailed;
 }
 
-const NetworkConnectionRow = ({ onValueChanged, dialogValues, loggedUser }) => {
-    return (
-        <React.Fragment>
-            <label className='control-label' htmlFor='create-network-connection'>
-                {_("Connection")}
-            </label>
-            <MachinesConnectionSelector id='create-network-connection'
-                dialogValues={dialogValues}
-                onValueChanged={onValueChanged}
-                loggedUser={loggedUser} />
-        </React.Fragment>
-    );
-};
-
 const NetworkNameRow = ({ onValueChanged, dialogValues, validationFailed }) => {
     const validationState = validationFailed.name ? 'error' : undefined;
 
@@ -430,9 +416,10 @@ class CreateNetworkModal extends React.Component {
 
         const body = (
             <form className='ct-form'>
-                <NetworkConnectionRow dialogValues={this.state}
-                                      onValueChanged={this.onValueChanged}
-                                      loggedUser={this.props.loggedUser} />
+                <MachinesConnectionSelector id='create-network-connection'
+                    connectionName={this.state.connectionName}
+                    onValueChanged={this.onValueChanged}
+                    loggedUser={this.props.loggedUser} />
 
                 <hr />
 

@@ -70,11 +70,11 @@ REPO_BRANCH_CONTEXT = {
             'fedora-30/live-iso',
             'fedora-30/qcow2',
             'fedora-30/aws',
+            'fedora-30/azure',
             'fedora-30/openstack',
             'fedora-30/vmware',
         ],
         '_manual': [
-            'fedora-30/azure',
             'rhel-8-1',
             'rhel-8-1/live-iso',
             'rhel-8-1/qcow2',

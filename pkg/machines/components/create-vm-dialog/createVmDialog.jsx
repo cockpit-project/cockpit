@@ -59,6 +59,7 @@ const _ = cockpit.gettext;
 
 const URL_SOURCE = 'url';
 const LOCAL_INSTALL_MEDIA_SOURCE = 'file';
+const DOWNLOAD_AN_OS = 'os';
 const EXISTING_DISK_IMAGE_SOURCE = 'disk_image';
 const PXE_SOURCE = 'pxe';
 
@@ -144,7 +145,7 @@ function validateParams(vmParams) {
             }
             break;
         }
-    } else {
+    } else if (vmParams.sourceType != DOWNLOAD_AN_OS) {
         validationFailed.source = _("Installation Source must not be empty");
     }
 
@@ -163,7 +164,7 @@ function validateParams(vmParams) {
         }
     }
 
-    if (vmParams.storagePool === "NewVolume") {
+    if (vmParams.sourceType != EXISTING_DISK_IMAGE_SOURCE && vmParams.storagePool === "NewVolume") {
         if (vmParams.storageSize === 0) {
             validationFailed.storage = _("Storage size must not be 0");
         } else if (vmParams.os &&
@@ -205,7 +206,7 @@ const NameRow = ({ vmName, onValueChanged, validationFailed }) => {
     );
 };
 
-const SourceRow = ({ connectionName, source, sourceType, networks, nodeDevices, providerName, onValueChanged, validationFailed }) => {
+const SourceRow = ({ connectionName, source, sourceType, networks, nodeDevices, providerName, os, osInfoList, downloadOSSupported, onValueChanged, validationFailed }) => {
     let installationSource;
     let installationSourceId;
     let installationSourceWarning;
@@ -258,7 +259,6 @@ const SourceRow = ({ connectionName, source, sourceType, networks, nodeDevices, 
         );
         break;
     case URL_SOURCE:
-    default:
         installationSourceId = "source-url";
         installationSource = (
             <input id={installationSourceId} className="form-control"
@@ -268,6 +268,8 @@ const SourceRow = ({ connectionName, source, sourceType, networks, nodeDevices, 
                 value={source}
                 onChange={e => onValueChanged('source', e.target.value)} />
         );
+        break;
+    default:
         break;
     }
 
@@ -281,6 +283,8 @@ const SourceRow = ({ connectionName, source, sourceType, networks, nodeDevices, 
                 <Select.Select id="source-type"
                     initial={sourceType}
                     onChange={value => onValueChanged('sourceType', value)}>
+                    {downloadOSSupported ? <Select.SelectEntry data={DOWNLOAD_AN_OS}
+                        key={DOWNLOAD_AN_OS}>{_("Download an OS")}</Select.SelectEntry> : null}
                     <Select.SelectEntry data={LOCAL_INSTALL_MEDIA_SOURCE}
                         key={LOCAL_INSTALL_MEDIA_SOURCE}>{_("Local Install Media")}</Select.SelectEntry>
                     <Select.SelectEntry data={URL_SOURCE} key={URL_SOURCE}>{_("URL")}</Select.SelectEntry>
@@ -293,16 +297,24 @@ const SourceRow = ({ connectionName, source, sourceType, networks, nodeDevices, 
                 </Select.Select>
             </>}
 
-            <label className="control-label" htmlFor={installationSourceId}>
-                {_("Installation Source")}
-            </label>
-            <FormGroup validationState={validationStateSource} controlId='source'>
-                {installationSource}
-                { validationStateSource == 'error' &&
-                <HelpBlock>
-                    <p className="text-danger">{validationFailed.source}</p>
-                </HelpBlock> }
-            </FormGroup>
+            {sourceType != DOWNLOAD_AN_OS
+                ? <>
+                    <label className="control-label" htmlFor={installationSourceId}>
+                        {_("Installation Source")}
+                    </label>
+                    <FormGroup validationState={validationStateSource} controlId='source'>
+                        {installationSource}
+                        { validationStateSource == 'error' &&
+                        <HelpBlock>
+                            <p className="text-danger">{validationFailed.source}</p>
+                        </HelpBlock> }
+                    </FormGroup>
+                </>
+                : <OSRow os={os}
+                         osInfoList={osInfoList.filter(os => os.treeInstallable)}
+                         onValueChanged={onValueChanged}
+                         isLoading={false}
+                         validationFailed={validationFailed} />}
         </>
     );
 };
@@ -498,19 +510,29 @@ const StorageRow = ({ connectionName, storageSize, storageSizeUnit, onValueChang
 
 class CreateVmModal extends React.Component {
     constructor(props) {
+        let defaultSourceType;
+        if (props.mode == 'create') {
+            if (!props.downloadOSSupported)
+                defaultSourceType = LOCAL_INSTALL_MEDIA_SOURCE;
+            else
+                defaultSourceType = DOWNLOAD_AN_OS;
+        } else {
+            defaultSourceType = EXISTING_DISK_IMAGE_SOURCE;
+        }
         super(props);
         this.state = {
             inProgress: false,
             validate: false,
             vmName: '',
             connectionName: LIBVIRT_SYSTEM_CONNECTION,
-            sourceType: props.mode == 'create' ? LOCAL_INSTALL_MEDIA_SOURCE : EXISTING_DISK_IMAGE_SOURCE,
+            sourceType: defaultSourceType,
             source: '',
             os: undefined,
             memorySize: Math.min(convertToUnit(1024, units.MiB, units.GiB), // tied to Unit
                                  Math.floor(convertToUnit(props.nodeMaxMemory, units.KiB, units.GiB))),
             memorySizeUnit: units.GiB.name,
-            storageSize: 10, // GiB
+            storageSize: Math.min(convertToUnit(10 * 1024, units.MiB, units.GiB), // tied to Unit
+                                  Math.floor(convertToUnit(props.nodeMaxMemory, units.KiB, units.GiB))),
             storageSizeUnit: units.GiB.name,
             storagePool: 'NewVolume',
             storageVolume: '',
@@ -631,19 +653,20 @@ class CreateVmModal extends React.Component {
             }
             break;
         case 'os': {
-            this.setState(prevState => { // to prevent asynchronous calls
-                const stateDelta = { [key]: value };
-                if (value && value.recommendedResources.ram)
-                    stateDelta.recommendedMemory = convertToUnit(value.recommendedResources.ram, units.B, prevState.memorySizeUnit);
-                else
-                    stateDelta.recommendedMemory = undefined;
-                if (value && value.recommendedResources.storage)
-                    stateDelta.recommendedStorage = convertToUnit(value.recommendedResources.storage, units.B, prevState.storageSizeUnit);
-                else
-                    stateDelta.recommendedStorage = undefined;
-
-                return stateDelta;
-            });
+            const stateDelta = { [key]: value };
+            if (value && value.recommendedResources.ram) {
+                stateDelta.recommendedMemory = convertToUnit(value.recommendedResources.ram, units.B, this.state.memorySizeUnit);
+                this.onValueChanged('memorySize', stateDelta.recommendedMemory);
+            } else {
+                stateDelta.recommendedMemory = undefined;
+            }
+            if (value && value.recommendedResources.storage) {
+                stateDelta.recommendedStorage = convertToUnit(value.recommendedResources.storage, units.B, this.state.storageSizeUnit);
+                this.onValueChanged('storageSize', stateDelta.recommendedStorage);
+            } else {
+                stateDelta.recommendedStorage = undefined;
+            }
+            this.setState(stateDelta);
             break;
         }
         default:
@@ -655,7 +678,8 @@ class CreateVmModal extends React.Component {
     onCreateClicked() {
         const { dispatch } = this.props;
 
-        if (Object.getOwnPropertyNames(validateParams({ ...this.state, osInfoList: this.props.osInfoList })).length > 0) {
+        const validation = validateParams({ ...this.state, osInfoList: this.props.osInfoList });
+        if (Object.getOwnPropertyNames(validation).length > 0) {
             this.setState({ inProgress: false, validate: true });
         } else {
             // leave dialog open to show immediate errors from the backend
@@ -717,27 +741,39 @@ class CreateVmModal extends React.Component {
                     providerName={providerName}
                     source={this.state.source}
                     sourceType={this.state.sourceType}
+                    os={this.state.os}
+                    osInfoList={this.props.osInfoList}
+                    downloadOSSupported={this.props.downloadOSSupported}
                     onValueChanged={this.onValueChanged}
                     validationFailed={validationFailed} />
 
                 <hr />
 
-                { this.state.sourceType != EXISTING_DISK_IMAGE_SOURCE &&
+                {this.state.sourceType != DOWNLOAD_AN_OS &&
                 <>
-                    <StorageRow
-                        connectionName={this.state.connectionName}
-                        storageSize={this.state.storageSize}
-                        storageSizeUnit={this.state.storageSizeUnit}
+                    <OSRow
+                        os={this.state.os}
+                        osInfoList={this.props.osInfoList}
                         onValueChanged={this.onValueChanged}
-                        storagePoolName={this.state.storagePool}
-                        storagePools={storagePools.filter(pool => pool.connectionName === this.state.connectionName)}
-                        storageVolume={this.state.storageVolume}
-                        vms={vms}
-                        recommendedStorage={this.state.recommendedStorage}
-                        validationFailed={validationFailed}
-                    />
+                        isLoading={this.state.autodetectOSInProgress}
+                        validationFailed={validationFailed} />
+
                     <hr />
                 </>}
+
+                { this.state.sourceType != EXISTING_DISK_IMAGE_SOURCE &&
+                <StorageRow
+                    connectionName={this.state.connectionName}
+                    storageSize={this.state.storageSize}
+                    storageSizeUnit={this.state.storageSizeUnit}
+                    onValueChanged={this.onValueChanged}
+                    storagePoolName={this.state.storagePool}
+                    storagePools={storagePools.filter(pool => pool.connectionName === this.state.connectionName)}
+                    storageVolume={this.state.storageVolume}
+                    vms={vms}
+                    recommendedStorage={this.state.recommendedStorage}
+                    validationFailed={validationFailed}
+                />}
 
                 <MemoryRow
                     memorySize={this.state.memorySize}
@@ -747,15 +783,6 @@ class CreateVmModal extends React.Component {
                     validationFailed={validationFailed}
                     recommendedMemory={this.state.recommendedMemory}
                 />
-
-                <hr />
-
-                <OSRow
-                    os={this.state.os}
-                    osInfoList={this.props.osInfoList}
-                    onValueChanged={this.onValueChanged}
-                    isLoading={this.state.autodetectOSInProgress}
-                    validationFailed={validationFailed} />
 
                 <hr />
 
@@ -796,16 +823,24 @@ class CreateVmModal extends React.Component {
 export class CreateVmAction extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { showModal: false };
+        this.state = { showModal: false, virtInstallAvailable: undefined, downloadOSSupported: undefined };
         this.open = this.open.bind(this);
         this.close = this.close.bind(this);
-        this.state = { virtInstallAvailable: undefined };
     }
 
     componentDidMount() {
         cockpit.spawn(['which', 'virt-install'], { err: 'message' })
-                .then(() => this.setState({ virtInstallAvailable: true })
-                    , () => this.setState({ virtInstallAvailable: false }));
+                .then(() => {
+                    this.setState({ virtInstallAvailable: true });
+                    cockpit.spawn(['virt-install', '--install'], { environ: ['LC_ALL=en_US.UTF-8'], err: 'message' })
+                            .fail(err => {
+                                if (err.message.includes('unrecognized arguments'))
+                                    this.setState({ downloadOSSupported: false });
+                                else
+                                    this.setState({ downloadOSSupported: true });
+                            });
+                },
+                      () => this.setState({ virtInstallAvailable: false }));
     }
 
     // That will stop any state setting on unmounted/unmounting components
@@ -822,11 +857,13 @@ export class CreateVmAction extends React.Component {
     }
 
     render() {
-        if (this.state.virtInstallAvailable == undefined)
+        if (this.props.systemInfo.osInfoList == null)
             return null;
 
         let createButton = (
-            <Button disabled={!this.props.systemInfo.osInfoList || !this.state.virtInstallAvailable}
+            <Button disabled={!(this.props.systemInfo.osInfoList &&
+                               (this.state.virtInstallAvailable != undefined ||
+                               (this.state.virtInstallAvailable && this.state.downloadOSSupported === undefined)))}
                     id={this.props.mode == 'create' ? 'create-new-vm' : 'import-vm-disk'}
                     bsStyle='default'
                     onClick={this.open}>
@@ -855,6 +892,7 @@ export class CreateVmAction extends React.Component {
                     vms={this.props.vms}
                     osInfoList={this.props.systemInfo.osInfoList}
                     onAddErrorNotification={this.props.onAddErrorNotification}
+                    downloadOSSupported={this.state.downloadOSSupported}
                     loggedUser={this.props.systemInfo.loggedUser} /> }
             </>
         );

@@ -54,6 +54,8 @@ fi
 
 if [ "$SOURCE_TYPE" = "pxe" ]; then
     INSTALL_METHOD="--pxe --network $SOURCE"
+elif [ "$SOURCE_TYPE" = "os" ]; then
+    INSTALL_METHOD="--install os=$OS"
 elif [ "$START_VM" = "true" ]; then
     if [ "$SOURCE_TYPE" = "disk_image" ]; then
         INSTALL_METHOD="--import"

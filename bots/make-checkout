@@ -75,6 +75,7 @@ def main():
         execute("git", "fetch", "--depth=1", "bots_origin", opts.bots_ref or "master", cwd=TARGET_DIR)
         bots_ref = execute("git", "rev-parse", "FETCH_HEAD", cwd=TARGET_DIR).strip()
         execute("git", "checkout", "--force", bots_ref or "bots_origin/master", "--", "bots/", cwd=TARGET_DIR, error_on_fail=False)
+        execute("git", "reset", "bots", cwd=TARGET_DIR)
 
 if __name__ == '__main__':
     sys.exit(main())

@@ -332,9 +332,10 @@ export function watchRedHatSubscription(callback) {
                 // check if this is an unregistered RHEL system; if subscription-manager is not installed, ignore
                 var sm = cockpit.dbus("com.redhat.SubscriptionManager");
                 sm.subscribe(
-                    { path: "/EntitlementStatus",
-                      interface: "com.redhat.SubscriptionManager.EntitlementStatus",
-                      member: "entitlement_status_changed"
+                    {
+                        path: "/EntitlementStatus",
+                        interface: "com.redhat.SubscriptionManager.EntitlementStatus",
+                        member: "entitlement_status_changed"
                     },
                     (path, iface, signal, args) => callback(validSubscriptionStates.indexOf(args[0]) >= 0)
                 );

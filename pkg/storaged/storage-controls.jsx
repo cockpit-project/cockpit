@@ -96,8 +96,9 @@ function checked(callback) {
         var promise = callback();
         if (promise)
             promise.fail(function (error) {
-                dialog_open({ Title: _("Error"),
-                              Body: error.toString()
+                dialog_open({
+                    Title: _("Error"),
+                    Body: error.toString()
                 });
             });
         event.stopPropagation();
@@ -189,8 +190,9 @@ export class StorageOnOff extends React.Component {
             if (promise) {
                 promise.always(() => { self.setState({ promise: null }) });
                 promise.fail((error) => {
-                    dialog_open({ Title: _("Error"),
-                                  Body: error.toString()
+                    dialog_open({
+                        Title: _("Error"),
+                        Body: error.toString()
                     });
                 });
             }

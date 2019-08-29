@@ -50,30 +50,33 @@ export class VGroupsPanel extends React.Component {
                     break;
             }
 
-            dialog_open({ Title: _("Create Volume Group"),
-                          Fields: [
-                              TextInput("name", _("Name"),
-                                        { value: name,
-                                          validate: validate_lvm2_name
-                                        }),
-                              SelectSpaces("disks", _("Disks"),
-                                           { empty_warning: _("No disks are available."),
-                                             validate: function (disks) {
-                                                 if (disks.length === 0)
-                                                     return _("At least one disk is needed.");
-                                             },
-                                             spaces: get_available_spaces(client)
-                                           })
-                          ],
-                          Action: {
-                              Title: _("Create"),
-                              action: function (vals) {
-                                  return prepare_available_spaces(client, vals.disks).then(function () {
-                                      var paths = Array.prototype.slice.call(arguments);
-                                      return client.manager_lvm2.VolumeGroupCreate(vals.name, paths, { });
-                                  });
-                              }
-                          }
+            dialog_open({
+                Title: _("Create Volume Group"),
+                Fields: [
+                    TextInput("name", _("Name"),
+                              {
+                                  value: name,
+                                  validate: validate_lvm2_name
+                              }),
+                    SelectSpaces("disks", _("Disks"),
+                                 {
+                                     empty_warning: _("No disks are available."),
+                                     validate: function (disks) {
+                                         if (disks.length === 0)
+                                             return _("At least one disk is needed.");
+                                     },
+                                     spaces: get_available_spaces(client)
+                                 })
+                ],
+                Action: {
+                    Title: _("Create"),
+                    action: function (vals) {
+                        return prepare_available_spaces(client, vals.disks).then(function () {
+                            var paths = Array.prototype.slice.call(arguments);
+                            return client.manager_lvm2.VolumeGroupCreate(vals.name, paths, { });
+                        });
+                    }
+                }
             });
         }
 

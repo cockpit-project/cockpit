@@ -685,13 +685,15 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                 .done(function() {
                     assert.equal(typeof cache["/otree/frobber"], "object", "has path");
                     assert.deepEqual(cache["/otree/frobber"]["com.redhat.Cockpit.DBusTests.Frobber"],
-                                     { FinallyNormalName: "There aint no place like home",
-                                       ReadonlyProperty: "blah",
-                                       aay: [], ag: [], ao: [], as: [],
-                                       ay: "QUJDYWJjAA==",
-                                       b: false, d: 43, g: "", i: 0, n: 0,
-                                       o: "/", q: 0, s: "", t: 0, u: 0, x: 0,
-                                       y: 42 }, "correct data");
+                                     {
+                                         FinallyNormalName: "There aint no place like home",
+                                         ReadonlyProperty: "blah",
+                                         aay: [], ag: [], ao: [], as: [],
+                                         ay: "QUJDYWJjAA==",
+                                         b: false, d: 43, g: "", i: 0, n: 0,
+                                         o: "/", q: 0, s: "", t: 0, u: 0, x: 0,
+                                         y: 42
+                                     }, "correct data");
                     $(dbus).off();
                     done();
                 });
@@ -710,14 +712,20 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
 
         dbus.watch({ path_namespace: "/otree" })
                 .done(function() {
-                    assert.deepEqual(cache, { "/otree/frobber": { "com.redhat.Cockpit.DBusTests.Frobber":
-                          { FinallyNormalName: "There aint no place like home",
-                            ReadonlyProperty: "blah",
-                            aay: [], ag: [], ao: [], as: [],
-                            ay: "QUJDYWJjAA==",
-                            b: false, d: 43, g: "", i: 0, n: 0,
-                            o: "/", q: 0, s: "", t: 0, u: 0, x: 0,
-                            y: 42 } } }, "correct data");
+                    assert.deepEqual(cache, {
+                        "/otree/frobber": {
+                            "com.redhat.Cockpit.DBusTests.Frobber":
+                          {
+                              FinallyNormalName: "There aint no place like home",
+                              ReadonlyProperty: "blah",
+                              aay: [], ag: [], ao: [], as: [],
+                              ay: "QUJDYWJjAA==",
+                              b: false, d: 43, g: "", i: 0, n: 0,
+                              o: "/", q: 0, s: "", t: 0, u: 0, x: 0,
+                              y: 42
+                          }
+                        }
+                    }, "correct data");
                     $(dbus).off();
                     done();
                 });
@@ -737,16 +745,19 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
         dbus.watch("/otree/frobber");
         $(dbus).on("notify", function(event, data) {
             assert.equal(typeof cache["/otree/frobber"], "object", "has path");
-            assert.deepEqual(cache, { "/otree/frobber": {
-                "com.redhat.Cockpit.DBusTests.Frobber": {
-                    FinallyNormalName: "There aint no place like home",
-                    ReadonlyProperty: "blah",
-                    aay: [], ag: [], ao: [], as: [],
-                    ay: "QUJDYWJjAA==",
-                    b: false, d: 43, g: "", i: 0, n: 0,
-                    o: "/", q: 0, s: "", t: 0, u: 0, x: 0,
-                    y: 42 }
-            } }, "correct data");
+            assert.deepEqual(cache, {
+                "/otree/frobber": {
+                    "com.redhat.Cockpit.DBusTests.Frobber": {
+                        FinallyNormalName: "There aint no place like home",
+                        ReadonlyProperty: "blah",
+                        aay: [], ag: [], ao: [], as: [],
+                        ay: "QUJDYWJjAA==",
+                        b: false, d: 43, g: "", i: 0, n: 0,
+                        o: "/", q: 0, s: "", t: 0, u: 0, x: 0,
+                        y: 42
+                    }
+                }
+            }, "correct data");
             $(dbus).off();
             done();
         });
@@ -769,13 +780,15 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                   "HelloWorld", ["Browser-side JS"])
                 .done(function(reply) {
                     assert.deepEqual(cache["/otree/frobber"]["com.redhat.Cockpit.DBusTests.Frobber"],
-                                     { FinallyNormalName: "There aint no place like home",
-                                       ReadonlyProperty: "blah",
-                                       aay: [], ag: [], ao: [], as: [],
-                                       ay: "QUJDYWJjAA==",
-                                       b: false, d: 43, g: "", i: 0, n: 0,
-                                       o: "/", q: 0, s: "", t: 0, u: 0, x: 0,
-                                       y: 42 }, "correct data");
+                                     {
+                                         FinallyNormalName: "There aint no place like home",
+                                         ReadonlyProperty: "blah",
+                                         aay: [], ag: [], ao: [], as: [],
+                                         ay: "QUJDYWJjAA==",
+                                         b: false, d: 43, g: "", i: 0, n: 0,
+                                         o: "/", q: 0, s: "", t: 0, u: 0, x: 0,
+                                         y: 42
+                                     }, "correct data");
                 })
                 .always(function() {
                     assert.equal(this.state(), "resolved", "finished successfuly");
@@ -797,38 +810,54 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
 
         dbus.watch({ path_namespace: "/otree" })
                 .done(function() {
-                    assert.deepEqual(cache, { "/otree/frobber": { "com.redhat.Cockpit.DBusTests.Frobber":
-                          { FinallyNormalName: "There aint no place like home",
-                            ReadonlyProperty: "blah",
-                            aay: [], ag: [], ao: [], as: [],
-                            ay: "QUJDYWJjAA==",
-                            b: false, d: 43, g: "", i: 0, n: 0,
-                            o: "/", q: 0, s: "", t: 0, u: 0, x: 0,
-                            y: 42 } } }, "correct data");
+                    assert.deepEqual(cache, {
+                        "/otree/frobber": {
+                            "com.redhat.Cockpit.DBusTests.Frobber":
+                          {
+                              FinallyNormalName: "There aint no place like home",
+                              ReadonlyProperty: "blah",
+                              aay: [], ag: [], ao: [], as: [],
+                              ay: "QUJDYWJjAA==",
+                              b: false, d: 43, g: "", i: 0, n: 0,
+                              o: "/", q: 0, s: "", t: 0, u: 0, x: 0,
+                              y: 42
+                          }
+                        }
+                    }, "correct data");
                     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "AddAlpha", [])
                             .done(function () {
-                                assert.deepEqual(cache, { "/otree/frobber": { "com.redhat.Cockpit.DBusTests.Frobber":
-                                  { FinallyNormalName: "There aint no place like home",
-                                    ReadonlyProperty: "blah",
-                                    aay: [], ag: [], ao: [], as: [],
-                                    ay: "QUJDYWJjAA==",
-                                    b: false, d: 43, g: "", i: 0, n: 0,
-                                    o: "/", q: 0, s: "", t: 0, u: 0, x: 0,
-                                    y: 42 },
-                                                                              "com.redhat.Cockpit.DBusTests.Alpha": {}
-                                } }, "correct data");
+                                assert.deepEqual(cache, {
+                                    "/otree/frobber": {
+                                        "com.redhat.Cockpit.DBusTests.Frobber":
+                                  {
+                                      FinallyNormalName: "There aint no place like home",
+                                      ReadonlyProperty: "blah",
+                                      aay: [], ag: [], ao: [], as: [],
+                                      ay: "QUJDYWJjAA==",
+                                      b: false, d: 43, g: "", i: 0, n: 0,
+                                      o: "/", q: 0, s: "", t: 0, u: 0, x: 0,
+                                      y: 42
+                                  },
+                                        "com.redhat.Cockpit.DBusTests.Alpha": {}
+                                    }
+                                }, "correct data");
                                 dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "RemoveAlpha", [])
                                         .done(function () {
-                                            assert.deepEqual(cache, { "/otree/frobber": { "com.redhat.Cockpit.DBusTests.Frobber":
-                                      { FinallyNormalName: "There aint no place like home",
-                                        ReadonlyProperty: "blah",
-                                        aay: [], ag: [], ao: [], as: [],
-                                        ay: "QUJDYWJjAA==",
-                                        b: false, d: 43, g: "", i: 0, n: 0,
-                                        o: "/", q: 0, s: "", t: 0, u: 0, x: 0,
-                                        y: 42 },
-                                                                                          "com.redhat.Cockpit.DBusTests.Alpha": null
-                                            } }, "correct data");
+                                            assert.deepEqual(cache, {
+                                                "/otree/frobber": {
+                                                    "com.redhat.Cockpit.DBusTests.Frobber":
+                                      {
+                                          FinallyNormalName: "There aint no place like home",
+                                          ReadonlyProperty: "blah",
+                                          aay: [], ag: [], ao: [], as: [],
+                                          ay: "QUJDYWJjAA==",
+                                          b: false, d: 43, g: "", i: 0, n: 0,
+                                          o: "/", q: 0, s: "", t: 0, u: 0, x: 0,
+                                          y: 42
+                                      },
+                                                    "com.redhat.Cockpit.DBusTests.Alpha": null
+                                                }
+                                            }, "correct data");
                                             $(dbus).off();
                                             done();
                                         });
@@ -1104,9 +1133,11 @@ function dbus_track_tests(channel_options, bus_name) { // eslint-disable-line no
                 .always(function() {
                     assert.equal(this.state(), "resolved", "name claimed");
 
-                    var other = cockpit.dbus(name, { bus: channel_options.bus,
-                                                     address: channel_options.address,
-                                                     track: true });
+                    var other = cockpit.dbus(name, {
+                        bus: channel_options.bus,
+                        address: channel_options.address,
+                        track: true
+                    });
                     $(other).on("close", function(event, data) {
                         assert.strictEqual(data.problem, undefined, "no problem");
                         gone = true;

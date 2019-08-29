@@ -427,21 +427,26 @@ function DockerClient() {
         $(self).triggerHandler("event");
 
         usage_metrics_channel = cockpit.metrics(1000,
-                                                { source: "internal",
-                                                  metrics: [{ name: "cgroup.memory.usage",
-                                                              units: "bytes"
-                                                  },
-                                                  { name: "cgroup.cpu.usage",
-                                                    units: "millisec",
-                                                    derive: "rate"
-                                                  },
-                                                  { name: "cgroup.memory.limit",
-                                                    units: "bytes"
-                                                  },
-                                                  { name: "cgroup.cpu.shares",
-                                                    units: "count"
-                                                  }
-                                                  ]
+                                                {
+                                                    source: "internal",
+                                                    metrics: [{
+                                                        name: "cgroup.memory.usage",
+                                                        units: "bytes"
+                                                    },
+                                                    {
+                                                        name: "cgroup.cpu.usage",
+                                                        units: "millisec",
+                                                        derive: "rate"
+                                                    },
+                                                    {
+                                                        name: "cgroup.memory.limit",
+                                                        units: "bytes"
+                                                    },
+                                                    {
+                                                        name: "cgroup.cpu.shares",
+                                                        units: "count"
+                                                    }
+                                                    ]
                                                 });
 
         $(usage_metrics_channel).on("changed", function() {

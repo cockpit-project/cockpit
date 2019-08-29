@@ -310,8 +310,10 @@ function Machines() {
             }
         }
 
-        refresh({ content: content,
-                  overlay: $.extend({ }, last.overlay, changes) }, true);
+        refresh({
+            content: content,
+            overlay: $.extend({ }, last.overlay, changes)
+        }, true);
     };
 
     self.overlay = function overlay(host, values) {
@@ -577,13 +579,16 @@ function Loader(machines, session_only) {
         */
 
         function watch_manifests() {
-            var dbus = cockpit.dbus(null, { bus: "internal",
-                                            host: machine.connection_string
+            var dbus = cockpit.dbus(null, {
+                bus: "internal",
+                host: machine.connection_string
             });
             bridge_dbus[host] = dbus;
-            dbus.subscribe({ path: "/packages",
-                             interface: "org.freedesktop.DBus.Properties",
-                             member: "PropertiesChanged" },
+            dbus.subscribe({
+                path: "/packages",
+                interface: "org.freedesktop.DBus.Properties",
+                member: "PropertiesChanged"
+            },
                            function (path, iface, mamber, args) {
                                if (args[0] == "cockpit.Packages") {
                                    if (args[1].Manifests) {
@@ -681,8 +686,10 @@ function Loader(machines, session_only) {
 
     self.expect_restart = function expect_restart(host) {
         var parts = machines.split_connection_string(host);
-        machines.overlay(parts.address, { restarting: true,
-                                          problem: null });
+        machines.overlay(parts.address, {
+            restarting: true,
+            problem: null
+        });
     };
 
     self.close = function close() {

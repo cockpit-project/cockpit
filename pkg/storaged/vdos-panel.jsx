@@ -43,87 +43,96 @@ export class VDOsPanel extends React.Component {
                     break;
             }
 
-            dialog_open({ Title: _("Create VDO Device"),
-                          Fields: [
-                              TextInput("name", _("Name"),
-                                        { value: name,
-                                          validate: function (name) {
-                                              if (name == "")
-                                                  return _("Name can not be empty.");
-                                          }
-                                        }),
-                              SelectSpace("space", _("Disk"),
-                                          { empty_warning: _("No disks are available."),
-                                            validate: function (spc) {
-                                                if (spc === undefined)
-                                                    return _("A disk is needed.");
-                                            },
-                                            spaces: get_available_spaces(client)
-                                          }),
-                              SizeSlider("lsize", _("Logical Size"),
-                                         { max: 3 * 1024 * 1024 * 1024 * 1024,
-                                           round: 512,
-                                           value: 1024 * 1024 * 1024 * 1024,
-                                           allow_infinite: true
-                                         }),
-                              SizeSlider("index_mem", _("Index Memory"),
-                                         { max: 2 * 1024 * 1024 * 1024,
-                                           round: function (val) {
-                                               var round = val < 1024 * 1024 * 1024 ? 256 * 1024 * 1024 : 1024 * 1024 * 1024;
-                                               return Math.round(val / round) * round;
-                                           },
-                                           value: 256 * 1024 * 1024,
-                                           allow_infinite: true,
-                                         }),
-                              CheckBoxes("options", _("Options"),
-                                         {
-                                             fields: [
-                                                 { tag: "compression", title: _("Compression"),
-                                                   tooltip: _("Save space by compressing individual blocks with LZ4")
-                                                 },
-                                                 { tag: "deduplication", title: _("Deduplication"),
-                                                   tooltip: _("Save space by storing identical data blocks just once")
-                                                 },
-                                                 { tag: "emulate_512", title: _("Use 512 Byte emulation"),
-                                                   tooltip: _("For legacy applications only. Reduces performance.")
-                                                 }
-                                             ],
-                                             value: {
-                                                 compression: true,
-                                                 deduplication: true,
-                                                 emulate_512: false
-                                             }
-                                         })
-                          ],
-                          update: (dlg, vals, trigger) => {
-                              if (trigger == "space") {
-                                  dlg.set_values({ lsize: vals.space.size });
-                                  dlg.set_options("lsize", { max: 3 * vals.space.size });
-                              }
-                          },
-                          Action: {
-                              Title: _("Create"),
-                              action: function (vals) {
-                                  return prepare_available_spaces(client, [vals.space]).then(function (path) {
-                                      var block = client.blocks[path];
-                                      return cockpit.spawn(["wipefs", "-a", decode_filename(block.PreferredDevice)],
-                                                           { superuser: true,
-                                                             err: "message"
-                                                           })
-                                              .then(function () {
-                                                  return client.vdo_overlay.create({
-                                                      name: vals.name,
-                                                      block: block,
-                                                      logical_size: vals.lsize,
-                                                      index_mem: vals.index_mem,
-                                                      compression: vals.options.compression,
-                                                      deduplication: vals.options.deduplication,
-                                                      emulate_512: vals.emulate_512
-                                                  });
-                                              });
-                                  });
-                              }
-                          }
+            dialog_open({
+                Title: _("Create VDO Device"),
+                Fields: [
+                    TextInput("name", _("Name"),
+                              {
+                                  value: name,
+                                  validate: function (name) {
+                                      if (name == "")
+                                          return _("Name can not be empty.");
+                                  }
+                              }),
+                    SelectSpace("space", _("Disk"),
+                                {
+                                    empty_warning: _("No disks are available."),
+                                    validate: function (spc) {
+                                        if (spc === undefined)
+                                            return _("A disk is needed.");
+                                    },
+                                    spaces: get_available_spaces(client)
+                                }),
+                    SizeSlider("lsize", _("Logical Size"),
+                               {
+                                   max: 3 * 1024 * 1024 * 1024 * 1024,
+                                   round: 512,
+                                   value: 1024 * 1024 * 1024 * 1024,
+                                   allow_infinite: true
+                               }),
+                    SizeSlider("index_mem", _("Index Memory"),
+                               {
+                                   max: 2 * 1024 * 1024 * 1024,
+                                   round: function (val) {
+                                       var round = val < 1024 * 1024 * 1024 ? 256 * 1024 * 1024 : 1024 * 1024 * 1024;
+                                       return Math.round(val / round) * round;
+                                   },
+                                   value: 256 * 1024 * 1024,
+                                   allow_infinite: true,
+                               }),
+                    CheckBoxes("options", _("Options"),
+                               {
+                                   fields: [
+                                       {
+                                           tag: "compression", title: _("Compression"),
+                                           tooltip: _("Save space by compressing individual blocks with LZ4")
+                                       },
+                                       {
+                                           tag: "deduplication", title: _("Deduplication"),
+                                           tooltip: _("Save space by storing identical data blocks just once")
+                                       },
+                                       {
+                                           tag: "emulate_512", title: _("Use 512 Byte emulation"),
+                                           tooltip: _("For legacy applications only. Reduces performance.")
+                                       }
+                                   ],
+                                   value: {
+                                       compression: true,
+                                       deduplication: true,
+                                       emulate_512: false
+                                   }
+                               })
+                ],
+                update: (dlg, vals, trigger) => {
+                    if (trigger == "space") {
+                        dlg.set_values({ lsize: vals.space.size });
+                        dlg.set_options("lsize", { max: 3 * vals.space.size });
+                    }
+                },
+                Action: {
+                    Title: _("Create"),
+                    action: function (vals) {
+                        return prepare_available_spaces(client, [vals.space]).then(function (path) {
+                            var block = client.blocks[path];
+                            return cockpit.spawn(["wipefs", "-a", decode_filename(block.PreferredDevice)],
+                                                 {
+                                                     superuser: true,
+                                                     err: "message"
+                                                 })
+                                    .then(function () {
+                                        return client.vdo_overlay.create({
+                                            name: vals.name,
+                                            block: block,
+                                            logical_size: vals.lsize,
+                                            index_mem: vals.index_mem,
+                                            compression: vals.options.compression,
+                                            deduplication: vals.options.deduplication,
+                                            emulate_512: vals.emulate_512
+                                        });
+                                    });
+                        });
+                    }
+                }
             });
         }
 

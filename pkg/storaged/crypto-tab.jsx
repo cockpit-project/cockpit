@@ -64,25 +64,27 @@ export class CryptoTab extends React.Component {
 
         function edit_stored_passphrase() {
             edit_config(function (config, commit) {
-                dialog_open({ Title: _("Stored Passphrase"),
-                              Fields: [
-                                  PassInput("passphrase", _("Stored Passphrase"),
-                                            { value: (config && config['passphrase-contents']
-                                                ? decode_filename(config['passphrase-contents'].v)
-                                                : "")
-                                            })
-                              ],
-                              Action: {
-                                  Title: _("Apply"),
-                                  action: function (vals) {
-                                      config["passphrase-contents"] = {
-                                          t: 'ay',
-                                          v: encode_filename(vals.passphrase)
-                                      };
-                                      delete config["passphrase-path"];
-                                      return commit();
-                                  }
-                              }
+                dialog_open({
+                    Title: _("Stored Passphrase"),
+                    Fields: [
+                        PassInput("passphrase", _("Stored Passphrase"),
+                                  {
+                                      value: (config && config['passphrase-contents']
+                                          ? decode_filename(config['passphrase-contents'].v)
+                                          : "")
+                                  })
+                    ],
+                    Action: {
+                        Title: _("Apply"),
+                        action: function (vals) {
+                            config["passphrase-contents"] = {
+                                t: 'ay',
+                                v: encode_filename(vals.passphrase)
+                            };
+                            delete config["passphrase-path"];
+                            return commit();
+                        }
+                    }
                 });
             });
         }
@@ -99,18 +101,19 @@ export class CryptoTab extends React.Component {
 
         function edit_options() {
             edit_config(function (config, commit) {
-                dialog_open({ Title: _("Encryption Options"),
-                              Fields: crypto_options_dialog_fields(old_options),
-                              Action: {
-                                  Title: _("Apply"),
-                                  action: function (vals) {
-                                      config.options = {
-                                          t: 'ay',
-                                          v: encode_filename(crypto_options_dialog_options(vals))
-                                      };
-                                      return commit();
-                                  }
-                              }
+                dialog_open({
+                    Title: _("Encryption Options"),
+                    Fields: crypto_options_dialog_fields(old_options),
+                    Action: {
+                        Title: _("Apply"),
+                        action: function (vals) {
+                            config.options = {
+                                t: 'ay',
+                                v: encode_filename(crypto_options_dialog_options(vals))
+                            };
+                            return commit();
+                        }
+                    }
                 });
             });
         }

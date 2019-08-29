@@ -28,17 +28,18 @@ import { dialog_open, TextInput, SizeSlider, BlockingMessage, TeardownMessage } 
 const _ = cockpit.gettext;
 
 function lvol_rename(lvol) {
-    dialog_open({ Title: _("Rename Logical Volume"),
-                  Fields: [
-                      TextInput("name", _("Name"),
-                                { value: lvol.Name })
-                  ],
-                  Action: {
-                      Title: _("Rename"),
-                      action: function (vals) {
-                          return lvol.Rename(vals.name, { });
-                      }
-                  }
+    dialog_open({
+        Title: _("Rename Logical Volume"),
+        Fields: [
+            TextInput("name", _("Name"),
+                      { value: lvol.Name })
+        ],
+        Action: {
+            Title: _("Rename"),
+            action: function (vals) {
+                return lvol.Rename(vals.name, { });
+            }
+        }
     });
 }
 
@@ -197,8 +198,9 @@ function lvol_grow(client, lvol, info, to_fit) {
     var usage = utils.get_active_usage(client, block && info.grow_needs_unmount ? block.path : null);
 
     if (usage.Blocking) {
-        dialog_open({ Title: cockpit.format(_("$0 is in active use"), lvol.Name),
-                      Body: BlockingMessage(usage)
+        dialog_open({
+            Title: cockpit.format(_("$0 is in active use"), lvol.Name),
+            Body: BlockingMessage(usage)
         });
         return;
     }
@@ -208,11 +210,12 @@ function lvol_grow(client, lvol, info, to_fit) {
     if (!to_fit) {
         size_fields = [
             SizeSlider("size", _("Size"),
-                       { value: lvol.Size,
-                         min: lvol.Size,
-                         max: (pool ? pool.Size * 3 : lvol.Size + vgroup.FreeSize),
-                         allow_infinite: !!pool,
-                         round: vgroup.ExtentSize
+                       {
+                           value: lvol.Size,
+                           min: lvol.Size,
+                           max: (pool ? pool.Size * 3 : lvol.Size + vgroup.FreeSize),
+                           allow_infinite: !!pool,
+                           round: vgroup.ExtentSize
                        })
         ];
     } else {
@@ -228,21 +231,22 @@ function lvol_grow(client, lvol, info, to_fit) {
         return lvol_and_fsys_resize(client, lvol, grow_size, info.grow_needs_unmount, null);
     }
 
-    const dlg = dialog_open({ Title: _("Grow Logical Volume"),
-                              Footer: TeardownMessage(usage),
-                              Fields: size_fields.concat(passphrase_fields),
-                              Action: {
-                                  Title: _("Grow"),
-                                  action: function (vals) {
-                                      return utils.teardown_active_usage(client, usage)
-                                              .then(function () {
-                                                  return lvol_and_fsys_resize(client, lvol,
-                                                                              to_fit ? grow_size : vals.size,
-                                                                              info.grow_needs_unmount,
-                                                                              vals.passphrase || recovered_passphrase);
-                                              });
-                                  }
-                              }
+    const dlg = dialog_open({
+        Title: _("Grow Logical Volume"),
+        Footer: TeardownMessage(usage),
+        Fields: size_fields.concat(passphrase_fields),
+        Action: {
+            Title: _("Grow"),
+            action: function (vals) {
+                return utils.teardown_active_usage(client, usage)
+                        .then(function () {
+                            return lvol_and_fsys_resize(client, lvol,
+                                                        to_fit ? grow_size : vals.size,
+                                                        info.grow_needs_unmount,
+                                                        vals.passphrase || recovered_passphrase);
+                        });
+            }
+        }
     });
 
     if (passphrase_fields.length)
@@ -256,8 +260,9 @@ function lvol_shrink(client, lvol, info, to_fit) {
     var usage = utils.get_active_usage(client, block && !to_fit && info.shrink_needs_unmount ? block.path : null);
 
     if (usage.Blocking) {
-        dialog_open({ Title: cockpit.format(_("$0 is in active use"), lvol.Name),
-                      Body: BlockingMessage(usage)
+        dialog_open({
+            Title: cockpit.format(_("$0 is in active use"), lvol.Name),
+            Body: BlockingMessage(usage)
         });
         return;
     }
@@ -267,9 +272,10 @@ function lvol_shrink(client, lvol, info, to_fit) {
     if (!to_fit) {
         size_fields = [
             SizeSlider("size", _("Size"),
-                       { value: lvol.Size,
-                         max: lvol.Size,
-                         round: vgroup.ExtentSize
+                       {
+                           value: lvol.Size,
+                           max: lvol.Size,
+                           round: vgroup.ExtentSize
                        })
         ];
     } else {
@@ -310,21 +316,22 @@ function lvol_shrink(client, lvol, info, to_fit) {
         return lvol_and_fsys_resize(client, lvol, shrink_size, false, null);
     }
 
-    const dlg = dialog_open({ Title: _("Shrink Logical Volume"),
-                              Footer: TeardownMessage(usage),
-                              Fields: size_fields.concat(passphrase_fields),
-                              Action: {
-                                  Title: _("Shrink"),
-                                  action: function (vals) {
-                                      return utils.teardown_active_usage(client, usage)
-                                              .then(function () {
-                                                  return lvol_and_fsys_resize(client, lvol,
-                                                                              to_fit ? shrink_size : vals.size,
-                                                                              to_fit ? false : info.shrink_needs_unmount,
-                                                                              vals.passphrase || recovered_passphrase);
-                                              });
-                                  }
-                              }
+    const dlg = dialog_open({
+        Title: _("Shrink Logical Volume"),
+        Footer: TeardownMessage(usage),
+        Fields: size_fields.concat(passphrase_fields),
+        Action: {
+            Title: _("Shrink"),
+            action: function (vals) {
+                return utils.teardown_active_usage(client, usage)
+                        .then(function () {
+                            return lvol_and_fsys_resize(client, lvol,
+                                                        to_fit ? shrink_size : vals.size,
+                                                        to_fit ? false : info.shrink_needs_unmount,
+                                                        vals.passphrase || recovered_passphrase);
+                        });
+            }
+        }
     });
 
     if (passphrase_fields.length)
@@ -343,17 +350,18 @@ export class BlockVolTab extends React.Component {
         var unused_space = !!unused_space_warning;
 
         function create_snapshot() {
-            dialog_open({ Title: _("Create Snapshot"),
-                          Fields: [
-                              TextInput("name", _("Name"),
-                                        { validate: utils.validate_lvm2_name }),
-                          ],
-                          Action: {
-                              Title: _("Create"),
-                              action: function (vals) {
-                                  return lvol.CreateSnapshot(vals.name, vals.size || 0, { });
-                              }
-                          }
+            dialog_open({
+                Title: _("Create Snapshot"),
+                Fields: [
+                    TextInput("name", _("Name"),
+                              { validate: utils.validate_lvm2_name }),
+                ],
+                Action: {
+                    Title: _("Create"),
+                    action: function (vals) {
+                        return lvol.CreateSnapshot(vals.name, vals.size || 0, { });
+                    }
+                }
             });
         }
 

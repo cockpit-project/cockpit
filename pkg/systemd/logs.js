@@ -33,24 +33,25 @@ $(function() {
     var problems = problems_client.proxies('org.freedesktop.Problems2.Entry', '/org/freedesktop/Problems2/Entry');
 
     // A map of ABRT's problems items and it's callback for rendering
-    var problem_render_callbacks = { core_backtrace: render_backtrace,
-                                     os_info: render_table_eq,
-                                     environ: render_table_eq,
-                                     limits: render_limits,
-                                     cgroup: render_cgroup,
-                                     namespaces: render_table_co,
-                                     maps: render_maps,
-                                     dso_list: render_dso_list,
-                                     mountinfo: render_mountinfo,
-                                     proc_pid_status: render_table_co,
-                                     open_fds: render_open_fds,
-                                     var_log_messages: render_multiline,
-                                     'not-reportable': render_multiline,
-                                     exploitable: render_multiline,
-                                     suspend_stats: render_table_co,
-                                     dmesg: render_multiline,
-                                     container_rootfs: render_multiline,
-                                     docker_inspect: render_multiline
+    var problem_render_callbacks = {
+        core_backtrace: render_backtrace,
+        os_info: render_table_eq,
+        environ: render_table_eq,
+        limits: render_limits,
+        cgroup: render_cgroup,
+        namespaces: render_table_co,
+        maps: render_maps,
+        dso_list: render_dso_list,
+        mountinfo: render_mountinfo,
+        proc_pid_status: render_table_co,
+        open_fds: render_open_fds,
+        var_log_messages: render_multiline,
+        'not-reportable': render_multiline,
+        exploitable: render_multiline,
+        suspend_stats: render_table_co,
+        dmesg: render_multiline,
+        container_rootfs: render_multiline,
+        docker_inspect: render_multiline
     };
 
     var problem_info_1 = ['reason', 'cmdline', 'executable', 'package', 'component',
@@ -317,9 +318,10 @@ $(function() {
                     if (start_box.text() == _("Loading..."))
                         start_box.empty();
                     if (!last) {
-                        procs.push(journal.journalctl(match, { follow: true, count: 0,
-                                                               boot: options.boot,
-                                                               since: options.since
+                        procs.push(journal.journalctl(match, {
+                            follow: true, count: 0,
+                            boot: options.boot,
+                            since: options.since
                         })
                                 .fail(query_error)
                                 .stream(function(entries) {

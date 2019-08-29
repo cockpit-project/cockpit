@@ -109,14 +109,16 @@ QUnit.test("non-instanced decompression", function (assert) {
     var peer = new MockPeer();
     var sink = new MockSink();
 
-    var metrics = cockpit.metrics(1000, { source: "source",
-                                          metrics: [{ name: "m1" }],
+    var metrics = cockpit.metrics(1000, {
+        source: "source",
+        metrics: [{ name: "m1" }],
     });
     metrics.series = sink.series;
 
     metrics.follow();
-    peer.send_json({ timestamp: 0, now: 0, interval: 1000,
-                     metrics: [{ name: "m1" }]
+    peer.send_json({
+        timestamp: 0, now: 0, interval: 1000,
+        metrics: [{ name: "m1" }]
     });
     peer.send_json([[10]]);
     peer.send_json([[]]);

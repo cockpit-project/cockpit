@@ -121,9 +121,11 @@ export class FileAutoComplete extends React.Component {
     }
 
     updateFiles(path) {
-        var channel = cockpit.channel({ payload: "fslist1",
-                                        path: path || "/",
-                                        superuser: this.props.superuser });
+        var channel = cockpit.channel({
+            payload: "fslist1",
+            path: path || "/",
+            superuser: this.props.superuser
+        });
 
         var results = [];
         var error = null;

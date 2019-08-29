@@ -85,9 +85,10 @@ function instance_sampler(metrics, source) {
             self.dispatchEvent('changed');
     }
 
-    var channel = cockpit.channel({ payload: "metrics1",
-                                    source: source || "internal",
-                                    metrics: metrics
+    var channel = cockpit.channel({
+        payload: "metrics1",
+        source: source || "internal",
+        metrics: metrics
     });
     channel.addEventListener("closed", function (event, error) {
         console.log("closed", error);
@@ -669,8 +670,9 @@ function vdo_overlay() {
 
     function cmd(args) {
         return cockpit.spawn(["vdo"].concat(args),
-                             { superuser: true,
-                               err: "message"
+                             {
+                                 superuser: true,
+                                 err: "message"
                              });
     }
 
@@ -686,52 +688,53 @@ function vdo_overlay() {
                 return cmd(args.concat(["--name", name]));
             }
 
-            var v = { name: name,
-                      broken: vol.broken,
-                      dev: "/dev/mapper/" + name,
-                      backing_dev: vol.device,
-                      logical_size: vol.logical_size,
-                      physical_size: vol.physical_size,
-                      index_mem: vol.index_mem,
-                      compression: vol.compression,
-                      deduplication: vol.deduplication,
-                      activated: vol.activated,
+            var v = {
+                name: name,
+                broken: vol.broken,
+                dev: "/dev/mapper/" + name,
+                backing_dev: vol.device,
+                logical_size: vol.logical_size,
+                physical_size: vol.physical_size,
+                index_mem: vol.index_mem,
+                compression: vol.compression,
+                deduplication: vol.deduplication,
+                activated: vol.activated,
 
-                      set_compression: function(val) {
-                          return volcmd([val ? "enableCompression" : "disableCompression"]);
-                      },
+                set_compression: function(val) {
+                    return volcmd([val ? "enableCompression" : "disableCompression"]);
+                },
 
-                      set_deduplication: function(val) {
-                          return volcmd([val ? "enableDeduplication" : "disableDeduplication"]);
-                      },
+                set_deduplication: function(val) {
+                    return volcmd([val ? "enableDeduplication" : "disableDeduplication"]);
+                },
 
-                      set_activate: function(val) {
-                          return volcmd([val ? "activate" : "deactivate"]);
-                      },
+                set_activate: function(val) {
+                    return volcmd([val ? "activate" : "deactivate"]);
+                },
 
-                      start: function() {
-                          return volcmd(["start"]);
-                      },
+                start: function() {
+                    return volcmd(["start"]);
+                },
 
-                      stop: function() {
-                          return volcmd(["stop"]);
-                      },
+                stop: function() {
+                    return volcmd(["stop"]);
+                },
 
-                      remove: function() {
-                          return volcmd(["remove"]);
-                      },
+                remove: function() {
+                    return volcmd(["remove"]);
+                },
 
-                      force_remove: function() {
-                          return volcmd(["remove", "--force"]);
-                      },
+                force_remove: function() {
+                    return volcmd(["remove", "--force"]);
+                },
 
-                      grow_physical: function() {
-                          return volcmd(["growPhysical"]);
-                      },
+                grow_physical: function() {
+                    return volcmd(["growPhysical"]);
+                },
 
-                      grow_logical: function(lsize) {
-                          return volcmd(["growLogical", "--vdoLogicalSize", lsize + "B"]);
-                      }
+                grow_logical: function(lsize) {
+                    return volcmd(["growLogical", "--vdoLogicalSize", lsize + "B"]);
+                }
             };
 
             self.by_name[v.name] = v;

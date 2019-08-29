@@ -403,9 +403,11 @@ class AddServicesModal extends React.Component {
                     new_ports.push(ports);
             }
         });
-        const newState = { [targets[1]]: new_ports,
-                           [targets[2]]: error,
-                           [targets[3]]: event.target.value };
+        const newState = {
+            [targets[1]]: new_ports,
+            [targets[2]]: error,
+            [targets[3]]: event.target.value
+        };
 
         let name = this.state.custom_name;
         let all_ports = new_ports.concat(this.state.custom_udp_ports);

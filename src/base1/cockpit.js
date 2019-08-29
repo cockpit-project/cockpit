@@ -1576,7 +1576,8 @@ function factory() {
             factor = 1024;
 
         function unit(index) {
-            return { name: byte_suffixes[factor][index],
+            return {
+ name: byte_suffixes[factor][index],
                      factor: Math.pow(factor, index)
                    };
         }
@@ -2965,15 +2966,18 @@ function factory() {
             path: { value: path, enumerable: false, writable: false },
             iface: { value: iface, enumerable: false, writable: false },
             valid: { get: function() { return valid }, enumerable: false },
-            wait: { enumerable: false, writable: false,
+            wait: {
+ enumerable: false, writable: false,
                 value: function(func) {
                     if (func)
                         waits.promise.always(func);
                     return waits.promise;
                 }
             },
-            call: { value: function(name, args, options) { return client.call(path, iface, name, args, options) },
-                      enumerable: false, writable: false },
+            call: {
+ value: function(name, args, options) { return client.call(path, iface, name, args, options) },
+                      enumerable: false, writable: false
+},
             data: { value: { }, enumerable: false }
         });
 
@@ -3087,7 +3091,8 @@ function factory() {
             client: { value: client, enumerable: false, writable: false },
             iface: { value: iface, enumerable: false, writable: false },
             path_namespace: { value: path_namespace, enumerable: false, writable: false },
-            wait: { enumerable: false, writable: false,
+            wait: {
+ enumerable: false, writable: false,
                 value: function(func) {
                     if (func)
                         waits.always(func);
@@ -4532,7 +4537,8 @@ function factory() {
             for (var i = 0; i < options_list.length; i++) {
                 if (options_list[i].archive_source) {
                     archive_options_list.push(extend({}, options_list[i],
-                                                       { source: options_list[i].archive_source,
+                                                       {
+ source: options_list[i].archive_source,
                                                          timestamp: timestamp,
                                                          limit: limit
                                                        }));

@@ -426,8 +426,10 @@ function instance(realmd, mode, realm, button) {
                   'fi; ';
 
         // use a temporary keytab to avoid interfering with the system one
-        var proc = cockpit.script(script, [], { superuser: "require", err: "message",
-                                                environ: ["KRB5CCNAME=/run/cockpit/keytab-setup"] });
+        var proc = cockpit.script(script, [], {
+            superuser: "require", err: "message",
+            environ: ["KRB5CCNAME=/run/cockpit/keytab-setup"]
+        });
         proc.input(password);
         return proc;
     }

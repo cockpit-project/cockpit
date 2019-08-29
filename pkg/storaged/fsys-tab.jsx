@@ -67,19 +67,21 @@ export class FilesystemTab extends React.Component {
         }
 
         function rename_dialog() {
-            dialog_open({ Title: _("Filesystem Name"),
-                          Fields: [
-                              TextInput("name", _("Name"),
-                                        { validate: name => utils.validate_fsys_label(name, block.IdType),
-                                          value: block.IdLabel
-                                        })
-                          ],
-                          Action: {
-                              Title: _("Apply"),
-                              action: function (vals) {
-                                  return block_fsys.SetLabel(vals.name, {});
-                              }
-                          }
+            dialog_open({
+                Title: _("Filesystem Name"),
+                Fields: [
+                    TextInput("name", _("Name"),
+                              {
+                                  validate: name => utils.validate_fsys_label(name, block.IdType),
+                                  value: block.IdLabel
+                              })
+                ],
+                Action: {
+                    Title: _("Apply"),
+                    action: function (vals) {
+                        return block_fsys.SetLabel(vals.name, {});
+                    }
+                }
             });
         }
 
@@ -120,16 +122,17 @@ export class FilesystemTab extends React.Component {
 
         function mounting_dialog() {
             var options = old_config ? old_opts : FormatDialog.initial_tab_options(self.props.client, block, true);
-            dialog_open({ Title: _("Filesystem Mounting"),
-                          Fields: FormatDialog.mounting_dialog_fields(!!old_config, old_dir, options),
-                          Action: {
-                              Title: _("Apply"),
-                              action: function (vals) {
-                                  return maybe_update_config(vals.mounting == "custom",
-                                                             vals.mount_point,
-                                                             FormatDialog.mounting_dialog_options(vals));
-                              }
-                          }
+            dialog_open({
+                Title: _("Filesystem Mounting"),
+                Fields: FormatDialog.mounting_dialog_fields(!!old_config, old_dir, options),
+                Action: {
+                    Title: _("Apply"),
+                    action: function (vals) {
+                        return maybe_update_config(vals.mounting == "custom",
+                                                   vals.mount_point,
+                                                   FormatDialog.mounting_dialog_options(vals));
+                    }
+                }
             });
         }
 

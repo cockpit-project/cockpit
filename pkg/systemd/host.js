@@ -406,7 +406,8 @@ PageServer.prototype = {
                 React.createElement(OnOffSwitch, {
                     state: pmlogger_service.state === "running",
                     disabled: pmlogger_service.state == "starting" || force_disable,
-                    onChange: onPmLoggerSwitchChange }),
+                    onChange: onPmLoggerSwitchChange
+                }),
                 document.getElementById('server-pmlogger-switch')
             );
         }
@@ -865,8 +866,10 @@ PageServer.prototype = {
         var content = $("#system_information_ssh_keys .content");
         var error = $("#system_information_ssh_keys .alert");
 
-        cockpit.script(host_keys_script, [], { superuser: "try",
-                                               err: "message" })
+        cockpit.script(host_keys_script, [], {
+            superuser: "try",
+            err: "message"
+        })
                 .done(function(data) {
                     var seen = {};
                     var arr = [];
@@ -1535,9 +1538,10 @@ PageSystemInformationChangeSystime.prototype = {
 
         var model = {
             NTPServers: self.custom_ntp_servers.map(function(val, i) {
-                return { index: i,
-                         Value: val,
-                         Placeholder: _("NTP Server")
+                return {
+                    index: i,
+                    Value: val,
+                    Placeholder: _("NTP Server")
                 };
             })
         };
@@ -1580,20 +1584,25 @@ PageCpuStatus.prototype = {
         var n_cpus = 1;
 
         var options = {
-            series: { shadowSize: 0,
-                      lines: { lineWidth: 0, fill: 1 }
+            series: {
+                shadowSize: 0,
+                lines: { lineWidth: 0, fill: 1 }
             },
-            yaxis: { min: 0,
-                     max: n_cpus * 1000,
-                     show: true,
-                     ticks: 5,
-                     tickFormatter: function(v) { return (v / 10 / n_cpus) + "%" } },
-            xaxis: { show: true,
-                     ticks: [[0.0 * 60, "5 min"],
-                         [1.0 * 60, "4 min"],
-                         [2.0 * 60, "3 min"],
-                         [3.0 * 60, "2 min"],
-                         [4.0 * 60, "1 min"]] },
+            yaxis: {
+                min: 0,
+                max: n_cpus * 1000,
+                show: true,
+                ticks: 5,
+                tickFormatter: function(v) { return (v / 10 / n_cpus) + "%" }
+            },
+            xaxis: {
+                show: true,
+                ticks: [[0.0 * 60, "5 min"],
+                    [1.0 * 60, "4 min"],
+                    [2.0 * 60, "3 min"],
+                    [3.0 * 60, "2 min"],
+                    [4.0 * 60, "1 min"]]
+            },
             x_rh_stack_graphs: true
         };
 
@@ -1711,9 +1720,13 @@ PageMemoryStatus.prototype = {
                     return v <= info.memory ? cockpit.format_bytes(v)
                         : cockpit.format_bytes(v + (v - info.memory) * 4);
                 };
-                $.extend(options, { grid: { aboveData: false, markings: [
-                    { yaxis: { from: info.memory, to: info.memory + info.swap * 0.25 }, color: "#ededed" }
-                ] } });
+                $.extend(options, {
+                    grid: {
+                        aboveData: false, markings: [
+                            { yaxis: { from: info.memory, to: info.memory + info.swap * 0.25 }, color: "#ededed" }
+                        ]
+                    }
+                });
                 metrics.push({ name: "memory.swap-used" });
                 series.push({ color: "#e41a1c", label: _("Swap Used"), offset: info.memory, factor: 0.25 });
             } else {

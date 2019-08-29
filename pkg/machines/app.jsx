@@ -109,7 +109,8 @@ class App extends React.Component {
             dispatch, providerName:config.provider ? config.provider.name : 'Libvirt',
             networks, nodeDevices, nodeMaxMemory: config.nodeMaxMemory,
             onAddErrorNotification: this.onAddErrorNotification,
-            storagePools, systemInfo, vms };
+            storagePools, systemInfo, vms
+        };
         const createVmAction = <CreateVmAction {...properties} mode='create' />;
         const importDiskAction = <CreateVmAction {...properties} mode='import' />;
         const vmActions = <div> {createVmAction} {importDiskAction} </div>;

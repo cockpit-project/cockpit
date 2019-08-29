@@ -180,8 +180,9 @@ export function mdraid_name(mdraid) {
         return parts[1];
     else
         return cockpit.format(_("$name (from $host)"),
-                              { name: parts[1],
-                                host: parts[0]
+                              {
+                                  name: parts[1],
+                                  host: parts[0]
                               });
 }
 
@@ -343,8 +344,10 @@ export function get_partitions(client, block) {
 
             append_free_space(last_end, start - last_end);
             if (is_container) {
-                result.push({ type: 'container', block: block, size: size,
-                              partitions: process_level(level + 1, start, size) });
+                result.push({
+                    type: 'container', block: block, size: size,
+                    partitions: process_level(level + 1, start, size)
+                });
             } else {
                 result.push({ type: 'block', block: block });
             }
@@ -423,8 +426,10 @@ export function get_available_spaces(client) {
             if (p.type == 'free') {
                 link_parts = get_block_link_parts(client, block.path);
                 text = cockpit.format(link_parts.format, link_parts.link);
-                spaces.push({ type: 'free', block: block, start: p.start, size: p.size,
-                              desc: cockpit.format(_("unpartitioned space on $0"), text) });
+                spaces.push({
+                    type: 'free', block: block, start: p.start, size: p.size,
+                    desc: cockpit.format(_("unpartitioned space on $0"), text)
+                });
             }
         }
     }
@@ -573,28 +578,32 @@ export function get_active_usage(client, path) {
         var usage = flatten(get_children(client, path).map(get_usage));
 
         if (fsys && fsys.MountPoints.length > 0)
-            usage.push({ usage: 'mounted',
-                         block: block,
-                         fsys: fsys
+            usage.push({
+                usage: 'mounted',
+                block: block,
+                fsys: fsys
             });
 
         if (mdraid)
-            usage.push({ usage: 'mdraid-member',
-                         block: block,
-                         mdraid: mdraid
+            usage.push({
+                usage: 'mdraid-member',
+                block: block,
+                mdraid: mdraid
             });
 
         if (vgroup)
-            usage.push({ usage: 'pvol',
-                         block: block,
-                         pvol: pvol,
-                         vgroup: vgroup
+            usage.push({
+                usage: 'pvol',
+                block: block,
+                pvol: pvol,
+                vgroup: vgroup
             });
 
         if (vdo)
-            usage.push({ usage: 'vdo-backing',
-                         block: block,
-                         vdo: vdo
+            usage.push({
+                usage: 'vdo-backing',
+                block: block,
+                vdo: vdo
             });
 
         return usage;
@@ -723,8 +732,7 @@ export function teardown_active_usage(client, usage) {
             // If we would remove all physical volumes of a volume
             // group, remove the whole volume group instead.
             if (pvs.length == client.vgroups_pvols[p].length) {
-                return vg.Delete({ 'tear-down': { t: 'b', v: true }
-                });
+                return vg.Delete({ 'tear-down': { t: 'b', v: true } });
             } else {
                 // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
                 // https://github.com/cockpit-project/cockpit/issues/10956

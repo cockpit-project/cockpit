@@ -70,7 +70,8 @@ export function setup() {
             React.createElement(OnOffSwitch, {
                 state: state,
                 disabled: disabled,
-                onChange: enable => onToggleKey(id, enable, tbody) }),
+                onChange: enable => onToggleKey(id, enable, tbody)
+            }),
             document.querySelector('table.credential-listing tbody[data-id="' + id + '"] .listing-ct-actions'));
     }
 

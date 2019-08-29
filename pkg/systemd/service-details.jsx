@@ -300,8 +300,10 @@ export class ServiceDetails extends React.Component {
                             .then(() => this.setState({ waitsFileAction: false }));
                 })
                 .fail(error => {
-                    this.setState({ error: error.toString(),
-                                    waitsFileAction: false });
+                    this.setState({
+                        error: error.toString(),
+                        waitsFileAction: false
+                    });
                 });
     }
 

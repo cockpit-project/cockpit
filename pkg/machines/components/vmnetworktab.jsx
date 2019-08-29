@@ -111,89 +111,101 @@ class VmNetworkTab extends React.Component {
 
         // Network data mapping to rows
         let detailMap = [
-            { name: _("Type"), value: (network, networkId) => {
-                const inactiveNIC = nicLookupByMAC(vm.inactiveXML.interfaces, network.mac);
-                return (
-                    <div id={`${id}-network-${networkId}-type`}>
-                        {network.type}
-                        {inactiveNIC && inactiveNIC.type !== network.type && <WarningInactive iconId={`${id}-network-${networkId}-type-tooltip`} tooltipId="tip-network" />}
-                    </div>
-                );
-            } },
-            { name: _("Model type"), value: (network, networkId) => {
-                const inactiveNIC = nicLookupByMAC(vm.inactiveXML.interfaces, network.mac);
-                return (
-                    <div id={`${id}-network-${networkId}-model`}>
-                        {network.model}
-                        {inactiveNIC && inactiveNIC.model !== network.model && <WarningInactive iconId={`${id}-network-${networkId}-model-tooltip`} tooltipId="tip-network" />}
-                    </div>
-                );
-            } },
-            { name: _("MAC Address"), value: 'mac' },
-            { name: _("IP Address"), hidden: config.provider.name != 'LibvirtDBus', value: (network) => {
-                const iface = this.state.interfaceAddress.find(iface => iface[1] == network.mac);
-                const ips = (iface && iface[2]) ? iface[2] : undefined;
-
-                if (!ips) {
-                    // There is not IP address assosiated with this NIC
-                    return _("Unknown");
-                } else {
-                    return (
-                        <div id={`${id}-network-${networkId}-ipaddress`}>
-                            { ips.map(ip => cockpit.format("$0/$1", ip[1], ip[2])).join(',') }
-                        </div>
-                    );
-                }
-            } },
-            { name: _("Source"), value: (network, networkId) => {
-                const setSourceClass = (source) => checkDeviceAviability(source) ? "machines-network-source-link" : undefined;
-                const mapSource = {
-                    direct: (source) => <span className={setSourceClass(source.dev)} onClick={sourceJump(source.dev)}>{source.dev}</span>,
-                    network: (source) => <span className={setSourceClass(source.network)} onClick={sourceJump(source.network)}>{source.network}</span>,
-                    bridge: (source) => <span className={setSourceClass(source.bridge)} onClick={sourceJump(source.bridge)}>{source.bridge}</span>,
-                    mcast: addressPortSource,
-                    server: addressPortSource,
-                    client: addressPortSource,
-                    udp: addressPortSource,
-                };
-                if (mapSource[network.type] !== undefined) {
+            {
+                name: _("Type"), value: (network, networkId) => {
                     const inactiveNIC = nicLookupByMAC(vm.inactiveXML.interfaces, network.mac);
                     return (
-                        <div id={`${id}-network-${networkId}-source`}>
-                            {mapSource[network.type](network.source, networkId)}
-                            {inactiveNIC && inactiveNIC.source[inactiveNIC.type] !== network.source[network.type] && <WarningInactive iconId={`${id}-network-${networkId}-source-tooltip`} tooltipId="tip-network" />}
-
+                        <div id={`${id}-network-${networkId}-type`}>
+                            {network.type}
+                            {inactiveNIC && inactiveNIC.type !== network.type && <WarningInactive iconId={`${id}-network-${networkId}-type-tooltip`} tooltipId="tip-network" />}
                         </div>
                     );
-                } else {
-                    return null;
                 }
-            } },
-            { name: _("State"), value: (network, networkId) => {
-                return <span className='machines-network-state' id={`${id}-network-${networkId}-state`}>{rephraseUI('networkState', network.state)}</span>;
-            } },
-            { name: "", value: (network, networkId) => {
-                const isUp = network.state === 'up';
-                const editNICAction = (providerName) => {
-                    if (providerName === "LibvirtDBus")
-                        return <EditNICAction dispatch={dispatch}
+            },
+            {
+                name: _("Model type"), value: (network, networkId) => {
+                    const inactiveNIC = nicLookupByMAC(vm.inactiveXML.interfaces, network.mac);
+                    return (
+                        <div id={`${id}-network-${networkId}-model`}>
+                            {network.model}
+                            {inactiveNIC && inactiveNIC.model !== network.model && <WarningInactive iconId={`${id}-network-${networkId}-model-tooltip`} tooltipId="tip-network" />}
+                        </div>
+                    );
+                }
+            },
+            { name: _("MAC Address"), value: 'mac' },
+            {
+                name: _("IP Address"), hidden: config.provider.name != 'LibvirtDBus', value: (network) => {
+                    const iface = this.state.interfaceAddress.find(iface => iface[1] == network.mac);
+                    const ips = (iface && iface[2]) ? iface[2] : undefined;
+
+                    if (!ips) {
+                    // There is not IP address assosiated with this NIC
+                        return _("Unknown");
+                    } else {
+                        return (
+                            <div id={`${id}-network-${networkId}-ipaddress`}>
+                                { ips.map(ip => cockpit.format("$0/$1", ip[1], ip[2])).join(',') }
+                            </div>
+                        );
+                    }
+                }
+            },
+            {
+                name: _("Source"), value: (network, networkId) => {
+                    const setSourceClass = (source) => checkDeviceAviability(source) ? "machines-network-source-link" : undefined;
+                    const mapSource = {
+                        direct: (source) => <span className={setSourceClass(source.dev)} onClick={sourceJump(source.dev)}>{source.dev}</span>,
+                        network: (source) => <span className={setSourceClass(source.network)} onClick={sourceJump(source.network)}>{source.network}</span>,
+                        bridge: (source) => <span className={setSourceClass(source.bridge)} onClick={sourceJump(source.bridge)}>{source.bridge}</span>,
+                        mcast: addressPortSource,
+                        server: addressPortSource,
+                        client: addressPortSource,
+                        udp: addressPortSource,
+                    };
+                    if (mapSource[network.type] !== undefined) {
+                        const inactiveNIC = nicLookupByMAC(vm.inactiveXML.interfaces, network.mac);
+                        return (
+                            <div id={`${id}-network-${networkId}-source`}>
+                                {mapSource[network.type](network.source, networkId)}
+                                {inactiveNIC && inactiveNIC.source[inactiveNIC.type] !== network.source[network.type] && <WarningInactive iconId={`${id}-network-${networkId}-source-tooltip`} tooltipId="tip-network" />}
+
+                            </div>
+                        );
+                    } else {
+                        return null;
+                    }
+                }
+            },
+            {
+                name: _("State"), value: (network, networkId) => {
+                    return <span className='machines-network-state' id={`${id}-network-${networkId}-state`}>{rephraseUI('networkState', network.state)}</span>;
+                }
+            },
+            {
+                name: "", value: (network, networkId) => {
+                    const isUp = network.state === 'up';
+                    const editNICAction = (providerName) => {
+                        if (providerName === "LibvirtDBus")
+                            return <EditNICAction dispatch={dispatch}
                                    idPrefix={`${id}-network-${networkId}`}
                                    vm={vm}
                                    network={network}
                                    networks={networks}
                                    nodeDevices={nodeDevices}
                                    interfaces={interfaces} />;
-                };
+                    };
 
-                return (
-                    <div className='machines-network-actions'>
-                        <button className='btn btn-default' onClick={onChangeState(network)} title={`${isUp ? _("Unplug") : _("Plug")}`}>
-                            {isUp ? 'Unplug' : 'Plug'}
-                        </button>
-                        {editNICAction(config.provider.name)}
-                    </div>
-                );
-            } },
+                    return (
+                        <div className='machines-network-actions'>
+                            <button className='btn btn-default' onClick={onChangeState(network)} title={`${isUp ? _("Unplug") : _("Plug")}`}>
+                                {isUp ? 'Unplug' : 'Plug'}
+                            </button>
+                            {editNICAction(config.provider.name)}
+                        </div>
+                    );
+                }
+            },
         ];
 
         let networkId = 1;

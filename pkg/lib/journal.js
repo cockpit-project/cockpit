@@ -541,10 +541,11 @@ journal.renderer = function renderer(funcs_or_box) {
         bottom_output();
     }
 
-    return { prepend: prepend,
-             prepend_flush: prepend_flush,
-             append: append,
-             append_flush: append_flush
+    return {
+        prepend: prepend,
+        prepend_flush: prepend_flush,
+        append: append,
+        append_flush: append_flush
     };
 };
 

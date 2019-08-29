@@ -744,12 +744,12 @@ $(function() {
                 for (var thread_key in threads) {
                     var thread = threads[thread_key];
 
-                    if (thread.hasOwnProperty("crash_thread") && thread.crash_thread) {
-                        if (thread.hasOwnProperty('frames')) {
+                    if (thread.crash_thread) {
+                        if (thread.frames) {
                             crash_thread = thread.frames;
                         }
                     } else {
-                        if (thread.hasOwnProperty('frames')) {
+                        if (thread.frames) {
                             other_threads.push(thread.frames);
                         }
                     }

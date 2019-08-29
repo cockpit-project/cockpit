@@ -327,7 +327,7 @@ function NetworkManagerModel() {
     function remove_signatures(props_with_sigs) {
         var props = { };
         for (var p in props_with_sigs) {
-            if (props_with_sigs.hasOwnProperty(p)) {
+            if (props_with_sigs[p]) {
                 props[p] = props_with_sigs[p].v;
             }
         }

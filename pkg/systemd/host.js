@@ -143,7 +143,7 @@ function ServerTime() {
                     const parts = data.trim().split(":");
                     const timems = parseInt(parts[0], 10) * 1000;
                     let tzmin = parseInt(parts[1].slice(-2), 10);
-                    let tzhour = parseInt(parts[1].slice(0, -2));
+                    const tzhour = parseInt(parts[1].slice(0, -2));
                     if (tzhour < 0)
                         tzmin = -tzmin;
                     const offsetms = (tzhour * 3600000) + tzmin * 60000;
@@ -745,8 +745,8 @@ PageServer.prototype = {
 
         $(window).on('resize.server', () => { self.relayout() });
 
-        let asset_tag_text = $("#system_information_asset_tag_text");
-        let hardware_text = $("#system_information_hardware_text");
+        const asset_tag_text = $("#system_information_asset_tag_text");
+        const hardware_text = $("#system_information_hardware_text");
         hardware_text.tooltip({ title: _("Click to see system hardware information"), placement: "bottom" });
         machine_info.dmi_info()
                 .done(function(fields) {

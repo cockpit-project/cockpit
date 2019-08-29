@@ -56,14 +56,14 @@ class SystemInfo extends React.Component {
     }
 
     render() {
-        let info = this.props.info;
+        const info = this.props.info;
         if ((!info.name || !info.version) && info.alt_name && info.alt_version) {
             info.name = info.alt_name;
             info.version = info.alt_version;
         }
-        let onSecurityClick = this.props.onSecurityClick;
+        const onSecurityClick = this.props.onSecurityClick;
 
-        let mitigations = this.state.allowed ? (<a role="link" onClick={onSecurityClick}>{ _("Mitigations") }</a>)
+        const mitigations = this.state.allowed ? (<a role="link" onClick={onSecurityClick}>{ _("Mitigations") }</a>)
             : (<OverlayTrigger overlay={
                 <Tooltip id="tip-cpu-security">
                     { cockpit.format(_("The user $0 is not permitted to change cpu security mitigations"), permission.user ? permission.user.name : '') }
@@ -130,7 +130,7 @@ function availableMitigations() {
     if (availableMitigations.cachedMitigations !== undefined)
         return Promise.resolve(availableMitigations.cachedMitigations);
     /* nosmt */
-    let promises = [cockpit.spawn(["lscpu"], { environ: ["LC_ALL=C.UTF-8"], }), cockpit.file("/proc/cmdline").read()];
+    const promises = [cockpit.spawn(["lscpu"], { environ: ["LC_ALL=C.UTF-8"], }), cockpit.file("/proc/cmdline").read()];
     return Promise.all(promises).then(values => {
         let threads_per_core;
         try {
@@ -142,9 +142,9 @@ function availableMitigations() {
             return { available: false };
         }
         /* "nosmt" and "nosmt=force" are valid */
-        let nosmt_enabled = (values[1].indexOf("nosmt") !== -1 && values[1].indexOf("nosmt=") === -1) || values[1].indexOf("nosmt=force") !== -1;
+        const nosmt_enabled = (values[1].indexOf("nosmt") !== -1 && values[1].indexOf("nosmt=") === -1) || values[1].indexOf("nosmt=force") !== -1;
         /* available if threads>1 and the cmdline is valid */
-        let nosmt_available = threads_per_core > 1 && (values[1].indexOf("nosmt=") === -1 || values[1].indexOf("nosmt=force") !== -1);
+        const nosmt_available = threads_per_core > 1 && (values[1].indexOf("nosmt=") === -1 || values[1].indexOf("nosmt=force") !== -1);
 
         availableMitigations.cachedMitigations = { available: nosmt_available, nosmt_enabled: nosmt_enabled };
         return availableMitigations.cachedMitigations;
@@ -189,7 +189,7 @@ class CPUSecurityMitigationsDialog extends React.Component {
     }
 
     render() {
-        let rows = [];
+        const rows = [];
         if (this.state.nosmt !== undefined)
             rows.push((
                 <ListView.Item key="nosmt" heading={ <span>{ _("Disable simultaneous multithreading") } (nosmt)<small>
@@ -247,7 +247,7 @@ class HardwareInfo extends React.Component {
         let memory = null;
 
         if (this.props.info.pci.length > 0) {
-            let sortedPci = this.props.info.pci.concat();
+            const sortedPci = this.props.info.pci.concat();
             sortedPci.sort((a, b) => a[this.state.sortBy].localeCompare(b[this.state.sortBy]));
 
             pci = (

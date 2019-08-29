@@ -80,7 +80,7 @@ const Vm = ({ vm, config, hostDevices, storagePools, onStart, onInstall, onShutd
     }
 
     const name = (<span id={`${vmId(vm.name)}-row`}>{vm.name}</span>);
-    let extraClasses = [];
+    const extraClasses = [];
 
     if (resourceHasError[vm.id])
         extraClasses.push('error');

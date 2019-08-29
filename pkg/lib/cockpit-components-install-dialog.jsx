@@ -65,7 +65,7 @@ export function install_dialog(pkg) {
         let remove_details = null;
         let footer_message = null;
 
-        let missing_name = <strong>{pkg}</strong>;
+        const missing_name = <strong>{pkg}</strong>;
 
         if (data && data.extra_names.length > 0)
             extra_details = (
@@ -98,7 +98,7 @@ export function install_dialog(pkg) {
             );
         }
 
-        let body = {
+        const body = {
             id: "dialog",
             title: _("Install Software"),
             body: (
@@ -110,7 +110,7 @@ export function install_dialog(pkg) {
             )
         };
 
-        let footer = {
+        const footer = {
             actions: [
                 { caption: _("Install"),
                   style: "primary",

@@ -72,10 +72,10 @@ class VmDisksTabLibvirt extends React.Component {
          * required checks before reading them.
          */
         if (disk.type == 'volume') {
-            let pool = storagePools.filter(pool => pool.name == disk.source.pool)[0];
-            let volumes = pool ? pool.volumes : [];
-            let volumeName = disk.source.volume;
-            let volume = volumes.filter(vol => vol.name == volumeName)[0];
+            const pool = storagePools.filter(pool => pool.name == disk.source.pool)[0];
+            const volumes = pool ? pool.volumes : [];
+            const volumeName = disk.source.volume;
+            const volume = volumes.filter(vol => vol.name == volumeName)[0];
 
             if (volume) {
                 capacity = volume.capacity;

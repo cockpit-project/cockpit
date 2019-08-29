@@ -115,8 +115,8 @@ export function init(statusChangedCallback) {
 
     function getModifications() {
         // List of items we know how to parse
-        let manageditems_callbacks = [["boolean", parseBoolean]];
-        let manageditems = manageditems_callbacks.map(item => item[0]);
+        const manageditems_callbacks = [["boolean", parseBoolean]];
+        const manageditems = manageditems_callbacks.map(item => item[0]);
 
         // Building a query to get information from semanage
         // Use `semanage export` to show shell script (and parse types we yet don't parse explicitly)
@@ -141,7 +141,7 @@ export function init(statusChangedCallback) {
                         if (mod === "")
                             return result;
 
-                        let items = mod.split(" ");
+                        const items = mod.split(" ");
 
                         // Skip enumeration of types, e.g. 'boolean -D'
                         if (items.length === 2 && items[1] == "-D")

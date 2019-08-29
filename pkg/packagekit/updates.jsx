@@ -118,8 +118,8 @@ class Expander extends React.Component {
     }
 
     render() {
-        let title = <a href="#">{this.props.title}</a>;
-        let cls = "expander-caret fa " + (this.state.expanded ? "fa-angle-down" : "fa-angle-right");
+        const title = <a href="#">{this.props.title}</a>;
+        const cls = "expander-caret fa " + (this.state.expanded ? "fa-angle-down" : "fa-angle-right");
         return (
             <React.Fragment>
                 <div className="expander-title">
@@ -136,7 +136,7 @@ class Expander extends React.Component {
 
 function count_security_updates(updates) {
     var num_security = 0;
-    for (let u in updates)
+    for (const u in updates)
         if (updates[u].severity === PK.Enum.INFO_SECURITY)
             ++num_security;
     return num_security;
@@ -200,7 +200,7 @@ function getSeverityURL(urls) {
     // search URLs for highest valid severity; by all means we expect an update to have at most one, but for paranoia..
     urls.map(value => {
         if (value.startsWith("https://access.redhat.com/security/updates/classification/#")) {
-            let i = knownLevels.indexOf(value.slice(value.indexOf("#") + 1));
+            const i = knownLevels.indexOf(value.slice(value.indexOf("#") + 1));
             if (i > highestIndex) {
                 highestIndex = i;
                 highestURL = value;
@@ -349,10 +349,10 @@ function UpdatesList(props) {
     var sameUpdate = {};
     var packageNames = {};
     Object.keys(props.updates).forEach(id => {
-        let u = props.updates[id];
+        const u = props.updates[id];
         // did we already see the same version and description? then merge
-        let hash = u.version + u.description;
-        let seenId = sameUpdate[hash];
+        const hash = u.version + u.description;
+        const seenId = sameUpdate[hash];
         if (seenId) {
             packageNames[seenId].push({ name: u.name, arch: u.arch });
         } else {
@@ -401,20 +401,20 @@ class ApplyUpdates extends React.Component {
 
         PK.watchTransaction(transactionPath, {
             Package: (info, packageId) => {
-                let pfields = packageId.split(";");
+                const pfields = packageId.split(";");
 
                 // small timeout to avoid excessive overlaps from the next PackageKit progress signal
                 PK.call(transactionPath, "org.freedesktop.DBus.Properties", "GetAll", [PK.transactionInterface], { timeout: 500 })
                         .done(reply => {
-                            let percent = reply[0].Percentage.v;
+                            const percent = reply[0].Percentage.v;
                             let remain = -1;
                             if ("RemainingTime" in reply[0])
                                 remain = reply[0].RemainingTime.v;
                             // info: see PK_STATUS_* at https://github.com/hughsie/PackageKit/blob/master/lib/packagekit-glib2/pk-enum.h
-                            let newActions = this.state.actions.slice();
+                            const newActions = this.state.actions.slice();
                             newActions.push({ status: info, package: pfields[0] + " " + pfields[1] + " (" + pfields[2] + ")" });
 
-                            let log = document.getElementById("update-log");
+                            const log = document.getElementById("update-log");
                             let atBottom = false;
                             if (log) {
                                 if (log.scrollHeight - log.clientHeight <= log.scrollTop + 2)
@@ -438,7 +438,7 @@ class ApplyUpdates extends React.Component {
         var actionHTML, logRows;
 
         if (this.state.actions.length > 0) {
-            let lastAction = this.state.actions[this.state.actions.length - 1];
+            const lastAction = this.state.actions[this.state.actions.length - 1];
             actionHTML = (
                 <React.Fragment>
                     <strong>{ PK_STATUS_STRINGS[lastAction.status] || PK_STATUS_STRINGS[PK.Enum.STATUS_UPDATE] }</strong>
@@ -470,7 +470,7 @@ class ApplyUpdates extends React.Component {
                 <div className="update-log">
                     <Expander title={_("Update Log")} onExpand={() => {
                         // always scroll down on expansion
-                        let log = document.getElementById("update-log");
+                        const log = document.getElementById("update-log");
                         log.scrollTop = log.scrollHeight;
                     }}>
                         <div id="update-log" className="update-log-content">
@@ -529,8 +529,8 @@ class OsUpdates extends React.Component {
         // check if there is an upgrade in progress already; if so, switch to "applying" state right away
         PK.call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "GetTransactionList", [])
                 .done(result => {
-                    let transactions = result[0];
-                    let promises = transactions.map(transactionPath => PK.call(
+                    const transactions = result[0];
+                    const promises = transactions.map(transactionPath => PK.call(
                         transactionPath, "org.freedesktop.DBus.Properties", "Get", [PK.transactionInterface, "Role"]));
 
                     // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
@@ -579,7 +579,7 @@ class OsUpdates extends React.Component {
         PK.cancellableTransaction("GetUpdateDetail", [pkg_ids], null, {
             UpdateDetail: (packageId, updates, obsoletes, vendor_urls, bug_urls, cve_urls, restart,
                 update_text, changelog /* state, issued, updated */) => {
-                let u = this.state.updates[packageId];
+                const u = this.state.updates[packageId];
                 u.vendor_urls = vendor_urls;
                 // HACK: bug_urls and cve_urls also contain titles, in a not-quite-predictable order; ignore them,
                 // only pick out http[s] URLs (https://bugs.freedesktop.org/show_bug.cgi?id=104552)
@@ -618,7 +618,7 @@ class OsUpdates extends React.Component {
                                   data => this.setState({ state: data.waiting ? "locked" : "loading" }),
                                   {
                                       Package: (info, packageId, _summary) => {
-                                          let id_fields = packageId.split(";");
+                                          const id_fields = packageId.split(";");
                                           packageSummaries[id_fields[0]] = _summary;
                                           // HACK: dnf backend yields wrong severity (https://bugs.freedesktop.org/show_bug.cgi?id=101070)
                                           if (info < PK.Enum.INFO_LOW || info > PK.Enum.INFO_SECURITY)
@@ -630,7 +630,7 @@ class OsUpdates extends React.Component {
                                   })
                 .then(() => {
                     // get the details for all packages
-                    let pkg_ids = Object.keys(updates);
+                    const pkg_ids = Object.keys(updates);
                     if (pkg_ids.length) {
                         this.setState({ updates: updates, cockpitUpdate: cockpitUpdate });
                         this.loadUpdateDetails(pkg_ids);
@@ -643,7 +643,7 @@ class OsUpdates extends React.Component {
     }
 
     loadHistory() {
-        let history = [];
+        const history = [];
 
         // would be nice to filter only for "update-packages" role, but can't here
         PK.transaction("GetOldTransactions", [0], {
@@ -653,12 +653,12 @@ class OsUpdates extends React.Component {
                     // data looks like:
                     // downloading\tbash-completion;1:2.6-1.fc26;noarch;updates-testing
                     // updating\tbash-completion;1:2.6-1.fc26;noarch;updates-testing
-                let pkgs = { "_time": Date.parse(timeSpec) };
+                const pkgs = { "_time": Date.parse(timeSpec) };
                 let empty = true;
                 data.split("\n").forEach(line => {
-                    let fields = line.trim().split("\t");
+                    const fields = line.trim().split("\t");
                     if (fields.length >= 2) {
-                        let pkgId = fields[1].split(";");
+                        const pkgId = fields[1].split(";");
                         pkgs[pkgId[0]] = pkgId[1];
                         empty = false;
                     }
@@ -799,8 +799,8 @@ class OsUpdates extends React.Component {
 
         case "available":
             {
-                let num_updates = Object.keys(this.state.updates).length;
-                let num_security_updates = count_security_updates(this.state.updates);
+                const num_updates = Object.keys(this.state.updates).length;
+                const num_security_updates = count_security_updates(this.state.updates);
 
                 applyAll = (
                     <button className="pk-update--all btn btn-primary" onClick={ () => this.applyUpdates(false) }>

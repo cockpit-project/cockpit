@@ -55,7 +55,7 @@ function ServiceRow(props) {
     var tcp = props.service.ports.filter(p => p.protocol.toUpperCase() == 'TCP');
     var udp = props.service.ports.filter(p => p.protocol.toUpperCase() == 'UDP');
 
-    for (let s of props.service.includes) {
+    for (const s of props.service.includes) {
         if (firewall.services[s]) {
             tcp = tcp.concat(firewall.services[s].ports.filter(p => p.protocol.toUpperCase() == 'TCP'));
             udp = udp.concat(firewall.services[s].ports.filter(p => p.protocol.toUpperCase() == 'UDP'));
@@ -105,7 +105,7 @@ function ServiceRow(props) {
         includes = <React.Fragment>
             <h5>Included Services</h5>
             <ul>{props.service.includes.map(s => {
-                let service = firewall.services[s];
+                const service = firewall.services[s];
                 if (service && service.description)
                     return <li key={service.id}><strong>{service.name}</strong>: {service.description}</li>;
             })} </ul></React.Fragment>;
@@ -140,7 +140,7 @@ function ZoneRow(props) {
         deleteButton = <button className="btn btn-danger pficon pficon-delete" onClick={onRemoveZone} />;
     }
 
-    let columns = [
+    const columns = [
         { name: props.zone.name, header: true },
         <React.Fragment>{ props.zone.id === firewall.defaultZone ? <React.Fragment><span className="fa fa-check" /> default</React.Fragment> : '' }</React.Fragment>,
         <React.Fragment>{ props.zone.interfaces.length > 0 ? props.zone.interfaces.join(', ') : '*' }</React.Fragment>,
@@ -161,7 +161,7 @@ class SearchInput extends React.Component {
     }
 
     onValueChanged(event) {
-        let value = event.target.value;
+        const value = event.target.value;
         this.setState({ value:value });
 
         if (this.timer)
@@ -183,10 +183,10 @@ class SearchInput extends React.Component {
 }
 
 const renderPorts = service => {
-    let tcpPorts = [];
-    let udpPorts = [];
+    const tcpPorts = [];
+    const udpPorts = [];
     function addPorts(ports) {
-        for (let port of ports) {
+        for (const port of ports) {
             if (port.protocol === "tcp")
                 tcpPorts.push(port.port);
             else
@@ -194,7 +194,7 @@ const renderPorts = service => {
         }
     }
     addPorts(service.ports);
-    for (let s of service.includes)
+    for (const s of service.includes)
         addPorts(firewall.services[s].ports);
 
     return (
@@ -270,7 +270,7 @@ class AddServicesModal extends React.Component {
         var enabled = event.target.checked;
 
         this.setState(oldState => {
-            let selected = new Set(oldState.selected);
+            const selected = new Set(oldState.selected);
 
             if (enabled)
                 selected.add(service);
@@ -303,8 +303,8 @@ class AddServicesModal extends React.Component {
         content.split('\n').forEach(line => {
             if (!line || line.startsWith("#"))
                 return;
-            let m = line.match(/^(\S+)\s+(\d+)\/(\S+).*?(#(.*))?$/);
-            let new_port = { name: m[1], port: m[2], type: [m[3]] };
+            const m = line.match(/^(\S+)\s+(\d+)\/(\S+).*?(#(.*))?$/);
+            const new_port = { name: m[1], port: m[2], type: [m[3]] };
             if (m.length > 5 && m[5])
                 new_port['description'] = m[5].trim();
             if (ret[m[1]])
@@ -327,7 +327,7 @@ class AddServicesModal extends React.Component {
     }
 
     getName(port) {
-        let known = this.state.avail_services[port];
+        const known = this.state.avail_services[port];
         if (known)
             return known['name'];
         else
@@ -337,7 +337,7 @@ class AddServicesModal extends React.Component {
     generateName(all_ports) {
         var name = "";
         if (all_ports.length === 1) {
-            let known = this.state.avail_services[all_ports[0]];
+            const known = this.state.avail_services[all_ports[0]];
             if (known)
                 name = known['description'] || known['name'];
             else
@@ -353,7 +353,7 @@ class AddServicesModal extends React.Component {
 
     getPortNumber(port, type, avail) {
         if (!avail) {
-            let num_p = Number(port);
+            const num_p = Number(port);
             if (isNaN(num_p))
                 return [0, _("Unknown service name")];
             else if (num_p <= 0 || num_p > 65535)
@@ -368,14 +368,14 @@ class AddServicesModal extends React.Component {
     }
 
     validate(event) {
-        let ports = event.target.value.split(',');
+        const ports = event.target.value.split(',');
         let error = "";
         let targets = ['tcp', 'custom_tcp_ports', 'tcp_error', 'custom_tcp_value'];
         if (event.target.id === "udp-ports")
             targets = ['udp', 'custom_udp_ports', 'udp_error', 'custom_udp_value'];
 
-        let new_ports = [];
-        let self = this;
+        const new_ports = [];
+        const self = this;
         ports.forEach(function(port) {
             port = port.trim();
             if (!port)
@@ -403,9 +403,9 @@ class AddServicesModal extends React.Component {
                     new_ports.push(ports);
             }
         });
-        let newState = { [targets[1]]: new_ports,
-                         [targets[2]]: error,
-                         [targets[3]]: event.target.value };
+        const newState = { [targets[1]]: new_ports,
+                           [targets[2]]: error,
+                           [targets[3]]: event.target.value };
 
         let name = this.state.custom_name;
         let all_ports = new_ports.concat(this.state.custom_udp_ports);
@@ -415,7 +415,7 @@ class AddServicesModal extends React.Component {
         if (this.state.generate_name)
             name = this.generateName(all_ports);
 
-        let new_id = "custom--" + all_ports.map(this.getName).join('-');
+        const new_id = "custom--" + all_ports.map(this.getName).join('-');
 
         newState['custom_name'] = name;
         newState['custom_id'] = new_id;
@@ -429,7 +429,7 @@ class AddServicesModal extends React.Component {
     }
 
     onToggleZone(event) {
-        let zone = event.target.value;
+        const zone = event.target.value;
         this.setState(state => {
             if (state.zones.indexOf(zone) === -1)
                 return { zones: state.zones.concat(zone) };
@@ -459,7 +459,7 @@ class AddServicesModal extends React.Component {
         let services;
         if (this.state.filter && this.state.services && !isNaN(this.state.filter))
             services = this.state.services.filter(s => {
-                for (let port of s.ports)
+                for (const port of s.ports)
                     if (port.port === this.state.filter)
                         return true;
                 return false;
@@ -473,7 +473,7 @@ class AddServicesModal extends React.Component {
         if (services) {
             services = services.filter(s => {
                 let allZonesContainService = true;
-                for (let zone of firewall.activeZones)
+                for (const zone of firewall.activeZones)
                     allZonesContainService &= firewall.zones[zone].services.indexOf(s.id) !== -1;
                 return !allZonesContainService;
             });
@@ -625,7 +625,7 @@ class RemoveServicesModal extends React.Component {
     }
 
     onToggleZone(event) {
-        let zone = event.target.value;
+        const zone = event.target.value;
         this.setState(state => {
             if (state.zones.indexOf(zone) === -1)
                 return { zones: state.zones.concat(zone) };
@@ -684,10 +684,10 @@ class ActivateZoneModal extends React.Component {
     }
 
     onInterfaceChange(event) {
-        let int = event.target.value;
-        let enabled = event.target.checked;
+        const int = event.target.value;
+        const enabled = event.target.checked;
         this.setState(state => {
-            let interfaces = new Set(state.interfaces);
+            const interfaces = new Set(state.interfaces);
             if (enabled)
                 interfaces.add(int);
             else
@@ -701,7 +701,7 @@ class ActivateZoneModal extends React.Component {
     }
 
     save() {
-        let sources = this.state.ipRange === "ip-range" ? this.state.ipRangeValue.split(",").map(ip => ip.trim()) : [];
+        const sources = this.state.ipRange === "ip-range" ? this.state.ipRangeValue.split(",").map(ip => ip.trim()) : [];
         firewall.activateZone(this.state.zone, [...this.state.interfaces], sources)
                 .then(() => this.props.close())
                 .catch(error => {
@@ -713,17 +713,17 @@ class ActivateZoneModal extends React.Component {
     }
 
     render() {
-        let zones = Object.keys(firewall.zones).filter(z => firewall.zones[z].target === "default" && !firewall.activeZones.has(z));
-        let customZones = zones.filter(z => firewall.predefinedZones.indexOf(z) === -1);
-        let interfaces = firewall.availableInterfaces.filter(i => {
+        const zones = Object.keys(firewall.zones).filter(z => firewall.zones[z].target === "default" && !firewall.activeZones.has(z));
+        const customZones = zones.filter(z => firewall.predefinedZones.indexOf(z) === -1);
+        const interfaces = firewall.availableInterfaces.filter(i => {
             let inZone = false;
             firewall.activeZones.forEach(z => {
                 inZone |= firewall.zones[z].interfaces.indexOf(i.device) !== -1;
             });
             return !inZone;
         });
-        let virtualDevices = interfaces.filter(i => i.capabilities >= 7 && i.device !== "lo").sort((a, b) => a.device.localeCompare(b.device));
-        let physicalDevices = interfaces.filter(i => (i.capabilities < 5 || i.capabilities > 7) && i.device !== "lo").sort((a, b) => a.device.localeCompare(b.device));
+        const virtualDevices = interfaces.filter(i => i.capabilities >= 7 && i.device !== "lo").sort((a, b) => a.device.localeCompare(b.device));
+        const physicalDevices = interfaces.filter(i => (i.capabilities < 5 || i.capabilities > 7) && i.device !== "lo").sort((a, b) => a.device.localeCompare(b.device));
         return (
             <Modal id="add-zone-dialog" show onHide={this.props.close}>
                 <Modal.Header>

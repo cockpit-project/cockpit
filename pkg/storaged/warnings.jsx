@@ -20,7 +20,7 @@
 import { get_parent } from "./utils.js";
 
 export function find_warnings(client) {
-    let path_warnings = { };
+    const path_warnings = { };
 
     function push_warning(path, warning) {
         if (!path_warnings[path])
@@ -38,10 +38,10 @@ export function find_warnings(client) {
         push_warning(path, warning);
     }
 
-    for (let path in client.blocks) {
-        let block = client.blocks[path];
-        let lvm2 = client.blocks_lvm2[path];
-        let lvol = lvm2 && client.lvols[lvm2.LogicalVolume];
+    for (const path in client.blocks) {
+        const block = client.blocks[path];
+        const lvm2 = client.blocks_lvm2[path];
+        const lvol = lvm2 && client.lvols[lvm2.LogicalVolume];
 
         if (!lvol)
             continue;
@@ -53,12 +53,12 @@ export function find_warnings(client) {
             continue;
         }
 
-        let vgroup = client.vgroups[lvol.VolumeGroup];
+        const vgroup = client.vgroups[lvol.VolumeGroup];
         let content_path = null;
         let crypto_overhead = 0;
 
-        let crypto = client.blocks_crypto[block.path];
-        let cleartext = client.blocks_cleartext[block.path];
+        const crypto = client.blocks_crypto[block.path];
+        const cleartext = client.blocks_cleartext[block.path];
         if (crypto) {
             if (crypto.MetadataSize !== undefined && cleartext) {
                 content_path = cleartext.path;
@@ -68,9 +68,9 @@ export function find_warnings(client) {
             content_path = path;
         }
 
-        let fsys = client.blocks_fsys[content_path];
-        let content_block = client.blocks[content_path];
-        let vdo = content_block ? client.vdo_overlay.find_by_backing_block(content_block) : null;
+        const fsys = client.blocks_fsys[content_path];
+        const content_block = client.blocks[content_path];
+        const vdo = content_block ? client.vdo_overlay.find_by_backing_block(content_block) : null;
 
         if (fsys && fsys.Size && (lvol.Size - fsys.Size - crypto_overhead) > vgroup.ExtentSize && fsys.Resize) {
             enter_warning(path, { warning: "unused-space",

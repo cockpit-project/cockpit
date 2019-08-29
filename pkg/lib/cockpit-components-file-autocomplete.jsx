@@ -50,9 +50,9 @@ export class FileAutoComplete extends React.Component {
         this.showAllOptions = this.showAllOptions.bind(this);
         this.selectItem = this.selectItem.bind(this);
         this.debouncedChange = debounce(300, (value) => {
-            let cb = () => {
+            const cb = () => {
                 this.pendingCallback = false;
-                let stateUpdate = this.filterFiles(value);
+                const stateUpdate = this.filterFiles(value);
                 this.setState(stateUpdate, () => this.onChangeCallback(value, { error: stateUpdate.error }));
             };
             if (!this.updateIfDirectoryChanged(value, cb))
@@ -137,7 +137,7 @@ export class FileAutoComplete extends React.Component {
         });
 
         channel.addEventListener("message", (ev, data) => {
-            let item = JSON.parse(data);
+            const item = JSON.parse(data);
             if (item && item.path && item.event == 'present') {
                 if (item.type == "directory")
                     item.path = item.path + "/";

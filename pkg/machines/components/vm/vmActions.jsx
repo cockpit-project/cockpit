@@ -52,7 +52,7 @@ const VmActions = ({ vm, config, dispatch, onStart, onInstall, onReboot, onForce
 
     let shutdown = null;
     if (config.provider.canShutdown(state)) {
-        let buttons = [{
+        const buttons = [{
             title: _("Shut Down"),
             action: onShutdown,
             id: `${id}-off`,

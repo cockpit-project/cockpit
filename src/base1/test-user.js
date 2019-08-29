@@ -1,7 +1,7 @@
 /* global $, cockpit, QUnit */
 
 QUnit.test("load user info", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(9);
 
     var dbus = cockpit.dbus(null, { "bus": "internal" });
@@ -26,7 +26,7 @@ QUnit.test("load user info", function (assert) {
 });
 
 QUnit.test("user object", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(6);
 
     cockpit.user().done(function (user) {
@@ -41,7 +41,7 @@ QUnit.test("user object", function (assert) {
 });
 
 QUnit.test("user environment", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(6);
 
     cockpit.spawn([ "/bin/sh", "-c", "echo $USER~$SHELL~$HOME" ])

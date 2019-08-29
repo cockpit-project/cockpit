@@ -88,7 +88,7 @@ export class StoragePool extends React.Component {
                 {_("Storage Volumes")}
             </div>
         );
-        let tabRenderers = [
+        const tabRenderers = [
             {
                 name: overviewTabName,
                 renderer: StoragePoolOverviewTab,
@@ -100,7 +100,7 @@ export class StoragePool extends React.Component {
                 data: { storagePool, vms }
             },
         ];
-        let extraClasses = [];
+        const extraClasses = [];
 
         if (this.props.resourceHasError[storagePool.id])
             extraClasses.push('error');

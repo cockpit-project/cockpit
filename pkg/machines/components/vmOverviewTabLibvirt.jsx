@@ -46,7 +46,7 @@ const _ = cockpit.gettext;
  */
 function getBootOrder(vm) {
     let bootOrder = _("No boot device found");
-    let devices = getSortedBootOrderDevices(vm).filter(d => d.bootOrder);
+    const devices = getSortedBootOrderDevices(vm).filter(d => d.bootOrder);
 
     if (devices && devices.length > 0) {
         bootOrder = devices.map(bootDevice => rephraseUI("bootableDisk", bootDevice.type)).join(); // Example: network,disk,disk
@@ -157,7 +157,7 @@ class VmOverviewTabLibvirt extends React.Component {
             </React.Fragment>
         );
 
-        let items = [
+        const items = [
             { title: commonTitles.MEMORY, value: memoryLink, idPostfix: 'memory' },
             { title: _("Emulated Machine"), value: vm.emulatedMachine, idPostfix: 'emulatedmachine' },
             { title: commonTitles.CPUS, value: vcpuLink, idPostfix: 'vcpus' },

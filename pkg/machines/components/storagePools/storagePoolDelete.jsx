@@ -44,7 +44,7 @@ function canDeleteOnlyWithoutVolumes(pool, vms) {
 
     const isVolumeUsed = getStorageVolumesUsage(vms, pool);
 
-    for (let property in isVolumeUsed) {
+    for (const property in isVolumeUsed) {
         if (isVolumeUsed[property].length > 0)
             return true;
     }
@@ -137,7 +137,7 @@ export class StoragePoolDelete extends React.Component {
 
         const usage = getStorageVolumesUsage(vms, storagePool);
         let vmsUsage = [];
-        for (let property in usage)
+        for (const property in usage)
             vmsUsage = vmsUsage.concat(usage[property]);
 
         vmsUsage = vmsUsage.join(', ');
@@ -154,7 +154,7 @@ export class StoragePoolDelete extends React.Component {
             }
         };
 
-        let defaultBody = (
+        const defaultBody = (
             <React.Fragment>
                 <div className='ct-form'>
                     { storagePool.active && volumes.length > 0 && <React.Fragment>

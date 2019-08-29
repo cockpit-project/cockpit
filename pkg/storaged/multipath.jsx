@@ -41,11 +41,11 @@ export class MultipathAlert extends React.Component {
     }
 
     render() {
-        let { client } = this.props;
+        const { client } = this.props;
 
         // When in doubt, assume everything is alright
-        let multipathd_running = !this.multipathd_service.state || this.multipathd_service.state === "running";
-        let multipath_broken = client.broken_multipath_present === true;
+        const multipathd_running = !this.multipathd_service.state || this.multipathd_service.state === "running";
+        const multipath_broken = client.broken_multipath_present === true;
 
         function activate(event) {
             if (!event || event.button !== 0)

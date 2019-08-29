@@ -92,7 +92,7 @@ export function convertToUnit(input, inputUnit, outputUnit) {
 }
 
 export function convertToUnitVerbose(input, inputUnit, outputUnit) {
-    let result = {
+    const result = {
         value: 0,
         unit: units.B.name,
     };
@@ -108,15 +108,15 @@ export function convertToUnitVerbose(input, inputUnit, outputUnit) {
         return result;
     }
 
-    let inUnit = units[(typeof inputUnit === 'string' ? inputUnit : inputUnit.name)];
-    let outUnit = units[(typeof outputUnit === 'string' ? outputUnit : outputUnit.name)];
+    const inUnit = units[(typeof inputUnit === 'string' ? inputUnit : inputUnit.name)];
+    const outUnit = units[(typeof outputUnit === 'string' ? outputUnit : outputUnit.name)];
 
     if (!inUnit || !outUnit) {
         console.error(`unknown unit ${!inUnit ? inputUnit : outputUnit}`);
         return result;
     }
 
-    let exponentDiff = inUnit.base1024Exponent - outUnit.base1024Exponent;
+    const exponentDiff = inUnit.base1024Exponent - outUnit.base1024Exponent;
     if (exponentDiff < 0) {
         result.value = input / getPowerOf1024(-1 * exponentDiff);
     } else {
@@ -153,7 +153,7 @@ export function logError(msg, ...params) {
 }
 
 export function digitFilter(event, allowDots = false) {
-    let accept = (allowDots && event.key === '.') || (event.key >= '0' && event.key <= '9') ||
+    const accept = (allowDots && event.key === '.') || (event.key >= '0' && event.key <= '9') ||
                  event.key === 'Backspace' || event.key === 'Delete' || event.key === 'Tab' ||
                  event.key === 'ArrowLeft' || event.key === 'ArrowRight' ||
                  event.key === 'ArrowUp' || event.key === 'ArrowDown' ||
@@ -345,7 +345,7 @@ export function timeoutedPromise(promise, delay, afterTimeoutHandler, afterTimeo
     const deferred = cockpit.defer();
     let done = false;
 
-    let timer = window.setTimeout(() => {
+    const timer = window.setTimeout(() => {
         if (!done) {
             deferred.resolve();
             done = true;
@@ -461,7 +461,7 @@ export function findHostNodeDevice(hostdev, nodeDevices) {
  * @returns {array}
  */
 export function getBootOrderDevices(vm) {
-    let devices = [];
+    const devices = [];
 
     // Create temporary arrays of devices
     const disks = Object.values(vm.disks);
@@ -579,16 +579,16 @@ export function getSortedBootOrderDevices(vm) {
 }
 
 function getVmDisksMap(vms, connectionName) {
-    let vmDisksMap = {};
+    const vmDisksMap = {};
 
-    for (let vm of vms) {
+    for (const vm of vms) {
         if (vm.connectionName != connectionName)
             continue;
 
         if (!(vm.name in vmDisksMap))
             vmDisksMap[vm.name] = [];
 
-        for (let disk in vm.disks) {
+        for (const disk in vm.disks) {
             const diskProps = vm.disks[disk];
 
             if (diskProps.type == 'volume')
@@ -615,18 +615,18 @@ export function getStorageVolumesUsage(vms, storagePool) {
     const volumes = storagePool.volumes || [];
 
     // And make it a dictionary of volumeName -> array of Domains using volume
-    let isVolumeUsed = {};
-    for (let i in volumes) {
-        let volumeName = volumes[i].name;
+    const isVolumeUsed = {};
+    for (const i in volumes) {
+        const volumeName = volumes[i].name;
         const targetPath = storagePool.target ? storagePool.target.path : '';
         const volumePath = [targetPath, volumeName].join('/');
         isVolumeUsed[volumeName] = [];
 
-        for (let vmName in vmDisksMap) {
+        for (const vmName in vmDisksMap) {
             const disks = vmDisksMap[vmName];
 
-            for (let i in disks) {
-                let disk = disks[i];
+            for (const i in disks) {
+                const disk = disks[i];
                 if (disk.type == 'volume' && disk.volume == volumeName && disk.pool == storagePool.name)
                     isVolumeUsed[volumeName].push(vmName);
 
@@ -649,7 +649,7 @@ export function getStorageVolumesUsage(vms, storagePool) {
  * @returns {array}
  */
 export function getNetworkDevices(vms, nodeDevices, interfaces) {
-    let devs = [];
+    const devs = [];
 
     nodeDevices.forEach(dev => {
         if (dev.capability.type === "net")

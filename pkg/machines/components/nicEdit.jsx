@@ -38,12 +38,12 @@ import 'form-layout.less';
 const _ = cockpit.gettext;
 
 const NetworkModelRow = ({ idPrefix, onValueChanged, dialogValues, network, osTypeArch, osTypeMachine, isRunning }) => {
-    let availableModelTypes = [
+    const availableModelTypes = [
         { 'name': 'virtio', 'desc': 'Linux, perf' },
         { 'name': 'e1000e', 'desc': 'PCI' },
         { 'name': 'e1000', 'desc': 'PCI, legacy' },
         { 'name': 'rtl8139', 'desc': 'PCI, legacy' } ];
-    let defaultModelType = dialogValues.networkModel;
+    const defaultModelType = dialogValues.networkModel;
 
     if (osTypeArch == 'ppc64' && osTypeMachine == 'pseries') {
         availableModelTypes.push('spapr-vlan');
@@ -72,7 +72,7 @@ const NetworkModelRow = ({ idPrefix, onValueChanged, dialogValues, network, osTy
 };
 
 const NetworkTypeAndSourceRow = ({ idPrefix, onValueChanged, dialogValues, network, connectionName, networks, nodeDevices, interfaces }) => {
-    let defaultNetworkType = dialogValues.networkType;
+    const defaultNetworkType = dialogValues.networkType;
     let availableNetworkTypes = [];
     let defaultNetworkSource = dialogValues.networkSource;
     let availableSources = [];

@@ -189,7 +189,7 @@ export function validateIpv6Prefix(prefix) {
  * @returns {string}
  */
 export function ipv6ToBinStr(ip) {
-    let parts = [];
+    const parts = [];
     ip.split(":").forEach(part => {
         let bin = parseInt(part, 16).toString(2);
         while (bin.length < 16)

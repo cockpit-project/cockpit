@@ -111,7 +111,7 @@ export function refresh(origin_files, config_packages, data_packages, progress_c
         return PK.cancellableTransaction("GetUpdates", [ 0 ], progress_reporter(75, 5, progress_cb),
                                          {
                                              Package: (info, package_id) => {
-                                                 let pkg = package_id.split(";")[0];
+                                                 const pkg = package_id.split(";")[0];
                                                  if (pkg in origin_pkgs)
                                                      update_ids.push(package_id);
                                              },

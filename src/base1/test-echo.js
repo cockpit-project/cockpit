@@ -1,7 +1,7 @@
 /* global $, cockpit, QUnit, ArrayBuffer, Uint8Array */
 
 QUnit.test("basic", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(4);
 
     var channel = cockpit.channel({ "payload": "echo" });
@@ -29,7 +29,7 @@ QUnit.test("basic", function (assert) {
 });
 
 QUnit.test("binary empty", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(2);
 
     var channel = cockpit.channel({
@@ -51,7 +51,7 @@ QUnit.test("binary empty", function (assert) {
 });
 
 QUnit.test("binary", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(3);
 
     var channel = cockpit.channel({ "payload": "echo", "binary": true });
@@ -90,7 +90,7 @@ QUnit.test("binary", function (assert) {
 });
 
 QUnit.test("fence", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(2);
 
     var before = cockpit.channel({ "payload": "echo" });

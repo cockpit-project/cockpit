@@ -151,7 +151,7 @@ class ServiceActions extends React.Component {
     }
 
     render() {
-        let actions = [];
+        const actions = [];
 
         // If masked, only show unmasking and nothing else
         if (this.props.masked) {
@@ -289,7 +289,7 @@ export class ServiceDetails extends React.Component {
 
     unitFileAction(method, force) {
         this.setState({ waitsFileAction: true });
-        let args = [ [ this.props.unit.Names[0] ], false ];
+        const args = [ [ this.props.unit.Names[0] ], false ];
         if (force !== undefined)
             args.push(force == "true");
         this.props.systemdManager.call(method, args)
@@ -306,11 +306,11 @@ export class ServiceDetails extends React.Component {
     }
 
     render() {
-        let active = this.props.unit.ActiveState === "active" || this.props.unit.ActiveState === "activating";
-        let enabled = this.props.unit.UnitFileState === "enabled";
-        let isStatic = this.props.unit.UnitFileState !== "disabled" && !enabled;
-        let failed = this.props.unit.ActiveState === "failed";
-        let masked = this.props.unit.LoadState === "masked";
+        const active = this.props.unit.ActiveState === "active" || this.props.unit.ActiveState === "activating";
+        const enabled = this.props.unit.UnitFileState === "enabled";
+        const isStatic = this.props.unit.UnitFileState !== "disabled" && !enabled;
+        const failed = this.props.unit.ActiveState === "failed";
+        const masked = this.props.unit.LoadState === "masked";
 
         let status = [];
 
@@ -408,10 +408,10 @@ export class ServiceDetails extends React.Component {
             ];
         }
 
-        let tooltipMessage = enabled ? _("Stop and Disable") : _("Start and Enable");
-        let hasLoadError = this.props.unit.LoadState !== "loaded" && this.props.unit.LoadState !== "masked";
-        let loadError = this.props.unit.LoadError ? this.props.unit.LoadError[1] : null;
-        let relationships = [
+        const tooltipMessage = enabled ? _("Stop and Disable") : _("Start and Enable");
+        const hasLoadError = this.props.unit.LoadState !== "loaded" && this.props.unit.LoadState !== "masked";
+        const loadError = this.props.unit.LoadError ? this.props.unit.LoadError[1] : null;
+        const relationships = [
             { Name: _("Requires"), Units: this.props.unit.Requires },
             { Name: _("Requisite"), Units: this.props.unit.Requisite },
             { Name: _("Wants"), Units: this.props.unit.Wants },
@@ -434,8 +434,8 @@ export class ServiceDetails extends React.Component {
             { Name: _("Joins Namespace Of"), Units: this.props.unit.JoinsNamespaceOf }
         ];
 
-        let conditions = this.props.unit.Conditions;
-        let notMetConditions = [];
+        const conditions = this.props.unit.Conditions;
+        const notMetConditions = [];
         if (conditions)
             conditions.map(condition => {
                 if (condition[4] < 0)

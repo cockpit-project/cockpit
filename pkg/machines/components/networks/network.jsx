@@ -73,14 +73,14 @@ export class Network extends React.Component {
             </div>
         );
 
-        let tabRenderers = [
+        const tabRenderers = [
             {
                 name: overviewTabName,
                 renderer: NetworkOverviewTab,
                 data: { network, dispatch, }
             },
         ];
-        let extraClasses = [];
+        const extraClasses = [];
 
         if (resourceHasError[network.id])
             extraClasses.push('error');

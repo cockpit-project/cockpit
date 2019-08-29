@@ -331,7 +331,7 @@ function ui(state, action) {
         vms: {}, // transient property
     };
     const addVm = () => {
-        let newState = Object.assign({}, state);
+        const newState = Object.assign({}, state);
         newState.vms = Object.assign({}, state.vms);
         const oldVm = newState.vms[action.vm.name];
         const vm = Object.assign({}, oldVm, action.vm);
@@ -353,7 +353,7 @@ function ui(state, action) {
         return state;
     }
     case DELETE_UI_VM: {
-        let newState = Object.assign({}, state);
+        const newState = Object.assign({}, state);
         newState.vms = Object.assign({}, state.vms);
         delete newState.vms[action.vm.name];
         return newState;

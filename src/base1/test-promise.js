@@ -5,8 +5,8 @@ QUnit.test("should be able to dispatch es2015 promises", function (assert) {
 
     assert.expect(1);
 
-    let done = assert.async();
-    let dfd = cockpit.defer();
+    const done = assert.async();
+    const dfd = cockpit.defer();
 
     dfd.promise.then(() => Promise.resolve(42))
             .then(result => {

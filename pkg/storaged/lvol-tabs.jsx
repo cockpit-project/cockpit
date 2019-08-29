@@ -95,7 +95,7 @@ function lvol_and_fsys_resize(client, lvol, size, offline, passphrase) {
 
     function crypto_resize() {
         if (crypto) {
-            let opts = { };
+            const opts = { };
             if (passphrase)
                 opts.passphrase = { t: "s", v: passphrase };
             return crypto.Resize(size - crypto_overhead, opts);
@@ -228,21 +228,21 @@ function lvol_grow(client, lvol, info, to_fit) {
         return lvol_and_fsys_resize(client, lvol, grow_size, info.grow_needs_unmount, null);
     }
 
-    let dlg = dialog_open({ Title: _("Grow Logical Volume"),
-                            Footer: TeardownMessage(usage),
-                            Fields: size_fields.concat(passphrase_fields),
-                            Action: {
-                                Title: _("Grow"),
-                                action: function (vals) {
-                                    return utils.teardown_active_usage(client, usage)
-                                            .then(function () {
-                                                return lvol_and_fsys_resize(client, lvol,
-                                                                            to_fit ? grow_size : vals.size,
-                                                                            info.grow_needs_unmount,
-                                                                            vals.passphrase || recovered_passphrase);
-                                            });
-                                }
-                            }
+    const dlg = dialog_open({ Title: _("Grow Logical Volume"),
+                              Footer: TeardownMessage(usage),
+                              Fields: size_fields.concat(passphrase_fields),
+                              Action: {
+                                  Title: _("Grow"),
+                                  action: function (vals) {
+                                      return utils.teardown_active_usage(client, usage)
+                                              .then(function () {
+                                                  return lvol_and_fsys_resize(client, lvol,
+                                                                              to_fit ? grow_size : vals.size,
+                                                                              info.grow_needs_unmount,
+                                                                              vals.passphrase || recovered_passphrase);
+                                              });
+                                  }
+                              }
     });
 
     if (passphrase_fields.length)
@@ -273,8 +273,8 @@ function lvol_shrink(client, lvol, info, to_fit) {
                        })
         ];
     } else {
-        let crypto = client.blocks_crypto[block.path];
-        let cleartext = client.blocks_cleartext[block.path];
+        const crypto = client.blocks_crypto[block.path];
+        const cleartext = client.blocks_cleartext[block.path];
         let content_path = null;
         let crypto_overhead = 0;
 
@@ -287,11 +287,11 @@ function lvol_shrink(client, lvol, info, to_fit) {
             content_path = block.path;
         }
 
-        let fsys = client.blocks_fsys[content_path];
+        const fsys = client.blocks_fsys[content_path];
         if (fsys)
             shrink_size = fsys.Size + crypto_overhead;
 
-        let vdo = client.vdo_overlay.find_by_backing_block(client.blocks[content_path]);
+        const vdo = client.vdo_overlay.find_by_backing_block(client.blocks[content_path]);
         if (vdo)
             shrink_size = vdo.physical_size + crypto_overhead;
 
@@ -310,21 +310,21 @@ function lvol_shrink(client, lvol, info, to_fit) {
         return lvol_and_fsys_resize(client, lvol, shrink_size, false, null);
     }
 
-    let dlg = dialog_open({ Title: _("Shrink Logical Volume"),
-                            Footer: TeardownMessage(usage),
-                            Fields: size_fields.concat(passphrase_fields),
-                            Action: {
-                                Title: _("Shrink"),
-                                action: function (vals) {
-                                    return utils.teardown_active_usage(client, usage)
-                                            .then(function () {
-                                                return lvol_and_fsys_resize(client, lvol,
-                                                                            to_fit ? shrink_size : vals.size,
-                                                                            to_fit ? false : info.shrink_needs_unmount,
-                                                                            vals.passphrase || recovered_passphrase);
-                                            });
-                                }
-                            }
+    const dlg = dialog_open({ Title: _("Shrink Logical Volume"),
+                              Footer: TeardownMessage(usage),
+                              Fields: size_fields.concat(passphrase_fields),
+                              Action: {
+                                  Title: _("Shrink"),
+                                  action: function (vals) {
+                                      return utils.teardown_active_usage(client, usage)
+                                              .then(function () {
+                                                  return lvol_and_fsys_resize(client, lvol,
+                                                                              to_fit ? shrink_size : vals.size,
+                                                                              to_fit ? false : info.shrink_needs_unmount,
+                                                                              vals.passphrase || recovered_passphrase);
+                                              });
+                                  }
+                              }
     });
 
     if (passphrase_fields.length)

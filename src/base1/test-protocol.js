@@ -1,9 +1,9 @@
 /* global QUnit */
 
 function connect() {
-    let ws = new WebSocket(`ws://${window.location.host}/cockpit/socket`, "cockpit1");
+    const ws = new WebSocket(`ws://${window.location.host}/cockpit/socket`, "cockpit1");
 
-    let connection = {
+    const connection = {
         oncontrol: () => {},
         onmessage: () => {},
         onclose: () => {},
@@ -13,14 +13,14 @@ function connect() {
     };
 
     ws.onmessage = event => {
-        let message = event.data;
+        const message = event.data;
 
-        let pos = message.indexOf("\n");
+        const pos = message.indexOf("\n");
         if (pos < 0)
             throw new Error("invalid message");
 
-        let channel = message.substring(0, pos);
-        let data = message.substring(pos + 1);
+        const channel = message.substring(0, pos);
+        const data = message.substring(pos + 1);
 
         if (channel === "")
             connection.oncontrol(JSON.parse(data));
@@ -38,9 +38,9 @@ function connect() {
 
 QUnit.test("first message from host is init", async function (assert) {
     assert.expect(5);
-    let done = assert.async();
+    const done = assert.async();
 
-    let connection = await connect();
+    const connection = await connect();
 
     connection.oncontrol = message => {
         assert.strictEqual(message.command, "init");
@@ -58,9 +58,9 @@ QUnit.test("first message from host is init", async function (assert) {
 
 QUnit.test("host must ensure that init is the first message", async function (assert) {
     assert.expect(2);
-    let done = assert.async(2);
+    const done = assert.async(2);
 
-    let connection = await connect();
+    const connection = await connect();
 
     // ensure that the server closes the connection on protocol error
     connection.onclose = () => done();
@@ -92,9 +92,9 @@ QUnit.module("tests that need test-server warnings disabled", function (hooks) {
 
     QUnit.test("host must return an error when 'channel' is not given in 'open'", async function (assert) {
         assert.expect(2);
-        let done = assert.async(2);
+        const done = assert.async(2);
 
-        let connection = await connect();
+        const connection = await connect();
 
         // ensure that the server closes the connection on protocol error
         connection.onclose = () => done();

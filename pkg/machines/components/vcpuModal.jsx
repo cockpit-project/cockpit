@@ -75,7 +75,7 @@ export class VCPUModal extends React.Component {
 
         // Recalculate new values for sockets, cores and threads according to new max value
         // Max value = Sockets * Cores * Threads
-        let state = { max: maxValue, sockets: this.state.sockets, cores: this.state.cores };
+        const state = { max: maxValue, sockets: this.state.sockets, cores: this.state.cores };
 
         // If count of used VCPU greater then new max value, then change it to new max value
         if (maxValue < this.state.count) {
@@ -108,11 +108,11 @@ export class VCPUModal extends React.Component {
     }
 
     onSocketChange (value) {
-        let state = { sockets: this.state.sockets, cores: this.state.cores };
+        const state = { sockets: this.state.sockets, cores: this.state.cores };
         state.sockets = parseInt(value);
 
         // Get divisors of Max VCPU number divided by number of sockets
-        let divs = dividers(this.state.max / state.sockets);
+        const divs = dividers(this.state.max / state.sockets);
 
         // If current cores value is not in divisors array, then change it to max divisor
         if (divs.indexOf(this.state.cores) === -1) {
@@ -125,9 +125,9 @@ export class VCPUModal extends React.Component {
     }
 
     onThreadsChange (value) {
-        let state = { sockets: this.state.sockets, threads: this.state.threads };
+        const state = { sockets: this.state.sockets, threads: this.state.threads };
         state.threads = parseInt(value);
-        let divs = dividers(this.state.max / state.threads);
+        const divs = dividers(this.state.max / state.threads);
 
         // If current sockets value is not in divisors array, then change it to max divisor
         if (divs.indexOf(state.sockets) === -1) {
@@ -141,10 +141,10 @@ export class VCPUModal extends React.Component {
     }
 
     onCoresChange (value) {
-        let state = { sockets: this.state.sockets, threads: this.state.threads };
+        const state = { sockets: this.state.sockets, threads: this.state.threads };
         state.cores = parseInt(value);
 
-        let divs = dividers(this.state.max / state.cores);
+        const divs = dividers(this.state.max / state.cores);
 
         // If current sockets value is not in divisors array, then change it to max divisor
         if (divs.indexOf(state.sockets) === -1) {

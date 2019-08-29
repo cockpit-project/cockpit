@@ -20,7 +20,7 @@ QUnit.test("public api", function (assert) {
 });
 
 QUnit.test("simple request", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(2);
 
     cockpit.http({ "internal": "/test-server" }).get("/pkg/playground/manifest.json.in")
@@ -62,7 +62,7 @@ QUnit.test("simple request", function (assert) {
 });
 
 QUnit.test("with params", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(2);
 
     cockpit.http({ "internal": "/test-server" })
@@ -77,7 +77,7 @@ QUnit.test("with params", function (assert) {
 });
 
 QUnit.test("not found", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(7);
 
     var promise = cockpit.http({ "internal": "/test-server" })
@@ -99,7 +99,7 @@ QUnit.test("not found", function (assert) {
 });
 
 QUnit.test("streaming", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(3);
 
     var at = 0;
@@ -123,7 +123,7 @@ QUnit.test("streaming", function (assert) {
 });
 
 QUnit.test("close", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(4);
 
     var req = cockpit.http({ "internal": "/test-server" }).get("/mock/stream");
@@ -145,7 +145,7 @@ QUnit.test("close", function (assert) {
 });
 
 QUnit.test("close all", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(4);
 
     var http = cockpit.http({ "internal": "/test-server" });
@@ -169,7 +169,7 @@ QUnit.test("close all", function (assert) {
 });
 
 QUnit.test("headers", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(3);
 
     cockpit.http({ "internal": "/test-server" })
@@ -193,7 +193,7 @@ QUnit.test("headers", function (assert) {
 });
 
 QUnit.test("escape host header", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(3);
 
     cockpit.http({ "internal": "/test-server" })
@@ -209,7 +209,7 @@ QUnit.test("escape host header", function (assert) {
 });
 
 QUnit.test("connection headers", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(3);
 
     cockpit.http({ "internal": "/test-server", "headers": { "Header1": "booo", "Header2": "not this" } })
@@ -252,7 +252,7 @@ QUnit.test("http promise recursive", function (assert) {
 });
 
 QUnit.test("http keep alive", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(3);
 
     /*
@@ -279,7 +279,7 @@ QUnit.test("http keep alive", function (assert) {
 });
 
 QUnit.test("http connection different", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(3);
 
     /*
@@ -306,7 +306,7 @@ QUnit.test("http connection different", function (assert) {
 });
 
 QUnit.test("http connection without address ", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(3);
 
     /*
@@ -332,7 +332,7 @@ QUnit.test("http connection without address ", function (assert) {
 });
 
 QUnit.test("no dns address", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(2);
 
     cockpit.http({ "port": 8080,
@@ -351,7 +351,7 @@ QUnit.test("no dns address", function (assert) {
 });
 
 QUnit.test("address with params", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     // use our window's host and port to request external
     assert.expect(2);
 

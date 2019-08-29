@@ -81,7 +81,7 @@ export class OverviewSidePanel extends React.Component {
 
 export class OverviewSidePanelRow extends React.Component {
     render() {
-        let { client, job_path } = this.props;
+        const { client, job_path } = this.props;
 
         const go = (event) => {
             if (!event || event.button !== 0)

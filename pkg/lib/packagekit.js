@@ -185,7 +185,7 @@ export function transaction(method, arglist, signalHandlers, notifyHandler) {
     return new Promise((resolve, reject) => {
         call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "CreateTransaction", [])
                 .done(result => {
-                    let transactionPath = result[0];
+                    const transactionPath = result[0];
                     let watchPromise;
                     if (signalHandlers || notifyHandler)
                         watchPromise = watchTransaction(transactionPath, signalHandlers, notifyHandler);
@@ -236,7 +236,7 @@ export function cancellableTransaction(method, arglist, progress_cb, signalHandl
         let cancelled = false;
         let status;
         let allow_wait_status = false;
-        let progress_data = {
+        const progress_data = {
             waiting: false,
             percentage: 0,
             cancel: null
@@ -399,8 +399,8 @@ export function check_missing_packages(names, progress_cb) {
                                       progress_cb,
                                       {
                                           Package: (info, package_id) => {
-                                              let parts = package_id.split(";");
-                                              let repos = parts[3].split(":");
+                                              const parts = package_id.split(";");
+                                              const repos = parts[3].split(":");
                                               if (repos.indexOf("installed") >= 0) {
                                                   installed_names[parts[0]] = true;
                                               } else {
@@ -430,7 +430,7 @@ export function check_missing_packages(names, progress_cb) {
                                           progress_cb,
                                           {
                                               Package: (info, package_id) => {
-                                                  let name = package_id.split(";")[0];
+                                                  const name = package_id.split(";")[0];
                                                   if (info == Enum.INFO_REMOVING) {
                                                       data.remove_ids.push(package_id);
                                                       data.remove_names.push(name);

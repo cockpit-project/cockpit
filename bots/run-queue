@@ -53,12 +53,12 @@ def consume_webhook_queue(channel, amqp):
             cmd = ['bots/issue-scan', '--issues-data', json.dumps(request), '--amqp', amqp]
         if request['action'] in ['opened', 'synchronize']:
             repo = pull_request['base']['repo']['full_name']
-            cmd = ['bots/tests-scan', '--pull-data', json.dumps(request), '--amqp', amqp]
+            cmd = ['bots/tests-scan', '--pull-data', json.dumps(request), '--amqp', amqp, '--repo', repo]
     elif event == 'status':
         repo = request['repository']['full_name']
         sha = request['sha']
         context = pipes.quote(request['context'])
-        cmd = ['bots/tests-scan', '--sha', sha, '--amqp', amqp, '--context', context]
+        cmd = ['bots/tests-scan', '--sha', sha, '--amqp', amqp, '--context', context, '--repo', repo]
     elif event == 'issues':
         action = request['action']
         # scan for opened, body changes (edited), and the bots label
@@ -68,10 +68,6 @@ def consume_webhook_queue(channel, amqp):
         logging.error('Unkown event type in the webhook queue')
         return None, None
 
-    # HACK: the cockpit repo itself is treated as a special case in tests-scan, in
-    # order to avoid complexity avoid supplying the repo option for now
-    if repo and repo != 'cockpit-project/cockpit':
-        cmd += ['--repo', repo]
     return cmd, method_frame.delivery_tag
 
 # Returns a command to execute and the delivery tag needed to ack the message

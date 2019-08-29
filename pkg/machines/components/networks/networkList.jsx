@@ -36,7 +36,7 @@ export class NetworkList extends React.Component {
         const actions = (<CreateNetworkAction devices={devices} dispatch={dispatch} loggedUser={loggedUser} />);
 
         return (
-            <React.Fragment>
+            <>
                 <Breadcrumb className='machines-listing-breadcrumb' title>
                     <Breadcrumb.Item onClick={() => cockpit.location.go(['vms']) }>
                         {_("Virtual Machines")}
@@ -63,7 +63,7 @@ export class NetworkList extends React.Component {
                         }
                     </Listing>
                 </div>
-            </React.Fragment>
+            </>
         );
     }
 }

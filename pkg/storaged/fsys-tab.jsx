@@ -156,7 +156,7 @@ export class FilesystemTab extends React.Component {
                     </StorageLink>
 
                     { !self.props.client.is_old_udisks2 && (
-                        <React.Fragment>
+                        <>
                             <label className="control-label">{_("Mount Point")}</label>
                             <div>
                                 <StorageLink onClick={mounting_dialog}>
@@ -166,20 +166,20 @@ export class FilesystemTab extends React.Component {
                                     { !is_filesystem_mounted && <StorageButton onClick={mount}>{_("Mount")}</StorageButton> }
                                 </div>
                             </div>
-                        </React.Fragment>
+                        </>
                     )}
 
                     { old_opts && (
-                        <React.Fragment>
+                        <>
                             <label className="control-label">{_("Mount Options")}</label>
                             <StorageLink onClick={mounting_dialog}>
                                 {old_opts}
                             </StorageLink>
-                        </React.Fragment>
+                        </>
                     )}
 
                     { (mounted_at.length > 0 || self.props.client.is_old_udisks2) && (
-                        <React.Fragment>
+                        <>
                             <label className="control-label">{_("Mounted At")}</label>
                             <div>
                                 {mounted_at.join(", ")}
@@ -190,7 +190,7 @@ export class FilesystemTab extends React.Component {
                                     }
                                 </div>
                             </div>
-                        </React.Fragment>
+                        </>
                     )}
 
                     <label className="control-label">{_("Used")}</label>

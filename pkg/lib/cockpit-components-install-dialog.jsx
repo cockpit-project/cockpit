@@ -31,7 +31,7 @@ const _ = cockpit.gettext;
 function format_to_fragments(fmt, arg) {
     var index = fmt.indexOf("$0");
     if (index >= 0)
-        return <React.Fragment>{fmt.slice(0, index)}{arg}{fmt.slice(index + 2)}</React.Fragment>;
+        return <>{fmt.slice(0, index)}{arg}{fmt.slice(index + 2)}</>;
     else
         return fmt;
 }

@@ -91,11 +91,11 @@ class StoragePage extends React.Component {
             // We keep the Overview mounted at all times to keep the
             // plot running.  Once our plots are more React friendly,
             // we can throw this hack out.
-            <React.Fragment>
+            <>
                 <MultipathAlert client={client} />
                 <div className={detail ? "hidden" : null}><Overview client={client} /></div>
                 {detail}
-            </React.Fragment>
+            </>
         );
     }
 }

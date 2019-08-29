@@ -194,7 +194,7 @@ class ServiceActions extends React.Component {
         }
 
         return (
-            <React.Fragment>
+            <>
                 { this.state.dialogMaskedOpened &&
                     <ServiceConfirmDialog title={ _("Mask Service") }
                                           message={ _("Masking service prevents all dependant units from running. This can have bigger impact than anticipated. Please confirm that you want to mask this unit.")}
@@ -209,7 +209,7 @@ class ServiceActions extends React.Component {
                 <DropdownKebab id="service-actions" title={ _("Additional actions") } className={this.props.disabled ? "disabled" : "" }>
                     {actions}
                 </DropdownKebab>
-            </React.Fragment>
+            </>
         );
     }
 }
@@ -370,12 +370,12 @@ export class ServiceDetails extends React.Component {
                     <span className="pficon pficon-asleep status-icon" />
                     <span className="status">{ _("Static") }</span>
                     { this.props.unit.WantedBy && this.props.unit.WantedBy.length > 0 &&
-                        <React.Fragment>
+                        <>
                             <span className="side-note font-xs">{ _("Required by ") }</span>
                             <ul className="comma-list">
                                 {this.props.unit.WantedBy.map(unit => <li className="font-xs" key={unit}><a href={"#/" + unit}>{unit}</a></li>)}
                             </ul>
-                        </React.Fragment>
+                        </>
                     }
                 </div>
             );
@@ -445,7 +445,7 @@ export class ServiceDetails extends React.Component {
             });
 
         return (
-            <React.Fragment>
+            <>
                 { (this.state.note || this.state.error) &&
                     <ServiceConfirmDialog title={ this.state.error ? _("Error") : _("Note") }
                                           message={ this.state.error || this.state.note }
@@ -458,11 +458,11 @@ export class ServiceDetails extends React.Component {
                         <strong>{this.props.unit.LoadState}</strong>
                         {loadError}
                     </div>
-                    : <React.Fragment>
+                    : <>
                         <div className="service-top-panel">
                             <h2 className="service-name">{this.props.unit.Description}</h2>
                             { this.props.permitted &&
-                                <React.Fragment>
+                                <>
                                     { !masked && !isStatic &&
                                         <OverlayTrigger overlay={ <Tooltip id="switch-unit-state">{ tooltipMessage }</Tooltip> } placement='right'>
                                             <span>
@@ -471,7 +471,7 @@ export class ServiceDetails extends React.Component {
                                         </OverlayTrigger>
                                     }
                                     <ServiceActions { ...{ active, failed, enabled, masked } } canReload={this.props.unit.CanReload} actionCallback={this.unitAction} fileActionCallback={this.unitFileAction} disabled={this.state.waitsAction || this.state.waitsFileAction} />
-                                </React.Fragment>
+                                </>
                             }
                         </div>
                         <form className="ct-form">
@@ -484,18 +484,18 @@ export class ServiceDetails extends React.Component {
                             <span id="path">{this.props.unit.FragmentPath}</span>
                             <hr />
                             { this.props.originTemplate &&
-                                <React.Fragment>
+                                <>
                                     <label className="control-label" />
                                     <span>{_("Instance of template: ")}<a href={"#/" + this.props.originTemplate}>{this.props.originTemplate}</a></span>
-                                </React.Fragment>
+                                </>
                             }
                             { notMetConditions.length > 0 &&
-                                <React.Fragment>
+                                <>
                                     <label className="control-label failed" htmlFor="condition">{ _("Condition failed") }</label>
                                     <div id="condition" className="ct-validation-wrapper">
                                         {notMetConditions.map(cond => <div key={cond.split(' ').join('')}>{cond}</div>)}
                                     </div>
-                                </React.Fragment>
+                                </>
                             }
                             <hr />
                             {relationships.map(rel =>
@@ -508,9 +508,9 @@ export class ServiceDetails extends React.Component {
                                     </React.Fragment>
                             )}
                         </form>
-                    </React.Fragment>
+                    </>
                 }
-            </React.Fragment>
+            </>
         );
     }
 }

@@ -53,12 +53,12 @@ export class Network extends React.Component {
                 { rephraseUI('networkForward', network.forward ? network.forward.mode : "none") }
             </span>);
         const state = (
-            <React.Fragment>
+            <>
                 { resourceHasError[network.id] ? <span className='pficon-warning-triangle-o machines-status-alert' /> : null }
                 <span id={`${idPrefix}-state`}>
                     { network.active ? _("active") : _("inactive") }
                 </span>
-            </React.Fragment>);
+            </>);
         const cols = [
             { name, header: true },
             device,
@@ -138,7 +138,7 @@ class NetworkActions extends React.Component {
         const id = networkId(network.name, network.connectionName);
 
         return (
-            <React.Fragment>
+            <>
                 { network.active &&
                 <Button id={`deactivate-${id}`} onClick={this.onDeactivate}>
                     {_("Deactivate")}
@@ -149,7 +149,7 @@ class NetworkActions extends React.Component {
                 </Button>
                 }
                 <NetworkDelete network={network} />
-            </React.Fragment>
+            </>
         );
     }
 }

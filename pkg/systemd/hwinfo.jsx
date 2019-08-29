@@ -91,7 +91,7 @@ class SystemInfo extends React.Component {
                 }
                 <tbody>
                     { info.bios_vendor &&
-                    <React.Fragment>
+                    <>
                         <tr>
                             <th>{ _("BIOS") }</th>
                             <td>{ info.bios_vendor }</td>
@@ -104,10 +104,10 @@ class SystemInfo extends React.Component {
                             <th>{ _("BIOS date") }</th>
                             <td>{ moment(info.bios_date).isValid() ? moment(info.bios_date).format('L') : info.bios_date }</td>
                         </tr>
-                    </React.Fragment>
+                    </>
                     }
                     { info.nproc !== undefined &&
-                    <React.Fragment>
+                    <>
                         <tr>
                             <th>{ _("CPU") }</th>
                             <td>{ (info.nproc > 1) ? `${info.nproc}x ${info.cpu_model}` : info.cpu_model }</td>
@@ -118,7 +118,7 @@ class SystemInfo extends React.Component {
                             <td>{ mitigations }</td>
                         </tr>
                         }
-                    </React.Fragment>
+                    </>
                     }
                 </tbody>
             </table>

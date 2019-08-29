@@ -46,12 +46,12 @@ const InfoRecord = ({ id, descr, value, descrClass, valueClass, tooltip }) => {
         );
     }
 
-    return (<React.Fragment>
+    return (<>
         <label htmlFor={id} className={labelClass}>
             {descr}
         </label>
         {infoContent}
-    </React.Fragment>);
+    </>);
 };
 
 InfoRecord.propTypes = {

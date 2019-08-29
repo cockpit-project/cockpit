@@ -72,7 +72,7 @@ class ModificationsExportDialog extends React.Component {
                 </Modal.Header>
                 <Modal.Body>
                     <TabContainer id="basic-tabs-pf" defaultActiveKey={"shell"}>
-                        <React.Fragment>
+                        <>
                             <Nav bsClass="nav nav-tabs nav-tabs-pf" onSelect={this.handleSelect}>
                                 <NavItem eventKey={"shell"}>
                                     {_("Shell Script")}
@@ -97,7 +97,7 @@ class ModificationsExportDialog extends React.Component {
                                     </TabPane>
                                 }
                             </TabContent>
-                        </React.Fragment>
+                        </>
                     </TabContainer>
                 </Modal.Body>
                 <Modal.Footer>

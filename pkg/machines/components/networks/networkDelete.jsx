@@ -81,7 +81,7 @@ export class NetworkDelete extends React.Component {
         const id = networkId(network.name, network.connectionName);
 
         return (
-            <React.Fragment>
+            <>
                 <Button id={`delete-${id}`} bsStyle='danger' onClick={this.open}>
                     {_("Delete")}
                 </Button>
@@ -104,7 +104,7 @@ export class NetworkDelete extends React.Component {
                         </Button>
                     </Modal.Footer>
                 </Modal>
-            </React.Fragment>
+            </>
         );
     }
 }

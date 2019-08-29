@@ -74,7 +74,7 @@ export class NetworkOverviewTab extends React.Component {
         ip[1] = network.ip.find(ip => ip.family === "ipv6");
 
         return (
-            <React.Fragment>
+            <>
                 <div className="networks-page-grid">
                     <div className='ct-form'>
                         <label className='control-label label-title'> {_("General")} </label>
@@ -92,60 +92,60 @@ export class NetworkOverviewTab extends React.Component {
                             {_("Run when host boots")}
                         </label>
 
-                        { network.mtu && <React.Fragment>
+                        { network.mtu && <>
                             <label className='control-label' htmlFor={`${idPrefix}-mtu`}> {_("Maximum Transmission Unit")} </label>
                             <div id={`${idPrefix}-mtu`}> {network.mtu} </div>
-                        </React.Fragment> }
+                        </> }
                     </div>
 
                     <div className="ct-form">
-                        { ip[0] && <React.Fragment>
+                        { ip[0] && <>
                             <label className='control-label label-title'> {_("IPv4 Address")} </label>
                             <span />
 
-                            { ip[0].address && <React.Fragment>
+                            { ip[0].address && <>
                                 <label className='control-label' htmlFor={`${idPrefix}-ipv4-address`}> {_("Address")} </label>
                                 <div id={`${idPrefix}-ipv4-address`}> {ip[0].address} </div>
-                            </React.Fragment> }
+                            </> }
 
-                            { ip[0].netmask && <React.Fragment>
+                            { ip[0].netmask && <>
                                 <label className='control-label' htmlFor={`${idPrefix}-ipv4-netmask`}> {_("Netmask")} </label>
                                 <div id={`${idPrefix}-ipv4-netmask`}> {ip[0].netmask} </div>
-                            </React.Fragment> }
+                            </> }
 
-                            { ip[0].dhcp.range.start && <React.Fragment>
+                            { ip[0].dhcp.range.start && <>
                                 <label className='control-label' htmlFor={`${idPrefix}-ipv4-dhcp-range`}> {_("DHCP Range")} </label>
                                 <div id={`${idPrefix}-ipv4-dhcp-range`}> {ip[0].dhcp.range.start + " - " + ip[0].dhcp.range.end} </div>
-                            </React.Fragment> }
+                            </> }
 
                             { ip[0].dhcp.hosts.map((host, index) => DHCPHost(host, index, ip[0].family, idPrefix))}
-                        </React.Fragment> }
+                        </> }
 
-                        { ip[1] && <React.Fragment>
+                        { ip[1] && <>
                             <hr />
                             <label className='control-label label-title'> {_("IPv6 Address")} </label>
                             <span />
 
-                            { ip[1].address && <React.Fragment>
+                            { ip[1].address && <>
                                 <label className='control-label' htmlFor={`${idPrefix}-ipv6-address`}> {_("Address")} </label>
                                 <div id={`${idPrefix}-ipv6-address`}> {ip[1].address} </div>
-                            </React.Fragment> }
+                            </> }
 
-                            { ip[1].prefix && <React.Fragment>
+                            { ip[1].prefix && <>
                                 <label className='control-label' htmlFor={`${idPrefix}-ipv6-prefix`}> {_("Prefix")} </label>
                                 <div id={`${idPrefix}-ipv6-prefix`}> {ip[1].prefix} </div>
-                            </React.Fragment> }
+                            </> }
 
-                            { ip[1].dhcp.range.start && <React.Fragment>
+                            { ip[1].dhcp.range.start && <>
                                 <label className='control-label' htmlFor={`${idPrefix}-ipv6-dhcp-range`}> {_("DHCP Range")} </label>
                                 <div id={`${idPrefix}-ipv6-dhcp-range`}> {ip[1].dhcp.range.start + " - " + ip[1].dhcp.range.end} </div>
-                            </React.Fragment> }
+                            </> }
 
                             { ip[1].dhcp.hosts.map((host, index) => DHCPHost(host, index, ip[1].family, idPrefix))}
-                        </React.Fragment> }
+                        </> }
                     </div>
                 </div>
-            </React.Fragment>
+            </>
         );
     }
 }

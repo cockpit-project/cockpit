@@ -202,10 +202,10 @@ export class MDRaidDetails extends React.Component {
         if (mdraid.BitmapLocation) {
             var value = utils.decode_filename(mdraid.BitmapLocation) != "none";
             bitmap = (
-                <React.Fragment>
+                <>
                     <label className="control-label">{_("storage", "Bitmap")}</label>
                     <StorageOnOff state={value} onChange={toggle_bitmap} />
-                </React.Fragment>
+                </>
             );
         }
 

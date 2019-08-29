@@ -65,13 +65,13 @@ export class InlineNotification extends React.Component {
         }
 
         return (
-            <React.Fragment>
+            <>
                 <strong id={textId}>
                     {text}
                 </strong>
                 {detailButton}
                 {this.state.isDetail && (<p>{detail}</p>)}
-            </React.Fragment>
+            </>
         );
     }
 }

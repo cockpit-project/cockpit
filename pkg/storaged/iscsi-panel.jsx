@@ -243,7 +243,7 @@ export class IscsiPanel extends React.Component {
                 .map(make_session);
 
         var actions = (
-            <React.Fragment>
+            <>
                 { sessions.length > 0
                     ? <button className={"btn btn-default fa fa-check" + (this.state.armed ? " active" : "")}
                   onClick={toggle_armed} /> : null
@@ -256,7 +256,7 @@ export class IscsiPanel extends React.Component {
                 <StorageButton kind="primary" onClick={iscsi_discover} id="add-iscsi-portal">
                     <span className="fa fa-plus" />
                 </StorageButton>
-            </React.Fragment>
+            </>
         );
 
         var iscsi_feature = {

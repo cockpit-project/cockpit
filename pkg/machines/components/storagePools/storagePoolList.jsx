@@ -35,7 +35,7 @@ export class StoragePoolList extends React.Component {
         const actions = (<CreateStoragePoolAction dispatch={dispatch} loggedUser={loggedUser} libvirtVersion={libvirtVersion} />);
 
         return (
-            <React.Fragment>
+            <>
                 <Breadcrumb className='machines-listing-breadcrumb' title>
                     <Breadcrumb.Item onClick={() => cockpit.location.go(['vms']) }>
                         {_("Virtual Machines")}
@@ -65,7 +65,7 @@ export class StoragePoolList extends React.Component {
                         }
                     </Listing>
                 </div>
-            </React.Fragment>
+            </>
         );
     }
 }

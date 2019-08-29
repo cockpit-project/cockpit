@@ -318,9 +318,9 @@ class AccountList extends React.Component {
             items.push(React.createElement(AccountItem, Object.assign({ key: this.props.accounts[i].name },
                                                                       this.props.accounts[i])));
         return (
-            <React.Fragment>
+            <>
                 {items}
-            </React.Fragment>
+            </>
         );
     }
 }

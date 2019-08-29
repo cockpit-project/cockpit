@@ -398,7 +398,7 @@ export class BlockVolTab extends React.Component {
                     <label className="control-label">{_("Name")}</label>
                     <StorageLink onClick={rename}>{this.props.lvol.Name}</StorageLink>
                     { !unused_space &&
-                    <React.Fragment>
+                    <>
                         <label className="control-label">{_("Size")}</label>
                         <div>
                             {utils.fmt_size(this.props.lvol.Size)}
@@ -407,7 +407,7 @@ export class BlockVolTab extends React.Component {
                                 <StorageButton excuse={grow_excuse} onClick={grow}>{_("Grow")}</StorageButton>
                             </div>
                         </div>
-                    </React.Fragment>
+                    </>
                     }
                 </div>
                 { unused_space &&

@@ -41,14 +41,14 @@ var bootid = 0;
 
 function make_entry(message) {
     return {
-        "__REALTIME_TIMESTAMP": time.toString(),
-        "__CURSOR": "fake",
-        "_BOOT_ID": bootid.toString(),
-        "_COMM": "fake",
-        "UNUSED_FIELD": "12",
-        "SYSLOG_IDENTIFIER": "fake",
-        "PRIORITY": "3",
-        "MESSAGE": message
+        __REALTIME_TIMESTAMP: time.toString(),
+        __CURSOR: "fake",
+        _BOOT_ID: bootid.toString(),
+        _COMM: "fake",
+        UNUSED_FIELD: "12",
+        SYSLOG_IDENTIFIER: "fake",
+        PRIORITY: "3",
+        MESSAGE: message
     };
 }
 

@@ -466,7 +466,7 @@
             localStorage.setItem('authorized-default', authorized);
 
             var headers = {
-                "Authorization": "Basic " + window.btoa(utf8(user + ":" + password)),
+                Authorization: "Basic " + window.btoa(utf8(user + ":" + password)),
                 "X-Authorize": authorized,
             };
             // allow unknown remote hosts with interactive logins with "Connect to:"
@@ -673,7 +673,7 @@
 
     function converse(id, msg) {
         var headers = {
-            "Authorization": "X-Conversation " + id + " " + window.btoa(utf8(msg))
+            Authorization: "X-Conversation " + id + " " + window.btoa(utf8(msg))
         };
         send_login_request("GET", headers, true);
     }

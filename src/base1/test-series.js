@@ -114,16 +114,16 @@ QUnit.test("sink row", function (assert) {
 
     var items = [
         {
-            "one": { "sub": [ 200, 201, 202 ], "another": [ 20, 21, 22 ] },
-            "two": { "sub": [ 2000, 2001, 2002 ], "marmalade": [ 0, 1, 2 ] }
+            one: { sub: [ 200, 201, 202 ], another: [ 20, 21, 22 ] },
+            two: { sub: [ 2000, 2001, 2002 ], marmalade: [ 0, 1, 2 ] }
         },
         {
-            "one": { "sub": [ 300, 301, 302 ], "another": [ 30, 31, 32 ] },
-            "two": { "sub": [ 3000, 3001, 3002 ], "marmalade": [ 0, 1, 2 ] }
+            one: { sub: [ 300, 301, 302 ], another: [ 30, 31, 32 ] },
+            two: { sub: [ 3000, 3001, 3002 ], marmalade: [ 0, 1, 2 ] }
         },
         {
-            "one": { "sub": [ 400, 401, 402 ], "another": [ 40, 41, 42 ] },
-            "two": { "sub": [ 4000, 4001, 4002 ], "marmalade": [ 0, 1, 2 ] }
+            one: { sub: [ 400, 401, 402 ], another: [ 40, 41, 42 ] },
+            two: { sub: [ 4000, 4001, 4002 ], marmalade: [ 0, 1, 2 ] }
         }
     ];
 
@@ -144,11 +144,11 @@ QUnit.test("sink no path", function (assert) {
 
     var row = grid.add(sink);
 
-    var items = [ 567, 768, { "hello": "scruffy" } ];
+    var items = [ 567, 768, { hello: "scruffy" } ];
 
     sink.input(8, items);
 
-    assert.deepEqual(row, [undefined, undefined, undefined, 567, 768, { "hello": "scruffy" }], "row without a path");
+    assert.deepEqual(row, [undefined, undefined, undefined, 567, 768, { hello: "scruffy" }], "row without a path");
 });
 
 QUnit.test("sink after close", function (assert) {
@@ -180,8 +180,8 @@ QUnit.test("sink mapping", function (assert) {
     var row3 = grid.add(sink, "invalid");
 
     var mapping = {
-        "one": { "": 0, "sub": { "": 0 }, "another": { "": 1 } },
-        "two": { "": 1, "sub": { "": 0 }, "marmalade": { "": 1 } }
+        one: { "": 0, sub: { "": 0 }, another: { "": 1 } },
+        two: { "": 1, sub: { "": 0 }, marmalade: { "": 1 } }
     };
 
     var items = [
@@ -218,16 +218,16 @@ QUnit.test("cache simple", function (assert) {
 
     sink.input(7, [
         {
-            "one": { "sub": [ 200, 201, 202 ], "another": [ 20, 21, 22 ] },
-            "two": { "sub": [ 2000, 2001, 2002 ], "marmalade": [ 0, 1, 2 ] }
+            one: { sub: [ 200, 201, 202 ], another: [ 20, 21, 22 ] },
+            two: { sub: [ 2000, 2001, 2002 ], marmalade: [ 0, 1, 2 ] }
         },
         {
-            "one": { "sub": [ 300, 301, 302 ], "another": [ 30, 31, 32 ] },
-            "two": { "sub": [ 3000, 3001, 3002 ], "marmalade": [ 0, 1, 2 ] }
+            one: { sub: [ 300, 301, 302 ], another: [ 30, 31, 32 ] },
+            two: { sub: [ 3000, 3001, 3002 ], marmalade: [ 0, 1, 2 ] }
         },
         {
-            "one": { "sub": [ 400, 401, 402 ], "another": [ 40, 41, 42 ] },
-            "two": { "sub": [ 4000, 4001, 4002 ], "marmalade": [ 0, 1, 2 ] }
+            one: { sub: [ 400, 401, 402 ], another: [ 40, 41, 42 ] },
+            two: { sub: [ 4000, 4001, 4002 ], marmalade: [ 0, 1, 2 ] }
         }
     ]);
 
@@ -267,18 +267,18 @@ QUnit.test("cache multiple", function (assert) {
     var sink = cockpit.series(1000, null, fetch);
 
     sink.input(7, [{
-        "one": { "sub": [ 200, 201, 202 ], "another": [ 20, 21, 22 ] },
-        "two": { "sub": [ 2000, 2001, 2002 ], "marmalade": [ 0, 1, 2 ] }
+        one: { sub: [ 200, 201, 202 ], another: [ 20, 21, 22 ] },
+        two: { sub: [ 2000, 2001, 2002 ], marmalade: [ 0, 1, 2 ] }
     }]);
 
     sink.input(8, [{
-        "one": { "sub": [ 300, 301, 302 ], "another": [ 30, 31, 32 ] },
-        "two": { "sub": [ 3000, 3001, 3002 ], "marmalade": [ 0, 1, 2 ] }
+        one: { sub: [ 300, 301, 302 ], another: [ 30, 31, 32 ] },
+        two: { sub: [ 3000, 3001, 3002 ], marmalade: [ 0, 1, 2 ] }
     }]);
 
     sink.input(9, [{
-        "one": { "sub": [ 400, 401, 402 ], "another": [ 40, 41, 42 ] },
-        "two": { "sub": [ 4000, 4001, 4002 ], "marmalade": [ 0, 1, 2 ] }
+        one: { sub: [ 400, 401, 402 ], another: [ 40, 41, 42 ] },
+        two: { sub: [ 4000, 4001, 4002 ], marmalade: [ 0, 1, 2 ] }
     }]);
 
     var grid = cockpit.grid(1000, 5, 15);
@@ -320,34 +320,34 @@ QUnit.test("cache overlap", function (assert) {
 
     /* Initial state of the cache */
     sink.input(6, [{
-        "one": { "sub": [ 200, 201, 202 ], "another": [ 20, 21, 22 ] },
-        "two": { "sub": [ 2000, 2001, 2002 ], "marmalade": [ 0, 1, 2 ] }
+        one: { sub: [ 200, 201, 202 ], another: [ 20, 21, 22 ] },
+        two: { sub: [ 2000, 2001, 2002 ], marmalade: [ 0, 1, 2 ] }
     }, {
-        "one": { "sub": [ 200, 201, 202 ], "another": [ 20, 21, 22 ] },
-        "two": { "sub": [ 2000, 2001, 2002 ], "marmalade": [ 0, 1, 2 ] }
+        one: { sub: [ 200, 201, 202 ], another: [ 20, 21, 22 ] },
+        two: { sub: [ 2000, 2001, 2002 ], marmalade: [ 0, 1, 2 ] }
     }]);
 
     sink.input(8, [{
-        "one": { "sub": [ 300, 301, 302 ], "another": [ 30, 31, 32 ] },
-        "two": { "sub": [ 3000, 3001, 3002 ], "marmalade": [ 0, 1, 2 ] }
+        one: { sub: [ 300, 301, 302 ], another: [ 30, 31, 32 ] },
+        two: { sub: [ 3000, 3001, 3002 ], marmalade: [ 0, 1, 2 ] }
     }, {
-        "one": { "sub": [ 300, 301, 302 ], "another": [ 30, 31, 32 ] },
-        "two": { "sub": [ 3000, 3001, 3002 ], "marmalade": [ 0, 1, 2 ] }
+        one: { sub: [ 300, 301, 302 ], another: [ 30, 31, 32 ] },
+        two: { sub: [ 3000, 3001, 3002 ], marmalade: [ 0, 1, 2 ] }
     }]);
     sink.input(10, [{
-        "one": { "sub": [ 900, 901, 902 ], "another": [ 90, 91, 92 ] },
-        "two": { "sub": [ 9000, 9001, 9002 ], "marmalade": [ 0, 1, 2 ] }
+        one: { sub: [ 900, 901, 902 ], another: [ 90, 91, 92 ] },
+        two: { sub: [ 9000, 9001, 9002 ], marmalade: [ 0, 1, 2 ] }
     }]);
 
     assert.deepEqual(row1, [undefined, 202, 202, 302, 302, 902], "row with initial data");
 
     /* Overlaying the data currently throws overlapping stuff out of the cache */
     sink.input(7, [{
-        "one": { "sub": [ 400, 401, 402 ], "another": [ 40, 41, 42 ] },
-        "two": { "sub": [ 4000, 4001, 4002 ], "marmalade": [ 0, 1, 2 ] }
+        one: { sub: [ 400, 401, 402 ], another: [ 40, 41, 42 ] },
+        two: { sub: [ 4000, 4001, 4002 ], marmalade: [ 0, 1, 2 ] }
     }, {
-        "one": { "sub": [ 400, 401, 402 ], "another": [ 40, 41, 42 ] },
-        "two": { "sub": [ 4000, 4001, 4002 ], "marmalade": [ 0, 1, 2 ] }
+        one: { sub: [ 400, 401, 402 ], another: [ 40, 41, 42 ] },
+        two: { sub: [ 4000, 4001, 4002 ], marmalade: [ 0, 1, 2 ] }
     }]);
 
     var row2 = grid.add(sink, "one.sub.2");
@@ -412,16 +412,16 @@ QUnit.test("move", function (assert) {
     });
 
     sink.input(7, [{
-        "one": { "sub": [ 200, 201, 202 ], "another": [ 20, 21, 22 ] },
-        "two": { "sub": [ 2000, 2001, 2002 ], "marmalade": [ 0, 1, 2 ] }
+        one: { sub: [ 200, 201, 202 ], another: [ 20, 21, 22 ] },
+        two: { sub: [ 2000, 2001, 2002 ], marmalade: [ 0, 1, 2 ] }
     },
     {
-        "one": { "sub": [ 300, 301, 302 ], "another": [ 30, 31, 32 ] },
-        "two": { "sub": [ 3000, 3001, 3002 ], "marmalade": [ 0, 1, 2 ] }
+        one: { sub: [ 300, 301, 302 ], another: [ 30, 31, 32 ] },
+        two: { sub: [ 3000, 3001, 3002 ], marmalade: [ 0, 1, 2 ] }
     },
     {
-        "one": { "sub": [ 400, 401, 402 ], "another": [ 40, 41, 42 ] },
-        "two": { "sub": [ 4000, 4001, 4002 ], "marmalade": [ 0, 1, 2 ] }
+        one: { sub: [ 400, 401, 402 ], another: [ 40, 41, 42 ] },
+        two: { sub: [ 4000, 4001, 4002 ], marmalade: [ 0, 1, 2 ] }
     }]);
 
     assert.deepEqual(fetched, [], "fetched no data");

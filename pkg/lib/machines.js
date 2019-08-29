@@ -185,7 +185,7 @@ function Machines() {
         }
 
         // FIXME: investigate re-using the proxy from Loader (runs in different frame/scope)
-        var bridge = cockpit.dbus(null, { bus: "internal", "superuser": "try" });
+        var bridge = cockpit.dbus(null, { bus: "internal", superuser: "try" });
         var mod = bridge.call("/machines", "cockpit.Machines", "Update", [ "99-webui.json", host, values_variant ])
                 .fail(function(error) {
                     console.error("failed to call cockpit.Machines.Update(): ", error);

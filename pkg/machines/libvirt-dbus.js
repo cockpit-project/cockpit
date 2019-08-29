@@ -1047,15 +1047,15 @@ function startEventMonitorDomains(connectionName, dispatch) {
         { interface: 'org.libvirt.Connect', member: 'DomainEvent' },
         (path, iface, signal, args) => {
             const domainEvent = {
-                "Defined": 0,
-                "Undefined": 1,
-                "Started": 2,
-                "Suspended": 3,
-                "Resumed": 4,
-                "Stopped": 5,
-                "Shutdown": 6,
-                "PMsuspended": 7,
-                "Crashed": 8
+                Defined: 0,
+                Undefined: 1,
+                Started: 2,
+                Suspended: 3,
+                Resumed: 4,
+                Stopped: 5,
+                Shutdown: 6,
+                PMsuspended: 7,
+                Crashed: 8
             };
             const objPath = args[0];
             const eventType = args[1];

@@ -141,7 +141,7 @@ const StoragePoolHostRow = ({ onValueChanged, dialogValues }) => {
                            type='text'
                            placeholder={_("Host Name")}
                            value={dialogValues.source.host || ''}
-                           onChange={e => onValueChanged('source', { 'host': e.target.value })}
+                           onChange={e => onValueChanged('source', { host: e.target.value })}
                            className='form-control' />
                     { validationState == 'error' &&
                     <HelpBlock>
@@ -168,7 +168,7 @@ const StoragePoolInitiatorRow = ({ onValueChanged, dialogValues }) => {
                            type='text'
                            placeholder={_("iSCSI Initiator IQN")}
                            value={dialogValues.source.initiator || ''}
-                           onChange={e => onValueChanged('source', { 'initiator': e.target.value })}
+                           onChange={e => onValueChanged('source', { initiator: e.target.value })}
                            className='form-control' />
                     { validationState == 'error' &&
                     <HelpBlock>
@@ -213,9 +213,9 @@ const StoragePoolSourceRow = ({ onValueChanged, dialogValues }) => {
                            value={dialogValues.source.dir || dialogValues.source.device || ''}
                            onChange={e => {
                                if (dialogValues.type == 'netfs')
-                                   return onValueChanged('source', { 'dir': e.target.value });
+                                   return onValueChanged('source', { dir: e.target.value });
                                else
-                                   return onValueChanged('source', { 'device': e.target.value });
+                                   return onValueChanged('source', { device: e.target.value });
                            }}
                            placeholder={placeholder}
                            className='form-control' />
@@ -239,7 +239,7 @@ const StoragePoolSourceRow = ({ onValueChanged, dialogValues }) => {
                     <FileAutoComplete id='storage-pool-dialog-source'
                         superuser='try'
                         placeholder={placeholder}
-                        onChange={value => onValueChanged('source', { 'device': value })} />
+                        onChange={value => onValueChanged('source', { device: value })} />
                     { validationState == 'error' &&
                     <HelpBlock>
                         <p className="text-danger">{_("Source path should not be empty")}</p>
@@ -251,7 +251,7 @@ const StoragePoolSourceRow = ({ onValueChanged, dialogValues }) => {
                 <Select.Select id='storage-pool-dialog-source-format'
                                extraClass='form-control ct-form-split'
                                initial={dialogValues.source.format}
-                               onChange={value => onValueChanged('source', { 'format': value })}>
+                               onChange={value => onValueChanged('source', { format: value })}>
                     { diskPoolSourceFormatTypes
                             .map(format => {
                                 return (
@@ -276,7 +276,7 @@ const StoragePoolSourceRow = ({ onValueChanged, dialogValues }) => {
                            type='text'
                            minLength={1}
                            value={dialogValues.source.name || ''}
-                           onChange={e => onValueChanged('source', { 'name': e.target.value })}
+                           onChange={e => onValueChanged('source', { name: e.target.value })}
                            placeholder={placeholder}
                            className='form-control' />
                     { validationState == 'error' &&
@@ -317,8 +317,8 @@ class CreateStoragePoolModal extends React.Component {
             connectionName: LIBVIRT_SYSTEM_CONNECTION,
             type: 'dir',
             source: {
-                'host': '', 'dir': '', 'device': '', 'name': '',
-                'initiator': '', 'format': undefined
+                host: '', dir: '', device: '', name: '',
+                initiator: '', format: undefined
             },
             target: '',
             autostart: true,
@@ -341,11 +341,11 @@ class CreateStoragePoolModal extends React.Component {
             if (value == 'disk') {
                 // When switching to disk type select the default format which is 'dos'
                 this.setState({
-                    source: Object.assign({}, this.state.source, { 'format': 'dos' })
+                    source: Object.assign({}, this.state.source, { format: 'dos' })
                 });
             } else {
                 this.setState({
-                    source: Object.assign({}, this.state.source, { 'format': undefined })
+                    source: Object.assign({}, this.state.source, { format: undefined })
                 });
             }
             this.setState({ [key]: value });

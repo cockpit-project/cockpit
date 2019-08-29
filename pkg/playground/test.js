@@ -21,7 +21,7 @@ $(function() {
 
     $(".super-channel .btn").on("click", function() {
         $(".super-channel span").text("checking...");
-        cockpit.spawn(["id"], { "superuser": true })
+        cockpit.spawn(["id"], { superuser: true })
                 .done(function(data) {
                     console.log("done");
                     $(".super-channel span").text("result: " + data);

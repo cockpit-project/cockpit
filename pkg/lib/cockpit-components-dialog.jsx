@@ -194,7 +194,7 @@ export class DialogFooter extends React.Component {
                 caption = _("Ok");
 
             var button_style = "btn-default";
-            var button_style_mapping = { 'primary': 'btn-primary', 'danger': 'btn-danger' };
+            var button_style_mapping = { primary: 'btn-primary', danger: 'btn-danger' };
             if ('style' in action && action.style in button_style_mapping)
                 button_style = button_style_mapping[action.style];
             button_style = "btn " + button_style + " apply";

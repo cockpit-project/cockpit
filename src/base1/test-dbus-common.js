@@ -281,25 +281,25 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                   "GetAll", [ "com.redhat.Cockpit.DBusTests.Frobber" ])
                 .done(function(reply) {
                     assert.deepEqual(reply, [ {
-                        "FinallyNormalName": { "t": "s", "v": "There aint no place like home" },
-                        "ReadonlyProperty": { "t": "s", "v": "blah" },
-                        "aay": { "t": "aay", "v": [] },
-                        "ag": { "t": "ag", "v": [] },
-                        "ao": { "t": "ao", "v": [] },
-                        "as": { "t": "as", "v": [] },
-                        "ay": { "t": "ay", "v": "QUJDYWJjAA==" },
-                        "b": { "t": "b", "v": false },
-                        "d": { "t": "d", "v": 43 },
-                        "g": { "t": "g", "v": "" },
-                        "i": { "t": "i", "v": 0 },
-                        "n": { "t": "n", "v": 0 },
-                        "o": { "t": "o", "v": "/" },
-                        "q": { "t": "q", "v": 0 },
-                        "s": { "t": "s", "v": "" },
-                        "t": { "t": "t", "v": 0 },
-                        "u": { "t": "u", "v": 0 },
-                        "x": { "t": "x", "v": 0 },
-                        "y": { "t": "y", "v": 42 }
+                        FinallyNormalName: { t: "s", v: "There aint no place like home" },
+                        ReadonlyProperty: { t: "s", v: "blah" },
+                        aay: { t: "aay", v: [] },
+                        ag: { t: "ag", v: [] },
+                        ao: { t: "ao", v: [] },
+                        as: { t: "as", v: [] },
+                        ay: { t: "ay", v: "QUJDYWJjAA==" },
+                        b: { t: "b", v: false },
+                        d: { t: "d", v: 43 },
+                        g: { t: "g", v: "" },
+                        i: { t: "i", v: 0 },
+                        n: { t: "n", v: 0 },
+                        o: { t: "o", v: "/" },
+                        q: { t: "q", v: 0 },
+                        s: { t: "s", v: "" },
+                        t: { t: "t", v: 0 },
+                        u: { t: "u", v: 0 },
+                        x: { t: "x", v: 0 },
+                        y: { t: "y", v: 42 }
                     } ], "reply");
                 })
                 .always(function() {
@@ -367,8 +367,8 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
         var received = false;
         var dbus = cockpit.dbus(bus_name, channel_options);
         dbus.subscribe({
-            "interface": "com.redhat.Cockpit.DBusTests.Frobber",
-            "path": "/otree/frobber"
+            interface: "com.redhat.Cockpit.DBusTests.Frobber",
+            path: "/otree/frobber"
         }, function(path, iface, signal, args) {
             if (received)
                 return;
@@ -377,7 +377,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
             assert.equal(signal, "TestSignal", "signals: got right path");
             assert.deepEqual(args, [
                 43, [ "foo", "frobber" ], [ "/foo", "/foo/bar" ],
-                { "first": [ 42, 42 ], "second": [ 43, 43 ] } ], "got right arguments");
+                { first: [ 42, 42 ], second: [ 43, 43 ] } ], "got right arguments");
             received = true;
         });
 
@@ -401,8 +401,8 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
         }
 
         var subscription = dbus.subscribe({
-            "interface": "com.redhat.Cockpit.DBusTests.Frobber",
-            "path": "/otree/frobber"
+            interface: "com.redhat.Cockpit.DBusTests.Frobber",
+            path: "/otree/frobber"
         }, on_signal);
 
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "RequestSignalEmission", [ 0 ])
@@ -447,10 +447,10 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
 
         var meta = {
             "borkety.Bork": {
-                "methods": {
-                    "Echo": {
-                        "in": [ "a{ss}", "u", "i", "t" ],
-                        "out": [ "a{ss}", "u", "i", "t" ]
+                methods: {
+                    Echo: {
+                        in: [ "a{ss}", "u", "i", "t" ],
+                        out: [ "a{ss}", "u", "i", "t" ]
                     }
                 }
             }
@@ -544,7 +544,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
         assert.expect(2);
 
         var dbus = cockpit.dbus(bus_name, channel_options);
-        dbus.call("/path", "borkety.Bork", "Method", [ 1 ], { "flags": 5 })
+        dbus.call("/path", "borkety.Bork", "Method", [ 1 ], { flags: 5 })
                 .fail(function(ex) {
                     assert.equal(ex.problem, "protocol-error", "error name");
                     assert.equal(ex.message, "the \"flags\" field is invalid in dbus call", "error message");
@@ -685,13 +685,13 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                 .done(function() {
                     assert.equal(typeof cache["/otree/frobber"], "object", "has path");
                     assert.deepEqual(cache["/otree/frobber"]["com.redhat.Cockpit.DBusTests.Frobber"],
-                                     { "FinallyNormalName": "There aint no place like home",
-                                       "ReadonlyProperty": "blah",
-                                       "aay": [], "ag": [], "ao": [], "as": [],
-                                       "ay": "QUJDYWJjAA==",
-                                       "b": false, "d": 43, "g": "", "i": 0, "n": 0,
-                                       "o": "/", "q": 0, "s": "", "t": 0, "u": 0, "x": 0,
-                                       "y": 42 }, "correct data");
+                                     { FinallyNormalName: "There aint no place like home",
+                                       ReadonlyProperty: "blah",
+                                       aay: [], ag: [], ao: [], as: [],
+                                       ay: "QUJDYWJjAA==",
+                                       b: false, d: 43, g: "", i: 0, n: 0,
+                                       o: "/", q: 0, s: "", t: 0, u: 0, x: 0,
+                                       y: 42 }, "correct data");
                     $(dbus).off();
                     done();
                 });
@@ -708,16 +708,16 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
             $.extend(cache, data);
         });
 
-        dbus.watch({ "path_namespace": "/otree" })
+        dbus.watch({ path_namespace: "/otree" })
                 .done(function() {
                     assert.deepEqual(cache, { "/otree/frobber": { "com.redhat.Cockpit.DBusTests.Frobber":
-                          { "FinallyNormalName": "There aint no place like home",
-                            "ReadonlyProperty": "blah",
-                            "aay": [], "ag": [], "ao": [], "as": [],
-                            "ay": "QUJDYWJjAA==",
-                            "b": false, "d": 43, "g": "", "i": 0, "n": 0,
-                            "o": "/", "q": 0, "s": "", "t": 0, "u": 0, "x": 0,
-                            "y": 42 } } }, "correct data");
+                          { FinallyNormalName: "There aint no place like home",
+                            ReadonlyProperty: "blah",
+                            aay: [], ag: [], ao: [], as: [],
+                            ay: "QUJDYWJjAA==",
+                            b: false, d: 43, g: "", i: 0, n: 0,
+                            o: "/", q: 0, s: "", t: 0, u: 0, x: 0,
+                            y: 42 } } }, "correct data");
                     $(dbus).off();
                     done();
                 });
@@ -739,13 +739,13 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
             assert.equal(typeof cache["/otree/frobber"], "object", "has path");
             assert.deepEqual(cache, { "/otree/frobber": {
                 "com.redhat.Cockpit.DBusTests.Frobber": {
-                    "FinallyNormalName": "There aint no place like home",
-                    "ReadonlyProperty": "blah",
-                    "aay": [], "ag": [], "ao": [], "as": [],
-                    "ay": "QUJDYWJjAA==",
-                    "b": false, "d": 43, "g": "", "i": 0, "n": 0,
-                    "o": "/", "q": 0, "s": "", "t": 0, "u": 0, "x": 0,
-                    "y": 42 }
+                    FinallyNormalName: "There aint no place like home",
+                    ReadonlyProperty: "blah",
+                    aay: [], ag: [], ao: [], as: [],
+                    ay: "QUJDYWJjAA==",
+                    b: false, d: 43, g: "", i: 0, n: 0,
+                    o: "/", q: 0, s: "", t: 0, u: 0, x: 0,
+                    y: 42 }
             } }, "correct data");
             $(dbus).off();
             done();
@@ -763,19 +763,19 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
             $.extend(cache, data);
         });
 
-        dbus.watch({ "path_namespace": "/otree" });
+        dbus.watch({ path_namespace: "/otree" });
 
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
                   "HelloWorld", [ "Browser-side JS" ])
                 .done(function(reply) {
                     assert.deepEqual(cache["/otree/frobber"]["com.redhat.Cockpit.DBusTests.Frobber"],
-                                     { "FinallyNormalName": "There aint no place like home",
-                                       "ReadonlyProperty": "blah",
-                                       "aay": [], "ag": [], "ao": [], "as": [],
-                                       "ay": "QUJDYWJjAA==",
-                                       "b": false, "d": 43, "g": "", "i": 0, "n": 0,
-                                       "o": "/", "q": 0, "s": "", "t": 0, "u": 0, "x": 0,
-                                       "y": 42 }, "correct data");
+                                     { FinallyNormalName: "There aint no place like home",
+                                       ReadonlyProperty: "blah",
+                                       aay: [], ag: [], ao: [], as: [],
+                                       ay: "QUJDYWJjAA==",
+                                       b: false, d: 43, g: "", i: 0, n: 0,
+                                       o: "/", q: 0, s: "", t: 0, u: 0, x: 0,
+                                       y: 42 }, "correct data");
                 })
                 .always(function() {
                     assert.equal(this.state(), "resolved", "finished successfuly");
@@ -795,38 +795,38 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
             $.extend(true, cache, data);
         });
 
-        dbus.watch({ "path_namespace": "/otree" })
+        dbus.watch({ path_namespace: "/otree" })
                 .done(function() {
                     assert.deepEqual(cache, { "/otree/frobber": { "com.redhat.Cockpit.DBusTests.Frobber":
-                          { "FinallyNormalName": "There aint no place like home",
-                            "ReadonlyProperty": "blah",
-                            "aay": [], "ag": [], "ao": [], "as": [],
-                            "ay": "QUJDYWJjAA==",
-                            "b": false, "d": 43, "g": "", "i": 0, "n": 0,
-                            "o": "/", "q": 0, "s": "", "t": 0, "u": 0, "x": 0,
-                            "y": 42 } } }, "correct data");
+                          { FinallyNormalName: "There aint no place like home",
+                            ReadonlyProperty: "blah",
+                            aay: [], ag: [], ao: [], as: [],
+                            ay: "QUJDYWJjAA==",
+                            b: false, d: 43, g: "", i: 0, n: 0,
+                            o: "/", q: 0, s: "", t: 0, u: 0, x: 0,
+                            y: 42 } } }, "correct data");
                     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "AddAlpha", [])
                             .done(function () {
                                 assert.deepEqual(cache, { "/otree/frobber": { "com.redhat.Cockpit.DBusTests.Frobber":
-                                  { "FinallyNormalName": "There aint no place like home",
-                                    "ReadonlyProperty": "blah",
-                                    "aay": [], "ag": [], "ao": [], "as": [],
-                                    "ay": "QUJDYWJjAA==",
-                                    "b": false, "d": 43, "g": "", "i": 0, "n": 0,
-                                    "o": "/", "q": 0, "s": "", "t": 0, "u": 0, "x": 0,
-                                    "y": 42 },
+                                  { FinallyNormalName: "There aint no place like home",
+                                    ReadonlyProperty: "blah",
+                                    aay: [], ag: [], ao: [], as: [],
+                                    ay: "QUJDYWJjAA==",
+                                    b: false, d: 43, g: "", i: 0, n: 0,
+                                    o: "/", q: 0, s: "", t: 0, u: 0, x: 0,
+                                    y: 42 },
                                                                               "com.redhat.Cockpit.DBusTests.Alpha": {}
                                 } }, "correct data");
                                 dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "RemoveAlpha", [])
                                         .done(function () {
                                             assert.deepEqual(cache, { "/otree/frobber": { "com.redhat.Cockpit.DBusTests.Frobber":
-                                      { "FinallyNormalName": "There aint no place like home",
-                                        "ReadonlyProperty": "blah",
-                                        "aay": [], "ag": [], "ao": [], "as": [],
-                                        "ay": "QUJDYWJjAA==",
-                                        "b": false, "d": 43, "g": "", "i": 0, "n": 0,
-                                        "o": "/", "q": 0, "s": "", "t": 0, "u": 0, "x": 0,
-                                        "y": 42 },
+                                      { FinallyNormalName: "There aint no place like home",
+                                        ReadonlyProperty: "blah",
+                                        aay: [], ag: [], ao: [], as: [],
+                                        ay: "QUJDYWJjAA==",
+                                        b: false, d: 43, g: "", i: 0, n: 0,
+                                        o: "/", q: 0, s: "", t: 0, u: 0, x: 0,
+                                        y: 42 },
                                                                                           "com.redhat.Cockpit.DBusTests.Alpha": null
                                             } }, "correct data");
                                             $(dbus).off();
@@ -848,7 +848,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
             $.extend(cache, data);
         });
 
-        dbus.watch({ "path_namespace": "/cliques/" + name })
+        dbus.watch({ path_namespace: "/cliques/" + name })
                 .done(function() {
                     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
                               "CreateClique", [ name ])
@@ -858,7 +858,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                                 for (var i = 0; i < 3; i++) {
                                     expect["/cliques/" + name + "/" + i] = {
                                         "com.redhat.Cockpit.DBusTests.Clique": {
-                                            "Friend": "/cliques/" + name + "/" + (i + 1) % 3
+                                            Friend: "/cliques/" + name + "/" + (i + 1) % 3
                                         }
                                     };
                                 }
@@ -884,14 +884,14 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
             $.extend(cache, data);
         });
 
-        dbus.watch({ "path": "/hidden/" + name })
+        dbus.watch({ path: "/hidden/" + name })
                 .done(function() {
                     assert.deepEqual(cache, { }, "no data yet");
 
-                    dbus.subscribe({ "path": "/hidden/" + name }, function(path, iface, args) {
+                    dbus.subscribe({ path: "/hidden/" + name }, function(path, iface, args) {
                         assert.equal(typeof cache[path], "object", "have object");
                         assert.deepEqual(cache[path], {
-                            "com.redhat.Cockpit.DBusTests.Hidden": { "Name": name }
+                            "com.redhat.Cockpit.DBusTests.Hidden": { Name: name }
                         }, "got data before signal");
                         $(dbus).off();
                         done();
@@ -913,13 +913,13 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
         proxy.wait(function() {
             assert.strictEqual(proxy.valid, true, "proxy: is valid");
             assert.deepEqual(proxy.data, {
-                "FinallyNormalName": "There aint no place like home",
-                "ReadonlyProperty": "blah",
-                "aay": [], "ag": [], "ao": [], "as": [],
-                "ay": "QUJDYWJjAA==",
-                "b": false, "d": 43, "g": "", "i": 0, "n": 0,
-                "o": "/", "q": 0, "s": "", "t": 0, "u": 0, "x": 0,
-                "y": 42
+                FinallyNormalName: "There aint no place like home",
+                ReadonlyProperty: "blah",
+                aay: [], ag: [], ao: [], as: [],
+                ay: "QUJDYWJjAA==",
+                b: false, d: 43, g: "", i: 0, n: 0,
+                o: "/", q: 0, s: "", t: 0, u: 0, x: 0,
+                y: 42
             }, "correct data");
 
             assert.strictEqual(proxy.FinallyNormalName, "There aint no place like home", "property value");
@@ -988,7 +988,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
             assert.equal(name, "TestSignal", "signals: got right name");
             assert.deepEqual(args, [
                 43, [ "foo", "frobber" ], [ "/foo", "/foo/bar" ],
-                { "first": [ 42, 42 ], "second": [ 43, 43 ] } ], "got right arguments");
+                { first: [ 42, 42 ], second: [ 43, 43 ] } ], "got right arguments");
             received = true;
         });
 
@@ -1018,7 +1018,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
             dbus.notify({
                 "/otree/frobber": {
                     "com.redhat.Cockpit.DBusTests.Frobber": {
-                        "FinallyNormalName": "externally injected"
+                        FinallyNormalName: "externally injected"
                     }
                 }
             });
@@ -1104,9 +1104,9 @@ function dbus_track_tests(channel_options, bus_name) { // eslint-disable-line no
                 .always(function() {
                     assert.equal(this.state(), "resolved", "name claimed");
 
-                    var other = cockpit.dbus(name, { "bus": channel_options.bus,
-                                                     "address": channel_options.address,
-                                                     "track": true });
+                    var other = cockpit.dbus(name, { bus: channel_options.bus,
+                                                     address: channel_options.address,
+                                                     track: true });
                     $(other).on("close", function(event, data) {
                         assert.strictEqual(data.problem, undefined, "no problem");
                         gone = true;

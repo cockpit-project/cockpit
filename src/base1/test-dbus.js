@@ -2,13 +2,13 @@
 
 /* with a name */
 var options = {
-    "bus": "session"
+    bus: "session"
 };
 common_dbus_tests(options, "com.redhat.Cockpit.DBusTests.Test");
 dbus_track_tests(options, "com.redhat.Cockpit.DBusTests.Test");
 
 QUnit.test("proxy no stutter", function (assert) {
-    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { bus: "session" });
 
     var proxy = dbus.proxy();
     assert.equal(proxy.iface, "com.redhat.Cockpit.DBusTests.Test", "interface auto chosen");
@@ -16,7 +16,7 @@ QUnit.test("proxy no stutter", function (assert) {
 });
 
 QUnit.test("proxies no stutter", function (assert) {
-    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { bus: "session" });
 
     var proxies = dbus.proxies();
     assert.equal(proxies.iface, "com.redhat.Cockpit.DBusTests.Test", "interface auto chosen");
@@ -24,7 +24,7 @@ QUnit.test("proxies no stutter", function (assert) {
 });
 
 QUnit.test("exposed client and options", function (assert) {
-    var options = { host: "localhost", "bus": "session" };
+    var options = { host: "localhost", bus: "session" };
     var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", options);
     var proxy = dbus.proxy("com.redhat.Cockpit.DBusTests.Frobber", "/otree/frobber");
     var proxies = dbus.proxies("com.redhat.Cockpit.DBusTests.Frobber");
@@ -38,12 +38,12 @@ QUnit.test("subscriptions on closed client", function (assert) {
     function on_signal() {
     }
 
-    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { bus: "session" });
     dbus.close();
 
     var subscription = dbus.subscribe({
-        "interface": "com.redhat.Cockpit.DBusTests.Frobber",
-        "path": "/otree/frobber"
+        interface: "com.redhat.Cockpit.DBusTests.Frobber",
+        path: "/otree/frobber"
     }, on_signal);
     assert.ok(subscription, "can subscribe");
 
@@ -54,7 +54,7 @@ QUnit.test("subscriptions on closed client", function (assert) {
 QUnit.test("watch promise recursive", function (assert) {
     assert.expect(7);
 
-    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { bus: "session" });
     var promise = dbus.watch("/otree/frobber");
 
     var target = { };
@@ -77,7 +77,7 @@ QUnit.test("owned messages", function (assert) {
     var name = "yo.x" + new Date().getTime();
     var times_changed = 0;
 
-    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { bus: "session" });
     var other = null;
     var org_owner = null;
     function on_owner (event, owner) {
@@ -101,7 +101,7 @@ QUnit.test("owned messages", function (assert) {
                 .always(function() {
                     assert.equal(this.state(), "resolved", "name claimed");
                     if (!other) {
-                        other = cockpit.dbus(name, { "bus": "session" });
+                        other = cockpit.dbus(name, { bus: "session" });
                         $(other).on("owner", on_owner);
                         release_name();
                     } else {
@@ -132,7 +132,7 @@ QUnit.test("bad dbus address", function (assert) {
     const done = assert.async();
     assert.expect(1);
 
-    var dbus = cockpit.dbus(null, { "bus": "none", "address": "bad" });
+    var dbus = cockpit.dbus(null, { bus: "none", address: "bad" });
     $(dbus).on("close", function(event, options) {
         assert.equal(options.problem, "protocol-error", "bad address closed");
         done();
@@ -143,7 +143,7 @@ QUnit.test("bad dbus bus", function (assert) {
     const done = assert.async();
     assert.expect(1);
 
-    var dbus = cockpit.dbus(null, { "bus": "bad" });
+    var dbus = cockpit.dbus(null, { bus: "bad" });
     $(dbus).on("close", function(event, options) {
         assert.equal(options.problem, "protocol-error", "bad bus format");
         done();
@@ -154,7 +154,7 @@ QUnit.test("wait ready", function (assert) {
     const done = assert.async();
     assert.expect(1);
 
-    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { bus: "session" });
     dbus.wait().then(function(options) {
         assert.ok(!!dbus.unique_name, "wait fills unique_name");
     }, function() {
@@ -169,7 +169,7 @@ QUnit.test("wait fail", function (assert) {
     const done = assert.async();
     assert.expect(1);
 
-    var dbus = cockpit.dbus(null, { "bus": "none", "address": "bad" });
+    var dbus = cockpit.dbus(null, { bus: "none", address: "bad" });
     dbus.wait().then(function(options) {
         assert.ok(false, "shouldn't succeed");
     }, function() {
@@ -184,9 +184,9 @@ QUnit.test("no default name", function (assert) {
     const done = assert.async();
     assert.expect(1);
 
-    var dbus = cockpit.dbus(null, { "bus": "session" });
+    var dbus = cockpit.dbus(null, { bus: "session" });
     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-              "HelloWorld", [ "Browser-side JS" ], { "name": "com.redhat.Cockpit.DBusTests.Test" })
+              "HelloWorld", [ "Browser-side JS" ], { name: "com.redhat.Cockpit.DBusTests.Test" })
             .then(function(reply) {
                 assert.deepEqual(reply, [ "Word! You said `Browser-side JS'. I'm Skeleton, btw!" ], "replied");
             }, function(ex) {
@@ -201,9 +201,9 @@ QUnit.test("no default name bad", function (assert) {
     const done = assert.async();
     assert.expect(2);
 
-    var dbus = cockpit.dbus(null, { "bus": "session" });
+    var dbus = cockpit.dbus(null, { bus: "session" });
     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-              "HelloWorld", [ "Browser-side JS" ], { "name": 5 })
+              "HelloWorld", [ "Browser-side JS" ], { name: 5 })
             .then(function(reply) {
                 assert.ok(false, "shouldn't succeed");
             }, function(ex) {
@@ -219,9 +219,9 @@ QUnit.test("no default name invalid", function (assert) {
     const done = assert.async();
     assert.expect(2);
 
-    var dbus = cockpit.dbus(null, { "bus": "session" });
+    var dbus = cockpit.dbus(null, { bus: "session" });
     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-              "HelloWorld", [ "Browser-side JS" ], { "name": "!invalid!" })
+              "HelloWorld", [ "Browser-side JS" ], { name: "!invalid!" })
             .then(function(reply) {
                 assert.ok(false, "shouldn't succeed");
             }, function(ex) {
@@ -237,7 +237,7 @@ QUnit.test("no default name missing", function (assert) {
     const done = assert.async();
     assert.expect(2);
 
-    var dbus = cockpit.dbus(null, { "bus": "session" });
+    var dbus = cockpit.dbus(null, { bus: "session" });
     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
               "HelloWorld", [ "Browser-side JS" ])
             .then(function(reply) {
@@ -255,13 +255,13 @@ QUnit.test("no default name second", function (assert) {
     const done = assert.async();
     assert.expect(2);
 
-    var dbus = cockpit.dbus(null, { "bus": "session" });
+    var dbus = cockpit.dbus(null, { bus: "session" });
     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "TellMeYourName", [ ],
-              { "name": "com.redhat.Cockpit.DBusTests.Test" })
+              { name: "com.redhat.Cockpit.DBusTests.Test" })
             .then(function(reply) {
                 assert.deepEqual(reply, [ "com.redhat.Cockpit.DBusTests.Test" ], "right name");
                 return dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "TellMeYourName", [ ],
-                                 { "name": "com.redhat.Cockpit.DBusTests.Second" })
+                                 { name: "com.redhat.Cockpit.DBusTests.Second" })
                         .then(function(reply) {
                             assert.deepEqual(reply, [ "com.redhat.Cockpit.DBusTests.Second" ], "second name");
                         }, function(ex) {
@@ -280,12 +280,12 @@ QUnit.test("override default name", function (assert) {
     const done = assert.async();
     assert.expect(2);
 
-    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { bus: "session" });
     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "TellMeYourName", [ ])
             .then(function(reply) {
                 assert.deepEqual(reply, [ "com.redhat.Cockpit.DBusTests.Test" ], "right name");
                 return dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "TellMeYourName", [ ],
-                                 { "name": "com.redhat.Cockpit.DBusTests.Second" })
+                                 { name: "com.redhat.Cockpit.DBusTests.Second" })
                         .then(function(reply) {
                             assert.deepEqual(reply, [ "com.redhat.Cockpit.DBusTests.Second" ], "second name");
                         }, function(ex) {
@@ -306,12 +306,12 @@ QUnit.test("watch no default name", function (assert) {
 
     var cache = { };
 
-    var dbus = cockpit.dbus(null, { "bus": "session" });
+    var dbus = cockpit.dbus(null, { bus: "session" });
     dbus.addEventListener("notify", function(event, data) {
         $.extend(true, cache, data);
     });
 
-    dbus.watch({ "path": "/otree/frobber", "name": "com.redhat.Cockpit.DBusTests.Second" })
+    dbus.watch({ path: "/otree/frobber", name: "com.redhat.Cockpit.DBusTests.Second" })
             .then(function() {
                 assert.equal(typeof cache["/otree/frobber"], "object", "has path");
             }, function(ex) {
@@ -327,7 +327,7 @@ QUnit.test("watch missing name", function (assert) {
     const done = assert.async();
     assert.expect(2);
 
-    var dbus = cockpit.dbus(null, { "bus": "session", "other": "option" });
+    var dbus = cockpit.dbus(null, { bus: "session", other: "option" });
     dbus.watch("/otree/frobber")
             .then(function() {
                 assert.ok(false, "shouldn't succeed");
@@ -345,8 +345,8 @@ QUnit.test("shared client", function (assert) {
     const done = assert.async();
     assert.expect(2);
 
-    var dbus1 = cockpit.dbus(null, { "bus": "session" });
-    var dbus2 = cockpit.dbus(null, { "bus": "session" });
+    var dbus1 = cockpit.dbus(null, { bus: "session" });
+    var dbus2 = cockpit.dbus(null, { bus: "session" });
 
     /* Is identical */
     assert.strictEqual(dbus1, dbus2, "shared bus returned");
@@ -355,7 +355,7 @@ QUnit.test("shared client", function (assert) {
     dbus1.close();
 
     dbus2.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-               "HelloWorld", [ "Browser-side JS" ], { "name": "com.redhat.Cockpit.DBusTests.Test" })
+               "HelloWorld", [ "Browser-side JS" ], { name: "com.redhat.Cockpit.DBusTests.Test" })
             .then(function(reply) {
                 assert.deepEqual(reply, [ "Word! You said `Browser-side JS'. I'm Skeleton, btw!" ],
                                  "call still works");
@@ -370,8 +370,8 @@ QUnit.test("shared client", function (assert) {
 QUnit.test("not shared option", function (assert) {
     assert.expect(1);
 
-    var dbus1 = cockpit.dbus(null, { "bus": "session" });
-    var dbus2 = cockpit.dbus(null, { "bus": "session", "other": "option" });
+    var dbus1 = cockpit.dbus(null, { bus: "session" });
+    var dbus2 = cockpit.dbus(null, { bus: "session", other: "option" });
 
     /* Should not be identical */
     assert.notStrictEqual(dbus1, dbus2, "shared bus returned");
@@ -387,19 +387,19 @@ QUnit.test("emit signal meta", function (assert) {
 
     var meta = {
         "borkety.Bork": {
-            "signals": {
-                "Bork": {
-                    "in": [ "i", "i", "i", "i", "s" ]
+            signals: {
+                Bork: {
+                    in: [ "i", "i", "i", "i", "s" ]
                 }
             }
         }
     };
 
     var received = false;
-    var dbus = cockpit.dbus(null, { "bus": "session", "other": "option" });
+    var dbus = cockpit.dbus(null, { bus: "session", other: "option" });
     dbus.meta(meta);
     dbus.wait(function() {
-        dbus.subscribe({ "path": "/bork", "name": dbus.unique_name }, function(path, iface, signal, args) {
+        dbus.subscribe({ path: "/bork", name: dbus.unique_name }, function(path, iface, signal, args) {
             assert.equal(path, "/bork", "reflected path");
             assert.equal(iface, "borkety.Bork", "reflected interface");
             assert.equal(signal, "Bork", "reflected signal");
@@ -418,7 +418,7 @@ QUnit.test("emit signal meta", function (assert) {
         });
 
         dbus.signal("/bork", "borkety.Bork", "Bork", [ 1, 2, 3, 4, "Bork" ],
-                    { "type": "iiiis" });
+                    { type: "iiiis" });
     });
 });
 
@@ -427,9 +427,9 @@ QUnit.test("emit signal type", function (assert) {
     assert.expect(4);
 
     var received = false;
-    var dbus = cockpit.dbus(null, { "bus": "session", "other": "option" });
+    var dbus = cockpit.dbus(null, { bus: "session", other: "option" });
     dbus.wait(function() {
-        dbus.subscribe({ "path": "/bork", "name": dbus.unique_name }, function(path, iface, signal, args) {
+        dbus.subscribe({ path: "/bork", name: dbus.unique_name }, function(path, iface, signal, args) {
             assert.equal(path, "/bork", "reflected path");
             assert.equal(iface, "borkety.Bork", "reflected interface");
             assert.equal(signal, "Bork", "reflected signal");
@@ -448,7 +448,7 @@ QUnit.test("emit signal type", function (assert) {
         });
 
         dbus.signal("/bork", "borkety.Bork", "Bork", [ 1, 2, 3, 4, "Bork" ],
-                    { "type": "iiiis" });
+                    { type: "iiiis" });
     });
 });
 
@@ -456,7 +456,7 @@ QUnit.test("emit signal no meta", function (assert) {
     const done = assert.async();
     assert.expect(2);
 
-    var dbus = cockpit.dbus(null, { "bus": "session", "other": "option" });
+    var dbus = cockpit.dbus(null, { bus: "session", other: "option" });
 
     function closed(event, ex) {
         assert.equal(ex.problem, "protocol-error", "correct problem");
@@ -476,9 +476,9 @@ QUnit.test("publish object", function (assert) {
 
     var info = {
         "org.Interface": {
-            "methods": {
-                "Add": { "in": [ "i", "i" ], "out": [ "s" ] },
-                "Live": { "in": [ "s" ] },
+            methods: {
+                Add: { in: [ "i", "i" ], out: [ "s" ] },
+                Live: { in: [ "s" ] },
             }
         }
     };
@@ -528,8 +528,8 @@ QUnit.test("publish object promise", function (assert) {
 
     var info = {
         "org.Interface": {
-            "methods": {
-                "Add": { "in": [ "i", "i" ], "out": [ "s", "i", "i" ] },
+            methods: {
+                Add: { in: [ "i", "i" ], out: [ "s", "i", "i" ] },
             }
         }
     };
@@ -569,8 +569,8 @@ QUnit.test("publish object failure", function (assert) {
 
     var info = {
         "org.Interface": {
-            "methods": {
-                "Fails": { "in": [ "i", "i" ], "out": [ "s", "i", "i" ] },
+            methods: {
+                Fails: { in: [ "i", "i" ], out: [ "s", "i", "i" ] },
             }
         }
     };
@@ -613,8 +613,8 @@ QUnit.test("publish object replaces", function (assert) {
 
     var info = {
         "org.Interface": {
-            "methods": {
-                "Bonk": { "in": [ "s" ], "out": [ "s" ] },
+            methods: {
+                Bonk: { in: [ "s" ], out: [ "s" ] },
             }
         }
     };
@@ -663,8 +663,8 @@ QUnit.test("publish object unpublish", function (assert) {
 
     var info = {
         "org.Interface": {
-            "methods": {
-                "Bonk": { "in": [ "s" ], "out": [ "s" ] },
+            methods: {
+                Bonk: { in: [ "s" ], out: [ "s" ] },
             }
         }
     };
@@ -721,15 +721,15 @@ function internal_test(assert, options) {
 }
 
 QUnit.test("internal dbus", function (assert) {
-    internal_test(assert, { "bus": "internal" });
+    internal_test(assert, { bus: "internal" });
 });
 
 QUnit.test("internal dbus bus none", function (assert) {
-    internal_test(assert, { "bus": "none" });
+    internal_test(assert, { bus: "none" });
 });
 
 QUnit.test("internal dbus bus none with address", function (assert) {
-    internal_test(assert, { "bus": "none", "address": "internal" });
+    internal_test(assert, { bus: "none", address: "internal" });
 });
 
 QUnit.test("separate dbus connections for channel groups", function (assert) {

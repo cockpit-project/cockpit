@@ -129,10 +129,10 @@ export function nfs_fstab_dialog(client, entry) {
             server_to_check = server;
             server_check_timeout = window.setTimeout(() => {
                 server_check_timeout = null;
-                dlg.set_options("remote", { "choices": [ ] });
+                dlg.set_options("remote", { choices: [ ] });
                 get_exported_directories(server).then(choices => {
                     if (server == server_to_check)
-                        dlg.set_options("remote", { "choices": choices });
+                        dlg.set_options("remote", { choices: choices });
                 });
             }, delay);
         }

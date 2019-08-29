@@ -22,13 +22,13 @@ const _ = cockpit.gettext;
     class UserTerminal extends React.Component {
         createChannel(user) {
             return cockpit.channel({
-                "payload": "stream",
-                "spawn": [user.shell || "/bin/bash"],
-                "environ": [
+                payload: "stream",
+                spawn: [user.shell || "/bin/bash"],
+                environ: [
                     "TERM=xterm-256color",
                 ],
-                "directory": user.home || "/",
-                "pty": true
+                directory: user.home || "/",
+                pty: true
             });
         }
 

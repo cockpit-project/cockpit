@@ -187,10 +187,10 @@ export function init_overview (client) {
             .find(".btn-primary")
             .on("click", function() {
                 var location = cockpit.location;
-                var run = { "Cmd": util.unquote_cmdline($(commit).find(".container-command")
+                var run = { Cmd: util.unquote_cmdline($(commit).find(".container-command")
                         .val()) };
                 var options = {
-                    "author": $(commit).find(".container-author")
+                    author: $(commit).find(".container-author")
                             .val()
                 };
                 var tag = $(commit).find(".container-tag")

@@ -47,7 +47,7 @@ const DummyVm = ({ vm }) => {
 
     return (<ListingRow
         columns={[
-            { name, 'header': true },
+            { name, header: true },
             rephraseUI('connections', null),
             stateIcon,
         ]}

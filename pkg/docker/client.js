@@ -513,7 +513,7 @@ function DockerClient() {
         return http.request({
             method: "POST",
             path: "/v1.12/containers/" + encodeURIComponent(id) + "/stop",
-            params: { 't': timeout },
+            params: { t: timeout },
             body: ""
         })
                 .fail(function(ex) {
@@ -535,7 +535,7 @@ function DockerClient() {
         return http.request({
             method: "POST",
             path: "/v1.12/containers/" + encodeURIComponent(id) + "/restart",
-            params: { 't': timeout },
+            params: { t: timeout },
             body: ""
         })
                 .fail(function(ex) {
@@ -555,7 +555,7 @@ function DockerClient() {
         return http.request({
             method: "POST",
             path: "/v1.12/containers/create",
-            params: { "name": name },
+            params: { name: name },
             headers: { "Content-Type": "application/json" },
             body: body,
         })
@@ -570,7 +570,7 @@ function DockerClient() {
 
     this.search = function search(term) {
         util.docker_debug("searching:", term);
-        return http.get("/v1.12/images/search", { "term": term })
+        return http.get("/v1.12/images/search", { term: term })
                 .fail(function(ex) {
                     util.docker_debug("search failed:", term, ex);
                 })
@@ -581,8 +581,8 @@ function DockerClient() {
 
     this.commit = function create(id, repotag, options, run_config) {
         var args = {
-            "container": id,
-            "repo": repotag
+            container: id,
+            repo: repotag
         };
         $.extend(args, options);
 
@@ -615,7 +615,7 @@ function DockerClient() {
         return http.request({
             method: "DELETE",
             path: "/v1.12/containers/" + encodeURIComponent(id),
-            params: { "force": forced },
+            params: { force: forced },
             body: ""
         })
                 .fail(function(ex) {
@@ -637,7 +637,7 @@ function DockerClient() {
         return http.request({
             method: "DELETE",
             path: "/v1.12/images/" + encodeURIComponent(id),
-            params: { "force": forced },
+            params: { force: forced },
             body: ""
         })
                 .fail(function(ex) {
@@ -687,7 +687,7 @@ function DockerClient() {
         var command = "if test -f " + path + "; then echo '" + value.toFixed(0) + "' > " + path + "; fi";
         util.docker_debug("changing cgroup:", command);
 
-        return cockpit.spawn(["sh", "-c", command], { "superuser": "try", "err": "message" });
+        return cockpit.spawn(["sh", "-c", command], { superuser: "try", err: "message" });
     }
 
     this.change_memory_limit = function change_memory_limit(id, value) {

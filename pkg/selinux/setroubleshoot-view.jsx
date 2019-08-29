@@ -432,7 +432,7 @@ export class SETroubleshootPage extends React.Component {
                     criticalAlert = <span className="fa fa-exclamation-triangle" />;
                 var columns = [
                     criticalAlert,
-                    { name: itm.description, 'header': true }
+                    { name: itm.description, header: true }
                 ];
                 var title;
                 if (itm.count > 1) {

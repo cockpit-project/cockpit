@@ -299,13 +299,13 @@ export class KdumpPage extends React.Component {
         };
         // also test modifying properties in subsequent render calls
         var footerProps = {
-            'actions': [
-                { 'clicked': self.props.onCrashKernel.bind(self),
-                  'caption': _("Crash system"),
-                  'style': 'danger',
+            actions: [
+                { clicked: self.props.onCrashKernel.bind(self),
+                  caption: _("Crash system"),
+                  style: 'danger',
                 }
             ],
-            'dialog_done': self.dialogClosed,
+            dialog_done: self.dialogClosed,
         };
         var dialogObj = show_modal_dialog(dialogProps, footerProps);
         this.setState({ dialogObj: dialogObj });
@@ -347,13 +347,13 @@ export class KdumpPage extends React.Component {
         updateDialogBody();
         // also test modifying properties in subsequent render calls
         var footerProps = {
-            'actions': [
-                { 'clicked': this.handleApplyClick.bind(this),
-                  'caption': _("Apply"),
-                  'style': 'primary',
+            actions: [
+                { clicked: this.handleApplyClick.bind(this),
+                  caption: _("Apply"),
+                  style: 'primary',
                 },
             ],
-            'dialog_done': this.dialogClosed.bind(this),
+            dialog_done: this.dialogClosed.bind(this),
         };
         var dialogObj = show_modal_dialog(dialogProps, footerProps);
         dialogObj.updateDialogBody = updateDialogBody;

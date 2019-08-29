@@ -257,7 +257,7 @@ function parse_group_content(content) {
 function password_quality(password) {
     var dfd = cockpit.defer();
 
-    cockpit.spawn('/usr/bin/pwscore', { "err": "message" })
+    cockpit.spawn('/usr/bin/pwscore', { err: "message" })
             .input(password)
             .done(function(content) {
                 var quality = parseInt(content, 10);
@@ -315,7 +315,7 @@ class AccountList extends React.Component {
         var i;
         var items = [];
         for (i in this.props.accounts)
-            items.push(React.createElement(AccountItem, Object.assign({ "key": this.props.accounts[i].name },
+            items.push(React.createElement(AccountItem, Object.assign({ key: this.props.accounts[i].name },
                                                                       this.props.accounts[i])));
         return (
             <React.Fragment>
@@ -505,7 +505,7 @@ PageAccountsCreate.prototype = {
                     prog.push($('#accounts-create-real-name').val());
                 }
                 prog.push($('#accounts-create-user-name').val());
-                return cockpit.spawn(prog, { "superuser": "require", err: "message" });
+                return cockpit.spawn(prog, { superuser: "require", err: "message" });
             }
         ];
 
@@ -572,22 +572,22 @@ PageAccountsCreate.prototype = {
 
         function remove_diacritics(str) {
             var translate_table = {
-                'a' :  '[àáâãäå]',
-                'ae':  'æ',
-                'c' :  '[čç]',
-                'd' :  'ď',
-                'e' :  '[èéêë]',
-                'i' :  '[íìïî]',
-                'l' :  '[ĺľ]',
-                'n' :  '[ňñ]',
-                'o' :  '[òóôõö]',
-                'oe':  'œ',
-                'r' :  '[ŕř]',
-                's' :  'š',
-                't' :  'ť',
-                'u' :  '[ùúůûűü]',
-                'y' :  '[ýÿ]',
-                'z' :  'ž',
+                a :  '[àáâãäå]',
+                ae:  'æ',
+                c :  '[čç]',
+                d :  'ď',
+                e :  '[èéêë]',
+                i :  '[íìïî]',
+                l :  '[ĺľ]',
+                n :  '[ňñ]',
+                o :  '[òóôõö]',
+                oe:  'œ',
+                r :  '[ŕř]',
+                s :  'š',
+                t :  'ť',
+                u :  '[ùúůûűü]',
+                y :  '[ýÿ]',
+                z :  'ž',
             };
             for (var i in translate_table)
                 str = str.replace(new RegExp(translate_table[i], 'g'), i);
@@ -723,7 +723,7 @@ PageAccount.prototype = {
         }
 
         this.handle_passwd = cockpit.file('/etc/passwd');
-        self.handle_shadow = cockpit.file('/etc/shadow', { "superuser": "try" });
+        self.handle_shadow = cockpit.file('/etc/shadow', { superuser: "try" });
         var saw_shadow = false;
 
         this.handle_passwd.read()
@@ -747,10 +747,10 @@ PageAccount.prototype = {
         var self = this;
 
         var role_groups = {
-            "wheel":   _("Server Administrator"),
-            "sudo":    _("Server Administrator"),
-            "docker":  _("Container Administrator"),
-            "weldr":   _("Image Builder")
+            wheel:   _("Server Administrator"),
+            sudo:    _("Server Administrator"),
+            docker:  _("Container Administrator"),
+            weldr:   _("Image Builder")
         };
 
         function parse_groups(content) {
@@ -795,7 +795,7 @@ PageAccount.prototype = {
                 return new Date(data[data.length - 1]);
         }
 
-        cockpit.spawn(["/usr/bin/lastlog", "-u", self.account_id], { "environ": ["LC_ALL=C"] })
+        cockpit.spawn(["/usr/bin/lastlog", "-u", self.account_id], { environ: ["LC_ALL=C"] })
                 .done(function (data) {
                     self.lastLogin = parse_last_login(data);
                     self.update();
@@ -817,7 +817,7 @@ PageAccount.prototype = {
             return status && (status == "LK" || status == "L");
         }
 
-        cockpit.spawn(["/usr/bin/passwd", "-S", self.account_id], { "environ": [ "LC_ALL=C" ], "superuser": "require" })
+        cockpit.spawn(["/usr/bin/passwd", "-S", self.account_id], { environ: [ "LC_ALL=C" ], superuser: "require" })
                 .done(function(content) {
                     self.locked = parse_locked(content);
                     if (update_display)
@@ -897,7 +897,7 @@ PageAccount.prototype = {
         }
 
         cockpit.spawn(["/usr/bin/chage", "-l", self.account_id],
-                      { "environ": [ "LC_ALL=C" ], "err": "message", "superuser": "try" })
+                      { environ: [ "LC_ALL=C" ], err: "message", superuser: "try" })
                 .done(function(data) {
                     parse_expire(data);
                 })
@@ -979,10 +979,10 @@ PageAccount.prototype = {
                 var keys = this.authorized_keys.keys;
                 var state = this.authorized_keys.state;
                 var keys_html = mustache.render(this.keys_template, {
-                    "keys": keys,
-                    "empty": keys.length === 0 && state == "ready",
-                    "denied": state == "access-denied",
-                    "failed": state == "failed",
+                    keys: keys,
+                    empty: keys.length === 0 && state == "ready",
+                    denied: state == "access-denied",
+                    failed: state == "failed",
                 });
                 $('#account-authorized-keys-list').html(keys_html);
                 $(".account-remove-key")
@@ -994,7 +994,7 @@ PageAccount.prototype = {
 
             if (this.account["uid"] !== 0) {
                 var html = mustache.render(this.role_template,
-                                           { "roles": this.roles, "changed": this.roles_changed });
+                                           { roles: this.roles, changed: this.roles_changed });
                 $('#account-change-roles-roles').html(html);
                 $('#account-roles').parents('tr')
                         .show();
@@ -1041,10 +1041,10 @@ PageAccount.prototype = {
         input_elements.prop('disabled', true);
         if (checked) {
             proc = cockpit.spawn(["/usr/sbin/usermod", this.account["name"], "-G", id, "-a"],
-                                 { "superuser": "require", err: "message" });
+                                 { superuser: "require", err: "message" });
         } else {
             proc = cockpit.spawn(["/usr/bin/gpasswd", "-d", this.account["name"], name],
-                                 { "superuser": "require", err: "message" });
+                                 { superuser: "require", err: "message" });
         }
 
         proc.then(function(data) {
@@ -1086,7 +1086,7 @@ PageAccount.prototype = {
             $('#account button:not([disabled]), #account input:not([disabled]), #account a:not([disabled])');
         input_elements.prop('disabled', true);
         cockpit.spawn(["/usr/sbin/usermod", self.account["name"], "--comment", value],
-                      { "superuser": "try", err: "message" })
+                      { superuser: "try", err: "message" })
                 .done(function(data) {
                     self.account["gecos"] = value;
                     self.update();
@@ -1107,7 +1107,7 @@ PageAccount.prototype = {
         input_elements.prop('disabled', true);
         cockpit.spawn(["/usr/sbin/usermod",
             this.account["name"],
-            desired_lock_state ? "--lock" : "--unlock"], { "superuser": "require", err: "message" })
+            desired_lock_state ? "--lock" : "--unlock"], { superuser: "require", err: "message" })
                 .done(function() {
                     self.get_locked(false)
                             .done(function(locked) {
@@ -1153,7 +1153,7 @@ PageAccount.prototype = {
         input_elements
                 .prop('disabled', true);
         cockpit.spawn(["/usr/bin/loginctl", "terminate-user", this.account["name"]],
-                      { "superuser": "try", err: "message" })
+                      { superuser: "try", err: "message" })
                 .done($.proxy(this, "get_logged"))
                 .fail(show_unexpected_error)
                 .finally(function() {
@@ -1194,7 +1194,7 @@ PageAccountConfirmDelete.prototype = {
 
         prog.push(PageAccountConfirmDelete.user_name);
 
-        cockpit.spawn(prog, { "superuser": "require", err: "message" })
+        cockpit.spawn(prog, { superuser: "require", err: "message" })
                 .done(function () {
                     $('#account-confirm-delete-dialog').modal('hide');
                     cockpit.location.go("/");
@@ -1260,7 +1260,7 @@ function AccountExpiration() {
             else
                 prog.push("");
             prog.push(account_id);
-            promise = cockpit.spawn(prog, { "superuser" : true, "err": "message" });
+            promise = cockpit.spawn(prog, { superuser : true, err: "message" });
         }
 
         $("#account-expiration").dialog("promise", promise);
@@ -1323,7 +1323,7 @@ function PasswordExpiration() {
 
         if (!promise) {
             promise = cockpit.spawn([ "/usr/bin/passwd", "-x", String(days), account_id ],
-                                    { "superuser": true, "err": "message" });
+                                    { superuser: true, err: "message" });
         }
 
         $("#password-expiration").dialog("promise", promise);
@@ -1347,7 +1347,7 @@ function PasswordReset() {
     $("#password-reset .btn-primary").on("click", function() {
         var account_id = $("#password-reset").data("account-id");
         var promise = cockpit.spawn(["/usr/bin/passwd", "-e", account_id],
-                                    { "superuser" : true, "err": "message" });
+                                    { superuser : true, err: "message" });
         $("#password-reset").dialog("promise", promise);
     });
 }

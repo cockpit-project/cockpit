@@ -139,8 +139,8 @@ function Dialog(selector, address, machines_ins, codes) {
 
     self.try_to_connect = function(address, options) {
         var dfd = $.Deferred();
-        var conn_options = $.extend({ "payload": "echo",
-                                      "host": address },
+        var conn_options = $.extend({ payload: "echo",
+                                      host: address },
                                     options);
 
         var machine = self.machines_ins.lookup(address);
@@ -192,10 +192,10 @@ function Dialog(selector, address, machines_ins, codes) {
 
         var address_data = self.machines_ins.split_connection_string(self.address);
         var context = $.extend({
-            'host' : address_or_label(),
-            'full_address' : self.address,
-            'context_title' : self.context_title,
-            'strong' : function() {
+            host : address_or_label(),
+            full_address : self.address,
+            context_title : self.context_title,
+            strong : function() {
                 return function(text, render) {
                     return "<strong>" + render(text) + "</strong>";
                 };
@@ -290,10 +290,10 @@ function MachineColorPicker(machines_ins) {
         var colors = [];
         for (var i = 0; i < machines.colors.length; i += 6) {
             part = machines.colors.slice(i, i + 6);
-            colors.push({ "list" : part });
+            colors.push({ list : part });
         }
 
-        var text = mustache.render(templates["color-picker"], { 'colors' : colors, });
+        var text = mustache.render(templates["color-picker"], { colors : colors, });
         $(selector).html(text);
 
         $("#host-edit-color", selector).css("background-color", selected_color);
@@ -440,10 +440,10 @@ function AddMachine(dialog) {
             limit = 20;
 
         dialog.render({
-            'nearlimit' : limit * 0.75 <= dialog.machines_ins.list.length,
-            'limit' : limit,
-            'placeholder' : _("Enter IP address or host name"),
-            'options' : invisible,
+            nearlimit : limit * 0.75 <= dialog.machines_ins.list.length,
+            limit : limit,
+            placeholder : _("Enter IP address or host name"),
+            options : invisible,
         });
 
         var button = dialog.get_sel(".btn-primary");
@@ -474,7 +474,7 @@ function MachinePort(dialog) {
                                                                      parts.address);
         function update_host(ex) {
             dialog.address = address;
-            dialog.machines_ins.change(parts.address, { "port": parts.port })
+            dialog.machines_ins.change(parts.address, { port: parts.port })
                     .done(function () {
                     // We failed before so try to connect again
                     // now that the machine is saved.
@@ -517,8 +517,8 @@ function MachinePort(dialog) {
             return;
         }
 
-        dialog.render({ 'port' : machine.port,
-                        'allow_connection_string' : machines.allow_connection_string });
+        dialog.render({ port : machine.port,
+                        allow_connection_string : machines.allow_connection_string });
         if (machines.allow_connection_string)
             dialog.get_sel(".btn-primary").on("click", change_port);
     };
@@ -540,7 +540,7 @@ function HostKey(dialog, problem) {
             /* When machine isn't saved to disk
                don't save the key either */
             q = dialog.machines_ins.change(dialog.address, {
-                'host_key': key
+                host_key: key
             });
         }
 
@@ -552,7 +552,7 @@ function HostKey(dialog, problem) {
                     ex.problem == "unknown-hostkey") &&
                     machine && !machine.on_disk) {
                     dialog.machines_ins.change(dialog.address, {
-                        'host_key': null
+                        host_key: null
                     });
                 }
             });
@@ -575,8 +575,8 @@ function HostKey(dialog, problem) {
         }
 
         dialog.render({
-            'context_title' : dialog.context_title,
-            'key' : fp,
+            context_title : dialog.context_title,
+            key : fp,
         });
 
         if (!key) {
@@ -672,7 +672,7 @@ function ChangeAuth(dialog) {
                 .done(function () {
                     dialog.address = address;
                     if (machine) {
-                        dialog.machines_ins.change(machine.address, { "user" : user })
+                        dialog.machines_ins.change(machine.address, { user : user })
                                 .done(dfp.resolve)
                                 .fail(dfp.reject);
                     } else {
@@ -725,15 +725,15 @@ function ChangeAuth(dialog) {
         }
 
         dialog.render({
-            'supported' : methods,
-            'available' : available,
-            'machine_user' : machine_user,
-            'default_user' : self.user ? self.user.name : "",
-            'show_password' : available && available.password && !no_password,
-            'show_ticket': available && available['gssapi-mic'] && have_ticket,
-            'can_sync': !!dialog.codes['sync-users'],
+            supported : methods,
+            available : available,
+            machine_user : machine_user,
+            default_user : self.user ? self.user.name : "",
+            show_password : available && available.password && !no_password,
+            show_ticket: available && available['gssapi-mic'] && have_ticket,
+            can_sync: !!dialog.codes['sync-users'],
             'machines.allow_connection_string' : machines.allow_connection_string,
-            'sync_link' : function() {
+            sync_link : function() {
                 return function(text, render) {
                     return '<a tabindex="0" id="do-sync-users">' + render(text) + "</a>";
                 };
@@ -810,7 +810,7 @@ function SyncUsers(dialog) {
     var needs_auth = false;
     var needs_root = false;
     var methods = null;
-    var remote_options = { "superuser": true };
+    var remote_options = { superuser: true };
 
     var perm_failed = null;
 
@@ -827,8 +827,8 @@ function SyncUsers(dialog) {
         proxy.wait(function () {
             if (proxy.valid) {
                 var blank = {
-                    "t" : "(asas)",
-                    "v" : [[], []]
+                    t : "(asas)",
+                    v : [[], []]
                 };
 
                 proxy.Transfer("passwd1", blank)
@@ -843,10 +843,10 @@ function SyncUsers(dialog) {
                                 name = parts[0];
 
                                 users[name] = {
-                                    "username" : name,
-                                    "name" : parts[4] || name,
-                                    "raw" : raw,
-                                    "groups" : [],
+                                    username : name,
+                                    name : parts[4] || name,
+                                    raw : raw,
+                                    groups : [],
                                 };
                             }
 
@@ -904,8 +904,8 @@ function SyncUsers(dialog) {
         });
 
         var variant = {
-            "t" : "(asas)",
-            "v" : [[]],
+            t : "(asas)",
+            v : [[]],
         };
 
         var groups = {};
@@ -962,12 +962,12 @@ function SyncUsers(dialog) {
             allows_password = is_method_supported(methods, 'password');
 
         var text = dialog.render({
-            'needs_auth' : needs_auth,
-            'needs_root' : needs_root,
-            'users' : user_list,
-            'perm_failed' : perm_failed ? cockpit.message(perm_failed) : null,
-            'allows_password' : allows_password,
-            'formated_groups': formated_groups,
+            needs_auth : needs_auth,
+            needs_root : needs_root,
+            users : user_list,
+            perm_failed : perm_failed ? cockpit.message(perm_failed) : null,
+            allows_password : allows_password,
+            formated_groups: formated_groups,
         });
 
         dialog.get_sel(".modal-content").html(text);
@@ -995,7 +995,7 @@ function SyncUsers(dialog) {
                      * closes. Passing an invalid username should
                      * open new transport that fails.
                      */
-                    dialog.try_to_connect(dialog.address, { "user" : "1" })
+                    dialog.try_to_connect(dialog.address, { user : "1" })
                             .fail(function(ex) {
                                 methods = ex['auth-method-results'];
                             })

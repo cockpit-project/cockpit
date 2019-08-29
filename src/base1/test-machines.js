@@ -1,6 +1,6 @@
 /* global cockpit, QUnit */
 
-var dbus = cockpit.dbus(null, { "bus": "internal" });
+var dbus = cockpit.dbus(null, { bus: "internal" });
 var configDir;
 
 function cleanUp() {
@@ -28,7 +28,7 @@ function machinesParseTest(assert, machines_defs, expectedProperty) {
     Promise.all(setup).then(function() {
         dbus.call("/machines", "org.freedesktop.DBus.Properties",
                   "Get", [ "cockpit.Machines", "Machines" ],
-                  { "type": "ss" })
+                  { type: "ss" })
                 .done(function(reply) {
                     assert.equal(reply[0].t, "a{sa{sv}}", "expected return type");
                     assert.deepEqual(reply[0].v, expectedProperty, "expected property value");
@@ -56,14 +56,14 @@ QUnit.test("two definitions", function (assert) {
     machinesParseTest(assert,
                       { "01.json": '{"green": {"visible": true, "address": "1.2.3.4"}, ' +
                                    ' "9.8.7.6": {"visible": false, "address": "9.8.7.6", "user": "admin"}}' },
-                      { "green": {
-                          "address": { "t": "s", "v": "1.2.3.4" },
-                          "visible": { "t": "b", "v": true }
+                      { green: {
+                          address: { t: "s", v: "1.2.3.4" },
+                          visible: { t: "b", v: true }
                       },
                         "9.8.7.6": {
-                            "address": { "t": "s", "v": "9.8.7.6" },
-                            "user": { "t": "s", "v": "admin" },
-                            "visible": { "t": "b", "v": false }
+                            address: { t: "s", v: "9.8.7.6" },
+                            user: { t: "s", v: "admin" },
+                            visible: { t: "b", v: false }
                         }
                       });
 });
@@ -87,17 +87,17 @@ QUnit.test("merge several JSON files", function (assert) {
                            ' "blue":  {"user": "joe"}, ' +
                            ' "yellow": {"address": "fe80::1", "user": "sue"}}'
         },
-        { "green": {
-            "address": { "t": "s", "v": "1.2.3.4" },
-            "visible": { "t": "b", "v": false }
+        { green: {
+            address: { t: "s", v: "1.2.3.4" },
+            visible: { t: "b", v: false }
         },
-          "blue": {
-              "address": { "t": "s", "v": "9.8.7.6" },
-              "user": { "t": "s", "v": "joe" },
+          blue: {
+              address: { t: "s", v: "9.8.7.6" },
+              user: { t: "s", v: "joe" },
           },
-          "yellow": {
-              "address": { "t": "s", "v": "fe80::1" },
-              "user": { "t": "s", "v": "sue" },
+          yellow: {
+              address: { t: "s", v: "fe80::1" },
+              user: { t: "s", v: "sue" },
           }
         }
     );
@@ -116,14 +116,14 @@ QUnit.test("merge JSON files with errors", function (assert) {
           "07-valid.json":    '{"green": {"user": "joe"}}',
           "08-empty.json":    ''
         },
-        { "green": {
-            "address":  { "t": "s", "v": "1.2.3.4" },
-            "visible":  { "t": "b", "v": true },
-            "user":     { "t": "s", "v": "joe" },
-            "goodprop": { "t": "s", "v": "yeah" },
+        { green: {
+            address:  { t: "s", v: "1.2.3.4" },
+            visible:  { t: "b", v: true },
+            user:     { t: "s", v: "joe" },
+            goodprop: { t: "s", v: "yeah" },
         },
-          "blue": {
-              "address": { "t": "s", "v": "fe80::1" }
+          blue: {
+              address: { t: "s", v: "fe80::1" }
           }
         }
     );
@@ -141,7 +141,7 @@ function machinesUpdateTest(assert, origJson, host, props, expectedJson) {
 
     cockpit.file(f).replace(origJson)
             .done(function(tag) {
-                dbus.call("/machines", "cockpit.Machines", "Update", [ "99-webui.json", host, props ], { "type": "ssa{sv}" })
+                dbus.call("/machines", "cockpit.Machines", "Update", [ "99-webui.json", host, props ], { type: "ssa{sv}" })
                         .then(function(reply) {
                             assert.deepEqual(reply, [], "no expected return value");
                             return cockpit.file(f, { syntax: JSON }).read()
@@ -164,41 +164,41 @@ function machinesUpdateTest(assert, origJson, host, props, expectedJson) {
 }
 
 QUnit.test("no config files", function (assert) {
-    machinesUpdateTest(assert, null, "green", { "visible": cockpit.variant('b', true), "address": cockpit.variant('s', "1.2.3.4") },
-                       { "green": { "address": "1.2.3.4", "visible": true } });
+    machinesUpdateTest(assert, null, "green", { visible: cockpit.variant('b', true), address: cockpit.variant('s', "1.2.3.4") },
+                       { green: { address: "1.2.3.4", visible: true } });
 });
 
 QUnit.test("add host to existing map", function (assert) {
     machinesUpdateTest(assert,
                        '{"green": {"visible": true, "address": "1.2.3.4"}}',
                        "blue",
-                       { "visible": cockpit.variant('b', false), "address": cockpit.variant('s', "9.8.7.6") },
-                       { "green": { "address": "1.2.3.4", "visible": true },
-                         "blue":  { "address": "9.8.7.6", "visible": false } });
+                       { visible: cockpit.variant('b', false), address: cockpit.variant('s', "9.8.7.6") },
+                       { green: { address: "1.2.3.4", visible: true },
+                         blue:  { address: "9.8.7.6", visible: false } });
 });
 
 QUnit.test("change bool host property", function (assert) {
     machinesUpdateTest(assert,
                        '{"green": {"visible": true, "address": "1.2.3.4"}}',
                        "green",
-                       { "visible": cockpit.variant('b', false) },
-                       { "green": { "address": "1.2.3.4", "visible": false } });
+                       { visible: cockpit.variant('b', false) },
+                       { green: { address: "1.2.3.4", visible: false } });
 });
 
 QUnit.test("change string host property", function (assert) {
     machinesUpdateTest(assert,
                        '{"green": {"visible": true, "address": "1.2.3.4"}}',
                        "green",
-                       { "address": cockpit.variant('s', "fe80::1") },
-                       { "green": { "address": "fe80::1", "visible": true } });
+                       { address: cockpit.variant('s', "fe80::1") },
+                       { green: { address: "fe80::1", visible: true } });
 });
 
 QUnit.test("add host property", function (assert) {
     machinesUpdateTest(assert,
                        '{"green": {"visible": true, "address": "1.2.3.4"}}',
                        "green",
-                       { "color": cockpit.variant('s', "pitchblack") },
-                       { "green": { "address": "1.2.3.4", "visible": true, "color": "pitchblack" } });
+                       { color: cockpit.variant('s', "pitchblack") },
+                       { green: { address: "1.2.3.4", visible: true, color: "pitchblack" } });
 });
 
 QUnit.test("Update() only writes delta", function (assert) {
@@ -210,8 +210,8 @@ QUnit.test("Update() only writes delta", function (assert) {
                 machinesUpdateTest(assert,
                                    null,
                                    "green",
-                                   { "color": cockpit.variant('s', "pitchblack") },
-                                   { "green": { "color": "pitchblack" } });
+                                   { color: cockpit.variant('s', "pitchblack") },
+                                   { green: { color: "pitchblack" } });
                 done();
             });
 });
@@ -225,8 +225,8 @@ QUnit.test("updating and existing delta file", function (assert) {
                 machinesUpdateTest(assert,
                                    '{"green": {"address": "9.8.7.6", "user": "joe"}}',
                                    "green",
-                                   { "color": cockpit.variant('s', "pitchblack") },
-                                   { "green": { "address": "9.8.7.6", "user": "joe", "color": "pitchblack" } });
+                                   { color: cockpit.variant('s', "pitchblack") },
+                                   { green: { address: "9.8.7.6", user: "joe", color: "pitchblack" } });
                 done();
             });
 });

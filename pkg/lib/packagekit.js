@@ -69,7 +69,7 @@ var _dbus_client = null;
  */
 function dbus_client() {
     if (_dbus_client === null) {
-        _dbus_client = cockpit.dbus("org.freedesktop.PackageKit", { superuser: "try", "track": true });
+        _dbus_client = cockpit.dbus("org.freedesktop.PackageKit", { superuser: "try", track: true });
         _dbus_client.addEventListener("close", () => {
             console.log("PackageKit went away from D-Bus");
             _dbus_client = null;

@@ -52,7 +52,7 @@ var descriptions = {
     'partition-modify':            _("Modifying $target"),
     'partition-delete':            _("Deleting $target"),
     'partition-create':            _("Creating partition $target"),
-    'cleanup':                     _("Cleaning up for $target"),
+    cleanup:                     _("Cleaning up for $target"),
     'ata-secure-erase':            _("Securely erasing $target"),
     'ata-enhanced-secure-erase':   _("Very securely erasing $target"),
     'md-raid-stop':                _("Stopping RAID Device $target"),

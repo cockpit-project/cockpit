@@ -228,10 +228,10 @@ function output_funcs_for_box(box) {
 
     function render_line(ident, prio, message, count, time, entry) {
         var parts = {
-            'cursor': entry["__CURSOR"],
-            'time': time,
-            'message': message,
-            'service': ident
+            cursor: entry["__CURSOR"],
+            time: time,
+            message: message,
+            service: ident
         };
         if (count > 1)
             parts['count'] = count;
@@ -244,14 +244,14 @@ function output_funcs_for_box(box) {
     }
 
     var reboot = _("Reboot");
-    var reboot_line = mustache.render(reboot_template, { 'message': reboot });
+    var reboot_line = mustache.render(reboot_template, { message: reboot });
 
     function render_reboot_separator() {
         return reboot_line;
     }
 
     function render_day_header(day) {
-        return mustache.render(day_header_template, { 'day': day });
+        return mustache.render(day_header_template, { day: day });
     }
 
     function parse_html(string) {

@@ -76,16 +76,16 @@ export class IscsiPanel extends React.Component {
                                               // HACK - https://github.com/storaged-project/storaged/issues/26
                                               if (error.message.indexOf("initiator failed authorization") != -1)
                                                   error = {
-                                                      "username": true, // make it red without text below
-                                                      "password": _("Invalid username or password")
+                                                      username: true, // make it red without text below
+                                                      password: _("Invalid username or password")
                                                   };
                                               else if (error.message.indexOf("cannot resolve host name") != -1)
                                                   error = {
-                                                      "address": _("Unknown host name")
+                                                      address: _("Unknown host name")
                                                   };
                                               else if (error.message.indexOf("connection login retries") != -1)
                                                   error = {
-                                                      "address": _("Unable to reach server")
+                                                      address: _("Unable to reach server")
                                                   };
 
                                               dfd.reject(error);
@@ -159,8 +159,8 @@ export class IscsiPanel extends React.Component {
                                               // HACK - https://github.com/storaged-project/storaged/issues/26
                                               if (err.message.indexOf("authorization") != -1)
                                                   err = {
-                                                      "username": true, // makes it red without text below
-                                                      "password": _("Invalid username or password")
+                                                      username: true, // makes it red without text below
+                                                      password: _("Invalid username or password")
                                                   };
                                               return cockpit.reject(err);
                                           });

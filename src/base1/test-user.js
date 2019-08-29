@@ -4,10 +4,10 @@ QUnit.test("load user info", function (assert) {
     const done = assert.async();
     assert.expect(9);
 
-    var dbus = cockpit.dbus(null, { "bus": "internal" });
+    var dbus = cockpit.dbus(null, { bus: "internal" });
     dbus.call("/user", "org.freedesktop.DBus.Properties",
               "GetAll", [ "cockpit.User" ],
-              { "type": "s" })
+              { type: "s" })
             .done(function(reply) {
                 var user = reply[0];
                 assert.ok(user.Name !== undefined, "has Name");

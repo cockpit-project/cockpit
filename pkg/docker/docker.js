@@ -336,11 +336,11 @@ docker.console = function console_(container_id, command, options) {
             path: "/v1.15/containers/" + encodeURIComponent(container_id) + "/exec",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                "AttachStdin": tty,
-                "AttachStdout": true,
-                "AttachStderr": true,
-                "Tty": tty,
-                "Cmd": command
+                AttachStdin: tty,
+                AttachStdout: true,
+                AttachStderr: true,
+                Tty: tty,
+                Cmd: command
             })
         };
 
@@ -411,10 +411,10 @@ docker.console = function console_(container_id, command, options) {
         view = null;
 
         var opts = $.extend({ }, options, {
-            "payload": "stream",
-            "unix": "/var/run/docker.sock",
-            "superuser": true,
-            "binary": true
+            payload: "stream",
+            unix: "/var/run/docker.sock",
+            superuser: true,
+            binary: true
         });
 
         channel = cockpit.channel(opts);

@@ -1,13 +1,13 @@
 /* global $, cockpit, QUnit */
 
 var pig_latin = {
-    "": { "language": "pig", "plural-forms": function(n) {
+    "": { language: "pig", "plural-forms": function(n) {
         var plural = (n != 1);
         return plural;
     } },
-    "Control": [ null, "Ontrolcay" ],
-    "User": [ null, "Useray" ],
-    "Waiting": [ null, "Aitingway" ],
+    Control: [ null, "Ontrolcay" ],
+    User: [ null, "Useray" ],
+    Waiting: [ null, "Aitingway" ],
     "$0 disk is missing": [
         "$0 disk is missing",
         "$0 isksbay is issingmay",
@@ -22,7 +22,7 @@ var pig_latin = {
 };
 
 var ru = {
-    "": { "language": "ru", "plural-forms":
+    "": { language: "ru", "plural-forms":
         function(n) {
             var plural = (n % 10 == 1 && n % 100 != 11 ? 0 : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? 1 : 2);
             return plural;

@@ -71,13 +71,6 @@ Journal extracted to TestMultiMachine-testFrameNavigation-fedora-i386-127.0.0.2-
 """
 
 class TestPolicy(unittest.TestCase):
-    def testNaughtyNumber(self):
-        script = os.path.join(BOTS, "image-naughty")
-        cmd = [ script, "--offline", "verify/example" ]
-        proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, universal_newlines=True)
-        (output, unused) = proc.communicate(PCP_CRASH)
-        self.assertEqual(output, "9876\n")
-
     def testSimpleNumber(self):
         script = os.path.join(BOTS, "tests-policy")
         cmd = [ script, "--simple", "--offline", "verify/example" ]

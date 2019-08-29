@@ -379,7 +379,7 @@ const MemoryRow = ({ memorySize, memorySizeUnit, nodeMaxMemory, recommendedMemor
     let recommendedMemoryHelpBlock = null;
     if (recommendedMemory && recommendedMemory > memorySize) {
         recommendedMemoryHelpBlock = <p>{cockpit.format(
-            "The selected Operating System has recommended memory $0 $1",
+            _("The selected Operating System has recommended memory $0 $1"),
             recommendedMemory, memorySizeUnit)}</p>;
     }
 
@@ -414,7 +414,7 @@ const StorageRow = ({ connectionName, storageSize, storageSizeUnit, onValueChang
     let recommendedStorageHelpBlock = null;
     if (recommendedStorage && recommendedStorage > storageSize) {
         recommendedStorageHelpBlock = <p>{cockpit.format(
-            "The selected Operating System has recommended storage size of $0 $1",
+            _("The selected Operating System has recommended storage size of $0 $1"),
             recommendedStorage, storageSizeUnit)}</p>;
     }
 
@@ -440,8 +440,8 @@ const StorageRow = ({ connectionName, storageSize, storageSizeUnit, onValueChang
             <Select.Select id="storage-pool-select"
                            initial={storagePoolName}
                            onChange={e => onValueChanged('storagePool', e)}>
-                <Select.SelectEntry data="NewVolume" key="NewVolume">{"Create New Volume"}</Select.SelectEntry>
-                <Select.SelectEntry data="NoStorage" key="NoStorage">{"No Storage"}</Select.SelectEntry>
+                <Select.SelectEntry data="NewVolume" key="NewVolume">{_("Create New Volume")}</Select.SelectEntry>
+                <Select.SelectEntry data="NoStorage" key="NoStorage">{_("No Storage")}</Select.SelectEntry>
                 <Select.SelectDivider />
                 <optgroup key="Storage Pools" label="Storage Pools">
                     { storagePools.map(pool => {

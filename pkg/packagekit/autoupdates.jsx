@@ -63,7 +63,7 @@ class ImplBase {
 
 class DnfImpl extends ImplBase {
     getConfig() {
-        let dfd = cockpit.defer();
+        const dfd = cockpit.defer();
         this.packageName = "dnf-automatic";
 
         // - dnf has two ways to enable automatic updates: Either by enabling dnf-automatic-install.timer
@@ -85,7 +85,7 @@ class DnfImpl extends ImplBase {
                     this.type = (output.indexOf("security\n") >= 0) ? "security" : "all";
 
                     // if we have OnCalendar=, use that (we disable OnUnitInactiveSec= in our drop-in)
-                    let calIdx = output.indexOf("OnCalendar=");
+                    const calIdx = output.indexOf("OnCalendar=");
                     if (calIdx >= 0) {
                         this.parseCalendar(output.substr(calIdx).split('\n')[0].split("=")[1]);
                     } else {
@@ -134,7 +134,7 @@ class DnfImpl extends ImplBase {
         var script = "set -e; ";
 
         if (type !== null) {
-            let value = (type == "security") ? "security" : "default";
+            const value = (type == "security") ? "security" : "default";
 
             // normally upgrade_type = should already be in the file, so replace that line;
             // if it's not already present, append it to the file
@@ -185,7 +185,7 @@ class DnfImpl extends ImplBase {
 
         debug(`setConfig(${enabled}, "${type}", "${day}", "${time}"): script "${script}"`);
 
-        let dfd = cockpit.defer();
+        const dfd = cockpit.defer();
         cockpit.script(script, [], { superuser: "require" })
                 .done(() => {
                     debug("dnf setConfig: configuration updated successfully");
@@ -213,7 +213,7 @@ class DnfImpl extends ImplBase {
 function getBackend(forceReinit) {
     if (!getBackend.promise || forceReinit) {
         debug("getBackend() called first time or forceReinit passed, initializing promise");
-        let dfd = cockpit.defer();
+        const dfd = cockpit.defer();
         getBackend.promise = dfd.promise();
 
         cockpit.spawn(["bash", "-ec", "command -v dnf yum apt | head -n1 | xargs basename"], [], { err: "message" })
@@ -266,7 +266,7 @@ export default class AutoUpdates extends React.Component {
     }
 
     initializeBackend(forceReinit) {
-        let dfd = cockpit.defer();
+        const dfd = cockpit.defer();
         getBackend(forceReinit).then(b => {
             this.setState({ backend: b }, () => {
                 this.debugBackendState("AutoUpdates: backend initialized");
@@ -297,7 +297,7 @@ export default class AutoUpdates extends React.Component {
         var autoConfig;
 
         if (backend.enabled && backend.installed) {
-            let hours = Array.from(Array(24).keys());
+            const hours = Array.from(Array(24).keys());
 
             autoConfig = (
                 <div className="auto-conf">
@@ -339,7 +339,7 @@ export default class AutoUpdates extends React.Component {
         }
 
         // we want the button to already show the target state while being disabled
-        let onOffState = this.state.pendingEnable == null ? backend.enabled : this.state.pendingEnable;
+        const onOffState = this.state.pendingEnable == null ? backend.enabled : this.state.pendingEnable;
 
         return (
             <div className="header-buttons pk-updates--header pk-updates--header--auto" id="automatic">

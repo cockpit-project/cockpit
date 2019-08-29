@@ -71,7 +71,7 @@ class VmNetworkTab extends React.Component {
         }
 
         const checkDeviceAviability = (network) => {
-            for (let i in hostDevices) {
+            for (const i in hostDevices) {
                 if (hostDevices[i].valid && hostDevices[i].Interface == network) {
                     return true;
                 }
@@ -112,7 +112,7 @@ class VmNetworkTab extends React.Component {
         // Network data mapping to rows
         let detailMap = [
             { name: _("Type"), value: (network, networkId) => {
-                let inactiveNIC = nicLookupByMAC(vm.inactiveXML.interfaces, network.mac);
+                const inactiveNIC = nicLookupByMAC(vm.inactiveXML.interfaces, network.mac);
                 return (
                     <div id={`${id}-network-${networkId}-type`}>
                         {network.type}
@@ -121,7 +121,7 @@ class VmNetworkTab extends React.Component {
                 );
             } },
             { name: _("Model type"), value: (network, networkId) => {
-                let inactiveNIC = nicLookupByMAC(vm.inactiveXML.interfaces, network.mac);
+                const inactiveNIC = nicLookupByMAC(vm.inactiveXML.interfaces, network.mac);
                 return (
                     <div id={`${id}-network-${networkId}-model`}>
                         {network.model}
@@ -157,7 +157,7 @@ class VmNetworkTab extends React.Component {
                     udp: addressPortSource,
                 };
                 if (mapSource[network.type] !== undefined) {
-                    let inactiveNIC = nicLookupByMAC(vm.inactiveXML.interfaces, network.mac);
+                    const inactiveNIC = nicLookupByMAC(vm.inactiveXML.interfaces, network.mac);
                     return (
                         <div id={`${id}-network-${networkId}-source`}>
                             {mapSource[network.type](network.source, networkId)}

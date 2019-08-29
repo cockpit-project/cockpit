@@ -35,7 +35,7 @@ import './createNetworkDialog.css';
 const _ = cockpit.gettext;
 
 function validateParams(dialogValues) {
-    let validationFailed = {};
+    const validationFailed = {};
 
     if (isEmpty(dialogValues.name.trim()))
         validationFailed['name'] = _("Name should not be empty");

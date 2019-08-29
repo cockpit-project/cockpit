@@ -28,16 +28,16 @@ export function getDiskXML(poolName, volumeName, format, target, cacheMode) {
 }
 
 export function getNetworkXML({ name, forwardMode, physicalDevice, ipv4, netmask, ipv6, prefix, ipv4DhcpRangeStart, ipv4DhcpRangeEnd, ipv6DhcpRangeStart, ipv6DhcpRangeEnd }) {
-    let doc = document.implementation.createDocument('', '', null);
+    const doc = document.implementation.createDocument('', '', null);
 
-    let networkElem = doc.createElement('network');
+    const networkElem = doc.createElement('network');
 
-    let nameElem = doc.createElement('name');
+    const nameElem = doc.createElement('name');
     nameElem.appendChild(doc.createTextNode(name));
     networkElem.appendChild(nameElem);
 
     if (forwardMode !== 'none') {
-        let forwardElem = doc.createElement('forward');
+        const forwardElem = doc.createElement('forward');
         forwardElem.setAttribute('mode', forwardMode);
         if ((forwardMode === 'nat' || forwardMode === 'route') && physicalDevice !== 'automatic')
             forwardElem.setAttribute('dev', physicalDevice);
@@ -48,22 +48,22 @@ export function getNetworkXML({ name, forwardMode, physicalDevice, ipv4, netmask
         forwardMode === 'nat' ||
         forwardMode === 'route' ||
         forwardMode === 'open') {
-        let domainElem = doc.createElement('domain');
+        const domainElem = doc.createElement('domain');
         domainElem.setAttribute('name', name);
         networkElem.appendChild(domainElem);
     }
 
     if (ipv4) {
-        let ipElem = doc.createElement('ip');
+        const ipElem = doc.createElement('ip');
         ipElem.setAttribute('address', ipv4);
         ipElem.setAttribute('netmask', netmask);
         networkElem.appendChild(ipElem);
 
         if (ipv4DhcpRangeStart) {
-            let dhcpElem = doc.createElement('dhcp');
+            const dhcpElem = doc.createElement('dhcp');
             ipElem.appendChild(dhcpElem);
 
-            let rangeElem = doc.createElement('range');
+            const rangeElem = doc.createElement('range');
             rangeElem.setAttribute('start', ipv4DhcpRangeStart);
             rangeElem.setAttribute('end', ipv4DhcpRangeEnd);
             dhcpElem.appendChild(rangeElem);
@@ -71,17 +71,17 @@ export function getNetworkXML({ name, forwardMode, physicalDevice, ipv4, netmask
     }
 
     if (ipv6) {
-        let ipv6Elem = doc.createElement('ip');
+        const ipv6Elem = doc.createElement('ip');
         ipv6Elem.setAttribute('family', 'ipv6');
         ipv6Elem.setAttribute('address', ipv6);
         ipv6Elem.setAttribute('prefix', prefix);
         networkElem.appendChild(ipv6Elem);
 
         if (ipv6DhcpRangeStart) {
-            let dhcpElem = doc.createElement('dhcp');
+            const dhcpElem = doc.createElement('dhcp');
             ipv6Elem.appendChild(dhcpElem);
 
-            let rangeElem = doc.createElement('range');
+            const rangeElem = doc.createElement('range');
             rangeElem.setAttribute('start', ipv6DhcpRangeStart);
             rangeElem.setAttribute('end', ipv6DhcpRangeEnd);
             dhcpElem.appendChild(rangeElem);
@@ -124,58 +124,58 @@ export function getVolumeXML(volumeName, size, format, target) {
 }
 
 export function getPoolXML({ name, type, source, target }) {
-    let doc = document.implementation.createDocument('', '', null);
+    const doc = document.implementation.createDocument('', '', null);
 
-    let poolElem = doc.createElement('pool');
+    const poolElem = doc.createElement('pool');
     poolElem.setAttribute('type', type);
 
-    let nameElem = doc.createElement('name');
+    const nameElem = doc.createElement('name');
     nameElem.appendChild(doc.createTextNode(name));
     poolElem.appendChild(nameElem);
 
     if (target) {
-        let targetElem = doc.createElement('target');
-        let pathElem = doc.createElement('path');
+        const targetElem = doc.createElement('target');
+        const pathElem = doc.createElement('path');
         pathElem.appendChild(doc.createTextNode(target));
         targetElem.appendChild(pathElem);
         poolElem.appendChild(targetElem);
     }
 
-    let sourceElem = doc.createElement('source');
+    const sourceElem = doc.createElement('source');
     if (source.dir) {
-        let dirElem = doc.createElement('dir');
+        const dirElem = doc.createElement('dir');
 
         dirElem.setAttribute('path', source.dir);
         sourceElem.appendChild(dirElem);
     }
     if (source.device) {
-        let deviceElem = doc.createElement('device');
+        const deviceElem = doc.createElement('device');
 
         deviceElem.setAttribute('path', source.device);
         sourceElem.appendChild(deviceElem);
     }
     if (source.name) {
-        let sourceNameElem = doc.createElement('name');
+        const sourceNameElem = doc.createElement('name');
 
         sourceNameElem.appendChild(doc.createTextNode(source.name));
         sourceElem.appendChild(sourceNameElem);
     }
     if (source.host) {
-        let hostElem = doc.createElement('host');
+        const hostElem = doc.createElement('host');
 
         hostElem.setAttribute('name', source.host);
         sourceElem.appendChild(hostElem);
     }
     if (source.initiator) {
-        let initiatorElem = doc.createElement('initiator');
-        let iqnElem = doc.createElement('iqn');
+        const initiatorElem = doc.createElement('initiator');
+        const iqnElem = doc.createElement('iqn');
 
         iqnElem.setAttribute('name', source.initiator);
         initiatorElem.appendChild(iqnElem);
         sourceElem.appendChild(initiatorElem);
     }
     if (source.format) {
-        let formatElem = doc.createElement('format');
+        const formatElem = doc.createElement('format');
 
         formatElem.setAttribute('type', source.format);
         sourceElem.appendChild(formatElem);

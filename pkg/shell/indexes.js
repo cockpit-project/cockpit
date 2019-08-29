@@ -107,7 +107,7 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
     }
 
     function preload_frames () {
-        for (let m of machines.list)
+        for (const m of machines.list)
             index.preload_frames(m, m.manifests);
     }
 

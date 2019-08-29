@@ -116,11 +116,11 @@ export class DeleteDialog extends React.Component {
 
     open() {
         const { vm } = this.props;
-        let disks = [];
+        const disks = [];
 
         Object.keys(vm.disks).sort()
                 .forEach(t => {
-                    let d = vm.disks[t];
+                    const d = vm.disks[t];
 
                     if ((d.type == 'file' && d.source.file) || d.type == 'volume')
                         disks.push(Object.assign(d, { checked: !d.readonly }));

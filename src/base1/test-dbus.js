@@ -71,7 +71,7 @@ QUnit.test("watch promise recursive", function (assert) {
 });
 
 QUnit.test("owned messages", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(9);
 
     var name = "yo.x" + new Date().getTime();
@@ -129,7 +129,7 @@ QUnit.test("owned messages", function (assert) {
 });
 
 QUnit.test("bad dbus address", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(1);
 
     var dbus = cockpit.dbus(null, { "bus": "none", "address": "bad" });
@@ -140,7 +140,7 @@ QUnit.test("bad dbus address", function (assert) {
 });
 
 QUnit.test("bad dbus bus", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(1);
 
     var dbus = cockpit.dbus(null, { "bus": "bad" });
@@ -151,7 +151,7 @@ QUnit.test("bad dbus bus", function (assert) {
 });
 
 QUnit.test("wait ready", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(1);
 
     var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
@@ -166,7 +166,7 @@ QUnit.test("wait ready", function (assert) {
 });
 
 QUnit.test("wait fail", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(1);
 
     var dbus = cockpit.dbus(null, { "bus": "none", "address": "bad" });
@@ -181,7 +181,7 @@ QUnit.test("wait fail", function (assert) {
 });
 
 QUnit.test("no default name", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(1);
 
     var dbus = cockpit.dbus(null, { "bus": "session" });
@@ -198,7 +198,7 @@ QUnit.test("no default name", function (assert) {
 });
 
 QUnit.test("no default name bad", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(2);
 
     var dbus = cockpit.dbus(null, { "bus": "session" });
@@ -216,7 +216,7 @@ QUnit.test("no default name bad", function (assert) {
 });
 
 QUnit.test("no default name invalid", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(2);
 
     var dbus = cockpit.dbus(null, { "bus": "session" });
@@ -234,7 +234,7 @@ QUnit.test("no default name invalid", function (assert) {
 });
 
 QUnit.test("no default name missing", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(2);
 
     var dbus = cockpit.dbus(null, { "bus": "session" });
@@ -252,7 +252,7 @@ QUnit.test("no default name missing", function (assert) {
 });
 
 QUnit.test("no default name second", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(2);
 
     var dbus = cockpit.dbus(null, { "bus": "session" });
@@ -277,7 +277,7 @@ QUnit.test("no default name second", function (assert) {
 });
 
 QUnit.test("override default name", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(2);
 
     var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
@@ -301,7 +301,7 @@ QUnit.test("override default name", function (assert) {
 });
 
 QUnit.test("watch no default name", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(1);
 
     var cache = { };
@@ -324,7 +324,7 @@ QUnit.test("watch no default name", function (assert) {
 });
 
 QUnit.test("watch missing name", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(2);
 
     var dbus = cockpit.dbus(null, { "bus": "session", "other": "option" });
@@ -342,7 +342,7 @@ QUnit.test("watch missing name", function (assert) {
 });
 
 QUnit.test("shared client", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(2);
 
     var dbus1 = cockpit.dbus(null, { "bus": "session" });
@@ -382,7 +382,7 @@ QUnit.test("not shared option", function (assert) {
 });
 
 QUnit.test("emit signal meta", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(4);
 
     var meta = {
@@ -423,7 +423,7 @@ QUnit.test("emit signal meta", function (assert) {
 });
 
 QUnit.test("emit signal type", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(4);
 
     var received = false;
@@ -453,7 +453,7 @@ QUnit.test("emit signal type", function (assert) {
 });
 
 QUnit.test("emit signal no meta", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(2);
 
     var dbus = cockpit.dbus(null, { "bus": "session", "other": "option" });
@@ -471,7 +471,7 @@ QUnit.test("emit signal no meta", function (assert) {
 });
 
 QUnit.test("publish object", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(4);
 
     var info = {
@@ -523,7 +523,7 @@ QUnit.test("publish object", function (assert) {
 });
 
 QUnit.test("publish object promise", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(1);
 
     var info = {
@@ -564,7 +564,7 @@ QUnit.test("publish object promise", function (assert) {
 });
 
 QUnit.test("publish object failure", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(2);
 
     var info = {
@@ -608,7 +608,7 @@ QUnit.test("publish object failure", function (assert) {
 });
 
 QUnit.test("publish object replaces", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(2);
 
     var info = {
@@ -658,7 +658,7 @@ QUnit.test("publish object replaces", function (assert) {
 });
 
 QUnit.test("publish object unpublish", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(5);
 
     var info = {
@@ -707,7 +707,7 @@ QUnit.test("publish object unpublish", function (assert) {
 });
 
 function internal_test(assert, options) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(2);
     var dbus = cockpit.dbus(null, options);
     dbus.call("/", "org.freedesktop.DBus.Introspectable", "Introspect")
@@ -733,7 +733,7 @@ QUnit.test("internal dbus bus none with address", function (assert) {
 });
 
 QUnit.test("separate dbus connections for channel groups", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(4);
 
     var channel1 = cockpit.channel({ payload: 'dbus-json3', group: 'foo', bus: 'session' });

@@ -241,7 +241,7 @@ const Validated = ({ errors, error_key, explanation, children }) => {
 
 const Row = ({ tag, title, errors, options, children }) => {
     if (tag) {
-        let validated = (
+        const validated = (
             <Validated errors={errors} error_key={tag} explanation={options.explanation}>
                 { children }
             </Validated>
@@ -292,7 +292,7 @@ const Body = ({ body, fields, values, errors, onChange }) => {
     }
 
     function make_rows(fields, index) {
-        let rows = fields.map(make_row).filter(r => r);
+        const rows = fields.map(make_row).filter(r => r);
         if (rows.length === 0)
             return null;
         else if (index === undefined) // top-level
@@ -314,9 +314,9 @@ function flatten(arr1) {
 }
 
 export const dialog_open = (def) => {
-    let nested_fields = def.Fields || [ ];
-    let fields = flatten(nested_fields);
-    let values = { };
+    const nested_fields = def.Fields || [ ];
+    const fields = flatten(nested_fields);
+    const values = { };
 
     fields.forEach(f => { values[f.tag] = f.initial_value });
 
@@ -357,7 +357,7 @@ export const dialog_open = (def) => {
                   clicked: function (progress_callback) {
                       return validate()
                               .then(() => {
-                                  let visible_values = { };
+                                  const visible_values = { };
                                   fields.forEach(f => {
                                       if (is_visible(f, values))
                                           visible_values[f.tag] = values[f.tag];
@@ -377,7 +377,7 @@ export const dialog_open = (def) => {
             ];
         }
 
-        let extra = <div>
+        const extra = <div>
             { def.Footer }
             { def.Action && def.Action.Danger ? <div className="alert alert-danger"><div className="pficon pficon-error-circle-o" />{def.Action.Danger}</div> : null }
         </div>;
@@ -401,16 +401,16 @@ export const dialog_open = (def) => {
             else
                 return null;
         })).then(results => {
-            let errors = { };
+            const errors = { };
             fields.forEach((f, i) => { if (results[i]) errors[f.tag] = results[i]; });
             if (Object.keys(errors).length > 0)
                 return Promise.reject(errors);
         });
     };
 
-    let dlg = show_modal_dialog(props(null), footer_props(null, null));
+    const dlg = show_modal_dialog(props(null), footer_props(null, null));
 
-    let self = {
+    const self = {
         run: (title, promise) => {
             update_footer(title, promise);
             promise.then(
@@ -430,7 +430,7 @@ export const dialog_open = (def) => {
         },
 
         set_nested_values: (key, new_vals) => {
-            let updated = values[key];
+            const updated = values[key];
             Object.assign(updated, new_vals);
             values[key] = updated;
             update(null, null);
@@ -489,7 +489,7 @@ class ComboboxElement extends React.Component {
     }
 
     render() {
-        let { value, onChange, disabled, choices } = this.props;
+        const { value, onChange, disabled, choices } = this.props;
 
         const toggle_open = (event) => {
             if (event.button === 0)
@@ -630,7 +630,7 @@ export const SelectSpaces = (tag, title, options) => {
                 <ul className="list-group dialog-list-ct"
                     data-field={tag} data-field-type="select-spaces">
                     { options.spaces.map(spc => {
-                        let selected = (val.indexOf(spc) >= 0);
+                        const selected = (val.indexOf(spc) >= 0);
 
                         const on_change = (event) => {
                             if (event.target.checked && !selected)
@@ -720,9 +720,9 @@ export const CheckBoxes = (tag, title, options) => {
         initial_value: options.value || { },
 
         render: (val, change) => {
-            let fieldset = options.fields.map(field => {
-                let ftag = tag + "." + field.tag;
-                let fval = (val[field.tag] !== undefined) ? val[field.tag] : false;
+            const fieldset = options.fields.map(field => {
+                const ftag = tag + "." + field.tag;
+                const fval = (val[field.tag] !== undefined) ? val[field.tag] : false;
                 function fchange(newval) {
                     val[field.tag] = newval;
                     change(val);
@@ -785,7 +785,7 @@ export const Skip = (className, options) => {
 const StatelessSlider = ({ fraction, onChange }) => {
     function start_dragging(event) {
         let el = event.currentTarget;
-        let width = el.offsetWidth;
+        const width = el.offsetWidth;
         let left = el.offsetLeft;
         while (el.offsetParent) {
             el = el.offsetParent;
@@ -829,9 +829,9 @@ class SizeSliderElement extends React.Component {
     }
 
     render() {
-        let { val, max, round, onChange } = this.props;
-        let min = this.props.min || 0;
-        let { unit } = this.state;
+        const { val, max, round, onChange } = this.props;
+        const min = this.props.min || 0;
+        const { unit } = this.state;
 
         const change_slider = (f) => {
             let value = f * max;
@@ -900,7 +900,7 @@ class SizeSliderElement extends React.Component {
 }
 
 export const SizeSlider = (tag, title, options) => {
-    let validate = (val, vals) => {
+    const validate = (val, vals) => {
         let msg = null;
 
         if (val === "" || isNaN(val))
@@ -923,7 +923,7 @@ export const SizeSlider = (tag, title, options) => {
        have to use it below for the 'max' option in order to pick up
        changes to it.
      */
-    let all_options = Object.assign({ }, options, { validate: validate });
+    const all_options = Object.assign({ }, options, { validate: validate });
 
     return {
         tag: tag,
@@ -962,8 +962,8 @@ function add_usage_message(parts, list, text, c1, c2) {
 }
 
 export const BlockingMessage = (usage) => {
-    let parts = [ ];
-    let blocking = usage.Blocking;
+    const parts = [ ];
+    const blocking = usage.Blocking;
 
     if (!blocking)
         return null;
@@ -987,8 +987,8 @@ export const BlockingMessage = (usage) => {
 };
 
 export const TeardownMessage = (usage) => {
-    let parts = [ ];
-    let teardown = usage.Teardown;
+    const parts = [ ];
+    const teardown = usage.Teardown;
 
     if (!teardown)
         return null;
@@ -1005,8 +1005,8 @@ export const TeardownMessage = (usage) => {
                       _("This device is currently used for RAID devices. Proceeding will remove it from its RAID devices."),
                       "Name", "MDRaid");
 
-    let has_sessions = teardown.Sessions && teardown.Sessions.length > 0;
-    let has_services = teardown.Services && teardown.Services.length > 0;
+    const has_sessions = teardown.Sessions && teardown.Sessions.length > 0;
+    const has_services = teardown.Services && teardown.Services.length > 0;
 
     if (has_sessions && has_services)
         add_para(parts, _("The filesystem is in use by login sessions and system services. Proceeding will stop these."));

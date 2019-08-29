@@ -30,7 +30,7 @@ export function getRefreshInterval(state) {
 
 export function usagePollingEnabled(state, name, connectionName) {
     for (var i = 0; i < state.vms.length; i++) {
-        let vm = state.vms[i];
+        const vm = state.vms[i];
         if (vm.connectionName === connectionName && vm.name === name)
             return vm.usagePolling;
     }

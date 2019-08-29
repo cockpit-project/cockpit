@@ -554,7 +554,7 @@ $(function() {
         }
 
         function is_valid(id) {
-            let unit = units_by_path[path_by_id[id]];
+            const unit = units_by_path[path_by_id[id]];
             return (unit && unit.LoadState !== "not-found");
         }
 

@@ -47,7 +47,7 @@ export class MemoryModal extends React.Component {
         let stateDelta = {};
 
         if (key == 'memory') {
-            let memoryKiB = convertToUnit(value, this.state.memoryUnit, 'KiB');
+            const memoryKiB = convertToUnit(value, this.state.memoryUnit, 'KiB');
 
             if (memoryKiB <= this.state.maxMemory) {
                 stateDelta['memory'] = memoryKiB;
@@ -56,7 +56,7 @@ export class MemoryModal extends React.Component {
                 stateDelta['maxMemory'] = memoryKiB;
             }
         } else if (key == 'maxMemory') {
-            let maxMemoryKiB = convertToUnit(value, this.state.maxMemoryUnit, 'KiB');
+            const maxMemoryKiB = convertToUnit(value, this.state.maxMemoryUnit, 'KiB');
 
             if (maxMemoryKiB < this.state.nodeMaxMemory) {
                 stateDelta['maxMemory'] = maxMemoryKiB;
@@ -69,14 +69,14 @@ export class MemoryModal extends React.Component {
 
     onValueBlurred(key, value) {
         // When input field get unfocused perform checks for lower limits
-        let stateDelta = {};
+        const stateDelta = {};
 
         if (key == 'memory') {
-            let memoryKiB = convertToUnit(value, this.state.memoryUnit, 'KiB');
+            const memoryKiB = convertToUnit(value, this.state.memoryUnit, 'KiB');
 
             stateDelta['memory'] = Math.max(memoryKiB, this.state.minAllowedMemory);
         } else if (key == 'maxMemory') {
-            let maxMemoryKiB = convertToUnit(value, this.state.maxMemoryUnit, 'KiB');
+            const maxMemoryKiB = convertToUnit(value, this.state.maxMemoryUnit, 'KiB');
 
             stateDelta['maxMemory'] = Math.max(maxMemoryKiB, this.state.minAllowedMemory);
             if (maxMemoryKiB < this.state.memory) {

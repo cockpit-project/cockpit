@@ -63,8 +63,8 @@ class LibvirtSlate extends React.Component {
     }
 
     render() {
-        let activeState = this.props.libvirtService.activeState;
-        let name = this.props.libvirtService.name;
+        const activeState = this.props.libvirtService.activeState;
+        const name = this.props.libvirtService.name;
         let message;
         let icon;
         let detail;

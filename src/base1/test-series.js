@@ -460,7 +460,7 @@ QUnit.test("move negative", function (assert) {
 });
 
 QUnit.test("test", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(5);
 
     var fetched = [];

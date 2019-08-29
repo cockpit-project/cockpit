@@ -161,7 +161,7 @@ export function existing_passphrase_fields(explanation) {
 }
 
 export function get_existing_passphrase(dlg, block) {
-    let prom = clevis_recover_passphrase(block).then(passphrase => {
+    const prom = clevis_recover_passphrase(block).then(passphrase => {
         if (passphrase == "") {
             dlg.set_values({ needs_explicit_passphrase: true });
             return null;
@@ -197,47 +197,47 @@ function validate_url(url) {
 function add_dialog(client, block) {
     let recovered_passphrase;
 
-    let dlg = dialog_open({ Title: _("Add Key"),
-                            Fields: [
-                                SelectOneRadio("type", _("Key source"),
-                                               { value: "tang",
-                                                 widest_title: _("Repeat passphrase"),
-                                                 choices: [
-                                                     { value: "luks-passphrase", title: _("Passphrase") },
-                                                     { value: "tang", title: _("Tang keyserver") }
-                                                 ] }),
-                                Skip("medskip"),
-                                PassInput("new_passphrase", _("New passphrase"),
-                                          { visible: vals => vals.type == "luks-passphrase",
-                                            validate: val => !val.length && _("Passphrase cannot be empty"),
-                                          }),
-                                PassInput("new_passphrase2", _("Repeat passphrase"),
-                                          { visible: vals => vals.type == "luks-passphrase",
-                                            validate: (val, vals) => {
-                                                return (vals.new_passphrase.length &&
+    const dlg = dialog_open({ Title: _("Add Key"),
+                              Fields: [
+                                  SelectOneRadio("type", _("Key source"),
+                                                 { value: "tang",
+                                                   widest_title: _("Repeat passphrase"),
+                                                   choices: [
+                                                       { value: "luks-passphrase", title: _("Passphrase") },
+                                                       { value: "tang", title: _("Tang keyserver") }
+                                                   ] }),
+                                  Skip("medskip"),
+                                  PassInput("new_passphrase", _("New passphrase"),
+                                            { visible: vals => vals.type == "luks-passphrase",
+                                              validate: val => !val.length && _("Passphrase cannot be empty"),
+                                            }),
+                                  PassInput("new_passphrase2", _("Repeat passphrase"),
+                                            { visible: vals => vals.type == "luks-passphrase",
+                                              validate: (val, vals) => {
+                                                  return (vals.new_passphrase.length &&
                                                         vals.new_passphrase != val &&
                                                         _("Passphrases do not match"));
-                                            }
-                                          }),
-                                TextInput("tang_url", _("Keyserver address"),
-                                          { visible: vals => vals.type == "tang",
-                                            validate: validate_url
-                                          })
-                            ].concat(existing_passphrase_fields(_("Saving a new passphrase requires unlocking the disk. Please provide a current disk passphrase."))),
-                            Action: {
-                                Title: _("Add"),
-                                action: function (vals) {
-                                    let existing_passphrase = vals.passphrase || recovered_passphrase;
-                                    if (vals.type == "luks-passphrase") {
-                                        return passphrase_add(block, vals.new_passphrase, existing_passphrase);
-                                    } else {
-                                        return get_tang_adv(vals.tang_url).then(function (adv) {
-                                            edit_tang_adv(client, block, null,
-                                                          vals.tang_url, adv, existing_passphrase);
-                                        });
-                                    }
-                                }
-                            }
+                                              }
+                                            }),
+                                  TextInput("tang_url", _("Keyserver address"),
+                                            { visible: vals => vals.type == "tang",
+                                              validate: validate_url
+                                            })
+                              ].concat(existing_passphrase_fields(_("Saving a new passphrase requires unlocking the disk. Please provide a current disk passphrase."))),
+                              Action: {
+                                  Title: _("Add"),
+                                  action: function (vals) {
+                                      const existing_passphrase = vals.passphrase || recovered_passphrase;
+                                      if (vals.type == "luks-passphrase") {
+                                          return passphrase_add(block, vals.new_passphrase, existing_passphrase);
+                                      } else {
+                                          return get_tang_adv(vals.tang_url).then(function (adv) {
+                                              edit_tang_adv(client, block, null,
+                                                            vals.tang_url, adv, existing_passphrase);
+                                          });
+                                      }
+                                  }
+                              }
     });
 
     get_existing_passphrase(dlg, block).then(pp => { recovered_passphrase = pp });
@@ -267,22 +267,22 @@ function edit_passphrase_dialog(block, key) {
 function edit_clevis_dialog(client, block, key) {
     let recovered_passphrase;
 
-    let dlg = dialog_open({ Title: _("Edit Tang keyserver"),
-                            Fields: [
-                                TextInput("tang_url", _("Keyserver address"),
-                                          { validate: validate_url,
-                                            value: key.url
-                                          })
-                            ].concat(existing_passphrase_fields(_("Saving a new passphrase requires unlocking the disk. Please provide a current disk passphrase."))),
-                            Action: {
-                                Title: _("Save"),
-                                action: function (vals) {
-                                    let existing_passphrase = vals.passphrase || recovered_passphrase;
-                                    return get_tang_adv(vals.tang_url).then(adv => {
-                                        edit_tang_adv(client, block, key, vals.tang_url, adv, existing_passphrase);
-                                    });
-                                }
-                            }
+    const dlg = dialog_open({ Title: _("Edit Tang keyserver"),
+                              Fields: [
+                                  TextInput("tang_url", _("Keyserver address"),
+                                            { validate: validate_url,
+                                              value: key.url
+                                            })
+                              ].concat(existing_passphrase_fields(_("Saving a new passphrase requires unlocking the disk. Please provide a current disk passphrase."))),
+                              Action: {
+                                  Title: _("Save"),
+                                  action: function (vals) {
+                                      const existing_passphrase = vals.passphrase || recovered_passphrase;
+                                      return get_tang_adv(vals.tang_url).then(adv => {
+                                          edit_tang_adv(client, block, key, vals.tang_url, adv, existing_passphrase);
+                                      });
+                                  }
+                              }
     });
 
     get_existing_passphrase(dlg, block).then(pp => { recovered_passphrase = pp });
@@ -347,7 +347,7 @@ const RemovePassphraseField = (tag, key, dev) => {
         initial_value: "",
 
         render: (val, change) => {
-            let key_slot = cockpit.format(_("key slot $0"), key.slot);
+            const key_slot = cockpit.format(_("key slot $0"), key.slot);
             return (
                 <div data-field={tag}>
                     <h3>
@@ -566,7 +566,7 @@ export class CryptoKeyslots extends React.Component {
             });
         }
 
-        let remaining = this.state.max_slots - keys.length;
+        const remaining = this.state.max_slots - keys.length;
 
         return (
             <div className="panel panel-default key-slot-panel">

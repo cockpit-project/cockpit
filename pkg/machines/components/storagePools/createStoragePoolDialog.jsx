@@ -58,7 +58,7 @@ const StoragePoolNameRow = ({ onValueChanged, dialogValues }) => {
 };
 
 const StoragePoolTypeRow = ({ onValueChanged, dialogValues, libvirtVersion }) => {
-    let poolTypes = [
+    const poolTypes = [
         { type: 'dir', detail: _("Filesystem Directory") },
         { type: 'netfs', detail:_("Network File System") },
         { type: 'iscsi', detail: _("iSCSI Target") },
@@ -332,8 +332,8 @@ class CreateStoragePoolModal extends React.Component {
 
     onValueChanged(key, value) {
         if (key == 'source') {
-            let property = Object.keys(value)[0];
-            let propertyValue = value[Object.keys(value)[0]];
+            const property = Object.keys(value)[0];
+            const propertyValue = value[Object.keys(value)[0]];
             this.setState({
                 source: Object.assign({}, this.state.source, { [property]: propertyValue })
             });
@@ -365,7 +365,7 @@ class CreateStoragePoolModal extends React.Component {
     onCreateClicked() {
         const { dispatch } = this.props;
         let modalIsIncomplete = false;
-        let validationFailed = Object.assign({}, this.state.validationFailed);
+        const validationFailed = Object.assign({}, this.state.validationFailed);
 
         // Mandatory props for all pool types
         ['name'].forEach(prop => {

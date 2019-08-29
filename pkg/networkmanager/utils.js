@@ -218,7 +218,7 @@ export function ip6_from_text(text, empty_is_zero) {
 }
 
 export function list_interfaces() {
-    let client = cockpit.dbus("org.freedesktop.NetworkManager");
+    const client = cockpit.dbus("org.freedesktop.NetworkManager");
     return client.call('/org/freedesktop/NetworkManager',
                        'org.freedesktop.NetworkManager',
                        'GetAllDevices', [])
@@ -226,11 +226,11 @@ export function list_interfaces() {
                 // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
                 // https://github.com/cockpit-project/cockpit/issues/10956
                 // eslint-disable-next-line cockpit/no-cockpit-all
-                let promises = cockpit.all(reply[0].map(device => {
+                const promises = cockpit.all(reply[0].map(device => {
                     // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
                     // https://github.com/cockpit-project/cockpit/issues/10956
                     // eslint-disable-next-line cockpit/no-cockpit-all
-                    let devicePromises = cockpit.all([
+                    const devicePromises = cockpit.all([
                         client.call(device,
                                     'org.freedesktop.DBus.Properties',
                                     'Get', ['org.freedesktop.NetworkManager.Device', 'Interface'])

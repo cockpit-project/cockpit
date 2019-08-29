@@ -421,7 +421,7 @@ function init_model(callback) {
         // mount.nfs might be in */sbin but that ins't always in
         // $PATH, such as when connecting from CentOS to another
         // machine via SSH as non-root.
-        let std_path = "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin";
+        const std_path = "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin";
         return cockpit.spawn([ "which", "mount.nfs" ], { err: "message", environ: [ std_path ] }).then(
             function () {
                 client.features.nfs = true;

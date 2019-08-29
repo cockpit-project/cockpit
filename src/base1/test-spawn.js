@@ -132,7 +132,7 @@ QUnit.test("public api", function (assert) {
 });
 
 QUnit.test("simple request", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(5);
 
     var peer = new MockPeer();
@@ -158,7 +158,7 @@ QUnit.test("simple request", function (assert) {
 });
 
 QUnit.test("string command", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(2);
 
     var peer = new MockPeer();
@@ -172,7 +172,7 @@ QUnit.test("string command", function (assert) {
 });
 
 QUnit.test("channel options", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(1);
 
     var peer = new MockPeer();
@@ -192,7 +192,7 @@ QUnit.test("channel options", function (assert) {
 });
 
 QUnit.test("streaming", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(15);
 
     var peer = new MockPeer();
@@ -222,7 +222,7 @@ QUnit.test("streaming", function (assert) {
 });
 
 QUnit.test("with problem", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(4);
 
     var peer = new MockPeer();
@@ -243,7 +243,7 @@ QUnit.test("with problem", function (assert) {
 });
 
 QUnit.test("with status", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(5);
 
     var peer = new MockPeer();
@@ -266,7 +266,7 @@ QUnit.test("with status", function (assert) {
 });
 
 QUnit.test("with signal", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(5);
 
     var peer = new MockPeer();

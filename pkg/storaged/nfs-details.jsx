@@ -39,8 +39,8 @@ function nfs_busy_dialog(client, dialog_title, entry, error, action_title, actio
                           Body: error.toString()
             });
         } else {
-            let sessions = [ ];
-            let services = [ ];
+            const sessions = [ ];
+            const services = [ ];
             users.forEach((u) => {
                 var since = moment.duration(-u.since * 1000).humanize(true);
                 if (u.unit.endsWith(".scope")) {
@@ -137,75 +137,75 @@ export function nfs_fstab_dialog(client, entry) {
             }, delay);
         }
 
-        let dlg = dialog_open({ Title: entry ? _("NFS Mount") : _("New NFS Mount"),
-                                Body: alert,
-                                Fields: [
-                                    TextInput("server", _("Server Address"),
-                                              { value: entry ? entry.fields[0].split(":")[0] : "",
-                                                validate: function (val) {
-                                                    if (val === "")
-                                                        return _("Server cannot be empty.");
-                                                },
-                                                disabled: busy
-                                              }),
-                                    ComboBox("remote", _("Path on Server"),
-                                             { value: entry ? entry.fields[0].split(":")[1] : "",
-                                               validate: function (val) {
-                                                   if (val === "")
-                                                       return _("Path on server cannot be empty.");
-                                                   if (val[0] !== "/")
-                                                       return _("Path on server must start with \"/\".");
-                                               },
-                                               disabled: busy,
-                                               choices: [ ],
-                                             }),
-                                    TextInput("dir", _("Local Mount Point"),
-                                              { value: entry ? entry.fields[1] : "",
-                                                validate: function (val) {
-                                                    if (val === "")
-                                                        return _("Mount point cannot be empty.");
-                                                    if (val[0] !== "/")
-                                                        return _("Mount point must start with \"/\".");
-                                                },
-                                                disabled: busy
-                                              }),
-                                    CheckBoxes("mount_options", _("Mount Options"),
-                                               { fields: [
-                                                   { title: _("Mount at boot"), tag: "auto" },
-                                                   { title: _("Mount read only"), tag: "ro" },
-                                                   { title: _("Custom mount options"), tag: "extra", type: "checkboxWithInput" },
-                                               ],
-                                                 value: {
-                                                     auto: opt_auto,
-                                                     ro: opt_ro,
-                                                     extra: extra_options === "" ? false : extra_options
-                                                 }
-                                               },
-                                    ),
-                                ],
-                                update: (dlg, vals, trigger) => {
-                                    if (trigger === "server")
-                                        check_server(dlg, vals.server, 500);
-                                },
-                                Action: {
-                                    Title: entry ? _("Apply") : _("Add"),
-                                    action: function (vals) {
-                                        var location = cockpit.location;
-                                        var fields = [ vals.server + ":" + vals.remote,
-                                            vals.dir,
-                                            entry ? entry.fields[2] : "nfs",
-                                            mounting_options(vals) || "defaults" ];
-                                        if (entry) {
-                                            return client.nfs.update_entry(entry, fields)
-                                                    .done(function () {
-                                                        if (entry.fields[0] != fields[0] ||
+        const dlg = dialog_open({ Title: entry ? _("NFS Mount") : _("New NFS Mount"),
+                                  Body: alert,
+                                  Fields: [
+                                      TextInput("server", _("Server Address"),
+                                                { value: entry ? entry.fields[0].split(":")[0] : "",
+                                                  validate: function (val) {
+                                                      if (val === "")
+                                                          return _("Server cannot be empty.");
+                                                  },
+                                                  disabled: busy
+                                                }),
+                                      ComboBox("remote", _("Path on Server"),
+                                               { value: entry ? entry.fields[0].split(":")[1] : "",
+                                                 validate: function (val) {
+                                                     if (val === "")
+                                                         return _("Path on server cannot be empty.");
+                                                     if (val[0] !== "/")
+                                                         return _("Path on server must start with \"/\".");
+                                                 },
+                                                 disabled: busy,
+                                                 choices: [ ],
+                                               }),
+                                      TextInput("dir", _("Local Mount Point"),
+                                                { value: entry ? entry.fields[1] : "",
+                                                  validate: function (val) {
+                                                      if (val === "")
+                                                          return _("Mount point cannot be empty.");
+                                                      if (val[0] !== "/")
+                                                          return _("Mount point must start with \"/\".");
+                                                  },
+                                                  disabled: busy
+                                                }),
+                                      CheckBoxes("mount_options", _("Mount Options"),
+                                                 { fields: [
+                                                     { title: _("Mount at boot"), tag: "auto" },
+                                                     { title: _("Mount read only"), tag: "ro" },
+                                                     { title: _("Custom mount options"), tag: "extra", type: "checkboxWithInput" },
+                                                 ],
+                                                   value: {
+                                                       auto: opt_auto,
+                                                       ro: opt_ro,
+                                                       extra: extra_options === "" ? false : extra_options
+                                                   }
+                                                 },
+                                      ),
+                                  ],
+                                  update: (dlg, vals, trigger) => {
+                                      if (trigger === "server")
+                                          check_server(dlg, vals.server, 500);
+                                  },
+                                  Action: {
+                                      Title: entry ? _("Apply") : _("Add"),
+                                      action: function (vals) {
+                                          var location = cockpit.location;
+                                          var fields = [ vals.server + ":" + vals.remote,
+                                              vals.dir,
+                                              entry ? entry.fields[2] : "nfs",
+                                              mounting_options(vals) || "defaults" ];
+                                          if (entry) {
+                                              return client.nfs.update_entry(entry, fields)
+                                                      .done(function () {
+                                                          if (entry.fields[0] != fields[0] ||
                                                                  entry.fields[1] != fields[1])
-                                                            location.go([ "nfs", fields[0], fields[1] ]);
-                                                    });
-                                        } else
-                                            return client.nfs.add_entry(fields);
-                                    }
-                                }
+                                                              location.go([ "nfs", fields[0], fields[1] ]);
+                                                      });
+                                          } else
+                                              return client.nfs.add_entry(fields);
+                                      }
+                                  }
         });
 
         if (entry && !busy)

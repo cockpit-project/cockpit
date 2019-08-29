@@ -561,7 +561,7 @@ journal.logbox = function logbox(match, max_entries) {
         }
         renderer.prepend_flush();
         if (entries.length === 0) {
-            let empty_message = document.createElement("span");
+            const empty_message = document.createElement("span");
             empty_message.textContent = "No log entries";
             empty_message.setAttribute("class", "empty-message");
             box.appendChild(empty_message);

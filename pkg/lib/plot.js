@@ -243,7 +243,7 @@ class Metrics_sum_series extends Metrics_series {
         var offset = this.desc.offset || 0;
         this.options.data = this.grid.add((row, x, n) => {
             for (let i = 0; i < n; i++) {
-                let value = offset + this.flat_sum(metrics_row[x + i]) * factor;
+                const value = offset + this.flat_sum(metrics_row[x + i]) * factor;
                 if (threshold !== null)
                     row[x + i] = [ (this.grid.beg + x + i) * this.interval, Math.abs(value) > threshold ? value : null, threshold ];
                 else
@@ -315,7 +315,7 @@ class Metrics_difference_series extends Metrics_series {
         var offset = this.desc.offset || 0;
         this.options.data = this.grid.add((row, x, n) => {
             for (let i = 0; i < n; i++) {
-                let value = offset + this.flat_difference(metrics_row[x + i]) * factor;
+                const value = offset + this.flat_difference(metrics_row[x + i]) * factor;
                 if (threshold !== null)
                     row[x + i] = [ (this.grid.beg + x + i) * this.interval, Math.abs(value) > threshold ? value : null, threshold ];
                 else
@@ -373,7 +373,7 @@ class Metrics_stacked_instances_series extends Metrics_series {
         this.channel = cockpit.metrics(this.interval, this.chanopts_list);
         $(this.channel).on('changed', this.check_archives.bind(this));
         this.check_archives();
-        for (let name in this.instances)
+        for (const name in this.instances)
             this.instances[name].reset();
     }
 
@@ -391,8 +391,8 @@ class Metrics_stacked_instances_series extends Metrics_series {
             metrics_row = this.grid.add(this.channel, [ 'a', name ]);
             instance_data.data = this.grid.add((row, x, n) => {
                 for (let i = 0; i < n; i++) {
-                    let value = (metrics_row[x + i] || 0) * factor;
-                    let ts = (this.grid.beg + x + i) * this.interval;
+                    const value = (metrics_row[x + i] || 0) * factor;
+                    const ts = (this.grid.beg + x + i) * this.interval;
                     let floor = 0;
 
                     if (last) {
@@ -433,7 +433,7 @@ class Metrics_stacked_instances_series extends Metrics_series {
     }
 
     clear_instances() {
-        for (let i in this.instances)
+        for (const i in this.instances)
             this.instances[i].remove();
         this.instances = { };
         this.last_instance = null;
@@ -449,8 +449,8 @@ class Metrics_stacked_instances_series extends Metrics_series {
         if (index < 0)
             index = 0;
 
-        for (let name in this.instances) {
-            let d = this.instances[name].data;
+        for (const name in this.instances) {
+            const d = this.instances[name].data;
             if (d[index] && d[index][1] && d[index][2] <= pos.y && pos.y <= d[index][1])
                 return this.instances[name].selector || name;
         }
@@ -664,7 +664,7 @@ export class Plot {
 
         this.series.push(stacked_series);
         this.sync_suppressed++;
-        for (let name in stacked_series.instances)
+        for (const name in stacked_series.instances)
             stacked_series.instances[name].reset();
         this.sync_suppressed--;
         this.sync();

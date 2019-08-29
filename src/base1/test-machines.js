@@ -12,7 +12,7 @@ function cleanUp() {
  */
 
 function machinesParseTest(assert, machines_defs, expectedProperty) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(3);
 
     var setup = [];
@@ -134,7 +134,7 @@ QUnit.test("merge JSON files with errors", function (assert) {
  */
 
 function machinesUpdateTest(assert, origJson, host, props, expectedJson) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(3);
 
     var f = configDir + "/machines.d/99-webui.json";
@@ -202,7 +202,7 @@ QUnit.test("add host property", function (assert) {
 });
 
 QUnit.test("Update() only writes delta", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
 
     cockpit.file(configDir + "/machines.d/01-green.json")
             .replace('{"green": {"address": "1.2.3.4"}, "blue": {"address": "fe80::1"}}')
@@ -217,7 +217,7 @@ QUnit.test("Update() only writes delta", function (assert) {
 });
 
 QUnit.test("updating and existing delta file", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
 
     cockpit.file(configDir + "/machines.d/01-green.json")
             .replace('{"green": {"address": "1.2.3.4"}, "blue": {"address": "fe80::1"}}')

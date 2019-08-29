@@ -31,7 +31,7 @@ const _ = cockpit.gettext;
 const DHCPHost = (host, index, family, idPrefix) => {
     const id = `${idPrefix}-${family}-dhcp-host-${index}`;
 
-    let hostVals = [];
+    const hostVals = [];
     if (host.name)
         hostVals.push(_("Name: ") + host.name);
     if (host.mac) // MAC for ipv4, ID for ipv6
@@ -67,7 +67,7 @@ export class NetworkOverviewTab extends React.Component {
         const network = this.props.network;
         const idPrefix = `${networkId(network.name, network.connectionName)}`;
 
-        let ip = [];
+        const ip = [];
         // Libvirt allows network to have multiple ipv6 and ipv4 addresses.
         // But we only first one of each
         ip[0] = network.ip.find(ip => ip.family === "ipv4");

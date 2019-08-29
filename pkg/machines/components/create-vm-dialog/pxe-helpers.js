@@ -38,7 +38,7 @@ function filterVirtualBridgesFromNetNodeDevices(netNodeDevices, virtualNetworks)
         if (!netNodeDevice.capability.interface.endsWith('-nic'))
             return true;
 
-        for (let i in libvirtVirBridges) {
+        for (const i in libvirtVirBridges) {
             if (netNodeDevice.capability.interface == (libvirtVirBridges[i] + '-nic'))
                 return false;
         }
@@ -80,7 +80,7 @@ export function getVirtualNetworkByName(virtualNetworkName, virtualNetworks) {
  */
 function getVirtualNetworkDescription(virtualNetwork) {
     let mode, dev;
-    let forward = virtualNetwork.forward;
+    const forward = virtualNetwork.forward;
 
     if (forward) {
         mode = forward.mode;
@@ -130,7 +130,7 @@ export function getPXEInitialNetworkSource(nodeDevices, virtualNetworks) {
     if (virtualNetworks.length > 0)
         return cockpit.format('network=$0', virtualNetworks[0].name);
 
-    let netNodeDevices = filterVirtualBridgesFromNetNodeDevices(
+    const netNodeDevices = filterVirtualBridgesFromNetNodeDevices(
         getNodeDevicesOfType(nodeDevices, 'net'),
         virtualNetworks
     );
@@ -148,12 +148,12 @@ export function getPXENetworkRows(nodeDevices, virtualNetworks) {
     /* Do not show to the user the libvirt virbrX-nic devices since these are
      * supposed to be managed through virtual networks
      */
-    let netNodeDevices = filterVirtualBridgesFromNetNodeDevices(
+    const netNodeDevices = filterVirtualBridgesFromNetNodeDevices(
         getNodeDevicesOfType(nodeDevices, 'net'),
         virtualNetworks
     );
 
-    let virtualNetworkRows = virtualNetworks.map(network => {
+    const virtualNetworkRows = virtualNetworks.map(network => {
         const data = cockpit.format('network=$0', network.name);
 
         return (
@@ -163,7 +163,7 @@ export function getPXENetworkRows(nodeDevices, virtualNetworks) {
         );
     });
 
-    let netNodeDevicesRows = netNodeDevices.map(netNodeDevice => {
+    const netNodeDevicesRows = netNodeDevices.map(netNodeDevice => {
         const iface = netNodeDevice.capability.interface;
         const data = cockpit.format('type=direct,source=$0', iface);
 

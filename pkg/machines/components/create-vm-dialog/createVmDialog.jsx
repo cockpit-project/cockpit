@@ -115,7 +115,7 @@ function getSpaceAvailable(storagePools, connectionName) {
 }
 
 function validateParams(vmParams) {
-    let validationFailed = {};
+    const validationFailed = {};
 
     if (isEmpty(vmParams.vmName.trim())) {
         validationFailed['vmName'] = _("Name should not be empty");
@@ -124,7 +124,7 @@ function validateParams(vmParams) {
     if (vmParams.os == undefined)
         validationFailed['os'] = _("You need to select the most closely matching Operating System");
 
-    let source = vmParams.source ? vmParams.source.trim() : null;
+    const source = vmParams.source ? vmParams.source.trim() : null;
 
     if (!isEmpty(source)) {
         switch (vmParams.sourceType) {
@@ -236,8 +236,8 @@ const SourceRow = ({ connectionName, source, sourceType, networks, nodeDevices, 
         if (source && source.includes('type=direct')) {
             installationSourceWarning = _("In most configurations, macvtap does not work for host to guest network communication.");
         } else if (source && source.includes('network=')) {
-            let netObj = getVirtualNetworkByName(source.split('network=')[1],
-                                                 networks);
+            const netObj = getVirtualNetworkByName(source.split('network=')[1],
+                                                   networks);
 
             if (!netObj || !getVirtualNetworkPXESupport(netObj))
                 installationSourceWarning = _("Network Selection does not support PXE.");
@@ -557,8 +557,8 @@ class CreateVmModal extends React.Component {
         case 'sourceType':
             this.setState({ [key]: value });
             if (value == PXE_SOURCE) {
-                let initialPXESource = getPXEInitialNetworkSource(this.props.nodeDevices.filter(nodeDevice => nodeDevice.connectionName == this.state.connectionName),
-                                                                  this.props.networks.filter(network => network.connectionName == this.state.connectionName));
+                const initialPXESource = getPXEInitialNetworkSource(this.props.nodeDevices.filter(nodeDevice => nodeDevice.connectionName == this.state.connectionName),
+                                                                    this.props.networks.filter(network => network.connectionName == this.state.connectionName));
                 this.setState({ source: initialPXESource });
             } else if (this.state.sourceType == PXE_SOURCE && value != PXE_SOURCE) {
                 // Reset the source when the previous selection was PXE;

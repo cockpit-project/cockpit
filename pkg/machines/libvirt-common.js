@@ -107,7 +107,7 @@ export function getDiskElemByTarget(domxml, targetOriginal) {
 }
 
 export function getDomainElem(domXml) {
-    let parser = new DOMParser();
+    const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(domXml, "application/xml");
 
     if (!xmlDoc) {
@@ -119,7 +119,7 @@ export function getDomainElem(domXml) {
 }
 
 function getNetworkElem(netXml) {
-    let parser = new DOMParser();
+    const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(netXml, "application/xml");
 
     if (!xmlDoc) {
@@ -131,7 +131,7 @@ function getNetworkElem(netXml) {
 }
 
 function getNodeDeviceElem(deviceXml) {
-    let parser = new DOMParser();
+    const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(deviceXml, "application/xml");
 
     if (!xmlDoc) {
@@ -143,7 +143,7 @@ function getNodeDeviceElem(deviceXml) {
 }
 
 function getStoragePoolElem(poolXml) {
-    let parser = new DOMParser();
+    const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(poolXml, "application/xml");
 
     if (!xmlDoc) {
@@ -155,7 +155,7 @@ function getStoragePoolElem(poolXml) {
 }
 
 function getStorageVolumeElem(poolXml) {
-    let parser = new DOMParser();
+    const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(poolXml, 'application/xml');
     if (!xmlDoc) {
         console.warn(`Can't parse dumpxml, input: "${poolXml}"`);
@@ -241,7 +241,7 @@ export function parseDumpxml(dispatch, connectionName, domXml, id_overwrite) {
 }
 
 export function parseDumpxmlForOsBoot(osBootElems) {
-    let osBoot = [];
+    const osBoot = [];
 
     for (let bootNum = 0; bootNum < osBootElems.length; bootNum++) {
         const bootElem = osBootElems[bootNum];
@@ -623,7 +623,7 @@ export function parseDumpxmlMachinesMetadataElement(metadataElem, name) {
 }
 
 export function parseNetDumpxml(netXml) {
-    let retObj = {};
+    const retObj = {};
     const netElem = getNetworkElem(netXml);
     if (!netElem) {
         return;
@@ -643,7 +643,7 @@ export function parseNetDumpxml(netXml) {
 
     // if mode is not specified, "nat" is assumed, see https://libvirt.org/formatnetwork.html#elementsConnect
     if (forwardElem) {
-        let ifaceElem = forwardElem.getElementsByTagName("interface")[0];
+        const ifaceElem = forwardElem.getElementsByTagName("interface")[0];
         if (ifaceElem)
             retObj.interface = { "interface": { "dev": ifaceElem.getAttribute("dev") } };
 
@@ -654,7 +654,7 @@ export function parseNetDumpxml(netXml) {
 }
 
 function parseNetDumpxmlForIp(ipElems) {
-    let ip = [];
+    const ip = [];
 
     for (let i = 0; i < ipElems.length; i++) {
         const ipElem = ipElems[i];
@@ -669,7 +669,7 @@ function parseNetDumpxmlForIp(ipElems) {
 
         let rangeElem;
         let bootp;
-        let dhcpHosts = [];
+        const dhcpHosts = [];
         if (dhcpElem) {
             rangeElem = dhcpElem.getElementsByTagName("range")[0];
             const hostElems = dhcpElem.getElementsByTagName("host");
@@ -719,8 +719,8 @@ export function parseNodeDeviceDumpxml(nodeDevice) {
     const name = deviceElem.getElementsByTagName("name")[0].childNodes[0].nodeValue;
     const capabilityElem = deviceElem.getElementsByTagName("capability")[0];
 
-    let capability = {};
-    let path = {};
+    const capability = {};
+    const path = {};
 
     capability.type = capabilityElem.getAttribute("type");
     if (capability.type == 'net')
@@ -776,7 +776,7 @@ export function parseStoragePoolDumpxml(connectionName, storagePoolXml, id_overw
         return;
     }
 
-    let result = { connectionName };
+    const result = { connectionName };
     result['type'] = storagePoolElem.getAttribute('type');
     result['name'] = storagePoolElem.getElementsByTagName('name')[0].childNodes[0].nodeValue;
     result['id'] = id_overwrite || storagePoolElem.getElementsByTagName('uuid')[0].childNodes[0].nodeValue;
@@ -892,15 +892,15 @@ export function updateBootOrder(domXml, devices) {
     if (!domainElem)
         throw new Error("updateBootOrder: domXML has no domain element");
 
-    let deviceElem = domainElem.getElementsByTagName("devices")[0];
-    let disks = deviceElem.getElementsByTagName("disk");
-    let interfaces = deviceElem.getElementsByTagName("interface");
-    let hostdevs = deviceElem.getElementsByTagName("hostdev");
-    let redirdevs = deviceElem.getElementsByTagName("redirdev");
+    const deviceElem = domainElem.getElementsByTagName("devices")[0];
+    const disks = deviceElem.getElementsByTagName("disk");
+    const interfaces = deviceElem.getElementsByTagName("interface");
+    const hostdevs = deviceElem.getElementsByTagName("hostdev");
+    const redirdevs = deviceElem.getElementsByTagName("redirdev");
 
     if (devices) {
         // only boot option in devices shall be used, boot options in OS therefore has to be removed
-        let osBootElems = domainElem.getElementsByTagName("os")[0].getElementsByTagName("boot");
+        const osBootElems = domainElem.getElementsByTagName("os")[0].getElementsByTagName("boot");
         while (osBootElems.length)
             osBootElems[0].remove();
     }
@@ -1088,10 +1088,10 @@ export function updateBootOrder(domXml, devices) {
 export function updateMaxMemory(domXml, maxMemory) {
     const domainElem = getDomainElem(domXml);
 
-    let memElem = domainElem.getElementsByTagName("memory")[0];
+    const memElem = domainElem.getElementsByTagName("memory")[0];
     memElem.textContent = `${maxMemory}`;
 
-    let tmp = document.createElement("div");
+    const tmp = document.createElement("div");
     tmp.appendChild(domainElem);
 
     return tmp.innerHTML;
@@ -1138,17 +1138,17 @@ export function updateVCPUSettings(domXml, count, max, sockets, cores, threads) 
  * The order should be kept alphabetical in this section.
  */
 
-export let canConsole = (vmState) => vmState == 'running';
-export let canDelete = (vmState, vmId, providerState) => true;
-export let canInstall = (vmState, hasInstallPhase) => vmState != 'running' && hasInstallPhase;
-export let canReset = (vmState) => vmState == 'running' || vmState == 'idle' || vmState == 'paused';
-export let canRun = (vmState, hasInstallPhase) => !hasInstallPhase && vmState == 'shut off';
-export let canSendNMI = (vmState) => canReset(vmState);
-export let canShutdown = (vmState) => canReset(vmState);
-export let canPause = (vmState) => vmState == 'running';
-export let canResume = (vmState) => vmState == 'paused';
-export let isRunning = (vmState) => canReset(vmState);
-export let serialConsoleCommand = ({ vm }) => vm.displays['pty'] ? [ 'virsh', ...VMS_CONFIG.Virsh.connections[vm.connectionName].params, 'console', vm.name ] : false;
+export const canConsole = (vmState) => vmState == 'running';
+export const canDelete = (vmState, vmId, providerState) => true;
+export const canInstall = (vmState, hasInstallPhase) => vmState != 'running' && hasInstallPhase;
+export const canReset = (vmState) => vmState == 'running' || vmState == 'idle' || vmState == 'paused';
+export const canRun = (vmState, hasInstallPhase) => !hasInstallPhase && vmState == 'shut off';
+export const canSendNMI = (vmState) => canReset(vmState);
+export const canShutdown = (vmState) => canReset(vmState);
+export const canPause = (vmState) => vmState == 'running';
+export const canResume = (vmState) => vmState == 'paused';
+export const isRunning = (vmState) => canReset(vmState);
+export const serialConsoleCommand = ({ vm }) => vm.displays['pty'] ? [ 'virsh', ...VMS_CONFIG.Virsh.connections[vm.connectionName].params, 'console', vm.name ] : false;
 
 export function CHECK_LIBVIRT_STATUS({ serviceName }) {
     logDebug(`${this.name}.CHECK_LIBVIRT_STATUS`);
@@ -1157,8 +1157,8 @@ export function CHECK_LIBVIRT_STATUS({ serviceName }) {
         const dfd = cockpit.defer();
 
         libvirtService.wait(() => {
-            let activeState = libvirtService.exists ? libvirtService.state : 'stopped';
-            let unitState = libvirtService.exists && libvirtService.enabled ? 'enabled' : 'disabled';
+            const activeState = libvirtService.exists ? libvirtService.state : 'stopped';
+            const unitState = libvirtService.exists && libvirtService.enabled ? 'enabled' : 'disabled';
 
             dispatch(updateLibvirtState({
                 activeState,

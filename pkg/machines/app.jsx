@@ -67,7 +67,7 @@ class App extends React.Component {
      * @param {object} notification - The notification object to be added to the array.
      */
     onAddErrorNotification(notification) {
-        let resourceHasError = Object.assign({}, this.state.resourceHasError);
+        const resourceHasError = Object.assign({}, this.state.resourceHasError);
 
         if (resourceHasError[notification.resourceId])
             resourceHasError[notification.resourceId]++;
@@ -92,8 +92,8 @@ class App extends React.Component {
      * @param {int} notificationIndex - Index of the notification to be removed.
      */
     onDismissErrorNotification(notificationIndex) {
-        let notifications = Object.assign({}, this.state.notifications);
-        let resourceHasError = Object.assign({}, this.state.resourceHasError);
+        const notifications = Object.assign({}, this.state.notifications);
+        const resourceHasError = Object.assign({}, this.state.resourceHasError);
 
         resourceHasError[notifications[notificationIndex].resourceId]--;
         delete notifications[notificationIndex];
@@ -105,7 +105,7 @@ class App extends React.Component {
         const { vms, config, storagePools, systemInfo, ui, networks, nodeDevices, interfaces } = this.props.store.getState();
         const path = this.state.path;
         const dispatch = this.props.store.dispatch;
-        let properties = {
+        const properties = {
             dispatch, providerName:config.provider ? config.provider.name : 'Libvirt',
             networks, nodeDevices, nodeMaxMemory: config.nodeMaxMemory,
             onAddErrorNotification: this.onAddErrorNotification,

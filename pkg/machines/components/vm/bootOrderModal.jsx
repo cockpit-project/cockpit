@@ -76,7 +76,7 @@ const DeviceInfo = ({ descr, value }) => {
 
 const DeviceRow = ({ idPrefix, device, index, onToggle, upDisabled, downDisabled, moveUp, moveDown, nodeDevices }) => {
     let heading;
-    let additionalInfo = [];
+    const additionalInfo = [];
 
     const addOptional = (additionalInfo, value, descr) => {
         if (value) {

@@ -3,7 +3,7 @@
 var dir;
 
 QUnit.test("simple read", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(3);
     var file = cockpit.file(dir + "/foo");
     assert.equal(file.path, dir + "/foo", "file has path");
@@ -18,7 +18,7 @@ QUnit.test("simple read", function (assert) {
 });
 
 QUnit.test("read non-existent", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(2);
     cockpit.file(dir + "/blah").read()
             .done(function(resp) {
@@ -31,7 +31,7 @@ QUnit.test("read non-existent", function (assert) {
 });
 
 QUnit.test("parse read", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(2);
     cockpit.file(dir + "/foo.json", { syntax: JSON }).read()
             .done(function(resp) {
@@ -44,7 +44,7 @@ QUnit.test("parse read", function (assert) {
 });
 
 QUnit.test("parse read error", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(2);
     cockpit.file(dir + "/foo.bin", { syntax: JSON }).read()
             .fail(function(error) {
@@ -57,7 +57,7 @@ QUnit.test("parse read error", function (assert) {
 });
 
 QUnit.test("binary read", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(2);
     cockpit.file(dir + "/foo.bin", { binary: true }).read()
             .done(function(resp) {
@@ -70,7 +70,7 @@ QUnit.test("binary read", function (assert) {
 });
 
 QUnit.test("read non-regular", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(2);
     cockpit.file(dir, { binary: true }).read()
             .fail(function(error) {
@@ -83,7 +83,7 @@ QUnit.test("read non-regular", function (assert) {
 });
 
 QUnit.test("read large", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(2);
     cockpit.file(dir + "/large.bin", { binary: true }).read()
             .done(function(resp) {
@@ -96,7 +96,7 @@ QUnit.test("read large", function (assert) {
 });
 
 QUnit.test("read too large", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(2);
     cockpit.file(dir + "/large.bin", { binary: true, max_read_size: 8 * 1024 }).read()
             .fail(function(error) {
@@ -110,7 +110,7 @@ QUnit.test("read too large", function (assert) {
 
 /* regression: passing 'binary: false' made cockpit-ws close the whole connection */
 QUnit.test("binary false", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(1);
     cockpit.file(dir + "/foo.bin", { binary: false }).read()
             .done(function() {
@@ -120,7 +120,7 @@ QUnit.test("binary false", function (assert) {
 });
 
 QUnit.test("simple replace", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(2);
     cockpit.file(dir + "/bar").replace("4321\n")
             .always(function() {
@@ -134,7 +134,7 @@ QUnit.test("simple replace", function (assert) {
 });
 
 QUnit.test("stringify replace", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(2);
     cockpit.file(dir + "/bar", { syntax: JSON }).replace({ foo: 4321 })
             .always(function() {
@@ -148,7 +148,7 @@ QUnit.test("stringify replace", function (assert) {
 });
 
 QUnit.test("stringify replace error", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(2);
     var cycle = { };
     cycle.me = cycle;
@@ -163,7 +163,7 @@ QUnit.test("stringify replace error", function (assert) {
 });
 
 QUnit.test("binary replace", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(2);
     cockpit.file(dir + "/bar", { binary: true }).replace(new Uint8Array([3, 2, 1, 0]))
             .always(function() {
@@ -177,7 +177,7 @@ QUnit.test("binary replace", function (assert) {
 });
 
 QUnit.test("replace large", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(3);
     var str = new Array(23 * 1023).join('abcdef12345');
     cockpit.file(dir + "/large").replace(str)
@@ -193,7 +193,7 @@ QUnit.test("replace large", function (assert) {
 });
 
 QUnit.test("binary replace large", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(4);
     var data = new Uint8Array(249 * 1023);
     var i;
@@ -223,7 +223,7 @@ QUnit.test("binary replace large", function (assert) {
 });
 
 QUnit.test("remove", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(3);
     cockpit.spawn([ "bash", "-c", "test -f " + dir + "/bar && echo exists" ])
             .done(function (res) {
@@ -241,7 +241,7 @@ QUnit.test("remove", function (assert) {
 });
 
 QUnit.test("abort replace", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(2);
 
     var file = cockpit.file(dir + "/bar");
@@ -267,7 +267,7 @@ QUnit.test("abort replace", function (assert) {
 });
 
 QUnit.test("replace with tag", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     var file = cockpit.file(dir + "/barfoo");
 
     file.read()
@@ -300,7 +300,7 @@ QUnit.test("replace with tag", function (assert) {
 });
 
 QUnit.test("modify", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(7);
 
     var file = cockpit.file(dir + "/quux");
@@ -337,7 +337,7 @@ QUnit.test("modify", function (assert) {
 });
 
 QUnit.test("modify with conflict", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(8);
 
     var file = cockpit.file(dir + "/baz");
@@ -380,7 +380,7 @@ QUnit.test("modify with conflict", function (assert) {
 });
 
 QUnit.test("watching", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(3);
 
     var file = cockpit.file(dir + "/foobar");
@@ -404,7 +404,7 @@ QUnit.test("watching", function (assert) {
 });
 
 QUnit.test("syntax watching", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(3);
 
     var file = cockpit.file(dir + "/foobar.json", { syntax: JSON });
@@ -429,7 +429,7 @@ QUnit.test("syntax watching", function (assert) {
 });
 
 QUnit.test("closing", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(2);
 
     var file = cockpit.file(dir + "/foobarbaz");
@@ -466,7 +466,7 @@ QUnit.test("closing", function (assert) {
 });
 
 QUnit.test("channel options", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(1);
     cockpit.file(dir + "/foo", { binary: true }).read()
             .done(function(data) {
@@ -478,7 +478,7 @@ QUnit.test("channel options", function (assert) {
 });
 
 QUnit.test("remove testdir", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(1);
     cockpit.spawn([ "rm", "-rf", dir ])
             .always(function () {

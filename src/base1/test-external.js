@@ -1,7 +1,7 @@
 /* global cockpit, QUnit, WebSocket:true, XMLHttpRequest */
 
 QUnit.test("external get", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(4);
 
     /* The query string used to open the channel */
@@ -26,7 +26,7 @@ QUnit.test("external get", function (assert) {
 });
 
 QUnit.test("external headers", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(3);
 
     var query = window.btoa(JSON.stringify({
@@ -53,7 +53,7 @@ QUnit.test("external headers", function (assert) {
 });
 
 QUnit.test("external invalid", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(1);
 
     var req = new XMLHttpRequest();
@@ -68,7 +68,7 @@ QUnit.test("external invalid", function (assert) {
 });
 
 QUnit.test("external no token", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(1);
 
     /* The query string used to open the channel */
@@ -90,7 +90,7 @@ QUnit.test("external no token", function (assert) {
 });
 
 QUnit.test("external websocket", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(3);
 
     var query = window.btoa(JSON.stringify({

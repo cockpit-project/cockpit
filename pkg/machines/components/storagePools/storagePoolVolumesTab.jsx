@@ -45,9 +45,9 @@ export class StoragePoolVolumesTab extends React.Component {
     }
 
     selectedChanged(volumeName, isSelected) {
-        let selected = [...this.state.selected];
+        const selected = [...this.state.selected];
         if (!isSelected) {
-            let index = selected.indexOf(volumeName);
+            const index = selected.indexOf(volumeName);
             if (index !== -1)
                 selected.splice(index, 1);
         } else
@@ -103,7 +103,7 @@ export class StoragePoolVolumesTab extends React.Component {
                         columns.push(
                             { name: (<div id={`${storagePoolIdPrefix}-volume-${volume.name}-size`}>{`${allocation} / ${capacity} GiB`}</div>), }
                         );
-                        let selectCallback = this.selectedChanged.bind(this, volume.name);
+                        const selectCallback = this.selectedChanged.bind(this, volume.name);
 
                         return (
                             <ListingRow addCheckbox

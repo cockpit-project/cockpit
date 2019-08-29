@@ -26,7 +26,7 @@ import cockpit from "cockpit";
 const _ = cockpit.gettext;
 
 const InfoRecord = ({ id, descr, value, descrClass, valueClass, tooltip }) => {
-    let labelClass = cockpit.format(_("control-label $0"), descrClass || 'top');
+    const labelClass = cockpit.format(_("control-label $0"), descrClass || 'top');
     let infoContent;
 
     if (tooltip) {

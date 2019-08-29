@@ -113,7 +113,7 @@ function initFirewalldDbus() {
 }
 
 firewalld_service.addEventListener('changed', () => {
-    let installed = !!firewalld_service.exists;
+    const installed = !!firewalld_service.exists;
 
     /* HACK: cockpit.dbus() remains dead for non-activatable names, so reinitialize it if the service gets enabled and started
      * See https://github.com/cockpit-project/cockpit/pull/9125 */
@@ -156,8 +156,8 @@ function getServices() {
                                    'getServices', [z])
                 .then(reply => fetchServiceInfos(reply[0]))
                 .then(services => {
-                    let promises = [];
-                    for (let s of services) {
+                    const promises = [];
+                    for (const s of services) {
                         firewall.enabledServices.add(s.id);
                         if (s.includes.length)
                             promises.push(fetchServiceInfos(s.includes));
@@ -223,7 +223,7 @@ function fetchServiceInfos(services) {
          * [[]]. To prevent an array with 'undefined' as only element from
          * returning, explicitly return an empty array.
          */
-        let result = Array.prototype.slice.call(arguments);
+        const result = Array.prototype.slice.call(arguments);
         if (result.length === 1 && result[0].length === 0)
             return [];
         return result;
@@ -234,13 +234,13 @@ function fetchZoneInfos(zones) {
     // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
     // https://github.com/cockpit-project/cockpit/issues/10956
     // eslint-disable-next-line cockpit/no-cockpit-all
-    let promises = cockpit.all(zones.map(zone => {
+    const promises = cockpit.all(zones.map(zone => {
         return firewalld_dbus.call('/org/fedoraproject/FirewallD1',
                                    'org.fedoraproject.FirewallD1',
                                    'getZoneSettings', [zone])
                 .then(reply => {
                     const [, name, description, , target, services, ports, , , , interfaces, source] = reply[0];
-                    let info = {
+                    const info = {
                         id: zone,
                         name: name,
                         description: description,
@@ -326,7 +326,7 @@ firewall.removeService = (zone, service) => {
  * It will also reload firewalld and enable the new service.
  */
 firewall.createService = (service, name, ports, zones) => {
-    let subscription = firewalld_dbus.subscribe({
+    const subscription = firewalld_dbus.subscribe({
         interface: 'org.fedoraproject.FirewallD1',
         path: '/org/fedoraproject/FirewallD1',
         member: 'Reloaded'
@@ -369,7 +369,7 @@ firewall.addServices = (zones, services) => {
     // eslint-disable-next-line cockpit/no-cockpit-all
     return cockpit.all(zones.map(z => services.map(s => firewall.addService(z, s))))
             .then(function() {
-                let result = Array.prototype.slice.call(arguments);
+                const result = Array.prototype.slice.call(arguments);
                 if (result.length === 1 && result[0].length === 0)
                     return [];
                 return result;
@@ -382,7 +382,7 @@ firewall.removeServiceFromZones = (zones, service) => {
     // eslint-disable-next-line cockpit/no-cockpit-all
     return cockpit.all(zones.map(z => firewall.removeService(z, service)))
             .then(function() {
-                let result = Array.prototype.slice.call(arguments);
+                const result = Array.prototype.slice.call(arguments);
                 if (result.length === 1 && result[0].length === 0)
                     return [];
                 return result;
@@ -406,7 +406,7 @@ firewall.activateZone = (zone, interfaces, sources) => {
     p = p.then(path => {
         /* Once this signal is received, it's safe to actually emit the changed
          * signal and thus update the UI */
-        let subscription = firewalld_dbus.subscribe({
+        const subscription = firewalld_dbus.subscribe({
             interface: 'org.fedoraproject.FirewallD1.config.zone',
             path: path[0],
             member: 'Updated'
@@ -433,7 +433,7 @@ firewall.activateZone = (zone, interfaces, sources) => {
  * A zone is considered deactivated when it has no interfaces or sources.
  */
 firewall.deactiveateZone = (zone) => {
-    let zoneObject = firewall.zones[zone];
+    const zoneObject = firewall.zones[zone];
     let promises = zoneObject.interfaces.map(i => firewalld_dbus.call('/org/fedoraproject/FirewallD1',
                                                                       'org.fedoraproject.FirewallD1.zone',
                                                                       'removeInterface', [zone, i]));
@@ -449,7 +449,7 @@ firewall.deactiveateZone = (zone) => {
     p = p.then(path => {
         /* Once this signal is received, it's safe to actually emit the changed
          * signal and thus update the UI */
-        let subscription = firewalld_dbus.subscribe({
+        const subscription = firewalld_dbus.subscribe({
             interface: 'org.fedoraproject.FirewallD1.config.zone',
             path: path[0],
             member: 'Updated'

@@ -232,7 +232,7 @@ QUnit.test("change options", function (assert) {
 });
 
 QUnit.test("test", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     window.location.hash = "#/hello";
 
     var triggered = false;
@@ -250,7 +250,7 @@ QUnit.test("test", function (assert) {
 });
 
 QUnit.test("test", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     window.location.hash = "#/hello";
 
     var location = cockpit.location;

@@ -293,7 +293,7 @@ class SELinuxStatus extends React.Component {
         else if (!configUnknown && this.props.selinuxStatus.enforcing !== this.props.selinuxStatus.configEnforcing)
             note = _("Setting deviates from the configured state and will revert on the next boot.");
 
-        let statusMsg = this.props.selinuxStatus.enforcing ? _("Enforcing") : _("Permissive");
+        const statusMsg = this.props.selinuxStatus.enforcing ? _("Enforcing") : _("Permissive");
 
         return (
             <div className="selinux-policy-ct">

@@ -62,7 +62,7 @@ export function injectMockUpdates(updates) {
 
     // source with many binaries
     for (let i = 1; i < 50; ++i) {
-        let name = `manypkgs${i}`;
+        const name = `manypkgs${i}`;
         updates[name + ";1-1"] = {
             name: name,
             version: "1-1",

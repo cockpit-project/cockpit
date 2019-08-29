@@ -137,8 +137,8 @@ QUnit.test("simple request", function (assert) {
 
     var peer = new MockPeer();
     $(peer).on("opened", function(event, channel, options) {
-        assert.deepEqual(channel.options["spawn"], ["/the/path", "arg1", "arg2"], "passed spawn correctly");
-        assert.equal(channel.options["host"], undefined, "had no host");
+        assert.deepEqual(channel.options.spawn, ["/the/path", "arg1", "arg2"], "passed spawn correctly");
+        assert.equal(channel.options.host, undefined, "had no host");
     });
     $(peer).on("recv", function(event, channel, payload) {
         assert.equal(payload, "input", "had input");
@@ -163,8 +163,8 @@ QUnit.test("string command", function (assert) {
 
     var peer = new MockPeer();
     $(peer).on("opened", function(event, channel, options) {
-        assert.deepEqual(channel.options["spawn"], ["/the/path"], "passed spawn correctly");
-        assert.equal(channel.options["host"], "hostname", "had host");
+        assert.deepEqual(channel.options.spawn, ["/the/path"], "passed spawn correctly");
+        assert.equal(channel.options.host, "hostname", "had host");
         done();
     });
 

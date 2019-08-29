@@ -393,7 +393,7 @@ $.fn.update_privileged = function update_privileged(perm, denied_message, placem
 
         var options = { html: true };
         if (placement)
-            options['placement'] = placement;
+            options.placement = placement;
 
         tooltip_element.tooltip(options);
 

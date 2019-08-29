@@ -210,7 +210,7 @@ function Machines() {
 
     self.add = function add(connection_string, color) {
         var values = self.split_connection_string(connection_string);
-        var host = values['address'];
+        var host = values.address;
 
         values = $.extend({
             visible: true,
@@ -221,7 +221,7 @@ function Machines() {
         if (machine)
             machine.on_disk = true;
 
-        return self.change(values['address'], values);
+        return self.change(values.address, values);
     };
 
     self.unused_color = function unused_color() {
@@ -522,7 +522,7 @@ function Loader(machines, session_only) {
 
         if (!machine.on_disk && machine.host_key) {
             options['temp-session'] = false; /* Compatibility option */
-            options['session'] = 'shared';
+            options.session = 'shared';
             options['host-key'] = machine.host_key;
         }
 
@@ -586,8 +586,8 @@ function Loader(machines, session_only) {
                              member: "PropertiesChanged" },
                            function (path, iface, mamber, args) {
                                if (args[0] == "cockpit.Packages") {
-                                   if (args[1]["Manifests"]) {
-                                       var manifests = JSON.parse(args[1]["Manifests"].v);
+                                   if (args[1].Manifests) {
+                                       var manifests = JSON.parse(args[1].Manifests.v);
                                        machines.overlay(host, { manifests: manifests });
                                    }
                                }

@@ -199,7 +199,7 @@ export class KdumpClient {
         // "path" applies to all targets
         // default to "/var/crash for "
         if ("path" in settings)
-            target.path = settings["path"].value;
+            target.path = settings.path.value;
         else if (["local", "ssh", "nfs", "mount"].indexOf(target.target) !== -1)
             target.path = "/var/crash";
         return target;

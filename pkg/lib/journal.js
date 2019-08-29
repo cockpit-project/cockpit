@@ -228,18 +228,18 @@ function output_funcs_for_box(box) {
 
     function render_line(ident, prio, message, count, time, entry) {
         var parts = {
-            cursor: entry["__CURSOR"],
+            cursor: entry.__CURSOR,
             time: time,
             message: message,
             service: ident
         };
         if (count > 1)
-            parts['count'] = count;
+            parts.count = count;
         if (ident === 'abrt-notification') {
-            parts['problem'] = true;
-            parts['service'] = entry['PROBLEM_BINARY'];
+            parts.problem = true;
+            parts.service = entry.PROBLEM_BINARY;
         } else if (prio < 4)
-            parts['warning'] = true;
+            parts.warning = true;
         return mustache.render(line_template, parts);
     }
 
@@ -390,16 +390,16 @@ journal.renderer = function renderer(funcs_or_box) {
             return str;
         }
 
-        var d = new Date(journal_entry["__REALTIME_TIMESTAMP"] / 1000);
+        var d = new Date(journal_entry.__REALTIME_TIMESTAMP / 1000);
         return {
-            cursor: journal_entry["__CURSOR"],
+            cursor: journal_entry.__CURSOR,
             full: journal_entry,
             day: month_names[d.getMonth()] + ' ' + d.getDate().toFixed() + ', ' + d.getFullYear().toFixed(),
             time: pad(d.getHours()) + ':' + pad(d.getMinutes()),
-            bootid: journal_entry["_BOOT_ID"],
-            ident: journal_entry["SYSLOG_IDENTIFIER"] || journal_entry["_COMM"],
-            prio: journal_entry["PRIORITY"],
-            message: journal.printable(journal_entry["MESSAGE"])
+            bootid: journal_entry._BOOT_ID,
+            ident: journal_entry.SYSLOG_IDENTIFIER || journal_entry._COMM,
+            prio: journal_entry.PRIORITY,
+            message: journal.printable(journal_entry.MESSAGE)
         };
     }
 

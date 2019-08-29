@@ -213,7 +213,7 @@ function parseMemoryInfo(text) {
                 props[match[1]] = match[2];
         });
 
-        locator = props["Locator"];
+        locator = props.Locator;
         if (locator)
             info[locator] = props;
     });
@@ -227,7 +227,7 @@ function processMemory(info) {
     for (const dimm in info) {
         const memoryProperty = info[dimm];
 
-        let memorySize = memoryProperty["Size"];
+        let memorySize = memoryProperty.Size;
         if (memorySize.includes("MB")) {
             const memorySizeValue = parseInt(memorySize, 10);
             memorySize = memorySizeValue / 1024 + " GB";
@@ -237,20 +237,20 @@ function processMemory(info) {
         if (!memoryTechnology || memoryTechnology == "<OUT OF SPEC>")
             memoryTechnology = _("Unknown");
 
-        let memoryRank = memoryProperty["Rank"];
+        let memoryRank = memoryProperty.Rank;
         if (memoryRank == 1)
             memoryRank = _("Single Rank");
         if (memoryRank == 2)
             memoryRank = _("Dual Rank");
 
         memoryArray.push({
-            locator: memoryProperty["Locator"],
+            locator: memoryProperty.Locator,
             technology: memoryTechnology,
-            type: memoryProperty["Type"],
+            type: memoryProperty.Type,
             size: memorySize,
             state: memoryProperty["Total Width"] == "Unknown" ? _("Absent") : _("Present"),
             rank: memoryRank,
-            speed: memoryProperty["Speed"]
+            speed: memoryProperty.Speed
         });
     }
 

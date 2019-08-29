@@ -189,8 +189,8 @@ QUnit.test("external change", function (assert) {
 
     assert.notStrictEqual(cockpit.location, location, "cockpit.location is different object");
     assert.deepEqual(cockpit.location.path, [ "a", "b", "c" ], "path is correct");
-    assert.strictEqual(cockpit.location.options["x"], "1", "option x is correct");
-    assert.strictEqual(cockpit.location.options["y"], "2", "option y is correct");
+    assert.strictEqual(cockpit.location.options.x, "1", "option x is correct");
+    assert.strictEqual(cockpit.location.options.y, "2", "option y is correct");
 });
 
 QUnit.test("internal change", function (assert) {

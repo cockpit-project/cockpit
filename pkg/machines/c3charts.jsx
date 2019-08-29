@@ -32,17 +32,17 @@ class DonutChart extends React.Component {
 
     prepareProps(props) {
         const state = {
-            data: props['data'] ? props['data'] : {},
-            size: props['size'] ? props['size'] : { width: 150, height: 100 },
-            width: props['width'] ? props['width'] : 10,
+            data: props.data ? props.data : {},
+            size: props.size ? props.size : { width: 150, height: 100 },
+            width: props.width ? props.width : 10,
 
-            tooltipText: props['tooltipText'],
-            primaryTitle: props['primaryTitle'],
-            secondaryTitle: props['secondaryTitle'],
+            tooltipText: props.tooltipText,
+            primaryTitle: props.primaryTitle,
+            secondaryTitle: props.secondaryTitle,
 
-            caption: props['caption'] ? props['caption'] : ''
+            caption: props.caption ? props.caption : ''
         };
-        state.data['type'] = 'donut';
+        state.data.type = 'donut';
         return state;
     }
 
@@ -55,7 +55,7 @@ class DonutChart extends React.Component {
     }
 
     shouldComponentUpdate(nextProps) {
-        if (this.props['data']) {
+        if (this.props.data) {
             const result = JSON.stringify(this.props.data.columns) !== JSON.stringify(nextProps.data.columns);
             logDebug(`shouldComponentUpdate() ${result}\nold: ${JSON.stringify(this.props.data.columns)}\nnew: ${JSON.stringify(nextProps.data.columns)}`);
             return result;
@@ -91,7 +91,7 @@ class DonutChart extends React.Component {
 
         return (<div>
             <div id={this.domId} />
-            <div className='usage-donut-caption'>{this.props['caption']}</div>
+            <div className='usage-donut-caption'>{this.props.caption}</div>
         </div>);
     }
 }

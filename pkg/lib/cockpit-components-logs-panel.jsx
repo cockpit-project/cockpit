@@ -40,13 +40,13 @@ class JournalOutput {
 
         if (ident === 'abrt-notification') {
             problem = true;
-            ident = entry['PROBLEM_BINARY'];
+            ident = entry.PROBLEM_BINARY;
         } else if (prio < 4) {
             warning = true;
         }
 
         return (
-            <div className="cockpit-logline" role="row" key={entry["__MONOTONIC_TIMESTAMP"]}>
+            <div className="cockpit-logline" role="row" key={entry.__MONOTONIC_TIMESTAMP}>
                 <div className="cockpit-log-warning" role="cell">
                     { warning
                         ? <i className="fa fa-exclamation-triangle" />

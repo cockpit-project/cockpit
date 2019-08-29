@@ -157,7 +157,7 @@ function MockWebSocket(url, protocol) {
             }
         };
         if (force_default_host)
-            init["host"] = force_default_host;
+            init.host = force_default_host;
         force_default_host = null;
         ws.onmessage({ data: "\n" + JSON.stringify(init) });
     }, 5);

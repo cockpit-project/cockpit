@@ -118,11 +118,11 @@ function validateParams(vmParams) {
     const validationFailed = {};
 
     if (isEmpty(vmParams.vmName.trim())) {
-        validationFailed['vmName'] = _("Name should not be empty");
+        validationFailed.vmName = _("Name should not be empty");
     }
 
     if (vmParams.os == undefined)
-        validationFailed['os'] = _("You need to select the most closely matching Operating System");
+        validationFailed.os = _("You need to select the most closely matching Operating System");
 
     const source = vmParams.source ? vmParams.source.trim() : null;
 
@@ -133,7 +133,7 @@ function validateParams(vmParams) {
         case LOCAL_INSTALL_MEDIA_SOURCE:
         case EXISTING_DISK_IMAGE_SOURCE:
             if (!vmParams.source.startsWith("/")) {
-                validationFailed['source'] = _("Invalid filename");
+                validationFailed.source = _("Invalid filename");
             }
             break;
         case URL_SOURCE:
@@ -141,24 +141,24 @@ function validateParams(vmParams) {
             if (!vmParams.source.startsWith("http") &&
                 !vmParams.source.startsWith("ftp") &&
                 !vmParams.source.startsWith("nfs")) {
-                validationFailed['source'] = _("Source should start with http, ftp or nfs protocol");
+                validationFailed.source = _("Source should start with http, ftp or nfs protocol");
             }
             break;
         }
     } else {
-        validationFailed['source'] = _("Installation Source should not be empty");
+        validationFailed.source = _("Installation Source should not be empty");
     }
 
     if (vmParams.memorySize === 0) {
-        validationFailed['memory'] = _("Memory must not be 0");
+        validationFailed.memory = _("Memory must not be 0");
     } else {
         if (vmParams.os &&
-            vmParams.os['minimumResources']['ram'] &&
-            (convertToUnit(vmParams.memorySize, vmParams.memorySizeUnit, units.B) < vmParams.os['minimumResources']['ram'])) {
-            validationFailed['memory'] = (
+            vmParams.os.minimumResources.ram &&
+            (convertToUnit(vmParams.memorySize, vmParams.memorySizeUnit, units.B) < vmParams.os.minimumResources.ram)) {
+            validationFailed.memory = (
                 cockpit.format(
                     _("The selected Operating System has minimum memory requirement of $0 $1"),
-                    convertToUnit(vmParams.os['minimumResources']['ram'], units.B, vmParams.memorySizeUnit),
+                    convertToUnit(vmParams.os.minimumResources.ram, units.B, vmParams.memorySizeUnit),
                     vmParams.memorySizeUnit)
             );
         }
@@ -166,14 +166,14 @@ function validateParams(vmParams) {
 
     if (vmParams.storagePool === "NewVolume") {
         if (vmParams.storageSize === 0) {
-            validationFailed['storage'] = _("Storage size must not be 0");
+            validationFailed.storage = _("Storage size must not be 0");
         } else if (vmParams.os &&
-                   vmParams.os['minimumResources']['storage'] &&
-                   (convertToUnit(vmParams.storageSize, vmParams.storageSizeUnit, units.B) < vmParams.os['minimumResources']['storage'])) {
-            validationFailed['storage'] = (
+                   vmParams.os.minimumResources.storage &&
+                   (convertToUnit(vmParams.storageSize, vmParams.storageSizeUnit, units.B) < vmParams.os.minimumResources.storage)) {
+            validationFailed.storage = (
                 cockpit.format(
                     _("The selected Operating System has minimum storage size requirement of $0 $1"),
-                    convertToUnit(vmParams.os['minimumResources']['storage'], units.B, vmParams.storageSizeUnit),
+                    convertToUnit(vmParams.os.minimumResources.storage, units.B, vmParams.storageSizeUnit),
                     vmParams.storageSizeUnit)
             );
         }
@@ -631,12 +631,12 @@ class CreateVmModal extends React.Component {
         case 'os': {
             this.setState(prevState => { // to prevent asynchronous calls
                 const stateDelta = { [key]: value };
-                if (value && value['recommendedResources']['ram'])
-                    stateDelta.recommendedMemory = convertToUnit(value['recommendedResources']['ram'], units.B, prevState.memorySizeUnit);
+                if (value && value.recommendedResources.ram)
+                    stateDelta.recommendedMemory = convertToUnit(value.recommendedResources.ram, units.B, prevState.memorySizeUnit);
                 else
                     stateDelta.recommendedMemory = undefined;
-                if (value && value['recommendedResources']['storage'])
-                    stateDelta.recommendedStorage = convertToUnit(value['recommendedResources']['storage'], units.B, prevState.storageSizeUnit);
+                if (value && value.recommendedResources.storage)
+                    stateDelta.recommendedStorage = convertToUnit(value.recommendedResources.storage, units.B, prevState.storageSizeUnit);
                 else
                     stateDelta.recommendedStorage = undefined;
 

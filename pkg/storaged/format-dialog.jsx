@@ -151,11 +151,11 @@ export function initial_tab_options(client, block, for_fstab) {
 
     utils.get_parent_blocks(client, block.path).forEach(p => {
         if (utils.is_netdev(client, p)) {
-            options["_netdev"] = true;
+            options._netdev = true;
         }
         // HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1589541
         if (client.vdo_overlay.find_by_block(client.blocks[p])) {
-            options["_netdev"] = true;
+            options._netdev = true;
             options["x-systemd.device-timeout=0"] = true;
             if (for_fstab)
                 options["x-systemd.requires=vdo.service"] = true;

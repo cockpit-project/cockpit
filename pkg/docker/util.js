@@ -674,9 +674,9 @@ util.find_container_log = function find_container_log(client, entry, resultCallb
                         })
                         .done(function (elem_result) {
                             if ('container_id' in elem_result[0]) {
-                                var problem_id = sem_result[0]['ID'].v;
+                                var problem_id = sem_result[0].ID.v;
                                 // Wait for a while, until ABRT processes the problem and writes it into journal
-                                window.setTimeout(util.problem_log, 2000, 0, problem_id, elem_result[0]['container_id'].v, resultCallback);
+                                window.setTimeout(util.problem_log, 2000, 0, problem_id, elem_result[0].container_id.v, resultCallback);
                             }
                         });
             });
@@ -693,12 +693,12 @@ util.problem_log = function problem_log (poll_count, problem_id, c_id, resultCal
             .stream(function(entries) {
                 log_found = true;
                 // Only first entry is enough, since others are only previous occurrences
-                url = cockpit.location.encode(entries[0]['__CURSOR']);
+                url = cockpit.location.encode(entries[0].__CURSOR);
                 url = "/system/logs#" + url;
-                if (entries[0]['PROBLEM_REASON'])
-                    message = entries[0]['PROBLEM_REASON'];
+                if (entries[0].PROBLEM_REASON)
+                    message = entries[0].PROBLEM_REASON;
                 else
-                    message = entries[0]['MESSAGE'];
+                    message = entries[0].MESSAGE;
 
                 resultCallback(c_id, url, message);
             })

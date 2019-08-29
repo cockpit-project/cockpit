@@ -113,7 +113,7 @@ export class ApplicationList extends React.Component {
         comps.sort((a, b) => a.name.localeCompare(b.name));
 
         function refresh() {
-            var config = cockpit.manifests["apps"].config || { };
+            var config = cockpit.manifests.apps.config || { };
             PackageKit.refresh(self.props.metainfo_db.origin_files,
                                config.appstream_config_packages || [ ],
                                config.appstream_data_packages || [ ],

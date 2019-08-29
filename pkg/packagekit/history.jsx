@@ -67,7 +67,7 @@ export class History extends React.Component {
 
         for (let i = 0; i < this.props.packagekit.length; ++i) {
             const packages = Object.keys(this.props.packagekit[i]).filter(i => i != "_time");
-            const time = moment(this.props.packagekit[i]["_time"]);
+            const time = moment(this.props.packagekit[i]._time);
             packages.sort();
 
             if (prevTime && (time - prevTime) <= 600000 /* 10 mins */ &&

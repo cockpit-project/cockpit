@@ -206,7 +206,7 @@ function vms(state, action) {
         }
 
         let updatedVm;
-        if (action.vm['actualTimeInMs'] < 0) { // clear the usage data (i.e. VM went down)
+        if (action.vm.actualTimeInMs < 0) { // clear the usage data (i.e. VM went down)
             logDebug(`Clearing usage data for vm '${action.vm.name}'`);
             updatedVm = Object.assign(indexedVm.vmCopy, action.vm);
             clearUsageData(updatedVm);
@@ -364,16 +364,16 @@ function ui(state, action) {
 }
 
 function clearUsageData(updatedVm) {
-    updatedVm['actualTimeInMs'] = undefined;
-    updatedVm['cpuTime'] = undefined;
-    updatedVm['cpuUsage'] = undefined;
+    updatedVm.actualTimeInMs = undefined;
+    updatedVm.cpuTime = undefined;
+    updatedVm.cpuUsage = undefined;
 
-    updatedVm['rssMemory'] = undefined;
+    updatedVm.rssMemory = undefined;
 }
 
 function timeSampleUsageData(newVmRecord, previousVmRecord) {
-    if (newVmRecord['actualTimeInMs']) { // new usage data are provided
-        if (previousVmRecord['actualTimeInMs']) { // diff can be computed
+    if (newVmRecord.actualTimeInMs) { // new usage data are provided
+        if (previousVmRecord.actualTimeInMs) { // diff can be computed
             const timeDiff = (newVmRecord.actualTimeInMs - previousVmRecord.actualTimeInMs) * 1000000; // in nanosecs
             if (timeDiff <= 0) {
                 logDebug(`-- timeSampleUsageData(): no time difference`);

@@ -34,8 +34,8 @@ import { find_warnings } from "./warnings.jsx";
 
 /* HACK: https://github.com/storaged-project/storaged/pull/68 */
 var hacks = { };
-if (cockpit.manifests["storage"] && cockpit.manifests["storage"]["hacks"])
-    hacks = cockpit.manifests["storage"]["hacks"];
+if (cockpit.manifests.storage && cockpit.manifests.storage.hacks)
+    hacks = cockpit.manifests.storage.hacks;
 
 var client = { };
 

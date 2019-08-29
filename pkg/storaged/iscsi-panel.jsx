@@ -193,8 +193,8 @@ export class IscsiPanel extends React.Component {
         function cmp_session(path_a, path_b) {
             var a = client.iscsi_sessions[path_a];
             var b = client.iscsi_sessions[path_b];
-            var a_name = a.data["target_name"] || "";
-            var b_name = b.data["target_name"] || "";
+            var a_name = a.data.target_name || "";
+            var b_name = b.data.target_name || "";
 
             return a_name.localeCompare(b_name);
         }
@@ -218,9 +218,9 @@ export class IscsiPanel extends React.Component {
             return (
                 <OverviewSidePanelRow client={client}
                                       kind="array"
-                                      name={session.data["target_name"] || ""}
-                                      detail={session.data["persistent_address"] + ":" +
-                                              session.data["persistent_port"]}
+                                      name={session.data.target_name || ""}
+                                      detail={session.data.persistent_address + ":" +
+                                              session.data.persistent_port}
                                       actions={actions}
                                       key={path} />
             );

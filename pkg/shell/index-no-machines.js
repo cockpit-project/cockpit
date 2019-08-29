@@ -23,7 +23,7 @@ import cockpit from "cockpit";
 import * as indexes from "./indexes";
 
 var default_title = "Cockpit";
-var manifest = cockpit.manifests["shell"] || { };
+var manifest = cockpit.manifests.shell || { };
 if (manifest.title)
     default_title = manifest.title;
 
@@ -39,5 +39,5 @@ indexes.simple_index({
 var login_data = cockpit.localStorage.getItem('login-data', true);
 if (login_data) {
     var data = JSON.parse(login_data);
-    $("#content-user-name").text(data["displayName"]);
+    $("#content-user-name").text(data.displayName);
 }

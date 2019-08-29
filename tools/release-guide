@@ -57,7 +57,7 @@ parse_version()
 
 check()
 {
-    "$(dirname $0)/check-git-rw" git@github.com "$REPO"
+    check-git-rw git@github.com "$REPO"
 }
 
 prepare()

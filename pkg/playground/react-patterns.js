@@ -75,36 +75,36 @@ var onDialogDone = function(success) {
 
 var onStandardDemoClicked = function(staticError) {
     var dialogProps = {
-        'title': "This shouldn't be seen",
-        'body': React.createElement(PatternDialogBody, { 'clickNested': onStandardDemoClicked }),
+        title: "This shouldn't be seen",
+        body: React.createElement(PatternDialogBody, { clickNested: onStandardDemoClicked }),
     };
     // also test modifying properties in subsequent render calls
     var footerProps = {
-        'actions': [
-            { 'clicked': onDialogStandardClicked.bind(null, 'standard action'),
-              'caption': "OK",
-              'style': 'primary',
+        actions: [
+            { clicked: onDialogStandardClicked.bind(null, 'standard action'),
+              caption: "OK",
+              style: 'primary',
             },
-            { 'clicked': onDialogStandardClicked.bind(null, 'dangerous action'),
-              'caption': "Danger",
-              'style': 'danger',
+            { clicked: onDialogStandardClicked.bind(null, 'dangerous action'),
+              caption: "Danger",
+              style: 'danger',
             },
-            { 'clicked': onDialogStandardClicked.bind(null, 'steps'),
-              'caption': "Wait",
-              'style': 'primary',
+            { clicked: onDialogStandardClicked.bind(null, 'steps'),
+              caption: "Wait",
+              style: 'primary',
             },
         ],
-        'static_error': staticError,
-        'dialog_done': onDialogDone,
+        static_error: staticError,
+        dialog_done: onDialogDone,
     };
     var dialogObj = show_modal_dialog(dialogProps, footerProps);
     // if this failed, exit (trying to create a nested dialog)
     if (!dialogObj)
         return;
     footerProps.actions.push(
-        { 'clicked': onDialogStandardClicked.bind(null, 'reject'),
-          'caption': "Error",
-          'style': 'primary',
+        { clicked: onDialogStandardClicked.bind(null, 'reject'),
+          caption: "Error",
+          style: 'primary',
         });
     dialogObj.setFooterProps(footerProps);
     dialogProps.title = "Example React Dialog";

@@ -633,7 +633,7 @@ export function parseNetDumpxml(netXml) {
     const bridgeElem = netElem.getElementsByTagName("bridge")[0];
 
     if (bridgeElem)
-        retObj.bridge = { "name": bridgeElem.getAttribute("name") };
+        retObj.bridge = { name: bridgeElem.getAttribute("name") };
 
     const ipElems = netElem.getElementsByTagName("ip");
     retObj.ip = parseNetDumpxmlForIp(ipElems);
@@ -645,9 +645,9 @@ export function parseNetDumpxml(netXml) {
     if (forwardElem) {
         const ifaceElem = forwardElem.getElementsByTagName("interface")[0];
         if (ifaceElem)
-            retObj.interface = { "interface": { "dev": ifaceElem.getAttribute("dev") } };
+            retObj.interface = { interface: { dev: ifaceElem.getAttribute("dev") } };
 
-        retObj.forward = { "mode": (forwardElem.getAttribute("mode") || "nat") };
+        retObj.forward = { mode: (forwardElem.getAttribute("mode") || "nat") };
     }
 
     return retObj;
@@ -686,7 +686,7 @@ function parseNetDumpxmlForIp(ipElems) {
 
             const bootpElem = dhcpElem.getElementsByTagName("bootp")[0];
             if (bootpElem)
-                bootp = { 'file': bootpElem.getAttribute("file") };
+                bootp = { file: bootpElem.getAttribute("file") };
         }
 
         const tmp = {
@@ -787,7 +787,7 @@ export function parseStoragePoolDumpxml(connectionName, storagePoolXml, id_overw
     // Fetch path property if target is contained for this type of pool
     if (['dir', 'fs', 'netfs', 'logical', 'disk', 'iscsi', 'scsi', 'mpath', 'zfs'].indexOf(result.type) > -1) {
         const targetElem = storagePoolElem.getElementsByTagName('target')[0];
-        result['target'] = { 'path': getSingleOptionalElem(targetElem, 'path').childNodes[0].nodeValue };
+        result['target'] = { path: getSingleOptionalElem(targetElem, 'path').childNodes[0].nodeValue };
     }
     const sourceElem = storagePoolElem.getElementsByTagName('source')[0];
     if (sourceElem) {
@@ -795,15 +795,15 @@ export function parseStoragePoolDumpxml(connectionName, storagePoolXml, id_overw
 
         const hostElem = sourceElem.getElementsByTagName('host');
         if (hostElem[0])
-            result['source']['host'] = { 'name': hostElem[0].getAttribute('name') };
+            result['source']['host'] = { name: hostElem[0].getAttribute('name') };
 
         const deviceElem = sourceElem.getElementsByTagName('device');
         if (deviceElem[0])
-            result['source']['device'] = { 'path': deviceElem[0].getAttribute('path') };
+            result['source']['device'] = { path: deviceElem[0].getAttribute('path') };
 
         const dirElem = sourceElem.getElementsByTagName('dir');
         if (dirElem[0])
-            result['source']['dir'] = { 'path': dirElem[0].getAttribute('path') };
+            result['source']['dir'] = { path: dirElem[0].getAttribute('path') };
 
         const sourceNameElem = sourceElem.getElementsByTagName('name');
         if (sourceNameElem[0])
@@ -811,7 +811,7 @@ export function parseStoragePoolDumpxml(connectionName, storagePoolXml, id_overw
 
         const formatElem = sourceElem.getElementsByTagName('format');
         if (formatElem[0])
-            result['source']['format'] = { 'type': formatElem[0].getAttribute('type') };
+            result['source']['format'] = { type: formatElem[0].getAttribute('type') };
     }
 
     return result;

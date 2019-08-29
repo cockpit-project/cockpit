@@ -97,7 +97,7 @@ export class VDOsPanel extends React.Component {
                           ],
                           update: (dlg, vals, trigger) => {
                               if (trigger == "space") {
-                                  dlg.set_values({ "lsize": vals.space.size });
+                                  dlg.set_values({ lsize: vals.space.size });
                                   dlg.set_options("lsize", { max: 3 * vals.space.size });
                               }
                           },

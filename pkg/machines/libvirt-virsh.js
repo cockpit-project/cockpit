@@ -545,7 +545,7 @@ function parseDomstatsForDisks(domstatsLines) {
 
 function parseNodeMemStats(nodememstats) {
     const lines = parseLines(nodememstats);
-    return { 'total': getValueFromLine(lines, 'total  :').split(' ')[0] };
+    return { total: getValueFromLine(lines, 'total  :').split(' ')[0] };
 }
 
 function parseStoragePoolInfo(poolInfo) {
@@ -694,7 +694,7 @@ function startEventMonitor(dispatch, connectionName, libvirtServiceName) {
 
     // set up event monitor for that connection; force PTY as otherwise the buffering
     // will not show every line immediately
-    cockpit.spawn(['virsh'].concat(VMS_CONFIG.Virsh.connections[connectionName].params).concat(['-r', 'event', '--all', '--loop']), { 'err': 'message', 'pty': true })
+    cockpit.spawn(['virsh'].concat(VMS_CONFIG.Virsh.connections[connectionName].params).concat(['-r', 'event', '--all', '--loop']), { err: 'message', pty: true })
             .stream(data => {
                 if (data.startsWith("error: Disconnected from") || data.startsWith("error: internal error: client socket is closed")) {
                 // libvirt failed

@@ -36,14 +36,14 @@ const _ = cockpit.gettext;
 
 // "available" heading is built dynamically
 const STATE_HEADINGS = {
-    "loading": _("Loading available updates, please wait..."),
-    "locked": _("Some other program is currently using the package manager, please wait..."),
-    "refreshing": _("Refreshing package information"),
-    "uptodate": _("No updates pending"),
-    "applying": _("Applying updates"),
-    "updateSuccess": null,
-    "updateError": _("Applying updates failed"),
-    "loadError": _("Loading available updates failed"),
+    loading: _("Loading available updates, please wait..."),
+    locked: _("Some other program is currently using the package manager, please wait..."),
+    refreshing: _("Refreshing package information"),
+    uptodate: _("No updates pending"),
+    applying: _("Applying updates"),
+    updateSuccess: null,
+    updateError: _("Applying updates failed"),
+    loadError: _("Loading available updates failed"),
 };
 
 const PK_STATUS_STRINGS = {
@@ -653,7 +653,7 @@ class OsUpdates extends React.Component {
                     // data looks like:
                     // downloading\tbash-completion;1:2.6-1.fc26;noarch;updates-testing
                     // updating\tbash-completion;1:2.6-1.fc26;noarch;updates-testing
-                const pkgs = { "_time": Date.parse(timeSpec) };
+                const pkgs = { _time: Date.parse(timeSpec) };
                 let empty = true;
                 data.split("\n").forEach(line => {
                     const fields = line.trim().split("\t");

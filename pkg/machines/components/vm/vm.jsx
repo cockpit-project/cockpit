@@ -89,7 +89,7 @@ const Vm = ({ vm, config, hostDevices, storagePools, onStart, onInstall, onShutd
         extraClasses={extraClasses}
         rowId={`${vmId(vm.name)}`}
         columns={[
-            { name, 'header': true },
+            { name, header: true },
             rephraseUI('connections', vm.connectionName),
             stateIcon,
         ]}

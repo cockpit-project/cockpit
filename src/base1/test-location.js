@@ -145,7 +145,7 @@ QUnit.test("encode", function (assert) {
         ],
         [ "/p?value=one&value=two", {
             path: [ "p" ],
-            options: { "value": [ "one", "two" ] }
+            options: { value: [ "one", "two" ] }
         }]
     ];
 
@@ -206,7 +206,7 @@ QUnit.test("string change", function (assert) {
 
     assert.strictEqual(window.location.hash, "#/p/q/r?a=b", "hash is correct");
     assert.deepEqual(cockpit.location.path, [ "p", "q", "r" ], "path is correct");
-    assert.deepEqual(cockpit.location.options, { "a": "b" }, "options are empty");
+    assert.deepEqual(cockpit.location.options, { a: "b" }, "options are empty");
 });
 
 QUnit.test("string change", function (assert) {

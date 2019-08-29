@@ -128,7 +128,7 @@ export function ip4_from_text(text, empty_is_zero) {
 }
 
 var text_to_prefix_bits = {
-    "255": 8, "254": 7, "252": 6, "248": 5, "240": 4, "224": 3, "192": 2, "128": 1, "0": 0
+    255: 8, 254: 7, 252: 6, 248: 5, 240: 4, 224: 3, 192: 2, 128: 1, 0: 0
 };
 
 export function ip4_prefix_from_text(text) {

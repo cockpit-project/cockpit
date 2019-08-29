@@ -288,7 +288,7 @@ $(function() {
             if (!$('#expose-ports').prop('checked'))
                 return;
 
-            var exposed_ports = { 'container': [], 'host': [], 'protocol': [] };
+            var exposed_ports = { container: [], host: [], protocol: [] };
             /* gather all ports */
             $('#select-exposed-ports').children('form')
                     .each(function() {
@@ -616,7 +616,7 @@ $(function() {
                                 .toLowerCase();
 
                         if (map_from !== '' && map_to !== '') {
-                            port_bindings[map_from + '/' + map_protocol] = [ { "HostPort": map_to } ];
+                            port_bindings[map_from + '/' + map_protocol] = [ { HostPort: map_to } ];
                             exposed_ports[map_from + '/' + map_protocol] = { };
                         }
                     });
@@ -701,19 +701,19 @@ $(function() {
         }
 
         var options = {
-            "Cmd": util.unquote_cmdline(cmd),
-            "Image": img_name || image.Id,
-            "CpuShares": cpu_slider.value || 0,
-            "Tty": tty,
-            "ExposedPorts": exposed_ports,
-            "Env": claimed_envvars,
-            "HostConfig": {
-                "PortBindings": port_bindings,
-                "Binds": volume_bindings,
-                "Links": links,
-                "RestartPolicy": {
-                    "Name": $("#restart-policy-select > button span.pull-left").data('name'),
-                    "MaximumRetryCount": parseInt($("#restart-policy-retries").val(), 10) || 0
+            Cmd: util.unquote_cmdline(cmd),
+            Image: img_name || image.Id,
+            CpuShares: cpu_slider.value || 0,
+            Tty: tty,
+            ExposedPorts: exposed_ports,
+            Env: claimed_envvars,
+            HostConfig: {
+                PortBindings: port_bindings,
+                Binds: volume_bindings,
+                Links: links,
+                RestartPolicy: {
+                    Name: $("#restart-policy-select > button span.pull-left").data('name'),
+                    MaximumRetryCount: parseInt($("#restart-policy-retries").val(), 10) || 0
                 }
             }
         };
@@ -728,11 +728,11 @@ $(function() {
 
         if (tty) {
             $.extend(options, {
-                "AttachStderr": true,
-                "AttachStdin": true,
-                "AttachStdout": true,
-                "OpenStdin": true,
-                "StdinOnce": true
+                AttachStderr: true,
+                AttachStdin: true,
+                AttachStdout: true,
+                OpenStdin: true,
+                StdinOnce: true
             });
         }
 

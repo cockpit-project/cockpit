@@ -98,10 +98,10 @@ export function showDialog (frames) {
     };
 
     dataStore.footerProps = {
-        'actions': [
-            { 'clicked': dataStore.closePage,
-              'caption': _("Close Selected Pages"),
-              'style': 'primary',
+        actions: [
+            { clicked: dataStore.closePage,
+              caption: _("Close Selected Pages"),
+              style: 'primary',
             }
         ],
     };

@@ -60,7 +60,7 @@ export class Network extends React.Component {
                 </span>
             </React.Fragment>);
         const cols = [
-            { name, 'header': true },
+            { name, header: true },
             device,
             rephraseUI('connections', network.connectionName),
             forwarding,

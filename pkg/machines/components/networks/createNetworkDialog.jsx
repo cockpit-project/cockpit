@@ -383,10 +383,10 @@ class CreateNetworkModal extends React.Component {
     onValueChanged(key, value) {
         if (key === "forwardMode") {
             if (this.state.ip !== "None" && (value === "bridge" || value === "vepa"))
-                this.setState({ "ip": "None" });
+                this.setState({ ip: "None" });
 
             if (this.state.ip === "None" && (value === "nat" || value === "open"))
-                this.setState({ "ip": "IPv4 only" });
+                this.setState({ ip: "IPv4 only" });
         }
 
         this.setState({ [key]: value });

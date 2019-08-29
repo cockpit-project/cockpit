@@ -375,8 +375,8 @@ function add_storage(client, drives, model) {
     //
     var docker_will_be_stopped = false;
 
-    show_modal_dialog({ 'title': _("Add Additional Storage"),
-                        'body': (
+    show_modal_dialog({ title: _("Add Additional Storage"),
+                        body: (
                             <div className="modal-body">
                                 <p>{_("All data on selected disks will be erased and disks will be added to the storage pool.")}</p>
                                 <table className="drive-list">
@@ -386,9 +386,9 @@ function add_storage(client, drives, model) {
                                 </table>
                             </div>),
     },
-                      { 'actions': [ { 'caption': _("Reformat and add disks"),
-                                       'clicked': add_drives,
-                                       'style': "danger" } ]
+                      { actions: [ { caption: _("Reformat and add disks"),
+                                     clicked: add_drives,
+                                     style: "danger" } ]
                       });
 
     function add_drives() {
@@ -402,11 +402,11 @@ function add_storage(client, drives, model) {
         // is currently using, and doesn't unexpectantly change it to
         // something else.
         //
-        var args = { "devs": devs, "driver": model.driver };
+        var args = { devs: devs, driver: model.driver };
 
         var process = python.spawn(cockpit_atomic_storage, [ "add", JSON.stringify(args) ],
-                                   { 'err': 'out',
-                                     'superuser': true })
+                                   { err: 'out',
+                                     superuser: true })
                 .done(function () {
                     if (docker_will_be_stopped) {
                         client.connect().done(function () {
@@ -438,22 +438,22 @@ function add_storage(client, drives, model) {
 }
 
 function reset_storage(client) {
-    show_modal_dialog({ 'title': _("Reset Storage Pool"),
-                        'body': (
+    show_modal_dialog({ title: _("Reset Storage Pool"),
+                        body: (
                             <div className="modal-body">
                                 <p>{_("Resetting the storage pool will erase all containers and release disks in the pool.")}</p>
                             </div>),
     },
-                      { 'actions': [ { 'caption': _("Erase containers and reset storage pool"),
-                                       'clicked': reset,
-                                       'style': "danger" } ]
+                      { actions: [ { caption: _("Erase containers and reset storage pool"),
+                                     clicked: reset,
+                                     style: "danger" } ]
                       });
     function reset() {
         var dfd = cockpit.defer();
         client.close();
         var process = python.spawn(cockpit_atomic_storage, ["reset-and-reduce"],
-                                   { 'err': 'out',
-                                     'superuser': true })
+                                   { err: 'out',
+                                     superuser: true })
                 .done(function () {
                     client.connect().done(dfd.resolve);
                 })

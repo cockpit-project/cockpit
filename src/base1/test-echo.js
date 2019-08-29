@@ -4,7 +4,7 @@ QUnit.test("basic", function (assert) {
     const done = assert.async();
     assert.expect(4);
 
-    var channel = cockpit.channel({ "payload": "echo" });
+    var channel = cockpit.channel({ payload: "echo" });
     var pass = 0;
 
     $(channel).on("control", function(ev, options) {
@@ -33,8 +33,8 @@ QUnit.test("binary empty", function (assert) {
     assert.expect(2);
 
     var channel = cockpit.channel({
-        "payload": "echo",
-        "binary": true
+        payload: "echo",
+        binary: true
     });
 
     $(channel).on("message", function(ev, payload) {
@@ -54,7 +54,7 @@ QUnit.test("binary", function (assert) {
     const done = assert.async();
     assert.expect(3);
 
-    var channel = cockpit.channel({ "payload": "echo", "binary": true });
+    var channel = cockpit.channel({ payload: "echo", binary: true });
 
     $(channel).on("message", function(ev, payload) {
         if (window.Uint8Array)
@@ -93,13 +93,13 @@ QUnit.test("fence", function (assert) {
     const done = assert.async();
     assert.expect(2);
 
-    var before = cockpit.channel({ "payload": "echo" });
+    var before = cockpit.channel({ payload: "echo" });
     before.addEventListener("message", onMessage);
 
-    var fence = cockpit.channel({ "payload": "echo", "group": "fence" });
+    var fence = cockpit.channel({ payload: "echo", group: "fence" });
     fence.addEventListener("message", onMessage);
 
-    var after = cockpit.channel({ "payload": "echo" });
+    var after = cockpit.channel({ payload: "echo" });
     after.addEventListener("message", onMessage);
 
     var received = [ ];

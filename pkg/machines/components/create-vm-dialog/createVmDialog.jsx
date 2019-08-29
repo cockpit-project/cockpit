@@ -363,7 +363,7 @@ class OSRow extends React.Component {
                             }
                         }}
                         filterBy={filterByFields}
-                        options={this.state.osEntries.map(os => ({ 'displayName': getOSStringRepresentation(os), 'shortId': os.shortId }))} />
+                        options={this.state.osEntries.map(os => ({ displayName: getOSStringRepresentation(os), shortId: os.shortId }))} />
                     { validationFailed.os && os == undefined &&
                     <HelpBlock>
                         <p className="text-danger">{validationFailed.os}</p>

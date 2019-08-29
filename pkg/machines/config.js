@@ -28,10 +28,10 @@ const VMS_CONFIG = {
     WaitForRetryInstallVm: 3 * 1000, // wait for vm to recover in the ui after failed install to show the error
     Virsh: {
         connections: {
-            'system': {
+            system: {
                 params: ['-c', 'qemu:///system']
             },
-            'session': {
+            session: {
                 params: ['-c', 'qemu:///session']
             }
         }

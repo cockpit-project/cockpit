@@ -390,7 +390,7 @@ function append_row(client, rows, level, key, name, desc, tabs, job_object) {
         <span className={"content-level-" + level}>
             {utils.format_size_and_text(desc.size, desc.text)}
         </span>,
-        { name: name, 'header': true },
+        { name: name, header: true },
         { name: last_column, tight: true },
     ];
 

@@ -39,10 +39,10 @@ const _ = cockpit.gettext;
 
 const NetworkModelRow = ({ idPrefix, onValueChanged, dialogValues, network, osTypeArch, osTypeMachine, isRunning }) => {
     const availableModelTypes = [
-        { 'name': 'virtio', 'desc': 'Linux, perf' },
-        { 'name': 'e1000e', 'desc': 'PCI' },
-        { 'name': 'e1000', 'desc': 'PCI, legacy' },
-        { 'name': 'rtl8139', 'desc': 'PCI, legacy' } ];
+        { name: 'virtio', desc: 'Linux, perf' },
+        { name: 'e1000e', desc: 'PCI' },
+        { name: 'e1000', desc: 'PCI, legacy' },
+        { name: 'rtl8139', desc: 'PCI, legacy' } ];
     const defaultModelType = dialogValues.networkModel;
 
     if (osTypeArch == 'ppc64' && osTypeMachine == 'pseries') {
@@ -82,15 +82,15 @@ const NetworkTypeAndSourceRow = ({ idPrefix, onValueChanged, dialogValues, netwo
 
     if (connectionName !== 'session')
         availableNetworkTypes = [
-            { 'name': 'network', 'desc': 'Virtual network' },
-            { 'name': 'bridge', 'desc': 'Bridge to LAN', 'disabled': true },
-            { 'name': 'ethernet', 'desc': 'Generic ethernet connection', 'disabled': true },
-            { 'name': 'direct', 'desc': 'Direct attachment' },
+            { name: 'network', desc: 'Virtual network' },
+            { name: 'bridge', desc: 'Bridge to LAN', disabled: true },
+            { name: 'ethernet', desc: 'Generic ethernet connection', disabled: true },
+            { name: 'direct', desc: 'Direct attachment' },
         ];
     else
         availableNetworkTypes = [
-            { 'name': 'network', 'desc': 'Virtual network' },
-            { 'name': 'user', 'desc': 'Userspace SLIRP stack' },
+            { name: 'network', desc: 'Virtual network' },
+            { name: 'user', desc: 'Userspace SLIRP stack' },
         ];
 
     // Bring to the first position in dropdown list the initial selection which reflects the current nic type
@@ -210,13 +210,13 @@ export class EditNICAction extends React.Component {
                     availableSources = getNetworkDevices(this.props.vm.connectionName, this.props.nodeDevices, this.props.interfaces);
 
                 if (availableSources.length > 0) {
-                    this.setState({ 'networkSource': availableSources[0] });
+                    this.setState({ networkSource: availableSources[0] });
                 } else {
-                    this.setState({ 'networkSource': undefined });
+                    this.setState({ networkSource: undefined });
                     saveDisabled = true;
                 }
             }
-            this.setState({ 'saveDisabled': saveDisabled });
+            this.setState({ saveDisabled: saveDisabled });
         }
     }
 

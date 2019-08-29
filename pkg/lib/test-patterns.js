@@ -22,8 +22,8 @@ import $ from "jquery";
 import "patterns";
 
 QUnit.test("update_privileged", function (assert) {
-    var p_true = { 'allowed' : true };
-    var p_false = { 'allowed' : false };
+    var p_true = { allowed : true };
+    var p_false = { allowed : false };
     var p_unknown = { };
 
     var b1 = $('<button class="btn" id="b1">');

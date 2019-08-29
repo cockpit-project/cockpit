@@ -3085,12 +3085,12 @@ PageNetworkInterface.prototype = {
                     });
 
             var add_btn =
-                $('<div>', { 'class': 'dropdown' }).append(
-                    $('<button>', { 'class': 'network-privileged btn btn-default btn-control-ct dropdown-toggle fa fa-plus',
+                $('<div>', { class: 'dropdown' }).append(
+                    $('<button>', { class: 'network-privileged btn btn-default btn-control-ct dropdown-toggle fa fa-plus',
                                     'data-toggle': 'dropdown'
                     }),
-                    $('<ul>', { 'class': 'dropdown-menu add-button',
-                                'role': 'menu'
+                    $('<ul>', { class: 'dropdown-menu add-button',
+                                role: 'menu'
                     })
                             .append(
                                 self.model.list_interfaces().map(function (iface) {
@@ -3465,7 +3465,7 @@ function render_slave_interface_choices(model, master) {
                         .css('margin', "0px")
                         .append(
                             $('<label>').append(
-                                $('<input>', { 'type': "checkbox",
+                                $('<input>', { type: "checkbox",
                                                'data-iface': iface.Name })
                                         .prop('checked', !!slave_connection_for_interface(master, iface)),
                                 $('<span>').text(iface.Name))));
@@ -3939,7 +3939,7 @@ PageNetworkTeamSettings.prototype = {
             downdelay_input.toggle(!toggle_condition);
             downdelay_input.prev().toggle(!toggle_condition);
 
-            config.link_watch = { "name": name };
+            config.link_watch = { name: name };
 
             if (name == "ethtool") {
                 config.link_watch.delay_up = updelay_input.val();

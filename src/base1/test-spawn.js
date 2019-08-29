@@ -32,7 +32,7 @@ function MockPeer() {
         if (event.isDefaultPrevented())
             return false;
         if (request.path == "/")
-            this.reply(channel, request, { "key": "value" });
+            this.reply(channel, request, { key: "value" });
     };
 
     /* send a message from peer back to channel */
@@ -168,7 +168,7 @@ QUnit.test("string command", function (assert) {
         done();
     });
 
-    cockpit.spawn("/the/path", { "host": "hostname" });
+    cockpit.spawn("/the/path", { host: "hostname" });
 });
 
 QUnit.test("channel options", function (assert) {
@@ -178,16 +178,16 @@ QUnit.test("channel options", function (assert) {
     var peer = new MockPeer();
     $(peer).on("opened", function(event, channel) {
         assert.deepEqual(channel.options, {
-            "spawn": ["/the/path", "arg"],
-            "host": "the-other-host.example.com",
+            spawn: ["/the/path", "arg"],
+            host: "the-other-host.example.com",
             "extra-option": "zerogjuggs",
-            "payload": "stream"
+            payload: "stream"
         }, "sent correctly");
         done();
     });
 
     /* Don't care about the result ... */
-    var options = { "extra-option": "zerogjuggs", "host": "the-other-host.example.com" };
+    var options = { "extra-option": "zerogjuggs", host: "the-other-host.example.com" };
     cockpit.spawn(["/the/path", "arg"], options);
 });
 
@@ -227,7 +227,7 @@ QUnit.test("with problem", function (assert) {
 
     var peer = new MockPeer();
     $(peer).on("opened", function(event, channel) {
-        peer.close(channel, { "problem": "not-found" });
+        peer.close(channel, { problem: "not-found" });
     });
 
     cockpit.spawn("/unused")

@@ -61,9 +61,9 @@ function jwk_b64_encode(bytes) {
 
 function compute_thp(jwk) {
     var REQUIRED_ATTRS = {
-        'RSA': ['kty', 'p', 'd', 'q', 'dp', 'dq', 'qi', 'oth'],
-        'EC':  ['kty', 'crv', 'x', 'y'],
-        'oct': ['kty', 'k'],
+        RSA: ['kty', 'p', 'd', 'q', 'dp', 'dq', 'qi', 'oth'],
+        EC:  ['kty', 'crv', 'x', 'y'],
+        oct: ['kty', 'k'],
     };
 
     if (!jwk.kty)

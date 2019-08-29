@@ -142,10 +142,10 @@ export function validate_lvm2_name(name) {
 
 export function validate_fsys_label(label, type) {
     var fs_label_max = {
-        "xfs":   12,
-        "ext4":  16,
-        "vfat":  11,
-        "ntfs": 128,
+        xfs:   12,
+        ext4:  16,
+        vfat:  11,
+        ntfs: 128,
     };
 
     var limit = fs_label_max[type.replace("luks+", "")];

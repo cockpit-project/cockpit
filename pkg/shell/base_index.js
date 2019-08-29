@@ -398,14 +398,14 @@ function Router(index) {
                 }
                 if (source) {
                     var reply = $.extend({ }, cockpit.transport.options,
-                                         { command: "init", "host": source.default_host, "channel-seed": source.channel_seed }
+                                         { command: "init", host: source.default_host, "channel-seed": source.channel_seed }
                     );
                     child.postMessage("\n" + JSON.stringify(reply), origin);
                     source.inited = true;
 
                     /* If this new frame is not the current one, tell it */
                     if (child.frameElement != index.current_frame())
-                        self.hint(child.frameElement.contentWindow, { "hidden": true });
+                        self.hint(child.frameElement.contentWindow, { hidden: true });
                 }
             } else if (control.command === "jump") {
                 perform_jump(child, control);
@@ -488,7 +488,7 @@ function Index() {
     self.router = new Router(self);
 
     /* Watchdog for disconnect */
-    var watchdog = cockpit.channel({ "payload": "null" });
+    var watchdog = cockpit.channel({ payload: "null" });
     $(watchdog).on("close", function(event, options) {
         var watchdog_problem = options.problem || "disconnected";
         console.warn("transport closed: " + watchdog_problem);
@@ -709,9 +709,9 @@ function Index() {
         if (frame !== undefined) {
             if (current_frame !== frame) {
                 if (current_frame && current_frame.contentWindow)
-                    self.router.hint(current_frame.contentWindow, { "hidden": true });
+                    self.router.hint(current_frame.contentWindow, { hidden: true });
                 if (frame && frame.contentWindow)
-                    self.router.hint(frame.contentWindow, { "hidden": false });
+                    self.router.hint(frame.contentWindow, { hidden: false });
             }
             current_frame = frame;
         }

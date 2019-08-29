@@ -65,13 +65,13 @@ export const units = {
 };
 
 const logUnitMap = {
-    '0': units.B,
-    '1': units.KiB,
-    '2': units.MiB,
-    '3': units.GiB,
-    '4': units.TiB,
-    '5': units.PiB,
-    '6': units.EiB,
+    0: units.B,
+    1: units.KiB,
+    2: units.MiB,
+    3: units.GiB,
+    4: units.TiB,
+    5: units.PiB,
+    6: units.EiB,
 };
 
 function getPowerOf1024(exponent) {
@@ -173,69 +173,69 @@ export function getTodayYearShifted(yearDifference) {
 }
 
 const transform = {
-    'autostart': {
-        'disable': _("disabled"),
-        'enable': _("enabled"),
+    autostart: {
+        disable: _("disabled"),
+        enable: _("enabled"),
         /* The following keys are used in LibvirtDBus provider */
         false: _("disabled"),
         true: _("enabled"),
     },
-    'connections': {
-        'system': _("System"),
-        'session': _("Session"),
+    connections: {
+        system: _("System"),
+        session: _("Session"),
     },
-    'vmStates': {
-        'running': _("running"),
-        'idle': _("idle"),
-        'paused': _("paused"),
-        'shutdown': _("shutdown"),
+    vmStates: {
+        running: _("running"),
+        idle: _("idle"),
+        paused: _("paused"),
+        shutdown: _("shutdown"),
         'shut off': _("shut off"),
-        'crashed': _("crashed"),
-        'dying': _("dying"),
-        'pmsuspended': _("suspended (PM)"),
+        crashed: _("crashed"),
+        dying: _("dying"),
+        pmsuspended: _("suspended (PM)"),
     },
-    'bootableDisk': {
-        'disk': _("disk"),
-        'cdrom': _("cdrom"),
-        'interface': _("network"),
-        'hd': _("disk"),
-        'redirdev': _("redirected device"),
-        'hostdev': _("host device"),
+    bootableDisk: {
+        disk: _("disk"),
+        cdrom: _("cdrom"),
+        interface: _("network"),
+        hd: _("disk"),
+        redirdev: _("redirected device"),
+        hostdev: _("host device"),
     },
-    'cpuMode': {
-        'custom': _("custom"),
+    cpuMode: {
+        custom: _("custom"),
         'host-model': _("host"),
     },
-    'networkType': {
-        'direct': _("direct"),
-        'network': _("network"),
-        'bridge': _("bridge"),
-        'user': _("user"),
-        'ethernet': _("ethernet"),
-        'hostdev': _("hostdev"),
-        'mcast': _("mcast"),
-        'server': _("server"),
-        'udp': _("udp"),
-        'vhostuser': _("vhostuser"),
+    networkType: {
+        direct: _("direct"),
+        network: _("network"),
+        bridge: _("bridge"),
+        user: _("user"),
+        ethernet: _("ethernet"),
+        hostdev: _("hostdev"),
+        mcast: _("mcast"),
+        server: _("server"),
+        udp: _("udp"),
+        vhostuser: _("vhostuser"),
     },
-    'networkForward': {
-        'open': _("Open"),
-        'nat': "NAT",
-        'none': _("None (Isolated Network)"),
-        'route': "Routed",
-        'bridge': "Bridge",
-        'private': _("Private"),
-        'vepa': "VEPA",
-        'passthrough': "Passthrough",
-        'hostdev': "Hostdev",
+    networkForward: {
+        open: _("Open"),
+        nat: "NAT",
+        none: _("None (Isolated Network)"),
+        route: "Routed",
+        bridge: "Bridge",
+        private: _("Private"),
+        vepa: "VEPA",
+        passthrough: "Passthrough",
+        hostdev: "Hostdev",
     },
-    'networkManaged': {
-        'yes': _("yes"),
-        'no': _("no"),
+    networkManaged: {
+        yes: _("yes"),
+        no: _("no"),
     },
-    'networkState': {
-        'up': _("up"),
-        'down': _("down"),
+    networkState: {
+        up: _("up"),
+        down: _("down"),
     },
 };
 
@@ -592,9 +592,9 @@ function getVmDisksMap(vms, connectionName) {
             const diskProps = vm.disks[disk];
 
             if (diskProps.type == 'volume')
-                vmDisksMap[vm.name].push({ 'type': 'volume', 'pool': diskProps.source.pool, 'volume': diskProps.source.volume });
+                vmDisksMap[vm.name].push({ type: 'volume', pool: diskProps.source.pool, volume: diskProps.source.volume });
             else if (diskProps.type == 'file')
-                vmDisksMap[vm.name].push({ 'type': 'file', 'source': diskProps.source.file });
+                vmDisksMap[vm.name].push({ type: 'file', source: diskProps.source.file });
             /* Other disk types should be handled as well when we allow their creation from cockpit UI */
         }
     }

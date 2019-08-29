@@ -511,8 +511,8 @@ $(function() {
                 refresh_properties(unit_path);
         });
 
-        systemd_client.subscribe({ 'interface': "org.freedesktop.DBus.Properties",
-                                   'member': "PropertiesChanged"
+        systemd_client.subscribe({ interface: "org.freedesktop.DBus.Properties",
+                                   member: "PropertiesChanged"
         },
                                  function(path, iface, signal, args) {
                                      var unit = units_by_path[path];
@@ -788,8 +788,8 @@ $(function() {
     update_time();
     var timedate_client = cockpit.dbus('org.freedesktop.timedate1');
     timedate_client.subscribe({
-        'interface': "org.freedesktop.DBus.Properties",
-        'member': "PropertiesChanged"
+        interface: "org.freedesktop.DBus.Properties",
+        member: "PropertiesChanged"
     }, update_time);
     var timer_unit = { };
     var repeat_array = [ ];

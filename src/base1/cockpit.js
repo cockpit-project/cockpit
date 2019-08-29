@@ -478,7 +478,7 @@ function Transport() {
                     console.log("health check failure ignored");
                 } else {
                     console.log("health check failed");
-                    self.close({ "problem": "timeout" });
+                    self.close({ problem: "timeout" });
                 }
             }
             got_message = false;
@@ -488,7 +488,7 @@ function Transport() {
     if (!ws) {
         ws = { close: function() { } };
         window.setTimeout(function() {
-            self.close({ "problem": "no-cockpit" });
+            self.close({ problem: "no-cockpit" });
         }, 50);
     }
 
@@ -564,7 +564,7 @@ function Transport() {
 
     self.close = function close(options) {
         if (!options)
-            options = { "problem": "disconnected" };
+            options = { problem: "disconnected" };
         options.command = "close";
         window.clearInterval(check_health_timer);
         var ows = ws;
@@ -587,13 +587,13 @@ function Transport() {
 
     function process_init(options) {
         if (options.problem) {
-            self.close({ "problem": options.problem });
+            self.close({ problem: options.problem });
             return;
         }
 
         if (options.version !== 1) {
             console.error("received unsupported version in init message: " + options.version);
-            self.close({ "problem": "not-supported" });
+            self.close({ problem: "not-supported" });
             return;
         }
 
@@ -628,7 +628,7 @@ function Transport() {
             waiting_for_init = false;
             if (data.command != "close" || channel) {
                 console.error("received message before init: ", data.command);
-                data = { "problem": "protocol-error" };
+                data = { problem: "protocol-error" };
             }
             self.close(data);
 
@@ -916,7 +916,7 @@ function Channel(options) {
         if (!options)
             options = { };
         else if (typeof options == "string")
-            options = { "problem" : options };
+            options = { problem : options };
         options["command"] = "close";
         options["channel"] = id;
 
@@ -1117,7 +1117,7 @@ function factory() {
         if (!options)
             options = default_host;
         if (typeof options == "string")
-            options = { "host": options };
+            options = { host: options };
         options["hint"] = name;
         cockpit.transport.control("hint", options);
     };
@@ -1146,7 +1146,7 @@ function factory() {
         close: function close(problem) {
             var options;
             if (problem)
-                options = { "problem": problem };
+                options = { problem: problem };
             if (default_transport)
                 default_transport.close(options);
             default_transport = null;
@@ -2401,7 +2401,7 @@ function factory() {
         if (reload !== false)
             reload_after_disconnect = true;
         ensure_transport(function(transport) {
-            if (!transport.send_control({ "command": "logout", "disconnect": true }))
+            if (!transport.send_control({ command: "logout", disconnect: true }))
                 window.location.reload(reload_after_disconnect);
         });
         window.sessionStorage.setItem("logout-intent", "explicit");
@@ -2410,7 +2410,7 @@ function factory() {
     /* Not public API ... yet? */
     cockpit.drop_privileges = function drop_privileges() {
         ensure_transport(function(transport) {
-            transport.send_control({ "command": "logout", "disconnect": false });
+            transport.send_control({ command: "logout", disconnect: false });
         });
     };
 
@@ -2433,9 +2433,9 @@ function factory() {
         var dfd = cockpit.defer();
         var dbus;
         if (!the_user) {
-            dbus = cockpit.dbus(null, { "bus": "internal" });
+            dbus = cockpit.dbus(null, { bus: "internal" });
             dbus.call("/user", "org.freedesktop.DBus.Properties", "GetAll",
-                      [ "cockpit.User" ], { "type": "s" })
+                      [ "cockpit.User" ], { type: "s" })
                 .done(function(reply) {
                     var user = reply[0];
                     dfd.resolve({
@@ -2657,7 +2657,7 @@ function factory() {
         var hash = window.location.hash;
         if (hash.indexOf("#") === 0)
             hash = hash.substring(1);
-        cockpit.hint("location", { "hash": hash });
+        cockpit.hint("location", { hash: hash });
         cockpit.dispatchEvent("locationchanged");
     });
 
@@ -2775,7 +2775,7 @@ function factory() {
     cockpit.spawn = function(command, options) {
         var dfd = cockpit.defer();
 
-        var args = { "payload": "stream", "spawn": [] };
+        var args = { payload: "stream", spawn: [] };
         if (command instanceof Array) {
             for (var i = 0; i < command.length; i++)
                 args["spawn"].push(String(command[i]));
@@ -2961,20 +2961,20 @@ function factory() {
 
         /* No enumeration on these properties */
         Object.defineProperties(self, {
-            "client": { value: client, enumerable: false, writable: false },
-            "path": { value: path, enumerable: false, writable: false },
-            "iface": { value: iface, enumerable: false, writable: false },
-            "valid": { get: function() { return valid }, enumerable: false },
-            "wait": { enumerable: false, writable: false,
+            client: { value: client, enumerable: false, writable: false },
+            path: { value: path, enumerable: false, writable: false },
+            iface: { value: iface, enumerable: false, writable: false },
+            valid: { get: function() { return valid }, enumerable: false },
+            wait: { enumerable: false, writable: false,
                 value: function(func) {
                     if (func)
                         waits.promise.always(func);
                     return waits.promise;
                 }
             },
-            "call": { value: function(name, args, options) { return client.call(path, iface, name, args, options) },
+            call: { value: function(name, args, options) { return client.call(path, iface, name, args, options) },
                       enumerable: false, writable: false },
-            "data": { value: { }, enumerable: false }
+            data: { value: { }, enumerable: false }
         });
 
         if (typeof window.$ === "function") {
@@ -3061,7 +3061,7 @@ function factory() {
             }
         }
 
-        client.subscribe({ "path": path, "interface": iface }, signal, options.subscribe !== false);
+        client.subscribe({ path: path, interface: iface }, signal, options.subscribe !== false);
 
         function waited(ex) {
             if (valid)
@@ -3072,7 +3072,7 @@ function factory() {
 
         /* If watching then do a proper watch, otherwise object is done */
         if (options.watch !== false)
-            client.watch({ "path": path, "interface": iface }).always(waited);
+            client.watch({ path: path, interface: iface }).always(waited);
         else
             waited();
     }
@@ -3084,10 +3084,10 @@ function factory() {
         var waits;
 
         Object.defineProperties(self, {
-            "client": { value: client, enumerable: false, writable: false },
-            "iface": { value: iface, enumerable: false, writable: false },
-            "path_namespace": { value: path_namespace, enumerable: false, writable: false },
-            "wait": { enumerable: false, writable: false,
+            client: { value: client, enumerable: false, writable: false },
+            iface: { value: iface, enumerable: false, writable: false },
+            path_namespace: { value: path_namespace, enumerable: false, writable: false },
+            wait: { enumerable: false, writable: false,
                 value: function(func) {
                     if (func)
                         waits.always(func);
@@ -3103,7 +3103,7 @@ function factory() {
         }
 
         /* Subscribe to signals once for all proxies */
-        var match = { "interface": iface, "path_namespace": path_namespace };
+        var match = { interface: iface, path_namespace: path_namespace };
 
         /* Callbacks added by proxies */
         client.subscribe(match);
@@ -3212,7 +3212,7 @@ function factory() {
                 console.warn("received invalid dbus json message:", ex);
             }
             if (msg === undefined) {
-                channel.close({ "problem": "protocol-error" });
+                channel.close({ problem: "protocol-error" });
                 return;
             }
             var dfd, options;
@@ -3287,7 +3287,7 @@ function factory() {
                 return;
 
             var message = extend({ }, options, {
-                "meta": data
+                meta: data
             });
 
             send(JSON.stringify(message));
@@ -3324,7 +3324,7 @@ function factory() {
 
         this.close = function close(options) {
             if (typeof options == "string")
-                options = { "problem": options };
+                options = { problem: options };
             if (!options)
                 options = { };
             if (channel)
@@ -3358,8 +3358,8 @@ function factory() {
             var id = String(last_cookie);
             last_cookie++;
             var method_call = extend({ }, options, {
-                "call": [ path, iface, method, args || [] ],
-                "id": id
+                call: [ path, iface, method, args || [] ],
+                id: id
             });
 
             var msg = JSON.stringify(method_call);
@@ -3376,7 +3376,7 @@ function factory() {
                 return;
 
             var message = extend({ }, options, {
-                "signal": [ path, iface, member, args || [] ]
+                signal: [ path, iface, member, args || [] ]
             });
 
             send(JSON.stringify(message));
@@ -3423,7 +3423,7 @@ function factory() {
             last_cookie++;
             var dfd = cockpit.defer();
 
-            var msg = JSON.stringify({ "watch": match, "id": id });
+            var msg = JSON.stringify({ watch: match, id: id });
             if (send(msg))
                 calls[id] = dfd;
             else
@@ -3435,7 +3435,7 @@ function factory() {
                     dfd.reject(new DBusError("cancelled"));
                     delete calls[id];
                 }
-                send(JSON.stringify({ "unwatch": match }));
+                send(JSON.stringify({ unwatch: match }));
             };
             return ret;
         };
@@ -3478,12 +3478,12 @@ function factory() {
                 var out = Array.prototype.slice.call(arguments, 0);
                 if (out.length == 1 && typeof out[0] == "undefined")
                     out = [ ];
-                send(JSON.stringify({ "reply": [ out ], "id": cookie }));
+                send(JSON.stringify({ reply: [ out ], id: cookie }));
             }, function(ex) {
                 var error = [ ];
                 error[0] = ex.name || " org.freedesktop.DBus.Error.Failed";
                 error[1] = [ cockpit.message(ex) || error[0] ];
-                send(JSON.stringify({ "error": error, "id": cookie }));
+                send(JSON.stringify({ error: error, id: cookie }));
             });
         }
 
@@ -3495,8 +3495,8 @@ function factory() {
             var dfd = calls[id] = cockpit.defer();
 
             var payload = JSON.stringify(extend({ }, options, {
-                "publish": publish,
-                "id": id,
+                publish: publish,
+                id: id,
             }));
 
             if (send(payload))
@@ -3517,7 +3517,7 @@ function factory() {
                     delete calls[id];
                 }
                 delete published[key];
-                send(JSON.stringify({ "unpublish": publish }));
+                send(JSON.stringify({ unpublish: publish }));
             };
             return ret;
         };
@@ -3559,7 +3559,7 @@ function factory() {
     /* public */
     cockpit.dbus = function dbus(name, options) {
         if (!options)
-            options = { "bus": "system" };
+            options = { bus: "system" };
 
         /*
          * Figure out if this we should use a shared bus.
@@ -3598,7 +3598,7 @@ function factory() {
     };
 
     cockpit.variant = function variant(type, value) {
-        return { 'v': value, 't': type };
+        return { v: value, t: type };
     };
 
     cockpit.byte_array = function byte_array(string) {
@@ -4243,11 +4243,11 @@ function factory() {
 
         self.get = function get(path, params, headers) {
             return self.request({
-                "method": "GET",
-                "params": params,
-                "path": path,
-                "body": "",
-                "headers": headers
+                method: "GET",
+                params: params,
+                path: path,
+                body: "",
+                headers: headers
             });
         };
 
@@ -4265,10 +4265,10 @@ function factory() {
             }
 
             return self.request({
-                "method": "POST",
-                "path": path,
-                "body": body,
-                "headers": headers
+                method: "POST",
+                path: path,
+                body: body,
+                headers: headers
             });
         };
 
@@ -4532,7 +4532,7 @@ function factory() {
             for (var i = 0; i < options_list.length; i++) {
                 if (options_list[i].archive_source) {
                     archive_options_list.push(extend({}, options_list[i],
-                                                       { "source": options_list[i].archive_source,
+                                                       { source: options_list[i].archive_source,
                                                          timestamp: timestamp,
                                                          limit: limit
                                                        }));

@@ -57,19 +57,19 @@ QUnit.test("compare_versions", function (assert) {
 
 QUnit.test("mdraid_name_nohostnamed", function (assert) {
     utils.mock_hostnamed({ StaticHostname: undefined });
-    assert.strictEqual(utils.mdraid_name({ "Name": "somehost:mydev" }), "mydev", "remote host name is skipped when hostnamed is not available");
+    assert.strictEqual(utils.mdraid_name({ Name: "somehost:mydev" }), "mydev", "remote host name is skipped when hostnamed is not available");
     utils.mock_hostnamed(null);
 });
 
 QUnit.test("mdraid_name_remote", function (assert) {
     utils.mock_hostnamed({ StaticHostname: "sweethome" });
-    assert.strictEqual(utils.mdraid_name({ "Name": "somehost:mydev" }), "mydev (from somehost)", "expected name for remote host");
+    assert.strictEqual(utils.mdraid_name({ Name: "somehost:mydev" }), "mydev (from somehost)", "expected name for remote host");
     utils.mock_hostnamed(null);
 });
 
 QUnit.test("mdraid_name_local", function (assert) {
     utils.mock_hostnamed({ StaticHostname: "sweethome" });
-    assert.strictEqual(utils.mdraid_name({ "Name": "sweethome:mydev" }), "mydev", "expected name for local host");
+    assert.strictEqual(utils.mdraid_name({ Name: "sweethome:mydev" }), "mydev", "expected name for local host");
     utils.mock_hostnamed(null);
 });
 

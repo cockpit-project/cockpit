@@ -176,12 +176,12 @@ export class MDRaidDetails extends React.Component {
         var block = mdraid && client.mdraids_block[mdraid.path];
 
         function format_level(str) {
-            return { "raid0": _("RAID 0"),
-                     "raid1": _("RAID 1"),
-                     "raid4": _("RAID 4"),
-                     "raid5": _("RAID 5"),
-                     "raid6": _("RAID 6"),
-                     "raid10": _("RAID 10")
+            return { raid0: _("RAID 0"),
+                     raid1: _("RAID 1"),
+                     raid4: _("RAID 4"),
+                     raid5: _("RAID 5"),
+                     raid6: _("RAID 6"),
+                     raid10: _("RAID 10")
             }[str] || cockpit.format(_("RAID ($0)"), str);
         }
 

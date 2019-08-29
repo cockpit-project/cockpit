@@ -296,8 +296,8 @@ PageServer.prototype = {
         });
 
         self.server_time.client.subscribe({
-            'interface': "org.freedesktop.DBus.Properties",
-            'member': "PropertiesChanged"
+            interface: "org.freedesktop.DBus.Properties",
+            member: "PropertiesChanged"
         }, self.server_time.ntp_updated);
 
         self.ntp_status_tmpl = $("#ntp-status-tmpl").html();
@@ -587,7 +587,7 @@ PageServer.prototype = {
                 });
 
         self.ostree_client = cockpit.dbus('org.projectatomic.rpmostree1',
-                                          { "superuser" : true });
+                                          { superuser : true });
         $(self.ostree_client).on("close", function() {
             self.ostree_client = null;
         });
@@ -597,7 +597,7 @@ PageServer.prototype = {
         $(self.sysroot).on("changed", $.proxy(this, "sysroot_changed"));
 
         self.client = cockpit.dbus('org.freedesktop.hostname1',
-                                   { "superuser" : "try" });
+                                   { superuser : "try" });
         self.hostname_proxy = self.client.proxy('org.freedesktop.hostname1',
                                                 '/org/freedesktop/hostname1');
         self.kernel_hostname = null;
@@ -865,8 +865,8 @@ PageServer.prototype = {
         var content = $("#system_information_ssh_keys .content");
         var error = $("#system_information_ssh_keys .alert");
 
-        cockpit.script(host_keys_script, [], { "superuser": "try",
-                                               "err": "message" })
+        cockpit.script(host_keys_script, [], { superuser: "try",
+                                               err: "message" })
                 .done(function(data) {
                     var seen = {};
                     var arr = [];

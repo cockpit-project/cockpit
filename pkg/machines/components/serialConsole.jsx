@@ -53,9 +53,9 @@ class SerialConsoleCockpit extends React.Component {
      */
     onConnect () {
         const channel = cockpit.channel({
-            "payload": "stream",
-            "spawn": this.props.spawnArgs,
-            "pty": true,
+            payload: "stream",
+            spawn: this.props.spawnArgs,
+            pty: true,
         });
 
         channel.addEventListener('message', this.onChannelMessage);

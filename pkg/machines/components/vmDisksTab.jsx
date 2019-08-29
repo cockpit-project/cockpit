@@ -86,7 +86,7 @@ const VmDisksTab = ({ idPrefix, vm, disks, actions, renderCapacity, dispatch, pr
                 {disks.map(disk => {
                     const idPrefixRow = `${idPrefix}-${disk.target || disk.device}`;
                     const columns = [
-                        { name: <VmDiskCell value={disk.device} id={`${idPrefixRow}-device`} key={`${idPrefixRow}-device`} />, 'header': true },
+                        { name: <VmDiskCell value={disk.device} id={`${idPrefixRow}-device`} key={`${idPrefixRow}-device`} />, header: true },
                     ];
 
                     if (renderCapacity) {

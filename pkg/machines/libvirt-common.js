@@ -327,7 +327,7 @@ export function parseDumpxmlForConsoles(devicesElem) {
             if (consoleElem.getAttribute('type') === 'pty') {
                 // Definition of serial console is detected.
                 // So far no additional details needs to be parsed since the console is accessed via 'virsh console'.
-                displays['pty'] = {};
+                displays.pty = {};
             }
         }
     }
@@ -767,7 +767,7 @@ export function parseNodeDeviceDumpxml(nodeDevice) {
 export function parseOsInfoList(dispatch, osList) {
     const osinfodata = JSON.parse(osList);
 
-    dispatch(updateOsInfoList(osinfodata.filter(os => os['shortId'])));
+    dispatch(updateOsInfoList(osinfodata.filter(os => os.shortId)));
 }
 
 export function parseStoragePoolDumpxml(connectionName, storagePoolXml, id_overwrite) {
@@ -777,41 +777,41 @@ export function parseStoragePoolDumpxml(connectionName, storagePoolXml, id_overw
     }
 
     const result = { connectionName };
-    result['type'] = storagePoolElem.getAttribute('type');
-    result['name'] = storagePoolElem.getElementsByTagName('name')[0].childNodes[0].nodeValue;
-    result['id'] = id_overwrite || storagePoolElem.getElementsByTagName('uuid')[0].childNodes[0].nodeValue;
-    result['capacity'] = storagePoolElem.getElementsByTagName('capacity')[0].childNodes[0].nodeValue;
-    result['available'] = storagePoolElem.getElementsByTagName('available')[0].childNodes[0].nodeValue;
-    result['allocation'] = storagePoolElem.getElementsByTagName('allocation')[0].childNodes[0].nodeValue;
+    result.type = storagePoolElem.getAttribute('type');
+    result.name = storagePoolElem.getElementsByTagName('name')[0].childNodes[0].nodeValue;
+    result.id = id_overwrite || storagePoolElem.getElementsByTagName('uuid')[0].childNodes[0].nodeValue;
+    result.capacity = storagePoolElem.getElementsByTagName('capacity')[0].childNodes[0].nodeValue;
+    result.available = storagePoolElem.getElementsByTagName('available')[0].childNodes[0].nodeValue;
+    result.allocation = storagePoolElem.getElementsByTagName('allocation')[0].childNodes[0].nodeValue;
 
     // Fetch path property if target is contained for this type of pool
     if (['dir', 'fs', 'netfs', 'logical', 'disk', 'iscsi', 'scsi', 'mpath', 'zfs'].indexOf(result.type) > -1) {
         const targetElem = storagePoolElem.getElementsByTagName('target')[0];
-        result['target'] = { path: getSingleOptionalElem(targetElem, 'path').childNodes[0].nodeValue };
+        result.target = { path: getSingleOptionalElem(targetElem, 'path').childNodes[0].nodeValue };
     }
     const sourceElem = storagePoolElem.getElementsByTagName('source')[0];
     if (sourceElem) {
-        result['source'] = {};
+        result.source = {};
 
         const hostElem = sourceElem.getElementsByTagName('host');
         if (hostElem[0])
-            result['source']['host'] = { name: hostElem[0].getAttribute('name') };
+            result.source.host = { name: hostElem[0].getAttribute('name') };
 
         const deviceElem = sourceElem.getElementsByTagName('device');
         if (deviceElem[0])
-            result['source']['device'] = { path: deviceElem[0].getAttribute('path') };
+            result.source.device = { path: deviceElem[0].getAttribute('path') };
 
         const dirElem = sourceElem.getElementsByTagName('dir');
         if (dirElem[0])
-            result['source']['dir'] = { path: dirElem[0].getAttribute('path') };
+            result.source.dir = { path: dirElem[0].getAttribute('path') };
 
         const sourceNameElem = sourceElem.getElementsByTagName('name');
         if (sourceNameElem[0])
-            result['source']['name'] = sourceNameElem[0].childNodes[0].nodeValue;
+            result.source.name = sourceNameElem[0].childNodes[0].nodeValue;
 
         const formatElem = sourceElem.getElementsByTagName('format');
         if (formatElem[0])
-            result['source']['format'] = { type: formatElem[0].getAttribute('type') };
+            result.source.format = { type: formatElem[0].getAttribute('type') };
     }
 
     return result;
@@ -1148,7 +1148,7 @@ export const canShutdown = (vmState) => canReset(vmState);
 export const canPause = (vmState) => vmState == 'running';
 export const canResume = (vmState) => vmState == 'paused';
 export const isRunning = (vmState) => canReset(vmState);
-export const serialConsoleCommand = ({ vm }) => vm.displays['pty'] ? [ 'virsh', ...VMS_CONFIG.Virsh.connections[vm.connectionName].params, 'console', vm.name ] : false;
+export const serialConsoleCommand = ({ vm }) => vm.displays.pty ? [ 'virsh', ...VMS_CONFIG.Virsh.connections[vm.connectionName].params, 'console', vm.name ] : false;
 
 export function CHECK_LIBVIRT_STATUS({ serviceName }) {
     logDebug(`${this.name}.CHECK_LIBVIRT_STATUS`);

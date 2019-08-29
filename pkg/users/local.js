@@ -281,8 +281,8 @@ function password_quality(password) {
 }
 
 function is_user_in_group(user, group) {
-    for (var i = 0; group["userlist"] && i < group["userlist"].length; i++) {
-        if (group["userlist"][i] === user)
+    for (var i = 0; group.userlist && i < group.userlist.length; i++) {
+        if (group.userlist[i] === user)
             return true;
     }
 
@@ -372,15 +372,15 @@ PageAccounts.prototype = {
 
     update: function() {
         this.accounts.sort(function (a, b) {
-            if (!a["gecos"]) return -1;
-            else if (!b["gecos"]) return 1;
-            else return a["gecos"].localeCompare(b["gecos"]);
+            if (!a.gecos) return -1;
+            else if (!b.gecos) return 1;
+            else return a.gecos.localeCompare(b.gecos);
         });
 
         var accounts = this.accounts.filter(function(account) {
-            return !((account["uid"] < 1000 && account["uid"] !== 0) ||
-                account["shell"].match(/^(\/usr)?\/sbin\/nologin/) ||
-                account["shell"] === '/bin/false');
+            return !((account.uid < 1000 && account.uid !== 0) ||
+                account.shell.match(/^(\/usr)?\/sbin\/nologin/) ||
+                account.shell === '/bin/false');
         });
 
         ReactDOM.render(
@@ -557,7 +557,7 @@ PageAccountsCreate.prototype = {
         }
 
         for (var k = 0; k < PageAccountsCreate.accounts.length; k++) {
-            if (PageAccountsCreate.accounts[k]['name'] == username) {
+            if (PageAccountsCreate.accounts[k].name == username) {
                 dfd.reject(new Error(_("This user name already exists")));
                 return dfd.promise();
             }
@@ -709,7 +709,7 @@ PageAccount.prototype = {
             var accounts = parse_passwd_content(content);
 
             for (var i = 0; i < accounts.length; i++) {
-                if (accounts[i]["name"] !== self.account_id)
+                if (accounts[i].name !== self.account_id)
                     continue;
 
                 self.account = accounts[i];
@@ -758,12 +758,12 @@ PageAccount.prototype = {
             while (self.roles.length > 0)
                 self.roles.pop();
             for (var i = 0; i < groups.length; i++) {
-                var name = groups[i]["name"];
+                var name = groups[i].name;
                 if (role_groups[name]) {
                     self.roles.push({
                         name: name,
                         desc: role_groups[name],
-                        id: groups[i]["gid"],
+                        id: groups[i].gid,
                         member: is_user_in_group(self.account_id, groups[i]),
                     });
                 }
@@ -947,19 +947,19 @@ PageAccount.prototype = {
             $('#account-failure').hide();
             var name = $("#account-real-name");
 
-            var title_name = this.account["gecos"];
+            var title_name = this.account.gecos;
             if (title_name)
                 title_name = title_name.split(',')[0];
             else
-                title_name = this.account["name"];
+                title_name = this.account.name;
 
             $('#account-logout').attr('disabled', !this.logged);
 
             $("#account-title").text(title_name);
             if (!name.attr("data-dirty"))
-                $('#account-real-name').val(this.account["gecos"]);
+                $('#account-real-name').val(this.account.gecos);
 
-            $('#account-user-name').text(this.account["name"]);
+            $('#account-user-name').text(this.account.name);
 
             if (this.logged)
                 $('#account-last-login').text(_("Logged In"));
@@ -992,7 +992,7 @@ PageAccount.prototype = {
                 $('#account-authorized-keys').hide();
             }
 
-            if (this.account["uid"] !== 0) {
+            if (this.account.uid !== 0) {
                 var html = mustache.render(this.role_template,
                                            { roles: this.roles, changed: this.roles_changed });
                 $('#account-change-roles-roles').html(html);
@@ -1013,7 +1013,7 @@ PageAccount.prototype = {
             // check accounts-self-privileged whether account is the same as currently logged in user
             $(".accounts-self-privileged")
                     .toggleClass("accounts-current-account",
-                                 this.user.id == this.account["uid"]);
+                                 this.user.id == this.account.uid);
         } else {
             $('#account').hide();
             $('#account-failure').show();
@@ -1031,7 +1031,7 @@ PageAccount.prototype = {
         var self = this;
         var name = $(ev.target).data("name");
         var id = $(ev.target).data("gid");
-        if (!name || !id || !this.account["name"])
+        if (!name || !id || !this.account.name)
             return;
 
         var proc;
@@ -1040,18 +1040,18 @@ PageAccount.prototype = {
             $('#account button:not([disabled]), #account input:not([disabled]), #account a:not([disabled])');
         input_elements.prop('disabled', true);
         if (checked) {
-            proc = cockpit.spawn(["/usr/sbin/usermod", this.account["name"], "-G", id, "-a"],
+            proc = cockpit.spawn(["/usr/sbin/usermod", this.account.name, "-G", id, "-a"],
                                  { superuser: "require", err: "message" });
         } else {
-            proc = cockpit.spawn(["/usr/bin/gpasswd", "-d", this.account["name"], name],
+            proc = cockpit.spawn(["/usr/bin/gpasswd", "-d", this.account.name, name],
                                  { superuser: "require", err: "message" });
         }
 
         proc.then(function(data) {
             if (!data && checked)
-                data = "Added " + self.account["name"] + " to group " + name;
+                data = "Added " + self.account.name + " to group " + name;
             else if (!data && !checked)
-                data = "Removed " + self.account["name"] + " from group " + name;
+                data = "Removed " + self.account.name + " from group " + name;
             console.log(data);
             self.roles_changed = true;
             self.update();
@@ -1065,7 +1065,7 @@ PageAccount.prototype = {
     },
 
     check_role_for_self_mod: function () {
-        return (this.account["name"] == this.user.name ||
+        return (this.account.name == this.user.name ||
             permission.allowed !== false);
     },
 
@@ -1085,10 +1085,10 @@ PageAccount.prototype = {
         var input_elements =
             $('#account button:not([disabled]), #account input:not([disabled]), #account a:not([disabled])');
         input_elements.prop('disabled', true);
-        cockpit.spawn(["/usr/sbin/usermod", self.account["name"], "--comment", value],
+        cockpit.spawn(["/usr/sbin/usermod", self.account.name, "--comment", value],
                       { superuser: "try", err: "message" })
                 .done(function(data) {
-                    self.account["gecos"] = value;
+                    self.account.gecos = value;
                     self.update();
                     name.removeAttr("data-dirty");
                 })
@@ -1106,7 +1106,7 @@ PageAccount.prototype = {
             $('#account button:not([disabled]), #account input:not([disabled]), #account a:not([disabled])');
         input_elements.prop('disabled', true);
         cockpit.spawn(["/usr/sbin/usermod",
-            this.account["name"],
+            this.account.name,
             desired_lock_state ? "--lock" : "--unlock"], { superuser: "require", err: "message" })
                 .done(function() {
                     self.get_locked(false)
@@ -1136,14 +1136,14 @@ PageAccount.prototype = {
         if (!this.check_role_for_self_mod())
             return;
 
-        PageAccountSetPassword.user_name = this.account["name"];
+        PageAccountSetPassword.user_name = this.account.name;
         /* TODO: get rid of this once monitoring /etc/shadow will be implemented */
         PageAccountSetPassword.update_callback = $.proxy(this, "enter");
         $('#account-set-password-dialog').modal('show');
     },
 
     delete_account: function() {
-        PageAccountConfirmDelete.user_name = this.account["name"];
+        PageAccountConfirmDelete.user_name = this.account.name;
         $('#account-confirm-delete-dialog').modal('show');
     },
 
@@ -1152,7 +1152,7 @@ PageAccount.prototype = {
             $('#account button:not([disabled]), #account input:not([disabled]), #account a:not([disabled])');
         input_elements
                 .prop('disabled', true);
-        cockpit.spawn(["/usr/bin/loginctl", "terminate-user", this.account["name"]],
+        cockpit.spawn(["/usr/bin/loginctl", "terminate-user", this.account.name],
                       { superuser: "try", err: "message" })
                 .done($.proxy(this, "get_logged"))
                 .fail(show_unexpected_error)

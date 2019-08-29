@@ -146,7 +146,7 @@ function Dialog(selector, address, machines_ins, codes) {
         var machine = self.machines_ins.lookup(address);
         if (machine && machine.host_key && !machine.on_disk) {
             conn_options['temp-session'] = false; /* Compatiblity option */
-            conn_options['session'] = 'shared';
+            conn_options.session = 'shared';
             conn_options['host-key'] = machine.host_key;
         }
         var client = cockpit.channel(conn_options);
@@ -433,7 +433,7 @@ function AddMachine(dialog) {
     }
 
     self.load = function() {
-        var manifest = cockpit.manifests["shell"] || {};
+        var manifest = cockpit.manifests.shell || {};
         var limit = parseInt(manifest["machine-limit"], 10);
         var color_picker = new MachineColorPicker(dialog.machines_ins);
         if (!limit || isNaN(limit))
@@ -581,7 +581,7 @@ function HostKey(dialog, problem) {
 
         if (!key) {
             if (problem == "unknown-host") {
-                options["session"] = "private";
+                options.session = "private";
                 match_problem = "unknown-hostkey";
             }
 
@@ -655,15 +655,15 @@ function ChangeAuth(dialog) {
                                                                  parts.address);
 
         if ($("#login-type button").val() != 'stored') {
-            options['password'] = $("#login-custom-password").val();
-            options["session"] = 'shared';
+            options.password = $("#login-custom-password").val();
+            options.session = 'shared';
             if (!user) {
                 /* we don't want to save the default user for everyone
                  * so we pass current user as an option, but make sure the
                  * session isn't private
                  */
                 if (self.user && self.user.name)
-                    options["user"] = self.user.name;
+                    options.user = self.user.name;
                 options["temp-session"] = false; /* Compatibility option */
             }
         }
@@ -712,7 +712,7 @@ function ChangeAuth(dialog) {
 
             methods = error_options["auth-method-results"];
             if (methods) {
-                no_password = methods['password'] === "not-provided";
+                no_password = methods.password === "not-provided";
                 for (var method in methods) {
                     if (is_method_supported(methods, method)) {
                         available[method] = true;

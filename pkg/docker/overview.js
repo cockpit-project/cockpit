@@ -196,7 +196,7 @@ export function init_overview (client) {
                 var tag = $(commit).find(".container-tag")
                         .val();
                 if (tag)
-                    options["tag"] = tag;
+                    options.tag = tag;
                 var repository = $(commit).find(".container-repository")
                         .val();
                 client.commit($(commit).attr('data-container-id'), repository, options, run)

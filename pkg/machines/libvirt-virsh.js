@@ -512,7 +512,7 @@ function parseDomstats(dispatch, connectionName, name, domstats) {
     const retParams = { connectionName, name, actualTimeInMs, disksStats: parseDomstatsForDisks(lines) };
 
     if (cpuTime) {
-        retParams['cpuTime'] = cpuTime;
+        retParams.cpuTime = cpuTime;
     }
     return retParams;
 }

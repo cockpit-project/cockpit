@@ -123,10 +123,10 @@ function DockerClient() {
         // "Image" in the ContainerSummary is translated to a name
         // when possible
         if (containers_meta[id]) {
-            if (!containers_meta[id]["ImageID"])
-                containers_meta[id]["ImageID"] = container["Image"];
-            if (containers_meta[id]["Image"])
-                container["Image"] = containers_meta[id]["Image"];
+            if (!containers_meta[id].ImageID)
+                containers_meta[id].ImageID = container.Image;
+            if (containers_meta[id].Image)
+                container.Image = containers_meta[id].Image;
         }
 
         // Add in the fields of the short form of the container
@@ -310,8 +310,8 @@ function DockerClient() {
         // the summary version is prettified
         // ie: <none>:<none>
         // and the detail is not.
-        image["ActualRepoTags"] = image.RepoTags;
-        image["ActualRepoDigests"] = image.RepoDigests;
+        image.ActualRepoTags = image.RepoTags;
+        image.ActualRepoDigests = image.RepoDigests;
         $.extend(image, images_meta[id]);
 
         /* HACK: TODO upstream bug */
@@ -409,7 +409,7 @@ function DockerClient() {
             watch.close();
 
         function got_info() {
-            watch = cockpit.channel({ payload: "fslist1", path: self.info["DockerRootDir"], superuser: "try" });
+            watch = cockpit.channel({ payload: "fslist1", path: self.info.DockerRootDir, superuser: "try" });
             $(watch)
                     .on("message", function(event, data) {
                         trigger_event();

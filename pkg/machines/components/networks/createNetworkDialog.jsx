@@ -38,61 +38,61 @@ function validateParams(dialogValues) {
     const validationFailed = {};
 
     if (isEmpty(dialogValues.name.trim()))
-        validationFailed['name'] = _("Name should not be empty");
+        validationFailed.name = _("Name should not be empty");
 
     if (dialogValues.ip === "IPv4 only" || dialogValues.ip === "IPv4 and IPv6") {
         if (isEmpty(dialogValues.ipv4.trim()))
-            validationFailed['ipv4'] = _("IPv4 Network should not be empty");
+            validationFailed.ipv4 = _("IPv4 Network should not be empty");
         else if (!utils.validateIpv4(dialogValues.ipv4))
-            validationFailed['ipv4'] = _("Invalid IPv4 address");
+            validationFailed.ipv4 = _("Invalid IPv4 address");
 
         if (isEmpty(dialogValues.netmask.trim()))
-            validationFailed['netmask'] = _("Mask or Prefix Length should not be empty");
+            validationFailed.netmask = _("Mask or Prefix Length should not be empty");
         else if (!utils.validateNetmask(dialogValues.netmask))
-            validationFailed['netmask'] = _("Invalid IPv4 mask or prefix length");
+            validationFailed.netmask = _("Invalid IPv4 mask or prefix length");
 
         if (dialogValues.ipv4DhcpEnabled) {
             if (isEmpty(dialogValues.ipv4DhcpRangeStart.trim()))
-                validationFailed['ipv4DhcpRangeStart'] = _("Start should not be empty");
+                validationFailed.ipv4DhcpRangeStart = _("Start should not be empty");
             else if (!utils.validateIpv4(dialogValues.ipv4DhcpRangeStart))
-                validationFailed['ipv4DhcpRangeStart'] = _("Invalid IPv4 address");
+                validationFailed.ipv4DhcpRangeStart = _("Invalid IPv4 address");
             else if (!utils.isIpv4InNetwork(dialogValues.ipv4, dialogValues.netmask, dialogValues.ipv4DhcpRangeStart))
-                validationFailed['ipv4DhcpRangeStart'] = _("Address not within subnet");
+                validationFailed.ipv4DhcpRangeStart = _("Address not within subnet");
 
             if (isEmpty(dialogValues.ipv4DhcpRangeEnd.trim()))
-                validationFailed['ipv4DhcpRangeEnd'] = _("End should not be empty");
+                validationFailed.ipv4DhcpRangeEnd = _("End should not be empty");
             else if (!utils.validateIpv4(dialogValues.ipv4DhcpRangeEnd))
-                validationFailed['ipv4DhcpRangeEnd'] = _("Invalid IPv4 address");
+                validationFailed.ipv4DhcpRangeEnd = _("Invalid IPv4 address");
             else if (!utils.isIpv4InNetwork(dialogValues.ipv4, dialogValues.netmask, dialogValues.ipv4DhcpRangeEnd))
-                validationFailed['ipv4DhcpRangeEnd'] = _("Address not within subnet");
+                validationFailed.ipv4DhcpRangeEnd = _("Address not within subnet");
         }
     }
 
     if (dialogValues.ip === "IPv6 only" || dialogValues.ip === "IPv4 and IPv6") {
         if (isEmpty(dialogValues.ipv6.trim()))
-            validationFailed['ipv6'] = _("IPv6 Network should not be empty");
+            validationFailed.ipv6 = _("IPv6 Network should not be empty");
         else if (!utils.validateIpv6(dialogValues.ipv6))
-            validationFailed['ipv6'] = _("Invalid IPv6 address");
+            validationFailed.ipv6 = _("Invalid IPv6 address");
 
         if (isEmpty(dialogValues.prefix.trim()))
-            validationFailed['prefix'] = _("Prefix Length should not be empty");
+            validationFailed.prefix = _("Prefix Length should not be empty");
         else if (!utils.validateIpv6Prefix(dialogValues.prefix))
-            validationFailed['prefix'] = _("Invalid IPv6 prefix");
+            validationFailed.prefix = _("Invalid IPv6 prefix");
 
         if (dialogValues.ipv6DhcpEnabled) {
             if (isEmpty(dialogValues.ipv6DhcpRangeStart.trim()))
-                validationFailed['ipv6DhcpRangeStart'] = _("Start should not be empty");
+                validationFailed.ipv6DhcpRangeStart = _("Start should not be empty");
             else if (!utils.validateIpv6(dialogValues.ipv6DhcpRangeStart))
-                validationFailed['ipv6DhcpRangeStart'] = _("Invalid IPv6 address");
+                validationFailed.ipv6DhcpRangeStart = _("Invalid IPv6 address");
             else if (!utils.isIpv6InNetwork(dialogValues.ipv6, dialogValues.prefix, dialogValues.ipv6DhcpRangeStart))
-                validationFailed['ipv6DhcpRangeStart'] = _("Address not within subnet");
+                validationFailed.ipv6DhcpRangeStart = _("Address not within subnet");
 
             if (isEmpty(dialogValues.ipv6DhcpRangeEnd.trim()))
-                validationFailed['ipv6DhcpRangeEnd'] = _("End should not be empty");
+                validationFailed.ipv6DhcpRangeEnd = _("End should not be empty");
             else if (!utils.validateIpv6(dialogValues.ipv6DhcpRangeEnd))
-                validationFailed['ipv6DhcpRangeEnd'] = _("Invalid IPv6 address");
+                validationFailed.ipv6DhcpRangeEnd = _("Invalid IPv6 address");
             else if (!utils.isIpv6InNetwork(dialogValues.ipv6, dialogValues.prefix, dialogValues.ipv6DhcpRangeEnd))
-                validationFailed['ipv6DhcpRangeEnd'] = _("Address not within subnet");
+                validationFailed.ipv6DhcpRangeEnd = _("Address not within subnet");
         }
     }
 

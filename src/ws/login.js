@@ -547,8 +547,8 @@
 
         var ei = id("conversation-input");
         ei.value = "";
-        if (prompt_data["default"])
-            ei.value = prompt_data["default"];
+        if (prompt_data.default)
+            ei.value = prompt_data.default;
         ei.setAttribute('type', type);
         ei.focus();
 
@@ -709,8 +709,8 @@
             if (xhr.readyState == 4) {
                 if (xhr.status == 200) {
                     var resp = JSON.parse(xhr.responseText);
-                    var base1 = resp ? resp['base1'] : {};
-                    if (!base1['version'] || base1['version'] < "119.x") {
+                    var base1 = resp ? resp.base1 : {};
+                    if (!base1.version || base1.version < "119.x") {
                         login_reload(embeded_url);
                     } else
                         login_reload(wanted);

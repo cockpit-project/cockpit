@@ -104,7 +104,7 @@ export class CryptoTab extends React.Component {
                               Action: {
                                   Title: _("Apply"),
                                   action: function (vals) {
-                                      config["options"] = {
+                                      config.options = {
                                           t: 'ay',
                                           v: encode_filename(crypto_options_dialog_options(vals))
                                       };

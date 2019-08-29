@@ -992,9 +992,9 @@ function doUsagePolling(name, connectionName, objPath) {
                         let avgvCpuTime = 0;
 
                         if ('balloon.rss' in info)
-                            props['rssMemory'] = info['balloon.rss'].v.v;
+                            props.rssMemory = info['balloon.rss'].v.v;
                         else if ('state.state' in info && info['state.state'].v.v == Enum.VIR_DOMAIN_SHUTOFF)
-                            props['rssMemory'] = 0.0;
+                            props.rssMemory = 0.0;
                         for (var i = 0; i < info['vcpu.maximum'].v.v; i++) {
                             if (!(`vcpu.${i}.time` in info))
                                 continue;
@@ -1063,19 +1063,19 @@ function startEventMonitorDomains(connectionName, dispatch) {
             logDebug(`signal on ${path}: ${iface}.${signal}(${JSON.stringify(args)})`);
 
             switch (eventType) {
-            case domainEvent["Defined"]:
+            case domainEvent.Defined:
                 dispatch(getVm({ connectionName, id:objPath }));
                 break;
 
-            case domainEvent["Undefined"]:
+            case domainEvent.Undefined:
                 dispatch(undefineVm({ connectionName, id: objPath }));
                 break;
 
-            case domainEvent["Started"]:
+            case domainEvent.Started:
                 dispatch(getVm({ connectionName, id:objPath }));
                 break;
 
-            case domainEvent["Suspended"]:
+            case domainEvent.Suspended:
                 dispatch(updateVm({
                     connectionName,
                     id: objPath,
@@ -1083,7 +1083,7 @@ function startEventMonitorDomains(connectionName, dispatch) {
                 }));
                 break;
 
-            case domainEvent["Resumed"]:
+            case domainEvent.Resumed:
                 dispatch(updateVm({
                     connectionName,
                     id: objPath,
@@ -1091,7 +1091,7 @@ function startEventMonitorDomains(connectionName, dispatch) {
                 }));
                 break;
 
-            case domainEvent["Stopped"]:
+            case domainEvent.Stopped:
                 dispatch(getVm({
                     connectionName,
                     id: objPath,
@@ -1241,7 +1241,7 @@ function dbus_client(connectionName) {
     if (!(connectionName in clientLibvirt) || clientLibvirt[connectionName] === null) {
         const opts = { bus: connectionName };
         if (connectionName === 'system')
-            opts['superuser'] = 'try';
+            opts.superuser = 'try';
         clientLibvirt[connectionName] = cockpit.dbus("org.libvirt", opts);
     }
 

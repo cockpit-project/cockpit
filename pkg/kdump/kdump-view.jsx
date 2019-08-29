@@ -74,11 +74,11 @@ class KdumpTargetBody extends React.Component {
         var compressionPossible = (
             !this.props.settings ||
             !("core_collector" in this.props.settings) ||
-            (this.props.settings["core_collector"].value.trim().indexOf("makedumpfile") === 0)
+            (this.props.settings.core_collector.value.trim().indexOf("makedumpfile") === 0)
         );
         var directory = "";
         if (this.props.settings && "path" in this.props.settings)
-            directory = this.props.settings["path"].value;
+            directory = this.props.settings.path.value;
 
         if (this.state.storeDest == "local") {
             detailRows = (
@@ -93,7 +93,7 @@ class KdumpTargetBody extends React.Component {
         } else if (this.state.storeDest == "nfs") {
             var nfs = "";
             if (this.props.settings && "nfs" in this.props.settings)
-                nfs = this.props.settings["nfs"].value;
+                nfs = this.props.settings.nfs.value;
             detailRows = (
                 <React.Fragment>
                     <label className="control-label" htmlFor="kdump-settings-nfs-mount">{_("Mount")}</label>
@@ -107,10 +107,10 @@ class KdumpTargetBody extends React.Component {
         } else if (this.state.storeDest == "ssh") {
             var ssh = "";
             if (this.props.settings && "ssh" in this.props.settings)
-                ssh = this.props.settings["ssh"].value;
+                ssh = this.props.settings.ssh.value;
             var sshkey = "";
             if (this.props.settings && "sshkey" in this.props.settings)
-                sshkey = this.props.settings["sshkey"].value;
+                sshkey = this.props.settings.sshkey.value;
             detailRows = (
                 <React.Fragment>
                     <label className="control-label" htmlFor="kdump-settings-ssh-server">{_("Server")}</label>
@@ -195,8 +195,8 @@ export class KdumpPage extends React.Component {
         return (
             settings &&
               ("core_collector" in settings) &&
-              settings["core_collector"].value &&
-              (settings["core_collector"].value.split(" ").indexOf("-c") != -1)
+              settings.core_collector.value &&
+              (settings.core_collector.value.split(" ").indexOf("-c") != -1)
         );
     }
 
@@ -208,22 +208,22 @@ export class KdumpPage extends React.Component {
             if (value) {
                 // enable compression
                 if ("core_collector" in settings)
-                    settings["core_collector"].value = settings["core_collector"].value + " -c";
+                    settings.core_collector.value = settings.core_collector.value + " -c";
                 else
-                    settings["core_collector"] = { value: "makedumpfile -c" };
+                    settings.core_collector = { value: "makedumpfile -c" };
             } else {
                 // disable compression
                 if ("core_collector" in this.props.kdumpStatus.config) {
                     // just remove all "-c" parameters
-                    settings["core_collector"].value =
-                        settings["core_collector"].value
+                    settings.core_collector.value =
+                        settings.core_collector.value
                                 .split(" ")
                                 .filter((e) => { return (e != "-c") })
                                 .join(" ");
                 } else {
                     // if we don't have anything on this in the original settings,
                     // we can get rid of the entry altogether
-                    delete settings["core_collector"];
+                    delete settings.core_collector;
                 }
             }
         } else if (key === "target") {
@@ -243,13 +243,13 @@ export class KdumpPage extends React.Component {
                 settings.nfs = { value: "" };
 
             if ("core_collector" in settings &&
-                settings["core_collector"].value.includes("makedumpfile")) {
+                settings.core_collector.value.includes("makedumpfile")) {
                 /* ssh target needs a flattened vmcore for transport */
-                if (value === "ssh" && !settings["core_collector"].value.includes("-F"))
-                    settings["core_collector"].value += " -F";
-                else if (settings["core_collector"].value.includes("-F"))
-                    settings["core_collector"].value =
-                        settings["core_collector"].value
+                if (value === "ssh" && !settings.core_collector.value.includes("-F"))
+                    settings.core_collector.value += " -F";
+                else if (settings.core_collector.value.includes("-F"))
+                    settings.core_collector.value =
+                        settings.core_collector.value
                                 .split(" ")
                                 .filter(e => e != "-F")
                                 .join(" ");

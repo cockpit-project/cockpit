@@ -306,13 +306,13 @@ class AddServicesModal extends React.Component {
             const m = line.match(/^(\S+)\s+(\d+)\/(\S+).*?(#(.*))?$/);
             const new_port = { name: m[1], port: m[2], type: [m[3]] };
             if (m.length > 5 && m[5])
-                new_port['description'] = m[5].trim();
+                new_port.description = m[5].trim();
             if (ret[m[1]])
-                ret[m[1]]['type'].push(new_port['type'][0]);
+                ret[m[1]].type.push(new_port.type[0]);
             else
                 ret[m[1]] = new_port;
             if (ret[m[2]])
-                ret[m[2]]['type'].push(new_port['type'][0]);
+                ret[m[2]].type.push(new_port.type[0]);
             else
                 ret[m[2]] = new_port;
         });
@@ -329,7 +329,7 @@ class AddServicesModal extends React.Component {
     getName(port) {
         const known = this.state.avail_services[port];
         if (known)
-            return known['name'];
+            return known.name;
         else
             return port;
     }
@@ -339,7 +339,7 @@ class AddServicesModal extends React.Component {
         if (all_ports.length === 1) {
             const known = this.state.avail_services[all_ports[0]];
             if (known)
-                name = known['description'] || known['name'];
+                name = known.description || known.name;
             else
                 name = all_ports[0];
         } else if (all_ports.length > 1) {
@@ -360,7 +360,7 @@ class AddServicesModal extends React.Component {
                 return [0, _("Invalid port number")];
             else
                 return [port, ""];
-        } else if (avail['type'].indexOf(type) < 0)
+        } else if (avail.type.indexOf(type) < 0)
             return [0, _("Port number and type do not match")];
         else {
             return [avail.port, ""];
@@ -417,8 +417,8 @@ class AddServicesModal extends React.Component {
 
         const new_id = "custom--" + all_ports.map(this.getName).join('-');
 
-        newState['custom_name'] = name;
-        newState['custom_id'] = new_id;
+        newState.custom_name = name;
+        newState.custom_id = new_id;
         this.setState(newState);
     }
 

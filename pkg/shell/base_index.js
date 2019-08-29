@@ -827,7 +827,7 @@ function Index() {
          * to produce this list. Perhaps we would include it somewhere in a
          * separate automatically generated file. Need to see.
          */
-        var manifest = cockpit.manifests["shell"] || { };
+        var manifest = cockpit.manifests.shell || { };
         $(".display-language-menu").toggle(!!manifest.locales);
         var language = document.cookie.replace(/(?:(?:^|.*;\s*)CockpitLang\s*=\s*([^;]*).*$)|^.*$/, "$1");
         if (!language)

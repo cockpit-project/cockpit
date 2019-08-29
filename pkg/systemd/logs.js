@@ -117,7 +117,7 @@ $(function() {
         function prepend_entries(entries) {
             for (var i = 0; i < entries.length; i++) {
                 renderer.prepend(entries[i]);
-                current_services.add(entries[i]['SYSLOG_IDENTIFIER']);
+                current_services.add(entries[i].SYSLOG_IDENTIFIER);
             }
             renderer.prepend_flush();
             show_service_filters();
@@ -145,12 +145,12 @@ $(function() {
                 procs.push(journal.journalctl(match, { follow: false, reverse: true, cursor: first })
                         .fail(query_error)
                         .stream(function(entries) {
-                            if (entries[0]["__CURSOR"] == first)
+                            if (entries[0].__CURSOR == first)
                                 entries.shift();
                             count += entries.length;
                             append_entries(entries);
                             if (count >= query_more) {
-                                stopped = entries[entries.length - 1]["__CURSOR"];
+                                stopped = entries[entries.length - 1].__CURSOR;
                                 didnt_reach_start(stopped);
                                 this.stop();
                             }
@@ -166,7 +166,7 @@ $(function() {
             procs.push(journal.journalctl(match, { follow: true, count: 0, cursor: cursor })
                     .fail(query_error)
                     .stream(function(entries) {
-                        if (entries[0]["__CURSOR"] == cursor)
+                        if (entries[0].__CURSOR == cursor)
                             entries.shift();
                         prepend_entries(entries);
                         update_day_box();
@@ -273,14 +273,14 @@ $(function() {
 
         var all = false;
         if (start == 'boot') {
-            options["boot"] = null;
+            options.boot = null;
         } else if (start == 'previous-boot') {
-            options["boot"] = "-1";
+            options.boot = "-1";
             last = 1; // Do not try to get newer logs
         } else if (start == 'last-24h') {
-            options["since"] = "-1days";
+            options.since = "-1days";
         } else if (start == 'last-week') {
-            options["since"] = "-7days";
+            options.since = "-7days";
         } else {
             all = true;
         }
@@ -300,13 +300,13 @@ $(function() {
                 .fail(query_error)
                 .stream(function(entries) {
                     if (!last) {
-                        last = entries[0]["__CURSOR"];
+                        last = entries[0].__CURSOR;
                         follow(last);
                         update_day_box();
                     }
                     count += entries.length;
                     append_entries(entries);
-                    oldest = entries[entries.length - 1]["__CURSOR"];
+                    oldest = entries[entries.length - 1].__CURSOR;
                     if (count >= query_count) {
                         stopped = true;
                         didnt_reach_start(oldest);
@@ -318,8 +318,8 @@ $(function() {
                         start_box.empty();
                     if (!last) {
                         procs.push(journal.journalctl(match, { follow: true, count: 0,
-                                                               boot: options["boot"],
-                                                               since: options["since"]
+                                                               boot: options.boot,
+                                                               since: options.since
                         })
                                 .fail(query_error)
                                 .stream(function(entries) {
@@ -353,7 +353,7 @@ $(function() {
 
         var match = [ ];
 
-        var query_prio = cockpit.location.options['prio'] || "3";
+        var query_prio = cockpit.location.options.prio || "3";
         var prio_level = parseInt(query_prio, 10);
 
         // Set selected item into priority dropdown menu
@@ -375,13 +375,13 @@ $(function() {
         }
 
         var options = cockpit.location.options;
-        if (options['service'])
-            match.push('_SYSTEMD_UNIT=' + options['service']);
-        else if (options['tag'])
-            match.push('SYSLOG_IDENTIFIER=' + options['tag']);
-        $('#journal-service').text(options['tag'] || _("All"));
+        if (options.service)
+            match.push('_SYSTEMD_UNIT=' + options.service);
+        else if (options.tag)
+            match.push('SYSLOG_IDENTIFIER=' + options.tag);
+        $('#journal-service').text(options.tag || _("All"));
 
-        var query_start = cockpit.location.options['start'] || "recent";
+        var query_start = cockpit.location.options.start || "recent";
         if (query_start == 'recent')
             $(window).scrollTop($(document).height());
 
@@ -395,21 +395,21 @@ $(function() {
         out.empty();
 
         function show_entry(entry) {
-            var d = new Date(entry["__REALTIME_TIMESTAMP"] / 1000);
+            var d = new Date(entry.__REALTIME_TIMESTAMP / 1000);
             $('#journal-entry-date').text(d.toString());
 
             var id;
-            if (entry["SYSLOG_IDENTIFIER"])
-                id = entry["SYSLOG_IDENTIFIER"];
-            else if (entry["_SYSTEMD_UNIT"])
-                id = entry["_SYSTEMD_UNIT"];
+            if (entry.SYSLOG_IDENTIFIER)
+                id = entry.SYSLOG_IDENTIFIER;
+            else if (entry._SYSTEMD_UNIT)
+                id = entry._SYSTEMD_UNIT;
             else
                 id = _("Journal entry");
 
             var is_problem = false;
             if (id === 'abrt-notification') {
                 is_problem = true;
-                id = entry['PROBLEM_BINARY'];
+                id = entry.PROBLEM_BINARY;
             }
 
             $('#journal-entry-id').text(id);
@@ -432,7 +432,7 @@ $(function() {
 
         journal.journalctl({ cursor: cursor, count: 1, follow: false })
                 .done(function (entries) {
-                    if (entries.length >= 1 && entries[0]["__CURSOR"] == cursor)
+                    if (entries.length >= 1 && entries[0].__CURSOR == cursor)
                         show_entry(entries[0]);
                     else
                         show_error(_("Journal entry not found"));
@@ -443,7 +443,7 @@ $(function() {
     }
 
     function create_entry(out, entry) {
-        $('#journal-entry-message').text(journal.printable(entry['MESSAGE']));
+        $('#journal-entry-message').text(journal.printable(entry.MESSAGE));
         var keys = Object.keys(entry).sort();
         $.each(keys, function (i, key) {
             if (key !== 'MESSAGE') {
@@ -459,10 +459,10 @@ $(function() {
 
     function create_problem(out, entry) {
         var problem = null;
-        var all_p = [entry['PROBLEM_DIR'], entry['PROBLEM_DUPHASH'], entry['PROBLEM_UUID']];
+        var all_p = [entry.PROBLEM_DIR, entry.PROBLEM_DUPHASH, entry.PROBLEM_UUID];
         for (var i = 0; i < all_p.length; i++) {
             if (all_p[i] in displayable_problems) {
-                problem = problems[displayable_problems[all_p[i]]['problem_path']];
+                problem = problems[displayable_problems[all_p[i]].problem_path];
                 break;
             }
         }
@@ -500,7 +500,7 @@ $(function() {
         if (problem.IsReported) {
             for (var pid = 0; pid < problem.Reports.length; pid++) {
                 if (problem.Reports[pid][0] === 'ABRT Server') {
-                    var url = problem.Reports[pid][1]['URL']['v']['v'];
+                    var url = problem.Reports[pid][1].URL.v.v;
                     r_btn = $('<a class="problem-btn">')
                             .attr('href', url)
                             .attr("target", "_blank")
@@ -742,13 +742,13 @@ $(function() {
                 for (var thread_key in threads) {
                     var thread = threads[thread_key];
 
-                    if (thread.hasOwnProperty("crash_thread") && thread['crash_thread']) {
+                    if (thread.hasOwnProperty("crash_thread") && thread.crash_thread) {
                         if (thread.hasOwnProperty('frames')) {
-                            crash_thread = thread['frames'];
+                            crash_thread = thread.frames;
                         }
                     } else {
                         if (thread.hasOwnProperty('frames')) {
-                            other_threads.push(thread['frames']);
+                            other_threads.push(thread.frames);
                         }
                     }
                 }

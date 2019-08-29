@@ -533,9 +533,9 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
         if (!machine.manifests || machine.address === "localhost")
             return null;
 
-        var shell = machine.manifests["shell"] || { };
-        var menu = shell["menu"] || { };
-        var tools = shell["tools"] || { };
+        var shell = machine.manifests.shell || { };
+        var menu = shell.menu || { };
+        var tools = shell.tools || { };
 
         var mapping = { };
 

@@ -749,8 +749,8 @@ export function teardown_active_usage(client, usage) {
 }
 
 export function get_config(name, def) {
-    if (cockpit.manifests["storage"] && cockpit.manifests["storage"]["config"]) {
-        var val = cockpit.manifests["storage"]["config"][name];
+    if (cockpit.manifests.storage && cockpit.manifests.storage.config) {
+        var val = cockpit.manifests.storage.config[name];
         return val !== undefined ? val : def;
     } else {
         return def;

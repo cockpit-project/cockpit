@@ -36,8 +36,8 @@ event_mixin(cockpit, { });
 if (typeof window.debugging === "undefined") {
     try {
         // Sometimes this throws a SecurityError such as during testing
-        window.debugging = window.sessionStorage["debugging"] ||
-                           window.localStorage["debugging"];
+        window.debugging = window.sessionStorage.debugging ||
+                           window.localStorage.debugging;
     } catch (e) { }
 }
 
@@ -599,8 +599,8 @@ function Transport() {
 
         if (options["channel-seed"])
             channel_seed = String(options["channel-seed"]);
-        if (options["host"])
-            default_host = options["host"];
+        if (options.host)
+            default_host = options.host;
 
         if (public_transport) {
             public_transport.options = options;
@@ -634,7 +634,7 @@ function Transport() {
 
         /* Any pings get sent back as pongs */
         } else if (data.command == "ping") {
-            data["command"] = "pong";
+            data.command = "pong";
             self.send_control(data);
         } else if (data.command == "pong") {
             /* Any pong commands are ignored */
@@ -855,7 +855,7 @@ function Channel(options) {
         while (queue.length > 0) {
             var item = queue.shift();
             if (item[0]) {
-                item[1]["channel"] = id;
+                item[1].channel = id;
                 transport.send_control(item[1]);
             } else {
                 send_payload(item[1]);
@@ -917,8 +917,8 @@ function Channel(options) {
             options = { };
         else if (typeof options == "string")
             options = { problem : options };
-        options["command"] = "close";
-        options["channel"] = id;
+        options.command = "close";
+        options.channel = id;
 
         if (!transport)
             queue.push([true, options]);
@@ -971,7 +971,7 @@ function Channel(options) {
     };
 
     self.toString = function toString() {
-        var host = options["host"] || "localhost";
+        var host = options.host || "localhost";
         return "[Channel " + (self.valid ? id : "<invalid>") + " -> " + host + "]";
     };
 }
@@ -1118,7 +1118,7 @@ function factory() {
             options = default_host;
         if (typeof options == "string")
             options = { host: options };
-        options["hint"] = name;
+        options.hint = name;
         cockpit.transport.control("hint", options);
     };
 
@@ -1157,7 +1157,7 @@ function factory() {
         uri: calculate_url,
         control: function(command, options) {
             options = extend({ }, options);
-            options["command"] = command;
+            options.command = command;
             ensure_transport(function(transport) {
                 transport.send_control(options);
             });
@@ -1235,11 +1235,11 @@ function factory() {
             return promise_then(state, fulfilled, rejected, updated) || self;
         };
 
-        self["catch"] = function catch_(callback) {
+        self.catch = function catch_(callback) {
             return promise_then(state, null, callback) || self;
         };
 
-        self["finally"] = function finally_(callback, updated) {
+        self.finally = function finally_(callback, updated) {
             return promise_then(state, function() {
                 return handle_callback(arguments, true, callback);
             }, function() {
@@ -2201,7 +2201,7 @@ function factory() {
             /* Called as add(sink, path) */
             if (is_object(arguments[0])) {
                 sink = arguments[0];
-                sink = sink["series"] || sink;
+                sink = sink.series || sink;
 
                 /* The path argument can be an array, or a dot separated string */
                 path = arguments[1];
@@ -2778,14 +2778,14 @@ function factory() {
         var args = { payload: "stream", spawn: [] };
         if (command instanceof Array) {
             for (var i = 0; i < command.length; i++)
-                args["spawn"].push(String(command[i]));
+                args.spawn.push(String(command[i]));
         } else {
-            args["spawn"].push(String(command));
+            args.spawn.push(String(command));
         }
         if (options !== undefined)
             extend(args, options);
 
-        var name = args["spawn"][0] || "process";
+        var name = args.spawn[0] || "process";
         var channel = cockpit.channel(args);
 
         /* Callback that wants a stream response, see below */
@@ -3150,7 +3150,7 @@ function factory() {
             if (options.track)
                 track = true;
 
-            delete options['track'];
+            delete options.track;
             extend(args, options);
         }
         args.payload = "dbus-json3";
@@ -3194,7 +3194,7 @@ function factory() {
                 return false;
             if (match.path_namespace && signal[0].indexOf(match.path_namespace) !== 0)
                 return false;
-            if (match["interface"] && signal[1] !== match["interface"])
+            if (match.interface && signal[1] !== match.interface)
                 return false;
             if (match.member && signal[2] !== match.member)
                 return false;
@@ -3889,8 +3889,8 @@ function factory() {
         if (header) {
             if (header["plural-forms"])
                 po_plural = header["plural-forms"];
-            if (header["language"])
-                lang = header["language"];
+            if (header.language)
+                lang = header.language;
         }
 
         cockpit.language = lang;

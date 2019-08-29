@@ -42,7 +42,7 @@ const DropdownButtons = ({ buttons }) => {
                     </li>);
                 });
 
-        const caretId = buttons[0]['id'] ? `${buttons[0]['id']}-caret` : undefined;
+        const caretId = buttons[0].id ? `${buttons[0].id}-caret` : undefined;
         return (<div className='btn-group dropdown-buttons-container' key={`dropdown-${caretId}`}>
             <button className='btn btn-default' id={buttons[0].id} onClick={mouseClick(buttons[0].action)}>
                 {buttons[0].title}
@@ -57,7 +57,7 @@ const DropdownButtons = ({ buttons }) => {
     }
 
     return (<div className='btn-group'>
-        <button className='btn btn-default' onClick={mouseClick(buttons[0].action)} id={buttons[0]['id']}>
+        <button className='btn btn-default' onClick={mouseClick(buttons[0].action)} id={buttons[0].id}>
             {buttons[0].title}
         </button>
     </div>);

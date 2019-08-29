@@ -182,7 +182,7 @@ $(function() {
             prop("ActiveState");
             prop("SubState");
 
-            if (props["Id"])
+            if (props.Id)
                 path_by_id[unit.Id] = unit.path;
 
             update_computed_properties(unit);
@@ -952,7 +952,7 @@ $(function() {
             date_to_parse: new Date(clock_realtime_now),
             date: moment().format("YYYY-MM-DD")
         };
-        if (timer_unit.repeat["index"] === 44640)
+        if (timer_unit.repeat.index === 44640)
             repeat_contents.days_text = "1st";
         sync_repeat();
         repeat_array.push(repeat_contents);
@@ -984,7 +984,7 @@ $(function() {
 
     function display_repeat() {
         $("#repeat-time").html(mustache.render(timer_unit.repeat.render, { repeat: repeat_array }));
-        if (timer_unit.repeat["index"] === 525600) {
+        if (timer_unit.repeat.index === 525600) {
             var nowDate = new Date(clock_realtime_now);
             var today = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(), 0, 0, 0, 0);
             for (var i = 0; i < repeat_array.length; i++) {
@@ -1002,13 +1002,13 @@ $(function() {
 
     function sync_repeat() {
         var i = 0;
-        if (timer_unit.repeat["index"] === 60) {
+        if (timer_unit.repeat.index === 60) {
             for (; i < repeat_array.length; i++) {
                 repeat_array[i].minutes = $("[data-index='" + i + "'][data-content='minutes']")
                         .val()
                         .trim();
             }
-        } else if (timer_unit.repeat["index"] === 1440) {
+        } else if (timer_unit.repeat.index === 1440) {
             for (; i < repeat_array.length; i++) {
                 repeat_array[i].minutes = $("[data-index='" + i + "'][data-content='minutes']")
                         .val()
@@ -1017,7 +1017,7 @@ $(function() {
                         .val()
                         .trim();
             }
-        } else if (timer_unit.repeat["index"] === 10080) {
+        } else if (timer_unit.repeat.index === 10080) {
             for (; i < repeat_array.length; i++) {
                 repeat_array[i].minutes = $("[data-index='" + i + "'][data-content='minutes']")
                         .val()
@@ -1032,7 +1032,7 @@ $(function() {
                         .first()
                         .attr("value");
             }
-        } else if (timer_unit.repeat["index"] === 44640) {
+        } else if (timer_unit.repeat.index === 44640) {
             for (; i < repeat_array.length; i++) {
                 repeat_array[i].minutes = $("[data-index='" + i + "'][data-content='minutes']")
                         .val()
@@ -1047,7 +1047,7 @@ $(function() {
                         .first()
                         .attr("value");
             }
-        } else if (timer_unit.repeat["index"] === 525600) {
+        } else if (timer_unit.repeat.index === 525600) {
             for (; i < repeat_array.length; i++) {
                 repeat_array[i].minutes = $("[data-index='" + i + "'][data-content='minutes']")
                         .val()
@@ -1148,7 +1148,7 @@ $(function() {
         } else {
             // Calendar timer cases
             var i = 0;
-            if (timer_unit.repeat["index"] === 0) {
+            if (timer_unit.repeat.index === 0) {
                 var hr = $("#hr")
                         .val()
                         .trim();
@@ -1169,7 +1169,7 @@ $(function() {
                     $("#min").addClass('has-error');
                     error = true;
                 }
-            } else if (timer_unit.repeat["index"] === 60) {
+            } else if (timer_unit.repeat.index === 60) {
                 for (; i < repeat_array.length; i++) {
                     if (!(/^[0-9]+$/.test(repeat_array[i].minutes.trim()) && repeat_array[i].minutes.trim() <= 59 && repeat_array[i].minutes.trim() >= 0)) {
                         $("[data-index='" + i + "'][data-content='minutes']").addClass('has-error');
@@ -1189,14 +1189,14 @@ $(function() {
                         $("[data-index='" + i + "'][data-content='hours']").addClass('has-error');
                         $("[data-index='" + i + "'][data-content='hr-error']").text(_("Hour needs to be a number between 0-23"));
                     }
-                    if (timer_unit.repeat["index"] === 525600) {
+                    if (timer_unit.repeat.index === 525600) {
                         if (isNaN(repeat_array[i].date_to_parse.getTime()) || repeat_array[i].date_to_parse.getTime() < 0) {
                             error = true;
                             $("[data-index='" + i + "'][data-content='datepicker']").addClass('has-error');
                             $("[data-index='" + i + "'][data-content='date-error']").text(_("Invalid date format."));
                         }
                     }
-                    if (timer_unit.repeat["index"] === 44640 && repeat_array[i].days_value === '31')
+                    if (timer_unit.repeat.index === 44640 && repeat_array[i].days_value === '31')
                         $("[data-index='" + i + "'][data-content='day-error']").html(_("This day doesn't exist in all months.<br> The timer will only be executed in months that have 31st."));
                 }
             }
@@ -1216,7 +1216,7 @@ $(function() {
         timer_unit.Command = $("#command").val();
         timer_unit.boot_time = $("#boot-time").val();
 
-        if (timer_unit.repeat["index"] === 0) {
+        if (timer_unit.repeat.index === 0) {
             timer_unit.repeat_hour = Number($("#hr")
                     .val()
                     .trim());
@@ -1225,29 +1225,29 @@ $(function() {
                     .trim());
             var today = new Date(clock_realtime_now);
             timer_unit.OnCalendar = "OnCalendar=" + today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + today.getDate() + " " + timer_unit.repeat_hour + ":" + timer_unit.repeat_minute + ":00";
-        } else if (timer_unit.repeat["index"] === 60) {
+        } else if (timer_unit.repeat.index === 60) {
             timer_unit.repeat_minute = repeat_array.map(function(item) {
                 return Number(item.minutes);
             });
             timer_unit.OnCalendar = "OnCalendar=*-*-* *:" + timer_unit.repeat_minute + ":00";
-        } else if (timer_unit.repeat["index"] === 1440) {
+        } else if (timer_unit.repeat.index === 1440) {
             timer_unit.OnCalendar = repeat_array.map(function(item) {
                 return "OnCalendar=*-*-* " + Number(item.hours) + ":" + Number(item.minutes) + ":00";
             });
-        } else if (timer_unit.repeat["index"] === 10080) {
+        } else if (timer_unit.repeat.index === 10080) {
             timer_unit.OnCalendar = repeat_array.map(function(item) {
                 return "OnCalendar=" + item.days_text.slice(0, 3) + " *-*-* " + Number(item.hours) + ":" + Number(item.minutes) + ":00";
             });
-        } else if (timer_unit.repeat["index"] === 44640) {
+        } else if (timer_unit.repeat.index === 44640) {
             timer_unit.OnCalendar = repeat_array.map(function(item) {
                 return "OnCalendar=*-*-" + item.days_value + " " + Number(item.hours) + ":" + Number(item.minutes) + ":00";
             });
-        } else if (timer_unit.repeat["index"] === 525600) {
+        } else if (timer_unit.repeat.index === 525600) {
             timer_unit.OnCalendar = repeat_array.map(function(item) {
                 return "OnCalendar=*-" + moment(item.date_to_parse).format('MM') + "-" + moment(item.date_to_parse).format('DD') + " " + Number(item.hours) + ":" + Number(item.minutes) + ":00";
             });
         }
-        if (timer_unit.repeat["index"] !== 60)
+        if (timer_unit.repeat.index !== 60)
             timer_unit.OnCalendar = timer_unit.OnCalendar.toString().replace(/,/g, "\n");
         var invalid = create_timer_file();
         if (invalid)

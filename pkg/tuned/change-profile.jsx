@@ -127,7 +127,7 @@ export class TunedLink extends React.Component {
         var opts = { };
         var classes = "action-trigger";
         if (disabled) {
-            opts['disabled'] = 'disabled';
+            opts.disabled = 'disabled';
             classes += " disabled";
         }
 

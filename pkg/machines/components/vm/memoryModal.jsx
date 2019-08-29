@@ -50,16 +50,16 @@ export class MemoryModal extends React.Component {
             const memoryKiB = convertToUnit(value, this.state.memoryUnit, 'KiB');
 
             if (memoryKiB <= this.state.maxMemory) {
-                stateDelta['memory'] = memoryKiB;
+                stateDelta.memory = memoryKiB;
             } else if (memoryKiB > this.state.maxMemory && this.props.vm.state != 'running') {
-                stateDelta['memory'] = memoryKiB;
-                stateDelta['maxMemory'] = memoryKiB;
+                stateDelta.memory = memoryKiB;
+                stateDelta.maxMemory = memoryKiB;
             }
         } else if (key == 'maxMemory') {
             const maxMemoryKiB = convertToUnit(value, this.state.maxMemoryUnit, 'KiB');
 
             if (maxMemoryKiB < this.state.nodeMaxMemory) {
-                stateDelta['maxMemory'] = maxMemoryKiB;
+                stateDelta.maxMemory = maxMemoryKiB;
             }
         } else if (key == 'memoryUnit' || key == 'maxMemoryUnit')
             stateDelta = { [key]: value };
@@ -74,13 +74,13 @@ export class MemoryModal extends React.Component {
         if (key == 'memory') {
             const memoryKiB = convertToUnit(value, this.state.memoryUnit, 'KiB');
 
-            stateDelta['memory'] = Math.max(memoryKiB, this.state.minAllowedMemory);
+            stateDelta.memory = Math.max(memoryKiB, this.state.minAllowedMemory);
         } else if (key == 'maxMemory') {
             const maxMemoryKiB = convertToUnit(value, this.state.maxMemoryUnit, 'KiB');
 
-            stateDelta['maxMemory'] = Math.max(maxMemoryKiB, this.state.minAllowedMemory);
+            stateDelta.maxMemory = Math.max(maxMemoryKiB, this.state.minAllowedMemory);
             if (maxMemoryKiB < this.state.memory) {
-                stateDelta['memory'] = Math.max(maxMemoryKiB, this.state.minAllowedMemory);
+                stateDelta.memory = Math.max(maxMemoryKiB, this.state.minAllowedMemory);
             }
         }
 

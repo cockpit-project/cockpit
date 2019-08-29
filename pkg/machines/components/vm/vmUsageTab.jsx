@@ -46,14 +46,14 @@ class VmUsageTab extends React.Component {
         const width = 220;
         const height = 170;
 
-        const rssMem = vm["rssMemory"] ? vm["rssMemory"] : 0; // in KiB
-        const memTotal = vm["currentMemory"] ? vm["currentMemory"] : 0; // in KiB
+        const rssMem = vm.rssMemory ? vm.rssMemory : 0; // in KiB
+        const memTotal = vm.currentMemory ? vm.currentMemory : 0; // in KiB
         let available = memTotal - rssMem; // in KiB
         available = available < 0 ? 0 : available;
 
         const totalCpus = vm.vcpus && vm.vcpus.count > 0 ? vm.vcpus.count : 0;
         // 4 CPU system can have usage 400%, let's keep % between 0..100
-        let cpuUsage = vm['cpuUsage'] / (totalCpus > 0 ? totalCpus : 1);
+        let cpuUsage = vm.cpuUsage / (totalCpus > 0 ? totalCpus : 1);
         cpuUsage = isNaN(cpuUsage) ? 0 : cpuUsage;
         cpuUsage = toFixedPrecision(cpuUsage, 1);
 

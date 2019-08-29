@@ -235,6 +235,6 @@ QUnit.test("updating and existing delta file", function (assert) {
  * Read it from the bridge so that we can put our test files into it. */
 var proxy = dbus.proxy("cockpit.Environment", "/environment");
 proxy.wait(function () {
-    configDir = proxy.Variables["COCKPIT_TEST_CONFIG_DIR"];
+    configDir = proxy.Variables.COCKPIT_TEST_CONFIG_DIR;
     QUnit.start();
 });

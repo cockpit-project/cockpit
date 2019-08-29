@@ -475,7 +475,7 @@ const StorageRow = ({ connectionName, storageSize, storageSizeUnit, onValueChang
                     {_("Size")}
                 </label>
                 <FormGroup validationState={validationStateStorage} bsClass='form-group ct-validation-wrapper' controlId='storage'>
-                    <MemorySelectRow id={"storage-size"}
+                    <MemorySelectRow id="storage-size"
                         value={storageSize}
                         maxValue={poolSpaceAvailable && convertToUnit(poolSpaceAvailable, units.B, storageSizeUnit)}
                         initialUnit={storageSizeUnit}

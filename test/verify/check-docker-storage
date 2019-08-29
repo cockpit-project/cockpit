@@ -28,7 +28,9 @@ non_manageable_images = [
     "debian-stable",
     "debian-testing",
     "ubuntu-1804",
-    "ubuntu-stable"
+    "ubuntu-stable",
+    # no atomic on rhel-7-8, see BZ#1746750
+    "rhel-7-8",
 ]
 
 rootfs_not_in_volume_group_images = [

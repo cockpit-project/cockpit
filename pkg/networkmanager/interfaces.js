@@ -617,8 +617,9 @@ function NetworkManagerModel() {
         }
 
         if (settings["802-3-ethernet"]) {
-            result.ethernet = { mtu: get("802-3-ethernet", "mtu"),
-                                assigned_mac_address: get("802-3-ethernet", "assigned-mac-address")
+            result.ethernet = {
+                mtu: get("802-3-ethernet", "mtu"),
+                assigned_mac_address: get("802-3-ethernet", "assigned-mac-address")
             };
         }
 
@@ -626,8 +627,9 @@ function NetworkManagerModel() {
             /* Options are documented as part of the Linux bonding driver.
                https://www.kernel.org/doc/Documentation/networking/bonding.txt
             */
-            result.bond = { options:        $.extend({}, get("bond", "options", { })),
-                            interface_name: get("bond", "interface-name")
+            result.bond = {
+                options:        $.extend({}, get("bond", "options", { })),
+                interface_name: get("bond", "interface-name")
             };
         }
 
@@ -640,38 +642,41 @@ function NetworkManagerModel() {
         }
 
         if (settings.team) {
-            result.team = { config:         JSON_parse_carefully(get("team", "config", "{}")),
-                            interface_name: get("team", "interface-name")
+            result.team = {
+                config:         JSON_parse_carefully(get("team", "config", "{}")),
+                interface_name: get("team", "interface-name")
             };
         }
 
         if (settings["team-port"] || result.connection.slave_type == "team") {
-            result.team_port = { config:       JSON_parse_carefully(get("team-port", "config", "{}")),
-            };
+            result.team_port = { config:       JSON_parse_carefully(get("team-port", "config", "{}")), };
         }
 
         if (settings.bridge) {
-            result.bridge = { interface_name: get("bridge", "interface-name"),
-                              stp:            get("bridge", "stp", true),
-                              priority:       get("bridge", "priority", 32768),
-                              forward_delay:  get("bridge", "forward-delay", 15),
-                              hello_time:     get("bridge", "hello-time", 2),
-                              max_age:        get("bridge", "max-age", 20),
-                              ageing_time:    get("bridge", "ageing-time", 300)
+            result.bridge = {
+                interface_name: get("bridge", "interface-name"),
+                stp:            get("bridge", "stp", true),
+                priority:       get("bridge", "priority", 32768),
+                forward_delay:  get("bridge", "forward-delay", 15),
+                hello_time:     get("bridge", "hello-time", 2),
+                max_age:        get("bridge", "max-age", 20),
+                ageing_time:    get("bridge", "ageing-time", 300)
             };
         }
 
         if (settings["bridge-port"] || result.connection.slave_type == "bridge") {
-            result.bridge_port = { priority:       get("bridge-port", "priority", 32),
-                                   path_cost:      get("bridge-port", "path-cost", 100),
-                                   hairpin_mode:   get("bridge-port", "hairpin-mode", false)
+            result.bridge_port = {
+                priority:       get("bridge-port", "priority", 32),
+                path_cost:      get("bridge-port", "path-cost", 100),
+                hairpin_mode:   get("bridge-port", "hairpin-mode", false)
             };
         }
 
         if (settings.vlan) {
-            result.vlan = { parent:         get("vlan", "parent"),
-                            id:             get("vlan", "id"),
-                            interface_name: get("vlan", "interface-name")
+            result.vlan = {
+                parent:         get("vlan", "parent"),
+                id:             get("vlan", "id"),
+                interface_name: get("vlan", "interface-name")
             };
         }
 
@@ -1540,29 +1545,35 @@ function ensure_usage_monitor() {
 
     usage_samples = { };
     usage_metrics_channel = cockpit.metrics(1000,
-                                            [{ source: "direct",
-                                               metrics: [{ name: "network.interface.in.bytes",
-                                                           units: "bytes",
-                                                           derive: "rate"
-                                               },
-                                               { name: "network.interface.out.bytes",
-                                                 units: "bytes",
-                                                 derive: "rate"
-                                               },
-                                               ],
-                                               metrics_path_names: ["rx", "tx"]
+                                            [{
+                                                source: "direct",
+                                                metrics: [{
+                                                    name: "network.interface.in.bytes",
+                                                    units: "bytes",
+                                                    derive: "rate"
+                                                },
+                                                {
+                                                    name: "network.interface.out.bytes",
+                                                    units: "bytes",
+                                                    derive: "rate"
+                                                },
+                                                ],
+                                                metrics_path_names: ["rx", "tx"]
                                             },
-                                            { source: "internal",
-                                              metrics: [{ name: "network.interface.rx",
-                                                          units: "bytes",
-                                                          derive: "rate"
-                                              },
-                                              { name: "network.interface.tx",
-                                                units: "bytes",
-                                                derive: "rate"
-                                              },
-                                              ],
-                                              metrics_path_names: ["rx", "tx"]
+                                            {
+                                                source: "internal",
+                                                metrics: [{
+                                                    name: "network.interface.rx",
+                                                    units: "bytes",
+                                                    derive: "rate"
+                                                },
+                                                {
+                                                    name: "network.interface.tx",
+                                                    units: "bytes",
+                                                    derive: "rate"
+                                                },
+                                                ],
+                                                metrics_path_names: ["rx", "tx"]
                                             }
                                             ]);
     usage_grid = cockpit.grid(1000, -1, -0);
@@ -1678,10 +1689,10 @@ PageNetworking.prototype = {
         };
 
         var rx_plot_options = plot.plot_simple_template();
-        $.extend(rx_plot_options.yaxis, { tickFormatter: plot.format_bits_per_sec_tick_no_unit
-        });
-        $.extend(rx_plot_options.grid, { hoverable: true,
-                                         autoHighlight: false
+        $.extend(rx_plot_options.yaxis, { tickFormatter: plot.format_bits_per_sec_tick_no_unit });
+        $.extend(rx_plot_options.grid, {
+            hoverable: true,
+            autoHighlight: false
         });
         rx_plot_options.setup_hook = network_plot_setup_hook;
         rx_plot_options.post_hook = make_network_plot_post_hook("#networking-rx-unit");
@@ -1700,10 +1711,10 @@ PageNetworking.prototype = {
         };
 
         var tx_plot_options = plot.plot_simple_template();
-        $.extend(tx_plot_options.yaxis, { tickFormatter: plot.format_bits_per_sec_tick_no_unit
-        });
-        $.extend(tx_plot_options.grid, { hoverable: true,
-                                         autoHighlight: false
+        $.extend(tx_plot_options.yaxis, { tickFormatter: plot.format_bits_per_sec_tick_no_unit });
+        $.extend(tx_plot_options.grid, {
+            hoverable: true,
+            autoHighlight: false
         });
         tx_plot_options.setup_hook = network_plot_setup_hook;
         tx_plot_options.post_hook = make_network_plot_post_hook("#networking-tx-unit");
@@ -1804,8 +1815,9 @@ PageNetworking.prototype = {
             self.tx_series.add_instance(iface.Name);
             add_usage_monitor(iface.Name);
 
-            var row = $('<tr>', { "data-interface": encodeURIComponent(iface.Name),
-                                  "data-sample-id": show_traffic ? encodeURIComponent(iface.Name) : null
+            var row = $('<tr>', {
+                "data-interface": encodeURIComponent(iface.Name),
+                "data-sample-id": show_traffic ? encodeURIComponent(iface.Name) : null
             })
                     .append($('<td>').text(iface.Name),
                             $('<td>').html(render_active_connection(dev, false, true)),
@@ -2245,10 +2257,10 @@ PageNetworkInterface.prototype = {
         };
 
         var rx_plot_options = plot.plot_simple_template();
-        $.extend(rx_plot_options.yaxis, { tickFormatter: plot.format_bits_per_sec_tick_no_unit
-        });
-        $.extend(rx_plot_options.grid, { hoverable: true,
-                                         autoHighlight: false
+        $.extend(rx_plot_options.yaxis, { tickFormatter: plot.format_bits_per_sec_tick_no_unit });
+        $.extend(rx_plot_options.grid, {
+            hoverable: true,
+            autoHighlight: false
         });
         rx_plot_options.setup_hook = network_plot_setup_hook;
         rx_plot_options.post_hook = make_network_plot_post_hook("#network-interface-rx-unit");
@@ -2266,10 +2278,10 @@ PageNetworkInterface.prototype = {
         };
 
         var tx_plot_options = plot.plot_simple_template();
-        $.extend(tx_plot_options.yaxis, { tickFormatter: plot.format_bits_per_sec_tick_no_unit
-        });
-        $.extend(tx_plot_options.grid, { hoverable: true,
-                                         autoHighlight: false
+        $.extend(tx_plot_options.yaxis, { tickFormatter: plot.format_bits_per_sec_tick_no_unit });
+        $.extend(tx_plot_options.grid, {
+            hoverable: true,
+            autoHighlight: false
         });
         tx_plot_options.setup_hook = network_plot_setup_hook;
         tx_plot_options.post_hook = make_network_plot_post_hook("#network-interface-tx-unit");
@@ -2312,7 +2324,8 @@ PageNetworkInterface.prototype = {
                     id: 'networking-firewall-switch',
                     state: firewall.enabled,
                     disabled: pending,
-                    onChange: onFirewallSwitchChange }),
+                    onChange: onFirewallSwitchChange
+                }),
                 document.querySelector('#networking-firewall .panel-actions')
             );
         }
@@ -2586,7 +2599,8 @@ PageNetworkInterface.prototype = {
             onoff = React.createElement(OnOffSwitch, {
                 state: !!(dev && dev.ActiveConnection),
                 disabled: !iface || (dev && dev.State == 20),
-                onChange: enable => enable ? self.connect() : self.disconnect() });
+                onChange: enable => enable ? self.connect() : self.disconnect()
+            });
         }
         ReactDOM.render(onoff, document.getElementById('network-interface-delete-switch'));
 
@@ -3017,8 +3031,9 @@ PageNetworkInterface.prototype = {
                     slave_ifaces[iface.Name] = true;
 
                     rows[iface.Name] =
-                        $('<tr>', { "data-interface": encodeURIComponent(iface.Name),
-                                    "data-sample-id": is_active ? encodeURIComponent(iface.Name) : null
+                        $('<tr>', {
+                            "data-interface": encodeURIComponent(iface.Name),
+                            "data-sample-id": is_active ? encodeURIComponent(iface.Name) : null
                         })
                                 .append($('<td>').text(iface.Name),
                                         (is_active
@@ -3086,11 +3101,13 @@ PageNetworkInterface.prototype = {
 
             var add_btn =
                 $('<div>', { class: 'dropdown' }).append(
-                    $('<button>', { class: 'network-privileged btn btn-default btn-control-ct dropdown-toggle fa fa-plus',
-                                    'data-toggle': 'dropdown'
+                    $('<button>', {
+                        class: 'network-privileged btn btn-default btn-control-ct dropdown-toggle fa fa-plus',
+                        'data-toggle': 'dropdown'
                     }),
-                    $('<ul>', { class: 'dropdown-menu add-button',
-                                role: 'menu'
+                    $('<ul>', {
+                        class: 'dropdown-menu add-button',
+                        role: 'menu'
                     })
                             .append(
                                 self.model.list_interfaces().map(function (iface) {
@@ -3465,8 +3482,10 @@ function render_slave_interface_choices(model, master) {
                         .css('margin', "0px")
                         .append(
                             $('<label>').append(
-                                $('<input>', { type: "checkbox",
-                                               'data-iface': iface.Name })
+                                $('<input>', {
+                                    type: "checkbox",
+                                    'data-iface': iface.Name
+                                })
                                         .prop('checked', !!slave_connection_for_interface(master, iface)),
                                 $('<span>').text(iface.Name))));
         }));
@@ -3535,11 +3554,13 @@ function set_slave(model, master_connection, master_settings, slave_type,
             delete slave_settings.team_port;
             delete slave_settings.bridge_port;
         } else {
-            slave_settings = { connection:
-                               { autoconnect: true,
-                                 interface_name: iface.Name,
-                                 slave_type: slave_type,
-                                 master: master_iface
+            slave_settings = {
+                connection:
+                               {
+                                   autoconnect: true,
+                                   interface_name: iface.Name,
+                                   slave_type: slave_type,
+                                   master: master_iface
                                }
             };
             complete_settings(slave_settings, iface.Device);
@@ -3820,10 +3841,11 @@ PageNetworkBondSettings.prototype = {
 
         if (PageNetworkBondSettings.connection) {
             with_settings_checkpoint(PageNetworkBondSettings.model, modify,
-                                     { devices: (self.slaves_changed
-                                         ? [] : connection_devices(PageNetworkBondSettings.connection)),
-                                       hack_does_add_or_remove: self.slaves_changed,
-                                       rollback_on_failure: self.slaves_changed
+                                     {
+                                         devices: (self.slaves_changed
+                                             ? [] : connection_devices(PageNetworkBondSettings.connection)),
+                                         hack_does_add_or_remove: self.slaves_changed,
+                                         rollback_on_failure: self.slaves_changed
                                      });
         } else {
             with_checkpoint(
@@ -4019,10 +4041,11 @@ PageNetworkTeamSettings.prototype = {
 
         if (PageNetworkTeamSettings.connection) {
             with_settings_checkpoint(PageNetworkTeamSettings.model, modify,
-                                     { devices: (self.slaves_changed
-                                         ? [] : connection_devices(PageNetworkTeamSettings.connection)),
-                                       hack_does_add_or_remove: self.slaves_changed,
-                                       rollback_on_failure: self.slaves_changed
+                                     {
+                                         devices: (self.slaves_changed
+                                             ? [] : connection_devices(PageNetworkTeamSettings.connection)),
+                                         hack_does_add_or_remove: self.slaves_changed,
+                                         rollback_on_failure: self.slaves_changed
                                      });
         } else {
             with_checkpoint(
@@ -4273,10 +4296,11 @@ PageNetworkBridgeSettings.prototype = {
 
         if (PageNetworkBridgeSettings.connection) {
             with_settings_checkpoint(PageNetworkBridgeSettings.model, modify,
-                                     { devices: (self.slaves_changed
-                                         ? [] : connection_devices(PageNetworkBridgeSettings.connection)),
-                                       hack_does_add_or_remove: self.slaves_changed,
-                                       rollback_on_failure: self.slaves_changed
+                                     {
+                                         devices: (self.slaves_changed
+                                             ? [] : connection_devices(PageNetworkBridgeSettings.connection)),
+                                         hack_does_add_or_remove: self.slaves_changed,
+                                         rollback_on_failure: self.slaves_changed
                                      });
         } else {
             with_checkpoint(

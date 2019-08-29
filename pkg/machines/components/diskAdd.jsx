@@ -488,17 +488,19 @@ class AddDiskModalBody extends React.Component {
 
             this.setState({ addDiskInProgress: true });
             // create new disk
-            return dispatch(volumeCreateAndAttach({ connectionName: vm.connectionName,
-                                                    poolName: this.state.storagePoolName,
-                                                    volumeName: this.state.volumeName,
-                                                    size: convertToUnit(this.state.size, this.state.unit, 'MiB'),
-                                                    format: this.state.diskFileFormat,
-                                                    target: this.state.target,
-                                                    permanent: this.state.permanent,
-                                                    hotplug: this.state.hotplug,
-                                                    vmName: vm.name,
-                                                    vmId: vm.id,
-                                                    cacheMode: this.state.cacheMode }))
+            return dispatch(volumeCreateAndAttach({
+                connectionName: vm.connectionName,
+                poolName: this.state.storagePoolName,
+                volumeName: this.state.volumeName,
+                size: convertToUnit(this.state.size, this.state.unit, 'MiB'),
+                format: this.state.diskFileFormat,
+                target: this.state.target,
+                permanent: this.state.permanent,
+                hotplug: this.state.hotplug,
+                vmName: vm.name,
+                vmId: vm.id,
+                cacheMode: this.state.cacheMode
+            }))
                     .fail(exc => {
                         this.setState({ addDiskInProgress: false });
                         this.dialogErrorSet(_("Disk failed to be created"), exc.message);
@@ -510,16 +512,18 @@ class AddDiskModalBody extends React.Component {
         }
 
         // use existing volume
-        return dispatch(attachDisk({ connectionName: vm.connectionName,
-                                     poolName: this.state.storagePoolName,
-                                     volumeName: this.state.existingVolumeName,
-                                     format: this.state.diskFileFormat,
-                                     target: this.state.target,
-                                     permanent: this.state.permanent,
-                                     hotplug: this.state.hotplug,
-                                     vmName: vm.name,
-                                     vmId: vm.id,
-                                     cacheMode: this.state.cacheMode }))
+        return dispatch(attachDisk({
+            connectionName: vm.connectionName,
+            poolName: this.state.storagePoolName,
+            volumeName: this.state.existingVolumeName,
+            format: this.state.diskFileFormat,
+            target: this.state.target,
+            permanent: this.state.permanent,
+            hotplug: this.state.hotplug,
+            vmName: vm.name,
+            vmId: vm.id,
+            cacheMode: this.state.cacheMode
+        }))
                 .fail(exc => {
                     this.setState({ addDiskInProgress: false });
                     this.dialogErrorSet(_("Disk failed to be attached"), exc.message);

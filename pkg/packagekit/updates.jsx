@@ -421,9 +421,10 @@ class ApplyUpdates extends React.Component {
                                     atBottom = true;
                             }
 
-                            this.setState({ actions: newActions,
-                                            percentage: percent <= 100 ? percent : 0,
-                                            timeRemaining: remain > 0 ? remain : null
+                            this.setState({
+                                actions: newActions,
+                                percentage: percent <= 100 ? percent : 0,
+                                timeRemaining: remain > 0 ? remain : null
                             });
 
                             // scroll update log to the bottom, if it already is (almost) at the bottom
@@ -509,16 +510,18 @@ function AskRestart(props) {
 class OsUpdates extends React.Component {
     constructor() {
         super();
-        this.state = { state: "loading",
-                       errorMessages: [],
-                       updates: {},
-                       timeSinceRefresh: null,
-                       loadPercent: null,
-                       cockpitUpdate: false,
-                       allowCancel: null,
-                       history: [],
-                       unregistered: false,
-                       autoUpdatesEnabled: undefined };
+        this.state = {
+            state: "loading",
+            errorMessages: [],
+            updates: {},
+            timeSinceRefresh: null,
+            loadPercent: null,
+            cockpitUpdate: false,
+            allowCancel: null,
+            history: [],
+            unregistered: false,
+            autoUpdatesEnabled: undefined
+        };
         this.handleLoadError = this.handleLoadError.bind(this);
         this.handleRefresh = this.handleRefresh.bind(this);
         this.handleRestart = this.handleRestart.bind(this);

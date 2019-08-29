@@ -62,34 +62,38 @@ export function mounting_dialog_fields(is_custom, mount_dir, mount_options, visi
 
     return [
         SelectOne("mounting", _("Mounting"),
-                  { value: is_custom ? "custom" : "default",
-                    visible: visible,
-                    choices: [
-                        { value: "default", title: _("Default"), selected: !is_custom },
-                        { value: "custom", title: _("Custom"), selected: is_custom }
-                    ] }),
+                  {
+                      value: is_custom ? "custom" : "default",
+                      visible: visible,
+                      choices: [
+                          { value: "default", title: _("Default"), selected: !is_custom },
+                          { value: "custom", title: _("Custom"), selected: is_custom }
+                      ]
+                  }),
         TextInput("mount_point", _("Mount Point"),
-                  { value: mount_dir,
-                    visible: function (vals) {
-                        return visible(vals) && vals.mounting == "custom";
-                    },
-                    validate: function (val) {
-                        if (val.trim() == "")
-                            return _("Mount point can not be empty");
-                    }
+                  {
+                      value: mount_dir,
+                      visible: function (vals) {
+                          return visible(vals) && vals.mounting == "custom";
+                      },
+                      validate: function (val) {
+                          if (val.trim() == "")
+                              return _("Mount point can not be empty");
+                      }
                   }),
         CheckBoxes("mount_options", _("Mount Options"),
-                   { visible: function (vals) { return visible(vals) && vals.mounting == "custom" },
-                     value: {
-                         auto: opt_auto,
-                         ro: opt_ro,
-                         extra: extra_options === "" ? false : extra_options
-                     },
-                     fields: [
-                         { title: _("Mount at boot"), tag: "auto" },
-                         { title: _("Mount read only"), tag: "ro" },
-                         { title: _("Custom mount options"), tag: "extra", type: "checkboxWithInput" },
-                     ]
+                   {
+                       visible: function (vals) { return visible(vals) && vals.mounting == "custom" },
+                       value: {
+                           auto: opt_auto,
+                           ro: opt_ro,
+                           extra: extra_options === "" ? false : extra_options
+                       },
+                       fields: [
+                           { title: _("Mount at boot"), tag: "auto" },
+                           { title: _("Mount read only"), tag: "ro" },
+                           { title: _("Custom mount options"), tag: "extra", type: "checkboxWithInput" },
+                       ]
                    },
         ),
     ];
@@ -123,13 +127,14 @@ export function crypto_options_dialog_fields(options, visible, include_store_pas
 
     return [
         CheckBoxes("crypto_options", "",
-                   { visible: visible,
-                     value: {
-                         auto: opt_auto,
-                         ro: opt_ro,
-                         extra: extra_options === "" ? false : extra_options
-                     },
-                     fields: fields
+                   {
+                       visible: visible,
+                       value: {
+                           auto: opt_auto,
+                           ro: opt_ro,
+                           extra: extra_options === "" ? false : extra_options
+                       },
+                       fields: fields
                    },
         ),
     ];
@@ -256,8 +261,9 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
     var usage = utils.get_active_usage(client, create_partition ? null : path);
 
     if (usage.Blocking) {
-        dialog_open({ Title: cockpit.format(_("$0 is in active use"), utils.block_name(block)),
-                      Body: BlockingMessage(usage)
+        dialog_open({
+            Title: cockpit.format(_("$0 is in active use"), utils.block_name(block)),
+            Body: BlockingMessage(usage)
         });
         return;
     }
@@ -265,129 +271,137 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
     var crypto_options = initial_crypto_options(client, block);
     var mount_options = initial_mount_options(client, block);
 
-    dialog_open({ Title: title,
-                  Footer: TeardownMessage(usage),
-                  Fields: [
-                      SizeSlider("size", _("Size"),
-                                 { value: size,
-                                   max: size,
-                                   visible: function () {
-                                       return create_partition;
-                                   }
-                                 }),
-                      SelectOne("erase", _("Erase"),
-                                { choices: [
-                                    { value: "no", title: _("Don't overwrite existing data") },
-                                    { value: "zero", title: _("Overwrite existing data with zeros") }
-                                ] }),
-                      SelectOne("type", _("Type"),
-                                { choices: filesystem_options
-                                }),
-                      TextInput("name", _("Name"),
-                                { validate: (name, vals) => utils.validate_fsys_label(name, vals.type),
-                                  visible: is_filesystem
-                                }),
-                      CheckBoxes("crypto", "",
-                                 { fields: [
-                                     { tag: "on", title: _("Encrypt data") }
-                                 ]
-                                 }),
-                      [
-                          PassInput("passphrase", _("Passphrase"),
-                                    { validate: function (phrase) {
-                                        if (phrase === "")
-                                            return _("Passphrase cannot be empty");
-                                    },
-                                      visible: is_encrypted
-                                    }),
-                          PassInput("passphrase2", _("Confirm"),
-                                    { validate: function (phrase2, vals) {
-                                        if (phrase2 != vals.passphrase)
-                                            return _("Passphrases do not match");
-                                    },
-                                      visible: is_encrypted
-                                    })
-                      ].concat(crypto_options_dialog_fields(crypto_options, is_encrypted_and_not_old_udisks2, true))
-                  ].concat(mounting_dialog_fields(false, "", mount_options, is_filesystem_and_not_old_udisks2)),
-                  update: function (dlg, vals, trigger) {
-                      if (trigger == "crypto_options" && vals.crypto_options.auto == false)
-                          dlg.set_nested_values("mount_options", { auto: false });
-                      if (trigger == "crypto_options" && vals.crypto_options.ro == true)
-                          dlg.set_nested_values("mount_options", { ro: true });
-                      if (trigger == "mount_options" && vals.mount_options.auto == true)
-                          dlg.set_nested_values("crypto_options", { auto: true });
-                      if (trigger == "mount_options" && vals.mount_options.ro == false)
-                          dlg.set_nested_values("crypto_options", { ro: false });
-                  },
-                  Action: {
-                      Title: create_partition ? _("Create Partition") : _("Format"),
-                      Danger: (create_partition
-                          ? null : _("Formatting a storage device will erase all data on it.")),
-                      action: function (vals) {
-                          var options = { 'no-block': { t: 'b', v: true },
-                                          'dry-run-first': { t: 'b', v: true },
-                                          'tear-down': { t: 'b', v: true }
-                          };
-                          if (vals.erase != "no")
-                              options.erase = { t: 's', v: vals.erase };
-                          if (vals.name)
-                              options.label = { t: 's', v: vals.name };
+    dialog_open({
+        Title: title,
+        Footer: TeardownMessage(usage),
+        Fields: [
+            SizeSlider("size", _("Size"),
+                       {
+                           value: size,
+                           max: size,
+                           visible: function () {
+                               return create_partition;
+                           }
+                       }),
+            SelectOne("erase", _("Erase"),
+                      {
+                          choices: [
+                              { value: "no", title: _("Don't overwrite existing data") },
+                              { value: "zero", title: _("Overwrite existing data with zeros") }
+                          ]
+                      }),
+            SelectOne("type", _("Type"),
+                      { choices: filesystem_options }),
+            TextInput("name", _("Name"),
+                      {
+                          validate: (name, vals) => utils.validate_fsys_label(name, vals.type),
+                          visible: is_filesystem
+                      }),
+            CheckBoxes("crypto", "",
+                       {
+                           fields: [
+                               { tag: "on", title: _("Encrypt data") }
+                           ]
+                       }),
+            [
+                PassInput("passphrase", _("Passphrase"),
+                          {
+                              validate: function (phrase) {
+                                  if (phrase === "")
+                                      return _("Passphrase cannot be empty");
+                              },
+                              visible: is_encrypted
+                          }),
+                PassInput("passphrase2", _("Confirm"),
+                          {
+                              validate: function (phrase2, vals) {
+                                  if (phrase2 != vals.passphrase)
+                                      return _("Passphrases do not match");
+                              },
+                              visible: is_encrypted
+                          })
+            ].concat(crypto_options_dialog_fields(crypto_options, is_encrypted_and_not_old_udisks2, true))
+        ].concat(mounting_dialog_fields(false, "", mount_options, is_filesystem_and_not_old_udisks2)),
+        update: function (dlg, vals, trigger) {
+            if (trigger == "crypto_options" && vals.crypto_options.auto == false)
+                dlg.set_nested_values("mount_options", { auto: false });
+            if (trigger == "crypto_options" && vals.crypto_options.ro == true)
+                dlg.set_nested_values("mount_options", { ro: true });
+            if (trigger == "mount_options" && vals.mount_options.auto == true)
+                dlg.set_nested_values("crypto_options", { auto: true });
+            if (trigger == "mount_options" && vals.mount_options.ro == false)
+                dlg.set_nested_values("crypto_options", { ro: false });
+        },
+        Action: {
+            Title: create_partition ? _("Create Partition") : _("Format"),
+            Danger: (create_partition
+                ? null : _("Formatting a storage device will erase all data on it.")),
+            action: function (vals) {
+                var options = {
+                    'no-block': { t: 'b', v: true },
+                    'dry-run-first': { t: 'b', v: true },
+                    'tear-down': { t: 'b', v: true }
+                };
+                if (vals.erase != "no")
+                    options.erase = { t: 's', v: vals.erase };
+                if (vals.name)
+                    options.label = { t: 's', v: vals.name };
 
-                          // HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1516041
-                          if (client.vdo_overlay.find_by_block(block)) {
-                              options['no-discard'] = { t: 'b', v: true };
-                          }
+                // HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1516041
+                if (client.vdo_overlay.find_by_block(block)) {
+                    options['no-discard'] = { t: 'b', v: true };
+                }
 
-                          var config_items = [];
-                          var mount_options = mounting_dialog_options(vals);
-                          if (vals.mounting == "custom")
-                              config_items.push([
-                                  "fstab", {
-                                      dir: { t: 'ay', v: utils.encode_filename(vals.mount_point) },
-                                      type: { t: 'ay', v: utils.encode_filename("auto") },
-                                      opts: { t: 'ay', v: utils.encode_filename(mount_options || "defaults") },
-                                      freq: { t: 'i', v: 0 },
-                                      passno: { t: 'i', v: 0 },
-                                      "track-parents": { t: 'b', v: true }
-                                  }]);
+                var config_items = [];
+                var mount_options = mounting_dialog_options(vals);
+                if (vals.mounting == "custom")
+                    config_items.push([
+                        "fstab", {
+                            dir: { t: 'ay', v: utils.encode_filename(vals.mount_point) },
+                            type: { t: 'ay', v: utils.encode_filename("auto") },
+                            opts: { t: 'ay', v: utils.encode_filename(mount_options || "defaults") },
+                            freq: { t: 'i', v: 0 },
+                            passno: { t: 'i', v: 0 },
+                            "track-parents": { t: 'b', v: true }
+                        }]);
 
-                          if (is_encrypted(vals)) {
-                              options["encrypt.passphrase"] = { t: 's', v: vals.passphrase };
+                if (is_encrypted(vals)) {
+                    options["encrypt.passphrase"] = { t: 's', v: vals.passphrase };
 
-                              var item = {
-                                  options: { t: 'ay', v: utils.encode_filename(crypto_options_dialog_options(vals)) },
-                                  "track-parents": { t: 'b', v: true }
-                              };
-                              if (vals.crypto_options && vals.crypto_options.store_passphrase) {
-                                  item["passphrase-contents"] =
+                    var item = {
+                        options: { t: 'ay', v: utils.encode_filename(crypto_options_dialog_options(vals)) },
+                        "track-parents": { t: 'b', v: true }
+                    };
+                    if (vals.crypto_options && vals.crypto_options.store_passphrase) {
+                        item["passphrase-contents"] =
                                   { t: 'ay', v: utils.encode_filename(vals.passphrase) };
-                              } else {
-                                  item["passphrase-contents"] =
+                    } else {
+                        item["passphrase-contents"] =
                                   { t: 'ay', v: utils.encode_filename("") };
-                              }
-                              config_items.push(["crypttab", item]);
-                          }
+                    }
+                    config_items.push(["crypttab", item]);
+                }
 
-                          if (config_items.length > 0)
-                              options["config-items"] = { t: 'a(sa{sv})', v: config_items };
+                if (config_items.length > 0)
+                    options["config-items"] = { t: 'a(sa{sv})', v: config_items };
 
-                          function format() {
-                              if (create_partition) {
-                                  if (vals.type == "dos-extended")
-                                      return block_ptable.CreatePartition(start, vals.size, "0x05", "", { });
-                                  else if (vals.type == "empty")
-                                      return block_ptable.CreatePartition(start, vals.size, "", "", { });
-                                  else
-                                      return create_partition_and_format(block_ptable,
-                                                                         start, vals.size, "", "", { },
-                                                                         vals.type, options);
-                              } else {
-                                  return block.Format(vals.type, options);
-                              }
-                          }
+                function format() {
+                    if (create_partition) {
+                        if (vals.type == "dos-extended")
+                            return block_ptable.CreatePartition(start, vals.size, "0x05", "", { });
+                        else if (vals.type == "empty")
+                            return block_ptable.CreatePartition(start, vals.size, "", "", { });
+                        else
+                            return create_partition_and_format(block_ptable,
+                                                               start, vals.size, "", "", { },
+                                                               vals.type, options);
+                    } else {
+                        return block.Format(vals.type, options);
+                    }
+                }
 
-                          return utils.teardown_active_usage(client, usage).then(format);
-                      }
-                  }
+                return utils.teardown_active_usage(client, usage).then(format);
+            }
+        }
     });
 }

@@ -511,8 +511,9 @@ $(function() {
                 refresh_properties(unit_path);
         });
 
-        systemd_client.subscribe({ interface: "org.freedesktop.DBus.Properties",
-                                   member: "PropertiesChanged"
+        systemd_client.subscribe({
+            interface: "org.freedesktop.DBus.Properties",
+            member: "PropertiesChanged"
         },
                                  function(path, iface, signal, args) {
                                      var unit = units_by_path[path];

@@ -5,10 +5,11 @@ import "plot.css";
 
 var metrics = [{ name: "block.device.read" }];
 
-var channel = cockpit.channel({ payload: "metrics1",
-                                source: "internal",
-                                metrics: metrics,
-                                interval: 1000
+var channel = cockpit.channel({
+    payload: "metrics1",
+    source: "internal",
+    metrics: metrics,
+    interval: 1000
 });
 $(channel).on("close", function (event, message) {
     console.log(message);

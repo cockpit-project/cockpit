@@ -143,25 +143,27 @@ export class VDODetails extends React.Component {
             var usage = get_active_usage(client, block ? block.path : "/");
 
             if (usage.Blocking) {
-                dialog_open({ Title: cockpit.format(_("$0 is in active use"), vdo.name),
-                              Body: BlockingMessage(usage),
+                dialog_open({
+                    Title: cockpit.format(_("$0 is in active use"), vdo.name),
+                    Body: BlockingMessage(usage),
                 });
                 return;
             }
 
             if (usage.Teardown) {
-                dialog_open({ Title: cockpit.format(_("Please confirm stopping of $0"),
-                                                    vdo.name),
-                              Body: TeardownMessage(usage),
-                              Action: {
-                                  Title: _("Stop"),
-                                  action: function () {
-                                      return teardown_active_usage(client, usage)
-                                              .then(function () {
-                                                  return vdo.stop();
-                                              });
-                                  }
-                              }
+                dialog_open({
+                    Title: cockpit.format(_("Please confirm stopping of $0"),
+                                          vdo.name),
+                    Body: TeardownMessage(usage),
+                    Action: {
+                        Title: _("Stop"),
+                        action: function () {
+                            return teardown_active_usage(client, usage)
+                                    .then(function () {
+                                        return vdo.stop();
+                                    });
+                        }
+                    }
                 });
             } else {
                 return vdo.stop();
@@ -172,8 +174,9 @@ export class VDODetails extends React.Component {
             var usage = get_active_usage(client, block ? block.path : "/");
 
             if (usage.Blocking) {
-                dialog_open({ Title: cockpit.format(_("$0 is in active use"), vdo.name),
-                              Body: BlockingMessage(usage),
+                dialog_open({
+                    Title: cockpit.format(_("$0 is in active use"), vdo.name),
+                    Body: BlockingMessage(usage),
                 });
                 return;
             }
@@ -192,51 +195,54 @@ export class VDODetails extends React.Component {
                 }
             }
 
-            dialog_open({ Title: cockpit.format(_("Please confirm deletion of $0"),
-                                                vdo.name),
-                          Body: TeardownMessage(usage),
-                          Action: {
-                              Title: _("Delete"),
-                              Danger: _("Deleting a VDO device will erase all data on it."),
-                              action: function () {
-                                  return teardown_active_usage(client, usage)
-                                          .then(function () {
-                                              return teardown_configs()
-                                                      .then(function () {
-                                                          var location = cockpit.location;
-                                                          return vdo.remove().then(function () {
-                                                              location.go("/");
-                                                          });
-                                                      });
-                                          });
-                              }
-                          }
+            dialog_open({
+                Title: cockpit.format(_("Please confirm deletion of $0"),
+                                      vdo.name),
+                Body: TeardownMessage(usage),
+                Action: {
+                    Title: _("Delete"),
+                    Danger: _("Deleting a VDO device will erase all data on it."),
+                    action: function () {
+                        return teardown_active_usage(client, usage)
+                                .then(function () {
+                                    return teardown_configs()
+                                            .then(function () {
+                                                var location = cockpit.location;
+                                                return vdo.remove().then(function () {
+                                                    location.go("/");
+                                                });
+                                            });
+                                });
+                    }
+                }
             });
         }
 
         function grow_logical() {
-            dialog_open({ Title: cockpit.format(_("Grow logical size of $0"), vdo.name),
-                          Fields: [
-                              SizeSlider("lsize", _("Logical Size"),
-                                         { max: 5 * vdo.logical_size,
-                                           min: vdo.logical_size,
-                                           round: 512,
-                                           value: vdo.logical_size,
-                                           allow_infinite: true
-                                         })
-                          ],
-                          Action: {
-                              Title: _("Grow"),
-                              action: function (vals) {
-                                  if (vals.lsize > vdo.logical_size)
-                                      return vdo.grow_logical(vals.lsize).then(() => {
-                                          if (block && block.IdUsage == "filesystem")
-                                              return cockpit.spawn(["fsadm", "resize",
-                                                  decode_filename(block.Device)],
-                                                                   { superuser: true });
-                                      });
-                              }
-                          }
+            dialog_open({
+                Title: cockpit.format(_("Grow logical size of $0"), vdo.name),
+                Fields: [
+                    SizeSlider("lsize", _("Logical Size"),
+                               {
+                                   max: 5 * vdo.logical_size,
+                                   min: vdo.logical_size,
+                                   round: 512,
+                                   value: vdo.logical_size,
+                                   allow_infinite: true
+                               })
+                ],
+                Action: {
+                    Title: _("Grow"),
+                    action: function (vals) {
+                        if (vals.lsize > vdo.logical_size)
+                            return vdo.grow_logical(vals.lsize).then(() => {
+                                if (block && block.IdUsage == "filesystem")
+                                    return cockpit.spawn(["fsadm", "resize",
+                                        decode_filename(block.Device)],
+                                                         { superuser: true });
+                            });
+                    }
+                }
             });
         }
 

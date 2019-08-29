@@ -376,9 +376,10 @@ LIBVIRT_PROVIDER = {
                     return createTempFile(domXML);
                 })
                 .then((tempFilename) => {
-                    return spawnVirsh({ connectionName,
-                                        method: 'SET_VCPU_SETTINGS',
-                                        args: ['define', tempFilename.trim()]
+                    return spawnVirsh({
+                        connectionName,
+                        method: 'SET_VCPU_SETTINGS',
+                        args: ['define', tempFilename.trim()]
                     });
                 });
     },
@@ -439,10 +440,11 @@ LIBVIRT_PROVIDER = {
     GET_HYPERVISOR_MAX_VCPU ({ connectionName }) {
         logDebug(`${this.name}.GET_HYPERVISOR_MAX_VCPU:`);
         if (connectionName) {
-            return dispatch => spawnVirshNoHandler({ connectionName,
-                                                     method: 'GET_HYPERVISOR_MAX_VCPU',
-                                                     failHandler: (exc) => console.warning("GET HYPERVISOR MAX VCPU action failed: ", exc.message),
-                                                     args: ['-r', 'maxvcpus']
+            return dispatch => spawnVirshNoHandler({
+                connectionName,
+                method: 'GET_HYPERVISOR_MAX_VCPU',
+                failHandler: (exc) => console.warning("GET HYPERVISOR MAX VCPU action failed: ", exc.message),
+                args: ['-r', 'maxvcpus']
             }).then((count) => dispatch(setHypervisorMaxVCPU({ count, connectionName })));
         }
 

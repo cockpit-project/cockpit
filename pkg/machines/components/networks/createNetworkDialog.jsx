@@ -396,13 +396,17 @@ class CreateNetworkModal extends React.Component {
         if (Object.getOwnPropertyNames(validateParams(this.state)).length > 0) {
             this.setState({ inProgress: false, validate: true });
         } else {
-            const { connectionName, name, forwardMode, ipv4, ipv6, prefix, device,
-                    ipv4DhcpRangeStart, ipv4DhcpRangeEnd, ipv6DhcpRangeStart, ipv6DhcpRangeEnd } = this.state;
+            const {
+                connectionName, name, forwardMode, ipv4, ipv6, prefix, device,
+                ipv4DhcpRangeStart, ipv4DhcpRangeEnd, ipv6DhcpRangeStart, ipv6DhcpRangeEnd
+            } = this.state;
             const netmask = utils.netmaskConvert(this.state.netmask);
 
             this.setState({ createInProgress: true });
-            networkCreate({ connectionName, name, forwardMode, device, ipv4, netmask, ipv6, prefix,
-                            ipv4DhcpRangeStart, ipv4DhcpRangeEnd, ipv6DhcpRangeStart, ipv6DhcpRangeEnd })
+            networkCreate({
+                connectionName, name, forwardMode, device, ipv4, netmask, ipv6, prefix,
+                ipv4DhcpRangeStart, ipv4DhcpRangeEnd, ipv6DhcpRangeStart, ipv6DhcpRangeEnd
+            })
                     .fail(exc => {
                         this.setState({ createInProgress: false });
                         this.dialogErrorSet(_("Virtual Network failed to be created"), exc.message);

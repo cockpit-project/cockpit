@@ -351,28 +351,29 @@ export const dialog_open = (def) => {
         let actions = [];
         if (def.Action) {
             actions = [
-                { caption: def.Action.Title,
-                  style: (def.Action.Danger || def.Action.DangerButton) ? "danger" : "primary",
-                  disabled: running_promise != null,
-                  clicked: function (progress_callback) {
-                      return validate()
-                              .then(() => {
-                                  const visible_values = { };
-                                  fields.forEach(f => {
-                                      if (is_visible(f, values))
-                                          visible_values[f.tag] = values[f.tag];
-                                  });
-                                  return def.Action.action(visible_values, progress_callback);
-                              })
-                              .catch(error => {
-                                  if (error.toString() != "[object Object]") {
-                                      return Promise.reject(error);
-                                  } else {
-                                      update(error, null);
-                                      return Promise.reject();
-                                  }
-                              });
-                  }
+                {
+                    caption: def.Action.Title,
+                    style: (def.Action.Danger || def.Action.DangerButton) ? "danger" : "primary",
+                    disabled: running_promise != null,
+                    clicked: function (progress_callback) {
+                        return validate()
+                                .then(() => {
+                                    const visible_values = { };
+                                    fields.forEach(f => {
+                                        if (is_visible(f, values))
+                                            visible_values[f.tag] = values[f.tag];
+                                    });
+                                    return def.Action.action(visible_values, progress_callback);
+                                })
+                                .catch(error => {
+                                    if (error.toString() != "[object Object]") {
+                                        return Promise.reject(error);
+                                    } else {
+                                        update(error, null);
+                                        return Promise.reject();
+                                    }
+                                });
+                    }
                 }
             ];
         }

@@ -194,9 +194,10 @@ function setup() {
                 }),
             };
             var footer_props = {
-                actions: [{ clicked: set_profile,
-                            caption: _("Change Profile"),
-                            style: 'primary',
+                actions: [{
+                    clicked: set_profile,
+                    caption: _("Change Profile"),
+                    style: 'primary',
                 }
                 ],
                 static_error: static_error,

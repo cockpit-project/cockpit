@@ -300,9 +300,10 @@ export class KdumpPage extends React.Component {
         // also test modifying properties in subsequent render calls
         var footerProps = {
             actions: [
-                { clicked: self.props.onCrashKernel.bind(self),
-                  caption: _("Crash system"),
-                  style: 'danger',
+                {
+                    clicked: self.props.onCrashKernel.bind(self),
+                    caption: _("Crash system"),
+                    style: 'danger',
                 }
             ],
             dialog_done: self.dialogClosed,
@@ -348,9 +349,10 @@ export class KdumpPage extends React.Component {
         // also test modifying properties in subsequent render calls
         var footerProps = {
             actions: [
-                { clicked: this.handleApplyClick.bind(this),
-                  caption: _("Apply"),
-                  style: 'primary',
+                {
+                    clicked: this.handleApplyClick.bind(this),
+                    caption: _("Apply"),
+                    style: 'primary',
                 },
             ],
             dialog_done: this.dialogClosed.bind(this),

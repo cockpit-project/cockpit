@@ -49,10 +49,12 @@ function findPCI(udevdb, info) {
     for (const syspath in udevdb) {
         const props = udevdb[syspath];
         if (props.SUBSYSTEM === "pci")
-            info.pci.push({ slot: props.PCI_SLOT_NAME || syspath.split("/").pop(),
-                            cls: props.ID_PCI_CLASS_FROM_DATABASE || props.PCI_CLASS.toString(),
-                            vendor: props.ID_VENDOR_FROM_DATABASE || "",
-                            model: props.ID_MODEL_FROM_DATABASE || props.PCI_ID || "" });
+            info.pci.push({
+                slot: props.PCI_SLOT_NAME || syspath.split("/").pop(),
+                cls: props.ID_PCI_CLASS_FROM_DATABASE || props.PCI_CLASS.toString(),
+                vendor: props.ID_VENDOR_FROM_DATABASE || "",
+                model: props.ID_MODEL_FROM_DATABASE || props.PCI_ID || ""
+            });
     }
 }
 

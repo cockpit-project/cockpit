@@ -48,32 +48,34 @@ class VGroupSidebar extends React.Component {
         }
 
         function add_disk() {
-            dialog_open({ Title: _("Add Disks"),
-                          Fields: [
-                              SelectSpaces("disks", _("Disks"),
-                                           { empty_warning: _("No disks are available."),
-                                             validate: function(disks) {
-                                                 if (disks.length === 0)
-                                                     return _("At least one disk is needed.");
-                                             },
-                                             spaces: utils.get_available_spaces(client).filter(filter_inside_vgroup)
-                                           })
-                          ],
-                          Action: {
-                              Title: _("Add"),
-                              action: function(vals) {
-                                  return utils.prepare_available_spaces(client, vals.disks).then(function() {
-                                      var paths = Array.prototype.slice.call(arguments);
+            dialog_open({
+                Title: _("Add Disks"),
+                Fields: [
+                    SelectSpaces("disks", _("Disks"),
+                                 {
+                                     empty_warning: _("No disks are available."),
+                                     validate: function(disks) {
+                                         if (disks.length === 0)
+                                             return _("At least one disk is needed.");
+                                     },
+                                     spaces: utils.get_available_spaces(client).filter(filter_inside_vgroup)
+                                 })
+                ],
+                Action: {
+                    Title: _("Add"),
+                    action: function(vals) {
+                        return utils.prepare_available_spaces(client, vals.disks).then(function() {
+                            var paths = Array.prototype.slice.call(arguments);
 
-                                      // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
-                                      // https://github.com/cockpit-project/cockpit/issues/10956
-                                      // eslint-disable-next-line cockpit/no-cockpit-all
-                                      return cockpit.all(paths.map(function(p) {
-                                          return vgroup.AddDevice(p, {});
-                                      }));
-                                  });
-                              }
-                          }
+                            // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
+                            // https://github.com/cockpit-project/cockpit/issues/10956
+                            // eslint-disable-next-line cockpit/no-cockpit-all
+                            return cockpit.all(paths.map(function(p) {
+                                return vgroup.AddDevice(p, {});
+                            }));
+                        });
+                    }
+                }
             });
         }
 
@@ -175,22 +177,24 @@ export class VGroupDetails extends React.Component {
         function rename() {
             var location = cockpit.location;
 
-            dialog_open({ Title: _("Rename Volume Group"),
-                          Fields: [
-                              TextInput("name", _("Name"),
-                                        { value: vgroup.Name,
-                                          validate: utils.validate_lvm2_name
-                                        })
-                          ],
-                          Action: {
-                              Title: _("Rename"),
-                              action: function (vals) {
-                                  return vgroup.Rename(vals.name, { })
-                                          .done(function () {
-                                              location.go(['vg', vals.name]);
-                                          });
-                              }
-                          }
+            dialog_open({
+                Title: _("Rename Volume Group"),
+                Fields: [
+                    TextInput("name", _("Name"),
+                              {
+                                  value: vgroup.Name,
+                                  validate: utils.validate_lvm2_name
+                              })
+                ],
+                Action: {
+                    Title: _("Rename"),
+                    action: function (vals) {
+                        return vgroup.Rename(vals.name, { })
+                                .done(function () {
+                                    location.go(['vg', vals.name]);
+                                });
+                    }
+                }
             });
         }
 
@@ -199,30 +203,31 @@ export class VGroupDetails extends React.Component {
             var usage = utils.get_active_usage(client, vgroup.path);
 
             if (usage.Blocking) {
-                dialog_open({ Title: cockpit.format(_("$0 is in active use"),
-                                                    vgroup.Name),
-                              Body: BlockingMessage(usage)
+                dialog_open({
+                    Title: cockpit.format(_("$0 is in active use"),
+                                          vgroup.Name),
+                    Body: BlockingMessage(usage)
                 });
                 return;
             }
 
-            dialog_open({ Title: cockpit.format(_("Please confirm deletion of $0"), vgroup.Name),
-                          Footer: TeardownMessage(usage),
-                          Action: {
-                              Danger: _("Deleting a volume group will erase all data on it."),
-                              Title: _("Delete"),
-                              action: function () {
-                                  return utils.teardown_active_usage(client, usage)
-                                          .then(function () {
-                                              return vgroup.Delete(true,
-                                                                   { 'tear-down': { t: 'b', v: true }
-                                                                   })
-                                                      .done(function () {
-                                                          location.go('/');
-                                                      });
-                                          });
-                              }
-                          }
+            dialog_open({
+                Title: cockpit.format(_("Please confirm deletion of $0"), vgroup.Name),
+                Footer: TeardownMessage(usage),
+                Action: {
+                    Danger: _("Deleting a volume group will erase all data on it."),
+                    Title: _("Delete"),
+                    action: function () {
+                        return utils.teardown_active_usage(client, usage)
+                                .then(function () {
+                                    return vgroup.Delete(true,
+                                                         { 'tear-down': { t: 'b', v: true } })
+                                            .done(function () {
+                                                location.go('/');
+                                            });
+                                });
+                    }
+                }
             });
         }
 

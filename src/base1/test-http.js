@@ -335,8 +335,10 @@ QUnit.test("no dns address", function (assert) {
     const done = assert.async();
     assert.expect(2);
 
-    cockpit.http({ port: 8080,
-                   address: "the-other-host.example.com" })
+    cockpit.http({
+        port: 8080,
+        address: "the-other-host.example.com"
+    })
             .get("/")
             .fail(function(ex, data) {
             /* Unfortunately we can see either of these errors when running unit tests */
@@ -355,8 +357,10 @@ QUnit.test("address with params", function (assert) {
     // use our window's host and port to request external
     assert.expect(2);
 
-    cockpit.http({ port: parseInt(window.location.port, 10),
-                   address: window.location.hostname })
+    cockpit.http({
+        port: parseInt(window.location.port, 10),
+        address: window.location.hostname
+    })
             .get("/mock/qs", { key: "value", name: "Scruffy the Janitor" })
             .done(function(resp) {
                 assert.equal(resp, "key=value&name=Scruffy+the+Janitor", "right query string");

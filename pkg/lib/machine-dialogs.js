@@ -139,8 +139,10 @@ function Dialog(selector, address, machines_ins, codes) {
 
     self.try_to_connect = function(address, options) {
         var dfd = $.Deferred();
-        var conn_options = $.extend({ payload: "echo",
-                                      host: address },
+        var conn_options = $.extend({
+            payload: "echo",
+            host: address
+        },
                                     options);
 
         var machine = self.machines_ins.lookup(address);
@@ -517,8 +519,10 @@ function MachinePort(dialog) {
             return;
         }
 
-        dialog.render({ port : machine.port,
-                        allow_connection_string : machines.allow_connection_string });
+        dialog.render({
+            port : machine.port,
+            allow_connection_string : machines.allow_connection_string
+        });
         if (machines.allow_connection_string)
             dialog.get_sel(".btn-primary").on("click", change_port);
     };
@@ -815,9 +819,11 @@ function SyncUsers(dialog) {
     var perm_failed = null;
 
     function load_users() {
-        var local = cockpit.dbus(null, { bus: "internal",
-                                         host: "localhost",
-                                         superuser: true });
+        var local = cockpit.dbus(null, {
+            bus: "internal",
+            host: "localhost",
+            superuser: true
+        });
         $(local).on("close", function(event, options) {
             perm_failed = options;
             render();

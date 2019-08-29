@@ -54,17 +54,20 @@ QUnit.test("empty json", function (assert) {
 
 QUnit.test("two definitions", function (assert) {
     machinesParseTest(assert,
-                      { "01.json": '{"green": {"visible": true, "address": "1.2.3.4"}, ' +
-                                   ' "9.8.7.6": {"visible": false, "address": "9.8.7.6", "user": "admin"}}' },
-                      { green: {
-                          address: { t: "s", v: "1.2.3.4" },
-                          visible: { t: "b", v: true }
+                      {
+                          "01.json": '{"green": {"visible": true, "address": "1.2.3.4"}, ' +
+                                   ' "9.8.7.6": {"visible": false, "address": "9.8.7.6", "user": "admin"}}'
                       },
-                        "9.8.7.6": {
-                            address: { t: "s", v: "9.8.7.6" },
-                            user: { t: "s", v: "admin" },
-                            visible: { t: "b", v: false }
-                        }
+                      {
+                          green: {
+                              address: { t: "s", v: "1.2.3.4" },
+                              visible: { t: "b", v: true }
+                          },
+                          "9.8.7.6": {
+                              address: { t: "s", v: "9.8.7.6" },
+                              user: { t: "s", v: "admin" },
+                              visible: { t: "b", v: false }
+                          }
                       });
 });
 
@@ -81,24 +84,26 @@ QUnit.test("merge several JSON files", function (assert) {
      * property to blue, and adds an entire new host yellow */
     machinesParseTest(
         assert,
-        { "01-green.json": '{"green": {"visible": true, "address": "1.2.3.4"}}',
-          "02-blue.json":  '{"blue": {"address": "9.8.7.6"}}',
-          "09-webui.json": '{"green": {"visible": false}, ' +
+        {
+            "01-green.json": '{"green": {"visible": true, "address": "1.2.3.4"}}',
+            "02-blue.json":  '{"blue": {"address": "9.8.7.6"}}',
+            "09-webui.json": '{"green": {"visible": false}, ' +
                            ' "blue":  {"user": "joe"}, ' +
                            ' "yellow": {"address": "fe80::1", "user": "sue"}}'
         },
-        { green: {
-            address: { t: "s", v: "1.2.3.4" },
-            visible: { t: "b", v: false }
-        },
-          blue: {
-              address: { t: "s", v: "9.8.7.6" },
-              user: { t: "s", v: "joe" },
-          },
-          yellow: {
-              address: { t: "s", v: "fe80::1" },
-              user: { t: "s", v: "sue" },
-          }
+        {
+            green: {
+                address: { t: "s", v: "1.2.3.4" },
+                visible: { t: "b", v: false }
+            },
+            blue: {
+                address: { t: "s", v: "9.8.7.6" },
+                user: { t: "s", v: "joe" },
+            },
+            yellow: {
+                address: { t: "s", v: "fe80::1" },
+                user: { t: "s", v: "sue" },
+            }
         }
     );
 });
@@ -106,25 +111,27 @@ QUnit.test("merge several JSON files", function (assert) {
 QUnit.test("merge JSON files with errors", function (assert) {
     machinesParseTest(
         assert,
-        { "01-valid.json":    '{"green": {"visible": true, "address": "1.2.3.4"}}',
-          "02-syntax.json":   '[a',
-          "03-toptype.json":  '["green"]',
-          "04-toptype.json":  '{"green": ["visible"]}',
-          "05-valid.json":    '{"blue": {"address": "fe80::1"}}',
-          // goodprop should still be considered
-          "06-proptype.json": '{"green": {"visible": [], "address": {"bar": null}, "goodprop": "yeah"}}',
-          "07-valid.json":    '{"green": {"user": "joe"}}',
-          "08-empty.json":    ''
+        {
+            "01-valid.json":    '{"green": {"visible": true, "address": "1.2.3.4"}}',
+            "02-syntax.json":   '[a',
+            "03-toptype.json":  '["green"]',
+            "04-toptype.json":  '{"green": ["visible"]}',
+            "05-valid.json":    '{"blue": {"address": "fe80::1"}}',
+            // goodprop should still be considered
+            "06-proptype.json": '{"green": {"visible": [], "address": {"bar": null}, "goodprop": "yeah"}}',
+            "07-valid.json":    '{"green": {"user": "joe"}}',
+            "08-empty.json":    ''
         },
-        { green: {
-            address:  { t: "s", v: "1.2.3.4" },
-            visible:  { t: "b", v: true },
-            user:     { t: "s", v: "joe" },
-            goodprop: { t: "s", v: "yeah" },
-        },
-          blue: {
-              address: { t: "s", v: "fe80::1" }
-          }
+        {
+            green: {
+                address:  { t: "s", v: "1.2.3.4" },
+                visible:  { t: "b", v: true },
+                user:     { t: "s", v: "joe" },
+                goodprop: { t: "s", v: "yeah" },
+            },
+            blue: {
+                address: { t: "s", v: "fe80::1" }
+            }
         }
     );
 });
@@ -173,8 +180,10 @@ QUnit.test("add host to existing map", function (assert) {
                        '{"green": {"visible": true, "address": "1.2.3.4"}}',
                        "blue",
                        { visible: cockpit.variant('b', false), address: cockpit.variant('s', "9.8.7.6") },
-                       { green: { address: "1.2.3.4", visible: true },
-                         blue:  { address: "9.8.7.6", visible: false } });
+                       {
+                           green: { address: "1.2.3.4", visible: true },
+                           blue:  { address: "9.8.7.6", visible: false }
+                       });
 });
 
 QUnit.test("change bool host property", function (assert) {

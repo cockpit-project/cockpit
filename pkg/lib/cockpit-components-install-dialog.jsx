@@ -112,10 +112,11 @@ export function install_dialog(pkg) {
 
         const footer = {
             actions: [
-                { caption: _("Install"),
-                  style: "primary",
-                  clicked: install_missing,
-                  disabled: data == null
+                {
+                    caption: _("Install"),
+                    style: "primary",
+                    clicked: install_missing,
+                    disabled: data == null
                 }
             ],
             static_error: error_message,

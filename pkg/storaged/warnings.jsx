@@ -73,15 +73,19 @@ export function find_warnings(client) {
         const vdo = content_block ? client.vdo_overlay.find_by_backing_block(content_block) : null;
 
         if (fsys && fsys.Size && (lvol.Size - fsys.Size - crypto_overhead) > vgroup.ExtentSize && fsys.Resize) {
-            enter_warning(path, { warning: "unused-space",
-                                  volume_size: lvol.Size - crypto_overhead,
-                                  content_size: fsys.Size });
+            enter_warning(path, {
+                warning: "unused-space",
+                volume_size: lvol.Size - crypto_overhead,
+                content_size: fsys.Size
+            });
         }
 
         if (vdo && (lvol.Size - vdo.physical_size - crypto_overhead) > vgroup.ExtentSize) {
-            enter_warning(path, { warning: "unused-space",
-                                  volume_size: lvol.Size - crypto_overhead,
-                                  content_size: vdo.physical_size });
+            enter_warning(path, {
+                warning: "unused-space",
+                volume_size: lvol.Size - crypto_overhead,
+                content_size: vdo.physical_size
+            });
         }
     }
 

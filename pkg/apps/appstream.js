@@ -34,8 +34,7 @@ export function get_metainfo_db() {
 
         var buf = "";
         python.spawn([inotify_py, watch_appstream_py], [],
-                     { environ: ["LANGUAGE=" + (cockpit.language || "en")]
-                     })
+                     { environ: ["LANGUAGE=" + (cockpit.language || "en")] })
                 .stream(function (data) {
                     var lines, metadata;
 

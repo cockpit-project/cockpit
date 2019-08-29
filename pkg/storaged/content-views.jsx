@@ -90,14 +90,15 @@ function create_tabs(client, target, is_partition) {
         if (tab_warnings.length > 0)
             name = <span><span className="pficon pficon-warning-triangle-o" /> {name}</span>;
         tabs.push(
-            { name: name,
-              renderer: renderer,
-              data: {
-                  client: client,
-                  block: block,
-                  lvol: lvol,
-                  warnings: tab_warnings,
-              }
+            {
+                name: name,
+                renderer: renderer,
+                data: {
+                    client: client,
+                    block: block,
+                    lvol: lvol,
+                    warnings: tab_warnings,
+                }
             });
     }
 
@@ -106,25 +107,28 @@ function create_tabs(client, target, is_partition) {
         if (!vgroup)
             return;
 
-        dialog_open({ Title: _("Create Thin Volume"),
-                      Fields: [
-                          TextInput("name", _("Name"),
-                                    { value: next_default_logical_volume_name(client, vgroup),
-                                      validate: utils.validate_lvm2_name
-                                    }),
-                          SizeSlider("size", _("Size"),
-                                     { value: lvol.Size,
-                                       max: lvol.Size * 3,
-                                       allow_infinite: true,
-                                       round: vgroup.ExtentSize
-                                     })
-                      ],
-                      Action: {
-                          Title: _("Create"),
-                          action: function (vals) {
-                              return vgroup.CreateThinVolume(vals.name, vals.size, lvol.path, { });
-                          }
-                      }
+        dialog_open({
+            Title: _("Create Thin Volume"),
+            Fields: [
+                TextInput("name", _("Name"),
+                          {
+                              value: next_default_logical_volume_name(client, vgroup),
+                              validate: utils.validate_lvm2_name
+                          }),
+                SizeSlider("size", _("Size"),
+                           {
+                               value: lvol.Size,
+                               max: lvol.Size * 3,
+                               allow_infinite: true,
+                               round: vgroup.ExtentSize
+                           })
+            ],
+            Action: {
+                Title: _("Create"),
+                action: function (vals) {
+                    return vgroup.CreateThinVolume(vals.name, vals.size, lvol.path, { });
+                }
+            }
         });
     }
 
@@ -219,16 +223,17 @@ function create_tabs(client, target, is_partition) {
                 }
             }
 
-            dialog_open({ Title: _("Unlock"),
-                          Fields: [
-                              PassInput("passphrase", _("Passphrase"), {})
-                          ],
-                          Action: {
-                              Title: _("Unlock"),
-                              action: function (vals) {
-                                  return crypto.Unlock(vals.passphrase, {});
-                              }
-                          }
+            dialog_open({
+                Title: _("Unlock"),
+                Fields: [
+                    PassInput("passphrase", _("Passphrase"), {})
+                ],
+                Action: {
+                    Title: _("Unlock"),
+                    action: function (vals) {
+                        return crypto.Unlock(vals.passphrase, {});
+                    }
+                }
             });
         });
     }
@@ -280,29 +285,29 @@ function create_tabs(client, target, is_partition) {
             var usage = utils.get_active_usage(client, target.path);
 
             if (usage.Blocking) {
-                dialog_open({ Title: cockpit.format(_("$0 is in active use"), name),
-                              Body: BlockingMessage(usage)
+                dialog_open({
+                    Title: cockpit.format(_("$0 is in active use"), name),
+                    Body: BlockingMessage(usage)
                 });
                 return;
             }
 
-            dialog_open({ Title: cockpit.format(_("Please confirm deletion of $0"), name),
-                          Footer: TeardownMessage(usage),
-                          Action: {
-                              Danger: danger,
-                              Title: _("Delete"),
-                              action: function () {
-                                  return utils.teardown_active_usage(client, usage)
-                                          .then(function () {
-                                              if (lvol)
-                                                  return lvol.Delete({ 'tear-down': { t: 'b', v: true }
-                                                  });
-                                              else if (block_part)
-                                                  return block_part.Delete({ 'tear-down': { t: 'b', v: true }
-                                                  });
-                                          });
-                              }
-                          }
+            dialog_open({
+                Title: cockpit.format(_("Please confirm deletion of $0"), name),
+                Footer: TeardownMessage(usage),
+                Action: {
+                    Danger: danger,
+                    Title: _("Delete"),
+                    action: function () {
+                        return utils.teardown_active_usage(client, usage)
+                                .then(function () {
+                                    if (lvol)
+                                        return lvol.Delete({ 'tear-down': { t: 'b', v: true } });
+                                    else if (block_part)
+                                        return block_part.Delete({ 'tear-down': { t: 'b', v: true } });
+                                });
+                    }
+                }
             });
         }
     }
@@ -502,45 +507,53 @@ const BlockContent = ({ client, block, allow_partitions }) => {
         var usage = utils.get_active_usage(client, block.path);
 
         if (usage.Blocking) {
-            dialog_open({ Title: cockpit.format(_("$0 is in active use"), utils.block_name(block)),
-                          Body: BlockingMessage(usage),
+            dialog_open({
+                Title: cockpit.format(_("$0 is in active use"), utils.block_name(block)),
+                Body: BlockingMessage(usage),
             });
             return;
         }
 
-        dialog_open({ Title: cockpit.format(_("Format Disk $0"), utils.block_name(block)),
-                      Footer: TeardownMessage(usage),
-                      Fields: [
-                          SelectOne("erase", _("Erase"),
-                                    { choices: [
-                                        { value: "no", title: _("Don't overwrite existing data") },
-                                        { value: "zero", title: _("Overwrite existing data with zeros") }
-                                    ] }),
-                          SelectOne("type", _("Partitioning"),
-                                    { value: "gpt",
-                                      choices: [
-                                          { value: "dos", title: _("Compatible with all systems and devices (MBR)") },
-                                          { value: "gpt",
-                                            title: _("Compatible with modern system and hard disks > 2TB (GPT)")
-                                          },
-                                          { value: "empty", title: _("No partitioning") }
-                                      ] })
-                      ],
-                      Action: {
-                          Title: _("Format"),
-                          Danger: _("Formatting a disk will erase all data on it."),
-                          action: function (vals) {
-                              var options = { 'no-block': { t: 'b', v: true },
-                                              'tear-down': { t: 'b', v: true }
-                              };
-                              if (vals.erase != "no")
-                                  options.erase = { t: 's', v: vals.erase };
-                              return utils.teardown_active_usage(client, usage)
-                                      .then(function () {
-                                          return block.Format(vals.type, options);
-                                      });
-                          }
-                      }
+        dialog_open({
+            Title: cockpit.format(_("Format Disk $0"), utils.block_name(block)),
+            Footer: TeardownMessage(usage),
+            Fields: [
+                SelectOne("erase", _("Erase"),
+                          {
+                              choices: [
+                                  { value: "no", title: _("Don't overwrite existing data") },
+                                  { value: "zero", title: _("Overwrite existing data with zeros") }
+                              ]
+                          }),
+                SelectOne("type", _("Partitioning"),
+                          {
+                              value: "gpt",
+                              choices: [
+                                  { value: "dos", title: _("Compatible with all systems and devices (MBR)") },
+                                  {
+                                      value: "gpt",
+                                      title: _("Compatible with modern system and hard disks > 2TB (GPT)")
+                                  },
+                                  { value: "empty", title: _("No partitioning") }
+                              ]
+                          })
+            ],
+            Action: {
+                Title: _("Format"),
+                Danger: _("Formatting a disk will erase all data on it."),
+                action: function (vals) {
+                    var options = {
+                        'no-block': { t: 'b', v: true },
+                        'tear-down': { t: 'b', v: true }
+                    };
+                    if (vals.erase != "no")
+                        options.erase = { t: 's', v: vals.erase };
+                    return utils.teardown_active_usage(client, usage)
+                            .then(function () {
+                                return block.Format(vals.type, options);
+                            });
+                }
+            }
         });
     }
 
@@ -636,24 +649,29 @@ export class VGroup extends React.Component {
             if (vgroup.FreeSize == 0)
                 return;
 
-            dialog_open({ Title: _("Create Logical Volume"),
-                          Fields: [
-                              TextInput("name", _("Name"),
-                                        { value: next_default_logical_volume_name(self.props.client, vgroup),
-                                          validate: utils.validate_lvm2_name
-                                        }),
-                              SelectOne("purpose", _("Purpose"),
-                                        { value: "block",
-                                          choices: [
-                                              { value: "block",
-                                                title: _("Block device for filesystems"),
-                                              },
-                                              { value: "pool", title: _("Pool for thinly provisioned volumes") }
-                                              /* Not implemented
+            dialog_open({
+                Title: _("Create Logical Volume"),
+                Fields: [
+                    TextInput("name", _("Name"),
+                              {
+                                  value: next_default_logical_volume_name(self.props.client, vgroup),
+                                  validate: utils.validate_lvm2_name
+                              }),
+                    SelectOne("purpose", _("Purpose"),
+                              {
+                                  value: "block",
+                                  choices: [
+                                      {
+                                          value: "block",
+                                          title: _("Block device for filesystems"),
+                                      },
+                                      { value: "pool", title: _("Pool for thinly provisioned volumes") }
+                                      /* Not implemented
                                                  { value: "cache", Title: _("Cache") }
                                                */
-                                          ] }),
-                              /* Not Implemented
+                                  ]
+                              }),
+                    /* Not Implemented
                                  { SelectOne: "layout",
                                  Title: _("Layout"),
                                  Options: [
@@ -681,19 +699,21 @@ export class VGroup extends React.Component {
                                  ],
                                  },
                                */
-                              SizeSlider("size", _("Size"),
-                                         { max: vgroup.FreeSize,
-                                           round: vgroup.ExtentSize })
-                          ],
-                          Action: {
-                              Title: _("Create"),
-                              action: function (vals) {
-                                  if (vals.purpose == "block")
-                                      return vgroup.CreatePlainVolume(vals.name, vals.size, { });
-                                  else if (vals.purpose == "pool")
-                                      return vgroup.CreateThinPoolVolume(vals.name, vals.size, { });
-                              }
-                          }
+                    SizeSlider("size", _("Size"),
+                               {
+                                   max: vgroup.FreeSize,
+                                   round: vgroup.ExtentSize
+                               })
+                ],
+                Action: {
+                    Title: _("Create"),
+                    action: function (vals) {
+                        if (vals.purpose == "block")
+                            return vgroup.CreatePlainVolume(vals.name, vals.size, { });
+                        else if (vals.purpose == "pool")
+                            return vgroup.CreateThinPoolVolume(vals.name, vals.size, { });
+                    }
+                }
             });
         }
 

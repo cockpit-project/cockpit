@@ -153,9 +153,10 @@ export function existing_passphrase_fields(explanation) {
     return [
         Skip("medskip", { visible: vals => vals.needs_explicit_passphrase }),
         PassInput("passphrase", _("Disk passphrase"),
-                  { visible: vals => vals.needs_explicit_passphrase,
-                    validate: val => !val.length && _("Passphrase cannot be empty"),
-                    explanation: explanation
+                  {
+                      visible: vals => vals.needs_explicit_passphrase,
+                      validate: val => !val.length && _("Passphrase cannot be empty"),
+                      explanation: explanation
                   })
     ];
 }
@@ -197,92 +198,98 @@ function validate_url(url) {
 function add_dialog(client, block) {
     let recovered_passphrase;
 
-    const dlg = dialog_open({ Title: _("Add Key"),
-                              Fields: [
-                                  SelectOneRadio("type", _("Key source"),
-                                                 { value: "tang",
-                                                   widest_title: _("Repeat passphrase"),
-                                                   choices: [
-                                                       { value: "luks-passphrase", title: _("Passphrase") },
-                                                       { value: "tang", title: _("Tang keyserver") }
-                                                   ] }),
-                                  Skip("medskip"),
-                                  PassInput("new_passphrase", _("New passphrase"),
-                                            { visible: vals => vals.type == "luks-passphrase",
-                                              validate: val => !val.length && _("Passphrase cannot be empty"),
-                                            }),
-                                  PassInput("new_passphrase2", _("Repeat passphrase"),
-                                            { visible: vals => vals.type == "luks-passphrase",
-                                              validate: (val, vals) => {
-                                                  return (vals.new_passphrase.length &&
+    const dlg = dialog_open({
+        Title: _("Add Key"),
+        Fields: [
+            SelectOneRadio("type", _("Key source"),
+                           {
+                               value: "tang",
+                               widest_title: _("Repeat passphrase"),
+                               choices: [
+                                   { value: "luks-passphrase", title: _("Passphrase") },
+                                   { value: "tang", title: _("Tang keyserver") }
+                               ]
+                           }),
+            Skip("medskip"),
+            PassInput("new_passphrase", _("New passphrase"),
+                      {
+                          visible: vals => vals.type == "luks-passphrase",
+                          validate: val => !val.length && _("Passphrase cannot be empty"),
+                      }),
+            PassInput("new_passphrase2", _("Repeat passphrase"),
+                      {
+                          visible: vals => vals.type == "luks-passphrase",
+                          validate: (val, vals) => {
+                              return (vals.new_passphrase.length &&
                                                         vals.new_passphrase != val &&
                                                         _("Passphrases do not match"));
-                                              }
-                                            }),
-                                  TextInput("tang_url", _("Keyserver address"),
-                                            { visible: vals => vals.type == "tang",
-                                              validate: validate_url
-                                            })
-                              ].concat(existing_passphrase_fields(_("Saving a new passphrase requires unlocking the disk. Please provide a current disk passphrase."))),
-                              Action: {
-                                  Title: _("Add"),
-                                  action: function (vals) {
-                                      const existing_passphrase = vals.passphrase || recovered_passphrase;
-                                      if (vals.type == "luks-passphrase") {
-                                          return passphrase_add(block, vals.new_passphrase, existing_passphrase);
-                                      } else {
-                                          return get_tang_adv(vals.tang_url).then(function (adv) {
-                                              edit_tang_adv(client, block, null,
-                                                            vals.tang_url, adv, existing_passphrase);
-                                          });
-                                      }
-                                  }
-                              }
+                          }
+                      }),
+            TextInput("tang_url", _("Keyserver address"),
+                      {
+                          visible: vals => vals.type == "tang",
+                          validate: validate_url
+                      })
+        ].concat(existing_passphrase_fields(_("Saving a new passphrase requires unlocking the disk. Please provide a current disk passphrase."))),
+        Action: {
+            Title: _("Add"),
+            action: function (vals) {
+                const existing_passphrase = vals.passphrase || recovered_passphrase;
+                if (vals.type == "luks-passphrase") {
+                    return passphrase_add(block, vals.new_passphrase, existing_passphrase);
+                } else {
+                    return get_tang_adv(vals.tang_url).then(function (adv) {
+                        edit_tang_adv(client, block, null,
+                                      vals.tang_url, adv, existing_passphrase);
+                    });
+                }
+            }
+        }
     });
 
     get_existing_passphrase(dlg, block).then(pp => { recovered_passphrase = pp });
 }
 
 function edit_passphrase_dialog(block, key) {
-    dialog_open({ Title: _("Change passphrase"),
-                  Fields: [
-                      PassInput("old_passphrase", _("Old passphrase"),
-                                { validate: val => !val.length && _("Passphrase cannot be empty")
-                                }),
-                      Skip("medskip"),
-                      PassInput("new_passphrase", _("New passphrase"),
-                                { validate: val => !val.length && _("Passphrase cannot be empty")
-                                }),
-                      PassInput("new_passphrase2", _("Repeat passphrase"),
-                                { validate: (val, vals) => vals.new_passphrase.length && vals.new_passphrase != val && _("Passphrases do not match")
-                                })
-                  ],
-                  Action: {
-                      Title: _("Save"),
-                      action: vals => passphrase_change(block, key, vals.new_passphrase, vals.old_passphrase)
-                  }
+    dialog_open({
+        Title: _("Change passphrase"),
+        Fields: [
+            PassInput("old_passphrase", _("Old passphrase"),
+                      { validate: val => !val.length && _("Passphrase cannot be empty") }),
+            Skip("medskip"),
+            PassInput("new_passphrase", _("New passphrase"),
+                      { validate: val => !val.length && _("Passphrase cannot be empty") }),
+            PassInput("new_passphrase2", _("Repeat passphrase"),
+                      { validate: (val, vals) => vals.new_passphrase.length && vals.new_passphrase != val && _("Passphrases do not match") })
+        ],
+        Action: {
+            Title: _("Save"),
+            action: vals => passphrase_change(block, key, vals.new_passphrase, vals.old_passphrase)
+        }
     });
 }
 
 function edit_clevis_dialog(client, block, key) {
     let recovered_passphrase;
 
-    const dlg = dialog_open({ Title: _("Edit Tang keyserver"),
-                              Fields: [
-                                  TextInput("tang_url", _("Keyserver address"),
-                                            { validate: validate_url,
-                                              value: key.url
-                                            })
-                              ].concat(existing_passphrase_fields(_("Saving a new passphrase requires unlocking the disk. Please provide a current disk passphrase."))),
-                              Action: {
-                                  Title: _("Save"),
-                                  action: function (vals) {
-                                      const existing_passphrase = vals.passphrase || recovered_passphrase;
-                                      return get_tang_adv(vals.tang_url).then(adv => {
-                                          edit_tang_adv(client, block, key, vals.tang_url, adv, existing_passphrase);
-                                      });
-                                  }
-                              }
+    const dlg = dialog_open({
+        Title: _("Edit Tang keyserver"),
+        Fields: [
+            TextInput("tang_url", _("Keyserver address"),
+                      {
+                          validate: validate_url,
+                          value: key.url
+                      })
+        ].concat(existing_passphrase_fields(_("Saving a new passphrase requires unlocking the disk. Please provide a current disk passphrase."))),
+        Action: {
+            Title: _("Save"),
+            action: function (vals) {
+                const existing_passphrase = vals.passphrase || recovered_passphrase;
+                return get_tang_adv(vals.tang_url).then(adv => {
+                    edit_tang_adv(client, block, key, vals.tang_url, adv, existing_passphrase);
+                });
+            }
+        }
     });
 
     get_existing_passphrase(dlg, block).then(pp => { recovered_passphrase = pp });
@@ -313,29 +320,30 @@ function edit_tang_adv(client, block, key, url, adv, passphrase) {
 
     var sigkey_thps = compute_sigkey_thps(tang_adv_payload(adv));
 
-    dialog_open({ Title: _("Verify key"),
-                  Body: (
-                      <div>
-                          <div>{_("Make sure the key hash from the Tang server matches:")}</div>
-                          { sigkey_thps.map(s => <div key={s} className="sigkey-hash">{s}</div>) }
-                          <br />
-                          <div>{_("Manually check with SSH: ")}<pre className="inline-pre">{cmd}</pre></div>
-                          <br />
-                          <Revealer summary={_("What if tang-show-keys is not available?")}>
-                              <p>{_("If tang-show-keys is not available, run the following:")}</p>
-                              <pre>{cmd_alt}</pre>
-                          </Revealer>
-                      </div>
-                  ),
-                  Action: {
-                      Title: _("Trust key"),
-                      action: function () {
-                          return clevis_add(block, "tang", { url: url, adv: adv }, passphrase).then(() => {
-                              if (key)
-                                  return clevis_remove(block, key);
-                          });
-                      }
-                  }
+    dialog_open({
+        Title: _("Verify key"),
+        Body: (
+            <div>
+                <div>{_("Make sure the key hash from the Tang server matches:")}</div>
+                { sigkey_thps.map(s => <div key={s} className="sigkey-hash">{s}</div>) }
+                <br />
+                <div>{_("Manually check with SSH: ")}<pre className="inline-pre">{cmd}</pre></div>
+                <br />
+                <Revealer summary={_("What if tang-show-keys is not available?")}>
+                    <p>{_("If tang-show-keys is not available, run the following:")}</p>
+                    <pre>{cmd_alt}</pre>
+                </Revealer>
+            </div>
+        ),
+        Action: {
+            Title: _("Trust key"),
+            action: function () {
+                return clevis_add(block, "tang", { url: url, adv: adv }, passphrase).then(() => {
+                    if (key)
+                        return clevis_remove(block, key);
+                });
+            }
+        }
     });
 }
 
@@ -384,20 +392,21 @@ const RemovePassphraseField = (tag, key, dev) => {
 };
 
 function remove_passphrase_dialog(block, key) {
-    dialog_open({ Title: _("Remove passphrase"),
-                  Fields: [
-                      RemovePassphraseField("passphrase", key, block_name(block))
-                  ],
-                  Action: {
-                      DangerButton: true,
-                      Title: _("Remove"),
-                      action: function (vals) {
-                          if (vals.passphrase === false)
-                              return slot_remove(block, key.slot);
-                          else
-                              return passphrase_remove(block, vals.passphrase);
-                      }
-                  }
+    dialog_open({
+        Title: _("Remove passphrase"),
+        Fields: [
+            RemovePassphraseField("passphrase", key, block_name(block))
+        ],
+        Action: {
+            DangerButton: true,
+            Title: _("Remove"),
+            action: function (vals) {
+                if (vals.passphrase === false)
+                    return slot_remove(block, key.slot);
+                else
+                    return passphrase_remove(block, vals.passphrase);
+            }
+        }
     });
 }
 
@@ -420,17 +429,18 @@ const RemoveClevisField = (tag, key, dev) => {
 };
 
 function remove_clevis_dialog(client, block, key) {
-    dialog_open({ Title: _("Remove Tang keyserver"),
-                  Fields: [
-                      RemoveClevisField("keyserver", key, block_name(block))
-                  ],
-                  Action: {
-                      DangerButton: true,
-                      Title: _("Remove"),
-                      action: function () {
-                          return clevis_remove(block, key);
-                      }
-                  }
+    dialog_open({
+        Title: _("Remove Tang keyserver"),
+        Fields: [
+            RemoveClevisField("keyserver", key, block_name(block))
+        ],
+        Action: {
+            DangerButton: true,
+            Title: _("Remove"),
+            action: function () {
+                return clevis_remove(block, key);
+            }
+        }
     });
 }
 
@@ -489,19 +499,22 @@ export class CryptoKeyslots extends React.Component {
             if (slot.ClevisConfig) {
                 var clevis = JSON.parse(slot.ClevisConfig.v);
                 if (clevis.pin && clevis.pin == "tang" && clevis.tang) {
-                    return { slot: slot.Index.v,
-                             type: "tang",
-                             url: clevis.tang.url
+                    return {
+                        slot: slot.Index.v,
+                        type: "tang",
+                        url: clevis.tang.url
                     };
                 } else {
-                    return { slot: slot.Index.v,
-                             type: "unknown",
-                             pin: clevis.pin
+                    return {
+                        slot: slot.Index.v,
+                        type: "unknown",
+                        pin: clevis.pin
                     };
                 }
             } else {
-                return { slot: slot.Index.v,
-                         type: "luks-passphrase"
+                return {
+                    slot: slot.Index.v,
+                    type: "luks-passphrase"
                 };
             }
         }

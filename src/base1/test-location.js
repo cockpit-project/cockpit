@@ -19,84 +19,104 @@ QUnit.test("decode", function (assert) {
     window.location.hash = "#/base/test";
 
     var checks = [
-        ["#/host/path/sub?a=1&b=2", { path: ["host", "path", "sub"],
-                                      options: { a: "1", b: "2" }
+        ["#/host/path/sub?a=1&b=2", {
+            path: ["host", "path", "sub"],
+            options: { a: "1", b: "2" }
         }
         ],
-        ["", { path: [],
-               options: { }
+        ["", {
+            path: [],
+            options: { }
         }
         ],
-        ["#", { path: [],
-                options: { }
+        ["#", {
+            path: [],
+            options: { }
         }
         ],
-        ["#/", { path: [],
-                 options: { }
+        ["#/", {
+            path: [],
+            options: { }
         }
         ],
-        ["/horst", { path: ["horst"],
-                     options: { }
+        ["/horst", {
+            path: ["horst"],
+            options: { }
         }
         ],
-        ["//one", { path: ["one"],
-                    options: { }
+        ["//one", {
+            path: ["one"],
+            options: { }
         }
         ],
-        ["//one/", { path: ["one"],
-                     options: { }
+        ["//one/", {
+            path: ["one"],
+            options: { }
         }
         ],
-        ["///two", { path: ["two"],
-                     options: { }
+        ["///two", {
+            path: ["two"],
+            options: { }
         }
         ],
-        ["/slash/%2f", { path: ["slash", "/"],
-                         options: { }
+        ["/slash/%2f", {
+            path: ["slash", "/"],
+            options: { }
         }
         ],
-        ["?a=1", { path: [],
-                   options: { a: "1" }
+        ["?a=1", {
+            path: [],
+            options: { a: "1" }
         }
         ],
-        ["?a=1&a=2", { path: [],
-                       options: { a: ["1", "2"] }
+        ["?a=1&a=2", {
+            path: [],
+            options: { a: ["1", "2"] }
         }
         ],
-        ["?%3f=%3d", { path: [],
-                       options: { "?": "=" }
+        ["?%3f=%3d", {
+            path: [],
+            options: { "?": "=" }
         }
         ],
-        ["#?=", { path: [],
-                  options: { "": "" }
+        ["#?=", {
+            path: [],
+            options: { "": "" }
         }
         ],
-        ["?=", { path: [],
-                 options: { "": "" }
+        ["?=", {
+            path: [],
+            options: { "": "" }
         }
         ],
-        ["relative/sub", { path: ["base", "relative", "sub"],
-                           options: { }
+        ["relative/sub", {
+            path: ["base", "relative", "sub"],
+            options: { }
         }
         ],
-        ["./relative/sub", { path: ["base", "relative", "sub"],
-                             options: { }
+        ["./relative/sub", {
+            path: ["base", "relative", "sub"],
+            options: { }
         }
         ],
-        ["../relative/sub", { path: ["relative", "sub"],
-                              options: { }
+        ["../relative/sub", {
+            path: ["relative", "sub"],
+            options: { }
         }
         ],
-        ["/top/../sub", { path: ["sub"],
-                          options: { }
+        ["/top/../sub", {
+            path: ["sub"],
+            options: { }
         }
         ],
-        ["/top/./sub/./", { path: ["top", "sub"],
-                            options: { }
+        ["/top/./sub/./", {
+            path: ["top", "sub"],
+            options: { }
         }
         ],
-        ["relative/../sub", { path: ["base", "sub"],
-                              options: { }
+        ["relative/../sub", {
+            path: ["base", "sub"],
+            options: { }
         }
         ]
     ];
@@ -115,32 +135,39 @@ QUnit.test("encode", function (assert) {
        in the "roundtrip" test.
     */
     var checks = [
-        ["/host/path/sub?a=1&b=2", { path: ["host", "path", "sub"],
-                                     options: { a: "1", b: "2" }
+        ["/host/path/sub?a=1&b=2", {
+            path: ["host", "path", "sub"],
+            options: { a: "1", b: "2" }
         }
         ],
-        ["/one", { path: ["one"],
-                   options: { }
+        ["/one", {
+            path: ["one"],
+            options: { }
         }
         ],
-        ["/one/two", { path: ["one", "two"],
-                       options: { }
+        ["/one/two", {
+            path: ["one", "two"],
+            options: { }
         }
         ],
-        ["/slash/%2F", { path: ["slash", "/"],
-                         options: { }
+        ["/slash/%2F", {
+            path: ["slash", "/"],
+            options: { }
         }
         ],
-        ["/p?a=1", { path: ["p"],
-                     options: { a: "1" }
+        ["/p?a=1", {
+            path: ["p"],
+            options: { a: "1" }
         }
         ],
-        ["/p?%3F=%3D", { path: ["p"],
-                         options: { "?": "=" }
+        ["/p?%3F=%3D", {
+            path: ["p"],
+            options: { "?": "=" }
         }
         ],
-        ["/p?=", { path: ["p"],
-                   options: { "": "" }
+        ["/p?=", {
+            path: ["p"],
+            options: { "": "" }
         }
         ],
         ["/p?value=one&value=two", {
@@ -160,14 +187,17 @@ QUnit.test("encode", function (assert) {
 
 QUnit.test("roundtrip", function (assert) {
     var checks = [
-        { path: ["path", "sub"],
-          options: { a: "1", b: "2" }
+        {
+            path: ["path", "sub"],
+            options: { a: "1", b: "2" }
         },
-        { path: ["päth", "süb"],
-          options: { a: "1", b: "2" }
+        {
+            path: ["päth", "süb"],
+            options: { a: "1", b: "2" }
         },
-        { path: ["/=()?", "$%&/"],
-          options: { "": "=$&%", b: "=2%34" }
+        {
+            path: ["/=()?", "$%&/"],
+            options: { "": "=$&%", b: "=2%34" }
         },
     ];
 

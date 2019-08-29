@@ -149,9 +149,10 @@ PageContainerDetails.prototype = {
                 if (host_ip === '')
                     host_ip = '0.0.0.0';
                 var desc = cockpit.format(_("${hip}:${hport} -> $cport"),
-                                          { hip: host_ip,
-                                            hport: h[i].HostPort,
-                                            cport: p
+                                          {
+                                              hip: host_ip,
+                                              hport: h[i].HostPort,
+                                              cport: p
                                           });
                 /* make sure we don't push anything we already have */
                 if (bindings.indexOf(desc) === -1)

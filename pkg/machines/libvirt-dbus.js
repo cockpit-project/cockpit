@@ -1364,10 +1364,14 @@ export function networkActivate(connectionName, objPath) {
     return call(connectionName, objPath, 'org.libvirt.Network', 'Create', [], TIMEOUT);
 }
 
-export function networkCreate({ connectionName, name, forwardMode, physicalDevice, ipv4, netmask, ipv6, prefix,
-                                ipv4DhcpRangeStart, ipv4DhcpRangeEnd, ipv6DhcpRangeStart, ipv6DhcpRangeEnd }) {
-    const netXmlDesc = getNetworkXML({ name, forwardMode, ipv4, netmask, ipv6, prefix, physicalDevice,
-                                       ipv4DhcpRangeStart, ipv4DhcpRangeEnd, ipv6DhcpRangeStart, ipv6DhcpRangeEnd });
+export function networkCreate({
+    connectionName, name, forwardMode, physicalDevice, ipv4, netmask, ipv6, prefix,
+    ipv4DhcpRangeStart, ipv4DhcpRangeEnd, ipv6DhcpRangeStart, ipv6DhcpRangeEnd
+}) {
+    const netXmlDesc = getNetworkXML({
+        name, forwardMode, ipv4, netmask, ipv6, prefix, physicalDevice,
+        ipv4DhcpRangeStart, ipv4DhcpRangeEnd, ipv6DhcpRangeStart, ipv6DhcpRangeEnd
+    });
 
     return call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'NetworkDefineXML', [netXmlDesc], TIMEOUT);
 }

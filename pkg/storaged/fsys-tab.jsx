@@ -94,7 +94,7 @@ export class FilesystemTab extends React.Component {
                     .join(","));
         }
 
-        var mounted_at = block_fsys ? block_fsys.MountPoints.map(utils.decode_filename) : [ ];
+        var mounted_at = block_fsys ? block_fsys.MountPoints.map(utils.decode_filename) : [];
 
         function maybe_update_config(new_is_custom, new_dir, new_opts) {
             var new_config = null;

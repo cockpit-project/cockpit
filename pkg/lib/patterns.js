@@ -180,7 +180,7 @@ function display_wait(sel, promise, handle) {
             if (cancelled || (state == "resolved" && data.handle))
                 sel.modal('hide');
             else if (state == "rejected" && data.handle)
-                display_errors(sel, [ arguments[0] ]);
+                display_errors(sel, [arguments[0]]);
         }
     }
 

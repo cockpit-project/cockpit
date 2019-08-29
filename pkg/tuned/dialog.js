@@ -54,7 +54,7 @@ function setup() {
             tuned.call('/Tuned', 'com.redhat.tuned.control', 'active_profile', []),
             tuned.call('/Tuned', 'com.redhat.tuned.control', 'recommend_profile', [])
         ])
-                .then(function([ is_running_result, active_result, recommended_result ]) {
+                .then(function([is_running_result, active_result, recommended_result]) {
                     var is_running = is_running_result[0];
                     var active = is_running ? active_result[0] : "none";
                     var recommended = recommended_result[0];
@@ -137,7 +137,7 @@ function setup() {
                             update_button();
                         });
             } else {
-                promise = tuned.call('/Tuned', 'com.redhat.tuned.control', 'switch_profile', [ profile ])
+                promise = tuned.call('/Tuned', 'com.redhat.tuned.control', 'switch_profile', [profile])
                         .then(function(results) {
                         /* Yup this is how tuned returns failures */
                             if (!results[0][0]) {
@@ -194,9 +194,9 @@ function setup() {
                 }),
             };
             var footer_props = {
-                actions: [ { clicked: set_profile,
-                             caption: _("Change Profile"),
-                             style: 'primary',
+                actions: [{ clicked: set_profile,
+                            caption: _("Change Profile"),
+                            style: 'primary',
                 }
                 ],
                 static_error: static_error,
@@ -238,7 +238,7 @@ function setup() {
         }
 
         function show_error(error) {
-            create_dialog([ ], "none", true, error);
+            create_dialog([], "none", true, error);
         }
 
         function tuned_profiles() {

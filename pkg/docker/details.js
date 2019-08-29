@@ -200,7 +200,7 @@ PageContainerDetails.prototype = {
         this.name = util.render_container_name(info.Name);
         $('#container-details .content-filter h3 span').text(this.name);
 
-        var port_bindings = [ ];
+        var port_bindings = [];
         if (info.NetworkSettings)
             this.add_bindings(port_bindings, info.NetworkSettings.Ports);
         if (info.HostConfig)

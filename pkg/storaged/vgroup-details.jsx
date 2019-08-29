@@ -187,7 +187,7 @@ export class VGroupDetails extends React.Component {
                               action: function (vals) {
                                   return vgroup.Rename(vals.name, { })
                                           .done(function () {
-                                              location.go([ 'vg', vals.name ]);
+                                              location.go(['vg', vals.name]);
                                           });
                               }
                           }

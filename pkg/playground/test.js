@@ -34,7 +34,7 @@ $(function() {
 
     function update_nav() {
         $('#nav').empty();
-        var path = [ "top" ].concat(cockpit.location.path);
+        var path = ["top"].concat(cockpit.location.path);
         $(path).each(function (i, p) {
             if (i < path.length - 1) {
                 $('#nav').append(
@@ -106,7 +106,7 @@ $(function() {
     load_file();
 
     $('#delete-file').click(function () {
-        cockpit.spawn([ "rm", "-f", "tmp/counter" ]);
+        cockpit.spawn(["rm", "-f", "tmp/counter"]);
     });
 
     $("body").show();

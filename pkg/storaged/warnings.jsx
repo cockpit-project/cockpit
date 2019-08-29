@@ -24,7 +24,7 @@ export function find_warnings(client) {
 
     function push_warning(path, warning) {
         if (!path_warnings[path])
-            path_warnings[path] = [ ];
+            path_warnings[path] = [];
         path_warnings[path].push(warning);
     }
 

@@ -51,7 +51,7 @@ QUnit.test("simple request", function (assert) {
                             label: "Preloaded"
                         }
                     },
-                    preload: [ "preloaded" ],
+                    preload: ["preloaded"],
                     'content-security-policy': "img-src 'self' data:",
                 }, "returned right data");
             })

@@ -65,7 +65,7 @@ QUnit.test("binary", function (assert) {
         var array = [];
         for (var i = 0; i < payload.length; i++)
             array.push(payload[i]);
-        assert.deepEqual(array, [ 0, 1, 2, 3, 4, 5, 6, 7 ], "got back right data");
+        assert.deepEqual(array, [0, 1, 2, 3, 4, 5, 6, 7], "got back right data");
 
         channel.close();
         $(channel).off();
@@ -102,14 +102,14 @@ QUnit.test("fence", function (assert) {
     var after = cockpit.channel({ payload: "echo" });
     after.addEventListener("message", onMessage);
 
-    var received = [ ];
+    var received = [];
     function onMessage(ev, payload) {
         received.push(payload);
         if (received.length == 3) {
-            assert.deepEqual(received, [ "1", "2", "3", ], "got back before and fence data");
+            assert.deepEqual(received, ["1", "2", "3"], "got back before and fence data");
             fence.close();
         } else if (received.length == 5) {
-            assert.deepEqual(received, [ "1", "2", "3", "4", "5" ], "got back data in right order");
+            assert.deepEqual(received, ["1", "2", "3", "4", "5"], "got back data in right order");
             before.close();
             after.close();
             done();

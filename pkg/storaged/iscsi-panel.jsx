@@ -59,7 +59,7 @@ export class IscsiPanel extends React.Component {
 
                                   var cancelled = false;
                                   client.manager_iscsi.call('DiscoverSendTargets',
-                                                            [ vals.address,
+                                                            [vals.address,
                                                                 0,
                                                                 options
                                                             ])
@@ -111,7 +111,7 @@ export class IscsiPanel extends React.Component {
                 options.password = { t: 's', v: cred_vals.password };
             }
             return client.manager_iscsi.call('Login',
-                                             [ target[0],
+                                             [target[0],
                                                  target[1],
                                                  target[2],
                                                  target[3],
@@ -124,8 +124,8 @@ export class IscsiPanel extends React.Component {
             dialog_open({ Title: cockpit.format(_("Available targets on $0"),
                                                 discover_vals.address),
                           Fields: [
-                              SelectRow("target", [ _("Name"), _("Address"), _("Port") ],
-                                        { choices: nodes.map(n => ({ columns: [ n[0], n[2], n[3] ],
+                              SelectRow("target", [_("Name"), _("Address"), _("Port")],
+                                        { choices: nodes.map(n => ({ columns: [n[0], n[2], n[3]],
                                                                      value: n })) })
                           ],
                           Action: {
@@ -181,7 +181,7 @@ export class IscsiPanel extends React.Component {
                                           Title: _("Change"),
                                           action: function (vals) {
                                               return client.manager_iscsi.call('SetInitiatorName',
-                                                                               [ vals.name,
+                                                                               [vals.name,
                                                                                    { }
                                                                                ]);
                                           }

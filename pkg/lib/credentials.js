@@ -72,7 +72,7 @@ function Keys() {
         window.clearTimeout(timeout);
         timeout = null;
 
-        proc = cockpit.script(lister, [ self.path ], { err: "message" })
+        proc = cockpit.script(lister, [self.path], { err: "message" })
                 .always(function() {
                     proc = null;
 
@@ -176,9 +176,9 @@ function Keys() {
     }
 
     self.change = function change(name, old_pass, new_pass, two_pass) {
-        var old_exps = [ /.*Enter old passphrase: $/ ];
-        var new_exps = [ /.*Enter new passphrase.*/, /.*Enter same passphrase again: $/ ];
-        var bad_exps = [ /.*failed: passphrase is too short.*/ ];
+        var old_exps = [/.*Enter old passphrase: $/];
+        var new_exps = [/.*Enter new passphrase.*/, /.*Enter same passphrase again: $/];
+        var bad_exps = [/.*failed: passphrase is too short.*/];
 
         var dfd = $.Deferred();
         var buffer = "";
@@ -198,7 +198,7 @@ function Keys() {
         }, 10 * 1000);
 
         proc = cockpit.spawn(["ssh-keygen", "-p", "-f", name],
-                             { pty: true, environ: [ "LC_ALL=C" ], err: "out", directory: self.path })
+                             { pty: true, environ: ["LC_ALL=C"], err: "out", directory: self.path })
                 .always(function() {
                     window.clearInterval(timeout);
                 })
@@ -262,7 +262,7 @@ function Keys() {
         }, 10 * 1000);
 
         proc = cockpit.spawn(["ssh-add", name],
-                             { pty: true, environ: [ "LC_ALL=C" ], err: "out", directory: self.path })
+                             { pty: true, environ: ["LC_ALL=C"], err: "out", directory: self.path })
                 .always(function() {
                     window.clearInterval(timeout);
                 })

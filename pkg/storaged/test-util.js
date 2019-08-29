@@ -22,7 +22,7 @@ import QUnit from "qunit-tests";
 
 QUnit.test("format_delay", function (assert) {
     var checks = [
-        [ 15550000, "4 hours" ]
+        [15550000, "4 hours"]
     ];
 
     assert.expect(checks.length);
@@ -34,14 +34,14 @@ QUnit.test("format_delay", function (assert) {
 
 QUnit.test("compare_versions", function (assert) {
     var checks = [
-        [ "", "", 0 ],
-        [ "0", "0", 0 ],
-        [ "1", "0", 1 ],
-        [ "0", "1", -1 ],
-        [ "2", "1.9", 1 ],
-        [ "2.0", "2", 1 ],
-        [ "2.1.6", "2.5", -1 ],
-        [ "2..6", "2.0.6", 0 ],
+        ["", "", 0],
+        ["0", "0", 0],
+        ["1", "0", 1],
+        ["0", "1", -1],
+        ["2", "1.9", 1],
+        ["2.0", "2", 1],
+        ["2.1.6", "2.5", -1],
+        ["2..6", "2.0.6", 0],
     ];
 
     function sign(n) {

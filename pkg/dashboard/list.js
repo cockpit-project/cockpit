@@ -40,7 +40,7 @@ $(document).on("click", "a[data-address]", function(ev) {
 var common_plot_options = {
     legend: { show: false },
     series: { shadowSize: 0 },
-    xaxis: { tickColor: "#d1d1d1", mode: "time", tickFormatter: plot.format_date_tick, minTickSize: [ 1, 'minute' ] },
+    xaxis: { tickColor: "#d1d1d1", mode: "time", tickFormatter: plot.format_date_tick, minTickSize: [1, 'minute'] },
     // The point radius influences the margin around the grid even if
     // no points are plotted.  We don't want any margin, so we set the
     // radius to zero.
@@ -105,7 +105,7 @@ var resource_monitors = [
               "network.interface.tx"
           ],
           units: "bytes",
-          'omit-instances': [ "lo" ],
+          'omit-instances': ["lo"],
           derive: "rate"
       },
       options: {
@@ -473,7 +473,7 @@ PageDashboard.prototype = {
             if (!machine || machine.state != "connected")
                 return null;
 
-            var series = [ ];
+            var series = [];
             var i = 0;
             resource_monitors.forEach(function (rm) {
                 if (self.plots[i]) {

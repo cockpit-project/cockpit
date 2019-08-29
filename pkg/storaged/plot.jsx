@@ -30,7 +30,7 @@ class ZoomControls extends React.Component {
     constructor() {
         super();
         this.classes = { };
-        this.plots = [ ];
+        this.plots = [];
     }
 
     render() {
@@ -226,7 +226,7 @@ class StoragePlot extends React.Component {
 export class StoragePlots extends React.Component {
     constructor() {
         super();
-        this.plots = [ ];
+        this.plots = [];
         this.state = { classes: { } };
     }
 
@@ -255,7 +255,7 @@ export class StoragePlots extends React.Component {
                 threshold: 1000
             };
 
-            devs = [ ];
+            devs = [];
             for (var p in client.drives) {
                 var block = client.drives_block[p];
                 var dev = block && decode_filename(block.Device).replace(/^\/dev\//, "");
@@ -266,16 +266,16 @@ export class StoragePlots extends React.Component {
             // Just a single graph for total I/O
 
             read_plot_data = {
-                direct: [ "disk.all.read_bytes" ],
-                internal: [ "disk.all.read" ],
+                direct: ["disk.all.read_bytes"],
+                internal: ["disk.all.read"],
                 units: "bytes",
                 derive: "rate",
                 threshold: 1000
             };
 
             write_plot_data = {
-                direct: [ "disk.all.write_bytes" ],
-                internal: [ "disk.all.written" ],
+                direct: ["disk.all.write_bytes"],
+                internal: ["disk.all.written"],
                 units: "bytes",
                 derive: "rate",
                 threshold: 1000

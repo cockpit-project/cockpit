@@ -238,7 +238,7 @@ QUnit.test("script with input", function (assert) {
 
     var script = "#!/bin/sh\n\n# Test\n/usr/bin/sort\necho $2\necho $1";
 
-    var proc = cockpit.script(script, [ "5", "4" ]);
+    var proc = cockpit.script(script, ["5", "4"]);
 
     proc.done(function(resp) {
         assert.equal(resp, "1\n2\n3\n4\n5\n", "output matched");
@@ -259,7 +259,7 @@ QUnit.test("script with options", function (assert) {
 
     var script = "#!/bin/sh\n\n# Test\n/usr/bin/sort\necho $2\necho $1 >&2";
 
-    var proc = cockpit.script(script, [ "5", "4" ], { err: "out" });
+    var proc = cockpit.script(script, ["5", "4"], { err: "out" });
 
     proc.done(function(resp) {
         assert.equal(resp, "1\n2\n3\n4\n5\n", "output matched");

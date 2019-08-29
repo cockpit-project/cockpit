@@ -388,7 +388,7 @@ LIBVIRT_PROVIDER = {
 
         return dispatch => {
             function destroy() {
-                return spawnVirshNoHandler({ connectionName, args: [ 'destroy', name ] });
+                return spawnVirshNoHandler({ connectionName, args: ['destroy', name] });
             }
 
             function undefine() {

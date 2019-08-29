@@ -78,13 +78,13 @@ function create_tabs(client, target, is_partition) {
     var is_filesystem = (block && block.IdUsage == 'filesystem');
     var is_crypto = (block && block.IdUsage == 'crypto');
 
-    var warnings = client.path_warnings[target.path] || [ ];
+    var warnings = client.path_warnings[target.path] || [];
 
-    var tabs = [ ];
+    var tabs = [];
     var row_action = null;
 
     function add_tab(name, renderer, associated_warnings) {
-        let tab_warnings = [ ];
+        let tab_warnings = [];
         if (associated_warnings)
             tab_warnings = warnings.filter(w => associated_warnings.indexOf(w.warning) >= 0);
         if (tab_warnings.length > 0)
@@ -133,7 +133,7 @@ function create_tabs(client, target, is_partition) {
             add_tab(_("Pool"), PoolVolTab);
             row_action = <StorageButton onClick={create_thin}>{_("Create Thin Volume")}</StorageButton>;
         } else {
-            add_tab(_("Volume"), BlockVolTab, [ "unused-space" ]);
+            add_tab(_("Volume"), BlockVolTab, ["unused-space"]);
         }
     }
 
@@ -159,7 +159,7 @@ function create_tabs(client, target, is_partition) {
         add_tab(_("Unrecognized Data"), UnrecognizedTab);
     }
 
-    var tab_actions = [ ];
+    var tab_actions = [];
 
     function add_action(title, func, excuse) {
         tab_actions.push(<StorageButton key={title} onClick={func} excuse={excuse}>{title}</StorageButton>);
@@ -176,13 +176,13 @@ function create_tabs(client, target, is_partition) {
     function clevis_unlock() {
         var dev = utils.decode_filename(block.Device);
         var clear_dev = "luks-" + block.IdUUID;
-        return cockpit.spawn([ "clevis", "luks", "unlock", "-d", dev, "-n", clear_dev ],
+        return cockpit.spawn(["clevis", "luks", "unlock", "-d", dev, "-n", clear_dev],
                              { superuser: true })
                 .catch(() => {
                     // HACK - https://github.com/latchset/clevis/issues/36
                     // Clevis-luks-unlock before version 10 always exit 1, so
                     // we check whether the expected device exists afterwards.
-                    return cockpit.spawn([ "test", "-e", "/dev/mapper/" + clear_dev ],
+                    return cockpit.spawn(["test", "-e", "/dev/mapper/" + clear_dev],
                                          { superuser: true });
                 });
     }
@@ -486,7 +486,7 @@ function append_device(client, rows, level, block) {
 // then return proper React component hierarchy based on this collected data.
 // Benefit: much easier debugging, better manipulation with "key" props and relying on well-tested React's functionality
 function block_rows(client, block) {
-    var rows = [ ];
+    var rows = [];
     append_device(client, rows, 0, block);
     return rows;
 }
@@ -619,8 +619,8 @@ function append_logical_volume(client, rows, level, lvol) {
 }
 
 function vgroup_rows(client, vgroup) {
-    var rows = [ ];
-    (client.vgroups_lvols[vgroup.path] || [ ]).forEach(function (lvol) {
+    var rows = [];
+    (client.vgroups_lvols[vgroup.path] || []).forEach(function (lvol) {
         if (lvol.ThinPool == "/" && lvol.Origin == "/")
             append_logical_volume(client, rows, 0, lvol);
     });

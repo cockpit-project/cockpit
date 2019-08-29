@@ -26,7 +26,7 @@ export class ConfigFile {
     constructor(filename, superuser = false) {
         this.filename = filename;
         this._rawContent = undefined;
-        this._lines = [ ];
+        this._lines = [];
         this._originalSettings = { };
         this._dataAvailable = cockpit.defer();
         this.settings = { };

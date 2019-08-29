@@ -39,8 +39,8 @@ function nfs_busy_dialog(client, dialog_title, entry, error, action_title, actio
                           Body: error.toString()
             });
         } else {
-            const sessions = [ ];
-            const services = [ ];
+            const sessions = [];
+            const services = [];
             users.forEach((u) => {
                 var since = moment.duration(-u.since * 1000).humanize(true);
                 if (u.unit.endsWith(".scope")) {
@@ -73,14 +73,14 @@ function nfs_busy_dialog(client, dialog_title, entry, error, action_title, actio
                 show(users);
             })
             .fail(function () {
-                show([ ]);
+                show([]);
             });
 }
 
 function get_exported_directories(server) {
-    return cockpit.spawn([ "showmount", "-e", "--no-headers", server ], { err: "message" })
+    return cockpit.spawn(["showmount", "-e", "--no-headers", server], { err: "message" })
             .then(function (output) {
-                var dirs = [ ];
+                var dirs = [];
                 output.split("\n").forEach(function (line) {
                     var d = line.split(" ")[0];
                     if (d)
@@ -98,7 +98,7 @@ export function nfs_fstab_dialog(client, entry) {
     var extra_options = format.unparse_options(split_options);
 
     function mounting_options(vals) {
-        var opts = [ ];
+        var opts = [];
         if (!vals.mount_options.auto)
             opts.push("noauto");
         if (vals.mount_options.ro)
@@ -129,7 +129,7 @@ export function nfs_fstab_dialog(client, entry) {
             server_to_check = server;
             server_check_timeout = window.setTimeout(() => {
                 server_check_timeout = null;
-                dlg.set_options("remote", { choices: [ ] });
+                dlg.set_options("remote", { choices: [] });
                 get_exported_directories(server).then(choices => {
                     if (server == server_to_check)
                         dlg.set_options("remote", { choices: choices });
@@ -157,7 +157,7 @@ export function nfs_fstab_dialog(client, entry) {
                                                          return _("Path on server must start with \"/\".");
                                                  },
                                                  disabled: busy,
-                                                 choices: [ ],
+                                                 choices: [],
                                                }),
                                       TextInput("dir", _("Local Mount Point"),
                                                 { value: entry ? entry.fields[1] : "",
@@ -191,16 +191,16 @@ export function nfs_fstab_dialog(client, entry) {
                                       Title: entry ? _("Apply") : _("Add"),
                                       action: function (vals) {
                                           var location = cockpit.location;
-                                          var fields = [ vals.server + ":" + vals.remote,
+                                          var fields = [vals.server + ":" + vals.remote,
                                               vals.dir,
                                               entry ? entry.fields[2] : "nfs",
-                                              mounting_options(vals) || "defaults" ];
+                                              mounting_options(vals) || "defaults"];
                                           if (entry) {
                                               return client.nfs.update_entry(entry, fields)
                                                       .done(function () {
                                                           if (entry.fields[0] != fields[0] ||
                                                                  entry.fields[1] != fields[1])
-                                                              location.go([ "nfs", fields[0], fields[1] ]);
+                                                              location.go(["nfs", fields[0], fields[1]]);
                                                       });
                                           } else
                                               return client.nfs.add_entry(fields);

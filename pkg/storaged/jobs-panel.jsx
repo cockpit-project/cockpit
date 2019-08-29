@@ -161,7 +161,7 @@ export class JobsPanel extends React.Component {
             return false;
         }
 
-        var jobs = [ ];
+        var jobs = [];
         var have_reminder = false;
         for (var p in client.jobs) {
             if (job_is_stable(p)) {

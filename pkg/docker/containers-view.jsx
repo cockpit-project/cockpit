@@ -73,7 +73,7 @@ class Dropdown extends React.Component {
     }
 }
 Dropdown.defaultProps = {
-    actions: [ { label: '' } ]
+    actions: [{ label: '' }]
 };
 
 export class ContainerHeader extends React.Component {
@@ -178,7 +178,7 @@ export class ContainerList extends React.Component {
     }
 
     navigateToContainer(container) {
-        cockpit.location.go([ container.Id ]);
+        cockpit.location.go([container.Id]);
     }
 
     startContainer(container) {
@@ -534,7 +534,7 @@ export class ImageList extends React.Component {
     }
 
     navigateToImage(image) {
-        cockpit.location.go([ 'image', image.Id ]);
+        cockpit.location.go(['image', image.Id]);
     }
 
     handleSearchImageClick(event) {
@@ -680,7 +680,7 @@ export class ImageList extends React.Component {
             <span className="pficon pficon-add-circle-o" />{_("Get new image")}
         </a>;
 
-        var columnTitles = [ _("Name"), '', _("Created"), _("Size"), '' ];
+        var columnTitles = [_("Name"), '', _("Created"), _("Size"), ''];
 
         var pendingRows = this.state.pulling.map(function (job) {
             if (job.error)

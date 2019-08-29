@@ -42,7 +42,7 @@ export class NFSPanel extends React.Component {
             function go(event) {
                 if (!event || event.button !== 0)
                     return;
-                cockpit.location.go([ "nfs", entry.fields[0], entry.fields[1] ]);
+                cockpit.location.go(["nfs", entry.fields[0], entry.fields[1]]);
             }
 
             return (

@@ -186,7 +186,7 @@ function Machines() {
 
         // FIXME: investigate re-using the proxy from Loader (runs in different frame/scope)
         var bridge = cockpit.dbus(null, { bus: "internal", superuser: "try" });
-        var mod = bridge.call("/machines", "cockpit.Machines", "Update", [ "99-webui.json", host, values_variant ])
+        var mod = bridge.call("/machines", "cockpit.Machines", "Update", ["99-webui.json", host, values_variant])
                 .fail(function(error) {
                     console.error("failed to call cockpit.Machines.Update(): ", error);
                 });
@@ -266,7 +266,7 @@ function Machines() {
             if (!machine || machine.label !== values.label) {
                 hostnamed = cockpit.dbus("org.freedesktop.hostname1", { host: conn_to });
                 call = hostnamed.call("/org/freedesktop/hostname1", "org.freedesktop.hostname1",
-                                      "SetPrettyHostname", [ values.label, true ])
+                                      "SetPrettyHostname", [values.label, true])
                         .always(function() {
                             hostnamed.close();
                         })
@@ -598,7 +598,7 @@ function Loader(machines, session_only) {
                the first login, but if you reload the shell, we
                will also reload the packages.
             */
-            dbus.call("/packages", "cockpit.Packages", "ReloadHint", [ ]);
+            dbus.call("/packages", "cockpit.Packages", "ReloadHint", []);
         }
 
         function request_hostname() {

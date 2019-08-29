@@ -294,7 +294,7 @@ $(function() {
                     .each(function() {
                         var element = $(this);
                         var input_ports = element.find('input');
-                        input_ports = [ $(input_ports[0]), $(input_ports[1]) ];
+                        input_ports = [$(input_ports[0]), $(input_ports[1])];
                         if ((input_ports[0].val() !== "") || (input_ports[1].val() !== "")) {
                             exposed_ports.container.push(input_ports[0]);
                             exposed_ports.host.push(input_ports[1]);
@@ -595,12 +595,12 @@ $(function() {
         var name = $("#containers-run-image-name").val();
         var cmd = $("#containers-run-image-command").val();
         var port_bindings = { };
-        var volume_bindings = [ ];
+        var volume_bindings = [];
         var map_from, map_to, map_protocol;
         var mount_from, mount_to, mount_mode;
         var links = [];
         var exposed_ports = { };
-        var claimed_envvars = [ ];
+        var claimed_envvars = [];
         if ($('#expose-ports').prop('checked')) {
             $('#select-exposed-ports').children('form')
                     .each(function() {
@@ -616,7 +616,7 @@ $(function() {
                                 .toLowerCase();
 
                         if (map_from !== '' && map_to !== '') {
-                            port_bindings[map_from + '/' + map_protocol] = [ { HostPort: map_to } ];
+                            port_bindings[map_from + '/' + map_protocol] = [{ HostPort: map_to }];
                             exposed_ports[map_from + '/' + map_protocol] = { };
                         }
                     });

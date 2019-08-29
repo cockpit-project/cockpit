@@ -57,7 +57,7 @@ $(function() {
         'crash_function', 'pid', 'pwd', 'hostname', 'count',
         'type', 'analyzer', 'rootdir', 'duphash', 'exception_type',
         'container', 'container_uuid', 'container_cmdline',
-        'container_id', 'container_image' ];
+        'container_id', 'container_image'];
 
     var problem_info_2 = ['Directory', 'username', 'abrt_version', 'architecture', 'global_pid', 'kernel',
         'last_occurrence', 'os_release', 'pkg_fingerprint', 'pkg_vendor',
@@ -351,7 +351,7 @@ $(function() {
     function update_query() {
         stop_query();
 
-        var match = [ ];
+        var match = [];
 
         var query_prio = cockpit.location.options.prio || "3";
         var prio_level = parseInt(query_prio, 10);
@@ -892,7 +892,7 @@ $(function() {
     $('#journal-box').on('click', '.cockpit-logline', function() {
         var cursor = $(this).attr('data-cursor');
         if (cursor)
-            cockpit.location.go([ cursor ], { parent_options: JSON.stringify(cockpit.location.options) });
+            cockpit.location.go([cursor], { parent_options: JSON.stringify(cockpit.location.options) });
     });
 
     $('#journal-prio-menu a').on('click', function() {

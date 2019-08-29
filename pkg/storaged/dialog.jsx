@@ -314,7 +314,7 @@ function flatten(arr1) {
 }
 
 export const dialog_open = (def) => {
-    const nested_fields = def.Fields || [ ];
+    const nested_fields = def.Fields || [];
     const fields = flatten(nested_fields);
     const values = { };
 
@@ -348,7 +348,7 @@ export const dialog_open = (def) => {
     };
 
     const footer_props = (running_title, running_promise) => {
-        let actions = [ ];
+        let actions = [];
         if (def.Action) {
             actions = [
                 { caption: def.Action.Title,
@@ -620,7 +620,7 @@ export const SelectSpaces = (tag, title, options) => {
         tag: tag,
         title: title,
         options: options,
-        initial_value: [ ],
+        initial_value: [],
 
         render: (val, change) => {
             if (options.spaces.length === 0)
@@ -962,7 +962,7 @@ function add_usage_message(parts, list, text, c1, c2) {
 }
 
 export const BlockingMessage = (usage) => {
-    const parts = [ ];
+    const parts = [];
     const blocking = usage.Blocking;
 
     if (!blocking)
@@ -987,7 +987,7 @@ export const BlockingMessage = (usage) => {
 };
 
 export const TeardownMessage = (usage) => {
-    const parts = [ ];
+    const parts = [];
     const teardown = usage.Teardown;
 
     if (!teardown)

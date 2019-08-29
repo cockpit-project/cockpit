@@ -35,8 +35,8 @@ function init_model() {
 
     var self = {
         error: null,
-        pool_devices: [ ],
-        extra_devices: [ ],
+        pool_devices: [],
+        extra_devices: [],
         total: 0,
         used: 0
     };
@@ -47,7 +47,7 @@ function init_model() {
 
     function update() {
         if (!cockpit.hidden && !process) {
-            process = python.spawn([ cockpit_atomic_storage ], ["monitor"],
+            process = python.spawn([cockpit_atomic_storage], ["monitor"],
                                    { err: "ignore",
                                      superuser: true })
                     .stream(function (data) {
@@ -137,7 +137,7 @@ class DriveBox extends React.Component {
     onButtonClicked() {
         var self = this;
         if (self.props.callback) {
-            var drives = [ ];
+            var drives = [];
             for (var d in self.state.checked) {
                 if (self.state.checked[d]) {
                     for (var i = 0; i < self.state.drives.length; i++) {
@@ -157,7 +157,7 @@ class DriveBox extends React.Component {
         var i;
 
         var button_enabled = false;
-        var drive_rows = [ ];
+        var drive_rows = [];
         var drive_paths = { };
 
         function drive_class_desc(cl) {
@@ -229,7 +229,7 @@ class PoolBox extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            drives: [ ]
+            drives: []
         };
         this.onModelChanged = this.onModelChanged.bind(this);
     }
@@ -386,9 +386,9 @@ function add_storage(client, drives, model) {
                                 </table>
                             </div>),
     },
-                      { actions: [ { caption: _("Reformat and add disks"),
-                                     clicked: add_drives,
-                                     style: "danger" } ]
+                      { actions: [{ caption: _("Reformat and add disks"),
+                                    clicked: add_drives,
+                                    style: "danger" }]
                       });
 
     function add_drives() {
@@ -404,7 +404,7 @@ function add_storage(client, drives, model) {
         //
         var args = { devs: devs, driver: model.driver };
 
-        var process = python.spawn(cockpit_atomic_storage, [ "add", JSON.stringify(args) ],
+        var process = python.spawn(cockpit_atomic_storage, ["add", JSON.stringify(args)],
                                    { err: 'out',
                                      superuser: true })
                 .done(function () {
@@ -444,9 +444,9 @@ function reset_storage(client) {
                                 <p>{_("Resetting the storage pool will erase all containers and release disks in the pool.")}</p>
                             </div>),
     },
-                      { actions: [ { caption: _("Erase containers and reset storage pool"),
-                                     clicked: reset,
-                                     style: "danger" } ]
+                      { actions: [{ caption: _("Erase containers and reset storage pool"),
+                                    clicked: reset,
+                                    style: "danger" }]
                       });
     function reset() {
         var dfd = cockpit.defer();

@@ -42,7 +42,7 @@ const NetworkModelRow = ({ idPrefix, onValueChanged, dialogValues, network, osTy
         { name: 'virtio', desc: 'Linux, perf' },
         { name: 'e1000e', desc: 'PCI' },
         { name: 'e1000', desc: 'PCI, legacy' },
-        { name: 'rtl8139', desc: 'PCI, legacy' } ];
+        { name: 'rtl8139', desc: 'PCI, legacy' }];
     const defaultModelType = dialogValues.networkModel;
 
     if (osTypeArch == 'ppc64' && osTypeMachine == 'pseries') {

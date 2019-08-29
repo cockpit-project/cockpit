@@ -225,10 +225,10 @@ function DockerClient() {
 
     function update_usage_grid() {
         var meta = usage_metrics_channel.meta || { };
-        var metrics = meta.metrics || [ ];
+        var metrics = meta.metrics || [];
 
         metrics.forEach(function(metric) {
-            var instances = metric.instances || [ ];
+            var instances = metric.instances || [];
 
             /*
              * Take a look at all the cgroups and map them to all the
@@ -258,10 +258,10 @@ function DockerClient() {
                         if (self.containers[id] && !usage_samples[id]) {
                             self.containers[id].CGroup = cgroup;
                             usage_samples[id] = [
-                                usage_grid.add(usage_metrics_channel, [ "cgroup.memory.usage", cgroup ]),
-                                usage_grid.add(usage_metrics_channel, [ "cgroup.cpu.usage", cgroup ]),
-                                usage_grid.add(usage_metrics_channel, [ "cgroup.memory.limit", cgroup ]),
-                                usage_grid.add(usage_metrics_channel, [ "cgroup.cpu.shares", cgroup ])
+                                usage_grid.add(usage_metrics_channel, ["cgroup.memory.usage", cgroup]),
+                                usage_grid.add(usage_metrics_channel, ["cgroup.cpu.usage", cgroup]),
+                                usage_grid.add(usage_metrics_channel, ["cgroup.memory.limit", cgroup]),
+                                usage_grid.add(usage_metrics_channel, ["cgroup.cpu.shares", cgroup])
                             ];
                         }
                     }
@@ -428,8 +428,8 @@ function DockerClient() {
 
         usage_metrics_channel = cockpit.metrics(1000,
                                                 { source: "internal",
-                                                  metrics: [ { name: "cgroup.memory.usage",
-                                                               units: "bytes"
+                                                  metrics: [{ name: "cgroup.memory.usage",
+                                                              units: "bytes"
                                                   },
                                                   { name: "cgroup.cpu.usage",
                                                     units: "millisec",
@@ -744,7 +744,7 @@ function DockerClient() {
 
     this.containers_for_image = function containers_for_image(id) {
         util.docker_debug('containers search on image id: ', id);
-        return http.get('/v1.12/containers/json', { all: 1, filters: JSON.stringify({ ancestor: [ id ] }) })
+        return http.get('/v1.12/containers/json', { all: 1, filters: JSON.stringify({ ancestor: [id] }) })
                 .fail(function(ex) {
                     util.docker_debug('containers search on image id failed:', id, ex);
                 })

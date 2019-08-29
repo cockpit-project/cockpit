@@ -107,7 +107,7 @@ export class ApplicationList extends React.Component {
 
     render() {
         var self = this;
-        var comps = [ ];
+        var comps = [];
         for (var id in this.props.metainfo_db.components)
             comps.push(this.props.metainfo_db.components[id]);
         comps.sort((a, b) => a.name.localeCompare(b.name));
@@ -115,8 +115,8 @@ export class ApplicationList extends React.Component {
         function refresh() {
             var config = cockpit.manifests.apps.config || { };
             PackageKit.refresh(self.props.metainfo_db.origin_files,
-                               config.appstream_config_packages || [ ],
-                               config.appstream_data_packages || [ ],
+                               config.appstream_config_packages || [],
+                               config.appstream_data_packages || [],
                                data => self.setState({ progress: data }))
                     .finally(() => self.setState({ progress: false }))
                     .catch(show_error);

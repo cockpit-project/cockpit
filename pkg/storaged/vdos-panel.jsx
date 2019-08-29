@@ -104,9 +104,9 @@ export class VDOsPanel extends React.Component {
                           Action: {
                               Title: _("Create"),
                               action: function (vals) {
-                                  return prepare_available_spaces(client, [ vals.space ]).then(function (path) {
+                                  return prepare_available_spaces(client, [vals.space]).then(function (path) {
                                       var block = client.blocks[path];
-                                      return cockpit.spawn([ "wipefs", "-a", decode_filename(block.PreferredDevice) ],
+                                      return cockpit.spawn(["wipefs", "-a", decode_filename(block.PreferredDevice)],
                                                            { superuser: true,
                                                              err: "message"
                                                            })
@@ -139,7 +139,7 @@ export class VDOsPanel extends React.Component {
                                       name={vdo.name}
                                       devname={vdo.dev}
                                       detail={fmt_size(vdo.logical_size)}
-                                      go={() => cockpit.location.go([ "vdo", vdo.name ])}
+                                      go={() => cockpit.location.go(["vdo", vdo.name])}
                                       job_path={block && block.path}
                                       key={vdo.dev} />
             );

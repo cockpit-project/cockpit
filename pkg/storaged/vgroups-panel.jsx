@@ -90,7 +90,7 @@ export class VGroupsPanel extends React.Component {
                                       name={vgroup.Name}
                                       devname={"/dev/" + vgroup.Name + "/"}
                                       detail={fmt_size(vgroup.Size)}
-                                      go={() => cockpit.location.go([ "vg", vgroup.Name ])}
+                                      go={() => cockpit.location.go(["vg", vgroup.Name])}
                                       job_path={path}
                                       key={path} />
             );

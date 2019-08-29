@@ -114,7 +114,7 @@ function MockWebSocket(url, protocol) {
     };
 
     /* Instantiate the global mock peer */
-    var sending = [ ];
+    var sending = [];
     mock.send = function(channel, payload) {
         if (!channel)
             channel = "";

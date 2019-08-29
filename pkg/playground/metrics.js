@@ -3,7 +3,7 @@ import cockpit from "cockpit";
 
 import "plot.css";
 
-var metrics = [ { name: "block.device.read" } ];
+var metrics = [{ name: "block.device.read" }];
 
 var channel = cockpit.channel({ payload: "metrics1",
                                 source: "internal",

@@ -92,7 +92,7 @@ function passwd_self(old_pass, new_pass) {
         proc.close("terminated");
     }, 10 * 1000);
 
-    proc = cockpit.spawn(["/usr/bin/passwd"], { pty: true, environ: [ "LC_ALL=C" ], err: "out" })
+    proc = cockpit.spawn(["/usr/bin/passwd"], { pty: true, environ: ["LC_ALL=C"], err: "out" })
             .always(function() {
                 window.clearInterval(timeout);
             })
@@ -148,7 +148,7 @@ function passwd_self(old_pass, new_pass) {
 function passwd_change(user, new_pass) {
     var dfd = cockpit.defer();
 
-    cockpit.spawn([ "chpasswd" ], { superuser: "require", err: "out" })
+    cockpit.spawn(["chpasswd"], { superuser: "require", err: "out" })
             .input(user + ":" + new_pass)
             .done(function() {
                 dfd.resolve();
@@ -203,10 +203,10 @@ function chain(functions) {
 function parse_passwd_content(content) {
     if (!content) {
         console.warn("Couldn't read /etc/passwd");
-        return [ ];
+        return [];
     }
 
-    var ret = [ ];
+    var ret = [];
     var lines = content.split('\n');
     var column;
 
@@ -232,10 +232,10 @@ function parse_group_content(content) {
     content = (content || "").trim();
     if (!content) {
         console.warn("Couldn't read /etc/group");
-        return [ ];
+        return [];
     }
 
-    var ret = [ ];
+    var ret = [];
     var lines = content.split('\n');
     var column;
 
@@ -395,7 +395,7 @@ PageAccounts.prototype = {
     },
 
     go: function (user) {
-        cockpit.location.go([ user ]);
+        cockpit.location.go([user]);
     }
 };
 
@@ -817,7 +817,7 @@ PageAccount.prototype = {
             return status && (status == "LK" || status == "L");
         }
 
-        cockpit.spawn(["/usr/bin/passwd", "-S", self.account_id], { environ: [ "LC_ALL=C" ], superuser: "require" })
+        cockpit.spawn(["/usr/bin/passwd", "-S", self.account_id], { environ: ["LC_ALL=C"], superuser: "require" })
                 .done(function(content) {
                     self.locked = parse_locked(content);
                     if (update_display)
@@ -897,7 +897,7 @@ PageAccount.prototype = {
         }
 
         cockpit.spawn(["/usr/bin/chage", "-l", self.account_id],
-                      { environ: [ "LC_ALL=C" ], err: "message", superuser: "try" })
+                      { environ: ["LC_ALL=C"], err: "message", superuser: "try" })
                 .done(function(data) {
                     parse_expire(data);
                 })
@@ -1322,7 +1322,7 @@ function PasswordExpiration() {
         var account_id = $("#password-expiration").data("account-id");
 
         if (!promise) {
-            promise = cockpit.spawn([ "/usr/bin/passwd", "-x", String(days), account_id ],
+            promise = cockpit.spawn(["/usr/bin/passwd", "-x", String(days), account_id],
                                     { superuser: true, err: "message" });
         }
 

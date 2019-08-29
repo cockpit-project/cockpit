@@ -11,7 +11,7 @@ QUnit.test("basic", function (assert) {
     assert.equal(typeof cockpit.location.decode, "function", "cockpit.location.decode exists");
     assert.equal(typeof cockpit.location.encode, "function", "cockpit.location.encode exists");
 
-    assert.deepEqual(cockpit.location.path, [ ], "path is empty");
+    assert.deepEqual(cockpit.location.path, [], "path is empty");
     assert.deepEqual(cockpit.location.options, { }, "options are empty");
 });
 
@@ -19,84 +19,84 @@ QUnit.test("decode", function (assert) {
     window.location.hash = "#/base/test";
 
     var checks = [
-        [ "#/host/path/sub?a=1&b=2", { path: [ "host", "path", "sub" ],
-                                       options: { a: "1", b: "2" }
+        ["#/host/path/sub?a=1&b=2", { path: ["host", "path", "sub"],
+                                      options: { a: "1", b: "2" }
         }
         ],
-        [ "", { path: [ ],
+        ["", { path: [],
+               options: { }
+        }
+        ],
+        ["#", { path: [],
                 options: { }
         }
         ],
-        [ "#", { path: [ ],
+        ["#/", { path: [],
                  options: { }
         }
         ],
-        [ "#/", { path: [ ],
-                  options: { }
-        }
-        ],
-        [ "/horst", { path: [ "horst" ],
-                      options: { }
-        }
-        ],
-        [ "//one", { path: [ "one" ],
+        ["/horst", { path: ["horst"],
                      options: { }
         }
         ],
-        [ "//one/", { path: [ "one" ],
-                      options: { }
+        ["//one", { path: ["one"],
+                    options: { }
         }
         ],
-        [ "///two", { path: [ "two" ],
-                      options: { }
+        ["//one/", { path: ["one"],
+                     options: { }
         }
         ],
-        [ "/slash/%2f", { path: [ "slash", "/" ],
-                          options: { }
+        ["///two", { path: ["two"],
+                     options: { }
         }
         ],
-        [ "?a=1", { path: [ ],
-                    options: { a: "1" }
+        ["/slash/%2f", { path: ["slash", "/"],
+                         options: { }
         }
         ],
-        [ "?a=1&a=2", { path: [ ],
-                        options: { a: [ "1", "2" ] }
+        ["?a=1", { path: [],
+                   options: { a: "1" }
         }
         ],
-        [ "?%3f=%3d", { path: [ ],
-                        options: { "?": "=" }
+        ["?a=1&a=2", { path: [],
+                       options: { a: ["1", "2"] }
         }
         ],
-        [ "#?=", { path: [ ],
-                   options: { "": "" }
+        ["?%3f=%3d", { path: [],
+                       options: { "?": "=" }
         }
         ],
-        [ "?=", { path: [ ],
+        ["#?=", { path: [],
                   options: { "": "" }
         }
         ],
-        [ "relative/sub", { path: [ "base", "relative", "sub" ],
-                            options: { }
+        ["?=", { path: [],
+                 options: { "": "" }
         }
         ],
-        [ "./relative/sub", { path: [ "base", "relative", "sub" ],
-                              options: { }
-        }
-        ],
-        [ "../relative/sub", { path: [ "relative", "sub" ],
-                               options: { }
-        }
-        ],
-        [ "/top/../sub", { path: [ "sub" ],
+        ["relative/sub", { path: ["base", "relative", "sub"],
                            options: { }
         }
         ],
-        [ "/top/./sub/./", { path: [ "top", "sub" ],
+        ["./relative/sub", { path: ["base", "relative", "sub"],
                              options: { }
         }
         ],
-        [ "relative/../sub", { path: [ "base", "sub" ],
-                               options: { }
+        ["../relative/sub", { path: ["relative", "sub"],
+                              options: { }
+        }
+        ],
+        ["/top/../sub", { path: ["sub"],
+                          options: { }
+        }
+        ],
+        ["/top/./sub/./", { path: ["top", "sub"],
+                            options: { }
+        }
+        ],
+        ["relative/../sub", { path: ["base", "sub"],
+                              options: { }
         }
         ]
     ];
@@ -115,37 +115,37 @@ QUnit.test("encode", function (assert) {
        in the "roundtrip" test.
     */
     var checks = [
-        [ "/host/path/sub?a=1&b=2", { path: [ "host", "path", "sub" ],
-                                      options: { a: "1", b: "2" }
+        ["/host/path/sub?a=1&b=2", { path: ["host", "path", "sub"],
+                                     options: { a: "1", b: "2" }
         }
         ],
-        [ "/one", { path: [ "one" ],
-                    options: { }
+        ["/one", { path: ["one"],
+                   options: { }
         }
         ],
-        [ "/one/two", { path: [ "one", "two" ],
-                        options: { }
+        ["/one/two", { path: ["one", "two"],
+                       options: { }
         }
         ],
-        [ "/slash/%2F", { path: [ "slash", "/" ],
-                          options: { }
+        ["/slash/%2F", { path: ["slash", "/"],
+                         options: { }
         }
         ],
-        [ "/p?a=1", { path: [ "p" ],
-                      options: { a: "1" }
+        ["/p?a=1", { path: ["p"],
+                     options: { a: "1" }
         }
         ],
-        [ "/p?%3F=%3D", { path: [ "p" ],
-                          options: { "?": "=" }
+        ["/p?%3F=%3D", { path: ["p"],
+                         options: { "?": "=" }
         }
         ],
-        [ "/p?=", { path: [ "p" ],
-                    options: { "": "" }
+        ["/p?=", { path: ["p"],
+                   options: { "": "" }
         }
         ],
-        [ "/p?value=one&value=two", {
-            path: [ "p" ],
-            options: { value: [ "one", "two" ] }
+        ["/p?value=one&value=two", {
+            path: ["p"],
+            options: { value: ["one", "two"] }
         }]
     ];
 
@@ -160,13 +160,13 @@ QUnit.test("encode", function (assert) {
 
 QUnit.test("roundtrip", function (assert) {
     var checks = [
-        { path: [ "path", "sub" ],
+        { path: ["path", "sub"],
           options: { a: "1", b: "2" }
         },
-        { path: [ "päth", "süb" ],
+        { path: ["päth", "süb"],
           options: { a: "1", b: "2" }
         },
-        { path: [ "/=()?", "$%&/" ],
+        { path: ["/=()?", "$%&/"],
           options: { "": "=$&%", b: "=2%34" }
         },
     ];
@@ -188,16 +188,16 @@ QUnit.test("external change", function (assert) {
     window.location.hash = "#/a/b/c?x=1&y=2";
 
     assert.notStrictEqual(cockpit.location, location, "cockpit.location is different object");
-    assert.deepEqual(cockpit.location.path, [ "a", "b", "c" ], "path is correct");
+    assert.deepEqual(cockpit.location.path, ["a", "b", "c"], "path is correct");
     assert.strictEqual(cockpit.location.options.x, "1", "option x is correct");
     assert.strictEqual(cockpit.location.options.y, "2", "option y is correct");
 });
 
 QUnit.test("internal change", function (assert) {
-    cockpit.location.go([ "x", "y", "z" ]);
+    cockpit.location.go(["x", "y", "z"]);
 
     assert.strictEqual(window.location.hash, "#/x/y/z", "hash is correct");
-    assert.deepEqual(cockpit.location.path, [ "x", "y", "z" ], "path is correct");
+    assert.deepEqual(cockpit.location.path, ["x", "y", "z"], "path is correct");
     assert.deepEqual(cockpit.location.options, { }, "options are empty");
 });
 
@@ -205,7 +205,7 @@ QUnit.test("string change", function (assert) {
     cockpit.location = "/p/x/../q/r?a=b";
 
     assert.strictEqual(window.location.hash, "#/p/q/r?a=b", "hash is correct");
-    assert.deepEqual(cockpit.location.path, [ "p", "q", "r" ], "path is correct");
+    assert.deepEqual(cockpit.location.path, ["p", "q", "r"], "path is correct");
     assert.deepEqual(cockpit.location.options, { a: "b" }, "options are empty");
 });
 
@@ -214,12 +214,12 @@ QUnit.test("string change", function (assert) {
     cockpit.location = "another";
 
     assert.strictEqual(window.location.hash, "#/top/another", "hash is correct");
-    assert.deepEqual(cockpit.location.path, [ "top", "another" ], "path is correct");
+    assert.deepEqual(cockpit.location.path, ["top", "another"], "path is correct");
 });
 
 QUnit.test("change options", function (assert) {
     window.location.hash = "";
-    assert.deepEqual(cockpit.location.path, [ ], "path is empty");
+    assert.deepEqual(cockpit.location.path, [], "path is empty");
     assert.deepEqual(cockpit.location.options, { }, "options are empty");
 
     cockpit.location.go(cockpit.location.path, { x: "1" });
@@ -237,7 +237,7 @@ QUnit.test("test", function (assert) {
 
     var triggered = false;
 
-    assert.deepEqual(cockpit.location.path, [ "hello" ], "path is right");
+    assert.deepEqual(cockpit.location.path, ["hello"], "path is right");
     $(cockpit).on("locationchanged", function() {
         assert.strictEqual(window.location.hash, "#/gonna-happen", "hash has changed");
         $(cockpit).off("locationchanged");
@@ -254,7 +254,7 @@ QUnit.test("test", function (assert) {
     window.location.hash = "#/hello";
 
     var location = cockpit.location;
-    assert.deepEqual(cockpit.location.path, [ "hello" ], "path is right");
+    assert.deepEqual(cockpit.location.path, ["hello"], "path is right");
 
     window.setTimeout(function() {
         location.go(["not-gonna-happen"]);

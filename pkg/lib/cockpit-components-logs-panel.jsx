@@ -30,7 +30,7 @@ const _ = cockpit.gettext;
 
 class JournalOutput {
     constructor() {
-        this.logs = [ ];
+        this.logs = [];
         this.reboot_key = 0;
     }
 
@@ -101,7 +101,7 @@ class JournalOutput {
 export class LogsPanel extends React.Component {
     constructor() {
         super();
-        this.state = { logs: [ ] };
+        this.state = { logs: [] };
     }
 
     componentDidMount() {

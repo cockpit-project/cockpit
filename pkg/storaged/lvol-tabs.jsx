@@ -204,7 +204,7 @@ function lvol_grow(client, lvol, info, to_fit) {
     }
 
     let grow_size;
-    let size_fields = [ ];
+    let size_fields = [];
     if (!to_fit) {
         size_fields = [
             SizeSlider("size", _("Size"),
@@ -220,7 +220,7 @@ function lvol_grow(client, lvol, info, to_fit) {
     }
 
     let recovered_passphrase;
-    let passphrase_fields = [ ];
+    let passphrase_fields = [];
     if (block && block.IdType == "crypto_LUKS" && block.IdVersion == 2)
         passphrase_fields = existing_passphrase_fields(_("Resizing an encrypted filesystem requires unlocking the disk. Please provide a current disk passphrase."));
 
@@ -263,7 +263,7 @@ function lvol_shrink(client, lvol, info, to_fit) {
     }
 
     let shrink_size;
-    let size_fields = [ ];
+    let size_fields = [];
     if (!to_fit) {
         size_fields = [
             SizeSlider("size", _("Size"),
@@ -302,7 +302,7 @@ function lvol_shrink(client, lvol, info, to_fit) {
     }
 
     let recovered_passphrase;
-    let passphrase_fields = [ ];
+    let passphrase_fields = [];
     if (block && block.IdType == "crypto_LUKS" && block.IdVersion == 2)
         passphrase_fields = existing_passphrase_fields(_("Resizing an encrypted filesystem requires unlocking the disk. Please provide a current disk passphrase."));
 

@@ -26,6 +26,7 @@ REPO_BRANCH_CONTEXT = {
         ],
         'rhel-7.7': ['fedora-30/container-kubernetes',
             'fedora-30/container-bastion', 'fedora-30/selenium-firefox', 'fedora-30/selenium-chrome', 'rhel-7-7',
+            'rhel-atomic', 'continuous-atomic',
         ],
         'rhel-8.0': ['fedora-30/container-bastion',
             'fedora-30/selenium-firefox', 'fedora-30/selenium-chrome',

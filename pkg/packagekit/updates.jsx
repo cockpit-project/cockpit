@@ -121,7 +121,7 @@ class Expander extends React.Component {
         const title = <a href="#">{this.props.title}</a>;
         const cls = "expander-caret fa " + (this.state.expanded ? "fa-angle-down" : "fa-angle-right");
         return (
-            <React.Fragment>
+            <>
                 <div className="expander-title">
                     <hr />
                     <span onClick={() => this.setState({ expanded: !this.state.expanded })} >
@@ -130,7 +130,7 @@ class Expander extends React.Component {
                     <hr />
                 </div>
                 {this.state.expanded ? this.props.children : null}
-            </React.Fragment>);
+            </>);
     }
 }
 
@@ -257,21 +257,21 @@ class UpdateItem extends React.Component {
             if (secSeverityURL)
                 secSeverityURL = <a rel="noopener" referrerPolicy="no-referrer" target="_blank" href={secSeverityURL}>{secSeverity}</a>;
             type = (
-                <React.Fragment>
+                <>
                     <OverlayTrigger overlay={ <Tooltip id="tip-severity">{ secSeverity || _("security") }</Tooltip> } placement="top">
                         <span className={iconClasses}>&nbsp;</span>
                     </OverlayTrigger>
                     { (info.cve_urls && info.cve_urls.length > 0) ? info.cve_urls.length : "" }
-                </React.Fragment>);
+                </>);
         } else {
             const tip = (info.severity >= PK.Enum.INFO_NORMAL) ? _("bug fix") : _("enhancement");
             type = (
-                <React.Fragment>
+                <>
                     <OverlayTrigger overlay={ <Tooltip id="tip-severity">{tip}</Tooltip> } placement="top">
                         <span className={iconClasses}>&nbsp;</span>
                     </OverlayTrigger>
                     { bugs ? info.bug_urls.length : "" }
-                </React.Fragment>);
+                </>);
         }
 
         var pkgList = this.props.pkgNames.map(n => (
@@ -441,10 +441,10 @@ class ApplyUpdates extends React.Component {
         if (this.state.actions.length > 0) {
             const lastAction = this.state.actions[this.state.actions.length - 1];
             actionHTML = (
-                <React.Fragment>
+                <>
                     <strong>{ PK_STATUS_STRINGS[lastAction.status] || PK_STATUS_STRINGS[PK.Enum.STATUS_UPDATE] }</strong>
                     &nbsp;{lastAction.package}
-                </React.Fragment>);
+                </>);
             logRows = this.state.actions.slice(0, -1).map((action, i) => (
                 <tr key={action.package + i}>
                     <th>{PK_STATUS_LOG_STRINGS[action.status] || PK_STATUS_LOG_STRINGS[PK.Enum.STATUS_UPDATE]}</th>
@@ -455,7 +455,7 @@ class ApplyUpdates extends React.Component {
         }
 
         return (
-            <React.Fragment>
+            <>
                 <div className="progress-main-view">
                     <div className="progress-description">
                         <div className="spinner spinner-xs spinner-inline" />
@@ -483,7 +483,7 @@ class ApplyUpdates extends React.Component {
                         </div>
                     </Expander>
                 </div>
-            </React.Fragment>
+            </>
         );
     }
 }
@@ -872,7 +872,7 @@ class OsUpdates extends React.Component {
 
         case "uptodate":
             return (
-                <React.Fragment>
+                <>
                     <AutoUpdates onInitialized={ enabled => this.setState({ autoUpdatesEnabled: enabled }) } />
                     <div className="blank-slate-pf">
                         <div className="blank-slate-pf-icon">
@@ -885,7 +885,7 @@ class OsUpdates extends React.Component {
                         (this.state.autoUpdatesEnabled !== undefined) &&
                             <History packagekit={this.state.autoUpdatesEnabled ? [] : this.state.history} />
                     }
-                </React.Fragment>);
+                </>);
 
         default:
             return null;

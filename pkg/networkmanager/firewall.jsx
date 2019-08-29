@@ -102,16 +102,16 @@ function ServiceRow(props) {
         description = <p>{props.service.description}</p>;
 
     if (props.service.includes.length > 0) {
-        includes = <React.Fragment>
+        includes = <>
             <h5>Included Services</h5>
             <ul>{props.service.includes.map(s => {
                 const service = firewall.services[s];
                 if (service && service.description)
                     return <li key={service.id}><strong>{service.name}</strong>: {service.description}</li>;
-            })} </ul></React.Fragment>;
+            })} </ul></>;
     }
     if (description || includes)
-        simpleBody = <React.Fragment>{description}{includes}</React.Fragment>;
+        simpleBody = <>{description}{includes}</>;
 
     return <ListingRow key={props.service.id}
                        rowId={props.service.id}
@@ -142,9 +142,9 @@ function ZoneRow(props) {
 
     const columns = [
         { name: props.zone.name, header: true },
-        <React.Fragment>{ props.zone.id === firewall.defaultZone ? <React.Fragment><span className="fa fa-check" /> default</React.Fragment> : '' }</React.Fragment>,
-        <React.Fragment>{ props.zone.interfaces.length > 0 ? props.zone.interfaces.join(', ') : '*' }</React.Fragment>,
-        <React.Fragment>{ props.zone.source.length > 0 ? props.zone.source.join(', ') : '*' }</React.Fragment>,
+        <>{ props.zone.id === firewall.defaultZone ? <><span className="fa fa-check" /> default</> : '' }</>,
+        <>{ props.zone.interfaces.length > 0 ? props.zone.interfaces.join(', ') : '*' }</>,
+        <>{ props.zone.source.length > 0 ? props.zone.source.join(', ') : '*' }</>,
         deleteButton,
     ];
     return <ListingRow key={props.zone.id}
@@ -198,10 +198,10 @@ const renderPorts = service => {
         addPorts(firewall.services[s].ports);
 
     return (
-        <React.Fragment>
+        <>
             { tcpPorts.length > 0 && <span className="service-ports tcp"><strong>TCP: </strong>{ tcpPorts.join(', ') }</span> }
             { udpPorts.length > 0 && <span className="service-ports udp"><strong>UDP: </strong>{ udpPorts.join(', ') }</span> }
-        </React.Fragment>
+        </>
     );
 };
 
@@ -491,7 +491,7 @@ class AddServicesModal extends React.Component {
                 <div id="cockpit_modal_dialog">
                     <Modal.Body id="add-services-dialog-body">
                         { firewall.activeZones.size > 1 &&
-                            <React.Fragment>
+                            <>
                                 <form className="ct-form horizontal">
                                     <label htmlFor="zone-input">{zonesText}</label>
                                     <fieldset id="zone-input">
@@ -503,14 +503,14 @@ class AddServicesModal extends React.Component {
                                     </fieldset>
                                 </form>
                                 <hr />
-                            </React.Fragment>}
+                            </>}
                         <form action="" className="toggle-body ct-form">
                             <label className="radio ct-form-full">
                                 <input type="radio" name="type" value="services" onChange={this.onToggleType} defaultChecked />
                                 {_("Services")}
                             </label>
                             { this.state.custom ||
-                                <React.Fragment>
+                                <>
                                     { services ? (
                                         <fieldset>
                                             <div className="ct-form">
@@ -543,14 +543,14 @@ class AddServicesModal extends React.Component {
                                     ) : (
                                         <div className="spinner spinner-lg" />
                                     )}
-                                </React.Fragment>
+                                </>
                             }
                             <label className="radio ct-form-full">
                                 <input type="radio" name="type" value="ports" onChange={this.onToggleType} disabled={this.state.avail_services == null} />
                                 {_("Custom Ports")}
                             </label>
                             { !this.state.custom ||
-                                <React.Fragment>
+                                <>
                                     <label className="control-label" htmlFor="hint" hidden>Hint</label>
                                     <p id="hint">
                                         {_("Comma-separated ports, ranges, and aliases are accepted")}
@@ -574,7 +574,7 @@ class AddServicesModal extends React.Component {
                                     <label className="control-label" htmlFor="service-name">Name</label>
                                     <input id="service-name" className="form-control" type="text" onChange={this.setName}
                                            placeholder={_("(Optional)")} value={this.state.custom_name} />
-                                </React.Fragment>
+                                </>
                             }
                         </form>
                     </Modal.Body>

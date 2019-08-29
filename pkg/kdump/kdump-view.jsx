@@ -82,27 +82,27 @@ class KdumpTargetBody extends React.Component {
 
         if (this.state.storeDest == "local") {
             detailRows = (
-                <React.Fragment>
+                <>
                     <label className="control-label" htmlFor="kdump-settings-local-directory">{_("Directory")}</label>
                     <input id="kdump-settings-local-directory" key="directory" className="form-control" type="text"
                            placeholder="/var/crash" value={directory}
                            data-stored={directory}
                            onChange={this.changeValue.bind(this, "path")} />
-                </React.Fragment>
+                </>
             );
         } else if (this.state.storeDest == "nfs") {
             var nfs = "";
             if (this.props.settings && "nfs" in this.props.settings)
                 nfs = this.props.settings.nfs.value;
             detailRows = (
-                <React.Fragment>
+                <>
                     <label className="control-label" htmlFor="kdump-settings-nfs-mount">{_("Mount")}</label>
                     <label>
                         <input id="kdump-settings-nfs-mount" key="mount" className="form-control" type="text"
                                placeholder="penguin.example.com:/export/cores" value={nfs}
                                onChange={this.changeValue.bind(this, "nfs")} />
                     </label>
-                </React.Fragment>
+                </>
             );
         } else if (this.state.storeDest == "ssh") {
             var ssh = "";
@@ -112,7 +112,7 @@ class KdumpTargetBody extends React.Component {
             if (this.props.settings && "sshkey" in this.props.settings)
                 sshkey = this.props.settings.sshkey.value;
             detailRows = (
-                <React.Fragment>
+                <>
                     <label className="control-label" htmlFor="kdump-settings-ssh-server">{_("Server")}</label>
                     <input id="kdump-settings-ssh-server" key="server" className="form-control" type="text"
                            placeholder="user@server.com" value={ssh}
@@ -128,7 +128,7 @@ class KdumpTargetBody extends React.Component {
                            placeholder="/var/crash" value={directory}
                            data-stored={directory}
                            onChange={this.changeValue.bind(this, "path")} />
-                </React.Fragment>
+                </>
             );
         }
 

@@ -37,7 +37,7 @@ const StoragePoolNameRow = ({ onValueChanged, dialogValues }) => {
     const validationState = dialogValues.name.length == 0 && dialogValues.validationFailed.name ? 'error' : undefined;
 
     return (
-        <React.Fragment>
+        <>
             <label className='control-label'>
                 {_("Name")}
             </label>
@@ -53,7 +53,7 @@ const StoragePoolNameRow = ({ onValueChanged, dialogValues }) => {
                     <p className="text-danger">{_("Name should not be empty")}</p>
                 </HelpBlock> }
             </FormGroup>
-        </React.Fragment>
+        </>
     );
 };
 
@@ -80,7 +80,7 @@ const StoragePoolTypeRow = ({ onValueChanged, dialogValues, libvirtVersion }) =>
      */
 
     return (
-        <React.Fragment>
+        <>
             <label className='control-label'>
                 {_("Type")}
             </label>
@@ -97,7 +97,7 @@ const StoragePoolTypeRow = ({ onValueChanged, dialogValues, libvirtVersion }) =>
                         })
                 }
             </Select.Select>
-        </React.Fragment>
+        </>
     );
 };
 
@@ -106,7 +106,7 @@ const StoragePoolTargetRow = ({ onValueChanged, dialogValues }) => {
 
     if (['dir', 'netfs', 'iscsi', 'disk'].includes(dialogValues.type)) {
         return (
-            <React.Fragment>
+            <>
                 <label className='control-label'>
                     {_("Target Path")}
                 </label>
@@ -121,7 +121,7 @@ const StoragePoolTargetRow = ({ onValueChanged, dialogValues }) => {
                     </HelpBlock> }
                 </FormGroup>
                 <hr />
-            </React.Fragment>
+            </>
         );
     }
     return null;
@@ -132,7 +132,7 @@ const StoragePoolHostRow = ({ onValueChanged, dialogValues }) => {
 
     if (['netfs', 'iscsi', 'iscsi-direct'].includes(dialogValues.type))
         return (
-            <React.Fragment>
+            <>
                 <label className='control-label'>
                     {_("Host")}
                 </label>
@@ -149,7 +149,7 @@ const StoragePoolHostRow = ({ onValueChanged, dialogValues }) => {
                     </HelpBlock> }
                 </FormGroup>
                 <hr />
-            </React.Fragment>
+            </>
         );
     return null;
 };
@@ -159,7 +159,7 @@ const StoragePoolInitiatorRow = ({ onValueChanged, dialogValues }) => {
 
     if (['iscsi-direct'].includes(dialogValues.type))
         return (
-            <React.Fragment>
+            <>
                 <label className='control-label'>
                     {_("Initiator")}
                 </label>
@@ -176,7 +176,7 @@ const StoragePoolInitiatorRow = ({ onValueChanged, dialogValues }) => {
                     </HelpBlock> }
                 </FormGroup>
                 <hr />
-            </React.Fragment>
+            </>
         );
     return null;
 };
@@ -202,7 +202,7 @@ const StoragePoolSourceRow = ({ onValueChanged, dialogValues }) => {
 
     if (['netfs', 'iscsi', 'iscsi-direct'].includes(dialogValues.type))
         return (
-            <React.Fragment>
+            <>
                 <label className='control-label'>
                     {_("Source Path")}
                 </label>
@@ -225,11 +225,11 @@ const StoragePoolSourceRow = ({ onValueChanged, dialogValues }) => {
                     </HelpBlock> }
                 </FormGroup>
                 <hr />
-            </React.Fragment>
+            </>
         );
     else if (dialogValues.type == 'disk')
         return (
-            <React.Fragment>
+            <>
                 <label className='control-label' htmlFor='storage-pool-dialog-source'>
                     {_("Source Path")}
                 </label>
@@ -263,11 +263,11 @@ const StoragePoolSourceRow = ({ onValueChanged, dialogValues }) => {
                     }
                 </Select.Select>
                 <hr />
-            </React.Fragment>
+            </>
         );
     else if (dialogValues.type == 'logical')
         return (
-            <React.Fragment>
+            <>
                 <label className='control-label' htmlFor='storage-pool-dialog-source'>
                     {_("Source Volume Group")}
                 </label>
@@ -285,14 +285,14 @@ const StoragePoolSourceRow = ({ onValueChanged, dialogValues }) => {
                     </HelpBlock> }
                 </FormGroup>
                 <hr />
-            </React.Fragment>
+            </>
         );
     return null;
 };
 
 const StoragePoolAutostartRow = ({ onValueChanged, dialogValues }) => {
     return (
-        <React.Fragment>
+        <>
             <label className='control-label'>
                 {_("Startup")}
             </label>
@@ -303,7 +303,7 @@ const StoragePoolAutostartRow = ({ onValueChanged, dialogValues }) => {
                     onChange={e => onValueChanged('autostart', e.target.checked)} />
                 {_("Start pool when host boots")}
             </label>
-        </React.Fragment>
+        </>
     );
 };
 
@@ -543,7 +543,7 @@ export class CreateStoragePoolAction extends React.Component {
 
     render() {
         return (
-            <React.Fragment>
+            <>
                 <Button className='pull-right' id='create-storage-pool' bsStyle='default' onClick={this.open} >
                     {_("Create Storage Pool")}
                 </Button>
@@ -553,7 +553,7 @@ export class CreateStoragePoolAction extends React.Component {
                     dispatch={this.props.dispatch}
                     libvirtVersion={this.props.libvirtVersion}
                     loggedUser={this.props.loggedUser} /> }
-            </React.Fragment>
+            </>
         );
     }
 }

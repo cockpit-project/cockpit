@@ -121,7 +121,7 @@ class SerialConsoleCockpit extends React.Component {
 
     render () {
         return (
-            <React.Fragment>
+            <>
                 {this.props.children}
                 <SerialConsole id={this.props.vmName} ref='serialconsole'
                     rows={XTERM_ROWS}
@@ -138,7 +138,7 @@ class SerialConsoleCockpit extends React.Component {
                     textReconnect={_("Reconnect")}
                     textLoading={_("Loading ...")}
                     topClassName="" />
-            </React.Fragment>
+            </>
         );
     }
 }

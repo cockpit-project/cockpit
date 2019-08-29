@@ -172,7 +172,7 @@ export class Terminal extends React.Component {
 
     render() {
         return (
-            <React.Fragment>
+            <>
                 <div ref="terminal"
                         key={this.state.terminal}
                         className="console-ct"
@@ -180,7 +180,7 @@ export class Terminal extends React.Component {
                         onContextMenu={this.contextMenu}
                         onBlur={this.onFocusOut} />
                 <ContextMenu setText={this.setText} getText={this.getText} />
-            </React.Fragment>
+            </>
         );
     }
 

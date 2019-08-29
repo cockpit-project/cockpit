@@ -93,13 +93,13 @@ export class OptionalPanel extends React.Component {
             heading_right = <StorageButton kind="primary" onClick={install}>{install_title}</StorageButton>;
         } else {
             heading_right = (
-                <React.Fragment>
+                <>
                     { this.state.just_installed
                         ? <span className={this.state.just_installed}>{_("Support is installed.")}</span>
                         : null
                     }
                     { actions }
-                </React.Fragment>
+                </>
             );
         }
 

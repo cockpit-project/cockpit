@@ -121,12 +121,12 @@ export class History extends React.Component {
         });
 
         return (
-            <React.Fragment>
+            <>
                 <h2>{ _("Update History") }</h2>
                 <table className="listing-ct updates-history">
                     {rows}
                 </table>
-            </React.Fragment>
+            </>
         );
     }
 }

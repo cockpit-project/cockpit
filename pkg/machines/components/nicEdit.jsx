@@ -50,7 +50,7 @@ const NetworkModelRow = ({ idPrefix, onValueChanged, dialogValues, network, osTy
     }
 
     return (
-        <React.Fragment>
+        <>
             <label className='control-label' htmlFor={`${idPrefix}-select-model`}>
                 {_("Model")}
             </label>
@@ -67,7 +67,7 @@ const NetworkModelRow = ({ idPrefix, onValueChanged, dialogValues, network, osTy
                             );
                         })}
             </Select.Select>
-        </React.Fragment>
+        </>
     );
 };
 
@@ -127,7 +127,7 @@ const NetworkTypeAndSourceRow = ({ idPrefix, onValueChanged, dialogValues, netwo
     }
 
     return (
-        <React.Fragment>
+        <>
             <label className='control-label' htmlFor={`${idPrefix}-select-type`}>
                 {_("Interface Type")}
             </label>
@@ -145,7 +145,7 @@ const NetworkTypeAndSourceRow = ({ idPrefix, onValueChanged, dialogValues, netwo
                         })}
             </Select.Select>
             {["network", "direct"].includes(dialogValues.networkType) && (
-                <React.Fragment>
+                <>
                     <label className='control-label' htmlFor={`${idPrefix}-select-source`}>
                         {_("Source")}
                     </label>
@@ -156,22 +156,22 @@ const NetworkTypeAndSourceRow = ({ idPrefix, onValueChanged, dialogValues, netwo
                                    extraClass='form-control ct-form-split'>
                         {networkSourcesContent}
                     </Select.Select>
-                </React.Fragment>
+                </>
             )}
-        </React.Fragment>
+        </>
     );
 };
 
 const NetworkMacRow = ({ network }) => {
     return (
-        <React.Fragment>
+        <>
             <label className='control-label' htmlFor='mac'>
                 {_("Mac Address")}
             </label>
             <samp id='mac'>
                 {network.mac}
             </samp>
-        </React.Fragment>
+        </>
     );
 };
 

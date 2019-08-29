@@ -186,7 +186,7 @@ const NameRow = ({ vmName, onValueChanged, validationFailed }) => {
     const validationStateName = validationFailed.vmName ? 'error' : undefined;
 
     return (
-        <React.Fragment>
+        <>
             <label className="control-label" htmlFor="vm-name">
                 {_("Name")}
             </label>
@@ -202,7 +202,7 @@ const NameRow = ({ vmName, onValueChanged, validationFailed }) => {
                     <p className="text-danger">{validationFailed.vmName}</p>
                 </HelpBlock> }
             </FormGroup>
-        </React.Fragment>
+        </>
     );
 };
 
@@ -244,7 +244,7 @@ const SourceRow = ({ connectionName, source, sourceType, networks, nodeDevices, 
         }
 
         installationSource = (
-            <React.Fragment>
+            <>
                 <Select.StatelessSelect id="network-select"
                     selected={source || 'no-resource'}
                     onChange={value => onValueChanged('source', value)}>
@@ -255,7 +255,7 @@ const SourceRow = ({ connectionName, source, sourceType, networks, nodeDevices, 
                 <HelpBlock>
                     <p className="text-warning">{installationSourceWarning}</p>
                 </HelpBlock> }
-            </React.Fragment>
+            </>
         );
         break;
     case URL_SOURCE:
@@ -273,9 +273,9 @@ const SourceRow = ({ connectionName, source, sourceType, networks, nodeDevices, 
     }
 
     return (
-        <React.Fragment>
+        <>
             {sourceType != EXISTING_DISK_IMAGE_SOURCE &&
-            <React.Fragment>
+            <>
                 <label className="control-label" htmlFor="source-type">
                     {_("Installation Source Type")}
                 </label>
@@ -292,7 +292,7 @@ const SourceRow = ({ connectionName, source, sourceType, networks, nodeDevices, 
                         key={PXE_SOURCE}>{_("Network Boot (PXE)")}
                     </Select.SelectEntry>}
                 </Select.Select>
-            </React.Fragment>}
+            </>}
 
             <label className="control-label" htmlFor={installationSourceId}>
                 {_("Installation Source")}
@@ -304,7 +304,7 @@ const SourceRow = ({ connectionName, source, sourceType, networks, nodeDevices, 
                     <p className="text-danger">{validationFailed.source}</p>
                 </HelpBlock> }
             </FormGroup>
-        </React.Fragment>
+        </>
     );
 };
 
@@ -337,7 +337,7 @@ class OSRow extends React.Component {
         const filterByFields = ['shortId', 'displayName'];
 
         return (
-            <React.Fragment>
+            <>
                 <label className="control-label" htmlFor='os-select'>
                     {_("Operating System")}
                 </label>
@@ -369,7 +369,7 @@ class OSRow extends React.Component {
                         <p className="text-danger">{validationFailed.os}</p>
                     </HelpBlock> }
                 </FormGroup>
-            </React.Fragment>
+            </>
         );
     }
 }
@@ -384,7 +384,7 @@ const MemoryRow = ({ memorySize, memorySizeUnit, nodeMaxMemory, recommendedMemor
     }
 
     return (
-        <React.Fragment>
+        <>
             <label htmlFor='memory-size' className='control-label'>
                 {_("Memory")}
             </label>
@@ -405,7 +405,7 @@ const MemoryRow = ({ memorySize, memorySizeUnit, nodeMaxMemory, recommendedMemor
                     )}</p>}
                 </HelpBlock>
             </FormGroup>
-        </React.Fragment>
+        </>
     );
 };
 
@@ -433,7 +433,7 @@ const StorageRow = ({ connectionName, storageSize, storageSizeUnit, onValueChang
     const poolSpaceAvailable = getSpaceAvailable(storagePools, connectionName);
 
     return (
-        <React.Fragment>
+        <>
             <label className="control-label" htmlFor="storage-pool-select">
                 {_("Storage")}
             </label>
@@ -453,7 +453,7 @@ const StorageRow = ({ connectionName, storageSize, storageSizeUnit, onValueChang
 
             { storagePoolName !== "NewVolume" &&
             storagePoolName !== "NoStorage" &&
-            <React.Fragment>
+            <>
                 <label className="control-label" htmlFor="storage-volume-select">
                     {_("Volume")}
                 </label>
@@ -467,10 +467,10 @@ const StorageRow = ({ connectionName, storageSize, storageSizeUnit, onValueChang
                 <HelpBlock>
                     <p className="text-warning">{_("This volume is already used by another VM.")}</p>
                 </HelpBlock> }
-            </React.Fragment> }
+            </> }
 
             { storagePoolName === "NewVolume" &&
-            <React.Fragment>
+            <>
                 <label htmlFor='storage-size' className='control-label'>
                     {_("Size")}
                 </label>
@@ -492,8 +492,8 @@ const StorageRow = ({ connectionName, storageSize, storageSizeUnit, onValueChang
                         )}
                     </HelpBlock>}
                 </FormGroup>
-            </React.Fragment> }
-        </React.Fragment>
+            </> }
+        </>
     );
 };
 
@@ -721,7 +721,7 @@ class CreateVmModal extends React.Component {
                 <hr />
 
                 { this.state.sourceType != EXISTING_DISK_IMAGE_SOURCE &&
-                <React.Fragment>
+                <>
                     <StorageRow
                         connectionName={this.state.connectionName}
                         storageSize={this.state.storageSize}
@@ -735,7 +735,7 @@ class CreateVmModal extends React.Component {
                         validationFailed={validationFailed}
                     />
                     <hr />
-                </React.Fragment>}
+                </>}
 
                 <MemoryRow
                     memorySize={this.state.memorySize}
@@ -839,7 +839,7 @@ export class CreateVmAction extends React.Component {
             );
 
         return (
-            <React.Fragment>
+            <>
                 { createButton }
                 { this.state.showModal &&
                 <CreateVmModal
@@ -854,7 +854,7 @@ export class CreateVmAction extends React.Component {
                     osInfoList={this.props.systemInfo.osInfoList}
                     onAddErrorNotification={this.props.onAddErrorNotification}
                     loggedUser={this.props.systemInfo.loggedUser} /> }
-            </React.Fragment>
+            </>
         );
     }
 }

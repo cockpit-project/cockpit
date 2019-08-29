@@ -49,27 +49,27 @@ export class StoragePool extends React.Component {
         const availableTooltipFunction = (max, now) => <Tooltip id='utilization-bar-tooltip-available'> Available {((max - now) / max).toFixed(2) * 100}% </Tooltip>;
         const usedTooltipFunction = (max, now) => <Tooltip id='utilization-bar-tooltip-used'> Used {(now / max).toFixed(2) * 100}% </Tooltip>;
         const size = (
-            <React.Fragment>
+            <>
                 <UtilizationBar
                     now={allocation}
                     max={capacity}
                     availableTooltipFunction={availableTooltipFunction}
                     usedTooltipFunction={usedTooltipFunction}
                 />
-            </React.Fragment>
+            </>
         );
         const sizeLabel = (
-            <React.Fragment>
+            <>
                 {`${allocation} / ${capacity} GiB`}
-            </React.Fragment>
+            </>
         );
         const state = (
-            <React.Fragment>
+            <>
                 { this.props.resourceHasError[storagePool.id] ? <span className='pficon-warning-triangle-o machines-status-alert' /> : null }
                 <span id={`${idPrefix}-state`}>
                     { storagePool.active ? _("active") : _("inactive") }
                 </span>
-            </React.Fragment>);
+            </>);
         const cols = [
             { name, header: true },
             size,
@@ -184,11 +184,11 @@ class StoragePoolActions extends React.Component {
         }
 
         return (
-            <React.Fragment>
+            <>
                 { storagePool.active && deactivateButton }
                 { !storagePool.active && activateButton }
                 <StoragePoolDelete storagePool={storagePool} vms={vms} />
-            </React.Fragment>
+            </>
         );
     }
 }

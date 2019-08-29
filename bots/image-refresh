@@ -31,6 +31,7 @@ TRIGGERS = {
     ],
     "continuous-atomic": [
         "continuous-atomic@cockpit-project/cockpit-ostree",
+        "continuous-atomic@cockpit-project/cockpit/rhel-7.7",
     ],
     "debian-testing": [
         "debian-testing"
@@ -74,7 +75,8 @@ TRIGGERS = {
         "ubuntu-stable"
     ],
     "openshift": [
-        # FIXME: need to test a rhel-7.x branch here, once we can
+        "fedora-30/container-kubernetes@cockpit-project/cockpit/rhel-7.7",
+        "rhel-7-7@cockpit-project/cockpit/rhel-7.7",
     ],
     "ipa": [
         "fedora-30",
@@ -88,6 +90,8 @@ TRIGGERS = {
     "rhel-7-7": [
         "rhel-7-7/firefox@weldr/cockpit-composer",
         "rhel-7-7@cockpit-project/cockpit/rhel-7.7",
+        "rhel-atomic@cockpit-project/cockpit/rhel-7.7",
+        "continuous-atomic@cockpit-project/cockpit/rhel-7.7",
     ],
     "rhel-8-0": [
         "rhel-8-0",
@@ -102,6 +106,7 @@ TRIGGERS = {
     ],
     "rhel-atomic": [
         "rhel-atomic@cockpit-project/cockpit-ostree",
+        "rhel-atomic@cockpit-project/cockpit/rhel-7.7",
     ]
 }
 

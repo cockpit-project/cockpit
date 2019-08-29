@@ -250,7 +250,7 @@ class PerformanceOptions extends React.Component {
                     <label className='control-label' htmlFor='cache-mode'>
                         {_("Cache")}
                     </label>
-                    <Select.Select id={'cache-mode'}
+                    <Select.Select id='cache-mode'
                         onChange={value => this.props.onValueChanged('cacheMode', value)}
                         initial={this.props.cacheMode}
                         extraClass='form-control ct-form-split'>

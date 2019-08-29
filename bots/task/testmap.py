@@ -41,6 +41,7 @@ REPO_BRANCH_CONTEXT = {
         '_manual': [
             'fedora-i386',
             'fedora-testing',
+            'rhel-7-8',
         ],
     },
     'cockpit-project/starter-kit': {

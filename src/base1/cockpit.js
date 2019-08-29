@@ -2577,7 +2577,7 @@ function factory() {
                     var parts = opt.split('=');
                     var name = decodeURIComponent(parts[0]);
                     var value = decodeURIComponent(parts[1]);
-                    if (options.hasOwnProperty(name)) {
+                    if (options[name]) {
                         last = options[name];
                         if (!is_array(value))
                             last = options[name] = [last];

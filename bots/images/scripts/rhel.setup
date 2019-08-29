@@ -71,7 +71,7 @@ EOF
 cat <<EOF > /etc/yum.repos.d/nightly.repo
 [RHEL-7.8]
 name=base-rhel
-baseurl=http://download.devel.redhat.com/nightly/latest-RHEL-7/compose/Server/x86_64/os
+baseurl=http://download.devel.redhat.com/rhel-7/nightly/RHEL-7/latest-RHEL-7.8/compose/Server/x86_64/os
 enabled=1
 gpgcheck=0
 
@@ -210,6 +210,10 @@ if [ "${IMAGE#rhel-7}" != "$IMAGE" ] || [ "$IMAGE" == "centos-7" ]; then
 fi
 if [ "$IMAGE" = "rhel-7-7" ]; then
     COCKPIT_DEPS="$COCKPIT_DEPS libvirt-dbus"
+fi
+# Atomic seems to be missing on rhel-7-8, see https://bugzilla.redhat.com/show_bug.cgi?id=1746750
+if [ "$IMAGE" = "rhel-7-8" ]; then
+    COCKPIT_DEPS="${COCKPIT_DEPS/atomic /}"
 fi
 if [ "${IMAGE#rhel-7}" != "$IMAGE" ]; then
     # needed for composer testing

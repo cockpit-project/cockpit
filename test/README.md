@@ -72,6 +72,7 @@ You can set these environment variables to configure the test suite:
                   "fedora-atomic"
                   "fedora-testing"
                   "rhel-7-7"
+                  "rhel-7-8"
                   "rhel-8-0"
                   "rhel-8-0-distropkg"
                   "rhel-8-1"

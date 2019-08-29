@@ -688,7 +688,7 @@ class TestMachines(NetworkCase):
 
                 # Check volume was added to pool's volume list
                 if self.test_obj.provider == "libvirt-dbus" and not self.use_existing_volume:
-                    b.click(".cards-pf .card-pf-title span:contains(Storage Pools)")
+                    b.click(".cards-pf .card-pf-title span:contains(Storage Pool)")
 
                     b.wait_present("tbody tr[data-row-id=pool-{0}-system] th".format(self.pool_name))
                     b.click("tbody tr[data-row-id=pool-{0}-system] th".format(self.pool_name))

@@ -100,7 +100,7 @@ export class ContextMenu extends React.Component {
                     <div className="contextMenuName"> { _("Copy") } </div>
                     <div className="contextMenuShortcut">{ _("Ctrl+Insert") }</div>
                 </div>
-                <div className="contextMenuOption" onClick={this.props.setText} >
+                <div className="contextMenuOption" onClick={this.props.setText}>
                     <div className="contextMenuName"> { _("Paste") } </div>
                     <div className="contextMenuShortcut">{ _("Shift+Insert") }</div>
                 </div>

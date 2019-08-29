@@ -138,7 +138,7 @@ const NetworkTypeAndSourceRow = ({ idPrefix, onValueChanged, dialogValues, netwo
                 {availableNetworkTypes
                         .map(networkType => {
                             return (
-                                <Select.SelectEntry data={networkType.name} key={networkType.name} disabled={networkType.disabled || false} >
+                                <Select.SelectEntry data={networkType.name} key={networkType.name} disabled={networkType.disabled || false}>
                                     {networkType.desc}
                                 </Select.SelectEntry>
                             );

@@ -217,7 +217,7 @@ export class VCPUModal extends React.Component {
         );
 
         return (
-            <Modal id='machines-vcpu-modal-dialog' show onHide={this.props.close} >
+            <Modal id='machines-vcpu-modal-dialog' show onHide={this.props.close}>
                 <Modal.Header>
                     <Modal.CloseButton onClick={this.props.close} />
                     <Modal.Title> {`${vm.name} VCPU details`} </Modal.Title>

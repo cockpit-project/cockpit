@@ -97,7 +97,7 @@ QUnit.test("owned messages", function (assert) {
 
     function acquire_name () {
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-                  "ClaimOtherName", [ name ])
+                  "ClaimOtherName", [name])
                 .always(function() {
                     assert.equal(this.state(), "resolved", "name claimed");
                     if (!other) {
@@ -113,12 +113,12 @@ QUnit.test("owned messages", function (assert) {
 
     function release_name () {
         other.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-                   "HelloWorld", [ "test" ])
+                   "HelloWorld", ["test"])
                 .always(function() {
                     assert.equal(this.state(), "resolved", "called on other name");
 
                     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-                              "ReleaseOtherName", [ name ])
+                              "ReleaseOtherName", [name])
                             .always(function() {
                                 assert.equal(this.state(), "resolved", "name released");
                                 acquire_name();
@@ -186,9 +186,9 @@ QUnit.test("no default name", function (assert) {
 
     var dbus = cockpit.dbus(null, { bus: "session" });
     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-              "HelloWorld", [ "Browser-side JS" ], { name: "com.redhat.Cockpit.DBusTests.Test" })
+              "HelloWorld", ["Browser-side JS"], { name: "com.redhat.Cockpit.DBusTests.Test" })
             .then(function(reply) {
-                assert.deepEqual(reply, [ "Word! You said `Browser-side JS'. I'm Skeleton, btw!" ], "replied");
+                assert.deepEqual(reply, ["Word! You said `Browser-side JS'. I'm Skeleton, btw!"], "replied");
             }, function(ex) {
                 assert.ok(false, "shouldn't fail");
             })
@@ -203,7 +203,7 @@ QUnit.test("no default name bad", function (assert) {
 
     var dbus = cockpit.dbus(null, { bus: "session" });
     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-              "HelloWorld", [ "Browser-side JS" ], { name: 5 })
+              "HelloWorld", ["Browser-side JS"], { name: 5 })
             .then(function(reply) {
                 assert.ok(false, "shouldn't succeed");
             }, function(ex) {
@@ -221,7 +221,7 @@ QUnit.test("no default name invalid", function (assert) {
 
     var dbus = cockpit.dbus(null, { bus: "session" });
     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-              "HelloWorld", [ "Browser-side JS" ], { name: "!invalid!" })
+              "HelloWorld", ["Browser-side JS"], { name: "!invalid!" })
             .then(function(reply) {
                 assert.ok(false, "shouldn't succeed");
             }, function(ex) {
@@ -239,7 +239,7 @@ QUnit.test("no default name missing", function (assert) {
 
     var dbus = cockpit.dbus(null, { bus: "session" });
     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-              "HelloWorld", [ "Browser-side JS" ])
+              "HelloWorld", ["Browser-side JS"])
             .then(function(reply) {
                 assert.ok(false, "shouldn't succeed");
             }, function(ex) {
@@ -256,14 +256,14 @@ QUnit.test("no default name second", function (assert) {
     assert.expect(2);
 
     var dbus = cockpit.dbus(null, { bus: "session" });
-    dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "TellMeYourName", [ ],
+    dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "TellMeYourName", [],
               { name: "com.redhat.Cockpit.DBusTests.Test" })
             .then(function(reply) {
-                assert.deepEqual(reply, [ "com.redhat.Cockpit.DBusTests.Test" ], "right name");
-                return dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "TellMeYourName", [ ],
+                assert.deepEqual(reply, ["com.redhat.Cockpit.DBusTests.Test"], "right name");
+                return dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "TellMeYourName", [],
                                  { name: "com.redhat.Cockpit.DBusTests.Second" })
                         .then(function(reply) {
-                            assert.deepEqual(reply, [ "com.redhat.Cockpit.DBusTests.Second" ], "second name");
+                            assert.deepEqual(reply, ["com.redhat.Cockpit.DBusTests.Second"], "second name");
                         }, function(ex) {
                             assert.ok(false, "shouldn't fail");
                         });
@@ -281,13 +281,13 @@ QUnit.test("override default name", function (assert) {
     assert.expect(2);
 
     var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { bus: "session" });
-    dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "TellMeYourName", [ ])
+    dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "TellMeYourName", [])
             .then(function(reply) {
-                assert.deepEqual(reply, [ "com.redhat.Cockpit.DBusTests.Test" ], "right name");
-                return dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "TellMeYourName", [ ],
+                assert.deepEqual(reply, ["com.redhat.Cockpit.DBusTests.Test"], "right name");
+                return dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "TellMeYourName", [],
                                  { name: "com.redhat.Cockpit.DBusTests.Second" })
                         .then(function(reply) {
-                            assert.deepEqual(reply, [ "com.redhat.Cockpit.DBusTests.Second" ], "second name");
+                            assert.deepEqual(reply, ["com.redhat.Cockpit.DBusTests.Second"], "second name");
                         }, function(ex) {
                             assert.ok(false, "shouldn't fail");
                         });
@@ -355,9 +355,9 @@ QUnit.test("shared client", function (assert) {
     dbus1.close();
 
     dbus2.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-               "HelloWorld", [ "Browser-side JS" ], { name: "com.redhat.Cockpit.DBusTests.Test" })
+               "HelloWorld", ["Browser-side JS"], { name: "com.redhat.Cockpit.DBusTests.Test" })
             .then(function(reply) {
-                assert.deepEqual(reply, [ "Word! You said `Browser-side JS'. I'm Skeleton, btw!" ],
+                assert.deepEqual(reply, ["Word! You said `Browser-side JS'. I'm Skeleton, btw!"],
                                  "call still works");
             }, function(ex) {
                 assert.ok(false, "shouldn't fail");
@@ -389,7 +389,7 @@ QUnit.test("emit signal meta", function (assert) {
         "borkety.Bork": {
             signals: {
                 Bork: {
-                    in: [ "i", "i", "i", "i", "s" ]
+                    in: ["i", "i", "i", "i", "s"]
                 }
             }
         }
@@ -403,7 +403,7 @@ QUnit.test("emit signal meta", function (assert) {
             assert.equal(path, "/bork", "reflected path");
             assert.equal(iface, "borkety.Bork", "reflected interface");
             assert.equal(signal, "Bork", "reflected signal");
-            assert.deepEqual(args, [ 1, 2, 3, 4, "Bork" ], "reflected arguments");
+            assert.deepEqual(args, [1, 2, 3, 4, "Bork"], "reflected arguments");
             received = true;
             dbus.close();
             done();
@@ -417,7 +417,7 @@ QUnit.test("emit signal meta", function (assert) {
             }
         });
 
-        dbus.signal("/bork", "borkety.Bork", "Bork", [ 1, 2, 3, 4, "Bork" ],
+        dbus.signal("/bork", "borkety.Bork", "Bork", [1, 2, 3, 4, "Bork"],
                     { type: "iiiis" });
     });
 });
@@ -433,7 +433,7 @@ QUnit.test("emit signal type", function (assert) {
             assert.equal(path, "/bork", "reflected path");
             assert.equal(iface, "borkety.Bork", "reflected interface");
             assert.equal(signal, "Bork", "reflected signal");
-            assert.deepEqual(args, [ 1, 2, 3, 4, "Bork" ], "reflected arguments");
+            assert.deepEqual(args, [1, 2, 3, 4, "Bork"], "reflected arguments");
             received = true;
             dbus.close();
             done();
@@ -447,7 +447,7 @@ QUnit.test("emit signal type", function (assert) {
             }
         });
 
-        dbus.signal("/bork", "borkety.Bork", "Bork", [ 1, 2, 3, 4, "Bork" ],
+        dbus.signal("/bork", "borkety.Bork", "Bork", [1, 2, 3, 4, "Bork"],
                     { type: "iiiis" });
     });
 });
@@ -467,7 +467,7 @@ QUnit.test("emit signal no meta", function (assert) {
     }
 
     dbus.addEventListener("close", closed);
-    dbus.signal("/bork", "borkety.Bork", "Bork", [ 1, 2, 3, 4, "Bork" ]);
+    dbus.signal("/bork", "borkety.Bork", "Bork", [1, 2, 3, 4, "Bork"]);
 });
 
 QUnit.test("publish object", function (assert) {
@@ -477,8 +477,8 @@ QUnit.test("publish object", function (assert) {
     var info = {
         "org.Interface": {
             methods: {
-                Add: { in: [ "i", "i" ], out: [ "s" ] },
-                Live: { in: [ "s" ] },
+                Add: { in: ["i", "i"], out: ["s"] },
+                Live: { in: ["s"] },
             }
         }
     };
@@ -506,11 +506,11 @@ QUnit.test("publish object", function (assert) {
         });
 
         /* Note that we're calling ourselves, but via the bus */
-        dbus.call("/a/path", "org.Interface", "Live", [ "marmalade" ], { name: dbus.unique_name });
-        dbus.call("/a/path", "org.Interface", "Add", [ 3, 44 ], { name: dbus.unique_name })
+        dbus.call("/a/path", "org.Interface", "Live", ["marmalade"], { name: dbus.unique_name });
+        dbus.call("/a/path", "org.Interface", "Add", [3, 44], { name: dbus.unique_name })
                 .then(function(reply) {
                     assert.ok(published, "object was published");
-                    assert.deepEqual(reply, [ "47" ], "got back right reply");
+                    assert.deepEqual(reply, ["47"], "got back right reply");
                     assert.strictEqual(received, "marmalade", "received right arguments");
                 }, function(ex) {
                     assert.ok(false, "should not have failed");
@@ -529,7 +529,7 @@ QUnit.test("publish object promise", function (assert) {
     var info = {
         "org.Interface": {
             methods: {
-                Add: { in: [ "i", "i" ], out: [ "s", "i", "i" ] },
+                Add: { in: ["i", "i"], out: ["s", "i", "i"] },
             }
         }
     };
@@ -550,9 +550,9 @@ QUnit.test("publish object promise", function (assert) {
         dbus.publish("/a/path", "org.Interface", object);
 
         /* Note that we're calling ourselves, but via the bus */
-        dbus.call("/a/path", "org.Interface", "Add", [ 3, 44 ], { name: dbus.unique_name })
+        dbus.call("/a/path", "org.Interface", "Add", [3, 44], { name: dbus.unique_name })
                 .then(function(reply) {
-                    assert.deepEqual(reply, [ "47", 3, 44 ], "got back right reply");
+                    assert.deepEqual(reply, ["47", 3, 44], "got back right reply");
                 }, function(ex) {
                     assert.ok(false, "should not have failed");
                 })
@@ -570,7 +570,7 @@ QUnit.test("publish object failure", function (assert) {
     var info = {
         "org.Interface": {
             methods: {
-                Fails: { in: [ "i", "i" ], out: [ "s", "i", "i" ] },
+                Fails: { in: ["i", "i"], out: ["s", "i", "i"] },
             }
         }
     };
@@ -593,7 +593,7 @@ QUnit.test("publish object failure", function (assert) {
         dbus.publish("/a/path", "org.Interface", object);
 
         /* Note that we're calling ourselves, but via the bus */
-        dbus.call("/a/path", "org.Interface", "Fails", [ 3, 44 ], { name: dbus.unique_name })
+        dbus.call("/a/path", "org.Interface", "Fails", [3, 44], { name: dbus.unique_name })
                 .then(function(reply) {
                     assert.ok(false, "should not have succeeded");
                 }, function(ex) {
@@ -614,7 +614,7 @@ QUnit.test("publish object replaces", function (assert) {
     var info = {
         "org.Interface": {
             methods: {
-                Bonk: { in: [ "s" ], out: [ "s" ] },
+                Bonk: { in: ["s"], out: ["s"] },
             }
         }
     };
@@ -637,13 +637,13 @@ QUnit.test("publish object replaces", function (assert) {
         dbus.publish("/a/path", "org.Interface", object1);
 
         /* Note that we're calling ourselves, but via the bus */
-        dbus.call("/a/path", "org.Interface", "Bonk", [ "hi" ], { name: dbus.unique_name })
+        dbus.call("/a/path", "org.Interface", "Bonk", ["hi"], { name: dbus.unique_name })
                 .then(function(reply) {
-                    assert.deepEqual(reply, [ "hi bonked" ], "got back reply from first object");
+                    assert.deepEqual(reply, ["hi bonked"], "got back reply from first object");
                     dbus.publish("/a/path", "org.Interface", object2);
-                    dbus.call("/a/path", "org.Interface", "Bonk", [ "hi" ], { name: dbus.unique_name })
+                    dbus.call("/a/path", "org.Interface", "Bonk", ["hi"], { name: dbus.unique_name })
                             .then(function(reply) {
-                                assert.deepEqual(reply, [ "nope not bonked" ], "got back reply from second object");
+                                assert.deepEqual(reply, ["nope not bonked"], "got back reply from second object");
                             }, function() {
                                 assert.ok(false, "should not have failed");
                             })
@@ -664,7 +664,7 @@ QUnit.test("publish object unpublish", function (assert) {
     var info = {
         "org.Interface": {
             methods: {
-                Bonk: { in: [ "s" ], out: [ "s" ] },
+                Bonk: { in: ["s"], out: ["s"] },
             }
         }
     };
@@ -681,12 +681,12 @@ QUnit.test("publish object unpublish", function (assert) {
         var published = dbus.publish("/a/path", "org.Interface", object);
 
         /* Note that we're calling ourselves, but via the bus */
-        dbus.call("/a/path", "org.Interface", "Bonk", [ "hi" ], { name: dbus.unique_name })
+        dbus.call("/a/path", "org.Interface", "Bonk", ["hi"], { name: dbus.unique_name })
                 .then(function(reply) {
-                    assert.deepEqual(reply, [ "hi bonked" ], "got back reply from first object");
+                    assert.deepEqual(reply, ["hi bonked"], "got back reply from first object");
                     published.remove();
 
-                    dbus.call("/a/path", "org.Interface", "Bonk", [ "hi" ], { name: dbus.unique_name })
+                    dbus.call("/a/path", "org.Interface", "Bonk", ["hi"], { name: dbus.unique_name })
                             .then(function(reply) {
                                 assert.ok(false, "should not have succeeded");
                             }, function(ex) {
@@ -743,7 +743,7 @@ QUnit.test("separate dbus connections for channel groups", function (assert) {
 
     Promise.all([
         channel1.wait(), channel2.wait(), channel3.wait(), channel4.wait()
-    ]).then(function ([ ready1, ready2, ready3, ready4 ]) {
+    ]).then(function ([ready1, ready2, ready3, ready4]) {
         assert.equal(ready1['unique-name'], ready3['unique-name']);
         assert.notEqual(ready1['unique-name'], ready2['unique-name']);
         assert.notEqual(ready1['unique-name'], ready4['unique-name']);

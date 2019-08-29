@@ -176,7 +176,7 @@ export function ip6_from_text(text, empty_is_zero) {
     }
 
     if (text === "" && empty_is_zero)
-        return cockpit.base64_encode([ 0, 0, 0, 0, 0, 0, 0, 0,
+        return cockpit.base64_encode([0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0,
         ]);
 

@@ -5,15 +5,15 @@ var pig_latin = {
         var plural = (n != 1);
         return plural;
     } },
-    Control: [ null, "Ontrolcay" ],
-    User: [ null, "Useray" ],
-    Waiting: [ null, "Aitingway" ],
+    Control: [null, "Ontrolcay"],
+    User: [null, "Useray"],
+    Waiting: [null, "Aitingway"],
     "$0 disk is missing": [
         "$0 disk is missing",
         "$0 isksbay is issingmay",
         "$0 isksbay are issingmay"
     ],
-    "key\u0004Control": [ null, "OntrolCAY" ],
+    "key\u0004Control": [null, "OntrolCAY"],
     "disk-non-rotational\u0004$0 disk is missing": [
         "disk-non-rotational\u0004$0 disk is missing",
         "$0 isksBAY is issingMAY",
@@ -28,7 +28,7 @@ var ru = {
             return plural;
         }
     },
-    "$0 bit": [ "$0 bits", "$0 бит", "$0 бита", "$0 бит" ]
+    "$0 bit": ["$0 bits", "$0 бит", "$0 бита", "$0 бит"]
 };
 
 QUnit.test("public api", function (assert) {

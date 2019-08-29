@@ -74,7 +74,7 @@ export function flatten(array_of_arrays) {
     if (array_of_arrays.length > 0)
         return Array.prototype.concat.apply([], array_of_arrays);
     else
-        return [ ];
+        return [];
 }
 
 export function decode_filename(encoded) {
@@ -199,7 +199,7 @@ export function lvol_name(lvol) {
 }
 
 export function drive_name(drive) {
-    var name_parts = [ ];
+    var name_parts = [];
     if (drive.Vendor)
         name_parts.push(drive.Vendor);
     if (drive.Model)
@@ -237,21 +237,21 @@ export function get_block_link_parts(client, path) {
 
     var location, link;
     if (client.mdraids[block.MDRaid]) {
-        location = [ "mdraid", client.mdraids[block.MDRaid].UUID ];
+        location = ["mdraid", client.mdraids[block.MDRaid].UUID];
         link = cockpit.format(_("RAID Device $0"), mdraid_name(client.mdraids[block.MDRaid]));
     } else if (client.blocks_lvm2[path] &&
                client.lvols[client.blocks_lvm2[path].LogicalVolume] &&
                client.vgroups[client.lvols[client.blocks_lvm2[path].LogicalVolume].VolumeGroup]) {
         var target = client.vgroups[client.lvols[client.blocks_lvm2[path].LogicalVolume].VolumeGroup].Name;
-        location = [ "vg", target ];
+        location = ["vg", target];
         link = cockpit.format(_("Volume Group $0"), target);
     } else {
         var vdo = client.vdo_overlay.find_by_block(block);
         if (vdo) {
-            location = [ "vdo", vdo.name ];
+            location = ["vdo", vdo.name];
             link = cockpit.format(_("VDO Device $0"), vdo.name);
         } else {
-            location = [ block_name(block).replace(/^\/dev\//, "") ];
+            location = [block_name(block).replace(/^\/dev\//, "")];
             if (client.drives[block.Drive])
                 link = drive_name(client.drives[block.Drive]);
             else
@@ -295,7 +295,7 @@ export function get_partitions(client, block) {
         var total_end = container_start + container_size;
         var block, start, size, is_container, is_contained;
 
-        var result = [ ];
+        var result = [];
 
         function append_free_space(start, size) {
             // There is a lot of rounding and aligning going on in
@@ -499,16 +499,16 @@ export function get_parent(client, path) {
 export function get_direct_parent_blocks(client, path) {
     var parent = get_parent(client, path);
     if (!parent)
-        return [ ];
+        return [];
     if (client.blocks[parent])
-        return [ parent ];
+        return [parent];
     if (client.mdraids[parent])
         return client.mdraids_members[parent].map(function (m) { return m.path });
     if (client.lvols[parent])
         parent = client.lvols[parent].VolumeGroup;
     if (client.vgroups[parent])
         return client.vgroups_pvols[parent].map(function (pv) { return pv.path });
-    return [ ];
+    return [];
 }
 
 export function get_parent_blocks(client, path) {
@@ -516,7 +516,7 @@ export function get_parent_blocks(client, path) {
     var direct_and_indirect_parents = flatten(direct_parents.map(function (p) {
         return get_parent_blocks(client, p);
     }));
-    return [ path ].concat(direct_and_indirect_parents);
+    return [path].concat(direct_and_indirect_parents);
 }
 
 export function is_netdev(client, path) {
@@ -530,7 +530,7 @@ export function is_netdev(client, path) {
 }
 
 function get_children(client, path) {
-    var children = [ ];
+    var children = [];
 
     if (client.blocks_cleartext[path]) {
         children.push(client.blocks_cleartext[path].path);
@@ -607,15 +607,15 @@ export function get_active_usage(client, path) {
     var res = {
         raw: usage,
         Teardown: {
-            Mounts: [ ],
-            MDRaidMembers: [ ],
-            PhysicalVolumes: [ ]
+            Mounts: [],
+            MDRaidMembers: [],
+            PhysicalVolumes: []
         },
         Blocking: {
-            Mounts: [ ],
-            MDRaidMembers: [ ],
-            PhysicalVolumes: [ ],
-            VDOs: [ ]
+            Mounts: [],
+            MDRaidMembers: [],
+            PhysicalVolumes: [],
+            VDOs: []
         }
     };
 
@@ -713,7 +713,7 @@ export function teardown_active_usage(client, usage) {
         var p;
         pvols.forEach(function (p) {
             if (!by_vgroup[p.vgroup.path])
-                by_vgroup[p.vgroup.path] = [ ];
+                by_vgroup[p.vgroup.path] = [];
             by_vgroup[p.vgroup.path].push(p.block);
         });
 
@@ -742,7 +742,7 @@ export function teardown_active_usage(client, usage) {
     // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
     // https://github.com/cockpit-project/cockpit/issues/10956
     // eslint-disable-next-line cockpit/no-cockpit-all
-    return cockpit.all([ unmount(usage.raw.filter(function(use) { return use.usage == "mounted" })),
+    return cockpit.all([unmount(usage.raw.filter(function(use) { return use.usage == "mounted" })),
         mdraid_remove(usage.raw.filter(function(use) { return use.usage == "mdraid-member" })),
         pvol_remove(usage.raw.filter(function(use) { return use.usage == "pvol" }))
     ]);
@@ -761,7 +761,7 @@ export function get_config(name, def) {
 export function fmt_to_array(fmt, arg) {
     var index = fmt.indexOf("$0");
     if (index >= 0)
-        return [ fmt.slice(0, index), arg, fmt.slice(index + 2) ];
+        return [fmt.slice(0, index), arg, fmt.slice(index + 2)];
     else
-        return [ fmt ];
+        return [fmt];
 }

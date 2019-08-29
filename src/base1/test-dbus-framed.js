@@ -62,7 +62,7 @@ function child_frame() {
     document.getElementById("title").innerHTML = "Cockpit Child Frame";
     var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { bus: "session" });
     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-              "HelloWorld", [ "Browser-side JS" ])
+              "HelloWorld", ["Browser-side JS"])
             .done(function(reply) {
                 test.equal(reply[0], "Word! You said `Browser-side JS'. I'm Skeleton, btw!", "reply");
                 dbus.close();

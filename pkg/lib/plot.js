@@ -138,7 +138,7 @@ class Metrics_series {
         this.flot_data = flot_data;
         this.interval = interval;
         this.channel = null;
-        this.chanopts_list = [ ];
+        this.chanopts_list = [];
     }
 
     stop() {
@@ -167,7 +167,7 @@ class Metrics_series {
     }
 
     hover(val) {
-        $(this).triggerHandler('hover', [ val ]);
+        $(this).triggerHandler('hover', [val]);
     }
 
     move_to_front() {
@@ -237,7 +237,7 @@ class Metrics_sum_series extends Metrics_series {
 
         this.channel = cockpit.metrics(this.interval, this.chanopts_list);
 
-        var metrics_row = this.grid.add(this.channel, [ ]);
+        var metrics_row = this.grid.add(this.channel, []);
         var factor = this.desc.factor || 1;
         var threshold = this.desc.threshold || null;
         var offset = this.desc.offset || 0;
@@ -245,9 +245,9 @@ class Metrics_sum_series extends Metrics_series {
             for (let i = 0; i < n; i++) {
                 const value = offset + this.flat_sum(metrics_row[x + i]) * factor;
                 if (threshold !== null)
-                    row[x + i] = [ (this.grid.beg + x + i) * this.interval, Math.abs(value) > threshold ? value : null, threshold ];
+                    row[x + i] = [(this.grid.beg + x + i) * this.interval, Math.abs(value) > threshold ? value : null, threshold];
                 else
-                    row[x + i] = [ (this.grid.beg + x + i) * this.interval, value ];
+                    row[x + i] = [(this.grid.beg + x + i) * this.interval, value];
             }
         });
 
@@ -309,7 +309,7 @@ class Metrics_difference_series extends Metrics_series {
 
         this.channel = cockpit.metrics(this.interval, this.chanopts_list);
 
-        var metrics_row = this.grid.add(this.channel, [ ]);
+        var metrics_row = this.grid.add(this.channel, []);
         var factor = this.desc.factor || 1;
         var threshold = this.desc.threshold || null;
         var offset = this.desc.offset || 0;
@@ -317,9 +317,9 @@ class Metrics_difference_series extends Metrics_series {
             for (let i = 0; i < n; i++) {
                 const value = offset + this.flat_difference(metrics_row[x + i]) * factor;
                 if (threshold !== null)
-                    row[x + i] = [ (this.grid.beg + x + i) * this.interval, Math.abs(value) > threshold ? value : null, threshold ];
+                    row[x + i] = [(this.grid.beg + x + i) * this.interval, Math.abs(value) > threshold ? value : null, threshold];
                 else
-                    row[x + i] = [ (this.grid.beg + x + i) * this.interval, value ];
+                    row[x + i] = [(this.grid.beg + x + i) * this.interval, value];
             }
         });
 
@@ -337,8 +337,8 @@ class Metrics_stacked_instances_series extends Metrics_series {
             this.chanopts_list.push({
                 source: 'direct',
                 archive_source: 'pcp-archive',
-                metrics: [ this.build_metric(this.desc.direct) ],
-                metrics_path_names: [ 'a' ],
+                metrics: [this.build_metric(this.desc.direct)],
+                metrics_path_names: ['a'],
                 instances: this.desc.instances,
                 'omit-instances': this.desc['omit-instances'],
                 host: this.desc.host
@@ -348,7 +348,7 @@ class Metrics_stacked_instances_series extends Metrics_series {
             this.chanopts_list.push({
                 source: 'pmcd',
                 metrics: this.desc.pmcd.map(this.build_metric, this),
-                metrics_path_names: [ 'a' ],
+                metrics_path_names: ['a'],
                 instances: this.desc.instances,
                 'omit-instances': this.desc['omit-instances'],
                 host: this.desc.host
@@ -358,8 +358,8 @@ class Metrics_stacked_instances_series extends Metrics_series {
         if (this.desc.internal) {
             this.chanopts_list.push({
                 source: 'internal',
-                metrics: [ this.build_metric(this.desc.internal) ],
-                metrics_path_names: [ 'a' ],
+                metrics: [this.build_metric(this.desc.internal)],
+                metrics_path_names: ['a'],
                 instances: this.desc.instances,
                 'omit-instances': this.desc['omit-instances'],
                 host: this.desc.host
@@ -388,7 +388,7 @@ class Metrics_stacked_instances_series extends Metrics_series {
         var last = this.last_instance;
 
         function reset() {
-            metrics_row = this.grid.add(this.channel, [ 'a', name ]);
+            metrics_row = this.grid.add(this.channel, ['a', name]);
             instance_data.data = this.grid.add((row, x, n) => {
                 for (let i = 0; i < n; i++) {
                     const value = (metrics_row[x + i] || 0) * factor;
@@ -403,11 +403,11 @@ class Metrics_stacked_instances_series extends Metrics_series {
                     }
 
                     if (Math.abs(value) > threshold) {
-                        row[x + i] = [ ts, floor + value, floor ];
+                        row[x + i] = [ts, floor + value, floor];
                         if (row[x + i - 1] && row[x + i - 1][1] === null)
                             row[x + i - 1][1] = row[x + i - 1][2];
                     } else {
-                        row[x + i] = [ ts, null, floor ];
+                        row[x + i] = [ts, null, floor];
                         if (row[x + i - 1] && row[x + i - 1][1] !== null)
                             row[x + i - 1][1] = row[x + i - 1][2];
                     }
@@ -463,8 +463,8 @@ export class Plot {
         this.element = element;
         this.options = { };
 
-        this.series = [ ];
-        this.flot_data = [ ];
+        this.series = [];
+        this.flot_data = [];
         this.flot = null;
 
         this.interval = Math.ceil(x_range_seconds / 1000) * 1000;
@@ -593,8 +593,8 @@ export class Plot {
             this.series[i].stop();
 
         this.options = { };
-        this.series = [ ];
-        this.flot_data = [ ];
+        this.series = [];
+        this.flot_data = [];
         this.flot = null;
         $(this.element).empty();
         $(this.element).data('flot_data', null);
@@ -706,12 +706,12 @@ export class Plot {
 
     selecting(event, ranges) {
         if (ranges)
-            $(event.data).triggerHandler('zoomstart', [ ]);
+            $(event.data).triggerHandler('zoomstart', []);
     }
 
     selected(event, ranges) {
         event.data.flot.clearSelection(true);
-        $(event.data).triggerHandler('zoom', [ (ranges.xaxis.to - ranges.xaxis.from) / 1000, ranges.xaxis.to / 1000 ]);
+        $(event.data).triggerHandler('zoom', [(ranges.xaxis.to - ranges.xaxis.from) / 1000, ranges.xaxis.to / 1000]);
     }
 }
 
@@ -741,7 +741,7 @@ export function plot_simple_template() {
             tickLength: 0,
             mode: 'time',
             tickFormatter: format_date_tick,
-            minTickSize: [ 1, 'minute' ],
+            minTickSize: [1, 'minute'],
             reserveSpace: false
         },
         yaxis: {
@@ -771,7 +771,7 @@ export function plot_simple_template() {
 export function memory_ticks(opts) {
     // Not more than 5 ticks, nicely rounded to powers of 2.
     var size = Math.pow(2.0, Math.ceil(Math.log(opts.max / 5) / Math.LN2));
-    var ticks = [ ];
+    var ticks = [];
     for (let t = 0; t < opts.max; t += size)
         ticks.push(t);
     return ticks;
@@ -899,13 +899,13 @@ export function format_bits_per_sec_tick(val, axis) {
 
 export function setup_plot_controls(container, element, plots) {
     var plot_min_x_range = 5 * 60;
-    var plot_zoom_steps = [ 5 * 60, 60 * 60, 6 * 60 * 60, 24 * 60 * 60, 7 * 24 * 60 * 60, 30 * 24 * 60 * 60, 365 * 24 * 60 * 60 ];
+    var plot_zoom_steps = [5 * 60, 60 * 60, 6 * 60 * 60, 24 * 60 * 60, 7 * 24 * 60 * 60, 30 * 24 * 60 * 60, 365 * 24 * 60 * 60];
     var plot_x_range = 5 * 60;
     var plot_x_stop;
-    var zoom_history = [ ];
+    var zoom_history = [];
 
     element.find('[data-range]').click(function () {
-        zoom_history = [ ];
+        zoom_history = [];
         plot_x_range = parseInt($(this).attr('data-range'), 10);
         plot_reset();
     });
@@ -1051,7 +1051,7 @@ export function setup_plot_controls(container, element, plots) {
 
     function reset(p) {
         if (p === undefined)
-            p = [ ];
+            p = [];
         plots = p;
         plots.forEach(function (p) {
             $(p).on('zoomstart', function (event) { zoom_plot_start() });
@@ -1069,7 +1069,7 @@ export function setup_plot_controls(container, element, plots) {
 
 export function setup_plot(graph_id, grid, data, user_options) {
     var options = {
-        colors: [ '#0099d3' ],
+        colors: ['#0099d3'],
         legend: { show: false },
         series: {
             shadowSize: 0,

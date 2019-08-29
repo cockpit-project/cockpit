@@ -219,7 +219,7 @@ const PoolRow = ({ idPrefix, onValueChanged, storagePoolName, vmStoragePools }) 
                         })
                     : [<Select.SelectEntry data='no-resource' key='no-resource'>
                         {_("No Storage Pools available")}
-                    </Select.SelectEntry> ]}
+                    </Select.SelectEntry>]}
             </Select.Select>
         </React.Fragment>
     );

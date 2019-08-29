@@ -3,7 +3,7 @@
 QUnit.test("format", function (assert) {
     assert.equal(cockpit.format("My $adj message with ${amount} of things", { adj: "special", amount: "lots" }),
                  "My special message with lots of things", "named keys");
-    assert.equal(cockpit.format("My $0 message with $1 of things", [ "special", "lots" ]),
+    assert.equal(cockpit.format("My $0 message with $1 of things", ["special", "lots"]),
                  "My special message with lots of things", "number keys");
     assert.equal(cockpit.format("My $0 message with $1 of things", "special", "lots"),
                  "My special message with lots of things", "vararg keys");
@@ -20,24 +20,24 @@ QUnit.test("format", function (assert) {
 
 QUnit.test("format_number", function (assert) {
     var checks = [
-        [ 23.4, "23.4", "23,4" ],
-        [ 23.46, "23.5", "23,5" ],
-        [ 23.44, "23.4", "23,4" ],
+        [23.4, "23.4", "23,4"],
+        [23.46, "23.5", "23,5"],
+        [23.44, "23.4", "23,4"],
 
-        [ -23.4, "-23.4", "-23,4" ],
-        [ -23.46, "-23.5", "-23,5" ],
-        [ -23.44, "-23.4", "-23,4" ],
+        [-23.4, "-23.4", "-23,4"],
+        [-23.46, "-23.5", "-23,5"],
+        [-23.44, "-23.4", "-23,4"],
 
-        [ 0, "0", "0" ],
-        [ 0.001, "0.001", "0,001" ],
-        [ -0.001, "-0.001", "-0,001" ],
+        [0, "0", "0"],
+        [0.001, "0.001", "0,001"],
+        [-0.001, "-0.001", "-0,001"],
 
-        [ 123.0, "123", "123" ],
-        [ 123.01, "123", "123" ],
-        [ -123.0, "-123", "-123" ],
-        [ -123.01, "-123", "-123" ],
-        [ null, "", "" ],
-        [ undefined, "", "" ],
+        [123.0, "123", "123"],
+        [123.01, "123", "123"],
+        [-123.0, "-123", "-123"],
+        [-123.01, "-123", "-123"],
+        [null, "", ""],
+        [undefined, "", ""],
     ];
 
     var saved_language = cockpit.language;
@@ -69,26 +69,26 @@ QUnit.test("format_number", function (assert) {
 
 QUnit.test("format_bytes", function (assert) {
     var checks = [
-        [ 999, 1000, "999" ],
-        [ 1934, undefined, "1.89 KiB" ],
-        [ 1934, 1000, "1.93 KB" ],
-        [ 2000, 1024, "1.95 KiB" ],
-        [ 1999, 1000, "2.00 KB" ],
-        [ 1999, 1024, "1.95 KiB" ],
-        [ 1000000, 1000, "1 MB" ],
-        [ 1000001, 1000, "1.00 MB" ],
-        [ 1000000, 1024, "977 KiB" ],
-        [ 2000000, 1024, "1.91 MiB" ],
-        [ 2000000, 1000, "2 MB" ],
-        [ 2000001, 1000, "2.00 MB" ],
-        [ 2000000, "MB", "2 MB" ],
-        [ 2000000, "MiB", "1.91 MiB" ],
-        [ 2000000, "KB", "2000 KB" ],
-        [ 2000000, "KiB", "1953 KiB" ],
-        [ 1, "KB", "0.001 KB" ],
-        [ 0, "KB", "0 KB" ],
-        [ undefined, "KB", "" ],
-        [ null, "KB", "" ],
+        [999, 1000, "999"],
+        [1934, undefined, "1.89 KiB"],
+        [1934, 1000, "1.93 KB"],
+        [2000, 1024, "1.95 KiB"],
+        [1999, 1000, "2.00 KB"],
+        [1999, 1024, "1.95 KiB"],
+        [1000000, 1000, "1 MB"],
+        [1000001, 1000, "1.00 MB"],
+        [1000000, 1024, "977 KiB"],
+        [2000000, 1024, "1.91 MiB"],
+        [2000000, 1000, "2 MB"],
+        [2000001, 1000, "2.00 MB"],
+        [2000000, "MB", "2 MB"],
+        [2000000, "MiB", "1.91 MiB"],
+        [2000000, "KB", "2000 KB"],
+        [2000000, "KiB", "1953 KiB"],
+        [1, "KB", "0.001 KB"],
+        [0, "KB", "0 KB"],
+        [undefined, "KB", ""],
+        [null, "KB", ""],
     ];
 
     var i, split;
@@ -119,15 +119,15 @@ QUnit.test("get_byte_units", function (assert) {
     }
 
     var checks = [
-        [ 0 * mib, 1024, [ selected(mib_unit), gib_unit, tib_unit ] ],
-        [ 20 * mib, 1024, [ selected(mib_unit), gib_unit, tib_unit ] ],
-        [ 200 * mib, 1024, [ selected(mib_unit), gib_unit, tib_unit ] ],
-        [ 2000 * mib, 1024, [ selected(mib_unit), gib_unit, tib_unit ] ],
-        [ 20000 * mib, 1024, [ mib_unit, selected(gib_unit), tib_unit ] ],
-        [ 20 * gib, 1024, [ mib_unit, selected(gib_unit), tib_unit ] ],
-        [ 200 * gib, 1024, [ mib_unit, selected(gib_unit), tib_unit ] ],
-        [ 2000 * gib, 1024, [ mib_unit, selected(gib_unit), tib_unit ] ],
-        [ 20000 * gib, 1024, [ mib_unit, gib_unit, selected(tib_unit) ] ]
+        [0 * mib, 1024, [selected(mib_unit), gib_unit, tib_unit]],
+        [20 * mib, 1024, [selected(mib_unit), gib_unit, tib_unit]],
+        [200 * mib, 1024, [selected(mib_unit), gib_unit, tib_unit]],
+        [2000 * mib, 1024, [selected(mib_unit), gib_unit, tib_unit]],
+        [20000 * mib, 1024, [mib_unit, selected(gib_unit), tib_unit]],
+        [20 * gib, 1024, [mib_unit, selected(gib_unit), tib_unit]],
+        [200 * gib, 1024, [mib_unit, selected(gib_unit), tib_unit]],
+        [2000 * gib, 1024, [mib_unit, selected(gib_unit), tib_unit]],
+        [20000 * gib, 1024, [mib_unit, gib_unit, selected(tib_unit)]]
     ];
 
     assert.expect(checks.length);
@@ -139,7 +139,7 @@ QUnit.test("get_byte_units", function (assert) {
 
 QUnit.test("format_bytes_per_sec", function (assert) {
     var checks = [
-        [ 2555, "2.50 KiB/s" ]
+        [2555, "2.50 KiB/s"]
     ];
 
     assert.expect(checks.length);
@@ -151,12 +151,12 @@ QUnit.test("format_bytes_per_sec", function (assert) {
 
 QUnit.test("format_bits_per_sec", function (assert) {
     var checks = [
-        [ 55, "55 bps" ],
-        [ 55.23456789, "55.2 bps" ],
-        [ 55.98765432, "56.0 bps" ],
-        [ 2555, "2.56 Kbps" ],
-        [ 2000, "2 Kbps" ],
-        [ 2003, "2.00 Kbps" ]
+        [55, "55 bps"],
+        [55.23456789, "55.2 bps"],
+        [55.98765432, "56.0 bps"],
+        [2555, "2.56 Kbps"],
+        [2000, "2 Kbps"],
+        [2003, "2.00 Kbps"]
     ];
 
     assert.expect(checks.length);

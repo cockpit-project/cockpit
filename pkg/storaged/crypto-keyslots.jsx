@@ -41,7 +41,7 @@ const _ = cockpit.gettext;
  */
 
 function get_tang_adv(url) {
-    return cockpit.spawn([ "curl", "-sSf", url + "/adv" ], { err: "message" })
+    return cockpit.spawn(["curl", "-sSf", url + "/adv"], { err: "message" })
             .then(JSON.parse)
             .catch(error => {
                 return cockpit.reject(error.toString().replace(/^curl: \([0-9]+\) /, ""));
@@ -96,7 +96,7 @@ function compute_sigkey_thps(adv) {
 
 function clevis_add(block, pin, cfg, passphrase) {
     var dev = decode_filename(block.Device);
-    return cockpit.spawn([ "clevis", "luks", "bind", "-f", "-k", "-", "-d", dev, pin, JSON.stringify(cfg) ],
+    return cockpit.spawn(["clevis", "luks", "bind", "-f", "-k", "-", "-d", dev, pin, JSON.stringify(cfg)],
                          { superuser: true, err: "message" }).input(passphrase);
 }
 
@@ -105,13 +105,13 @@ function clevis_remove(block, key) {
     // when it exists because our fallback can't deal with all cases, such as LUKSv2.
     // cryptsetup needs a terminal on stdin, even with -q or --key-file.
     var script = 'if which clevis-luks-unbind; then clevis-luks-unbind -d "$0" -s "$1" -f; else cryptsetup luksKillSlot -q "$0" "$1" && luksmeta wipe -d "$0" -s "$1" -f; fi';
-    return cockpit.spawn([ "/bin/sh", "-c", script, decode_filename(block.Device), key.slot ],
+    return cockpit.spawn(["/bin/sh", "-c", script, decode_filename(block.Device), key.slot],
                          { superuser: true, err: "message", pty: true });
 }
 
 export function clevis_recover_passphrase(block) {
     var dev = decode_filename(block.Device);
-    return cockpit.script(clevis_luks_passphrase_sh, [ dev ],
+    return cockpit.script(clevis_luks_passphrase_sh, [dev],
                           { superuser: true, err: "message" })
             .then(output => output.trim());
 }
@@ -121,19 +121,19 @@ export function clevis_recover_passphrase(block) {
 
 function passphrase_add(block, new_passphrase, old_passphrase) {
     var dev = decode_filename(block.Device);
-    return cockpit.spawn([ "cryptsetup", "luksAddKey", dev ],
+    return cockpit.spawn(["cryptsetup", "luksAddKey", dev],
                          { superuser: true, err: "message" }).input(old_passphrase + "\n" + new_passphrase);
 }
 
 function passphrase_change(block, key, new_passphrase, old_passphrase) {
     var dev = decode_filename(block.Device);
-    return cockpit.spawn([ "cryptsetup", "luksChangeKey", dev, "--key-slot", key.slot.toString() ],
+    return cockpit.spawn(["cryptsetup", "luksChangeKey", dev, "--key-slot", key.slot.toString()],
                          { superuser: true, err: "message" }).input(old_passphrase + "\n" + new_passphrase + "\n");
 }
 
 function passphrase_remove(block, passphrase) {
     var dev = decode_filename(block.Device);
-    return cockpit.spawn([ "cryptsetup", "luksRemoveKey", dev ],
+    return cockpit.spawn(["cryptsetup", "luksRemoveKey", dev],
                          { superuser: true, err: "message" }).input(passphrase);
 }
 
@@ -142,7 +142,7 @@ function passphrase_remove(block, passphrase) {
 
 function slot_remove(block, slot) {
     var dev = decode_filename(block.Device);
-    return cockpit.spawn([ "cryptsetup", "luksKillSlot", "-q", dev, slot.toString() ],
+    return cockpit.spawn(["cryptsetup", "luksKillSlot", "-q", dev, slot.toString()],
                          { superuser: true, err: "message", pty: true });
 }
 
@@ -449,7 +449,7 @@ export class CryptoKeyslots extends React.Component {
             this.monitored_block = block;
             if (block) {
                 var dev = decode_filename(block.Device);
-                this.monitor_channel = python.spawn(luksmeta_monitor_hack_py, [ dev ], { superuser: true });
+                this.monitor_channel = python.spawn(luksmeta_monitor_hack_py, [dev], { superuser: true });
                 var buf = "";
                 this.monitor_channel.stream(output => {
                     var lines;
@@ -462,7 +462,7 @@ export class CryptoKeyslots extends React.Component {
                     }
                 });
                 this.monitor_channel.fail(err => {
-                    this.setState({ slots: [ ], slot_error: err });
+                    this.setState({ slots: [], slot_error: err });
                 });
             }
         }
@@ -521,7 +521,7 @@ export class CryptoKeyslots extends React.Component {
             }
             rows = <tr><td className="text-center">{text}</td></tr>;
         } else {
-            rows = [ ];
+            rows = [];
 
             var add_row = (slot, type, desc, edit, edit_excuse, remove) => {
                 rows.push(

@@ -296,7 +296,7 @@ class AddServicesModal extends React.Component {
     parseServices(content) {
         if (!content) {
             console.warn("Couldn't read /etc/services");
-            return [ ];
+            return [];
         }
 
         var ret = {};
@@ -952,7 +952,7 @@ export class Firewall extends React.Component {
                 </h1>
                 <div id="zones-listing">
                     { enabled && <Listing title={_("Active zones")}
-                             columnTitles={[ _("Zone"), "", _("Interfaces"), _("IP Range"), "" ]}
+                             columnTitles={[_("Zone"), "", _("Interfaces"), _("IP Range"), ""]}
                              emptyCaption={_("No active zones")}
                              actions={addZoneAction}>
                         {
@@ -965,7 +965,7 @@ export class Firewall extends React.Component {
                 </div>
                 <div id="services-listing">
                     { enabled && <Listing title={_("Allowed Services")}
-                             columnTitles={[ _("Service"), _("TCP"), _("UDP"), _("Zones"), "" ]}
+                             columnTitles={[_("Service"), _("TCP"), _("UDP"), _("Zones"), ""]}
                              emptyCaption={_("No open ports")}
                              actions={addServiceAction}>
                         {

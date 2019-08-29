@@ -111,7 +111,7 @@ export class MDRaidsPanel extends React.Component {
                                       name={mdraid_name(mdraid)}
                                       devname={block && block_name(block)}
                                       detail={fmt_size(mdraid.Size)}
-                                      go={() => cockpit.location.go([ "mdraid", mdraid.UUID ])}
+                                      go={() => cockpit.location.go(["mdraid", mdraid.UUID])}
                                       job_path={path}
                                       key={path} />
             );

@@ -27,9 +27,9 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
         var dbus = cockpit.dbus(bus_name, channel_options);
         assert.equal(typeof dbus.call, "function", "is a function");
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-                  "HelloWorld", [ "Browser-side JS" ])
+                  "HelloWorld", ["Browser-side JS"])
                 .done(function(reply) {
-                    assert.deepEqual(reply, [ "Word! You said `Browser-side JS'. I'm Skeleton, btw!" ], "reply");
+                    assert.deepEqual(reply, ["Word! You said `Browser-side JS'. I'm Skeleton, btw!"], "reply");
                 })
                 .always(function() {
                     assert.equal(this.state(), "resolved", "finished successfuly");
@@ -76,7 +76,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
 
         var dbus = cockpit.dbus(bus_name, channel_options);
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-                  "HelloWorld", [ "Browser-side JS" ])
+                  "HelloWorld", ["Browser-side JS"])
                 .fail(function(ex) {
                     assert.equal(ex.problem, "disconnected", "got right close code");
                 })
@@ -96,7 +96,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
         dbus.close("blah-blah");
 
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-                  "HelloWorld", [ "Browser-side JS" ])
+                  "HelloWorld", ["Browser-side JS"])
                 .fail(function(ex) {
                     assert.equal(ex.problem, "blah-blah", "got right close code");
                 })
@@ -115,7 +115,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                   "TestPrimitiveTypes", [
                       10, true, 11, 12, 13, 14, 15, 16, 17,
                       "a string", "/a/path", "asig",
-                      "ZWZnAA==" ])
+                      "ZWZnAA=="])
                 .done(function(reply) {
                     assert.deepEqual(reply, [
                         20, false, 111, 1012, 10013, 100014, 1000015, 10000016, 17.0 / Math.PI,
@@ -138,7 +138,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
             const done = assert.async();
 
             dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-                      "TestVariant", [ { t: type, v: value } ])
+                      "TestVariant", [{ t: type, v: value }])
                     .fail(function(ex) {
                         assert.equal(ex.name, "org.freedesktop.DBus.Error.InvalidArgs");
                     })
@@ -190,7 +190,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                       ["one", "two"],
                       ["/one", "/one/two"],
                       ["ass", "git"],
-                      ["QUIA", "QkMA"] ])
+                      ["QUIA", "QkMA"]])
                 .done(function(reply) {
                     assert.deepEqual(reply, [
                         "{'one': 'red', 'two': 'blue'}{'first': (42, 42), 'second': (43, 43)}(42, 'foo', 'bar')array_of_strings: [one, two] array_of_objpaths: [/one, /one/two] array_of_signatures: [signature 'ass', 'git'] array_of_bytestrings: [AB, BC] "
@@ -208,13 +208,13 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
 
         var dbus = cockpit.dbus(bus_name, channel_options);
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-                  "TestAsv", [ {
+                  "TestAsv", [{
                       one: cockpit.variant("s", "foo"),
                       two: cockpit.variant("o", "/bar"),
                       three: cockpit.variant("g", "assgit"),
                       four: cockpit.variant("y", 42),
                       five: cockpit.variant("d", 1000.0)
-                  } ])
+                  }])
                 .done(function(reply) {
                     assert.deepEqual(reply, [
                         "{'one': <'foo'>, 'two': <objectpath '/bar'>, 'three': <signature 'assgit'>, 'four': <byte 0x2a>, 'five': <1000.0>}"
@@ -232,13 +232,13 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
 
         var dbus = cockpit.dbus(bus_name, channel_options);
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-                  "TestAsv", [ {
+                  "TestAsv", [{
                       one: "foo",
                       two: "/bar",
                       three: "assgit",
                       four: 42,
                       five: 1000.0
-                  } ])
+                  }])
                 .fail(function(ex) {
                     assert.equal(ex.name, "org.freedesktop.DBus.Error.InvalidArgs", "error name");
                     assert.equal(ex.message, "Unexpected type 'string' in argument", "error message");
@@ -255,13 +255,13 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
 
         var dbus = cockpit.dbus(bus_name, channel_options);
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-                  "TestAsv", [ {
+                  "TestAsv", [{
                       one: "foo",
                       two: "/bar",
                       three: "assgit",
                       four: 42,
                       five: 1000.0
-                  } ])
+                  }])
                 .fail(function(ex) {
                     assert.equal(ex.name, "org.freedesktop.DBus.Error.InvalidArgs", "error name");
                     assert.equal(ex.message, "Unexpected type 'string' in argument", "error message");
@@ -278,9 +278,9 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
 
         var dbus = cockpit.dbus(bus_name, channel_options);
         dbus.call("/otree/frobber", "org.freedesktop.DBus.Properties",
-                  "GetAll", [ "com.redhat.Cockpit.DBusTests.Frobber" ])
+                  "GetAll", ["com.redhat.Cockpit.DBusTests.Frobber"])
                 .done(function(reply) {
-                    assert.deepEqual(reply, [ {
+                    assert.deepEqual(reply, [{
                         FinallyNormalName: { t: "s", v: "There aint no place like home" },
                         ReadonlyProperty: { t: "s", v: "blah" },
                         aay: { t: "aay", v: [] },
@@ -300,7 +300,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                         u: { t: "u", v: 0 },
                         x: { t: "x", v: 0 },
                         y: { t: "y", v: 42 }
-                    } ], "reply");
+                    }], "reply");
                 })
                 .always(function() {
                     assert.equal(this.state(), "resolved", "finished successfuly");
@@ -314,7 +314,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
 
         var dbus = cockpit.dbus(bus_name, channel_options);
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-                  "UnimplementedMethod", [ ])
+                  "UnimplementedMethod", [])
                 .fail(function(ex) {
                     assert.equal(ex.name, "org.freedesktop.DBus.Error.UnknownMethod", "error name");
                     assert.equal(ex.message, "Method UnimplementedMethod is not implemented on interface com.redhat.Cockpit.DBusTests.Frobber", "error message");
@@ -331,8 +331,8 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
 
         var dbus = cockpit.dbus(bus_name, channel_options);
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-                  "TestPrimitiveTypes", [ 10, true, 11, 12, 13, 14, 15, 16, 17, "a string", "/a/path", "asig",
-                      "Yooohooo!~ bad base64" ])
+                  "TestPrimitiveTypes", [10, true, 11, 12, 13, 14, 15, 16, 17, "a string", "/a/path", "asig",
+                      "Yooohooo!~ bad base64"])
                 .fail(function(ex) {
                     assert.equal(ex.name, "org.freedesktop.DBus.Error.InvalidArgs", "error name");
                     assert.equal(ex.message, "Invalid base64 in argument", "error message");
@@ -349,7 +349,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
 
         var dbus = cockpit.dbus(bus_name, channel_options);
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-                  "UnknownBlahMethod", [ 1 ])
+                  "UnknownBlahMethod", [1])
                 .fail(function(ex) {
                     assert.equal(ex.name, "org.freedesktop.DBus.Error.UnknownMethod", "error name");
                     assert.equal(ex.message, "Introspection data for method com.redhat.Cockpit.DBusTests.Frobber UnknownBlahMethod not available", "error message");
@@ -376,12 +376,12 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
             assert.equal(iface, "com.redhat.Cockpit.DBusTests.Frobber", "got right path");
             assert.equal(signal, "TestSignal", "signals: got right path");
             assert.deepEqual(args, [
-                43, [ "foo", "frobber" ], [ "/foo", "/foo/bar" ],
-                { first: [ 42, 42 ], second: [ 43, 43 ] } ], "got right arguments");
+                43, ["foo", "frobber"], ["/foo", "/foo/bar"],
+                { first: [42, 42], second: [43, 43] }], "got right arguments");
             received = true;
         });
 
-        dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "RequestSignalEmission", [ 0 ])
+        dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "RequestSignalEmission", [0])
                 .always(function() {
                     assert.equal(this.state(), "resolved", "emmision requested");
                     assert.equal(received, true, "signal received");
@@ -405,7 +405,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
             path: "/otree/frobber"
         }, on_signal);
 
-        dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "RequestSignalEmission", [ 0 ])
+        dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "RequestSignalEmission", [0])
                 .always(function() {
                     assert.equal(this.state(), "resolved", "emmision requested");
                     assert.equal(received, true, "signal received");
@@ -414,7 +414,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                     subscription.remove();
                     received = false;
 
-                    dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "RequestSignalEmission", [ 0 ])
+                    dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "RequestSignalEmission", [0])
                             .always(function() {
                                 assert.equal(this.state(), "resolved", "second emmision requested");
                                 assert.equal(received, false, "signal not received");
@@ -429,10 +429,10 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
 
         var dbus = cockpit.dbus(bus_name, channel_options);
         dbus.call("/bork", "borkety.Bork", "Echo",
-                  [ { one: "red", two: "blue" }, 55, 66, 32 ],
+                  [{ one: "red", two: "blue" }, 55, 66, 32],
                   { type: "a{ss}uit" })
                 .done(function(reply, options) {
-                    assert.deepEqual(reply, [ { one: "red", two: "blue" }, 55, 66, 32 ], "round trip");
+                    assert.deepEqual(reply, [{ one: "red", two: "blue" }, 55, 66, 32], "round trip");
                     assert.equal(options.type, "a{ss}uit", "got back type");
                 })
                 .always(function() {
@@ -449,8 +449,8 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
             "borkety.Bork": {
                 methods: {
                     Echo: {
-                        in: [ "a{ss}", "u", "i", "t" ],
-                        out: [ "a{ss}", "u", "i", "t" ]
+                        in: ["a{ss}", "u", "i", "t"],
+                        out: ["a{ss}", "u", "i", "t"]
                     }
                 }
             }
@@ -463,9 +463,9 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
 
         dbus.meta(meta);
         dbus.call("/bork", "borkety.Bork", "Echo",
-                  [ { one: "red", two: "blue" }, 55, 66, 32 ])
+                  [{ one: "red", two: "blue" }, 55, 66, 32])
                 .then(function(reply) {
-                    assert.deepEqual(reply, [ { one: "red", two: "blue" }, 55, 66, 32 ], "returned round trip");
+                    assert.deepEqual(reply, [{ one: "red", two: "blue" }, 55, 66, 32], "returned round trip");
                 }, function(ex) {
                     console.log(ex);
                     assert.ok(false, "shouldn't fail");
@@ -482,10 +482,10 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
 
         var dbus = cockpit.dbus(bus_name, channel_options);
         dbus.call("/bork", "borkety.Bork", "Echo",
-                  [ "" ],
+                  [""],
                   { type: "ay" })
                 .done(function(reply, options) {
-                    assert.deepEqual(reply, [ "" ], "round trip");
+                    assert.deepEqual(reply, [""], "round trip");
                     assert.equal(options.type, "ay", "got back type");
                 })
                 .always(function() {
@@ -499,7 +499,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
         assert.expect(2);
 
         var dbus = cockpit.dbus(bus_name, channel_options);
-        dbus.call("invalid/path", "borkety.Bork", "Echo", [ 1 ])
+        dbus.call("invalid/path", "borkety.Bork", "Echo", [1])
                 .fail(function(ex) {
                     assert.equal(ex.problem, "protocol-error", "error name");
                     assert.equal(ex.message, "object path is invalid in dbus \"call\": invalid/path", "error message");
@@ -514,7 +514,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
         assert.expect(2);
 
         var dbus = cockpit.dbus(bus_name, channel_options);
-        dbus.call("/path", "!invalid!interface!", "Echo", [ 1 ])
+        dbus.call("/path", "!invalid!interface!", "Echo", [1])
                 .fail(function(ex) {
                     assert.equal(ex.problem, "protocol-error", "error name");
                     assert.equal(ex.message, "interface name is invalid in dbus \"call\": !invalid!interface!", "error message");
@@ -529,7 +529,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
         assert.expect(2);
 
         var dbus = cockpit.dbus(bus_name, channel_options);
-        dbus.call("/path", "borkety.Bork", "!Invalid!Method!", [ 1 ])
+        dbus.call("/path", "borkety.Bork", "!Invalid!Method!", [1])
                 .fail(function(ex) {
                     assert.equal(ex.problem, "protocol-error", "error name");
                     assert.equal(ex.message, "member name is invalid in dbus \"call\": !Invalid!Method!", "error message");
@@ -544,7 +544,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
         assert.expect(2);
 
         var dbus = cockpit.dbus(bus_name, channel_options);
-        dbus.call("/path", "borkety.Bork", "Method", [ 1 ], { flags: 5 })
+        dbus.call("/path", "borkety.Bork", "Method", [1], { flags: 5 })
                 .fail(function(ex) {
                     assert.equal(ex.problem, "protocol-error", "error name");
                     assert.equal(ex.message, "the \"flags\" field is invalid in dbus call", "error message");
@@ -559,7 +559,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
         assert.expect(3);
 
         var dbus = cockpit.dbus(bus_name, channel_options);
-        dbus.call("/bork", "borkety.Bork", "Echo", [ 1 ],
+        dbus.call("/bork", "borkety.Bork", "Echo", [1],
                   { type: "!!%%" })
                 .fail(function(ex) {
                     assert.equal(ex.problem, "protocol-error", "error name");
@@ -576,7 +576,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
         assert.expect(3);
 
         var dbus = cockpit.dbus(bus_name, channel_options);
-        dbus.call("/bork", "borkety.Bork", "Echo", [ 1 ], { type: 5 }) // invalid
+        dbus.call("/bork", "borkety.Bork", "Echo", [1], { type: 5 }) // invalid
                 .fail(function(ex) {
                     assert.equal(ex.problem, "protocol-error", "error name");
                     assert.equal(ex.message, "the \"type\" field is invalid in call", "error message");
@@ -593,7 +593,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
 
         var dbus = cockpit.dbus(bus_name, channel_options);
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-                  "Nobody", [ { "!!!": "value" } ], { type: "a{is}" })
+                  "Nobody", [{ "!!!": "value" }], { type: "a{is}" })
                 .fail(function(ex) {
                     assert.equal(ex.name, "org.freedesktop.DBus.Error.InvalidArgs", "error name");
                     assert.equal(ex.message, "Unexpected key '!!!' in dict entry", "error message");
@@ -610,7 +610,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
 
         var dbus = cockpit.dbus(bus_name, channel_options);
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-                  "Nobody", [ "not/a/path" ], { type: "o" })
+                  "Nobody", ["not/a/path"], { type: "o" })
                 .fail(function(ex) {
                     assert.equal(ex.name, "org.freedesktop.DBus.Error.InvalidArgs", "error name");
                     assert.equal(ex.message, "Invalid object path 'not/a/path'", "error message");
@@ -627,7 +627,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
 
         var dbus = cockpit.dbus(bus_name, channel_options);
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-                  "Nobody", [ "bad signature" ], { type: "g" })
+                  "Nobody", ["bad signature"], { type: "g" })
                 .fail(function(ex) {
                     assert.equal(ex.name, "org.freedesktop.DBus.Error.InvalidArgs", "error name");
                     assert.equal(ex.message, "Invalid signature 'bad signature'", "error message");
@@ -644,7 +644,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
 
         var dbus = cockpit.dbus(bus_name, channel_options);
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-                  "HelloWorld", [ "test" ], { flags: "" })
+                  "HelloWorld", ["test"], { flags: "" })
                 .done(function(reply, options) {
                     assert.equal(typeof options.flags, "string", "is string");
                     assert.ok(options.flags.indexOf(">") !== -1 || options.flags.indexOf("<") !== -1, "has byte order");
@@ -766,7 +766,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
         dbus.watch({ path_namespace: "/otree" });
 
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-                  "HelloWorld", [ "Browser-side JS" ])
+                  "HelloWorld", ["Browser-side JS"])
                 .done(function(reply) {
                     assert.deepEqual(cache["/otree/frobber"]["com.redhat.Cockpit.DBusTests.Frobber"],
                                      { FinallyNormalName: "There aint no place like home",
@@ -851,7 +851,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
         dbus.watch({ path_namespace: "/cliques/" + name })
                 .done(function() {
                     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-                              "CreateClique", [ name ])
+                              "CreateClique", [name])
                             .done(function(path) {
                                 var expect = { };
                                 /* The same way mock-service.c calculates the paths */
@@ -897,7 +897,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                         done();
                     });
                     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-                              "EmitHidden", [ name ])
+                              "EmitHidden", [name])
                             .always(function() {
                                 assert.equal(this.state(), "resolved", "method called");
                             });
@@ -987,12 +987,12 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
         $(proxy).on("signal", function(event, name, args) {
             assert.equal(name, "TestSignal", "signals: got right name");
             assert.deepEqual(args, [
-                43, [ "foo", "frobber" ], [ "/foo", "/foo/bar" ],
-                { first: [ 42, 42 ], second: [ 43, 43 ] } ], "got right arguments");
+                43, ["foo", "frobber"], ["/foo", "/foo/bar"],
+                { first: [42, 42], second: [43, 43] }], "got right arguments");
             received = true;
         });
 
-        proxy.call("RequestSignalEmission", [ 0 ])
+        proxy.call("RequestSignalEmission", [0])
                 .always(function() {
                     assert.equal(this.state(), "resolved", "emmision requested");
                     assert.equal(received, true, "signal received");
@@ -1055,7 +1055,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                         });
 
                         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-                                  "CreateObject", [ "/otree/other" ])
+                                  "CreateObject", ["/otree/other"])
                                 .always(function() {
                                     assert.equal(this.state(), "resolved", "create objects done");
 
@@ -1073,7 +1073,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                                                 assert.strictEqual(changed, added, "change fired");
 
                                                 dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-                                                          "DeleteObject", [ "/otree/other" ])
+                                                          "DeleteObject", ["/otree/other"])
                                                         .always(function() {
                                                             assert.equal(this.state(), "resolved", "removed object");
                                                             assert.strictEqual(removed, added, "removed fired");
@@ -1100,7 +1100,7 @@ function dbus_track_tests(channel_options, bus_name) { // eslint-disable-line no
 
         var dbus = cockpit.dbus(bus_name, channel_options);
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-                  "ClaimOtherName", [ name ])
+                  "ClaimOtherName", [name])
                 .always(function() {
                     assert.equal(this.state(), "resolved", "name claimed");
 
@@ -1115,12 +1115,12 @@ function dbus_track_tests(channel_options, bus_name) { // eslint-disable-line no
                     });
 
                     other.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-                               "HelloWorld", [ "test" ])
+                               "HelloWorld", ["test"])
                             .always(function() {
                                 assert.equal(this.state(), "resolved", "called on other name");
 
                                 dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-                                          "ReleaseOtherName", [ name ])
+                                          "ReleaseOtherName", [name])
                                         .always(function() {
                                             assert.equal(this.state(), "resolved", "name released");
                                             released = true;
@@ -1140,7 +1140,7 @@ function dbus_track_tests(channel_options, bus_name) { // eslint-disable-line no
 
         var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", channel_options);
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-                  "ClaimOtherName", [ name ])
+                  "ClaimOtherName", [name])
                 .always(function() {
                     assert.equal(this.state(), "resolved", "name claimed");
 
@@ -1150,17 +1150,17 @@ function dbus_track_tests(channel_options, bus_name) { // eslint-disable-line no
                     });
 
                     other.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-                               "HelloWorld", [ "test" ])
+                               "HelloWorld", ["test"])
                             .always(function() {
                                 assert.equal(this.state(), "resolved", "called on other name");
 
                                 dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-                                          "ReleaseOtherName", [ name ])
+                                          "ReleaseOtherName", [name])
                                         .always(function() {
                                             assert.equal(this.state(), "resolved", "name released");
 
                                             other.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-                                                       "HelloWorld", [ "test" ])
+                                                       "HelloWorld", ["test"])
                                                     .always(function() {
                                                         assert.equal(this.state(), "rejected", "call after release should fail");
                                                         assert.equal(gone, false, "is not gone");

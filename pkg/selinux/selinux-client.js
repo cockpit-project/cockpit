@@ -56,7 +56,7 @@ var status = {
  */
 export function init(statusChangedCallback) {
     var refreshInfo = function() {
-        cockpit.spawn(statusCommand, { err: 'message', environ: [ "LC_ALL=C" ], superuser: "try" }).then(
+        cockpit.spawn(statusCommand, { err: 'message', environ: ["LC_ALL=C"], superuser: "try" }).then(
             function(output) {
                 /* parse output that looks like this:
                  *   SELinux status:                 enabled
@@ -124,7 +124,7 @@ export function init(statusChangedCallback) {
         // Use `echo '~~~~~'` as separator, so we don't need to execute multiple commands
         let script = "semanage export";
         manageditems.forEach(item => { script += " && echo '~~~~~' && semanage " + item + " --list -C --noheading" });
-        cockpit.script(script, [], { err: 'message', environ: [ "LC_MESSAGES=C" ], superuser: "try" })
+        cockpit.script(script, [], { err: 'message', environ: ["LC_MESSAGES=C"], superuser: "try" })
                 .then(output => {
                     output = output.split("~~~~~");
                     status.shell = output[0];

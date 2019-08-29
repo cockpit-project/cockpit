@@ -185,7 +185,7 @@ class ServiceActions extends React.Component {
 
             if (this.props.failed)
                 actions.push(
-                    <MenuItem key="reset" onClick={() => this.props.actionCallback("ResetFailedUnit", [ ]) }>{ _("Clear 'Failed to start'") }</MenuItem>
+                    <MenuItem key="reset" onClick={() => this.props.actionCallback("ResetFailedUnit", []) }>{ _("Clear 'Failed to start'") }</MenuItem>
                 );
 
             actions.push(
@@ -202,7 +202,7 @@ class ServiceActions extends React.Component {
                                           confirmText={ _("Mask Service") }
                                           confirmAction={() => {
                                               this.props.fileActionCallback("MaskUnitFiles", false);
-                                              this.props.actionCallback("ResetFailedUnit", [ ]);
+                                              this.props.actionCallback("ResetFailedUnit", []);
                                               this.setState({ dialogMaskedOpened: false });
                                           }} />
                 }
@@ -270,7 +270,7 @@ export class ServiceDetails extends React.Component {
             if (this.props.unit.ActiveState === "active" || this.props.unit.ActiveState === "activating")
                 this.unitAction("StopUnit");
             if (this.props.unit.ActiveState === "failed")
-                this.unitAction("ResetFailedUnit", [ ]);
+                this.unitAction("ResetFailedUnit", []);
         } else {
             this.unitFileAction("EnableUnitFiles", false);
             if (this.props.unit.ActiveState !== "active" && this.props.unit.ActiveState !== "activating")
@@ -280,16 +280,16 @@ export class ServiceDetails extends React.Component {
 
     unitAction(method, extra_args) {
         if (extra_args === undefined)
-            extra_args = [ "fail" ];
+            extra_args = ["fail"];
         this.setState({ waitsAction: true });
-        this.props.systemdManager.call(method, [ this.props.unit.Names[0] ].concat(extra_args))
+        this.props.systemdManager.call(method, [this.props.unit.Names[0]].concat(extra_args))
                 .fail(error => this.setState({ error: error.toString() }))
                 .finally(() => this.setState({ waitsAction: false }));
     }
 
     unitFileAction(method, force) {
         this.setState({ waitsFileAction: true });
-        const args = [ [ this.props.unit.Names[0] ], false ];
+        const args = [[this.props.unit.Names[0]], false];
         if (force !== undefined)
             args.push(force == "true");
         this.props.systemdManager.call(method, args)

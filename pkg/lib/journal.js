@@ -96,7 +96,7 @@ journal.build_cmd = function build_cmd(/* ... */) {
             options.count = null;
     }
 
-    var cmd = [ "journalctl", "-q" ];
+    var cmd = ["journalctl", "-q"];
     if (!options.count)
         cmd.push("--no-tail");
     else
@@ -549,7 +549,7 @@ journal.renderer = function renderer(funcs_or_box) {
 };
 
 journal.logbox = function logbox(match, max_entries) {
-    var entries = [ ];
+    var entries = [];
     var box = document.createElement("div");
 
     function render() {

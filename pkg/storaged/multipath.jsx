@@ -50,7 +50,7 @@ export class MultipathAlert extends React.Component {
         function activate(event) {
             if (!event || event.button !== 0)
                 return;
-            cockpit.spawn([ "mpathconf", "--enable", "--with_multipathd", "y" ],
+            cockpit.spawn(["mpathconf", "--enable", "--with_multipathd", "y"],
                           { superuser: "try"
                           })
                     .fail(function (error) {

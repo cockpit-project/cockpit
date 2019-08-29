@@ -6,7 +6,7 @@ QUnit.test("load user info", function (assert) {
 
     var dbus = cockpit.dbus(null, { bus: "internal" });
     dbus.call("/user", "org.freedesktop.DBus.Properties",
-              "GetAll", [ "cockpit.User" ],
+              "GetAll", ["cockpit.User"],
               { type: "s" })
             .done(function(reply) {
                 var user = reply[0];
@@ -44,7 +44,7 @@ QUnit.test("user environment", function (assert) {
     const done = assert.async();
     assert.expect(6);
 
-    cockpit.spawn([ "/bin/sh", "-c", "echo $USER~$SHELL~$HOME" ])
+    cockpit.spawn(["/bin/sh", "-c", "echo $USER~$SHELL~$HOME"])
             .done(function(data) {
                 var parts = data.split("~");
                 assert.ok(parts[0].length > 0, "valid $USER");

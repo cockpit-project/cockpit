@@ -132,7 +132,7 @@ export function install_dialog(pkg) {
     }
 
     function check_missing() {
-        PK.check_missing_packages([ pkg ],
+        PK.check_missing_packages([pkg],
                                   p => {
                                       cancel = p.cancel;
                                       var pm = null;

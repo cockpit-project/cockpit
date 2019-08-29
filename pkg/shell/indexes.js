@@ -698,7 +698,7 @@ if (document.documentElement.getAttribute("class") === "index-page") {
     window.options = { sink: true, protocol: "cockpit1" };
 
     /* While the index is initializing, snag any messages we receive from frames */
-    window.messages = [ ];
+    window.messages = [];
 
     window.messages.cancel = function() {
         window.removeEventListener("message", message_queue, false);

@@ -92,12 +92,12 @@ export function call(objectPath, iface, method, args, opts) {
 export function detect() {
     function dbus_detect() {
         return call("/org/freedesktop/PackageKit", "org.freedesktop.DBus.Properties",
-                    "Get", [ "org.freedesktop.PackageKit", "VersionMajor" ])
+                    "Get", ["org.freedesktop.PackageKit", "VersionMajor"])
                 .then(() => true,
                       () => false);
     }
 
-    return cockpit.spawn([ "findmnt", "-T", "/usr", "-n", "-o", "VFS-OPTIONS" ])
+    return cockpit.spawn(["findmnt", "-T", "/usr", "-n", "-o", "VFS-OPTIONS"])
             .then(options => {
                 if (options.split(",").indexOf("ro") >= 0)
                     return false;
@@ -378,24 +378,24 @@ export function watchRedHatSubscription(callback) {
 
 export function check_missing_packages(names, progress_cb) {
     var data = {
-        missing_names: [ ],
-        unavailable_names: [ ],
+        missing_names: [],
+        unavailable_names: [],
     };
 
     if (names.length === 0)
         return Promise.resolve(data);
 
     function refresh() {
-        return cancellableTransaction("RefreshCache", [ false ], progress_cb);
+        return cancellableTransaction("RefreshCache", [false], progress_cb);
     }
 
     function resolve() {
-        data.missing_ids = [ ];
+        data.missing_ids = [];
 
         var installed_names = { };
 
         return cancellableTransaction("Resolve",
-                                      [ Enum.FILTER_ARCH | Enum.FILTER_NOT_SOURCE | Enum.FILTER_NEWEST, names ],
+                                      [Enum.FILTER_ARCH | Enum.FILTER_NOT_SOURCE | Enum.FILTER_NEWEST, names],
                                       progress_cb,
                                       {
                                           Package: (info, package_id) => {
@@ -419,14 +419,14 @@ export function check_missing_packages(names, progress_cb) {
     }
 
     function simulate(data) {
-        data.install_ids = [ ];
-        data.remove_ids = [ ];
-        data.extra_names = [ ];
-        data.remove_names = [ ];
+        data.install_ids = [];
+        data.remove_ids = [];
+        data.extra_names = [];
+        data.remove_names = [];
 
         if (data.missing_ids.length > 0 && data.unavailable_names.length === 0) {
             return cancellableTransaction("InstallPackages",
-                                          [ Enum.TRANSACTION_FLAG_SIMULATE, data.missing_ids ],
+                                          [Enum.TRANSACTION_FLAG_SIMULATE, data.missing_ids],
                                           progress_cb,
                                           {
                                               Package: (info, package_id) => {
@@ -457,7 +457,7 @@ export function check_missing_packages(names, progress_cb) {
         data.download_size = 0;
         if (data.install_ids.length > 0) {
             return cancellableTransaction("GetDetails",
-                                          [ data.install_ids ],
+                                          [data.install_ids],
                                           progress_cb,
                                           {
                                               Details: details => {
@@ -499,7 +499,7 @@ export function install_missing_packages(data, progress_cb) {
         });
     }
 
-    return cancellableTransaction("InstallPackages", [ 0, data.missing_ids ],
+    return cancellableTransaction("InstallPackages", [0, data.missing_ids],
                                   p => {
                                       last_progress = p;
                                       report_progess();

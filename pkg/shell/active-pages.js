@@ -38,7 +38,7 @@ export function showDialog (frames) {
     }
 
     function gatherIframes() {
-        var result = [ ];
+        var result = [];
         var address, component, iframe;
         for (address in frames.iframes) {
             for (component in frames.iframes[address]) {

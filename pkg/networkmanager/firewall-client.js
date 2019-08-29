@@ -183,7 +183,9 @@ function fetchServiceInfos(services) {
                                    'org.fedoraproject.FirewallD1',
                                    'getServiceSettings', [service])
                 .then(reply => {
-                    const [ , name, description, ports, , , , ] = reply[0];
+                    const name = reply[0][1];
+                    const description = reply[0][2];
+                    const ports = reply[0][3];
                     info = {
                         id: service,
                         name: name,

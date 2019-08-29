@@ -1148,7 +1148,7 @@ export const canShutdown = (vmState) => canReset(vmState);
 export const canPause = (vmState) => vmState == 'running';
 export const canResume = (vmState) => vmState == 'paused';
 export const isRunning = (vmState) => canReset(vmState);
-export const serialConsoleCommand = ({ vm }) => vm.displays.pty ? [ 'virsh', ...VMS_CONFIG.Virsh.connections[vm.connectionName].params, 'console', vm.name ] : false;
+export const serialConsoleCommand = ({ vm }) => vm.displays.pty ? ['virsh', ...VMS_CONFIG.Virsh.connections[vm.connectionName].params, 'console', vm.name] : false;
 
 export function CHECK_LIBVIRT_STATUS({ serviceName }) {
     logDebug(`${this.name}.CHECK_LIBVIRT_STATUS`);

@@ -4,7 +4,7 @@ var dbus = cockpit.dbus(null, { bus: "internal" });
 var configDir;
 
 function cleanUp() {
-    return cockpit.spawn([ "find", configDir + "/machines.d", "-type", "f", "-delete" ]);
+    return cockpit.spawn(["find", configDir + "/machines.d", "-type", "f", "-delete"]);
 }
 
 /***
@@ -27,7 +27,7 @@ function machinesParseTest(assert, machines_defs, expectedProperty) {
 
     Promise.all(setup).then(function() {
         dbus.call("/machines", "org.freedesktop.DBus.Properties",
-                  "Get", [ "cockpit.Machines", "Machines" ],
+                  "Get", ["cockpit.Machines", "Machines"],
                   { type: "ss" })
                 .done(function(reply) {
                     assert.equal(reply[0].t, "a{sa{sv}}", "expected return type");
@@ -141,7 +141,7 @@ function machinesUpdateTest(assert, origJson, host, props, expectedJson) {
 
     cockpit.file(f).replace(origJson)
             .done(function(tag) {
-                dbus.call("/machines", "cockpit.Machines", "Update", [ "99-webui.json", host, props ], { type: "ssa{sv}" })
+                dbus.call("/machines", "cockpit.Machines", "Update", ["99-webui.json", host, props], { type: "ssa{sv}" })
                         .then(function(reply) {
                             assert.deepEqual(reply, [], "no expected return value");
                             return cockpit.file(f, { syntax: JSON }).read()

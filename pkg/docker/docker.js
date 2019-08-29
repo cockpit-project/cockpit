@@ -450,7 +450,7 @@ docker.console = function console_(container_id, command, options) {
 
             /* Look for end of headers first */
             if (headers === null) {
-                pos = sequence_find(data, [ 13, 10, 13, 10 ]);
+                pos = sequence_find(data, [13, 10, 13, 10]);
                 if (pos == -1)
                     return ret;
 
@@ -678,7 +678,7 @@ docker.quote_cmdline = function quote_cmdline(words) {
 };
 
 docker.unquote_cmdline = function unquote_cmdline(text) {
-    var words = [ ];
+    var words = [];
     var next;
 
     function is_whitespace(c) {
@@ -725,7 +725,7 @@ docker.unquote_cmdline = function unquote_cmdline(text) {
     return words;
 };
 
-var byte_suffixes = [ null, "KB", "MB", "GB", "TB", "PB", "EB", "ZB" ];
+var byte_suffixes = [null, "KB", "MB", "GB", "TB", "PB", "EB", "ZB"];
 
 docker.bytes_from_format = function bytes_from_format(formatted, separate) {
     var factor = 1024;

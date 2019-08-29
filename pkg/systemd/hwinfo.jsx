@@ -231,7 +231,7 @@ class CPUSecurityMitigationsDialog extends React.Component {
 class HardwareInfo extends React.Component {
     constructor(props) {
         super(props);
-        this.sortColumnFields = [ "cls", "model", "vendor", "slot" ];
+        this.sortColumnFields = ["cls", "model", "vendor", "slot"];
         this.state = {
             sortBy: "cls",
             showCpuSecurityDialog: false,
@@ -251,9 +251,9 @@ class HardwareInfo extends React.Component {
             sortedPci.sort((a, b) => a[this.state.sortBy].localeCompare(b[this.state.sortBy]));
 
             pci = (
-                <Listing title={ _("PCI") } columnTitles={ [ _("Class"), _("Model"), _("Vendor"), _("Slot") ] }
+                <Listing title={ _("PCI") } columnTitles={ [_("Class"), _("Model"), _("Vendor"), _("Slot")] }
                          columnTitleClick={ index => this.setState({ sortBy: this.sortColumnFields[index] }) } >
-                    { sortedPci.map(dev => <ListingRow key={dev.slot} columns={[ dev.cls, dev.model, dev.vendor, dev.slot ]} />) }
+                    { sortedPci.map(dev => <ListingRow key={dev.slot} columns={[dev.cls, dev.model, dev.vendor, dev.slot]} />) }
                 </Listing>
             );
         }

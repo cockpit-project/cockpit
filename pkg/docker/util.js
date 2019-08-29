@@ -132,7 +132,7 @@ util.format_cpu_usage = function format_cpu_usage(usage) {
 };
 
 util.update_memory_bar = function update_memory_bar(bar, usage, limit) {
-    var parts = [ usage ];
+    var parts = [usage];
     if (limit)
         parts.push(limit);
     $(bar)
@@ -282,7 +282,7 @@ util.render_container = function render_container(client, $panel,
             $('<td class="container-column-actions cell-buttons">').append(btn_play, btn_stop, img_waiting.clone()));
 
         tr.on('click', function(event) {
-            cockpit.location.go([ id ]);
+            cockpit.location.go([id]);
         });
 
         added = true;
@@ -543,7 +543,7 @@ util.handle_scope_start_container = function handle_scope_start_container(docker
         var start_phrase = 'Unit docker-';
         var idx_start = error_message.indexOf(start_phrase) + start_phrase.length;
         var docker_container = error_message.substring(idx_start, idx_end);
-        cockpit.spawn([ "systemctl", "stop", "docker-" + docker_container + ".scope" ], { superuser: "try" })
+        cockpit.spawn(["systemctl", "stop", "docker-" + docker_container + ".scope"], { superuser: "try" })
                 .done(function () {
                     docker_client.start(container_id)
                             .fail(function(ex) {
@@ -685,7 +685,7 @@ util.find_container_log = function find_container_log(client, entry, resultCallb
 util.problem_log = function problem_log (poll_count, problem_id, c_id, resultCallback) {
     var url = null;
     var message = "";
-    var match = [ ];
+    var match = [];
     var log_found = false;
     match.push('SYSLOG_IDENTIFIER=abrt-notification');
     match.push('PROBLEM_DIR=' + problem_id);

@@ -164,7 +164,7 @@ $(function() {
         function get_unit(path) {
             var unit = units_by_path[path];
             if (!unit) {
-                unit = { aliases: [ ], path: path };
+                unit = { aliases: [], path: path };
                 units_by_path[path] = unit;
             }
             return unit;
@@ -234,7 +234,7 @@ $(function() {
         function refresh_properties(path, tweak_callback, fail_callback) {
             systemd_client.call(path,
                                 "org.freedesktop.DBus.Properties", "GetAll",
-                                [ "org.freedesktop.systemd1.Unit" ])
+                                ["org.freedesktop.systemd1.Unit"])
                     .fail(function(error) {
                         console.log(error);
                         if (fail_callback)
@@ -284,7 +284,7 @@ $(function() {
 
             function cmp_path(a, b) { return units_by_path[a].Id.localeCompare(units_by_path[b].Id) }
             var sorted_keys = Object.keys(units_by_path).sort(cmp_path);
-            var units = [ ];
+            var units = [];
             var header = {
                 Description: _("Description"),
                 Id: _("Name"),
@@ -548,7 +548,7 @@ $(function() {
                     s = s + systemd_escape(param);
                     if (sp != -1)
                         s = s + cur_unit_id.substring(sp);
-                    cockpit.location.go([ s ]);
+                    cockpit.location.go([s]);
                 }
             }
         }
@@ -635,9 +635,9 @@ $(function() {
                                         $('#service-log-box').show();
                                     }
 
-                                    cur_journal_watcher = journal.logbox([ "_SYSTEMD_UNIT=" + cur_unit_id, "+",
+                                    cur_journal_watcher = journal.logbox(["_SYSTEMD_UNIT=" + cur_unit_id, "+",
                                         "COREDUMP_UNIT=" + cur_unit_id, "+",
-                                        "UNIT=" + cur_unit_id ], 10);
+                                        "UNIT=" + cur_unit_id], 10);
                                     $('#service-log')
                                             .empty()
                                             .append(cur_journal_watcher);
@@ -658,7 +658,7 @@ $(function() {
     }
 
     function unit_goto() {
-        cockpit.location.go([ $(this).attr("data-goto-unit") ]);
+        cockpit.location.go([$(this).attr("data-goto-unit")]);
     }
 
     function refresh_unit() {
@@ -666,7 +666,7 @@ $(function() {
         if (unit) {
             systemd_client.call(unit.path,
                                 "org.freedesktop.DBus.Properties", "GetAll",
-                                [ "org.freedesktop.systemd1.Unit" ])
+                                ["org.freedesktop.systemd1.Unit"])
                     .fail(function(error) {
                         console.log(error);
                     })
@@ -792,7 +792,7 @@ $(function() {
         member: "PropertiesChanged"
     }, update_time);
     var timer_unit = { };
-    var repeat_array = [ ];
+    var repeat_array = [];
     var error = false;
     var repeat_hourly_template = $("#repeat-hourly-tmpl").html();
     mustache.parse(repeat_hourly_template);
@@ -908,7 +908,7 @@ $(function() {
                 .attr("value", "1");
         $(".form-control").removeClass("has-error");
         $(".has-error").hide();
-        repeat_array = [ ];
+        repeat_array = [];
         timer_unit = {
             Calendar_or_Boot: "Boot",
             boot_time_unit:"sec",
@@ -936,7 +936,7 @@ $(function() {
         } else {
             $("#specific-time-without-repeat").hide();
             $("#repeat-time-option").show();
-            repeat_array = [ ];
+            repeat_array = [];
             repeat_element();
         }
     }

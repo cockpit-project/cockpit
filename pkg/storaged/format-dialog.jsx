@@ -34,7 +34,7 @@ export function parse_options(options) {
                 .map(function (s) { return s.trim() })
                 .filter(function (s) { return s != "" }));
     else
-        return [ ];
+        return [];
 }
 
 export function unparse_options(split) {
@@ -96,7 +96,7 @@ export function mounting_dialog_fields(is_custom, mount_dir, mount_options, visi
 }
 
 export function mounting_dialog_options(vals) {
-    var opts = [ ];
+    var opts = [];
     if (!vals.mount_options || !vals.mount_options.auto)
         opts.push("noauto");
     if (vals.mount_options && vals.mount_options.ro)
@@ -119,7 +119,7 @@ export function crypto_options_dialog_fields(options, visible, include_store_pas
     ];
 
     if (include_store_passphrase)
-        fields = [ { title: _("Store passphrase"), tag: "store_passphrase" } ].concat(fields);
+        fields = [{ title: _("Store passphrase"), tag: "store_passphrase" }].concat(fields);
 
     return [
         CheckBoxes("crypto_options", "",
@@ -136,7 +136,7 @@ export function crypto_options_dialog_fields(options, visible, include_store_pas
 }
 
 export function crypto_options_dialog_options(vals) {
-    var opts = [ ];
+    var opts = [];
     if (!vals.crypto_options || !vals.crypto_options.auto)
         opts.push("noauto");
     if (vals.crypto_options && vals.crypto_options.ro)
@@ -231,7 +231,7 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
                 // exception.
                 //
                 // See https://github.com/cockpit-project/cockpit/issues/4181
-                    return client.call(partition, "Block", "Format", [ type, options ]).then(function () {
+                    return client.call(partition, "Block", "Format", [type, options]).then(function () {
                         return partition;
                     });
                 });
@@ -244,7 +244,7 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
         }
     }
 
-    var filesystem_options = [ ];
+    var filesystem_options = [];
     add_fsys("xfs", { value: "xfs", title: "XFS - " + _("Recommended default") });
     add_fsys("ext4", { value: "ext4", title: "EXT4" });
     add_fsys("vfat", { value: "vfat", title: "VFAT" });
@@ -338,7 +338,7 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
                               options['no-discard'] = { t: 'b', v: true };
                           }
 
-                          var config_items = [ ];
+                          var config_items = [];
                           var mount_options = mounting_dialog_options(vals);
                           if (vals.mounting == "custom")
                               config_items.push([
@@ -365,7 +365,7 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
                                   item["passphrase-contents"] =
                                   { t: 'ay', v: utils.encode_filename("") };
                               }
-                              config_items.push([ "crypttab", item ]);
+                              config_items.push(["crypttab", item]);
                           }
 
                           if (config_items.length > 0)

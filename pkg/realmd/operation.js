@@ -164,7 +164,7 @@ function instance(realmd, mode, realm, button) {
             $(".realms-op-address-error").text(_("Validating address"));
         }
 
-        realmd.call(MANAGER, PROVIDER, "Discover", [ name, { } ])
+        realmd.call(MANAGER, PROVIDER, "Discover", [name, { }])
                 .always(function() {
                     if ($("#realms-op-address").val() != name) {
                         dfd.reject();
@@ -306,7 +306,7 @@ function instance(realmd, mode, realm, button) {
         $("#realms-op-admin")[0].placeholder = placeholder;
 
         var list = $("#realms-op-auth .dropdown-menu");
-        var supported = (kerberos_membership && kerberos_membership.SupportedJoinCredentials) || [ ];
+        var supported = (kerberos_membership && kerberos_membership.SupportedJoinCredentials) || [];
         supported.push(["password", "administrator"]);
 
         var first = true;
@@ -352,12 +352,12 @@ function instance(realmd, mode, realm, button) {
         if (owner == "user" && type == "password") {
             creds = [
                 type, owner,
-                cockpit.variant('(ss)', [ $("#realms-op-user").val(), $("#realms-op-user-password").val() ])
+                cockpit.variant('(ss)', [$("#realms-op-user").val(), $("#realms-op-user-password").val()])
             ];
         } else if (owner == "administrator" && type == "password") {
             creds = [
                 type, owner,
-                cockpit.variant('(ss)', [ $("#realms-op-admin").val(), $("#realms-op-admin-password").val() ])
+                cockpit.variant('(ss)', [$("#realms-op-admin").val(), $("#realms-op-admin-password").val()])
             ];
         } else if (type == "secret") {
             secret = $("#realms-op-ot-password").val();
@@ -498,7 +498,7 @@ function instance(realmd, mode, realm, button) {
                         if (computer_ou)
                             options["computer-ou"] = cockpit.variant('s', computer_ou);
                         if (kerberos_membership.valid) {
-                            call = kerberos_membership.call("Join", [ credentials(), options ]).then(install_ws_credentials);
+                            call = kerberos_membership.call("Join", [credentials(), options]).then(install_ws_credentials);
                         } else {
                             busy(null);
                             $(".realms-op-message").empty()
@@ -548,7 +548,7 @@ function instance(realmd, mode, realm, button) {
 
     function cancel() {
         if (operation) {
-            realmd.call(MANAGER, SERVICE, "Cancel", [ operation ]);
+            realmd.call(MANAGER, SERVICE, "Cancel", [operation]);
             busy(null);
             return true;
         }

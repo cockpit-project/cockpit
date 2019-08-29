@@ -512,7 +512,7 @@ export class CreateNetworkAction extends React.Component {
         return (
             <>
                 <Button className='pull-right' id='create-network'
-                        bsStyle='default' onClick={this.open} >
+                        bsStyle='default' onClick={this.open}>
                     {_("Create Virtual Network")}
                 </Button>
                 { this.state.showModal &&

@@ -110,8 +110,8 @@ export class History extends React.Component {
                 </tr>);
 
             return (
-                <tbody key={index} className={ details && this.state.expanded.has(index) ? "open" : null } >
-                    <tr className="listing-ct-item" onClick={ () => this.onExpand(index) } >
+                <tbody key={index} className={ details && this.state.expanded.has(index) ? "open" : null }>
+                    <tr className="listing-ct-item" onClick={ () => this.onExpand(index) }>
                         { details ? <td className="listing-ct-toggle"><i className="fa fa-fw" /></td> : <td /> }
                         <th>{time}</th>
                         <td className="history-pkgcount">{pkgcount}</td>

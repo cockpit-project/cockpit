@@ -202,7 +202,7 @@ export class ListingRow extends React.Component {
 
         let checkboxItem;
         if (this.props.addCheckbox) {
-            checkboxItem = <td key="checkboxItem" className="listing-ct-toggle" >
+            checkboxItem = <td key="checkboxItem" className="listing-ct-toggle">
                 <input type='checkbox' checked={this.state.selected || false} onChange={this.handleSelectClick} />
             </td>;
         }
@@ -220,7 +220,7 @@ export class ListingRow extends React.Component {
         if (this.state.expanded) {
             const links = this.props.tabRenderers.map((itm, idx) => {
                 return (
-                    <li key={idx} className={ (idx === self.state.activeTab) ? "active" : ""} >
+                    <li key={idx} className={ (idx === self.state.activeTab) ? "active" : ""}>
                         <a href="#" tabIndex="0" onClick={ self.handleTabClick.bind(self, idx) }>{itm.name}</a>
                     </li>
                 );

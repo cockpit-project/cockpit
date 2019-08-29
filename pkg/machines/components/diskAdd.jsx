@@ -364,7 +364,7 @@ export class AddDiskAction extends React.Component {
 
         return (
             <div id={`${idPrefix}-add-dialog-full`}>
-                <Button id={`${idPrefix}`} bsStyle='primary' onClick={this.open} className='pull-right' >
+                <Button id={`${idPrefix}`} bsStyle='primary' onClick={this.open} className='pull-right'>
                     {_("Add Disk")}
                 </Button>
                 { this.state.showModal && <AddDiskModalBody close={this.close} dispatch={dispatch} idPrefix={this.props.idPrefix} vm={vm} storagePools={filteredStoragePools} provider={provider} /> }

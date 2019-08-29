@@ -124,7 +124,7 @@ class Expander extends React.Component {
             <>
                 <div className="expander-title">
                     <hr />
-                    <span onClick={() => this.setState({ expanded: !this.state.expanded })} >
+                    <span onClick={() => this.setState({ expanded: !this.state.expanded })}>
                         <i className={cls} />{title}
                     </span>
                     <hr />
@@ -172,11 +172,11 @@ function HeaderBar(props) {
     var actionButton;
     if (props.state == "uptodate" || props.state == "available") {
         if (!props.unregistered)
-            actionButton = <button className="btn btn-default" onClick={props.onRefresh} >{_("Check for Updates")}</button>;
+            actionButton = <button className="btn btn-default" onClick={props.onRefresh}>{_("Check for Updates")}</button>;
         if (props.timeSinceRefresh !== null)
             lastChecked = cockpit.format(_("Last checked: $0 ago"), moment.duration(props.timeSinceRefresh * 1000).humanize());
     } else if (props.state == "applying") {
-        actionButton = <button className="btn btn-default" onClick={props.onCancel} disabled={!props.allowCancel} >{_("Cancel")}</button>;
+        actionButton = <button className="btn btn-default" onClick={props.onCancel} disabled={!props.allowCancel}>{_("Cancel")}</button>;
     }
 
     return (
@@ -324,7 +324,7 @@ class UpdateItem extends React.Component {
         }
 
         return (
-            <tbody className={ this.state.expanded ? "open" : null } >
+            <tbody className={ this.state.expanded ? "open" : null }>
                 <tr className={ "listing-ct-item" + (info.severity === PK.Enum.INFO_SECURITY ? " security" : "") }
                     onClick={ () => this.setState({ expanded: !this.state.expanded }) }>
                     <td className="listing-ct-toggle">

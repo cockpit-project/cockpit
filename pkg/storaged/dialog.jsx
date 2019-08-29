@@ -572,7 +572,7 @@ export const SelectOneRadio = (tag, title, options) => {
 
         render: (val, change) => {
             return (
-                <span className="radio radio-horizontal" data-field={tag} data-field-type="select-radio" >
+                <span className="radio radio-horizontal" data-field={tag} data-field-type="select-radio">
                     { options.choices.map(c => (
                         <label key={c.value}>
                             <input type="radio" checked={val == c.value} data-data={c.value}
@@ -703,7 +703,7 @@ const CheckBoxComponent = ({ tag, val, title, tooltip, update_function }) => {
                        onChange={event => update_function(event.target.checked)} />
                 {title}
             </label>
-            { tooltip && <OverlayTrigger overlay={ <Tooltip id="tip-service">{tooltip}</Tooltip> } placement="right" >
+            { tooltip && <OverlayTrigger overlay={ <Tooltip id="tip-service">{tooltip}</Tooltip> } placement="right">
                 <a tabIndex="0" className="dialog-item-tooltip">
                     <span className="fa fa-lg fa-info-circle" />
                 </a>

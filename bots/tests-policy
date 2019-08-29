@@ -48,7 +48,6 @@ def main():
     parser.add_argument('-o', "--offline", action='store_true',
             help="Work offline, don't fetch new data or contact servers")
     parser.add_argument("--simple", action="store_true",
-            default=(script == "image-naughty"),
             help="Just print out a known issue number")
     parser.add_argument("-v", "--verbose", action="store_true",
             help="Print out more verbose logging info")

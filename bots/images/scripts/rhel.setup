@@ -41,7 +41,7 @@ if [ ! -f "$SKIP_REPO_FLAG" ]; then
 cat <<EOF > /etc/yum.repos.d/internal.repo
 [RHEL-7.7]
 name=base-rhel
-baseurl=http://download.devel.redhat.com/rhel-7/rel-eng/latest-RHEL-7.7/compose/Server/x86_64/os
+baseurl=http://download.devel.redhat.com/released/RHEL-7/7.7/Server/x86_64/os/
 enabled=1
 gpgcheck=0
 
@@ -53,7 +53,7 @@ gpgcheck=0
 
 [RHEL-7.7-DEBUG]
 name=base-rhel-debug
-baseurl=http://download-ipv4.eng.brq.redhat.com/rhel-7/rel-eng/latest-RHEL-7.7/compose/Server/x86_64/debug/tree/
+baseurl=http://download.devel.redhat.com/released/RHEL-7/7.7/Server/x86_64/debug/tree/
 enabled=0
 gpgcheck=0
 

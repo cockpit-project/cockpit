@@ -49,6 +49,12 @@ QUnit.test("simple request", function (assert) {
                         },
                         preloaded: {
                             label: "Preloaded"
+                        },
+                        notifications: {
+                            label: "Notifications"
+                        },
+                        'notifications-receiver': {
+                            label: "Notifications Receiver"
                         }
                     },
                     preload: ["preloaded"],

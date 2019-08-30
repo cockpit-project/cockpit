@@ -544,6 +544,37 @@ OnCalendar=daily
         mem_used = meminfo['MemTotal'] - meminfo['MemAvailable']
         b.wait_js_func("ph_flot_data_plateau", "#plot_pmcd", mem_used * 0.95, mem_used * 1.05, 15, "mem")
 
+    @skipImage("Implemented in #12598", "rhel-8-0-distropkg")
+    def testPageStatus(self):
+        b = self.browser
+
+        self.login_and_go("/playground/notifications")
+
+        b.set_input_text("#type", "info")
+        b.set_input_text("#title", "My Little Page Status")
+        b.click("#set-status")
+
+        b.switch_to_top()
+        b.wait_present("#host-apps a[href='/playground/notifications'] span.fa-info-circle")
+        b.wait_present("#host-apps a[href='/playground/notifications'] span[title='My Little Page Status']")
+
+        b.click("#host-apps a[href='/playground/notifications-receiver']")
+        b.enter_page("/playground/notifications-receiver")
+        b.wait_text("#received-type", "info")
+        b.wait_text("#received-title", "My Little Page Status")
+
+        b.switch_to_top()
+        b.click("#host-apps a[href='/playground/notifications']")
+        b.enter_page("/playground/notifications")
+        b.click("#clear-status")
+
+        b.switch_to_top()
+        b.wait_not_present("#host-apps a[href='/playground/notifications'] span.fa")
+
+        b.click("#host-apps a[href='/playground/notifications-receiver']")
+        b.enter_page("/playground/notifications-receiver")
+        b.wait_text("#received-type", "-")
+        b.wait_text("#received-title", "-")
 
 if __name__ == '__main__':
     test_main()

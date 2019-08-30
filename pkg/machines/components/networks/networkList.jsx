@@ -28,6 +28,11 @@ import { networkId } from '../../helpers.js';
 const _ = cockpit.gettext;
 
 export class NetworkList extends React.Component {
+    shouldComponentUpdate(nextProps, _) {
+        const networks = nextProps.networks;
+        return !networks.find(network => !network.name);
+    }
+
     render() {
         const { dispatch, networks, resourceHasError, onAddErrorNotification } = this.props;
         const sortFunction = (networkA, networkB) => networkA.name.localeCompare(networkB.name);

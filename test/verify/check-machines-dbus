@@ -888,6 +888,10 @@ class TestMachinesDBus(machineslib.TestMachines):
 
                     self.cancel()
 
+                    # If pool creation failed make sure that the pool is not shown in the UI
+                    if self.xfail_error and 'already exists' not in self.xfail_error:
+                        b.wait_not_present("tbody tr[data-row-id=pool-{0}-system] th".format(self.name))
+
             def verify_dialog(self):
                 # Check that the defined pools is now visible
                 b.wait_in_text("body", "Storage Pools")

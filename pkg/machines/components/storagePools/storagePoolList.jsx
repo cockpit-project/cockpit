@@ -29,6 +29,11 @@ import { CreateStoragePoolAction } from './createStoragePoolDialog.jsx';
 const _ = cockpit.gettext;
 
 export class StoragePoolList extends React.Component {
+    shouldComponentUpdate(nextProps, _) {
+        const storagePools = nextProps.storagePools;
+        return !storagePools.find(pool => !pool.name);
+    }
+
     render() {
         const { storagePools, dispatch, loggedUser, vms, resourceHasError, onAddErrorNotification, libvirtVersion } = this.props;
         const sortFunction = (storagePoolA, storagePoolB) => storagePoolA.name.localeCompare(storagePoolB.name);
@@ -55,7 +60,7 @@ export class StoragePoolList extends React.Component {
                                     const filterVmsByConnection = vms.filter(vm => vm.connectionName == storagePool.connectionName);
 
                                     return (
-                                        <StoragePool key={`${storagePoolId(storagePool.name, storagePool.connectionName)}`}
+                                        <StoragePool key={`${storagePoolId(storagePool.id, storagePool.connectionName)}`}
                                             storagePool={storagePool}
                                             vms={filterVmsByConnection}
                                             resourceHasError={resourceHasError}

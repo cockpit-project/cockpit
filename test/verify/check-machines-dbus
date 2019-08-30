@@ -569,17 +569,21 @@ class TestMachinesDBus(machineslib.TestMachines):
         b = self.browser
         m = self.machine
 
-        # Create dummy network
-        m.execute("echo \"{0}\" > /tmp/xml && virsh net-create /tmp/xml".format(TEST_NETWORK2_XML))
-        m.execute("echo \"{0}\" > /tmp/xml && virsh net-create /tmp/xml".format(TEST_NETWORK3_XML))
-
         connectionName = m.execute("virsh uri | head -1 | cut -d/ -f4").strip()
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
 
-        # Click on Networks card
+        b.wait_in_text(".cards-pf #card-pf-networks .card-pf-title-link", "Network")
+        b.wait_in_text(".cards-pf #card-pf-networks .card-pf-aggregate-status-count", "1")
+
+        # Create dummy network
+        m.execute("echo \"{0}\" > /tmp/xml && virsh net-create /tmp/xml".format(TEST_NETWORK2_XML))
         b.wait_in_text(".cards-pf #card-pf-networks .card-pf-title-link", "Networks")
+        b.wait_in_text(".cards-pf #card-pf-networks .card-pf-aggregate-status-count", "2")
+        m.execute("echo \"{0}\" > /tmp/xml && virsh net-create /tmp/xml".format(TEST_NETWORK3_XML))
+
+        # Click on Networks card
         b.click(".cards-pf .card-pf-title span:contains(Networks)")
 
         # Check that all networks are there
@@ -663,15 +667,26 @@ class TestMachinesDBus(machineslib.TestMachines):
 
         self.startVm("subVmTest1")
 
+        self.login_and_go("/machines")
+        b.wait_in_text("body", "Virtual Machines")
+        b.wait_in_text("tbody tr th", "subVmTest1")
+
+        b.wait_in_text("#card-pf-storage-pools .card-pf-aggregate-status-count", "1")
+        b.wait_in_text(".cards-pf #card-pf-storage-pools .card-pf-title-link", "Storage Pool")
+
         # prepare libvirt storage pools
         m.execute("mkdir /mnt/vm_one; mkdir /mnt/vm_two; chmod a+rwx /mnt/vm_one /mnt/vm_two")
         m.execute("virsh pool-define-as myPoolOne --type dir --target /mnt/vm_one; virsh pool-start myPoolOne")
         m.execute("virsh pool-define-as myPoolTwo --type dir --target /mnt/vm_two; virsh pool-start myPoolTwo")
 
+        b.wait_in_text("#card-pf-storage-pools .card-pf-aggregate-status-count", "3")
+        b.wait_in_text(".cards-pf #card-pf-storage-pools .card-pf-title-link", "Storage Pools")
+
         m.execute("virsh vol-create-as myPoolTwo VolumeOne --capacity 1G --format qcow2")
         m.execute("virsh vol-create-as myPoolTwo VolumeTwo --capacity 1G --format qcow2")
         m.execute("virsh vol-create-as myPoolTwo VolumeThree --capacity 1G --format qcow2")
         wait(lambda: all(volume in m.execute("virsh vol-list myPoolTwo") for volume in ["VolumeOne", "VolumeTwo", "VolumeThree"]))
+        m.execute('virsh pool-refresh myPoolOne; virsh pool-refresh myPoolTwo')
 
         connectionName = m.execute("virsh uri | head -1 | cut -d/ -f4").strip()
 
@@ -683,11 +698,6 @@ class TestMachinesDBus(machineslib.TestMachines):
 
         m.execute("echo {0} > /tmp/disk.xml; virsh attach-device --config --file /tmp/disk.xml subVmTest1".format(diskXML))
 
-        self.login_and_go("/machines")
-        b.wait_in_text("body", "Virtual Machines")
-        b.wait_in_text("tbody tr th", "subVmTest1")
-
-
         # Shuf off the VM in order to allow deleting volumes that are used as
         # disks later
         b.click("tbody tr th") # click on the row header
@@ -696,7 +706,6 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_in_text("#vm-subVmTest1-state", "shut off")
 
         # Click on Storage Pools card
-        b.wait_in_text(".cards-pf #card-pf-storage-pools .card-pf-title-link", "Storage Pools")
         b.click(".cards-pf .card-pf-title span:contains(Storage Pools)")
 
         # Check that all defined pools are there

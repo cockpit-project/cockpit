@@ -293,9 +293,9 @@ handle_accept (void)
   fd = accept4 (server.listen_fd, NULL, NULL, SOCK_CLOEXEC);
   if (fd < 0)
     {
-      if (errno == EINTR)
-        return;
-      err (1, "failed to accept connection");
+      if (errno != EINTR)
+        warn ("failed to accept connection");
+      return;
     }
   con = connection_new (fd);
 

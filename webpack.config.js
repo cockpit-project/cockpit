@@ -229,7 +229,7 @@ var externals = {
 var webpack = require("webpack");
 var copy = require("copy-webpack-plugin");
 var html = require('html-webpack-plugin');
-var extract = require("extract-text-webpack-plugin");
+var miniCssExtractPlugin = require('mini-css-extract-plugin');
 var extend = require("extend");
 var path = require("path");
 var fs = require("fs");
@@ -292,7 +292,7 @@ info.files = files;
 
 var plugins = [
     new copy(info.files),
-    new extract("[name].css"),
+    new miniCssExtractPlugin("[name].css"),
 ];
 
 var output = {
@@ -398,11 +398,15 @@ module.exports = {
             },
             {
                 test: /\.css$/,
-                loader: extract.extract("css-loader?minimize=&root=" + libdir)
+                use: [miniCssExtractPlugin.loader, 'css-loader'],
             },
             {
                 test: /\.less$/,
-                loader: extract.extract("css-loader?sourceMap&minimize=!less-loader?sourceMap&compress=false")
+                use: [
+                    miniCssExtractPlugin.loader,
+                    "css-loader",
+                    "less-loader"
+                ]
             },
             {
                 test: /views\/[^\/]+\.html$/,

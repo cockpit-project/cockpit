@@ -1506,6 +1506,29 @@ class TestMachines(NetworkCase):
                                                          os_name=config.FEDORA_28,
                                                          os_short_id=config.FEDORA_28_SHORTID))
 
+            createDownloadAnOSTest(TestMachines.VmDialog(self, sourceType='downloadOS',
+                                                         is_unattended=True, profile="Workstation",
+                                                         user_password="catsaremybestfr13nds", root_password="dogsaremybestfr13nds",
+                                                         storage_size=246, storage_size_unit='MiB',
+                                                         os_name=config.FEDORA_28,
+                                                         os_short_id=config.FEDORA_28_SHORTID))
+
+            # Don't create user account
+            createDownloadAnOSTest(TestMachines.VmDialog(self, sourceType='downloadOS',
+                                                         is_unattended=True, profile="Server",
+                                                         root_password="catsaremybestfr13nds",
+                                                         storage_size=256, storage_size_unit='MiB',
+                                                         os_name=config.FEDORA_28,
+                                                         os_short_id=config.FEDORA_28_SHORTID))
+
+            # Don't create root account
+            createDownloadAnOSTest(TestMachines.VmDialog(self, sourceType='downloadOS',
+                                                         is_unattended=True, profile="Workstation",
+                                                         user_password="catsaremybestfr13nds",
+                                                         storage_size=256, storage_size_unit='MiB',
+                                                         os_name=config.FEDORA_28,
+                                                         os_short_id=config.FEDORA_28_SHORTID))
+
             self.machine.execute('cat /tmp/fedora-28.xml > /usr/share/osinfo/os/fedoraproject.org/fedora-28.xml')
 
         createTest(TestMachines.VmDialog(self, sourceType='url',
@@ -1874,6 +1897,10 @@ class TestMachines(NetworkCase):
                      expected_storage_size=None,
                      os_name='CirrOS',
                      os_short_id=None,
+                     is_unattended=None,
+                     profile=None,
+                     root_password=None,
+                     user_password=None,
                      storage_pool='Create New Volume', storage_volume='',
                      start_vm=False,
                      delete=True,
@@ -1904,6 +1931,10 @@ class TestMachines(NetworkCase):
             self.expected_storage_size = expected_storage_size
             self.os_name = os_name
             self.os_short_id = os_short_id
+            self.is_unattended = is_unattended
+            self.profile = profile
+            self.root_password = root_password
+            self.user_password = user_password
             self.start_vm = start_vm
             self.storage_pool = storage_pool
             self.storage_volume = storage_volume
@@ -1967,6 +1998,14 @@ class TestMachines(NetworkCase):
             wait(lambda: self.machine.execute(virt_install_cmd), delay=3)
             virt_install_cmd_out = self.machine.execute(virt_install_cmd)
             self.assertIn("--install os={}".format(self.os_short_id), virt_install_cmd_out)
+            if self.is_unattended:
+                self.assertIn("profile={0}".format('desktop' if self.profile == 'Workstation' else 'jeos'), virt_install_cmd_out)
+                if self.root_password:
+                    root_password_file = virt_install_cmd_out.split("admin-password-file=", 1)[1].split(",")[0]
+                    self.assertIn(self.machine.execute("cat {0}".format(root_password_file)).rstrip(), self.root_password)
+                if self.user_password:
+                    user_password_file = virt_install_cmd_out.split("user-password-file=", 1)[1].split(",")[0]
+                    self.assertIn(self.machine.execute("cat {0}".format(user_password_file)).rstrip(), self.user_password)
 
         def fill(self):
             def getSourceTypeLabel(sourceType):
@@ -2059,6 +2098,15 @@ class TestMachines(NetworkCase):
 
             if (self.connection):
                 b.click("#connection label:contains('{0}')".format(self.connectionText))
+
+            if self.is_unattended:
+                b.click("#unattended-installation")
+                if self.profile:
+                    b.select_from_dropdown("#profile-select", self.profile)
+                if self.user_password:
+                    b.set_input_text("#user-password", self.user_password)
+                if self.root_password:
+                    b.set_input_text("#root-password", self.root_password)
 
             return self
 

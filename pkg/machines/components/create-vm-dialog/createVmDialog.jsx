@@ -51,6 +51,7 @@ import {
 } from "./createVmDialogUtils.js";
 import MemorySelectRow from '../memorySelectRow.jsx';
 import { storagePoolRefresh } from '../../libvirt-dbus.js';
+import { Password } from './password.jsx';
 
 import './createVmDialog.less';
 import 'form-layout.less';
@@ -181,6 +182,8 @@ function validateParams(vmParams) {
             );
         }
     }
+    if (vmParams.unattendedInstallation && !vmParams.rootPassword && !vmParams.userPassword)
+        validationFailed.password = _("Please set a root or a user password");
 
     return validationFailed;
 }
@@ -388,6 +391,78 @@ class OSRow extends React.Component {
     }
 }
 
+const UnattendedRow = ({ validationFailed, unattendedDisabled, unattendedInstallation, os, profile, onValueChanged }) => {
+    const validationStatePassword = validationFailed.password ? 'error' : undefined;
+    let unattendedInstallationCheckbox = (
+        <label className="checkbox-inline">
+            <input id="unattended-installation" type="checkbox"
+                checked={unattendedInstallation}
+                disabled={unattendedDisabled}
+                onChange={e => onValueChanged('unattendedInstallation', e.target.checked)} />
+            {_("Run unattended installation")}
+        </label>
+    );
+    if (unattendedDisabled) {
+        unattendedInstallationCheckbox = (
+            <OverlayTrigger overlay={ <Tooltip id='os-unattended-installation-tooltip'>{ _("The selected Operating System does not support unattended installation") }</Tooltip> } placement='left'>
+                {unattendedInstallationCheckbox}
+            </OverlayTrigger>
+        );
+    }
+
+    return (
+        <>
+            {unattendedInstallationCheckbox}
+            {!unattendedDisabled && unattendedInstallation ? <>
+                {os.profiles.length > 0 && <>
+                    <label className="control-label" htmlFor="profile-select">
+                        {_("Profile")}
+                    </label>
+                    <Select.Select id="profile-select"
+                        initial={os.profiles && os.profiles[0]}
+                        onChange={e => onValueChanged('profile', e)}>
+                        { (os.profiles || []).sort()
+                                .reverse() // Let jeos (Server) appear always first on the list since in osinfo-db it's not consistent
+                                .map(profile => {
+                                    let profileName;
+                                    if (profile == 'jeos')
+                                        profileName = 'Server';
+                                    else if (profile == 'desktop')
+                                        profileName = 'Workstation';
+                                    else
+                                        profileName = profile;
+                                    return <Select.SelectEntry data={profile} key={profile}>{profileName}</Select.SelectEntry>;
+                                }) }
+                    </Select.Select>
+                </>}
+                <label htmlFor='root-password' className='control-label'>
+                    {_("Root Password")}
+                </label>
+                <FormGroup validationState={validationStatePassword} bsClass='form-group ct-validation-wrapper' controlId='root-password'>
+                    <Password id='root-password' onValueChanged={(value) => onValueChanged('rootPassword', value)} />
+                    <HelpBlock>
+                        <p className="text-danger">{validationFailed.password}</p>
+                        {profile == 'desktop' && <p className="text-info">{_("Leave the password blank if you do not wish to have a root account created")}</p>}
+                    </HelpBlock>
+                </FormGroup>
+                {profile == 'desktop' && <>
+                    <label htmlFor='user-password' className='control-label'>
+                        {cockpit.format(_("Password for $0"), permission.user.name)}
+                    </label>
+                    <FormGroup validationState={validationStatePassword} bsClass='form-group ct-validation-wrapper' controlId='user-password'>
+                        <Password id='user-password' onValueChanged={(value) => onValueChanged('userPassword', value)} />
+                        <HelpBlock>
+                            <p className="text-danger">{validationFailed.password}</p>
+                            <p className="text-info">{_("Leave the password blank if you do not wish to have a user account created")}</p>
+                        </HelpBlock>
+                    </FormGroup>
+                </>}
+                <hr />
+            </> : <span />}
+        </>
+    );
+};
+
 const MemoryRow = ({ memorySize, memorySizeUnit, nodeMaxMemory, recommendedMemory, minimumMemory, onValueChanged, validationFailed }) => {
     const validationStateMemory = validationFailed.memory ? 'error' : undefined;
     return (
@@ -505,6 +580,7 @@ class CreateVmModal extends React.Component {
             vmName: '',
             connectionName: LIBVIRT_SYSTEM_CONNECTION,
             sourceType: defaultSourceType,
+            unattendedInstallation: false,
             source: '',
             os: undefined,
             memorySize: Math.min(convertToUnit(1024, units.MiB, units.GiB), // tied to Unit
@@ -520,6 +596,8 @@ class CreateVmModal extends React.Component {
             minimumMemory: 0,
             recommendedStorage: undefined,
             minimumStorage: 0,
+            userPassword: '',
+            rootPassword: '',
         };
         this.onCreateClicked = this.onCreateClicked.bind(this);
         this.onValueChanged = this.onValueChanged.bind(this);
@@ -540,14 +618,16 @@ class CreateVmModal extends React.Component {
                 const onOsAutodetect = (os) => {
                     this.setState({ autodetectOSInProgress: true });
                     autodetectOS(os)
-                            .then(res => {
-                                const osEntry = this.props.osInfoList.filter(osEntry => osEntry.id == res);
+                            .then(resJSON => {
+                                const res = JSON.parse(resJSON);
+                                const osEntry = this.props.osInfoList.filter(osEntry => osEntry.id == res.os);
 
                                 if (osEntry && osEntry[0]) {
                                     this.setState({
                                         autodetectOSInProgress: false,
                                     });
                                     this.onValueChanged('os', osEntry[0]);
+                                    this.onValueChanged('sourceMediaID', res.media);
                                 }
                             }, ex => {
                                 console.log("osinfo-detect command failed: ", ex.message);
@@ -639,6 +719,9 @@ class CreateVmModal extends React.Component {
             if (value && value.minimumResources.ram)
                 stateDelta.minimumMemory = value.minimumResources.ram;
 
+            if (value && value.profiles)
+                stateDelta.profile = value.profiles.sort().reverse()[0];
+
             if (value && value.recommendedResources.ram) {
                 stateDelta.recommendedMemory = value.recommendedResources.ram;
                 const converted = Math.floor(convertToUnit(stateDelta.recommendedMemory, units.B, this.state.memorySizeUnit));
@@ -663,9 +746,14 @@ class CreateVmModal extends React.Component {
             } else {
                 stateDelta.recommendedStorage = undefined;
             }
+            if (!value.unattendedInstallable)
+                this.onValueChanged('unattendedInstallation', false);
             this.setState(stateDelta);
             break;
         }
+        case 'unattendedInstallation':
+            this.setState({ unattendedInstallation: value, startVm: true });
+            break;
         default:
             this.setState({ [key]: value });
             break;
@@ -690,11 +778,15 @@ class CreateVmModal extends React.Component {
                 source: this.state.source,
                 sourceType: this.state.sourceType,
                 os: this.state.os ? this.state.os.shortId : 'auto',
+                profile: this.state.profile,
                 memorySize: convertToUnit(this.state.memorySize, this.state.memorySizeUnit, units.MiB),
                 storageSize: convertToUnit(this.state.storageSize, this.state.storageSizeUnit, units.GiB),
                 storagePool: this.state.storagePool,
                 storageVolume: this.state.storageVolume,
                 startVm: this.state.startVm,
+                unattended: this.state.unattendedInstallation,
+                userPassword: this.state.userPassword,
+                rootPassword: this.state.rootPassword,
             };
 
             return timeoutedPromise(
@@ -722,6 +814,32 @@ class CreateVmModal extends React.Component {
     render() {
         const { nodeMaxMemory, nodeDevices, networks, osInfoList, loggedUser, providerName, storagePools, vms } = this.props;
         const validationFailed = this.state.validate && validateParams({ ...this.state, osInfoList, vms: vms.filter(vm => vm.connectionName == this.state.connectionName) });
+        let startVmCheckbox = (
+            <label className="checkbox-inline">
+                <input id="start-vm" type="checkbox"
+                    checked={this.state.startVm}
+                    disabled={this.state.unattendedInstallation}
+                    onChange={e => this.onValueChanged('startVm', e.target.checked)} />
+                {_("Immediately Start VM")}
+            </label>
+        );
+        if (this.state.unattendedInstallation) {
+            startVmCheckbox = (
+                <OverlayTrigger overlay={ <Tooltip id='virt-install-not-available-tooltip'>{ _("Setting the user passwords for unattended installation requires starting the VM when creating it") }</Tooltip> } placement='left'>
+                    {startVmCheckbox}
+                </OverlayTrigger>
+            );
+        }
+
+        let unattendedDisabled = true;
+        if ((this.state.sourceType == URL_SOURCE || this.state.sourceType == LOCAL_INSTALL_MEDIA_SOURCE) && this.state.os) {
+            if (this.state.os.medias && this.state.sourceMediaID in this.state.os.medias)
+                unattendedDisabled = !this.state.os.medias[this.state.sourceMediaID].unattendedInstallable;
+            else
+                unattendedDisabled = !this.state.os.unattendedInstallable;
+        } else if (this.state.sourceType == DOWNLOAD_AN_OS) {
+            unattendedDisabled = !this.state.os || !this.state.os.unattendedInstallable;
+        }
 
         const dialogBody = (
             <form className="ct-form">
@@ -793,12 +911,21 @@ class CreateVmModal extends React.Component {
 
                 <hr />
 
-                <label className="checkbox-inline">
-                    <input id="start-vm" type="checkbox"
-                        checked={this.state.startVm}
-                        onChange={e => this.onValueChanged('startVm', e.target.checked)} />
-                    {_("Immediately Start VM")}
-                </label>
+                {this.state.sourceType != PXE_SOURCE &&
+                 this.state.sourceType != EXISTING_DISK_IMAGE_SOURCE &&
+                 this.props.unattendedSupported &&
+                 <>
+                     <UnattendedRow
+                         validationFailed={validationFailed}
+                         unattendedDisabled={unattendedDisabled}
+                         unattendedInstallation={this.state.unattendedInstallation}
+                         os={this.state.os}
+                         profile={this.state.profile}
+                         onValueChanged={this.onValueChanged} />
+                     <hr />
+                 </>}
+
+                {startVmCheckbox}
             </form>
         );
 
@@ -830,7 +957,12 @@ class CreateVmModal extends React.Component {
 export class CreateVmAction extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { showModal: false, virtInstallAvailable: undefined, downloadOSSupported: undefined };
+        this.state = {
+            showModal: false,
+            virtInstallAvailable: undefined,
+            downloadOSSupported: undefined,
+            unattendedSupported: undefined
+        };
         this.open = this.open.bind(this);
         this.close = this.close.bind(this);
     }
@@ -839,13 +971,13 @@ export class CreateVmAction extends React.Component {
         cockpit.spawn(['which', 'virt-install'], { err: 'message' })
                 .then(() => {
                     this.setState({ virtInstallAvailable: true });
-                    cockpit.spawn(['virt-install', '--install'], { environ: ['LC_ALL=en_US.UTF-8'], err: 'message' })
-                            .fail(err => {
-                                if (err.message.includes('unrecognized arguments'))
-                                    this.setState({ downloadOSSupported: false });
-                                else
-                                    this.setState({ downloadOSSupported: true });
-                            });
+                    cockpit.spawn(['virt-install', '--install=?'])
+                            .then(() => this.setState({ downloadOSSupported: true }),
+                                  () => this.setState({ downloadOSSupported: false }));
+
+                    cockpit.spawn(['virt-install', '--unattended=?'])
+                            .then(() => this.setState({ unattendedSupported: true }),
+                                  () => this.setState({ unattendedSupported: false }));
                 },
                       () => this.setState({ virtInstallAvailable: false }));
     }
@@ -875,8 +1007,10 @@ export class CreateVmAction extends React.Component {
         else if (this.state.downloadOSSupported === undefined)
             testdata = "disabledDownloadOS";
         let createButton = (
-            <Button disabled={!this.props.systemInfo.osInfoList || !this.state.virtInstallAvailable ||
-                              this.state.downloadOSSupported === undefined}
+            <Button disabled={!(this.props.systemInfo.osInfoList &&
+                               (this.state.virtInstallAvailable !== undefined ||
+                                   (this.state.virtInstallAvailable &&
+                                       (this.state.downloadOSSupported === undefined || this.state.unattendedSupported === undefined))))}
                     testdata={testdata}
                     id={this.props.mode == 'create' ? 'create-new-vm' : 'import-vm-disk'}
                     bsStyle='default'
@@ -915,6 +1049,7 @@ export class CreateVmAction extends React.Component {
                     osInfoList={this.props.systemInfo.osInfoList}
                     onAddErrorNotification={this.props.onAddErrorNotification}
                     downloadOSSupported={this.state.downloadOSSupported}
+                    unattendedSupported={this.state.unattendedSupported}
                     loggedUser={this.props.systemInfo.loggedUser} /> }
             </>
         );

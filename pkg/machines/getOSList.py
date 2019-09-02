@@ -7,6 +7,15 @@ import sys
 import json
 
 
+def _getInstallScriptProfile(installScriptList):
+    profiles = []
+    for i in range(installScriptList.get_length()):
+        script = installScriptList.get_nth(i)
+        profiles.append(script.get_profile())
+
+    return profiles
+
+
 loader = Libosinfo.Loader()
 loader.process_default_path()
 db = loader.get_db()
@@ -44,6 +53,37 @@ for i in range(oses.get_length()):
         storage = minimumResources.get_nth(0).get_storage()
         if storage != -1:
             osObj['minimumResources']['storage'] = storage
+
+    osObj['profiles'] = []
+    osInstallScripts = os.get_install_script_list()
+    osObj['profiles'].extend(_getInstallScriptProfile(osInstallScripts))
+
+    osObj['unattendedInstallable'] = False
+    if osInstallScripts.get_length() > 0:
+        osObj['unattendedInstallable'] = True
+
+    osObj['medias'] = {}
+    osMedias = os.get_media_list()
+    for j in range(osMedias.get_length()):
+        media = osMedias.get_nth(j)
+        mediaId = media.get_id()
+
+        osObj['medias'][mediaId] = {}
+        osObj['medias'][mediaId]['unattendedInstallable'] = False
+        osObj['medias'][mediaId]['profiles'] = []
+
+        if (osObj['unattendedInstallable'] and
+           hasattr(media, 'supports_installer_script')):
+            supports = media.supports_installer_script()
+            osObj['medias'][mediaId]['unattendedInstallable'] = supports
+
+            mediaInstallScripts = media.get_install_script_list()
+            osObj['medias'][mediaId]['profiles'].extend(
+                     _getInstallScriptProfile(mediaInstallScripts))
+
+            if supports and not osObj['medias'][mediaId]['profiles']:
+                osObj['medias'][mediaId]['profiles'].extend(osObj['profiles'])
+
     osObj['treeInstallable'] = False
     trees = os.get_tree_list()
     for j in range(trees.get_length()):

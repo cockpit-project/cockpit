@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <netinet/in.h>
+#include <sys/poll.h>
 #include <sys/socket.h>
 #include <sys/wait.h>
 
@@ -336,6 +337,49 @@ test_no_tls_many_serial (TestCase *tc, gconstpointer data)
 }
 
 static void
+test_tls_blocked_handshake (TestCase *tc, gconstpointer data)
+{
+  block_sigchld ();
+
+  pid_t pid = fork ();
+  if (pid == -1)
+    g_error ("fork failed: %m");
+
+  if (pid == 0)
+    {
+      /* child */
+      gint first_fd = do_connect (tc);
+      send_request (first_fd, "\x16"); /* start the TLS handshake */
+
+      /* Make sure the byte gets there before the next connection request */
+      sleep (1);
+
+      /* make sure we can do a second connection while the first one is
+       * blocked in the handshake
+       */
+      gint second_fd = do_connect (tc);
+      send_request (second_fd, "GET / HTTP/1.1\r\nHost: localhost\r\n\r\n");
+
+      /* wait 10 seconds for the reply */
+      struct pollfd pfd = { .fd = second_fd, .events = POLLIN };
+      g_assert_cmpint (poll (&pfd, 1, 10000), ==, 1);
+      close (second_fd);
+
+      close (first_fd);
+      exit (0);
+    }
+  else
+    {
+      /* parent */
+      int status;
+
+      while (waitpid (pid, &status, WNOHANG) <= 0)
+        server_poll_event (50);
+      g_assert_cmpint (status, ==, 0);
+    }
+}
+
+static void
 test_no_tls_many_parallel (TestCase *tc, gconstpointer data)
 {
   int i;
@@ -506,6 +550,8 @@ main (int argc, char *argv[])
               setup, test_tls_no_server_cert, teardown);
   g_test_add ("/server/tls/redirect", TestCase, &fixture_combined_crt_key,
               setup, test_tls_redirect, teardown);
+  g_test_add ("/server/tls/blocked-handshake", TestCase, &fixture_separate_crt_key,
+              setup, test_tls_blocked_handshake, teardown);
   g_test_add ("/server/mixed-protocols", TestCase, &fixture_separate_crt_key,
               setup, test_mixed_protocols, teardown);
   g_test_add ("/server/run-idle", TestCase, NULL,

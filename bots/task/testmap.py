@@ -45,6 +45,7 @@ REPO_BRANCH_CONTEXT = {
         '_manual': [
             'fedora-i386',
             'fedora-testing',
+            'fedora-31',
         ],
     },
     'cockpit-project/starter-kit': {

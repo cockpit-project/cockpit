@@ -1288,7 +1288,7 @@ export function CONSOLE_VM({
     };
 }
 
-export function CREATE_VM({ connectionName, vmName, source, sourceType, os, memorySize, storageSize, startVm, storagePool, storageVolume }) {
+export function CREATE_VM({ connectionName, vmName, source, sourceType, os, memorySize, storageSize, startVm, storagePool, storageVolume, unattended, userPassword, rootPassword, profile }) {
     logDebug(`${this.name}.CREATE_VM(${vmName}):`);
     return dispatch => {
         // shows dummy vm  until we get vm from virsh (cleans up inProgress)
@@ -1309,6 +1309,10 @@ export function CREATE_VM({ connectionName, vmName, source, sourceType, os, memo
             startVm,
             storagePool,
             storageVolume,
+            unattended,
+            userPassword,
+            rootPassword,
+            profile,
         ], { err: "message", environ: ['LC_ALL=C'] })
                 .done(() => {
                     finishVmCreateInProgress(dispatch, vmName, connectionName);

@@ -32,6 +32,7 @@ import * as plot from "plot.js";
 import * as service from "service.js";
 import { shutdown } from "./shutdown.js";
 import host_keys_script from "raw-loader!./ssh-list-host-keys.sh";
+import { page_status } from "notifications";
 
 import "form-layout.less";
 
@@ -488,7 +489,7 @@ PageServer.prototype = {
             // if system is unregistered, always show that
             if (self.unregistered) {
                 self.os_updates_icon.className = "pficon pficon-warning-triangle-o";
-                set_page_link("#system_information_updates_text", "subscriptions", _("System Not Registered"));
+                set_page_link("#system_information_updates_text", "subscriptions", _("System Does Not Receive Updates"));
                 return;
             }
 
@@ -565,6 +566,20 @@ PageServer.prototype = {
             self.unregistered = !subscribed;
             refresh_os_updates_state();
         });
+
+        function refresh_insights_state() {
+            const status = page_status.get("subscriptions") || { };
+            if (status.type) {
+                $("#insights_icon").attr("class", "pficon pficon-warning-triangle-o");
+                set_page_link("#insights_text", "subscriptions", status.title);
+                $("#insights_icon, #insights_text").show();
+            } else {
+                $("#insights_icon, #insights_text").hide();
+            }
+        }
+
+        refresh_insights_state();
+        $(page_status).on("changed", refresh_insights_state);
 
         // Only link from graphs to available pages
         set_page_link("#link-disk", "storage", _("Disk I/O"));

@@ -1911,7 +1911,7 @@ class TestMachines(NetworkCase):
             b.wait_val("#memory-size", self.memory_size)
 
             b.wait_visible("#start-vm")
-            if self.start_vm:
+            if not self.start_vm:
                 b.click("#start-vm") # TODO: fix this, do not assume initial state of the checkbox
             # b.set_checked("#start-vm", self.start_vm)
 

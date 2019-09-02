@@ -262,7 +262,7 @@ class MachinesLib(SeleniumTest):
                 self.select_by_text(self.wait_css('#storage-size-unit-select'), 'MiB')
             self.send_keys(self.wait_css('#storage-size'), storage, clear=False, ctrla=True)
 
-        if immediately_start:
+        if not immediately_start:
             self.check_box(self.wait_css('#start-vm'))
 
         self.click(self.wait_css('#create-vm-dialog .modal-footer .btn.btn-primary', cond=clickable))

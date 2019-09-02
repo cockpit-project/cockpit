@@ -515,7 +515,7 @@ class CreateVmModal extends React.Component {
             storageSizeUnit: units.GiB.name,
             storagePool: 'NewVolume',
             storageVolume: '',
-            startVm: false,
+            startVm: true,
             recommendedMemory: undefined,
             recommendedStorage: undefined,
         };

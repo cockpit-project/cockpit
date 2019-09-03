@@ -61,23 +61,24 @@ def get_refs(open_pull_requests=True, offline=False):
     refs = { }
 
     considerable = {}
+    g = github.GitHub()
     if open_pull_requests:
         if offline:
             raise Exception("Unable to consider open pull requests when in offline mode")
-        for p in github.GitHub().pulls():
-            with urllib.request.urlopen(p["patch_url"]) as f:
-                images = []
-                # enough to look at the git commit header, it lists all changed files
-                changed = f.read(4000).decode('utf-8').split("\n")
-                for line in changed:
-                    m = re.match("^ bots/images/([^\/]*)\| 2 \+\-$", line)
-                    if m:
-                        images.append(m.group(1).strip())
-                if images:
-                    sha = p["head"]["sha"]
-                    considerable[sha] = images
-                    subprocess.call(["git", "fetch", "origin", "pull/{0}/head".format(p["number"])])
-                    refs["pull request #{} ({})".format(p["number"], p["title"])] = sha
+        for p in g.pulls():
+            files = g.get("pulls/{0}/files".format(p["number"]))
+            images = []
+            for fl in files:
+                fl_name = fl['filename']
+                if fl_name.startswith("bots/images/"):
+                    fl_name_split = fl_name.split("/", 2)
+                    if "/" not in fl_name_split[2]:
+                        images.append(fl_name_split[2])
+            if images:
+                sha = p["head"]["sha"]
+                considerable[sha] = images
+                subprocess.call(["git", "fetch", "origin", "pull/{0}/head".format(p["number"])])
+                refs["pull request #{} ({})".format(p["number"], p["title"])] = sha
 
     git_cmd = "show-ref" if offline else "ls-remote"
     ref_output = subprocess.check_output(["git", git_cmd], universal_newlines=True).splitlines()

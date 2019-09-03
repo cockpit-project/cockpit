@@ -148,7 +148,7 @@ def run(image, verbose=False, **kwargs):
 
     branch = task.branch(image, "images: Update {0} image".format(image), pathspec="bots/images", **kwargs)
     if branch:
-        pull = task.pull(branch, run_tests=False, **kwargs)
+        pull = task.pull(branch, labels=['bot', 'no-test'], run_tests=False, **kwargs)
 
         # Trigger this pull request
         api = github.GitHub()
@@ -156,15 +156,6 @@ def run(image, verbose=False, **kwargs):
         for trigger in triggers:
             api.post("statuses/{0}".format(head), { "state": "pending", "context": trigger,
                 "description": github.NOT_TESTED_DIRECT })
-
-        # Wait until all of the statuses are present so the no-test label can
-        # safely be removed by the task api
-        for retry in range(20):
-            if all(status in triggers for status in api.statuses(head).keys()):
-                break
-            time.sleep(6)
-        else:
-            raise RuntimeError("Failed to confirm the presence of all triggers")
 
 if __name__ == '__main__':
     task.main(function=run, title="Refresh image")

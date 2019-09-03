@@ -1,4 +1,4 @@
 #! /bin/bash
 
 BASE=$(dirname $0)
-BOOTSTRAP_VOLUME_SIZE="20G" $BASE/virt-builder-fedora "$1" fedora-28 x86_64
+$BASE/virt-install-fedora "$1" x86_64 "http://mirror.centos.org/centos/7/os/x86_64/"

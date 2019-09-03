@@ -25,7 +25,7 @@ function docker_pull() {
 rm -f /tmp/pulledImages # will be populated by pulled images names
 
 # Cleanup the file system a bit
-rm -rf /var/cache/dnf /var/cache/yum
+rm -rf /var/cache/yum
 xfs_growfs /
 
 echo foobar | passwd --stdin root
@@ -42,17 +42,14 @@ printf "OPENSHIFT LISTENING ON LOCALHOST\n  $ ssh -NL 8443:localhost:8443 root@1
 ln -sf ../selinux/config /etc/sysconfig/selinux
 printf 'SELINUX=permissive\nSELINUXTYPE=targeted\n' > /etc/selinux/config
 setenforce 0
-systemctl stop firewalld
-dnf mark install iptables
-dnf -y remove firewalld
-iptables -F
+systemctl disable --now firewalld
 
-wait dnf -y install docker python libselinux-python
+wait yum -y install docker python libselinux-python
 
 hostnamectl set-hostname f1.cockpit.lan
 
 # Setup a nfs server
-wait dnf install -y nfs-utils
+wait yum install -y nfs-utils
 mkdir /nfsexport
 echo "/nfsexport *(rw,sync)" > /etc/exports
 
@@ -64,9 +61,9 @@ systemctl enable docker
 systemctl start docker || journalctl -u docker
 
 # Can't use latest because release on older versions are done out of order
-RELEASES_JSON=$(curl -s https://api.github.com/repos/openshift/origin/releases)
 set +x
-VERSION=$(echo "$RELEASES_JSON" | LC_ALL=C.UTF-8 python3 -c "import json, sys, distutils.version; obj=json.load(sys.stdin); releases = [x.get('tag_name', '') for x in obj if not x.get('prerelease')]; print(sorted (releases, reverse=True, key=distutils.version.LooseVersion)[0])") || {
+RELEASES_JSON=$(curl -s https://api.github.com/repos/openshift/origin/releases)
+VERSION=$(echo "$RELEASES_JSON" | LC_ALL=C.UTF-8 python -c "import json, sys, distutils.version; obj=json.load(sys.stdin); releases = [x.get('tag_name', '') for x in obj if not x.get('prerelease')]; print(sorted (releases, reverse=True, key=distutils.version.LooseVersion)[0])") || {
     echo "Failed to parse latest release:" >&2
     echo "$RELEASES_JSON" >&2
     echo "------------------------------------" >&2
@@ -111,7 +108,6 @@ WantedBy=multi-user.target
 EOF
 
 systemctl daemon-reload
-systemctl enable systemd-networkd-wait-online
 systemctl enable openshift
 systemctl start openshift || journalctl -u openshift
 
@@ -140,25 +136,6 @@ cd /tmp/
 rm -r /tmp/registry
 cp /openshift.local.config/master/ca.crt /etc/pki/ca-trust/source/anchors/openshift-ca.crt
 update-ca-trust extract
-
-# HACK: Work around GnuTLS (client-side) or Go TLS (server-side) bug with
-# multiple O= RDNs; if it's in the "wrong" order, create a new admin
-# certificate that swaps it around
-# See https://github.com/openshift/origin/issues/18715
-dnf install -y openssl
-if openssl x509 -in /openshift.local.config/master/admin.crt -text | grep -q 'Subject:.*system:cluster-admins.*system:masters'; then
-    echo "Regenerating admin certificate to work around https://github.com/openshift/origin/issues/18715"
-    pushd /openshift.local.config/master/
-    mv admin.key admin.key.orig
-    mv admin.crt admin.crt.orig
-    mv admin.kubeconfig admin.kubeconfig.orig
-    openssl genrsa -out admin.key 2048
-    openssl req -new -nodes -key admin.key -out admin.csr -subj '/O=system:masters/O=system:cluster-admins/CN=system:admin'
-    openssl x509 -req -in admin.csr -CA ca.crt -CAkey ca.key -CAcreateserial -days 730 -out admin.crt
-    rm admin.csr
-    oc adm create-kubeconfig --certificate-authority=ca.crt --client-certificate=admin.crt --client-key=admin.key --master="https://10.111.112.101:8443" --kubeconfig=admin.kubeconfig
-    popd
-fi
 
 mkdir -p /root/.kube
 cp /openshift.local.config/master/admin.kubeconfig /root/.kube/config
@@ -296,12 +273,12 @@ printf 'AuthorizedKeysCommand /usr/local/bin/authorized-kube-keys --kubeconfig=/
 # Pull down remaining images
 /var/lib/testvm/docker-images.setup
 
-dnf install -y cockpit-system
+yum install -y cockpit-system
 
 docker info
 
 # reduce image size
-dnf clean all
+yum clean all
 
 systemctl stop docker
 # write all changes before filling the disk

@@ -287,11 +287,31 @@ insecure_connection=True
         b.click(dialog_register_button_sel)
         b.wait_not_present(dialog_register_button_sel)
 
+        b.switch_to_top()
+        b.click("a[href='/system']")
+        b.enter_page("/system")
+
+        b.wait_text("#insights_text", "Not connected to Insights")
+
+        b.switch_to_top()
+        b.click("a[href='/subscriptions']")
+        b.enter_page("/subscriptions")
+
         b.click("label:contains('Insights') a:contains('Not connected')")
         b.wait_present('.modal-body:contains("This system is not connected")')
         b.click('.modal-footer button.apply')
         with b.wait_timeout(360):
             b.wait_not_present('.modal-dialog')
+
+        b.switch_to_top()
+        b.click("a[href='/system']")
+        b.enter_page("/system")
+
+        b.wait_not_visible("#insights_text")
+
+        b.switch_to_top()
+        b.click("a[href='/subscriptions']")
+        b.enter_page("/subscriptions")
 
         b.click("label:contains('Insights') a:contains('Connected to Insights')")
         b.wait_present('.modal-body:contains("Next Insights data upload")')

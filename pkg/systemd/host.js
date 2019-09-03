@@ -566,6 +566,22 @@ PageServer.prototype = {
             refresh_os_updates_state();
         });
 
+        var insights_client_timer = service.proxy("insights-client.timer");
+
+        function refresh_insights_status() {
+            const subfeats = (cockpit.manifests.subscriptions && cockpit.manifests.subscriptions.features) || { };
+            if (subfeats.insights && insights_client_timer.exists && !insights_client_timer.enabled) {
+                $("#insights_icon").attr("class", "pficon pficon-warning-triangle-o");
+                set_page_link("#insights_text", "subscriptions", _("Not connected to Insights"));
+                $("#insights_icon, #insights_text").show();
+            } else {
+                $("#insights_icon, #insights_text").hide();
+            }
+        }
+
+        $(insights_client_timer).on("changed", refresh_insights_status);
+        refresh_insights_status();
+
         // Only link from graphs to available pages
         set_page_link("#link-disk", "storage", _("Disk I/O"));
         set_page_link("#link-network", "network", _("Network Traffic"));

@@ -24,8 +24,8 @@ SELENIUM_DEPS="\
 docker \
 "
 
-dnf -y upgrade
-dnf -y install $SELENIUM_DEPS
+yum -y upgrade
+yum -y install docker
 
 systemctl disable firewalld
 
@@ -40,5 +40,5 @@ docker pull selenium/node-chrome-debug:3
 docker pull selenium/node-firefox-debug:3
 
 # reduce image size
-dnf clean all
+yum clean all
 /var/lib/testvm/zero-disk.setup

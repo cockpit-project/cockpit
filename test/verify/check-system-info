@@ -541,6 +541,21 @@ fi
         self.allow_authorize_journal_messages()
         self.allow_restart_journal_messages()
 
+    def testInsightsWarning(self):
+        m = self.machine
+        b = self.browser
+
+        # Pretend that the Subscriptions page can do Insights stuff
+        m.write("/usr/share/cockpit/subscription-manager/override.json", '{ "features": { "insights": true } }')
+
+        self.login_and_go('/system')
+
+        m.execute("systemctl disable insights-client.timer")
+        b.wait_text("#insights_text", "Not connected to Insights")
+
+        m.execute("systemctl enable insights-client.timer")
+        b.wait_not_visible("#insights_text")
+
 class TestPcp(packagelib.PackageCase):
 
     @skipImage("cockpit-system doesn't have the install-on-demand feature")
@@ -593,7 +608,6 @@ class TestPcp(packagelib.PackageCase):
         m.execute("touch /tmp/pmlogger.start")
         b.wait_present("#server-pmlogger-switch input:not(:disabled)")
         b.wait_present("#server-pmlogger-switch input:checked")
-
 
 if __name__ == '__main__':
     test_main()

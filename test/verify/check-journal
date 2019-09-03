@@ -252,6 +252,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         # Now reboot things
         m.spawn("sync && sync && sync && sleep 0.1 && reboot", "reboot")
         m.wait_reboot()
+        m.execute("timedatectl set-time '2038-01-01 00:05:00'")
         m.execute("logger -p user.err --tag check-journal AFTER BOOT")
 
         m.start_cockpit()

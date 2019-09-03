@@ -88,7 +88,7 @@ teardown (TestCase *tc, gconstpointer data)
   pid_t ws_pid = tc->ws->pid;
   g_autofree char *socket_path = g_strdup (tc->ws->socket.sun_path);
 
-  ws_instance_free (tc->ws);
+  ws_instance_free (tc->ws, true);
   /* process is not running any more */
   g_assert_cmpint (kill (ws_pid, 0), ==, -1);
   g_assert_cmpint (errno, ==, ESRCH);

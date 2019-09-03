@@ -41,5 +41,5 @@ WsInstance* ws_instance_new (const char *ws_path,
                              enum WsInstanceMode mode,
                              const gnutls_datum_t *client_cert_der,
                              const char *state_dir);
-void ws_instance_free (WsInstance *ws);
+void ws_instance_free (WsInstance *ws, bool terminate);
 bool ws_instance_has_peer_cert (WsInstance *ws, const gnutls_datum_t *der);

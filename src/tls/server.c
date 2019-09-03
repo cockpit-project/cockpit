@@ -253,7 +253,7 @@ connection_init_ws (Connection *c)
     {
       /* cockpit-ws crashed? */
       warn ("failed to connect to cockpit-ws");
-      ws_instance_free (ws);
+      ws_instance_free (ws, true);
       return;
     }
 
@@ -637,11 +637,11 @@ server_cleanup (void)
   for (WsInstance *ws = server.wss; ws; )
     {
       WsInstance *wsnext = ws->next;
-      ws_instance_free (ws);
+      ws_instance_free (ws, true);
       ws = wsnext;
     }
   if (server.ws_notls)
-    ws_instance_free (server.ws_notls);
+    ws_instance_free (server.ws_notls, true);
 
   if (server.x509_cred)
     {
@@ -768,7 +768,7 @@ server_remove_ws (pid_t ws_pid)
   debug ("server_remove_ws: pid %u is ws %s", ws_pid, ws->socket.sun_path);
 
   remove_connection (-1, ws);
-  ws_instance_free (ws);
+  ws_instance_free (ws, false);
 }
 
 unsigned

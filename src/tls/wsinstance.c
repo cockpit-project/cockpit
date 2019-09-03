@@ -205,7 +205,8 @@ ws_instance_new (const char *ws_path,
 }
 
 void
-ws_instance_free (WsInstance *ws)
+ws_instance_free (WsInstance *ws,
+                  bool        terminate)
 {
   debug ("freeing cockpit-ws instance pid %i on socket %s", ws->pid, ws->socket.sun_path);
   if (ws->peer_cert.size)
@@ -213,10 +214,14 @@ ws_instance_free (WsInstance *ws)
       gnutls_free (ws->peer_cert.data);
       gnutls_free (ws->peer_cert_info.data);
     }
-  if (ws->pid)
+
+  /* Only kill() and waitpid() the process in the case that we didn't
+   * already collect its exit status with waitpid().  This removes the
+   * theoretical possibility of calling kill() on an already-recycled
+   * pid.
+   */
+  if (terminate)
     {
-      /* this normally gets called on SIGCHLD or when connections fail, i. e.
-       * ws crashes; but make sure that we can wait() it */
       kill (ws->pid, SIGKILL);
       waitpid (ws->pid, NULL, 0);
     }

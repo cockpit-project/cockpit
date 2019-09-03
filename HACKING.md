@@ -58,7 +58,7 @@ For running integration tests, the following dependencies are required:
 
 Creating VM images locally (not necessary for running tests) needs the following:
 
-    $ sudo dnf install virt-install libguestfs-tools-c
+    $ sudo dnf install virt-install
 
 ## Building
 

@@ -21,6 +21,7 @@ import React from "react";
 
 import cockpit from "cockpit";
 import * as cockpitListing from "cockpit-components-listing.jsx";
+import { InsightsStatus } from './insights.jsx';
 
 const _ = cockpit.gettext;
 
@@ -151,6 +152,7 @@ class SubscriptionStatus extends React.Component {
 
         var label;
         var action;
+        var insights;
         var note;
         var isUnregistering = (this.props.status == "unregistering");
         if (this.props.status == 'Unknown') {
@@ -171,6 +173,8 @@ class SubscriptionStatus extends React.Component {
                     </div>
                 );
             }
+            if (this.props.insights_available)
+                insights = <InsightsStatus />;
         }
         return (
             <div className="subscription-status-ct">
@@ -178,6 +182,7 @@ class SubscriptionStatus extends React.Component {
                 {errorMessage}
                 {label}
                 {action}
+                {insights}
                 {note}
             </div>
         );

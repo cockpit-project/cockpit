@@ -24,6 +24,7 @@ import { client } from "./subscriptions-client";
 import * as subscriptionsRegister from "./subscriptions-register.jsx";
 import { SubscriptionsPage } from "./subscriptions-view.jsx";
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
+import * as Insights from './insights.jsx';
 
 const _ = cockpit.gettext;
 
@@ -37,7 +38,10 @@ function dismissStatusError() {
 var registerDialogDetails;
 
 function registerSystem () {
-    return client.registerSystem(registerDialogDetails);
+    return client.registerSystem(registerDialogDetails).then(() => {
+        if (registerDialogDetails.insights)
+            return Insights.register();
+    });
 }
 
 var footerProps = {
@@ -83,7 +87,9 @@ function openRegisterDialog() {
 }
 
 function unregisterSystem() {
-    client.unregisterSystem();
+    Insights.unregister()
+            .catch(() => true)
+            .then(client.unregisterSystem);
 }
 
 function initStore(rootElement) {
@@ -100,7 +106,8 @@ function initStore(rootElement) {
             SubscriptionsPage,
             {
                 status: client.subscriptionStatus.status,
-                products:client.subscriptionStatus.products,
+                products: client.subscriptionStatus.products,
+                insights_available: client.insightsAvailable,
                 error: client.subscriptionStatus.error,
                 dismissError: dismissStatusError,
                 register: openRegisterDialog,

@@ -378,6 +378,19 @@ client.getSubscriptionStatus = function() {
             });
 };
 
+client.setError = (_, message) => {
+    client.subscriptionStatus.error = message;
+    needRender();
+};
+
+client.insightsAvailable = false;
+
+const detectInsights = () => {
+    return cockpit.spawn([ "which", "insights-client" ], { err: "ignore" }).then(
+        () => { client.insightsAvailable = true },
+        () => { client.insightsAvailable = false });
+};
+
 client.init = function() {
     service = cockpit.dbus('com.redhat.SubscriptionManager');
 
@@ -413,5 +426,5 @@ client.init = function() {
     );
 
     // get initial status
-    requestUpdate();
+    detectInsights().then(requestUpdate);
 };

@@ -119,13 +119,29 @@ class TestSubscriptions(MachineCase):
         args = {"addr": "10.111.113.5"}
         m.execute(script=WAIT_SCRIPT % args)
 
+        m.write("/etc/insights-client/insights-client.conf",
+"""
+[insights-client]
+gpg=False
+auto_config=False
+base_url=127.0.0.1:8888/r/insights
+username=admin
+password=foobar
+insecure_connection=True
+""")
+
+        m.upload([ "verify/files/mock-insights" ], "/var/tmp")
+        m.spawn("/var/tmp/mock-insights", "mock-insights")
+
     def testRegister(self):
         b = self.browser
 
         self.login_and_go("/subscriptions")
 
+        register_button_sel = "label:contains('Status') + button:contains('Register')"
+        unregister_button_sel = "label:contains('Status') + button:contains('Unregister')"
+
         # wait until we can open the registration dialog
-        register_button_sel = "button.btn-primary:contains('Register')"
         b.click(register_button_sel)
 
         b.wait_visible("#subscription-register-url")
@@ -205,7 +221,6 @@ class TestSubscriptions(MachineCase):
         b.click(product_selector)
 
         # unregister
-        unregister_button_sel = "button.btn-primary:contains('Unregister')"
         b.click(unregister_button_sel)
 
         # wait until we can register again and open the dialog
@@ -255,6 +270,82 @@ class TestSubscriptions(MachineCase):
         b.wait_in_text(".curtains-ct h1", "current user isn't allowed to access system subscription")
         self.allow_authorize_journal_messages()
 
+    def testInsights(self):
+        b = self.browser
+
+        self.login_and_go("/subscriptions")
+
+        b.click("label:contains('Status') + button:contains('Register')")
+        b.wait_visible("#subscription-register-url")
+
+        b.set_val("#subscription-register-url", "custom")
+        b.set_input_text("#subscription-register-url-custom", "10.111.113.5:8443/candlepin")
+        b.set_input_text("#subscription-register-username", "admin")
+        b.set_input_text("#subscription-register-password", "admin")
+        b.set_input_text("#subscription-register-org", "admin")
+        dialog_register_button_sel = "div.modal-footer .btn-primary"
+        b.click(dialog_register_button_sel)
+        b.wait_not_present(dialog_register_button_sel)
+
+        b.click("label:contains('Insights') a:contains('Not connected')")
+        b.wait_present('.modal-body:contains("This system is not connected")')
+        b.click('.modal-footer button.apply')
+        with b.wait_timeout(360):
+            b.wait_not_present('.modal-dialog')
+
+        b.click("label:contains('Insights') a:contains('Connected to Insights')")
+        b.wait_present('.modal-body:contains("Next Insights data upload")')
+        b.wait_present('.modal-body:contains("Last Insights data upload")')
+        b.wait_not_present('.modal-body:contains("unknown")')
+
+        b.click("a:contains('Disconnect from Insights')")
+        b.click("button:contains('Disconnect from Insights')")
+        b.wait_not_present('.modal-dialog')
+
+        b.wait_present("label:contains('Insights') a:contains('Not connected')")
+
+    def testSubAndInAndFail(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/subscriptions")
+
+        b.click("label:contains('Status') + button:contains('Register')")
+        b.wait_visible("#subscription-register-url")
+
+        b.set_val("#subscription-register-url", "custom")
+        b.set_input_text("#subscription-register-url-custom", "10.111.113.5:8443/candlepin")
+        b.set_input_text("#subscription-register-username", "admin")
+        b.set_input_text("#subscription-register-password", "admin")
+        b.set_input_text("#subscription-register-org", "admin")
+        b.set_checked("#subscription-insights", True)
+        dialog_register_button_sel = "div.modal-footer .btn-primary"
+        b.click(dialog_register_button_sel)
+        with b.wait_timeout(360):
+            b.wait_not_present(dialog_register_button_sel)
+
+        b.wait_present("label:contains('Insights') a:contains('Connected to Insights')")
+
+        # Break the next upload and expect the warning triangle to tell us about it
+        m.execute("mv /etc/insights-client/machine-id /etc/insights-client/machine-id.lost")
+        m.execute("systemctl start insights-client")
+
+        b.wait_present("label:contains('Insights') i.pficon-warning-triangle-o")
+
+        b.click("label:contains('Insights') a:contains('Connected to Insights')")
+        b.wait_present('.modal-body:contains("The last Insights data upload has failed")')
+        b.click("button.cancel")
+
+        # Unbreak it and retry
+        m.execute("mv /etc/insights-client/machine-id.lost /etc/insights-client/machine-id")
+        m.execute("systemctl start insights-client; while systemctl --quiet is-active insights-client; do sleep 1; done",
+                  timeout=360)
+
+        b.wait_not_present("label:contains('Insights') i.pficon-warning-triangle-o")
+
+        b.click("label:contains('Status') + button:contains('Unregister')")
+        b.wait_not_present("label:contains('Insights')")
+        m.execute("test -f /etc/insights-client/.unregistered")
 
 if __name__ == '__main__':
     test_main()

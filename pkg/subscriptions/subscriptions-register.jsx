@@ -18,10 +18,12 @@
  */
 
 import React from "react";
-
 import cockpit from "cockpit";
 
 import * as Select from "cockpit-components-select.jsx";
+
+import { client } from "./subscriptions-client";
+import * as Insights from './insights.jsx';
 
 const _ = cockpit.gettext;
 
@@ -37,6 +39,8 @@ export function defaultSettings() {
         password: '',
         activationKeys: '',
         org: '',
+        insights: false,
+        insights_available: client.insightsAvailable
     };
 }
 /* Subscriptions: registration dialog body
@@ -98,6 +102,28 @@ export class DialogBody extends React.Component {
                 </table>
             ];
         }
+
+        var insights;
+        if (this.props.insights_available) {
+            insights =
+                <tr>
+                    <td className="top">
+                        <label className="control-label" htmlFor="subscription-insights">
+                            {_("Insights")}
+                        </label>
+                    </td>
+                    <td>
+                        <label key="1" className="checkbox-inline">
+                            <input id="subscription-insights" type="checkbox" checked={this.props.insights}
+            onChange={this.props.onChange.bind(this, 'insights')} />
+                            <span>
+                                { Insights.fmt_to_fragments(_("Connect this system to $0."), Insights.link) }
+                            </span>
+                        </label>
+                    </td>
+                </tr>;
+        }
+
         var urlEntries = {
             'default': _("Default"),
             'custom': _("Custom URL"),
@@ -186,6 +212,7 @@ export class DialogBody extends React.Component {
                                        onChange={this.props.onChange.bind(this, 'org')} />
                             </td>
                         </tr>
+                        { insights }
                     </tbody>
                 </table>
             </div>

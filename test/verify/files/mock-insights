@@ -1,0 +1,86 @@
+#! /usr/bin/python3
+
+# This is just enough of the Insights REST API to make the following
+# work:
+#
+#   insights-client --register
+#   insights-client --status
+#   insights-client --unregister
+#
+# You need these in your insights-client.conf:
+#
+# gpg=False
+# auto_config=False
+# base_url=127.0.0.1:8888/r/insights
+# insecure_connection=True
+
+from http.server import *
+import json
+
+systems = { }
+
+class handler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        if self.path == "/r/insights/":
+            self.send_response(200)
+            self.end_headers()
+            self.wfile.write(b"lub-dup")
+        elif self.path.endswith("/static/core/insights-core.egg"):
+            self.send_response(304)
+            self.end_headers()
+        elif self.path.endswith("/static/uploader.v2.json"):
+            # This is not a valid response and will cause the client
+            # to fall back to the builtin rules.
+            self.send_response(200)
+            self.end_headers()
+            self.wfile.write(b"{ }\n")
+        elif "/systems/" in self.path:
+            machine_id = self.path.split("/")[-1]
+            self.send_response(200)
+            self.end_headers()
+            if machine_id in systems:
+                self.wfile.write(json.dumps(systems[machine_id]).encode('utf-8') + b"\n")
+            else:
+                self.wfile.write(b"{ }\n")
+        elif self.path.endswith("/branch_info"):
+            self.send_response(200)
+            self.end_headers()
+            self.wfile.write(b'{ "remote_branch": -1, "remote_leaf": -1 }\n')
+        else:
+            self.send_response(404)
+            self.end_headers()
+
+    def do_POST(self):
+        len = int(self.headers.get('content-length', 0))
+        data = self.rfile.read(len)
+        if self.path.endswith("/systems"):
+            s = json.loads(data)
+            s["unregistered_at"] = None
+            s["account_number"] = "123456"
+            print(s)
+            systems[s["machine_id"]] = s
+            self.send_response(200)
+            self.end_headers()
+            self.wfile.write(data)
+        elif "/uploads/" in self.path:
+            self.send_response(200)
+            self.end_headers()
+            self.wfile.write(b'{ "reports": [ "foo", "bar" ] }\n')
+        else:
+            self.send_response(404)
+            self.end_headers()
+
+    def do_DELETE(self):
+        if "/systems/" in self.path:
+            machine_id = self.path.split("/")[-1]
+            self.send_response(200)
+            self.end_headers()
+            if machine_id in systems:
+                del systems[machine_id]
+        self.send_response(200)
+        self.end_headers()
+
+def insights_server(port):
+    HTTPServer(('', port), handler).serve_forever()
+
+insights_server(8888)

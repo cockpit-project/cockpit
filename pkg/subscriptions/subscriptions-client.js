@@ -251,6 +251,7 @@ client.unregisterSystem = function() {
             })
             .done(function(output) {
                 dfd.resolve();
+                requestUpdate();
             })
             .fail(function(ex) {
                 if (ex.problem === "cancelled") {

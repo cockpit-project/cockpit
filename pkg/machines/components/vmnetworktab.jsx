@@ -29,7 +29,7 @@ import { changeNetworkState, getVm } from "../actions/provider-actions.js";
 import { rephraseUI, vmId } from "../helpers.js";
 import EditNICAction from './nicEdit.jsx';
 import WarningInactive from './warningInactive.jsx';
-import './nicEdit.css';
+import './nic.css';
 import { vmInterfaceAddresses } from '../libvirt-dbus.js';
 
 const _ = cockpit.gettext;
@@ -234,14 +234,23 @@ class VmNetworkTab extends React.Component {
         });
 
         return (
-            <Table className='machines-network-list'
-                aria-label={`VM ${vm.name} Network Interface Cards`}
-                variant='compact'
-                cells={columnTitles}
-                rows={rows}>
-                <TableHeader />
-                <TableBody />
-            </Table>
+            <div className="machines-network-list">
+                {(config.provider.name === "LibvirtDBus") &&
+                <AddNICAction dispatch={dispatch}
+                    idPrefix={`${id}-add-iface`}
+                    vm={vm}
+                    networks={networks}
+                    provider={config.provider}
+                    nodeDevices={nodeDevices}
+                    interfaces={interfaces} />}
+                <Table aria-label={`VM ${vm.name} Network Interface Cards`}
+                    variant='compact'
+                    cells={columnTitles}
+                    rows={rows}>
+                    <TableHeader />
+                    <TableBody />
+                </Table>
+            </div>
         );
     }
 }

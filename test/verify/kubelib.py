@@ -753,8 +753,8 @@ class OpenshiftCommonTests(VolumeTests):
 
         # We can accept the key
         b.click("#troubleshoot-dialog .btn-primary")
-        b.wait_in_text("#troubleshoot-dialog", 'Log in to')
-        b.click("#troubleshoot-dialog .modal-footer .btn-default")
+        b.wait_in_text("#troubleshoot-dialog", 'log into')
+        b.click("#troubleshoot-dialog .modal-footer .btn-primary")
         b.wait_in_text(".curtains-ct", "Login failed")
 
         # Refreshing keeps our key

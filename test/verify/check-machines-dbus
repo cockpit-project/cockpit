@@ -1560,5 +1560,151 @@ class TestMachinesDBus(machineslib.TestMachines):
             remove=True,
         ).execute()
 
+
+    def testNICAdd(self):
+        b = self.browser
+        m = self.machine
+
+        self.startVm("subVmTest1")
+
+        self.login_and_go("/machines")
+        b.wait_in_text("body", "Virtual Machines")
+
+        b.click("tbody tr[data-row-id=vm-subVmTest1] th")
+        b.click("#vm-subVmTest1-networks") # open the Network Interfaces subtab
+
+        # Shut off domain
+        b.click("#vm-subVmTest1-off-caret")
+        b.click("#vm-subVmTest1-forceOff")
+        b.wait_in_text("#vm-subVmTest1-state", "shut off")
+
+        class NICAddDialog(object):
+            def __init__(
+                # We have always have to specify mac and source_type to identify the device in xml and $virsh detach-interface
+                self, test_obj, source_type="Direct attachment", source=None, model=None,
+                permanent=False, mac="52:54:00:a5:f8:c0", remove=True,
+            ):
+                self.test_obj = test_obj
+                self.source_type = source_type
+                self.source = source
+                self.model = model
+                self.permanent = permanent
+                self.mac = mac
+                self.remove = remove
+
+            def execute(self):
+                self.open()
+                self.fill()
+                self.create()
+                self.verify()
+                self.verify_overview()
+                if self.remove:
+                    self.cleanup()
+
+            def open(self):
+                b.click("#vm-subVmTest1-add-iface-button") # open the Network Interfaces subtab
+                b.wait_in_text(".modal-dialog .modal-header .modal-title", "Add Virtual Network Interface")
+
+            def fill(self):
+                b.select_from_dropdown("#vm-subVmTest1-add-iface-select-type", self.source_type)
+                if self.source:
+                    b.select_from_dropdown("#vm-subVmTest1-add-iface-select-source", self.source)
+                if self.model:
+                    b.select_from_dropdown("#vm-subVmTest1-add-iface-select-model", self.model, substring=True)
+
+                b.wait_present("#vm-subVmTest1-add-iface-mac:disabled")
+                if self.mac:
+                    b.click("#vm-subVmTest1-add-iface-set-mac")
+                    b.set_input_text("#vm-subVmTest1-add-iface-mac", self.mac)
+
+                if self.permanent:
+                    b.click("#vm-subVmTest1-add-iface-permanent")
+
+            def cancel(self):
+                b.click(".modal-footer button:contains(Cancel)")
+                b.wait_not_present("#vm-subVmTest1-add-iface-dialog")
+
+            def create(self):
+                b.click(".modal-footer button:contains(Add)")
+
+                b.wait_not_present("#vm-subVmTest1-add-iface-dialog")
+
+            def verify(self):
+                # Verify libvirt XML
+                dom_xml = "virsh -c qemu:///system dumpxml --domain {0}".format("subVmTest1")
+                mac_string = '"{0}"'.format(self.mac)
+                xmllint_element = "{0} | xmllint --xpath 'string(//domain/devices/interface[starts-with(mac/@address,{1})]/{{prop}})' - 2>&1 || true".format(dom_xml, mac_string)
+
+                if (self.source_type == "Virtual network"):
+                    self.test_obj.assertEqual("network", m.execute(xmllint_element.format(prop='@type')).strip())
+                    if self.source:
+                        self.test_obj.assertEqual(self.source, m.execute(xmllint_element.format(prop='source/@network')).strip())
+                elif (self.source_type == "Direct attachment"):
+                    self.test_obj.assertEqual("direct", m.execute(xmllint_element.format(prop='@type')).strip())
+                    if self.source:
+                        self.test_obj.assertEqual(self.source, m.execute(xmllint_element.format(prop='source/@dev')).strip())
+
+                if (self.model):
+                    self.test_obj.assertEqual(self.model, m.execute(xmllint_element.format(prop='model/@type')).strip())
+
+            def verify_overview(self):
+                # The first NIC is default, our new NIC is second in row
+                if (self.source_type == "Virtual network"):
+                    b.wait_in_text("#vm-subVmTest1-network-2-type", "network")
+                elif (self.source_type == "Direct attachment"):
+                    b.wait_in_text("#vm-subVmTest1-network-2-type", "direct")
+                if self.model:
+                    b.wait_in_text("#vm-subVmTest1-network-2-model", self.model)
+                if self.source:
+                    b.wait_in_text("#vm-subVmTest1-network-2-source", self.source)
+                if self.mac:
+                    b.wait_in_text("#vm-subVmTest1-network-2-mac", self.mac)
+
+            def cleanup(self):
+                source_type = "direct"
+                if (self.source_type == "Virtual network"):
+                    source_type = "network"
+                m.execute("virsh detach-interface --mac {0} --domain subVmTest1 --type {1} --config".format(self.mac, source_type))
+
+                # we don't get any signal for interface detaching right now
+                b.reload()
+                b.enter_page('/machines')
+                b.wait_in_text("body", "Virtual Machines")
+                b.click("tbody tr[data-row-id=vm-subVmTest1] th")
+                b.click("#vm-subVmTest1-networks") # open the Network Interfaces subtab
+
+        # Test network type source
+        m.execute("echo \"{0}\" > /tmp/xml && virsh net-define /tmp/xml && virsh net-start test_network".format(TEST_NETWORK_XML))
+        NICAddDialog(
+            self,
+            source_type="Virtual network",
+            source="test_network",
+        ).execute()
+
+        # Test Direct attachment
+        NICAddDialog(
+            self,
+            source_type="Direct attachment",
+        ).execute()
+
+        # Test model
+        NICAddDialog(
+            self,
+            model="e1000e",
+        ).execute()
+
+        # Test permanent attachment to running VM
+        b.click("#vm-subVmTest1-run")
+        b.wait_in_text("#vm-subVmTest1-state", "running")
+
+        NICAddDialog(
+            self,
+            permanent=True,
+        ).execute()
+
+        b.click("#vm-subVmTest1-off-caret")
+        b.click("#vm-subVmTest1-forceOff")
+        b.wait_in_text("#vm-subVmTest1-state", "shut off")
+
 if __name__ == '__main__':
     test_main()

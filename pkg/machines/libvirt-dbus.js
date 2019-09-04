@@ -61,6 +61,7 @@ import {
 
 import {
     getDiskXML,
+    getIfaceXML,
     getNetworkXML,
     getPoolXML,
     getVolumeXML
@@ -201,16 +202,9 @@ LIBVIRT_DBUS_PROVIDER = {
         hotplug,
         cacheMode,
     }) {
-        let flags = Enum.VIR_DOMAIN_AFFECT_CURRENT;
-        if (hotplug)
-            flags |= Enum.VIR_DOMAIN_AFFECT_LIVE;
-        if (permanent)
-            flags |= Enum.VIR_DOMAIN_AFFECT_CONFIG;
-
         const xmlDesc = getDiskXML(poolName, volumeName, format, target, cacheMode);
 
-        // Error handling is done from the calling side
-        return () => call(connectionName, vmId, 'org.libvirt.Domain', 'AttachDevice', [xmlDesc, flags], TIMEOUT);
+        return attachDevice({ connectionName, vmId, permanent, hotplug, xmlDesc });
     },
 
     CHANGE_BOOT_ORDER({
@@ -1261,6 +1255,17 @@ function call(connectionName, objectPath, iface, method, args, opts) {
     return dbus_client(connectionName).call(objectPath, iface, method, args, opts);
 }
 
+function attachDevice({ connectionName, vmId, permanent, hotplug, xmlDesc }) {
+    let flags = Enum.VIR_DOMAIN_AFFECT_CURRENT;
+    if (hotplug)
+        flags |= Enum.VIR_DOMAIN_AFFECT_LIVE;
+    if (permanent)
+        flags |= Enum.VIR_DOMAIN_AFFECT_CONFIG;
+
+    // Error handling is done from the calling side
+    return call(connectionName, vmId, 'org.libvirt.Domain', 'AttachDevice', [xmlDesc, flags], TIMEOUT);
+}
+
 /**
  * Returns updated XML description of the network interface specified by mac address.
  * @param  {String} domXml      Domain XML description.
@@ -1339,6 +1344,12 @@ function updateNetworkIface({ domXml, networkMac, networkState, networkModelType
     }
     console.warn("Can't update network interface element in domXml");
     return null;
+}
+
+export function attachIface({ connectionName, vmId, mac, permanent, hotplug, sourceType, source, model }) {
+    const xmlDesc = getIfaceXML(sourceType, source, model, mac);
+
+    return attachDevice({ connectionName, vmId, permanent, hotplug, xmlDesc });
 }
 
 export function changeNetworkAutostart(network, autostart, dispatch) {

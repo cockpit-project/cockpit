@@ -101,15 +101,22 @@ test_tls_session (void)
 static void
 test_read_write (void)
 {
-  int client_fds[2];
-  int ws_fds[2];
+  int client_fds[2]; /* [Connection client fd, our 'browser' client fd] */
+  int ws_fds[2];     /* [Connection ws fd, our 'ws' side fd] */
+  int sendbuf;
   char buffer[10];
   const char *msg = "hello";
   const size_t msglen = strlen (msg);
+  char bigmsg[16384];
   Connection *c;
 
-  g_assert_cmpint (socketpair (AF_UNIX, SOCK_STREAM, 0, client_fds), ==, 0);
-  g_assert_cmpint (socketpair (AF_UNIX, SOCK_STREAM, 0, ws_fds), ==, 0);
+  g_assert_cmpint (socketpair (AF_UNIX, SOCK_STREAM | SOCK_NONBLOCK, 0, client_fds), ==, 0);
+  g_assert_cmpint (socketpair (AF_UNIX, SOCK_STREAM | SOCK_NONBLOCK, 0, ws_fds), ==, 0);
+
+  /* limit socket buffer size, so that we can test partial writes */
+  sendbuf = 4096;
+  g_assert_cmpint (setsockopt (ws_fds[0], SOL_SOCKET, SO_SNDBUF, &sendbuf, sizeof (sendbuf)), ==, 0);
+
   c = connection_new (client_fds[0]);
   g_assert (c);
   c->ws_fd = ws_fds[0];
@@ -149,6 +156,39 @@ test_read_write (void)
   g_assert_cmpstr (buffer, ==, msg);
 
   g_assert_cmpint (connection_read (c, WS), ==, RETRY);
+
+  /* test partial writes: send a large block */
+  memset (bigmsg, 42, sizeof (bigmsg));
+  g_assert_cmpint (send (client_fds[1], bigmsg, sizeof (bigmsg), 0), ==, sizeof (bigmsg));
+  g_assert_cmpint (connection_read (c, CLIENT), ==, SUCCESS);
+  g_assert_cmpint (c->buf_client.length, ==, sizeof (bigmsg));
+  /* write from client to ws should be partial due to our SO_SNDBUF from above */
+  g_assert_cmpint (connection_write (c, CLIENT), ==, PARTIAL);
+  g_assert_cmpint (c->buf_client.offset, >, 0);
+  g_assert_cmpint (c->buf_client.offset, <, sizeof (bigmsg));
+  /* flush the bigmsg to ws */
+  while (c->buf_client.offset > 0)
+    {
+      int len;
+
+      ConnectionResult r = connection_write (c, CLIENT);
+      if (r != SUCCESS && r != RETRY)
+        g_assert_cmpint (r, ==, PARTIAL);
+
+      for (;;)
+        {
+          len = recv (ws_fds[1], buffer, sizeof (buffer), 0);
+          if (len < 0)
+            {
+              g_assert_cmpint (errno, ==, EAGAIN);
+              break;
+            }
+          /* we never expect 0 here, as that'd be EOF */
+          g_assert_cmpint (len, >, 0);
+          /* the buffer is full of 42 bytes, compare the current slice */
+          g_assert_cmpint (memcmp (buffer, bigmsg, len), ==, 0);
+        }
+    }
 
   /* EOF detection */
   close (client_fds[1]);

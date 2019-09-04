@@ -27,6 +27,34 @@ export function getDiskXML(poolName, volumeName, format, target, cacheMode) {
     return new XMLSerializer().serializeToString(doc.documentElement);
 }
 
+export function getIfaceXML(sourceType, source, model, mac) {
+    const doc = document.implementation.createDocument('', '', null);
+
+    const ifaceElem = doc.createElement('interface');
+    ifaceElem.setAttribute('type', sourceType);
+
+    const sourceElem = doc.createElement('source');
+    if (sourceType === "network")
+        sourceElem.setAttribute('network', source);
+    else
+        sourceElem.setAttribute('dev', source);
+    ifaceElem.appendChild(sourceElem);
+
+    if (mac) {
+        const macElem = doc.createElement('mac');
+        macElem.setAttribute('address', mac);
+        ifaceElem.appendChild(macElem);
+    }
+
+    const modelElem = doc.createElement('model');
+    modelElem.setAttribute('type', model);
+    ifaceElem.appendChild(modelElem);
+
+    doc.appendChild(ifaceElem);
+
+    return new XMLSerializer().serializeToString(doc.documentElement);
+}
+
 export function getNetworkXML({ name, forwardMode, physicalDevice, ipv4, netmask, ipv6, prefix, ipv4DhcpRangeStart, ipv4DhcpRangeEnd, ipv6DhcpRangeStart, ipv6DhcpRangeEnd }) {
     const doc = document.implementation.createDocument('', '', null);
 

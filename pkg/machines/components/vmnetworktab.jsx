@@ -27,6 +27,7 @@ import {
 import cockpit from 'cockpit';
 import { changeNetworkState, getVm } from "../actions/provider-actions.js";
 import { rephraseUI, vmId } from "../helpers.js";
+import AddNICAction from './nicAdd.jsx';
 import EditNICAction from './nicEdit.jsx';
 import WarningInactive from './warningInactive.jsx';
 import './nic.css';

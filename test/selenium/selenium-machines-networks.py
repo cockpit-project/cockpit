@@ -13,22 +13,26 @@ class MachinesNetworksTestSuite(MachinesLib):
         name = "staticvm"
         self.create_vm(name)
 
-        self.machine.execute(
-            "sudo virsh attach-interface --domain {} --type network --source default --model virtio --mac 52:54:00:4b:73:5f --config --live".format(
-                name))
+        net_info = self.machine.execute('sudo virsh domiflist %s | awk \'NR>=3{if($0!="")print}\'' % name).split()
+        net_state = self.machine.execute('sudo virsh domif-getlink {} {}'.format(name, net_info[0])).split()[1]
 
-        self.click(self.wait_css('#vm-{}-networks'.format(name), cond=clickable))
-        self.wait_css('#vm-{}-network-1-type'.format(name))
-        self.wait_css('#vm-{}-network-1-type'.format(name), cond=text_in, text_='network')
-        self.wait_css('#vm-{}-network-1-source'.format(name), cond=text_in, text_='default')
-        self.wait_css('#vm-{}-network-1-state'.format(name), cond=text_in, text_='up')
-
-        self.wait_css('#vm-{}-network-2-type'.format(name))
-        self.wait_css('#vm-{}-network-2-type'.format(name), cond=text_in, text_='network')
-        self.wait_css('#vm-{}-network-2-model'.format(name), cond=text_in, text_='virtio')
-        self.wait_css('#vm-{}-network-2-mac'.format(name), cond=text_in, text_='52:54:00:4b:73:5f')
-        self.wait_css('#vm-{}-network-2-source'.format(name), cond=text_in, text_='default')
-        self.wait_css('#vm-{}-network-2-state'.format(name), cond=text_in, text_='up')
+        self.click(self.wait_css('#vm-{}-networks'.format(name),
+                                 cond=clickable))
+        self.wait_css('#vm-{}-network-1-type'.format(name),
+                      cond=text_in,
+                      text_=net_info[1])
+        self.wait_css('#vm-{}-network-1-model'.format(name),
+                      cond=text_in,
+                      text_=net_info[3])
+        self.wait_css('#vm-{}-network-1-source'.format(name),
+                      cond=text_in,
+                      text_=net_info[2])
+        self.wait_css('#vm-{}-network-1-mac'.format(name),
+                      cond=text_in,
+                      text_=net_info[4])
+        self.wait_css('#vm-{}-network-1-state'.format(name),
+                      cond=text_in,
+                      text_=net_state)
 
     def testNetworkPlug(self):
         name = "staticvm"

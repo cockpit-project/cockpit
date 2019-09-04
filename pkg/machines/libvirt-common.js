@@ -1254,8 +1254,8 @@ export function GET_OS_INFO_LIST () {
                 parseOsInfoList(dispatch, osList);
             })
             .fail((exception, data) => {
-                parseOsInfoList(dispatch, '');
                 console.error(`get os list returned error: "${JSON.stringify(exception)}", data: "${JSON.stringify(data)}"`);
+                parseOsInfoList(dispatch, '[]');
             });
 }
 

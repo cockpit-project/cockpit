@@ -139,7 +139,7 @@ class MachinesDisksTestSuite(MachinesLib):
         self.click(self.wait_css('#vm-{}-disks-adddisk-dialog-add'.format(name), cond=clickable))
         self.wait_css('#vm-{}-disks-vda-device'.format(name))
         self.click(self.wait_css('#vm-{}-disks-vda-detach'.format(name), cond=clickable))
-        self.wait_css('vm-{}-disks-vda-device'.format(name), cond=invisible)
+        self.wait_css('#vm-{}-disks-vda-device'.format(name), cond=invisible)
         self.click(self.wait_css('#vm-{}-run'.format(name), cond=clickable))
         self.wait_css('#vm-{}-run'.format(name), cond=invisible)
         self.wait_css('#vm-{}-disks-vda-device'.format(name), cond=invisible)

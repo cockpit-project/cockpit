@@ -87,7 +87,8 @@ setup (TestCase *tc,
 
   /* Automatically chosen by the web server */
   g_object_get (tc->web_server, "port", &port, NULL);
-  tc->localport = g_strdup_printf ("localhost:%d", port);
+  /* HACK: this should be "localhost", but this fails on COPR; https://github.com/cockpit-project/cockpit/issues/12423 */
+  tc->localport = g_strdup_printf ("127.0.0.1:%d", port);
   if (str)
     tc->hostport = g_strdup_printf ("%s:%d", str, port);
   if (inet)

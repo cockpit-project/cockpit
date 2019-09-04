@@ -210,7 +210,7 @@ class MachinesLib(SeleniumTest):
                         name='default',
                         source_type='file',
                         source='/var/lib/libvirt/images/cirros.qcow2',
-                        operating_system='CirrOS',
+                        operating_system='CirrOS 0.4.0',
                         mem=1,
                         mem_unit='G',
                         storage=10,

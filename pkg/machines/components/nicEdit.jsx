@@ -25,142 +25,16 @@ import {
 } from 'patternfly-react';
 
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
-import * as Select from 'cockpit-components-select.jsx';
 import { getNetworkDevices } from '../helpers.js';
+import { NetworkTypeAndSourceRow, NetworkModelRow } from './nicBody.jsx';
 import {
     changeNetworkSettings,
     getVm
 } from '../actions/provider-actions.js';
 
-import './nicEdit.css';
 import 'form-layout.less';
 
 const _ = cockpit.gettext;
-
-const NetworkModelRow = ({ idPrefix, onValueChanged, dialogValues, network, osTypeArch, osTypeMachine, isRunning }) => {
-    const availableModelTypes = [
-        { name: 'virtio', desc: 'Linux, perf' },
-        { name: 'e1000e', desc: 'PCI' },
-        { name: 'e1000', desc: 'PCI, legacy' },
-        { name: 'rtl8139', desc: 'PCI, legacy' }];
-    const defaultModelType = dialogValues.networkModel;
-
-    if (osTypeArch == 'ppc64' && osTypeMachine == 'pseries') {
-        availableModelTypes.push('spapr-vlan');
-    }
-
-    return (
-        <>
-            <label className='control-label' htmlFor={`${idPrefix}-select-model`}>
-                {_("Model")}
-            </label>
-            <Select.Select id={`${idPrefix}-select-model`}
-                           onChange={value => onValueChanged('networkModel', value)}
-                           initial={defaultModelType}
-                           extraClass='form-control ct-form-split'>
-                {availableModelTypes
-                        .map(networkModel => {
-                            return (
-                                <Select.SelectEntry data={networkModel.name} key={networkModel.name}>
-                                    {networkModel.name} ({networkModel.desc})
-                                </Select.SelectEntry>
-                            );
-                        })}
-            </Select.Select>
-        </>
-    );
-};
-
-const NetworkTypeAndSourceRow = ({ idPrefix, onValueChanged, dialogValues, network, connectionName, networks, nodeDevices, interfaces }) => {
-    const defaultNetworkType = dialogValues.networkType;
-    let availableNetworkTypes = [];
-    let defaultNetworkSource = dialogValues.networkSource;
-    let availableSources = [];
-    let networkSourcesContent;
-    let networkSourceEnabled = true;
-    const networkDevices = getNetworkDevices(connectionName, nodeDevices, interfaces);
-
-    if (connectionName !== 'session')
-        availableNetworkTypes = [
-            { name: 'network', desc: 'Virtual network' },
-            { name: 'bridge', desc: 'Bridge to LAN', disabled: true },
-            { name: 'ethernet', desc: 'Generic ethernet connection', disabled: true },
-            { name: 'direct', desc: 'Direct attachment' },
-        ];
-    else
-        availableNetworkTypes = [
-            { name: 'network', desc: 'Virtual network' },
-            { name: 'user', desc: 'Userspace SLIRP stack' },
-        ];
-
-    // Bring to the first position in dropdown list the initial selection which reflects the current nic type
-    availableNetworkTypes.sort(function(x, y) { return x.name == defaultNetworkType ? -1 : y.name == defaultNetworkType ? 1 : 0 });
-
-    if (["network", "direct"].includes(dialogValues.networkType)) {
-        if (dialogValues.networkType === "network")
-            availableSources = networks.map(network => network.name);
-        else if (dialogValues.networkType === "direct")
-            availableSources = networkDevices;
-
-        if (availableSources.length > 0) {
-            networkSourcesContent = availableSources
-                    .map(networkSource => {
-                        return (
-                            <Select.SelectEntry data={networkSource} key={networkSource}>
-                                {networkSource}
-                            </Select.SelectEntry>
-                        );
-                    });
-        } else {
-            if (dialogValues.networkType === "network")
-                defaultNetworkSource = _("No Virtual Networks");
-            else if (dialogValues.networkType === "direct")
-                defaultNetworkSource = _("No Network Devices");
-
-            networkSourcesContent = (
-                <Select.SelectEntry data='empty-list' key='empty-list'>
-                    {defaultNetworkSource}
-                </Select.SelectEntry>
-            );
-            networkSourceEnabled = false;
-        }
-    }
-
-    return (
-        <>
-            <label className='control-label' htmlFor={`${idPrefix}-select-type`}>
-                {_("Interface Type")}
-            </label>
-            <Select.Select id={`${idPrefix}-select-type`}
-                           onChange={value => onValueChanged('networkType', value)}
-                           initial={defaultNetworkType}
-                           extraClass='form-control ct-form-split'>
-                {availableNetworkTypes
-                        .map(networkType => {
-                            return (
-                                <Select.SelectEntry data={networkType.name} key={networkType.name} disabled={networkType.disabled || false}>
-                                    {networkType.desc}
-                                </Select.SelectEntry>
-                            );
-                        })}
-            </Select.Select>
-            {["network", "direct"].includes(dialogValues.networkType) && (
-                <>
-                    <label className='control-label' htmlFor={`${idPrefix}-select-source`}>
-                        {_("Source")}
-                    </label>
-                    <Select.Select id={`${idPrefix}-select-source`}
-                                   onChange={value => onValueChanged('networkSource', value)}
-                                   enabled={networkSourceEnabled}
-                                   initial={defaultNetworkSource}
-                                   extraClass='form-control ct-form-split'>
-                        {networkSourcesContent}
-                    </Select.Select>
-                </>
-            )}
-        </>
-    );
-};
 
 const NetworkMacRow = ({ network }) => {
     return (
@@ -257,20 +131,16 @@ export class EditNICAction extends React.Component {
                 <NetworkTypeAndSourceRow idPrefix={idPrefix}
                                          dialogValues={this.state}
                                          onValueChanged={this.onValueChanged}
-                                         network={network}
                                          networks={networks}
                                          interfaces={interfaces}
                                          nodeDevices={nodeDevices}
-                                         connectionName={vm.connectionName}
-                                         isRunning={vm.state == 'running'} />
+                                         connectionName={vm.connectionName} />
                 <hr />
                 <NetworkModelRow idPrefix={idPrefix}
                                  dialogValues={this.state}
                                  onValueChanged={this.onValueChanged}
-                                 network={network}
                                  osTypeArch={vm.arch}
-                                 osTypeMachine={vm.emulatedMachines}
-                                 isRunning={vm.state == 'running'} />
+                                 osTypeMachine={vm.emulatedMachine} />
                 <hr />
                 <NetworkMacRow network={network} />
             </form>

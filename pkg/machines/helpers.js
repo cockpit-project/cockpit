@@ -602,6 +602,27 @@ function getVmDisksMap(vms, connectionName) {
 }
 
 /**
+ * Returns a string which represent disk target of volume in VM using the said volume.
+ *
+ * @param {object} vm
+ * @param {object} storagePool
+ * @param {string} volumeName
+ * @returns {string}
+ */
+export function getStorageVolumeDiskTarget(vm, storagePool, volumeName) {
+    const disks = vm.disks || [];
+    const targetPath = storagePool.target ? storagePool.target.path : '';
+    const volumePath = targetPath + '/' + volumeName;
+
+    for (const i in disks) {
+        const disk = disks[i];
+        if ((disk.type == 'volume' && disk.source.volume == volumeName && disk.source.pool == storagePool.name) ||
+            (disk.type == 'file' && disk.source.file == volumePath))
+            return disk.target;
+    }
+}
+
+/**
  * Returns a object of key-value pairs of Storage Volume names mapping
  * to arrays of VM names using the relevant Storage Volume
  *

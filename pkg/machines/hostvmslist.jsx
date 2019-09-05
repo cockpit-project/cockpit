@@ -94,7 +94,7 @@ class HostVmsList extends React.Component {
                             const connectionName = vm.connectionName;
 
                             return (
-                                <Vm vm={vm} config={config}
+                                <Vm vm={vm} vms={vms} config={config}
                                     resourceHasError={this.props.resourceHasError}
                                     onAddErrorNotification={this.props.onAddErrorNotification}
                                     hostDevices={this.deviceProxies}

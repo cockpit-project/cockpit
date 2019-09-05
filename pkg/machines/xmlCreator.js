@@ -1,4 +1,4 @@
-export function getDiskXML(poolName, volumeName, format, target, cacheMode) {
+export function getDiskXML(poolName, volumeName, format, target, cacheMode, shareable) {
     var doc = document.implementation.createDocument('', '', null);
 
     var diskElem = doc.createElement('disk');
@@ -21,6 +21,11 @@ export function getDiskXML(poolName, volumeName, format, target, cacheMode) {
     targetElem.setAttribute('dev', target);
     targetElem.setAttribute('bus', 'virtio');
     diskElem.appendChild(targetElem);
+
+    if (shareable) {
+        const shareableElem = doc.createElement('shareable');
+        diskElem.appendChild(shareableElem);
+    }
 
     doc.appendChild(diskElem);
 

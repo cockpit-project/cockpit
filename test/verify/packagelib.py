@@ -43,6 +43,13 @@ class PackageCase(MachineCase):
         else:
             raise NotImplementedError("unknown image " + self.machine.image)
 
+        # PackageKit refuses to work when offline; unfortunately nm-online does not wait enough
+        # https://developer.gnome.org/NetworkManager/unstable/nm-dbus-types.html#NMConnectivityState
+        self.machine.execute('''
+            while [ "$(busctl get-property org.freedesktop.NetworkManager /org/freedesktop/NetworkManager \
+                                           org.freedesktop.NetworkManager Connectivity | cut -f2 -d' ')" -lt 3 ]; do sleep 1; done
+        ''')
+
         # disable all existing repositories to avoid hitting the network
         if self.backend == "apt":
             self.machine.execute("""
@@ -77,9 +84,8 @@ class PackageCase(MachineCase):
             self.machine.execute("mv /etc/resolv.conf /etc/resolv.conf.test")
             self.addCleanup(self.machine.execute, "mv /etc/resolv.conf.test /etc/resolv.conf")
         elif self.image in ["ubuntu-stable"]:
-            # PackageKit refuses to operate when being offline (as on our test images); it's hard to fake
-            # NetworkManager's "is online" state, so disable it and let PackageKit fall back to the "unix"
-            # network stack; add a bogus default route to coerce it into being "online".
+            # HACK: This image is somehow missing /etc/NetworkManager/conf.d/noauto.conf from debian.setup
+            # Fake online status  until this is fixed
             self.machine.execute("systemctl disable --now NetworkManager; ip route add default via 172.27.0.1 dev eth0")
 
         self.updateInfo = {}

@@ -22,9 +22,10 @@ import cockpit from 'cockpit';
 
 import * as Select from "cockpit-components-select.jsx";
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
-import { units, convertToUnit, getDefaultVolumeFormat } from '../helpers.js';
+import { units, convertToUnit, getDefaultVolumeFormat, getStorageVolumesUsage, getStorageVolumeDiskTarget } from '../helpers.js';
 import { volumeCreateAndAttach, attachDisk, getVm } from '../actions/provider-actions.js';
 import { VolumeCreateBody } from './storagePools/storageVolumeCreateBody.jsx';
+import { changeDiskAccessPolicy } from '../libvirt-dbus.js';
 
 import 'form-layout.less';
 import './diskAdd.css';
@@ -222,7 +223,27 @@ const CreateNewDisk = ({ idPrefix, onValueChanged, dialogValues, vmStoragePools,
     );
 };
 
-const UseExistingDisk = ({ idPrefix, onValueChanged, dialogValues, vmStoragePools, provider, vm }) => {
+const ChangeShareable = ({ idPrefix, vms, storagePool, volumeName, onValueChanged, providerName }) => {
+    const isVolumeUsed = getStorageVolumesUsage(vms, storagePool);
+    const volume = storagePool.volumes.find(vol => vol.name === volumeName);
+
+    if (!isVolumeUsed[volumeName])
+        return null;
+
+    const vmsUsing = isVolumeUsed[volumeName].join(', ') + '.';
+    let text = _("This volume is already used by: ") + vmsUsing;
+    if (providerName == 'LibvirtDBus' && volume.format === "raw")
+        text += _(" Attaching it will make this disk shareable for every VM using it.");
+
+    return (<>
+        <span id={`${idPrefix}-vms-usage`} className='idle-message'>
+            <i className='pficon pficon-warning-triangle-o' />
+            <span>{text}</span>
+        </span>
+    </>);
+};
+
+const UseExistingDisk = ({ idPrefix, onValueChanged, dialogValues, vmStoragePools, provider, vm, vms }) => {
     return (
         <>
             <hr />
@@ -239,6 +260,12 @@ const UseExistingDisk = ({ idPrefix, onValueChanged, dialogValues, vmStoragePool
                                       onValueChanged={onValueChanged}
                                       vmStoragePools={vmStoragePools}
                                       vmDisks={vm.disks} />
+                <ChangeShareable idPrefix={idPrefix}
+                    vms={vms}
+                    storagePool={vmStoragePools.find(pool => pool.name === dialogValues.storagePoolName)}
+                    volumeName={dialogValues.existingVolumeName}
+                    onValueChanged={onValueChanged}
+                    providerName={provider.name} />
                 <hr />
                 <PermanentChange idPrefix={idPrefix}
                                  permanent={dialogValues.PermanentChange}
@@ -285,6 +312,7 @@ export class AddDiskModalBody extends React.Component {
             hotplug: provider.isRunning(vm.state), // must be kept false for a down VM; the value is not being changed by user
             addDiskInProgress: false,
             cacheMode: 'default',
+            updateDisks: false,
         };
     }
 
@@ -342,7 +370,7 @@ export class AddDiskModalBody extends React.Component {
     }
 
     onAddClicked() {
-        const { vm, dispatch } = this.props;
+        const { vm, dispatch, provider, close, vms, storagePools } = this.props;
 
         if (this.state.mode === CREATE_NEW) {
             // validate
@@ -373,12 +401,16 @@ export class AddDiskModalBody extends React.Component {
                         this.dialogErrorSet(_("Disk failed to be created"), exc.message);
                     })
                     .then(() => { // force reload of VM data, events are not reliable (i.e. for a down VM)
-                        this.props.close();
+                        close();
                         return dispatch(getVm({ connectionName: vm.connectionName, name: vm.name, id: vm.id }));
                     });
         }
 
         // use existing volume
+        const storagePool = storagePools.find(pool => pool.name === this.state.storagePoolName);
+        const volume = storagePool.volumes.find(vol => vol.name === this.state.existingVolumeName);
+        const isVolumeUsed = getStorageVolumesUsage(vms, storagePool);
+
         return dispatch(attachDisk({
             connectionName: vm.connectionName,
             poolName: this.state.storagePoolName,
@@ -389,20 +421,38 @@ export class AddDiskModalBody extends React.Component {
             hotplug: this.state.hotplug,
             vmName: vm.name,
             vmId: vm.id,
-            cacheMode: this.state.cacheMode
+            cacheMode: this.state.cacheMode,
+            shareable: provider.name == 'LibvirtDBus' && volume.format === "raw" && isVolumeUsed[this.state.existingVolumeName],
         }))
                 .fail(exc => {
                     this.setState({ addDiskInProgress: false });
                     this.dialogErrorSet(_("Disk failed to be attached"), exc.message);
                 })
                 .then(() => { // force reload of VM data, events are not reliable (i.e. for a down VM)
-                    this.props.close();
+                    const promises = [];
+
+                    if (provider.name == 'LibvirtDBus' && volume.format === "raw" && isVolumeUsed[this.state.existingVolumeName]) {
+                        isVolumeUsed[this.state.existingVolumeName].forEach(vmName => {
+                            const vm = vms.find(vm => vm.name === vmName);
+                            const diskTarget = getStorageVolumeDiskTarget(vm, storagePool, this.state.existingVolumeName);
+                            promises.push(
+                                changeDiskAccessPolicy(vm.connectionName, vm.id, diskTarget, false, true) // readonly - false, shareable - true
+                                        .fail(exc => this.dialogErrorSet(_("Disk settings could not be saved"), exc.message))
+                            );
+                        });
+
+                        Promise.all(promises)
+                                .then(() => close());
+                    } else {
+                        close();
+                    }
+
                     return dispatch(getVm({ connectionName: vm.connectionName, name: vm.name, id: vm.id }));
                 });
     }
 
     render() {
-        const { vm, storagePools, provider } = this.props;
+        const { vm, storagePools, provider, vms } = this.props;
         const idPrefix = `${this.props.idPrefix}-adddisk`;
         const storagePoolsFiltered = storagePools.filter(pool => pool && pool.active);
 
@@ -447,6 +497,7 @@ export class AddDiskModalBody extends React.Component {
                                      dialogValues={this.state}
                                      vmStoragePools={storagePoolsFiltered}
                                      provider={provider}
+                                     vms={vms}
                                      vm={vm} />
                 )}
             </div>

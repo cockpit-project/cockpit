@@ -202,8 +202,9 @@ LIBVIRT_DBUS_PROVIDER = {
         permanent,
         hotplug,
         cacheMode,
+        shareable,
     }) {
-        const xmlDesc = getDiskXML(poolName, volumeName, format, target, cacheMode);
+        const xmlDesc = getDiskXML(poolName, volumeName, format, target, cacheMode, shareable);
 
         return attachDevice({ connectionName, vmId, permanent, hotplug, xmlDesc });
     },

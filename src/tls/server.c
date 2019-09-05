@@ -50,13 +50,15 @@
 
 #include "server.h"
 
+#define MAX_LISTEN_FDS 10
+
 /* cockpit-tls TCP server state (singleton) */
 static struct {
   bool initialized;
   const char *ws_path;
   const char *state_dir;
   enum ClientCertMode client_cert_mode;
-  int listen_fd;
+  int listen_fds[MAX_LISTEN_FDS];
   gnutls_certificate_credentials_t x509_cred;
   gnutls_priority_t priority_cache;
   Connection *connections;
@@ -138,7 +140,7 @@ check_sd_listen_pid (void)
     }
 
   pid = strtol (pid_str, &endptr, 10);
-  if (pid <= 0 || !endptr || *endptr != '\0')
+  if (pid <= 0 || *endptr != '\0')
     errx (1, "$LISTEN_PID contains invalid value '%s'", pid_str);
   if ((pid_t) pid != getpid ())
     {
@@ -281,16 +283,16 @@ connection_init_ws (Connection *c)
  * I. e. accepting new connections
  */
 static void
-handle_accept (void)
+handle_accept (int listen_fd)
 {
   int fd;
   Connection *con;
   struct epoll_event ev = { .events = EPOLLIN };
 
-  debug ("epoll_wait event on server listen fd %i", server.listen_fd);
+  debug ("epoll_wait event on server listen fd %i", listen_fd);
 
   /* accept and create new connection */
-  fd = accept4 (server.listen_fd, NULL, NULL, SOCK_CLOEXEC);
+  fd = accept4 (listen_fd, NULL, NULL, SOCK_CLOEXEC);
   if (fd < 0)
     {
       if (errno != EINTR)
@@ -472,7 +474,6 @@ handle_hangup (struct ConnectionBuffer *buf)
   Connection *con = buf->connection;
   int fd = buf == &con->buf_client ? con->client_fd : con->ws_fd;
   debug ("hangup on fd %i", fd);
-  assert (fd != server.listen_fd);
   remove_connection (fd, NULL);
 }
 
@@ -504,7 +505,7 @@ server_init (const char *ws_path,
              enum ClientCertMode client_cert_mode)
 {
   int ret;
-  const char *listen_fds;
+  const char *env_listen_fds;
   struct epoll_event ev = { .events = EPOLLIN };
   const struct sigaction child_action = {
     .sa_handler = handle_sigchld,
@@ -556,45 +557,55 @@ server_init (const char *ws_path,
     }
 
   /* systemd socket activated? */
-  listen_fds = secure_getenv ("LISTEN_FDS");
-  if (listen_fds && check_sd_listen_pid ())
+  env_listen_fds = secure_getenv ("LISTEN_FDS");
+  if (env_listen_fds && check_sd_listen_pid ())
     {
-      if (strcmp (listen_fds, "1") != 0)
-        errx (1, "This program can only accept exactly one socket from systemd, but got passed %s", listen_fds);
-      server.listen_fd = SD_LISTEN_FDS_START;
-      debug ("Server ready. Listening to systemd activated socket fd %i", server.listen_fd);
+      char *endptr = NULL;
+      long n = strtol (env_listen_fds, &endptr, 10);
+      if (n < 1 || n > MAX_LISTEN_FDS || *endptr != '\0')
+        errx (1, "Invalid $LISTEN_FDS value '%s'; this program supports up to 10 fds", env_listen_fds);
+      for (int i = 0, fd = SD_LISTEN_FDS_START; i < n; ++i, ++fd)
+        {
+          server.listen_fds[i] = fd;
+          debug ("Listening to systemd activated socket fd %i", fd);
+        }
+      server.listen_fds[n] = -1;
     }
   else
     {
       struct sockaddr_in sa_serv;
       int optval = 1;
 
-      /* Listen to our port */
-      server.listen_fd = socket (AF_INET, SOCK_STREAM | SOCK_CLOEXEC, 0);
-      if (server.listen_fd < 0)
+      /* Listen to our port; on the command line and our API we just support one */
+      server.listen_fds[0] = socket (AF_INET, SOCK_STREAM | SOCK_CLOEXEC, 0);
+      if (server.listen_fds[0] < 0)
         err (1, "failed to create server listening fd");
+      server.listen_fds[1] = -1;
 
       memset (&sa_serv, '\0', sizeof (sa_serv));
       sa_serv.sin_family = AF_INET;
       sa_serv.sin_addr.s_addr = INADDR_ANY;
       sa_serv.sin_port = htons (port);
 
-      if (setsockopt (server.listen_fd, SOL_SOCKET, SO_REUSEADDR, (void *) &optval, sizeof (int)) < 0)
+      if (setsockopt (server.listen_fds[0], SOL_SOCKET, SO_REUSEADDR, (void *) &optval, sizeof (int)) < 0)
         err (1, "failed to set socket option");
-      if (bind (server.listen_fd, (struct sockaddr *) &sa_serv, sizeof (sa_serv)) < 0)
+      if (bind (server.listen_fds[0], (struct sockaddr *) &sa_serv, sizeof (sa_serv)) < 0)
         err (1, "failed to bind to port %hu", port);
-      if (listen (server.listen_fd, 1024) < 0)
+      if (listen (server.listen_fds[0], 1024) < 0)
         err (1, "failed to listen to server port");
-      debug ("Server ready. Listening on port %hu, fd %i", port, server.listen_fd);
+      debug ("Server ready. Listening on port %hu, fd %i", port, server.listen_fds[0]);
     }
 
-  /* epoll the listening fd */
+  /* epoll the listening fds */
   server.epollfd = epoll_create1 (EPOLL_CLOEXEC);
   if (server.epollfd < 0)
     err (1, "Failed to create epoll fd");
-  ev.data.ptr = &server;
-  if (epoll_ctl (server.epollfd, EPOLL_CTL_ADD, server.listen_fd, &ev) < 0)
-    err (1, "Failed to epoll server listening fd");
+  for (int i = 0; i < MAX_LISTEN_FDS && server.listen_fds[i] >= 0; ++i)
+    {
+      ev.data.ptr = &server.listen_fds[i];
+      if (epoll_ctl (server.epollfd, EPOLL_CTL_ADD, server.listen_fds[i], &ev) < 0)
+        err (1, "Failed to epoll server listening fd");
+    }
 
   /* track cockpit-ws children */
   cleanup_children_eventfd = eventfd (0, EFD_NONBLOCK | EFD_CLOEXEC);
@@ -621,7 +632,8 @@ void
 server_cleanup (void)
 {
   close (server.epollfd);
-  close (server.listen_fd);
+  for (int i = 0; i < MAX_LISTEN_FDS && server.listen_fds[i] >= 0; ++i)
+    close (server.listen_fds[i]);
 
   assert (server.initialized);
 
@@ -684,8 +696,8 @@ server_poll_event (int timeout)
     }
   else if (ret > 0)
     {
-      if (ev.data.ptr == &server)
-        handle_accept ();
+      if (ev.data.ptr >= (void *) server.listen_fds && ev.data.ptr < (void *) &server.listen_fds[MAX_LISTEN_FDS])
+        handle_accept (* ((int *) ev.data.ptr));
       else if (ev.data.ptr == handle_child_exit)
         handle_child_exit ();
       else if (ev.events & EPOLLIN)

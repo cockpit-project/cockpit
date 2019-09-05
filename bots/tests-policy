@@ -24,6 +24,7 @@ import json
 import re
 import os
 import socket
+import ssl
 import sys
 import time
 import traceback
@@ -160,9 +161,11 @@ def guessFlake(output, context, verbose=False):
     flake = False
 
     url = "{0}://{1}:{2}/predict".format("https" if port == "443" else "http", host, port)
+    cafile = os.path.join(BOTS, "images", "files", "ca.pem")
+    context = ssl.create_default_context(cafile=cafile)
     jsonl = json.dumps(item) + "\n"
     try:
-        data = urllib.request.urlopen(url, data=jsonl.encode('utf-8')).read()
+        data = urllib.request.urlopen(url, data=jsonl.encode('utf-8'), context=context).read()
     except (ConnectionResetError, urllib.error.URLError, socket.gaierror) as ex:
         sys.stderr.write("{0}: {1}\n".format(url, ex))
         data = b"{ }"

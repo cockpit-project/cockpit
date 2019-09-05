@@ -27,6 +27,7 @@ SINCE = 21
 
 import os
 import socket
+import ssl
 import subprocess
 import sys
 import time
@@ -72,7 +73,9 @@ def tail(url, until, verbose=False):
 
         try:
             req = urllib.request.Request(url, headers={ "Range": "bytes={0}-".format(at) })
-            with urllib.request.urlopen(req, cafile=os.path.join(BOTS, "images", "files", "ca.pem")) as f:
+            cafile = os.path.join(BOTS, "images", "files", "ca.pem")
+            context = ssl.create_default_context(cafile=cafile)
+            with urllib.request.urlopen(req, context=context) as f:
                 while True:
                     data = f.read(2048)
                     if not data:

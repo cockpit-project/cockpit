@@ -335,7 +335,11 @@ verify_peer_certificate (gnutls_session_t session)
             errx (1, "Failed to print verification status: %s", gnutls_strerror (ret));
           warnx ("Invalid TLS peer certificate: %s", msg.data);
           gnutls_free (msg.data);
+#ifdef GNUTLS_E_CERTIFICATE_VERIFICATION_ERROR
           return GNUTLS_E_CERTIFICATE_VERIFICATION_ERROR;
+#else  /* fallback for GnuTLS < 3.4.4 */
+          return GNUTLS_E_CERTIFICATE_ERROR;
+#endif
         }
     }
   else if (ret != GNUTLS_E_NO_CERTIFICATE_FOUND)

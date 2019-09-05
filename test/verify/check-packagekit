@@ -47,6 +47,7 @@ class TestUpdates(PackageCase):
         # On other OSes (Fedora/CentOS) we expect sub-man to be disabled in yum, so it should not get in the way there
         if self.machine.image.startswith("rhel"):
             self.machine.execute("mv /usr/libexec/rhsmd /usr/libexec/rhsmd.disabled")
+            self.addCleanup(self.machine.execute, "mv /usr/libexec/rhsmd.disabled /usr/libexec/rhsmd")
 
         # only the yum backend properly recognizes "enhancement" severity; apt
         # does not have that metadata and PackageKit-dnf does not parse it

@@ -230,6 +230,8 @@ var webpack = require("webpack");
 var copy = require("copy-webpack-plugin");
 var html = require('html-webpack-plugin');
 var miniCssExtractPlugin = require('mini-css-extract-plugin');
+const TerserJSPlugin = require('terser-webpack-plugin');
+const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 var path = require("path");
 var fs = require("fs");
 
@@ -363,6 +365,11 @@ module.exports = {
     plugins: plugins,
 
     devtool: "source-map",
+
+    optimization: {
+        minimize: production,
+        minimizer: [new TerserJSPlugin({}), new OptimizeCSSAssetsPlugin({})],
+    },
 
     // disable noisy warnings about exceeding the recommended size limit
     performance: {

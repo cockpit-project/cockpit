@@ -34,6 +34,12 @@ def wait_unit_state(machine, unit, state):
 
     wait(lambda: active_state(unit) == state, delay=0.2)
 
+def get_active_rules(machine):
+    active_zones = machine.execute("firewall-cmd --get-active-zones | grep '^[a-zA-Z]'").split()
+    active_rules = []
+    for zone in active_zones:
+        active_rules += machine.execute("firewall-cmd --zone '{}' --list-services".format(zone)).split()
+    return set(active_rules)
 
 class TestFirewall(NetworkCase):
 
@@ -48,7 +54,8 @@ class TestFirewall(NetworkCase):
         self.toggle_onoff("#networking-firewall-switch")
         self.wait_onoff("#networking-firewall-switch", True)
         wait_unit_state(m, "firewalld", "active")
-        active_rules = m.execute("firewall-cmd --list-services").split()
+
+        active_rules = get_active_rules(m)
         b.wait_in_text("#networking-firewall-summary", "{} Active Rule".format(len(active_rules)))
 
         self.toggle_onoff("#networking-firewall-switch")
@@ -104,8 +111,8 @@ class TestFirewall(NetworkCase):
 
         # all services should be shown after the one we added above is
         # visible, so do a basic sanity check now
-        active_rules = m.execute("firewall-cmd --list-services").split()
-        b.call_js_func("ph_count_check", "#services-listing tr.listing-ct-item", len(active_rules))
+        active_rules = get_active_rules(m)
+        b.call_js_func("ph_count_check", "#services-listing tbody", len(active_rules))
 
         b.click("tr[data-row-id='pop3'] .listing-ct-toggle")
         b.wait_in_text("tbody.open tr.listing-ct-panel", "Post Office Protocol")
@@ -145,8 +152,8 @@ class TestFirewall(NetworkCase):
         b.wait_present("#add-services-button:enabled")
         b.click("#add-services-button")
         b.wait_present("#cockpit_modal_dialog .list-view-pf input[data-id='pop3']")
-        # rhel-8 comes with an extra preconfigured libvirt zone
-        if m.image not in ["rhel-8-1", "rhel-8-1-distropkg"]:
+        # some images come with an extra preconfigured libvirt zone
+        if m.image not in ["rhel-8-1", "rhel-8-1-distropkg", "fedora-31"]:
             b.wait_not_present("#cockpit_modal_dialog input[value='public']")
 
         # filter for pop3
@@ -179,8 +186,8 @@ class TestFirewall(NetworkCase):
 
         def addService(service):
             b.click("#add-services-button")
-            # rhel-8 comes with an extra preconfigured libvirt zone
-            if m.image in ["rhel-8-1", "rhel-8-1-distropkg"]:
+            # some images come with an extra preconfigured libvirt zone
+            if m.image in ["rhel-8-1", "rhel-8-1-distropkg", "fedora-31"]:
                 b.click("#add-services-dialog input[value='public']")
                 b.click("#add-services-dialog input[value='libvirt']")
             b.click("#cockpit_modal_dialog .list-view-pf input[data-id='%s']" % service)
@@ -191,7 +198,7 @@ class TestFirewall(NetworkCase):
         # now add pop3
         addService('pop3')
         # firewalld > 0.7.0 supports including services into another service
-        if m.image in ['rhel-8-1', 'rhel-8-1-distropkg', 'debian-testing']:
+        if m.image in ['rhel-8-1', 'rhel-8-1-distropkg', 'debian-testing', 'fedora-31']:
             addService('freeipa-4')
             b.click("tr[data-row-id='freeipa-4']")
             b.wait_present("tbody.open .listing-ct-body:contains(Included Services)")
@@ -231,11 +238,11 @@ class TestFirewall(NetworkCase):
 
         # remove all services
         services = set(m.execute("firewall-cmd --list-services").strip().split(" "))
-        # rhel-8 comes with an extra preconfigured libvirt zone so remove all
+        # some images come with an extra preconfigured libvirt zone so remove all
         # the service which belong to both libvirt and public (and thus
         # requiring checkboxes to be clicked), then remove all the services
         # belonging either libvirt or public
-        if m.image in ["rhel-8-1", "rhel-8-1-distropkg"]:
+        if m.image in ["rhel-8-1", "rhel-8-1-distropkg", "fedora-31"]:
             libvirt_services = set(m.execute("firewall-cmd --zone=libvirt --list-services").strip().split(" "))
             for service in libvirt_services & services:
                 removeService(service, zones=["libvirt", "public"])
@@ -246,7 +253,7 @@ class TestFirewall(NetworkCase):
                 removeService(service)
 
         self.assertEqual(m.execute("firewall-cmd --list-services").strip(), "")
-        if m.image in ["rhel-8-1", "rhel-8-1-distropkg"]:
+        if m.image in ["rhel-8-1", "rhel-8-1-distropkg", "fedora-31"]:
             self.assertEqual(m.execute("firewall-cmd --zone=libvirt --list-services").strip(), "")
 
         # test error handling
@@ -278,8 +285,8 @@ class TestFirewall(NetworkCase):
             b.click("#add-services-dialog input[value='ports']")
             b.wait_present("#tcp-ports")
             b.wait_visible("#tcp-ports")
-            # rhel-8 comes with an extra preconfigured libvirt zone
-            if m.image in ["rhel-8-1", "rhel-8-1-distropkg"]:
+            # some images come with an extra preconfigured libvirt zone
+            if m.image in ["rhel-8-1", "rhel-8-1-distropkg", "fedora-31"]:
                 b.click("#add-services-dialog input[value='public']")
 
         def set_field(sel, val, expected):

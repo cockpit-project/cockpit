@@ -43,12 +43,18 @@ class PackageCase(MachineCase):
         else:
             raise NotImplementedError("unknown image " + self.machine.image)
 
-        # PackageKit refuses to work when offline; unfortunately nm-online does not wait enough
-        # https://developer.gnome.org/NetworkManager/unstable/nm-dbus-types.html#NMConnectivityState
-        self.machine.execute('''
-            while [ "$(busctl get-property org.freedesktop.NetworkManager /org/freedesktop/NetworkManager \
-                                           org.freedesktop.NetworkManager Connectivity | cut -f2 -d' ')" -lt 3 ]; do sleep 1; done
-        ''')
+        # PackageKit refuses to work when offline
+        if self.image in ["ubuntu-1804", "ubuntu-stable"]:
+            # just waiting for NM to get online does not suffice on these images. So disable NM and let PackageKit fall
+            # back to the "unix" network stack; add a bogus default route to coerce it into being "online".
+            self.machine.execute("systemctl disable --now NetworkManager; ip route add default via 172.27.0.1 dev eth0")
+        else:
+            # PackageKit refuses to work when offline; unfortunately nm-online does not wait enough
+            # https://developer.gnome.org/NetworkManager/unstable/nm-dbus-types.html#NMConnectivityState
+            self.machine.execute('''
+                while [ "$(busctl get-property org.freedesktop.NetworkManager /org/freedesktop/NetworkManager \
+                                               org.freedesktop.NetworkManager Connectivity | cut -f2 -d' ')" -lt 3 ]; do sleep 1; done
+            ''')
 
         # disable all existing repositories to avoid hitting the network
         if self.backend == "apt":
@@ -83,10 +89,6 @@ class PackageCase(MachineCase):
             # PackageKit tries to resolve some DNS names, but our test VM is offline; temporarily disable the name server to fail quickly
             self.machine.execute("mv /etc/resolv.conf /etc/resolv.conf.test")
             self.addCleanup(self.machine.execute, "mv /etc/resolv.conf.test /etc/resolv.conf")
-        elif self.image in ["ubuntu-stable"]:
-            # HACK: This image is somehow missing /etc/NetworkManager/conf.d/noauto.conf from debian.setup
-            # Fake online status  until this is fixed
-            self.machine.execute("systemctl disable --now NetworkManager; ip route add default via 172.27.0.1 dev eth0")
 
         self.updateInfo = {}
 

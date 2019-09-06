@@ -276,7 +276,7 @@ const SourceRow = ({ connectionName, source, sourceType, networks, nodeDevices, 
             {sourceType != EXISTING_DISK_IMAGE_SOURCE &&
             <>
                 <label className="control-label" htmlFor="source-type">
-                    {_("Installation Source Type")}
+                    {_("Installation Type")}
                 </label>
                 <Select.Select id="source-type"
                     initial={sourceType}

@@ -117,9 +117,8 @@ function getSpaceAvailable(storagePools, connectionName) {
 function validateParams(vmParams) {
     const validationFailed = {};
 
-    if (isEmpty(vmParams.vmName.trim())) {
+    if (isEmpty(vmParams.vmName.trim()))
         validationFailed.vmName = _("Name must not be empty");
-    }
 
     if (vmParams.os == undefined)
         validationFailed.os = _("You need to select the most closely matching Operating System");
@@ -525,6 +524,9 @@ class CreateVmModal extends React.Component {
 
     onValueChanged(key, value) {
         switch (key) {
+        case 'vmName':
+            this.setState({ [key]: value.split(" ").join("_") });
+            break;
         case 'source':
             this.setState({ [key]: value });
 

@@ -77,7 +77,7 @@ BuildRequires: libssh-devel >= 0.7.1
 BuildRequires: openssl-devel
 BuildRequires: gnutls-devel
 BuildRequires: zlib-devel
-BuildRequires: krb5-devel
+BuildRequires: krb5-devel >= 1.11
 BuildRequires: libxslt-devel
 BuildRequires: docbook-style-xsl
 BuildRequires: glib-networking

@@ -393,6 +393,9 @@ perform_gssapi (const char *rhost,
   gss_name_t name = GSS_C_NO_NAME;
   gss_ctx_id_t context = GSS_C_NO_CONTEXT;
   gss_OID mech_type = GSS_C_NO_OID;
+  /* custom credential store with our cockpit keytab */
+  static gss_key_value_element_desc store_elements[] = { { .key = "keytab", .value = COCKPIT_KTAB } };
+  static const gss_key_value_set_desc cockpit_ktab_store = { .count = 1, .elements = store_elements };
   pam_handle_t *pamh = NULL;
   char *response = NULL;
   char *challenge;
@@ -404,18 +407,13 @@ perform_gssapi (const char *rhost,
 
   res = PAM_AUTH_ERR;
 
-  if (!getenv ("COCKPIT_TEST_KEEP_KTAB") &&
-      access (COCKPIT_KTAB, F_OK) == 0)
-    {
-      setenv ("KRB5_KTNAME", COCKPIT_KTAB, 1);
-    }
-
   debug ("reading kerberos auth from cockpit-ws");
   input.value = cockpit_authorize_parse_negotiate (authorization, &input.length);
 
   debug ("acquiring server credentials");
-  major = gss_acquire_cred (&minor, GSS_C_NO_NAME, GSS_C_INDEFINITE, GSS_C_NO_OID_SET,
-                            GSS_C_ACCEPT, &server, NULL, NULL);
+  major = gss_acquire_cred_from (&minor, GSS_C_NO_NAME, GSS_C_INDEFINITE, GSS_C_NO_OID_SET, GSS_C_ACCEPT,
+          (!getenv ("COCKPIT_TEST_KEEP_KTAB") && access (COCKPIT_KTAB, F_OK) == 0) ? &cockpit_ktab_store : NULL,
+          &server, NULL, NULL);
 
   if (GSS_ERROR (major))
     {

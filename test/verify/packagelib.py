@@ -36,7 +36,7 @@ class PackageCase(MachineCase):
         # expected backend; hardcode this on image names to check the auto-detection
         if self.machine.image.startswith("debian") or self.machine.image.startswith("ubuntu"):
             self.backend = "apt"
-        elif self.machine.image.startswith("fedora") or self.machine.image in ["rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1"]:
+        elif self.machine.image.startswith("fedora") or self.machine.image.startswith("rhel-8"):
             self.backend = "dnf"
         else:
             raise NotImplementedError("unknown image " + self.machine.image)

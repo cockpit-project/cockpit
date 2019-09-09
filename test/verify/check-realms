@@ -175,7 +175,7 @@ class TestRealms(MachineCase):
         b.password = 'foobarfoo'
 
         self.login_and_go('/system/services#/systemd-tmpfiles-clean.timer', user='admin@cockpit.lan')
-        if m.image in ["rhel-8-0-distropkg"]: # Changed in #12265
+        if m.image in ["rhel-8-0-distropkg", "rhel-8-1-distropkg"]: # Changed in #12265
             b.wait_in_text('#service-unit', "active")
             b.click('#service-unit-primary-action button[data-action="StopUnit"]')
             b.wait_in_text('#service-unit', "inactive")
@@ -325,7 +325,7 @@ class TestRealms(MachineCase):
         b.enter_page('/system/services')
 
 
-        if m.image in ["rhel-8-0-distropkg"]: # Changed in #12265
+        if m.image in ["rhel-8-0-distropkg", "rhel-8-1-distropkg"]: # Changed in #12265
             b.wait_in_text('#service-unit', "active")
             b.click('#service-unit-primary-action button[data-action="StopUnit"]')
             b.wait_in_text('#service-unit', "inactive")

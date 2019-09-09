@@ -148,7 +148,7 @@ class TestSelinux(MachineCase):
         b.click(row_selector + " button.pficon-delete")
         b.wait_not_present(row_selector)
 
-        if m.image in ["rhel-8-0-distropkg"]: # Introduced in #11789
+        if m.image in ["rhel-8-0-distropkg", "rhel-8-1-distropkg"]: # Introduced in #11789
             return
 
         b.grant_permissions("clipboardRead", "clipboardWrite")

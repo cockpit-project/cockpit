@@ -149,7 +149,7 @@ class TestFirewall(NetworkCase):
         b.click("#add-services-button")
         b.wait_present("#cockpit_modal_dialog .list-view-pf input[data-id='pop3']")
         # rhel-8 comes with an extra preconfigured libvirt zone
-        if m.image not in ["rhel-8-0", "rhel-8-1", "rhel-8-0-distropkg"]:
+        if m.image not in ["rhel-8-0", "rhel-8-1", "rhel-8-0-distropkg", "rhel-8-1-distropkg"]:
             b.wait_not_present("#cockpit_modal_dialog input[value='public']")
 
         # filter for pop3
@@ -181,9 +181,9 @@ class TestFirewall(NetworkCase):
         b.wait_not_present("#cockpit_modal_dialog")
 
         def addService(service):
-            b.click("#services-listing .listing-ct-actions button.btn-primary")
+            b.click("#add-services-button")
             # rhel-8 comes with an extra preconfigured libvirt zone
-            if m.image in ["rhel-8-0", "rhel-8-1", "rhel-8-0-distropkg"]:
+            if m.image in ["rhel-8-0", "rhel-8-1", "rhel-8-0-distropkg", "rhel-8-1-distropkg"]:
                 b.click("#add-services-dialog input[value='public']")
                 b.click("#add-services-dialog input[value='libvirt']")
             b.click("#cockpit_modal_dialog .list-view-pf input[data-id='%s']" % service)
@@ -194,7 +194,7 @@ class TestFirewall(NetworkCase):
         # now add pop3
         addService('pop3')
         # firewalld > 0.7.0 supports including services into another service
-        if m.image in ['rhel-8-1', 'debian-testing']:
+        if m.image in ['rhel-8-1', 'rhel-8-1-distropkg', 'debian-testing']:
             addService('freeipa-4')
             b.click("tr[data-row-id='freeipa-4']")
             b.wait_present("tbody.open .listing-ct-body:contains(Included Services)")
@@ -213,7 +213,9 @@ class TestFirewall(NetworkCase):
         b.wait_not_present("#cockpit_modal_dialog")
 
         # should still be here
-        b.wait_present("tr[data-row-id='http']")
+        # rhel-8-1-distropkg does not have 75d22ea, and reloads the firewall
+        if m.image not in ['rhel-8-1-distropkg']:
+            b.wait_present("tr[data-row-id='http']")
 
         # Service without name should appear in the dialog
         m.execute("firewall-cmd --permanent --new-service=empty && firewall-cmd --reload")
@@ -236,7 +238,7 @@ class TestFirewall(NetworkCase):
         # the service which belong to both libvirt and public (and thus
         # requiring checkboxes to be clicked), then remove all the services
         # belonging either libvirt or public
-        if m.image in ["rhel-8-0", "rhel-8-1", "rhel-8-0-distropkg"]:
+        if m.image in ["rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1", "rhel-8-1-distropkg"]:
             libvirt_services = set(m.execute("firewall-cmd --zone=libvirt --list-services").strip().split(" "))
             for service in libvirt_services & services:
                 removeService(service, zones=["libvirt", "public"])
@@ -247,7 +249,7 @@ class TestFirewall(NetworkCase):
                 removeService(service)
 
         self.assertEqual(m.execute("firewall-cmd --list-services").strip(), "")
-        if m.image in ["rhel-8-0", "rhel-8-1", "rhel-8-0-distropkg"]:
+        if m.image in ["rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1", "rhel-8-1-distropkg"]:
             self.assertEqual(m.execute("firewall-cmd --zone=libvirt --list-services").strip(), "")
 
         # test error handling
@@ -281,7 +283,7 @@ class TestFirewall(NetworkCase):
             b.wait_present("#tcp-ports")
             b.wait_visible("#tcp-ports")
             # rhel-8 comes with an extra preconfigured libvirt zone
-            if m.image in ["rhel-8-0", "rhel-8-1", "rhel-8-0-distropkg"]:
+            if m.image in ["rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1", "rhel-8-1-distropkg"]:
                 b.click("#add-services-dialog input[value='public']")
 
         def set_field(sel, val, expected):
@@ -366,7 +368,7 @@ class TestFirewall(NetworkCase):
         m = self.machine
 
         def addServiceToZone(service, zone):
-            b.click("#services-listing .listing-ct-actions button.btn-primary")
+            b.click("#add-services-button")
             b.click("#add-services-dialog input[value='{}']".format(zone))
             b.click("#add-services-dialog .list-view-pf input[data-id='{}']".format(service))
             b.click("#add-services-dialog .modal-footer .btn-primary")

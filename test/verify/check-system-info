@@ -273,7 +273,7 @@ class TestSystemInfo(MachineCase):
         b.mouse('#systime-tooltip', 'mouseout')
         b.wait_not_present('#systime-tooltip ~ div.tooltip')
 
-    @skipImage("No NTP servers config", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1")
+    @skipImage("No NTP servers config", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1", "rhel-8-1-distropkg")
     def testTimeServers(self):
         m = self.machine
         b = self.browser
@@ -388,7 +388,7 @@ class TestSystemInfo(MachineCase):
         b.enter_page("/system")
 
         # now pretend this is a system without DMI; fixed in PR #11005
-        if self.machine.image in ['rhel-8-0-distropkg']:
+        if self.machine.image in ['rhel-8-0-distropkg', 'rhel-8-1-distropkg']:
             return
 
         b.logout()

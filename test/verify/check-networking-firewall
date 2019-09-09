@@ -154,7 +154,7 @@ class TestFirewall(NetworkCase):
         b.click("caption #add-services-button")
         b.wait_present("#cockpit_modal_dialog .list-view-pf input[data-id='pop3']")
         # rhel-8 comes with an extra preconfigured libvirt zone
-        if m.image not in ["rhel-8-0", "rhel-8-1", "rhel-8-0-distropkg"]:
+        if m.image not in ["rhel-8-0", "rhel-8-1", "rhel-8-0-distropkg", "rhel-8-1-distropkg"]:
             b.wait_not_present("#cockpit_modal_dialog input[value='public']")
 
         # filter for pop3
@@ -224,7 +224,7 @@ class TestFirewall(NetworkCase):
         # the service which belong to both libvirt and public (and thus
         # requiring checkboxes to be clicked), then remove all the services
         # belonging either libvirt or public
-        if m.image in ["rhel-8-0", "rhel-8-1", "rhel-8-0-distropkg"]:
+        if m.image in ["rhel-8-0", "rhel-8-1", "rhel-8-0-distropkg", "rhel-8-1-distropkg"]:
             libvirt_services = set(m.execute("firewall-cmd --zone=libvirt --list-services").strip().split(" "))
             for service in libvirt_services & services:
                 removeService(service, zones=["libvirt", "public"])
@@ -235,7 +235,7 @@ class TestFirewall(NetworkCase):
                 removeService(service)
 
         self.assertEqual(m.execute("firewall-cmd --list-services").strip(), "")
-        if m.image in ["rhel-8-0", "rhel-8-1", "rhel-8-0-distropkg"]:
+        if m.image in ["rhel-8-0", "rhel-8-1", "rhel-8-0-distropkg", "rhel-8-1-distropkg"]:
             self.assertEqual(m.execute("firewall-cmd --zone=libvirt --list-services").strip(), "")
 
         # test error handling
@@ -269,7 +269,7 @@ class TestFirewall(NetworkCase):
             b.wait_present("#tcp-ports")
             b.wait_visible("#tcp-ports")
             # rhel-8 comes with an extra preconfigured libvirt zone
-            if m.image in ["rhel-8-0", "rhel-8-1", "rhel-8-0-distropkg"]:
+            if m.image in ["rhel-8-0", "rhel-8-1", "rhel-8-0-distropkg", "rhel-8-1-distropkg"]:
                 b.click("#add-services-dialog input[value='public']")
 
         def set_field(sel, val, expected):

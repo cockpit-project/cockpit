@@ -264,7 +264,7 @@ class TestConnection(MachineCase):
         # Change port according to documentation: https://cockpit-project.org/guide/latest/listen.html
         m.execute('! selinuxenabled || semanage port -m -t websm_port_t -p tcp 443')
         m.execute(
-            'mkdir -p /etc/systemd/system/cockpit.socket.d/ && printf "[Socket]\nListenStream=\nListenStream=443" > /etc/systemd/system/cockpit.socket.d/listen.conf')
+            'mkdir -p /etc/systemd/system/cockpit.socket.d/ && printf "[Socket]\nListenStream=\nListenStream=/run/cockpit/sock\nListenStream=443" > /etc/systemd/system/cockpit.socket.d/listen.conf')
 
         self.assertIn("systemctl", m.execute("cat /etc/issue.d/cockpit.issue"))
         self.assertIn("systemctl", m.execute("cat /etc/motd.d/cockpit"))
@@ -278,6 +278,8 @@ class TestConnection(MachineCase):
         self.assertIn("443", m.execute("cat /etc/motd.d/cockpit"))
 
         output = m.execute('curl -k https://localhost 2>&1 || true')
+        self.assertIn('Loading...', output)
+        output = m.execute('curl -k --unix /run/cockpit/sock https://dummy 2>&1 || true')
         self.assertIn('Loading...', output)
 
         output = m.execute('curl -k https://localhost:9090 2>&1 || true')

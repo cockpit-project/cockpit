@@ -46,6 +46,7 @@ REPO_BRANCH_CONTEXT = {
             'fedora-i386',
             'fedora-testing',
             'fedora-31',
+            'rhel-8-1-distropkg',
         ],
     },
     'cockpit-project/starter-kit': {

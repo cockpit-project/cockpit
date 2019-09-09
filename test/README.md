@@ -76,6 +76,7 @@ You can set these environment variables to configure the test suite:
                   "rhel-8-0"
                   "rhel-8-0-distropkg"
                   "rhel-8-1"
+                  "rhel-8-1-distropkg"
                   "ubuntu-1804"
                   "ubuntu-stable"
                "fedora-30" is the default (bots/machine/machine_core/constants.py)

@@ -205,7 +205,7 @@ class TestMachines(NetworkCase):
     def tearDown(self):
         # HACK: Because of https://bugzilla.redhat.com/show_bug.cgi?id=1728530
         # tests might fail not deterministically, always check journal, even if test failed.
-        if self.machine.image == 'rhel-8-1' and self._testMethodName == 'testCreate' and not self.checkSuccess():
+        if self.machine.image.startswith('rhel-8-1') and self._testMethodName == 'testCreate' and not self.checkSuccess():
             self.check_journal_messages()
 
     def startLibvirt(self):

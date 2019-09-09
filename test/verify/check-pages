@@ -70,7 +70,7 @@ OnCalendar=daily
         b.enter_page("/system/services")
         b.reload()
         b.enter_page("/system/services")
-        if m.image in ["rhel-8-0-distropkg"]: # Changed in #12265
+        if m.image in ["rhel-8-0-distropkg", "rhel-8-1-distropkg"]: # Changed in #12265
             b.wait_text("#service-unit .panel-heading", "Test Service")
         else:
             b.wait_text(".service-name", "Test Service")
@@ -78,7 +78,7 @@ OnCalendar=daily
 
         m.restart_cockpit()
         b.relogin("/system/services")
-        if m.image in ["rhel-8-0-distropkg"]: # Changed in #12265
+        if m.image in ["rhel-8-0-distropkg", "rhel-8-1-distropkg"]: # Changed in #12265
             b.wait_text("#service-unit .panel-heading", "Test Service")
         else:
             b.wait_text(".service-name", "Test Service")
@@ -92,7 +92,7 @@ OnCalendar=daily
         b.click("a[href='/system/services']")
         b.enter_page("/system/services")
         b.wait_present("ol.breadcrumb")
-        if m.image in ["rhel-8-0-distropkg"]: # Changed in #12265
+        if m.image in ["rhel-8-0-distropkg", "rhel-8-1-distropkg"]: # Changed in #12265
             b.wait_text("#service-unit .panel-heading", "Test Service")
         else:
             b.wait_text(".service-name", "Test Service")
@@ -107,6 +107,9 @@ OnCalendar=daily
         b.enter_page("/system/services")
         if m.image in ["rhel-8-0-distropkg"]:
             b.wait_present("#services-list-enabled")
+            b.wait_not_visible("#service-unit")
+        elif m.image in ["rhel-8-1-distropkg"]:
+            b.wait_present("#services-list")
             b.wait_not_visible("#service-unit")
         else:
             b.wait_present("#services-list")
@@ -396,7 +399,7 @@ OnCalendar=daily
 
         self.allow_restart_journal_messages()
 
-    @skipImage("Preloading implemented in #12534", "rhel-8-0-distropkg")
+    @skipImage("Preloading implemented in #12534", "rhel-8-0-distropkg", "rhel-8-1-distropkg")
     def testShellPreload(self):
         b = self.browser
         m = self.machine
@@ -535,7 +538,7 @@ OnCalendar=daily
         mem_used = meminfo['MemTotal'] - meminfo['MemAvailable']
         b.wait_js_func("ph_flot_data_plateau", "#plot_pmcd", mem_used * 0.95, mem_used * 1.05, 15, "mem")
 
-    @skipImage("Implemented in #12598", "rhel-8-0-distropkg")
+    @skipImage("Implemented in #12598", "rhel-8-0-distropkg", "rhel-8-1-distropkg")
     def testPageStatus(self):
         b = self.browser
 

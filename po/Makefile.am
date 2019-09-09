@@ -104,8 +104,10 @@ po/cockpit.pre.pot: po/POTFILES.pre.in
 		--from-code=UTF-8 --directory=$(builddir)/tmp --files-from=$^
 
 # Combine the above pot files into one
+# HACK: remove `#, fuzzy` line, as it breaks pushing of .pot file into zanata
+# see https://github.com/cockpit-project/cockpit/pull/12703 for more info
 po/cockpit.pot: po/cockpit.c.pot po/cockpit.html.pot po/cockpit.js.pot po/cockpit.manifest.pot po/cockpit.pre.pot
-	$(MSGCAT) --sort-output --output-file=$@ $^
+	$(MSGCAT) --sort-output --output-file=- $^ | sed '/^#, fuzzy/d' > $@
 
 # Actually update the old translations with new translatable text
 update-po: po/cockpit.pot

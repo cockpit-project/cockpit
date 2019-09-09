@@ -140,7 +140,13 @@ class MachinesBasicTestSuite(MachinesLib):
 
         self.machine.execute('sudo touch {}'.format(iso))
 
-        self.create_vm_by_ui(connection='session', name=name, source=iso, mem=128, mem_unit='M', storage=50, storage_unit='M')
+        self.create_vm_by_ui(connection='session',
+                             name=name,
+                             source=iso,
+                             mem=128,
+                             mem_unit='M',
+                             storage=50,
+                             storage_unit='M')
         self.vm_stop_list.append(name)
 
     @skipIf(os.environ.get('URLSOURCE') is None,

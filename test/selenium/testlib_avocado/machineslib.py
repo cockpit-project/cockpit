@@ -82,6 +82,15 @@ DOMAIN_XML = """
 </domain>
 """
 
+STORAGE_XML = """
+<pool type='dir'>
+  <name>{}</name>
+  <target>
+    <path>{}</path>
+  </target>
+</pool>
+"""
+
 SYS_POOL_PATH = "/var/lib/libvirt/images"
 SYS_LOG_PATH = "/var/log/libvirt"
 
@@ -238,8 +247,7 @@ class MachinesLib(SeleniumTest):
                     self.select_by_text(item, sl.text)
                     break
 
-        if operating_system is not None:
-            self.send_keys(self.wait_css("label[for=os-select] + div > div > div > input"), operating_system + Keys.ARROW_DOWN + Keys.ENTER)
+        self.send_keys(self.wait_css("label[for=os-select] + div > div > div > input"), operating_system + Keys.ARROW_DOWN + Keys.ENTER)
 
         if mem_unit == 'M':
             self.select_by_text(self.wait_css('#memory-size-unit-select'), 'MiB')
@@ -260,6 +268,16 @@ class MachinesLib(SeleniumTest):
         self.wait_css('#create-vm-dialog', cond=invisible)
         self.wait_css('#vm-{}-row'.format(name))
 
+    def create_storage(self, name, path, active=False):
+        pool_xml = STORAGE_XML.format(name, path)
+        cmd = 'sudo su -c "echo \\"{}\\" > {}" && sudo virsh pool-define {} '
+
+        self.machine.execute(cmd.format(pool_xml, '/tmp/pool', '/tmp/pool'))
+        if active:
+            self.machine.execute('sudo virsh pool-start {}'.format(name))
+
+        return 'pool-{}-{}'.format(name, 'system')
+
     def create_storage_by_ui(self,
                              connection='system',
                              name='storage',
@@ -268,10 +286,10 @@ class MachinesLib(SeleniumTest):
                              host='',
                              source_path='',
                              initiator='',
+                             parted='',
                              start_up=True):
-        self.click(self.wait_text('Storage Pools', cond=clickable))
-        self.wait_css('#storage-pools-listing')
         self.click(self.wait_css('#create-storage-pool', cond=clickable))
+        self.wait_css('#create-storage-pool-dialog')
 
         if connection == 'session':
             self.select_by_value(self.wait_css('#storage-pool-dialog-connection'), 'session')
@@ -289,6 +307,8 @@ class MachinesLib(SeleniumTest):
 
         if storage_type == 'disk':
             self.send_keys(self.wait_css('#storage-pool-dialog-source > div > input'), source_path)
+            self.click(self.wait_link(source_path.rsplit('/', 1)[-1], fatal=False, overridetry=3, cond=clickable))
+            self.select_by_value(self.wait_css('#storage-pool-dialog-source-format', cond=clickable), parted)
 
         if storage_type in ['netfs', 'iscsi', 'iscsi-direct']:
             self.send_keys(self.wait_css('#storage-pool-dialog-host'), host)
@@ -302,10 +322,10 @@ class MachinesLib(SeleniumTest):
         self.click(self.wait_css('#create-storage-pool-dialog button.btn.btn-primary', cond=clickable))
 
         self.wait_dialog_disappear()
-        pool_name = 'pool-{}-{}'.format(name, connection)
-        self.wait_css('#' + pool_name + '-name')
+        el_id_prefix = 'pool-{}-{}'.format(name, connection)
+        self.wait_css('#' + el_id_prefix + '-name')
 
-        return pool_name
+        return el_id_prefix
 
     def non_root_user_operations(self,
                                  user_group=None,
@@ -464,6 +484,19 @@ class MachinesLib(SeleniumTest):
         self.machine.execute('sudo virsh vol-create-as {} {} --capacity 1G --format qcow2'.format(pool_b, pool[pool_b][1]))
 
         return pool, pool_a, pool_b
+
+    def get_pdd_format_list(self):
+        self.click(self.wait_text('Storage Pools', cond=clickable))
+        self.wait_css('#storage-pools-listing')
+        self.click(self.wait_css('#create-storage-pool', cond=clickable))
+        self.select_by_value(self.wait_css('#storage-pool-dialog-type'), 'disk')
+        option_list = self.wait_css('#storage-pool-dialog-source-format').find_elements_by_tag_name('option')
+
+        parts = []
+        for option in option_list:
+            parts.append(option.text)
+
+        return parts
 
     @staticmethod
     def random_string(length=5):

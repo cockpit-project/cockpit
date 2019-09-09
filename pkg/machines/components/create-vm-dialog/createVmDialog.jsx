@@ -696,17 +696,17 @@ class CreateVmModal extends React.Component {
 
         const dialogBody = (
             <form className="ct-form">
-                <MachinesConnectionSelector id='connection'
-                    connectionName={this.state.connectionName}
-                    onValueChanged={this.onValueChanged}
-                    loggedUser={loggedUser} />
-
-                <hr />
-
                 <NameRow
                     vmName={this.state.vmName}
                     onValueChanged={this.onValueChanged}
                     validationFailed={validationFailed} />
+
+                <hr />
+
+                <MachinesConnectionSelector id='connection'
+                    connectionName={this.state.connectionName}
+                    onValueChanged={this.onValueChanged}
+                    loggedUser={loggedUser} />
 
                 <hr />
 

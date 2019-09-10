@@ -309,7 +309,7 @@ class MachinesLib(SeleniumTest):
                 self.click(element)
 
         if storage_type == 'disk':
-            self.send_keys(self.wait_css('#storage-pool-dialog-source > div > input'), source_path)
+            self.send_keys(self.wait_css('label[for=storage-pool-dialog-source] + div input[type=text]'), source_path)
             self.click(self.wait_link(source_path.rsplit('/', 1)[-1], fatal=False, overridetry=3, cond=clickable))
             self.select_by_value(self.wait_css('#storage-pool-dialog-source-format', cond=clickable), parted)
 

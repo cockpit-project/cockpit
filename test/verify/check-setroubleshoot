@@ -148,7 +148,7 @@ class TestSelinux(MachineCase):
         b.click(row_selector + " button.pficon-delete")
         b.wait_not_present(row_selector)
 
-        if m.image in ["rhel-8-0-distropkg", "rhel-8-1-distropkg"]: # Introduced in #11789
+        if m.image in ["rhel-8-1-distropkg"]: # Introduced in #11789
             return
 
         b.grant_permissions("clipboardRead", "clipboardWrite")
@@ -202,22 +202,14 @@ class TestSelinux(MachineCase):
         b.wait_in_text("body", "SELinux Policy")
 
         def assertEnforce(active):
-            # changed in PR #11769
-            if m.image in ["rhel-8-0-distropkg"]:
-                b.wait_in_text("div.btn-onoff-ct label.active", active and "On" or "Off")
-            else:
-                b.wait_present(".onoff-ct input" + (active and ":checked" or ":not(:checked)"))
+            b.wait_present(".onoff-ct input" + (active and ":checked" or ":not(:checked)"))
 
         # SELinux should be enabled and enforcing at the beginning
         assertEnforce(True)
         m.execute("getenforce | grep -q 'Enforcing'")
 
         # now set to permissive using the ui button
-        # changed in PR #11769
-        if m.image in ["rhel-8-0-distropkg"]:
-            b.click("div.btn-onoff-ct label.active span")
-        else:
-            b.click(".onoff-ct input")
+        b.click(".onoff-ct input")
         assertEnforce(False)
         m.execute("getenforce | grep -q 'Permissive'")
 

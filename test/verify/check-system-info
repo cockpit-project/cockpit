@@ -310,7 +310,7 @@ class TestSystemInfo(MachineCase):
         b.mouse('#systime-tooltip', 'mouseout')
         b.wait_not_present('#systime-tooltip ~ div.tooltip')
 
-    @skipImage("No NTP servers config", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1", "rhel-8-1-distropkg")
+    @skipImage("No NTP servers config", "rhel-8-1", "rhel-8-1-distropkg")
     def testTimeServers(self):
         m = self.machine
         b = self.browser
@@ -407,7 +407,7 @@ class TestSystemInfo(MachineCase):
         # BIOS date; just ensure it's from this century
         b.wait_in_text('#hwinfo .info-table-ct tbody:nth-of-type(2) tr:nth-of-type(3) td', "/20")
 
-        if m.image in ['rhel-8-0-distropkg', 'rhel-8-1-distropkg']:
+        if m.image in ['rhel-8-1-distropkg']:
             pci_selector = '#hwinfo'
             heading_selector = ' .listing-ct caption'
         else:
@@ -432,7 +432,7 @@ class TestSystemInfo(MachineCase):
         b.enter_page("/system")
 
         # now pretend this is a system without DMI; fixed in PR #11005
-        if self.machine.image in ['rhel-8-0-distropkg', 'rhel-8-1-distropkg']:
+        if self.machine.image in ['rhel-8-1-distropkg']:
             return
 
         b.logout()
@@ -499,7 +499,6 @@ class TestSystemInfo(MachineCase):
 
             m.execute('umount $(which dmidecode)')
 
-    @skipImage("Added in pull 11368", "rhel-8-0-distropkg")
     def testCPUSecurityMitigations(self):
         b = self.browser
         m = self.machine
@@ -662,9 +661,6 @@ class TestPcp(packagelib.PackageCase):
 
         b.wait_visible("#server-pmlogger-switch")
         b.wait_not_visible("#system-information-enable-pcp-link")
-
-        if m.image in ["rhel-8-0-distropkg"]: # PR #11224
-            return
 
         # Turn stored metrics on
         b.wait_present("#server-pmlogger-switch input:not(:checked)")

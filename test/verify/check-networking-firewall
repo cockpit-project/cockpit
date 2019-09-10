@@ -73,7 +73,6 @@ class TestFirewall(NetworkCase):
         self.allow_journal_messages(".*The name org.fedoraproject.FirewallD1 was not provided by any .service files.*",
                                     ".*org.fedoraproject.FirewallD1: couldn't introspect /org/fedoraproject/FirewallD1/config: GDBus.Error:org.freedesktop.DBus.Error.NoReply: Message recipient disconnected from message bus without replying.*")
 
-    @skipImage("Button got fixed in PR #10975", "rhel-8-0-distropkg")
     def testFirewallPage(self):
         b = self.browser
         m = self.machine
@@ -129,8 +128,6 @@ class TestFirewall(NetworkCase):
         # "Add Services" button should be hidden again
         b.wait_not_present("#add-services-button")
 
-    @skipImage("Filtering got fixed, IDs changed to data-id, and conversion to ListView in 191",
-               "rhel-8-0-distropkg")
     def testAddServices(self):
         b = self.browser
         m = self.machine
@@ -149,7 +146,7 @@ class TestFirewall(NetworkCase):
         b.click("#add-services-button")
         b.wait_present("#cockpit_modal_dialog .list-view-pf input[data-id='pop3']")
         # rhel-8 comes with an extra preconfigured libvirt zone
-        if m.image not in ["rhel-8-0", "rhel-8-1", "rhel-8-0-distropkg", "rhel-8-1-distropkg"]:
+        if m.image not in ["rhel-8-1", "rhel-8-1-distropkg"]:
             b.wait_not_present("#cockpit_modal_dialog input[value='public']")
 
         # filter for pop3
@@ -183,7 +180,7 @@ class TestFirewall(NetworkCase):
         def addService(service):
             b.click("#add-services-button")
             # rhel-8 comes with an extra preconfigured libvirt zone
-            if m.image in ["rhel-8-0", "rhel-8-1", "rhel-8-0-distropkg", "rhel-8-1-distropkg"]:
+            if m.image in ["rhel-8-1", "rhel-8-1-distropkg"]:
                 b.click("#add-services-dialog input[value='public']")
                 b.click("#add-services-dialog input[value='libvirt']")
             b.click("#cockpit_modal_dialog .list-view-pf input[data-id='%s']" % service)
@@ -238,7 +235,7 @@ class TestFirewall(NetworkCase):
         # the service which belong to both libvirt and public (and thus
         # requiring checkboxes to be clicked), then remove all the services
         # belonging either libvirt or public
-        if m.image in ["rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1", "rhel-8-1-distropkg"]:
+        if m.image in ["rhel-8-1", "rhel-8-1-distropkg"]:
             libvirt_services = set(m.execute("firewall-cmd --zone=libvirt --list-services").strip().split(" "))
             for service in libvirt_services & services:
                 removeService(service, zones=["libvirt", "public"])
@@ -249,7 +246,7 @@ class TestFirewall(NetworkCase):
                 removeService(service)
 
         self.assertEqual(m.execute("firewall-cmd --list-services").strip(), "")
-        if m.image in ["rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1", "rhel-8-1-distropkg"]:
+        if m.image in ["rhel-8-1", "rhel-8-1-distropkg"]:
             self.assertEqual(m.execute("firewall-cmd --zone=libvirt --list-services").strip(), "")
 
         # test error handling
@@ -261,7 +258,6 @@ class TestFirewall(NetworkCase):
         b.click("#remove-services-dialog button.btn-primary")
         b.wait_in_text("#remove-services-dialog div.alert-danger", "org.fedoraproject.FirewallD1.Exception: NOT_ENABLED: 'pop3' not in 'public'")
 
-    @skipImage("Custom ports were introduced in #11420", "rhel-8-0-distropkg")
     def testAddCustomServices(self):
         b = self.browser
         m = self.machine
@@ -283,7 +279,7 @@ class TestFirewall(NetworkCase):
             b.wait_present("#tcp-ports")
             b.wait_visible("#tcp-ports")
             # rhel-8 comes with an extra preconfigured libvirt zone
-            if m.image in ["rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1", "rhel-8-1-distropkg"]:
+            if m.image in ["rhel-8-1", "rhel-8-1-distropkg"]:
                 b.click("#add-services-dialog input[value='public']")
 
         def set_field(sel, val, expected):
@@ -362,7 +358,6 @@ class TestFirewall(NetworkCase):
         b.wait_not_present("tr[data-row-id='http']")
 
 
-    @skipImage("Zones were introduced in #11745", "rhel-8-0-distropkg")
     def testMultipleZones(self):
         b = self.browser
         m = self.machine

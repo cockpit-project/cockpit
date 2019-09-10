@@ -140,9 +140,7 @@ class TestNetworking(NetworkCase):
         b.wait_val('#network-ip-settings-dialog input[placeholder="Address"]', "fe80:2:0:0:0:0:0:0")
         b.wait_val('#network-ip-settings-dialog input[placeholder="Prefix length"]', "60")
         b.wait_val('#network-ip-settings-dialog input[placeholder="Gateway"]', "fe80:2:0:0:0:0:0:3")
-        if m.image not in ["rhel-8-0-distropkg"]:
-            # fixed in PR #12366
-            b.wait_val('#network-ip-settings-dialog input[placeholder="Metric"]', "42")
+        b.wait_val('#network-ip-settings-dialog input[placeholder="Metric"]', "42")
         b.click('#network-ip-settings-cancel')
         b.wait_popdown("network-ip-settings-dialog")
 

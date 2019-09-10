@@ -344,7 +344,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.wait_not_visible("#login-details")
 
     @skipImage("Starting on Atomic is weird", "fedora-atomic")
-    @skipImage("Added in PR #12493", "rhel-8-0-distropkg", "rhel-8-1-distropkg")
+    @skipImage("Added in PR #12493", "rhel-8-1-distropkg")
     def testFailingWebsocket(self, safari=False, cacert=False):
         m = self.machine
         b = self.browser
@@ -385,12 +385,10 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
             b.wait_not_visible("#safari-cert-help")
 
     @skipImage("Starting on Atomic is weird", "fedora-atomic")
-    @skipImage("Added in PR #12493", "rhel-8-0-distropkg")
     def testFailingWebsocketSafari(self):
         self.testFailingWebsocket(safari=True, cacert=True)
 
     @skipImage("Starting on Atomic is weird", "fedora-atomic")
-    @skipImage("Added in PR #12493", "rhel-8-0-distropkg")
     def testFailingWebsocketSafariNoCA(self):
         self.testFailingWebsocket(safari=True, cacert=False)
 

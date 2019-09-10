@@ -36,7 +36,7 @@ class TestKdump(MachineCase):
             contents = self.machine.execute(command="cat /boot/grub2/grub.cfg", quiet=True)
             self.assertIn("crashkernel=auto", contents)
             self.machine.write("/boot/grub2/grub.cfg", contents.replace("crashkernel=auto", "crashkernel=256M"))
-        elif self.machine.image in ["rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1", "rhel-8-1-distropkg"]:
+        elif self.machine.image in ["rhel-8-1", "rhel-8-1-distropkg"]:
             # these images use BootLoaderSpec and grubenv
             self.machine.execute(
                 "sed -i '/^kernelopts=/ { s/crashkernel=[^ ]*//; s/$/ crashkernel=256M/; }' /boot/grub2/grubenv")
@@ -76,13 +76,9 @@ class TestKdump(MachineCase):
         b.wait_visible("#app")
 
         def assertActive(active):
-            # changed in PR #11769
-            if m.image in ["rhel-8-0-distropkg"]:
-                b.wait_in_text("div.btn-onoff-ct label.active", active and "On" or "Off")
-            else:
-                b.wait_present(".onoff-ct input" + (active and ":checked" or ":not(:checked)"))
+            b.wait_present(".onoff-ct input" + (active and ":checked" or ":not(:checked)"))
 
-        if m.image in ["rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1", "rhel-8-1-distropkg"]:
+        if m.image in ["rhel-8-1", "rhel-8-1-distropkg"]:
             # some OSes have kdump enabled by default (crashkernel=auto)
             b.wait_in_text("#app", "Service is running")
             assertActive(True)
@@ -103,38 +99,37 @@ class TestKdump(MachineCase):
         b.wait_visible("#app")
         self.enableLocalSsh()
 
-        if m.image not in ["rhel-8-0-distropkg"]:
-            # minimal nfs validation
-            settingsLink = "a:contains('locally in /var/crash')"
-            b.click(settingsLink)
-            b.set_val("#kdump-settings-location", "nfs")
-            mountInput = "#kdump-settings-nfs-mount"
-            b.set_input_text(mountInput, ":/var/crash")
-            b.click("button.btn-primary:contains('Apply')")
-            b.wait_present("div.dialog-error:contains('Unable to apply settings')")
-            b.set_input_text(mountInput, "localhost:")
-            b.click("button.btn-primary:contains('Apply')")
-            b.wait_present("div.dialog-error:contains('Unable to apply settings')")
-            b.click("button.btn-default:contains('Cancel')")
+        # minimal nfs validation
+        settingsLink = "a:contains('locally in /var/crash')"
+        b.click(settingsLink)
+        b.set_val("#kdump-settings-location", "nfs")
+        mountInput = "#kdump-settings-nfs-mount"
+        b.set_input_text(mountInput, ":/var/crash")
+        b.click("button.btn-primary:contains('Apply')")
+        b.wait_present("div.dialog-error:contains('Unable to apply settings')")
+        b.set_input_text(mountInput, "localhost:")
+        b.click("button.btn-primary:contains('Apply')")
+        b.wait_present("div.dialog-error:contains('Unable to apply settings')")
+        b.click("button.btn-default:contains('Cancel')")
 
-            # test compression
-            b.click(settingsLink)
-            b.click("#kdump-settings-compression")
-            pathInput = "#kdump-settings-local-directory"
-            b.click("button.btn-primary:contains('Apply')")
-            b.wait_not_present(pathInput)
-            m.execute("cat /etc/kdump.conf | grep -qE 'makedumpfile.*-c.*'")
+        # test compression
+        b.click(settingsLink)
+        b.click("#kdump-settings-compression")
+        pathInput = "#kdump-settings-local-directory"
+        b.click("button.btn-primary:contains('Apply')")
+        b.wait_not_present(pathInput)
+        m.execute("cat /etc/kdump.conf | grep -qE 'makedumpfile.*-c.*'")
 
-            # generate a valid kdump config with ssh target
-            b.click(settingsLink)
-            b.set_val("#kdump-settings-location", "ssh")
-            sshInput = "#kdump-settings-ssh-server"
-            b.set_input_text(sshInput, "root@localhost")
-            sshKeyInput = "#kdump-settings-ssh-key"
-            b.set_input_text(sshKeyInput, "/root/.ssh/id_rsa")
-            b.set_input_text(pathInput, "/var/crash")
-            b.click("button.btn-primary:contains('Apply')")
-            b.wait_not_present(pathInput)
+        # generate a valid kdump config with ssh target
+        b.click(settingsLink)
+        b.set_val("#kdump-settings-location", "ssh")
+        sshInput = "#kdump-settings-ssh-server"
+        b.set_input_text(sshInput, "root@localhost")
+        sshKeyInput = "#kdump-settings-ssh-key"
+        b.set_input_text(sshKeyInput, "/root/.ssh/id_rsa")
+        b.set_input_text(pathInput, "/var/crash")
+        b.click("button.btn-primary:contains('Apply')")
+        b.wait_not_present(pathInput)
 
         # we should have the amount of memory reserved that we indicated
         b.wait_in_text("#app", "256 MiB")
@@ -142,10 +137,6 @@ class TestKdump(MachineCase):
         b.wait_in_text("#app", "Service is running")
         assertActive(True)
         b.wait_in_text("#app", "Service is running")
-
-        # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1536327
-        if m.image in ["rhel-8-0-distropkg"]:
-            return
 
         # try to change the path to a directory that doesn't exist
         customPath = "/var/crash2"

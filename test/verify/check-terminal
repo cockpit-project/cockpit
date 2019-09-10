@@ -38,15 +38,10 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
 
         self.login_and_go("/system/terminal")
 
-        blank_state = ''
-        if m.image not in ["rhel-8-0-distropkg"]:
-            blank_state = 'Blank line'
+        blank_state = 'Blank line'
 
         def line_sel(i):
-            if m.image in ["rhel-8-0-distropkg"]:
-                return '.terminal div:nth-child(%d)' % i
-            else:
-                return '.terminal .xterm-accessibility-tree div:nth-child(%d)' % i
+            return '.terminal .xterm-accessibility-tree div:nth-child(%d)' % i
 
         def wait_line(i, t):
             b.wait_in_text(line_sel(i), t)
@@ -95,10 +90,6 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
         # assert that the output from earlier is gone
         wait_line(n + 1, blank_state)
         self.assertNotIn('admin', b.text(line_sel(n + 1)))
-
-        # Fixed in PR #11148
-        if m.image in ["rhel-8-0-distropkg"]:
-            return
 
         def select_line(sel, width):
             # Select line by dragging mouse

@@ -210,11 +210,7 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
 
         b.enter_page("/system", "10.111.113.3")
         b.wait_text_not("#system_information_systime_button", "")
-        if m.image in ["rhel-8-0-distropkg"]:
-            sel = "#link-network"
-        else:
-            sel = "#link-network a"
-        b.click(sel)
+        b.click("#link-network a")
         b.enter_page("/network", "10.111.113.3")
 
         self.allow_hostkey_messages()

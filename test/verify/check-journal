@@ -273,22 +273,14 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
                         "Load earlier entries",
                         ])
 
-        n = ""
-        # In older version there was bug which showed messages two times
-        # Fixed in #11672
-        if m.image in ["rhel-8-0-distropkg"]:
-            n = "2"
         b.click('#journal-load-earlier')
         wait_log_lines([expected_date,
-                        ["check-journal", "AFTER BOOT", n],
+                        ["check-journal", "AFTER BOOT", ""],
                         ["", "Reboot", ""],
                         ["check-journal", "BEFORE BOOT", ""]
                         ])
 
         # Check selecting of services
-        if m.image in ["rhel-8-0-distropkg"]: # Introduced in #8347 and #11675
-            return
-
         b.go("#/?start=previous-boot&tag=check-journal")
         wait_log_lines([expected_date,
                         ["check-journal", "BEFORE BOOT", ""],
@@ -357,7 +349,6 @@ s.send(b"PRIORITY=3\\nFOO=bar\\n")'
 
         b.wait_text("#journal-entry-message", "[no data]")
 
-    @skipImage("https://bugzilla.redhat.com/show_bug.cgi?id=1665421", "rhel-8-0-distropkg")
     def testLogLevel(self):
 
         b = self.browser
@@ -388,7 +379,7 @@ s.send(b"PRIORITY=3\\nFOO=bar\\n")'
 
     @skipImage("ABRT does not work on i386", "fedora-i386")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-1804", "fedora-atomic", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1", "rhel-8-1-distropkg")
+               "ubuntu-1804", "fedora-atomic", "rhel-8-1", "rhel-8-1-distropkg")
     def testAbrtSegv(self):
         self.allow_core_dumps = True
         b = self.browser
@@ -428,7 +419,7 @@ s.send(b"PRIORITY=3\\nFOO=bar\\n")'
 
     @skipImage("ABRT does not work on i386", "fedora-i386")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-1804", "fedora-atomic", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1", "rhel-8-1-distropkg")
+               "ubuntu-1804", "fedora-atomic", "rhel-8-1", "rhel-8-1-distropkg")
     def testAbrtDelete(self):
         self.allow_core_dumps = True
         b = self.browser
@@ -459,7 +450,7 @@ s.send(b"PRIORITY=3\\nFOO=bar\\n")'
 
     @skipImage("ABRT does not work on i386", "fedora-i386")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-1804", "fedora-atomic", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1", "rhel-8-1-distropkg")
+               "ubuntu-1804", "fedora-atomic", "rhel-8-1", "rhel-8-1-distropkg")
     def testAbrtReport(self):
         self.allow_core_dumps = True
         # The testing server is located at verify/files/mock-faf-server.py

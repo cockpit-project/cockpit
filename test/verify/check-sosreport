@@ -49,8 +49,7 @@ threads=2
         b.wait_visible("#sos")
 
         with b.wait_timeout(360):
-            if m.image not in ["rhel-8-0-distropkg"]: # Fixed in #11484
-                b.wait(lambda: b.eval_js('ph_find(".progress-bar").offsetWidth') > 0)
+            b.wait(lambda: b.eval_js('ph_find(".progress-bar").offsetWidth') > 0)
             b.wait_visible("#sos-download")
 
         download_dir = tempfile.mkdtemp()
@@ -67,7 +66,6 @@ threads=2
 
         self.allow_journal_messages('.*comm="sosreport".*')
 
-    @skipImage("Fixed in PR #11853", "rhel-8-0-distropkg")
     def testWithUrlRoot(self):
         self.testBasic(urlroot="/webcon")
 

@@ -137,7 +137,7 @@ systemctl daemon-reload""")
         assert_stopped(True)
         b.click("#networking-nm-crashed a")
         b.enter_page("/system/services")
-        if m.image in ["rhel-8-0-distropkg", "rhel-8-1-distropkg"]: # Changed in #12265
+        if m.image in ["rhel-8-1-distropkg"]: # Changed in #12265
             b.wait_in_text("#service-unit", "NetworkManager.service")
             b.click("button[data-action='StartUnit']")
             b.wait_in_text("#service-unit", "active")

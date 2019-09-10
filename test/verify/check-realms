@@ -68,15 +68,9 @@ class TestRealms(MachineCase):
 
     def setUp(self):
         super().setUp()
-        # classes converted to IDs in PR #11022
-        if self.machine.image in ["rhel-8-0-distropkg"]:
-            self.op_address = ".realms-op-address"
-            self.op_admin = ".realms-op-admin"
-            self.op_admin_password = ".realms-op-admin-password"
-        else:
-            self.op_address = "#realms-op-address"
-            self.op_admin = "#realms-op-admin"
-            self.op_admin_password = "#realms-op-admin-password"
+        self.op_address = "#realms-op-address"
+        self.op_admin = "#realms-op-admin"
+        self.op_admin_password = "#realms-op-admin-password"
 
     def testIpa(self):
         m = self.machine
@@ -107,9 +101,7 @@ class TestRealms(MachineCase):
         b.wait_popup("realms-op")
         with b.wait_timeout(180):
             b.set_val(self.op_address, "cockpit.lan")
-            if m.image not in ["rhel-8-0-distropkg"]:
-                # changed in PR #11022
-                b.wait_text(".realms-op-address-error", "Contacted domain")
+            b.wait_text(".realms-op-address-error", "Contacted domain")
             b.wait_attr(self.op_admin, "placeholder", 'e.g. "admin"')
             b.set_val(self.op_admin, "admin")
             b.set_val(self.op_admin_password, "foobarfoo")
@@ -121,13 +113,11 @@ class TestRealms(MachineCase):
             wait_number_domains(1)
 
         # when joined to a domain, changing the hostname is fatal, so should be disabled
-        if m.image not in ["rhel-8-0-distropkg"]:
-            # fixed in Cockpit 186
-            b.wait_present("#system_information_hostname_button[disabled]")
-            b.mouse("#system_information_hostname_button", "mouseover")
-            b.wait_in_text(".tooltip-inner", "Host name should not be changed in a domain")
-            b.mouse("#system_information_hostname_button", "mouseout")
-            b.wait_not_present(".tooltip-inner")
+        b.wait_present("#system_information_hostname_button[disabled]")
+        b.mouse("#system_information_hostname_button", "mouseover")
+        b.wait_in_text(".tooltip-inner", "Host name should not be changed in a domain")
+        b.mouse("#system_information_hostname_button", "mouseout")
+        b.wait_not_present(".tooltip-inner")
 
         # should not have any leftover tickets from the joining
         m.execute("! klist")
@@ -175,7 +165,7 @@ class TestRealms(MachineCase):
         b.password = 'foobarfoo'
 
         self.login_and_go('/system/services#/systemd-tmpfiles-clean.timer', user='admin@cockpit.lan')
-        if m.image in ["rhel-8-0-distropkg", "rhel-8-1-distropkg"]: # Changed in #12265
+        if m.image in ["rhel-8-1-distropkg"]: # Changed in #12265
             b.wait_in_text('#service-unit', "active")
             b.click('#service-unit-primary-action button[data-action="StopUnit"]')
             b.wait_in_text('#service-unit', "inactive")
@@ -212,21 +202,17 @@ class TestRealms(MachineCase):
         b.wait_in_text("#system-info-domain a", "cockpit.lan")
         b.click("#system-info-domain a")
         b.wait_popup("realms-op")
-        if m.image not in ["rhel-8-0-distropkg"]:
-            b.wait_text("#realms-op-info-domain", "cockpit.lan")
-            b.wait_text("#realms-op-info-login-format", "username@cockpit.lan")
-            b.wait_text("#realms-op-info-server-sw", "ipa")
-            b.wait_text("#realms-op-info-client-sw", "sssd")
-            # leave button should be hidden behind expander by default
-            b.wait_not_visible("button.realms-op-leave")
-            b.wait_not_visible("#realms-op-alert")
-            b.click("#realms-op-leave-toggle")
-            b.wait_visible("#realms-op-alert")
-            b.wait_visible("button.realms-op-leave")
-            b.click(".realms-op-leave")
-        else:
-            b.wait_in_text(".realms-op-leave-only-row", "cockpit.lan")
-            b.click(".realms-op-apply")
+        b.wait_text("#realms-op-info-domain", "cockpit.lan")
+        b.wait_text("#realms-op-info-login-format", "username@cockpit.lan")
+        b.wait_text("#realms-op-info-server-sw", "ipa")
+        b.wait_text("#realms-op-info-client-sw", "sssd")
+        # leave button should be hidden behind expander by default
+        b.wait_not_visible("button.realms-op-leave")
+        b.wait_not_visible("#realms-op-alert")
+        b.click("#realms-op-leave-toggle")
+        b.wait_visible("#realms-op-alert")
+        b.wait_visible("button.realms-op-leave")
+        b.click(".realms-op-leave")
 
         b.wait_popdown("realms-op")
         wait_number_domains(0)
@@ -257,12 +243,8 @@ class TestRealms(MachineCase):
         b.click("#system-info-domain a")
         b.wait_popup("realms-op")
         b.set_val(self.op_address, "NOPE")
-        if m.image not in ["rhel-8-0-distropkg"]:
-            # changed in PR #11022
-            b.wait_text(".realms-op-address-error", "Domain NOPE could not be contacted")
-            b.wait_not_visible(".realms-op-address-spinner")
-        else:
-            b.wait_attr(".realms-op-address-error", "title", "Domain NOPE could not be contacted")
+        b.wait_text(".realms-op-address-error", "Domain NOPE could not be contacted")
+        b.wait_not_visible(".realms-op-address-spinner")
         b.click(".realms-op-cancel")
         b.wait_popdown("realms-op")
 
@@ -309,23 +291,21 @@ class TestRealms(MachineCase):
         self.login_and_go("/system")
         b.wait_in_text("#system-info-domain a", "cockpit.lan")
 
-        # Show domain information (PR #11096)
-        if m.image not in ["rhel-8-0-distropkg"]:
-            b.click("#system-info-domain a")
-            b.wait_popup("realms-op")
-            b.wait_text("#realms-op-info-domain", "cockpit.lan")
-            b.wait_text("#realms-op-info-login-format", "username")  # no @domain
-            b.wait_text("#realms-op-info-server-sw", "ipa")
-            b.wait_text("#realms-op-info-client-sw", "sssd")
-            b.click(".realms-op-cancel")
-            b.wait_popdown("realms-op")
+        # Show domain information
+        b.click("#system-info-domain a")
+        b.wait_popup("realms-op")
+        b.wait_text("#realms-op-info-domain", "cockpit.lan")
+        b.wait_text("#realms-op-info-login-format", "username")  # no @domain
+        b.wait_text("#realms-op-info-server-sw", "ipa")
+        b.wait_text("#realms-op-info-client-sw", "sssd")
+        b.click(".realms-op-cancel")
+        b.wait_popdown("realms-op")
 
         # should be able to run admin operations
         b.go('/system/services#/systemd-tmpfiles-clean.timer')
         b.enter_page('/system/services')
 
-
-        if m.image in ["rhel-8-0-distropkg", "rhel-8-1-distropkg"]: # Changed in #12265
+        if m.image in ["rhel-8-1-distropkg"]: # Changed in #12265
             b.wait_in_text('#service-unit', "active")
             b.click('#service-unit-primary-action button[data-action="StopUnit"]')
             b.wait_in_text('#service-unit', "inactive")
@@ -374,11 +354,7 @@ class TestRealms(MachineCase):
         b.click("#system-info-domain a")
         b.wait_popup("realms-op")
         b.set_val(self.op_address, "cockpit.lan")
-        if m.image not in ["rhel-8-0-distropkg"]:
-            # changed in PR #11022
-            b.wait_in_text(".realms-op-address-error", "Domain cockpit.lan is not supported")
-        else:
-            b.wait_js_cond("ph_find('.realms-op-address-error').title != ''")
+        b.wait_in_text(".realms-op-address-error", "Domain cockpit.lan is not supported")
         b.set_val(self.op_admin, "admin")
         b.set_val(self.op_admin_password, "foobarfoo")
         b.click(".realms-op-apply")
@@ -500,16 +476,10 @@ class TestKerberos(MachineCase):
         b.focus(".terminal")
 
         def line_sel(i):
-            if m.image in ["rhel-8-0-distropkg"]:
-                return '.terminal div:nth-child(%d)' % i
-            else:
-                return '.terminal .xterm-accessibility-tree div:nth-child(%d)' % i
+            return '.terminal .xterm-accessibility-tree div:nth-child(%d)' % i
 
         def wait_prompt(b, line):
-            if m.image in ["rhel-8-0-distropkg"]:
-                b.wait_js_func("(function (sel) { return ph_text(sel).trim() != ''})", line_sel(line))
-            else:
-                b.wait_js_func("(function (sel) { return ph_text(sel).trim() != 'Blank line'})", line_sel(line))
+            b.wait_js_func("(function (sel) { return ph_text(sel).trim() != 'Blank line'})", line_sel(line))
 
         wait_prompt(b, 1)
 

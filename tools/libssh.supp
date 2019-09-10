@@ -9,38 +9,3 @@
    fun:cockpit_ssh_authenticate
    ...
 }
-{
-   ssh_userauth_agent_leak
-   Memcheck:Leak
-   match-leak-kinds: definite
-   fun:calloc
-   fun:ssh_userauth_agent
-}
-{
-   ssh_disconnect_hmac_leak
-   Memcheck:Leak
-   match-leak-kinds: definite
-   ...
-   fun:CRYPTO_zalloc
-   fun:HMAC_CTX_reset
-   fun:HMAC_CTX_new
-   fun:hmac_init
-   ...
-}
-
-# the bignum math in ecdh-sha2-nistp256 throws so many errors about
-# uninitialised memory usage that it causes semaphore to hang
-{
-   libssh_i386_cond
-   Memcheck:Cond
-   ...
-   obj:/usr/lib/i386-linux-gnu/libssh.so.4.4.1
-   ...
-}
-{
-   libssh_i386_value4
-   Memcheck:Value4
-   ...
-   obj:/usr/lib/i386-linux-gnu/libssh.so.4.4.1
-   ...
-}

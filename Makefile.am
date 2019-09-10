@@ -280,16 +280,9 @@ VALGRIND_ARGS = --trace-children=yes --quiet --error-exitcode=33 \
 	--num-callers=16 --leak-check=yes --show-leak-kinds=definite \
 	--errors-for-leak-kinds=definite --trace-children-skip='*mock*,/bin*,/usr/bin/*,/usr/local/bin'
 VALGRIND_SUPPRESSIONS = \
-	tools/gcrypt.supp \
 	tools/glib.supp \
-	tools/pthread.supp \
-	tools/travis.supp \
-	tools/polkit.supp \
-	tools/pcp.supp \
-	tools/unknown.supp \
-	tools/zlib.supp \
 	tools/libssh.supp \
-	tools/json-glib.supp \
+	tools/polkit.supp \
 	tools/gnutls.supp \
 	$(NULL)
 
@@ -298,7 +291,7 @@ VALGRIND_ARGS += --aspace-minaddr=0x100000000
 endif
 
 valgrind-suppressions: $(VALGRIND_SUPPRESSIONS)
-	$(AM_V_GEN) cat $^ > $@
+	$(AM_V_GEN) cat $^ /usr/share/glib-2.0/valgrind/glib.supp > $@
 
 check-memory: valgrind-suppressions
 	$(MAKE) LOG_FLAGS="valgrind $(VALGRIND_ARGS)" \

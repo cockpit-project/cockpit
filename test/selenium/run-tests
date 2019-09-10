@@ -331,7 +331,7 @@ class SeleniumWinTestSuite(SeleniumTestSuite):
     def _prepare_selenium(self):
         if not self.machine_selenium:
             self.machine_avocado.dhcp_server(range=[self.ipaddr_selenium, self.ipaddr_selenium])
-            self.machine_selenium = testvm.VirtMachine(image='windows-10', verbose=self.verbose, networking=self.network.host())
+            self.machine_selenium = testvm.VirtMachine(image='windows-10', verbose=self.verbose, networking=self.network.host(), memory_mb=2048, cpus=2)
             self.machine_selenium.pull(self.machine_selenium.image_file)
         self.machine_selenium.start()
 

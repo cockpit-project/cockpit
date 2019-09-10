@@ -84,7 +84,7 @@ BuildRequires: glib-networking
 BuildRequires: sed
 
 BuildRequires: glib2-devel >= 2.37.4
-BuildRequires: systemd-devel
+BuildRequires: systemd-devel >= 235
 BuildRequires: pcp-libs-devel
 BuildRequires: krb5-server
 BuildRequires: gdb
@@ -388,6 +388,7 @@ Requires: glib2 >= 2.37.4
 Conflicts: firewalld < 0.6.0-1
 Recommends: sscg >= 2.3
 Recommends: system-logos
+Requires: systemd >= 235
 Requires(post): systemd
 Requires(preun): systemd
 Requires(postun): systemd

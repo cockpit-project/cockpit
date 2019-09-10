@@ -11,7 +11,7 @@ Build-Depends: debhelper (>= 10),
                libxslt1-dev,
                libglib2.0-dev,
                libgnutls28-dev | gnutls-dev,
-               libsystemd-dev,
+               libsystemd-dev (>= 235),
                libpolkit-agent-1-dev,
                libpcp3-dev,
                libjson-glib-dev,
@@ -191,6 +191,7 @@ Depends: ${misc:Depends},
          glib-networking,
          adduser,
          openssl,
+         systemd (>= 235),
 Conflicts: ${ws:Conflicts}
 Description: Cockpit Web Service
  The Cockpit Web Service listens on the network, and authenticates

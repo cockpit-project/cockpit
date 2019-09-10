@@ -465,16 +465,12 @@ test_tls_client_cert_disabled (TestCase *tc, gconstpointer data)
 static void
 test_tls_client_cert_expired (TestCase *tc, gconstpointer data)
 {
-#if GNUTLS_VERSION_NUMBER < 0x030403
-  g_test_skip ("too old GnuTLS, cannot validate certificate properties");
-#else
   /* expect_tls_failure==true only does a coarse-grained check that the request
    * fails anywhere during handshake or the first send/recv. GnuTLS 3.6.4
    * introduces TLS 1.3 by default, which has only a two-step handshake: that
    * does not pick up the server's late failing handshake from the verify
    * function, only the next read/write attempt does */
   assert_https_outcome (tc, CLIENT_EXPIRED_CERTFILE, CLIENT_KEYFILE, 1, true);
-#endif
 }
 
 static void

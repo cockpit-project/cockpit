@@ -75,7 +75,7 @@ BuildRequires: intltool
 BuildRequires: libssh-devel >= 0.7.1
 %endif
 BuildRequires: openssl-devel
-BuildRequires: gnutls-devel
+BuildRequires: gnutls-devel >= 3.4.3
 BuildRequires: zlib-devel
 BuildRequires: krb5-devel >= 1.11
 BuildRequires: libxslt-devel

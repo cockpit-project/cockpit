@@ -24,7 +24,7 @@ import ReactDOM from 'react-dom';
 
 import moment from "moment";
 import { OverlayTrigger, Tooltip } from "patternfly-react";
-import Markdown from "react-remarkable";
+import { Remarkable } from "remarkable";
 import AutoUpdates from "./autoupdates.jsx";
 import { History, PackageList } from "./history.jsx";
 
@@ -214,6 +214,7 @@ class UpdateItem extends React.Component {
     constructor() {
         super();
         this.state = { expanded: false };
+        this.remarkable = new Remarkable();
     }
 
     render() {
@@ -290,8 +291,8 @@ class UpdateItem extends React.Component {
         descriptionFirstLine = cleanupChangelogLine(descriptionFirstLine);
         var description;
         if (info.markdown) {
-            descriptionFirstLine = <Markdown source={descriptionFirstLine} />;
-            description = <Markdown source={info.description} />;
+            descriptionFirstLine = <span dangerouslySetInnerHTML={{ __html: this.remarkable.render(descriptionFirstLine) }} />;
+            description = <div dangerouslySetInnerHTML={{ __html: this.remarkable.render(info.description) }} />;
         } else {
             description = <div className="changelog">{info.description}</div>;
         }

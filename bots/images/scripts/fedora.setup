@@ -17,7 +17,9 @@ fi
 # depending on how it was compiled and which plugins are installed,
 # and will just silently not do it.  So we do it here.
 #
-xfs_growfs /
+if [ "$IMAGE" != fedora-31 ]; then
+    xfs_growfs /
+fi
 df -h /
 
 echo foobar | passwd --stdin root
@@ -27,16 +29,23 @@ if [ $(uname -m) = x86_64 ]; then
     HAVE_KUBERNETES=1
 fi
 
+# HACK docker not available on f31
+# https://github.com/cockpit-project/cockpit/issues/12670
+HAVE_DOCKER=
+if [ "$1" != fedora-31 ]; then
+    HAVE_DOCKER=1
+fi
+
 # We install all dependencies of the cockpit packages since we want
 # them to not spontaneously change from one test run to the next when
 # the distribution repository is updated.
 #
 COCKPIT_DEPS="\
-atomic \
 device-mapper-multipath \
-docker \
 etcd \
+glibc-all-langpacks \
 glib-networking \
+grubby \
 json-glib \
 kexec-tools \
 libssh \
@@ -59,6 +68,8 @@ subscription-manager \
 tuned \
 virt-install \
 "
+
+[ -z "$HAVE_DOCKER" ] || COCKPIT_DEPS="$COCKPIT_DEPS atomic docker"
 
 COCKPIT_DEPS="$COCKPIT_DEPS udisks2 udisks2-lvm2 udisks2-iscsi"
 
@@ -164,23 +175,24 @@ if ! [ "$version" -eq "$version" ] 2>/dev/null; then version=30; fi
 su builder -c "/usr/bin/mock --no-bootstrap-chroot --verbose -i $(/var/lib/testvm/build-deps.sh "$opsys $version")"
 su builder -c "/usr/bin/mock --install --verbose rpmlint"
 
-# HACK: docker falls over regularly, print its log if it does
-systemctl start docker || journalctl -u docker
-
-# our cockpit/base container is only really a thing on x86_64, just skip it on other arches
-if [ $(uname -m) = x86_64 ]; then
-    docker build -t cockpit/base /var/tmp/cockpit-base
+if [ -n "$HAVE_DOCKER" ]; then
+    # HACK: docker falls over regularly, print its log if it does
+    systemctl start docker || journalctl -u docker
+    # docker images that we need for integration testing
+    /var/lib/testvm/docker-images.setup
 fi
 
 # Configure kubernetes
 [ -z "$HAVE_KUBERNETES" ] || /var/lib/testvm/kubernetes.setup
 
-# docker images that we need for integration testing
-/var/lib/testvm/docker-images.setup
-
 # reduce image size
 dnf clean all
-/var/lib/testvm/zero-disk.setup
+zd_opts=
+# Offline Mock with dnf isn't happy anymore without a cache
+if [ "$IMAGE" = fedora-31 ]; then
+    zd_opts="--keep-mock-cache"
+fi
+/var/lib/testvm/zero-disk.setup $zd_opts
 
 ln -sf ../selinux/config /etc/sysconfig/selinux
 printf "SELINUX=enforcing\nSELINUXTYPE=targeted\n" > /etc/selinux/config

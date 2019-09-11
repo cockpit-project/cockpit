@@ -647,7 +647,7 @@ class TestUpdates(PackageCase):
 
 
 @skipImage("Image uses OSTree", "fedora-atomic")
-@skipImage("No subscriptions", "debian-stable", "debian-testing",
+@skipImage("No subscriptions", "debian-stable", "debian-testing", "fedora-31",
            "fedora-30", "fedora-i386", "fedora-testing", "ubuntu-1804", "ubuntu-stable")
 class TestUpdatesSubscriptions(PackageCase):
     provision = {

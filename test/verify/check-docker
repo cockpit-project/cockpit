@@ -26,6 +26,7 @@ from testlib import *
 
 @skipPackage("cockpit-docker")
 @skipImage("No docker packaged", "rhel-8-1", "rhel-8-1-distropkg")
+@skipImage("Docker not available", "fedora-31") # https://github.com/cockpit-project/cockpit/issues/12670
 class TestDocker(MachineCase):
 
     def setUp(self):
@@ -588,7 +589,8 @@ CMD ["/bin/sh"]
 
 
 @skipImage("Skip on systems without atomic and ones with missing deps", "debian-stable",
-           "debian-testing", "ubuntu-1804", "ubuntu-stable", "fedora-atomic", "fedora-i386")
+           "debian-testing", "ubuntu-1804", "ubuntu-stable", "fedora-atomic", "fedora-i386",
+           "fedora-31")
 @skipImage("No docker packaged", "rhel-8-1", "rhel-8-1-distropkg")
 @skipPackage("cockpit-docker")
 class TestAtomicScan(MachineCase):

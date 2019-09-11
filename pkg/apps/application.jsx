@@ -63,7 +63,7 @@ export class Application extends React.Component {
             return urls.map(url => {
                 if (url.type == 'homepage') {
                     return (<div className="app-links" key={url.link}>
-                        <a href={url.link} target="_blank" rel="noopener" data-linkedhost={url.link}>
+                        <a href={url.link} target="_blank" rel="noopener noreferrer" data-linkedhost={url.link}>
                                     View Project Website <i className="fa fa-external-link" aria-hidden="true" />
                         </a>
                     </div>);

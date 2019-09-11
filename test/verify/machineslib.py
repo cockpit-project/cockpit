@@ -1808,7 +1808,7 @@ class TestMachines(NetworkCase):
                 b.click("#create-new-vm")
 
             b.wait_present("#create-vm-dialog")
-            b.wait_in_text(".modal-dialog .modal-header .modal-title", "Create New Virtual Machine")
+            b.wait_in_text(".modal-dialog .modal-header .modal-title", "Import A Virtual Machine")
 
             if self.os_name is not None:
                 # check if there is os present in osinfo-query because it can be filtered out in the UI

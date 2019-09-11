@@ -770,7 +770,7 @@ class CreateVmModal extends React.Component {
             <Modal id='create-vm-dialog' show onHide={ this.props.close }>
                 <Modal.Header>
                     <Modal.CloseButton onClick={ this.props.close } />
-                    <Modal.Title> {`Create New Virtual Machine`} </Modal.Title>
+                    <Modal.Title> {`Import A Virtual Machine`} </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     {dialogBody}
@@ -783,7 +783,7 @@ class CreateVmModal extends React.Component {
                     <Button bsStyle='primary'
                             disabled={Object.getOwnPropertyNames(validationFailed).length > 0}
                             onClick={this.onCreateClicked}>
-                        {_("Create")}
+                        {_("Import")}
                     </Button>
                 </Modal.Footer>
             </Modal>

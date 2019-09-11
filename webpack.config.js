@@ -325,7 +325,6 @@ info.tests.forEach(function(test) {
 var aliases = {
     "d3": "d3/d3.js",
     "moment": "moment/moment.js",
-    "term": "term.js-cockpit/src/term.js"
 };
 
 /* HACK: To get around redux warning about reminimizing code */

@@ -79,7 +79,7 @@ REPO_BRANCH_CONTEXT = {
             'fedora-30/openstack',
             'fedora-30/vmware',
         ],
-        '_manual': [
+        'rhel8-branch': [
             'rhel-8-1',
             'rhel-8-1/live-iso',
             'rhel-8-1/qcow2',

@@ -20,12 +20,15 @@
 import json
 import os
 import socket
+import ssl
 import sys
 import urllib
 
 sys.dont_write_bytecode = True
 
 import task
+
+BOTS = os.path.dirname(os.path.realpath(__file__))
 
 # This parses the output JSONL format discussed here, where various
 # values are grouped:
@@ -49,17 +52,20 @@ def count(record, field, only):
     return 0
 
 def run(url, verbose=False, dry=False, **kwargs):
+    cafile = None
     if not url:
         host = os.environ.get("COCKPIT_LEARN_SERVICE_HOST", "learn-cockpit.apps.ci.centos.org")
         port = os.environ.get("COCKPIT_LEARN_SERVICE_PORT", "443")
         url = "{0}://{1}:{2}/active/statistics.jsonl".format("https" if port == "443" else "http", host, port)
+        cafile = os.path.join(BOTS, "images", "files", "ca.pem")
+        context = ssl.create_default_context(cafile=cafile)
 
     statistics = [ ]
 
     # Retrieve the URL
     try:
         req = urllib.request.Request(url)
-        with urllib.request.urlopen(req) as f:
+        with urllib.request.urlopen(req, context=context) as f:
             for line in f.readlines():
                 try:
                     record = json.loads(line.decode('utf-8'))

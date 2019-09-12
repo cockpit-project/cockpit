@@ -91,6 +91,7 @@ import {
     isRunning,
     parseDumpxml,
     parseNetDumpxml,
+    parseIfaceDumpxml,
     parseNodeDeviceDumpxml,
     parseStoragePoolDumpxml,
     parseStorageVolumeDumpxml,
@@ -610,7 +611,11 @@ LIBVIRT_DBUS_PROVIDER = {
                         props.id = objPath;
                         props.connectionName = connectionName;
 
-                        dispatch(updateOrAddInterface(props));
+                        return call(connectionName, objPath, 'org.libvirt.Interface', 'GetXMLDesc', [0], TIMEOUT);
+                    })
+                    .then(xml => {
+                        const iface = parseIfaceDumpxml(xml);
+                        dispatch(updateOrAddInterface(Object.assign({}, props, iface)));
                     })
                     .catch(ex => console.log('listInactiveInterfaces action failed for path', objPath, ex));
         };

@@ -44,35 +44,13 @@ const _ = cockpit.gettext;
  *            excuse in a tooltip.
  */
 
-var permission = cockpit.permission({ admin: true });
-
 class StorageControl extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            allowed: permission.allowed !== false
-        };
-        this.onPermissionChanged = this.onPermissionChanged.bind(this);
-    }
-
-    onPermissionChanged() {
-        this.setState({ allowed: permission.allowed !== false });
-    }
-
-    componentDidMount() {
-        permission.addEventListener("changed", this.onPermissionChanged);
-    }
-
-    componentWillUnmount() {
-        permission.removeEventListener("changed", this.onPermissionChanged);
-    }
-
     render() {
         var excuse = this.props.excuse;
-        if (!this.state.allowed) {
+        if (!client.permission.allowed) {
             var markup = {
                 __html: cockpit.format(_("The user <b>$0</b> is not permitted to manage storage"),
-                                       permission.user ? permission.user.name : '')
+                                       client.permission.user ? client.permission.user.name : '')
             };
             excuse = <span dangerouslySetInnerHTML={markup} />;
         }

@@ -44,47 +44,21 @@ const _ = cockpit.gettext;
  *            excuse in a tooltip.
  */
 
-var permission = cockpit.permission({ admin: true });
-
 class StorageControl extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            allowed: permission.allowed !== false
-        };
-        this.onPermissionChanged = this.onPermissionChanged.bind(this);
-    }
-
-    onPermissionChanged() {
-        this.setState({ allowed: permission.allowed !== false });
-    }
-
-    componentDidMount() {
-        permission.addEventListener("changed", this.onPermissionChanged);
-    }
-
-    componentWillUnmount() {
-        permission.removeEventListener("changed", this.onPermissionChanged);
-    }
-
     render() {
         var excuse = this.props.excuse;
-        if (!this.state.allowed) {
-            var markup = {
-                __html: cockpit.format(_("The user <b>$0</b> is not permitted to manage storage"),
-                                       permission.user ? permission.user.name : '')
-            };
-            excuse = <span dangerouslySetInnerHTML={markup} />;
+        if (!client.permission.allowed) {
+            excuse = true;
         }
 
-        if (excuse) {
+        if (excuse && excuse !== true) {
             return (
                 <OverlayTrigger overlay={ <Tooltip id="tip-storage">{excuse}</Tooltip> } placement="top">
                     { this.props.content(excuse) }
                 </OverlayTrigger>
             );
         } else {
-            return this.props.content();
+            return this.props.content(excuse);
         }
     }
 }
@@ -208,41 +182,6 @@ export class StorageOnOff extends React.Component {
                                                  disabled={!!(excuse || this.state.promise)}
                                                  onChange={onChange} />
                             )} />
-        );
-    }
-}
-
-export class StorageMultiAction extends React.Component {
-    render() {
-        var dflt = this.props.actions[this.props.default];
-
-        return (
-            <StorageControl excuse={this.props.excuse}
-                            content={(excuse) => {
-                                var btn_classes = "btn btn-default";
-                                if (excuse)
-                                    btn_classes += " disabled";
-                                return (
-                                    <div className="btn-group">
-                                        <button className={btn_classes} onClick={checked(dflt.action)}>
-                                            {dflt.title}
-                                        </button>
-                                        <button className={btn_classes + " dropdown-toggle"}
-                                                    data-toggle="dropdown">
-                                            <span className="caret" />
-                                        </button>
-                                        <ul className="dropdown-menu action-dropdown-menu" role="menu">
-                                            { this.props.actions.map((act) => (
-                                                <li key={act.title} className="presentation">
-                                                    <a role="menuitem" tabIndex="0" onClick={checked(act.action)}>
-                                                        {act.title}
-                                                    </a>
-                                                </li>))
-                                            }
-                                        </ul>
-                                    </div>
-                                );
-                            }} />
         );
     }
 }

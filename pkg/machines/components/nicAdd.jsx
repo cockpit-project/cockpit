@@ -22,7 +22,6 @@ import PropTypes from 'prop-types';
 import { Modal, Button } from 'patternfly-react';
 
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
-import { getNetworkDevices } from '../helpers.js';
 import { NetworkTypeAndSourceRow, NetworkModelRow } from './nicBody.jsx';
 import { getVm } from '../actions/provider-actions.js';
 import { attachIface } from '../libvirt-dbus.js';
@@ -89,36 +88,23 @@ const PermanentChange = ({ idPrefix, onValueChanged, dialogValues, provider, vm 
     );
 };
 
-export class AddNICAction extends React.Component {
+export class AddNIC extends React.Component {
     constructor(props) {
         super(props);
 
-        this.state = this.initialState;
-        this.open = this.open.bind(this);
-        this.close = this.close.bind(this);
-        this.add = this.add.bind(this);
-        this.onValueChanged = this.onValueChanged.bind(this);
-        this.dialogErrorSet = this.dialogErrorSet.bind(this);
-    }
-
-    get initialState() {
-        const state = {
-            showModal: false,
+        this.state = {
             dialogError: undefined,
             networkType: "network",
-            networkSource: undefined,
+            networkSource: props.availableSources.network.length > 0 ? props.availableSources.network[0] : undefined,
             networkModel: "virtio",
             setNetworkMac: false,
             networkMac: "",
             permanent: false,
-            addDisabled: false,
+            availableSources: props.availableSources,
         };
-
-        const availableSources = this.props.networks.map(network => network.name);
-        if (availableSources.length > 0)
-            state.networkSource = availableSources[0];
-
-        return state;
+        this.add = this.add.bind(this);
+        this.onValueChanged = this.onValueChanged.bind(this);
+        this.dialogErrorSet = this.dialogErrorSet.bind(this);
     }
 
     onValueChanged(key, value) {
@@ -126,37 +112,22 @@ export class AddNICAction extends React.Component {
 
         this.setState(stateDelta);
 
-        if (key == 'networkType') {
-            let addDisabled = false;
+        if (key == 'networkType' && ['network', 'direct', 'bridge'].includes(value)) {
+            let sources;
+            if (value === "network")
+                sources = this.state.availableSources.network;
+            else
+                sources = this.state.availableSources.device;
 
-            if (value == 'network' || value == 'direct') {
-                let availableSources;
-                if (value == 'network')
-                    availableSources = this.props.networks.map(network => network.name);
-                else if (value == 'direct')
-                    availableSources = getNetworkDevices(this.props.vm.connectionName, this.props.nodeDevices, this.props.interfaces);
-
-                if (availableSources.length > 0) {
-                    this.setState({ networkSource: availableSources[0] });
-                } else {
-                    this.setState({ networkSource: undefined });
-                    addDisabled = true;
-                }
-            }
-            this.setState({ addDisabled });
+            if (sources && sources.length > 0)
+                this.setState({ networkSource: sources[0], saveDisabled: false });
+            else
+                this.setState({ networkSource: undefined, saveDisabled: true });
         }
     }
 
     dialogErrorSet(text, detail) {
         this.setState({ dialogError: text, dialogErrorDetail: detail });
-    }
-
-    close() {
-        this.setState({ showModal: false, dialogError: undefined });
-    }
-
-    open() {
-        this.setState({ showModal: true });
     }
 
     add() {
@@ -177,7 +148,7 @@ export class AddNICAction extends React.Component {
                 })
                 .then(() => {
                     dispatch(getVm({ connectionName: vm.connectionName, id: vm.id }));
-                    this.close();
+                    this.props.close();
                 });
     }
 
@@ -213,35 +184,29 @@ export class AddNICAction extends React.Component {
         );
 
         return (
-            <>
-                <Button id={`${idPrefix}-button`} bsStyle='default' className='pull-right' onClick={this.open}>
-                    {_("Add Network Interface")}
-                </Button>
-
-                <Modal id={`${idPrefix}-dialog`} show={this.state.showModal} onHide={this.close} className='nic-add'>
-                    <Modal.Header>
-                        <Modal.CloseButton onClick={this.close} />
-                        <Modal.Title>{_("Add Virtual Network Interface")}</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        {defaultBody}
-                    </Modal.Body>
-                    <Modal.Footer>
-                        {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
-                        <Button id={`${idPrefix}-cancel`} bsStyle='default' className='btn-cancel' onClick={this.close}>
-                            {_("Cancel")}
-                        </Button>
-                        <Button disabled={this.state.addDisabled} id={`${idPrefix}-add`} bsStyle='primary' onClick={this.add}>
-                            {_("Add")}
-                        </Button>
-                    </Modal.Footer>
-                </Modal>
-            </>
+            <Modal id={`${idPrefix}-dialog`} onHide={this.props.close} className='nic-add' show>
+                <Modal.Header>
+                    <Modal.CloseButton onClick={this.props.close} />
+                    <Modal.Title>{_("Add Virtual Network Interface")}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {defaultBody}
+                </Modal.Body>
+                <Modal.Footer>
+                    {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
+                    <Button id={`${idPrefix}-cancel`} bsStyle='default' className='btn-cancel' onClick={this.props.close}>
+                        {_("Cancel")}
+                    </Button>
+                    <Button disabled={this.state.networkSource === undefined } id={`${idPrefix}-add`} bsStyle='primary' onClick={this.add}>
+                        {_("Add")}
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         );
     }
 }
 
-AddNICAction.propTypes = {
+AddNIC.propTypes = {
     dispatch: PropTypes.func.isRequired,
     idPrefix: PropTypes.string.isRequired,
     vm: PropTypes.object.isRequired,
@@ -251,4 +216,4 @@ AddNICAction.propTypes = {
     nodeDevices: PropTypes.array.isRequired,
 };
 
-export default AddNICAction;
+export default AddNIC;

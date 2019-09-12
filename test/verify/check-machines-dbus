@@ -510,6 +510,21 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_in_text("#vm-subVmTest1-network-1-type", "direct")
         b.wait_in_text("#vm-subVmTest1-network-1-source", source)
 
+        # Change interface type to bridge
+        # Open the modal dialog
+        b.click("#vm-subVmTest1-network-1-edit-dialog")
+
+        b.wait_in_text("#vm-subVmTest1-network-1-select-type", "Direct attachment")
+        b.select_from_dropdown("#vm-subVmTest1-network-1-select-type", "Bridge to LAN")
+        b.select_from_dropdown("#vm-subVmTest1-network-1-select-source", "virbr0")
+
+        # Save the network settings
+        b.click("#vm-subVmTest1-network-1-edit-dialog-save")
+        b.wait_not_present("#vm-subVmTest1-network-1-edit-dialog-modal-window")
+
+        b.wait_in_text("#vm-subVmTest1-network-1-type", "bridge")
+        b.wait_in_text("#vm-subVmTest1-network-1-source", "virbr0")
+
         # Change interface type to network
         # Open the modal dialog
         b.click("#vm-subVmTest1-network-1-edit-dialog")
@@ -1745,6 +1760,8 @@ class TestMachinesDBus(machineslib.TestMachines):
                     source_type = "direct"
                     if (self.source_type == "Virtual network"):
                         source_type = "network"
+                    if (self.source_type == "Bridge to LAN"):
+                        source_type = "bridge"
                     m.execute("virsh detach-interface --mac {0} --domain subVmTest1 --type {1} --config".format(self.mac, source_type))
 
                     # we don't get any signal for interface detaching right now
@@ -1777,6 +1794,13 @@ class TestMachinesDBus(machineslib.TestMachines):
         NICAddDialog(
             self,
             source_type="Direct attachment",
+        ).execute()
+
+        # Test Bridge
+        NICAddDialog(
+            self,
+            source_type="Bridge to LAN",
+            source="virbr0",
         ).execute()
 
         # Test model

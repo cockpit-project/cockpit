@@ -110,9 +110,9 @@ export class StoragePoolVolumesTab extends React.Component {
 
         if (volumes.length === 0) {
             return (<div id={`${storagePoolIdPrefix}-storage-volumes-list`}>
+                {_("No Storage Volumes defined for this Storage Pool")}
                 <StorageVolumeCreate key='volume-create-action'
                 storagePool={storagePool} />
-                {_("No Storage Volumes defined for this Storage Pool")}
             </div>);
         }
 

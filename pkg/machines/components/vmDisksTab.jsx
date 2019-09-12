@@ -116,7 +116,12 @@ class VmDisksTab extends React.Component {
                 columnTitles.push(_("Additional"));
             columnTitles.push({ title: actions });
         } else {
-            return _("No disks defined for this VM");
+            return (
+                <>
+                    {_("No disks defined for this VM")}
+                    {actions}
+                </>
+            );
         }
 
         const rows = disks.map(disk => {

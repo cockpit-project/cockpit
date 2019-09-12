@@ -130,6 +130,7 @@ export class StorageVolumeCreate extends React.Component {
                 return (
                     <Button id={`${idPrefix}-button`}
                         bsStyle='default'
+                        className='pull-right'
                         onClick={this.open}>
                         {_("Create Volume")}
                     </Button>

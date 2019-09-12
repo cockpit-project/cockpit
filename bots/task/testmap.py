@@ -65,6 +65,7 @@ REPO_BRANCH_CONTEXT = {
         'master': [
             'fedora-29',
             'fedora-30',
+            'fedora-31',
             'rhel-8-1',
         ],
     },

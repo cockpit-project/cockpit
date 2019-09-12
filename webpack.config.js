@@ -412,16 +412,6 @@ module.exports = {
                     "less-loader"
                 ]
             },
-            {
-                test: /views\/[^\/]+\.html$/,
-                use: [{
-                    loader: 'ng-cache-loader',
-
-                    options: {
-                        prefix: '[dir]'
-                    }
-                }]
-            },
         ],
     }
 };

@@ -1,16 +1,5 @@
 # cockpit specific valgrind glib suppressions which are not in /usr/share/glib-2.0/valgrind/glib.supp
 {
-   g_unix_signal_add_full
-   Memcheck:Leak
-   match-leak-kinds: definite
-   fun:malloc
-   fun:g_malloc
-   ...
-   fun:g_thread_new
-   ...
-   fun:g_unix_signal_add_full
-}
-{
    leak_dbus_message_from_blob
    Memcheck:Leak
    match-leak-kinds: definite

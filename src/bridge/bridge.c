@@ -528,9 +528,6 @@ run_bridge (const gchar *interactive,
   /* Reset the umask, typically this is done in .bashrc for a login shell */
   umask (022);
 
-  sig_term = g_unix_signal_add (SIGTERM, on_signal_done, &terminated);
-  sig_int = g_unix_signal_add (SIGINT, on_signal_done, &interupted);
-
   /* Start daemons if necessary */
   if (!interactive && !privileged_slave)
     {
@@ -539,6 +536,9 @@ run_bridge (const gchar *interactive,
       if (!have_env ("SSH_AUTH_SOCK"))
         agent_pid = start_ssh_agent ();
     }
+
+  sig_term = g_unix_signal_add (SIGTERM, on_signal_done, &terminated);
+  sig_int = g_unix_signal_add (SIGINT, on_signal_done, &interupted);
 
   cockpit_dbus_internal_startup (interactive != NULL);
 

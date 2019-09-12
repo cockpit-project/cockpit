@@ -41,8 +41,10 @@ export function getIfaceXML(sourceType, source, model, mac) {
     const sourceElem = doc.createElement('source');
     if (sourceType === "network")
         sourceElem.setAttribute('network', source);
-    else
+    else if (sourceType === "direct")
         sourceElem.setAttribute('dev', source);
+    else if (sourceType === "bridge")
+        sourceElem.setAttribute('bridge', source);
     ifaceElem.appendChild(sourceElem);
 
     if (mac) {

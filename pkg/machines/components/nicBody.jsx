@@ -21,7 +21,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import * as Select from "cockpit-components-select.jsx";
-import { getNetworkDevices } from '../helpers.js';
 import cockpit from 'cockpit';
 
 import './nic.css';
@@ -73,15 +72,13 @@ export const NetworkTypeAndSourceRow = ({ idPrefix, onValueChanged, dialogValues
     const defaultNetworkType = dialogValues.networkType;
     let availableNetworkTypes = [];
     let defaultNetworkSource = dialogValues.networkSource;
-    let availableSources = [];
     let networkSourcesContent;
     let networkSourceEnabled = true;
-    const networkDevices = getNetworkDevices(connectionName, nodeDevices, interfaces);
 
     if (connectionName !== 'session') {
         availableNetworkTypes = [
             { name: 'network', desc: 'Virtual network' },
-            { name: 'bridge', desc: 'Bridge to LAN', disabled: true },
+            { name: 'bridge', desc: 'Bridge to LAN' },
             { name: 'ethernet', desc: 'Generic ethernet connection', disabled: true },
             { name: 'direct', desc: 'Direct attachment' },
         ];
@@ -95,25 +92,25 @@ export const NetworkTypeAndSourceRow = ({ idPrefix, onValueChanged, dialogValues
     // Bring to the first position in dropdown list the initial selection which reflects the current nic type
     availableNetworkTypes.sort(function(x, y) { return x.name == defaultNetworkType ? -1 : y.name == defaultNetworkType ? 1 : 0 });
 
-    if (["network", "direct"].includes(dialogValues.networkType)) {
+    if (["network", "direct", "bridge"].includes(dialogValues.networkType)) {
+        let sources;
         if (dialogValues.networkType === "network")
-            availableSources = networks.map(network => network.name);
-        else if (dialogValues.networkType === "direct")
-            availableSources = networkDevices;
+            sources = dialogValues.availableSources.network;
+        else
+            sources = dialogValues.availableSources.device;
 
-        if (availableSources.length > 0) {
-            networkSourcesContent = availableSources
-                    .map(networkSource => {
-                        return (
-                            <Select.SelectEntry data={networkSource} key={networkSource}>
-                                {networkSource}
-                            </Select.SelectEntry>
-                        );
-                    });
+        if (sources.length > 0) {
+            networkSourcesContent = sources.map(networkSource => {
+                return (
+                    <Select.SelectEntry data={networkSource} key={networkSource}>
+                        {networkSource}
+                    </Select.SelectEntry>
+                );
+            });
         } else {
             if (dialogValues.networkType === "network")
                 defaultNetworkSource = _("No Virtual Networks");
-            else if (dialogValues.networkType === "direct")
+            else
                 defaultNetworkSource = _("No Network Devices");
 
             networkSourcesContent = (
@@ -143,7 +140,7 @@ export const NetworkTypeAndSourceRow = ({ idPrefix, onValueChanged, dialogValues
                             );
                         })}
             </Select.Select>
-            {["network", "direct"].includes(dialogValues.networkType) && (
+            {["network", "direct", "bridge"].includes(dialogValues.networkType) && (
                 <div className='ct-form'>
                     <label className='control-label' htmlFor={`${idPrefix}-select-source`}>
                         {_("Source")}

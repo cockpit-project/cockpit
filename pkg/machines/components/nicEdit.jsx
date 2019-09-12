@@ -25,7 +25,6 @@ import {
 } from 'patternfly-react';
 
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
-import { getNetworkDevices } from '../helpers.js';
 import { NetworkTypeAndSourceRow, NetworkModelRow } from './nicBody.jsx';
 import {
     changeNetworkSettings,
@@ -59,6 +58,7 @@ class EditNICModal extends React.Component {
             networkSource: props.network.source.network || props.network.source.dev,
             networkModel: props.network.model,
             saveDisabled: false,
+            availableSources: props.availableSources,
         };
         this.save = this.save.bind(this);
         this.onValueChanged = this.onValueChanged.bind(this);
@@ -70,24 +70,17 @@ class EditNICModal extends React.Component {
 
         this.setState(stateDelta);
 
-        if (key == 'networkType') {
-            let saveDisabled = false;
+        if (key == 'networkType' && ['network', 'direct', 'bridge'].includes(value)) {
+            let sources;
+            if (value === "network")
+                sources = this.state.availableSources.network;
+            else
+                sources = this.state.availableSources.device;
 
-            if (value == 'network' || value == 'direct') {
-                let availableSources;
-                if (value == 'network')
-                    availableSources = this.props.networks.map(network => network.name);
-                else if (['direct'].includes(value))
-                    availableSources = getNetworkDevices(this.props.vm.connectionName, this.props.nodeDevices, this.props.interfaces);
-
-                if (availableSources.length > 0) {
-                    this.setState({ networkSource: availableSources[0] });
-                } else {
-                    this.setState({ networkSource: undefined });
-                    saveDisabled = true;
-                }
-            }
-            this.setState({ saveDisabled: saveDisabled });
+            if (sources && sources.length > 0)
+                this.setState({ networkSource: sources[0], saveDisabled: false });
+            else
+                this.setState({ networkSource: undefined, saveDisabled: true });
         }
     }
 
@@ -193,7 +186,7 @@ export class EditNICAction extends React.Component {
     }
 
     render() {
-        const { idPrefix, dispatch, vm, network, networks, nodeDevices, interfaces } = this.props;
+        const { idPrefix, dispatch, vm, network, networks, nodeDevices, interfaces, availableSources } = this.props;
 
         return (
             <div id={`${idPrefix}-edit-dialog-full`}>
@@ -208,6 +201,7 @@ export class EditNICAction extends React.Component {
                                              networks={networks}
                                              nodeDevices={nodeDevices}
                                              interfaces={interfaces}
+                                             availableSources={availableSources}
                                              close={this.close} />}
             </div>
         );
@@ -215,6 +209,7 @@ export class EditNICAction extends React.Component {
 }
 
 EditNICAction.propTypes = {
+    availableSources: PropTypes.array.isRequired,
     dispatch: PropTypes.func.isRequired,
     idPrefix: PropTypes.string.isRequired,
     vm: PropTypes.object.isRequired,

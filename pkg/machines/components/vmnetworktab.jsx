@@ -18,11 +18,12 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Button } from 'patternfly-react';
 
 import cockpit from 'cockpit';
 import { changeNetworkState, getVm } from "../actions/provider-actions.js";
 import { rephraseUI, vmId } from "../helpers.js";
-import AddNICAction from './nicAdd.jsx';
+import AddNIC from './nicAdd.jsx';
 import EditNICAction from './nicEdit.jsx';
 import WarningInactive from './warningInactive.jsx';
 import './nic.css';
@@ -37,11 +38,32 @@ class VmNetworkTab extends React.Component {
         super(props);
 
         this.state = {
+            showModal: false,
             interfaceAddress: [],
+            networkDevices: undefined,
         };
+
+        this.open = this.open.bind(this);
+        this.close = this.close.bind(this);
+    }
+
+    close() {
+        this.setState({ showModal: false });
+    }
+
+    open() {
+        this.setState({ showModal: true });
     }
 
     componentDidMount() {
+        cockpit.spawn(["ls", "/sys/class/net"])
+                .fail(e => console.log(e))
+                .done(output => {
+                    const devs = output.split('\n');
+                    devs.pop();
+                    this.setState({ networkDevices: devs });
+                });
+
         if (this.props.config.provider.name != 'LibvirtDBus')
             return;
 
@@ -63,6 +85,10 @@ class VmNetworkTab extends React.Component {
     render() {
         const { vm, dispatch, config, hostDevices, networks, nodeDevices, interfaces, onAddErrorNotification } = this.props;
         const id = vmId(vm.name);
+        const availableSources = {
+            network: this.props.networks.map(network => network.name),
+            device: this.state.networkDevices,
+        };
 
         const nicLookupByMAC = (interfacesList, mac) => {
             return interfacesList.filter(iface => iface.mac == mac)[0];
@@ -184,14 +210,15 @@ class VmNetworkTab extends React.Component {
                 name: "", value: (network, networkId) => {
                     const isUp = network.state === 'up';
                     const editNICAction = (providerName) => {
-                        if (providerName === "LibvirtDBus")
+                        if (providerName === "LibvirtDBus" && this.state.networkDevices !== undefined)
                             return <EditNICAction dispatch={dispatch}
-                                   idPrefix={`${id}-network-${networkId}`}
-                                   vm={vm}
-                                   network={network}
-                                   networks={networks}
-                                   nodeDevices={nodeDevices}
-                                   interfaces={interfaces} />;
+                                       idPrefix={`${id}-network-${networkId}`}
+                                       vm={vm}
+                                       network={network}
+                                       networks={networks}
+                                       nodeDevices={nodeDevices}
+                                       availableSources={availableSources}
+                                       interfaces={interfaces} />;
                     };
 
                     const deleteNICAction = (providerName) => {
@@ -241,13 +268,22 @@ class VmNetworkTab extends React.Component {
         return (
             <div className="machines-network-list">
                 {(config.provider.name === "LibvirtDBus") &&
-                <AddNICAction dispatch={dispatch}
-                    idPrefix={`${id}-add-iface`}
-                    vm={vm}
-                    networks={networks}
-                    provider={config.provider}
-                    nodeDevices={nodeDevices}
-                    interfaces={interfaces} />}
+                <>
+                    <Button id={`${id}-add-iface-button`} bsStyle='default' className='pull-right' onClick={this.open}>
+                        {_("Add Network Interface")}
+                    </Button>
+
+                    {this.state.showModal && this.state.networkDevices !== undefined &&
+                        <AddNIC dispatch={dispatch}
+                            idPrefix={`${id}-add-iface`}
+                            vm={vm}
+                            networks={networks}
+                            provider={config.provider}
+                            nodeDevices={nodeDevices}
+                            availableSources={availableSources}
+                            interfaces={interfaces}
+                            close={this.close} />}
+                </>}
                 <ListingTable aria-label={`VM ${vm.name} Network Interface Cards`}
                     variant='compact'
                     emptyCaption={_("No network interfaces defined for this VM")}

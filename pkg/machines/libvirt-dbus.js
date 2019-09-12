@@ -1365,6 +1365,8 @@ function updateNetworkIface({ domXml, networkMac, networkState, networkModelType
                     sourceElem.setAttribute('network', networkSource);
                 else if (networkType === 'direct')
                     sourceElem.setAttribute('dev', networkSource);
+                else if (networkType === 'bridge')
+                    sourceElem.setAttribute('bridge', networkSource);
             }
 
             if (networkModelType) {

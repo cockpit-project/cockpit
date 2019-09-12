@@ -140,6 +140,18 @@ export function getIfaceElemByMac(domxml, mac) {
     }
 }
 
+function getIfaceElem(netXml) {
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(netXml, "application/xml");
+
+    if (!xmlDoc) {
+        console.warn(`Can't parse dumpxml, input: "${netXml}"`);
+        return;
+    }
+
+    return xmlDoc.getElementsByTagName("interface")[0];
+}
+
 function getNetworkElem(netXml) {
     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(netXml, "application/xml");
@@ -643,6 +655,15 @@ export function parseDumpxmlMachinesMetadataElement(metadataElem, name) {
     const subElems = metadataElem.getElementsByTagNameNS(METADATA_NAMESPACE, name);
 
     return subElems.length > 0 ? subElems[0].textContent : null;
+}
+
+export function parseIfaceDumpxml(ifaceXml) {
+    const retObj = {};
+    const ifaceElem = getIfaceElem(ifaceXml);
+
+    retObj.type = ifaceElem.getAttribute("type");
+
+    return retObj;
 }
 
 export function parseNetDumpxml(netXml) {

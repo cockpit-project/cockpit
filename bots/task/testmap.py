@@ -21,7 +21,7 @@ REPO_BRANCH_CONTEXT = {
             'fedora-30/selenium-firefox', 'fedora-30/selenium-chrome', 'fedora-30/selenium-edge',
             'debian-stable', 'debian-testing',
             'ubuntu-1804', 'ubuntu-stable',
-            'fedora-30', 'fedora-atomic',
+            'fedora-30', 'fedora-31', 'fedora-atomic',
             'rhel-8-1-distropkg', 'rhel-8-1',
         ],
         'rhel-7.7': ['rhel-7-7',
@@ -45,7 +45,6 @@ REPO_BRANCH_CONTEXT = {
         '_manual': [
             'fedora-i386',
             'fedora-testing',
-            'fedora-31',
         ],
     },
     'cockpit-project/starter-kit': {

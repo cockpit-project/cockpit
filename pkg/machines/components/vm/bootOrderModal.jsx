@@ -100,7 +100,7 @@ const DeviceRow = ({ idPrefix, device, index, onToggle, upDisabled, downDisabled
     }
     case "network": {
         heading = rephraseUI("bootableDisk", "network");
-        addOptional(additionalInfo, device.device.mac, _("Mac"));
+        addOptional(additionalInfo, device.device.mac, _("MAC"));
         break;
     }
     case "redirdev": {

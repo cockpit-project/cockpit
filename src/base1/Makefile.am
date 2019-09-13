@@ -23,22 +23,22 @@ basedebug_DATA = \
 
 AM_TESTS_ENVIRONMENT = export G_DEBUG=fatal-criticals,fatal-warnings ; export XDG_CACHE_HOME=$$(mktemp -d) ; export XDG_RUNTIME_DIR=$$XDG_CACHE_HOME ;
 
-dist/base1/cockpit.min.css: src/base1/cockpit.css
+dist/base1/cockpit.min.css: src/base1/cockpit.css $(NODE_MODULES_STAMP)
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	$(srcdir)/tools/missing $(CLEAN_CSS) --keep-line-breaks --output=$@ --inline none --source-map --source-map-inline-sources $^
+	$(srcdir)/tools/missing $(CLEAN_CSS) --keep-line-breaks --output=$@ --inline none --source-map --source-map-inline-sources $<
 dist/base1/patternfly.min.css: dist/base1/patternfly-base.css dist/base1/patternfly-additions.css
 	$(MIN_CSS_RULE)
-dist/base1/jquery.js:
+dist/base1/jquery.js: $(NODE_MODULES_STAMP)
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	cat $(srcdir)/node_modules/jquery/dist/jquery.js $(srcdir)/node_modules/bootstrap/dist/js/bootstrap.js $(srcdir)/node_modules/patternfly/dist/js/patternfly.js > $@.tmp && $(MV) $@.tmp $@
-dist/base1/jquery.min.js: dist/base1/jquery.js
+dist/base1/jquery.min.js: dist/base1/jquery.js $(NODE_MODULES_STAMP)
 	$(MIN_JS_RULE)
-dist/base1/cockpit.js: src/base1/cockpit.js
+dist/base1/cockpit.js: src/base1/cockpit.js $(NODE_MODULES_STAMP)
 	$(ESLINT_RULE)
 	$(COPY_RULE)
 dist/base1/cockpit.min.js: dist/base1/cockpit.js
 	$(MIN_JS_RULE)
-dist/base1/mustache.js: src/base1/deprecated.js
+dist/base1/mustache.js: src/base1/deprecated.js $(NODE_MODULES_STAMP)
 	$(V_COPY) $(MKDIR_P) $(dir $@) && \
 	cat $(srcdir)/src/base1/deprecated.js $(srcdir)/node_modules/mustache/mustache.js > $@.tmp && $(MV) $@.tmp $@
 dist/base1/mustache.min.js: dist/base1/mustache.js
@@ -59,7 +59,7 @@ dist/base1/patternfly.min.css.map: dist/base1/patternfly.min.css
 
 # Modify the patternfly files appropriately
 dist/base1/patternfly.css.map: dist/base1/patternfly-base.css
-dist/base1/patternfly-base.css: src/base1/patternfly-overrides.less
+dist/base1/patternfly-base.css: src/base1/patternfly-overrides.less $(NODE_MODULES_STAMP)
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	F=$(srcdir)/node_modules/patternfly/dist/less/patternfly.less && \
 	sed '/@import "variables.less"/ s^$$^\n@import "../../../../src/base1/patternfly-overrides.less";^' $$F > $$F.patched && \
@@ -69,7 +69,7 @@ dist/base1/patternfly-base.css: src/base1/patternfly-overrides.less
 	$(MV) $@.tmp $@
 
 dist/base1/patternfly-additions.css.map: dist/base1/patternfly-additions.css
-dist/base1/patternfly-additions.css: src/base1/patternfly-overrides.less
+dist/base1/patternfly-additions.css: src/base1/patternfly-overrides.less $(NODE_MODULES_STAMP)
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	F=$(srcdir)/node_modules/patternfly/dist/less/patternfly-additions.less && \
 	sed '/@import "variables.less"/ s^$$^\n@import "../../../../src/base1/patternfly-overrides.less";^' $$F > $$F.patched && \
@@ -78,13 +78,13 @@ dist/base1/patternfly-additions.css: src/base1/patternfly-overrides.less
 	rm $$F.patched && \
 	$(MV) $@.tmp $@
 
-dist/base1/fonts/fontawesome.woff:
+dist/base1/fonts/fontawesome.woff: $(NODE_MODULES_STAMP)
 	$(V_COPY) $(MKDIR_P) $(dir $@) && \
 	cp $(srcdir)/node_modules/patternfly/dist/fonts/fontawesome-webfont.woff $@.tmp && $(MV) $@.tmp $@
-dist/base1/fonts/glyphicons.woff:
+dist/base1/fonts/glyphicons.woff: $(NODE_MODULES_STAMP)
 	$(V_COPY) $(MKDIR_P) $(dir $@) && \
 	cp $(srcdir)/node_modules/patternfly/dist/fonts/glyphicons-halflings-regular.woff $@.tmp && $(MV) $@.tmp $@
-dist/base1/fonts/patternfly.woff:
+dist/base1/fonts/patternfly.woff: $(NODE_MODULES_STAMP)
 	$(V_COPY) $(MKDIR_P) $(dir $@) && \
 	cp $(srcdir)/node_modules/patternfly/dist/fonts/PatternFlyIcons-webfont.woff $@.tmp && $(MV) $@.tmp $@
 
@@ -133,17 +133,17 @@ base_QUNIT_DEPS = \
 	src/base1/test-dbus-common.js \
 	$(NULL)
 
-dist/base1/qunit.js:
+dist/base1/qunit.js: $(NODE_MODULES_STAMP)
 	$(V_COPY) $(MKDIR_P) $(dir $@) && \
 	cat $(srcdir)/node_modules/qunit/qunit/qunit.js \
 	    $(srcdir)/node_modules/qunit-tap/lib/qunit-tap.js \
             $(srcdir)/pkg/lib/qunit-config.js > $@.tmp && $(MV) $@.tmp $@
 
-dist/base1/qunit.css:
+dist/base1/qunit.css:  $(NODE_MODULES_STAMP)
 	$(V_COPY) $(MKDIR_P) $(dir $@) && \
 	cp $(srcdir)/node_modules/qunit/qunit/qunit.css $@.tmp && $(MV) $@.tmp $@
 
-dist/base1/test-dbus-common.js: src/base1/test-dbus-common.js
+dist/base1/test-dbus-common.js: src/base1/test-dbus-common.js $(NODE_MODULES_STAMP)
 	$(ESLINT_RULE)
 	$(COPY_RULE)
 
@@ -168,7 +168,7 @@ base_SIMPLE_DEPS = \
 	src/base1/simple-tap.js \
 	$(NULL)
 
-dist/base1/simple-tap.js: src/base1/simple-tap.js
+dist/base1/simple-tap.js: src/base1/simple-tap.js $(NODE_MODULES_STAMP)
 	$(ESLINT_RULE)
 	$(COPY_RULE)
 

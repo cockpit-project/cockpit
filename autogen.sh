@@ -41,22 +41,7 @@ if test ${npm_version%%.*} -lt 3; then
   exit 1
 fi
 
-# Development dependencies: See node_modules/README
-npm prune
-
-retries='3'
-while ! npm install; do
-  # npm install is flaky, and when it fails, it usually leaves
-  # node_modules in a corrupt state, so if that happens, start over
-  # again from scratch
-  retries=$((${retries}-1))
-  if test ${retries} -eq 0; then
-    echo 'failed to install nodejs modules'
-    exit 1
-  fi
-
-  find node_modules -mindepth 1 -not -path node_modules/README -delete
-done
+tools/npm-install
 
 rm -rf autom4te.cache
 

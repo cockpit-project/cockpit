@@ -27,7 +27,7 @@ src/ws/%.po: po/%.po
 	$(COPY_RULE)
 
 # Build a javascript file from a po
-po.%.js: %.po
+po.%.js: %.po $(NODE_MODULES_STAMP)
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	$(srcdir)/tools/missing $(srcdir)/po/po2json -m $(srcdir)/po/po.empty.js -o $@.js.tmp $< && \
 	mv $@.js.tmp $@
@@ -79,8 +79,8 @@ po/cockpit.c.pot: po/POTFILES.c.in
 		--from-code=UTF-8 --directory=$(srcdir) --files-from=$^
 
 # Extract translate attribute, Glade style, angular-gettext HTML translations
-po/cockpit.html.pot: po/POTFILES.html.in
-	$(srcdir)/tools/missing $(srcdir)/po/html2po -d $(srcdir) -f $^ -o $@
+po/cockpit.html.pot: po/POTFILES.html.in $(NODE_MODULES_STAMP)
+	$(srcdir)/tools/missing $(srcdir)/po/html2po -d $(srcdir) -f $< -o $@
 
 # Extract cockpit style javascript translations
 po/cockpit.js.pot: po/POTFILES.js.in
@@ -93,8 +93,8 @@ po/cockpit.js.pot: po/POTFILES.js.in
 		--from-code=UTF-8 --directory=$(srcdir) --files-from=$^ | \
 		sed '/^#/ s/, c-format//' > $@
 
-po/cockpit.manifest.pot: po/POTFILES.manifest.in
-	$(srcdir)/tools/missing $(srcdir)/po/manifest2po -d $(srcdir) -f $^ -o $@
+po/cockpit.manifest.pot: po/POTFILES.manifest.in $(NODE_MODULES_STAMP)
+	$(srcdir)/tools/missing $(srcdir)/po/manifest2po -d $(srcdir) -f $< -o $@
 
 # Extract pre-processed prepare-po data in tmp/
 po/cockpit.pre.pot: po/POTFILES.pre.in

@@ -1,0 +1,28 @@
+#!/bin/sh
+set -eu
+
+# skips devDependencies otherwise
+unset NODE_ENV
+
+STAMP=package-lock.json
+
+# if package-lock.json exists already, npm install won't update it;
+# enforce that we always get up-to-date packages
+rm -f "$STAMP"
+
+npm prune
+
+# npm install is flaky, and when it fails, it usually leaves
+# node_modules in a corrupt state, so if that happens, start over
+for retry in `seq 3`; do
+    if env -u NODE_ENV npm install; then
+        break
+    fi
+    find node_modules -mindepth 1 -not -path node_modules/README -delete
+    rm -f "$STAMP"
+done
+
+if ! [ -e "$STAMP" ]; then
+    echo 'failed to install nodejs modules' >&2
+    exit 1
+fi

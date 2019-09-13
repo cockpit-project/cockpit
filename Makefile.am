@@ -20,6 +20,9 @@ nodist_systemdunit_DATA =
 
 TESTS = $(NULL)
 
+# dependency on "npm install"
+NODE_MODULES_STAMP = package-lock.json
+
 CLEANFILES = \
 	$(man_MANS) \
 	valgrind-suppressions \
@@ -35,6 +38,7 @@ MAINTAINERCLEANFILES = \
 
 EXTRA_DIST = \
 	package.json \
+	$(NODE_MODULES_STAMP) \
 	README.md \
 	$(NULL)
 
@@ -89,13 +93,13 @@ LESSC = $(srcdir)/node_modules/.bin/lessc
 
 MIN_JS_RULE = \
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	$(srcdir)/tools/missing $(UGLIFY_JS) $(filter-out %.deps, $^) --mangle --comments 'preserve' --beautify \
+	$(srcdir)/tools/missing $(UGLIFY_JS) $(filter-out %.deps %.json, $^) --mangle --comments 'preserve' --beautify \
 		--source-map url=$(notdir $@).map,includeSources --output $@
 
 MIN_CSS_RULE = \
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	$(srcdir)/tools/missing $(CLEAN_CSS) --keep-line-breaks --output=$@ \
-		--source-map --source-map-inline-sources $^
+		--source-map --source-map-inline-sources $(filter %.css, $^)
 
 ESLINT_RULE = \
 	$(V_CHECK) eslint $<
@@ -146,6 +150,12 @@ SUBST_RULE = \
 	$(GZ_RULE)
 .woff.woff.gz:
 	$(GZ_RULE)
+
+# node_modules installation
+$(NODE_MODULES_STAMP): package.json
+	tools/npm-install
+
+MAINTAINERCLEANFILES += $(NODE_MODULES_STAMP)
 
 # Webpack related
 
@@ -205,7 +215,7 @@ dist/%/Makefile.deps:
 
 # This is the primary rule for running webpack; some pkgs like ssh or pcp only
 # have a manifest, no actual webpack, so don't call webpack-make for these
-dist/%/stamp: $(WEBPACK_CONFIG) $(srcdir)/tools/webpack-make
+dist/%/stamp: $(NODE_MODULES_STAMP) $(WEBPACK_CONFIG) $(srcdir)/tools/webpack-make
 	$(V_WEBPACK) $(MKDIR_P) dist/$* && \
 	(if ls $(srcdir)/pkg/$*/*.html >/dev/null 2>&1; then $(WEBPACK_MAKE) -d dist/$*/Makefile.deps $(WEBPACK_CONFIG); else touch dist/$*/Makefile.deps; fi ) && \
 	  touch $@
@@ -344,15 +354,15 @@ REDHATDISPLAY_FONTS = \
 	$(FONTSDIR)/RedHatDisplay-Regular.woff2 \
 	$(NULL)
 
-$(FONTSDIR)/OpenSans-%.woff:
+$(FONTSDIR)/OpenSans-%.woff: $(NODE_MODULES_STAMP)
 	$(V_COPY) $(MKDIR_P) $(dir $@) && \
 	cp -L $(subst $(FONTSDIR),$(srcdir)/node_modules/patternfly/dist/fonts,$@) $@.tmp && $(MV) $@.tmp $@
 
-$(FONTSDIR)/RedHatText-%.woff2:
+$(FONTSDIR)/RedHatText-%.woff2: $(NODE_MODULES_STAMP)
 	$(V_COPY) $(MKDIR_P) $(dir $@) && \
 	cp -L $(subst $(FONTSDIR),$(srcdir)/node_modules/@redhat/redhat-font/webfonts/RedHatText,$@) $@.tmp && $(MV) $@.tmp $@
 
-$(FONTSDIR)/RedHatDisplay-%.woff2:
+$(FONTSDIR)/RedHatDisplay-%.woff2: $(NODE_MODULES_STAMP)
 	$(V_COPY) $(MKDIR_P) $(dir $@) && \
 	cp -L $(subst $(FONTSDIR),$(srcdir)/node_modules/@redhat/redhat-font/webfonts/RedHatDisplay,$@) $@.tmp && $(MV) $@.tmp $@
 

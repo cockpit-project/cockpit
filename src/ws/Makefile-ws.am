@@ -6,14 +6,14 @@ LOGIN_PO_FILES = $(patsubst %,dist/static/login.po.%.html,$(LINGUAS))
 staticdir = $(datadir)/cockpit/static
 nodist_static_DATA = dist/static/login.min.html dist/static/login.po.html $(LOGIN_PO_FILES)
 
-dist/static/login.js: src/ws/login.js
+dist/static/login.js: src/ws/login.js $(NODE_MODULES_STAMP)
 	$(ESHINT_RULE)
 	$(COPY_RULE)
 dist/static/login.min.js: dist/static/login.js
 	$(MIN_JS_RULE)
 dist/static/login.css: src/ws/login.css
 	$(COPY_RULE)
-dist/static/login.min.css: dist/static/login.css
+dist/static/login.min.css: dist/static/login.css $(NODE_MODULES_STAMP)
 	$(MIN_CSS_RULE)
 dist/static/login.html: src/ws/login.html dist/static/login.js dist/static/login.css
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
@@ -29,7 +29,7 @@ dist/static/login.min.html: src/ws/login.html dist/static/login.min.js dist/stat
 dist/static/login.po.html: src/ws/po.empty.html
 	$(COPY_RULE)
 
-dist/static/login.po.%.html: src/ws/%.po src/ws/po.empty.html
+dist/static/login.po.%.html: src/ws/%.po src/ws/po.empty.html $(NODE_MODULES_STAMP)
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	$(srcdir)/tools/missing $(srcdir)/po/po2json -m $(srcdir)/src/ws/po.empty.html -o $@.tmp src/ws/$*.po && \
 	$(MV) $@.tmp $@

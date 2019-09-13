@@ -148,7 +148,10 @@ if [ -n "$AVOCADO" ]; then
         python3-avocado-plugins-output-html \
         python3-selenium
 
+    [ -e /root/npm-registry ] && npm config set registry "$(cat /root/npm-registry)"
+    [ -e /root/node_extra_ca_certs ] && export NODE_EXTRA_CA_CERTS=/root/node_extra_ca_certs
     npm -g install chrome-remote-interface
+    rm -f /root/npm-registry /root/node_extra_ca_certs
     echo 'NODE_PATH=/usr/lib/node_modules' >> /etc/environment
 fi
 

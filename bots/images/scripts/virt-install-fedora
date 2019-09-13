@@ -36,6 +36,11 @@ url=$3
 base=$(dirname $0)
 ks=fedora.ks
 
+if [ -e "$NODE_EXTRA_CA_CERTS" ]; then
+    crt="$(cat "$NODE_EXTRA_CA_CERTS")"
+    crt_command="echo '$crt' > /root/node_extra_ca_certs"
+fi
+
 cat <<EOF >$ks
 install
 text
@@ -67,6 +72,8 @@ echo "$(cat $base/network-ifcfg-eth1)" > /etc/sysconfig/network-scripts/ifcfg-et
 sed -i 's/GRUB_TIMEOUT.*/GRUB_TIMEOUT=0/; /GRUB_CMDLINE_LINUX=/ s/"$/ net.ifnames=0 biosdevname=0"/' /etc/default/grub
 grub2-mkconfig -o /boot/grub2/grub.cfg
 systemctl is-enabled sshd.socket || systemctl is-enabled sshd.service || systemctl enable sshd.socket
+echo "$(npm config get registry)" > /root/npm-registry
+$crt_command
 %end
 EOF
 

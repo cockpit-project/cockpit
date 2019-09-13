@@ -2425,17 +2425,11 @@ PageNetworkInterface.prototype = {
         var self = this;
 
         function delete_connection_and_slaves(con) {
-            // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
-            // https://github.com/cockpit-project/cockpit/issues/10956
-            // eslint-disable-next-line cockpit/no-cockpit-all
-            return cockpit.all(con.Slaves.map(s => free_slave_connection(s))).then(() => con.delete_());
+            return Promise.all(con.Slaves.map(s => free_slave_connection(s))).then(() => con.delete_());
         }
 
         function delete_connections(cons) {
-            // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
-            // https://github.com/cockpit-project/cockpit/issues/10956
-            // eslint-disable-next-line cockpit/no-cockpit-all
-            return cockpit.all(cons.map(delete_connection_and_slaves));
+            return Promise.all(cons.map(delete_connection_and_slaves));
         }
 
         function delete_iface_connections(iface) {

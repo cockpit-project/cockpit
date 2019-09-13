@@ -537,14 +537,11 @@ class OsUpdates extends React.Component {
                     const promises = transactions.map(transactionPath => PK.call(
                         transactionPath, "org.freedesktop.DBus.Properties", "Get", [PK.transactionInterface, "Role"]));
 
-                    // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
-                    // https://github.com/cockpit-project/cockpit/issues/10956
-                    // eslint-disable-next-line cockpit/no-cockpit-all
-                    cockpit.all(promises)
+                    Promise.all(promises)
                             .then(roles => {
                                 // any transaction with UPDATE_PACKAGES role?
                                 for (let idx = 0; idx < roles.length; ++idx) {
-                                    if (roles[idx].v === PK.Enum.ROLE_UPDATE_PACKAGES) {
+                                    if (roles[idx][0].v === PK.Enum.ROLE_UPDATE_PACKAGES) {
                                         this.watchUpdates(transactions[idx]);
                                         return;
                                     }

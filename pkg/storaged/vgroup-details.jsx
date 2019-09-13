@@ -64,16 +64,8 @@ class VGroupSidebar extends React.Component {
                 Action: {
                     Title: _("Add"),
                     action: function(vals) {
-                        return utils.prepare_available_spaces(client, vals.disks).then(function() {
-                            var paths = Array.prototype.slice.call(arguments);
-
-                            // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
-                            // https://github.com/cockpit-project/cockpit/issues/10956
-                            // eslint-disable-next-line cockpit/no-cockpit-all
-                            return cockpit.all(paths.map(function(p) {
-                                return vgroup.AddDevice(p, {});
-                            }));
-                        });
+                        return utils.prepare_available_spaces(client, vals.disks).then(paths =>
+                            Promise.all(paths.map(p => vgroup.AddDevice(p, {}))));
                     }
                 }
             });

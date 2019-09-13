@@ -204,10 +204,7 @@ LIBVIRT_PROVIDER = {
             });
             logDebug(`GET_ALL_STORAGE_POOLS: vmNames: ${JSON.stringify(storagePoolNames)}`);
 
-            // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
-            // https://github.com/cockpit-project/cockpit/issues/10956
-            // eslint-disable-next-line cockpit/no-cockpit-all
-            return cockpit.all(storagePoolNames.map((name) => dispatch(getStoragePool({ connectionName, name }))));
+            return Promise.all(storagePoolNames.map((name) => dispatch(getStoragePool({ connectionName, name }))));
         });
     },
 
@@ -226,10 +223,7 @@ LIBVIRT_PROVIDER = {
             // remove undefined domains
             dispatch(deleteUnlistedVMs(connectionName, vmNames));
 
-            // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
-            // https://github.com/cockpit-project/cockpit/issues/10956
-            // eslint-disable-next-line cockpit/no-cockpit-all
-            return cockpit.all(vmNames.map((name) => dispatch(getVm({ connectionName, name }))));
+            return Promise.all(vmNames.map((name) => dispatch(getVm({ connectionName, name }))));
         });
     },
 

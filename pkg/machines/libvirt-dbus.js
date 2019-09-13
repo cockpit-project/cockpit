@@ -372,8 +372,7 @@ LIBVIRT_DBUS_PROVIDER = {
                 }
             }
 
-            // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
-            // https://github.com/cockpit-project/cockpit/issues/10956
+            // FIXME: use Promise.all() here; but that causes "Error: Actions must be plain objects"
             // eslint-disable-next-line cockpit/no-cockpit-all
             return cockpit.all(storageVolPromises)
                     .then(() => {
@@ -441,10 +440,7 @@ LIBVIRT_DBUS_PROVIDER = {
         return dispatch => {
             call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'ListNetworks', [0], TIMEOUT)
                     .then(objPaths => {
-                        // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
-                        // https://github.com/cockpit-project/cockpit/issues/10956
-                        // eslint-disable-next-line cockpit/no-cockpit-all
-                        return cockpit.all(objPaths[0].map((path) => dispatch(getNetwork({ connectionName, id:path }))));
+                        return Promise.all(objPaths[0].map((path) => dispatch(getNetwork({ connectionName, id:path }))));
                     })
                     .fail(ex => console.warn('GET_ALL_NETWORKS action failed:', JSON.stringify(ex)));
         };
@@ -455,10 +451,7 @@ LIBVIRT_DBUS_PROVIDER = {
     }) {
         return dispatch => {
             call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'ListNodeDevices', [0], TIMEOUT)
-                    // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
-                    // https://github.com/cockpit-project/cockpit/issues/10956
-                    // eslint-disable-next-line cockpit/no-cockpit-all
-                    .then(objPaths => cockpit.all(objPaths[0].map(path => dispatch(getNodeDevice({ connectionName, id:path })))))
+                    .then(objPaths => Promise.all(objPaths[0].map(path => dispatch(getNodeDevice({ connectionName, id:path })))))
                     .fail(ex => console.warn('GET_ALL_NODE_DEVICES action failed:', JSON.stringify(ex)));
         };
     },
@@ -469,10 +462,7 @@ LIBVIRT_DBUS_PROVIDER = {
         return dispatch => {
             return call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'ListStoragePools', [0], TIMEOUT)
                     .then(objPaths => {
-                        // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
-                        // https://github.com/cockpit-project/cockpit/issues/10956
-                        // eslint-disable-next-line cockpit/no-cockpit-all
-                        return cockpit.all(objPaths[0].map(path => {
+                        return Promise.all(objPaths[0].map(path => {
                             return call(connectionName, path, 'org.freedesktop.DBus.Properties', 'Get', ['org.libvirt.StoragePool', 'Active'], TIMEOUT)
                                     .then(active => {
                                         if (active[0].v)
@@ -491,11 +481,7 @@ LIBVIRT_DBUS_PROVIDER = {
             call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'ListDomains', [0], TIMEOUT)
                     .then(objPaths => {
                         dispatch(deleteUnlistedVMs(connectionName, [], objPaths[0]));
-
-                        // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
-                        // https://github.com/cockpit-project/cockpit/issues/10956
-                        // eslint-disable-next-line cockpit/no-cockpit-all
-                        return cockpit.all(objPaths[0].map((path) => dispatch(getVm({ connectionName, id:path }))));
+                        return Promise.all(objPaths[0].map((path) => dispatch(getVm({ connectionName, id:path }))));
                     })
                     .fail(ex => console.warn('GET_ALL_VMS action failed:', JSON.stringify(ex)));
         };

@@ -481,8 +481,8 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_in_text("body", "Virtual Machines")
 
         # Click on Networks card
-        b.wait_in_text(".cards-pf #card-pf-networks .card-pf-title-link", "Networks")
-        b.click(".cards-pf .card-pf-title span:contains(Networks)")
+        b.wait_in_text(".cards-pf #card-pf-networks .card-pf-title-link", "Network")
+        b.click(".cards-pf .card-pf-title span:contains(Network)")
 
         # Check that all networks are there
         b.wait_in_text("body", "Networks")
@@ -527,8 +527,8 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_in_text("body", "Virtual Machines")
 
         # Click on Networks card
-        b.wait_in_text(".cards-pf #card-pf-networks .card-pf-title-link", "Networks")
-        b.click(".cards-pf .card-pf-title span:contains(Networks)")
+        b.wait_in_text(".cards-pf #card-pf-networks .card-pf-title-link", "Network")
+        b.click(".cards-pf .card-pf-title span:contains(Network)")
 
         # Check that all networks are there
         b.wait_in_text("body", "Networks")
@@ -855,8 +855,8 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_in_text("body", "Virtual Machines")
 
         # Click on Networks card
-        b.wait_in_text(".cards-pf #card-pf-networks .card-pf-title-link", "Networks")
-        b.click(".cards-pf .card-pf-title span:contains(Networks)")
+        b.wait_in_text(".cards-pf #card-pf-networks .card-pf-title-link", "Network")
+        b.click(".cards-pf .card-pf-title span:contains(Network)")
 
         class NetworkCreateDialog(object):
             def __init__(

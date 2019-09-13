@@ -49,7 +49,6 @@ uninstall-local::
 # General code packages to translate
 TRANSLATE = \
 	pkg/ \
-	node_modules/registry-image-widgets/ \
 	src/ws/ \
 	$(NULL)
 

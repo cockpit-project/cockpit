@@ -102,12 +102,10 @@ export class MDRaidsPanel extends React.Component {
                 Action: {
                     Title: _("Create"),
                     action: function (vals) {
-                        return prepare_available_spaces(client, vals.disks).then(function () {
-                            var paths = Array.prototype.slice.call(arguments);
-                            return client.manager.MDRaidCreate(paths, vals.level,
-                                                               vals.name, (vals.chunk || 0) * 1024,
-                                                               { });
-                        });
+                        return prepare_available_spaces(client, vals.disks).then(paths =>
+                            client.manager.MDRaidCreate(paths, vals.level,
+                                                        vals.name, (vals.chunk || 0) * 1024,
+                                                        { }));
                     }
                 }
             });

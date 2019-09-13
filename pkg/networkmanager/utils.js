@@ -223,14 +223,8 @@ export function list_interfaces() {
                        'org.freedesktop.NetworkManager',
                        'GetAllDevices', [])
             .then(reply => {
-                // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
-                // https://github.com/cockpit-project/cockpit/issues/10956
-                // eslint-disable-next-line cockpit/no-cockpit-all
-                const promises = cockpit.all(reply[0].map(device => {
-                    // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
-                    // https://github.com/cockpit-project/cockpit/issues/10956
-                    // eslint-disable-next-line cockpit/no-cockpit-all
-                    const devicePromises = cockpit.all([
+                return Promise.all(reply[0].map(device => {
+                    return Promise.all([
                         client.call(device,
                                     'org.freedesktop.DBus.Properties',
                                     'Get', ['org.freedesktop.NetworkManager.Device', 'Interface'])
@@ -240,17 +234,7 @@ export function list_interfaces() {
                                     'Get', ['org.freedesktop.NetworkManager.Device', 'Capabilities'])
                                 .then(reply => reply[0])
                     ]);
-                    return devicePromises.then(function (device) {
-                        if (Array.isArray(device) && device.length === 0)
-                            return [];
-                        return Array.prototype.slice.call(arguments);
-                    });
                 }));
-                return promises.then(function (devices) {
-                    if (Array.isArray(devices) && devices.length === 0)
-                        return [];
-                    return Array.prototype.slice.call(arguments);
-                });
             })
             .then(interfaces => {
                 client.close();

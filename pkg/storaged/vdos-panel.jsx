@@ -112,8 +112,8 @@ export class VDOsPanel extends React.Component {
                 Action: {
                     Title: _("Create"),
                     action: function (vals) {
-                        return prepare_available_spaces(client, [vals.space]).then(function (path) {
-                            var block = client.blocks[path];
+                        return prepare_available_spaces(client, [vals.space]).then(paths => {
+                            const block = client.blocks[paths[0]];
                             return cockpit.spawn(["wipefs", "-a", decode_filename(block.PreferredDevice)],
                                                  {
                                                      superuser: true,

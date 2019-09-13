@@ -71,10 +71,8 @@ export class VGroupsPanel extends React.Component {
                 Action: {
                     Title: _("Create"),
                     action: function (vals) {
-                        return prepare_available_spaces(client, vals.disks).then(function () {
-                            var paths = Array.prototype.slice.call(arguments);
-                            return client.manager_lvm2.VolumeGroupCreate(vals.name, paths, { });
-                        });
+                        return prepare_available_spaces(client, vals.disks).then(paths =>
+                            client.manager_lvm2.VolumeGroupCreate(vals.name, paths, { }));
                     }
                 }
             });

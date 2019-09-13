@@ -57,16 +57,8 @@ class MDRaidSidebar extends React.Component {
                 Action: {
                     Title: _("Add"),
                     action: function(vals) {
-                        return utils.prepare_available_spaces(client, vals.disks).then(function() {
-                            var paths = Array.prototype.slice.call(arguments);
-
-                            // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
-                            // https://github.com/cockpit-project/cockpit/issues/10956
-                            // eslint-disable-next-line cockpit/no-cockpit-all
-                            return cockpit.all(paths.map(function(p) {
-                                return mdraid.AddDevice(p, {});
-                            }));
-                        });
+                        return utils.prepare_available_spaces(client, vals.disks).then(paths =>
+                            Promise.all(paths.map(p => mdraid.AddDevice(p, {}))));
                     }
                 }
             });
@@ -276,10 +268,7 @@ export class MDRaidDetails extends React.Component {
                 // members.
 
                 function wipe_members() {
-                    // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
-                    // https://github.com/cockpit-project/cockpit/issues/10956
-                    // eslint-disable-next-line cockpit/no-cockpit-all
-                    return cockpit.all(client.mdraids_members[mdraid.path].map(member => member.Format('empty', { })));
+                    return Promise.all(client.mdraids_members[mdraid.path].map(member => member.Format('empty', { })));
                 }
 
                 if (mdraid.ActiveDevices && mdraid.ActiveDevices.length > 0)

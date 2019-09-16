@@ -401,6 +401,118 @@ OnCalendar=daily
 
         self.allow_restart_journal_messages()
 
+    @skipImage("Searching implemented in #12579", "rhel-8-1-distropkg")
+    def testMenuSearch(self):
+        b = self.browser
+        m = self.machine
+
+        # On Ubuntu and Debian we would need to generate locales - just ignore it
+        self.allow_journal_messages("invalid or unusable locale: de_DE.UTF-8")
+
+        self.login_and_go()
+
+        # Check that some page disappears and some stay
+        b.focus("#filter-menus")
+        b.set_val("#filter-menus", "se")
+        b.wait_not_present("#sidebar-menu > li > a > span:contains('Logs')")
+        b.wait_present("#sidebar-menu > li > a > span:contains('Services')")
+        b.wait_text("#sidebar-menu > li > a > span:contains('Services') mark", "Se")
+
+        b.focus("#filter-menus")
+        b.set_val("#filter-menus", "")
+        b.wait_present("#sidebar-menu > li > a > span:contains('Logs')")
+        b.wait_present("#sidebar-menu > li > a > span:contains('Services')")
+
+        # Check that any substring work
+        b.focus("#filter-menus")
+        b.set_val("#filter-menus", "CoUN")
+        b.wait_not_present("#sidebar-menu > li > a > span:contains('System')")
+        b.wait_present("#sidebar-menu > li > a > span:contains('Accounts')")
+        b.wait_text("#sidebar-menu > li > a > span:contains('Accounts') mark", "coun")
+
+        # Check it can also search by keywords
+        b.focus("#filter-menus")
+        b.set_val("#filter-menus", "systemd")
+        b.wait_present("#sidebar-menu > li > a > span:contains('Services')")
+        b.wait_text("#sidebar-menu > li > a > span:contains('Services')", "ServicesContains: systemd")
+        b.wait_text("#sidebar-menu > li > a > span:contains('Services') div mark", "systemd")
+
+        # Check that enter activates first result
+        b.focus("#filter-menus")
+        b.set_val("#filter-menus", "logs")
+        b.wait_not_present("#sidebar-menu > li > a > span:contains('Services')")
+        b.wait_present("#sidebar-menu > li > a > span:contains('Logs')")
+        b.focus("#filter-menus")
+        b.key_press("\r")
+        b.enter_page("/system/logs")
+        b.wait_visible("#journal")
+
+        # Visited page, search should be cleaned up
+        b.switch_to_top()
+        b.wait_val("#filter-menus", "")
+
+        # Check that escape cleans the search
+        b.set_val("#filter-menus", "logs")
+        b.wait_not_present("#sidebar-menu > li > a > span:contains('Services')")
+        b.wait_present("#sidebar-menu > li > a > span:contains('Logs')")
+        b.focus("#filter-menus")
+        b.key_press(chr(27)) # escape
+        b.wait_val("#filter-menus", "")
+        b.wait_present("#sidebar-menu > li > a > span:contains('Services')")
+
+        # Check that clicking on `Clear Search` cleans the search
+        b.set_val("#filter-menus", "logs")
+        b.wait_not_present("#sidebar-menu > li > a > span:contains('Services')")
+        b.wait_present("#sidebar-menu > li > a > span:contains('Logs')")
+        b.click("button:contains('Clear Search')")
+        b.wait_val("#filter-menus", "")
+        b.wait_present("#sidebar-menu > li > a > span:contains('Services')")
+        b.wait_not_present("button:contains('Clear Search')")
+
+        # Check that arrows navigate the menu
+        b.focus("#filter-menus")
+        b.set_val("#filter-menus", "s")
+        b.wait_not_present("#sidebar-menu > li > a > span:contains('Logs')")
+        b.key_press(chr(40), use_ord=True) # arrow down
+        b.key_press(chr(40), use_ord=True) # arrow down
+        b.key_press("\r")
+        if (m.image == "fedora-atomic"):
+            b.enter_page("/users")
+        else:
+            b.enter_page("/storage")
+
+        # Check we jump into subpage when defined in manifest
+        b.switch_to_top()
+        b.focus("#filter-menus")
+        b.set_val("#filter-menus", "firew")
+        b.wait_present("#sidebar-menu > li > a > span:contains('Networking')")
+        b.wait_not_present("#sidebar-menu > li > a > span:contains('System')")
+        b.click("#sidebar-menu > li > a > span:contains('Networking')")
+        b.enter_page("/network/firewall")
+
+        # Search internationalized menu
+        b.switch_to_top()
+        b.click("#content-user-name")
+        b.click(".display-language-menu a")
+        b.wait_popup('display-language')
+        b.set_val("#display-language select", "de-de")
+        b.click("#display-language-select-button")
+        b.expect_load()
+        # HACK: work around language switching in Chrome not working in current session (issue #8160)
+        b.reload(ignore_cache=True)
+        b.wait_present("#content")
+        b.go("/system")
+        b.enter_page("/system")
+        b.wait_in_text("#server", "Neustarten")
+
+        b.switch_to_top()
+        b.wait_present("#sidebar-menu > li > a > span:contains('Dienste')")
+        b.wait_present("#sidebar-menu > li > a > span:contains('Protokolle')")
+        b.set_val("#filter-menus", "dien")
+        b.wait_not_present("#sidebar-menu > li > a > span:contains('Protokolle')")
+        b.wait_present("#sidebar-menu > li > a > span:contains('Dienste')")
+        b.wait_text("#sidebar-menu > li > a > span:contains('Dienste') mark", "Dien")
+
     @skipImage("Preloading implemented in #12534", "rhel-8-1-distropkg")
     def testShellPreload(self):
         b = self.browser

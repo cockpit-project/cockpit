@@ -511,6 +511,7 @@ function Index() {
     $(document).on("click", "a[href]", function(ev) {
         var a = this;
         if (!a.host || window.location.host === a.host) {
+            document.getElementById("filter-menus").value = "";
             self.jump(a.getAttribute('href'));
             ev.preventDefault();
         }
@@ -940,8 +941,20 @@ function CompiledComponents() {
                     label: cockpit.gettext(info.label) || prop,
                     order: info.order === undefined ? 1000 : info.order,
                     icon: info.icon,
-                    wants: info.wants
+                    wants: info.wants,
+                    keywords: info.keywords || [{ matches: [] }],
+                    keyword: { score: -1 }
                 };
+
+                // Always first keyword should be page name
+                item.keywords[0].matches.unshift(item.label.toLowerCase());
+
+                // Keywords from manifest have different defaults than are usual
+                item.keywords.forEach(i => {
+                    i.weight = i.weight || 3;
+                    i.translate = i.translate === undefined ? true : i.translate;
+                });
+
                 if (info.path)
                     item.path = info.path.replace(/\.html$/, "");
                 else

@@ -77,7 +77,7 @@ class TestStorage(StorageCase):
                         raise
                     print("Stopping failed, retrying...")
                     if self.browser.is_present("#dialog"):
-                        self.browser.wait_in_text("#dialog", "Error stopping RAID array /dev/md127")
+                        self.browser.wait_in_text("#dialog", "Error stopping RAID array")
                         self.dialog_cancel()
                         self.dialog_wait_close()
                     do_click()

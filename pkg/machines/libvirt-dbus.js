@@ -507,7 +507,17 @@ LIBVIRT_DBUS_PROVIDER = {
             };
         }
 
-        return unknownConnectionName(getApiData, libvirtServiceName);
+        /* Initial all resources to empty objects before loading them */
+        const flags = Enum.VIR_CONNECT_LIST_INTERFACES_ACTIVE | Enum.VIR_CONNECT_LIST_INTERFACES_INACTIVE;
+        return dispatch => {
+            dispatch(unknownConnectionName(connectionName => initResource(connectionName, "ListInterfaces", updateOrAddInterface, flags)));
+            dispatch(unknownConnectionName(connectionName => initResource(connectionName, "ListNodeDevices", updateOrAddNodeDevice, 0)));
+            dispatch(unknownConnectionName(connectionName => initResource(connectionName, "ListNetworks", updateOrAddNetwork, 0)));
+            dispatch(unknownConnectionName(connectionName => initResource(connectionName, "ListStoragePools", updateOrAddStoragePool, 0)));
+            dispatch(unknownConnectionName(connectionName => initResource(connectionName, "ListDomains", updateOrAddVm, 0)));
+            /* Load resource for all of the connections */
+            dispatch(unknownConnectionName(getApiData, libvirtServiceName));
+        };
     },
 
     GET_HYPERVISOR_MAX_VCPU({ connectionName }) {
@@ -1390,6 +1400,14 @@ export function getAllInterfaces(dispatch, connectionName) {
                 return Promise.all(ifaces[0].map(path => dispatch(getInterface({ connectionName, id:path }))));
             })
             .fail(ex => console.warn('getAllInterfaces action failed:', JSON.stringify(ex)));
+}
+
+function initResource(connectionName, method, updateOrAddMethod, flags) {
+    return call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', method, [flags], TIMEOUT)
+            .then(objPaths => {
+                return Promise.all(objPaths[0].map(() => updateOrAddMethod({})));
+            })
+            .fail(ex => console.warn('initResource action failed:', JSON.stringify(ex)));
 }
 
 export function networkActivate(connectionName, objPath) {

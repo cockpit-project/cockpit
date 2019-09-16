@@ -18,7 +18,7 @@
  */
 import { combineReducers } from 'redux/dist/redux';
 import VMS_CONFIG from "./config.js";
-import { logDebug } from './helpers.js';
+import { logDebug, isObjectEmpty } from './helpers.js';
 import {
     ADD_UI_VM,
     DELETE_UI_VM,
@@ -105,9 +105,15 @@ function interfaces(state, action) {
     case UPDATE_ADD_INTERFACE: {
         const { iface } = action.payload;
 
+        if (isObjectEmpty(iface))
+            return [...state, iface]; // initialize iface to empty object
+
         const connectionName = iface.connectionName;
         const index = getFirstIndexOfResource(state, 'name', iface.name, connectionName);
         if (index < 0) { // add
+            const initObjIndex = state.findIndex(obj => isObjectEmpty(obj));
+            if (initObjIndex >= 0)
+                state.splice(initObjIndex, 1); // remove empty initial object
             return [...state, iface];
         }
 
@@ -131,14 +137,23 @@ function networks(state, action) {
     }
     case UPDATE_ADD_NETWORK: {
         const { network, updateOnly } = action.payload;
+
+        if (isObjectEmpty(network))
+            return [...state, network]; // initialize network to empty object
+
         const connectionName = network.connectionName;
         const index = network.id ? getFirstIndexOfResource(state, 'id', network.id, connectionName)
             : getFirstIndexOfResource(state, 'name', network.name, connectionName);
-        if (index < 0)
-            if (!updateOnly)
+        if (index < 0) {
+            if (!updateOnly) {
+                const initObjIndex = state.findIndex(obj => isObjectEmpty(obj));
+                if (initObjIndex >= 0)
+                    state.splice(initObjIndex, 1); // remove empty initial object
                 return [...state, network];
-            else
+            } else {
                 return state;
+            }
+        }
 
         const updatedNetwork = Object.assign({}, state[index], network);
         return replaceResource({ state, updatedResource: updatedNetwork, index });
@@ -154,9 +169,16 @@ function nodeDevices(state, action) {
     switch (action.type) {
     case UPDATE_ADD_NODE_DEVICE: {
         const { nodedev } = action.payload;
+
+        if (isObjectEmpty(nodedev))
+            return [...state, nodedev]; // initialize nodedev to empty object
+
         const connectionName = nodedev.connectionName;
         const index = getFirstIndexOfResource(state, 'name', nodedev.name, connectionName);
         if (index < 0) { // add
+            const initObjIndex = state.findIndex(obj => isObjectEmpty(obj));
+            if (initObjIndex >= 0)
+                state.splice(initObjIndex, 1); // remove empty initial object
             return [...state, nodedev];
         }
 
@@ -191,10 +213,16 @@ function vms(state, action) {
 
     switch (action.type) {
     case UPDATE_ADD_VM: {
+        if (isObjectEmpty(action.vm))
+            return [...state, action.vm]; // initialize vm to empty object
+
         const connectionName = action.vm.connectionName;
         const index = action.vm.id ? getFirstIndexOfResource(state, 'id', action.vm.id, connectionName)
             : getFirstIndexOfResource(state, 'name', action.vm.name, connectionName);
         if (index < 0) { // add
+            const initObjIndex = state.findIndex(obj => isObjectEmpty(obj));
+            if (initObjIndex >= 0)
+                state.splice(initObjIndex, 1); // remove empty initial object
             return [...state, action.vm];
         }
 
@@ -299,13 +327,22 @@ function storagePools(state, action) {
     }
     case UPDATE_ADD_STORAGE_POOL: {
         const { storagePool, updateOnly, } = action.payload;
+
+        if (isObjectEmpty(storagePool))
+            return [...state, storagePool]; // initialize pool to empty object
+
         const connectionName = storagePool.connectionName;
         const index = getFirstIndexOfResource(state, 'id', storagePool.id, connectionName);
-        if (index < 0)
-            if (!updateOnly)
+        if (index < 0) {
+            if (!updateOnly) {
+                const initObjIndex = state.findIndex(obj => isObjectEmpty(obj));
+                if (initObjIndex >= 0)
+                    state.splice(initObjIndex, 1); // remove empty initial object
                 return [...state, storagePool];
-            else
+            } else {
                 return state;
+            }
+        }
 
         const updatedStoragePool = Object.assign({}, state[index], storagePool);
         return replaceResource({ state, updatedResource: updatedStoragePool, index });

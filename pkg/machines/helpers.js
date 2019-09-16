@@ -131,6 +131,13 @@ export function isEmpty(str) {
     return (!str || str.length === 0);
 }
 
+export function isObjectEmpty(obj) {
+    if (!obj)
+        return false;
+
+    return Object.keys(obj).length === 0;
+}
+
 export function arrayEquals(arr1, arr2) {
     if (arr1.length !== arr2.length) {
         return false;

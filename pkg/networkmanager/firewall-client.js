@@ -71,6 +71,12 @@ function initFirewalldDbus() {
          * prevent rapid succession of GetServices call */
         firewall.debouncedGetServices = debounce(300, getServices);
 
+        firewall.debouncedGetZones = debounce(300, () => {
+            getZones()
+                    .then(() => getServices())
+                    .catch(error => console.warn(error));
+        });
+
         getZones()
                 .then(() => getServices())
                 .catch(error => console.warn(error));
@@ -107,9 +113,42 @@ function initFirewalldDbus() {
         interface: 'org.fedoraproject.FirewallD1',
         path: '/org/fedoraproject/FirewallD1',
         member: 'Reloaded'
-    }, () => getZones().then(() => getServices()));
+    }, () => firewall.debouncedGetZones());
 
-    getDefaultZonePath();
+    /* There are two APIs available, changeZoneOf(Interface|Source) and
+     * add(Interface|Source). Listen to both of them for any background changes
+     * to zones. */
+    firewalld_dbus.subscribe({
+        interface: 'org.fedoraproject.FirewallD1.zone',
+        path: '/org/fedoraproject/FirewallD1',
+        member: 'ZoneOfInterfaceChanged'
+    }, () => firewall.debouncedGetZones());
+    firewalld_dbus.subscribe({
+        interface: 'org.fedoraproject.FirewallD1.zone',
+        path: '/org/fedoraproject/FirewallD1',
+        member: 'ZoneOfSourceChanged'
+    }, () => firewall.debouncedGetZones());
+
+    firewalld_dbus.subscribe({
+        interface: 'org.fedoraproject.FirewallD1.zone',
+        path: '/org/fedoraproject/FirewallD1',
+        member: 'InterfaceAdded'
+    }, () => firewall.debouncedGetZones());
+    firewalld_dbus.subscribe({
+        interface: 'org.fedoraproject.FirewallD1.zone',
+        path: '/org/fedoraproject/FirewallD1',
+        member: 'SourceAdded'
+    }, () => firewall.debouncedGetZones());
+    firewalld_dbus.subscribe({
+        interface: 'org.fedoraproject.FirewallD1.zone',
+        path: '/org/fedoraproject/FirewallD1',
+        member: 'InterfaceRemoved'
+    }, () => firewall.debouncedGetZones());
+    firewalld_dbus.subscribe({
+        interface: 'org.fedoraproject.FirewallD1.zone',
+        path: '/org/fedoraproject/FirewallD1',
+        member: 'SourceRemoved'
+    }, () => firewall.debouncedGetZones());
 }
 
 firewalld_service.addEventListener('changed', () => {
@@ -132,7 +171,9 @@ function getZones() {
                                'org.fedoraproject.FirewallD1.zone',
                                'getActiveZones', [])
             .then(reply => fetchZoneInfos(Object.keys(reply[0])))
-            .then(zones => zones.map(z => firewall.activeZones.add(z.id)))
+            .then(zones => {
+                firewall.activeZones = new Set(zones.map(z => z.id));
+            })
             .then(() => firewalld_dbus.call('/org/fedoraproject/FirewallD1',
                                             'org.fedoraproject.FirewallD1',
                                             'getDefaultZone', []))
@@ -293,17 +334,6 @@ firewall.reload = () => {
                                'reload', [])
             .catch(error => console.warn(error));
 };
-
-function getDefaultZonePath() {
-    return firewalld_dbus.call('/org/fedoraproject/FirewallD1',
-                               'org.fedoraproject.FirewallD1',
-                               'getDefaultZone', [])
-            .then(reply => firewalld_dbus.call('/org/fedoraproject/FirewallD1/config',
-                                               'org.fedoraproject.FirewallD1.config',
-                                               'getZoneByName', [reply[0]]))
-            .then(reply => reply[0])
-            .catch(error => console.warn(error));
-}
 
 /*
  * Remove a service from the specified zone (i.e., close its ports).

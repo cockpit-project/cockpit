@@ -452,6 +452,9 @@ export const dialog_open = (def) => {
             });
         },
 
+        close: () => {
+            dlg.footerProps.dialog_done();
+        }
     };
 
     return self;

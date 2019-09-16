@@ -29,6 +29,40 @@
     z-index: 2;
     opacity: 1;
 
+    mark {
+        padding-left: 0;
+        padding-right: 0;
+        font-weight: bold;
+    }
+
+    > .search {
+        margin: 0.5rem 1rem;
+
+        > input {
+            border: none;
+        }
+
+        > span {
+            color: var(--color-subtle-copy);
+            margin: 0.5rem;
+        }
+
+        &:after {
+            content: "";
+            position: absolute;
+            margin: 0 0.5rem;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 1px;
+            background: var(--color-border);
+        }
+    }
+
+    .hint {
+        font-size: var(--pf-global--FontSize--xs);
+    }
+
     .list-group {
         border: none;
         margin: 0.5rem 0;
@@ -46,6 +80,11 @@
                 left: 1.5rem;
             }
         }
+    }
+
+    .non-menu-item {
+        display: flex;
+        justify-content: center;
     }
 
     .list-group-item {
@@ -87,10 +126,20 @@
         }
     }
 
-    /* Fade start and end of the host menu to indicate more content is available */
+    .disabled {
+        color: var(--color-subtle-copy);
+        font-size: var(--pf-global--FontSize--sm);
 
-    &:before,
-    &:after {
+        &:focus,
+        &:hover {
+            background-color: initial;
+            cursor: default;
+        }
+    }
+
+    /* Fade end of the host menu to indicate more content is available */
+
+    &::after {
         content: '';
         display: block;
         position: absolute;
@@ -101,14 +150,6 @@
         z-index: 2;
         /* Accomodate scrollbars with margin (IE11 needs 18px; rest are less) */
         margin-right: 18px;
-    }
-
-    &:before {
-        background: var(--color-ct-nav-cover-up);
-        top: 4rem; // Move down by the same size as the dropdown
-    }
-
-    &:after {
         background: var(--color-ct-nav-cover-down);
         bottom: 0;
         height: 4rem;

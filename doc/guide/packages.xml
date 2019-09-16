@@ -186,6 +186,42 @@ $ cockpit-bridge --packages
         <listitem><para>The relative path to the HTML file within the package that implements
           the menu item or tool.</para></listitem>
       </varlistentry>
+      <varlistentry>
+        <term>keywords</term>
+        <listitem><para>Keywords that describe the page and which are used for searching.
+          These keywords should be lowercase. Keywords is a list containing keyword
+          items as described below. Page label is prepended as first keyword
+          in the first keyword item.
+        </para></listitem>
+      </varlistentry>
+    </variablelist>
+
+    <para>Keyword items are registered using JSON objects that have the
+      following properties:</para>
+
+    <variablelist>
+      <varlistentry>
+        <term>matches</term>
+        <listitem><para>List of keywords to be matched.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>goto</term>
+        <listitem><para>Optional path that is used for all keywords in this item.
+          When this argument starts with slash, then it is used as pathname, otherwise
+          it is used as hash. Defining <code>goto:"page_hash"</code> in page with <code>path:"/page_path"</code>
+          would redirect to <code>/page_path#page_hash</code>, while <code>goto:"/page_path"</code>
+          would redirect to <code>/page_path</code> ignoring default page path.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>weight</term>
+        <listitem><para>How much keywords are prioritized over others. Default is 3.
+          </para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>translate</term>
+        <listitem><para><code>false</code> when keywords should not be localized. Default is <code>true</code>.
+        </para></listitem>
+      </varlistentry>
     </variablelist>
 
     <para>An example manifest.json with some optional properties set:</para>

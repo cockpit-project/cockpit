@@ -2,10 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, Modal } from 'patternfly-react';
 import cockpit from 'cockpit';
+import { Tooltip } from '@patternfly/react-core';
+import { InfoAltIcon } from '@patternfly/react-icons';
 
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import * as SelectComponent from 'cockpit-components-select.jsx';
-import InfoRecord from './infoRecord.jsx';
 import { setVCPUSettings } from "../actions/provider-actions.js";
 
 import './vcpuModal.css';
@@ -188,30 +189,54 @@ export class VCPUModal extends React.Component {
         const defaultBody = (
             <div className="vcpu-modal-grid">
                 <div className="ct-form">
-                    <InfoRecord
-                        descr={_("vCPU Count")}
-                        tooltip={_("Fewer than the maximum number of virtual CPUs should be enabled.")}
-                        value={<input id="machines-vcpu-count-field" type="number" className="form-control ct-form-stretch" value={this.state.count} onChange={this.onCountSelect} />}
-                    />
-                    <InfoRecord
-                        descr={_("vCPU Maximum")}
-                        tooltip={cockpit.format(
-                            _("Maximum number of virtual CPUs allocated for the guest OS, which must be between 1 and $0"),
-                            parseInt(this.props.config.hypervisorMaxVCPU[vm.connectionName])
-                        )}
-                        value={<input id="machines-vcpu-max-field" type="number" className="form-control ct-form-stretch" onChange={this.onMaxChange} value={this.state.max} />}
-                    />
+                    <label className="control-label" htmlFor="vcpu-count">
+                        {_("vCPU Count")}
+                    </label>
+                    <div controlid="vcpu-count" role="group">
+                        <input id="machines-vcpu-count-field" type="number" className="form-control ct-form-stretch" value={this.state.count} onChange={this.onCountSelect} />
+                        <div className="info-circle">
+                            <Tooltip entryDelay={0} content={_("Fewer than the maximum number of virtual CPUs should be enabled.")}>
+                                <InfoAltIcon />
+                            </Tooltip>
+                        </div>
+                    </div>
+
+                    <label className="control-label" htmlFor="vcpu-maximum">
+                        {_("vCPU Maximum")}
+                    </label>
+                    <div controlid="vcpu-maximum" role="group">
+                        <input id="machines-vcpu-max-field" type="number" className="form-control ct-form-stretch" onChange={this.onMaxChange} value={this.state.max} />
+                        <div className="info-circle">
+                            <Tooltip entryDelay={0} content={cockpit.format(
+                                _("Maximum number of virtual CPUs allocated for the guest OS, which must be between 1 and $0"),
+                                parseInt(this.props.config.hypervisorMaxVCPU[vm.connectionName]))}>
+                                <InfoAltIcon />
+                            </Tooltip>
+                        </div>
+                    </div>
                 </div>
                 <div className="ct-form">
-                    <InfoRecord descr={_("Sockets")} tooltip={_("Preferred number of sockets to expose to the guest.")} value={
-                        <Select extraClass='ct-form-stretch' id='socketsSelect' value={this.state.sockets.toString()} onChange={this.onSocketChange} items={dividers(this.state.max).map((t) => t.toString())} />
-                    } />
-                    <InfoRecord descr={_("Cores per socket")} value={
-                        <Select extraClass="ct-form-stretch" id='coresSelect' value={this.state.cores.toString()} onChange={this.onCoresChange} items={dividers(this.state.max).map((t) => t.toString())} />
-                    } />
-                    <InfoRecord descr={_("Threads per core")} value={
-                        <Select extraClass="ct-form-stretch" id='threadsSelect' value={this.state.threads.toString()} onChange={this.onThreadsChange} items={dividers(this.state.max).map((t) => t.toString())} />
-                    } />
+                    <label className="control-label" htmlFor="sockets">
+                        {_("Sockets")}
+                    </label>
+                    <div controlid="sockets" role="group">
+                        <Select extraClass="ct-form-stretch" id="socketsSelect" value={this.state.sockets.toString()} onChange={this.onSocketChange} items={dividers(this.state.max).map((t) => t.toString())} />
+                        <div className="info-circle">
+                            <Tooltip entryDelay={0} content={_("Preferred number of sockets to expose to the guest.")}>
+                                <InfoAltIcon />
+                            </Tooltip>
+                        </div>
+                    </div>
+
+                    <label className="control-label" htmlFor="coresSelect">
+                        {_("Cores per socket")}
+                    </label>
+                    <Select extraClass="ct-form-stretch" id="coresSelect" value={this.state.cores.toString()} onChange={this.onCoresChange} items={dividers(this.state.max).map((t) => t.toString())} />
+
+                    <label className="control-label" htmlFor="threadsSelect">
+                        {_("Threads per core")}
+                    </label>
+                    <Select extraClass="ct-form-stretch" id="threadsSelect" value={this.state.threads.toString()} onChange={this.onThreadsChange} items={dividers(this.state.max).map((t) => t.toString())} />
                 </div>
             </div>
         );

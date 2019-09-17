@@ -132,7 +132,7 @@ function getZones() {
                                'org.fedoraproject.FirewallD1.zone',
                                'getActiveZones', [])
             .then(reply => fetchZoneInfos(Object.keys(reply[0])))
-            .then(zones => zones.map(z => firewall.activeZones.add(z.id)))
+            .then(zones => { firewall.activeZones = new Set(zones.map(z => z.id)) })
             .then(() => firewalld_dbus.call('/org/fedoraproject/FirewallD1',
                                             'org.fedoraproject.FirewallD1',
                                             'getDefaultZone', []))

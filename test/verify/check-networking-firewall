@@ -279,6 +279,9 @@ class TestFirewall(NetworkCase):
         b.wait_present("tr[data-row-id='http']")
 
         def open_dialog():
+            # wait until all zones are present, including the ones added at runtime
+            if m.image in ["rhel-8-1", "rhel-8-1-distropkg", "fedora-31"]:
+                b.wait_present("#zones-listing tr[data-row-id='libvirt']")
             b.wait_present("#add-services-button:enabled")
             b.click("#add-services-button")
             b.wait_present("#add-services-dialog input[value='ports']:enabled")

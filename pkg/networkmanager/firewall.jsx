@@ -31,7 +31,8 @@ import {
 
 import firewall from "./firewall-client.js";
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
-import { OnOffSwitch } from "cockpit-components-onoff.jsx";
+import { Switch } from "@patternfly/react-core";
+
 import { ModalError } from "cockpit-components-inline-notification.jsx";
 
 import "page.css";
@@ -946,12 +947,13 @@ export class Firewall extends React.Component {
                     <li><a tabIndex="0" onClick={go_up}>{_("Networking")}</a></li>
                     <li className="active">{_("Firewall")}</li>
                 </ol>
-                <h1>
-                    {_("Firewall")}
-                    <OnOffSwitch state={enabled}
-                                 disabled={!!this.state.pendingTarget}
-                                 onChange={this.onSwitchChanged} />
-                </h1>
+                <label>
+                    <h1> {_("Firewall")} </h1>
+                </label>
+                <Switch id='firewall-onoff-switch' isChecked={enabled}
+                        isDisabled={this.state.pendingTarget}
+                        onChange={this.onSwitchChanged} />
+
                 <div id="zones-listing">
                     { enabled && <Listing title={_("Active zones")}
                              columnTitles={[_("Zone"), "", _("Interfaces"), _("IP Range"), ""]}

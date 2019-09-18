@@ -21,9 +21,9 @@ import React from "react";
 import moment from "moment";
 import PropTypes from "prop-types";
 import { Button, Modal, OverlayTrigger, Tooltip, DropdownKebab, MenuItem } from 'patternfly-react';
+import { Switch } from "@patternfly/react-core";
 
 import cockpit from "cockpit";
-import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 
 import './service-details.css';
 
@@ -466,7 +466,7 @@ export class ServiceDetails extends React.Component {
                                     { !masked && !isStatic &&
                                         <OverlayTrigger overlay={ <Tooltip id="switch-unit-state">{ tooltipMessage }</Tooltip> } placement='right'>
                                             <span>
-                                                <OnOffSwitch state={enabled} disabled={this.state.waitsAction || this.state.waitsFileAction} onChange={this.onOnOffSwitch} />
+                                                <Switch isChecked={enabled} isDisabled={this.state.waitsAction || this.state.waitsFileAction} onChange={this.onOffSwitch} />
                                             </span>
                                         </OverlayTrigger>
                                     }

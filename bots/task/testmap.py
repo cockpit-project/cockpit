@@ -71,6 +71,7 @@ REPO_BRANCH_CONTEXT = {
     'weldr/lorax': {
         'master': [
             'fedora-30',
+            'fedora-30/tar',
             'fedora-30/live-iso',
             'fedora-30/qcow2',
             'fedora-30/aws',
@@ -78,14 +79,13 @@ REPO_BRANCH_CONTEXT = {
             'fedora-30/openstack',
             'fedora-30/vmware',
         ],
-        '_manual': [
+        'rhel8-branch': [
             'rhel-8-1',
             'rhel-8-1/live-iso',
             'rhel-8-1/qcow2',
             'rhel-8-1/aws',
             'rhel-8-1/azure',
             'rhel-8-1/openstack',
-            'fedora-30/tar',
             'rhel-8-1/vmware',
         ],
         'rhel7-extras': [

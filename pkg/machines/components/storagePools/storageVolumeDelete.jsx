@@ -64,7 +64,7 @@ export class StorageVolumeDelete extends React.Component {
             <Button id='storage-volumes-delete'
                     bsStyle='danger' onClick={this.storageVolumeListDelete}
                     disabled={ anyVolumeUsed }>
-                {cockpit.format(cockpit.ngettext("Delete $0 volume", 'Delete $0 volumes', volCount), volCount)}
+                {cockpit.format(cockpit.ngettext("Delete $0 volume", "Delete $0 volumes", volCount), volCount)}
             </Button>
         );
 

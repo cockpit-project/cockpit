@@ -187,12 +187,7 @@ fi
 
 # reduce image size
 dnf clean all
-zd_opts=
-# Offline Mock with dnf isn't happy anymore without a cache
-if [ "$IMAGE" = fedora-31 ]; then
-    zd_opts="--keep-mock-cache"
-fi
-/var/lib/testvm/zero-disk.setup $zd_opts
+/var/lib/testvm/zero-disk.setup --keep-mock-cache
 
 ln -sf ../selinux/config /etc/sysconfig/selinux
 printf "SELINUX=enforcing\nSELINUXTYPE=targeted\n" > /etc/selinux/config

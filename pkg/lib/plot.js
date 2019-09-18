@@ -24,7 +24,9 @@ import 'jquery-flot/jquery.flot';
 import 'jquery-flot/jquery.flot.selection';
 import 'jquery-flot/jquery.flot.time';
 
-const C_ = cockpit.gettext;
+import moment from "moment";
+
+moment.locale(cockpit.language);
 
 /* A thin abstraction over flot and metrics channels.  It mostly
  * shields you from hairy array acrobatics and having to know when it
@@ -777,21 +779,6 @@ export function memory_ticks(opts) {
     return ticks;
 }
 
-const month_names = [
-    C_("month-name", 'Jan'),
-    C_("month-name", 'Feb'),
-    C_("month-name", 'Mar'),
-    C_("month-name", 'Apr'),
-    C_("month-name", 'May'),
-    C_("month-name", 'Jun'),
-    C_("month-name", 'Jul'),
-    C_("month-name", 'Aug'),
-    C_("month-name", 'Sep'),
-    C_("month-name", 'Oct'),
-    C_("month-name", 'Nov'),
-    C_("month-name", 'Dec')
-];
-
 export function format_date_tick(val, axis) {
     function pad(n) {
         var str = n.toFixed();
@@ -852,7 +839,7 @@ export function format_date_tick(val, axis) {
     if (year_index >= begin && year_index <= end)
         label += d.getFullYear().toFixed() + ' ';
     if (month_index >= begin && month_index <= end)
-        label += month_names[d.getMonth()] + ' ';
+        label += moment(d).format('MMM') + ' ';
     if (day_index >= begin && day_index <= end)
         label += d.getDate().toFixed() + ' ';
     if (hour_minute_index >= begin && hour_minute_index <= end)

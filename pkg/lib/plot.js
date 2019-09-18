@@ -972,22 +972,22 @@ export function setup_plot_controls(container, element, plots) {
         var n;
         if (seconds >= 365 * 24 * 60 * 60) {
             n = Math.ceil(seconds / (365 * 24 * 60 * 60));
-            return cockpit.format(cockpit.ngettext('$0 year', '$0 years', n), n);
+            return cockpit.format(cockpit.ngettext("$0 year", "$0 years", n), n);
         } else if (seconds >= 30 * 24 * 60 * 60) {
             n = Math.ceil(seconds / (30 * 24 * 60 * 60));
-            return cockpit.format(cockpit.ngettext('$0 month', '$0 months', n), n);
+            return cockpit.format(cockpit.ngettext("$0 month", "$0 months", n), n);
         } else if (seconds >= 7 * 24 * 60 * 60) {
             n = Math.ceil(seconds / (7 * 24 * 60 * 60));
-            return cockpit.format(cockpit.ngettext('$0 week', '$0 weeks', n), n);
+            return cockpit.format(cockpit.ngettext("$0 week", "$0 weeks", n), n);
         } else if (seconds >= 24 * 60 * 60) {
             n = Math.ceil(seconds / (24 * 60 * 60));
-            return cockpit.format(cockpit.ngettext('$0 day', '$0 days', n), n);
+            return cockpit.format(cockpit.ngettext("$0 day", "$0 days", n), n);
         } else if (seconds >= 60 * 60) {
             n = Math.ceil(seconds / (60 * 60));
-            return cockpit.format(cockpit.ngettext('$0 hour', '$0 hours', n), n);
+            return cockpit.format(cockpit.ngettext("$0 hour", "$0 hours", n), n);
         } else {
             n = Math.ceil(seconds / 60);
-            return cockpit.format(cockpit.ngettext('$0 minute', '$0 minutes', n), n);
+            return cockpit.format(cockpit.ngettext("$0 minute", "$0 minutes", n), n);
         }
     }
 

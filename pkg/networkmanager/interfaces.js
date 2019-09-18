@@ -2328,7 +2328,7 @@ PageNetworkInterface.prototype = {
             var n = firewall.enabledServices.size;
 
             /* HACK: use n.toString() here until cockpit.format() handles integer 0 args correctly */
-            var summary = cockpit.format(cockpit.ngettext('$0 Active Rule', '$0 Active Rules', n), n.toString());
+            var summary = cockpit.format(cockpit.ngettext("$0 Active Rule", "$0 Active Rules", n), n.toString());
 
             $('#networking-firewall-summary').text(summary);
         });

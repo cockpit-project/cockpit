@@ -38,6 +38,9 @@ var info = {
             "networkmanager/firewall.jsx"
         ],
 
+        "playground/index": [
+            "playground/index.js",
+        ],
         "playground/exception": [
             "playground/exception.js",
         ],
@@ -70,9 +73,6 @@ var info = {
         ],
         "playground/preloaded": [
             "playground/preloaded.js",
-        ],
-        "playground/notifications": [
-            "playground/notifications.js",
         ],
         "playground/notifications-receiver": [
             "playground/notifications-receiver.js",
@@ -176,6 +176,7 @@ var info = {
 
         "packagekit/index.html",
 
+        "playground/index.html",
         "playground/exception.html",
         "playground/hammer.gif",
         "playground/jquery-patterns.html",
@@ -188,7 +189,6 @@ var info = {
         "playground/test.html",
         "playground/translate.html",
         "playground/preloaded.html",
-        "playground/notifications.html",
         "playground/notifications-receiver.html",
 
         "selinux/setroubleshoot.html",

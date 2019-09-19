@@ -5,7 +5,7 @@ function id(sel) {
 }
 
 function update() {
-    const status = page_status.get("playground/notifications");
+    const status = page_status.get("playground");
 
     if (status) {
         id("received-type").innerText = status.type;

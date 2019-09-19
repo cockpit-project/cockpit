@@ -407,7 +407,7 @@ OnCalendar=daily
 
         # Now navigate to it.
         b.switch_to_top()
-        b.click("a[href='/playground/preloaded']")
+        b.go("/playground/preloaded")
         b.enter_page("/playground/preloaded")
         b.wait_text("#release", m.execute("cat /etc/os-release").replace("\n", ""))
 
@@ -533,30 +533,30 @@ OnCalendar=daily
     def testPageStatus(self):
         b = self.browser
 
-        self.login_and_go("/playground/notifications")
+        self.login_and_go("/playground")
 
         b.set_input_text("#type", "info")
         b.set_input_text("#title", "My Little Page Status")
         b.click("#set-status")
 
         b.switch_to_top()
-        b.wait_present("#host-apps a[href='/playground/notifications'] span.fa-info-circle")
-        b.wait_present("#host-apps a[href='/playground/notifications'] span[title='My Little Page Status']")
+        b.wait_present("#host-apps a[href='/playground'] span.fa-info-circle")
+        b.wait_present("#host-apps a[href='/playground'] span[title='My Little Page Status']")
 
-        b.click("#host-apps a[href='/playground/notifications-receiver']")
+        b.go("/playground/notifications-receiver")
         b.enter_page("/playground/notifications-receiver")
         b.wait_text("#received-type", "info")
         b.wait_text("#received-title", "My Little Page Status")
 
         b.switch_to_top()
-        b.click("#host-apps a[href='/playground/notifications']")
-        b.enter_page("/playground/notifications")
+        b.go("/playground")
+        b.enter_page("/playground")
         b.click("#clear-status")
 
         b.switch_to_top()
-        b.wait_not_present("#host-apps a[href='/playground/notifications'] span.fa")
+        b.wait_not_present("#host-apps a[href='/playground'] span.fa")
 
-        b.click("#host-apps a[href='/playground/notifications-receiver']")
+        b.go("/playground/notifications-receiver")
         b.enter_page("/playground/notifications-receiver")
         b.wait_text("#received-type", "-")
         b.wait_text("#received-title", "-")

@@ -54,7 +54,7 @@ class TestMenu(MachineCase):
 
         # Ensure that our tests pick up unhandled JS exceptions
         b.switch_to_top()
-        b.click("a[href='/playground/exception']")
+        b.go("/playground/exception")
         b.enter_page("/playground/exception")
         b.wait_visible("button")
         with self.assertRaisesRegex(RuntimeError, "TypeError:.*value.*undefined"):

@@ -30,19 +30,26 @@ QUnit.test("simple request", function (assert) {
                     requires: {
                         cockpit: "122"
                     },
+
                     tools: {
-                        exception: {
-                            label: 'Exceptions'
-                        },
+                        index: {
+                            label: "Development"
+                        }
+                    },
+
+                    playground: {
                         patterns: {
                             label: "Design Patterns",
-                            path: "jquery-patterns.html"
+                            path: "jquery-patterns"
                         },
-                        'react-patterns': {
+                        "react-patterns": {
                             label: "React Patterns"
                         },
                         translate: {
                             label: "Translating"
+                        },
+                        exception: {
+                            label: "Exceptions"
                         },
                         pkgs: {
                             label: "Packages"
@@ -50,15 +57,27 @@ QUnit.test("simple request", function (assert) {
                         preloaded: {
                             label: "Preloaded"
                         },
-                        notifications: {
-                            label: "Notifications"
-                        },
-                        'notifications-receiver': {
+                        "notifications-receiver": {
                             label: "Notifications Receiver"
+                        },
+                        metrics: {
+                            label: "Monitoring"
+                        },
+                        plot: {
+                            label: "Plots"
+                        },
+                        service: {
+                            label: "Generic Service Monitor"
+                        },
+                        speed: {
+                            label: "Speed Tests"
+                        },
+                        test: {
+                            label: "Playground"
                         }
                     },
                     preload: ["preloaded"],
-                    'content-security-policy': "img-src 'self' data:",
+                    "content-security-policy": "img-src 'self' data:"
                 }, "returned right data");
             })
             .always(function() {

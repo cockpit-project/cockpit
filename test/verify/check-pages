@@ -194,7 +194,7 @@ OnCalendar=daily
         # Mustache section
         self.assertEqual(b.text("#translatable-mustache"), "Benutzer")
         self.assertEqual(b.text("#translate-mustache"), "Speicher")
-        self.assertEqual(b.text("#translate-mustache-yes"), "Netzwerk")
+        self.assertEqual(b.text("#translate-mustache-yes"), "Konten")
         self.assertEqual(b.attr("#translate-mustache-title", "title"), "Fehler")
         self.assertEqual(b.text("#translate-mustache-title"), "User")
         self.assertEqual(b.attr("#translate-mustache-yes-title", "title"), "Fehler")
@@ -333,7 +333,7 @@ OnCalendar=daily
         # Mustache section
         self.assertEqual(b.text('#translatable-mustache'), u'Usuário')
         self.assertEqual(b.text('#translate-mustache'), u'Memória')
-        self.assertEqual(b.text('#translate-mustache-yes'), 'Rede')
+        self.assertEqual(b.text('#translate-mustache-yes'), 'Contas')
         self.assertEqual(b.attr('#translate-mustache-title', 'title'), 'Erro')
         self.assertEqual(b.text('#translate-mustache-title'), 'User')
         self.assertEqual(b.attr('#translate-mustache-yes-title', 'title'), 'Erro')

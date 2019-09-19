@@ -260,6 +260,8 @@ class Browser:
                 args["key"] = key
 
             self.cdp.invoke("Input.dispatchKeyEvent", **args)
+            args["type"] = "keyUp"
+            self.cdp.invoke("Input.dispatchKeyEvent", **args)
 
     def select_from_dropdown(self, selector, value, substring=False):
         # This is a backwards compat helper method; new code should use .set_val()

@@ -245,14 +245,16 @@ class Browser:
         self.wait_visible(selector + ':not([disabled])')
         self.call_js_func('ph_blur', selector)
 
-    def key_press(self, keys, modifiers=0):
+    def key_press(self, keys, modifiers=0, use_ord=False):
         for key in keys:
             args = {"type": "keyDown", "modifiers": modifiers}
 
             # If modifiers are used we need to pass windowsVirtualKeyCode which is
             # basically the asci decimal representation of the key
             args["text"] = key
-            if (not key.isalnum() and ord(key) < 32) or modifiers != 0:
+            if use_ord:
+                args["windowsVirtualKeyCode"] = ord(key)
+            elif (not key.isalnum() and ord(key) < 32) or modifiers != 0:
                 args["windowsVirtualKeyCode"] = ord(key.upper())
             else:
                 args["key"] = key

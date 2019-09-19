@@ -137,11 +137,8 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
         select_line(sel, 40)
 
         # Use keyboard shortcuts to copy text
-        # HACK - '-' is interpreted as insert key because when modifiers are
-        #   used, windowsVirtualKeyCode is used and insert key has code 45.
-        #   At the same time '-' has ascii code 45.
-        b.key_press("-", 2) # Ctrl + Insert
-        b.key_press("-", 8) # Shift + Insert
+        b.key_press(chr(45), 2, use_ord=True) # Ctrl + Insert
+        b.key_press(chr(45), 8, use_ord=True) # Shift + Insert
 
         # Wait for text to show up
         wait_line(n + 2, "foo")

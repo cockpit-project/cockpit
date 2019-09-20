@@ -234,7 +234,7 @@ export class StorageMultiAction extends React.Component {
                                         </button>
                                         <ul className="dropdown-menu action-dropdown-menu" role="menu">
                                             { this.props.actions.map((act) => (
-                                                <li className="presentation">
+                                                <li key={act.title} className="presentation">
                                                     <a role="menuitem" tabIndex="0" onClick={checked(act.action)}>
                                                         {act.title}
                                                     </a>

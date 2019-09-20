@@ -392,7 +392,7 @@ function append_row(client, rows, level, key, name, desc, tabs, job_object) {
     }
 
     var cols = [
-        <span className={"content-level-" + level}>
+        <span key={name} className={"content-level-" + level}>
             {utils.format_size_and_text(desc.size, desc.text)}
         </span>,
         { name: name, header: true },
@@ -441,7 +441,7 @@ function append_partitions(client, rows, level, block) {
         );
 
         var cols = [
-            <span className={"content-level-" + level}>
+            <span key={start.toString() + size.toString()} className={"content-level-" + level}>
                 {utils.format_size_and_text(size, _("Free Space"))}
             </span>,
             "",

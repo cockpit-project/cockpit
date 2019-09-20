@@ -4,7 +4,7 @@
         "browser": true,
         "es6": true
     },
-    "extends": ["eslint:recommended", "standard", "standard-react"],
+    "extends": ["eslint:recommended", "standard", "standard-react", "plugin:jsx-a11y/recommended"],
     "parser": "babel-eslint",
     "parserOptions": {
         "ecmaVersion": "7",
@@ -13,7 +13,7 @@
         },
         "sourceType": "module"
     },
-    "plugins": ["flowtype", "react", "cockpit"],
+    "plugins": ["flowtype", "react", "cockpit", "jsx-a11y"],
     "rules": {
         "indent": ["error", 4,
             {
@@ -46,6 +46,17 @@
         "react/prop-types": "off",
         "space-before-function-paren": "off",
         "standard/no-callback-literal": "off",
+
+        "jsx-a11y/no-noninteractive-tabindex": "off",
+        "jsx-a11y/no-static-element-interactions": "off",
+        "jsx-a11y/click-events-have-key-events": "off",
+        "jsx-a11y/label-has-associated-control": "off",
+        "jsx-a11y/anchor-is-valid": "off",
+        "jsx-a11y/alt-text": "off",
+        "jsx-a11y/no-autofocus": "off",
+        "jsx-a11y/no-noninteractive-element-interactions": "off",
+        "jsx-a11y/no-interactive-element-to-noninteractive-role": "off",
+        "jsx-a11y/no-onchange": "off",
 
         "eqeqeq": "off",
         "import/no-webpack-loader-syntax": "off",

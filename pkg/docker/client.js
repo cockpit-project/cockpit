@@ -659,7 +659,9 @@ function DockerClient() {
 
     this.pull = function (repo, tag, registry) {
         var job = {
-            name: repo
+            name: repo,
+            tag: tag,
+            registry: registry,
         };
 
         docker.pull(repo, tag, registry)

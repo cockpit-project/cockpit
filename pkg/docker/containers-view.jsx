@@ -697,7 +697,7 @@ export class ImageList extends React.Component {
                 );
             }
 
-            return <p className="status">{job.name}: {job.status} {detail}</p>;
+            return <p key={job.registry + job.name + job.tag} className="status">{job.registry}/{job.name}:{job.tag} - {job.status} {detail}</p>;
         });
 
         var emptyCaption;

@@ -84,13 +84,13 @@ function ServiceRow(props) {
 
     var columns = [
         { name: props.service.name, header: true },
-        <div>
+        <div key={props.service.id + "tcp"}>
             { tcp.map(p => p.port).join(', ') }
         </div>,
-        <div>
+        <div key={props.service.id + "udp"}>
             { udp.map(p => p.port).join(', ') }
         </div>,
-        <div>
+        <div key={props.service.id + "zones"}>
             { props.zones.filter(z => z.services.indexOf(props.service.id) !== -1).map(z => z.name || z.id)
                     .join(', ') }
         </div>,

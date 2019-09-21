@@ -33,7 +33,8 @@ class TestActivePages(MachineCase):
         if m.image in [ "rhel-8-1-distropkg" ]:
             n_extra_preloaded = 0
         else:
-            n_extra_preloaded = 1
+            # playground/preloaded and system/services
+            n_extra_preloaded = 2
 
         b.wait_present("#server")
 

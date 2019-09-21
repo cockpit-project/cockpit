@@ -33,6 +33,8 @@ import * as service from "service.js";
 import { shutdown } from "./shutdown.js";
 import host_keys_script from "raw-loader!./ssh-list-host-keys.sh";
 
+import { PageStatusNotifications } from "./page-status.jsx";
+
 import "form-layout.less";
 
 /* These add themselves to jQuery so just including is enough */
@@ -585,6 +587,13 @@ PageServer.prototype = {
         // Only link from graphs to available pages
         set_page_link("#link-disk", "storage", _("Disk I/O"));
         set_page_link("#link-network", "network", _("Network Traffic"));
+
+        function toggle_health_label(visible) {
+            $('label[for="page_status_notifications"]').toggle(visible);
+        }
+
+        ReactDOM.render(React.createElement(PageStatusNotifications, { toggle_label: toggle_health_label }),
+                        document.getElementById('page_status_notifications'));
     },
 
     enter: function() {

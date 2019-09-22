@@ -239,6 +239,7 @@ class SeleniumTestSuite(AvocadoTestSuite):
                       ]
 
     def __init__(self, browser, **kwargs):
+        self.browser = browser
         super().__init__(**kwargs)
         self.env["HUB"] = self.ipaddr_selenium
         self.env["GUEST"] = self.ipaddr_cockpit
@@ -250,6 +251,9 @@ class SeleniumTestSuite(AvocadoTestSuite):
         super()._cockpit_prepare()
         self._prepare_kdump_test()
         self._prepare_machines_test_env()
+        if self.browser == 'edge':
+            # HACK: Edge does not get along with cockpit-tls async buffering; will be fixed with https://projects.engineering.redhat.com/browse/COCKPIT-473
+            self.machine_cockpit.execute("sed -i 's/cockpit-tls/cockpit-ws/' /etc/systemd/system/cockpit.service.d/notls.conf; systemctl daemon-reload")
 
     def cleanup(self):
         super().cleanup()

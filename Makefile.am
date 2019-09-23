@@ -429,6 +429,17 @@ dist-xz: distdir
 distcheck-hook::
 	$(srcdir)/tools/check-dist $(distdir)
 
+# checkout Cockpit's bots for standard test VM images and API to launch them
+# must be from master, as only that has current and existing images; but testvm.py API is stable
+bots:
+	if [ ! -d bots ]; then \
+		git clone --depth=1 https://github.com/cockpit-project/bots.git; \
+	else \
+		cd bots && git fetch && git reset --hard origin/master; \
+        fi
+
+.PHONY: bots
+
 include po/Makefile.am
 include pkg/Makefile.am
 include src/base1/Makefile.am

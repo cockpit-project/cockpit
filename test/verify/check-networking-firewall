@@ -109,10 +109,10 @@ class TestFirewall(NetworkCase):
         m.execute("firewall-cmd --add-service=pop3")
         b.wait_present("tr[data-row-id='pop3']")
 
-        # all services should be shown after the one we added above is
-        # visible, so do a basic sanity check now
-        active_rules = get_active_rules(m)
-        b.call_js_func("ph_count_check", "#services-listing tbody", len(active_rules))
+        # Check that all services are shown.  This only works reliably since #12806
+        if m.image not in ["rhel-8-1-distropkg"]:
+            active_rules = get_active_rules(m)
+            b.wait_js_func("((sel, count) => ph_count(sel) == count)", "#services-listing tbody", len(active_rules))
 
         b.click("tr[data-row-id='pop3'] .listing-ct-toggle")
         b.wait_in_text("tbody.open tr.listing-ct-panel", "Post Office Protocol")

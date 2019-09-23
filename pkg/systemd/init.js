@@ -1373,12 +1373,15 @@ $(function() {
      * and update() is called.
      */
     systemd_manager.wait(function() {
-        systemd_manager.Subscribe()
-                .fail(function(error) {
-                    if (error.name != "org.freedesktop.systemd1.AlreadySubscribed" &&
+        if (systemd_manager.valid) {
+            systemd_manager.Subscribe()
+                    .fail(function(error) {
+                        if (error.name != "org.freedesktop.systemd1.AlreadySubscribed" &&
                         error.name != "org.freedesktop.DBus.Error.FileExists")
-                        console.warn("Subscribing to systemd signals failed", error);
-                });
-        update();
+                            console.warn("Subscribing to systemd signals failed", error);
+                    });
+            update();
+        } else
+            console.warn("Connecting to systemd failed");
     });
 });

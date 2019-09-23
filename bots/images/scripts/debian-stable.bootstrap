@@ -1,7 +1,0 @@
-#! /bin/sh -ex
-
-RELEASE=buster
-RELEASENUM=10
-LATEST_DAILY=$(curl -s https://cloud.debian.org/images/cloud/$RELEASE/daily/ | sed -n '/<a href=/ { s/^.*href="//; s_/".*$__; p }'| sort -nu | tail -n1)
-
-exec $(dirname $0)/lib/debian.bootstrap "$1" "https://cloud.debian.org/images/cloud/buster/daily/$LATEST_DAILY/debian-${RELEASENUM}-genericcloud-amd64-daily-${LATEST_DAILY}.qcow2"

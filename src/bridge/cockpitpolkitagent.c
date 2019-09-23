@@ -58,7 +58,7 @@ typedef struct {
   gchar *cookie;
   gchar *user;
 
-  GSimpleAsyncResult *result;
+  GTask *result;
   CockpitPolkitAgent *self;
 
   PolkitAgentSession *session;
@@ -106,9 +106,8 @@ caller_free (gpointer data)
   if (caller->result)
     {
       g_debug ("cancelling agent authentication");
-      g_simple_async_result_set_error (caller->result, G_IO_ERROR, G_IO_ERROR_CANCELLED,
-                                       "Operation was cancelled");
-      g_simple_async_result_complete (caller->result);
+      g_task_return_new_error (caller->result, G_IO_ERROR, G_IO_ERROR_CANCELLED,
+                               "Operation was cancelled");
       g_object_unref (caller->result);
     }
 
@@ -226,7 +225,7 @@ on_completed (PolkitAgentSession *session,
   g_debug ("polkit authentication completed");
 
   g_warn_if_fail (g_hash_table_steal (caller->self->callers, caller->cookie));
-  g_simple_async_result_complete_in_idle (caller->result);
+  g_task_return_boolean (caller->result, TRUE);
 
   g_object_unref (caller->result);
   caller->result = NULL;
@@ -310,7 +309,7 @@ cockpit_polkit_agent_initiate_authentication (PolkitAgentListener *listener,
 {
   CockpitPolkitAgent *self = COCKPIT_POLKIT_AGENT (listener);
   PolkitIdentity *identity = NULL;
-  GSimpleAsyncResult *result = NULL;
+  GTask *result = NULL;
   GString *unsupported = NULL;
   ReauthorizeCaller *caller;
   const gchar *name = NULL;
@@ -320,8 +319,7 @@ cockpit_polkit_agent_initiate_authentication (PolkitAgentListener *listener,
 
   g_debug ("polkit is requesting authentication");
 
-  result = g_simple_async_result_new (G_OBJECT (self), callback, user_data,
-                                      cockpit_polkit_agent_initiate_authentication);
+  result = g_task_new (G_OBJECT (self), NULL, callback, user_data);
 
   uid = getuid ();
 
@@ -346,9 +344,8 @@ cockpit_polkit_agent_initiate_authentication (PolkitAgentListener *listener,
   if (!identity)
     {
       g_message ("cannot reauthorize identity(s): %s", unsupported->str);
-      g_simple_async_result_set_error (result, POLKIT_ERROR, POLKIT_ERROR_FAILED,
-                                       "Reauthorization not supported for identity");
-      g_simple_async_result_complete_in_idle (result);
+      g_task_return_new_error (result, POLKIT_ERROR, POLKIT_ERROR_FAILED,
+                               "Reauthorization not supported for identity");
       goto out;
     }
 
@@ -384,13 +381,9 @@ cockpit_polkit_agent_initiate_authentication_finish (PolkitAgentListener *listen
                                                      GAsyncResult *res,
                                                      GError **error)
 {
-  g_warn_if_fail (g_simple_async_result_is_valid (res, G_OBJECT (listener),
-                  cockpit_polkit_agent_initiate_authentication));
+  g_warn_if_fail (g_task_is_valid (res, listener));
 
-  if (g_simple_async_result_propagate_error (G_SIMPLE_ASYNC_RESULT (res), error))
-    return FALSE;
-
-  return TRUE;
+  return g_task_propagate_boolean (G_TASK (res), error);
 }
 
 static void

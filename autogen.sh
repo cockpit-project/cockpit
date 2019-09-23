@@ -105,5 +105,11 @@ if [ -z "${NOREDIRECTMAKEFILE:-}" ]; then
     fi
 fi
 
+if [ ! -d bots ]; then
+    git clone --depth=1 https://github.com/cockpit-project/bots.git
+else
+    cd bots && git fetch && git reset --hard origin/master
+fi
+
 echo
 echo "Now type 'make' to compile $PKG_NAME."

@@ -38,6 +38,10 @@ TLS_TESTS = \
 	test-tls-server					\
 	$(NULL)
 
+TLS_SCRIPT_TESTS = \
+	src/tls/test-socket-activation-helper.sh	\
+	$(NULL)
+
 test_tls_connection_SOURCES = \
 	src/tls/connection.c				\
 	src/tls/test-connection.c			\
@@ -64,5 +68,9 @@ test_tls_server_SOURCES = \
 test_tls_server_CFLAGS = $(TEST_CFLAGS)
 test_tls_server_LDADD = $(TEST_LDADD)
 
-noinst_PROGRAMS += $(TLS_TESTS)
-TESTS += $(TLS_TESTS)
+socket_activation_helper_SOURCES = src/tls/socket-activation-helper.c
+socket_activation_helper_CFLAGS = $(TEST_CFLAGS)
+
+noinst_PROGRAMS += $(TLS_TESTS) socket-activation-helper
+EXTRA_DIST += $(TLS_SCRIPT_TESTS)
+TESTS += $(TLS_TESTS) $(TLS_SCRIPT_TESTS)

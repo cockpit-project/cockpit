@@ -38,7 +38,7 @@ export class AggregateStatusCards extends React.Component {
             <div className='cards-pf grid-cards-ct cards-ct-hybrid'>
                 <Card accented aggregated id='card-pf-storage-pools'>
                     <CardTitle onClick={ () => cockpit.location.go(['storages']) }>
-                        <a>
+                        <button role="link" className="link-button">
                             <Icon type='pf' name='server' />
                             <AggregateStatusCount>
                                 { this.props.storagePools.length }
@@ -46,7 +46,7 @@ export class AggregateStatusCards extends React.Component {
                             <span className="card-pf-title-link">
                                 {cockpit.ngettext("Storage Pool", "Storage Pools", this.props.storagePools.length)}
                             </span>
-                        </a>
+                        </button>
                     </CardTitle>
                     <CardBody>
                         <AggregateStatusNotifications>
@@ -63,7 +63,7 @@ export class AggregateStatusCards extends React.Component {
                 </Card>
                 <Card accented aggregated id='card-pf-networks'>
                     <CardTitle onClick={ () => cockpit.location.go(['networks']) }>
-                        <a>
+                        <button role="link" className="link-button">
                             <Icon type='pf' name='network' />
                             <AggregateStatusCount>
                                 { this.props.networks.length }
@@ -71,7 +71,7 @@ export class AggregateStatusCards extends React.Component {
                             <span className="card-pf-title-link">
                                 {cockpit.ngettext("Network", "Networks", this.props.networks.length)}
                             </span>
-                        </a>
+                        </button>
                     </CardTitle>
                     <CardBody>
                         <AggregateStatusNotifications>

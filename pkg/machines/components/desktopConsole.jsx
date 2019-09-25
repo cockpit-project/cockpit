@@ -97,18 +97,18 @@ class MoreInformation extends React.Component {
     render() {
         if (!this.state.expanded) {
             return (
-                <a href='#' tabIndex="0" onClick={this.onClick}>
+                <button className="link-button" onClick={this.onClick}>
                     <span className='fa fa-angle-right' />&nbsp;
                     {_("More Information")}
-                </a>);
+                </button>);
         }
 
         return (
             <div className='machines-desktop-more-info-container'>
-                <a href='#' tabIndex="0" onClick={this.onClick}>
+                <button className="link-button" onClick={this.onClick}>
                     <span className='fa fa-angle-down' />&nbsp;
                     {_("More Information")}
-                </a>
+                </button>
                 {this.getContent()}
             </div>);
     }

@@ -137,22 +137,22 @@ class VmOverviewTabLibvirt extends React.Component {
 
             bootOrder = (
                 <div>
-                    <a id={`${vmId(vm.name)}-boot-order`} onClick={this.openBootOrder}>
+                    <button className="link-button" id={`${vmId(vm.name)}-boot-order`} onClick={this.openBootOrder}>
                         {getBootOrder(vm)}
-                    </a>
+                    </button>
                     { vm.state === "running" && bootOrderChanged() && <WarningInactive iconId="boot-order-tooltip" tooltipId="tip-boot-order" /> }
                 </div>
             );
 
             memoryLink = (
-                <a id={`${idPrefix}-memory-count`} onClick={this.openMemory}>
+                <button className="link-button" id={`${idPrefix}-memory-count`} onClick={this.openMemory}>
                     {memoryLink}
-                </a>
+                </button>
             );
         }
         const vcpuLink = (
             <>
-                <a id={`${vmId(vm.name)}-vcpus-count`} onClick={this.openVcpu}>{vm.vcpus.count}</a>
+                <button className="link-button" id={`${vmId(vm.name)}-vcpus-count`} onClick={this.openVcpu}>{vm.vcpus.count}</button>
                 { vm.state === "running" && vcpusChanged && <WarningInactive iconId="vcpus-tooltip" tooltipId="tip-vcpus" /> }
             </>
         );

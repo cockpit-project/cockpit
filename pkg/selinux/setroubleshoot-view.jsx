@@ -121,7 +121,7 @@ class SELinuxEventDetails extends React.Component {
                     </div>
                 );
             }
-            var detailsLink = <a href="#" tabIndex="0" onClick={ self.handleSolutionDetailsClick.bind(self, itmIdx) }>{ _("solution details") }</a>;
+            var detailsLink = <button className="link-button" onClick={ self.handleSolutionDetailsClick.bind(self, itmIdx) }>{ _("solution details") }</button>;
             var doState;
             var doElem;
             var caret;

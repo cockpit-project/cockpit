@@ -132,12 +132,10 @@ export class StorageLink extends React.Component {
         return (
             <StorageControl excuse={this.props.excuse}
                             content={(excuse) => (
-                                <a onClick={checked(this.props.onClick)}
-                                       role="link"
-                                       tabIndex="0"
-                                       className={excuse ? " disabled" : ""}>
+                                <button onClick={checked(this.props.onClick)}
+                                        className={excuse ? " disabled link-button" : "link-button"}>
                                     {this.props.children}
-                                </a>
+                                </button>
                             )} />
         );
     }
@@ -164,9 +162,9 @@ export class StorageBlockNavLink extends React.Component {
         var parts = utils.get_block_link_parts(client, block.path);
 
         var link = (
-            <a role="link" tabIndex="0" onClick={() => { cockpit.location.go(parts.location) }}>
+            <button role="link" className="link-button" onClick={() => { cockpit.location.go(parts.location) }}>
                 {parts.link}
-            </a>
+            </button>
         );
 
         return <span>{fmt_to_fragments(parts.format, link)}</span>;

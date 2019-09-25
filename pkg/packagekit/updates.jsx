@@ -118,7 +118,7 @@ class Expander extends React.Component {
     }
 
     render() {
-        const title = <a href="#">{this.props.title}</a>;
+        const title = <button className="link-button">{this.props.title}</button>;
         const cls = "expander-caret fa " + (this.state.expanded ? "fa-angle-down" : "fa-angle-right");
         return (
             <>

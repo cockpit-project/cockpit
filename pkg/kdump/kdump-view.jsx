@@ -327,6 +327,7 @@ export class KdumpPage extends React.Component {
         // only consider primary mouse button
         if (!e || e.button !== 0)
             return;
+        e.preventDefault();
         var self = this;
         var settings = { };
         Object.keys(self.props.kdumpStatus.config).forEach((key) => {
@@ -403,7 +404,7 @@ export class KdumpPage extends React.Component {
         // this.storeLocation(this.props.kdumpStatus.config);
         var settingsLink;
         if (targetCanChange)
-            settingsLink = <a href="#" tabIndex="0" onClick={this.handleSettingsClick}>{ kdumpLocation }</a>;
+            settingsLink = <span><button className="link-button" onClick={this.handleSettingsClick}>{ kdumpLocation }</button></span>;
         else
             settingsLink = <span>{ kdumpLocation }</span>;
         var reservedMemory;
@@ -456,14 +457,14 @@ export class KdumpPage extends React.Component {
                     </OverlayTrigger>
                 );
             }
-            kdumpServiceDetails = <a className="popover-ct-kdump" href="#" tabIndex="0" onClick={this.handleServiceDetailsClick}>{serviceDescription}{serviceHint}</a>;
+            kdumpServiceDetails = <button role="link" className="popover-ct-kdump link-button" onClick={this.handleServiceDetailsClick}>{serviceDescription}{serviceHint}</button>;
         } else if (this.props.kdumpStatus && !this.props.kdumpStatus.installed) {
             const tooltip = _("Kdump service not installed. Please ensure package kexec-tools is installed.");
             kdumpServiceDetails = (
                 <OverlayTrigger overlay={ <Tooltip id="tip-service">{tooltip}</Tooltip> } placement="bottom">
-                    <a tabIndex="0" className="popover-ct-kdump">
+                    <button className="popover-ct-kdump link-button">
                         <span className="fa fa-lg fa-info-circle" />
-                    </a>
+                    </button>
                 </OverlayTrigger>
             );
         }
@@ -508,11 +509,11 @@ export class KdumpPage extends React.Component {
 
                     <div role="group">
                         {testButton}
-                        <a tabIndex="0" className="popover-ct-kdump">
+                        <button className="popover-ct-kdump link-button">
                             <OverlayTrigger overlay={ <Tooltip id="tip-test-info">{tooltip_info}</Tooltip> } placement="top">
                                 <span className="fa fa-lg fa-info-circle" />
                             </OverlayTrigger>
-                        </a>
+                        </button>
                     </div>
                 </form>
             </div>

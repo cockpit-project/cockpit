@@ -48,10 +48,10 @@ class TestHWinfo(SeleniumTest):
 
     def testSMT(self):
 
-        self.click(self.wait_link("Mitigations"))
+        self.click(self.wait_text("Mitigations", element="button", cond=clickable))
         self.wait_id("cpu-mitigations-dialog", jscheck=True)
         self.click(self.wait_id("nosmt-switch"))
         self.wait_text("Save and reboot", cond=clickable)
         self.click(self.wait_text("Cancel", cond=clickable))
-        self.click(self.wait_link("Mitigations", cond=clickable))
+        self.click(self.wait_text("Mitigations", element="button", cond=clickable))
         self.mainframe()

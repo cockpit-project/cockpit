@@ -139,7 +139,7 @@ class TestSelinux(MachineCase):
         b.wait_in_text(panel_selector, "you can run restorecon")
 
         # and it can be applied
-        btn_sel = "div.list-group-item:contains('you can run restorecon') button"
+        btn_sel = "div.list-group-item:contains('you can run restorecon') button.btn-default"
         b.click(btn_sel)
 
         # the fix should be applied

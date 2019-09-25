@@ -50,7 +50,7 @@ class TestStorage(StorageCase):
 
         b.click('#vgroups tr:contains("TEST")')
         b.wait_present('#storage-detail')
-        b.click("a:contains(Create new Logical Volume)")
+        b.click("button:contains(Create new Logical Volume)")
         self.dialog({'purpose': "block",
                      'name': "lvol",
                      'size': 48})

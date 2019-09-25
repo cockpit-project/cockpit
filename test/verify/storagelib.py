@@ -171,9 +171,9 @@ class StorageCase(MachineCase):
     def content_tab_info_action(self, row_index, tab_index, title, wrapped=False):
         label = self.content_tab_info_label(row_index, tab_index, title)
         if wrapped:
-            link = label + " + div a"
+            link = label + " + div button.link-button"
         else:
-            link = label + " + a"
+            link = label + " + button.link-button"
         self.browser.click(link)
 
     # Dialogs

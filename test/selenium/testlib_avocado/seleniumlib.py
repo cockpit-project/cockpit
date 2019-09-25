@@ -24,6 +24,7 @@ HUB=localhost BROWSER=chrome GUEST=`hostname -i` avocado run selenium-login.py
 """
 
 import inspect
+import logging
 import selenium.webdriver
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.support import expected_conditions as EC
@@ -31,6 +32,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.select import Select
+from selenium.webdriver.remote.remote_connection import LOGGER
 import os
 import time
 from avocado import Test
@@ -45,6 +47,8 @@ passwd = "superhardpasswordtest5554"
 # path for storing selenium screenshots
 actualpath = "."
 IDENTITY_FILE = "identity"
+
+LOGGER.setLevel(logging.WARNING)
 
 # use javascript to generate clicks in the browsers and add more javascript checks for elements
 # this prevents races where the test clicks in the wrong place because the page layout changed
@@ -62,6 +66,17 @@ class SeleniumTest(Test):
     """
     :avocado: disable
     """
+
+    def _selenium_logging(self, method, *args):
+        transformed_arg_list = list()
+        for arg in args:
+            if "selenium.webdriver.support.expected_conditions" in str(arg):
+                transformed_arg_list.append(arg.__name__)
+            elif isinstance(arg, selenium.webdriver.remote.webelement.WebElement):
+                transformed_arg_list.append(arg.get_attribute('outerHTML').split(">", 1)[0] + ">")
+            else:
+                transformed_arg_list.append(str(arg))
+        self.log.info("SELENIUM {}: ".format(method) + " ".join(transformed_arg_list))
 
     def setUp(self):
         selenium_hub = os.environ.get("HUB", "localhost")
@@ -180,7 +195,7 @@ class SeleniumTest(Test):
             self.log.info("ERR: Unable to get logs: " + e.msg)
 
     def execute_script(self, *args, fatal=True):
-
+        self._selenium_logging("execute javascript", *args)
         try:
             return self.driver.execute_script(*args)
         except WebDriverException as e:
@@ -204,6 +219,7 @@ This function is only for internal purposes:
     def click(self, element):
         failure = "CLICK: too many tries"
         usedfunction = self.element_wait_functions[element] if element in self.element_wait_functions else None
+        self._selenium_logging("click", element)
         for foo in range(0, self.default_try):
             try:
                 if javascript_operations:
@@ -225,6 +241,7 @@ This function is only for internal purposes:
             raise SeleniumElementFailure('Unable to CLICK on element {}'.format(failure))
 
     def send_keys(self, element, text, clear=True, ctrla=False):
+        self._selenium_logging("send keyboard input", "{} to:".format(text), element)
         try:
             if clear:
                 element.clear()
@@ -239,6 +256,7 @@ This function is only for internal purposes:
             self.execute_script('var ev = new Event("change", { bubbles: true, cancelable: false }); arguments[0].dispatchEvent(ev);', element)
 
     def check_box(self, element, checked=True):
+        self._selenium_logging("check box select", element)
         try:
             if element.is_selected() != checked:
                 element.click()
@@ -252,6 +270,7 @@ This function is only for internal purposes:
                 element = self.element_wait_functions[element]()
         except (WebDriverException, SeleniumFailure):
             pass
+        self._selenium_logging("element relocation", element)
         return element
 
     def select(self, element, select_function, value=None):
@@ -260,6 +279,7 @@ This function is only for internal purposes:
         methods = [item for item in dir(Select) if not item.startswith("_")]
         if select_function not in methods:
             raise AttributeError("You used bad parameter for selected_function param, allowed are %s" % methods)
+        self._selenium_logging("select", select_function, "for:", element, "via:", value)
         for _ in range(self.default_try):
             try:
                 s1 = Select(element)
@@ -314,6 +334,14 @@ parameters:
 
         for foo in range(0, internaltry):
             try:
+                self._selenium_logging("element lookup",
+                                       method,
+                                       ":",
+                                       text,
+                                       cond,
+                                       "(text inside:{} is fatal:{}, do js check:{})".format(text_, fatal, jscheck))
+                if foo > 0:
+                    self._selenium_logging("element lookup retry {}".format(foo))
                 returned = usedfunction()
                 if jscheck:
                     if not (cond == frame or not fatal or cond == invisible) and self.everything_loaded(returned):
@@ -366,6 +394,7 @@ parameters:
         return self.wait(By.XPATH, text=text, baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=frame, jscheck=jscheck, text_=None)
 
     def mainframe(self):
+        self._selenium_logging("return to main frame")
         try:
             self.driver.switch_to.default_content()
         except WebDriverException as e:

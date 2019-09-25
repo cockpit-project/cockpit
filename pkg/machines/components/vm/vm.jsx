@@ -102,6 +102,7 @@ const Vm = ({
             vm,
             config,
             dispatch,
+            storagePools,
             onStart,
             onInstall,
             onReboot,

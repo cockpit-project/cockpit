@@ -122,8 +122,8 @@ export function createVm(vmParams) {
     return virt(CREATE_VM, vmParams);
 }
 
-export function deleteVm(vm, options) {
-    return virt(DELETE_VM, { name: vm.name, id: vm.id, connectionName: vm.connectionName, options: options });
+export function deleteVm(vm, options, storagePools) {
+    return virt(DELETE_VM, { name: vm.name, id: vm.id, connectionName: vm.connectionName, options, storagePools });
 }
 
 export function detachDisk({ connectionName, target, name, id, live = false }) {

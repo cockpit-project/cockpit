@@ -39,7 +39,7 @@
     <h1 id="testing-connection-curtain-restoring" translatable="yes">Restoring connection</h1>
   </div>
 
-  <div id="networking" class="container-fluid page-ct" hidden>
+  <div id="networking" hidden>
     <div id="networking-nm-crashed" class="alert alert-danger" hidden>
       <button class="btn btn-default pull-right" type="submit" translatable="yes">Start Service</button>
         <span class="pficon pficon-error-circle-o"></span>
@@ -91,63 +91,66 @@
       </div>
     </div>
     <br/>
-    <div class="panel panel-default" id="networking-firewall" hidden>
-      <div class="panel-heading">
-        <h2 class="panel-title">
-          <a tabindex="0" id="networking-firewall-link" translatable="yes">Firewall</a>
-        </h2>
-        <div class="panel-actions">
+
+    <div class="networking-page container-fluid">
+      <div class="panel panel-default" id="networking-firewall" hidden>
+        <div class="panel-heading">
+          <h2 class="panel-title">
+            <a tabindex="0" id="networking-firewall-link" translatable="yes">Firewall</a>
+          </h2>
+          <div class="panel-actions">
+          </div>
+        </div>
+        <div id="networking-firewall-summary" class="panel-body">
         </div>
       </div>
-      <div id="networking-firewall-summary" class="panel-body">
-      </div>
-    </div>
-    <div class="panel panel-default"
-         id="networking-interfaces">
-      <div class="panel-heading">
-        <h2 class="panel-title" translatable="yes">Interfaces</h2>
-        <div class="panel-actions">
-          <button translatable="yes" id="networking-add-bond" class="btn btn-default network-privileged">Add Bond</button>
-          <button translatable="yes" id="networking-add-team" class="btn btn-default network-privileged">Add Team</button>
-          <button translatable="yes" id="networking-add-bridge" class="btn btn-default network-privileged">Add Bridge</button>
-          <button translatable="yes" id="networking-add-vlan" class="btn btn-default network-privileged">Add VLAN</button>
+      <div class="panel panel-default"
+           id="networking-interfaces">
+        <div class="panel-heading">
+          <h2 class="panel-title" translatable="yes">Interfaces</h2>
+          <div class="panel-actions">
+            <button translatable="yes" id="networking-add-bond" class="btn btn-default network-privileged">Add Bond</button>
+            <button translatable="yes" id="networking-add-team" class="btn btn-default network-privileged">Add Team</button>
+            <button translatable="yes" id="networking-add-bridge" class="btn btn-default network-privileged">Add Bridge</button>
+            <button translatable="yes" id="networking-add-vlan" class="btn btn-default network-privileged">Add VLAN</button>
+          </div>
         </div>
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th translatable="yes">Name</th>
+              <th translatable="yes">IP Address</th>
+              <th translatable="yes" class="networking-speed">Sending</th>
+              <th translatable="yes" class="networking-speed">Receiving</th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
       </div>
-      <table class="table table-hover">
-        <thead>
-          <tr>
-            <th translatable="yes">Name</th>
-            <th translatable="yes">IP Address</th>
-            <th translatable="yes" class="networking-speed">Sending</th>
-            <th translatable="yes" class="networking-speed">Receiving</th>
-          </tr>
-        </thead>
-        <tbody>
-        </tbody>
-      </table>
-    </div>
-    <div class="panel panel-default"
-         id="networking-unmanaged-interfaces">
-      <div class="panel-heading">
-        <h2 class="panel-title" translatable="yes">Unmanaged Interfaces</h2>
+      <div class="panel panel-default"
+           id="networking-unmanaged-interfaces">
+        <div class="panel-heading">
+          <h2 class="panel-title" translatable="yes">Unmanaged Interfaces</h2>
+        </div>
+        <table class="table">
+          <thead>
+            <tr>
+              <th translatable="yes">Name</th>
+              <th translatable="yes">IP Address</th>
+              <th translatable="yes" class="networking-speed">Sending</th>
+              <th translatable="yes" class="networking-speed">Receiving</th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
       </div>
-      <table class="table">
-        <thead>
-          <tr>
-            <th translatable="yes">Name</th>
-            <th translatable="yes">IP Address</th>
-            <th translatable="yes" class="networking-speed">Sending</th>
-            <th translatable="yes" class="networking-speed">Receiving</th>
-          </tr>
-        </thead>
-        <tbody>
-        </tbody>
-      </table>
-    </div>
-    <div class="panel panel-default cockpit-log-panel" role="table"
-     aria-labelledby="networking-log-header">
-      <div class="panel-heading"><h2 class="panel-title" translatable="yes" id="networking-log-header">Networking Logs</h2></div>
-      <div class="panel-body" id="networking-log" role="rowgroup"></div>
+      <div class="panel panel-default cockpit-log-panel" role="table"
+       aria-labelledby="networking-log-header">
+        <div class="panel-heading"><h2 class="panel-title" translatable="yes" id="networking-log-header">Networking Logs</h2></div>
+        <div class="panel-body" id="networking-log" role="rowgroup"></div>
+      </div>
     </div>
   </div>
 

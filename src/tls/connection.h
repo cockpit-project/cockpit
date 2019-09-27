@@ -20,8 +20,7 @@
 #pragma once
 
 #include <stdbool.h>
-
-#include "wsinstance.h"
+#include <gnutls/gnutls.h>
 
 typedef enum { CLIENT, WS } DataSource;
 typedef enum { SUCCESS, PARTIAL, CLOSED, RETRY, FATAL } ConnectionResult;
@@ -41,7 +40,6 @@ struct Connection {
   int client_fd;
   bool is_tls;
   gnutls_session_t session;
-  WsInstance *ws;
   int ws_fd;
   struct ConnectionBuffer buf_client;
   struct ConnectionBuffer buf_ws;

@@ -40,6 +40,7 @@ connection_new (int client_fd)
   con->client_fd = client_fd;
   con->buf_client.connection = con;
   con->buf_ws.connection = con;
+  con->ws_fd = -1;
 
   debug (CONNECTION, "new connection on fd %i", con->client_fd);
   return con;

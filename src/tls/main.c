@@ -30,8 +30,6 @@
 #include "utils.h"
 #include "server.h"
 
-#define COCKPIT_WS PACKAGE_LIBEXEC_DIR "/cockpit-ws"
-
 /* CLI arguments */
 struct arguments {
   uint16_t port;
@@ -112,7 +110,7 @@ main (int argc, char **argv)
     }
 
   /* TODO: Add cockpit.conf option to enable client-certificate auth, once we support that */
-  server_init (COCKPIT_WS, arguments.port, certfile, NULL, CERT_NONE);
+  server_init ("/run/cockpit/wsinstance", arguments.port, certfile, NULL, CERT_NONE);
   free (certfile);
 
   server_run (arguments.idle_timeout);

@@ -164,6 +164,12 @@ remotectl_LDADD = \
 nodist_systemdunit_DATA += \
 	src/ws/cockpit.socket \
 	src/ws/cockpit.service \
+	src/ws/cockpit-wsinstance-http.socket \
+	src/ws/cockpit-wsinstance-http.service \
+	src/ws/cockpit-wsinstance-http-redirect.socket \
+	src/ws/cockpit-wsinstance-http-redirect.service \
+	src/ws/cockpit-wsinstance-https.socket \
+	src/ws/cockpit-wsinstance-https.service \
 	src/ws/cockpit-motd.service \
 	$(NULL)
 
@@ -191,7 +197,7 @@ $(nodist_tempconf_DATA): $(tempconf_in)
 # If running cockpit-ws as a non-standard user, we also set up
 # cockpit-session to be setuid root, but only runnable by cockpit-session
 install-exec-hook::
-	chown -f root:$(COCKPIT_GROUP) $(DESTDIR)$(libexecdir)/cockpit-session || true
+	chown -f root:$(COCKPIT_WSINSTANCE_GROUP) $(DESTDIR)$(libexecdir)/cockpit-session || true
 	test "$(COCKPIT_USER)" != "root" && chmod -f 4750 $(DESTDIR)$(libexecdir)/cockpit-session || true
 
 libexec_SCRIPTS = cockpit-desktop
@@ -203,6 +209,12 @@ EXTRA_DIST += \
 	src/ws/cockpit-motd.service.in \
 	src/ws/cockpit.service.in \
 	src/ws/cockpit.socket.in \
+	src/ws/cockpit-wsinstance-http.service.in \
+	src/ws/cockpit-wsinstance-http.socket.in \
+	src/ws/cockpit-wsinstance-http-redirect.service.in \
+	src/ws/cockpit-wsinstance-http-redirect.socket.in \
+	src/ws/cockpit-wsinstance-https.service.in \
+	src/ws/cockpit-wsinstance-https.socket.in \
 	src/ws/cockpit-desktop.in \
 	$(firewall_DATA) \
 	$(tempconf_in) \
@@ -211,6 +223,12 @@ EXTRA_DIST += \
 CLEANFILES += \
 	src/ws/cockpit.socket \
 	src/ws/cockpit.service \
+	src/ws/cockpit-wsinstance-http.service \
+	src/ws/cockpit-wsinstance-http.socket \
+	src/ws/cockpit-wsinstance-http-redirect.service \
+	src/ws/cockpit-wsinstance-http-redirect.socket \
+	src/ws/cockpit-wsinstance-https.service \
+	src/ws/cockpit-wsinstance-https.socket \
 	src/ws/cockpit-motd.service \
 	$(nodist_tempconf_DATA) \
 	cockpit-desktop \

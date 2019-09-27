@@ -1,0 +1,9 @@
+[Unit]
+Description=Socket for Cockpit Web Service https instance
+PartOf=cockpit.service
+Documentation=man:cockpit-ws(8)
+
+[Socket]
+ListenStream=/run/cockpit/wsinstance/https.sock
+SocketUser=@user@
+SocketMode=0600

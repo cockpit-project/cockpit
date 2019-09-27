@@ -447,7 +447,7 @@ G_MESSAGES_DEBUG=all XDG_CONFIG_DIRS=/usr/local %s -p 9999 -a 127.0.0.90 --local
         m.spawn("socat TCP-LISTEN:9091,reuseaddr,fork TCP:localhost:9099", "socat.log")
 
         # ws with plain --no-tls should fail after login with mismatching Origin (expected http, got https)
-        m.spawn("su -s /bin/sh -c '%s --no-tls -p 9099' cockpit-ws" % self.ws_executable,
+        m.spawn("su -s /bin/sh -c '%s --no-tls -p 9099' cockpit-wsinstance" % self.ws_executable,
                 "ws-notls.log")
         m.wait_for_cockpit_running(tls=True)
 
@@ -488,7 +488,7 @@ G_MESSAGES_DEBUG=all XDG_CONFIG_DIRS=/usr/local %s -p 9999 -a 127.0.0.90 --local
         self.allow_browser_errors("Error reading machine id")
 
         # ws with --for-tls-proxy accepts only https origins, thus should work
-        m.spawn("su -s /bin/sh -c '%s --for-tls-proxy -p 9099 -a 127.0.0.1' cockpit-ws" % self.ws_executable,
+        m.spawn("su -s /bin/sh -c '%s --for-tls-proxy -p 9099 -a 127.0.0.1' cockpit-wsinstance" % self.ws_executable,
                 "ws-fortlsproxy.log")
         m.wait_for_cockpit_running(tls=True)
         b.open("https://%s:%s/system" % (b.address, b.port))
@@ -520,7 +520,7 @@ G_MESSAGES_DEBUG=all XDG_CONFIG_DIRS=/usr/local %s -p 9999 -a 127.0.0.90 --local
 
         # ws with --proxy-tls-redirect redirects non-localhost to https
         m.execute("pkill -e cockpit-ws; while pgrep -a cockpit-ws; do sleep 1; done")
-        m.spawn("su -s /bin/sh -c '%s --proxy-tls-redirect --no-tls -p 9099 -a 127.0.0.1' cockpit-ws" % self.ws_executable,
+        m.spawn("su -s /bin/sh -c '%s --proxy-tls-redirect --no-tls -p 9099 -a 127.0.0.1' cockpit-wsinstance" % self.ws_executable,
                 "ws-proxy-tls-redirect.log")
         m.wait_for_cockpit_running(tls=True)
         self.assertIn("HTTP/1.1 301 Moved Permanently", m.execute("curl --silent --head http://172.27.0.15:9091"))

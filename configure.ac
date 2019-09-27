@@ -410,7 +410,7 @@ fi
 AM_CONDITIONAL(WITH_ASAN, test "$enable_asan" = "yes")
 AC_MSG_RESULT($asan_status)
 
-# User and group for running cockpit-ws
+# User and group for running cockpit web server (cockpit-tls or -ws in customized setups)
 
 AC_ARG_WITH(cockpit_user,
 	    AS_HELP_STRING([--with-cockpit-user=<user>],
@@ -436,6 +436,35 @@ fi
 
 AC_SUBST(COCKPIT_USER)
 AC_SUBST(COCKPIT_GROUP)
+
+# User for running cockpit-ws instances from cockpit-tls
+
+AC_ARG_WITH(cockpit_ws_instance_user,
+	    AS_HELP_STRING([--with-cockpit-ws-instance-user=<user>],
+			   [User for running cockpit-ws instances from cockpit-tls (root)]
+                          )
+           )
+AC_ARG_WITH(cockpit_ws_instance_group,
+	    AS_HELP_STRING([--with-cockpit-ws-instance-group=<group>],
+			   [Group for running cockpit-ws instances from cockpit-tls]
+                          )
+           )
+if test -z "$with_cockpit_ws_instance_user"; then
+    if test "$COCKPIT_USER" != "root"; then
+        AC_MSG_ERROR([--with-cockpit-ws-instance-user is required when setting --with-cockpit-user])
+    fi
+    COCKPIT_WSINSTANCE_USER=root
+else
+    COCKPIT_WSINSTANCE_USER=$with_cockpit_ws_instance_user
+    if test -z "$with_cockpit_ws_instance_group"; then
+        COCKPIT_WSINSTANCE_GROUP=$with_cockpit_ws_instance_user
+    else
+        COCKPIT_WSINSTANCE_GROUP=$with_cockpit_ws_instance_group
+    fi
+fi
+
+AC_SUBST(COCKPIT_WSINSTANCE_USER)
+AC_SUBST(COCKPIT_WSINSTANCE_GROUP)
 
 AC_ARG_WITH(selinux_config_type,
 	    AS_HELP_STRING([--with-selinux-config-type=<type>],
@@ -586,6 +615,8 @@ echo "
 
         cockpit-ws user:            ${COCKPIT_USER}
         cockpit-ws group:           ${COCKPIT_GROUP}
+        cockpit-ws instance user:   ${COCKPIT_WSINSTANCE_USER}
+        cockpit-ws instance group:  ${COCKPIT_WSINSTANCE_GROUP}
         selinux config type:        ${COCKPIT_SELINUX_CONFIG_TYPE}
 
         Maintainer mode:            ${USE_MAINTAINER_MODE}
@@ -595,7 +626,7 @@ echo "
         With coverage:              ${enable_coverage}
         With address sanitizer:     ${asan_status}
         With PCP:                   ${enable_pcp}
-	Branding:                   ${BRAND}
+        Branding:                   ${BRAND}
 
         cockpit-ssh:                ${enable_ssh}
         Supports key auth:          ${key_auth}

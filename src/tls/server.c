@@ -36,7 +36,6 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <sys/epoll.h>
-#include <sys/eventfd.h>
 #include <sys/wait.h>
 
 #include <gnutls/gnutls.h>
@@ -45,7 +44,6 @@
 #include <common/cockpitmemory.h>
 #include <common/cockpitwebcertificate.h>
 #include "utils.h"
-#include "wsinstance.h"
 #include "connection.h"
 
 #include "server.h"
@@ -56,16 +54,12 @@
 static struct {
   bool initialized;
   const char *ws_path;
-  const char *state_dir;
   enum ClientCertMode client_cert_mode;
   int listen_fds[MAX_LISTEN_FDS];
   gnutls_certificate_credentials_t x509_cred;
   gnutls_priority_t priority_cache;
   Connection *connections;
-  WsInstance *wss;      /* cockpit-ws instances, one for each client certificate */
-  WsInstance *ws_notls; /* cockpit-ws instance for unencrypted HTTP */
   int epollfd;
-  struct sigaction old_sigchld;
 } server;
 
 /***********************************
@@ -86,40 +80,6 @@ static struct {
         do { \
                 rval = cmd; \
         } while(rval == GNUTLS_E_AGAIN || rval == GNUTLS_E_INTERRUPTED)
-
-static int cleanup_children_eventfd = -1;
-
-static void
-handle_sigchld (int signal)
-{
-  const uint64_t one = 1;
-  ssize_t s;
-
-  s = write (cleanup_children_eventfd, &one, sizeof one);
-  assert (s == sizeof one);
-}
-
-static void
-handle_child_exit (void)
-{
-  uint64_t value;
-  ssize_t s;
-
-  debug (SERVER, "got SIGCHLD");
-  s = read (cleanup_children_eventfd, &value, sizeof value);
-  assert (s == sizeof value);
-
-  for (;;)
-    {
-      int status;
-      pid_t pid = waitpid (-1, &status, WNOHANG);
-      if (pid <= 0)
-        break;
-
-      debug (SERVER, "pid %u exited with status %x", pid, status);
-      server_remove_ws (pid);
-    }
-}
 
 /**
  * check_sd_listen_pid: Verify that systemd-activated socket is for us
@@ -161,7 +121,7 @@ check_sd_listen_pid (void)
  * @ws: If given, all connections related to this #WsInstance get removed
  */
 static void
-remove_connection (int fd, WsInstance *ws)
+remove_connection (int fd)
 {
   Connection *c, *cprev;
   bool found = false;
@@ -170,12 +130,12 @@ remove_connection (int fd, WsInstance *ws)
     {
       Connection *cnext = c->next;
 
-      if ( (fd > 0 && (c->client_fd == fd || c->ws_fd == fd)) || (ws && c->ws == ws) )
+      if (fd > 0 && (c->client_fd == fd || c->ws_fd == fd))
         {
           /* stop polling it */
           if (epoll_ctl (server.epollfd, EPOLL_CTL_DEL, c->client_fd, NULL) < 0)
             err (1, "Failed to remove epoll connection fd");
-          if (c->ws_fd)
+          if (c->ws_fd != -1)
             {
               if (epoll_ctl (server.epollfd, EPOLL_CTL_DEL, c->ws_fd, NULL) < 0)
                 err (1, "Failed to remove epoll connection ws fd");
@@ -197,7 +157,7 @@ remove_connection (int fd, WsInstance *ws)
     }
 
   if (!found)
-    debug (CONNECTION, "remove_connection: fd %i or ws %s not found in connections", fd, ws ? ws->socket.sun_path : "(unset)");
+    debug (CONNECTION, "remove_connection: fd %i not found in connections", fd);
 }
 
 /**
@@ -211,62 +171,31 @@ static void
 connection_init_ws (Connection *c)
 {
   int fd;
-  const gnutls_datum_t *peer_der = NULL;
-  WsInstance *ws = NULL;
-  bool ws_add_tls = false;
-  bool ws_add_notls = false;
   struct epoll_event ev = { .events = EPOLLIN };
+  struct sockaddr_un sockaddr = { .sun_family = AF_UNIX };
+  const char *sockname;
+  int r;
 
   if (c->is_tls)
-    {
-      peer_der = gnutls_certificate_get_peers (c->session, NULL);
-
-      /* find existing ws server for this peer cert */
-      for (ws = server.wss; ws; ws = ws->next)
-        if (ws_instance_has_peer_cert (ws, peer_der))
-          break;
-
-      if (!ws)
-        {
-          ws = ws_instance_new (server.ws_path, WS_INSTANCE_HTTPS, peer_der, server.state_dir);
-          ws_add_tls = true;
-        }
-    }
+    sockname = "https";
   else
-    {
-      ws = server.ws_notls;
-      if (!ws)
-        {
-          debug (CONNECTION, "initializing no-TLS cockpit-ws instance");
-          ws = ws_instance_new (server.ws_path,
-                                server.x509_cred ? WS_INSTANCE_HTTP_REDIRECT : WS_INSTANCE_HTTP,
-                                NULL, server.state_dir);
-          ws_add_notls = true;
-        }
-    }
+    sockname = server.x509_cred ? "http-redirect" : "http";
 
-  debug (CONNECTION, "connection_init_ws: assigned ws %s", ws->socket.sun_path);
+  r = snprintf (sockaddr.sun_path, sizeof sockaddr.sun_path, "%s/%s.sock", server.ws_path, sockname);
+  assert (r < sizeof sockaddr.sun_path);
+
+  debug (CONNECTION, "connection_init_ws: assigned ws %s", sockaddr.sun_path);
 
   /* connect to ws instance */
   fd = socket (AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0);
   if (fd < 0)
     err (1, "failed to create cockpit-ws client socket");
-  if (connect (fd, (struct sockaddr *) &ws->socket, sizeof (ws->socket)) < 0)
+  if (connect (fd, (struct sockaddr *) &sockaddr, sizeof sockaddr) < 0)
     {
       /* cockpit-ws crashed? */
       warn ("failed to connect to cockpit-ws");
-      ws_instance_free (ws, true);
       return;
     }
-
-  /* connected, so it's valid; add it to our ws list */
-  if (ws_add_tls)
-    {
-      ws->next = server.wss;
-      server.wss = ws;
-    }
-  if (ws_add_notls)
-    server.ws_notls = ws;
 
   /* epoll the fd */
   ev.data.ptr = &c->buf_ws;
@@ -274,7 +203,6 @@ connection_init_ws (Connection *c)
     err (1, "Failed to epoll cockpit-ws client fd");
 
   c->ws_fd = fd;
-  c->ws = ws;
 }
 
 /**
@@ -365,7 +293,7 @@ handle_connection_data_first (Connection *con)
   char b;
   int ret;
 
-  assert (!con->ws);
+  assert (con->ws_fd == -1);
 
   /* peek the first byte and see if it's a TLS connection (starting with 22).
      We can assume that there is some data to read, as this is called in response
@@ -376,7 +304,7 @@ handle_connection_data_first (Connection *con)
   if (ret == 0) /* EOF */
     {
       debug (CONNECTION, "client disconnected without sending any data");
-      remove_connection (con->client_fd, NULL);
+      remove_connection (con->client_fd);
       return;
     }
 
@@ -389,7 +317,7 @@ handle_connection_data_first (Connection *con)
       if (!server.x509_cred)
         {
           warnx ("got TLS connection, but our server does not have a certificate/key; refusing");
-          remove_connection (con->client_fd, NULL);
+          remove_connection (con->client_fd);
           return;
         }
 
@@ -411,7 +339,7 @@ handle_connection_data_first (Connection *con)
       if (ret < 0)
         {
           warnx ("TLS handshake failed: %s", gnutls_strerror (ret));
-          remove_connection (con->client_fd, NULL);
+          remove_connection (con->client_fd);
           return;
         }
 
@@ -419,8 +347,8 @@ handle_connection_data_first (Connection *con)
     }
 
   connection_init_ws (con);
-  if (!con->ws)
-    remove_connection (con->client_fd, NULL);
+  if (con->ws_fd == -1)
+    remove_connection (con->client_fd);
 }
 
 /**
@@ -439,13 +367,12 @@ handle_connection_data (struct ConnectionBuffer *buf)
   ConnectionResult r;
 
   assert (con);
-  debug (CONNECTION, "%s connection fd %i has data from %s; ws %s",
+  debug (CONNECTION, "%s connection fd %i has data from %s",
          con->is_tls ? "TLS" : "unencrypted", con->client_fd,
-         src == WS ? "ws" : "client",
-         con->ws ? con->ws->socket.sun_path : "uninitialized");
+         src == WS ? "ws" : "client");
 
   /* first data on a new connection; determine if TLS, init TLS, and assign a ws */
-  if (!con->ws)
+  if (con->ws_fd == -1)
     {
       assert (src == CLIENT);
       handle_connection_data_first (con);
@@ -465,7 +392,7 @@ handle_connection_data (struct ConnectionBuffer *buf)
     }
 
   if (r != SUCCESS)
-    remove_connection (con->client_fd, NULL);
+    remove_connection (con->client_fd);
 }
 
 static void
@@ -474,7 +401,7 @@ handle_hangup (struct ConnectionBuffer *buf)
   Connection *con = buf->connection;
   int fd = buf == &con->buf_client ? con->client_fd : con->ws_fd;
   debug (CONNECTION, "hangup on fd %i", fd);
-  remove_connection (fd, NULL);
+  remove_connection (fd);
 }
 
 /***********************************
@@ -489,7 +416,7 @@ handle_hangup (struct ConnectionBuffer *buf)
  * There is only one instance of this. Trying to initialize it more than once
  * is an error.
  *
- * @ws_path: Path to cockpit-ws binary
+ * @ws_path: Path to cockpit-wsinstance sockets directory
  * @port: Port to listen to; ignored when the listening socket is handed over
  *        through the systemd socket activation protocol
  * @certfile: Server TLS certificate file; if %NULL, TLS is not supported.
@@ -507,20 +434,11 @@ server_init (const char *ws_path,
   int ret;
   const char *env_listen_fds;
   struct epoll_event ev = { .events = EPOLLIN };
-  const struct sigaction child_action = {
-    .sa_handler = handle_sigchld,
-    .sa_flags = SA_NOCLDSTOP
-  };
 
   assert (!server.initialized);
 
   server.ws_path = ws_path;
   server.client_cert_mode = client_cert_mode;
-
-  /* Initialize state dir for ws instances; $RUNTIME_DIRECTORY is set by systemd's RuntimeDirectory=, or by tests */
-  server.state_dir = secure_getenv ("RUNTIME_DIRECTORY");
-  if (!server.state_dir)
-    err (1, "$RUNTIME_DIRECTORY environment variable must be set to a private directory");
 
   /* Initialize TLS */
   if (certfile)
@@ -607,18 +525,6 @@ server_init (const char *ws_path,
         err (1, "Failed to epoll server listening fd");
     }
 
-  /* track cockpit-ws children */
-  cleanup_children_eventfd = eventfd (0, EFD_NONBLOCK | EFD_CLOEXEC);
-  if (cleanup_children_eventfd == -1)
-    err (1, "failed to create eventfd");
-
-  ev.data.ptr = handle_child_exit;
-  if (epoll_ctl (server.epollfd, EPOLL_CTL_ADD, cleanup_children_eventfd, &ev) < 0)
-    err (1, "Failed to epoll add sigchld handler fd");
-
-  if (sigaction (SIGCHLD, &child_action, &server.old_sigchld) < 0)
-    err (1, "Failed to set up SIGCHLD handler");
-
   server.initialized = true;
 }
 
@@ -637,27 +543,12 @@ server_cleanup (void)
 
   assert (server.initialized);
 
-  if (sigaction (SIGCHLD, &server.old_sigchld, NULL) < 0)
-    err (1, "Failed to reset SIGCHLD handler");
-
-  close (cleanup_children_eventfd);
-  cleanup_children_eventfd = -1;
-
   for (Connection *c = server.connections; c; )
     {
       Connection *cnext = c->next;
       connection_free (c);
       c = cnext;
     }
-
-  for (WsInstance *ws = server.wss; ws; )
-    {
-      WsInstance *wsnext = ws->next;
-      ws_instance_free (ws, true);
-      ws = wsnext;
-    }
-  if (server.ws_notls)
-    ws_instance_free (server.ws_notls, true);
 
   if (server.x509_cred)
     {
@@ -698,8 +589,6 @@ server_poll_event (int timeout)
     {
       if (ev.data.ptr >= (void *) server.listen_fds && ev.data.ptr < (void *) &server.listen_fds[MAX_LISTEN_FDS])
         handle_accept (* ((int *) ev.data.ptr));
-      else if (ev.data.ptr == handle_child_exit)
-        handle_child_exit ();
       else if (ev.events & EPOLLIN)
         handle_connection_data (ev.data.ptr);
       else if (ev.events & EPOLLHUP)
@@ -739,54 +628,6 @@ server_run (int idle_timeout)
   }
 }
 
-/**
- * server_remove_ws: Clean up #WsInstance
- *
- * This should be called in response to a SIGCHLD signal, i. e. when a
- * cockpit-ws terminates. This also terminates and cleans up all Connections
- * from this cockpit-ws instance.
- */
-void
-server_remove_ws (pid_t ws_pid)
-{
-  WsInstance *ws = NULL;
-
-  assert (server.initialized);
-
-  /* find the WsInstance of that pid */
-  if (server.ws_notls && server.ws_notls->pid == ws_pid)
-    {
-      ws = server.ws_notls;
-      server.ws_notls = NULL;
-    }
-  else
-    {
-      WsInstance *wsprev = NULL;
-      for (ws = server.wss; ws; wsprev = ws, ws = ws->next)
-        {
-          if (ws->pid == ws_pid)
-            {
-              if (wsprev == NULL) /* first ws */
-                server.wss = ws->next;
-              else
-                wsprev->next = ws->next;
-              break;
-            }
-        }
-    }
-
-  if (!ws)
-    {
-      warnx ("server_remove_ws: pid %u not found in our ws instances", ws_pid);
-      return;
-    }
-
-  debug (SERVER, "server_remove_ws: pid %u is ws %s", ws_pid, ws->socket.sun_path);
-
-  remove_connection (-1, ws);
-  ws_instance_free (ws, false);
-}
-
 unsigned
 server_num_connections (void)
 {
@@ -795,35 +636,4 @@ server_num_connections (void)
   for (Connection *c = server.connections; c; c = c->next)
     count++;
   return count;
-}
-
-unsigned
-server_num_ws (void)
-{
-  unsigned count = 0;
-
-  for (WsInstance *ws = server.wss; ws; ws = ws->next)
-    count++;
-  if (server.ws_notls)
-    count++;
-  return count;
-}
-
-size_t
-server_get_ws_pids (pid_t* pids, size_t pids_length)
-{
-  size_t num = 0;
-  if (server.ws_notls)
-    {
-      assert (pids_length > num);
-      pids[num++] = server.ws_notls->pid;
-    }
-
-  for (WsInstance *ws = server.wss; ws; ws = ws->next)
-    {
-      assert (pids_length > num);
-      pids[num++] = ws->pid;
-    }
-
-  return num;
 }

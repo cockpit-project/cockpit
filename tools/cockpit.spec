@@ -124,6 +124,7 @@ exec 2>&1
 %configure \
     --disable-silent-rules \
     --with-cockpit-user=cockpit-ws \
+    --with-cockpit-ws-instance-user=cockpit-wsinstance \
     --with-selinux-config-type=etc_t \
     --with-appstream-data-packages='[ "appstream-data" ]' \
     --with-nfs-client-package='"nfs-utils"' \
@@ -412,20 +413,28 @@ The Cockpit Web Service listens on the network, and authenticates users.
 %{_unitdir}/cockpit.service
 %{_unitdir}/cockpit-motd.service
 %{_unitdir}/cockpit.socket
+%{_unitdir}/cockpit-wsinstance-http.socket
+%{_unitdir}/cockpit-wsinstance-http.service
+%{_unitdir}/cockpit-wsinstance-http-redirect.socket
+%{_unitdir}/cockpit-wsinstance-http-redirect.service
+%{_unitdir}/cockpit-wsinstance-https.socket
+%{_unitdir}/cockpit-wsinstance-https.service
 %{_prefix}/%{__lib}/tmpfiles.d/cockpit-tempfiles.conf
 %{_sbindir}/remotectl
 %{_libdir}/security/pam_ssh_add.so
 %{_libexecdir}/cockpit-ws
 %{_libexecdir}/cockpit-tls
 %{_libexecdir}/cockpit-desktop
-%attr(4750, root, cockpit-ws) %{_libexecdir}/cockpit-session
+%attr(4750, root, cockpit-wsinstance) %{_libexecdir}/cockpit-session
 %attr(775, -, wheel) %{_localstatedir}/lib/cockpit
 %{_datadir}/cockpit/static
 %{_datadir}/cockpit/branding
 
 %pre ws
 getent group cockpit-ws >/dev/null || groupadd -r cockpit-ws
-getent passwd cockpit-ws >/dev/null || useradd -r -g cockpit-ws -d /nonexisting -s /sbin/nologin -c "User for cockpit-ws" cockpit-ws
+getent passwd cockpit-ws >/dev/null || useradd -r -g cockpit-ws -d /nonexisting -s /sbin/nologin -c "User for cockpit web service" cockpit-ws
+getent group cockpit-wsinstance >/dev/null || groupadd -r cockpit-wsinstance
+getent passwd cockpit-wsinstance >/dev/null || useradd -r -g cockpit-wsinstance -d /nonexisting -s /sbin/nologin -c "User for cockpit-ws instances" cockpit-wsinstance
 
 %post ws
 %systemd_post cockpit.socket

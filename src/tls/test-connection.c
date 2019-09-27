@@ -49,8 +49,7 @@ test_no_ws (void)
 
   /* other fields are clear */
   g_assert (!c->is_tls);
-  g_assert (c->ws == NULL);
-  g_assert_cmpint (c->ws_fd, ==, 0);
+  g_assert_cmpint (c->ws_fd, ==, -1);
 
   connection_free (c);
   /* closes fd */

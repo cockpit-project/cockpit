@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include <errno.h>
+#include <fcntl.h>
 #include <signal.h>
 #include <stdlib.h>
 #include <string.h>
@@ -34,6 +35,7 @@
 #include "server.h"
 #include "common/cockpittest.h"
 
+#define SOCKET_ACTIVATION_HELPER BUILDDIR "/socket-activation-helper"
 #define COCKPIT_WS BUILDDIR "/cockpit-ws"
 #define CERTFILE SRCDIR "/src/bridge/mock-server.crt"
 #define KEYFILE SRCDIR "/src/bridge/mock-server.key"
@@ -47,7 +49,8 @@
 const unsigned server_port = 9123;
 
 typedef struct {
-  gchar *state_dir;
+  gchar *ws_socket_dir;
+  GPid ws_spawner;
   struct sockaddr_in server_addr;
 } TestCase;
 
@@ -159,7 +162,7 @@ assert_https_outcome (TestCase *tc,
                       bool expect_tls_failure)
 {
   pid_t pid;
-  int status;
+  int status = -1;
 
   block_sigchld ();
 
@@ -242,7 +245,7 @@ assert_https_outcome (TestCase *tc,
       exit (0);
     }
 
-  while (waitpid (pid, &status, WNOHANG) <= 0)
+  for (int retry = 0; retry < 100 && waitpid (pid, &status, WNOHANG) <= 0; ++retry)
     server_poll_event (50);
   g_assert_cmpint (status, ==, 0);
 }
@@ -253,40 +256,30 @@ assert_https (TestCase *tc, const char *client_crt, const char *client_key, unsi
   assert_https_outcome (tc, client_crt, client_key, expected_server_certs, false);
 }
 
-/* Ensure that all ws instances have no blocked signals inherited from cockpit-tls */
-static void
-assert_children_signals (void)
-{
-  /* only use that for tests with a small number of ws instances */
-  const size_t max_ws = 5;
-  pid_t ws_pids[max_ws];
-  size_t num_ws;
-
-  /* this does not work under valgrind */
-  if (strstr (g_getenv ("LD_PRELOAD") ?: "", "valgrind") != NULL)
-    return;
-
-  num_ws = server_get_ws_pids (ws_pids, max_ws);
-  for (size_t i = 0; i < num_ws; ++i)
-    {
-      g_autofree gchar *contents = NULL;
-      g_autofree gchar *path = g_strdup_printf ("/proc/%u/status", ws_pids[i]);
-      g_assert (g_file_get_contents  (path, &contents, NULL, NULL));
-      if (!g_regex_match_simple ("^SigBlk:\\s*0+$", contents, G_REGEX_MULTILINE, 0))
-        g_error ("Non-zero SigBlk in process %u: %s", ws_pids[i], contents);
-    }
-}
-
 static void
 setup (TestCase *tc, gconstpointer data)
 {
   const TestFixture *fixture = data;
+  g_autoptr(GError) error = NULL;
 
-  tc->state_dir = g_dir_make_tmp ("server.state.XXXXXX", NULL);
-  g_assert (tc->state_dir);
-  g_assert (g_setenv ("RUNTIME_DIRECTORY", tc->state_dir, TRUE));
+  tc->ws_socket_dir = g_dir_make_tmp ("server.wssock.XXXXXX", NULL);
+  g_assert (tc->ws_socket_dir);
 
-  server_init (COCKPIT_WS,
+  gchar* sah_argv[] = { SOCKET_ACTIVATION_HELPER, COCKPIT_WS, tc->ws_socket_dir, NULL };
+  if (!g_spawn_async (NULL, sah_argv, NULL, G_SPAWN_DO_NOT_REAP_CHILD, NULL, NULL, &tc->ws_spawner, &error))
+    g_error ("Failed to spawn " SOCKET_ACTIVATION_HELPER ": %s", error->message);
+
+  /* wait until socket activation helper is ready */
+  int socket_dir_fd = open (tc->ws_socket_dir, O_RDONLY | O_DIRECTORY);
+  for (int retry = 0; retry < 200; ++retry)
+    {
+      if (faccessat (socket_dir_fd, "ready", F_OK, 0) == 0)
+        break;
+      g_usleep (10000);
+    }
+  close (socket_dir_fd);
+
+  server_init (tc->ws_socket_dir,
                server_port,
                fixture ? fixture->certfile : NULL,
                fixture ? fixture->keyfile : NULL,
@@ -300,26 +293,24 @@ static void
 teardown (TestCase *tc, gconstpointer data)
 {
   server_cleanup ();
-  /* all server children got cleaned up */
+  g_assert_cmpint (kill (tc->ws_spawner, SIGTERM), ==, 0);
+  g_assert_cmpint (waitpid (tc->ws_spawner, NULL, 0), ==, tc->ws_spawner);
+
+  /* all children got cleaned up */
   g_assert_cmpint (wait (NULL), ==, -1);
   g_assert_cmpint (errno, ==, ECHILD);
-  g_assert_cmpuint (server_num_ws (), ==, 0);
   /* connection should fail */
   g_assert_cmpint (do_connect (tc), ==, -ECONNREFUSED);
   g_unsetenv ("COCKPIT_WS_PROCESS_IDLE");
-  g_assert_cmpint (g_rmdir (tc->state_dir), ==, 0);
-  g_free (tc->state_dir);
-}
 
-static void
-test_no_tls_immediate_shutdown (TestCase *tc, gconstpointer data)
-{
-  g_assert_cmpuint (server_num_ws (), ==, 0);
-  g_assert_cmpuint (server_num_connections (), ==, 0);
-  assert_http (tc);
-  g_assert_cmpuint (server_num_ws (), ==, 1);
-  g_assert_cmpuint (server_num_connections (), ==, 1);
-  assert_children_signals ();
+  int socket_dir_fd = open (tc->ws_socket_dir, O_RDONLY | O_DIRECTORY);
+  g_assert_cmpint (unlinkat (socket_dir_fd, "http.sock", 0), ==, 0);
+  g_assert_cmpint (unlinkat (socket_dir_fd, "http-redirect.sock", 0), ==, 0);
+  g_assert_cmpint (unlinkat (socket_dir_fd, "https.sock", 0), ==, 0);
+  g_assert_cmpint (unlinkat (socket_dir_fd, "ready", 0), ==, 0);
+  close (socket_dir_fd);
+  g_assert_cmpint (g_rmdir (tc->ws_socket_dir), ==, 0);
+  g_free (tc->ws_socket_dir);
 }
 
 static void
@@ -331,17 +322,13 @@ test_no_tls_con_shutdown (TestCase *tc, gconstpointer data)
   for (int retries = 0; retries < 10 && server_num_connections () == 1; ++retries)
     server_run (100);
   g_assert_cmpuint (server_num_connections (), ==, 0);
-  g_assert_cmpuint (server_num_ws (), ==, 1);
 }
 
 static void
 test_no_tls_many_serial (TestCase *tc, gconstpointer data)
 {
-  g_assert_cmpuint (server_num_ws (), ==, 0);
   for (int i = 0; i < 20; ++i)
     assert_http (tc);
-  /* should all be served by the same ws */
-  g_assert_cmpuint (server_num_ws (), ==, 1);
 }
 
 static void
@@ -351,7 +338,6 @@ test_no_tls_many_parallel (TestCase *tc, gconstpointer data)
 
   block_sigchld ();
 
-  g_assert_cmpuint (server_num_ws (), ==, 0);
   for (i = 0; i < 20; ++i)
     {
       pid_t pid = fork ();
@@ -396,9 +382,6 @@ test_no_tls_many_parallel (TestCase *tc, gconstpointer data)
         --i;
       }
   }
-
-  /* all served by the same ws */
-  g_assert_cmpuint (server_num_ws (), ==, 1);
 }
 
 static void
@@ -417,7 +400,6 @@ static void
 test_tls_no_client_cert (TestCase *tc, gconstpointer data)
 {
   assert_https (tc, NULL, NULL, 1);
-  assert_children_signals ();
 }
 
 static void
@@ -434,32 +416,23 @@ test_tls_redirect (TestCase *tc, gconstpointer data)
   /* with TLS support it should redirect */
   const char *res = do_request (tc, "GET / HTTP/1.0\r\nHost: some.remote:1234\r\n\r\n");
   cockpit_assert_strmatch (res, "HTTP/1.1 301 Moved Permanently*");
-  assert_children_signals ();
 }
 
 static void
 test_tls_client_cert (TestCase *tc, gconstpointer data)
 {
-  g_assert_cmpuint (server_num_ws (), ==, 0);
   assert_https (tc, CLIENT_CERTFILE, CLIENT_KEYFILE, 1);
-  g_assert_cmpuint (server_num_ws (), ==, 1);
   /* no-cert case is handled by separate ws */
   assert_https (tc, NULL, NULL, 1);
-  g_assert_cmpuint (server_num_ws (), ==, 2);
   assert_https (tc, CLIENT_CERTFILE, CLIENT_KEYFILE, 1);
-  g_assert_cmpuint (server_num_ws (), ==, 2);
-  assert_children_signals ();
 }
 
 static void
 test_tls_client_cert_disabled (TestCase *tc, gconstpointer data)
 {
-  g_assert_cmpuint (server_num_ws (), ==, 0);
   assert_https (tc, CLIENT_CERTFILE, CLIENT_KEYFILE, 1);
-  g_assert_cmpuint (server_num_ws (), ==, 1);
   /* no-cert case is handled by same ws, as client certs are disabled server-side */
   assert_https (tc, NULL, NULL, 1);
-  g_assert_cmpuint (server_num_ws (), ==, 1);
 }
 
 static void
@@ -483,41 +456,10 @@ test_tls_cert_chain (TestCase *tc, gconstpointer data)
 static void
 test_mixed_protocols (TestCase *tc, gconstpointer data)
 {
-  g_assert_cmpuint (server_num_ws (), ==, 0);
   assert_https (tc, NULL, NULL, 1);
-  g_assert_cmpuint (server_num_ws (), ==, 1);
   assert_http (tc);
-  g_assert_cmpuint (server_num_ws (), ==, 2);
   assert_https (tc, NULL, NULL, 1);
-  g_assert_cmpuint (server_num_ws (), ==, 2);
   assert_http (tc);
-  g_assert_cmpuint (server_num_ws (), ==, 2);
-}
-
-static void
-test_ws_idle (TestCase *tc, gconstpointer data)
-{
-  g_assert (g_setenv ("COCKPIT_WS_PROCESS_IDLE", "2", TRUE));
-  assert_http (tc);
-
-  g_assert_cmpuint (server_num_ws (), ==, 1);
-  g_assert_cmpint (waitpid (0, NULL, WNOHANG), ==, 0);
-
-  /* ws process should disappear after idle wait */
-  sleep (3);
-
-  /* run the mainloop to collect the zombie */
-  while (server_poll_event (0))
-    ;
-
-  /* process is gone */
-  g_assert_cmpint (waitpid (0, NULL, WNOHANG), ==, -1);
-  g_assert_cmpint (errno, ==, ECHILD);
-  g_assert_cmpuint (server_num_ws (), ==, 0);
-
-  /* a new request should re-spawn ws */
-  assert_http (tc);
-  g_assert_cmpuint (server_num_ws (), ==, 1);
 }
 
 static void
@@ -536,8 +478,6 @@ main (int argc, char *argv[])
 {
   cockpit_test_init (&argc, &argv);
 
-  g_test_add ("/server/no-tls/immediate-shutdown", TestCase, NULL,
-              setup, test_no_tls_immediate_shutdown, teardown);
   g_test_add ("/server/no-tls/process-connection-shutdown", TestCase, NULL,
               setup, test_no_tls_con_shutdown, teardown);
   g_test_add ("/server/no-tls/many-serial", TestCase, NULL,
@@ -564,8 +504,6 @@ main (int argc, char *argv[])
               setup, test_tls_redirect, teardown);
   g_test_add ("/server/mixed-protocols", TestCase, &fixture_separate_crt_key,
               setup, test_mixed_protocols, teardown);
-  g_test_add ("/server/ws-idle", TestCase, NULL,
-              setup, test_ws_idle, teardown);
   g_test_add ("/server/run-idle", TestCase, NULL,
               setup, test_run_idle, teardown);
 

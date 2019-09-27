@@ -1235,18 +1235,13 @@ class TestMachines(NetworkCase):
         b.click("#vm-{0}-consoles".format(name)) # open the "Console" subtab
 
         b.set_val("#console-type-select", "serial-browser")
-        b.wait_present("div.terminal canvas.xterm-text-layer") # if connected the xterm canvas is rendered
-
-        b.click("#{0}-serialconsole-reconnect".format(name))
-        b.wait_present("div.terminal canvas.xterm-text-layer")
+        b.wait_in_text("#{0}-terminal .xterm-accessibility-tree > div:nth-child(1)".format(name), "Connected to domain")
 
         b.click("#{0}-serialconsole-disconnect".format(name))
-        b.wait_not_present("div.terminal canvas.xterm-text-layer")
-        b.wait_present("div.blank-slate-pf")
-        b.wait_present("p.blank-slate-pf-info:contains(Disconnected from serial console. Click the Reconnect button.)")
+        b.wait_text("#{0}-terminal".format(name), "Disconnected from serial console. Click the Connect button.")
 
-        b.click("#{0}-serialconsole-reconnect".format(name))
-        b.wait_present("div.terminal canvas.xterm-text-layer")
+        b.click("#{0}-serialconsole-connect".format(name))
+        b.wait_in_text("#{0}-terminal .xterm-accessibility-tree > div:nth-child(1)".format(name), "Connected to domain")
 
         # disconnecting the serial console closes the pty channel
         self.allow_journal_messages("connection unexpectedly closed by peer",

@@ -2,7 +2,7 @@ import os
 from avocado import skipIf
 from selenium.webdriver.support.select import Select
 from testlib_avocado.timeoutlib import wait
-from testlib_avocado.seleniumlib import clickable, present, invisible, text_in
+from testlib_avocado.seleniumlib import clickable, present, text_in
 from testlib_avocado.machineslib import MachinesLib
 
 
@@ -57,18 +57,12 @@ class MachinesConsolesTestSuite(MachinesLib):
         # Open serial console
         self.click(self.wait_css('#vm-{}-consoles'.format(name), cond=clickable))
         self.select_by_text(self.wait_id('console-type-select'), 'Serial Console')
-        self.wait_css('div.terminal canvas.xterm-text-layer')
+        self.wait_css(".xterm-accessibility-tree")
+
         # Disconnect
         self.click(self.wait_css("#{}-serialconsole-disconnect".format(name), cond=clickable))
-        self.wait_css('div.terminal canvas.xterm-text-layer', cond=invisible)
-        self.wait_css('div.blank-slate-pf')
-        self.wait_css('p.blank-slate-pf-info', cond=text_in,
-                      text_='Disconnected from serial console. Click the Reconnect button.')
+        self.wait_text("Disconnected from serial console. Click the Connect button.")
+
         # Reconnect
-        self.click(self.wait_css('div.console-terminal-pf button', cond=clickable))
-        self.wait_css('div.terminal canvas.xterm-text-layer')
-        # Disconnect again and reconnect using reconnect button
-        self.click(self.wait_css("#{}-serialconsole-disconnect".format(name), cond=clickable))
-        self.wait_css('div.terminal canvas.xterm-text-layer', cond=invisible)
-        self.click(self.wait_css('#{}-serialconsole-reconnect'.format(name), cond=clickable))
-        self.wait_css('div.terminal canvas.xterm-text-layer')
+        self.click(self.wait_css("#{}-serialconsole-connect".format(name), cond=clickable))
+        self.wait_css(".xterm-accessibility-tree")

@@ -131,7 +131,7 @@ export class Terminal extends React.Component {
     }
 
     componentDidMount() {
-        this.state.terminal.open(this.refs.terminal);
+        this.state.terminal.open(this.refs[this.props.refName || "terminal"]);
         this.connectChannel();
 
         if (!this.props.rows) {
@@ -173,7 +173,7 @@ export class Terminal extends React.Component {
     render() {
         return (
             <>
-                <div ref="terminal"
+                <div ref={this.props.refName || "terminal"}
                         key={this.state.terminal}
                         className="console-ct"
                         onFocus={this.onFocusIn}
@@ -285,5 +285,6 @@ Terminal.propTypes = {
     channel: PropTypes.object.isRequired,
     onTitleChanged: PropTypes.func,
     theme: PropTypes.string,
+    refName: PropTypes.string,
     parentId: PropTypes.string.isRequired
 };

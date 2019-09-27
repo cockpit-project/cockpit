@@ -41,7 +41,7 @@ connection_new (int client_fd)
   con->buf_client.connection = con;
   con->buf_ws.connection = con;
 
-  debug ("new connection on fd %i", con->client_fd);
+  debug (CONNECTION, "new connection on fd %i", con->client_fd);
   return con;
 }
 
@@ -55,7 +55,7 @@ connection_set_tls_session (Connection *c, gnutls_session_t session)
 void
 connection_free (Connection *c)
 {
-  debug ("freeing %s connection to client_fd %i ws_fd %i", c->is_tls ? "TLS" : "unencrypted", c->client_fd, c->ws_fd);
+  debug (CONNECTION, "freeing %s connection to client_fd %i ws_fd %i", c->is_tls ? "TLS" : "unencrypted", c->client_fd, c->ws_fd);
 
   /* do not wait for the peer to close the connection. */
   if (c->is_tls)
@@ -89,7 +89,7 @@ connection_read (Connection *c, DataSource source)
       r = gnutls_record_recv (c->session, buf->data, sizeof (buf->data));
       if (r == 0)
         {
-          debug ("client fd %i closed the TLS connection", fd);
+          debug (CONNECTION, "client fd %i closed the TLS connection", fd);
           do
             {
               r = gnutls_bye (c->session, GNUTLS_SHUT_WR);
@@ -100,33 +100,33 @@ connection_read (Connection *c, DataSource source)
         {
           if (r == GNUTLS_E_AGAIN || r == GNUTLS_E_INTERRUPTED)
             {
-              debug ("reading from client fd %i TLS connection: %s; RETRY", fd, gnutls_strerror (r));
+              debug (CONNECTION, "reading from client fd %i TLS connection: %s; RETRY", fd, gnutls_strerror (r));
               return RETRY;
             }
           warnx ("reading from client fd %i TLS connection failed: %s", fd, gnutls_strerror (r));
           return FATAL;
         }
-      debug ("read %i bytes from client fd %i TLS connection", r, fd);
+      debug (CONNECTION, "read %i bytes from client fd %i TLS connection", r, fd);
     }
   else
     {
       r = recv (fd, buf->data, sizeof (buf->data), MSG_DONTWAIT);
       if (r == 0)
       {
-        debug ("fd %i has closed the connection", fd);
+        debug (CONNECTION, "fd %i has closed the connection", fd);
         return CLOSED;
       }
       if (r < 0)
         {
           if (errno == EAGAIN || errno == EINTR)
             {
-              debug ("reading from fd %i: %m; RETRY", fd);
+              debug (CONNECTION, "reading from fd %i: %m; RETRY", fd);
               return RETRY;
             }
           warn ("reading from fd %i failed", fd);
           return FATAL;
         }
-      debug ("read %i bytes from fd %i", r, fd);
+      debug (CONNECTION, "read %i bytes from fd %i", r, fd);
     }
 
   buf->length = r;
@@ -163,14 +163,14 @@ connection_write (Connection *c, DataSource source)
         {
           if (r == GNUTLS_E_AGAIN || r == GNUTLS_E_INTERRUPTED)
             {
-              debug ("writing to client fd %i TLS connection: %s; RETRY", fd, gnutls_strerror (r));
+              debug (CONNECTION, "writing to client fd %i TLS connection: %s; RETRY", fd, gnutls_strerror (r));
               return RETRY;
             }
           warnx ("writing to client fd %i TLS connection failed: %s", fd, gnutls_strerror (r));
           return FATAL;
         }
 
-      debug ("wrote %i bytes out of %zi to TLS connection client fd %i", r, size, fd);
+      debug (CONNECTION, "wrote %i bytes out of %zi to TLS connection client fd %i", r, size, fd);
     }
   else
   {
@@ -181,13 +181,13 @@ connection_write (Connection *c, DataSource source)
       {
         if (errno == EAGAIN || errno == EINTR)
           {
-            debug ("writing to fd %i: %m; RETRY", fd);
+            debug (CONNECTION, "writing to fd %i: %m; RETRY", fd);
             return RETRY;
           }
         warn ("writing to fd %i failed", fd);
         return FATAL;
       }
-    debug ("wrote %i bytes out of %zi to fd %i", r, size, fd);
+    debug (CONNECTION, "wrote %i bytes out of %zi to fd %i", r, size, fd);
   }
 
   assert (r <= size);

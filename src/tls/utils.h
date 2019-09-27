@@ -28,6 +28,9 @@
 #define DEBUG_CONNECTION 1
 #define DEBUG_SERVER 1
 
+/* socket-activation-helper.c */
+#define DEBUG_HELPER 1
+
 /* testcases */
 #define DEBUG_TESTS 1
 
@@ -44,5 +47,7 @@
     abort ();   \
   }             \
 }
+
+#define N_ELEMENTS(arr) (sizeof (arr) / sizeof ((arr)[0]))
 
 #define SD_LISTEN_FDS_START 3   /* sd_listen_fds(3) */

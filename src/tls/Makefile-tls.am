@@ -2,8 +2,6 @@ libexec_PROGRAMS += cockpit-tls
 
 cockpit_tls_SOURCES =					\
 	src/tls/utils.h					\
-	src/tls/wsinstance.h				\
-	src/tls/wsinstance.c				\
 	src/tls/connection.h				\
 	src/tls/connection.c				\
 	src/tls/server.h				\
@@ -34,7 +32,6 @@ TEST_LDADD = \
 
 TLS_TESTS = \
 	test-tls-connection				\
-	test-tls-wsinstance				\
 	test-tls-server					\
 	$(NULL)
 
@@ -50,16 +47,7 @@ test_tls_connection_SOURCES = \
 test_tls_connection_CFLAGS = $(TEST_CFLAGS)
 test_tls_connection_LDADD = $(TEST_LDADD)
 
-test_tls_wsinstance_SOURCES = \
-	src/tls/wsinstance.c				\
-	src/tls/test-wsinstance.c			\
-	$(NULL)
-
-test_tls_wsinstance_CFLAGS = $(TEST_CFLAGS)
-test_tls_wsinstance_LDADD = $(TEST_LDADD)
-
 test_tls_server_SOURCES = \
-	src/tls/wsinstance.c				\
 	src/tls/connection.c				\
 	src/tls/server.c				\
 	src/tls/test-server.c				\

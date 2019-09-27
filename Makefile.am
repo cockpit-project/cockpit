@@ -119,6 +119,8 @@ SUBST_RULE = \
 	-e 's,[@]SUDO[@],$(SUDO),g' \
 	-e 's,[@]user[@],$(COCKPIT_USER),g' \
 	-e 's,[@]group[@],$(COCKPIT_GROUP),g' \
+	-e 's,[@]wsinstanceuser[@],$(COCKPIT_WSINSTANCE_USER),g' \
+	-e 's,[@]wsinstancegroup[@],$(COCKPIT_WSINSTANCE_GROUP),g' \
 	-e 's,[@]selinux_config_type[@],$(COCKPIT_SELINUX_CONFIG_TYPE),g' \
 	-e 's,[@]with_networkmanager_needs_root[@],$(with_networkmanager_needs_root),g' \
 	-e 's,[@]with_storaged_iscsi_sessions[@],$(with_storaged_iscsi_sessions),g' \

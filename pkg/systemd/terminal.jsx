@@ -82,6 +82,7 @@ const _ = cockpit.gettext;
                 terminal = (<Terminal ref="terminal"
                      channel={this.state.channel}
                      theme={this.state.theme}
+                     parentId="the-terminal"
                      onTitleChanged={this.onTitleChanged} />);
             else
                 terminal = <span>Loading...</span>;
@@ -104,7 +105,7 @@ const _ = cockpit.gettext;
                             className="btn btn-default terminal-reset"
                             onClick={this.onResetClick}>{_("Reset")}</button>
                     </div>
-                    <div className={"panel-body " + this.state.theme}>
+                    <div className={"panel-body " + this.state.theme} id="the-terminal">
                         {terminal}
                     </div>
                 </div>

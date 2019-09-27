@@ -85,7 +85,7 @@ ws_write_peer_cert (WsInstance *ws, const char *cert_pem, size_t cert_pem_size)
     err (1, "Could not rename %s", tempname);
   free (tempname);
 
-  debug ("Wrote TLS peer certificate PEM to %s", ws->peer_cert_file);
+  debug (SERVER, "Wrote TLS peer certificate PEM to %s", ws->peer_cert_file);
 }
 
 /**
@@ -115,7 +115,7 @@ ws_init_peer_cert (WsInstance *ws, const gnutls_datum_t *der)
   /* GnuTLS should already enforce that, but make double-sure */
   assert (cert_pem_size < sizeof (cert_pem));
   assert (cert_pem[cert_pem_size] == '\0');
-  debug ("TLS peer certificate: %s", ws->peer_cert_info.data);
+  debug (SERVER, "TLS peer certificate: %s", ws->peer_cert_info.data);
 
   /* write X.509 certificate to our state dir, so that PAM modules can check that these got validated */
   ws_write_peer_cert (ws, cert_pem, cert_pem_size);
@@ -168,7 +168,7 @@ ws_instance_new (const char *ws_path,
   if (pid > 0)
     {
       /* parent */
-      debug ("forked cockpit-ws as pid %i on socket %s", pid, ws->socket.sun_path);
+      debug (SERVER, "forked cockpit-ws as pid %i on socket %s", pid, ws->socket.sun_path);
       close (fd);
       ws->pid = pid;
       if (mode == WS_INSTANCE_HTTPS && client_cert_der)
@@ -183,7 +183,7 @@ ws_instance_new (const char *ws_path,
   snprintf_checked (pid_str, sizeof (pid_str), "%i", getpid ());
   setenv ("LISTEN_FDS", "1", 1);
   setenv ("LISTEN_PID", pid_str, 1);
-  debug ("cockpit-ws child process: setup complete, executing %s", ws_path);
+  debug (SERVER, "cockpit-ws child process: setup complete, executing %s", ws_path);
   switch (mode)
     {
       case WS_INSTANCE_HTTP:
@@ -208,7 +208,7 @@ void
 ws_instance_free (WsInstance *ws,
                   bool        terminate)
 {
-  debug ("freeing cockpit-ws instance pid %i on socket %s", ws->pid, ws->socket.sun_path);
+  debug (SERVER, "freeing cockpit-ws instance pid %i on socket %s", ws->pid, ws->socket.sun_path);
   if (ws->peer_cert.size)
     {
       gnutls_free (ws->peer_cert.data);

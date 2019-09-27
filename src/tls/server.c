@@ -105,7 +105,7 @@ handle_child_exit (void)
   uint64_t value;
   ssize_t s;
 
-  debug ("got SIGCHLD");
+  debug (SERVER, "got SIGCHLD");
   s = read (cleanup_children_eventfd, &value, sizeof value);
   assert (s == sizeof value);
 
@@ -116,7 +116,7 @@ handle_child_exit (void)
       if (pid <= 0)
         break;
 
-      debug ("pid %u exited with status %x", pid, status);
+      debug (SERVER, "pid %u exited with status %x", pid, status);
       server_remove_ws (pid);
     }
 }
@@ -197,7 +197,7 @@ remove_connection (int fd, WsInstance *ws)
     }
 
   if (!found)
-    debug ("remove_connection: fd %i or ws %s not found in connections", fd, ws ? ws->socket.sun_path : "(unset)");
+    debug (CONNECTION, "remove_connection: fd %i or ws %s not found in connections", fd, ws ? ws->socket.sun_path : "(unset)");
 }
 
 /**
@@ -237,7 +237,7 @@ connection_init_ws (Connection *c)
       ws = server.ws_notls;
       if (!ws)
         {
-          debug ("initializing no-TLS cockpit-ws instance");
+          debug (CONNECTION, "initializing no-TLS cockpit-ws instance");
           ws = ws_instance_new (server.ws_path,
                                 server.x509_cred ? WS_INSTANCE_HTTP_REDIRECT : WS_INSTANCE_HTTP,
                                 NULL, server.state_dir);
@@ -245,7 +245,7 @@ connection_init_ws (Connection *c)
         }
     }
 
-  debug ("connection_init_ws: assigned ws %s", ws->socket.sun_path);
+  debug (CONNECTION, "connection_init_ws: assigned ws %s", ws->socket.sun_path);
 
   /* connect to ws instance */
   fd = socket (AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0);
@@ -289,7 +289,7 @@ handle_accept (int listen_fd)
   Connection *con;
   struct epoll_event ev = { .events = EPOLLIN };
 
-  debug ("epoll_wait event on server listen fd %i", listen_fd);
+  debug (SERVER, "epoll_wait event on server listen fd %i", listen_fd);
 
   /* accept and create new connection */
   fd = accept4 (listen_fd, NULL, NULL, SOCK_CLOEXEC);
@@ -375,7 +375,7 @@ handle_connection_data_first (Connection *con)
     err (1, "failed to peek first byte");
   if (ret == 0) /* EOF */
     {
-      debug ("client disconnected without sending any data");
+      debug (CONNECTION, "client disconnected without sending any data");
       remove_connection (con->client_fd, NULL);
       return;
     }
@@ -384,7 +384,7 @@ handle_connection_data_first (Connection *con)
     {
       gnutls_session_t session;
 
-      debug ("first byte is %i, initializing TLS", (int) b);
+      debug (CONNECTION, "first byte is %i, initializing TLS", (int) b);
 
       if (!server.x509_cred)
         {
@@ -415,7 +415,7 @@ handle_connection_data_first (Connection *con)
           return;
         }
 
-      debug ("TLS handshake completed");
+      debug (CONNECTION, "TLS handshake completed");
     }
 
   connection_init_ws (con);
@@ -439,7 +439,7 @@ handle_connection_data (struct ConnectionBuffer *buf)
   ConnectionResult r;
 
   assert (con);
-  debug ("%s connection fd %i has data from %s; ws %s",
+  debug (CONNECTION, "%s connection fd %i has data from %s; ws %s",
          con->is_tls ? "TLS" : "unencrypted", con->client_fd,
          src == WS ? "ws" : "client",
          con->ws ? con->ws->socket.sun_path : "uninitialized");
@@ -473,7 +473,7 @@ handle_hangup (struct ConnectionBuffer *buf)
 {
   Connection *con = buf->connection;
   int fd = buf == &con->buf_client ? con->client_fd : con->ws_fd;
-  debug ("hangup on fd %i", fd);
+  debug (CONNECTION, "hangup on fd %i", fd);
   remove_connection (fd, NULL);
 }
 
@@ -567,7 +567,7 @@ server_init (const char *ws_path,
       for (int i = 0, fd = SD_LISTEN_FDS_START; i < n; ++i, ++fd)
         {
           server.listen_fds[i] = fd;
-          debug ("Listening to systemd activated socket fd %i", fd);
+          debug (SERVER, "Listening to systemd activated socket fd %i", fd);
         }
       server.listen_fds[n] = -1;
     }
@@ -593,7 +593,7 @@ server_init (const char *ws_path,
         err (1, "failed to bind to port %hu", port);
       if (listen (server.listen_fds[0], 1024) < 0)
         err (1, "failed to listen to server port");
-      debug ("Server ready. Listening on port %hu, fd %i", port, server.listen_fds[0]);
+      debug (SERVER, "Server ready. Listening on port %hu, fd %i", port, server.listen_fds[0]);
     }
 
   /* epoll the listening fds */
@@ -730,11 +730,11 @@ server_run (int idle_timeout)
       {
         if (server_num_connections () == 0)
           {
-            debug ("reached idle time and no existing connections");
+            debug (SERVER, "reached idle time and no existing connections");
             break;
           }
 
-        debug ("server_poll_event reached idle time, but there are existing connections");
+        debug (SERVER, "server_poll_event reached idle time, but there are existing connections");
       }
   }
 }
@@ -781,7 +781,7 @@ server_remove_ws (pid_t ws_pid)
       return;
     }
 
-  debug ("server_remove_ws: pid %u is ws %s", ws_pid, ws->socket.sun_path);
+  debug (SERVER, "server_remove_ws: pid %u is ws %s", ws_pid, ws->socket.sun_path);
 
   remove_connection (-1, ws);
   ws_instance_free (ws, false);

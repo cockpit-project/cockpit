@@ -24,8 +24,15 @@
 /* define to 1 to enable debug messages; very verbose! */
 #define DEBUG 0
 
+/* messages can be disabled per-domain */
+#define DEBUG_CONNECTION 1
+#define DEBUG_SERVER 1
+
+/* testcases */
+#define DEBUG_TESTS 1
+
 #if DEBUG
-#define debug(fmt, ...) (fprintf (stderr, "cockpit-tls: " fmt "\n", ##__VA_ARGS__))
+#define debug(domain, fmt, ...) do if (DEBUG_##domain) fprintf (stderr, __FILE__ ": " fmt "\n", ##__VA_ARGS__); while (0)
 #else
 #define debug(...)
 #endif

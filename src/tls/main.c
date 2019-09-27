@@ -108,7 +108,7 @@ main (int argc, char **argv)
       certfile = cockpit_certificate_locate (&error);
       if (error)
         errx (1, "Could not locate server certificate: %s", error);
-      debug ("Using certificate %s", certfile);
+      debug (SERVER, "Using certificate %s", certfile);
     }
 
   /* TODO: Add cockpit.conf option to enable client-certificate auth, once we support that */

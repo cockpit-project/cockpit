@@ -179,7 +179,7 @@ export class Terminal extends React.Component {
                         onFocus={this.onFocusIn}
                         onContextMenu={this.contextMenu}
                         onBlur={this.onFocusOut} />
-                <ContextMenu setText={this.setText} getText={this.getText} />
+                <ContextMenu parentId={this.props.parentId} setText={this.setText} getText={this.getText} />
             </>
         );
     }
@@ -284,5 +284,6 @@ Terminal.propTypes = {
     rows: PropTypes.number,
     channel: PropTypes.object.isRequired,
     onTitleChanged: PropTypes.func,
-    theme: PropTypes.string
+    theme: PropTypes.string,
+    parentId: PropTypes.string.isRequired
 };

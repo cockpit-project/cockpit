@@ -33,6 +33,9 @@ function component_checksum(machine, component) {
 
 function Frames(index) {
     var self = this;
+    let language = document.cookie.replace(/(?:(?:^|.*;\s*)CockpitLang\s*=\s*([^;]*).*$)|^.*$/, "$1");
+    if (!language)
+        language = "en-us";
 
     /* Lists of frames, by host */
     self.iframes = { };
@@ -85,6 +88,8 @@ function Frames(index) {
                 if (count > 0)
                     index.navigate();
             }
+            if (frame.contentDocument && frame.contentDocument.documentElement)
+                frame.contentDocument.documentElement.lang = language;
         } else {
             frame.timer = window.setTimeout(function() {
                 frame_ready(frame, count + 1);

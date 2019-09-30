@@ -2174,7 +2174,8 @@ class TestMachines(NetworkCase):
                     raise AssertionError("Unknown disk device")
             else:
                 b.wait_in_text("div.listing-ct-body", "No disks defined")
-                b.wait_present("#vm-{0}-disks-adddisk".format(name))
+                b.click("#vm-{0}-disks-adddisk".format(name))
+                b.click("#vm-{0}-disks-adddisk-dialog-cancel".format(name))
             return self
 
         def assertScriptFinished(self):

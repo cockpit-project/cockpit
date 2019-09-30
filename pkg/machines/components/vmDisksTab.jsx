@@ -89,9 +89,12 @@ class VmDisksTab extends React.Component {
     render() {
         const { idPrefix, vm, disks, renderCapacity, dispatch, provider, onAddErrorNotification, storagePools } = this.props;
         const actions = (
-            <Button id={`${idPrefix}-adddisk`} bsStyle='primary' onClick={this.open} className='pull-right'>
-                {_("Add Disk")}
-            </Button>
+            <>
+                <Button id={`${idPrefix}-adddisk`} bsStyle='primary' onClick={this.open} className='pull-right'>
+                    {_("Add Disk")}
+                </Button>
+                {this.state.showModal && <AddDiskModalBody close={this.close} dispatch={dispatch} idPrefix={idPrefix} vm={vm} storagePools={storagePools} provider={provider} />}
+            </>
         );
         const columnTitles = [_("Device")];
         let renderCapacityUsed, renderReadOnly, renderAdditional;
@@ -161,16 +164,13 @@ class VmDisksTab extends React.Component {
         });
 
         return (
-            <>
-                {this.state.showModal && <AddDiskModalBody close={this.close} dispatch={dispatch} idPrefix={idPrefix} vm={vm} storagePools={storagePools} provider={provider} />}
-                <Table variant='compact'
-                       aria-label={`VM ${vm.name} Disks`}
-                       cells={columnTitles}
-                       rows={rows}>
-                    <TableHeader />
-                    <TableBody />
-                </Table>
-            </>
+            <Table variant='compact'
+                aria-label={`VM ${vm.name} Disks`}
+                cells={columnTitles}
+                rows={rows}>
+                <TableHeader />
+                <TableBody />
+            </Table>
         );
     }
 }

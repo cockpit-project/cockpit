@@ -8,11 +8,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-09-23 08:08+0000\n"
+"POT-Creation-Date: 2019-09-30 08:43+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2019-09-21 01:39+0000\n"
+"PO-Revision-Date: 2019-09-24 10:01+0000\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <kde-i18n-uk@kde.org>\n"
 "Language: uk\n"
@@ -201,9 +201,9 @@ msgstr "$0 з $1"
 #: pkg/systemd/init.js:418
 msgid "$0 service has failed"
 msgid_plural "$0 services have failed"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "Критична помилка $0 служби"
+msgstr[1] "Критична помилка $0 служб"
+msgstr[2] "Критична помилка $0 служб"
 
 #: pkg/docker/util.js:125
 msgid "$0 shares"
@@ -922,7 +922,7 @@ msgstr "Програми"
 #: pkg/networkmanager/index.html:574 pkg/networkmanager/index.html:598
 #: pkg/networkmanager/index.html:622 pkg/networkmanager/index.html:646
 #: pkg/networkmanager/index.html:670 pkg/kdump/kdump-view.jsx:354
-#: pkg/machines/components/vcpuModal.jsx:235 pkg/storaged/crypto-tab.jsx:78
+#: pkg/machines/components/vcpuModal.jsx:260 pkg/storaged/crypto-tab.jsx:78
 #: pkg/storaged/crypto-tab.jsx:108 pkg/storaged/fsys-tab.jsx:80
 #: pkg/storaged/fsys-tab.jsx:129 pkg/storaged/nfs-details.jsx:198
 msgid "Apply"
@@ -1286,7 +1286,7 @@ msgstr "Не вдалося завантажити образ"
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:511
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:225
 #: pkg/machines/components/storagePools/storageVolumeCreate.jsx:93
-#: pkg/machines/components/vcpuModal.jsx:232
+#: pkg/machines/components/vcpuModal.jsx:257
 #: pkg/machines/components/vm/bootOrderModal.jsx:327
 #: pkg/machines/components/vm/memoryModal.jsx:214
 #: pkg/networkmanager/firewall.jsx:592 pkg/networkmanager/firewall.jsx:660
@@ -1364,7 +1364,7 @@ msgid "Change the settings"
 msgstr "Змінити параметри"
 
 #: pkg/machines/components/nicEdit.jsx:157
-#: pkg/machines/components/vcpuModal.jsx:183
+#: pkg/machines/components/vcpuModal.jsx:184
 #: pkg/machines/components/vm/bootOrderModal.jsx:283
 #: pkg/machines/components/warningInactive.jsx:11
 msgid "Changes will take effect after shutting down the VM"
@@ -1866,7 +1866,7 @@ msgstr "Копіювати"
 msgid "Copy to clipboard"
 msgstr "Копіювати до буфера"
 
-#: pkg/machines/components/vcpuModal.jsx:209
+#: pkg/machines/components/vcpuModal.jsx:232
 msgid "Cores per socket"
 msgstr "Кількість ядер на сокет"
 
@@ -2862,7 +2862,7 @@ msgstr "Не вдалося зупинити область Docker: $0"
 msgid "Failed to switch profile"
 msgstr "Не вдалося перемкнути профіль"
 
-#: pkg/machines/components/vcpuModal.jsx:193
+#: pkg/machines/components/vcpuModal.jsx:198
 msgid "Fewer than the maximum number of virtual CPUs should be enabled."
 msgstr ""
 "Має бути увімкнено менше за максимальну кількість віртуальних процесорів."
@@ -4015,7 +4015,7 @@ msgstr "Не вдалося зберегти дані щодо максимал�
 msgid "Maximum message age $max_age"
 msgstr "Максимальний вік повідомлення $max_age"
 
-#: pkg/machines/components/vcpuModal.jsx:199
+#: pkg/machines/components/vcpuModal.jsx:211
 msgid ""
 "Maximum number of virtual CPUs allocated for the guest OS, which must be "
 "between 1 and $0"
@@ -5241,7 +5241,7 @@ msgstr "Порти:"
 msgid "Power Options"
 msgstr "Параметри живлення"
 
-#: pkg/machines/components/vcpuModal.jsx:206
+#: pkg/machines/components/vcpuModal.jsx:225
 msgid "Preferred number of sockets to expose to the guest."
 msgstr "Бажана кількість сокетів, які слід надавати гостьовій системі."
 
@@ -6290,7 +6290,7 @@ msgstr "Слот"
 msgid "Slot $0"
 msgstr "Слот $0"
 
-#: pkg/machines/components/vcpuModal.jsx:206 pkg/systemd/services.jsx:49
+#: pkg/machines/components/vcpuModal.jsx:220 pkg/systemd/services.jsx:49
 msgid "Sockets"
 msgstr "Сокети"
 
@@ -6679,7 +6679,7 @@ msgstr "Система"
 
 #: pkg/systemd/index.html:171
 msgid "System Health"
-msgstr ""
+msgstr "Здоров'я системи"
 
 #: pkg/systemd/hwinfo.jsx:277
 msgid "System Information"
@@ -7298,7 +7298,7 @@ msgstr ""
 msgid "This will test the kdump configuration by crashing the kernel."
 msgstr "Перевіряє налаштування kdump, аварійно завершуючи роботу ядра."
 
-#: pkg/machines/components/vcpuModal.jsx:212
+#: pkg/machines/components/vcpuModal.jsx:237
 msgid "Threads per core"
 msgstr "Потоків на ядро"
 
@@ -7763,7 +7763,7 @@ msgstr "Користувач"
 msgid "Using available credentials"
 msgstr "З використанням доступних реєстраційних даних"
 
-#: pkg/machines/components/vcpuModal.jsx:164
+#: pkg/machines/components/vcpuModal.jsx:165
 msgid "VCPU settings could not be saved"
 msgstr "Не вдалося зберегти параметри віртуальних процесорів"
 
@@ -8182,10 +8182,6 @@ msgstr "байтів"
 msgid "cdrom"
 msgstr "cdrom"
 
-#: pkg/machines/components/infoRecord.jsx:29
-msgid "control-label $0"
-msgstr "control-label $0"
-
 #: pkg/machines/helpers.js:193
 msgid "crashed"
 msgstr "аварійне завершення"
@@ -8447,11 +8443,11 @@ msgstr "вище"
 msgid "user"
 msgstr "користувач"
 
-#: pkg/machines/components/vcpuModal.jsx:192
+#: pkg/machines/components/vcpuModal.jsx:193
 msgid "vCPU Count"
 msgstr "К-ть вірт. процесорів"
 
-#: pkg/machines/components/vcpuModal.jsx:197
+#: pkg/machines/components/vcpuModal.jsx:205
 msgid "vCPU Maximum"
 msgstr "Макс. вірт. процесорів"
 

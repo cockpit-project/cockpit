@@ -1,6 +1,8 @@
-#!/bin/sh -e
+#!/bin/sh
+set -eu
 
-top_srcdir=$(realpath -m "$0"/../../..)
+srcdir=$(realpath -m "$0"/..)
+top_srcdir=$(dirname $(dirname $srcdir))
 image=cockpit/unit-tests:latest
 flags=''
 cmd=''
@@ -11,7 +13,7 @@ while test $# -gt 0; do
     --podman) docker="podman";;
     CC=*) ccarg="--env=$1";;
     shell) flags=-it; cmd=/bin/bash;;
-    :*) image=cockpit/unit-tests"$1";;
+    :*) image=cockpit/unit-tests"${1:-}";;
     *) echo "Unknown option '$1'"; exit 1;;
   esac
   shift
@@ -22,6 +24,11 @@ if test -z "${docker:=$(which podman || which docker || true)}"; then
   exit 1
 fi
 
-set -ex
-exec ${docker} run --shm-size=512M --volume "${top_srcdir}":/source:ro \
+if [ -d "${SEMAPHORE_CACHE_DIR:-}" ]; then
+    $srcdir/semaphore-cache docker-load "$image"
+    trap "$srcdir/semaphore-cache docker-save '$image'" EXIT
+fi
+
+set -x
+${docker} run --shm-size=512M --volume "${top_srcdir}":/source:ro \
        ${ccarg:+"$ccarg"} $flags -- "$image" $cmd

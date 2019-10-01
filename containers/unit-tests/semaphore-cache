@@ -1,0 +1,39 @@
+#!/bin/bash
+set -eux
+
+item="$2"
+item_esc="${item//\//_}"
+item_esc="${item_esc//:/_}"
+
+case "${1:-}" in
+    docker-load)
+        for f in $SEMAPHORE_CACHE_DIR/docker/$item_esc-*; do
+            [ -e "$f" ] || continue
+            echo "Restoring cached Docker image $f..."
+            docker load < "$f"
+        done
+        ;;
+
+    docker-save)
+        mkdir -p $SEMAPHORE_CACHE_DIR/docker
+        hash=$(docker images -q "$item")
+        cache_file="$SEMAPHORE_CACHE_DIR/docker/${item_esc}-$hash"
+        if ! [ -e "$cache_file" ]; then
+            # remove any older hash of that image
+            rm -f --verbose "$SEMAPHORE_CACHE_DIR/docker/${item_esc}"-*
+            echo "Caching docker image $cache_file ..."
+            docker save -o "${cache_file}.tmp" "$item"
+            mv "${cache_file}.tmp" "$cache_file"
+        else
+            # mark cached image as current
+            touch "$cache_file"
+        fi
+
+        echo "Cleaning old cached docker images..."
+        find "$SEMAPHORE_CACHE_DIR/docker" -type f -mtime +7 -print -delete
+        ;;
+
+    *)
+        echo "Usage: $0 docker-load|docker-save <image>" >&2
+        exit 1
+esac

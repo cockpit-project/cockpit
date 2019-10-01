@@ -1370,7 +1370,7 @@ class TestMachines(NetworkCase):
         # try to CREATE WITH DIALOG ERROR
 
         # name
-        checkDialogFormValidationTest(TestMachines.VmDialog(self, "", storage_size=1), {"Name": "Name should not be empty"})
+        checkDialogFormValidationTest(TestMachines.VmDialog(self, "", storage_size=1), {"Name": "Name must not be empty"})
 
         # location
         checkDialogFormValidationTest(TestMachines.VmDialog(self, sourceType='url',
@@ -1395,7 +1395,7 @@ class TestMachines(NetworkCase):
         # start vm
         checkDialogFormValidationTest(TestMachines.VmDialog(self, storage_size=1,
                                                             os_name=config.FEDORA_28, start_vm=True),
-                                      {"Source": "Installation Source should not be empty"})
+                                      {"Source": "Installation Source must not be empty"})
 
         # disallow empty OS
         checkDialogFormValidationTest(TestMachines.VmDialog(self, sourceType='url', location=config.VALID_URL,
@@ -1699,7 +1699,7 @@ class TestMachines(NetworkCase):
                                                                 location="Host Device {0}: macvtap".format(iface),
                                                                 sourceTypeSecondChoice='url',
                                                                 start_vm=False),
-                                          {"Source": "Installation Source should not be empty"})
+                                          {"Source": "Installation Source must not be empty"})
 
         # Test that removing virt-install executable will disable Create VM button
         self.machine.execute('rm $(which virt-install)')

@@ -118,7 +118,7 @@ function validateParams(vmParams) {
     const validationFailed = {};
 
     if (isEmpty(vmParams.vmName.trim())) {
-        validationFailed.vmName = _("Name should not be empty");
+        validationFailed.vmName = _("Name must not be empty");
     }
 
     if (vmParams.os == undefined)
@@ -146,7 +146,7 @@ function validateParams(vmParams) {
             break;
         }
     } else {
-        validationFailed.source = _("Installation Source should not be empty");
+        validationFailed.source = _("Installation Source must not be empty");
     }
 
     if (vmParams.memorySize === 0) {

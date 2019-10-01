@@ -1350,6 +1350,7 @@ cockpit_ssh_connect (CockpitSshData *data,
   const gchar *ignore_hostkey;
   gboolean host_is_whitelisted;
   const gchar *problem;
+  g_autofree gchar *username = NULL;
 
   guint port = 0;
   gchar *host;
@@ -1359,25 +1360,34 @@ cockpit_ssh_connect (CockpitSshData *data,
 
   parse_host (host_arg, &host, &data->username, &port);
 
-  /* Username always comes from auth message when using basic */
-  if (g_strcmp0 (data->auth_type, "basic") == 0)
-    {
-      g_free (data->username);
-      data->username = username_from_basic (data->initial_auth_data);
-    }
-
-  if (!data->username || *data->username == '\0')
-    {
-      g_message ("%s: No username provided", data->logname);
-      problem = "authentication-failed";
-      goto out;
-    }
-
   g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_HOST, host) == 0);
 #if LIBSSH_085
-    g_warn_if_fail (ssh_options_parse_config (data->session, NULL) == 0);
+  g_warn_if_fail (ssh_options_parse_config (data->session, NULL) == 0);
 #endif
-  g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_USER, data->username) == 0);
+
+  if (strrchr (host_arg, '@'))
+    {
+      g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_USER, data->username) == 0);
+    }
+  else if (ssh_options_get (data->session, SSH_OPTIONS_USER, &username) != 0)
+    {
+      /* User comes from auth message when using basic if it's not set in ssh config */
+      if (g_strcmp0 (data->auth_type, "basic") == 0)
+        {
+          g_free (data->username);
+          data->username = username_from_basic (data->initial_auth_data);
+        }
+
+      if (!data->username || *data->username == '\0')
+        {
+          g_message ("%s: No username provided", data->logname);
+          problem = "authentication-failed";
+          goto out;
+        }
+      g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_USER, data->username) == 0);
+    }
+
+  /* If the user specifies a port explicitely, overwrite the config */
   if (port != 0)
     g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_PORT, &port) == 0);
 

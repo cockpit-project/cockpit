@@ -391,7 +391,7 @@ const MemoryRow = ({ memorySize, memorySizeUnit, nodeMaxMemory, recommendedMemor
     if (recommendedMemory && recommendedMemory > memorySize) {
         recommendedMemoryHelpBlock = <p>{cockpit.format(
             _("The selected Operating System has recommended memory $0 $1"),
-            recommendedMemory, memorySizeUnit)}</p>;
+            Math.floor(convertToUnit(recommendedMemory, units.B, memorySizeUnit)), memorySizeUnit)}</p>;
     }
 
     return (
@@ -426,7 +426,7 @@ const StorageRow = ({ connectionName, storageSize, storageSizeUnit, onValueChang
     if (recommendedStorage && recommendedStorage > storageSize) {
         recommendedStorageHelpBlock = <p>{cockpit.format(
             _("The selected Operating System has recommended storage size of $0 $1"),
-            recommendedStorage, storageSizeUnit)}</p>;
+            Math.floor(convertToUnit(recommendedStorage, units.B, storageSizeUnit)), storageSizeUnit)}</p>;
     }
 
     let volumeEntries;
@@ -655,14 +655,14 @@ class CreateVmModal extends React.Component {
         case 'os': {
             const stateDelta = { [key]: value };
             if (value && value.recommendedResources.ram) {
-                stateDelta.recommendedMemory = convertToUnit(value.recommendedResources.ram, units.B, this.state.memorySizeUnit);
-                this.onValueChanged('memorySize', stateDelta.recommendedMemory);
+                stateDelta.recommendedMemory = value.recommendedResources.ram;
+                this.onValueChanged('memorySize', convertToUnit(stateDelta.recommendedMemory, units.B, this.state.memorySizeUnit));
             } else {
                 stateDelta.recommendedMemory = undefined;
             }
             if (value && value.recommendedResources.storage) {
-                stateDelta.recommendedStorage = convertToUnit(value.recommendedResources.storage, units.B, this.state.storageSizeUnit);
-                this.onValueChanged('storageSize', stateDelta.recommendedStorage);
+                stateDelta.recommendedStorage = value.recommendedResources.storage;
+                this.onValueChanged('storageSize', convertToUnit(stateDelta.recommendedStorage, units.B, this.state.storageSizeUnit));
             } else {
                 stateDelta.recommendedStorage = undefined;
             }

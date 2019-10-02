@@ -27,6 +27,7 @@ import { NetworkList } from "./components/networks/networkList.jsx";
 import LibvirtSlate from "./components/libvirtSlate.jsx";
 import { CreateVmAction } from "./components/create-vm-dialog/createVmDialog.jsx";
 import { AggregateStatusCards } from "./components/aggregateStatusCards.jsx";
+import { isObjectEmpty } from "./helpers.js";
 import { InlineNotification } from 'cockpit-components-inline-notification.jsx';
 
 var permission = cockpit.permission({ admin: true });
@@ -114,10 +115,15 @@ class App extends React.Component {
         const createVmAction = <CreateVmAction {...properties} mode='create' />;
         const importDiskAction = <CreateVmAction {...properties} mode='import' />;
         const vmActions = <div> {createVmAction} {importDiskAction} </div>;
+        const resources = [...storagePools, ...networks, ...nodeDevices, ...interfaces, ...vms];
+        const loadingResources = resources.some(resource => isObjectEmpty(resource));
 
         // Show libvirtSlate component if libvirtd is not running only to users that are allowed to start the service.
-        if (systemInfo.libvirtService.activeState !== 'running' && (this.state.allowed === undefined || this.state.allowed)) {
-            return (<LibvirtSlate libvirtService={systemInfo.libvirtService} dispatch={dispatch} />);
+        if ((systemInfo.libvirtService.activeState !== 'running' && (this.state.allowed === undefined || this.state.allowed)) ||
+            loadingResources) {
+            return (<LibvirtSlate libvirtService={systemInfo.libvirtService}
+                        loadingResources={loadingResources}
+                        dispatch={dispatch} />);
         }
 
         const pathVms = path.length == 0 || (path.length > 0 && path[0] == 'vms');

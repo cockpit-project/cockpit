@@ -268,6 +268,17 @@ OnCalendar=daily
             b.key_press("echo $LANG\r")
             b.wait_in_text(line_sel(2), locale)
 
+            b.switch_to_top()
+
+            b.wait_js_func("""(function (lang) {
+                let correct = true;
+                document.querySelectorAll('#content iframe').forEach(el => {
+                    if (el.contentDocument.documentElement.lang !== lang)
+                        correct = false;
+                });
+                return correct;
+            })""", language)
+
     def testPtBRLocale(self):
         m = self.machine
         b = self.browser

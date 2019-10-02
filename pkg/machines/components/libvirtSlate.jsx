@@ -65,6 +65,7 @@ class LibvirtSlate extends React.Component {
     render() {
         const activeState = this.props.libvirtService.activeState;
         const name = this.props.libvirtService.name;
+        const loadingResources = this.props.loadingResources;
         let message;
         let icon;
         let detail;
@@ -75,6 +76,9 @@ class LibvirtSlate extends React.Component {
             icon = (<span className="pficon-ok" />);
         } else if (name && activeState === 'unknown') { // name === 'unknown' first
             message = _("Connecting to Virtualization Service");
+            icon = (<div className="spinner spinner-lg" />);
+        } else if (loadingResources) {
+            message = _("Loading Resources");
             icon = (<div className="spinner spinner-lg" />);
         } else {
             message = _("Virtualization Service (libvirt) is Not Active");

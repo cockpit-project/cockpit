@@ -62,14 +62,14 @@ function render() {
 }
 
 function renderApp() {
+    // initiate data retrieval
+    store.dispatch(initDataRetrieval());
+
     // re-render app every time the state changes
     store.subscribe(render);
 
     // do initial render
     render();
-
-    // initiate data retrieval
-    store.dispatch(initDataRetrieval());
 }
 
 /**

@@ -656,13 +656,21 @@ class CreateVmModal extends React.Component {
             const stateDelta = { [key]: value };
             if (value && value.recommendedResources.ram) {
                 stateDelta.recommendedMemory = value.recommendedResources.ram;
-                this.onValueChanged('memorySize', convertToUnit(stateDelta.recommendedMemory, units.B, this.state.memorySizeUnit));
+                const converted = Math.floor(convertToUnit(stateDelta.recommendedMemory, units.B, this.state.memorySizeUnit));
+                if (converted == 0)
+                    this.setState({ memorySizeUnit: units.MiB.name, memorySize: Math.floor(convertToUnit(stateDelta.recommendedMemory, units.B, units.MiB)) });
+                else
+                    this.onValueChanged('memorySize', converted);
             } else {
                 stateDelta.recommendedMemory = undefined;
             }
             if (value && value.recommendedResources.storage) {
                 stateDelta.recommendedStorage = value.recommendedResources.storage;
-                this.onValueChanged('storageSize', convertToUnit(stateDelta.recommendedStorage, units.B, this.state.storageSizeUnit));
+                const converted = Math.floor(convertToUnit(stateDelta.recommendedStorage, units.B, this.state.storageSizeUnit));
+                if (converted == 0)
+                    this.setState({ storageSizeUnit: units.MiB.name, storageSize: Math.floor(convertToUnit(stateDelta.recommendedStorage, units.B, units.MiB)) });
+                else
+                    this.onValueChanged('storageSize', converted);
             } else {
                 stateDelta.recommendedStorage = undefined;
             }

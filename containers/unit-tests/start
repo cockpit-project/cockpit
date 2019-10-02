@@ -24,11 +24,26 @@ if test -z "${docker:=$(which podman || which docker || true)}"; then
   exit 1
 fi
 
+# bind-mounted into the container, needs to be able to write
+mkdir -p -m 777 node_modules_cache
+
 if [ -d "${SEMAPHORE_CACHE_DIR:-}" ]; then
     $srcdir/semaphore-cache docker-load "$image"
     trap "$srcdir/semaphore-cache docker-save '$image'" EXIT
+    $srcdir/semaphore-cache dir-load node_modules_cache
 fi
 
 set -x
 ${docker} run --shm-size=512M --volume "${top_srcdir}":/source:ro \
+       --volume `pwd`/node_modules_cache:/source/node_modules:rw \
        ${ccarg:+"$ccarg"} $flags -- "$image" $cmd
+
+# cache node_modules on successful master builds
+if [ -d "${SEMAPHORE_CACHE_DIR:-}" -a -z "${PULL_REQUEST_NUMBER_XXXDISABLED:-}" ]; then
+    # HACK: the file:eslint-plugin-cockpit symlink must be created inside the
+    # container, otherwise npm install fails on EACCESS on the root-owned link
+    find node_modules_cache -type l -delete
+    $srcdir/semaphore-cache dir-save node_modules_cache
+fi
+
+rm -rf node_modules_cache

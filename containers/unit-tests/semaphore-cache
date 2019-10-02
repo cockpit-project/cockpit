@@ -33,7 +33,25 @@ case "${1:-}" in
         find "$SEMAPHORE_CACHE_DIR/docker" -type f -mtime +7 -print -delete
         ;;
 
+    dir-load)
+        cache="$SEMAPHORE_CACHE_DIR/$(basename "$item")"
+        if [ -e "$cache" ]; then
+            echo "Restoring cached directory $item ..."
+            mkdir -p "$item"
+            cp -a "$cache" "$(dirname "$item")"
+            # allow container bind mount to read/write it
+            chmod -R o+rwX "$item"
+        fi
+        ;;
+
+    dir-save)
+        dest="$SEMAPHORE_CACHE_DIR/$(basename "$item")"
+        rm -rf "$dest"
+        echo "Caching directory $item to $dest ..."
+        cp -a "$item" "$dest"
+        ;;
+
     *)
-        echo "Usage: $0 docker-load|docker-save <image>" >&2
+        echo "Usage: $0 docker-load|docker-save|dir-load|dir-save <item>" >&2
         exit 1
 esac

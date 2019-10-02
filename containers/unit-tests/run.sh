@@ -24,10 +24,15 @@ if [ ! -e /source/.git ]; then
     exit 1
 fi
 git clone /source /tmp/source
-[ ! -d /source/node_modules ] || cp -r /source/node_modules /tmp/source/
 cd /tmp/source
 
+# /source/node_modules is a bind mount to the host, for caching
+rm -r node_modules
+ln -s /source/node_modules
+
 ./autogen.sh --prefix=/usr --enable-strict --with-systemdunitdir=/tmp
+chmod -R o+rwX node_modules || true  # make it writable for the unpriv user on the host
+exit 0 # XXX
 
 make V=1 all
 

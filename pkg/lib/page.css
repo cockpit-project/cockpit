@@ -517,3 +517,12 @@ input[type=number] {
     --color-table-border-bottom       : #ededed;
     --color-table-text                : #393f44;
 }
+
+/*** PF4 overrides (when a mix of PF3 + PF4 is used at the same time) ***/
+
+/* WORKAROUND: Override word-break bug */
+/* See: https://github.com/patternfly/patternfly-next/issues/2325 */
+.pf-c-table td {
+    word-break: normal;
+    overflow-wrap: break-word;
+}

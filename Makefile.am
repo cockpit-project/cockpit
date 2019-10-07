@@ -433,9 +433,7 @@ distcheck-hook::
 # must be from master, as only that has current and existing images; but testvm.py API is stable
 # support CI testing against a bots change
 bots:
-	git clone --quiet --reference-if-able $${XDG_CACHE_HOME:-$$HOME/.cache}/cockpit-project/bots https://github.com/cockpit-project/bots.git
-	if [ -n "$$COCKPIT_BOTS_REF" ]; then git -C bots fetch --quiet --depth=1 origin "$$COCKPIT_BOTS_REF"; git -C bots checkout --quiet FETCH_HEAD; fi
-	@echo "checked out bots/ ref $$(git -C bots rev-parse HEAD)"
+	tools/make-bots
 
 include po/Makefile.am
 include pkg/Makefile.am

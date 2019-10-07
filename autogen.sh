@@ -76,6 +76,8 @@ if test -z "${NOCONFIGURE:-}"; then
     fi
 fi
 
+tools/make-bots
+
 if test -n "${NOCONFIGURE:-}"; then
     exit 0
 fi
@@ -104,8 +106,6 @@ if [ -z "${NOREDIRECTMAKEFILE:-}" ]; then
         ln -s "$srcdir/node_modules" "$olddir/node_modules"
     fi
 fi
-
-make bots
 
 echo
 echo "Now type 'make' to compile $PKG_NAME."

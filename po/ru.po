@@ -6,11 +6,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-09-30 08:43+0000\n"
+"POT-Creation-Date: 2019-10-07 13:19+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2019-09-24 03:25+0000\n"
+"PO-Revision-Date: 2019-10-07 10:13+0000\n"
 "Last-Translator: Dmitry Astankov <mornie@basealt.ru>\n"
 "Language-Team: Russian\n"
 "Language: ru\n"
@@ -21,6 +21,10 @@ msgstr ""
 #: pkg/docker/storage.jsx:261
 msgid " (shared with the OS)"
 msgstr " (в общем доступе с ОС)"
+
+#: pkg/machines/components/diskAdd.jsx:236
+msgid " Attaching it will make this disk shareable for every VM using it."
+msgstr ""
 
 #: pkg/networkmanager/interfaces.js:2353
 msgid "$0 Active Rule"
@@ -566,14 +570,12 @@ msgid "ARP"
 msgstr "ARP"
 
 #: pkg/networkmanager/interfaces.js:2806
-#, fuzzy
 msgid "ARP Monitoring"
 msgstr "Мониторинг ARP"
 
 #: pkg/networkmanager/interfaces.js:2028
-#, fuzzy
 msgid "ARP Ping"
-msgstr "Проверка связи ARP"
+msgstr "ARP Ping"
 
 #: pkg/shell/index.html:56 pkg/shell/index.html:82 pkg/shell/simple.html:42
 #: pkg/shell/simple.html:58
@@ -585,6 +587,8 @@ msgid "Absent"
 msgstr "Отсутствует"
 
 #: pkg/users/index.html:104 pkg/users/index.html:190
+#: pkg/machines/components/diskEdit.jsx:58
+#: pkg/machines/components/vmDisksTab.jsx:118
 msgid "Access"
 msgstr "Доступ"
 
@@ -654,7 +658,7 @@ msgid "Adaptive transmit load balancing"
 msgstr "Адаптивная балансировка нагрузки передачи"
 
 #: pkg/lib/machine-add.html:43 pkg/shell/index.html:180
-#: pkg/machines/components/diskAdd.jsx:471
+#: pkg/machines/components/diskAdd.jsx:522
 #: pkg/machines/components/nicAdd.jsx:235 pkg/storaged/crypto-keyslots.jsx:235
 #: pkg/storaged/iscsi-panel.jsx:137 pkg/storaged/iscsi-panel.jsx:161
 #: pkg/storaged/mdraid-details.jsx:58 pkg/storaged/nfs-details.jsx:198
@@ -678,7 +682,8 @@ msgstr "Добавить объединение"
 msgid "Add Bridge"
 msgstr "Добавить мост"
 
-#: pkg/machines/components/vmDisksTab.jsx:93
+#: pkg/machines/components/diskAdd.jsx:510
+#: pkg/machines/components/vmDisksTab.jsx:97
 msgid "Add Disk"
 msgstr "Добавить диск"
 
@@ -718,6 +723,10 @@ msgstr "Добавить сопряжение"
 #: pkg/networkmanager/index.html:113
 msgid "Add VLAN"
 msgstr "Добавить VLAN"
+
+#: pkg/machines/components/nicAdd.jsx:224
+msgid "Add Virtual Network Interface"
+msgstr ""
 
 #: pkg/networkmanager/firewall.jsx:732 pkg/networkmanager/firewall.jsx:912
 #: pkg/networkmanager/firewall.jsx:923
@@ -772,7 +781,7 @@ msgstr "Добавление ключа"
 msgid "Adding physical volume to $target"
 msgstr "Добавление физического тома в $target"
 
-#: pkg/machines/components/vmDisksTab.jsx:116
+#: pkg/machines/components/vmDisksTab.jsx:122
 msgid "Additional"
 msgstr "Дополнительно"
 
@@ -848,9 +857,8 @@ msgid "Advanced TCA"
 msgstr "Расширенный TCA"
 
 #: pkg/systemd/services.html:310 pkg/systemd/service-details.jsx:430
-#, fuzzy
 msgid "After"
-msgstr "Через/After="
+msgstr "After="
 
 #: pkg/realmd/operation.html:27
 msgid ""
@@ -904,7 +912,7 @@ msgstr "Разрешённые службы"
 msgid "Always"
 msgstr "Всегда"
 
-#: pkg/machines/components/diskAdd.jsx:117
+#: pkg/machines/components/diskAdd.jsx:118
 #: pkg/machines/components/nicAdd.jsx:86
 msgid "Always attach"
 msgstr "Всегда подключать"
@@ -926,7 +934,7 @@ msgstr "Приложения"
 #: pkg/networkmanager/index.html:526 pkg/networkmanager/index.html:550
 #: pkg/networkmanager/index.html:574 pkg/networkmanager/index.html:598
 #: pkg/networkmanager/index.html:622 pkg/networkmanager/index.html:646
-#: pkg/networkmanager/index.html:670 pkg/kdump/kdump-view.jsx:354
+#: pkg/networkmanager/index.html:670 pkg/kdump/kdump-view.jsx:355
 #: pkg/machines/components/vcpuModal.jsx:260 pkg/storaged/crypto-tab.jsx:78
 #: pkg/storaged/crypto-tab.jsx:108 pkg/storaged/fsys-tab.jsx:80
 #: pkg/storaged/fsys-tab.jsx:129 pkg/storaged/nfs-details.jsx:198
@@ -1207,7 +1215,7 @@ msgstr "Ошибки:"
 
 #: pkg/machines/components/vm/bootOrderModal.jsx:109
 #: pkg/machines/components/vm/bootOrderModal.jsx:132
-#: pkg/machines/components/vmDisksTab.jsx:110
+#: pkg/machines/components/vmDisksTab.jsx:116
 msgid "Bus"
 msgstr "Шина"
 
@@ -1245,7 +1253,7 @@ msgstr "Приоритет ЦП"
 msgid "CPU usage:"
 msgstr "Использование ЦП:"
 
-#: pkg/machines/components/diskAdd.jsx:174
+#: pkg/machines/components/diskAdd.jsx:175
 #: pkg/machines/components/vmDiskColumns.jsx:75
 msgid "Cache"
 msgstr "Кэш"
@@ -1284,9 +1292,10 @@ msgstr "Не удаётся загрузить образ"
 #: pkg/users/index.html:315 pkg/users/index.html:332 pkg/users/index.html:356
 #: pkg/users/index.html:413 pkg/apps/utils.jsx:86
 #: pkg/lib/cockpit-components-dialog.jsx:159
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:781
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:783
 #: pkg/machines/components/deleteDialog.jsx:158
-#: pkg/machines/components/diskAdd.jsx:468
+#: pkg/machines/components/diskAdd.jsx:519
+#: pkg/machines/components/diskEdit.jsx:173
 #: pkg/machines/components/networks/createNetworkDialog.jsx:477
 #: pkg/machines/components/networks/networkDelete.jsx:100
 #: pkg/machines/components/nicAdd.jsx:232
@@ -1317,12 +1326,11 @@ msgstr "Не удаётся передать учётные данные для 
 msgid "Cannot schedule event in the past"
 msgstr "Невозможно запланировать событие в прошлом"
 
-#: pkg/machines/components/vmDisksTab.jsx:108
+#: pkg/machines/components/vmDisksTab.jsx:114
 msgid "Capacity"
 msgstr "Ёмкость"
 
 #: pkg/networkmanager/interfaces.js:2610
-#, fuzzy
 msgid "Carrier"
 msgstr "Несущая частота"
 
@@ -1372,6 +1380,7 @@ msgstr "Изменение ограничений ресурсов"
 msgid "Change the settings"
 msgstr "Изменить параметры"
 
+#: pkg/machines/components/diskEdit.jsx:154
 #: pkg/machines/components/nicEdit.jsx:157
 #: pkg/machines/components/vcpuModal.jsx:184
 #: pkg/machines/components/vm/bootOrderModal.jsx:283
@@ -1423,7 +1432,7 @@ msgstr "Проверка наличия обновлений…"
 msgid "Checking installed software"
 msgstr "Проверка установленного программного обеспечения"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:351
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:350
 msgid "Choose an operating system"
 msgstr "Выберите операционную систему"
 
@@ -1497,7 +1506,7 @@ msgstr ""
 msgid "Cockpit could not contact the given host."
 msgstr "Не удалось установить связь между Cockpit и заданным узлом."
 
-#: pkg/shell/base_index.js:759
+#: pkg/shell/base_index.js:764
 msgid ""
 "Cockpit had an unexpected internal error. <br/><br/>You can try restarting "
 "Cockpit by pressing refresh in your browser. The javascript console contains "
@@ -1923,7 +1932,7 @@ msgstr "Не удалось получить список пользовател
 msgid "Couldn't load user data"
 msgstr "Не удалось загрузить данные пользователя"
 
-#: pkg/kdump/kdump-view.jsx:337 pkg/kdump/kdump-view.jsx:506
+#: pkg/kdump/kdump-view.jsx:338 pkg/kdump/kdump-view.jsx:507
 msgid "Crash dump location"
 msgstr "Расположение аварийного дампа"
 
@@ -1932,7 +1941,7 @@ msgid "Crash system"
 msgstr "Сбой системы"
 
 #: pkg/users/index.html:199
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:786
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:788
 #: pkg/machines/components/networks/createNetworkDialog.jsx:482
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:514
 #: pkg/machines/components/storagePools/storageVolumeCreate.jsx:96
@@ -1946,7 +1955,7 @@ msgstr "Создать"
 msgid "Create Logical Volume"
 msgstr "Создание логического тома"
 
-#: pkg/machines/components/diskAdd.jsx:423
+#: pkg/machines/components/diskAdd.jsx:473
 msgid "Create New"
 msgstr "Создать новый"
 
@@ -1954,7 +1963,11 @@ msgstr "Создать новый"
 msgid "Create New Account"
 msgstr "Создать учётную запись"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:443
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:775
+msgid "Create New Virtual Machine"
+msgstr ""
+
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:442
 msgid "Create New Volume"
 msgstr "Создать новый том"
 
@@ -1982,9 +1995,14 @@ msgstr "Создать отчёт"
 msgid "Create Snapshot"
 msgstr "Создание моментального снимка"
 
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:502
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:548
 msgid "Create Storage Pool"
 msgstr "Создать пул носителей"
+
+#: pkg/machines/components/storagePools/storageVolumeCreate.jsx:79
+msgid "Create Storage Volume"
+msgstr ""
 
 #: pkg/storaged/content-views.jsx:111 pkg/storaged/content-views.jsx:138
 msgid "Create Thin Volume"
@@ -2002,7 +2020,7 @@ msgstr "Создание таймера"
 msgid "Create VDO Device"
 msgstr "Создание устройства VDO"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:831
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:833
 msgid "Create VM"
 msgstr "Создать ВМ"
 
@@ -2035,7 +2053,7 @@ msgstr "Создать новый логический том"
 
 # translation auto-copied from project subscription-manager, version 1.11.X, document keys
 #: pkg/docker/containers-view.jsx:129 pkg/docker/containers-view.jsx:412
-#: pkg/docker/containers-view.jsx:683
+#: pkg/docker/containers-view.jsx:687
 msgid "Created"
 msgstr "Дата создания"
 
@@ -2100,7 +2118,7 @@ msgstr ""
 msgid "Creating volume group $target"
 msgstr "Создание группы томов $target"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:683
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:685
 msgid "Creation of VM $0 failed"
 msgstr "Ошибка создания виртуальной машины $0"
 
@@ -2318,13 +2336,13 @@ msgstr "Удаление группы томов $target"
 msgid "Description"
 msgstr "Описание"
 
-#: pkg/playground/manifest.json.in
-msgid "Design Patterns"
-msgstr "Шаблоны проектирования"
-
 #: pkg/lib/machine-info.js:66
 msgid "Desktop"
 msgstr "Настольный компьютер"
+
+#: pkg/machines/components/diskRemove.jsx:48
+msgid "Detach"
+msgstr ""
 
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:151
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:187
@@ -2346,11 +2364,15 @@ msgstr "Съёмный компьютер"
 msgid "Details"
 msgstr "Подробности"
 
+#: pkg/playground/manifest.json.in
+msgid "Development"
+msgstr ""
+
 #: pkg/machines/components/networks/createNetworkDialog.jsx:155
 #: pkg/machines/components/networks/networkList.jsx:55
 #: pkg/machines/components/vm/bootOrderModal.jsx:93
 #: pkg/machines/components/vmDiskColumns.jsx:43
-#: pkg/machines/components/vmDisksTab.jsx:96
+#: pkg/machines/components/vmDisksTab.jsx:102
 msgid "Device"
 msgstr "Устройство"
 
@@ -2423,11 +2445,11 @@ msgstr "Не удалось отключить диск $0 от виртуаль
 msgid "Disk I/O"
 msgstr "Дисковый ввод-вывод"
 
-#: pkg/machines/components/diskAdd.jsx:396
+#: pkg/machines/components/diskAdd.jsx:429
 msgid "Disk failed to be attached"
 msgstr "Не удалось подключить диск"
 
-#: pkg/machines/components/diskAdd.jsx:373
+#: pkg/machines/components/diskAdd.jsx:401
 msgid "Disk failed to be created"
 msgstr "Не удалось создать диск"
 
@@ -2439,13 +2461,18 @@ msgstr "Диск в порядке"
 msgid "Disk passphrase"
 msgstr "Парольная фраза диска"
 
+#: pkg/machines/components/diskAdd.jsx:440
+#: pkg/machines/components/diskEdit.jsx:126
+msgid "Disk settings could not be saved"
+msgstr ""
+
 #: pkg/machines/components/vm/vm.jsx:51 pkg/storaged/mdraid-details.jsx:47
 #: pkg/storaged/mdraid-details.jsx:147 pkg/storaged/mdraids-panel.jsx:90
 #: pkg/storaged/vgroup-details.jsx:54 pkg/storaged/vgroups-panel.jsx:61
 msgid "Disks"
 msgstr "Диски"
 
-#: pkg/machines/components/diskRemove.jsx:57
+#: pkg/machines/components/diskRemove.jsx:60
 msgid "Disks cannot be removed from $0 VMs"
 msgstr "Невозможно удалить диски из виртуальных машин с состоянием «$0»"
 
@@ -2538,7 +2565,7 @@ msgstr "Устройство"
 
 #: pkg/storaged/drives-panel.jsx:102
 msgid "Drives"
-msgstr "Устройства"
+msgstr "Диски"
 
 #: pkg/lib/machine-info.js:244
 msgid "Dual Rank"
@@ -2552,6 +2579,7 @@ msgstr "Повторяющийся псевдоним"
 msgid "Duplicate port"
 msgstr "Повторяющийся порт"
 
+#: pkg/machines/components/diskEdit.jsx:207
 #: pkg/machines/components/nicEdit.jsx:166 pkg/storaged/crypto-tab.jsx:131
 #: pkg/storaged/nfs-details.jsx:314
 msgid "Edit"
@@ -2631,7 +2659,7 @@ msgstr "Зашифрованные данные"
 
 #: pkg/storaged/lvol-tabs.jsx:141
 msgid "Encrypted volumes can not be resized here."
-msgstr "Невозможно изменить размер зашифрованных томов."
+msgstr "Размер зашифрованных томов невозможно изменить здесь."
 
 #: pkg/storaged/lvol-tabs.jsx:144
 msgid "Encrypted volumes need to be unlocked before they can be resized."
@@ -2711,7 +2739,7 @@ msgstr "Опечатки:"
 
 #: pkg/playground/translate.html:100 pkg/playground/translate.html:105
 #: pkg/apps/utils.jsx:100 pkg/storaged/multipath.jsx:57
-#: pkg/storaged/storage-controls.jsx:100 pkg/storaged/storage-controls.jsx:194
+#: pkg/storaged/storage-controls.jsx:100 pkg/storaged/storage-controls.jsx:192
 #: pkg/systemd/service-details.jsx:450 pkg/users/local.js:1476
 msgid "Error"
 msgstr "Ошибка"
@@ -2772,11 +2800,7 @@ msgstr "Пример: 88, 2019, nfs, rsync"
 msgid "Excellent password"
 msgstr "Отличный пароль"
 
-#: pkg/playground/manifest.json.in
-msgid "Exceptions"
-msgstr "Исключения"
-
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:229
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:228
 msgid "Existing disk image on host's file system"
 msgstr "Существующий образ диска в файловой системе узла"
 
@@ -3039,7 +3063,7 @@ msgstr "Создать автоматически"
 msgid "Generating report"
 msgstr "Создание отчёта"
 
-#: pkg/docker/containers-view.jsx:680
+#: pkg/docker/containers-view.jsx:683
 msgid "Get new image"
 msgstr "Получить новый образ"
 
@@ -3047,7 +3071,7 @@ msgstr "Получить новый образ"
 #: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:98
 #: pkg/machines/components/vm/memoryModal.jsx:153
 #: pkg/machines/components/vm/memoryModal.jsx:191
-#: pkg/machines/components/vmDisksTab.jsx:51
+#: pkg/machines/components/vmDisksTab.jsx:54
 msgid "GiB"
 msgstr "ГиБ"
 
@@ -3123,7 +3147,7 @@ msgstr "Сведения об оборудовании"
 msgid "Hello time $hello_time"
 msgstr "Время приветствия $hello_time"
 
-#: pkg/machines/components/diskAdd.jsx:166
+#: pkg/machines/components/diskAdd.jsx:167
 msgid "Hide Performance Options"
 msgstr "Скрыть параметры быстродействия"
 
@@ -3168,7 +3192,6 @@ msgid "Hours"
 msgstr "ч"
 
 #: pkg/systemd/index.html:249 pkg/systemd/host.js:1642
-#, fuzzy
 msgid "I/O Wait"
 msgstr "Ожидание ввода-вывода"
 
@@ -3255,6 +3278,7 @@ msgstr "Только IPv6"
 
 # translation auto-copied from project Satellite6 Hammer CLI Foreman, version 6.1, document hammer-cli-foreman
 #: pkg/docker/containers-view.jsx:128 pkg/docker/containers-view.jsx:408
+#: pkg/machines/components/diskEdit.jsx:34
 msgid "Id"
 msgstr "Идентификатор"
 
@@ -3295,7 +3319,7 @@ msgstr "Поиск образов"
 msgid "Image:"
 msgstr "Образ:"
 
-#: pkg/docker/containers-view.jsx:711
+#: pkg/docker/containers-view.jsx:715
 msgid "Images"
 msgstr "Образы"
 
@@ -3308,11 +3332,11 @@ msgstr "Образы"
 msgid "Images and running containers"
 msgstr "Образы и работающие контейнеры"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:764
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:766
 msgid "Immediately Start VM"
 msgstr "Запустить ВМ сразу после создания"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:831
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:833
 msgid "Import VM"
 msgstr "Импортировать ВМ"
 
@@ -3320,7 +3344,7 @@ msgstr "Импортировать ВМ"
 msgid "In Sync"
 msgstr "Синхронизировано"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:237
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:236
 msgid ""
 "In most configurations, macvtap does not work for host to guest network "
 "communication."
@@ -3354,9 +3378,8 @@ msgid "Incorrect Host Key"
 msgstr "Неверный ключ узла"
 
 #: pkg/storaged/vdo-details.jsx:307 pkg/storaged/vdos-panel.jsx:73
-#, fuzzy
 msgid "Index Memory"
-msgstr "Индексная память"
+msgstr "Память индексов"
 
 #: pkg/systemd/logs.html:62
 msgid "Info and above"
@@ -3408,17 +3431,17 @@ msgstr "Установка поддержки VDO"
 msgid "Install setroubleshoot-server to troubleshoot SELinux events."
 msgstr "Установите setroubleshoot-server для устранения неполадок в SELinux."
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:298
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:297
 msgid "Installation Source"
 msgstr "Источник установки"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:280
-msgid "Installation Source Type"
-msgstr "Тип источника установки"
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:148
+msgid "Installation Source must not be empty"
+msgstr ""
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:149
-msgid "Installation Source should not be empty"
-msgstr "Источник установки не должен быть пустым"
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:279
+msgid "Installation Type"
+msgstr ""
 
 # translation auto-copied from project subscription-manager, version 1.11.X, document keys
 #: pkg/packagekit/updates.jsx:59
@@ -3504,7 +3527,7 @@ msgstr "Неверная дата окончания срока действия
 msgid "Invalid file permissions"
 msgstr "Недопустимые разрешения для файлов"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:136
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:135
 msgid "Invalid filename"
 msgstr "Недопустимое имя файла"
 
@@ -3605,7 +3628,7 @@ msgstr "Запись в журнале"
 msgid "Journal entry not found"
 msgstr "Запись в журнале не найдена"
 
-#: pkg/kdump/kdump-view.jsx:461
+#: pkg/kdump/kdump-view.jsx:462
 msgid ""
 "Kdump service not installed. Please ensure package kexec-tools is installed."
 msgstr ""
@@ -3632,14 +3655,12 @@ msgid "Kernel Dump"
 msgstr "Дамп ядра"
 
 #: pkg/storaged/crypto-keyslots.jsx:576
-#, fuzzy
 msgid "Key slots with unknown types can not be edited here"
-msgstr "Ключевые слоты с неизвестными типами нельзя изменить здесь"
+msgstr "Слоты для ключей с неизвестными типами нельзя изменить здесь"
 
 #: pkg/storaged/crypto-keyslots.jsx:204
-#, fuzzy
 msgid "Key source"
-msgstr "Основной источник"
+msgstr "Источник ключа"
 
 #: pkg/storaged/crypto-keyslots.jsx:599
 msgid "Keys"
@@ -3785,7 +3806,7 @@ msgid "Loading system modifications..."
 msgstr "Загрузка изменений системы..."
 
 # translation auto-copied from project webkitgtk3, version 2.0.3, document webkitgtk3, author ypoyarko
-#: pkg/systemd/services.html:78 pkg/kdump/kdump-view.jsx:369
+#: pkg/systemd/services.html:78 pkg/kdump/kdump-view.jsx:370
 #: pkg/storaged/devices.jsx:65 pkg/systemd/logs.js:145 pkg/systemd/logs.js:160
 #: pkg/systemd/logs.js:207 pkg/systemd/logs.js:256 pkg/systemd/logs.js:318
 msgid "Loading..."
@@ -3803,7 +3824,7 @@ msgstr "Локальные диски"
 msgid "Local Filesystem"
 msgstr "Локальная файловая система"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:286
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:285
 msgid "Local Install Media"
 msgstr "Локальный установочный носитель"
 
@@ -3832,9 +3853,8 @@ msgid "Locking $target"
 msgstr "Блокировка $target"
 
 #: pkg/lib/machine-change-auth.html:81 src/ws/login.html:85 src/ws/login.js:490
-#, fuzzy
 msgid "Log In"
-msgstr "Вход"
+msgstr "Войти"
 
 #: pkg/shell/index.html:70 pkg/shell/simple.html:46
 msgid "Log Out"
@@ -3849,9 +3869,9 @@ msgid "Log in to {{host}}"
 msgstr "Выполнить вход в {{host}}"
 
 #: src/ws/login.js:515
-#, fuzzy
 msgid "Log in with your server user account."
-msgstr "Войдите в систему с учетной записью пользователя вашего сервера."
+msgstr ""
+"Войдите в систему с помощью своей учётной записи пользователя сервера."
 
 #: pkg/systemd/index.html:65
 msgid "Log messages"
@@ -3898,9 +3918,8 @@ msgid "Login failed"
 msgstr "Ошибка входа"
 
 #: pkg/shell/index.html:36
-#, fuzzy
 msgid "Login has escalated admin privileges"
-msgstr "Вход имеет повышенные полномочия администратора"
+msgstr "Учётная запись имеет повышенные полномочия администратора"
 
 #: src/ws/login.js:301
 msgid "Logout Successful"
@@ -4054,7 +4073,7 @@ msgstr "Член RAID-устройства $0"
 #: pkg/dashboard/index.html:71 pkg/docker/index.html:273
 #: pkg/playground/translate.html:90 pkg/systemd/index.html:215
 #: pkg/docker/containers-view.jsx:359
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:389
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:388
 #: pkg/machines/components/vmOverviewTab.jsx:74 pkg/systemd/hwinfo.jsx:263
 msgid "Memory"
 msgstr "Память"
@@ -4081,7 +4100,7 @@ msgstr "Не удалось сохранить значение для памя�
 msgid "Memory limit"
 msgstr "Предельный объём памяти"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:153
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:152
 msgid "Memory must not be 0"
 msgstr "Значение для памяти должно отличаться от нуля"
 
@@ -4175,7 +4194,7 @@ msgstr "Подробнее"
 msgid "More Information"
 msgstr "Дополнительные сведения"
 
-#: pkg/kdump/kdump-view.jsx:450
+#: pkg/kdump/kdump-view.jsx:451
 msgid "More details"
 msgstr "Дополнительные сведения"
 
@@ -4201,7 +4220,7 @@ msgstr "Подключение при загрузке"
 
 #: pkg/docker/index.html:521
 msgid "Mount container volumes"
-msgstr "Объемы контейнеров"
+msgstr "Подключить тома контейнера"
 
 #: pkg/storaged/format-dialog.jsx:81
 msgid "Mount point can not be empty"
@@ -4221,7 +4240,7 @@ msgstr "Подключение только для чтения"
 
 #: pkg/storaged/fsys-tab.jsx:183
 msgid "Mounted At"
-msgstr "Установлено на"
+msgstr "Подключено к"
 
 #: pkg/storaged/format-dialog.jsx:64
 msgid "Mounting"
@@ -4229,7 +4248,7 @@ msgstr "Подключение"
 
 #: pkg/storaged/jobs-panel.jsx:43
 msgid "Mounting $target"
-msgstr "монтаж $target"
+msgstr "Подключение $target"
 
 #: pkg/lib/machine-info.js:88
 msgid "Multi-system Chassis"
@@ -4268,8 +4287,8 @@ msgstr "Сервер NTP"
 #: pkg/networkmanager/index.html:137 pkg/networkmanager/index.html:165
 #: pkg/networkmanager/index.html:209 pkg/networkmanager/index.html:262
 #: pkg/networkmanager/index.html:319 pkg/docker/containers-view.jsx:359
-#: pkg/docker/containers-view.jsx:683
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:191
+#: pkg/docker/containers-view.jsx:687
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:190
 #: pkg/machines/components/networks/createNetworkDialog.jsx:108
 #: pkg/machines/components/networks/networkList.jsx:55
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:42
@@ -4292,11 +4311,11 @@ msgstr "Имя"
 
 #: pkg/storaged/vdos-panel.jsx:54
 msgid "Name can not be empty."
-msgstr "Имя не может быть пустым."
+msgstr "Имя не должно быть пустым."
 
 #: pkg/storaged/utils.js:131
 msgid "Name cannot be empty."
-msgstr "Имя не может быть пустым."
+msgstr "Имя не должно быть пустым."
 
 #: pkg/storaged/utils.js:159
 msgid "Name cannot be longer than $0 bytes"
@@ -4312,13 +4331,16 @@ msgstr "Длина имени должна составлять не более 
 
 #: pkg/storaged/utils.js:137
 msgid "Name cannot contain the character '$0'."
-msgstr "Имя не может содержать символ '$0»."
+msgstr "Имя не должно содержать знак «$0»."
 
 #: pkg/storaged/utils.js:139
 msgid "Name cannot contain whitespace."
-msgstr "Имя не может содержать пробелы."
+msgstr "Имя не должно содержать пробелы."
 
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:121
+msgid "Name must not be empty"
+msgstr ""
+
 #: pkg/machines/components/networks/createNetworkDialog.jsx:41
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:53
 msgid "Name should not be empty"
@@ -4330,7 +4352,7 @@ msgstr "Имя: "
 
 #: pkg/systemd/host.js:1402
 msgid "Need at least one NTP server"
-msgstr "Нужна, по крайней мере, один сервер NTP"
+msgstr "Требуется по крайней мере один сервер NTP"
 
 #: pkg/machines/components/networks/networkOverviewTab.jsx:112
 msgid "Netmask"
@@ -4356,11 +4378,11 @@ msgstr "Не удалось включить сеть $0"
 msgid "Network $0 failed to get deactivated"
 msgstr "Не удалось отключить сеть $0"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:292
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:291
 msgid "Network Boot (PXE)"
 msgstr "Сетевая загрузка (PXE)"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:289
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:288
 msgid "Network Boot is available only when using System connection"
 msgstr ""
 "Сетевая загрузка доступна только при использовании подключения «System»"
@@ -4373,7 +4395,7 @@ msgstr "Сетевая файловая система"
 msgid "Network Interfaces"
 msgstr "Сетевые интерфейсы"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:243
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:242
 msgid "Network Selection does not support PXE."
 msgstr "Выбор сети не поддерживает PXE."
 
@@ -4383,7 +4405,7 @@ msgstr "Сетевой трафик"
 
 #: pkg/networkmanager/index.html:52
 msgid "Network devices and graphs require NetworkManager."
-msgstr "Для сетевых устройств и графиков требуется NetworkManager."
+msgstr "Для сетевых устройств и графиков необходим NetworkManager."
 
 #: pkg/machines/components/nicAdd.jsx:176
 #: pkg/machines/components/nicEdit.jsx:119
@@ -4423,7 +4445,7 @@ msgstr "Пароль с неограниченным сроком действи
 
 #: pkg/users/index.html:258 pkg/users/local.js:880
 msgid "Never lock account"
-msgstr "Никогда не блокировать аккаунт"
+msgstr "Учётная запись без срока действия"
 
 #: pkg/storaged/nfs-details.jsx:143
 msgid "New NFS Mount"
@@ -4439,7 +4461,7 @@ msgstr "Новое имя тома"
 
 #: pkg/storaged/crypto-keyslots.jsx:214 pkg/storaged/crypto-keyslots.jsx:260
 msgid "New passphrase"
-msgstr "Новая кодовая фраза"
+msgstr "Новая парольная фраза"
 
 #: pkg/lib/credentials.js:237 pkg/users/local.js:139
 msgid "New password was not accepted"
@@ -4490,12 +4512,12 @@ msgstr "Сетевые устройства отсутствуют"
 msgid "No SELinux alerts."
 msgstr "Оповещения SELinux отсутствуют."
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:444
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:443
 msgid "No Storage"
 msgstr "Нет хранилища"
 
-#: pkg/machines/components/diskAdd.jsx:132
-#: pkg/machines/components/diskAdd.jsx:144
+#: pkg/machines/components/diskAdd.jsx:133
+#: pkg/machines/components/diskAdd.jsx:145
 msgid "No Storage Pools available"
 msgstr "Нет доступных пулов носителей"
 
@@ -4509,8 +4531,7 @@ msgstr "Изменения системы отсутствуют"
 
 #: pkg/machines/hostvmslist.jsx:85
 msgid "No VM is running or defined on this host"
-msgstr ""
-"Никакая виртуальная машина не запущена или не определена на этом хосте"
+msgstr "На данном узле нет запущенных или определённых виртуальных машин"
 
 #: pkg/machines/components/nicBody.jsx:115
 msgid "No Virtual Networks"
@@ -4522,7 +4543,7 @@ msgstr "Нет активных зон"
 
 #: pkg/docker/storage.jsx:208
 msgid "No additional local storage found."
-msgstr "Никакого дополнительного локального хранилища не найдено."
+msgstr "Дополнительное локальное хранилище не найдено."
 
 #: pkg/docker/run.js:338
 msgid "No alias specified"
@@ -4530,7 +4551,7 @@ msgstr "Не указан псевдоним"
 
 #: pkg/apps/application-list.jsx:137
 msgid "No applications installed or available"
-msgstr "Нет приложений, установленных или доступных"
+msgstr "Нет установленных или доступных приложений"
 
 #: pkg/sosreport/index.js:129
 msgid "No archive has been created."
@@ -4542,19 +4563,19 @@ msgstr "Нет доступных слотов"
 
 #: pkg/machines/components/vmOverviewTabLibvirt.jsx:48
 msgid "No boot device found"
-msgstr "Не найдено загрузочного устройства"
+msgstr "Загрузочное устройство не найдено"
 
 #: pkg/networkmanager/interfaces.js:1433
 msgid "No carrier"
-msgstr "Нет перевозчика"
+msgstr "Нет несущей частоты"
 
-#: pkg/kdump/kdump-view.jsx:398
+#: pkg/kdump/kdump-view.jsx:399
 msgid "No configuration found"
 msgstr "Конфигурация не найдена"
 
 #: pkg/machines/components/consoles.jsx:97
 msgid "No console defined for this virtual machine."
-msgstr "Консоли не определены для этой виртуальной машины."
+msgstr "Консоль для этой виртуальной машины не определена."
 
 #: pkg/docker/run.js:372
 msgid "No container specified"
@@ -4574,7 +4595,7 @@ msgstr "Описание отсутствует"
 
 #: pkg/apps/application.jsx:79
 msgid "No description provided."
-msgstr "Нет описания."
+msgstr "Описание отсутствует."
 
 #: pkg/storaged/mdraid-details.jsx:49 pkg/storaged/mdraids-panel.jsx:92
 #: pkg/storaged/vdos-panel.jsx:59 pkg/storaged/vgroup-details.jsx:56
@@ -4582,13 +4603,13 @@ msgstr "Нет описания."
 msgid "No disks are available."
 msgstr "Нет доступных дисков."
 
-#: pkg/machines/components/vmDisksTab.jsx:121
+#: pkg/machines/components/vmDisksTab.jsx:127
 msgid "No disks defined for this VM"
-msgstr "Диски, определенные для этой виртуальной машины"
+msgstr "Отсутствуют диски, определённые для этой виртуальной машины"
 
 #: pkg/storaged/drives-panel.jsx:103
 msgid "No drives attached"
-msgstr "Приводы не подключены"
+msgstr "Нет присоединённых дисков"
 
 #: pkg/storaged/crypto-keyslots.jsx:594
 msgid "No free key slots"
@@ -4600,33 +4621,34 @@ msgstr "Нет свободного места"
 
 #: pkg/systemd/index.html:29
 msgid "No host keys found."
-msgstr "Не найдено ключей хоста."
+msgstr "Ключи узла не найдены."
 
 #: pkg/storaged/iscsi-panel.jsx:269
 msgid "No iSCSI targets set up"
 msgstr "Нет установленных целей iSCSI"
 
-#: pkg/docker/containers-view.jsx:705
+#: pkg/docker/containers-view.jsx:709
 msgid "No images"
 msgstr "Образы отсутствуют"
 
-#: pkg/docker/containers-view.jsx:707
+#: pkg/docker/containers-view.jsx:711
 msgid "No images that match the current filter"
 msgstr "Отсутствуют образы, соответствующие текущему фильтру"
 
 #: pkg/apps/utils.jsx:96
 msgid "No installation package found for this application."
-msgstr "Пакет установки для этого приложения не установлен."
+msgstr "Пакет установки для данного приложения не найден."
 
 #: pkg/storaged/crypto-keyslots.jsx:533
 msgid "No keys added"
-msgstr "Не добавлены ключи"
+msgstr "Нет добавленных ключей"
 
 #: pkg/storaged/drive-details.jsx:75
 msgid "No media inserted"
-msgstr "Не вставлен носитель"
+msgstr "Носитель не вставлен"
 
-#: pkg/kdump/kdump-view.jsx:452
+#: pkg/kdump/kdump-view.jsx:453
+#, fuzzy
 msgid ""
 "No memory reserved. Append a crashkernel option to the kernel command line "
 "(e.g. in /etc/default/grub) to reserve memory at boot time. Example: "
@@ -4638,7 +4660,8 @@ msgstr ""
 
 #: pkg/machines/components/vmnetworktab.jsx:75
 msgid "No network interfaces defined for this VM"
-msgstr "Сетевые интерфейсы, определенные для этой виртуальной машины"
+msgstr ""
+"Отсутствуют сетевые интерфейсы, определённые для этой виртуальной машины"
 
 #: pkg/machines/components/networks/networkList.jsx:56
 msgid "No network is defined on this host"
@@ -4686,11 +4709,11 @@ msgstr "Нет хранилища, настроенного как VDO"
 
 #: pkg/lib/credentials.js:186
 msgid "No such file or directory"
-msgstr "Данный файл или каталог отсутствует"
+msgstr "Нет такого файла или каталога"
 
 #: pkg/packagekit/updates.jsx:42
 msgid "No updates pending"
-msgstr "Нет ожидающих обновления"
+msgstr "Ожидающие обновления отсутствуют"
 
 #: pkg/users/local.js:448
 msgid "No user name specified"
@@ -4698,9 +4721,9 @@ msgstr "Не указано имя пользователя"
 
 #: pkg/storaged/vgroups-panel.jsx:116
 msgid "No volume groups created"
-msgstr "Нет групп томов"
+msgstr "Нет созданных групп томов"
 
-#: pkg/kdump/kdump-view.jsx:421
+#: pkg/kdump/kdump-view.jsx:422
 #: pkg/machines/components/networks/createNetworkDialog.jsx:190
 #: pkg/networkmanager/firewall.jsx:766 pkg/tuned/dialog.js:232
 msgid "None"
@@ -4712,13 +4735,14 @@ msgstr "Нет (изолированная сеть)"
 
 #: pkg/playground/translate.html:29
 msgid "Not Ready"
-msgstr "Не готов"
+msgstr "Не готово"
 
 #: pkg/lib/credentials.js:255
 msgid "Not a valid private key"
-msgstr "Недействительный закрытый ключ"
+msgstr "Недопустимый закрытый ключ"
 
 #: pkg/docker/index.html:57
+#, fuzzy
 msgid "Not authorized to access Docker on this system"
 msgstr "Не разрешено доступ к Докеру в этой системе"
 
@@ -4732,7 +4756,7 @@ msgstr "Недоступно"
 
 #: pkg/selinux/setroubleshoot.js:240
 msgid "Not connected"
-msgstr "Не подключен"
+msgstr "Подключение отсутствует"
 
 #: pkg/systemd/host.js:577
 msgid "Not connected to Insights"
@@ -4748,11 +4772,11 @@ msgstr "Не найдено"
 
 #: pkg/storaged/nfs-panel.jsx:55
 msgid "Not mounted"
-msgstr "Не установлен"
+msgstr "Не подключено"
 
 #: src/base1/cockpit.js:4017
 msgid "Not permitted to perform this action."
-msgstr "Не разрешено выполнять это действие."
+msgstr "Нет прав на выполнение этого действия."
 
 #: pkg/storaged/mdraid-details.jsx:338 pkg/systemd/service-details.jsx:361
 msgid "Not running"
@@ -4760,7 +4784,7 @@ msgstr "Не работает"
 
 #: pkg/systemd/index.html:63
 msgid "Not synchronized"
-msgstr "Не синхронизирован"
+msgstr "Не синхронизировано"
 
 #: pkg/systemd/service-details.jsx:450
 msgid "Note"
@@ -4774,23 +4798,13 @@ msgstr "Ноутбук"
 msgid "Notice and above"
 msgstr "Уведомления и выше"
 
-#: pkg/playground/manifest.json.in
-msgid "Notifications"
-msgstr "Уведомления"
-
-#: pkg/playground/manifest.json.in
-msgid "Notifications Receiver"
-msgstr "Приёмник уведомлений"
-
 #: pkg/selinux/setroubleshoot-view.jsx:404
-#, fuzzy
 msgid "Occurred $0"
-msgstr "Происходило $0"
+msgstr "Произошло $0"
 
 #: pkg/selinux/setroubleshoot-view.jsx:399
-#, fuzzy
 msgid "Occurred between $0 and $1"
-msgstr "Произошло между $0 а также $1"
+msgstr "Произошло в период между $0 и $1"
 
 #: pkg/lib/cockpit-components-dialog.jsx:194
 msgid "Ok"
@@ -4802,7 +4816,7 @@ msgstr "Старый пароль"
 
 #: pkg/storaged/crypto-keyslots.jsx:257
 msgid "Old passphrase"
-msgstr "Старая кодовая фраза"
+msgstr "Старая парольная фраза"
 
 #: pkg/lib/credentials.js:218 pkg/users/local.js:86
 msgid "Old password not accepted"
@@ -4810,20 +4824,21 @@ msgstr "Старый пароль не был принят"
 
 #: pkg/docker/index.html:549 pkg/systemd/service-details.jsx:431
 msgid "On Failure"
-msgstr "О неисправности"
+msgstr "OnFailure="
 
-#: pkg/kdump/kdump-view.jsx:395
+#: pkg/kdump/kdump-view.jsx:396
 msgid "On a mounted device"
-msgstr "На установленном устройстве"
+msgstr "На подключенном устройстве"
 
 #: pkg/docker/util.js:105
 msgid "On failure, retry $0 time"
 msgid_plural "On failure, retry $0 times"
-msgstr[0] "При сбое повторите попытку $0 время"
-msgstr[1] "При сбое повторите попытку $0 раз"
-msgstr[2] "При сбое повторите попытку $0 раз"
+msgstr[0] "При сбое повторять попытку $0 раз"
+msgstr[1] "При сбое повторять попытку $0 раза"
+msgstr[2] "При сбое повторять попытку $0 раз"
 
 #: cockpit.appdata.xml.in.h:4
+#, fuzzy
 msgid ""
 "Once Cockpit is installed, enable it with \"systemctl enable --now cockpit."
 "socket\"."
@@ -4844,9 +4859,8 @@ msgstr ""
 "диски, чтобы разрешить удаление тома."
 
 #: pkg/storaged/vdo-details.jsx:134
-#, fuzzy
 msgid "Only $0 of $1 are used."
-msgstr "Только $0 из $1 используются."
+msgstr "Используется только $0 из $1."
 
 #: pkg/systemd/logs.html:56
 msgid "Only Emergency"
@@ -4854,7 +4868,7 @@ msgstr "Только экстренные оповещения"
 
 #: pkg/systemd/init.js:1179
 msgid "Only alphabets, numbers, : , _ , . , @ , - are allowed."
-msgstr "Только алфавиты, числа,:, _,. , @ , - разрешены."
+msgstr "Допускаются только буквы, цифры и символы «:», «_», «.», «@» и «-»."
 
 #: pkg/machines/components/vm/memoryModal.jsx:196
 msgid "Only editable when the guest is shut off"
@@ -4862,20 +4876,20 @@ msgstr "Может редактироваться, только когда го�
 
 #: pkg/shell/index.html:43 pkg/shell/simple.html:29
 msgid "Ooops!"
-msgstr "По электронной почте Ой!"
+msgstr "Упс!"
 
 #: pkg/machines/helpers.js:222
 msgid "Open"
 msgstr "Открытая"
 
 #: pkg/systemd/index.html:98
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:342
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:341
 msgid "Operating System"
 msgstr "Операционная система"
 
 #: pkg/storaged/jobs-panel.jsx:84
 msgid "Operation '$operation' on $target"
-msgstr "Операция '$operation'on $target"
+msgstr "Операция «$operation» над $target"
 
 #: pkg/machines/components/storagePools/storagePool.jsx:175
 #: pkg/machines/components/storagePools/storagePool.jsx:180
@@ -4894,7 +4908,7 @@ msgstr "Параметры"
 
 #: src/ws/login.html:125
 msgid "Or use a bundled browser"
-msgstr "Или используйте связанный браузер"
+msgstr "Или используйте встроенный браузер"
 
 # translation auto-copied from project Satellite6 Katello, version Sam-1.3.0, document katello, author ypoyarko
 #: pkg/lib/machine-info.js:64
@@ -4912,7 +4926,7 @@ msgstr "Другие устройства"
 
 #: src/ws/login.html:69
 msgid "Other Options"
-msgstr "Другие опции"
+msgstr "Другие параметры"
 
 # translation auto-copied from project virt-manager, version 0.10.0, document virt-manager
 #: pkg/docker/index.html:299 pkg/machines/components/networks/network.jsx:72
@@ -4931,7 +4945,7 @@ msgstr "PCI"
 
 #: pkg/packagekit/updates.jsx:503
 msgid "Package information"
-msgstr "Информация о пакете"
+msgstr "Сведения о пакете"
 
 #: pkg/lib/packagekit.js:126
 msgid "PackageKit crashed"
@@ -4945,13 +4959,9 @@ msgstr "PackageKit не установлен"
 msgid "PackageKit reported error code $0"
 msgstr "PackageKit передал код ошибки $0"
 
-#: pkg/playground/manifest.json.in
-msgid "Packages"
-msgstr "Пакеты"
-
 #: pkg/networkmanager/index.html:156
 msgid "Parent"
-msgstr "Родитель"
+msgstr "Родительский элемент"
 
 #: pkg/networkmanager/interfaces.js:2923
 msgid "Parent $parent"
@@ -4959,7 +4969,7 @@ msgstr "Родительский элемент $parent"
 
 #: pkg/systemd/service-details.jsx:421
 msgid "Part Of"
-msgstr "Часть"
+msgstr "PartOf="
 
 #: pkg/networkmanager/interfaces.js:1479
 msgid "Part of "
@@ -4967,7 +4977,7 @@ msgstr "Часть "
 
 #: pkg/storaged/content-views.jsx:145
 msgid "Partition"
-msgstr "раздел"
+msgstr "Раздел"
 
 #: pkg/storaged/utils.js:272
 msgid "Partition of $0"
@@ -4979,7 +4989,7 @@ msgstr "Разбиение"
 
 #: pkg/networkmanager/interfaces.js:2021
 msgid "Passive"
-msgstr "пассивный"
+msgstr "Пассивно"
 
 # translation auto-copied from project Anaconda, version master, document anaconda, author Igor Gorbounov
 #: pkg/storaged/content-views.jsx:229 pkg/storaged/crypto-keyslots.jsx:209
@@ -4995,7 +5005,7 @@ msgstr "Парольная фраза не может быть пустой"
 
 #: pkg/storaged/crypto-keyslots.jsx:364
 msgid "Passphrase removal may prevent unlocking $0."
-msgstr "Удаление парольной фразы может предотвратить разблокировку $0"
+msgstr "Удаление парольной фразы может мешать разблокировке $0"
 
 #: pkg/storaged/crypto-keyslots.jsx:225 pkg/storaged/crypto-keyslots.jsx:263
 #: pkg/storaged/format-dialog.jsx:319
@@ -5012,7 +5022,7 @@ msgstr "Пароль"
 
 #: pkg/users/index.html:288
 msgid "Password Expiration"
-msgstr "Истечение срока действия пароля"
+msgstr "Срок действия пароля"
 
 #: pkg/users/local.js:277
 msgid "Password is not acceptable"
@@ -5020,22 +5030,22 @@ msgstr "Недопустимый пароль"
 
 #: pkg/users/local.js:265
 msgid "Password is too weak"
-msgstr "Пароль слишком слабый"
+msgstr "Пароль недостаточно надёжен"
 
 #: pkg/users/local.js:874
 msgid "Password must be changed"
-msgstr "Пароль должен быть изменен"
+msgstr "Необходимо изменить пароль"
 
 #: pkg/lib/credentials.js:289
 msgid "Password not accepted"
-msgstr "Пароль не принимается"
+msgstr "Пароль не принят"
 
 #: pkg/shell/index.html:155
 msgid ""
 "Password not usable for privileged tasks or to connect to other machines"
 msgstr ""
-"Пароль не используется для привилегированных задач или для подключения к "
-"другим машинам"
+"Пароль не может быть использован для привилегированных задач или для "
+"подключения к другим компьютерам"
 
 #: pkg/lib/cockpit-components-context-menu.jsx:104
 msgid "Paste"
@@ -5046,7 +5056,7 @@ msgid "Paste the contents of your public SSH key file here"
 msgstr "Вставьте сюда содержимое вашего файла открытого SSH-ключа."
 
 #: pkg/machines/components/deleteDialog.jsx:45
-#: pkg/systemd/service-details.jsx:483
+#: pkg/machines/components/diskEdit.jsx:36 pkg/systemd/service-details.jsx:483
 msgid "Path"
 msgstr "Путь"
 
@@ -5064,7 +5074,7 @@ msgstr "Путь на сервере"
 
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:116
 msgid "Path on host's filesystem"
-msgstr "Путь в файловой системе хоста"
+msgstr "Путь в файловой системе узла"
 
 #: pkg/storaged/nfs-details.jsx:160
 msgid "Path on server cannot be empty."
@@ -5072,11 +5082,11 @@ msgstr "Путь на сервере не может быть пустым."
 
 #: pkg/storaged/nfs-details.jsx:162
 msgid "Path on server must start with \"/\"."
-msgstr "Путь на сервере должен начинаться с «/»."
+msgstr "Путь на сервере должен начинаться с символа «/»."
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:220
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:219
 msgid "Path to ISO file on host's file system"
-msgstr "Путь к файлу ISO в файловой системе хоста"
+msgstr "Путь к файлу ISO в файловой системе узла"
 
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:141
 msgid "Path to file"
@@ -5100,17 +5110,17 @@ msgstr "Корпус для периферийных устройств"
 
 #: pkg/networkmanager/interfaces.js:3657
 msgid "Permanent"
-msgstr "Постоянная"
+msgstr "Постоянный"
 
 #: src/ws/login.js:663
 msgid "Permission denied"
-msgstr "Отказано в разрешении"
+msgstr "В разрешении отказано"
 
 #: pkg/selinux/setroubleshoot-view.jsx:296
 msgid "Permissive"
 msgstr "Нестрогая"
 
-#: pkg/machines/components/diskAdd.jsx:111
+#: pkg/machines/components/diskAdd.jsx:112
 #: pkg/machines/components/nicAdd.jsx:80
 msgid "Persistence"
 msgstr "Сохраняемость"
@@ -5131,7 +5141,7 @@ msgstr "Физические дисковое устройство"
 
 #: pkg/storaged/content-views.jsx:154 pkg/storaged/content-views.jsx:348
 msgid "Physical Volume"
-msgstr "Физический объем"
+msgstr "Физический том"
 
 #: pkg/storaged/vgroup-details.jsx:127
 msgid "Physical Volumes"
@@ -5143,11 +5153,11 @@ msgstr "Физическое дисковое устройство на узле
 
 #: pkg/storaged/content-views.jsx:343
 msgid "Physical volume of $0"
-msgstr "Физический объем $0"
+msgstr "Физический том группы $0"
 
 #: pkg/storaged/lvol-tabs.jsx:165
 msgid "Physical volumes can not be resized here."
-msgstr "Здесь физические размеры не могут быть изменены."
+msgstr "Размер физических томов невозможно изменить здесь."
 
 #: pkg/networkmanager/index.html:343
 #, fuzzy
@@ -5167,52 +5177,50 @@ msgstr "Ультратонкий корпус"
 #: pkg/storaged/mdraid-details.jsx:291 pkg/storaged/vdo-details.jsx:199
 #: pkg/storaged/vgroup-details.jsx:207
 msgid "Please confirm deletion of $0"
-msgstr "Пожалуйста, подтвердите удаление $0"
+msgstr "Подтвердите удаление $0"
 
 #: pkg/docker/util.js:517
 msgid "Please confirm forced deletion of $0"
-msgstr "Пожалуйста, подтвердите принудительное удаление $0"
+msgstr "Подтвердите принудительное удаление $0"
 
 #: pkg/storaged/mdraid-details.jsx:240 pkg/storaged/vdo-details.jsx:155
 msgid "Please confirm stopping of $0"
-msgstr "Пожалуйста, подтвердите прекращение $0"
+msgstr "Подтвердите остановку $0"
 
-#: pkg/machines/components/diskAdd.jsx:350
+#: pkg/machines/components/diskAdd.jsx:378
 msgid "Please enter new volume name"
 msgstr "Введите новое имя тома"
 
-#: pkg/machines/components/diskAdd.jsx:353
+#: pkg/machines/components/diskAdd.jsx:381
 msgid "Please enter new volume size"
 msgstr "Введите новый размер тома"
 
 #: pkg/networkmanager/firewall.jsx:896
 msgid "Please install the $0 package"
-msgstr "Пожалуйста, установите $0 пакет"
+msgstr "Установите пакет $0"
 
 #: pkg/users/local.js:1236
 msgid "Please specify an expiration date"
-msgstr "Укажите срок действия"
+msgstr "Укажите дату окончания срока действия"
 
 #: src/ws/login.js:449
 msgid "Please specify the host to connect to"
-msgstr "Укажите хост для подключения к"
+msgstr "Укажите узел для подключения"
 
 #: pkg/machines/components/consoles.jsx:38
 msgid "Please start the virtual machine to access its console."
-msgstr ""
-"Пожалуйста, запустите виртуальную машину, чтобы получить доступ к ее консоли."
-""
+msgstr "Запустите виртуальную машину, чтобы получить доступ к её консоли."
 
 #: pkg/docker/search.js:148
 msgid "Please try another term"
-msgstr "Попробуйте другой термин"
+msgstr "Попробуйте другое условие поиска"
 
 #: pkg/machines/components/vmnetworktab.jsx:206
 msgid "Plug"
-msgstr "штепсель"
+msgstr "Подключить"
 
 #: pkg/machines/components/deleteDialog.jsx:53
-#: pkg/machines/components/diskAdd.jsx:127
+#: pkg/machines/components/diskAdd.jsx:128
 #: pkg/machines/components/vm/bootOrderModal.jsx:95
 #: pkg/machines/components/vmDiskColumns.jsx:45
 #: pkg/storaged/content-views.jsx:137
@@ -5295,13 +5303,9 @@ msgstr "Длина префикса"
 msgid "Prefix length or Netmask"
 msgstr "Длина префикса или маска сети"
 
-#: pkg/playground/manifest.json.in
-msgid "Preloaded"
-msgstr "Предварительно загружено"
-
 #: pkg/networkmanager/interfaces.js:840
 msgid "Preparing"
-msgstr "Идёт подготовка"
+msgstr "Подготовка"
 
 #: pkg/lib/machine-info.js:251
 msgid "Present"
@@ -5313,13 +5317,14 @@ msgstr "Не изменять"
 
 #: pkg/systemd/index.html:306
 msgid "Pretty Host Name"
-msgstr "Довольно имя хоста"
+msgstr "Автоматическое имя узла"
 
 #: pkg/systemd/logs.html:43
 msgid "Previous boot"
 msgstr "Предыдущая загрузка"
 
 #: pkg/networkmanager/index.html:289
+#, fuzzy
 msgid "Primary"
 msgstr "Основной"
 
@@ -5338,11 +5343,11 @@ msgstr "Частная"
 
 #: pkg/shell/index.html:39
 msgid "Privileged"
-msgstr "привилегированный"
+msgstr "Привилегированный"
 
 #: pkg/systemd/logs.js:490
 msgid "Problem details"
-msgstr "Информация о проблемах"
+msgstr "Подробности проблемы"
 
 #: pkg/systemd/logs.js:489
 msgid "Problem info"
@@ -5367,19 +5372,19 @@ msgstr "Веб-сайт проекта"
 
 #: pkg/users/local.js:91
 msgid "Prompting via passwd timed out"
-msgstr "Вызов с помощью passwd"
+msgstr "Превышено время ожидания запроса по passwd"
 
 #: pkg/lib/credentials.js:260
 msgid "Prompting via ssh-add timed out"
-msgstr "Вызов через ssh-add"
+msgstr "Превышено время ожидания запроса по ssh-add"
 
 #: pkg/lib/credentials.js:196
 msgid "Prompting via ssh-keygen timed out"
-msgstr "Вызов с помощью ssh-keygen"
+msgstr "Превышено время ожидания запроса по ssh-keygen"
 
 #: pkg/systemd/service-details.jsx:434
 msgid "Propagates Reload To"
-msgstr "Продвигает"
+msgstr "PropagatesReloadTo="
 
 #: pkg/machines/components/vm/bootOrderModal.jsx:94
 #: pkg/machines/components/vm/bootOrderModal.jsx:139
@@ -5405,7 +5410,7 @@ msgstr "RAID 0"
 
 #: pkg/storaged/mdraids-panel.jsx:48
 msgid "RAID 0 (Stripe)"
-msgstr "RAID 0 (полоса)"
+msgstr "RAID 0 (чередование)"
 
 #: pkg/storaged/mdraid-details.jsx:175
 msgid "RAID 1"
@@ -5413,7 +5418,7 @@ msgstr "RAID 1"
 
 #: pkg/storaged/mdraids-panel.jsx:52
 msgid "RAID 1 (Mirror)"
-msgstr "RAID 1 (зеркало)"
+msgstr "RAID 1 (зеркалирование)"
 
 #: pkg/storaged/mdraid-details.jsx:179
 msgid "RAID 10"
@@ -5421,7 +5426,7 @@ msgstr "RAID 10"
 
 #: pkg/storaged/mdraids-panel.jsx:68
 msgid "RAID 10 (Stripe of Mirrors)"
-msgstr "RAID 10 (полоса зеркал)"
+msgstr "RAID 10 (чередование зеркалирования)"
 
 #: pkg/storaged/mdraid-details.jsx:176
 msgid "RAID 4"
@@ -5429,7 +5434,7 @@ msgstr "RAID 4"
 
 #: pkg/storaged/mdraids-panel.jsx:56
 msgid "RAID 4 (Dedicated Parity)"
-msgstr "RAID 4 (выделенная четность)"
+msgstr "RAID 4 (выделенная чётность)"
 
 #: pkg/storaged/mdraid-details.jsx:177
 msgid "RAID 5"
@@ -5437,7 +5442,7 @@ msgstr "RAID 5"
 
 #: pkg/storaged/mdraids-panel.jsx:60
 msgid "RAID 5 (Distributed Parity)"
-msgstr "RAID 5 (распределенная четность)"
+msgstr "RAID 5 (распределённая чётность)"
 
 #: pkg/storaged/mdraid-details.jsx:178
 msgid "RAID 6"
@@ -5445,7 +5450,7 @@ msgstr "RAID 6"
 
 #: pkg/storaged/mdraids-panel.jsx:64
 msgid "RAID 6 (Double Distributed Parity)"
-msgstr "RAID 6 (Double Distributed Parity)"
+msgstr "RAID 6 (двойная распределённая чётность)"
 
 #: pkg/lib/machine-info.js:85
 msgid "RAID Chassis"
@@ -5454,21 +5459,22 @@ msgstr "Корпус для RAID-массива"
 # translation auto-copied from project Blivet, version master, document blivet
 #: pkg/storaged/pvol-tabs.jsx:59
 msgid "RAID Device"
-msgstr "Устройство RAID"
+msgstr "RAID-устройство"
 
 #: pkg/storaged/mdraid-details.jsx:311 pkg/storaged/utils.js:242
 msgid "RAID Device $0"
-msgstr "Устройство RAID $0"
+msgstr "RAID-устройство $0"
 
 #: pkg/storaged/mdraids-panel.jsx:146
 msgid "RAID Devices"
-msgstr "Устройства RAID"
+msgstr "RAID-устройства"
 
 #: pkg/storaged/mdraids-panel.jsx:42
 msgid "RAID Level"
 msgstr "Уровень RAID"
 
 #: pkg/storaged/content-views.jsx:157
+#, fuzzy
 msgid "RAID Member"
 msgstr "Пользователи"
 
@@ -5492,66 +5498,61 @@ msgstr "Диапазон должен быть строго упорядочен
 msgid "Rank"
 msgstr "Ранг"
 
-#: pkg/kdump/kdump-view.jsx:390
+#: pkg/kdump/kdump-view.jsx:391
+#, fuzzy
 msgid "Raw to a device"
 msgstr "Необработанные устройства"
-
-#: pkg/playground/manifest.json.in
-msgid "React Patterns"
-msgstr "Шаблоны реагирования"
 
 #: pkg/systemd/hwinfo.jsx:197
 msgid "Read more..."
 msgstr "Подробнее..."
 
+#: pkg/machines/components/diskEdit.jsx:70
+#: pkg/machines/components/vmDisksTab.jsx:151
 #: pkg/systemd/service-details.jsx:388
 msgid "Read-only"
 msgstr "Только для чтения"
 
 #: pkg/docker/index.html:365
 msgid "ReadOnly"
-msgstr "ReadOnly"
+msgstr "Только чтение"
 
 #: pkg/docker/index.html:364
 msgid "ReadWrite"
-msgstr "Читай пиши"
+msgstr "Чтение/Запись"
 
 #: pkg/storaged/plot.jsx:312
 msgid "Reading"
 msgstr "Чтение"
 
-#: pkg/kdump/kdump-view.jsx:415
+#: pkg/kdump/kdump-view.jsx:416
 msgid "Reading..."
 msgstr "Чтение..."
 
-#: pkg/machines/components/vmDisksTab.jsx:112
-msgid "Readonly"
-msgstr "Только для чтения"
-
 #: pkg/playground/translate.html:19
 msgid "Ready"
-msgstr "Готов"
+msgstr "Готово"
 
 #: pkg/playground/translate.html:24
 msgctxt "verb"
 msgid "Ready"
-msgstr "Готов"
+msgstr "Готово"
 
 #: pkg/systemd/index.html:315
 msgid "Real Host Name"
-msgstr "Реальное имя хоста"
+msgstr "Реальное имя узла"
 
 #: pkg/systemd/host.js:1074
 msgid ""
 "Real host name can only contain lower-case characters, digits, dashes, and "
 "periods (with populated subdomains)"
 msgstr ""
-"Реальное имя хоста может содержать только строчные символы, цифры, тире и "
-"периоды (с заполненными субдоменами)"
+"Реальное имя узла может содержать только строчные буквы, цифры, тире и точки "
+"(с заполненными поддоменами)"
 
 #: pkg/systemd/host.js:1075
 msgid "Real host name must be 64 characters or less"
-msgstr "Реальное имя хоста должно быть не менее 64 символов"
+msgstr "Реальное имя узла должно содержать не более 64 символов"
 
 #: pkg/lib/cockpit-components-logs-panel.jsx:82 pkg/lib/journal.js:248
 msgid "Reboot"
@@ -5578,7 +5579,7 @@ msgstr "Повторить подключение"
 
 #: pkg/storaged/mdraid-details.jsx:95
 msgid "Recovering"
-msgstr "Восстановление"
+msgstr "Восстановливается"
 
 #: pkg/storaged/jobs-panel.jsx:65
 msgid "Recovering RAID Device $target"
@@ -5590,23 +5591,23 @@ msgstr "Переформатировать и добавить диски"
 
 #: pkg/packagekit/updates.jsx:41
 msgid "Refreshing package information"
-msgstr "Обновление информации о пакете"
+msgstr "Обновление сведений о пакете"
 
 #: src/ws/login.js:653
 msgid "Refusing to connect. Host is unknown"
-msgstr "Отказ от подключения. Хост неизвестен"
+msgstr "Отказано в подключении. Неизвестный узел"
 
 #: src/ws/login.js:655
 msgid "Refusing to connect. Hostkey does not match"
-msgstr "Отказ от подключения. Хост-ключ не соответствует"
+msgstr "Отказано в подключении. Неверный ключ узла"
 
 #: src/ws/login.js:651
 msgid "Refusing to connect. Hostkey is unknown"
-msgstr "Отказ от подключения. Хост-ключ неизвестен"
+msgstr "Отказано в подключении. Неизвестный ключ узла"
 
 #: pkg/packagekit/updates.jsx:780
 msgid "Register…"
-msgstr "Регистр…"
+msgstr "Зарегистрировать…"
 
 #: pkg/systemd/service-details.jsx:165
 msgid "Reload"
@@ -5614,26 +5615,27 @@ msgstr "Перезагрузить"
 
 #: pkg/systemd/service-details.jsx:435
 msgid "Reload Propagated From"
-msgstr "Перезагрузить Пропагандированный"
+msgstr "ReloadPropagatedFrom="
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:268
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:267
 msgid "Remote URL"
-msgstr "Удаленный URL"
+msgstr "Удалённый URL-адрес"
 
-#: pkg/kdump/kdump-view.jsx:137 pkg/kdump/kdump-view.jsx:388
+#: pkg/kdump/kdump-view.jsx:137 pkg/kdump/kdump-view.jsx:389
 msgid "Remote over NFS"
-msgstr "Удаленный доступ к NFS"
+msgstr "Удалённый доступ по NFS"
 
-#: pkg/kdump/kdump-view.jsx:138 pkg/kdump/kdump-view.jsx:386
+#: pkg/kdump/kdump-view.jsx:138 pkg/kdump/kdump-view.jsx:387
 msgid "Remote over SSH"
-msgstr "Удаленный доступ к SSH"
+msgstr "Удалённый доступ по SSH"
 
 #: pkg/storaged/drives-panel.jsx:72 pkg/storaged/drives-panel.jsx:74
 msgctxt "storage"
 msgid "Removable Drive"
-msgstr "Съемный диск"
+msgstr "Съёмный носитель"
 
 #: pkg/lib/cockpit-components-install-dialog.jsx:81
+#, fuzzy
 msgid "Removals:"
 msgstr "Удаления:"
 
@@ -5641,7 +5643,7 @@ msgstr "Удаления:"
 #: pkg/storaged/crypto-keyslots.jsx:402 pkg/storaged/crypto-keyslots.jsx:439
 #: pkg/storaged/nfs-details.jsx:316
 msgid "Remove"
-msgstr "Удалить зону"
+msgstr "Удалить"
 
 #: pkg/networkmanager/interfaces.js:3076
 msgid "Remove $0"
@@ -5653,7 +5655,7 @@ msgstr "Удалить $0?"
 
 #: pkg/storaged/crypto-keyslots.jsx:433
 msgid "Remove Tang keyserver"
-msgstr "Удалить сервер ключей Tang"
+msgstr "Удаление сервера криптографических ключей Tang"
 
 #: pkg/storaged/vdo-details.jsx:116
 msgid "Remove device"
@@ -5661,11 +5663,11 @@ msgstr "Удалить устройство"
 
 #: pkg/storaged/crypto-keyslots.jsx:396
 msgid "Remove passphrase"
-msgstr "Удалить кодовую фразу"
+msgstr "Удаление парольной фразы"
 
 #: pkg/storaged/crypto-keyslots.jsx:362
 msgid "Remove passphrase in $0?"
-msgstr "Удалить кодовую фразу в $0?"
+msgstr "Удалить парольную фразу в $0?"
 
 #: pkg/networkmanager/firewall.jsx:663
 msgid "Remove service"
@@ -5686,7 +5688,7 @@ msgstr "Удаление $0"
 
 #: pkg/storaged/jobs-panel.jsx:61
 msgid "Removing $target from RAID Device"
-msgstr "Удаление $target с устройства RAID"
+msgstr "Удаление $target с RAID-устройства"
 
 #: pkg/networkmanager/interfaces.js:3075
 msgid ""
@@ -5698,7 +5700,7 @@ msgstr ""
 
 #: pkg/storaged/jobs-panel.jsx:74
 msgid "Removing physical volume from $target"
-msgstr "Удаление физического объема из $target"
+msgstr "Удаление физического тома из $target"
 
 #: pkg/storaged/lvol-tabs.jsx:38 pkg/storaged/vgroup-details.jsx:182
 #: pkg/storaged/vgroup-details.jsx:231
@@ -5707,11 +5709,11 @@ msgstr "Переименовать"
 
 #: pkg/storaged/lvol-tabs.jsx:32
 msgid "Rename Logical Volume"
-msgstr "Переименовать логический том"
+msgstr "Переименование логического тома"
 
 #: pkg/storaged/vgroup-details.jsx:173
 msgid "Rename Volume Group"
-msgstr "Переименовать группу томов"
+msgstr "Переименование группы томов"
 
 #: pkg/storaged/jobs-panel.jsx:77
 msgid "Renaming $target"
@@ -5719,7 +5721,7 @@ msgstr "Переименование $target"
 
 #: pkg/storaged/jobs-panel.jsx:48
 msgid "Repairing $target"
-msgstr "ремонт $target"
+msgstr "Восстановление $target"
 
 #: pkg/systemd/services.html:344
 msgid "Repeat Daily"
@@ -5744,7 +5746,7 @@ msgstr "Повторять ежегодно"
 #: pkg/storaged/crypto-keyslots.jsx:207 pkg/storaged/crypto-keyslots.jsx:219
 #: pkg/storaged/crypto-keyslots.jsx:262
 msgid "Repeat passphrase"
-msgstr "Повторить кодовую фразу"
+msgstr "Подтверждение парольной фразы"
 
 #: pkg/systemd/logs.js:514
 msgid "Report"
@@ -5756,7 +5758,7 @@ msgstr "Отчёт отправлен"
 
 #: pkg/systemd/logs.js:531
 msgid "Reporter 'reporter-ureport' not found."
-msgstr "Создатель отчётов «reporter-ureport» не найден."
+msgstr "Средство создания отчётов «reporter-ureport» не найдено."
 
 #: pkg/systemd/logs.js:533
 msgid "Reporting was unsucessful. Try running `reporter-ureport -d "
@@ -5771,15 +5773,15 @@ msgstr "Репозиторий"
 
 #: pkg/users/local.js:1300
 msgid "Require password change every $0 days"
-msgstr "Требовать изменение пароля каждый $0 дней"
+msgstr "Требовать изменения пароля каждые $0 дней"
 
 #: pkg/users/local.js:876
 msgid "Require password change on $0"
-msgstr "Требовать изменения пароля $0"
+msgstr "Потребовать смену пароля $0"
 
 #: pkg/systemd/service-details.jsx:422
 msgid "Required By"
-msgstr "Требуется для"
+msgstr "RequiredBy="
 
 #: pkg/systemd/service-details.jsx:374
 msgid "Required by "
@@ -5788,7 +5790,7 @@ msgstr "Требуется для "
 # translation auto-copied from project RHN Satellite UI, version 5.7, document java/code/src/com/redhat/rhn/frontend/strings/jsp/StringResource, author ypoyarko
 #: pkg/systemd/service-details.jsx:417
 msgid "Requires"
-msgstr "Требуются"
+msgstr "Requires="
 
 #: pkg/systemd/service-details.jsx:389
 msgid "Requires administration access to edit"
@@ -5796,13 +5798,13 @@ msgstr "Для изменения необходимы права админис
 
 #: pkg/systemd/service-details.jsx:418
 msgid "Requisite"
-msgstr "Реквизит"
+msgstr "Requisite="
 
 #: pkg/systemd/service-details.jsx:423
 msgid "Requisite Of"
-msgstr "Реквизиты"
+msgstr "RequisiteOf="
 
-#: pkg/kdump/kdump-view.jsx:503
+#: pkg/kdump/kdump-view.jsx:504
 msgid "Reserved memory"
 msgstr "Зарезервированная память"
 
@@ -5859,7 +5861,7 @@ msgstr "Политика перезагрузки:"
 
 #: pkg/packagekit/updates.jsx:495
 msgid "Restart Recommended"
-msgstr "Рекомендуется перезапустить"
+msgstr "Рекомендуется перезагрузка"
 
 #: pkg/packagekit/updates.jsx:867
 msgid "Restarting"
@@ -5875,18 +5877,18 @@ msgstr "Возобновить"
 
 #: pkg/docker/index.html:555
 msgid "Retries:"
-msgstr "Повторы:"
+msgstr "Повторов:"
 
 #: src/ws/login.html:57
 msgid "Reuse my password for privileged tasks"
-msgstr "Повторное использование моего пароля для привилегированных задач"
+msgstr "Повторно использовать пароль для привилегированных задач"
 
 #: pkg/shell/index.html:159
 msgid ""
 "Reuse my password for privileged tasks and to connect to other machines"
 msgstr ""
-"Повторное использование моего пароля для привилегированных задач и "
-"подключение к другим машинам"
+"Повторно использовать пароль для привилегированных задач и для подключения к "
+"другим компьютерам"
 
 #: pkg/users/index.html:94
 msgid "Roles"
@@ -5927,6 +5929,7 @@ msgid "Runner"
 msgstr "Средство запуска"
 
 #: pkg/storaged/mdraid-details.jsx:338 pkg/systemd/service-details.jsx:353
+#, fuzzy
 msgid "Running"
 msgstr "Работает"
 
@@ -5936,7 +5939,7 @@ msgstr "SELinux"
 
 #: pkg/selinux/setroubleshoot-view.jsx:374
 msgid "SELinux Access Control Errors"
-msgstr "Ошибки контроля доступа SELinux"
+msgstr "Ошибки управления доступом SELinux"
 
 #: pkg/selinux/setroubleshoot-view.jsx:301
 msgid "SELinux Policy"
@@ -5944,7 +5947,7 @@ msgstr "Политика SELinux"
 
 #: pkg/selinux/setroubleshoot.html:23
 msgid "SELinux Troubleshoot"
-msgstr "SELinux Устранение неполадок"
+msgstr "Устранение неполадок SELinux"
 
 #: pkg/selinux/setroubleshoot-view.jsx:365
 msgid "SELinux is disabled on the system"
@@ -5960,7 +5963,7 @@ msgstr "Состояние системы SELinux неизвестно."
 
 #: pkg/storaged/jobs-panel.jsx:35
 msgid "SMART self-test of $target"
-msgstr "SMART самотестирование $target"
+msgstr "SMART самопроверка $target"
 
 #: pkg/machines/components/desktopConsole.jsx:187
 msgid "SPICE"
@@ -5968,7 +5971,7 @@ msgstr "SPICE"
 
 #: pkg/machines/components/desktopConsole.jsx:156
 msgid "SPICE Address:"
-msgstr "SPICE Адрес:"
+msgstr "Адрес SPICE:"
 
 #: pkg/machines/components/desktopConsole.jsx:162
 msgid "SPICE Port:"
@@ -6010,7 +6013,8 @@ msgstr "Суббота"
 msgid "Saturdays"
 msgstr "По субботам"
 
-#: pkg/systemd/services.html:378 pkg/machines/components/nicEdit.jsx:184
+#: pkg/systemd/services.html:378 pkg/machines/components/diskEdit.jsx:176
+#: pkg/machines/components/nicEdit.jsx:184
 #: pkg/machines/components/vm/bootOrderModal.jsx:330
 #: pkg/machines/components/vm/memoryModal.jsx:217
 #: pkg/storaged/crypto-keyslots.jsx:266 pkg/storaged/crypto-keyslots.jsx:285
@@ -6034,8 +6038,8 @@ msgid ""
 "Saving a new passphrase requires unlocking the disk. Please provide a "
 "current disk passphrase."
 msgstr ""
-"Для сохранения новой парольной фразы требуется разблокировка диска. Укажите "
-"текущую кодовую фразу."
+"Для сохранения новой парольной фразы требуется снятие блокировки диска. "
+"Укажите действующую парольную фразу диска."
 
 #: pkg/lib/machine-info.js:87
 msgid "Sealed-case PC"
@@ -6060,7 +6064,7 @@ msgstr "Безопасность"
 
 #: pkg/systemd/host.js:509
 msgid "Security Updates Available"
-msgstr "Доступные обновления для системы безопасности"
+msgstr "Доступны обновления безопасности"
 
 #: pkg/shell/index.html:123 pkg/shell/simple.html:91
 msgid "Select"
@@ -6071,7 +6075,7 @@ msgid ""
 "Select the users that you would like to be synchronized with "
 "{{#strong}}{{host}}{{/strong}}"
 msgstr ""
-"Выберите пользователей, с которыми вы хотите синхронизировать "
+"Выберите пользователей, которых необходимо синхронизировать с "
 "{{#strong}}{{host}}{{/strong}}"
 
 #: pkg/machines/components/vm/vmActions.jsx:66
@@ -6080,7 +6084,7 @@ msgstr "Отправить немаскируемое прерывание"
 
 #: pkg/machines/components/vnc.jsx:108
 msgid "Send key"
-msgstr "Отправить ключ"
+msgstr "Отправить клавишу"
 
 #: pkg/networkmanager/index.html:82 pkg/networkmanager/index.html:121
 #: pkg/networkmanager/index.html:139 pkg/networkmanager/index.html:415
@@ -6090,7 +6094,7 @@ msgstr "Передача"
 
 #: pkg/machines/components/consoles.jsx:69
 msgid "Serial Console"
-msgstr "Серийная консоль"
+msgstr "Последовательная консоль"
 
 # translation auto-copied from project subscription-manager, version 1.11.X, document keys
 #: src/ws/login.html:94 pkg/kdump/kdump-view.jsx:116
@@ -6135,23 +6139,23 @@ msgstr "Служба"
 msgid "Service Logs"
 msgstr "Журналы службы"
 
-#: pkg/kdump/kdump-view.jsx:444
+#: pkg/kdump/kdump-view.jsx:445
 msgid "Service has an error"
-msgstr "У службы есть ошибка"
+msgstr "Ошибка в службе"
 
-#: pkg/kdump/kdump-view.jsx:440
+#: pkg/kdump/kdump-view.jsx:441
 msgid "Service is running"
 msgstr "Служба запущена"
 
-#: pkg/kdump/kdump-view.jsx:446
+#: pkg/kdump/kdump-view.jsx:447
 msgid "Service is starting"
 msgstr "Служба запускается"
 
-#: pkg/kdump/kdump-view.jsx:442
+#: pkg/kdump/kdump-view.jsx:443
 msgid "Service is stopped"
 msgstr "Служба остановлена"
 
-#: pkg/kdump/kdump-view.jsx:448
+#: pkg/kdump/kdump-view.jsx:449
 msgid "Service is stopping"
 msgstr "Служба останавливается"
 
@@ -6179,7 +6183,7 @@ msgstr "Задать диапазон DHCP"
 
 #: pkg/systemd/host.js:816
 msgid "Set Host name"
-msgstr "Установить имя хоста"
+msgstr "Установить имя узла"
 
 #: pkg/users/index.html:121 pkg/users/index.html:211
 msgid "Set Password"
@@ -6187,11 +6191,11 @@ msgstr "Задать пароль"
 
 #: pkg/systemd/index.html:389
 msgid "Set Time"
-msgstr "Установленное время"
+msgstr "Настроить время"
 
 #: pkg/docker/index.html:532
 msgid "Set container environment variables"
-msgstr "Установка переменных среды контейнера"
+msgstr "Задать переменные среды контейнера"
 
 #: pkg/machines/components/nicAdd.jsx:60
 msgid "Set manually"
@@ -6199,13 +6203,14 @@ msgstr "Задать вручную"
 
 #: pkg/networkmanager/index.html:183
 msgid "Set to"
-msgstr "Установлен в"
+msgstr "Установлено на"
 
 #: pkg/packagekit/updates.jsx:61
 msgid "Set up"
 msgstr "Настроено"
 
 #: pkg/selinux/setroubleshoot-view.jsx:294
+#, fuzzy
 msgid ""
 "Setting deviates from the configured state and will revert on the next boot."
 msgstr ""
@@ -6217,19 +6222,23 @@ msgid "Setting up"
 msgstr "Настройка"
 
 #: pkg/storaged/jobs-panel.jsx:51
+#, fuzzy
 msgid "Setting up loop device $target"
 msgstr "Настройка петлевого устройства $target"
 
 # translation auto-copied from project Customer Portal Translations, version PCM_template, document template, author ypoyarko
 #: pkg/systemd/logs.html:48 pkg/packagekit/updates.jsx:383
+#, fuzzy
 msgid "Severity"
 msgstr "Приоритет"
 
 #: pkg/packagekit/updates.jsx:311
+#, fuzzy
 msgid "Severity:"
 msgstr "Строгость:"
 
 #: pkg/networkmanager/interfaces.js:1980
+#, fuzzy
 msgid "Shared"
 msgstr "Общее"
 
@@ -6241,7 +6250,7 @@ msgstr "Сценарий оболочки"
 msgid "Shift+Insert"
 msgstr "Shift+Insert"
 
-#: pkg/machines/components/diskAdd.jsx:166
+#: pkg/machines/components/diskAdd.jsx:167
 msgid "Show Performance Options"
 msgstr "Показать параметры быстродействия"
 
@@ -6259,19 +6268,20 @@ msgstr "Показать все контейнеры"
 
 #: pkg/docker/index.html:249
 msgid "Show all images"
-msgstr "Показать все изображения"
+msgstr "Показать все образы"
 
 #: pkg/systemd/index.html:114
+#, fuzzy
 msgid "Show fingerprints"
 msgstr "Показать отпечатки пальцев"
 
 #: pkg/storaged/lvol-tabs.jsx:324 pkg/storaged/lvol-tabs.jsx:406
 msgid "Shrink"
-msgstr "Уменьшить"
+msgstr "Сжать"
 
 #: pkg/storaged/lvol-tabs.jsx:320
 msgid "Shrink Logical Volume"
-msgstr "Термоусадочный логический том"
+msgstr "Сжатие логического тома"
 
 #: pkg/storaged/lvol-tabs.jsx:423
 msgid "Shrink Volume"
@@ -6281,14 +6291,14 @@ msgstr "Сжать том"
 #: pkg/systemd/index.html:154 pkg/machines/components/vm/vmActions.jsx:56
 #: pkg/systemd/shutdown.js:92 pkg/systemd/shutdown.js:93
 msgid "Shut Down"
-msgstr "Выключение"
+msgstr "Завершение работы"
 
 #: pkg/lib/machine-info.js:242
 msgid "Single Rank"
 msgstr "Одноранговая"
 
-#: pkg/docker/containers-view.jsx:683
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:475
+#: pkg/docker/containers-view.jsx:687
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:474
 #: pkg/machines/components/storagePools/storagePoolList.jsx:54
 #: pkg/machines/components/storagePools/storagePoolVolumesTab.jsx:84
 #: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:79
@@ -6323,11 +6333,11 @@ msgstr "Размер должен быть не менее $0"
 
 #: pkg/systemd/hwinfo.jsx:254
 msgid "Slot"
-msgstr "слот"
+msgstr "Слот"
 
 #: pkg/storaged/crypto-keyslots.jsx:544
 msgid "Slot $0"
-msgstr "слот $0"
+msgstr "Слот $0"
 
 # translation auto-copied from project Satellite6 Katello, version Sam-1.3.0, document katello, author ypoyarko
 #: pkg/machines/components/vcpuModal.jsx:220 pkg/systemd/services.jsx:49
@@ -6336,7 +6346,7 @@ msgstr "Сокеты"
 
 #: pkg/packagekit/index.html:23 pkg/packagekit/manifest.json.in
 msgid "Software Updates"
-msgstr "Программные обновления"
+msgstr "Обновления программного обеспечения"
 
 #: pkg/systemd/hwinfo.jsx:212
 msgid ""
@@ -6350,7 +6360,7 @@ msgstr ""
 
 #: pkg/docker/storage.jsx:167
 msgid "Solid-State Disk"
-msgstr "Твердотельный диск"
+msgstr "Твердотельный накопитель"
 
 #: pkg/selinux/setroubleshoot-view.jsx:96
 msgid "Solution applied successfully"
@@ -6358,13 +6368,14 @@ msgstr "Решение успешно применено"
 
 #: pkg/selinux/setroubleshoot-view.jsx:103
 msgid "Solution failed"
-msgstr "Не удалось решить проблему"
+msgstr "Не удалось применить решение"
 
 #: pkg/selinux/setroubleshoot-view.jsx:419
 msgid "Solutions"
 msgstr "Решения"
 
 #: pkg/packagekit/updates.jsx:40
+#, fuzzy
 msgid ""
 "Some other program is currently using the package manager, please wait..."
 msgstr ""
@@ -6375,15 +6386,16 @@ msgstr ""
 msgid "Sorted from least trusted to most trusted"
 msgstr "Сортировка от наименее доверенных к наиболее доверенным"
 
-#: pkg/machines/components/diskAdd.jsx:412
+#: pkg/machines/components/diskAdd.jsx:462
 #: pkg/machines/components/nicBody.jsx:149
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:52
-#: pkg/machines/components/vmDisksTab.jsx:114
+#: pkg/machines/components/vmDisksTab.jsx:120
 #: pkg/machines/components/vmnetworktab.jsx:160
 msgid "Source"
 msgstr "Источник"
 
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:57
+#, fuzzy
 msgid "Source Format"
 msgstr "Формат источника"
 
@@ -6391,19 +6403,22 @@ msgstr "Формат источника"
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:234
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:42
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:47
+#, fuzzy
 msgid "Source Path"
 msgstr "Путь к источнику"
 
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:272
+#, fuzzy
 msgid "Source Volume Group"
 msgstr "Исходная группа томов"
 
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:224
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:245
+#, fuzzy
 msgid "Source path should not be empty"
 msgstr "Исходный путь не должен быть пустым"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:144
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:143
 msgid "Source should start with http, ftp or nfs protocol"
 msgstr "Путь должен начинаться с указания протокола HTTP, FTP или NFS"
 
@@ -6420,10 +6435,12 @@ msgid "Spanning Tree Protocol (STP)"
 msgstr "Протокол связующего дерева (STP)"
 
 #: pkg/storaged/mdraid-details.jsx:95
+#, fuzzy
 msgid "Spare"
 msgstr "Запасной"
 
 #: pkg/systemd/index.html:466
+#, fuzzy
 msgid "Specific Time"
 msgstr "Конкретное время"
 
@@ -6448,11 +6465,11 @@ msgstr "Запустить Docker"
 
 #: pkg/storaged/multipath.jsx:68
 msgid "Start Multipath"
-msgstr "Запустить Multipath"
+msgstr "Запустить multipath"
 
 #: pkg/networkmanager/index.html:44 pkg/systemd/service-details.jsx:343
 msgid "Start Service"
-msgstr "Начало службы"
+msgstr "Запустить службу"
 
 #: pkg/systemd/service-details.jsx:413
 msgid "Start and Enable"
@@ -6460,7 +6477,7 @@ msgstr "Включить и запустить"
 
 #: pkg/machines/components/libvirtSlate.jsx:105
 msgid "Start libvirt"
-msgstr "Начать libvirt"
+msgstr "Запустить libvirt"
 
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:304
 msgid "Start pool when host boots"
@@ -6473,7 +6490,7 @@ msgstr "Начало не должно быть пустым"
 
 #: pkg/storaged/jobs-panel.jsx:59
 msgid "Starting RAID Device $target"
-msgstr "Запуск устройства RAID $target"
+msgstr "Запуск RAID-устройства $target"
 
 #: pkg/storaged/jobs-panel.jsx:41
 msgid "Starting swapspace $target"
@@ -6481,7 +6498,7 @@ msgstr "Запуск области подкачки $target"
 
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:297
 msgid "Startup"
-msgstr "Запускать"
+msgstr "Запуск"
 
 #: pkg/docker/containers-view.jsx:133 pkg/docker/containers-view.jsx:359
 #: pkg/machines/components/networks/networkList.jsx:55
@@ -6530,7 +6547,7 @@ msgstr "Остановить и отключить"
 
 #: pkg/storaged/nfs-details.jsx:267
 msgid "Stop and Unmount"
-msgstr "Стоп и отключение"
+msgstr "Остановить и отключить"
 
 #: pkg/docker/util.js:639
 msgid "Stop and delete"
@@ -6554,7 +6571,7 @@ msgstr "Остановка области подкачки $target"
 
 # translation auto-copied from project virt-manager, version 0.10.0, document virt-manager
 #: pkg/docker/index.html:290 pkg/storaged/index.html:23
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:438
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:437
 #: pkg/storaged/details.jsx:127 pkg/storaged/manifest.json.in
 msgid "Storage"
 msgstr "Хранилище"
@@ -6591,9 +6608,13 @@ msgstr "Не удалось создать пул носителей"
 msgid "Storage Pools"
 msgstr "Пулы носителей"
 
+#: pkg/machines/components/diskEdit.jsx:40
+msgid "Storage Volume"
+msgstr ""
+
 #: pkg/machines/components/storagePools/storagePool.jsx:88
 msgid "Storage Volumes"
-msgstr "Объемы хранения"
+msgstr "Тома хранилища"
 
 #: pkg/machines/components/storagePools/storageVolumeDelete.jsx:48
 msgid "Storage Volumes could not be deleted"
@@ -6607,7 +6628,7 @@ msgstr "Управление хранилищем недоступно в дан
 msgid "Storage pool"
 msgstr "Пул носителей"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:169
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:168
 msgid "Storage size must not be 0"
 msgstr "Размер хранилища не может быть равен нулю"
 
@@ -6621,11 +6642,11 @@ msgstr "Хранить парольную фразу"
 
 #: pkg/storaged/crypto-tab.jsx:68 pkg/storaged/crypto-tab.jsx:70
 msgid "Stored Passphrase"
-msgstr "Сохраненная парольная фраза"
+msgstr "Сохранённая парольная фраза"
 
 #: pkg/storaged/crypto-tab.jsx:129
 msgid "Stored passphrase"
-msgstr "Сохраненная кодовая фраза"
+msgstr "Сохранённая парольная фраза"
 
 #: pkg/lib/machine-info.js:82
 msgid "Sub Chassis"
@@ -6645,7 +6666,7 @@ msgstr "По воскресеньям"
 
 #: pkg/storaged/optional-panel.jsx:98
 msgid "Support is installed."
-msgstr "Установлена ​​поддержка."
+msgstr "Поддержка установлена."
 
 #: pkg/storaged/content-views.jsx:161
 msgid "Swap"
@@ -6662,7 +6683,7 @@ msgstr "Используемая подкачка"
 
 #: pkg/networkmanager/interfaces.js:2511 pkg/networkmanager/interfaces.js:3060
 msgid "Switch off $0"
-msgstr "Выключить $0"
+msgstr "Отключить $0"
 
 #: pkg/networkmanager/interfaces.js:2486 pkg/networkmanager/interfaces.js:3048
 msgid "Switch on $0"
@@ -6702,7 +6723,7 @@ msgstr "Синхронизация пользователей"
 
 #: pkg/systemd/index.html:55
 msgid "Synchronized"
-msgstr "синхронизированный"
+msgstr "Синхронизировано"
 
 #: pkg/systemd/index.html:52
 msgid "Synchronized with {{Server}}"
@@ -6746,7 +6767,7 @@ msgstr "Системное время"
 
 #: pkg/systemd/host.js:499
 msgid "System Up To Date"
-msgstr "Система до даты"
+msgstr "Система обновлена"
 
 # ctx::sourcefile::/systems/SystemEntitlements
 #: pkg/packagekit/updates.jsx:879
@@ -6770,25 +6791,25 @@ msgstr "Метка"
 # translation auto-copied from project subscription-manager, version 1.11.X, document keys
 #: pkg/docker/containers-view.jsx:409
 msgid "Tags"
-msgstr "Теги"
+msgstr "Метки"
 
 #: pkg/storaged/crypto-keyslots.jsx:210
 msgid "Tang keyserver"
-msgstr "Tang keyserver"
+msgstr "Сервер криптографических ключей Tang"
 
 # Этап передачи событий
 #: pkg/machines/components/vm/bootOrderModal.jsx:133
 msgid "Target"
-msgstr "Целевой"
+msgstr "Цель"
 
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:111
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:62
 msgid "Target Path"
-msgstr "Целевой путь"
+msgstr "Конечный путь"
 
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:120
 msgid "Target path should not be empty"
-msgstr "Целевой путь не должен быть пустым"
+msgstr "Конечный путь не должен быть пустым"
 
 #: pkg/systemd/services.jsx:48
 msgid "Targets"
@@ -6797,19 +6818,19 @@ msgstr "Цели"
 #: pkg/networkmanager/interfaces.js:2531 pkg/networkmanager/interfaces.js:2543
 #: pkg/networkmanager/interfaces.js:2834
 msgid "Team"
-msgstr "Группа"
+msgstr "Сопряжение"
 
 #: pkg/networkmanager/interfaces.js:2862
 msgid "Team Port"
-msgstr "Порт агрегации (team)"
+msgstr "Порт сопряжения"
 
 #: pkg/networkmanager/index.html:538
 msgid "Team Port Settings"
-msgstr "Настройки командного порта"
+msgstr "Параметры порта сопряжения"
 
 #: pkg/networkmanager/index.html:514
 msgid "Team Settings"
-msgstr "Настройки команды"
+msgstr "Параметры сопряжения"
 
 #: pkg/systemd/terminal.html:4 pkg/systemd/manifest.json.in
 msgid "Terminal"
@@ -6819,17 +6840,17 @@ msgstr "Терминал"
 msgid "Terminate Session"
 msgstr "Завершить сеанс"
 
-#: pkg/kdump/kdump-view.jsx:478 pkg/kdump/kdump-view.jsx:486
+#: pkg/kdump/kdump-view.jsx:479 pkg/kdump/kdump-view.jsx:487
 msgid "Test Configuration"
 msgstr "Проверить конфигурацию"
 
-#: pkg/kdump/kdump-view.jsx:482
+#: pkg/kdump/kdump-view.jsx:483
 msgid "Test is only available while the kdump service is running."
 msgstr "Проверка доступна только при запущенной службе kdump."
 
 #: pkg/kdump/kdump-view.jsx:293
 msgid "Test kdump settings"
-msgstr "Проверить настройки kdump"
+msgstr "Проверка параметров kdump"
 
 #: pkg/networkmanager/index.html:38
 msgid "Testing connection"
@@ -6841,19 +6862,19 @@ msgstr "Пулом носителей Docker невозможно управля
 
 #: pkg/lib/machine-dialogs.js:386
 msgid "The IP address or host name cannot contain whitespace."
-msgstr "IP-адрес или имя хоста не могут содержать пробелы."
+msgstr "IP-адрес или имя узла не могут содержать пробелы."
 
 #: pkg/storaged/mdraid-details.jsx:213
 msgid "The RAID Array is in a degraded state"
-msgstr "RAID-массив находится в деградированном состоянии"
+msgstr "RAID-массив находится в состоянии сбоя"
 
 #: pkg/storaged/mdraid-details.jsx:142
 msgid "The RAID device must be running in order to add spare disks."
-msgstr "Устройство RAID должно работать, чтобы добавить запасные диски."
+msgstr "RAID-устройство должно быть запущено для добавления запасных дисков."
 
 #: pkg/storaged/mdraid-details.jsx:109
 msgid "The RAID device must be running in order to remove disks."
-msgstr "Устройство RAID должно быть запущено для удаления дисков."
+msgstr "RAID-устройство должно быть запущено для удаления дисков."
 
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:125
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:129
@@ -6903,15 +6924,16 @@ msgstr ""
 #: pkg/users/local.js:1342
 msgid "The account '$0' will be forced to change their password on next login"
 msgstr ""
-"Счет '$0'будет вынужден изменить свой пароль при следующем входе в систему"
+"Для учётной записи «$0» будет запрошено принудительное изменение пароля при "
+"следующем входе в систему"
 
 #: pkg/lib/machine-unknown-hostkey.html:6
 msgid ""
 "The authenticity of host {{#strong}}{{host}}{{/strong}} can't be established."
 " Are you sure you want to continue connecting?"
 msgstr ""
-"Подлинность хоста {{#strong}}{{host}}{{/strong}} не может быть установлена. "
-"Вы действительно хотите продолжить соединение?"
+"Подлинность узла {{#strong}}{{host}}{{/strong}} не может быть установлена. "
+"Продолжить подключение?"
 
 #: pkg/sosreport/index.html:35
 msgid "The collected information will be stored locally on the system."
@@ -6920,27 +6942,23 @@ msgstr "Собранная информация будет храниться л
 #: pkg/selinux/setroubleshoot-view.jsx:292
 msgid "The configured state is unknown, it might change on the next boot."
 msgstr ""
-"Конфигурированное состояние неизвестно, оно может измениться при следующей "
-"загрузке."
+"Настроенное состояние неизвестно и может измениться при следующей загрузке."
 
 #: pkg/storaged/vdo-details.jsx:119
-#, fuzzy
 msgid ""
 "The creation of this VDO device did not finish and the device can't be used."
 msgstr ""
-"Создание этого устройства VDO не завершилось, и устройство не может быть "
-"использовано."
+"Создание данного устройства VDO не завершилось, поэтому устройство не может "
+"быть использовано."
 
 #: pkg/storaged/crypto-keyslots.jsx:529
 msgid ""
 "The currently logged in user is not permitted to see information about keys."
-msgstr ""
-"Пользователю в настоящий момент не разрешено просматривать информацию о "
-"ключах."
+msgstr "Текущему пользователю не разрешено просматривать сведения о ключах."
 
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:191
 msgid "The directory on the server being exported"
-msgstr "Каталог на экспортируемом сервере"
+msgstr "Экспортируемый каталог на сервере"
 
 #: pkg/storaged/dialog.jsx:1013
 msgid ""
@@ -6948,14 +6966,14 @@ msgid ""
 "will stop these."
 msgstr ""
 "Файловая система используется сеансами входа в систему и системными службами."
-" Продолжающие действия остановят их."
+" При продолжении они будут остановлены."
 
 #: pkg/storaged/dialog.jsx:1015
 msgid ""
 "The filesystem is in use by login sessions. Proceeding will stop these."
 msgstr ""
-"Файловая система используется сеансами входа в систему. Продолжающие "
-"действия остановят их."
+"Файловая система используется сеансами входа в систему. При продолжении они "
+"будут остановлены."
 
 #: pkg/storaged/dialog.jsx:1017
 msgid ""
@@ -6968,7 +6986,7 @@ msgstr ""
 msgid ""
 "The following containers depend on this image and will become unusable."
 msgstr ""
-"Следующие контейнеры зависят от этого изображения и станут непригодными для "
+"Следующие контейнеры зависят от этого образа и станут непригодными для "
 "использования."
 
 #: pkg/sosreport/index.html:51
@@ -6982,6 +7000,7 @@ msgstr ""
 "какой-либо третьей стороне."
 
 #: pkg/lib/machine-invalid-hostkey.html:8
+#, fuzzy
 msgid ""
 "The key of {{#strong}}{{host}}{{/strong}} does not match the key previously "
 "in use. Unless this machine was recently replaced, it is likely that someone "
@@ -6992,25 +7011,25 @@ msgstr ""
 "пытается атаковать ваше соединение с этой машиной."
 
 #: pkg/users/authorized-keys.js:124
+#, fuzzy
 msgid "The key you provided was not valid."
 msgstr "Указанный ключ недействителен."
 
 #: pkg/storaged/mdraid-details.jsx:115
 msgid "The last disk of a RAID device cannot be removed."
-msgstr "Последний диск RAID-устройства не может быть удален."
+msgstr "Последний диск RAID-устройства не может быть удалён."
 
 #: pkg/storaged/crypto-keyslots.jsx:554
 msgid "The last key slot can not be removed"
-msgstr "Последний ключевой слот нельзя удалить"
+msgstr "Последний слот для ключа не может быть удалён"
 
 #: pkg/storaged/vgroup-details.jsx:90
 msgid "The last physical volume of a volume group cannot be removed."
-msgstr "Последний физический том группы томов не может быть удален."
+msgstr "Последний физический том группы томов не может быть удалён."
 
 #: pkg/lib/cockpit-components-modifications.jsx:144
 msgid "The logged in user is not permitted to view system modifications"
-msgstr ""
-"Выполнившему вход пользователю запрещено просматривать изменения системы"
+msgstr "Текущему пользователю запрещено просматривать изменения системы"
 
 #: pkg/shell/indexes.js:464
 msgid "The machine is restarting"
@@ -7022,13 +7041,13 @@ msgstr "Не удалось удалить сеть"
 
 #: pkg/users/local.js:443 pkg/users/local.js:1399
 msgid "The passwords do not match"
-msgstr "пароли не совпадают"
+msgstr "Пароли не совпадают"
 
 #: pkg/lib/credentials.js:190
 msgid "The passwords do not match."
 msgstr "Пароли не совпадают."
 
-#: pkg/machines/components/diskAdd.jsx:81
+#: pkg/machines/components/diskAdd.jsx:82
 msgid "The pool is empty"
 msgstr "Пул пуст"
 
@@ -7049,26 +7068,27 @@ msgstr[2] ""
 msgid "The scan from $time ($type) was not successful."
 msgstr "Сканирование с $time ($type) не удалось."
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:160
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:159
 msgid "The selected Operating System has minimum memory requirement of $0 $1"
 msgstr "Минимальный объём памяти для выбранной операционной системы — $0 $1"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:175
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:174
 msgid ""
 "The selected Operating System has minimum storage size requirement of $0 $1"
 msgstr ""
 "Минимальный размер хранилища для выбранной операционной системы — $0 $1"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:382
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:381
 msgid "The selected Operating System has recommended memory $0 $1"
 msgstr "Рекомендуемый объём памяти для выбранной операционной системы — $0 $1"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:417
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:416
 msgid "The selected Operating System has recommended storage size of $0 $1"
 msgstr ""
 "Рекомендуемый размер хранилища для выбранной операционной системы — $0 $1"
 
 #: src/ws/login.js:645
+#, fuzzy
 msgid ""
 "The server refused to authenticate '$0' using password authentication, and "
 "no other supported authentication methods are available."
@@ -7077,6 +7097,7 @@ msgstr ""
 "а также другие поддерживаемые методы проверки подлинности."
 
 #: src/base1/cockpit.js:4021
+#, fuzzy
 msgid "The server refused to authenticate using any supported methods."
 msgstr ""
 "Сервер отказался аутентифицироваться с использованием любых поддерживаемых "
@@ -7089,47 +7110,47 @@ msgstr ""
 
 #: pkg/systemd/init.js:813
 msgid "The user <b>$0</b> does not have permissions for creating timers"
-msgstr "Пользователь <b>$0</b> не имеет разрешений для создания таймеров"
+msgstr "У пользователя <b>$0</b> нет разрешений на создание таймеров"
 
 #: pkg/tuned/dialog.js:98
 msgid "The user <b>$0</b> is not permitted to change profiles"
-msgstr "Пользователь <b>$0</b> не разрешается изменять профили"
+msgstr "Пользователю <b>$0</b> запрещено изменять профили"
 
 #: pkg/systemd/host.js:72
 msgid "The user <b>$0</b> is not permitted to change the system time"
-msgstr "Пользователь <b>$0</b> не разрешено изменять системное время"
+msgstr "Пользователю <b>$0</b> запрещено изменять системное время"
 
 #: pkg/dashboard/list.js:231
 msgid "The user <b>$0</b> is not permitted to manage servers"
-msgstr "Пользователь <b>$0</b> не разрешено управлять серверами"
+msgstr "Пользователю <b>$0</b> запрещено управлять серверами"
 
 #: pkg/storaged/storage-controls.jsx:73
 msgid "The user <b>$0</b> is not permitted to manage storage"
-msgstr "Пользователь <b>$0</b> не разрешено управлять хранилищем"
+msgstr "Пользователю <b>$0</b> запрещено управлять хранилищем"
 
 #: pkg/users/local.js:43
 msgid "The user <b>$0</b> is not permitted to modify accounts"
-msgstr "Пользователь <b>$0</b> не разрешено изменять учетные записи"
+msgstr "Пользователю <b>$0</b> запрещено изменять учётные записи"
 
 #: pkg/systemd/host.js:56
 msgid "The user <b>$0</b> is not permitted to modify hostnames"
-msgstr "Пользователь <b>$0</b> не разрешается изменять имена хостов"
+msgstr "Пользователю <b>$0</b> запрещено изменять имена узлов"
 
 #: pkg/networkmanager/interfaces.js:1530
 msgid "The user <b>$0</b> is not permitted to modify network settings"
-msgstr "Пользователь <b>$0</b> не разрешено изменять настройки сети"
+msgstr "Пользователю <b>$0</b> запрещено параметры сети"
 
 #: pkg/realmd/operation.js:644
 msgid "The user <b>$0</b> is not permitted to modify realms"
-msgstr "Пользователь <b>$0</b> не разрешено изменять сферы"
+msgstr "Пользователю <b>$0</b> запрещено изменять сферы"
 
 #: pkg/systemd/host.js:64
 msgid "The user <b>$0</b> is not permitted to shutdown or restart this server"
 msgstr ""
-"Пользователь <b>$0</b> не разрешено выключение или перезагрузка этого "
-"сервера"
+"Пользователю <b>$0</b> запрещено выключать или перезагружать данный сервер"
 
 #: pkg/users/local.js:553
+#, fuzzy
 msgid ""
 "The user name can only consist of letters from a-z, digits, dots, dashes and "
 "underscores."
@@ -7138,6 +7159,7 @@ msgstr ""
 "символов подчеркивания."
 
 #: src/ws/login.js:134 src/ws/login.js:157
+#, fuzzy
 msgid ""
 "The web browser configuration prevents Cockpit from running (inaccessible "
 "$0)"
@@ -7145,6 +7167,7 @@ msgstr ""
 "Конфигурация веб-браузера предотвращает запуск Cockpit (недоступный $0)"
 
 #: pkg/shell/active-pages-dialog.jsx:58
+#, fuzzy
 msgid "There are currently no active pages"
 msgstr "Сейчас нет активных страниц"
 
@@ -7153,14 +7176,16 @@ msgid ""
 "There are devices with multiple paths on the system, but the multipath "
 "service is not running."
 msgstr ""
-"В системе есть устройства с несколькими путями, но служба многолучевого "
-"распространения не работает."
+"В системе есть устройства, использующие несколько путей, но служба multipath "
+"не работает."
 
 #: pkg/users/index.html:387
+#, fuzzy
 msgid "There are no authorized public keys for this account."
 msgstr "Для этой учетной записи нет официальных ключей."
 
 #: pkg/storaged/vgroup-details.jsx:96
+#, fuzzy
 msgid ""
 "There is not enough free space elsewhere to remove this physical volume. At "
 "least $0 more free space is needed."
@@ -7183,11 +7208,11 @@ msgstr ""
 "параметров."
 
 #: pkg/storaged/vdo-details.jsx:133
-#, fuzzy
 msgid "This VDO device does not use all of its backing device."
-msgstr "Это устройство VDO не использует все его поддерживающее устройство."
+msgstr "Данное устройство VDO не полностью использует резервное устройство."
 
 #: pkg/systemd/init.js:1262
+#, fuzzy
 msgid ""
 "This day doesn't exist in all months.<br> The timer will only be executed in "
 "months that have 31st."
@@ -7197,45 +7222,46 @@ msgstr ""
 
 #: pkg/networkmanager/interfaces.js:2644
 msgid "This device cannot be managed here."
-msgstr "Здесь невозможно управлять этим устройством."
+msgstr "Этим устройством невозможно управлять здесь."
 
 #: pkg/storaged/dialog.jsx:998
 msgid ""
 "This device has filesystems that are currently in use. Proceeding will "
 "unmount all filesystems on it."
 msgstr ""
-"Это устройство имеет файловые системы, которые в настоящее время "
-"используются. В процессе работы будет отключено все файловые системы."
+"На этом устройстве имеются файловые системы, используемые в данный момент. "
+"При продолжении все файловые системы на нём будут отключены."
 
 #: pkg/storaged/dialog.jsx:977
 msgid "This device is currently used for RAID devices."
-msgstr "В настоящее время это устройство используется для устройств RAID."
+msgstr "В данный момент это устройство используется для RAID-устройств."
 
 #: pkg/storaged/dialog.jsx:1006
 msgid ""
 "This device is currently used for RAID devices. Proceeding will remove it "
 "from its RAID devices."
 msgstr ""
-"В настоящее время это устройство используется для устройств RAID. "
-"Продолжающийся будет удалять его с его RAID-устройств."
+"В данный момент это устройство используется для RAID-устройств. При "
+"продолжении оно будет удалено с RAID-устройств."
 
 #: pkg/storaged/dialog.jsx:981
 msgid "This device is currently used for VDO devices."
-msgstr "В настоящее время это устройство используется для устройств VDO."
+msgstr "В данный момент это устройство используется для устройств VDO."
 
 #: pkg/storaged/dialog.jsx:973
 msgid "This device is currently used for volume groups."
-msgstr "В настоящее время это устройство используется для групп томов."
+msgstr "В данный момент это устройство используется для групп томов."
 
 #: pkg/storaged/dialog.jsx:1002
 msgid ""
 "This device is currently used for volume groups. Proceeding will remove it "
 "from its volume groups."
 msgstr ""
-"В настоящее время это устройство используется для групп томов. Продолжение "
-"будет удалено из групп томов."
+"В данный момент это устройство используется для групп томов. При продолжении "
+"оно будет удалено из групп томов."
 
 #: pkg/storaged/mdraid-details.jsx:111
+#, fuzzy
 msgid "This disk cannot be removed while the device is recovering."
 msgstr "Этот диск не может быть удален во время восстановления устройства."
 
@@ -7245,7 +7271,7 @@ msgstr "Это поле не может быть пустым."
 
 #: pkg/docker/containers-view.jsx:494
 msgid "This image does not exist."
-msgstr "Это изображение не существует."
+msgstr "Образ не существует."
 
 #: pkg/storaged/lvol-tabs.jsx:416
 msgid "This logical volume is not completely used by its content."
@@ -7253,7 +7279,7 @@ msgstr "Логический том используется содержимы�
 
 #: pkg/lib/machine-dialogs.js:364
 msgid "This machine has already been added."
-msgstr "Эта машина уже добавлена."
+msgstr "Этот компьютер уже добавлен."
 
 #: pkg/realmd/operation.html:80
 msgid "This may take a while"
@@ -7264,23 +7290,26 @@ msgid "This package is not compatible with this version of Cockpit"
 msgstr "Этот пакет несовместим с текущей версией Cockpit"
 
 #: src/bridge/cockpitpackages.c:495
-#, c-format
+#, fuzzy, c-format
 msgid "This package requires Cockpit version %s or later"
 msgstr "Этот пакет требует версии Cockpit %s или позже"
 
-#: pkg/machines/components/diskAdd.jsx:138
+#: pkg/machines/components/diskAdd.jsx:139
 msgid "This pool type does not support Storage Volume creation"
 msgstr "Тип данного пула не поддерживает создание томов хранения"
 
 #: pkg/packagekit/updates.jsx:775
+#, fuzzy
 msgid "This system is not registered"
 msgstr "Эта система не зарегистрирована"
 
 #: pkg/tuned/dialog.js:103
+#, fuzzy
 msgid "This system is using a custom profile"
 msgstr "Эта система использует настраиваемый профиль"
 
 #: pkg/tuned/dialog.js:101
+#, fuzzy
 msgid "This system is using the recommended profile"
 msgstr "Эта система использует рекомендуемый профиль"
 
@@ -7297,10 +7326,12 @@ msgid "This unit is not designed to be enabled explicitly."
 msgstr "Эта служба не предназначена для явного включения."
 
 #: pkg/users/local.js:561
+#, fuzzy
 msgid "This user name already exists"
 msgstr "Такое имя пользователя уже существует"
 
 #: pkg/lib/machine-dialogs.js:380
+#, fuzzy
 msgid ""
 "This version of cockpit-ws does not support connecting to a host with an "
 "alternate user or port"
@@ -7308,21 +7339,28 @@ msgstr ""
 "Эта версия cockpit-ws не поддерживает подключение к хосту с другим "
 "пользователем или портом"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:468
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:467
 msgid "This volume is already used by another VM."
 msgstr "Этот том уже используется другой виртуальной машиной."
 
+#: pkg/machines/components/diskAdd.jsx:234
+msgid "This volume is already used by: "
+msgstr ""
+
 #: pkg/storaged/lvol-tabs.jsx:187
+#, fuzzy
 msgid "This volume needs to be activated before it can be resized."
 msgstr ""
 "Этот том необходимо активировать, прежде чем его можно будет изменить."
 
 #: src/ws/login.js:122
+#, fuzzy
 msgid "This web browser is too old to run Cockpit (missing $0)"
 msgstr ""
 "Этот веб-браузер слишком стар, чтобы запустить Cockpit (отсутствует $0)"
 
 #: pkg/packagekit/updates.jsx:835
+#, fuzzy
 msgid "This web console will be updated."
 msgstr "Эта веб-консоль будет обновлена."
 
@@ -7332,17 +7370,18 @@ msgid ""
 "Depending on the settings, the system may not automatically reboot and the "
 "process may take a while."
 msgstr ""
-"Это проверит настройки kdump, разбив ядро ​​и тем самым систему. В "
-"зависимости от настроек система может не перезагружаться автоматически, и "
-"процесс может занять некоторое время."
+"Проверка параметров kdump будет произведена путём осуществления сбоя в ядре "
+"и, тем самым, во всей системе. В зависимости от параметров система может не "
+"перезагружаться автоматически, а процесс может занять некоторое время."
 
-#: pkg/kdump/kdump-view.jsx:491
+#: pkg/kdump/kdump-view.jsx:492
 msgid "This will test the kdump configuration by crashing the kernel."
 msgstr ""
 "Конфигурация kdump будет проверена путём осуществления умышленного сбоя в "
 "ядре."
 
 #: pkg/machines/components/vcpuModal.jsx:237
+#, fuzzy
 msgid "Threads per core"
 msgstr "Потоков на ядро"
 
@@ -7364,6 +7403,7 @@ msgid "Timers"
 msgstr "Таймеры"
 
 #: pkg/shell/index.html:306
+#, fuzzy
 msgid ""
 "Tip: Make your key password match your login password to automatically "
 "authenticate against other systems."
@@ -7372,6 +7412,7 @@ msgstr ""
 "входа в систему для автоматической аутентификации с другими системами."
 
 #: pkg/packagekit/updates.jsx:776
+#, fuzzy
 msgid ""
 "To get software updates, this system needs to be registered with Red Hat, "
 "either using the Red Hat Customer Portal or a local subscription server."
@@ -7381,6 +7422,7 @@ msgstr ""
 "локальный сервер подписки."
 
 #: pkg/lib/machine-change-port.html:11
+#, fuzzy
 msgid ""
 "To try a different port you will need to upgrade cockpit-ws to a newer "
 "version."
@@ -7393,6 +7435,7 @@ msgid "Too much data"
 msgstr "Слишком много данных"
 
 #: pkg/docker/storage.jsx:345
+#, fuzzy
 msgid "Total"
 msgstr "Всего"
 
@@ -7404,24 +7447,22 @@ msgstr "Общий размер: $0"
 msgid "Tower"
 msgstr "Компьютер в корпусе «башня»"
 
-#: pkg/playground/manifest.json.in
-msgid "Translating"
-msgstr "Перевод"
-
 #: pkg/systemd/service-details.jsx:433
 msgid "Triggered By"
-msgstr "Вызваны"
+msgstr "TriggeredBy="
 
 #: pkg/systemd/service-details.jsx:432
 msgid "Triggers"
-msgstr "Триггеры"
+msgstr "Triggers="
 
 #: pkg/shell/index.html:383 pkg/shell/simple.html:139
 #: pkg/machines/components/libvirtSlate.jsx:99
+#, fuzzy
 msgid "Troubleshoot"
 msgstr "Диагностика"
 
 #: pkg/storaged/crypto-keyslots.jsx:339
+#, fuzzy
 msgid "Trust key"
 msgstr "Целевой ключ"
 
@@ -7430,10 +7471,12 @@ msgid "Trust level"
 msgstr "Уровень доверия"
 
 #: src/ws/login.html:111
+#, fuzzy
 msgid "Try Again"
 msgstr "Попробуйте снова"
 
 #: pkg/docker/index.html:71 pkg/docker/index.html:74
+#, fuzzy
 msgid "Try again"
 msgstr "Попробуйте снова"
 
@@ -7442,6 +7485,7 @@ msgid "Try to reconnect"
 msgstr "Повторить попытку подключения"
 
 #: pkg/systemd/index.html:60
+#, fuzzy
 msgid "Trying to synchronize with {{Server}}"
 msgstr "Попытка синхронизировать с {{Server}}"
 
@@ -7490,10 +7534,12 @@ msgid "Type ID"
 msgstr "Идентификатор типа"
 
 #: pkg/lib/machine-change-auth.html:42
+#, fuzzy
 msgid "Type a password"
 msgstr "Введите пароль"
 
 #: pkg/docker/containers-view.jsx:115
+#, fuzzy
 msgid "Type to filter…"
 msgstr "Тип фильтра ..."
 
@@ -7501,9 +7547,9 @@ msgstr "Тип фильтра ..."
 msgid "UDP"
 msgstr "UDP"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:287
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:286
 msgid "URL"
-msgstr "Ссылка (URL)"
+msgstr "URL-адрес"
 
 # translation auto-copied from project subscription-manager, version 1.11.X, document keys
 #: pkg/storaged/part-tab.jsx:39
@@ -7512,15 +7558,15 @@ msgstr "UUID"
 
 #: pkg/kdump/kdump-view.jsx:278
 msgid "Unable to apply settings: $0"
-msgstr "Невозможно применить настройки: $0"
+msgstr "Не удалось применить параметры: $0"
 
 #: pkg/selinux/setroubleshoot-view.jsx:120
 msgid "Unable to apply this solution automatically"
-msgstr "Невозможно применить это решение автоматически"
+msgstr "Не удалось применить это решение автоматически"
 
 #: src/ws/login.js:649
 msgid "Unable to connect to that address"
-msgstr "Не удалось подключиться к этому адресу"
+msgstr "Не удалось подключиться к адресу"
 
 #: pkg/users/local.js:58
 msgid "Unable to delete root account"
@@ -7536,10 +7582,12 @@ msgid "Unable to get alert: $0"
 msgstr "Не удалось получить оповещение: $0"
 
 #: pkg/storaged/iscsi-panel.jsx:88
+#, fuzzy
 msgid "Unable to reach server"
 msgstr "Не удалось связаться с сервером"
 
 #: pkg/storaged/nfs-details.jsx:290
+#, fuzzy
 msgid "Unable to remove mount"
 msgstr "Не удалось удалить mount"
 
@@ -7548,14 +7596,17 @@ msgid "Unable to rename root account"
 msgstr "Невозможно переименовать учётную запись суперпользователя"
 
 #: pkg/selinux/setroubleshoot-client.js:173
+#, fuzzy
 msgid "Unable to run fix: %0"
 msgstr "Не удалось запустить исправление: %0"
 
 #: pkg/selinux/setroubleshoot-client.js:53
+#, fuzzy
 msgid "Unable to start setroubleshootd"
 msgstr "Не удалось запустить setroubleshootd"
 
 #: pkg/storaged/nfs-details.jsx:265
+#, fuzzy
 msgid "Unable to unmount filesystem"
 msgstr "Не удалось отключить файловую систему"
 
@@ -7564,7 +7615,7 @@ msgid "Unavailable"
 msgstr "Недоступно"
 
 #: pkg/docker/index.html:732 pkg/networkmanager/index.html:682
-#: pkg/shell/base_index.js:758 pkg/users/local.js:1485
+#: pkg/shell/base_index.js:763 pkg/users/local.js:1485
 msgid "Unexpected error"
 msgstr "Непредвиденная ошибка"
 
@@ -7572,12 +7623,13 @@ msgstr "Непредвиденная ошибка"
 msgid "Unique Network Name"
 msgstr "Уникальное сетевое имя"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:198
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:197
 msgid "Unique name"
 msgstr "Уникальное имя"
 
 #: pkg/machines/components/vm/bootOrderModal.jsx:134
 #: pkg/storaged/dialog.jsx:1048
+#, fuzzy
 msgid "Unit"
 msgstr "Сервис"
 
@@ -7591,11 +7643,11 @@ msgstr "Неизвестно"
 
 #: pkg/networkmanager/interfaces.js:2537 pkg/networkmanager/interfaces.js:2549
 msgid "Unknown \"$0\""
-msgstr "Неизвестный \"$0\""
+msgstr "Неизвестно «$0»"
 
 #: pkg/storaged/mdraid-details.jsx:98
 msgid "Unknown ($0)"
-msgstr "Неизвестный ($0)"
+msgstr "Неизвестно ($0)"
 
 #: pkg/apps/application.jsx:98
 msgid "Unknown Application"
@@ -7603,7 +7655,7 @@ msgstr "Неизвестное приложение"
 
 #: pkg/lib/machine-unknown-hostkey.html:2
 msgid "Unknown Host Key"
-msgstr "Неизвестный ключ хоста"
+msgstr "Неизвестный ключ узла"
 
 #: pkg/networkmanager/interfaces.js:2660
 msgid "Unknown configuration"
@@ -7611,7 +7663,7 @@ msgstr "Неизвестная конфигурация"
 
 #: pkg/storaged/iscsi-panel.jsx:84
 msgid "Unknown host name"
-msgstr "Неизвестное имя хоста"
+msgstr "Неизвестное имя узла"
 
 #: pkg/networkmanager/firewall.jsx:358
 msgid "Unknown service name"
@@ -7622,6 +7674,7 @@ msgid "Unknown type"
 msgstr "Неизвестный тип"
 
 #: pkg/docker/index.html:551 pkg/docker/util.js:110
+#, fuzzy
 msgid "Unless Stopped"
 msgstr "Если не остановлено"
 
@@ -7631,80 +7684,88 @@ msgid "Unlock"
 msgstr "Разблокировать"
 
 #: pkg/shell/index.html:213 pkg/shell/index.html:254
+#, fuzzy
 msgid "Unlock Key"
 msgstr "Разблокировать ключ"
 
 #: pkg/storaged/format-dialog.jsx:120
 msgid "Unlock at boot"
-msgstr "Разблокировка при загрузке"
+msgstr "Разблокировать при загрузке"
 
 #: pkg/storaged/format-dialog.jsx:121
 msgid "Unlock read only"
-msgstr "Разблокировать только чтение"
+msgstr "Разблокировать только для чтения"
 
 #: pkg/storaged/jobs-panel.jsx:37
 msgid "Unlocking $target"
-msgstr "размыкание $target"
+msgstr "Снятие блокировки $target"
 
 #: pkg/storaged/crypto-keyslots.jsx:174
 msgid "Unlocking disk..."
-msgstr "Разблокировка диска ..."
+msgstr "Снятие блокировки диска..."
 
 #: pkg/networkmanager/index.html:132
+#, fuzzy
 msgid "Unmanaged Interfaces"
 msgstr "Неуправляемые интерфейсы"
 
 #: pkg/storaged/fsys-tab.jsx:188 pkg/storaged/nfs-details.jsx:308
 msgid "Unmount"
-msgstr "Отсоединить"
+msgstr "Отключить"
 
 #: pkg/storaged/jobs-panel.jsx:44
 msgid "Unmounting $target"
-msgstr "Размонтирование $target"
+msgstr "Отключение $target"
 
 #: pkg/users/index.html:370
+#, fuzzy
 msgid "Unnamed"
 msgstr "Безымянный"
 
 #: pkg/machines/components/vmnetworktab.jsx:206
 msgid "Unplug"
-msgstr "Отключайте"
+msgstr "Отключить"
 
 #: pkg/storaged/content-views.jsx:163
 msgid "Unrecognized Data"
-msgstr "Непризнанные данные"
+msgstr "Нераспознанные данные"
 
 #: pkg/storaged/content-views.jsx:363
 msgctxt "storage-id-desc"
 msgid "Unrecognized Data"
-msgstr "Непризнанные данные"
+msgstr "Нераспознанные данные"
 
 #: pkg/storaged/lvol-tabs.jsx:90 pkg/storaged/lvol-tabs.jsx:179
+#, fuzzy
 msgid "Unrecognized data can not be made smaller here."
 msgstr "Здесь не могут быть уменьшены нераспознанные данные."
 
 #: src/bridge/cockpitdbussetup.c:222 src/bridge/cockpitdbussetup.c:361
 #: src/bridge/cockpitdbussetup.c:625
+#, fuzzy
 msgid "Unsupported setup mechanism"
 msgstr "Неподдерживаемый механизм установки"
 
 #: pkg/storaged/content-views.jsx:626
+#, fuzzy
 msgid "Unsupported volume"
 msgstr "Неподдерживаемый объем"
 
 #: src/base1/cockpit.js:4023 src/base1/cockpit.js:4025
+#, fuzzy
 msgid "Untrusted host"
 msgstr "Неверный хозяин"
 
 #: pkg/docker/util.js:94
+#, fuzzy
 msgid "Up since $0"
 msgstr "С тех пор $0"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:489
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:488
 msgid "Up to $0 $1 available in the default location"
 msgstr "В расположении по умолчанию доступно до $0 $1"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:402
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:401
 msgid "Up to $0 $1 available on the host"
 msgstr "На узле доступно до $0 $1"
 
@@ -7727,11 +7788,11 @@ msgstr "Обновлено"
 
 #: pkg/packagekit/updates.jsx:496
 msgid "Updated packages may require a restart to take effect."
-msgstr "Обновленные пакеты могут потребовать перезагрузки."
+msgstr "После обновления пакетов может потребоваться их перезагрузка."
 
 #: pkg/systemd/host.js:515
 msgid "Updates Available"
-msgstr "Доступные обновления"
+msgstr "Доступны обновления"
 
 #: pkg/packagekit/updates.jsx:52
 msgid "Updating"
@@ -7741,10 +7802,14 @@ msgstr "Обновление"
 msgid "Updating status..."
 msgstr "Обновление состояния..."
 
+#: pkg/machines/components/diskEdit.jsx:38
+msgid "Url"
+msgstr ""
+
 # translation auto-copied from project subscription-manager, version 1.11.X, document keys
 #: pkg/machines/components/vm/vm.jsx:50 pkg/storaged/unrecognized-tab.jsx:30
 msgid "Usage"
-msgstr "Формат"
+msgstr "Использование"
 
 #: pkg/systemd/host.js:1673
 msgid "Usage of $0 CPU core"
@@ -7754,22 +7819,26 @@ msgstr[1] "Использование $0 ядер процессора"
 msgstr[2] "Использование $0 ядер процессора"
 
 #: pkg/storaged/vdos-panel.jsx:95
+#, fuzzy
 msgid "Use 512 Byte emulation"
 msgstr "Использовать эмуляцию 512 байт"
 
-#: pkg/machines/components/diskAdd.jsx:432
+#: pkg/machines/components/diskAdd.jsx:482
+#, fuzzy
 msgid "Use Existing"
 msgstr "Использовать существующие"
 
 #: pkg/shell/index.html:168
+#, fuzzy
 msgid "Use the following keys to authenticate against other systems"
 msgstr "Используйте следующие ключи для аутентификации с другими системами"
 
 #: pkg/systemd/index.html:267 pkg/docker/storage.jsx:344
 #: pkg/machines/components/vm/vmUsageTab.jsx:64
 #: pkg/machines/components/vm/vmUsageTab.jsx:75
-#: pkg/machines/components/vmDisksTab.jsx:106 pkg/storaged/fsys-tab.jsx:196
+#: pkg/machines/components/vmDisksTab.jsx:112 pkg/storaged/fsys-tab.jsx:196
 #: pkg/storaged/swap-tab.jsx:81 pkg/systemd/host.js:1738
+#, fuzzy
 msgid "Used"
 msgstr "Использовано"
 
@@ -7778,6 +7847,7 @@ msgid "Used by"
 msgstr "Используется"
 
 #: pkg/docker/index.html:264
+#, fuzzy
 msgid "Used by Containers"
 msgstr "Используется контейнерами"
 
@@ -7794,12 +7864,12 @@ msgstr "Имя пользователя"
 
 #: pkg/realmd/operation.html:59 pkg/realmd/operation.js:336
 msgid "User Password"
-msgstr "Пользовательский пароль"
+msgstr "Пароль пользователя"
 
 #: pkg/lib/machine-change-auth.html:18 pkg/lib/machine-sync-users.html:54
 #: src/ws/login.html:43
 msgid "User name"
-msgstr "Пользователь"
+msgstr "Имя пользователя"
 
 #: src/ws/login.js:447
 msgid "User name cannot be empty"
@@ -7810,39 +7880,47 @@ msgid "Username"
 msgstr "Имя пользователя"
 
 #: pkg/lib/machine-change-auth.html:44
+#, fuzzy
 msgid "Using available credentials"
 msgstr "Использование доступных учетных данных"
 
 #: pkg/machines/components/vcpuModal.jsx:165
 msgid "VCPU settings could not be saved"
-msgstr "Не удалось сохранить настройки VCPU"
+msgstr "Не удалось сохранить параметры VCPU"
 
 #: pkg/storaged/content-views.jsx:159
+#, fuzzy
 msgid "VDO Backing"
 msgstr "Поддержка VDO"
 
 #: pkg/storaged/content-views.jsx:361
+#, fuzzy
 msgctxt "storage-id-desc"
 msgid "VDO Backing"
 msgstr "Поддержка VDO"
 
 #: pkg/storaged/pvol-tabs.jsx:80
+#, fuzzy
 msgid "VDO Device"
 msgstr "Устройство VDO"
 
 #: pkg/storaged/utils.js:253 pkg/storaged/vdo-details.jsx:261
+#, fuzzy
 msgid "VDO Device $0"
 msgstr "Устройство VDO $0"
 
 #: pkg/storaged/vdos-panel.jsx:176
+#, fuzzy
 msgid "VDO Devices"
 msgstr "Устройства VDO"
 
 #: pkg/storaged/lvol-tabs.jsx:85 pkg/storaged/lvol-tabs.jsx:172
+#, fuzzy
 msgid "VDO backing devices can not be made smaller"
 msgstr "Устройства поддержки VDO не могут быть уменьшены"
 
 #: pkg/storaged/vdos-panel.jsx:182
+#, fuzzy
 msgid "VDO support not installed"
 msgstr "Поддержка VDO не установлена"
 
@@ -7876,7 +7954,7 @@ msgstr "Не удалось принудительно завершить раб
 msgid "VM $0 failed to get deleted"
 msgstr "Не удалось удалить виртуальную машину $0"
 
-#: pkg/machines/hostvmslist.jsx:110 pkg/machines/libvirt-common.js:1304
+#: pkg/machines/hostvmslist.jsx:110 pkg/machines/libvirt-common.js:1340
 msgid "VM $0 failed to get installed"
 msgstr "Не удалось установить виртуальную машину $0"
 
@@ -7905,10 +7983,12 @@ msgid "VNC"
 msgstr "VNC"
 
 #: pkg/machines/components/desktopConsole.jsx:159
+#, fuzzy
 msgid "VNC Address:"
 msgstr "VNC Адрес:"
 
 #: pkg/machines/components/desktopConsole.jsx:168
+#, fuzzy
 msgid "VNC Port:"
 msgstr "Порт VNC:"
 
@@ -7925,6 +8005,7 @@ msgid "Validating authentication token"
 msgstr "Проверка маркера аутентификации"
 
 #: pkg/users/authorized-keys.js:108
+#, fuzzy
 msgid "Validating key"
 msgstr "Контрольный ключ"
 
@@ -7953,6 +8034,7 @@ msgid "Version"
 msgstr "Версия"
 
 #: pkg/storaged/jobs-panel.jsx:57
+#, fuzzy
 msgid "Very securely erasing $target"
 msgstr "Очень надежно стирает $target"
 
@@ -7975,16 +8057,18 @@ msgid "Virtual Network failed to be created"
 msgstr "Не удалось создать виртуальную сеть"
 
 #: pkg/machines/components/libvirtSlate.jsx:80
+#, fuzzy
 msgid "Virtualization Service (libvirt) is Not Active"
 msgstr "Служба виртуализации (libvirt) не активна"
 
 #: pkg/machines/components/libvirtSlate.jsx:74
+#, fuzzy
 msgid "Virtualization Service is Available"
 msgstr "Доступна служба виртуализации"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:458
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:457
 #: pkg/machines/components/deleteDialog.jsx:50
-#: pkg/machines/components/diskAdd.jsx:90
+#: pkg/machines/components/diskAdd.jsx:91
 #: pkg/machines/components/vm/bootOrderModal.jsx:96
 #: pkg/machines/components/vmDiskColumns.jsx:46
 #: pkg/storaged/content-views.jsx:140
@@ -8021,11 +8105,11 @@ msgstr "Размер тома составляет $0. Содержимое за
 
 #: pkg/docker/index.html:517
 msgid "Volumes"
-msgstr "Список томов"
+msgstr "Тома"
 
 #: pkg/docker/index.html:200
 msgid "Volumes:"
-msgstr "Объемы:"
+msgstr "Тома:"
 
 #: pkg/machines/components/vm/bootOrderModal.jsx:140
 msgid "WWPN"
@@ -8039,25 +8123,27 @@ msgstr "Ожидание"
 #: pkg/selinux/setroubleshoot-view.jsx:73
 #: pkg/selinux/setroubleshoot-view.jsx:171
 msgid "Waiting for details..."
-msgstr "В ожидании подробностей ..."
+msgstr "Ожидание подробностей..."
 
 #: pkg/apps/utils.jsx:63
+#, fuzzy
 msgid "Waiting for other programs to finish using the package manager..."
 msgstr "Ожидание завершения других программ с помощью диспетчера пакетов ..."
 
 #: pkg/lib/cockpit-components-install-dialog.jsx:141
 #: pkg/lib/cockpit-components-install-dialog.jsx:176
+#, fuzzy
 msgid "Waiting for other software management operations to finish"
 msgstr ""
 "Ожидание выполнения других операций управления программным обеспечением"
 
 #: pkg/systemd/service-details.jsx:424
 msgid "Wanted By"
-msgstr "Желателен для"
+msgstr "WantedBy="
 
 #: pkg/systemd/service-details.jsx:419
 msgid "Wants"
-msgstr "Желательны"
+msgstr "Wants="
 
 #: pkg/systemd/logs.html:60
 msgid "Warning and above"
@@ -8088,12 +8174,24 @@ msgid "White"
 msgstr "Белый"
 
 #: pkg/docker/index.html:488
+#, fuzzy
 msgid "With terminal"
 msgstr "С терминалом"
 
 #: pkg/storaged/mdraid-details.jsx:96
+#, fuzzy
 msgid "Write-mostly"
 msgstr "Списание в основном"
+
+#: pkg/machines/components/diskEdit.jsx:82
+#: pkg/machines/components/vmDisksTab.jsx:151
+msgid "Writeable"
+msgstr ""
+
+#: pkg/machines/components/diskEdit.jsx:95
+#: pkg/machines/components/vmDisksTab.jsx:151
+msgid "Writeable and shared"
+msgstr ""
 
 #: pkg/storaged/plot.jsx:315
 msgid "Writing"
@@ -8117,21 +8215,23 @@ msgid ""
 "synchronize users, a user with superuser privileges is required."
 msgstr ""
 "Вы подключены к {{#strong}}{{host}}{{/strong}}, однако для синхронизации "
-"пользователей требуется пользователь с привилегиями суперпользователя."
+"пользователей необходимы права суперпользователя."
 
 #: pkg/dashboard/list.js:448
 msgid ""
 "You are currently connected directly to this server. You cannot delete it."
 msgstr ""
-"Вы в настоящий момент подключены непосредственно к этому серверу. Вы не "
-"можете удалить его."
+"В настоящий момент вы подключены непосредственно к этому серверу. Невозможно "
+"его удалить."
 
 #: pkg/networkmanager/firewall.jsx:77 pkg/networkmanager/firewall.jsx:135
 #: pkg/networkmanager/firewall.jsx:905 pkg/networkmanager/firewall.jsx:911
+#, fuzzy
 msgid "You are not authorized to modify the firewall."
 msgstr "У вас нет прав на изменение брандмауэра."
 
 #: pkg/users/index.html:390
+#, fuzzy
 msgid ""
 "You do not have permission to view the authorized public keys for this "
 "account."
@@ -8144,14 +8244,16 @@ msgid "You don't have permission to manage the Docker storage pool."
 msgstr "У вас нет прав на управление пулом носителей Docker."
 
 #: pkg/users/local.js:120
+#, fuzzy
 msgid "You must wait longer to change your password"
 msgstr "Вы должны подождать дольше, чтобы сменить пароль"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:125
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:124
 msgid "You need to select the most closely matching Operating System"
 msgstr "Необходимо выбрать наиболее соответствующую операционную систему"
 
 #: pkg/packagekit/updates.jsx:837
+#, fuzzy
 msgid ""
 "Your browser will disconnect, but this does not affect the update process. "
 "You can reconnect in a few moments to continue watching the progress."
@@ -8161,6 +8263,7 @@ msgstr ""
 "прогресса."
 
 #: pkg/packagekit/updates.jsx:868
+#, fuzzy
 msgid ""
 "Your server will close the connection soon. You can reconnect after it has "
 "restarted."
@@ -8169,10 +8272,12 @@ msgstr ""
 "подключиться."
 
 #: src/base1/cockpit.js:4013
+#, fuzzy
 msgid "Your session has been terminated."
 msgstr "Ваша сессия завершена."
 
 #: src/base1/cockpit.js:4015
+#, fuzzy
 msgid "Your session has expired. Please log in again."
 msgstr "Время сеанса истекло. Пожалуйста, войдите снова."
 
@@ -8185,14 +8290,17 @@ msgid "Zones"
 msgstr "Зоны"
 
 #: pkg/lib/journal.js:217
+#, fuzzy
 msgid "[$0 bytes of binary data]"
 msgstr "[$0 байты двоичных данных]"
 
 #: pkg/lib/journal.js:219
+#, fuzzy
 msgid "[binary data]"
 msgstr "[двоичные данные]"
 
 #: pkg/lib/journal.js:213
+#, fuzzy
 msgid "[no data]"
 msgstr "[нет данных]"
 
@@ -8203,15 +8311,18 @@ msgid "active"
 msgstr "Активно"
 
 #: pkg/docker/run.js:573
+#, fuzzy
 msgid "alias"
 msgstr "псевдоним"
 
 #: pkg/packagekit/autoupdates.jsx:336
+#, fuzzy
 msgid "and restart the machine automatically."
 msgstr "и перезагрузите машину автоматически."
 
 # translation auto-copied from project Customer Portal Translations, version PortalCaseManagementStrings, document PortalCaseManagementStrings, author ypoyarko
 #: pkg/packagekit/autoupdates.jsx:328
+#, fuzzy
 msgid "at"
 msgstr "в"
 
@@ -8220,15 +8331,18 @@ msgid "bridge"
 msgstr "мост"
 
 #: pkg/packagekit/updates.jsx:268
+#, fuzzy
 msgid "bug fix"
 msgstr "Исправлена ​​ошибка"
 
 #: pkg/storaged/utils.js:97
+#, fuzzy
 msgctxt "format-bytes"
 msgid "bytes"
 msgstr "байт"
 
 #: pkg/machines/helpers.js:199
+#, fuzzy
 msgid "cdrom"
 msgstr "CDROM"
 
@@ -8237,14 +8351,17 @@ msgid "crashed"
 msgstr "аварийно завершила работу"
 
 #: pkg/machines/helpers.js:206
+#, fuzzy
 msgid "custom"
 msgstr "обычай"
 
 #: pkg/docker/util.js:124
+#, fuzzy
 msgid "default"
 msgstr "по умолчанию"
 
 #: pkg/machines/helpers.js:210
+#, fuzzy
 msgid "direct"
 msgstr "непосредственный"
 
@@ -8253,10 +8370,12 @@ msgid "disabled"
 msgstr "отключён"
 
 #: pkg/machines/helpers.js:198 pkg/machines/helpers.js:201
+#, fuzzy
 msgid "disk"
 msgstr "диск"
 
 #: pkg/machines/helpers.js:238
+#, fuzzy
 msgid "down"
 msgstr "вниз"
 
@@ -8266,30 +8385,36 @@ msgid "dying"
 msgstr "умирающий"
 
 #: pkg/realmd/operation.js:298 pkg/realmd/operation.js:304
+#, fuzzy
 msgid "e.g. \"$0\""
 msgstr "например, \"$0\""
 
 #: pkg/machines/helpers.js:178 pkg/machines/helpers.js:181
+#, fuzzy
 msgid "enabled"
 msgstr "включено"
 
 #: pkg/packagekit/updates.jsx:268
+#, fuzzy
 msgid "enhancement"
 msgstr "улучшение"
 
 #: pkg/machines/helpers.js:214
 msgid "ethernet"
-msgstr "локальные сети"
+msgstr "ethernet"
 
 #: pkg/packagekit/autoupdates.jsx:315
+#, fuzzy
 msgid "every day"
 msgstr "каждый день"
 
 #: pkg/systemd/host.js:940
+#, fuzzy
 msgid "failed to list ssh host keys: $0"
 msgstr "не удалось перечислить ключи хоста ssh: $0"
 
 #: pkg/machines/helpers.js:207
+#, fuzzy
 msgid "host"
 msgstr "узел"
 
@@ -8327,26 +8452,31 @@ msgstr "бездействует"
 
 #: pkg/machines/components/networks/network.jsx:59
 #: pkg/machines/components/storagePools/storagePool.jsx:70
+#, fuzzy
 msgid "inactive"
 msgstr "Неактивно"
 
-#: pkg/kdump/kdump-view.jsx:378
+#: pkg/kdump/kdump-view.jsx:379
+#, fuzzy
 msgid "invalid: multiple targets defined"
 msgstr "недействителен: несколько заданных целей"
 
-#: pkg/kdump/kdump-view.jsx:495
+#: pkg/kdump/kdump-view.jsx:496
+#, fuzzy
 msgid "kdump status"
 msgstr "Статус kdump"
 
 #: pkg/docker/run.js:527
+#, fuzzy
 msgid "key"
 msgstr "ключ"
 
 #: pkg/storaged/crypto-keyslots.jsx:358
 msgid "key slot $0"
-msgstr "ключевой слот $0"
+msgstr "слот для ключа $0"
 
-#: pkg/kdump/kdump-view.jsx:382 pkg/kdump/kdump-view.jsx:384
+#: pkg/kdump/kdump-view.jsx:383 pkg/kdump/kdump-view.jsx:385
+#, fuzzy
 msgid "locally in $0"
 msgstr "локально в $0"
 
@@ -8359,13 +8489,14 @@ msgid "network"
 msgstr "сеть"
 
 #: pkg/kdump/kdump-client.js:117
+#, fuzzy
 msgid "nfs dump target isn't formated as server:path"
 msgstr "Назначение дампа nfs не отформатировано как сервер: путь"
 
 #: pkg/machines/components/networks/networkOverviewTab.jsx:84
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:67
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:70
-#: pkg/machines/components/vmDisksTab.jsx:143 pkg/machines/helpers.js:234
+#: pkg/machines/helpers.js:234
 msgid "no"
 msgstr "нет"
 
@@ -8386,6 +8517,7 @@ msgid "paused"
 msgstr "приостановлена"
 
 #: pkg/tuned/change-profile.jsx:42
+#, fuzzy
 msgid "recommended"
 msgstr "рекомендуемые"
 
@@ -8402,10 +8534,12 @@ msgid "search by name, namespace or description"
 msgstr "Поиск по имени, пространству имён или описанию"
 
 #: pkg/packagekit/updates.jsx:262
+#, fuzzy
 msgid "security"
 msgstr "безопасность"
 
 #: pkg/docker/index.html:406
+#, fuzzy
 msgid "select container"
 msgstr "выбрать контейнер"
 
@@ -8414,14 +8548,17 @@ msgid "server"
 msgstr "сервер"
 
 #: pkg/docker/index.html:485 pkg/docker/index.html:657
+#, fuzzy
 msgid "shares"
 msgstr "акции"
 
 #: pkg/lib/cockpit-components-inline-notification.jsx:60
+#, fuzzy
 msgid "show less"
 msgstr "показывай меньше"
 
 #: pkg/lib/cockpit-components-inline-notification.jsx:58
+#, fuzzy
 msgid "show more"
 msgstr "показать больше"
 
@@ -8434,22 +8571,27 @@ msgid "shutdown"
 msgstr "не работает"
 
 #: pkg/selinux/setroubleshoot-view.jsx:124
+#, fuzzy
 msgid "solution details"
 msgstr "детали решения"
 
 #: pkg/kdump/kdump-view.jsx:121
+#, fuzzy
 msgid "ssh key"
 msgstr "клавиша ssh"
 
 #: pkg/kdump/kdump-client.js:122
+#, fuzzy
 msgid "ssh key isn't a path"
 msgstr "ключ ssh не путь"
 
 #: pkg/kdump/kdump-client.js:120
+#, fuzzy
 msgid "ssh server is empty"
 msgstr "сервер ssh пуст"
 
 #: pkg/machines/helpers.js:195
+#, fuzzy
 msgid "suspended (PM)"
 msgstr "приостановлено (PM)"
 
@@ -8458,10 +8600,12 @@ msgid "to host path"
 msgstr "к адресу узла"
 
 #: pkg/docker/run.js:418
+#, fuzzy
 msgid "to host port"
 msgstr "для размещения порта"
 
 #: pkg/users/index.html:434
+#, fuzzy
 msgid "translatable"
 msgstr "переводимый"
 
@@ -8470,22 +8614,27 @@ msgid "udp"
 msgstr "udp"
 
 #: pkg/lib/cockpit-components-select.jsx:28
+#, fuzzy
 msgid "undefined"
 msgstr "не определено"
 
 #: pkg/systemd/init.js:257 pkg/systemd/init.js:271
+#, fuzzy
 msgid "unknown"
 msgstr "неизвестно"
 
 #: pkg/storaged/jobs-panel.jsx:96
+#, fuzzy
 msgid "unknown target"
 msgstr "неизвестная цель"
 
 #: pkg/storaged/utils.js:431
+#, fuzzy
 msgid "unpartitioned space on $0"
 msgstr "нераспределенное пространство на $0"
 
 #: pkg/machines/helpers.js:237
+#, fuzzy
 msgid "up"
 msgstr "вверх"
 
@@ -8494,20 +8643,24 @@ msgid "user"
 msgstr "пользователь"
 
 #: pkg/machines/components/vcpuModal.jsx:193
+#, fuzzy
 msgid "vCPU Count"
 msgstr "счетчик vCPU"
 
 #: pkg/machines/components/vcpuModal.jsx:205
+#, fuzzy
 msgid "vCPU Maximum"
 msgstr "максимум vCPU"
 
 # ctx::sourcefile::/rhn/systems/details/virtualization/VirtualGuestsList.do
 #: pkg/machines/components/vmOverviewTab.jsx:75
+#, fuzzy
 msgid "vCPUs"
 msgstr "VCPU"
 
 # ctx::sourcefile::NOT USED
 #: pkg/docker/run.js:528
+#, fuzzy
 msgid "value"
 msgstr "значение"
 
@@ -8515,7 +8668,7 @@ msgstr "значение"
 msgid "vhostuser"
 msgstr "vhostuser"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:836
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:838
 msgid ""
 "virt-install package needs to be installed on the system in order to create "
 "new VMs"
@@ -8526,6 +8679,6 @@ msgstr ""
 #: pkg/machines/components/networks/networkOverviewTab.jsx:84
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:67
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:70
-#: pkg/machines/components/vmDisksTab.jsx:143 pkg/machines/helpers.js:233
+#: pkg/machines/helpers.js:233
 msgid "yes"
 msgstr "да"

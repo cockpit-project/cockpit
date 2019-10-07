@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-09-30 08:43+0000\n"
+"POT-Creation-Date: 2019-10-07 13:19+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -23,6 +23,10 @@ msgstr ""
 #: pkg/docker/storage.jsx:261
 msgid " (shared with the OS)"
 msgstr " (спільний із операційною системою)"
+
+#: pkg/machines/components/diskAdd.jsx:236
+msgid " Attaching it will make this disk shareable for every VM using it."
+msgstr ""
 
 #: pkg/networkmanager/interfaces.js:2353
 msgid "$0 Active Rule"
@@ -582,6 +586,8 @@ msgid "Absent"
 msgstr "Відсутній"
 
 #: pkg/users/index.html:104 pkg/users/index.html:190
+#: pkg/machines/components/diskEdit.jsx:58
+#: pkg/machines/components/vmDisksTab.jsx:118
 msgid "Access"
 msgstr "Доступ"
 
@@ -650,7 +656,7 @@ msgid "Adaptive transmit load balancing"
 msgstr "Адаптивне урівноваження навантаження за передаванням"
 
 #: pkg/lib/machine-add.html:43 pkg/shell/index.html:180
-#: pkg/machines/components/diskAdd.jsx:471
+#: pkg/machines/components/diskAdd.jsx:522
 #: pkg/machines/components/nicAdd.jsx:235 pkg/storaged/crypto-keyslots.jsx:235
 #: pkg/storaged/iscsi-panel.jsx:137 pkg/storaged/iscsi-panel.jsx:161
 #: pkg/storaged/mdraid-details.jsx:58 pkg/storaged/nfs-details.jsx:198
@@ -674,7 +680,8 @@ msgstr "Додати зв’язок"
 msgid "Add Bridge"
 msgstr "Додати місток"
 
-#: pkg/machines/components/vmDisksTab.jsx:93
+#: pkg/machines/components/diskAdd.jsx:510
+#: pkg/machines/components/vmDisksTab.jsx:97
 msgid "Add Disk"
 msgstr "Додати диск"
 
@@ -714,6 +721,10 @@ msgstr "Додати команду"
 #: pkg/networkmanager/index.html:113
 msgid "Add VLAN"
 msgstr "Додати VLAN"
+
+#: pkg/machines/components/nicAdd.jsx:224
+msgid "Add Virtual Network Interface"
+msgstr ""
 
 #: pkg/networkmanager/firewall.jsx:732 pkg/networkmanager/firewall.jsx:912
 #: pkg/networkmanager/firewall.jsx:923
@@ -768,7 +779,7 @@ msgstr "Додавання ключа"
 msgid "Adding physical volume to $target"
 msgstr "Додаємо фізичний том до $target"
 
-#: pkg/machines/components/vmDisksTab.jsx:116
+#: pkg/machines/components/vmDisksTab.jsx:122
 msgid "Additional"
 msgstr "Додаткові"
 
@@ -899,7 +910,7 @@ msgstr "Дозволені служби"
 msgid "Always"
 msgstr "Завжди"
 
-#: pkg/machines/components/diskAdd.jsx:117
+#: pkg/machines/components/diskAdd.jsx:118
 #: pkg/machines/components/nicAdd.jsx:86
 msgid "Always attach"
 msgstr "Завжди долучати"
@@ -921,7 +932,7 @@ msgstr "Програми"
 #: pkg/networkmanager/index.html:526 pkg/networkmanager/index.html:550
 #: pkg/networkmanager/index.html:574 pkg/networkmanager/index.html:598
 #: pkg/networkmanager/index.html:622 pkg/networkmanager/index.html:646
-#: pkg/networkmanager/index.html:670 pkg/kdump/kdump-view.jsx:354
+#: pkg/networkmanager/index.html:670 pkg/kdump/kdump-view.jsx:355
 #: pkg/machines/components/vcpuModal.jsx:260 pkg/storaged/crypto-tab.jsx:78
 #: pkg/storaged/crypto-tab.jsx:108 pkg/storaged/fsys-tab.jsx:80
 #: pkg/storaged/fsys-tab.jsx:129 pkg/storaged/nfs-details.jsx:198
@@ -1199,7 +1210,7 @@ msgstr "Вади:"
 
 #: pkg/machines/components/vm/bootOrderModal.jsx:109
 #: pkg/machines/components/vm/bootOrderModal.jsx:132
-#: pkg/machines/components/vmDisksTab.jsx:110
+#: pkg/machines/components/vmDisksTab.jsx:116
 msgid "Bus"
 msgstr "Канал"
 
@@ -1237,7 +1248,7 @@ msgstr "Пріоритетність процесора"
 msgid "CPU usage:"
 msgstr "Використання процесора:"
 
-#: pkg/machines/components/diskAdd.jsx:174
+#: pkg/machines/components/diskAdd.jsx:175
 #: pkg/machines/components/vmDiskColumns.jsx:75
 msgid "Cache"
 msgstr "Кеш"
@@ -1276,9 +1287,10 @@ msgstr "Не вдалося завантажити образ"
 #: pkg/users/index.html:315 pkg/users/index.html:332 pkg/users/index.html:356
 #: pkg/users/index.html:413 pkg/apps/utils.jsx:86
 #: pkg/lib/cockpit-components-dialog.jsx:159
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:781
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:783
 #: pkg/machines/components/deleteDialog.jsx:158
-#: pkg/machines/components/diskAdd.jsx:468
+#: pkg/machines/components/diskAdd.jsx:519
+#: pkg/machines/components/diskEdit.jsx:173
 #: pkg/machines/components/networks/createNetworkDialog.jsx:477
 #: pkg/machines/components/networks/networkDelete.jsx:100
 #: pkg/machines/components/nicAdd.jsx:232
@@ -1309,7 +1321,7 @@ msgstr "Не вдалося переспрямувати реєстраційн�
 msgid "Cannot schedule event in the past"
 msgstr "Не можна планувати подію на минуле"
 
-#: pkg/machines/components/vmDisksTab.jsx:108
+#: pkg/machines/components/vmDisksTab.jsx:114
 msgid "Capacity"
 msgstr "Місткість"
 
@@ -1363,6 +1375,7 @@ msgstr "Змінити обмеження ресурсів"
 msgid "Change the settings"
 msgstr "Змінити параметри"
 
+#: pkg/machines/components/diskEdit.jsx:154
 #: pkg/machines/components/nicEdit.jsx:157
 #: pkg/machines/components/vcpuModal.jsx:184
 #: pkg/machines/components/vm/bootOrderModal.jsx:283
@@ -1414,7 +1427,7 @@ msgstr "Шукаємо оновлення…"
 msgid "Checking installed software"
 msgstr "Перевіряємо встановлене програмне забезпечення"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:351
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:350
 msgid "Choose an operating system"
 msgstr "Виберіть операційну систему"
 
@@ -1488,7 +1501,7 @@ msgstr ""
 msgid "Cockpit could not contact the given host."
 msgstr "Cockpit не вдалося встановити зв’язок із вказаним вузлом."
 
-#: pkg/shell/base_index.js:759
+#: pkg/shell/base_index.js:764
 msgid ""
 "Cockpit had an unexpected internal error. <br/><br/>You can try restarting "
 "Cockpit by pressing refresh in your browser. The javascript console contains "
@@ -1910,7 +1923,7 @@ msgstr "Не вдалося побудувати список користува
 msgid "Couldn't load user data"
 msgstr "Не вдалося завантажити дані користувача"
 
-#: pkg/kdump/kdump-view.jsx:337 pkg/kdump/kdump-view.jsx:506
+#: pkg/kdump/kdump-view.jsx:338 pkg/kdump/kdump-view.jsx:507
 msgid "Crash dump location"
 msgstr "Розташування дампу аварійного завершення"
 
@@ -1919,7 +1932,7 @@ msgid "Crash system"
 msgstr "Аварійно завершити роботу системи"
 
 #: pkg/users/index.html:199
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:786
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:788
 #: pkg/machines/components/networks/createNetworkDialog.jsx:482
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:514
 #: pkg/machines/components/storagePools/storageVolumeCreate.jsx:96
@@ -1933,7 +1946,7 @@ msgstr "Створити"
 msgid "Create Logical Volume"
 msgstr "Створити логічний том"
 
-#: pkg/machines/components/diskAdd.jsx:423
+#: pkg/machines/components/diskAdd.jsx:473
 msgid "Create New"
 msgstr "Створити"
 
@@ -1941,7 +1954,11 @@ msgstr "Створити"
 msgid "Create New Account"
 msgstr "Створити новий рахунок"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:443
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:775
+msgid "Create New Virtual Machine"
+msgstr "Створити віртуальну машину"
+
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:442
 msgid "Create New Volume"
 msgstr "Створити том"
 
@@ -1969,9 +1986,14 @@ msgstr "Створити звіт"
 msgid "Create Snapshot"
 msgstr "Створення знімка"
 
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:502
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:548
 msgid "Create Storage Pool"
 msgstr "Створити резервне сховище"
+
+#: pkg/machines/components/storagePools/storageVolumeCreate.jsx:79
+msgid "Create Storage Volume"
+msgstr ""
 
 #: pkg/storaged/content-views.jsx:111 pkg/storaged/content-views.jsx:138
 msgid "Create Thin Volume"
@@ -1989,7 +2011,7 @@ msgstr "Створити таймери"
 msgid "Create VDO Device"
 msgstr "Створити пристрій VDO"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:831
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:833
 msgid "Create VM"
 msgstr "Створення ВМ"
 
@@ -2021,7 +2043,7 @@ msgid "Create new Logical Volume"
 msgstr "Створити логічний том"
 
 #: pkg/docker/containers-view.jsx:129 pkg/docker/containers-view.jsx:412
-#: pkg/docker/containers-view.jsx:683
+#: pkg/docker/containers-view.jsx:687
 msgid "Created"
 msgstr "Створено"
 
@@ -2085,7 +2107,7 @@ msgstr ""
 msgid "Creating volume group $target"
 msgstr "Створюємо групу томів $target"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:683
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:685
 msgid "Creation of VM $0 failed"
 msgstr "Не вдалося створити ВМ $0"
 
@@ -2311,13 +2333,13 @@ msgstr "Вилучаємо групу томів $target"
 msgid "Description"
 msgstr "Опис"
 
-#: pkg/playground/manifest.json.in
-msgid "Design Patterns"
-msgstr "Взірці дизайну"
-
 #: pkg/lib/machine-info.js:66
 msgid "Desktop"
 msgstr "Робоча станція"
+
+#: pkg/machines/components/diskRemove.jsx:48
+msgid "Detach"
+msgstr ""
 
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:151
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:187
@@ -2338,11 +2360,15 @@ msgstr "Змінний"
 msgid "Details"
 msgstr "Подробиці"
 
+#: pkg/playground/manifest.json.in
+msgid "Development"
+msgstr ""
+
 #: pkg/machines/components/networks/createNetworkDialog.jsx:155
 #: pkg/machines/components/networks/networkList.jsx:55
 #: pkg/machines/components/vm/bootOrderModal.jsx:93
 #: pkg/machines/components/vmDiskColumns.jsx:43
-#: pkg/machines/components/vmDisksTab.jsx:96
+#: pkg/machines/components/vmDisksTab.jsx:102
 msgid "Device"
 msgstr "Пристрій"
 
@@ -2413,11 +2439,11 @@ msgstr "Не вдалося від'єднати диск $0 від віртуа�
 msgid "Disk I/O"
 msgstr "Дисковий ввід/вивід"
 
-#: pkg/machines/components/diskAdd.jsx:396
+#: pkg/machines/components/diskAdd.jsx:429
 msgid "Disk failed to be attached"
 msgstr "Не вдалося долучити диск"
 
-#: pkg/machines/components/diskAdd.jsx:373
+#: pkg/machines/components/diskAdd.jsx:401
 msgid "Disk failed to be created"
 msgstr "Не вдалося створити диск"
 
@@ -2429,13 +2455,18 @@ msgstr "З диском усе гаразд"
 msgid "Disk passphrase"
 msgstr "Пароль до диска"
 
+#: pkg/machines/components/diskAdd.jsx:440
+#: pkg/machines/components/diskEdit.jsx:126
+msgid "Disk settings could not be saved"
+msgstr ""
+
 #: pkg/machines/components/vm/vm.jsx:51 pkg/storaged/mdraid-details.jsx:47
 #: pkg/storaged/mdraid-details.jsx:147 pkg/storaged/mdraids-panel.jsx:90
 #: pkg/storaged/vgroup-details.jsx:54 pkg/storaged/vgroups-panel.jsx:61
 msgid "Disks"
 msgstr "Диски"
 
-#: pkg/machines/components/diskRemove.jsx:57
+#: pkg/machines/components/diskRemove.jsx:60
 msgid "Disks cannot be removed from $0 VMs"
 msgstr "Не можна вилучати диски з ВМ $0"
 
@@ -2542,6 +2573,7 @@ msgstr "Дублювання псевдоніма"
 msgid "Duplicate port"
 msgstr "Дублювання порту"
 
+#: pkg/machines/components/diskEdit.jsx:207
 #: pkg/machines/components/nicEdit.jsx:166 pkg/storaged/crypto-tab.jsx:131
 #: pkg/storaged/nfs-details.jsx:314
 msgid "Edit"
@@ -2701,7 +2733,7 @@ msgstr "Помилки:"
 
 #: pkg/playground/translate.html:100 pkg/playground/translate.html:105
 #: pkg/apps/utils.jsx:100 pkg/storaged/multipath.jsx:57
-#: pkg/storaged/storage-controls.jsx:100 pkg/storaged/storage-controls.jsx:194
+#: pkg/storaged/storage-controls.jsx:100 pkg/storaged/storage-controls.jsx:192
 #: pkg/systemd/service-details.jsx:450 pkg/users/local.js:1476
 msgid "Error"
 msgstr "Помилка"
@@ -2762,11 +2794,7 @@ msgstr "Приклад: 88,2019,nfs,rsync"
 msgid "Excellent password"
 msgstr "Чудовий пароль"
 
-#: pkg/playground/manifest.json.in
-msgid "Exceptions"
-msgstr "Виключення"
-
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:229
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:228
 msgid "Existing disk image on host's file system"
 msgstr "Наявний образ диска у файловій системі основної системи"
 
@@ -3029,7 +3057,7 @@ msgstr "Створити автоматично"
 msgid "Generating report"
 msgstr "Створюємо звіт"
 
-#: pkg/docker/containers-view.jsx:680
+#: pkg/docker/containers-view.jsx:683
 msgid "Get new image"
 msgstr "Отримати новий образ"
 
@@ -3037,7 +3065,7 @@ msgstr "Отримати новий образ"
 #: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:98
 #: pkg/machines/components/vm/memoryModal.jsx:153
 #: pkg/machines/components/vm/memoryModal.jsx:191
-#: pkg/machines/components/vmDisksTab.jsx:51
+#: pkg/machines/components/vmDisksTab.jsx:54
 msgid "GiB"
 msgstr "ГіБ"
 
@@ -3113,7 +3141,7 @@ msgstr "Дані щодо обладнання"
 msgid "Hello time $hello_time"
 msgstr "Час вітання $hello_time"
 
-#: pkg/machines/components/diskAdd.jsx:166
+#: pkg/machines/components/diskAdd.jsx:167
 msgid "Hide Performance Options"
 msgstr "Приховати параметри швидкодії"
 
@@ -3243,6 +3271,7 @@ msgid "IPv6 only"
 msgstr "Лише IPv6"
 
 #: pkg/docker/containers-view.jsx:128 pkg/docker/containers-view.jsx:408
+#: pkg/machines/components/diskEdit.jsx:34
 msgid "Id"
 msgstr "Ід."
 
@@ -3283,7 +3312,7 @@ msgstr "Пошук образів"
 msgid "Image:"
 msgstr "Зображення:"
 
-#: pkg/docker/containers-view.jsx:711
+#: pkg/docker/containers-view.jsx:715
 msgid "Images"
 msgstr "Зображення"
 
@@ -3296,11 +3325,11 @@ msgstr "Образи"
 msgid "Images and running containers"
 msgstr "Образи і запущені контейнери"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:764
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:766
 msgid "Immediately Start VM"
 msgstr "Негайно запустити ВМ"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:831
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:833
 msgid "Import VM"
 msgstr "Імпортувати ВМ"
 
@@ -3308,7 +3337,7 @@ msgstr "Імпортувати ВМ"
 msgid "In Sync"
 msgstr "Синхронізовано"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:237
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:236
 msgid ""
 "In most configurations, macvtap does not work for host to guest network "
 "communication."
@@ -3397,17 +3426,17 @@ msgstr ""
 "Встановіть setroubleshoot-server, щоб мати змогу діагностувати причини подій "
 "SELinux."
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:298
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:297
 msgid "Installation Source"
 msgstr "Джерело для встановлення"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:280
-msgid "Installation Source Type"
-msgstr "Тип джерела для встановлення"
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:148
+msgid "Installation Source must not be empty"
+msgstr ""
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:149
-msgid "Installation Source should not be empty"
-msgstr "Запис джерела для встановлення має бути непорожнім"
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:279
+msgid "Installation Type"
+msgstr ""
 
 #: pkg/packagekit/updates.jsx:59
 msgid "Installed"
@@ -3492,7 +3521,7 @@ msgstr "Некоректна дата строку завершення дії"
 msgid "Invalid file permissions"
 msgstr "Некоректні права доступу до файла"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:136
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:135
 msgid "Invalid filename"
 msgstr "Некоректна назва файла"
 
@@ -3592,7 +3621,7 @@ msgstr "Запис журналу"
 msgid "Journal entry not found"
 msgstr "Не знайдено запису журналу"
 
-#: pkg/kdump/kdump-view.jsx:461
+#: pkg/kdump/kdump-view.jsx:462
 msgid ""
 "Kdump service not installed. Please ensure package kexec-tools is installed."
 msgstr ""
@@ -3769,7 +3798,7 @@ msgstr "Завантажуємо доступні оновлення, зачек
 msgid "Loading system modifications..."
 msgstr "Завантажуємо модифікації системи…"
 
-#: pkg/systemd/services.html:78 pkg/kdump/kdump-view.jsx:369
+#: pkg/systemd/services.html:78 pkg/kdump/kdump-view.jsx:370
 #: pkg/storaged/devices.jsx:65 pkg/systemd/logs.js:145 pkg/systemd/logs.js:160
 #: pkg/systemd/logs.js:207 pkg/systemd/logs.js:256 pkg/systemd/logs.js:318
 msgid "Loading..."
@@ -3787,7 +3816,7 @@ msgstr "Локальні диски"
 msgid "Local Filesystem"
 msgstr "Локальна файлова система"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:286
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:285
 msgid "Local Install Media"
 msgstr "Локальні носії для встановлення"
 
@@ -4034,7 +4063,7 @@ msgstr "Елемент пристрою RAID $0"
 #: pkg/dashboard/index.html:71 pkg/docker/index.html:273
 #: pkg/playground/translate.html:90 pkg/systemd/index.html:215
 #: pkg/docker/containers-view.jsx:359
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:389
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:388
 #: pkg/machines/components/vmOverviewTab.jsx:74 pkg/systemd/hwinfo.jsx:263
 msgid "Memory"
 msgstr "Пам'ять"
@@ -4061,7 +4090,7 @@ msgstr "Не вдалося зберегти дані щодо обсягу па
 msgid "Memory limit"
 msgstr "Обмеження пам’яті"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:153
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:152
 msgid "Memory must not be 0"
 msgstr "Об'єм пам'яті не може бути нульовим"
 
@@ -4155,7 +4184,7 @@ msgstr "Більше"
 msgid "More Information"
 msgstr "Докладніше"
 
-#: pkg/kdump/kdump-view.jsx:450
+#: pkg/kdump/kdump-view.jsx:451
 msgid "More details"
 msgstr "Докладніше"
 
@@ -4247,8 +4276,8 @@ msgstr "Сервер NTP"
 #: pkg/networkmanager/index.html:137 pkg/networkmanager/index.html:165
 #: pkg/networkmanager/index.html:209 pkg/networkmanager/index.html:262
 #: pkg/networkmanager/index.html:319 pkg/docker/containers-view.jsx:359
-#: pkg/docker/containers-view.jsx:683
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:191
+#: pkg/docker/containers-view.jsx:687
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:190
 #: pkg/machines/components/networks/createNetworkDialog.jsx:108
 #: pkg/machines/components/networks/networkList.jsx:55
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:42
@@ -4298,6 +4327,9 @@ msgid "Name cannot contain whitespace."
 msgstr "У назві не повинно бути пробілів"
 
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:121
+msgid "Name must not be empty"
+msgstr ""
+
 #: pkg/machines/components/networks/createNetworkDialog.jsx:41
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:53
 msgid "Name should not be empty"
@@ -4335,11 +4367,11 @@ msgstr "Не вдалося активувати мережу $0"
 msgid "Network $0 failed to get deactivated"
 msgstr "Не вдалося деактивувати мережу $0"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:292
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:291
 msgid "Network Boot (PXE)"
 msgstr "Мережеве завантаження (PXE)"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:289
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:288
 msgid "Network Boot is available only when using System connection"
 msgstr ""
 "Завантаження з мережі доступне, лише якщо використано з'єднання «Система»"
@@ -4352,7 +4384,7 @@ msgstr "Мережева файлова система"
 msgid "Network Interfaces"
 msgstr "Інтерфейси мережі"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:243
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:242
 msgid "Network Selection does not support PXE."
 msgstr "Для вибору мережі не передбачено підтримки PXE."
 
@@ -4471,12 +4503,12 @@ msgstr "Немає пристроїв мережі"
 msgid "No SELinux alerts."
 msgstr "Немає сповіщень SELinux."
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:444
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:443
 msgid "No Storage"
 msgstr "Немає сховища даних"
 
-#: pkg/machines/components/diskAdd.jsx:132
-#: pkg/machines/components/diskAdd.jsx:144
+#: pkg/machines/components/diskAdd.jsx:133
+#: pkg/machines/components/diskAdd.jsx:145
 msgid "No Storage Pools available"
 msgstr "Немає доступних буферів зберігання даних"
 
@@ -4528,7 +4560,7 @@ msgstr "Не знайдено пристрою для завантаження"
 msgid "No carrier"
 msgstr "Немає сигналу"
 
-#: pkg/kdump/kdump-view.jsx:398
+#: pkg/kdump/kdump-view.jsx:399
 msgid "No configuration found"
 msgstr "Не знайдено налаштувань"
 
@@ -4562,7 +4594,7 @@ msgstr "Опису не надано."
 msgid "No disks are available."
 msgstr "Немає доступних дисків."
 
-#: pkg/machines/components/vmDisksTab.jsx:121
+#: pkg/machines/components/vmDisksTab.jsx:127
 msgid "No disks defined for this VM"
 msgstr "Для цієї ВМ не визначено дисків"
 
@@ -4586,11 +4618,11 @@ msgstr "Не знайдено ключів вузлів."
 msgid "No iSCSI targets set up"
 msgstr "Призначень iSCSI не налаштовано"
 
-#: pkg/docker/containers-view.jsx:705
+#: pkg/docker/containers-view.jsx:709
 msgid "No images"
 msgstr "Немає образів"
 
-#: pkg/docker/containers-view.jsx:707
+#: pkg/docker/containers-view.jsx:711
 msgid "No images that match the current filter"
 msgstr "Немає образів, які проходять поточні умови фільтрування"
 
@@ -4606,7 +4638,7 @@ msgstr "Не додано жодного ключа"
 msgid "No media inserted"
 msgstr "Не виявлено носія даних"
 
-#: pkg/kdump/kdump-view.jsx:452
+#: pkg/kdump/kdump-view.jsx:453
 msgid ""
 "No memory reserved. Append a crashkernel option to the kernel command line "
 "(e.g. in /etc/default/grub) to reserve memory at boot time. Example: "
@@ -4680,7 +4712,7 @@ msgstr "Не вказано імені користувача"
 msgid "No volume groups created"
 msgstr "Груп томів не створено"
 
-#: pkg/kdump/kdump-view.jsx:421
+#: pkg/kdump/kdump-view.jsx:422
 #: pkg/machines/components/networks/createNetworkDialog.jsx:190
 #: pkg/networkmanager/firewall.jsx:766 pkg/tuned/dialog.js:232
 msgid "None"
@@ -4754,14 +4786,6 @@ msgstr "Ноутбук"
 msgid "Notice and above"
 msgstr "Зауваження і вище"
 
-#: pkg/playground/manifest.json.in
-msgid "Notifications"
-msgstr "Сповіщення"
-
-#: pkg/playground/manifest.json.in
-msgid "Notifications Receiver"
-msgstr "Отримувач сповіщень"
-
 #: pkg/selinux/setroubleshoot-view.jsx:404
 msgid "Occurred $0"
 msgstr "Сталося $0"
@@ -4790,7 +4814,7 @@ msgstr "Старий пароль не прийнято"
 msgid "On Failure"
 msgstr "Якщо помилка"
 
-#: pkg/kdump/kdump-view.jsx:395
+#: pkg/kdump/kdump-view.jsx:396
 msgid "On a mounted device"
 msgstr "На змонтованому пристрої"
 
@@ -4846,7 +4870,7 @@ msgid "Open"
 msgstr "Відкрита"
 
 #: pkg/systemd/index.html:98
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:342
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:341
 msgid "Operating System"
 msgstr "Операційна система"
 
@@ -4918,10 +4942,6 @@ msgstr "PackageKit не встановлено"
 #: pkg/packagekit/updates.jsx:719
 msgid "PackageKit reported error code $0"
 msgstr "PackageKit повідомлено про помилку із кодом $0"
-
-#: pkg/playground/manifest.json.in
-msgid "Packages"
-msgstr "Пакунки"
 
 #: pkg/networkmanager/index.html:156
 msgid "Parent"
@@ -5019,7 +5039,7 @@ msgid "Paste the contents of your public SSH key file here"
 msgstr "Сюди слід вставити вміст файла вашого відкритого ключа SSH"
 
 #: pkg/machines/components/deleteDialog.jsx:45
-#: pkg/systemd/service-details.jsx:483
+#: pkg/machines/components/diskEdit.jsx:36 pkg/systemd/service-details.jsx:483
 msgid "Path"
 msgstr "Шлях"
 
@@ -5047,7 +5067,7 @@ msgstr "Шлях на сервері не може бути порожнім."
 msgid "Path on server must start with \"/\"."
 msgstr "Шлях на сервері має починатися з «/»."
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:220
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:219
 msgid "Path to ISO file on host's file system"
 msgstr "Шлях до ISO у файловій системі основної системи"
 
@@ -5083,7 +5103,7 @@ msgstr "Доступ заборонено"
 msgid "Permissive"
 msgstr "Дозвільна"
 
-#: pkg/machines/components/diskAdd.jsx:111
+#: pkg/machines/components/diskAdd.jsx:112
 #: pkg/machines/components/nicAdd.jsx:80
 msgid "Persistence"
 msgstr "Сталість"
@@ -5148,11 +5168,11 @@ msgstr "Будь ласка, підтвердьте примусове вилу�
 msgid "Please confirm stopping of $0"
 msgstr "Будь ласка, підтвердьте зупинку $0"
 
-#: pkg/machines/components/diskAdd.jsx:350
+#: pkg/machines/components/diskAdd.jsx:378
 msgid "Please enter new volume name"
 msgstr "Будь ласка, введіть назву нового тому"
 
-#: pkg/machines/components/diskAdd.jsx:353
+#: pkg/machines/components/diskAdd.jsx:381
 msgid "Please enter new volume size"
 msgstr "Будь ласка, введіть розмір нового тому"
 
@@ -5182,7 +5202,7 @@ msgid "Plug"
 msgstr "З'єднати"
 
 #: pkg/machines/components/deleteDialog.jsx:53
-#: pkg/machines/components/diskAdd.jsx:127
+#: pkg/machines/components/diskAdd.jsx:128
 #: pkg/machines/components/vm/bootOrderModal.jsx:95
 #: pkg/machines/components/vmDiskColumns.jsx:45
 #: pkg/storaged/content-views.jsx:137
@@ -5264,10 +5284,6 @@ msgstr "Довжина префікса"
 #: pkg/networkmanager/interfaces.js:3329
 msgid "Prefix length or Netmask"
 msgstr "Довжина префікса або маска мережі"
-
-#: pkg/playground/manifest.json.in
-msgid "Preloaded"
-msgstr "Попередньо завантажене"
 
 #: pkg/networkmanager/interfaces.js:840
 msgid "Preparing"
@@ -5461,18 +5477,16 @@ msgstr "Діапазон має бути строго упорядковано"
 msgid "Rank"
 msgstr "Ранг"
 
-#: pkg/kdump/kdump-view.jsx:390
+#: pkg/kdump/kdump-view.jsx:391
 msgid "Raw to a device"
 msgstr "Без обробки на пристрій"
-
-#: pkg/playground/manifest.json.in
-msgid "React Patterns"
-msgstr "Взірці React"
 
 #: pkg/systemd/hwinfo.jsx:197
 msgid "Read more..."
 msgstr "Докладніше…"
 
+#: pkg/machines/components/diskEdit.jsx:70
+#: pkg/machines/components/vmDisksTab.jsx:151
 #: pkg/systemd/service-details.jsx:388
 msgid "Read-only"
 msgstr "Лише читання"
@@ -5489,13 +5503,9 @@ msgstr "Запис-читання"
 msgid "Reading"
 msgstr "Читання"
 
-#: pkg/kdump/kdump-view.jsx:415
+#: pkg/kdump/kdump-view.jsx:416
 msgid "Reading..."
 msgstr "Читання…"
-
-#: pkg/machines/components/vmDisksTab.jsx:112
-msgid "Readonly"
-msgstr "Лише запис"
 
 #: pkg/playground/translate.html:19
 msgid "Ready"
@@ -5585,15 +5595,15 @@ msgstr "Перезавантажити"
 msgid "Reload Propagated From"
 msgstr "Поширене перезавантаження з"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:268
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:267
 msgid "Remote URL"
 msgstr "Віддалена адреса"
 
-#: pkg/kdump/kdump-view.jsx:137 pkg/kdump/kdump-view.jsx:388
+#: pkg/kdump/kdump-view.jsx:137 pkg/kdump/kdump-view.jsx:389
 msgid "Remote over NFS"
 msgstr "Віддалене на основі NFS"
 
-#: pkg/kdump/kdump-view.jsx:138 pkg/kdump/kdump-view.jsx:386
+#: pkg/kdump/kdump-view.jsx:138 pkg/kdump/kdump-view.jsx:387
 msgid "Remote over SSH"
 msgstr "Віддалене на основі SSH"
 
@@ -5767,7 +5777,7 @@ msgstr "Потрібний"
 msgid "Requisite Of"
 msgstr "Потрібний для"
 
-#: pkg/kdump/kdump-view.jsx:503
+#: pkg/kdump/kdump-view.jsx:504
 msgid "Reserved memory"
 msgstr "Зарезервована пам’ять"
 
@@ -5974,7 +5984,8 @@ msgstr "субота"
 msgid "Saturdays"
 msgstr "Суботи"
 
-#: pkg/systemd/services.html:378 pkg/machines/components/nicEdit.jsx:184
+#: pkg/systemd/services.html:378 pkg/machines/components/diskEdit.jsx:176
+#: pkg/machines/components/nicEdit.jsx:184
 #: pkg/machines/components/vm/bootOrderModal.jsx:330
 #: pkg/machines/components/vm/memoryModal.jsx:217
 #: pkg/storaged/crypto-keyslots.jsx:266 pkg/storaged/crypto-keyslots.jsx:285
@@ -6098,23 +6109,23 @@ msgstr "Служба"
 msgid "Service Logs"
 msgstr "Журнали служб"
 
-#: pkg/kdump/kdump-view.jsx:444
+#: pkg/kdump/kdump-view.jsx:445
 msgid "Service has an error"
 msgstr "Помилка у службі"
 
-#: pkg/kdump/kdump-view.jsx:440
+#: pkg/kdump/kdump-view.jsx:441
 msgid "Service is running"
 msgstr "Службу запущено"
 
-#: pkg/kdump/kdump-view.jsx:446
+#: pkg/kdump/kdump-view.jsx:447
 msgid "Service is starting"
 msgstr "Служба запускається"
 
-#: pkg/kdump/kdump-view.jsx:442
+#: pkg/kdump/kdump-view.jsx:443
 msgid "Service is stopped"
 msgstr "Службу зупинено"
 
-#: pkg/kdump/kdump-view.jsx:448
+#: pkg/kdump/kdump-view.jsx:449
 msgid "Service is stopping"
 msgstr "Служба зупиняється"
 
@@ -6203,7 +6214,7 @@ msgstr "Скрипт оболонки"
 msgid "Shift+Insert"
 msgstr "Shift+Insert"
 
-#: pkg/machines/components/diskAdd.jsx:166
+#: pkg/machines/components/diskAdd.jsx:167
 msgid "Show Performance Options"
 msgstr "Показати параметри швидкодії"
 
@@ -6248,8 +6259,8 @@ msgstr "Вимкнути"
 msgid "Single Rank"
 msgstr "Єдиний ранг"
 
-#: pkg/docker/containers-view.jsx:683
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:475
+#: pkg/docker/containers-view.jsx:687
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:474
 #: pkg/machines/components/storagePools/storagePoolList.jsx:54
 #: pkg/machines/components/storagePools/storagePoolVolumesTab.jsx:84
 #: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:79
@@ -6335,10 +6346,10 @@ msgstr ""
 msgid "Sorted from least trusted to most trusted"
 msgstr "Упорядковано від найменшої до найбільшої довіри"
 
-#: pkg/machines/components/diskAdd.jsx:412
+#: pkg/machines/components/diskAdd.jsx:462
 #: pkg/machines/components/nicBody.jsx:149
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:52
-#: pkg/machines/components/vmDisksTab.jsx:114
+#: pkg/machines/components/vmDisksTab.jsx:120
 #: pkg/machines/components/vmnetworktab.jsx:160
 msgid "Source"
 msgstr "Джерело"
@@ -6363,7 +6374,7 @@ msgstr "Початкова група томів"
 msgid "Source path should not be empty"
 msgstr "Шлях до джерела не може бути порожнім"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:144
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:143
 msgid "Source should start with http, ftp or nfs protocol"
 msgstr "Адреса джерела має починатися із назви протоколу — http, ftp або nfs"
 
@@ -6512,7 +6523,7 @@ msgid "Stopping swapspace $target"
 msgstr "Зупиняємо резервну область пам’яті $target"
 
 #: pkg/docker/index.html:290 pkg/storaged/index.html:23
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:438
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:437
 #: pkg/storaged/details.jsx:127 pkg/storaged/manifest.json.in
 msgid "Storage"
 msgstr "Сховище даних"
@@ -6549,6 +6560,10 @@ msgstr "Не вдалося створити резервне сховище"
 msgid "Storage Pools"
 msgstr "Буфери даних"
 
+#: pkg/machines/components/diskEdit.jsx:40
+msgid "Storage Volume"
+msgstr ""
+
 #: pkg/machines/components/storagePools/storagePool.jsx:88
 msgid "Storage Volumes"
 msgstr "Томи даних"
@@ -6565,7 +6580,7 @@ msgstr "У цій системі не можна керувати сховище
 msgid "Storage pool"
 msgstr "Буфер сховища"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:169
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:168
 msgid "Storage size must not be 0"
 msgstr "Розмір сховища має бути ненульовим"
 
@@ -6772,11 +6787,11 @@ msgstr "Термінал"
 msgid "Terminate Session"
 msgstr "Перервати сеанс"
 
-#: pkg/kdump/kdump-view.jsx:478 pkg/kdump/kdump-view.jsx:486
+#: pkg/kdump/kdump-view.jsx:479 pkg/kdump/kdump-view.jsx:487
 msgid "Test Configuration"
 msgstr "Налаштування перевірки"
 
-#: pkg/kdump/kdump-view.jsx:482
+#: pkg/kdump/kdump-view.jsx:483
 msgid "Test is only available while the kdump service is running."
 msgstr "Перевірка є доступною, лише якщо запущено службу kdump."
 
@@ -6981,7 +6996,7 @@ msgstr "Паролі не збігаються"
 msgid "The passwords do not match."
 msgstr "Паролі не збігаються."
 
-#: pkg/machines/components/diskAdd.jsx:81
+#: pkg/machines/components/diskAdd.jsx:82
 msgid "The pool is empty"
 msgstr "Буфер порожній"
 
@@ -7000,23 +7015,23 @@ msgstr[2] "Під час сканування $time ($type) виявлено $co
 msgid "The scan from $time ($type) was not successful."
 msgstr "Сканування $time ($type) виконати не вдалося."
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:160
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:159
 msgid "The selected Operating System has minimum memory requirement of $0 $1"
 msgstr "Для вибраної операційної системи мінімальним обсягом пам'яті є $0 $1"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:175
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:174
 msgid ""
 "The selected Operating System has minimum storage size requirement of $0 $1"
 msgstr ""
 "Для вибраної операційної системи мінімальним об'ємом пристрою накопичення "
 "даних є $0 $1"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:382
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:381
 msgid "The selected Operating System has recommended memory $0 $1"
 msgstr ""
 "Для вибраної операційної системи рекомендації щодо пам'яті є такими: $0 $1"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:417
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:416
 msgid "The selected Operating System has recommended storage size of $0 $1"
 msgstr ""
 "Для вибраної операційної системи рекомендації щодо сховища даних є такими: "
@@ -7225,7 +7240,7 @@ msgstr "Цей пакунок несумісний із цією версією 
 msgid "This package requires Cockpit version %s or later"
 msgstr "Для цього пакунка потрібна версія Cockpit %s або новіша"
 
-#: pkg/machines/components/diskAdd.jsx:138
+#: pkg/machines/components/diskAdd.jsx:139
 msgid "This pool type does not support Storage Volume creation"
 msgstr "Для буферів цього типу не передбачено створення томів сховища даних"
 
@@ -7265,9 +7280,13 @@ msgstr ""
 "У цій версії cockpit-ws не передбачено підтримки встановлення з’єднання із "
 "вузлом від альтернативного користувача або на альтернативному порті."
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:468
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:467
 msgid "This volume is already used by another VM."
 msgstr "Цей том вже використано іншою ВМ."
+
+#: pkg/machines/components/diskAdd.jsx:234
+msgid "This volume is already used by: "
+msgstr ""
 
 #: pkg/storaged/lvol-tabs.jsx:187
 msgid "This volume needs to be activated before it can be resized."
@@ -7294,7 +7313,7 @@ msgstr ""
 "отже і системи. Залежно від параметрів, система може автоматично "
 "перезавантажитися, що потребуватиме певного часу."
 
-#: pkg/kdump/kdump-view.jsx:491
+#: pkg/kdump/kdump-view.jsx:492
 msgid "This will test the kdump configuration by crashing the kernel."
 msgstr "Перевіряє налаштування kdump, аварійно завершуючи роботу ядра."
 
@@ -7356,10 +7375,6 @@ msgstr "Загальний розмір: $0"
 #: pkg/lib/machine-info.js:70
 msgid "Tower"
 msgstr "Башточка"
-
-#: pkg/playground/manifest.json.in
-msgid "Translating"
-msgstr "Переклад"
 
 #: pkg/systemd/service-details.jsx:433
 msgid "Triggered By"
@@ -7454,7 +7469,7 @@ msgstr "Введіть щось для фільтрування…"
 msgid "UDP"
 msgstr "UDP"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:287
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:286
 msgid "URL"
 msgstr "Адреса"
 
@@ -7516,7 +7531,7 @@ msgid "Unavailable"
 msgstr "Недоступний"
 
 #: pkg/docker/index.html:732 pkg/networkmanager/index.html:682
-#: pkg/shell/base_index.js:758 pkg/users/local.js:1485
+#: pkg/shell/base_index.js:763 pkg/users/local.js:1485
 msgid "Unexpected error"
 msgstr "Неочікувана помилка"
 
@@ -7524,7 +7539,7 @@ msgstr "Неочікувана помилка"
 msgid "Unique Network Name"
 msgstr "Унікальна назва мережі"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:198
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:197
 msgid "Unique name"
 msgstr "Унікальна назва"
 
@@ -7652,11 +7667,11 @@ msgstr "Ненадійний вузол"
 msgid "Up since $0"
 msgstr "Працює з $0"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:489
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:488
 msgid "Up to $0 $1 available in the default location"
 msgstr "У типовому місці доступно до $0 $1"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:402
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:401
 msgid "Up to $0 $1 available on the host"
 msgstr "У основній системі доступними є до $0 $1"
 
@@ -7692,6 +7707,10 @@ msgstr "Оновлення"
 msgid "Updating status..."
 msgstr "Оновлюємо стан…"
 
+#: pkg/machines/components/diskEdit.jsx:38
+msgid "Url"
+msgstr ""
+
 #: pkg/machines/components/vm/vm.jsx:50 pkg/storaged/unrecognized-tab.jsx:30
 msgid "Usage"
 msgstr "Використання"
@@ -7707,7 +7726,7 @@ msgstr[2] "Використання $0 ядер процесора"
 msgid "Use 512 Byte emulation"
 msgstr "Емуляція 512 байтів"
 
-#: pkg/machines/components/diskAdd.jsx:432
+#: pkg/machines/components/diskAdd.jsx:482
 msgid "Use Existing"
 msgstr "Використати наявний"
 
@@ -7718,7 +7737,7 @@ msgstr "Використати вказані нижче ключі для ро�
 #: pkg/systemd/index.html:267 pkg/docker/storage.jsx:344
 #: pkg/machines/components/vm/vmUsageTab.jsx:64
 #: pkg/machines/components/vm/vmUsageTab.jsx:75
-#: pkg/machines/components/vmDisksTab.jsx:106 pkg/storaged/fsys-tab.jsx:196
+#: pkg/machines/components/vmDisksTab.jsx:112 pkg/storaged/fsys-tab.jsx:196
 #: pkg/storaged/swap-tab.jsx:81 pkg/systemd/host.js:1738
 msgid "Used"
 msgstr "Використано"
@@ -7825,7 +7844,7 @@ msgstr "Не вдалося примусово вимкнути віртуаль
 msgid "VM $0 failed to get deleted"
 msgstr "Не вдалося вилучити віртуальну машину $0"
 
-#: pkg/machines/hostvmslist.jsx:110 pkg/machines/libvirt-common.js:1304
+#: pkg/machines/hostvmslist.jsx:110 pkg/machines/libvirt-common.js:1340
 msgid "VM $0 failed to get installed"
 msgstr "Не вдалося встановити віртуальну машину $0"
 
@@ -7929,9 +7948,9 @@ msgstr "Служба віртуалізації (libvirt) не є активно
 msgid "Virtualization Service is Available"
 msgstr "Доступна служба віртуалізації"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:458
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:457
 #: pkg/machines/components/deleteDialog.jsx:50
-#: pkg/machines/components/diskAdd.jsx:90
+#: pkg/machines/components/diskAdd.jsx:91
 #: pkg/machines/components/vm/bootOrderModal.jsx:96
 #: pkg/machines/components/vmDiskColumns.jsx:46
 #: pkg/storaged/content-views.jsx:140
@@ -8042,6 +8061,16 @@ msgstr "За допомогою термінала"
 msgid "Write-mostly"
 msgstr "Здебільшого запис"
 
+#: pkg/machines/components/diskEdit.jsx:82
+#: pkg/machines/components/vmDisksTab.jsx:151
+msgid "Writeable"
+msgstr ""
+
+#: pkg/machines/components/diskEdit.jsx:95
+#: pkg/machines/components/vmDisksTab.jsx:151
+msgid "Writeable and shared"
+msgstr ""
+
 #: pkg/storaged/plot.jsx:315
 msgid "Writing"
 msgstr "Запис"
@@ -8096,7 +8125,7 @@ msgstr ""
 msgid "You must wait longer to change your password"
 msgstr "Для зміни вашого пароля вам доведеться ще почекати"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:125
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:124
 msgid "You need to select the most closely matching Operating System"
 msgstr "Вам слід вибрати найвідповіднішу операційну систему"
 
@@ -8279,11 +8308,11 @@ msgstr "бездіяльний"
 msgid "inactive"
 msgstr "неактивний"
 
-#: pkg/kdump/kdump-view.jsx:378
+#: pkg/kdump/kdump-view.jsx:379
 msgid "invalid: multiple targets defined"
 msgstr "помилка: визначено декілька цілей"
 
-#: pkg/kdump/kdump-view.jsx:495
+#: pkg/kdump/kdump-view.jsx:496
 msgid "kdump status"
 msgstr "стан kdump"
 
@@ -8295,7 +8324,7 @@ msgstr "ключ"
 msgid "key slot $0"
 msgstr "слот ключів $0"
 
-#: pkg/kdump/kdump-view.jsx:382 pkg/kdump/kdump-view.jsx:384
+#: pkg/kdump/kdump-view.jsx:383 pkg/kdump/kdump-view.jsx:385
 msgid "locally in $0"
 msgstr "локально у $0"
 
@@ -8315,7 +8344,7 @@ msgstr ""
 #: pkg/machines/components/networks/networkOverviewTab.jsx:84
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:67
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:70
-#: pkg/machines/components/vmDisksTab.jsx:143 pkg/machines/helpers.js:234
+#: pkg/machines/helpers.js:234
 msgid "no"
 msgstr "ні"
 
@@ -8463,7 +8492,7 @@ msgstr "значення"
 msgid "vhostuser"
 msgstr "vhostuser"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:836
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:838
 msgid ""
 "virt-install package needs to be installed on the system in order to create "
 "new VMs"
@@ -8474,6 +8503,6 @@ msgstr ""
 #: pkg/machines/components/networks/networkOverviewTab.jsx:84
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:67
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:70
-#: pkg/machines/components/vmDisksTab.jsx:143 pkg/machines/helpers.js:233
+#: pkg/machines/helpers.js:233
 msgid "yes"
 msgstr "так"

@@ -772,7 +772,7 @@ class CreateVmModal extends React.Component {
             <Modal id='create-vm-dialog' show onHide={ this.props.close }>
                 <Modal.Header>
                     <Modal.CloseButton onClick={ this.props.close } />
-                    <Modal.Title> {`Create New Virtual Machine`} </Modal.Title>
+                    <Modal.Title>{_("Create New Virtual Machine")}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     {dialogBody}

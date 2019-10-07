@@ -499,7 +499,7 @@ class CreateStoragePoolModal extends React.Component {
             <Modal id='create-storage-pool-dialog' className='pool-create' show onHide={ this.props.close }>
                 <Modal.Header>
                     <Modal.CloseButton onClick={ this.props.close } />
-                    <Modal.Title> {`Create Storage Pool`} </Modal.Title>
+                    <Modal.Title>{_("Create Storage Pool")}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     {defaultBody}

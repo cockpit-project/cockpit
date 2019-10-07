@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-09-23 08:08+0000\n"
+"POT-Creation-Date: 2019-10-07 13:19+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -20,6 +20,10 @@ msgstr ""
 #: pkg/docker/storage.jsx:261
 msgid " (shared with the OS)"
 msgstr "(delat med OS:et)"
+
+#: pkg/machines/components/diskAdd.jsx:236
+msgid " Attaching it will make this disk shareable for every VM using it."
+msgstr ""
 
 #: pkg/networkmanager/interfaces.js:2353
 msgid "$0 Active Rule"
@@ -558,6 +562,8 @@ msgid "Absent"
 msgstr "Frånvarande"
 
 #: pkg/users/index.html:104 pkg/users/index.html:190
+#: pkg/machines/components/diskEdit.jsx:58
+#: pkg/machines/components/vmDisksTab.jsx:118
 msgid "Access"
 msgstr "Åtkomst"
 
@@ -626,7 +632,7 @@ msgid "Adaptive transmit load balancing"
 msgstr "Adaptiv lastbalansering av sändning"
 
 #: pkg/lib/machine-add.html:43 pkg/shell/index.html:180
-#: pkg/machines/components/diskAdd.jsx:471
+#: pkg/machines/components/diskAdd.jsx:522
 #: pkg/machines/components/nicAdd.jsx:235 pkg/storaged/crypto-keyslots.jsx:235
 #: pkg/storaged/iscsi-panel.jsx:137 pkg/storaged/iscsi-panel.jsx:161
 #: pkg/storaged/mdraid-details.jsx:58 pkg/storaged/nfs-details.jsx:198
@@ -650,7 +656,8 @@ msgstr "Lägg till bindning"
 msgid "Add Bridge"
 msgstr "Lägg till brygga"
 
-#: pkg/machines/components/vmDisksTab.jsx:93
+#: pkg/machines/components/diskAdd.jsx:510
+#: pkg/machines/components/vmDisksTab.jsx:97
 msgid "Add Disk"
 msgstr "Lägg till disk"
 
@@ -690,6 +697,10 @@ msgstr "Lägg till team"
 #: pkg/networkmanager/index.html:113
 msgid "Add VLAN"
 msgstr " Lägg till VLAN"
+
+#: pkg/machines/components/nicAdd.jsx:224
+msgid "Add Virtual Network Interface"
+msgstr ""
 
 #: pkg/networkmanager/firewall.jsx:732 pkg/networkmanager/firewall.jsx:912
 #: pkg/networkmanager/firewall.jsx:923
@@ -742,7 +753,7 @@ msgstr "Lägger till nyckel"
 msgid "Adding physical volume to $target"
 msgstr "Lägger till fysisk volym till $target"
 
-#: pkg/machines/components/vmDisksTab.jsx:116
+#: pkg/machines/components/vmDisksTab.jsx:122
 msgid "Additional"
 msgstr "Ytterligare"
 
@@ -869,7 +880,7 @@ msgstr "Tillåtna tjänster"
 msgid "Always"
 msgstr "Alltid"
 
-#: pkg/machines/components/diskAdd.jsx:117
+#: pkg/machines/components/diskAdd.jsx:118
 #: pkg/machines/components/nicAdd.jsx:86
 msgid "Always attach"
 msgstr "Anslut alltid"
@@ -891,8 +902,8 @@ msgstr "Program"
 #: pkg/networkmanager/index.html:526 pkg/networkmanager/index.html:550
 #: pkg/networkmanager/index.html:574 pkg/networkmanager/index.html:598
 #: pkg/networkmanager/index.html:622 pkg/networkmanager/index.html:646
-#: pkg/networkmanager/index.html:670 pkg/kdump/kdump-view.jsx:354
-#: pkg/machines/components/vcpuModal.jsx:235 pkg/storaged/crypto-tab.jsx:78
+#: pkg/networkmanager/index.html:670 pkg/kdump/kdump-view.jsx:355
+#: pkg/machines/components/vcpuModal.jsx:260 pkg/storaged/crypto-tab.jsx:78
 #: pkg/storaged/crypto-tab.jsx:108 pkg/storaged/fsys-tab.jsx:80
 #: pkg/storaged/fsys-tab.jsx:129 pkg/storaged/nfs-details.jsx:198
 msgid "Apply"
@@ -1169,7 +1180,7 @@ msgstr "Fel:"
 
 #: pkg/machines/components/vm/bootOrderModal.jsx:109
 #: pkg/machines/components/vm/bootOrderModal.jsx:132
-#: pkg/machines/components/vmDisksTab.jsx:110
+#: pkg/machines/components/vmDisksTab.jsx:116
 msgid "Bus"
 msgstr "Buss"
 
@@ -1207,7 +1218,7 @@ msgstr "CPU-prioritet"
 msgid "CPU usage:"
 msgstr "CPU-användning:"
 
-#: pkg/machines/components/diskAdd.jsx:174
+#: pkg/machines/components/diskAdd.jsx:175
 #: pkg/machines/components/vmDiskColumns.jsx:75
 msgid "Cache"
 msgstr ""
@@ -1246,9 +1257,10 @@ msgstr "Kan inte ladda avbilden"
 #: pkg/users/index.html:315 pkg/users/index.html:332 pkg/users/index.html:356
 #: pkg/users/index.html:413 pkg/apps/utils.jsx:86
 #: pkg/lib/cockpit-components-dialog.jsx:159
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:781
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:783
 #: pkg/machines/components/deleteDialog.jsx:158
-#: pkg/machines/components/diskAdd.jsx:468
+#: pkg/machines/components/diskAdd.jsx:519
+#: pkg/machines/components/diskEdit.jsx:173
 #: pkg/machines/components/networks/createNetworkDialog.jsx:477
 #: pkg/machines/components/networks/networkDelete.jsx:100
 #: pkg/machines/components/nicAdd.jsx:232
@@ -1256,7 +1268,7 @@ msgstr "Kan inte ladda avbilden"
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:511
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:225
 #: pkg/machines/components/storagePools/storageVolumeCreate.jsx:93
-#: pkg/machines/components/vcpuModal.jsx:232
+#: pkg/machines/components/vcpuModal.jsx:257
 #: pkg/machines/components/vm/bootOrderModal.jsx:327
 #: pkg/machines/components/vm/memoryModal.jsx:214
 #: pkg/networkmanager/firewall.jsx:592 pkg/networkmanager/firewall.jsx:660
@@ -1279,7 +1291,7 @@ msgstr "Kan inte vidarebefordra inloggningskreditiven"
 msgid "Cannot schedule event in the past"
 msgstr "Kan inte schemalägga händelser i det förflutna"
 
-#: pkg/machines/components/vmDisksTab.jsx:108
+#: pkg/machines/components/vmDisksTab.jsx:114
 msgid "Capacity"
 msgstr "Kapacitet"
 
@@ -1333,8 +1345,9 @@ msgstr "Ändra resursgränser"
 msgid "Change the settings"
 msgstr "Ändra inställningarna"
 
+#: pkg/machines/components/diskEdit.jsx:154
 #: pkg/machines/components/nicEdit.jsx:157
-#: pkg/machines/components/vcpuModal.jsx:183
+#: pkg/machines/components/vcpuModal.jsx:184
 #: pkg/machines/components/vm/bootOrderModal.jsx:283
 #: pkg/machines/components/warningInactive.jsx:11
 msgid "Changes will take effect after shutting down the VM"
@@ -1384,7 +1397,7 @@ msgstr "Kontrollerar om det finns uppdateringar …"
 msgid "Checking installed software"
 msgstr "Kontrollerar installerad programvara"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:351
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:350
 msgid "Choose an operating system"
 msgstr ""
 
@@ -1456,7 +1469,7 @@ msgstr ""
 msgid "Cockpit could not contact the given host."
 msgstr "Cockpit kunde inte kontakta den angivna värden."
 
-#: pkg/shell/base_index.js:759
+#: pkg/shell/base_index.js:764
 msgid ""
 "Cockpit had an unexpected internal error. <br/><br/>You can try restarting "
 "Cockpit by pressing refresh in your browser. The javascript console contains "
@@ -1825,7 +1838,7 @@ msgstr ""
 msgid "Copy to clipboard"
 msgstr ""
 
-#: pkg/machines/components/vcpuModal.jsx:209
+#: pkg/machines/components/vcpuModal.jsx:232
 msgid "Cores per socket"
 msgstr "Kärnor per sockel"
 
@@ -1869,7 +1882,7 @@ msgstr "Kunde inte lista användare"
 msgid "Couldn't load user data"
 msgstr "Kunde inte läsa in användardata"
 
-#: pkg/kdump/kdump-view.jsx:337 pkg/kdump/kdump-view.jsx:506
+#: pkg/kdump/kdump-view.jsx:338 pkg/kdump/kdump-view.jsx:507
 msgid "Crash dump location"
 msgstr "Kraschdumpplats"
 
@@ -1878,7 +1891,7 @@ msgid "Crash system"
 msgstr "Krashsystem"
 
 #: pkg/users/index.html:199
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:786
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:788
 #: pkg/machines/components/networks/createNetworkDialog.jsx:482
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:514
 #: pkg/machines/components/storagePools/storageVolumeCreate.jsx:96
@@ -1892,7 +1905,7 @@ msgstr "Skapa"
 msgid "Create Logical Volume"
 msgstr "Skapa en logisk volym"
 
-#: pkg/machines/components/diskAdd.jsx:423
+#: pkg/machines/components/diskAdd.jsx:473
 msgid "Create New"
 msgstr "Skapa ny"
 
@@ -1900,7 +1913,11 @@ msgstr "Skapa ny"
 msgid "Create New Account"
 msgstr "Skapa ett nytt konto"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:443
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:775
+msgid "Create New Virtual Machine"
+msgstr "Skapa en ny virtuell maskin"
+
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:442
 msgid "Create New Volume"
 msgstr ""
 
@@ -1928,9 +1945,14 @@ msgstr "Skapa en rapport"
 msgid "Create Snapshot"
 msgstr "Skapa en ögonblicksbild"
 
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:502
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:548
 msgid "Create Storage Pool"
 msgstr "Skapa en lagringspool"
+
+#: pkg/machines/components/storagePools/storageVolumeCreate.jsx:79
+msgid "Create Storage Volume"
+msgstr ""
 
 #: pkg/storaged/content-views.jsx:111 pkg/storaged/content-views.jsx:138
 msgid "Create Thin Volume"
@@ -1948,7 +1970,7 @@ msgstr "Skapa timrar"
 msgid "Create VDO Device"
 msgstr "Skapa en VDO-enhet"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:831
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:833
 msgid "Create VM"
 msgstr "Skapa en VM"
 
@@ -1980,7 +2002,7 @@ msgid "Create new Logical Volume"
 msgstr "Skapa en ny logisk volym"
 
 #: pkg/docker/containers-view.jsx:129 pkg/docker/containers-view.jsx:412
-#: pkg/docker/containers-view.jsx:683
+#: pkg/docker/containers-view.jsx:687
 msgid "Created"
 msgstr "Skapad"
 
@@ -2044,7 +2066,7 @@ msgstr ""
 msgid "Creating volume group $target"
 msgstr "Skapar en volymgrupp $target"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:683
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:685
 msgid "Creation of VM $0 failed"
 msgstr ""
 
@@ -2259,13 +2281,13 @@ msgstr "Tar bort volymgruppen $target"
 msgid "Description"
 msgstr "Beskrivning"
 
-#: pkg/playground/manifest.json.in
-msgid "Design Patterns"
-msgstr ""
-
 #: pkg/lib/machine-info.js:66
 msgid "Desktop"
 msgstr "Skrivbord"
+
+#: pkg/machines/components/diskRemove.jsx:48
+msgid "Detach"
+msgstr ""
 
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:151
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:187
@@ -2284,11 +2306,15 @@ msgstr "Frånkopplingsbar"
 msgid "Details"
 msgstr "Detaljer"
 
+#: pkg/playground/manifest.json.in
+msgid "Development"
+msgstr ""
+
 #: pkg/machines/components/networks/createNetworkDialog.jsx:155
 #: pkg/machines/components/networks/networkList.jsx:55
 #: pkg/machines/components/vm/bootOrderModal.jsx:93
 #: pkg/machines/components/vmDiskColumns.jsx:43
-#: pkg/machines/components/vmDisksTab.jsx:96
+#: pkg/machines/components/vmDisksTab.jsx:102
 msgid "Device"
 msgstr "Enhet"
 
@@ -2358,11 +2384,11 @@ msgstr ""
 msgid "Disk I/O"
 msgstr "Disk-I/O"
 
-#: pkg/machines/components/diskAdd.jsx:396
+#: pkg/machines/components/diskAdd.jsx:429
 msgid "Disk failed to be attached"
 msgstr "Disken kunde inte anslutas"
 
-#: pkg/machines/components/diskAdd.jsx:373
+#: pkg/machines/components/diskAdd.jsx:401
 msgid "Disk failed to be created"
 msgstr "Disken kunde inte skapas"
 
@@ -2374,13 +2400,18 @@ msgstr "Disken är OK"
 msgid "Disk passphrase"
 msgstr "Disklösenfras"
 
+#: pkg/machines/components/diskAdd.jsx:440
+#: pkg/machines/components/diskEdit.jsx:126
+msgid "Disk settings could not be saved"
+msgstr ""
+
 #: pkg/machines/components/vm/vm.jsx:51 pkg/storaged/mdraid-details.jsx:47
 #: pkg/storaged/mdraid-details.jsx:147 pkg/storaged/mdraids-panel.jsx:90
 #: pkg/storaged/vgroup-details.jsx:54 pkg/storaged/vgroups-panel.jsx:61
 msgid "Disks"
 msgstr "Diskar"
 
-#: pkg/machines/components/diskRemove.jsx:57
+#: pkg/machines/components/diskRemove.jsx:60
 msgid "Disks cannot be removed from $0 VMs"
 msgstr ""
 
@@ -2487,6 +2518,7 @@ msgstr "Dubblerat alias"
 msgid "Duplicate port"
 msgstr "Dubblerad port"
 
+#: pkg/machines/components/diskEdit.jsx:207
 #: pkg/machines/components/nicEdit.jsx:166 pkg/storaged/crypto-tab.jsx:131
 #: pkg/storaged/nfs-details.jsx:314
 msgid "Edit"
@@ -2643,7 +2675,7 @@ msgstr "Errata:"
 
 #: pkg/playground/translate.html:100 pkg/playground/translate.html:105
 #: pkg/apps/utils.jsx:100 pkg/storaged/multipath.jsx:57
-#: pkg/storaged/storage-controls.jsx:100 pkg/storaged/storage-controls.jsx:194
+#: pkg/storaged/storage-controls.jsx:100 pkg/storaged/storage-controls.jsx:192
 #: pkg/systemd/service-details.jsx:450 pkg/users/local.js:1476
 msgid "Error"
 msgstr "Fel"
@@ -2704,11 +2736,7 @@ msgstr ""
 msgid "Excellent password"
 msgstr "Utmärkt lösenord"
 
-#: pkg/playground/manifest.json.in
-msgid "Exceptions"
-msgstr ""
-
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:229
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:228
 msgid "Existing disk image on host's file system"
 msgstr ""
 
@@ -2804,7 +2832,7 @@ msgstr "Misslyckades att stoppa Docker-scope: $0"
 msgid "Failed to switch profile"
 msgstr "Misslyckades att byta profil"
 
-#: pkg/machines/components/vcpuModal.jsx:193
+#: pkg/machines/components/vcpuModal.jsx:198
 msgid "Fewer than the maximum number of virtual CPUs should be enabled."
 msgstr "Färre än det maximala antalet virtuella CPU:er skall vara aktiverade."
 
@@ -2967,7 +2995,7 @@ msgstr ""
 msgid "Generating report"
 msgstr "Genererar en rapport"
 
-#: pkg/docker/containers-view.jsx:680
+#: pkg/docker/containers-view.jsx:683
 msgid "Get new image"
 msgstr "Hämta ny avbild"
 
@@ -2975,7 +3003,7 @@ msgstr "Hämta ny avbild"
 #: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:98
 #: pkg/machines/components/vm/memoryModal.jsx:153
 #: pkg/machines/components/vm/memoryModal.jsx:191
-#: pkg/machines/components/vmDisksTab.jsx:51
+#: pkg/machines/components/vmDisksTab.jsx:54
 msgid "GiB"
 msgstr "GiB"
 
@@ -3051,7 +3079,7 @@ msgstr "Hårdvaruinformation"
 msgid "Hello time $hello_time"
 msgstr "Hälsningstid $hello_time"
 
-#: pkg/machines/components/diskAdd.jsx:166
+#: pkg/machines/components/diskAdd.jsx:167
 msgid "Hide Performance Options"
 msgstr ""
 
@@ -3181,6 +3209,7 @@ msgid "IPv6 only"
 msgstr ""
 
 #: pkg/docker/containers-view.jsx:128 pkg/docker/containers-view.jsx:408
+#: pkg/machines/components/diskEdit.jsx:34
 msgid "Id"
 msgstr "Id"
 
@@ -3221,7 +3250,7 @@ msgstr "Avbildssökning"
 msgid "Image:"
 msgstr "Avbild:"
 
-#: pkg/docker/containers-view.jsx:711
+#: pkg/docker/containers-view.jsx:715
 msgid "Images"
 msgstr "Avbilder"
 
@@ -3234,11 +3263,11 @@ msgstr "Avbilder"
 msgid "Images and running containers"
 msgstr "Avbilder och körande behållare"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:764
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:766
 msgid "Immediately Start VM"
 msgstr "Starta VM:en omedelbart"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:831
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:833
 msgid "Import VM"
 msgstr ""
 
@@ -3246,7 +3275,7 @@ msgstr ""
 msgid "In Sync"
 msgstr "I synk"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:237
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:236
 msgid ""
 "In most configurations, macvtap does not work for host to guest network "
 "communication."
@@ -3331,17 +3360,17 @@ msgstr "Installera VDO-stöd"
 msgid "Install setroubleshoot-server to troubleshoot SELinux events."
 msgstr "Installera setroubleshoot-server för att felsöka SELinux-händelser."
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:298
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:297
 msgid "Installation Source"
 msgstr "Installationskälla"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:280
-msgid "Installation Source Type"
-msgstr "Installatinskälltyp"
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:148
+msgid "Installation Source must not be empty"
+msgstr ""
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:149
-msgid "Installation Source should not be empty"
-msgstr "Installationskällan skall inte vara tom"
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:279
+msgid "Installation Type"
+msgstr ""
 
 #: pkg/packagekit/updates.jsx:59
 msgid "Installed"
@@ -3426,7 +3455,7 @@ msgstr "Felaktigt utgångsdatum"
 msgid "Invalid file permissions"
 msgstr "Felaktiga filrättigheter"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:136
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:135
 msgid "Invalid filename"
 msgstr "Felaktigt filnamn"
 
@@ -3526,7 +3555,7 @@ msgstr "Journalpost"
 msgid "Journal entry not found"
 msgstr "Journalposten hittades inte"
 
-#: pkg/kdump/kdump-view.jsx:461
+#: pkg/kdump/kdump-view.jsx:462
 msgid ""
 "Kdump service not installed. Please ensure package kexec-tools is installed."
 msgstr ""
@@ -3703,7 +3732,7 @@ msgstr "Läser in tillgängliga uppdateringar, var god dröj …"
 msgid "Loading system modifications..."
 msgstr ""
 
-#: pkg/systemd/services.html:78 pkg/kdump/kdump-view.jsx:369
+#: pkg/systemd/services.html:78 pkg/kdump/kdump-view.jsx:370
 #: pkg/storaged/devices.jsx:65 pkg/systemd/logs.js:145 pkg/systemd/logs.js:160
 #: pkg/systemd/logs.js:207 pkg/systemd/logs.js:256 pkg/systemd/logs.js:318
 msgid "Loading..."
@@ -3721,7 +3750,7 @@ msgstr "Lokala diskar"
 msgid "Local Filesystem"
 msgstr "Lokala filsystem"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:286
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:285
 msgid "Local Install Media"
 msgstr ""
 
@@ -3946,7 +3975,7 @@ msgstr ""
 msgid "Maximum message age $max_age"
 msgstr "Maximal meddelandeålder $max_age"
 
-#: pkg/machines/components/vcpuModal.jsx:199
+#: pkg/machines/components/vcpuModal.jsx:211
 msgid ""
 "Maximum number of virtual CPUs allocated for the guest OS, which must be "
 "between 1 and $0"
@@ -3965,7 +3994,7 @@ msgstr "Medlem i RAID-enhet $0"
 #: pkg/dashboard/index.html:71 pkg/docker/index.html:273
 #: pkg/playground/translate.html:90 pkg/systemd/index.html:215
 #: pkg/docker/containers-view.jsx:359
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:389
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:388
 #: pkg/machines/components/vmOverviewTab.jsx:74 pkg/systemd/hwinfo.jsx:263
 msgid "Memory"
 msgstr "Minne"
@@ -3992,7 +4021,7 @@ msgstr ""
 msgid "Memory limit"
 msgstr "Minnesgräns"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:153
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:152
 msgid "Memory must not be 0"
 msgstr ""
 
@@ -4086,7 +4115,7 @@ msgstr "Mera"
 msgid "More Information"
 msgstr "Mer information"
 
-#: pkg/kdump/kdump-view.jsx:450
+#: pkg/kdump/kdump-view.jsx:451
 msgid "More details"
 msgstr "Fler detaljer"
 
@@ -4178,8 +4207,8 @@ msgstr "NTP-server"
 #: pkg/networkmanager/index.html:137 pkg/networkmanager/index.html:165
 #: pkg/networkmanager/index.html:209 pkg/networkmanager/index.html:262
 #: pkg/networkmanager/index.html:319 pkg/docker/containers-view.jsx:359
-#: pkg/docker/containers-view.jsx:683
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:191
+#: pkg/docker/containers-view.jsx:687
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:190
 #: pkg/machines/components/networks/createNetworkDialog.jsx:108
 #: pkg/machines/components/networks/networkList.jsx:55
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:42
@@ -4229,6 +4258,9 @@ msgid "Name cannot contain whitespace."
 msgstr "Namnet får inte innehålla blanktecken."
 
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:121
+msgid "Name must not be empty"
+msgstr ""
+
 #: pkg/machines/components/networks/createNetworkDialog.jsx:41
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:53
 msgid "Name should not be empty"
@@ -4266,11 +4298,11 @@ msgstr ""
 msgid "Network $0 failed to get deactivated"
 msgstr ""
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:292
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:291
 msgid "Network Boot (PXE)"
 msgstr ""
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:289
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:288
 msgid "Network Boot is available only when using System connection"
 msgstr ""
 
@@ -4282,7 +4314,7 @@ msgstr "Nätverksfilsystem"
 msgid "Network Interfaces"
 msgstr ""
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:243
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:242
 msgid "Network Selection does not support PXE."
 msgstr ""
 
@@ -4399,12 +4431,12 @@ msgstr ""
 msgid "No SELinux alerts."
 msgstr "Inga SELinux-larm."
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:444
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:443
 msgid "No Storage"
 msgstr ""
 
-#: pkg/machines/components/diskAdd.jsx:132
-#: pkg/machines/components/diskAdd.jsx:144
+#: pkg/machines/components/diskAdd.jsx:133
+#: pkg/machines/components/diskAdd.jsx:145
 msgid "No Storage Pools available"
 msgstr ""
 
@@ -4456,7 +4488,7 @@ msgstr "Ingen startenhet hittades"
 msgid "No carrier"
 msgstr "Ingen bärvåg"
 
-#: pkg/kdump/kdump-view.jsx:398
+#: pkg/kdump/kdump-view.jsx:399
 msgid "No configuration found"
 msgstr "Ingen konfiguration hittad"
 
@@ -4490,7 +4522,7 @@ msgstr "Ingen besrkivning tillhandahållen."
 msgid "No disks are available."
 msgstr "Inga diskar är tillgängliga."
 
-#: pkg/machines/components/vmDisksTab.jsx:121
+#: pkg/machines/components/vmDisksTab.jsx:127
 msgid "No disks defined for this VM"
 msgstr "Inga diskar är definerade för denna VM"
 
@@ -4514,11 +4546,11 @@ msgstr "Inga värdnycklar hittade."
 msgid "No iSCSI targets set up"
 msgstr "Inga iSCSI-mål är uppsatta"
 
-#: pkg/docker/containers-view.jsx:705
+#: pkg/docker/containers-view.jsx:709
 msgid "No images"
 msgstr "Inga avbilder"
 
-#: pkg/docker/containers-view.jsx:707
+#: pkg/docker/containers-view.jsx:711
 msgid "No images that match the current filter"
 msgstr "Inga avbilder som stämmer med det aktuella filtret"
 
@@ -4534,7 +4566,7 @@ msgstr "Inga nycklar tillagda"
 msgid "No media inserted"
 msgstr "Inget medium isatt"
 
-#: pkg/kdump/kdump-view.jsx:452
+#: pkg/kdump/kdump-view.jsx:453
 msgid ""
 "No memory reserved. Append a crashkernel option to the kernel command line "
 "(e.g. in /etc/default/grub) to reserve memory at boot time. Example: "
@@ -4608,7 +4640,7 @@ msgstr "Inget användarnamn angivet."
 msgid "No volume groups created"
 msgstr "Inga volymgrupper skapade"
 
-#: pkg/kdump/kdump-view.jsx:421
+#: pkg/kdump/kdump-view.jsx:422
 #: pkg/machines/components/networks/createNetworkDialog.jsx:190
 #: pkg/networkmanager/firewall.jsx:766 pkg/tuned/dialog.js:232
 msgid "None"
@@ -4682,14 +4714,6 @@ msgstr "Bärbar (notebook)"
 msgid "Notice and above"
 msgstr "Notering och högre"
 
-#: pkg/playground/manifest.json.in
-msgid "Notifications"
-msgstr ""
-
-#: pkg/playground/manifest.json.in
-msgid "Notifications Receiver"
-msgstr ""
-
 #: pkg/selinux/setroubleshoot-view.jsx:404
 msgid "Occurred $0"
 msgstr "Hände $0"
@@ -4718,7 +4742,7 @@ msgstr "Det gamla lösenordet accepterades inte"
 msgid "On Failure"
 msgstr "Vid misslyckande"
 
-#: pkg/kdump/kdump-view.jsx:395
+#: pkg/kdump/kdump-view.jsx:396
 msgid "On a mounted device"
 msgstr "På en monterad enhet"
 
@@ -4771,7 +4795,7 @@ msgid "Open"
 msgstr ""
 
 #: pkg/systemd/index.html:98
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:342
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:341
 msgid "Operating System"
 msgstr "Operativsystem"
 
@@ -4843,10 +4867,6 @@ msgstr "PackageKit är inte installerat"
 #: pkg/packagekit/updates.jsx:719
 msgid "PackageKit reported error code $0"
 msgstr "PackageKit rapporterade felkod $0"
-
-#: pkg/playground/manifest.json.in
-msgid "Packages"
-msgstr ""
 
 #: pkg/networkmanager/index.html:156
 msgid "Parent"
@@ -4944,7 +4964,7 @@ msgid "Paste the contents of your public SSH key file here"
 msgstr "Klistra in innehållet i din publika SSH-nyckelfil här"
 
 #: pkg/machines/components/deleteDialog.jsx:45
-#: pkg/systemd/service-details.jsx:483
+#: pkg/machines/components/diskEdit.jsx:36 pkg/systemd/service-details.jsx:483
 msgid "Path"
 msgstr "Sökväg"
 
@@ -4972,7 +4992,7 @@ msgstr "Sökvägen på servern får inte vara tom."
 msgid "Path on server must start with \"/\"."
 msgstr "Sökvägen på servern måste börja med ”/”."
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:220
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:219
 msgid "Path to ISO file on host's file system"
 msgstr "Sökväg till ISO-fil på värdens filsystem"
 
@@ -5008,7 +5028,7 @@ msgstr "Åtkomst nekas"
 msgid "Permissive"
 msgstr ""
 
-#: pkg/machines/components/diskAdd.jsx:111
+#: pkg/machines/components/diskAdd.jsx:112
 #: pkg/machines/components/nicAdd.jsx:80
 msgid "Persistence"
 msgstr "Varaktighet"
@@ -5073,11 +5093,11 @@ msgstr "Bekräfta den tvingande raderingen av $0"
 msgid "Please confirm stopping of $0"
 msgstr "Bekräfta stoppandet av $0"
 
-#: pkg/machines/components/diskAdd.jsx:350
+#: pkg/machines/components/diskAdd.jsx:378
 msgid "Please enter new volume name"
 msgstr "Ange ett nytt volymnamn"
 
-#: pkg/machines/components/diskAdd.jsx:353
+#: pkg/machines/components/diskAdd.jsx:381
 msgid "Please enter new volume size"
 msgstr "Ange en ny volymstorlek"
 
@@ -5106,7 +5126,7 @@ msgid "Plug"
 msgstr "Plugg"
 
 #: pkg/machines/components/deleteDialog.jsx:53
-#: pkg/machines/components/diskAdd.jsx:127
+#: pkg/machines/components/diskAdd.jsx:128
 #: pkg/machines/components/vm/bootOrderModal.jsx:95
 #: pkg/machines/components/vmDiskColumns.jsx:45
 #: pkg/storaged/content-views.jsx:137
@@ -5165,7 +5185,7 @@ msgstr "Portar:"
 msgid "Power Options"
 msgstr "Strömalternativ"
 
-#: pkg/machines/components/vcpuModal.jsx:206
+#: pkg/machines/components/vcpuModal.jsx:225
 msgid "Preferred number of sockets to expose to the guest."
 msgstr "Föredraget antal uttag att exponera för gästen."
 
@@ -5188,10 +5208,6 @@ msgstr "Prefixlängd"
 #: pkg/networkmanager/interfaces.js:3329
 msgid "Prefix length or Netmask"
 msgstr "Nätmaskens prefixlängd"
-
-#: pkg/playground/manifest.json.in
-msgid "Preloaded"
-msgstr ""
 
 #: pkg/networkmanager/interfaces.js:840
 msgid "Preparing"
@@ -5385,18 +5401,16 @@ msgstr ""
 msgid "Rank"
 msgstr ""
 
-#: pkg/kdump/kdump-view.jsx:390
+#: pkg/kdump/kdump-view.jsx:391
 msgid "Raw to a device"
 msgstr "Rå till en enhet"
-
-#: pkg/playground/manifest.json.in
-msgid "React Patterns"
-msgstr ""
 
 #: pkg/systemd/hwinfo.jsx:197
 msgid "Read more..."
 msgstr ""
 
+#: pkg/machines/components/diskEdit.jsx:70
+#: pkg/machines/components/vmDisksTab.jsx:151
 #: pkg/systemd/service-details.jsx:388
 msgid "Read-only"
 msgstr ""
@@ -5413,13 +5427,9 @@ msgstr "LäsSkriv"
 msgid "Reading"
 msgstr "Läser"
 
-#: pkg/kdump/kdump-view.jsx:415
+#: pkg/kdump/kdump-view.jsx:416
 msgid "Reading..."
 msgstr "Läser …"
-
-#: pkg/machines/components/vmDisksTab.jsx:112
-msgid "Readonly"
-msgstr "Skrivskyddat"
 
 #: pkg/playground/translate.html:19
 msgid "Ready"
@@ -5509,15 +5519,15 @@ msgstr "Läs om"
 msgid "Reload Propagated From"
 msgstr "Omläsning vidarebefordrad från"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:268
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:267
 msgid "Remote URL"
 msgstr "Fjärr-URL"
 
-#: pkg/kdump/kdump-view.jsx:137 pkg/kdump/kdump-view.jsx:388
+#: pkg/kdump/kdump-view.jsx:137 pkg/kdump/kdump-view.jsx:389
 msgid "Remote over NFS"
 msgstr "Fjärr över NFS"
 
-#: pkg/kdump/kdump-view.jsx:138 pkg/kdump/kdump-view.jsx:386
+#: pkg/kdump/kdump-view.jsx:138 pkg/kdump/kdump-view.jsx:387
 msgid "Remote over SSH"
 msgstr "Fjärr över SSH"
 
@@ -5690,7 +5700,7 @@ msgstr "Behov"
 msgid "Requisite Of"
 msgstr "Behov av"
 
-#: pkg/kdump/kdump-view.jsx:503
+#: pkg/kdump/kdump-view.jsx:504
 msgid "Reserved memory"
 msgstr "Reserverat minne"
 
@@ -5893,7 +5903,8 @@ msgstr "Lördag"
 msgid "Saturdays"
 msgstr ""
 
-#: pkg/systemd/services.html:378 pkg/machines/components/nicEdit.jsx:184
+#: pkg/systemd/services.html:378 pkg/machines/components/diskEdit.jsx:176
+#: pkg/machines/components/nicEdit.jsx:184
 #: pkg/machines/components/vm/bootOrderModal.jsx:330
 #: pkg/machines/components/vm/memoryModal.jsx:217
 #: pkg/storaged/crypto-keyslots.jsx:266 pkg/storaged/crypto-keyslots.jsx:285
@@ -6017,23 +6028,23 @@ msgstr "Tjänst"
 msgid "Service Logs"
 msgstr "Tjänsteloggar"
 
-#: pkg/kdump/kdump-view.jsx:444
+#: pkg/kdump/kdump-view.jsx:445
 msgid "Service has an error"
 msgstr "Tjänsten har ett fel"
 
-#: pkg/kdump/kdump-view.jsx:440
+#: pkg/kdump/kdump-view.jsx:441
 msgid "Service is running"
 msgstr "Tjänster kör"
 
-#: pkg/kdump/kdump-view.jsx:446
+#: pkg/kdump/kdump-view.jsx:447
 msgid "Service is starting"
 msgstr "Tjänsten startar"
 
-#: pkg/kdump/kdump-view.jsx:442
+#: pkg/kdump/kdump-view.jsx:443
 msgid "Service is stopped"
 msgstr "Tjänsten är stoppad"
 
-#: pkg/kdump/kdump-view.jsx:448
+#: pkg/kdump/kdump-view.jsx:449
 msgid "Service is stopping"
 msgstr "Tjänsten stoppas"
 
@@ -6122,7 +6133,7 @@ msgstr ""
 msgid "Shift+Insert"
 msgstr ""
 
-#: pkg/machines/components/diskAdd.jsx:166
+#: pkg/machines/components/diskAdd.jsx:167
 msgid "Show Performance Options"
 msgstr ""
 
@@ -6167,8 +6178,8 @@ msgstr "Stäng av"
 msgid "Single Rank"
 msgstr ""
 
-#: pkg/docker/containers-view.jsx:683
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:475
+#: pkg/docker/containers-view.jsx:687
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:474
 #: pkg/machines/components/storagePools/storagePoolList.jsx:54
 #: pkg/machines/components/storagePools/storagePoolVolumesTab.jsx:84
 #: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:79
@@ -6209,7 +6220,7 @@ msgstr "Plats"
 msgid "Slot $0"
 msgstr "Plats $0"
 
-#: pkg/machines/components/vcpuModal.jsx:206 pkg/systemd/services.jsx:49
+#: pkg/machines/components/vcpuModal.jsx:220 pkg/systemd/services.jsx:49
 msgid "Sockets"
 msgstr "Uttag"
 
@@ -6249,10 +6260,10 @@ msgstr "Något annat program använder just nu pakethanteraren, var god dröj �
 msgid "Sorted from least trusted to most trusted"
 msgstr ""
 
-#: pkg/machines/components/diskAdd.jsx:412
+#: pkg/machines/components/diskAdd.jsx:462
 #: pkg/machines/components/nicBody.jsx:149
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:52
-#: pkg/machines/components/vmDisksTab.jsx:114
+#: pkg/machines/components/vmDisksTab.jsx:120
 #: pkg/machines/components/vmnetworktab.jsx:160
 msgid "Source"
 msgstr "Källa"
@@ -6277,7 +6288,7 @@ msgstr ""
 msgid "Source path should not be empty"
 msgstr "Källsökvägen får inte vara tom"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:144
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:143
 msgid "Source should start with http, ftp or nfs protocol"
 msgstr "Källan skall börja med ett av protokollen http, ftp eller nfs"
 
@@ -6426,7 +6437,7 @@ msgid "Stopping swapspace $target"
 msgstr "Stoppar växlingsutrymmet $target"
 
 #: pkg/docker/index.html:290 pkg/storaged/index.html:23
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:438
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:437
 #: pkg/storaged/details.jsx:127 pkg/storaged/manifest.json.in
 msgid "Storage"
 msgstr "Lagring"
@@ -6462,6 +6473,10 @@ msgstr "Lagringspoolen kunde inte skapas"
 msgid "Storage Pools"
 msgstr "Lagringspooler"
 
+#: pkg/machines/components/diskEdit.jsx:40
+msgid "Storage Volume"
+msgstr ""
+
 #: pkg/machines/components/storagePools/storagePool.jsx:88
 msgid "Storage Volumes"
 msgstr " Lagringsvolymer"
@@ -6478,7 +6493,7 @@ msgstr ""
 msgid "Storage pool"
 msgstr "Lagringspool"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:169
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:168
 msgid "Storage size must not be 0"
 msgstr ""
 
@@ -6685,11 +6700,11 @@ msgstr "Terminal"
 msgid "Terminate Session"
 msgstr "Avsluta sessionen"
 
-#: pkg/kdump/kdump-view.jsx:478 pkg/kdump/kdump-view.jsx:486
+#: pkg/kdump/kdump-view.jsx:479 pkg/kdump/kdump-view.jsx:487
 msgid "Test Configuration"
 msgstr "Testa konfigurationen"
 
-#: pkg/kdump/kdump-view.jsx:482
+#: pkg/kdump/kdump-view.jsx:483
 msgid "Test is only available while the kdump service is running."
 msgstr "Testet är endast tillgängligt medans tjänsten kdump kör."
 
@@ -6885,7 +6900,7 @@ msgstr "Lösenorden stämmer inte överens"
 msgid "The passwords do not match."
 msgstr "Lösenorden stämmer inte överens."
 
-#: pkg/machines/components/diskAdd.jsx:81
+#: pkg/machines/components/diskAdd.jsx:82
 msgid "The pool is empty"
 msgstr "Poolen är tom"
 
@@ -6903,20 +6918,20 @@ msgstr[1] ""
 msgid "The scan from $time ($type) was not successful."
 msgstr "Skanningen från $time ($type) lyckades inte."
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:160
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:159
 msgid "The selected Operating System has minimum memory requirement of $0 $1"
 msgstr ""
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:175
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:174
 msgid ""
 "The selected Operating System has minimum storage size requirement of $0 $1"
 msgstr ""
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:382
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:381
 msgid "The selected Operating System has recommended memory $0 $1"
 msgstr ""
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:417
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:416
 msgid "The selected Operating System has recommended storage size of $0 $1"
 msgstr ""
 
@@ -7113,7 +7128,7 @@ msgstr "Detta paket är inte kopatibelt med denna version av Cockpit"
 msgid "This package requires Cockpit version %s or later"
 msgstr "Detta paket behöver Cockpit version %s eller senare"
 
-#: pkg/machines/components/diskAdd.jsx:138
+#: pkg/machines/components/diskAdd.jsx:139
 msgid "This pool type does not support Storage Volume creation"
 msgstr ""
 
@@ -7154,8 +7169,12 @@ msgstr ""
 "Denna version av cockpit-ws stödjer inte att ansluta till en värd med en "
 "alternativ användare eller port"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:468
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:467
 msgid "This volume is already used by another VM."
+msgstr ""
+
+#: pkg/machines/components/diskAdd.jsx:234
+msgid "This volume is already used by: "
 msgstr ""
 
 #: pkg/storaged/lvol-tabs.jsx:187
@@ -7180,11 +7199,11 @@ msgstr ""
 "systemet.  Beroende på inställningarna kanske inte systemet kommer starta om "
 "automatiskt och processen kan ta en stund."
 
-#: pkg/kdump/kdump-view.jsx:491
+#: pkg/kdump/kdump-view.jsx:492
 msgid "This will test the kdump configuration by crashing the kernel."
 msgstr "Detta kommer testa kdump-inställningarna genom att krascha kärnan."
 
-#: pkg/machines/components/vcpuModal.jsx:212
+#: pkg/machines/components/vcpuModal.jsx:237
 msgid "Threads per core"
 msgstr "Trådar per kärna"
 
@@ -7244,10 +7263,6 @@ msgstr "Total storlek: $0"
 #: pkg/lib/machine-info.js:70
 msgid "Tower"
 msgstr "Torn"
-
-#: pkg/playground/manifest.json.in
-msgid "Translating"
-msgstr ""
 
 #: pkg/systemd/service-details.jsx:433
 msgid "Triggered By"
@@ -7342,7 +7357,7 @@ msgstr "Skriv för att filtrera …"
 msgid "UDP"
 msgstr "UDP"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:287
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:286
 msgid "URL"
 msgstr "URL"
 
@@ -7404,7 +7419,7 @@ msgid "Unavailable"
 msgstr "Otillgänglig"
 
 #: pkg/docker/index.html:732 pkg/networkmanager/index.html:682
-#: pkg/shell/base_index.js:758 pkg/users/local.js:1485
+#: pkg/shell/base_index.js:763 pkg/users/local.js:1485
 msgid "Unexpected error"
 msgstr "Oväntat fel"
 
@@ -7412,7 +7427,7 @@ msgstr "Oväntat fel"
 msgid "Unique Network Name"
 msgstr ""
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:198
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:197
 msgid "Unique name"
 msgstr "Unikt namn"
 
@@ -7540,11 +7555,11 @@ msgstr "Ej betrodd värd"
 msgid "Up since $0"
 msgstr "Uppe sedan $0"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:489
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:488
 msgid "Up to $0 $1 available in the default location"
 msgstr ""
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:402
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:401
 msgid "Up to $0 $1 available on the host"
 msgstr ""
 
@@ -7580,6 +7595,10 @@ msgstr "Uppdaterar"
 msgid "Updating status..."
 msgstr ""
 
+#: pkg/machines/components/diskEdit.jsx:38
+msgid "Url"
+msgstr ""
+
 #: pkg/machines/components/vm/vm.jsx:50 pkg/storaged/unrecognized-tab.jsx:30
 msgid "Usage"
 msgstr "Användning"
@@ -7594,7 +7613,7 @@ msgstr[1] "Användning av $0 CPU-kärnor"
 msgid "Use 512 Byte emulation"
 msgstr "Använd 512-byteemulering"
 
-#: pkg/machines/components/diskAdd.jsx:432
+#: pkg/machines/components/diskAdd.jsx:482
 msgid "Use Existing"
 msgstr "Använd befintlig"
 
@@ -7605,7 +7624,7 @@ msgstr "Använd följande nycklar för att autentisera mot andra system"
 #: pkg/systemd/index.html:267 pkg/docker/storage.jsx:344
 #: pkg/machines/components/vm/vmUsageTab.jsx:64
 #: pkg/machines/components/vm/vmUsageTab.jsx:75
-#: pkg/machines/components/vmDisksTab.jsx:106 pkg/storaged/fsys-tab.jsx:196
+#: pkg/machines/components/vmDisksTab.jsx:112 pkg/storaged/fsys-tab.jsx:196
 #: pkg/storaged/swap-tab.jsx:81 pkg/systemd/host.js:1738
 msgid "Used"
 msgstr "Använt"
@@ -7650,7 +7669,7 @@ msgstr "Användarnamn"
 msgid "Using available credentials"
 msgstr "Använder tillgängliga kreditiv"
 
-#: pkg/machines/components/vcpuModal.jsx:164
+#: pkg/machines/components/vcpuModal.jsx:165
 msgid "VCPU settings could not be saved"
 msgstr "VCPU-inställningarna kunde inte sparas"
 
@@ -7712,7 +7731,7 @@ msgstr ""
 msgid "VM $0 failed to get deleted"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:110 pkg/machines/libvirt-common.js:1304
+#: pkg/machines/hostvmslist.jsx:110 pkg/machines/libvirt-common.js:1340
 msgid "VM $0 failed to get installed"
 msgstr ""
 
@@ -7816,9 +7835,9 @@ msgstr "Virtualiseringstjänsten (libvirt) är inte aktiv"
 msgid "Virtualization Service is Available"
 msgstr "Virtualiseringstjänsten är tillgänglig"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:458
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:457
 #: pkg/machines/components/deleteDialog.jsx:50
-#: pkg/machines/components/diskAdd.jsx:90
+#: pkg/machines/components/diskAdd.jsx:91
 #: pkg/machines/components/vm/bootOrderModal.jsx:96
 #: pkg/machines/components/vmDiskColumns.jsx:46
 #: pkg/storaged/content-views.jsx:140
@@ -7927,6 +7946,16 @@ msgstr "Med terminal"
 msgid "Write-mostly"
 msgstr "Skriv huvudsakligen"
 
+#: pkg/machines/components/diskEdit.jsx:82
+#: pkg/machines/components/vmDisksTab.jsx:151
+msgid "Writeable"
+msgstr ""
+
+#: pkg/machines/components/diskEdit.jsx:95
+#: pkg/machines/components/vmDisksTab.jsx:151
+msgid "Writeable and shared"
+msgstr ""
+
 #: pkg/storaged/plot.jsx:315
 msgid "Writing"
 msgstr "Skriver"
@@ -7979,7 +8008,7 @@ msgstr "Du har inte rättigheter att hantera lagringspoolen för Docker."
 msgid "You must wait longer to change your password"
 msgstr "Du måste vänta längre på att ändra ditt lösenord"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:125
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:124
 msgid "You need to select the most closely matching Operating System"
 msgstr ""
 
@@ -8062,10 +8091,6 @@ msgstr "byte"
 #: pkg/machines/helpers.js:199
 msgid "cdrom"
 msgstr "cdrom"
-
-#: pkg/machines/components/infoRecord.jsx:29
-msgid "control-label $0"
-msgstr ""
 
 #: pkg/machines/helpers.js:193
 msgid "crashed"
@@ -8164,11 +8189,11 @@ msgstr "overksam"
 msgid "inactive"
 msgstr "inaktiv"
 
-#: pkg/kdump/kdump-view.jsx:378
+#: pkg/kdump/kdump-view.jsx:379
 msgid "invalid: multiple targets defined"
 msgstr "felaktigt: flera mål definierade"
 
-#: pkg/kdump/kdump-view.jsx:495
+#: pkg/kdump/kdump-view.jsx:496
 msgid "kdump status"
 msgstr "kdump-status"
 
@@ -8180,7 +8205,7 @@ msgstr "nyckel"
 msgid "key slot $0"
 msgstr "nyckelfack $0"
 
-#: pkg/kdump/kdump-view.jsx:382 pkg/kdump/kdump-view.jsx:384
+#: pkg/kdump/kdump-view.jsx:383 pkg/kdump/kdump-view.jsx:385
 msgid "locally in $0"
 msgstr "lokalt i $0"
 
@@ -8199,7 +8224,7 @@ msgstr "nfs-dumpmålet är inte formaterat som server:sökväg"
 #: pkg/machines/components/networks/networkOverviewTab.jsx:84
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:67
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:70
-#: pkg/machines/components/vmDisksTab.jsx:143 pkg/machines/helpers.js:234
+#: pkg/machines/helpers.js:234
 msgid "no"
 msgstr "nej"
 
@@ -8326,11 +8351,11 @@ msgstr "uppe"
 msgid "user"
 msgstr "användare"
 
-#: pkg/machines/components/vcpuModal.jsx:192
+#: pkg/machines/components/vcpuModal.jsx:193
 msgid "vCPU Count"
 msgstr "vCPU-antal"
 
-#: pkg/machines/components/vcpuModal.jsx:197
+#: pkg/machines/components/vcpuModal.jsx:205
 msgid "vCPU Maximum"
 msgstr "vCPU-maximum"
 
@@ -8346,7 +8371,7 @@ msgstr "värde"
 msgid "vhostuser"
 msgstr "vhost-användare"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:836
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:838
 msgid ""
 "virt-install package needs to be installed on the system in order to create "
 "new VMs"
@@ -8355,6 +8380,6 @@ msgstr ""
 #: pkg/machines/components/networks/networkOverviewTab.jsx:84
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:67
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:70
-#: pkg/machines/components/vmDisksTab.jsx:143 pkg/machines/helpers.js:233
+#: pkg/machines/helpers.js:233
 msgid "yes"
 msgstr "ja"

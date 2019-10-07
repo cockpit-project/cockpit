@@ -56,7 +56,8 @@ class TestFirewall(NetworkCase):
         wait_unit_state(m, "firewalld", "active")
 
         active_rules = get_active_rules(m)
-        b.wait_in_text("#networking-firewall-summary", "{} Active Rule".format(len(active_rules)))
+        if m.image not in [ "rhel-8-1-distropkg" ]: #12806
+            b.wait_in_text("#networking-firewall-summary", "{} Active Rule".format(len(active_rules)))
 
         self.toggle_onoff("#networking-firewall-switch")
         self.wait_onoff("#networking-firewall-switch", False)
@@ -66,7 +67,8 @@ class TestFirewall(NetworkCase):
         # toggle the service from CLI, page should react
         m.execute("systemctl start firewalld")
         self.wait_onoff("#networking-firewall-switch", True)
-        b.wait_in_text("#networking-firewall-summary", "{} Active Rule".format(len(active_rules)))
+        if m.image not in [ "rhel-8-1-distropkg" ]: #12806
+            b.wait_in_text("#networking-firewall-summary", "{} Active Rule".format(len(active_rules)))
         m.execute("systemctl stop firewalld")
         self.wait_onoff("#networking-firewall-switch", False)
         b.wait_in_text("#networking-firewall-summary", "0 Active Rules")

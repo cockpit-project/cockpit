@@ -5,6 +5,8 @@
 
 set -eu
 
+tools/make-bots
+
 TEST_SCENARIO=${TEST_SCENARIO:-verify}
 case $TEST_SCENARIO in
     verify)

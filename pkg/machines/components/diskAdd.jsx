@@ -507,7 +507,7 @@ export class AddDiskModalBody extends React.Component {
             <Modal id={`${idPrefix}-dialog-modal-window`} show onHide={this.props.close}>
                 <Modal.Header>
                     <Modal.CloseButton onClick={this.props.close} />
-                    <Modal.Title> {`Add Disk`} </Modal.Title>
+                    <Modal.Title>{_("Add Disk")}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     {defaultBody}

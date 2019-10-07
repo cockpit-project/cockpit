@@ -221,7 +221,7 @@ export class AddNICAction extends React.Component {
                 <Modal id={`${idPrefix}-dialog`} show={this.state.showModal} onHide={this.close} className='nic-add'>
                     <Modal.Header>
                         <Modal.CloseButton onClick={this.close} />
-                        <Modal.Title> {`Add Virtual Network Interface`} </Modal.Title>
+                        <Modal.Title>{_("Add Virtual Network Interface")}</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         {defaultBody}

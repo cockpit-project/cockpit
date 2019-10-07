@@ -943,7 +943,7 @@ export class Firewall extends React.Component {
         return (
             <div className="container-fluid page-ct">
                 <ol className="breadcrumb">
-                    <li><a tabIndex="0" onClick={go_up}>{_("Networking")}</a></li>
+                    <li><button role="link" className="link-button" onClick={go_up}>{_("Networking")}</button></li>
                     <li className="active">{_("Firewall")}</li>
                 </ol>
                 <h1>

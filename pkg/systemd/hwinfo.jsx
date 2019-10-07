@@ -63,7 +63,7 @@ class SystemInfo extends React.Component {
         }
         const onSecurityClick = this.props.onSecurityClick;
 
-        const mitigations = this.state.allowed ? (<a role="link" onClick={onSecurityClick}>{ _("Mitigations") }</a>)
+        const mitigations = this.state.allowed ? (<button className="link-button" onClick={onSecurityClick}>{ _("Mitigations") }</button>)
             : (<OverlayTrigger overlay={
                 <Tooltip id="tip-cpu-security">
                     { cockpit.format(_("The user $0 is not permitted to change cpu security mitigations"), permission.user ? permission.user.name : '') }
@@ -270,7 +270,7 @@ class HardwareInfo extends React.Component {
             <div className="page-ct container-fluid">
                 <CPUSecurityMitigationsDialog show={this.state.showCpuSecurityDialog} onClose={ () => this.setState({ showCpuSecurityDialog: false }) } />
                 <ol className="breadcrumb">
-                    <li><a role="link" tabIndex="0" onClick={ () => cockpit.jump("/system", cockpit.transport.host) }>{ _("System") }</a></li>
+                    <li><button role="link" className="link-button" onClick={ () => cockpit.jump("/system", cockpit.transport.host) }>{ _("System") }</button></li>
                     <li className="active">{ _("Hardware Information") }</li>
                 </ol>
 

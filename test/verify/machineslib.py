@@ -392,20 +392,19 @@ class TestMachines(NetworkCase):
         # inline notification with error
         b.wait_in_text("div.alert.alert-danger strong", "VM subVmTest2 failed to start")
 
-        b.wait_in_text("a.alert-link.more-button", "show more") # more/less button
-        b.click("a.alert-link.more-button")
-        b.wait_present("a.alert-link + p")
-
         # the message when trying to start active VM differs between virsh and libvirt-dbus provider
         if (self.provider == "libvirt-dbus"):
-            b.wait_in_text("a.alert-link + p",
-                           "domain is already running")
+            message = "domain is already running"
         else:
-            b.wait_in_text("a.alert-link + p",
-                           "Domain is already active")
+            message = "Domain is already active"
 
-        b.wait_in_text("a.alert-link.more-button", "show less")
-        b.click("div.alert.alert-danger button") # close button
+        b.wait_in_text("button.alert-link.more-button", "show more") # more/less button
+        b.click("button.alert-link.more-button")
+        b.wait_present("button.alert-link + p")
+        b.wait_in_text("button.alert-link + p", message)
+        b.wait_in_text("button.alert-link.more-button", "show less")
+
+        b.click("div.alert.alert-danger button.close") # close button
         # inline notification is gone
         b.wait_not_present("div.alert.alert-danger")
         # triangle by status is gone
@@ -1987,8 +1986,8 @@ class TestMachines(NetworkCase):
             try:
                 with b.wait_timeout(10):
                     b.wait_present(error_location)
-                    b.wait_in_text("a.alert-link.more-button", "show more")
-                    b.click("a.alert-link.more-button")
+                    b.wait_in_text("button.alert-link.more-button", "show more")
+                    b.click("button.alert-link.more-button")
                     waitForError(errors, error_location)
 
                 # dialog can complete if the error was not returned immediately
@@ -2002,8 +2001,8 @@ class TestMachines(NetworkCase):
                     try:
                         with b.wait_timeout(20):
                             b.wait_present(error_location)
-                            b.wait_in_text("a.alert-link.more-button", "show more")
-                            b.click("a.alert-link.more-button")
+                            b.wait_in_text("button.alert-link.more-button", "show more")
+                            b.click("button.alert-link.more-button")
                             waitForError(errors, error_location)
                     except Error as x2:
                         # allow CPU errors in the notification area
@@ -2113,7 +2112,7 @@ class TestMachines(NetworkCase):
             b.click("#vm-{0}-overview".format(name)) # open the "overView" subtab
 
             b.wait_in_text("div.alert.alert-danger strong", "VM {0} failed to get installed".format(name))
-            b.wait_in_text("a.alert-link.more-button", "show more")
+            b.wait_in_text("button.alert-link.more-button", "show more")
 
             return self
 

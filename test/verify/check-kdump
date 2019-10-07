@@ -100,7 +100,10 @@ class TestKdump(MachineCase):
         self.enableLocalSsh()
 
         # minimal nfs validation
-        settingsLink = "a:contains('locally in /var/crash')"
+        settingsLink = "button:contains('locally in /var/crash')"
+        if m.image == "rhel-8-1-distropkg":
+            settingsLink = "a:contains('locally in /var/crash')"
+
         b.click(settingsLink)
         b.set_val("#kdump-settings-location", "nfs")
         mountInput = "#kdump-settings-nfs-mount"
@@ -140,7 +143,9 @@ class TestKdump(MachineCase):
 
         # try to change the path to a directory that doesn't exist
         customPath = "/var/crash2"
-        settingsLink = "a:contains('Remote over SSH')"
+        settingsLink = "button:contains('Remote over SSH')"
+        if m.image == "rhel-8-1-distropkg":
+            settingsLink = "a:contains('Remote over SSH')"
         b.click(settingsLink)
         b.set_val("#kdump-settings-location", "local")
         pathInput = "#kdump-settings-local-directory"
@@ -154,7 +159,10 @@ class TestKdump(MachineCase):
         m.execute("mkdir -p {0}".format(customPath))
         b.click("button.btn-primary:contains('Apply')")
         b.wait_not_present(pathInput)
-        b.wait_present("a:contains('locally in {0}')".format(customPath))
+        if m.image == "rhel-8-1-distropkg":
+            b.wait_present("a:contains('locally in {0}')".format(customPath))
+        else:
+            b.wait_present("button:contains('locally in {0}')".format(customPath))
 
         # service has to restart after changing the config, wait for it to be running
         # otherwise the button to test will be disabled

@@ -93,7 +93,7 @@ export function showListingDemo (rootElement, rootElementSelectable, rootElement
         },
     ];
 
-    var addLink = <a className="pull-right" role="link" tabIndex="0" onClick={handleAddClick}>Add Row</a>;
+    var addLink = <button className="pull-right link-button" onClick={handleAddClick}>Add Row</button>;
 
     var rowAction = {
         element: <button className="btn btn-default btn-control fa fa-play" onClick={handlePlayClick} />,

@@ -76,7 +76,10 @@ class TestFirewall(NetworkCase):
         b.click("#networking-firewall-link")
         b.enter_page("/network/firewall")
 
-        b.click(".breadcrumb li:first a")
+        if m.image == "rhel-8-1-distropkg":
+            b.click(".breadcrumb li:first a")
+        else:
+            b.click(".breadcrumb li:first button")
         b.enter_page("/network")
 
         self.allow_journal_messages(".*The name org.fedoraproject.FirewallD1 was not provided by any .service files.*",

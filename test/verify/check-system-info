@@ -428,7 +428,10 @@ class TestSystemInfo(MachineCase):
         b.wait_not_in_text(pci_selector + ' .listing-ct tbody:last-of-type td:nth-of-type(2)', "Unclassified")
 
         # go back to system page
-        b.click('.breadcrumb a')
+        if m.image == "rhel-8-1-distropkg":
+            b.click('.breadcrumb a')
+        else:
+            b.click('.breadcrumb button')
         b.enter_page("/system")
 
         # now pretend this is a system without DMI; fixed in PR #11005
@@ -520,7 +523,10 @@ class TestSystemInfo(MachineCase):
                 b.wait_present('#hwinfo th:contains(CPU)')
                 b.wait_not_present('#hwinfo th:contains(CPU Security)')
             else:
-                b.click('#hwinfo a:contains(Mitigations)')
+                if m.image == "rhel-8-1-distropkg":
+                    b.click('#hwinfo a:contains(Mitigations)')
+                else:
+                    b.click('#hwinfo button:contains(Mitigations)')
 
             if expect_smt_state is not None:
                 b.wait_present('#cpu-mitigations-dialog span:contains(nosmt)')
@@ -541,7 +547,10 @@ class TestSystemInfo(MachineCase):
         # Enable nosmt option
         b.reload()
         b.enter_page('/system/hwinfo')
-        b.click('#hwinfo a:contains(Mitigations)')
+        if m.image == "rhel-8-1-distropkg":
+            b.click('#hwinfo a:contains(Mitigations)')
+        else:
+            b.click('#hwinfo button:contains(Mitigations)')
         b.click('#cpu-mitigations-dialog #nosmt-switch input')
         b.wait_present('#cpu-mitigations-dialog #nosmt-switch input:checked')
         b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
@@ -589,7 +598,10 @@ fi
 
         # Disable nosmt option
         self.login_and_go('/system/hwinfo')
-        b.click('#hwinfo a:contains(Mitigations)')
+        if m.image == "rhel-8-1-distropkg":
+            b.click('#hwinfo a:contains(Mitigations)')
+        else:
+            b.click('#hwinfo button:contains(Mitigations)')
         b.wait_present('#cpu-mitigations-dialog span:contains(nosmt)')
         b.wait_present('#cpu-mitigations-dialog #nosmt-switch input:checked')
         b.click('#cpu-mitigations-dialog #nosmt-switch input')
@@ -610,7 +622,10 @@ fi
         m.write('/tmp/grubby', '#!/bin/sh\necho 0')
         m.execute('[ ! -f /usr/sbin/grubby ] || mount --bind /tmp/grubby /usr/sbin/grubby')
         self.login_and_go('/system/hwinfo')
-        b.click('#hwinfo a:contains(Mitigations)')
+        if m.image == "rhel-8-1-distropkg":
+            b.click('#hwinfo a:contains(Mitigations)')
+        else:
+            b.click('#hwinfo button:contains(Mitigations)')
         b.click('#cpu-mitigations-dialog #nosmt-switch input')
         b.wait_present('#cpu-mitigations-dialog #nosmt-switch input:checked')
         b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')

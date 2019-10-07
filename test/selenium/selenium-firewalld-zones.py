@@ -15,7 +15,7 @@ class FirewalldZones(SeleniumTest):
     def setUp(self):
         super().setUp()
         self.login()
-        self.click(self.wait_link('Network', cond=clickable))
+        self.click(self.wait_text("Network", cond=clickable))
         self.wait_frame("network")
         self.wait_id("networking", jscheck=True)
         self.machine.execute("sudo systemctl start firewalld")

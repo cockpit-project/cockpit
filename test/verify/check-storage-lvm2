@@ -128,14 +128,14 @@ class TestStorage(StorageCase):
         b.wait_present('#storage-detail')
 
         # create a logical volume
-        b.click("a:contains(Create new Logical Volume)")
+        b.click("button:contains(Create new Logical Volume)")
         self.dialog(expect={"name": "lvol0"},
                     values={"purpose": "block",
                             "size": 20})
         self.content_row_wait_in_col(1, 2, "/dev/vgroup0/lvol0")
 
         # check that the next default name is "lvol1"
-        b.click("a:contains(Create new Logical Volume)")
+        b.click("button:contains(Create new Logical Volume)")
         self.dialog_wait_open()
         self.dialog_wait_val("name", "lvol1")
         self.dialog_cancel()
@@ -170,13 +170,13 @@ class TestStorage(StorageCase):
         self.assertEqual(m.execute("grep %s /etc/fstab || true" % mount_point_one), "")
 
         # remove disk
-        b.click('#detail-sidebar tr:nth-child(2) button')
+        b.click('#detail-sidebar tr:nth-child(2) button.btn-default')
         b.wait_not_in_text("#detail-sidebar", "DISK2")
         b.wait_in_text("#detail-header label:contains(Capacity) + div", "48 MiB")
 
         # create thin pool and volume
         # the pool will be maximum size, 48 MiB
-        b.click("a:contains(Create new Logical Volume)")
+        b.click("button:contains(Create new Logical Volume)")
         self.dialog(expect={"size": 48},
                     values={"purpose": "pool",
                             "name": "pool",

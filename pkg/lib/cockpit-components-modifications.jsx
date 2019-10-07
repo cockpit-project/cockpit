@@ -170,7 +170,7 @@ export class Modifications extends React.Component {
                     <h3 className="listing-ct-heading">{this.props.title}</h3>
                     <div className="listing-ct-actions">
                         { !emptyRow &&
-                            <a className="modifications-export" onClick={ () => this.setState({ showDialog: true }) }>{_("View automation script")}</a>
+                            <button className="link-button modifications-export" onClick={ () => this.setState({ showDialog: true }) }>{_("View automation script")}</button>
                         }
                     </div>
                 </header>

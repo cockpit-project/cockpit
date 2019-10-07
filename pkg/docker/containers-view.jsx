@@ -676,9 +676,13 @@ export class ImageList extends React.Component {
 
         var imageRows = filtered.map(this.renderRow, this);
 
-        var getNewImageAction = <a role="link" tabIndex="0" onClick={this.handleSearchImageClick} className="card-pf-link-with-icon pull-right">
-            <span className="pficon pficon-add-circle-o" />{_("Get new image")}
-        </a>;
+        var getNewImageAction = <div className="pull-right">
+            <button onClick={this.handleSearchImageClick} className="link-button">
+                <span className="pficon pficon-add-circle-o" />
+                {" "}
+                {_("Get new image")}
+            </button>
+        </div>;
 
         var columnTitles = [_("Name"), '', _("Created"), _("Size"), ''];
 

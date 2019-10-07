@@ -22,7 +22,7 @@ class MachinesStoragePoolTestSuite(MachinesLib):
         inactive = int(self.wait_css(
             '#card-pf-storage-pools > div > p > span:nth-child(2)').text)
         total = int(self.wait_css(
-            '#card-pf-storage-pools > h2 > a > span.card-pf-aggregate-status-count').text)
+            '#card-pf-storage-pools > h2 > button > span.card-pf-aggregate-status-count').text)
         self.assertEqual(total, active + inactive,
                          "Storage pools' total num is not the same as the sum of active and inactive")
 

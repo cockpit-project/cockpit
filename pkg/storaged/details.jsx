@@ -124,7 +124,7 @@ export class Details extends React.Component {
             <div id="storage-detail">
                 <div className="col-md-12">
                     <ol className="breadcrumb">
-                        <li><a role="link" tabIndex="0" onClick={go_up}>{_("Storage")}</a></li>
+                        <li><button role="link" className="link-button" onClick={go_up}>{_("Storage")}</button></li>
                         <li className="active">{name}</li>
                     </ol>
                 </div>

@@ -108,7 +108,7 @@ class TestStorage(StorageCase):
         self.content_tab_wait_in_info(1, 1, "Mount Options", "_netdev")
 
         # Add the target a second time, just to check that the sorting function works
-        b.click('#storage-detail .breadcrumb a')
+        b.click('#storage-detail .breadcrumb button')
         b.wait_visible('#storage')
         b.click('#add-iscsi-portal')
         self.dialog_wait_open()

@@ -60,8 +60,8 @@ export class InlineNotification extends React.Component {
                 detailButtonText = _("show less");
             }
 
-            detailButton = (<a href='#' className='alert-link more-button'
-                onClick={mouseClick(this.toggleDetail)}>{detailButtonText}</a>);
+            detailButton = (<button className='alert-link more-button link-button'
+                onClick={mouseClick(this.toggleDetail)}>{detailButtonText}</button>);
         }
 
         return (

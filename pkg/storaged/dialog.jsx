@@ -704,9 +704,9 @@ const CheckBoxComponent = ({ tag, val, title, tooltip, update_function }) => {
                 {title}
             </label>
             { tooltip && <OverlayTrigger overlay={ <Tooltip id="tip-service">{tooltip}</Tooltip> } placement="right">
-                <a tabIndex="0" className="dialog-item-tooltip">
+                <button className="dialog-item-tooltip link-button">
                     <span className="fa fa-lg fa-info-circle" />
-                </a>
+                </button>
             </OverlayTrigger>
             }
         </div>

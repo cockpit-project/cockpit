@@ -38,7 +38,7 @@ class StoragePage extends React.Component {
     constructor() {
         super();
         this.state = { inited: false, slow_init: false, path: cockpit.location.path };
-        this.on_client_changed = () => { this.setState({}) };
+        this.on_client_changed = () => { if (!this.props.client.busy) this.setState({}); };
         this.on_navigate = () => { this.setState({ path: cockpit.location.path }) };
     }
 
@@ -103,6 +103,18 @@ class StoragePage extends React.Component {
 function init() {
     ReactDOM.render(<StoragePage client={client} />, document.getElementById("storage"));
     document.body.style.display = "block";
+
+    window.addEventListener('beforeunload', event => {
+        if (client.busy) {
+            // Firefox requires this when the page is in an iframe
+            event.preventDefault();
+
+            // see "an almost cross-browser solution" at
+            // https://developer.mozilla.org/en-US/docs/Web/Events/beforeunload
+            event.returnValue = '';
+            return '';
+        }
+    });
 }
 
 document.addEventListener("DOMContentLoaded", init);

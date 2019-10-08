@@ -29,6 +29,7 @@
 #include <common/cockpitwebcertificate.h>
 #include "utils.h"
 #include "server.h"
+#include "connection.h"
 
 /* CLI arguments */
 struct arguments {
@@ -66,7 +67,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
         arguments->port = arg_parse_int (arg, state, 1, UINT16_MAX, "Invalid port");
         break;
       case OPT_IDLE_TIMEOUT:
-        arguments->idle_timeout = arg_parse_int (arg, state, 0, (INT_MAX / 1000) - 1, "Invalid idle timeout") * 1000;
+        arguments->idle_timeout = arg_parse_int (arg, state, 0, INT_MAX, "Invalid idle timeout");
         break;
       default:
         return ARGP_ERR_UNKNOWN;
@@ -91,29 +92,32 @@ int
 main (int argc, char **argv)
 {
   struct arguments arguments;
-  char *error = NULL;
-  char *certfile = NULL;
 
   /* default option values */
   arguments.no_tls = false;
   arguments.port = 9090;
-  arguments.idle_timeout = 90000;
+  arguments.idle_timeout = 90;
 
   argp_parse (&argp, argc, argv, 0, 0, &arguments);
 
+  server_init ("/run/cockpit/wsinstance", arguments.idle_timeout, arguments.port);
+
   if (!arguments.no_tls)
     {
-      certfile = cockpit_certificate_locate (&error);
+      char *error = NULL;
+      char *certfile = cockpit_certificate_locate (&error);
+
       if (error)
         errx (1, "Could not locate server certificate: %s", error);
       debug (SERVER, "Using certificate %s", certfile);
+
+      /* TODO: Add cockpit.conf option to enable client-certificate auth, once we support that */
+      connection_crypto_init (certfile, NULL, GNUTLS_CERT_IGNORE);
+      free (certfile);
     }
 
-  /* TODO: Add cockpit.conf option to enable client-certificate auth, once we support that */
-  server_init ("/run/cockpit/wsinstance", arguments.port, certfile, NULL, CERT_NONE);
-  free (certfile);
-
-  server_run (arguments.idle_timeout);
+  server_run ();
   server_cleanup ();
+
   return 0;
 }

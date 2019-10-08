@@ -32,6 +32,7 @@
 #include <glib/gstdio.h>
 #include <gnutls/x509.h>
 
+#include "connection.h"
 #include "server.h"
 #include "common/cockpittest.h"
 
@@ -57,7 +58,7 @@ typedef struct {
 typedef struct {
   const char *certfile;
   const char *keyfile;
-  enum ClientCertMode client_certs;
+  int cert_request_mode;
 } TestFixture;
 
 static const TestFixture fixture_separate_crt_key = {
@@ -68,7 +69,7 @@ static const TestFixture fixture_separate_crt_key = {
 static const TestFixture fixture_separate_crt_key_client_cert = {
   .certfile = CERTFILE,
   .keyfile = KEYFILE,
-  .client_certs = CERT_REQUEST,
+  .cert_request_mode = GNUTLS_CERT_REQUEST,
 };
 
 static const TestFixture fixture_combined_crt_key = {
@@ -131,8 +132,8 @@ do_request (TestCase *tc, const char *request)
 
   send_request (fd, request);
   /* wait until data is available */
-  for (int timeout = 0; timeout < 10 && recv (fd, buf, 100, MSG_PEEK | MSG_DONTWAIT) < 100; ++timeout)
-    server_poll_event (1000);
+  for (int timeout = 0; timeout < 100 && recv (fd, buf, 100, MSG_PEEK | MSG_DONTWAIT) < 100; ++timeout)
+    server_poll_event (100);
 
   return recv_reply (fd, buf, sizeof (buf));
 }
@@ -279,11 +280,10 @@ setup (TestCase *tc, gconstpointer data)
     }
   close (socket_dir_fd);
 
-  server_init (tc->ws_socket_dir,
-               server_port,
-               fixture ? fixture->certfile : NULL,
-               fixture ? fixture->keyfile : NULL,
-               fixture ? fixture->client_certs : CERT_NONE);
+  server_init (tc->ws_socket_dir, 1, server_port);
+  if (fixture && fixture->certfile)
+    connection_crypto_init (fixture->certfile, fixture->keyfile, fixture->cert_request_mode);
+
   tc->server_addr.sin_family = AF_INET;
   tc->server_addr.sin_port = htons (server_port);
   tc->server_addr.sin_addr.s_addr = htonl (INADDR_LOOPBACK);
@@ -292,6 +292,9 @@ setup (TestCase *tc, gconstpointer data)
 static void
 teardown (TestCase *tc, gconstpointer data)
 {
+  for (int i = 0; i < 100 && server_num_connections (); i++) /* 10s */
+    g_usleep (100000); /* 0.1s */
+
   server_cleanup ();
   g_assert_cmpint (kill (tc->ws_spawner, SIGTERM), ==, 0);
   g_assert_cmpint (waitpid (tc->ws_spawner, NULL, 0), ==, tc->ws_spawner);
@@ -314,13 +317,14 @@ teardown (TestCase *tc, gconstpointer data)
 }
 
 static void
-test_no_tls_con_shutdown (TestCase *tc, gconstpointer data)
+test_no_tls_single (TestCase *tc, gconstpointer data)
 {
+  g_assert_cmpuint (server_num_connections (), ==, 0);
   assert_http (tc);
 
   /* let the server process "peer has closed connection" */
   for (int retries = 0; retries < 10 && server_num_connections () == 1; ++retries)
-    server_run (100);
+    server_poll_event (100);
   g_assert_cmpuint (server_num_connections (), ==, 0);
 }
 
@@ -466,11 +470,11 @@ static void
 test_run_idle (TestCase *tc, gconstpointer data)
 {
   /* exits after idle without any connections */
-  server_run (100);
+  server_run ();
 
   /* exits after idle after processing an event */
   assert_http (tc);
-  server_run (100);
+  server_run ();
 }
 
 int
@@ -478,8 +482,8 @@ main (int argc, char *argv[])
 {
   cockpit_test_init (&argc, &argv);
 
-  g_test_add ("/server/no-tls/process-connection-shutdown", TestCase, NULL,
-              setup, test_no_tls_con_shutdown, teardown);
+  g_test_add ("/server/no-tls/single-request", TestCase, NULL,
+              setup, test_no_tls_single, teardown);
   g_test_add ("/server/no-tls/many-serial", TestCase, NULL,
               setup, test_no_tls_many_serial, teardown);
   g_test_add ("/server/no-tls/many-parallel", TestCase, NULL,

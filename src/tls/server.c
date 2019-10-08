@@ -24,62 +24,40 @@
 #include <config.h>
 #endif
 
+#include "server.h"
+
 #include <assert.h>
 #include <err.h>
 #include <errno.h>
-#include <signal.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <arpa/inet.h>
 #include <netinet/in.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/un.h>
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <sys/epoll.h>
-#include <sys/wait.h>
+#include <sys/param.h>
+#include <sys/socket.h>
+#include <sys/timerfd.h>
+#include <sys/types.h>
+#include <sys/un.h>
+#include <unistd.h>
 
-#include <gnutls/gnutls.h>
-#include <gnutls/x509.h>
-
-#include <common/cockpitmemory.h>
-#include <common/cockpitwebcertificate.h>
-#include "utils.h"
 #include "connection.h"
-
-#include "server.h"
-
-#define MAX_LISTEN_FDS 10
+#include "utils.h"
 
 /* cockpit-tls TCP server state (singleton) */
 static struct {
+  /* only used from main thread */
   bool initialized;
-  const char *ws_path;
-  enum ClientCertMode client_cert_mode;
-  int listen_fds[MAX_LISTEN_FDS];
-  gnutls_certificate_credentials_t x509_cred;
-  gnutls_priority_t priority_cache;
-  Connection *connections;
+  int first_listener;
+  int last_listener;
   int epollfd;
+
+  /* rw, protected by mutex */
+  pthread_mutex_t connection_mutex;
+  unsigned int connection_count;
+  int idle_timerfd;
+  struct itimerspec idle_timeout;
 } server;
-
-/***********************************
- *
- * Helper functions
- *
- ***********************************/
-
-#define RETRY(rval, cmd) \
-        do { \
-                rval = cmd; \
-        } while(rval < 0  && errno == EINTR)
-#define TLS_RETRY(rval, cmd) \
-        do { \
-                rval = cmd; \
-        } while(rval == GNUTLS_E_INTERRUPTED)
-#define TLS_RETRY_BLOCK(rval, cmd) \
-        do { \
-                rval = cmd; \
-        } while(rval == GNUTLS_E_AGAIN || rval == GNUTLS_E_INTERRUPTED)
 
 /**
  * check_sd_listen_pid: Verify that systemd-activated socket is for us
@@ -111,98 +89,31 @@ check_sd_listen_pid (void)
   return true;
 }
 
-/**
- * remove_connection: stop tracking and clean up connection(s)
- *
- * Remove all #Connections which either have the given @fd (client or ws), or
- * the given #WsInstance. This happens when encountering EOF or SIGCHLD.
- *
- * @fd: file descriptor from client (browser) or ws connection, or ≤ 0 for "unspecified"
- * @ws: If given, all connections related to this #WsInstance get removed
- */
-static void
-remove_connection (int fd)
+static void *
+server_connection_thread_start_routine (void *data)
 {
-  Connection *c, *cprev;
-  bool found = false;
+  int fd = (uintptr_t) data;
 
-  for (c = server.connections, cprev = NULL; c; )
-    {
-      Connection *cnext = c->next;
+  connection_thread_main (fd);
 
-      if (fd > 0 && (c->client_fd == fd || c->ws_fd == fd))
-        {
-          /* stop polling it */
-          if (epoll_ctl (server.epollfd, EPOLL_CTL_DEL, c->client_fd, NULL) < 0)
-            err (1, "Failed to remove epoll connection fd");
-          if (c->ws_fd != -1)
-            {
-              if (epoll_ctl (server.epollfd, EPOLL_CTL_DEL, c->ws_fd, NULL) < 0)
-                err (1, "Failed to remove epoll connection ws fd");
-            }
+  /* teardown */
+  {
+    pthread_mutex_lock (&server.connection_mutex);
 
-          /* remove connection from our list */
-          if (cprev == NULL) /* first connection */
-            server.connections = c->next;
-          else
-            cprev->next = c->next;
+    server.connection_count--;
 
-          connection_free (c);
-          found = true;
-        }
-      else
-        cprev = c;
+    debug (CONNECTION, "Server.connection_count decreased to %i", server.connection_count);
 
-      c = cnext;
-    }
+    if (server.connection_count == 0 && server.idle_timerfd != -1)
+      {
+        debug (CONNECTION, "  -> setting idle timeout");
+        timerfd_settime (server.idle_timerfd, 0, &server.idle_timeout, NULL);
+      }
 
-  if (!found)
-    debug (CONNECTION, "remove_connection: fd %i not found in connections", fd);
-}
+    pthread_mutex_unlock (&server.connection_mutex);
+  }
 
-/**
- * connection_init_ws: Find or launch a cockpit-ws instance for a new Connection
- *
- * Find the responsible cockpit-ws instance for a new server connection, i. e.
- * by connection type (https/http) and client-side certificate. If none exists,
- * create one. Set server.wss or server.ws_notls.
- */
-static void
-connection_init_ws (Connection *c)
-{
-  int fd;
-  struct epoll_event ev = { .events = EPOLLIN };
-  struct sockaddr_un sockaddr = { .sun_family = AF_UNIX };
-  const char *sockname;
-  int r;
-
-  if (c->is_tls)
-    sockname = "https";
-  else
-    sockname = server.x509_cred ? "http-redirect" : "http";
-
-  r = snprintf (sockaddr.sun_path, sizeof sockaddr.sun_path, "%s/%s.sock", server.ws_path, sockname);
-  assert (r < sizeof sockaddr.sun_path);
-
-  debug (CONNECTION, "connection_init_ws: assigned ws %s", sockaddr.sun_path);
-
-  /* connect to ws instance */
-  fd = socket (AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0);
-  if (fd < 0)
-    err (1, "failed to create cockpit-ws client socket");
-  if (connect (fd, (struct sockaddr *) &sockaddr, sizeof sockaddr) < 0)
-    {
-      /* cockpit-ws crashed? */
-      warn ("failed to connect to cockpit-ws");
-      return;
-    }
-
-  /* epoll the fd */
-  ev.data.ptr = &c->buf_ws;
-  if (epoll_ctl (server.epollfd, EPOLL_CTL_ADD, fd, &ev) < 0)
-    err (1, "Failed to epoll cockpit-ws client fd");
-
-  c->ws_fd = fd;
+  return NULL;
 }
 
 /**
@@ -214,10 +125,10 @@ static void
 handle_accept (int listen_fd)
 {
   int fd;
-  Connection *con;
-  struct epoll_event ev = { .events = EPOLLIN };
+  pthread_attr_t attr;
+  pthread_t thread;
 
-  debug (SERVER, "epoll_wait event on server listen fd %i", listen_fd);
+  debug (CONNECTION, "epoll_wait event on server listen fd %i", listen_fd);
 
   /* accept and create new connection */
   fd = accept4 (listen_fd, NULL, NULL, SOCK_CLOEXEC);
@@ -227,181 +138,41 @@ handle_accept (int listen_fd)
         warn ("failed to accept connection");
       return;
     }
-  con = connection_new (fd);
 
-  /* epoll the connection fd */
-  ev.data.ptr = &con->buf_client;
-  if (epoll_ctl (server.epollfd, EPOLL_CTL_ADD, fd, &ev) < 0)
-    err (1, "Failed to epoll connection fd");
+  debug (CONNECTION, "New connection accepted, fd %i", fd);
 
-  /* add to our Connections list */
-  con->next = server.connections;
-  server.connections = con;
-}
+  {
+    pthread_mutex_lock (&server.connection_mutex);
 
-/**
- * verify_peer_certificate: Custom client certificate validation function
- *
- * cockpit-tls ignores CA/trusted owner and leaves that to e. g. sssd. But
- * validate the other properties such as expiry, unsafe algorithms, etc.
- * This combination cannot be done with gnutls_session_set_verify_cert().
- */
-static int
-verify_peer_certificate (gnutls_session_t session)
-{
-  int ret;
-  unsigned status;
+    if (server.connection_count == 0 && server.idle_timerfd != -1)
+      {
+        const struct itimerspec zero = { { 0 }, };
+        debug (CONNECTION, "  -> clearing idle timeout.");
+        timerfd_settime (server.idle_timerfd, 0, &zero, NULL);
+      }
 
-  TLS_RETRY_BLOCK (ret, gnutls_certificate_verify_peers2 (session, &status));
-  if (ret >= 0)
+    server.connection_count++;
+
+    debug (CONNECTION, "  -> server.connection_count is now %i", server.connection_count);
+
+    pthread_mutex_unlock (&server.connection_mutex);
+  }
+
+  pthread_attr_init (&attr);
+  pthread_attr_setdetachstate (&attr, PTHREAD_CREATE_DETACHED);
+
+  int r = pthread_create (&thread, &attr,
+                          server_connection_thread_start_routine,
+                          (void *) (uintptr_t) fd);
+
+  if (r != 0)
     {
-      /* ignore CA/trusted owner and leave that to e. g. sssd */
-      status &= ~(GNUTLS_CERT_INVALID | GNUTLS_CERT_SIGNER_NOT_FOUND | GNUTLS_CERT_SIGNER_NOT_CA);
-      if (status != 0)
-        {
-          gnutls_datum_t msg;
-          ret = gnutls_certificate_verification_status_print (status, gnutls_certificate_type_get (session), &msg, 0);
-          if (ret != GNUTLS_E_SUCCESS)
-            errx (1, "Failed to print verification status: %s", gnutls_strerror (ret));
-          warnx ("Invalid TLS peer certificate: %s", msg.data);
-          gnutls_free (msg.data);
-#ifdef GNUTLS_E_CERTIFICATE_VERIFICATION_ERROR
-          return GNUTLS_E_CERTIFICATE_VERIFICATION_ERROR;
-#else  /* fallback for GnuTLS < 3.4.4 */
-          return GNUTLS_E_CERTIFICATE_ERROR;
-#endif
-        }
-    }
-  else if (ret != GNUTLS_E_NO_CERTIFICATE_FOUND)
-    {
-      warnx ("Verifying TLS peer failed: %s", gnutls_strerror (ret));
-      return ret;
+      errno = r;
+      warn ("pthread_create() failed.  dropping connection");
+      close (fd);
     }
 
-  return GNUTLS_E_SUCCESS;
-}
-
-/**
- * handle_connection_data_first: Handle first event on client fd
- *
- * Check the very first byte of a new connection to tell apart TLS from plain
- * HTTP. Initialize TLS and the ws instance.
- */
-static void
-handle_connection_data_first (Connection *con)
-{
-  char b;
-  int ret;
-
-  assert (con->ws_fd == -1);
-
-  /* peek the first byte and see if it's a TLS connection (starting with 22).
-     We can assume that there is some data to read, as this is called in response
-     to an epoll event. */
-  ret = recv (con->client_fd, &b, 1, MSG_PEEK);
-  if (ret < 0)
-    err (1, "failed to peek first byte");
-  if (ret == 0) /* EOF */
-    {
-      debug (CONNECTION, "client disconnected without sending any data");
-      remove_connection (con->client_fd);
-      return;
-    }
-
-  if (b == 22)
-    {
-      gnutls_session_t session;
-
-      debug (CONNECTION, "first byte is %i, initializing TLS", (int) b);
-
-      if (!server.x509_cred)
-        {
-          warnx ("got TLS connection, but our server does not have a certificate/key; refusing");
-          remove_connection (con->client_fd);
-          return;
-        }
-
-      gnutls_check (gnutls_init (&session, GNUTLS_SERVER));
-      gnutls_check (gnutls_priority_set (session, server.priority_cache));
-      gnutls_check (gnutls_credentials_set (session, GNUTLS_CRD_CERTIFICATE, server.x509_cred));
-
-      gnutls_certificate_server_set_request (
-          session,
-          (server.client_cert_mode == CERT_REQUEST) ? GNUTLS_CERT_REQUEST : GNUTLS_CERT_IGNORE);
-      gnutls_certificate_set_verify_function (server.x509_cred, verify_peer_certificate);
-      gnutls_handshake_set_timeout (session, GNUTLS_DEFAULT_HANDSHAKE_TIMEOUT);
-
-      gnutls_transport_set_int (session, con->client_fd);
-
-      connection_set_tls_session (con, session);
-
-      TLS_RETRY_BLOCK (ret, gnutls_handshake (session));
-      if (ret < 0)
-        {
-          warnx ("TLS handshake failed: %s", gnutls_strerror (ret));
-          remove_connection (con->client_fd);
-          return;
-        }
-
-      debug (CONNECTION, "TLS handshake completed");
-    }
-
-  connection_init_ws (con);
-  if (con->ws_fd == -1)
-    remove_connection (con->client_fd);
-}
-
-/**
- * handle_connection_data: Handle event on client or ws fd
- *
- * We want to avoid any interpretation of data to avoid vulnerabilities, so for
- * the most part this just means shovelling data between the client and ws. The
- * only exception is the very first byte of a new connection, to tell apart TLS
- * from plain HTTP (handled by handle_connection_data_first).
- */
-static void
-handle_connection_data (struct ConnectionBuffer *buf)
-{
-  Connection *con = buf->connection;
-  DataSource src = buf == &con->buf_client ? CLIENT : WS;
-  ConnectionResult r;
-
-  assert (con);
-  debug (CONNECTION, "%s connection fd %i has data from %s",
-         con->is_tls ? "TLS" : "unencrypted", con->client_fd,
-         src == WS ? "ws" : "client");
-
-  /* first data on a new connection; determine if TLS, init TLS, and assign a ws */
-  if (con->ws_fd == -1)
-    {
-      assert (src == CLIENT);
-      handle_connection_data_first (con);
-      return;
-    }
-
-  do
-    {
-      r = connection_read (con, src);
-    } while (r == RETRY);
-  if (r == SUCCESS)
-    {
-      do
-        {
-          r = connection_write (con, src);
-        } while (r == RETRY || r == PARTIAL);
-    }
-
-  if (r != SUCCESS)
-    remove_connection (con->client_fd);
-}
-
-static void
-handle_hangup (struct ConnectionBuffer *buf)
-{
-  Connection *con = buf->connection;
-  int fd = buf == &con->buf_client ? con->client_fd : con->ws_fd;
-  debug (CONNECTION, "hangup on fd %i", fd);
-  remove_connection (fd);
+  pthread_attr_destroy (&attr);
 }
 
 /***********************************
@@ -417,77 +188,38 @@ handle_hangup (struct ConnectionBuffer *buf)
  * is an error.
  *
  * @ws_path: Path to cockpit-wsinstance sockets directory
+ * @idle_timeout: When positive, stop server after given number of seconds with
+ *                no connections
  * @port: Port to listen to; ignored when the listening socket is handed over
  *        through the systemd socket activation protocol
- * @certfile: Server TLS certificate file; if %NULL, TLS is not supported.
- * @keyfile: Server TLS key file; if the key is merged into @certfile, set this
- *           to %NULL.
- * @client_cert_mode: Whether to ask for client certificates
  */
 void
-server_init (const char *ws_path,
-             uint16_t port,
-             const char *certfile,
-             const char* keyfile,
-             enum ClientCertMode client_cert_mode)
+server_init (const char *wsinstance_sockdir,
+             int idle_timeout,
+             uint16_t port)
 {
-  int ret;
   const char *env_listen_fds;
   struct epoll_event ev = { .events = EPOLLIN };
 
   assert (!server.initialized);
+  server.initialized = true;
 
-  server.ws_path = ws_path;
-  server.client_cert_mode = client_cert_mode;
+  connection_set_wsinstance_sockdir (wsinstance_sockdir);
 
-  /* Initialize TLS */
-  if (certfile)
-    {
-      gnutls_check (gnutls_certificate_allocate_credentials (&server.x509_cred));
-
-      if (keyfile)
-        {
-          ret = gnutls_certificate_set_x509_key_file (server.x509_cred, certfile, keyfile, GNUTLS_X509_FMT_PEM);
-        }
-      else
-        {
-          /* without keyfile, certfile must include the key */
-          gnutls_datum_t cert, key;
-          int r;
-
-          r = cockpit_certificate_parse (certfile, (char**) &cert.data, (char**) &key.data);
-          if (r < 0)
-            errx (1,  "Invalid server certificate+key file %s: %s", certfile, strerror (-r));
-          cert.size = strlen ((char*) cert.data);
-          key.size = strlen ((char*) key.data);
-          ret = gnutls_certificate_set_x509_key_mem (server.x509_cred, &cert, &key, GNUTLS_X509_FMT_PEM);
-          free (cert.data);
-          free (key.data);
-        }
-      if (ret != GNUTLS_E_SUCCESS)
-        errx (1, "Failed to initialize server certificate: %s", gnutls_strerror (ret));
-      gnutls_check (gnutls_priority_init (&server.priority_cache, NULL, NULL));
-
-#if GNUTLS_VERSION_NUMBER >= 0x030506 && GNUTLS_VERSION_NUMBER <= 0x030600
-      /* only available since GnuTLS 3.5.6, and deprecated in 3.6 */
-      gnutls_certificate_set_known_dh_params (server.x509_cred, GNUTLS_SEC_PARAM_MEDIUM);
-#endif
-    }
+  pthread_mutex_init (&server.connection_mutex, NULL);
 
   /* systemd socket activated? */
   env_listen_fds = secure_getenv ("LISTEN_FDS");
   if (env_listen_fds && check_sd_listen_pid ())
     {
       char *endptr = NULL;
-      long n = strtol (env_listen_fds, &endptr, 10);
-      if (n < 1 || n > MAX_LISTEN_FDS || *endptr != '\0')
-        errx (1, "Invalid $LISTEN_FDS value '%s'; this program supports up to 10 fds", env_listen_fds);
-      for (int i = 0, fd = SD_LISTEN_FDS_START; i < n; ++i, ++fd)
-        {
-          server.listen_fds[i] = fd;
-          debug (SERVER, "Listening to systemd activated socket fd %i", fd);
-        }
-      server.listen_fds[n] = -1;
+      unsigned long n = strtoul (env_listen_fds, &endptr, 10);
+
+      if (n < 1 || n > INT_MAX || *endptr != '\0')
+        errx (1, "Invalid $LISTEN_FDS value '%s'", env_listen_fds);
+
+      server.first_listener = SD_LISTEN_FDS_START;
+      server.last_listener = SD_LISTEN_FDS_START + (n - 1);
     }
   else
     {
@@ -495,37 +227,51 @@ server_init (const char *ws_path,
       int optval = 1;
 
       /* Listen to our port; on the command line and our API we just support one */
-      server.listen_fds[0] = socket (AF_INET, SOCK_STREAM | SOCK_CLOEXEC, 0);
-      if (server.listen_fds[0] < 0)
+      server.first_listener = socket (AF_INET, SOCK_STREAM | SOCK_CLOEXEC, 0);
+      if (server.first_listener < 0)
         err (1, "failed to create server listening fd");
-      server.listen_fds[1] = -1;
+      server.last_listener = server.first_listener;
 
       memset (&sa_serv, '\0', sizeof (sa_serv));
       sa_serv.sin_family = AF_INET;
       sa_serv.sin_addr.s_addr = INADDR_ANY;
       sa_serv.sin_port = htons (port);
 
-      if (setsockopt (server.listen_fds[0], SOL_SOCKET, SO_REUSEADDR, (void *) &optval, sizeof (int)) < 0)
+      if (setsockopt (server.first_listener, SOL_SOCKET, SO_REUSEADDR, (void *) &optval, sizeof (int)) < 0)
         err (1, "failed to set socket option");
-      if (bind (server.listen_fds[0], (struct sockaddr *) &sa_serv, sizeof (sa_serv)) < 0)
+      if (bind (server.first_listener, (struct sockaddr *) &sa_serv, sizeof (sa_serv)) < 0)
         err (1, "failed to bind to port %hu", port);
-      if (listen (server.listen_fds[0], 1024) < 0)
+      if (listen (server.first_listener, 1024) < 0)
         err (1, "failed to listen to server port");
-      debug (SERVER, "Server ready. Listening on port %hu, fd %i", port, server.listen_fds[0]);
+      debug (SERVER, "Server ready. Listening on port %hu, fd %i", port, server.first_listener);
     }
 
   /* epoll the listening fds */
   server.epollfd = epoll_create1 (EPOLL_CLOEXEC);
   if (server.epollfd < 0)
     err (1, "Failed to create epoll fd");
-  for (int i = 0; i < MAX_LISTEN_FDS && server.listen_fds[i] >= 0; ++i)
+  for (int fd = server.first_listener; fd <= server.last_listener; fd++)
     {
-      ev.data.ptr = &server.listen_fds[i];
-      if (epoll_ctl (server.epollfd, EPOLL_CTL_ADD, server.listen_fds[i], &ev) < 0)
+      ev.data.fd = fd;
+      if (epoll_ctl (server.epollfd, EPOLL_CTL_ADD, fd, &ev) < 0)
         err (1, "Failed to epoll server listening fd");
     }
 
-  server.initialized = true;
+  /* we use timerfd for idle timeout.  epoll that too. */
+  if (idle_timeout > 0)
+    {
+      server.idle_timerfd = timerfd_create (CLOCK_MONOTONIC, TFD_CLOEXEC);
+      if (server.idle_timerfd == -1)
+        err (1, "Failed to create timerfd");
+
+      server.idle_timeout.it_value.tv_sec = idle_timeout;
+      if (timerfd_settime (server.idle_timerfd, 0, &server.idle_timeout, NULL) != 0)
+        err (1, "Failed to set timerfd");
+
+      ev.data.fd = server.idle_timerfd;
+      if (epoll_ctl (server.epollfd, EPOLL_CTL_ADD, server.idle_timerfd, &ev) < 0)
+        err (1, "Failed to epoll idle timerfd");
+    }
 }
 
 /**
@@ -537,38 +283,34 @@ server_init (const char *ws_path,
 void
 server_cleanup (void)
 {
-  close (server.epollfd);
-  for (int i = 0; i < MAX_LISTEN_FDS && server.listen_fds[i] >= 0; ++i)
-    close (server.listen_fds[i]);
-
   assert (server.initialized);
+  assert (server.connection_count == 0);
 
-  for (Connection *c = server.connections; c; )
-    {
-      Connection *cnext = c->next;
-      connection_free (c);
-      c = cnext;
-    }
+  if (server.idle_timerfd != -1)
+    close (server.idle_timerfd);
 
-  if (server.x509_cred)
-    {
-      gnutls_certificate_free_credentials (server.x509_cred);
-      gnutls_priority_deinit (server.priority_cache);
-    }
+  for (int fd = server.first_listener; fd <= server.last_listener; fd++)
+    close (fd);
 
-  memset (&server, 0, sizeof (server));
+  close (server.epollfd);
+
+  pthread_mutex_destroy (&server.connection_mutex);
+
+  connection_cleanup ();
+
+  memset (&server, 0, sizeof server);
 }
 
 /**
  * server_poll_event: Wait for and process one event
  *
  * @timeout: number of milliseconds to wait for an event to happen; after that,
- * the function will return 0. -1 will to block forever
+ * the function will return false. -1 will to block until an event occurs.
  *
- * This can be any event on the listening socket, on connected client sockets,
- * or from cockpit-ws children.
+ * This can be an event on a listening socket, or the idle timeout if no
+ * clients are connected.
  *
- * Returns: false on timeout, true if some event was handled.
+ * Returns: false on timeout, true if some (other) event was handled.
  */
 bool
 server_poll_event (int timeout)
@@ -579,61 +321,46 @@ server_poll_event (int timeout)
   assert (server.initialized);
 
   ret = epoll_wait (server.epollfd, &ev, 1, timeout);
-  if (ret < 0)
-    {
-      if (errno == EINTR)
-        return true;
-      err (1, "Failed to epoll_wait");
-    }
-  else if (ret > 0)
-    {
-      if (ev.data.ptr >= (void *) server.listen_fds && ev.data.ptr < (void *) &server.listen_fds[MAX_LISTEN_FDS])
-        handle_accept (* ((int *) ev.data.ptr));
-      else if (ev.events & EPOLLIN)
-        handle_connection_data (ev.data.ptr);
-      else if (ev.events & EPOLLHUP)
-        /* this ought to be handled by recv() == 0 (EOF) already, but make sure
-         * we clean up hanged up connections */
-        handle_hangup (ev.data.ptr);
+  if (ret == 0)
+    return false; /* hit timeout */
 
-      return true;
-    }
+  if (ret == 1)
+    {
+      int fd = ev.data.fd;
 
-  return false;
+      if (fd == server.idle_timerfd)
+        return false; /* hit the other timeout */
+
+      assert (server.first_listener <= fd && fd <= server.last_listener);
+
+      handle_accept (fd);
+    }
+  else if (errno != EINTR)
+    err (1, "Failed to epoll_wait");
+
+  return true; /* did something */
 }
 
 /**
  * server_run: Server main loop
  *
- * @idle_timeout: If > 0, the timeout in milliseconds after which #server_run()
- *                returns -- i. e. no events happened in that time and there are
- *                no connections.
- *
  * Returns if the server reached the idle timeout, otherwise runs forever.
  */
 void
-server_run (int idle_timeout)
+server_run (void)
 {
-  for (;;) {
-    if (!server_poll_event (idle_timeout) && idle_timeout > 0)
-      {
-        if (server_num_connections () == 0)
-          {
-            debug (SERVER, "reached idle time and no existing connections");
-            break;
-          }
-
-        debug (SERVER, "server_poll_event reached idle time, but there are existing connections");
-      }
-  }
+  while (server_poll_event (-1))
+    ;
 }
 
 unsigned
 server_num_connections (void)
 {
-  unsigned count = 0;
+  unsigned count;
 
-  for (Connection *c = server.connections; c; c = c->next)
-    count++;
+  pthread_mutex_lock (&server.connection_mutex);
+  count = server.connection_count;
+  pthread_mutex_unlock (&server.connection_mutex);
+
   return count;
 }

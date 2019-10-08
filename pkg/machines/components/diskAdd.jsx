@@ -227,7 +227,7 @@ const ChangeShareable = ({ idPrefix, vms, storagePool, volumeName, onValueChange
     const isVolumeUsed = getStorageVolumesUsage(vms, storagePool);
     const volume = storagePool.volumes.find(vol => vol.name === volumeName);
 
-    if (!isVolumeUsed[volumeName])
+    if (!isVolumeUsed[volumeName] || (isVolumeUsed[volumeName].length === 0))
         return null;
 
     const vmsUsing = isVolumeUsed[volumeName].join(', ') + '.';

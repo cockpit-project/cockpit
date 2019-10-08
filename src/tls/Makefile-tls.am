@@ -14,6 +14,7 @@ cockpit_tls_CFLAGS = 					\
 	$(COCKPIT_TLS_CFLAGS)				\
 	$(NULL)
 
+cockpit_tls_LDFLAGS = -pthread
 cockpit_tls_LDADD = 					\
 	libcockpit-common-nodeps.a			\
 	$(COCKPIT_TLS_LIBS)				\

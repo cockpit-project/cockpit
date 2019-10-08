@@ -25,6 +25,9 @@
 #define DEBUG 0
 
 /* messages can be disabled per-domain */
+#define DEBUG_POLL 1
+#define DEBUG_BUFFER 1
+#define DEBUG_IOVEC 1
 #define DEBUG_CONNECTION 1
 #define DEBUG_SERVER 1
 
@@ -39,14 +42,6 @@
 #else
 #define debug(...)
 #endif
-
-#define gnutls_check(expr) { \
-  int r = expr; \
-  if (r < 0) {  \
-    fprintf (stderr, "cockpit-tls: %s failed: %s\n", #expr, gnutls_strerror (r)); \
-    abort ();   \
-  }             \
-}
 
 #define N_ELEMENTS(arr) (sizeof (arr) / sizeof ((arr)[0]))
 

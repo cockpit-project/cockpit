@@ -99,14 +99,14 @@ export class ContextMenu extends React.Component {
     render() {
         return this.state.visible &&
             <div ref={ ref => { this.root = ref } } className="contextMenu">
-                <div className="contextMenuOption" onClick={this.props.getText}>
+                <button className="contextMenuOption" onClick={this.props.getText}>
                     <div className="contextMenuName"> { _("Copy") } </div>
                     <div className="contextMenuShortcut">{ _("Ctrl+Insert") }</div>
-                </div>
-                <div className="contextMenuOption" onClick={this.props.setText}>
+                </button>
+                <button className="contextMenuOption" onClick={this.props.setText}>
                     <div className="contextMenuName"> { _("Paste") } </div>
                     <div className="contextMenuShortcut">{ _("Shift+Insert") }</div>
-                </div>
+                </button>
             </div>;
     }
 }

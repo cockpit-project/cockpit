@@ -55,7 +55,7 @@ export class PageStatusNotifications extends React.Component {
             const jump = () => cockpit.jump("/" + page);
             return (
                 <span>
-                    <span className={icon_class_for_type(status.type)} /> <a onClick={jump}>{status.title}</a>
+                    <span className={icon_class_for_type(status.type)} /> <button className="link-button" role="link" onClick={jump}>{status.title}</button>
                 </span>);
         } else {
             this.props.toggle_label(false);

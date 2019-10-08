@@ -119,15 +119,14 @@ class Expander extends React.Component {
     }
 
     render() {
-        const title = <button className="link-button">{this.props.title}</button>;
         const cls = "expander-caret fa " + (this.state.expanded ? "fa-angle-down" : "fa-angle-right");
         return (
             <>
                 <div className="expander-title">
                     <hr />
-                    <span onClick={() => this.setState({ expanded: !this.state.expanded })}>
-                        <i className={cls} />{title}
-                    </span>
+                    <button className="link-button" onClick={() => this.setState({ expanded: !this.state.expanded })}>
+                        <i className={cls} />{this.props.title}
+                    </button>
                     <hr />
                 </div>
                 {this.state.expanded ? this.props.children : null}

@@ -192,7 +192,7 @@ class TestUpdates(PackageCase):
         # update log only exists in the expander, collapsed by default
         self.assertFalse(b.is_present("#update-log"))
         # expand it
-        b.click(".expander-title span")
+        b.click(".expander-title button")
         # should eventually show chocolate when vanilla starts installing
         b.wait_in_text("#update-log", "chocolate")
 
@@ -350,7 +350,7 @@ class TestUpdates(PackageCase):
             self.assertFalse(b.is_present(selector.format(len(updates) + 1)))
 
         # history on restart page should show the three security updates
-        b.click(".expander-title span")
+        b.click(".expander-title button")
         assertHistory("ul", ["secdeclare", "secparse", "sevcritical"])
 
         # ignore restarting
@@ -390,7 +390,7 @@ class TestUpdates(PackageCase):
         m.execute("test -f /stamp-norefs-bin-2-1 && test -f /stamp-norefs-doc-2-1")
 
         # history on restart page should show the three non-security updates
-        b.click(".expander-title span")
+        b.click(".expander-title button")
         assertHistory("ul", ["buggy", "norefs-bin", "norefs-doc"])
 
         # do the reboot; this will disconnect the web UI

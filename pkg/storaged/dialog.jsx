@@ -219,6 +219,7 @@ import { OverlayTrigger, Tooltip } from "patternfly-react";
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 import { StatelessSelect, SelectEntry } from "cockpit-components-select.jsx";
 import { fmt_size, block_name, format_size_and_text } from "./utils.js";
+import client from "./client.js";
 
 import "form-layout.less";
 
@@ -356,23 +357,26 @@ export const dialog_open = (def) => {
                     style: (def.Action.Danger || def.Action.DangerButton) ? "danger" : "primary",
                     disabled: running_promise != null,
                     clicked: function (progress_callback) {
-                        return validate()
-                                .then(() => {
-                                    const visible_values = { };
-                                    fields.forEach(f => {
-                                        if (is_visible(f, values))
-                                            visible_values[f.tag] = values[f.tag];
+                        const func = () => {
+                            return validate()
+                                    .then(() => {
+                                        const visible_values = { };
+                                        fields.forEach(f => {
+                                            if (is_visible(f, values))
+                                                visible_values[f.tag] = values[f.tag];
+                                        });
+                                        return def.Action.action(visible_values, progress_callback);
+                                    })
+                                    .catch(error => {
+                                        if (error.toString() != "[object Object]") {
+                                            return Promise.reject(error);
+                                        } else {
+                                            update(error, null);
+                                            return Promise.reject();
+                                        }
                                     });
-                                    return def.Action.action(visible_values, progress_callback);
-                                })
-                                .catch(error => {
-                                    if (error.toString() != "[object Object]") {
-                                        return Promise.reject(error);
-                                    } else {
-                                        update(error, null);
-                                        return Promise.reject();
-                                    }
-                                });
+                        };
+                        return client.run(func);
                     }
                 }
             ];

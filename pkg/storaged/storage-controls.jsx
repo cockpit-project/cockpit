@@ -22,6 +22,7 @@ import { OverlayTrigger, Tooltip } from "patternfly-react";
 
 import cockpit from "cockpit";
 import * as utils from "./utils.js";
+import client from "./client.js";
 
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 
@@ -93,7 +94,7 @@ function checked(callback) {
         // only consider primary mouse button
         if (!event || event.button !== 0)
             return;
-        var promise = callback();
+        var promise = client.run(callback);
         if (promise)
             promise.fail(function (error) {
                 dialog_open({

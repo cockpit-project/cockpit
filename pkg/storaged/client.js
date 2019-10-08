@@ -37,9 +37,22 @@ var hacks = { };
 if (cockpit.manifests.storage && cockpit.manifests.storage.hacks)
     hacks = cockpit.manifests.storage.hacks;
 
-var client = { };
+var client = {
+    busy: 0
+};
 
 cockpit.event_target(client);
+
+client.run = (func) => {
+    const prom = func();
+    if (prom) {
+        client.busy += 1;
+        return prom.finally(() => {
+            client.busy -= 1;
+            client.dispatchEvent("changed");
+        });
+    }
+};
 
 /* Metrics
  */

@@ -143,8 +143,8 @@ Package: cockpit-storaged
 Architecture: all
 Multi-Arch: foreign
 Depends: ${misc:Depends},
-         udisks2,
-         udisks2 (<< 2.7) | libblockdev-mdraid2,
+         udisks2 (>= 2.7),
+         libblockdev-mdraid2,
          cockpit-bridge (>= ${bridge:minversion}),
          python3,
          python3-dbus

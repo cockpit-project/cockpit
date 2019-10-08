@@ -40,14 +40,8 @@ class TestStorage(StorageCase):
         m = self.machine
         b = self.browser
 
-        if not self.storaged_is_old_udisks:
-            mount_point_foo = "/run/foo"
-            mount_point_bar = "/run/bar"
-        else:
-            # We don't get to set the mountpoint with old UDisks so we
-            # expect UDisks default.  (XXX - I think this is Ubuntu specific.)
-            mount_point_foo = self.mount_root + "/admin/FILESYSTEM"
-            mount_point_bar = self.mount_root + "/admin/FILESYSTEM"
+        mount_point_foo = "/run/foo"
+        mount_point_bar = "/run/bar"
 
         self.login_and_go("/storage")
 
@@ -63,37 +57,30 @@ class TestStorage(StorageCase):
         self.dialog_wait_open()
         self.dialog_set_val("type", "ext4")
         self.dialog_set_val("name", "FILESYSTEM")
-        if not self.storaged_is_old_udisks:
-            self.dialog_set_val("mounting", "custom")
-            self.dialog_set_val("mount_point", mount_point_foo)
+        self.dialog_set_val("mounting", "custom")
+        self.dialog_set_val("mount_point", mount_point_foo)
         self.dialog_apply()
         self.dialog_wait_close()
         self.content_row_wait_in_col(1, 1, "ext4 File System")
         self.content_tab_wait_in_info(1, 1, "Name", "FILESYSTEM")
-        if not self.storaged_is_old_udisks:
-            self.wait_in_storaged_configuration(mount_point_foo)
+        self.wait_in_storaged_configuration(mount_point_foo)
 
-        if not self.storaged_is_old_udisks:
-            self.content_tab_wait_in_info(1, 1, "Mount Point", mount_point_foo)
+        self.content_tab_wait_in_info(1, 1, "Mount Point", mount_point_foo)
         self.content_tab_action(1, 1, "Mount")
         self.content_tab_wait_in_info(1, 1, "Mounted At", mount_point_foo)
 
         self.content_tab_action(1, 1, "Unmount")
-        if not self.storaged_is_old_udisks:
-            b.wait_not_present(self.content_tab_info_label(1, 1, "Mounted At"))
+        b.wait_not_present(self.content_tab_info_label(1, 1, "Mounted At"))
 
         self.content_tab_info_action(1, 1, "Name")
         self.dialog({"name": "filesystem"})
         self.content_tab_wait_in_info(1, 1, "Name", "filesystem")
 
-        if not self.storaged_is_old_udisks:
-            self.dialog_with_retry(trigger=lambda: self.content_tab_info_action(1, 1, "Mount Point", wrapped=True),
-                                   expect={"mounting": "custom",
-                                           "mount_point": mount_point_foo},
-                                   values={"mount_point": mount_point_bar})
-            self.wait_in_storaged_configuration(mount_point_bar)
-        else:
-            mount_point_bar = self.mount_root + "/admin/filesystem"
+        self.dialog_with_retry(trigger=lambda: self.content_tab_info_action(1, 1, "Mount Point", wrapped=True),
+                               expect={"mounting": "custom",
+                                       "mount_point": mount_point_foo},
+                               values={"mount_point": mount_point_bar})
+        self.wait_in_storaged_configuration(mount_point_bar)
 
         self.content_tab_action(1, 1, "Mount")
         self.content_tab_wait_in_info(1, 1, "Mounted At", mount_point_bar)
@@ -129,17 +116,16 @@ class TestStorage(StorageCase):
 
         wait_info_field_value("Serial Number", "MYDISK")
 
-        if not self.storaged_is_old_udisks:
-            b.wait_not_present(self.content_tab_info_label(1, 1, "Mounted At"))
-            self.content_tab_info_action(1, 1, "Mount Point", wrapped=True)
-            self.dialog(values={"mounting": "default"})
-            self.wait_not_in_storaged_configuration(mount_point_bar)
+        b.wait_not_present(self.content_tab_info_label(1, 1, "Mounted At"))
+        self.content_tab_info_action(1, 1, "Mount Point", wrapped=True)
+        self.dialog(values={"mounting": "default"})
+        self.wait_not_in_storaged_configuration(mount_point_bar)
 
-            self.content_tab_action(1, 1, "Mount")
-            self.content_tab_wait_in_info(1, 1, "Mounted At", self.mount_root + "/admin/filesystem")
+        self.content_tab_action(1, 1, "Mount")
+        self.content_tab_wait_in_info(1, 1, "Mounted At", self.mount_root + "/admin/filesystem")
 
-            self.content_tab_action(1, 1, "Unmount")
-            b.wait_not_present(self.content_tab_info_label(1, 1, "Mounted At"))
+        self.content_tab_action(1, 1, "Unmount")
+        b.wait_not_present(self.content_tab_info_label(1, 1, "Mounted At"))
 
         self.content_head_action(1, "Format")
         self.dialog({"type": "empty"})
@@ -148,9 +134,6 @@ class TestStorage(StorageCase):
     def testMountOptions(self):
         m = self.machine
         b = self.browser
-
-        if self.storaged_is_old_udisks:
-            self.skipTest("No mount/crypto options with old UDisks")
 
         self.login_and_go("/storage")
 

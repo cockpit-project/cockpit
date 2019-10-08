@@ -154,20 +154,15 @@ export class FilesystemTab extends React.Component {
                     <StorageLink onClick={rename_dialog}>
                         {this.props.block.IdLabel || "-"}
                     </StorageLink>
-
-                    { !self.props.client.is_old_udisks2 && (
-                        <>
-                            <label className="control-label">{_("Mount Point")}</label>
-                            <div>
-                                <StorageLink onClick={mounting_dialog}>
-                                    {old_dir || _("(default)")}
-                                </StorageLink>
-                                <div className="tab-row-actions">
-                                    { !is_filesystem_mounted && <StorageButton onClick={mount}>{_("Mount")}</StorageButton> }
-                                </div>
-                            </div>
-                        </>
-                    )}
+                    <label className="control-label">{_("Mount Point")}</label>
+                    <div>
+                        <StorageLink onClick={mounting_dialog}>
+                            {old_dir || _("(default)")}
+                        </StorageLink>
+                        <div className="tab-row-actions">
+                            { !is_filesystem_mounted && <StorageButton onClick={mount}>{_("Mount")}</StorageButton> }
+                        </div>
+                    </div>
 
                     { old_opts && (
                         <>
@@ -178,7 +173,7 @@ export class FilesystemTab extends React.Component {
                         </>
                     )}
 
-                    { (mounted_at.length > 0 || self.props.client.is_old_udisks2) && (
+                    { (mounted_at.length > 0) && (
                         <>
                             <label className="control-label">{_("Mounted At")}</label>
                             <div>

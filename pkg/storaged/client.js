@@ -124,18 +124,14 @@ function instance_sampler(metrics, source) {
 /* D-Bus proxies
  */
 
-var STORAGED_SERVICE;
-var STORAGED_OPATH_PFX;
-var STORAGED_IFACE_PFX;
-
 client.time_offset = undefined; /* Number of milliseconds that the server is ahead of us. */
 client.features = undefined;
 
 client.storaged_client = undefined;
 
 function proxy(iface, path) {
-    return client.storaged_client.proxy(STORAGED_IFACE_PFX + "." + iface,
-                                        STORAGED_OPATH_PFX + "/" + path,
+    return client.storaged_client.proxy("org.freedesktop.UDisks2." + iface,
+                                        "/org/freedesktop/UDisks2/" + path,
                                         { watch: true });
 }
 
@@ -145,17 +141,17 @@ function proxies(iface) {
      * efficient since it reduces the number of D-Bus calls done
      * by the cache.
      */
-    return client.storaged_client.proxies(STORAGED_IFACE_PFX + "." + iface,
-                                          STORAGED_OPATH_PFX,
+    return client.storaged_client.proxies("org.freedesktop.UDisks2." + iface,
+                                          "/org/freedesktop/UDisks2",
                                           { watch: false });
 }
 
 client.call = function call(path, iface, method, args, options) {
-    return client.storaged_client.call(path, STORAGED_IFACE_PFX + "." + iface, method, args, options);
+    return client.storaged_client.call(path, "org.freedesktop.UDisks2." + iface, method, args, options);
 };
 
 function init_proxies () {
-    client.storaged_client.watch({ path_namespace: STORAGED_OPATH_PFX });
+    client.storaged_client.watch({ path_namespace: "/org/freedesktop/UDisks2" });
 
     client.mdraids = proxies("MDRaid");
     client.vgroups = proxies("VolumeGroup");
@@ -839,54 +835,19 @@ function vdo_overlay() {
 client.vdo_overlay = vdo_overlay();
 
 function init_manager() {
-    /* Storaged 2.6 and later uses the UDisks2 API names, but try the
-     * older storaged API first as a fallback.
-     */
+    var udisks = cockpit.dbus("org.freedesktop.UDisks2");
+    var udisks_manager = udisks.proxy("org.freedesktop.UDisks2.Manager",
+                                      "/org/freedesktop/UDisks2/Manager", { watch: true });
 
-    var storaged_service = "org.storaged.Storaged";
-    var storaged_opath_pfx = "/org/storaged/Storaged";
-    var storaged_iface_pfx = "org.storaged.Storaged";
-
-    var storaged = cockpit.dbus(storaged_service);
-    var storaged_manager = storaged.proxy(storaged_iface_pfx + ".Manager",
-                                          storaged_opath_pfx + "/Manager", { watch: true });
-
-    function fallback_udisks() {
-        STORAGED_SERVICE = "org.freedesktop.UDisks2";
-        STORAGED_OPATH_PFX = "/org/freedesktop/UDisks2";
-        STORAGED_IFACE_PFX = "org.freedesktop.UDisks2";
-
-        var udisks = cockpit.dbus(STORAGED_SERVICE);
-        var udisks_manager = udisks.proxy(STORAGED_IFACE_PFX + ".Manager",
-                                          STORAGED_OPATH_PFX + "/Manager", { watch: true });
-
-        return udisks_manager.wait().then(function () {
-            return udisks_manager;
-        });
-    }
-
-    return storaged_manager.wait().then(function() {
-        if (storaged_manager.valid) {
-            console.log("Using older 'storaged' API: " + storaged_service);
-            STORAGED_SERVICE = storaged_service;
-            STORAGED_OPATH_PFX = storaged_opath_pfx;
-            STORAGED_IFACE_PFX = storaged_iface_pfx;
-            return storaged_manager;
-        } else {
-            return fallback_udisks();
-        }
-    }, fallback_udisks);
+    return udisks_manager.wait().then(function () {
+        return udisks_manager;
+    });
 }
 
 client.init = function init_storaged(callback) {
     init_manager().then(function(manager) {
         client.storaged_client = manager.client;
         client.manager = manager;
-
-        // The first storaged version with the UDisks2 API names was 2.6
-        client.is_old_udisks2 = (STORAGED_SERVICE == "org.freedesktop.UDisks2" && client.older_than("2.6"));
-        if (client.is_old_udisks2)
-            console.log("Using older 'udisks2' implementation: " + manager.Version);
 
         init_proxies();
         init_model(callback);

@@ -165,8 +165,8 @@ function create_tabs(client, target, is_partition) {
 
     var tab_actions = [];
 
-    function add_action(title, func, excuse) {
-        tab_actions.push(<StorageButton key={title} onClick={func} excuse={excuse}>{title}</StorageButton>);
+    function add_action(title, func) {
+        tab_actions.push(<StorageButton key={title} onClick={func}>{title}</StorageButton>);
     }
 
     function lock() {
@@ -313,10 +313,7 @@ function create_tabs(client, target, is_partition) {
     }
 
     if (is_partition || lvol) {
-        var excuse = null;
-        if (client.is_old_udisks2 && is_crypto && client.blocks_cleartext[block.path])
-            excuse = _("Can't delete while unlocked");
-        add_action(_("Delete"), delete_, excuse);
+        add_action(_("Delete"), delete_);
     }
 
     if (block) {

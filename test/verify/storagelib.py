@@ -29,22 +29,14 @@ class StorageCase(MachineCase):
             self.skipTest("No storage on Atomic")
 
         super(StorageCase, self).setUp()
-        self.storagectl_cmd = self.machine.execute(
-            "for cmd in storagedctl storagectl udisksctl; do if which $cmd 2>/dev/null; then break; fi; done").strip()
+        self.storagectl_cmd = "udisksctl"
 
-        if "udisksctl" in self.storagectl_cmd:
-            ver = self.machine.execute(
-                "busctl --system get-property org.freedesktop.UDisks2 /org/freedesktop/UDisks2/Manager org.freedesktop.UDisks2.Manager Version || true")
-        else:
-            ver = self.machine.execute(
-                "busctl --system get-property org.storaged.Storaged /org/storaged/Storaged/Manager org.storaged.Storaged.Manager Version || true")
+        ver = self.machine.execute("busctl --system get-property org.freedesktop.UDisks2 /org/freedesktop/UDisks2/Manager org.freedesktop.UDisks2.Manager Version || true")
         m = re.match('s "(.*)"', ver)
         if m:
             self.storaged_version = list(map(int, m.group(1).split(".")))
         else:
             self.storaged_version = [0]
-
-        self.storaged_is_old_udisks = ("udisksctl" in self.storagectl_cmd and self.storaged_version < [2, 6, 0])
 
         if "debian" in self.machine.image or "ubuntu" in self.machine.image:
             # Debian's udisks has a patch to use FHS /media directory

@@ -198,50 +198,6 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
         return vals.crypto.on;
     }
 
-    /* Older UDisks2 implementation don't have good
-     * enough support for maintaining fstab and crypptab, so
-     * we don't offer that in the UI.  (Most importantly, they
-     * miss the 'tear-down' option and without that we'll end
-     * up with obsolete fstab files all the time, which will
-     * break the next boot.)
-     */
-
-    function is_encrypted_and_not_old_udisks2(vals) {
-        return !client.is_old_udisks2 && is_encrypted(vals);
-    }
-
-    function is_filesystem_and_not_old_udisks2(vals) {
-        return !client.is_old_udisks2 && is_filesystem(vals);
-    }
-
-    /* Older UDisks2 implementations don't have
-     * CreateAndFormatPartition, so we simulate that.
-     */
-
-    function create_partition_and_format(ptable,
-        start, size,
-        part_type, part_name, part_options,
-        type, options) {
-        if (!client.is_old_udisks2)
-            return ptable.CreatePartitionAndFormat(start, size,
-                                                   part_type, part_name, part_options,
-                                                   type, options);
-
-        return ptable.CreatePartition(start, size, part_type, part_name, part_options)
-                .then(function (partition) {
-                // We don't use client.blocks[partition] here
-                // because it might temporarily not exist.  In
-                // that case, we prefer storaged to tell us in a
-                // D-Bus error instead of causing a JavaScript
-                // exception.
-                //
-                // See https://github.com/cockpit-project/cockpit/issues/4181
-                    return client.call(partition, "Block", "Format", [type, options]).then(function () {
-                        return partition;
-                    });
-                });
-    }
-
     function add_fsys(storaged_name, entry) {
         if (storaged_name === true ||
             (client.fsys_info[storaged_name] && client.fsys_info[storaged_name].can_format)) {
@@ -320,8 +276,8 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
                               },
                               visible: is_encrypted
                           })
-            ].concat(crypto_options_dialog_fields(crypto_options, is_encrypted_and_not_old_udisks2, true))
-        ].concat(mounting_dialog_fields(false, "", mount_options, is_filesystem_and_not_old_udisks2)),
+            ].concat(crypto_options_dialog_fields(crypto_options, is_encrypted, true))
+        ].concat(mounting_dialog_fields(false, "", mount_options, is_filesystem)),
         update: function (dlg, vals, trigger) {
             if (trigger == "crypto_options" && vals.crypto_options.auto == false)
                 dlg.set_nested_values("mount_options", { auto: false });
@@ -392,9 +348,8 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
                         else if (vals.type == "empty")
                             return block_ptable.CreatePartition(start, vals.size, "", "", { });
                         else
-                            return create_partition_and_format(block_ptable,
-                                                               start, vals.size, "", "", { },
-                                                               vals.type, options);
+                            return block_ptable.CreatePartitionAndFormat(start, vals.size, "", "", { },
+                                                                         vals.type, options);
                     } else {
                         return block.Format(vals.type, options);
                     }

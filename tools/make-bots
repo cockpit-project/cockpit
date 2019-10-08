@@ -1,0 +1,17 @@
+#!/bin/sh
+
+# Prepare bots by creating ./bots directory
+# Specify $COCKPIT_BOTS_REF to checkout non-master branch
+
+set -e
+
+if [ ! -d bots ]; then
+    git clone --quiet --reference-if-able ${XDG_CACHE_HOME:-$HOME/.cache}/cockpit-project/bots https://github.com/cockpit-project/bots.git
+    if [ -n "$COCKPIT_BOTS_REF" ]; then
+        git -C bots fetch --quiet --depth=1 origin $COCKPIT_BOTS_REF
+        git -C bots checkout --quiet FETCH_HEAD
+    fi
+    echo "checked out bots/ ref $(git -C bots rev-parse HEAD)"
+else
+    echo "bots/ already exists, skipping"
+fi

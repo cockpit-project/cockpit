@@ -430,7 +430,10 @@ connection_handshake (Connection *self)
   ret = recv (self->client_fd, &b, 1, MSG_PEEK);
 
   if (ret < 0)
-    err (1, "failed to peek first byte");
+    {
+      debug (CONNECTION, "could not read first byte: %s", strerror (errno));
+      return false;
+    }
 
   if (ret == 0) /* EOF */
     {

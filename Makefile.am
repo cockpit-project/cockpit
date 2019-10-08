@@ -35,6 +35,7 @@ MAINTAINERCLEANFILES = \
 
 EXTRA_DIST = \
 	package.json \
+	package-lock.json \
 	README.md \
 	$(NULL)
 
@@ -220,7 +221,7 @@ clean-local::
 	$(AM_V_at)test "$(srcdir)" == "$(builddir)" || rm -rf dist/
 
 maintainer-clean-local::
-	rm -rf dist/ node_modules/
+	rm -rf dist/ node_modules/ package-lock.json
 
 install-data-local:: $(WEBPACK_INSTALL)
 	$(MKDIR_P) $(DESTDIR)$(pkgdatadir)

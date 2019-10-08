@@ -58,8 +58,15 @@ dist/base1/cockpit.min.css.map: dist/base1/cockpit.min.css
 dist/base1/patternfly.min.css.map: dist/base1/patternfly.min.css
 
 # Modify the patternfly files appropriately
+#
+# PatternFly 4 base.css: remove external font declarations, re-using the ones from our PatternFly 3 patternfly.min.css above for now
+# once that goes away, use the above seddery instead
+dist/base1/react-core-base.css:
+	$(AM_V_GEN) sed '/^@font-face/,/^$$/d' $< > $@.tmp && mv $@.tmp $@
+
+# PatternFly 3 with hacked CSS to look like PF4
 dist/base1/patternfly.css.map: dist/base1/patternfly-base.css
-dist/base1/patternfly-base.css: src/base1/patternfly-overrides.less
+dist/base1/patternfly-base.css: src/base1/patternfly-overrides.less dist/base1/react-core-base.css
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	F=$(srcdir)/node_modules/patternfly/dist/less/patternfly.less && \
 	sed '/@import "variables.less"/ s^$$^\n@import "../../../../src/base1/patternfly-overrides.less";^' $$F > $$F.patched && \
@@ -211,6 +218,7 @@ EXTRA_DIST += \
 	dist/base1/patternfly.css.map \
 	dist/base1/patternfly-additions.css \
 	dist/base1/patternfly-additions.css.map \
+	dist/base1/react-core-base.css \
 	dist/base1/simple-tap.js \
 	src/base1/cockpit.css \
 	src/base1/cockpit.js \
@@ -254,6 +262,7 @@ MAINTAINERCLEANFILES += \
 	dist/base1/patternfly.css.map \
 	dist/base1/patternfly-additions.css \
 	dist/base1/patternfly-additions.css.map \
+	dist/base1/react-core-base.css \
 	dist/base1/qunit.css \
 	dist/base1/qunit.js \
 	dist/base1/simple-tap.js \

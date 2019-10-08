@@ -41,11 +41,11 @@ class TunedDialogProfile extends React.Component {
         if (this.props.recommended)
             recommended = <span className="badge pull-right">{ _("recommended") }</span>;
         return (
-            <div className={ classes } key={ this.props.name } onClick={ this.props.click }>
+            <button className={ classes } key={ this.props.name } onClick={ this.props.click }>
                 {recommended}
                 <p>{ this.props.title }</p>
                 <small>{ this.props.description }</small>
-            </div>
+            </button>
         );
     }
 }

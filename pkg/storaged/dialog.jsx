@@ -214,10 +214,11 @@
 import cockpit from "cockpit";
 
 import React from "react";
-import { OverlayTrigger, Tooltip } from "patternfly-react";
+import { OverlayTrigger, Tooltip, TypeAheadSelect } from "patternfly-react";
 
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 import { StatelessSelect, SelectEntry } from "cockpit-components-select.jsx";
+
 import { fmt_size, block_name, format_size_and_text } from "./utils.js";
 import client from "./client.js";
 
@@ -487,51 +488,6 @@ export const PassInput = (tag, title, options) => {
     };
 };
 
-class ComboboxElement extends React.Component {
-    constructor(props) {
-        super();
-        this.state = { open: false };
-    }
-
-    render() {
-        const { value, onChange, disabled, choices } = this.props;
-
-        const toggle_open = (event) => {
-            if (event.button === 0)
-                this.setState({ open: !this.state.open });
-        };
-
-        const set_from_menu = (event, text) => {
-            if (event.button === 0) {
-                this.setState({ open: false });
-                onChange(text);
-            }
-        };
-
-        return (
-            <div className="combobox-container">
-                <div className={"input-group" + (this.state.open ? " open" : "")}>
-                    <input className="combobox form-control" type="text"
-                       disabled={disabled} value={value}
-                           onChange={event => onChange(event.target.value)} />
-                    { choices.length > 0 && !disabled
-                        ? <>
-                            <span className="input-group-addon"
-                              onClick={toggle_open}>
-                                <span className="caret" />
-                            </span>
-                            <ul className="typeahead typeahead-long dropdown-menu">
-                                { choices.map(c => <li key={c}><a tabIndex="0" onClick={ev => set_from_menu(ev, c)}>{c}</a></li>) }
-                            </ul>
-                        </>
-                        : null
-                    }
-                </div>
-            </div>
-        );
-    }
-}
-
 export const ComboBox = (tag, title, options) => {
     return {
         tag: tag,
@@ -541,8 +497,30 @@ export const ComboBox = (tag, title, options) => {
 
         render: (val, change) =>
             <div data-field={tag} data-field-type="combobox">
-                <ComboboxElement value={val} choices={options.choices}
-                                 disabled={options.disabled} onChange={change} />
+                <TypeAheadSelect
+                    id="nfs-path-on-server"
+                    labelKey="path"
+                    placeholder=""
+                    paginate={false}
+                    onChange={value => change(value[0])}
+                    onInputChange={change}
+                    options={options.choices}
+                    disabled={options.disabled}
+                    onKeyDown={ev => { // Capture ESC event
+                        if (ev.keyCode == 27) {
+                            ev.persist();
+                            ev.nativeEvent.stopImmediatePropagation();
+                            ev.stopPropagation();
+                        }
+                    }}
+                    renderMenu={(results, menuProps) => {
+                        // Hide the menu when there are no results.
+                        if (!results.length) {
+                            return null;
+                        }
+                        return <TypeAheadSelect.TypeaheadMenu {...menuProps} labelKey='path' options={results} />;
+                    }}
+                />
             </div>
     };
 };

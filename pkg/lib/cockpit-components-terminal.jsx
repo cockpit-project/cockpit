@@ -119,13 +119,13 @@ export class Terminal extends React.Component {
             screenReaderMode: true
         });
 
-        term.on('data', function(data) {
+        term.onData(function(data) {
             if (this.props.channel.valid)
                 this.props.channel.send(data);
         }.bind(this));
 
         if (props.onTitleChanged)
-            term.on('title', props.onTitleChanged);
+            term.onTitleChange(props.onTitleChanged);
 
         this.state = { terminal: term };
     }
@@ -186,7 +186,7 @@ export class Terminal extends React.Component {
 
     componentWillUnmount() {
         this.disconnectChannel();
-        this.state.terminal.destroy();
+        this.state.terminal.dispose();
         window.removeEventListener('resize', this.onWindowResize);
     }
 
@@ -219,7 +219,7 @@ export class Terminal extends React.Component {
         var term = this.state.terminal;
         term.write('\x1b[31m' + (options.problem || 'disconnected') + '\x1b[m\r\n');
         term.cursorHidden = true;
-        term.refresh(term.y, term.y);
+        term.refresh(term.rows, term.rows);
     }
 
     connectChannel() {
@@ -249,12 +249,13 @@ export class Terminal extends React.Component {
         var padding = 2 * 11;
         var node = ReactDOM.findDOMNode(this);
 
-        var realHeight = this.state.terminal._core.renderer.dimensions.actualCellHeight;
-        var realWidth = this.state.terminal._core.renderer.dimensions.actualCellWidth;
-        this.setState({
-            rows: Math.floor((node.parentElement.clientHeight - padding) / realHeight),
-            cols: Math.floor((node.parentElement.clientWidth - padding) / realWidth)
-        });
+        var realHeight = this.state.terminal._core._renderService.dimensions.actualCellHeight;
+        var realWidth = this.state.terminal._core._renderService.dimensions.actualCellWidth;
+        if (realHeight && realWidth && realWidth !== 0 && realHeight !== 0)
+            this.setState({
+                rows: Math.floor((node.parentElement.clientHeight - padding) / realHeight),
+                cols: Math.floor((node.parentElement.clientWidth - padding) / realWidth)
+            });
     }
 
     setTerminalTheme(theme) {

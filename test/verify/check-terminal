@@ -39,18 +39,19 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
 
         self.login_and_go("/system/terminal")
 
-        blank_state = 'Blank line'
+        blank_state = ' '
+        if m.image == "rhel-8-2-distropkg":
+            blank_state = 'Blank line'
 
         def line_sel(i):
             return '.terminal .xterm-accessibility-tree div:nth-child(%d)' % i
 
         def wait_line(i, t):
-            b.wait_in_text(line_sel(i), t)
-
-        b.focus('.terminal')
+            b.wait_text(line_sel(i), t)
 
         # wait until first line is not empty
         n = 1
+        b.wait_present(".terminal .xterm-accessibility-tree")
         function_str = "(function (sel) { return ph_text(sel).trim() != '%s'})" % blank_state
         b.wait_js_func(function_str, line_sel(n))
 
@@ -59,12 +60,12 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
         b.wait_js_cond("ph_text('.terminal').indexOf('clear') >= 0")
         # now wait for clear to take effect
         b.key_press("\r")
-        b.wait_js_cond("ph_text('.terminal').indexOf('clear') < 0")
+        b.wait_js_cond("ph_text('.xterm-accessibility-tree').indexOf('clear') < 0")
         # now we should get a clean prompt
-        wait_line(n, "$")
+        b.wait_in_text(line_sel(n), '$')
 
         # cut trailing non-breaking spaces
-        prompt = b.text(line_sel(n)).rstrip()
+        prompt = b.text(line_sel(n))
 
         # Make sure we are started in home directory
         # Account for non-standard prompting
@@ -124,7 +125,9 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
             b.click('.contextMenu .contextMenuOption:nth-child(2)')
 
             # Wait for text to show up
-            wait_line(n + 2, "XYZ")
+            wait_line(n + 2, prompt + "XYZ")
+            b.key_press('\r')
+            b.wait_in_text(line_sel(n + 3), 'XYZ')
 
         # now reset terminal
         b.click('.btn:contains("Reset")')
@@ -146,12 +149,12 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
         b.key_press(chr(45), 8, use_ord=True) # Shift + Insert
 
         # Wait for text to show up
-        wait_line(n + 2, "foo")
+        wait_line(n + 2, prompt + "foo")
 
         # check that we get a sensible $PATH; this varies across OSes, so don't be too strict about it
         b.key_press('\rclear\recho $PATH > /tmp/path\r')
         # don't use wait_line() for the full match here, as line breaks get in the way; just wait until command has run
-        wait_line(n + 1, "$")
+        wait_line(n + 1, prompt)
         path = m.execute("cat /tmp/path").strip()
         if m.ostree_image:
             self.assertIn("/usr/local/bin:/usr/bin", path)

@@ -721,22 +721,16 @@ class TestKerberos(MachineCase):
         cookie = re.search("Set-Cookie: cockpit=([^ ;]+)", output).group(1)
         b.open("/system/terminal", cookie={"name": "cockpit", "value": cookie, "domain": m.web_address, "path": "/"})
         b.wait_visible('#content')
-        b.enter_page("/system/terminal")
-        b.focus(".terminal")
 
         def line_sel(i):
             return '.terminal .xterm-accessibility-tree div:nth-child(%d)' % i
 
-        def wait_prompt(b, line):
-            b.wait_js_func("(function (sel) { return ph_text(sel).trim() != 'Blank line'})", line_sel(line))
-
-        wait_prompt(b, 1)
-
         # run kinit and see if got forwarded the kerberos ticket into the session
+        b.enter_page("/system/terminal")
+        b.wait_present(".terminal .xterm-accessibility-tree")
+        b.wait_in_text(line_sel(1), "admin")
         b.key_press("klist\r")
-        wait_prompt(b, 2)
-        text = b.text(line_sel(2)).strip()
-        self.assertIn("Ticket cache", text)
+        b.wait_in_text(line_sel(2), "Ticket cache")
 
         # Now connect to another machine
         self.assertNotIn("admin", m.execute("ps -xa | grep sshd"))

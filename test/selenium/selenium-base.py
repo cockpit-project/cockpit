@@ -147,35 +147,7 @@ class BasicTestSuite(SeleniumTest):
         self.wait_text("Carrier", element="td")
         self.mainframe()
 
-    def test80TerminalTool(self):
-        self.login()
-        # TODO edge support for terminal test
-        if self.driver.capabilities['browserName'] == 'MicrosoftEdge':
-            return
-
-        self.click(self.wait_link('Terminal', cond=clickable))
-        self.wait_frame("terminal")
-        terminal = self.wait_xpath("//*[contains(@class, 'terminal xterm')]")
-        prefix = "/tmp/cockpitrndadr/"
-        self.send_keys(terminal, "mkdir {0}\n".format(prefix), clear=False)
-        self.wait_text("mkdir {0}".format(prefix), user, element="div")
-        self.send_keys(terminal, "touch {0}abc\n".format(prefix), clear=False)
-        self.wait_text("touch {0}abc".format(prefix), user, element="div")
-        self.send_keys(terminal, "touch {0}abd\n".format(prefix), clear=False)
-        self.wait_text("touch {0}abd".format(prefix), user, element="div")
-        self.send_keys(terminal, "ls {0}*\n".format(prefix), clear=False)
-        self.wait_text("ls {0}*".format(prefix), '{0}abc'.format(prefix), element="div")
-        self.machine.execute("ls {0}abc".format(prefix))
-        self.machine.execute("ls {0}abd".format(prefix))
-        self.send_keys(terminal, "rm {0}abc {0}abd\n".format(prefix), clear=False)
-        self.wait_text("rm {0}abc {0}abd".format(prefix), user, element="div")
-        self.send_keys(terminal, "ls {0}*\n".format(prefix), clear=False)
-        self.wait_text("ls {0}*".format(prefix), 'cannot access', element="div")
-        self.machine.execute("ls {0}abc |wc -l |grep 0".format(prefix), quiet=True)
-        self.machine.execute("ls {0}abd |wc -l |grep 0".format(prefix), quiet=True)
-        self.mainframe()
-
-    def test90Accounts(self):
+    def test80Accounts(self):
         self.login()
         username = "selfcheckuser"
         self.click(self.wait_link('Accounts', cond=clickable))

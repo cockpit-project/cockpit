@@ -267,9 +267,8 @@ OnCalendar=daily
                 locale.append("")
             locale = "{0}_{1}.UTF-8".format(locale[0], locale[1].upper())
 
-            b.focus('.terminal')
-            function_str = "(function (sel) { return ph_text(sel).trim() != 'Blank line'})"
-            b.wait_js_func(function_str, line_sel(1))
+            b.wait_present(".terminal .xterm-accessibility-tree")
+            b.wait_in_text(line_sel(1), "admin")
             b.key_press("echo $LANG\r")
             b.wait_in_text(line_sel(2), locale)
 

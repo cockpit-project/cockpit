@@ -147,7 +147,7 @@ function DockerTerminal(parent, channel) {
     /* Shows and hides the cursor */
     self.typeable = function typeable(yes) {
         term.cursorHidden = !yes;
-        term.refresh(term.y, term.y);
+        term.refresh(term.rows, term.rows);
         enable_input = yes;
     };
 
@@ -157,7 +157,7 @@ function DockerTerminal(parent, channel) {
 
     /* Allows caller to cleanup nicely */
     self.close = function close() {
-        term.destroy();
+        term.dispose();
     };
 
     if (typeof channel == "string") {
@@ -181,7 +181,7 @@ function DockerTerminal(parent, channel) {
         return buffer.length;
     };
 
-    term.on('data', function(data) {
+    term.onData(function(data) {
         /* Send typed input back through channel */
         if (enable_input && channel)
             channel.send(encoder.encode(data));

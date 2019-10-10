@@ -100,7 +100,7 @@ class TestStorage(StorageCase):
 
         b.go("#/")
         b.wait_in_text("#storage_mounts", mount_point_bar)
-        bar_selector = '#storage_mounts tr:contains("%s") td:nth-child(4)' % mount_point_bar
+        bar_selector = '#storage_mounts tr:contains("%s") td:nth-child(3)' % mount_point_bar
         wait_ratio_in_range(bar_selector, 0.0, 0.1)
         m.execute("dd if=/dev/zero of=%s/zero bs=1M count=30 status=none" % mount_point_bar)
         wait_ratio_in_range(bar_selector, 0.5, 1.0)

@@ -50,7 +50,7 @@ class TestStorage(StorageCase):
 
         b.wait_present("#nfs-mounts td:contains(/home/foo)")
         b.wait_present("#nfs-mounts td:contains(/mnt)")
-        b.wait_text_not("#nfs-mounts tr:contains(/mnt) .usage-text", "")
+        b.wait_text_not("#nfs-mounts tr:contains(/mnt) .pf-c-progress__status", "")
 
         # Should be saved to fstab
         self.assertEqual(m.execute("grep -w nfs /etc/fstab").strip(),
@@ -67,7 +67,7 @@ class TestStorage(StorageCase):
 
         b.wait_present("#nfs-mounts td:contains(/home/bar)")
         b.wait_present("#nfs-mounts td:contains(/mounts/bar)")
-        b.wait_text_not("#nfs-mounts tr:contains(/mounts/bar) .usage-text", "")
+        b.wait_text_not("#nfs-mounts tr:contains(/mounts/bar) .pf-c-progress__status", "")
         m.execute("test -d /mounts/bar")
 
         # Go to details of /home/bar
@@ -196,7 +196,7 @@ class TestStorage(StorageCase):
 
         b.wait_present("#nfs-mounts td:contains(/home/foo)")
         b.wait_present("#nfs-mounts td:contains(/mounts/foo)")
-        b.wait_text_not("#nfs-mounts tr:contains(/mounts/foo) .usage-text", "")
+        b.wait_text_not("#nfs-mounts tr:contains(/mounts/foo) .pf-c-progress__status", "")
 
         # Go to details of /home/foo
         b.go("#/")

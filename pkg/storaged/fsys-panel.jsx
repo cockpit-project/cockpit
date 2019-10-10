@@ -21,7 +21,7 @@ import cockpit from "cockpit";
 import React from "react";
 
 import { StorageUsageBar } from "./storage-controls.jsx";
-import { decode_filename, block_name, fmt_size, format_fsys_usage, go_to_block } from "./utils.js";
+import { decode_filename, block_name, fmt_size, go_to_block } from "./utils.js";
 
 const _ = cockpit.gettext;
 
@@ -78,14 +78,8 @@ export class FilesystemsPanel extends React.Component {
                         }
                     </td>
                     <td>
-                        { fsys.MountPoints.length > 0
+                        { fsys_size && fsys.MountPoints.length > 0
                             ? <StorageUsageBar stats={fsys_size} critical={0.95} />
-                            : null
-                        }
-                    </td>
-                    <td className="usage-text">
-                        { fsys_size
-                            ? format_fsys_usage(fsys_size[0], fsys_size[1])
                             : fmt_size(block.Size)
                         }
                     </td>
@@ -108,7 +102,6 @@ export class FilesystemsPanel extends React.Component {
                             <th className="mount-name">{_("Name")}</th>
                             <th className="mount-point">{_("Mount Point")}</th>
                             <th className="mount-size-graph">{_("Size")}</th>
-                            <th className="mount-size-number">&nbsp;</th>
                         </tr>
                     </thead>
                     <tbody id="storage_mounts">

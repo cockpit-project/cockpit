@@ -181,32 +181,36 @@ class EditDiskModalBody extends React.Component {
     }
 }
 
+const EditDiskActionShowModal = { };
+
 export class EditDiskAction extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { showModal: false };
         this.open = this.open.bind(this);
         this.close = this.close.bind(this);
     }
 
     close() {
-        this.setState({ showModal: false });
+        EditDiskActionShowModal[this.props.idPrefix] = false;
+        this.setState({ });
     }
 
     open() {
-        this.setState({ showModal: true });
+        EditDiskActionShowModal[this.props.idPrefix] = true;
+        this.setState({ });
     }
 
     render() {
         const { disk, vm, provider } = this.props;
         const idPrefix = `${this.props.idPrefix}`;
+        const showModal = EditDiskActionShowModal[this.props.idPrefix];
 
         return (
             <>
                 <Button id={`${idPrefix}-edit`} bsStyle='default' onClick={this.open} className='pull-right'>
                     {_("Edit")}
                 </Button>
-                { this.state.showModal && <EditDiskModalBody close={this.close} disk={disk} idPrefix={idPrefix} vm={vm} provider={provider} /> }
+                { showModal && <EditDiskModalBody close={this.close} disk={disk} idPrefix={idPrefix} vm={vm} provider={provider} /> }
             </>
         );
     }

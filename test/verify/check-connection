@@ -156,12 +156,18 @@ class TestConnection(MachineCase):
             else:
                 self.assertEqual(status, "inactive", "%s is active" % unit)
 
-        def expect_actives(ws_socket, instance_sockets, active_instances):
+        def expect_actives(ws_socket, instance_sockets, http_instances, https_instances=0):
             expect_active("cockpit.socket", ws_socket)
-            for instance in ["http", "http-redirect", "https"]:
+            # http instances
+            for instance in ["http", "http-redirect"]:
                 expect_active("cockpit-wsinstance-%s.socket" % instance, instance_sockets)
-                expect_active("cockpit-wsinstance-%s.service" % instance,
-                              instance in active_instances)
+                expect_active("cockpit-wsinstance-%s.service" % instance, instance in http_instances)
+            # number of https instances
+            expect_active("cockpit-wsinstance-https-factory.socket", instance_sockets)
+            for _type in ["service", "socket"]:
+                out = m.execute("systemctl --no-legend -t %s list-units cockpit-wsinstance-https@*" % _type)
+                count = len(out.strip().splitlines())
+                self.assertEqual(count, https_instances, out)
 
         # at the beginning, no cockpit related units are running
         expect_actives(False, False, [])
@@ -197,33 +203,41 @@ class TestConnection(MachineCase):
         # https mode
 
         m.start_cockpit(tls=True)
-        expect_actives(True, False, [])
+        expect_actives(True, False, [], 0)
 
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent --head http://127.0.0.1:9090"))
 
-        expect_actives(True, True, ["http-redirect"])
+        expect_actives(True, True, ["http-redirect"], 0)
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent -k --head https://127.0.0.1:9090"))
-        expect_actives(True, True, ["http-redirect", "https"])
+        expect_actives(True, True, ["http-redirect"], 1)
 
         m.restart_cockpit()
-        expect_actives(True, True, ["http-redirect", "https"])
+        expect_actives(True, True, ["http-redirect"], 1)
 
         m.stop_cockpit()
-        expect_actives(False, False, [])
+        expect_actives(False, False, [], 0)
 
         m.start_cockpit(tls=True)
-        expect_actives(True, False, [])
+        expect_actives(True, False, [], 0)
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent --head http://127.0.0.1:9090"))
 
-        expect_actives(True, True, ["http-redirect"])
+        expect_actives(True, True, ["http-redirect"], 0)
+        self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent -k --head https://127.0.0.1:9090"))
+        expect_actives(True, True, ["http-redirect"], 1)
 
         # cleans up also when cockpit-tls crashes or idle-exits, not just by explicit stop request
         m.execute("pkill -e cockpit-tls")
-        expect_actives(True, False, [])
+        expect_actives(True, False, [], 0)
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent --head http://127.0.0.1:9090"))
-        expect_actives(True, True, ["http-redirect"])
+        expect_actives(True, True, ["http-redirect"], 0)
+        # next https request after crash doesn't leak an instance
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent -k --head https://127.0.0.1:9090"))
-        expect_actives(True, True, ["http-redirect", "https"])
+        expect_actives(True, True, ["http-redirect"], 1)
+
+        # sockets are inaccessible to users, only to cockpit-tls
+        for s in ["http.sock", "https-factory.sock"]:
+            out = m.execute("su -c '! nc --unixsock /run/cockpit/wsinstance/%s 2>&1 || exit 1' admin" % s)
+            self.assertIn("Permission denied", out)
 
     def testTls(self):
         m = self.machine

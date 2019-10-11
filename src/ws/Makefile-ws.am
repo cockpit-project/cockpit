@@ -171,8 +171,10 @@ systemd_units_in = \
 	src/ws/cockpit-wsinstance-http.socket.in \
 	src/ws/cockpit-wsinstance-http-redirect.service.in \
 	src/ws/cockpit-wsinstance-http-redirect.socket.in \
-	src/ws/cockpit-wsinstance-https.service.in \
-	src/ws/cockpit-wsinstance-https.socket.in \
+	src/ws/cockpit-wsinstance-https-factory@.service.in \
+	src/ws/cockpit-wsinstance-https-factory.socket.in \
+	src/ws/cockpit-wsinstance-https@.service.in \
+	src/ws/cockpit-wsinstance-https@.socket.in \
 	$(NULL)
 
 nodist_systemdunit_DATA += $(patsubst %.in,%,$(systemd_units_in))

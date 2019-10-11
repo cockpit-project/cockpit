@@ -417,8 +417,10 @@ The Cockpit Web Service listens on the network, and authenticates users.
 %{_unitdir}/cockpit-wsinstance-http.service
 %{_unitdir}/cockpit-wsinstance-http-redirect.socket
 %{_unitdir}/cockpit-wsinstance-http-redirect.service
-%{_unitdir}/cockpit-wsinstance-https.socket
-%{_unitdir}/cockpit-wsinstance-https.service
+%{_unitdir}/cockpit-wsinstance-https-factory.socket
+%{_unitdir}/cockpit-wsinstance-https-factory@.service
+%{_unitdir}/cockpit-wsinstance-https@.socket
+%{_unitdir}/cockpit-wsinstance-https@.service
 %{_prefix}/%{__lib}/tmpfiles.d/cockpit-tempfiles.conf
 %{_sbindir}/remotectl
 %{_libdir}/security/pam_ssh_add.so

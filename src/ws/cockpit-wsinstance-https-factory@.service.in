@@ -1,0 +1,10 @@
+[Unit]
+Description=Cockpit Web Service https instance factory
+Requires=cockpit-wsinstance-https@%i.socket
+After=cockpit-wsinstance-https@%i.socket
+Documentation=man:cockpit-ws(8)
+
+[Service]
+ExecStart=@libexecdir@/cockpit-tls --instance-factory-respond https@%i.sock
+User=@user@
+Group=@group@

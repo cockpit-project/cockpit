@@ -353,6 +353,37 @@ server_run (void)
     ;
 }
 
+/**
+ * server_instance_factory_respond: https factory helper
+ *
+ * Implement src/ws/cockpit-wsinstance-https-factory@.service.in. This is just a glorified
+ * `/bin/sh -ec 'echo -n https@%i.sock >&3'`, but that violates the SELinux policy, as
+ * cockpit_ws_t cannot talk to such a unit (it would be initrc_t, not cockpit_ws_exec_t).
+ */
+void
+server_instance_factory_respond (const char *socket_name)
+{
+  const char *env_listen_fds = secure_getenv ("LISTEN_FDS");
+  size_t socket_name_len = strlen (socket_name);
+  int r;
+
+  assert (socket_name);
+  assert (socket_name[0] != '\0');
+
+  /* sanity checks for systemd socket activation */
+  if (!env_listen_fds || strcmp (env_listen_fds, "1") != 0 || !check_sd_listen_pid ())
+    errx (EXIT_FAILURE, "invalid invocation; must be run from systemd socket-activated service");
+
+  do
+    r = write (SD_LISTEN_FDS_START, socket_name, socket_name_len);
+  while (r < 0 && errno == EINTR);
+  if (r < 0)
+    err (EXIT_FAILURE, "failed to write instance socket name to activated socket");
+  if (r != socket_name_len)
+    errx (EXIT_FAILURE, "failed to write instance socket name to activated socket: wrote %i bytes, wanted %zu bytes", r, socket_name_len);
+  close (SD_LISTEN_FDS_START);
+}
+
 unsigned
 server_num_connections (void)
 {

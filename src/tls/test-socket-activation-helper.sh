@@ -1,12 +1,12 @@
 #!/bin/sh
 set -eu
 
-if ! type curl >/dev/null 2>&1; then
-    echo "1..0 # SKIP: curl not installed"
+if ! type curl >/dev/null 2>&1 || ! type nc >/dev/null 2>&1; then
+    echo "1..0 # SKIP: curl or nc not installed"
     exit 0
 fi
 
-echo "1..3"
+echo "1..6"
 
 # start activation helper
 SOCKET_DIR=$(mktemp -d --tmpdir socks.XXXXXX)
@@ -34,6 +34,16 @@ expect_curl() {
     fi
 }
 
+# args: <socketname> <expected output>
+expect_nc() {
+    OUT=$(nc --unixsock "$SOCKET_DIR/$1" </dev/null)
+    if ! echo "$OUT" | grep -q "$2"; then
+        echo "FAIL: output does not contain $2" >&2
+        echo "$OUT" >&2
+        exit 1
+    fi
+}
+
 
 expect_curl http.sock "$SUCCESS"
 # second call to existing instance
@@ -48,10 +58,22 @@ expect_curl http-redirect.sock "$REDIRECT"
 echo "ok 2 http-redirect.sock"
 
 
-expect_curl https.sock "$SUCCESS"
+expect_nc https-factory.sock "^https@0.sock$"
+echo "ok 3 https-factory #0"
+
+
+expect_curl https@0.sock "$SUCCESS"
 # second call to existing instance
-expect_curl https.sock "$SUCCESS"
+expect_curl https@0.sock "$SUCCESS"
 # wait for idle timeout
 sleep 2
-expect_curl https.sock "$SUCCESS"
-echo "ok 3 https.sock"
+expect_curl https@0.sock "$SUCCESS"
+echo "ok 4 https@0.sock"
+
+
+expect_nc https-factory.sock "^https@1.sock$"
+echo "ok 5 https-factory #1"
+
+
+expect_curl https@1.sock "$SUCCESS"
+echo "ok 6 https@1.sock"

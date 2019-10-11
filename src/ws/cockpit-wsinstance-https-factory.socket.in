@@ -1,0 +1,10 @@
+[Unit]
+Description=Socket for Cockpit Web Service https instance factory
+BindsTo=cockpit.service
+Documentation=man:cockpit-ws(8)
+
+[Socket]
+ListenStream=/run/cockpit/wsinstance/https-factory.sock
+Accept=yes
+SocketUser=@user@
+SocketMode=0600

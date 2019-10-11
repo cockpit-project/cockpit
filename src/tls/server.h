@@ -35,6 +35,9 @@ server_run (void);
 void
 server_cleanup (void);
 
+void
+server_instance_factory_respond (const char *socket_name);
+
 /* these are for unit tests only */
 bool
 server_poll_event (int timeout);

@@ -310,7 +310,9 @@ teardown (TestCase *tc, gconstpointer data)
   int socket_dir_fd = open (tc->ws_socket_dir, O_RDONLY | O_DIRECTORY);
   g_assert_cmpint (unlinkat (socket_dir_fd, "http.sock", 0), ==, 0);
   g_assert_cmpint (unlinkat (socket_dir_fd, "http-redirect.sock", 0), ==, 0);
-  g_assert_cmpint (unlinkat (socket_dir_fd, "https.sock", 0), ==, 0);
+  g_assert_cmpint (unlinkat (socket_dir_fd, "https-factory.sock", 0), ==, 0);
+  g_assert_cmpint (unlinkat (socket_dir_fd, "https@0.sock", 0), ==, 0);
+  g_assert_cmpint (unlinkat (socket_dir_fd, "https@1.sock", 0), ==, 0);
   g_assert_cmpint (unlinkat (socket_dir_fd, "ready", 0), ==, 0);
   close (socket_dir_fd);
   g_assert_cmpint (g_rmdir (tc->ws_socket_dir), ==, 0);

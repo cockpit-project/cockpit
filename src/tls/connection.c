@@ -43,6 +43,7 @@
 #include <gnutls/gnutls.h>
 #include <gnutls/x509.h>
 
+#include <common/cockpitmemory.h>
 #include <common/cockpitwebcertificate.h>
 #include "utils.h"
 
@@ -63,6 +64,18 @@ typedef struct
 #endif
 } Buffer;
 
+
+/* TLS certificate → https ws instance socket name map */
+typedef struct HTTPSInstance {
+  gnutls_datum_t peer_cert;
+  char socket_name[30];
+  struct HTTPSInstance *next;
+} HTTPSInstance;
+
+static pthread_mutex_t https_instances_mutex = PTHREAD_MUTEX_INITIALIZER;
+static HTTPSInstance *https_instances;
+
+
 /* a single TCP connection between the client (browser) and cockpit-tls */
 typedef struct {
   int client_fd;
@@ -79,6 +92,7 @@ typedef struct {
 
 static_assert (!(BUFFER_SIZE & BUFFER_MASK), "buffer size not a power of 2");
 static_assert ((typeof (((Buffer *) 0)->start)) BUFFER_SIZE, "buffer is too big");
+
 
 static inline bool
 buffer_full (Buffer *self)
@@ -344,30 +358,156 @@ buffer_read_from_tls (Buffer           *self,
 }
 
 /**
+ * https_instance_new: Create a new cockpit-ws instance for given peer certificate
+ */
+static HTTPSInstance*
+https_instance_new (const gnutls_datum_t *der)
+{
+  struct sockaddr_un factory_sockaddr = { .sun_family = AF_UNIX };
+  size_t len;
+  int r;
+  int fd;
+  HTTPSInstance *inst;
+
+  r = snprintf (factory_sockaddr.sun_path, sizeof factory_sockaddr.sun_path,
+                "%s/https-factory.sock", parameters.wsinstance_sockdir);
+  assert (r < sizeof factory_sockaddr.sun_path);
+
+  /* connect to factory */
+  fd = socket (AF_UNIX, SOCK_STREAM, 0);
+  if (fd < 0)
+    {
+      warn ("https_instance_new: failed to create socket");
+      return NULL;
+    }
+  if (connect (fd, (struct sockaddr *) &factory_sockaddr, sizeof factory_sockaddr) < 0)
+  {
+    warn ("https_instance_new: failed to connect to https factory socket");
+    return NULL;
+  }
+
+  inst = callocx (1, sizeof (HTTPSInstance));
+
+  /* read instance socket name until EOF */
+  for (len = 0; len < sizeof inst->socket_name;) {
+      r = read (fd, inst->socket_name + len, (sizeof inst->socket_name) - len);
+      if (r < 0 && errno == EINTR)
+        continue;
+      if (r == 0) /* EOF */
+        break;
+      len += r;
+  }
+  close (fd);
+
+  if (r < 0 || len == 0 || len >= sizeof inst->socket_name)
+  {
+    if (r < 0)
+      warn ("https_instance_new: failed to read instance socket name from factory");
+    else if (len == 0)
+      warnx ("https_instance_new: https instance factory did not send a socket name");
+    else
+      errx (EXIT_FAILURE, "https_instance_new: https instance factory sent too long socket name (max %zu bytes)", sizeof inst->socket_name);
+    free (inst);
+    return NULL;
+  }
+
+  /* clone DER certificate */
+  if (der)
+    {
+      inst->peer_cert.size = der->size;
+      inst->peer_cert.data = mallocx (inst->peer_cert.size);
+      memcpy (inst->peer_cert.data, der->data, inst->peer_cert.size);
+    }
+
+  return inst;
+}
+
+/**
+ * https_instance_has_peer_cert: Check if that instance is for a given GnuTLS DER client certificate
+ *
+ * Returns true if either this ws instance has no client certificate and der is
+ * %NULL or empty, or if both certificates are identical. Otherwise returns false.
+ */
+static bool
+https_instance_has_peer_cert (HTTPSInstance *inst, const gnutls_datum_t *der)
+{
+  if (!der)
+    return inst->peer_cert.size == 0;
+  if (inst->peer_cert.size != der->size)
+    return false;
+  return memcmp (inst->peer_cert.data, der->data, der->size) == 0;
+}
+
+
+/**
+ * connection_ws_socket_name: Get cockpit-ws socket name for this connection
+ *
+ * Every client certificate gets its own cockpit-ws instance for better
+ * isolation, plus one instance for "no certificate". For plain http there's
+ * two more instances for without and with TLS redirection.
+ */
+static const char*
+connection_ws_socket_name (Connection *self)
+{
+  const gnutls_datum_t *peer_der;
+  HTTPSInstance *https_instance;
+
+  if (parameters.x509_cred == NULL)
+    {
+      assert (!self->tls);
+      return "http.sock";
+    }
+  if (!self->tls)
+    return "http-redirect.sock";
+
+  /* https */
+
+  pthread_mutex_lock (&https_instances_mutex);
+
+  /* find existing ws instance for this peer cert; note that these will never go away on the systemd side during
+   * cockpit-tls' lifetime -- even if cockpit-ws idles out, it will go back to socket activation and get re-spawned on
+   * demand. So we don't need to bother with cleaning up the list. */
+  peer_der = gnutls_certificate_get_peers (self->tls, NULL);
+  for (https_instance = https_instances; https_instance; https_instance = https_instance->next)
+    if (https_instance_has_peer_cert (https_instance, peer_der))
+      {
+        debug (CONNECTION, "connection_ws_socket_name https: peer certificate handled by existing ws instance %s", https_instance->socket_name);
+        break;
+      }
+
+  /* none? create a new one */
+  if (!https_instance)
+    {
+      https_instance = https_instance_new (peer_der);
+      if (https_instance)
+        {
+          debug (CONNECTION, "ws_socket_name https: created new ws instance %s for new peer certificate", https_instance->socket_name);
+          https_instance->next = https_instances;
+          https_instances = https_instance;
+        }
+    }
+
+  pthread_mutex_unlock (&https_instances_mutex);
+
+  return https_instance ? https_instance->socket_name : NULL;
+}
+
+
+/**
  * connection_init_ws: Connect to a cockpit-ws instance for a new Connection
  */
 static bool
 connection_init_ws (Connection *self)
 {
   struct sockaddr_un sockaddr = { .sun_family = AF_UNIX };
-  const char *sockname;
+  const char *sockname = connection_ws_socket_name (self);
   int r;
 
-  if (parameters.x509_cred == NULL)
-    {
-      assert (!self->tls);
-      sockname = "http";
-    }
-  else
-    {
-      if (self->tls)
-        sockname = "https";
-      else
-        sockname = "http-redirect";
-    }
+  if (!sockname)
+    return false;
 
   r = snprintf (sockaddr.sun_path, sizeof sockaddr.sun_path,
-                "%s/%s.sock", parameters.wsinstance_sockdir,
+                "%s/%s", parameters.wsinstance_sockdir,
                 sockname);
   assert (r < sizeof sockaddr.sun_path);
 
@@ -723,5 +863,13 @@ connection_cleanup (void)
     {
       gnutls_certificate_free_credentials (parameters.x509_cred);
       parameters.x509_cred = NULL;
+    }
+
+  while (https_instances)
+    {
+      HTTPSInstance *i = https_instances;
+      https_instances = i->next;
+      gnutls_free (i->peer_cert.data);
+      free (i);
     }
 }

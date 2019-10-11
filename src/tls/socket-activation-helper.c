@@ -40,7 +40,10 @@ static struct instance_type
   const char *sockname;
   const char *argv[MAX_COCKPIT_WS_ARGS];
 } instance_types[] = {
-  {"https.sock", {"--for-tls-proxy", "--port=0"}},
+  {"https-factory.sock", {}}, /* treated specially */
+  /* support up to 2 ws instances; increase this if the unit test needs more */
+  {"https@0.sock", {"--for-tls-proxy", "--port=0"}},
+  {"https@1.sock", {"--for-tls-proxy", "--port=0"}},
   {"http-redirect.sock", {"--proxy-tls-redirect", "--no-tls", "--port=0"}},
   {"http.sock", {"--no-tls", "--port", "0"}},
 };
@@ -49,6 +52,7 @@ static int socket_to_pid[N_ELEMENTS (instance_types)];
 static struct pollfd ws_pollfds[N_ELEMENTS (instance_types)];
 
 volatile sig_atomic_t terminated = 0;
+unsigned https_instance_counter = 0;
 
 static void
 term (int signum)
@@ -135,6 +139,32 @@ spawn_cockpit_ws (const char *ws_path, int fd,
     }
 }
 
+/* keep this in sync with src/ws/cockpit-wsinstance-https-factory@.service.in */
+/* this is blocking! if this program ever stops being an unit-test only thing
+* and gets used in production, rewrite as proper child process */
+static void
+handle_https_factory (int listen_fd)
+{
+  char sock_name[20];
+  int res;
+  int fd = accept4 (listen_fd, NULL, NULL, SOCK_CLOEXEC);
+
+  if (fd < 0)
+    err (EXIT_FAILURE, "accept connection to https-factory.sock");
+
+  res = snprintf (sock_name, sizeof sock_name, "https@%u.sock", https_instance_counter++);
+  assert (res < sizeof sock_name);
+  debug (HELPER, "https factory: sending instance %s", sock_name);
+
+  /* if the test needs more, increase the number of instances in instance_types */
+  assert (https_instance_counter < 3);
+
+  res = write (fd, sock_name, strlen (sock_name));
+  if (res < 0)
+    err (EXIT_FAILURE, "failed to write https-factory.sock response");
+  close (fd);
+}
+
 int
 main (int argc, char *argv[])
 {
@@ -166,8 +196,6 @@ main (int argc, char *argv[])
         .sun_family = AF_UNIX
       };
       int listen_fd;
-
-      socket_to_pid[i] = 0;
 
       res = snprintf (addr.sun_path, sizeof (addr.sun_path), "%s/%s", socket_dir, instance_types[i].sockname);
       assert (res < sizeof (addr.sun_path));
@@ -218,6 +246,14 @@ main (int argc, char *argv[])
             {
               if (ws_pollfds[i].revents == POLLIN)
                 {
+                  /* is this the https factory? */
+                  if (instance_types[i].argv[0] == NULL)
+                    {
+                      debug (HELPER, "got POLLIN on fd %i https factory", ws_pollfds[i].fd);
+                      handle_https_factory (ws_pollfds[i].fd);
+                      continue;
+                    }
+
                   ws_pollfds[i].events = 0;
                   debug (HELPER, "got POLLIN on fd %i, spawning ws for %s",
                           ws_pollfds[i].fd, instance_types[i].sockname);

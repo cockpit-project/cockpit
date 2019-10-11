@@ -119,7 +119,8 @@ class TestSubscriptions(MachineCase):
         args = {"addr": "10.111.113.5"}
         m.execute(script=WAIT_SCRIPT % args)
 
-        m.write("/etc/insights-client/insights-client.conf",
+        if m.image != "rhel-atomic":  # insights-client not installed there
+            m.write("/etc/insights-client/insights-client.conf",
 """
 [insights-client]
 gpg=False
@@ -130,8 +131,8 @@ password=foobar
 insecure_connection=True
 """)
 
-        m.upload([ "verify/files/mock-insights" ], "/var/tmp")
-        m.spawn("/var/tmp/mock-insights", "mock-insights")
+            m.upload([ "verify/files/mock-insights" ], "/var/tmp")
+            m.spawn("/var/tmp/mock-insights", "mock-insights")
 
     def testRegister(self):
         b = self.browser
@@ -270,6 +271,7 @@ insecure_connection=True
         b.wait_in_text(".curtains-ct h1", "current user isn't allowed to access system subscription")
         self.allow_authorize_journal_messages()
 
+    @skipImage("insights-client not installed",  "rhel-atomic")
     def testInsights(self):
         b = self.browser
 
@@ -324,6 +326,7 @@ insecure_connection=True
 
         b.wait_present("label:contains('Insights') a:contains('Not connected')")
 
+    @skipImage("insights-client not installed",  "rhel-atomic")
     def testSubAndInAndFail(self):
         m = self.machine
         b = self.browser

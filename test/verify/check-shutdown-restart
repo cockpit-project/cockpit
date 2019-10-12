@@ -34,6 +34,7 @@ class TestShutdownRestart(MachineCase):
         MachineCase.setUp(self)
         self.machine.execute("hostnamectl set-hostname machine1")
         self.machines['machine2'].execute("hostnamectl set-hostname machine2")
+        HACK_disable_problematic_preloads(self.machine)
         HACK_disable_problematic_preloads(self.machines['machine2'])
 
     def testNoAdminGroup(self):

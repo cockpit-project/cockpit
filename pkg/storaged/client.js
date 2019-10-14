@@ -54,6 +54,12 @@ client.run = (func) => {
     }
 };
 
+/* Permissions
+ */
+
+client.permission = cockpit.permission({ admin: true });
+client.permission.addEventListener("changed", () => { client.dispatchEvent('changed') });
+
 /* Metrics
  */
 

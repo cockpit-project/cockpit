@@ -18,7 +18,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Breadcrumb } from 'patternfly-react';
+import { Breadcrumb, BreadcrumbItem } from '@patternfly/react-core';
 
 import cockpit from 'cockpit';
 import { Listing } from 'cockpit-components-listing.jsx';
@@ -42,13 +42,13 @@ export class NetworkList extends React.Component {
 
         return (
             <>
-                <Breadcrumb className='machines-listing-breadcrumb' title>
-                    <Breadcrumb.Item onClick={() => cockpit.location.go(['vms']) }>
+                <Breadcrumb className='machines-listing-breadcrumb'>
+                    <BreadcrumbItem to='#'>
                         {_("Virtual Machines")}
-                    </Breadcrumb.Item>
-                    <Breadcrumb.Item active>
+                    </BreadcrumbItem>
+                    <BreadcrumbItem isActive>
                         {_("Networks")}
-                    </Breadcrumb.Item>
+                    </BreadcrumbItem>
                 </Breadcrumb>
                 <div id='networks-listing' className='container-fluid'>
                     <Listing title={_("Networks")}

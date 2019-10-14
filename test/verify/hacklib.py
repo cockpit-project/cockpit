@@ -18,10 +18,11 @@
 
 def HACK_disable_problematic_preloads(machine):
     # There is something about pre-loading the packagekit page that
-    # breaks the CDP of Chromium completely.  There need to be
-    # multiple machines on Cockpit's dashboard, and Cockpit needs to
-    # have been build with --enable-debug for this to actually
-    # trigger.  Thus, we only disable packagekit preloading on
-    # selected machines, and only for selected images.
+    # breaks the CDP of Chromium completely.  This seems to only
+    # happen when building with --enable-debug and when the pre-loaded
+    # page belongs to a second machine that has been reached via SSH
+    # from a first machine.  Thus, we only disable packagekit
+    # preloading on selected machines, and only for selected images,
+    # in order to confirm or improve this theory.
     if machine.image in ["fedora-30"]:
         machine.write("/usr/share/cockpit/packagekit/override.json", '{ "preload": [ ] }')

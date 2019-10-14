@@ -70,7 +70,7 @@ BuildRequires: pam-devel
 
 BuildRequires: autoconf automake
 BuildRequires: /usr/bin/python3
-BuildRequires: intltool
+BuildRequires: gettext >= 0.19.7
 %if %{defined build_dashboard}
 BuildRequires: libssh-devel >= 0.7.1
 %endif

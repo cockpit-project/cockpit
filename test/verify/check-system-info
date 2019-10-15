@@ -415,17 +415,31 @@ class TestSystemInfo(MachineCase):
             heading_selector = ' .listing-ct-heading'
         # PCI
         b.wait_in_text(pci_selector + heading_selector, "PCI")
-        b.wait_in_text(pci_selector + ' .listing-ct', "0000:00:00.0")
+
+        if m.image in ['rhel-8-1-distropkg']:
+            b.wait_in_text(pci_selector + ' .listing-ct', "0000:00:00.0")
+        else:
+            b.wait_in_text(pci_selector + ' tr:first-of-type td[data-label=Slot]', "0000:00:00.0")
 
         # sorted by device class by default; this makes some assumptions about QEMU devices
-        b.wait_in_text(pci_selector + ' .listing-ct tbody:first-of-type td:nth-of-type(2)', "Bridge")
-        b.wait_in_text(pci_selector + ' .listing-ct tbody:last-of-type td:nth-of-type(2)', "Unclassified")
+        if m.image in ['rhel-8-1-distropkg']:
+            b.wait_in_text(pci_selector + ' .listing-ct tbody:first-of-type td:nth-of-type(2)', "Bridge")
+            b.wait_in_text(pci_selector + ' .listing-ct tbody:last-of-type td:nth-of-type(2)', "Unclassified")
+        else:
+            b.wait_in_text(pci_selector + ' tbody tr:first-of-type td[data-label=Class]', "Bridge")
+            b.wait_in_text(pci_selector + ' tbody tr:last-of-type td[data-label=Class]', "Unclassified")
 
         # sort by model
-        b.click(pci_selector + ' .listing-ct thead th:nth-of-type(3)')
-        b.wait_in_text(pci_selector + ' .listing-ct tbody:first-of-type td:nth-of-type(3)', "440FX")
-        b.wait_in_text(pci_selector + ' .listing-ct tbody:last-of-type td:nth-of-type(3)', "Virtio SCSI")
-        b.wait_not_in_text(pci_selector + ' .listing-ct tbody:last-of-type td:nth-of-type(2)', "Unclassified")
+        if m.image in ['rhel-8-1-distropkg']:
+            b.click(pci_selector + ' .listing-ct thead th:nth-of-type(3)')
+            b.wait_in_text(pci_selector + ' .listing-ct tbody:first-of-type td:nth-of-type(3)', "440FX")
+            b.wait_in_text(pci_selector + ' .listing-ct tbody:last-of-type td:nth-of-type(3)', "Virtio SCSI")
+            b.wait_not_in_text(pci_selector + ' .listing-ct tbody:last-of-type td:nth-of-type(2)', "Unclassified")
+        else:
+            b.click(pci_selector + ' thead th[data-label=Model] button')
+            b.wait_in_text(pci_selector + ' tbody tr:first-of-type td[data-label=Model]', "440FX")
+            b.wait_in_text(pci_selector + ' tbody tr:last-of-type td[data-label=Model]', "Virtio SCSI")
+            b.wait_not_in_text(pci_selector + ' tbody tr:last-of-type td[data-label=Model]', "Unclassified")
 
         # go back to system page
         if m.image == "rhel-8-1-distropkg":
@@ -456,7 +470,10 @@ class TestSystemInfo(MachineCase):
 
         # PCI should be shown
         b.wait_in_text(pci_selector + heading_selector, "PCI")
-        b.wait_in_text(pci_selector + ' .listing-ct', "0000:00:00.0")
+        if m.image in ['rhel-8-1-distropkg']:
+            b.wait_in_text(pci_selector + ' .listing-ct', "0000:00:00.0")
+        else:
+            b.wait_in_text(pci_selector + ' tr:first-of-type td[data-label=Slot]', "0000:00:00.0")
 
         # Check also variants when only some fields are present
         m.write("/sys/class/dmi/id/chassis_type", "10")
@@ -479,8 +496,8 @@ class TestSystemInfo(MachineCase):
         # demidecode not available on certain images
         if m.image not in ['fedora-atomic']:
             b.wait_in_text('#hwinfo #memory-listing' + heading_selector, "Memory")
-            b.wait_in_text('#hwinfo #memory-listing .listing-ct', "DIMM 0")
-            b.wait_in_text('#hwinfo #memory-listing .listing-ct', "RAM")
+            b.wait_in_text('#hwinfo #memory-listing table', "DIMM 0")
+            b.wait_in_text('#hwinfo #memory-listing table', "RAM")
 
             # Test more specific memory data with a fake dmidecode
             m.write('/tmp/dmidecode', dmidecode)
@@ -488,17 +505,31 @@ class TestSystemInfo(MachineCase):
             b.reload()
             b.enter_page('/system/hwinfo')
             # first DIMM has unknown technology and rank
-            b.wait_in_text('#memory-listing tbody:nth-of-type(1)', "ChannelA-DIMM0")
-            b.wait_in_text('#memory-listing tbody:nth-of-type(1)', "DDR3")
-            b.wait_in_text('#memory-listing tbody:nth-of-type(1)', "8 GB")
-            b.wait_in_text('#memory-listing tbody:nth-of-type(1)', "Present")
-            b.wait_text('#memory-listing tbody:nth-of-type(1) td:nth-of-type(3)', "Unknown")
-            b.wait_text('#memory-listing tbody:nth-of-type(1) td:nth-of-type(7)', "Unknown")
-            b.wait_in_text('#memory-listing tbody:nth-of-type(1)', "1600 MT/s")
+            if m.image in ['rhel-8-1-distropkg']:
+                b.wait_in_text('#memory-listing tbody:nth-of-type(1)', "ChannelA-DIMM0")
+                b.wait_in_text('#memory-listing tbody:nth-of-type(1)', "DDR3")
+                b.wait_in_text('#memory-listing tbody:nth-of-type(1)', "8 GB")
+                b.wait_in_text('#memory-listing tbody:nth-of-type(1)', "Present")
+                b.wait_text('#memory-listing tbody:nth-of-type(1) td:nth-of-type(3)', "Unknown")
+                b.wait_text('#memory-listing tbody:nth-of-type(1) td:nth-of-type(7)', "Unknown")
+                b.wait_in_text('#memory-listing tbody:nth-of-type(1)', "1600 MT/s")
+            else:
+                b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=ID]', "ChannelA-DIMM0")
+                b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=Type]', "DDR3")
+                b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=Size]', "8 GB")
+                b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=State]', "Present")
+                b.wait_text('#memory-listing tr:nth-of-type(1) td[data-label="Memory Technology"]', "Unknown")
+                b.wait_text('#memory-listing tr:nth-of-type(1) td[data-label=Rank]', "Unknown")
+                b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=Speed]', "1600 MT/s")
             # second DIMM has known technology and rank
-            b.wait_in_text('#memory-listing tbody:nth-of-type(2)', "ChannelB-DIMM0")
-            b.wait_text('#memory-listing tbody:nth-of-type(2) td:nth-of-type(3)', "Awesome")
-            b.wait_text('#memory-listing tbody:nth-of-type(2) td:nth-of-type(7)', "Single Rank")
+            if m.image in ['rhel-8-1-distropkg']:
+                b.wait_in_text('#memory-listing tbody:nth-of-type(2)', "ChannelB-DIMM0")
+                b.wait_text('#memory-listing tbody:nth-of-type(2) td:nth-of-type(3)', "Awesome")
+                b.wait_text('#memory-listing tbody:nth-of-type(2) td:nth-of-type(7)', "Single Rank")
+            else:
+                b.wait_in_text('#memory-listing tr:nth-of-type(2) td[data-label=ID]', "ChannelB-DIMM0")
+                b.wait_text('#memory-listing tr:nth-of-type(2) td[data-label="Memory Technology"]', "Awesome")
+                b.wait_text('#memory-listing tr:nth-of-type(2) td[data-label=Rank]', "Single Rank")
 
             m.execute('umount $(which dmidecode)')
 

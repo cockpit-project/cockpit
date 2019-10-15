@@ -112,7 +112,7 @@ export class StorageLink extends React.Component {
             <StorageControl excuse={this.props.excuse}
                             content={(excuse) => (
                                 <button onClick={checked(this.props.onClick)}
-                                        className={excuse ? " disabled link-button" : "link-button"}>
+                                        className={"link-button ct-form-relax" + (excuse ? " disabled" : "")}>
                                     {this.props.children}
                                 </button>
                             )} />

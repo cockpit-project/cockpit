@@ -781,7 +781,7 @@ class TestMachines(NetworkCase):
             expected_target='vdh',
         ).execute()
 
-        if "debian" not in m.image and "ubuntu" not in m.image:
+        if "debian" not in m.image and "ubuntu" not in m.image and m.image != "centos-7":
             # ISCSI driver does not support virStorageVolCreate API
             VMAddDiskDialog(
                 self,

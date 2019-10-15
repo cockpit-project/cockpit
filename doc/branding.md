@@ -51,7 +51,7 @@ The branding.css file should override the following areas of the login screen:
     /* Background of the login prompt */
     body.login-pf {
         background: url("my-background-image.jpg");
-        background-size: auto;
+        background-size: cover;
     }
 
     /* Upper right logo of login screen */

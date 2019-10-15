@@ -13,3 +13,11 @@ ExecStartPre=+@sbindir@/remotectl certificate --ensure --user=root --group=@grou
 ExecStart=@libexecdir@/cockpit-tls
 User=@user@
 Group=@group@
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+MemoryDenyWriteExecute=true

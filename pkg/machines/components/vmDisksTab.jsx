@@ -21,11 +21,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
 import { Button } from 'patternfly-react';
-import {
-    Table,
-    TableHeader,
-    TableBody,
-} from '@patternfly/react-table';
 
 import { convertToUnit, diskPropertyChanged, toReadableNumber, units } from "../helpers.js";
 import RemoveDiskAction from './diskRemove.jsx';
@@ -33,6 +28,7 @@ import { AddDiskModalBody } from './diskAdd.jsx';
 import { getAllStoragePools } from '../actions/provider-actions.js';
 import { EditDiskAction } from './diskEdit.jsx';
 import WarningInactive from './warningInactive.jsx';
+import { ListingTable } from "cockpit-components-table.jsx";
 
 const _ = cockpit.gettext;
 
@@ -99,10 +95,11 @@ class VmDisksTab extends React.Component {
                 {this.state.showModal && <AddDiskModalBody close={this.close} dispatch={dispatch} idPrefix={idPrefix} vm={vm} vms={vms} storagePools={storagePools} provider={provider} />}
             </>
         );
-        const columnTitles = [_("Device")];
         let renderCapacityUsed, renderAccess, renderAdditional;
+        const columnTitles = [];
 
         if (disks && disks.length > 0) {
+            columnTitles.push(_("Device"));
             renderCapacityUsed = !!disks.find(disk => (!!disk.used));
             renderAccess = !!disks.find(disk => (typeof disk.readonly !== "undefined") || (typeof disk.shareable !== "undefined"));
             renderAdditional = !!disks.find(disk => (!!disk.diskExtras));
@@ -120,20 +117,16 @@ class VmDisksTab extends React.Component {
             columnTitles.push(_("Source"));
             if (renderAdditional)
                 columnTitles.push(_("Additional"));
-            columnTitles.push({ title: actions });
-        } else {
-            return (
-                <>
-                    {_("No disks defined for this VM")}
-                    {actions}
-                </>
-            );
+
+            if (provider.name === 'LibvirtDBus')
+                columnTitles.push('');
         }
 
         const rows = disks.map(disk => {
             const idPrefixRow = `${idPrefix}-${disk.target || disk.device}`;
             const columns = [
                 { title: <VmDiskCell value={disk.device} id={`${idPrefixRow}-device`} key={`${idPrefixRow}-device`} /> },
+
             ];
 
             if (renderCapacity) {
@@ -154,7 +147,7 @@ class VmDisksTab extends React.Component {
                             <WarningInactive iconId={`${idPrefixRow}-access-tooltip`} tooltipId={`tip-${idPrefixRow}-access`} /> }
                     </span>
                 );
-                columns.push(access);
+                columns.push({ title: access });
             }
 
             columns.push({ title: disk.diskSourceCell });
@@ -179,22 +172,19 @@ class VmDisksTab extends React.Component {
                 );
                 columns.push({ title: diskActions });
             }
-
-            return columns;
+            return { columns };
         });
 
         return (
-            <Table variant='compact'
+            <ListingTable variant='compact'
+                actions={actions}
+                emptyCaption={_("No disks defined for this VM")}
                 aria-label={`VM ${vm.name} Disks`}
-                cells={columnTitles}
-                rows={rows}>
-                <TableHeader />
-                <TableBody />
-            </Table>
+                columns={columnTitles}
+                rows={rows} />
         );
     }
 }
-
 VmDisksTab.propTypes = {
     idPrefix: PropTypes.string.isRequired,
     disks: PropTypes.array.isRequired,

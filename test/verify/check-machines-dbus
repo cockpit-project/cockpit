@@ -800,8 +800,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         # Check storage volumes of a pool
         b.wait_present("#pool-myPoolOne-{0}-storage-volumes".format(connectionName))
         b.click("#pool-myPoolOne-{0}-storage-volumes".format(connectionName)) # open the "Storage Volumes" subtab
-        b.wait_present("#pool-myPoolOne-{0}-storage-volumes-list".format(connectionName))
-        b.wait_in_text("#pool-myPoolOne-{0}-storage-volumes-list".format(connectionName),
+        b.wait_in_text("tr[data-row-id=pool-myPoolOne-{0}] + tr table td".format(connectionName),
                        "No Storage Volumes defined for this Storage Pool")
 
         # Close expanded row for this pool

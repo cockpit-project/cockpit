@@ -19,12 +19,8 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-    Table,
-    TableHeader,
-    TableBody,
-} from '@patternfly/react-table';
 
+import { ListingTable } from "cockpit-components-table.jsx";
 import { ExpandableNotification } from 'cockpit-components-inline-notification.jsx';
 import { StorageVolumeDelete } from './storageVolumeDelete.jsx';
 import { StorageVolumeCreate } from './storageVolumeCreate.jsx';
@@ -80,19 +76,18 @@ export class StoragePoolVolumesTab extends React.Component {
         const storagePoolIdPrefix = storagePoolId(storagePool.name, storagePool.connectionName);
         const volumes = this.state.rows;
         const isVolumeUsed = getStorageVolumesUsage(vms, storagePool);
-        const columnTitles = [
-            _("Name"), _("Used by"), _("Size"),
-            {
-                title: <div className='table-actions pull-right'>
-                    <StorageVolumeDelete key='volume-delete-action'
-                            storagePool={storagePool}
-                            isVolumeUsed={isVolumeUsed}
-                            volumes={volumes.filter(row => row.selected)}
-                            deleteErrorHandler={this.deleteErrorHandler} />
-                    <StorageVolumeCreate key='volume-create-action'
-                            storagePool={storagePool} />
-                </div>
-            }];
+        const columnTitles = [_("Name"), _("Used by"), _("Size")];
+        const actions = (
+            <div className='table-actions'>
+                <StorageVolumeDelete key='volume-delete-action'
+                        storagePool={storagePool}
+                        isVolumeUsed={isVolumeUsed}
+                        volumes={volumes.filter(row => row.selected)}
+                        deleteErrorHandler={this.deleteErrorHandler} />
+                <StorageVolumeCreate key='volume-create-action'
+                        storagePool={storagePool} />
+            </div>
+        );
 
         const sortFunction = (volumeA, volumeB) => volumeA.name.localeCompare(volumeB.name);
         const rows = volumes
@@ -105,16 +100,8 @@ export class StoragePoolVolumesTab extends React.Component {
                         { title: <div id={`${storagePoolIdPrefix}-volume-${volume.name}-usedby`}>{(isVolumeUsed[volume.name] || []).join(', ')}</div>, },
                         { title: <div id={`${storagePoolIdPrefix}-volume-${volume.name}-size`}>{`${allocation} / ${capacity} GB`}</div> },
                     ];
-                    return { cells: columns, selected: volume.selected };
+                    return { columns, selected: volume.selected };
                 });
-
-        if (volumes.length === 0) {
-            return (<div id={`${storagePoolIdPrefix}-storage-volumes-list`}>
-                {_("No Storage Volumes defined for this Storage Pool")}
-                <StorageVolumeCreate key='volume-create-action'
-                storagePool={storagePool} />
-            </div>);
-        }
 
         return (
             <>
@@ -122,14 +109,13 @@ export class StoragePoolVolumesTab extends React.Component {
                 <ExpandableNotification type='error' text={this.state.deleteError}
                     detail={this.state.deleteErrorDetail}
                     onDismiss={() => this.setState({ deleteError: undefined }) } /> }
-                <Table variant='compact'
-                       aria-label={`Storage Pool ${storagePool.name} Volumes`}
-                       cells={columnTitles}
-                       onSelect={this.onSelect}
-                       rows={rows}>
-                    <TableHeader />
-                    <TableBody />
-                </Table>
+                <ListingTable variant='compact'
+                    actions={actions}
+                    aria-label={`Storage Pool ${storagePool.name} Volumes`}
+                    emptyCaption={_("No Storage Volumes defined for this Storage Pool")}
+                    columns={columnTitles}
+                    onSelect={this.onSelect}
+                    rows={rows} />
             </>
         );
     }

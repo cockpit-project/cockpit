@@ -23,9 +23,10 @@ import '../lib/polyfills.js'; // once per application
 import React from "react";
 import ReactDOM from 'react-dom';
 
-import { Listing, ListingRow } from "cockpit-components-listing.jsx";
 import { Alert, Button, ListView, Modal, OverlayTrigger, Tooltip } from 'patternfly-react';
+import { SortByDirection } from "@patternfly/react-table";
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
+import { ListingTable } from "cockpit-components-table.jsx";
 
 import kernelopt_sh from "raw-loader!./kernelopt.sh";
 import detect from "./hw-detect.js";
@@ -231,9 +232,7 @@ class CPUSecurityMitigationsDialog extends React.Component {
 class HardwareInfo extends React.Component {
     constructor(props) {
         super(props);
-        this.sortColumnFields = ["cls", "model", "vendor", "slot"];
         this.state = {
-            sortBy: "cls",
             showCpuSecurityDialog: false,
             mitigationsAvailable: false,
         };
@@ -248,21 +247,29 @@ class HardwareInfo extends React.Component {
 
         if (this.props.info.pci.length > 0) {
             const sortedPci = this.props.info.pci.concat();
-            sortedPci.sort((a, b) => a[this.state.sortBy].localeCompare(b[this.state.sortBy]));
 
             pci = (
-                <Listing title={ _("PCI") } columnTitles={ [_("Class"), _("Model"), _("Vendor"), _("Slot")] }
-                         columnTitleClick={ index => this.setState({ sortBy: this.sortColumnFields[index] }) }>
-                    { sortedPci.map(dev => <ListingRow key={dev.slot} columns={[dev.cls, dev.model, dev.vendor, dev.slot]} />) }
-                </Listing>
+                <ListingTable caption={ _("PCI") }
+                    sortBy={{ index: 0, direction: SortByDirection.asc }}
+                    columns={ [
+                        { title: _("Class"), sortable: true },
+                        { title: _("Model"), sortable: true },
+                        { title: _("Vendor"), sortable: true },
+                        { title: _("Slot"), sortable: true }
+                    ] }
+                    rows={ sortedPci.map(dev => ({
+                        columns: [dev.cls, dev.model, dev.vendor, dev.slot]
+                    }))} />
             );
         }
 
         if (this.props.info.memory.length > 0) {
             memory = (
-                <Listing title={ _("Memory") } columnTitles={ [_("ID"), _("Memory Technology"), _("Type"), _("Size"), _("State"), _("Rank"), _("Speed")]}>
-                    { this.props.info.memory.map(dimm => <ListingRow key={dimm.locator} columns={[dimm.locator, dimm.technology, dimm.type, dimm.size, dimm.state, dimm.rank, dimm.speed]} />) }
-                </Listing>
+                <ListingTable caption={ _("Memory") }
+                    columns={ [_("ID"), _("Memory Technology"), _("Type"), _("Size"), _("State"), _("Rank"), _("Speed")]}
+                    rows={ this.props.info.memory.map(dimm => ({
+                        columns: [dimm.locator, dimm.technology, dimm.type, dimm.size, dimm.state, dimm.rank, dimm.speed]
+                    })) } />
             );
         }
 

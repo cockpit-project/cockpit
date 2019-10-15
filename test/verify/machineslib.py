@@ -494,7 +494,8 @@ class TestMachines(NetworkCase):
         if self.provider == "libvirt-dbus" and m.image == "ubuntu-stable":
             m.execute("chmod o+rwx /run/libvirt/libvirt-sock")
         b.wait(lambda: checkLibvirtEnabled())
-        b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
+        with b.wait_timeout(10):
+            b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
 
         m.execute("systemctl stop {0}".format(libvirtServiceName))
         b.wait_in_text("#slate-header", "Virtualization Service (libvirt) is Not Active")
@@ -506,7 +507,8 @@ class TestMachines(NetworkCase):
         if self.provider == "libvirt-dbus" and m.image == "ubuntu-stable":
             m.execute("chmod o+rwx /run/libvirt/libvirt-sock")
         b.wait(lambda: not checkLibvirtEnabled())
-        b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
+        with b.wait_timeout(10):
+            b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
 
         m.execute("systemctl enable {0}".format(libvirtServiceName))
         m.execute("systemctl stop {0}".format(libvirtServiceName))

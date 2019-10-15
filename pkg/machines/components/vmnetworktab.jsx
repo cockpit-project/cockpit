@@ -18,11 +18,6 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-    Table,
-    TableHeader,
-    TableBody,
-} from '@patternfly/react-table';
 
 import cockpit from 'cockpit';
 import { changeNetworkState, getVm } from "../actions/provider-actions.js";
@@ -32,6 +27,7 @@ import EditNICAction from './nicEdit.jsx';
 import WarningInactive from './warningInactive.jsx';
 import './nic.css';
 import { vmInterfaceAddresses } from '../libvirt-dbus.js';
+import { ListingTable } from "cockpit-components-table.jsx";
 
 const _ = cockpit.gettext;
 
@@ -231,7 +227,7 @@ class VmNetworkTab extends React.Component {
                 return column;
             });
             networkId++;
-            return columns;
+            return { columns };
         });
 
         return (
@@ -244,13 +240,10 @@ class VmNetworkTab extends React.Component {
                     provider={config.provider}
                     nodeDevices={nodeDevices}
                     interfaces={interfaces} />}
-                <Table aria-label={`VM ${vm.name} Network Interface Cards`}
+                <ListingTable aria-label={`VM ${vm.name} Network Interface Cards`}
                     variant='compact'
-                    cells={columnTitles}
-                    rows={rows}>
-                    <TableHeader />
-                    <TableBody />
-                </Table>
+                    columns={columnTitles}
+                    rows={rows} />
             </div>
         );
     }

@@ -682,8 +682,10 @@ Requires: cockpit-bridge >= %{required_base}
 Requires: cockpit-system >= %{required_base}
 Requires: libvirt-daemon-kvm
 Requires: libvirt-client
-%if 0%{?fedora} || 0%{?rhel} >= 8
+%if 0%{?centos} == 0
 Requires: libvirt-dbus >= 1.2.0
+%endif
+%if 0%{?fedora} || 0%{?rhel} >= 8
 # Optional components
 Recommends: virt-install
 Recommends: libosinfo

@@ -49,6 +49,7 @@ uninstall-local::
 # General code packages to translate
 TRANSLATE = \
 	pkg/ \
+	src/bridge/ \
 	src/ws/ \
 	$(NULL)
 
@@ -65,10 +66,11 @@ po/POTFILES.js.in:
 po/POTFILES.manifest.in:
 	$(MKDIR_P) $(notdir $@)
 	( cd $(srcdir) && find $(TRANSLATE) -name 'manifest.json.in' ) > $@
-po/POTFILES.pre.in: prepare-po
-	$(MKDIR_P) $(notdir $@)
-	( cd tmp/ && find . -type f ) > $@
-.PHONY: po/POTFILES.c.in po/POTFILES.html.in po/POTFILES.js.in po/POTFILES.manifest.in po/POTFILES.pre.in
+po/POTFILES.appstream.in:
+	( cd $(srcdir) && find $(TRANSLATE) -name '*.appdata.xml.in' ) > $@
+po/POTFILES.polkit.in:
+	( cd $(srcdir) && find $(TRANSLATE) -name '*.policy.in' ) > $@
+.PHONY: po/POTFILES.c.in po/POTFILES.html.in po/POTFILES.js.in po/POTFILES.manifest.in po/POTFILES.appstream.in po/POTFILES.polkit.in
 
 # Extract from GLib based C code files
 po/cockpit.c.pot: po/POTFILES.c.in
@@ -96,14 +98,14 @@ po/cockpit.js.pot: po/POTFILES.js.in
 po/cockpit.manifest.pot: po/POTFILES.manifest.in
 	$(srcdir)/tools/missing $(srcdir)/po/manifest2po -d $(srcdir) -f $^ -o $@
 
-# Extract pre-processed prepare-po data in tmp/
-po/cockpit.pre.pot: po/POTFILES.pre.in
-	$(XGETTEXT) --default-domain=cockpit --output=$@ \
-		--language=C --keyword=N_ \
-		--from-code=UTF-8 --directory=$(builddir)/tmp --files-from=$^
+po/cockpit.appstream.pot: po/POTFILES.appstream.in
+	$(XGETTEXT) --output=$@ --files-from=$^
+
+po/cockpit.polkit.pot: po/POTFILES.polkit.in
+	GETTEXTDATADIRS=$(srcdir)/po $(XGETTEXT) --output=$@ --files-from=$^
 
 # Combine the above pot files into one
-po/cockpit.pot: po/cockpit.c.pot po/cockpit.html.pot po/cockpit.js.pot po/cockpit.manifest.pot po/cockpit.pre.pot
+po/cockpit.pot: po/cockpit.c.pot po/cockpit.html.pot po/cockpit.js.pot po/cockpit.manifest.pot po/cockpit.appstream.pot po/cockpit.polkit.pot
 	$(MSGCAT) --sort-output --output-file=$@ $^
 
 # Actually update the old translations with new translatable text
@@ -146,4 +148,6 @@ EXTRA_DIST += \
 	po/po.empty.js \
 	po/po2json \
 	po/zanata.xml \
+	po/its/polkit.its \
+	po/its/polkit.loc \
 	$(NULL)

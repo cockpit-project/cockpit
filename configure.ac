@@ -261,19 +261,6 @@ else
   AC_MSG_ERROR([no. Please install gettext tools])
 fi
 
-AC_PATH_PROG(INTLTOOL_EXTRACT, intltool-extract)
-AC_PATH_PROG(INTLTOOL_MERGE, intltool-merge)
-AC_PATH_PROG(INTLTOOL_UPDATE, intltool-update)
-AC_MSG_CHECKING(for intltool binaries)
-if test -x "$INTLTOOL_EXTRACT" -a -x "$INTLTOOL_MERGE" -a -x "$INTLTOOL_UPDATE"; then
-  AC_SUBST(INTLTOOL_EXTRACT)
-  AC_SUBST(INTLTOOL_MERGE)
-  AC_SUBST(INTLTOOL_UPDATE)
-  AC_MSG_RESULT(yes)
-else
-  AC_MSG_ERROR(no. Please install intltool package)
-fi
-
 # go
 
 AC_PATH_PROG([GOLANG], [go])

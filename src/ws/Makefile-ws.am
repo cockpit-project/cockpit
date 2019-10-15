@@ -239,7 +239,7 @@ nodist_appdata_DATA = src/ws/cockpit.appdata.xml
 appdata_in = src/ws/cockpit.appdata.xml.in
 
 $(nodist_appdata_DATA): $(appdata_in) $(PO_FILES)
-	$(AM_V_GEN) LC_ALL=C $(INTLTOOL_MERGE) -q -x -u $(top_srcdir)/po $< $@
+	$(AM_V_GEN) $(MSGFMT) --xml -d $(top_srcdir)/po --template $< --output $@
 
 pixmapdir = $(datadir)/pixmaps
 pixmap_DATA = src/ws/cockpit.png
@@ -459,9 +459,3 @@ install-tests::
 install-exec-hook::
 	mkdir -p $(DESTDIR)$(sysconfdir)/cockpit/ws-certs.d $(DESTDIR)$(sysconfdir)/cockpit/machines.d
 	chmod 755 $(DESTDIR)$(sysconfdir)/cockpit/ws-certs.d $(DESTDIR)$(sysconfdir)/cockpit/machines.d
-
-prepare-po-appdata: $(appdata_in)
-	cp $< .
-	$(INTLTOOL_EXTRACT) -l --type=gettext/xml $(notdir $(appdata_in))
-
-prepare-po:: prepare-po-appdata

@@ -69,28 +69,18 @@ function select_btn(func, spec, klass) {
     var choice = spec[0].choice;
 
     function option_mapper(opt) {
-        return $('<li>', { value: opt.choice }).append($("<a tabindex='0'>").text(opt.title));
+        return $('<option>', { value: opt.choice, 'data-value': opt.title }).text(opt.title);
     }
 
-    var toggle = $('<button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">').append(
-        $('<span class="pull-left"></span>'),
-        $('<div class="caret"></div>')
-    );
-
-    var btn = $('<div class="btn-group bootstrap-select dropdown">').append(
-        toggle,
-        $('<ul class="dropdown-menu">').append(spec.map(option_mapper))
-    );
-
-    btn.on('click', 'li', function() {
-        choice = $(this).attr('value');
+    var btn = $('<select class="ct-select">').append(spec.map(option_mapper));
+    btn.on('change', function() {
+        choice = $(this).val();
         select(choice);
         func(choice);
     });
 
     function select(a) {
-        $("button span", btn).text($("li[value='" + a + "']", btn).text());
-        choice = a;
+        $(btn).val(a);
     }
 
     function selected() {

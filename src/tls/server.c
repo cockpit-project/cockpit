@@ -300,7 +300,11 @@ handle_connection_data_first (Connection *con)
      to an epoll event. */
   ret = recv (con->client_fd, &b, 1, MSG_PEEK);
   if (ret < 0)
-    err (1, "failed to peek first byte");
+    {
+      debug (CONNECTION, "failed to peek first byte: %m");
+      remove_connection (con->client_fd);
+      return;
+    }
   if (ret == 0) /* EOF */
     {
       debug (CONNECTION, "client disconnected without sending any data");

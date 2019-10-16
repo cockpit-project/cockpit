@@ -288,7 +288,7 @@ buffer_write_to_tls (Buffer           *self,
 
       //debug ("  gnutls_record_send returns %zi %s", s, (s < 0) ? gnutls_strerror (-s) : "");
 
-      if (s == -1)
+      if (s < 0)
         {
           if (s != -GNUTLS_E_AGAIN)
             buffer_epipe (self);
@@ -328,7 +328,7 @@ buffer_read_from_tls (Buffer           *self,
 
   do
     s = gnutls_record_recv (tls, iov.iov_base, iov.iov_len);
-  while (s == -1 && errno == EINTR);
+  while (s == -GNUTLS_E_INTERRUPTED);
 
   //debug ("  gnutls_record_recv returns %zi %s", s, (s < 0) ? gnutls_strerror (-s) : "");
 

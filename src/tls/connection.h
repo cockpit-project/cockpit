@@ -20,22 +20,34 @@
 #pragma once
 
 #include <stdbool.h>
-#include <stdint.h>
-
 #include <gnutls/gnutls.h>
 
-/* init/teardown */
-void
-connection_set_wsinstance_sockdir (const char *wsinstance_sockdir);
+typedef enum { CLIENT, WS } DataSource;
+typedef enum { SUCCESS, PARTIAL, CLOSED, RETRY, FATAL } ConnectionResult;
 
-void
-connection_crypto_init (const char *certfile,
-                        const char *keyfile,
-                        gnutls_certificate_request_t request_mode);
+typedef struct Connection Connection;
 
-void
-connection_cleanup (void);
+/* hold a block of read data that is being written */
+struct ConnectionBuffer {
+  char data[256 * 1024];
+  size_t length;
+  size_t offset; /* for partial writes */
+  Connection *connection;
+};
 
-/* handle a new connection */
-void
-connection_thread_main (int fd);
+/* a single TCP connection between the client (browser) and cockpit-tls */
+struct Connection {
+  int client_fd;
+  bool is_tls;
+  gnutls_session_t session;
+  int ws_fd;
+  struct ConnectionBuffer buf_client;
+  struct ConnectionBuffer buf_ws;
+  struct Connection *next;
+};
+
+Connection* connection_new (int client_fd);
+void connection_set_tls_session (Connection *c, gnutls_session_t session);
+void connection_free (Connection *c);
+ConnectionResult connection_read (Connection *c, DataSource source);
+ConnectionResult connection_write (Connection *c, DataSource source);

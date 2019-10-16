@@ -38,16 +38,16 @@ class FirewalldBasePage(SeleniumTest):
         self.wait_firewall_enabled()
         self.wait_id("networking-firewall-summary", cond=clickable, jscheck=True)
         element = self.wait_id("networking-firewall-summary", cond=clickable, jscheck=True)
-        self.assertIn("Active Rules", element.text)
-        self.assertTrue(int(element.text.split(" ")[0].strip()) > 1)
+        self.assertIn("Active Zones", element.text)
+        self.assertTrue(int(element.text.split(" ")[0].strip()) > 0)
 
     def testServiceEnabledByCommand(self):
         self.machine.execute("sudo systemctl start firewalld")
         self.machine.execute("sudo firewall-cmd --add-service=cockpit")
         self.wait_firewall_enabled()
         element = self.wait_id("networking-firewall-summary", cond=clickable, jscheck=True)
-        self.assertIn("Active Rules", element.text)
-        self.assertTrue(int(element.text.split(" ")[0].strip()) > 1)
+        self.assertIn("Active Zones", element.text)
+        self.assertTrue(int(element.text.split(" ")[0].strip()) > 0)
 
     def tearDown(self):
         self.machine.execute("sudo systemctl stop firewalld")

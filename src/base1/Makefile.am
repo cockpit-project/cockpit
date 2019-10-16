@@ -62,6 +62,7 @@ dist/base1/patternfly.min.css.map: dist/base1/patternfly.min.css
 # PatternFly 4 base.css: remove external font declarations, re-using the ones from our PatternFly 3 patternfly.min.css above for now
 # once that goes away, use the above seddery instead
 dist/base1/react-core-base.css:
+	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	$(AM_V_GEN) sed '/^@font-face/,/^$$/d' $(srcdir)/node_modules/@patternfly/react-core/dist/styles/base.css > $@.tmp && mv $@.tmp $@
 
 # PatternFly 3 with hacked CSS to look like PF4

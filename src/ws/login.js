@@ -550,7 +550,6 @@
         if (prompt_data.default)
             ei.value = prompt_data.default;
         ei.setAttribute('type', type);
-        ei.focus();
 
         login_failure("");
 
@@ -571,6 +570,7 @@
         id("conversation-input").addEventListener("keydown", key_down);
         id("login-button").addEventListener("click", call_converse);
         show_form(true);
+        ei.focus();
     }
 
     function utf8(str) {

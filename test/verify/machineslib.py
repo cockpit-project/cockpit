@@ -1733,6 +1733,8 @@ class TestMachines(NetworkCase):
         self.browser.reload()
         self.browser.enter_page('/machines')
         self.browser.wait_visible("#create-new-vm:disabled")
+        # There are many reason why the button would be disabled, so check if it's correct one
+        self.browser.wait_attr("#create-new-vm", "testdata", "disabledVirtInstall")
 
         # TODO: add use cases with start_vm=True and check that vm started
         # - for install when creating vm

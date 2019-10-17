@@ -4,6 +4,7 @@ import secrets
 from time import sleep
 from .timeoutlib import wait
 from .seleniumlib import SeleniumTest, clickable, text_in, invisible
+from .exceptions import SeleniumElementFailure
 from selenium.webdriver.common.keys import Keys
 
 
@@ -262,13 +263,19 @@ class MachinesLib(SeleniumTest):
                 self.select_by_text(self.wait_css('#storage-size-unit-select'), 'MiB')
             self.send_keys(self.wait_css('#storage-size'), storage, clear=False, ctrla=True)
 
-        if not immediately_start:
-            self.check_box(self.wait_css('#start-vm'))
+        self.check_box(self.wait_css('#start-vm'), immediately_start)
 
         self.click(self.wait_css('#create-vm-dialog .modal-footer .btn.btn-primary', cond=clickable))
 
         self.wait_dialog_disappear()
         self.wait_css('#create-vm-dialog', cond=invisible)
+        # Record the reason of the failed
+        if not self.wait_css('#app > div > section > div > div',
+                             cond=invisible,
+                             overridetry=10,
+                             fatal=False):
+            self.click(self.wait_text("show more"))
+            raise SeleniumElementFailure(self.wait_css('#app > div > section > div > div > p').text)
         self.wait_css('#vm-{}-row'.format(name))
 
     def create_storage(self, name, path, active=False):

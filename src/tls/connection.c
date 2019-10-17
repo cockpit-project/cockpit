@@ -451,7 +451,7 @@ connection_handshake (Connection *self)
           return false;
         }
 
-      ret = gnutls_init (&self->tls, GNUTLS_SERVER | MSG_NOSIGNAL);
+      ret = gnutls_init (&self->tls, GNUTLS_SERVER | GNUTLS_NO_SIGNAL);
       if (ret != GNUTLS_E_SUCCESS)
         {
           warnx ("gnutls_init failed: %s", gnutls_strerror (ret));

@@ -1,4 +1,5 @@
 import os
+import re
 from avocado import skipIf
 from testlib_avocado.libdisc import Disc
 from testlib_avocado.machineslib import MachinesLib
@@ -62,32 +63,25 @@ class MachinesStoragePoolTestSuite(MachinesLib):
         self.wait_css('#storage-pools-listing')
 
         pool_name = self.create_storage_by_ui(name=name, target_path=path)
-
-        info = self.wait_css(
-            'tr[data-row-id="' + pool_name + '"] > td:nth-child(4)').text.split(
-            '/')
-        allocation_from_page = '%.2f' % float(info[0].strip())
-        capacity_from_page = '%.2f' % float(info[1].split(' ')[1])
-
-        allocation_from_cmd = self.machine.execute('sudo virsh pool-info {} | grep Allocation'.format(name)).split(' ')
-        capacity_from_cmd = self.machine.execute('sudo virsh pool-info {} | grep Capacity'.format(name)).split(' ')
-
-        if allocation_from_cmd[-1].strip() == 'MiB':
-            allocation_from_cmd = '%.2f' % (float(allocation_from_cmd[-2]) / 1024)
-        elif allocation_from_cmd[-1].strip() == 'TiB':
-            allocation_from_page = '%.2f' % (float(allocation_from_page) / 1024)
-            allocation_from_cmd = '%.2f' % float(allocation_from_cmd[-2])
-        else:
-            allocation_from_cmd = '%.2f' % float(allocation_from_cmd[-2])
-
-        if capacity_from_cmd[-1].strip() == 'MiB':
-            capacity_from_cmd = '%.2f' % (float(capacity_from_cmd[-2]) / 1024)
-        elif capacity_from_cmd[-1].strip() == 'TiB':
-            capacity_from_page = '%.2f' % (float(capacity_from_page) / 1024)
-            capacity_from_cmd = '%.2f' % float(capacity_from_cmd[-2])
-        else:
-            capacity_from_cmd = '%.2f' % float(capacity_from_cmd[-2])
-
+        # Get information from page
+        page_res = self.wait_css(
+            'tr[data-row-id="' + pool_name + '"] > td:nth-child(4)').text.split('/')
+        allocation_from_page = float(page_res[0].strip())
+        capacity_from_page = float(page_res[1].split(' ')[1])
+        # Get information from command line
+        cmd_res = self.machine.execute(
+            'sudo virsh pool-info --bytes {}'.format(name))
+        allocation_from_cmd = round(float(re.compile(r'Allocation:.*')
+                                          .search(cmd_res)
+                                          .group(0)
+                                          .split(' ')[-1]) / (1024 ** 3),
+                                    2)
+        capacity_from_cmd = round(float(re.compile(r'Capacity:.*')
+                                        .search(cmd_res)
+                                        .group(0)
+                                        .split(' ')[-1]) / (1024 ** 3),
+                                  2)
+        # Compare
         self.assertEqual(allocation_from_page, allocation_from_cmd)
         self.assertEqual(capacity_from_page, capacity_from_cmd)
 
@@ -103,27 +97,29 @@ class MachinesStoragePoolTestSuite(MachinesLib):
                                  cond=clickable))
         self.wait_css('#storage-pools-listing')
 
-        pool_name = self.create_storage_by_ui(
-            name=name, storage_type='netfs', target_path=path,
-            host=os.environ.get('NFS'), source_path='/home/nfs', start_up=False)
+        pool_name = self.create_storage_by_ui(name=name,
+                                              storage_type='netfs',
+                                              target_path=path,
+                                              host=os.environ.get('NFS'),
+                                              source_path='/home/nfs',
+                                              start_up=False)
 
-        info = self.wait_css(
-            'tr[data-row-id="' + pool_name + '"] > td:nth-child(4)').text.split(
-            '/')
-        allocation_from_page = '%.2f' % float(info[0].strip())
-        capacity_from_page = '%.2f' % float(info[1].split(' ')[1])
+        page_res = self.wait_css('tr[data-row-id="' + pool_name + '"] > td:nth-child(4)').text.split('/')
+        allocation_from_page = float(page_res[0].strip())
+        capacity_from_page = float(page_res[1].split(' ')[1])
 
-        allocation_from_cmd = self.machine.execute('sudo virsh pool-info {} | grep Allocation'.format(name)).split(' ')
-        capacity_from_cmd = self.machine.execute('sudo virsh pool-info {} | grep Capacity'.format(name)).split(' ')
-
-        if allocation_from_cmd[-1].strip() == 'MiB':
-            allocation_from_cmd = '%.2f' % (float(allocation_from_cmd[-2]) / 1024)
-        else:
-            allocation_from_cmd = '%.2f' % float(allocation_from_cmd[-2])
-        if capacity_from_cmd[-1].strip() == 'MiB':
-            capacity_from_cmd = '%.2f' % (float(capacity_from_cmd[-2]) / 1024)
-        else:
-            capacity_from_cmd = '%.2f' % float(capacity_from_cmd[-2])
+        cmd_res = self.machine.execute(
+            'sudo virsh pool-info --bytes {}'.format(name))
+        allocation_from_cmd = round(float(re.compile(r'Allocation:.*')
+                                          .search(cmd_res)
+                                          .group(0)
+                                          .split(' ')[-1]) / (1024 ** 3),
+                                    2)
+        capacity_from_cmd = round(float(re.compile(r'Capacity:.*')
+                                        .search(cmd_res)
+                                        .group(0)
+                                        .split(' ')[-1]) / (1024 ** 3),
+                                  2)
 
         self.assertEqual(allocation_from_page, allocation_from_cmd)
         self.assertEqual(capacity_from_page, capacity_from_cmd)

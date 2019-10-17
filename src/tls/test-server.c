@@ -248,7 +248,7 @@ assert_https_outcome (TestCase *tc,
     }
 
   for (int retry = 0; retry < 100 && waitpid (pid, &status, WNOHANG) <= 0; ++retry)
-    server_poll_event (50);
+    server_poll_event (200);
   g_assert_cmpint (status, ==, 0);
 }
 

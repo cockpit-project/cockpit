@@ -868,10 +868,17 @@ export class CreateVmAction extends React.Component {
         if (this.props.systemInfo.osInfoList == null)
             return null;
 
+        let testdata;
+        if (!this.props.systemInfo.osInfoList)
+            testdata = "disabledOsInfo";
+        else if (!this.state.virtInstallAvailable)
+            testdata = "disabledVirtInstall";
+        else if (this.state.downloadOSSupported === undefined)
+            testdata = "disabledDownloadOS";
         let createButton = (
-            <Button disabled={!(this.props.systemInfo.osInfoList &&
-                               (this.state.virtInstallAvailable != undefined ||
-                               (this.state.virtInstallAvailable && this.state.downloadOSSupported === undefined)))}
+            <Button disabled={!this.props.systemInfo.osInfoList || !this.state.virtInstallAvailable ||
+                              this.state.downloadOSSupported === undefined}
+                    testdata={testdata}
                     id={this.props.mode == 'create' ? 'create-new-vm' : 'import-vm-disk'}
                     bsStyle='default'
                     onClick={this.open}>

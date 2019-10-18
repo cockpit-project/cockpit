@@ -83,6 +83,9 @@ class SeleniumTest(Test):
         browser = os.environ.get("BROWSER", "firefox")
         guest_machine = os.environ.get("GUEST", "localhost")
         network_port = int(os.environ.get("PORT", "9090"))
+        # ssh_adress is impotant for running inside CI for debugging purposes
+        ssh_adress = os.environ.get("SSH_GUEST", guest_machine)
+        ssh_port = int(os.environ.get("SSH_PORT", "22"))
         url_base = os.environ.get("URL_BASE", "http")
         local_testing = os.environ.get("LOCAL", "no")  # use "yes" to test via local browsers
         identity_file = os.environ.get("IDENTITY")
@@ -95,8 +98,8 @@ class SeleniumTest(Test):
         os.chmod(identity_file, 0o600)
         self.ssh_identity_file = identity_file
         self.machine = ssh_connection.SSHConnection(user=user,
-                                                    address=guest_machine,
-                                                    ssh_port=22,
+                                                    address=ssh_adress,
+                                                    ssh_port=ssh_port,
                                                     identity_file=identity_file,
                                                     verbose=False)
         if browser == 'edge':

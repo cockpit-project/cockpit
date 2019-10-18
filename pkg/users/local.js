@@ -753,8 +753,9 @@ PageAccount.prototype = {
             weldr:   _("Image Builder")
         };
 
-        function parse_groups(content) {
-            var groups = parse_group_content(content);
+        var groups = [];
+
+        function update_roles() {
             while (self.roles.length > 0)
                 self.roles.pop();
             for (var i = 0; i < groups.length; i++) {
@@ -772,13 +773,23 @@ PageAccount.prototype = {
             self.update();
         }
 
+        function update_role_groups(config) {
+            if (config) {
+                role_groups = config;
+                update_roles();
+            }
+        }
+
+        function update_groups(content) {
+            groups = parse_group_content(content);
+            update_roles();
+        }
+
         this.handle_groups = cockpit.file('/etc/group');
+        this.handle_groups.watch(update_groups);
 
-        this.handle_groups.read()
-                .done(parse_groups)
-                .fail(log_unexpected_error);
-
-        this.handle_groups.watch(parse_groups);
+        this.handle_role_config = cockpit.file('/etc/cockpit/roles.json', { syntax: JSON });
+        this.handle_role_config.watch(update_role_groups);
     },
 
     get_last_login: function() {

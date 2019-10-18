@@ -115,6 +115,8 @@ class TestStorage(StorageCase):
         self.confirm()
         self.content_row_wait_in_col(1, 1, "Free Space")
         b.wait_not_in_text("#detail-content", "ext4 File System")
+        # luksmeta-monitor-hack.py races with the partition deletion
+        self.allow_journal_messages('Unknown device .*: No such file or directory')
 
         assert m.execute("grep -v ^# /etc/crypttab || true").strip() == ""
         assert m.execute("grep %s /etc/fstab || true" % mount_point_secret) == ""

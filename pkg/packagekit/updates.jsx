@@ -19,7 +19,7 @@
 
 import cockpit from "cockpit";
 import '../lib/polyfills.js'; // once per application
-import React from "react";
+import React, { useState, useEffect } from "react";
 import ReactDOM from 'react-dom';
 
 import moment from "moment";
@@ -107,31 +107,26 @@ function cleanupChangelogLine(text) {
     return text.trim();
 }
 
-class Expander extends React.Component {
-    constructor() {
-        super();
-        this.state = { expanded: false };
-    }
+function Expander({ title, onExpand, children }) {
+    const [expanded, setExpanded] = useState(false);
 
-    componentDidUpdate(prevProps, prevState) {
-        if (this.props.onExpand && !prevState.expanded && this.state.expanded)
-            this.props.onExpand();
-    }
+    useEffect(() => {
+        if (expanded && onExpand)
+            onExpand();
+    }, [expanded, onExpand]);
 
-    render() {
-        const cls = "expander-caret fa " + (this.state.expanded ? "fa-angle-down" : "fa-angle-right");
-        return (
-            <>
-                <div className="expander-title">
-                    <hr />
-                    <button className="link-button" onClick={() => this.setState({ expanded: !this.state.expanded })}>
-                        <i className={cls} />{this.props.title}
-                    </button>
-                    <hr />
-                </div>
-                {this.state.expanded ? this.props.children : null}
-            </>);
-    }
+    const cls = "expander-caret fa " + (expanded ? "fa-angle-down" : "fa-angle-right");
+    return (
+        <>
+            <div className="expander-title">
+                <hr />
+                <button className="link-button" onClick={ () => setExpanded(!expanded) }>
+                    <i className={cls} />{title}
+                </button>
+                <hr />
+            </div>
+            {expanded ? children : null}
+        </>);
 }
 
 function count_security_updates(updates) {

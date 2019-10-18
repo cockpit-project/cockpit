@@ -21,7 +21,7 @@ import cockpit from "cockpit";
 import React from "react";
 
 import { StorageButton, StorageUsageBar } from "./storage-controls.jsx";
-import { format_fsys_usage, get_config } from "./utils.js";
+import { get_config } from "./utils.js";
 import { nfs_fstab_dialog } from "./nfs-details.jsx";
 import { OptionalPanel } from "./optional-panel.jsx";
 
@@ -53,12 +53,6 @@ export class NFSPanel extends React.Component {
                         { entry.mounted
                             ? <StorageUsageBar stats={fsys_size} critical={0.95} />
                             : _("Not mounted")
-                        }
-                    </td>
-                    <td className="usage-text">
-                        { entry.mounted && fsys_size
-                            ? format_fsys_usage(fsys_size[0], fsys_size[1])
-                            : ""
                         }
                     </td>
                 </tr>
@@ -101,7 +95,6 @@ export class NFSPanel extends React.Component {
                                 <th className="mount-name">{_("Server")}</th>
                                 <th className="mount-point">{_("Mount Point")}</th>
                                 <th className="mount-size-graph">{_("Size")}</th>
-                                <th className="mount-size-number">&nbsp;</th>
                             </tr>
                         </thead>
                         <tbody>

@@ -25,7 +25,6 @@ import moment from "moment";
 
 import { dialog_open, TeardownMessage, TextInput, ComboBox, CheckBoxes } from "./dialog.jsx";
 import * as format from "./format-dialog.jsx";
-import { format_fsys_usage } from "./utils.js";
 
 import { StdDetailsLayout } from "./details.jsx";
 import { StorageButton, StorageUsageBar } from "./storage-controls.jsx";
@@ -327,18 +326,10 @@ export class NFSDetails extends React.Component {
                         <div>{entry.fields[1]}</div>
 
                         <label className="control-label">{_("Size")}</label>
-                        <div className="ct-form-split">
-                            { entry.mounted
-                                ? <StorageUsageBar stats={fsys_size} critical={0.95} />
-                                : _("--")
-                            }
-                        </div>
-                        <div className="ct-form-split">
-                            { entry.mounted && fsys_size
-                                ? format_fsys_usage(fsys_size[0], fsys_size[1])
-                                : null
-                            }
-                        </div>
+                        { entry.mounted
+                            ? <StorageUsageBar stats={fsys_size} critical={0.95} />
+                            : _("--")
+                        }
                     </div>
                 </div>
             </div>

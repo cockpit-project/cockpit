@@ -19,6 +19,7 @@
 
 import React from "react";
 import { OverlayTrigger, Tooltip } from "patternfly-react";
+import { Progress, ProgressMeasureLocation, ProgressVariant } from '@patternfly/react-core';
 
 import cockpit from "cockpit";
 import * as utils from "./utils.js";
@@ -233,16 +234,18 @@ export class StorageMultiAction extends React.Component {
 export class StorageUsageBar extends React.Component {
     render() {
         var stats = this.props.stats;
+        if (!stats)
+            return null;
+
         var fraction = stats ? stats[0] / stats[1] : null;
+        var labelText = utils.format_fsys_usage(stats[0], stats[1]);
 
         return (
-            <div className="progress">
-                { stats
-                    ? <div className={ "progress-bar" + (fraction > this.props.critical ? " progress-bar-danger" : "") }
-                        style={{ width: fraction * 100 + "%" }} />
-                    : null
-                }
-            </div>
+            <Progress value={stats[0]} max={stats[1]}
+                valueText={labelText}
+                label={labelText}
+                variant={fraction > this.props.critical ? ProgressVariant.danger : ProgressVariant.info}
+                measureLocation={ProgressMeasureLocation.outside} />
         );
     }
 }

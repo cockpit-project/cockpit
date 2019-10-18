@@ -184,6 +184,16 @@ class TestConnection(MachineCase):
         m.stop_cockpit()
         expect_actives(False, False, [])
 
+        # cleans up also when cockpit-tls crashes or idle-exits, not just by explicit stop request
+        m.start_cockpit(tls=False)
+        self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent --head http://127.0.0.1:9090"))
+        m.execute("pkill -e cockpit-tls")
+        expect_actives(True, False, [])
+
+        # and recovers from that
+        self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent --head http://127.0.0.1:9090"))
+        expect_actives(True, True, ["http"])
+
         # https mode
 
         m.start_cockpit(tls=True)
@@ -206,6 +216,14 @@ class TestConnection(MachineCase):
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent --head http://127.0.0.1:9090"))
 
         expect_actives(True, True, ["http-redirect"])
+
+        # cleans up also when cockpit-tls crashes or idle-exits, not just by explicit stop request
+        m.execute("pkill -e cockpit-tls")
+        expect_actives(True, False, [])
+        self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent --head http://127.0.0.1:9090"))
+        expect_actives(True, True, ["http-redirect"])
+        self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent -k --head https://127.0.0.1:9090"))
+        expect_actives(True, True, ["http-redirect", "https"])
 
     def testTls(self):
         m = self.machine

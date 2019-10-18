@@ -113,10 +113,10 @@ class TestFirewall(NetworkCase):
         active_rules = get_active_rules(m)
         b.wait_js_func("((sel, count) => ph_count(sel) == count)", ".zone-section table.listing tbody", len(active_rules))
 
-        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] .listing-ct-toggle")
+        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3']")
         b.wait_in_text(".zone-section[data-id='public'] tbody.open tr.listing-ct-panel", "Post Office Protocol")
 
-        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] .btn.pficon-delete")
+        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] + tr .btn.pficon-delete")
         b.wait_not_present(".zone-section[data-id='public'] tr[data-row-id='pop3']")
         self.assertNotIn('pop3', m.execute("firewall-cmd --list-services").split())
 
@@ -191,6 +191,7 @@ class TestFirewall(NetworkCase):
             addService('public', 'freeipa-4')
             b.click(".zone-section[data-id='public'] tr[data-row-id='freeipa-4']")
             b.wait_present(".zone-section[data-id='public'] tbody.open .listing-ct-body:contains(Included Services)")
+            b.click(".zone-section[data-id='public'] tr[data-row-id='freeipa-4']")
 
         # pop3 should now not appear any more in Add Services dialog
         b.click(".zone-section[data-id='public'] #add-services-button")
@@ -216,7 +217,11 @@ class TestFirewall(NetworkCase):
         # requiring checkboxes to be clicked), then remove all the services
         # belonging either libvirt or public
         for service in services:
-            b.click(".zone-section[data-id='public'] tr[data-row-id='{}'] .btn.pficon-delete".format(service))
+            b.click(".zone-section[data-id='public'] tr[data-row-id='{}']".format(service))
+            b.click(".zone-section[data-id='public'] tr[data-row-id='{}'] + tr button.btn-danger".format(service))
+            # removing cockpit services requires confirmation
+            if service == "cockpit":
+                b.click("#delete-confirmation-dialog button.btn-danger")
             b.wait_not_present(".zone-section[data-id='public'] tr[data-row-id='{}']".format(service))
         self.assertEqual(m.execute("firewall-cmd --list-services").strip(), "")
 
@@ -225,7 +230,8 @@ class TestFirewall(NetworkCase):
         b.wait_present(".zone-section[data-id='public'] tr[data-row-id='pop3']")
         # remove service via cli and cockpit
         m.execute("firewall-cmd --remove-service=pop3")
-        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] .btn.pficon-delete")
+        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3']")
+        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] + tr .btn.pficon-delete")
         b.wait_not_present(".zone-section[data-id='public'] tr[data-row-id='pop3']")
 
     def testAddCustomServices(self):
@@ -366,6 +372,7 @@ class TestFirewall(NetworkCase):
 
         def removeZone(zone):
             b.click(".zone-section[data-id='{}'] .zone-section-buttons button.btn-danger".format(zone))
+            b.click("#delete-confirmation-dialog button.btn-danger")
             b.wait_not_present(".zone-section[data-id='{}']".format(zone))
 
         self.login_and_go("/network/firewall")
@@ -381,12 +388,14 @@ class TestFirewall(NetworkCase):
         b.wait_present(".zone-section[data-id='public'] tr[data-row-id='pop3']")
 
         # Remove the service from public zone
-        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] .btn.pficon-delete")
+        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3']")
+        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] + tr .btn.pficon-delete")
         b.wait_not_present(".zone-section[data-id='public'] tr[data-row-id='pop3']")
         b.wait_present(".zone-section[data-id='work'] tr[data-row-id='pop3']")
 
         # Remove the service from the work zone
-        b.click(".zone-section[data-id='work'] tr[data-row-id='pop3'] .btn.pficon-delete")
+        b.click(".zone-section[data-id='work'] tr[data-row-id='pop3']")
+        b.click(".zone-section[data-id='work'] tr[data-row-id='pop3'] + tr .btn.pficon-delete")
         b.wait_not_present(".zone-section[data-id='work'] tr[data-row-id='pop3']")
 
         # remove predefined work zone

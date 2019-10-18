@@ -41,6 +41,7 @@ class FirewalldZones(SeleniumTest):
 
     def remove_custom_zone(self, zone):
         self.click(self.wait_xpath("//div[@data-id='{}']//button".format(self.zone_custom), cond=visible))
+        self.click(self.wait_xpath("//div[@id='delete-confirmation-dialog']//button[contains(text(), 'Delete')]"))
         self.wait_id("firewall", jscheck=True)
         self.assertNotIn(self.zone_custom, self.machine.execute("firewall-cmd --get-active-zones"))
 

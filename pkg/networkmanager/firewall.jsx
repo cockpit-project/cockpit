@@ -75,11 +75,11 @@ function ServiceRow(props) {
         deleteButton = (
             <OverlayTrigger className="pull-right" placement="top"
                             overlay={ <Tooltip id="tip-auth">{ _("You are not authorized to modify the firewall.") }</Tooltip> }>
-                <button className="btn btn-danger pficon pficon-delete" disabled />
+                <button key={props.service.id + "-delete-button"} className="btn btn-danger pficon pficon-delete" disabled />
             </OverlayTrigger>
         );
     } else {
-        deleteButton = <button className="btn btn-danger pficon pficon-delete" onClick={onRemoveService} />;
+        deleteButton = <button key={props.service.id + "-delete-button"} className="btn btn-danger pficon pficon-delete" onClick={onRemoveService} />;
     }
 
     var columns = [
@@ -90,10 +90,10 @@ function ServiceRow(props) {
         <div key={props.service.id + "udp"}>
             { udp.map(p => p.port).join(', ') }
         </div>,
-        deleteButton
+        null
     ];
 
-    let description, includes, simpleBody;
+    let description, includes;
     if (props.service.description)
         description = <p>{props.service.description}</p>;
 
@@ -106,13 +106,13 @@ function ServiceRow(props) {
                     return <li key={service.id}><strong>{service.name}</strong>: {service.description}</li>;
             })} </ul></>;
     }
-    if (description || includes)
-        simpleBody = <>{description}{includes}</>;
+    const simpleBody = <>{description}{includes}</>;
 
     return <ListingRow key={props.service.id}
                        rowId={props.service.id}
                        columns={columns}
-                       simpleBody={simpleBody} />;
+                       simpleBody={simpleBody}
+                       listingActions={[deleteButton]} />;
 }
 
 function ZoneSection(props) {
@@ -170,7 +170,7 @@ function ZoneSection(props) {
                 if (s in firewall.services)
                     return <ServiceRow key={firewall.services[s].id}
                                        service={firewall.services[s]}
-                                       onRemoveService={service => firewall.removeService(props.zone.id, service)}
+                                       onRemoveService={service => props.onRemoveService(props.zone.id, service)}
                                        readonly={firewall.readonly} />;
             })
             }
@@ -740,13 +740,35 @@ class ActivateZoneModal extends React.Component {
     }
 }
 
+function DeleteConfirmationModal(props) {
+    return (
+        <Modal id="delete-confirmation-dialog" show>
+            <Modal.Header>
+                <Modal.Title>{ props.title }</Modal.Title>
+            </Modal.Header>
+            <Modal.Body className="delete-confirmation-body">
+                {props.body && <span className="fa fa-exclamation-triangle" />}
+                <div>{props.body}</div>
+            </Modal.Body>
+            <Modal.Footer>
+                <Button bsStyle="default" className="btn-cancel" onClick={props.onCancel}>
+                    { _("Cancel") }
+                </Button>
+                <Button bsStyle="danger" onClick={props.onDelete}>
+                    { _("Delete") }
+                </Button>
+            </Modal.Footer>
+        </Modal>
+    );
+}
+
 export class Firewall extends React.Component {
     constructor() {
         super();
 
         this.state = {
             addServicesModal: undefined,
-            showRemoveServicesModal: false,
+            deleteConfirmationModal: undefined,
             firewall,
             pendingTarget: null /* `null` for not pending */
         };
@@ -755,6 +777,8 @@ export class Firewall extends React.Component {
         this.onSwitchChanged = this.onSwitchChanged.bind(this);
         this.openServicesDialog = this.openServicesDialog.bind(this);
         this.openAddZoneDialog = this.openAddZoneDialog.bind(this);
+        this.onRemoveZone = this.onRemoveZone.bind(this);
+        this.onRemoveService = this.onRemoveService.bind(this);
         this.close = this.close.bind(this);
     }
 
@@ -777,7 +801,41 @@ export class Firewall extends React.Component {
     }
 
     onRemoveZone(zone) {
-        firewall.deactiveateZone(zone);
+        let body;
+        if (firewall.zones[zone].services.indexOf("cockpit") !== -1)
+            body = _("This zone contains the cockpit service. Make sure that this zone does not apply to your current web console connection.");
+        else
+            body = _("Removing the zone will remove all services within it.");
+        this.setState({
+            deleteConfirmationModal: <DeleteConfirmationModal title={ cockpit.format(_("Remove zone $0"), zone) }
+            body={body}
+            onCancel={ () =>
+                this.setState({ deleteConfirmationModal: undefined })
+            }
+        onDelete={ () => {
+            firewall.deactiveateZone(zone);
+            this.setState({ deleteConfirmationModal: undefined });
+        }} />
+        });
+    }
+
+    onRemoveService(zone, service) {
+        if (service === 'cockpit') {
+            const body = _("Removing the cockpit service might result in the web console becoming unreachable. Make sure that this zone does not apply to your current web console connection.");
+            this.setState({
+                deleteConfirmationModal: <DeleteConfirmationModal title={ cockpit.format(_("Remove $0 service from $1 zone"), service, zone) }
+                body={body}
+                onCancel={ () =>
+                    this.setState({ deleteConfirmationModal: undefined })
+                }
+                onDelete={ () => {
+                    firewall.removeService(zone, service);
+                    this.setState({ deleteConfirmationModal: undefined });
+                }} />
+            });
+        } else {
+            firewall.removeService(zone, service);
+        }
     }
 
     componentDidMount() {
@@ -888,12 +946,14 @@ export class Firewall extends React.Component {
                                                         zone={z}
                                                         openServicesDialog={this.openServicesDialog}
                                                         readonly={this.state.firewall.readonly}
-                                                        onRemoveZone={this.onRemoveZone} />
+                                                        onRemoveZone={this.onRemoveZone}
+                                                        onRemoveService={this.onRemoveService} />
                             )
                         }
                     </> }
                 </div>
                 { this.state.addServicesModal !== undefined && this.state.addServicesModal }
+                { this.state.deleteConfirmationModal !== undefined && this.state.deleteConfirmationModal }
                 { this.state.showActivateZoneModal && <ActivateZoneModal close={this.close} /> }
             </>
         );

@@ -27,6 +27,7 @@ import {
     RowWrapper,
     SortByDirection,
     sortable,
+    expandable,
 } from '@patternfly/react-table';
 
 import './cockpit-components-table.less';
@@ -41,7 +42,7 @@ import './listing.less';
  * - columns: { title: string, header: boolean, sortable: boolean }[] or string[]
  * - rows: {
  *      columns: (React.Node or string)[],
- *      extraClasses: string[]
+ *      extraProps: Object of extra attributes to be passed directly to the <tr> element by rowWrapper (can be class, data-id etc)
  *   }[]
  * - emptyCaption: header caption to show if list is empty
  * - variant: For compact tables pass 'compact'
@@ -55,8 +56,9 @@ export class ListingTable extends React.Component {
             sortBy.index = props.sortBy.index || 0;
             sortBy.direction = props.sortBy.direction || SortByDirection.asc;
         }
-        this.state = { sortBy };
+        this.state = { sortBy, isRowOpen: {} };
         this.onSort = this.onSort.bind(this);
+        this.onCollapse = this.onCollapse.bind(this);
     }
 
     onSort(_event, index, direction) {
@@ -68,6 +70,13 @@ export class ListingTable extends React.Component {
         });
     }
 
+    onCollapse(_event, _rowKey, isOpen, rowData) {
+        const isRowOpen = this.state.isRowOpen;
+
+        isRowOpen[rowData.key] = isOpen;
+        this.setState({ isRowOpen });
+    }
+
     sortRows(rows) {
         const { index, direction } = this.state.sortBy;
         const sortedRows = rows.sort((a, b) => (a.cells[index].title.localeCompare(b.cells[index].title)));
@@ -76,15 +85,15 @@ export class ListingTable extends React.Component {
 
     rowWrapper(...args) {
         const props = args[0];
-        let className = '';
+        let extraProps = {};
 
-        if (props.row.extraClasses)
-            className = props.row.extraClasses.join(' ');
+        if (props.row.extraProps)
+            extraProps = props.row.extraProps;
 
-        return <RowWrapper {...props} className={className} />;
+        return <RowWrapper {...props} {...extraProps} />;
     }
 
-    reformatColumns(columns) {
+    reformatColumns(columns, tableId) {
         return columns.map(column => {
             const res = {};
             if (typeof column == 'string') {
@@ -92,11 +101,13 @@ export class ListingTable extends React.Component {
             } else {
                 res.title = column.title;
                 if (column.header)
-                    res.cellTransforms = [headerCol()];
+                    res.cellTransforms = [headerCol(tableId)];
                 if (column.transforms)
                     res.transforms = column.transforms;
                 if (column.sortable)
                     res.transforms = column.transforms ? [...column.transforms, sortable] : [sortable];
+                if (column.props)
+                    res.props = column.props;
             }
             return res;
         });
@@ -115,14 +126,30 @@ export class ListingTable extends React.Component {
                     return res;
                 }),
             };
-            rowFormatted.extraClasses = currentValue.extraClasses;
             rowFormatted.props = currentValue.props;
 
             // For selectable rows
             if ('selected' in currentValue)
                 rowFormatted.selected = currentValue.selected;
 
+            if (currentValue.expandedContent) {
+                if (this.state.isRowOpen[currentValue.key])
+                    rowFormatted.isOpen = true;
+                else
+                    rowFormatted.isOpen = false;
+            }
+            if (currentValue.key)
+                rowFormatted.key = currentValue.key;
+
+            if (currentValue.extraProps)
+                rowFormatted.extraProps = currentValue.extraProps;
+
             total.push(rowFormatted);
+
+            if (currentValue.expandedContent) {
+                const childRow = { parent: (currentIndex * 2), cells: [{ title: currentValue.expandedContent }], fullWidth: true };
+                total.push(childRow);
+            }
 
             return total;
         }, []);
@@ -133,11 +160,15 @@ export class ListingTable extends React.Component {
 
         if (this.props.className)
             props.className = this.props.className;
+
         props.rowWrapper = this.rowWrapper;
         if (this.props.columns.some(col => col.sortable)) {
             props.onSort = this.onSort;
             props.sortBy = this.state.sortBy;
         }
+        if (this.props.rows.some(row => row && row.expandedContent))
+            props.onCollapse = this.onCollapse;
+
         if (this.props.onSelect)
             props.onSelect = this.props.onSelect;
         if (this.props.caption || this.props.actions.length != 0) {
@@ -153,9 +184,16 @@ export class ListingTable extends React.Component {
         props.rows = this.props.rows.length ? this.reformatRows(this.props.rows) : [];
         if (this.state.sortBy.index != undefined)
             props.rows = this.sortRows(props.rows);
-        props.cells = this.reformatColumns(this.props.columns);
+        props.cells = this.reformatColumns(this.props.columns, this.props.id);
         if (this.props['aria-label'])
             props['aria-label'] = this.props['aria-label'];
+        if (this.props.rows.some(row => row.expandedContent)) {
+            props.cells[0].cellFormatters = [expandable];
+            props.expandId = this.props.id + '-expandable-toggle';
+            props.contentId = this.props.id + '-expanded-content';
+        }
+        if (this.props.id)
+            props.rowLabeledBy = this.props.id;
 
         const tableBodyProps = {};
         // We need the following because of: https://github.com/patternfly/patternfly-react/issues/3090
@@ -165,19 +203,23 @@ export class ListingTable extends React.Component {
             tableBodyProps.onRowClick = this.props.onRowClick;
         if (this.props.rows.length > 0) {
             return (
-                <Table {...props}>
-                    <TableHeader />
-                    <TableBody {...tableBodyProps} />
-                </Table>
+                <>
+                    <Table {...props}>
+                        <TableHeader />
+                        <TableBody {...tableBodyProps} />
+                    </Table>
+                </>
             );
         } else {
             props.borders = false;
             return (
-                <Table {...props}>
-                    <thead className='listing-ct-empty'>
-                        <tr><td> {this.props.emptyCaption} </td></tr>
-                    </thead>
-                </Table>
+                <>
+                    <Table {...props}>
+                        <thead className='listing-ct-empty'>
+                            <tr><td> {this.props.emptyCaption} </td></tr>
+                        </thead>
+                    </Table>
+                </>
             );
         }
     }

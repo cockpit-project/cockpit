@@ -30,12 +30,11 @@ import {
 import { Alert } from '@patternfly/react-core';
 
 import firewall from "./firewall-client.js";
-import { Listing, ListingRow } from "cockpit-components-listing.jsx";
+import { ListingTable } from "cockpit-components-table.jsx";
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 import { ModalError } from "cockpit-components-inline-notification.jsx";
 
 import "page.css";
-import "table.css";
 import "form-layout.less";
 import "./networking.css";
 
@@ -51,7 +50,7 @@ function EmptyState(props) {
     );
 }
 
-function ServiceRow(props) {
+function getServiceRow(props) {
     var tcp = props.service.ports.filter(p => p.protocol.toUpperCase() == 'TCP');
     var udp = props.service.ports.filter(p => p.protocol.toUpperCase() == 'UDP');
 
@@ -73,48 +72,71 @@ function ServiceRow(props) {
     var deleteButton;
     if (props.readonly) {
         deleteButton = (
-            <OverlayTrigger className="pull-right" placement="top"
+            <OverlayTrigger className="button-right" placement="top"
                             overlay={ <Tooltip id="tip-auth">{ _("You are not authorized to modify the firewall.") }</Tooltip> }>
                 <span>
-                    <button key={props.service.id + "-delete-button"} className="btn btn-danger pficon pficon-delete" aria-label={cockpit.format(_("Not authorized to remove service $0"), props.service.id)} style={{ pointerEvents: 'none' }} disabled />
+                    <button key={props.key + "-delete-button"} id={props.key + "-delete-button"} className="btn btn-danger pficon pficon-delete" aria-label={cockpit.format(_("Not authorized to remove service $0"), props.service.id)} style={{ pointerEvents: 'none' }} disabled />
                 </span>
             </OverlayTrigger>
         );
     } else {
-        deleteButton = <button key={props.service.id + "-delete-button"} className="btn btn-danger pficon pficon-delete" onClick={onRemoveService} aria-label={cockpit.format(_("Remove service $0"), props.service.id)} />;
+        deleteButton = <button id={props.key + "-delete-button"} className="btn btn-danger pficon pficon-delete" onClick={onRemoveService} aria-label={cockpit.format(_("Remove service $0"), props.service.id)} />;
     }
 
     var columns = [
-        { name: props.service.name, header: true },
-        <div key={props.service.id + "tcp"}>
-            { tcp.map(p => p.port).join(', ') }
-        </div>,
-        <div key={props.service.id + "udp"}>
-            { udp.map(p => p.port).join(', ') }
-        </div>,
-        null
+        { title: props.service.name },
+        {
+            title: (
+                <div key={props.service.id + "tcp"}>
+                    { tcp.map(p => p.port).join(', ') }
+                </div>
+            )
+        },
+        {
+            title: (
+                <div key={props.service.id + "udp"}>
+                    { udp.map(p => p.port).join(', ') }
+                </div>
+            )
+        },
     ];
 
-    let description, includes;
+    const expandedContentArray = [];
+    let expandedContent;
+    let expandedBody;
+
+    let description;
     if (props.service.description)
-        description = <p>{props.service.description}</p>;
+        description = <p key={props.key + '-description'}>{props.service.description}</p>;
 
     if (props.service.includes.length > 0) {
-        includes = <>
-            <h5>Included Services</h5>
-            <ul>{props.service.includes.map(s => {
-                const service = firewall.services[s];
-                if (service && service.description)
-                    return <li key={service.id}><strong>{service.name}</strong>: {service.description}</li>;
-            })} </ul></>;
+        expandedBody = (
+            <div className='service-details' key={props.key + '-service-details'}>
+                {description}
+                <h5 key={props.key + '-included-services'}>Included Services</h5>
+                <ul key={props.key + '-' + props.service.id + '-list'}>{props.service.includes.map(s => {
+                    const service = firewall.services[s];
+                    if (service && service.description) {
+                        return (
+                            <li key={props.key + '-' + service.id + '-service-item'}>
+                                <strong key={props.key + '-' + service.id + '-name'}>{service.name}</strong>: {service.description}
+                            </li>
+                        );
+                    }
+                })}</ul>
+            </div>
+        );
+    } else {
+        expandedBody = description;
     }
-    const simpleBody = <>{description}{includes}</>;
 
-    return <ListingRow key={props.service.id}
-                       rowId={props.service.id}
-                       columns={columns}
-                       simpleBody={simpleBody}
-                       listingActions={[deleteButton]} />;
+    expandedContentArray.push(expandedBody);
+    expandedContentArray.push(<div key={props.service.id + '-delete-button'}>{deleteButton}</div>);
+
+    if (expandedContentArray.length > 0)
+        expandedContent = expandedContentArray.map((elem, index) => <React.Fragment key={props.key + '-expandedbody-' + index}>{elem}</React.Fragment>);
+
+    return { columns, key: props.key, extraProps: { 'data-row-id': props.service.id }, expandedContent };
 }
 
 function ZoneSection(props) {
@@ -143,41 +165,50 @@ function ZoneSection(props) {
         addServiceAction = (
             <OverlayTrigger placement="top"
                                 overlay={ <Tooltip id="tip-auth">{ _("You are not authorized to modify the firewall.") }</Tooltip> }>
-                <Button bsStyle="primary" className="pull-right" aria-label={cockpit.format(_("Not authorized to add services to zone $0"), props.zone.id)} disabled> {_("Add Services")} </Button>
+                <Button id={cockpit.format("$0-add-services-button", props.zone.id)} bsStyle="primary" className="pull-right" aria-label={cockpit.format(_("Not authorized to add services to zone $0"), props.zone.id)} disabled> {_("Add Services")} </Button>
             </OverlayTrigger>
         );
     } else {
         addServiceAction = (
-            <Button bsStyle="primary" onClick={() => props.openServicesDialog(props.zone.id, props.zone.name)} className="add-services-button" aria-label={cockpit.format(_("Add services to zone $0"), props.zone.id)}>
+            <Button id={cockpit.format("$0-add-services-button", props.zone.id)} bsStyle="primary" onClick={() => props.openServicesDialog(props.zone.id, props.zone.name)} className="add-services-button" aria-label={cockpit.format(_("Add services to zone $0"), props.zone.id)}>
                 {_("Add Services")}
             </Button>
         );
     }
 
-    return <div className="zone-section" data-id={props.zone.id}>
+    const caption = (
         <div className="zone-section-heading">
-            <span>
+            <div className="zone-section-heading-content">
                 <h4>{ cockpit.format(_("$0 Zone"), props.zone.name) }</h4>
                 <div className="zone-section-targets">
                     { props.zone.interfaces.length > 0 && <span className="zone-section-target"><strong>{_("Interfaces")}</strong> {props.zone.interfaces.join(", ")}</span> }
                     { props.zone.source.length > 0 && <span className="zone-section-target"><strong>{_("Addresses")}</strong> {props.zone.source.join(", ")}</span> }
                 </div>
-            </span>
+            </div>
             <div className="zone-section-buttons">{deleteButton}{addServiceAction}</div>
         </div>
+    );
+    return <div className="zone-section" data-id={props.zone.id}>
+        {caption}
         {props.zone.services.length > 0 &&
-        <Listing columnTitles={[_("Service"), _("TCP"), _("UDP"), ""]}
-                     emptyCaption={_("There are no active services in this zone")}>
-            { props.zone.services.map(s => {
+        <ListingTable
+            id={cockpit.format("zone-services-$0", props.zone.id)}
+            aria-label={cockpit.format(_("Zone $0 Services List"), props.zone.id)}
+            variant='compact'
+            columns={[
+                { title: _("Service"), header: true },
+                _("TCP"), _("UDP"),
+            ]}
+            emptyCaption={_("There are no active services in this zone")}
+            rows={ props.zone.services.map(s => {
                 if (s in firewall.services)
-                    return <ServiceRow key={firewall.services[s].id}
-                                       service={firewall.services[s]}
-                                       onRemoveService={service => props.onRemoveService(props.zone.id, service)}
-                                       readonly={firewall.readonly} />;
-            })
-            }
-        </Listing>
-        }
+                    return getServiceRow({
+                        key: props.zone.id + "-" + firewall.services[s].id,
+                        service: firewall.services[s],
+                        onRemoveService: service => props.onRemoveService(props.zone.id, service),
+                        readonly: firewall.readonly
+                    });
+            })} />}
     </div>;
 }
 
@@ -948,10 +979,10 @@ export class Firewall extends React.Component {
                         <li className="active">{_("Firewall")}</li>
                     </ol>
                     <div id="firewall-heading-title">
-                        <span id="firewall-heading-title-group">
+                        <div id="firewall-heading-title-group">
                             <h1>{_("Firewall")}</h1>
                             { firewallOnOff }
-                        </span>
+                        </div>
                         { enabled && <span className="btn-group">{addZoneAction}</span> }
                     </div>
                 </div>

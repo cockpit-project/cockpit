@@ -9,3 +9,45 @@ header {
 thead.listing-ct-empty tr td {
     font-weight: normal;
 }
+
+/* Fixes https://github.com/patternfly/patternfly-react/issues/3209 */
+table tbody.pf-m-expanded tr.pf-m-expanded th > div {
+    padding-top: var(--pf-c-table__expandable-row-content--PaddingTop);
+    padding-bottom: var(--pf-c-table__expandable-row-content--PaddingBottom);
+}
+
+/* Fix expandable button padding */
+.pf-c-table.pf-m-compact .pf-c-table__toggle {
+    --pf-c-table--m-compact-cell--first-last-child--PaddingLeft: 0;
+    margin-top: 0;
+}
+
+/* Align the expandable button icon */
+.pf-c-table__toggle svg {
+    vertical-align: middle;
+}
+
+/* Make expanded table lines extend to the content area */
+.pf-c-table tbody > tr.pf-m-expanded > :first-child::before {
+    background-color: var(--pf-c-table__expandable-row--before--BackgroundColor);
+}
+
+/* Remove line between row and row's expanded content */
+.pf-c-table .pf-m-expanded > tr:not(.pf-c-table__expandable-row) {
+    border-bottom: none;
+}
+
+/* Add a slideout animation for expanded content */
+.pf-c-table__expandable-row.pf-m-expanded {
+    animation: tableExpandableSlide 100ms var(--pf-global--TimingFunction);
+    transform-origin: top;
+}
+
+@keyframes tableExpandableSlide {
+    from {
+        transform: scaleY(0);
+    }
+    to {
+        transform: scaleY(1);
+    }
+}

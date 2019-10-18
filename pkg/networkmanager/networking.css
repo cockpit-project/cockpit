@@ -308,6 +308,12 @@ h1 .onoff-ct {
     padding-top: 0;
 }
 
+#zones-listing tr.pf-m-expanded > th > div {
+    display: grid;
+    grid-template-columns: 1fr 3rem;
+    grid-gap: 0.5rem;
+}
+
 .zone-section {
     background: var(--color-white);
     border-top: 1px solid var(--color-border-default);
@@ -319,8 +325,7 @@ h1 .onoff-ct {
 
 .zone-section-heading {
     margin: 0;
-    padding: 0.5rem 0.75rem;
-    border-bottom: 1px solid var(--color-border-default);
+    padding: 0.5rem 0.5rem 0.5rem 1rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -332,7 +337,7 @@ h1 .onoff-ct {
 }
 
 .zone-section-buttons > button {
-    margin-left: 2px;
+    margin-left: 0.25rem;
 }
 
 .zone-section-targets {

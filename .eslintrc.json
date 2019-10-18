@@ -13,7 +13,7 @@
         },
         "sourceType": "module"
     },
-    "plugins": ["flowtype", "react", "cockpit", "jsx-a11y"],
+    "plugins": ["flowtype", "react", "react-hooks", "cockpit", "jsx-a11y"],
     "rules": {
         "indent": ["error", 4,
             {
@@ -27,6 +27,9 @@
         "prefer-promise-reject-errors": ["error", { "allowEmptyReject": true }],
         "react/jsx-indent": ["error", 4],
         "semi": ["error", "always", { "omitLastInOneLineBlock": true }],
+
+        "react-hooks/rules-of-hooks": "error",
+        "react-hooks/exhaustive-deps": "error",
 
         "camelcase": "off",
         "comma-dangle": "off",

@@ -102,7 +102,7 @@ class Browser:
         self.label = label
         path = os.path.dirname(__file__)
         self.cdp = cdp.CDP("C.utf8", verbose=opts.trace, trace=opts.trace,
-                           inject_helpers=[os.path.join(path, "test-functions.js"), os.path.join(path, "sizzle.js")])
+                           inject_helpers=[os.path.join(path, "test-functions.js")])
         self.password = "foobar"
 
     def title(self):
@@ -135,7 +135,7 @@ class Browser:
 
     def reload(self, ignore_cache=False):
         self.switch_to_top()
-        self.wait_js_cond("ph_select('iframe.container-frame').every(function (e) { return e.getAttribute('data-loaded'); })")
+        self.wait_js_cond("Array.from(ph_select('iframe.container-frame')).every(function (e) { return e.getAttribute('data-loaded'); })")
         self.cdp.invoke("Page.reload", ignoreCache=ignore_cache)
         self.expect_load()
 

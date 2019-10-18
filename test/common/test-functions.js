@@ -6,9 +6,7 @@
  */
 
 function ph_select(sel) {
-    if (!window.Sizzle)
-        throw "Sizzle was not properly loaded"
-    return window.Sizzle(sel);
+    return document.querySelectorAll(sel);
 }
 
 function ph_only(els, sel)

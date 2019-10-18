@@ -207,8 +207,6 @@ class CDP:
         for inject in self.inject_helpers:
             with open(inject) as f:
                 src = f.read()
-            # HACK: injecting sizzle fails on missing `document` in assert()
-            src = src.replace('function assert( fn ) {', 'function assert( fn ) { return true;')
             self.invoke("Page.addScriptToEvaluateOnLoad", scriptSource=src, no_trace=True)
 
     def kill(self):

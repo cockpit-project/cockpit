@@ -25,7 +25,7 @@ class TestJournal(MachineCase):
 
     def setUp(self):
         super(TestJournal, self).setUp()
-        self.crash_fn = "os_kill"
+        self.crash_fn = "__nanosleep"
 
     def select_from_dropdown(self, browser, selector, value, click=True):
         button_text_selector = "{0} button span:nth-of-type(1)".format(selector)
@@ -384,7 +384,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
         self.login_and_go("/system/logs")
 
-        m.execute("ulimit -c unlimited; python3 -c 'import os; os.kill(os.getpid(), 11)' || true")
+        m.execute("ulimit -c unlimited; timeout --signal=SEGV 0.1s sleep 5s || true")
 
         sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in %s')" % self.crash_fn
 
@@ -424,12 +424,12 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
         self.login_and_go("/system/logs")
 
-        m.execute("ulimit -c unlimited; python3 -c 'import os; os.kill(os.getpid(), 11)' || true")
+        m.execute("ulimit -c unlimited; timeout --signal=SEGV 0.1s sleep 5s || true")
 
         sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in %s')" % self.crash_fn
         b.click(sel)
 
-        b.wait_in_text("#journal-entry-id", "python")
+        b.wait_in_text("#journal-entry-id", "sleep")
         sel = "#journal-entry-fields .nav .btn-danger"
         b.click(sel)
 
@@ -439,7 +439,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in %s')" % self.crash_fn
         b.click(sel)
 
-        b.wait_in_text("#journal-entry-id", "python")
+        b.wait_in_text("#journal-entry-id", "sleep")
         # details view should hide log view
         b.wait_not_visible('.cockpit-log-panel')
         b.wait_present("#journal-entry-message:contains('crashed in %s')" % self.crash_fn)

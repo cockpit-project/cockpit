@@ -397,7 +397,7 @@ connection_init_ws (Connection *self)
  * connection_handshake: Handle first event on client fd
  *
  * Check the very first byte of a new connection to tell apart TLS from plain
- * HTTP. Initialize TLS and the ws instance.
+ * HTTP. Initialize TLS.
  */
 static bool
 connection_handshake (Connection *self)

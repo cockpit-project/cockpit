@@ -161,17 +161,19 @@ remotectl_LDADD = \
 	$(COCKPIT_LIBS) \
 	$(NULL)
 
-nodist_systemdunit_DATA += \
-	src/ws/cockpit.socket \
-	src/ws/cockpit.service \
-	src/ws/cockpit-wsinstance-http.socket \
-	src/ws/cockpit-wsinstance-http.service \
-	src/ws/cockpit-wsinstance-http-redirect.socket \
-	src/ws/cockpit-wsinstance-http-redirect.service \
-	src/ws/cockpit-wsinstance-https.socket \
-	src/ws/cockpit-wsinstance-https.service \
-	src/ws/cockpit-motd.service \
+systemd_units_in = \
+	src/ws/cockpit-motd.service.in \
+	src/ws/cockpit.service.in \
+	src/ws/cockpit.socket.in \
+	src/ws/cockpit-wsinstance-http.service.in \
+	src/ws/cockpit-wsinstance-http.socket.in \
+	src/ws/cockpit-wsinstance-http-redirect.service.in \
+	src/ws/cockpit-wsinstance-http-redirect.socket.in \
+	src/ws/cockpit-wsinstance-https.service.in \
+	src/ws/cockpit-wsinstance-https.socket.in \
 	$(NULL)
+
+nodist_systemdunit_DATA += $(patsubst %.in,%,$(systemd_units_in))
 
 firewalldir = $(prefix)/lib/firewalld/services
 firewall_DATA = src/ws/cockpit.xml
@@ -206,30 +208,14 @@ cockpit-desktop: src/ws/cockpit-desktop.in
 	$(SUBST_RULE)
 
 EXTRA_DIST += \
-	src/ws/cockpit-motd.service.in \
-	src/ws/cockpit.service.in \
-	src/ws/cockpit.socket.in \
-	src/ws/cockpit-wsinstance-http.service.in \
-	src/ws/cockpit-wsinstance-http.socket.in \
-	src/ws/cockpit-wsinstance-http-redirect.service.in \
-	src/ws/cockpit-wsinstance-http-redirect.socket.in \
-	src/ws/cockpit-wsinstance-https.service.in \
-	src/ws/cockpit-wsinstance-https.socket.in \
+	$(systemd_units_in) \
 	src/ws/cockpit-desktop.in \
 	$(firewall_DATA) \
 	$(tempconf_in) \
 	$(NULL)
 
 CLEANFILES += \
-	src/ws/cockpit.socket \
-	src/ws/cockpit.service \
-	src/ws/cockpit-wsinstance-http.service \
-	src/ws/cockpit-wsinstance-http.socket \
-	src/ws/cockpit-wsinstance-http-redirect.service \
-	src/ws/cockpit-wsinstance-http-redirect.socket \
-	src/ws/cockpit-wsinstance-https.service \
-	src/ws/cockpit-wsinstance-https.socket \
-	src/ws/cockpit-motd.service \
+	$(patsubst %.in,%,$(systemd_units_in)) \
 	$(nodist_tempconf_DATA) \
 	cockpit-desktop \
 	$(NULL)

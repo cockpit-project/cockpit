@@ -100,7 +100,7 @@ class TestSystemInfo(MachineCase):
         # Debian will not allow timesyncd to start if any other NTP packge is installed
         # We only support timesyncd for NTP configuration, so make sure chrony
         # is not installed in the debian test images
-        if self.machine.image in ["debian-stable", "debian-testing"]:
+        if self.machine.image in ["debian-stable", "debian-testing", "ubuntu-stable"]:
             self.machine.execute("dpkg --remove chrony");
 
     @enableAxe

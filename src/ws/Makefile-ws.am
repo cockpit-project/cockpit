@@ -22,7 +22,8 @@ dist/static/login.html: src/ws/login.html dist/static/login.js dist/static/login
 	$(MV) $@.tmp $@
 dist/static/login.min.html: src/ws/login.html dist/static/login.min.js dist/static/login.min.css
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	sed -e '/<script>/ r dist/static/login.min.js' \
+	sed -e '/<script>/ r pkg/lib/polyfills.js' \
+	    -e '/<script>/ r dist/static/login.min.js' \
 	    -e '/<style>/ r dist/static/login.min.css' $< > $@.tmp && \
 	$(MV) $@.tmp $@
 

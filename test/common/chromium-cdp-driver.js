@@ -167,8 +167,7 @@ function setupFrameTracking(client) {
     // map frame names to frame IDs; root frame has no name, no need to track that
     client.Page.frameNavigated(info => {
         debug("frameNavigated " + JSON.stringify(info));
-        if (info.frame.name)
-            frameNameToFrameId[info.frame.name] = info.frame.id;
+        frameNameToFrameId[info.frame.name || "cockpit1"] = info.frame.id;
 
         // were we waiting for this frame to be loaded?
         if (frameWaitPromiseResolve && frameWaitName === info.frame.name) {
@@ -208,6 +207,8 @@ function setupFrameTracking(client) {
 
 // helper functions for testlib.py which are too unwieldy to be poked in from Python
 function getFrameExecId(frame) {
+    if (frame === null)
+        frame = "cockpit1";
     var frameId = frameNameToFrameId[frame];
     if (!frameId)
         throw Error(`Frame ${frame} is unknown`);

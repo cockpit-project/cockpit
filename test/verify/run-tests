@@ -55,12 +55,14 @@ def main():
     image = opts.image or testvm.DEFAULT_IMAGE
 
     revision = os.environ.get("TEST_REVISION")
+    test_browser = os.environ.get("TEST_BROWSER", "chromium")
     if not revision:
         revision = subprocess.check_output(["git", "rev-parse", "HEAD"],
                                            universal_newlines=True).strip()
 
     # Tell any subprocesses what we are testing
     os.environ["TEST_REVISION"] = revision
+    os.environ["TEST_BROWSER"] = test_browser
     testvm.DEFAULT_IMAGE = image
     os.environ["TEST_OS"] = image
 

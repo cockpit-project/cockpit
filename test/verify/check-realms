@@ -437,6 +437,7 @@ class TestKerberos(MachineCase):
         self.machine.execute(script=JOIN_SCRIPT % args, timeout=1800)
         self.machine.execute(script=WAIT_KRB_SCRIPT.format("admin"), timeout=300)
 
+    @skipBrowser("Firefox cannot work with cookies", "firefox")
     def testNegotiate(self):
         self.allow_authorize_journal_messages()
         self.allow_hostkey_messages()

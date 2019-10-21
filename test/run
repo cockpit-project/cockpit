@@ -13,6 +13,10 @@ case $TEST_SCENARIO in
         test/image-prepare --verbose $TEST_OS
         test/verify/run-tests --jobs ${TEST_JOBS:-1}
         ;;
+    firefox)
+        test/image-prepare --verbose $TEST_OS
+        TEST_BROWSER=firefox test/verify/run-tests --jobs ${TEST_JOBS:-1}
+        ;;
     selenium-*)
         test/image-prepare --verbose $TEST_OS
         test/selenium/run-tests --browser ${TEST_SCENARIO#*-}

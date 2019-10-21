@@ -366,7 +366,7 @@ web_socket_util_parse_headers (const gchar *data,
           g_strstrip (value);
           g_hash_table_insert (parsed_headers, name, value);
 
-          if (!is_valid_line (name, -1) || !is_valid_line (value, -1))
+          if (!is_valid_line (name, -1) || !g_utf8_validate (value, -1, NULL))
             {
               g_debug ("received invalid header");
               consumed = -1;

@@ -1115,7 +1115,7 @@ def enableAxe(method):
         with open(os.path.join(TEST_DIR, "common/axe.js")) as f:
             script = f.read()
         # first method argument is "self", a MachineCase instance
-        args[0].browser.cdp.invoke("Page.addScriptToEvaluateOnLoad", scriptSource=script, no_trace=True)
+        args[0].browser.cdp.invoke("Page.addScriptToEvaluateOnNewDocument", source=script, no_trace=True)
         return method(*args)
 
     return wrapper

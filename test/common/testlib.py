@@ -59,6 +59,7 @@ __all__ = (
     'Browser',
     'MachineCase',
     'skipImage',
+    'skipBrowser',
     'allowImage',
     'skipPackage',
     'enableAxe',
@@ -252,7 +253,14 @@ class Browser:
         self.wait_visible(selector + ':not([disabled])')
         self.call_js_func('ph_blur', selector)
 
+    # TODO: Unify them so we can have only one
     def key_press(self, keys, modifiers=0, use_ord=False):
+        if self.cdp.browser == "chromium":
+            self.key_press_chromium(keys, modifiers, use_ord)
+        else:
+            self.key_press_firefox(keys, modifiers, use_ord)
+
+    def key_press_chromium(self, keys, modifiers=0, use_ord=False):
         for key in keys:
             args = {"type": "keyDown", "modifiers": modifiers}
 
@@ -265,6 +273,27 @@ class Browser:
                 args["windowsVirtualKeyCode"] = ord(key.upper())
             else:
                 args["key"] = key
+
+            self.cdp.invoke("Input.dispatchKeyEvent", **args)
+            args["type"] = "keyUp"
+            self.cdp.invoke("Input.dispatchKeyEvent", **args)
+
+    def key_press_firefox(self, keys, modifiers=0, use_ord=False):
+        # https://github.com/GoogleChrome/puppeteer/blob/master/lib/USKeyboardLayout.js
+        keyMap = {
+            8: "Backspace",  # Backspace key
+            9: "Tab",        # Tab key
+            13: "Enter",     # Enter key
+            27: "Escape",    # Escape key
+            40: "ArrowDown", # Arrow key down
+            45: "Insert",    # Insert key
+        }
+        for key in keys:
+            args = {"type": "keyDown", "modifiers": modifiers}
+
+            args["key"] = key
+            if ord(key) < 32 or use_ord:
+                args["key"] = keyMap[ord(key)]
 
             self.cdp.invoke("Input.dispatchKeyEvent", **args)
             args["type"] = "keyUp"
@@ -574,14 +603,22 @@ class Browser:
             self.cdp.command("clearExceptions()")
 
             filename = "{0}-{1}.png".format(label or self.label, title)
-            ret = self.cdp.invoke("Page.captureScreenshot", no_trace=True)
-            if "data" in ret:
-                with open(filename, 'wb') as f:
-                    f.write(base64.standard_b64decode(ret["data"]))
-                attach(filename)
-                print("Wrote screenshot to " + filename)
-            else:
-                print("Screenshot not available")
+            if self.cdp.browser == "chromium":
+                ret = self.cdp.invoke("Page.captureScreenshot", no_trace=True)
+                ret = ""
+                if "data" in ret:
+                    with open(filename, 'wb') as f:
+                        f.write(base64.standard_b64decode(ret["data"]))
+                    attach(filename)
+                    print("Wrote screenshot to " + filename)
+                else:
+                    print("Screenshot not available")
+            elif self.cdp.browser == "firefox":
+                # API not yet supported
+                # https://bugzilla.mozilla.org/show_bug.cgi?id=1549466
+                # TODO: Possible workaround could be something like:
+                # Runtime.execute(':screenshot --file <path>)
+                pass
 
             filename = "{0}-{1}.html".format(label or self.label, title)
             html = self.cdp.invoke("Runtime.evaluate", expression="document.documentElement.outerHTML",
@@ -1002,6 +1039,10 @@ class MachineCase(unittest.TestCase):
         # only run this on the default OS test, that's enough
         if os.getenv("TEST_OS") not in [None, testvm.TEST_OS_DEFAULT]:
             return
+        # HACK: We cannot test axe on Firefox since `axe.run()` returns promise
+        # and Firefox CDP cannot wait for it to resolve
+        if self.browser.cdp.browser == "firefox":
+            return
 
         report = self.browser.eval_js("axe.run()", no_trace=True)
 
@@ -1085,6 +1126,13 @@ some_failed = False
 
 def jsquote(str):
     return json.dumps(str)
+
+
+def skipBrowser(reason, *args):
+    browser = os.environ.get("TEST_BROWSER", "chromium")
+    if browser in args:
+        return unittest.skip("{0}: {1}".format(browser, reason))
+    return lambda func: func
 
 
 def skipImage(reason, *args):

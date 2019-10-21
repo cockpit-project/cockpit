@@ -24,6 +24,7 @@ from testlib import *
 class TestTerminal(MachineCase):
     provision = {"machine1": {"dns": "127.0.0.1"}}
 
+    @skipBrowser("Firefox needs http to access clipboard", "firefox")
     def testBasic(self):
         b = self.browser
         m = self.machine
@@ -99,28 +100,31 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
             b.mouse(sel, "mousemove", 10 + width, 17)
             b.mouse(sel, "mouseup", 10 + width, 17)
 
-        b.grant_permissions("clipboardRead", "clipboardWrite")
+        # Firefox does not support setting of permissions
+        # and therefore we cannot test copy/paste with context menu
+        if b.cdp.browser != "firefox":
+            b.grant_permissions("clipboardRead", "clipboardWrite")
 
-        # Execute command
-        wait_line(n, prompt)
-        b.key_press('echo "XYZ"\r')
-        wait_line(n + 1, "XYZ")
+            # Execute command
+            wait_line(n, prompt)
+            b.key_press('echo "XYZ"\r')
+            wait_line(n + 1, "XYZ")
 
-        sel = line_sel(n + 1)
+            sel = line_sel(n + 1)
 
-        # Highlight 40px (3 letters, never wider that ~14px)
-        select_line(sel, 40)
+            # Highlight 40px (3 letters, never wider that ~14px)
+            select_line(sel, 40)
 
-        # Right click and pick copy
-        b.mouse(sel, "contextmenu", btn=2)
-        b.click('.contextMenu .contextMenuOption:first-child')
+            # Right click and pick copy
+            b.mouse(sel, "contextmenu", btn=2)
+            b.click('.contextMenu .contextMenuOption:first-child')
 
-        # Right click and pick paste
-        b.mouse(sel, "contextmenu", btn=2)
-        b.click('.contextMenu .contextMenuOption:nth-child(2)')
+            # Right click and pick paste
+            b.mouse(sel, "contextmenu", btn=2)
+            b.click('.contextMenu .contextMenuOption:nth-child(2)')
 
-        # Wait for text to show up
-        wait_line(n + 2, "XYZ")
+            # Wait for text to show up
+            wait_line(n + 2, "XYZ")
 
         # now reset terminal
         b.click('.btn:contains("Reset")')
@@ -133,6 +137,7 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
         b.key_press('echo "foo"\r')
         wait_line(n + 1, "foo")
 
+        sel = line_sel(n + 1)
         # Highlight 40px (3 letters, never wider that ~14px)
         select_line(sel, 40)
 

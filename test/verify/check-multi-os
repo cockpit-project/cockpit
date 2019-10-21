@@ -56,6 +56,9 @@ class TestMultiOS(MachineCase):
         atomiclib.overlay_dashboard(self.machine)
 
     def check_spawn(self, b, address):
+        # Firefox cannot do `cockpit.spawn` as it returns promise
+        if b.cdp.browser == "firefox":
+            return
         result = b.call_js_func("""(function(address) {
             return cockpit.spawn(['echo', 'hi'], { host: address });
         })""", address)

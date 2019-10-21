@@ -74,6 +74,7 @@ class DashBoardHelpers:
         b.wait_popdown('dashboard_setup_server_dialog')
 
 
+@skipBrowser("Firefox looses track of contexts", "firefox")
 class TestBasicDashboard(MachineCase, DashBoardHelpers):
     provision = {
         'machine1': {"address": "10.111.113.1/20"},

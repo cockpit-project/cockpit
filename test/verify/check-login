@@ -420,10 +420,12 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         else:
             b.wait_not_visible("#safari-cert-help")
 
+    @skipBrowser("Enough when only chromium pretends to be a different browser", "firefox")
     @skipImage("Starting on Atomic is weird", "fedora-atomic")
     def testFailingWebsocketSafari(self):
         self.testFailingWebsocket(safari=True, cacert=True)
 
+    @skipBrowser("Enough when only chromium pretends to be a different browser", "firefox")
     @skipImage("Starting on Atomic is weird", "fedora-atomic")
     def testFailingWebsocketSafariNoCA(self):
         self.testFailingWebsocket(safari=True, cacert=False)

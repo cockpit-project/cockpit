@@ -23,6 +23,7 @@ from testlib import *
 
 class TestEmbed(MachineCase):
 
+    @skipBrowser("Firefox does not fire executionContextCreated and also does not have valid context", "firefox")
     def testBasic(self):
         b = self.browser
         m = self.machine

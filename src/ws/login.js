@@ -136,7 +136,7 @@
                 throw ex;
             }
             if (ret === undefined) {
-                disableLogin();
+                disableLogin(name);
                 return false;
             }
             return true;

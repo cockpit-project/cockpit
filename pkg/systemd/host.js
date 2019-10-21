@@ -251,7 +251,7 @@ PageServer.prototype = {
 
         cockpit.file("/etc/motd").watch(function(content) {
             if (content)
-                content = $.trim(content);
+                content = content.trimRight();
             if (content && content != cockpit.localStorage.getItem('dismissed-motd')) {
                 $('#motd').text(content);
                 $('#motd-box').show();

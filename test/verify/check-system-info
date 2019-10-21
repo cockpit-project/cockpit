@@ -367,9 +367,13 @@ class TestSystemInfo(MachineCase):
         b.wait_present('#motd-box[data-stable=yes]')
         b.wait_not_visible('#motd-box')
 
-        m.execute("echo Hello >/etc/motd")
+        m.execute(r"printf '  Hello\n  World\n\n' >/etc/motd")
         b.wait_visible('#motd-box')
-        b.wait_in_text('#motd', "Hello")
+        if m.image == 'rhel-8-1-distropkg':
+            # fixed in PR #13021
+            b.wait_text('#motd', "Hello\n  World")
+        else:
+            b.wait_text('#motd', "  Hello\n  World")
 
         b.click('#motd-box button.close')
         b.wait_not_visible('#motd-box')
@@ -382,7 +386,7 @@ class TestSystemInfo(MachineCase):
 
         m.execute("echo Hello again >/etc/motd")
         b.wait_visible('#motd-box')
-        b.wait_in_text('#motd', "Hello again")
+        b.wait_text('#motd', "Hello again")
 
         # because of the reload
         self.allow_restart_journal_messages()

@@ -351,7 +351,13 @@ static void
 test_parse_headers_bad (void)
 {
   const gchar *input[] = {
+      /* missing : */
       "Header1 value3\r\n"
+      "\r\n"
+      "BODY  ",
+
+      /* binary garbage (not even UTF8) */
+      "Header1: a\xFF\x01b\r\n"
       "\r\n"
       "BODY  ",
   };

@@ -172,6 +172,8 @@
                req("textContent", document) &&
                req("CSS", window) &&
                req("supports", window.CSS) &&
+               req("prototype", Promise) &&
+               req("finally", Promise.prototype) &&
                css("display", "flex") &&
                css("display", "grid");
     }

@@ -197,7 +197,7 @@ class CDP:
         if self.trace:
             # enable frame/execution context debugging if tracing is on
             environ["TEST_CDP_DEBUG"] = "1"
-        self._driver = subprocess.Popen(["%s/cdp-driver.js" % os.path.dirname(__file__), str(cdp_port)],
+        self._driver = subprocess.Popen(["%s/chromium-cdp-driver.js" % os.path.dirname(__file__), str(cdp_port)],
                                         env=environ,
                                         stdout=subprocess.PIPE,
                                         stdin=subprocess.PIPE,

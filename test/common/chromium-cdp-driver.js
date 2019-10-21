@@ -19,7 +19,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* cdp-driver -- A command-line JSON input/output wrapper around
+/* chromium-cdp-driver -- A command-line JSON input/output wrapper around
  * chrome-remote-interface (Chrome Debug Protocol).
  * See https://chromedevtools.github.io/devtools-protocol/
  * This needs support for protocol version 1.3.
@@ -282,7 +282,7 @@ options = { };
 if (process.argv.length >= 3) {
     options.port = parseInt(process.argv[2]);
     if (!options.port) {
-        process.stderr.write("Usage: cdp-driver.js [port]\n");
+        process.stderr.write("Usage: chromium-cdp-driver.js [port]\n");
         process.exit(1);
     }
 }

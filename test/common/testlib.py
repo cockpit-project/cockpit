@@ -961,14 +961,13 @@ class MachineCase(unittest.TestCase):
             if not found:
                 all_found = False
                 if not first:
-                    print("Unexpected journal messages:")
                     first = m
                 print(m)
         if not all_found:
             self.copy_js_log("FAIL")
             self.copy_journal("FAIL")
             self.copy_cores("FAIL")
-            raise Error(first)
+            raise Error("FAIL: Test completed, but found unexpected journal messages:\n" + first)
 
     def allow_browser_errors(self, *patterns):
         """Don't fail if the test caused a console error contains the given regexp"""

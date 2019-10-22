@@ -398,6 +398,13 @@ AC_ARG_WITH(vdo-package,
             [with_vdo_package='false'])
 AC_SUBST(with_vdo_package)
 
+AC_ARG_WITH(insights-client-package,
+            AC_HELP_STRING([--with-insights-client-package=JSON],
+                           [Package that contains the insights-client, or 'false']),
+            [],
+            [with_insights_client_package='false'])
+AC_SUBST(with_insights_client_package)
+
 # Address sanitizer
 
 AC_MSG_CHECKING([for asan flags])

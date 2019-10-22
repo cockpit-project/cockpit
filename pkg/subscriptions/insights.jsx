@@ -23,6 +23,7 @@ import moment from "moment";
 import * as python from "python.js";
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 import * as service from "service.js";
+import * as PK from "packagekit.js";
 
 import { client } from "./subscriptions-client";
 
@@ -39,37 +40,52 @@ export function detect() {
     return cockpit.spawn([ "which", "insights-client" ], { err: "ignore" }).then(() => true, () => false);
 }
 
-function catch_error(err) {
-    let msg = err.toString();
-    // The insights-client frequently dumps
-    // Python backtraces on us. Make them more
-    // readable by wrapping the text in <pre>.
-    if (msg.indexOf("\n") > 0)
-        msg = <pre>{msg}</pre>;
-    client.setError("error", msg);
+function ensure_installed(update_progress) {
+    return detect().then(installed => {
+        if (!installed)
+            return PK.check_missing_packages([ client.insightsPackage ], update_checking_progress(update_progress))
+                    .then(data => {
+                        if (data.unavailable_names.length > 0)
+                            return Promise.reject(cockpit.format(_("The $0 package is not available from any repository."),
+                                                                 data.unavailable_names[0]));
+                        if (data.remove_names.length > 0)
+                            return Promise.reject(cockpit.format(_("The system could not be connected to Insights because installing the $0 package requires the unexpected removal of other packages."),
+                                                                 client.insightsPackage));
+                        return PK.install_missing_packages(data, update_install_progress(update_progress));
+                    });
+        else
+            return Promise.resolve();
+    });
 }
 
-export function register() {
-    return cockpit.spawn([ "insights-client", "--register" ], { superuser: true, err: "message" })
-            .catch(catch_error);
+export function register(update_progress) {
+    return ensure_installed(update_progress).then(() => {
+        const proc = cockpit.spawn([ "insights-client", "--register" ], { superuser: true, err: "message" });
+        if (update_progress)
+            update_progress(_("Connecting to Insights"), () => { proc.close() });
+        return proc;
+    });
 }
 
 export function unregister() {
     if (insights_timer.enabled) {
-        return cockpit.spawn([ "insights-client", "--unregister" ], { superuser: true, err: "message" })
-                .catch(catch_error);
+        return cockpit.spawn([ "insights-client", "--unregister" ], { superuser: true, err: "message" });
     } else {
         return cockpit.resolve();
     }
 }
 
-// TODO - generalize this to arbitrary number of arguments (when needed)
-export function fmt_to_fragments(fmt, arg) {
-    var index = fmt.indexOf("$0");
-    if (index >= 0)
-        return <>{fmt.slice(0, index)}{arg}{fmt.slice(index + 2)}</>;
-    else
-        return fmt;
+export function fmt_to_fragments(fmt) {
+    const args = Array.prototype.slice.call(arguments, 1);
+
+    function replace(part) {
+        if (part[0] == "$") {
+            return args[parseInt(part.slice(1))];
+        } else
+            return part;
+    }
+
+    return React.createElement.apply(null, [ React.Fragment, { } ].concat(fmt.split(/(\$[0-9]+)/g).map(replace)));
 }
 
 function left(func) {
@@ -87,29 +103,163 @@ export const blurb =
 export const link =
     <a href="https://www.redhat.com/en/technologies/management/insights" target="_blank" rel="noopener">Red Hat Insights <i className="fa fa-external-link" /></a>;
 
+function install_data_summary(data) {
+    if (!data || data.missing_names.length == 0)
+        return null;
+
+    let summary;
+    if (data.extra_names.length == 0)
+        summary = fmt_to_fragments(_("The $0 package will be installed."), <strong>{data.missing_names[0]}</strong>);
+    else
+        summary = fmt_to_fragments(cockpit.ngettext(_("The $0 package and $1 other package will be installed."),
+                                                    _("The $0 package and $1 other packages will be installed."),
+                                                    data.extra_names.length), <strong>{data.missing_names[0]}</strong>, data.extra_names.length);
+    if (data.remove_names.length > 0) {
+        summary = <>
+            {summary}
+            <br />
+            <span className="pficon pficon-warning-triangle-o" />{ "\n" }
+            {cockpit.format(cockpit.ngettext(_("$0 package needs to be removed."),
+                                             _("$0 packages need to be removed."),
+                                             data.remove_names.length),
+                            data.remove_names.length)}
+        </>;
+    }
+
+    if (data.extra_names.length > 0 || data.remove_names.length > 0) {
+        let extra_details = null;
+        let remove_details = null;
+
+        if (data.extra_names.length > 0)
+            extra_details = (
+                <div className="scale-up-ct">
+                    {_("Additional packages:")}
+                    <ul className="package-list-ct">{data.extra_names.map(id => <li key={id}>{id}</li>)}</ul>
+                </div>
+            );
+
+        if (data.remove_names.length > 0)
+            remove_details = (
+                <div className="scale-up-ct">
+                    {_("Removals:")}
+                    <ul className="package-list">{data.remove_names.map(id => <li key={id}>{id}</li>)}</ul>
+                </div>
+            );
+
+        summary = <><p>{summary}</p><Revealer summary={_("Details")}>{extra_details}{remove_details}</Revealer></>;
+    }
+
+    return summary;
+}
+
+function update_checking_progress(update_progress) {
+    return p => {
+        let pm = null;
+        if (p.waiting)
+            pm = _("Waiting for other software management operations to finish");
+        else
+            pm = _("Checking installed software");
+        update_progress(pm, p.cancel);
+    };
+}
+
+function update_install_progress(update_progress) {
+    return p => {
+        var text = null;
+        if (p.waiting) {
+            text = _("Waiting for other software management operations to finish");
+        } else if (p.package) {
+            var fmt;
+            if (p.info == PK.Enum.INFO_DOWNLOADING)
+                fmt = _("Downloading $0");
+            else if (p.info == PK.Enum.INFO_REMOVING)
+                fmt = _("Removing $0");
+            else
+                fmt = _("Installing $0");
+            text = fmt_to_fragments(fmt, <strong>{p.package}</strong>);
+        }
+        update_progress(text, p.cancel);
+    };
+}
+
 function show_connect_dialog() {
-    show_modal_dialog(
-        {
+    let dialog = null;
+    let cancel = null;
+    let progress_message = null;
+    let error_message = null;
+    let checking_install = false;
+    let install_data = null;
+
+    function update() {
+        const props = {
             title: _("Connect to Red Hat Insights"),
             body: (
                 <div className="modal-body">
                     <strong>{fmt_to_fragments(_("This system is not connected to $0."), link)}</strong>
                     <p>{blurb}</p>
+                    { install_data_summary(install_data) }
                 </div>
             )
-        },
-        {
+        };
+
+        const footer = {
             actions: [
                 {
                     caption: _("Connect"),
                     style: "primary",
-                    clicked: () => {
-                        return register().catch(catch_error);
-                    }
+                    clicked: (update_progress) => {
+                        return PK.install_missing_packages(install_data, update_install_progress(update_progress)).then(() => register(update_progress));
+                    },
+                    disabled: checking_install,
                 }
-            ]
+            ],
+            idle_message: progress_message && <div><div className="spinner spinner-sm" /><span>{ progress_message }</span></div>,
+            static_error: error_message,
+            dialog_done: f => { if (!f && cancel) cancel(); }
+        };
+
+        if (dialog) {
+            dialog.setProps(props);
+            dialog.setFooterProps(footer);
+        } else {
+            dialog = show_modal_dialog(props, footer);
         }
-    );
+    }
+
+    update();
+    return detect().then(installed => {
+        if (!installed) {
+            checking_install = true;
+            update();
+            PK.check_missing_packages([ client.insightsPackage ], p => {
+                cancel = p.cancel;
+                let pm = null;
+                if (p.waiting)
+                    pm = _("Waiting for other software management operations to finish");
+                else
+                    pm = _("Checking installed software");
+                if (pm != progress_message) {
+                    progress_message = pm;
+                    update();
+                }
+            })
+                    .then(data => {
+                        if (data.unavailable_names.length > 0)
+                            error_message = cockpit.format(_("The $0 package is not available from any repository."),
+                                                           data.unavailable_names[0]);
+                        else
+                            install_data = data;
+                        progress_message = null;
+                        cancel = null;
+                        checking_install = false;
+                        update();
+                    })
+                    .catch(e => {
+                        error_message = e.toString();
+                        update();
+                    });
+        }
+    });
 }
 
 class Revealer extends React.Component {
@@ -306,9 +456,6 @@ export class InsightsStatus extends React.Component {
 
     render() {
         let status;
-
-        if (!insights_timer.exists || !insights_service.exists)
-            return null;
 
         if (insights_timer.enabled) {
             let warn = (insights_service.state == "failed" &&

@@ -21,6 +21,7 @@
 import os
 
 import parent
+from packagelib import *
 from testlib import *
 
 
@@ -79,18 +80,14 @@ print [ e['id'] for e in data if e['owner']['key'] == 'admin' and e['contractNum
 "
 """
 
-
-@skipImage("No subscriptions", "centos-7", "continuous-atomic", "debian-stable", "debian-testing", "fedora-29",
-           "fedora-30", "fedora-i386", "fedora-atomic", "fedora-testing", "ubuntu-1804", "ubuntu-stable")
-@skipImage("cockpit-subscriptions obsoleted by external subscription-manager-cockpit", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1")
-class TestSubscriptions(MachineCase):
+class SubscriptionsCase(MachineCase):
     provision = {
         "0": {"address": "10.111.113.1/20"},
         "candlepin": {"image": "candlepin", "address": "10.111.113.5/20"}
     }
 
     def setUp(self):
-        MachineCase.setUp(self)
+        super(SubscriptionsCase, self).setUp()
         self.candlepin = self.machines['candlepin']
 
         # wait for candlepin to be active and verify
@@ -133,6 +130,11 @@ insecure_connection=True
 
             m.upload([ "verify/files/mock-insights" ], "/var/tmp")
             m.spawn("/var/tmp/mock-insights", "mock-insights")
+
+@skipImage("No subscriptions", "centos-7", "continuous-atomic", "debian-stable", "debian-testing", "fedora-29",
+           "fedora-30", "fedora-i386", "fedora-atomic", "fedora-testing", "ubuntu-1804", "ubuntu-stable")
+@skipImage("cockpit-subscriptions obsoleted by external subscription-manager-cockpit", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1")
+class TestSubscriptions(SubscriptionsCase):
 
     def testRegister(self):
         b = self.browser
@@ -369,6 +371,56 @@ insecure_connection=True
         b.click("label:contains('Status') + button:contains('Unregister')")
         b.wait_not_present("label:contains('Insights')")
         m.execute("test -f /etc/insights-client/.unregistered")
+
+
+@skipImage("No subscriptions", "centos-7", "continuous-atomic", "debian-stable", "debian-testing", "fedora-29",
+           "fedora-30", "fedora-i386", "fedora-atomic", "fedora-testing", "ubuntu-1804", "ubuntu-stable")
+@skipImage("cockpit-subscriptions obsoleted by external subscription-manager-cockpit", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1")
+class TestSubscriptionsPackages(SubscriptionsCase, PackageCase):
+
+    @skipImage("insights-client not installable",  "rhel-atomic")
+    def testMissingPackages(self):
+        m = self.machine
+        b = self.browser
+
+        m.execute("pkcon remove -y insights-client")
+
+        self.createPackage("insights-client", "999", "1")
+        self.enableRepo()
+        m.execute("pkcon refresh")
+
+        self.login_and_go("/subscriptions")
+
+        b.click("label:contains('Status') + button:contains('Register')")
+        b.wait_visible("#subscription-register-url")
+
+        b.set_val("#subscription-register-url", "custom")
+        b.set_input_text("#subscription-register-url-custom", "10.111.113.5:8443/candlepin")
+        b.set_input_text("#subscription-register-username", "admin")
+        b.set_input_text("#subscription-register-password", "admin")
+        b.set_input_text("#subscription-register-org", "admin")
+        b.set_checked("#subscription-insights", True)
+        b.wait_present('.modal-body:contains("The insights-client package will be installed")')
+        b.click('.modal-footer button.apply')
+        with b.wait_timeout(360):
+            b.wait_not_present(".modal-dialog")
+
+        # This will not have worked because the insights-client binary
+        # is not actually there.  Try again with the connection dialog.
+
+        m.execute("test -f /stamp-insights-client-999-1")
+        m.execute("pkcon remove -y insights-client")
+        m.execute("pkcon refresh")
+
+        b.click("label:contains('Insights') a:contains('Not connected')")
+        b.wait_present('.modal-body:contains("This system is not connected")')
+        b.wait_present('.modal-body:contains("The insights-client package will be installed")')
+        b.click('.modal-footer button.apply')
+        with b.wait_timeout(360):
+            b.wait_present('.modal-footer:contains("not-found")')
+        b.click('.modal-footer button.cancel')
+
+        m.execute("test -f /stamp-insights-client-999-1")
 
 if __name__ == '__main__':
     test_main()

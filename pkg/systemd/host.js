@@ -545,10 +545,13 @@ PageServer.prototype = {
             refresh_os_updates_state();
         });
 
-        var insights_client_timer = service.proxy("insights-client.timer");
+        var insights_client_package = (cockpit.manifests.subscriptions &&
+                                       cockpit.manifests.subscriptions.config &&
+                                       cockpit.manifests.subscriptions.config.insights_client_package);
+        var insights_client_timer = service.proxy("insights-client.timer", "Timer");
 
         function refresh_insights_status() {
-            if (insights_client_timer.exists && !insights_client_timer.enabled) {
+            if ((insights_client_timer.exists || insights_client_package) && !insights_client_timer.enabled) {
                 $("#insights_icon").attr("class", "pficon pficon-warning-triangle-o");
                 set_page_link("#insights_text", "subscriptions",
                               _("Not connected to Insights"));

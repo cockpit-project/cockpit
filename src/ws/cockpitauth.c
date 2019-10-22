@@ -1403,13 +1403,13 @@ cockpit_auth_login_async (CockpitAuth *self,
                           GAsyncReadyCallback callback,
                           gpointer user_data)
 {
-  GSimpleAsyncResult *result = NULL;
+  g_autoptr(GSimpleAsyncResult) result = NULL;
   CockpitSession *session;
   GError *error = NULL;
-  gchar *type = NULL;
-  gchar *conversation = NULL;
-  gchar *authorization = NULL;
-  gchar *application = NULL;
+  g_autofree gchar *type = NULL;
+  g_autofree gchar *conversation = NULL;
+  g_autofree gchar *authorization = NULL;
+  g_autofree gchar *application = NULL;
 
   g_return_if_fail (path != NULL);
   g_return_if_fail (headers != NULL);
@@ -1481,17 +1481,8 @@ cockpit_auth_login_async (CockpitAuth *self,
   reset_authorize_timeout (session, FALSE);
 
 out:
-  g_free (type);
-  g_free (application);
-  g_free (conversation);
-
   if (authorization)
-    {
-      cockpit_memory_clear (authorization, -1);
-      g_free (authorization);
-    }
-
-  g_object_unref (result);
+    cockpit_memory_clear (authorization, -1);
 }
 
 JsonObject *

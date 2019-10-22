@@ -374,6 +374,13 @@ cockpit_auth_steal_authorization (GHashTable *headers,
     {
       g_hash_table_steal (headers, "Authorization");
       g_free (key);
+
+      /* This is being parsed heavily, enforce ASCII */
+      if (!g_str_is_ascii (line))
+        {
+          g_message ("received invalid Authorize header, must be ASCII");
+          goto out;
+        }
     }
   else
     {

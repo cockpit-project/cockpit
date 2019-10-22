@@ -735,6 +735,13 @@ static const ErrorFixture fixture_auth_timeout = {
   .header = "timeout-scheme too-slow",
 };
 
+static const ErrorFixture fixture_non_ascii = {
+  .error_code = COCKPIT_ERROR_AUTHENTICATION_FAILED,
+  .error_message = "Authentication required",
+  .header = "testscheme süccëss",
+};
+
+
 typedef struct {
   const gchar **headers;
   const gchar **prompts;
@@ -1203,6 +1210,8 @@ main (int argc,
               setup_normal, test_custom_fail, teardown_normal);
   g_test_add ("/auth/custom-timeout", Test, &fixture_auth_timeout,
               setup_normal, test_custom_timeout, teardown_normal);
+  g_test_add ("/auth/non-ascii", Test, &fixture_non_ascii,
+              setup_normal, test_custom_fail, teardown_normal);
 
   g_test_add ("/auth/custom-ssh-basic-success", Test, &fixture_ssh_basic,
               setup_normal, test_custom_success, teardown_normal);

@@ -76,6 +76,7 @@
 
 %if 0%{?rhel} >= 7
 %define vdo_on_demand 1
+%define insights_client_on_demand 1
 %endif
 
 Name:           cockpit
@@ -169,7 +170,8 @@ exec 2>&1
 %endif
     --with-appstream-data-packages='[ "appstream-data" ]' \
     --with-nfs-client-package='"nfs-utils"' \
-    %{?vdo_on_demand:--with-vdo-package='"vdo"'}
+    %{?vdo_on_demand:--with-vdo-package='"vdo"'} \
+    %{?insights_client_on_demand:--with-insights-client-package='"insights-client"'}
 make -j4 %{?extra_flags} all
 
 %check

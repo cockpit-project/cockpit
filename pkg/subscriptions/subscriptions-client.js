@@ -18,6 +18,8 @@
  */
 
 import cockpit from "cockpit";
+import * as PK from "packagekit";
+
 const _ = cockpit.gettext;
 
 export var client = { };
@@ -120,7 +122,7 @@ function getSubscriptionDetails() {
             });
 }
 
-client.registerSystem = function(subscriptionDetails) {
+client.registerSystem = function(subscriptionDetails, update_progress) {
     var dfd = cockpit.defer();
 
     var args = ['subscription-manager', 'register'];
@@ -169,7 +171,6 @@ client.registerSystem = function(subscriptionDetails) {
         err: "out"
     });
 
-    var promise;
     var buffer = '';
     process
             .input('')
@@ -215,14 +216,15 @@ client.registerSystem = function(subscriptionDetails) {
                 dfd.reject(error);
             });
 
-    promise = dfd.promise();
-    promise.cancel = function cancel() {
-        process.close("cancelled");
-        // we have no idea what the current state is
-        requestUpdate();
-    };
+    if (update_progress) {
+        update_progress(_("Registering"), function cancel() {
+            process.close("cancelled");
+            // we have no idea what the current state is
+            requestUpdate();
+        });
+    }
 
-    return promise;
+    return dfd.promise();
 };
 
 client.unregisterSystem = function() {
@@ -383,12 +385,20 @@ client.setError = (_, message) => {
     needRender();
 };
 
+client.insightsPackage = (cockpit.manifests.subscriptions &&
+                          cockpit.manifests.subscriptions.config &&
+                          cockpit.manifests.subscriptions.config.insights_client_package);
+
 client.insightsAvailable = false;
 
 const detectInsights = () => {
     return cockpit.spawn([ "which", "insights-client" ], { err: "ignore" }).then(
         () => { client.insightsAvailable = true },
-        () => { client.insightsAvailable = false });
+        () => {
+            PK.detect().then(pk_available => {
+                client.insightsAvailable = pk_available && client.insightsPackage;
+            });
+        });
 };
 
 client.init = function() {

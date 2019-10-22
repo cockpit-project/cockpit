@@ -40,7 +40,8 @@ export function defaultSettings() {
         activationKeys: '',
         org: '',
         insights: false,
-        insights_available: client.insightsAvailable
+        insights_available: client.insightsAvailable,
+        insights_detected: false
     };
 }
 /* Subscriptions: registration dialog body
@@ -120,6 +121,7 @@ export class DialogBody extends React.Component {
                                 { Insights.fmt_to_fragments(_("Connect this system to $0."), Insights.link) }
                             </span>
                         </label>
+                        { (this.props.insights && !this.props.insights_detected) && <p>{ Insights.fmt_to_fragments(_("The $0 package will be installed."), <strong>{client.insightsPackage}</strong>)}</p> }
                     </td>
                 </tr>;
         }

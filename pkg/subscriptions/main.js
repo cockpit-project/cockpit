@@ -35,12 +35,22 @@ function dismissStatusError() {
     dataStore.render();
 }
 
+function catchError(err) {
+    let msg = err.toString();
+    // The insights-client frequently dumps
+    // Python backtraces on us. Make them more
+    // readable by wrapping the text in <pre>.
+    if (msg.indexOf("\n") > 0)
+        msg = <pre>{msg}</pre>;
+    client.setError("error", msg);
+}
+
 var registerDialogDetails;
 
-function registerSystem () {
-    return client.registerSystem(registerDialogDetails).then(() => {
+function registerSystem (update_progress) {
+    return client.registerSystem(registerDialogDetails, update_progress).then(() => {
         if (registerDialogDetails.insights)
-            return Insights.register();
+            return Insights.register(update_progress).catch(catchError);
     });
 }
 
@@ -56,34 +66,38 @@ var footerProps = {
 function openRegisterDialog() {
     registerDialogDetails = subscriptionsRegister.defaultSettings();
 
-    // show dialog to register
-    var renderDialog;
-    var updatedData = function(prop, data) {
-        if (prop) {
-            if (data.target) {
-                if (data.target.type == "checkbox") {
-                    registerDialogDetails[prop] = data.target.checked;
+    Insights.detect().then(installed => {
+        registerDialogDetails.insights_detected = installed;
+
+        // show dialog to register
+        var renderDialog;
+        var updatedData = function(prop, data) {
+            if (prop) {
+                if (data.target) {
+                    if (data.target.type == "checkbox") {
+                        registerDialogDetails[prop] = data.target.checked;
+                    } else {
+                        registerDialogDetails[prop] = data.target.value;
+                    }
                 } else {
-                    registerDialogDetails[prop] = data.target.value;
+                    registerDialogDetails[prop] = data;
                 }
-            } else {
-                registerDialogDetails[prop] = data;
             }
-        }
 
-        registerDialogDetails.onChange = updatedData;
+            registerDialogDetails.onChange = updatedData;
 
-        var dialogProps = {
-            'title': _("Register system"),
-            'body': React.createElement(subscriptionsRegister.DialogBody, registerDialogDetails),
+            var dialogProps = {
+                'title': _("Register system"),
+                'body': React.createElement(subscriptionsRegister.DialogBody, registerDialogDetails),
+            };
+
+            if (renderDialog)
+                renderDialog.setProps(dialogProps);
+            else
+                renderDialog = show_modal_dialog(dialogProps, footerProps);
         };
-
-        if (renderDialog)
-            renderDialog.setProps(dialogProps);
-        else
-            renderDialog = show_modal_dialog(dialogProps, footerProps);
-    };
-    updatedData();
+        updatedData();
+    });
 }
 
 function unregisterSystem() {

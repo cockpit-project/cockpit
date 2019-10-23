@@ -58,7 +58,7 @@ class TestMenu(MachineCase):
         b.click("a[href='/playground/exception']")
         b.enter_page("/playground/exception")
         b.wait_visible("button")
-        with self.assertRaisesRegex(RuntimeError, "TypeError:.*value.*undefined"):
+        with self.assertRaisesRegex(RuntimeError, "TypeError:.*undefined"):
             b.click("button")
             # Some round trips, one of which should update the deferred exception
             for i in range(0, 5):

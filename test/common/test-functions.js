@@ -32,10 +32,7 @@ function ph_count(sel) {
 }
 
 function ph_count_check(sel, expected_num) {
-    count = ph_count(sel);
-    if (count != expected_num)
-        throw "found " + count + " " + sel + " not " + expected_num;
-    return count;
+    return (ph_count(sel) == expected_num);
 }
 
 function ph_val (sel)

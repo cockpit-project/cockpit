@@ -399,8 +399,6 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         if safari:
             b.set_user_agent("Safari/300")
-        else:
-            b.set_user_agent("GenericBrowser/300")
 
         if cacert:
             m.write("/etc/cockpit/ws-certs.d/0-self-signed-ca.pem", "FAKE CERT FOR TESTING\n")

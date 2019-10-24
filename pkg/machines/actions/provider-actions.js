@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 import cockpit from 'cockpit';
-import { getRefreshInterval } from '../selectors.js';
+import { getLibvirtServiceState, getRefreshInterval } from '../selectors.js';
 import VMS_CONFIG from "../config.js";
 import { logDebug } from '../helpers.js';
 import { virt } from '../provider.js';
@@ -295,6 +295,19 @@ export function volumeCreateAndAttach({ connectionName, poolName, volumeName, si
     return virt(CREATE_AND_ATTACH_VOLUME, { connectionName, poolName, volumeName, size, format, target, permanent, hotplug, cacheMode, vmName, vmId });
 }
 
+function delayPollingHelper(action, timeout) {
+    return (dispatch, getState) => {
+        window.setTimeout(() => {
+            const libvirtState = getLibvirtServiceState(getState());
+            if (libvirtState !== "running")
+                return dispatch(delayPollingHelper(action, timeout));
+
+            logDebug('Executing delayed action');
+            dispatch(action);
+        }, timeout);
+    };
+}
+
 /**
  * Delay call of polling action.
  *
@@ -315,10 +328,7 @@ export function delayPolling(action, timeout) {
 
         if (timeout > 0 && !cockpit.hidden) {
             logDebug(`Scheduling ${timeout} ms delayed action`);
-            window.setTimeout(() => {
-                logDebug('Executing delayed action');
-                dispatch(action);
-            }, timeout);
+            dispatch(delayPollingHelper(action, timeout));
         } else {
             // logDebug(`Skipping delayed action since refreshing is switched off`);
             window.setTimeout(() => dispatch(delayPolling(action, timeout)), VMS_CONFIG.DefaultRefreshInterval);

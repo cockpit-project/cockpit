@@ -488,12 +488,11 @@ class TestMachines(NetworkCase):
         b.wait_in_text("#slate-header", "Virtualization Service (libvirt) is Not Active")
         b.wait_present("#enable-libvirt:checked")
         b.click("#start-libvirt")
-
-        b.wait_in_text("body", "Virtual Machines")
+        b.wait(lambda: checkLibvirtEnabled())
         # HACK: https://launchpad.net/bugs/1802005
         if self.provider == "libvirt-dbus" and m.image == "ubuntu-stable":
             m.execute("chmod o+rwx /run/libvirt/libvirt-sock")
-        b.wait(lambda: checkLibvirtEnabled())
+        b.wait_in_text("body", "Virtual Machines")
         with b.wait_timeout(10):
             b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
 
@@ -502,11 +501,11 @@ class TestMachines(NetworkCase):
         b.wait_present("#enable-libvirt:checked")
         b.click("#enable-libvirt") # uncheck it ; ; TODO: fix this, do not assume initial state of the checkbox
         b.click("#start-libvirt")
-        b.wait_in_text("body", "Virtual Machines")
+        b.wait(lambda: not checkLibvirtEnabled())
         # HACK: https://launchpad.net/bugs/1802005
         if self.provider == "libvirt-dbus" and m.image == "ubuntu-stable":
             m.execute("chmod o+rwx /run/libvirt/libvirt-sock")
-        b.wait(lambda: not checkLibvirtEnabled())
+        b.wait_in_text("body", "Virtual Machines")
         with b.wait_timeout(10):
             b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
 

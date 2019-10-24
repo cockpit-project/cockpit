@@ -92,7 +92,7 @@ class VmDisksTab extends React.Component {
                 <Button id={`${idPrefix}-adddisk`} bsStyle='primary' onClick={this.open} className='pull-right'>
                     {_("Add Disk")}
                 </Button>
-                {this.state.showModal && <AddDiskModalBody close={this.close} dispatch={dispatch} idPrefix={idPrefix} vm={vm} vms={vms} storagePools={storagePools} provider={provider} />}
+                {this.state.showModal && <AddDiskModalBody close={this.close} dispatch={dispatch} idPrefix={idPrefix} vm={vm} vms={vms} storagePools={storagePools.filter(pool => pool && pool.active)} provider={provider} />}
             </>
         );
         let renderCapacityUsed, renderAccess, renderAdditional;

@@ -40,16 +40,20 @@
   </div>
 
   <div id="networking" hidden>
-    <div id="networking-nm-crashed" class="alert alert-danger" hidden>
-      <button class="btn btn-default pull-right" type="submit" translatable="yes">Start Service</button>
+    <div id="networking-nm-crashed" class="pf-c-alert pf-m-danger pf-m-inline" aria-label="inline danger alert">
+      <div class="pf-c-alert__icon">
         <span class="pficon pficon-error-circle-o"></span>
-        <strong translatable="yes">NetworkManager is not running.</strong> <a href="#" class="alert-link">Troubleshoot…</a>
+      </div>
+      <h4 class="pf-c-alert__title"> <span translatable="yes" >NetworkManager is not running. </span> <a href="#" class="alert-link">Troubleshoot…</a> <h4>
+      <button class="btn btn-default pull-right" type="submit" translatable="yes">Start Service</button>
     </div>
 
-    <div id="networking-nm-disabled" class="alert alert-info" hidden>
+    <div id="networking-nm-disabled" class="pf-c-alert pf-m-info pf-m-inline" aria-label="inline danger alert" hidden>
       <button class="btn btn-default pull-right" type="submit" translatable="yes">Enable Service</button>
-      <span class="pficon pficon-info"></span>
-      <strong translatable="yes">Network devices and graphs require NetworkManager.</strong>
+      <div class="pf-c-alert__icon">
+        <span class="pficon pficon-info"></span>
+      </div>
+      <h4 class="pf-c-alert__title" translatable="yes">Network devices and graphs require NetworkManager.</h4>
     </div>
 
     <div id="networking-graphs" class="row">
@@ -473,9 +477,11 @@
           </div>
         </div>
         <div class="modal-footer">
-          <div class="alert alert-danger dialog-error" id="network-ip-settings-error">
-            <i class="fa fa-exclamation-triangle"></i>
-            <span></span>
+          <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-ip-settings-error">
+            <div class="pf-c-alert__icon">
+                <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+            </div>
+            <h4 class="pf-c-alert__title"></h4>
           </div>
           <button class="btn btn-default" translatable="yes" id="network-ip-settings-cancel">Cancel</button>
           <button class="btn btn-primary" translatable="yes" id="network-ip-settings-apply">Apply</button>
@@ -497,9 +503,11 @@
           </div>
         </div>
         <div class="modal-footer">
-          <div class="alert alert-danger dialog-error" id="network-bond-settings-error">
-            <i class="fa fa-exclamation-triangle"></i>
-            <span></span>
+          <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-bond-settings-error">
+            <div class="pf-c-alert__icon">
+                <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+            </div>
+            <h4 class="pf-c-alert__title"></h4>
           </div>
           <button class="btn btn-default" translatable="yes" id="network-bond-settings-cancel">Cancel</button>
           <button class="btn btn-primary" translatable="yes" id="network-bond-settings-apply">Apply</button>
@@ -521,9 +529,11 @@
           </div>
         </div>
         <div class="modal-footer">
-          <div class="alert alert-danger dialog-error" id="network-team-settings-error">
-            <i class="fa fa-exclamation-triangle"></i>
-            <span></span>
+          <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-team-settings-error">
+            <div class="pf-c-alert__icon">
+                <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+            </div>
+            <h4 class="pf-c-alert__title"></h4>
           </div>
           <button class="btn btn-default" translatable="yes" id="network-team-settings-cancel">Cancel</button>
           <button class="btn btn-primary" translatable="yes" id="network-team-settings-apply">Apply</button>
@@ -545,9 +555,11 @@
           </div>
         </div>
         <div class="modal-footer">
-          <div class="alert alert-danger dialog-error" id="network-teamport-settings-error">
-            <i class="fa fa-exclamation-triangle"></i>
-            <span></span>
+          <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-teamport-settings-error">
+            <div class="pf-c-alert__icon">
+                <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+            </div>
+            <h4 class="pf-c-alert__title"></h4>
           </div>
           <button class="btn btn-default" translatable="yes" id="network-teamport-settings-cancel">Cancel</button>
           <button class="btn btn-primary" translatable="yes" id="network-teamport-settings-apply">Apply</button>
@@ -569,9 +581,11 @@
           </div>
         </div>
         <div class="modal-footer">
-          <div class="alert alert-danger dialog-error" id="network-bridge-settings-error">
-            <i class="fa fa-exclamation-triangle"></i>
-            <span></span>
+          <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-bridge-settings-error">
+              <div class="pf-c-alert__icon">
+                  <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+              </div>
+              <h4 class="pf-c-alert__title"></h4>
           </div>
           <button class="btn btn-default" translatable="yes" id="network-bridge-settings-cancel">Cancel</button>
           <button class="btn btn-primary" translatable="yes" id="network-bridge-settings-apply">Apply</button>
@@ -593,9 +607,11 @@
           </div>
         </div>
         <div class="modal-footer">
-          <div class="alert alert-danger dialog-error" id="network-bridgeport-settings-error">
-            <i class="fa fa-exclamation-triangle"></i>
-            <span></span>
+          <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-bridgeport-settings-error">
+              <div class="pf-c-alert__icon">
+                  <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+              </div>
+              <h4 class="pf-c-alert__title"></h4>
           </div>
           <button class="btn btn-default" translatable="yes" id="network-bridgeport-settings-cancel">Cancel</button>
           <button class="btn btn-primary" translatable="yes" id="network-bridgeport-settings-apply">Apply</button>
@@ -617,9 +633,11 @@
           </div>
         </div>
         <div class="modal-footer">
-          <div class="alert alert-danger dialog-error" id="network-vlan-settings-error">
-            <i class="fa fa-exclamation-triangle"></i>
-            <span></span>
+          <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-vlan-settings-error">
+              <div class="pf-c-alert__icon">
+                  <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+              </div>
+              <h4 class="pf-c-alert__title"></h4>
           </div>
           <button class="btn btn-default" translatable="yes" id="network-vlan-settings-cancel">Cancel</button>
           <button class="btn btn-primary" translatable="yes" id="network-vlan-settings-apply">Apply</button>
@@ -641,9 +659,11 @@
           </div>
         </div>
         <div class="modal-footer">
-          <div class="alert alert-danger dialog-error" id="network-mtu-settings-error">
-            <i class="fa fa-exclamation-triangle"></i>
-            <span></span>
+          <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-mtu-settings-error">
+            <div class="pf-c-alert__icon">
+                <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+            </div>
+            <h4 class="pf-c-alert__title"></h4>
           </div>
           <button class="btn btn-default" translatable="yes" id="network-mtu-settings-cancel">Cancel</button>
           <button class="btn btn-primary" translatable="yes" id="network-mtu-settings-apply">Apply</button>
@@ -665,9 +685,11 @@
           </div>
         </div>
         <div class="modal-footer">
-          <div class="alert alert-danger dialog-error" id="network-mac-settings-error">
-            <i class="fa fa-exclamation-triangle"></i>
-            <span></span>
+          <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-mac-settings-error">
+            <div class="pf-c-alert__icon">
+                <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+            </div>
+            <h4 class="pf-c-alert__title"></h4>
           </div>
           <button class="btn btn-default" translatable="yes" id="network-mac-settings-cancel">Cancel</button>
           <button class="btn btn-primary" translatable="yes" id="network-mac-settings-apply">Apply</button>

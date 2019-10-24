@@ -19,6 +19,7 @@
 
 import cockpit from "cockpit";
 import React from "react";
+import { Alert } from "@patternfly/react-core";
 import * as utils from "./utils.js";
 import { StdDetailsLayout } from "./details.jsx";
 import { Block } from "./content-views.jsx";
@@ -208,10 +209,7 @@ export class MDRaidDetails extends React.Component {
                 mdraid.Degraded
             );
             degraded_message = (
-                <div className="alert alert-danger">
-                    <span className="pficon pficon-error-circle-o" />
-                    <span>{_("The RAID Array is in a degraded state")}</span> - {text}
-                </div>
+                <Alert isInline variant="danger" title={_("The RAID Array is in a degraded state")}> {text} </Alert>
             );
         }
 

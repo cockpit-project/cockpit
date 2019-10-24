@@ -25,6 +25,8 @@ import ReactDOM from 'react-dom';
 import React from 'react';
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 
+import "../../node_modules/@patternfly/react-styles/css/components/Alert/alert.css";
+
 $(function() {
     cockpit.translate();
     const _ = cockpit.gettext;
@@ -529,6 +531,7 @@ $(function() {
 
         var d_btn = $('<button class="btn btn-danger problem-btn btn-delete pficon pficon-delete">');
         var r_btn = $();
+
         if (problem.IsReported) {
             for (var pid = 0; pid < problem.Reports.length; pid++) {
                 if (problem.Reports[pid][0] === 'ABRT Server') {
@@ -562,9 +565,11 @@ $(function() {
                     } else {
                         message = _("Reporting was unsucessful. Try running `reporter-ureport -d " + problem.ID + "`");
                     }
-                    $('<div class="alert alert-danger">')
-                            .append('<span class="pficon pficon-error-circle-o">')
-                            .text(message)
+
+                    $('<div class="pf-c-alert pf-m-danger pf-m-inline" aria-label="inline danger alert">')
+                            .append($('<div class="pf-c-alert__icon"><span class="pficon pficon-error-circle-o"></div>'),
+                                    $('<h4 class="pf-c-alert__title">').text(message)
+                            )
                             .insertAfter(".breadcrumb");
                     tab.children(':last-child').replaceWith($('<span>'));
                 });

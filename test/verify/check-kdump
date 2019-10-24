@@ -109,10 +109,16 @@ class TestKdump(MachineCase):
         mountInput = "#kdump-settings-nfs-mount"
         b.set_input_text(mountInput, ":/var/crash")
         b.click("button.btn-primary:contains('Apply')")
-        b.wait_present("div.dialog-error:contains('Unable to apply settings')")
+        if m.image == "rhel-8-1-distropkg":
+            b.wait_present("div.dialog-error:contains('Unable to apply settings')")
+        else:
+            b.wait_present("h4.pf-c-alert__title:contains('Unable to apply settings')")
         b.set_input_text(mountInput, "localhost:")
         b.click("button.btn-primary:contains('Apply')")
-        b.wait_present("div.dialog-error:contains('Unable to apply settings')")
+        if m.image == "rhel-8-1-distropkg":
+            b.wait_present("div.dialog-error:contains('Unable to apply settings')")
+        else:
+            b.wait_present("h4.pf-c-alert__title:contains('Unable to apply settings')")
         b.click("button.btn-default:contains('Cancel')")
 
         # test compression
@@ -152,7 +158,10 @@ class TestKdump(MachineCase):
         b.set_input_text(pathInput, customPath)
         b.click("button.btn-primary:contains('Apply')")
         # we should get an error
-        b.wait_present("div.dialog-error:contains('Unable to apply settings')")
+        if m.image == "rhel-8-1-distropkg":
+            b.wait_present("div.dialog-error:contains('Unable to apply settings')")
+        else:
+            b.wait_present("h4.pf-c-alert__title:contains('Unable to apply settings')")
         # also allow the journal message about failed touch
         self.allow_journal_messages(".*mktemp: failed to create file via template.*")
         # create the directory and try again

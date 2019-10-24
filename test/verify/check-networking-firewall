@@ -325,7 +325,7 @@ class TestFirewall(NetworkCase):
         open_dialog()
         set_field("#udp-ports", "19834", "19834")
         b.click("#add-services-dialog button.btn-primary")
-        b.wait_in_text("#add-services-dialog div.alert-danger", "org.fedoraproject.FirewallD1.Exception: NAME_CONFLICT: new_service(): 'custom--19834'")
+        b.wait_in_text("#add-services-dialog div.pf-m-danger", "org.fedoraproject.FirewallD1.Exception: NAME_CONFLICT: new_service(): 'custom--19834'")
 
         # should have been removed in the reload
         b.wait_not_present("tr[data-row-id='http']")
@@ -358,7 +358,7 @@ class TestFirewall(NetworkCase):
             b.click("#add-zone-dialog .modal-footer button.btn-primary:enabled")
 
             if error:
-                b.wait_in_text("#add-zone-dialog div.alert-danger", error)
+                b.wait_in_text("#add-zone-dialog div.pf-m-danger", error)
                 b.click("#add-zone-dialog .modal-footer button.btn-cancel")
                 b.wait_not_present("#add-zone-dialog")
                 return

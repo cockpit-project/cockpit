@@ -284,8 +284,8 @@ class TestStorage(StorageCase):
         self.dialog_wait_open()
         self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja-1")
         self.dialog_apply()
-        b.wait_present(".dialog-error")
-        self.assertIn(b.text(".dialog-error"), error_messages)
+        b.wait_present(".pf-c-alert")
+        self.assertIn(b.text("h4.pf-c-alert__title:not(span)").split("Danger alert:", 1).pop(), error_messages)
         self.dialog_cancel()
 
         # add more passphrases, seven exactly, to reach the limit of eight for LUKSv1
@@ -327,8 +327,8 @@ class TestStorage(StorageCase):
         self.dialog_wait_open()
         self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
         self.dialog_apply()
-        b.wait_present(".dialog-error")
-        self.assertIn(b.text(".dialog-error"), error_messages)
+        b.wait_present(".pf-c-alert")
+        self.assertIn(b.text("h4.pf-c-alert__title:not(span)").split("Danger alert:", 1).pop(), error_messages)
         self.dialog_cancel()
         # change one of the passphrases
         b.wait_present(slots_table + "tbody tr:last-child .pficon-edit")

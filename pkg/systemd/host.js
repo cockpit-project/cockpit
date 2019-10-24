@@ -262,7 +262,7 @@ PageServer.prototype = {
             $('#motd-box').attr('data-stable', 'yes');
         });
 
-        $('#motd-box button.close').click(function() {
+        $('#motd-box button.pf-c-button').click(function() {
             cockpit.localStorage.setItem('dismissed-motd', $('#motd').text());
             $('#motd-box').hide();
         });
@@ -798,7 +798,7 @@ PageServer.prototype = {
         var self = this;
         $("#system_information_ssh_keys .spinner").toggle(true);
         $("#system_information_ssh_keys .content").toggle(false);
-        $("#system_information_ssh_keys .alert").toggle(false);
+        $("#system_information_ssh_keys .pf-c-alert").toggle(false);
 
         /*
          * Yes, we do refresh the keys while the dialog is open.
@@ -816,7 +816,7 @@ PageServer.prototype = {
         var parenthesis = /^\((.*)\)$/;
         var spinner = $("#system_information_ssh_keys .spinner");
         var content = $("#system_information_ssh_keys .content");
-        var error = $("#system_information_ssh_keys .alert");
+        var error = $("#system_information_ssh_keys .pf-c-alert");
 
         cockpit.script(host_keys_script, [], {
             superuser: "try",
@@ -867,7 +867,7 @@ PageServer.prototype = {
                     var msg = cockpit.format(_("failed to list ssh host keys: $0"), ex.message);
                     content.toggle(false);
                     spinner.toggle(false);
-                    $("#system_information_ssh_keys .alert strong").text(msg);
+                    $("#system_information_ssh_keys .pf-c-alert h4").text(msg);
                     error.toggle(true);
                 });
     },

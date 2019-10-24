@@ -44,7 +44,7 @@ export function setup() {
         body.attr("data-name", val);
         body.find("th.credential-label").text(val);
         body.addClass("unlock");
-        body.find(".alert").hide();
+        body.find(".pf-c-alert").hide();
     }
 
     function add_custom_key() {
@@ -81,7 +81,7 @@ export function setup() {
             return;
 
         hide_add_key();
-        tbody.find(".alert").hide();
+        tbody.find(".pf-c-alert").hide();
 
         /* Key needs to be loaded, show load UI */
         if (enable && !key.loaded) {
@@ -96,7 +96,7 @@ export function setup() {
                     .fail(function(ex) {
                         console.log(ex);
                         tbody.addClass("open").removeClass("unlock");
-                        tbody.find(".alert").show()
+                        tbody.find(".pf-c-alert").show()
                                 .find(".credential-alert")
                                 .text(ex.message);
                     });
@@ -142,7 +142,7 @@ export function setup() {
                 if ($(ev.target).parents(".listing-ct-actions, ul").length === 0) {
                     body = $(ev.target).parents("tbody");
                     body.toggleClass("open").removeClass("unlock");
-                    body.find(".alert").hide();
+                    body.find(".pf-c-alert").hide();
                     ev.preventDefault();
                     ev.stopPropagation();
                 }
@@ -176,7 +176,7 @@ export function setup() {
                     return;
 
                 body.find("input button").prop("disabled", true);
-                body.find(".alert").hide();
+                body.find(".pf-c-alert").hide();
 
                 var password = body.find(".credential-password").val();
                 keys.load(name, password)
@@ -187,11 +187,11 @@ export function setup() {
                             body.find(".credential-password").val("");
                             body.removeClass("unlock");
                             hide_add_key();
-                            body.find(".alert").hide();
+                            body.find(".pf-c-alert").hide();
                         })
                         .fail(function(ex) {
-                            body.find(".alert").show()
-                                    .find("span")
+                            body.find(".pf-c-alert").show()
+                                    .find("h4")
                                     .text(ex.message);
                             console.warn("loading key failed: ", ex.message);
                         });
@@ -210,7 +210,7 @@ export function setup() {
                 hide_add_key();
 
                 body.find("input button").prop("disabled", true);
-                body.find(".alert").hide();
+                body.find(".pf-c-alert").hide();
 
                 var old_pass = body.find(".credential-old").val();
                 var new_pass = body.find(".credential-new").val();
@@ -230,8 +230,8 @@ export function setup() {
                                     .click();
                         })
                         .fail(function(ex) {
-                            body.find(".alert").show()
-                                    .find("span")
+                            body.find(".pf-c-alert").show()
+                                    .find("h4")
                                     .text(ex.message);
                         });
                 ev.preventDefault();
@@ -244,7 +244,7 @@ export function setup() {
                     $(this).parents("dl")
                             .find(".btn-primary")
                             .click();
-                body.find(".alert").hide();
+                body.find(".pf-c-alert").hide();
             })
 
     /* Change tabs */
@@ -258,7 +258,7 @@ export function setup() {
                 body.find(".credential-tab").hide()
                         .eq(index)
                         .show();
-                body.find(".alert").hide();
+                body.find(".pf-c-alert").hide();
                 ev.preventDefault();
                 ev.stopPropagation();
             })

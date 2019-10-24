@@ -20,7 +20,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
 
-import { Alert } from 'patternfly-react';
+import { Alert, AlertActionCloseButton } from '@patternfly/react-core';
 import './cockpit-components-inline-notification.css';
 
 const _ = cockpit.gettext;
@@ -51,7 +51,7 @@ export class InlineNotification extends React.Component {
     }
 
     render () {
-        const { text, detail, textId } = this.props;
+        const { text, detail, type, onDismiss } = this.props;
 
         let detailButton = null;
         if (detail) {
@@ -65,38 +65,26 @@ export class InlineNotification extends React.Component {
         }
 
         return (
-            <>
-                <strong id={textId}>
-                    {text}
-                </strong>
-                {detailButton}
+            <Alert variant={type || 'danger'}
+                isInline={this.props.isInline != undefined ? this.props.isInline : true}
+                action={<AlertActionCloseButton onClose={onDismiss} />}
+                title={<> {text} {detailButton} </>}>
                 {this.state.isDetail && (<p>{detail}</p>)}
-            </>
+            </Alert>
         );
     }
 }
 
 InlineNotification.propTypes = {
+    isInline: PropTypes.bool,
     text: PropTypes.string.isRequired, // main information to render
     detail: PropTypes.string, // optional, more detailed information. If empty, the more/less button is not rendered.
-    textId: PropTypes.string, // optional, element id for the text
-};
-
-export const ExpandableNotification = ({ onDismiss, text, textId, detail, type }) => {
-    return (
-        <Alert type={type} onDismiss={onDismiss}>
-            <InlineNotification text={text} textId={textId} detail={detail} />
-        </Alert>
-
-    );
+    type: PropTypes.string,
 };
 
 export const ModalError = ({ dialogError, dialogErrorDetail }) => {
     return (
-        <Alert>
-            <strong>
-                {dialogError}
-            </strong>
+        <Alert variant='danger' isInline title={dialogError}>
             { dialogErrorDetail && <p> Error message: <samp>{dialogErrorDetail}</samp> </p> }
         </Alert>
     );

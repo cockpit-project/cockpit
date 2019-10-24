@@ -215,6 +215,7 @@ import cockpit from "cockpit";
 
 import React from "react";
 import { OverlayTrigger, Tooltip, TypeAheadSelect } from "patternfly-react";
+import { Alert } from "@patternfly/react-core";
 
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 import { StatelessSelect, SelectEntry } from "cockpit-components-select.jsx";
@@ -385,7 +386,7 @@ export const dialog_open = (def) => {
 
         const extra = <div>
             { def.Footer }
-            { def.Action && def.Action.Danger ? <div className="alert alert-danger"><div className="pficon pficon-error-circle-o" />{def.Action.Danger}</div> : null }
+            { def.Action && def.Action.Danger ? <Alert isInline variant='danger' title={def.Action.Danger} /> : null }
         </div>;
 
         return {

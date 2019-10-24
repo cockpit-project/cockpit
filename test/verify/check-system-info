@@ -375,7 +375,10 @@ class TestSystemInfo(MachineCase):
         else:
             b.wait_text('#motd', "  Hello\n  World")
 
-        b.click('#motd-box button.close')
+        if m.image == "rhel-8-1-distropkg":
+            b.click('#motd-box button.close')
+        else:
+            b.click('#motd-box button.pf-c-button')
         b.wait_not_visible('#motd-box')
 
         # motd should stay dismissed after a reload
@@ -664,7 +667,10 @@ fi
         b.click('#cpu-mitigations-dialog #nosmt-switch input')
         b.wait_present('#cpu-mitigations-dialog #nosmt-switch input:checked')
         b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
-        b.wait_present('#cpu-mitigations-dialog .alert:contains(No supported grub update mechanism found)')
+        if m.image == "rhel-8-1-distropkg":
+            b.wait_present('#cpu-mitigations-dialog .alert:contains(No supported grub update mechanism found)')
+        else:
+            b.wait_present('#cpu-mitigations-dialog .pf-c-alert__title:contains(No supported grub update mechanism found)')
 
         self.allow_journal_messages('Sourcing file `/etc/default/grub.*',
                                     'Generating grub configuration file.*',

@@ -21,13 +21,13 @@ import cockpit from "cockpit";
 import React from "react";
 import ReactDOM from "react-dom";
 import {
-    Alert,
     Button,
     ListView,
     Modal,
     OverlayTrigger,
     Tooltip
 } from "patternfly-react";
+import { Alert } from '@patternfly/react-core';
 
 import firewall from "./firewall-client.js";
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
@@ -579,9 +579,9 @@ class AddServicesModal extends React.Component {
                         this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />
                     }
                     { !this.state.custom ||
-                        <Alert type="warning">
-                            { _("Adding custom ports will reload firewalld. A reload will result in the loss of any runtime-only configuration!")}
-                        </Alert>
+                        <Alert variant="warning"
+                            isInline
+                            title={_("Adding custom ports will reload firewalld. A reload will result in the loss of any runtime-only configuration!")} />
                     }
                     <Button bsStyle='default' className='btn-cancel' onClick={this.props.close}>
                         {_("Cancel")}

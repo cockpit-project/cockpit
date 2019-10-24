@@ -19,6 +19,7 @@
 
 import cockpit from "cockpit";
 import React from "react";
+import { Alert, AlertActionCloseButton } from "@patternfly/react-core";
 
 import * as PackageKit from "./packagekit.js";
 import { left_click, icon_url, show_error, launch, ProgressBar, CancelButton } from "./utils.jsx";
@@ -67,14 +68,9 @@ class ApplicationRow extends React.Component {
                 summary_or_progress = (
                     <div>
                         {comp.summary}
-                        <div className="alert alert-danger alert-dismissable">
-                            <button className="close"
-                                    onClick={left_click(() => { this.setState({ error: null }) })}>
-                                <span className="pficon pficon-close" />
-                            </button>
-                            <span className="pficon pficon-error-circle-o" />
-                            {state.error}
-                        </div>
+                        <Alert isInline variant='danger'
+                            action={<AlertActionCloseButton onClose={left_click(() => { this.setState({ error: null }) })} />}
+                            title={state.error} />
                     </div>
                 );
             } else {

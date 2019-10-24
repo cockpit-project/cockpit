@@ -20,6 +20,7 @@
 import cockpit from "cockpit";
 
 import React from "react";
+import { Alert, AlertActionCloseButton } from "@patternfly/react-core";
 
 import * as cockpitListing from "cockpit-components-listing.jsx";
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
@@ -91,17 +92,15 @@ class SELinuxEventDetails extends React.Component {
                     } else {
                         if (self.props.fix.success) {
                             msg = (
-                                <div className="alert alert-success">
-                                    <span className="pficon pficon-ok" />
-                                    <span> { _("Solution applied successfully") }: {self.props.fix.result}</span>
-                                </div>
+                                <Alert isInline variant="success" title={ _("Solution applied successfully") }>
+                                    {self.props.fix.result}
+                                </Alert>
                             );
                         } else {
                             msg = (
-                                <div className="alert alert-danger">
-                                    <span className="pficon pficon-error-circle-o" />
-                                    <span> { _("Solution failed") }: {self.props.fix.result}</span>
-                                </div>
+                                <Alert isInline variant="danger" title={ _("Solution failed") }>
+                                    {self.props.fix.result}
+                                </Alert>
                             );
                         }
                     }
@@ -243,13 +242,9 @@ class DismissableError extends React.Component {
 
     render() {
         return (
-            <div className="alert alert-danger alert-dismissable alert-ct-top">
-                <span className="pficon pficon-error-circle-o" />
-                <span>{this.props.children}</span>
-                <button type="button" className="close" aria-hidden="true" onClick={this.handleDismissError}>
-                    <span className="pficon pficon-close" />
-                </button>
-            </div>
+            <Alert isInline
+                variant='danger' title={this.props.children}
+                action={<AlertActionCloseButton onClose={this.handleDismissError} />} />
         );
     }
 }
@@ -475,13 +470,9 @@ export class SETroubleshootPage extends React.Component {
         var errorMessage;
         if (this.props.error) {
             errorMessage = (
-                <div className="alert alert-danger alert-dismissable alert-ct-top">
-                    <span className="pficon pficon-error-circle-o" />
-                    <span>{this.props.error}</span>
-                    <button type="button" className="close" aria-hidden="true" onClick={this.handleDismissError}>
-                        <span className="pficon pficon-close" />
-                    </button>
-                </div>
+                <Alert isInline
+                    variant='danger' title={this.props.error}
+                    action={<AlertActionCloseButton onClose={this.handleDismissError} />} />
             );
         }
 

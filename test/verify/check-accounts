@@ -145,8 +145,11 @@ class TestAccounts(MachineCase):
         b.wait_present(admin_role_sel + ":not(:checked)")
         b.set_checked(admin_role_sel, True)
         b.wait(is_admin)
-        # An alert which shows up once we've changed things
-        b.wait_present("#account-roles .alert-info")
+        # An alert which shows up once we've changed thinrgs
+        if m.image == "rhel-8-1-distropkg":
+            b.wait_present("#account-roles .alert-info")
+        else:
+            b.wait_present("#account-roles .pf-c-alert.pf-m-info")
         b.wait_present(admin_role_sel + ":checked")
         b.set_checked(admin_role_sel, False)
         b.wait(lambda: not is_admin())

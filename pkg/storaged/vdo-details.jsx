@@ -19,6 +19,7 @@
 
 import cockpit from "cockpit";
 import React from "react";
+import { Alert } from "@patternfly/react-core";
 import { get_active_usage, teardown_active_usage, fmt_size, decode_filename } from "./utils.js";
 import { dialog_open, SizeSlider, BlockingMessage, TeardownMessage } from "./dialog.jsx";
 import { StdDetailsLayout } from "./details.jsx";
@@ -111,13 +112,11 @@ export class VDODetails extends React.Component {
 
         if (vdo.broken) {
             var broken = (
-                <div className="alert alert-danger">
-                    <div className="pull-right">
+                <Alert variant='danger' isInline title={
+                    <>
                         <StorageButton onClick={force_delete}>{_("Remove device")}</StorageButton>
-                    </div>
-                    <span className="pficon pficon-error-circle-o" />
-                    <strong>{_("The creation of this VDO device did not finish and the device can't be used.")}</strong>
-                </div>
+                        _("The creation of this VDO device did not finish and the device can't be used.")
+                    </>} />
             );
             return <StdDetailsLayout client={this.props.client} alert={broken} />;
         }
@@ -125,18 +124,17 @@ export class VDODetails extends React.Component {
         var alert = null;
         if (backing_block && backing_block.Size > vdo.physical_size)
             alert = (
-                <div className="alert alert-warning">
-                    <div className="pull-right">
-                        <StorageButton onClick={vdo.grow_physical}>{_("Grow to take all space")}</StorageButton>
-                    </div>
-                    <span className="pficon pficon-warning-triangle-o" />
-                    <strong>{_("This VDO device does not use all of its backing device.")}</strong>  <span>
-                        { cockpit.format(_("Only $0 of $1 are used."),
-                                         fmt_size(vdo.physical_size),
-                                         fmt_size(backing_block.Size))
-                        }
-                    </span>
-                </div>
+                <Alert variant='warning' isInline title={
+                    <div>
+                        <div className="pull-right">
+                            <StorageButton onClick={vdo.grow_physical}>{_("Grow to take all space")}</StorageButton>
+                        </div>
+                        {_("This VDO device does not use all of its backing device.")}
+                    </div> }> {
+                        cockpit.format(_("Only $0 of $1 are used."),
+                                       fmt_size(vdo.physical_size),
+                                       fmt_size(backing_block.Size))
+                    } </Alert>
             );
 
         function stop() {

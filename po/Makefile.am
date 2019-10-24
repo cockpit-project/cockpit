@@ -99,10 +99,10 @@ po/cockpit.manifest.pot: po/POTFILES.manifest.in
 	$(srcdir)/tools/missing $(srcdir)/po/manifest2po -d $(srcdir) -f $^ -o $@
 
 po/cockpit.appstream.pot: po/POTFILES.appstream.in
-	$(XGETTEXT) --output=$@ --files-from=$^
+	cd $(srcdir) && $(XGETTEXT) --output=$(abs_builddir)/$@ --files-from=$(abs_builddir)/$^
 
 po/cockpit.polkit.pot: po/POTFILES.polkit.in
-	GETTEXTDATADIRS=$(srcdir)/po $(XGETTEXT) --output=$@ --files-from=$^
+	cd $(srcdir) && GETTEXTDATADIRS=$(srcdir)/po $(XGETTEXT) --output=$(abs_builddir)/$@ --files-from=$(abs_builddir)/$^
 
 # Combine the above pot files into one
 po/cockpit.pot: po/cockpit.c.pot po/cockpit.html.pot po/cockpit.js.pot po/cockpit.manifest.pot po/cockpit.appstream.pot po/cockpit.polkit.pot

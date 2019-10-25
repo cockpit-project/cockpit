@@ -23,8 +23,8 @@ Run the [run-tests script](https://github.com/cockpit-project/cockpit/blob/maste
 Although this is the default way to run selenium tests the run-tests script is configurable and can be changed to run tests against different machines. This can be useful for developing or debugging tests. Check bellow the HACKING section for more details.
 
 ### Debugging tests:
-When running selenium tests with ``run-tests`` you can debug them with the following ways.
-  - Run just selected (one or more) tests via listing them on the command line, tests are relative to ``test/selenium/`` directory (eg: ``TEST_OS=fedora-30 test/selenium/run-tests --browser firefox -v selenium-base.py``) test filename is relative to ``test/selenium/`` directory
+When running selenium tests with ``run-tests`` you can debug them in the following ways.
+  - Run just selected (one or more) tests via listing them on the command line, tests are relative to ``test/selenium/`` directory (for example: ``TEST_OS=fedora-30 test/selenium/run-tests --browser firefox -v selenium-base.py``) test filename is relative to ``test/selenium/`` directory
   - Pass ``--sit`` parameter to ``run-tests`` which will leave all test machines running after the tests finish.
   - Use own selenium grid via option ``--hub``
 
@@ -39,11 +39,11 @@ Start own selenium grid in container ([Original description](https://github.com/
     ```
     vncviewer 127.0.0.1:5555
     ```
-  - Enable port forwarding of port ``127.0.0.2:9091`` to publicly accessible address, because selenium hub in podman container will have trouble to contact host port, because it is forwarded right to ``127.0.0.2``. ``YOUR_IP`` is host name or ip adress of your machine, that selenium ``HUB`` will be able to access.
+  - Enable port forwarding of port ``127.0.0.2:9091`` to publicly accessible address, because selenium hub in podman container will have trouble to contact host port because it is forwarded right to ``127.0.0.2``. ``YOUR_IP`` is the hostname or IP address of your machine, that the selenium ``HUB`` will be able to access.
     ```
     ssh -L $YOUR_IP:9991:127.0.0.2:9091 $(whoami)@localhost
     ```
-  - Run the test. ``HUB_IP`` is ip address of your selenium grid, has to be able to see cockpit instance via port 9991 on ``GUEST_IP``
+  - Run the test. ``HUB_IP`` is IP address of your selenium grid, has to be able to see cockpit instance via port 9991 on ``GUEST_IP``
     ```
     test/selenium/run-tests --hub $HUB_IP:$GUEST_IP:9991 -v -b chrome selenium-base.py --sit
     ```
@@ -54,28 +54,28 @@ Steps are described in [selenium page](https://www.browserstack.com/guide/seleni
     ```
     curl -f -L https://selenium-release.storage.googleapis.com/3.141/selenium-server-standalone-3.141.59.jar > selenium.jar
     ```
-  - Run hub and attach browsers here:
+  - Run hub and attach the browsers here:
     ```
     java -jar selenium.jar -role hub
     ```
-    - Then attach your local browsers there. You have browsers eg. firefox or chrome installed, and also ensure you have proper [selenium drivers for selected the browser](https://github.com/cockpit-project/cockpit/tree/master/test/selenium#which-browser-to-use)
+    - Then attach your local browsers there. You have browsers, for example, firefox or chrome installed, and also ensure you have proper [selenium drivers for the selected the browser](https://github.com/cockpit-project/cockpit/tree/master/test/selenium#which-browser-to-use)
       ```
       java -jar selenium.jar -role node -hub https://localhost:4444/grid/register
       ```
-  - Run the test. ``HUB_IP`` is ip address of your selenium grid
+  - Run the test. ``HUB_IP`` is the IP address of your selenium grid
     ```
     test/selenium/run-tests --hub $HUB_IP -v -b chrome selenium-base.py --sit
     ```
 #### Reschedule the the test/s again
 It is possible to reschedule tests if you used ``--sit`` option for ``run-tests``, in case of failure, machines won't be destroyed.
 Command-line options depend on which selenium grid you used.
-It is described on the output of the ``run-tests`` script. Eg.:
+It is described on the output of the ``run-tests`` script. For example:
 
 ```
 $test/selenium/run-tests --hub $HUB_IP -v -b chrome selenium-navigate.py --sit
 
 ...
-To rerun tests connect to VM machine with avocado installed via
+To rerun tests connect to VM with avocado installed via
     ssh -p 2202 root@127.0.0.2
 
 and run the command
@@ -84,29 +84,34 @@ PORT=9091 SSH_PORT=22 SSH_GUEST=10.111.113.1 BROWSER=chrome timeout 297
 python3 -m avocado run --show-job-log /tmp/avocado_tests/selenium-navigate.py:NavigateTestSuite.testNavigateNoReload 2>&1
 ```
 
-It is possible also to run the tests on your machine, without test VM (bots/images) what contains installed avocado testing framework.
-  - You have to install python3 ``avocado`` via rpm or pip
+It is possible also to run the tests on your machine, without test VM (bots/images) that contains the installed avocado testing framework.
+  - You have to install the avocado framework for python3 (for example via pip: ``pip3 install avocado-framework``)
   - Then a little bit modify command what you see on the output of the ``run-tests`` command and it depends how you run the selenium grid.
     ```
     HUB=$HUB_IP GUEST=$GUEST_IP PORT=9991 SSH_PORT=2021 SSH_GUEST=127.0.0.2 BROWSER=chrome python3 -m avocado --show=test run  test/selenium/selenium-navigate.py
     ```
    - **Remember**
-     - ``GUEST`` has to be accessible from ``HUB`` via ``PORT`` number
-     - Your avocado runner has to be able to connect ``SSH_GUEST`` via ``SSH_PORT`` (what is same machine as ``GUEST`` but may have another address, because of port forwarding and ``HUB`` location)
+     - An avocado runner is:
+       - for ``run-tests`` script it is dedicated VM (different from ``GUEST`` and is not configurable from outside this script)
+       - but could be your machine, or anywhere, in case it can fulfill the next conditions
+     - ``GUEST`` has to be accessible via port ``PORT`` from the ``HUB``
+     - ``HUB``  has to be accessible via port ``4444`` from the avocado runner
+     - ``SSH_GUEST`` has to be accessible via port ``SSH_PORT`` from avocado runner (``GUEST`` and ``SSH_GUEST`` is the same machine, but may have another address, because of port forwarding and ``HUB`` location)
+ 
 
 ##### Description of example output
 
   - ``PYTHONPATH=/tmp/avocado_library`` - path to libraries
-  - ``HUB=$HUB_IP_ADDR`` - ip address of your selenium grid
-  - ``GUEST=127.0.0.2`` - ip adress of cockpit machine (``HUB`` has to see ``GUEST`` cockpit port)
-  - ``PORT=9091`` - port of cockpit machine on ``GUEST`` ip adress
+  - ``HUB=$HUB_IP_ADDR`` - IP address of your selenium grid
+  - ``GUEST=127.0.0.2`` - IP address of cockpit machine (``HUB`` has to see ``GUEST`` cockpit port)
+  - ``PORT=9091`` - port of cockpit machine on ``GUEST`` IP address
   - ``SSH_PORT=22`` - ssh port number on ``SSH_GUEST``
   - ``SSH_GUEST=10.111.113.1`` - guest ip how to connect to ssh (``GUEST`` has to be able to connect ``SSH_GUEST:SSH_PORT``)
-  - ``BROWSER=chrome`` - name of browser to use
-  - ``timeout 297`` - timeout to kill the ``avocado`` process (could be remove in case of manual rescheduling)
+  - ``BROWSER=chrome`` - name of browser to use (possible options: ``chrome, firefox, edge``)
+  - ``timeout 297`` - timeout to kill the ``avocado`` process (could be removed in case of manual rescheduling)
   - ``python3 -m avocado run --show-job-log`` - avocado test scheduler (in case you have newer avocado (>70.0) there is little bit different sytanx ``python3 -m avocado --show=test run ``)
   - ``/tmp/avocado_tests/selenium-navigate.py:NavigateTestSuite.testNavigateNoReload`` name of test, it consists of ``filename_path:Class_name.tests_method_name``
-  - ``2>&1`` - could be remove in case of manual rescheduling
+  - ``2>&1`` - could be removed in case of manual rescheduling
 
 ## Hacking
 
@@ -120,7 +125,7 @@ Defines where is the cockpit instance that you want to test. This cannot be used
    - This machine has to have enabled ssh for execution remote commands for purpose of ``self.machine.execute``
  - ``PORT`` (default: ``9090``) - defines the port where cockpit-ws component accepts connections in GUEST machine
  - ``URL_BASE`` (default: ``http``) - defines what protocol to use, http or https.
- - ``SSH_GUEST`` (default: same as ``GUEST``) - define name or ip of cockpit machine, it is important for ``run-tests`` scheduler for debugging, where is used port forwarding
+ - ``SSH_GUEST`` (default: same as ``GUEST``) - define name or ip of cockpit machine, it is important for the ``run-tests`` scheduler for debugging, where is used port forwarding
  - ``SSH_PORT`` (default: ``22``) - use another port to connect to cockpit machine
 
 Leads to address ``URL_BASE//GUEST:PORT``

@@ -428,7 +428,7 @@ def main():
             avocado_command = " ".join(["{}={}".format(k, v) for k, v in testsuite.env.items()]
                                        + testsuite.avocado_command)
             sys.stderr.write(testsuite.machine_cockpit.diagnose() +
-                             "\nTo rerun tests connect to VM machine with avocado installed via" +
+                             "\nTo rerun tests connect to VM with avocado installed via" +
                              "\n\tssh -p {} root@127.0.0.2\n".format(
                                  testsuite.machine_avocado.forward["22"].split(":")[1]) +
                              "\nand run the command" +

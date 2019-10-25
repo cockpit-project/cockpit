@@ -1,7 +1,25 @@
-libexec_PROGRAMS += cockpit-tls
+libexec_PROGRAMS += cockpit-tls cockpit-wsinstance-factory
+noinst_PROGRAMS += wsinstance-start
+
+wsinstance_start_SOURCES = \
+	src/tls/utils.h \
+	src/tls/socket-io.h \
+	src/tls/socket-io.c \
+	src/tls/wsinstance-start.c \
+	$(NULL)
+
+cockpit_wsinstance_factory_LDADD = -lsystemd
+cockpit_wsinstance_factory_SOURCES = \
+	src/tls/utils.h \
+	src/tls/socket-io.h \
+	src/tls/socket-io.c \
+	src/tls/wsinstance-factory.c \
+	$(NULL)
 
 cockpit_tls_SOURCES =					\
 	src/tls/utils.h					\
+	src/tls/socket-io.h				\
+	src/tls/socket-io.c				\
 	src/tls/connection.h				\
 	src/tls/connection.c				\
 	src/tls/server.h				\
@@ -41,6 +59,9 @@ TLS_SCRIPT_TESTS = \
 	$(NULL)
 
 test_tls_connection_SOURCES = \
+	src/tls/testing.h				\
+	src/tls/socket-io.h				\
+	src/tls/socket-io.c				\
 	src/tls/connection.c				\
 	src/tls/test-connection.c			\
 	$(NULL)
@@ -49,6 +70,8 @@ test_tls_connection_CFLAGS = $(TEST_CFLAGS)
 test_tls_connection_LDADD = $(TEST_LDADD)
 
 test_tls_server_SOURCES = \
+	src/tls/socket-io.h				\
+	src/tls/socket-io.c				\
 	src/tls/connection.c				\
 	src/tls/server.c				\
 	src/tls/test-server.c				\
@@ -57,8 +80,13 @@ test_tls_server_SOURCES = \
 test_tls_server_CFLAGS = $(TEST_CFLAGS)
 test_tls_server_LDADD = $(TEST_LDADD)
 
-socket_activation_helper_SOURCES = src/tls/socket-activation-helper.c
 socket_activation_helper_CFLAGS = $(TEST_CFLAGS)
+socket_activation_helper_SOURCES = \
+	src/tls/testing.h \
+	src/tls/socket-io.h \
+	src/tls/socket-io.c \
+	src/tls/socket-activation-helper.c \
+	$(NULL)
 
 noinst_PROGRAMS += $(TLS_TESTS) socket-activation-helper
 EXTRA_DIST += $(TLS_SCRIPT_TESTS)

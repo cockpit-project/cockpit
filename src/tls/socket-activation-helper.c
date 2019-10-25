@@ -31,6 +31,8 @@
 #include <assert.h>
 #include <fcntl.h>
 
+#include "socket-io.h"
+#include "testing.h"
 #include "utils.h"
 
 #define MAX_COCKPIT_WS_ARGS 5
@@ -42,8 +44,8 @@ static struct instance_type
 } instance_types[] = {
   {"https-factory.sock", {}}, /* treated specially */
   /* support up to 2 ws instances; increase this if the unit test needs more */
-  {"https@0.sock", {"--for-tls-proxy", "--port=0"}},
-  {"https@1.sock", {"--for-tls-proxy", "--port=0"}},
+  {"https@" SHA256_NIL ".sock", {"--for-tls-proxy", "--port=0"}},
+  {"https@" CLIENT_CERT_FINGERPRINT ".sock", {"--for-tls-proxy", "--port=0"}},
   {"http-redirect.sock", {"--proxy-tls-redirect", "--no-tls", "--port=0"}},
   {"http.sock", {"--no-tls", "--port", "0"}},
 };
@@ -52,7 +54,6 @@ static int socket_to_pid[N_ELEMENTS (instance_types)];
 static struct pollfd ws_pollfds[N_ELEMENTS (instance_types)];
 
 volatile sig_atomic_t terminated = 0;
-unsigned https_instance_counter = 0;
 
 static void
 term (int signum)
@@ -145,23 +146,30 @@ spawn_cockpit_ws (const char *ws_path, int fd,
 static void
 handle_https_factory (int listen_fd)
 {
-  char sock_name[20];
-  int res;
   int fd = accept4 (listen_fd, NULL, NULL, SOCK_CLOEXEC);
+  char fingerprint[FINGERPRINT_LENGTH + 1];
+  const char *result;
+
+  debug (HELPER, "connection to https-factory.sock:");
 
   if (fd < 0)
     err (EXIT_FAILURE, "accept connection to https-factory.sock");
 
-  res = snprintf (sock_name, sizeof sock_name, "https@%u.sock", https_instance_counter++);
-  assert (res < sizeof sock_name);
-  debug (HELPER, "https factory: sending instance %s", sock_name);
+  debug (HELPER, "  -> reading instance name... ");
+  if (!recv_alnum (fd, fingerprint, sizeof fingerprint, 10 * 1000000))
+    errx (EXIT_FAILURE, "failed to read fingerprint");
 
-  /* if the test needs more, increase the number of instances in instance_types */
-  assert (https_instance_counter < 3);
+  debug (HELPER, "  -> success: '%s'", fingerprint);
+  if (strcmp (fingerprint, SHA256_NIL) == 0) /* we check this value from the tests */
+    result = "done";
+  else
+    result = "fail";
 
-  res = write (fd, sock_name, strlen (sock_name));
-  if (res < 0)
-    err (EXIT_FAILURE, "failed to write https-factory.sock response");
+  debug (HELPER, "  -> sending reply '%s'", result);
+  if (!send_all (fd, result, strlen (result), 10 * 1000000))
+    errx (EXIT_FAILURE, "failed to write https-factory.sock response");
+  debug (HELPER, "  -> done.");
+
   close (fd);
 }
 

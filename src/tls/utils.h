@@ -25,11 +25,13 @@
 #define DEBUG 0
 
 /* messages can be disabled per-domain */
-#define DEBUG_POLL 1
-#define DEBUG_BUFFER 1
-#define DEBUG_IOVEC 1
+#define DEBUG_POLL 0
+#define DEBUG_BUFFER 0
+#define DEBUG_IOVEC 0
 #define DEBUG_CONNECTION 1
 #define DEBUG_SERVER 1
+#define DEBUG_FACTORY 1
+#define DEBUG_SOCKET_IO 1
 
 /* socket-activation-helper.c */
 #define DEBUG_HELPER 1
@@ -46,3 +48,5 @@
 #define N_ELEMENTS(arr) (sizeof (arr) / sizeof ((arr)[0]))
 
 #define SD_LISTEN_FDS_START 3   /* sd_listen_fds(3) */
+
+#define FINGERPRINT_LENGTH (64) /* sha256 hex */

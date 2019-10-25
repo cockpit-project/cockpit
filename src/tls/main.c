@@ -36,12 +36,10 @@ struct arguments {
   uint16_t port;
   bool no_tls;
   int idle_timeout;
-  const char *instance_factory_respond;
 };
 
 #define OPT_NO_TLS 1000
 #define OPT_IDLE_TIMEOUT 1001
-#define OPT_INSTANCE_FACTORY_RESPOND 1002
 
 static int
 arg_parse_int (char *arg, struct argp_state *state, int min, int max, const char *error_msg)
@@ -71,9 +69,6 @@ parse_opt (int key, char *arg, struct argp_state *state)
       case OPT_IDLE_TIMEOUT:
         arguments->idle_timeout = arg_parse_int (arg, state, 0, INT_MAX, "Invalid idle timeout");
         break;
-      case OPT_INSTANCE_FACTORY_RESPOND:
-        arguments->instance_factory_respond = arg;
-        break;
       default:
         return ARGP_ERR_UNKNOWN;
     }
@@ -84,7 +79,6 @@ static struct argp_option options[] = {
   {"no-tls", OPT_NO_TLS, 0, 0,  "Don't use TLS" },
   {"port", 'p', "PORT", 0, "Local port to bind to (9090 if unset)" },
   {"idle-timeout", OPT_IDLE_TIMEOUT, "SECONDS", 0, "Time after which to exit if there are no connections; 0 to run forever (default: 90)" },
-  {"instance-factory-respond", OPT_INSTANCE_FACTORY_RESPOND, "SOCKNAME", OPTION_HIDDEN, "cockpit-wsinstance-https-factory@.service helper" },
   { 0 }
 };
 
@@ -103,16 +97,8 @@ main (int argc, char **argv)
   arguments.no_tls = false;
   arguments.port = 9090;
   arguments.idle_timeout = 90;
-  arguments.instance_factory_respond = NULL;
 
   argp_parse (&argp, argc, argv, 0, 0, &arguments);
-
-  /* are we being used as a helper for cockpit-wsinstance-https-factory@.service? */
-  if (arguments.instance_factory_respond)
-    {
-      server_instance_factory_respond (arguments.instance_factory_respond);
-      return 0;
-    }
 
   server_init ("/run/cockpit/wsinstance", arguments.idle_timeout, arguments.port);
 

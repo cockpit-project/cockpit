@@ -20,24 +20,30 @@
 #pragma once
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
+#include <sys/un.h>
+#include <sys/types.h>
+#include <time.h>
 
-#include <gnutls/gnutls.h>
-
-void
-server_init (const char *wsinstance_sockdir,
-             int idle_timeout,
-             uint16_t port);
-
-void
-server_run (void);
-
-void
-server_cleanup (void);
-
-/* these are for unit tests only */
 bool
-server_poll_event (int timeout);
+get_remaining_timeout (struct timespec *start,
+                       uint64_t *timeout_remaining,
+                       uint64_t timeout_us);
 
-unsigned
-server_num_connections (void);
+bool
+recv_alnum (int fd,
+            char *buffer,
+            size_t size,
+            int timeout);
+
+bool
+send_all (int fd,
+          const char *buffer,
+          size_t size,
+          int timeout);
+
+void
+sockaddr_printf (struct sockaddr_un *addr,
+                 const char *format,
+                 ...) __attribute__((format(printf, 2, 3)));

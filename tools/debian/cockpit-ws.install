@@ -13,10 +13,12 @@ lib/systemd/system/cockpit-wsinstance-https-factory@.service
 lib/systemd/system/cockpit-wsinstance-https-factory.socket
 lib/systemd/system/cockpit-wsinstance-https@.service
 lib/systemd/system/cockpit-wsinstance-https@.socket
+lib/systemd/system/system-cockpithttps.slice
 lib/*/security/pam_ssh_add.so
 usr/lib/tmpfiles.d/cockpit-tempfiles.conf
 usr/lib/cockpit/cockpit-session
 usr/lib/cockpit/cockpit-ws
+usr/lib/cockpit/cockpit-wsinstance-factory
 usr/lib/cockpit/cockpit-tls
 usr/lib/cockpit/cockpit-desktop
 usr/lib/firewalld/services/cockpit.xml

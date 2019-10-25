@@ -34,6 +34,7 @@
 #include <gnutls/x509.h>
 
 #include "connection.h"
+#include "testing.h"
 #include "server.h"
 #include "common/cockpittest.h"
 
@@ -311,8 +312,8 @@ teardown (TestCase *tc, gconstpointer data)
   g_assert_cmpint (unlinkat (socket_dir_fd, "http.sock", 0), ==, 0);
   g_assert_cmpint (unlinkat (socket_dir_fd, "http-redirect.sock", 0), ==, 0);
   g_assert_cmpint (unlinkat (socket_dir_fd, "https-factory.sock", 0), ==, 0);
-  g_assert_cmpint (unlinkat (socket_dir_fd, "https@0.sock", 0), ==, 0);
-  g_assert_cmpint (unlinkat (socket_dir_fd, "https@1.sock", 0), ==, 0);
+  g_assert_cmpint (unlinkat (socket_dir_fd, "https@" SHA256_NIL ".sock", 0), ==, 0);
+  g_assert_cmpint (unlinkat (socket_dir_fd, "https@" CLIENT_CERT_FINGERPRINT ".sock", 0), ==, 0);
   g_assert_cmpint (unlinkat (socket_dir_fd, "ready", 0), ==, 0);
   close (socket_dir_fd);
   g_assert_cmpint (g_rmdir (tc->ws_socket_dir), ==, 0);

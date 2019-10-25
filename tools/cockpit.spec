@@ -421,10 +421,12 @@ The Cockpit Web Service listens on the network, and authenticates users.
 %{_unitdir}/cockpit-wsinstance-https-factory@.service
 %{_unitdir}/cockpit-wsinstance-https@.socket
 %{_unitdir}/cockpit-wsinstance-https@.service
+%{_unitdir}/system-cockpithttps.slice
 %{_prefix}/%{__lib}/tmpfiles.d/cockpit-tempfiles.conf
 %{_sbindir}/remotectl
 %{_libdir}/security/pam_ssh_add.so
 %{_libexecdir}/cockpit-ws
+%{_libexecdir}/cockpit-wsinstance-factory
 %{_libexecdir}/cockpit-tls
 %{_libexecdir}/cockpit-desktop
 %attr(4750, root, cockpit-wsinstance) %{_libexecdir}/cockpit-session
@@ -468,6 +470,12 @@ EOF
     semodule -i $tmp/local.pp
     rm -rf "$tmp"
 fi
+%endif
+%if 0%{?rhel} || 0%{?fedora}
+# HACK: SELinux policy adjustment for cockpit-tls; see https://github.com/fedora-selinux/selinux-policy-contrib/pull/161
+    echo "Applying SELinux policy change for cockpit-wsinstance-factory..."
+    semanage fcontext -a /usr/libexec/cockpit-wsinstance-factory -t cockpit_ws_exec_t
+    restorecon /usr/libexec/cockpit-wsinstance-factory
 %endif
 
 %preun ws

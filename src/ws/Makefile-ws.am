@@ -178,6 +178,7 @@ systemd_units_in = \
 	$(NULL)
 
 nodist_systemdunit_DATA += $(patsubst %.in,%,$(systemd_units_in))
+dist_systemdunit_DATA += src/ws/system-cockpithttps.slice
 
 firewalldir = $(prefix)/lib/firewalld/services
 firewall_DATA = src/ws/cockpit.xml

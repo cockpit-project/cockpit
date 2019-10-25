@@ -19,25 +19,5 @@
 
 #pragma once
 
-#include <stdbool.h>
-#include <stdint.h>
-
-#include <gnutls/gnutls.h>
-
-void
-server_init (const char *wsinstance_sockdir,
-             int idle_timeout,
-             uint16_t port);
-
-void
-server_run (void);
-
-void
-server_cleanup (void);
-
-/* these are for unit tests only */
-bool
-server_poll_event (int timeout);
-
-unsigned
-server_num_connections (void);
+#define SHA256_NIL "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+#define CLIENT_CERT_FINGERPRINT "fd1245619267040f6aa88d8071bbae3c99d99ac759fdfec99fcc1af4c28ba23c"

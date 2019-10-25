@@ -34,9 +34,9 @@ expect_curl() {
     fi
 }
 
-# args: <socketname> <expected output>
-expect_nc() {
-    OUT=$(nc --unixsock "$SOCKET_DIR/$1" </dev/null)
+# args: <instance> <expected output>
+expect_start() {
+    OUT=$(./wsinstance-start "$1" "$SOCKET_DIR")
     if ! echo "$OUT" | grep -q "$2"; then
         echo "FAIL: output does not contain $2" >&2
         echo "$OUT" >&2
@@ -44,6 +44,8 @@ expect_nc() {
     fi
 }
 
+SHA256_CERT=fd1245619267040f6aa88d8071bbae3c99d99ac759fdfec99fcc1af4c28ba23c
+SHA256_NIL="$(sha256sum < /dev/null | cut -c1-64)"
 
 expect_curl http.sock "$SUCCESS"
 # second call to existing instance
@@ -57,23 +59,19 @@ echo "ok 1 http.sock"
 expect_curl http-redirect.sock "$REDIRECT"
 echo "ok 2 http-redirect.sock"
 
+expect_start $SHA256_NIL "^done$"
+echo "ok 3 https-factory/success"
 
-expect_nc https-factory.sock "^https@0.sock$"
-echo "ok 3 https-factory #0"
+expect_start "junk" "^fail$"
+echo "ok 4 https-factory/fail"
 
-
-expect_curl https@0.sock "$SUCCESS"
+expect_curl https@$SHA256_NIL.sock "$SUCCESS"
 # second call to existing instance
-expect_curl https@0.sock "$SUCCESS"
+expect_curl https@$SHA256_NIL.sock "$SUCCESS"
 # wait for idle timeout
 sleep 2
-expect_curl https@0.sock "$SUCCESS"
-echo "ok 4 https@0.sock"
+expect_curl https@$SHA256_NIL.sock "$SUCCESS"
+echo "ok 5 https@$SHA256_NIL.sock"
 
-
-expect_nc https-factory.sock "^https@1.sock$"
-echo "ok 5 https-factory #1"
-
-
-expect_curl https@1.sock "$SUCCESS"
-echo "ok 6 https@1.sock"
+expect_curl https@$SHA256_CERT.sock "$SUCCESS"
+echo "ok 6 https@$SHA256_CERT.sock"

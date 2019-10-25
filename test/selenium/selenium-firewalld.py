@@ -38,7 +38,7 @@ class FirewalldBasePage(SeleniumTest):
         self.wait_firewall_enabled()
         self.wait_id("networking-firewall-summary", cond=clickable, jscheck=True)
         element = self.wait_id("networking-firewall-summary", cond=clickable, jscheck=True)
-        self.assertIn("Active Zones", element.text)
+        self.assertIn("Active Zone", element.text)
         self.assertTrue(int(element.text.split(" ")[0].strip()) > 0)
 
     def testServiceEnabledByCommand(self):
@@ -46,7 +46,7 @@ class FirewalldBasePage(SeleniumTest):
         self.machine.execute("sudo firewall-cmd --add-service=cockpit")
         self.wait_firewall_enabled()
         element = self.wait_id("networking-firewall-summary", cond=clickable, jscheck=True)
-        self.assertIn("Active Zones", element.text)
+        self.assertIn("Active Zone", element.text)
         self.assertTrue(int(element.text.split(" ")[0].strip()) > 0)
 
     def tearDown(self):

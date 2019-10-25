@@ -21,6 +21,10 @@ import $ from "jquery";
 import cockpit from "cockpit";
 import { journal } from "journal";
 
+import ReactDOM from 'react-dom';
+import React from 'react';
+import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
+
 $(function() {
     cockpit.translate();
     const _ = cockpit.gettext;
@@ -93,10 +97,23 @@ $(function() {
         }
     }
 
+    function manage_start_box(loading, show_icon, title, text, action, onAction) {
+        ReactDOM.render(
+            React.createElement(EmptyStatePanel, {
+                loading: loading,
+                showIcon: show_icon,
+                title: title,
+                paragraph: text,
+                action: action,
+                onAction: onAction,
+            }),
+            document.getElementById("start-box"));
+    }
+
     /* Not public API */
     function journalbox(outer, start, match, day_box) {
         var box = $('<div class="panel panel-default cockpit-log-panel" role="table">');
-        var start_box = $('<div class="journal-start" role="rowgroup">');
+        var start_box = $('<div class="journal-start" id="start-box" role="rowgroup">');
 
         outer.empty().append(box, start_box);
 
@@ -135,32 +152,35 @@ $(function() {
         }
 
         function didnt_reach_start(first) {
-            var button = $('<button id="journal-load-earlier" class="btn btn-default" data-inline="true" data-mini="true">' +
-                           _("Load earlier entries") +
-                           '</button>');
-            start_box.html(button);
-            button.click(function() {
-                var count = 0;
-                var stopped = null;
-                start_box.text(_("Loading..."));
-                procs.push(journal.journalctl(match, { follow: false, reverse: true, cursor: first })
-                        .fail(query_error)
-                        .stream(function(entries) {
-                            if (entries[0].__CURSOR == first)
-                                entries.shift();
-                            count += entries.length;
-                            append_entries(entries);
-                            if (count >= query_more) {
-                                stopped = entries[entries.length - 1].__CURSOR;
-                                didnt_reach_start(stopped);
-                                this.stop();
-                            }
-                        })
-                        .done(function() {
-                            if (start_box.text() == _("Loading..."))
-                                start_box.empty();
-                        }));
-            });
+            const no_logs = document.querySelector("#journal-box .cockpit-log-panel").innerHTML === "";
+            manage_start_box(false, no_logs,
+                             no_logs ? _("No Logs Found") : "",
+                             no_logs ? _("You may try to load older entries.") : "",
+                             _("Load earlier entries"),
+                             () => {
+                                 var count = 0;
+                                 var stopped = null;
+                                 manage_start_box(true, true, "Loading...", "", "");
+                                 procs.push(journal.journalctl(match, { follow: false, reverse: true, cursor: first })
+                                         .fail(query_error)
+                                         .stream(function(entries) {
+                                             if (entries[0].__CURSOR == first)
+                                                 entries.shift();
+                                             count += entries.length;
+                                             append_entries(entries);
+                                             if (count >= query_more) {
+                                                 stopped = entries[entries.length - 1].__CURSOR;
+                                                 didnt_reach_start(stopped);
+                                                 this.stop();
+                                             }
+                                         })
+                                         .done(function() {
+                                             if (document.querySelector("#journal-box .cockpit-log-panel").innerHTML === "")
+                                                 manage_start_box(false, true, _("No Logs Found"), _("Can not find any logs using the current combination of filters."));
+                                             else if (count < query_more)
+                                                 ReactDOM.unmountComponentAtNode(document.getElementById("start-box"));
+                                         }));
+                             });
         }
 
         function follow(cursor) {
@@ -170,6 +190,10 @@ $(function() {
                         if (entries[0].__CURSOR == cursor)
                             entries.shift();
                         prepend_entries(entries);
+                        const sb_title = document.querySelector("#start-box .pf-c-title");
+                        if (sb_title && sb_title.innerHTML === "No Logs Found") {
+                            ReactDOM.unmountComponentAtNode(document.getElementById("start-box"));
+                        }
                         update_day_box();
                     }));
         }
@@ -253,7 +277,7 @@ $(function() {
                     });
         }
 
-        start_box.text(_("Loading..."));
+        manage_start_box(true, true, "Loading...", "", "");
 
         $('#journal-service-menu').on("click", "a", function() {
             update_services_list = false;
@@ -315,8 +339,10 @@ $(function() {
                     }
                 })
                 .done(function() {
-                    if (start_box.text() == _("Loading..."))
-                        start_box.empty();
+                    if (document.querySelector("#journal-box .cockpit-log-panel").innerHTML === "")
+                        manage_start_box(false, true, _("No Logs Found"), _("Can not find any logs using the current combination of filters."));
+                    else if (count < query_count)
+                        ReactDOM.unmountComponentAtNode(document.getElementById("start-box"));
                     if (!last) {
                         procs.push(journal.journalctl(match, {
                             follow: true, count: 0,
@@ -326,6 +352,10 @@ $(function() {
                                 .fail(query_error)
                                 .stream(function(entries) {
                                     prepend_entries(entries);
+                                    const sb_title = document.querySelector("#start-box .pf-c-title");
+                                    if (sb_title && sb_title.innerHTML === "No Logs Found") {
+                                        ReactDOM.unmountComponentAtNode(document.getElementById("start-box"));
+                                    }
                                     update_day_box();
                                 }));
                     }

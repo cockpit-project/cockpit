@@ -279,8 +279,8 @@
         });
 
         /* Setup the user's last choice about the authorized button */
-        var authorized = localStorage.getItem('authorized-default') || "";
-        if (authorized.indexOf("password") !== -1)
+        var authorized = localStorage.getItem('authorized-default');
+        if (authorized === null || authorized.indexOf("password") !== -1)
             id("authorized-input").checked = true;
 
         var os_release = environment["os-release"];

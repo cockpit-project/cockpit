@@ -36,7 +36,7 @@ class TestKdump(MachineCase):
             contents = self.machine.execute(command="cat /boot/grub2/grub.cfg", quiet=True)
             self.assertIn("crashkernel=auto", contents)
             self.machine.write("/boot/grub2/grub.cfg", contents.replace("crashkernel=auto", "crashkernel=256M"))
-        elif self.machine.image in ["rhel-8-1", "rhel-8-1-distropkg"]:
+        elif self.machine.image in ["rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2"]:
             # these images use BootLoaderSpec and grubenv
             self.machine.execute(
                 "sed -i '/^kernelopts=/ { s/crashkernel=[^ ]*//; s/$/ crashkernel=256M/; }' /boot/grub2/grubenv")
@@ -78,7 +78,7 @@ class TestKdump(MachineCase):
         def assertActive(active):
             b.wait_present(".onoff-ct input" + (active and ":checked" or ":not(:checked)"))
 
-        if m.image in ["rhel-8-1", "rhel-8-1-distropkg"]:
+        if m.image in ["rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2"]:
             # some OSes have kdump enabled by default (crashkernel=auto)
             b.wait_in_text("#app", "Service is running")
             assertActive(True)

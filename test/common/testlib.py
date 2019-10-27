@@ -940,8 +940,8 @@ class MachineCase(unittest.TestCase):
             # Fedora >= 30 switched to dbus-broker
             self.allowed_messages.append("dbus-daemon didn't send us a dbus address; not installed?.*")
 
-        if self.image in ['rhel-8-1', 'rhel-8-1-distropkg']:
-            # https://bugzilla.redhat.com/show_bug.cgi?id=1753991
+        if self.image in ['rhel-8-1', 'rhel-8-1-distropkg', 'rhel-8-2']:
+            # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1753991
             self.allowed_messages.append('.*type=1400.*avc:  denied  { dac_override } .* comm="rhsmd" .* scontext=system_u:system_r:rhsmcertd_t:s0-s0:c0.c1023 tcontext=system_u:system_r:rhsmcertd_t:.*')
 
         all_found = True

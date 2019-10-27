@@ -379,7 +379,7 @@ s.send(b"PRIORITY=3\\nFOO=bar\\n")'
 
     @skipImage("ABRT does not work on i386", "fedora-i386")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-1804", "fedora-atomic", "rhel-8-1", "rhel-8-1-distropkg")
+               "ubuntu-1804", "fedora-atomic", "rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2")
     def testAbrtSegv(self):
         self.allow_core_dumps = True
         b = self.browser
@@ -419,7 +419,7 @@ s.send(b"PRIORITY=3\\nFOO=bar\\n")'
 
     @skipImage("ABRT does not work on i386", "fedora-i386")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-1804", "fedora-atomic", "rhel-8-1", "rhel-8-1-distropkg")
+               "ubuntu-1804", "fedora-atomic", "rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2")
     def testAbrtDelete(self):
         self.allow_core_dumps = True
         b = self.browser
@@ -450,7 +450,7 @@ s.send(b"PRIORITY=3\\nFOO=bar\\n")'
 
     @skipImage("ABRT does not work on i386", "fedora-i386")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-1804", "fedora-atomic", "rhel-8-1", "rhel-8-1-distropkg")
+               "ubuntu-1804", "fedora-atomic", "rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2")
     def testAbrtReport(self):
         self.allow_core_dumps = True
         # The testing server is located at verify/files/mock-faf-server.py

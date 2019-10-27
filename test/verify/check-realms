@@ -60,6 +60,7 @@ done
 
 
 @skipImage("No realmd available", "fedora-atomic")
+@skipImage("freeipa not currently in testing", "debian-testing")
 class TestRealms(MachineCase):
     provision = {
         "0": {"address": "10.111.113.1/20", "dns": "10.111.112.100"},
@@ -416,6 +417,7 @@ sed -i '/^sudoers:/ s/files sss/sss files/' /etc/nsswitch.conf
 
 
 @skipImage("No realmd available", "fedora-atomic")
+@skipImage("freeipa not currently in testing", "debian-testing")
 class TestKerberos(MachineCase):
     provision = {
         "0": {"address": "10.111.113.1/20", "dns": "10.111.112.100"},

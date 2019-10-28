@@ -1353,29 +1353,6 @@ function NetworkManagerModel() {
                           type_Settings);
     };
 
-    function compare_versions(a, b) {
-        function to_ints(str) {
-            return str.split(".").map(function (s) { return s ? parseInt(s, 10) : 0 });
-        }
-
-        var a_ints = to_ints(a);
-        var b_ints = to_ints(b);
-        var len = Math.min(a_ints.length, b_ints.length);
-        var i;
-
-        for (i = 0; i < len; i++) {
-            if (a_ints[i] == b_ints[i])
-                continue;
-            return a_ints[i] - b_ints[i];
-        }
-
-        return a_ints.length - b_ints.length;
-    }
-
-    self.at_least_version = function at_least_version (version) {
-        return compare_versions(self.get_manager().Version, version) >= 0;
-    };
-
     /* Initialization.
      */
 
@@ -2555,10 +2532,8 @@ PageNetworkInterface.prototype = {
         }
 
         var can_edit_mac = (iface && iface.MainConnection &&
-                            ((connection_settings(iface.MainConnection).type == "802-3-ethernet" &&
-                              self.model.at_least_version("1.4")) ||
-                             (connection_settings(iface.MainConnection).type == "bond" &&
-                              self.model.at_least_version("1.6"))));
+                            (connection_settings(iface.MainConnection).type == "802-3-ethernet" ||
+                             connection_settings(iface.MainConnection).type == "bond"));
 
         $('#network-interface-mac').empty();
         if (can_edit_mac) {
@@ -3780,8 +3755,6 @@ PageNetworkBondSettings.prototype = {
         updelay_input.change(change_monitoring);
         downdelay_input = body.find('#network-bond-settings-link-down-delay-input');
         downdelay_input.change(change_monitoring);
-
-        body.find('#network-bond-settings-mac-row').toggle(model.at_least_version("1.6"));
 
         select_btn_select(mode_btn, options.mode);
         select_btn_select(monitoring_btn, (options.miimon !== 0) ? "mii" : "arp");

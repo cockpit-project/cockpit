@@ -428,6 +428,7 @@ parameters:
             self.send_keys(self.wait_id("authorized-keys-text", cond=visible), ssh_public_key)
             self.click((self.wait_id("add-authorized-key", cond=clickable)))
             self.wait_id("authorized-key-add", cond=clickable)
+            self.wait_xpath("//div[@class='comment' and contains(text(), '%s')]" % ssh_key_name)
         self.mainframe()
 
     def logout(self):

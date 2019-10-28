@@ -360,7 +360,7 @@ Provides: cockpit-users = %{version}-%{release}
 %if 0%{?rhel}
 Provides: cockpit-networkmanager = %{version}-%{release}
 Obsoletes: cockpit-networkmanager
-Requires: NetworkManager
+Requires: NetworkManager >= 1.6
 Provides: cockpit-kdump = %{version}-%{release}
 Requires: kexec-tools
 Recommends: polkit
@@ -512,7 +512,7 @@ sosreport tool.
 Summary: Cockpit user interface for networking, using NetworkManager
 Requires: cockpit-bridge >= %{required_base}
 Requires: cockpit-shell >= %{required_base}
-Requires: NetworkManager
+Requires: NetworkManager >= 1.6
 # Optional components
 Recommends: NetworkManager-team
 BuildArch: noarch

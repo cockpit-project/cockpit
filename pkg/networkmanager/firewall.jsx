@@ -630,15 +630,22 @@ class ActivateZoneModal extends React.Component {
     }
 
     save() {
+        let p;
+        if (firewall.zones[this.state.zone].services.indexOf("cockpit") === -1)
+            p = firewall.addService(this.state.zone, "cockpit");
+        else
+            p = Promise.resolve();
+
         const sources = this.state.ipRange === "ip-range" ? this.state.ipRangeValue.split(",").map(ip => ip.trim()) : [];
-        firewall.activateZone(this.state.zone, [...this.state.interfaces], sources)
-                .then(() => this.props.close())
-                .catch(error => {
-                    this.setState({
-                        dialogError: _("Failed to add zone"),
-                        dialogErrorDetail: error.name + ": " + error.message,
-                    });
-                });
+        p.then(() =>
+            firewall.activateZone(this.state.zone, [...this.state.interfaces], sources)
+                    .then(() => this.props.close())
+                    .catch(error => {
+                        this.setState({
+                            dialogError: _("Failed to add zone"),
+                            dialogErrorDetail: error.name + ": " + error.message,
+                        });
+                    }));
     }
 
     render() {
@@ -691,6 +698,7 @@ class ActivateZoneModal extends React.Component {
                         <label htmlFor="add-zone-services-readonly" className="control-label">{ _("Included services") }</label>
                         <div id="add-zone-services-readonly">
                             { (this.state.zone && firewall.zones[this.state.zone].services.join(", ")) || _("None") }
+                            <legend>{_("The cockpit service is automatically included")}</legend>
                         </div>
 
                         <label htmlFor="add-zone-interface" className="control-label">{ _("Interfaces") }</label>

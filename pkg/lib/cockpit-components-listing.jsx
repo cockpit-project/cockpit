@@ -257,9 +257,14 @@ export class ListingRow extends React.Component {
 
             let simpleBody, heading;
             if ('simpleBody' in this.props) {
-                simpleBody = (
-                    <div className="listing-ct-body" key="simplebody">{this.props.simpleBody}</div>
-                );
+                heading =
+                    <div className="listing-ct-actions listing-ct-simplebody-actions">
+                        {this.props.listingActions}
+                    </div>;
+                simpleBody =
+                    <div className="listing-ct-body" key="simplebody">
+                        {this.props.simpleBody}
+                    </div>;
             } else {
                 heading = (<div className="listing-ct-head">
                     <div className="listing-ct-actions">

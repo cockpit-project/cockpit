@@ -383,9 +383,9 @@ module.exports = {
                 exclude: /\/node_modules\/.*\//, // exclude external dependencies
                 loader: 'strict-loader' // Adds "use strict"
             },
-            /* these are called *.js, but are ES6 */
+            /* these modules need to be babel'ed, they cause bugs in their dist'ed form */
             {
-                test: /\/node_modules\/@novnc.*\.js$/,
+                test: /\/node_modules\/.*(@novnc|react-table).*\.js$/,
                 use: babel_loader
             },
             {

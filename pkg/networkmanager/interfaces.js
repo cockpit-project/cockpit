@@ -66,7 +66,7 @@ function show_unexpected_error(error) {
 }
 
 function select_btn(func, spec, klass) {
-    var choice = spec[0].choice;
+    var choice = spec[0] ? spec[0].choice : null;
 
     function option_mapper(opt) {
         return $('<option>', { value: opt.choice, 'data-value': opt.title }).text(opt.title);

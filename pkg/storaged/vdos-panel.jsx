@@ -58,7 +58,7 @@ export class VDOsPanel extends React.Component {
                                 {
                                     empty_warning: _("No disks are available."),
                                     validate: function (spc) {
-                                        if (spc === undefined)
+                                        if (!spc)
                                             return _("A disk is needed.");
                                     },
                                     spaces: get_available_spaces(client)

@@ -454,7 +454,6 @@ export class AddDiskModalBody extends React.Component {
     render() {
         const { vm, storagePools, provider, vms } = this.props;
         const idPrefix = `${this.props.idPrefix}-adddisk`;
-        const storagePoolsFiltered = storagePools.filter(pool => pool && pool.active);
 
         const defaultBody = (
             <div className='ct-form'>
@@ -487,7 +486,7 @@ export class AddDiskModalBody extends React.Component {
                     <CreateNewDisk idPrefix={`${idPrefix}-new`}
                                    onValueChanged={this.onValueChanged}
                                    dialogValues={this.state}
-                                   vmStoragePools={storagePoolsFiltered}
+                                   vmStoragePools={storagePools}
                                    provider={provider}
                                    vm={vm} />
                 )}
@@ -495,7 +494,7 @@ export class AddDiskModalBody extends React.Component {
                     <UseExistingDisk idPrefix={`${idPrefix}-existing`}
                                      onValueChanged={this.onValueChanged}
                                      dialogValues={this.state}
-                                     vmStoragePools={storagePoolsFiltered}
+                                     vmStoragePools={storagePools}
                                      provider={provider}
                                      vms={vms}
                                      vm={vm} />

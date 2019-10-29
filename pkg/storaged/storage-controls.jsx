@@ -101,7 +101,7 @@ export class StorageButton extends React.Component {
                             content={(excuse) => (
                                 <button id={this.props.id}
                                             onClick={checked(this.props.onClick)}
-                                            className={classes + (excuse ? " disabled" : "")}
+                                            className={classes}
                                             style={excuse ? { pointerEvents: 'none' } : null}
                                             disabled={excuse}>
                                     {this.props.children}
@@ -118,7 +118,7 @@ export class StorageLink extends React.Component {
                             content={(excuse) => (
                                 <button onClick={checked(this.props.onClick)}
                                         style={excuse ? { pointerEvents: 'none' } : null}
-                                        className={"link-button ct-form-relax" + (excuse ? " disabled" : "")}>
+                                        className="link-button ct-form-relax" disabled={excuse}>
                                     {this.props.children}
                                 </button>
                             )} />
@@ -205,11 +205,9 @@ export class StorageMultiAction extends React.Component {
             <StorageControl excuse={this.props.excuse}
                             content={(excuse) => {
                                 var btn_classes = "pf-c-button pf-m-secondary";
-                                if (excuse)
-                                    btn_classes += " disabled";
                                 return (
                                     <div className="btn-group">
-                                        <button className={btn_classes} onClick={checked(dflt.action)}>
+                                        <button className={btn_classes} onClick={checked(dflt.action)} disabled={excuse}>
                                             {dflt.title}
                                         </button>
                                         <button className={btn_classes + " dropdown-toggle"}

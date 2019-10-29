@@ -12,6 +12,7 @@ html {
   font-family: sans-serif;
   -ms-text-size-adjust: 100%;
   -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -245,8 +246,6 @@ label.checkbox {
   font: inherit;
 }
 
-
-
 .help-block {
   display: block;
   margin-top: 5px;
@@ -386,7 +385,7 @@ label.checkbox {
 }
 
 .login-pf .container .control-label {
-  font-weight: 400;
+  font-weight: 600;
 }
 
 .login-pf .container .help-block {
@@ -744,7 +743,6 @@ label.checkbox {
 
   [role=form] .control-label,
   form .control-label {
-    justify-content: end;
     padding: 0;
   }
 
@@ -846,9 +844,8 @@ label.checkbox {
     text-align: left;
   }
 
-  .login-button-container {
+  .login-button {
     width: 100%;
-    float: none;
   }
 
   .login-pf .container {
@@ -933,10 +930,6 @@ label.checkbox {
       grid-template-areas: ". . . ." ". login logo ." ". . . . ";
       grid-template-rows: 1fr minmax(min-content,max-content) 1fr;
       grid-template-columns: minmax(0, 2.125rem) 35rem 1fr minmax(0, 2.125rem);
-    }
-
-    .form-group .form-control {
-      margin-left: 1rem;
     }
   }
 

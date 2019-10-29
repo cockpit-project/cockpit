@@ -35,6 +35,7 @@ from selenium.webdriver.support.select import Select
 from selenium.webdriver.remote.remote_connection import LOGGER
 import os
 import time
+import subprocess
 from avocado import Test
 from .timeoutlib import Retry
 from .machine_core import ssh_connection
@@ -406,7 +407,7 @@ parameters:
         self.click(self.wait_id("login-button", cond=clickable))
         if wait_hostapp:
             self.wait_id("host-apps")
-        if add_ssh_key:
+        if add_ssh_key and not self.check_machine_execute():
             self.add_authorised_ssh_key_to_user()
 
     def add_authorised_ssh_key_to_user(self, pub_key=None):
@@ -417,19 +418,23 @@ parameters:
         self.click(self.wait_id("content-user-name", cond=clickable))
         self.click(self.wait_id("go-account", cond=clickable))
         self.wait_frame('users')
-        # put key just in case it is not already there
-        if not self.wait_xpath("//div[@class='comment' and contains(text(), '%s')]" % ssh_key_name,
-                               fatal=False,
-                               overridetry=3,
-                               cond=visible):
-            self.click(self.wait_id("authorized-key-add", cond=clickable))
-            self.send_keys(self.wait_id("authorized-keys-text", cond=visible), ssh_public_key)
-            self.click((self.wait_id("add-authorized-key", cond=clickable)))
-            self.wait_id("authorized-key-add", cond=clickable)
-            self.wait_xpath("//div[@class='comment' and contains(text(), '%s')]" % ssh_key_name)
+        self.wait_id("account-page")
+        self.click(self.wait_id("authorized-key-add", cond=clickable))
+        self.send_keys(self.wait_id("authorized-keys-text", cond=visible), ssh_public_key)
+        self.click((self.wait_id("add-authorized-key", cond=clickable)))
+        self.wait_id("authorized-key-add", cond=clickable)
+        self.wait_xpath("//div[@class='comment' and contains(text(), '%s')]" % ssh_key_name)
+        self.wait_id("account-page")
         self.mainframe()
 
     def logout(self):
         self.mainframe()
         self.click(self.wait_id('navbar-dropdown', cond=clickable))
         self.click(self.wait_id('go-logout', cond=clickable))
+
+    def check_machine_execute(self, timeout=3):
+        try:
+            self.machine.execute(command="true", direct=True, timeout=timeout)
+        except subprocess.CalledProcessError:
+            return False
+        return True

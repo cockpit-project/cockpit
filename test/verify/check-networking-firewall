@@ -369,6 +369,7 @@ class TestFirewall(NetworkCase):
             for i in interfaces:
                 b.wait_present("#zones-listing .zone-section[data-id='{}']".format(zone, i))
             b.wait_present("#zones-listing .zone-section[data-id='{}']".format(zone))
+            b.wait_present("#zones-listing .zone-section[data-id='{}'] tr[data-row-id='cockpit']".format(zone))
 
         def removeZone(zone):
             b.click(".zone-section[data-id='{}'] .zone-section-buttons button.btn-danger".format(zone))

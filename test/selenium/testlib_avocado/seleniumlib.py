@@ -239,6 +239,8 @@ This function is only for internal purposes:
                 self.everything_loaded(element)
             except WebDriverException:
                 pass
+            time.sleep(0.2)
+
         if failure:
             self.take_screenshot(fatal=False)
             raise SeleniumElementFailure('Unable to CLICK on element {}'.format(failure))
@@ -353,6 +355,7 @@ parameters:
                     break
             except WebDriverException:
                 pass
+            time.sleep(0.5)
         if returned is None:
             if fatal:
                 self.take_screenshot(fatal=False)

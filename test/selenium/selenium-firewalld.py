@@ -25,6 +25,7 @@ class FirewalldBasePage(SeleniumTest):
         self.wait_id("networking-firewall-link", cond=clickable)
         self.wait_id("networking-firewall-switch", cond=clickable).click()
         self.wait_id("networking-firewall")
+        self.wait_firewall_enabled()
         self.machine.execute("sudo firewall-cmd --add-service=cockpit")
 
     def wait_firewall_enabled(self):
@@ -35,7 +36,6 @@ class FirewalldBasePage(SeleniumTest):
 
     def testServiceList(self):
         self.testEnabling()
-        self.wait_firewall_enabled()
         self.wait_id("networking-firewall-summary", cond=clickable)
         element = self.wait_id("networking-firewall-summary", cond=clickable)
         self.assertIn("Active Zone", element.text)

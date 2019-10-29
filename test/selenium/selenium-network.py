@@ -17,7 +17,7 @@ class NeworkTestSuite(SeleniumTest):
         self.login()
         self.click(self.wait_link('Network', cond=clickable))
         self.wait_frame("network")
-        self.wait_id("networking", jscheck=True)
+        self.wait_id("networking")
 
     def testBasePage(self):
         main_interface = self.machine.execute("/usr/sbin/ip r | grep default | head -1 | cut -d ' ' -f 5").strip()

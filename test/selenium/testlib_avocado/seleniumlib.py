@@ -67,6 +67,8 @@ class SeleniumTest(Test):
     :avocado: disable
     """
 
+    RETRY_LOOP_SLEEP = 0.5
+
     def _selenium_logging(self, method, *args):
         transformed_arg_list = list()
         for arg in args:
@@ -224,6 +226,7 @@ class SeleniumTest(Test):
             except WebDriverException as e:
                 failure = e
                 element = usedfunction() if usedfunction else element
+            time.sleep(self.RETRY_LOOP_SLEEP)
 
         if failure:
             self.take_screenshot(fatal=False)
@@ -340,6 +343,7 @@ parameters:
                     break
             except WebDriverException:
                 pass
+            time.sleep(self.RETRY_LOOP_SLEEP)
         if returned is None:
             if fatal:
                 self.take_screenshot(fatal=False)

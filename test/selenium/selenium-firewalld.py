@@ -39,7 +39,7 @@ class FirewalldBasePage(SeleniumTest):
         self.wait_id("networking-firewall-summary", cond=clickable, jscheck=True)
         element = self.wait_id("networking-firewall-summary", cond=clickable, jscheck=True)
         self.assertIn("Active Zone", element.text)
-        self.assertTrue(int(element.text.split(" ")[0].strip()) > 0)
+        self.assertGreater(int(element.text.split(" ")[0].strip()), 0)
 
     def testServiceEnabledByCommand(self):
         self.machine.execute("sudo systemctl start firewalld")
@@ -47,7 +47,7 @@ class FirewalldBasePage(SeleniumTest):
         self.wait_firewall_enabled()
         element = self.wait_id("networking-firewall-summary", cond=clickable, jscheck=True)
         self.assertIn("Active Zone", element.text)
-        self.assertTrue(int(element.text.split(" ")[0].strip()) > 0)
+        self.assertGreater(int(element.text.split(" ")[0].strip()), 0)
 
     def tearDown(self):
         self.machine.execute("sudo systemctl stop firewalld")

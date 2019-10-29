@@ -863,4 +863,21 @@ client.init = function init_storaged(callback) {
     });
 };
 
+client.wait_for = function wait_for(cond) {
+    var dfd = cockpit.defer();
+
+    function check() {
+        var res = cond();
+        if (res) {
+            client.removeEventListener("changed", check);
+            dfd.resolve(res);
+        }
+    }
+
+    client.addEventListener("changed", check);
+    check();
+
+    return dfd.promise();
+};
+
 export default client;

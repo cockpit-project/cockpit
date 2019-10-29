@@ -31,23 +31,6 @@ import vdo_monitor_py from "raw-loader!./vdo-monitor.py";
 
 const _ = cockpit.gettext;
 
-function wait_for(client, cond) {
-    var dfd = cockpit.defer();
-
-    function check() {
-        var res = cond();
-        if (res) {
-            client.removeEventListener("changed", check);
-            dfd.resolve(res);
-        }
-    }
-
-    client.addEventListener("changed", check);
-    check();
-
-    return dfd.promise();
-}
-
 export class VDODetails extends React.Component {
     constructor() {
         super();
@@ -185,7 +168,7 @@ export class VDODetails extends React.Component {
                 } else {
                     return vdo.start()
                             .then(function () {
-                                wait_for(client, () => client.slashdevs_block[vdo.dev])
+                                client.wait_for(() => client.slashdevs_block[vdo.dev])
                                         .then(function (block) {
                                             return block.Format("empty", { 'tear-down': { t: 'b', v: true } });
                                         });

@@ -35,7 +35,7 @@ class TestHWinfo(SeleniumTest):
         self.click(self.wait_id("system_information_hardware_text"))
         self.mainframe()
         self.wait_frame("localhost/system/hwinfo")
-        self.wait_id("hwinfo", jscheck=True)
+        self.wait_id("hwinfo")
 
     def tearDown(self):
         self.machine.execute('sudo rm -f {}'.format(self.lscpu_file))
@@ -49,7 +49,7 @@ class TestHWinfo(SeleniumTest):
     def testSMT(self):
 
         self.click(self.wait_text("Mitigations", element="button", cond=clickable))
-        self.wait_id("cpu-mitigations-dialog", jscheck=True)
+        self.wait_id("cpu-mitigations-dialog")
         self.click(self.wait_id("nosmt-switch"))
         self.wait_text("Save and reboot", cond=clickable)
         self.click(self.wait_text("Cancel", cond=clickable))

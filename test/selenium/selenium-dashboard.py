@@ -20,15 +20,15 @@ class TestDashboard(SeleniumTest):
         self.login()
         self.click(self.wait_xpath("//a[@href='/dashboard']", cond=clickable))
         self.wait_frame("cockpit1:localhost/dashboard")
-        self.wait_id("dashboard", jscheck=True)
+        self.wait_id("dashboard")
         ip_addr = "127.0.0.3"
-        self.click(self.wait_id("dashboard-add", cond=clickable, jscheck=True))
+        self.click(self.wait_id("dashboard-add", cond=clickable))
 
-        self.wait_id("dashboard_setup_server_dialog", jscheck=True)
+        self.wait_id("dashboard_setup_server_dialog")
         add_machine_element = self.wait_id("add-machine-address")
         self.send_keys(add_machine_element, ip_addr, clear=True)
 
-        self.click(self.wait_id("dashboard_setup_server_dialog", jscheck=True))
+        self.click(self.wait_id("dashboard_setup_server_dialog"))
 
         self.click(self.wait_text("Add", cond=clickable, element="button"))
         connect_element = self.wait_text("Connect", cond=clickable, element="button", fatal=False, overridetry=5)

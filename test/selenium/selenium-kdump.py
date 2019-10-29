@@ -54,7 +54,7 @@ class TestKdump(SeleniumTest):
             self.execute_script('''document.querySelector("#host-nav a[href='/kdump']").scrollIntoView()''')
         self.click(self.wait_link("Kernel Dump"))
         self.wait_frame("localhost/kdump")
-        self.base_element = self.wait_id("app", jscheck=True)
+        self.base_element = self.wait_id("app")
 
     def tearDown(self):
         self.requirements_cleanup()
@@ -67,13 +67,13 @@ class TestKdump(SeleniumTest):
         self.wait_text("Service is running", cond=visible)
         self.click(self.wait_text(old_text, cond=visible))
         self.select_by_text(self.wait_id("kdump-settings-location",
-                                         cond=clickable, jscheck=True),
+                                         cond=clickable),
                             selector_item)
         for textbox_key in textbox_dict:
             location = self.wait_id(textbox_key)
             self.send_keys(location, textbox_dict[textbox_key])
         self.click(self.wait_text("Apply", cond=visible))
-        self.wait_id("app", jscheck=True)
+        self.wait_id("app")
         self.wait_text(new_text, cond=visible)
         self.wait_text("Service is running", cond=visible)
 

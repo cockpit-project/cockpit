@@ -25,7 +25,7 @@ class BasicTestSuite(SeleniumTest):
         self.logout()
         out = self.machine.execute("hostname")
         server_element = self.wait_id('server-name')
-        self.assertTrue(out.strip() in str(server_element.text))
+        self.assertIn(out.strip(), str(server_element.text))
 
     def test20Login(self):
         self.login()
@@ -35,7 +35,7 @@ class BasicTestSuite(SeleniumTest):
         self.wait_id('server-name')
         self.login("baduser", "badpasswd", wait_hostapp=False, add_ssh_key=False)
         message_element = self.wait_id('login-error-message')
-        self.assertTrue("Wrong" in message_element.text)
+        self.assertIn("Wrong", message_element.text)
         self.login()
         username_element = self.wait_id("content-user-name")
         self.assertEqual(username_element.text, user)

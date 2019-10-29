@@ -338,7 +338,7 @@ parameters:
                     self.log.info("element does not yet have data-loaded=1, retrying")
                 else:
                     break
-            except Exception:
+            except WebDriverException:
                 pass
         if returned is None:
             if fatal:

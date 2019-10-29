@@ -231,13 +231,13 @@ This function is only for internal purposes:
                     element.click()
                 failure = None
                 break
-            except Exception as e:
+            except WebDriverException as e:
                 failure = e
                 pass
             try:
                 element = usedfunction() if usedfunction else element
                 self.everything_loaded(element)
-            except Exception:
+            except WebDriverException:
                 pass
         if failure:
             self.take_screenshot(fatal=False)
@@ -351,7 +351,7 @@ parameters:
                         break
                 else:
                     break
-            except Exception:
+            except WebDriverException:
                 pass
         if returned is None:
             if fatal:

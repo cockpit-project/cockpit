@@ -66,7 +66,7 @@ AC_MSG_RESULT($enable_prefix_only)
 #
 
 GLIB_VERSION="2.44"
-LIBSSH_VERSION="0.6.0"
+LIBSSH_VERSION="0.8"
 GIO_VERSION="2.37.4" # For appropriate version of TLS logic
 
 GIO_REQUIREMENT="gio-unix-2.0 >= $GIO_VERSION gio-2.0 >= $GIO_VERSION"

@@ -214,18 +214,19 @@ class SeleniumTest(Test):
     def click(self, element):
         failure = "CLICK: too many tries"
         usedfunction = self.element_wait_functions[element] if element in self.element_wait_functions else None
-        for foo in range(0, self.default_try):
+        for retry in range(0, self.default_try):
             try:
+                if retry > 0 and usedfunction:
+                    element = usedfunction()
                 self._selenium_logging("click", element)
                 if javascript_operations:
-                    self.execute_script("arguments[0].click();", element, fatal=False)
+                    self.driver.execute_script("arguments[0].click();", element)
                 else:
                     element.click()
                 failure = None
                 break
             except WebDriverException as e:
                 failure = e
-                element = usedfunction() if usedfunction else element
             time.sleep(self.RETRY_LOOP_SLEEP)
 
         if failure:

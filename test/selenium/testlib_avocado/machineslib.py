@@ -411,7 +411,7 @@ class MachinesLib(SeleniumTest):
         wait(lambda: 'cirros login:' in self.machine.execute(
             "sudo tail -n 1 {}".format(log_file)) or re.search(
             'cirros login:.*NMI received',
-            self.machine.execute("sudo tail -n 3 {}".format(log_file))))
+            self.machine.execute("sudo tail -n 3 {}".format(log_file))), delay=5)
 
         self.click(self.wait_css('#vm-{}-reboot'.format(vm_name), cond=clickable))
         wait(lambda: "reboot: Power down" in self.machine.execute("sudo cat {}".format(log_file)))

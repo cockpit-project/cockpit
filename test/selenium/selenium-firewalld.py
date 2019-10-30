@@ -21,33 +21,27 @@ class FirewalldBasePage(SeleniumTest):
         self.wait_id("networking")
         self.machine.execute("sudo systemctl stop firewalld")
 
+    def wait_some_zones(self):
+        for retry in range(60):
+            element = self.wait_id("networking-firewall-summary", cond=clickable)
+            self.assertIn("Active Zone", element.text)
+            if int(element.text.split(" ")[0].strip()) > 0:
+                break
+            time.sleep(1)
+        else:
+            self.fail("did not get any active zones after enabling")
+
     def testEnabling(self):
         self.wait_id("networking-firewall-link", cond=clickable)
         self.wait_id("networking-firewall-switch", cond=clickable).click()
         self.wait_id("networking-firewall")
-        self.wait_firewall_enabled()
+        self.wait_some_zones()
         self.machine.execute("sudo firewall-cmd --add-service=cockpit")
 
-    def wait_firewall_enabled(self):
-        # TODO: find better way how to wait for enabled firewalld inside cockpit
-        # unable to see input (checkbox) element via selenium
-        # wait to cockpit async settle system command result
-        time.sleep(5)
-
-    def testServiceList(self):
-        self.testEnabling()
-        self.wait_id("networking-firewall-summary", cond=clickable)
-        element = self.wait_id("networking-firewall-summary", cond=clickable)
-        self.assertIn("Active Zone", element.text)
-        self.assertGreater(int(element.text.split(" ")[0].strip()), 0)
-
-    def testServiceEnabledByCommand(self):
+    def testEnablingByCommand(self):
         self.machine.execute("sudo systemctl start firewalld")
         self.machine.execute("sudo firewall-cmd --add-service=cockpit")
-        self.wait_firewall_enabled()
-        element = self.wait_id("networking-firewall-summary", cond=clickable)
-        self.assertIn("Active Zone", element.text)
-        self.assertGreater(int(element.text.split(" ")[0].strip()), 0)
+        self.wait_some_zones()
 
     def tearDown(self):
         self.machine.execute("sudo systemctl stop firewalld")

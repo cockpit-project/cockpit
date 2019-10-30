@@ -28,6 +28,10 @@ export function getRefreshInterval(state) {
     return state.config.refreshInterval;
 }
 
+export function getLibvirtServiceState(state) {
+    return state.systemInfo.libvirtService.activeState;
+}
+
 export function usagePollingEnabled(state, name, connectionName) {
     for (var i = 0; i < state.vms.length; i++) {
         const vm = state.vms[i];

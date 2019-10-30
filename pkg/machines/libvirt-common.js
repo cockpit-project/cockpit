@@ -14,7 +14,6 @@ import {
 } from './actions/store-actions.js';
 
 import {
-    checkLibvirtStatus,
     getApiData,
     getHypervisorMaxVCPU,
     getLoggedInUser,
@@ -1370,9 +1369,6 @@ export function START_LIBVIRT({ serviceName }) {
     logDebug(`${this.name}.START_LIBVIRT`);
     return dispatch => {
         return service.proxy(serviceName).start()
-                .done(() => {
-                    dispatch(checkLibvirtStatus(serviceName));
-                })
                 .fail(exception => {
                     console.info(`starting libvirt failed: "${JSON.stringify(exception)}"`);
                 });

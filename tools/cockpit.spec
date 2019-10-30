@@ -72,7 +72,7 @@ BuildRequires: autoconf automake
 BuildRequires: /usr/bin/python3
 BuildRequires: gettext >= 0.19.7
 %if %{defined build_dashboard}
-BuildRequires: libssh-devel >= 0.7.1
+BuildRequires: libssh-devel >= 0.8
 %endif
 BuildRequires: openssl-devel
 BuildRequires: gnutls-devel >= 3.4.3

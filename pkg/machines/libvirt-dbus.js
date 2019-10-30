@@ -343,7 +343,8 @@ LIBVIRT_DBUS_PROVIDER = {
         name,
         connectionName,
         id: objPath,
-        options
+        options,
+        storagePools
     }) {
         function destroy() {
             return call(connectionName, objPath, 'org.libvirt.Domain', 'Destroy', [0], TIMEOUT);
@@ -357,19 +358,27 @@ LIBVIRT_DBUS_PROVIDER = {
                 const disk = options.storage[i];
 
                 switch (disk.type) {
-                case 'file':
+                case 'file': {
                     storageVolPromises.push(
                         call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'StorageVolLookupByPath', [disk.source.file], TIMEOUT)
                                 .then(volPath => call(connectionName, volPath[0], 'org.libvirt.StorageVol', 'Delete', [0], TIMEOUT))
                     );
+                    const pool = storagePools.find(pool => pool.connectionName === connectionName && pool.volumes.some(vol => vol.path === disk.source.file));
+                    if (pool)
+                        storageVolPromises.push(storagePoolRefresh(connectionName, pool.id));
                     break;
-                case 'volume':
+                }
+                case 'volume': {
                     storageVolPromises.push(
                         call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'StoragePoolLookupByName', [disk.source.pool], TIMEOUT)
                                 .then(objPath => call(connectionName, objPath[0], 'org.libvirt.StoragePool', 'StorageVolLookupByName', [disk.source.volume], TIMEOUT))
                                 .then(volPath => call(connectionName, volPath[0], 'org.libvirt.StorageVol', 'Delete', [0], TIMEOUT))
                     );
+                    const pool = storagePools.find(pool => pool.connectionName === connectionName && pool.name === disk.source.pool);
+                    if (pool)
+                        storageVolPromises.push(storagePoolRefresh(connectionName, pool.id));
                     break;
+                }
                 default:
                     logDebug("Disks of type $0 are currently ignored during VM deletion".format(disk.type));
                 }

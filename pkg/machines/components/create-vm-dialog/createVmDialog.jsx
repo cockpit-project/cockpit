@@ -50,6 +50,7 @@ import {
     getOSStringRepresentation,
 } from "./createVmDialogUtils.js";
 import MemorySelectRow from '../memorySelectRow.jsx';
+import { storagePoolRefresh } from '../../libvirt-dbus.js';
 
 import './createVmDialog.less';
 import 'form-layout.less';
@@ -684,9 +685,9 @@ class CreateVmModal extends React.Component {
     }
 
     onCreateClicked() {
-        const { dispatch } = this.props;
+        const { dispatch, providerName, storagePools, close, onAddErrorNotification, osInfoList } = this.props;
 
-        const validation = validateParams({ ...this.state, osInfoList: this.props.osInfoList });
+        const validation = validateParams({ ...this.state, osInfoList: osInfoList });
         if (Object.getOwnPropertyNames(validation).length > 0) {
             this.setState({ inProgress: false, validate: true });
         } else {
@@ -711,13 +712,20 @@ class CreateVmModal extends React.Component {
             return timeoutedPromise(
                 dispatch(createVm(vmParams)),
                 VMS_CONFIG.LeaveCreateVmDialogVisibleAfterSubmit,
-                () => this.props.close(),
+                () => {
+                    close();
+
+                    if (providerName == 'LibvirtDBus' && this.state.storagePool === "NewVolume") {
+                        const storagePool = storagePools.find(pool => pool.connectioName === this.state.connectioName && pool.name === "default");
+                        storagePoolRefresh(storagePool.connectionName, storagePool.id);
+                    }
+                },
                 (exception) => {
-                    this.props.onAddErrorNotification({
+                    onAddErrorNotification({
                         text: cockpit.format(_("Creation of VM $0 failed"), vmParams.vmName),
                         detail: exception.message,
                     });
-                    this.props.close();
+                    close();
                 });
         }
     }

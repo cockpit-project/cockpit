@@ -131,7 +131,7 @@ export class DeleteDialog extends React.Component {
     delete() {
         const storage = this.state.disks.filter(d => d.checked);
 
-        return this.props.dispatch(deleteVm(this.props.vm, { destroy: this.state.destroy, storage: storage }))
+        return this.props.dispatch(deleteVm(this.props.vm, { destroy: this.state.destroy, storage: storage }, this.props.storagePools))
                 .catch(exc => {
                     this.dialogErrorSet(cockpit.format(_("VM $0 failed to get deleted"), this.props.vm.name), exc.message);
                 });

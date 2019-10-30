@@ -30,7 +30,7 @@ import DropdownButtons from '../dropdownButtons.jsx';
 
 const _ = cockpit.gettext;
 
-const VmActions = ({ vm, config, dispatch, onStart, onInstall, onReboot, onForceReboot, onShutdown, onPause, onResume, onForceoff, onSendNMI }) => {
+const VmActions = ({ vm, config, dispatch, storagePools, onStart, onInstall, onReboot, onForceReboot, onShutdown, onPause, onResume, onForceoff, onSendNMI }) => {
     const id = vmId(vm.name);
     const state = vm.state;
     const hasInstallPhase = vm.metadata.hasInstallPhase;
@@ -108,7 +108,7 @@ const VmActions = ({ vm, config, dispatch, onStart, onInstall, onReboot, onForce
     let deleteAction = null;
     if (state !== undefined && config.provider.canDelete && config.provider.canDelete(state, vm.id, config.providerState)) {
         deleteAction = (
-            <DeleteDialog key='action-delete' vm={vm} dispatch={dispatch} />
+            <DeleteDialog key='action-delete' vm={vm} dispatch={dispatch} storagePools={storagePools} />
         );
     }
 
@@ -128,6 +128,7 @@ VmActions.propTypes = {
     vm: PropTypes.object.isRequired,
     config: PropTypes.string.isRequired,
     dispatch: PropTypes.func.isRequired,
+    storagePools: PropTypes.array.isRequired,
     onStart: PropTypes.func.isRequired,
     onReboot: PropTypes.func.isRequired,
     onForceReboot: PropTypes.func.isRequired,

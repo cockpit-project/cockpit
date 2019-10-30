@@ -483,7 +483,7 @@ export class KdumpPage extends React.Component {
             const tooltip = _("Test is only available while the kdump service is running.");
             testButton = (
                 <OverlayTrigger overlay={ <Tooltip id="tip-test">{tooltip}</Tooltip> } placement="top">
-                    <button className="btn btn-default disabled">
+                    <button className="btn btn-default" disabled>
                         {_("Test Configuration")}
                     </button>
                 </OverlayTrigger>

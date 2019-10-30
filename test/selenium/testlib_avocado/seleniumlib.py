@@ -297,7 +297,7 @@ class SeleniumTest(Test):
     def select_by_value(self, element, value):
         return self.select(element=element, select_function="select_by_value", value=value)
 
-    def wait(self, method, text, baseelement, overridetry, fatal, cond, wait_data_loaded, text_):
+    def wait(self, method, text, baseelement, overridetry, fatal, cond, wait_data_loaded, text_, wait_not):
         """
 This function is low level, tests should prefer to use the wait_* functions:
     This function stores caller function for this element to an internal dictionary, in case that
@@ -311,6 +311,7 @@ parameters:
     cond - use selenium conditions (aliases are defined above class)
     wait_data_loaded - use javascipt to wait for element has attribute-data loaded; ONLY applies to cockpit page <iframe>s
     text_ - text to be present in element
+    wait_not - False to wait for condition to be true, True to wait for condition to be false
         """
         if not baseelement:
             baseelement = self.driver
@@ -323,7 +324,8 @@ parameters:
         internaltry = overridetry if overridetry else self.default_try
 
         def usedfunction():
-            return WebDriverWait(baseelement, self.default_explicit_wait).until(condition)
+            w = WebDriverWait(baseelement, self.default_explicit_wait)
+            return wait_not and w.until_not(condition) or w.until(condition)
 
         for foo in range(0, internaltry):
             try:
@@ -331,6 +333,7 @@ parameters:
                                        method,
                                        ":",
                                        text,
+                                       wait_not and "not" or "",
                                        cond,
                                        "(text inside:{} is fatal:{}, wait data-loaded:{})".format(text_, fatal, wait_data_loaded))
                 if foo > 0:
@@ -352,19 +355,19 @@ parameters:
         self.element_wait_functions[returned] = usedfunction
         return returned
 
-    def wait_id(self, el, baseelement=None, overridetry=None, fatal=True, cond=None, text_=None):
-        return self.wait(By.ID, text=el, baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=cond, wait_data_loaded=False, text_=text_)
+    def wait_id(self, el, baseelement=None, overridetry=None, fatal=True, cond=None, text_=None, wait_not=False):
+        return self.wait(By.ID, text=el, baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=cond, wait_data_loaded=False, text_=text_, wait_not=wait_not)
 
-    def wait_link(self, el, baseelement=None, overridetry=None, fatal=True, cond=None, text_=None):
-        return self.wait(By.PARTIAL_LINK_TEXT, baseelement=baseelement, text=el, overridetry=overridetry, fatal=fatal, cond=cond, wait_data_loaded=False, text_=text_)
+    def wait_link(self, el, baseelement=None, overridetry=None, fatal=True, cond=None, text_=None, wait_not=False):
+        return self.wait(By.PARTIAL_LINK_TEXT, baseelement=baseelement, text=el, overridetry=overridetry, fatal=fatal, cond=cond, wait_data_loaded=False, text_=text_, wait_not=wait_not)
 
-    def wait_css(self, el, baseelement=None, overridetry=None, fatal=True, cond=None, text_=None):
-        return self.wait(By.CSS_SELECTOR, text=el, baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=cond, wait_data_loaded=False, text_=text_)
+    def wait_css(self, el, baseelement=None, overridetry=None, fatal=True, cond=None, text_=None, wait_not=False):
+        return self.wait(By.CSS_SELECTOR, text=el, baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=cond, wait_data_loaded=False, text_=text_, wait_not=wait_not)
 
-    def wait_xpath(self, el, baseelement=None, overridetry=None, fatal=True, cond=None, text_=None):
-        return self.wait(By.XPATH, text=el, baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=cond, wait_data_loaded=False, text_=text_)
+    def wait_xpath(self, el, baseelement=None, overridetry=None, fatal=True, cond=None, text_=None, wait_not=False):
+        return self.wait(By.XPATH, text=el, baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=cond, wait_data_loaded=False, text_=text_, wait_not=wait_not)
 
-    def wait_text(self, el, nextel="", element="*", baseelement=None, overridetry=None, fatal=True, cond=None):
+    def wait_text(self, el, nextel="", element="*", baseelement=None, overridetry=None, fatal=True, cond=None, wait_not=False):
         search_string = ""
         search_string_next = ""
         elem = None
@@ -379,14 +382,14 @@ parameters:
             else:
                 search_string_next = search_string_next + ' and contains(text(), "%s")' % foo
         if nextel:
-            elem = self.wait_xpath("//%s[%s]/following-sibling::%s[%s]" % (element, search_string, element, search_string_next), baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=cond)
+            elem = self.wait_xpath("//%s[%s]/following-sibling::%s[%s]" % (element, search_string, element, search_string_next), baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=cond, wait_not=wait_not)
         else:
-            elem = self.wait_xpath("//%s[%s]" % (element, search_string), baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=cond)
+            elem = self.wait_xpath("//%s[%s]" % (element, search_string), baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=cond, wait_not=wait_not)
         return elem
 
-    def wait_frame(self, el, baseelement=None, overridetry=None, fatal=True, cond=None):
+    def wait_frame(self, el, baseelement=None, overridetry=None, fatal=True, cond=None, wait_not=False):
         text = "//iframe[contains(@name,'%s')]" % el
-        return self.wait(By.XPATH, text=text, baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=frame, wait_data_loaded=True, text_=None)
+        return self.wait(By.XPATH, text=text, baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=frame, wait_data_loaded=True, text_=None, wait_not=wait_not)
 
     def mainframe(self):
         self._selenium_logging("return to main frame")

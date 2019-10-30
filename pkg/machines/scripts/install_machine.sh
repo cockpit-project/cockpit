@@ -45,13 +45,13 @@ else
 fi
 
 if [ "$SOURCE_TYPE" = "pxe" ]; then
-    INSTALL_METHOD="--pxe --network $SOURCE"
+    INSTALL_METHOD="--pxe --network '$SOURCE'"
 elif [ "$SOURCE_TYPE" = "os" ]; then
     INSTALL_METHOD="--install os=$OS"
 elif ( [ "${SOURCE#/}" != "$SOURCE" ] && [ -f "${SOURCE}" ] ) || ( [ "$SOURCE_TYPE" = "url" ] && [ "${SOURCE%.iso}" != "$SOURCE" ] ); then
-    INSTALL_METHOD="--cdrom $SOURCE"
+    INSTALL_METHOD="--cdrom '$SOURCE'"
 else
-    INSTALL_METHOD="--location $SOURCE"
+    INSTALL_METHOD="--location '$SOURCE'"
 fi
 
 # backup

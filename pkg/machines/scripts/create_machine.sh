@@ -34,7 +34,7 @@ else
         # default to no disk if size 0
         DISK_OPTIONS="none"
     elif [ "$STORAGE_POOL" != "NewVolume" ]; then
-        DISK_OPTIONS="vol=$STORAGE_POOL/$STORAGE_VOLUME"
+        DISK_OPTIONS="vol='$STORAGE_POOL/$STORAGE_VOLUME'"
     else
         DISK_OPTIONS="size=$STORAGE_SIZE,format=qcow2"
     fi
@@ -53,16 +53,16 @@ if [ -z "$GRAPHICS_PARAM" ]; then
 fi
 
 if [ "$SOURCE_TYPE" = "pxe" ]; then
-    INSTALL_METHOD="--pxe --network $SOURCE"
+    INSTALL_METHOD="--pxe --network '$SOURCE'"
 elif [ "$SOURCE_TYPE" = "os" ]; then
     INSTALL_METHOD="--install os=$OS"
 elif [ "$START_VM" = "true" ]; then
     if [ "$SOURCE_TYPE" = "disk_image" ]; then
         INSTALL_METHOD="--import"
     elif ( [ "${SOURCE#/}" != "$SOURCE" ] && [ -f "${SOURCE}" ] ) || ( [ "$SOURCE_TYPE" = "url" ] && [ "${SOURCE%.iso}" != "$SOURCE" ] ); then
-        INSTALL_METHOD="--cdrom $SOURCE"
+        INSTALL_METHOD="--cdrom '$SOURCE'"
     else
-        INSTALL_METHOD="--location $SOURCE"
+        INSTALL_METHOD="--location '$SOURCE'"
     fi
 else
     # prevents creating duplicate cdroms if start vm is false

@@ -11,6 +11,8 @@ class MachinesStoragePoolTestSuite(MachinesLib):
     :avocado: tags=machines
     """
 
+    @skipIf(os.environ.get("BROWSER") == 'edge',
+            "fails too often, https://github.com/cockpit-project/cockpit/issues/13073")
     def testCheckStoragePool(self):
         self.wait_css('#card-pf-storage-pools')
         cmd_active = int(self.machine.execute('virsh pool-list | awk \'NR>=3{if($0!="")print}\' | wc -l')) + int(
@@ -51,6 +53,8 @@ class MachinesStoragePoolTestSuite(MachinesLib):
         self.wait_css('#storage-pools-listing', cond=invisible)
         self.wait_css('#virtual-machines-listing')
 
+    @skipIf(os.environ.get("BROWSER") == 'edge',
+            "fails too often, https://github.com/cockpit-project/cockpit/issues/13073")
     def testCreateDirStoragePool(self):
         name = 'test_storage_pool_' + MachinesLib.random_string()
         path = '/home/test_' + MachinesLib.random_string()
@@ -125,6 +129,8 @@ class MachinesStoragePoolTestSuite(MachinesLib):
         self.assertEqual(allocation_from_page, allocation_from_cmd)
         self.assertEqual(capacity_from_page, capacity_from_cmd)
 
+    @skipIf(os.environ.get("BROWSER") == 'edge',
+            "fails too often, https://github.com/cockpit-project/cockpit/issues/13073")
     def testAddAllPhysicalDiskDevice(self):
         name = 'pdd_' + MachinesLib.random_string()
         pdd = Disc(self.machine)
@@ -155,6 +161,8 @@ class MachinesStoragePoolTestSuite(MachinesLib):
 
         pdd.clear()
 
+    @skipIf(os.environ.get("BROWSER") == 'edge',
+            "fails too often, https://github.com/cockpit-project/cockpit/issues/13073")
     def testAddISCSIStoragePool(self):
         self.click(self.wait_text('Storage Pools', cond=clickable))
         self.wait_css('#storage-pools-listing')
@@ -173,6 +181,8 @@ class MachinesStoragePoolTestSuite(MachinesLib):
 
         disc.clear()
 
+    @skipIf(os.environ.get("BROWSER") == 'edge',
+            "fails too often, https://github.com/cockpit-project/cockpit/issues/13073")
     def testCheckStateOfStoragePool(self):
         name = 'test_act_' + MachinesLib.random_string()
         path = '/home/' + name
@@ -203,6 +213,8 @@ class MachinesStoragePoolTestSuite(MachinesLib):
         self.assertEqual('active', self.machine.execute(
             'sudo virsh pool-list --all | grep %s | awk \'{print $2}\'' % name).strip())
 
+    @skipIf(os.environ.get("BROWSER") == 'edge',
+            "fails too often, https://github.com/cockpit-project/cockpit/issues/13073")
     def testDeleteStoragePool(self):
         name = 'test_act_' + MachinesLib.random_string()
         path = '/home/' + name

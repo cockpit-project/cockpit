@@ -119,6 +119,7 @@ tbody.open > tr.listing-ct-item th {
 
 tbody.open td div.listing-ct-head {
     background-color: @color-pf-white;
+    align-items: end;
 }
 
 tbody.open > .listing-ct-panel > td > .listing-ct-body {
@@ -133,6 +134,7 @@ tbody.open > tr.listing-ct-panel + tr.listing-ct-body {
 tbody.open > tr.listing-ct-panel td div.listing-ct-head {
     border: none;
     border-bottom: 1px solid @listing-ct-border;
+    padding-top: 0;
 }
 
 /* only highlight the row if navigation is available */
@@ -250,7 +252,7 @@ tr.listing-ct-item.listing-ct-selected .badge {
 }
 
 .listing-ct-head .listing-ct-actions {
-    margin-top: -7px;
+    margin: 0.25rem 0;
     order: -1;
 }
 
@@ -321,7 +323,7 @@ tbody.active .listing-ct-head {
 
 .listing-ct-head .nav-tabs-pf {
     /* Counteract listing-ct-head padding */
-    margin: -@listing-ct-padding 0 0 -@listing-ct-padding;
+    margin: 0 0 0 -@listing-ct-padding;
     flex: auto;
 }
 

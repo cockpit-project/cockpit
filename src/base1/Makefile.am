@@ -26,7 +26,7 @@ AM_TESTS_ENVIRONMENT = export G_DEBUG=fatal-criticals,fatal-warnings ; export XD
 dist/base1/cockpit.min.css: src/base1/cockpit.css
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	$(srcdir)/tools/missing $(CLEAN_CSS) --keep-line-breaks --output=$@ --inline none --source-map --source-map-inline-sources $^
-dist/base1/patternfly.min.css: dist/base1/patternfly-base.css dist/base1/patternfly-additions.css
+dist/base1/patternfly.min.css: dist/base1/patternfly-base.css
 	$(MIN_CSS_RULE)
 dist/base1/jquery.js:
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
@@ -70,20 +70,13 @@ dist/base1/patternfly.css.map: dist/base1/patternfly-base.css
 dist/base1/patternfly-base.css: src/base1/patternfly-overrides.less dist/base1/react-core-base.css
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	F=$(srcdir)/node_modules/patternfly/dist/less/patternfly.less && \
-	sed '/@import "variables.less"/ s^$$^\n@import "../../../../src/base1/patternfly-overrides.less";^' $$F > $$F.patched && \
-	$(LESSC) --source-map=dist/base1/patternfly.css.map --source-map-include-source $$F.patched $@.tmp && \
+	sed '/import "variables.less"/d' $$F > $$F.patched && \
+	F_EXTRA=$(srcdir)/node_modules/patternfly/dist/less/patternfly-additions.less && \
+	cat $$F.patched $$F_EXTRA > $$F.tmp && \
+	echo -e '@import "../../../../src/base1/patternfly-overrides.less";\n@import "../../../../src/base1/patternfly-overrides-variables.less";' >> $$F.tmp && \
+	$(LESSC) --source-map=dist/base1/patternfly.css.map --source-map-include-source $$F.tmp $@.tmp && \
 	sed -i -f $(srcdir)/tools/patternfly.sed $@.tmp && \
-	rm $$F.patched && \
-	$(MV) $@.tmp $@
-
-dist/base1/patternfly-additions.css.map: dist/base1/patternfly-additions.css
-dist/base1/patternfly-additions.css: src/base1/patternfly-overrides.less
-	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	F=$(srcdir)/node_modules/patternfly/dist/less/patternfly-additions.less && \
-	sed '/@import "variables.less"/ s^$$^\n@import "../../../../src/base1/patternfly-overrides.less";^' $$F > $$F.patched && \
-	$(LESSC) --source-map=$@.map --source-map-include-source $$F.patched $@.tmp && \
-	sed -i -f $(srcdir)/tools/patternfly.sed $@.tmp && \
-	rm $$F.patched && \
+	rm $$F.tmp $$F.patched && \
 	$(MV) $@.tmp $@
 
 dist/base1/fonts/fontawesome.woff:
@@ -217,8 +210,6 @@ EXTRA_DIST += \
 	dist/base1/patternfly.min.css \
 	dist/base1/patternfly.min.css.map \
 	dist/base1/patternfly.css.map \
-	dist/base1/patternfly-additions.css \
-	dist/base1/patternfly-additions.css.map \
 	dist/base1/react-core-base.css \
 	dist/base1/simple-tap.js \
 	src/base1/cockpit.css \
@@ -261,8 +252,6 @@ MAINTAINERCLEANFILES += \
 	dist/base1/patternfly.min.css.gz \
 	dist/base1/patternfly.min.css.map \
 	dist/base1/patternfly.css.map \
-	dist/base1/patternfly-additions.css \
-	dist/base1/patternfly-additions.css.map \
 	dist/base1/react-core-base.css \
 	dist/base1/qunit.css \
 	dist/base1/qunit.js \

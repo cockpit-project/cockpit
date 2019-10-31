@@ -453,6 +453,9 @@ cockpit_certificate_locate (gboolean create_if_necessary,
 #define PEM_CERTIFICATE_FOOTER     "-----END CERTIFICATE-----"
 #define PEM_PKCS1_PRIVKEY_HEADER   "-----BEGIN RSA PRIVATE KEY-----"
 #define PEM_PKCS1_PRIVKEY_FOOTER   "-----END RSA PRIVATE KEY-----"
+/* this is slightly asymmetrical -- paraemters and private key occur in the same file */
+#define PEM_PKCS1_ECCKEY_HEADER   "-----BEGIN EC PARAMETERS-----"
+#define PEM_PKCS1_ECCKEY_FOOTER   "-----END EC PRIVATE KEY-----"
 #define PEM_PKCS8_PRIVKEY_HEADER   "-----BEGIN PRIVATE KEY-----"
 #define PEM_PKCS8_PRIVKEY_FOOTER   "-----END PRIVATE KEY-----"
 #define PEM_PKCS8_ENCRYPTED_HEADER "-----BEGIN ENCRYPTED PRIVATE KEY-----"
@@ -471,23 +474,29 @@ parse_private_key (const gchar *data,
     footer = PEM_PKCS1_PRIVKEY_FOOTER;
   else
     {
-      start = g_strstr_len (data, data_len, PEM_PKCS8_PRIVKEY_HEADER);
+      start = g_strstr_len (data, data_len, PEM_PKCS1_ECCKEY_HEADER);
       if (start)
-        footer = PEM_PKCS8_PRIVKEY_FOOTER;
+        footer = PEM_PKCS1_ECCKEY_FOOTER;
       else
         {
-          start = g_strstr_len (data, data_len, PEM_PKCS8_ENCRYPTED_HEADER);
+          start = g_strstr_len (data, data_len, PEM_PKCS8_PRIVKEY_HEADER);
           if (start)
+            footer = PEM_PKCS8_PRIVKEY_FOOTER;
+          else
             {
-              g_set_error_literal (error, G_TLS_ERROR, G_TLS_ERROR_BAD_CERTIFICATE,
-                                   _("Cannot decrypt PEM-encoded private key"));
+              start = g_strstr_len (data, data_len, PEM_PKCS8_ENCRYPTED_HEADER);
+              if (start)
+                {
+                  g_set_error_literal (error, G_TLS_ERROR, G_TLS_ERROR_BAD_CERTIFICATE,
+                                       _("Cannot decrypt PEM-encoded private key"));
+                }
+              else if (required)
+                {
+                  g_set_error_literal (error, G_TLS_ERROR, G_TLS_ERROR_BAD_CERTIFICATE,
+                                       _("No PEM-encoded private key found"));
+                }
+              return NULL;
             }
-          else if (required)
-            {
-              g_set_error_literal (error, G_TLS_ERROR, G_TLS_ERROR_BAD_CERTIFICATE,
-                                   _("No PEM-encoded private key found"));
-            }
-          return NULL;
         }
     }
 

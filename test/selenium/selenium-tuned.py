@@ -1,4 +1,4 @@
-from testlib_avocado.seleniumlib import SeleniumTest, clickable, visible
+from testlib_avocado.seleniumlib import SeleniumTest, clickable, visible, invisible
 import os
 import sys
 
@@ -28,21 +28,19 @@ class TunedProfiles(SeleniumTest):
         self.click(self.wait_link('System', cond=clickable))
         self.wait_frame("system")
         self.click(self.wait_text(self.balanced_profile, cond=clickable))
-        self.wait_id("cockpit_modal_dialog")
         self.wait_text("Change Performance Profile")
         self.click(self.wait_text(self.desktop_profile, element="p", cond=clickable))
         self.click(self.wait_text("Change Profile", element="button", cond=clickable))
-        self.wait_id("cockpit_modal_dialog", wait_not=True)
+        self.wait_text("Change Performance Profile", cond=invisible)
         self.wait_id("server", cond=visible)
         self.wait_text(self.desktop_profile, cond=clickable)
         self.assertIn(self.desktop_profile, self.get_profile())
 
         self.click(self.wait_text(self.desktop_profile, cond=clickable))
-        self.wait_id("cockpit_modal_dialog")
         self.wait_text("Change Performance Profile")
         self.click(self.wait_text(self.balanced_profile, element="p", cond=clickable))
         self.click(self.wait_text("Change Profile", element="button", cond=clickable))
-        self.wait_id("cockpit_modal_dialog", wait_not=True)
+        self.wait_text("Change Performance Profile", cond=invisible)
         self.wait_id("server", cond=visible)
         self.wait_text(self.balanced_profile, cond=clickable)
         self.assertIn(self.balanced_profile, self.get_profile())

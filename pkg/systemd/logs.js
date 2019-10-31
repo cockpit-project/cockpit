@@ -378,7 +378,7 @@ $(function() {
 
         var options = cockpit.location.options;
         if (options.service)
-            match.push('_SYSTEMD_UNIT=' + options.service);
+            match.push('_SYSTEMD_UNIT=' + options.service, "+", "COREDUMP_UNIT=" + options.service, "+", "UNIT=" + options.service);
         else if (options.tag)
             match.push('SYSLOG_IDENTIFIER=' + options.tag);
         $('#journal-service').text(options.tag || _("All"));

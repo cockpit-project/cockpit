@@ -691,6 +691,9 @@ $(function() {
                                             cur_journal_watcher = null;
                                         }
                                         $('#service-log-box').show();
+                                        $('#service-log-box button').on('click', function() {
+                                            cockpit.jump("/system/logs/#/?prio=7&service=" + cur_unit_id);
+                                        });
                                     }
 
                                     cur_journal_watcher = journal.logbox(["_SYSTEMD_UNIT=" + cur_unit_id, "+",

@@ -1730,6 +1730,9 @@ PageNetworking.prototype = {
         $('#networking-log').empty()
                 .append(this.log_box);
 
+        $("#goto-networking-logs").on("click", function() {
+            cockpit.jump("/system/logs/#/?prio=7&service=NetworkManager.service");
+        });
         $(this.model).on('changed.networking', $.proxy(this, "update_devices"));
         this.update_devices();
     },

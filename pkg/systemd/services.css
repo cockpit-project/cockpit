@@ -145,9 +145,14 @@ table.systemd-unit-relationship-table td:first-child {
   }
 }
 
-@media screen and (min-width: 961px) {
+@media screen and (min-width: 641px) {
   #services > .content-header-extra + .container-fluid {
-    margin-top: 1rem;
+    padding: 1rem;
+  }
+}
+@media screen and (min-width: 960px) {
+  #services > .content-header-extra + .container-fluid {
+    padding: 1rem 1.5rem;
   }
 }
 
@@ -175,11 +180,6 @@ table.systemd-unit-relationship-table td:first-child {
   margin-top: 4px;
   left: auto;
   right: 0;
-}
-
-#services-list .panel-default {
-  border: none;
-  box-shadow: none;
 }
 
 #services-list table {

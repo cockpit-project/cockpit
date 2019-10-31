@@ -164,8 +164,10 @@ test_combine_bad (TestCase *test,
 }
 
 const gchar *no_files[] = { NULL };
-const gchar *good_files[3] = { SRCDIR "/src/bridge/mock-server.crt",
-                               SRCDIR "/src/bridge/mock-server.key", NULL };
+const gchar *good_rsa_files[3] = { SRCDIR "/src/bridge/mock-server.crt",
+                                   SRCDIR "/src/bridge/mock-server.key", NULL };
+const gchar *good_ecc_files[3] = { SRCDIR "/src/ws/mock-ecc.crt",
+                                   SRCDIR "/src/ws/mock-ecc.key", NULL };
 const gchar *bad_files[2] = { "bad", NULL };
 const gchar *bad_files2[3] = { SRCDIR "/src/bridge/mock-server.crt", "bad2", NULL };
 const gchar *invalid_files1[3] = { SRCDIR "/src/ws/mock-config/cockpit/cockpit.conf",
@@ -174,9 +176,14 @@ const gchar *invalid_files2[3] = { SRCDIR "/src/bridge/mock-server.crt",
                                    SRCDIR "/src/bridge/mock-client.crt", NULL };
 const gchar *invalid_files3[2] = { SRCDIR "/src/bridge/mock-client.key", NULL };
 
-static const TestFixture fixture_good_file = {
+static const TestFixture fixture_good_rsa_file = {
   .expected_message = NULL,
-  .files = good_files
+  .files = good_rsa_files
+};
+
+static const TestFixture fixture_good_ecc_file = {
+  .expected_message = NULL,
+  .files = good_ecc_files
 };
 
 static const TestFixture fixture_bad_file = {
@@ -217,7 +224,9 @@ main (int argc,
 {
   cockpit_test_init (&argc, &argv);
 
-  g_test_add ("/remotectl-certificate/combine-good", TestCase, &fixture_good_file,
+  g_test_add ("/remotectl-certificate/combine-good-rsa", TestCase, &fixture_good_rsa_file,
+              setup, test_combine_good, teardown);
+  g_test_add ("/remotectl-certificate/combine-good-ecc", TestCase, &fixture_good_ecc_file,
               setup, test_combine_good, teardown);
   g_test_add ("/remotectl-certificate/combine-bad-file", TestCase, &fixture_bad_file,
               setup, test_combine_bad, teardown);

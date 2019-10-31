@@ -725,7 +725,7 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
     }
 
     function update_machines() {
-        $("#machine-dropdown .caret")
+        $("#machine-dropdown .fa-caret-down")
                 .toggle(machines.list.length > 1);
 
         var machine_link = $("#machine-link");

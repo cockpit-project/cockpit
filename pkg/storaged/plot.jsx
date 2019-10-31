@@ -65,7 +65,7 @@ class ZoomControls extends React.Component {
                 <div className="dropdown">
                     <button className="btn btn-default dropdown-toggle" data-toggle="dropdown">
                         <span />
-                        <div className="caret" />
+                        <i className="fa fa-caret-down pf-c-context-selector__toggle-icon" aria-hidden="true" />
                     </button>
                     <ul className="dropdown-menu" role="menu">
                         <li role="presentation">

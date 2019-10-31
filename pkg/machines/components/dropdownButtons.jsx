@@ -48,7 +48,7 @@ const DropdownButtons = ({ buttons }) => {
                 {buttons[0].title}
             </button>
             <button data-toggle='dropdown' className='btn btn-default dropdown-toggle'>
-                <span className='caret' id={caretId} />
+                <i className="fa fa-caret-down pf-c-context-selector__toggle-icon" aria-hidden="true" id={caretId} />
             </button>
             <ul role='menu' className='dropdown-menu'>
                 {buttonsHtml}

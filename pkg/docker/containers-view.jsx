@@ -55,7 +55,7 @@ class Dropdown extends React.Component {
                     <span>{ this.props.actions[0].label }</span>
                 </button>
                 <button className="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                    <div className="caret" />
+                    <i className="fa fa-caret-down pf-c-context-selector__toggle-icon" aria-hidden="true" />
                 </button>
                 <ul className="dropdown-menu dropdown-menu-right" role="menu">
                     {

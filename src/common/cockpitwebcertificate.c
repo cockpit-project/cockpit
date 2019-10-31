@@ -36,6 +36,9 @@
 
 #define PEM_PKCS1_PRIVKEY_HEADER   "-----BEGIN RSA PRIVATE KEY-----"
 #define PEM_PKCS1_PRIVKEY_FOOTER   "-----END RSA PRIVATE KEY-----"
+/* this is slightly asymmetrical -- paraemters and private key occur in the same file */
+#define PEM_PKCS1_ECCKEY_HEADER   "-----BEGIN EC PARAMETERS-----"
+#define PEM_PKCS1_ECCKEY_FOOTER   "-----END EC PRIVATE KEY-----"
 #define PEM_PKCS8_PRIVKEY_HEADER   "-----BEGIN PRIVATE KEY-----"
 #define PEM_PKCS8_PRIVKEY_FOOTER   "-----END PRIVATE KEY-----"
 
@@ -167,13 +170,19 @@ cockpit_certificate_parse (const char *file, char **cert, char **key)
     footer = PEM_PKCS1_PRIVKEY_FOOTER;
   else
     {
-      start = strstr (data, PEM_PKCS8_PRIVKEY_HEADER);
+      start = strstr (data, PEM_PKCS1_ECCKEY_HEADER);
       if (start)
-        footer = PEM_PKCS8_PRIVKEY_FOOTER;
+        footer = PEM_PKCS1_ECCKEY_FOOTER;
       else
         {
-          ret = -ENOKEY;
-          goto out;
+          start = strstr (data, PEM_PKCS8_PRIVKEY_HEADER);
+          if (start)
+            footer = PEM_PKCS8_PRIVKEY_FOOTER;
+          else
+            {
+              ret = -ENOKEY;
+              goto out;
+            }
         }
     }
 

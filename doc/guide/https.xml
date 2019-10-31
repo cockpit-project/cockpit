@@ -53,6 +53,10 @@ MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCyOJ5garOYw0sm
 -----END PRIVATE KEY-----
 </programlisting>
 
+    <para>Note that for EC keys, the <literal>BEGIN EC PARAMETERS</literal> block must occur
+      <emphasis>before</emphasis> the <literal>BEGIN EC PRIVATE KEY</literal> block (this
+      is how OpenSSL, LetsEncrypt, etc. generate the key files).</para>
+
     <para>If no certificate is found, a self-signed certificate is created and
       stored in the <filename>0-self-signed.cert</filename> file. On some
       platforms, Cockpit will also generate a ca.crt in that directory, which

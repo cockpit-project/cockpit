@@ -1324,7 +1324,7 @@ function updateNetworkIface({ domXml, networkMac, networkState, networkModelType
                 let sourceElem = getSingleOptionalElem(interfaceElem, 'source');
                 // Source elements of different iface types might contain differently named attributes,
                 // so we delete whole element and create a new one
-                if (typeChanged) {
+                if (typeChanged && sourceElem) {
                     sourceElem.remove();
                     sourceElem = undefined;
                 }

@@ -65,7 +65,7 @@ h4 {
     padding: 1px 0.5rem;
   }
 
-  .caret {
+  .fa-caret-down {
     align-self: center;
 
     &::before {
@@ -617,6 +617,17 @@ th > label {
 // Adjust spacing of expand/collapse divider
 .expand-collapse-pf .expand-collapse-pf-separator.bordered {
   margin-top: 1rem;
+}
+
+/* Fix PF3 carets */
+.caret {
+  /* PF3 oddly uses borders and a dropdown triangle */
+  border: none;
+
+  &::before {
+    /* Use a solid triangle, like PF4, not the lined "v" icon */
+    content: "\f0d7";
+  }
 }
 
 // Fix small icon size (for Composer)

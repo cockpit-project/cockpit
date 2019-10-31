@@ -156,7 +156,10 @@ class TestShutdownRestart(MachineCase):
         # Power off with invalid date
         self.login_and_go("/system")
         b.enter_page("/system")
-        b.click("#shutdown-group span.caret")
+        if m.image == "rhel-8-1-distropkg":
+            b.click("#shutdown-group span.caret")
+        else:
+            b.click("#shutdown-group i.fa-caret-down")
         b.click("#shutdown-group a:contains('Shut Down')")
         b.wait_popup("shutdown-dialog")
         b.click("#shutdown-dialog .dropdown button")

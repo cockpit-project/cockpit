@@ -121,7 +121,7 @@ class MDRaidSidebar extends React.Component {
             return (
                 <tr key={block.path}>
                     <td className="storage-icon">
-                        <img src="images/storage-disk.png" />
+                        <img src="images/storage-disk.png" alt="" />
                     </td>
                     <td>
                         {slot || "-"} <StorageBlockNavLink client={client} block={block} />

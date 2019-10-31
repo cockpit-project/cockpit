@@ -184,7 +184,7 @@ class DriveBox extends React.Component {
                                onChange={ () => null /* click handled by parent element, silence React warning */ }
                                checked={self.driveChecked(drive)} />
                     </td>
-                    <td><img role="presentation" src="images/drive-harddisk-symbolic.svg" /></td>
+                    <td><img role="presentation" src="images/drive-harddisk-symbolic.svg" alt="" /></td>
                     <td>
                         <div>{drive.name}</div>
                         <div>{cockpit.format_bytes(drive.size)} {drive_class_desc(drive.class)}</div>
@@ -257,7 +257,7 @@ class PoolBox extends React.Component {
                 return (
                     <tr key={drive.name}>
                         <td>{cockpit.format_bytes(drive.size)}</td>
-                        <td><img role="presentation" src="images/drive-harddisk-symbolic.svg" /></td>
+                        <td><img role="presentation" src="images/drive-harddisk-symbolic.svg" alt="" /></td>
                         <td>{drive.name}{drive.shared ? _(" (shared with the OS)") : ""}</td>
                     </tr>);
             });
@@ -367,7 +367,7 @@ function add_storage(client, drives, model) {
             return (
                 <tr key={drive.name}>
                     <td>{cockpit.format_bytes(drive.size)}</td>
-                    <td><img role="presentation" src="images/drive-harddisk-symbolic.svg" /></td>
+                    <td><img role="presentation" src="images/drive-harddisk-symbolic.svg" alt="" /></td>
                     <td>{drive.name}</td>
                 </tr>);
         });

@@ -123,6 +123,8 @@ class MachinesBasicTestSuite(MachinesLib):
             self.machine.execute('sudo virsh domstate {}'.format(name)).rstrip(),
             self.wait_css('#vm-{}-state'.format(name)).text)
 
+    @skipIf(os.environ.get("BROWSER") == 'edge',
+            "fails too often, https://github.com/cockpit-project/cockpit/issues/13072")
     def testCreateVMWithISO(self):
         name = 'test_iso'
         iso = '/home/{}.iso'.format(name + str(time.time()).split('.')[0])

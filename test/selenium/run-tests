@@ -173,12 +173,7 @@ class AvocadoTestSuite:
         cmd_output = self.machine_avocado.execute(self.base_cmd + " list " + " ".join(test_abspaths))
         output_list = []
         for line in cmd_output.splitlines():
-            t = line.split(" ", 1)[1].strip()
-            if self.browser == "edge" and "/selenium-machines-" in t:
-                # HACK: https://github.com/cockpit-project/cockpit/issues/12864
-                print("SKIP:", t, "because of https://github.com/cockpit-project/cockpit/issues/12864")
-                continue
-            output_list.append(t)
+            output_list.append(line.split(" ", 1)[1].strip())
         return output_list
 
 
@@ -245,7 +240,6 @@ class SeleniumTestSuite(AvocadoTestSuite):
                       ]
 
     def __init__(self, browser, **kwargs):
-        self.browser = browser
         super().__init__(**kwargs)
         self.env["HUB"] = self.ipaddr_selenium
         self.env["GUEST"] = self.ipaddr_cockpit

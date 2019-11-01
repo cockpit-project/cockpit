@@ -29,55 +29,6 @@
     font-size: var(--pf-global--FontSize--sm);
 }
 
-#storage .storage-mounts .table {
-    table-layout: fixed;
-}
-
-#storage .storage-mounts .table th,
-#storage .storage-mounts .table td {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    vertical-align: middle;
-}
-
-@media (max-width: 1200px) {
-    .storage-mounts .mount-name {
-        width: 33.3%;
-    }
-    .storage-mounts .mount-point {
-        width: 33.3%;
-    }
-    .storage-mounts .mount-size-graph {
-        width: 33.3%;
-    }
-    .storage-mounts .mount-actions {
-        width: 50%;
-    }
-}
-
-@media (min-width: 1200px) {
-    .storage-mounts .mount-name {
-        width: 20%;
-    }
-    .storage-mounts .mount-point {
-        width: 20%;
-    }
-    .storage-mounts .mount-size-graph {
-        width: 45%;
-    }
-    .storage-mounts .mount-size-number {
-        width: 15%;
-    }
-    .storage-mounts .mount-actions {
-        width: 60%;
-    }
-}
-
-#nfs-mounts tr {
-    height: 43px;
-}
-
 #storage .create-storage {
     margin-bottom: 10px;
 }

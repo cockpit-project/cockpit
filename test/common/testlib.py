@@ -213,6 +213,9 @@ class Browser:
     def click(self, selector):
         self.mouse(selector + ":not([disabled])", "click", 0, 0, 0)
 
+    def mousedown(self, selector):
+        self.mouse(selector + ":not([disabled])", "mousedown", 0, 0, 0)
+
     def val(self, selector):
         self.wait_visible(selector)
         return self.call_js_func('ph_val', selector)

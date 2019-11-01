@@ -99,16 +99,16 @@ class TestStorage(StorageCase):
             })""", sel, low, high)
 
         b.go("#/")
-        b.wait_in_text("#storage_mounts", mount_point_bar)
-        bar_selector = '#storage_mounts tr:contains("%s") td:nth-child(3)' % mount_point_bar
+        b.wait_in_text("table[aria-label=Filesystems]", mount_point_bar)
+        bar_selector = 'table[aria-label=Filesystems] tr:contains("%s") td:nth-child(3)' % mount_point_bar
         wait_ratio_in_range(bar_selector, 0.0, 0.1)
         m.execute("dd if=/dev/zero of=%s/zero bs=1M count=30 status=none" % mount_point_bar)
         wait_ratio_in_range(bar_selector, 0.5, 1.0)
         m.execute("rm %s/zero" % mount_point_bar)
         wait_ratio_in_range(bar_selector, 0.0, 0.1)
         m.execute("umount %s" % mount_point_bar)
-        b.wait_not_in_text("#storage_mounts", mount_point_bar)
-        b.click('#storage_mounts tr:contains("filesystem")')
+        b.wait_not_in_text("table[aria-label=Filesystems]", mount_point_bar)
+        b.mousedown('table[aria-label=Filesystems] tr:contains("filesystem")')
         b.wait_visible("#storage-detail")
 
         def wait_info_field_value(name, value):

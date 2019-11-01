@@ -36,6 +36,7 @@ import './listing.less';
  * See https://www.patternfly.org/v4/documentation/react/components/table
  * Properties (all optional):
  * - caption
+ * - className: additional classes added to the Table
  * - actions: additional listing-wide actions (displayed next to the list's title)
  * - columns: { title: string, header: boolean, sortable: boolean }[] or string[]
  * - rows: {
@@ -73,7 +74,7 @@ export class ListingTable extends React.Component {
         return direction === SortByDirection.asc ? sortedRows : sortedRows.reverse();
     }
 
-    extraClassesRowWrapper(...args) {
+    rowWrapper(...args) {
         const props = args[0];
         let className = '';
 
@@ -92,8 +93,10 @@ export class ListingTable extends React.Component {
                 res.title = column.title;
                 if (column.header)
                     res.cellTransforms = [headerCol()];
+                if (column.transforms)
+                    res.transforms = column.transforms;
                 if (column.sortable)
-                    res.transforms = [sortable];
+                    res.transforms = column.transforms ? [...column.transforms, sortable] : [sortable];
             }
             return res;
         });
@@ -113,6 +116,7 @@ export class ListingTable extends React.Component {
                 }),
             };
             rowFormatted.extraClasses = currentValue.extraClasses;
+            rowFormatted.props = currentValue.props;
 
             // For selectable rows
             if ('selected' in currentValue)
@@ -125,23 +129,25 @@ export class ListingTable extends React.Component {
     }
 
     render() {
-        const header = (
-            <header>
-                <h3 className='listing-ct-heading'> {this.props.caption} </h3>
-                {this.props.actions && <div className='listing-ct-actions'> {this.props.actions} </div>}
-            </header>
-        );
         const props = {};
 
-        props.rowWrapper = this.extraClassesRowWrapper;
+        if (this.props.className)
+            props.className = this.props.className;
+        props.rowWrapper = this.rowWrapper;
         if (this.props.columns.some(col => col.sortable)) {
             props.onSort = this.onSort;
             props.sortBy = this.state.sortBy;
         }
         if (this.props.onSelect)
             props.onSelect = this.props.onSelect;
-        if (this.props.caption || this.props.actions)
-            props.header = header;
+        if (this.props.caption || this.props.actions.length != 0) {
+            props.header = (
+                <header>
+                    <h3 className='listing-ct-heading'> {this.props.caption} </h3>
+                    {this.props.actions && <div className='listing-ct-actions'> {this.props.actions} </div>}
+                </header>
+            );
+        }
         if (this.props.variant)
             props.variant = this.props.variant;
         props.rows = this.props.rows.length ? this.reformatRows(this.props.rows) : [];
@@ -155,6 +161,8 @@ export class ListingTable extends React.Component {
         // We need the following because of: https://github.com/patternfly/patternfly-react/issues/3090
         if (props.cells.some(cell => typeof (cell.title) != 'string' || cell.title.toLowerCase() == 'id' || !cell.title))
             tableBodyProps.rowKey = ({ rowData, rowIndex }) => rowIndex;
+        if (this.props.onRowClick)
+            tableBodyProps.onRowClick = this.props.onRowClick;
         if (this.props.rows.length > 0) {
             return (
                 <Table {...props}>

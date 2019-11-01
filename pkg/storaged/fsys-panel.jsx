@@ -19,9 +19,12 @@
 
 import cockpit from "cockpit";
 import React from "react";
+import { cellWidth } from '@patternfly/react-table';
 
+import { ListingTable } from "cockpit-components-table.jsx";
 import { StorageUsageBar } from "./storage-controls.jsx";
 import { decode_filename, block_name, fmt_size, go_to_block } from "./utils.js";
+import { OptionalPanel } from "./optional-panel.jsx";
 
 const _ = cockpit.gettext;
 
@@ -62,53 +65,50 @@ export class FilesystemsPanel extends React.Component {
             for (var i = 0; i < mount_points.length && !fsys_size; i++)
                 fsys_size = client.fsys_sizes.data[mount_points[i]];
 
-            function go(event) {
-                if (!event || event.button !== 0)
-                    return;
-                go_to_block(client, path);
-            }
-
-            return (
-                <tr onClick={go} key={path}>
-                    <td>{ block.IdLabel || block_name(block) }</td>
-                    <td>
-                        { fsys.MountPoints.length > 0
+            return {
+                props: { path, client },
+                columns: [
+                    { title:  block.IdLabel || block_name(block) },
+                    {
+                        title: fsys.MountPoints.length > 0
                             ? fsys.MountPoints.map((mp) => <div key={mp}>{decode_filename(mp)}</div>)
                             : "-"
-                        }
-                    </td>
-                    <td>
-                        { fsys_size && fsys.MountPoints.length > 0
+                    },
+                    {
+                        title: fsys_size && fsys.MountPoints.length > 0
                             ? <StorageUsageBar stats={fsys_size} critical={0.95} />
                             : fmt_size(block.Size)
-                        }
-                    </td>
-                </tr>
-            );
+                    }
+                ]
+            };
         }
 
         var mounts = Object.keys(client.blocks).filter(is_mount)
                 .sort(cmp_mount)
                 .map(make_mount);
 
+        function onRowClick(event, row) {
+            if (!event || event.button !== 0)
+                return;
+            go_to_block(row.props.client, row.props.path);
+        }
+
+        // table-hover class is needed till PF4 Table has proper support for clickable rows
+        // https://github.com/patternfly/patternfly-react/issues/3267
         return (
-            <div id="mounts" className="panel panel-default storage-mounts">
-                <div className="panel-heading">
-                    <h2 className="panel-title">{_("Filesystems")}</h2>
-                </div>
-                <table className="table table-hover">
-                    <thead>
-                        <tr>
-                            <th className="mount-name">{_("Name")}</th>
-                            <th className="mount-point">{_("Mount Point")}</th>
-                            <th className="mount-size-graph">{_("Size")}</th>
-                        </tr>
-                    </thead>
-                    <tbody id="storage_mounts">
-                        { mounts }
-                    </tbody>
-                </table>
-            </div>
+            <OptionalPanel id="mounts" className="storage-mounts"
+                title={_("Filesystems")}>
+                <ListingTable variant='compact'
+                    aria-label={_("Filesystems")}
+                    className='table-hover'
+                    onRowClick={onRowClick}
+                    columns={[
+                        { title: _("Name"), transforms: [cellWidth(30)] },
+                        { title: _("Mount Point"), transforms: [cellWidth(30)] },
+                        { title:  _("Size"), transforms: [cellWidth(40)] }
+                    ]}
+                    rows={mounts} />
+            </OptionalPanel>
         );
     }
 }

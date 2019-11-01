@@ -37,7 +37,7 @@ class TestStorage(StorageCase):
         m.execute("systemctl restart nfs-server")
 
         # Nothing there in the beginnging
-        b.wait_visible("#nfs-mounts .empty-panel-text")
+        b.wait_visible("#nfs-mounts .listing-ct-empty")
 
         # Add /home/foo
         b.click("#nfs-mounts button .fa-plus")
@@ -71,7 +71,7 @@ class TestStorage(StorageCase):
         m.execute("test -d /mounts/bar")
 
         # Go to details of /home/bar
-        b.click("#nfs-mounts tr:contains(/home/bar)")
+        b.mousedown("#nfs-mounts tr:contains(/home/bar)")
         b.wait_present('#storage-detail')
         b.wait_text('#detail-header label:contains("Server") + div', "127.0.0.1:/home/bar")
         b.wait_text('#detail-header label:contains("Mount Point") + div', "/mounts/bar")
@@ -115,7 +115,7 @@ class TestStorage(StorageCase):
         # Go to details of /home/foo
         b.go("#/")
         b.wait_visible("#storage")
-        b.click("#nfs-mounts tr:contains(/home/foo)")
+        b.mousedown("#nfs-mounts tr:contains(/home/foo)")
         b.wait_present('#storage-detail')
         b.wait_text('#detail-header label:contains("Server") + div', "127.0.0.1:/home/foo")
         b.wait_text('#detail-header label:contains("Mount Point") + div', "/mnt")
@@ -183,7 +183,7 @@ class TestStorage(StorageCase):
         m.execute("systemctl restart nfs-server")
 
         # Nothing there in the beginnging
-        b.wait_visible("#nfs-mounts .empty-panel-text")
+        b.wait_visible("#nfs-mounts .listing-ct-empty")
 
         # Add /home/foo
         b.click("#nfs-mounts .fa-plus")
@@ -201,7 +201,7 @@ class TestStorage(StorageCase):
         # Go to details of /home/foo
         b.go("#/")
         b.wait_visible("#storage")
-        b.click("#nfs-mounts tr:contains(/home/foo)")
+        b.mousedown("#nfs-mounts tr:contains(/home/foo)")
         b.wait_present('#storage-detail')
         b.wait_text('#detail-header label:contains("Server") + div', "127.0.0.1:/home/foo")
         b.wait_text('#detail-header label:contains("Mount Point") + div', "/mounts/foo")

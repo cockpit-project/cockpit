@@ -128,6 +128,12 @@ $(function() {
             return name_esc(str);
     }
 
+    function is_template(id) {
+        const tp = id.indexOf("@");
+        const sp = id.lastIndexOf(".");
+        return (tp != -1 && (tp + 1 == sp || tp + 1 == id.length));
+    }
+
     var systemd_client = cockpit.dbus("org.freedesktop.systemd1", { superuser: "try" });
     var systemd_manager = systemd_client.proxy("org.freedesktop.systemd1.Manager",
                                                "/org/freedesktop/systemd1");
@@ -471,7 +477,7 @@ $(function() {
 
                 seen_ids[name] = true;
 
-                if (name.indexOf("@") != -1) {
+                if (is_template(name)) {
                     // A template, create a fake unit for it
                     units_by_path[name] = {
                         Id: name,

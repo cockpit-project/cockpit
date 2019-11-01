@@ -50,12 +50,14 @@ function format_to_fragments(fmt, arg) {
  * (If you do anyway, the resulting D-Bus errors will be shown to the user.)
  */
 
-export function install_dialog(pkg) {
+export function install_dialog(pkg, options) {
     var data = null;
     var error_message = null;
     var progress_message = null;
     var cancel = null;
     var done = null;
+
+    options = options || { };
 
     var prom = new Promise((resolve, reject) => { done = f => { if (f) resolve(); else reject(); } });
 
@@ -100,10 +102,10 @@ export function install_dialog(pkg) {
 
         const body = {
             id: "dialog",
-            title: _("Install Software"),
+            title: options.title || _("Install Software"),
             body: (
                 <div className="modal-body scroll">
-                    <p>{ format_to_fragments(_("$0 will be installed."), missing_name) }</p>
+                    <p>{ format_to_fragments(options.text || _("$0 will be installed."), missing_name) }</p>
                     { remove_details }
                     { extra_details }
                 </div>

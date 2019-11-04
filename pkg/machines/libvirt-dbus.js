@@ -86,7 +86,7 @@ import {
     canSendNMI,
     canShutdown,
     getDiskElemByTarget,
-    getDomainElem,
+    getElem,
     getIfaceElemByMac,
     getSingleOptionalElem,
     isRunning,
@@ -1499,7 +1499,7 @@ export function networkUndefine(connectionName, objPath) {
 export function setOSFirmware(connectionName, objPath, loaderType) {
     return call(connectionName, objPath, 'org.libvirt.Domain', 'GetXMLDesc', [Enum.VIR_DOMAIN_XML_INACTIVE], { timeout, type: 'u' })
             .then(domXml => {
-                const domainElem = getDomainElem(domXml);
+                const domainElem = getElem(domXml);
 
                 if (!domainElem)
                     throw new Error("setOSFirmware: domXML has no domain element");

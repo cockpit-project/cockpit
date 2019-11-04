@@ -40,6 +40,7 @@ import {
     getStoragePool,
     getStorageVolumes,
     getVm,
+    getVmSnapshots,
 } from './actions/provider-actions.js';
 
 import {
@@ -48,6 +49,7 @@ import {
     undefineStoragePool,
     undefineVm,
     updateLibvirtVersion,
+    updateDomainSnapshots,
     updateOrAddInterface,
     updateOrAddNetwork,
     updateOrAddNodeDevice,
@@ -90,6 +92,7 @@ import {
     getIfaceElemByMac,
     getSingleOptionalElem,
     isRunning,
+    parseDomainSnapshotDumpxml,
     parseDumpxml,
     parseNetDumpxml,
     parseIfaceDumpxml,
@@ -126,6 +129,7 @@ const Enum = {
     VIR_DOMAIN_UNDEFINE_MANAGED_SAVE: 1,
     VIR_DOMAIN_UNDEFINE_SNAPSHOTS_METADATA: 2,
     VIR_DOMAIN_UNDEFINE_NVRAM: 4,
+    VIR_DOMAIN_SNAPSHOT_LIST_INTERNAL : 256,
     VIR_DOMAIN_STATS_BALLOON: 4,
     VIR_DOMAIN_SHUTOFF: 5,
     VIR_DOMAIN_STATS_VCPU: 8,
@@ -800,9 +804,54 @@ const LIBVIRT_DBUS_PROVIDER = {
                             dispatch(updateVm(Object.assign({}, props, dumpxmlParams)));
                         else
                             dispatch(updateOrAddVm(Object.assign({}, props, dumpxmlParams)));
+
+                        dispatch(getVmSnapshots({ connectionName, domainPath: objPath }));
                     })
                     .catch(ex => console.warn("GET_VM action failed for path", objPath, ex.toString()));
         };
+    },
+
+    GET_DOMAIN_SNAPSHOTS({ connectionName, domainPath }) {
+        return dispatch => call(connectionName, domainPath, 'org.libvirt.Domain', 'ListDomainSnapshots', [0], { timeout, type: 'u' })
+                .then(objPaths => {
+                    const snaps = [];
+                    const promises = [];
+
+                    objPaths[0].forEach(objPath => promises.push(call(connectionName, objPath, 'org.libvirt.DomainSnapshot', 'GetXMLDesc', [0], { timeout, type: 'u' })));
+
+                    // WA to avoid Promise.all() fail-fast behavior
+                    const toResultObject = (promise) => {
+                        return promise
+                                .then(result => ({ success: true, result }))
+                                .catch(error => ({ success: false, error }));
+                    };
+
+                    Promise.all(promises.map(toResultObject))
+                            .then(snapXmlList => {
+                                snapXmlList.forEach(snap => {
+                                    if (snap.success) {
+                                        const snapXml = snap.result[0];
+                                        const dumpxmlParams = parseDomainSnapshotDumpxml(snapXml);
+                                        snaps.push(dumpxmlParams);
+                                    } else {
+                                        console.warn("DomainSnapshot method GetXMLDesc failed", snap.error.toString());
+                                    }
+                                });
+                                return dispatch(updateDomainSnapshots({
+                                    connectionName,
+                                    domainPath,
+                                    snaps
+                                }));
+                            });
+                })
+                .catch(ex => {
+                    console.warn("LIST_DOMAIN_SNAPSHOTS action failed for domain %s: %s", domainPath, JSON.stringify(ex));
+                    dispatch(updateDomainSnapshots({
+                        connectionName,
+                        domainPath,
+                        snaps: -1
+                    }));
+                });
     },
 
     PAUSE_VM({
@@ -1522,6 +1571,10 @@ export function setOSFirmware(connectionName, objPath, loaderType) {
 
                 return call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'DomainDefineXML', [tmp.innerHTML], { timeout, type: 's' });
             });
+}
+
+export function snapshotCurrent(connectionName, objPath) {
+    return call(connectionName, objPath, 'org.libvirt.Domain', 'SnapshotCurrent', [0], { timeout, type: 'u' });
 }
 
 export function storagePoolActivate(connectionName, objPath) {

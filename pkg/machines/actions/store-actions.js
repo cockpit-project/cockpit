@@ -33,6 +33,7 @@ import {
     UPDATE_ADD_VM,
     UPDATE_LIBVIRT_STATE,
     UPDATE_LIBVIRT_VERSION,
+    UPDATE_DOMAIN_SNAPSHOTS,
     UPDATE_OS_INFO_LIST,
     UPDATE_STORAGE_VOLUMES,
     UPDATE_UI_VM,
@@ -138,6 +139,17 @@ export function updateLibvirtVersion({ libvirtVersion }) {
     return {
         type: UPDATE_LIBVIRT_VERSION,
         libvirtVersion,
+    };
+}
+
+export function updateDomainSnapshots({ connectionName, domainPath, snaps }) {
+    return {
+        type: UPDATE_DOMAIN_SNAPSHOTS,
+        payload: {
+            connectionName,
+            domainPath,
+            snaps,
+        },
     };
 }
 

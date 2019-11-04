@@ -35,6 +35,7 @@ import {
     UPDATE_ADD_STORAGE_POOL,
     UPDATE_LIBVIRT_STATE,
     UPDATE_LIBVIRT_VERSION,
+    UPDATE_DOMAIN_SNAPSHOTS,
     UPDATE_OS_INFO_LIST,
     UPDATE_STORAGE_VOLUMES,
     UPDATE_UI_VM,
@@ -241,6 +242,18 @@ function vms(state, action) {
         }
 
         // replace whole object
+        return replaceResource({ state, updatedResource: updatedVm, index: indexedVm.index });
+    }
+    case UPDATE_DOMAIN_SNAPSHOTS: {
+        const { connectionName, domainPath, snaps } = action.payload;
+        const indexedVm = findVmToUpdate(state, { connectionName, id: domainPath });
+        const index = getFirstIndexOfResource(state, 'id', domainPath, connectionName);
+        if (index < 0)
+            return state;
+        const updatedVm = Object.assign({}, state[index]);
+
+        updatedVm.snapshots = snaps;
+
         return replaceResource({ state, updatedResource: updatedVm, index: indexedVm.index });
     }
     case UNDEFINE_VM: {

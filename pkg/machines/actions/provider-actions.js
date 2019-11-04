@@ -52,6 +52,7 @@ import {
     GET_STORAGE_POOL,
     GET_STORAGE_VOLUMES,
     GET_VM,
+    GET_DOMAIN_SNAPSHOTS,
     INIT_DATA_RETRIEVAL,
     INSTALL_VM,
     PAUSE_VM,
@@ -210,6 +211,10 @@ export function getVm({ connectionName, name, id, updateOnly = false }) {
         id,
         updateOnly,
     });
+}
+
+export function getVmSnapshots({ connectionName, domainPath }) {
+    return virt(GET_DOMAIN_SNAPSHOTS, { connectionName, domainPath });
 }
 
 export function initDataRetrieval() {

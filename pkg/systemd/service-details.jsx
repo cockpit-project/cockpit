@@ -485,7 +485,7 @@ export class ServiceDetails extends React.Component {
                             <hr />
                             { this.props.originTemplate &&
                                 <>
-                                    <label className="control-label" />
+                                    <div />
                                     <span>{_("Instance of template: ")}<a href={"#/" + this.props.originTemplate}>{this.props.originTemplate}</a></span>
                                 </>
                             }

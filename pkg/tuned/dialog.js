@@ -281,7 +281,10 @@ function setup() {
                 .fail(show_error);
     }
 
-    button.on('click', open_dialog);
+    button.on('click', e => {
+        e.preventDefault();
+        open_dialog();
+    });
 
     tuned_service.addEventListener("changed", update_button);
     update_button();

@@ -136,9 +136,9 @@
                       </a>
                 </div>
 
-                <label class="control-label" translatable="yes">Power Options</label>
+                <label class="control-label" for="shutdown-action" translatable="yes">Power Options</label>
                 <div id="shutdown-group" class="btn-group">
-                    <button class="btn btn-default shutdown-privileged" data-action="restart"
+                    <button class="btn btn-default shutdown-privileged" id="shutdown-action" data-action="restart"
                         data-container="body" translatable="yes">Restart</button>
                     <button data-toggle="dropdown" class="btn
                         btn-default dropdown-toggle
@@ -156,7 +156,7 @@
                     </ul>
                 </div>
 
-                <label class="control-label" translatable="yes">Performance Profile</label>
+                <label class="control-label" for="tuned-status-button" translatable="yes">Performance Profile</label>
                 <span id="system-info-performance" hidden></span>
 
                 <label class="control-label" for="server-pmlogger-switch" translatable="yes" hidden>Store Metrics</label>
@@ -372,7 +372,7 @@
                     <table class="form-table-ct">
                         <tr>
                             <td>
-                                <label class="control-label" translatable="yes">Time Zone</label>
+                                <label class="control-label" for="systime-timezones" translatable="yes">Time Zone</label>
                             </td>
                             <td>
                                 <select class="form-control" id="systime-timezones">

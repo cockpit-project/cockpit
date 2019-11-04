@@ -155,11 +155,11 @@ class VmNetworkTab extends React.Component {
             },
             {
                 name: _("Source"), value: (network, networkId) => {
-                    const setSourceClass = (source) => checkDeviceAviability(source) ? "machines-network-source-link link-button" : undefined;
+                    const sourceElem = source => checkDeviceAviability(source) ? <button role="link" className='machines-network-source-link link-button' onClick={sourceJump(source)}>{source}</button> : source;
                     const mapSource = {
-                        direct: (source) => <button role="link" className={setSourceClass(source.dev)} onClick={sourceJump(source.dev)}>{source.dev}</button>,
-                        network: (source) => <button role="link" className={setSourceClass(source.network)} onClick={sourceJump(source.network)}>{source.network}</button>,
-                        bridge: (source) => <button role="link" className={setSourceClass(source.bridge)} onClick={sourceJump(source.bridge)}>{source.bridge}</button>,
+                        direct: (source) => sourceElem(source.dev),
+                        network: (source) => sourceElem(source.network),
+                        bridge: (source) => sourceElem(source.bridge),
                         mcast: addressPortSource,
                         server: addressPortSource,
                         client: addressPortSource,

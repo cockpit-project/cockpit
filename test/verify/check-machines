@@ -28,6 +28,9 @@ from testlib import *
 from netlib import NetworkHelpers
 from storagelib import StorageHelpers
 from machinesxmls import *
+from datetime import datetime
+
+distrosWithoutSnapshot = ["centos-8-stream", "debian-stable", "fedora-31", "fedora-32", "fedora-coreos", "fedora-testing", "rhel-8-3", "rhel-8-3-distropkg", "ubuntu-2004", "ubuntu-stable"]
 
 def getNetworkDevice(m):
     net_devices_str = m.execute("virsh iface-list")
@@ -3437,6 +3440,74 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_present('#delete-network-test_network4-{0}:disabled'.format(connectionName)) # Transient network cannot be deleted
         b.click('#deactivate-network-test_network4-{0}'.format(connectionName)) # Deactivate transient network
         self.waitNetworkRow("test_network4", connectionName, False) # Check it's not present after deactivation
+
+    def testSnapshots(self):
+        # Checks if difference of @time1 and @time2 is not greater than @difference (in seconds)
+        def checkTimeDiff(time1, time2, difference):
+            tmp = time2.split(' ') # split "Today 13:13:13" into day and time
+            if not tmp[1].startswith('00:') and not tmp[0] == "Today":
+                return False
+
+            diff = datetime.strptime(time1, '%H:%M:%S') - datetime.strptime(tmp[1] + tmp[2], '%I:%M%p')
+            return -difference < diff.total_seconds() < difference
+
+        b = self.browser
+        m = self.machine
+
+        self.startVm("subVmTest1")
+
+        self.login_and_go("/machines")
+        b.wait_in_text("body", "Virtual Machines")
+        self.waitVmRow("subVmTest1")
+        self.toggleVmRow("subVmTest1")
+        b.wait_in_text("#vm-subVmTest1-state", "running")
+        if m.image in distrosWithoutSnapshot:
+            b.wait_not_present("#vm-subVmTest1-snapshots")
+            return
+
+        b.click("#vm-subVmTest1-snapshots") # open the "Disks" subtab
+        b.wait_in_text(".no-snapshots", "No snapshots")
+
+        # Check snapshot for running VM
+        m.execute("virsh detach-disk --domain subVmTest1 --target vda --persistent") # vda is raw disk, which are not supported by internal snapshots
+        m.execute("qemu-img create -f qcow2 /var/lib/libvirt/images/foobar.qcow2 1M")
+        m.execute("virsh attach-disk --domain subVmTest1 --source /var/lib/libvirt/images/foobar.qcow2 --target vdb --persistent")
+        time1 = datetime.now().strftime("%H:%M:%S")
+        m.execute("virsh snapshot-create-as --domain subVmTest1 --name snapshot1 --description 'Description of snapshot1' --disk-only")
+
+        b.reload() # snapshots events not available yet: https://gitlab.com/libvirt/libvirt/-/issues/44
+        b.enter_page('/machines')
+        b.wait_in_text("body", "Virtual Machines")
+        self.toggleVmRow("subVmTest1")
+        b.click("#vm-subVmTest1-snapshots")
+
+        b.wait_in_text("#vm-subVmTest1-snapshot-0-name", "snapshot1")
+        b.wait_in_text("#vm-subVmTest1-snapshot-0-description", "Description of snapshot1")
+        b.wait_in_text("#vm-subVmTest1-snapshot-0-type", "no state saved")
+        b.wait_in_text("#vm-subVmTest1-snapshot-0-parent", "No parent")
+        time2 = b.text("#vm-subVmTest1-snapshot-0-date")
+        self.assertTrue(checkTimeDiff(time1, time2, 60))
+
+        # Check snapshot for shutoff VM
+        b.click("#vm-subVmTest1-action-kebab button")
+        b.click("#vm-subVmTest1-forceOff")
+        b.wait_in_text("#vm-subVmTest1-state", "shut off")
+
+        time1 = datetime.now().strftime("%H:%M:%S")
+        m.execute("virsh snapshot-create-as --domain subVmTest1 --name snapshot2 --description 'Description of snapshot2'")
+
+        b.reload() # snapshots events not available yet: https://gitlab.com/libvirt/libvirt/-/issues/44
+        b.enter_page('/machines')
+        b.wait_in_text("body", "Virtual Machines")
+        self.toggleVmRow("subVmTest1")
+        b.click("#vm-subVmTest1-snapshots")
+
+        b.wait_in_text("#vm-subVmTest1-snapshot-0-name", "snapshot2")
+        b.wait_in_text("#vm-subVmTest1-snapshot-0-description", "Description of snapshot2")
+        b.wait_in_text("#vm-subVmTest1-snapshot-0-type", "shut off")
+        b.wait_in_text("#vm-subVmTest1-snapshot-0-parent", "snapshot1")
+        time2 = b.text("#vm-subVmTest1-snapshot-0-date")
+        self.assertTrue(checkTimeDiff(time1, time2, 60))
 
     def testStoragePools(self):
         b = self.browser

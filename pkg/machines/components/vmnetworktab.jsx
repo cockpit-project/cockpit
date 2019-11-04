@@ -68,10 +68,6 @@ class VmNetworkTab extends React.Component {
             return interfacesList.filter(iface => iface.mac == mac)[0];
         };
 
-        if (!vm.interfaces || vm.interfaces.length === 0) {
-            return (<div>{_("No network interfaces defined for this VM")}</div>);
-        }
-
         const checkDeviceAviability = (network) => {
             for (const i in hostDevices) {
                 if (hostDevices[i].valid && hostDevices[i].Interface == network) {
@@ -254,6 +250,7 @@ class VmNetworkTab extends React.Component {
                     interfaces={interfaces} />}
                 <ListingTable aria-label={`VM ${vm.name} Network Interface Cards`}
                     variant='compact'
+                    emptyCaption={_("No network interfaces defined for this VM")}
                     columns={columnTitles}
                     rows={rows} />
             </div>

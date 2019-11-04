@@ -1761,8 +1761,11 @@ class TestMachinesDBus(machineslib.TestMachines):
                     # Check NIC is no longer in list
                     b.wait_not_present("#vm-subVmTest1-network-2-mac")
 
+        # No NICs present
+        b.wait_present("#vm-subVmTest1-add-iface-button") # open the Network Interfaces subtab
         # Test network type source
         m.execute("echo \"{0}\" > /tmp/xml && virsh net-define /tmp/xml && virsh net-start test_network".format(TEST_NETWORK_XML))
+
         NICAddDialog(
             self,
             source_type="Virtual network",

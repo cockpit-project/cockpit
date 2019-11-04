@@ -149,6 +149,22 @@ export function getSingleOptionalElem(parent, name) {
     return subElems.length > 0 ? subElems[0] : undefined; // optional
 }
 
+export function parseDomainSnapshotDumpxml(snapshot) {
+    const snapElem = getElem(snapshot);
+
+    const nameElem = getSingleOptionalElem(snapElem, 'name');
+    const descElem = getSingleOptionalElem(snapElem, 'description');
+    const parentElem = getSingleOptionalElem(snapElem, 'parent');
+
+    const name = nameElem ? nameElem.childNodes[0].nodeValue : undefined;
+    const description = descElem ? descElem.childNodes[0].nodeValue : undefined;
+    const parentName = parentElem ? parentElem.getElementsByTagName("name")[0].childNodes[0].nodeValue : undefined;
+    const state = snapElem.getElementsByTagName("state")[0].childNodes[0].nodeValue;
+    const creationTime = snapElem.getElementsByTagName("creationTime")[0].childNodes[0].nodeValue;
+
+    return { name, description, state, creationTime, parentName };
+}
+
 export function parseDumpxml(dispatch, connectionName, domXml, id_overwrite) {
     const domainElem = getElem(domXml);
     if (!domainElem) {

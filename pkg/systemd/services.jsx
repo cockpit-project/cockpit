@@ -25,6 +25,8 @@ import cockpit from "cockpit";
 
 const _ = cockpit.gettext;
 
+export const service_tabs_suffixes = new Set(["service", "target", "socket", "timer", "path"]);
+
 /*
  * React component showing services tabs
  * Required props:

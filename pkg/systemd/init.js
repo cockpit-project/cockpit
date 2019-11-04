@@ -5,7 +5,7 @@ import cockpit from "cockpit";
 import moment from "moment";
 import React from "react";
 import ReactDOM from 'react-dom';
-import { ServiceTabs } from "./services.jsx";
+import { ServiceTabs, service_tabs_suffixes } from "./services.jsx";
 import { ServiceDetails, ServiceTemplate } from "./service-details.jsx";
 import { journal } from "journal";
 import { page_status } from "notifications";
@@ -403,11 +403,11 @@ $(function() {
             for (const p in units_by_path) {
                 const u = units_by_path[p];
                 if (u.ActiveState == "failed") {
-                    failed.add(u.Id);
-                    // The suffix of the unit id determines in which
-                    // tab it shows up.  For example, the unit with id
-                    // "foo.timer" will show up in the "Timers" tab.
-                    tab_warnings[u.Id.substr(u.Id.lastIndexOf('.') + 1)] = true;
+                    const suffix = u.Id.substr(u.Id.lastIndexOf('.') + 1);
+                    if (service_tabs_suffixes.has(suffix)) {
+                        failed.add(u.Id);
+                        tab_warnings[suffix] = true;
+                    }
                 }
             }
 

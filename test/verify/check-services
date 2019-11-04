@@ -908,5 +908,35 @@ ExecStart=/usr/bin/false
         b.enter_page('/system')
         b.wait_not_present('#page_status_notifications:contains("failed")')
 
+    def testHiddenFailure(self):
+        m = self.machine
+        b = self.browser
+
+        m.write("/etc/systemd/system/fail.mount",
+                """
+[Unit]
+Description=Failing Mount
+
+[Mount]
+What=wrong
+Where=/fail
+""")
+
+        m.execute("systemctl daemon-reload")
+        self.machine.execute("systemctl start default.target")
+        self.machine.execute("systemctl reset-failed")
+        m.execute("systemctl start fail.mount || true")
+
+        self.login_and_go("/system/services")
+
+        # Nav link should not have icon
+        b.switch_to_top()
+        b.wait_not_present('a[href="/system/services"] .fa-exclamation-triangle')
+
+        # System page should not have notification
+        b.click('#host-apps a[href="/system"]')
+        b.enter_page('/system')
+        b.wait_not_present('#page_status_notifications:contains("failed")')
+
 if __name__ == '__main__':
     test_main()

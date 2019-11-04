@@ -25,8 +25,8 @@ $(function() {
     cockpit.translate();
     const _ = cockpit.gettext;
 
-    var update_services_list = true;
-    var current_services = new Set();
+    var update_identifiers_list = true;
+    var current_identifiers = new Set();
 
     var problems_client = cockpit.dbus('org.freedesktop.problems', { superuser: "try" });
     var service = problems_client.proxy('org.freedesktop.Problems2', '/org/freedesktop/Problems2');
@@ -108,7 +108,7 @@ $(function() {
         var renderitems_day_cache = null;
         var procs = [];
 
-        var loading_services = false;
+        var loading_identifiers = false;
 
         function query_error(error) {
             /* TODO: blank slate */
@@ -118,10 +118,10 @@ $(function() {
         function prepend_entries(entries) {
             for (var i = 0; i < entries.length; i++) {
                 renderer.prepend(entries[i]);
-                current_services.add(entries[i].SYSLOG_IDENTIFIER);
+                current_identifiers.add(entries[i].SYSLOG_IDENTIFIER);
             }
             renderer.prepend_flush();
-            show_service_filters();
+            show_identifier_filters();
             /* empty cache for day offsets */
             renderitems_day_cache = null;
         }
@@ -201,63 +201,63 @@ $(function() {
             }
         }
 
-        function clear_service_list() {
-            if (loading_services) {
-                $('#journal-services-list').empty()
+        function clear_identifier_list() {
+            if (loading_identifiers) {
+                $('#journal-identifiers-list').empty()
                         .append($('<li>').text(_("Loading...")));
                 return;
             }
 
-            $('#journal-services-list').empty()
+            $('#journal-identifiers-list').empty()
                     .append($('<li>').append($('<a>')
                             .text(_("All"))
-                            .attr('data-service', "")))
+                            .attr('data-identifier', "")))
                     .append($('<li>')
                             .addClass("divider"));
         }
 
-        function load_service_filters(match, options) {
-            loading_services = true;
-            current_services = new Set();
-            var service_options = Object.assign({ output: "verbose" }, options);
-            var cmd = journal.build_cmd(match, service_options)[0].join(" ");
+        function load_identifier_filters(match, options) {
+            loading_identifiers = true;
+            current_identifiers = new Set();
+            var identifier_options = Object.assign({ output: "verbose" }, options);
+            var cmd = journal.build_cmd(match, identifier_options)[0].join(" ");
             cmd += " | grep SYSLOG_IDENTIFIER= | sort -u";
             cockpit.spawn(["sh", "-ec", cmd], { host: options.host, superuser: "try" })
                     .then(function(entries) {
                         entries.split("\n").forEach(function(entry) {
                             if (entry)
-                                current_services.add(entry.substr(entry.indexOf('=') + 1));
+                                current_identifiers.add(entry.substr(entry.indexOf('=') + 1));
                         });
                     })
                     .done(function () {
-                        loading_services = false;
-                        show_service_filters();
+                        loading_identifiers = false;
+                        show_identifier_filters();
                     });
         }
 
-        function show_service_filters() {
-            clear_service_list();
+        function show_identifier_filters() {
+            clear_identifier_list();
 
-            if (loading_services)
+            if (loading_identifiers)
                 return;
 
             // Sort and put into list
-            Array.from(current_services).sort((a, b) =>
+            Array.from(current_identifiers).sort((a, b) =>
                 a.toLowerCase().localeCompare(b.toLowerCase())
             )
                     .forEach(function(unit) {
-                        $('#journal-services-list').append(
+                        $('#journal-identifiers-list').append(
                             $('<li>').append($('<a>')
                                     .text(unit)
-                                    .attr('data-service', unit)));
+                                    .attr('data-identifier', unit)));
                     });
         }
 
         start_box.text(_("Loading..."));
 
-        $('#journal-service-menu').on("click", "a", function() {
-            update_services_list = false;
-            cockpit.location.go([], $.extend(cockpit.location.options, { tag: $(this).attr('data-service') }));
+        $('#journal-identifier-menu').on("click", "a", function() {
+            update_identifiers_list = false;
+            cockpit.location.go([], $.extend(cockpit.location.options, { tag: $(this).attr('data-identifier') }));
         });
 
         $(window).on('scroll', update_day_box);
@@ -292,9 +292,9 @@ $(function() {
                 tags_match.push(field);
         });
 
-        if (update_services_list) {
-            clear_service_list();
-            load_service_filters(tags_match, options);
+        if (update_identifiers_list) {
+            clear_identifier_list();
+            load_identifier_filters(tags_match, options);
         }
 
         procs.push(journal.journalctl(match, options)
@@ -381,7 +381,7 @@ $(function() {
             match.push('_SYSTEMD_UNIT=' + options.service, "+", "COREDUMP_UNIT=" + options.service, "+", "UNIT=" + options.service);
         else if (options.tag)
             match.push('SYSLOG_IDENTIFIER=' + options.tag);
-        $('#journal-service').text(options.tag || _("All"));
+        $('#journal-identifier').text(options.tag || _("All"));
 
         var query_start = cockpit.location.options.start || "recent";
         if (query_start == 'recent')
@@ -882,12 +882,12 @@ $(function() {
     }
 
     $(cockpit).on("locationchanged", function() {
-        update_services_list = true;
+        update_identifiers_list = true;
         update();
     });
 
     $('#journal-current-day-menu a').on('click', function() {
-        update_services_list = true;
+        update_identifiers_list = true;
         cockpit.location.go([], $.extend(cockpit.location.options, { start: $(this).attr("data-op") }));
     });
 
@@ -898,15 +898,15 @@ $(function() {
     });
 
     $('#journal-prio-menu a').on('click', function() {
-        update_services_list = true;
+        update_identifiers_list = true;
         cockpit.location.go([], $.extend(cockpit.location.options, { prio: $(this).attr('data-prio') }));
     });
 
     $('#journal-navigate-home').on("click", function() {
-        if (current_services.size > 0)
-            update_services_list = false;
+        if (current_identifiers.size > 0)
+            update_identifiers_list = false;
         else
-            update_services_list = true;
+            update_identifiers_list = true;
 
         var parent_options;
         if (cockpit.location.options.parent_options) {

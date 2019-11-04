@@ -292,18 +292,18 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         wait_log_present("AFTER BOOT")
         m.execute("logger -p 5 --tag just-a-service WORK PLEASE")
         wait_log_present("WORK PLEASE")
-        self.select_from_dropdown(b, "#journal-service-menu", "check-journal", click=False)
-        self.select_from_dropdown(b, "#journal-service-menu", "just-a-service", click=True)
+        self.select_from_dropdown(b, "#journal-identifier-menu", "check-journal", click=False)
+        self.select_from_dropdown(b, "#journal-identifier-menu", "just-a-service", click=True)
         wait_log_not_present("AFTER BOOT")
         wait_log_present("WORK PLEASE")
-        self.select_from_dropdown(b, "#journal-service-menu", "All", click=True)
+        self.select_from_dropdown(b, "#journal-identifier-menu", "All", click=True)
         wait_log_present("AFTER BOOT")
         wait_log_present("WORK PLEASE")
 
         self.select_from_dropdown(b, "#journal-prio-menu", "Error and above")
-        self.select_from_dropdown(b, "#journal-service-menu", "check-journal", click=False)
-        b.click("#journal-service-menu button")
-        b.wait_not_present("#journal-services-list ul li a:contains('just-a-service')")
+        self.select_from_dropdown(b, "#journal-identifier-menu", "check-journal", click=False)
+        b.click("#journal-identifier-menu button")
+        b.wait_not_present("#journal-identifiers-list ul li a:contains('just-a-service')")
 
 
     def testBinary(self):

@@ -914,6 +914,8 @@ class MachineCase(unittest.TestCase):
                                     "user user was reauthorized",
                                     "sudo: no password was provided",
                                     "sudo: unable to resolve host .*",
+                                    "sudo: unable to open /run/sudo/ts/unpriv: Permission denied",
+                                    "sudo: unable to stat /var/db/sudo: Permission denied",
                                     ".*: sorry, you must have a tty to run sudo",
                                     ".*/pkexec: bridge exited",
                                     "We trust you have received the usual lecture from the local System",

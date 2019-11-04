@@ -27,6 +27,7 @@ $(function() {
 
     var update_identifiers_list = true;
     var current_identifiers = new Set();
+    var current_services = new Set();
 
     var problems_client = cockpit.dbus('org.freedesktop.problems', { superuser: "try" });
     var service = problems_client.proxy('org.freedesktop.Problems2', '/org/freedesktop/Problems2');
@@ -119,6 +120,9 @@ $(function() {
             for (var i = 0; i < entries.length; i++) {
                 renderer.prepend(entries[i]);
                 current_identifiers.add(entries[i].SYSLOG_IDENTIFIER);
+                current_services.add(entries[i]._SYSTEMD_UNIT);
+                current_services.add(entries[i].COREDUMP_UNIT);
+                current_services.add(entries[i].UNIT);
             }
             renderer.prepend_flush();
             show_identifier_filters();
@@ -205,6 +209,8 @@ $(function() {
             if (loading_identifiers) {
                 $('#journal-identifiers-list').empty()
                         .append($('<li>').text(_("Loading...")));
+                $('#journal-services-list').empty()
+                        .append($('<li>').text(_("Loading...")));
                 return;
             }
 
@@ -214,19 +220,30 @@ $(function() {
                             .attr('data-identifier', "")))
                     .append($('<li>')
                             .addClass("divider"));
+            $('#journal-services-list').empty()
+                    .append($('<li>').append($('<a>')
+                            .text(_("All"))
+                            .attr('data-service', "")))
+                    .append($('<li>')
+                            .addClass("divider"));
         }
 
         function load_identifier_filters(match, options) {
             loading_identifiers = true;
             current_identifiers = new Set();
+            current_services = new Set();
             var identifier_options = Object.assign({ output: "verbose" }, options);
             var cmd = journal.build_cmd(match, identifier_options)[0].join(" ");
-            cmd += " | grep SYSLOG_IDENTIFIER= | sort -u";
+            cmd += " | grep 'SYSLOG_IDENTIFIER=\\|_SYSTEMD_UNIT=\\|COREDUMP_UNIT=\\|UNIT=' | sort -u";
             cockpit.spawn(["sh", "-ec", cmd], { host: options.host, superuser: "try" })
                     .then(function(entries) {
                         entries.split("\n").forEach(function(entry) {
-                            if (entry)
-                                current_identifiers.add(entry.substr(entry.indexOf('=') + 1));
+                            if (entry) {
+                                if (entry.indexOf("UNIT=") != -1)
+                                    current_services.add(entry.substr(entry.indexOf('=') + 1));
+                                else
+                                    current_identifiers.add(entry.substr(entry.indexOf('=') + 1));
+                            }
                         });
                     })
                     .done(function () {
@@ -251,6 +268,16 @@ $(function() {
                                     .text(unit)
                                     .attr('data-identifier', unit)));
                     });
+            // Sort and put into list
+            Array.from(current_services).sort((a, b) =>
+                a.toLowerCase().localeCompare(b.toLowerCase())
+            )
+                    .forEach(function(unit) {
+                        $('#journal-services-list').append(
+                            $('<li>').append($('<a>')
+                                    .text(unit)
+                                    .attr('data-service', unit)));
+                    });
         }
 
         start_box.text(_("Loading..."));
@@ -258,6 +285,11 @@ $(function() {
         $('#journal-identifier-menu').on("click", "a", function() {
             update_identifiers_list = false;
             cockpit.location.go([], $.extend(cockpit.location.options, { tag: $(this).attr('data-identifier') }));
+        });
+
+        $('#journal-service-menu').on("click", "a", function() {
+            update_identifiers_list = false;
+            cockpit.location.go([], $.extend(cockpit.location.options, { service: $(this).attr('data-service') }));
         });
 
         $(window).on('scroll', update_day_box);
@@ -291,7 +323,7 @@ $(function() {
             if (!field.startsWith("SYSLOG_IDENTIFIER"))
                 tags_match.push(field);
         });
-
+        // HERE what does this tags_match do??
         if (update_identifiers_list) {
             clear_identifier_list();
             load_identifier_filters(tags_match, options);
@@ -379,9 +411,10 @@ $(function() {
         var options = cockpit.location.options;
         if (options.service)
             match.push('_SYSTEMD_UNIT=' + options.service, "+", "COREDUMP_UNIT=" + options.service, "+", "UNIT=" + options.service);
-        else if (options.tag)
+        if (options.tag)
             match.push('SYSLOG_IDENTIFIER=' + options.tag);
         $('#journal-identifier').text(options.tag || _("All"));
+        $('#journal-service').text(options.service || _("All"));
 
         var query_start = cockpit.location.options.start || "recent";
         if (query_start == 'recent')
@@ -903,7 +936,7 @@ $(function() {
     });
 
     $('#journal-navigate-home').on("click", function() {
-        if (current_identifiers.size > 0)
+        if (current_identifiers.size > 0 || current_services.size > 0)
             update_identifiers_list = false;
         else
             update_identifiers_list = true;

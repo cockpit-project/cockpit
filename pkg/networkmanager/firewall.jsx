@@ -75,11 +75,11 @@ function ServiceRow(props) {
         deleteButton = (
             <OverlayTrigger className="pull-right" placement="top"
                             overlay={ <Tooltip id="tip-auth">{ _("You are not authorized to modify the firewall.") }</Tooltip> }>
-                <button key={props.service.id + "-delete-button"} className="btn btn-danger pficon pficon-delete" disabled />
+                <button key={props.service.id + "-delete-button"} className="btn btn-danger pficon pficon-delete" aria-label={cockpit.format(_("Not authorized to remove service $0"), props.service.id)} disabled />
             </OverlayTrigger>
         );
     } else {
-        deleteButton = <button key={props.service.id + "-delete-button"} className="btn btn-danger pficon pficon-delete" onClick={onRemoveService} />;
+        deleteButton = <button key={props.service.id + "-delete-button"} className="btn btn-danger pficon pficon-delete" onClick={onRemoveService} aria-label={cockpit.format(_("Remove service $0"), props.service.id)} />;
     }
 
     var columns = [
@@ -129,11 +129,11 @@ function ZoneSection(props) {
         deleteButton = (
             <OverlayTrigger placement="top"
                             overlay={ <Tooltip id="tip-auth">{ _("You are not authorized to modify the firewall.") }</Tooltip> }>
-                <button className="btn btn-danger pficon pficon-delete" disabled />
+                <button className="btn btn-danger pficon pficon-delete" aria-label={cockpit.format(_("Not authorized to remove zone $0"), props.zone.id)} disabled />
             </OverlayTrigger>
         );
     } else {
-        deleteButton = <button className="btn btn-danger pficon pficon-delete" onClick={onRemoveZone} />;
+        deleteButton = <button className="btn btn-danger pficon pficon-delete" onClick={onRemoveZone} aria-label={cockpit.format(_("Remove zone $0"), props.zone.id)} />;
     }
 
     let addServiceAction;
@@ -141,12 +141,12 @@ function ZoneSection(props) {
         addServiceAction = (
             <OverlayTrigger placement="top"
                                 overlay={ <Tooltip id="tip-auth">{ _("You are not authorized to modify the firewall.") }</Tooltip> }>
-                <Button bsStyle="primary" className="pull-right" disabled> {_("Add Services")} </Button>
+                <Button bsStyle="primary" className="pull-right" aria-label={cockpit.format(_("Not authorized to add services to zone $0"), props.zone.id)} disabled> {_("Add Services")} </Button>
             </OverlayTrigger>
         );
     } else {
         addServiceAction = (
-            <Button bsStyle="primary" onClick={() => props.openServicesDialog(props.zone.id, props.zone.name)} id="add-services-button">
+            <Button bsStyle="primary" onClick={() => props.openServicesDialog(props.zone.id, props.zone.name)} id="add-services-button" aria-label={cockpit.format(_("Add services to zone $0"), props.zone.id)}>
                 {_("Add Services")}
             </Button>
         );
@@ -586,7 +586,7 @@ class AddServicesModal extends React.Component {
                     <Button bsStyle='default' className='btn-cancel' onClick={this.props.close}>
                         {_("Cancel")}
                     </Button>
-                    <Button bsStyle='primary' onClick={this.save}>
+                    <Button bsStyle='primary' onClick={this.save} aria-label={titleText}>
                         {addText}
                     </Button>
                 </Modal.Footer>
@@ -762,7 +762,7 @@ function DeleteConfirmationModal(props) {
                 <Button bsStyle="default" className="btn-cancel" onClick={props.onCancel}>
                     { _("Cancel") }
                 </Button>
-                <Button bsStyle="danger" onClick={props.onDelete}>
+                <Button bsStyle="danger" onClick={props.onDelete} aria-label={cockpit.format(_("Confirm removal of $0"), props.target)}>
                     { _("Delete") }
                 </Button>
             </Modal.Footer>
@@ -817,6 +817,7 @@ export class Firewall extends React.Component {
         this.setState({
             deleteConfirmationModal: <DeleteConfirmationModal title={ cockpit.format(_("Remove zone $0"), zone) }
             body={body}
+            target={zone}
             onCancel={ () =>
                 this.setState({ deleteConfirmationModal: undefined })
             }
@@ -833,6 +834,7 @@ export class Firewall extends React.Component {
             this.setState({
                 deleteConfirmationModal: <DeleteConfirmationModal title={ cockpit.format(_("Remove $0 service from $1 zone"), service, zone) }
                 body={body}
+                target={service}
                 onCancel={ () =>
                     this.setState({ deleteConfirmationModal: undefined })
                 }
@@ -891,12 +893,12 @@ export class Firewall extends React.Component {
             addZoneAction = (
                 <OverlayTrigger className="pull-right" placement="top"
                                 overlay={ <Tooltip id="tip-auth">{ _("You are not authorized to modify the firewall.") }</Tooltip> }>
-                    <Button bsStyle="primary" className="pull-right" disabled> {_("Add Zone")} </Button>
+                    <Button bsStyle="primary" className="pull-right" aria-label={_("Not authorized to add a new zone")} disabled> {_("Add Zone")} </Button>
                 </OverlayTrigger>
             );
         } else {
             addZoneAction = (
-                <Button bsStyle="primary" onClick={this.openAddZoneDialog} className="pull-right" id="add-zone-button">
+                <Button bsStyle="primary" onClick={this.openAddZoneDialog} className="pull-right" id="add-zone-button" aria-label={_("Add a new zone")}>
                     {_("Add Zone")}
                 </Button>
             );
@@ -924,12 +926,15 @@ export class Firewall extends React.Component {
             firewallOnOff = <OverlayTrigger className="pull-right" placement="top"
                                             overlay={ <Tooltip id="tip-auth">{ _("You are not authorized to modify the firewall.") }</Tooltip> }>
                 <OnOffSwitch state={enabled}
-                             onChange={this.onSwitchChanged} disabled />
+                             onChange={this.onSwitchChanged}
+                             aria-label={enabled ? _("Not authorized to disable the firewall") : _("Not authorized to enable the firewall")}
+                             disabled />
             </OverlayTrigger>;
         } else {
             firewallOnOff = <OnOffSwitch state={enabled}
                                          disabled={!!this.state.pendingTarget}
-                                         onChange={this.onSwitchChanged} />;
+                                         onChange={this.onSwitchChanged}
+                                         aria-label={enabled ? _("Disable the firewall") : _("Enable the firewall")} />;
         }
 
         return (

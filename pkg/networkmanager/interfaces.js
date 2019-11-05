@@ -2684,8 +2684,8 @@ PageNetworkInterface.prototype = {
                         $('<tr>').append(
                             $('<td>').text(_("General")),
                             $('<td class="networking-controls">').append(
-                                $('<label>').append(
-                                    $('<input type="checkbox">')
+                                $('<label for="autoreconnect">').append(
+                                    $('<input type="checkbox" id="autoreconnect">')
                                             .prop('checked', settings.connection.autoconnect)
                                             .change(function () {
                                                 settings.connection.autoconnect = $(this).prop('checked');
@@ -3746,6 +3746,9 @@ PageNetworkBondSettings.prototype = {
                 .replaceWith(primary_btn = slave_chooser_btn(change_mode, slaves_element, "form-control"));
         body.find('#network-bond-settings-link-monitoring-select')
                 .replaceWith(monitoring_btn = select_btn(change_monitoring, bond_monitoring_choices, "form-control"));
+        mode_btn.attr("id", "network-bond-settings-mode-select");
+        primary_btn.attr("id", "network-bond-settings-primary-select");
+        monitoring_btn.attr("id", "network-bond-settings-link-monitoring-select");
 
         interval_input = body.find('#network-bond-settings-monitoring-interval-input');
         interval_input.change(change_monitoring);
@@ -3946,6 +3949,9 @@ PageNetworkTeamSettings.prototype = {
                 .replaceWith(balancer_btn = select_btn(change_balancer, team_balancer_choices, "form-control"));
         body.find('#network-team-settings-link-watch-select')
                 .replaceWith(watch_btn = select_btn(change_watch, team_watch_choices, "form-control"));
+        runner_btn.attr("id", "network-team-settings-runner-select");
+        balancer_btn.attr("id", "network-team-settings-balancer-select");
+        watch_btn.attr("id", "network-team-settings-link-watch-select");
 
         interval_input = body.find('#network-team-settings-ping-interval-input');
         interval_input.change(change_watch);
@@ -4421,6 +4427,7 @@ PageNetworkVlanSettings.prototype = {
             interface_name: options.interface_name
         }));
         parent_btn = select_btn(change, parent_choices, "form-control");
+        parent_btn.attr('id', 'network-vlan-settings-parent-select');
         body.find('#network-vlan-settings-parent-select').replaceWith(parent_btn);
         id_input = body.find('#network-vlan-settings-vlan-id-input')
                 .change(change)

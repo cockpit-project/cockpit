@@ -36,7 +36,7 @@ export class PatternDialogBody extends React.Component {
                     <label className="control-label" htmlFor="control-1">Label</label>
                     <input id="control-1" className="form-control" type="text" />
 
-                    <label className="control-label">Select</label>
+                    <label className="control-label" htmlFor="primary-select">Select</label>
                     <Select.Select onChange={this.selectChanged} id="primary-select">
                         <Select.SelectEntry data='one'>One</Select.SelectEntry>
                         <Select.SelectEntry data='two'>Two</Select.SelectEntry>
@@ -45,18 +45,18 @@ export class PatternDialogBody extends React.Component {
                         <Select.SelectEntry data='four' />
                     </Select.Select>
 
-                    <label className="control-label">Preselected</label>
-                    <Select.Select initial="two">
+                    <label className="control-label" htmlFor="preselected">Preselected</label>
+                    <Select.Select initial="two" id="preselected">
                         <Select.SelectEntry data="one">One</Select.SelectEntry>
                         <Select.SelectEntry data="two">Two</Select.SelectEntry>
                         <Select.SelectEntry data="three">Three</Select.SelectEntry>
                     </Select.Select>
 
-                    <label className="control-label">Empty Select</label>
-                    <Select.Select />
+                    <label className="control-label" htmlFor="empty-select">Empty Select</label>
+                    <Select.Select id="empty-select" />
 
-                    <label className="control-label">Nested dialog</label>
-                    <div role="group">
+                    <label className="control-label" htmlFor="nested">Nested dialog</label>
+                    <div role="group" id="nested">
                         <button id="open-nested" onClick={ this.props.clickNested }>
                             Try to nest dialog
                         </button>

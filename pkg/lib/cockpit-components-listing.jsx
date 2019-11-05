@@ -171,7 +171,7 @@ export class ListingRow extends React.Component {
         let expandToggle;
         if (allowExpand) {
             expandToggle = <td key="expandToggle" className="listing-ct-toggle" onClick={ allowNavigate ? this.handleExpandClick : undefined }>
-                <i className="fa fa-fw" />
+                <button className="pf-c-button pf-m-plain" type="button" aria-label="expand row"><i className="fa fa-fw" /></button>
             </td>;
         } else {
             expandToggle = <td key="expandToggle-empty" className="listing-ct-toggle" />;

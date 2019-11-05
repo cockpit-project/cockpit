@@ -483,7 +483,7 @@ export class ServiceDetails extends React.Component {
                             <label className="control-label" htmlFor="path">{ _("Path") }</label>
                             <span id="path">{this.props.unit.FragmentPath}</span>
                             <hr />
-                            { this.props.originTemplate &&
+                            { this.props.originTemplate && this.props.isValid(this.props.originTemplate) &&
                                 <>
                                     <div />
                                     <span>{_("Instance of template: ")}<a href={"#/" + this.props.originTemplate}>{this.props.originTemplate}</a></span>

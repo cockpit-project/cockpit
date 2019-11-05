@@ -489,7 +489,8 @@ class MachinesLib(SeleniumTest):
         return pool, pool_a, pool_b
 
     def get_pdd_format_list(self):
-        self.click(self.wait_text('Storage Pools', cond=clickable))
+        self.click(self.wait_css('#card-pf-storage-pools > h2 > button',
+                                 cond=clickable))
         self.wait_css('#storage-pools-listing')
         self.click(self.wait_css('#create-storage-pool', cond=clickable))
         self.select_by_value(self.wait_css('#storage-pool-dialog-type'), 'disk')

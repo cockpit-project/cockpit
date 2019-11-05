@@ -45,7 +45,7 @@ const MoreInformationContent = () => {
                                 '<i>Remote Viewer</i>');
 
     const downloadMsg = cockpit.format(_("Download the MSI from $0"),
-                                       '<a href="https://virt-manager.org/download/" target="_blank">virt-manager.org</a>');
+                                       '<a href="https://virt-manager.org/download/" rel="noopener noreferrer" target="_blank">virt-manager.org</a>');
 
     return (
         <div>

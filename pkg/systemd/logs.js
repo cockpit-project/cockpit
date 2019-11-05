@@ -536,6 +536,7 @@ $(function() {
                     r_btn = $('<a class="problem-btn">')
                             .attr('href', url)
                             .attr("target", "_blank")
+                            .attr("rel", "noopener noreferrer")
                             .text(_("Reported"));
                     break;
                 }

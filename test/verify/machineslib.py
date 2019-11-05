@@ -1861,9 +1861,8 @@ class TestMachines(NetworkCase):
 
             b.focus("label[for=os-select] + div > div > div > input")
             b.key_press(self.os_name)
-            b.key_press("\t")
             try:
-                with b.wait_timeout(1):
+                with b.wait_timeout(5):
                     b.wait_in_text("#os-select li a", "No matches found")
                 return self
             except AssertionError:

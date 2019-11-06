@@ -19,7 +19,7 @@
 
 import cockpit from "cockpit";
 import React from "react";
-import { cellWidth } from '@patternfly/react-table';
+import { cellWidth, SortByDirection } from '@patternfly/react-table';
 
 import { ListingTable } from "cockpit-components-table.jsx";
 import { StorageButton, StorageUsageBar } from "./storage-controls.jsx";
@@ -93,13 +93,14 @@ export class NFSPanel extends React.Component {
                        not_installed_text={_("NFS Support not installed")}
                        install_title={_("Install NFS Support")}>
                 <ListingTable variant='compact'
+                    sortBy={{ index: 0, direction: SortByDirection.asc }}
                     aria-label={_("NFS Mounts")}
                     onRowClick={onRowClick}
                     className='table-hover'
                     emptyCaption={_("No NFS mounts set up")}
                     columns={[
-                        { title: _("Server"), transforms: [cellWidth(30)] },
-                        { title: _("Mount Point"), transforms: [cellWidth(33)] },
+                        { title: _("Server"), transforms: [cellWidth(30)], sortable: true },
+                        { title: _("Mount Point"), transforms: [cellWidth(33)], sortable: true },
                         { title:  _("Size"), transforms: [cellWidth(40)] }
                     ]}
                     rows={mounts} />

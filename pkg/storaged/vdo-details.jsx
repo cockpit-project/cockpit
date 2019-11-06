@@ -162,15 +162,29 @@ export class VDODetails extends React.Component {
                 return;
             }
 
+            function wipe_with_teardown(block) {
+                return block.Format("empty", { 'tear-down': { t: 'b', v: true } });
+            }
+
             function teardown_configs() {
                 if (block) {
-                    return block.Format("empty", { 'tear-down': { t: 'b', v: true } });
+                    return wipe_with_teardown(block);
                 } else {
                     return vdo.start()
                             .then(function () {
-                                client.wait_for(() => client.slashdevs_block[vdo.dev])
+                                return client.wait_for(() => client.slashdevs_block[vdo.dev])
                                         .then(function (block) {
-                                            return block.Format("empty", { 'tear-down': { t: 'b', v: true } });
+                                            return wipe_with_teardown(block)
+                                                    .catch(error => {
+                                                        // systemd might have mounted it, let's try unmounting
+                                                        const block_fsys = client.blocks_fsys[block.path];
+                                                        if (block_fsys) {
+                                                            return block_fsys.Unmount({})
+                                                                    .then(() => wipe_with_teardown(block));
+                                                        } else {
+                                                            return Promise.reject(error);
+                                                        }
+                                                    });
                                         });
                             });
                 }
@@ -184,16 +198,14 @@ export class VDODetails extends React.Component {
                     Title: _("Delete"),
                     Danger: _("Deleting a VDO device will erase all data on it."),
                     action: function () {
-                        return teardown_active_usage(client, usage)
+                        return (teardown_active_usage(client, usage)
+                                .then(teardown_configs)
                                 .then(function () {
-                                    return teardown_configs()
-                                            .then(function () {
-                                                var location = cockpit.location;
-                                                return vdo.remove().then(function () {
-                                                    location.go("/");
-                                                });
-                                            });
-                                });
+                                    var location = cockpit.location;
+                                    return vdo.remove().then(function () {
+                                        location.go("/");
+                                    });
+                                }));
                     }
                 }
             });

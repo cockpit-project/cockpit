@@ -19,7 +19,7 @@
 
 import cockpit from "cockpit";
 import React from "react";
-import { cellWidth } from '@patternfly/react-table';
+import { cellWidth, SortByDirection } from '@patternfly/react-table';
 
 import { ListingTable } from "cockpit-components-table.jsx";
 import { StorageUsageBar } from "./storage-controls.jsx";
@@ -51,12 +51,6 @@ export class FilesystemsPanel extends React.Component {
             return fsys && block.IdUsage == "filesystem" && block.IdType != "mpath_member" && !block.HintIgnore;
         }
 
-        function cmp_mount(path_a, path_b) {
-            var name_a = client.blocks[path_a].IdLabel || block_name(client.blocks[path_a]);
-            var name_b = client.blocks[path_b].IdLabel || block_name(client.blocks[path_b]);
-            return name_a.localeCompare(name_b);
-        }
-
         function make_mount(path) {
             var block = client.blocks[path];
             var fsys = client.blocks_fsys[path];
@@ -71,7 +65,7 @@ export class FilesystemsPanel extends React.Component {
                     { title:  block.IdLabel || block_name(block) },
                     {
                         title: fsys.MountPoints.length > 0
-                            ? fsys.MountPoints.map((mp) => <div key={mp}>{decode_filename(mp)}</div>)
+                            ? fsys.MountPoints.map((mp) => decode_filename(mp)).join(', ')
                             : "-"
                     },
                     {
@@ -84,7 +78,6 @@ export class FilesystemsPanel extends React.Component {
         }
 
         var mounts = Object.keys(client.blocks).filter(is_mount)
-                .sort(cmp_mount)
                 .map(make_mount);
 
         function onRowClick(event, row) {
@@ -99,12 +92,13 @@ export class FilesystemsPanel extends React.Component {
             <OptionalPanel id="mounts" className="storage-mounts"
                 title={_("Filesystems")}>
                 <ListingTable variant='compact'
+                    sortBy={{ index: 0, direction: SortByDirection.asc }}
                     aria-label={_("Filesystems")}
                     className='table-hover'
                     onRowClick={onRowClick}
                     columns={[
-                        { title: _("Name"), transforms: [cellWidth(30)] },
-                        { title: _("Mount Point"), transforms: [cellWidth(30)] },
+                        { title: _("Name"), transforms: [cellWidth(30)], sortable: true },
+                        { title: _("Mount Point"), transforms: [cellWidth(30)], sortable: true },
                         { title:  _("Size"), transforms: [cellWidth(40)] }
                     ]}
                     rows={mounts} />

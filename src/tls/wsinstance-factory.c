@@ -24,6 +24,7 @@
 #include <assert.h>
 #include <err.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <systemd/sd-bus.h>
 #include <systemd/sd-daemon.h>
@@ -73,14 +74,14 @@ main (void)
   int r;
 
   if (sd_listen_fds_with_names (false, &fdnames) != 1 || strcmp (fdnames[0], "connection") != 0)
-    errx (1, "Must be spawned from a systemd service on a socket with Accept=yes %s", fdnames[0]);
+    errx (EXIT_FAILURE, "Must be spawned from a systemd service on a socket with Accept=yes %s", fdnames[0]);
 
   if (!recv_alnum (SD_LISTEN_FDS_START, fingerprint, sizeof fingerprint, 10 * 1000000))
-    errx (1, "Didn't receive fingerprint");
+    errx (EXIT_FAILURE, "Didn't receive fingerprint");
 
   r = sd_bus_open_system (&bus);
   if (r < 0)
-    errx (1, "Failed to connect to system bus: %s", strerror (-r));
+    errx (EXIT_FAILURE, "Failed to connect to system bus: %s", strerror (-r));
 
   /* We use the job_path variable to communicate with the match function
    * in two ways:
@@ -100,7 +101,7 @@ main (void)
                                  "org.freedesktop.systemd1.Manager", "JobRemoved",
                                  match_job_removed, NULL, &job_path);
   if (r < 0)
-    errx (1, "Failed to install match rule: %s", strerror (-r));
+    errx (EXIT_FAILURE, "Failed to install match rule: %s", strerror (-r));
 
   /* can't fail, because fingerprint is small */
   r = snprintf (unit, sizeof unit, "cockpit-wsinstance-https@%s.socket", fingerprint);
@@ -112,11 +113,11 @@ main (void)
                           "org.freedesktop.systemd1.Manager", "StartUnit",
                           &error, &reply, "ss", unit, "replace");
   if (r < 0)
-    errx (1, "Method call failed: %s", error.message);
+    errx (EXIT_FAILURE, "Method call failed: %s", error.message);
 
   r = sd_bus_message_read (reply, "o", &job_path);
   if (r < 0)
-    errx (1, "Invalid message response: %s", strerror (-r));
+    errx (EXIT_FAILURE, "Invalid message response: %s", strerror (-r));
 
   debug (FACTORY, "  -> job is %s", job_path);
   debug (FACTORY, "Waiting for signal.");
@@ -125,7 +126,7 @@ main (void)
     r = sd_bus_process (bus, NULL);
   while (r > 0);
   if (r < 0)
-    errx (1, "sd_bus_process() failed: %s", strerror (-r));
+    errx (EXIT_FAILURE, "sd_bus_process() failed: %s", strerror (-r));
 
   struct timespec start = { 0, 0 };
   uint64_t remaining;
@@ -134,14 +135,14 @@ main (void)
       debug (FACTORY, "sd_bus_wait(%llu)", (long long) remaining);
       r = sd_bus_wait (bus, remaining);
       if (r < 0)
-        errx (1, "Error while waiting for bus: %s", strerror (-r));
+        errx (EXIT_FAILURE, "Error while waiting for bus: %s", strerror (-r));
 
       debug (FACTORY, "sd_bus_process():");
       do
         r = sd_bus_process (bus, NULL);
       while (r > 0);
       if (r < 0)
-        errx (1, "sd_bus_process() failed: %s", strerror (-r));
+        errx (EXIT_FAILURE, "sd_bus_process() failed: %s", strerror (-r));
       debug (FACTORY, "  -> done.");
     }
 

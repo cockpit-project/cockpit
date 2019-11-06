@@ -23,6 +23,7 @@
 
 #include <err.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
 
@@ -38,25 +39,25 @@ main (int argc,
   int fd;
 
   if (argc != 2 && argc != 3)
-    errx (1, "usage: ./wsinstance-start [instanceid] [wsinstance_sockdir]");
+    errx (EXIT_FAILURE, "usage: ./wsinstance-start [instanceid] [wsinstance_sockdir]");
 
   if (argc == 3)
     wsinstance_sockdir = argv[2];
 
   fd = socket (AF_UNIX, SOCK_STREAM, 0);
   if (fd == -1)
-    err (1, "Couldn't create AF_UNIX socket");
+    err (EXIT_FAILURE, "Couldn't create AF_UNIX socket");
 
   sockaddr_printf (&addr, "%s/https-factory.sock", wsinstance_sockdir);
 
   if (connect (fd, (struct sockaddr *) &addr, sizeof addr) != 0)
-    err (1, "Couldn't connect to factory socket");
+    err (EXIT_FAILURE, "Couldn't connect to factory socket");
 
   if (!send_all (fd, argv[1], strlen (argv[1]), 50 * 1000000))
-    errx (1, "Couldn't send instance name");
+    errx (EXIT_FAILURE, "Couldn't send instance name");
 
   if (!recv_alnum (fd, result, sizeof result, 30 * 1000000))
-    errx (1, "Failed to receive result");
+    errx (EXIT_FAILURE, "Failed to receive result");
 
   printf ("%s\n", result);
 

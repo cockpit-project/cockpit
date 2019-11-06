@@ -79,7 +79,7 @@ check_sd_listen_pid (void)
 
   pid = strtol (pid_str, &endptr, 10);
   if (pid <= 0 || *endptr != '\0')
-    errx (1, "$LISTEN_PID contains invalid value '%s'", pid_str);
+    errx (EXIT_FAILURE, "$LISTEN_PID contains invalid value '%s'", pid_str);
   if ((pid_t) pid != getpid ())
     {
       warnx ("$LISTEN_PID %li is not for us, ignoring", pid);
@@ -216,7 +216,7 @@ server_init (const char *wsinstance_sockdir,
       unsigned long n = strtoul (env_listen_fds, &endptr, 10);
 
       if (n < 1 || n > INT_MAX || *endptr != '\0')
-        errx (1, "Invalid $LISTEN_FDS value '%s'", env_listen_fds);
+        errx (EXIT_FAILURE, "Invalid $LISTEN_FDS value '%s'", env_listen_fds);
 
       server.first_listener = SD_LISTEN_FDS_START;
       server.last_listener = SD_LISTEN_FDS_START + (n - 1);
@@ -229,7 +229,7 @@ server_init (const char *wsinstance_sockdir,
       /* Listen to our port; on the command line and our API we just support one */
       server.first_listener = socket (AF_INET, SOCK_STREAM | SOCK_CLOEXEC, 0);
       if (server.first_listener < 0)
-        err (1, "failed to create server listening fd");
+        err (EXIT_FAILURE, "failed to create server listening fd");
       server.last_listener = server.first_listener;
 
       memset (&sa_serv, '\0', sizeof (sa_serv));
@@ -238,23 +238,23 @@ server_init (const char *wsinstance_sockdir,
       sa_serv.sin_port = htons (port);
 
       if (setsockopt (server.first_listener, SOL_SOCKET, SO_REUSEADDR, (void *) &optval, sizeof (int)) < 0)
-        err (1, "failed to set socket option");
+        err (EXIT_FAILURE, "failed to set socket option");
       if (bind (server.first_listener, (struct sockaddr *) &sa_serv, sizeof (sa_serv)) < 0)
-        err (1, "failed to bind to port %hu", port);
+        err (EXIT_FAILURE, "failed to bind to port %hu", port);
       if (listen (server.first_listener, 1024) < 0)
-        err (1, "failed to listen to server port");
+        err (EXIT_FAILURE, "failed to listen to server port");
       debug (SERVER, "Server ready. Listening on port %hu, fd %i", port, server.first_listener);
     }
 
   /* epoll the listening fds */
   server.epollfd = epoll_create1 (EPOLL_CLOEXEC);
   if (server.epollfd < 0)
-    err (1, "Failed to create epoll fd");
+    err (EXIT_FAILURE, "Failed to create epoll fd");
   for (int fd = server.first_listener; fd <= server.last_listener; fd++)
     {
       ev.data.fd = fd;
       if (epoll_ctl (server.epollfd, EPOLL_CTL_ADD, fd, &ev) < 0)
-        err (1, "Failed to epoll server listening fd");
+        err (EXIT_FAILURE, "Failed to epoll server listening fd");
     }
 
   /* we use timerfd for idle timeout.  epoll that too. */
@@ -262,15 +262,15 @@ server_init (const char *wsinstance_sockdir,
     {
       server.idle_timerfd = timerfd_create (CLOCK_MONOTONIC, TFD_CLOEXEC);
       if (server.idle_timerfd == -1)
-        err (1, "Failed to create timerfd");
+        err (EXIT_FAILURE, "Failed to create timerfd");
 
       server.idle_timeout.it_value.tv_sec = idle_timeout;
       if (timerfd_settime (server.idle_timerfd, 0, &server.idle_timeout, NULL) != 0)
-        err (1, "Failed to set timerfd");
+        err (EXIT_FAILURE, "Failed to set timerfd");
 
       ev.data.fd = server.idle_timerfd;
       if (epoll_ctl (server.epollfd, EPOLL_CTL_ADD, server.idle_timerfd, &ev) < 0)
-        err (1, "Failed to epoll idle timerfd");
+        err (EXIT_FAILURE, "Failed to epoll idle timerfd");
     }
 }
 
@@ -336,7 +336,7 @@ server_poll_event (int timeout)
       handle_accept (fd);
     }
   else if (errno != EINTR)
-    err (1, "Failed to epoll_wait");
+    err (EXIT_FAILURE, "Failed to epoll_wait");
 
   return true; /* did something */
 }

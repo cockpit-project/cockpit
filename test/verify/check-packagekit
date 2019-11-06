@@ -647,19 +647,19 @@ class TestUpdates(PackageCase):
            "fedora-30", "fedora-i386", "fedora-testing", "ubuntu-1804", "ubuntu-stable")
 class TestUpdatesSubscriptions(PackageCase):
     provision = {
-        "0": {"address": "10.111.113.2/20", "dns": "10.111.113.2"},
-        "candlepin": {"image": "candlepin", "address": "10.111.113.5/20"}
+        "0": {"address": "10.111.112.1/20", "dns": "10.111.112.1"},
+        "services": {"image": "services"}
     }
 
     def register(self):
         # this fails with "Unable to find available subscriptions for all your installed products", but works anyway
         self.machine.execute(
-            "LC_ALL=en_US.UTF-8 subscription-manager register --insecure --serverurl https://10.111.113.5:8443/candlepin --org=admin --activationkey=awesome_os_pool || true")
+            "LC_ALL=en_US.UTF-8 subscription-manager register --insecure --serverurl https://10.111.112.100:8443/candlepin --org=admin --activationkey=awesome_os_pool || true")
         self.machine.execute("LC_ALL=en_US.UTF-8 subscription-manager attach --auto")
 
     def setUp(self):
         PackageCase.setUp(self)
-        self.candlepin = self.machines['candlepin']
+        self.candlepin = self.machines['services']
         m = self.machine
 
         # wait for candlepin to be active and verify
@@ -680,7 +680,7 @@ class TestUpdatesSubscriptions(PackageCase):
         m.execute("sed -i -e 's/insecure = 0/insecure = 1/g' /etc/rhsm/rhsm.conf")
 
         # Wait for the web service to be accessible
-        m.execute(script=WAIT_SCRIPT % {"addr": "10.111.113.5"})
+        m.execute(script=WAIT_SCRIPT % {"addr": "10.111.112.100"})
 
     def testNoUpdates(self):
         m = self.machine

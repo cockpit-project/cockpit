@@ -64,7 +64,7 @@ done
 class TestRealms(MachineCase):
     provision = {
         "0": {"address": "10.111.113.1/20", "dns": "10.111.112.100"},
-        "ipa": {"image": "ipa", "memory_mb": 2048}
+        "services": {"image": "services", "memory_mb": 2048}
     }
 
     def setUp(self):
@@ -72,6 +72,7 @@ class TestRealms(MachineCase):
         self.op_address = "#realms-op-address"
         self.op_admin = "#realms-op-admin"
         self.op_admin_password = "#realms-op-admin-password"
+        self.machines['services'].execute("/run-freeipa")
 
     def testIpa(self):
         m = self.machine
@@ -405,7 +406,7 @@ fi
 if type ipa >/dev/null 2>&1; then
     LC_ALL=$loc ipa service-add --ok-as-delegate=true --force HTTP/x0.cockpit.lan@COCKPIT.LAN
 else
-    curl --insecure -s --negotiate -u : https://f0.cockpit.lan/ipa/json --header 'Referer: https://f0.cockpit.lan/ipa' --header "Content-Type: application/json" --header "Accept: application/json" --data '{"params": [["HTTP/x0.cockpit.lan@COCKPIT.LAN"], {"raw": false, "all": false, "version": "2.101", "force": true, "no_members": false, "ipakrbokasdelegate": true}], "method": "service_add", "id": 0}'
+    curl --insecure -s --negotiate -u : https://services.cockpit.lan/ipa/json --header 'Referer: https://services.cockpit.lan/ipa' --header "Content-Type: application/json" --header "Accept: application/json" --data '{"params": [["HTTP/x0.cockpit.lan@COCKPIT.LAN"], {"raw": false, "all": false, "version": "2.101", "force": true, "no_members": false, "ipakrbokasdelegate": true}], "method": "service_add", "id": 0}'
 fi
 ipa-getkeytab -p HTTP/x0.cockpit.lan -k %(keytab)s
 
@@ -421,10 +422,12 @@ sed -i '/^sudoers:/ s/files sss/sss files/' /etc/nsswitch.conf
 class TestKerberos(MachineCase):
     provision = {
         "0": {"address": "10.111.113.1/20", "dns": "10.111.112.100"},
-        "ipa": {"image": "ipa", "memory_mb": 2048}
+        "services": {"image": "services", "memory_mb": 2048}
     }
 
     def configure_kerberos(self, keytab):
+        self.machines["services"].execute("/run-freeipa")
+
         # Setup a place for kerberos caches
         args = {"addr": "10.111.112.100", "password": "foobarfoo", "keytab": keytab}
         self.machine.execute("hostnamectl set-hostname x0.cockpit.lan")

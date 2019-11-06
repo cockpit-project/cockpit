@@ -25,7 +25,7 @@ from packagelib import *
 from testlib import *
 
 
-# The candlepin image has a lot of demo data preloaded
+# candlepin on the services image has a lot of demo data preloaded
 # useful info/commands:
 #    Login: doc      password: password
 #    org:   snowwhite
@@ -82,13 +82,13 @@ print [ e['id'] for e in data if e['owner']['key'] == 'admin' and e['contractNum
 
 class SubscriptionsCase(MachineCase):
     provision = {
-        "0": {"address": "10.111.113.1/20"},
-        "candlepin": {"image": "candlepin", "address": "10.111.113.5/20"}
+        "0": {"address": "10.111.112.1/20"},
+        "services": {"image": "services"}
     }
 
     def setUp(self):
         super(SubscriptionsCase, self).setUp()
-        self.candlepin = self.machines['candlepin']
+        self.candlepin = self.machines['services']
 
         # wait for candlepin to be active and verify
         self.candlepin.execute("systemctl start tomcat")
@@ -113,7 +113,7 @@ class SubscriptionsCase(MachineCase):
             m.execute("rm -f /etc/pki/consumer/* /etc/pki/entitlement/*")
 
         # Wait for the web service to be accessible
-        args = {"addr": "10.111.113.5"}
+        args = {"addr": "10.111.112.100"}
         m.execute(script=WAIT_SCRIPT % args)
 
         if m.image != "rhel-atomic":  # insights-client not installed there
@@ -160,7 +160,7 @@ class TestSubscriptions(SubscriptionsCase):
             b.set_val("#subscription-register-url", "custom")
 
         # enter server and incorrect login data
-        b.set_input_text("#subscription-register-url-custom", "10.111.113.5:8443/candlepin")
+        b.set_input_text("#subscription-register-url-custom", "10.111.112.100:8443/candlepin")
         b.set_input_text("#subscription-register-username", "doc")
         b.set_input_text("#subscription-register-password", "wrongpass")
 
@@ -243,7 +243,7 @@ class TestSubscriptions(SubscriptionsCase):
             b.set_val("#subscription-register-url", "custom")
 
         # enter server data
-        b.set_input_text("#subscription-register-url-custom", "10.111.113.5:8443/candlepin")
+        b.set_input_text("#subscription-register-url-custom", "10.111.112.100:8443/candlepin")
 
         # make sure we have an activation key on the target machine
         self.candlepin.execute("curl -s --insecure --request POST --user admin:admin {url}".format(url=key_url))
@@ -283,7 +283,7 @@ class TestSubscriptions(SubscriptionsCase):
         b.wait_visible("#subscription-register-url")
 
         b.set_val("#subscription-register-url", "custom")
-        b.set_input_text("#subscription-register-url-custom", "10.111.113.5:8443/candlepin")
+        b.set_input_text("#subscription-register-url-custom", "10.111.112.100:8443/candlepin")
         b.set_input_text("#subscription-register-username", "admin")
         b.set_input_text("#subscription-register-password", "admin")
         b.set_input_text("#subscription-register-org", "admin")
@@ -339,7 +339,7 @@ class TestSubscriptions(SubscriptionsCase):
         b.wait_visible("#subscription-register-url")
 
         b.set_val("#subscription-register-url", "custom")
-        b.set_input_text("#subscription-register-url-custom", "10.111.113.5:8443/candlepin")
+        b.set_input_text("#subscription-register-url-custom", "10.111.112.100:8443/candlepin")
         b.set_input_text("#subscription-register-username", "admin")
         b.set_input_text("#subscription-register-password", "admin")
         b.set_input_text("#subscription-register-org", "admin")
@@ -395,7 +395,7 @@ class TestSubscriptionsPackages(SubscriptionsCase, PackageCase):
         b.wait_visible("#subscription-register-url")
 
         b.set_val("#subscription-register-url", "custom")
-        b.set_input_text("#subscription-register-url-custom", "10.111.113.5:8443/candlepin")
+        b.set_input_text("#subscription-register-url-custom", "10.111.112.100:8443/candlepin")
         b.set_input_text("#subscription-register-username", "admin")
         b.set_input_text("#subscription-register-password", "admin")
         b.set_input_text("#subscription-register-org", "admin")

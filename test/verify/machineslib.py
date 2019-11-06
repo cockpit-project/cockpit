@@ -2064,7 +2064,7 @@ class TestMachines(NetworkCase):
                         allowBugErrors(error_location, x2)
 
             # Close the notificaton
-            b.click(".toast-notifications-list-pf div.pf-c-alert button.close")
+            b.click(".toast-notifications-list-pf div.pf-c-alert button.pf-c-button")
             b.wait_not_present(".toast-notifications-list-pf div.pf-c-alert")
 
             return self

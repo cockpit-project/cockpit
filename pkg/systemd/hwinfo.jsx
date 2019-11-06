@@ -218,7 +218,7 @@ class CPUSecurityMitigationsDialog extends React.Component {
                     { this.state.alert !== undefined &&
                     <Alert variant="danger"
                         action={<AlertActionCloseButton onClose={() => this.setState({ alert: undefined })} />}
-                        title={<span>{ this.state.alert }</span>} />}
+                        title={this.state.alert} />}
                 </Modal.Body>
                 <Modal.Footer>
                     <Button bsStyle='default' className='btn-cancel' disabled={this.state.rebooting} onClick={this.close}>

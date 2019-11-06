@@ -113,12 +113,7 @@ export function nfs_fstab_dialog(client, entry) {
     function show(busy) {
         let alert = null;
         if (busy)
-            alert = (
-                <Alert isInline variant="danger" title={
-                    <span className="alert-message">
-                        {_("This NFS mount is in use and only its options can be changed.")}
-                    </span>} />
-            );
+            alert = <Alert isInline variant="danger" title={_("This NFS mount is in use and only its options can be changed.")} />;
 
         let server_to_check = null;
         let server_check_timeout = null;

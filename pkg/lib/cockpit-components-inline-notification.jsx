@@ -63,12 +63,14 @@ export class InlineNotification extends React.Component {
             detailButton = (<button className='alert-link more-button link-button'
                 onClick={mouseClick(this.toggleDetail)}>{detailButtonText}</button>);
         }
+        const extraProps = {};
+        if (onDismiss)
+            extraProps.action = <AlertActionCloseButton onClose={onDismiss} />;
 
         return (
             <Alert variant={type || 'danger'}
                 isInline={this.props.isInline != undefined ? this.props.isInline : true}
-                action={<AlertActionCloseButton onClose={onDismiss} />}
-                title={<> {text} {detailButton} </>}>
+                title={<> {text} {detailButton} </>} {...extraProps}>
                 {this.state.isDetail && (<p>{detail}</p>)}
             </Alert>
         );
@@ -76,6 +78,7 @@ export class InlineNotification extends React.Component {
 }
 
 InlineNotification.propTypes = {
+    onDismiss: PropTypes.func,
     isInline: PropTypes.bool,
     text: PropTypes.string.isRequired, // main information to render
     detail: PropTypes.string, // optional, more detailed information. If empty, the more/less button is not rendered.

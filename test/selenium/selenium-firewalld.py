@@ -68,7 +68,7 @@ class FirewalldPage(FirewalldBasePage):
     def testAddService(self):
         service = "amqp"
         self.machine.execute("sudo firewall-cmd --remove-service={}".format(service))
-        self.click(self.wait_xpath("//div[@data-id='{}']//button[@id='add-services-button']".format(self.zone_default)))
+        self.click(self.wait_xpath("//div[@data-id='{}']//button[contains(@class, 'add-services-button')]".format(self.zone_default)))
         self.wait_id("add-services-dialog")
         self.send_keys(self.wait_id("filter-services-input"), service)
         self.click(self.wait_id("firewall-service-{}".format(service), cond=clickable))

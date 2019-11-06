@@ -373,7 +373,7 @@ export const Listing = (props) => {
     return (
         <section className="ct-listing">
             {heading}
-            <table aria-labelledby="listing-ct-heading" className={ bodyClasses.join(" ") }>
+            <table aria-labelledby={heading && "listing-ct-heading"} className={ bodyClasses.join(" ") }>
                 <thead className={headerClasses}>
                     {headerRow}
                 </thead>

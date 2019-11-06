@@ -535,7 +535,7 @@ connection_handshake (Connection *self)
   while (ret == -1 && errno == EINTR);
 
   if (ret < 0)
-    err (1, "poll() failed on client connection");
+    err (EXIT_FAILURE, "poll() failed on client connection");
 
   if (ret == 0)
     {
@@ -651,7 +651,7 @@ connection_thread_loop (Connection *self)
         {
           if (errno == EINVAL) /* ran out of fds */
             return;
-          err (1, "poll failed");
+          err (EXIT_FAILURE, "poll failed");
         }
 
       debug (POLL, "poll result %i | client %d/x%x | ws %d/x%x |", n_ready,
@@ -740,7 +740,7 @@ verify_peer_certificate (gnutls_session_t session)
           gnutls_datum_t msg;
           ret = gnutls_certificate_verification_status_print (status, gnutls_certificate_type_get (session), &msg, 0);
           if (ret != GNUTLS_E_SUCCESS)
-            errx (1, "Failed to print verification status: %s", gnutls_strerror (ret));
+            errx (EXIT_FAILURE, "Failed to print verification status: %s", gnutls_strerror (ret));
           warnx ("Invalid TLS peer certificate: %s", msg.data);
           gnutls_free (msg.data);
 #ifdef GNUTLS_E_CERTIFICATE_VERIFICATION_ERROR
@@ -768,7 +768,7 @@ set_x509_key_from_combined_file (gnutls_certificate_credentials_t x509_cred,
 
   r = cockpit_certificate_parse (filename, (char**) &cert.data, (char**) &key.data);
   if (r < 0)
-    errx (1,  "Invalid server certificate+key file %s: %s", filename, strerror (-r));
+    errx (EXIT_FAILURE,  "Invalid server certificate+key file %s: %s", filename, strerror (-r));
   cert.size = strlen ((char*) cert.data);
   key.size = strlen ((char*) key.data);
   r = gnutls_certificate_set_x509_key_mem (parameters.x509_cred, &cert, &key, GNUTLS_X509_FMT_PEM);
@@ -802,7 +802,7 @@ connection_crypto_init (const char *certfile,
 
   ret = gnutls_certificate_allocate_credentials (&parameters.x509_cred);
   if (ret != GNUTLS_E_SUCCESS)
-    errx (1, "gnutls_certificate_allocate_credentials failed: %s", gnutls_strerror (ret));
+    errx (EXIT_FAILURE, "gnutls_certificate_allocate_credentials failed: %s", gnutls_strerror (ret));
 
   if (keyfile)
     ret = gnutls_certificate_set_x509_key_file (parameters.x509_cred, certfile, keyfile, GNUTLS_X509_FMT_PEM);
@@ -810,7 +810,7 @@ connection_crypto_init (const char *certfile,
     ret = set_x509_key_from_combined_file (parameters.x509_cred, certfile);
 
   if (ret != GNUTLS_E_SUCCESS)
-    errx (1, "Failed to initialize server certificate: %s", gnutls_strerror (ret));
+    errx (EXIT_FAILURE, "Failed to initialize server certificate: %s", gnutls_strerror (ret));
 
   gnutls_certificate_set_verify_function (parameters.x509_cred, verify_peer_certificate);
 

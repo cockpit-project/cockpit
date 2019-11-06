@@ -61,6 +61,29 @@ export function get_fstab_config(block) {
         return [];
 }
 
+export function find_blocks_for_mount_point(client, mount_point, self) {
+    const blocks = [];
+
+    for (const p in client.blocks) {
+        const b = client.blocks[p];
+        const [, dir] = get_fstab_config(b);
+        if (dir == mount_point && b != self)
+            blocks.push(b);
+    }
+
+    return blocks;
+}
+
+export function is_valid_mount_point(client, block, val) {
+    if (val === "")
+        return _("Mount point cannot be empty");
+
+    const other_blocks = find_blocks_for_mount_point(client, val, block);
+    if (other_blocks.length > 0)
+        return cockpit.format(_("Mount point is already used for $0"),
+                              other_blocks.map(utils.block_name).join(", "));
+}
+
 export function check_mismounted_fsys(client, path, enter_warning) {
     const block = client.blocks[path];
     const block_fsys = client.blocks_fsys[path];
@@ -201,10 +224,7 @@ export function mounting_dialog(client, block, mode) {
             TextInput("mount_point", _("Mount Point"),
                       {
                           value: old_dir,
-                          validate: function (val) {
-                              if (val === "")
-                                  return _("Mount point cannot be empty");
-                          }
+                          validate: val => is_valid_mount_point(client, block, val)
                       }),
             CheckBoxes("mount_options", _("Mount Options"),
                        {

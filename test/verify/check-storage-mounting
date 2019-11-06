@@ -250,5 +250,35 @@ class TestStorage(StorageCase):
         b.click(fsys_tab + " button:contains(Mount automatically on /run/bar on boot)")
         b.wait_not_present(fsys_tab + " button:contains(Mount automatically on /run/bar on boot)")
 
+    def testDuplicateMountPoints(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        # Quickly make two logical volumes
+        m.add_disk("50M", serial="MYDISK")
+        b.wait_in_text("#drives", "MYDISK")
+        m.execute("vgcreate test /dev/sda && lvcreate test -n one -L 20M && lvcreate test -n two -L 20M")
+        b.click('#devices tr:contains("test")')
+        b.wait_visible("#storage-detail")
+        self.content_row_wait_in_col(1, 2, "/dev/test/one")
+        self.content_row_wait_in_col(2, 2, "/dev/test/two")
+
+        # Format the first and give it /run/data as the mount point
+        self.content_head_action(1, "Format")
+        self.dialog({"type": "ext4",
+                     "mount_point": "/run/data"})
+        self.content_row_wait_in_col(1, 1, "ext4 File System")
+        self.content_tab_wait_in_info(1, 2, "Mount Point", "/run/data")
+
+        # Format the second and also try to use /run/data as the mount point
+        self.content_head_action(2, "Format")
+        self.dialog_wait_open()
+        self.dialog_set_val("type", "ext4")
+        self.dialog_set_val("mount_point", "/run/data")
+        self.dialog_apply()
+        self.dialog_wait_error("mount_point", "Mount point is already used for /dev/test/one")
+
 if __name__ == '__main__':
     test_main()

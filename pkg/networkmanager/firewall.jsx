@@ -146,7 +146,7 @@ function ZoneSection(props) {
         );
     } else {
         addServiceAction = (
-            <Button bsStyle="primary" onClick={() => props.openServicesDialog(props.zone.id, props.zone.name)} id="add-services-button" aria-label={cockpit.format(_("Add services to zone $0"), props.zone.id)}>
+            <Button bsStyle="primary" onClick={() => props.openServicesDialog(props.zone.id, props.zone.name)} className="add-services-button" aria-label={cockpit.format(_("Add services to zone $0"), props.zone.id)}>
                 {_("Add Services")}
             </Button>
         );

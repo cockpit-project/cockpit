@@ -89,7 +89,7 @@ class TestFirewall(NetworkCase):
         self.login_and_go("/network/firewall")
 
         # "Add Services" button should not be present
-        b.wait_not_present("#add-services-button")
+        b.wait_not_present(".add-services-button")
 
         self.wait_onoff("#firewall-heading-title-group", False)
         self.toggle_onoff("#firewall-heading-title-group")
@@ -100,7 +100,7 @@ class TestFirewall(NetworkCase):
         b.wait_in_text("#zones-listing .zone-section[data-id='public']", "Public Zone")
 
         # "Add Services" button should be enabled
-        b.wait_present(".zone-section[data-id='public'] #add-services-button:enabled")
+        b.wait_present(".zone-section[data-id='public'] .add-services-button:enabled")
 
         # ensure that pop3 is not enabled (shouldn't be on any of our images),
         # so that we can use it for testing
@@ -129,7 +129,7 @@ class TestFirewall(NetworkCase):
         self.wait_onoff("#firewall-heading-title-group", False)
         wait_unit_state(m, "firewalld", "inactive")
         # "Add Services" button should be hidden again
-        b.wait_not_present(".zone-section[data-id='public'] #add-services-button")
+        b.wait_not_present(".zone-section[data-id='public'] .add-services-button")
 
     def testAddServices(self):
         b = self.browser
@@ -144,7 +144,7 @@ class TestFirewall(NetworkCase):
         b.wait_present(".zone-section[data-id='public'] tr[data-row-id='http']")
 
         # click on the "Add Services" button
-        b.click(".zone-section[data-id='public'] #add-services-button")
+        b.click(".zone-section[data-id='public'] .add-services-button")
         b.wait_present("#cockpit_modal_dialog .list-view-pf input[data-id='pop3']")
 
         # filter for pop3
@@ -177,7 +177,7 @@ class TestFirewall(NetworkCase):
 
 
         def addService(zone, service):
-            b.click(".zone-section[data-id='{}'] #add-services-button".format(zone))
+            b.click(".zone-section[data-id='{}'] .add-services-button".format(zone))
             b.click("#add-services-dialog .list-view-pf input[data-id='{}']".format(service))
             b.click("#add-services-dialog .modal-footer .btn-primary")
             b.wait_not_present("#cockpit_modal_dialog")
@@ -194,7 +194,7 @@ class TestFirewall(NetworkCase):
             b.click(".zone-section[data-id='public'] tr[data-row-id='freeipa-4']")
 
         # pop3 should now not appear any more in Add Services dialog
-        b.click(".zone-section[data-id='public'] #add-services-button")
+        b.click(".zone-section[data-id='public'] .add-services-button")
         b.wait_present("#cockpit_modal_dialog .list-view-pf input[data-id='imap']")
         b.wait_not_present("#cockpit_modal_dialog .list-view-pf input[data-id='pop3']")
         b.click("#add-services-dialog .modal-footer .btn-cancel")
@@ -205,7 +205,7 @@ class TestFirewall(NetworkCase):
 
         # Service without name should appear in the dialog
         m.execute("firewall-cmd --permanent --new-service=empty && firewall-cmd --reload")
-        b.click(".zone-section[data-id='public'] #add-services-button")
+        b.click(".zone-section[data-id='public'] .add-services-button")
         b.wait_present("#cockpit_modal_dialog .list-view-pf input[data-id='empty']")
         b.click("#add-services-dialog .modal-footer .btn-cancel")
         b.wait_not_present("#cockpit_modal_dialog")
@@ -250,7 +250,7 @@ class TestFirewall(NetworkCase):
         b.wait_present("tr[data-row-id='http']")
 
         def open_dialog():
-            b.click(".zone-section[data-id='public'] #add-services-button")
+            b.click(".zone-section[data-id='public'] .add-services-button")
             b.wait_present("#add-services-dialog input[value='ports']:enabled")
             b.click("#add-services-dialog input[value='ports']")
             b.wait_present("#tcp-ports")
@@ -336,7 +336,7 @@ class TestFirewall(NetworkCase):
         m = self.machine
 
         def addServiceToZone(service, zone):
-            b.click(".zone-section[data-id='{}'] #add-services-button".format(zone))
+            b.click(".zone-section[data-id='{}'] .add-services-button".format(zone))
             b.click("#add-services-dialog .list-view-pf input[data-id='{}']".format(service))
             b.click("#add-services-dialog .modal-footer .btn-primary")
             b.wait_not_present("#cockpit_modal_dialog")

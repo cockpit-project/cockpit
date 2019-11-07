@@ -70,6 +70,7 @@ You can set these environment variables to configure the test suite:
                   "fedora-30"
                   "fedora-i386"
                   "fedora-atomic"
+                  "fedora-coreos"
                   "fedora-testing"
                   "rhel-7-7"
                   "rhel-7-8"

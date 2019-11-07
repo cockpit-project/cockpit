@@ -133,8 +133,8 @@ class TestMultiMachineKeyAuth(MachineCase):
         except subprocess.CalledProcessError:
             assert False, "No running ssh-agent found"
 
-        # pam-ssh-add isn't used on atomic
-        if m1.atomic_image:
+        # pam-ssh-add isn't used on OSTree
+        if m1.ostree_image:
             self.load_key('id_rsa', 'foobar')
             b.wait_js_cond('loaded === true')
             self.check_keys(["2048 93:40:9e:67:82:78:a8:99:89:39:d5:ba:e0:50:70:e1 id_rsa (RSA)"],
@@ -165,7 +165,7 @@ class TestMultiMachineKeyAuth(MachineCase):
         b.wait_not_in_text("#login-available", "Login Password")
         b.wait_in_text("#login-available", "id_rsa")
 
-        if not m1.atomic_image:
+        if not m1.ostree_image:
             b.wait_in_text("#login-available", "id_ecdsa")
             b.wait_in_text("#login-available", "id_ed25519")
 
@@ -190,8 +190,8 @@ class TestMultiMachineKeyAuth(MachineCase):
 
         self.login_and_go("/system")
         b.switch_to_top()
-        # pam-ssh-add isn't used on atomic
-        if m1.atomic_image:
+        # pam-ssh-add isn't used on OSTree
+        if m1.ostree_image:
             self.load_key('id_rsa', 'foobar')
 
         b.go("/@10.111.113.2")

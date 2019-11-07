@@ -50,7 +50,7 @@ class TestSession(MachineCase):
         wait_session(True)
 
         # Check session type
-        if not m.atomic_image:
+        if not m.ostree_image:
             id = m.execute("loginctl list-sessions | awk '/admin/ {print $1}'").strip()
             self.assertEqual(m.execute("loginctl show-session -p Type %s" % id).strip(), "Type=web")
 

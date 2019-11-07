@@ -27,8 +27,8 @@ class PackageCase(MachineCase):
 
         self.repo_dir = "/var/tmp/repo"
 
-        if self.machine.atomic_image:
-            warnings.warn("PackageCase: atomic images can't install additional packages")
+        if self.machine.ostree_image:
+            warnings.warn("PackageCase: OSTree images can't install additional packages")
             return
 
         # expected backend; hardcode this on image names to check the auto-detection

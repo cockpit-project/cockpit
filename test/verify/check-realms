@@ -59,7 +59,7 @@ done
 """
 
 
-@skipImage("No realmd available", "fedora-atomic")
+@skipImage("No realmd available", "fedora-atomic", "fedora-coreos")
 @skipImage("freeipa not currently in testing", "debian-testing")
 class TestRealms(MachineCase):
     provision = {
@@ -417,7 +417,7 @@ sed -i '/^sudoers:/ s/files sss/sss files/' /etc/nsswitch.conf
 # This is here because our test framework can't run ipa VM's twice
 
 
-@skipImage("No realmd available", "fedora-atomic")
+@skipImage("No realmd available", "fedora-atomic", "fedora-coreos")
 @skipImage("freeipa not currently in testing", "debian-testing")
 class TestKerberos(MachineCase):
     provision = {
@@ -545,7 +545,7 @@ class TestKerberos(MachineCase):
         self.allow_restart_journal_messages()
 
 
-@skipImage("Package (un)install does not work on Atomic", "fedora-atomic")
+@skipImage("Package (un)install does not work on Atomic", "fedora-atomic", "fedora-coreos")
 class TestPackageInstall(packagelib.PackageCase):
 
     def testInstall(self):

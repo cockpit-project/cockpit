@@ -1,6 +1,5 @@
 import os
 import re
-import time
 from avocado import skipIf
 from testlib_avocado.timeoutlib import wait
 from testlib_avocado.timeoutlib import TimeoutError
@@ -127,30 +126,32 @@ class MachinesBasicTestSuite(MachinesLib):
             "fails too often, https://github.com/cockpit-project/cockpit/issues/13072")
     def testCreateVMWithISO(self):
         name = 'test_iso'
-        iso = '/home/{}.iso'.format(name + str(time.time()).split('.')[0])
+        iso_path = '/home/{}.iso'.format(name + MachinesLib.random_string())
+        self.vm_stop_list.append(name)
 
-        self.machine.execute('sudo touch {}'.format(iso))
+        self.machine.execute('sudo touch {}'.format(iso_path))
 
         self.create_vm_by_ui(connection='session',
                              name=name,
-                             source=iso,
+                             source=iso_path,
                              mem=128,
                              mem_unit='M',
                              storage=50,
                              storage_unit='M')
-        self.vm_stop_list.append(name)
 
     @skipIf(os.environ.get('URLSOURCE') is None,
             "Need an environment variable named 'URLSOURCE'")
     def testCreateVMWithUrl(self):
         name = 'test_url'
+        self.vm_stop_list.append(name)
 
-        self.create_vm_by_ui(
-            connection='session', name=name, source_type='url', source=os.environ.get('URLSOURCE'), immediately_start=True)
+        self.create_vm_by_ui(connection='session',
+                             name=name,
+                             source_type='url',
+                             source=os.environ.get('URLSOURCE'),
+                             immediately_start=True)
 
         self.wait_css('#vm-{}-row'.format(name))
         self.wait_css('#vm-{}-state'.format(name), cond=text_in, text_='creating VM installation')
         self.wait_css('#vm-{}-state'.format(name), cond=text_in, text_='running')
         self.wait_css('div.toolbar-pf-results canvas')
-
-        self.vm_stop_list.append(name)

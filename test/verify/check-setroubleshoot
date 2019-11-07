@@ -55,7 +55,7 @@ mv -f ~/.ssh/authorized_keys.test-avc ~/.ssh/authorized_keys
 
 class TestSelinux(MachineCase):
 
-    @skipImage("No setroubleshoot", "debian-stable", "debian-testing", "fedora-atomic", "ubuntu-1804", "ubuntu-stable")
+    @skipImage("No setroubleshoot", "debian-stable", "debian-testing", "fedora-atomic", "fedora-coreos", "ubuntu-1804", "ubuntu-stable")
     @skipBrowser("Firefox needs http to access clipboard", "firefox")
     def testTroubleshootAlerts(self):
         b = self.browser
@@ -189,7 +189,7 @@ class TestSelinux(MachineCase):
         b.wait_text("table.listing-ct.modifications-table > thead > tr > td", "The logged in user is not permitted to view system modifications")
 
 
-    @skipImage("No cockpit-selinux", "debian-stable", "debian-testing", "fedora-atomic", "ubuntu-1804", "ubuntu-stable")
+    @skipImage("No cockpit-selinux", "debian-stable", "debian-testing", "fedora-atomic", "fedora-coreos", "ubuntu-1804", "ubuntu-stable")
     def testEnforcingToggle(self):
         b = self.browser
         m = self.machine

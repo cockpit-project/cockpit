@@ -22,7 +22,7 @@ from packagelib import *
 from testlib import *
 
 
-@skipImage("Not supported", "fedora-atomic")
+@skipImage("Not supported", "fedora-atomic", "fedora-coreos")
 @skipPackage("cockpit-apps")
 class TestApps(PackageCase):
 

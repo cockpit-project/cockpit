@@ -25,6 +25,7 @@ import parent
 from testlib import *
 
 
+@skipImage("No sosreport", "fedora-coreos")
 class TestSOS(MachineCase):
 
     def testBasic(self, urlroot=""):

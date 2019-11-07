@@ -41,6 +41,7 @@ def get_active_rules(machine):
         active_rules += machine.execute("firewall-cmd --zone '{}' --list-services".format(zone)).split()
     return active_rules
 
+@skipImage("no firewalld", "fedora-coreos")
 @skipImage("Significant firewall page ui rework in #12884", "rhel-8-1-distropkg")
 class TestFirewall(NetworkCase):
 

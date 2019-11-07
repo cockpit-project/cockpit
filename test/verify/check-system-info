@@ -208,6 +208,9 @@ class TestSystemInfo(MachineCase):
 
         if m.atomic_image:
             b.wait_text('#system-ostree-version-link', "cockpit-base.1")
+        elif m.image in ["fedora-coreos"]:
+            # rpm-ostree version looks like 30.20191014.0, we don't check out a custom OSTree on the image
+            b.wait_in_text('#system-ostree-version-link', ".20")
         else:
             b.wait_not_visible("#system-ostree-version-link")
 
@@ -489,7 +492,7 @@ class TestSystemInfo(MachineCase):
 
         # Memory details should be shown for generic QEMU memory
         # demidecode not available on certain images
-        if m.image not in ['fedora-atomic']:
+        if not m.ostree_image:
             b.wait_in_text('#hwinfo #memory-listing' + heading_selector, "Memory")
             b.wait_in_text('#hwinfo #memory-listing table', "DIMM 0")
             b.wait_in_text('#hwinfo #memory-listing table', "RAM")
@@ -589,7 +592,7 @@ class TestSystemInfo(MachineCase):
         # - no BLS, options go into /etc/default/grub and grub.cfg (oldest)
         # - BLS, options go directly into entries (RHEL 8.0)
         # - BLS, entries use $kernelopt, that is defined in grubenv (newest)
-        if not m.atomic_image:
+        if not m.ostree_image:
             m.execute(r"""set -e
 . /etc/os-release
 touch /boot/vmlinuz-42.0.0; mkdir -p /lib/modules/42.0.0/
@@ -692,8 +695,8 @@ class TestPcp(packagelib.PackageCase):
         m = self.machine
         b = self.browser
 
-        # the atomics don't have pcp and can't install additional software
-        if m.atomic_image:
+        # the OSTree images don't have pcp and can't install additional software
+        if m.ostree_image:
             self.login_and_go("/system")
             b.wait_not_visible("#server-pmlogger-switch")
             b.wait_not_visible("#system-information-enable-pcp-link")

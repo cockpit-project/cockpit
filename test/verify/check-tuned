@@ -21,7 +21,7 @@ import parent
 from testlib import *
 
 
-@skipImage("No tuned packaged", "fedora-atomic")
+@skipImage("No tuned packaged", "fedora-atomic", "fedora-coreos")
 class TestTuned(MachineCase):
 
     def testBasic(self):

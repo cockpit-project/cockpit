@@ -34,6 +34,7 @@ ExecStart=/usr/lib/storaged/storaged
 """
 
 
+@skipImage("udisks not installed, no cockpit-storage", "fedora-coreos")
 class TestStorage(StorageCase):
 
     def testMounting(self):

@@ -476,7 +476,7 @@ OnCalendar=daily
         b.key_press(chr(40), use_ord=True) # arrow down
         b.key_press(chr(40), use_ord=True) # arrow down
         b.key_press("\r")
-        if (m.image == "fedora-atomic"):
+        if m.image in ["fedora-atomic", "fedora-coreos"]:
             b.enter_page("/users")
         else:
             b.enter_page("/storage")
@@ -573,7 +573,7 @@ OnCalendar=daily
         b.key_press("/")
         b.wait_text("#file-autocomplete-widget.dropdown-menu li:nth-of-type(3) a span span", "other")
 
-    @skipImage("No PCP available", "fedora-atomic")
+    @skipImage("No PCP available", "fedora-atomic", "fedora-coreos")
     def testPlots(self):
         b = self.browser
         m = self.machine

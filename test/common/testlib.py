@@ -290,7 +290,6 @@ class Browser:
 
         if value_check:
             self.wait_val(selector, val)
-        self.blur(selector)
 
     def set_file_autocomplete_val(self, identifier, location):
         file_item_selector_template = "#{0} li a:contains({1})"

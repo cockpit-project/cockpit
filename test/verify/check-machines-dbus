@@ -303,6 +303,7 @@ class TestMachinesDBus(machineslib.TestMachines):
 
         # Verify that limiting max memory in offline VMs bellow memory will decrease memory as well
         b.set_input_text("#vm-subVmTest1-memory-modal-max-memory", str(current_memory - 20))
+        b.blur("#vm-subVmTest1-memory-modal-max-memory")
         self.assertEqual(int(b.attr("#vm-subVmTest1-memory-modal-memory", "value")), current_memory - 20)
 
         # Verify that increasing current memory in offline VMs above max memory will increase max memory as well

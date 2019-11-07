@@ -61,7 +61,7 @@ the computer running Cockpit.
     $ sudo -s
     # kinit admin@COCKPIT.LAN
     # ipa service-add --ok-as-delegate=true --force HTTP/my-server.cockpit.lan@COCKPIT.LAN
-    # ipa-getkeytab -q -s f0.cockpit.lan -p HTTP/my-server.cockpit.lan -k /etc/krb5.keytab
+    # ipa-getkeytab -q -s services.cockpit.lan -p HTTP/my-server.cockpit.lan -k /etc/krb5.keytab
 
 Now when you go to your cockpit instance you should be able to log in without
 authenticating. Make sure to use the full hostname that you set above, the one

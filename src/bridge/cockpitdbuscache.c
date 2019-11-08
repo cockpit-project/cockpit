@@ -544,15 +544,29 @@ introspect_next (CockpitDBusCache *self)
         }
       else
         {
-          g_debug ("%s: calling Introspect() on %s", self->logname, id->path);
+          GDBusInterfaceInfo *iface = NULL;
+          if (id->interface)
+            iface = cockpit_dbus_interface_info_lookup (self->introspected, id->interface);
+          if (iface)
+            {
+              g_debug ("%s: not calling Introspect() on %s, already done",
+                       self->logname, id->path);
+              g_queue_pop_head (self->introspects);
+              introspect_complete (self, id);
+              introspect_next (self);
+            }
+          else
+            {
+              g_debug ("%s: calling Introspect() on %s", self->logname, id->path);
 
-          id->introspecting = TRUE;
-          g_dbus_connection_call (self->connection, self->name, id->path,
-                                  "org.freedesktop.DBus.Introspectable", "Introspect",
-                                  g_variant_new ("()"), G_VARIANT_TYPE ("(s)"),
-                                  G_DBUS_CALL_FLAGS_NONE, -1,
-                                  self->cancellable, on_introspect_reply,
-                                  g_object_ref (self));
+              id->introspecting = TRUE;
+              g_dbus_connection_call (self->connection, self->name, id->path,
+                                      "org.freedesktop.DBus.Introspectable", "Introspect",
+                                      g_variant_new ("()"), G_VARIANT_TYPE ("(s)"),
+                                      G_DBUS_CALL_FLAGS_NONE, -1,
+                                      self->cancellable, on_introspect_reply,
+                                      g_object_ref (self));
+            }
         }
     }
 }
@@ -725,6 +739,28 @@ emit_change (CockpitDBusCache *self,
       g_assert (value != NULL);
       g_hash_table_replace (properties, (gchar *)property, g_variant_ref (value));
     }
+}
+
+static gboolean
+find_change (CockpitDBusCache *self,
+             const gchar *path,
+             GDBusInterfaceInfo *iface)
+{
+  GHashTable *interfaces;
+  GHashTable *properties;
+
+  if (self->update == NULL)
+    return FALSE;
+
+  interfaces = g_hash_table_lookup (self->update, path);
+  if (interfaces == NULL)
+    return FALSE;
+
+  properties = g_hash_table_lookup (interfaces, iface->name);
+  if (properties == NULL)
+    return FALSE;
+
+  return TRUE;
 }
 
 static GHashTable *
@@ -1634,6 +1670,17 @@ retrieve_properties (CockpitDBusCache *self,
    */
   if (g_strcmp0 (iface->name, "org.freedesktop.DBus.Properties") == 0)
     return;
+
+  /* Only get properties once per batch.
+   */
+
+  if (find_change (self, path, iface))
+    {
+      g_debug ("%s: skipping GetAll for %s at %s, already in batch", self->logname, iface->name, path);
+      return;
+    }
+
+  emit_change (self, path, iface, NULL, NULL);
 
   g_debug ("%s: calling GetAll() for %s at %s", self->logname, iface->name, path);
 

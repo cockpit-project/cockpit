@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-11-01 07:08+0000\n"
-"PO-Revision-Date: 2019-10-30 06:03+0000\n"
+"POT-Creation-Date: 2019-11-08 14:05+0000\n"
+"PO-Revision-Date: 2019-11-05 04:27+0000\n"
 "Last-Translator: Pavel Borecki <pavel.borecki@gmail.com>\n"
 "Language-Team: Czech\n"
 "Language: cs\n"
@@ -67,7 +67,7 @@ msgstr[0] "$0 balíček"
 msgstr[1] "$0 balíčky"
 msgstr[2] "$0 balíčků"
 
-#: pkg/systemd/init.js:478 pkg/systemd/service-details.jsx:58
+#: pkg/systemd/init.js:484 pkg/systemd/service-details.jsx:58
 msgid "$0 Template"
 msgstr "$0 Šablona"
 
@@ -209,7 +209,7 @@ msgstr[2] "$0 výskytů"
 msgid "$0 of $1"
 msgstr "$0 z $1"
 
-#: pkg/systemd/init.js:418
+#: pkg/systemd/init.js:424
 msgid "$0 service has failed"
 msgid_plural "$0 services have failed"
 msgstr[0] "$0 služba zhavarovala"
@@ -583,7 +583,7 @@ msgstr "ARP monitorování"
 msgid "ARP Ping"
 msgstr "ARP ping"
 
-#: pkg/shell/index.html:56 pkg/shell/index.html:82 pkg/shell/simple.html:42
+#: pkg/shell/index.html:57 pkg/shell/index.html:83 pkg/shell/simple.html:42
 #: pkg/shell/simple.html:58
 msgid "About Cockpit"
 msgstr "O Cockpit"
@@ -602,7 +602,7 @@ msgstr "Přístup"
 msgid "Account Expiration"
 msgstr "Skončení platnosti účtu"
 
-#: pkg/shell/index.html:63
+#: pkg/shell/index.html:64
 msgid "Account Settings"
 msgstr "Nastavení účtu"
 
@@ -640,7 +640,7 @@ msgstr "Aktivní"
 msgid "Active Backup"
 msgstr "Aktivní záloha"
 
-#: pkg/shell/index.html:59 pkg/shell/active-pages.js:95
+#: pkg/shell/index.html:60 pkg/shell/active-pages.js:95
 msgid "Active Pages"
 msgstr "Aktivní stránky"
 
@@ -662,7 +662,7 @@ msgstr "Přizpůsobující se rozkládání přenosové zátěže odesílání"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
-#: pkg/lib/machine-add.html:43 pkg/shell/index.html:180
+#: pkg/lib/machine-add.html:43 pkg/shell/index.html:181
 #: pkg/machines/components/diskAdd.jsx:521
 #: pkg/machines/components/nicAdd.jsx:235 pkg/storaged/crypto-keyslots.jsx:235
 #: pkg/storaged/iscsi-panel.jsx:137 pkg/storaged/iscsi-panel.jsx:161
@@ -733,16 +733,20 @@ msgstr "Přidat VLAN"
 msgid "Add Virtual Network Interface"
 msgstr "Přidat virtuální síťové rozhraní"
 
-#: pkg/networkmanager/firewall.jsx:666 pkg/networkmanager/firewall.jsx:894
-#: pkg/networkmanager/firewall.jsx:900
+#: pkg/networkmanager/firewall.jsx:666 pkg/networkmanager/firewall.jsx:896
+#: pkg/networkmanager/firewall.jsx:902
 msgid "Add Zone"
 msgstr "Přidat zónu"
+
+#: pkg/networkmanager/firewall.jsx:901
+msgid "Add a new zone"
+msgstr ""
 
 #: pkg/storaged/iscsi-panel.jsx:42
 msgid "Add iSCSI Portal"
 msgstr "Přidat iSCSI portál"
 
-#: pkg/shell/index.html:172 pkg/users/index.html:414
+#: pkg/shell/index.html:173 pkg/users/index.html:414
 msgid "Add key"
 msgstr "Přidat klíč"
 
@@ -757,6 +761,10 @@ msgstr "Přidat veřejnou část klíče"
 #: pkg/networkmanager/firewall.jsx:494
 msgid "Add services to $0 zone"
 msgstr "Přidat služby do zóny $0"
+
+#: pkg/networkmanager/firewall.jsx:149
+msgid "Add services to zone $0"
+msgstr ""
 
 #: pkg/networkmanager/firewall.jsx:743
 msgid "Add zone"
@@ -888,7 +896,7 @@ msgstr ""
 " cert. autorit."
 
 #: pkg/systemd/services.html:301 pkg/systemd/services.html:305
-#: pkg/systemd/init.js:964
+#: pkg/systemd/init.js:970
 msgid "After system boot"
 msgstr "Po startu systému"
 
@@ -1007,7 +1015,7 @@ msgid "Authenticating"
 msgstr "Ověřování"
 
 #: pkg/lib/machine-change-auth.html:32 pkg/realmd/operation.html:47
-#: pkg/shell/index.html:66 pkg/shell/index.html:149
+#: pkg/shell/index.html:67 pkg/shell/index.html:150
 msgid "Authentication"
 msgstr "Ověření"
 
@@ -1065,7 +1073,7 @@ msgstr "Automaticky (pouze DHCP)"
 msgid "Automatic (DHCP)"
 msgstr "Automaticky (DHCP)"
 
-#: pkg/systemd/init.js:307
+#: pkg/systemd/init.js:313
 msgid "Automatic Startup"
 msgstr "Automatické spouštění"
 
@@ -1292,6 +1300,8 @@ msgstr "Uloženo v mezipaměti"
 #: pkg/systemd/logs.js:179 pkg/systemd/logs.js:343
 msgid "Can not find any logs using the current combination of filters."
 msgstr ""
+"Při použití stávající kombinace filtrů se nedaří nalézt žádné záznamy "
+"událostí."
 
 #: pkg/docker/index.html:63
 msgid "Can&rsquo;t connect to Docker"
@@ -1312,7 +1322,7 @@ msgstr "Obraz se nedaří smazat"
 #: pkg/networkmanager/index.html:600 pkg/networkmanager/index.html:624
 #: pkg/networkmanager/index.html:648 pkg/networkmanager/index.html:672
 #: pkg/playground/translate.html:39 pkg/realmd/operation.html:81
-#: pkg/shell/index.html:122 pkg/shell/simple.html:90
+#: pkg/shell/index.html:123 pkg/shell/simple.html:90
 #: pkg/systemd/index.html:343 pkg/systemd/index.html:430
 #: pkg/systemd/index.html:482 pkg/systemd/index.html:498
 #: pkg/systemd/services.html:377 pkg/users/index.html:198
@@ -1373,7 +1383,7 @@ msgstr "Změnit"
 msgid "Change Host Name"
 msgstr "Změnit název počítače"
 
-#: pkg/shell/index.html:313
+#: pkg/shell/index.html:319
 msgid "Change Password"
 msgstr "Změnit heslo"
 
@@ -1461,7 +1471,7 @@ msgstr "Zjišťuje se nainstalovaný sofware"
 msgid "Choose an operating system"
 msgstr "Zvolte operační systém"
 
-#: pkg/shell/index.html:117 pkg/shell/simple.html:85
+#: pkg/shell/index.html:118 pkg/shell/simple.html:85
 msgid "Choose the language to be used in the application"
 msgstr "Vyberte jazyk aplikace"
 
@@ -1511,7 +1521,7 @@ msgstr "Klientský software"
 #: pkg/lib/machine-change-port.html:45 pkg/lib/machine-invalid-hostkey.html:12
 #: pkg/lib/machine-not-supported.html:8
 #: pkg/lib/machine-unknown-hostkey.html:19 pkg/networkmanager/index.html:691
-#: pkg/shell/index.html:96 pkg/shell/index.html:139 pkg/shell/index.html:325
+#: pkg/shell/index.html:97 pkg/shell/index.html:140 pkg/shell/index.html:331
 #: pkg/shell/simple.html:72 pkg/systemd/index.html:289 pkg/users/index.html:45
 #: pkg/apps/utils.jsx:108 pkg/lib/cockpit-components-modifications.jsx:109
 #: pkg/sosreport/index.js:45 pkg/sosreport/index.js:127
@@ -1568,7 +1578,7 @@ msgstr ""
 "zastavena v terminálu. Podobně, pokud dojde k chybě v terminálu, je toto "
 "vidět v rozhraní žurnálu v Cockpit."
 
-#: pkg/shell/index.html:85 pkg/shell/simple.html:61
+#: pkg/shell/index.html:86 pkg/shell/simple.html:61
 msgid "Cockpit is an interactive Linux server admin interface."
 msgstr "Cockpit je interaktivní rozhraní pro správu linuxového serveru."
 
@@ -1679,7 +1689,7 @@ msgstr "Příkaz:"
 
 # auto translated by TM merge from project: system-config-printer, version:
 # master, DocId: system-config-printer
-#: pkg/shell/index.html:262
+#: pkg/shell/index.html:265
 msgid "Comment"
 msgstr "Komentář"
 
@@ -1749,7 +1759,7 @@ msgstr "Nastavuje se IP adresa"
 
 # auto translated by TM merge from project: ibus-input-pad, version: head,
 # DocId: ibus-input-pad
-#: pkg/shell/index.html:298 pkg/users/index.html:176
+#: pkg/shell/index.html:303 pkg/users/index.html:176
 #: pkg/storaged/format-dialog.jsx:271
 msgid "Confirm"
 msgstr "Potvrdit"
@@ -1757,6 +1767,10 @@ msgstr "Potvrdit"
 #: pkg/users/index.html:221
 msgid "Confirm New Password"
 msgstr "Potvrdit nové heslo"
+
+#: pkg/networkmanager/firewall.jsx:765
+msgid "Confirm removal of $0"
+msgstr ""
 
 #: pkg/storaged/crypto-keyslots.jsx:372
 msgid "Confirm removal with passphrase"
@@ -1835,7 +1849,7 @@ msgstr "Spojení"
 msgid "Connection Error"
 msgstr "Chyba připojení"
 
-#: pkg/shell/index.html:400
+#: pkg/shell/index.html:407
 msgid "Connection failed"
 msgstr "Připojení se nezdařilo"
 
@@ -2093,8 +2107,8 @@ msgstr "Vytvořit skupinu svazků"
 msgid "Create diagnostic report"
 msgstr "Vytvořit diagnostické hlášení"
 
-#: pkg/networkmanager/interfaces.js:3810 pkg/networkmanager/interfaces.js:4010
-#: pkg/networkmanager/interfaces.js:4265 pkg/networkmanager/interfaces.js:4470
+#: pkg/networkmanager/interfaces.js:3813 pkg/networkmanager/interfaces.js:4016
+#: pkg/networkmanager/interfaces.js:4271 pkg/networkmanager/interfaces.js:4477
 msgid "Create it"
 msgstr "Vytvořit to"
 
@@ -2131,7 +2145,7 @@ msgstr "Vytváří se oddíl $target"
 msgid "Creating snapshot of $target"
 msgstr "Pořizování zachyceného stavu $target"
 
-#: pkg/networkmanager/interfaces.js:4469
+#: pkg/networkmanager/interfaces.js:4476
 msgid ""
 "Creating this VLAN will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -2139,7 +2153,7 @@ msgstr ""
 "Vytvoření této VLAN přeruší spojení se serverem a znepřístupní tak rozhraní "
 "pro jeho správu."
 
-#: pkg/networkmanager/interfaces.js:3809
+#: pkg/networkmanager/interfaces.js:3812
 msgid ""
 "Creating this bond will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -2147,7 +2161,7 @@ msgstr ""
 "Vytvoření tohoto sdružení linek přeruší spojení se serverem a znepřístupní "
 "tak rozhraní pro jeho správu."
 
-#: pkg/networkmanager/interfaces.js:4264
+#: pkg/networkmanager/interfaces.js:4270
 msgid ""
 "Creating this bridge will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -2155,7 +2169,7 @@ msgstr ""
 "Vytvoření tohoto mostu přeruší spojení se serverem a znepřístupní tak "
 "rozhraní pro jeho správu."
 
-#: pkg/networkmanager/interfaces.js:4009
+#: pkg/networkmanager/interfaces.js:4015
 msgid ""
 "Creating this team will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -2390,7 +2404,7 @@ msgstr "Maže se skupina svazků $target"
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
 #: pkg/systemd/services.html:268 pkg/networkmanager/firewall.jsx:693
-#: pkg/systemd/init.js:301
+#: pkg/systemd/init.js:307
 msgid "Description"
 msgstr "Popis"
 
@@ -2414,7 +2428,7 @@ msgstr "Odpojitelné"
 
 # auto translated by TM merge from project: blivet-gui, version: master,
 # DocId: po/blivet-gui
-#: pkg/shell/index.html:230 pkg/docker/containers-view.jsx:336
+#: pkg/shell/index.html:232 pkg/docker/containers-view.jsx:336
 #: pkg/docker/containers-view.jsx:504 pkg/docker/containers-view.jsx:514
 #: pkg/docker/containers-view.jsx:642 pkg/packagekit/updates.jsx:387
 #: pkg/systemd/host.js:713 pkg/systemd/host.js:724
@@ -2465,12 +2479,16 @@ msgstr "Složka $0 není zapisovatelná nebo neexistuje."
 msgid "Disable simultaneous multithreading"
 msgstr "Vypnout souběžné vícevláknové zpracovávání"
 
+#: pkg/networkmanager/firewall.jsx:937
+msgid "Disable the firewall"
+msgstr ""
+
 #: pkg/tuned/dialog.js:233
 msgid "Disable tuned"
 msgstr "Vypnout proces služby tuned"
 
 #: pkg/systemd/services.html:67 pkg/networkmanager/interfaces.js:1948
-#: pkg/systemd/init.js:219 pkg/systemd/service-details.jsx:333
+#: pkg/systemd/init.js:225 pkg/systemd/service-details.jsx:333
 msgid "Disabled"
 msgstr "Vypnuto"
 
@@ -2536,7 +2554,7 @@ msgstr "Nastavení disku nebylo možné uložit"
 msgid "Disks"
 msgstr "Disky"
 
-#: pkg/shell/index.html:52 pkg/shell/index.html:114 pkg/shell/simple.html:38
+#: pkg/shell/index.html:53 pkg/shell/index.html:115 pkg/shell/simple.html:38
 #: pkg/shell/simple.html:82
 msgid "Display Language"
 msgstr "Jazyk zobrazení"
@@ -2579,7 +2597,7 @@ msgid "Domain Administrator Password"
 msgstr "Heslo správce domény"
 
 #: pkg/systemd/services.html:338 pkg/systemd/services.html:342
-#: pkg/systemd/init.js:1147
+#: pkg/systemd/init.js:1153
 msgid "Don't Repeat"
 msgstr "Neopakovat"
 
@@ -2710,7 +2728,11 @@ msgstr "Zapnout službu"
 msgid "Enable stored metrics…"
 msgstr "Zapnout uchovávání metrik…"
 
-#: pkg/systemd/services.html:66 pkg/systemd/init.js:216
+#: pkg/networkmanager/firewall.jsx:937
+msgid "Enable the firewall"
+msgstr ""
+
+#: pkg/systemd/services.html:66 pkg/systemd/init.js:222
 msgid "Enabled"
 msgstr "Povoleno"
 
@@ -3024,16 +3046,16 @@ msgstr "Filtrovat podle názvu nebo popisu…"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
-#: pkg/lib/machine-unknown-hostkey.html:10 pkg/shell/index.html:270
+#: pkg/lib/machine-unknown-hostkey.html:10 pkg/shell/index.html:273
 msgid "Fingerprint"
 msgstr "Otisk"
 
 #: pkg/networkmanager/firewall.html:22 pkg/networkmanager/index.html:99
-#: pkg/networkmanager/firewall.jsx:940 pkg/networkmanager/firewall.jsx:944
+#: pkg/networkmanager/firewall.jsx:945 pkg/networkmanager/firewall.jsx:949
 msgid "Firewall"
 msgstr "Brána firewall"
 
-#: pkg/networkmanager/firewall.jsx:883
+#: pkg/networkmanager/firewall.jsx:885
 msgid "Firewall is not available"
 msgstr "Brána firewall není k dispozici"
 
@@ -3295,7 +3317,7 @@ msgstr "Hostitele je třeba vyplnit"
 msgid "Hour : Minute"
 msgstr "Hodina:minuta"
 
-#: pkg/systemd/init.js:1223 pkg/systemd/init.js:1252
+#: pkg/systemd/init.js:1229 pkg/systemd/init.js:1258
 msgid "Hour needs to be a number between 0-23"
 msgstr "Je třeba, aby hodina bylo číslo z rozmezí 0 až 23"
 
@@ -3649,7 +3671,7 @@ msgstr "Neplatný formát data"
 msgid "Invalid date format and invalid time format"
 msgstr "Neplatný formát data a času"
 
-#: pkg/systemd/init.js:1258
+#: pkg/systemd/init.js:1264
 msgid "Invalid date format."
 msgstr "Neplatný formát data."
 
@@ -3677,7 +3699,7 @@ msgstr "Neplatná metrika $0"
 msgid "Invalid number of days"
 msgstr "Neplatný počet dnů"
 
-#: pkg/systemd/init.js:1205
+#: pkg/systemd/init.js:1211
 msgid "Invalid number."
 msgstr "Neplatné číslo."
 
@@ -3846,7 +3868,7 @@ msgstr "Uplynulých 7 dnů"
 msgid "Last Login"
 msgstr "Poslední přihlášení"
 
-#: pkg/systemd/init.js:305
+#: pkg/systemd/init.js:311
 msgid "Last Trigger"
 msgstr "Naposledy spuštěno"
 
@@ -3884,7 +3906,7 @@ msgstr ""
 "jiné uživatelské jméno, tento uživatel bude vždy použit při připojování k "
 "tomuto stroji."
 
-#: pkg/shell/index.html:90 pkg/shell/simple.html:66
+#: pkg/shell/index.html:91 pkg/shell/simple.html:66
 msgid "Licensed under:"
 msgstr "Licencováno pod:"
 
@@ -4007,7 +4029,7 @@ msgstr "Přihlásit"
 
 # auto translated by TM merge from project: im-chooser , version: master,
 # DocId: im-chooser
-#: pkg/shell/index.html:70 pkg/shell/simple.html:46
+#: pkg/shell/index.html:71 pkg/shell/simple.html:46
 msgid "Log Out"
 msgstr "Odhlásit"
 
@@ -4118,7 +4140,7 @@ msgstr "MII (doporučeno)"
 msgid "MTU"
 msgstr "MTU"
 
-#: pkg/networkmanager/interfaces.js:4535
+#: pkg/networkmanager/interfaces.js:4542
 msgid "MTU must be a positive number"
 msgstr "Je třeba, aby MTU bylo kladné číslo"
 
@@ -4275,7 +4297,7 @@ msgstr "Využití paměti:"
 msgid "Message to logged in users"
 msgstr "Zpráva přihlášeným uživatelům"
 
-#: pkg/shell/index.html:403
+#: pkg/shell/index.html:410
 msgid "Messages related to the failure might be found in the journal:"
 msgstr "Zprávy týkající se nezdaru se mohou nacházet v žurnálu:"
 
@@ -4301,7 +4323,7 @@ msgstr "Mini PC"
 msgid "Mini Tower"
 msgstr "Mini věž"
 
-#: pkg/systemd/init.js:1229 pkg/systemd/init.js:1238 pkg/systemd/init.js:1247
+#: pkg/systemd/init.js:1235 pkg/systemd/init.js:1244 pkg/systemd/init.js:1253
 msgid "Minute needs to be a number between 0-59"
 msgstr "Je třeba, aby minuta bylo číslo z rozmezí 0-59"
 
@@ -4479,7 +4501,7 @@ msgstr "NTP server"
 #: pkg/storaged/mdraids-panel.jsx:41 pkg/storaged/part-tab.jsx:33
 #: pkg/storaged/vdos-panel.jsx:49 pkg/storaged/vgroup-details.jsx:175
 #: pkg/storaged/vgroups-panel.jsx:56 pkg/systemd/hwinfo.jsx:84
-#: pkg/systemd/init.js:302
+#: pkg/systemd/init.js:308
 msgid "Name"
 msgstr "Název"
 
@@ -4595,7 +4617,7 @@ msgstr "NetworkManager není spuštěný."
 # auto translated by TM merge from project: Fedora Release Notes, version:
 # f24, DocId: pot/Networking
 #: pkg/networkmanager/index.html:23 pkg/networkmanager/index.html:388
-#: pkg/networkmanager/firewall.jsx:939 pkg/networkmanager/manifest.json.in
+#: pkg/networkmanager/firewall.jsx:944 pkg/networkmanager/manifest.json.in
 msgid "Networking"
 msgstr "Síť"
 
@@ -4631,7 +4653,7 @@ msgstr "Účet nikdy nezamykat"
 msgid "New NFS Mount"
 msgstr "Nové NFS připojení"
 
-#: pkg/shell/index.html:290 pkg/users/index.html:218
+#: pkg/shell/index.html:294 pkg/users/index.html:218
 msgid "New Password"
 msgstr "Nové heslo"
 
@@ -4653,7 +4675,7 @@ msgstr "Nové heslo nebylo přijato"
 msgid "Next"
 msgstr "Další"
 
-#: pkg/systemd/init.js:304
+#: pkg/systemd/init.js:310
 msgid "Next Run"
 msgstr "Příští spuštění"
 
@@ -4680,7 +4702,7 @@ msgstr "Žádné logické svazky"
 
 #: pkg/systemd/logs.js:157 pkg/systemd/logs.js:179 pkg/systemd/logs.js:343
 msgid "No Logs Found"
-msgstr ""
+msgstr "Nenalezeny žádné záznamy událostí"
 
 #: pkg/systemd/services.html:84
 msgid "No Matching Results"
@@ -4931,7 +4953,31 @@ msgstr "Není platná soukromá část klíče"
 msgid "Not authorized to access Docker on this system"
 msgstr "Neoprávněni k přístupu k Dockeru na tomto systému"
 
-#: pkg/systemd/logs.js:559
+#: pkg/networkmanager/firewall.jsx:896
+msgid "Not authorized to add a new zone"
+msgstr ""
+
+#: pkg/networkmanager/firewall.jsx:144
+msgid "Not authorized to add services to zone $0"
+msgstr ""
+
+#: pkg/networkmanager/firewall.jsx:930
+msgid "Not authorized to disable the firewall"
+msgstr ""
+
+#: pkg/networkmanager/firewall.jsx:930
+msgid "Not authorized to enable the firewall"
+msgstr ""
+
+#: pkg/networkmanager/firewall.jsx:78
+msgid "Not authorized to remove service $0"
+msgstr ""
+
+#: pkg/networkmanager/firewall.jsx:132
+msgid "Not authorized to remove zone $0"
+msgstr ""
+
+#: pkg/systemd/logs.js:560
 msgid "Not authorized to upload-report"
 msgstr "Neoprávněni k nahrání výkazu"
 
@@ -4999,7 +5045,7 @@ msgstr "Vyskytlo se mezi $0 a $1"
 msgid "Ok"
 msgstr "Ok"
 
-#: pkg/shell/index.html:282 pkg/users/index.html:215
+#: pkg/shell/index.html:285 pkg/users/index.html:215
 msgid "Old Password"
 msgstr "Původní heslo"
 
@@ -5054,7 +5100,7 @@ msgstr "Je použito pouze $0 z $1."
 msgid "Only Emergency"
 msgstr "Pouze nouzové"
 
-#: pkg/systemd/init.js:1179
+#: pkg/systemd/init.js:1185
 msgid "Only alphabets, numbers, : , _ , . , @ , - are allowed."
 msgstr ""
 "Dovolena jsou pouze písmena a číslice, dále ještě znaky  : , _ , . , @ , -"
@@ -5212,8 +5258,8 @@ msgstr "Zadání heslové fráze se neshodují"
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
 #: pkg/lib/machine-auth-failed.html:8 pkg/lib/machine-change-auth.html:52
-#: pkg/lib/machine-sync-users.html:61 pkg/shell/index.html:204
-#: pkg/shell/index.html:232 pkg/shell/index.html:245 pkg/users/index.html:118
+#: pkg/lib/machine-sync-users.html:61 pkg/shell/index.html:205
+#: pkg/shell/index.html:234 pkg/shell/index.html:247 pkg/users/index.html:118
 #: pkg/users/index.html:173 src/ws/login.html:44
 #: pkg/storaged/iscsi-panel.jsx:47 pkg/storaged/iscsi-panel.jsx:157
 msgid "Password"
@@ -5239,7 +5285,7 @@ msgstr "Heslo je třeba změnit"
 msgid "Password not accepted"
 msgstr "Heslo nebylo přijato"
 
-#: pkg/shell/index.html:155
+#: pkg/shell/index.html:156
 msgid ""
 "Password not usable for privileged tasks or to connect to other machines"
 msgstr ""
@@ -5295,7 +5341,7 @@ msgstr "Popis umístění serveru"
 
 # auto translated by TM merge from project: anaconda, version: f25, DocId:
 # main
-#: pkg/systemd/services.jsx:51
+#: pkg/systemd/services.jsx:53
 msgid "Paths"
 msgstr "Popisy umístění"
 
@@ -5400,7 +5446,7 @@ msgstr "Zadejte název pro nový svazek"
 msgid "Please enter new volume size"
 msgstr "Zadejte velikost nového svazku"
 
-#: pkg/networkmanager/firewall.jsx:884
+#: pkg/networkmanager/firewall.jsx:886
 msgid "Please install the $0 package"
 msgstr "Nainstalujte balíček $0"
 
@@ -5587,7 +5633,7 @@ msgstr "Proces"
 msgid "Product"
 msgstr "Produkt"
 
-#: pkg/shell/index.html:86 pkg/shell/simple.html:62
+#: pkg/shell/index.html:87 pkg/shell/simple.html:62
 msgid "Project website"
 msgstr "Webové stránky projektu"
 
@@ -5615,7 +5661,7 @@ msgstr "Propaguje načíst znovu k"
 msgid "Protocol"
 msgstr "Protokol"
 
-#: pkg/lib/machine-auth-failed.html:9 pkg/shell/index.html:231
+#: pkg/lib/machine-auth-failed.html:9 pkg/shell/index.html:233
 msgid "Public Key"
 msgstr "Veřejná část klíče"
 
@@ -5798,7 +5844,7 @@ msgstr "Nedávné"
 msgid "Recommended default"
 msgstr "Doporučené výchozí"
 
-#: pkg/shell/index.html:386 pkg/shell/simple.html:138
+#: pkg/shell/index.html:393 pkg/shell/simple.html:138
 msgid "Reconnect"
 msgstr "Znovu připojit"
 
@@ -5876,7 +5922,7 @@ msgstr "Odebrat"
 msgid "Remove $0"
 msgstr "Odebrat $0"
 
-#: pkg/networkmanager/firewall.jsx:834
+#: pkg/networkmanager/firewall.jsx:835
 msgid "Remove $0 service from $1 zone"
 msgstr "Odebrat službu $0 ze zóny $1"
 
@@ -5900,7 +5946,11 @@ msgstr "Odebrat heslovou frázi"
 msgid "Remove passphrase in $0?"
 msgstr "Odebrat heslovou frázi v $0?"
 
-#: pkg/networkmanager/firewall.jsx:818
+#: pkg/networkmanager/firewall.jsx:82
+msgid "Remove service $0"
+msgstr ""
+
+#: pkg/networkmanager/firewall.jsx:136 pkg/networkmanager/firewall.jsx:818
 msgid "Remove zone $0"
 msgstr "Odebrat zónu $0"
 
@@ -5929,7 +5979,7 @@ msgstr ""
 msgid "Removing physical volume from $target"
 msgstr "Odebírání fyzického svazku z $target"
 
-#: pkg/networkmanager/firewall.jsx:832
+#: pkg/networkmanager/firewall.jsx:833
 msgid ""
 "Removing the cockpit service might result in the web console becoming "
 "unreachable. Make sure that this zone does not apply to your current web "
@@ -5990,21 +6040,21 @@ msgid "Repeat passphrase"
 msgstr "Zopakovat heslovou frázi"
 
 # auto translated by TM merge from project: abrt, version: rhel7, DocId: abrt
-#: pkg/systemd/logs.js:544
+#: pkg/systemd/logs.js:545
 msgid "Report"
 msgstr "Nahlásit"
 
 # auto translated by TM merge from project: gnome-abrt, version: master,
 # DocId: gnome-abrt
-#: pkg/systemd/logs.js:539
+#: pkg/systemd/logs.js:540
 msgid "Reported"
 msgstr "Nahlášeno"
 
-#: pkg/systemd/logs.js:561
+#: pkg/systemd/logs.js:562
 msgid "Reporter 'reporter-ureport' not found."
 msgstr "Hlásič „reporter-ureport“ nenalezen."
 
-#: pkg/systemd/logs.js:563
+#: pkg/systemd/logs.js:564
 msgid "Reporting was unsucessful. Try running `reporter-ureport -d "
 msgstr "Hlášení nebylo úspěšné. Zkuste spustit `reporter-ureport -d "
 
@@ -6125,7 +6175,7 @@ msgstr "Opětovných pokusů:"
 msgid "Reuse my password for privileged tasks"
 msgstr "Použít mé heslo i pro privilegované úlohy"
 
-#: pkg/shell/index.html:159
+#: pkg/shell/index.html:160
 msgid ""
 "Reuse my password for privileged tasks and to connect to other machines"
 msgstr ""
@@ -6241,7 +6291,7 @@ msgstr "STP maximální stáří zprávy"
 msgid "STP Priority"
 msgstr "STP priorita"
 
-#: pkg/shell/index.html:407
+#: pkg/shell/index.html:414
 msgid ""
 "Safari users need to import and trust the certificate of the self-signing "
 "CA:"
@@ -6293,12 +6343,12 @@ msgstr ""
 msgid "Sealed-case PC"
 msgstr "Počítač se zapečetěnou skříní"
 
-#: pkg/shell/index.html:363
+#: pkg/shell/index.html:369
 msgid "Search"
 msgstr "Hledat"
 
 #: pkg/systemd/services.html:314 pkg/systemd/services.html:318
-#: pkg/systemd/init.js:967
+#: pkg/systemd/init.js:973
 msgid "Seconds"
 msgstr "Sekund"
 
@@ -6320,7 +6370,7 @@ msgstr "Zabezpečení"
 msgid "Security Updates Available"
 msgstr "Jsou k dispozici aktualizace zabezpečení"
 
-#: pkg/shell/index.html:123 pkg/shell/simple.html:91
+#: pkg/shell/index.html:124 pkg/shell/simple.html:91
 msgid "Select"
 msgstr "Vybrat"
 
@@ -6603,7 +6653,7 @@ msgstr "Slot"
 msgid "Slot $0"
 msgstr "Slot $0"
 
-#: pkg/machines/components/vcpuModal.jsx:220 pkg/systemd/services.jsx:49
+#: pkg/machines/components/vcpuModal.jsx:220 pkg/systemd/services.jsx:51
 msgid "Sockets"
 msgstr "Sokety"
 
@@ -6763,7 +6813,7 @@ msgstr "Při spuštění"
 #: pkg/machines/components/storagePools/storagePoolList.jsx:54
 #: pkg/machines/components/vmnetworktab.jsx:183
 #: pkg/machines/hostvmslist.jsx:83 pkg/systemd/hwinfo.jsx:269
-#: pkg/systemd/init.js:306
+#: pkg/systemd/init.js:312
 msgid "State"
 msgstr "Stav"
 
@@ -6773,7 +6823,7 @@ msgstr "Stav"
 msgid "State:"
 msgstr "Stav:"
 
-#: pkg/systemd/services.html:68 pkg/systemd/init.js:213
+#: pkg/systemd/services.html:68 pkg/systemd/init.js:219
 #: pkg/systemd/service-details.jsx:371
 msgid "Static"
 msgstr "Statické"
@@ -7025,7 +7075,7 @@ msgstr "Informace o systému"
 msgid "System Modifications"
 msgstr "Modifikace systému"
 
-#: pkg/systemd/services.jsx:47
+#: pkg/systemd/services.jsx:49
 msgid "System Services"
 msgstr "Systémové služby"
 
@@ -7080,7 +7130,7 @@ msgstr "Popis umístění cíle"
 msgid "Target path should not be empty"
 msgstr "Popis umístění cíle je třeba vyplnit"
 
-#: pkg/systemd/services.jsx:48
+#: pkg/systemd/services.jsx:50
 msgid "Targets"
 msgstr "Cíle"
 
@@ -7374,7 +7424,7 @@ msgid "The user $0 is not permitted to change cpu security mitigations"
 msgstr ""
 "Uživatel $0 není oprávněn měnit zmírňování dopadu chyb zabezpečení procesoru"
 
-#: pkg/systemd/init.js:813
+#: pkg/systemd/init.js:819
 msgid "The user <b>$0</b> does not have permissions for creating timers"
 msgstr "Uživatel <b>$0</b> není oprávněn pro vytváření časovačů"
 
@@ -7457,7 +7507,7 @@ msgstr ""
 "Pro odebrání tohoto fyzického svazku není k dispozici dostatek volného "
 "místa. Je třeba alespoň $0 dalšího volného prostoru."
 
-#: pkg/shell/index.html:402
+#: pkg/shell/index.html:409
 msgid "There was an unexpected error while connecting to the machine."
 msgstr "Při připojování ke stroji došlo k neočekávané chybě."
 
@@ -7473,7 +7523,7 @@ msgstr "Toto NFS připojení je používáno a měnit je možné jen jeho volby.
 msgid "This VDO device does not use all of its backing device."
 msgstr "Toto VDO zařízení nepoužívá ze svého podkladového zařízení vše."
 
-#: pkg/systemd/init.js:1262
+#: pkg/systemd/init.js:1268
 msgid ""
 "This day doesn't exist in all months.<br> The timer will only be executed in"
 " months that have 31st."
@@ -7525,7 +7575,7 @@ msgstr ""
 msgid "This disk cannot be removed while the device is recovering."
 msgstr "Disk není možné vyjmout v průběhu zotavování zařízení."
 
-#: pkg/systemd/init.js:1174 pkg/systemd/init.js:1188 pkg/systemd/init.js:1197
+#: pkg/systemd/init.js:1180 pkg/systemd/init.js:1194 pkg/systemd/init.js:1203
 msgid "This field cannot be empty."
 msgstr "Tuto kolonku je třeba vyplnit."
 
@@ -7658,11 +7708,11 @@ msgstr "Čtvrtky"
 msgid "Time Zone"
 msgstr "Časová zóna"
 
-#: pkg/systemd/services.jsx:50
+#: pkg/systemd/services.jsx:52
 msgid "Timers"
 msgstr "Časovače"
 
-#: pkg/shell/index.html:306
+#: pkg/shell/index.html:312
 msgid ""
 "Tip: Make your key password match your login password to automatically "
 "authenticate against other systems."
@@ -7713,7 +7763,7 @@ msgstr "Spouštěče"
 
 # auto translated by TM merge from project: SETroubleShoot, version: master,
 # DocId: framework/po/setroubleshoot
-#: pkg/shell/index.html:387 pkg/shell/simple.html:139
+#: pkg/shell/index.html:394 pkg/shell/simple.html:139
 #: pkg/machines/components/libvirtSlate.jsx:112
 msgid "Troubleshoot"
 msgstr "Řešit potíže"
@@ -7770,7 +7820,7 @@ msgstr "Tuned je vypnuté"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
-#: pkg/shell/index.html:266
+#: pkg/shell/index.html:269
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:85
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:72
 #: pkg/machines/components/vm/bootOrderModal.jsx:108
@@ -7938,7 +7988,7 @@ msgstr "Pokud nezastaveno"
 msgid "Unlock"
 msgstr "Odemknout"
 
-#: pkg/shell/index.html:213 pkg/shell/index.html:254
+#: pkg/shell/index.html:215 pkg/shell/index.html:257
 msgid "Unlock Key"
 msgstr "Odemknout klíč"
 
@@ -8079,7 +8129,7 @@ msgstr "Použít emulaci 512 bajtů"
 msgid "Use Existing"
 msgstr "Použít existující"
 
-#: pkg/shell/index.html:168
+#: pkg/shell/index.html:169
 msgid "Use the following keys to authenticate against other systems"
 msgstr "Pro ověřování vůči ostatním systémům použít následující klíče"
 
@@ -8281,7 +8331,7 @@ msgstr "Ověřuje se"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
-#: pkg/shell/index.html:88 pkg/shell/simple.html:64 pkg/systemd/index.html:117
+#: pkg/shell/index.html:89 pkg/shell/simple.html:64 pkg/systemd/index.html:117
 #: pkg/packagekit/updates.jsx:385 pkg/systemd/hwinfo.jsx:88
 msgid "Version"
 msgstr "Verze"
@@ -8480,8 +8530,8 @@ msgstr ""
 "smazat."
 
 #: pkg/networkmanager/firewall.jsx:77 pkg/networkmanager/firewall.jsx:131
-#: pkg/networkmanager/firewall.jsx:143 pkg/networkmanager/firewall.jsx:893
-#: pkg/networkmanager/firewall.jsx:925
+#: pkg/networkmanager/firewall.jsx:143 pkg/networkmanager/firewall.jsx:895
+#: pkg/networkmanager/firewall.jsx:927
 msgid "You are not authorized to modify the firewall."
 msgstr "Nemáte oprávnění upravovat bránu firewall"
 
@@ -8497,7 +8547,7 @@ msgstr "Nemáte oprávnění spravovat fond úložiště pro Docker."
 
 #: pkg/systemd/logs.js:158
 msgid "You may try to load older entries."
-msgstr ""
+msgstr "Můžete zkusit načíst starší položky."
 
 #: pkg/users/local.js:120
 msgid "You must wait longer to change your password"
@@ -9220,7 +9270,7 @@ msgstr "jednotka"
 
 # auto translated by TM merge from project: Spacewalk Backend, version:
 # master, DocId: client/rhel/rhn-client-tools/po/rhn-client-tools
-#: pkg/systemd/init.js:257 pkg/systemd/init.js:271
+#: pkg/systemd/init.js:263 pkg/systemd/init.js:277
 msgid "unknown"
 msgstr "neznámý"
 

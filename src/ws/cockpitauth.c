@@ -879,7 +879,7 @@ on_transport_closed (CockpitTransport *transport,
           g_set_error (&error, COCKPIT_ERROR, COCKPIT_ERROR_FAILED,
                        g_strcmp0 (problem, "no-cockpit") == 0
                            ? "The cockpit package is not installed"
-                           : "Internal error in login process");
+                           : "Failed to execute cockpit-session");
         }
       else
         {

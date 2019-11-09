@@ -555,15 +555,14 @@ CMD ["/bin/sh"]
 
         m.execute("systemctl start docker || systemctl start docker-latest")
 
-        # start abrt-ccpp service until abrt-journal-core patch is released
-        # https://github.com/abrt/abrt/commit/da2ae52f307f05f2eac0ad6e647561633544722a
-        m.execute("systemctl start abrt-ccpp")
-
         # start container
         m.execute('docker run -dit --name crashing_container busybox /bin/sh')
 
         # crash in container
         m.execute('docker exec crashing_container sh -c "sleep 5 & sleep 1; pkill -ABRT sleep"')
+        self.allow_journal_messages('Process.*sleep.*dumped core.*')
+        self.allow_journal_messages('Stack trace.*')
+        self.allow_journal_messages('#0.*sleep.*')
 
         # login and go to docker page (Docker Containers)
         self.login_and_go("/docker")

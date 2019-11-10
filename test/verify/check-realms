@@ -72,6 +72,10 @@ class TestRealms(MachineCase):
         self.op_address = "#realms-op-address"
         self.op_admin = "#realms-op-admin"
         self.op_admin_password = "#realms-op-admin-password"
+
+        # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1770159 FreeIPA regressed certificate lookup
+        self.machines["services"].execute("sed -i '/^nsslapd-tmpdir:/ a nsslapd-verify-filter-schema: off' /var/lib/ipa-data/etc/dirsrv/slapd-COCKPIT-LAN/dse.ldif")
+
         self.machines['services'].execute("/run-freeipa")
 
     def testIpa(self):

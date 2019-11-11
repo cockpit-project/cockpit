@@ -136,9 +136,9 @@ and other scripts that work with test machine images.
     "fedora-NN" -- The basic image for running the development version of Cockpit.
                    This is the default.
 
-    "fedora-stock" -- A stock installation of Fedora, including the stock
-                      version of Cockpit.  This is used to test compatibility
-                      between released versions of Cockpit and the development version.
+    "fedora-23-stock" -- A stock installation of Fedora, including the stock
+                         version of Cockpit.  This is used to test compatibility
+                         between released versions of Cockpit and the development version.
 
     "ipa"       -- A FreeIPA server.
 

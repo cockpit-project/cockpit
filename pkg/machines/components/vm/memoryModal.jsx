@@ -169,8 +169,8 @@ export class MemoryModal extends React.Component {
                         <input id={`${idPrefix}-max-memory`}
                             className='form-control ct-form-split'
                             type='number'
-                            value={toFixedPrecision(convertToUnit(this.state.maxMemory, 'KiB', this.state.maxMemoryUnit))}
-                            min={toFixedPrecision(convertToUnit(128, 'MiB', this.state.memoryUnit))}
+                            value={toFixedPrecision(convertToUnit(this.state.maxMemory, 'KiB', this.state.memoryUnit))}
+                            min={toFixedPrecision(convertToUnit(128, 'MiB', this.state.maxMemoryUnit))}
                             step={1}
                             onChange={e => this.onValueChanged('maxMemory', e.target.value)}
                             onClick={e => { // onInput does not trigger a seperate on blur event

@@ -32,6 +32,8 @@ CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
 if CURRENT_DIR not in sys.path:
     sys.path.insert(1, CURRENT_DIR)
 
+TEST_TIMEOUT = 600
+
 # this is where we publish logs on the local machine
 arg_attachments_dir = os.environ.get("TEST_ATTACHMENTS", None)
 if not arg_attachments_dir:
@@ -64,7 +66,9 @@ class TAPformatter:
         own_print("\nTAP output -------------------------")
         own_print("1..%d" % self.total)
 
-    def tap_summary(self, duration):
+    def tap_summary(self, duration, restarted_tests=None):
+        if restarted_tests:
+            own_print("# RESTARTED %d tests: %s" % (len(restarted_tests), restarted_tests))
         if self.counter_failed == 0:
             own_print("# TESTS PASSED duration: %ds" % duration)
         else:
@@ -135,6 +139,7 @@ class AvocadoTestSuite:
             self.machine_cockpit = self.machine_avocado
         self._upload_library()
         self._cockpit_prepare()
+        self.selenium_grid_restarts = []
 
 
     def _cockpit_prepare(self):
@@ -218,7 +223,7 @@ class AvocadoTestSuite:
             if not status:
                 self.copy_artifacts()
         end_time = datetime.datetime.now()
-        self.tap.tap_summary((end_time - start_time).seconds)
+        self.tap.tap_summary((end_time - start_time).seconds, self.selenium_grid_restarts)
         return self.tap.get_status()
 
     def copy_artifacts(self):
@@ -233,7 +238,6 @@ class AvocadoTestSuite:
 class SeleniumTestSuite(AvocadoTestSuite):
     machine_selenium = None
     ipaddr_selenium = "10.111.112.10"
-    selenium_grid_restarts = 2
     error_messages = [["urlopen error [Errno 113] No route to host"],
                       ["Timeout: Unable to attach remote Browser on hub"],
                       ["Terminated", "Running 'kill"]
@@ -313,16 +317,15 @@ class SeleniumTestSuite(AvocadoTestSuite):
         self._prepare_selenium()
         self.wait_for_selenium_running(self.ipaddr_selenium)
         self._cockpit_prepare()
-        self.selenium_grid_restarts -= 1
 
     def _run_one_avocado_test(self, test):
-
         status, cmd_output, duration = super()._run_one_avocado_test(test)
-        if self.selenium_grid_restarts and not status:
+        if not status:
             # restart test again if it lost selenium grid location
             for error in self.error_messages:
                 if all([x in cmd_output for x in error]):
                     self._restart_grid_and_cockpit()
+                    self.selenium_grid_restarts.append(test)
                     status, cmd_output, duration = super()._run_one_avocado_test(test)
                     break
         return status, cmd_output, duration
@@ -369,7 +372,6 @@ class SeleniumOwnHub(SeleniumTestSuite):
         self.machine_cockpit.kill()
         self.machine_cockpit.start()
         self._cockpit_prepare()
-        self.selenium_grid_restarts -= 1
 
 
 def main():
@@ -400,7 +402,7 @@ def main():
     # When Windows in use, we need rtl8139, for anything else we want virtio-net-pci
     network = testvm.VirtNetwork(image="windows-10" if "edge" in opts.browser else image)
     machine = None
-    test_timeout = 300
+    test_timeout = TEST_TIMEOUT
     testsuite = None
     try:
         machine = testvm.VirtMachine(verbose=opts.verbosity, networking=network.host(), image=image)
@@ -413,7 +415,7 @@ def main():
                                        verbose=opts.verbosity)
         elif 'edge' in opts.browser:
             testsuite = SeleniumWinTestSuite(browser=opts.browser, machine_cockpit=machine, network=network, verbose=opts.verbosity)
-            test_timeout = 900
+            test_timeout = TEST_TIMEOUT * 2
         else:
             testsuite = SeleniumTestSuite(browser=opts.browser, machine_cockpit=machine, network=network, verbose=opts.verbosity)
 

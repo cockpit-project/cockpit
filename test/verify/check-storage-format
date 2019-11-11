@@ -50,7 +50,7 @@ class TestStorage(StorageCase):
         self.dialog_apply()
 
         if storaged_supports_dry_run:
-            self.dialog_wait_error(None, "Error creating file system")
+            b.wait_in_text(".modal-footer > div.pf-m-danger:nth-child(1)", "Error creating file system")
         else:
             self.dialog_wait_close()
 

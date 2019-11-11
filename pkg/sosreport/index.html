@@ -46,9 +46,12 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
           <div class="modal-body">
             <div id="sos-intro" hidden>
             </div>
-            <div id="sos-alert" class="alert alert-info">
-              <span class="pficon pficon-info"></span>
-              <span class="alert-message" translatable="yes">The generated archive contains data considered sensitive and its content should be reviewed by the originating organization before being passed to any third party.</span>
+            <div id="sos-alert" class="pf-c-alert pf-m-info pf-m-inline" aria-label="inline info alert">
+              <div class="pf-c-alert__icon">
+                <span class="pficon pficon-info"></span>
+              </div>
+              <h4 class="pf-c-alert__title alert-message" translatable="yes">The generated archive contains data considered sensitive and its content should be reviewed by the originating organization before being passed to any third party.</span>
+              </h4>
             </div>
             <div id="sos-progress">
               <center>
@@ -65,9 +68,11 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
               </center>
             </div>
             <div id="sos-error">
-              <div class="alert alert-danger">
-                <span class="pficon pficon-error-circle-o"></span>
-                <span class="alert-message"></span>
+              <div class="pf-c-alert pf-m-danger pf-m-inline" aria-label="inline danger alert">
+                <div class="pf-c-alert__icon">
+                  <span class="pficon pficon-info"></span>
+                </div>
+                <h4 class="pf-c-alert__title alert-message"></h4>
               </div>
               <textarea id="sos-error-extra">
               </textarea>

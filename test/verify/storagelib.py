@@ -174,7 +174,7 @@ class StorageCase(MachineCase):
         self.browser.wait_visible('#dialog')
 
     def dialog_wait_alert(self, text):
-        self.browser.wait_in_text('#dialog .alert-message', text)
+        self.browser.wait_in_text('#dialog .pf-c-alert__title', text)
 
     def dialog_field(self, field):
         return '#dialog [data-field="%s"]' % field

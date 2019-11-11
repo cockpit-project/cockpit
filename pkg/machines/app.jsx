@@ -18,7 +18,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { ToastNotificationList, ToastNotification } from 'patternfly-react';
+import { ToastNotificationList } from 'patternfly-react';
 import cockpit from 'cockpit';
 
 import HostVmsList from "./hostvmslist.jsx";
@@ -140,12 +140,11 @@ class App extends React.Component {
                             const notification = this.state.notifications[notificationId];
 
                             return (
-                                <ToastNotification type='error' key={notification.index}
-                                    onDismiss={() => this.onDismissErrorNotification(notification.index)}>
-                                    <InlineNotification
-                                        text={notification.text}
-                                        detail={notification.detail} />
-                                </ToastNotification>
+                                <InlineNotification type='danger' key={notification.index}
+                                    isInline={false}
+                                    onDismiss={() => this.onDismissErrorNotification(notification.index)}
+                                    text={notification.text}
+                                    detail={notification.detail} />
                             );
                         })}
                     </ToastNotificationList>

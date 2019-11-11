@@ -21,7 +21,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { ListingTable } from "cockpit-components-table.jsx";
-import { ExpandableNotification } from 'cockpit-components-inline-notification.jsx';
+import { InlineNotification } from 'cockpit-components-inline-notification.jsx';
 import { StorageVolumeDelete } from './storageVolumeDelete.jsx';
 import { StorageVolumeCreate } from './storageVolumeCreate.jsx';
 import { storagePoolId, convertToUnit, units, getStorageVolumesUsage } from '../../helpers.js';
@@ -106,7 +106,7 @@ export class StoragePoolVolumesTab extends React.Component {
         return (
             <>
                 { this.state.deleteError &&
-                <ExpandableNotification type='error' text={this.state.deleteError}
+                <InlineNotification type='danger' text={this.state.deleteError}
                     detail={this.state.deleteErrorDetail}
                     onDismiss={() => this.setState({ deleteError: undefined }) } /> }
                 <ListingTable variant='compact'

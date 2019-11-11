@@ -577,7 +577,10 @@ class TestPackageInstall(packagelib.PackageCase):
         b.mouse("#system-info-domain span", "mouseout")
 
         b.click("#system-info-domain a")
-        b.wait_in_text("#cockpit_modal_dialog .dialog-error", "realmd is not available")
+        if m.image == "rhel-8-1-distropkg":
+            b.wait_in_text("#cockpit_modal_dialog .dialog-error", "realmd is not available")
+        else:
+            b.wait_in_text("#cockpit_modal_dialog .pf-c-alert__title", "realmd is not available")
         b.wait_present("#cockpit_modal_dialog .modal-footer button.btn-primary:disabled")
         b.click("#cockpit_modal_dialog .modal-footer button.cancel")
         b.wait_not_present("#cockpit_modal_dialog")

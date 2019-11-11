@@ -429,9 +429,11 @@
     </div>
     {{/roles}}
     {{#changed}}
-    <div class="alert alert-info">
-      <span class="pficon pficon-info"></span>
-      <span translatable>The user must log out and log back in to fully change roles.</span>
+    <div class="pf-c-alert pf-m-info pf-m-inline" aria-label="inline info alert">
+      <div class="pf-c-alert__icon">
+          <i class="fa fa-info-circle" aria-hidden="true"></i>
+      </div>
+      <h4 translatable class="pf-c-alert__title">The user must log out and log back in to fully change roles.</h4>
     </div>
     {{/changed}}
   </script>

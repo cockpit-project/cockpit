@@ -90,9 +90,9 @@ class TestStorage(StorageCase):
         # Grow physical
 
         m.execute("lvresize vdo_vgroup/lvol -L 9G")
-        b.wait_in_text(".alert:contains(VDO)", '5 GiB of 9 GiB')
+        b.wait_in_text(".pf-c-alert__description", '5 GiB of 9 GiB')
         b.click("button:contains('Grow to take all space')")
-        b.wait_not_present(".alert:contains(VDO)")
+        b.wait_not_present(".pf-c-alert")
         b.wait_in_text(detail(3), "used of 9 GiB")
 
         # Grow logical
@@ -171,7 +171,7 @@ config: !Configuration
         b.wait_in_text("#vdos", "vdo0")
         b.click("#vdos tr:contains(vdo0)")
 
-        b.click("#storage-detail .alert-danger button:contains('Remove device')")
+        b.click("#storage-detail .pf-m-danger button:contains('Remove device')")
         b.wait_visible("#storage")
         b.wait_not_in_text("#vdos", "vdo0")
 

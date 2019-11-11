@@ -3143,7 +3143,7 @@ function show_dialog_error(error_id, error) {
     var msg = error.message || error.toString();
     console.warn(msg);
     $(error_id).show()
-            .find('span')
+            .find('h4')
             .text(msg);
 }
 
@@ -4249,7 +4249,7 @@ PageNetworkBridgeSettings.prototype = {
                     })
                     .catch(function (error) {
                         $('#network-bridge-settings-error').show()
-                                .find('span')
+                                .find('h4')
                                 .text(error.message || error.toString());
                     });
         }

@@ -262,7 +262,7 @@ td > .utilization-bar-pf {
     z-index: 1049;
 
     // Limit toast details to 33% of the viewport height
-    .toast-pf p {
+    .pf-c-alert h4 {
         max-height: 33vh;
         overflow: auto;
     }
@@ -285,7 +285,7 @@ td > .utilization-bar-pf {
         overflow: auto;
         position: static;
 
-        .toast-pf {
+        .pf-c-alert {
             animation: toast-fade-in @toast-anim-speed ease-out;
             transform-origin: bottom;
         }
@@ -301,7 +301,7 @@ td > .utilization-bar-pf {
         top: 0.5rem - @toast-stack-offset;
     }
 
-    .toast-pf {
+    .toast-notification-list-pf .pf-c-alert {
         // Animation for toasts fading & sliding in
         animation: toast-fade-in @toast-anim-speed ease-out;
         // Animations should happen from the top
@@ -316,7 +316,7 @@ td > .utilization-bar-pf {
         z-index: 2;
 
         // Animate CSS changes for the icon and other toast children
-        .pficon::before, a, p {
+        .pf-c-alert__icon::before, a, p {
             transition: all @toast-anim-speed ease-out;
         }
     }
@@ -337,7 +337,7 @@ td > .utilization-bar-pf {
             // Notifications are approximately 36px (== 3.6rem) tall; round up
             border-width: 0 4rem 5rem;
 
-            .toast-pf {
+            .pf-c-alert {
                 // Speed up hover animations on hover
                 transition-delay: 0;
             }
@@ -351,7 +351,7 @@ td > .utilization-bar-pf {
         // or have focus inside (either expanding from tabbing to the elements
         // or persisting expansion after clicking a details link).
         &:not(:hover):not(:focus-within) {
-            .toast-pf {
+            .pf-c-alert {
                 // Collapse down everything but the last
                 &:not(:last-child) {
                     // Complately fade text
@@ -361,7 +361,7 @@ td > .utilization-bar-pf {
                     // Fade the cards
                     opacity: 0.25;
 
-                    > .pficon::before {
+                    > .pf-c-alert__icon::before {
                         // Fade the icon
                         color: transparent;
                         // Delay fading until toast appears and slides up

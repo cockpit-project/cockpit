@@ -8,9 +8,11 @@
     <p translatable="yes">Select the users that you would like to be synchronized with {{#strong}}{{host}}{{/strong}}</p>
 
 {{#perm_failed}}
-    <div class="alert alert-danger dialog-error">
-        <span class="fa fa-exclamation-triangle"></span>
-        <span translatable="yes">Error loading users: {{perm_failed}}</span>
+    <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert">
+      <div class="pf-c-alert__icon">
+          <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+      </div>
+      <h4 translatable="yes" class="pf-c-alert__title">Error loading users: {{perm_failed}}</h4>
     </div>
 {{/perm_failed}}
 

@@ -23,7 +23,8 @@ import '../lib/polyfills.js'; // once per application
 import React from "react";
 import ReactDOM from 'react-dom';
 
-import { Alert, Button, ListView, Modal, OverlayTrigger, Tooltip } from 'patternfly-react';
+import { Button, ListView, Modal, OverlayTrigger, Tooltip } from 'patternfly-react';
+import { Alert, AlertActionCloseButton } from '@patternfly/react-core';
 import { SortByDirection } from "@patternfly/react-table";
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 import { ListingTable } from "cockpit-components-table.jsx";
@@ -214,7 +215,10 @@ class CPUSecurityMitigationsDialog extends React.Component {
                     <ListView>
                         { rows }
                     </ListView>
-                    { this.state.alert !== undefined && <Alert type="error" onDismiss={ () => this.setState({ alert: undefined }) }><span>{ this.state.alert }</span></Alert> }
+                    { this.state.alert !== undefined &&
+                    <Alert variant="danger"
+                        action={<AlertActionCloseButton onClose={() => this.setState({ alert: undefined })} />}
+                        title={this.state.alert} />}
                 </Modal.Body>
                 <Modal.Footer>
                     <Button bsStyle='default' className='btn-cancel' disabled={this.state.rebooting} onClick={this.close}>

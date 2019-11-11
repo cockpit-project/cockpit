@@ -1030,7 +1030,7 @@ class TestMachinesDBus(machineslib.TestMachines):
                     if "ipv6_dhcp_end" in self.xfail_objects:
                         b.wait_in_text("#create-network-dialog .modal-body form div.has-error #network-ipv6-dhcp-range-end + span p", self.xfail_error)
                     if "footer" in self.xfail_objects:
-                        error_location = "#create-network-dialog .modal-footer .alert-danger"
+                        error_location = "#create-network-dialog .modal-footer .pf-m-danger"
                         b.wait_present(error_location)
                         error_message = b.text(error_location)
                         self.test_obj.assertIn(self.xfail_error, error_message)
@@ -1304,7 +1304,7 @@ class TestMachinesDBus(machineslib.TestMachines):
                         b.wait_present("#create-storage-pool-dialog .modal-body label:contains(Target) + div.has-error")
                     # Check errors from backend
                     if self.xfail_error:
-                        error_location = "#create-storage-pool-dialog .modal-footer .alert-danger"
+                        error_location = "#create-storage-pool-dialog .modal-footer .pf-m-danger"
                         b.wait_present(error_location)
                         error_message = b.text(error_location)
                         self.test_obj.assertIn(self.xfail_error, error_message)

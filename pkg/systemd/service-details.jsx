@@ -20,6 +20,7 @@
 import React from "react";
 import moment from "moment";
 import PropTypes from "prop-types";
+import { Alert } from "@patternfly/react-core";
 import { Button, Modal, OverlayTrigger, Tooltip, DropdownKebab, MenuItem } from 'patternfly-react';
 
 import cockpit from "cockpit";
@@ -452,12 +453,10 @@ export class ServiceDetails extends React.Component {
                                           close={ () => this.setState(this.state.error ? { error:"" } : { note:"" }) }
                     />
                 }
-                { hasLoadError
-                    ? <div className="alert alert-danger">
-                        <span className="pficon pficon-error-circle-o" />
-                        <strong>{this.props.unit.LoadState}</strong>
+                { (hasLoadError && this.props.unit.LoadState)
+                    ? <Alert variant="danger" isInline title={this.props.unit.LoadState}>
                         {loadError}
-                    </div>
+                    </Alert>
                     : <>
                         <div className="service-top-panel">
                             <h2 className="service-name">{this.props.unit.Description}</h2>

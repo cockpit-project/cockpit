@@ -127,9 +127,9 @@ class TestStorage(StorageCase):
                           "QEMU QEMU HARDDISK (DISK3)": "In Sync"})
 
         def wait_degraded_state(is_degraded):
-            degraded_selector = ".alert span:contains('The RAID Array is in a degraded state')"
+            degraded_selector = ".pf-c-alert h4"
             if is_degraded:
-                b.wait_visible(degraded_selector)
+                b.wait_in_text(degraded_selector, 'The RAID Array is in a degraded state')
             else:
                 b.wait_not_present(degraded_selector)
 

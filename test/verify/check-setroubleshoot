@@ -143,7 +143,10 @@ class TestSelinux(MachineCase):
         b.click(btn_sel)
 
         # the fix should be applied
-        b.wait_in_text(row_selector, "Solution applied successfully:")
+        if m.image == "rhel-8-1-distropkg":
+            b.wait_in_text(row_selector, "Solution applied successfully:")
+        else:
+            b.wait_in_text(row_selector + " .pf-c-alert__title", "Solution applied successfully")
 
         b.click(row_selector + " button.pficon-delete")
         b.wait_not_present(row_selector)

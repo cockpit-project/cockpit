@@ -21,6 +21,7 @@ import cockpit from "cockpit";
 import React from "react";
 import ReactDOM from "react-dom";
 import PropTypes from "prop-types";
+import { Alert } from "@patternfly/react-core";
 
 import "page.css";
 import "cockpit-components-dialog.css";
@@ -215,12 +216,8 @@ export class DialogFooter extends React.Component {
             error_message = this.props.static_error;
         else
             error_message = this.state.error_message;
-        if (error_message) {
-            error_element = <div className="alert alert-danger dialog-error">
-                <span className="fa fa-exclamation-triangle" />
-                <span>{ React.isValidElement(error_message) ? error_message : error_message.toString() }</span>
-            </div>;
-        }
+        if (error_message)
+            error_element = <Alert variant='danger' isInline title={React.isValidElement(error_message) ? error_message : error_message.toString() } />;
         return (
             <div className="modal-footer">
                 { error_element }

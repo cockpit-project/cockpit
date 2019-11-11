@@ -390,7 +390,7 @@ class TestMachines(NetworkCase):
         # triangle by status
         b.wait_present("tr.listing-ct-item.listing-ct-nonavigate span span.pficon-warning-triangle-o.machines-status-alert")
         # inline notification with error
-        b.wait_in_text("div.alert.alert-danger strong", "VM subVmTest2 failed to start")
+        b.wait_in_text("div.pf-c-alert.pf-m-danger .pf-c-alert__title", "VM subVmTest2 failed to start")
 
         # the message when trying to start active VM differs between virsh and libvirt-dbus provider
         if (self.provider == "libvirt-dbus"):
@@ -400,13 +400,12 @@ class TestMachines(NetworkCase):
 
         b.wait_in_text("button.alert-link.more-button", "show more") # more/less button
         b.click("button.alert-link.more-button")
-        b.wait_present("button.alert-link + p")
-        b.wait_in_text("button.alert-link + p", message)
+        b.wait_in_text(".pf-c-alert__description", message)
         b.wait_in_text("button.alert-link.more-button", "show less")
 
-        b.click("div.alert.alert-danger button.close") # close button
+        b.click("div.pf-c-alert.pf-m-danger button.pf-c-button") # close button
         # inline notification is gone
-        b.wait_not_present("div.alert.alert-danger")
+        b.wait_not_present("div.pf-c-alert.pf-m-danger")
         # triangle by status is gone
         b.wait_not_present(
             "tr.listing-ct-item.listing-ct-nonavigate span span.pficon-warning-triangle-o.machines-status-alert")
@@ -428,28 +427,28 @@ class TestMachines(NetworkCase):
 
         # Try to run subVmTest1 - it will fail because of inactive default network
         tryRunDomain(1, 'subVmTest1')
-        b.wait_in_text(".toast-notifications-list-pf div:nth-child(1) strong", "VM subVmTest1 failed to start")
+        b.wait_in_text(".toast-notifications-list-pf div:nth-child(1) h4", "VM subVmTest1 failed to start")
 
         # Try to run subVmTest2
         tryRunDomain(2, 'subVmTest2')
-        b.wait_in_text(".toast-notifications-list-pf div:nth-child(2) strong", "VM subVmTest2 failed to start")
+        b.wait_in_text(".toast-notifications-list-pf div:nth-child(2) h4", "VM subVmTest2 failed to start")
 
         # Delete the first notification and check notifications list again
         b.focus(".toast-notifications-list-pf")
-        b.click(".toast-notifications-list-pf div:nth-child(1) button.close")
-        b.wait_not_present(".toast-notifications-list-pf div:nth-child(2) strong")
-        b.wait_in_text(".toast-notifications-list-pf div:nth-child(1) strong", "VM subVmTest2 failed to start")
+        b.click(".toast-notifications-list-pf div:nth-child(1) button.pf-c-button")
+        b.wait_not_present(".toast-notifications-list-pf div:nth-child(2) h4")
+        b.wait_in_text(".toast-notifications-list-pf div:nth-child(1) h4", "VM subVmTest2 failed to start")
 
         # Add one more notification
         tryRunDomain(3, 'subVmTest3')
-        b.wait_in_text(".toast-notifications-list-pf div:nth-child(1) strong", "VM subVmTest2 failed to start")
-        b.wait_in_text(".toast-notifications-list-pf div:nth-child(2) strong", "VM subVmTest3 failed to start")
+        b.wait_in_text(".toast-notifications-list-pf div:nth-child(1) h4", "VM subVmTest2 failed to start")
+        b.wait_in_text(".toast-notifications-list-pf div:nth-child(2) h4", "VM subVmTest3 failed to start")
 
         # Delete the last notification
         b.focus(".toast-notifications-list-pf")
-        b.click(".toast-notifications-list-pf div:nth-child(2) button.close")
-        b.wait_not_present(".toast-notifications-list-pf div:nth-child(2) strong")
-        b.wait_in_text(".toast-notifications-list-pf div:nth-child(1) strong", "VM subVmTest2 failed to start")
+        b.click(".toast-notifications-list-pf div:nth-child(2) button.pf-c-button")
+        b.wait_not_present(".toast-notifications-list-pf div:nth-child(2) h4")
+        b.wait_in_text(".toast-notifications-list-pf div:nth-child(1) h4", "VM subVmTest2 failed to start")
 
     def wait_for_disk_stats(self, name, target):
         b = self.browser
@@ -1218,7 +1217,7 @@ class TestMachines(NetworkCase):
         b.click("#vm-{0}-delete".format(name))
         b.click("#vm-{0}-delete-modal-dialog button:contains(Delete)".format(name))
         b.wait_not_present("tbody tr[data-row-id=vm-{0}] th".format(name))
-        b.wait_not_present(".toast-notifications.list-pf div.alert")
+        b.wait_not_present(".toast-notifications.list-pf div.pf-c-alert")
 
     def testSerialConsole(self):
         b = self.browser
@@ -2034,7 +2033,7 @@ class TestMachines(NetworkCase):
 
             b.click(".modal-footer button:contains(Create)")
 
-            error_location = ".modal-footer div.alert"
+            error_location = ".modal-footer div.pf-c-alert"
 
             b.wait_present(".modal-footer .spinner")
             b.wait_not_present(".modal-footer .spinner")
@@ -2052,7 +2051,7 @@ class TestMachines(NetworkCase):
                     allowBugErrors(error_location, x1)
                 else:
                     # then error should be shown in the notification area
-                    error_location = ".toast-notifications-list-pf div.alert"
+                    error_location = ".toast-notifications-list-pf div.pf-c-alert"
                     try:
                         with b.wait_timeout(20):
                             b.wait_present(error_location)
@@ -2064,8 +2063,8 @@ class TestMachines(NetworkCase):
                         allowBugErrors(error_location, x2)
 
             # Close the notificaton
-            b.click(".toast-notifications-list-pf div.alert button.close")
-            b.wait_not_present(".toast-notifications-list-pf div.alert")
+            b.click(".toast-notifications-list-pf div.pf-c-alert button.pf-c-button")
+            b.wait_not_present(".toast-notifications-list-pf div.pf-c-alert")
 
             return self
 
@@ -2166,7 +2165,7 @@ class TestMachines(NetworkCase):
             # Overview should be opened
             b.click("#vm-{0}-overview".format(name)) # open the "overView" subtab
 
-            b.wait_in_text("div.alert.alert-danger strong", "VM {0} failed to get installed".format(name))
+            b.wait_in_text("div.pf-c-alert.pf-m-danger strong", "VM {0} failed to get installed".format(name))
             b.wait_in_text("button.alert-link.more-button", "show more")
 
             return self
@@ -2264,10 +2263,10 @@ class TestMachines(NetworkCase):
             b.wait(lambda: self.machine.execute(
                 "ls /home/admin/.local/share/libvirt/images/ 2>/dev/null | wc -l") == '0\n')
 
-            if b.is_present(".toast-notifications-list-pf div.alert .close"):
-                b.click(".toast-notifications-list-pf div.alert .close")
+            if b.is_present(".toast-notifications-list-pf div.pf-c-alert .pf-c-button"):
+                b.click(".toast-notifications-list-pf div.pf-c-alert .pf-c-button")
 
-            b.wait_not_present(".toast-notifications-list-pf div.alert")
+            b.wait_not_present(".toast-notifications-list-pf div.pf-c-alert")
 
             return self
 

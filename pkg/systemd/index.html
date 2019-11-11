@@ -73,12 +73,18 @@
 
     <div id="server" class="container-fluid page-ct server-overview">
         <div id="motd-box" class="motd-box" hidden>
-          <div class="alert alert-info">
-            <button type="button" class="close" aria-hidden="true">
-              <span class="pficon pficon-close"></span>
-            </button>
-            <span class="pficon pficon-info"></span>
-            <pre id="motd"></pre>
+          <div class="pf-c-alert pf-m-info pf-m-inline" aria-label="Info alert">
+            <div class="pf-c-alert__icon">
+              <i class="fa fa-info-circle" aria-hidden="true"></i>
+            </div>
+            <h4 class="pf-c-alert__title">
+              <pre id="motd"></pre>
+            </h4>
+            <div class="pf-c-alert__action">
+              <button class="pf-c-button pf-m-plain" type="button">
+                  <i class="fa fa-times" aria-hidden="true"></i>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -279,9 +285,11 @@
                 </div>
                 <div class="modal-body">
                     <div class="spinner spinner-lg"></div>
-                    <div class="alert alert-danger" hidden>
-                      <span class="pficon pficon-error-circle-o"></span>
-                      <strong></strong>
+                    <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" hidden>
+                      <div class="pf-c-alert__icon">
+                        <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+                      </div>
+                      <h4 class="pf-c-alert__title"></h4>
                     </div>
                     <div class="content" hidden></div>
                 </div>

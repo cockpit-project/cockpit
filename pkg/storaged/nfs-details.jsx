@@ -22,6 +22,7 @@ import "polyfills";
 import cockpit from "cockpit";
 import React from "react";
 import moment from "moment";
+import { Alert } from "@patternfly/react-core";
 
 import { dialog_open, TeardownMessage, TextInput, ComboBox, CheckBoxes } from "./dialog.jsx";
 import * as format from "./format-dialog.jsx";
@@ -112,14 +113,7 @@ export function nfs_fstab_dialog(client, entry) {
     function show(busy) {
         let alert = null;
         if (busy)
-            alert = (
-                <div className="alert alert-danger">
-                    <span className="pficon pficon-error-circle-o" />
-                    <span className="alert-message">
-                        {_("This NFS mount is in use and only its options can be changed.")}
-                    </span>
-                </div>
-            );
+            alert = <Alert isInline variant="danger" title={_("This NFS mount is in use and only its options can be changed.")} />;
 
         let server_to_check = null;
         let server_check_timeout = null;

@@ -1338,6 +1338,19 @@ class TestMachines(NetworkCase):
             "virsh pool-start default"
         ]
         self.machine.execute(" && ".join(cmds))
+
+        # Fake the osinfo-db data in order that it will allow spawn the installation - of course we don't expect it to succeed -
+        # we just need to check that the VM was spawned
+        fedora_28_xml = self.machine.execute("cat /usr/share/osinfo/os/fedoraproject.org/fedora-28.xml")
+        self.machine.execute("cat /usr/share/osinfo/os/fedoraproject.org/fedora-28.xml > /tmp/fedora-28.xml")
+        root = ET.fromstring(fedora_28_xml)
+        root.find('os').find('resources').find('minimum').find('ram').text = '134217750'
+        root.find('os').find('resources').find('minimum').find('storage').text = '134217750'
+        root.find('os').find('resources').find('recommended').find('ram').text = '268435500'
+        root.find('os').find('resources').find('recommended').find('storage').text = '268435500'
+        new_fedora_28_xml = ET.tostring(root)
+        self.machine.execute("echo \'{0}\' > /usr/share/osinfo/os/fedoraproject.org/fedora-28.xml".format(str(new_fedora_28_xml, 'utf-8')))
+
         self.browser.reload()
         self.browser.enter_page('/machines')
         self.browser.wait_in_text("body", "Virtual Machines")
@@ -1350,23 +1363,22 @@ class TestMachines(NetworkCase):
         print("    *\n    * validation errors and ui info/warn messages expected:\n    * ")
         cancelDialogTest(TestMachines.VmDialog(self, sourceType='file',
                                                location=config.NOVELL_MOCKUP_ISO_PATH,
-                                               memory_size=1, memory_size_unit='MiB',
+                                               memory_size=128, memory_size_unit='MiB',
                                                storage_size=12500, storage_size_unit='GiB',
                                                start_vm=True))
 
         cancelDialogTest(TestMachines.VmDialog(self, sourceType='url',
                                                location=config.VALID_URL,
                                                memory_size=256, memory_size_unit='MiB',
-                                               storage_size=0, storage_size_unit='MiB',
                                                os_name=config.FEDORA_28,
                                                start_vm=False))
 
         # check if older os are filtered
-        checkFilteredOsTest(TestMachines.VmDialog(self, storage_size=1, os_name=config.REDHAT_RHEL_4_7_FILTERED_OS))
+        checkFilteredOsTest(TestMachines.VmDialog(self, os_name=config.REDHAT_RHEL_4_7_FILTERED_OS))
 
-        checkFilteredOsTest(TestMachines.VmDialog(self, storage_size=1, os_name=config.MANDRIVA_2011_FILTERED_OS))
+        checkFilteredOsTest(TestMachines.VmDialog(self, os_name=config.MANDRIVA_2011_FILTERED_OS))
 
-        checkFilteredOsTest(TestMachines.VmDialog(self, storage_size=1, os_name=config.MAGEIA_3_FILTERED_OS))
+        checkFilteredOsTest(TestMachines.VmDialog(self, os_name=config.MAGEIA_3_FILTERED_OS))
 
         # try to CREATE WITH DIALOG ERROR
         # name
@@ -1384,23 +1396,14 @@ class TestMachines(NetworkCase):
 
         # location
         checkDialogFormValidationTest(TestMachines.VmDialog(self, sourceType='url',
-                                                            location="invalid/url", storage_size=1,
+                                                            location="invalid/url",
                                                             os_name=config.FEDORA_28), {"Source": "Source should start with"})
 
         # memory
-        checkDialogFormValidationTest(TestMachines.VmDialog(self, storage_size=1, memory_size=0), {"Memory": "Memory must not be 0"})
-
-        # memory
-        checkDialogFormValidationTest(TestMachines.VmDialog(self, storage_size=1,
-                                                            os_name=config.FEDORA_28,
-                                                            memory_size=256, memory_size_unit='MiB'), {"Memory": "minimum memory requirement of 1024 MiB"})
+        checkDialogFormValidationTest(TestMachines.VmDialog(self, memory_size=0, os_name=None), {"Memory": "Memory must not be 0"})
 
         # storage
         checkDialogFormValidationTest(TestMachines.VmDialog(self, storage_size=0), {"Size": "Storage size must not be 0"})
-
-        # storage
-        checkDialogFormValidationTest(TestMachines.VmDialog(self, os_name=config.FEDORA_28,
-                                                            storage_size=1, storage_size_unit='GiB'), {"Size": "minimum storage size requirement"})
 
         # start vm
         checkDialogFormValidationTest(TestMachines.VmDialog(self, storage_size=1,
@@ -1417,21 +1420,6 @@ class TestMachines(NetworkCase):
         if self.machine.image in ['debian-stable', 'debian-testing', 'ubuntu-stable', 'ubuntu-1804', 'fedora-30', 'fedora-testing', "centos-8-stream"]:
             self.browser.wait_not_present('select option[data-value="Download an OS"]')
         else:
-            # Fake the osinfo-db data in order that it will allow spawn the installation - of course we don't expect it to succeed -
-            # we just need to check that the VM was spawned
-            fedora_28_xml = self.machine.execute("cat /usr/share/osinfo/os/fedoraproject.org/fedora-28.xml")
-            self.machine.execute("cat /usr/share/osinfo/os/fedoraproject.org/fedora-28.xml > /tmp/fedora-28.xml")
-            root = ET.fromstring(fedora_28_xml)
-            root.find('os').find('resources').find('minimum').find('ram').text = '134217750'
-            root.find('os').find('resources').find('minimum').find('storage').text = '134217750'
-            root.find('os').find('resources').find('recommended').find('ram').text = '268435500'
-            root.find('os').find('resources').find('recommended').find('storage').text = '268435500'
-            new_fedora_28_xml = ET.tostring(root)
-            self.machine.execute("echo \'{0}\' > /usr/share/osinfo/os/fedoraproject.org/fedora-28.xml".format(str(new_fedora_28_xml, 'utf-8')))
-            self.browser.reload()
-            self.browser.enter_page('/machines')
-            self.browser.wait_in_text("body", "Virtual Machines")
-
             createDownloadAnOSTest(TestMachines.VmDialog(self, sourceType='downloadOS',
                                                          expected_memory_size=256,
                                                          expected_storage_size=256,
@@ -1947,19 +1935,20 @@ class TestMachines(NetworkCase):
                         b.wait_visible("#storage-volume-select")
                         b.select_from_dropdown("#storage-volume-select", self.storage_volume)
 
-                    if self.storage_size is None or self.storage_pool != 'Create New Volume':
+                    if self.storage_pool != 'Create New Volume':
                         b.wait_not_present("#storage-size")
                     else:
                         b.select_from_dropdown("#storage-size-unit-select", self.storage_size_unit)
-                        b.set_input_text("#storage-size", str(self.storage_size), value_check=False)
-                        # helpblock will be missing if available storage size could not be calculated (no default storage pool found)
-                        # test images sometimes may not have default storage pool defined for session connection
-                        if self.connection != "session":
-                            help_block_line = b.text("#storage-size-helpblock")
-                            space_available = [int(s) for s in help_block_line.split() if s.isdigit()][0]
-                            # Write the final storage size back to self so that other function can read it
-                            self.storage_size = min(self.storage_size, space_available)
-                            b.wait_val("#storage-size", self.storage_size)
+                        if self.storage_size:
+                            b.set_input_text("#storage-size", str(self.storage_size), value_check=False)
+                            b.blur("#storage-size")
+                            # helpblock will be missing if available storage size could not be calculated (no default storage pool found)
+                            # test images sometimes may not have default storage pool defined for session connection
+                            if self.connection != "session":
+                                space_available = int(b.text("#storage-size-slider ~ b"))
+                                # Write the final storage size back to self so that other function can read it
+                                self.storage_size = min(self.storage_size, space_available)
+                                b.wait_val("#storage-size", self.storage_size)
                 else:
                     b.wait_val("#storage-size", self.expected_storage_size)
 
@@ -1968,13 +1957,17 @@ class TestMachines(NetworkCase):
             if not self.expected_memory_size:
                 b.select_from_dropdown("#memory-size-unit-select", self.memory_size_unit)
                 b.set_input_text("#memory-size", str(self.memory_size), value_check=False)
-                help_block_line = b.text("#memory-size-helpblock")
-                host_total_memory = [int(s) for s in help_block_line.split() if s.isdigit()][0]
+                b.blur('#memory-size')
+                host_total_memory = int(b.text("#memory-size-slider ~ b"))
                 # Write the final memory back to self so that other function can read it
                 self.memory_size = min(self.memory_size, host_total_memory)
                 b.wait_val("#memory-size", self.memory_size)
             else:
                 b.wait_val("#memory-size", self.expected_memory_size)
+
+            # check minimum memory is correctly set in the slider - the following are fake data
+            if self.os_name in [TestMachines.TestCreateConfig.CIRROS, TestMachines.TestCreateConfig.FEDORA_28]:
+                b.wait_attr("#memory-size-slider  div[role=slider].hide", "aria-valuemin", "128")
 
             b.wait_visible("#start-vm")
             if not self.start_vm:

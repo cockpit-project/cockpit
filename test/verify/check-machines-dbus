@@ -285,7 +285,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         # VM initially should have 256MiB
         current_memory = int(b.attr("#vm-subVmTest1-memory-modal-memory", "value"))
         self.assertEqual(current_memory, 256)
-        b.wait_attr("#vm-subVmTest1-memory-modal-max-memory", "readonly", "")
+        b.wait_attr("#vm-subVmTest1-memory-modal-max-memory", "disabled", "")
 
         # Check memory hotunplugging
         # The balloon driver needs to be loaded to descrease memory

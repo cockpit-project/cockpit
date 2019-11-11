@@ -388,15 +388,8 @@ class OSRow extends React.Component {
     }
 }
 
-const MemoryRow = ({ memorySize, memorySizeUnit, nodeMaxMemory, recommendedMemory, onValueChanged, validationFailed }) => {
+const MemoryRow = ({ memorySize, memorySizeUnit, nodeMaxMemory, recommendedMemory, minimumMemory, onValueChanged, validationFailed }) => {
     const validationStateMemory = validationFailed.memory ? 'error' : undefined;
-    let recommendedMemoryHelpBlock = null;
-    if (recommendedMemory && recommendedMemory > memorySize) {
-        recommendedMemoryHelpBlock = <p>{cockpit.format(
-            _("The selected Operating System has recommended memory $0 $1"),
-            Math.floor(convertToUnit(recommendedMemory, units.B, memorySizeUnit)), memorySizeUnit)}</p>;
-    }
-
     return (
         <>
             <label htmlFor='memory-size' className='control-label'>
@@ -404,34 +397,22 @@ const MemoryRow = ({ memorySize, memorySizeUnit, nodeMaxMemory, recommendedMemor
             </label>
             <FormGroup validationState={validationStateMemory} bsClass='form-group ct-validation-wrapper' controlId='memory'>
                 <MemorySelectRow id='memory-size'
-                    value={memorySize}
-                    maxValue={nodeMaxMemory && convertToUnit(nodeMaxMemory, units.KiB, memorySizeUnit)}
+                    value={Math.max(memorySize, Math.floor(convertToUnit(minimumMemory, units.B, memorySizeUnit)))}
+                    maxValue={nodeMaxMemory && Math.floor(convertToUnit(nodeMaxMemory, units.KiB, memorySizeUnit))}
+                    minValue={Math.floor(convertToUnit(minimumMemory, units.B, memorySizeUnit))}
                     initialUnit={memorySizeUnit}
-                    onValueChange={e => onValueChanged('memorySize', e.target.value)}
+                    onValueChange={value => onValueChanged('memorySize', value)}
                     onUnitChange={value => onValueChanged('memorySizeUnit', value)} />
                 <HelpBlock id="memory-size-helpblock">
                     {validationStateMemory === "error" && <p>{validationFailed.memory}</p>}
-                    {recommendedMemoryHelpBlock}
-                    {nodeMaxMemory && <p> {cockpit.format(
-                        _("Up to $0 $1 available on the host"),
-                        Math.floor(convertToUnit(nodeMaxMemory, units.KiB, memorySizeUnit)),
-                        memorySizeUnit,
-                    )}</p>}
                 </HelpBlock>
             </FormGroup>
         </>
     );
 };
 
-const StorageRow = ({ connectionName, storageSize, storageSizeUnit, onValueChanged, recommendedStorage, storagePoolName, storagePools, storageVolume, vms, validationFailed }) => {
+const StorageRow = ({ connectionName, storageSize, storageSizeUnit, onValueChanged, recommendedStorage, minimumStorage, storagePoolName, storagePools, storageVolume, vms, validationFailed }) => {
     const validationStateStorage = validationFailed.storage ? 'error' : undefined;
-    let recommendedStorageHelpBlock = null;
-    if (recommendedStorage && recommendedStorage > storageSize) {
-        recommendedStorageHelpBlock = <p>{cockpit.format(
-            _("The selected Operating System has recommended storage size of $0 $1"),
-            Math.floor(convertToUnit(recommendedStorage, units.B, storageSizeUnit)), storageSizeUnit)}</p>;
-    }
-
     let volumeEntries;
     let isVolumeUsed = {};
     // Existing storage pool is chosen
@@ -490,20 +471,15 @@ const StorageRow = ({ connectionName, storageSize, storageSizeUnit, onValueChang
                 </label>
                 <FormGroup validationState={validationStateStorage} bsClass='form-group ct-validation-wrapper' controlId='storage'>
                     <MemorySelectRow id="storage-size"
-                        value={storageSize}
-                        maxValue={poolSpaceAvailable && convertToUnit(poolSpaceAvailable, units.B, storageSizeUnit)}
+                        value={Math.max(storageSize, Math.floor(convertToUnit(minimumStorage || 0, units.B, storageSizeUnit)))}
+                        maxValue={poolSpaceAvailable && Math.floor(convertToUnit(poolSpaceAvailable, units.B, storageSizeUnit))}
+                        minValue={minimumStorage && Math.floor(convertToUnit(minimumStorage, units.B, storageSizeUnit))}
                         initialUnit={storageSizeUnit}
-                        onValueChange={e => onValueChanged('storageSize', e.target.value)}
+                        onValueChange={value => onValueChanged('storageSize', value)}
                         onUnitChange={value => onValueChanged('storageSizeUnit', value)} />
                     {poolSpaceAvailable &&
                     <HelpBlock id="storage-size-helpblock">
                         {validationStateStorage === "error" && <p>{validationFailed.storage}</p>}
-                        {recommendedStorageHelpBlock}
-                        {cockpit.format(
-                            _("Up to $0 $1 available in the default location"),
-                            Math.floor(convertToUnit(poolSpaceAvailable, units.B, storageSizeUnit)),
-                            storageSizeUnit,
-                        )}
                     </HelpBlock>}
                 </FormGroup>
             </> }
@@ -541,7 +517,9 @@ class CreateVmModal extends React.Component {
             storageVolume: '',
             startVm: true,
             recommendedMemory: undefined,
+            minimumMemory: 0,
             recommendedStorage: undefined,
+            minimumStorage: 0,
         };
         this.onCreateClicked = this.onCreateClicked.bind(this);
         this.onValueChanged = this.onValueChanged.bind(this);
@@ -657,6 +635,10 @@ class CreateVmModal extends React.Component {
             break;
         case 'os': {
             const stateDelta = { [key]: value };
+
+            if (value && value.minimumResources.ram)
+                stateDelta.minimumMemory = value.minimumResources.ram || 0;
+
             if (value && value.recommendedResources.ram) {
                 stateDelta.recommendedMemory = value.recommendedResources.ram;
                 const converted = Math.floor(convertToUnit(stateDelta.recommendedMemory, units.B, this.state.memorySizeUnit));
@@ -667,6 +649,10 @@ class CreateVmModal extends React.Component {
             } else {
                 stateDelta.recommendedMemory = undefined;
             }
+
+            if (value && value.minimumResources.storage)
+                stateDelta.minimumStorage = value.minimumResources.storage || 0;
+
             if (value && value.recommendedResources.storage) {
                 stateDelta.recommendedStorage = value.recommendedResources.storage;
                 const converted = Math.floor(convertToUnit(stateDelta.recommendedStorage, units.B, this.state.storageSizeUnit));
@@ -790,6 +776,7 @@ class CreateVmModal extends React.Component {
                     storageVolume={this.state.storageVolume}
                     vms={vms}
                     recommendedStorage={this.state.recommendedStorage}
+                    minimumStorage={this.state.minimumStorage}
                     validationFailed={validationFailed}
                 />}
 
@@ -800,6 +787,7 @@ class CreateVmModal extends React.Component {
                     onValueChanged={this.onValueChanged}
                     validationFailed={validationFailed}
                     recommendedMemory={this.state.recommendedMemory}
+                    minimumMemory={this.state.minimumMemory}
                 />
 
                 <hr />

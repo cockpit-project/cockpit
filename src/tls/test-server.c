@@ -225,7 +225,7 @@ assert_https_outcome (TestCase *tc,
       if (len < 0 && expect_tls_failure)
         exit (0);
       g_assert_cmpint (len, >=, 100);
-      g_assert_cmpint (len, <, sizeof (buf) - 1);
+      g_assert_cmpint (len, <=, sizeof (buf) - 1);
 
       buf[len] = '\0'; /* so that we can use string functions on it */
       /* This succeeds (200 OK) when building in-tree, but fails with dist-check due to missing doc root */

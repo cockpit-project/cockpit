@@ -727,6 +727,7 @@ class ActivateZoneModal extends React.Component {
                             </label>
                             { this.state.ipRange === "ip-range" && <input id="add-zone-ip" onChange={e => this.onChange("ipRangeValue", e.target.value)} /> }
                         </div>
+                        <div>{ this.state.ipRange === "ip-range" && <legend>{_("IP address with routing prefix. Separate multiple values with a comma. Example: 192.0.2.0/24, 2001:db8::/32")}</legend> }</div>
                     </form>
                 </Modal.Body>
                 <Modal.Footer>

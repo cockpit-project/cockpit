@@ -7,21 +7,19 @@ import {
 import PropTypes from 'prop-types';
 
 import cockpit from 'cockpit';
-import * as Select from 'cockpit-components-select.jsx';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import {
     units,
     convertToUnit,
-    toFixedPrecision,
     vmId
 } from '../../helpers.js';
+import MemorySelectRow from '../memorySelectRow.jsx';
 import {
     setMemory,
     setMaxMemory,
     getVm
 } from '../../actions/provider-actions.js';
 
-import './memoryModal.css';
 import 'form-layout.less';
 
 const _ = cockpit.gettext;
@@ -50,39 +48,24 @@ export class MemoryModal extends React.Component {
             const memoryKiB = convertToUnit(value, this.state.memoryUnit, 'KiB');
 
             if (memoryKiB <= this.state.maxMemory) {
-                stateDelta.memory = memoryKiB;
+                stateDelta.memory = Math.max(memoryKiB, this.state.minAllowedMemory);
             } else if (memoryKiB > this.state.maxMemory && this.props.vm.state != 'running') {
-                stateDelta.memory = memoryKiB;
-                stateDelta.maxMemory = memoryKiB;
+                stateDelta.memory = Math.min(memoryKiB, this.state.nodeMaxMemory);
+                stateDelta.maxMemory = Math.min(memoryKiB, this.state.nodeMaxMemory);
             }
         } else if (key == 'maxMemory') {
             const maxMemoryKiB = convertToUnit(value, this.state.maxMemoryUnit, 'KiB');
 
             if (maxMemoryKiB < this.state.nodeMaxMemory) {
-                stateDelta.maxMemory = maxMemoryKiB;
+                stateDelta.maxMemory = Math.max(maxMemoryKiB, this.state.minAllowedMemory);
+            } else {
+                stateDelta.maxMemory = this.state.nodeMaxMemory;
             }
-        } else if (key == 'memoryUnit' || key == 'maxMemoryUnit')
-            stateDelta = { [key]: value };
-
-        this.setState(stateDelta);
-    }
-
-    onValueBlurred(key, value) {
-        // When input field get unfocused perform checks for lower limits
-        const stateDelta = {};
-
-        if (key == 'memory') {
-            const memoryKiB = convertToUnit(value, this.state.memoryUnit, 'KiB');
-
-            stateDelta.memory = Math.max(memoryKiB, this.state.minAllowedMemory);
-        } else if (key == 'maxMemory') {
-            const maxMemoryKiB = convertToUnit(value, this.state.maxMemoryUnit, 'KiB');
-
-            stateDelta.maxMemory = Math.max(maxMemoryKiB, this.state.minAllowedMemory);
             if (maxMemoryKiB < this.state.memory) {
                 stateDelta.memory = Math.max(maxMemoryKiB, this.state.minAllowedMemory);
             }
-        }
+        } else if (key == 'memoryUnit' || key == 'maxMemoryUnit')
+            stateDelta = { [key]: value };
 
         this.setState(stateDelta);
     }
@@ -129,69 +112,27 @@ export class MemoryModal extends React.Component {
                 <label className='control-label'>
                     {_("Current Allocation")}
                 </label>
-                <div className='form-group ct-validation-wrapper'>
-                    <div role='group'>
-                        <input id={`${idPrefix}-memory`}
-                            className='form-control'
-                            type='number'
-                            value={toFixedPrecision(convertToUnit(this.state.memory, 'KiB', this.state.memoryUnit))}
-                            min={toFixedPrecision(convertToUnit(128, 'MiB', this.state.memoryUnit))}
-                            step={1}
-                            onChange={e => this.onValueChanged('memory', e.target.value)}
-                            onClick={e => { // releasing arrows does not trigger a seperate on blur event
-                                this.onValueChanged('memory', e.target.value);
-                                this.onValueBlurred('memory', e.target.value);
-                            }}
-                            onBlur={e => this.onValueBlurred('memory', e.target.value)} />
-                        <Select.Select id={`${idPrefix}-memory-unit`}
-                            initial={this.state.memoryUnit}
-                            onChange={value => this.onValueChanged('memoryUnit', value)}>
-                            <Select.SelectEntry data={units.MiB.name} key={units.MiB.name}>
-                                {_("MiB")}
-                            </Select.SelectEntry>
-                            <Select.SelectEntry data={units.GiB.name} key={units.GiB.name}>
-                                {_("GiB")}
-                            </Select.SelectEntry>
-                        </Select.Select>
-                    </div>
-                    <HelpBlock>
-                        {_("Memory size between 128 MiB and the maximum allocation")}
-                    </HelpBlock>
-                </div>
-
+                <MemorySelectRow id={`${idPrefix}-memory`}
+                    value={Math.floor(convertToUnit(this.state.memory, 'KiB', this.state.memoryUnit))}
+                    minValue={Math.floor(convertToUnit(this.state.minAllowedMemory, 'KiB', this.state.memoryUnit))}
+                    maxValue={Math.floor(convertToUnit(this.state.maxMemory, 'KiB', this.state.memoryUnit))}
+                    initialUnit={this.state.memoryUnit}
+                    onValueChange={value => this.onValueChanged('memory', value)}
+                    onUnitChange={value => this.onValueChanged('memoryUnit', value)} />
                 <hr />
 
                 <label className='control-label'>
                     {_("Maximum Allocation")}
                 </label>
                 <div className='form-group ct-validation-wrapper'>
-                    <div role='group'>
-                        <input id={`${idPrefix}-max-memory`}
-                            className='form-control ct-form-split'
-                            type='number'
-                            value={toFixedPrecision(convertToUnit(this.state.maxMemory, 'KiB', this.state.memoryUnit))}
-                            min={toFixedPrecision(convertToUnit(128, 'MiB', this.state.maxMemoryUnit))}
-                            step={1}
-                            onChange={e => this.onValueChanged('maxMemory', e.target.value)}
-                            onClick={e => { // onInput does not trigger a seperate on blur event
-                                this.onValueChanged('maxMemory', e.target.value);
-                                this.onValueBlurred('maxMemory', e.target.value);
-                            }}
-                            onBlur={e => this.onValueBlurred('maxMemory', e.target.value)}
-                            readOnly={vm.state != 'shut off'} />
-                        <Select.Select id={`${idPrefix}-max-memory-unit`}
-                            className='ct-form-split'
-                            initial={this.state.maxMemoryUnit}
-                            onChange={value => this.onValueChanged('maxMemoryUnit', value)}
-                            enabled={vm.state !== 'running'}>
-                            <Select.SelectEntry data={units.MiB.name} key={units.MiB.name}>
-                                {_("MiB")}
-                            </Select.SelectEntry>
-                            <Select.SelectEntry data={units.GiB.name} key={units.GiB.name}>
-                                {_("GiB")}
-                            </Select.SelectEntry>
-                        </Select.Select>
-                    </div>
+                    <MemorySelectRow id={`${idPrefix}-max-memory`}
+                        value={Math.floor(convertToUnit(this.state.maxMemory, 'KiB', this.state.maxMemoryUnit))}
+                        minValue={Math.floor(convertToUnit(this.state.minAllowedMemory, 'KiB', this.state.maxMemoryUnit))}
+                        maxValue={Math.floor(convertToUnit(this.state.nodeMaxMemory, 'KiB', this.state.maxMemoryUnit))}
+                        initialUnit={this.state.maxMemoryUnit}
+                        onValueChange={value => this.onValueChanged('maxMemory', value)}
+                        onUnitChange={value => this.onValueChanged('maxMemoryUnit', value)}
+                        readOnly={vm.state != 'shut off'} />
                     {vm.state === 'running' && <HelpBlock>
                         {_("Only editable when the guest is shut off")}
                     </HelpBlock>}

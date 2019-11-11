@@ -282,6 +282,10 @@ class TestMachinesDBus(machineslib.TestMachines):
 
         # Change memory
         b.wait_present("#vm-subVmTest1-memory-modal-memory")
+
+        b.wait_attr("#vm-subVmTest1-memory-modal-memory-slider  div[role=slider].hide", "aria-valuemin", "128")
+        b.wait_attr("#vm-subVmTest1-memory-modal-max-memory-slider  div[role=slider].hide", "aria-valuemin", "128")
+
         # VM initially should have 256MiB
         current_memory = int(b.attr("#vm-subVmTest1-memory-modal-memory", "value"))
         self.assertEqual(current_memory, 256)
@@ -292,6 +296,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         wait(lambda: "Linux version" in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
 
         b.set_input_text("#vm-subVmTest1-memory-modal-memory", str(current_memory - 10))
+        b.blur("#vm-subVmTest1-memory-modal-memory")
         # Save the memory settings
         b.click("#vm-subVmTest1-memory-modal-save")
         b.wait_not_present("#vm-memory-modal")
@@ -315,17 +320,12 @@ class TestMachinesDBus(machineslib.TestMachines):
 
         # Verify that increasing current memory in offline VMs above max memory will increase max memory as well
         b.set_input_text("#vm-subVmTest1-memory-modal-memory", str(current_memory))
+        b.blur("#vm-subVmTest1-memory-modal-memory")
         b.wait_attr("#vm-subVmTest1-memory-modal-max-memory", "value", str(current_memory))
 
         # Verify that unit conversions work
-        b.select_from_dropdown("#vm-subVmTest1-memory-modal-memory-unit", "GiB")
-        b.set_input_text("#vm-subVmTest1-memory-modal-memory", "1")
-        b.wait_attr("#vm-subVmTest1-memory-modal-max-memory", "value", "1024")
-
-        # Save the memory settings
-        b.click("#vm-subVmTest1-memory-modal-save")
-        b.wait_not_present("#vm-memory-modal")
-        b.wait_in_text("#vm-subVmTest1-memory-count", "1 GiB")
+        b.select_from_dropdown("#vm-subVmTest1-memory-modal-memory-unit-select", "GiB")
+        b.wait_attr("#vm-subVmTest1-memory-modal-memory", "value", "0")
 
     def testDetachDisk(self):
         b = self.browser

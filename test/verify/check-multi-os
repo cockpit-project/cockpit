@@ -34,20 +34,7 @@ def wait_dashboard_addresses(b, expected):
         })""", expected)
 
 
-def old_add_machine(b, address):
-    b.click('#dashboard-add')
-    b.wait_popup('dashboard_setup_server_dialog')
-    b.set_val('#dashboard_setup_address', address)
-    b.wait_text('#dashboard_setup_next', "Next")
-    b.click('#dashboard_setup_next')
-    b.wait_text('#dashboard_setup_next', "Add host")
-    b.click('#dashboard_setup_next')
-    b.wait_text('#dashboard_setup_next', "Close")
-    b.click('#dashboard_setup_next')
-    b.wait_popdown('dashboard_setup_server_dialog')
-
-
-def new_add_machine(b, address):
+def add_machine(b, address):
     b.click('#dashboard-add')
     b.wait_popup('dashboard_setup_server_dialog')
     b.set_val('#add-machine-address', address)
@@ -62,7 +49,7 @@ def new_add_machine(b, address):
 class TestMultiOS(MachineCase):
     provision = {
         "0": {"address": "10.111.113.1/20"},
-        "fedora-stock": {"address": "10.111.113.5/20", "image": "fedora-stock"}
+        "fedora-23-stock": {"address": "10.111.113.5/20", "image": "fedora-23-stock"}
     }
 
     def setUp(self):
@@ -81,7 +68,7 @@ class TestMultiOS(MachineCase):
                 .proxy("org.freedesktop.DBus", "/").call("GetId");
         })""", address)
 
-    def checkStock(self):
+    def testFedora23(self):
         dev_m = self.machine
         dev_b = self.browser
 
@@ -98,11 +85,8 @@ class TestMultiOS(MachineCase):
         dev_dashboard_addresses = ["localhost"]
         wait_dashboard_addresses(dev_b, dev_dashboard_addresses)
 
-        def stock_login_and_go(browser, page, href, host="localhost"):
-            if host:
-                browser.open("/#" + "/@" + host + href)
-            else:
-                browser.open("/#" + href)
+        def stock_login_and_go(browser, page, href):
+            browser.open(href)
             browser.wait_visible("#login")
             browser.set_val('#login-user-input', browser.default_user)
             browser.set_val('#login-password-input', "foobar")
@@ -110,20 +94,17 @@ class TestMultiOS(MachineCase):
             browser.expect_load()
             browser.wait_visible('#content')
             if page:
-                stock_enter_page(browser, page, host=host)
+                stock_enter_page(browser, page)
 
-        def stock_enter_page(browser, page, host="localhost"):
-            if host:
-                frame = host + "/shell/shell"
-            else:
-                frame = "localhost/shell/shell"
+        def stock_enter_page(browser, page):
+            frame = "cockpit1:localhost/" + page
             browser.switch_to_top()
             browser.wait_present("iframe.container-frame[name='%s'][data-loaded]" % frame)
             browser.wait_visible("iframe.container-frame[name='%s']" % frame)
             browser.switch_to_frame(frame)
             browser.wait_visible('#' + page)
 
-        stock_m = self.machines['fedora-stock']
+        stock_m = self.machines['fedora-23-stock']
 
         # Wait for connectivity between the two
         wait(lambda: stock_m.execute("ip addr >&2 && ping -q -w5 -c5 10.111.113.1"))
@@ -132,19 +113,20 @@ class TestMultiOS(MachineCase):
         stock_m.execute("hostnamectl set-hostname stock")
         stock_b = self.new_browser(stock_m)
 
-        stock_login_and_go(stock_b, "dashboard", href="/dashboard/list", host=None)
+        stock_login_and_go(stock_b, "dashboard", href="/dashboard")
         wait_dashboard_addresses(stock_b, ["localhost"])
 
-        old_add_machine(stock_b, "10.111.113.1")
+        add_machine(stock_b, "10.111.113.1")
         wait_dashboard_addresses(stock_b, ["localhost", "10.111.113.1"])
 
         dev_b.switch_to_top()
         dev_b.switch_to_frame("cockpit1:localhost/dashboard")
 
-        new_add_machine(dev_b, "10.111.113.5")
+        add_machine(dev_b, "10.111.113.5")
         dev_dashboard_addresses.append("10.111.113.5")
         wait_dashboard_addresses(dev_b, dev_dashboard_addresses)
 
+        stock_b.switch_to_top()
         self.check_dbus(stock_b, "10.111.113.1")
         self.check_dbus(dev_b, "10.111.113.5")
 
@@ -152,45 +134,25 @@ class TestMultiOS(MachineCase):
         self.check_spawn(dev_b, "10.111.113.5")
 
         dev_b.switch_to_top()
-        dev_b.go("/@10.111.113.5/network/interfaces")
-        dev_b.wait_present("iframe.container-frame[name='cockpit1:10.111.113.5/shell/shell'][src$='#/networking']")
+        dev_b.go("/@10.111.113.5/network")
+        dev_b.wait_present("iframe.container-frame[name='cockpit1:10.111.113.5/network'][src$='/network/index.html#/']")
 
         dev_b.switch_to_top()
-        dev_b.go("/@10.111.113.5/storage/devices")
-        dev_b.wait_present("iframe.container-frame[name='cockpit1:10.111.113.5/shell/shell'][src$='#/storage']")
+        dev_b.go("/@10.111.113.5/storage")
+        dev_b.wait_present("iframe.container-frame[name='cockpit1:10.111.113.5/storage'][src$='/storage/index.html#/']")
 
         dev_b.switch_to_top()
-        dev_b.go("/@10.111.113.5/users/local")
-        dev_b.wait_present("iframe.container-frame[name='cockpit1:10.111.113.5/shell/shell'][src$='#/accounts']")
+        dev_b.go("/@10.111.113.5/users")
+        dev_b.wait_present("iframe.container-frame[name='cockpit1:10.111.113.5/users'][src$='/users/index.html#/']")
 
         stock_b.switch_to_top()
-        stock_b.go("#/@10.111.113.1/system/index")
-        stock_b.wait_present("iframe.container-frame[name='10.111.113.1/system/index']")
-        stock_b.wait_present("iframe.container-frame[name='10.111.113.1/system/index'][data-loaded]")
-        stock_b.switch_to_frame('10.111.113.1/system/index')
+        stock_b.go("/@10.111.113.1/system")
+        stock_b.wait_present("iframe.container-frame[name='cockpit1:10.111.113.1/system'][data-loaded]")
+        stock_b.switch_to_frame('cockpit1:10.111.113.1/system')
         stock_b.wait_text_not("#system_information_hardware_text", "")
 
-        # Shows a curtains when accessing to default page from old system
-        stock_b.switch_to_top()
-        stock_b.go("#/@10.111.113.1")
-        stock_b.wait_present("iframe.container-frame[name='10.111.113.1/shell/shell']")
-        stock_b.wait_present("iframe.container-frame[name='10.111.113.1/shell/shell'][data-loaded]")
-        stock_b.switch_to_frame('10.111.113.1/shell/shell')
-        stock_b.wait_present(".curtains-ct")
-
         # Messages from previous versions of cockpit
-        self.allow_journal_messages("g_hash_table_iter_next: assertion 'ri->version == ri->hash_table->version' failed")
-        self.allow_journal_messages("couldn't run usermod command: Child process exited with code 6")
-        self.allow_journal_messages("usermod: user 'postfix' does not exist")
         self.allow_journal_messages(".*pam_authenticate failed: Authentication failure")
-
-    def testFedora22(self):
-        try:
-            self.checkStock()
-        except Error as e:
-            # Old versions of Cockpit in Fedora 22 have a race which throws an exception
-            if e.msg != "Error: TypeError: null is not an object (evaluating 'o.client.lookup')":
-                raise
 
 
 class TestMultiOSDirect(MachineCase):
@@ -216,7 +178,7 @@ class TestMultiOSDirect(MachineCase):
         stock_m = self.machines['fedora-23-stock']
         stock_m.execute("hostnamectl set-hostname stock")
 
-        new_add_machine(b, "10.111.113.5")
+        add_machine(b, "10.111.113.5")
         dev_dashboard_addresses.append("10.111.113.5")
         wait_dashboard_addresses(b, dev_dashboard_addresses)
         b.logout()

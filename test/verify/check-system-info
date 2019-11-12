@@ -212,19 +212,7 @@ class TestSystemInfo(MachineCase):
             b.wait_not_visible("#system-ostree-version-link")
 
         b.wait_text('#system_information_hostname_button', "Adventure Box (host1.cockpit.lan)")
-        # HACK /usr/bin/hostname output is delayed in systemd v208, so that DBus gets notified early
-        # this issue is resolved in systemd v219
-        tries_left = 5
-        current_hostname = ""
-        while tries_left > 0:
-            current_hostname = m.execute("hostname")
-            if current_hostname == "host1.cockpit.lan\n":
-                break
-            # wait a bit and try again
-            time.sleep(1)
-            tries_left = tries_left - 1
-
-        self.assertEqual(current_hostname, "host1.cockpit.lan\n")
+        self.assertEqual(m.execute("hostname").strip(), "host1.cockpit.lan")
 
         b.logout()
         m.execute("chattr -i /etc/os-release && rm /etc/os-release")

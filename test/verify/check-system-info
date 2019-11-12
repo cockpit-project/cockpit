@@ -196,7 +196,7 @@ class TestSystemInfo(MachineCase):
         b.wait_text('#system_information_os_text',
                     "Foobar Adventure Linux Server 2.0 (Day of Doom)")
 
-        m.execute("hostnamectl set-hostname --pretty 'Adventure Box'")
+        m.execute("hostnamectl set-hostname --static --pretty 'Adventure Box'")
         b.wait_in_text('#system_information_hostname_button', "Adventure Box")
 
         b.click('#system_information_hostname_button')

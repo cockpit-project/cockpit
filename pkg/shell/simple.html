@@ -26,7 +26,7 @@
           <div class="collapse navbar-collapse navbar-collapse-1">
             <ul class="nav navbar-nav navbar-utility">
               <li id="navbar-oops" hidden>
-                <a tabindex="0"><span class="oops-status" translatable="yes">Ooops!</span></a>
+                <a tabindex="0"><span class="oops-status" translate="yes">Ooops!</span></a>
               </li>
               <li class="dropdown">
                 <a tabindex="0" id="navbar-dropdown" class="dropdown-toggle" data-toggle="dropdown">
@@ -35,15 +35,15 @@
                 </a>
                 <ul class="dropdown-menu">
                   <li class="display-language-menu">
-                    <a tabindex="0" data-toggle="modal" data-target="#display-language" translatable="yes">Display Language</a>
+                    <a tabindex="0" data-toggle="modal" data-target="#display-language" translate="yes">Display Language</a>
                   </li>
                   <li class="divider display-language-menu"></li>
                   <li>
-                    <a tabindex="0" data-toggle="modal" data-target="#about" translatable="yes">About Cockpit</a>
+                    <a tabindex="0" data-toggle="modal" data-target="#about" translate="yes">About Cockpit</a>
                   </li>
                   <li class="divider"></li>
                   <li>
-                    <a tabindex="0" id="go-logout" translatable="yes">Log Out</a>
+                    <a tabindex="0" id="go-logout" translate="yes">Log Out</a>
                   </li>
                 </ul>
               </li>
@@ -55,13 +55,13 @@
           <div class="modal-dialog">
             <div class="modal-content">
               <div class="modal-header">
-                <h4 class="modal-title" translatable="yes">About Cockpit</h4>
+                <h4 class="modal-title" translate="yes">About Cockpit</h4>
               </div>
               <div class="modal-body">
-                <div translatable="yes">Cockpit is an interactive Linux server admin interface.</div>
+                <div translate="yes">Cockpit is an interactive Linux server admin interface.</div>
                 <div><a rel="noopener noreferrer" target="_blank" href="https://cockpit-project.org/" translate>Project website</a></div>
                 <div>
-                  <span translatable="yes">Version</span> <span id="about-version"></span>.
+                  <span translate="yes">Version</span> <span id="about-version"></span>.
                 </div>
                 <div><span translate>Licensed under:</span>
                     <a href="https://www.gnu.org/licenses/old-licenses/lgpl-2.1-standalone.html"
@@ -79,16 +79,16 @@
           <div class="modal-dialog">
             <div class="modal-content">
               <div class="modal-header">
-                <h4 class="modal-title" translatable="yes">Display Language</h4>
+                <h4 class="modal-title" translate="yes">Display Language</h4>
               </div>
               <div class="modal-body">
-	        <p translatable="yes">Choose the language to be used in the application</p>
+	        <p translate="yes">Choose the language to be used in the application</p>
                 <select id="display-language-list" size="5" data-role="none">
                 </select>
               </div>
               <div class="modal-footer">
-                <button class="btn btn-default" data-dismiss="modal" translatable="yes">Cancel</button>
-                <button class="btn btn-primary" id="display-language-select-button" translatable="yes">Select</button>
+                <button class="btn btn-default" data-dismiss="modal" translate="yes">Cancel</button>
+                <button class="btn btn-primary" id="display-language-select-button" translate="yes">Select</button>
               </div>
             </div>
           </div>
@@ -98,14 +98,14 @@
           <div class="modal-dialog">
             <div class="modal-content">
               <div class="modal-header">
-                <h4 class="modal-title" translatable="yes">Disconnected</h4>
+                <h4 class="modal-title" translate="yes">Disconnected</h4>
               </div>
               <div class="modal-body">
                 <div id="disconnected-error"></div>
               </div>
               <div class="modal-footer">
-                <button class="btn btn-default" id="disconnected-reconnect" translatable="yes">Try to reconnect</button>
-                <button class="btn btn-default" id="disconnected-logout" translatable="yes">Log in again</button>
+                <button class="btn btn-default" id="disconnected-reconnect" translate="yes">Try to reconnect</button>
+                <button class="btn btn-default" id="disconnected-logout" translate="yes">Log in again</button>
               </div>
             </div>
           </div>
@@ -135,8 +135,8 @@
               <h1 id="machine-error-heading"></h1>
               <p id="machine-error-desc"></p>
               <div class="blank-slate-pf-main-action">
-                <button id="machine-reconnect" class="btn btn-primary btn-lg" translatable="yes">Reconnect</button>
-                <button id="machine-troubleshoot" class="btn btn-primary btn-lg" translatable="yes">Troubleshoot</button>
+                <button id="machine-reconnect" class="btn btn-primary btn-lg" translate="yes">Reconnect</button>
+                <button id="machine-troubleshoot" class="btn btn-primary btn-lg" translate="yes">Troubleshoot</button>
               </div>
             </div>
 

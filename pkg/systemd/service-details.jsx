@@ -73,7 +73,7 @@ ServiceTemplate.propTypes = {
 };
 /*
  * Note:
-<p translatable="yes">This unit is not designed to be enabled explicitly.</p>
+<p translate="yes">This unit is not designed to be enabled explicitly.</p>
     Error:
     error.toString()
 */

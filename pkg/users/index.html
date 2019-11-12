@@ -20,7 +20,7 @@
 
 <html>
 <head>
-    <title translatable="yes">Local Accounts</title>
+    <title translate="yes">Local Accounts</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="../base1/patternfly.css" type="text/css" rel="stylesheet">
@@ -49,7 +49,7 @@
   </div>
 
   <div id="accounts" class="container-fluid" hidden>
-    <button class="btn btn-primary accounts-privileged" id="accounts-create" translatable="yes" data-container="body" data-placement="right">Create New Account</button>
+    <button class="btn btn-primary accounts-privileged" id="accounts-create" translate="yes" data-container="body" data-placement="right">Create New Account</button>
     <div id="accounts-list">
     </div>
   </div>
@@ -60,7 +60,7 @@
     <div class="blank-slate-pf-icon">
       <i class="fa fa-exclamation-circle"></i>
     </div>
-    <h1 translatable="yes">Account not available or cannot be edited.</h1>
+    <h1 translate="yes">Account not available or cannot be edited.</h1>
     <ol class="breadcrumb">
         <li><a href="#/" translate>Back to Accounts</a></li>
     </ol>
@@ -68,45 +68,45 @@
 
   <div id="account" class="container-fluid" hidden>
     <ol class="breadcrumb">
-      <li><a tabindex="0" translatable="yes">Accounts</a></li>
+      <li><a tabindex="0" translate="yes">Accounts</a></li>
       <li class="active"></li>
     </ol>
 
     <div class="panel panel-default account-details" id="account-details">
       <div class="panel-heading">
         <div class="pull-right">
-          <button translatable="yes" class="btn btn-default accounts-privileged" id="account-logout">Terminate Session</button>
-          <button translatable="yes" class="btn btn-danger accounts-privileged" data-placement="left" id="account-delete">Delete</button>
+          <button translate="yes" class="btn btn-default accounts-privileged" id="account-logout">Terminate Session</button>
+          <button translate="yes" class="btn btn-danger accounts-privileged" data-placement="left" id="account-delete">Delete</button>
         </div>
         <span id="account-title"></span>
       </div>
       <div class="panel-body">
         <table class="info-table-ct">
           <tr>
-            <th scope="row"><label for="account-real-name" translatable="yes">Full Name</label></th>
+            <th scope="row"><label for="account-real-name" translate="yes">Full Name</label></th>
             <td class="accounts-privileged" id="account-real-name-wrapper"><input id="account-real-name" class="form-control" data-container="body"></td>
           </tr>
           <tr>
-            <th scope="row"><label for="account-user-name" translatable="yes">User Name</label></th>
+            <th scope="row"><label for="account-user-name" translate="yes">User Name</label></th>
              <td><output id="account-user-name"></output></td>
           </tr>
           <tr>
-            <th scope="row"><label translatable="yes">Roles</label></th>
+            <th scope="row"><label translate="yes">Roles</label></th>
             <td id="account-roles">
               <div id="account-change-roles-roles">
               </div>
             </td>
           <tr>
-            <th scope="row"><label for="account-last-login" translatable="yes">Last Login</label></th>
+            <th scope="row"><label for="account-last-login" translate="yes">Last Login</label></th>
             <td><output id="account-last-login"></output></td>
           </tr>
           <tr>
-            <th scope="row"><label for="account-locked" translatable="yes">Access</label></th>
+            <th scope="row"><label for="account-locked" translate="yes">Access</label></th>
             <td>
               <div class="account-column-one">
                 <div class="checkbox accounts-privileged" data-container="body">
                   <label>
-                    <input type="checkbox" id="account-locked"><span translatable="yes">Lock Account</span>
+                    <input type="checkbox" id="account-locked"><span translate="yes">Lock Account</span>
                   </label>
                 </div>
               </div>
@@ -115,11 +115,11 @@
             </td>
           </tr>
           <tr>
-            <th scrope="row"><label for="account-set-password" translatable="yes">Password</label></th>
+            <th scrope="row"><label for="account-set-password" translate="yes">Password</label></th>
             <td>
               <div class="account-column-one">
-                <button class="btn btn-default accounts-self-privileged" translatable="yes" id="account-set-password" data-container="body">Set Password</button>
-                <button class="btn btn-default accounts-privileged" translatable="yes"
+                <button class="btn btn-default accounts-self-privileged" translate="yes" id="account-set-password" data-container="body">Set Password</button>
+                <button class="btn btn-default accounts-privileged" translate="yes"
                     id="password-reset-button" data-toggle="modal" data-target="#password-reset"
                     data-container="body">Force Change</button>
               </div>
@@ -145,7 +145,7 @@
                   type="button">
           </button>
         </div>
-        <span translatable="yes">Authorized Public SSH Keys</span>
+        <span translate="yes">Authorized Public SSH Keys</span>
       </div>
       <div class="list-group" id="account-authorized-keys-list">
       </div>
@@ -160,20 +160,20 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title" translatable="yes">Create New Account</h4>
+          <h4 class="modal-title" translate="yes">Create New Account</h4>
         </div>
         <div class="modal-body">
           <form class="ct-form">
-            <label class="control-label" for="accounts-create-real-name" translatable="yes">Full Name</label>
+            <label class="control-label" for="accounts-create-real-name" translate="yes">Full Name</label>
             <input class="form-control" type="text" id="accounts-create-real-name" value=""/>
 
-            <label class="control-label" for="accounts-create-user-name" translatable="yes">User Name</label>
+            <label class="control-label" for="accounts-create-user-name" translate="yes">User Name</label>
             <input class="form-control" type="text" id="accounts-create-user-name" value=""/>
 
-            <label class="control-label" for="accounts-create-pw1" translatable="yes">Password</label>
+            <label class="control-label" for="accounts-create-pw1" translate="yes">Password</label>
             <input class="form-control check-passwords" type="password" id="accounts-create-pw1" value=""/>
 
-            <label class="control-label" for="accounts-create-pw2" translatable="yes">Confirm</label>
+            <label class="control-label" for="accounts-create-pw2" translate="yes">Confirm</label>
             <div class="check-passwords dialog-wrapper">
               <input class="form-control" type="password" id="accounts-create-pw2" value=""/>
               <div id="accounts-create-password-meter" class="progress password-strength-meter">
@@ -187,10 +187,10 @@
               </div>
             </div>
 
-            <label class="control-label" translatable="yes">Access</label>
+            <label class="control-label" translate="yes">Access</label>
             <label class="checkbox-inline">
               <input type="checkbox" id="accounts-create-locked" />
-              <span translatable="yes">Lock Account</span>
+              <span translate="yes">Lock Account</span>
             </label>
           </form>
         </div>
@@ -208,17 +208,17 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title" translatable="yes">Set Password</h4>
+          <h4 class="modal-title" translate="yes">Set Password</h4>
         </div>
         <div class="modal-body">
           <form class="ct-form">
-            <label class="control-label" for="account-set-password-old" translatable="yes">Old Password</label>
+            <label class="control-label" for="account-set-password-old" translate="yes">Old Password</label>
             <input class="form-control check-passwords" type="password" id="account-set-password-old"/>
 
-            <label class="control-label" for="account-set-password-pw1" translatable="yes">New Password</label>
+            <label class="control-label" for="account-set-password-pw1" translate="yes">New Password</label>
             <input class="form-control check-passwords" type="password" id="account-set-password-pw1"/>
 
-            <label class="control-label" for="account-set-password-pw2" translatable="yes">Confirm New Password</label>
+            <label class="control-label" for="account-set-password-pw2" translate="yes">Confirm New Password</label>
             <div class="check-passwords dialog-wrapper">
               <input class="form-control" type="password" id="account-set-password-pw2" value=""/>
               <div id="account-set-password-meter" class="progress password-strength-meter">
@@ -234,7 +234,7 @@
           </form>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-default" translate data-dismiss="modal">Cancel</button>
+          <button class="btn btn-default" translate="yes" data-dismiss="modal">Cancel</button>
           <button class="btn btn-primary" id="account-set-password-apply" translate>Set</button>
         </div>
       </div>
@@ -329,7 +329,7 @@
           <p></p>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-default" translate data-dismiss="modal">Cancel</button>
+          <button class="btn btn-default" translate="yes" data-dismiss="modal">Cancel</button>
           <button class="btn btn-danger btn-primary" translate>Reset</button>
         </div>
       </div>
@@ -348,12 +348,12 @@
           <div class="checkbox">
             <label>
               <input type="checkbox" id="account-confirm-delete-files">
-              <span translatable="yes">Delete Files</span>
+              <span translate="yes">Delete Files</span>
             </label>
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-default" translate data-dismiss="modal">Cancel</button>
+          <button class="btn btn-default" translate="yes" data-dismiss="modal">Cancel</button>
           <button class="btn btn-danger" id="account-confirm-delete-apply" translate>Delete</button>
         </div>
       </div>
@@ -367,14 +367,14 @@
         {{#comment}}
         {{comment}}
         {{/comment}}{{^comment}}
-        <em translatable="yes">Unnamed</em>
+        <em translate="yes">Unnamed</em>
         {{/comment}}
       </div>
       <div class="fingerprint">
         {{#valid}}
         {{fp}}
         {{/valid}}{{^valid}}
-        <span translatable="yes">Invalid key</span>
+        <span translate="yes">Invalid key</span>
         {{/valid}}
       </div>
       <div class="action"><button data-raw="{{raw}}" class="btn btn-default btn-control-ct accounts-self-privileged account-remove-key fa fa-minus"/></div>
@@ -384,13 +384,13 @@
     <div class="list-group-item">
       <div class="fingerprint">
         {{#empty}}
-        <span translatable="yes">There are no authorized public keys for this account.</span>
+        <span translate="yes">There are no authorized public keys for this account.</span>
         {{/empty}}
         {{#denied}}
-        <span translatable="yes">You do not have permission to view the authorized public keys for this account.</span>
+        <span translate="yes">You do not have permission to view the authorized public keys for this account.</span>
         {{/denied}}
         {{#failed}}
-        <span translatable="yes">Failed to load authorized keys.</span>
+        <span translate="yes">Failed to load authorized keys.</span>
         {{/failed}}
       </div>
     </div>
@@ -403,15 +403,15 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title" translatable="yes">Add public key</h4>
+          <h4 class="modal-title" translate="yes">Add public key</h4>
         </div>
         <div class="modal-body">
           <textarea id="authorized-keys-text" placeholder="Paste the contents of your public SSH key file here"
               class="form-control" translate="placeholder"></textarea>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-default" translate id="cancel-authorized-key" data-dismiss="modal">Cancel</button>
-          <button class="btn btn-primary" translate id="add-authorized-key">Add key</button>
+          <button class="btn btn-default" translate="yes" id="cancel-authorized-key" data-dismiss="modal">Cancel</button>
+          <button class="btn btn-primary" translate="yes" id="add-authorized-key">Add key</button>
         </div>
       </div>
     </div>
@@ -433,7 +433,7 @@
       <div class="pf-c-alert__icon">
           <i class="fa fa-info-circle" aria-hidden="true"></i>
       </div>
-      <h4 translatable class="pf-c-alert__title">The user must log out and log back in to fully change roles.</h4>
+      <h4 translate="yes" class="pf-c-alert__title">The user must log out and log back in to fully change roles.</h4>
     </div>
     {{/changed}}
   </script>

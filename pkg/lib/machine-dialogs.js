@@ -54,10 +54,10 @@ var default_codes = {
 
 function translate_and_init(tmpl) {
     var tmp = $("<div>").append(tmpl);
-    tmp.find("[translatable=\"yes\"]").each(function(i, e) {
+    tmp.find("[translate=\"yes\"]").each(function(i, e) {
         var old = e.outerHTML;
         var translated = cockpit.gettext(e.getAttribute("context"), $(e).text());
-        $(e).removeAttr("translatable")
+        $(e).removeAttr("translate")
                 .text(translated);
         tmpl = tmpl.replace(old, e.outerHTML);
     });

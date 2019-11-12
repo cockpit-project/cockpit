@@ -149,8 +149,8 @@ QUnit.test("translate glade", function (assert) {
     cockpit.locale(null);
     cockpit.locale(pig_latin);
 
-    var div = $("<div><span translatable='yes' id='translatable-glade'>Control</span>" +
-                "<span translatable='yes' context='key' id='translatable-glade-context'>Control</span></div>");
+    var div = $("<div><span translate='yes' id='translatable-glade'>Control</span>" +
+                "<span translate='yes' context='key' id='translatable-glade-context'>Control</span></div>");
 
     $("#translations").empty()
             .append(div);

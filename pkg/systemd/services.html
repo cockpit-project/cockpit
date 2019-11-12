@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title translatable="yes">Services</title>
+    <title translate="yes">Services</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="../base1/patternfly.css" type="text/css" rel="stylesheet">
@@ -62,10 +62,10 @@
         <input type="search" id="services-text-filter" class="form-control" aria-label="Filter" placeholder="Filter by name or description..." translate="placeholder"/>
 
         <select class="ct-select" id="services-dropdown" aria-labelledby="service-automatic-startup-label">
-          <option value="0" data-value="All" translatable="yes" selected>All</option>
-          <option value="1" data-value="Enabled" translatable="yes">Enabled</option>
-          <option value="2" data-value="Disabled" translatable="yes">Disabled</option>
-          <option value="3" data-value="Static" translatable="yes">Static</option>
+          <option value="0" data-value="All" translate="yes" selected>All</option>
+          <option value="1" data-value="Enabled" translate="yes">Enabled</option>
+          <option value="2" data-value="Disabled" translate="yes">Disabled</option>
+          <option value="3" data-value="Static" translate="yes">Static</option>
         </select>
       </div>
     </div>
@@ -219,14 +219,14 @@
 
   <div id="service" class="container-fluid" hidden>
     <ol class="breadcrumb">
-      <li><a tabindex="0" id="service-navigate-home" translatable="yes">Services</a></li>
+      <li><a tabindex="0" id="service-navigate-home" translate="yes">Services</a></li>
       <li class="active"></li>
     </ol>
 
     <div id="service-details"></div>
 
     <div class="panel panel-default cockpit-log-panel" id="service-log-box" role="table" aria-describedby="service-log-box-heading" hidden>
-        <div class="panel-heading" id="service-log-box-heading" translatable="yes">Service Logs</div>
+        <div class="panel-heading" id="service-log-box-heading" translate="yes">Service Logs</div>
         <div class="panel-body" id="service-log" role="rowgroup"></div>
     </div>
 
@@ -245,13 +245,13 @@
     <div class="modal-dialog cockpit-timer-modal-md">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title" translatable="yes">Create Timers</h4>
+          <h4 class="modal-title" translate="yes">Create Timers</h4>
         </div>
         <div class="modal-body">
           <table class="form-table-ct">
             <tr id="servicename-row">
               <td>
-                <label class="control-label" for="servicename" translatable="yes">Service name</label>
+                <label class="control-label" for="servicename" translate="yes">Service name</label>
               </td>
               <td>
                 <input type="text" id="servicename" class="form-control">
@@ -265,7 +265,7 @@
             </tr>
             <tr id="description-row" >
               <td>
-                <label class="control-label" for="description" translatable="yes">Description</label>
+                <label class="control-label" for="description" translate="yes">Description</label>
               </td>
               <td>
                 <input type="text" id="description" class="form-control">
@@ -279,7 +279,7 @@
             </tr>
             <tr id="command-row" >
               <td>
-                <label class="control-label" for="command" translatable="yes">Command</label>
+                <label class="control-label" for="command" translate="yes">Command</label>
               </td>
               <td>
                 <input type="text" data-placement="bottom" id="command" class="form-control">
@@ -293,17 +293,17 @@
             </tr>
             <tr id="boot-specific-row">
               <td>
-                <label class="control-label" for="boot-or-specific-time" translatable="yes">Run</label>
+                <label class="control-label" for="boot-or-specific-time" translate="yes">Run</label>
               </td>
               <td>
                 <div class="btn-group bootstrap-select dropdown form-control" id="boot-or-specific-time">
                   <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
-                    <span class="pull-left" value="1" translatable="yes">After system boot</span>
+                    <span class="pull-left" value="1" translate="yes">After system boot</span>
                     <i class="fa fa-caret-down pf-c-context-selector__toggle-icon" aria-hidden="true"></i>
                   </button>
                   <ul class="dropdown-menu">
-                    <li value="1"><a tabindex="0" translatable="yes">After system boot</a></li>
-                    <li value="2"><a tabindex="0" translatable="yes">At specific time</a></li>
+                    <li value="1"><a tabindex="0" translate="yes">After system boot</a></li>
+                    <li value="2"><a tabindex="0" translate="yes">At specific time</a></li>
                   </ul>
                 </div>
                 <div id="boot">
@@ -311,14 +311,14 @@
                   <input type="text" id="boot-time" value="00" class="form-control">
                   <div class="btn-group bootstrap-select dropdown form-control" id="drop-time">
                     <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
-                      <span class="pull-left" value="1" translatable="yes">Seconds</span>
+                      <span class="pull-left" value="1" translate="yes">Seconds</span>
                       <i class="fa fa-caret-down pf-c-context-selector__toggle-icon" aria-hidden="true"></i>
                     </button>
                     <ul class="dropdown-menu">
-                      <li value="1"><a tabindex="0" translatable="yes">Seconds</a></li>
-                      <li value="60"><a tabindex="0" translatable="yes">Minutes</a></li>
-                      <li value="3600"><a tabindex="0" translatable="yes">Hours</a></li>
-                      <li value="604800"><a tabindex="0" translatable="yes">Weeks</a></li>
+                      <li value="1"><a tabindex="0" translate="yes">Seconds</a></li>
+                      <li value="60"><a tabindex="0" translate="yes">Minutes</a></li>
+                      <li value="3600"><a tabindex="0" translate="yes">Hours</a></li>
+                      <li value="604800"><a tabindex="0" translate="yes">Weeks</a></li>
                     </ul>
                   </div>
                 </div>
@@ -335,23 +335,23 @@
               <td>
                 <div class="btn-group bootstrap-select dropdown form-control" id="drop-repeat">
                   <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
-                    <span class="pull-left" value="0" translatable="yes">Don't Repeat</span>
+                    <span class="pull-left" value="0" translate="yes">Don't Repeat</span>
                     <i class="fa fa-caret-down pf-c-context-selector__toggle-icon" aria-hidden="true"></i>
                   </button>
                   <ul class="dropdown-menu">
-                    <li value="0"><a tabindex="0" translatable="yes">Don't Repeat</a></li>
-                    <li value="60"><a tabindex="0" translatable="yes">Repeat Hourly</a></li>
-                    <li value="1440"><a tabindex="0" translatable="yes">Repeat Daily</a></li>
-                    <li value="10080"><a tabindex="0" translatable="yes">Repeat Weekly</a></li>
-                    <li value="44640"><a tabindex="0" translatable="yes">Repeat Monthly</a></li>
-                    <li value="525600"><a tabindex="0" translatable="yes">Repeat Yearly</a></li>
+                    <li value="0"><a tabindex="0" translate="yes">Don't Repeat</a></li>
+                    <li value="60"><a tabindex="0" translate="yes">Repeat Hourly</a></li>
+                    <li value="1440"><a tabindex="0" translate="yes">Repeat Daily</a></li>
+                    <li value="10080"><a tabindex="0" translate="yes">Repeat Weekly</a></li>
+                    <li value="44640"><a tabindex="0" translate="yes">Repeat Monthly</a></li>
+                    <li value="525600"><a tabindex="0" translate="yes">Repeat Yearly</a></li>
                   </ul>
                 </div>
               </td>
             </tr>
             <tr id="specific-time-without-repeat" hidden>
               <td>
-                <label for="specific-time-without-repeat" class="control-label" translatable="yes">Hour : Minute</label>
+                <label for="specific-time-without-repeat" class="control-label" translate="yes">Hour : Minute</label>
               </td>
               <td>
                 <input type="text" value="00" id="hr" class="hr form-control">
@@ -374,8 +374,8 @@
           </table>
         </div>
         <div class="modal-footer">
-          <button type="button" id="timer-cancel-button" class="btn btn-default" data-dismiss="modal" translatable="yes">Cancel</button>
-          <button type="button" id="timer-save-button" class="btn btn-primary" translatable="yes">Save</button>
+          <button type="button" id="timer-cancel-button" class="btn btn-default" data-dismiss="modal" translate="yes">Cancel</button>
+          <button type="button" id="timer-save-button" class="btn btn-primary" translate="yes">Save</button>
         </div>
       </div>
     </div>

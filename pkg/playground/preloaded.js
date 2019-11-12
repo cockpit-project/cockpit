@@ -9,9 +9,9 @@ import cockpit from "cockpit";
 // and not recover automatically.
 
 function init_1() {
-    return (cockpit.file("/etc/hostname").read()
+    return (cockpit.spawn(["hostname"])
             .then(data => {
-                document.getElementById("host").innerText = data;
+                document.getElementById("host").innerText = data.trim();
             }));
 }
 

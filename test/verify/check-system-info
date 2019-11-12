@@ -571,9 +571,10 @@ class TestSystemInfo(MachineCase):
         spoof_threads(2, True, True, 'param1 param2 nosmt param3=value3')
         spoof_threads(2, True, True, 'param1 param2 nosmt=force param3=value3')
         spoof_threads(2, False, cmdline='param1 nosmt=someunknown param3=value3')
-        spoof_threads(2, True, False, None)
+        expect_smt_default = m.image in ["fedora-coreos"]
+        spoof_threads(2, True, expect_smt_default, None)
 
-        # Enable nosmt option
+        # Switch nosmt option
         b.reload()
         b.enter_page('/system/hwinfo')
         if m.image == "rhel-8-1-distropkg":
@@ -581,10 +582,14 @@ class TestSystemInfo(MachineCase):
         else:
             b.click('#hwinfo button:contains(Mitigations)')
         b.click('#cpu-mitigations-dialog #nosmt-switch input')
-        b.wait_present('#cpu-mitigations-dialog #nosmt-switch input:checked')
+        b.wait_present('#cpu-mitigations-dialog #nosmt-switch input' +
+                       (expect_smt_default and ':not(:checked)' or ':checked'))
         b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
         m.wait_reboot()
-        self.assertIn('nosmt', m.execute('cat /proc/cmdline'))
+        if expect_smt_default:
+            self.assertNotIn('nosmt', m.execute('cat /proc/cmdline'))
+        else:
+            self.assertIn('nosmt', m.execute('cat /proc/cmdline'))
 
         # Ensure that future kernel upgrades also retain the option; various
         # Fedora and RHEL version are in different stages of the BLS
@@ -625,19 +630,24 @@ else
 fi
 """)
 
-        # Disable nosmt option
+        # Switch back nosmt option
         self.login_and_go('/system/hwinfo')
         if m.image == "rhel-8-1-distropkg":
             b.click('#hwinfo a:contains(Mitigations)')
         else:
             b.click('#hwinfo button:contains(Mitigations)')
         b.wait_present('#cpu-mitigations-dialog span:contains(nosmt)')
-        b.wait_present('#cpu-mitigations-dialog #nosmt-switch input:checked')
+        b.wait_present('#cpu-mitigations-dialog #nosmt-switch input' +
+                       (expect_smt_default and ':not(:checked)' or ':checked'))
         b.click('#cpu-mitigations-dialog #nosmt-switch input')
-        b.wait_present('#cpu-mitigations-dialog #nosmt-switch input:not(:checked)')
+        b.wait_present('#cpu-mitigations-dialog #nosmt-switch input' +
+                       (expect_smt_default and ':checked' or ':not(:checked)'))
         b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
         m.wait_reboot()
-        self.assertNotIn('nosmt', m.execute('cat /proc/cmdline'))
+        if expect_smt_default:
+            self.assertIn('nosmt', m.execute('cat /proc/cmdline'))
+        else:
+            self.assertNotIn('nosmt', m.execute('cat /proc/cmdline'))
 
         # Behaviour for non-admins
         self.login_and_go('/system/hwinfo', authorized=False)

@@ -55,6 +55,7 @@ class TestReauthorize(MachineCase):
 
         self.assertEqual(b.text(".cockpit-internal-reauthorize span"), 'result: access-denied')
 
+    @skipImage("ssh root login not allowed", "fedora-coreos")
     def testSuper(self):
         self.allow_authorize_journal_messages()
         self.allow_journal_messages("Error receiving data: Connection reset by peer")

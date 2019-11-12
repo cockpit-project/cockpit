@@ -484,6 +484,7 @@ class TestConnection(MachineCase):
         headers = m.execute("curl -s --head http://172.27.0.15:9090/cockpit+123/channel/foo")
         self.assertIn("HTTP/1.1 404 Not Found\r\n", headers)
 
+    @skipImage("ssh root login not allowed", "fedora-coreos")
     def testFlowControl(self):
         m = self.machine
         b = self.browser

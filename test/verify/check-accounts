@@ -243,6 +243,7 @@ class TestAccounts(MachineCase):
         self.allow_restart_journal_messages()
         self.allow_authorize_journal_messages()
 
+    @skipImage("ssh root login not allowed", "fedora-coreos")
     def testRootLogin(self):
         m = self.machine
         b = self.browser

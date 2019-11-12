@@ -369,8 +369,8 @@ class TestKeys(MachineCase):
             b.set_val(new_key_tbody + " .credential-password", "badbad")
             b.click(new_key_tbody + " .credential-unlock .btn")
 
-            b.wait_visible(new_key_tbody + " .alert")
-            b.wait_in_text(new_key_tbody + " .alert", "Password")
+            b.wait_visible(new_key_tbody + " .credential-alert")
+            b.wait_in_text(new_key_tbody + " .credential-alert", "Password")
             b.set_val(new_key_tbody + " .credential-password", "foobar")
             b.click(new_key_tbody + " .credential-unlock .btn")
 

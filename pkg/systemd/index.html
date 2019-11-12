@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title translatable="yes">System</title>
+    <title translate="yes">System</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="../base1/patternfly.css" rel="stylesheet">
@@ -26,7 +26,7 @@
             {{/keys}}
             {{^keys}}
                 <div class="list-group-item">
-                    <p translatable="yes">No host keys found.</p>
+                    <p translate="yes">No host keys found.</p>
                 </div>
             {{/keys}}
         </div>
@@ -49,18 +49,18 @@
     <script id="ntp-status-tmpl" type="x-template/mustache">
       {{#Synched}}
       {{#Server}}
-      <div translatable="yes">Synchronized with {{Server}}</div>
+      <div translate="yes">Synchronized with {{Server}}</div>
       {{/Server}}
       {{^Server}}
-      <div translatable="yes">Synchronized</div>
+      <div translate="yes">Synchronized</div>
       {{/Server}}
       {{/Synched}}
       {{^Synched}}
       {{#Server}}
-      <div translatable="yes">Trying to synchronize with {{Server}}</div>
+      <div translate="yes">Trying to synchronize with {{Server}}</div>
       {{/Server}}
       {{^Server}}
-      <div translatable="yes">Not synchronized</div>
+      <div translate="yes">Not synchronized</div>
       {{#service}}
       <a tabindex="0" data-goto-service="{{.}}" class="small-messages" translate>Log messages</a>
       {{/service}}
@@ -90,18 +90,18 @@
 
         <div class="info-table-ct-container">
             <form class="ct-form">
-                <label class="control-label" for="system_information_hardware_text" translatable="yes">Hardware</label>
+                <label class="control-label" for="system_information_hardware_text" translate="yes">Hardware</label>
                 <span> <!-- wrap the <a> so that it doesn't stretch to the whole page width; otherwise tooltip looks bad -->
                     <a tabindex="0" id="system_information_hardware_text"></a>
                 </span>
 
-                <label class="control-label" for="system_information_asset_tag_text" translatable="yes">Asset Tag</label>
+                <label class="control-label" for="system_information_asset_tag_text" translate="yes">Asset Tag</label>
                 <span id="system_information_asset_tag_text"></span>
 
-                <label class="control-label" for="system_machine_id" translatable="yes">Machine ID</label>
+                <label class="control-label" for="system_machine_id" translate="yes">Machine ID</label>
                 <span id="system_machine_id"></span>
 
-                <label class="control-label" for="system_information_os_text" translatable="yes">Operating System</label>
+                <label class="control-label" for="system_information_os_text" translate="yes">Operating System</label>
                 <span id="system_information_os_text"></span>
 
                 <div role="group" class="system-information-updates">
@@ -116,22 +116,22 @@
                   </div>
                 </div>
 
-                <label class="control-label" for="system-ssh-keys-link" translatable="yes">Secure Shell Keys</label>
-                <a tabindex="0" id="system-ssh-keys-link" translatable="yes" data-toggle="modal"
+                <label class="control-label" for="system-ssh-keys-link" translate="yes">Secure Shell Keys</label>
+                <a tabindex="0" id="system-ssh-keys-link" translate="yes" data-toggle="modal"
                    data-target="#system_information_ssh_keys">Show fingerprints</a>
 
-                <label class="control-label hidden" for="system-ostree-version-link" translatable="yes">Version</label>
+                <label class="control-label hidden" for="system-ostree-version-link" translate="yes">Version</label>
                 <a tabindex="0" id="system-ostree-version-link" class="hidden"></a>
 
-                <label class="control-label" for="system_information_hostname_button" translatable="yes">Host Name</label>
+                <label class="control-label" for="system_information_hostname_button" translate="yes">Host Name</label>
                 <span id="hostname-tooltip">
                     <a tabindex="0" class="hostname-privileged" id="system_information_hostname_button"></a>
                 </span>
 
-                <label class="control-label" for="system-info-domain" translatable="yes" hidden>Domain</label>
+                <label class="control-label" for="system-info-domain" translate="yes" hidden>Domain</label>
                 <span id="system-info-domain" hidden></span>
 
-                <label class="control-label" for="system_information_systime_button" translatable="yes">System Time</label>
+                <label class="control-label" for="system_information_systime_button" translate="yes">System Time</label>
                 <div role="group">
                     <span id="systime-tooltip">
                         <a tabindex="0" class="systime-privileged" id="system_information_systime_button"></a>
@@ -142,10 +142,10 @@
                       </a>
                 </div>
 
-                <label class="control-label" for="shutdown-action" translatable="yes">Power Options</label>
+                <label class="control-label" for="shutdown-action" translate="yes">Power Options</label>
                 <div id="shutdown-group" class="btn-group">
                     <button class="btn btn-default shutdown-privileged" id="shutdown-action" data-action="restart"
-                        data-container="body" translatable="yes">Restart</button>
+                        data-container="body" translate="yes">Restart</button>
                     <button data-toggle="dropdown" class="btn
                         btn-default dropdown-toggle
                         shutdown-privileged"
@@ -154,18 +154,18 @@
                     </button>
                     <ul role="menu" class="dropdown-menu">
                         <li class="presentation">
-                            <a tabindex="0" role="menuitem" data-action="restart" translatable="yes">Restart</a>
+                            <a tabindex="0" role="menuitem" data-action="restart" translate="yes">Restart</a>
                         </li>
                         <li class="presentation">
-                            <a tabindex="0" role="menuitem" data-action="shutdown" translatable="yes">Shut Down</a>
+                            <a tabindex="0" role="menuitem" data-action="shutdown" translate="yes">Shut Down</a>
                         </li>
                     </ul>
                 </div>
 
-                <label class="control-label" for="tuned-status-button" translatable="yes">Performance Profile</label>
+                <label class="control-label" for="tuned-status-button" translate="yes">Performance Profile</label>
                 <span id="system-info-performance" hidden></span>
 
-                <label class="control-label" for="server-pmlogger-switch" translatable="yes" hidden>Store Metrics</label>
+                <label class="control-label" for="server-pmlogger-switch" translate="yes" hidden>Store Metrics</label>
                 <div id="server-pmlogger-switch" hidden>
                 </div>
 
@@ -174,7 +174,7 @@
                     <span translate>Enable stored metrics…</span>
                 </a>
 
-                <label class="control-label" for="page_status_notifications" translatable="yes">System Health</label>
+                <label class="control-label" for="page_status_notifications" translate="yes">System Health</label>
                 <div id="page_status_notifications">
                 </div>
             </form>
@@ -240,19 +240,19 @@
         <ul class="server-graph-legend">
             <li class="cpu-nice">
                 <i class="fa fa-square"></i>
-                <span translatable="yes">Nice</span>
+                <span translate="yes">Nice</span>
             </li>
             <li class="cpu-user">
                 <i class="fa fa-square"></i>
-                <span translatable="yes">User</span>
+                <span translate="yes">User</span>
             </li>
             <li class="cpu-kernel">
                 <i class="fa fa-square"></i>
-                <span translatable="yes">Kernel</span>
+                <span translate="yes">Kernel</span>
             </li>
             <li class="cpu-io-wait">
                 <i class="fa fa-square"></i>
-                <span translatable="yes">I/O Wait</span>
+                <span translate="yes">I/O Wait</span>
             </li>
         </ul>
         <div class="server-graph-graph" id="cpu_status_graph"></div>
@@ -262,15 +262,15 @@
         <ul class="server-graph-legend">
             <li class="memory-swap">
                 <i class="fa fa-square"></i>
-                <span translatable="yes">Swap Used</span>
+                <span translate="yes">Swap Used</span>
             </li>
             <li class="memory-cached">
                 <i class="fa fa-square"></i>
-                <span translatable="yes">Cached</span>
+                <span translate="yes">Cached</span>
             </li>
             <li class="memory-used">
                 <i class="fa fa-square"></i>
-                <span translatable="yes">Used</span>
+                <span translate="yes">Used</span>
             </li>
         </ul>
         <div class="server-graph-graph" id="memory_status_graph"></div>
@@ -281,7 +281,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title" translatable="yes">Machine SSH Key Fingerprints</h4>
+                    <h4 class="modal-title" translate="yes">Machine SSH Key Fingerprints</h4>
                 </div>
                 <div class="modal-body">
                     <div class="spinner spinner-lg"></div>
@@ -312,7 +312,7 @@
                         <tr>
                             <td>
                                 <label class="control-label" for="sich-pretty-hostname"
-                                    translatable="yes">Pretty Host Name</label>
+                                    translate="yes">Pretty Host Name</label>
                             </td>
                             <td>
                                 <input id="sich-pretty-hostname" class="form-control">
@@ -321,7 +321,7 @@
                         <tr>
                             <td>
                                 <label class="control-label" for="sich-hostname"
-                                    translatable="yes">Real Host Name</label>
+                                    translate="yes">Real Host Name</label>
                             </td>
                             <td>
                                 <div id=sich-hostname-error>
@@ -380,7 +380,7 @@
                     <table class="form-table-ct">
                         <tr>
                             <td>
-                                <label class="control-label" for="systime-timezones" translatable="yes">Time Zone</label>
+                                <label class="control-label" for="systime-timezones" translate="yes">Time Zone</label>
                             </td>
                             <td>
                                 <select class="form-control" id="systime-timezones">
@@ -390,23 +390,23 @@
                         <tr>
                             <td></td>
                             <td class="has-error">
-                                <span id="systime-timezone-error" class="help-block" translatable="yes">Invalid time zone</span>
+                                <span id="systime-timezone-error" class="help-block" translate="yes">Invalid time zone</span>
                             </td>
                         </tr>
                         <tr>
                             <td><label class="control-label" for="change_systime"
-                                       translatable="yes">Set Time</label></td>
+                                       translate="yes">Set Time</label></td>
                             <td>
                                 <div class="btn-group bootstrap-select dropdown form-control" id="change_systime">
                                     <button class="btn btn-default dropdown-toggle" type="button"
                                         data-toggle="dropdown">
-                                        <span class="pull-left" translatable="yes">Manually</span>
+                                        <span class="pull-left" translate="yes">Manually</span>
                                         <i class="fa fa-caret-down pf-c-context-selector__toggle-icon" aria-hidden="true"></i>
                                     </button>
                                     <ul class="dropdown-menu">
-                                        <li value="manual_time"><a tabindex="0" translatable="yes">Manually</a></li>
-                                        <li value="ntp_time"><a tabindex="0" translatable="yes">Automatically using NTP</a></li>
-                                        <li value="ntp_time_custom"><a tabindex="0" translatable="yes">Automatically using specific NTP servers</a></li>
+                                        <li value="manual_time"><a tabindex="0" translate="yes">Manually</a></li>
+                                        <li value="ntp_time"><a tabindex="0" translate="yes">Automatically using NTP</a></li>
+                                        <li value="ntp_time_custom"><a tabindex="0" translate="yes">Automatically using specific NTP servers</a></li>
                                     </ul>
                                 </div>
                             </td>
@@ -454,24 +454,24 @@
                     <table>
                         <tr>
                             <td>
-                                <label translatable="yes">Delay</label>
+                                <label translate="yes">Delay</label>
                             </td>
                             <td>
                                 <div class="btn-group bootstrap-select dropdown form-control">
                                     <button class="btn btn-default dropdown-toggle" type="button"
                                         data-toggle="dropdown">
-                                        <span class="pull-left" translatable="yes">1 Minute</span>
+                                        <span class="pull-left" translate="yes">1 Minute</span>
                                         <i class="fa fa-caret-down pf-c-context-selector__toggle-icon" aria-hidden="true"></i>
                                     </button>
                                     <ul class="dropdown-menu">
-                                        <li value="1"><a tabindex="0" translatable="yes">1 Minute</a></li>
-                                        <li value="5"><a tabindex="0" translatable="yes">5 Minutes</a></li>
-                                        <li value="20"><a tabindex="0" translatable="yes">20 Minutes</a></li>
-                                        <li value="40"><a tabindex="0" translatable="yes">40 Minutes</a></li>
-                                        <li value="60"><a tabindex="0" translatable="yes">60 Minutes</a></li>
+                                        <li value="1"><a tabindex="0" translate="yes">1 Minute</a></li>
+                                        <li value="5"><a tabindex="0" translate="yes">5 Minutes</a></li>
+                                        <li value="20"><a tabindex="0" translate="yes">20 Minutes</a></li>
+                                        <li value="40"><a tabindex="0" translate="yes">40 Minutes</a></li>
+                                        <li value="60"><a tabindex="0" translate="yes">60 Minutes</a></li>
                                         <li role="separator" class="divider"></li>
-                                        <li value="0"><a tabindex="0" translatable="yes">No Delay</a></li>
-                                        <li value="x"><a tabindex="0" translatable="yes">Specific Time</a></li>
+                                        <li value="0"><a tabindex="0" translate="yes">No Delay</a></li>
+                                        <li value="x"><a tabindex="0" translate="yes">Specific Time</a></li>
                                     </ul>
                                 </div>
                             </td>
@@ -487,7 +487,7 @@
                     </table>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-default" translatable="yes" data-dismiss="modal">Cancel</button>
+                    <button class="btn btn-default" translate="yes" data-dismiss="modal">Cancel</button>
                     <button class="btn btn-danger"></button>
                 </div>
             </div>
@@ -503,7 +503,7 @@
                 <div class="modal-body" id="confirmation-dialog-body">
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-default" translatable="yes" id="confirmation-dialog-cancel">Cancel</button>
+                    <button class="btn btn-default" translate="yes" id="confirmation-dialog-cancel">Cancel</button>
                     <button class="btn btn-danger" id="confirmation-dialog-confirm">
                     </button>
                 </div>

@@ -1,18 +1,18 @@
 <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal"
         aria-hidden="true">&times;</button>
-    <h4 class="modal-title" translatable="yes">Synchronize users</h4>
+    <h4 class="modal-title" translate="yes">Synchronize users</h4>
 </div>
 
 <div class="modal-body">
-    <p translatable="yes">Select the users that you would like to be synchronized with {{#strong}}{{host}}{{/strong}}</p>
+    <p translate="yes">Select the users that you would like to be synchronized with {{#strong}}{{host}}{{/strong}}</p>
 
 {{#perm_failed}}
     <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert">
       <div class="pf-c-alert__icon">
           <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
       </div>
-      <h4 translatable="yes" class="pf-c-alert__title">Error loading users: {{perm_failed}}</h4>
+      <h4 translate="yes" class="pf-c-alert__title">Error loading users: {{perm_failed}}</h4>
     </div>
 {{/perm_failed}}
 
@@ -46,21 +46,21 @@
     {{#needs_auth}}
     <div>
         {{#needs_root}}
-        <p translatable="yes">You are connected to {{#strong}}{{host}}{{/strong}}, however in order to synchronize users, a user with superuser privileges is required.</p>
+        <p translate="yes">You are connected to {{#strong}}{{host}}{{/strong}}, however in order to synchronize users, a user with superuser privileges is required.</p>
         {{/needs_root}}
         {{^needs_root}}
-        <p translatable="yes">In order to synchronize users, you need to log in to {{#strong}}{{host}}{{/strong}}.</p>
+        <p translate="yes">In order to synchronize users, you need to log in to {{#strong}}{{host}}{{/strong}}.</p>
         {{/needs_root}}
         <table class="form-table-ct">
             <tr>
-                <td translatable="yes">User name</td>
+                <td translate="yes">User name</td>
                 <td>
                     <input class="form-control" id="sync-username" type="text" />
                 </td>
             </tr>
             {{#allows_password}}
             <tr>
-                <td translatable="yes">Password</td>
+                <td translate="yes">Password</td>
                 <td>
                     <input class="form-control" id="sync-password" type="password" />
                 </td>
@@ -73,6 +73,6 @@
 </div>
 
 <div class="modal-footer">
-    <button class="btn btn-default" data-dismiss="modal" translatable="yes">Cancel</button>
-    <button class="btn btn-primary disabled" translatable="yes">Synchronize</button>
+    <button class="btn btn-default" data-dismiss="modal" translate="yes">Cancel</button>
+    <button class="btn btn-primary disabled" translate="yes">Synchronize</button>
 </div>

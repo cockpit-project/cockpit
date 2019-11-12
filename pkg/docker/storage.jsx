@@ -332,7 +332,7 @@ export class OverviewBox extends React.Component {
                     <div className="progress">
                         <div className="progress-bar" style={{ width: used_perc }} />
                     </div>
-                    {self.state.error ? "" : <a translatable="yes" href="#/storage">{_("Configure storage...")}</a>}
+                    {self.state.error ? "" : <a translate="yes" href="#/storage">{_("Configure storage...")}</a>}
                 </div>);
         } else {
             return (

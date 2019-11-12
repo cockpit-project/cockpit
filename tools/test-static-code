@@ -50,6 +50,11 @@ if out=$(find src/ pkg/ -name '*.js' -o -name '*.jsx' | xargs grep -n -E "(gette
     echo "$out" >&2
     echo "not ok 3 js-translatable-strings"
     fail=1
+elif out=$(grep -r 'translatable=["'\'']yes' pkg/ doc/); then
+    echo "ERROR: 'translatable' HTML attribute is invalid, use 'translate' instead"
+    echo "$out" >&2
+    echo "not ok 3 js-translatable-strings"
+    fail=1
 else
     echo "ok 3 js-translatable-strings"
 fi

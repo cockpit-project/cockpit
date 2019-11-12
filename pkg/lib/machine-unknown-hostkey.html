@@ -1,13 +1,13 @@
 <div class="modal-header">
-    <h4 class="modal-title" translatable="yes">Unknown Host Key</h4>
+    <h4 class="modal-title" translate="yes">Unknown Host Key</h4>
 </div>
 <div id="add-unknown-host" class="modal-body">
     {{#key}}
-        <p translatable="yes">The authenticity of host {{#strong}}{{host}}{{/strong}} can't be established. Are you sure you want to continue connecting?</p>
+        <p translate="yes">The authenticity of host {{#strong}}{{host}}{{/strong}} can't be established. Are you sure you want to continue connecting?</p>
         <div>
         <table class="form-table-ct">
             <tr>
-                <td translatable="yes">Fingerprint</td>
+                <td translate="yes">Fingerprint</td>
                 <td><pre class="machine-key">{{key}} </pre></td>
             </tr>
         </table>
@@ -16,9 +16,9 @@
 </div>
 
 <div class="modal-footer">
-    <button class="btn btn-default" data-dismiss="modal" translatable="yes">Close</button>
+    <button class="btn btn-default" data-dismiss="modal" translate="yes">Close</button>
 
     {{#key}}
-        <button class="btn btn-primary" translatable="yes">Connect</button>
+        <button class="btn btn-primary" translate="yes">Connect</button>
     {{/key}}
 </div>

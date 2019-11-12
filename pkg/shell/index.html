@@ -40,7 +40,7 @@
                 </span>
               </li>
               <li id="navbar-oops" hidden>
-                <a tabindex="0"><span class="oops-status" translatable="yes">Ooops!</span></a>
+                <a tabindex="0"><span class="oops-status" translate="yes">Ooops!</span></a>
               </li>
               <li class="dropdown">
                 <a tabindex="0" id="navbar-dropdown" class="dropdown-toggle" data-toggle="dropdown">
@@ -50,25 +50,25 @@
                 </a>
                 <ul class="dropdown-menu">
                   <li class="display-language-menu">
-                    <a tabindex="0" data-toggle="modal" data-target="#display-language" translatable="yes">Display Language</a>
+                    <a tabindex="0" data-toggle="modal" data-target="#display-language" translate="yes">Display Language</a>
                   </li>
                   <li class="divider display-language-menu"></li>
                   <li>
-                    <a tabindex="0" data-toggle="modal" data-target="#about" translatable="yes">About Cockpit</a>
+                    <a tabindex="0" data-toggle="modal" data-target="#about" translate="yes">About Cockpit</a>
                   </li>
                   <li>
-                    <a tabindex="0" id="active-pages" translatable="yes" class="navbar-advanced">Active Pages</a>
+                    <a tabindex="0" id="active-pages" translate="yes" class="navbar-advanced">Active Pages</a>
                   </li>
                   <li class="divider"></li>
                   <li id="go-account" hidden>
-                    <a tabindex="0" translatable="yes">Account Settings</a>
+                    <a tabindex="0" translate="yes">Account Settings</a>
                   </li>
                   <li>
                       <a tabindex="0" data-toggle="modal" data-target="#credentials-dialog"
-                          id="credentials-item" translatable="yes">Authentication</a>
+                          id="credentials-item" translate="yes">Authentication</a>
                   </li>
                   <li>
-                    <a tabindex="0" id="go-logout" translatable="yes">Log Out</a>
+                    <a tabindex="0" id="go-logout" translate="yes">Log Out</a>
                   </li>
                 </ul>
               </li>
@@ -80,13 +80,13 @@
           <div class="modal-dialog">
             <div class="modal-content">
               <div class="modal-header">
-                <h4 class="modal-title" translatable="yes">About Cockpit</h4>
+                <h4 class="modal-title" translate="yes">About Cockpit</h4>
               </div>
               <div class="modal-body">
-                <div translatable="yes">Cockpit is an interactive Linux server admin interface.</div>
+                <div translate="yes">Cockpit is an interactive Linux server admin interface.</div>
                 <div><a rel="noopener noreferrer" target="_blank" href="https://cockpit-project.org/" translate>Project website</a></div>
                 <div>
-                  <span translatable="yes">Version</span> <span id="about-version"></span>.
+                  <span translate="yes">Version</span> <span id="about-version"></span>.
                 </div>
                 <div><span translate>Licensed under:</span>
                     <a href="https://www.gnu.org/licenses/old-licenses/lgpl-2.1-standalone.html"
@@ -112,16 +112,16 @@
           <div class="modal-dialog">
             <div class="modal-content">
               <div class="modal-header">
-                <h4 class="modal-title" translatable="yes">Display Language</h4>
+                <h4 class="modal-title" translate="yes">Display Language</h4>
               </div>
               <div class="modal-body">
-	        <p translatable="yes">Choose the language to be used in the application</p>
+	        <p translate="yes">Choose the language to be used in the application</p>
                 <select id="display-language-list" size="5" data-role="none">
                 </select>
               </div>
               <div class="modal-footer">
-                <button class="btn btn-default" data-dismiss="modal" translatable="yes">Cancel</button>
-                <button class="btn btn-primary" id="display-language-select-button" translatable="yes">Select</button>
+                <button class="btn btn-default" data-dismiss="modal" translate="yes">Cancel</button>
+                <button class="btn btn-primary" id="display-language-select-button" translate="yes">Select</button>
               </div>
             </div>
           </div>
@@ -137,7 +137,7 @@
                 <p id="error-popup-message"></p>
               </div>
               <div class="modal-footer">
-                <button class="btn btn-primary" data-dismiss="modal" translatable="yes">Close</button>
+                <button class="btn btn-primary" data-dismiss="modal" translate="yes">Close</button>
               </div>
             </div>
           </div>
@@ -147,7 +147,7 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h4 class="modal-title" translatable="yes">Authentication</h4>
+                        <h4 class="modal-title" translate="yes">Authentication</h4>
                     </div>
                     <div class="modal-body">
                         <table class="listing-ct">
@@ -231,9 +231,9 @@
                                     <tr class="listing-ct-panel credential-panel">
                                         <td colspan="3">
                                             <ul class="nav nav-tabs nav-tabs-pf">
-                                                <li class="active"><a href="#" translatable="yes">Details</a></li>
-                                                <li><a href="#" translatable="yes">Public Key</a></li>
-                                                <li><a href="#" translatable="yes">Password</a></li>
+                                                <li class="active"><a href="#" translate="yes">Details</a></li>
+                                                <li><a href="#" translate="yes">Public Key</a></li>
+                                                <li><a href="#" translate="yes">Password</a></li>
                                             </ul>
                                         </td>
                                     </tr>
@@ -248,7 +248,7 @@
                                             <div class="credential-unlock">
                                                 <dl>
                                                     <dt>
-                                                        <label for="ssh-key-password" translatable="yes">Password</label>
+                                                        <label for="ssh-key-password" translate="yes">Password</label>
                                                     </dt>
                                                     <dd>
                                                         <input class="form-control credential-password"
@@ -286,7 +286,7 @@
                                             <div class="credential-tab credential-panel" hidden>
                                                 <dl>
                                                     <dt>
-                                                        <label for="credential-old-passwd" translatable="yes">Old Password</label>
+                                                        <label for="credential-old-passwd" translate="yes">Old Password</label>
                                                     </dt>
                                                     <dd>
                                                         <input class="form-control credential-old"
@@ -295,7 +295,7 @@
                                                             value="" type="password"/>
                                                     </dd>
                                                     <dt>
-                                                        <label for="credential-new-passwd" translatable="yes">New Password</label>
+                                                        <label for="credential-new-passwd" translate="yes">New Password</label>
                                                     </dt>
                                                     <dd>
                                                         <input class="form-control credential-new"
@@ -304,7 +304,7 @@
                                                             value="" type="password"/>
                                                     </dd>
                                                     <dt>
-                                                        <label for="new-passwd-confirm" translatable="yes">Confirm</label>
+                                                        <label for="new-passwd-confirm" translate="yes">Confirm</label>
                                                     </dt>
                                                     <dd>
                                                         <input class="form-control credential-two"
@@ -321,7 +321,7 @@
                                                     </dt>
                                                     <dd>
                                                         <button class="credential-change btn btn-primary"
-                                                            translatable="yes">Change Password</button>
+                                                            translate="yes">Change Password</button>
                                                     </dd>
                                                 </dl>
                                             </div>
@@ -332,7 +332,7 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button class="btn btn-primary" data-dismiss="modal" translatable="yes">Close</button>
+                        <button class="btn btn-primary" data-dismiss="modal" translate="yes">Close</button>
                     </div>
                 </div>
             </div>
@@ -394,8 +394,8 @@
               <h1 id="machine-error-heading"></h1>
               <p id="machine-error-desc"></p>
               <div class="blank-slate-pf-main-action">
-                <button id="machine-reconnect" class="btn btn-primary btn-lg" translatable="yes">Reconnect</button>
-                <button id="machine-troubleshoot" class="btn btn-primary btn-lg" translatable="yes">Troubleshoot</button>
+                <button id="machine-reconnect" class="btn btn-primary btn-lg" translate="yes">Reconnect</button>
+                <button id="machine-troubleshoot" class="btn btn-primary btn-lg" translate="yes">Troubleshoot</button>
               </div>
             </div>
 

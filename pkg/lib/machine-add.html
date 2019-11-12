@@ -1,14 +1,14 @@
 <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal"
         aria-hidden="true">&times;</button>
-    <h4 class="modal-title" translatable="yes">Add Machine to Dashboard</h4>
+    <h4 class="modal-title" translate="yes">Add Machine to Dashboard</h4>
 </div>
 
 <div class="modal-body">
     <div>
         <table class="form-table-ct">
             <tr>
-                <td class="top" translatable="yes">Address</td>
+                <td class="top" translate="yes">Address</td>
                 <td>
                 <div class="dialog-wrapper error-keep">
                     <input class="form-control" id="add-machine-address"
@@ -24,7 +24,7 @@
                 </td>
             </tr>
             <tr>
-                <td translatable="yes">Color</td>
+                <td translate="yes">Color</td>
                 <td id="add-machine-color-picker">
                 </td>
             </tr>
@@ -36,9 +36,9 @@
     {{#nearlimit}}
     <div class="alert alert-warning dialog-error dashboard-machine-warning">
         <span class="pficon pficon-warning-triangle-o"></span>
-        <span translatable="yes">Connecting simultaneously to more than {{ limit }} machines is unsupported.</span>
+        <span translate="yes">Connecting simultaneously to more than {{ limit }} machines is unsupported.</span>
     </div>
     {{/nearlimit}}
-    <button class="btn btn-default" data-dismiss="modal" translatable="yes">Cancel</button>
-    <button class="btn btn-primary" translatable="yes">Add</button>
+    <button class="btn btn-default" data-dismiss="modal" translate="yes">Cancel</button>
+    <button class="btn btn-primary" translate="yes">Add</button>
 </div>

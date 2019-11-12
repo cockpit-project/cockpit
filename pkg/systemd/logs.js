@@ -517,9 +517,9 @@ $(function() {
 
         $('#journal-entry-message').text('');
 
-        var ge_t = $('<li class="active">').append($('<a tabindex="0">').append($('<span translatable="yes">').text(_("General"))));
-        var pi_t = $('<li>').append($('<a tabindex="0">').append($('<span translatable="yes">').text(_("Problem info"))));
-        var pd_t = $('<li>').append($('<a tabindex="0">').append($('<span translatable="yes">').text(_("Problem details"))));
+        var ge_t = $('<li class="active">').append($('<a tabindex="0">').append($('<span translate="yes">').text(_("General"))));
+        var pi_t = $('<li>').append($('<a tabindex="0">').append($('<span translate="yes">').text(_("Problem info"))));
+        var pd_t = $('<li>').append($('<a tabindex="0">').append($('<span translate="yes">').text(_("Problem details"))));
 
         var ge = $('<tbody>').addClass('tab');
         var pi = $('<tbody>').addClass('tab');

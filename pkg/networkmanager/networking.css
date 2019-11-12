@@ -365,7 +365,7 @@ h1 .onoff-ct {
     display: block;
     font: inherit;
     /* Align with label padding */
-    line-height: 3;
+    line-height: 1.5;
     padding: 0 0.5rem;
     font-size: var(--pf-global--FontSize--sm);
 }
@@ -376,6 +376,10 @@ h1 .onoff-ct {
     align-items: last baseline;
     /* Compensate for bottom fieldset padding */
     margin-bottom: -1rem;
+}
+
+.add-zone-zones legend {
+    line-height: 3 !important;
 }
 
 #add-zone-dialog .add-zone-zones > fieldset {

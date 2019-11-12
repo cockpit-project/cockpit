@@ -531,6 +531,7 @@ class TestSystemInfo(MachineCase):
 
             m.execute('umount $(which dmidecode)')
 
+    @skipImage("mitigations=nosmt not recognized, #13138", "fedora-coreos")
     def testCPUSecurityMitigations(self):
         b = self.browser
         m = self.machine

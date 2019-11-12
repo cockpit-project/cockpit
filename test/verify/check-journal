@@ -319,13 +319,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         b = self.browser
         m = self.machine
 
-        m.execute("""python3 -c '
-import socket
-s = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
-s.connect("/run/systemd/journal/socket")
-s.send(b"MESSAGE=Hello \\01 World\\nPRIORITY=3\\nFOO=bar\\nBIN=a\\01b\\02c\\03\\n")'
-""")
-
+        m.execute(r"printf 'MESSAGE=Hello \01 World\nPRIORITY=3\nFOO=bar\nBIN=a\01b\02c\03\n' | logger --journald")
         self.login_and_go("/system/logs")
 
         sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('[13 bytes of binary data]')"
@@ -344,13 +338,7 @@ s.send(b"MESSAGE=Hello \\01 World\\nPRIORITY=3\\nFOO=bar\\nBIN=a\\01b\\02c\\03\\
         b = self.browser
         m = self.machine
 
-        m.execute("""python3 -c '
-import socket
-s = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
-s.connect("/run/systemd/journal/socket")
-s.send(b"PRIORITY=3\\nFOO=bar\\n")'
-""")
-
+        m.execute(r"printf 'PRIORITY=3\nFOO=bar\n' | logger --journald")
         self.login_and_go("/system/logs")
 
         sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('[no data]')"

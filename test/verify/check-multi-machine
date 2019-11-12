@@ -699,7 +699,7 @@ class TestMultiMachine(MachineCase):
         m2 = self.machine2
 
         # Logging in as root is no longer allowed by default by sshd
-        m2.execute("sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config")
+        m2.execute("sed -ri 's/#?PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config")
         m2.execute("systemctl restart sshd")
 
         machine_path = "/@10.111.113.2"

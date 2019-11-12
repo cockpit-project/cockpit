@@ -241,7 +241,7 @@ class TestDashboardSetup(MachineCase, DashBoardHelpers):
         # lockout admin
         m2.execute("echo admin:badpass | chpasswd")
         # Logging in as root is no longer allowed by default by sshd
-        m2.execute("sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config")
+        m2.execute("sed -ri 's/#?PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config")
         m2.execute("systemctl restart sshd")
 
         # Create some users on m1 and m2.

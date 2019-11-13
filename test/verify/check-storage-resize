@@ -25,7 +25,6 @@ from storagelib import *
 from testlib import *
 
 
-@skipImage("udisks not installed, no cockpit-storage", "fedora-coreos")
 class TestStorage(StorageCase):
 
     def checkResize(self, fsys, crypto, can_shrink, can_grow, shrink_needs_unmount=None, grow_needs_unmount=None,

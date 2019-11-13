@@ -23,7 +23,6 @@ from testlib import *
 
 
 @skipImage("UDisks doesn't have support for multipath", "debian-stable", "debian-testing", "ubuntu-1804", "ubuntu-stable")
-@skipImage("udisks not installed, no cockpit-storage", "fedora-coreos")
 class TestStorage(StorageCase):
 
     def testBasic(self):

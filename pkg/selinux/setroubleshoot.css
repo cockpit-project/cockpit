@@ -23,18 +23,6 @@
     font-family: monospace;
 }
 
-/* from patternfly .list-view-pf-actions
- * update this when we update patternfly
- */
-.setroubleshoot-listing-action {
-    float: right;
-    margin-bottom: 20px;
-    margin-left: 20px;
-    margin-top: 20px;
-    -ms-flex-order: 2;
-    order: 2;
-}
-
 .setroubleshoot-progress-spinner {
     display: inline-block;
 }
@@ -74,6 +62,12 @@
 
 .list-group-item .alert {
     margin-top: 10px;
+}
+
+.selinux-details {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
 }
 
 .selinux-state {

@@ -21,7 +21,6 @@ import re
 import subprocess
 import time
 
-import atomiclib
 import parent
 from testlib import *
 from hacklib import *
@@ -143,7 +142,6 @@ class TestMultiMachineAdd(MachineCase):
         self.machine2.execute("hostnamectl set-hostname machine2")
         self.machine3 = self.machines['machine3']
         self.machine3.execute("hostnamectl set-hostname machine3")
-        atomiclib.overlay_dashboard(self.machine)
         HACK_disable_problematic_preloads(self.machine2)
         HACK_disable_problematic_preloads(self.machine3)
 
@@ -236,7 +234,6 @@ class TestMultiMachine(MachineCase):
         MachineCase.setUp(self)
         self.machine2 = self.machines['machine2']
         self.machine2.execute("hostnamectl set-hostname machine2")
-        atomiclib.overlay_dashboard(self.machine)
         HACK_disable_problematic_preloads(self.machine2)
         HACK_disable_problematic_preloads(self.machines["machine3"])
 

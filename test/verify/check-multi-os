@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-import atomiclib
 import parent
 from testlib import *
 
@@ -50,10 +49,6 @@ class TestMultiOS(MachineCase):
         "0": {"address": "10.111.113.1/20"},
         "fedora-23-stock": {"address": "10.111.113.5/20", "image": "fedora-23-stock"}
     }
-
-    def setUp(self):
-        super(TestMultiOS, self).setUp()
-        atomiclib.overlay_dashboard(self.machine)
 
     def check_spawn(self, b, address):
         # Firefox cannot do `cockpit.spawn` as it returns promise
@@ -162,10 +157,6 @@ class TestMultiOSDirect(MachineCase):
         "0": {"address": "10.111.113.1/20"},
         "fedora-23-stock": {"address": "10.111.113.5/20", "image": "fedora-23-stock"}
     }
-
-    def setUp(self):
-        super(TestMultiOSDirect, self).setUp()
-        atomiclib.overlay_dashboard(self.machine)
 
     def testFedora23Direct(self):
         b = self.browser

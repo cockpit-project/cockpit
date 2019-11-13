@@ -20,7 +20,6 @@
 import re
 import subprocess
 
-import atomiclib
 import parent
 from testlib import *
 from hacklib import *
@@ -96,7 +95,6 @@ class TestMultiMachineKeyAuth(MachineCase):
 
     def setUp(self):
         MachineCase.setUp(self)
-        atomiclib.overlay_dashboard(self.machine)
         self.machine2 = self.machines['machine2']
 
         # Add user

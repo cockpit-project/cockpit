@@ -330,7 +330,6 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
                                     "couldn't parse login input: Authentication failed")
 
     @skipImage("No SELinux", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-1804")
-    @skipImage("Only supported for Fedora >= 30", "fedora-atomic")
     @skipImage("No semanage", "fedora-coreos")
     def testSELinuxRestrictedUser(self):
         m = self.machine
@@ -381,7 +380,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.wait_not_visible("#login")
         b.wait_not_visible("#login-details")
 
-    @skipImage("Starting on OSTree is weird", "fedora-atomic", "fedora-coreos")
+    @skipImage("Starting on OSTree is weird", "fedora-coreos")
     @skipImage("Added in PR #12493", "rhel-8-1-distropkg")
     def testFailingWebsocket(self, safari=False, cacert=False):
         m = self.machine
@@ -421,12 +420,12 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
             b.wait_not_visible("#safari-cert-help")
 
     @skipBrowser("Enough when only chromium pretends to be a different browser", "firefox")
-    @skipImage("Starting on OSTree is weird", "fedora-atomic", "fedora-coreos")
+    @skipImage("Starting on OSTree is weird", "fedora-coreos")
     def testFailingWebsocketSafari(self):
         self.testFailingWebsocket(safari=True, cacert=True)
 
     @skipBrowser("Enough when only chromium pretends to be a different browser", "firefox")
-    @skipImage("Starting on OSTree is weird", "fedora-atomic", "fedora-coreos")
+    @skipImage("Starting on OSTree is weird", "fedora-coreos")
     def testFailingWebsocketSafariNoCA(self):
         self.testFailingWebsocket(safari=True, cacert=False)
 

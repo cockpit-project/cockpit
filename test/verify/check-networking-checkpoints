@@ -22,7 +22,7 @@ from netlib import *
 from testlib import *
 
 
-@skipImage("No network checkpoint support", "fedora-atomic", "ubuntu-1804", "ubuntu-stable")
+@skipImage("No network checkpoint support", "ubuntu-1804", "ubuntu-stable")
 class TestNetworking(NetworkCase):
 
     def testCheckpoint(self):

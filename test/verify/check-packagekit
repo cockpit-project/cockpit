@@ -37,7 +37,7 @@ done
 """
 
 
-@skipImage("Image uses OSTree", "fedora-atomic", "fedora-coreos")
+@skipImage("Image uses OSTree", "fedora-coreos")
 class TestUpdates(PackageCase):
 
     def setUp(self):
@@ -642,7 +642,7 @@ class TestUpdates(PackageCase):
             self.assertIn("exclamation", b.attr("#system_information_updates_icon", "class"))
 
 
-@skipImage("Image uses OSTree", "fedora-atomic", "fedora-coreos")
+@skipImage("Image uses OSTree", "fedora-coreos")
 @skipImage("No subscriptions", "debian-stable", "debian-testing", "fedora-31",
            "fedora-30", "fedora-i386", "fedora-testing", "ubuntu-1804", "ubuntu-stable")
 class TestUpdatesSubscriptions(PackageCase):
@@ -775,7 +775,7 @@ class TestUpdatesSubscriptions(PackageCase):
         self.assertIn("fa-bug", b.attr("#system_information_updates_icon", "class"))
 
 
-@skipImage("Image uses OSTree", "fedora-atomic", "fedora-coreos")
+@skipImage("Image uses OSTree", "fedora-coreos")
 class TestAutoUpdates(PackageCase):
 
     def setUp(self):

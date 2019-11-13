@@ -67,7 +67,6 @@ threads=2
     def testWithUrlRoot(self):
         self.testBasic(urlroot="/webcon")
 
-    @skipImage("Not supported", "fedora-atomic")
     def testAppStream(self):
         b = self.browser
         m = self.machine

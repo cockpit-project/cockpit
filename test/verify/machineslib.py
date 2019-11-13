@@ -189,7 +189,7 @@ reboot"""
 # rmmod kvm-intel && modprobe kvm-intel || true
 
 
-@skipImage("Atomic cannot run virtual machines", "fedora-atomic", "fedora-coreos")
+@skipImage("Atomic cannot run virtual machines", "fedora-coreos")
 class TestMachines(NetworkCase):
     created_pool = False
     provider = None

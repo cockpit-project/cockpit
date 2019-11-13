@@ -58,11 +58,6 @@ OnCalendar=daily
         elif m.image in ["ubuntu-1804", "ubuntu-stable"]:
             m.execute("locale-gen de_DE && locale-gen de_DE.UTF-8 && update-locale")
 
-        # On Atomic no locales other than en_US are supported on the host itself
-        # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1186757
-        elif m.image in ["fedora-atomic"]:
-            self.allow_journal_messages("invalid or unusable locale: de_DE.UTF-8")
-
         # login so that we have a cookie.
         self.login_and_go("/system/services#/test.service")
 
@@ -136,12 +131,8 @@ OnCalendar=daily
 
         b.switch_to_top()
 
-        # The top bar should not be visible on fedora-atomic because no dashboards
         b.wait_present(".area-ct-body")
-        if "atomic" in m.image:
-            b.wait_present(".area-ct-body.single-nav")
-        else:
-            b.wait_not_present(".area-ct-body.single-nav")
+        b.wait_not_present(".area-ct-body.single-nav")
         b.wait_present("#host-nav")
 
         # Lets try changing the language
@@ -292,11 +283,6 @@ OnCalendar=daily
             m.execute('echo \'pt_BR.UTF-8 UTF-8\' >> /etc/locale.gen && locale-gen && update-locale')
         elif m.image in ['ubuntu-1804', 'ubuntu-stable']:
             m.execute('locale-gen pt_BR && locale-gen pt_BR.UTF-8 && update-locale')
-
-        # On Atomic no locales other than en_US are supported on the host itself
-        # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1186757
-        elif m.image in ['fedora-atomic']:
-            self.allow_journal_messages('invalid or unusable locale: pt_BR.UTF-8')
 
         self.login_and_go('/system')
         b.wait_present('#server')
@@ -476,7 +462,7 @@ OnCalendar=daily
         b.key_press(chr(40), use_ord=True) # arrow down
         b.key_press(chr(40), use_ord=True) # arrow down
         b.key_press("\r")
-        if m.image in ["fedora-atomic", "fedora-coreos"]:
+        if m.image in ["fedora-coreos"]:
             b.enter_page("/users")
         else:
             b.enter_page("/storage")
@@ -573,7 +559,7 @@ OnCalendar=daily
         b.key_press("/")
         b.wait_text("#file-autocomplete-widget.dropdown-menu li:nth-of-type(3) a span span", "other")
 
-    @skipImage("No PCP available", "fedora-atomic", "fedora-coreos")
+    @skipImage("No PCP available", "fedora-coreos")
     def testPlots(self):
         b = self.browser
         m = self.machine

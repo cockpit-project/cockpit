@@ -18,7 +18,6 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import parent
-import testvm
 from testlib import *
 
 
@@ -62,20 +61,6 @@ class TestDockerStorage(MachineCase):
     provision = {"machine1": {"address": "10.111.113.1/20"}}
 
     def setUp(self):
-        # On the Atomics, we use two machines: one for running
-        # cockpit-ws, and one whose docker storage pool is managed.
-        # We can't do that both on a single machine since resetting
-        # the pool would kill the cockpit-ws container.
-
-        if "atomic" in testvm.DEFAULT_IMAGE:
-            # We want to use a non-Atomic machine as the login machine
-            # and the build machine that matches the current Atomic is suitable
-            # since we can use the same set of built packages
-            self.provision["login"] = {
-                "address": "10.111.113.2/20",
-                "image": testvm.get_build_image(testvm.DEFAULT_IMAGE)
-            }
-
         self.allow_journal_messages('.*refusing to connect to unknown host.*')
         self.allow_journal_messages('.*host key for server is not known.*')
         MachineCase.setUp(self)

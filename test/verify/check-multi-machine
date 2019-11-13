@@ -202,8 +202,7 @@ class TestMultiMachineAdd(MachineCase):
                                     ".*: bridge failed: .*",
                                     ".*: bridge program failed: Child process exited with code .*")
 
-    @skipImage("Newer version (>= 0.8.5) of libssh required",
-               "ubuntu-1804", "fedora-atomic")
+    @skipImage("Newer version (>= 0.8.5) of libssh required", "ubuntu-1804")
     def testGlobalSSHConfig(self):
         b = self.browser
         m = self.machine
@@ -280,14 +279,10 @@ class TestMultiMachine(MachineCase):
         b.wait_js_cond('window.location.pathname == "{0}=10.111.113.2/system"'.format(root))
         m2_dashboard_name = "machine2"
 
-        # Dashboard is not installed on secondary atomic machines
-        if not m2.atomic_image:
-            b.click("a[href='/dashboard']")
-            b.enter_page("/dashboard")
-            b.wait_in_text("a[data-address='localhost']", m2_dashboard_name)
-            b.wait_not_present("a[data-address='10.111.113.2']")
-        else:
-            b.wait_not_present("a[href='/dashboard']")
+        b.click("a[href='/dashboard']")
+        b.enter_page("/dashboard")
+        b.wait_in_text("a[data-address='localhost']", m2_dashboard_name)
+        b.wait_not_present("a[data-address='10.111.113.2']")
         b.logout()
 
         # Bad host key
@@ -430,13 +425,10 @@ class TestMultiMachine(MachineCase):
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname == "{0}=10.111.113.2/system"'.format(root))
 
-        if not m2.atomic_image:
-            b.click("a[href='/dashboard']")
-            b.enter_page("/dashboard")
-            b.wait_in_text("a[data-address='localhost']", m2_dashboard_name)
-            b.wait_not_present("a[data-address='10.111.113.2']")
-        else:
-            b.wait_not_present("a[href='/dashboard']")
+        b.click("a[href='/dashboard']")
+        b.enter_page("/dashboard")
+        b.wait_in_text("a[data-address='localhost']", m2_dashboard_name)
+        b.wait_not_present("a[data-address='10.111.113.2']")
 
         # Might happen when we switch away.
         self.allow_hostkey_messages()
@@ -451,7 +443,7 @@ class TestMultiMachine(MachineCase):
         self.checkDirectLogin('/')
 
     @skipImage("test VM image does not have FIPS support", "debian-stable",
-               "debian-testing", "ubuntu-1804", "ubuntu-stable", "fedora-atomic", "fedora-coreos")
+               "debian-testing", "ubuntu-1804", "ubuntu-stable", "fedora-coreos")
     def testFIPS(self):
         b = self.browser
 

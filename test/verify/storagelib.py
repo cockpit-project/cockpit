@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-import os
 import re
 
 from testlib import *
@@ -25,8 +24,8 @@ class StorageCase(MachineCase):
 
     def setUp(self):
 
-        if "atomic" in os.getenv("TEST_OS", ""):
-            self.skipTest("No storage on Atomic")
+        if self.image in ["fedora-coreos"]:
+            self.skipTest("No udisks/cockpit-storaged on OSTree images")
 
         super(StorageCase, self).setUp()
         self.storagectl_cmd = "udisksctl"

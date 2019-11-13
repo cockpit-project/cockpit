@@ -24,7 +24,6 @@ from testlib import *
 
 @skipImage("UDisks doesn't have support for iSCSI", "debian-stable",
            "ubuntu-1804", "ubuntu-stable", "debian-testing")
-@skipImage("udisks not installed, no cockpit-storage", "fedora-coreos")
 class TestStorage(StorageCase):
 
     def testISCSI(self):

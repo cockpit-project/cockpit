@@ -27,7 +27,6 @@ def info_field(name, image_name):
     return '#detail-header label:contains("%s") + div' % name
 
 
-@skipImage("udisks not installed, no cockpit-storage", "fedora-coreos")
 class TestStorage(StorageCase):
 
     def wait_states(self, states):

@@ -69,7 +69,6 @@ You can set these environment variables to configure the test suite:
                   "fedora-29"
                   "fedora-30"
                   "fedora-i386"
-                  "fedora-atomic"
                   "fedora-coreos"
                   "fedora-testing"
                   "rhel-7-7"
@@ -114,7 +113,7 @@ with a clean state.
 
 A test machine image is created with image-create, like so:
 
-    $ bots/image-create -v fedora-atomic
+    $ bots/image-create -v fedora-testing
 
 The image will be created in `$TEST_DATA/images/`. In addition a link
 reference will be created in `bots/images/`.
@@ -123,7 +122,7 @@ If you wish that others use this new image then you should commit the
 new reference link, and use `image-upload` to upload the new image. You
 would need to have Cockpit commit access to do this:
 
-    $ bots/image-upload fedora-atomic
+    $ bots/image-upload fedora-testing
 
 There is more than one test machine image. For example, you might
 want to test a scenario where Cockpit on one machine talks to FreeIPA

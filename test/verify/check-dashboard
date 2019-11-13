@@ -20,7 +20,6 @@
 import json
 import subprocess
 
-import atomiclib
 import parent
 from testlib import *
 from hacklib import *
@@ -84,7 +83,6 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
 
     def setUp(self):
         super(TestBasicDashboard, self).setUp()
-        atomiclib.overlay_dashboard(self.machine)
         HACK_disable_problematic_preloads(self.machines["machine2"])
         HACK_disable_problematic_preloads(self.machines["machine3"])
 
@@ -228,10 +226,6 @@ class TestDashboardSetup(MachineCase, DashBoardHelpers):
         'machine3': {"address": "10.111.113.3/20"}
     }
 
-    def setUp(self):
-        super(TestDashboardSetup, self).setUp()
-        atomiclib.overlay_dashboard(self.machine)
-
     def testSetup(self):
         b = self.browser
 
@@ -316,10 +310,6 @@ class TestDashboardSetup(MachineCase, DashBoardHelpers):
 
 
 class TestDashboardEditLimits(MachineCase, DashBoardHelpers):
-
-    def setUp(self):
-        super(TestDashboardEditLimits, self).setUp()
-        atomiclib.overlay_dashboard(self.machine)
 
     def testEdit(self):
         b = self.browser

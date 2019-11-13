@@ -49,20 +49,17 @@ const NetworkMacRow = ({ network }) => {
     );
 };
 
-export class EditNICAction extends React.Component {
+class EditNICModal extends React.Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            showModal: false,
             dialogError: undefined,
             networkType: props.network.type,
             networkSource: props.network.source.network || props.network.source.dev,
             networkModel: props.network.model,
             saveDisabled: false,
         };
-        this.open = this.open.bind(this);
-        this.close = this.close.bind(this);
         this.save = this.save.bind(this);
         this.onValueChanged = this.onValueChanged.bind(this);
         this.dialogErrorSet = this.dialogErrorSet.bind(this);
@@ -98,14 +95,6 @@ export class EditNICAction extends React.Component {
         this.setState({ dialogError: text, dialogErrorDetail: detail });
     }
 
-    close() {
-        this.setState({ showModal: false, dialogError: undefined });
-    }
-
-    open() {
-        this.setState({ showModal: true });
-    }
-
     save() {
         const { dispatch, vm, network } = this.props;
 
@@ -120,7 +109,7 @@ export class EditNICAction extends React.Component {
                 })
                 .then(() => {
                     dispatch(getVm({ connectionName: vm.connectionName, id: vm.id }));
-                    this.close();
+                    this.props.close();
                 });
     }
 
@@ -161,30 +150,65 @@ export class EditNICAction extends React.Component {
         };
 
         return (
+            <Modal id={`${idPrefix}-edit-dialog-modal-window`} onHide={this.props.close} className='nic-edit' show>
+                <Modal.Header>
+                    <Modal.CloseButton onClick={this.props.close} />
+                    <Modal.Title> {`${network.mac} Virtual Network Interface Settings`} </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {defaultBody}
+                </Modal.Body>
+                <Modal.Footer>
+                    {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
+                    { showFooterWarning() }
+                    <Button id={`${idPrefix}-edit-dialog-cancel`} bsStyle='default' className='btn-cancel' onClick={this.props.close}>
+                        {_("Cancel")}
+                    </Button>
+                    <Button disabled={this.state.saveDisabled} id={`${idPrefix}-edit-dialog-save`} bsStyle='primary' onClick={this.save}>
+                        {_("Save")}
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+        );
+    }
+}
+
+export class EditNICAction extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            showModal: false,
+        };
+        this.open = this.open.bind(this);
+        this.close = this.close.bind(this);
+    }
+
+    close() {
+        this.setState({ showModal: false });
+    }
+
+    open() {
+        this.setState({ showModal: true });
+    }
+
+    render() {
+        const { idPrefix, dispatch, vm, network, networks, nodeDevices, interfaces } = this.props;
+
+        return (
             <div id={`${idPrefix}-edit-dialog-full`}>
                 <Button id={`${idPrefix}-edit-dialog`} bsStyle='default' onClick={this.open}>
                     {_("Edit")}
                 </Button>
 
-                <Modal id={`${idPrefix}-edit-dialog-modal-window`} show={this.state.showModal} onHide={this.close} className='nic-edit'>
-                    <Modal.Header>
-                        <Modal.CloseButton onClick={this.close} />
-                        <Modal.Title> {`${network.mac} Virtual Network Interface Settings`} </Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        {defaultBody}
-                    </Modal.Body>
-                    <Modal.Footer>
-                        {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
-                        { showFooterWarning() }
-                        <Button id={`${idPrefix}-edit-dialog-cancel`} bsStyle='default' className='btn-cancel' onClick={this.close}>
-                            {_("Cancel")}
-                        </Button>
-                        <Button disabled={this.state.saveDisabled} id={`${idPrefix}-edit-dialog-save`} bsStyle='primary' onClick={this.save}>
-                            {_("Save")}
-                        </Button>
-                    </Modal.Footer>
-                </Modal>
+                {this.state.showModal && <EditNICModal idPrefix={idPrefix}
+                                             dispatch={dispatch}
+                                             vm={vm}
+                                             network={network}
+                                             networks={networks}
+                                             nodeDevices={nodeDevices}
+                                             interfaces={interfaces}
+                                             close={this.close} />}
             </div>
         );
     }

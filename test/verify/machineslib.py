@@ -1285,8 +1285,9 @@ class TestMachines(NetworkCase):
                 .fill() \
                 .createAndExpectInlineValidationErrors(errors) \
                 .cancel(True)
-            runner.assertScriptFinished() \
-                .checkEnvIsEmpty()
+            runner.assertScriptFinished()
+            if dialog.env_is_empty:
+                runner.checkEnvIsEmpty()
 
         def checkDialogErrorTest(dialog, errors):
             dialog.open() \
@@ -1370,6 +1371,16 @@ class TestMachines(NetworkCase):
         # try to CREATE WITH DIALOG ERROR
         # name
         checkDialogFormValidationTest(TestMachines.VmDialog(self, "", storage_size=1), {"Name": "Name must not be empty"})
+
+        # name already exists
+        createTest(TestMachines.VmDialog(self, name='existing-name', sourceType='url',
+                                         location=config.VALID_URL, storage_size=1,
+                                         delete=False))
+
+        checkDialogFormValidationTest(TestMachines.VmDialog(self, "existing-name", storage_size=1,
+                                                            env_is_empty=False), {"Name": "already exists"})
+
+        self.machine.execute("virsh undefine existing-name")
 
         # location
         checkDialogFormValidationTest(TestMachines.VmDialog(self, sourceType='url',
@@ -1798,6 +1809,7 @@ class TestMachines(NetworkCase):
                      storage_pool='Create New Volume', storage_volume='',
                      start_vm=False,
                      delete=True,
+                     env_is_empty=True,
                      connection=None):
 
             TestMachines.VmDialog.vmId += 1 # This variable is static - don't use self here
@@ -1827,6 +1839,7 @@ class TestMachines(NetworkCase):
             self.storage_pool = storage_pool
             self.storage_volume = storage_volume
             self.delete = delete
+            self.env_is_empty = env_is_empty
             self.connection = connection
             if self.connection:
                 self.connectionText = TestMachines.TestCreateConfig.LIBVIRT_CONNECTION[connection]

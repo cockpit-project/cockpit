@@ -121,6 +121,8 @@ function validateParams(vmParams) {
 
     if (isEmpty(vmParams.vmName.trim()))
         validationFailed.vmName = _("Name must not be empty");
+    else if (vmParams.vms.some(vm => vm.name === vmParams.vmName))
+        validationFailed.vmName = cockpit.format(_("VM $0 already exists"), vmParams.vmName);
 
     if (vmParams.os == undefined)
         validationFailed.os = _("You need to select the most closely matching Operating System");
@@ -685,9 +687,9 @@ class CreateVmModal extends React.Component {
     }
 
     onCreateClicked() {
-        const { dispatch, providerName, storagePools, close, onAddErrorNotification, osInfoList } = this.props;
+        const { dispatch, providerName, storagePools, close, onAddErrorNotification, osInfoList, vms } = this.props;
 
-        const validation = validateParams({ ...this.state, osInfoList: osInfoList });
+        const validation = validateParams({ ...this.state, osInfoList, vms: vms.filter(vm => vm.connectionName == this.state.connectionName) });
         if (Object.getOwnPropertyNames(validation).length > 0) {
             this.setState({ inProgress: false, validate: true });
         } else {
@@ -732,7 +734,7 @@ class CreateVmModal extends React.Component {
 
     render() {
         const { nodeMaxMemory, nodeDevices, networks, osInfoList, loggedUser, providerName, storagePools, vms } = this.props;
-        const validationFailed = this.state.validate && validateParams({ ...this.state, osInfoList });
+        const validationFailed = this.state.validate && validateParams({ ...this.state, osInfoList, vms: vms.filter(vm => vm.connectionName == this.state.connectionName) });
 
         const dialogBody = (
             <form className="ct-form">

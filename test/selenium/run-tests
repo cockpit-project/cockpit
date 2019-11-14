@@ -131,7 +131,7 @@ class AvocadoTestSuite:
         self.verbose = verbose
         # store last executed avocado command to variable
         self.avocado_command = None
-        self.machine_avocado = testvm.VirtMachine(verbose=self.verbose, networking=network.host(), image=BASE_IMAGE)
+        self.machine_avocado = testvm.VirtMachine(verbose=self.verbose, networking=network.host(restrict=True), image=BASE_IMAGE)
         self.machine_avocado.start()
         self.machine_avocado.wait_boot()
         self.machine_avocado.set_address("%s/20" % self.ipaddr_avocado)
@@ -296,7 +296,9 @@ class SeleniumTestSuite(AvocadoTestSuite):
 
     def _prepare_selenium(self):
         if not self.machine_selenium:
-            self.machine_selenium = testvm.VirtMachine(image="services", verbose=self.verbose, networking=self.network.host())
+            self.machine_selenium = testvm.VirtMachine(
+                    image="services", verbose=self.verbose,
+                    networking=self.network.host(restrict=True))
             # actually wait here, because starting selenium takes a while
             self.machine_selenium.pull(self.machine_selenium.image_file)
         self.machine_selenium.start()
@@ -335,7 +337,9 @@ class SeleniumWinTestSuite(SeleniumTestSuite):
     def _prepare_selenium(self):
         if not self.machine_selenium:
             self.machine_avocado.dhcp_server(range=[self.ipaddr_selenium, self.ipaddr_selenium])
-            self.machine_selenium = testvm.VirtMachine(image='windows-10', verbose=self.verbose, networking=self.network.host(), memory_mb=2048, cpus=2)
+            self.machine_selenium = testvm.VirtMachine(
+                    image='windows-10', verbose=self.verbose, memory_mb=2048, cpus=2,
+                    networking=self.network.host(restrict=True))
             self.machine_selenium.pull(self.machine_selenium.image_file)
         self.machine_selenium.start()
 
@@ -405,7 +409,7 @@ def main():
     test_timeout = TEST_TIMEOUT
     testsuite = None
     try:
-        machine = testvm.VirtMachine(verbose=opts.verbosity, networking=network.host(), image=image)
+        machine = testvm.VirtMachine(verbose=opts.verbosity, networking=network.host(restrict=True), image=image)
         machine.start()
         if opts.hub:
             testsuite = SeleniumOwnHub(address_string=opts.hub,

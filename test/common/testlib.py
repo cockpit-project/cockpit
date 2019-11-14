@@ -605,7 +605,6 @@ class Browser:
             filename = "{0}-{1}.png".format(label or self.label, title)
             if self.cdp.browser == "chromium":
                 ret = self.cdp.invoke("Page.captureScreenshot", no_trace=True)
-                ret = ""
                 if "data" in ret:
                     with open(filename, 'wb') as f:
                         f.write(base64.standard_b64decode(ret["data"]))

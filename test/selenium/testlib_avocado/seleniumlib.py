@@ -69,6 +69,8 @@ class SeleniumTest(Test):
     """
 
     RETRY_LOOP_SLEEP = 0.5
+    PAGE_LOAD_TIMEOUT = 120
+    PAGE_SIZE = [1400, 1200]
 
     def _selenium_logging(self, method, *args):
         transformed_arg_list = list()
@@ -124,8 +126,8 @@ class SeleniumTest(Test):
                                                         desired_capabilities={'browserName': browser})
 
             connect_browser()
-        self.driver.set_window_size(1400, 1200)
-        self.driver.set_page_load_timeout(120)
+        self.driver.set_window_size(*self.PAGE_SIZE)
+        self.driver.set_page_load_timeout(self.PAGE_LOAD_TIMEOUT)
         # self.default_try is number of repeats for finding element
         self.default_try = 40
         # stored search function for each element to be able to refresh element in case of detached from DOM
@@ -298,7 +300,7 @@ class SeleniumTest(Test):
     def select_by_value(self, element, value):
         return self.select(element=element, select_function="select_by_value", value=value)
 
-    def wait(self, method, text, baseelement, overridetry, fatal, cond, wait_data_loaded, text_):
+    def wait(self, method, text, baseelement, overridetry, fatal, cond, wait_data_loaded, text_, reversed_cond=False):
         """
 This function is low level, tests should prefer to use the wait_* functions:
     This function stores caller function for this element to an internal dictionary, in case that
@@ -324,6 +326,8 @@ parameters:
         internaltry = overridetry if overridetry else self.default_try
 
         def usedfunction():
+            if reversed_cond:
+                return WebDriverWait(baseelement, self.default_explicit_wait).until_not(condition)
             return WebDriverWait(baseelement, self.default_explicit_wait).until(condition)
 
         for foo in range(0, internaltry):
@@ -333,6 +337,7 @@ parameters:
                                        ":",
                                        text,
                                        cond,
+                                       "(reverse cond)" if reversed_cond else "",
                                        "(text inside:{} is fatal:{}, wait data-loaded:{})".format(text_, fatal, wait_data_loaded))
                 if foo > 0:
                     self._selenium_logging("element lookup retry {}".format(foo))
@@ -353,19 +358,19 @@ parameters:
         self.element_wait_functions[returned] = usedfunction
         return returned
 
-    def wait_id(self, el, baseelement=None, overridetry=None, fatal=True, cond=None, text_=None):
-        return self.wait(By.ID, text=el, baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=cond, wait_data_loaded=False, text_=text_)
+    def wait_id(self, el, baseelement=None, overridetry=None, fatal=True, cond=None, text_=None, reversed_cond=False):
+        return self.wait(By.ID, text=el, baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=cond, wait_data_loaded=False, text_=text_, reversed_cond=reversed_cond)
 
-    def wait_link(self, el, baseelement=None, overridetry=None, fatal=True, cond=None, text_=None):
-        return self.wait(By.PARTIAL_LINK_TEXT, baseelement=baseelement, text=el, overridetry=overridetry, fatal=fatal, cond=cond, wait_data_loaded=False, text_=text_)
+    def wait_link(self, el, baseelement=None, overridetry=None, fatal=True, cond=None, text_=None, reversed_cond=False):
+        return self.wait(By.PARTIAL_LINK_TEXT, baseelement=baseelement, text=el, overridetry=overridetry, fatal=fatal, cond=cond, wait_data_loaded=False, text_=text_, reversed_cond=reversed_cond)
 
-    def wait_css(self, el, baseelement=None, overridetry=None, fatal=True, cond=None, text_=None):
-        return self.wait(By.CSS_SELECTOR, text=el, baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=cond, wait_data_loaded=False, text_=text_)
+    def wait_css(self, el, baseelement=None, overridetry=None, fatal=True, cond=None, text_=None, reversed_cond=False):
+        return self.wait(By.CSS_SELECTOR, text=el, baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=cond, wait_data_loaded=False, text_=text_, reversed_cond=reversed_cond)
 
-    def wait_xpath(self, el, baseelement=None, overridetry=None, fatal=True, cond=None, text_=None):
-        return self.wait(By.XPATH, text=el, baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=cond, wait_data_loaded=False, text_=text_)
+    def wait_xpath(self, el, baseelement=None, overridetry=None, fatal=True, cond=None, text_=None, reversed_cond=False):
+        return self.wait(By.XPATH, text=el, baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=cond, wait_data_loaded=False, text_=text_, reversed_cond=reversed_cond)
 
-    def wait_text(self, el, nextel="", element="*", baseelement=None, overridetry=None, fatal=True, cond=None):
+    def wait_text(self, el, nextel="", element="*", baseelement=None, overridetry=None, fatal=True, cond=None, reversed_cond=False):
         search_string = ""
         search_string_next = ""
         elem = None
@@ -380,14 +385,14 @@ parameters:
             else:
                 search_string_next = search_string_next + ' and contains(text(), "%s")' % foo
         if nextel:
-            elem = self.wait_xpath("//%s[%s]/following-sibling::%s[%s]" % (element, search_string, element, search_string_next), baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=cond)
+            elem = self.wait_xpath("//%s[%s]/following-sibling::%s[%s]" % (element, search_string, element, search_string_next), baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=cond, reversed_cond=reversed_cond)
         else:
-            elem = self.wait_xpath("//%s[%s]" % (element, search_string), baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=cond)
+            elem = self.wait_xpath("//%s[%s]" % (element, search_string), baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=cond, reversed_cond=reversed_cond)
         return elem
 
-    def wait_frame(self, el, baseelement=None, overridetry=None, fatal=True, cond=None):
+    def wait_frame(self, el, baseelement=None, overridetry=None, fatal=True, cond=None, reversed_cond=False):
         text = "//iframe[contains(@name,'%s')]" % el
-        return self.wait(By.XPATH, text=text, baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=frame, wait_data_loaded=True, text_=None)
+        return self.wait(By.XPATH, text=text, baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=frame, wait_data_loaded=True, text_=None, reversed_cond=reversed_cond)
 
     def mainframe(self):
         self._selenium_logging("return to main frame")
@@ -429,9 +434,14 @@ parameters:
         self.click(self.wait_id('navbar-dropdown', cond=clickable))
         self.click(self.wait_id('go-logout', cond=clickable))
 
-    def check_machine_execute(self, timeout=3):
+    def check_machine_execute(self, timeout=5):
         try:
             self.machine.execute(command="true", direct=True, timeout=timeout)
-        except subprocess.CalledProcessError:
+        except (subprocess.CalledProcessError, RuntimeError):
             return False
         return True
+
+    def refresh(self, page_frame=None):
+        self.driver.refresh()
+        if page_frame:
+            self.wait_frame(page_frame)

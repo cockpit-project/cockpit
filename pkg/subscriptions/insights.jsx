@@ -440,36 +440,54 @@ export class InsightsStatus extends React.Component {
         super();
         this.state = { };
         this.on_changed = () => { this.setState({ }) };
+        this.results_file = cockpit.file("/var/lib/insights/results.json", { syntax: JSON, superuser: "try" });
+        this.inventory_file = cockpit.file("/var/lib/insights/inventory.json", { syntax: JSON, superuser: "try" });
     }
 
     componentDidMount() {
         insights_timer.addEventListener("changed", this.on_changed);
         insights_service.addEventListener("changed", this.on_changed);
         last_upload_monitor.addEventListener("changed", this.on_changed);
+        this.results_file.watch(data => this.setState({ results: data }));
+        this.inventory_file.watch(data => this.setState({ inventory: data }));
     }
 
     componentWillUnmount() {
         insights_timer.removeEventListener("changed", this.on_changed);
         insights_service.removeEventListener("changed", this.on_changed);
         last_upload_monitor.removeEventListener("changed", this.on_changed);
+        this.results_file.close();
+        this.inventory_file.close();
     }
 
     render() {
-        let status;
+        let { results, inventory } = this.state;
 
+        let status;
         if (insights_timer.enabled) {
             let warn = (insights_service.state == "failed" &&
                         insights_service.unit.ActiveExitTimestamp &&
                         insights_service.unit.ActiveExitTimestamp / 1e6 > last_upload_monitor.timestamp);
+
+            let result_link = "http://cloud.redhat.com/insights";
+            if (inventory && inventory.id)
+                result_link = "https://cloud.redhat.com/insights/inventory/" + inventory.id;
+
+            let rule_hits = null;
+            if (results && results.reports) {
+                rule_hits = <>{results.reports.map(r => <div>{r.rule.severity} - {r.rule.summary}</div>)}</>;
+            }
 
             status = (
                 <div style={{ display: "inline-block", verticalAlign: "top" }}>
                     <a onClick={left(show_status_dialog)}>{_("Connected to Insights")}</a>
                     { warn && <>{" "}<i className="pficon pficon-warning-triangle-o" /></> }
                     <br />
-                    <a href="http://cloud.redhat.com/insights" target="_blank" rel="noopener">
+                    <a href={result_link} target="_blank" rel="noopener">
                     View your Insights results <i className="fa fa-external-link" />
                     </a>
+                    { rule_hits && <br /> }
+                    { rule_hits }
                 </div>
             );
         } else {

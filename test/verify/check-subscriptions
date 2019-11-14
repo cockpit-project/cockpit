@@ -120,16 +120,22 @@ class SubscriptionsCase(MachineCase):
             m.write("/etc/insights-client/insights-client.conf",
 """
 [insights-client]
-gpg=False
 auto_config=False
 base_url=127.0.0.1:8888/r/insights
+insecure_connection=True
 username=admin
 password=foobar
-insecure_connection=True
 """)
 
             m.upload([ "verify/files/mock-insights" ], "/var/tmp")
             m.spawn("/var/tmp/mock-insights", "mock-insights")
+
+            # Smuggle in a cookoos eggs
+            m.upload([ "/home/mvo/work/insights-core/insights.zip" ], "/etc/insights-client/rpm.egg")
+            m.execute("mv /usr/bin/insights-client /usr/bin/insights-client.real")
+            m.write("/usr/bin/insights-client",
+                    '#!/bin/sh\nBYPASS_GPG=True EGG=/etc/insights-client/rpm.egg insights-client.real --no-gpg "$@"\n')
+            m.execute("chmod a+x /usr/bin/insights-client")
 
 @skipImage("No subscriptions", "centos-7", "continuous-atomic", "debian-stable", "debian-testing", "fedora-29",
            "fedora-30", "fedora-i386", "fedora-atomic", "fedora-testing", "ubuntu-1804", "ubuntu-stable")
@@ -307,6 +313,9 @@ class TestSubscriptions(SubscriptionsCase):
         with b.wait_timeout(360):
             b.wait_not_present('.modal-dialog')
 
+        b.wait_present('a[href="https://cloud.redhat.com/insights/inventory/1234-5678-ABCD"]')
+        b.wait_in_text('label:contains("Insights")', "(2 rule hits)")
+
         b.switch_to_top()
         b.click("a[href='/system']")
         b.enter_page("/system")
@@ -371,7 +380,6 @@ class TestSubscriptions(SubscriptionsCase):
         b.click("label:contains('Status') + button:contains('Unregister')")
         b.wait_not_present("label:contains('Insights')")
         m.execute("test -f /etc/insights-client/.unregistered")
-
 
 @skipImage("No subscriptions", "centos-7", "continuous-atomic", "debian-stable", "debian-testing", "fedora-29",
            "fedora-30", "fedora-i386", "fedora-atomic", "fedora-testing", "ubuntu-1804", "ubuntu-stable")

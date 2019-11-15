@@ -91,9 +91,6 @@ var info = {
             "shell/index.js",
             "shell/shell.less",
         ],
-        "shell/index-no-machines": [
-            "shell/index-no-machines.js",
-        ],
 
         "sosreport/sosreport": [
             "sosreport/index.js",
@@ -197,7 +194,6 @@ var info = {
         "shell/images/server-large.png",
         "shell/images/server-small.png",
         "shell/index.html",
-        "shell/simple.html",
         "shell/shell.html",
 
         "sosreport/index.html",

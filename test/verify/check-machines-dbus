@@ -69,6 +69,13 @@ TEST_NETWORK3_XML = """
   <bridge name='br0'/>
 </network>
 """
+
+TEST_NETWORK4_XML = """
+<network>
+  <name>test_network4</name>
+</network>
+"""
+
 @skipImage("LibvirtDBus is not available", "ubuntu-1804")
 class TestMachinesDBus(machineslib.TestMachines):
     def setUp(self):
@@ -660,10 +667,11 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_in_text(".cards-pf #card-pf-networks .card-pf-aggregate-status-count", "1")
 
         # Create dummy network
-        m.execute("echo \"{0}\" > /tmp/xml && virsh net-create /tmp/xml".format(TEST_NETWORK2_XML))
+        m.execute("echo \"{0}\" > /tmp/xml && virsh net-define /tmp/xml".format(TEST_NETWORK2_XML))
         b.wait_in_text(".cards-pf #card-pf-networks .card-pf-title-link", "Networks")
         b.wait_in_text(".cards-pf #card-pf-networks .card-pf-aggregate-status-count", "2")
-        m.execute("echo \"{0}\" > /tmp/xml && virsh net-create /tmp/xml".format(TEST_NETWORK3_XML))
+        m.execute("echo \"{0}\" > /tmp/xml && virsh net-define /tmp/xml".format(TEST_NETWORK3_XML))
+        m.execute("echo \"{0}\" > /tmp/xml && virsh net-create /tmp/xml".format(TEST_NETWORK4_XML))
 
         # Click on Networks card
         b.click(".cards-pf .card-pf-title span:contains(Networks)")
@@ -685,7 +693,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.click("tbody tr[data-row-id=network-test_network2-{0}] th".format(connectionName)) # click on the row header
 
         # Check overview network properties are present
-        b.wait_in_text("#network-test_network2-{0}-persistent".format(connectionName), "no")
+        b.wait_in_text("#network-test_network2-{0}-persistent".format(connectionName), "yes")
         b.wait_present("#network-test_network2-{0}-autostart-checkbox:not(:checked)".format(connectionName))
         b.wait_in_text("#network-test_network2-{0}-ipv4-address".format(connectionName), "192.168.100.1")
         b.wait_in_text("#network-test_network2-{0}-ipv4-netmask".format(connectionName), "255.255.255.0")
@@ -704,7 +712,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.click("tbody tr[data-row-id=network-test_network3-{0}] th".format(connectionName)) # click on the row header
 
         # Check overview network properties are present
-        b.wait_in_text("#network-test_network3-{0}-persistent".format(connectionName), "no")
+        b.wait_in_text("#network-test_network3-{0}-persistent".format(connectionName), "yes")
         b.wait_present("#network-test_network3-{0}-autostart-checkbox:not(:checked)".format(connectionName))
 
         # Check overview network properties are not present
@@ -716,6 +724,14 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_not_present("#network-test_network3-{0}-ipv6-prefix".format(connectionName))
         b.wait_not_present("#network-test_network3-{0}-ipv6-dhcp-range".format(connectionName))
         b.wait_not_present("#network-test_network3-{0}-ipv6-dhcp-host-0".format(connectionName))
+
+        # Transient network
+        b.click("tbody tr[data-row-id=network-test_network4-{0}] th".format(connectionName)) # click on the row header
+        b.wait_in_text("#network-test_network4-{0}-persistent".format(connectionName), "no")
+        b.wait_not_present("#network-test_network4-{0}-autostart-checkbox".format(connectionName)) # Transient network shouldn't have autostart option
+        b.wait_present('#delete-network-test_network4-{0}:disabled'.format(connectionName)) # Transient network cannot be deleted
+        b.click('#deactivate-network-test_network4-{0}'.format(connectionName)) # Deactivate transient network
+        b.wait_not_present("tbody tr[data-row-id=network-test_network4-{0}] th".format(connectionName)) # Check it's not present after deactivation
 
     def testPause(self):
         b = self.browser

@@ -83,14 +83,16 @@ export class NetworkOverviewTab extends React.Component {
                         <label className='control-label' htmlFor={`${idPrefix}-persistent`}> {_("Persistent")} </label>
                         <div id={`${idPrefix}-persistent`}> {network.persistent ? _("yes") : _("no")} </div>
 
-                        <label className='control-label' htmlFor={`${idPrefix}-autostart`}> {_("Autostart")} </label>
-                        <label className='checkbox-inline'>
-                            <input id={`${idPrefix}-autostart-checkbox`}
-                                   type="checkbox"
-                                   checked={network.autostart}
-                                   onChange={this.onAutostartChanged} />
-                            {_("Run when host boots")}
-                        </label>
+                        {network.persistent && <>
+                            <label className='control-label' htmlFor={`${idPrefix}-autostart`}> {_("Autostart")} </label>
+                            <label className='checkbox-inline'>
+                                <input id={`${idPrefix}-autostart-checkbox`}
+                                       type="checkbox"
+                                       checked={network.autostart}
+                                       onChange={this.onAutostartChanged} />
+                                {_("Run when host boots")}
+                            </label>
+                        </>}
 
                         { network.mtu && <>
                             <label className='control-label' htmlFor={`${idPrefix}-mtu`}> {_("Maximum Transmission Unit")} </label>

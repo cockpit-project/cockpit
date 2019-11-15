@@ -274,6 +274,7 @@ setup (TestCase *tc, gconstpointer data)
 
   /* wait until socket activation helper is ready */
   int socket_dir_fd = open (tc->ws_socket_dir, O_RDONLY | O_DIRECTORY);
+  g_assert_cmpint (socket_dir_fd, >=, 0);
   for (int retry = 0; retry < 200; ++retry)
     {
       if (faccessat (socket_dir_fd, "ready", F_OK, 0) == 0)
@@ -309,6 +310,7 @@ teardown (TestCase *tc, gconstpointer data)
   g_unsetenv ("COCKPIT_WS_PROCESS_IDLE");
 
   int socket_dir_fd = open (tc->ws_socket_dir, O_RDONLY | O_DIRECTORY);
+  g_assert_cmpint (socket_dir_fd, >=, 0);
   g_assert_cmpint (unlinkat (socket_dir_fd, "http.sock", 0), ==, 0);
   g_assert_cmpint (unlinkat (socket_dir_fd, "http-redirect.sock", 0), ==, 0);
   g_assert_cmpint (unlinkat (socket_dir_fd, "https-factory.sock", 0), ==, 0);

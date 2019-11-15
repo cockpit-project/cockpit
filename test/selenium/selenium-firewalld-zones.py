@@ -14,13 +14,15 @@ class FirewalldZones(SeleniumTest):
 
     def setUp(self):
         super().setUp()
+        self.prepare_machine_execute()
+        self.machine.execute("sudo systemctl start firewalld")
+        self.machine.execute("sudo firewall-cmd --add-service=cockpit")
+        self.machine.execute("sudo firewall-cmd --permanent --add-service=cockpit")
+
         self.login()
         self.click(self.wait_text("Network", cond=clickable))
         self.wait_frame("network")
         self.wait_id("networking")
-        self.machine.execute("sudo systemctl start firewalld")
-        self.machine.execute("sudo firewall-cmd --add-service=cockpit")
-        self.machine.execute("sudo firewall-cmd --permanent --add-service=cockpit")
         self.click(self.wait_id("networking-firewall-link", cond=clickable))
         self.mainframe()
         self.wait_frame("network/firewall")

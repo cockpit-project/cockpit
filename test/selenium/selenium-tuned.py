@@ -16,6 +16,7 @@ class TunedProfiles(SeleniumTest):
         super(TunedProfiles, self).setUp()
         self.balanced_profile = "balanced"
         self.desktop_profile = "desktop"
+        self.prepare_machine_execute()
         self.machine.execute("sudo systemctl start tuned", quiet=True)
         self.machine.execute("sudo tuned-adm profile {}".format(self.balanced_profile), quiet=True)
         self.machine.execute("/usr/sbin/tuned-adm active", quiet=True)

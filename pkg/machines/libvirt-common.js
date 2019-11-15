@@ -894,6 +894,8 @@ export function resolveUiState(dispatch, name) {
 
 export function updateDisk(domXml, diskTarget, readonly, shareable) {
     const domainElem = getDomainElem(domXml);
+    if (!domainElem)
+        throw new Error("updateBootOrder: domXML has no domain element");
 
     const deviceElem = domainElem.getElementsByTagName("devices")[0];
     const disks = deviceElem.getElementsByTagName("disk");

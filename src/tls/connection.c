@@ -179,7 +179,7 @@ get_iovecs (struct iovec *iov,
   int i = 0;
 
   debug (IOVEC, "  get_iovecs (%p, %i, %p, 0x%x, 0x%x)", iov, iov_length, buffer, start, end);
-  assert (end - start >= 0);
+  assert (end - start <= BUFFER_SIZE);
 
   for (i = 0; i < iov_length && start != end; i++)
     {

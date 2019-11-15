@@ -98,8 +98,8 @@ export function netmaskConvert(prefixOrNetmask) {
     netmask += prefixToNetmask[remainder];
 
     // Fill out the rest with 0s
-    for (i; i < 3; i++)
-        netmask += ".0";
+    if (i < 3)
+        netmask += ".0".repeat(3 - i);
 
     return netmask;
 }

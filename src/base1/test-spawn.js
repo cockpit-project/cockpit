@@ -27,12 +27,8 @@ function MockPeer() {
         /* nada */
     };
 
-    /* get event: triggered when we receive a get request */
-    this.onget = function(event, channel, request) {
-        if (event.isDefaultPrevented())
-            return false;
-        if (request.path == "/")
-            this.reply(channel, request, { key: "value" });
+    this.oncontrol = function(event, channel, options) {
+        /* nada */
     };
 
     /* send a message from peer back to channel */
@@ -79,6 +75,13 @@ function MockPeer() {
             console.assert(arguments.length == 1);
             console.assert(this.valid);
             window.setTimeout(function() { $(peer).trigger("recv", [channel, payload]) }, 5);
+        };
+
+        this.control = function(options) {
+            console.assert(typeof command === 'string');
+            console.assert(options !== null && typeof options === 'object');
+            console.assert(arguments.length == 1);
+            window.setTimeout(function() { $(peer).trigger("control", [channel, options]) }, 5);
         };
 
         this.close = function(options) {
@@ -153,6 +156,69 @@ QUnit.test("simple request", function (assert) {
             })
             .always(function() {
                 assert.equal(this.state(), "resolved", "didn't fail");
+                done();
+            });
+});
+
+QUnit.test("input large", function (assert) {
+    const done = assert.async();
+    assert.expect(25);
+
+    var str = new Array(128 * 1024).join('abcdef12345');
+    var output = "";
+    var count = 0;
+
+    var peer = new MockPeer();
+    $(peer).on("recv", function(event, channel, payload) {
+        assert.ok(typeof (payload) == "string", "got payload");
+        output += payload;
+        count += 1;
+    });
+    $(peer).on("control", function(event, channel, options) {
+        if (options.command == "done")
+            this.close(channel);
+    });
+
+    cockpit.spawn(["/path/to/command"])
+            .input(str)
+            .always(function() {
+                assert.equal(this.state(), "resolved", "didn't fail");
+                assert.equal(str, output, "right output");
+                assert.ok(count > 1, "broken into multiple blocks");
+                done();
+            });
+});
+
+QUnit.test("binary large", function (assert) {
+    const done = assert.async();
+    assert.expect(10);
+
+    var data = new Uint8Array(249 * 1023);
+    var i;
+    var len = data.byteLength;
+    for (i = 0; i < len; i++)
+        data[i] = i % 233;
+
+    var count = 0;
+
+    var peer = new MockPeer();
+    $(peer).on("recv", function(event, channel, payload) {
+        console.log(typeof (payload), payload.constructor);
+        assert.equal(typeof (payload), "object", "got payload");
+        assert.equal(payload.constructor, Uint8Array, "right binary array");
+        count += 1;
+    });
+    $(peer).on("control", function(event, channel, options) {
+        console.log("control", options);
+        if (options.command == "done")
+            this.close(channel);
+    });
+
+    cockpit.spawn(["/ptah/to/command"])
+            .input(data)
+            .always(function() {
+                assert.equal(this.state(), "resolved", "didn't fail");
+                assert.ok(count > 1, "broken into multiple blocks");
                 done();
             });
 });

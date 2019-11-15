@@ -238,7 +238,7 @@ export class StorageUsageBar extends React.Component {
         if (!stats)
             return null;
 
-        var fraction = stats ? stats[0] / stats[1] : null;
+        var fraction = stats[0] / stats[1];
         var labelText = utils.format_fsys_usage(stats[0], stats[1]);
 
         return (

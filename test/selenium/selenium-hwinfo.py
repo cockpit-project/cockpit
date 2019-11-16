@@ -25,6 +25,7 @@ class TestHWinfo(SeleniumTest):
 
     def setUp(self):
         super().setUp()
+        self.prepare_machine_execute()
         cmd = "cat | sudo tee '%s'" % self.lscpu_file
         self.machine.execute(command=cmd, input=self.lscpu)
         self.machine.execute('sudo chmod a+x {}'.format(self.lscpu_file))

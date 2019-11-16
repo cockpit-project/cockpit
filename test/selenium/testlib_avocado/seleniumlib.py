@@ -434,9 +434,11 @@ parameters:
         self.click(self.wait_id('navbar-dropdown', cond=clickable))
         self.click(self.wait_id('go-logout', cond=clickable))
 
-    def check_machine_execute(self, timeout=5):
+    def check_machine_execute(self, timeout=5, machine=None):
+        if not machine:
+            machine = self.machine
         try:
-            self.machine.execute(command="true", direct=True, timeout=timeout)
+            machine.execute(command="true", direct=True, timeout=timeout)
         except (subprocess.CalledProcessError, RuntimeError):
             return False
         return True
@@ -445,3 +447,20 @@ parameters:
         self.driver.refresh()
         if page_frame:
             self.wait_frame(page_frame)
+
+    def prepare_machine_execute(self, tmpuser=user, tmppassword=passwd, ssh_adress=None, ssh_port=None, identity_file=None, verbose=None):
+        """
+        return machine and add key there if  necessary via cockpit UI,
+        """
+        machine = ssh_connection.SSHConnection(user=user,
+                                               address=ssh_adress or self.machine.ssh_address,
+                                               ssh_port=ssh_port or self.machine.ssh_port,
+                                               identity_file=identity_file or self.machine.identity_file,
+                                               verbose=verbose or self.machine.verbose
+                                               )
+
+        if not self.check_machine_execute(machine=machine):
+            self.login(tmpuser=tmpuser, tmppasswd=tmppassword)
+            self.logout()
+            return machine
+        return self.machine

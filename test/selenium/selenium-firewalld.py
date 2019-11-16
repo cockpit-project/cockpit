@@ -15,11 +15,13 @@ class FirewalldBasePage(SeleniumTest):
 
     def setUp(self):
         super().setUp()
+        self.prepare_machine_execute()
+        self.machine.execute("sudo systemctl stop firewalld")
+
         self.login()
         self.click(self.wait_link('Network', cond=clickable))
         self.wait_frame("network")
         self.wait_id("networking")
-        self.machine.execute("sudo systemctl stop firewalld")
 
     def wait_some_zones(self):
         for retry in range(60):

@@ -276,22 +276,10 @@ cockpit_fslist_dispose (GObject *object)
         g_signal_handler_disconnect (self->monitor, self->sig_changed);
       self->sig_changed = 0;
 
-      // HACK - It is not generally safe to just unref a GFileMonitor.
-      // Some events might be on their way to the main loop from its
-      // worker thread and if they arrive after the GFileMonitor has
-      // been destroyed, bad things will happen.
-      //
-      // As a workaround, we cancel the monitor and then spin the main
-      // loop a bit until nothing is pending anymore.
-      //
-      // https://bugzilla.gnome.org/show_bug.cgi?id=740491
-
+      /* HACK - It is not generally safe to just unref a GFileMonitor:
+       * https://gitlab.gnome.org/GNOME/glib/issues/1941
+       */
       g_file_monitor_cancel (self->monitor);
-      for (int tries = 0; tries < 10; tries ++)
-        {
-          if (!g_main_context_iteration (NULL, FALSE))
-            break;
-        }
     }
 
   G_OBJECT_CLASS (cockpit_fslist_parent_class)->dispose (object);

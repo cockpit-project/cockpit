@@ -223,6 +223,11 @@ cockpit_fswatch_dispose (GObject *object)
         g_signal_handler_disconnect (self->monitor, self->sig_changed);
       self->sig_changed = 0;
 
+      /* HACK - It is not generally safe to just unref a GFileMonitor:
+       * https://gitlab.gnome.org/GNOME/glib/issues/1941
+       */
+      g_file_monitor_cancel (self->monitor);
+
       g_object_unref (self->monitor);
       self->monitor = NULL;
     }

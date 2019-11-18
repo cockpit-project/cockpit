@@ -95,6 +95,32 @@ function invoke_functions(functions, self, args) {
     }
 }
 
+function iterate_data(data, callback, batch) {
+    var binary = false;
+    var i, n;
+    var len = 0;
+
+    if (!batch)
+        batch = 64 * 1024;
+
+    if (data) {
+         if (data.byteLength) {
+             len = data.byteLength;
+             binary = true;
+         } else if (data.length) {
+             len = data.length;
+         }
+    }
+
+    for (i = 0; i < len; i += batch) {
+        n = Math.min(len - i, batch);
+        if (binary)
+            callback(new window.Uint8Array(data.buffer, i, n));
+        else
+            callback(data.substr(i, n));
+    }
+}
+
 /* -------------------------------------------------------------------------
  * Channels
  *
@@ -2818,7 +2844,9 @@ function factory() {
         ret.input = function(message, stream) {
             if (message !== null && message !== undefined) {
                 spawn_debug("process input:", message);
-                channel.send(message);
+                iterate_data(message, function(data) {
+                    channel.send(data);
+                });
             }
             if (!stream)
                 channel.control({ command: "done" });
@@ -3740,26 +3768,9 @@ function factory() {
                 }
             });
 
-            var len = 0;
-            var binary = false;
-            if (file_content) {
-                if (file_content.byteLength) {
-                    len = file_content.byteLength;
-                    binary = true;
-                } else if (file_content.length) {
-                    len = file_content.length;
-                }
-            }
-
-            var i, n;
-            var batch = 16 * 1024;
-            for (i = 0; i < len; i += batch) {
-                n = Math.min(len - i, batch);
-                if (binary)
-                    replace_channel.send(new window.Uint8Array(file_content.buffer, i, n));
-                else
-                    replace_channel.send(file_content.substr(i, n));
-            }
+            iterate_data(file_content, function(data) {
+                replace_channel.send(data);
+            });
 
             replace_channel.control({ command: "done" });
             return dfd.promise;
@@ -4150,7 +4161,9 @@ function factory() {
             if (input !== undefined) {
                 if (input !== "") {
                     http_debug("http input:", input);
-                    channel.send(input);
+                    iterate_data(input, function(data) {
+                        channel.send(data);
+                    });
                 }
                 http_debug("http done");
                 channel.control({ command: "done" });
@@ -4227,7 +4240,9 @@ function factory() {
             ret.input = function(message, stream) {
                 if (message !== null && message !== undefined) {
                     http_debug("http input:", message);
-                    channel.send(message);
+                    iterate_data(message, function(data) {
+                        channel.send(data);
+                    });
                 }
                 if (!stream) {
                     http_debug("http done");

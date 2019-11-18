@@ -66,8 +66,10 @@ export const StoragePoolOverviewTab = ({ storagePool }) => {
             <label className='control-label' htmlFor={`${idPrefix}-persistent`}> {_("Persistent")} </label>
             <div id={`${idPrefix}-persistent`}> {storagePool.persistent ? _("yes") : _("no")} </div>
 
-            <label className='control-label' htmlFor={`${idPrefix}-autostart`}> {_("Autostart")} </label>
-            <div id={`${idPrefix}-autostart`}> {storagePool.autostart ? _("yes") : _("no")} </div>
+            {storagePool.persistent && <>
+                <label className='control-label' htmlFor={`${idPrefix}-autostart`}> {_("Autostart")} </label>
+                <div id={`${idPrefix}-autostart`}> {storagePool.autostart ? _("yes") : _("no")} </div>
+            </>}
 
             <label className='control-label' htmlFor={`${idPrefix}-type`}> {_("Type")} </label>
             <div id={`${idPrefix}-type`}> {storagePool.type} </div>

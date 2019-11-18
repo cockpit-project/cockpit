@@ -27,39 +27,32 @@ import {
 
 const CardsDemo = () => {
     const cards = [
-        <GalleryItem key="card1">
-            <Card isCompact>
-                <CardBody>I'm a card in a gallery</CardBody>
-            </Card>
-        </GalleryItem>,
-        <GalleryItem key="card2">
-            <Card isCompact>
-                <CardBody>I'm a card in a gallery</CardBody>
-                <CardFooter>I have a footer</CardFooter>
-            </Card>
-        </GalleryItem>,
-        <GalleryItem key="card3">
-            <Card isCompact>
-                <CardBody>I'm a card in a gallery</CardBody>
-            </Card>
-        </GalleryItem>,
-        <GalleryItem key="card4">
-            <Card isCompact>
-                <CardHeader>I have a header too</CardHeader>
-                <CardBody>I'm a card in a gallery</CardBody>
-            </Card>
-        </GalleryItem>,
-        <GalleryItem key="card5">
-            <Card>
-                <CardHead>
-                    <CardActions>
-                        <input type="checkbox" />
-                        <Button className="btn">click</Button>
-                    </CardActions>
-                    <CardHeader>This is a card header</CardHeader>
-                </CardHead>
-                <CardBody>I'm a card in a gallery</CardBody>
-            </Card>
+        <Card isCompact key="card1">
+            <CardBody>I'm a card in a gallery</CardBody>
+        </Card>,
+        <Card isCompact key="card2">
+            <CardBody>I'm a card in a gallery</CardBody>
+            <CardFooter>I have a footer</CardFooter>
+        </Card>,
+        <Card isCompact key="card3">
+            <CardBody>I'm a card in a gallery</CardBody>
+        </Card>,
+        <Card isCompact key="card4">
+            <CardHeader>I have a header too</CardHeader>
+            <CardBody>I'm a card in a gallery</CardBody>
+        </Card>,
+        <Card key="card5">
+            <CardHead>
+                <CardActions>
+                    <input type="checkbox" />
+                    <Button className="btn">click</Button>
+                </CardActions>
+                <CardHeader>This is a card header</CardHeader>
+            </CardHead>
+            <CardBody>I'm a card in a gallery</CardBody>
+        </Card>,
+        <GalleryItem key="card6">
+            I'm not a card, but I'm in the gallery too, as a generic GalleryItem.
         </GalleryItem>,
     ];
     return (

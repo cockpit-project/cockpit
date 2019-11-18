@@ -140,6 +140,7 @@ export class StoragePoolDelete extends React.Component {
         for (const property in usage)
             vmsUsage = vmsUsage.concat(usage[property]);
 
+        vmsUsage = [...new Set(vmsUsage)]; // remove duplicates
         vmsUsage = vmsUsage.join(', ');
         const showWarning = () => {
             if (canDeleteOnlyWithoutVolumes(storagePool, vms) && this.state.deleteVolumes) {

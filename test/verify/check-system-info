@@ -529,7 +529,6 @@ class TestSystemInfo(MachineCase):
 
             m.execute('umount $(which dmidecode)')
 
-    @skipImage("mitigations=nosmt not recognized, #13138", "fedora-coreos")
     def testCPUSecurityMitigations(self):
         b = self.browser
         m = self.machine
@@ -565,11 +564,14 @@ class TestSystemInfo(MachineCase):
                 m.execute('while ! umount /proc/cmdline; do sleep 1; done')
                 m.execute('rm /run/cmdline')
 
-        # We expect our test VMs to not set nosmt
         spoof_threads(1, False)
         spoof_threads(2, True, True, 'param1 param2 nosmt param3=value3')
         spoof_threads(2, True, True, 'param1 param2 nosmt=force param3=value3')
+        spoof_threads(2, True, True, 'param1 mitigations=auto,nosmt param3=value3')
+        spoof_threads(2, True, True, 'param1 mitigations=nosmt,something param3=value3')
+        spoof_threads(2, True, False, 'param1 mitigations=something param3=value3')
         spoof_threads(2, False, cmdline='param1 nosmt=someunknown param3=value3')
+        # Most OSes don't set nosmt by default, but there are some exceptions
         expect_smt_default = m.image in ["fedora-coreos"]
         spoof_threads(2, True, expect_smt_default, None)
 
@@ -580,10 +582,18 @@ class TestSystemInfo(MachineCase):
             b.click('#hwinfo a:contains(Mitigations)')
         else:
             b.click('#hwinfo button:contains(Mitigations)')
+
+
         b.click('#cpu-mitigations-dialog #nosmt-switch input')
         b.wait_present('#cpu-mitigations-dialog #nosmt-switch input' +
                        (expect_smt_default and ':not(:checked)' or ':checked'))
         b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
+
+        if self.image in ["fedora-coreos"]:
+            # no way to set kernel options: https://github.com/coreos/fedora-coreos-config/issues/234
+            b.wait_present('#cpu-mitigations-dialog .pf-c-alert__title:contains(No supported grub update mechanism found)')
+            return
+
         m.wait_reboot()
         if expect_smt_default:
             self.assertNotIn('nosmt', m.execute('cat /proc/cmdline'))

@@ -226,15 +226,15 @@ export function mounting_dialog(client, block, mode) {
                           value: old_dir,
                           validate: val => is_valid_mount_point(client, block, val)
                       }),
-            CheckBoxes("mount_options", _("Mount Options"),
+            CheckBoxes("mount_options", "",
                        {
                            value: {
                                ro: opt_ro,
                                extra: extra_options === "" ? false : extra_options
                            },
                            fields: [
-                               { title: _("Mount read only"), tag: "ro" },
-                               { title: _("Custom mount options"), tag: "extra", type: "checkboxWithInput" },
+                               { title: _("Read only"), tag: "ro" },
+                               { title: _("Custom options"), tag: "extra", type: "checkboxWithInput" },
                            ]
                        },
             ),

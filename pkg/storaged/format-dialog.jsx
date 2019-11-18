@@ -227,27 +227,39 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
                               visible: is_encrypted
                           })
             ].concat(crypto_options_dialog_fields(crypto_options, is_encrypted, true)),
-            TextInput("mount_point", _("Mount Point"),
-                      {
-                          visible: is_filesystem,
-                          value: old_dir || "",
-                          validate: val => is_valid_mount_point(client, block, val)
-                      }),
-            CheckBoxes("mount_options", _("Mount Options"),
+            CheckBoxes("mount", "",
                        {
-                           visible: is_filesystem,
                            value: {
-                               auto: !opt_noauto,
-                               ro: opt_ro,
-                               extra: extra_options || false
+                               on: true
                            },
                            fields: [
-                               { title: _("Mount now"), tag: "auto" },
-                               { title: _("Mount read only"), tag: "ro" },
-                               { title: _("Custom mount options"), tag: "extra", type: "checkboxWithInput" },
-                           ]
-                       },
-            ),
+                               { tag: "on", title: _("Configure mount point") }
+                           ],
+                           visible: is_filesystem,
+                       }),
+            [
+                TextInput("mount_point", _("Mount Point"),
+                          {
+                              visible: vals => is_filesystem(vals) && vals.mount.on,
+                              value: old_dir || "",
+                              validate: val => is_valid_mount_point(client, block, val)
+                          }),
+                CheckBoxes("mount_options", "",
+                           {
+                               visible: vals => is_filesystem(vals) && vals.mount.on,
+                               value: {
+                                   auto: !opt_noauto,
+                                   ro: opt_ro,
+                                   extra: extra_options || false
+                               },
+                               fields: [
+                                   { title: _("Mount now"), tag: "auto" },
+                                   { title: _("Read only"), tag: "ro" },
+                                   { title: _("Custom options"), tag: "extra", type: "checkboxWithInput" },
+                               ]
+                           }
+                )
+            ]
         ],
         update: function (dlg, vals, trigger) {
             if (trigger == "crypto_options" && vals.crypto_options.auto == false)
@@ -295,7 +307,7 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
                     config_items.push(["crypttab", item]);
                 }
 
-                if (is_filesystem(vals)) {
+                if (is_filesystem(vals) && vals.mount.on) {
                     var mount_options = [];
                     if (!vals.mount_options.auto)
                         mount_options.push("noauto");
@@ -342,7 +354,7 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
                 }
 
                 function maybe_mount() {
-                    if (is_filesystem(vals) && vals.mount_options.auto)
+                    if (is_filesystem(vals) && vals.mount.on && vals.mount_options.auto)
                         return client.wait_for(block_fsys_for_block).then(block_fsys => block_fsys.Mount({ }));
                 }
 

@@ -144,6 +144,7 @@ export class StorageVolumeCreate extends React.Component {
                         <span>
                             <Button id={`${idPrefix}-button`}
                                 bsStyle='default'
+                                style={{ pointerEvents: 'none' }}
                                 disabled>
                                 {_("Create Volume")}
                             </Button>

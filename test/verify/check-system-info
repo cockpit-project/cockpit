@@ -658,6 +658,23 @@ fi
         else:
             self.assertNotIn('nosmt', m.execute('cat /proc/cmdline'))
 
+        # updates mitigations=nosmt when that is present
+        if m.image != "rhel-8-1-distropkg":  # fixed in PR #13166
+            m.upload(["../pkg/systemd/kernelopt.sh"], "/tmp/")
+            m.execute("/tmp/kernelopt.sh remove nosmt && /tmp/kernelopt.sh set mitigations=auto,nosmt")
+            m.spawn("sync && sleep 0.1 && reboot", "reboot")
+            m.wait_reboot()
+            self.login_and_go('/system/hwinfo')
+            b.click('#hwinfo button:contains(Mitigations)')
+            b.wait_present('#cpu-mitigations-dialog span:contains(nosmt)')
+            b.wait_present('#cpu-mitigations-dialog #nosmt-switch input:checked')
+            b.click('#cpu-mitigations-dialog #nosmt-switch input')
+            b.wait_present('#cpu-mitigations-dialog #nosmt-switch input:not(:checked)')
+            b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
+            m.wait_reboot()
+            self.assertNotIn('nosmt', m.execute('cat /proc/cmdline'))
+            self.assertIn('mitigations=auto', m.execute('cat /proc/cmdline'))
+
         # Behaviour for non-admins
         self.login_and_go('/system/hwinfo', authorized=False)
         b.wait_present('#hwinfo th:contains(CPU)')

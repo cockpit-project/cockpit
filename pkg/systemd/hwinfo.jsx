@@ -147,8 +147,13 @@ function availableMitigations() {
         const nosmt_enabled = (values[1].indexOf("nosmt") !== -1 && values[1].indexOf("nosmt=") === -1) || values[1].indexOf("nosmt=force") !== -1;
         /* available if threads>1 and the cmdline is valid */
         const nosmt_available = threads_per_core > 1 && (values[1].indexOf("nosmt=") === -1 || values[1].indexOf("nosmt=force") !== -1);
+        const mitigations_match = values[1].match(/\bmitigations=(\S*)\b/);
 
-        availableMitigations.cachedMitigations = { available: nosmt_available, nosmt_enabled: nosmt_enabled };
+        availableMitigations.cachedMitigations = {
+            available: nosmt_available,
+            nosmt_enabled: nosmt_enabled,
+            mitigations_arg: mitigations_match ? mitigations_match[1] : undefined,
+        };
         return availableMitigations.cachedMitigations;
     });
 }
@@ -176,10 +181,18 @@ class CPUSecurityMitigationsDialog extends React.Component {
 
     saveAndReboot() {
         let options = [];
-        if (this.state.nosmt)
+        if (this.state.nosmt) {
             options = ['set', 'nosmt'];
-        else
-            options = ['remove', 'nosmt'];
+        } else {
+            // this may either be an argument of its own, or part of mitigations=
+            const ma = availableMitigations.cachedMitigations.mitigations_arg;
+            if (ma && ma.indexOf("nosmt") >= 0) {
+                const new_args = ma.split(',').filter(opt => opt != 'nosmt');
+                options = ['set', 'mitigations=' + new_args.join(',')];
+            } else {
+                options = ['remove', 'nosmt'];
+            }
+        }
 
         cockpit.script(kernelopt_sh, options, { superuser: "require", err: "message" })
                 .then(() => {

@@ -589,11 +589,6 @@ class TestSystemInfo(MachineCase):
                        (expect_smt_default and ':not(:checked)' or ':checked'))
         b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
 
-        if self.image in ["fedora-coreos"]:
-            # no way to set kernel options: https://github.com/coreos/fedora-coreos-config/issues/234
-            b.wait_present('#cpu-mitigations-dialog .pf-c-alert__title:contains(No supported grub update mechanism found)')
-            return
-
         m.wait_reboot()
         if expect_smt_default:
             self.assertNotIn('nosmt', m.execute('cat /proc/cmdline'))
@@ -686,6 +681,7 @@ fi
         m.execute('mv /etc/default/grub /etc/default/grub.bak || true')
         m.write('/tmp/grubby', '#!/bin/sh\necho 0')
         m.execute('[ ! -f /usr/sbin/grubby ] || mount --bind /tmp/grubby /usr/sbin/grubby')
+        m.execute('systemctl stop rpm-ostreed.service || true; systemctl mask rpm-ostreed.service')
         self.login_and_go('/system/hwinfo')
         if m.image == "rhel-8-1-distropkg":
             b.click('#hwinfo a:contains(Mitigations)')

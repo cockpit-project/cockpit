@@ -49,8 +49,21 @@ grub() {
     # on Debian/Ubuntu, use update-grub, which reads from /etc/default/grub
     elif [ -e /etc/default/grub ] && type update-grub >/dev/null 2>&1; then
         update-grub
+
+    # on OSTree, the kernel config is inside the image
+    elif cur=$(rpm-ostree kargs 2>&1); then
+        if [ "$1" = set ]; then
+            # replace if already present
+            if [ "${cur% $key *}" != "$cur" ] || [ "${cur% $key=*}" != "$cur" ]; then
+                rpm-ostree kargs --replace="$2"
+            else
+                rpm-ostree kargs --append="$2"
+            fi
+        else
+            rpm-ostree kargs --delete="$key"
+        fi
     else
-        error "No supported grub update mechanism found (grubby or update-grub)"
+        error "No supported grub update mechanism found (grubby, update-grub, or rpm-ostree)"
     fi
 }
 

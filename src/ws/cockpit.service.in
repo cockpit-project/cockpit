@@ -7,7 +7,6 @@ After=cockpit-wsinstance-http.socket cockpit-wsinstance-http-redirect.socket coc
 
 [Service]
 RuntimeDirectory=cockpit/tls
-RuntimeDirectoryMode=0700
 # systemd ≥ 241 sets this automatically
 Environment=RUNTIME_DIRECTORY=/run/cockpit/tls
 ExecStartPre=@sbindir@/remotectl certificate --ensure --user=root --group=@group@ --selinux-type=@selinux_config_type@

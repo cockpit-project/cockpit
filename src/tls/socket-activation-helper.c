@@ -18,18 +18,19 @@
  */
 #define _GNU_SOURCE 1
 
-#include <stdio.h>
+#include <assert.h>
+#include <err.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <pthread.h>
 #include <stdbool.h>
-#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <sys/poll.h>
 #include <sys/socket.h>
-#include <sys/wait.h>
-#include <stdlib.h>
 #include <sys/un.h>
-#include <errno.h>
-#include <err.h>
-#include <assert.h>
-#include <fcntl.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 #include "socket-io.h"
 #include "testing.h"
@@ -43,9 +44,10 @@ static struct instance_type
   const char *argv[MAX_COCKPIT_WS_ARGS];
 } instance_types[] = {
   {"https-factory.sock", {}}, /* treated specially */
-  /* support up to 2 ws instances; increase this if the unit test needs more */
+  /* support up to 2 ws instances (+1 special); increase this if the unit test needs more */
   {"https@" SHA256_NIL ".sock", {"--for-tls-proxy", "--port=0"}},
   {"https@" CLIENT_CERT_FINGERPRINT ".sock", {"--for-tls-proxy", "--port=0"}},
+  {"https@" ALTERNATE_FINGERPRINT ".sock", {}}, /* treated specially */
   {"http-redirect.sock", {"--proxy-tls-redirect", "--no-tls", "--port=0"}},
   {"http.sock", {"--no-tls", "--port", "0"}},
 };
@@ -147,7 +149,7 @@ static void
 handle_https_factory (int listen_fd)
 {
   int fd = accept4 (listen_fd, NULL, NULL, SOCK_CLOEXEC);
-  char fingerprint[FINGERPRINT_LENGTH + 1];
+  Fingerprint fingerprint;
   const char *result;
 
   debug (HELPER, "connection to https-factory.sock:");
@@ -156,11 +158,11 @@ handle_https_factory (int listen_fd)
     err (EXIT_FAILURE, "accept connection to https-factory.sock");
 
   debug (HELPER, "  -> reading instance name... ");
-  if (!recv_alnum (fd, fingerprint, sizeof fingerprint, 10 * 1000000))
+  if (!recv_alnum (fd, fingerprint.str, sizeof fingerprint.str, 10 * 1000000))
     errx (EXIT_FAILURE, "failed to read fingerprint");
 
-  debug (HELPER, "  -> success: '%s'", fingerprint);
-  if (strcmp (fingerprint, SHA256_NIL) == 0) /* we check this value from the tests */
+  debug (HELPER, "  -> success: '%s'", fingerprint.str);
+  if (strcmp (fingerprint.str, SHA256_NIL) == 0) /* we check this value from the tests */
     result = "done";
   else
     result = "fail";
@@ -171,6 +173,46 @@ handle_https_factory (int listen_fd)
   debug (HELPER, "  -> done.");
 
   close (fd);
+}
+
+static void *
+handle_alternate_thread (void *fd_as_ptr)
+{
+  int fd = (intptr_t) fd_as_ptr;
+  ssize_t s;
+  char b;
+
+  do
+    s = write (fd, "hello", 5);
+  while (s == -1 && errno == EINTR);
+  assert (s == 5);
+
+
+  do
+    s = read (fd, &b, 1);
+  while (s == -1 && errno == EINTR);
+  assert (s == 0);
+
+  close (fd);
+
+  return NULL;
+}
+
+static void
+handle_alternate (int listen_fd)
+{
+  int fd = accept4 (listen_fd, NULL, NULL, SOCK_CLOEXEC);
+  pthread_attr_t attr;
+  pthread_t thread;
+
+  /* This is used from a testcase which spins up a whole bunch of
+   * parallel connections, so we need to handle this asynchronously.
+   * Use threads.
+   */
+  pthread_attr_init (&attr);
+  pthread_attr_setdetachstate (&attr, PTHREAD_CREATE_DETACHED);
+  pthread_create (&thread, &attr, handle_alternate_thread, (void *) (intptr_t) fd);
+  pthread_attr_destroy (&attr);
 }
 
 int
@@ -255,10 +297,16 @@ main (int argc, char *argv[])
               if (ws_pollfds[i].revents == POLLIN)
                 {
                   /* is this the https factory? */
-                  if (instance_types[i].argv[0] == NULL)
+                  if (strstr (instance_types[i].sockname, "factory"))
                     {
                       debug (HELPER, "got POLLIN on fd %i https factory", ws_pollfds[i].fd);
                       handle_https_factory (ws_pollfds[i].fd);
+                      continue;
+                    }
+                  else if (strstr (instance_types[i].sockname, ALTERNATE_FINGERPRINT))
+                    {
+                      debug (HELPER, "got POLLIN on fd %i alternate cert socket", ws_pollfds[i].fd);
+                      handle_alternate (ws_pollfds[i].fd);
                       continue;
                     }
 

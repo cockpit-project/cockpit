@@ -26,6 +26,7 @@
 #include <assert.h>
 #include <err.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <netinet/in.h>
 #include <pthread.h>
 #include <stdio.h>
@@ -44,6 +45,8 @@
 #include <gnutls/x509.h>
 
 #include <common/cockpitwebcertificate.h>
+#include <common/cockpitmemory.h>
+#include "certfile.h"
 #include "socket-io.h"
 #include "utils.h"
 
@@ -52,7 +55,10 @@ static struct {
   gnutls_certificate_request_t request_mode;
   gnutls_certificate_credentials_t x509_cred;
   const char *wsinstance_sockdir;
-} parameters;
+  int cert_session_dir;
+} parameters = {
+  .cert_session_dir = -1
+};
 
 typedef struct
 {
@@ -73,6 +79,9 @@ typedef struct {
 
   Buffer client_to_ws_buffer;
   Buffer ws_to_client_buffer;
+
+  Fingerprint fingerprint;
+  int certfile_fd;
 } Connection;
 
 #define BUFFER_SIZE (sizeof ((Buffer *) 0)->buffer)
@@ -346,14 +355,14 @@ buffer_read_from_tls (Buffer           *self,
 }
 
 static bool
-request_dynamic_wsinstance (const char *fingerprint)
+request_dynamic_wsinstance (const Fingerprint *fingerprint)
 {
   struct sockaddr_un addr;
   bool status = false;
   char reply[20];
   int fd;
 
-  debug (CONNECTION, "requesting dynamic wsinstance for %s:\n", fingerprint);
+  debug (CONNECTION, "requesting dynamic wsinstance for %s:\n", fingerprint->str);
 
   fd = socket (AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0);
   if (fd == -1)
@@ -373,8 +382,7 @@ request_dynamic_wsinstance (const char *fingerprint)
 
   /* send the fingerprint */
   debug (CONNECTION, "  -> success; sending fingerprint...");
-  assert (strlen (fingerprint) == FINGERPRINT_LENGTH);
-  if (!send_all (fd, fingerprint, FINGERPRINT_LENGTH, 5 * 1000000))
+  if (!send_all (fd, fingerprint->str, strlen (fingerprint->str), 5 * 1000000))
     goto out;
 
   debug (CONNECTION, "  -> success; waiting for reply...");
@@ -396,53 +404,30 @@ out:
 }
 
 static bool
-get_peer_certificate_fingerprint (gnutls_session_t  tls,
-                                  char             *result_data,
-                                  size_t            result_size)
-{
-  unsigned char digest_data[256 / 8];
-  size_t digest_size = sizeof digest_data;
-  const gnutls_datum_t no_certificate = { NULL, 0 };
-  const gnutls_datum_t *peer_certificate;
-
-  peer_certificate = gnutls_certificate_get_peers (tls, NULL);
-
-  /* no clientcert → sha256sum('') */
-  if (peer_certificate == NULL)
-    peer_certificate = &no_certificate;
-
-  if (gnutls_fingerprint (GNUTLS_DIG_SHA256, peer_certificate, digest_data, &digest_size))
-    return false;
-
-  assert (digest_size == sizeof digest_data);
-  assert (result_size == sizeof digest_data * 2 + 1);
-
-  for (int i = 0; i < sizeof digest_data; i++)
-    {
-      int s = snprintf (result_data, result_size, "%02x", digest_data[i]);
-      assert (s == 2 && 2 < result_size);
-      result_data += 2;
-      result_size -= 2;
-    }
-
-  assert (result_size == 1);
-  assert (result_data[0] == '\0');
-
-  return true;
-}
-
-static bool
 connection_connect_to_dynamic_wsinstance (Connection *self)
 {
+  const gnutls_datum_t *peer_certificate;
   struct sockaddr_un addr;
-  char fingerprint[FINGERPRINT_LENGTH + 1];
 
   assert (self->tls != NULL);
 
-  if (!get_peer_certificate_fingerprint (self->tls, fingerprint, sizeof fingerprint))
-    return false;
+  peer_certificate = gnutls_certificate_get_peers (self->tls, NULL);
 
-  sockaddr_printf (&addr, "%s/https@%s.sock", parameters.wsinstance_sockdir, fingerprint);
+  if (peer_certificate != NULL)
+    {
+      self->certfile_fd = certfile_open (parameters.cert_session_dir,
+                                         &self->fingerprint,
+                                         peer_certificate);
+      if (self->certfile_fd == -1)
+        return false;
+    }
+  else
+    {
+      self->fingerprint = (Fingerprint) { .str = SHA256_NIL };
+      self->certfile_fd = -1;
+    }
+
+  sockaddr_printf (&addr, "%s/https@%s.sock", parameters.wsinstance_sockdir, self->fingerprint.str);
   debug (CONNECTION, "Connecting dynamic https wsinstance %s:", addr.sun_path);
 
   /* fast path: the socket already exists, so we can just connect to it */
@@ -454,7 +439,7 @@ connection_connect_to_dynamic_wsinstance (Connection *self)
 
   debug (CONNECTION, "  -> failed (%m).  Requesting activation.");
   /* otherwise, ask for the instance to be started */
-  if (!request_dynamic_wsinstance (fingerprint))
+  if (!request_dynamic_wsinstance (&self->fingerprint))
     return false;
 
   /* ... and try one more time. */
@@ -685,7 +670,7 @@ connection_thread_loop (Connection *self)
 void
 connection_thread_main (int fd)
 {
-  Connection self = { .client_fd = fd, .ws_fd = -1 };
+  Connection self = { .client_fd = fd, .ws_fd = -1, .certfile_fd = -1 };
 
   assert (!buffer_can_write (&self.client_to_ws_buffer));
   assert (!buffer_can_write (&self.ws_to_client_buffer));
@@ -702,6 +687,9 @@ connection_thread_main (int fd)
     connection_thread_loop (&self);
 
   debug (CONNECTION, "Thread for fd %i is going to exit now", fd);
+
+  if (self.certfile_fd != -1)
+    certfile_close (parameters.cert_session_dir, self.certfile_fd, &self.fingerprint);
 
   if (self.tls)
     /* XXX: bye? */
@@ -825,16 +813,28 @@ connection_crypto_init (const char *certfile,
 void
 connection_set_wsinstance_sockdir (const char *wsinstance_sockdir)
 {
+  const char *runtimedir;
+
   assert (parameters.wsinstance_sockdir == NULL);
+  assert (parameters.cert_session_dir == -1);
+
   assert (wsinstance_sockdir != NULL);
 
   parameters.wsinstance_sockdir = wsinstance_sockdir;
+
+  runtimedir = secure_getenv ("RUNTIME_DIRECTORY");
+  if (!runtimedir)
+    errx (EXIT_FAILURE, "$RUNTIME_DIRECTORY environment variable must be set to a private directory");
+  parameters.cert_session_dir = open (runtimedir, O_DIRECTORY | O_PATH);
+  if (parameters.cert_session_dir == -1)
+    err (EXIT_FAILURE, "Unable to open $RUNTIME_DIRECTORY %s", runtimedir);
 }
 
 void
 connection_cleanup (void)
 {
   assert (parameters.wsinstance_sockdir != NULL);
+  assert (parameters.cert_session_dir != -1);
 
   parameters.wsinstance_sockdir = NULL;
 
@@ -843,4 +843,7 @@ connection_cleanup (void)
       gnutls_certificate_free_credentials (parameters.x509_cred);
       parameters.x509_cred = NULL;
     }
+
+  close (parameters.cert_session_dir);
+  parameters.cert_session_dir = -1;
 }

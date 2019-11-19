@@ -36,6 +36,7 @@
 #include "connection.h"
 #include "testing.h"
 #include "server.h"
+#include "utils.h"
 #include "common/cockpittest.h"
 
 #define SOCKET_ACTIVATION_HELPER BUILDDIR "/socket-activation-helper"
@@ -47,12 +48,16 @@
 
 #define CLIENT_CERTFILE SRCDIR "/src/bridge/mock-client.crt"
 #define CLIENT_KEYFILE SRCDIR "/src/bridge/mock-client.key"
+#define ALTERNATE_CERTFILE SRCDIR "/src/tls/alternate.crt"
+#define ALTERNATE_KEYFILE SRCDIR "/src/tls/alternate.key"
 #define CLIENT_EXPIRED_CERTFILE SRCDIR "/src/bridge/mock-client-expired.crt"
 
 const unsigned server_port = 9123;
 
 typedef struct {
   gchar *ws_socket_dir;
+  gchar *runtime_dir;
+  gchar *cert_file_path;
   GPid ws_spawner;
   struct sockaddr_in server_addr;
 } TestCase;
@@ -62,6 +67,9 @@ typedef struct {
   const char *keyfile;
   int cert_request_mode;
   int idle_timeout;
+  const char *client_crt;
+  const char *client_key;
+  const char *client_fingerprint;
 } TestFixture;
 
 static const TestFixture fixture_separate_crt_key = {
@@ -73,6 +81,27 @@ static const TestFixture fixture_separate_crt_key_client_cert = {
   .certfile = CERTFILE,
   .keyfile = KEYFILE,
   .cert_request_mode = GNUTLS_CERT_REQUEST,
+  .client_crt = CLIENT_CERTFILE,
+  .client_key = CLIENT_KEYFILE,
+  .client_fingerprint = CLIENT_CERT_FINGERPRINT,
+};
+
+static const TestFixture fixture_expired_client_cert = {
+  .certfile = CERTFILE,
+  .keyfile = KEYFILE,
+  .cert_request_mode = GNUTLS_CERT_REQUEST,
+  .client_crt = CLIENT_EXPIRED_CERTFILE,
+  .client_key = CLIENT_KEYFILE,
+  .client_fingerprint = CLIENT_CERT_FINGERPRINT,
+};
+
+static const TestFixture fixture_alternate_client_cert = {
+  .certfile = CERTFILE,
+  .keyfile = KEYFILE,
+  .cert_request_mode = GNUTLS_CERT_REQUEST,
+  .client_crt = ALTERNATE_CERTFILE,
+  .client_key = ALTERNATE_KEYFILE,
+  .client_fingerprint = ALTERNATE_FINGERPRINT,
 };
 
 static const TestFixture fixture_combined_crt_key = {
@@ -164,8 +193,7 @@ assert_http (TestCase *tc)
 
 static void
 assert_https_outcome (TestCase *tc,
-                      const char *client_crt,
-                      const char *client_key,
+                      const TestFixture *fixture,
                       unsigned expected_server_certs,
                       bool expect_tls_failure)
 {
@@ -198,10 +226,13 @@ assert_https_outcome (TestCase *tc,
       gnutls_handshake_set_timeout(session, 5000);
       g_assert_cmpint (gnutls_certificate_allocate_credentials (&xcred), ==, GNUTLS_E_SUCCESS);
       g_assert_cmpint (gnutls_certificate_set_x509_system_trust (xcred), >=, 0);
-      if (client_crt)
+      if (fixture && fixture->client_crt)
         {
-          g_assert (client_key);
-          g_assert_cmpint (gnutls_certificate_set_x509_key_file (xcred, client_crt, client_key, GNUTLS_X509_FMT_PEM),
+          g_assert (fixture->client_key);
+          g_assert_cmpint (gnutls_certificate_set_x509_key_file (xcred,
+                                                                 fixture->client_crt,
+                                                                 fixture->client_key,
+                                                                 GNUTLS_X509_FMT_PEM),
                            ==, GNUTLS_E_SUCCESS);;
         }
       g_assert_cmpint (gnutls_credentials_set (session, GNUTLS_CRD_CERTIFICATE, xcred), ==, GNUTLS_E_SUCCESS);
@@ -245,6 +276,26 @@ assert_https_outcome (TestCase *tc,
           cockpit_assert_strmatch (buf, "HTTP/1.1 404 Not Found\r\nContent-Type: text/html*");
         }
 
+      /* check client certificate in state dir */
+      if (fixture && fixture->client_crt)
+        {
+
+          if (fixture->cert_request_mode != GNUTLS_CERT_IGNORE)
+            {
+              g_autofree char *cert_file = NULL;
+              g_autofree char *expected_pem = NULL;
+
+              g_assert (g_file_get_contents (tc->cert_file_path, &cert_file, NULL, NULL));
+              g_assert (g_file_get_contents (fixture->client_crt, &expected_pem, NULL, NULL));
+              g_assert_cmpstr (g_strchomp (cert_file), ==, g_strchomp (expected_pem));
+            }
+          else
+            {
+              g_assert_cmpint (access (tc->cert_file_path, F_OK), ==, -1);
+              g_assert_cmpint (errno, ==, ENOENT);
+            }
+        }
+
       g_assert_cmpint (gnutls_bye (session, GNUTLS_SHUT_RDWR), ==, GNUTLS_E_SUCCESS);
 
       g_assert_false (expect_tls_failure);
@@ -256,12 +307,16 @@ assert_https_outcome (TestCase *tc,
   for (int retry = 0; retry < 100 && waitpid (pid, &status, WNOHANG) <= 0; ++retry)
     server_poll_event (200);
   g_assert_cmpint (status, ==, 0);
+
+  /* cleans up client certificate after closing connection */
+  g_assert_cmpint (access (tc->cert_file_path, F_OK), ==, -1);
+  g_assert_cmpint (errno, ==, ENOENT);
 }
 
 static void
-assert_https (TestCase *tc, const char *client_crt, const char *client_key, unsigned expected_server_certs)
+assert_https (TestCase *tc, const TestFixture *fixture, unsigned expected_server_certs)
 {
-  assert_https_outcome (tc, client_crt, client_key, expected_server_certs, false);
+  assert_https_outcome (tc, fixture, expected_server_certs, false);
 }
 
 static void
@@ -272,6 +327,19 @@ setup (TestCase *tc, gconstpointer data)
 
   tc->ws_socket_dir = g_dir_make_tmp ("server.wssock.XXXXXX", NULL);
   g_assert (tc->ws_socket_dir);
+
+  tc->runtime_dir = g_dir_make_tmp ("server.runtime.XXXXXX", NULL);
+  g_assert (tc->runtime_dir);
+
+  g_assert (g_setenv ("RUNTIME_DIRECTORY", tc->runtime_dir, TRUE));
+
+  const char *fingerprint;
+  if (fixture && fixture->client_fingerprint)
+    fingerprint = fixture->client_fingerprint;
+  else
+    fingerprint = SHA256_NIL;
+  tc->cert_file_path = g_build_filename (tc->runtime_dir, fingerprint, NULL);
+  g_assert (tc->cert_file_path);
 
   gchar* sah_argv[] = { SOCKET_ACTIVATION_HELPER, COCKPIT_WS, tc->ws_socket_dir, NULL };
   if (!g_spawn_async (NULL, sah_argv, NULL, G_SPAWN_DO_NOT_REAP_CHILD, NULL, NULL, &tc->ws_spawner, &error))
@@ -321,10 +389,16 @@ teardown (TestCase *tc, gconstpointer data)
   g_assert_cmpint (unlinkat (socket_dir_fd, "https-factory.sock", 0), ==, 0);
   g_assert_cmpint (unlinkat (socket_dir_fd, "https@" SHA256_NIL ".sock", 0), ==, 0);
   g_assert_cmpint (unlinkat (socket_dir_fd, "https@" CLIENT_CERT_FINGERPRINT ".sock", 0), ==, 0);
+  g_assert_cmpint (unlinkat (socket_dir_fd, "https@" ALTERNATE_FINGERPRINT ".sock", 0), ==, 0);
   g_assert_cmpint (unlinkat (socket_dir_fd, "ready", 0), ==, 0);
   close (socket_dir_fd);
   g_assert_cmpint (g_rmdir (tc->ws_socket_dir), ==, 0);
   g_free (tc->ws_socket_dir);
+
+  g_free (tc->cert_file_path);
+
+  g_assert_cmpint (g_rmdir (tc->runtime_dir), ==, 0);
+  g_free (tc->runtime_dir);
 }
 
 static void
@@ -457,14 +531,14 @@ test_no_tls_redirect (TestCase *tc, gconstpointer data)
 static void
 test_tls_no_client_cert (TestCase *tc, gconstpointer data)
 {
-  assert_https (tc, NULL, NULL, 1);
+  assert_https (tc, data, 1);
 }
 
 static void
 test_tls_no_server_cert (TestCase *tc, gconstpointer data)
 {
   assert_http (tc);
-  assert_https_outcome (tc, NULL, NULL, 0, true);
+  assert_https_outcome (tc, data, 0, true);
   assert_http (tc);
 }
 
@@ -479,18 +553,19 @@ test_tls_redirect (TestCase *tc, gconstpointer data)
 static void
 test_tls_client_cert (TestCase *tc, gconstpointer data)
 {
-  assert_https (tc, CLIENT_CERTFILE, CLIENT_KEYFILE, 1);
-  /* no-cert case is handled by separate ws */
-  assert_https (tc, NULL, NULL, 1);
-  assert_https (tc, CLIENT_CERTFILE, CLIENT_KEYFILE, 1);
+  assert_https (tc, data, 1);
+  /* no-cert case is handled by separate ws; pass NULL fixture to not use a client cert */
+  assert_https (tc, NULL, 1);
+  assert_https (tc, data, 1);
 }
 
 static void
 test_tls_client_cert_disabled (TestCase *tc, gconstpointer data)
 {
-  assert_https (tc, CLIENT_CERTFILE, CLIENT_KEYFILE, 1);
-  /* no-cert case is handled by same ws, as client certs are disabled server-side */
-  assert_https (tc, NULL, NULL, 1);
+  assert_https (tc, data, 1);
+  /* no-cert case is handled by same ws, as client certs are disabled server-side;
+     pass NULL fixture to not use a client cert */
+  assert_https (tc, NULL, 1);
 }
 
 static void
@@ -501,22 +576,142 @@ test_tls_client_cert_expired (TestCase *tc, gconstpointer data)
    * introduces TLS 1.3 by default, which has only a two-step handshake: that
    * does not pick up the server's late failing handshake from the verify
    * function, only the next read/write attempt does */
-  assert_https_outcome (tc, CLIENT_EXPIRED_CERTFILE, CLIENT_KEYFILE, 1, true);
+  assert_https_outcome (tc, data, 1, true);
+}
+
+static void
+test_tls_client_cert_parallel (TestCase *tc, gconstpointer data)
+{
+  const TestFixture *fixture = data;
+  gboolean alternate = strcmp (fixture->client_fingerprint, ALTERNATE_FINGERPRINT) == 0;
+  pid_t pid;
+  int status;
+
+  block_sigchld ();
+
+  /* do the connection in a subprocess, as gnutls_handshake is synchronous */
+  pid = fork ();
+  if (pid < 0)
+    g_error ("failed to fork: %m");
+  if (pid == 0)
+    {
+      gnutls_certificate_credentials_t xcred;
+      const unsigned n_connections = 20;
+      int fds[n_connections];
+      gnutls_session_t sessions[n_connections];
+
+      g_assert_cmpint (gnutls_certificate_allocate_credentials (&xcred), ==, GNUTLS_E_SUCCESS);
+      g_assert_cmpint (gnutls_certificate_set_x509_system_trust (xcred), >=, 0);
+      g_assert_cmpint (gnutls_certificate_set_x509_key_file (xcred,
+                                                             fixture->client_crt,
+                                                             fixture->client_key,
+                                                             GNUTLS_X509_FMT_PEM),
+                       ==, GNUTLS_E_SUCCESS);
+
+      g_assert_cmpint (access (tc->cert_file_path, F_OK), ==, -1);
+      g_assert_cmpint (errno, ==, ENOENT);
+
+      /* start parallel connections; we don't actually need to send/receive anything (i. e. talk to cockpit-ws) --
+       * certificate export and refcounting is entirely done on the client → cockpit-tls side */
+      for (unsigned i = 0; i < n_connections; ++i)
+        {
+          fds[i] = do_connect (tc);
+          g_assert_cmpint (fds[i], >, 0);
+
+          g_assert_cmpint (gnutls_init (&sessions[i], GNUTLS_CLIENT), ==, GNUTLS_E_SUCCESS);
+          gnutls_transport_set_int (sessions[i], fds[i]);
+          g_assert_cmpint (gnutls_set_default_priority (sessions[i]), ==, GNUTLS_E_SUCCESS);
+          g_assert_cmpint (gnutls_credentials_set (sessions[i], GNUTLS_CRD_CERTIFICATE, xcred), ==, GNUTLS_E_SUCCESS);
+          gnutls_handshake_set_timeout(sessions[i], 5000);
+          g_assert_cmpint (gnutls_handshake (sessions[i]), ==, GNUTLS_E_SUCCESS);
+
+          /* the file should be written on first connection, and just exist for the next ones.
+           *
+           * In the "alternate" mode we will receive a "hello" message to tell us that the
+           * server is active (by which time the file will have been created).  For the
+           * other case, we have to wait for it to appear.
+           * */
+          if (alternate)
+            {
+              char buffer[6];
+              ssize_t s;
+
+              do
+                s = gnutls_record_recv (sessions[i], buffer, sizeof buffer);
+              while (s == GNUTLS_E_INTERRUPTED);
+              g_assert_cmpint (s, ==, 5);
+              g_assert (memcmp (buffer, "hello", 5) == 0);
+            }
+          else
+            {
+              if (i == 0)
+                {
+                  for (int retry = 0; retry < 100; ++retry)
+                    {
+                      if (access (tc->cert_file_path, F_OK) == 0)
+                        break;
+                      g_usleep (10000);
+                    }
+                }
+            }
+
+          g_assert_cmpint (access (tc->cert_file_path, F_OK), ==, 0);
+        }
+
+      /* close the connections again, all but the last one */
+      for (unsigned i = 0; i < n_connections - 1; ++i)
+        {
+          g_assert_cmpint (gnutls_bye (sessions[i], GNUTLS_SHUT_RDWR), ==, GNUTLS_E_SUCCESS);
+          close (fds[i]);
+        }
+
+      if (!alternate)
+        {
+          /* The certificate file should still exist for the last connection, but it might
+           * not *yet* exist (if the last connection failed to initialise before all the
+           * other connections exited, which is a race that we've seen in practice).  Wait
+           * for it, as above.
+           */
+          for (int retry = 0; retry < 100; ++retry)
+            {
+              if (access (tc->cert_file_path, F_OK) == 0)
+                break;
+              g_usleep (10000);
+            }
+        }
+      g_assert_cmpint (access (tc->cert_file_path, F_OK), ==, 0);
+
+      /* closing last connection removes it */
+      g_assert_cmpint (gnutls_bye (sessions[n_connections - 1], GNUTLS_SHUT_RDWR), ==, GNUTLS_E_SUCCESS);
+      close (fds[n_connections - 1]);
+      for (int retry = 0; retry < 100; ++retry)
+        {
+          if (access (tc->cert_file_path, F_OK) < 0)
+            break;
+          g_usleep (10000);
+        }
+      g_assert_cmpint (access (tc->cert_file_path, F_OK), ==, -1);
+      exit (0);
+    }
+
+  for (int retry = 0; retry < 200 && waitpid (pid, &status, WNOHANG) <= 0; ++retry)
+    server_poll_event (100);
+  g_assert_cmpint (status, ==, 0);
 }
 
 static void
 test_tls_cert_chain (TestCase *tc, gconstpointer data)
 {
   /* CERTCHAINKEYFILE has two certs */
-  assert_https (tc, NULL, NULL, 2);
+  assert_https (tc, data, 2);
 }
 
 static void
 test_mixed_protocols (TestCase *tc, gconstpointer data)
 {
-  assert_https (tc, NULL, NULL, 1);
+  assert_https (tc, data, 1);
   assert_http (tc);
-  assert_https (tc, NULL, NULL, 1);
+  assert_https (tc, data, 1);
   assert_http (tc);
 }
 
@@ -550,8 +745,12 @@ main (int argc, char *argv[])
               setup, test_tls_client_cert, teardown);
   g_test_add ("/server/tls/client-cert-disabled", TestCase, &fixture_separate_crt_key,
               setup, test_tls_client_cert_disabled, teardown);
-  g_test_add ("/server/tls/client-cert-expired", TestCase, &fixture_separate_crt_key_client_cert,
+  g_test_add ("/server/tls/client-cert-expired", TestCase, &fixture_expired_client_cert,
               setup, test_tls_client_cert_expired, teardown);
+  g_test_add ("/server/tls/client-cert-parallel", TestCase, &fixture_separate_crt_key_client_cert,
+              setup, test_tls_client_cert_parallel, teardown);
+  g_test_add ("/server/tls/client-cert-parallel/alternate", TestCase, &fixture_alternate_client_cert,
+              setup, test_tls_client_cert_parallel, teardown);
   g_test_add ("/server/tls/combined-server-cert-key", TestCase, &fixture_combined_crt_key,
               setup, test_tls_no_client_cert, teardown);
   g_test_add ("/server/tls/cert-chain", TestCase, &fixture_cert_chain,

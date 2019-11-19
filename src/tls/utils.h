@@ -49,4 +49,9 @@
 
 #define SD_LISTEN_FDS_START 3   /* sd_listen_fds(3) */
 
-#define FINGERPRINT_LENGTH (64) /* sha256 hex */
+#define SHA256_NIL "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+
+typedef struct
+{
+  char str[64 + 1];
+} Fingerprint;

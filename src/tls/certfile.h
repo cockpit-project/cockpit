@@ -19,5 +19,15 @@
 
 #pragma once
 
-#define CLIENT_CERT_FINGERPRINT "fd1245619267040f6aa88d8071bbae3c99d99ac759fdfec99fcc1af4c28ba23c"
-#define ALTERNATE_FINGERPRINT "bc6db655760ad4830ea9a4a4ebf5fa5d08dc65bd0193643e721999bdeda2dcae"
+#include <gnutls/gnutls.h>
+#include "utils.h"
+
+int
+certfile_open (int dirfd,
+               Fingerprint *out_fingerprint,
+               const gnutls_datum_t *der);
+
+void
+certfile_close (int dirfd,
+                int fd,
+                const Fingerprint *fingerprint);

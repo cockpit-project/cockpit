@@ -34,7 +34,7 @@ def can_manage(machine):
 
 
 @skipImage("No cockpit-docker on i386", "fedora-i386")
-@skipImage("No docker packaged", "rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2", "fedora-coreos")
+@skipImage("No docker packaged", "rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2", "fedora-coreos", "centos-8-stream")
 @skipImage("Docker not available", "fedora-31") # https://github.com/cockpit-project/cockpit/issues/12670
 @skipPackage("cockpit-docker")
 class TestDockerStorageDirect(MachineCase):
@@ -54,7 +54,7 @@ class TestDockerStorageDirect(MachineCase):
 
 
 @skipImage("No cockpit-docker on i386", "fedora-i386")
-@skipImage("No docker packaged", "rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2", "fedora-coreos")
+@skipImage("No docker packaged", "rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2", "fedora-coreos", "centos-8-stream")
 @skipImage("Docker not available", "fedora-31") # https://github.com/cockpit-project/cockpit/issues/12670
 @skipPackage("cockpit-docker")
 class TestDockerStorage(MachineCase):

@@ -191,7 +191,7 @@ class TestStorage(StorageCase):
         self.content_row_action(1, "Create Partition")
         self.dialog({"size": 20,
                      "type": "ext4",
-                     "mount_point": "/foo",
+                     "mount_point": "/foo1",
                      "mount_options.auto": False,
                      "name": "One"})
         self.content_row_wait_in_col(1, 1, "ext4 File System")
@@ -200,7 +200,7 @@ class TestStorage(StorageCase):
         # Create second partition
         self.content_row_action(2, "Create Partition")
         self.dialog({"type": "ext4",
-                     "mount_point": "/foo",
+                     "mount_point": "/foo2",
                      "mount_options.auto": False,
                      "name": "Two"})
 

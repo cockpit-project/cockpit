@@ -26,7 +26,7 @@ import {
     BlockingMessage, TeardownMessage
 } from "./dialog.jsx";
 
-import { get_fstab_config } from "./fsys-tab.jsx";
+import { get_fstab_config, is_valid_mount_point } from "./fsys-tab.jsx";
 
 const _ = cockpit.gettext;
 
@@ -231,10 +231,7 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
                       {
                           visible: is_filesystem,
                           value: old_dir || "",
-                          validate: function (val) {
-                              if (val === "")
-                                  return _("Mount point cannot be empty");
-                          }
+                          validate: val => is_valid_mount_point(client, block, val)
                       }),
             CheckBoxes("mount_options", _("Mount Options"),
                        {

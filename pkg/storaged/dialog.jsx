@@ -351,14 +351,25 @@ export const dialog_open = (def) => {
     };
 
     const footer_props = (running_title, running_promise) => {
-        let actions = [];
-        if (def.Action) {
-            actions = [
-                {
-                    caption: def.Action.Title,
-                    style: (def.Action.Danger || def.Action.DangerButton) ? "danger" : "primary",
-                    disabled: running_promise != null,
-                    clicked: function (progress_callback) {
+        function make_action(def) {
+            return {
+                caption: def.Title,
+                style: (def.Danger || def.DangerButton) ? "danger" : "primary",
+                disabled: running_promise != null,
+                clicked: function (progress_callback) {
+                    if (def.no_validate) {
+                        return client.run(() => {
+                            return def.action(null, progress_callback)
+                                    .catch(error => {
+                                        if (error.toString() != "[object Object]") {
+                                            return Promise.reject(error);
+                                        } else {
+                                            update(error, null);
+                                            return Promise.reject();
+                                        }
+                                    });
+                        });
+                    } else {
                         const func = () => {
                             return validate()
                                     .then(() => {
@@ -367,7 +378,7 @@ export const dialog_open = (def) => {
                                             if (is_visible(f, values))
                                                 visible_values[f.tag] = values[f.tag];
                                         });
-                                        return def.Action.action(visible_values, progress_callback);
+                                        return def.action(visible_values, progress_callback);
                                     })
                                     .catch(error => {
                                         if (error.toString() != "[object Object]") {
@@ -381,8 +392,14 @@ export const dialog_open = (def) => {
                         return client.run(func);
                     }
                 }
-            ];
+            };
         }
+
+        const actions = [];
+        if (def.SecondaryAction)
+            actions.push(make_action(def.SecondaryAction));
+        if (def.Action)
+            actions.push(make_action(def.Action));
 
         const extra = <div>
             { def.Footer }

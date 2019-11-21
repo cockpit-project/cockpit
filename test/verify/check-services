@@ -941,5 +941,7 @@ Where=/fail
             b.enter_page('/system')
             b.wait_not_present('#page_status_notifications:contains("failed")')
 
+        self.allow_journal_messages(".*type=1400 audit(.*): avc:  denied  { create } .* comm=\"systemd\" name=\"fail\".*")
+
 if __name__ == '__main__':
     test_main()

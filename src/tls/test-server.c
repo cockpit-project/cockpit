@@ -61,6 +61,7 @@ typedef struct {
   const char *certfile;
   const char *keyfile;
   int cert_request_mode;
+  int idle_timeout;
 } TestFixture;
 
 static const TestFixture fixture_separate_crt_key = {
@@ -80,6 +81,10 @@ static const TestFixture fixture_combined_crt_key = {
 
 static const TestFixture fixture_cert_chain = {
   .certfile = CERTCHAINKEYFILE,
+};
+
+static const TestFixture fixture_run_idle = {
+  .idle_timeout = 1,
 };
 
 /* for forking test cases, where server's SIGCHLD handling gets in the way */
@@ -283,7 +288,7 @@ setup (TestCase *tc, gconstpointer data)
     }
   close (socket_dir_fd);
 
-  server_init (tc->ws_socket_dir, 1, server_port);
+  server_init (tc->ws_socket_dir, fixture ? fixture->idle_timeout : 0, server_port);
   if (fixture && fixture->certfile)
     connection_crypto_init (fixture->certfile, fixture->keyfile, fixture->cert_request_mode);
 
@@ -559,7 +564,7 @@ main (int argc, char *argv[])
               setup, test_tls_blocked_handshake, teardown);
   g_test_add ("/server/mixed-protocols", TestCase, &fixture_separate_crt_key,
               setup, test_mixed_protocols, teardown);
-  g_test_add ("/server/run-idle", TestCase, NULL,
+  g_test_add ("/server/run-idle", TestCase, &fixture_run_idle,
               setup, test_run_idle, teardown);
 
   return g_test_run ();

@@ -332,11 +332,27 @@ function create_tabs(client, target, is_partition) {
             add_menu_action(_("Format"), () => format_dialog(client, block.path));
     }
 
+    function maybe_unmount() {
+        if (block_fsys.MountPoints.length > 0)
+            return block_fsys.Unmount({ });
+        else
+            return Promise.resolve();
+    }
+
     if (block_fsys) {
         if (is_mounted(client, block))
             add_menu_action(_("Unmount"), () => mounting_dialog(client, block, "unmount"));
         else
             add_action(_("Mount"), () => mounting_dialog(client, block, "mount"));
+
+        const config = utils.array_find(block.Configuration, function (c) { return c[0] == "fstab" });
+        if (config) {
+            add_menu_action(_("Remove mount configuration"), () => {
+                return maybe_unmount()
+                        .then(() => block.RemoveConfigurationItem(config, { }))
+                        .then(utils.reload_systemd);
+            });
+        }
     }
 
     return {

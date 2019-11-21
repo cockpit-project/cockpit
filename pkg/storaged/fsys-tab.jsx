@@ -214,10 +214,6 @@ export function mounting_dialog(client, block, mode) {
                 }));
     }
 
-    function remove() {
-        dlg.run(null, maybe_update_config("", "").then(() => dlg.close()));
-    }
-
     let fields = null;
     if (mode == "mount" || mode == "update")
         fields = [
@@ -240,19 +236,25 @@ export function mounting_dialog(client, block, mode) {
             ),
         ];
 
-    let footer = null;
-    const show_clear_button = false;
+    let secondary_action = null;
+    const show_clear_button = true;
     if (old_dir && mode == "update" && show_clear_button)
-        footer = <div className="modal-footer-teardown"><a onClick={remove}>{_("Clear mount point configuration")}</a></div>;
+        secondary_action = {
+            Title: _("Remove"),
+            DangerButton: true,
+            no_validate: true,
+            action: function () {
+                return maybe_update_config("", "");
+            }
+        };
+
+    let footer = null;
     if (!is_filesystem_mounted && block_fsys.MountPoints.length > 0)
         footer = (
-            <>
-                {footer}
-                <div className="modal-footer-teardown">
-                    <p>{cockpit.format(_("The filesystem is already mounted at $0.  Proceeding will unmount it."),
-                                       utils.decode_filename(block_fsys.MountPoints[0]))}</p>
-                </div>
-            </>);
+            <div className="modal-footer-teardown">
+                <p>{cockpit.format(_("The filesystem is already mounted at $0.  Proceeding will unmount it."),
+                                   utils.decode_filename(block_fsys.MountPoints[0]))}</p>
+            </div>);
 
     const mode_title = {
         mount: _("Mount Filesystem"),
@@ -280,7 +282,7 @@ export function mounting_dialog(client, block, mode) {
         return;
     }
 
-    const dlg = dialog_open({
+    dialog_open({
         Title: mode_title[mode],
         Fields: fields,
         Footer: footer,
@@ -300,7 +302,8 @@ export function mounting_dialog(client, block, mode) {
                     return maybe_update_config(vals.mount_point, unparse_options(opts));
                 }
             }
-        }
+        },
+        SecondaryAction: secondary_action
     });
 }
 

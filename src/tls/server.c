@@ -203,6 +203,7 @@ server_init (const char *wsinstance_sockdir,
 
   assert (!server.initialized);
   server.initialized = true;
+  server.idle_timerfd = -1;
 
   connection_set_wsinstance_sockdir (wsinstance_sockdir);
 
@@ -329,7 +330,11 @@ server_poll_event (int timeout)
       int fd = ev.data.fd;
 
       if (fd == server.idle_timerfd)
-        return false; /* hit the other timeout */
+        {
+          /* hit the idle timeout */
+          debug (SERVER, "server_poll_event(): idle timer elapsed, returning immediately");
+          return false;
+        }
 
       assert (server.first_listener <= fd && fd <= server.last_listener);
 

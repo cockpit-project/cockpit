@@ -2415,7 +2415,7 @@ function factory() {
         };
     }
 
-    cockpit.logout = function logout(reload) {
+    cockpit.logout = function logout(reload, reason) {
         /* fully clear session storage */
         cockpit.sessionStorage.clear(true);
 
@@ -2431,6 +2431,8 @@ function factory() {
                 window.location.reload(reload_after_disconnect);
         });
         window.sessionStorage.setItem("logout-intent", "explicit");
+        if (reason)
+            window.sessionStorage.setItem("logout-reason", reason);
     };
 
     /* Not public API ... yet? */

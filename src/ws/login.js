@@ -291,6 +291,10 @@
         if (logout_intent)
             window.sessionStorage.removeItem("logout-intent");
 
+        var logout_reason = window.sessionStorage.getItem("logout-reason");
+        if (logout_reason)
+            window.sessionStorage.removeItem("logout-reason");
+
         /* Try automatic/kerberos authentication? */
         if (oauth) {
             id("login-details").style.display = 'none';
@@ -303,7 +307,7 @@
                 oauth_auto_login();
             }
         } else if (logout_intent) {
-            show_login();
+            show_login(logout_reason);
         } else {
             standard_auto_login();
         }
@@ -397,6 +401,11 @@
         id("login-error-message").textContent = "";
     }
 
+    function clear_info() {
+        id("info-group").classList.add("group-hidden");
+        id("login-info-message").textContent = "";
+    }
+
     function login_failure(msg, in_conversation) {
         clear_errors();
         if (msg) {
@@ -408,6 +417,14 @@
                 id("login-error-message").textContent = msg;
                 id("error-group").classList.remove("group-hidden");
             }
+        }
+    }
+
+    function login_info(msg) {
+        clear_info();
+        if (msg) {
+            id("login-info-message").textContent = msg;
+            id("info-group").classList.remove("group-hidden");
         }
     }
 
@@ -509,12 +526,14 @@
             id("login-button").addEventListener("click", call_login);
     }
 
-    function show_login() {
+    function show_login(message) {
         /* Show the login screen */
+        login_info(message);
         id("server-name").textContent = document.title;
         login_note(_("Log in with your server user account."));
         id("login-user-input").addEventListener("keydown", function(e) {
             login_failure(null);
+            clear_info();
             if (e.which == 13)
                 id("login-password-input").focus();
         }, false);

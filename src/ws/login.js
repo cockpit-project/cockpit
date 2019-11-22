@@ -393,7 +393,7 @@
     }
 
     function clear_errors() {
-        id("error-group").style.display = "none";
+        id("error-group").classList.add("group-hidden");
         id("login-error-message").textContent = "";
     }
 
@@ -406,7 +406,7 @@
             } else {
                 show_form(in_conversation);
                 id("login-error-message").textContent = msg;
-                id("error-group").style.display = "block";
+                id("error-group").classList.remove("group-hidden");
             }
         }
     }
@@ -418,7 +418,7 @@
         } else {
             clear_errors();
             id("login-error-message").textContent = msg;
-            id("error-group").style.display = "block";
+            id("error-group").classList.remove("group-hidden");
             toggle_options(null, true);
             show_form();
         }

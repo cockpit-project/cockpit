@@ -265,20 +265,33 @@ class TestStorage(StorageCase):
         self.content_row_wait_in_col(1, 2, "/dev/test/one")
         self.content_row_wait_in_col(2, 2, "/dev/test/two")
 
-        # Format the first and give it /run/data as the mount point
+        # Encrypt and format the first and give it /run/data as the mount point
         self.content_head_action(1, "Format")
         self.dialog({"type": "ext4",
+                     "crypto.on": "True",
+                     "passphrase": "vainu-reku-toma-rolle-kaja",
+                     "passphrase2": "vainu-reku-toma-rolle-kaja",
                      "mount_point": "/run/data"})
-        self.content_row_wait_in_col(1, 1, "ext4 File System")
-        self.content_tab_wait_in_info(1, 2, "Mount Point", "/run/data")
+        self.content_row_wait_in_col(2, 1, "ext4 File System")
+        self.content_tab_wait_in_info(2, 1, "Mount Point", "/run/data")
 
         # Format the second and also try to use /run/data as the mount point
-        self.content_head_action(2, "Format")
+        self.content_head_action(3, "Format")
         self.dialog_wait_open()
         self.dialog_set_val("type", "ext4")
         self.dialog_set_val("mount_point", "/run/data")
         self.dialog_apply()
-        self.dialog_wait_error("mount_point", "Mount point is already used for /dev/test/one")
+        self.dialog_wait_error("mount_point", "Mount point is already used for /dev/mapper/luks-")
+        self.dialog_cancel()
+        self.dialog_wait_close()
+
+        # Format the first and re-use /run/data as the mount point.
+        # This should be allowed.
+        self.content_dropdown_action(1, "Format")
+        self.dialog({"type": "ext4",
+                     "mount_point": "/run/data"})
+        self.content_row_wait_in_col(1, 1, "ext4 File System")
+        self.content_tab_wait_in_info(1, 2, "Mount Point", "/run/data")
 
 if __name__ == '__main__':
     test_main()

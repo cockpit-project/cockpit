@@ -71,7 +71,7 @@ class TestKdump(MachineCase):
         def assertActive(active):
             b.wait_present(".onoff-ct input" + (active and ":checked" or ":not(:checked)"))
 
-        if m.image in ["rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2"]:
+        if m.image in ["rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2", "centos-8-stream"]:
             # some OSes have kdump enabled by default (crashkernel=auto)
             b.wait_in_text("#app", "Service is running")
             assertActive(True)

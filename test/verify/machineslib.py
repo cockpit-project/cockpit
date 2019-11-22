@@ -1414,7 +1414,7 @@ class TestMachines(NetworkCase):
                                       {"Operating System": "You need to select the most closely matching Operating System"})
 
         # try to CREATE few machines
-        if self.machine.image in ['debian-stable', 'debian-testing', 'ubuntu-stable', 'ubuntu-1804', 'fedora-30', 'fedora-testing']:
+        if self.machine.image in ['debian-stable', 'debian-testing', 'ubuntu-stable', 'ubuntu-1804', 'fedora-30', 'fedora-testing', "centos-8-stream"]:
             self.browser.wait_not_present('select option[data-value="Download an OS"]')
         else:
             # Fake the osinfo-db data in order that it will allow spawn the installation - of course we don't expect it to succeed -

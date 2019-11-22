@@ -299,7 +299,7 @@ class TestSystemInfo(MachineCase):
         b.mouse('#systime-tooltip', 'mouseout')
         b.wait_not_present('#systime-tooltip ~ div.tooltip')
 
-    @skipImage("No NTP servers config", "rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2")
+    @skipImage("No NTP servers config", "rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2", "centos-8-stream")
     def testTimeServers(self):
         m = self.machine
         b = self.browser

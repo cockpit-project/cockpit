@@ -45,7 +45,7 @@ class TestUpdates(PackageCase):
 
         # Disable Subscription Manager on RHEL for these tests; subscriptions are tested in a separate class
         # On other OSes (Fedora/CentOS) we expect sub-man to be disabled in yum, so it should not get in the way there
-        if self.machine.image.startswith("rhel"):
+        if self.machine.image.startswith("rhel") or self.machine.image.startswith("centos-8"):
             self.machine.execute("mv /usr/libexec/rhsmd /usr/libexec/rhsmd.disabled")
             self.addCleanup(self.machine.execute, "mv /usr/libexec/rhsmd.disabled /usr/libexec/rhsmd")
 
@@ -643,7 +643,7 @@ class TestUpdates(PackageCase):
 
 
 @skipImage("Image uses OSTree", "fedora-coreos")
-@skipImage("No subscriptions", "debian-stable", "debian-testing", "fedora-31",
+@skipImage("No subscriptions", "debian-stable", "debian-testing", "fedora-31", "centos-8-stream",
            "fedora-30", "fedora-i386", "fedora-testing", "ubuntu-1804", "ubuntu-stable")
 class TestUpdatesSubscriptions(PackageCase):
     provision = {
@@ -783,7 +783,7 @@ class TestAutoUpdates(PackageCase):
 
         # Disable Subscription Manager on RHEL for these tests; subscriptions are tested in a separate class
         # On other OSes (Fedora/CentOS) we expect sub-man to be disabled in yum, so it should not get in the way there
-        if self.machine.image.startswith("rhel"):
+        if self.machine.image.startswith("rhel") or self.machine.image.startswith("centos-8"):
             self.machine.execute("mv /usr/libexec/rhsmd /usr/libexec/rhsmd.disabled")
 
         # not implemented for yum and apt yet, only dnf

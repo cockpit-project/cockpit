@@ -27,7 +27,7 @@ import ReactDOM from 'react-dom';
 import React from 'react';
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 
-import "../../node_modules/@patternfly/react-styles/css/components/Alert/alert.css";
+import "./logs.css";
 
 $(function() {
     cockpit.translate();

@@ -1,25 +1,5 @@
-@import "../../node_modules/@patternfly/react-styles/css/components/Alert/alert.css";
-@import "../lib/page.css";
-
-@import "../lib/console.css";
-@import "../lib/journal.css";
-@import "../lib/plot.css";
 @import "../lib/table.css";
 @import "../lib/cockpit-components-empty-state.css";
-
-@import "./timer.css";
-
-a.disabled {
-    text-decoration: none;
-    pointer-events: none;
-    cursor: default;
-    color: var(--color-text);
-}
-
-.popover {
-    max-width: none;
-    white-space: nowrap;
-}
 
 body {
   /* Work around a pesky scrollbar on the page, due to 100% height */
@@ -126,38 +106,6 @@ body {
 #sich-note-2 {
     margin: 0;
 }
-#shutdown-dialog td {
-  padding-right: 20px;
-  vertical-align: top;
-}
-
-#shutdown-dialog .opt {
-  padding: 1px 10px;
-}
-
-#shutdown-dialog .ct-select,
-#shutdown-dialog .dropdown {
-  min-width: 150px;
-}
-
-#shutdown-group {
-  overflow: visible;
-}
-
-#shutdown-dialog textarea {
-    resize: none;
-    margin-bottom: 10px;
-}
-
-#shutdown-dialog input {
-    display: inline;
-    width: 10em;
-}
-
-#shutdown-dialog .shutdown-hours,
-#shutdown-dialog .shutdown-minutes {
-    width: 3em;
-}
 
 #system_information_ssh_keys .list-group-item {
     cursor: auto;
@@ -187,71 +135,14 @@ body {
   }
 }
 
-/* Make sure to not break log message lines in order to preserve information */
-#journal-entry .info-table-ct td {
-    white-space: normal;
-    word-break: break-all;
-}
-
-#journal-entry .info-table-ct td:first-child {
-    white-space: normal;
-    word-break: keep-all;
-}
-
-.service-unit-description {
-    font-weight: bold;
-}
-
-.service-unit-data {
-    text-align: right;
-    white-space: nowrap;
-}
-
 @media screen and (max-width: 960px) {
     .service-unit-data {
         white-space: normal;
     }
 }
 
-.service-unit-failed {
-    color: red;
-}
-
-.service-template input {
-    width: 50em;
-}
-
-#journal-current-day-menu dropdown-toggle {
-    padding-left: 10px;
-}
-
-.content-header-extra + #journal-box {
-    margin: 0;
-    padding: 1.5rem;
-}
-
-#journal-entry-message:not(:empty) {
-    margin: 10px;
-}
-
-#journal-entry-fields {
-    margin-bottom: 10px;
-    width: 100%;
-}
-
-#journal-entry-fields th {
-    font-weight: normal;
-}
-
 #accordion-markup {
     margin-bottom: 0px;
-}
-
-.problem-btn {
-    float: right;
-    padding: 0px 5px 0px 5px;
-    margin-right: 10px;
-    margin-top: 4px;
 }
 
 .nav-tabs-pf > li:first-child > a {
@@ -262,50 +153,11 @@ body {
     font-size: 13px;
 }
 
-.panel-heading.problem-panel{
-    cursor: pointer;
-}
-
 .detail_table > tbody > tr > td, .detail_table > thead > tr > th {
     padding-right: 10px;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
-}
-
-.problem-panel {
-    background: none !important;
-    height: auto;
-}
-
-.problem-panel:hover {
-    background: #EDEDED !important;
-    height: auto;
-}
-
-.other-threads-btn {
-    margin-top: 20px;
-}
-
-.other_threads {
-    clear: both;
-}
-
-/* Extra content header */
-
-.content-header-extra {
-    background: #f5f5f5;
-    border-bottom: 1px solid #ddd;
-    padding: 10px 20px;
-    width: 100%;
-    position: sticky;
-    z-index: 900;
-    top: 0;
-}
-
-.content-header-extra .btn-group {
-    padding-left: 5px;
-    padding-right: 30px;
 }
 
 #motd {
@@ -315,22 +167,6 @@ body {
     padding: 0px;
     margin: 0px;
     white-space: pre-wrap;
-}
-
-.pf-c-alert {
-    margin-bottom: 24px;
-}
-
-.fa-info-circle {
-    color: var(--pf-global--info-color--100);
-}
-
-.fa-exclamation-triangle {
-    color: var(--pf-global--warning-color--100);
-}
-
-.fa-exclamation-circle {
-    color: var(--pf-global--danger-color--100);
 }
 
 .full-width {
@@ -359,13 +195,4 @@ table.reporting-table td:nth-child(2) > .spinner {
 
 td.report-column {
     flex-direction: row-reverse;
-}
-
-#journal-entry-heading {
-    padding-bottom: 0.5rem;
-}
-
-#journal-entry-message {
-    padding-left: 1.5rem;
-
 }

@@ -1,0 +1,69 @@
+@import "../lib/table.css";
+@import "../lib/journal.css";
+@import "./system-global.css";
+
+/* Make sure to not break log message lines in order to preserve information */
+#journal-entry .info-table-ct td {
+    white-space: normal;
+    word-break: break-all;
+}
+
+#journal-entry .info-table-ct td:first-child {
+    white-space: normal;
+    word-break: keep-all;
+}
+
+#journal-entry-message:not(:empty) {
+    margin: 10px;
+}
+
+#journal-entry-fields {
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+#journal-entry-fields th {
+    font-weight: normal;
+}
+
+.other-threads-btn {
+    margin-top: 20px;
+}
+
+.other_threads {
+    clear: both;
+}
+
+.problem-panel {
+    background: none !important;
+    height: auto;
+}
+
+.problem-panel:hover {
+    background: #EDEDED !important;
+    height: auto;
+}
+
+.panel-heading.problem-panel{
+    cursor: pointer;
+}
+
+.problem-btn {
+    float: right;
+    padding: 0px 5px 0px 5px;
+    margin-right: 10px;
+    margin-top: 4px;
+}
+
+#journal-current-day-menu dropdown-toggle {
+    padding-left: 10px;
+}
+
+.content-header-extra + #journal-box {
+    margin: 0;
+    padding: 1.5rem;
+}
+
+#accordion-markup {
+    margin-bottom: 0px;
+}

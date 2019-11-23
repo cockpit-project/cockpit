@@ -82,7 +82,6 @@ class TestMenu(MachineCase):
         b.switch_to_top()
         b.click("a[href='/system/#/memory']")
         b.enter_page("/system")
-        b.wait_visible("#memory_status")
 
         # Ensure that our tests pick up unhandled JS exceptions
         b.switch_to_top()

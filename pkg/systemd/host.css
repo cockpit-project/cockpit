@@ -30,14 +30,14 @@ body {
     display: grid;
     grid-gap: 0 2rem;
     /* By default, horizontally stack the grid elements */
-    grid-template-areas: "motd" "info" "graphs";
+    grid-template-areas: "motd" "info";
     grid-template-columns: 1fr;
 }
 
 @media screen and (min-width: 640px) {
     /* Lay out overview in a grid, if there's enough width */
     .server-overview {
-        grid-template-areas: "motd motd" "info graphs";
+        grid-template-areas: "motd motd";
         grid-template-columns: auto 1fr;
     }
 }
@@ -46,19 +46,8 @@ body {
     grid-area: info;
 }
 
-.server-overview > .server-graphs {
-    grid-area: graphs;
-}
-
 .server-overview > .motd-box {
     grid-area: motd;
-}
-
-/* Flot needs a little coaxing to behave */
-.server-graphs canvas,
-.server-graphs .flot-text {
-  max-width: 100%;
-  overflow: hidden;
 }
 
 .systime-inline form .pficon-close,
@@ -131,96 +120,6 @@ body {
 
 .small-messages {
     font-size: smaller;
-}
-
-#server-graph-toolbar {
-    margin-bottom: 1rem;
-}
-
-#server-graph-toolbar .ct-select,
-#server-graph-toolbar .dropdown {
-    display: inline-flex;
-}
-
-.server-graph {
-    height: 120px;
-}
-
-.server-graph-container {
-    display: grid;
-    grid-template: "title title" "graph legend";
-    grid-template-columns: 1fr max-content;
-}
-
-.server-graph-title {
-    grid-area: title;
-}
-
-.server-graph-graph {
-    grid-area: graph;
-}
-
-.server-graph-legend {
-    grid-area: legend;
-    float: right;
-    line-height: 24px;
-    list-style-type: none;
-    padding: 30px 40px 0 0;
-}
-
-.server-graph-legend li {
-    align-items: center;
-    display: flex;
-}
-
-.server-graph-legend i {
-    font-size: 16px;
-    margin-right: 0.5rem;
-    padding: 0;
-}
-
-.server-graph-legend .cpu-io-wait i {
-    color: var(--color-red-1);
-}
-
-.server-graph-legend .cpu-kernel i {
-    color: var(--color-gold);
-}
-
-.server-graph-legend .cpu-user i {
-    color: var(--color-purple-6);
-}
-
-.server-graph-legend .cpu-nice i {
-    color: var(--color-green);
-}
-
-.server-graph-legend .memory-swap i {
-    color: var(--color-red-1);
-}
-
-.server-graph-legend .memory-cached i {
-    color: #c8eb79;
-}
-
-.server-graph-legend .memory-used i {
-    color: var(--color-blue);
-}
-
-.server-graph-legend .memory-free i {
-    color: var(--color-green);
-}
-
-#cpu_status_title {
-    padding: 20px 20px 0px 20px;
-    margin-bottom: -10px;
-    margin-left: 35px;
-}
-
-#cpu_status_graph,
-#memory_status_graph {
-    height: 400px;
-    padding: 20px;
 }
 
 #sich-note-1,

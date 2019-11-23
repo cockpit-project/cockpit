@@ -1,0 +1,228 @@
+@import "../lib/plot.css";
+
+:root {
+  /* Font size for titles */
+  --ct-graph-title-FontSize: var(--pf-global--FontSize--xl);
+
+  /* We're not pulling in enough of PF4 for these variables to be set, so set them here */
+  --pf-c-page__main-breadcrumb--PaddingTop: var(--pf-global--spacer--lg);
+  --pf-c-page__main-breadcrumb--PaddingRight: var(--pf-global--spacer--lg);
+  --pf-c-page__main-breadcrumb--PaddingBottom: var(--pf-global--spacer--lg);
+  --pf-c-page__main-breadcrumb--PaddingLeft: var(--pf-global--spacer--lg);
+
+  --pf-c-page__main-section--PaddingTop: var(--pf-global--spacer--md);
+  --pf-c-page__main-section--PaddingRight: var(--pf-global--spacer--md);
+  --pf-c-page__main-section--PaddingBottom: var(--pf-global--spacer--md);
+  --pf-c-page__main-section--PaddingLeft: var(--pf-global--spacer--md);
+
+  /* Set the gallery background color*/
+  --pf-c-page__main-section--BackgroundColor: var(--pf-global--BackgroundColor--300);
+}
+
+.pf-c-page__main {
+  height: 100%;
+
+  /* Header, on this page, wraps both the breadcrumbs and optional history zooming toolbar */
+  > div > header {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: baseline;
+
+    /* First child (breadcrumbs) should always take max space */
+    > .pf-c-page__main-breadcrumb {
+      flex: auto;
+    }
+
+    > .ct-page_main-toolbar {
+      flex: none;
+    }
+  }
+}
+
+/* Fix dropdowns (locally) — not sure why these button-based dropdowns are odd otherwise */
+.dropdown {
+  > .dropdown-menu {
+    padding: 0;
+    margin: 0;
+  }
+
+  &-menu > li {
+    list-style: none;
+  }
+
+  .fa-caret-down {
+    margin-left: 0.5rem;
+  }
+}
+
+.server-graph-toolbar {
+  display: grid;
+  flex: none;
+  grid-auto-flow: column;
+  grid-gap: 0.5rem;
+  grid-template-columns: minmax(min-content, max-content);
+  margin: 0 1.5rem 1rem;
+
+  .ct-select,
+  .dropdown {
+    display: inline-flex;
+  }
+
+  #simple_graphs:not(.show-zoom-controls) & {
+    /* Only show when show-zoom-controls is enabled */
+    display: none;
+  }
+}
+
+/* Build upon PF4's gallery, with mods */
+.ct-graphs-layout {
+  --graph-padding: var(--pf-l-gallery--m-gutter--GridGap);
+  /* Mobile grid layout */
+  grid-template: ~"repeat(4, minmax(16rem,1fr)) / 1fr";
+  width: 100%;
+  height: 100%;
+
+  .flot-base,
+  .flot-text,
+  .flot-overlay {
+    height: 100% !important;
+    width: 100% !important;
+    display: block;
+    flex: auto;
+  }
+
+  > * {
+    overflow: hidden;
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .ct-graphs-layout {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+@media (min-width: 641px) {
+  :root {
+    --ct-graph-title-FontSize: var(--pf-global--FontSize--2xl);
+  }
+
+  .ct-graphs-layout {
+    /* Desktop layout */
+    grid-template: ~"repeat(2, minmax(15rem, 1fr)) / repeat(2, 1fr)";
+    /* Set a max height so graphs don't get too wonky vertically */
+    max-height: 70rem;
+  }
+}
+
+.server-graph {
+  &-container {
+    display: grid;
+    grid-template: "title""graph""legend";
+    grid-template-rows: max-content max-content max-content;
+  }
+
+  &-graph {
+    grid-area: graph;
+    display: flex;
+    min-height: 15rem;
+    min-width: 15rem;
+
+    > * {
+      flex: auto;
+      display: flex;
+      width: 100% !important;
+      height: 100% !important;
+      max-height: 100%;
+      max-width: 100%;
+    }
+  }
+
+  &-legend {
+    grid-area: legend;
+    list-style-type: none;
+    text-align: center;
+    padding-top: 0.5rem;
+
+    /* Add legend dots */
+
+    i {
+      font-size: 16px;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Set CPU colors for legend dots */
+
+    .cpu-io-wait i {
+      color: var(--color-red-1);
+    }
+
+    .cpu-kernel i {
+      color: var(--color-gold);
+    }
+
+    .cpu-nice i {
+      color: var(--color-green);
+    }
+
+    .cpu-user i {
+      color: var(--color-purple-6);
+    }
+
+    /* Set memory colors for legend dots */
+
+    .memory-cached i {
+      color: #c8eb79;
+    }
+
+    .memory-free i {
+      color: var(--color-green);
+    }
+
+    .memory-swap i {
+      color: var(--color-red-1);
+    }
+
+    .memory-used i {
+      color: var(--color-blue);
+    }
+
+    /* Lay out legend items */
+
+    li {
+      display: inline-block;
+
+      + li {
+        margin-left: 1rem;
+      }
+    }
+  }
+
+  &-title {
+    grid-area: title;
+  }
+}
+
+.ct-graph-simple {
+  display: grid;
+  grid-template-rows: max-content max-content 1fr;
+}
+
+/* Style titles */
+.server-graph-title,
+.ct-graph-simple a {
+    font-size: var(--ct-graph-title-FontSize);
+    padding: 0 0.5rem 1rem;
+}
+
+.server-graph-container {
+    --graph-padding: var(--pf-l-gallery--m-gutter--GridGap);
+    padding: var(--graph-padding);
+}
+
+#complicated_graphs .pf-c-page__main-section {
+    background-color: transparent;
+}

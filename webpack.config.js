@@ -120,6 +120,10 @@ var info = {
             "systemd/hwinfo.jsx",
             "systemd/hwinfo.css",
         ],
+        "systemd/graphs": [
+            "systemd/graphs.js",
+            "systemd/graphs.less",
+        ],
 
         "tuned/performance": [
             "tuned/dialog.js",
@@ -204,6 +208,7 @@ var info = {
         "storaged/images/storage-disk.png",
 
         "systemd/index.html",
+        "systemd/graphs.html",
         "systemd/logs.html",
         "systemd/services.html",
         "systemd/terminal.html",

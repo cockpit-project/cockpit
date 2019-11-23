@@ -82,7 +82,7 @@ OnCalendar=daily
         b.switch_to_top()
         b.click("a[href='/system']")
         b.enter_page("/system")
-        b.wait_present("#system_information_hostname_button")
+        b.wait_present("#system_information_systime_button")
         b.switch_to_top()
         b.click("a[href='/system/services']")
         b.enter_page("/system/services")
@@ -150,7 +150,10 @@ OnCalendar=daily
         # Check that the system page is translated
         b.go("/system")
         b.enter_page("/system")
-        b.wait_in_text("#server", "Neustarten")
+        if m.image in ["rhel-8-1-distropkg"]:
+            b.wait_in_text("#server", "Neustarten")
+        else:
+            b.wait_in_text(".ct-overview-header", "Neustarten")
 
         # Systemd timer localization
         b.go("/system/services")
@@ -219,7 +222,7 @@ OnCalendar=daily
         pages = ["/system", "/system/logs", "/network", "/users", "/system/services", "/system/terminal"]
 
         self.login_and_go('/system')
-        b.wait_present('#server')
+        b.wait_present('#overview')
 
         b.switch_to_top()
         b.click('#content-user-name')
@@ -285,7 +288,10 @@ OnCalendar=daily
             m.execute('locale-gen pt_BR && locale-gen pt_BR.UTF-8 && update-locale')
 
         self.login_and_go('/system')
-        b.wait_present('#server')
+        if m.image in ["rhel-8-1-distropkg"]:
+            b.wait_present('#server')
+        else:
+            b.wait_present('#overview')
         b.switch_to_top()
         b.click('#content-user-name')
         b.click('.display-language-menu a')
@@ -300,7 +306,10 @@ OnCalendar=daily
         # Check that the system page is translated
         b.go('/system')
         b.enter_page('/system')
-        b.wait_in_text('#server', 'Reiniciar')
+        if m.image in ["rhel-8-1-distropkg"]:
+            b.wait_in_text('#server', 'Reiniciar')
+        else:
+            b.wait_in_text('.ct-overview-header', 'Reiniciar')
 
         # Systemd timer localization
         b.go('/system/services')
@@ -378,7 +387,10 @@ OnCalendar=daily
 
         self.login_and_go()
 
-        b.wait_in_text("#host-apps", "System")
+        if m.image in ["rhel-8-1-distropkg"]: # Changed in #12265
+            b.wait_in_text("#host-apps", "System")
+        else:
+            b.wait_in_text("#host-apps", "Overview")
         m.execute("mkdir -p /home/admin/.local/share/cockpit/foo")
         m.write("/home/admin/.local/share/cockpit/foo/manifest.json",
                 '{ "menu": { "index": { "label": "FOO!" } } }')
@@ -412,7 +424,7 @@ OnCalendar=daily
         # Check that any substring work
         b.focus("#filter-menus")
         b.set_val("#filter-menus", "CoUN")
-        b.wait_not_present("#sidebar-menu > li > a > span:contains('System')")
+        b.wait_not_present("#sidebar-menu > li > a > span:contains('Overview')")
         b.wait_present("#sidebar-menu > li > a > span:contains('Accounts')")
         b.wait_text("#sidebar-menu > li > a > span:contains('Accounts') mark", "coun")
 
@@ -472,7 +484,7 @@ OnCalendar=daily
         b.focus("#filter-menus")
         b.set_val("#filter-menus", "firew")
         b.wait_present("#sidebar-menu > li > a > span:contains('Networking')")
-        b.wait_not_present("#sidebar-menu > li > a > span:contains('System')")
+        b.wait_not_present("#sidebar-menu > li > a > span:contains('Overview')")
         b.click("#sidebar-menu > li > a > span:contains('Networking')")
         b.enter_page("/network/firewall")
 
@@ -489,7 +501,7 @@ OnCalendar=daily
         b.wait_present("#content")
         b.go("/system")
         b.enter_page("/system")
-        b.wait_in_text("#server", "Neustarten")
+        b.wait_in_text(".ct-overview-header", "Neustarten")
 
         b.switch_to_top()
         b.wait_present("#sidebar-menu > li > a > span:contains('Dienste')")

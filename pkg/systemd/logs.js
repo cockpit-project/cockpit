@@ -27,8 +27,6 @@ import ReactDOM from 'react-dom';
 import React from 'react';
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 
-import "./logs.css";
-
 $(function() {
     cockpit.translate();
     const _ = cockpit.gettext;

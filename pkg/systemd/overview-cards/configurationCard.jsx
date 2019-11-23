@@ -1,7 +1,7 @@
 /*
  * This file is part of Cockpit.
  *
- * Copyright (C) 2013 Red Hat, Inc.
+ * Copyright (C) 2019 Red Hat, Inc.
  *
  * Cockpit is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
@@ -16,273 +16,116 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
-import { mustache } from "mustache";
-import $ from "jquery";
+import React from 'react';
+import { Card, CardHeader, CardBody, Button } from '@patternfly/react-core';
 
-import React from "react";
-import ReactDOM from "react-dom";
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
-
-import "polyfills.js";
+import * as service from "service.js";
+import host_keys_script from "raw-loader!./ssh-list-host-keys.sh";
 import cockpit from "cockpit";
-import * as machine_info from "machine-info.js";
+import $ from "jquery";
+import { mustache } from "mustache";
 import * as packagekit from "packagekit.js";
 import { install_dialog } from "cockpit-components-install-dialog.jsx";
-import * as service from "service.js";
-import { shutdown } from "./shutdown.js";
-import host_keys_script from "raw-loader!./ssh-list-host-keys.sh";
-import { page_status } from "notifications";
-import { set_page_link, dialog_setup, page_show } from './helpers.js';
-
-import { PageStatusNotifications } from "./page-status.jsx";
-
-import "form-layout.less";
+import { ServerTime } from './serverTime.js';
 
 /* These add themselves to jQuery so just including is enough */
 import "patterns";
 import "bootstrap-datepicker/dist/js/bootstrap-datepicker";
 import "patternfly-bootstrap-combobox/js/bootstrap-combobox";
 
+import "./configurationCard.less";
+
 const _ = cockpit.gettext;
-
 var permission = cockpit.permission({ admin: true });
-$(permission).on("changed", update_hostname_privileged);
-$(permission).on("changed", update_shutdown_privileged);
-$(permission).on("changed", update_systime_privileged);
 
-function update_hostname_privileged() {
-    $(".hostname-privileged").update_privileged(
-        permission, cockpit.format(
-            _("The user <b>$0</b> is not permitted to modify hostnames"),
-            permission.user ? permission.user.name : ''), null, $('#hostname-tooltip')
-    );
+function dialog_setup(d) {
+    d.setup();
+    $('#' + d.id)
+            .on('show.bs.modal', function(event) {
+                if (event.target.id === d.id)
+                    d.enter();
+            })
+            .on('shown.bs.modal', function(event) {
+                if (event.target.id === d.id)
+                    d.show();
+            })
+            .on('hidden.bs.modal', function(event) {
+                if (event.target.id === d.id)
+                    d.leave();
+            });
 }
 
-function update_shutdown_privileged() {
-    $(".shutdown-privileged").update_privileged(
-        permission, cockpit.format(
-            _("The user <b>$0</b> is not permitted to shutdown or restart this server"),
-            permission.user ? permission.user.name : '')
-    );
-}
+export class ConfigurationCard extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            pmlogger_switch_visible: false,
+            pcp_link_visible: false,
+            serverTime: '',
+        };
 
-function update_systime_privileged() {
-    $(".systime-privileged").update_privileged(
-        permission, cockpit.format(
-            _("The user <b>$0</b> is not permitted to change the system time"),
-            permission.user ? permission.user.name : ''), null, $('#systime-tooltip')
-    );
-}
+        this.pmcd_service = service.proxy("pmcd");
+        this.pmlogger_service = service.proxy("pmlogger");
+        this.pmlogger_exists = false;
+        this.packagekit_exists = false;
 
-function debug() {
-    if (window.debugging == "all" || window.debugging == "system")
-        console.debug.apply(console, arguments);
-}
+        this.onPmLoggerSwitchChange = this.onPmLoggerSwitchChange.bind(this);
+        this.update_pmlogger_row = this.update_pmlogger_row.bind(this);
+        this.pmlogger_service_changed = this.pmlogger_service_changed.bind(this);
 
-function ServerTime() {
-    var self = this;
+        this.host_keys_show = this.host_keys_show.bind(this);
+        this.host_keys_hide = this.host_keys_hide.bind(this);
+    }
 
-    var client = cockpit.dbus('org.freedesktop.timedate1');
-    var timedate = client.proxy();
+    componentDidMount() {
+        dialog_setup(new PageSystemInformationChangeHostname());
+        permission.addEventListener("changed", this.update_hostname_privileged);
+        this.update_hostname_privileged();
 
-    var time_offset = null;
-    var remote_offset = null;
+        dialog_setup(this.change_systime_dialog = new PageSystemInformationChangeSystime());
+        this.systime_setup();
+        permission.addEventListener("changed", this.update_systime_privileged);
+        this.update_systime_privileged();
 
-    this.client = client;
-
-    self.timedate = timedate;
-
-    this.ntp_waiting_value = null;
-    this.ntp_waiting_resolve = null;
-
-    self.timedate1_service = service.proxy("dbus-org.freedesktop.timedate1.service");
-    self.timesyncd_service = service.proxy("systemd-timesyncd.service");
-
-    /*
-     * The time we return from here as its UTC time set to the
-     * server time. This is the only way to get predictable
-     * behavior and formatting of a Date() object in the absence of
-     * IntlDateFormat and  friends.
-     */
-    Object.defineProperty(self, 'utc_fake_now', {
-        enumerable: true,
-        get: function get() {
-            var offset = time_offset + remote_offset;
-            return new Date(offset + (new Date()).valueOf());
-        }
-    });
-
-    Object.defineProperty(self, 'now', {
-        enumerable: true,
-        get: function get() {
-            return new Date(time_offset + (new Date()).valueOf());
-        }
-    });
-
-    self.format = function format(and_time) {
-        var string = self.utc_fake_now.toISOString();
-        if (!and_time)
-            return string.split('T')[0];
-        var pos = string.lastIndexOf(':');
-        if (pos !== -1)
-            string = string.substring(0, pos);
-        return string.replace('T', ' ');
-    };
-
-    self.updateInterval = window.setInterval(function() {
-        $(self).triggerHandler("changed");
-    }, 30000);
-
-    self.wait = function wait() {
-        if (remote_offset === null)
-            return self.update();
-        return cockpit.resolve();
-    };
-
-    self.update = function update() {
-        return cockpit.spawn(["date", "+%s:%z"], { err: "message" })
-                .done(function(data) {
-                    const parts = data.trim().split(":");
-                    const timems = parseInt(parts[0], 10) * 1000;
-                    let tzmin = parseInt(parts[1].slice(-2), 10);
-                    const tzhour = parseInt(parts[1].slice(0, -2));
-                    if (tzhour < 0)
-                        tzmin = -tzmin;
-                    const offsetms = (tzhour * 3600000) + tzmin * 60000;
-                    const now = new Date();
-                    time_offset = (timems - now.valueOf());
-                    remote_offset = offsetms;
-                    $(self).triggerHandler("changed");
-                })
-                .fail(function(ex) {
-                    console.log("Couldn't calculate server time offset: " + cockpit.message(ex));
-                });
-    };
-
-    self.change_time = function change_time(datestr, hourstr, minstr) {
-        var dfd = $.Deferred();
-
-        /*
-         * The browser is brain dead when it comes to dates. But even if
-         * it wasn't, or we loaded a library like moment.js, there is no
-         * way to make sense of this date without a round trip to the
-         * server ... the timezone is really server specific.
-         */
-        cockpit.spawn(["date", "--date=" + datestr + " " + hourstr + ":" + minstr, "+%s"])
-                .fail(function(ex) {
-                    dfd.reject(ex);
-                })
-                .done(function(data) {
-                    var seconds = parseInt(data.trim(), 10);
-                    timedate.call('SetTime', [seconds * 1000 * 1000, false, true])
-                            .fail(function(ex) {
-                                dfd.reject(ex);
-                            })
-                            .done(function() {
-                                self.update();
-                                dfd.resolve();
-                            });
-                });
-
-        return dfd;
-    };
-
-    self.poll_ntp_synchronized = function poll_ntp_synchronized() {
-        client.call(timedate.path,
-                    "org.freedesktop.DBus.Properties", "Get", ["org.freedesktop.timedate1", "NTPSynchronized"])
-                .fail(function(error) {
-                    if (error.name != "org.freedesktop.DBus.Error.UnknownProperty" &&
-                        error.problem != "not-found")
-                        console.log("can't get NTPSynchronized property", error);
-                })
-                .done(function(result) {
-                    var ifaces = { "org.freedesktop.timedate1": { NTPSynchronized: result[0].v } };
-                    var data = { };
-                    data[timedate.path] = ifaces;
-                    client.notify(data);
-                });
-    };
-
-    self.ntp_updated = function ntp_updated(path, iface, member, args) {
-        if (!self.ntp_waiting_resolve || !args[1].NTP)
-            return;
-        if (self.ntp_waiting_value !== args[1].NTP.v)
-            console.warn("Unexpected value of NTP");
-        self.ntp_waiting_resolve();
-        self.ntp_waiting_resolve = null;
-    };
-
-    self.close = function close() {
-        client.close();
-    };
-
-    self.update();
-}
-
-var change_systime_dialog;
-
-PageServer.prototype = {
-    _init: function() {
-        this.id = "server";
-        this.server_time = null;
-        this.client = null;
-        this.hostname_proxy = null;
-        this.unregistered = false;
-    },
-
-    getTitle: function() {
-        return null;
-    },
-
-    setup: function() {
-        var self = this;
-        update_hostname_privileged();
-
-        cockpit.file("/etc/motd").watch(function(content) {
-            if (content)
-                content = content.trimRight();
-            if (content && content != cockpit.localStorage.getItem('dismissed-motd')) {
-                $('#motd').text(content);
-                $('#motd-box').show();
-            } else {
-                $('#motd-box').hide();
-            }
-            // To help the tests known when we have loaded motd
-            $('#motd-box').attr('data-stable', 'yes');
+        $(this.pmlogger_service).on("changed", data => this.pmlogger_service_changed());
+        this.pmlogger_service_changed();
+        packagekit.detect().then(exists => {
+            this.packagekit_exists = exists;
+            this.update_pmlogger_row();
         });
 
-        $('#motd-box button.pf-c-button').click(function() {
-            cockpit.localStorage.setItem('dismissed-motd', $('#motd').text());
-            $('#motd-box').hide();
-        });
+        $("#system_information_ssh_keys").on("hide.bs.modal", () => this.host_keys_hide());
+    }
 
-        $('#shutdown-group [data-action]').on("click", function(ev) {
-            // don't let the click "fall through" to the dialog that we are about to open
-            ev.preventDefault();
-            self.shutdown($(this).attr('data-action'));
-        });
+    update_hostname_privileged() {
+        $(".hostname-privileged").update_privileged(
+            permission, cockpit.format(
+                _("The user <b>$0</b> is not permitted to modify hostnames"),
+                permission.user ? permission.user.name : ''),
+            null, $("#system_information_hostname_tooltip")
+        );
+        // this really needs the disabled attribute, not the disabled class
+        if (permission.allowed === false)
+            $(".hostname-privileged").attr("disabled", "disabled");
+        else
+            $(".hostname-privileged").removeAttr("disabled");
+    }
 
-        $('#system-ostree-version-link').on('click', function() {
-            cockpit.jump("/updates", cockpit.transport.host);
-        });
+    update_systime_privileged() {
+        $(".systime-privileged").update_privileged(
+            permission, cockpit.format(
+                _("The user <b>$0</b> is not permitted to change the system time"),
+                permission.user ? permission.user.name : ''), null, $('#systime-tooltip')
+        );
+    }
 
-        $('#system_information_hostname_button').on('click', function(ev) {
-            // you can't disable standard links, so implement this manually; realmd might disable host name changing
-            if (ev.target.getAttribute("disabled")) {
-                ev.preventDefault();
-                return;
-            }
-            PageSystemInformationChangeHostname.client = self.client;
-            $('#system_information_change_hostname').modal('show');
-        });
-
-        $('#system_information_systime_button').on('click', function() {
-            change_systime_dialog.display(self.server_time);
-        });
+    systime_setup() {
+        const self = this;
 
         self.server_time = new ServerTime();
         $(self.server_time).on("changed", function() {
-            $('#system_information_systime_button').text(self.server_time.format(true));
+            self.setState({ serverTime: self.server_time.format(true) });
         });
 
         self.server_time.client.subscribe({
@@ -295,17 +138,6 @@ PageServer.prototype = {
 
         self.ntp_status_icon_tmpl = $("#ntp-status-icon-tmpl").html();
         mustache.parse(this.ntp_status_icon_tmpl);
-
-        self.ssh_host_keys_tmpl = $("#ssh-host-keys-tmpl").html();
-        mustache.parse(this.ssh_host_keys_tmpl);
-
-        $("#system_information_ssh_keys").on("show.bs.modal", function() {
-            self.host_keys_show();
-        });
-
-        $("#system_information_ssh_keys").on("hide.bs.modal", function() {
-            self.host_keys_hide();
-        });
 
         var $ntp_status = $('#system_information_systime_ntp_status');
 
@@ -349,7 +181,7 @@ PageServer.prototype = {
                 $ntp_status.attr("data-original-title", tooltip_html);
 
             var icon_html = mustache.render(self.ntp_status_icon_tmpl, model);
-            $ntp_status.html(icon_html);
+            self.setState({ ntp_status_icon: { __html: icon_html } });
         }
 
         $ntp_status.tooltip();
@@ -364,258 +196,11 @@ PageServer.prototype = {
         window.setInterval(function() {
             self.server_time.poll_ntp_synchronized();
         }, 5000);
+    }
 
-        $('#server').on('click', "[data-goto-service]", function() {
-            var service = $(this).attr("data-goto-service");
-            cockpit.jump("/system/services/#/" + window.encodeURIComponent(service),
-                         cockpit.transport.host);
-        });
-
-        var pmcd_service = service.proxy("pmcd");
-        var pmlogger_service = service.proxy("pmlogger");
-        var pmlogger_promise;
-        var pmlogger_exists = false;
-        var packagekit_exists = false;
-
-        function update_pmlogger_row(force_disable) {
-            var logger_switch = $("#server-pmlogger-switch");
-            var enable_pcp = $('#system-information-enable-pcp-link');
-            if (!pmlogger_exists) {
-                enable_pcp.toggle(packagekit_exists);
-                logger_switch.hide();
-                logger_switch.prev().hide();
-            } else if (!pmlogger_promise) {
-                enable_pcp.hide();
-                logger_switch.show();
-                logger_switch.prev().show();
-            }
-
-            ReactDOM.render(
-                React.createElement(OnOffSwitch, {
-                    state: pmlogger_service.state === "running",
-                    disabled: pmlogger_service.state == "starting" || force_disable,
-                    onChange: onPmLoggerSwitchChange
-                }),
-                document.getElementById('server-pmlogger-switch')
-            );
-        }
-
-        function pmlogger_service_changed() {
-            pmlogger_exists = pmlogger_service.exists;
-
-            /* HACK: The pcp packages on Ubuntu and Debian include SysV init
-             * scripts in /etc, which stay around when removing (as opposed to
-             * purging) the package. Systemd treats those as valid units, even
-             * if they're not backed by packages anymore. Thus,
-             * pmlogger_service.exists will be true. Check for the binary
-             * directly to make sure the package is actually available.
-             */
-            if (pmlogger_exists) {
-                cockpit.spawn(["which", "pmlogger"], { err: "ignore" })
-                        .fail(function() {
-                            pmlogger_exists = false;
-                        })
-                        .always(() => update_pmlogger_row());
-            } else {
-                update_pmlogger_row();
-            }
-        }
-
-        packagekit.detect().then(function(exists) {
-            packagekit_exists = exists;
-            update_pmlogger_row();
-        });
-
-        function onPmLoggerSwitchChange(enable) {
-            if (!pmlogger_exists)
-                return;
-
-            update_pmlogger_row(true);
-
-            if (enable) {
-                pmlogger_promise = Promise.all([
-                    pmcd_service.enable(),
-                    pmcd_service.start(),
-                    pmlogger_service.enable(),
-                    pmlogger_service.start()
-                ])
-                        .catch(function(error) {
-                            console.warn("Enabling pmlogger failed", error);
-                        });
-            } else {
-                pmlogger_promise = Promise.all([pmlogger_service.disable(), pmlogger_service.stop()])
-                        .catch(function(error) {
-                            console.warn("Disabling pmlogger failed", error);
-                        });
-            }
-            pmlogger_promise.finally(function() {
-                pmlogger_promise = null;
-                pmlogger_service_changed();
-            });
-        }
-
-        $(pmlogger_service).on('changed', pmlogger_service_changed);
-        pmlogger_service_changed();
-
-        function refresh_os_updates_state() {
-            const status = page_status.get("updates") || { };
-            const details = status.details || { };
-            $("#system_information_updates_icon").attr("class", details.icon || "");
-            $("#system_information_updates_icon").toggle(!!details.icon);
-            set_page_link("#system_information_updates_text", details.link || "updates",
-                          details.text || status.title || "");
-        }
-
-        refresh_os_updates_state();
-        $(page_status).on("changed", refresh_os_updates_state);
-
-        var insights_client_timer = service.proxy("insights-client.timer");
-
-        function refresh_insights_status() {
-            const subfeats = (cockpit.manifests.subscriptions && cockpit.manifests.subscriptions.features) || { };
-            if (subfeats.insights && insights_client_timer.exists && !insights_client_timer.enabled) {
-                $("#insights_icon").attr("class", "pficon pficon-warning-triangle-o");
-                set_page_link("#insights_text", "subscriptions", _("Not connected to Insights"));
-                $("#insights_icon, #insights_text").show();
-            } else {
-                $("#insights_icon, #insights_text").hide();
-            }
-        }
-
-        $(insights_client_timer).on("changed", refresh_insights_status);
-        refresh_insights_status();
-
-        // Only link from graphs to available pages
-        set_page_link("#link-disk", "storage", _("Disk I/O"));
-        set_page_link("#link-network", "network", _("Network Traffic"));
-
-        function toggle_health_label(visible) {
-            $('label[for="page_status_notifications"]').toggle(visible);
-        }
-
-        ReactDOM.render(React.createElement(PageStatusNotifications, { toggle_label: toggle_health_label }),
-                        document.getElementById('page_status_notifications'));
-    },
-
-    enter: function() {
+    host_keys_show() {
         var self = this;
 
-        var machine_id = cockpit.file("/etc/machine-id");
-        machine_id.read()
-                .done(function(content) {
-                    $("#system_machine_id").text(content);
-                })
-                .fail(function(ex) {
-                    console.error("Error reading machine id", ex);
-                })
-                .always(function() {
-                    machine_id.close();
-                });
-
-        self.ostree_client = cockpit.dbus('org.projectatomic.rpmostree1',
-                                          { superuser : true });
-        $(self.ostree_client).on("close", function() {
-            self.ostree_client = null;
-        });
-
-        self.sysroot = self.ostree_client.proxy('org.projectatomic.rpmostree1.Sysroot',
-                                                '/org/projectatomic/rpmostree1/Sysroot');
-        $(self.sysroot).on("changed", $.proxy(this, "sysroot_changed"));
-
-        self.client = cockpit.dbus('org.freedesktop.hostname1',
-                                   { superuser : "try" });
-        self.hostname_proxy = self.client.proxy('org.freedesktop.hostname1',
-                                                '/org/freedesktop/hostname1');
-        self.kernel_hostname = null;
-
-        const asset_tag_text = $("#system_information_asset_tag_text");
-        const hardware_text = $("#system_information_hardware_text");
-        hardware_text.tooltip({ title: _("Click to see system hardware information"), placement: "bottom" });
-        machine_info.dmi_info()
-                .done(function(fields) {
-                    let vendor = fields.sys_vendor;
-                    let name = fields.product_name;
-                    if (!vendor || !name) {
-                        vendor = fields.board_vendor;
-                        name = fields.board_name;
-                    }
-                    if (!vendor || !name)
-                        hardware_text.text(_("Details"));
-                    else
-                        hardware_text.text(vendor + " " + name);
-                    var present = !!(fields.product_serial || fields.chassis_serial);
-                    asset_tag_text.text(fields.product_serial || fields.chassis_serial);
-                    asset_tag_text.toggle(present);
-                    asset_tag_text.prev().toggle(present);
-                })
-                .fail(function(ex) {
-                    debug("couldn't read dmi info: " + ex);
-                    hardware_text.text(_("Details"));
-                    asset_tag_text.toggle(false);
-                    asset_tag_text.prev().toggle(false);
-                });
-
-        function hostname_text() {
-            if (!self.hostname_proxy)
-                return;
-
-            var pretty_hostname = self.hostname_proxy.PrettyHostname;
-            var static_hostname = self.hostname_proxy.StaticHostname;
-
-            var str = self.kernel_hostname;
-            if (pretty_hostname && static_hostname && static_hostname != pretty_hostname)
-                str = pretty_hostname + " (" + static_hostname + ")";
-            else if (static_hostname)
-                str = static_hostname;
-
-            if (!str)
-                str = _("Set Host name");
-            var hostname_button = $("#system_information_hostname_button");
-            hostname_button.text(str);
-            if (!hostname_button.attr("disabled")) {
-                hostname_button
-                        .attr("title", str)
-                        .tooltip('fixTitle');
-            }
-            $("#system_information_os_text").text(self.hostname_proxy.OperatingSystemPrettyName || "");
-        }
-
-        cockpit.spawn(["hostname"], { err: "ignore" })
-                .done(function(output) {
-                    self.kernel_hostname = $.trim(output);
-                    hostname_text();
-                })
-                .fail(function(ex) {
-                    hostname_text();
-                    debug("couldn't read kernel hostname: " + ex);
-                });
-        $(self.hostname_proxy).on("changed", hostname_text);
-    },
-
-    show: function() {
-    },
-
-    leave: function() {
-        var self = this;
-
-        $(self.hostname_proxy).off();
-        self.hostname_proxy = null;
-
-        self.client.close();
-        self.client = null;
-
-        $(cockpit).off('.server');
-
-        $(self.sysroot).off();
-        self.sysroot = null;
-        if (self.ostree_client) {
-            self.ostree_client.close();
-            self.ostree_client = null;
-        }
-    },
-
-    host_keys_show: function() {
-        var self = this;
         $("#system_information_ssh_keys .spinner").toggle(true);
         $("#system_information_ssh_keys .content").toggle(false);
         $("#system_information_ssh_keys .pf-c-alert").toggle(false);
@@ -629,9 +214,14 @@ PageServer.prototype = {
             self.host_keys_update();
         }, 10 * 1000);
         self.host_keys_update();
-    },
+    }
 
-    host_keys_update: function() {
+    host_keys_hide() {
+        window.clearInterval(this.host_keys_interval);
+        this.host_keys_interval = null;
+    }
+
+    host_keys_update() {
         var self = this;
         var parenthesis = /^\((.*)\)$/;
         var spinner = $("#system_information_ssh_keys .spinner");
@@ -677,6 +267,9 @@ PageServer.prototype = {
                         return { title: k, fps: keys[k] };
                     });
 
+                    self.ssh_host_keys_tmpl = $("#ssh-host-keys-tmpl").html();
+                    mustache.parse(self.ssh_host_keys_tmpl);
+
                     tmp = mustache.render(self.ssh_host_keys_tmpl, { keys: arr });
                     content.html(tmp);
                     spinner.toggle(false);
@@ -690,51 +283,155 @@ PageServer.prototype = {
                     $("#system_information_ssh_keys .pf-c-alert h4").text(msg);
                     error.toggle(true);
                 });
-    },
+    }
 
-    host_keys_hide: function() {
-        var self = this;
-        window.clearInterval(self.host_keys_interval);
-        self.host_keys_interval = null;
-    },
+    onPmLoggerSwitchChange(enable) {
+        if (!this.pmlogger_exists)
+            return;
 
-    sysroot_changed: function() {
-        var self = this;
-        var link = $("#system-ostree-version-link");
+        this.update_pmlogger_row(true);
 
-        if (self.sysroot.Booted && self.ostree_client) {
-            var version = "";
-            self.ostree_client.call(self.sysroot.Booted,
-                                    "org.freedesktop.DBus.Properties", "Get",
-                                    ['org.projectatomic.rpmostree1.OS', "BootedDeployment"])
-                    .done(function(result) {
-                        if (result && result[0]) {
-                            var deployment = result[0].v;
-                            if (deployment && deployment.version)
-                                version = deployment.version.v;
-                        }
-                    })
-                    .fail(function(ex) {
-                        console.log(ex);
-                    })
-                    .always(function() {
-                        link.toggleClass("hidden", !version);
-                        link.prev().toggleClass("hidden", !version);
-                        link.text(version);
-                    });
+        if (enable) {
+            this.pmlogger_promise = Promise.all([
+                this.pmcd_service.enable(),
+                this.pmcd_service.start(),
+                this.pmlogger_service.enable(),
+                this.pmlogger_service.start()
+            ]).catch(function(error) {
+                console.warn("Enabling pmlogger failed", error);
+            });
         } else {
-            link.toggleClass("hidden", true);
-            link.text("");
+            this.pmlogger_promise = Promise.all([this.pmlogger_service.disable(), this.pmlogger_service.stop()])
+                    .catch(function(error) {
+                        console.warn("Disabling pmlogger failed", error);
+                    });
         }
-    },
+        this.pmlogger_promise.finally(() => {
+            this.pmlogger_promise = null;
+            this.pmlogger_service_changed();
+        });
+    }
 
-    shutdown: function(action_type) {
-        shutdown(action_type, this.server_time);
-    },
-};
+    update_pmlogger_row(force_disable) {
+        if (!this.pmlogger_exists) {
+            this.setState({ pcp_link_visible: this.packagekit_exists });
+            this.setState({ pmlogger_switch_visible: false });
+        } else if (!this.pmlogger_promise) {
+            this.setState({ pcp_link_visible: false });
+            this.setState({ pmlogger_switch_visible: true });
+        }
+        this.setState({ pm_logger_switch_disabled: force_disable });
+    }
 
-function PageServer() {
-    this._init();
+    pmlogger_service_changed() {
+        this.pmlogger_exists = this.pmlogger_service.exists;
+
+        /* HACK: The pcp packages on Ubuntu and Debian include SysV init
+         * scripts in /etc, which stay around when removing (as opposed to
+         * purging) the package. Systemd treats those as valid units, even
+         * if they're not backed by packages anymore. Thus,
+         * pmlogger_service.exists will be true. Check for the binary
+         * directly to make sure the package is actually available.
+         */
+        if (this.pmlogger_exists) {
+            cockpit.spawn(["which", "pmlogger"], { err: "ignore" })
+                    .fail(function() {
+                        this.pmlogger_exists = false;
+                    })
+                    .always(() => this.update_pmlogger_row());
+        } else {
+            this.update_pmlogger_row();
+        }
+    }
+
+    render() {
+        return (
+            <Card className="system-configuration">
+                <CardHeader>{_("Configuration")}</CardHeader>
+                <CardBody>
+                    <table className="pf-c-table pf-m-grid-md pf-m-compact">
+                        <tbody>
+                            <tr>
+                                <th scope="row">{_("Hostname")}</th>
+                                <td>
+                                    {this.props.hostname && <span id="system_information_hostname_text">{this.props.hostname}</span>}
+                                    <span id="system_information_hostname_tooltip">
+                                        <Button variant='link'
+                                            id="system_information_hostname_button"
+                                            className="hostname-privileged"
+                                            isInline
+                                            onClick={() => $('#system_information_change_hostname').modal('show')}
+                                            isDisabled={$('system_information_change_hostname').attr("disabled")}
+                                            aria-label="edit hostname">
+                                            {this.props.hostname !== "" ? _("edit") : _("Set Hostname")}
+                                        </Button>
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th scope="row">{_("System time")}</th>
+                                <td>
+                                    <span id="systime-tooltip">
+                                        <Button variant="link" isInline className="systime-privileged"
+                                            id="system_information_systime_button"
+                                            onClick={() => this.change_systime_dialog.display(this.server_time)}>
+                                            {this.state.serverTime}
+                                        </Button>
+                                    </span>
+                                    <a tabIndex="0" hidden id="system_information_systime_ntp_status"
+                                        role="button" data-toggle="tooltip"
+                                        data-placement="bottom" data-html="true" dangerouslySetInnerHTML={this.state.ntp_status_icon} />
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th scope="row">{_("Domain")}</th>
+                                <td><p id="system-info-domain" /></td>
+                            </tr>
+
+                            <tr>
+                                <th scope="row">{_("Performance profile")}</th>
+                                <td><span id="system-info-performance" /></td>
+                            </tr>
+
+                            <tr>
+                                <th scope="row">{_("Secure Shell keys")}</th>
+                                <td>
+                                    <Button variant="link" isInline id="system-ssh-keys-link" data-toggle="modal" onClick={this.host_keys_show}
+                                        data-target="#system_information_ssh_keys">{_("Show fingerprints")}</Button>
+                                </td>
+                            </tr>
+
+                            {this.state.pmlogger_switch_visible &&
+                            <tr>
+                                <th scope="row">{_("Store metrics")}</th>
+                                <td>
+                                    <OnOffSwitch
+                                        id="server-pmlogger-switch"
+                                        state={this.pmlogger_service.state === "running"}
+                                        disabled={this.pmlogger_service.state == "starting" || this.state.pm_logger_switch_disabled}
+                                        onChange={this.onPmLoggerSwitchChange} />
+                                </td>
+                            </tr>}
+
+                            {this.state.pcp_link_visible &&
+                            <tr>
+                                <th scope="row">{_("PCP")}</th>
+                                <td>
+                                    <a id="system-configuration-enable-pcp-link" onClick={() => install_dialog("cockpit-pcp")}>
+                                        <span className="pficon pficon-info" />
+                                        <span>{_("Enable stored metrics…")}</span>
+                                    </a>
+                                </td>
+                            </tr>}
+
+                        </tbody>
+                    </table>
+                </CardBody>
+            </Card>
+        );
+    }
 }
 
 PageSystemInformationChangeHostname.prototype = {
@@ -749,17 +446,19 @@ PageSystemInformationChangeHostname.prototype = {
     },
 
     enter: function() {
-        var self = this;
-
-        self.hostname_proxy = PageSystemInformationChangeHostname.client.proxy();
-
-        self._initial_hostname = self.hostname_proxy.StaticHostname || "";
-        self._initial_pretty_hostname = self.hostname_proxy.PrettyHostname || "";
-        $("#sich-pretty-hostname").val(self._initial_pretty_hostname);
-        $("#sich-hostname").val(self._initial_hostname);
-
         this._always_update_from_pretty = false;
-        this._update();
+        this.client = cockpit.dbus('org.freedesktop.hostname1',
+                                   { superuser : "try" });
+        this.hostname_proxy = this.client.proxy();
+
+        this.hostname_proxy.wait()
+                .then(() => {
+                    this._initial_hostname = this.hostname_proxy.StaticHostname || "";
+                    this._initial_pretty_hostname = this.hostname_proxy.PrettyHostname || "";
+                    $("#sich-pretty-hostname").val(this._initial_pretty_hostname);
+                    $("#sich-hostname").val(this._initial_hostname);
+                    this._update();
+                });
     },
 
     show: function() {
@@ -771,13 +470,11 @@ PageSystemInformationChangeHostname.prototype = {
     },
 
     _on_apply_button: function(event) {
-        var self = this;
-
         var new_full_name = $("#sich-pretty-hostname").val();
         var new_name = $("#sich-hostname").val();
 
-        var one = self.hostname_proxy.call("SetStaticHostname", [new_name, true]);
-        var two = self.hostname_proxy.call("SetPrettyHostname", [new_full_name, true]);
+        var one = this.hostname_proxy.call("SetStaticHostname", [new_name, true]);
+        var two = this.hostname_proxy.call("SetPrettyHostname", [new_full_name, true]);
 
         // We can't use Promise.all() here, because dialg expects a promise
         // with a progress() method (see pkg/lib/patterns.js)
@@ -1340,30 +1037,3 @@ PageSystemInformationChangeSystime.prototype = {
 function PageSystemInformationChangeSystime() {
     this._init();
 }
-
-$("#system_information_hardware_text").on("click", function() {
-    $("#system_information_hardware_text").tooltip("hide");
-    cockpit.jump("/system/hwinfo", cockpit.transport.host);
-    return false;
-});
-
-$("#system-information-enable-pcp-link").on("click", function() {
-    install_dialog("cockpit-pcp");
-});
-
-function init() {
-    var server_page;
-
-    cockpit.translate();
-
-    server_page = new PageServer();
-    server_page.setup();
-
-    dialog_setup(new PageSystemInformationChangeHostname());
-    dialog_setup(change_systime_dialog = new PageSystemInformationChangeSystime());
-
-    page_show(server_page);
-    $("body").removeAttr("hidden");
-}
-
-$(init);

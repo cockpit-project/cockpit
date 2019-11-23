@@ -147,10 +147,16 @@ class TestMultiMachineAdd(MachineCase):
 
     def testBasic(self):
         b = self.browser
+        m = self.machine
         m2 = self.machine2
         m3 = self.machine3
         m3_host = "10.111.113.3:2222"
         change_ssh_port(m3, "10.111.113.3", 2222)
+
+        if m.image == "rhel-8-1-distropkg":
+            hostname_selector = "#system_information_hostname_button"
+        else:
+            hostname_selector = "#system_information_hostname_text"
 
         self.login_and_go(None)
         add_machine(b, "10.111.113.2")
@@ -176,7 +182,7 @@ class TestMultiMachineAdd(MachineCase):
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname != "/dashboard"')
         b.enter_page("/system", host="10.111.113.2")
-        b.wait_text_not("#system_information_hostname_button", "")
+        b.wait_text_not(hostname_selector, "")
         b.switch_to_top()
         b.go("/dashboard")
         b.enter_page("/dashboard")
@@ -186,7 +192,7 @@ class TestMultiMachineAdd(MachineCase):
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname != "/dashboard"')
         b.enter_page("/system", host=m3_host)
-        b.wait_text_not("#system_information_hostname_button", "")
+        b.wait_text_not(hostname_selector, "")
         b.switch_to_top()
         b.go("/dashboard")
         b.enter_page("/dashboard")
@@ -243,6 +249,11 @@ class TestMultiMachine(MachineCase):
 
         name = self.machine.execute("hostname")
 
+        if m.image == "rhel-8-1-distropkg":
+            hostname_selector = "#system_information_hostname_button"
+        else:
+            hostname_selector = "#system_information_hostname_text"
+
         # Change os-release pretty name on m2
         m2.execute("sed -i '/NAME=.*/d' /etc/os-release")
         m2.execute("echo 'NAME=\"A Pretty Name\"' >> /etc/os-release")
@@ -250,7 +261,7 @@ class TestMultiMachine(MachineCase):
         b.switch_to_top()
         b.go("{}/system".format(root))
         b.enter_page("/system")
-        b.wait_in_text('#system_information_hostname_button', name.strip())
+        b.wait_in_text(hostname_selector, name.strip())
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname == "{0}system"'.format(root))
         b.click("a[href='/dashboard']")
@@ -271,7 +282,7 @@ class TestMultiMachine(MachineCase):
         b.click('#login-button')
         b.expect_load()
         b.enter_page("/system")
-        b.wait_in_text('#system_information_hostname_button', "machine2")
+        b.wait_in_text(hostname_selector, "machine2")
         b.switch_to_top()
 
         # Branding uses m2 pretty name
@@ -367,7 +378,7 @@ class TestMultiMachine(MachineCase):
         b.click('#login-button')
         b.expect_load()
         b.enter_page("/system")
-        b.wait_in_text('#system_information_hostname_button', "machine2")
+        b.wait_in_text(hostname_selector, "machine2")
         b.logout()
 
         # Check hostkey isn't saved
@@ -421,7 +432,7 @@ class TestMultiMachine(MachineCase):
         b.click('#login-button')
         b.expect_load()
         b.enter_page("/system")
-        b.wait_in_text('#system_information_hostname_button', "machine2")
+        b.wait_in_text(hostname_selector, "machine2")
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname == "{0}=10.111.113.2/system"'.format(root))
 
@@ -464,6 +475,11 @@ class TestMultiMachine(MachineCase):
         b = self.browser
         m = self.machine
 
+        if m.image == "rhel-8-1-distropkg":
+            hostname_selector = "#system_information_hostname_button"
+        else:
+            hostname_selector = "#system_information_hostname_text"
+
         m.execute('mkdir -p /etc/cockpit/ && echo "[WebService]\nUrlRoot = cockpit-new" > /etc/cockpit/cockpit.conf')
         m.start_cockpit()
 
@@ -499,7 +515,7 @@ class TestMultiMachine(MachineCase):
         b.enter_page("/dashboard")
         add_machine(b, "10.111.113.2")
         b.enter_page("/system", host="10.111.113.2")
-        b.wait_text("#system_information_hostname_button", "machine2")
+        b.wait_text(hostname_selector, "machine2")
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname == "/cockpit-new/@10.111.113.2/system"')
 

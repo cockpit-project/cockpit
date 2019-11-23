@@ -521,8 +521,11 @@ class TestConnection(MachineCase):
         m.wait_for_cockpit_running('127.0.0.90', 9999)
         # System frame should work directly, no login page
         out = m.execute("curl --compressed http://127.0.0.90:9999/cockpit/@localhost/system/index.html")
-        self.assertIn('id="system_machine_id"', out)
-        self.assertIn('data-action="shutdown"', out)
+        if m.image == "rhel-8-1-distropkg":
+            self.assertIn('id="system_machine_id"', out)
+            self.assertIn('data-action="shutdown"', out)
+        else:
+            self.assertIn('id="overview"', out)
 
         # shut it down, wait until it is gone
         m.execute("pkill -ef cockpit-ws")
@@ -539,16 +542,21 @@ G_MESSAGES_DEBUG=all XDG_CONFIG_DIRS=/usr/local %s -p 9999 -a 127.0.0.90 --local
 
         # System frame should work directly, no login page
         out = m.execute("curl --compressed http://127.0.0.90:9999/cockpit/@localhost/system/index.html")
-        self.assertIn('id="system_machine_id"', out)
-        self.assertIn('data-action="shutdown"', out)
+        if m.image == "rhel-8-1-distropkg":
+            self.assertIn('id="system_machine_id"', out)
+            self.assertIn('data-action="shutdown"', out)
+        else:
+            self.assertIn('id="overview"', out)
 
         self.allow_journal_messages("couldn't register polkit authentication agent.*")
 
     @skipImage("OSTree doesn't have cockpit-ws", "fedora-coreos")
     @skipImage("Kernel does not allow user namespaces", "debian-stable", "debian-testing")
     def testCockpitDesktop(self):
+        m = self.machine
+
         cases = [(['/cockpit/@localhost/system/index.html', 'system', 'system/index', 'system/'],
-                  ['id="system_machine_id"', 'data-action="shutdown"']
+                  ['id="system_machine_id"' if m.image == "rhel-8-1-distropkg" else 'id="overview"']
                  ),
                  (['/cockpit/@localhost/network/firewall.html', 'network/firewall'],
                   ['div id="firewall"', 'script src="firewall.js"']
@@ -557,8 +565,6 @@ G_MESSAGES_DEBUG=all XDG_CONFIG_DIRS=/usr/local %s -p 9999 -a 127.0.0.90 --local
                   ['script src="react-patterns.js"']
                  ),
                 ]
-
-        m = self.machine
 
         if "debian" in m.image or "ubuntu" in m.image:
             cockpit_desktop = "/usr/lib/cockpit/cockpit-desktop"

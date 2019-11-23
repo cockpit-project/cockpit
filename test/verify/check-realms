@@ -121,9 +121,14 @@ class TestRealms(MachineCase):
 
         # when joined to a domain, changing the hostname is fatal, so should be disabled
         b.wait_present("#system_information_hostname_button[disabled]")
-        b.mouse("#system_information_hostname_button", "mouseover")
-        b.wait_in_text(".tooltip-inner", "Host name should not be changed in a domain")
-        b.mouse("#system_information_hostname_button", "mouseout")
+        if m.image in ["rhel-8-1-distropkg"]:
+            b.mouse("#system_information_hostname_button", "mouseover")
+            b.wait_in_text(".tooltip-inner", "Host name should not be changed in a domain")
+            b.mouse("#system_information_hostname_button", "mouseout")
+        else:
+            b.mouse("#system_information_hostname_tooltip", "mouseover")
+            b.wait_in_text(".tooltip-inner", "Host name should not be changed in a domain")
+            b.mouse("#system_information_hostname_tooltip", "mouseout")
         b.wait_not_present(".tooltip-inner")
 
         # should not have any leftover tickets from the joining
@@ -326,7 +331,11 @@ class TestRealms(MachineCase):
         b.enter_page('/system')
         # shutdown button should be enabled and working
         # it takes a while for the permission check to finish, it is always enabled at first
-        b.click("#shutdown-group button[data-action=restart][data-stable=yes]")
+        if m.image in ["rhel-8-1-distropkg"]:
+            b.click("#shutdown-group button[data-action=restart][data-stable=yes]")
+        else:
+            b.click("#overview #restart-button")
+
         b.wait_popup("shutdown-dialog")
         b.wait_in_text("#shutdown-dialog .btn-danger", 'Restart')
         b.click("#shutdown-dialog .dropdown button")

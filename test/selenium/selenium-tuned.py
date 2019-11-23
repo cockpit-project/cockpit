@@ -26,14 +26,14 @@ class TunedProfiles(SeleniumTest):
         return self.machine.execute("/usr/sbin/tuned-adm active", quiet=True).strip().rsplit(" ", 1)[1]
 
     def testPerformaceProfiles(self):
-        self.click(self.wait_link('System', cond=clickable))
+        self.click(self.wait_link('Overview', cond=clickable))
         self.wait_frame("system")
         self.click(self.wait_text(self.balanced_profile, cond=clickable))
         self.wait_text("Change Performance Profile")
         self.click(self.wait_text(self.desktop_profile, element="p", cond=clickable))
         self.click(self.wait_text("Change Profile", element="button", cond=clickable))
         self.wait_text("Change Performance Profile", cond=invisible)
-        self.wait_id("server", cond=visible)
+        self.wait_id("overview", cond=visible)
         self.wait_text(self.desktop_profile, cond=clickable)
         self.assertIn(self.desktop_profile, self.get_profile())
 
@@ -42,6 +42,6 @@ class TunedProfiles(SeleniumTest):
         self.click(self.wait_text(self.balanced_profile, element="p", cond=clickable))
         self.click(self.wait_text("Change Profile", element="button", cond=clickable))
         self.wait_text("Change Performance Profile", cond=invisible)
-        self.wait_id("server", cond=visible)
+        self.wait_id("overview", cond=visible)
         self.wait_text(self.balanced_profile, cond=clickable)
         self.assertIn(self.balanced_profile, self.get_profile())

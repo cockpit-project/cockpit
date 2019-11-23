@@ -1,7 +1,7 @@
-@import "./timer.css";
+@import "./timer.less";
 @import '../lib/journal.css';
 @import "../lib/table.css";
-@import "./system-global.css";
+@import "./system-global.less";
 
 #services-page {
     overflow-y: scroll;
@@ -213,8 +213,12 @@ table.systemd-unit-relationship-table td:first-child {
   width: 40%;
 }
 
-.fa-exclamation-triangle {
-    color: var(--pf-global--warning-color--100);
+.service-template input {
+    width: 50em;
+}
+
+.service-unit-failed {
+    color: red;
 }
 
 .service-template input {

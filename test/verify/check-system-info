@@ -193,11 +193,14 @@ class TestSystemInfo(MachineCase):
             b.wait_not_in_text("#system_information_ssh_keys .list-group", old_alt)
             b.wait_in_text("#system_information_ssh_keys .list-group", new_alt)
 
-        b.wait_text('#system_information_os_text',
+        b.wait_in_text('#system_information_os_text',
                     "Foobar Adventure Linux Server 2.0 (Day of Doom)")
 
         m.execute("hostnamectl set-hostname --static --pretty 'Adventure Box'")
-        b.wait_in_text('#system_information_hostname_button', "Adventure Box")
+        if m.image == "rhel-8-1-distropkg":
+            b.wait_in_text('#system_information_hostname_button', "Adventure Box")
+        else:
+            b.wait_in_text('#system_information_hostname_text', "Adventure Box")
 
         b.click('#system_information_hostname_button')
         b.wait_popup("system_information_change_hostname")
@@ -206,13 +209,10 @@ class TestSystemInfo(MachineCase):
         b.click("#system_information_change_hostname button:contains('Change')")
         b.wait_popdown("system_information_change_hostname")
 
-        if m.image in ["fedora-coreos"]:
-            # rpm-ostree version looks like 30.20191014.0, we don't check out a custom OSTree on the image
-            b.wait_in_text('#system-ostree-version-link', ".20")
+        if m.image == "rhel-8-1-distropkg":
+            b.wait_in_text('#system_information_hostname_button', "Adventure Box (host1.cockpit.lan)")
         else:
-            b.wait_not_visible("#system-ostree-version-link")
-
-        b.wait_text('#system_information_hostname_button', "Adventure Box (host1.cockpit.lan)")
+            b.wait_in_text('#system_information_hostname_text', "Adventure Box (host1.cockpit.lan)")
         self.assertEqual(m.execute("hostname").strip(), "host1.cockpit.lan")
 
         b.logout()
@@ -353,8 +353,10 @@ class TestSystemInfo(MachineCase):
         m.execute("rm -f /etc/motd")
 
         self.login_and_go("/system")
-        b.wait_present('#motd-box[data-stable=yes]')
-        b.wait_not_visible('#motd-box')
+        if m.image == "rhel-8-1-distropkg":
+            b.wait_not_visible('#motd-box')
+        else:
+            b.wait_not_present('#motd-box')
 
         m.execute(r"printf '  Hello\n  World\n\n' >/etc/motd")
         b.wait_visible('#motd-box')
@@ -368,13 +370,19 @@ class TestSystemInfo(MachineCase):
             b.click('#motd-box button.close')
         else:
             b.click('#motd-box button.pf-c-button')
-        b.wait_not_visible('#motd-box')
+
+        if m.image == "rhel-8-1-distropkg":
+            b.wait_not_visible('#motd-box')
+        else:
+            b.wait_not_present('#motd-box')
 
         # motd should stay dismissed after a reload
         b.reload()
         b.enter_page("/system")
-        b.wait_present('#motd-box[data-stable=yes]')
-        b.wait_not_visible('#motd-box')
+        if m.image == "rhel-8-1-distropkg":
+            b.wait_not_visible('#motd-box')
+        else:
+            b.wait_not_present('#motd-box')
 
         m.execute("echo Hello again >/etc/motd")
         b.wait_visible('#motd-box')
@@ -389,7 +397,12 @@ class TestSystemInfo(MachineCase):
 
         self.login_and_go("/system")
         b.wait_in_text('#system_information_hardware_text', "QEMU")
-        b.click('#system_information_hardware_text')
+
+        if m.image == "rhel-8-1-distropkg":
+            hardware_page_link = '#system_information_hardware_text'
+        else:
+            hardware_page_link = '.system-information a'
+        b.click(hardware_page_link)
         b.enter_page("/system/hwinfo")
 
         # system info
@@ -451,12 +464,16 @@ class TestSystemInfo(MachineCase):
         b.logout()
         self.machine.execute("mount -t tmpfs none /sys/class/dmi/id")
         self.login_and_go("/system")
-        b.wait_present('#system_information_hardware_text')
         # asset tag should be hidden
-        b.wait_not_visible('#system_information_asset_tag_text')
-        # Hardware can just be a generic link
-        b.wait_text('#system_information_hardware_text', "Details")
-        b.click("#system_information_hardware_text")
+        if m.image == "rhel-8-1-distropkg":
+            b.wait_not_visible('#system_information_asset_tag_text')
+            # Hardware can just be a generic link
+            b.wait_text('#system_information_hardware_text', "Details")
+        else:
+            b.wait_not_present('#system_information_asset_tag_text')
+            # Hardware should be hidden
+            b.wait_not_present('#system_information_hardware_text')
+            b.click(hardware_page_link)
         b.enter_page("/system/hwinfo")
 
         # CPU should still be shown, but not the DMI fields
@@ -475,14 +492,17 @@ class TestSystemInfo(MachineCase):
         m.write("/sys/class/dmi/id/chassis_type", "10")
         b.go("/system")
         b.enter_page('/system')
-        b.wait_text('#system_information_hardware_text', "Details")
+        if m.image == "rhel-8-1-distropkg":
+            b.wait_text('#system_information_hardware_text', "Details")
+        else:
+            b.wait_not_present('#system_information_hardware_text')
 
         m.write("/sys/class/dmi/id/board_vendor", "VENDOR")
         m.write("/sys/class/dmi/id/board_name", "NAME")
         b.reload()
         b.enter_page('/system')
         b.wait_in_text('#system_information_hardware_text', "VENDOR NAME")
-        b.click("#system_information_hardware_text")
+        b.click(hardware_page_link)
         b.enter_page("/system/hwinfo")
         b.wait_in_text('#hwinfo .info-table-ct tbody:nth-of-type(1) tr:nth-of-type(2) td', "NAME")
         b.wait_in_text('#hwinfo .info-table-ct tbody:nth-of-type(1) tr:nth-of-type(3) td', "VENDOR")
@@ -718,7 +738,7 @@ fi
         b.wait_text("#insights_text", "Not connected to Insights")
 
         m.execute("systemctl enable insights-client.timer")
-        b.wait_not_visible("#insights_text")
+        b.wait_not_present("#insights_text")
 
 class TestPcp(packagelib.PackageCase):
 
@@ -730,8 +750,8 @@ class TestPcp(packagelib.PackageCase):
         # the OSTree images don't have pcp and can't install additional software
         if m.ostree_image:
             self.login_and_go("/system")
-            b.wait_not_visible("#server-pmlogger-switch")
-            b.wait_not_visible("#system-information-enable-pcp-link")
+            b.wait_not_present("#server-pmlogger-switch")
+            b.wait_not_present("#system-configuration-enable-pcp-link")
             return
 
         m.execute("pkcon remove -y pcp")
@@ -748,14 +768,23 @@ class TestPcp(packagelib.PackageCase):
 
         # the offer to install it should be visible
         self.login_and_go("/system")
-        b.wait_not_visible("#server-pmlogger-switch")
-        b.wait_in_text("#system-information-enable-pcp-link", "Enable stored metrics…")
-        b.click("#system-information-enable-pcp-link")
+        if m.image in ["rhel-8-1-distropkg"]:
+            b.wait_not_visible("#server-pmlogger-switch")
+            b.wait_in_text("#system-information-enable-pcp-link", "Enable stored metrics...")
+            b.click("#system-information-enable-pcp-link")
+        else:
+            b.wait_not_present("#server-pmlogger-switch")
+            b.wait_in_text("#system-configuration-enable-pcp-link", "Enable stored metrics...")
+            b.click("#system-configuration-enable-pcp-link")
         b.click(".modal-footer button.btn-primary:contains('Install')")
         b.wait_not_present(".modal-dialog:contains('Install Software')")
 
+
         b.wait_visible("#server-pmlogger-switch")
-        b.wait_not_visible("#system-information-enable-pcp-link")
+        if m.image in ["rhel-8-1-distropkg"]:
+            b.wait_not_visible("#system-information-enable-pcp-link")
+        else:
+            b.wait_not_present("#system-configuration-enable-pcp-link")
 
         # Turn stored metrics on
         b.wait_present("#server-pmlogger-switch input:not(:checked)")

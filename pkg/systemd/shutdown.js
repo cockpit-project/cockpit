@@ -24,6 +24,8 @@ import cockpit from "cockpit";
 import "patterns";
 import "bootstrap-datepicker/dist/js/bootstrap-datepicker";
 
+import "./shutdown.css";
+
 const _ = cockpit.gettext;
 
 /* The server time object */

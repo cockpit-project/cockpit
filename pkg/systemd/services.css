@@ -1,3 +1,8 @@
+@import "./timer.css";
+@import '../lib/journal.css';
+@import "../lib/table.css";
+@import "./system-global.css";
+
 #services-page {
     overflow-y: scroll;
 }
@@ -210,4 +215,31 @@ table.systemd-unit-relationship-table td:first-child {
 
 .fa-exclamation-triangle {
     color: var(--pf-global--warning-color--100);
+}
+
+.service-template input {
+    width: 50em;
+}
+
+.service-unit-failed {
+    color: red;
+}
+
+.service-unit-description {
+    font-weight: bold;
+}
+
+.service-unit-data {
+    text-align: right;
+    white-space: nowrap;
+}
+
+@media screen and (max-width: 960px) {
+    .service-unit-data {
+        white-space: normal;
+    }
+}
+
+.service-unit-failed {
+    color: red;
 }

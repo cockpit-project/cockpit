@@ -1,0 +1,55 @@
+@import "../lib/page.css";
+@import "../../node_modules/@patternfly/react-styles/css/components/Alert/alert.css";
+
+.pf-c-alert {
+    margin-bottom: 24px;
+}
+
+.fa-info-circle {
+    color: var(--pf-global--info-color--100);
+}
+
+.fa-exclamation-triangle {
+    color: var(--pf-global--warning-color--100);
+}
+
+.fa-exclamation-circle {
+    color: var(--pf-global--danger-color--100);
+}
+
+.nav-tabs-pf > li:first-child > a {
+    padding-left: 20px;
+}
+
+.nav li a {
+    font-size: 13px;
+}
+
+/* Extra content header */
+
+.content-header-extra {
+    background: #f5f5f5;
+    border-bottom: 1px solid #ddd;
+    padding: 10px 20px;
+    width: 100%;
+    position: sticky;
+    z-index: 900;
+    top: 0;
+}
+
+.content-header-extra .btn-group {
+    padding-left: 5px;
+    padding-right: 30px;
+}
+
+a.disabled {
+    text-decoration: none;
+    pointer-events: none;
+    cursor: default;
+    color: var(--color-text);
+}
+
+.popover {
+    max-width: none;
+    white-space: nowrap;
+}

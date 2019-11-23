@@ -51,14 +51,15 @@ export class PageStatusNotifications extends React.Component {
         const page = "system/services";
         const status = page_status.get(page);
         if (status && status.type && status.title) {
-            this.props.toggle_label(true);
+            this.props.toggle_label && this.props.toggle_label(true);
             const jump = () => cockpit.jump("/" + page);
             return (
-                <span>
-                    <span className={icon_class_for_type(status.type)} /> <button className="link-button" role="link" onClick={jump}>{status.title}</button>
-                </span>);
+                <>
+                    <span className={icon_class_for_type(status.type)} />
+                    <a role="button" tabIndex="0" onClick={jump}>{status.title}</a>
+                </>);
         } else {
-            this.props.toggle_label(false);
+            this.props.toggle_label && this.props.toggle_label(false);
             return null;
         }
     }

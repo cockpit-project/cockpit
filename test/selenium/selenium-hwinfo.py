@@ -30,10 +30,10 @@ class TestHWinfo(SeleniumTest):
         self.machine.execute(command=cmd, input=self.lscpu)
         self.machine.execute('sudo chmod a+x {}'.format(self.lscpu_file))
         self.login()
-        self.click(self.wait_link('System', cond=clickable))
+        self.click(self.wait_link('Overview', cond=clickable))
         self.wait_frame("localhost/system")
 
-        self.click(self.wait_id("system_information_hardware_text"))
+        self.click(self.wait_link("View hardware details"))
         self.mainframe()
         self.wait_frame("localhost/system/hwinfo")
         self.wait_id("hwinfo")

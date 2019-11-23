@@ -166,7 +166,10 @@ class TestUpdates(PackageCase):
             b.wait_text("#system_information_updates_text", "Bug Fix Updates Available")
         self.assertIn("fa-bug", b.attr("#system_information_updates_icon", "class"))
         # should be a link, click on it to go to /updates
-        b.click("#system_information_updates_text a")
+        if m.image == "rhel-8-1-distropkg":
+            b.click("#system_information_updates_text a")
+        else:
+            b.click("#system_information_updates_text")
         b.enter_page("/updates")
 
         # old versions are still installed
@@ -329,7 +332,10 @@ class TestUpdates(PackageCase):
             self.assertIn("security", b.attr("#system_information_updates_icon", "class"))
 
         # should be a link, click on it to go to back to /updates
-        b.click("#system_information_updates_text a")
+        if m.image == "rhel-8-1-distropkg":
+            b.click("#system_information_updates_text a")
+        else:
+            b.click("#system_information_updates_text")
         b.enter_page("/updates")
 
         # install only security updates
@@ -737,7 +743,10 @@ class TestUpdatesSubscriptions(PackageCase):
         b.wait_in_text("#system_information_updates_text", "Not Registered")
         self.assertIn("triangle", b.attr("#system_information_updates_icon", "class"))
         # should be a link leading to subscriptions page
-        b.click("#system_information_updates_text a")
+        if m.image == "rhel-8-1-distropkg":
+            b.click("#system_information_updates_text a")
+        else:
+            b.click("#system_information_updates_text")
         b.enter_page("/subscriptions")
 
         # software updates page also shows unregistered

@@ -1,0 +1,11 @@
+.system-usage {
+  .pf-c-progress {
+    /* FIXME */
+    // This is a hacky, simple approach to make usage bars align.
+    // If the text is too short, there's too much space on the right.
+    // If the text is too long, it flows over and the bar is smaller.
+    // It's better than doing nothing, however...
+    // A more proper fix may require reworking the HTML a bit.
+    grid-template-columns: 1fr minmax(50%, auto);
+  }
+}

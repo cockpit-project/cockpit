@@ -103,22 +103,23 @@ var info = {
 
         "systemd/services": [
             "systemd/init.js",
-            "systemd/services.css",
+            "systemd/services.less",
         ],
         "systemd/logs": [
             "systemd/logs.js",
+            "systemd/logs.less",
         ],
-        "systemd/system": [
-            "systemd/host.js",
-            "systemd/host.css",
+        "systemd/overview": [
+            "systemd/overview.jsx",
+            "systemd/overview.less",
         ],
         "systemd/terminal": [
             "systemd/terminal.jsx",
-            "systemd/terminal.css",
+            "systemd/terminal.less",
         ],
         "systemd/hwinfo": [
             "systemd/hwinfo.jsx",
-            "systemd/hwinfo.css",
+            "systemd/hwinfo.less",
         ],
         "systemd/graphs": [
             "systemd/graphs.js",

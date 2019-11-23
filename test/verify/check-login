@@ -375,9 +375,13 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         m.start_cockpit()
         b.login_and_go("/system", user="unpriv")
         # not an admin
-        b.wait_present("#shutdown-group button[data-action=restart][data-stable=yes]")
-        b.wait_present("#shutdown-group button.disabled")
-        b.wait_not_present("#shutdown-group button:not(.disabled)")
+        if m.image == "rhel-8-1-distropkg":
+            b.wait_present("#shutdown-group button[data-action=restart][data-stable=yes]")
+            b.wait_present("#shutdown-group button.disabled")
+            b.wait_not_present("#shutdown-group button:not(.disabled)")
+        else:
+            b.wait_present("#restart-button.disabled[data-stable=yes]")
+            b.wait_present("#shutdown-group.disabled[data-stable=yes]")
         b.logout()
         self.allow_authorize_journal_messages()
         # not allowed to restricted users
@@ -396,7 +400,10 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         m.execute("semanage login -a -s sysadm_u admin")
         b.login_and_go("/system")
         # shutdown button should be enabled and working
-        b.click("#shutdown-group button[data-action=restart][data-stable=yes]")
+        if m.image == "rhel-8-1-distropkg":
+            b.click("#shutdown-group button[data-action=restart][data-stable=yes]")
+        else:
+            b.click("#restart-button[data-stable=yes]")
         b.wait_popup("shutdown-dialog")
         b.wait_in_text("#shutdown-dialog .btn-danger", 'Restart')
         b.click('#shutdown-dialog button[data-dismiss="modal"]')

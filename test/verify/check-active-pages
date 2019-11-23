@@ -39,7 +39,10 @@ class TestActivePages(MachineCase):
             # /playground/preloaded, /system/services, and /updates
             n_extra_preloaded = 3
 
-        b.wait_present("#server")
+        if m.image in [ "rhel-8-1-distropkg" ]:
+            b.wait_present("#server")
+        else:
+            b.wait_present("#overview")
 
         def showPagesAssertCount(count):
             b.switch_to_top()

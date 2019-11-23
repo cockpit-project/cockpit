@@ -1148,6 +1148,9 @@ export function setup_plot(graph_id, grid, data, user_options) {
     function refresh() {
         if (plot && running) {
             plot.setData(data);
+
+            $(graph_id).data('flot_data', data);
+
             if (user_options.setup_hook)
                 user_options.setup_hook(plot);
             plot.setupGrid();

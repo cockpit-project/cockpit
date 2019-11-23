@@ -36,6 +36,12 @@ export function cpu_ram_info(address) {
                     var total_kb = match && parseInt(match[1], 10);
                     if (total_kb)
                         info.memory = total_kb * 1024;
+
+                    var available_match = text.match(/MemAvailable:[^0-9]*([0-9]+) [kK]B/);
+                    var available_kb = available_match && parseInt(available_match[1], 10);
+                    if (available_kb)
+                        info.available_memory = available_kb * 1024;
+
                     var swap_match = text.match(/SwapTotal:[^0-9]*([0-9]+) [kK]B/);
                     var swap_total_kb = swap_match && parseInt(swap_match[1], 10);
                     if (swap_total_kb)

@@ -464,10 +464,11 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         b = self.browser
         m = self.machine
 
-        # We restart the reportd service,
-        # which causes the D-Bus proxy to spit out an error when it tries to
-        # query its managed objects.
+        # Restarting the reportd service will trigger some errors. Some depend
+        # on timing (interrupting the GetWorkflows call), so let’s ignore some
+        # variations of the same thing.
         self.allow_journal_messages('.*Remote peer disconnected')
+        self.allow_browser_errors('.*Failed to get workflows for problem .*: disconnected')
 
         m.upload(["verify/files/mock-bugzilla-server.py"], "/tmp/")
         m.spawn("setsid /tmp/mock-bugzilla-server.py", "mock-bugzilla.log")

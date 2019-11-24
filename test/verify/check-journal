@@ -479,6 +479,9 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         m.spawn("setsid /tmp/mock-faf-server.py", "mock-faf.log")
         m.execute("echo 'URL=http://localhost:12345' >> /etc/libreport/plugins/ureport.conf")
 
+        m.upload(["verify/files/cockpit_event.conf"], "/etc/libreport/events.d/")
+        m.upload(["verify/files/workflow_Cockpit.xml"], "/usr/share/libreport/workflows/")
+
         self.crash()
 
         self.login_and_go("/system/logs")
@@ -494,18 +497,16 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
         # "Unreport" the problem to test reporting unknown problem
         m.execute('find /var/spool/abrt -name "reported_to" -or -name "ureports_counter" | xargs rm')
+        # reporter-bugzilla will not be run without a duphash file present.
+        m.execute("find /var/spool/abrt -depth -maxdepth 1 | head -1 | xargs -I {} cp '{}/uuid' '{}/duphash'")
         # The service also needs to be restarted, because the daemon maintains
         # its own cache that interferes with resetting the state.
         m.execute('systemctl restart reportd')
-        # We have no network access.
-        m.execute("sed -i 's|abrt-action-perform-ccpp-analysis|true|' /etc/libreport/events.d/ccpp_event.conf")
-        # reporter-bugzilla will not be run without a duphash file present.
-        m.execute("find /var/spool/abrt -depth -maxdepth 1 | head -1 | xargs -I {} cp '{}/uuid' '{}/duphash'")
 
         b.reload()
         b.enter_page("/system/logs")
 
-        sel = "table.reporting-table tr:nth-child(2) button:contains('Report')"
+        sel = "table.reporting-table tr:contains('Report to Cockpit') button:contains('Report')"
         b.click(sel)
 
         test_user = 'correcthorsebatterystaple'
@@ -525,7 +526,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         sel = "#cockpit_modal_dialog .modal-footer button:contains('No')"
         b.click(sel)
 
-        sel = "table.reporting-table tr:nth-child(2) a[href='https://bugzilla.example.com/show_bug.cgi?id=123456']"
+        sel = "table.reporting-table tr:contains('Report to Cockpit') a[href='https://bugzilla.example.com/show_bug.cgi?id=123456']"
         b.wait_present(sel)
 
     @skipImage("ABRT does not work on i386", "fedora-i386")
@@ -546,6 +547,9 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         m.spawn("setsid /tmp/mock-faf-server.py", "mock-faf.log")
         m.execute("echo 'URL=http://localhost:12345' >> /etc/libreport/plugins/ureport.conf")
 
+        m.upload(["verify/files/cockpit_event.conf"], "/etc/libreport/events.d/")
+        m.upload(["verify/files/workflow_Cockpit.xml"], "/usr/share/libreport/workflows/")
+
         self.crash()
 
         self.login_and_go("/system/logs")
@@ -553,19 +557,16 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in __nanosleep()')"
         b.click(sel)
 
-        # Something long-running to not pop up an unexpected dialog.
-        m.execute("sed -i 's|abrt-action-perform-ccpp-analysis|echo Cancel me; sleep 5m|' /etc/libreport/events.d/ccpp_event.conf")
-
-        sel = "table.reporting-table tr:nth-child(2) button:contains('Report')"
+        sel = "table.reporting-table tr:contains('Report to Cockpit') button:contains('Report')"
         b.click(sel)
 
-        sel = "table.reporting-table tr:nth-child(2) td:contains('Cancel me')"
+        sel = "table.reporting-table tr:contains('Report to Cockpit') td:contains('Cancel me')"
         b.wait_visible(sel)
 
-        sel = "table.reporting-table tr:nth-child(2) button:contains('Cancel')"
+        sel = "table.reporting-table tr:contains('Report to Cockpit') button:contains('Cancel')"
         b.click(sel)
 
-        sel = "table.reporting-table tr:nth-child(2) td:contains('Reporting was canceled')"
+        sel = "table.reporting-table tr:contains('Report to Cockpit') td:contains('Reporting was canceled')"
         b.wait_present(sel)
 
     @skipImage("ABRT does not work on i386", "fedora-i386")

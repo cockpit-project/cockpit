@@ -454,14 +454,14 @@ class ReportingTable extends React.Component {
 
         reportd_client
                 .wait()
-                .then(() => this.getWorkflows(reportd_client))
-                .catch(exception => console.error(cockpit.format("Channel for reportd D-Bus client closed: $0", exception.problem || exception.message)));
+                .then(() => this.getWorkflows(reportd_client),
+                      exception => console.error(cockpit.format("Channel for reportd D-Bus client closed: $0", exception.problem || exception.message)));
     }
 
     getWorkflows(client) {
         client.call("/org/freedesktop/reportd/Service", "org.freedesktop.reportd.Service", "GetWorkflows", [this.props.problem.path])
-                .then((args, options) => this.setState({ workflows: args[0], }))
-                .catch(exception => console.error(cockpit.format("Failed to get workflows for problem $0: $1", this.props.problem.path, (exception.problem || exception.message))));
+                .then((args, options) => this.setState({ workflows: args[0], }),
+                      exception => console.error(cockpit.format("Failed to get workflows for problem $0: $1", this.props.problem.path, (exception.problem || exception.message))));
     }
 
     render() {

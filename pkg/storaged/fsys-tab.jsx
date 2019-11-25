@@ -64,10 +64,14 @@ export function get_fstab_config(block) {
 export function find_blocks_for_mount_point(client, mount_point, self) {
     const blocks = [];
 
+    function is_self(b) {
+        return self && (b == self || client.blocks[b.CryptoBackingDevice] == self);
+    }
+
     for (const p in client.blocks) {
         const b = client.blocks[p];
         const [, dir] = get_fstab_config(b);
-        if (dir == mount_point && b != self)
+        if (dir == mount_point && !is_self(b))
             blocks.push(b);
     }
 

@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-11-16 16:37+0000\n"
-"PO-Revision-Date: 2019-11-11 08:13+0000\n"
+"POT-Creation-Date: 2019-11-25 11:52+0000\n"
+"PO-Revision-Date: 2019-11-17 05:27+0000\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <kde-i18n-uk@kde.org>\n"
 "Language: uk\n"
@@ -49,7 +49,7 @@ msgstr "Розмір фрагмента $0"
 msgid "$0 Disks"
 msgstr "Диски $0"
 
-#: pkg/storaged/content-views.jsx:336
+#: pkg/storaged/content-views.jsx:356
 msgctxt "storage-id-desc"
 msgid "$0 File System"
 msgstr "Файлова система $0"
@@ -97,7 +97,7 @@ msgstr[0] "$0 байт"
 msgstr[1] "$0 байти"
 msgstr[2] "$0 байтів"
 
-#: pkg/storaged/vdo-details.jsx:284
+#: pkg/storaged/vdo-details.jsx:279
 msgid "$0 data + $1 overhead used of $2 ($3)"
 msgstr "$0 даних + $1 додатково використано з $2 ($3)"
 
@@ -131,23 +131,23 @@ msgstr[2] "Не вистачає $0 дисків"
 msgid "$0 error"
 msgstr "Помилка $0"
 
-#: src/base1/cockpit.js:2757
+#: src/base1/cockpit.js:2783
 msgid "$0 exited with code $1"
 msgstr "$0 завершено роботу з кодом $1"
 
-#: src/base1/cockpit.js:2759
+#: src/base1/cockpit.js:2785
 msgid "$0 failed"
 msgstr "Помилка $0"
 
-#: pkg/storaged/lvol-tabs.jsx:160
+#: pkg/storaged/lvol-tabs.jsx:161
 msgid "$0 filesystems can not be made larger."
 msgstr "Файлові системи $0 не можна розширювати."
 
-#: pkg/storaged/lvol-tabs.jsx:157
+#: pkg/storaged/lvol-tabs.jsx:158
 msgid "$0 filesystems can not be made smaller."
 msgstr "Файлові системи $0 не можна звужувати."
 
-#: pkg/storaged/lvol-tabs.jsx:153
+#: pkg/storaged/lvol-tabs.jsx:154
 msgid "$0 filesystems can not be resized here."
 msgstr "Тут не можна змінювати розмір файлових систем $0."
 
@@ -167,11 +167,11 @@ msgstr ""
 "пакунок із програмою, знайдіть відповідний запис у Програмних засобах GNOME "
 "або віддайте таку команду:"
 
-#: pkg/storaged/content-views.jsx:289 pkg/storaged/content-views.jsx:508
-#: pkg/storaged/format-dialog.jsx:221 pkg/storaged/lvol-tabs.jsx:202
-#: pkg/storaged/lvol-tabs.jsx:264 pkg/storaged/mdraid-details.jsx:230
-#: pkg/storaged/mdraid-details.jsx:282 pkg/storaged/vdo-details.jsx:145
-#: pkg/storaged/vdo-details.jsx:176 pkg/storaged/vgroup-details.jsx:199
+#: pkg/storaged/content-views.jsx:298 pkg/storaged/content-views.jsx:538
+#: pkg/storaged/format-dialog.jsx:164 pkg/storaged/lvol-tabs.jsx:203
+#: pkg/storaged/lvol-tabs.jsx:265 pkg/storaged/mdraid-details.jsx:230
+#: pkg/storaged/mdraid-details.jsx:282 pkg/storaged/vdo-details.jsx:128
+#: pkg/storaged/vdo-details.jsx:159 pkg/storaged/vgroup-details.jsx:199
 msgid "$0 is in active use"
 msgstr "$0 активно використовується"
 
@@ -179,7 +179,7 @@ msgstr "$0 активно використовується"
 msgid "$0 is not available from any repository."
 msgstr "$0 немає у жодному зі сховищ."
 
-#: src/base1/cockpit.js:2755
+#: src/base1/cockpit.js:2781
 msgid "$0 killed with signal $1"
 msgstr "$0 завершено з сигналом $1"
 
@@ -204,7 +204,7 @@ msgstr[0] "$0 відповідник"
 msgstr[1] "$0 відповідники"
 msgstr[2] "$0 відповідників"
 
-#: pkg/storaged/fsys-tab.jsx:60
+#: pkg/storaged/fsys-tab.jsx:365
 msgid "$0 of $1"
 msgstr "$0 з $1"
 
@@ -230,7 +230,7 @@ msgstr[0] "$0 оновлення"
 msgstr[1] "$0 оновлення"
 msgstr[2] "$0 оновлень"
 
-#: pkg/storaged/vdo-details.jsx:296
+#: pkg/storaged/vdo-details.jsx:291
 msgid "$0 used of $1 ($2 saved)"
 msgstr "$0 використано з $1 ($2 заощаджено)"
 
@@ -255,6 +255,10 @@ msgstr[2] "$0 років"
 #: pkg/storaged/vgroup-details.jsx:111
 msgid "$0, $1 free"
 msgstr "$0, вільно $1"
+
+#: pkg/systemd/logs.js:459
+msgid "$0: crash at $1"
+msgstr ""
 
 #: pkg/packagekit/updates.jsx:160
 msgid "$1 security fix"
@@ -282,10 +286,6 @@ msgstr "${size} ${desc}"
 #: pkg/networkmanager/firewall.jsx:571
 msgid "(Optional)"
 msgstr "(Необов’язково)"
-
-#: pkg/storaged/fsys-tab.jsx:160
-msgid "(default)"
-msgstr "(типовий)"
 
 #: pkg/storaged/crypto-tab.jsx:132
 msgid "(none)"
@@ -581,8 +581,7 @@ msgstr "Стеження за ARP"
 msgid "ARP Ping"
 msgstr "Луна-імпульс ARP"
 
-#: pkg/shell/index.html:57 pkg/shell/index.html:83 pkg/shell/simple.html:42
-#: pkg/shell/simple.html:58
+#: pkg/shell/index.html:57 pkg/shell/index.html:83
 msgid "About Cockpit"
 msgstr "Про Cockpit"
 
@@ -620,7 +619,7 @@ msgstr "Облікові записи"
 
 #: pkg/machines/components/networks/network.jsx:157
 #: pkg/machines/components/storagePools/storagePool.jsx:170
-#: pkg/storaged/content-views.jsx:261
+#: pkg/storaged/content-views.jsx:270
 msgid "Activate"
 msgstr "Задіяти"
 
@@ -640,7 +639,7 @@ msgstr "Активне резервування"
 msgid "Active Pages"
 msgstr "Активні сторінки"
 
-#: pkg/storaged/dialog.jsx:1027 pkg/storaged/dialog.jsx:1031
+#: pkg/storaged/dialog.jsx:1030 pkg/storaged/dialog.jsx:1034
 msgid "Active since"
 msgstr "Активний з"
 
@@ -892,8 +891,8 @@ msgstr "Після завантаження системи"
 msgid "Alert and above"
 msgstr "Тривога і вище"
 
-#: pkg/systemd/services.html:65 pkg/systemd/logs.js:239
-#: pkg/systemd/logs.js:416
+#: pkg/systemd/services.html:65 pkg/systemd/logs.js:241
+#: pkg/systemd/logs.js:418
 msgid "All"
 msgstr "Всі"
 
@@ -945,8 +944,8 @@ msgstr "Програми"
 #: pkg/networkmanager/index.html:643 pkg/networkmanager/index.html:669
 #: pkg/networkmanager/index.html:695 pkg/kdump/kdump-view.jsx:355
 #: pkg/machines/components/vcpuModal.jsx:260 pkg/storaged/crypto-tab.jsx:78
-#: pkg/storaged/crypto-tab.jsx:108 pkg/storaged/fsys-tab.jsx:80
-#: pkg/storaged/fsys-tab.jsx:129 pkg/storaged/nfs-details.jsx:191
+#: pkg/storaged/crypto-tab.jsx:108 pkg/storaged/fsys-tab.jsx:270
+#: pkg/storaged/fsys-tab.jsx:347 pkg/storaged/nfs-details.jsx:191
 msgid "Apply"
 msgstr "Застосувати"
 
@@ -1120,7 +1119,7 @@ msgstr "Версія BIOS"
 msgid "Back to Accounts"
 msgstr "Назад до облікових записів"
 
-#: pkg/storaged/vdo-details.jsx:274
+#: pkg/storaged/vdo-details.jsx:269
 msgid "Backing Device"
 msgstr "Резервний пристрій"
 
@@ -1156,7 +1155,7 @@ msgstr "Обгортка Blade"
 msgid "Block"
 msgstr "Блок"
 
-#: pkg/storaged/content-views.jsx:663
+#: pkg/storaged/content-views.jsx:693
 msgid "Block device for filesystems"
 msgstr "Блоковий пристрій для файлових систем"
 
@@ -1238,7 +1237,7 @@ msgstr "Процесор"
 msgid "CPU Security"
 msgstr "Захист процесора"
 
-#: pkg/systemd/hwinfo.jsx:211
+#: pkg/systemd/hwinfo.jsx:224
 msgid "CPU Security Toggles"
 msgstr "Перемикачі захисту процесора"
 
@@ -1268,7 +1267,7 @@ msgstr "Кеш"
 msgid "Cached"
 msgstr "Кеш"
 
-#: pkg/systemd/logs.js:181 pkg/systemd/logs.js:345
+#: pkg/systemd/logs.js:183 pkg/systemd/logs.js:347
 msgid "Can not find any logs using the current combination of filters."
 msgstr "Не вдалося знайти журналів на основі поточної комбінації фільтрів."
 
@@ -1291,13 +1290,13 @@ msgstr "Не вдалося завантажити образ"
 #: pkg/networkmanager/index.html:616 pkg/networkmanager/index.html:642
 #: pkg/networkmanager/index.html:668 pkg/networkmanager/index.html:694
 #: pkg/playground/translate.html:39 pkg/realmd/operation.html:83
-#: pkg/shell/index.html:123 pkg/shell/simple.html:90
-#: pkg/systemd/index.html:351 pkg/systemd/index.html:438
-#: pkg/systemd/index.html:490 pkg/systemd/index.html:506
-#: pkg/systemd/services.html:377 pkg/users/index.html:198
-#: pkg/users/index.html:237 pkg/users/index.html:276 pkg/users/index.html:315
-#: pkg/users/index.html:332 pkg/users/index.html:356 pkg/users/index.html:413
-#: pkg/apps/utils.jsx:86 pkg/lib/cockpit-components-dialog.jsx:160
+#: pkg/shell/index.html:123 pkg/systemd/index.html:351
+#: pkg/systemd/index.html:438 pkg/systemd/index.html:490
+#: pkg/systemd/index.html:506 pkg/systemd/services.html:377
+#: pkg/users/index.html:198 pkg/users/index.html:237 pkg/users/index.html:276
+#: pkg/users/index.html:315 pkg/users/index.html:332 pkg/users/index.html:356
+#: pkg/users/index.html:413 pkg/apps/utils.jsx:86
+#: pkg/lib/cockpit-components-dialog.jsx:160
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:828
 #: pkg/machines/components/deleteDialog.jsx:158
 #: pkg/machines/components/deleteResource.jsx:108
@@ -1307,7 +1306,7 @@ msgstr "Не вдалося завантажити образ"
 #: pkg/machines/components/nicAdd.jsx:232
 #: pkg/machines/components/nicEdit.jsx:165
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:511
-#: pkg/machines/components/storagePools/storagePoolDelete.jsx:225
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:226
 #: pkg/machines/components/storagePools/storageVolumeCreate.jsx:93
 #: pkg/machines/components/vcpuModal.jsx:257
 #: pkg/machines/components/vm/bootOrderModal.jsx:327
@@ -1315,8 +1314,8 @@ msgstr "Не вдалося завантажити образ"
 #: pkg/networkmanager/firewall.jsx:587 pkg/networkmanager/firewall.jsx:739
 #: pkg/networkmanager/firewall.jsx:764 pkg/packagekit/updates.jsx:182
 #: pkg/sosreport/index.js:51 pkg/storaged/dialog.jsx:400
-#: pkg/storaged/jobs-panel.jsx:123 pkg/systemd/hwinfo.jsx:225
-#: pkg/systemd/service-details.jsx:108
+#: pkg/storaged/jobs-panel.jsx:123 pkg/systemd/hwinfo.jsx:238
+#: pkg/systemd/reporting.jsx:419 pkg/systemd/service-details.jsx:108
 msgid "Cancel"
 msgstr "Скасувати"
 
@@ -1324,7 +1323,7 @@ msgstr "Скасувати"
 msgid "Cannot connect to an unknown machine"
 msgstr "Неможливо встановити з’єднання із невідомим комп’ютером"
 
-#: src/base1/cockpit.js:4035
+#: src/base1/cockpit.js:4046
 msgid "Cannot forward login credentials"
 msgstr "Не вдалося переспрямувати реєстраційні дані для входу"
 
@@ -1438,7 +1437,7 @@ msgstr "Перевіряємо встановлене програмне заб�
 msgid "Choose an operating system"
 msgstr "Виберіть операційну систему"
 
-#: pkg/shell/index.html:118 pkg/shell/simple.html:85
+#: pkg/shell/index.html:118
 msgid "Choose the language to be used in the application"
 msgstr "Виберіть мову перекладу, яку буде використано для інтерфейсу програми"
 
@@ -1446,7 +1445,7 @@ msgstr "Виберіть мову перекладу, яку буде викор
 msgid "Chunk Size"
 msgstr "Розмір фрагмента"
 
-#: pkg/systemd/hwinfo.jsx:259
+#: pkg/systemd/hwinfo.jsx:272
 msgid "Class"
 msgstr "Клас"
 
@@ -1465,6 +1464,10 @@ msgstr "Зняти усі фільтри"
 #: pkg/shell/indexes.js:505
 msgid "Clear Search"
 msgstr "Очистити критерій пошуку"
+
+#: pkg/storaged/fsys-tab.jsx:250
+msgid "Clear mount point configuration"
+msgstr ""
 
 #: pkg/systemd/host.js:703
 msgid "Click to see system hardware information"
@@ -1485,10 +1488,9 @@ msgstr "Клієнтське програмне забезпечення"
 #: pkg/lib/machine-not-supported.html:8
 #: pkg/lib/machine-unknown-hostkey.html:19 pkg/networkmanager/index.html:713
 #: pkg/shell/index.html:97 pkg/shell/index.html:140 pkg/shell/index.html:335
-#: pkg/shell/simple.html:72 pkg/systemd/index.html:297 pkg/users/index.html:45
-#: pkg/apps/utils.jsx:108 pkg/lib/cockpit-components-modifications.jsx:109
-#: pkg/sosreport/index.js:45 pkg/sosreport/index.js:127
-#: pkg/storaged/dialog.jsx:400
+#: pkg/systemd/index.html:297 pkg/users/index.html:45 pkg/apps/utils.jsx:108
+#: pkg/lib/cockpit-components-modifications.jsx:109 pkg/sosreport/index.js:45
+#: pkg/sosreport/index.js:127 pkg/storaged/dialog.jsx:400
 msgid "Close"
 msgstr "Закрити"
 
@@ -1512,7 +1514,7 @@ msgstr ""
 "Cockpit не вдалося встановити зв’язок із вказаним вузлом $0. Переконайтеся, "
 "що ssh запущено на порту $1 або вкажіть інший порт у адресі."
 
-#: src/base1/cockpit.js:4041
+#: src/base1/cockpit.js:4052
 msgid "Cockpit could not contact the given host."
 msgstr "Cockpit не вдалося встановити зв’язок із вказаним вузлом."
 
@@ -1543,11 +1545,11 @@ msgstr ""
 "зупинити за допомогою термінала. І навпаки, якщо трапиться помилка у "
 "терміналі, ви побачите її у інтерфейсі журналу Cockpit."
 
-#: pkg/shell/index.html:86 pkg/shell/simple.html:61
+#: pkg/shell/index.html:86
 msgid "Cockpit is an interactive Linux server admin interface."
 msgstr "Cockpit — інтерактивний інтерфейс адміністратора сервера Linux."
 
-#: src/base1/cockpit.js:4039
+#: src/base1/cockpit.js:4050
 msgid "Cockpit is not compatible with the software on the system."
 msgstr "Cockpit є несумісним із програмним забезпеченням цієї системи."
 
@@ -1555,7 +1557,7 @@ msgstr "Cockpit є несумісним із програмним забезпе
 msgid "Cockpit is not installed"
 msgstr "Cockpit не встановлено"
 
-#: src/base1/cockpit.js:4033
+#: src/base1/cockpit.js:4044
 msgid "Cockpit is not installed on the system."
 msgstr "Cockpit у цій системі не встановлено."
 
@@ -1674,11 +1676,11 @@ msgstr "Не вдалося обмінятися даними з tuned"
 msgid "Compact PCI"
 msgstr "Компактний PCI"
 
-#: pkg/storaged/content-views.jsx:529
+#: pkg/storaged/content-views.jsx:559
 msgid "Compatible with all systems and devices (MBR)"
 msgstr "Сумісний із усіма системами та пристроями (MBR)"
 
-#: pkg/storaged/content-views.jsx:532
+#: pkg/storaged/content-views.jsx:562
 msgid "Compatible with modern system and hard disks > 2TB (GPT)"
 msgstr "Сумісний зі сучасними системами та жорсткими дисками > 2 ТБ (GPT)"
 
@@ -1686,7 +1688,7 @@ msgstr "Сумісний зі сучасними системами та жор�
 msgid "Compress crash dumps to save space"
 msgstr "Стиснути дампи аварійних завершень для заощадження місця"
 
-#: pkg/kdump/kdump-view.jsx:156 pkg/storaged/vdo-details.jsx:308
+#: pkg/kdump/kdump-view.jsx:156 pkg/storaged/vdo-details.jsx:303
 #: pkg/storaged/vdos-panel.jsx:120
 msgid "Compression"
 msgstr "Стискання"
@@ -1720,7 +1722,7 @@ msgid "Configuring IP"
 msgstr "Налаштовуємо IP"
 
 #: pkg/shell/index.html:307 pkg/users/index.html:176
-#: pkg/storaged/format-dialog.jsx:271
+#: pkg/storaged/format-dialog.jsx:221
 msgid "Confirm"
 msgstr "Підтвердити"
 
@@ -1811,7 +1813,7 @@ msgstr "Помилка з'єднання"
 msgid "Connection failed"
 msgstr "Не вдалося встановити з'єднання"
 
-#: src/base1/cockpit.js:4031
+#: src/base1/cockpit.js:4042
 msgid "Connection has timed out."
 msgstr "Вичерпано час очікування на з’єднання."
 
@@ -1877,7 +1879,7 @@ msgstr "Контейнери"
 msgid "Contains"
 msgstr "Містить"
 
-#: pkg/storaged/content-views.jsx:567
+#: pkg/storaged/content-views.jsx:597
 msgid "Content"
 msgstr "Вміст"
 
@@ -1948,6 +1950,10 @@ msgstr "Не вдалося побудувати список користува
 msgid "Couldn't load user data"
 msgstr "Не вдалося завантажити дані користувача"
 
+#: pkg/systemd/reporting.jsx:471
+msgid "Crash Reporting"
+msgstr ""
+
 #: pkg/kdump/kdump-view.jsx:338 pkg/kdump/kdump-view.jsx:507
 msgid "Crash dump location"
 msgstr "Розташування дампу аварійного завершення"
@@ -1961,17 +1967,17 @@ msgstr "Аварійно завершити роботу системи"
 #: pkg/machines/components/networks/createNetworkDialog.jsx:482
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:514
 #: pkg/machines/components/storagePools/storageVolumeCreate.jsx:96
-#: pkg/storaged/content-views.jsx:127 pkg/storaged/content-views.jsx:706
-#: pkg/storaged/lvol-tabs.jsx:360 pkg/storaged/mdraids-panel.jsx:123
+#: pkg/storaged/content-views.jsx:128 pkg/storaged/content-views.jsx:736
+#: pkg/storaged/lvol-tabs.jsx:361 pkg/storaged/mdraids-panel.jsx:123
 #: pkg/storaged/vdos-panel.jsx:146 pkg/storaged/vgroups-panel.jsx:90
 msgid "Create"
 msgstr "Створити"
 
 #: pkg/storaged/things-panel.jsx:66
 msgid "Create Devices"
-msgstr ""
+msgstr "Створити пристрої"
 
-#: pkg/storaged/content-views.jsx:650
+#: pkg/storaged/content-views.jsx:680
 msgid "Create Logical Volume"
 msgstr "Створити логічний том"
 
@@ -1991,15 +1997,15 @@ msgstr "Створити віртуальну машину"
 msgid "Create New Volume"
 msgstr "Створити том"
 
-#: pkg/storaged/content-views.jsx:436 pkg/storaged/format-dialog.jsx:292
+#: pkg/storaged/content-views.jsx:466 pkg/storaged/format-dialog.jsx:263
 msgid "Create Partition"
 msgstr "Створити розділ"
 
-#: pkg/storaged/content-views.jsx:562
+#: pkg/storaged/content-views.jsx:592
 msgid "Create Partition Table"
 msgstr "Створити таблицю розділів"
 
-#: pkg/storaged/format-dialog.jsx:189
+#: pkg/storaged/format-dialog.jsx:132
 msgid "Create Partition on $0"
 msgstr "Створити розділ на $0"
 
@@ -2011,7 +2017,7 @@ msgstr "Створити пристрій RAID"
 msgid "Create Report"
 msgstr "Створити звіт"
 
-#: pkg/storaged/lvol-tabs.jsx:354 pkg/storaged/lvol-tabs.jsx:395
+#: pkg/storaged/lvol-tabs.jsx:355 pkg/storaged/lvol-tabs.jsx:396
 msgid "Create Snapshot"
 msgstr "Створення знімка"
 
@@ -2024,7 +2030,7 @@ msgstr "Створити резервне сховище"
 msgid "Create Storage Volume"
 msgstr "Створити том сховища даних"
 
-#: pkg/storaged/content-views.jsx:111 pkg/storaged/content-views.jsx:138
+#: pkg/storaged/content-views.jsx:112 pkg/storaged/content-views.jsx:139
 msgid "Create Thin Volume"
 msgstr "Створити тонкий том"
 
@@ -2067,7 +2073,7 @@ msgstr "Створити діагностичний звіт"
 msgid "Create it"
 msgstr "Створити"
 
-#: pkg/storaged/content-views.jsx:725
+#: pkg/storaged/content-views.jsx:755
 msgid "Create new Logical Volume"
 msgstr "Створити логічний том"
 
@@ -2160,19 +2166,16 @@ msgstr "Поточне отримання"
 msgid "Current boot"
 msgstr "Поточне завантаження"
 
-#: pkg/storaged/format-dialog.jsx:70
-msgid "Custom"
-msgstr "Нетиповий"
-
 #: pkg/networkmanager/firewall.jsx:545
 msgid "Custom Ports"
 msgstr "Нетипові порти"
 
-#: pkg/storaged/format-dialog.jsx:122
+#: pkg/storaged/format-dialog.jsx:65
 msgid "Custom encryption options"
 msgstr "Нетипові параметри шифрування"
 
-#: pkg/storaged/format-dialog.jsx:95 pkg/storaged/nfs-details.jsx:176
+#: pkg/storaged/format-dialog.jsx:247 pkg/storaged/fsys-tab.jsx:241
+#: pkg/storaged/nfs-details.jsx:176
 msgid "Custom mount options"
 msgstr "Нетипові параметри монтування"
 
@@ -2213,13 +2216,13 @@ msgstr "Темний"
 msgid "Dashboard"
 msgstr "Панель приладів"
 
-#: pkg/storaged/lvol-tabs.jsx:463
+#: pkg/storaged/lvol-tabs.jsx:465
 msgid "Data Used"
 msgstr "Використано даних"
 
 #: pkg/machines/components/networks/network.jsx:153
 #: pkg/machines/components/storagePools/storagePool.jsx:165
-#: pkg/storaged/content-views.jsx:259
+#: pkg/storaged/content-views.jsx:268
 msgid "Deactivate"
 msgstr "Вимкнути"
 
@@ -2235,12 +2238,11 @@ msgstr "Деактивуємо $target"
 msgid "Debug and above"
 msgstr "Діагностика і вище"
 
-#: pkg/storaged/vdo-details.jsx:314 pkg/storaged/vdos-panel.jsx:124
+#: pkg/storaged/vdo-details.jsx:309 pkg/storaged/vdos-panel.jsx:124
 msgid "Deduplication"
 msgstr "Скасування дублювання"
 
 #: pkg/docker/index.html:359 pkg/docker/index.html:363
-#: pkg/storaged/format-dialog.jsx:69
 msgid "Default"
 msgstr "Типовий"
 
@@ -2258,13 +2260,13 @@ msgstr "Затримка"
 #: pkg/machines/components/deleteResource.jsx:87
 #: pkg/machines/components/deleteResource.jsx:100
 #: pkg/machines/components/deleteResource.jsx:111
-#: pkg/machines/components/storagePools/storagePoolDelete.jsx:194
-#: pkg/machines/components/storagePools/storagePoolDelete.jsx:204
-#: pkg/machines/components/storagePools/storagePoolDelete.jsx:230
-#: pkg/networkmanager/firewall.jsx:767 pkg/storaged/content-views.jsx:300
-#: pkg/storaged/content-views.jsx:316 pkg/storaged/mdraid-details.jsx:293
-#: pkg/storaged/mdraid-details.jsx:316 pkg/storaged/vdo-details.jsx:201
-#: pkg/storaged/vdo-details.jsx:266 pkg/storaged/vgroup-details.jsx:211
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:195
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:205
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:231
+#: pkg/networkmanager/firewall.jsx:767 pkg/storaged/content-views.jsx:309
+#: pkg/storaged/content-views.jsx:325 pkg/storaged/mdraid-details.jsx:293
+#: pkg/storaged/mdraid-details.jsx:316 pkg/storaged/vdo-details.jsx:198
+#: pkg/storaged/vdo-details.jsx:261 pkg/storaged/vgroup-details.jsx:211
 #: pkg/storaged/vgroup-details.jsx:233
 msgid "Delete"
 msgstr "Вилучити"
@@ -2280,7 +2282,7 @@ msgstr[0] "Вилучити $0 том"
 msgstr[1] "Вилучити $0 томи"
 msgstr[2] "Вилучити $0 томів"
 
-#: pkg/machines/components/storagePools/storagePoolDelete.jsx:162
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:163
 msgid "Delete Content"
 msgstr "Вилучити дані"
 
@@ -2288,7 +2290,7 @@ msgstr "Вилучити дані"
 msgid "Delete Files"
 msgstr "Вилучити файли"
 
-#: pkg/machines/components/storagePools/storagePoolDelete.jsx:217
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:218
 msgid "Delete Storage Pool $0"
 msgstr "Вилучити буфер зберігання даних $0"
 
@@ -2296,7 +2298,7 @@ msgstr "Вилучити буфер зберігання даних $0"
 msgid "Delete associated storage files:"
 msgstr "Вилучити пов’язані файли у сховищі даних:"
 
-#: pkg/machines/components/storagePools/storagePoolDelete.jsx:170
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:171
 msgid "Delete the Volumes inside this Pool"
 msgstr "Вилучити томи у цьому буфері"
 
@@ -2316,7 +2318,7 @@ msgstr ""
 msgid "Deleting a RAID device will erase all data on it."
 msgstr "Вилучення пристрою RAID призведе до витирання з нього усіх даних."
 
-#: pkg/storaged/vdo-details.jsx:202
+#: pkg/storaged/vdo-details.jsx:199
 msgid "Deleting a VDO device will erase all data on it."
 msgstr "Вилучення пристрою VDO призведе до витирання усіх даних на ньому."
 
@@ -2326,13 +2328,13 @@ msgstr ""
 "Вилучення контейнера призведе до витирання усіх даних, що на ньому "
 "зберігаються."
 
-#: pkg/storaged/content-views.jsx:278
+#: pkg/storaged/content-views.jsx:287
 msgid "Deleting a logical volume will delete all data in it."
 msgstr ""
 "Вилучення логічного тому призведе до витирання усіх даних, що на ньому "
 "зберігаються."
 
-#: pkg/storaged/content-views.jsx:281
+#: pkg/storaged/content-views.jsx:290
 msgid "Deleting a partition will delete all data in it."
 msgstr ""
 "Вилучення розділу призведе до вилучення усіх даних, що на ньому "
@@ -2344,7 +2346,7 @@ msgstr ""
 "Вилучення групи томів призведе до витирання усіх даних, що у ній "
 "зберігаються."
 
-#: pkg/machines/components/storagePools/storagePoolDelete.jsx:174
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:175
 msgid ""
 "Deleting an inactive Storage Pool will only undefine the Pool. Its content "
 "will not be deleted."
@@ -2365,8 +2367,8 @@ msgstr "Опис"
 msgid "Desktop"
 msgstr "Робоча станція"
 
-#: pkg/machines/components/storagePools/storagePoolDelete.jsx:151
-#: pkg/machines/components/storagePools/storagePoolDelete.jsx:187
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:152
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:188
 msgid ""
 "Detach the disks using this pool from any VMs before attempting deletion."
 msgstr ""
@@ -2396,17 +2398,17 @@ msgstr "Розробка"
 msgid "Device"
 msgstr "Пристрій"
 
-#: pkg/storaged/vdo-details.jsx:271
+#: pkg/storaged/vdo-details.jsx:266
 msgid "Device File"
 msgstr "Файл пристрою"
 
-#: pkg/storaged/content-views.jsx:561
+#: pkg/storaged/content-views.jsx:591
 msgid "Device is read-only"
 msgstr "Пристрій придатний лише для читання"
 
 #: pkg/storaged/things-panel.jsx:79
 msgid "Devices"
-msgstr ""
+msgstr "Пристрої"
 
 #: pkg/sosreport/manifest.json.in
 msgid "Diagnostic Reports"
@@ -2424,7 +2426,7 @@ msgstr "Каталог"
 msgid "Directory $0 isn't writable or doesn't exist."
 msgstr "Каталог $0 є непридатним до запису або не існує."
 
-#: pkg/systemd/hwinfo.jsx:197
+#: pkg/systemd/hwinfo.jsx:210
 msgid "Disable simultaneous multithreading"
 msgstr "Вимкнути багатопотоковість"
 
@@ -2449,8 +2451,8 @@ msgstr "Заборонити запуск (замаскувати)"
 msgid "Disconnect"
 msgstr "Від’єднатися"
 
-#: pkg/shell/simple.html:101 pkg/machines/components/vnc.jsx:107
-#: pkg/shell/indexes.js:244 pkg/shell/indexes.js:846
+#: pkg/machines/components/vnc.jsx:107 pkg/shell/indexes.js:244
+#: pkg/shell/indexes.js:846
 msgid "Disconnected"
 msgstr "Роз'єднано"
 
@@ -2497,10 +2499,13 @@ msgstr "Не вдалося зберегти параметри диска"
 msgid "Disks"
 msgstr "Диски"
 
-#: pkg/shell/index.html:53 pkg/shell/index.html:115 pkg/shell/simple.html:38
-#: pkg/shell/simple.html:82
+#: pkg/shell/index.html:53 pkg/shell/index.html:115
 msgid "Display Language"
 msgstr "Мова перекладу"
+
+#: pkg/storaged/fsys-tab.jsx:462
+msgid "Do not mount automatically on boot"
+msgstr ""
 
 #: pkg/docker/manifest.json.in
 msgid "Docker Containers"
@@ -2544,7 +2549,7 @@ msgstr "Пароль адміністратора домену"
 msgid "Don't Repeat"
 msgstr "Не повторювати"
 
-#: pkg/storaged/content-views.jsx:521 pkg/storaged/format-dialog.jsx:245
+#: pkg/storaged/content-views.jsx:551 pkg/storaged/format-dialog.jsx:195
 msgid "Don't overwrite existing data"
 msgstr "Не перезаписувати наявні дані"
 
@@ -2665,7 +2670,7 @@ msgstr "Увімкнути брандмауер"
 msgid "Enabled"
 msgstr "Увімкнено"
 
-#: pkg/storaged/format-dialog.jsx:259
+#: pkg/storaged/format-dialog.jsx:209
 msgid "Encrypt data"
 msgstr "Зашифрувати дані"
 
@@ -2681,22 +2686,22 @@ msgstr "Зашифрований логічний том $0"
 msgid "Encrypted Partition of $0"
 msgstr "Шифрований розділ $0"
 
-#: pkg/storaged/content-views.jsx:350
+#: pkg/storaged/content-views.jsx:370
 msgctxt "storage-id-desc"
 msgid "Encrypted data"
 msgstr "Зашифровані дані"
 
-#: pkg/storaged/lvol-tabs.jsx:141
+#: pkg/storaged/lvol-tabs.jsx:142
 msgid "Encrypted volumes can not be resized here."
 msgstr "Тут не можна змінювати розмір шифрованих томів."
 
-#: pkg/storaged/lvol-tabs.jsx:144
+#: pkg/storaged/lvol-tabs.jsx:145
 msgid "Encrypted volumes need to be unlocked before they can be resized."
 msgstr ""
 "Перш ніж можна буде змінювати розмір зашифрованих томів, такі томи слід "
 "розблокувати."
 
-#: pkg/storaged/content-views.jsx:151
+#: pkg/storaged/content-views.jsx:154
 msgid "Encryption"
 msgstr "Шифрування"
 
@@ -2742,6 +2747,10 @@ msgstr "Уся підмережа"
 msgid "Entry"
 msgstr "Запис"
 
+#: pkg/systemd/logs.js:465
+msgid "Entry at $0"
+msgstr ""
+
 #: pkg/docker/containers-view.jsx:410
 msgid "Entrypoint"
 msgstr "Точка входження"
@@ -2750,7 +2759,7 @@ msgstr "Точка входження"
 msgid "Environment"
 msgstr "Середовище"
 
-#: pkg/storaged/content-views.jsx:518 pkg/storaged/format-dialog.jsx:242
+#: pkg/storaged/content-views.jsx:548 pkg/storaged/format-dialog.jsx:192
 msgid "Erase"
 msgstr "Витерти"
 
@@ -2767,9 +2776,10 @@ msgid "Errata:"
 msgstr "Помилки:"
 
 #: pkg/playground/translate.html:100 pkg/playground/translate.html:105
-#: pkg/apps/utils.jsx:100 pkg/storaged/multipath.jsx:58
-#: pkg/storaged/storage-controls.jsx:81 pkg/storaged/storage-controls.jsx:173
-#: pkg/systemd/service-details.jsx:451 pkg/users/local.js:1476
+#: pkg/apps/utils.jsx:100 pkg/storaged/fsys-tab.jsx:283
+#: pkg/storaged/multipath.jsx:58 pkg/storaged/storage-controls.jsx:81
+#: pkg/storaged/storage-controls.jsx:173 pkg/systemd/service-details.jsx:451
+#: pkg/users/local.js:1476
 msgid "Error"
 msgstr "Помилка"
 
@@ -2845,7 +2855,11 @@ msgstr "Апаратний блок розширення"
 msgid "Expose container ports"
 msgstr "Відкрити порти контейнера"
 
-#: pkg/storaged/content-views.jsx:456 pkg/storaged/format-dialog.jsx:215
+#: pkg/systemd/logs.js:543
+msgid "Extended Information"
+msgstr ""
+
+#: pkg/storaged/content-views.jsx:486 pkg/storaged/format-dialog.jsx:158
 msgid "Extended Partition"
 msgstr "Розширений розділ"
 
@@ -2931,7 +2945,7 @@ msgstr ""
 msgid "File"
 msgstr "Файл"
 
-#: pkg/storaged/content-views.jsx:149
+#: pkg/storaged/content-views.jsx:152
 msgid "Filesystem"
 msgstr "Файлова система"
 
@@ -2939,15 +2953,11 @@ msgstr "Файлова система"
 msgid "Filesystem Directory"
 msgstr "Каталог файлової системи"
 
-#: pkg/storaged/fsys-tab.jsx:126
-msgid "Filesystem Mounting"
-msgstr "Монтування файлової системи"
-
-#: pkg/storaged/fsys-tab.jsx:71
+#: pkg/storaged/fsys-tab.jsx:338
 msgid "Filesystem Name"
 msgstr "Назва файлової системи"
 
-#: pkg/storaged/fsys-panel.jsx:93 pkg/storaged/fsys-panel.jsx:96
+#: pkg/storaged/fsys-panel.jsx:87 pkg/storaged/fsys-panel.jsx:90
 msgid "Filesystems"
 msgstr "Файлові системи"
 
@@ -3006,25 +3016,25 @@ msgstr "Примусово вилучити пароль у $0"
 
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:249
 #: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:64
-#: pkg/storaged/content-views.jsx:320 pkg/storaged/content-views.jsx:539
-#: pkg/storaged/format-dialog.jsx:292
+#: pkg/storaged/content-views.jsx:330 pkg/storaged/content-views.jsx:332
+#: pkg/storaged/content-views.jsx:569 pkg/storaged/format-dialog.jsx:263
 msgid "Format"
 msgstr "Формат"
 
-#: pkg/storaged/format-dialog.jsx:191
+#: pkg/storaged/format-dialog.jsx:134
 msgid "Format $0"
 msgstr "Форматувати $0"
 
-#: pkg/storaged/content-views.jsx:515
+#: pkg/storaged/content-views.jsx:545
 msgid "Format Disk $0"
 msgstr "Форматувати диск $0"
 
-#: pkg/storaged/content-views.jsx:540
+#: pkg/storaged/content-views.jsx:570
 msgid "Formatting a disk will erase all data on it."
 msgstr ""
 "Форматування диска призведе до знищення даних, які на ньому зберігаються."
 
-#: pkg/storaged/format-dialog.jsx:294
+#: pkg/storaged/format-dialog.jsx:265
 msgid "Formatting a storage device will erase all data on it."
 msgstr ""
 "Форматування пристрою для зберігання даних призведе до знищення даних, які "
@@ -3047,11 +3057,11 @@ msgstr "Режим переспрямовування"
 msgid "Free"
 msgstr "Вільно"
 
-#: pkg/storaged/content-views.jsx:442
+#: pkg/storaged/content-views.jsx:472
 msgid "Free Space"
 msgstr "Вільне місце"
 
-#: pkg/storaged/lvol-tabs.jsx:379
+#: pkg/storaged/lvol-tabs.jsx:380
 msgid ""
 "Free up space in this group: Shrink or delete other logical volumes or add "
 "another physical volume."
@@ -3076,7 +3086,7 @@ msgid "Gateway:"
 msgstr "Шлюз:"
 
 #: pkg/machines/components/networks/networkOverviewTab.jsx:80
-#: pkg/networkmanager/interfaces.js:2685 pkg/systemd/logs.js:520
+#: pkg/networkmanager/interfaces.js:2685 pkg/systemd/logs.js:548
 msgid "General"
 msgstr "Загальний"
 
@@ -3100,7 +3110,7 @@ msgstr "Отримати новий образ"
 msgid "GiB"
 msgstr "ГіБ"
 
-#: pkg/systemd/logs.js:226
+#: pkg/systemd/logs.js:228
 msgid "Go to"
 msgstr "Перейти до"
 
@@ -3122,25 +3132,25 @@ msgstr "Графічна консоль (VNC)"
 msgid "Graphics Console in Desktop Viewer"
 msgstr "Графічна консоль у перегляді стільниці"
 
-#: pkg/storaged/lvol-tabs.jsx:239 pkg/storaged/lvol-tabs.jsx:407
-#: pkg/storaged/lvol-tabs.jsx:459 pkg/storaged/vdo-details.jsx:233
-#: pkg/storaged/vdo-details.jsx:302
+#: pkg/storaged/lvol-tabs.jsx:240 pkg/storaged/lvol-tabs.jsx:408
+#: pkg/storaged/lvol-tabs.jsx:461 pkg/storaged/vdo-details.jsx:228
+#: pkg/storaged/vdo-details.jsx:297
 msgid "Grow"
 msgstr "Збільшити"
 
-#: pkg/storaged/lvol-tabs.jsx:425
+#: pkg/storaged/lvol-tabs.jsx:423
 msgid "Grow Content"
 msgstr "Збільшити вміст"
 
-#: pkg/storaged/lvol-tabs.jsx:235
+#: pkg/storaged/lvol-tabs.jsx:236
 msgid "Grow Logical Volume"
 msgstr "Збільшити логічний том"
 
-#: pkg/storaged/vdo-details.jsx:221
+#: pkg/storaged/vdo-details.jsx:216
 msgid "Grow logical size of $0"
 msgstr "Збільшити логічний розмір $0"
 
-#: pkg/storaged/vdo-details.jsx:130
+#: pkg/storaged/vdo-details.jsx:113
 msgid "Grow to take all space"
 msgstr "Збільшити так, щоб використати усе місце"
 
@@ -3164,7 +3174,7 @@ msgstr "Твердий диск"
 msgid "Hardware"
 msgstr "Обладнання"
 
-#: pkg/systemd/hwinfo.html:4 pkg/systemd/hwinfo.jsx:285
+#: pkg/systemd/hwinfo.html:4 pkg/systemd/hwinfo.jsx:298
 msgid "Hardware Information"
 msgstr "Дані щодо обладнання"
 
@@ -3192,7 +3202,7 @@ msgstr "Пристрій основної системи"
 msgid "Host Name"
 msgstr "Назва вузла"
 
-#: src/base1/cockpit.js:4027
+#: src/base1/cockpit.js:4038
 msgid "Host key is incorrect"
 msgstr "Ключ вузла є неправильним"
 
@@ -3220,7 +3230,7 @@ msgstr "Години"
 msgid "I/O Wait"
 msgstr "Очікування В-В"
 
-#: pkg/systemd/hwinfo.jsx:273
+#: pkg/systemd/hwinfo.jsx:286
 msgid "ID"
 msgstr "Ід."
 
@@ -3250,6 +3260,8 @@ msgid ""
 "IP address with routing prefix. Separate multiple values with a comma. "
 "Example: 192.0.2.0/24, 2001:db8::/32"
 msgstr ""
+"IP-адреса із префіксом маршрутизації. Записи значень слід відокремлювати "
+"комами. Приклад: 192.0.2.0/24, 2001:db8::/32"
 
 #: pkg/networkmanager/interfaces.js:2894
 msgid "IPv4"
@@ -3391,7 +3403,7 @@ msgstr ""
 msgid "Inactive"
 msgstr "Неактивний"
 
-#: pkg/storaged/content-views.jsx:623
+#: pkg/storaged/content-views.jsx:653
 msgid "Inactive volume"
 msgstr "Неактивний том"
 
@@ -3403,7 +3415,7 @@ msgstr "Включені служби"
 msgid "Incorrect Host Key"
 msgstr "Неправильний ключ вузла"
 
-#: pkg/storaged/vdo-details.jsx:305 pkg/storaged/vdos-panel.jsx:106
+#: pkg/storaged/vdo-details.jsx:300 pkg/storaged/vdos-panel.jsx:106
 msgid "Index Memory"
 msgstr "Пам'ять покажчика"
 
@@ -3451,7 +3463,7 @@ msgstr "Встановити програмне забезпечення"
 
 #: pkg/storaged/vdos-panel.jsx:44
 msgid "Install VDO Support"
-msgstr ""
+msgstr "Встановити підтримку VDO"
 
 #: pkg/selinux/setroubleshoot-view.jsx:384
 msgid "Install setroubleshoot-server to troubleshoot SELinux events."
@@ -3506,7 +3518,7 @@ msgstr "Інтерфейси"
 msgid "Internal Error: Invalid challenge header"
 msgstr "Внутрішня помилка: некоректний заголовок виклику"
 
-#: src/base1/cockpit.js:4029
+#: src/base1/cockpit.js:4040
 msgid "Internal error"
 msgstr "Внутрішня помилка"
 
@@ -3646,11 +3658,11 @@ msgstr "Долучається до простору назв"
 msgid "Journal"
 msgstr "Журнал"
 
-#: pkg/systemd/logs.js:441
+#: pkg/systemd/logs.js:445
 msgid "Journal entry"
 msgstr "Запис журналу"
 
-#: pkg/systemd/logs.js:472
+#: pkg/systemd/logs.js:483
 msgid "Journal entry not found"
 msgstr "Не знайдено запису журналу"
 
@@ -3767,7 +3779,7 @@ msgstr ""
 "Якщо ви введете ім’я іншого користувача, для встановлення з’єднання із цією "
 "машиною завжди використовуватиметься це ім’я."
 
-#: pkg/shell/index.html:91 pkg/shell/simple.html:66
+#: pkg/shell/index.html:91
 msgid "Licensed under:"
 msgstr "Умови ліцензування:"
 
@@ -3811,7 +3823,7 @@ msgstr "Посилання:"
 msgid "Load Balancing"
 msgstr "Збалансовування навантаження"
 
-#: pkg/systemd/logs.js:161
+#: pkg/systemd/logs.js:163
 msgid "Load earlier entries"
 msgstr "Завантажити попередні записи"
 
@@ -3833,7 +3845,7 @@ msgstr "Завантажуємо модифікації системи…"
 
 #: pkg/systemd/services.html:78 pkg/kdump/kdump-view.jsx:370
 #: pkg/machines/components/serialConsole.jsx:65 pkg/storaged/devices.jsx:65
-#: pkg/systemd/logs.js:233
+#: pkg/systemd/logs.js:235
 msgid "Loading..."
 msgstr "Завантаження…"
 
@@ -3861,7 +3873,7 @@ msgstr "Локальна точка монтування"
 msgid "Location"
 msgstr "Розташування"
 
-#: pkg/storaged/content-views.jsx:243
+#: pkg/storaged/content-views.jsx:252
 msgid "Lock"
 msgstr "Заблокувати"
 
@@ -3882,13 +3894,9 @@ msgstr "Блокуємо $target"
 msgid "Log In"
 msgstr "Увійти"
 
-#: pkg/shell/index.html:71 pkg/shell/simple.html:46
+#: pkg/shell/index.html:71
 msgid "Log Out"
 msgstr "Вийти"
-
-#: pkg/shell/simple.html:108
-msgid "Log in again"
-msgstr "Знову увійти"
 
 #: pkg/lib/machine-change-auth.html:4
 msgid "Log in to {{host}}"
@@ -3906,11 +3914,11 @@ msgstr "Повідомлення журналу"
 msgid "Logged In"
 msgstr "Вхід"
 
-#: pkg/storaged/vdo-details.jsx:293
+#: pkg/storaged/vdo-details.jsx:288
 msgid "Logical"
 msgstr "Логічний"
 
-#: pkg/storaged/vdo-details.jsx:223 pkg/storaged/vdos-panel.jsx:99
+#: pkg/storaged/vdo-details.jsx:218 pkg/storaged/vdos-panel.jsx:99
 msgid "Logical Size"
 msgstr "Логічний розмір"
 
@@ -3938,7 +3946,7 @@ msgstr "Формат входу"
 msgid "Login Password"
 msgstr "Пароль користувача"
 
-#: src/base1/cockpit.js:4019
+#: src/base1/cockpit.js:4030
 msgid "Login failed"
 msgstr "Невдала спроба увійти"
 
@@ -4087,11 +4095,11 @@ msgstr ""
 "Максимальна кількість віртуальних процесорів, наданих для гостьової "
 "операційної системи, має бути у межах від 1 до $0"
 
-#: pkg/storaged/content-views.jsx:347
+#: pkg/storaged/content-views.jsx:367
 msgid "Member of RAID Device"
 msgstr "Елемент пристрою RAID"
 
-#: pkg/storaged/content-views.jsx:343
+#: pkg/storaged/content-views.jsx:363
 msgid "Member of RAID Device $0"
 msgstr "Елемент пристрою RAID $0"
 
@@ -4099,7 +4107,7 @@ msgstr "Елемент пристрою RAID $0"
 #: pkg/playground/translate.html:90 pkg/systemd/index.html:221
 #: pkg/docker/containers-view.jsx:359
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:403
-#: pkg/machines/components/vmOverviewTab.jsx:74 pkg/systemd/hwinfo.jsx:272
+#: pkg/machines/components/vmOverviewTab.jsx:74 pkg/systemd/hwinfo.jsx:285
 msgid "Memory"
 msgstr "Пам'ять"
 
@@ -4112,7 +4120,7 @@ msgstr "Пам'ять"
 msgid "Memory & Swap"
 msgstr "Пам'ять і резерв"
 
-#: pkg/systemd/hwinfo.jsx:273
+#: pkg/systemd/hwinfo.jsx:286
 msgid "Memory Technology"
 msgstr "Технологія пам'яті"
 
@@ -4145,7 +4153,7 @@ msgstr "Повідомлення користувачам, які увійшли
 msgid "Messages related to the failure might be found in the journal:"
 msgstr "Повідомлення, пов'язані із аварією, яких може не бути у журналі:"
 
-#: pkg/storaged/lvol-tabs.jsx:466
+#: pkg/storaged/lvol-tabs.jsx:468
 msgid "Metadata Used"
 msgstr "Використано метаданих"
 
@@ -4181,7 +4189,7 @@ msgstr "Запобіжні заходи"
 msgid "Mode"
 msgstr "Режим"
 
-#: pkg/machines/components/nicBody.jsx:45 pkg/systemd/hwinfo.jsx:260
+#: pkg/machines/components/nicBody.jsx:45 pkg/systemd/hwinfo.jsx:273
 msgid "Model"
 msgstr "Модель"
 
@@ -4223,53 +4231,74 @@ msgstr "Докладніше"
 msgid "More details"
 msgstr "Докладніше"
 
-#: pkg/kdump/kdump-view.jsx:99 pkg/storaged/fsys-tab.jsx:163
-#: pkg/storaged/fsys-tab.jsx:184 pkg/storaged/nfs-details.jsx:302
+#: pkg/kdump/kdump-view.jsx:99 pkg/storaged/content-views.jsx:339
+#: pkg/storaged/fsys-tab.jsx:268 pkg/storaged/nfs-details.jsx:302
 msgid "Mount"
 msgstr "Змонтувати"
 
-#: pkg/storaged/format-dialog.jsx:84 pkg/storaged/fsys-tab.jsx:169
+#: pkg/storaged/fsys-tab.jsx:264
+msgid "Mount Configuration"
+msgstr ""
+
+#: pkg/storaged/fsys-tab.jsx:262
+msgid "Mount Filesystem"
+msgstr ""
+
+#: pkg/storaged/format-dialog.jsx:236 pkg/storaged/fsys-tab.jsx:233
 #: pkg/storaged/nfs-details.jsx:171
 msgid "Mount Options"
 msgstr "Параметри монтування"
 
-#: pkg/storaged/format-dialog.jsx:73 pkg/storaged/fsys-panel.jsx:101
-#: pkg/storaged/fsys-tab.jsx:157 pkg/storaged/nfs-details.jsx:319
-#: pkg/storaged/nfs-panel.jsx:103
+#: pkg/storaged/format-dialog.jsx:230 pkg/storaged/fsys-panel.jsx:95
+#: pkg/storaged/fsys-tab.jsx:228 pkg/storaged/fsys-tab.jsx:496
+#: pkg/storaged/nfs-details.jsx:319 pkg/storaged/nfs-panel.jsx:103
 msgid "Mount Point"
 msgstr "Точка монтування"
 
-#: pkg/storaged/format-dialog.jsx:93 pkg/storaged/nfs-details.jsx:174
+#: pkg/storaged/fsys-tab.jsx:466
+msgid "Mount also automatically on boot"
+msgstr ""
+
+#: pkg/storaged/nfs-details.jsx:174
 msgid "Mount at boot"
 msgstr "Змонтувати при завантаженні"
+
+#: pkg/storaged/fsys-tab.jsx:458 pkg/storaged/fsys-tab.jsx:470
+msgid "Mount automatically on $0 on boot"
+msgstr ""
 
 #: pkg/docker/index.html:521
 msgid "Mount container volumes"
 msgstr "Змонтувати томи контейнера"
 
-#: pkg/storaged/format-dialog.jsx:81
-msgid "Mount point can not be empty"
-msgstr "Точка монтування не може бути порожньою"
+#: pkg/storaged/format-dialog.jsx:245 pkg/storaged/fsys-tab.jsx:463
+msgid "Mount now"
+msgstr ""
+
+#: pkg/storaged/fsys-tab.jsx:459
+msgid "Mount on $0 now"
+msgstr ""
+
+#: pkg/storaged/fsys-tab.jsx:83
+msgid "Mount point cannot be empty"
+msgstr ""
 
 #: pkg/storaged/nfs-details.jsx:165
 msgid "Mount point cannot be empty."
 msgstr "Точка монтування не може бути порожньою."
 
+#: pkg/storaged/fsys-tab.jsx:87
+msgid "Mount point is already used for $0"
+msgstr ""
+
 #: pkg/storaged/nfs-details.jsx:167
 msgid "Mount point must start with \"/\"."
 msgstr "Запис точки монтування має починатися з «/»."
 
-#: pkg/storaged/format-dialog.jsx:94 pkg/storaged/nfs-details.jsx:175
+#: pkg/storaged/format-dialog.jsx:246 pkg/storaged/fsys-tab.jsx:240
+#: pkg/storaged/nfs-details.jsx:175
 msgid "Mount read only"
 msgstr "Змонтувати лише для читання"
-
-#: pkg/storaged/fsys-tab.jsx:178
-msgid "Mounted At"
-msgstr "Змонтовано"
-
-#: pkg/storaged/format-dialog.jsx:64
-msgid "Mounting"
-msgstr "Монтування"
 
 #: pkg/storaged/jobs-panel.jsx:43
 msgid "Mounting $target"
@@ -4320,12 +4349,12 @@ msgstr "Сервер NTP"
 #: pkg/machines/components/storagePools/storagePoolVolumesTab.jsx:79
 #: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:33
 #: pkg/machines/hostvmslist.jsx:83 pkg/packagekit/updates.jsx:384
-#: pkg/storaged/content-views.jsx:113 pkg/storaged/content-views.jsx:652
-#: pkg/storaged/format-dialog.jsx:251 pkg/storaged/fsys-panel.jsx:100
-#: pkg/storaged/fsys-tab.jsx:73 pkg/storaged/fsys-tab.jsx:153
+#: pkg/storaged/content-views.jsx:114 pkg/storaged/content-views.jsx:682
+#: pkg/storaged/format-dialog.jsx:201 pkg/storaged/fsys-panel.jsx:94
+#: pkg/storaged/fsys-tab.jsx:340 pkg/storaged/fsys-tab.jsx:492
 #: pkg/storaged/iscsi-panel.jsx:128 pkg/storaged/iscsi-panel.jsx:185
-#: pkg/storaged/lvol-tabs.jsx:34 pkg/storaged/lvol-tabs.jsx:356
-#: pkg/storaged/lvol-tabs.jsx:398 pkg/storaged/lvol-tabs.jsx:452
+#: pkg/storaged/lvol-tabs.jsx:35 pkg/storaged/lvol-tabs.jsx:357
+#: pkg/storaged/lvol-tabs.jsx:399 pkg/storaged/lvol-tabs.jsx:454
 #: pkg/storaged/mdraids-panel.jsx:61 pkg/storaged/part-tab.jsx:33
 #: pkg/storaged/vdos-panel.jsx:82 pkg/storaged/vgroup-details.jsx:175
 #: pkg/storaged/vgroups-panel.jsx:74 pkg/systemd/hwinfo.jsx:85
@@ -4507,6 +4536,7 @@ msgstr "Пріоритетність"
 
 #: pkg/docker/index.html:544 pkg/docker/index.html:548 pkg/docker/run.js:239
 #: pkg/docker/util.js:103 pkg/networkmanager/interfaces.js:2576
+#: pkg/systemd/reporting.jsx:270
 msgid "No"
 msgstr "Ні"
 
@@ -4516,17 +4546,17 @@ msgstr "Без затримки"
 
 #: pkg/storaged/things-panel.jsx:81
 msgid "No Devices"
-msgstr ""
+msgstr "Немає пристроїв"
 
-#: pkg/storaged/format-dialog.jsx:213
+#: pkg/storaged/format-dialog.jsx:156
 msgid "No Filesystem"
 msgstr "Немає файлової системи"
 
-#: pkg/storaged/content-views.jsx:732
+#: pkg/storaged/content-views.jsx:762
 msgid "No Logical Volumes"
 msgstr "Немає логічних томів"
 
-#: pkg/systemd/logs.js:159 pkg/systemd/logs.js:181 pkg/systemd/logs.js:345
+#: pkg/systemd/logs.js:161 pkg/systemd/logs.js:183 pkg/systemd/logs.js:347
 msgid "No Logs Found"
 msgstr "Журналів не знайдено"
 
@@ -4645,7 +4675,7 @@ msgstr "Не долучено жодного диска"
 msgid "No free key slots"
 msgstr "Немає вільних слотів ключів"
 
-#: pkg/storaged/content-views.jsx:717
+#: pkg/storaged/content-views.jsx:747
 msgid "No free space"
 msgstr "Недостатньо вільного простору"
 
@@ -4699,7 +4729,7 @@ msgstr "У цій основній системі мережу не визнач
 msgid "No networks available"
 msgstr "Немає доступних мереж"
 
-#: pkg/storaged/content-views.jsx:534
+#: pkg/storaged/content-views.jsx:564
 msgid "No partitioning"
 msgstr "Немає розподілу на розділи"
 
@@ -4789,10 +4819,6 @@ msgstr "Не уповноважено вилучати службу $0"
 msgid "Not authorized to remove zone $0"
 msgstr "Не уповноважено вилучати зону $0"
 
-#: pkg/systemd/logs.js:562
-msgid "Not authorized to upload-report"
-msgstr "Не уповноважено на вивантаження звітів"
-
 #: pkg/networkmanager/interfaces.js:826
 msgid "Not available"
 msgstr "Недоступний"
@@ -4805,7 +4831,7 @@ msgstr "Не з’єднано"
 msgid "Not connected to Insights"
 msgstr "Не з'єднано із Insights"
 
-#: pkg/storaged/lvol-tabs.jsx:377
+#: pkg/storaged/lvol-tabs.jsx:378
 msgid "Not enough space to grow."
 msgstr "Недостатньо місця для росту."
 
@@ -4817,7 +4843,7 @@ msgstr "Не знайдено"
 msgid "Not mounted"
 msgstr "Не змонтовано"
 
-#: src/base1/cockpit.js:4017
+#: src/base1/cockpit.js:4028
 msgid "Not permitted to perform this action."
 msgstr "Немає дозволу на виконання цієї дії."
 
@@ -4900,7 +4926,7 @@ msgstr ""
 "Один або декілька позначених томів використовуються доменами. Щоб уможливити"
 " вилучення цих томів, спочатку від'єднайте диски."
 
-#: pkg/storaged/vdo-details.jsx:134
+#: pkg/storaged/vdo-details.jsx:117
 msgid "Only $0 of $1 are used."
 msgstr "Використано лише $0 з $1."
 
@@ -4916,7 +4942,7 @@ msgstr "Можна використовувати лише літери, циф�
 msgid "Only editable when the guest is shut off"
 msgstr "Можна редагувати, лише якщо гостьову систему вимкнено"
 
-#: pkg/shell/index.html:43 pkg/shell/simple.html:29
+#: pkg/shell/index.html:43
 msgid "Ooops!"
 msgstr "Вибачте!"
 
@@ -4955,7 +4981,7 @@ msgstr "Або скористайтеся комплектним браузер�
 msgid "Other"
 msgstr "Інше"
 
-#: pkg/storaged/content-views.jsx:355
+#: pkg/storaged/content-views.jsx:375
 msgctxt "storage-id-desc"
 msgid "Other Data"
 msgstr "Інші дані"
@@ -4974,11 +5000,11 @@ msgstr "Інші параметри"
 msgid "Overview"
 msgstr "Огляд"
 
-#: pkg/storaged/content-views.jsx:522 pkg/storaged/format-dialog.jsx:246
+#: pkg/storaged/content-views.jsx:552 pkg/storaged/format-dialog.jsx:196
 msgid "Overwrite existing data with zeros"
 msgstr "Перезаписати наявні дані нулями"
 
-#: pkg/systemd/hwinfo.jsx:256
+#: pkg/systemd/hwinfo.jsx:269
 msgid "PCI"
 msgstr "PCI"
 
@@ -5014,7 +5040,7 @@ msgstr "Частина"
 msgid "Part of "
 msgstr "Є частиною "
 
-#: pkg/storaged/content-views.jsx:145
+#: pkg/storaged/content-views.jsx:146
 msgid "Partition"
 msgstr "Розділ"
 
@@ -5022,7 +5048,7 @@ msgstr "Розділ"
 msgid "Partition of $0"
 msgstr "Розділ $0"
 
-#: pkg/storaged/content-views.jsx:525
+#: pkg/storaged/content-views.jsx:555
 msgid "Partitioning"
 msgstr "Розподіл"
 
@@ -5030,14 +5056,14 @@ msgstr "Розподіл"
 msgid "Passive"
 msgstr "Неактивний"
 
-#: pkg/storaged/content-views.jsx:229 pkg/storaged/crypto-keyslots.jsx:209
-#: pkg/storaged/crypto-keyslots.jsx:565 pkg/storaged/format-dialog.jsx:263
+#: pkg/storaged/content-views.jsx:238 pkg/storaged/crypto-keyslots.jsx:209
+#: pkg/storaged/crypto-keyslots.jsx:565 pkg/storaged/format-dialog.jsx:213
 msgid "Passphrase"
 msgstr "Пароль"
 
 #: pkg/storaged/crypto-keyslots.jsx:158 pkg/storaged/crypto-keyslots.jsx:217
 #: pkg/storaged/crypto-keyslots.jsx:258 pkg/storaged/crypto-keyslots.jsx:261
-#: pkg/storaged/format-dialog.jsx:267
+#: pkg/storaged/format-dialog.jsx:217
 msgid "Passphrase cannot be empty"
 msgstr "Пароль не може бути порожнім"
 
@@ -5046,7 +5072,7 @@ msgid "Passphrase removal may prevent unlocking $0."
 msgstr "Вилучення пароля може завадити розблокуванню $0."
 
 #: pkg/storaged/crypto-keyslots.jsx:225 pkg/storaged/crypto-keyslots.jsx:263
-#: pkg/storaged/format-dialog.jsx:275
+#: pkg/storaged/format-dialog.jsx:225
 msgid "Passphrases do not match"
 msgstr "Паролі не збігаються"
 
@@ -5168,7 +5194,7 @@ msgstr "Сталість"
 msgid "Persistent"
 msgstr "Постійний"
 
-#: pkg/storaged/vdo-details.jsx:281
+#: pkg/storaged/vdo-details.jsx:276
 msgid "Physical"
 msgstr "Фізичний"
 
@@ -5176,7 +5202,7 @@ msgstr "Фізичний"
 msgid "Physical Disk Device"
 msgstr "Фізичний пристрій диска"
 
-#: pkg/storaged/content-views.jsx:154 pkg/storaged/content-views.jsx:345
+#: pkg/storaged/content-views.jsx:157 pkg/storaged/content-views.jsx:365
 msgid "Physical Volume"
 msgstr "Фізичний том"
 
@@ -5188,11 +5214,11 @@ msgstr "Фізичні томи"
 msgid "Physical disk device on host"
 msgstr "Фізичний пристрій у основній системі"
 
-#: pkg/storaged/content-views.jsx:340
+#: pkg/storaged/content-views.jsx:360
 msgid "Physical volume of $0"
 msgstr "Фізичний том $0"
 
-#: pkg/storaged/lvol-tabs.jsx:165
+#: pkg/storaged/lvol-tabs.jsx:166
 msgid "Physical volumes can not be resized here."
 msgstr "Тут не можна змінювати розміри фізичних томів."
 
@@ -5209,8 +5235,8 @@ msgid "Pizza Box"
 msgstr "З коробку для піци"
 
 #: pkg/docker/containers-view.jsx:200 pkg/docker/details.js:291
-#: pkg/docker/util.js:612 pkg/storaged/content-views.jsx:296
-#: pkg/storaged/mdraid-details.jsx:289 pkg/storaged/vdo-details.jsx:197
+#: pkg/docker/util.js:612 pkg/storaged/content-views.jsx:305
+#: pkg/storaged/mdraid-details.jsx:289 pkg/storaged/vdo-details.jsx:194
 #: pkg/storaged/vgroup-details.jsx:207
 msgid "Please confirm deletion of $0"
 msgstr "Будь ласка, підтвердьте вилучення $0"
@@ -5219,7 +5245,7 @@ msgstr "Будь ласка, підтвердьте вилучення $0"
 msgid "Please confirm forced deletion of $0"
 msgstr "Будь ласка, підтвердьте примусове вилучення $0"
 
-#: pkg/storaged/mdraid-details.jsx:238 pkg/storaged/vdo-details.jsx:153
+#: pkg/storaged/mdraid-details.jsx:238 pkg/storaged/vdo-details.jsx:136
 msgid "Please confirm stopping of $0"
 msgstr "Будь ласка, підтвердьте зупинку $0"
 
@@ -5260,7 +5286,7 @@ msgstr "З'єднати"
 #: pkg/machines/components/diskAdd.jsx:128
 #: pkg/machines/components/vm/bootOrderModal.jsx:95
 #: pkg/machines/components/vmDiskColumns.jsx:45
-#: pkg/storaged/content-views.jsx:137
+#: pkg/storaged/content-views.jsx:138
 msgid "Pool"
 msgstr "Буфер"
 
@@ -5268,11 +5294,11 @@ msgstr "Буфер"
 msgid "Pool for Thin Logical Volumes"
 msgstr "Буфер для тонких логічних томів"
 
-#: pkg/storaged/content-views.jsx:604
+#: pkg/storaged/content-views.jsx:634
 msgid "Pool for Thin Volumes"
 msgstr "Буфер для тонких томів"
 
-#: pkg/storaged/content-views.jsx:665
+#: pkg/storaged/content-views.jsx:695
 msgid "Pool for thinly provisioned volumes"
 msgstr "Буфер для тонких резервованих томів"
 
@@ -5280,8 +5306,8 @@ msgstr "Буфер для тонких резервованих томів"
 msgid "Pool type doesn't support volume creation"
 msgstr "Для типу буфера не пердебачено підтримки створення томів"
 
-#: pkg/machines/components/storagePools/storagePoolDelete.jsx:149
-#: pkg/machines/components/storagePools/storagePoolDelete.jsx:185
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:150
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:186
 msgid "Pool's volumes are used by VMs "
 msgstr "Томи буфера використовуються ВМ"
 
@@ -5381,11 +5407,11 @@ msgstr "Закрита"
 msgid "Privileged"
 msgstr "Привілейований"
 
-#: pkg/systemd/logs.js:522
+#: pkg/systemd/logs.js:550
 msgid "Problem details"
 msgstr "Подробиці щодо проблеми"
 
-#: pkg/systemd/logs.js:521
+#: pkg/systemd/logs.js:549
 msgid "Problem info"
 msgstr "Дані щодо проблеми"
 
@@ -5393,7 +5419,7 @@ msgstr "Дані щодо проблеми"
 msgid "Problems"
 msgstr "Проблеми"
 
-#: pkg/storaged/dialog.jsx:1027
+#: pkg/storaged/dialog.jsx:1030
 msgid "Process"
 msgstr "Процес"
 
@@ -5402,7 +5428,7 @@ msgstr "Процес"
 msgid "Product"
 msgstr "Продукт"
 
-#: pkg/shell/index.html:87 pkg/shell/simple.html:62
+#: pkg/shell/index.html:87
 msgid "Project website"
 msgstr "Сайт проєкту"
 
@@ -5432,7 +5458,7 @@ msgstr "Протокол"
 msgid "Public Key"
 msgstr "Відкритий ключ"
 
-#: pkg/storaged/content-views.jsx:657
+#: pkg/storaged/content-views.jsx:687
 msgid "Purpose"
 msgstr "Призначення"
 
@@ -5504,7 +5530,7 @@ msgstr "Пристій RAID $0"
 msgid "RAID Level"
 msgstr "Рівень RAID"
 
-#: pkg/storaged/content-views.jsx:157
+#: pkg/storaged/content-views.jsx:160
 msgid "RAID Member"
 msgstr "Елемент RAID"
 
@@ -5524,7 +5550,7 @@ msgstr "Діапазон"
 msgid "Range must be strictly ordered"
 msgstr "Діапазон має бути строго упорядковано"
 
-#: pkg/systemd/hwinfo.jsx:273
+#: pkg/systemd/hwinfo.jsx:286
 msgid "Rank"
 msgstr "Ранг"
 
@@ -5532,7 +5558,7 @@ msgstr "Ранг"
 msgid "Raw to a device"
 msgstr "Без обробки на пристрій"
 
-#: pkg/systemd/hwinfo.jsx:199
+#: pkg/systemd/hwinfo.jsx:212
 msgid "Read more..."
 msgstr "Докладніше…"
 
@@ -5597,11 +5623,11 @@ msgstr "Отримання"
 msgid "Recent"
 msgstr "Нещодавні"
 
-#: pkg/storaged/format-dialog.jsx:209
+#: pkg/storaged/format-dialog.jsx:152
 msgid "Recommended default"
 msgstr "Рекомендоване типове значення"
 
-#: pkg/shell/index.html:397 pkg/shell/simple.html:138
+#: pkg/shell/index.html:397
 msgid "Reconnect"
 msgstr "Повторно з’єднатися"
 
@@ -5689,7 +5715,7 @@ msgstr "Вилучити $0?"
 msgid "Remove Tang keyserver"
 msgstr "Вилучити сервер ключів Tang"
 
-#: pkg/storaged/vdo-details.jsx:117
+#: pkg/storaged/vdo-details.jsx:100
 msgid "Remove device"
 msgstr "Вилучити пристрій"
 
@@ -5747,12 +5773,12 @@ msgstr ""
 msgid "Removing the zone will remove all services within it."
 msgstr "Вилучення запису зони призведе до вилучення усіх служб у ній."
 
-#: pkg/storaged/lvol-tabs.jsx:38 pkg/storaged/vgroup-details.jsx:182
+#: pkg/storaged/lvol-tabs.jsx:39 pkg/storaged/vgroup-details.jsx:182
 #: pkg/storaged/vgroup-details.jsx:231
 msgid "Rename"
 msgstr "Перейменувати"
 
-#: pkg/storaged/lvol-tabs.jsx:32
+#: pkg/storaged/lvol-tabs.jsx:33
 msgid "Rename Logical Volume"
 msgstr "Перейменувати логічний том"
 
@@ -5793,22 +5819,29 @@ msgstr "Повторювати щороку"
 msgid "Repeat passphrase"
 msgstr "Повторіть пароль"
 
-#: pkg/systemd/logs.js:547
+#: pkg/systemd/reporting.jsx:428
 msgid "Report"
 msgstr "Звіт"
 
-#: pkg/systemd/logs.js:542
-msgid "Reported"
-msgstr "Повідомлено"
-
-#: pkg/systemd/logs.js:564
-msgid "Reporter 'reporter-ureport' not found."
-msgstr "Не знайдено засіб звітування «reporter-ureport»."
-
-#: pkg/systemd/logs.js:566
-msgid "Reporting was unsucessful. Try running `reporter-ureport -d "
+#: pkg/systemd/reporting.jsx:152
+msgid "Report to ABRT Analytics"
 msgstr ""
-"Не вдалося надіслати звіт. Спробуйте віддати команду «reporter-ureport -d "
+
+#: pkg/systemd/reporting.jsx:409
+msgid "Reported; no links available"
+msgstr ""
+
+#: pkg/systemd/reporting.jsx:305
+msgid "Reporting failed"
+msgstr ""
+
+#: pkg/systemd/reporting.jsx:205
+msgid "Reporting was canceled"
+msgstr ""
+
+#: pkg/systemd/reporting.jsx:407
+msgid "Reports:"
+msgstr ""
 
 #: pkg/docker/index.html:690
 msgid "Repository"
@@ -5872,7 +5905,7 @@ msgstr ""
 msgid "Resizing $target"
 msgstr "Зміна розміру $target"
 
-#: pkg/storaged/lvol-tabs.jsx:228 pkg/storaged/lvol-tabs.jsx:313
+#: pkg/storaged/lvol-tabs.jsx:229 pkg/storaged/lvol-tabs.jsx:314
 msgid ""
 "Resizing an encrypted filesystem requires unlocking the disk. Please provide"
 " a current disk passphrase."
@@ -6061,7 +6094,7 @@ msgstr "Суботи"
 msgid "Save"
 msgstr "Зберегти"
 
-#: pkg/systemd/hwinfo.jsx:228
+#: pkg/systemd/hwinfo.jsx:241
 msgid "Save and reboot"
 msgstr "Зберегти і перезавантажити"
 
@@ -6110,7 +6143,7 @@ msgstr "Безпека"
 msgid "Security Updates Available"
 msgstr "Доступні оновлення захисту"
 
-#: pkg/shell/index.html:124 pkg/shell/simple.html:91
+#: pkg/shell/index.html:124
 msgid "Select"
 msgstr "Вибрати"
 
@@ -6121,6 +6154,10 @@ msgid ""
 msgstr ""
 "Виберіть користувачів, записи яких ви б хотіли синхронізувати з "
 "{{#strong}}{{host}}{{/strong}}"
+
+#: pkg/systemd/reporting.jsx:245
+msgid "Send"
+msgstr ""
 
 #: pkg/machines/components/vm/vmActions.jsx:66
 msgid "Send Non-Maskable Interrupt"
@@ -6165,7 +6202,7 @@ msgstr "Адреса сервера не може бути порожньою."
 msgid "Server cannot be empty."
 msgstr "Запис сервера не може бути порожнім."
 
-#: src/base1/cockpit.js:4037
+#: src/base1/cockpit.js:4048
 msgid "Server has closed the connection."
 msgstr "З’єднання розірвано сервером."
 
@@ -6174,7 +6211,7 @@ msgid "Servers"
 msgstr "Сервери"
 
 #: pkg/systemd/logs.html:67 pkg/networkmanager/firewall.jsx:167
-#: pkg/storaged/dialog.jsx:1031
+#: pkg/storaged/dialog.jsx:1034
 msgid "Service"
 msgstr "Служба"
 
@@ -6212,7 +6249,7 @@ msgid "Services"
 msgstr "Служби"
 
 #: pkg/machines/components/machinesConnectionSelector.jsx:50
-#: pkg/machines/helpers.js:192 pkg/storaged/dialog.jsx:1027
+#: pkg/machines/helpers.js:192 pkg/storaged/dialog.jsx:1030
 msgid "Session"
 msgstr "Сеанс"
 
@@ -6297,7 +6334,7 @@ msgstr "Показати усі"
 
 #: pkg/storaged/things-panel.jsx:82
 msgid "Show all $0 devices"
-msgstr ""
+msgstr "Показати усі $0 пристроїв"
 
 #: pkg/storaged/drives-panel.jsx:104
 msgid "Show all $0 drives"
@@ -6315,15 +6352,15 @@ msgstr "Показати усі образи"
 msgid "Show fingerprints"
 msgstr "Показати відбитки"
 
-#: pkg/storaged/lvol-tabs.jsx:324 pkg/storaged/lvol-tabs.jsx:406
+#: pkg/storaged/lvol-tabs.jsx:325 pkg/storaged/lvol-tabs.jsx:407
 msgid "Shrink"
 msgstr "Стиснути"
 
-#: pkg/storaged/lvol-tabs.jsx:320
+#: pkg/storaged/lvol-tabs.jsx:321
 msgid "Shrink Logical Volume"
 msgstr "Стиснути логічний том"
 
-#: pkg/storaged/lvol-tabs.jsx:423
+#: pkg/storaged/lvol-tabs.jsx:421
 msgid "Shrink Volume"
 msgstr "Стиснути том"
 
@@ -6341,36 +6378,36 @@ msgstr "Єдиний ранг"
 #: pkg/machines/components/storagePools/storagePoolList.jsx:54
 #: pkg/machines/components/storagePools/storagePoolVolumesTab.jsx:79
 #: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:79
-#: pkg/storaged/content-views.jsx:118 pkg/storaged/content-views.jsx:699
-#: pkg/storaged/format-dialog.jsx:234 pkg/storaged/fsys-panel.jsx:102
-#: pkg/storaged/lvol-tabs.jsx:212 pkg/storaged/lvol-tabs.jsx:274
-#: pkg/storaged/lvol-tabs.jsx:402 pkg/storaged/lvol-tabs.jsx:455
+#: pkg/storaged/content-views.jsx:119 pkg/storaged/content-views.jsx:729
+#: pkg/storaged/format-dialog.jsx:184 pkg/storaged/fsys-panel.jsx:96
+#: pkg/storaged/lvol-tabs.jsx:213 pkg/storaged/lvol-tabs.jsx:275
+#: pkg/storaged/lvol-tabs.jsx:403 pkg/storaged/lvol-tabs.jsx:457
 #: pkg/storaged/nfs-details.jsx:322 pkg/storaged/nfs-panel.jsx:104
-#: pkg/storaged/part-tab.jsx:36 pkg/systemd/hwinfo.jsx:273
+#: pkg/storaged/part-tab.jsx:36 pkg/systemd/hwinfo.jsx:286
 msgid "Size"
 msgstr "Розмір"
 
-#: pkg/storaged/dialog.jsx:895
+#: pkg/storaged/dialog.jsx:898
 msgid "Size cannot be negative"
 msgstr "Розмір не може бути від’ємним"
 
-#: pkg/storaged/dialog.jsx:893
+#: pkg/storaged/dialog.jsx:896
 msgid "Size cannot be zero"
 msgstr "Розмір не може бути нульовим"
 
-#: pkg/storaged/dialog.jsx:897
+#: pkg/storaged/dialog.jsx:900
 msgid "Size is too large"
 msgstr "Розмір є надто великим"
 
-#: pkg/storaged/dialog.jsx:891
+#: pkg/storaged/dialog.jsx:894
 msgid "Size must be a number"
 msgstr "Розмір має бути числом"
 
-#: pkg/storaged/dialog.jsx:899
+#: pkg/storaged/dialog.jsx:902
 msgid "Size must be at least $0"
 msgstr "Розмір має бути не меншим за $0"
 
-#: pkg/systemd/hwinfo.jsx:262
+#: pkg/systemd/hwinfo.jsx:275
 msgid "Slot"
 msgstr "Слот"
 
@@ -6386,7 +6423,7 @@ msgstr "Сокети"
 msgid "Software Updates"
 msgstr "Оновлення програм"
 
-#: pkg/systemd/hwinfo.jsx:214
+#: pkg/systemd/hwinfo.jsx:227
 msgid ""
 "Software-based workarounds help prevent CPU security issues. These "
 "mitigations have the side effect of reducing performance. Change these "
@@ -6475,7 +6512,7 @@ msgstr "Запас"
 msgid "Specific Time"
 msgstr "У визначений час"
 
-#: pkg/systemd/hwinfo.jsx:273
+#: pkg/systemd/hwinfo.jsx:286
 msgid "Speed"
 msgstr "Швидкість"
 
@@ -6486,7 +6523,7 @@ msgstr "Стабільний"
 #: pkg/docker/index.html:136 pkg/docker/containers-view.jsx:312
 #: pkg/machines/components/networks/createNetworkDialog.jsx:223
 #: pkg/storaged/mdraid-details.jsx:313 pkg/storaged/swap-tab.jsx:77
-#: pkg/storaged/vdo-details.jsx:263 pkg/systemd/service-details.jsx:177
+#: pkg/storaged/vdo-details.jsx:258 pkg/systemd/service-details.jsx:177
 msgid "Start"
 msgstr "Почати"
 
@@ -6535,7 +6572,7 @@ msgstr "Запуск"
 #: pkg/machines/components/networks/networkList.jsx:55
 #: pkg/machines/components/storagePools/storagePoolList.jsx:54
 #: pkg/machines/components/vmnetworktab.jsx:179
-#: pkg/machines/hostvmslist.jsx:83 pkg/systemd/hwinfo.jsx:273
+#: pkg/machines/hostvmslist.jsx:83 pkg/systemd/hwinfo.jsx:286
 #: pkg/systemd/init.js:312
 msgid "State"
 msgstr "Стан"
@@ -6563,7 +6600,7 @@ msgstr "Липкий"
 
 #: pkg/docker/index.html:137 pkg/docker/containers-view.jsx:310
 #: pkg/storaged/mdraid-details.jsx:312 pkg/storaged/swap-tab.jsx:76
-#: pkg/storaged/vdo-details.jsx:157 pkg/storaged/vdo-details.jsx:262
+#: pkg/storaged/vdo-details.jsx:140 pkg/storaged/vdo-details.jsx:257
 #: pkg/systemd/service-details.jsx:173
 msgid "Stop"
 msgstr "Зупинити"
@@ -6666,7 +6703,7 @@ msgstr "Розмір сховища має бути ненульовим"
 msgid "Store Metrics"
 msgstr "Метрика зберігання"
 
-#: pkg/storaged/format-dialog.jsx:126
+#: pkg/storaged/format-dialog.jsx:69
 msgid "Store passphrase"
 msgstr "Зберігати пароль"
 
@@ -6698,11 +6735,11 @@ msgstr "Неділі"
 msgid "Support is installed."
 msgstr "Підтримку встановлено."
 
-#: pkg/storaged/content-views.jsx:161
+#: pkg/storaged/content-views.jsx:164
 msgid "Swap"
 msgstr "Свопінґ"
 
-#: pkg/storaged/content-views.jsx:353
+#: pkg/storaged/content-views.jsx:373
 msgctxt "storage-id-desc"
 msgid "Swap Space"
 msgstr "Резервна пам’ять"
@@ -6765,7 +6802,7 @@ msgstr "Синхронізуємо пристрій RAID $target"
 
 #: pkg/systemd/index.html:4
 #: pkg/machines/components/machinesConnectionSelector.jsx:43
-#: pkg/machines/helpers.js:191 pkg/systemd/hwinfo.jsx:284
+#: pkg/machines/helpers.js:191 pkg/systemd/hwinfo.jsx:297
 #: pkg/systemd/manifest.json.in
 msgid "System"
 msgstr "Система"
@@ -6774,7 +6811,7 @@ msgstr "Система"
 msgid "System Health"
 msgstr "Здоров'я системи"
 
-#: pkg/systemd/hwinfo.jsx:288
+#: pkg/systemd/hwinfo.jsx:301
 msgid "System Information"
 msgstr "Дані щодо системи"
 
@@ -6883,7 +6920,7 @@ msgstr "Не вдалося вилучити $0"
 
 #: pkg/storaged/vdos-panel.jsx:45
 msgid "The $0 package must be installed to create VDO devices."
-msgstr ""
+msgstr "Для створення пристроїв VDO має бути встановлено пакунок $0."
 
 #: pkg/docker/storage.jsx:523
 msgid "The Docker storage pool cannot be managed on this system."
@@ -6985,7 +7022,7 @@ msgstr ""
 "Налаштований стан є невідомим, його може бути змінено під час наступного "
 "завантаження."
 
-#: pkg/storaged/vdo-details.jsx:118
+#: pkg/storaged/vdo-details.jsx:101
 msgid ""
 "The creation of this VDO device did not finish and the device can't be used."
 msgstr ""
@@ -7002,7 +7039,39 @@ msgstr ""
 msgid "The directory on the server being exported"
 msgstr "Каталог на сервері, який експортується"
 
-#: pkg/storaged/dialog.jsx:996
+#: pkg/storaged/fsys-tab.jsx:392
+msgid "The filesystem has no permanent mount point."
+msgstr ""
+
+#: pkg/storaged/fsys-tab.jsx:256
+msgid "The filesystem is already mounted at $0.  Proceeding will unmount it."
+msgstr ""
+
+#: pkg/storaged/fsys-tab.jsx:465
+msgid ""
+"The filesystem is currently mounted but will not be mounted after the next "
+"boot."
+msgstr ""
+
+#: pkg/storaged/fsys-tab.jsx:457
+msgid ""
+"The filesystem is currently mounted on $0 but will be mounted on $1 on the "
+"next boot."
+msgstr ""
+
+#: pkg/storaged/fsys-tab.jsx:469
+msgid ""
+"The filesystem is currently mounted on $0 but will not be mounted after the "
+"next boot."
+msgstr ""
+
+#: pkg/storaged/fsys-tab.jsx:461
+msgid ""
+"The filesystem is currently not mounted but will be mounted on the next "
+"boot."
+msgstr ""
+
+#: pkg/storaged/dialog.jsx:999
 msgid ""
 "The filesystem is in use by login sessions and system services. Proceeding "
 "will stop these."
@@ -7010,19 +7079,23 @@ msgstr ""
 "Файлова система використовується службами системи або сеансами користувачів."
 " Виконання цієї дії призведе до припинення роботи цих служб та сеансів."
 
-#: pkg/storaged/dialog.jsx:998
+#: pkg/storaged/dialog.jsx:1001
 msgid ""
 "The filesystem is in use by login sessions. Proceeding will stop these."
 msgstr ""
 "Файлова система використовується сеансами користувачів. Виконання цієї дії "
 "призведе до припинення роботи цих сеансів."
 
-#: pkg/storaged/dialog.jsx:1000
+#: pkg/storaged/dialog.jsx:1003
 msgid ""
 "The filesystem is in use by system services. Proceeding will stop these."
 msgstr ""
 "Файлова система використовується службами системи. Виконання цієї дії "
 "призведе до припинення роботи цих служб."
+
+#: pkg/storaged/fsys-tab.jsx:394
+msgid "The filesystem is not mounted."
+msgstr ""
 
 #: pkg/docker/util.js:631
 msgid ""
@@ -7037,6 +7110,9 @@ msgid ""
 "should be reviewed by the originating organization before being passed to "
 "any third party.              "
 msgstr ""
+"У створеному архіві містяться дані, які є конфіденційними. Його вміст має "
+"бути переглянути організацією походження, перш ніж архів буде передано "
+"стороннім особам.              "
 
 #: pkg/lib/machine-invalid-hostkey.html:8
 msgid ""
@@ -7131,7 +7207,7 @@ msgstr ""
 "Сервером відмовлено у розпізнаванні «$0» за допомогою пароля. Інших "
 "підтримуваних способів розпізнавання не передбачено."
 
-#: src/base1/cockpit.js:4021
+#: src/base1/cockpit.js:4032
 msgid "The server refused to authenticate using any supported methods."
 msgstr ""
 "Сервер відмовився розпізнавати користувача за допомогою будь-якого з "
@@ -7185,6 +7261,8 @@ msgstr ""
 #: pkg/users/index.html:436
 msgid "The user must log out and log back in to fully change roles."
 msgstr ""
+"Для повної зміни ролей користувач має вийти із системи і увійти до неї "
+"знову."
 
 #: pkg/users/local.js:553
 msgid ""
@@ -7245,7 +7323,7 @@ msgid "This NFS mount is in use and only its options can be changed."
 msgstr ""
 "Це монтування NFS використовується; можна лише змінювати його параметри."
 
-#: pkg/storaged/vdo-details.jsx:132
+#: pkg/storaged/vdo-details.jsx:115
 msgid "This VDO device does not use all of its backing device."
 msgstr "Цей пристрій VDO не використовує увесь об'єм резервного пристрою."
 
@@ -7261,7 +7339,7 @@ msgstr ""
 msgid "This device cannot be managed here."
 msgstr "Тут не можна керувати цим пристроєм."
 
-#: pkg/storaged/dialog.jsx:981
+#: pkg/storaged/dialog.jsx:984
 msgid ""
 "This device has filesystems that are currently in use. Proceeding will "
 "unmount all filesystems on it."
@@ -7269,11 +7347,11 @@ msgstr ""
 "На цьому пристрої міститься файлова система, яка зараз використовується. "
 "Виконання дії призведе до демонтування усіх файлових систем на пристрої."
 
-#: pkg/storaged/dialog.jsx:960
+#: pkg/storaged/dialog.jsx:963
 msgid "This device is currently used for RAID devices."
 msgstr "Цей пристрій зараз використовується для пристроїв RAID."
 
-#: pkg/storaged/dialog.jsx:989
+#: pkg/storaged/dialog.jsx:992
 msgid ""
 "This device is currently used for RAID devices. Proceeding will remove it "
 "from its RAID devices."
@@ -7281,16 +7359,16 @@ msgstr ""
 "Цей пристрій зараз використовується для формування пристроїв RAID. Якщо дію "
 "буде виконано, пристрій буде вилучено із його пристроїв RAID."
 
-#: pkg/storaged/dialog.jsx:964
+#: pkg/storaged/dialog.jsx:967
 msgid "This device is currently used for VDO devices."
 msgstr ""
 "Цей пристрій зараз використовується для зберігання даних пристроїв VDO."
 
-#: pkg/storaged/dialog.jsx:956
+#: pkg/storaged/dialog.jsx:959
 msgid "This device is currently used for volume groups."
 msgstr "Цей пристрій зараза використовується для груп томів."
 
-#: pkg/storaged/dialog.jsx:985
+#: pkg/storaged/dialog.jsx:988
 msgid ""
 "This device is currently used for volume groups. Proceeding will remove it "
 "from its volume groups."
@@ -7311,7 +7389,7 @@ msgstr "Вміст цього поля не може бути порожнім."
 msgid "This image does not exist."
 msgstr "Цього образу не існує."
 
-#: pkg/storaged/lvol-tabs.jsx:416
+#: pkg/storaged/lvol-tabs.jsx:419
 msgid "This logical volume is not completely used by its content."
 msgstr ""
 "Місце на цьому логічному томі не повністю використано даними, які на ньому "
@@ -7382,7 +7460,7 @@ msgstr "Цей том вже використано іншою ВМ."
 msgid "This volume is already used by: "
 msgstr "Цей том вже використано:"
 
-#: pkg/storaged/lvol-tabs.jsx:187
+#: pkg/storaged/lvol-tabs.jsx:188
 msgid "This volume needs to be activated before it can be resized."
 msgstr ""
 "Перш ніж розмір цього тому можна буде змінювати, його слід активувати."
@@ -7462,7 +7540,7 @@ msgid ""
 "version."
 msgstr "Щоб спробувати інший порт, вам слід оновити cockpit-ws."
 
-#: src/base1/cockpit.js:4043
+#: src/base1/cockpit.js:4054
 msgid "Too much data"
 msgstr "Забагато даних"
 
@@ -7486,8 +7564,7 @@ msgstr "Причина вмикання"
 msgid "Triggers"
 msgstr "Умовні зміни"
 
-#: pkg/shell/index.html:398 pkg/shell/simple.html:139
-#: pkg/machines/components/libvirtSlate.jsx:112
+#: pkg/shell/index.html:398 pkg/machines/components/libvirtSlate.jsx:112
 msgid "Troubleshoot"
 msgstr "Діагностика проблем"
 
@@ -7506,10 +7583,6 @@ msgstr "Спробувати ще раз"
 #: pkg/docker/index.html:71 pkg/docker/index.html:74
 msgid "Try again"
 msgstr "Повторити спробу"
-
-#: pkg/shell/simple.html:107
-msgid "Try to reconnect"
-msgstr "Спробувати з’єднатися знову"
 
 #: pkg/systemd/index.html:60
 msgid "Trying to synchronize with {{Server}}"
@@ -7549,9 +7622,9 @@ msgstr "Tuned вимкнено"
 #: pkg/machines/components/vm/bootOrderModal.jsx:138
 #: pkg/machines/components/vm/bootOrderModal.jsx:144
 #: pkg/machines/components/vmnetworktab.jsx:113
-#: pkg/storaged/format-dialog.jsx:249 pkg/storaged/part-tab.jsx:42
+#: pkg/storaged/format-dialog.jsx:199 pkg/storaged/part-tab.jsx:42
 #: pkg/storaged/unrecognized-tab.jsx:33 pkg/systemd/hwinfo.jsx:81
-#: pkg/systemd/hwinfo.jsx:273
+#: pkg/systemd/hwinfo.jsx:286
 msgid "Type"
 msgstr "Тип"
 
@@ -7646,7 +7719,7 @@ msgid "Unique name"
 msgstr "Унікальна назва"
 
 #: pkg/machines/components/vm/bootOrderModal.jsx:134
-#: pkg/storaged/dialog.jsx:1031
+#: pkg/storaged/dialog.jsx:1034
 msgid "Unit"
 msgstr "Модуль"
 
@@ -7654,7 +7727,7 @@ msgstr "Модуль"
 #: pkg/machines/components/vmnetworktab.jsx:142
 #: pkg/networkmanager/interfaces.js:595 pkg/networkmanager/interfaces.js:1071
 #: pkg/networkmanager/interfaces.js:2515 pkg/networkmanager/interfaces.js:2517
-#: pkg/storaged/fsys-tab.jsx:64 pkg/storaged/swap-tab.jsx:57
+#: pkg/storaged/fsys-tab.jsx:369 pkg/storaged/swap-tab.jsx:57
 msgid "Unknown"
 msgstr "Невідомий"
 
@@ -7694,8 +7767,8 @@ msgstr "Невідомий тип"
 msgid "Unless Stopped"
 msgstr "Якщо не зупинено"
 
-#: pkg/storaged/content-views.jsx:227 pkg/storaged/content-views.jsx:232
-#: pkg/storaged/content-views.jsx:245
+#: pkg/storaged/content-views.jsx:236 pkg/storaged/content-views.jsx:241
+#: pkg/storaged/content-views.jsx:254
 msgid "Unlock"
 msgstr "Розблокувати"
 
@@ -7703,11 +7776,11 @@ msgstr "Розблокувати"
 msgid "Unlock Key"
 msgstr "Розблокувати ключ"
 
-#: pkg/storaged/format-dialog.jsx:120
+#: pkg/storaged/format-dialog.jsx:63
 msgid "Unlock at boot"
 msgstr "Розблокувати при завантаженні"
 
-#: pkg/storaged/format-dialog.jsx:121
+#: pkg/storaged/format-dialog.jsx:64
 msgid "Unlock read only"
 msgstr "Розблокувати лише для читання"
 
@@ -7723,9 +7796,18 @@ msgstr "Розблоковуємо диск…"
 msgid "Unmanaged Interfaces"
 msgstr "Некеровані інтерфейси"
 
-#: pkg/storaged/fsys-tab.jsx:183 pkg/storaged/nfs-details.jsx:301
+#: pkg/storaged/content-views.jsx:337 pkg/storaged/fsys-tab.jsx:269
+#: pkg/storaged/nfs-details.jsx:301
 msgid "Unmount"
 msgstr "Демонтувати"
+
+#: pkg/storaged/fsys-tab.jsx:263
+msgid "Unmount Filesystem"
+msgstr ""
+
+#: pkg/storaged/fsys-tab.jsx:467 pkg/storaged/fsys-tab.jsx:471
+msgid "Unmount now"
+msgstr ""
 
 #: pkg/storaged/jobs-panel.jsx:44
 msgid "Unmounting $target"
@@ -7739,16 +7821,16 @@ msgstr "Без назви"
 msgid "Unplug"
 msgstr "Від'єднати"
 
-#: pkg/storaged/content-views.jsx:163
+#: pkg/storaged/content-views.jsx:167
 msgid "Unrecognized Data"
 msgstr "Нерозпізнані дані"
 
-#: pkg/storaged/content-views.jsx:360
+#: pkg/storaged/content-views.jsx:380
 msgctxt "storage-id-desc"
 msgid "Unrecognized Data"
 msgstr "Нерозпізнані дані"
 
-#: pkg/storaged/lvol-tabs.jsx:90 pkg/storaged/lvol-tabs.jsx:179
+#: pkg/storaged/lvol-tabs.jsx:91 pkg/storaged/lvol-tabs.jsx:180
 msgid "Unrecognized data can not be made smaller here."
 msgstr "Тут не можна зменшити об'єм нерозпізнаних даних."
 
@@ -7757,11 +7839,11 @@ msgstr "Тут не можна зменшити об'єм нерозпізнан
 msgid "Unsupported setup mechanism"
 msgstr "Непідтримуваний механізм налаштовування"
 
-#: pkg/storaged/content-views.jsx:623
+#: pkg/storaged/content-views.jsx:653
 msgid "Unsupported volume"
 msgstr "Непідтримуваний том"
 
-#: src/base1/cockpit.js:4023 src/base1/cockpit.js:4025
+#: src/base1/cockpit.js:4034 src/base1/cockpit.js:4036
 msgid "Untrusted host"
 msgstr "Ненадійний вузол"
 
@@ -7839,7 +7921,7 @@ msgstr "Використати вказані нижче ключі для ро�
 #: pkg/systemd/index.html:273 pkg/docker/storage.jsx:344
 #: pkg/machines/components/vm/vmUsageTab.jsx:64
 #: pkg/machines/components/vm/vmUsageTab.jsx:75
-#: pkg/machines/components/vmDisksTab.jsx:109 pkg/storaged/fsys-tab.jsx:191
+#: pkg/machines/components/vmDisksTab.jsx:109 pkg/storaged/fsys-tab.jsx:504
 #: pkg/storaged/swap-tab.jsx:81 pkg/systemd/host.js:1665
 msgid "Used"
 msgstr "Використано"
@@ -7888,11 +7970,11 @@ msgstr "З використанням доступних реєстраційн�
 msgid "VCPU settings could not be saved"
 msgstr "Не вдалося зберегти параметри віртуальних процесорів"
 
-#: pkg/storaged/content-views.jsx:159
+#: pkg/storaged/content-views.jsx:162
 msgid "VDO Backing"
 msgstr "Резерв VDO"
 
-#: pkg/storaged/content-views.jsx:358
+#: pkg/storaged/content-views.jsx:378
 msgctxt "storage-id-desc"
 msgid "VDO Backing"
 msgstr "Резерв VDO"
@@ -7901,11 +7983,11 @@ msgstr "Резерв VDO"
 msgid "VDO Device"
 msgstr "Пристрій VDO"
 
-#: pkg/storaged/utils.js:253 pkg/storaged/vdo-details.jsx:259
+#: pkg/storaged/utils.js:253 pkg/storaged/vdo-details.jsx:254
 msgid "VDO Device $0"
 msgstr "Пристрій VDO $0"
 
-#: pkg/storaged/lvol-tabs.jsx:85 pkg/storaged/lvol-tabs.jsx:172
+#: pkg/storaged/lvol-tabs.jsx:86 pkg/storaged/lvol-tabs.jsx:173
 msgid "VDO backing devices can not be made smaller"
 msgstr "Пристрої резервного копіювання VDO не можна звужувати"
 
@@ -7924,7 +8006,7 @@ msgstr "Параметри VLAN"
 
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:125
 msgid "VM $0 already exists"
-msgstr ""
+msgstr "ВМ із назвою $0 вже існує"
 
 #: pkg/machines/hostvmslist.jsx:116
 msgid "VM $0 failed to Reboot"
@@ -7996,7 +8078,7 @@ msgstr "Перевірка ключа"
 
 #: pkg/machines/components/vm/bootOrderModal.jsx:120
 #: pkg/machines/components/vm/bootOrderModal.jsx:126
-#: pkg/systemd/hwinfo.jsx:261
+#: pkg/systemd/hwinfo.jsx:274
 msgid "Vendor"
 msgstr "Постачальник"
 
@@ -8012,7 +8094,7 @@ msgstr "Перевірити ключ"
 msgid "Verifying"
 msgstr "Перевіряємо"
 
-#: pkg/shell/index.html:89 pkg/shell/simple.html:64 pkg/systemd/index.html:123
+#: pkg/shell/index.html:89 pkg/systemd/index.html:123
 #: pkg/packagekit/updates.jsx:385 pkg/systemd/hwinfo.jsx:89
 msgid "Version"
 msgstr "Версія"
@@ -8024,6 +8106,10 @@ msgstr "Дуже безпечно витираємо $target"
 #: pkg/lib/cockpit-components-modifications.jsx:173
 msgid "View automation script"
 msgstr "Переглянути скрипт автоматизації"
+
+#: pkg/systemd/reporting.jsx:397
+msgid "View report"
+msgstr ""
 
 #: pkg/machines/components/networks/networkList.jsx:47
 #: pkg/machines/components/storagePools/storagePoolList.jsx:46
@@ -8052,7 +8138,7 @@ msgstr "Доступна служба віртуалізації"
 #: pkg/machines/components/diskAdd.jsx:91
 #: pkg/machines/components/vm/bootOrderModal.jsx:96
 #: pkg/machines/components/vmDiskColumns.jsx:46
-#: pkg/storaged/content-views.jsx:140
+#: pkg/storaged/content-views.jsx:141
 msgid "Volume"
 msgstr "Том"
 
@@ -8076,7 +8162,7 @@ msgstr "Назва групи томів має бути непорожньою"
 msgid "Volume failed to be created"
 msgstr "Не вдалося створити том"
 
-#: pkg/storaged/lvol-tabs.jsx:418
+#: pkg/storaged/lvol-tabs.jsx:425
 msgid "Volume size is $0. Content size is $1."
 msgstr "Розмір тому — $0. Розмір даних — $1."
 
@@ -8101,6 +8187,10 @@ msgstr "Очікування"
 msgid "Waiting for details..."
 msgstr "Очікуємо на подробиці…"
 
+#: pkg/systemd/reporting.jsx:220
+msgid "Waiting for input…"
+msgstr ""
+
 #: pkg/apps/utils.jsx:63
 msgid "Waiting for other programs to finish using the package manager..."
 msgstr ""
@@ -8111,6 +8201,10 @@ msgstr ""
 #: pkg/lib/cockpit-components-install-dialog.jsx:178
 msgid "Waiting for other software management operations to finish"
 msgstr "Очікуємо на завершення інших дій із програмним забезпеченням"
+
+#: pkg/systemd/reporting.jsx:315
+msgid "Waiting to start…"
+msgstr ""
 
 #: pkg/systemd/service-details.jsx:425
 msgid "Wanted By"
@@ -8178,7 +8272,7 @@ msgstr "Помилкове ім’я користувача чи пароль"
 msgid "XOR"
 msgstr "XOR"
 
-#: pkg/networkmanager/interfaces.js:2575
+#: pkg/networkmanager/interfaces.js:2575 pkg/systemd/reporting.jsx:261
 msgid "Yes"
 msgstr "Так"
 
@@ -8217,7 +8311,7 @@ msgid "You don't have permission to manage the Docker storage pool."
 msgstr ""
 "У вас немає прав доступу до керування резервним сховищем даних Docker."
 
-#: pkg/systemd/logs.js:160
+#: pkg/systemd/logs.js:162
 msgid "You may try to load older entries."
 msgstr "Ви можете спробувати завантажити старіші записи."
 
@@ -8246,11 +8340,11 @@ msgstr ""
 "Невдовзі ваш сервер розірве з’єднання. Ви можете відновити це з’єднання, "
 "щойно сервер буде перезапущено."
 
-#: src/base1/cockpit.js:4013
+#: src/base1/cockpit.js:4024
 msgid "Your session has been terminated."
 msgstr "Ваш сеанс перервано."
 
-#: src/base1/cockpit.js:4015
+#: src/base1/cockpit.js:4026
 msgid "Your session has expired. Please log in again."
 msgstr ""
 "Строк роботи у вашому сеансі вичерпано. Будь ласка, увійдіть до системи ще "
@@ -8745,6 +8839,10 @@ msgstr "raid"
 #: pkg/systemd/manifest.json.in
 msgid "ram"
 msgstr "ram"
+
+#: pkg/storaged/fsys-tab.jsx:379
+msgid "read only"
+msgstr ""
 
 #: pkg/tuned/change-profile.jsx:42
 msgid "recommended"

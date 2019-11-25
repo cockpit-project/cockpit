@@ -20,10 +20,13 @@
 import React from 'react';
 import { Button, Modal } from 'patternfly-react';
 import cockpit from 'cockpit';
+import { Tooltip } from '@patternfly/react-core';
+import { InfoAltIcon } from '@patternfly/react-icons';
 
+import * as Select from 'cockpit-components-select.jsx';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 
-import { changeDiskAccessPolicy } from '../libvirt-dbus.js';
+import { updateDiskAttributes } from '../libvirt-dbus.js';
 import { getDiskPrettyName, getDiskFullName } from '../helpers.js';
 
 import 'form-layout.less';
@@ -47,6 +50,39 @@ const NameRow = ({ idPrefix, name, diskType }) => {
             <samp id={`${idPrefix}-name`}>
                 {name}
             </samp>
+        </>
+    );
+};
+
+const BusRow = ({ onValueChanged, dialogValues, idPrefix, shutoff }) => {
+    const busTypes = ['sata', 'scsi', 'usb', 'virtio'];
+
+    return (
+        <>
+            <label className='control-label' htmlFor={`${idPrefix}-bus-type`}>
+                {_("Bus")}
+            </label>
+            <div role="group">
+                <Select.Select id={`${idPrefix}-bus-type`}
+                    onChange={value => onValueChanged('busType', value)}
+                    initial={dialogValues.busType}
+                    extraClass='form-control ct-form-split'
+                    enabled={shutoff}>
+                    {busTypes.map(busType => {
+                        return (
+                            <Select.SelectEntry data={busType} key={busType}>
+                                {busType}
+                            </Select.SelectEntry>
+                        );
+                    })}
+                </Select.Select>
+                {!shutoff &&
+                <div className="info-circle">
+                    <Tooltip arial-label="tooltip" entryDelay={0} content={_("Machine must be shut off before changing bus type")}>
+                        <InfoAltIcon />
+                    </Tooltip>
+                </div>}
+            </div>
         </>
     );
 };
@@ -104,6 +140,7 @@ class EditDiskModalBody extends React.Component {
         this.state = {
             readonly: props.disk.readonly,
             shareable: props.disk.shareable,
+            busType: props.disk.bus,
         };
         this.onValueChanged = this.onValueChanged.bind(this);
         this.dialogErrorSet = this.dialogErrorSet.bind(this);
@@ -120,7 +157,9 @@ class EditDiskModalBody extends React.Component {
 
     onSaveClicked() {
         const { disk, vm } = this.props;
-        changeDiskAccessPolicy(vm.connectionName, vm.id, disk.target, this.state.readonly, this.state.shareable)
+        const existingTargets = Object.getOwnPropertyNames(vm.disks);
+
+        updateDiskAttributes({ connectionName: vm.connectionName, objPath: vm.id, target: disk.target, readonly: this.state.readonly, shareable: this.state.shareable, busType: this.state.busType, existingTargets })
                 .then(() => this.props.close())
                 .fail((exc) => {
                     this.dialogErrorSet(_("Disk settings could not be saved"), exc.message);
@@ -141,6 +180,11 @@ class EditDiskModalBody extends React.Component {
                            idPrefix={idPrefix}
                            driverType={vm.disks[disk.target].driver.type}
                            onValueChanged={this.onValueChanged} />
+
+                <BusRow dialogValues={this.state}
+                        idPrefix={idPrefix}
+                        onValueChanged={this.onValueChanged}
+                        shutoff={vm.state == 'shut off'} />
             </div>
         );
 

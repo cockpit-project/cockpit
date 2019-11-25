@@ -22,10 +22,10 @@ import cockpit from 'cockpit';
 
 import * as Select from "cockpit-components-select.jsx";
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
-import { units, convertToUnit, getDefaultVolumeFormat, getStorageVolumesUsage, getStorageVolumeDiskTarget } from '../helpers.js';
+import { units, convertToUnit, getDefaultVolumeFormat, getNextAvailableTarget, getStorageVolumesUsage, getStorageVolumeDiskTarget } from '../helpers.js';
 import { volumeCreateAndAttach, attachDisk, getVm } from '../actions/provider-actions.js';
 import { VolumeCreateBody } from './storagePools/storageVolumeCreateBody.jsx';
-import { changeDiskAccessPolicy } from '../libvirt-dbus.js';
+import { updateDiskAttributes } from '../libvirt-dbus.js';
 
 import 'form-layout.less';
 import './diskAdd.css';
@@ -34,18 +34,6 @@ const _ = cockpit.gettext;
 
 const CREATE_NEW = 'create-new';
 const USE_EXISTING = 'use-existing';
-
-function getNextAvailableTarget(vm) {
-    const existingTargets = Object.getOwnPropertyNames(vm.disks);
-    const targets = [];
-    let i = 0;
-    while (i < 26 && targets.length < 5) {
-        const target = `vd${String.fromCharCode(97 + i)}`;
-        if (!existingTargets.includes(target))
-            return target;
-        i++;
-    }
-}
 
 function getFilteredVolumes(vmStoragePool, disks) {
     const usedDiskPaths = Object.getOwnPropertyNames(disks)
@@ -149,7 +137,7 @@ const PoolRow = ({ idPrefix, onValueChanged, storagePoolName, vmStoragePools }) 
     );
 };
 
-class PerformanceOptions extends React.Component {
+class AdditionalOptions extends React.Component {
     constructor(props) {
         super(props);
         this.state = { expanded: false };
@@ -157,6 +145,7 @@ class PerformanceOptions extends React.Component {
 
     render() {
         const cacheModes = ['default', 'none', 'writethrough', 'writeback', 'directsync', 'unsafe'];
+        const busTypes = ['sata', 'scsi', 'usb', 'virtio'];
 
         return (
             <>
@@ -164,7 +153,7 @@ class PerformanceOptions extends React.Component {
                     <div className='expand-collapse-pf-link-container'>
                         <button className='btn btn-link' onClick={() => this.setState({ expanded: !this.state.expanded })}>
                             { this.state.expanded ? <span className='fa fa-angle-down' /> : <span className='fa fa-angle-right' /> }
-                            { this.state.expanded ? _("Hide Performance Options") : _("Show Performance Options")}
+                            { this.state.expanded ? _("Hide Additional Options") : _("Show Additional Options")}
                         </button>
                         <span className="expand-collapse-pf-separator bordered" />
                     </div>
@@ -182,6 +171,22 @@ class PerformanceOptions extends React.Component {
                             return (
                                 <Select.SelectEntry data={cacheMode} key={cacheMode}>
                                     {cacheMode}
+                                </Select.SelectEntry>
+                            );
+                        })}
+                    </Select.Select>
+
+                    <label className='control-label' htmlFor='bus-type'>
+                        {_("Bus")}
+                    </label>
+                    <Select.Select id='bus-type'
+                        onChange={value => this.props.onValueChanged('busType', value)}
+                        initial={this.props.busType}
+                        extraClass='form-control ct-form-split'>
+                        {busTypes.map(busType => {
+                            return (
+                                <Select.SelectEntry data={busType} key={busType}>
+                                    {busType}
                                 </Select.SelectEntry>
                             );
                         })}
@@ -216,8 +221,9 @@ const CreateNewDisk = ({ idPrefix, onValueChanged, dialogValues, vmStoragePools,
                                  onValueChanged={onValueChanged}
                                  provider={provider}
                                  vm={vm} />
-                {provider.name == 'LibvirtDBus' && <PerformanceOptions cacheMode={dialogValues.cacheMode}
-                                    onValueChanged={onValueChanged} />}
+                {provider.name == 'LibvirtDBus' && <AdditionalOptions cacheMode={dialogValues.cacheMode}
+                                    onValueChanged={onValueChanged}
+                                    busType={dialogValues.busType} />}
             </>}
         </>
     );
@@ -272,8 +278,9 @@ const UseExistingDisk = ({ idPrefix, onValueChanged, dialogValues, vmStoragePool
                                  onValueChanged={onValueChanged}
                                  provider={provider}
                                  vm={vm} />
-                {provider.name == 'LibvirtDBus' && <PerformanceOptions cacheMode={dialogValues.cacheMode}
-                                    onValueChanged={onValueChanged} />}
+                {provider.name == 'LibvirtDBus' && <AdditionalOptions cacheMode={dialogValues.cacheMode}
+                                    onValueChanged={onValueChanged}
+                                    busType={dialogValues.busType} />}
             </>}
         </>
     );
@@ -291,7 +298,9 @@ export class AddDiskModalBody extends React.Component {
 
     get initialState() {
         const { vm, storagePools, provider } = this.props;
-        const availableTarget = getNextAvailableTarget(vm);
+        const defaultBus = 'virtio';
+        const existingTargets = Object.getOwnPropertyNames(vm.disks);
+        const availableTarget = getNextAvailableTarget(existingTargets, defaultBus);
         const sortFunction = (poolA, poolB) => poolA.name.localeCompare(poolB.name);
         let defaultPool;
         if (storagePools.length > 0)
@@ -312,6 +321,7 @@ export class AddDiskModalBody extends React.Component {
             hotplug: provider.isRunning(vm.state), // must be kept false for a down VM; the value is not being changed by user
             addDiskInProgress: false,
             cacheMode: 'default',
+            busType: defaultBus,
             updateDisks: false,
         };
     }
@@ -368,6 +378,13 @@ export class AddDiskModalBody extends React.Component {
             this.setState(stateDelta);
             break;
         }
+        case 'busType': {
+            const existingTargets = Object.getOwnPropertyNames(this.props.vm.disks);
+            const availableTarget = getNextAvailableTarget(existingTargets, value);
+            this.onValueChanged('target', availableTarget);
+            this.setState({ busType: value });
+            break;
+        }
         default:
             this.setState({ [key]: value });
         }
@@ -402,7 +419,8 @@ export class AddDiskModalBody extends React.Component {
                 hotplug: this.state.hotplug,
                 vmName: vm.name,
                 vmId: vm.id,
-                cacheMode: this.state.cacheMode
+                cacheMode: this.state.cacheMode,
+                busType: this.state.busType
             }))
                     .fail(exc => {
                         this.setState({ addDiskInProgress: false });
@@ -431,6 +449,7 @@ export class AddDiskModalBody extends React.Component {
             vmId: vm.id,
             cacheMode: this.state.cacheMode,
             shareable: provider.name == 'LibvirtDBus' && volume.format === "raw" && isVolumeUsed[this.state.existingVolumeName],
+            busType: this.state.busType
         }))
                 .fail(exc => {
                     this.setState({ addDiskInProgress: false });
@@ -443,8 +462,9 @@ export class AddDiskModalBody extends React.Component {
                         isVolumeUsed[this.state.existingVolumeName].forEach(vmName => {
                             const vm = vms.find(vm => vm.name === vmName);
                             const diskTarget = getStorageVolumeDiskTarget(vm, storagePool, this.state.existingVolumeName);
+
                             promises.push(
-                                changeDiskAccessPolicy(vm.connectionName, vm.id, diskTarget, false, true) // readonly - false, shareable - true
+                                updateDiskAttributes({ connectionName: vm.connectionName, objPath: vm.id, readonly: false, shareable: true, target: diskTarget })
                                         .fail(exc => this.dialogErrorSet(_("Disk settings could not be saved"), exc.message))
                             );
                         });

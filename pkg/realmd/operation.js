@@ -33,6 +33,9 @@ function instance(realmd, mode, realm, button) {
     var kerberos_membership = null;
     var kerberos = null;
 
+    // Hidden attribute does not work because .pf-c-class has diplay: grid
+    $(".realms-op-error").hide();
+
     /* If in an operation first time cancel is clicked, cancel operation */
     $(".realms-op-cancel").on("click", function() {
         if (!cancel())

@@ -32,7 +32,7 @@ const _ = cockpit.gettext;
 export class HealthCard extends React.Component {
     constructor() {
         super();
-        this.state = { insightsLinkVisible: false };
+        this.state = { insightsLinkVisible: false, updateDetails: undefined };
         this.refresh_os_updates_state = this.refresh_os_updates_state.bind(this);
         this.refresh_insights_status = this.refresh_insights_status.bind(this);
     }
@@ -68,16 +68,19 @@ export class HealthCard extends React.Component {
         const pageStatusNotifications = React.createElement(PageStatusNotifications);
         const updateDetails = this.state.updateDetails || { };
         return (
-            <Card>
+            <Card className="system-health">
                 <CardHeader>{_("Health")}</CardHeader>
                 <CardBody>
                     <ul className="system-health-events">
                         <li id="page_status_notifications">{pageStatusNotifications}</li>
                         <li>
                             <>
-                                {!!updateDetails.icon && <>
+                                {this.state.updateDetails !== undefined ? <>
                                     <span id="system_information_updates_icon" className={updateDetails.icon || ""} />
                                     <a id="system_information_updates_text" onClick={() => cockpit.jump("/" + (updateDetails.link || "updates"))}>{updateDetails.text || this.state.updateStatus.title || ""}</a>
+                                </> : <>
+                                    <span className="spinner spinner-xs" />
+                                    <span>{_("Checking for package updates...")}</span>
                                 </>}
                             </>
                         </li>

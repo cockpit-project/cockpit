@@ -20,47 +20,44 @@
 import cockpit from "cockpit";
 const _ = cockpit.gettext;
 
-var cpu_ram_info_promises = { };
-
 export function cpu_ram_info(address) {
-    var pr = cpu_ram_info_promises[address];
+    var pr;
     var dfd;
-    if (!pr) {
-        dfd = cockpit.defer();
-        cpu_ram_info_promises[address] = pr = dfd.promise();
+    dfd = cockpit.defer();
+    pr = dfd.promise();
 
-        cockpit.spawn(["cat", "/proc/meminfo", "/proc/cpuinfo"], { host: address })
-                .done(function(text) {
-                    var info = { };
-                    var match = text.match(/MemTotal:[^0-9]*([0-9]+) [kK]B/);
-                    var total_kb = match && parseInt(match[1], 10);
-                    if (total_kb)
-                        info.memory = total_kb * 1024;
+    cockpit.spawn(["cat", "/proc/meminfo", "/proc/cpuinfo"], { host: address })
+            .done(function(text) {
+                var info = { };
+                var match = text.match(/MemTotal:[^0-9]*([0-9]+) [kK]B/);
+                var total_kb = match && parseInt(match[1], 10);
+                if (total_kb)
+                    info.memory = total_kb * 1024;
 
-                    var available_match = text.match(/MemAvailable:[^0-9]*([0-9]+) [kK]B/);
-                    var available_kb = available_match && parseInt(available_match[1], 10);
-                    if (available_kb)
-                        info.available_memory = available_kb * 1024;
+                var available_match = text.match(/MemAvailable:[^0-9]*([0-9]+) [kK]B/);
+                var available_kb = available_match && parseInt(available_match[1], 10);
+                if (available_kb)
+                    info.available_memory = available_kb * 1024;
 
-                    var swap_match = text.match(/SwapTotal:[^0-9]*([0-9]+) [kK]B/);
-                    var swap_total_kb = swap_match && parseInt(swap_match[1], 10);
-                    if (swap_total_kb)
-                        info.swap = swap_total_kb * 1024;
+                var swap_match = text.match(/SwapTotal:[^0-9]*([0-9]+) [kK]B/);
+                var swap_total_kb = swap_match && parseInt(swap_match[1], 10);
+                if (swap_total_kb)
+                    info.swap = swap_total_kb * 1024;
 
-                    match = text.match(/^model name\s*:\s*(.*)$/m);
-                    if (match)
-                        info.cpu_model = match[1];
+                match = text.match(/^model name\s*:\s*(.*)$/m);
+                if (match)
+                    info.cpu_model = match[1];
 
-                    info.cpus = 0;
-                    var re = /^processor/gm;
-                    while (re.test(text))
-                        info.cpus += 1;
-                    dfd.resolve(info);
-                })
-                .fail(function() {
-                    dfd.reject();
-                });
-    }
+                info.cpus = 0;
+                var re = /^processor/gm;
+                while (re.test(text))
+                    info.cpus += 1;
+                dfd.resolve(info);
+            })
+            .fail(function(ex) {
+                dfd.reject();
+            });
+
     return pr;
 }
 

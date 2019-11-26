@@ -177,15 +177,23 @@ export class StoragePoolDelete extends React.Component {
                 { storagePool.active && showWarning() }
             </>
         );
-
         const deleteButton = () => {
+            let tooltipText;
             if (!canDelete(storagePool, vms)) {
+                tooltipText = (<>
+                    {_("Pool's volumes are used by VMs ")}
+                    <b> {vmsUsage + ". "} </b>
+                    {_("Detach the disks using this pool from any VMs before attempting deletion.")}
+                </>);
+            } else if (!storagePool.persistent) {
+                tooltipText = _("Non-persistent storage pool cannot be deleted. It ceases to exists when it's deactivated.");
+            }
+
+            if (!canDelete(storagePool, vms) || !storagePool.persistent) {
                 return (
                     <OverlayTrigger overlay={
                         <Tooltip id='delete-tooltip'>
-                            {_("Pool's volumes are used by VMs ")}
-                            <b> {vmsUsage + "."} </b>
-                            {_("Detach the disks using this pool from any VMs before attempting deletion.")}
+                            { tooltipText }
                         </Tooltip> } placement='top'>
                         <span>
                             <Button id={`delete-${id}`}

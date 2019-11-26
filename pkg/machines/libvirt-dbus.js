@@ -1156,6 +1156,28 @@ function startEventMonitorLibvirtd(connectionName, dispatch, libvirtServiceName)
     }
 }
 
+function storagePoolUpdateOrDelete(connectionName, poolPath, dispatch) {
+    call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'ListStoragePools', [0], TIMEOUT)
+            .then(objPaths => {
+                if (objPaths[0].includes(poolPath))
+                    dispatch(getStoragePool({ connectionName, id:poolPath, updateOnly: true }));
+                else // Transient pool which got undefined when stopped
+                    dispatch(undefineStoragePool({ connectionName, id:poolPath }));
+            })
+            .fail(ex => console.warn('GET_ALL_NETWORKS action failed:', JSON.stringify(ex)));
+}
+
+function networkUpdateOrDelete(connectionName, netPath, dispatch) {
+    call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'ListNetworks', [0], TIMEOUT)
+            .then(objPaths => {
+                if (objPaths[0].includes(netPath))
+                    dispatch(getNetwork({ connectionName, id:netPath, updateOnly: true }));
+                else // Transient network which got undefined when stopped
+                    dispatch(undefineNetwork({ connectionName, id:netPath }));
+            })
+            .fail(ex => console.warn('GET_ALL_NETWORKS action failed:', JSON.stringify(ex)));
+}
+
 function startEventMonitorNetworks(connectionName, dispatch) {
     dbus_client(connectionName).subscribe(
         { interface: 'org.libvirt.Connect', member: 'NetworkEvent' },
@@ -1169,7 +1191,7 @@ function startEventMonitorNetworks(connectionName, dispatch) {
                 dispatch(getNetwork({ connectionName, id:objPath }));
                 break;
             case Enum.VIR_NETWORK_EVENT_STOPPED:
-                dispatch(getNetwork({ connectionName, id:objPath, updateOnly: true }));
+                networkUpdateOrDelete(connectionName, objPath, dispatch);
                 break;
             case Enum.VIR_NETWORK_EVENT_UNDEFINED:
                 dispatch(undefineNetwork({ connectionName, id:objPath }));
@@ -1209,6 +1231,8 @@ function startEventMonitorStoragePools(connectionName, dispatch) {
                 dispatch(getStoragePool({ connectionName, id:objPath, updateOnly: true }));
                 break;
             case Enum.VIR_STORAGE_POOL_EVENT_STOPPED:
+                storagePoolUpdateOrDelete(connectionName, objPath, dispatch);
+                break;
             case Enum.VIR_STORAGE_POOL_EVENT_STARTED:
                 dispatch(getStoragePool({ connectionName, id:objPath, updateOnly: true }));
                 break;

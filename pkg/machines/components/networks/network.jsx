@@ -160,7 +160,9 @@ class NetworkActions extends React.Component {
                 <DeleteResource objectType="Network"
                     objectId={id}
                     objectName={network.name}
-                    deleteHandler={() => deleteHandler(network)} />;
+                    deleteHandler={() => deleteHandler(network)}
+                    overlayText={_("Non-persistent network cannot be deleted. It ceases to exists when it's deactivated.")}
+                    disabled={!network.persistent} />
             </>
         );
     }

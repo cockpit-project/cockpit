@@ -75,7 +75,9 @@ function ServiceRow(props) {
         deleteButton = (
             <OverlayTrigger className="pull-right" placement="top"
                             overlay={ <Tooltip id="tip-auth">{ _("You are not authorized to modify the firewall.") }</Tooltip> }>
-                <button key={props.service.id + "-delete-button"} className="btn btn-danger pficon pficon-delete" aria-label={cockpit.format(_("Not authorized to remove service $0"), props.service.id)} disabled />
+                <span>
+                    <button key={props.service.id + "-delete-button"} className="btn btn-danger pficon pficon-delete" aria-label={cockpit.format(_("Not authorized to remove service $0"), props.service.id)} style={{ pointerEvents: 'none' }} disabled />
+                </span>
             </OverlayTrigger>
         );
     } else {

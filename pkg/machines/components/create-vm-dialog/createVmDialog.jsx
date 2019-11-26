@@ -891,14 +891,20 @@ export class CreateVmAction extends React.Component {
                     testdata={testdata}
                     id={this.props.mode == 'create' ? 'create-new-vm' : 'import-vm-disk'}
                     bsStyle='default'
+                    style={!this.state.virtInstallAvailable ? { pointerEvents: 'none' } : null} // Fixes OverlayTrigger not showing up
                     onClick={this.open}>
                 {this.props.mode == 'create' ? _("Create VM") : _("Import VM")}
             </Button>
         );
         if (!this.state.virtInstallAvailable)
             createButton = (
-                <OverlayTrigger overlay={ <Tooltip id='virt-install-not-available-tooltip'>{ _("virt-install package needs to be installed on the system in order to create new VMs") }</Tooltip> } placement='top'>
-                    {createButton}
+                <OverlayTrigger overlay={
+                    <Tooltip id='virt-install-not-available-tooltip'>
+                        {_("virt-install package needs to be installed on the system in order to create new VMs")}
+                    </Tooltip>} placement='top'>
+                    <span>
+                        {createButton}
+                    </span>
                 </OverlayTrigger>
             );
 

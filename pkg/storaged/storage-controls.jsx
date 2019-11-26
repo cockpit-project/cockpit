@@ -60,7 +60,9 @@ class StorageControl extends React.Component {
             return (
                 <OverlayTrigger overlay={ <Tooltip id="tip-storage">{excuse}</Tooltip> }
                                 placement={this.props.excuse_placement || "top"}>
-                    { this.props.content(excuse) }
+                    <span>
+                        { this.props.content(excuse) }
+                    </span>
                 </OverlayTrigger>
             );
         } else {
@@ -100,6 +102,7 @@ export class StorageButton extends React.Component {
                                 <button id={this.props.id}
                                             onClick={checked(this.props.onClick)}
                                             className={classes + (excuse ? " disabled" : "")}
+                                            style={excuse ? { pointerEvents: 'none' } : null}
                                             disabled={excuse}>
                                     {this.props.children}
                                 </button>
@@ -114,6 +117,7 @@ export class StorageLink extends React.Component {
             <StorageControl excuse={this.props.excuse}
                             content={(excuse) => (
                                 <button onClick={checked(this.props.onClick)}
+                                        style={excuse ? { pointerEvents: 'none' } : null}
                                         className={"link-button ct-form-relax" + (excuse ? " disabled" : "")}>
                                     {this.props.children}
                                 </button>
@@ -186,6 +190,7 @@ export class StorageOnOff extends React.Component {
                                     ? this.state.promise_goal_state
                                     : this.props.state}
                                                  disabled={!!(excuse || this.state.promise)}
+                                                 style={(excuse || this.state.promise) ? { pointerEvents: 'none' } : null}
                                                  onChange={onChange} />
                             )} />
         );

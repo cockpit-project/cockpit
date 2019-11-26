@@ -161,24 +161,34 @@ class StoragePoolActions extends React.Component {
         const { storagePool, vms } = this.props;
         const id = storagePoolId(storagePool.name, storagePool.connectionName);
         let deactivateButton = (
-            <Button id={`deactivate-${id}`} disabled={this.state.operationInProgress} onClick={this.onDeactivate}>
+            <Button id={`deactivate-${id}`}
+                disabled={this.state.operationInProgress}
+                style={this.state.operationInProgress ? { pointerEvents: 'none' } : null} // Fixes OverlayTrigger not showing up
+                onClick={this.onDeactivate}>
                 {_("Deactivate")}
             </Button>
         );
         let activateButton = (
-            <Button id={`activate-${id}`} disabled={this.state.operationInProgress} onClick={this.onActivate}>
+            <Button id={`activate-${id}`}
+                disabled={this.state.operationInProgress}
+                style={this.state.operationInProgress ? { pointerEvents: 'none' } : null} // Fixes OverlayTrigger not showing up
+                onClick={this.onActivate}>
                 {_("Activate")}
             </Button>
         );
         if (this.state.operationInProgress) {
             deactivateButton = (
                 <OverlayTrigger overlay={ <Tooltip id="tip-in-progress">{_("Operation is in progress")}</Tooltip> } placement="top">
-                    {deactivateButton}
+                    <span>
+                        {deactivateButton}
+                    </span>
                 </OverlayTrigger>
             );
             activateButton = (
                 <OverlayTrigger overlay={ <Tooltip id="tip-in-progress">{_("Operation is in progress")}</Tooltip> } placement="top">
-                    {activateButton}
+                    <span>
+                        {activateButton}
+                    </span>
                 </OverlayTrigger>
             );
         }

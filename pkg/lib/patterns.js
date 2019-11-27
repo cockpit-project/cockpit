@@ -7,6 +7,7 @@ function clear_errors(sel) {
     sel.find(".has-error").removeClass("has-error");
     sel.find(".dialog-wrapper").off(".dialog-error");
     sel.off(".dialog-error");
+    return sel;
 }
 
 function field_error(target, error) {
@@ -207,6 +208,8 @@ $.fn.dialog = function dialog(action /* ... */) {
         return display_wait(this, arguments[1]);
     else if (action === "promise")
         return display_wait(this, arguments[1], true);
+    else if (action === "clear_errors")
+        return clear_errors(this);
     else
         console.warn("unknown dialog action: " + action);
 };

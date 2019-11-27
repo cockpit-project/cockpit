@@ -212,7 +212,7 @@ def run_avocado(avocado_tests, verbose, browser, download_logs, sit):
         if 'edge' in browser:
             windows = testvm.VirtMachine(image='windows-10', memory_mb=4096, cpus=2, verbose=verbose, networking=network.host())
         else:
-            selenium = testvm.VirtMachine(image="selenium", verbose=verbose, networking=network.host())
+            selenium = testvm.VirtMachine(image="services", verbose=verbose, networking=network.host())
 
     try:
         # just start the machine without waiting for it to boot, get the ip address later

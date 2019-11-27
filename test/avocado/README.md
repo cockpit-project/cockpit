@@ -21,7 +21,7 @@ Run the [run-tests script](https://github.com/cockpit-project/cockpit/blob/maste
 
 - For **pure avocado** tests: ``TEST_OS=fedora-30 test/avocado/run-tests``
 - For **selenium** tests:
-  - ``bots/image-download selenium # Download a VM image with pre-installed selenium``
+  - ``bots/image-download services # Download a VM image with pre-installed selenium``
   - ``TEST_OS=fedora-30 test/avocado/run-tests --selenium-tests --browser firefox -v``
  
 Although this is the default way to run avocado tests the run-tests script is configurable and can be changed to run tests against different machines. This can be usefull for developing or debugging tests. Check bellow the HACKING section for more details.

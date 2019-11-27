@@ -578,13 +578,10 @@ class TestPackageInstall(packagelib.PackageCase):
         b.mouse("#system-info-domain span", "mouseout")
 
         b.click("#system-info-domain a")
-        if m.image == "rhel-8-1-distropkg":
-            b.wait_in_text("#cockpit_modal_dialog .dialog-error", "realmd is not available")
-        else:
-            b.wait_in_text("#cockpit_modal_dialog .pf-c-alert__title", "realmd is not available")
-        b.wait_present("#cockpit_modal_dialog .modal-footer button.btn-primary:disabled")
-        b.click("#cockpit_modal_dialog .modal-footer button.cancel")
-        b.wait_not_present("#cockpit_modal_dialog")
+        b.wait_in_text(".modal-dialog:contains('Install Software')", "realmd is not available")
+        b.wait_present(".modal-dialog:contains('Install Software') .modal-footer button.btn-primary:disabled")
+        b.click(".modal-dialog:contains('Install Software') .modal-footer button.cancel")
+        b.wait_not_present(".modal-dialog:contains('Install Software')")
         b.logout()
 
         # case 3: provide an available realmd package
@@ -603,8 +600,8 @@ class TestPackageInstall(packagelib.PackageCase):
         b.mouse("#system-info-domain span", "mouseout")
 
         b.click("#system-info-domain a")
-        b.click("#cockpit_modal_dialog .modal-footer button.btn-primary")
-        b.wait_not_present("#cockpit_modal_dialog")
+        b.click(".modal-dialog:contains('Install Software') .modal-footer button.btn-primary")
+        b.wait_not_present(".modal-dialog:contains('Install Software')")
 
         # the stub package doesn't provide a realmd D-Bus service, so the "join
         # domain" dialog won't ever appear; just check that it was installed
@@ -631,8 +628,8 @@ class TestPackageInstall(packagelib.PackageCase):
         b.click("#system-info-domain a")
         # restore realmd service, to pretend that package install completed
         m.execute("systemctl unmask realmd")
-        b.click("#cockpit_modal_dialog .modal-footer button.btn-primary")
-        b.wait_not_present("#cockpit_modal_dialog")
+        b.click(".modal-dialog .modal-footer button:contains('Install')")
+        b.wait_not_present(".modal-dialog:contains('Install Software')")
 
         # should continue straight to join dialog
         b.wait_present("#realms-op")

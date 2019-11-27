@@ -220,6 +220,10 @@ function Dialog(selector, address, machines_ins, codes) {
             $(selector).dialog("failure", cockpit.message(error));
     };
 
+    self.clear_error = function clear_error() {
+        $(selector).dialog("clear_errors");
+    };
+
     self.render_template = function render_template(template) {
         change_content(template);
     };
@@ -372,7 +376,7 @@ function AddMachine(dialog) {
         var ex = null;
 
         var addr = $('#add-machine-address').val();
-        var button = dialog.get_sel(".btn-primary");
+        var button = dialog.get_sel(".modal-footer>.btn-primary");
         if (addr === "") {
             disabled = true;
         } else if (!machines.allow_connection_string &&
@@ -448,7 +452,7 @@ function AddMachine(dialog) {
             options : invisible,
         });
 
-        var button = dialog.get_sel(".btn-primary");
+        var button = dialog.get_sel(".modal-footer>.btn-primary");
         button.on("click", add_machine);
 
         $("#add-machine-address").on("keyup", function (ev) {
@@ -524,7 +528,7 @@ function MachinePort(dialog) {
             allow_connection_string : machines.allow_connection_string
         });
         if (machines.allow_connection_string)
-            dialog.get_sel(".btn-primary").on("click", change_port);
+            dialog.get_sel(".modal-footer>.btn-primary").on("click", change_port);
     };
 }
 
@@ -606,7 +610,7 @@ function HostKey(dialog, problem) {
 
             dialog.get_sel().dialog("wait", promise);
         } else if (allow_change) {
-            dialog.get_sel(".btn-primary").on("click", add_key);
+            dialog.get_sel(".modal-footer>.btn-primary").on("click", add_key);
         }
     }
 
@@ -627,6 +631,7 @@ function ChangeAuth(dialog) {
 
     function update_available() {
         var key_div = dialog.get_sel('.keys');
+        var key_locked_div = dialog.get_sel('.key-locked');
         var have_keys = false;
 
         if (key_div) {
@@ -637,6 +642,27 @@ function ChangeAuth(dialog) {
                     have_keys = true;
                     key_div.append($("<div>").text(key.name || key.comment));
                 }
+            }
+        }
+
+        if (key_locked_div && error_options &&
+            error_options.error && error_options.error.startsWith("locked identity")) {
+            const identity_path = error_options.error.split(": ")[1];
+            key_locked_div.find(".locked-identity").text(identity_path);
+            key_locked_div.find(".btn-primary").on("click", () => {
+                key_locked_div.find(".btn-primary").attr("disabled", true);
+                keys.load(identity_path, key_locked_div.find(".locked-identity-password").val())
+                        .then(() => dialog.clear_error())
+                        .catch(ex => {
+                            dialog.render_error(ex);
+                            key_locked_div.find(".btn-primary").attr("disabled", false);
+                        });
+            });
+
+            for (const id in keys.items) {
+                const key = keys.items[id];
+                if (key.name === identity_path.split("/").pop() && key.loaded)
+                    dialog.get_sel(".login-locked").empty();
             }
         }
 
@@ -706,6 +732,7 @@ function ChangeAuth(dialog) {
         var no_password = false;
         var methods = null;
         var available = null;
+        var locked_identity = false;
 
         var machine_user = dialog.machines_ins.split_connection_string(dialog.address).user;
         if (!machine_user && machine)
@@ -726,6 +753,8 @@ function ChangeAuth(dialog) {
 
             if ($.isEmptyObject(available))
                 template = "auth-failed";
+
+            locked_identity = error_options.error && error_options.error.startsWith("locked identity");
         }
 
         dialog.render({
@@ -735,6 +764,7 @@ function ChangeAuth(dialog) {
             default_user : self.user ? self.user.name : "",
             show_password : available && available.password && !no_password,
             show_ticket: available && available['gssapi-mic'] && have_ticket,
+            show_locked_identity: available && available['public-key'] && locked_identity,
             can_sync: !!dialog.codes['sync-users'],
             'machines.allow_connection_string' : machines.allow_connection_string,
             sync_link : function() {
@@ -762,7 +792,7 @@ function ChangeAuth(dialog) {
                 change_login_type($(this).attr("value"));
             });
             change_login_type($("#login-type li:first-child").attr("value"));
-            dialog.get_sel(".btn-primary").on("click", login);
+            dialog.get_sel(".modal-footer>.btn-primary").on("click", login);
             dialog.get_sel("a[data-content]").popover();
 
             update_available();
@@ -948,7 +978,7 @@ function SyncUsers(dialog) {
 
     function toggle_button() {
         var any = dialog.get_sel("input:checked").length > 0;
-        dialog.get_sel(".btn-primary").toggleClass("disabled", !any);
+        dialog.get_sel(".modal-footer>.btn-primary").toggleClass("disabled", !any);
     }
 
     function render() {
@@ -977,7 +1007,7 @@ function SyncUsers(dialog) {
         });
 
         dialog.get_sel(".modal-content").html(text);
-        dialog.get_sel(".btn-primary").on("click", sync_users);
+        dialog.get_sel(".modal-footer>.btn-primary").on("click", sync_users);
         dialog.get_sel("input:checkbox").on("change", function() {
             var name = $(this).attr("name");
             users[name].checked = $(this).is(':checked');

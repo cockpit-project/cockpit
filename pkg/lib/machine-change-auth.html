@@ -4,7 +4,7 @@
     <h4 class="modal-title" translate="yes">Log in to {{host}}</h4>
 </div>
 
-<div class="modal-body">
+<div id="machine-change-auth" class="modal-body">
     {{^available}}
     <p translate="yes">Cockpit was unable to log into {{#strong}}{{host}}{{/strong}}.</p>
     {{/available}}
@@ -71,6 +71,17 @@
                         {{#public-key}}<div class="keys"><div class='dialog-wait-ct pull-left'><div class='spinner spinner-sm'></div><span translate="yes">Checking for public keys</span></div></div>{{/public-key}}
                 </td>
             </tr>
+            {{#show_locked_identity}}
+            <tr class="login-locked">
+                <td translate="yes" class="top">Locked</td>
+                <td class="top key-locked form-group">
+                    <div class="locked-identity"></div>
+                    <div translate="yes">Enter passphrase to add identity to ssh-agent</div>
+                    <input class="locked-identity-password" type="password" autocomplete="off"></input>
+                    <button class="btn btn-primary" translate="yes">Unlock</button>
+                </td>
+            </tr>
+            {{/show_locked_identity}}
         </table>
     </div>
     {{/available}}

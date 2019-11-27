@@ -398,6 +398,15 @@ Requires: systemd >= 235
 Requires(post): systemd
 Requires(preun): systemd
 Requires(postun): systemd
+%if %{defined wip}
+# HACK: don't apply selinux %post dependencies to CI builds, it would require refreshing images
+%else
+%if 0%{?rhel} || 0%{?fedora}
+# for SELinux policy adjustment in %post below
+Requires(post): /usr/sbin/semanage
+Requires(post): policycoreutils
+%endif
+%endif
 
 %description ws
 The Cockpit Web Service listens on the network, and authenticates users.
@@ -450,15 +459,14 @@ getent passwd cockpit-wsinstance >/dev/null || useradd -r -g cockpit-wsinstance 
 # firewalld only partially picks up changes to its services files without this
 test -f %{_bindir}/firewall-cmd && firewall-cmd --reload --quiet || true
 
-%if 0%{?rhel} || 0%{?fedora} == 29
+%if 0%{?rhel}
 # HACK: SELinux policy adjustment for cockpit-tls; see https://github.com/fedora-selinux/selinux-policy-contrib/pull/114
-if type semanage >/dev/null 2>&1; then
-    set -ex
-    echo "Applying SELinux policy change for cockpit-tls.."
-    semanage fcontext -a /usr/libexec/cockpit-tls -t cockpit_ws_exec_t
-    restorecon /usr/libexec/cockpit-tls
-    tmp=$(mktemp -d)
-    cat <<EOF > $tmp/local.te
+set -ex
+echo "Applying SELinux policy change for cockpit-tls.."
+semanage fcontext -a /usr/libexec/cockpit-tls -t cockpit_ws_exec_t
+restorecon /usr/libexec/cockpit-tls
+tmp=$(mktemp -d)
+cat <<EOF > $tmp/local.te
 module local 1.0;
 require {
     type cockpit_ws_t;
@@ -470,17 +478,17 @@ require {
 allow cockpit_ws_t cockpit_ws_t:unix_stream_socket { create_stream_socket_perms connectto };
 allow cockpit_ws_t cockpit_ws_exec_t:file { execute_no_trans };
 EOF
-    checkmodule -M -m -o $tmp/local.mod $tmp/local.te
-    semodule_package -o $tmp/local.pp -m $tmp/local.mod
-    semodule -i $tmp/local.pp
-    rm -rf "$tmp"
-fi
+checkmodule -M -m -o $tmp/local.mod $tmp/local.te
+semodule_package -o $tmp/local.pp -m $tmp/local.mod
+semodule -i $tmp/local.pp
+rm -rf "$tmp"
 %endif
+
 %if 0%{?rhel} || 0%{?fedora}
 # HACK: SELinux policy adjustment for cockpit-tls; see https://github.com/fedora-selinux/selinux-policy-contrib/pull/161
-    echo "Applying SELinux policy change for cockpit-wsinstance-factory..."
-    semanage fcontext -a /usr/libexec/cockpit-wsinstance-factory -t cockpit_ws_exec_t
-    restorecon /usr/libexec/cockpit-wsinstance-factory
+echo "Applying SELinux policy change for cockpit-wsinstance-factory..."
+semanage fcontext -a /usr/libexec/cockpit-wsinstance-factory -t cockpit_ws_exec_t
+restorecon /usr/libexec/cockpit-wsinstance-factory
 %endif
 
 %preun ws

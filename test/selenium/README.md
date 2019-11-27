@@ -17,8 +17,8 @@ $ test/image-prepare fedora-30 # Install code to test
 
 Run the [run-tests script](https://github.com/cockpit-project/cockpit/blob/master/test/selenium/run-tests) with appropriate parameters.
 
-  - ``bots/image-download selenium # Download a VM image with pre-installed selenium``
-  - ``TEST_OS=fedora-30 test/selenium/run-tests --browser firefox -v``
+  - `bots/image-download services # Download a VM image with pre-installed selenium`
+  - `TEST_OS=fedora-30 test/selenium/run-tests --browser firefox -v`
 
 Although this is the default way to run selenium tests the run-tests script is configurable and can be changed to run tests against different machines. This can be useful for developing or debugging tests. Check bellow the HACKING section for more details.
 

@@ -290,7 +290,7 @@ class SeleniumTestSuite(AvocadoTestSuite):
 
     def _prepare_selenium(self):
         if not self.machine_selenium:
-            self.machine_selenium = testvm.VirtMachine(image="selenium", verbose=self.verbose, networking=self.network.host())
+            self.machine_selenium = testvm.VirtMachine(image="services", verbose=self.verbose, networking=self.network.host())
             # actually wait here, because starting selenium takes a while
             self.machine_selenium.pull(self.machine_selenium.image_file)
         self.machine_selenium.start()

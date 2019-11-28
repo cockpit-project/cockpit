@@ -1,34 +1,45 @@
 # Cockpit on Fedora CoreOS or other container hosts
 
-Standard Fedora and Red Hat Enterprise Linux CoreOS platforms don't contain any
-Cockpit packages. To install these, run
+The standard Fedora and Red Hat Enterprise Linux CoreOS images does not contain
+Cockpit packages.
 
-    # rpm-ostree install cockpit-system cockpit-networkmanager
+1. Install Cockpit packages as overlay RPMs:
+   ```
+   rpm-ostree install cockpit-system cockpit-ostree cockpit-podman
+   ```
 
-or include these packages into your own OSTree configs, or install them with
-the package manager of your operating system.
+   Depending on your configuration, you may want to use
+   [other extensions](https://apps.fedoraproject.org/packages/s/cockpit-) as
+   well, such as `cockpit-kdump` or `cockpit-networkmanager`.
 
-Depending on your configuration, you may want to use other extensions as well,
-like cockpit-kdump or cockpit-podman.
+   If you have a custom-built OSTree, simply include the same packages in your build.
 
-After that you can add this host to another Cockpit dashboard, but not connect to it directly. If you want to do that, you need to run the Cockpit web service with this privileged container:
 
-    # podman container runlabel RUN cockpit/ws
+2. Reboot
 
-The container will be named "ws" by default. You can use the `--name` option to
-assign a different name.
+3. Run the Cockpit web service with this privileged container (as root):
+   ```
+   podman container runlabel RUN cockpit/ws
+   ```
 
-Then use your web browser to log into port 9090 on your host IP address as usual.
+   The container will be named "ws" by default. You can use the `--name` option to
+   assign a different name.
+
+_Steps 3 is optional if the CoreOS machine will only be connected to from another host running Cockpit._
+
+Afterward, use a web browser to log into port `9090` on your host IP address as usual.
 
 # Cockpit Web Service Container on Atomic
 
-Fedora and Red Hat Enterprise Linux Atomic contains the Cockpit bridge (cockpit-bridge package) and basic pages (cockpit-system package). Thus you can connect from remote cockpit hosts through ssh without further modification.
+Fedora and Red Hat Enterprise Linux Atomic contains the Cockpit bridge (cockpit-bridge package) and basic pages (cockpit-system package). Thus you can connect from remote Cockpit hosts through ssh without further modification.
 
 These older operating systems use docker instead of podman and have an `atomic` command that wraps it. To start a web service directly on these hosts, run
-
-    # atomic run cockpit/ws
+```
+atomic run cockpit/ws
+```
 
 ## More Info
 
  * [Cockpit Project](https://cockpit-project.org)
  * [Cockpit Development](https://github.com/cockpit-project/cockpit)
+ * [cockpit/ws Docker hub page](https://hub.docker.com/r/cockpit/ws)

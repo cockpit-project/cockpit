@@ -15,7 +15,10 @@ After that you can add this host to another Cockpit dashboard, but not connect t
 
     # podman container runlabel RUN cockpit/ws
 
-And then use your web browser to log into port 9090 on your host IP address as usual.
+The container will be named "ws" by default. You can use the `--name` option to
+assign a different name.
+
+Then use your web browser to log into port 9090 on your host IP address as usual.
 
 # Cockpit Web Service Container on Atomic
 

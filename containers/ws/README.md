@@ -19,13 +19,16 @@ Cockpit packages.
 
 3. Run the Cockpit web service with this privileged container (as root):
    ```
-   podman container runlabel RUN cockpit/ws
+   podman container runlabel --name cockpit-ws RUN cockpit/ws
    ```
 
-   The container will be named "ws" by default. You can use the `--name` option to
-   assign a different name.
+4. Make Cockpit start on boot:
+   ```
+   podman container runlabel INSTALL cockpit/ws
+   systemctl enable cockpit.service
+   ```
 
-_Steps 3 is optional if the CoreOS machine will only be connected to from another host running Cockpit._
+_Steps 3 and 4 are optional if the CoreOS machine will only be connected to from another host running Cockpit._
 
 Afterward, use a web browser to log into port `9090` on your host IP address as usual.
 

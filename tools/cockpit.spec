@@ -231,7 +231,7 @@ done
 for lib in systemd tmpfiles.d firewalld; do
     rm -r %{buildroot}/%{_prefix}/%{__lib}/$lib
 done
-for libexec in cockpit-askpass cockpit-session cockpit-ws cockpit-tls cockpit-desktop; do
+for libexec in cockpit-askpass cockpit-session cockpit-ws cockpit-tls cockpit-wsinstance-factory cockpit-desktop; do
     rm %{buildroot}/%{_libexecdir}/$libexec
 done
 rm -r %{buildroot}/%{_libdir}/security %{buildroot}/%{_sysconfdir}/pam.d %{buildroot}/%{_sysconfdir}/motd.d %{buildroot}/%{_sysconfdir}/issue.d

@@ -27,6 +27,7 @@ class TestReauthorize(MachineCase):
         self.allow_authorize_journal_messages()
         self.allow_journal_messages('.*dropping message while waiting for child to exit.*')
         b = self.browser
+        m = self.machine
 
         # Log in without being authorized
         self.login_and_go("/playground/test", authorized=False)
@@ -40,13 +41,24 @@ class TestReauthorize(MachineCase):
         b.wait_in_text(".cockpit-internal-reauthorize span", 'result:')
         self.assertEqual(b.text(".cockpit-internal-reauthorize span"), 'result: authorized')
 
+        # Lock a file so that we can check that the lock went away
+        # after deauthorizing.
+        m.execute("touch /tmp/playground-test-lock")
+        b.click(".lock-channel .btn")
+        b.wait_in_text(".lock-channel span", 'locked')
+        m.execute("! flock -n /tmp/playground-test-lock true")
+
         # Deauthorize user
         b.leave_page()
         b.click("#navbar-dropdown")
         b.click("#credentials-item")
         b.click("button.credential-clear")
-        b.wait_not_visible("button.credential-clear")
-        b.click("#credentials-dialog [data-dismiss]")
+        if m.image in [ "rhel-8-2-distropkg", "rhel-8-1-distropkg" ]:
+            b.wait_not_visible("button.credential-clear")
+            b.click("#credentials-dialog [data-dismiss]")
+        else:
+            b.expect_load()
+            m.execute("flock -n /tmp/playground-test-lock true")
 
         b.enter_page("/playground/test")
 
@@ -72,8 +84,11 @@ class TestReauthorize(MachineCase):
         b.click("#navbar-dropdown")
         b.click("#credentials-item")
         b.click("button.credential-clear")
-        b.wait_not_visible("button.credential-clear")
-        b.click("#credentials-dialog [data-dismiss]")
+        if self.machine.image in [ "rhel-8-2-distropkg", "rhel-8-1-distropkg" ]:
+            b.wait_not_visible("button.credential-clear")
+            b.click("#credentials-dialog [data-dismiss]")
+        else:
+            b.expect_load()
 
         b.enter_page("/playground/test")
 

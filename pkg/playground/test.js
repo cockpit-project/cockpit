@@ -32,6 +32,18 @@ $(function() {
                 });
     });
 
+    $(".lock-channel .btn").on("click", function() {
+        $(".lock-channel span").text("locking...");
+        cockpit.spawn(["flock", "-o", "/tmp/playground-test-lock", "-c", "echo locked; sleep infinity"],
+                      { err: "message" })
+                .stream(function(data) {
+                    $(".lock-channel span").text(data);
+                })
+                .fail(function(ex) {
+                    $(".lock-channel span").text("failed: " + ex.toString());
+                });
+    });
+
     function update_nav() {
         $('#nav').empty();
         var path = ["top"].concat(cockpit.location.path);

@@ -1332,6 +1332,18 @@ class TestMachines(NetworkCase):
 
         runner.checkEnvIsEmpty()
 
+        self.browser.enter_page('/machines')
+        self.browser.wait_in_text("body", "Virtual Machines")
+
+        # Check that when there is no storage pool defined a VM can still be created
+        createTest(TestMachines.VmDialog(self, sourceType='file',
+                                         location=config.NOVELL_MOCKUP_ISO_PATH,
+                                         storage_pool="No Storage",
+                                         start_vm=True))
+
+        self.browser.switch_to_top()
+        self.browser.wait_not_visible("#navbar-oops")
+
         # define default storage pool for system connection
         cmds = [
             "virsh pool-define-as default --type dir --target /var/lib/libvirt/images",

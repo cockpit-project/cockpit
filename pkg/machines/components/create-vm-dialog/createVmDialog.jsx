@@ -637,7 +637,7 @@ class CreateVmModal extends React.Component {
             const stateDelta = { [key]: value };
 
             if (value && value.minimumResources.ram)
-                stateDelta.minimumMemory = value.minimumResources.ram || 0;
+                stateDelta.minimumMemory = value.minimumResources.ram;
 
             if (value && value.recommendedResources.ram) {
                 stateDelta.recommendedMemory = value.recommendedResources.ram;
@@ -651,7 +651,7 @@ class CreateVmModal extends React.Component {
             }
 
             if (value && value.minimumResources.storage)
-                stateDelta.minimumStorage = value.minimumResources.storage || 0;
+                stateDelta.minimumStorage = value.minimumResources.storage;
 
             if (value && value.recommendedResources.storage) {
                 stateDelta.recommendedStorage = value.recommendedResources.storage;

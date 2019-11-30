@@ -95,7 +95,7 @@ export function check_mismounted_fsys(client, path, enter_warning) {
     if (!block || !block_fsys)
         return;
 
-    const mounted_at = block_fsys ? block_fsys.MountPoints.map(utils.decode_filename) : [];
+    const mounted_at = block_fsys.MountPoints.map(utils.decode_filename);
     const [, dir, opts] = get_fstab_config(block);
     const split_options = parse_options(opts);
     const opt_noauto = extract_option(split_options, "noauto");

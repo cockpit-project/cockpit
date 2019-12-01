@@ -907,7 +907,9 @@ export class CreateVmAction extends React.Component {
                     networks={this.props.networks}
                     nodeDevices={this.props.nodeDevices}
                     nodeMaxMemory={this.props.nodeMaxMemory}
-                    storagePools={this.props.storagePools}
+                    // The initial resources fetching contains only ID - this will be immediately
+                    // replaced with the whole resource object but there is enough time to cause a crash if parsed here
+                    storagePools={this.props.storagePools.filter(pool => pool.name)}
                     vms={this.props.vms}
                     osInfoList={this.props.systemInfo.osInfoList}
                     onAddErrorNotification={this.props.onAddErrorNotification}

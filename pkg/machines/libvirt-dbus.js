@@ -132,6 +132,8 @@ const Enum = {
     VIR_DOMAIN_STATS_BLOCK: 32,
     VIR_DOMAIN_STATS_STATE: 1,
     VIR_DOMAIN_XML_INACTIVE: 2,
+    VIR_CONNECT_LIST_DOMAINS_PERSISTENT: 4,
+    VIR_CONNECT_LIST_DOMAINS_TRANSIENT: 8,
     VIR_CONNECT_LIST_INTERFACES_INACTIVE: 1,
     VIR_CONNECT_LIST_INTERFACES_ACTIVE: 2,
     VIR_CONNECT_LIST_NETWORKS_ACTIVE: 2,
@@ -413,7 +415,8 @@ LIBVIRT_DBUS_PROVIDER = {
         connectionName,
         id: vmPath,
         target,
-        live
+        live,
+        persistent
     }) {
         let diskXML;
         let detachFlags = Enum.VIR_DOMAIN_AFFECT_CURRENT;
@@ -429,7 +432,7 @@ LIBVIRT_DBUS_PROVIDER = {
                 })
                 .then(domInactiveXml => {
                     const diskInactiveXML = getDiskElemByTarget(domInactiveXml[0], target);
-                    if (diskInactiveXML)
+                    if (diskInactiveXML && persistent)
                         detachFlags |= Enum.VIR_DOMAIN_AFFECT_CONFIG;
 
                     return call(connectionName, vmPath, 'org.libvirt.Domain', 'DetachDevice', [diskXML, detachFlags], TIMEOUT);
@@ -1080,7 +1083,7 @@ function startEventMonitorDomains(connectionName, dispatch) {
                 break;
 
             case domainEvent.Undefined:
-                dispatch(undefineVm({ connectionName, id: objPath }));
+                domainEventUndefined(connectionName, objPath, dispatch);
                 break;
 
             case domainEvent.Started:
@@ -1104,16 +1107,7 @@ function startEventMonitorDomains(connectionName, dispatch) {
                 break;
 
             case domainEvent.Stopped:
-                dispatch(getVm({
-                    connectionName,
-                    id: objPath,
-                    updateOnly: true,
-                }))
-                        .catch(ex => {
-                            if (ex.message.includes('Domain not found'))
-                                // transient VMs don't have a separate Undefined event, so remove them on stop
-                                dispatch(undefineVm({ connectionName, id: objPath, transientOnly: true }));
-                        });
+                domainUpdateOrDelete(connectionName, objPath, dispatch);
                 break;
 
             default:
@@ -1164,6 +1158,30 @@ function startEventMonitorLibvirtd(connectionName, dispatch, libvirtServiceName)
             }
         );
     }
+}
+
+// Undefined the VM from Redux store only if it's not transient
+function domainEventUndefined(connectionName, domPath, dispatch) {
+    call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'ListDomains', [Enum.VIR_CONNECT_LIST_DOMAINS_TRANSIENT], TIMEOUT)
+            .then(objPaths => {
+                if (!objPaths[0].includes(domPath))
+                    dispatch(undefineVm({ connectionName, id: domPath }));
+                else
+                    dispatch(getVm({ connectionName, id:domPath, updateOnly: true }));
+            })
+            .fail(ex => console.warn('ListDomains action failed:', JSON.stringify(ex)));
+}
+
+function domainUpdateOrDelete(connectionName, domPath, dispatch) {
+    // Transient VMs cease to exists once they are stopped. Check if VM was transient and update or undefined it
+    call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'ListDomains', [0], TIMEOUT)
+            .then(objPaths => {
+                if (objPaths[0].includes(domPath))
+                    dispatch(getVm({ connectionName, id:domPath, updateOnly: true }));
+                else // Transient vm will get undefined when stopped
+                    dispatch(undefineVm({ connectionName, id:domPath, transientOnly: true }));
+            })
+            .fail(ex => console.warn('GET_ALL_NETWORKS action failed:', JSON.stringify(ex)));
 }
 
 function storagePoolUpdateOrDelete(connectionName, poolPath, dispatch) {
@@ -1414,7 +1432,7 @@ export function changeNetworkAutostart(network, autostart, dispatch) {
             .then(() => dispatch(getNetwork({ connectionName: network.connectionName, id: network.id, name: network.name })));
 }
 
-export function detachIface(mac, connectionName, id, live, dispatch) {
+export function detachIface(mac, connectionName, id, live, persistent, dispatch) {
     let ifaceXML;
     let detachFlags = Enum.VIR_DOMAIN_AFFECT_CURRENT;
     if (live)
@@ -1429,7 +1447,7 @@ export function detachIface(mac, connectionName, id, live, dispatch) {
             })
             .then(domInactiveXml => {
                 const ifaceInactiveXML = getIfaceElemByMac(domInactiveXml[0], mac);
-                if (ifaceInactiveXML)
+                if (ifaceInactiveXML && persistent)
                     detachFlags |= Enum.VIR_DOMAIN_AFFECT_CONFIG;
 
                 return call(connectionName, id, 'org.libvirt.Domain', 'DetachDevice', [ifaceXML, detachFlags], TIMEOUT);

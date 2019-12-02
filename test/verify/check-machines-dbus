@@ -133,8 +133,13 @@ class TestMachinesDBus(machineslib.TestMachines):
         autostartState = m.execute("virsh dominfo subVmTest1 | grep 'Autostart:' | awk '{print $2}'").strip()
         self.assertEqual(autostartState, "enable")
 
+        # non-persistent VM doesn't have autostart
+        m.execute("virsh undefine subVmTest1")
+        b.wait_not_present("#vm-subVmTest1-autostart-checkbox")
+
     def testBootOrder(self):
         b = self.browser
+        m = self.machine
 
         self.startVm("subVmTest1")
 
@@ -194,6 +199,13 @@ class TestMachinesDBus(machineslib.TestMachines):
         # Check boot order has changed and no warning is shown
         b.wait_not_in_text("#vm-subVmTest1-boot-order", bootOrder)
         b.wait_not_present("#boot-order-tooltip")
+
+        # Run VM
+        b.click("#vm-subVmTest1-run")
+        b.wait_in_text("#vm-subVmTest1-state", "running")
+        # Non-persistent VM doesn't have configurable boot order
+        m.execute("virsh undefine subVmTest1")
+        b.wait_not_present("button#vm-subVmTest1-boot-order")
 
     # Check various configuration changes made before VM installation persist after installation
     def testConfigureBeforeInstall(self):
@@ -439,8 +451,13 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_present("#vm-subVmTest1-disks-sda-edit-dialog")
         b.wait_present("#vm-subVmTest1-disks-sda-edit-bus-type:disabled")
 
+        # Disks on non-persistent VM cannot be edited
+        m.execute("virsh undefine subVmTest1")
+        b.wait_not_present("#vm-subVmTest1-disks-vde-edit")
+
     def testDomainMemorySettings(self):
         b = self.browser
+        m = self.machine
 
         args = self.startVm("subVmTest1")
 
@@ -503,6 +520,13 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.select_from_dropdown("#vm-subVmTest1-memory-modal-memory-unit-select", "GiB")
         b.wait_attr("#vm-subVmTest1-memory-modal-memory", "value", "0")
 
+        # Run VM
+        b.click("#vm-subVmTest1-run")
+        b.wait_in_text("#vm-subVmTest1-state", "running")
+        # Non-persistent VM doesn't have configurable memory
+        m.execute("virsh undefine subVmTest1")
+        b.wait_not_present("button#vm-subVmTest1-memory-count")
+
     def testDetachDisk(self):
         b = self.browser
         m = self.machine
@@ -537,7 +561,8 @@ class TestMachinesDBus(machineslib.TestMachines):
 
         b.click("#vm-subVmTest1-disks") # open the "Disks" subtab
         b.wait_present("#vm-subVmTest1-disks-vdd-device")
-        b.click("#delete-subVmTest1-disk-vdd")
+        with b.wait_timeout(2):
+            b.click("#delete-subVmTest1-disk-vdd")
         b.wait_present(".modal-dialog")
         b.click(".modal-footer button:contains(Remove)")
         b.wait_not_present("#vm-subVmTest1-disks-vdd-device")
@@ -560,6 +585,8 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_not_present(".modal-dialog")
 
         # Test detaching disk of a paused domain
+        if args["logfile"] is not None:
+            m.execute("> {0}".format(args["logfile"])) # clear logfile
         m.execute("virsh start subVmTest1")
         # Make sure that the VM booted normally before attempting to suspend it
         if args["logfile"] is not None:
@@ -567,6 +594,20 @@ class TestMachinesDBus(machineslib.TestMachines):
         m.execute("virsh suspend subVmTest1")
         b.wait_in_text("#vm-subVmTest1-state", "paused")
         b.wait_attr("#delete-subVmTest1-disk-vdf", "disabled", "")
+        m.execute("virsh resume subVmTest1")
+
+        # Test detaching of disk on non-persistent VM
+        m.execute("virsh undefine subVmTest1")
+        m.execute("virsh attach-disk --domain subVmTest1 --source /mnt/vm_one/mydiskofpoolone_1 --target vdd --targetbus virtio")
+        b.wait_present("#vm-subVmTest1-disks-vdd-device")
+        b.click("#delete-subVmTest1-disk-vdd")
+        b.wait_present(".modal-dialog")
+        b.click(".modal-footer button:contains(Remove)")
+        i = 0
+        while b.is_present(".modal-dialog") and i < 3:
+            i += 1
+            b.click(".modal-footer button:contains(Remove)")
+        b.wait_not_present("#vm-subVmTest1-disks-vdd-device")
 
     def testMultipleSettings(self):
         b = self.browser
@@ -787,6 +828,10 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.select_from_dropdown("#vm-subVmTest1-network-1-select-source", "test_network")
         b.click("#vm-subVmTest1-network-1-edit-dialog-save")
         b.wait_in_text("#vm-subVmTest1-network-1-source", "test_network")
+
+        # Test detaching of disk on non-persistent VM
+        m.execute("virsh undefine subVmTest1")
+        b.wait_not_present("#vm-subVmTest1-network-1-edit-dialog")
 
     def testNetworkAutostart(self):
         b = self.browser
@@ -1939,7 +1984,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         b = self.browser
         m = self.machine
 
-        self.startVm("subVmTest1")
+        args = self.startVm("subVmTest1")
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
@@ -1955,8 +2000,8 @@ class TestMachinesDBus(machineslib.TestMachines):
         class NICAddDialog(object):
             def __init__(
                 # We have always have to specify mac and source_type to identify the device in xml and $virsh detach-interface
-                self, test_obj, source_type="Direct attachment", source=None, model=None,
-                permanent=False, mac="52:54:00:a5:f8:c0", remove=True,
+                self, test_obj, source_type="Direct attachment", source=None, model=None, nic_num=2,
+                permanent=False, mac="52:54:00:a5:f8:c0", remove=True, persistent_vm=True
             ):
                 self.test_obj = test_obj
                 self.source_type = source_type
@@ -1965,6 +2010,8 @@ class TestMachinesDBus(machineslib.TestMachines):
                 self.permanent = permanent
                 self.mac = mac
                 self.remove = remove
+                self.persistent_vm = persistent_vm
+                self.nic_num = nic_num
 
             def execute(self):
                 self.open()
@@ -1992,6 +2039,9 @@ class TestMachinesDBus(machineslib.TestMachines):
 
                 if self.permanent:
                     b.click("#vm-subVmTest1-add-iface-permanent")
+
+                if not self.persistent_vm:
+                    b.wait_not_present("#vm-subVmTest1-add-iface-permanent")
 
             def cancel(self):
                 b.click(".modal-footer button:contains(Cancel)")
@@ -2023,15 +2073,15 @@ class TestMachinesDBus(machineslib.TestMachines):
             def verify_overview(self):
                 # The first NIC is default, our new NIC is second in row
                 if (self.source_type == "Virtual network"):
-                    b.wait_in_text("#vm-subVmTest1-network-2-type", "network")
+                    b.wait_in_text("#vm-subVmTest1-network-{0}-type".format(self.nic_num), "network")
                 elif (self.source_type == "Direct attachment"):
-                    b.wait_in_text("#vm-subVmTest1-network-2-type", "direct")
+                    b.wait_in_text("#vm-subVmTest1-network-{0}-type".format(self.nic_num), "direct")
                 if self.model:
-                    b.wait_in_text("#vm-subVmTest1-network-2-model", self.model)
+                    b.wait_in_text("#vm-subVmTest1-network-{0}-model".format(self.nic_num), self.model)
                 if self.source:
-                    b.wait_in_text("#vm-subVmTest1-network-2-source", self.source)
+                    b.wait_in_text("#vm-subVmTest1-network-{0}-source".format(self.nic_num), self.source)
                 if self.mac:
-                    b.wait_in_text("#vm-subVmTest1-network-2-mac", self.mac)
+                    b.wait_in_text("#vm-subVmTest1-network-{0}-mac".format(self.nic_num), self.mac)
 
             def cleanup(self):
                 if self.permanent:
@@ -2049,13 +2099,13 @@ class TestMachinesDBus(machineslib.TestMachines):
                     b.click("tbody tr[data-row-id=vm-subVmTest1] th")
                     b.click("#vm-subVmTest1-networks") # open the Network Interfaces subtab
                 else:
-                    b.click("#delete-vm-subVmTest1-iface-2")
+                    b.click("#delete-vm-subVmTest1-iface-{0}".format(self.nic_num))
                     # Confirm in confirmation windown
                     b.wait_in_text(".modal-dialog .modal-header .modal-title", "Delete Network Interface")
                     b.click(".modal-footer button:contains(Delete)")
 
                     # Check NIC is no longer in list
-                    b.wait_not_present("#vm-subVmTest1-network-2-mac")
+                    b.wait_not_present("#vm-subVmTest1-network-{0}-mac".format(self.nic_num))
                     b.wait_not_present(".modal-dialog")
 
         # No NICs present
@@ -2088,18 +2138,28 @@ class TestMachinesDBus(machineslib.TestMachines):
             model="e1000e",
         ).execute()
 
-        # Test permanent attachment to running VM
+        # Start vm and wait until kernel is booted
+        m.execute("> {0}".format(args["logfile"])) # clear logfile
         b.click("#vm-subVmTest1-run")
         b.wait_in_text("#vm-subVmTest1-state", "running")
+        wait(lambda: "Linux version" in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
 
+        # Test permanent attachment to running VM
         NICAddDialog(
             self,
             permanent=True,
         ).execute()
 
-        b.click("#vm-subVmTest1-off-caret")
-        b.click("#vm-subVmTest1-forceOff")
-        b.wait_in_text("#vm-subVmTest1-state", "shut off")
+        # Test NIC attaching to non-persistent VM
+        m.execute("virsh undefine subVmTest1")
+        NICAddDialog(
+            self,
+            source_type="Virtual network",
+            source="test_network",
+            mac="52:54:00:a5:f8:c1",
+            nic_num=3,
+            persistent_vm=False,
+        ).execute()
 
         NICAddDialog(
             self,

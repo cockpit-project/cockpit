@@ -132,6 +132,10 @@ DOMAIN_XML = """
       <source network='default' bridge='virbr0'/>
       <target dev='vnet0'/>
     </interface>
+    <channel type='unix'>
+      <target type='virtio' name='org.qemu.guest_agent.0'/>
+      <address type='virtio-serial' controller='0' bus='0' port='1'/>
+    </channel>
     {console}
     {graphics}
   </devices>
@@ -606,6 +610,7 @@ class TestMachines(NetworkCase):
                 expected_target='vda', permanent=False, cache_mode=None,
                 bus_type='virtio', verify=True, pool_type=None,
                 volume_format=None,
+                persistent_vm=True,
             ):
                 print(pool_name, volume_name)
                 self.test_obj = test_obj
@@ -622,6 +627,7 @@ class TestMachines(NetworkCase):
                 self.verify = verify
                 self.pool_type = pool_type
                 self.volume_format = volume_format
+                self.persistent_vm = persistent_vm
 
             def execute(self):
                 self.open()
@@ -671,6 +677,10 @@ class TestMachines(NetworkCase):
                     # Configure persistency - by default the check box in unchecked for running VMs
                     if self.permanent:
                         b.click("#vm-{0}-disks-adddisk-permanent".format(self.vm_name))
+
+                # Check non-persistent VM cannot have permanent disk attached
+                if not self.persistent_vm:
+                    b.wait_not_present("#vm-{0}-disks-adddisk-new-permanent".format(self.vm_name))
 
                 # Configure performance options
                 if self.test_obj.provider == "libvirt-dbus" and self.cache_mode:
@@ -919,6 +929,23 @@ class TestMachines(NetworkCase):
                 expected_target='sda',
             ).execute()
 
+            # Apparmor on debian and ubuntu may prevent access to /dev/sdb1 when starting VM,
+            # https://bugs.launchpad.net/ubuntu/+source/libvirt/+bug/1677398
+            if not "debian" in m.image and not "ubuntu" in m.image:
+                # Run VM
+                b.click("#vm-subVmTest1-run")
+                b.wait_in_text("#vm-subVmTest1-state", "running")
+                # Test disk attachment to non-persistent VM
+                m.execute("virsh undefine subVmTest1")
+                VMAddDiskDialog(
+                    self,
+                    pool_name='myPoolOne',
+                    volume_name='non-peristent-vm-disk',
+                    permanent=False,
+                    persistent_vm=False,
+                    expected_target='vdc',
+                ).execute()
+
             # Undefine all Storage Pools and  confirm that the Add Disk dialog is disabled
             active_pools = filter(lambda pool: pool != '', m.execute("virsh pool-list --name").split('\n'))
             print(active_pools)
@@ -952,6 +979,9 @@ class TestMachines(NetworkCase):
         ]
         self.machine.execute(" && ".join(cmds))
         partition = str(self.machine.execute("readlink -f /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 | cut -d '/' -f 3").strip()) + "1"
+        next_target='vdf'
+        if not self.provider == "libvirt-dbus" or "debian" in m.image or "ubuntu" in m.image:
+            next_target='vdc'
         VMAddDiskDialog(
             self,
             pool_name='pool-disk',
@@ -959,7 +989,7 @@ class TestMachines(NetworkCase):
             volume_name=partition,
             volume_size=10,
             volume_size_unit='MiB',
-            expected_target='vdc',
+            expected_target=next_target,
         ).execute()
 
     def testVmNICs(self):
@@ -1123,6 +1153,11 @@ class TestMachines(NetworkCase):
         m.execute(
             "virsh dumpxml subVmTest1 | xmllint --xpath '/domain/cpu/topology[@sockets=\"2\"][@threads=\"1\"][@cores=\"2\"]' -")
 
+        if self.provider == "libvirt-dbus":
+            # non-persistent VM doesn't have configurable vcpu
+            m.execute("virsh undefine subVmTest1")
+            b.wait_not_present("button#vm-subVmTest1-vcpus-count")
+
     # HACK: broken with Chromium > 63, see https://github.com/cockpit-project/cockpit/pull/9229
     @unittest.skip("Broken with current chromium, see PR #9229")
     def testExternalConsole(self):
@@ -1257,11 +1292,13 @@ class TestMachines(NetworkCase):
         # Try to delete a transient VM
         name = "transient-VM"
         args = self.startVm(name)
+        m.execute("virsh undefine {0}".format(name))
         b.reload()
         self.browser.enter_page('/machines')
         b.click("tbody tr[data-row-id=vm-{0}] th".format(name)) # click on the row header
-        b.click("#vm-{0}-delete".format(name))
-        b.click("#vm-{0}-delete-modal-dialog button:contains(Delete)".format(name))
+        b.wait_present("#vm-{0}-delete:disabled".format(name))
+        b.click("#vm-{0}-off-caret".format(name))
+        b.click("#vm-{0}-forceOff".format(name))
         b.wait_not_present("tbody tr[data-row-id=vm-{0}] th".format(name))
         b.wait_not_present(".toast-notifications.list-pf div.pf-c-alert")
 

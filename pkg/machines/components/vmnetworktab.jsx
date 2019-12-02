@@ -210,7 +210,7 @@ class VmNetworkTab extends React.Component {
                 name: "", value: (network, networkId) => {
                     const isUp = network.state === 'up';
                     const editNICAction = (providerName) => {
-                        if (providerName === "LibvirtDBus" && this.state.networkDevices !== undefined)
+                        if (providerName === "LibvirtDBus" && vm.persistent && this.state.networkDevices !== undefined)
                             return <EditNICAction dispatch={dispatch}
                                        idPrefix={`${id}-network-${networkId}`}
                                        vm={vm}
@@ -227,7 +227,7 @@ class VmNetworkTab extends React.Component {
                                        objectId={`${id}-iface-${networkId}`}
                                        disabled={vm.state != 'shut off' && vm.state != 'running'}
                                        overlayText={_("The VM needs to be running or shut off to detach this device")}
-                                       deleteHandler={() => detachIface(network.mac, vm.connectionName, vm.id, vm.state === "running", dispatch)} />;
+                                       deleteHandler={() => detachIface(network.mac, vm.connectionName, vm.id, vm.state === "running", vm.persistent, dispatch)} />;
                     };
 
                     return (

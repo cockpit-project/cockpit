@@ -18,6 +18,7 @@
  */
 
 import cockpit from "cockpit";
+import { sudo_dialog } from "./sudo.jsx";
 
 function Privileges() {
     var self = this;
@@ -26,6 +27,11 @@ function Privileges() {
     function clicked(ev) {
         cockpit.drop_privileges(false);
         window.location.reload(true);
+        ev.preventDefault();
+    }
+
+    function gain_clicked(ev) {
+        sudo_dialog();
         ev.preventDefault();
     }
 
@@ -47,6 +53,10 @@ function Privileges() {
         var clear = document.querySelectorAll(".credential-clear");
         for (i = 0; i < clear.length; i++)
             clear[i].onclick = clicked;
+
+        var gain = document.querySelectorAll(".credential-gain");
+        for (i = 0; i < gain.length; i++)
+            gain[i].onclick = gain_clicked;
     }
 
     self.update = function update(hint) {

@@ -331,8 +331,6 @@ setup (TestCase *tc, gconstpointer data)
   tc->runtime_dir = g_dir_make_tmp ("server.runtime.XXXXXX", NULL);
   g_assert (tc->runtime_dir);
 
-  g_assert (g_setenv ("RUNTIME_DIRECTORY", tc->runtime_dir, TRUE));
-
   const char *fingerprint;
   if (fixture && fixture->client_fingerprint)
     fingerprint = fixture->client_fingerprint;
@@ -356,7 +354,7 @@ setup (TestCase *tc, gconstpointer data)
     }
   close (socket_dir_fd);
 
-  server_init (tc->ws_socket_dir, fixture ? fixture->idle_timeout : 0, server_port);
+  server_init (tc->ws_socket_dir, tc->runtime_dir, fixture ? fixture->idle_timeout : 0, server_port);
   if (fixture && fixture->certfile)
     connection_crypto_init (fixture->certfile, fixture->keyfile, fixture->cert_request_mode);
 

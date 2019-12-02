@@ -31,6 +31,7 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/epoll.h>
 #include <sys/param.h>
 #include <sys/poll.h>
@@ -38,7 +39,6 @@
 #include <sys/timerfd.h>
 #include <sys/types.h>
 #include <sys/uio.h>
-#include <sys/un.h>
 #include <unistd.h>
 
 #include <gnutls/gnutls.h>
@@ -54,9 +54,10 @@
 static struct {
   gnutls_certificate_request_t request_mode;
   gnutls_certificate_credentials_t x509_cred;
-  const char *wsinstance_sockdir;
+  int wsinstance_sockdir;
   int cert_session_dir;
 } parameters = {
+  .wsinstance_sockdir = -1,
   .cert_session_dir = -1
 };
 
@@ -357,7 +358,6 @@ buffer_read_from_tls (Buffer           *self,
 static bool
 request_dynamic_wsinstance (const Fingerprint *fingerprint)
 {
-  struct sockaddr_un addr;
   bool status = false;
   char reply[20];
   int fd;
@@ -371,12 +371,10 @@ request_dynamic_wsinstance (const Fingerprint *fingerprint)
       goto out;
     }
 
-  sockaddr_printf (&addr, "%s/https-factory.sock", parameters.wsinstance_sockdir);
-
-  debug (CONNECTION, "  -> connecting to %s...", addr.sun_path);
-  if (connect (fd, (struct sockaddr *) &addr, sizeof addr) != 0)
+  debug (CONNECTION, "  -> connecting to https-factory.sock");
+  if (af_unix_connectat (fd, parameters.wsinstance_sockdir, "https-factory.sock") != 0)
     {
-      warn ("connect(%s) failed", addr.sun_path);
+      warn ("connect(https-factory.sock) failed");
       goto out;
     }
 
@@ -407,7 +405,8 @@ static bool
 connection_connect_to_dynamic_wsinstance (Connection *self)
 {
   const gnutls_datum_t *peer_certificate;
-  struct sockaddr_un addr;
+  char sockname[80];
+  int r;
 
   assert (self->tls != NULL);
 
@@ -427,15 +426,17 @@ connection_connect_to_dynamic_wsinstance (Connection *self)
       self->certfile_fd = -1;
     }
 
-  sockaddr_printf (&addr, "%s/https@%s.sock", parameters.wsinstance_sockdir, self->fingerprint.str);
-  debug (CONNECTION, "Connecting dynamic https wsinstance %s:", addr.sun_path);
+  r = snprintf (sockname, sizeof sockname, "https@%s.sock", self->fingerprint.str);
+  assert (0 < r && r < sizeof sockname);
+
+  debug (CONNECTION, "Connecting to dynamic https instance %s...", sockname);
 
   /* fast path: the socket already exists, so we can just connect to it */
-  if (connect (self->ws_fd, (struct sockaddr *) &addr, sizeof addr) == 0)
+  if (af_unix_connectat (self->ws_fd, parameters.wsinstance_sockdir, sockname) == 0)
     return true;
 
   if (errno != ENOENT && errno != ECONNREFUSED)
-    warn ("connect(%s) failed on the first attempt", addr.sun_path);
+    warn ("connect(%s) failed on the first attempt", sockname);
 
   debug (CONNECTION, "  -> failed (%m).  Requesting activation.");
   /* otherwise, ask for the instance to be started */
@@ -444,9 +445,9 @@ connection_connect_to_dynamic_wsinstance (Connection *self)
 
   /* ... and try one more time. */
   debug (CONNECTION, "  -> trying again");
-  if (connect (self->ws_fd, (struct sockaddr *) &addr, sizeof addr) != 0)
+  if (af_unix_connectat (self->ws_fd, parameters.wsinstance_sockdir, sockname) != 0)
     {
-      warn ("connect(%s) failed on the second attempt", addr.sun_path);
+      warn ("connect(%s) failed on the second attempt", sockname);
       return false;
     }
 
@@ -458,7 +459,6 @@ connection_connect_to_dynamic_wsinstance (Connection *self)
 static bool
 connection_connect_to_static_wsinstance (Connection *self)
 {
-  struct sockaddr_un addr;
   const char *base;
 
   assert (self->tls == NULL);
@@ -468,12 +468,9 @@ connection_connect_to_static_wsinstance (Connection *self)
   else
     base = "http.sock"; /* server is expecting http connections */
 
-  sockaddr_printf (&addr, "%s/%s", parameters.wsinstance_sockdir, base);
-  debug (CONNECTION, "Connecting dynamic https wsinstance %s:", addr.sun_path);
-
-  if (connect (self->ws_fd, (struct sockaddr *) &addr, sizeof addr) != 0)
+  if (af_unix_connectat (self->ws_fd, parameters.wsinstance_sockdir, base) != 0)
     {
-      warn ("connect(%s) failed", addr.sun_path);
+      warn ("connect(%s) failed", base);
       return false;
     }
 
@@ -811,32 +808,29 @@ connection_crypto_init (const char *certfile,
 }
 
 void
-connection_set_wsinstance_sockdir (const char *wsinstance_sockdir)
+connection_set_directories (const char *wsinstance_sockdir,
+                            const char *cert_session_dir)
 {
-  const char *runtimedir;
-
-  assert (parameters.wsinstance_sockdir == NULL);
+  assert (parameters.wsinstance_sockdir == -1);
   assert (parameters.cert_session_dir == -1);
 
   assert (wsinstance_sockdir != NULL);
+  assert (cert_session_dir != NULL);
 
-  parameters.wsinstance_sockdir = wsinstance_sockdir;
+  parameters.wsinstance_sockdir = open (wsinstance_sockdir, O_DIRECTORY | O_PATH);
+  if (parameters.wsinstance_sockdir == -1)
+    err (EXIT_FAILURE, "Unable to open wsinstance sockdir %s", wsinstance_sockdir);
 
-  runtimedir = secure_getenv ("RUNTIME_DIRECTORY");
-  if (!runtimedir)
-    errx (EXIT_FAILURE, "$RUNTIME_DIRECTORY environment variable must be set to a private directory");
-  parameters.cert_session_dir = open (runtimedir, O_DIRECTORY | O_PATH);
+  parameters.cert_session_dir = open (cert_session_dir, O_DIRECTORY | O_PATH);
   if (parameters.cert_session_dir == -1)
-    err (EXIT_FAILURE, "Unable to open $RUNTIME_DIRECTORY %s", runtimedir);
+    err (EXIT_FAILURE, "Unable to open certificate directory %s", cert_session_dir);
 }
 
 void
 connection_cleanup (void)
 {
-  assert (parameters.wsinstance_sockdir != NULL);
+  assert (parameters.wsinstance_sockdir != -1);
   assert (parameters.cert_session_dir != -1);
-
-  parameters.wsinstance_sockdir = NULL;
 
   if (parameters.x509_cred)
     {
@@ -846,4 +840,7 @@ connection_cleanup (void)
 
   close (parameters.cert_session_dir);
   parameters.cert_session_dir = -1;
+
+  close (parameters.wsinstance_sockdir);
+  parameters.wsinstance_sockdir = -1;
 }

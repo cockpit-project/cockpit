@@ -26,7 +26,8 @@
 
 /* init/teardown */
 void
-connection_set_wsinstance_sockdir (const char *wsinstance_sockdir);
+connection_set_directories (const char *wsinstance_sockdir,
+                            const char *cert_session_dir);
 
 void
 connection_crypto_init (const char *certfile,

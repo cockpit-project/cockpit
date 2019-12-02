@@ -94,6 +94,7 @@ main (int argc, char **argv)
 {
   struct arguments arguments;
   gnutls_certificate_request_t client_cert_mode = GNUTLS_CERT_IGNORE;
+  const char *runtimedir;
 
   /* default option values */
   arguments.no_tls = false;
@@ -102,7 +103,11 @@ main (int argc, char **argv)
 
   argp_parse (&argp, argc, argv, 0, 0, &arguments);
 
-  server_init ("/run/cockpit/wsinstance", arguments.idle_timeout, arguments.port);
+  runtimedir = secure_getenv ("RUNTIME_DIRECTORY");
+  if (!runtimedir)
+    errx (EXIT_FAILURE, "$RUNTIME_DIRECTORY environment variable must be set to a private directory");
+
+  server_init ("/run/cockpit/wsinstance", runtimedir, arguments.idle_timeout, arguments.port);
 
   if (!arguments.no_tls)
     {

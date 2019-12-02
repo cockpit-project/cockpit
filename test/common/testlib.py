@@ -45,7 +45,6 @@ import cdp
 
 TEST_DIR = os.path.normpath(os.path.dirname(os.path.realpath(os.path.join(__file__, ".."))))
 BOTS_DIR = os.path.normpath(os.path.join(TEST_DIR, "..", "bots"))
-_PY3 = sys.version_info[0] >= 3
 
 os.environ["PATH"] = "{0}:{1}:{2}".format(os.environ.get("PATH"), BOTS_DIR, TEST_DIR)
 
@@ -697,7 +696,7 @@ class MachineCase(unittest.TestCase):
         return browser
 
     def checkSuccess(self):
-        if _PY3 and self._outcome:
+        if self._outcome:
             # errors is a list of (method, exception) calls (usually multiple
             # per method); None exception means success
             return not any(e[1] for e in self._outcome.errors)
@@ -719,16 +718,6 @@ class MachineCase(unittest.TestCase):
         return True
 
     def run(self, result=None):
-        if not _PY3:
-            orig_result = result
-
-            # We need a result to intercept, so create one here
-            if result is None:
-                result = self.defaultTestResult()
-                startTestRun = getattr(result, 'startTestRun', None)
-                if startTestRun is not None:
-                    startTestRun()
-
         self.currentResult = result
 
         # Here's the loop to actually retry running the test. It's an awkward
@@ -749,13 +738,6 @@ class MachineCase(unittest.TestCase):
                 break
 
         self.currentResult = None
-
-        if not _PY3:
-            # Standard book keeping that we have to do
-            if orig_result is None:
-                stopTestRun = getattr(result, 'stopTestRun', None)
-                if stopTestRun is not None:
-                    stopTestRun()
 
     def setUp(self):
         if opts.address and self.provision is not None:
@@ -785,7 +767,7 @@ class MachineCase(unittest.TestCase):
 
         def sitter():
             if opts.sit and not self.checkSuccess():
-                if _PY3 and self._outcome:
+                if self._outcome:
                     [traceback.print_exception(*e[1]) for e in self._outcome.errors if e[1]]
                 else:
                     self.currentResult.printErrors()
@@ -1347,12 +1329,10 @@ class TapRunner(object):
         tries = getattr(test, "retryCount", 0)
         tries += 1
         setattr(test, "retryCount", tries)
-        # "output" is bytes, grab corresponding stream
-        out = _PY3 and sys.stdout.buffer or sys.stdout
 
         # Didn't fail or retried too much, just print output and continue
         if tries >= 3 or not failed:
-            out.write(output)
+            sys.stdout.buffer.write(output)
             return failed, False
 
         # Otherwise pass through this command if it exists
@@ -1371,7 +1351,7 @@ class TapRunner(object):
             output += b"\n# RETRY \n"
 
         # Write the output bytes
-        out.write(output)
+        sys.stdout.buffer.write(output)
 
         if b"# SKIP " in output or b"# RETRY" in output:
             failed = 0
@@ -1426,9 +1406,8 @@ def test_main(options=None, suite=None, attachments=None, **kwargs):
 
     # Turn off python stdout buffering
     buf_arg = 0
-    if _PY3:
-        os.environ['PYTHONUNBUFFERED'] = '1'
-        buf_arg = 1
+    os.environ['PYTHONUNBUFFERED'] = '1'
+    buf_arg = 1
     sys.stdout.flush()
     sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', buf_arg)
 

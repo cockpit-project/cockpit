@@ -124,9 +124,13 @@ spawn_cockpit_ws (const char *ws_path, int fd,
       duped_fd = dup (fd);
       if (duped_fd < 0)
         err (EXIT_FAILURE, "dup() failed");
-      if (dup2 (duped_fd, SD_LISTEN_FDS_START) < 0)
-        err (EXIT_FAILURE, "dup2() failed");
-      assert (close (duped_fd) == 0);
+
+      if (duped_fd != SD_LISTEN_FDS_START)
+        {
+          if (dup2 (duped_fd, SD_LISTEN_FDS_START) < 0)
+            err (EXIT_FAILURE, "dup2() failed");
+          assert (close (duped_fd) == 0);
+        }
 
       setenv ("LISTEN_FDS", "1", 1);
       res = snprintf (pid_str, sizeof (pid_str), "%i", getpid ());

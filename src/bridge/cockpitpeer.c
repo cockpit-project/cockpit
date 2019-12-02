@@ -481,6 +481,7 @@ on_transport_control (CockpitTransport *transport,
   else if (self->inited)
     {
       if (g_str_equal (command, "logout") ||
+          g_str_equal (command, "login") ||
           g_str_equal (command, "kill"))
         {
           forward = TRUE;
@@ -921,4 +922,14 @@ cockpit_peer_reset (CockpitPeer *self)
   self->problem = NULL;
   self->closed = FALSE;
   self->inited = FALSE;
+}
+
+void
+cockpit_peer_reset_if_idle (CockpitPeer *self)
+{
+  g_info("RESET IF IDLE %s", self->name);
+  if (!self->other || !self->inited) {
+    g_info("YES");
+    cockpit_peer_reset (self);
+  }
 }

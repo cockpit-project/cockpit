@@ -941,6 +941,14 @@ process_logout (CockpitWebService *self,
   return TRUE;
 }
 
+static void
+process_login (CockpitWebService *self)
+{
+  cockpit_creds_heal (self->creds);
+  if (cockpit_creds_get_password (self->creds))
+    send_socket_hints (self, "credential", "password");
+}
+
 static const gchar *
 process_socket_init (CockpitWebService *self,
                      CockpitSocket *socket,
@@ -1037,6 +1045,13 @@ dispatch_inbound_command (CockpitWebService *self,
           if (!self->sent_done)
             cockpit_transport_send (self->transport, NULL, payload);
         }
+    }
+  else if (g_strcmp0 (command, "login") == 0)
+    {
+      process_login (self);
+      /* login is broadcast to everyone */
+      if (!self->sent_done)
+        cockpit_transport_send (self->transport, NULL, payload);
     }
   else if (g_strcmp0 (command, "close") == 0)
     {

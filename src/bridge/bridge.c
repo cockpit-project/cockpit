@@ -458,6 +458,22 @@ call_update_router (gconstpointer user_data)
   update_router (data->router, data->privileged_slave);
 }
 
+static gboolean
+on_login_reset_failed (CockpitTransport *transport,
+                       const gchar *command,
+                       const gchar *channel,
+                       JsonObject *options,
+                       GBytes *payload,
+                       gpointer user_data)
+{
+  CockpitRouter *router = user_data;
+
+  if (g_str_equal (command, "login"))
+    cockpit_router_reset_failed (router);
+
+  return FALSE;
+}
+
 static int
 run_bridge (const gchar *interactive,
             gboolean privileged_slave)
@@ -571,6 +587,8 @@ run_bridge (const gchar *interactive,
     }
 
   router = setup_router (transport, privileged_slave);
+
+  g_signal_connect (transport, "control", G_CALLBACK (on_login_reset_failed), router);
 
   cockpit_dbus_user_startup (pwd);
   cockpit_dbus_setup_startup ();

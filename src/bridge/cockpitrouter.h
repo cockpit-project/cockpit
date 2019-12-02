@@ -57,6 +57,8 @@ void                cockpit_router_set_bridges                      (CockpitRout
 
 void                cockpit_router_dump_rules                      (CockpitRouter *self);
 
+void                cockpit_router_reset_failed                    (CockpitRouter *self);
+
 G_END_DECLS
 
 #endif /* __COCKPIT_ROUTER_H__ */

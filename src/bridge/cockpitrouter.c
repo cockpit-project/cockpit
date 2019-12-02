@@ -176,6 +176,7 @@ typedef struct {
   JsonObject *config;
   RouterMatch *matches;
   gboolean (* callback) (CockpitRouter *, const gchar *, JsonObject *, GBytes *, gpointer);
+  void (* reset_failed) (CockpitRouter *, gpointer);
   gpointer user_data;
   GDestroyNotify destroy;
 } RouterRule;
@@ -255,6 +256,15 @@ router_rule_invoke (RouterRule *rule,
 {
   g_assert (rule->callback != NULL);
   return (rule->callback) (self, channel, options, data, rule->user_data);
+}
+
+static void
+router_rule_reset_failed (RouterRule *rule,
+                          CockpitRouter *self)
+
+{
+  if (rule->reset_failed)
+    rule->reset_failed (self, rule->user_data);
 }
 
 static RouterRule *
@@ -547,6 +557,14 @@ process_open_peer (CockpitRouter *self,
 {
   CockpitPeer *peer = user_data;
   return cockpit_peer_handle (peer, channel, options, data);
+}
+
+static void
+process_reset_peer_if_idle (CockpitRouter *self,
+                            gpointer user_data)
+{
+  CockpitPeer *peer = user_data;
+  cockpit_peer_reset_if_idle (peer);
 }
 
 static GBytes *
@@ -1133,6 +1151,7 @@ cockpit_router_add_bridge (CockpitRouter *self,
   if (!output->next)
     {
       rule->callback = process_open_peer;
+      rule->reset_failed = process_reset_peer_if_idle;
       rule->user_data = cockpit_peer_new (self->transport, config);
       rule->destroy = g_object_unref;
     }
@@ -1212,4 +1231,12 @@ cockpit_router_dump_rules (CockpitRouter *self)
   GList *l;
   for (l = self->rules; l != NULL; l = g_list_next (l))
     router_rule_dump (l->data);
+}
+
+void
+cockpit_router_reset_failed (CockpitRouter *self)
+{
+  GList *l;
+  for (l = self->rules; l != NULL; l = g_list_next (l))
+    router_rule_reset_failed (l->data, self);
 }

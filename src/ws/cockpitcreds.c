@@ -142,6 +142,13 @@ cockpit_creds_poison (CockpitCreds *creds)
   cockpit_creds_set_password (creds, NULL);
 }
 
+void
+cockpit_creds_heal (CockpitCreds *creds)
+{
+  g_return_if_fail (creds != NULL);
+  g_atomic_int_set (&creds->poisoned, 0);
+}
+
 const gchar *
 cockpit_creds_get_user (CockpitCreds *creds)
 {

@@ -53,6 +53,8 @@ gboolean            cockpit_peer_handle                          (CockpitPeer *p
                                                                   GBytes *data);
 
 void                cockpit_peer_reset                           (CockpitPeer *peer);
+void                cockpit_peer_reset_if_idle                   (CockpitPeer *peer);
+
 
 G_END_DECLS
 

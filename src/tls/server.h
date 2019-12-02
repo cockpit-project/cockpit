@@ -26,6 +26,7 @@
 
 void
 server_init (const char *wsinstance_sockdir,
+             const char *cert_session_dir,
              int idle_timeout,
              uint16_t port);
 

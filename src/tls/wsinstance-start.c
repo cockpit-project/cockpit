@@ -22,10 +22,12 @@
 #endif
 
 #include <err.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
+#include <unistd.h>
 
 #include "socket-io.h"
 
@@ -34,7 +36,7 @@ main (int argc,
       char **argv)
 {
   const char *wsinstance_sockdir = "/run/cockpit/wsinstance";
-  struct sockaddr_un addr;
+  int dirfd;
   char result[20];
   int fd;
 
@@ -44,13 +46,15 @@ main (int argc,
   if (argc == 3)
     wsinstance_sockdir = argv[2];
 
+  dirfd = open (wsinstance_sockdir, O_PATH | O_DIRECTORY | O_CLOEXEC);
+  if (dirfd == -1)
+    err (EXIT_FAILURE, "Couldn't open wsinstance_sockdir %s", wsinstance_sockdir);
+
   fd = socket (AF_UNIX, SOCK_STREAM, 0);
   if (fd == -1)
     err (EXIT_FAILURE, "Couldn't create AF_UNIX socket");
 
-  sockaddr_printf (&addr, "%s/https-factory.sock", wsinstance_sockdir);
-
-  if (connect (fd, (struct sockaddr *) &addr, sizeof addr) != 0)
+  if (af_unix_connectat (fd, dirfd, "https-factory.sock"))
     err (EXIT_FAILURE, "Couldn't connect to factory socket");
 
   if (!send_all (fd, argv[1], strlen (argv[1]), 50 * 1000000))
@@ -60,6 +64,9 @@ main (int argc,
     errx (EXIT_FAILURE, "Failed to receive result");
 
   printf ("%s\n", result);
+
+  close (dirfd);
+  close (fd);
 
   return 0;
 }

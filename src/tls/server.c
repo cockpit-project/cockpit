@@ -33,12 +33,12 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/epoll.h>
 #include <sys/param.h>
 #include <sys/socket.h>
 #include <sys/timerfd.h>
 #include <sys/types.h>
-#include <sys/un.h>
 #include <unistd.h>
 
 #include "connection.h"
@@ -187,7 +187,8 @@ handle_accept (int listen_fd)
  * There is only one instance of this. Trying to initialize it more than once
  * is an error.
  *
- * @ws_path: Path to cockpit-wsinstance sockets directory
+ * @wsinstance_sockdir: Path to cockpit-wsinstance sockets directory
+ * @cert_session_dir: Path to store session certificates
  * @idle_timeout: When positive, stop server after given number of seconds with
  *                no connections
  * @port: Port to listen to; ignored when the listening socket is handed over
@@ -195,6 +196,7 @@ handle_accept (int listen_fd)
  */
 void
 server_init (const char *wsinstance_sockdir,
+             const char *cert_session_dir,
              int idle_timeout,
              uint16_t port)
 {
@@ -205,7 +207,7 @@ server_init (const char *wsinstance_sockdir,
   server.initialized = true;
   server.idle_timerfd = -1;
 
-  connection_set_wsinstance_sockdir (wsinstance_sockdir);
+  connection_set_directories (wsinstance_sockdir, cert_session_dir);
 
   pthread_mutex_init (&server.connection_mutex, NULL);
 

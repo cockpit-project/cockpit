@@ -22,7 +22,6 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <sys/un.h>
 #include <sys/types.h>
 #include <time.h>
 
@@ -43,7 +42,12 @@ send_all (int fd,
           size_t size,
           int timeout);
 
-void
-sockaddr_printf (struct sockaddr_un *addr,
-                 const char *format,
-                 ...) __attribute__((format(printf, 2, 3)));
+int
+af_unix_connectat (int sockfd,
+                   int dirfd,
+                   const char *pathname);
+
+int
+af_unix_bindat (int sockfd,
+                int dirfd,
+                const char *pathname);

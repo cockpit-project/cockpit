@@ -27,11 +27,13 @@
 #include <ctype.h>
 #include <err.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <sys/poll.h>
 #include <sys/socket.h>
+#include <sys/un.h>
 
 #include "utils.h"
 
@@ -280,29 +282,140 @@ send_all (int         fd,
 }
 
 /**
- * sockaddr_printf:
+ * af_unix_fill_sockaddr_at:
  * @addr: a (probably uninitialised) struct sockaddr_in
- * @format: a format for a filename
- * @...: the arguments for @format
+ * @dirfd: a directory fd, or AT_FDCWD
+ * @pathname: a pathname
  *
- * Formats a string and uses it to initialise @addr for a unix socket at
- * the resultant path (including filling in of the family field).
+ * Fills in @addr (both family and name) fields to be used with a
+ * connect() or bind() call on a AF_UNIX socket.
  *
- * If the format operation overflows the buffer in the sockaddr,
- * execution is aborted.
+ * If the pathname given in @pathname is relative, then it is interpreted
+ * relative to the directory referred to bythe file descriptor dirfd
+ * (rather than relative to the current working directory of the calling
+ * process, as is done by connect() or bind() for a relative pathname).
+ * This is accomplished by building a pathname based on the symlinks in
+ * /proc/self/fd/ (so @dirfd needs to remain open for the actual call to
+ * connect() or bind()).
+ *
+ * If @pathname is relative and dirfd is the special value AT_FDCWD,
+ * then @pathname is interpreted relative to the current working
+ * directory of the calling process (like connect() or bind()).
+ *
+ * If @pathname is absolute, then dirfd is ignored.
+ *
+ * @dirfd is never actually inspected in any way during this call: it is
+ * assumed to be a valid open directory file descriptor.  If it's not,
+ * then this error won't be detected.
+ *
+ * Returns: %true on success, or %false (and errno == ENOMEM) in case it
+ *   was not possible to fit the formatted string into the `struct
+ *   sockaddr_un`.
  */
-void
-__attribute__((format(printf, 2, 3)))
-sockaddr_printf (struct sockaddr_un *addr,
-                 const char *format,
-                 ...)
+static bool
+af_unix_fill_sockaddr_at (struct sockaddr_un *addr,
+                          int                 dirfd,
+                          const char         *pathname)
 {
-  va_list ap;
   int r;
 
-  va_start (ap, format);
   addr->sun_family = AF_UNIX;
-  r = vsnprintf (addr->sun_path, sizeof addr->sun_path, format, ap);
-  assert (0 < r && r < sizeof addr->sun_path);
-  va_end (ap);
+
+  if (pathname[0] != '/' && dirfd != AT_FDCWD)
+    r = snprintf (addr->sun_path, sizeof addr->sun_path, "/proc/self/fd/%d/%s", dirfd, pathname);
+  else
+    r = snprintf (addr->sun_path, sizeof addr->sun_path, "%s", pathname);
+
+  if (0 < r && r < sizeof addr->sun_path)
+    return true;
+
+  errno = ENOMEM;
+  return false;
+}
+
+/**
+ * af_unix_connectat:
+ * @sockfd: a socket file descriptor
+ * @dirfd: a directory file descriptor
+ * @pathname: a pathname
+ *
+ * Connects @sockfd to the unix domain socket at @pathname (relative to
+ * @dirfd).
+ *
+ * This call operates in exactly the same way as connect(), except for
+ * the differences described here.
+ *
+ * If the pathname given in @pathname is relative, then it is
+ * interpreted relative to the directory referred to bythe file
+ * descriptor dirfd (rather than relative to the current working
+ * directory of the calling process, as is done by connect() for a
+ * relative pathname).
+ *
+ * If @pathname is relative and dirfd is the special value AT_FDCWD,
+ * then @pathname is interpreted relative to the current working
+ * directory of the calling process (like connect()).
+ *
+ * If @pathname is absolute, then dirfd is ignored.
+ *
+ * An additional error of %ENOMEM can be returned in the event that it
+ * was not possible to fit the filename into a `struct sockaddr_un`.
+ *
+ * Returns: 0 on success, or -1 (and errno set) on error
+ */
+int
+af_unix_connectat (int         sockfd,
+                   int         dirfd,
+                   const char *pathname)
+{
+  struct sockaddr_un addr;
+
+  if (!af_unix_fill_sockaddr_at (&addr, dirfd, pathname))
+    return -1;
+
+  debug (SOCKET_IO, "af_unix_connectat(%d, %s) to '%s'", dirfd, pathname, addr.sun_path);
+
+  return connect (sockfd, (struct sockaddr *) &addr, sizeof addr);
+}
+
+/**
+ * af_unix_bindat:
+ * @sockfd: a socket file descriptor
+ * @dirfd: a directory file descriptor
+ * @pathname: a pathname
+ *
+ * Binds @sockfd to the filesystem at @pathname (relative to @dirfd).
+ *
+ * This call operates in exactly the same way as bind(), except for
+ * the differences described here.
+ *
+ * If the pathname given in @pathname is relative, then it is
+ * interpreted relative to the directory referred to bythe file
+ * descriptor dirfd (rather than relative to the current working
+ * directory of the calling process, as is done by bind() for a
+ * relative pathname).
+ *
+ * If @pathname is relative and dirfd is the special value AT_FDCWD,
+ * then @pathname is interpreted relative to the current working
+ * directory of the calling process (like bind()).
+ *
+ * If @pathname is absolute, then dirfd is ignored.
+ *
+ * An additional error of %ENOMEM can be returned in the event that it
+ * was not possible to fit the filename into a `struct sockaddr_un`.
+ *
+ * Returns: 0 on success, or -1 (and errno set) on error
+ */
+int
+af_unix_bindat (int         sockfd,
+                int         dirfd,
+                const char *pathname)
+{
+  struct sockaddr_un addr;
+
+  if (!af_unix_fill_sockaddr_at (&addr, dirfd, pathname))
+    return -1;
+
+  debug (SOCKET_IO, "af_unix_bindat(%d, %s) to '%s'", dirfd, pathname, addr.sun_path);
+
+  return bind (sockfd, (struct sockaddr *) &addr, sizeof addr);
 }

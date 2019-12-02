@@ -26,9 +26,9 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/poll.h>
 #include <sys/socket.h>
-#include <sys/un.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
@@ -222,13 +222,14 @@ handle_alternate (int listen_fd)
 int
 main (int argc, char *argv[])
 {
-  int res;
-
   if (argc != 3)
     errx (EXIT_FAILURE, "Usage: socket-activation-helper $WS_PATH $SOCKETS_DIR");
 
   const char *ws_path = argv[1];
   const char *socket_dir = argv[2];
+  int socket_dir_fd = open (socket_dir, O_RDONLY | O_DIRECTORY | O_CLOEXEC);
+  if (socket_dir_fd < 0)
+    err (EXIT_FAILURE, "failed to open %s", socket_dir);
 
   for (size_t i = 0; i < N_ELEMENTS (instance_types); i++)
     ws_pollfds[i].fd = -1;
@@ -246,15 +247,9 @@ main (int argc, char *argv[])
 
   for (size_t i = 0; i < N_ELEMENTS (instance_types); i++)
     {
-      struct sockaddr_un addr = {
-        .sun_family = AF_UNIX
-      };
       int listen_fd;
 
-      res = snprintf (addr.sun_path, sizeof (addr.sun_path), "%s/%s", socket_dir, instance_types[i].sockname);
-      assert (res < sizeof (addr.sun_path));
-
-      if (unlink (addr.sun_path) < 0 && errno != ENOENT)
+      if (unlinkat (socket_dir_fd, instance_types[i].sockname, 0) < 0 && errno != ENOENT)
         err (EXIT_FAILURE, "unlink() failed");
 
       /* create a listening socket for each cockpit-ws mode */
@@ -262,20 +257,17 @@ main (int argc, char *argv[])
       if (listen_fd < 0)
         err (EXIT_FAILURE, "socket() failed");
 
-      if (bind (listen_fd, (struct sockaddr *) &addr, sizeof addr) < 0)
-        err (EXIT_FAILURE, "%s: bind() failed", addr.sun_path);
+      if (af_unix_bindat (listen_fd, socket_dir_fd, instance_types[i].sockname) < 0)
+        err (EXIT_FAILURE, "%s/%s: bind() failed", socket_dir, instance_types[i].sockname);
 
       if (listen (listen_fd, 32) < 0)
-        err (EXIT_FAILURE, "%s: listen() failed", addr.sun_path);
+        err (EXIT_FAILURE, "%s/%s: listen() failed", socket_dir, instance_types[i].sockname);
 
       ws_pollfds[i].fd = listen_fd;
       ws_pollfds[i].events = POLLIN;
     }
 
   /* signal the unit test that we are ready to connect */
-  int socket_dir_fd = open (socket_dir, O_RDONLY | O_DIRECTORY);
-  if (socket_dir_fd < 0)
-    err (EXIT_FAILURE, "failed to open %s", socket_dir);
   int fd = openat (socket_dir_fd, "ready", O_CREAT | O_WRONLY | O_EXCL, 0666);
   if (fd < 0)
     err (EXIT_FAILURE, "failed to create %s/stamp", socket_dir);

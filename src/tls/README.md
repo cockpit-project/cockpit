@@ -9,10 +9,12 @@ multiplexes sessions of different users in one process. Thus any vulnerability
 can easily lead to complete privilege escalation across all running and future
 sessions.
 
-Right now this does not have any extra features over using cockpit-ws directly
-(other than better isolation). In the future, it will be able to do certificate
-based client authentication (smart cards, browser-imported certificates, and
-similar), which greatly aggravates the above security trust issue.
+By isolating the TLS termination and certificate checking from the http
+processing, and isolating http processing for each client certificate, Cockpit
+can do certificate based client authentication (smart cards, browser-imported
+certificates, and similar) in a sufficiently robust manner. Any tampering with
+a `cockpit-ws` process is then unable to affect other sessions and the
+certificate attestation.
 
 Design goals
 ------------
@@ -29,40 +31,88 @@ Design goals
    and encryption/decryption. In other words, it treats the payload on the TLS
    connection as a black box.
  * Minimal dependencies: Only glibc and a TLS library (GnuTLS at the moment),
-   so that the code can be audited (by humans or things  like coverity) more
+   so that the code can be audited (by humans or things like coverity) more
    easily.
 
+Structure
+---------
+
 ```
-  +---------+   https://machine:9090                             +---------------------+
-  | Browser |<-----------------------+                       +-->| no-cert ws instance |
-  +---------+     no client cert     |                       |   +---------------------+
-                                     |    +-------------+    |
-                                     +--->| cockpit-tls |<---+ (plain HTTP over Unix socket)
-                                     |    +-------------+    |
-  +---------+   https://machine:9090 |                       |   +------------------------+
-  | Browser |<-----------------------+                       +-->| ws instance for cert A |
-  +---------+     client cert A                                  +------------------------+
++---------+  http://machine:9090                           +------------------------+
+|Browser A|+----------------------+                    +-->|cockpit-ws http instance|
++---------+                       |                    |   +------------------------+
+                                  |                    |
+                                  |                    +   (plain HTTP over Unix socket)
+                                  |                    |
++---------+  https://machine:9090 |    +------------+  |   +------------------------------------+
+|Browser B|+----------------------+--->| cockpit-tls|--+-->|cockpit-ws https instance for cert B|
++---------+    client cert B      |    +------------+  +   +------------------------------------+
+                                  |                    |
+                                  |                    |
++---------+  https://machine:9090 |                    |   +------------------------------------+
+|Browser C|+----------------------+                    +-->|cockpit-ws https instance for cert C|
++---------+    client cert C                               +------------------------------------+
 ```
 
-Current status
---------------
+The startup of these instances and isolating them from one another makes heavy
+use of systemd features.
 
-cockpit-tls currently does the TLS termination, but without client-side
-certificates. It also runs as the same `cockpit-ws` system user as cockpit-ws
-itself, so currently there is only process isolation. It does the multiplexing
-of cockpit-ws. So it should be completely transparent to outside users for now.
+ * The top-level unit that the admin enables/controls is [cockpit.socket](../ws/cockpit.socket.in),
+   which listens to the port (9090 by default).
+ * That activates [cockpit.service](../ws/cockpit.service.in), which ensures
+   that a server TLS certificate is present and starts `cockpit-tls`, usually
+   as user `cockpit-ws` (for historical reasons, to avoid having to change the
+   ownership of `/etc/cockpit/ws-certs.d/*` on upgrades).
+ * When accepting a connection, cockpit-tls checks if it uses TLS:
+   - If not, it connects to [cockpit-wsinstance-http.socket](../src/ws/cockpit-wsinstance-http.socket.in) or
+     [cockpit-wsinstance-http-redirect.socket](../src/ws/cockpit-wsinstance-http-redirect.socket.in).
+   - If the connection does use TLS, it calculates the fingerprint of the
+     client certificate (using the empty string if there is none), and connects
+     to [cockpit-wsinstance-https-factory.socket](../src/ws/cockpit-wsinstance-https-factory.socket.in).
+     This starts a helper factory process `cockpit-wsinstance-factory` that
+     reads the fingerprint from stdin, and asks systemd to start a new
+     [cockpit-wsinstance-https@fingerprint.socket](../src/ws/cockpit-wsinstance-https@.socket.in)
+     and .service pair.
+ * Each instance runs in its own systemd cgroup, as another unprivileged system
+   user `cockpit-wsinstance`.
+ * cockpit-tls exports the client certificates to `/run/cockpit/tls/<fingerprint>`
+   while there is at least one open connection with that certificate, i. e. as
+   long as there is an active Cockpit session.
+
+Client certificate authentication
+---------------------------------
+
+This must be explicitly enabled in cockpit.conf with `ClientCertAuthentication = yes`,
+see the [guide](../../doc/guide/cert-authentication.xml) and
+[manpage](../../doc/man/cockpit.conf.xml). Then cockpit-tls will ask the
+browser for a client certificate.
+
+If cockpit-ws sees that cockpit-tls exports a certificate for its connection
+(by checking its cgroup instance name, which is the certificate fingerprint,
+and checking /run/cockpit/tls for it), then it will request the `tls-cert`
+authentication schema from cockpit-session, instead of the usual `basic` or
+`gssapi`. cockpit-session then does *not* set a PAM user name, and
+[pam_cockpit_cert](../ws/pam_cockpit_cert.c) will check for an exported
+certificate and ask sssd to map it to a user. See the [manpage](../../doc/man/pam_cockpit_cert.xml)
+for details.
 
 Code layout
 -----------
 
  * A `Connection` (in `connection.[hc]`) object represents a single TCP
-   connection from a client (browser) towards cockpit-tls. It can be used as a
-   linked-list.
- * A `WsInstance` (in `wsinstance.[hc]`) object represents a `cockpit-ws`
-   process for a particular client side certificate (or no certificate),
-   together with a Unix socket that is connected to it.
+   connection from a client (browser) towards cockpit-tls. Each connection is
+   handled in its own thread, so that blocked connections cannot starve others.
+   It has the code for launching ws instances and shoveling data back and forth
+   between the browser and the ws instance.
+
  * A `Server` (in `server.[hc]`) object represents the cockpit-tls logic. It is
    a singleton (not instantiated), and mostly split out into a separate object
-   so that it can be properly unit tested. It maintains a list of `Connection`
+   so that it can be properly unit tested. It maintains some global
+   configuration, listens to the port, and coordinates the connection threads.
    and `WsInstance` objects according to incoming requests.
- * `main.c` does the CLI option parsing and runs `Server`.
+
+ * `certfile.[hc]` deals with exporting current certificates to
+   /run/cockpit/tls/, and the refcounting from all Connections that belong to a
+   particular certificate.
+
+The other files are helpers or unit tests.

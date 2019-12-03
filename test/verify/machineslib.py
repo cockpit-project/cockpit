@@ -1968,7 +1968,7 @@ class TestMachines(NetworkCase):
             # value according to the available total memory on the host
             if not self.expected_memory_size:
                 b.select_from_dropdown("#memory-size-unit-select", self.memory_size_unit)
-                b.set_input_text("#memory-size", str(self.memory_size), value_check=False)
+                b.set_input_text("#memory-size", str(self.memory_size), value_check=True)
                 b.blur('#memory-size')
                 host_total_memory = int(b.text("#memory-size-slider ~ b"))
                 # Write the final memory back to self so that other function can read it

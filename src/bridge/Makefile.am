@@ -31,6 +31,7 @@ libcockpit_bridge_a_SOURCES = \
 	src/bridge/cockpitconnect.h \
 	src/bridge/cockpitdbuscache.c \
 	src/bridge/cockpitdbuscache.h \
+	src/bridge/cockpitdbusconfig.c \
 	src/bridge/cockpitdbusinternal.c \
 	src/bridge/cockpitdbusinternal.h \
 	src/bridge/cockpitdbusjson.c \

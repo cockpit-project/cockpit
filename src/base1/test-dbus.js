@@ -752,4 +752,69 @@ QUnit.test("separate dbus connections for channel groups", function (assert) {
     });
 });
 
+QUnit.test("cockpit.Config internal D-Bus API", function (assert) {
+    const done = assert.async();
+    assert.expect(6);
+
+    const dbus = cockpit.dbus(null, { bus: "internal" });
+    let configDir;
+    let proxy;
+
+    // Get temp config dir to see where to place our test config
+    dbus.call("/environment", "org.freedesktop.DBus.Properties", "Get", ["cockpit.Environment", "Variables"])
+            .then(reply => {
+                configDir = reply[0].v.XDG_CONFIG_DIRS;
+                return cockpit.file(configDir + "/cockpit/cockpit.conf").replace(`
+[SomeSection]
+SomeA = one
+SomethingElse = 2
+
+[Other]
+Flavor=chocolate
+Empty=
+`);
+            })
+            .then(() => {
+                proxy = dbus.proxy("cockpit.Config", "/config");
+                return proxy.wait();
+            })
+            // the above changes the config after bridge startup, so reload
+            .then(() => proxy.Reload())
+
+            // test GetString()
+            .then(() => proxy.GetString("SomeSection", "SomeA"))
+            .then(result => {
+                assert.equal(result, "one");
+                return proxy.GetString("Other", "Empty");
+            })
+
+            // test GetUInt()
+            .then(result => {
+                assert.equal(result, "");
+                // this key exists, ignores default
+                return proxy.GetUInt("SomeSection", "SomethingElse", 10, 100, 0);
+            })
+            .then(result => {
+                assert.equal(result, 2);
+                // this key does not exist, return default
+                return proxy.GetUInt("SomeSection", "NotExisting", 10, 100, 0);
+            })
+            .then(result => {
+                assert.equal(result, 10);
+                // out of bounds, clamp to minimum
+                return proxy.GetUInt("SomeSection", "SomethingElse", 42, 50, 5);
+            })
+            .catch(err => console.error("unexpected error:", JSON.stringify(err)))
+
+            .then(result => {
+                assert.equal(result, 5);
+
+                // test GetString with non-existing section/key
+                assert.rejects(proxy.GetString("SomeSection", "UnknownKey"),
+                               /key.*UnknownKey.*not exist/,
+                               "unknown key raises an error");
+            })
+            .finally(done);
+});
+
 QUnit.start();

@@ -117,10 +117,14 @@ class DnfImpl extends ImplBase {
                 .split(/\s+/);
 
         // check if we have a day of week
-        if (daysOfWeek.indexOf(words[0]) >= 0)
+        if (daysOfWeek.indexOf(words[0]) >= 0) {
             this.day = words.shift();
-        else
-            this.day = ""; // daily
+        } else if (words[0] === '*-*-*') {
+            this.day = ""; // daily with "all matches" date specification
+            words.shift();
+        } else {
+            this.day = ""; // daily without date specification
+        }
 
         // now there should only be a time left
         if (words.length == 1 && validTime.test(words[0]))

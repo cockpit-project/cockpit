@@ -813,8 +813,8 @@ class TestAutoUpdates(PackageCase):
         def assertTimerDnf(hour, dow):
             out = m.execute("systemctl --no-legend list-timers dnf-automatic-install.timer")
             if hour:
-                # allow some wiggle room in the minutes, due to RandomizedDelaySec=
-                self.assertRegex(out, " %s:0[0-9]:" % hour)
+                # don't test the minutes, due to RandomizedDelaySec=60m
+                self.assertRegex(out, " %s:" % hour)
             else:
                 self.assertEqual(out, "")
             if dow:

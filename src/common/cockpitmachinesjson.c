@@ -18,6 +18,7 @@
  */
 
 #include "cockpitmachinesjson.h"
+#include "common/cockpitconf.h"
 
 #include <errno.h>
 #include <glob.h>
@@ -142,7 +143,7 @@ get_machines_json_dir (void)
 {
   static gchar *path = NULL;
   if (path == NULL)
-    path = g_strdup_printf ("%s/machines.d", g_getenv ("COCKPIT_TEST_CONFIG_DIR") ?: "/etc/cockpit");
+    path = g_build_filename (cockpit_conf_get_dirs ()[0], "cockpit", "machines.d", NULL);
   return path;
 }
 

@@ -3,9 +3,11 @@
 var dbus = cockpit.dbus(null, { bus: "internal" });
 var configDir;
 
-function cleanUp() {
-    return cockpit.spawn(["find", configDir + "/machines.d", "-type", "f", "-delete"]);
-}
+QUnit.module("machines.d parsing tests", {
+    beforeEach: () => cockpit.spawn(["mkdir", "-p", configDir + "/cockpit/machines.d"]),
+    afterEach: () => cockpit.spawn(["rm", "-rf", configDir + "/cockpit/machines.d"]),
+    after: () => cockpit.spawn(["rm", "-r", configDir]),
+});
 
 /***
  * Tests for parsing on-disk JSON configuration
@@ -21,7 +23,7 @@ function machinesParseTest(assert, machines_defs, expectedProperty) {
     for (var fname in machines_defs) {
         path = fname;
         if (fname.indexOf('/') < 0)
-            path = configDir + "/machines.d/" + fname;
+            path = configDir + "/cockpit/machines.d/" + fname;
         setup.push(cockpit.file(path).replace(machines_defs[fname]));
     }
 
@@ -35,11 +37,7 @@ function machinesParseTest(assert, machines_defs, expectedProperty) {
                 })
                 .always(function() {
                     assert.equal(this.state(), "resolved", "finished successfully");
-                    cleanUp()
-                            .done(done)
-                            .fail(function(err) {
-                                console.error("cleanup failed:", err);
-                            });
+                    done();
                 });
     });
 }
@@ -144,7 +142,7 @@ function machinesUpdateTest(assert, origJson, host, props, expectedJson) {
     const done = assert.async();
     assert.expect(3);
 
-    var f = configDir + "/machines.d/99-webui.json";
+    var f = configDir + "/cockpit/machines.d/99-webui.json";
 
     cockpit.file(f).replace(origJson)
             .done(function(tag) {
@@ -161,11 +159,7 @@ function machinesUpdateTest(assert, origJson, host, props, expectedJson) {
                         })
                         .always(function() {
                             assert.equal(this.state(), "resolved", "finished successfully");
-                            cleanUp()
-                                    .done(done)
-                                    .fail(function(err) {
-                                        console.error("cleanup failed:", err);
-                                    });
+                            done();
                         });
             });
 }
@@ -213,7 +207,7 @@ QUnit.test("add host property", function (assert) {
 QUnit.test("Update() only writes delta", function (assert) {
     const done = assert.async();
 
-    cockpit.file(configDir + "/machines.d/01-green.json")
+    cockpit.file(configDir + "/cockpit/machines.d/01-green.json")
             .replace('{"green": {"address": "1.2.3.4"}, "blue": {"address": "fe80::1"}}')
             .done(function(tag) {
                 machinesUpdateTest(assert,
@@ -228,7 +222,7 @@ QUnit.test("Update() only writes delta", function (assert) {
 QUnit.test("updating and existing delta file", function (assert) {
     const done = assert.async();
 
-    cockpit.file(configDir + "/machines.d/01-green.json")
+    cockpit.file(configDir + "/cockpit/machines.d/01-green.json")
             .replace('{"green": {"address": "1.2.3.4"}, "blue": {"address": "fe80::1"}}')
             .done(function(tag) {
                 machinesUpdateTest(assert,
@@ -240,10 +234,10 @@ QUnit.test("updating and existing delta file", function (assert) {
             });
 });
 
-/* The test cockpit-bridge gets started with temp $COCKPIT_TEST_CONFIG_DIR instead of defaulting to /etc/cockpit.
+/* The test cockpit-bridge gets started with temp $XDG_CONFIG_DIRS instead of defaulting to /etc/.
  * Read it from the bridge so that we can put our test files into it. */
 var proxy = dbus.proxy("cockpit.Environment", "/environment");
 proxy.wait(function () {
-    configDir = proxy.Variables.COCKPIT_TEST_CONFIG_DIR;
+    configDir = proxy.Variables.XDG_CONFIG_DIRS;
     QUnit.start();
 });

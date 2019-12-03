@@ -27,7 +27,6 @@ G_BEGIN_DECLS
 typedef struct {
   const gchar *knownhosts_file;
   const gchar *command;
-  const gchar *remote_peer;
   gboolean connect_to_unknown_hosts;
 } CockpitSshOptions;
 

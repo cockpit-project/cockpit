@@ -31,7 +31,6 @@ typedef struct _CockpitCreds       CockpitCreds;
 
 #define COCKPIT_CRED_USER         "user"
 #define COCKPIT_CRED_PASSWORD     "password"
-#define COCKPIT_CRED_RHOST        "rhost"
 #define COCKPIT_CRED_CSRF_TOKEN   "csrf-token"
 
 #define         COCKPIT_TYPE_CREDS           (cockpit_creds_get_type ())
@@ -56,8 +55,6 @@ GBytes *        cockpit_creds_get_password   (CockpitCreds *creds);
 
 void            cockpit_creds_set_password   (CockpitCreds *creds,
                                               GBytes *password);
-
-const gchar *   cockpit_creds_get_rhost      (CockpitCreds *creds);
 
 const gchar *   cockpit_creds_get_csrf_token (CockpitCreds *creds);
 

@@ -322,39 +322,6 @@ cockpit_auth_nonce (CockpitAuth *self)
                                   (guchar *)&seed, sizeof (seed));
 }
 
-static gchar *
-get_remote_address (GIOStream *io)
-{
-  GSocketAddress *remote = NULL;
-  GSocketConnection *connection = NULL;
-  GIOStream *base;
-  gchar *result = NULL;
-
-  if (G_IS_TLS_CONNECTION (io))
-    {
-      g_object_get (io, "base-io-stream", &base, NULL);
-      if (G_IS_SOCKET_CONNECTION (base))
-        connection = g_object_ref (base);
-      g_object_unref (base);
-    }
-  else if (G_IS_SOCKET_CONNECTION (io))
-    {
-      connection = g_object_ref (io);
-    }
-
-  if (connection)
-    remote = g_socket_connection_get_remote_address (connection, NULL);
-  if (remote && G_IS_INET_SOCKET_ADDRESS (remote))
-    result = g_inet_address_to_string (g_inet_socket_address_get_address (G_INET_SOCKET_ADDRESS (remote)));
-
-  if (remote)
-    g_object_unref (remote);
-  if (connection)
-    g_object_unref (connection);
-
-  return result;
-}
-
 gchar *
 cockpit_auth_steal_authorization (GHashTable *headers,
                                   GIOStream *connection,
@@ -927,7 +894,6 @@ build_session_credentials (CockpitAuth *self,
   char *raw = NULL;
 
   GBytes *password = NULL;
-  gchar *remote_peer = NULL;
   gchar *csrf_token = NULL;
 
   /* Prepare various credentials */
@@ -946,17 +912,14 @@ build_session_credentials (CockpitAuth *self,
         }
     }
 
-  remote_peer = get_remote_address (connection);
   csrf_token = cockpit_auth_nonce (self);
 
   creds = cockpit_creds_new (application,
                              COCKPIT_CRED_USER, user,
                              COCKPIT_CRED_PASSWORD, password,
-                             COCKPIT_CRED_RHOST, remote_peer,
                              COCKPIT_CRED_CSRF_TOKEN, csrf_token,
                              NULL);
 
-  g_free (remote_peer);
   if (raw)
     {
       cockpit_memory_clear (raw, strlen (raw));
@@ -1116,12 +1079,6 @@ cockpit_session_launch (CockpitAuth *self,
 
   command = type_option (section, "command", program_default);
 
-  if (cockpit_creds_get_rhost (creds))
-    {
-      env = g_environ_setenv (env, "COCKPIT_REMOTE_PEER",
-                              cockpit_creds_get_rhost (creds),
-                              TRUE);
-    }
   if (g_strcmp0 (g_hash_table_lookup (headers, "X-SSH-Connect-Unknown-Hosts"), "yes") == 0)
     {
       env = g_environ_setenv (env, "COCKPIT_SSH_CONNECT_TO_UNKNOWN_HOSTS",
@@ -1335,7 +1292,6 @@ cockpit_auth_local_async (CockpitAuth *self,
   csrf_token = cockpit_auth_nonce (self);
   creds = cockpit_creds_new ("cockpit",
                              COCKPIT_CRED_USER, user,
-                             COCKPIT_CRED_RHOST, "localhost",
                              COCKPIT_CRED_CSRF_TOKEN, csrf_token,
                              NULL);
 

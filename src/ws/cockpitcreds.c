@@ -32,7 +32,6 @@ struct _CockpitCreds {
   gchar *user;
   gchar *application;
   GBytes *password;
-  gchar *rhost;
   gchar *csrf_token;
   JsonObject *login_data;
   GList *bytes;
@@ -51,7 +50,6 @@ cockpit_creds_free (gpointer data)
 
   g_free (creds->user);
   g_free (creds->application);
-  g_free (creds->rhost);
   g_free (creds->csrf_token);
 
   if (creds->login_data)
@@ -66,8 +64,7 @@ cockpit_creds_free (gpointer data)
  * @...: multiple credentials, followed by NULL
  *
  * Create a new set of credentials for a user. Each vararg should be
- * a COCKPIT_CRED_PASSWORD, COCKPIT_CRED_RHOST, or similar constant
- * followed by the value.
+ * a COCKPIT_CRED_PASSWORD or similar constant followed by the value.
  *
  * COCKPIT_CRED_PASSWORD is a GBytes and should contain a null terminated
  * string with the terminator not included in the count.
@@ -100,8 +97,6 @@ cockpit_creds_new (const gchar *application,
         cockpit_creds_set_user (creds, va_arg (va, const char *));
       else if (g_str_equal (type, COCKPIT_CRED_PASSWORD))
         password = va_arg (va, GBytes *);
-      else if (g_str_equal (type, COCKPIT_CRED_RHOST))
-        creds->rhost = g_strdup (va_arg (va, const char *));
       else if (g_str_equal (type, COCKPIT_CRED_CSRF_TOKEN))
         creds->csrf_token = g_strdup (va_arg (va, const char *));
       else
@@ -236,22 +231,6 @@ cockpit_creds_set_login_data (CockpitCreds *creds,
   creds->login_data = login_data;
 }
 
-
-/**
- * cockpit_creds_get_rhost:
- * @creds: the credentials
- *
- * Get the remote host credential, or NULL
- * if none present.
- *
- * Returns: the remote host or NULL
- */
-const gchar *
-cockpit_creds_get_rhost (CockpitCreds *creds)
-{
-  g_return_val_if_fail (creds != NULL, NULL);
-  return creds->rhost;
-}
 
 JsonObject *
 cockpit_creds_to_json (CockpitCreds *creds)

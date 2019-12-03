@@ -97,7 +97,6 @@ cockpit_ssh_options_from_env (gchar **env)
   CockpitSshOptions *options = g_new0 (CockpitSshOptions, 1);
   options->knownhosts_file = get_environment_val (env, "COCKPIT_SSH_KNOWN_HOSTS_FILE", NULL);
   options->command = get_environment_val (env, "COCKPIT_SSH_BRIDGE_COMMAND", default_command);
-  options->remote_peer = get_environment_val (env, "COCKPIT_REMOTE_PEER", "localhost");
   options->connect_to_unknown_hosts = get_connect_to_unknown_hosts (env);
 
   return options;
@@ -111,8 +110,6 @@ cockpit_ssh_options_to_env (CockpitSshOptions *options,
                               options->connect_to_unknown_hosts);
   env = set_environment_val (env, "COCKPIT_SSH_KNOWN_HOSTS_FILE",
                              options->knownhosts_file);
-  env = set_environment_val (env, "COCKPIT_REMOTE_PEER",
-                             options->remote_peer);
 
   /* Don't reset these vars unless we have values for them */
   if (options->command)

@@ -173,10 +173,6 @@ for more details. This will affect how many custom authentication processes can 
 Environment Variables
 ---------------------
 
-The following environment variables are set by cockpit-ws when spawning an auth process:
-
- * **COCKPIT_REMOTE_PEER** Set to the ip address of the connecting user.
-
 The following environment variables are used to set options for the `cockpit-ssh` process:
 
  * **COCKPIT_SSH_CONNECT_TO_UNKNOWN_HOSTS** Set to `1` to  allow connecting to

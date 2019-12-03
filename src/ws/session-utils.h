@@ -60,7 +60,7 @@ void build_string (char **buf, size_t *size, const char *str, size_t len);
 void authorize_logger (const char *data);
 void save_environment (void);
 void pass_to_child (int signo);
-void utmp_log (int login, const char *rhost);
+void utmp_log (int login);
 #ifndef HAVE_FDWALK
 int fdwalk (int (*cb)(void *data, int fd), void *data);
 #endif

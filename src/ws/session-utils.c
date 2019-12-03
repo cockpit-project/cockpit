@@ -388,8 +388,7 @@ fork_session (char **env, int (*session)(char**))
 }
 
 void
-utmp_log (int login,
-          const char *rhost)
+utmp_log (int login)
 {
   char id[UT_LINESIZE + 1];
   struct utmp ut;
@@ -414,8 +413,6 @@ utmp_log (int login,
     {
       strncpy (ut.ut_user, pwd->pw_name, sizeof(ut.ut_user));
       ut.ut_user[sizeof (ut.ut_user) - 1] = 0;
-      strncpy (ut.ut_host, rhost, sizeof(ut.ut_host));
-      ut.ut_host[sizeof (ut.ut_host) - 1] = 0;
     }
 
   gettimeofday (&tv, NULL);
@@ -530,7 +527,6 @@ static const char *env_names[] = {
   "G_MESSAGES_DEBUG",
   "G_SLICE",
   "PATH",
-  "COCKPIT_REMOTE_PEER",
   NULL
 };
 

@@ -34,20 +34,17 @@ test_ssh_options (void)
   CockpitSshOptions *options = NULL;
 
   options = cockpit_ssh_options_from_env (env);
-  g_assert_cmpstr (options->remote_peer, ==, "localhost");
   g_assert_cmpstr (options->knownhosts_file, ==, NULL);
   g_assert_cmpstr (options->command, ==, "cockpit-bridge");
 
   options->knownhosts_file = "other-known";
   options->command = "other-command";
-  options->remote_peer = "other";
 
   env = cockpit_ssh_options_to_env (options, NULL);
 
   g_assert_cmpstr (g_environ_getenv (env, "COCKPIT_SSH_CONNECT_TO_UNKNOWN_HOSTS"), ==, "");
   g_assert_cmpstr (g_environ_getenv (env, "COCKPIT_SSH_KNOWN_HOSTS_FILE"), ==, "other-known");
   g_assert_cmpstr (g_environ_getenv (env, "COCKPIT_SSH_BRIDGE_COMMAND"), ==, "other-command");
-  g_assert_cmpstr (g_environ_getenv (env, "COCKPIT_REMOTE_PEER"), ==, "other");
 
   options->connect_to_unknown_hosts = TRUE;
 

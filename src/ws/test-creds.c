@@ -115,20 +115,6 @@ test_poison (void)
 }
 
 static void
-test_rhost (void)
-{
-  CockpitCreds *creds;
-
-  creds = cockpit_creds_new ("app", COCKPIT_CRED_RHOST, "remote", NULL);
-  g_assert (creds != NULL);
-
-  g_assert_cmpstr ("remote", ==, cockpit_creds_get_rhost (creds));
-  g_assert_cmpstr ("app", ==, cockpit_creds_get_application (creds));
-
-  cockpit_creds_unref (creds);
-}
-
-static void
 test_multiple (void)
 {
   CockpitCreds *creds;
@@ -137,11 +123,9 @@ test_multiple (void)
   password = g_bytes_new_take (g_strdup ("password"), 8);
   creds = cockpit_creds_new ("app",
                              COCKPIT_CRED_PASSWORD, password,
-                             COCKPIT_CRED_RHOST, "remote",
                              NULL);
   g_assert (creds != NULL);
 
-  g_assert_cmpstr ("remote", ==, cockpit_creds_get_rhost (creds));
   g_assert_cmpstr ("password", ==, g_bytes_get_data (cockpit_creds_get_password (creds), NULL));
   g_assert_cmpstr ("app", ==, cockpit_creds_get_application (creds));
 
@@ -183,7 +167,6 @@ main (int argc,
   g_test_add_func ("/creds/basic-password", test_password);
   g_test_add_func ("/creds/set-password", test_set_password);
   g_test_add_func ("/creds/poison", test_poison);
-  g_test_add_func ("/creds/rhost", test_rhost);
   g_test_add_func ("/creds/multiple", test_multiple);
   g_test_add_func ("/creds/login-data", test_login_data);
 

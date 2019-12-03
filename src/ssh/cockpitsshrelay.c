@@ -1522,22 +1522,6 @@ cockpit_ssh_connect (CockpitSshData *data,
       goto out;
     }
 
-  if (data->ssh_options->remote_peer)
-    {
-      /* Try to set the remote peer env var, this will
-       * often fail as ssh servers have to be configured
-       * to allow it.
-       */
-      rc = ssh_channel_request_env (channel, "COCKPIT_REMOTE_PEER",
-                                    data->ssh_options->remote_peer);
-      if (rc != SSH_OK)
-        {
-          g_debug ("%s: Couldn't set COCKPIT_REMOTE_PEER: %s",
-                   data->logname,
-                   ssh_get_error (data->session));
-        }
-    }
-
   g_debug ("%s: opened channel", data->logname);
 
   *out_channel = channel;

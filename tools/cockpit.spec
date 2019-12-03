@@ -469,7 +469,7 @@ test -f %{_bindir}/firewall-cmd && firewall-cmd --reload --quiet || true
 # HACK: SELinux policy adjustment for cockpit-tls; see https://github.com/fedora-selinux/selinux-policy-contrib/pull/114
 set -ex
 echo "Applying SELinux policy change for cockpit-tls.."
-semanage fcontext -a /usr/libexec/cockpit-tls -t cockpit_ws_exec_t
+semanage fcontext -a /usr/libexec/cockpit-tls -t cockpit_ws_exec_t || true
 restorecon /usr/libexec/cockpit-tls
 tmp=$(mktemp -d)
 cat <<EOF > $tmp/local.te
@@ -499,7 +499,7 @@ rm -rf "$tmp"
 %if 0%{?rhel} || 0%{?fedora}
 # HACK: SELinux policy adjustment for cockpit-tls; see https://github.com/fedora-selinux/selinux-policy-contrib/pull/161
 echo "Applying SELinux policy change for cockpit-wsinstance-factory..."
-semanage fcontext -a /usr/libexec/cockpit-wsinstance-factory -t cockpit_ws_exec_t
+semanage fcontext -a /usr/libexec/cockpit-wsinstance-factory -t cockpit_ws_exec_t || true
 restorecon /usr/libexec/cockpit-wsinstance-factory
 %endif
 

@@ -982,7 +982,7 @@ class OsUpdates extends React.Component {
 
     render() {
         return (
-            <div>
+            <>
                 <HeaderBar state={this.state.state} updates={this.state.updates}
                            timeSinceRefresh={this.state.timeSinceRefresh} onRefresh={this.handleRefresh}
                            unregistered={this.state.unregistered}
@@ -991,7 +991,7 @@ class OsUpdates extends React.Component {
                 <div className="container-fluid">
                     {this.renderContent()}
                 </div>
-            </div>
+            </>
         );
     }
 }

@@ -13,12 +13,12 @@ var priv_user = {
 };
 
 QUnit.module("Permission tests", {
-    setup: function() {
+    before: () => {
         this.old_dbus = cockpit.dbus;
         this.old_is_superuser = cockpit._is_superuser;
         cockpit._is_superuser = false;
     },
-    teardown: function() {
+    after: () => {
         cockpit.dbus = this.old_dbus;
         cockpit._is_superuser = this.old_is_superuser;
     }

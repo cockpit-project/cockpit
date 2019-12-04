@@ -31,6 +31,10 @@ class TestLogin(MachineCase):
         m = self.machine
         b = self.browser
 
+        # rhel-8-1-distropkg: utmp/who(1) output fixed in PR #13242
+        # fedora-coreos: logs in via ssh, not cockpit-session
+        utmp_works = m.image not in ['rhel-8-1-distropkg', 'fedora-coreos']
+
         # Setup users and passwords
         m.execute("useradd user -c 'Barney Bär' || true")
         m.execute("echo user:abcdefg | chpasswd")
@@ -63,10 +67,12 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         # Try to login as a non-existing user
         login("nonexisting", "blahblah")
         b.wait_text_not("#login-error-message", "")
+        self.assertNotIn("web", m.execute("who"))
 
         # Try to login as user with a wrong password
         login("user", "gfedcba")
         b.wait_text_not("#login-error-message", "")
+        self.assertNotIn("web", m.execute("who"))
 
         # Try to login as user with correct password
         login("user", "abcdefg")
@@ -74,6 +80,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
             b.wait_in_text("#login-error-message", "Server closed connection")
         else:
             b.wait_text("#login-error-message", "Permission denied")
+        self.assertNotIn("web", m.execute("who"))
 
         # Try to login with disabled shell; this does not work on OSTree where
         # we log in through ssh
@@ -91,10 +98,16 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.wait_present("#content")
         b.wait_text('#content-user-name', 'Administrator')
 
+        if utmp_works:
+            self.assertRegex(m.execute("who"), "^admin *web")
+
         # reload, which should log us in with the cookie
         b.reload()
         b.wait_present("#content")
         b.wait_text('#content-user-name', 'Administrator')
+
+        if utmp_works:
+            self.assertRegex(m.execute("who"), "^admin *web")
 
         b.click("#content-user-name")
         b.click('#go-account')
@@ -108,6 +121,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         # Change login screen options
         b.logout()
+        b.wait(lambda: "web console" not in m.execute("who"))
         b.wait_visible("#option-group")
         m.execute("printf '[WebService]\nLoginTo = false\n' > /etc/cockpit/cockpit.conf")
         m.restart_cockpit()

@@ -408,7 +408,9 @@ utmp_log (int login,
 
   strncpy (ut.ut_id, id, sizeof (ut.ut_id));
   ut.ut_id[sizeof (ut.ut_id) - 1] = 0;
-  ut.ut_line[0] = 0;
+
+  strncpy (ut.ut_line, "web console", sizeof ut.ut_line);
+  ut.ut_line[sizeof ut.ut_line - 1] = 0;
 
   if (login)
     {
@@ -422,7 +424,7 @@ utmp_log (int login,
   ut.ut_tv.tv_sec = tv.tv_sec;
   ut.ut_tv.tv_usec = tv.tv_usec;
 
-  ut.ut_type = login ? LOGIN_PROCESS : DEAD_PROCESS;
+  ut.ut_type = login ? USER_PROCESS : DEAD_PROCESS;
   ut.ut_pid = pid;
 
   pututline (&ut);

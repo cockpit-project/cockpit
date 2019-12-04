@@ -509,6 +509,13 @@ restorecon /usr/libexec/cockpit-wsinstance-factory
 %postun ws
 %systemd_postun_with_restart cockpit.socket
 %systemd_postun_with_restart cockpit.service
+if [ "$1" = "0" ]; then
+  # When $1 is 0, this is an uninstallation.
+  getent passwd cockpit-ws >/dev/null && userdel cockpit-ws
+  getent group cockpit-ws >/dev/null && groupdel cockpit-ws
+  getent passwd cockpit-wsinstance >/dev/null && userdel cockpit-wsinstance
+  getent group cockpit-wsinstance >/dev/null && groupdel cockpit-wsinstance
+ fi
 
 # -------------------------------------------------------------------------------
 # Sub-packages that are part of cockpit-system in RHEL/CentOS, but separate in Fedora

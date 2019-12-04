@@ -270,6 +270,11 @@
         if (!requisites())
             return;
 
+        if (environment.banner) {
+            id("banner").classList.remove("group-hidden");
+            id("banner-message").textContent = environment.banner.trimEnd();
+        }
+
         id("show-other-login-options").addEventListener("click", toggle_options);
         id("show-other-login-options").addEventListener("keypress", toggle_options);
         id("server-clear").addEventListener("click", function () {

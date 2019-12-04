@@ -60,6 +60,27 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
             b.set_checked('#authorized-input', True)
             b.click('#login-button')
 
+        # Test banner
+        if m.image != "rhel-8-1-distropkg": # Added in #13237
+            # Test that we don't show banner when not specified
+            b.wait_visible("#login-user-input")
+            b.wait_not_visible("#banner")
+
+            m.execute("printf '[Session]\nBanner = /etc/issue\n' > /etc/cockpit/cockpit.conf")
+            m.restart_cockpit()
+            b.reload()
+            b.wait_visible("#login-user-input")
+            b.wait_visible("#banner")
+            self.assertEqual(b.text("#banner pre"), m.execute("cat /etc/issue").rstrip())
+
+            # Test non existent file
+            m.execute("printf '[Session]\nBanner = /etc/non-existing-file\n' > /etc/cockpit/cockpit.conf")
+            self.allow_journal_messages("error loading contents of banner: Failed to open file “/etc/non-existing-file”: No such file or directory")
+            m.restart_cockpit()
+            b.reload()
+            b.wait_visible("#login-user-input")
+            b.wait_not_visible("#banner")
+
         # Try to login as a non-existing user
         login("nonexisting", "blahblah")
         b.wait_text_not("#login-error-message", "")

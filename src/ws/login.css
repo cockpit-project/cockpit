@@ -366,6 +366,10 @@ label.checkbox {
   text-align: center;
 }
 
+.login-pf #banner {
+  margin-top: 20px;
+}
+
 .login-pf .container {
   background-color: rgba(255, 255, 255, .055);
   clear: right;
@@ -453,6 +457,7 @@ label.checkbox {
   grid-area: title;
   font-size: 1rem;
   margin: 1rem;
+  background-color: #fff;
 }
 
 .pf-c-alert.pf-m-inline.pf-m-danger::before {
@@ -876,8 +881,7 @@ label.checkbox {
   body.login-pf {
     color: #151515;
     display: grid;
-    grid-template-columns: 34rem minmax(34rem, auto);
-    grid-template-areas: "login" "logo";
+    grid-template-areas: "alert" "login" "logo";
     grid-template-columns: 1fr;
     grid-template-rows: minmax(min-content, max-content);
     background-position: 0 0 !important;
@@ -986,8 +990,8 @@ label.checkbox {
     }
 
     body.login-pf {
-      grid-template-areas: ". . . ." ". login logo ." ". . . . ";
-      grid-template-rows: 1fr minmax(min-content,max-content) 1fr;
+      grid-template-areas: ". alert alert ." ". . . ." ". login logo ." ". . . . ";
+      grid-template-rows: auto 1fr minmax(min-content,max-content) 1fr;
       grid-template-columns: minmax(0, 2.125rem) 35rem 1fr minmax(0, 2.125rem);
     }
   }
@@ -1013,4 +1017,17 @@ label.checkbox {
     display: flex;
     justify-content: space-around;
   }
+}
+
+.dialog-error {
+  grid-area: alert;
+  margin: 0px;
+}
+
+#banner-message {
+  white-space: pre-wrap;
+  max-height: 12em;
+  overflow: auto;
+  padding: 1.5em 1em;
+  margin: 0;
 }

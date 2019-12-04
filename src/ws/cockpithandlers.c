@@ -341,6 +341,21 @@ build_environment (GHashTable *os_release)
   if (ca_path)
     json_object_set_string_member (object, "CACertUrl", "/ca.cer");
 
+  g_autofree gchar *contents = NULL;
+  g_autoptr(GError) error = NULL;
+  gsize len;
+
+  const gchar *banner = cockpit_conf_string ("Session", "Banner");
+  if (banner)
+    {
+      // TODO: parse macros (see `man agetty` for possible macros)
+      g_file_get_contents (banner, &contents, &len, &error);
+      if (error)
+        g_message ("error loading contents of banner: %s", error->message);
+      else
+        json_object_set_string_member (object, "banner", contents);
+    }
+
   bytes = cockpit_json_write_bytes (object);
   json_object_unref (object);
 

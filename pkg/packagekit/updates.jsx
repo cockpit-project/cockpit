@@ -932,7 +932,8 @@ class OsUpdates extends React.Component {
             page_status.set_own({
                 details: {
                     text: _("System Up To Date"),
-                    link: ""
+                    link: "",
+                    icon: "fa fa-check-circle-o"
                 }
             });
 

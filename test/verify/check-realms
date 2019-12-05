@@ -381,12 +381,14 @@ class TestRealms(MachineCase):
             export LC_ALL=C.UTF-8 && while ! ipa user-find >/dev/null; do sleep 5; done'
             """, timeout=300)
         # set up an IPA user with a TLS certificate; can't use "admin" due to https://pagure.io/freeipa/issue/6683
-        ipa_machine.execute("""docker exec -i freeipa sh -exc '
+        ipa_machine.execute(r"""docker exec -i freeipa sh -exc '
 CERTUSER=jane
 ipa user-add --first=$CERTUSER --last="developer" $CERTUSER
 yes foobar | ipa user-mod --password $CERTUSER
 ipa user-mod --password-expiration='2030-01-01T00:00:00Z' $CERTUSER
-openssl req -x509 -newkey rsa:2048 -days 365 -nodes -keyout ${CERTUSER}.key -out ${CERTUSER}.pem -subj "/CN=$CERTUSER"
+# some browsers insist on "Key Usage" extension
+printf "[req]\ndistinguished_name=dn\nextensions=v3_req\n[v3_req]\nkeyUsage=digitalSignature,keyEncipherment,keyAgreement\n[dn]\n" > openssl.cnf
+openssl req -x509 -newkey rsa:2048 -days 365 -nodes -keyout ${CERTUSER}.key -out ${CERTUSER}.pem -config openssl.cnf -extensions v3_req -subj "/CN=$CERTUSER"
 openssl x509 -outform der -in ${CERTUSER}.pem -out ${CERTUSER}.der
 ipa user-add-cert $CERTUSER --certificate="$(base64 ${CERTUSER}.der)"
 # for browser import with manual tests

@@ -932,7 +932,7 @@ class OsUpdates extends React.Component {
             page_status.set_own({
                 details: {
                     text: _("System Up To Date"),
-                    link: "nowhere"
+                    link: ""
                 }
             });
 

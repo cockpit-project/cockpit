@@ -21,7 +21,6 @@ import machineslib
 import parent
 from testlib import *
 
-
 TEST_NETWORK_XML = """
 <network>
   <name>test_network</name>
@@ -75,6 +74,18 @@ TEST_NETWORK4_XML = """
   <name>test_network4</name>
 </network>
 """
+
+def getNetworkDevice(m):
+    net_devices_str = m.execute("virsh iface-list")
+    net_devices_str = net_devices_str.split("\n", 2)[2]; # Remove first 2 lines of table header
+    if not net_devices_str in ["\n", "\r\n"]:
+        device = net_devices_str.split(' ', 2)[1] # Get the name of device, ignoring spacing before device string
+    else: # If $virsh-iface list did not return any device, check virsh nodedev-list net:noh
+        net_devices_str = m.execute("virsh nodedev-list net")
+        net_devices_str = net_devices_str.split("\n", 2)[0];
+        device = net_devices_str.split("_", 2)[1]; # Ignore prefix (example: net_enp0s31f6_8c_16_45_5f_77_34)
+
+    return device
 
 @skipImage("LibvirtDBus is not available", "ubuntu-1804")
 class TestMachinesDBus(machineslib.TestMachines):
@@ -966,13 +977,14 @@ class TestMachinesDBus(machineslib.TestMachines):
 
         class NetworkCreateDialog(object):
             def __init__(
-                self, test_obj, name, forward_mode=None, ip_conf=None, ipv4_address=None, ipv4_netmask=None, ipv6_address=None, ipv6_prefix=None,
+                self, test_obj, name, forward_mode=None, ip_conf=None, ipv4_address=None, ipv4_netmask=None, ipv6_address=None, ipv6_prefix=None, device=None,
                 ipv4_dhcp_start=None, ipv4_dhcp_end=None, ipv6_dhcp_start=None, ipv6_dhcp_end=None, xfail=False, xfail_error=None, xfail_objects=None,
                 remove=True
             ):
                 self.test_obj = test_obj
                 self.name = name
                 self.forward_mode = forward_mode
+                self.device = device
                 self.ip_conf = ip_conf
                 self.ipv4_address = ipv4_address
                 self.ipv4_netmask = ipv4_netmask
@@ -1007,6 +1019,9 @@ class TestMachinesDBus(machineslib.TestMachines):
 
                 if self.forward_mode:
                     b.set_val("#create-network-forward-mode", self.forward_mode)
+
+                if self.device:
+                    b.select_from_dropdown("#create-network-device", self.device)
 
                 if self.ip_conf:
                     b.select_from_dropdown("#create-network-ip-configuration", self.ip_conf)
@@ -1077,6 +1092,9 @@ class TestMachinesDBus(machineslib.TestMachines):
                     self.test_obj.assertEqual("", m.execute(xmllint_element.format(prop='forward/@mode')).strip())
                 else:
                     self.test_obj.assertEqual(self.forward_mode, m.execute(xmllint_element.format(prop='forward/@mode')).strip())
+
+                if self.device:
+                    self.test_obj.assertEqual(self.device, m.execute(xmllint_element.format(prop='forward/interface/@dev')).strip())
 
                 if (self.ip_conf != "None"):
                     if "4" in self.ip_conf:
@@ -1231,6 +1249,19 @@ class TestMachinesDBus(machineslib.TestMachines):
             xfail_objects = ["ipv4_dhcp_start", "ipv4_dhcp_end", "ipv6_dhcp_start", "ipv6_dhcp_end"],
             xfail_error = "Address not within subnet",
         ).execute()
+
+        # Test network devices
+        device = getNetworkDevice(m)
+        NetworkCreateDialog(
+            self,
+            name="test_network",
+            forward_mode="nat",
+            device=device,
+            ip_conf="IPv4 only",
+            ipv4_address="192.168.110.0",
+            ipv4_netmask="255.255.255.0",
+        ).execute()
+
 
     def testStoragePoolsCreate(self):
         b = self.browser

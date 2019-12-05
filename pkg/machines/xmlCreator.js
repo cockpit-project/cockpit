@@ -60,7 +60,7 @@ export function getIfaceXML(sourceType, source, model, mac) {
     return new XMLSerializer().serializeToString(doc.documentElement);
 }
 
-export function getNetworkXML({ name, forwardMode, physicalDevice, ipv4, netmask, ipv6, prefix, ipv4DhcpRangeStart, ipv4DhcpRangeEnd, ipv6DhcpRangeStart, ipv6DhcpRangeEnd }) {
+export function getNetworkXML({ name, forwardMode, device, ipv4, netmask, ipv6, prefix, ipv4DhcpRangeStart, ipv4DhcpRangeEnd, ipv6DhcpRangeStart, ipv6DhcpRangeEnd }) {
     const doc = document.implementation.createDocument('', '', null);
 
     const networkElem = doc.createElement('network');
@@ -72,8 +72,8 @@ export function getNetworkXML({ name, forwardMode, physicalDevice, ipv4, netmask
     if (forwardMode !== 'none') {
         const forwardElem = doc.createElement('forward');
         forwardElem.setAttribute('mode', forwardMode);
-        if ((forwardMode === 'nat' || forwardMode === 'route') && physicalDevice !== 'automatic')
-            forwardElem.setAttribute('dev', physicalDevice);
+        if ((forwardMode === 'nat' || forwardMode === 'route') && device !== 'automatic')
+            forwardElem.setAttribute('dev', device);
         networkElem.appendChild(forwardElem);
     }
 

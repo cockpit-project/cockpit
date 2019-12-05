@@ -31,7 +31,7 @@ function component_checksum(machine, component) {
         return "$" + machine.manifests[pkg][".checksum"];
 }
 
-function Frames(index) {
+function Frames(index, setupTimers) {
     var self = this;
     let language = document.cookie.replace(/(?:(?:^|.*;\s*)CockpitLang\s*=\s*([^;]*).*$)|^.*$/, "$1");
     if (!language)
@@ -88,6 +88,9 @@ function Frames(index) {
                 if (count > 0)
                     index.navigate();
             }
+            if (frame.contentWindow)
+                setupTimers(frame.contentWindow);
+
             if (frame.contentDocument && frame.contentDocument.documentElement)
                 frame.contentDocument.documentElement.lang = language;
         } else {
@@ -496,7 +499,80 @@ function Index() {
     if (typeof self.navigate !== "function")
         throw Error("Index requires a prototype with a navigate function");
 
-    self.frames = new Frames(self);
+    /* Session timing out after inactivity */
+    let session_final_timer = null;
+    let session_timeout = 0;
+    let current_idle_time = 0;
+    let final_countdown = 30000; // last 30 seconds
+    let title = "";
+    const standard_login = window.localStorage['standard-login'];
+
+    function startTimer() {
+        if (session_timeout > 0 && standard_login)
+            window.setInterval(sessionTimeout, 5000);
+    }
+
+    function sessionTimeout() {
+        current_idle_time += 5000;
+        if (!session_final_timer && current_idle_time >= session_timeout - final_countdown) {
+            title = document.title;
+            sessionFinalTimeout();
+            $("#session-timeout-dialog").modal("show");
+
+            document.getElementById("keep-session-alive").addEventListener("click", e => {
+                window.clearTimeout(session_final_timer);
+                session_final_timer = null;
+                document.title = title;
+                resetTimer();
+                $("#session-timeout-dialog").modal("hide");
+                final_countdown = 30000;
+            });
+        }
+    }
+
+    function updateFinalCountdown() {
+        const remaining_secs = Math.floor(final_countdown / 1000);
+        const timeout_text = cockpit.format(_("You will be logged out in $0 seconds."), remaining_secs);
+        document.getElementById("timeout-message").innerHTML = timeout_text;
+        document.title = "(" + remaining_secs + ") " + title;
+    }
+
+    function sessionFinalTimeout() {
+        final_countdown -= 1000;
+        if (final_countdown > 0) {
+            updateFinalCountdown();
+            session_final_timer = window.setTimeout(sessionFinalTimeout, 1000);
+        } else {
+            cockpit.logout(true, _("You have been logged out due to inactivity."));
+        }
+    }
+
+    function resetTimer() {
+        if (!session_final_timer) {
+            current_idle_time = 0;
+        }
+    }
+
+    function setupTimers(document) {
+        document.addEventListener("mousemove", resetTimer, false);
+        document.addEventListener("mousedown", resetTimer, false);
+        document.addEventListener("keypress", resetTimer, false);
+        document.addEventListener("touchmove", resetTimer, false);
+        document.addEventListener("onscroll", resetTimer, false);
+    }
+
+    setupTimers(window);
+    cockpit.dbus(null, { bus: "internal" }).call("/config", "cockpit.Config", "GetUInt", ["Session", "IdleTimeout", 15, 240, 0], [])
+            .then(result => {
+                session_timeout = result[0] * 60000;
+                startTimer();
+            })
+            .catch(e => {
+                if (e.message.indexOf("GetUInt not available") === -1)
+                    console.warn(e.message);
+            });
+
+    self.frames = new Frames(self, setupTimers);
     self.router = new Router(self);
 
     /* Watchdog for disconnect */

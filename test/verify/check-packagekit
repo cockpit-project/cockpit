@@ -117,11 +117,16 @@ class TestUpdates(PackageCase):
         b = self.browser
         m = self.machine
 
+        if m.image == "rhel-8-1-distropkg":
+            up_to_date_text = "System Up To Date"
+        else:
+            up_to_date_text = "System is up to date"
+
         m.start_cockpit()
         b.login_and_go("/system")
         # status on /system front page: no repos at all, thus no updates
         self.wait_checking_updates()
-        b.wait_text("#system_information_updates_text", "System Up To Date")
+        b.wait_text("#system_information_updates_text", up_to_date_text)
         if m.image == "rhel-8-1-distropkg":
             self.assertEqual(b.attr("#system_information_updates_icon", "class"), "")
         else:
@@ -230,11 +235,11 @@ class TestUpdates(PackageCase):
         b.go("/system")
         b.enter_page("/system")
         self.wait_checking_updates()
-        b.wait_text("#system_information_updates_text", "System Up To Date")
         if m.image == "rhel-8-1-distropkg":
             self.assertEqual(b.attr("#system_information_updates_icon", "class"), "")
         else:
             self.assertEqual(b.attr("#system_information_updates_icon", "class"), "fa fa-check-circle-o")
+        b.wait_text("#system_information_updates_text", up_to_date_text)
 
     def testInfoSecurity(self):
         b = self.browser
@@ -698,6 +703,11 @@ class TestUpdatesSubscriptions(PackageCase):
         m = self.machine
         b = self.browser
 
+        if m.image == "rhel-8-1-distropkg":
+            up_to_date_text = "System Up To Date"
+        else:
+            up_to_date_text = "System is up to date"
+
         # fresh machine, no updates available; by default our rhel-* images are not registered
         m.start_cockpit()
         b.login_and_go("/system")
@@ -730,11 +740,11 @@ class TestUpdatesSubscriptions(PackageCase):
         # same on system page
         b.go("/system")
         b.enter_page("/system")
-        b.wait_text("#system_information_updates_text", "System Up To Date")
         if m.image == "rhel-8-1-distropkg":
             self.assertEqual(b.attr("#system_information_updates_icon", "class"), "")
         else:
             self.assertEqual(b.attr("#system_information_updates_icon", "class"), "fa fa-check-circle-o")
+        b.wait_text("#system_information_updates_text", up_to_date_text)
 
     def testAvailableUpdates(self):
         m = self.machine

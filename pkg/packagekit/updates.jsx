@@ -931,7 +931,7 @@ class OsUpdates extends React.Component {
         case "uptodate":
             page_status.set_own({
                 details: {
-                    text: _("System Up To Date"),
+                    text: _("System is up to date"),
                     link: "",
                     icon: "fa fa-check-circle-o"
                 }

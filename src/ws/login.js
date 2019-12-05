@@ -7,6 +7,7 @@
     try {
         localStorage = window.localStorage;
         window.localStorage.removeItem('url-root');
+        window.localStorage.removeItem('standard-login');
     } catch (ex) {
         localStorage = window.sessionStorage;
         console.warn(String(ex));
@@ -486,6 +487,9 @@
             var authorized = id("authorized-input").checked ? "password" : "";
             var password = id("login-password-input").value;
             localStorage.setItem('authorized-default', authorized);
+
+            /* Keep information if login page was used */
+            localStorage.setItem('standard-login', true);
 
             var headers = {
                 Authorization: "Basic " + window.btoa(utf8(user + ":" + password)),

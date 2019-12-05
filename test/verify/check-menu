@@ -34,6 +34,7 @@ class TestMenu(MachineCase):
         m.execute("mkdir -p /usr/local/share/cockpit/systemd && cp -rp /usr/share/cockpit/systemd/* /usr/local/share/cockpit/systemd")
         m.execute(
             """sed -i '/"menu"/a "memory": { "label": "Memory", "path": "#/memory" },' /usr/local/share/cockpit/systemd/manifest.json""")
+        m.execute("printf '[Session]\nIdleTimeout = 1\n' >> /etc/cockpit/cockpit.conf")
 
         self.login_and_go("/system")
 
@@ -43,6 +44,37 @@ class TestMenu(MachineCase):
         b.wait_popup('about')
         b.click('#about button[data-dismiss="modal"]')
         b.wait_popdown("about")
+
+        # Test session timeout
+        if m.image != "rhel-8-1-distropkg": # Added in #13251
+            time.sleep(20)
+            b.wait_not_visible("#session-timeout-dialog")
+            b.wait_visible("#filter-menus")
+            b.enter_page("/system")
+            b.mouse("#system_information_hardware_text", "mousemove", 24, 24)
+            b.switch_to_top()
+            time.sleep(35)
+            with b.wait_timeout(3):
+                b.wait_popup("session-timeout-dialog")
+                self.assertGreater(int(b.text("#session-timeout-dialog #timeout-message").split()[-2]), 20)
+            b.click("#keep-session-alive")
+            b.wait_popdown("session-timeout-dialog")
+            time.sleep(30)
+            with b.wait_timeout(8):
+                b.wait_popup("session-timeout-dialog")
+                self.assertGreater(int(b.text("#session-timeout-dialog #timeout-message").split()[-2]), 20)
+            time.sleep(30)
+            b.wait_visible("#login")
+            b.wait_visible("#login-info-message")
+            b.wait_text("#login-info-message", "You have been logged out due to inactivity.")
+            m.execute("sed -i 's/IdleTimeout = 1/IdleTimeout = 0/' /etc/cockpit/cockpit.conf")
+            m.restart_cockpit()
+            b.reload()
+            self.login_and_go("/system")
+            b.switch_to_top()
+            time.sleep(75)
+            b.wait_not_visible("#session-timeout-dialog")
+            b.wait_visible("#filter-menus")
 
         self.check_axe("Test-navigation")
 

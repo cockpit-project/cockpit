@@ -33,9 +33,13 @@
     pair and associate it to the user <code>alice</code>:</para>
 
 <programlisting>
-# create self-signed certificate and key:
+# create self-signed certificate and key
+# some browsers insist on specifying key usage, so it needs a config file
+printf '[req]\ndistinguished_name=dn\nextensions=v3_req\n[dn]\n
+    [v3_req]\nkeyUsage=digitalSignature,keyEncipherment,keyAgreement\n' > /tmp/openssl.cnf
+
 openssl req -x509 -newkey rsa:2048 -days 365 -nodes -keyout alice.key \
-    -out alice.pem -subj "/CN=alice"
+    -out alice.pem -subj "/CN=alice" -config /tmp/openssl.cnf -extensions v3_req
 
 # FreeIPA only accepts DER format, convert it
 openssl x509 -outform der -in alice.pem -out alice.der

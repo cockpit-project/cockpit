@@ -747,7 +747,7 @@ function Index() {
         build_navbar();
         self.navigate();
         cockpit.translate();
-        $("body").show();
+        $("body").prop("hidden", false);
     };
 
     self.expect_restart = function (host) {

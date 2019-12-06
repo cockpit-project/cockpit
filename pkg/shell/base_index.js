@@ -791,7 +791,7 @@ function Index() {
 
     self.show_oops = function () {
         if (self.oops_sel)
-            $(self.oops_sel).show();
+            $(self.oops_sel).prop("hidden", false);
     };
 
     self.current_frame = function (frame) {
@@ -823,7 +823,7 @@ function Index() {
         build_navbar();
         self.navigate();
         cockpit.translate();
-        $("body").show();
+        $("body").prop("hidden", false);
     };
 
     self.expect_restart = function (host) {
@@ -959,7 +959,7 @@ function Index() {
         $(id).on("click", function() {
             self.jump({ host: "localhost", component: "users", hash: "/" + user.name });
         })
-                .show();
+                .prop("hidden", false);
     }
 
     function setup_killer(id) {

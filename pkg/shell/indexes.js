@@ -224,11 +224,11 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
             const ca_cert_url = window.sessionStorage.getItem("CACertUrl");
             if (window.navigator.userAgent.indexOf("Safari") >= 0 && ca_cert_url) {
                 $("#safari-cert-help a").attr("href", ca_cert_url);
-                $("#safari-cert-help").show();
+                $("#safari-cert-help").prop("hidden", false);
             }
-            $("#early-failure").show();
+            $("#early-failure").prop("hidden", false);
             $("#main").hide();
-            $("body").show();
+            $("body").prop("hidden", false);
             return;
         }
 
@@ -237,13 +237,13 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
         if (current_frame)
             $(current_frame).hide();
 
-        $(".curtains-ct .spinner").toggle(false);
+        $(".curtains-ct .spinner").prop("hidden", true);
         $("#machine-reconnect").toggle(true);
         $("#machine-troubleshoot").toggle(false);
         $(".curtains-ct i").toggle(true);
         $(".curtains-ct h1").text(_("Disconnected"));
         $(".curtains-ct p").text(cockpit.message(watchdog_problem));
-        $(".curtains-ct").show();
+        $(".curtains-ct").prop("hidden", false);
         $("#navbar-dropdown").addClass("disabled");
     }
 
@@ -676,8 +676,8 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
             }
 
             restarting = !!machine.restarting;
-            $(".curtains-ct").show();
-            $(".curtains-ct .spinner").toggle(connecting || restarting);
+            $(".curtains-ct").prop("hidden", false);
+            $(".curtains-ct .spinner").prop("hidden", !connecting && !restarting);
             $("#machine-reconnect").toggle(!connecting && machine.problem != "not-found");
             $(".curtains-ct i").toggle(!connecting && !restarting);
             $(".curtains-ct h1").text(title);
@@ -715,7 +715,7 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
 
         var label, item;
         if (machine.state == "connected") {
-            $(".curtains-ct").hide();
+            $(".curtains-ct").prop("hidden", true);
             $("#machine-spinner").toggle(frame && !$(frame).attr("data-ready"));
             $(frame).css('display', 'block');
             item = compiled.items[state.component];
@@ -840,12 +840,12 @@ function SimpleIndex(index_options) {
         if (current_frame)
             $(current_frame).hide();
 
-        $(".curtains-ct .spinner").toggle(false);
+        $(".curtains-ct .spinner").prop("hidden", true);
         $("#machine-reconnect").toggle(true);
         $(".curtains-ct i").toggle(true);
         $(".curtains-ct h1").text(_("Disconnected"));
         $(".curtains-ct p").text(cockpit.message(watchdog_problem));
-        $(".curtains-ct").show();
+        $(".curtains-ct").prop("hidden", false);
         $("#navbar-dropdown").addClass("disabled");
     }
 

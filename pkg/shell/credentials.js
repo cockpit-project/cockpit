@@ -255,9 +255,9 @@ export function setup() {
                         .removeClass("active");
                 li.addClass("active");
                 var body = $(this).parents("tbody");
-                body.find(".credential-tab").hide()
+                body.find(".credential-tab").prop("hidden", true)
                         .eq(index)
-                        .show();
+                        .prop("hidden", false);
                 body.find(".pf-c-alert").hide();
                 ev.preventDefault();
                 ev.stopPropagation();

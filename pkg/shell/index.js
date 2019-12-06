@@ -35,7 +35,10 @@ document.addEventListener("click", function(ev) {
     var visible = !!ev.altKey;
     var advanced = document.querySelectorAll(".navbar-advanced");
     for (i = 0; i < advanced.length; i++)
-        advanced[i].style.display = visible ? "block" : "none";
+        if (visible)
+            advanced[i].removeAttribute("hidden");
+        else
+            advanced[i].setAttribute("hidden", "");
 }, true);
 
 var options = {

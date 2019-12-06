@@ -435,22 +435,22 @@ function NetworkManagerModel() {
 
         // running
         if (nm_running) {
-            $("#networking-nm-crashed").hide();
-            $("#networking-nm-disabled").hide();
-            $("#networking-graphs").show();
-            $("#networking-interfaces").show();
+            $("#networking-nm-crashed").prop('hidden', true);
+            $("#networking-nm-disabled").prop('hidden', true);
+            $("#networking-graphs").prop('hidden', false);
+            $("#networking-interfaces").prop('hidden', false);
             // NM appearing will also trigger a device update, which hides it if necessary
-            $("#networking-unmanaged-interfaces").show();
+            $("#networking-unmanaged-interfaces").prop('hidden', false);
         } else {
-            $("#networking-graphs").hide();
-            $("#networking-interfaces").hide();
-            $("#networking-unmanaged-interfaces").hide();
+            $("#networking-graphs").prop('hidden', true);
+            $("#networking-interfaces").prop('hidden', true);
+            $("#networking-unmanaged-interfaces").prop('hidden', true);
             if (nm_enabled) {
-                $("#networking-nm-disabled").hide();
-                $("#networking-nm-crashed").show();
+                $("#networking-nm-disabled").prop('hidden', true);
+                $("#networking-nm-crashed").prop('hidden', false);
             } else {
-                $("#networking-nm-disabled").show();
-                $("#networking-nm-crashed").hide();
+                $("#networking-nm-disabled").prop('hidden', false);
+                $("#networking-nm-crashed").prop('hidden', true);
             }
         }
     }
@@ -1625,7 +1625,7 @@ PageNetworking.prototype = {
          * https://bugzilla.redhat.com/show_bug.cgi?id=1375967
          */
 
-        $("#networking-add-team").hide();
+        $("#networking-add-team").prop('hidden', true);
         // We need both the plugin and teamd
         cockpit.script("test -f /usr/bin/teamd && " +
                        "( test -f /usr/lib*/NetworkManager/libnm-device-plugin-team.so || " +
@@ -1634,7 +1634,7 @@ PageNetworking.prototype = {
                        "  test -f /usr/lib/*-linux-gnu/NetworkManager/*/libnm-device-plugin-team.so)",
                        { err: "ignore" })
                 .done(function () {
-                    $("#networking-add-team").show();
+                    $("#networking-add-team").prop('hidden', false);
                 })
                 .always(function () {
                     $("#networking-add-team").attr("data-test-stable", "yes");
@@ -1755,7 +1755,7 @@ PageNetworking.prototype = {
 
         unmanaged_tbody = $('#networking-unmanaged-interfaces tbody');
         unmanaged_tbody.empty();
-        $('#networking-unmanaged-interfaces').hide();
+        $('#networking-unmanaged-interfaces').prop('hidden', true);
 
         self.model.list_interfaces().forEach(function (iface) {
             function has_master(iface) {
@@ -1798,7 +1798,7 @@ PageNetworking.prototype = {
                 }));
             } else {
                 unmanaged_tbody.append(row);
-                $('#networking-unmanaged-interfaces').show();
+                $('#networking-unmanaged-interfaces').prop('hidden', false);
             }
         });
     },
@@ -2106,14 +2106,14 @@ function with_checkpoint(model, modify, options) {
         cockpit.hint("ignore_transport_health_check", { data: true });
         curtain_timeout = window.setTimeout(function () {
             curtain_timeout = null;
-            curtain_testing.show();
-            curtain_restoring.hide();
-            curtain.show();
+            curtain_testing.prop('hidden', false);
+            curtain_restoring.prop('hidden', true);
+            curtain.prop('hidden', false);
         }, curtain_time * 1000);
         curtain_title_timeout = window.setTimeout(function () {
             curtain_title_timeout = null;
-            curtain_testing.hide();
-            curtain_restoring.show();
+            curtain_testing.prop('hidden', true);
+            curtain_restoring.prop('hidden', false);
         }, rollback_time * 1000);
     }
 
@@ -2123,7 +2123,7 @@ function with_checkpoint(model, modify, options) {
         curtain_timeout = null;
         if (curtain_title_timeout)
             window.clearTimeout(curtain_title_timeout);
-        curtain.hide();
+        curtain.prop('hidden', true);
         cockpit.hint("ignore_transport_health_check", { data: false });
     }
 
@@ -2307,11 +2307,11 @@ PageNetworkInterface.prototype = {
 
         function onFirewallChanged() {
             if (!firewall.installed) {
-                $('#networking-firewall').hide();
+                $('#networking-firewall').prop('hidden', true);
                 return;
             }
 
-            $('#networking-firewall').show();
+            $('#networking-firewall').prop('hidden', false);
             renderFirewallState();
 
             const summary = cockpit.format(cockpit.ngettext(_("$0 Active Zone"), _("$0 Active Zones"), firewall.activeZones.size), firewall.activeZones.size);
@@ -2340,7 +2340,7 @@ PageNetworkInterface.prototype = {
         self.rx_series.clear_instances();
         self.tx_series.clear_instances();
 
-        $('#network-interface-delete').hide();
+        $('#network-interface-delete').prop('hidden', true);
         self.dev = null;
         self.update();
     },
@@ -3095,11 +3095,11 @@ PageNetworkInterface.prototype = {
 
             $('#network-interface-slaves thead th:nth-child(5)').html(add_btn);
 
-            $('#network-interface-slaves').show();
+            $('#network-interface-slaves').prop('hidden', false);
             update_network_privileged();
         }
 
-        $('#network-interface-slaves').hide();
+        $('#network-interface-slaves').prop('hidden', true);
         if (self.main_connection)
             update_connection_slaves(self.main_connection);
     }
@@ -3142,7 +3142,7 @@ function with_settings_checkpoint(model, modify, options) {
 function show_dialog_error(error_id, error) {
     var msg = error.message || error.toString();
     console.warn(msg);
-    $(error_id).show()
+    $(error_id).prop('hidden', false)
             .find('h4')
             .text(msg);
 }
@@ -3167,7 +3167,7 @@ PageNetworkIpSettings.prototype = {
     },
 
     enter: function () {
-        $('#network-ip-settings-error').hide();
+        $('#network-ip-settings-error').prop('hidden', true);
         this.settings = PageNetworkIpSettings.ghost_settings || PageNetworkIpSettings.connection.copy_settings();
         this.update();
     },
@@ -3635,7 +3635,7 @@ PageNetworkBondSettings.prototype = {
     },
 
     enter: function () {
-        $('#network-bond-settings-error').hide();
+        $('#network-bond-settings-error').prop('hidden', true);
         this.settings = PageNetworkBondSettings.ghost_settings || PageNetworkBondSettings.connection.copy_settings();
         this.update();
     },
@@ -3836,7 +3836,7 @@ PageNetworkTeamSettings.prototype = {
     },
 
     enter: function () {
-        $('#network-team-settings-error').hide();
+        $('#network-team-settings-error').prop('hidden', true);
         this.settings = PageNetworkTeamSettings.ghost_settings || PageNetworkTeamSettings.connection.copy_settings();
         this.update();
     },
@@ -4039,7 +4039,7 @@ PageNetworkTeamPortSettings.prototype = {
     },
 
     enter: function () {
-        $('#network-teamport-settings-error').hide();
+        $('#network-teamport-settings-error').prop('hidden', true);
         this.settings = PageNetworkTeamPortSettings.ghost_settings || PageNetworkTeamPortSettings.connection.copy_settings();
         this.update();
     },
@@ -4138,7 +4138,7 @@ PageNetworkBridgeSettings.prototype = {
     },
 
     enter: function () {
-        $('#network-bridge-settings-error').hide();
+        $('#network-bridge-settings-error').prop('hidden', true);
         this.settings = PageNetworkBridgeSettings.ghost_settings || PageNetworkBridgeSettings.connection.copy_settings();
         this.update();
     },
@@ -4248,7 +4248,7 @@ PageNetworkBridgeSettings.prototype = {
                             return PageNetworkBridgeSettings.done();
                     })
                     .catch(function (error) {
-                        $('#network-bridge-settings-error').show()
+                        $('#network-bridge-settings-error').prop('hidden', false)
                                 .find('h4')
                                 .text(error.message || error.toString());
                     });
@@ -4294,7 +4294,7 @@ PageNetworkBridgePortSettings.prototype = {
     },
 
     enter: function () {
-        $('#network-bridgeport-settings-error').hide();
+        $('#network-bridgeport-settings-error').prop('hidden', true);
         this.settings = PageNetworkBridgePortSettings.ghost_settings || PageNetworkBridgePortSettings.connection.copy_settings();
         this.update();
     },
@@ -4376,7 +4376,7 @@ PageNetworkVlanSettings.prototype = {
     },
 
     enter: function () {
-        $('#network-vlan-settings-error').hide();
+        $('#network-vlan-settings-error').prop('hidden', true);
         this.settings = PageNetworkVlanSettings.ghost_settings || PageNetworkVlanSettings.connection.copy_settings();
         this.update();
     },
@@ -4498,7 +4498,7 @@ PageNetworkMtuSettings.prototype = {
     },
 
     enter: function () {
-        $('#network-mtu-settings-error').hide();
+        $('#network-mtu-settings-error').prop('hidden', true);
         this.settings = PageNetworkMtuSettings.ghost_settings || PageNetworkMtuSettings.connection.copy_settings();
         this.update();
     },
@@ -4577,7 +4577,7 @@ PageNetworkMacSettings.prototype = {
     },
 
     enter: function () {
-        $('#network-mac-settings-error').hide();
+        $('#network-mac-settings-error').prop('hidden', true);
         this.settings = PageNetworkMacSettings.ghost_settings || PageNetworkMacSettings.connection.copy_settings();
         this.update();
     },
@@ -4650,7 +4650,7 @@ function dialog_setup(d) {
     d.setup();
     $('#' + d.id)
             .on('show.bs.modal', function () { d.enter() })
-            .on('shown.bs.modal', function () { d.show() })
+            .on('shown.bs.modal', function () { d.prop('hidden', false) })
             .on('hidden.bs.modal', function () { d.leave() });
 }
 
@@ -4659,12 +4659,12 @@ function page_show(p, arg) {
         p.leave();
     p.enter(arg);
     p._entered_ = true;
-    $('#' + p.id).show();
+    $('#' + p.id).prop('hidden', false);
     p.show();
 }
 
 function page_hide(p) {
-    $('#' + p.id).hide();
+    $('#' + p.id).prop('hidden', true);
     if (p._entered_) {
         p.leave();
         p._entered_ = false;
@@ -4691,7 +4691,7 @@ function init() {
                 cockpit.location = '';
             }
 
-            $("body").show();
+            $("body").prop('hidden', false);
         });
     }
 

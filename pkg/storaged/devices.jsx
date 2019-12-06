@@ -93,7 +93,7 @@ class StoragePage extends React.Component {
             // we can throw this hack out.
             <>
                 <MultipathAlert client={client} />
-                <div className={detail ? "hidden" : null}><Overview client={client} /></div>
+                <div hidden={!!detail}><Overview client={client} /></div>
                 {detail}
             </>
         );
@@ -102,7 +102,7 @@ class StoragePage extends React.Component {
 
 function init() {
     ReactDOM.render(<StoragePage client={client} />, document.getElementById("storage"));
-    document.body.style.display = "block";
+    document.body.removeAttribute("hidden");
 
     window.addEventListener('beforeunload', event => {
         if (client.busy) {

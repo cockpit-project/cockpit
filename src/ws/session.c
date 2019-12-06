@@ -258,8 +258,7 @@ pam_conv_func (int num_msg,
 }
 
 static pam_handle_t *
-perform_basic (const char *rhost,
-               const char *authorization)
+perform_basic (const char *authorization)
 {
   struct pam_conv conv = { pam_conv_func, };
   pam_handle_t *pamh;
@@ -283,9 +282,9 @@ perform_basic (const char *rhost,
   res = pam_start ("cockpit", user, &conv, &pamh);
   if (res != PAM_SUCCESS)
     errx (EX, "couldn't start pam: %s", pam_strerror (NULL, res));
-
-  if (pam_set_item (pamh, PAM_RHOST, rhost) != PAM_SUCCESS)
-    errx (EX, "couldn't setup pam");
+  /* DON'T pass COCKPIT_REMOTE_PEER as PAM_RHOST here; we use that for logging,
+   * but it's completely unreliable and untrustworthy (proxies, cockpit-tls,
+   * containers, NAT, VPNs, etc. all destroy the original IP) */
 
   debug ("authenticating");
 
@@ -380,8 +379,7 @@ map_gssapi_to_local (gss_name_t name,
 
 
 static pam_handle_t *
-perform_gssapi (const char *rhost,
-                const char *authorization)
+perform_gssapi (const char *authorization)
 {
   struct pam_conv conv = { pam_conv_func, };
   OM_uint32 major, minor;
@@ -491,8 +489,6 @@ perform_gssapi (const char *rhost,
 
   if (res != PAM_SUCCESS)
     errx (EX, "couldn't start pam: %s", pam_strerror (NULL, res));
-  if (pam_set_item (pamh, PAM_RHOST, rhost) != PAM_SUCCESS)
-    errx (EX, "couldn't setup pam");
 
   res = open_session (pamh);
   if (res != PAM_SUCCESS)
@@ -535,7 +531,7 @@ pam_conv_func_dummy (int num_msg,
 }
 
 static pam_handle_t *
-perform_tlscert (const char *rhost)
+perform_tlscert (void)
 {
   struct pam_conv conv = { pam_conv_func_dummy, };
   pam_handle_t *pamh;
@@ -547,9 +543,6 @@ perform_tlscert (const char *rhost)
   res = pam_start ("cockpit", NULL, &conv, &pamh);
   if (res != PAM_SUCCESS)
     errx (EX, "couldn't start pam: %s", pam_strerror (NULL, res));
-
-  if (pam_set_item (pamh, PAM_RHOST, rhost) != PAM_SUCCESS)
-    errx (EX, "couldn't setup pam rhost");
 
   res = pam_authenticate (pamh, 0);
   if (res == PAM_SUCCESS)
@@ -687,11 +680,11 @@ main (int argc,
     errx (EX, "invalid authorization header received");
 
   if (strcmp (type, "basic") == 0)
-    pamh = perform_basic (rhost, authorization);
+    pamh = perform_basic (authorization);
   else if (strcmp (type, "negotiate") == 0)
-    pamh = perform_gssapi (rhost, authorization);
+    pamh = perform_gssapi (authorization);
   else if (strcmp (type, "tls-cert") == 0)
-    pamh = perform_tlscert (rhost);
+    pamh = perform_tlscert ();
 
   cockpit_memory_clear (authorization, -1);
   free (authorization);

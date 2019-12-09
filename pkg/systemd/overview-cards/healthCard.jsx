@@ -77,7 +77,7 @@ export class HealthCard extends React.Component {
                             <>
                                 {this.state.updateDetails !== undefined ? <>
                                     <span id="system_information_updates_icon" className={updateDetails.icon || ""} />
-                                    <a id="system_information_updates_text" onClick={() => cockpit.jump("/" + (updateDetails.link || "updates"))}>{updateDetails.text || this.state.updateStatus.title || ""}</a>
+                                    <a role="link" tabIndex="0" id="system_information_updates_text" onClick={() => cockpit.jump("/" + (updateDetails.link || "updates"))}>{updateDetails.text || this.state.updateStatus.title || ""}</a>
                                 </> : <>
                                     <span className="spinner spinner-xs" />
                                     <span>{_("Checking for package updates...")}</span>

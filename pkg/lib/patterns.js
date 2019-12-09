@@ -49,10 +49,12 @@ function field_error(target, error) {
 }
 
 function global_error(sel, error) {
-    var alert = $("<div class='alert alert-danger dialog-error'>");
+    var alert = $("<div class='pf-c-alert pf-m-danger pf-m-inline dialog-error' aria-label='inline danger alert'>");
     var text = error.message || error.toString();
-    alert.text(text);
-    $("<span class='fa fa-exclamation-triangle'>").prependTo(alert);
+    $("<div class='pf-c-alert__icon'>").append($("<span class='pficon pficon-error-circle-o'>"))
+            .prependTo(alert);
+    $("<h4 class='pf-c-alert__title'>").text(text)
+            .appendTo(alert);
 
     /* Always log global dialog errors for easier debugging */
     console.warn(text);

@@ -86,13 +86,13 @@ function show_curtain(ex) {
     }
 
     $('#curtain').html(mustache.render(curtain_tmpl, info));
-    $('body > div').hide();
-    $('#curtain').show();
-    $("body").show();
+    $('body > div:not(.modal)').prop("hidden", true);
+    $('#curtain').prop("hidden", false);
+    $("body").prop("hidden", false);
 }
 
 function hide_curtain() {
-    $('#curtain').hide();
+    $('#curtain').prop("hidden", true);
 }
 
 /* INITIALIZATION AND NAVIGATION
@@ -108,7 +108,7 @@ function init() {
     function navigate() {
         var path = cockpit.location.path;
 
-        $("body").show();
+        $("body").prop("hidden", false);
         hide_curtain();
         if (path.length === 0) {
             container_details_page.hide();

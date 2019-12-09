@@ -521,10 +521,10 @@ export function init_storage(client) {
             else
                 $('#storage-unsupported-message').text(
                     _("The Docker storage pool cannot be managed on this system."));
-            $("#storage-unsupported").show();
+            $("#storage-unsupported").prop("hidden", false);
             $("#storage-details").hide();
         } else {
-            $("#storage-unsupported").hide();
+            $("#storage-unsupported").prop("hidden", true);
             $("#storage-details").show();
             $("#storage-reset").toggle(model.driver == "devicemapper");
         }
@@ -534,11 +534,11 @@ export function init_storage(client) {
     update();
 
     function hide() {
-        $('#storage').hide();
+        $('#storage').prop("hidden", true);
     }
 
     function show() {
-        $('#storage').show();
+        $('#storage').prop("hidden", false);
     }
 
     return {

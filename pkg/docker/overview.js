@@ -217,11 +217,11 @@ export function init_overview (client) {
             });
 
     function hide() {
-        $('#containers').hide();
+        $('#containers').prop("hidden", true);
     }
 
     function show() {
-        $('#containers').show();
+        $('#containers').prop("hidden", false);
         cpu_plot.resize();
         mem_plot.resize();
     }

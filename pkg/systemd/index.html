@@ -49,7 +49,7 @@
     {{^Server}}
     <div translate="yes">Not synchronized</div>
     {{#service}}
-    <a tabindex="0" data-goto-service="{{.}}" class="small-messages" translate>Log messages</a>
+    <a role="link" tabindex="0" data-goto-service="{{.}}" class="small-messages" translate>Log messages</a>
     {{/service}}
     {{/Server}}
     {{/Synched}}
@@ -107,9 +107,9 @@
                                       <i class="fa fa-caret-down pf-c-context-selector__toggle-icon" aria-hidden="true"></i>
                                   </button>
                                   <ul class="dropdown-menu">
-                                      <li value="manual_time"><a tabindex="0" translate="yes">Manually</a></li>
-                                      <li value="ntp_time"><a tabindex="0" translate="yes">Automatically using NTP</a></li>
-                                      <li value="ntp_time_custom"><a tabindex="0" translate="yes">Automatically using specific NTP servers</a></li>
+                                      <li value="manual_time"><a role="link" tabindex="0" translate="yes">Manually</a></li>
+                                      <li value="ntp_time"><a role="link" tabindex="0" translate="yes">Automatically using NTP</a></li>
+                                      <li value="ntp_time_custom"><a role="link" tabindex="0" translate="yes">Automatically using specific NTP servers</a></li>
                                   </ul>
                               </div>
                           </td>
@@ -207,14 +207,14 @@
                                       <i class="fa fa-caret-down pf-c-context-selector__toggle-icon" aria-hidden="true"></i>
                                   </button>
                                   <ul class="dropdown-menu">
-                                      <li value="1"><a tabindex="0" translate="yes">1 Minute</a></li>
-                                      <li value="5"><a tabindex="0" translate="yes">5 Minutes</a></li>
-                                      <li value="20"><a tabindex="0" translate="yes">20 Minutes</a></li>
-                                      <li value="40"><a tabindex="0" translate="yes">40 Minutes</a></li>
-                                      <li value="60"><a tabindex="0" translate="yes">60 Minutes</a></li>
+                                      <li value="1"><a role="link" tabindex="0" translate="yes">1 Minute</a></li>
+                                      <li value="5"><a role="link" tabindex="0" translate="yes">5 Minutes</a></li>
+                                      <li value="20"><a role="link" tabindex="0" translate="yes">20 Minutes</a></li>
+                                      <li value="40"><a role="link" tabindex="0" translate="yes">40 Minutes</a></li>
+                                      <li value="60"><a role="link" tabindex="0" translate="yes">60 Minutes</a></li>
                                       <li role="separator" class="divider"></li>
-                                      <li value="0"><a tabindex="0" translate="yes">No Delay</a></li>
-                                      <li value="x"><a tabindex="0" translate="yes">Specific Time</a></li>
+                                      <li value="0"><a role="link" tabindex="0" translate="yes">No Delay</a></li>
+                                      <li value="x"><a role="link" tabindex="0" translate="yes">Specific Time</a></li>
                                   </ul>
                               </div>
                           </td>

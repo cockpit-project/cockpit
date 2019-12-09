@@ -89,7 +89,7 @@ export class UsageCard extends React.Component {
                     </table>
                 </CardBody>
                 <CardFooter>
-                    <a className="no-left-padding" onClick={() => cockpit.jump("/system/graphs", cockpit.transport.host)}>
+                    <a role="link" tabIndex="0" className="no-left-padding" onClick={() => cockpit.jump("/system/graphs", cockpit.transport.host)}>
                         {_("View graphs")}
                     </a>
                 </CardFooter>

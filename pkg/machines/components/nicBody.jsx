@@ -68,7 +68,7 @@ NetworkModelRow.propTypes = {
     dialogValues: PropTypes.object.isRequired,
 };
 
-export const NetworkTypeAndSourceRow = ({ idPrefix, onValueChanged, dialogValues, connectionName, networks, nodeDevices, interfaces }) => {
+export const NetworkTypeAndSourceRow = ({ idPrefix, onValueChanged, dialogValues, connectionName, networks, networkDevices }) => {
     const defaultNetworkType = dialogValues.networkType;
     let availableNetworkTypes = [];
     let defaultNetworkSource = dialogValues.networkSource;
@@ -163,7 +163,6 @@ NetworkTypeAndSourceRow.propTypes = {
     connectionName: PropTypes.string.isRequired,
     onValueChanged: PropTypes.func.isRequired,
     networks: PropTypes.array.isRequired,
-    interfaces: PropTypes.array.isRequired,
-    nodeDevices: PropTypes.array.isRequired,
+    networkDevices: PropTypes.array.isRequired,
     dialogValues: PropTypes.object.isRequired,
 };

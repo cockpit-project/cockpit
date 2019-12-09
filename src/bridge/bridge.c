@@ -128,6 +128,7 @@ send_init_command (CockpitTransport *transport,
   gchar **names;
   GBytes *bytes;
   gint i;
+  gchar *session_id;
 
   object = json_object_new ();
   json_object_set_string_member (object, "command", "init");
@@ -164,6 +165,10 @@ send_init_command (CockpitTransport *transport,
             json_object_set_object_member (object, "os-release", block);
           g_hash_table_unref (os_release);
         }
+
+      session_id = secure_getenv ("XDG_SESSION_ID");
+      if (session_id)
+        json_object_set_string_member (object, "session-id", session_id);
     }
 
   bytes = cockpit_json_write_bytes (object);

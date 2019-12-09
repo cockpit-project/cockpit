@@ -201,6 +201,8 @@ cockpit_sockets_cleanup (CockpitSockets *sockets)
 struct _CockpitWebService {
   GObject parent;
 
+  gchar *id;
+
   CockpitCreds *creds;
   CockpitSockets sockets;
   gboolean closing;
@@ -929,12 +931,12 @@ process_logout (CockpitWebService *self,
   /* Destroys our web service, disconnects everything */
   if (disconnect)
     {
-      g_info ("Logging out session of user %s from %s", cockpit_creds_get_user (self->creds), cockpit_creds_get_rhost (self->creds));
+      g_info ("Logging out session %s", self->id);
       g_object_run_dispose (G_OBJECT (self));
     }
   else
     {
-      g_info ("Deauthorizing session of user %s from %s", cockpit_creds_get_user (self->creds), cockpit_creds_get_rhost (self->creds));
+      g_info ("Deauthorizing session %s", self->id);
     }
 
   send_socket_hints (self, "credential", "none");
@@ -1117,9 +1119,9 @@ on_web_socket_open (WebSocketConnection *connection,
   JsonObject *info;
 
   if (cockpit_creds_get_rhost (self->creds))
-      g_info ("New connection to session of user %s from %s", cockpit_creds_get_user (self->creds), cockpit_creds_get_rhost (self->creds));
+    g_info ("New connection to session %s from %s", self->id, cockpit_creds_get_rhost (self->creds));
   else
-      g_info ("New connection to session of user %s", cockpit_creds_get_user (self->creds));
+    g_info ("New connection to session %s", self->id);
 
   socket = cockpit_socket_lookup_by_connection (&self->sockets, connection);
   g_return_if_fail (socket != NULL);
@@ -1204,7 +1206,10 @@ on_web_socket_close (WebSocketConnection *connection,
 {
   CockpitSocket *socket;
 
-  g_info ("WebSocket from %s for session of user %s closed", cockpit_creds_get_rhost (self->creds), cockpit_creds_get_user (self->creds));
+  if (cockpit_creds_get_rhost (self->creds))
+    g_info ("Connection from %s to session %s closed", cockpit_creds_get_rhost (self->creds), self->id);
+  else
+    g_info ("Connection to session %s closed", self->id);
 
   g_signal_handlers_disconnect_by_func (connection, on_web_socket_open, self);
   g_signal_handlers_disconnect_by_func (connection, on_web_socket_closing, self);
@@ -1408,6 +1413,33 @@ cockpit_web_service_get_creds (CockpitWebService *self)
 {
   g_return_val_if_fail (COCKPIT_IS_WEB_SERVICE (self), NULL);
   return self->creds;
+}
+
+/**
+ * cockpit_web_service_get_id:
+ * @self: the service
+ *
+ * Returns: The id of this service, for logging.
+ */
+const gchar *
+cockpit_web_service_get_id (CockpitWebService *self)
+{
+  g_return_val_if_fail (COCKPIT_IS_WEB_SERVICE (self), NULL);
+  return self->id;
+}
+
+/**
+ * cockpit_web_service_set_id:
+ * @self: the service
+ * @id: the id
+ */
+void
+cockpit_web_service_set_id (CockpitWebService *self,
+                            const gchar *id)
+{
+  g_return_if_fail (COCKPIT_IS_WEB_SERVICE (self));
+  if (!self->id)
+    self->id = g_strdup (id);
 }
 
 /**

@@ -106,7 +106,7 @@ PageContainerDetails.prototype = {
             this.terminal.close();
             this.terminal = null;
         }
-        $("#container-terminal").hide();
+        $("#container-terminal").prop("hidden", true);
 
         this.container_id = container_id;
         this.name = this.container_id.slice(0, 12);
@@ -129,7 +129,7 @@ PageContainerDetails.prototype = {
             this.terminal.connect();
         }
         this.terminal.typeable(info.State.Running);
-        $("#container-terminal").show();
+        $("#container-terminal").prop("hidden", false);
     },
 
     maybe_reconnect_terminal: function() {
@@ -174,10 +174,10 @@ PageContainerDetails.prototype = {
         $('#container-details-ipprefixlen').text("");
         $('#container-details-gateway').text("");
         $('#container-details-macaddr').text("");
-        $('#container-details-ports-row').hide();
-        $('#container-details-links-row').hide();
-        $('#container-details-resource-row').hide();
-        $('#container-details-volumes-row').hide();
+        $('#container-details-ports-row').prop("hidden", true);
+        $('#container-details-links-row').prop("hidden", true);
+        $('#container-details-resource-row').prop("hidden", true);
+        $('#container-details-volumes-row').prop("hidden", true);
 
         var info = this.client.containers[this.container_id];
         util.docker_debug("container-details", this.container_id, info);
@@ -307,12 +307,12 @@ export function init_container_details(client) {
     page.setup();
 
     function hide() {
-        $('#container-details').hide();
+        $('#container-details').prop("hidden", true);
     }
 
     function show(id) {
         page.enter(id);
-        $('#container-details').show();
+        $('#container-details').prop("hidden", false);
     }
 
     return {

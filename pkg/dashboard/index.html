@@ -67,10 +67,10 @@
                     </div>
                 </div>
                 <ul class="nav nav-tabs">
-                    <li data-monitor-id="0"><a tabindex="0"><span translate="yes">CPU</span></a></li>
-                    <li data-monitor-id="1"><a tabindex="0"><span translate="yes">Memory</span></a></li>
-                    <li data-monitor-id="2"><a tabindex="0"><span translate="yes" context="label">Network</span></a></li>
-                    <li data-monitor-id="3"><a tabindex="0"><span translate="yes">Disk I/O</span></a></li>
+                    <li data-monitor-id="0"><a role="link" tabindex="0"><span translate="yes">CPU</span></a></li>
+                    <li data-monitor-id="1"><a role="link" tabindex="0"><span translate="yes">Memory</span></a></li>
+                    <li data-monitor-id="2"><a role="link" tabindex="0"><span translate="yes" context="label">Network</span></a></li>
+                    <li data-monitor-id="3"><a role="link" tabindex="0"><span translate="yes">Disk I/O</span></a></li>
                 </ul>
                 <br>
                 <div class="dashboard-plot zoomable-plot" id="dashboard-plot-0"></div>
@@ -101,7 +101,7 @@
     <script id="dashboard-hosts-tmpl" type="x-template/mustache">
         {{#machines}}
             {{! state can be 'failed' or 'connected' }}
-            <a tabindex="0" data-address="{{address}}" class="list-group-item {{state}}"
+            <a role="link" tabindex="0" data-address="{{address}}" class="list-group-item {{state}}"
                 data-color="{{ color }}" target="_parent" href="/@{{address}}">
                 <button class="btn btn-danger edit-button servers-privileged pficon btn-delete pficon-delete delete-{{address}}"></button>
                 <button class="btn btn-default edit-button servers-privileged pficon pficon-edit"></button>
@@ -171,7 +171,7 @@
                 </div>
                 </div>
                 <div class="modal-footer">
-                    <div class="pull-left"><a tabindex="0" id="host-edit-sync-users" translate="yes">Synchronize users</a></div>
+                    <div class="pull-left"><a role="link" tabindex="0" id="host-edit-sync-users" translate="yes">Synchronize users</a></div>
                     <button class="btn btn-default" data-dismiss="modal" translate="yes">Cancel</button>
                     <button class="btn btn-primary" id="host-edit-apply" translate="yes">Set</button>
                 </div>

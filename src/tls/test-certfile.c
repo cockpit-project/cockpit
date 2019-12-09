@@ -127,7 +127,12 @@ static void
 test_certfile_multithreaded (void)
 {
   GError *error = NULL;
-  int connections[50];
+  struct
+    {
+      GThread *thread;
+      int connection;
+    }
+  slots[50];
 
   if (cockpit_test_skip_slow ())
     return;
@@ -137,8 +142,11 @@ test_certfile_multithreaded (void)
   testdir_fd = open (dirname, O_PATH);
   g_assert (dirfd >= 0);
 
-  for (int slot_nr = 0; slot_nr < G_N_ELEMENTS (connections); slot_nr++)
-    connections[slot_nr] = -1;
+  for (int slot_nr = 0; slot_nr < G_N_ELEMENTS (slots); slot_nr++)
+    {
+      slots[slot_nr].thread = NULL;
+      slots[slot_nr].connection = -1;
+    }
 
   for (int n = 0; n < 2000; n += 10)
     {
@@ -148,21 +156,26 @@ test_certfile_multithreaded (void)
        */
       for (int i = 0; i < n; i++)
         {
-          int slot_nr = g_test_rand_int_range (0, G_N_ELEMENTS (connections));
+          int slot_nr = g_test_rand_int_range (0, G_N_ELEMENTS (slots));
+          g_assert (0 <= slot_nr && slot_nr < G_N_ELEMENTS (slots));
 
-          if (connections[slot_nr] == -1)
+          if (slots[slot_nr].thread == NULL)
             {
               int sv[2];
 
+              g_assert_cmpint (slots[slot_nr].connection, ==, -1);
+
               g_assert_cmpint (socketpair (AF_UNIX, SOCK_STREAM, 0, sv), ==, 0);
-              g_thread_unref (g_thread_new ("connection", test_thread, GINT_TO_POINTER (sv[1])));
-              connections[slot_nr] = sv[0];
+              slots[slot_nr].thread = g_thread_new ("connection", test_thread, GINT_TO_POINTER (sv[1]));
+              slots[slot_nr].connection = sv[0];
             }
           else
             {
-              /* async thread termination */
-              close (connections[slot_nr]);
-              connections[slot_nr] = -1;
+              g_assert_cmpint (slots[slot_nr].connection, !=, -1);
+
+              close (slots[slot_nr].connection);
+              slots[slot_nr].connection = -1;
+              g_thread_join (g_steal_pointer (&slots[slot_nr].thread));
             }
 
           assert_invariant (false);
@@ -171,27 +184,25 @@ test_certfile_multithreaded (void)
         }
 
       /* close all the connections */
-      for (int slot_nr = 0; slot_nr < G_N_ELEMENTS (connections); slot_nr++)
-        if (connections[slot_nr] != -1)
+      for (int slot_nr = 0; slot_nr < G_N_ELEMENTS (slots); slot_nr++)
+        if (slots[slot_nr].thread != NULL)
           {
-            ssize_t r;
-            char b;
+              g_assert_cmpint (slots[slot_nr].connection, !=, -1);
 
-            /* blocking thread termination */
-            shutdown (connections[slot_nr], SHUT_WR);
-            do
-              r = read (connections[slot_nr], &b, sizeof b);
-            while (r == -1 && errno == EINTR);
-            close (connections[slot_nr]);
-            connections[slot_nr] = -1;
+              close (slots[slot_nr].connection);
+              slots[slot_nr].connection = -1;
+              g_thread_join (g_steal_pointer (&slots[slot_nr].thread));
           }
 
       /* assert that nothing exists */
       assert_invariant (true);
     }
 
-  for (int slot_nr = 0; slot_nr < G_N_ELEMENTS (connections); slot_nr++)
-    g_assert_cmpint (connections[slot_nr], ==, -1);
+  for (int slot_nr = 0; slot_nr < G_N_ELEMENTS (slots); slot_nr++)
+    {
+      g_assert (slots[slot_nr].thread == NULL);
+      g_assert_cmpint (slots[slot_nr].connection, ==, -1);
+    }
 
   close (testdir_fd);
 

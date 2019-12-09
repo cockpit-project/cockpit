@@ -101,7 +101,7 @@
     <script id="dashboard-hosts-tmpl" type="x-template/mustache">
         {{#machines}}
             {{! state can be 'failed' or 'connected' }}
-            <a role="link" tabindex="0" data-address="{{address}}" class="list-group-item {{state}}"
+            <a data-address="{{address}}" class="list-group-item {{state}}"
                 data-color="{{ color }}" target="_parent" href="/@{{address}}">
                 <button class="btn btn-danger edit-button servers-privileged pficon btn-delete pficon-delete delete-{{address}}"></button>
                 <button class="btn btn-default edit-button servers-privileged pficon pficon-edit"></button>

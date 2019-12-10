@@ -250,7 +250,7 @@ static void
 buffer_read_from_fd (Buffer *self,
                      int     fd)
 {
-  //debug ("buffer_read_from_fd (%s/0x%x/0x%x, %i)", self->name, self->start, self->end, fd);
+  debug (BUFFER, "buffer_read_from_fd (%s/0x%x/0x%x, %i)", self->name, self->start, self->end, fd);
 
   if (buffer_needs_shut_rd (self))
     {
@@ -268,7 +268,7 @@ buffer_read_from_fd (Buffer *self,
     s = readv (fd, iov, iovcnt);
   while (s == -1 && errno == EINTR);
 
-  //debug ("  readv returns %zi %s", s, (s == -1) ? strerror (errno) : "");
+  debug (BUFFER, "  readv returns %zi %s", s, (s == -1) ? strerror (errno) : "");
 
   if (s == -1)
     {
@@ -290,7 +290,7 @@ buffer_write_to_tls (Buffer           *self,
   struct iovec iov;
   ssize_t s;
 
-  //debug ("buffer_write_to_tls (%s/0x%x/0x%x, %p)", self->name, self->start, self->end, tls);
+  debug (BUFFER, "buffer_write_to_tls (%s/0x%x/0x%x, %p)", self->name, self->start, self->end, tls);
 
   if (get_iovecs (&iov, 1, self->buffer, self->start, self->end))
     {
@@ -298,7 +298,7 @@ buffer_write_to_tls (Buffer           *self,
         s = gnutls_record_send (tls, iov.iov_base, iov.iov_len);
       while (s == GNUTLS_E_INTERRUPTED);
 
-      //debug ("  gnutls_record_send returns %zi %s", s, (s < 0) ? gnutls_strerror (-s) : "");
+      debug (BUFFER, "  gnutls_record_send returns %zi %s", s, (s < 0) ? gnutls_strerror (-s) : "");
 
       if (s < 0)
         {
@@ -325,11 +325,13 @@ buffer_read_from_tls (Buffer           *self,
   struct iovec iov;
   ssize_t s;
 
-  //debug ("buffer_read_from_tls (%s/0x%x/0x%x, %p)", self->name, self->start, self->end, tls);
+  debug (BUFFER, "buffer_read_from_tls (%s/0x%x/0x%x, %p)", self->name, self->start, self->end, tls);
 
   if (buffer_needs_shut_rd (self))
     {
-      //gnutls_bye (tls, GNUTLS_SHUT_RD);
+      /* There's not GNUTLS_SHUT_RD, so do the shutdown() on the
+       * underlying fd.
+       */
       shutdown (gnutls_transport_get_int (tls), SHUT_RD);
       buffer_shut_rd (self);
       return;
@@ -342,7 +344,7 @@ buffer_read_from_tls (Buffer           *self,
     s = gnutls_record_recv (tls, iov.iov_base, iov.iov_len);
   while (s == GNUTLS_E_INTERRUPTED);
 
-  //debug ("  gnutls_record_recv returns %zi %s", s, (s < 0) ? gnutls_strerror (-s) : "");
+  debug (BUFFER, "  gnutls_record_recv returns %zi %s", s, (s < 0) ? gnutls_strerror (-s) : "");
 
   if (s <= 0)
     {
@@ -689,7 +691,6 @@ connection_thread_main (int fd)
     certfile_close (parameters.cert_session_dir, self.certfile_fd, &self.fingerprint);
 
   if (self.tls)
-    /* XXX: bye? */
     gnutls_deinit (self.tls);
 
   if (self.client_fd != -1)

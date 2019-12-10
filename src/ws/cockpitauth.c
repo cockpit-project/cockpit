@@ -1601,7 +1601,7 @@ out:
 
   /* Successful login */
   if (creds)
-    g_info ("logged in user session");
+    g_info ("logged in user session for %s", cockpit_creds_get_user (creds));
 
   return body;
 }

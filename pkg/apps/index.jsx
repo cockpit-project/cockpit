@@ -78,5 +78,5 @@ document.addEventListener("DOMContentLoaded", function () {
     cockpit.addEventListener("locationchanged", navigate);
     navigate();
 
-    document.body.style.display = 'block';
+    document.body.removeAttribute('hidden');
 });

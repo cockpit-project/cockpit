@@ -202,7 +202,7 @@ export class ConfigurationCard extends React.Component {
         var self = this;
 
         $("#system_information_ssh_keys .spinner").toggle(true);
-        $("#system_information_ssh_keys .content").toggle(false);
+        $("#system_information_ssh_keys .content").prop("hidden", true);
         $("#system_information_ssh_keys .pf-c-alert").toggle(false);
 
         /*
@@ -274,11 +274,11 @@ export class ConfigurationCard extends React.Component {
                     content.html(tmp);
                     spinner.toggle(false);
                     error.toggle(false);
-                    content.toggle(true);
+                    content.prop("hidden", false);
                 })
                 .fail(function(ex) {
                     var msg = cockpit.format(_("failed to list ssh host keys: $0"), ex.message);
-                    content.toggle(false);
+                    content.prop("hidden", true);
                     spinner.toggle(false);
                     $("#system_information_ssh_keys .pf-c-alert h4").text(msg);
                     error.toggle(true);

@@ -938,13 +938,13 @@ PageAccount.prototype = {
             this.authorized_keys = null;
         }
 
-        $('#account-failure').hide();
+        $('#account-failure').prop("hidden", true);
     },
 
     update: function() {
         if (this.account) {
-            $('#account').show();
-            $('#account-failure').hide();
+            $('#account').prop("hidden", false);
+            $('#account-failure').prop("hidden", true);
             var name = $("#account-real-name");
 
             var title_name = this.account.gecos;
@@ -1016,7 +1016,7 @@ PageAccount.prototype = {
                                  this.user.id == this.account.uid);
         } else {
             $('#account').hide();
-            $('#account-failure').show();
+            $('#account-failure').prop("hidden", false);
             $('#account-real-name').val("");
             $('#account-user-name').text("");
             $('#account-last-login').text("");
@@ -1447,7 +1447,7 @@ PageAccountSetPassword.prototype = {
                     $("#account-set-password-dialog").dialog("promise", promise);
                 })
                 .fail(function(ex) {
-                    $("#account-set-password-meter-message").hide();
+                    $("#account-set-password-meter-message").prop("hidden", true);
                     $("#account-set-password-dialog").dialog("failure", ex);
                 });
         $("#account-set-password-dialog").dialog("wait", promise);
@@ -1498,12 +1498,12 @@ function page_show(p, arg) {
         p.leave();
     p.enter(arg);
     p._entered_ = true;
-    $('#' + p.id).show();
+    $('#' + p.id).prop("hidden", false);
     p.show();
 }
 
 function page_hide(p) {
-    $('#' + p.id).hide();
+    $('#' + p.id).prop("hidden", true);
     if (p._entered_) {
         p.leave();
         p._entered_ = false;
@@ -1529,7 +1529,7 @@ function init() {
                 cockpit.location = '';
             }
 
-            $("body").show();
+            $("body").prop("hidden", false);
         }
 
         cockpit.translate();

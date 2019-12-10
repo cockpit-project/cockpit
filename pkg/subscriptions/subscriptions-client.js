@@ -18,7 +18,6 @@
  */
 
 import cockpit from "cockpit";
-import * as PK from "packagekit";
 
 const _ = cockpit.gettext;
 
@@ -394,11 +393,7 @@ client.insightsAvailable = false;
 const detectInsights = () => {
     return cockpit.spawn([ "which", "insights-client" ], { err: "ignore" }).then(
         () => { client.insightsAvailable = true },
-        () => {
-            PK.detect().then(pk_available => {
-                client.insightsAvailable = pk_available && client.insightsPackage;
-            });
-        });
+        () => { client.insightsAvailable = !!client.insightsPackage });
 };
 
 client.init = function() {

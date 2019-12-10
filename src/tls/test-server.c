@@ -589,6 +589,14 @@ test_tls_client_cert_parallel (TestCase *tc, gconstpointer data)
   pid_t pid;
   int status;
 
+  /* HACK: This testcase runs slowly under valgrind and sometimes fails
+   * inexplicably.  It's not likely that we're going to find leaks in
+   * the code with this test, so running it under valgrind is just
+   * costing us pain.  Disable it for now.
+   */
+  if (cockpit_test_skip_slow ())
+    return;
+
   block_sigchld ();
 
   /* do the connection in a subprocess, as gnutls_handshake is synchronous */

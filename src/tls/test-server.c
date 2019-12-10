@@ -325,6 +325,8 @@ setup (TestCase *tc, gconstpointer data)
   const TestFixture *fixture = data;
   g_autoptr(GError) error = NULL;
 
+  alarm (120);
+
   tc->ws_socket_dir = g_dir_make_tmp ("server.wssock.XXXXXX", NULL);
   g_assert (tc->ws_socket_dir);
 
@@ -397,6 +399,8 @@ teardown (TestCase *tc, gconstpointer data)
 
   g_assert_cmpint (g_rmdir (tc->runtime_dir), ==, 0);
   g_free (tc->runtime_dir);
+
+  alarm (0);
 }
 
 static void

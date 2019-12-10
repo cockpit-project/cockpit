@@ -449,6 +449,8 @@ for s in key p12 pem; do docker cp freeipa:jane.$s .; done
                 self.assertIn('cockpit; type web', out)
                 # sessions time out after 10s, but let's not wait for that
                 m.execute('loginctl terminate-session ' + sessions[0])
+                # wait until the session is gone
+                m.execute("while loginctl show-user jane; do sleep 1; done")
 
             m.stop_cockpit()
 

@@ -175,7 +175,7 @@ function init() {
         $('#sos-download button').on('click', sos_download);
 
         cockpit.translate();
-        $('body').show();
+        $('body').prop("hidden", false);
 
         // Send a 'init' message.  This tells the tests that we
         // are ready to go.

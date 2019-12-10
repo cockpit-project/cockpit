@@ -165,7 +165,7 @@ GraphServer.prototype = {
                         };
                         self.memory_plot.add_metrics_sum_series(swap_data, { });
                         $("#link-memory").hide();
-                        $("#link-memory-and-swap").show();
+                        $("#link-memory-and-swap").prop("hidden", false);
                     } else {
                         memory_options.yaxis.max = info.memory;
                     }

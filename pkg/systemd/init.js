@@ -650,12 +650,12 @@ $(function() {
 
         var permission = cockpit.permission({ admin: true });
 
-        $("#service").hide();
+        $("#service").prop("hidden", true);
         if (unit_id === null) {
             return;
         }
 
-        $('#service-log-box').hide();
+        $('#service-log-box').prop("hidden", true);
         $("#service-invalid").hide();
         $('#service .breadcrumb .active').text(unit_id);
 
@@ -677,7 +677,7 @@ $(function() {
                     instantiateCallback: unit_instantiate,
                 }),
                 document.getElementById("service-details"));
-            $("#service").show();
+            $("#service").prop("hidden", false);
         } else {
             systemd_manager.LoadUnit(unit_id)
                     .done(function(path) {
@@ -687,7 +687,7 @@ $(function() {
                             unit.wait(function() {
                                 if (cur_unit == unit) {
                                     render();
-                                    $("#service").show();
+                                    $("#service").prop("hidden", false);
 
                                     refresh_unit_file_state();
                                     if (cur_unit.LoadState === "loaded" || cur_unit.LoadState === "masked") {
@@ -696,7 +696,7 @@ $(function() {
                                             cur_journal_watcher.stop();
                                             cur_journal_watcher = null;
                                         }
-                                        $('#service-log-box').show();
+                                        $('#service-log-box').prop("hidden", false);
                                     }
 
                                     cur_journal_watcher = journal.logbox(["_SYSTEMD_UNIT=" + cur_unit_id, "+",
@@ -715,7 +715,7 @@ $(function() {
                         console.log(error);
                         $("#service-error-message").text(error.toString());
                         $("#service-invalid").show();
-                        $("#service").show();
+                        $("#service").prop("hidden", false);
                         $("#service-details").hide();
                     });
         }
@@ -788,13 +788,13 @@ $(function() {
             $("#services").show();
         } else if (path.length == 1) {
             $("#services").hide();
-            $('#service-log-box').hide();
+            $('#service-log-box').prop("hidden", true);
             show_unit(cockpit.location.path[0]);
         } else { /* redirect */
             console.warn("not a init location: " + path);
             cockpit.location = '';
         }
-        $("body").show();
+        $("body").prop("hidden", false);
         ensure_units();
     }
 
@@ -996,13 +996,13 @@ $(function() {
                 timer_unit.repeat = item;
         });
         if (val === 0) {
-            $("#specific-time-without-repeat").show();
+            $("#specific-time-without-repeat").prop("hidden", false);
             $("#repeat-time-option").hide();
             $("#close_button").hide();
             $("#hr").val("00");
             $("#min").val("00");
         } else {
-            $("#specific-time-without-repeat").hide();
+            $("#specific-time-without-repeat").prop("hidden", true);
             $("#repeat-time-option").show();
             repeat_array = [];
             repeat_element();
@@ -1134,9 +1134,9 @@ $(function() {
             // boot timer
             $("#boot").show();
             $("#boot-error-row").hide();
-            $("#specific-time-without-repeat").hide();
+            $("#specific-time-without-repeat").prop("hidden", true);
             $("#specific-time-error-row").hide();
-            $("#repeat-options").hide();
+            $("#repeat-options").prop("hidden", true);
             $("#repeat-time-option").hide();
             $("#boot-time").val("00");
             $("#boot-time").removeClass("has-error");
@@ -1146,7 +1146,7 @@ $(function() {
             $("#boot").hide();
             $("#boot-error-row").hide();
             $("#specific-time-error-row").hide();
-            $("#repeat-options").show();
+            $("#repeat-options").prop("hidden", false);
             repeat_options(0);
             $("span", $("#drop-repeat"))
                     .first()

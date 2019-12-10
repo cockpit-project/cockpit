@@ -893,14 +893,14 @@ $(function() {
     function update() {
         var path = cockpit.location.path;
         if (path.length === 0) {
-            $("#journal-entry").hide();
+            $("#journal-entry").prop("hidden", true);
             update_query();
             $("#journal").show();
         } else if (path.length == 1) {
             stop_query();
             $("#journal").hide();
             update_entry();
-            $("#journal-entry").show();
+            $("#journal-entry").prop("hidden", false);
         } else { /* redirect */
             console.warn("not a journal location: " + path);
             cockpit.location = '';

@@ -29,7 +29,7 @@ $(function() {
     var debug_manifest_changes = false;
 
     proxy.wait(function () {
-        $("body").show();
+        $("body").prop("hidden", false);
         if (debug_manifest_changes) {
             update(proxy.Manifests);
             $(proxy).on("changed", function () {

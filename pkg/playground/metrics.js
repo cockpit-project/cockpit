@@ -19,7 +19,7 @@ $(channel).on("message", function (event, message) {
 });
 
 $(function() {
-    $("body").show();
+    $("body").prop("hidden", false);
     $("#reload").on("click", function() {
         cockpit.logout(true);
     });

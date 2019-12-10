@@ -216,5 +216,5 @@ cockpit.transport.wait(function() {
     document.getElementById("download-external").addEventListener("click", download);
     document.getElementById("stop").addEventListener("click", stop);
     window.setInterval(update, 500);
-    document.body.style.display = "block";
+    document.body.removeAttribute("hidden");
 });

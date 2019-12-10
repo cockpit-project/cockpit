@@ -21,7 +21,7 @@ $(function() {
         $(proxy).on('changed', show);
         show();
 
-        $("body").show();
+        $("body").prop("hidden", false);
     }
 
     function b(t) {

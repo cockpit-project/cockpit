@@ -24,7 +24,7 @@ function init_2() {
 
 function navigate() {
     document.getElementById("path").innerText = cockpit.location.path.join("/");
-    document.body.style.display = "block";
+    document.body.removeAttribute("hidden");
 }
 
 function maybe_phase_2() {

@@ -109,7 +109,7 @@ $(function() {
         cockpit.spawn(["rm", "-f", "tmp/counter"]);
     });
 
-    $("body").show();
+    $("body").prop("hidden", false);
 
     function show_hidden() {
         $("#hidden").text(cockpit.hidden ? "hidden" : "visible");

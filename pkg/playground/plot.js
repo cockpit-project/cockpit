@@ -36,7 +36,7 @@ $(function () {
         units: "bytes"
     }, { });
 
-    $("body").show();
+    $("body").prop("hidden", false);
     $("#plot_direct").css({ height: "200px" });
     $("#plot_pmcd").css({ height: "200px" });
     plot_direct.resize();

@@ -41,6 +41,6 @@ $(function () {
             .append(output);
 
     cockpit.transport.wait(function() {
-        $("body").show();
+        $("body").prop("hidden", false);
     });
 });

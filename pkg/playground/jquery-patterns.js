@@ -8,7 +8,7 @@ import "table.css";
 
 $(function() {
     $(document).ready(function() {
-        $("body").show();
+        $("body").prop("hidden", false);
     });
 
     /*

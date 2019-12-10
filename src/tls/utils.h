@@ -22,7 +22,7 @@
 #include <stdio.h>
 
 /* define to 1 to enable debug messages; very verbose! */
-#define DEBUG 0
+#define DEBUG 1
 
 /* messages can be disabled per-domain */
 #define DEBUG_POLL 0

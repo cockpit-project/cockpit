@@ -670,14 +670,22 @@ test_tls_client_cert_parallel (TestCase *tc, gconstpointer data)
            * other connections exited, which is a race that we've seen in practice).  Wait
            * for it, as above.
            */
-          for (int retry = 0; retry < 100; ++retry)
+          for (int retry = 0;; ++retry)
             {
+              g_assert_cmpint (retry, <, 100);
+
               if (access (tc->cert_file_path, F_OK) == 0)
                 break;
               g_usleep (10000);
             }
         }
-      g_assert_cmpint (access (tc->cert_file_path, F_OK), ==, 0);
+      else
+        {
+          /* In the "alternate" case there should be no such strange
+           * races.
+           */
+          g_assert_cmpint (access (tc->cert_file_path, F_OK), ==, 0);
+        }
 
       /* closing last connection removes it */
       g_assert_cmpint (gnutls_bye (sessions[n_connections - 1], GNUTLS_SHUT_RDWR), ==, GNUTLS_E_SUCCESS);

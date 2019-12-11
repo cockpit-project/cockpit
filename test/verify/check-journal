@@ -512,18 +512,18 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         test_user = 'correcthorsebatterystaple'
 
         for purpose in ['text', 'password']:
-            b.wait_visible("#cockpit_modal_dialog .modal-content input[type='%s']" % (purpose))
+            b.wait_visible(".modal-content input[type='%s']" % (purpose))
 
-            sel = "#cockpit_modal_dialog .modal-content input"
+            sel = ".modal-content input"
             b.set_val(sel, test_user)
 
-            sel = "#cockpit_modal_dialog .modal-footer button:contains('Send')"
+            sel = ".modal-footer button:contains('Send')"
             b.click(sel)
 
-        sel = "#cockpit_modal_dialog .modal-content p:contains('Password')"
+        sel = ".modal-content p:contains('Password')"
         b.wait_not_present(sel)
 
-        sel = "#cockpit_modal_dialog .modal-footer button:contains('No')"
+        sel = ".modal-footer button:contains('No')"
         b.click(sel)
 
         sel = "table.reporting-table tr:contains('Report to Cockpit') a[href='https://bugzilla.example.com/show_bug.cgi?id=123456']"

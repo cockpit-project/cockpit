@@ -751,8 +751,8 @@ class TestPcp(packagelib.PackageCase):
         b.wait_not_visible("#server-pmlogger-switch")
         b.wait_in_text("#system-information-enable-pcp-link", "Enable stored metrics…")
         b.click("#system-information-enable-pcp-link")
-        b.click("#cockpit_modal_dialog .modal-footer button.btn-primary")
-        b.wait_not_present("#cockpit_modal_dialog")
+        b.click(".modal-footer button.btn-primary:contains('Install')")
+        b.wait_not_present(".modal-dialog:contains('Install Software')")
 
         b.wait_visible("#server-pmlogger-switch")
         b.wait_not_visible("#system-information-enable-pcp-link")

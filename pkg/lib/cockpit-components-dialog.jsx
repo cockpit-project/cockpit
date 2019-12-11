@@ -22,6 +22,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import PropTypes from "prop-types";
 import { Alert } from "@patternfly/react-core";
+import { Modal } from 'patternfly-react';
 
 import "page.css";
 import "cockpit-components-dialog.css";
@@ -219,7 +220,7 @@ export class DialogFooter extends React.Component {
         if (error_message)
             error_element = <Alert variant='danger' isInline title={React.isValidElement(error_message) ? error_message : error_message.toString() } />;
         return (
-            <div className="modal-footer">
+            <Modal.Footer>
                 { error_element }
                 { this.props.extra_element }
                 { wait_element }
@@ -229,7 +230,7 @@ export class DialogFooter extends React.Component {
                     disabled={ cancel_disabled }
                 >{ cancel_caption }</button>
                 { action_buttons }
-            </div>
+            </Modal.Footer>
         );
     }
 }
@@ -248,7 +249,6 @@ DialogFooter.propTypes = {
  * Removes focus on other elements on showing
  * Expected props:
  *  - title (string)
- *  - no_backdrop optional, skip backdrop if true
  *  - body (react element, top element should be of class modal-body)
  *      It is recommended for information gathering dialogs to pass references
  *      to the input components to the controller. That way, the controller can
@@ -265,32 +265,20 @@ export class Dialog extends React.Component {
     }
 
     render() {
-        var backdrop;
-        if (!this.props.no_backdrop) {
-            backdrop = <div className="modal-backdrop fade in" />;
-        }
         return (
-            <div>
-                { backdrop }
-                <div className="modal fade in dialog-ct-visible" tabIndex="-1">
-                    <div id={this.props.id} className="modal-dialog">
-                        <div className="modal-content">
-                            <div className="modal-header">
-                                <h4 className="modal-title">{ this.props.title }</h4>
-                            </div>
-                            { this.props.body }
-                            { this.props.footer }
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <Modal id={this.props.id} show animation={false}>
+                <Modal.Header>
+                    <Modal.Title>{ this.props.title }</Modal.Title>
+                </Modal.Header>
+                { this.props.body }
+                { this.props.footer }
+            </Modal>
         );
     }
 }
 Dialog.propTypes = {
     // TODO: fix following by refactoring the logic showing modal dialog (recently show_modal_dialog())
     title: PropTypes.string, // is effectively required, but show_modal_dialog() provides initially no props and resets them later.
-    no_backdrop: PropTypes.bool,
     body: PropTypes.element, // is effectively required, see above
     footer: PropTypes.element, // is effectively required, see above
     id: PropTypes.string

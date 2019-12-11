@@ -125,7 +125,7 @@
         <i class="fa fa-cube fa-fw"></i>
         <span></span>
       </h3>
-      <a tabindex="0" translate="yes">Show all containers</a>
+      <a role="link" tabindex="0" translate="yes">Show all containers</a>
     </div>
     <div class="container-fluid">
       <div class="panel-default panel">
@@ -246,7 +246,7 @@
         <i class="pficon pficon-image"></i>
         <span></span>
       </h3>
-      <a tabindex="0" translate="yes">Show all images</a>
+      <a role="link" tabindex="0" translate="yes">Show all images</a>
       <div class="content-filter-actions" id="image-details-buttons">
         <button  title="Delete" translate="title" id="image-details-delete"
             class="btn btn-danger btn-delete pficon pficon-delete"></button>
@@ -286,7 +286,7 @@
 
   <div id="storage" class="container-fluid" hidden>
     <ol class="breadcrumb">
-      <li><a tabindex="0" translate="yes">Containers</a></li>
+      <li><a role="link" tabindex="0" translate="yes">Containers</a></li>
       <li class="active" translate>Storage</li>
     </ol>
 
@@ -330,8 +330,8 @@
                   <i class="fa fa-caret-down pf-c-context-selector__toggle-icon" aria-hidden="true"></i>
               </button>
               <ul class="dropdown-menu">
-                  <li><a tabindex="0" value="TCP" translate>TCP</a></li>
-                  <li><a tabindex="0" value="UDP" translate>UDP</a></li>
+                  <li><a role="link" tabindex="0" value="TCP" translate>TCP</a></li>
+                  <li><a role="link" tabindex="0" value="UDP" translate>UDP</a></li>
               </ul>
           </div>
       </div>
@@ -360,9 +360,9 @@
             <i class="fa fa-caret-down pf-c-context-selector__toggle-icon" aria-hidden="true"></i>
           </button>
           <ul class="dropdown-menu">
-            <li><a tabindex="0" translate="yes">Default</a></li>
-            <li><a tabindex="0" translate="yes">ReadWrite</a></li>
-            <li><a tabindex="0" translate="yes">ReadOnly</a></li>
+            <li><a role="link" tabindex="0" translate="yes">Default</a></li>
+            <li><a role="link" tabindex="0" translate="yes">ReadWrite</a></li>
+            <li><a role="link" tabindex="0" translate="yes">ReadOnly</a></li>
           </ul>
         </div>
       </div>
@@ -407,7 +407,7 @@
                   <i class="fa fa-caret-down pf-c-context-selector__toggle-icon" aria-hidden="true"></i>
               </button>
               <ul class="dropdown-menu">
-                  {{#containers}}<li><a tabindex="0" value="{{.}}">{{.}}</a></li>{{/containers}}
+                  {{#containers}}<li><a role="link" tabindex="0" value="{{.}}">{{.}}</a></li>{{/containers}}
               </ul>
           </div>
       </div>
@@ -545,10 +545,10 @@
                         <i class="fa fa-caret-down pf-c-context-selector__toggle-icon" aria-hidden="true"></i>
                       </button>
                       <ul class="dropdown-menu" id="restart-policy-dropdown">
-                        <li><a tabindex="0" translate="yes" data-value="no">No</a></li>
-                        <li><a tabindex="0" translate="yes" data-value="on-failure">On Failure</a></li>
-                        <li><a tabindex="0" translate="yes" data-value="always">Always</a></li>
-                        <li><a tabindex="0" translate="yes" data-value="unless-stopped">Unless Stopped</a></li>
+                        <li><a role="link" tabindex="0" translate="yes" data-value="no">No</a></li>
+                        <li><a role="link" tabindex="0" translate="yes" data-value="on-failure">On Failure</a></li>
+                        <li><a role="link" tabindex="0" translate="yes" data-value="always">Always</a></li>
+                        <li><a role="link" tabindex="0" translate="yes" data-value="unless-stopped">Unless Stopped</a></li>
                       </ul>
                     </div>
                     <div id="restart-policy-retries-container" class="hidden">

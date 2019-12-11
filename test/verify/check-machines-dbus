@@ -351,27 +351,35 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_in_text("body", "Virtual Machines")
         b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
 
+        # Check kernel is booted before we try detaching disks
+        if args["logfile"] is not None:
+            wait(lambda: "Linux version" in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
+
         # Test detaching non permanent disk of a running domain
         b.click("tbody tr[data-row-id=vm-subVmTest1] th") # click on the row header
         b.wait_in_text("#vm-subVmTest1-state", "running")
 
         b.click("#vm-subVmTest1-disks") # open the "Disks" subtab
+        b.wait_present("#vm-subVmTest1-disks-vdd-device")
         b.click("#delete-subVmTest1-disk-vdd")
+        b.wait_present(".modal-dialog")
         b.click(".modal-footer button:contains(Remove)")
-        b.wait_not_present("vm-subVmTest1-disks-vdd-target")
+        b.wait_not_present("#vm-subVmTest1-disks-vdd-device")
 
         # Test that detaching disk of a running domain will affect the
         # inactive configuration as well
         b.click("#vm-subVmTest1-off-caret")
         b.click("#vm-subVmTest1-forceOff")
         b.wait_in_text("#vm-subVmTest1-state", "shut off")
-        b.wait_not_present("vm-subVmTest1-disks-vdd-target")
+        b.wait_not_present("#vm-subVmTest1-disks-vdd-device")
 
         # Test detaching permanent disk of a stopped domain
         b.click("#vm-subVmTest1-disks") # open the "Disks" subtab
+        b.wait_present("#vm-subVmTest1-disks-vde-device")
         b.click("#delete-subVmTest1-disk-vde")
+        b.wait_present(".modal-dialog")
         b.click(".modal-footer button:contains(Remove)")
-        b.wait_not_present("vm-subVmTest1-disks-vde-target")
+        b.wait_not_present("#vm-subVmTest1-disks-vde-device")
 
         # Test detaching disk of a paused domain
         m.execute("virsh start subVmTest1")

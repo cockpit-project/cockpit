@@ -267,6 +267,11 @@ class TestMachines(NetworkCase):
         m.execute('[ "$(virsh domstate {0})" = running ] || '
                   '{{ virsh dominfo {0} >&2; cat /var/log/libvirt/qemu/{0}.log >&2; exit 1; }}'.format(name))
 
+        # TODO check if kernel is booted
+        # Ideally we would like to check guest agent event for that
+        # Libvirt has a signal for that too: VIR_DOMAIN_EVENT_ID_AGENT_LIFECYCLE
+        # https://libvirt.org/git/?p=libvirt-python.git;a=blob;f=examples/guest-vcpus/guest-vcpu-daemon.py;h=30fcb9ce24165c59dec8d9bbe6039f56382e81e3;hb=HEAD
+
         self.allow_journal_messages('.*denied.*comm="pmsignal".*')
 
         return args

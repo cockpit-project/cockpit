@@ -24,6 +24,7 @@ from testlib import *
 from machine_core.constants import TEST_OS_DEFAULT
 
 
+@skipImage("NetworkManager-team not installed", "fedora-coreos")
 class TestNetworking(NetworkCase):
     provision = {
         "machine1": {},

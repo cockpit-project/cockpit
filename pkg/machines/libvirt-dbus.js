@@ -1448,11 +1448,11 @@ export function networkActivate(connectionName, objPath) {
 }
 
 export function networkCreate({
-    connectionName, name, forwardMode, physicalDevice, ipv4, netmask, ipv6, prefix,
+    connectionName, name, forwardMode, device, ipv4, netmask, ipv6, prefix,
     ipv4DhcpRangeStart, ipv4DhcpRangeEnd, ipv6DhcpRangeStart, ipv6DhcpRangeEnd
 }) {
     const netXmlDesc = getNetworkXML({
-        name, forwardMode, ipv4, netmask, ipv6, prefix, physicalDevice,
+        name, forwardMode, ipv4, netmask, ipv6, prefix, device,
         ipv4DhcpRangeStart, ipv4DhcpRangeEnd, ipv6DhcpRangeStart, ipv6DhcpRangeEnd
     });
 

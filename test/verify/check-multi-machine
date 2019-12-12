@@ -182,7 +182,7 @@ class TestMultiMachineAdd(MachineCase):
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname != "/dashboard"')
         b.enter_page("/system", host="10.111.113.2")
-        b.wait_text_not(hostname_selector, "")
+        b.wait_text(hostname_selector, "machine2")
         b.switch_to_top()
         b.go("/dashboard")
         b.enter_page("/dashboard")
@@ -192,7 +192,7 @@ class TestMultiMachineAdd(MachineCase):
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname != "/dashboard"')
         b.enter_page("/system", host=m3_host)
-        b.wait_text_not(hostname_selector, "")
+        b.wait_text(hostname_selector, "machine3")
         b.switch_to_top()
         b.go("/dashboard")
         b.enter_page("/dashboard")
@@ -237,8 +237,10 @@ class TestMultiMachine(MachineCase):
 
     def setUp(self):
         MachineCase.setUp(self)
+        self.machine.execute("hostnamectl set-hostname machine1")
         self.machine2 = self.machines['machine2']
         self.machine2.execute("hostnamectl set-hostname machine2")
+        self.machines['machine3'].execute("hostnamectl set-hostname machine3")
         HACK_disable_problematic_preloads(self.machine2)
         HACK_disable_problematic_preloads(self.machines["machine3"])
 
@@ -246,8 +248,6 @@ class TestMultiMachine(MachineCase):
         b = self.browser
         m2 = self.machine2
         m = self.machine
-
-        name = self.machine.execute("hostname")
 
         if m.image == "rhel-8-1-distropkg":
             hostname_selector = "#system_information_hostname_button"
@@ -261,7 +261,7 @@ class TestMultiMachine(MachineCase):
         b.switch_to_top()
         b.go("{}/system".format(root))
         b.enter_page("/system")
-        b.wait_in_text(hostname_selector, name.strip())
+        b.wait_text(hostname_selector, "machine1")
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname == "{0}system"'.format(root))
         b.click("a[href='/dashboard']")

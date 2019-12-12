@@ -126,9 +126,9 @@ export class Application extends React.Component {
                     </table>
                     {render_homepage_link(comp.urls)}
                     <div className="app-description">{render_description(comp.description)}</div>
-                    <center>
+                    <div className="text-center">
                         { comp.screenshots.map((s, index) => <img key={`comp-${index}`} className="app-screenshot" role="presentation" alt="" src={s.full} />) }
-                    </center>
+                    </div>
                 </div>
             );
         }

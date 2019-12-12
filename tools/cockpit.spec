@@ -402,7 +402,7 @@ Requires(postun): systemd
 %if %{defined wip}
 # HACK: don't apply selinux %post dependencies to CI builds, it would require refreshing images
 %else
-%if 0%{?rhel} || 0%{?fedora}
+%if 0%{?rhel}
 # for SELinux policy adjustment in %post below
 Requires(post): /usr/sbin/semanage
 Requires(post): policycoreutils
@@ -494,9 +494,7 @@ checkmodule -M -m -o $tmp/local.mod $tmp/local.te
 semodule_package -o $tmp/local.pp -m $tmp/local.mod
 semodule -i $tmp/local.pp
 rm -rf "$tmp"
-%endif
 
-%if 0%{?rhel} || 0%{?fedora}
 # HACK: SELinux policy adjustment for cockpit-tls; see https://github.com/fedora-selinux/selinux-policy-contrib/pull/161
 echo "Applying SELinux policy change for cockpit-wsinstance-factory..."
 semanage fcontext -a /usr/libexec/cockpit-wsinstance-factory -t cockpit_ws_exec_t || true

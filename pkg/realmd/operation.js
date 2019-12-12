@@ -568,7 +568,7 @@ function setup() {
     var $ = jQuery;
 
     var element = $("<span>");
-    var link = $("<a tabindex='0'>");
+    var link = $("<button class='pf-c-button pf-m-link pf-m-inline' type='button' aria-label='join domain'>");
     element.append(link);
     var hostname_link = $("#system_information_hostname_button");
     var hostname_tooltip = $("#system_information_hostname_tooltip");

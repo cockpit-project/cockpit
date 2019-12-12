@@ -79,6 +79,11 @@ class TestRealms(MachineCase):
 
         self.machines['services'].execute("/run-freeipa")
 
+        if self.machine.image in ["rhel-8-1-distropkg"]:
+            self.domain_sel = "#system-info-domain a"
+        else:
+            self.domain_sel = "#system-info-domain button"
+
     def testIpa(self):
         m = self.machine
         b = self.browser
@@ -96,15 +101,15 @@ class TestRealms(MachineCase):
 
         def wait_number_domains(n):
             if n == 0:
-                b.wait_text("#system-info-domain a", "Join Domain")
+                b.wait_text(self.domain_sel, "Join Domain")
             else:
-                b.wait_text_not("#system-info-domain a", "Join Domain")
-            b.wait_not_attr("#system-info-domain a", "disabled", "disabled")
+                b.wait_text_not(self.domain_sel, "Join Domain")
+            b.wait_not_attr(self.domain_sel, "disabled", "disabled")
 
         wait_number_domains(0)
 
         # Join cockpit.lan
-        b.click("#system-info-domain a")
+        b.click(self.domain_sel)
         b.wait_popup("realms-op")
         with b.wait_timeout(180):
             b.set_val(self.op_address, "cockpit.lan")
@@ -211,8 +216,8 @@ class TestRealms(MachineCase):
 
         # Test domain info (PR #11096), leave the domain
         b.login_and_go("/system")
-        b.wait_in_text("#system-info-domain a", "cockpit.lan")
-        b.click("#system-info-domain a")
+        b.wait_in_text(self.domain_sel, "cockpit.lan")
+        b.click(self.domain_sel)
         b.wait_popup("realms-op")
         b.wait_text("#realms-op-info-domain", "cockpit.lan")
         b.wait_text("#realms-op-info-login-format", "username@cockpit.lan")
@@ -239,7 +244,7 @@ class TestRealms(MachineCase):
         self.assertNotIn("status:", m.execute("ipa-getcert list"))
 
         # Send a wrong password
-        b.click("#system-info-domain a")
+        b.click(self.domain_sel)
         b.wait_popup("realms-op")
         b.set_val(self.op_address, "cockpit.lan")
         b.wait_attr(self.op_admin, "placeholder", 'e.g. "admin"')
@@ -252,7 +257,7 @@ class TestRealms(MachineCase):
         b.wait_popdown("realms-op")
 
         # Try to join a non-existing domain
-        b.click("#system-info-domain a")
+        b.click(self.domain_sel)
         b.wait_popup("realms-op")
         b.set_val(self.op_address, "NOPE")
         b.wait_text(".realms-op-address-error", "Domain NOPE could not be contacted")
@@ -261,7 +266,7 @@ class TestRealms(MachineCase):
         b.wait_popdown("realms-op")
 
         # Cancel a join
-        b.click("#system-info-domain a")
+        b.click(self.domain_sel)
         b.wait_popup("realms-op")
         b.set_val(self.op_address, "cockpit.lan")
         b.wait_attr(self.op_admin, "placeholder", 'e.g. "admin"')
@@ -301,10 +306,10 @@ class TestRealms(MachineCase):
         # login should now work with the IPA admin user
         b.password = 'foobarfoo'
         self.login_and_go("/system")
-        b.wait_in_text("#system-info-domain a", "cockpit.lan")
+        b.wait_in_text(self.domain_sel, "cockpit.lan")
 
         # Show domain information
-        b.click("#system-info-domain a")
+        b.click(self.domain_sel)
         b.wait_popup("realms-op")
         b.wait_text("#realms-op-info-domain", "cockpit.lan")
         b.wait_text("#realms-op-info-login-format", "username")  # no @domain
@@ -367,7 +372,7 @@ class TestRealms(MachineCase):
         wait(lambda: m.execute("nslookup -type=SRV _ldap._tcp.cockpit.lan"))
 
         # Join cockpit.lan
-        b.click("#system-info-domain a")
+        b.click(self.domain_sel)
         b.wait_popup("realms-op")
         b.set_val(self.op_address, "cockpit.lan")
         b.wait_in_text(".realms-op-address-error", "Domain cockpit.lan is not supported")
@@ -707,6 +712,13 @@ class TestKerberos(MachineCase):
 @skipImage("Package (un)install does not work on OSTree", "fedora-coreos")
 class TestPackageInstall(packagelib.PackageCase):
 
+    def setUp(self):
+        super().setUp()
+        if self.machine.image in ["rhel-8-1-distropkg"]:
+            self.domain_sel = "#system-info-domain a"
+        else:
+            self.domain_sel = "#system-info-domain button"
+
     def testInstall(self):
         m = self.machine
         b = self.browser
@@ -716,8 +728,8 @@ class TestPackageInstall(packagelib.PackageCase):
         # case 1: disable PackageKit
         m.execute("systemctl mask packagekit && systemctl stop packagekit.service || true")
         self.login_and_go("/system")
-        b.wait_text("#system-info-domain a", "Join Domain")
-        b.wait_present("#system-info-domain a.disabled")
+        b.wait_text(self.domain_sel, "Join Domain")
+        b.wait_present(self.domain_sel + ".disabled")
         # check tooltip
         b.wait_present("#system-info-domain [data-original-title]")
         b.mouse("#system-info-domain span", "mouseover")
@@ -729,14 +741,14 @@ class TestPackageInstall(packagelib.PackageCase):
         m.execute("systemctl unmask packagekit")
         self.login_and_go("/system")
         # Joining a domain should bring up the install dialog
-        b.wait_text("#system-info-domain a", "Join Domain")
+        b.wait_text(self.domain_sel, "Join Domain")
         # check tooltip
         b.wait_present("#system-info-domain [data-original-title]")
         b.mouse("#system-info-domain span", "mouseover")
         b.wait_in_text(".tooltip-inner", "requires installation of realmd")
         b.mouse("#system-info-domain span", "mouseout")
 
-        b.click("#system-info-domain a")
+        b.click(self.domain_sel)
         b.wait_in_text(".modal-dialog:contains('Install Software')", "realmd is not available")
         b.wait_present(".modal-dialog:contains('Install Software') .modal-footer button.btn-primary:disabled")
         b.click(".modal-dialog:contains('Install Software') .modal-footer button.cancel")
@@ -751,14 +763,14 @@ class TestPackageInstall(packagelib.PackageCase):
         self.login_and_go("/system")
 
         # Joining a domain should bring up the install dialog
-        b.wait_text("#system-info-domain a", "Join Domain")
+        b.wait_text(self.domain_sel, "Join Domain")
         # check tooltip
         b.wait_present("#system-info-domain [data-original-title]")
         b.mouse("#system-info-domain span", "mouseover")
         b.wait_in_text(".tooltip-inner", "requires installation of realmd")
         b.mouse("#system-info-domain span", "mouseout")
 
-        b.click("#system-info-domain a")
+        b.click(self.domain_sel)
         b.click(".modal-dialog:contains('Install Software') .modal-footer button.btn-primary")
         b.wait_not_present(".modal-dialog:contains('Install Software')")
 
@@ -777,14 +789,14 @@ class TestPackageInstall(packagelib.PackageCase):
         self.login_and_go("/system")
 
         # Joining a domain should bring up the install dialog
-        b.wait_text("#system-info-domain a", "Join Domain")
+        b.wait_text(self.domain_sel, "Join Domain")
         # check tooltip
         b.wait_present("#system-info-domain [data-original-title]")
         b.mouse("#system-info-domain span", "mouseover")
         b.wait_in_text(".tooltip-inner", "requires installation of realmd")
         b.mouse("#system-info-domain span", "mouseout")
 
-        b.click("#system-info-domain a")
+        b.click(self.domain_sel)
         # restore realmd service, to pretend that package install completed
         m.execute("systemctl unmask realmd")
         b.click(".modal-dialog .modal-footer button:contains('Install')")

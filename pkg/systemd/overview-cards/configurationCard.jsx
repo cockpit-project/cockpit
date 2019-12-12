@@ -419,10 +419,9 @@ export class ConfigurationCard extends React.Component {
                             <tr>
                                 <th scope="row">{_("PCP")}</th>
                                 <td>
-                                    <a role="link" tabIndex="0" id="system-configuration-enable-pcp-link" onClick={() => install_dialog("cockpit-pcp")}>
-                                        <span className="pficon pficon-info" />
-                                        <span>{_("Enable stored metrics…")}</span>
-                                    </a>
+                                    <button type="button" className="pf-c-button pf-m-link pf-m-inline" tabIndex="0" id="system-configuration-enable-pcp-link" onClick={() => install_dialog("cockpit-pcp")}>
+                                        {_("Enable stored metrics")}
+                                    </button>
                                 </td>
                             </tr>}
 

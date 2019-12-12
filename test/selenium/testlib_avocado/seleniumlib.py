@@ -443,8 +443,10 @@ parameters:
             return False
         return True
 
-    def refresh(self, page_frame=None):
+    def refresh(self, page_frame=None, frame_element_activation=None):
         self.driver.refresh()
+        if frame_element_activation:
+            self.click(frame_element_activation)
         if page_frame:
             self.wait_frame(page_frame)
 

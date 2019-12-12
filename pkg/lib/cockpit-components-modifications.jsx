@@ -19,7 +19,8 @@
 
 import PropTypes from 'prop-types';
 import React from 'react';
-import { Button, Modal, Nav, NavItem, TabContent, TabPane, TabContainer } from 'patternfly-react';
+import { Button, Modal } from 'patternfly-react';
+import { Tabs, Tab } from '@patternfly/react-core';
 
 import cockpit from "cockpit";
 import './listing.less';
@@ -45,13 +46,13 @@ class ModificationsExportDialog extends React.Component {
         this.copyToClipboard = this.copyToClipboard.bind(this);
     }
 
-    handleSelect(active_tab) {
+    handleSelect(event, active_tab) {
         this.setState({ active_tab });
     }
 
     copyToClipboard() {
         try {
-            navigator.clipboard.writeText(this.props[this.state.active_tab])
+            navigator.clipboard.writeText(this.props[this.state.active_tab].trim())
                     .then(() => {
                         this.setState({ copied: true });
                         setTimeout(() => {
@@ -71,34 +72,27 @@ class ModificationsExportDialog extends React.Component {
                     <Modal.Title>{ _("Automation Script") }</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <TabContainer id="basic-tabs-pf" defaultActiveKey="shell">
-                        <>
-                            <Nav bsClass="nav nav-tabs nav-tabs-pf" onSelect={this.handleSelect}>
-                                <NavItem eventKey="shell">
-                                    {_("Shell Script")}
-                                </NavItem>
-                                {this.props.ansible &&
-                                    <NavItem eventKey="ansible">
-                                        {_("Ansible Playbook")}
-                                    </NavItem>
-                                }
-                            </Nav>
-                            <TabContent animation>
-                                <TabPane eventKey="shell">
-                                    <pre>
-                                        {this.props.shell}
-                                    </pre>
-                                </TabPane>
-                                {this.props.ansible &&
-                                    <TabPane eventKey="ansible">
-                                        <pre>
-                                            {this.props.ansible}
-                                        </pre>
-                                    </TabPane>
-                                }
-                            </TabContent>
-                        </>
-                    </TabContainer>
+                    <Tabs activeKey={this.state.active_tab} onSelect={this.handleSelect}>
+                        <Tab eventKey="shell" title={_("Shell Script")}>
+                            <pre>
+                                {this.props.shell.trim()}
+                            </pre>
+                        </Tab>
+                        <Tab eventKey="ansible" title={_("Ansible")}>
+                            <pre>
+                                {this.props.ansible.trim()}
+                            </pre>
+                            <div>
+                                <span className="fa fa-question-circle fa-xs" />
+                                { _("Create new task file with this content.") }
+                                <a href="https://docs.ansible.com/ansible/latest/user_guide/playbooks_reuse_roles.html"
+                                    target="_blank" rel="noopener noreferrer">
+                                    <i className="fa fa-external-link fa-xs" />
+                                    { _("Ansible roles documentation") }
+                                </a>
+                            </div>
+                        </Tab>
+                    </Tabs>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button bsStyle='default' className='btn' onClick={this.copyToClipboard}>

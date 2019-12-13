@@ -43,8 +43,7 @@ export class DeleteResource extends React.Component {
 
     delete() {
         this.props.deleteHandler()
-                .fail(exc => this.dialogErrorSet(cockpit.format(_("The $0 could not be deleted"), this.props.objectType.toLowerCase()), exc.message))
-                .then(exc => this.close());
+                .fail(exc => this.dialogErrorSet(cockpit.format(_("The $0 could not be deleted"), this.props.objectType.toLowerCase()), exc.message));
     }
 
     open() {

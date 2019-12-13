@@ -27,17 +27,6 @@
             "match": {
                 "superuser": null
             },
-            "spawn": [
-                "@PKEXEC@",
-                "--disable-internal-agent",
-                "cockpit-bridge",
-                "--privileged"
-            ]
-        },
-        {
-            "match": {
-                "superuser": null
-            },
             "environ": [
                 "SUDO_ASKPASS=@libexecdir@/cockpit-askpass"
             ],

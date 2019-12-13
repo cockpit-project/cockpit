@@ -156,6 +156,16 @@ on_timeout_reset (gpointer user_data)
   return FALSE;
 }
 
+static gchar *
+json_stringify (JsonObject *obj)
+{
+  static gchar *text = NULL;
+
+  g_free (text);
+  text = cockpit_json_write_object (obj, NULL);
+  return text;
+}
+
 static gboolean
 on_other_control (CockpitTransport *transport,
                   const char *command,
@@ -239,6 +249,8 @@ on_other_control (CockpitTransport *transport,
   /* Authorize messages get forwarded even without an "init" */
   else if (g_str_equal (command, "authorize"))
     {
+      g_info ("%s: auth: %s", self->name, json_stringify (options));
+
       if (!cockpit_json_get_string (options, "cookie", NULL, &cookie) || cookie == NULL)
         {
           g_message ("%s: received \"authorize\" request without a valid cookie", self->name);
@@ -248,6 +260,7 @@ on_other_control (CockpitTransport *transport,
       else if (cockpit_json_get_string (options, "challenge", NULL, &challenge) &&
                challenge && g_hash_table_contains (self->authorize_values, challenge))
         {
+          g_info ("%s: auth reply: %s", self->name, (gchar *)g_hash_table_lookup (self->authorize_values, challenge));
           reply = cockpit_transport_build_control ("command", "authorize",
                                                    "cookie", cookie,
                                                    "response",
@@ -261,6 +274,7 @@ on_other_control (CockpitTransport *transport,
       /* Otherwise forward the authorize challenge on */
       else
         {
+          g_info ("%s: auth forward", self->name);
           g_hash_table_add (self->authorizes, g_strdup (cookie));
           cockpit_transport_send (self->transport, NULL, payload);
         }
@@ -476,6 +490,8 @@ on_transport_control (CockpitTransport *transport,
       else
         {
           forward = handled = g_hash_table_remove (self->authorizes, cookie);
+          if (forward)
+            g_info ("%s: upstream reply: %s", self->name, json_stringify (options));
         }
     }
   else if (self->inited)

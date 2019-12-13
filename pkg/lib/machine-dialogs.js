@@ -151,6 +151,7 @@ function Dialog(selector, address, machines_ins, codes) {
             conn_options.session = 'shared';
             conn_options['host-key'] = machine.host_key;
         }
+        console.log("TRY", conn_options);
         var client = cockpit.channel(conn_options);
         client.send("x");
         $(client)

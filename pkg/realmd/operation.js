@@ -131,12 +131,12 @@ function instance(realmd, mode, realm, button) {
 
         $("#realms-op-leave-toggle").on("click", ev => {
             if ($("#realms-op-alert").is(":visible")) {
-                $("#realms-op-alert").hide();
+                $("#realms-op-alert").prop("hidden", true);
                 $("#realms-op-leave-caret")
                         .removeClass("fa-caret-down")
                         .addClass("fa-caret-right");
             } else {
-                $("#realms-op-alert").show();
+                $("#realms-op-alert").prop("hidden", false);
                 $("#realms-op-leave-caret")
                         .removeClass("fa-caret-right")
                         .addClass("fa-caret-down");

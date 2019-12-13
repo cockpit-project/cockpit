@@ -176,7 +176,7 @@ LIBVIRT_PROVIDER = {
                             const dumpxmlParams = parseDumpxml(dispatch, connectionName, xmlDesc);
                             const domInfoParams = parseDominfo(dispatch, connectionName, name, domInfo);
 
-                            dumpxmlParams.ui = resolveUiState(dispatch, name);
+                            dumpxmlParams.ui = resolveUiState(dispatch, name, connectionName);
                             dumpxmlParams.inactiveXML = parseDumpxml(dispatch, connectionName, xmlInactiveDesc);
 
                             if (updateOnly)

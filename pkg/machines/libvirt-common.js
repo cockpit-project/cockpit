@@ -890,23 +890,23 @@ export function parseStorageVolumeDumpxml(connectionName, storageVolumeXml, id_o
     };
 }
 
-export function resolveUiState(dispatch, name) {
+export function resolveUiState(dispatch, name, connectionName) {
     const result = {
         // used just the first time vm is shown
         initiallyExpanded: false,
         initiallyOpenedConsoleTab: false,
     };
 
-    const uiState = store.getState().ui.vms[name];
+    const uiState = store.getState().ui.vms.find(vm => vm.name == name && vm.connectionName == connectionName);
 
     if (uiState) {
         result.initiallyExpanded = uiState.expanded;
         result.initiallyOpenedConsoleTab = uiState.openConsoleTab;
 
         if (uiState.installInProgress) {
-            removeVmCreateInProgress(dispatch, name);
+            removeVmCreateInProgress(dispatch, name, connectionName);
         } else {
-            clearVmUiState(dispatch, name);
+            clearVmUiState(dispatch, name, connectionName);
         }
     }
 
@@ -1272,10 +1272,10 @@ export function CREATE_VM({ connectionName, vmName, source, sourceType, os, memo
     logDebug(`${this.name}.CREATE_VM(${vmName}):`);
     return dispatch => {
         // shows dummy vm  until we get vm from virsh (cleans up inProgress)
-        setVmCreateInProgress(dispatch, vmName, { openConsoleTab: startVm });
+        setVmCreateInProgress(dispatch, vmName, connectionName, { openConsoleTab: startVm });
 
         if (startVm) {
-            setVmInstallInProgress(dispatch, vmName);
+            setVmInstallInProgress(dispatch, vmName, connectionName);
         }
 
         return cockpit.script(createVmScript, [
@@ -1291,13 +1291,13 @@ export function CREATE_VM({ connectionName, vmName, source, sourceType, os, memo
             storageVolume,
         ], { err: "message", environ: ['LC_ALL=C'] })
                 .done(() => {
-                    finishVmCreateInProgress(dispatch, vmName);
+                    finishVmCreateInProgress(dispatch, vmName, connectionName);
                     if (startVm) {
-                        clearVmUiState(dispatch, vmName);
+                        clearVmUiState(dispatch, vmName, connectionName);
                     }
                 })
                 .fail((exception, data) => {
-                    clearVmUiState(dispatch, vmName); // inProgress cleanup
+                    clearVmUiState(dispatch, vmName, connectionName); // inProgress cleanup
                     console.info(`spawn 'vm creation' returned error: "${JSON.stringify(exception)}", data: "${JSON.stringify(data)}"`);
                 });
     };
@@ -1365,7 +1365,7 @@ export function INSTALL_VM({ name, vcpus, currentMemory, metadata, disks, displa
     return dispatch => {
         // shows dummy vm until we get vm from virsh (cleans up inProgress)
         // vm should be returned even if script fails
-        setVmInstallInProgress(dispatch, name);
+        setVmInstallInProgress(dispatch, name, connectionName);
 
         return cockpit.script(installVmScript, [
             connectionName,
@@ -1378,9 +1378,9 @@ export function INSTALL_VM({ name, vcpus, currentMemory, metadata, disks, displa
             prepareDisksParam(disks),
             prepareDisplaysParam(displays),
         ], { err: "message", environ: ['LC_ALL=C'] })
-                .done(() => clearVmUiState(dispatch, name))
+                .done(() => clearVmUiState(dispatch, name, connectionName))
                 .fail(ex => {
-                    clearVmUiState(dispatch, name); // inProgress cleanup
+                    clearVmUiState(dispatch, name, connectionName); // inProgress cleanup
                     buildScriptTimeoutFailHandler(
                         () => onAddErrorNotification({ text: cockpit.format(_("VM $0 failed to get installed"), name), detail: ex.message })
                         , VMS_CONFIG.WaitForRetryInstallVm);

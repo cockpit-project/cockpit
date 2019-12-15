@@ -18,7 +18,6 @@
  */
 
 import React from 'react';
-import $ from "jquery";
 
 import cockpit from "cockpit";
 
@@ -27,22 +26,18 @@ import './motdCard.less';
 export class MotdCard extends React.Component {
     constructor() {
         super();
-        this.state = { motdVisible: false };
+        this.state = { motdText: "", motdVisible: false };
     }
 
     componentDidMount() {
-        const self = this;
-
-        cockpit.file("/etc/motd").watch(function(content) {
+        cockpit.file("/etc/motd").watch(content => {
             if (content)
                 content = content.trimRight();
             if (content && content != cockpit.localStorage.getItem('dismissed-motd')) {
-                self.setState({ motdText: content, motdVisible: true });
+                this.setState({ motdText: content, motdVisible: true });
             } else {
-                self.setState({ motdVisible: false });
+                this.setState({ motdVisible: false });
             }
-            // To help the tests known when we have loaded motd
-            $('#motd-box').attr('data-stable', 'yes');
         });
     }
 
@@ -62,7 +57,7 @@ export class MotdCard extends React.Component {
                     <div className="pf-c-alert__action">
                         <button className="pf-c-button pf-m-plain" type="button" onClick={() => {
                             this.setState({ motdVisible: false });
-                            cockpit.localStorage.setItem('dismissed-motd', $('#motd').text());
+                            cockpit.localStorage.setItem('dismissed-motd', this.state.motdText);
                         }}>
                             <i className="fa fa-times" aria-hidden="true" />
                         </button>

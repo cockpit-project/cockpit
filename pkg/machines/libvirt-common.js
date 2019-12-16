@@ -31,6 +31,9 @@ import {
 import {
     prepareDisksParam,
     prepareDisplaysParam,
+    prepareNICParam,
+    prepareVcpuParam,
+    prepareMemoryParam,
 } from './libvirtUtils.js';
 
 import {
@@ -1360,7 +1363,7 @@ export function INIT_DATA_RETRIEVAL () {
     };
 }
 
-export function INSTALL_VM({ name, vcpus, currentMemory, metadata, disks, displays, connectionName, onAddErrorNotification }) {
+export function INSTALL_VM({ name, vcpus, cpu, currentMemory, memory, metadata, disks, displays, interfaces, autostart, connectionName, onAddErrorNotification }) {
     logDebug(`${this.name}.INSTALL_VM(${name}):`);
     return dispatch => {
         // shows dummy vm until we get vm from virsh (cleans up inProgress)
@@ -1373,10 +1376,12 @@ export function INSTALL_VM({ name, vcpus, currentMemory, metadata, disks, displa
             metadata.installSourceType,
             metadata.installSource,
             metadata.osVariant,
-            convertToUnit(currentMemory, units.KiB, units.MiB),
-            vcpus.count,
+            prepareMemoryParam(convertToUnit(currentMemory, units.KiB, units.MiB), convertToUnit(memory, units.KiB, units.MiB)),
+            prepareVcpuParam(vcpus, cpu),
             prepareDisksParam(disks),
             prepareDisplaysParam(displays),
+            prepareNICParam(interfaces),
+            autostart,
         ], { err: "message", environ: ['LC_ALL=C'] })
                 .done(() => clearVmUiState(dispatch, name))
                 .fail(ex => {

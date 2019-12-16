@@ -765,15 +765,6 @@ class MachineCase(unittest.TestCase):
                 print("Starting {0} {1}".format(key, machine.label))
             machine.start()
 
-        def sitter():
-            if opts.sit and not self.checkSuccess():
-                if self._outcome:
-                    [traceback.print_exception(*e[1]) for e in self._outcome.errors if e[1]]
-                else:
-                    self.currentResult.printErrors()
-                sit(self.machines)
-        self.addCleanup(sitter)
-
         # Now wait for the other machines to be up
         for key in self.machines.keys():
             machine = self.machines[key]
@@ -792,6 +783,15 @@ class MachineCase(unittest.TestCase):
             self.journal_start = self.machine.journal_cursor()
             self.browser = self.new_browser()
         self.tmpdir = tempfile.mkdtemp()
+
+        def sitter():
+            if opts.sit and not self.checkSuccess():
+                if self._outcome:
+                    [traceback.print_exception(*e[1]) for e in self._outcome.errors if e[1]]
+                else:
+                    self.currentResult.printErrors()
+                sit(self.machines)
+        self.addCleanup(sitter)
 
         def intercept():
             if not self.checkSuccess():

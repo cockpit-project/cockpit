@@ -51,7 +51,7 @@ export function Privileged({ excuse, allowed, placement, tooltipId, children }) 
 export class PrivilegedButton extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { allowed: true };
+        this.state = { allowed: !!this.props.permission.allowed };
         this.onPermissionChanged = this.onPermissionChanged.bind(this);
     }
 
@@ -66,7 +66,7 @@ export class PrivilegedButton extends React.Component {
 
     onPermissionChanged() {
         // default to allowed while not yet initialized
-        this.setState({ allowed: this.props.permission.allowed !== false });
+        this.setState({ allowed: !!this.props.permission.allowed });
     }
 
     render() {

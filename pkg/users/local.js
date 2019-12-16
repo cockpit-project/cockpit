@@ -1081,8 +1081,7 @@ PageAccount.prototype = {
     },
 
     check_role_for_self_mod: function () {
-        return (this.account.name == this.user.name ||
-            this.permission.allowed !== false);
+        return (this.account.name == this.user.name || !!this.permission.allowed);
     },
 
     change_real_name: function() {

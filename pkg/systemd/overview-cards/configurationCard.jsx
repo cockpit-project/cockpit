@@ -331,11 +331,11 @@ export class ConfigurationCard extends React.Component {
         // actually disabled, so the "allowed" property really means
         // "does not have tooltip" here.
 
-        const hostname_tooltip = (this.permission.allowed === false
+        const hostname_tooltip = (!this.permission.allowed
             ? cockpit.format(_("The user $0 is not permitted to modify hostnames"),
                              this.permission.user ? this.permission.user.name : '')
             : this.realmd.hostname_button_tooltip);
-        const hostname_disabled = this.permission.allowed === false || this.realmd.hostname_button_disabled;
+        const hostname_disabled = !this.permission.allowed || this.realmd.hostname_button_disabled;
 
         const hostname_button = (
             <Privileged allowed={ !hostname_tooltip }
@@ -357,11 +357,11 @@ export class ConfigurationCard extends React.Component {
                 { this.state.serverTime }
             </PrivilegedButton>);
 
-        const domain_tooltip = (this.permission.allowed === false
+        const domain_tooltip = (!this.permission.allowed
             ? cockpit.format(_("The user $0 is not permitted to modify realms"),
                              this.permission.user ? this.permission.user.name : '')
             : this.realmd.button_tooltip);
-        const domain_disabled = this.permission.allowed === false || this.realmd.button_disabled;
+        const domain_disabled = !this.permission.allowed || this.realmd.button_disabled;
 
         const domain_button = (
             <Privileged allowed={ !domain_tooltip }

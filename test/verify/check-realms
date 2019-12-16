@@ -787,18 +787,24 @@ class TestPackageInstall(packagelib.PackageCase):
         else:
             self.domain_sel = "#system_information_domain_button"
 
-    def checkTooltip(self, text):
+    def waitTooltip(self, text):
         b = self.browser
-        if self.machine.image in ["rhel-8-1-distropkg", "rhel-8-2-distropkg"]:
-            b.wait_present("#system-info-domain [data-original-title]")
-            b.mouse("#system-info-domain span", "mouseover")
-            b.wait_in_text(".tooltip-inner", text)
-            b.mouse("#system-info-domain span", "mouseout")
-        else:
-            b.wait_present("#system_information_domain_tooltip")
-            b.mouse("#system_information_domain_tooltip", "mouseover")
-            b.wait_in_text(".tooltip-inner", text)
-            b.mouse("#system_information_domain_tooltip", "mouseout")
+        def check():
+            try:
+                if self.machine.image in ["rhel-8-1-distropkg", "rhel-8-2-distropkg"]:
+                    b.wait_present("#system-info-domain [data-original-title]")
+                    b.mouse("#system-info-domain span", "mouseover")
+                    b.wait_in_text(".tooltip-inner", text)
+                    b.mouse("#system-info-domain span", "mouseout")
+                else:
+                    b.wait_present("#system_information_domain_tooltip")
+                    b.mouse("#system_information_domain_tooltip", "mouseover")
+                    b.wait_in_text(".tooltip-inner", text)
+                    b.mouse("#system_information_domain_tooltip", "mouseout")
+                return True
+            except:
+                return False
+        self.browser.wait(check)
 
     def testInstall(self):
         m = self.machine
@@ -814,7 +820,7 @@ class TestPackageInstall(packagelib.PackageCase):
             b.wait_present(self.domain_sel + ".disabled")
         else:
             b.wait_present(self.domain_sel + "[disabled]")
-        self.checkTooltip("realmd is not available on this system")
+        self.waitTooltip("realmd is not available on this system")
         b.logout()
 
         # case 2: enable PackageKit, but no realmd package available
@@ -822,7 +828,7 @@ class TestPackageInstall(packagelib.PackageCase):
         self.login_and_go("/system")
         # Joining a domain should bring up the install dialog
         b.wait_text(self.domain_sel, "Join Domain")
-        self.checkTooltip("requires installation of realmd")
+        self.waitTooltip("requires installation of realmd")
 
         b.click(self.domain_sel)
         b.wait_in_text(".modal-dialog:contains('Install Software')", "realmd is not available")
@@ -840,7 +846,7 @@ class TestPackageInstall(packagelib.PackageCase):
 
         # Joining a domain should bring up the install dialog
         b.wait_text(self.domain_sel, "Join Domain")
-        self.checkTooltip("requires installation of realmd")
+        self.waitTooltip("requires installation of realmd")
 
         b.click(self.domain_sel)
         b.click(".modal-dialog:contains('Install Software') .modal-footer button.btn-primary")
@@ -862,7 +868,7 @@ class TestPackageInstall(packagelib.PackageCase):
 
         # Joining a domain should bring up the install dialog
         b.wait_text(self.domain_sel, "Join Domain")
-        self.checkTooltip("requires installation of realmd")
+        self.waitTooltip("requires installation of realmd")
 
         b.click(self.domain_sel)
         # restore realmd service, to pretend that package install completed

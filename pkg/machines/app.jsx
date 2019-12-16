@@ -60,7 +60,7 @@ class App extends React.Component {
     }
 
     onPermissionChanged() {
-        this.setState({ allowed: permission.allowed !== false });
+        this.setState({ allowed: !!permission.allowed });
     }
 
     /*

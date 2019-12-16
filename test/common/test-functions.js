@@ -103,7 +103,8 @@ function ph_has_attr (sel, attr, val)
 
 function ph_attr_contains (sel, attr, val)
 {
-    return ph_attr(sel, attr).indexOf(val) > -1;
+    var a = ph_attr(sel, attr);
+    return a && a.indexOf(val) > -1;
 }
 
 function ph_mouse(sel, type, x, y, btn, ctrlKey, shiftKey, altKey, metaKey) {

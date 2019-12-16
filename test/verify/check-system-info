@@ -299,6 +299,8 @@ class TestSystemInfo(MachineCase):
         else:
             tooltip_sel = '.tooltip-inner'
             b.wait_present('#system_information_systime_button[disabled]')
+        b.eval_js('window.cockpit_permission = cockpit.permission({ admin: true })')
+        b.wait_js_cond('window.cockpit_permission.allowed !== null')
         b.mouse('#systime-tooltip', 'mouseover')
         b.wait_text(tooltip_sel, 'The user admin is not permitted to change the system time')
         b.mouse('#systime-tooltip', 'mouseout')

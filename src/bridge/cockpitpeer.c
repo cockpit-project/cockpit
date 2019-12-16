@@ -45,6 +45,7 @@ struct _CockpitPeer {
   const gchar *name;
   JsonObject *config;
   guint timeout;
+  gboolean poisoned;  /* the bridge will never start when this is TRUE */
 
   /* The channels we're dealing with */
   GHashTable *channels;
@@ -454,6 +455,7 @@ on_transport_control (CockpitTransport *transport,
   const gchar *cookie = NULL;
   gboolean forward = FALSE;
   gboolean handled = FALSE;
+  gboolean privileged = FALSE;
 
   if (g_str_equal (command, "init"))
     {
@@ -480,8 +482,18 @@ on_transport_control (CockpitTransport *transport,
     }
   else if (self->inited)
     {
-      if (g_str_equal (command, "logout") ||
-          g_str_equal (command, "kill"))
+      if (g_str_equal (command, "logout"))
+        {
+          forward = TRUE;
+          /* If this is a privileged bridge, let's not even try to start
+           * it after a "logout" message.  We know that it will likely
+           * fail, but at least for sudo it will fail very slowly.
+           */
+          if (cockpit_json_get_bool (self->config, "privileged", FALSE, &privileged) && privileged)
+            self->poisoned = TRUE;
+        }
+
+      if (g_str_equal (command, "kill"))
         {
           forward = TRUE;
         }
@@ -783,7 +795,7 @@ cockpit_peer_handle (CockpitPeer *self,
   if (!self->closed)
     cockpit_peer_ensure (self);
 
-  if (self->closed)
+  if (self->closed || self->poisoned)
     {
       /* There was an actual problem, close the channel */
       if (self->problem)
@@ -868,6 +880,9 @@ cockpit_peer_ensure (CockpitPeer *self)
 
   g_return_val_if_fail (COCKPIT_IS_PEER (self), NULL);
 
+  if (self->poisoned)
+    return NULL;
+
   if (!self->other)
     {
       pipe = spawn_process_for_config (self);
@@ -921,4 +936,5 @@ cockpit_peer_reset (CockpitPeer *self)
   self->problem = NULL;
   self->closed = FALSE;
   self->inited = FALSE;
+  self->poisoned = FALSE;
 }

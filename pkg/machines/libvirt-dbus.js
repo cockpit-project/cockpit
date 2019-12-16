@@ -644,7 +644,9 @@ LIBVIRT_DBUS_PROVIDER = {
 
     GET_NODE_MAX_MEMORY({ connectionName }) {
         if (connectionName) {
-            return dispatch => call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'NodeGetMemoryStats', [0, 0], TIMEOUT)
+            // Some nodes don't return all memory in just one cell.
+            // Using -1 == VIR_NODE_MEMORY_STATS_ALL_CELLS will return memory across all cells
+            return dispatch => call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'NodeGetMemoryStats', [-1, 0], TIMEOUT)
                     .then(stats => dispatch(setNodeMaxMemory({ memory: stats[0].total })))
                     .catch(ex => console.warn("NodeGetMemoryStats failed: %s", ex));
         }

@@ -130,44 +130,44 @@ class TestMetrics(MachineCase):
 
         # Network traffic through Ethernet.  Anything above 300 kb/s is good for now.
         #
-        ifaces = m.execute(r"ip -o a | awk '{print $2}'")
-        iface = None
-        for i in ifaces.split('\n'):
-            if i.startswith("eth") or i.startswith("ens"):
-                iface = i
-                break
+        # HACK: This will only work on Fedora 31 based coreos images, see https://github.com/cockpit-project/bots/pull/305
+        if m.image not in ["fedora-coreos"]:
+            ifaces = m.execute(r"ip -o a | awk '{print $2}'")
+            iface = None
+            for i in ifaces.split('\n'):
+                if i.startswith("eth") or i.startswith("ens"):
+                    iface = i
+                    break
 
-        if not iface:
-            raise Exception("Couldn't find interface to sample")
+            if not iface:
+                raise Exception("Couldn't find interface to sample")
 
-        m.execute("if firewall-cmd --state >/dev/null 2>&1; then firewall-cmd --permanent --zone=public --add-port=2000/tcp && firewall-cmd --reload; fi")
+            m.execute("if firewall-cmd --state >/dev/null 2>&1; then firewall-cmd --permanent --zone=public --add-port=2000/tcp && firewall-cmd --reload; fi")
 
-        (eth_before, lo_before) = m.execute(r"grep -E '\b" + iface + r":' /proc/net/dev | awk '{print $2 + $10}'; "
-                                            r"grep '\blo:' /proc/net/dev | awk '{print $2 + $10}'").strip().split()
-        time_before = time.time()
+            (eth_before, lo_before) = m.execute(r"grep -E '\b" + iface + r":' /proc/net/dev | awk '{print $2 + $10}'; "
+                                                r"grep '\blo:' /proc/net/dev | awk '{print $2 + $10}'").strip().split()
+            time_before = time.time()
 
-        # -q is necessary with netcat-openbsd, but does not exist with nmap-nc
-        net_pid = m.spawn(
-            "nc `nc -h 2>&1| grep -q -- -q && echo '-q -1' || true` -l 2000 </dev/null >/dev/null", "load-net.log")
+            net_pid = m.spawn("socat TCP-LISTEN:2000 PIPE", "load-net.log")
 
-        # might take several attemps until server-side is listening
-        (host, port) = m.forward["2000"].split(":")
-        client = subprocess.Popen(
-            "for retry in `seq 10`; do nc {0} {1} </dev/zero >/dev/null; sleep 1; done".format(host, port), shell=True)
+            # might take several attemps until server-side is listening
+            (host, port) = m.forward["2000"].split(":")
+            client = subprocess.Popen(
+                "for retry in `seq 10`; do nc {0} {1} </dev/zero >/dev/null; sleep 1; done".format(host, port), shell=True)
 
-        try:
-            b.wait_js_func("ph_flot_data_plateau", "#server_network_traffic_graph", 300 * 1000, None, 5, "net io")
-        finally:
-            time_after = time.time()
-            (eth_after, lo_after) = m.execute(r"grep -E '" + iface + r"' /proc/net/dev | awk '{print $2 + $10}'; "
-                                              r"grep '\blo:' /proc/net/dev | awk '{print $2 + $10}'").strip().split()
-            print(("Measured {0:.1f}s of network traffic; {3}: {1} bytes, lo: {2} bytes".format(
-                time_after - time_before, int(eth_after) - int(eth_before), int(lo_after) - int(lo_before), iface)))
+            try:
+                b.wait_js_func("ph_flot_data_plateau", "#server_network_traffic_graph", 300 * 1000, None, 5, "net io")
+            finally:
+                time_after = time.time()
+                (eth_after, lo_after) = m.execute(r"grep -E '" + iface + r"' /proc/net/dev | awk '{print $2 + $10}'; "
+                                                  r"grep '\blo:' /proc/net/dev | awk '{print $2 + $10}'").strip().split()
+                print(("Measured {0:.1f}s of network traffic; {3}: {1} bytes, lo: {2} bytes".format(
+                    time_after - time_before, int(eth_after) - int(eth_before), int(lo_after) - int(lo_before), iface)))
 
-            client.terminate()
-            client.wait()
+                client.terminate()
+                client.wait()
 
-        m.execute("kill %d" % net_pid)
+            m.execute("kill %d" % net_pid)
 
     @skipImage("No PCP available", "fedora-coreos")
     def testPcp(self):

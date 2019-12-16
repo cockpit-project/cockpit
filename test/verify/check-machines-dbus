@@ -195,6 +195,114 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_not_in_text("#vm-subVmTest1-boot-order", bootOrder)
         b.wait_not_present("#boot-order-tooltip")
 
+    # Check various configuration changes made before VM installation persist after installation
+    def testConfigureBeforeInstall(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/machines")
+        b.wait_in_text("body", "Virtual Machines")
+
+        b.click("#create-new-vm")
+        b.wait_present("#create-vm-dialog")
+        b.wait_in_text(".modal-dialog .modal-header .modal-title", "Create New Virtual Machine")
+
+        b.set_input_text("#vm-name", "VmNotInstalled")
+        m.execute("touch /var/lib/libvirt/novell.iso")
+        b.select_from_dropdown("#source-type", "Local Install Media")
+        b.set_file_autocomplete_val("source-file", "/var/lib/libvirt/novell.iso")
+        b.select_from_dropdown("#storage-size-unit-select", "MiB")
+        b.set_input_text("#storage-size", "256", value_check=True)
+        b.select_from_dropdown("#memory-size-unit-select", "MiB")
+        b.set_input_text("#memory-size", "128", value_check=True)
+        b.focus("label:contains('Operating System') + div > div > div > input")
+        b.key_press("CirrOS")
+        b.key_press("\t")
+        b.set_checked("#start-vm", False)
+
+        b.click(".modal-footer button:contains(Create)")
+        b.wait_not_present("#create-vm-dialog")
+
+        b.wait_in_text("tbody tr[data-row-id=vm-VmNotInstalled] th", "VmNotInstalled")
+
+        # Change autostart
+        autostart = not b.get_checked("#vm-VmNotInstalled-autostart-checkbox")
+        b.set_checked("#vm-VmNotInstalled-autostart-checkbox", autostart)
+
+        # Change memory settings
+        b.click("#vm-VmNotInstalled-memory-count")
+        b.wait_present("#vm-memory-modal")
+        b.set_input_text("#vm-VmNotInstalled-memory-modal-max-memory", "400")
+        b.blur("#vm-VmNotInstalled-memory-modal-max-memory")
+        b.set_input_text("#vm-VmNotInstalled-memory-modal-memory", "300")
+        b.blur("#vm-VmNotInstalled-memory-modal-memory")
+        b.click("#vm-VmNotInstalled-memory-modal-save")
+        b.wait_not_present(".modal-body")
+
+        # Change vCPUs setting
+        b.click("#vm-VmNotInstalled-vcpus-count")
+        b.wait_present(".modal-body")
+        b.set_input_text("#machines-vcpu-max-field", "8")
+        b.blur("#machines-vcpu-max-field")
+        b.set_input_text("#machines-vcpu-count-field", "2")
+        b.blur("#machines-vcpu-count-field")
+        b.select_from_dropdown("#socketsSelect", "2")
+        b.select_from_dropdown("#coresSelect", "2")
+        b.select_from_dropdown("#threadsSelect", "2")
+        b.click("#machines-vcpu-modal-dialog-apply")
+        b.wait_not_present(".modal-body")
+
+        # Change Boot Order setting
+        bootOrder = b.text("#vm-VmNotInstalled-boot-order")
+        b.click("#vm-VmNotInstalled-boot-order")
+        b.wait_present(".modal-body")
+        b.set_checked("#vm-VmNotInstalled-order-modal-device-row-1-checkbox", True)
+        b.click("#vm-VmNotInstalled-order-modal-device-row-0 #vm-VmNotInstalled-order-modal-down")
+        b.click("#vm-VmNotInstalled-order-modal-save")
+        b.wait_not_present(".modal-body")
+
+        # Attach some interface
+        m.execute("virsh attach-interface --persistent VmNotInstalled bridge virbr0")
+
+        # Install the VM
+        b.click("#vm-VmNotInstalled-install")
+        b.wait_present("li.active #vm-VmNotInstalled-consoles")
+        b.click("#vm-VmNotInstalled-off-caret")
+        b.click("#vm-VmNotInstalled-forceOff")
+        b.wait_in_text("#vm-VmNotInstalled-state", "shut off")
+
+        # Check configuration changes survived installation
+        b.click("#vm-VmNotInstalled-overview")
+
+        # Check memory settings have persisted
+        b.click("#vm-VmNotInstalled-memory-count")
+        b.wait_present("#vm-VmNotInstalled-memory-modal-memory")
+        b.wait_val("#vm-VmNotInstalled-memory-modal-max-memory", "400")
+        b.wait_val("#vm-VmNotInstalled-memory-modal-memory", "300")
+        b.click("#vm-VmNotInstalled-memory-modal-cancel")
+        b.wait_not_present(".modal-body")
+
+        # Check vCPU settings have persisted
+        b.click("#vm-VmNotInstalled-vcpus-count")
+        b.wait_present(".modal-body")
+        b.wait_val("#machines-vcpu-max-field", "8")
+        b.wait_val("#machines-vcpu-count-field", "2")
+        b.wait_val("#socketsSelect", "2")
+        b.wait_val("#coresSelect", "2")
+        b.wait_val("#threadsSelect", "2")
+        b.click("#machines-vcpu-modal-dialog-cancel")
+        b.wait_not_present(".modal-body")
+
+        # Check changed boot order have persisted
+        b.wait_text_not("#vm-VmNotInstalled-boot-order", bootOrder)
+
+        # Check autostart have persisted
+        self.assertEqual(b.get_checked("#vm-VmNotInstalled-autostart-checkbox"), autostart)
+
+        # Check new vNIC have persisted
+        b.click("#vm-VmNotInstalled-networks")
+        b.wait_present("#vm-VmNotInstalled-network-1-type")
+
     def testDiskEdit(self):
         b = self.browser
         m = self.machine

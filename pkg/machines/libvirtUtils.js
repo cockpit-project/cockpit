@@ -17,35 +17,91 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-function prepareParams(objectData, valueTransformer) {
-    let result = '';
-    let startLine = true;
-    Object.keys(objectData).forEach((key) => {
-        const options = valueTransformer(objectData[key]);
+function prepareObj(dataElem, result, valueTransformer) {
+    const options = valueTransformer(dataElem);
 
-        Object.keys(options).forEach((optionKey) => {
-            const option = options[optionKey];
-            if (option) {
+    let startLine = true;
+    Object.keys(options).forEach((optionKey) => {
+        const option = options[optionKey];
+        if (option) {
+            if (typeof option === "boolean")
+                result += (startLine) ? `${optionKey}` : `,${optionKey}`;
+            else
                 result += (startLine) ? `${optionKey}=${option}` : `,${optionKey}=${option}`;
-                if (startLine) {
-                    startLine = false;
-                }
-            }
-        });
-        result += '\n';
-        startLine = true;
+            if (startLine)
+                startLine = false;
+        }
+    });
+
+    return result + '\n';
+}
+
+function prepareParamsFromObj(dataElem, valueTransformer) {
+    return prepareObj(dataElem, '', valueTransformer);
+}
+
+function prepareParamsFromArrOfObjs(arrayData, valueTransformer) {
+    let result = '';
+    arrayData.forEach((dataElem) => {
+        result = prepareObj(dataElem, result, valueTransformer);
+    });
+
+    return result;
+}
+
+function prepareParamsFromObjOfObjs(objectData, valueTransformer) {
+    let result = '';
+    Object.keys(objectData).forEach((key) => {
+        result = prepareObj(objectData[key], result, valueTransformer);
     });
 
     return result;
 }
 
 export function prepareDisplaysParam(displays) {
-    return prepareParams(displays, display => {
+    return prepareParamsFromObjOfObjs(displays, display => {
         return {
             type: display.type,
             listen: display.address,
             port: display.port,
             tlsport: display.tlsPort,
+        };
+    });
+}
+
+export function prepareNICParam(nics) {
+    return prepareParamsFromArrOfObjs(nics, nic => {
+        return {
+            user: nic.type === "user",
+            bridge: nic.source.bridge,
+            network: nic.source.network,
+            type: nic.type === "direct" ? "direct" : null,
+            source: nic.source.dev,
+            mac: nic.mac,
+            model: nic.model,
+            boot_order: nic.bootOrder,
+            link_state: nic.state,
+        };
+    });
+}
+
+export function prepareMemoryParam(currentMemory, memory) {
+    return prepareParamsFromObj({ currentMemory, memory }, ({ currentMemory, memory }) => {
+        return {
+            memory: currentMemory,
+            maxmemory: memory,
+        };
+    });
+}
+
+export function prepareVcpuParam(vcpu, cpu) {
+    return prepareParamsFromObj({ vcpu, cpu }, ({ vcpu, cpu }) => {
+        return {
+            vcpus: vcpu.count,
+            maxvcpus: vcpu.max,
+            sockets: cpu.topology.sockets,
+            cores: cpu.topology.cores,
+            threads: cpu.topology.threads,
         };
     });
 }
@@ -63,7 +119,7 @@ export function prepareDisksParam(disks) {
         }
     };
 
-    return prepareParams(disks, disk => {
+    return prepareParamsFromObjOfObjs(disks, disk => {
         return {
             path: getPath(disk),
             vol: getVolume(disk),

@@ -19,6 +19,7 @@
 
 import subprocess
 import time
+import re
 
 import parent
 from testlib import *
@@ -192,6 +193,40 @@ class TestMetrics(MachineCase):
 
         self.check_host_metrics()
         m.execute("! pgrep cockpit-pcp")
+
+    @skipImage("Changed in #13186", "rhel-8-1-distropkg")
+    def testOverview(self):
+        m = self.machine
+        b = self.browser
+
+        def memUsage():
+            b.wait_present(".system-usage tr:first-child .pf-c-progress__indicator")
+            b.wait_attr_contains(".system-usage tr:first-child .pf-c-progress__indicator", "style", "width:")
+            style = b.attr(".system-usage tr:first-child .pf-c-progress__indicator", "style")
+            m = re.search("width: (\d+)%;", style)
+            return int(m.group(1))
+
+        # our test machines have ~ 1 GiB of memory, a reasonable chunk of it should be used
+        self.login_and_go("/system")
+        b.wait_in_text(".system-usage tr:first-child", " GiB /")
+        initial_usage = memUsage()
+        self.assertGreater(initial_usage, 10)
+        self.assertLess(initial_usage, 80)
+        # allocate an extra 300 MB; this may cause other stuff to get unmapped,
+        # thus not exact addition, but usage should go up
+        mem_hog = m.spawn("MEMBLOB=$(yes | dd bs=1M count=300); touch /tmp/hogged; sleep infinity", "mem_hog.log")
+        m.execute("while [ ! -e /tmp/hogged ]; do sleep 1; done")
+        # bars update every 5s
+        time.sleep(8)
+        hog_usage = memUsage()
+        self.assertGreater(hog_usage, initial_usage + 10)
+
+        m.execute("kill %d" % mem_hog)
+        # should go back to initial_usage; often below, due to paged out stuff
+        time.sleep(8)
+        last_usage = memUsage()
+        self.assertLessEqual(last_usage, initial_usage)
+        self.assertGreater(last_usage, 10)
 
 
 if __name__ == '__main__':

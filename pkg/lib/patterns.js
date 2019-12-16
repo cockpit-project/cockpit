@@ -383,7 +383,7 @@ $(document).ready(setup_sliders);
 // by default, tooltip is attached to "this" element; can be attached to
 // another one with setting "tooltip_element" (for <a> links)
 $.fn.update_privileged = function update_privileged(perm, denied_message, placement, tooltip_element) {
-    var allowed = (perm.allowed !== false);
+    var allowed = !!perm.allowed;
     var selector = this;
     if (!tooltip_element)
         tooltip_element = $(this);

@@ -14,9 +14,9 @@ import time
 TEST_DIR = os.path.normpath(os.path.dirname(os.path.realpath(os.path.join(__file__, ".."))))
 
 
-def browser_path(browser):
+def browser_path(browser, show_browser):
     if browser == "chromium":
-        return browser_path_chromium()
+        return browser_path_chromium(show_browser)
     elif browser == "firefox":
         return browser_path_firefox()
     else:
@@ -32,7 +32,7 @@ def browser_path_firefox():
     return None
 
 
-def browser_path_chromium():
+def browser_path_chromium(show_browser):
     """Return path to chromium browser.
 
     Support the following locations:
@@ -42,9 +42,12 @@ def browser_path_chromium():
 
     Exit with an error if none is found.
     """
-    g = glob.glob("/usr/lib*/chromium-browser/headless_shell")
-    if g:
-        return g[0]
+
+    # If we want to have interactive chromium, we don't want to use headless_shell
+    if not show_browser:
+        g = glob.glob("/usr/lib*/chromium-browser/headless_shell")
+        if g:
+            return g[0]
 
     p = subprocess.check_output("which chromium-browser || which chromium || which google-chrome || true",
                                 shell=True, universal_newlines=True).strip()
@@ -71,6 +74,7 @@ class CDP:
         self.trace = trace
         self.inject_helpers = inject_helpers
         self.browser = os.environ.get("TEST_BROWSER", "chromium")
+        self.show_browser = bool(os.environ.get("TEST_SHOW_BROWSER", ""))
         self.download_dir = tempfile.mkdtemp()
         self._driver = None
         self._browser = None
@@ -157,7 +161,7 @@ class CDP:
 
     def get_browser_path(self):
         if self._browser_path is None:
-            self._browser_path = browser_path(self.browser)
+            self._browser_path = browser_path(self.browser, self.show_browser)
 
         return self._browser_path
 
@@ -167,7 +171,7 @@ class CDP:
             raise SystemError(self.browser + " is not installed")
 
         if self.browser == "chromium":
-            return [exe, "--headless", "--disable-gpu", "--no-sandbox", "--disable-setuid-sandbox",
+            return [exe, "--headless" if not self.show_browser else "", "--disable-gpu", "--no-sandbox", "--disable-setuid-sandbox",
                     "--disable-namespace-sandbox", "--disable-seccomp-filter-sandbox",
                     "--disable-sandbox-denial-logging", "--disable-pushstate-throttle",
                     "--window-size=1920x1200", "--remote-debugging-port=%i" % cdp_port, "about:blank"]
@@ -188,7 +192,7 @@ class CDP:
             with open(os.path.join(profile, "handlers.json"), "w") as f:
                 f.write('{"defaultHandlersVersion":{"en-US":4},"mimeTypes":{"application/xz":{"action":0,"extensions":["xz"]}}}')
 
-            return [exe, "-P", "blank", "--headless", "--window-size=1920,1200", "--remote-debugging-port=%i" % cdp_port, "--no-remote", "localhost"]
+            return [exe, "-P", "blank", "--headless" if not self.show_browser else "", "--window-size=1920,1200", "--remote-debugging-port=%i" % cdp_port, "--no-remote", "localhost"]
 
     def start(self):
         environ = os.environ.copy()

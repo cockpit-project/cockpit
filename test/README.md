@@ -95,6 +95,9 @@ You can set these environment variables to configure the test suite:
                      "firefox"
                   "chromium" is the default.
 
+    TEST_SHOW_BROWSER  Set to run browser interactively. When not specified,
+                       browser is run in headless mode.
+
 In addition, you can also set the `cockpit.bots.images-data-dir` variable with
 `git config` to the location to store the (unprepared) virtual machine images.
 This takes precedence over `TEST_DATA`.  For example:

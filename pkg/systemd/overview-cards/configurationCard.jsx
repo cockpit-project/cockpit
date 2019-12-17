@@ -615,6 +615,7 @@ PageSystemInformationChangeSystime.prototype = {
         });
         $('#systime-timezones').css('max-height', '10em');
         $('#systime-timezones').combobox();
+        $('label[for=systime-timezones] + div .input-group').addClass("combobox-with-reset");
 
         $('#systime-time-minutes').on('input', enable_apply_button);
         $('#systime-time-hours').on('input', enable_apply_button);

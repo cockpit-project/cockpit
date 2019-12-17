@@ -665,10 +665,10 @@ PageSystemInformationChangeSystime.prototype = {
         $('#change_systime [value="ntp_time_custom"]')
                 .toggleClass("disabled", !(self.server_time.timedate.CanNTP && self.custom_ntp_supported));
         $('#systime-parse-error')
-                .parents('tr')
+                .parent()
                 .hide();
         $('#systime-timezone-error')
-                .parents('tr')
+                .parent()
                 .hide();
         $('#systime-apply-button').prop('disabled', false);
         $('#systime-timezones').prop('disabled', 'disabled');
@@ -955,17 +955,21 @@ PageSystemInformationChangeSystime.prototype = {
             $('#systime-timezone-error').css('visibility', 'hidden');
         }
 
-        $('#systime-timezones').toggleClass("has-error", !timezone_error);
-        $('#systime-time-hours').toggleClass("has-error", !time_error);
-        $('#systime-time-minutes').toggleClass("has-error", !time_error);
-        $('#systime-date-input').toggleClass("has-error", !date_error);
+        $('#systime-timezone-error')
+                .parent()
+                .toggleClass("has-error", timezone_error);
+        $('#systime-time-hours').toggleClass("has-error", time_error);
+        $('#systime-time-minutes').toggleClass("has-error", time_error);
+        $('#systime-date-input').toggleClass("has-error", date_error);
 
         $('#systime-parse-error')
-                .parents('tr')
+                .parent()
                 .toggleClass("has-error", time_error || date_error);
-        $('#systime-parse-error').toggle(time_error || date_error);
+        $('#systime-parse-error')
+                .parent()
+                .toggle(time_error || date_error);
         $('#systime-timezone-error')
-                .parents('tr')
+                .parent()
                 .toggle(timezone_error);
 
         if (time_error || date_error || timezone_error) {
@@ -985,7 +989,9 @@ PageSystemInformationChangeSystime.prototype = {
         $("#change_systime button span").text(text);
         $('#systime-manual-row, #systime-manual-error-row').toggle(manual_time);
         $('#systime-ntp-servers-row').toggle(ntp_time_custom);
-        $('#systime-parse-error').hide();
+        $('#systime-parse-error')
+                .parent()
+                .hide();
     },
 
     sync_ntp_servers: function() {

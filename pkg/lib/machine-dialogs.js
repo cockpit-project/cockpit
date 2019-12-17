@@ -677,7 +677,8 @@ function ChangeAuth(dialog) {
         var options = {};
         var dfp = $.Deferred();
         var user = $("#login-custom-user").val();
-        var reuse_password = $("#login-custom-reuse-password").prop('checked');
+        var password = $("#login-custom-password").val() || undefined;
+        var reuse_password = password && $("#login-custom-reuse-password").prop('checked');
 
         var parts = dialog.machines_ins.split_connection_string(dialog.address);
         parts.user = user;
@@ -687,7 +688,7 @@ function ChangeAuth(dialog) {
                                                                  parts.address);
 
         if ($("#login-type button").val() != 'stored') {
-            options.password = $("#login-custom-password").val();
+            options.password = password;
             options.session = 'shared';
             if (!user) {
                 /* we don't want to save the default user for everyone
@@ -727,6 +728,10 @@ function ChangeAuth(dialog) {
         $("#login-type button span").text(text);
         $("#login-available").toggle(stored);
         $("#login-diff-password").toggle(!stored);
+    }
+
+    function change_password(value) {
+        $("#login-reuse-password").toggle(value != "");
     }
 
     function render() {
@@ -803,6 +808,11 @@ function ChangeAuth(dialog) {
 
             update_available();
         }
+
+        $("#login-custom-password").on('input changed', function() {
+            change_password($(this).val());
+        });
+        change_password("");
 
         dialog.get_sel("#do-sync-users").on("click", function () {
             dialog.render_template("sync-users");

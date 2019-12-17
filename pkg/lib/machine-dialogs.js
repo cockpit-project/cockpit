@@ -677,6 +677,7 @@ function ChangeAuth(dialog) {
         var options = {};
         var dfp = $.Deferred();
         var user = $("#login-custom-user").val();
+        var reuse_password = $("#login-custom-reuse-password").prop('checked');
 
         var parts = dialog.machines_ins.split_connection_string(dialog.address);
         parts.user = user;
@@ -699,6 +700,10 @@ function ChangeAuth(dialog) {
             }
         }
 
+        if (reuse_password)
+            options["reuse-password"] = true;
+
+        console.log("LOGIN", options);
         dialog.try_to_connect(address, options)
                 .done(function () {
                     dialog.address = address;

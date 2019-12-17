@@ -79,63 +79,44 @@
               <div class="modal-header">
                   <h4 class="modal-title" translate>Change System Time</h4>
               </div>
-              <div class="modal-body">
-                  <table class="form-table-ct">
-                      <tr>
-                          <td>
-                              <label class="control-label" for="systime-timezones" translate="yes">Time Zone</label>
-                          </td>
-                          <td>
-                              <select class="form-control" id="systime-timezones">
-                              </select>
-                          </td>
-                      </tr>
-                      <tr>
-                          <td></td>
-                          <td class="has-error">
-                              <span id="systime-timezone-error" class="help-block" translate="yes">Invalid time zone</span>
-                          </td>
-                      </tr>
-                      <tr>
-                          <td><label class="control-label" for="change_systime"
-                                                           translate="yes">Set Time</label></td>
-                          <td>
-                              <div class="btn-group bootstrap-select dropdown form-control" id="change_systime">
-                                  <button class="btn btn-default dropdown-toggle" type="button"
-                                                                                  data-toggle="dropdown">
-                                      <span class="pull-left" translate="yes">Manually</span>
-                                      <i class="fa fa-caret-down pf-c-context-selector__toggle-icon" aria-hidden="true"></i>
-                                  </button>
-                                  <ul class="dropdown-menu">
-                                      <li value="manual_time"><a role="link" tabindex="0" translate="yes">Manually</a></li>
-                                      <li value="ntp_time"><a role="link" tabindex="0" translate="yes">Automatically using NTP</a></li>
-                                      <li value="ntp_time_custom"><a role="link" tabindex="0" translate="yes">Automatically using specific NTP servers</a></li>
-                                  </ul>
-                              </div>
-                          </td>
-                      </tr>
-                      <tr id="systime-manual-row">
-                          <td></td>
-                          <td>
-                              <input type='text' class="form-control" id="systime-date-input"/>
-                              <input type='text' class="form-control" id="systime-time-hours"/>
-                              :
-                              <input type='text' class="form-control" id="systime-time-minutes"/>
-                          </td>
-                      </tr>
-                      <tr id="systime-manual-error-row">
-                          <td>
-                          </td>
-                          <td class="has-error">
-                              <span id="systime-parse-error" class="help-block"></span>
-                          </td>
-                      </tr>
-                      <tr id="systime-ntp-servers-row">
-                          <td></td>
-                          <td id="systime-ntp-servers">
-                          </td>
-                      </tr>
-                  </table>
+              <div class="modal-body ct-form">
+                  <label for="systime-timezones" class="control-label" for="systime-timezones" translate="yes">Time Zone</label>
+                  <div>
+                      <select class="form-control" id="systime-timezones">
+                      </select>
+                      <div class="has-error">
+                          <span id="systime-timezone-error" class="help-block" translate="yes">Invalid time zone</span>
+                      </div>
+                  </div>
+                  <label class="control-label" for="change_systime"
+                                               translate="yes">Set Time</label>
+                  <div class="btn-group bootstrap-select dropdown form-control" id="change_systime">
+                      <button class="btn btn-default dropdown-toggle" type="button"
+                                                                      data-toggle="dropdown">
+                          <span class="pull-left" translate="yes">Manually</span>
+                          <i class="fa fa-caret-down pf-c-context-selector__toggle-icon" aria-hidden="true"></i>
+                      </button>
+                      <ul class="dropdown-menu">
+                          <li value="manual_time"><a role="link" tabindex="0" translate="yes">Manually</a></li>
+                          <li value="ntp_time"><a role="link" tabindex="0" translate="yes">Automatically using NTP</a></li>
+                          <li value="ntp_time_custom"><a role="link" tabindex="0" translate="yes">Automatically using specific NTP servers</a></li>
+                      </ul>
+                  </div>
+                  <div id="systime-manual-row">
+                      <input type='text' class="form-control" id="systime-date-input"/>
+                      <input type='text' class="form-control" id="systime-time-hours"/>
+                      :
+                      <input type='text' class="form-control" id="systime-time-minutes"/>
+                  </div>
+                  <div id="manual-error-row">
+                    <div class="has-error">
+                      <span id="systime-parse-error" class="help-block"></span>
+                    </div>
+                  </div>
+                  <div id="systime-ntp-servers-row">
+                      <div id="systime-ntp-servers" />
+                      </div>
+                  </div>
               </div>
               <div class="modal-footer">
                   <button class="btn btn-default" data-dismiss="modal" translate>Cancel</button>

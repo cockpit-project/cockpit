@@ -789,7 +789,7 @@ class OsUpdates extends React.Component {
                 title: _("Not Registered"),
                 details: {
                     link: "subscriptions",
-                    icon: "pficon pficon-warning-triangle-o"
+                    icon: "fa fa-exclamation-triangle"
                 }
             });
 

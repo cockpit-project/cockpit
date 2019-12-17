@@ -85,7 +85,7 @@ export class HealthCard extends React.Component {
                             </>
                         </li>
                         {this.state.insightsLinkVisible && <li className="system-health-insights">
-                            <span className="pficon pficon-warning-triangle-o" />
+                            <span className="fa fa-exclamation-triangle" />
                             { cockpit.manifests.subscriptions
                                 ? <a id="insights_text" tabIndex='0' role="button" onClick={() => cockpit.jump("/subscriptions")}>{_("Not connected to Insights")}</a>
                                 : <span id="insights_text">{_("Not connected to Insights")}</span>}

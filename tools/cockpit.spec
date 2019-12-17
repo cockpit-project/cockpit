@@ -399,15 +399,6 @@ Suggests: sssd-dbus
 Requires(post): systemd
 Requires(preun): systemd
 Requires(postun): systemd
-%if %{defined wip}
-# HACK: don't apply selinux %post dependencies to CI builds, it would require refreshing images
-%else
-%if 0%{?rhel}
-# for SELinux policy adjustment in %post below
-Requires(post): /usr/sbin/semanage
-Requires(post): policycoreutils
-%endif
-%endif
 
 %description ws
 The Cockpit Web Service listens on the network, and authenticates users.
@@ -464,42 +455,6 @@ getent passwd cockpit-wsinstance >/dev/null || useradd -r -g cockpit-wsinstance 
 %systemd_post cockpit.socket
 # firewalld only partially picks up changes to its services files without this
 test -f %{_bindir}/firewall-cmd && firewall-cmd --reload --quiet || true
-
-%if 0%{?rhel}
-# HACK: SELinux policy adjustment for cockpit-tls; see https://github.com/fedora-selinux/selinux-policy-contrib/pull/114
-set -ex
-echo "Applying SELinux policy change for cockpit-tls.."
-semanage fcontext -a /usr/libexec/cockpit-tls -t cockpit_ws_exec_t || true
-restorecon /usr/libexec/cockpit-tls
-tmp=$(mktemp -d)
-cat <<EOF > $tmp/local.te
-module local 1.0;
-require {
-    type cockpit_ws_t;
-    type cockpit_ws_exec_t;
-    type cockpit_session_t;
-    type cockpit_var_run_t;
-    class unix_stream_socket { create_stream_socket_perms connectto };
-    class file { open read map getattr execute_no_trans};
-    class dir { getattr search open read };
-}
-
-allow cockpit_ws_t cockpit_ws_t:unix_stream_socket { create_stream_socket_perms connectto };
-allow cockpit_ws_t cockpit_ws_exec_t:file { execute_no_trans };
-
-# https://github.com/fedora-selinux/selinux-policy-contrib/pull/130
-allow cockpit_session_t cockpit_var_run_t:file { open read map getattr };
-EOF
-checkmodule -M -m -o $tmp/local.mod $tmp/local.te
-semodule_package -o $tmp/local.pp -m $tmp/local.mod
-semodule -i $tmp/local.pp
-rm -rf "$tmp"
-
-# HACK: SELinux policy adjustment for cockpit-tls; see https://github.com/fedora-selinux/selinux-policy-contrib/pull/161
-echo "Applying SELinux policy change for cockpit-wsinstance-factory..."
-semanage fcontext -a /usr/libexec/cockpit-wsinstance-factory -t cockpit_ws_exec_t || true
-restorecon /usr/libexec/cockpit-wsinstance-factory
-%endif
 
 %preun ws
 %systemd_preun cockpit.socket

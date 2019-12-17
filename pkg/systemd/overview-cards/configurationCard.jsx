@@ -143,7 +143,7 @@ export class ConfigurationCard extends React.Component {
 
         function update_ntp_status() {
             // flag for tests that timedated proxy got activated
-            if (self.server_time.timedate.CanNTP !== undefined)
+            if (self.server_time.timedate.CanNTP !== undefined && self.server_time.timedate1_service.unit && self.server_time.timedate1_service.unit.Id)
                 $('#system_information_systime_button').attr("data-timedated-initialized", true);
 
             if (!self.server_time.timedate.NTP) {

@@ -199,17 +199,31 @@ class TestMetrics(MachineCase):
         m = self.machine
         b = self.browser
 
-        def memUsage():
-            b.wait_present(".system-usage tr:first-child .pf-c-progress__indicator")
-            b.wait_attr_contains(".system-usage tr:first-child .pf-c-progress__indicator", "style", "width:")
-            style = b.attr(".system-usage tr:first-child .pf-c-progress__indicator", "style")
+        # packagekit often eats a lot of CPU; silence it to not screw up the "system is idle" test
+        m.execute("systemctl mask packagekit")
+
+        def progressValue(number):
+            sel = ".system-usage tr:nth-child(%i) .pf-c-progress__indicator" % number
+            b.wait_present(sel)
+            b.wait_attr_contains(sel, "style", "width:")
+            style = b.attr(sel, "style")
             m = re.search("width: (\d+)%;", style)
             return int(m.group(1))
 
-        # our test machines have ~ 1 GiB of memory, a reasonable chunk of it should be used
         self.login_and_go("/system")
-        b.wait_in_text(".system-usage tr:first-child", " GiB /")
-        initial_usage = memUsage()
+
+        # CPU
+        # first wait until system settles down
+        wait(lambda: progressValue(1) < 20)
+        m.spawn("for i in $(seq $(nproc)); do cat /dev/urandom > /dev/null & done", "cpu_hog.log")
+        wait(lambda: progressValue(1) > 90)
+        m.execute("pkill -e -f cat.*urandom")
+        # should go back to idle usage
+        wait(lambda: progressValue(1) < 20)
+
+        # memory: our test machines have ~ 1 GiB of memory, a reasonable chunk of it should be used
+        b.wait_in_text(".system-usage tr:nth-child(2)", " GiB /")
+        initial_usage = progressValue(2)
         self.assertGreater(initial_usage, 10)
         self.assertLess(initial_usage, 80)
         # allocate an extra 300 MB; this may cause other stuff to get unmapped,
@@ -218,13 +232,13 @@ class TestMetrics(MachineCase):
         m.execute("while [ ! -e /tmp/hogged ]; do sleep 1; done")
         # bars update every 5s
         time.sleep(8)
-        hog_usage = memUsage()
+        hog_usage = progressValue(2)
         self.assertGreater(hog_usage, initial_usage + 10)
 
         m.execute("kill %d" % mem_hog)
         # should go back to initial_usage; often below, due to paged out stuff
         time.sleep(8)
-        last_usage = memUsage()
+        last_usage = progressValue(2)
         self.assertLessEqual(last_usage, initial_usage)
         self.assertGreater(last_usage, 10)
 

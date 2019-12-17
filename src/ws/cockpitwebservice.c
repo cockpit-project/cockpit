@@ -496,7 +496,7 @@ authorize_check_user (CockpitCreds *creds,
   if (!cockpit_authorize_subject (challenge, &subject))
     goto out;
 
-  if (!subject || g_str_equal (subject, ""))
+  if (!subject || g_str_equal (subject, "*"))
     {
       ret = TRUE;
     }

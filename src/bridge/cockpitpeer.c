@@ -55,6 +55,7 @@ struct _CockpitPeer {
 
   /* authorize types we will reply to */
   GHashTable *authorize_values;
+  gchar *creds_password;
 
   /* first_host */
   gchar *init_host;
@@ -182,7 +183,9 @@ on_other_control (CockpitTransport *transport,
   GBytes *reply;
   gint64 timeout;
   gint64 version;
-  char *type = NULL;
+  gchar *challenge_type = NULL;
+  gchar *challenge_subject = NULL;
+  gboolean any_user;
   GList *l;
 
   /* Got an init message thaw all channels */
@@ -256,27 +259,81 @@ on_other_control (CockpitTransport *transport,
           g_message ("%s: received \"authorize\" request without a valid cookie", self->name);
         }
 
-      /* If we have info we can respond to basic authorize challenges */
-      else if (cockpit_json_get_string (options, "challenge", NULL, &challenge) &&
-               challenge && g_hash_table_contains (self->authorize_values, challenge))
-        {
-          g_info ("%s: auth reply: %s", self->name, (gchar *)g_hash_table_lookup (self->authorize_values, challenge));
-          reply = cockpit_transport_build_control ("command", "authorize",
-                                                   "cookie", cookie,
-                                                   "response",
-                                                   g_hash_table_lookup (self->authorize_values, challenge),
-                                                   NULL);
-          g_hash_table_remove (self->authorize_values, challenge);
-          cockpit_transport_send (transport, NULL, reply);
-          g_bytes_unref (reply);
-        }
-
-      /* Otherwise forward the authorize challenge on */
       else
         {
-          g_info ("%s: auth forward", self->name);
-          g_hash_table_add (self->authorizes, g_strdup (cookie));
-          cockpit_transport_send (self->transport, NULL, payload);
+          if (!cockpit_json_get_string (options, "challenge", NULL, &challenge))
+            challenge = NULL;
+
+          /* If we have info we can respond to basic authorize
+           * challenges.  This is for SSH password logins.
+           */
+          if (challenge && g_hash_table_contains (self->authorize_values, challenge))
+            {
+              g_info ("%s: auth reply: %s", self->name, (gchar *)g_hash_table_lookup (self->authorize_values, challenge));
+              reply = cockpit_transport_build_control ("command", "authorize",
+                                                       "cookie", cookie,
+                                                       "response",
+                                                       g_hash_table_lookup (self->authorize_values, challenge),
+                                                       NULL);
+              g_hash_table_remove (self->authorize_values, challenge);
+              cockpit_transport_send (transport, NULL, reply);
+              g_bytes_unref (reply);
+            }
+
+          /* We sometimes answer plain1 challenges.  This is for
+             polkit/sudo authentication over SSH.
+
+             If we have a password from the initial channel, we reply
+             with that.  We don't check the username because we don't
+             really know what it is supposed to be what with
+             .ssh/config etc.
+
+             If we don't have a password, we forward the challenge but
+             optionally without restricting it to a specific user.
+             This option is used for SSH connections, for the the
+             reason outlined in the previous paragraph.
+          */
+          else if (cockpit_authorize_type (challenge, &challenge_type) &&
+                   g_str_equal (challenge_type, "plain1"))
+            {
+              if (self->creds_password)
+                {
+                  g_info ("%s: auth plain1 passwd reply", self->name);
+                  reply = cockpit_transport_build_control ("command", "authorize",
+                                                           "cookie", cookie,
+                                                           "response", self->creds_password,
+                                                           NULL);
+                  cockpit_transport_send (transport, NULL, reply);
+                  g_bytes_unref (reply);
+                }
+              else
+                {
+                  g_hash_table_add (self->authorizes, g_strdup (cookie));
+                  if (cockpit_json_get_bool (self->config, "authorize-any-user", FALSE, &any_user) && any_user)
+                    {
+                      g_info ("%s: auth plain1 any user forward", self->name);
+                      reply = cockpit_transport_build_control ("command", "authorize",
+                                                               "cookie", cookie,
+                                                               "challenge", "plain1:*",
+                                                               NULL);
+                      cockpit_transport_send (self->transport, NULL, reply);
+                      g_bytes_unref (reply);
+                    }
+                  else
+                    {
+                      g_info ("%s: auth plain1 direct forward", self->name);
+                      cockpit_transport_send (self->transport, NULL, payload);
+                    }
+                }
+            }
+
+          /* Otherwise forward the authorize challenge on */
+          else
+            {
+              g_info ("%s: auth forward", self->name);
+              g_hash_table_add (self->authorizes, g_strdup (cookie));
+              cockpit_transport_send (self->transport, NULL, payload);
+            }
         }
     }
 
@@ -309,7 +366,8 @@ on_other_control (CockpitTransport *transport,
       cockpit_transport_send (self->transport, NULL, payload);
     }
 
-  g_free (type);
+  g_free (challenge_type);
+  g_free (challenge_subject);
   return TRUE;
 }
 
@@ -602,6 +660,7 @@ cockpit_peer_finalize (GObject *object)
 
   g_free (self->problem);
   g_free (self->init_host);
+  g_free (self->creds_password);
 
   G_OBJECT_CLASS (cockpit_peer_parent_class)->finalize (object);
 }
@@ -788,6 +847,7 @@ cockpit_peer_handle (CockpitPeer *self,
 {
   const gchar *user = NULL;
   const gchar *password = NULL;
+  gboolean reuse_password = FALSE;
   const gchar *host = NULL;
   const gchar *host_key = NULL;
 
@@ -824,11 +884,15 @@ cockpit_peer_handle (CockpitPeer *self,
       /* Setup authorize_values
        * TODO: Should this be configurable?
        */
+      g_free (self->creds_password);
       if (cockpit_json_get_string (options, "user", NULL, &user) &&
           cockpit_json_get_string (options, "password", NULL, &password) && password)
         {
+          g_info ("%s: CREDS %s %s (%s)", self->name, user, password, json_stringify (options));
           g_hash_table_insert (self->authorize_values, "basic",
                                cockpit_authorize_build_basic (user, password));
+          if (cockpit_json_get_bool (options, "reuse-password", FALSE, &reuse_password) && reuse_password)
+            self->creds_password = g_strdup (password);
         }
 
       if (cockpit_json_get_string (options, "host-key", NULL, &host_key))

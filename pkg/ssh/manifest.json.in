@@ -11,7 +11,8 @@
                          "COCKPIT_PRIVATE_${channel}=${channel}" ],
             "spawn": [ "@libexecdir@/cockpit-ssh", "${user}@${host}" ],
             "timeout": 30,
-            "problem": "not-supported"
+            "problem": "not-supported",
+            "authorize-any-user": true
         },
         {
             "match": { "session": "private", "host": null },
@@ -19,19 +20,22 @@
                          "COCKPIT_PRIVATE_${channel}=${channel}" ],
             "spawn": [ "@libexecdir@/cockpit-ssh", "${host}" ],
             "timeout": 30,
-            "problem": "not-supported"
+            "problem": "not-supported",
+            "authorize-any-user": true
         },
         {
             "match": { "user": null, "host": null },
             "spawn": [ "@libexecdir@/cockpit-ssh", "${user}@${host}" ],
             "timeout": 30,
-            "problem": "not-supported"
+            "problem": "not-supported",
+            "authorize-any-user": true
         },
         {
             "match": { "host": null },
             "spawn": [ "@libexecdir@/cockpit-ssh", "${host}" ],
             "timeout": 30,
-            "problem": "not-supported"
+            "problem": "not-supported",
+            "authorize-any-user": true
         }
     ]
 }

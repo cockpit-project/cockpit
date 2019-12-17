@@ -1498,6 +1498,10 @@ export function storageVolumeCreate(connectionName, poolName, volName, size, for
                 return call(connectionName, path[0], 'org.libvirt.StoragePool', 'StorageVolCreateXML', [volXmlDesc, 0], TIMEOUT)
                         .then(() => {
                             return storagePoolRefresh(connectionName, path[0]);
+                        }, ex => {
+                            storagePoolRefresh(connectionName, path[0])
+                                    .then(() => storageVolumeDelete(connectionName, poolName, volName));
+                            return Promise.reject(ex);
                         });
             });
 }

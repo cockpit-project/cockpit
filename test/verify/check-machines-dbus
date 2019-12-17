@@ -1649,6 +1649,12 @@ class TestMachinesDBus(machineslib.TestMachines):
                         b.wait_present(".modal-footer div.spinner")
                         b.wait_present(".modal-footer button:contains(Create):disabled")
                     b.wait_not_present("#create-volume-dialog-modal")
+                else:
+                    m.execute("virsh pool-refresh {0}".format(self.pool_name))
+                    b.wait_in_text(".modal-footer .pf-c-alert__description", self.xfail_error)
+                    b.click(".modal-footer button:contains(Cancel)")
+                    b.wait_not_present("#create-volume-dialog-modal")
+                    b.wait_not_present("#pool-{0}-system-volume-{1}-name".format(self.pool_name, self.vol_name))
 
             def verify(self):
                 # Check that the defined volume is now visible
@@ -1679,6 +1685,18 @@ class TestMachinesDBus(machineslib.TestMachines):
                 b.click("tbody tr[data-row-id=pool-{0}-system] th".format(self.pool_name)) # click on the row header
 
         # Check volume creation for various pool types
+        StorageVolumeCreateDialog(
+            self,
+            pool_name="dir-pool",
+            vol_name="enormous-sized-vol",
+            size="10000000",
+            unit="GiB",
+            format="qcow2",
+            remove=True,
+            xfail=True,
+            xfail_error="The image size is too large",
+        ).execute()
+
         StorageVolumeCreateDialog(
             self,
             pool_name="dir-pool",

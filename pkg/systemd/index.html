@@ -191,43 +191,35 @@
               <div class="modal-header">
                   <h4 class="modal-title"></h4>
               </div>
-              <div class="modal-body">
+              <div class="modal-body ct-form">
                   <textarea class="form-control">
                   </textarea>
-                  <table>
-                      <tr>
-                          <td>
-                              <label translate="yes">Delay</label>
-                          </td>
-                          <td>
-                              <div class="btn-group bootstrap-select dropdown form-control">
-                                  <button class="btn btn-default dropdown-toggle" type="button"
-                                                                                  data-toggle="dropdown">
-                                      <span class="pull-left" translate="yes">1 Minute</span>
-                                      <i class="fa fa-caret-down pf-c-context-selector__toggle-icon" aria-hidden="true"></i>
-                                  </button>
-                                  <ul class="dropdown-menu">
-                                      <li value="1"><a role="link" tabindex="0" translate="yes">1 Minute</a></li>
-                                      <li value="5"><a role="link" tabindex="0" translate="yes">5 Minutes</a></li>
-                                      <li value="20"><a role="link" tabindex="0" translate="yes">20 Minutes</a></li>
-                                      <li value="40"><a role="link" tabindex="0" translate="yes">40 Minutes</a></li>
-                                      <li value="60"><a role="link" tabindex="0" translate="yes">60 Minutes</a></li>
-                                      <li role="separator" class="divider"></li>
-                                      <li value="0"><a role="link" tabindex="0" translate="yes">No Delay</a></li>
-                                      <li value="x"><a role="link" tabindex="0" translate="yes">Specific Time</a></li>
-                                  </ul>
-                              </div>
-                          </td>
-                          <td>
-                              <div>
-                                  <input class="form-control shutdown-date" type="text">
-                                  <input class="form-control shutdown-hours" type="text">
-                                  :
-                                  <input class="form-control shutdown-minutes" type="text">
-                              </div>
-                          </td>
-                      </tr>
-                  </table>
+                  <label class="control-label" for="action-delay" translate="yes">Delay</label>
+                  <div role='group' id="action-delay">
+                      <div class="btn-group bootstrap-select dropdown form-control">
+                          <button class="btn btn-default dropdown-toggle" type="button"
+                                                                          data-toggle="dropdown">
+                              <span class="pull-left" translate="yes">1 Minute</span>
+                              <i class="fa fa-caret-down pf-c-context-selector__toggle-icon" aria-hidden="true"></i>
+                          </button>
+                          <ul class="dropdown-menu">
+                              <li value="1"><a role="link" tabindex="0" translate="yes">1 Minute</a></li>
+                              <li value="5"><a role="link" tabindex="0" translate="yes">5 Minutes</a></li>
+                              <li value="20"><a role="link" tabindex="0" translate="yes">20 Minutes</a></li>
+                              <li value="40"><a role="link" tabindex="0" translate="yes">40 Minutes</a></li>
+                              <li value="60"><a role="link" tabindex="0" translate="yes">60 Minutes</a></li>
+                              <li role="separator" class="divider"></li>
+                              <li value="0"><a role="link" tabindex="0" translate="yes">No Delay</a></li>
+                              <li value="x"><a role="link" tabindex="0" translate="yes">Specific Time</a></li>
+                          </ul>
+                      </div>
+                      <div>
+                          <input class="form-control shutdown-date" type="text">
+                          <input class="form-control shutdown-hours" type="text">
+                          :
+                          <input class="form-control shutdown-minutes" type="text">
+                      </div>
+                  </div>
               </div>
               <div class="modal-footer">
                   <button class="btn btn-default" translate="yes" data-dismiss="modal">Cancel</button>

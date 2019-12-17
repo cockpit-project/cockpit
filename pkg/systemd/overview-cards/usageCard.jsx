@@ -29,44 +29,87 @@ import "./usageCard.less";
 
 const _ = cockpit.gettext;
 
-const UPDATE_DELAY = 5000;
+const METRICS_SPEC = {
+    payload: "metrics1",
+    source: "internal",
+    interval: 3000,
+    metrics: [
+        { name: "cpu.basic.user", derive: "rate" },
+        { name: "cpu.basic.system", derive: "rate" },
+        { name: "cpu.basic.nice", derive: "rate" },
+        { name: "memory.used" },
+    ]
+};
 
 export class UsageCard extends React.Component {
     constructor(props) {
         super(props);
 
-        this.state = { pollingEnabled: true };
-        this.updateMemoryInfo = this.updateMemoryInfo.bind(this);
+        this.metrics_channel = null;
+        this.samples = [];
+
+        this.state = {
+            memTotal: 0, // GiB
+            memUsed: 0, // GiB
+            numCpu: 1, // number
+            cpuUsed: 0, // percentage
+        };
+
+        machine_info.cpu_ram_info().done(info => this.setState({
+            memTotal: Number((info.memory / (1024 * 1024 * 1024)).toFixed(1)),
+            numCpu: info.cpus,
+        }));
+
+        this.onVisibilityChange = this.onVisibilityChange.bind(this);
+        this.onMetricsUpdate = this.onMetricsUpdate.bind(this);
+
+        cockpit.addEventListener("visibilitychange", this.onVisibilityChange);
+        this.onVisibilityChange();
     }
 
-    componentDidMount() {
-        this.updateMemoryInfo();
-
-        cockpit.addEventListener("visibilitychange", () => {
-            this.setState((prevState, _) => ({ pollingEnabled: !prevState.pollingEnabled }));
-        }, () => this.updateMemoryInfo());
-    }
-
-    componentWillUnmount() {
-        this.setState({ pollingEnabled: false });
-    }
-
-    updateMemoryInfo() {
-        if (!this.state.pollingEnabled)
+    onVisibilityChange() {
+        if (cockpit.hidden && this.metrics_channel !== null) {
+            this.metrics_channel.removeEventListener("message", this.onMetricsUpdate);
+            this.metrics_channel.close();
+            this.metrics_channel = null;
             return;
+        }
 
-        machine_info.cpu_ram_info().done(info => {
-            this.setState({
-                memTotal: Number((info.memory / (1024 * 1024 * 1024)).toFixed(1)),
-                memAvailable: Number((info.available_memory / (1024 * 1024 * 1024)).toFixed(1))
+        if (!cockpit.hidden && this.metrics_channel === null) {
+            this.metrics_channel = cockpit.channel(METRICS_SPEC);
+            this.metrics_channel.addEventListener("closed", (ev, error) => console.error("metrics closed:", error));
+            this.metrics_channel.addEventListener("message", this.onMetricsUpdate);
+        }
+    }
+
+    onMetricsUpdate(event, message) {
+        const data = JSON.parse(message);
+
+        // reset state on meta messages
+        if (!Array.isArray(data)) {
+            this.samples = [];
+            return;
+        }
+
+        // decompress
+        data.forEach(samples => {
+            samples.forEach((sample, i) => {
+                if (sample !== null)
+                    this.samples[i] = sample;
             });
         });
-        window.setTimeout(this.updateMemoryInfo.bind(this), UPDATE_DELAY);
+
+        // CPU metrics are in ms/s; divide by 10 to get percentage
+        if (this.samples[0] !== false) {
+            const cpu = Math.round((this.samples[0] + this.samples[1] + this.samples[2]) / 10 / this.state.numCpu);
+            this.setState({ cpuUsed: cpu });
+        }
+        this.setState({ memUsed: Number((this.samples[3] / (1024 * 1024 * 1024)).toFixed(1)) });
     }
 
     render() {
-        const memUsed = Number((this.state.memTotal - this.state.memAvailable).toFixed(1));
-        const fraction = memUsed / this.state.memTotal;
+        const fraction = this.state.memUsed / this.state.memTotal;
+        const cores_str = cockpit.format(cockpit.ngettext("of $0 CPU core", "of $0 CPU cores", this.state.numCpu), this.state.numCpu);
 
         return (
             <Card className="system-usage">
@@ -75,13 +118,24 @@ export class UsageCard extends React.Component {
                     <table className="pf-c-table pf-m-grid-md pf-m-compact">
                         <tbody>
                             <tr>
+                                <th scope="row">{_("CPU")}</th>
+                                <td>
+                                    <Progress value={this.state.cpuUsed}
+                                        className="pf-m-sm"
+                                        min={0} max={100}
+                                        variant={ this.state.cpuUsed > 90 ? ProgressVariant.danger : ProgressVariant.info }
+                                        label={ this.state.cpuUsed + '% ' + cores_str }
+                                        measureLocation={ProgressMeasureLocation.outside} />
+                                </td>
+                            </tr>
+                            <tr>
                                 <th scope="row">{_("Memory")}</th>
                                 <td>
-                                    <Progress value={memUsed}
+                                    <Progress value={this.state.memUsed}
                                         className="pf-m-sm"
                                         min={0} max={Number(this.state.memTotal)}
                                         variant={fraction > 0.9 ? ProgressVariant.danger : ProgressVariant.info}
-                                        label={cockpit.format(_("$0 GiB / $1 GiB"), memUsed, this.state.memTotal)}
+                                        label={cockpit.format(_("$0 GiB / $1 GiB"), this.state.memUsed, this.state.memTotal)}
                                         measureLocation={ProgressMeasureLocation.outside} />
                                 </td>
                             </tr>

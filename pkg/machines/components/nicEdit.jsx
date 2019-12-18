@@ -30,6 +30,7 @@ import {
     changeNetworkSettings,
     getVm
 } from '../actions/provider-actions.js';
+import { getNetworkDevices } from '../helpers.js';
 
 import 'form-layout.less';
 
@@ -52,10 +53,26 @@ class EditNICModal extends React.Component {
     constructor(props) {
         super(props);
 
+        let defaultNetworkSource;
+        let currentSource;
+        let availableSources = [];
+        if (props.network.type === "network") {
+            availableSources = props.networks.map(network => network.name);
+            currentSource = props.network.source.network;
+        } else if (props.network.type === "direct" || props.network.type === "bridge") {
+            availableSources = props.nodeDevices.map(dev => dev.name);
+            currentSource = props.network.source.dev;
+        }
+
+        if (availableSources.includes(currentSource))
+            defaultNetworkSource = currentSource;
+        else
+            defaultNetworkSource = availableSources.length > 0 ? availableSources[0] : undefined;
+
         this.state = {
             dialogError: undefined,
             networkType: props.network.type,
-            networkSource: props.network.source.network || props.network.source.dev,
+            networkSource: defaultNetworkSource,
             networkModel: props.network.model,
             saveDisabled: false,
             availableSources: props.availableSources,
@@ -108,14 +125,15 @@ class EditNICModal extends React.Component {
 
     render() {
         const { idPrefix, vm, network, networks, nodeDevices, interfaces } = this.props;
+        const networkDevices = getNetworkDevices(vm.connectionName, nodeDevices, interfaces);
+
         const defaultBody = (
             <form className='ct-form'>
                 <NetworkTypeAndSourceRow idPrefix={idPrefix}
                                          dialogValues={this.state}
                                          onValueChanged={this.onValueChanged}
                                          networks={networks}
-                                         interfaces={interfaces}
-                                         nodeDevices={nodeDevices}
+                                         networkDevices={networkDevices}
                                          connectionName={vm.connectionName} />
                 <hr />
                 <NetworkModelRow idPrefix={idPrefix}

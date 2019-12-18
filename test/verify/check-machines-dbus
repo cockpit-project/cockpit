@@ -568,6 +568,8 @@ class TestMachinesDBus(machineslib.TestMachines):
 
         # Remove all Virtual Networks and confirm that trying to choose
         # Virtual Networks type for a NIC disables the save button
+        m.execute("virsh net-dumpxml default > /tmp/net-default.xml")
+        m.execute("virsh net-dumpxml test_network > /tmp/net-test-network.xml")
         m.execute("virsh net-destroy test_network && virsh net-destroy default")
         b.wait_in_text("#card-pf-networks .card-pf-aggregate-status-notification:nth-of-type(1)", "0")
         m.execute("virsh net-undefine test_network && virsh net-undefine default")
@@ -590,6 +592,25 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_in_text("#vm-subVmTest1-network-1-select-type", "Bridge to LAN")
         b.select_from_dropdown("#vm-subVmTest1-network-1-select-type", "Virtual network")
         b.wait_present("#vm-subVmTest1-network-1-edit-dialog-save:disabled")
+        b.click(".modal-footer button:contains(Cancel)")
+
+        # Ensure that when the source of a NIC was removed we can still change it
+
+        # Redefine deleted networks and attach an interface with source a deleted network
+        m.execute("virsh net-define /tmp/net-default.xml && virsh net-start default && virsh attach-interface --persistent --type network --source default --domain subVmTest1")
+        m.execute("virsh net-destroy default && virsh net-undefine default")
+        m.execute("virsh net-define /tmp/net-test-network.xml && virsh net-start test_network")
+
+        # First shut of the VM otherwise the interface will not be the same in the live and config XML https://www.redhat.com/archives/libvir-list/2019-August/msg01034.html
+        b.click("#vm-subVmTest1-off-caret")
+        b.click("#vm-subVmTest1-forceOff")
+        b.wait_in_text("#vm-subVmTest1-state", "shut off")
+
+        # Try to edit the interface changing the source to a non deleted network
+        b.click("#vm-subVmTest1-network-1-edit-dialog")
+        b.select_from_dropdown("#vm-subVmTest1-network-1-select-source", "test_network")
+        b.click("#vm-subVmTest1-network-1-edit-dialog-save")
+        b.wait_in_text("#vm-subVmTest1-network-1-source", "test_network")
 
     def testNetworkAutostart(self):
         b = self.browser

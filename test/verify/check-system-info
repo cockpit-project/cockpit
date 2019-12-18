@@ -299,16 +299,13 @@ class TestSystemInfo(MachineCase):
         b.mouse('#systime-tooltip', 'mouseout')
         b.wait_not_present('#systime-tooltip ~ div.tooltip')
 
-    @skipImage("No NTP servers config", "rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2", "centos-8-stream")
+    @skipImage("Uses timedatex, no NTP servers config", "rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2", "centos-8-stream",
+               "fedora-30", "fedora-testing")
     def testTimeServers(self):
         m = self.machine
         b = self.browser
 
         conf = "/etc/systemd/timesyncd.conf.d/50-cockpit.conf"
-
-        # Use systemd-timedated as the provider of
-        # org.freedesktop.timedate1 instead of timedatex.
-        m.execute("systemctl disable timedatex; systemctl stop timedatex; systemctl unmask systemd-timedated")
 
         self.login_and_go("/system")
 

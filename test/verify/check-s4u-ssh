@@ -1,0 +1,97 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2020 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+
+from testlib import *
+
+@skipImage("No realmd available", "fedora-coreos")
+@skipImage("freeipa not currently in testing", "debian-testing", "ubuntu-2004")
+@skipImage("Skip these for now, unsure what's broken", "ubuntu-stable", "debian-stable")
+class TestS4USsh(MachineCase):
+    provision = {
+        "0": {"address": "10.111.113.1/20", "dns": "10.111.112.100"},
+        "1": {"address": "10.111.113.2/20", "dns": "10.111.112.100"},
+        "services": {"image": "services", "memory_mb": 2048}
+    }
+
+    def setUp(self):
+        super().setUp()
+        self.machines['services'].execute("/run-freeipa")
+
+    def testBasic(self):
+        client_machine = self.machine
+        sshd_machine = self.machines["1"]
+        ipa_machine = self.machines["services"]
+
+        # set hostname for readable logs
+        client_machine.execute("hostnamectl set-hostname sshclient.cockpit.lan")
+        sshd_machine.execute("hostnamectl set-hostname sshserver.cockpit.lan")
+        self.login_and_go("/system")
+
+        # join both machines
+        wait(lambda: client_machine.execute("nslookup -type=SRV _ldap._tcp.cockpit.lan"))
+        wait(lambda: sshd_machine.execute("nslookup -type=SRV _ldap._tcp.cockpit.lan"))
+        client_machine.execute("echo foobarfoo | realm join -U admin cockpit.lan")
+        sshd_machine.execute("echo foobarfoo | realm join -U admin cockpit.lan")
+
+        # configure ipa
+        ipa_machine.execute("docker exec freeipa bash -c 'echo foobarfoo | kinit admin@COCKPIT.LAN'")
+        # add user to impersonate
+        ipa_machine.execute("docker exec freeipa bash -c 'ipa user-add --first=user --last=user user'")
+        # add service which will be allowed to delegate creds
+        ipa_machine.execute("docker exec freeipa bash -c 'ipa service-add cockpitclient/sshclient.cockpit.lan@COCKPIT.LAN --ok-as-delegate=true --ok-to-auth-as-delegate=true'")
+        # Allow retrieval of service keytab by admin
+        ipa_machine.execute("docker exec freeipa bash -c 'ipa service-allow-retrieve-keytab --user=admin cockpitclient/sshclient.cockpit.lan'")
+        # set up delegation rule
+        script="""set -e
+        ipa servicedelegationtarget-add cockpit-target
+        ipa servicedelegationtarget-add-member cockpit-target --principals="host/sshserver.cockpit.lan@COCKPIT.LAN"
+        ipa servicedelegationrule-add cockpit-delegation
+        ipa servicedelegationrule-add-member cockpit-delegation --principals="cockpitclient/sshclient.cockpit.lan@COCKPIT.LAN"
+        ipa servicedelegationrule-add-target cockpit-delegation --servicedelegationtargets="cockpit-target"
+        """
+        ipa_machine.execute("docker exec freeipa bash -ec '%s'" % script)
+
+        # ssh client, get keytab for authenticating and make ccache using gssapi
+        client_machine.write('/tmp/make-cache.py', """
+import gssapi
+
+principal = gssapi.Name('cockpitclient/sshclient.cockpit.lan@COCKPIT.LAN', gssapi.NameType.kerberos_principal)
+credResult = gssapi.creds.rcred_cred_store.acquire_cred_from(store = { 'keytab'.encode(): '/etc/cockpit-client.keytab'.encode() }, name=principal)
+impersonee = gssapi.Name('user@COCKPIT.LAN', gssapi.NameType.kerberos_principal)
+credResults4u2self = gssapi.creds.rcred_s4u.acquire_cred_impersonate_name(credResult.creds, impersonee)
+gssapi.creds.rcred_cred_store.store_cred_into({ 'ccache'.encode(): 'FILE:/etc/cockpit.ccache'.encode(), 'keytab'.encode(): '/etc/cockpit-client.keytab'.encode() }, credResults4u2self.creds, overwrite=True)
+""")
+        client_machine.execute(script="""#!/bin/sh
+        echo foobarfoo | kinit admin@COCKPIT.LAN
+        ipa-getkeytab -k /etc/cockpit-client.keytab -p cockpitclient/sshclient.cockpit.lan@COCKPIT.LAN
+        kinit -k -t /etc/cockpit-client.keytab cockpitclient/sshclient.cockpit.lan@COCKPIT.LAN
+        python3 /tmp/make-cache.py
+        """)
+
+        # enable gssapiauth
+        sshd_machine.execute("sed -ri 's/#GSSAPIAuthentication (yes|no)/GSSAPIAuthentication yes/' /etc/ssh/sshd_config")
+        sshd_machine.execute("systemctl daemon-reload && systemctl restart sshd")
+
+        client_machine.execute("KRB5_TRACE=\"/dev/stderr\" KRB5CCNAME=\"/etc/cockpit.ccache\" ssh -vvv -K  user@sshserver.cockpit.lan echo hello")
+
+
+if __name__ == '__main__':
+    test_main()

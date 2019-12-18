@@ -664,7 +664,7 @@ class MachineCase(unittest.TestCase):
         (unused, sep, label) = self.id().partition(".")
         return label.replace(".", "-")
 
-    def new_machine(self, image=None, forward={}, **kwargs):
+    def new_machine(self, image=None, forward={}, restrict=True, **kwargs):
         machine_class = self.machine_class
         if image is None:
             image = self.image
@@ -680,7 +680,7 @@ class MachineCase(unittest.TestCase):
                 network = testvm.VirtNetwork(image=image)
                 self.addCleanup(lambda: network.kill())
                 self.network = network
-            networking = self.network.host(restrict=True, forward=forward)
+            networking = self.network.host(restrict=restrict, forward=forward)
             machine = machine_class(verbose=opts.trace, networking=networking, image=image, **kwargs)
             if opts.fetch and not os.path.exists(machine.image_file):
                 machine.pull(machine.image_file)

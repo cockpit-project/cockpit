@@ -704,8 +704,9 @@ class CreateVmModal extends React.Component {
                     close();
 
                     if (providerName == 'LibvirtDBus' && this.state.storagePool === "NewVolume") {
-                        const storagePool = storagePools.find(pool => pool.connectioName === this.state.connectioName && pool.name === "default");
-                        storagePoolRefresh(storagePool.connectionName, storagePool.id);
+                        const storagePool = storagePools.find(pool => pool.connectionName === this.state.connectionName && pool.name === "default");
+                        if (storagePool)
+                            storagePoolRefresh(storagePool.connectionName, storagePool.id);
                     }
                 },
                 (exception) => {

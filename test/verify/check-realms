@@ -20,6 +20,10 @@
 import re
 import time
 import os
+import struct
+import hmac
+import hashlib
+import base64
 
 import parent
 
@@ -58,6 +62,15 @@ for x in $(seq 1 60); do
     sleep $x
 done
 """
+
+# https://en.wikipedia.org/wiki/HMAC-based_One-time_Password_algorithm
+# https://stackoverflow.com/questions/8529265/google-authenticator-implementation-in-python
+def hotp_token(secret, counter, digits=6, hash_alg=hashlib.sha1):
+    counter_bytes = struct.pack('>Q', int(counter))
+    hs = hmac.new(secret, counter_bytes, hash_alg).digest()
+    ofs = hs[-1] & 0xF
+    numbers = str(int.from_bytes(hs[ofs:ofs + 4], 'big') & 0x7fffffff)
+    return numbers[-digits:].rjust(digits, '0')
 
 
 @skipImage("No realmd available", "fedora-coreos")
@@ -285,6 +298,27 @@ class TestRealms(MachineCase):
         m = self.machine
         b = self.browser
 
+        # wait until FreeIPA started up
+        out = self.machines['services'].execute("""docker exec -i freeipa sh -ec '
+            while ! echo foobarfoo | kinit -f admin; do sleep 5; done
+            while ! ipa user-find >/dev/null; do sleep 5; done'
+            """, timeout=300)
+
+        # set up "alice" user with HOTP; that won't affect existing users (admin)
+        # https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/linux_domain_identity_authentication_and_policy_guide/otp
+        out = self.machines['services'].execute("""docker exec -i freeipa sh -ec '
+            ipa config-mod --user-auth-type=otp
+            ipa user-add --first=Alice --last=Developer alice
+            yes alicessecret | ipa user-mod --password alice
+            ipa user-mod --password-expiration="2030-01-01T00:00:00Z" alice
+            ipa otptoken-add --type=hotp --owner=alice
+            ' """)
+        # if the default ever changes, the HOTP algorithm below needs to be updated
+        self.assertIn("  Algorithm: sha1\n", out)
+        alice_hotp_key = re.search(r'^  Key: (.*)', out, re.M).group(1)
+        # print("alice's HOTP key:", alice_hotp_key)
+        alice_hotp_key = base64.b64decode(alice_hotp_key)
+
         m.execute("hostnamectl set-hostname x0.cockpit.lan")
 
         # Wait for DNS to work as expected.
@@ -354,6 +388,36 @@ class TestRealms(MachineCase):
         self.allow_restart_journal_messages()
         # sometimes polling for info and joining a domain creates this noise
         self.allow_journal_messages('.*org.freedesktop.DBus.Error.Spawn.ChildExited.*')
+
+        m.start_cockpit()
+
+        # now try 2FA with OTP
+        # This does not yet work with sssd < 2.2.2-1 on Debian/Ubuntu
+        if m.image in ["ubuntu-1804", "ubuntu-stable", "debian-stable"]:
+            return
+
+        # normal b.login_and_go() doesn't support 2FA
+        b.open("/")
+        b.wait_visible("#login")
+        b.set_val('#login-user-input', "alice")
+        b.set_val('#login-password-input', "alicessecret")
+        b.click('#login-button')
+        b.wait_in_text("#conversation-prompt", "Second Factor")
+        # wrong token (wrong number of digits)
+        b.set_val("#conversation-input", "1234")
+        b.click('#login-button')
+        b.wait_text("#login-error-message", "Authentication failed")
+
+        b.set_val('#login-user-input', "alice")
+        b.set_val('#login-password-input', "alicessecret")
+        b.click('#login-button')
+        b.wait_in_text("#conversation-prompt", "Second Factor")
+        token = hotp_token(alice_hotp_key, 0)  # first usage, counter == 0
+        # print("alice first token:", token)
+        b.set_val("#conversation-input", token)
+        b.click('#login-button')
+        b.expect_load()
+        b.wait_visible('#content')
 
     def testNotSupported(self):
         m = self.machine

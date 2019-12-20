@@ -113,15 +113,20 @@ export function init(statusChangedCallback) {
         if (item) {
             const match = item.match(/(\S*)\s*\((\S*)\s*,.*\)\s*(.*)/);
             if (match) {
-                const state = match[2] === "on" ? "yes" : "no";
+                let description = match[3];
+                let state = "yes";
+                if (match[2] !== "on") {
+                    state = "no";
+                    description = description.replace("Allow", "Disallow");
+                }
                 const ansible = `
-- name: ${match[3]}
+- name: ${description}
   seboolean:
     name: ${match[1]}
     state: ${state}
     persistent: yes
 `;
-                result.push({ description: match[3], ansible: ansible });
+                result.push({ description, ansible });
             }
         }
         return result;

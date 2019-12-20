@@ -196,7 +196,7 @@ class TestSelinux(MachineCase):
         m.execute("semanage boolean --modify --off zebra_write_config")
         b.reload()
         b.enter_page("/selinux/setroubleshoot")
-        b.wait_visible("tr.modification-row > td:contains(Allow zebra to write config)")
+        b.wait_visible("tr.modification-row > td:contains(Disallow zebra to write config)")
         b.click(".modifications-export")
         b.click("button:contains('Ansible')")
         ansible_m.write("roles/selinux/tasks/main.yml", b.text(ansible_script_sel))

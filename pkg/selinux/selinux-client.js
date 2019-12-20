@@ -34,6 +34,7 @@ var status = {
     enforcing: false,
     configEnforcing: false, // configured mode at boot time
     shell: "",
+    ansible: "",
     modifications: null,
     permitted: true,
     failed: false,
@@ -47,6 +48,7 @@ var status = {
  *   - enforcing:       boolean (current selinux mode of the system, false if permissive or selinux disabled)
  *   - configEnforcing: boolean (mode the system is configured to boot in, may differ from current mode)
  *   - shell:           Output of `semanage export`
+ *   - ansible:         Ansible script for setting up local modifications
  *   - modifications:   List of all local modifications in selinux policy
  *   - permitted:       Set to false if user is not allowed to see local modifications
  *   - failed:          Reading of modifications failed in unexpected way
@@ -108,8 +110,20 @@ export function init(statusChangedCallback) {
         // Example:
         // authlogin_nsswitch_use_ldap (on , on) Allow authlogin to nsswitch use ldap
         // Split by first ')', as the name cannot contain ')'
-        if (item)
-            result.push(item.split(")", 2)[1].trim());
+        if (item) {
+            const match = item.match(/(\S*)\s*\((\S*)\s*,.*\)\s*(.*)/);
+            if (match) {
+                const state = match[2] === "on" ? "yes" : "no";
+                const ansible = `
+- name: ${match[3]}
+  seboolean:
+    name: ${match[1]}
+    state: ${state}
+    persistent: yes
+`;
+                result.push({ description: match[3], ansible: ansible });
+            }
+        }
         return result;
     }
 
@@ -129,11 +143,18 @@ export function init(statusChangedCallback) {
                     output = output.split("~~~~~");
                     status.shell = output[0];
                     status.modifications = [];
+                    status.ansible = "";
 
-                    for (let i = 1; i < output.length; i++)
-                        status.modifications.push(...(output[i].trim().split("\n")
-                                .reduce(manageditems_callbacks[i - 1][1], [])));
+                    for (let i = 1; i < output.length; i++) {
+                        const parsed = output[i].trim().split("\n")
+                                .reduce(manageditems_callbacks[i - 1][1], []);
+                        parsed.forEach(p => {
+                            status.modifications.push(p.description);
+                            status.ansible += p.ansible;
+                        });
+                    }
 
+                    const shell_rules = {};
                     // As long as we don't parse all items, we need to get some from general export
                     // Once we can parse all types, this can be dropped
                     status.modifications.push(...(output[0].split("\n").reduce(function (result, mod) {
@@ -147,10 +168,26 @@ export function init(statusChangedCallback) {
                         if (items.length === 2 && items[1] == "-D")
                             return result;
 
-                        if (manageditems.indexOf(items[0]) < 0)
+                        if (manageditems.indexOf(items[0]) < 0) {
+                            if (items[0] in shell_rules)
+                                shell_rules[items[0]].push("    semanage " + mod);
+                            else
+                                shell_rules[items[0]] = ["    semanage " + mod];
                             result.push(mod);
+                        }
                         return result;
                     }, [])));
+
+                    // Create shell rule for every ansible group separately
+                    Object.keys(shell_rules).forEach(t => {
+                        const rules = shell_rules[t].join("\n");
+                        status.ansible += `
+- name: Set up ${t} customizations
+  shell: |
+    semanage ${t} -D
+${rules}
+`;
+                    });
 
                     statusChangedCallback(status, undefined);
                 })

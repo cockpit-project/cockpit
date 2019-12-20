@@ -462,6 +462,7 @@ export class SETroubleshootPage extends React.Component {
                 title={ _("System Modifications") }
                 permitted={ this.props.selinuxStatus.permitted }
                 shell={ "semanage import <<EOF\n" + this.props.selinuxStatus.shell.trim() + "\nEOF" }
+                ansible={ this.props.selinuxStatus.ansible }
                 entries={ this.props.selinuxStatus.modifications }
                 failed={ this.props.selinuxStatus.failed }
             />

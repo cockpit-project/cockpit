@@ -690,8 +690,12 @@ fi
         # Behaviour for non-admins
         self.login_and_go('/system/hwinfo', authorized=False)
         b.wait_present('#hwinfo th:contains(CPU)')
-        b.mouse('#hwinfo span:contains(Mitigations)', 'mouseover')
-        b.wait_text('#tip-cpu-security .tooltip-inner', 'The user admin is not permitted to change cpu security mitigations')
+        if m.image in ["rhel-8-1-distropkg"]:
+            b.mouse('#hwinfo span:contains(Mitigations)', 'mouseover')
+        else:
+            b.wait_present('#cpu_mitigations[disabled]')
+            b.mouse('#tip-cpu-security', 'mouseover')
+        b.wait_text('.tooltip-inner', 'The user admin is not permitted to change cpu security mitigations')
 
         # Behaviour if grub update tools are missing
         b.logout()

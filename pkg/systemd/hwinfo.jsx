@@ -23,7 +23,7 @@ import '../lib/polyfills.js'; // once per application
 import React from "react";
 import ReactDOM from 'react-dom';
 
-import { Button, ListView, Modal, OverlayTrigger, Tooltip } from 'patternfly-react';
+import { Button, ListView, Modal } from 'patternfly-react';
 import { Alert, AlertActionCloseButton } from '@patternfly/react-core';
 import { SortByDirection } from "@patternfly/react-table";
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
@@ -32,29 +32,14 @@ import { ListingTable } from "cockpit-components-table.jsx";
 import kernelopt_sh from "raw-loader!./kernelopt.sh";
 import detect from "./hw-detect.js";
 
-var permission = cockpit.permission({ admin: true });
+import { PrivilegedButton } from "cockpit-components-privileged.jsx";
 
 const _ = cockpit.gettext;
 
 class SystemInfo extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {
-            allowed: permission.allowed !== false,
-        };
-        this.onPermissionChanged = this.onPermissionChanged.bind(this);
-    }
-
-    onPermissionChanged() {
-        this.setState({ allowed: permission.allowed !== false });
-    }
-
-    componentDidMount() {
-        permission.addEventListener("changed", this.onPermissionChanged);
-    }
-
-    componentWillUnmount() {
-        permission.removeEventListener("changed", this.onPermissionChanged);
+        this.permission = cockpit.permission({ admin: true });
     }
 
     render() {
@@ -65,13 +50,13 @@ class SystemInfo extends React.Component {
         }
         const onSecurityClick = this.props.onSecurityClick;
 
-        const mitigations = this.state.allowed ? (<button className="link-button" onClick={onSecurityClick}>{ _("Mitigations") }</button>)
-            : (<OverlayTrigger overlay={
-                <Tooltip id="tip-cpu-security">
-                    { cockpit.format(_("The user $0 is not permitted to change cpu security mitigations"), permission.user ? permission.user.name : '') }
-                </Tooltip> }>
-                <span>{ _("Mitigations") }</span>
-            </OverlayTrigger>);
+        const mitigations = (
+            <PrivilegedButton variant="link" buttonId="cpu_mitigations" tooltipId="tip-cpu-security"
+                        excuse={ _("The user $0 is not permitted to change cpu security mitigations") }
+                        permission={ this.permission } onClick={ onSecurityClick }>
+                { _("Mitigations") }
+            </PrivilegedButton>
+        );
 
         return (
             <table className="info-table-ct wide-split-table-ct">

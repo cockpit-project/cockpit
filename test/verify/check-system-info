@@ -293,11 +293,16 @@ class TestSystemInfo(MachineCase):
 
         self.allow_authorize_journal_messages()
         b.relogin('/system', authorized=False)
-        b.wait_present('.systime-privileged.disabled')
+        if m.image in ["rhel-8-1-distropkg"]:
+            tooltip_sel = '#systime-tooltip ~ div.tooltip'
+            b.wait_present('.systime-privileged.disabled')
+        else:
+            tooltip_sel = '.tooltip-inner'
+            b.wait_present('#system_information_systime_button[disabled]')
         b.mouse('#systime-tooltip', 'mouseover')
-        b.wait_text('#systime-tooltip ~ div.tooltip', 'The user admin is not permitted to change the system time')
+        b.wait_text(tooltip_sel, 'The user admin is not permitted to change the system time')
         b.mouse('#systime-tooltip', 'mouseout')
-        b.wait_not_present('#systime-tooltip ~ div.tooltip')
+        b.wait_not_present(tooltip_sel)
 
     @skipImage("Uses timedatex, no NTP servers config", "rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2", "centos-8-stream",
                "fedora-30", "fedora-testing")

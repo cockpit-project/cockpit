@@ -27,6 +27,7 @@ import $ from "jquery";
 import { mustache } from "mustache";
 import * as packagekit from "packagekit.js";
 import { install_dialog } from "cockpit-components-install-dialog.jsx";
+import { PrivilegedButton } from "cockpit-components-privileged.jsx";
 import { ServerTime } from './serverTime.js';
 
 /* These add themselves to jQuery so just including is enough */
@@ -37,7 +38,6 @@ import "patternfly-bootstrap-combobox/js/bootstrap-combobox";
 import "./configurationCard.less";
 
 const _ = cockpit.gettext;
-var permission = cockpit.permission({ admin: true });
 
 function dialog_setup(d) {
     d.setup();
@@ -59,6 +59,8 @@ function dialog_setup(d) {
 export class ConfigurationCard extends React.Component {
     constructor(props) {
         super(props);
+
+        this.permission = cockpit.permission({ admin: true });
         this.state = {
             pmlogger_switch_visible: false,
             pcp_link_visible: false,
@@ -80,13 +82,9 @@ export class ConfigurationCard extends React.Component {
 
     componentDidMount() {
         dialog_setup(new PageSystemInformationChangeHostname());
-        permission.addEventListener("changed", this.update_hostname_privileged);
-        this.update_hostname_privileged();
 
         dialog_setup(this.change_systime_dialog = new PageSystemInformationChangeSystime());
         this.systime_setup();
-        permission.addEventListener("changed", this.update_systime_privileged);
-        this.update_systime_privileged();
 
         $(this.pmlogger_service).on("changed", data => this.pmlogger_service_changed());
         this.pmlogger_service_changed();
@@ -96,28 +94,6 @@ export class ConfigurationCard extends React.Component {
         });
 
         $("#system_information_ssh_keys").on("hide.bs.modal", () => this.host_keys_hide());
-    }
-
-    update_hostname_privileged() {
-        $(".hostname-privileged").update_privileged(
-            permission, cockpit.format(
-                _("The user <b>$0</b> is not permitted to modify hostnames"),
-                permission.user ? permission.user.name : ''),
-            null, $("#system_information_hostname_tooltip")
-        );
-        // this really needs the disabled attribute, not the disabled class
-        if (permission.allowed === false)
-            $(".hostname-privileged").attr("disabled", "disabled");
-        else
-            $(".hostname-privileged").removeAttr("disabled");
-    }
-
-    update_systime_privileged() {
-        $(".systime-privileged").update_privileged(
-            permission, cockpit.format(
-                _("The user <b>$0</b> is not permitted to change the system time"),
-                permission.user ? permission.user.name : ''), null, $('#systime-tooltip')
-        );
     }
 
     systime_setup() {
@@ -345,6 +321,24 @@ export class ConfigurationCard extends React.Component {
     }
 
     render() {
+        const hostname_button = (
+            <PrivilegedButton variant="link" buttonId="system_information_hostname_button"
+                              tooltipId="system_information_hostname_tooltip"
+                              onClick={ () => $('#system_information_change_hostname').modal('show') }
+                              excuse={ _("The user $0 is not permitted to modify hostnames") }
+                              permission={ this.permission } ariaLabel="edit hostname">
+                {this.props.hostname !== "" ? _("edit") : _("Set Hostname")}
+            </PrivilegedButton>);
+
+        const systime_button = (
+            <PrivilegedButton variant="link" buttonId="system_information_systime_button"
+                              tooltipId="systime-tooltip"
+                              onClick={ () => this.change_systime_dialog.display(this.server_time) }
+                              excuse={ _("The user $0 is not permitted to change the system time") }
+                              permission={ this.permission } ariaLabel="edit time">
+                { this.state.serverTime }
+            </PrivilegedButton>);
+
         return (
             <Card className="system-configuration">
                 <CardHeader>{_("Configuration")}</CardHeader>
@@ -355,30 +349,14 @@ export class ConfigurationCard extends React.Component {
                                 <th scope="row">{_("Hostname")}</th>
                                 <td>
                                     {this.props.hostname && <span id="system_information_hostname_text">{this.props.hostname}</span>}
-                                    <span id="system_information_hostname_tooltip">
-                                        <Button variant='link'
-                                            id="system_information_hostname_button"
-                                            className="hostname-privileged"
-                                            isInline
-                                            onClick={() => $('#system_information_change_hostname').modal('show')}
-                                            isDisabled={$('system_information_change_hostname').attr("disabled")}
-                                            aria-label="edit hostname">
-                                            {this.props.hostname !== "" ? _("edit") : _("Set Hostname")}
-                                        </Button>
-                                    </span>
+                                    {hostname_button}
                                 </td>
                             </tr>
 
                             <tr>
                                 <th scope="row">{_("System time")}</th>
                                 <td>
-                                    <span id="systime-tooltip">
-                                        <Button variant="link" isInline className="systime-privileged"
-                                            id="system_information_systime_button"
-                                            onClick={() => this.change_systime_dialog.display(this.server_time)}>
-                                            {this.state.serverTime}
-                                        </Button>
-                                    </span>
+                                    {systime_button}
                                     <a tabIndex="0" hidden id="system_information_systime_ntp_status"
                                         role="button" data-toggle="tooltip"
                                         data-placement="bottom" data-html="true" dangerouslySetInnerHTML={this.state.ntp_status_icon} />

@@ -498,8 +498,22 @@ PageAccountsCreate.prototype = {
 
     create: function() {
         var tasks = [
-            function create_user() {
-                var prog = ["/usr/sbin/useradd", "--create-home", "-s", "/bin/bash"];
+            () => {
+                const dfd = cockpit.defer();
+                cockpit.spawn(["/usr/sbin/useradd", "-D"])
+                        .done(defaults => {
+                            defaults.split("\n").forEach(item => {
+                                if (item.indexOf("SHELL=") === 0) {
+                                    this.user_shell = item.split("=")[1] || "";
+                                }
+                            });
+                            dfd.resolve();
+                        })
+                        .fail(dfd.resolve); // Don't fail if we cannot read defaults
+                return dfd.promise();
+            },
+            () => {
+                var prog = ["/usr/sbin/useradd", "--create-home", "-s", this.user_shell || "/bin/bash"];
                 if ($('#accounts-create-real-name').val()) {
                     prog.push('-c');
                     prog.push($('#accounts-create-real-name').val());

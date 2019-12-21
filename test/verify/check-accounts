@@ -87,6 +87,7 @@ class TestAccounts(MachineCase):
         b.wait_present("#accounts-create")
 
         # Create a user from the UI
+        m.execute("sed -i 's/^SHELL=.*$/SHELL=\/bin\/true/' /etc/default/useradd")
         b.click('#accounts-create')
         b.wait_popup('accounts-create-dialog')
         b.set_val('#accounts-create-user-name', "berta")
@@ -110,11 +111,17 @@ class TestAccounts(MachineCase):
         self.assertTrue(home_dir.endswith("/berta"))
         self.assertEqual(m.execute("stat -c '%U' {0}".format(home_dir)).strip(), "berta")
 
+        # Check that we set up shell configured in /etc/default/useradd
+        if m.image != "rhel-8-1-distropkg": # Added in #13329
+            shell = m.execute("getent passwd berta | cut -f7 -d:").strip()
+            self.assertEqual(shell, '/bin/true')
+
         # Delete it externally
         m.execute("userdel berta")
         b.wait_not_in_text('#accounts-list', "Berta Bestimmt")
 
         # Create a locked user
+        m.execute("sed -i 's/^SHELL=.*$/SHELL=/' /etc/default/useradd")
         b.click('#accounts-create')
         b.wait_popup('accounts-create-dialog')
         b.set_val('#accounts-create-user-name', "jussi")
@@ -136,6 +143,10 @@ class TestAccounts(MachineCase):
         b.wait(lambda: "jussi" in m.execute("grep jussi /etc/passwd"))
         b.wait(lambda: not is_admin())
         b.wait(is_locked)
+
+        # Check that by default we set up `/bin/bash`
+        shell = m.execute("getent passwd jussi | cut -f7 -d:").strip()
+        self.assertEqual(shell, '/bin/bash')
 
         # Unlock it and make it an admin
         b.go("#/jussi")

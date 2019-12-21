@@ -63,7 +63,7 @@ class TestShutdownRestart(MachineCase):
             b.wait_present("#shutdown-group button.dropdown-toggle.disabled")
             b.wait_not_present("#shutdown-group button:not(.disabled)")
         else:
-            b.wait_present("#restart-button.disabled")
+            b.wait_present("#restart-button[disabled]")
             b.wait_present("#restart-button + div.pf-c-dropdown.disabled")
 
         b.logout()

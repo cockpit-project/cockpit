@@ -19,7 +19,6 @@
 
 import 'polyfills.js';
 import cockpit from "cockpit";
-import $ from "jquery";
 
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -31,6 +30,7 @@ import {
 
 import { shutdown, shutdown_modal_setup } from "./shutdown.js";
 
+import { Privileged } from "cockpit-components-privileged.jsx";
 import { SystemInfomationCard } from './overview-cards/systemInformationCard.jsx';
 import { ConfigurationCard } from './overview-cards/configurationCard.jsx';
 import { HealthCard } from './overview-cards/healthCard.jsx';
@@ -39,33 +39,36 @@ import { UsageCard } from './overview-cards/usageCard.jsx';
 import { ServerTime } from './overview-cards/serverTime.js';
 
 const _ = cockpit.gettext;
-var permission = cockpit.permission({ admin: true });
-permission.addEventListener("changed", update_shutdown_privileged);
-
-function update_shutdown_privileged() {
-    $(".shutdown-privileged").update_privileged(
-        permission, cockpit.format(
-            _("The user <b>$0</b> is not permitted to shutdown or restart this server"),
-            permission.user ? permission.user.name : ''),
-        'bottom'
-    );
-}
 
 class OverviewPage extends React.Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            actionKebabIsOpen: false
+            actionKebabIsOpen: false,
+            privileged: true,
         };
         this.onKebabToggle = actionKebabIsOpen => this.setState({ actionKebabIsOpen });
         this.onKebabSelect = event => this.setState({ actionKebabIsOpen: !this.state.actionKebabIsOpen });
         this.hostnameMonitor = this.hostnameMonitor.bind(this);
+        this.permission = cockpit.permission({ admin: true });
+        this.onPermissionChanged = this.onPermissionChanged.bind(this);
     }
 
     componentDidMount() {
         this.hostnameMonitor();
         shutdown_modal_setup();
+        this.permission.addEventListener("changed", this.onPermissionChanged);
+        this.onPermissionChanged();
+    }
+
+    componentWillUnmount() {
+        this.permission.removeEventListener("changed", this.onPermissionChanged);
+    }
+
+    onPermissionChanged() {
+        // default to allowed while not yet initialized
+        this.setState({ privileged: this.permission.allowed !== false });
     }
 
     hostname_text() {
@@ -101,6 +104,28 @@ class OverviewPage extends React.Component {
                 {_("Shutdown")}
             </DropdownItem>,
         ];
+
+        const headerActions = (
+            <Privileged allowed={ this.state.privileged } placement="bottom"
+                        excuse={ cockpit.format(_("The user $0 is not permitted to shutdown or restart this server"),
+                                                this.permission.user ? this.permission.user.name : '') }>
+                <Button id='restart-button' variant="secondary"
+                        onClick={() => shutdown('restart', new ServerTime())}
+                        data-stable={ (this.permission.allowed !== null) ? "yes" : undefined }
+                        isDisabled={ !this.state.privileged }>
+                    {_("Restart")}
+                </Button>
+                <Dropdown id="shutdown-group" position="right"
+                    className={ this.privileged || "disabled" } // does not accept disabled attribute
+                    data-stable={ (this.permission.allowed !== null) ? "yes" : undefined }
+                    onSelect={this.onKebabSelect}
+                    toggle={<KebabToggle onToggle={this.onKebabToggle} />}
+                    isOpen={actionKebabIsOpen}
+                    isPlain
+                    dropdownItems={dropdownItems}
+                />
+            </Privileged>);
+
         return (
             <Page>
                 <PageSection className='ct-overview-header' variant={PageSectionVariants.light}>
@@ -113,19 +138,7 @@ class OverviewPage extends React.Component {
                          <div className="ct-overview-header-subheading" id="system_information_os_text">{cockpit.format(_("running $0"), this.state.hostnameData.OperatingSystemPrettyName)}</div>}
                     </div>
                     <div className='ct-overview-header-actions'>
-                        <Button className="shutdown-privileged" id='restart-button' variant="secondary" onClick={() => shutdown('restart', new ServerTime())}>
-                            {_("Restart")}
-                        </Button>
-                        <Dropdown
-                            id="shutdown-group"
-                            className="shutdown-privileged"
-                            position="right"
-                            onSelect={this.onKebabSelect}
-                            toggle={<KebabToggle onToggle={this.onKebabToggle} />}
-                            isOpen={actionKebabIsOpen}
-                            isPlain
-                            dropdownItems={dropdownItems}
-                        />
+                        { headerActions }
                     </div>
                 </PageSection>
                 <PageSection variant={PageSectionVariants.default}>

@@ -56,7 +56,7 @@ class TestMenu(MachineCase):
             time.sleep(35)
             with b.wait_timeout(3):
                 b.wait_popup("session-timeout-dialog")
-                self.assertGreater(int(b.text("#session-timeout-dialog #timeout-message").split()[-2]), 20)
+                self.assertGreater(int(b.text("#session-timeout-dialog #timeout-message").split()[-2]), 15)
             b.click("#keep-session-alive")
             b.wait_popdown("session-timeout-dialog")
             time.sleep(30)

@@ -718,6 +718,9 @@ class TestMachines(NetworkCase):
                     else:
                         expected_format = 'qcow2'
 
+                    if self.pool_type == 'disk':
+                        expected_format = 'none'
+
                     # Unknown pool format isn't present in xml anymore
                     if expected_format == "unknown" and m.execute("virsh --version") >= "5.6.0":
                         m.execute(detect_format_cmd.format(self.volume_name, self.pool_name, "/volume/target") + " | grep -qv format")
@@ -904,21 +907,20 @@ class TestMachines(NetworkCase):
 
         prepareDisk(self.machine)
         cmds = [
-            "virsh pool-define-as disk-pool disk - - /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 - /tmp/poolDiskImages",
-            "virsh pool-build disk-pool --overwrite",
-            "virsh pool-start disk-pool",
+            "virsh pool-define-as pool-disk disk - - /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 - /tmp/poolDiskImages",
+            "virsh pool-build pool-disk --overwrite",
+            "virsh pool-start pool-disk",
         ]
         self.machine.execute(" && ".join(cmds))
         partition = str(self.machine.execute("readlink -f /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 | cut -d '/' -f 3").strip()) + "1"
         VMAddDiskDialog(
             self,
-            pool_name='disk-pool',
+            pool_name='pool-disk',
             pool_type='disk',
             volume_name=partition,
             volume_size=10,
             volume_size_unit='MiB',
             expected_target='vdc',
-            volume_format='none',
         ).execute()
 
     def testVmNICs(self):

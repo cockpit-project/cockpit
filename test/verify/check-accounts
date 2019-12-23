@@ -72,9 +72,13 @@ class TestAccounts(MachineCase):
         b.go("#/root")
         b.wait_text("#account-user-name", "root")
         # some operations are not allowed for root user
-        b.wait_present("#account-delete.disabled")
+        if m.image in ["rhel-8-1-distropkg"]:
+            b.wait_present("#account-delete.disabled")
+            b.wait_present("#account-real-name-wrapper.disabled")
+        else:
+            b.wait_present("#account-delete[disabled]")
+            b.wait_present("#account-real-name-wrapper[disabled]")
         b.wait_attr("#account-logout", "disabled", "disabled")
-        b.wait_present("#account-real-name-wrapper.disabled")
         b.wait_present("#account-locked:not(:checked)")
         # root account should not be locked by default on our images
         self.assertIn(m.execute("passwd -S root").split()[1], ["P", "PS"])
@@ -381,9 +385,15 @@ class TestAccounts(MachineCase):
         b.go("#/scruffy")
         b.wait_text("#account-user-name", "scruffy")
         b.wait_text("#account-expiration-button", "Never lock account")
-        b.wait_present("#account-expiration-button.disabled")
+        if m.image in ["rhel-8-1-distropkg"]:
+            b.wait_present("#account-expiration-button.disabled")
+        else:
+            b.wait_present("#account-expiration-button[disabled]")
         b.wait_in_text("#password-expiration-button", "Require password change on")
-        b.wait_present("#password-expiration-button.disabled")
+        if m.image in ["rhel-8-1-distropkg"]:
+            b.wait_present("#password-expiration-button.disabled")
+        else:
+            b.wait_present("#password-expiration-button[disabled]")
 
         # Lastly force a password change
         b.logout()

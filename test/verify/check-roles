@@ -55,22 +55,34 @@ class TestRoles(MachineCase):
         admin_role_sel = 'input[data-name="%s"]' % m.get_admin_group()
 
         b.wait_text("#account-user-name", "user")
-        b.wait_present('#account-real-name-wrapper.disabled')
         b.wait_present("#account-locked[disabled]")
-        b.wait_present("#account-set-password:not(.disabled)")
-        b.wait_present("#account-delete.disabled")
-        b.wait_present("#account-logout.disabled")
+        if m.image in ["rhel-8-1-distropkg"]:
+            b.wait_present('#account-real-name-wrapper.disabled')
+            b.wait_present("#account-set-password:not(.disabled)")
+            b.wait_present("#account-delete.disabled")
+            b.wait_present("#account-logout.disabled")
+        else:
+            b.wait_present('#account-real-name-wrapper[disabled]')
+            b.wait_present("#account-set-password:not([disabled])")
+            b.wait_present("#account-delete[disabled]")
+            b.wait_present("#account-logout[disabled]")
         b.wait_present(admin_role_sel + "[disabled]")
         b.wait_present(admin_role_sel + ":not(:checked)")
 
         # Check permissions for admin account
         b.go("#/admin")
         b.wait_text("#account-user-name", "admin")
-        b.wait_present('#account-real-name-wrapper.disabled')
         b.wait_present("#account-locked[disabled]")
-        b.wait_present("#account-set-password.disabled")
-        b.wait_present("#account-delete.disabled")
-        b.wait_present("#account-logout.disabled")
+        if m.image in ["rhel-8-1-distropkg"]:
+            b.wait_present('#account-real-name-wrapper.disabled')
+            b.wait_present("#account-set-password.disabled")
+            b.wait_present("#account-delete.disabled")
+            b.wait_present("#account-logout.disabled")
+        else:
+            b.wait_present('#account-real-name-wrapper[disabled]')
+            b.wait_present("#account-set-password[disabled]")
+            b.wait_present("#account-delete[disabled]")
+            b.wait_present("#account-logout[disabled]")
         b.wait_present(admin_role_sel + "[disabled]")
         b.wait_present(admin_role_sel + ":checked")
 
@@ -88,12 +100,20 @@ class TestRoles(MachineCase):
         # Check permissions for admin again
         b.go("#/admin")
         b.wait_text("#account-user-name", "admin")
-        b.wait_present("#account-real-name-wrapper:not(.disabled)")
         b.wait_present("#account-locked:not([disabled])")
-        b.wait_present("#account-set-password:not(.disabled)")
-        b.wait_present("#account-delete:not(.disabled)")
-        b.wait_present("#account-logout:not(.disabled)")
-        b.wait_present(admin_role_sel + ":not([disabled])")
+        if m.image in ["rhel-8-1-distropkg"]:
+            b.wait_present("#account-real-name-wrapper:not(.disabled)")
+            b.wait_present("#account-set-password:not(.disabled)")
+            b.wait_present("#account-delete:not(.disabled)")
+            b.wait_present("#account-logout:not(.disabled)")
+            b.wait_present(admin_role_sel + ":not([disabled])")
+        else:
+            b.wait_present("#account-real-name-wrapper:not([disabled])")
+            b.wait_present("#account-set-password:not([disabled])")
+            b.wait_present("#account-delete:not([disabled])")
+            # admin is not logged in, thus still disabled
+            b.wait_present("#account-logout[disabled]")
+            b.wait_present(admin_role_sel + ":not([disabled])")
         b.wait_present(admin_role_sel + ":checked")
 
         self.allow_restart_journal_messages()

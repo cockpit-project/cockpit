@@ -664,8 +664,11 @@ class TestMachines(NetworkCase):
                     # Guess by the name of the pool it's format to avoid passing more parameters
                     if self.pool_type == 'iscsi':
                         expected_format = 'unknown'
+                    elif self.pool_type == 'disk':
+                        expected_format = 'none'
                     else:
                         expected_format = 'qcow2'
+
                     self.test_obj.assertEqual(
                         m.execute(detect_format_cmd).rstrip(),
                         '<format type="{0}"/>'.format(self.volume_format or expected_format)
@@ -843,9 +846,9 @@ class TestMachines(NetworkCase):
 
         prepareDisk(self.machine)
         cmds = [
-            "virsh pool-define-as disk-pool disk - - /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 - /tmp/poolDiskImages",
-            "virsh pool-build disk-pool --overwrite",
-            "virsh pool-start disk-pool",
+            "virsh pool-define-as pool-disk disk - - /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 - /tmp/poolDiskImages",
+            "virsh pool-build pool-disk --overwrite",
+            "virsh pool-start pool-disk",
         ]
         self.machine.execute(" && ".join(cmds))
 
@@ -853,13 +856,12 @@ class TestMachines(NetworkCase):
 
         VMAddDiskDialog(
             self,
-            pool_name='disk-pool',
+            pool_name='pool-disk',
             pool_type='disk',
             volume_name=partition,
             volume_size=10,
             volume_size_unit='MiB',
             expected_target='vdc',
-            volume_format='none',
         ).execute()
 
     def testNetworks(self):

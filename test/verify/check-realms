@@ -793,7 +793,10 @@ class TestPackageInstall(packagelib.PackageCase):
         m.execute("systemctl mask packagekit && systemctl stop packagekit.service || true")
         self.login_and_go("/system")
         b.wait_text(self.domain_sel, "Join Domain")
-        b.wait_present(self.domain_sel + ".disabled")
+        if self.machine.image in ["rhel-8-1-distropkg"]:
+            b.wait_present(self.domain_sel + ".disabled")
+        else:
+            b.wait_present(self.domain_sel + "[disabled]")
         # check tooltip
         b.wait_present("#system-info-domain [data-original-title]")
         b.mouse("#system-info-domain span", "mouseover")

@@ -402,16 +402,16 @@ $.fn.update_privileged = function update_privileged(perm, denied_message, placem
 
         tooltip_element.tooltip(options);
 
-        if ($(this).hasClass("disabled") === allowed) {
-            $(this).toggleClass("disabled", !allowed);
+        if (allowed) {
             tooltip_element.attr('data-original-title', null);
-
-            if (allowed)
-                tooltip_element.attr('title', $(this).data(allowed_key));
-            else
-                tooltip_element.attr('title', denied_message);
+            tooltip_element.attr('title', $(this).data(allowed_key));
+            tooltip_element.removeAttr('disabled');
+        } else {
+            tooltip_element.attr('title', denied_message);
             tooltip_element.tooltip('fixTitle');
+            tooltip_element.attr('disabled', true);
         }
+
         $(this).attr('data-stable', 'yes');
     });
 

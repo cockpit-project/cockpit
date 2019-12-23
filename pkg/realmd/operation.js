@@ -605,7 +605,7 @@ function setup() {
             hostname_tooltip.removeAttr('data-original-title');
         } else {
             text = joined.map(function(x) { return x.Name }).join(", ");
-            hostname_link.attr('disabled', 'disabled');
+            hostname_link.attr('disabled', true);
             hostname_tooltip.attr('title', _("Host name should not be changed in a domain"))
                     .tooltip('fixTitle');
         }
@@ -623,16 +623,16 @@ function setup() {
                 packagekit.detect().then(function (exists) {
                     if (exists) {
                         setTooltip("Joining a domain requires installation of realmd");
-                        link.removeClass("disabled");
+                        link.removeAttr("disabled");
                         install_realmd = true;
                     } else {
                         setTooltip("Cannot join a domain because realmd is not available on this system");
-                        link.addClass("disabled");
+                        link.attr("disabled", true);
                     }
                 });
             } else {
                 setTooltip(cockpit.message(options));
-                link.addClass("disabled");
+                link.attr("disabled", true);
             }
             $(realmd).off();
             realmd.close();

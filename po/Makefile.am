@@ -117,17 +117,16 @@ update-po: po/cockpit.pot
 ZANATA_CLI = LANG=C.UTF-8 LC_ALL=C.UTF-8 zanata
 
 upload-pot: po/cockpit.pot
-	$(ZANATA_CLI) push -f --srcdir=$(builddir)/po --push-type=source --project-config=$(srcdir)/po/zanata.xml cockpit.pot
+	echo "upload pot"
 
 upload-translations: po/cockpit.pot
-	$(ZANATA_CLI) push -f --srcdir=$(srcdir)/po --push-type=target \
-		--transdir=$(srcdir)/po --project-config=$(srcdir)/po/zanata.xml
+	echo "upload translations"
 
 clean-po:
 	rm $(srcdir)/po/*.po
 
 download-po:
-	$(ZANATA_CLI) pull --min-doc-percent 50 --transdir=$(srcdir)/po --project-config=$(srcdir)/po/zanata.xml
+	$(ZANATA_CLI) pull --transdir=$(srcdir)/po --project-config=$(srcdir)/po/zanata.xml
 
 CLEANFILES += \
 	$(MO_FILES) \

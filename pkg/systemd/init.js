@@ -813,8 +813,7 @@ $(function() {
     var permission = cockpit.permission({ admin: true });
     $(permission).on("changed", function() {
         if (permission.allowed === false) {
-            $("#create-timer").addClass("accounts-privileged");
-            $(".accounts-privileged").update_privileged(
+            $("#create-timer").update_privileged(
                 permission, cockpit.format(
                     _("The user <b>$0</b> does not have permissions for creating timers"),
                     permission.user ? permission.user.name : ''),

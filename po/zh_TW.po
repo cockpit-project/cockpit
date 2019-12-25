@@ -1,13 +1,14 @@
 # Ludek Janda <ljanda@redhat.com>, 2018. #zanata
 # cockpit <cockpituous@gmail.com>, 2018. #zanata
 # Ludek Janda <ljanda@redhat.com>, 2019. #zanata
+# Su, Jun-Ming <sujunmin@gmail.com>, 2019. #zanata
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-12-18 19:13+0000\n"
-"PO-Revision-Date: 2019-09-20 11:25+0000\n"
-"Last-Translator: Copied by Zanata <copied-by-zanata@zanata.org>\n"
+"POT-Creation-Date: 2019-12-25 21:34+0000\n"
+"PO-Revision-Date: 2019-12-25 01:02+0000\n"
+"Last-Translator: Su, Jun-Ming <sujunmin@gmail.com>\n"
 "Language-Team: Chinese (Traditional)\n"
 "Language: zh_TW\n"
 "MIME-Version: 1.0\n"
@@ -18,11 +19,11 @@ msgstr ""
 
 #: pkg/docker/storage.jsx:261
 msgid " (shared with the OS)"
-msgstr " （與操作系統共享）"
+msgstr " （分享給作業系統）"
 
 #: pkg/machines/components/diskAdd.jsx:236
 msgid " Attaching it will make this disk shareable for every VM using it."
-msgstr ""
+msgstr "接上它會讓所有的虛擬機都能分享這個磁碟"
 
 #: pkg/networkmanager/interfaces.js:2317
 msgid "$0 Active Zone"
@@ -34,20 +35,20 @@ msgstr ""
 
 #: pkg/storaged/others-panel.jsx:57
 msgid "$0 Block Device"
-msgstr "$0 塊設備"
+msgstr "$0 區塊裝置"
 
 #: pkg/storaged/mdraid-details.jsx:188
 msgid "$0 Chunk Size"
-msgstr "$0 塊大小"
+msgstr "$0 區塊大小"
 
 #: pkg/storaged/mdraid-details.jsx:186
 msgid "$0 Disks"
-msgstr "$0 磁盤"
+msgstr "$0 磁碟"
 
 #: pkg/storaged/content-views.jsx:356
 msgctxt "storage-id-desc"
 msgid "$0 File System"
-msgstr "$0 文件系統"
+msgstr "$0 檔案系統"
 
 #: pkg/systemd/overview-cards/usageCard.jsx:84
 msgid "$0 GiB / $1 GiB"
@@ -55,12 +56,12 @@ msgstr ""
 
 #: pkg/machines/components/create-vm-dialog/pxe-helpers.js:105
 msgid "$0 Network"
-msgstr ""
+msgstr "$0 網路"
 
 #: pkg/packagekit/history.jsx:100
 msgid "$0 Package"
 msgid_plural "$0 Packages"
-msgstr[0] ""
+msgstr[0] "$0 軟體包"
 
 #: pkg/systemd/init.js:484 pkg/systemd/service-details.jsx:59
 msgid "$0 Template"
@@ -74,13 +75,13 @@ msgstr ""
 #: src/base1/test-locale.js:85 src/base1/test-locale.js:86
 msgid "$0 bit"
 msgid_plural "$0 bits"
-msgstr[0] "$0 位"
+msgstr[0] ""
 
 #: src/base1/test-locale.js:74 src/base1/test-locale.js:75
 #: src/base1/test-locale.js:87 src/base1/test-locale.js:88
 msgid "$0 byte"
 msgid_plural "$0 bytes"
-msgstr[0] "$0 字節"
+msgstr[0] "$0 位元組"
 
 #: src/base1/test-locale.js:76 src/base1/test-locale.js:77
 msgctxt "memory"
@@ -569,7 +570,7 @@ msgstr "帳戶不可用或無法編輯。"
 msgid "Accounts"
 msgstr "帳號"
 
-#: pkg/users/local.js:339 pkg/users/local.js:646
+#: pkg/users/local.js:339 pkg/users/local.js:660
 msgctxt "page-title"
 msgid "Accounts"
 msgstr "帳號"
@@ -615,7 +616,7 @@ msgid "Adaptive transmit load balancing"
 msgstr "適應性傳輸負載平衡"
 
 #: pkg/lib/machine-add.html:43 pkg/shell/index.html:197
-#: pkg/machines/components/diskAdd.jsx:521
+#: pkg/machines/components/diskAdd.jsx:529
 #: pkg/machines/components/nicAdd.jsx:202 pkg/storaged/crypto-keyslots.jsx:235
 #: pkg/storaged/iscsi-panel.jsx:137 pkg/storaged/iscsi-panel.jsx:161
 #: pkg/storaged/mdraid-details.jsx:59 pkg/storaged/nfs-details.jsx:191
@@ -639,7 +640,7 @@ msgstr "添加債券"
 msgid "Add Bridge"
 msgstr "添加橋"
 
-#: pkg/machines/components/diskAdd.jsx:509
+#: pkg/machines/components/diskAdd.jsx:517
 #: pkg/machines/components/vmDisksTab.jsx:93
 msgid "Add Disk"
 msgstr "添加磁盤"
@@ -874,8 +875,12 @@ msgstr "總是"
 msgid "Always attach"
 msgstr ""
 
-#: pkg/lib/cockpit-components-modifications.jsx:82
-msgid "Ansible Playbook"
+#: pkg/lib/cockpit-components-modifications.jsx:81
+msgid "Ansible"
+msgstr ""
+
+#: pkg/lib/cockpit-components-modifications.jsx:91
+msgid "Ansible roles documentation"
 msgstr ""
 
 #: pkg/systemd/terminal.jsx:94
@@ -1022,7 +1027,7 @@ msgstr "自動使用NTP"
 msgid "Automatically using specific NTP servers"
 msgstr "自動使用特定的NTP服務器"
 
-#: pkg/lib/cockpit-components-modifications.jsx:71
+#: pkg/lib/cockpit-components-modifications.jsx:72
 msgid "Automation Script"
 msgstr ""
 
@@ -1050,15 +1055,15 @@ msgstr "可用目標 $0"
 msgid "Avatar"
 msgstr "阿凡達"
 
-#: pkg/systemd/hwinfo.jsx:98
+#: pkg/systemd/hwinfo.jsx:83
 msgid "BIOS"
 msgstr "BIOS"
 
-#: pkg/systemd/hwinfo.jsx:106
+#: pkg/systemd/hwinfo.jsx:91
 msgid "BIOS date"
 msgstr "BIOS日期"
 
-#: pkg/systemd/hwinfo.jsx:102
+#: pkg/systemd/hwinfo.jsx:87
 msgid "BIOS version"
 msgstr "BIOS版本"
 
@@ -1177,7 +1182,7 @@ msgid "Bus Expansion Chassis"
 msgstr "總線擴展機箱"
 
 #: pkg/dashboard/index.html:70 pkg/docker/index.html:272
-#: pkg/docker/containers-view.jsx:359 pkg/systemd/hwinfo.jsx:114
+#: pkg/docker/containers-view.jsx:359 pkg/systemd/hwinfo.jsx:99
 msgid "CPU"
 msgstr "CPU"
 
@@ -1185,11 +1190,11 @@ msgstr "CPU"
 msgid "CPU Graph"
 msgstr ""
 
-#: pkg/systemd/hwinfo.jsx:119
+#: pkg/systemd/hwinfo.jsx:104
 msgid "CPU Security"
 msgstr ""
 
-#: pkg/systemd/hwinfo.jsx:224
+#: pkg/systemd/hwinfo.jsx:209
 msgid "CPU Security Toggles"
 msgstr ""
 
@@ -1251,7 +1256,7 @@ msgstr "無法加載圖片"
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:816
 #: pkg/machines/components/deleteDialog.jsx:158
 #: pkg/machines/components/deleteResource.jsx:107
-#: pkg/machines/components/diskAdd.jsx:518
+#: pkg/machines/components/diskAdd.jsx:526
 #: pkg/machines/components/diskEdit.jsx:173
 #: pkg/machines/components/networks/createNetworkDialog.jsx:477
 #: pkg/machines/components/nicAdd.jsx:199
@@ -1265,7 +1270,7 @@ msgstr "無法加載圖片"
 #: pkg/networkmanager/firewall.jsx:589 pkg/networkmanager/firewall.jsx:741
 #: pkg/networkmanager/firewall.jsx:766 pkg/packagekit/updates.jsx:182
 #: pkg/sosreport/index.js:51 pkg/storaged/dialog.jsx:400
-#: pkg/storaged/jobs-panel.jsx:123 pkg/systemd/hwinfo.jsx:238
+#: pkg/storaged/jobs-panel.jsx:123 pkg/systemd/hwinfo.jsx:223
 #: pkg/systemd/reporting.jsx:419 pkg/systemd/service-details.jsx:108
 msgid "Cancel"
 msgstr "取消"
@@ -1398,7 +1403,7 @@ msgstr "選擇要在應用程序中使用的語言"
 msgid "Chunk Size"
 msgstr "塊大小"
 
-#: pkg/systemd/hwinfo.jsx:272
+#: pkg/systemd/hwinfo.jsx:257
 msgid "Class"
 msgstr "類別"
 
@@ -1436,7 +1441,7 @@ msgstr ""
 #: pkg/lib/machine-unknown-hostkey.html:19 pkg/networkmanager/index.html:713
 #: pkg/shell/index.html:97 pkg/shell/index.html:156 pkg/shell/index.html:351
 #: pkg/systemd/index.html:164 pkg/users/index.html:45 pkg/apps/utils.jsx:108
-#: pkg/lib/cockpit-components-modifications.jsx:109 pkg/sosreport/index.js:45
+#: pkg/lib/cockpit-components-modifications.jsx:103 pkg/sosreport/index.js:45
 #: pkg/sosreport/index.js:127 pkg/storaged/dialog.jsx:400
 msgid "Close"
 msgstr "關閉"
@@ -1630,7 +1635,7 @@ msgstr "條件失敗"
 
 # translation auto-copied from project libreport, version master, document
 # libreport
-#: pkg/systemd/overview-cards/configurationCard.jsx:350
+#: pkg/systemd/overview-cards/configurationCard.jsx:344
 msgid "Configuration"
 msgstr "組態"
 
@@ -1769,7 +1774,7 @@ msgstr ""
 msgid "Container"
 msgstr "容器（Container）"
 
-#: pkg/users/local.js:752
+#: pkg/users/local.js:766
 msgid "Container Administrator"
 msgstr "容器管理員"
 
@@ -1834,7 +1839,7 @@ msgstr "可兌換"
 msgid "Copy"
 msgstr ""
 
-#: pkg/lib/cockpit-components-modifications.jsx:106
+#: pkg/lib/cockpit-components-modifications.jsx:100
 msgid "Copy to clipboard"
 msgstr ""
 
@@ -1913,7 +1918,7 @@ msgstr ""
 msgid "Create Logical Volume"
 msgstr "創建邏輯卷"
 
-#: pkg/machines/components/diskAdd.jsx:472
+#: pkg/machines/components/diskAdd.jsx:480
 msgid "Create New"
 msgstr "新建"
 
@@ -2008,6 +2013,10 @@ msgstr "創造它"
 #: pkg/storaged/content-views.jsx:755
 msgid "Create new Logical Volume"
 msgstr "創建新的邏輯卷"
+
+#: pkg/lib/cockpit-components-modifications.jsx:87
+msgid "Create new task file with this content."
+msgstr ""
 
 # translation auto-copied from project subscription-manager, version 1.11.X,
 # document keys
@@ -2198,7 +2207,7 @@ msgstr "延遲"
 msgid "Delete"
 msgstr "刪除"
 
-#: pkg/networkmanager/interfaces.js:2418 pkg/users/local.js:1183
+#: pkg/networkmanager/interfaces.js:2418 pkg/users/local.js:1197
 msgid "Delete $0"
 msgstr "刪除 $0"
 
@@ -2338,7 +2347,7 @@ msgstr "目錄"
 msgid "Directory $0 isn't writable or doesn't exist."
 msgstr "目錄 $0 不可寫或不存在。"
 
-#: pkg/systemd/hwinfo.jsx:210
+#: pkg/systemd/hwinfo.jsx:195
 msgid "Disable simultaneous multithreading"
 msgstr ""
 
@@ -2386,11 +2395,11 @@ msgstr ""
 msgid "Disk I/O"
 msgstr "磁碟 I/O"
 
-#: pkg/machines/components/diskAdd.jsx:429
+#: pkg/machines/components/diskAdd.jsx:437
 msgid "Disk failed to be attached"
 msgstr "磁槃無法連接"
 
-#: pkg/machines/components/diskAdd.jsx:401
+#: pkg/machines/components/diskAdd.jsx:409
 msgid "Disk failed to be created"
 msgstr "磁槃無法創建"
 
@@ -2402,7 +2411,7 @@ msgstr "磁盤沒問題"
 msgid "Disk passphrase"
 msgstr "磁盤密碼"
 
-#: pkg/machines/components/diskAdd.jsx:440
+#: pkg/machines/components/diskAdd.jsx:448
 #: pkg/machines/components/diskEdit.jsx:126
 msgid "Disk settings could not be saved"
 msgstr ""
@@ -2434,7 +2443,7 @@ msgid "Docking Station"
 msgstr "停靠站"
 
 #: pkg/realmd/operation.html:11 pkg/realmd/operation.js:125
-#: pkg/systemd/overview-cards/configurationCard.jsx:389
+#: pkg/systemd/overview-cards/configurationCard.jsx:367
 msgid "Domain"
 msgstr "網域"
 
@@ -2572,7 +2581,7 @@ msgstr ""
 msgid "Enable Service"
 msgstr "啟用服務"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:423
+#: pkg/systemd/overview-cards/configurationCard.jsx:401
 msgid "Enable stored metrics"
 msgstr ""
 
@@ -2694,7 +2703,7 @@ msgstr "勘誤："
 #: pkg/apps/utils.jsx:100 pkg/storaged/fsys-tab.jsx:283
 #: pkg/storaged/multipath.jsx:58 pkg/storaged/storage-controls.jsx:83
 #: pkg/storaged/storage-controls.jsx:177 pkg/systemd/service-details.jsx:451
-#: pkg/users/local.js:1476
+#: pkg/users/local.js:1490
 msgid "Error"
 msgstr "錯誤"
 
@@ -2710,7 +2719,7 @@ msgstr "加載用戶時出錯： {{perm_failed}}"
 msgid "Error message from Docker:"
 msgstr "來自Docker的錯誤消息："
 
-#: pkg/lib/cockpit-components-modifications.jsx:145
+#: pkg/lib/cockpit-components-modifications.jsx:139
 msgid "Error running semanage to discover system modifications"
 msgstr ""
 
@@ -2750,7 +2759,7 @@ msgstr ""
 msgid "Example: 88,2019,nfs,rsync"
 msgstr ""
 
-#: pkg/users/local.js:477 pkg/users/local.js:1421
+#: pkg/users/local.js:477 pkg/users/local.js:1435
 msgid "Excellent password"
 msgstr "優秀的密碼"
 
@@ -3084,7 +3093,7 @@ msgstr "手持"
 msgid "Hard Disk"
 msgstr "硬碟"
 
-#: pkg/systemd/hwinfo.html:4 pkg/systemd/hwinfo.jsx:298
+#: pkg/systemd/hwinfo.html:4 pkg/systemd/hwinfo.jsx:283
 msgid "Hardware Information"
 msgstr "硬件信息"
 
@@ -3128,7 +3137,7 @@ msgstr ""
 msgid "Host should not be empty"
 msgstr "主持人不應該是空的"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:355
+#: pkg/systemd/overview-cards/configurationCard.jsx:349
 msgid "Hostname"
 msgstr ""
 
@@ -3148,7 +3157,7 @@ msgstr "時"
 msgid "I/O Wait"
 msgstr "I / O等待"
 
-#: pkg/systemd/hwinfo.jsx:286
+#: pkg/systemd/hwinfo.jsx:271
 msgid "ID"
 msgstr ""
 
@@ -3263,7 +3272,7 @@ msgstr "影像"
 msgid "Image $0"
 msgstr "圖片 $0"
 
-#: pkg/users/local.js:753
+#: pkg/users/local.js:767
 msgid "Image Builder"
 msgstr "圖像生成器"
 
@@ -3462,12 +3471,12 @@ msgstr ""
 msgid "Invalid address $0"
 msgstr "無效地址 $0"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:950
+#: pkg/systemd/overview-cards/configurationCard.jsx:928
 #: pkg/systemd/shutdown.js:154
 msgid "Invalid date format"
 msgstr "日期格式無效"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:946
+#: pkg/systemd/overview-cards/configurationCard.jsx:924
 #: pkg/systemd/shutdown.js:150
 msgid "Invalid date format and invalid time format"
 msgstr "日期格式無效，時間格式無效"
@@ -3476,7 +3485,7 @@ msgstr "日期格式無效，時間格式無效"
 msgid "Invalid date format."
 msgstr "日期格式無效。"
 
-#: pkg/users/local.js:1241
+#: pkg/users/local.js:1255
 msgid "Invalid expiration date"
 msgstr "失效日期無效"
 
@@ -3496,7 +3505,7 @@ msgstr "無效的密鑰"
 msgid "Invalid metric $0"
 msgstr "指標無效 $0"
 
-#: pkg/users/local.js:1317
+#: pkg/users/local.js:1331
 msgid "Invalid number of days"
 msgstr "無效天數"
 
@@ -3524,7 +3533,7 @@ msgstr "無效的前綴或網絡掩碼 $0"
 msgid "Invalid range"
 msgstr ""
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:948
+#: pkg/systemd/overview-cards/configurationCard.jsx:926
 #: pkg/systemd/shutdown.js:152
 msgid "Invalid time format"
 msgstr "時間格式無效"
@@ -3752,7 +3761,7 @@ msgstr "加載可用更新失敗"
 msgid "Loading available updates, please wait..."
 msgstr "正在加載可用的更新，請稍候..."
 
-#: pkg/lib/cockpit-components-modifications.jsx:151
+#: pkg/lib/cockpit-components-modifications.jsx:145
 msgid "Loading system modifications..."
 msgstr ""
 
@@ -3794,7 +3803,7 @@ msgstr "鎖定"
 msgid "Lock Account"
 msgstr "鎖定帳戶"
 
-#: pkg/users/local.js:883 pkg/users/local.js:1222
+#: pkg/users/local.js:897 pkg/users/local.js:1236
 msgid "Lock account on $0"
 msgstr "鎖定帳戶 $0"
 
@@ -3827,7 +3836,7 @@ msgstr "使用您的服務器用戶帳戶登錄。"
 msgid "Log messages"
 msgstr "記錄消息"
 
-#: pkg/users/local.js:965
+#: pkg/users/local.js:979
 msgid "Logged In"
 msgstr "登錄"
 
@@ -4021,7 +4030,7 @@ msgstr "RAID設備的成員 $0"
 #: pkg/playground/translate.html:90 pkg/systemd/graphs.html:82
 #: pkg/docker/containers-view.jsx:359
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:396
-#: pkg/machines/components/vmOverviewTab.jsx:74 pkg/systemd/hwinfo.jsx:285
+#: pkg/machines/components/vmOverviewTab.jsx:74 pkg/systemd/hwinfo.jsx:270
 #: pkg/systemd/overview-cards/usageCard.jsx:78
 msgid "Memory"
 msgstr "記憶體"
@@ -4043,7 +4052,7 @@ msgstr ""
 msgid "Memory Graph"
 msgstr ""
 
-#: pkg/systemd/hwinfo.jsx:286
+#: pkg/systemd/hwinfo.jsx:271
 msgid "Memory Technology"
 msgstr ""
 
@@ -4098,7 +4107,7 @@ msgstr "分鐘需要是0-59之間的數字"
 msgid "Minutes"
 msgstr "分"
 
-#: pkg/systemd/hwinfo.jsx:68 pkg/systemd/hwinfo.jsx:73
+#: pkg/systemd/hwinfo.jsx:57
 msgid "Mitigations"
 msgstr ""
 
@@ -4106,7 +4115,7 @@ msgstr ""
 msgid "Mode"
 msgstr "模式"
 
-#: pkg/machines/components/nicBody.jsx:44 pkg/systemd/hwinfo.jsx:273
+#: pkg/machines/components/nicBody.jsx:44 pkg/systemd/hwinfo.jsx:258
 #: pkg/systemd/overview-cards/systemInformationCard.jsx:92
 msgid "Model"
 msgstr "型號"
@@ -4250,7 +4259,7 @@ msgstr ""
 msgid "NSNA Ping"
 msgstr "NSNA Ping"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:1019
+#: pkg/systemd/overview-cards/configurationCard.jsx:997
 msgid "NTP Server"
 msgstr "NTP服務器"
 
@@ -4275,7 +4284,7 @@ msgstr "NTP服務器"
 #: pkg/storaged/lvol-tabs.jsx:399 pkg/storaged/lvol-tabs.jsx:454
 #: pkg/storaged/mdraids-panel.jsx:61 pkg/storaged/part-tab.jsx:33
 #: pkg/storaged/vdos-panel.jsx:82 pkg/storaged/vgroup-details.jsx:175
-#: pkg/storaged/vgroups-panel.jsx:74 pkg/systemd/hwinfo.jsx:85
+#: pkg/storaged/vgroups-panel.jsx:74 pkg/systemd/hwinfo.jsx:70
 #: pkg/systemd/init.js:308
 msgid "Name"
 msgstr "名稱"
@@ -4321,7 +4330,7 @@ msgstr "名稱不應為空"
 msgid "Name: "
 msgstr ""
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:846
+#: pkg/systemd/overview-cards/configurationCard.jsx:824
 msgid "Need at least one NTP server"
 msgstr "至少需要一台NTP服務器"
 
@@ -4404,15 +4413,15 @@ msgstr "網絡日誌"
 msgid "Networks"
 msgstr "網路"
 
-#: pkg/users/local.js:967
+#: pkg/users/local.js:981
 msgid "Never"
 msgstr "永不"
 
-#: pkg/users/index.html:297 pkg/users/local.js:872
+#: pkg/users/index.html:297 pkg/users/local.js:886
 msgid "Never expire password"
 msgstr "永不過期密碼"
 
-#: pkg/users/index.html:258 pkg/users/local.js:880
+#: pkg/users/index.html:258 pkg/users/local.js:894
 msgid "Never lock account"
 msgstr "從不鎖定帳戶"
 
@@ -4503,7 +4512,7 @@ msgstr ""
 msgid "No Storage Volumes defined for this Storage Pool"
 msgstr "沒有為此存儲池定義存儲卷"
 
-#: pkg/lib/cockpit-components-modifications.jsx:144
+#: pkg/lib/cockpit-components-modifications.jsx:138
 msgid "No System Modifications"
 msgstr ""
 
@@ -4922,7 +4931,7 @@ msgstr "其他選擇"
 #: pkg/docker/index.html:299 pkg/systemd/graphs.html:25
 #: pkg/systemd/graphs.html:109 pkg/machines/components/networks/network.jsx:73
 #: pkg/machines/components/storagePools/storagePool.jsx:83
-#: pkg/machines/components/vm/vm.jsx:49 pkg/systemd/hwinfo.jsx:297
+#: pkg/machines/components/vm/vm.jsx:49 pkg/systemd/hwinfo.jsx:282
 #: pkg/systemd/manifest.json.in
 msgid "Overview"
 msgstr "簡介"
@@ -4931,11 +4940,11 @@ msgstr "簡介"
 msgid "Overwrite existing data with zeros"
 msgstr "用零覆蓋現有數據"
 
-#: pkg/systemd/hwinfo.jsx:269
+#: pkg/systemd/hwinfo.jsx:254
 msgid "PCI"
 msgstr "PCI"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:420
+#: pkg/systemd/overview-cards/configurationCard.jsx:398
 msgid "PCP"
 msgstr ""
 
@@ -5027,7 +5036,7 @@ msgstr "密碼是不可接受的"
 msgid "Password is too weak"
 msgstr "密碼太弱了"
 
-#: pkg/users/local.js:874
+#: pkg/users/local.js:888
 msgid "Password must be changed"
 msgstr "密碼必須更改"
 
@@ -5093,7 +5102,7 @@ msgstr "路徑"
 msgid "Pause"
 msgstr ""
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:394
+#: pkg/systemd/overview-cards/configurationCard.jsx:372
 msgid "Performance profile"
 msgstr ""
 
@@ -5180,11 +5189,11 @@ msgstr "請確認強制刪除 $0"
 msgid "Please confirm stopping of $0"
 msgstr "請確認停止 $0"
 
-#: pkg/machines/components/diskAdd.jsx:378
+#: pkg/machines/components/diskAdd.jsx:386
 msgid "Please enter new volume name"
 msgstr "請輸入新的捲名"
 
-#: pkg/machines/components/diskAdd.jsx:381
+#: pkg/machines/components/diskAdd.jsx:389
 msgid "Please enter new volume size"
 msgstr "請輸入新的捲大小"
 
@@ -5192,7 +5201,7 @@ msgstr "請輸入新的捲大小"
 msgid "Please install the $0 package"
 msgstr "請安裝 $0 包"
 
-#: pkg/users/local.js:1236
+#: pkg/users/local.js:1250
 msgid "Please specify an expiration date"
 msgstr "請指定到期日期"
 
@@ -5479,7 +5488,7 @@ msgstr ""
 msgid "Range must be strictly ordered"
 msgstr ""
 
-#: pkg/systemd/hwinfo.jsx:286
+#: pkg/systemd/hwinfo.jsx:271
 msgid "Rank"
 msgstr ""
 
@@ -5487,7 +5496,7 @@ msgstr ""
 msgid "Raw to a device"
 msgstr "原始設備"
 
-#: pkg/systemd/hwinfo.jsx:212
+#: pkg/systemd/hwinfo.jsx:197
 msgid "Read more..."
 msgstr ""
 
@@ -5526,13 +5535,13 @@ msgstr "已準備好"
 msgid "Real Host Name"
 msgstr "真實主機名"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:517
+#: pkg/systemd/overview-cards/configurationCard.jsx:495
 msgid ""
 "Real host name can only contain lower-case characters, digits, dashes, and "
 "periods (with populated subdomains)"
 msgstr "真實主機名只能包含小寫字符，數字，短劃線和句點（帶有填充的子域）"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:518
+#: pkg/systemd/overview-cards/configurationCard.jsx:496
 msgid "Real host name must be 64 characters or less"
 msgstr "實際主機名必須為64個字符或更少"
 
@@ -5774,11 +5783,11 @@ msgstr ""
 msgid "Repository"
 msgstr "軟體庫"
 
-#: pkg/users/local.js:1300
+#: pkg/users/local.js:1314
 msgid "Require password change every $0 days"
 msgstr "每次都需要密碼更改 $0 天"
 
-#: pkg/users/local.js:876
+#: pkg/users/local.js:890
 msgid "Require password change on $0"
 msgstr "需要更改密碼 $0"
 
@@ -5840,7 +5849,7 @@ msgstr ""
 
 # ctx::sourcefile::/rhn/admin/config/Restart.do
 #: pkg/docker/index.html:138 pkg/docker/containers-view.jsx:315
-#: pkg/machines/components/vm/vmActions.jsx:42 pkg/systemd/overview.jsx:117
+#: pkg/machines/components/vm/vmActions.jsx:42 pkg/systemd/overview.jsx:116
 #: pkg/systemd/service-details.jsx:170 pkg/systemd/shutdown.js:99
 #: pkg/systemd/shutdown.js:100
 msgid "Restart"
@@ -6015,7 +6024,7 @@ msgstr ""
 msgid "Save"
 msgstr "儲存"
 
-#: pkg/systemd/hwinfo.jsx:241
+#: pkg/systemd/hwinfo.jsx:226
 msgid "Save and reboot"
 msgstr ""
 
@@ -6046,7 +6055,7 @@ msgstr ""
 msgid "Seconds"
 msgstr "秒"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:399
+#: pkg/systemd/overview-cards/configurationCard.jsx:377
 msgid "Secure Shell keys"
 msgstr ""
 
@@ -6105,7 +6114,7 @@ msgstr "伺服器"
 msgid "Server Address"
 msgstr "服務器地址"
 
-#: pkg/users/local.js:750 pkg/users/local.js:751
+#: pkg/users/local.js:764 pkg/users/local.js:765
 msgid "Server Administrator"
 msgstr "Server Administrator"
 
@@ -6185,7 +6194,7 @@ msgstr "設置"
 msgid "Set DHCP Range"
 msgstr ""
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:366
+#: pkg/systemd/overview-cards/configurationCard.jsx:330
 msgid "Set Hostname"
 msgstr ""
 
@@ -6240,7 +6249,7 @@ msgstr "嚴重性："
 msgid "Shared"
 msgstr "共享"
 
-#: pkg/lib/cockpit-components-modifications.jsx:78
+#: pkg/lib/cockpit-components-modifications.jsx:76
 msgid "Shell Script"
 msgstr ""
 
@@ -6272,7 +6281,7 @@ msgstr "顯示所有容器"
 msgid "Show all images"
 msgstr "顯示所有圖像"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:402
+#: pkg/systemd/overview-cards/configurationCard.jsx:380
 msgid "Show fingerprints"
 msgstr "顯示指紋"
 
@@ -6295,7 +6304,7 @@ msgstr ""
 msgid "Shut Down"
 msgstr "關機"
 
-#: pkg/systemd/overview.jsx:101
+#: pkg/systemd/overview.jsx:104
 msgid "Shutdown"
 msgstr ""
 
@@ -6313,7 +6322,7 @@ msgstr ""
 #: pkg/storaged/lvol-tabs.jsx:213 pkg/storaged/lvol-tabs.jsx:275
 #: pkg/storaged/lvol-tabs.jsx:403 pkg/storaged/lvol-tabs.jsx:457
 #: pkg/storaged/nfs-details.jsx:322 pkg/storaged/nfs-panel.jsx:104
-#: pkg/storaged/part-tab.jsx:36 pkg/systemd/hwinfo.jsx:286
+#: pkg/storaged/part-tab.jsx:36 pkg/systemd/hwinfo.jsx:271
 msgid "Size"
 msgstr "大小"
 
@@ -6337,7 +6346,7 @@ msgstr "大小必須是數字"
 msgid "Size must be at least $0"
 msgstr "尺寸必須至少為 $0"
 
-#: pkg/systemd/hwinfo.jsx:275
+#: pkg/systemd/hwinfo.jsx:260
 msgid "Slot"
 msgstr "插槽"
 
@@ -6355,7 +6364,7 @@ msgstr "插槽"
 msgid "Software Updates"
 msgstr "軟件更新"
 
-#: pkg/systemd/hwinfo.jsx:227
+#: pkg/systemd/hwinfo.jsx:212
 msgid ""
 "Software-based workarounds help prevent CPU security issues. These "
 "mitigations have the side effect of reducing performance. Change these "
@@ -6387,7 +6396,7 @@ msgstr "其他一些程序目前正在使用包管理器，請稍候..."
 msgid "Sorted from least trusted to most trusted"
 msgstr ""
 
-#: pkg/machines/components/diskAdd.jsx:461
+#: pkg/machines/components/diskAdd.jsx:469
 #: pkg/machines/components/nicBody.jsx:146
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:52
 #: pkg/machines/components/vmDisksTab.jsx:117
@@ -6439,7 +6448,7 @@ msgstr "備用"
 msgid "Specific Time"
 msgstr "特定的時間"
 
-#: pkg/systemd/hwinfo.jsx:286
+#: pkg/systemd/hwinfo.jsx:271
 msgid "Speed"
 msgstr ""
 
@@ -6499,7 +6508,7 @@ msgstr "啟動"
 #: pkg/machines/components/networks/networkList.jsx:55
 #: pkg/machines/components/storagePools/storagePoolList.jsx:54
 #: pkg/machines/components/vmnetworktab.jsx:205
-#: pkg/machines/hostvmslist.jsx:83 pkg/systemd/hwinfo.jsx:286
+#: pkg/machines/hostvmslist.jsx:83 pkg/systemd/hwinfo.jsx:271
 #: pkg/systemd/init.js:312
 msgid "State"
 msgstr "狀態"
@@ -6626,7 +6635,7 @@ msgstr "儲存集區"
 msgid "Storage size must not be 0"
 msgstr ""
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:408
+#: pkg/systemd/overview-cards/configurationCard.jsx:386
 msgid "Store metrics"
 msgstr "存儲指標"
 
@@ -6728,7 +6737,7 @@ msgstr "同步RAID設備 $target"
 msgid "System"
 msgstr "系統"
 
-#: pkg/systemd/hwinfo.jsx:301
+#: pkg/systemd/hwinfo.jsx:286
 msgid "System Information"
 msgstr "系統資訊"
 
@@ -6749,7 +6758,7 @@ msgstr ""
 msgid "System is up to date"
 msgstr "系統已更新至最新狀態"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:373
+#: pkg/systemd/overview-cards/configurationCard.jsx:357
 msgid "System time"
 msgstr ""
 
@@ -6910,7 +6919,7 @@ msgstr "客戶端電源管理暫停VM。"
 msgid "The VM needs to be running or shut off to detach this device"
 msgstr ""
 
-#: pkg/users/local.js:1342
+#: pkg/users/local.js:1356
 msgid "The account '$0' will be forced to change their password on next login"
 msgstr "帳戶'$0'將在下次登錄時被迫更改密碼"
 
@@ -7035,7 +7044,7 @@ msgstr "無法刪除最後一個密鑰槽"
 msgid "The last physical volume of a volume group cannot be removed."
 msgstr "無法刪除卷組的最後一個物理卷。"
 
-#: pkg/lib/cockpit-components-modifications.jsx:144
+#: pkg/lib/cockpit-components-modifications.jsx:138
 msgid "The logged in user is not permitted to view system modifications"
 msgstr ""
 
@@ -7043,7 +7052,7 @@ msgstr ""
 msgid "The machine is restarting"
 msgstr "機器正在重新啟動"
 
-#: pkg/users/local.js:443 pkg/users/local.js:1399
+#: pkg/users/local.js:443 pkg/users/local.js:1413
 msgid "The passwords do not match"
 msgstr "密碼不匹配"
 
@@ -7087,8 +7096,20 @@ msgstr "服務器拒絕驗證'$0'使用密碼驗證，並且沒有其他支持�
 msgid "The server refused to authenticate using any supported methods."
 msgstr "服務器拒絕使用任何受支持的方法進行身份驗證。"
 
-#: pkg/systemd/hwinfo.jsx:71
+#: pkg/systemd/hwinfo.jsx:55
 msgid "The user $0 is not permitted to change cpu security mitigations"
+msgstr ""
+
+#: pkg/systemd/overview-cards/configurationCard.jsx:337
+msgid "The user $0 is not permitted to change the system time"
+msgstr ""
+
+#: pkg/systemd/overview-cards/configurationCard.jsx:328
+msgid "The user $0 is not permitted to modify hostnames"
+msgstr ""
+
+#: pkg/systemd/overview.jsx:110
+msgid "The user $0 is not permitted to shutdown or restart this server"
 msgstr ""
 
 #: pkg/systemd/init.js:819
@@ -7098,10 +7119,6 @@ msgstr "用戶 <b>$0</b> 沒有創建計時器的權限"
 #: pkg/tuned/dialog.js:98
 msgid "The user <b>$0</b> is not permitted to change profiles"
 msgstr "用戶 <b>$0</b> 不允許更改個人資料"
-
-#: pkg/systemd/overview-cards/configurationCard.jsx:118
-msgid "The user <b>$0</b> is not permitted to change the system time"
-msgstr "用戶 <b>$0</b> 不允許更改系統時間"
 
 #: pkg/dashboard/list.js:231
 msgid "The user <b>$0</b> is not permitted to manage servers"
@@ -7115,10 +7132,6 @@ msgstr "用戶 <b>$0</b> 不允許管理存儲空間"
 msgid "The user <b>$0</b> is not permitted to modify accounts"
 msgstr "用戶 <b>$0</b> 不允許修改帳戶"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:104
-msgid "The user <b>$0</b> is not permitted to modify hostnames"
-msgstr "用戶 <b>$0</b> 不允許修改主機名"
-
 #: pkg/networkmanager/interfaces.js:1497
 msgid "The user <b>$0</b> is not permitted to modify network settings"
 msgstr "用戶 <b>$0</b> 不允許修改網絡設置"
@@ -7127,15 +7140,11 @@ msgstr "用戶 <b>$0</b> 不允許修改網絡設置"
 msgid "The user <b>$0</b> is not permitted to modify realms"
 msgstr "用戶 <b>$0</b> 不允許修改領域"
 
-#: pkg/systemd/overview.jsx:48
-msgid "The user <b>$0</b> is not permitted to shutdown or restart this server"
-msgstr "用戶 <b>$0</b> 不允許關閉或重新啟動此服務器"
-
 #: pkg/users/index.html:436
 msgid "The user must log out and log back in to fully change roles."
 msgstr ""
 
-#: pkg/users/local.js:553
+#: pkg/users/local.js:567
 msgid ""
 "The user name can only consist of letters from a-z, digits, dots, dashes and"
 " underscores."
@@ -7286,7 +7295,7 @@ msgstr "該工具將從該系統收集系統配置和診斷信息，以用於診
 msgid "This unit is not designed to be enabled explicitly."
 msgstr "此單元未設計為顯式啟用。"
 
-#: pkg/users/local.js:561
+#: pkg/users/local.js:575
 msgid "This user name already exists"
 msgstr "這個用戶名已經存在"
 
@@ -7455,8 +7464,8 @@ msgstr "Tuned已關閉"
 #: pkg/machines/components/vm/bootOrderModal.jsx:144
 #: pkg/machines/components/vmnetworktab.jsx:139
 #: pkg/storaged/format-dialog.jsx:199 pkg/storaged/part-tab.jsx:42
-#: pkg/storaged/unrecognized-tab.jsx:33 pkg/systemd/hwinfo.jsx:81
-#: pkg/systemd/hwinfo.jsx:286
+#: pkg/storaged/unrecognized-tab.jsx:33 pkg/systemd/hwinfo.jsx:66
+#: pkg/systemd/hwinfo.jsx:271
 msgid "Type"
 msgstr "類型"
 
@@ -7540,7 +7549,7 @@ msgid "Unavailable"
 msgstr "無法使用"
 
 #: pkg/docker/index.html:732 pkg/networkmanager/index.html:707
-#: pkg/shell/base_index.js:840 pkg/users/local.js:1485
+#: pkg/shell/base_index.js:840 pkg/users/local.js:1499
 msgid "Unexpected error"
 msgstr "未預期的錯誤"
 
@@ -7743,7 +7752,7 @@ msgstr[0] "用法 $0 CPU核心"
 msgid "Use 512 Byte emulation"
 msgstr "使用512字節模擬"
 
-#: pkg/machines/components/diskAdd.jsx:481
+#: pkg/machines/components/diskAdd.jsx:489
 msgid "Use Existing"
 msgstr "利用現有的"
 
@@ -7913,7 +7922,7 @@ msgstr "驗證密鑰"
 # document keys
 #: pkg/machines/components/vm/bootOrderModal.jsx:120
 #: pkg/machines/components/vm/bootOrderModal.jsx:126
-#: pkg/systemd/hwinfo.jsx:274
+#: pkg/systemd/hwinfo.jsx:259
 msgid "Vendor"
 msgstr "供應商"
 
@@ -7932,7 +7941,7 @@ msgstr "核驗"
 # translation auto-copied from project subscription-manager, version 1.11.X,
 # document keys
 #: pkg/shell/index.html:89 pkg/packagekit/updates.jsx:385
-#: pkg/systemd/hwinfo.jsx:89
+#: pkg/systemd/hwinfo.jsx:74
 msgid "Version"
 msgstr "版本"
 
@@ -7940,7 +7949,7 @@ msgstr "版本"
 msgid "Very securely erasing $target"
 msgstr "非常安全地擦除 $target"
 
-#: pkg/lib/cockpit-components-modifications.jsx:173
+#: pkg/lib/cockpit-components-modifications.jsx:167
 msgid "View automation script"
 msgstr ""
 
@@ -8370,7 +8379,7 @@ msgstr "垂死"
 msgid "e.g. \"$0\""
 msgstr "例如“$0“"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:366
+#: pkg/systemd/overview-cards/configurationCard.jsx:330
 msgid "edit"
 msgstr ""
 
@@ -8406,7 +8415,7 @@ msgstr "每天"
 msgid "extension"
 msgstr ""
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:280
+#: pkg/systemd/overview-cards/configurationCard.jsx:256
 msgid "failed to list ssh host keys: $0"
 msgstr "無法列出ssh​​主機密鑰： $0"
 
@@ -8709,7 +8718,7 @@ msgstr ""
 msgid "running"
 msgstr "執行中"
 
-#: pkg/systemd/overview.jsx:113
+#: pkg/systemd/overview.jsx:138
 msgid "running $0"
 msgstr ""
 

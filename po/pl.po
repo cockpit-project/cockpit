@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-12-18 19:13+0000\n"
-"PO-Revision-Date: 2019-12-17 02:13+0000\n"
+"POT-Creation-Date: 2019-12-25 21:34+0000\n"
+"PO-Revision-Date: 2019-12-21 01:32+0000\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: pl\n"
@@ -619,7 +619,7 @@ msgstr "Konto jest niedostępne lub nie może być modyfikowane."
 msgid "Accounts"
 msgstr "Konta"
 
-#: pkg/users/local.js:339 pkg/users/local.js:646
+#: pkg/users/local.js:339 pkg/users/local.js:660
 msgctxt "page-title"
 msgid "Accounts"
 msgstr "Konta"
@@ -663,7 +663,7 @@ msgid "Adaptive transmit load balancing"
 msgstr "Adaptacyjne równoważenie obciążenia przesyłu"
 
 #: pkg/lib/machine-add.html:43 pkg/shell/index.html:197
-#: pkg/machines/components/diskAdd.jsx:521
+#: pkg/machines/components/diskAdd.jsx:529
 #: pkg/machines/components/nicAdd.jsx:202 pkg/storaged/crypto-keyslots.jsx:235
 #: pkg/storaged/iscsi-panel.jsx:137 pkg/storaged/iscsi-panel.jsx:161
 #: pkg/storaged/mdraid-details.jsx:59 pkg/storaged/nfs-details.jsx:191
@@ -687,7 +687,7 @@ msgstr "Dodaj węzeł"
 msgid "Add Bridge"
 msgstr "Dodaj mostek"
 
-#: pkg/machines/components/diskAdd.jsx:509
+#: pkg/machines/components/diskAdd.jsx:517
 #: pkg/machines/components/vmDisksTab.jsx:93
 msgid "Add Disk"
 msgstr "Dodaj dysk"
@@ -933,9 +933,13 @@ msgstr "Zawsze"
 msgid "Always attach"
 msgstr "Podłączanie za każdym razem"
 
-#: pkg/lib/cockpit-components-modifications.jsx:82
-msgid "Ansible Playbook"
-msgstr "Podręcznik Ansible"
+#: pkg/lib/cockpit-components-modifications.jsx:81
+msgid "Ansible"
+msgstr ""
+
+#: pkg/lib/cockpit-components-modifications.jsx:91
+msgid "Ansible roles documentation"
+msgstr ""
 
 #: pkg/systemd/terminal.jsx:94
 msgid "Appearance:"
@@ -1083,7 +1087,7 @@ msgstr "Automatycznie za pomocą NTP"
 msgid "Automatically using specific NTP servers"
 msgstr "Automatycznie za pomocą podanych serwerów NTP"
 
-#: pkg/lib/cockpit-components-modifications.jsx:71
+#: pkg/lib/cockpit-components-modifications.jsx:72
 msgid "Automation Script"
 msgstr "Skrypt automatyzacji"
 
@@ -1111,15 +1115,15 @@ msgstr "Dostępne cele w $0"
 msgid "Avatar"
 msgstr "Awatar"
 
-#: pkg/systemd/hwinfo.jsx:98
+#: pkg/systemd/hwinfo.jsx:83
 msgid "BIOS"
 msgstr "BIOS"
 
-#: pkg/systemd/hwinfo.jsx:106
+#: pkg/systemd/hwinfo.jsx:91
 msgid "BIOS date"
 msgstr "Data BIOS-u"
 
-#: pkg/systemd/hwinfo.jsx:102
+#: pkg/systemd/hwinfo.jsx:87
 msgid "BIOS version"
 msgstr "Wersja BIOS-u"
 
@@ -1237,7 +1241,7 @@ msgid "Bus Expansion Chassis"
 msgstr "Obudowa rozszerzenia magistrali"
 
 #: pkg/dashboard/index.html:70 pkg/docker/index.html:272
-#: pkg/docker/containers-view.jsx:359 pkg/systemd/hwinfo.jsx:114
+#: pkg/docker/containers-view.jsx:359 pkg/systemd/hwinfo.jsx:99
 msgid "CPU"
 msgstr "Procesor"
 
@@ -1245,11 +1249,11 @@ msgstr "Procesor"
 msgid "CPU Graph"
 msgstr "Wykres procesora"
 
-#: pkg/systemd/hwinfo.jsx:119
+#: pkg/systemd/hwinfo.jsx:104
 msgid "CPU Security"
 msgstr "Zabezpieczenia procesora"
 
-#: pkg/systemd/hwinfo.jsx:224
+#: pkg/systemd/hwinfo.jsx:209
 msgid "CPU Security Toggles"
 msgstr "Przełączniki zabezpieczeń procesora"
 
@@ -1312,7 +1316,7 @@ msgstr "Nie można wczytać obrazu"
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:816
 #: pkg/machines/components/deleteDialog.jsx:158
 #: pkg/machines/components/deleteResource.jsx:107
-#: pkg/machines/components/diskAdd.jsx:518
+#: pkg/machines/components/diskAdd.jsx:526
 #: pkg/machines/components/diskEdit.jsx:173
 #: pkg/machines/components/networks/createNetworkDialog.jsx:477
 #: pkg/machines/components/nicAdd.jsx:199
@@ -1326,7 +1330,7 @@ msgstr "Nie można wczytać obrazu"
 #: pkg/networkmanager/firewall.jsx:589 pkg/networkmanager/firewall.jsx:741
 #: pkg/networkmanager/firewall.jsx:766 pkg/packagekit/updates.jsx:182
 #: pkg/sosreport/index.js:51 pkg/storaged/dialog.jsx:400
-#: pkg/storaged/jobs-panel.jsx:123 pkg/systemd/hwinfo.jsx:238
+#: pkg/storaged/jobs-panel.jsx:123 pkg/systemd/hwinfo.jsx:223
 #: pkg/systemd/reporting.jsx:419 pkg/systemd/service-details.jsx:108
 msgid "Cancel"
 msgstr "Anuluj"
@@ -1461,7 +1465,7 @@ msgstr "Proszę wybrać język używany w aplikacji"
 msgid "Chunk Size"
 msgstr "Rozmiar bloku"
 
-#: pkg/systemd/hwinfo.jsx:272
+#: pkg/systemd/hwinfo.jsx:257
 msgid "Class"
 msgstr "Klasa"
 
@@ -1500,7 +1504,7 @@ msgstr "Oprogramowanie klienta"
 #: pkg/lib/machine-unknown-hostkey.html:19 pkg/networkmanager/index.html:713
 #: pkg/shell/index.html:97 pkg/shell/index.html:156 pkg/shell/index.html:351
 #: pkg/systemd/index.html:164 pkg/users/index.html:45 pkg/apps/utils.jsx:108
-#: pkg/lib/cockpit-components-modifications.jsx:109 pkg/sosreport/index.js:45
+#: pkg/lib/cockpit-components-modifications.jsx:103 pkg/sosreport/index.js:45
 #: pkg/sosreport/index.js:127 pkg/storaged/dialog.jsx:400
 msgid "Close"
 msgstr "Zamknij"
@@ -1712,7 +1716,7 @@ msgstr "Warunek $0=$1 nie został spełniony"
 msgid "Condition failed"
 msgstr "Warunek się nie powiódł"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:350
+#: pkg/systemd/overview-cards/configurationCard.jsx:344
 msgid "Configuration"
 msgstr "Konfiguracja"
 
@@ -1852,7 +1856,7 @@ msgstr "Skontaktowana domena"
 msgid "Container"
 msgstr "Kontener"
 
-#: pkg/users/local.js:752
+#: pkg/users/local.js:766
 msgid "Container Administrator"
 msgstr "Administrator kontenera"
 
@@ -1917,7 +1921,7 @@ msgstr "2 w jednym"
 msgid "Copy"
 msgstr "Skopiuj"
 
-#: pkg/lib/cockpit-components-modifications.jsx:106
+#: pkg/lib/cockpit-components-modifications.jsx:100
 msgid "Copy to clipboard"
 msgstr "Skopiuj do schowka"
 
@@ -1996,7 +2000,7 @@ msgstr "Utwórz urządzenia"
 msgid "Create Logical Volume"
 msgstr "Utwórz wolumin logiczny"
 
-#: pkg/machines/components/diskAdd.jsx:472
+#: pkg/machines/components/diskAdd.jsx:480
 msgid "Create New"
 msgstr "Utwórz nowy"
 
@@ -2091,6 +2095,10 @@ msgstr "Utwórz"
 #: pkg/storaged/content-views.jsx:755
 msgid "Create new Logical Volume"
 msgstr "Utworzono:"
+
+#: pkg/lib/cockpit-components-modifications.jsx:87
+msgid "Create new task file with this content."
+msgstr ""
 
 #: pkg/docker/containers-view.jsx:129 pkg/docker/containers-view.jsx:412
 #: pkg/docker/containers-view.jsx:687
@@ -2286,7 +2294,7 @@ msgstr "Opóźnienie"
 msgid "Delete"
 msgstr "Usuń"
 
-#: pkg/networkmanager/interfaces.js:2418 pkg/users/local.js:1183
+#: pkg/networkmanager/interfaces.js:2418 pkg/users/local.js:1197
 msgid "Delete $0"
 msgstr "Usuń $0"
 
@@ -2435,7 +2443,7 @@ msgstr "Katalog"
 msgid "Directory $0 isn't writable or doesn't exist."
 msgstr "Katalog $0 nie jest zapisywalny lub nie istnieje."
 
-#: pkg/systemd/hwinfo.jsx:210
+#: pkg/systemd/hwinfo.jsx:195
 msgid "Disable simultaneous multithreading"
 msgstr "Wyłącz wielowątkowość współbieżną"
 
@@ -2481,11 +2489,11 @@ msgstr "Odłączenie dysku $0 z maszyny wirtualnej $1 się nie powiodło"
 msgid "Disk I/O"
 msgstr "Wejście/wyjście dysku"
 
-#: pkg/machines/components/diskAdd.jsx:429
+#: pkg/machines/components/diskAdd.jsx:437
 msgid "Disk failed to be attached"
 msgstr "Podłączenie dysku się nie powiodło"
 
-#: pkg/machines/components/diskAdd.jsx:401
+#: pkg/machines/components/diskAdd.jsx:409
 msgid "Disk failed to be created"
 msgstr "Utworzenie dysku się nie powiodło"
 
@@ -2497,7 +2505,7 @@ msgstr "Dysk jest OK"
 msgid "Disk passphrase"
 msgstr "Hasło dysku"
 
-#: pkg/machines/components/diskAdd.jsx:440
+#: pkg/machines/components/diskAdd.jsx:448
 #: pkg/machines/components/diskEdit.jsx:126
 msgid "Disk settings could not be saved"
 msgstr "Nie można zapisać ustawień dysku"
@@ -2529,7 +2537,7 @@ msgid "Docking Station"
 msgstr "Stacja dokująca"
 
 #: pkg/realmd/operation.html:11 pkg/realmd/operation.js:125
-#: pkg/systemd/overview-cards/configurationCard.jsx:389
+#: pkg/systemd/overview-cards/configurationCard.jsx:367
 msgid "Domain"
 msgstr "Domena"
 
@@ -2667,7 +2675,7 @@ msgstr "Emulowany komputer"
 msgid "Enable Service"
 msgstr "Włącz usługę"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:423
+#: pkg/systemd/overview-cards/configurationCard.jsx:401
 msgid "Enable stored metrics"
 msgstr "Włącz przechowywane statystyki"
 
@@ -2739,7 +2747,7 @@ msgstr "Adres IP lub nazwa komputera"
 
 #: pkg/lib/machine-change-auth.html:79
 msgid "Enter passphrase to add identity to ssh-agent"
-msgstr ""
+msgstr "Proszę podać hasło, aby dodać tożsamość do usługi ssh-agent"
 
 #: pkg/lib/machine-change-auth.html:57
 msgid ""
@@ -2789,7 +2797,7 @@ msgstr "Poprawka:"
 #: pkg/apps/utils.jsx:100 pkg/storaged/fsys-tab.jsx:283
 #: pkg/storaged/multipath.jsx:58 pkg/storaged/storage-controls.jsx:83
 #: pkg/storaged/storage-controls.jsx:177 pkg/systemd/service-details.jsx:451
-#: pkg/users/local.js:1476
+#: pkg/users/local.js:1490
 msgid "Error"
 msgstr "Błąd"
 
@@ -2805,7 +2813,7 @@ msgstr "Błąd podczas wczytywania użytkowników: {{perm_failed}}"
 msgid "Error message from Docker:"
 msgstr "Komunikat o błędzie Dockera:"
 
-#: pkg/lib/cockpit-components-modifications.jsx:145
+#: pkg/lib/cockpit-components-modifications.jsx:139
 msgid "Error running semanage to discover system modifications"
 msgstr ""
 "Błąd podczas wykonywania polecenia semanage, aby wykryć modyfikacje systemu"
@@ -2846,7 +2854,7 @@ msgstr "Przykład: 22,ssh,8080,5900-5910"
 msgid "Example: 88,2019,nfs,rsync"
 msgstr "Przykład: 88,2019,nfs,rsync"
 
-#: pkg/users/local.js:477 pkg/users/local.js:1421
+#: pkg/users/local.js:477 pkg/users/local.js:1435
 msgid "Excellent password"
 msgstr "Doskonałe hasło"
 
@@ -3185,7 +3193,7 @@ msgstr "Przenośny"
 msgid "Hard Disk"
 msgstr "Dysk twardy"
 
-#: pkg/systemd/hwinfo.html:4 pkg/systemd/hwinfo.jsx:298
+#: pkg/systemd/hwinfo.html:4 pkg/systemd/hwinfo.jsx:283
 msgid "Hardware Information"
 msgstr "Informacje o sprzęcie"
 
@@ -3229,7 +3237,7 @@ msgstr "Nie należy zmieniać nazwy komputera w domenie"
 msgid "Host should not be empty"
 msgstr "Gospodarz nie może być pusty"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:355
+#: pkg/systemd/overview-cards/configurationCard.jsx:349
 msgid "Hostname"
 msgstr "Nazwa komputera"
 
@@ -3249,7 +3257,7 @@ msgstr "Godziny"
 msgid "I/O Wait"
 msgstr "Oczekiwanie wejścia/wyjścia"
 
-#: pkg/systemd/hwinfo.jsx:286
+#: pkg/systemd/hwinfo.jsx:271
 msgid "ID"
 msgstr "Identyfikator"
 
@@ -3364,7 +3372,7 @@ msgstr "Obraz"
 msgid "Image $0"
 msgstr "Obraz $0"
 
-#: pkg/users/local.js:753
+#: pkg/users/local.js:767
 msgid "Image Builder"
 msgstr "Budowanie obrazu"
 
@@ -3566,12 +3574,12 @@ msgstr "Nieprawidłowy przedrostek IPv6"
 msgid "Invalid address $0"
 msgstr "Nieprawidłowy adres $0"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:950
+#: pkg/systemd/overview-cards/configurationCard.jsx:928
 #: pkg/systemd/shutdown.js:154
 msgid "Invalid date format"
 msgstr "Nieprawidłowy format daty"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:946
+#: pkg/systemd/overview-cards/configurationCard.jsx:924
 #: pkg/systemd/shutdown.js:150
 msgid "Invalid date format and invalid time format"
 msgstr "Nieprawidłowy format daty i nieprawidłowy format czasu"
@@ -3580,7 +3588,7 @@ msgstr "Nieprawidłowy format daty i nieprawidłowy format czasu"
 msgid "Invalid date format."
 msgstr "Nieprawidłowy format daty."
 
-#: pkg/users/local.js:1241
+#: pkg/users/local.js:1255
 msgid "Invalid expiration date"
 msgstr "Nieprawidłowa data wygaśnięcia"
 
@@ -3600,7 +3608,7 @@ msgstr "Nieprawidłowy klucz"
 msgid "Invalid metric $0"
 msgstr "Nieprawidłowe parametry $0"
 
-#: pkg/users/local.js:1317
+#: pkg/users/local.js:1331
 msgid "Invalid number of days"
 msgstr "Nieprawidłowa liczba dni"
 
@@ -3628,7 +3636,7 @@ msgstr "Nieprawidłowy przedrostek lub maska sieci $0"
 msgid "Invalid range"
 msgstr "Nieprawidłowy zakres"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:948
+#: pkg/systemd/overview-cards/configurationCard.jsx:926
 #: pkg/systemd/shutdown.js:152
 msgid "Invalid time format"
 msgstr "Nieprawidłowy format czasu"
@@ -3863,7 +3871,7 @@ msgstr "Wczytanie dostępnych aktualizacji się nie powiodło"
 msgid "Loading available updates, please wait..."
 msgstr "Wczytywanie dostępnych aktualizacji, proszę czekać…"
 
-#: pkg/lib/cockpit-components-modifications.jsx:151
+#: pkg/lib/cockpit-components-modifications.jsx:145
 msgid "Loading system modifications..."
 msgstr "Wczytywanie modyfikacji systemu…"
 
@@ -3905,7 +3913,7 @@ msgstr "Zablokuj"
 msgid "Lock Account"
 msgstr "Zablokuj konto"
 
-#: pkg/users/local.js:883 pkg/users/local.js:1222
+#: pkg/users/local.js:897 pkg/users/local.js:1236
 msgid "Lock account on $0"
 msgstr "Zablokowanie konta w dniu $0"
 
@@ -3938,7 +3946,7 @@ msgstr "Logowanie za pomocą konta użytkownika serwera."
 msgid "Log messages"
 msgstr "Komunikaty dziennika"
 
-#: pkg/users/local.js:965
+#: pkg/users/local.js:979
 msgid "Logged In"
 msgstr "Zalogowano"
 
@@ -4136,7 +4144,7 @@ msgstr "Element urządzenia RAID $0"
 #: pkg/playground/translate.html:90 pkg/systemd/graphs.html:82
 #: pkg/docker/containers-view.jsx:359
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:396
-#: pkg/machines/components/vmOverviewTab.jsx:74 pkg/systemd/hwinfo.jsx:285
+#: pkg/machines/components/vmOverviewTab.jsx:74 pkg/systemd/hwinfo.jsx:270
 #: pkg/systemd/overview-cards/usageCard.jsx:78
 msgid "Memory"
 msgstr "Pamięć"
@@ -4158,7 +4166,7 @@ msgstr "Użycie pamięci i przestrzeni wymiany"
 msgid "Memory Graph"
 msgstr "Wykres pamięci"
 
-#: pkg/systemd/hwinfo.jsx:286
+#: pkg/systemd/hwinfo.jsx:271
 msgid "Memory Technology"
 msgstr "Technologia pamięci"
 
@@ -4214,7 +4222,7 @@ msgstr "Minuta musi być liczbą między 0 a 59"
 msgid "Minutes"
 msgstr "Minuty"
 
-#: pkg/systemd/hwinfo.jsx:68 pkg/systemd/hwinfo.jsx:73
+#: pkg/systemd/hwinfo.jsx:57
 msgid "Mitigations"
 msgstr "Poprawki zmniejszające ryzyko"
 
@@ -4222,7 +4230,7 @@ msgstr "Poprawki zmniejszające ryzyko"
 msgid "Mode"
 msgstr "Tryb"
 
-#: pkg/machines/components/nicBody.jsx:44 pkg/systemd/hwinfo.jsx:273
+#: pkg/machines/components/nicBody.jsx:44 pkg/systemd/hwinfo.jsx:258
 #: pkg/systemd/overview-cards/systemInformationCard.jsx:92
 msgid "Model"
 msgstr "Model"
@@ -4366,7 +4374,7 @@ msgstr "Zmiana stanu NIC $0 maszyny wirtualnej $1 się nie powiodła"
 msgid "NSNA Ping"
 msgstr "Ping NSNA"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:1019
+#: pkg/systemd/overview-cards/configurationCard.jsx:997
 msgid "NTP Server"
 msgstr "Serwer NTP"
 
@@ -4391,7 +4399,7 @@ msgstr "Serwer NTP"
 #: pkg/storaged/lvol-tabs.jsx:399 pkg/storaged/lvol-tabs.jsx:454
 #: pkg/storaged/mdraids-panel.jsx:61 pkg/storaged/part-tab.jsx:33
 #: pkg/storaged/vdos-panel.jsx:82 pkg/storaged/vgroup-details.jsx:175
-#: pkg/storaged/vgroups-panel.jsx:74 pkg/systemd/hwinfo.jsx:85
+#: pkg/storaged/vgroups-panel.jsx:74 pkg/systemd/hwinfo.jsx:70
 #: pkg/systemd/init.js:308
 msgid "Name"
 msgstr "Nazwa"
@@ -4437,7 +4445,7 @@ msgstr "Nazwa nie może być pusta"
 msgid "Name: "
 msgstr "Nazwa: "
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:846
+#: pkg/systemd/overview-cards/configurationCard.jsx:824
 msgid "Need at least one NTP server"
 msgstr "Wymagany jest co najmniej jeden serwer NTP"
 
@@ -4523,15 +4531,15 @@ msgstr "Dzienniki sieci"
 msgid "Networks"
 msgstr "Sieci"
 
-#: pkg/users/local.js:967
+#: pkg/users/local.js:981
 msgid "Never"
 msgstr "Nigdy"
 
-#: pkg/users/index.html:297 pkg/users/local.js:872
+#: pkg/users/index.html:297 pkg/users/local.js:886
 msgid "Never expire password"
 msgstr "Bez wygasania hasła"
 
-#: pkg/users/index.html:258 pkg/users/local.js:880
+#: pkg/users/index.html:258 pkg/users/local.js:894
 msgid "Never lock account"
 msgstr "Bez blokowania konta"
 
@@ -4624,7 +4632,7 @@ msgstr ""
 "Dla tej puli urządzeń do przechowywania danych nie określono żadnych "
 "woluminów urządzeń do przechowywania danych"
 
-#: pkg/lib/cockpit-components-modifications.jsx:144
+#: pkg/lib/cockpit-components-modifications.jsx:138
 msgid "No System Modifications"
 msgstr "Brak modyfikacji systemu"
 
@@ -5052,7 +5060,7 @@ msgstr "Inne opcje"
 #: pkg/docker/index.html:299 pkg/systemd/graphs.html:25
 #: pkg/systemd/graphs.html:109 pkg/machines/components/networks/network.jsx:73
 #: pkg/machines/components/storagePools/storagePool.jsx:83
-#: pkg/machines/components/vm/vm.jsx:49 pkg/systemd/hwinfo.jsx:297
+#: pkg/machines/components/vm/vm.jsx:49 pkg/systemd/hwinfo.jsx:282
 #: pkg/systemd/manifest.json.in
 msgid "Overview"
 msgstr "Przegląd"
@@ -5061,11 +5069,11 @@ msgstr "Przegląd"
 msgid "Overwrite existing data with zeros"
 msgstr "Zastąp istniejące dane zerami"
 
-#: pkg/systemd/hwinfo.jsx:269
+#: pkg/systemd/hwinfo.jsx:254
 msgid "PCI"
 msgstr "PCI"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:420
+#: pkg/systemd/overview-cards/configurationCard.jsx:398
 msgid "PCP"
 msgstr "PCP"
 
@@ -5157,7 +5165,7 @@ msgstr "Hasło jest do przyjęcia"
 msgid "Password is too weak"
 msgstr "Hasło jest za słabe"
 
-#: pkg/users/local.js:874
+#: pkg/users/local.js:888
 msgid "Password must be changed"
 msgstr "Należy zmienić hasło"
 
@@ -5225,7 +5233,7 @@ msgstr "Ścieżki"
 msgid "Pause"
 msgstr "Wstrzymaj"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:394
+#: pkg/systemd/overview-cards/configurationCard.jsx:372
 msgid "Performance profile"
 msgstr "Profil wydajności"
 
@@ -5310,11 +5318,11 @@ msgstr "Proszę potwierdzić wymuszenie usunięcia $0"
 msgid "Please confirm stopping of $0"
 msgstr "Proszę potwierdzić zatrzymanie $0"
 
-#: pkg/machines/components/diskAdd.jsx:378
+#: pkg/machines/components/diskAdd.jsx:386
 msgid "Please enter new volume name"
 msgstr "Proszę podać nazwę nowego woluminu"
 
-#: pkg/machines/components/diskAdd.jsx:381
+#: pkg/machines/components/diskAdd.jsx:389
 msgid "Please enter new volume size"
 msgstr "Proszę podać rozmiar nowego woluminu"
 
@@ -5322,7 +5330,7 @@ msgstr "Proszę podać rozmiar nowego woluminu"
 msgid "Please install the $0 package"
 msgstr "Proszę zainstalować pakiet $0"
 
-#: pkg/users/local.js:1236
+#: pkg/users/local.js:1250
 msgid "Please specify an expiration date"
 msgstr "Proszę podać datę wygaśnięcia"
 
@@ -5607,7 +5615,7 @@ msgstr "Zakres"
 msgid "Range must be strictly ordered"
 msgstr "Zakres musi być w ścisłej kolejności"
 
-#: pkg/systemd/hwinfo.jsx:286
+#: pkg/systemd/hwinfo.jsx:271
 msgid "Rank"
 msgstr "Stopień"
 
@@ -5615,7 +5623,7 @@ msgstr "Stopień"
 msgid "Raw to a device"
 msgstr "Surowe do urządzenia"
 
-#: pkg/systemd/hwinfo.jsx:212
+#: pkg/systemd/hwinfo.jsx:197
 msgid "Read more..."
 msgstr "Więcej informacji…"
 
@@ -5654,7 +5662,7 @@ msgstr "Gotowe"
 msgid "Real Host Name"
 msgstr "Prawdziwa nazwa komputera"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:517
+#: pkg/systemd/overview-cards/configurationCard.jsx:495
 msgid ""
 "Real host name can only contain lower-case characters, digits, dashes, and "
 "periods (with populated subdomains)"
@@ -5662,7 +5670,7 @@ msgstr ""
 "Prawdziwa nazwa komputera może zawierać tylko małe litery, cyfry, myślniki "
 "i kropki (z zaludnionymi poddomenami)"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:518
+#: pkg/systemd/overview-cards/configurationCard.jsx:496
 msgid "Real host name must be 64 characters or less"
 msgstr "Prawdziwa nazwa komputera może mieć co najwyżej 64 znaki"
 
@@ -5904,11 +5912,11 @@ msgstr "Zgłoszenia:"
 msgid "Repository"
 msgstr "Repozytorium"
 
-#: pkg/users/local.js:1300
+#: pkg/users/local.js:1314
 msgid "Require password change every $0 days"
 msgstr "Wymaganie zmiany hasła co $0 dni"
 
-#: pkg/users/local.js:876
+#: pkg/users/local.js:890
 msgid "Require password change on $0"
 msgstr "Wymaganie zmiany hasła w dniu $0"
 
@@ -5971,7 +5979,7 @@ msgstr ""
 "Proszę podać obecne hasło dysku."
 
 #: pkg/docker/index.html:138 pkg/docker/containers-view.jsx:315
-#: pkg/machines/components/vm/vmActions.jsx:42 pkg/systemd/overview.jsx:117
+#: pkg/machines/components/vm/vmActions.jsx:42 pkg/systemd/overview.jsx:116
 #: pkg/systemd/service-details.jsx:170 pkg/systemd/shutdown.js:99
 #: pkg/systemd/shutdown.js:100
 msgid "Restart"
@@ -6150,7 +6158,7 @@ msgstr "soboty"
 msgid "Save"
 msgstr "Zapisz"
 
-#: pkg/systemd/hwinfo.jsx:241
+#: pkg/systemd/hwinfo.jsx:226
 msgid "Save and reboot"
 msgstr "Zapisz i uruchom ponownie"
 
@@ -6184,7 +6192,7 @@ msgstr "Szukaj"
 msgid "Seconds"
 msgstr "Sekundy"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:399
+#: pkg/systemd/overview-cards/configurationCard.jsx:377
 msgid "Secure Shell keys"
 msgstr "Klucze SSH"
 
@@ -6243,7 +6251,7 @@ msgstr "Serwer"
 msgid "Server Address"
 msgstr "Adres serwera"
 
-#: pkg/users/local.js:750 pkg/users/local.js:751
+#: pkg/users/local.js:764 pkg/users/local.js:765
 msgid "Server Administrator"
 msgstr "Administrator serwera"
 
@@ -6322,7 +6330,7 @@ msgstr "Ustaw"
 msgid "Set DHCP Range"
 msgstr "Ustaw zakres DHCP"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:366
+#: pkg/systemd/overview-cards/configurationCard.jsx:330
 msgid "Set Hostname"
 msgstr "Ustaw nazwę komputera"
 
@@ -6377,7 +6385,7 @@ msgstr "Ważność:"
 msgid "Shared"
 msgstr "Współdzielone"
 
-#: pkg/lib/cockpit-components-modifications.jsx:78
+#: pkg/lib/cockpit-components-modifications.jsx:76
 msgid "Shell Script"
 msgstr "Skrypt powłoki"
 
@@ -6409,7 +6417,7 @@ msgstr "Wyświetl wszystkie kontenery"
 msgid "Show all images"
 msgstr "Wyświetl wszystkie obrazy"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:402
+#: pkg/systemd/overview-cards/configurationCard.jsx:380
 msgid "Show fingerprints"
 msgstr "Wyświetl odciski"
 
@@ -6430,7 +6438,7 @@ msgstr "Zmniejsz wolumin"
 msgid "Shut Down"
 msgstr "Wyłącz"
 
-#: pkg/systemd/overview.jsx:101
+#: pkg/systemd/overview.jsx:104
 msgid "Shutdown"
 msgstr "Wyłącz"
 
@@ -6448,7 +6456,7 @@ msgstr "Pojedynczy stopień"
 #: pkg/storaged/lvol-tabs.jsx:213 pkg/storaged/lvol-tabs.jsx:275
 #: pkg/storaged/lvol-tabs.jsx:403 pkg/storaged/lvol-tabs.jsx:457
 #: pkg/storaged/nfs-details.jsx:322 pkg/storaged/nfs-panel.jsx:104
-#: pkg/storaged/part-tab.jsx:36 pkg/systemd/hwinfo.jsx:286
+#: pkg/storaged/part-tab.jsx:36 pkg/systemd/hwinfo.jsx:271
 msgid "Size"
 msgstr "Rozmiar"
 
@@ -6472,7 +6480,7 @@ msgstr "Rozmiar musi być liczbą"
 msgid "Size must be at least $0"
 msgstr "Rozmiar musi wynosić co najmniej $0"
 
-#: pkg/systemd/hwinfo.jsx:275
+#: pkg/systemd/hwinfo.jsx:260
 msgid "Slot"
 msgstr "Gniazdo"
 
@@ -6488,7 +6496,7 @@ msgstr "Gniazda"
 msgid "Software Updates"
 msgstr "Aktualizacje oprogramowania"
 
-#: pkg/systemd/hwinfo.jsx:227
+#: pkg/systemd/hwinfo.jsx:212
 msgid ""
 "Software-based workarounds help prevent CPU security issues. These "
 "mitigations have the side effect of reducing performance. Change these "
@@ -6523,7 +6531,7 @@ msgstr "Inny program obecnie używa menedżera pakietów, proszę czekać…"
 msgid "Sorted from least trusted to most trusted"
 msgstr "Uporządkowane od najmniej do najbardziej zaufanych"
 
-#: pkg/machines/components/diskAdd.jsx:461
+#: pkg/machines/components/diskAdd.jsx:469
 #: pkg/machines/components/nicBody.jsx:146
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:52
 #: pkg/machines/components/vmDisksTab.jsx:117
@@ -6575,7 +6583,7 @@ msgstr "Zapasowe"
 msgid "Specific Time"
 msgstr "Podany czas"
 
-#: pkg/systemd/hwinfo.jsx:286
+#: pkg/systemd/hwinfo.jsx:271
 msgid "Speed"
 msgstr "Prędkość"
 
@@ -6635,7 +6643,7 @@ msgstr "Uruchamianie"
 #: pkg/machines/components/networks/networkList.jsx:55
 #: pkg/machines/components/storagePools/storagePoolList.jsx:54
 #: pkg/machines/components/vmnetworktab.jsx:205
-#: pkg/machines/hostvmslist.jsx:83 pkg/systemd/hwinfo.jsx:286
+#: pkg/machines/hostvmslist.jsx:83 pkg/systemd/hwinfo.jsx:271
 #: pkg/systemd/init.js:312
 msgid "State"
 msgstr "Stan"
@@ -6764,7 +6772,7 @@ msgstr "Pula urządzeń do przechowywania danych"
 msgid "Storage size must not be 0"
 msgstr "Rozmiar urządzenia do przechowywania danych nie może wynosić 0"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:408
+#: pkg/systemd/overview-cards/configurationCard.jsx:386
 msgid "Store metrics"
 msgstr "Przechowuj statystyki"
 
@@ -6870,7 +6878,7 @@ msgstr "Synchronizowanie urządzenia RAID $target"
 msgid "System"
 msgstr "System"
 
-#: pkg/systemd/hwinfo.jsx:301
+#: pkg/systemd/hwinfo.jsx:286
 msgid "System Information"
 msgstr "Informacje o systemie"
 
@@ -6890,7 +6898,7 @@ msgstr "Informacje o systemie"
 msgid "System is up to date"
 msgstr "System jest aktualny"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:373
+#: pkg/systemd/overview-cards/configurationCard.jsx:357
 msgid "System time"
 msgstr "Czas systemowy"
 
@@ -7055,7 +7063,7 @@ msgstr ""
 "Maszyna wirtualna musi być uruchomiona lub wyłączona, aby odłączyć to "
 "urządzenie"
 
-#: pkg/users/local.js:1342
+#: pkg/users/local.js:1356
 msgid "The account '$0' will be forced to change their password on next login"
 msgstr ""
 "Konto „$0” będzie zmuszone do zmiany hasła podczas następnego logowania"
@@ -7208,7 +7216,7 @@ msgstr "Nie można usunąć ostatniego gniazda na klucz"
 msgid "The last physical volume of a volume group cannot be removed."
 msgstr "Nie można usunąć ostatniego woluminu fizycznego grupy woluminów."
 
-#: pkg/lib/cockpit-components-modifications.jsx:144
+#: pkg/lib/cockpit-components-modifications.jsx:138
 msgid "The logged in user is not permitted to view system modifications"
 msgstr ""
 "Zalogowany użytkownik nie ma zezwolenia na wyświetlanie modyfikacji systemu"
@@ -7217,7 +7225,7 @@ msgstr ""
 msgid "The machine is restarting"
 msgstr "Komputer jest ponownie uruchamiany"
 
-#: pkg/users/local.js:443 pkg/users/local.js:1399
+#: pkg/users/local.js:443 pkg/users/local.js:1413
 msgid "The passwords do not match"
 msgstr "Hasła się nie zgadzają"
 
@@ -7268,11 +7276,23 @@ msgid "The server refused to authenticate using any supported methods."
 msgstr ""
 "Serwer odmówił uwierzytelnienia za pomocą wszystkich obsługiwanych metod."
 
-#: pkg/systemd/hwinfo.jsx:71
+#: pkg/systemd/hwinfo.jsx:55
 msgid "The user $0 is not permitted to change cpu security mitigations"
 msgstr ""
 "Użytkownik $0 nie ma zezwolenia na zmianę poprawek zabezpieczeń procesora "
 "zmniejszających ryzyko"
+
+#: pkg/systemd/overview-cards/configurationCard.jsx:337
+msgid "The user $0 is not permitted to change the system time"
+msgstr ""
+
+#: pkg/systemd/overview-cards/configurationCard.jsx:328
+msgid "The user $0 is not permitted to modify hostnames"
+msgstr ""
+
+#: pkg/systemd/overview.jsx:110
+msgid "The user $0 is not permitted to shutdown or restart this server"
+msgstr ""
 
 #: pkg/systemd/init.js:819
 msgid "The user <b>$0</b> does not have permissions for creating timers"
@@ -7281,10 +7301,6 @@ msgstr "Użytkownik <b>$0</b> nie ma uprawnień do tworzenia liczników"
 #: pkg/tuned/dialog.js:98
 msgid "The user <b>$0</b> is not permitted to change profiles"
 msgstr "Użytkownik <b>$0</b> nie ma zezwolenia na zmianę profili"
-
-#: pkg/systemd/overview-cards/configurationCard.jsx:118
-msgid "The user <b>$0</b> is not permitted to change the system time"
-msgstr "Użytkownik <b>$0</b> nie ma zezwolenia na zmianę czasu systemu"
 
 #: pkg/dashboard/list.js:231
 msgid "The user <b>$0</b> is not permitted to manage servers"
@@ -7300,11 +7316,6 @@ msgstr ""
 msgid "The user <b>$0</b> is not permitted to modify accounts"
 msgstr "Użytkownik <b>$0</b> nie ma zezwolenia na modyfikowanie kont"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:104
-msgid "The user <b>$0</b> is not permitted to modify hostnames"
-msgstr ""
-"Użytkownik <b>$0</b> nie ma zezwolenia na modyfikowanie nazw komputerów"
-
 #: pkg/networkmanager/interfaces.js:1497
 msgid "The user <b>$0</b> is not permitted to modify network settings"
 msgstr ""
@@ -7314,18 +7325,13 @@ msgstr ""
 msgid "The user <b>$0</b> is not permitted to modify realms"
 msgstr "Użytkownik <b>$0</b> nie ma zezwolenia na modyfikowanie obszarów"
 
-#: pkg/systemd/overview.jsx:48
-msgid "The user <b>$0</b> is not permitted to shutdown or restart this server"
-msgstr ""
-"Użytkownik <b>$0</b> nie może wyłączać ani ponownie uruchamiać tego serwera"
-
 #: pkg/users/index.html:436
 msgid "The user must log out and log back in to fully change roles."
 msgstr ""
 "Użytkownik musi zostać wylogowany i zalogowany z powrotem, aby w pełni "
 "zmienić role."
 
-#: pkg/users/local.js:553
+#: pkg/users/local.js:567
 msgid ""
 "The user name can only consist of letters from a-z, digits, dots, dashes and"
 " underscores."
@@ -7497,7 +7503,7 @@ msgstr ""
 msgid "This unit is not designed to be enabled explicitly."
 msgstr "Ta jednostka nie została zaprojektowana do bezpośredniego włączania."
 
-#: pkg/users/local.js:561
+#: pkg/users/local.js:575
 msgid "This user name already exists"
 msgstr "Ta nazwa użytkownika już istnieje"
 
@@ -7679,8 +7685,8 @@ msgstr "tuned jest wyłączone"
 #: pkg/machines/components/vm/bootOrderModal.jsx:144
 #: pkg/machines/components/vmnetworktab.jsx:139
 #: pkg/storaged/format-dialog.jsx:199 pkg/storaged/part-tab.jsx:42
-#: pkg/storaged/unrecognized-tab.jsx:33 pkg/systemd/hwinfo.jsx:81
-#: pkg/systemd/hwinfo.jsx:286
+#: pkg/storaged/unrecognized-tab.jsx:33 pkg/systemd/hwinfo.jsx:66
+#: pkg/systemd/hwinfo.jsx:271
 msgid "Type"
 msgstr "Typ"
 
@@ -7762,7 +7768,7 @@ msgid "Unavailable"
 msgstr "Niedostępne"
 
 #: pkg/docker/index.html:732 pkg/networkmanager/index.html:707
-#: pkg/shell/base_index.js:840 pkg/users/local.js:1485
+#: pkg/shell/base_index.js:840 pkg/users/local.js:1499
 msgid "Unexpected error"
 msgstr "Nieoczekiwany błąd"
 
@@ -7963,7 +7969,7 @@ msgstr[2] "Użycie $0 rdzeni procesora"
 msgid "Use 512 Byte emulation"
 msgstr "Użycie emulacji 512 bajtów"
 
-#: pkg/machines/components/diskAdd.jsx:481
+#: pkg/machines/components/diskAdd.jsx:489
 msgid "Use Existing"
 msgstr "Użyj istniejącej"
 
@@ -8132,7 +8138,7 @@ msgstr "Sprawdzanie poprawności klucza"
 
 #: pkg/machines/components/vm/bootOrderModal.jsx:120
 #: pkg/machines/components/vm/bootOrderModal.jsx:126
-#: pkg/systemd/hwinfo.jsx:274
+#: pkg/systemd/hwinfo.jsx:259
 msgid "Vendor"
 msgstr "Producent"
 
@@ -8149,7 +8155,7 @@ msgid "Verifying"
 msgstr "Sprawdzanie poprawności"
 
 #: pkg/shell/index.html:89 pkg/packagekit/updates.jsx:385
-#: pkg/systemd/hwinfo.jsx:89
+#: pkg/systemd/hwinfo.jsx:74
 msgid "Version"
 msgstr "Wersja"
 
@@ -8157,7 +8163,7 @@ msgstr "Wersja"
 msgid "Very securely erasing $target"
 msgstr "Bardzo bezpieczne usuwanie zawartości $target"
 
-#: pkg/lib/cockpit-components-modifications.jsx:173
+#: pkg/lib/cockpit-components-modifications.jsx:167
 msgid "View automation script"
 msgstr "Wyświetl skrypt automatyzacji"
 
@@ -8593,7 +8599,7 @@ msgstr "w trakcie umierania"
 msgid "e.g. \"$0\""
 msgstr "np. „$0”"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:366
+#: pkg/systemd/overview-cards/configurationCard.jsx:330
 msgid "edit"
 msgstr "modyfikuj"
 
@@ -8629,7 +8635,7 @@ msgstr "codziennie"
 msgid "extension"
 msgstr "rozszerzenie"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:280
+#: pkg/systemd/overview-cards/configurationCard.jsx:256
 msgid "failed to list ssh host keys: $0"
 msgstr "wyświetlenie listy kluczy SSH komputera się nie powiodło: $0"
 
@@ -8934,7 +8940,7 @@ msgstr "role"
 msgid "running"
 msgstr "działanie"
 
-#: pkg/systemd/overview.jsx:113
+#: pkg/systemd/overview.jsx:138
 msgid "running $0"
 msgstr "uruchamianie $0"
 

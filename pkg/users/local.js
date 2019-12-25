@@ -32,36 +32,6 @@ import 'form-layout.less';
 const _ = cockpit.gettext;
 const C_ = cockpit.gettext;
 
-var permission = cockpit.permission({ admin: true });
-$(permission).on("changed", update_accounts_privileged);
-
-function update_accounts_privileged() {
-    $(".accounts-self-privileged").addClass("accounts-privileged");
-
-    $(".accounts-privileged:not('.accounts-current-account')").update_privileged(
-        permission, cockpit.format(
-            _("The user <b>$0</b> is not permitted to modify accounts"),
-            permission.user ? permission.user.name : '')
-    );
-    $(".accounts-privileged").find("input")
-            .attr('disabled', permission.allowed === false);
-
-    // enable fields for current account.
-    $(".accounts-current-account").update_privileged(
-        { allowed: true }, ""
-    );
-    $(".accounts-current-account").find("input")
-            .attr('disabled', false);
-
-    if ($('#account-user-name').text() === 'root' && permission.allowed) {
-        $("#account-delete").update_privileged({ allowed: false },
-                                               _("Unable to delete root account"));
-        $("#account-real-name-wrapper").update_privileged({ allowed: false },
-                                                          _("Unable to rename root account"));
-        $("#account-real-name").prop('disabled', true);
-    }
-}
-
 function passwd_self(old_pass, new_pass) {
     var old_exps = [
         /Current password: $/,
@@ -654,10 +624,40 @@ PageAccount.prototype = {
         this.authorized_keys = null;
 
         this.user = user;
+
+        this.permission = cockpit.permission({ admin: true });
+        this.permission.addEventListener("changed", () => this.update_accounts_privileged());
     },
 
     getTitle: function() {
         return C_("page-title", "Accounts");
+    },
+
+    update_accounts_privileged: function() {
+        $(".accounts-self-privileged").addClass("accounts-privileged");
+
+        $(".accounts-privileged:not('.accounts-current-account')").update_privileged(
+            this.permission, cockpit.format(
+                _("The user <b>$0</b> is not permitted to modify accounts"),
+                this.permission.user ? this.permission.user.name : '')
+        );
+        $(".accounts-privileged").find("input")
+                .attr('disabled', this.permission.allowed === false);
+
+        // enable fields for current account.
+        $(".accounts-current-account").update_privileged(
+            { allowed: true }, ""
+        );
+        $(".accounts-current-account").find("input")
+                .attr('disabled', false);
+
+        if ($('#account-user-name').text() === 'root' && this.permission.allowed) {
+            $("#account-delete").update_privileged({ allowed: false },
+                                                   _("Unable to delete root account"));
+            $("#account-real-name-wrapper").update_privileged({ allowed: false },
+                                                              _("Unable to rename root account"));
+            $("#account-real-name").prop('disabled', true);
+        }
     },
 
     show: function() {
@@ -1038,7 +1038,7 @@ PageAccount.prototype = {
             $('#account-change-roles-roles').html("");
             $('#account .breadcrumb .active').text("?");
         }
-        update_accounts_privileged();
+        this.update_accounts_privileged();
     },
 
     change_role: function(ev) {
@@ -1080,7 +1080,7 @@ PageAccount.prototype = {
 
     check_role_for_self_mod: function () {
         return (this.account.name == this.user.name ||
-            permission.allowed !== false);
+            this.permission.allowed !== false);
     },
 
     change_real_name: function() {

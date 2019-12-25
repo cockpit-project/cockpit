@@ -644,6 +644,10 @@ PageAccount.prototype = {
         $(".accounts-privileged").find("input")
                 .attr('disabled', this.permission.allowed === false);
 
+        // not exactly a permission, but needs to be adjusted after the above
+        if (this.permission.allowed && !this.logged)
+            $('#account-logout').attr('disabled', true);
+
         // enable fields for current account.
         $(".accounts-current-account").update_privileged(
             { allowed: true }, ""
@@ -966,8 +970,6 @@ PageAccount.prototype = {
                 title_name = title_name.split(',')[0];
             else
                 title_name = this.account.name;
-
-            $('#account-logout').attr('disabled', !this.logged);
 
             $("#account-title").text(title_name);
             if (!name.attr("data-dirty"))

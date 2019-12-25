@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-12-18 19:13+0000\n"
-"PO-Revision-Date: 2019-12-14 08:34+0000\n"
+"POT-Creation-Date: 2019-12-25 21:34+0000\n"
+"PO-Revision-Date: 2019-12-18 07:48+0000\n"
 "Last-Translator: Pavel Borecki <pavel.borecki@gmail.com>\n"
 "Language-Team: Czech\n"
 "Language: cs\n"
@@ -618,7 +618,7 @@ msgstr "Účet není k dispozici nebo ho není možné měnit."
 msgid "Accounts"
 msgstr "Účty"
 
-#: pkg/users/local.js:339 pkg/users/local.js:646
+#: pkg/users/local.js:339 pkg/users/local.js:660
 msgctxt "page-title"
 msgid "Accounts"
 msgstr "Účty"
@@ -666,7 +666,7 @@ msgstr "Přizpůsobující se rozkládání přenosové zátěže odesílání"
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
 #: pkg/lib/machine-add.html:43 pkg/shell/index.html:197
-#: pkg/machines/components/diskAdd.jsx:521
+#: pkg/machines/components/diskAdd.jsx:529
 #: pkg/machines/components/nicAdd.jsx:202 pkg/storaged/crypto-keyslots.jsx:235
 #: pkg/storaged/iscsi-panel.jsx:137 pkg/storaged/iscsi-panel.jsx:161
 #: pkg/storaged/mdraid-details.jsx:59 pkg/storaged/nfs-details.jsx:191
@@ -690,7 +690,7 @@ msgstr "Přidat sloučení linek"
 msgid "Add Bridge"
 msgstr "Přidat síťový most"
 
-#: pkg/machines/components/diskAdd.jsx:509
+#: pkg/machines/components/diskAdd.jsx:517
 #: pkg/machines/components/vmDisksTab.jsx:93
 msgid "Add Disk"
 msgstr "Přidat disk"
@@ -942,9 +942,13 @@ msgstr "Vždy"
 msgid "Always attach"
 msgstr "Vždy připojit"
 
-#: pkg/lib/cockpit-components-modifications.jsx:82
-msgid "Ansible Playbook"
-msgstr "Ansible Playbook"
+#: pkg/lib/cockpit-components-modifications.jsx:81
+msgid "Ansible"
+msgstr ""
+
+#: pkg/lib/cockpit-components-modifications.jsx:91
+msgid "Ansible roles documentation"
+msgstr ""
 
 #: pkg/systemd/terminal.jsx:94
 msgid "Appearance:"
@@ -1100,7 +1104,7 @@ msgstr "Automatické použití NTP"
 msgid "Automatically using specific NTP servers"
 msgstr "Automatické použití uvedených NTP serverů"
 
-#: pkg/lib/cockpit-components-modifications.jsx:71
+#: pkg/lib/cockpit-components-modifications.jsx:72
 msgid "Automation Script"
 msgstr "Automatizační skript"
 
@@ -1130,15 +1134,15 @@ msgstr "Cíle dostupné na $0"
 msgid "Avatar"
 msgstr "Avatar"
 
-#: pkg/systemd/hwinfo.jsx:98
+#: pkg/systemd/hwinfo.jsx:83
 msgid "BIOS"
 msgstr "BIOS"
 
-#: pkg/systemd/hwinfo.jsx:106
+#: pkg/systemd/hwinfo.jsx:91
 msgid "BIOS date"
 msgstr "Datum vydání BIOS"
 
-#: pkg/systemd/hwinfo.jsx:102
+#: pkg/systemd/hwinfo.jsx:87
 msgid "BIOS version"
 msgstr "Verze BIOS"
 
@@ -1262,7 +1266,7 @@ msgid "Bus Expansion Chassis"
 msgstr "Skříň rozšíření sběrnice"
 
 #: pkg/dashboard/index.html:70 pkg/docker/index.html:272
-#: pkg/docker/containers-view.jsx:359 pkg/systemd/hwinfo.jsx:114
+#: pkg/docker/containers-view.jsx:359 pkg/systemd/hwinfo.jsx:99
 msgid "CPU"
 msgstr "Procesor"
 
@@ -1270,11 +1274,11 @@ msgstr "Procesor"
 msgid "CPU Graph"
 msgstr "Graf procesoru"
 
-#: pkg/systemd/hwinfo.jsx:119
+#: pkg/systemd/hwinfo.jsx:104
 msgid "CPU Security"
 msgstr "Zabezpečení procesoru"
 
-#: pkg/systemd/hwinfo.jsx:224
+#: pkg/systemd/hwinfo.jsx:209
 msgid "CPU Security Toggles"
 msgstr "Přepínače zabezpečení procesoru"
 
@@ -1338,7 +1342,7 @@ msgstr "Obraz se nedaří smazat"
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:816
 #: pkg/machines/components/deleteDialog.jsx:158
 #: pkg/machines/components/deleteResource.jsx:107
-#: pkg/machines/components/diskAdd.jsx:518
+#: pkg/machines/components/diskAdd.jsx:526
 #: pkg/machines/components/diskEdit.jsx:173
 #: pkg/machines/components/networks/createNetworkDialog.jsx:477
 #: pkg/machines/components/nicAdd.jsx:199
@@ -1352,7 +1356,7 @@ msgstr "Obraz se nedaří smazat"
 #: pkg/networkmanager/firewall.jsx:589 pkg/networkmanager/firewall.jsx:741
 #: pkg/networkmanager/firewall.jsx:766 pkg/packagekit/updates.jsx:182
 #: pkg/sosreport/index.js:51 pkg/storaged/dialog.jsx:400
-#: pkg/storaged/jobs-panel.jsx:123 pkg/systemd/hwinfo.jsx:238
+#: pkg/storaged/jobs-panel.jsx:123 pkg/systemd/hwinfo.jsx:223
 #: pkg/systemd/reporting.jsx:419 pkg/systemd/service-details.jsx:108
 msgid "Cancel"
 msgstr "Storno"
@@ -1491,7 +1495,7 @@ msgstr "Velikost bloku"
 
 # auto translated by TM merge from project: libosinfo, version: master, DocId:
 # libosinfo
-#: pkg/systemd/hwinfo.jsx:272
+#: pkg/systemd/hwinfo.jsx:257
 msgid "Class"
 msgstr "Třída"
 
@@ -1533,7 +1537,7 @@ msgstr "Klientský software"
 #: pkg/lib/machine-unknown-hostkey.html:19 pkg/networkmanager/index.html:713
 #: pkg/shell/index.html:97 pkg/shell/index.html:156 pkg/shell/index.html:351
 #: pkg/systemd/index.html:164 pkg/users/index.html:45 pkg/apps/utils.jsx:108
-#: pkg/lib/cockpit-components-modifications.jsx:109 pkg/sosreport/index.js:45
+#: pkg/lib/cockpit-components-modifications.jsx:103 pkg/sosreport/index.js:45
 #: pkg/sosreport/index.js:127 pkg/storaged/dialog.jsx:400
 msgid "Close"
 msgstr "Zavřít"
@@ -1750,7 +1754,7 @@ msgstr "Podmínka nebyla úspěšná"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
-#: pkg/systemd/overview-cards/configurationCard.jsx:350
+#: pkg/systemd/overview-cards/configurationCard.jsx:344
 msgid "Configuration"
 msgstr "Nastavení"
 
@@ -1896,7 +1900,7 @@ msgstr "Připojená doména"
 msgid "Container"
 msgstr "Kontejner"
 
-#: pkg/users/local.js:752
+#: pkg/users/local.js:766
 msgid "Container Administrator"
 msgstr "Správce kontejneru"
 
@@ -1966,7 +1970,7 @@ msgstr "Počítač 2v1"
 msgid "Copy"
 msgstr "Zkopírovat"
 
-#: pkg/lib/cockpit-components-modifications.jsx:106
+#: pkg/lib/cockpit-components-modifications.jsx:100
 msgid "Copy to clipboard"
 msgstr "Zkopírovat do schránky"
 
@@ -2045,7 +2049,7 @@ msgstr "Vytvořit zařízení"
 msgid "Create Logical Volume"
 msgstr "Vytvořit logický svazek"
 
-#: pkg/machines/components/diskAdd.jsx:472
+#: pkg/machines/components/diskAdd.jsx:480
 msgid "Create New"
 msgstr "Vytvořit nový"
 
@@ -2142,6 +2146,10 @@ msgstr "Vytvořit to"
 #: pkg/storaged/content-views.jsx:755
 msgid "Create new Logical Volume"
 msgstr "Vytvořit nový logický svazek"
+
+#: pkg/lib/cockpit-components-modifications.jsx:87
+msgid "Create new task file with this content."
+msgstr ""
 
 #: pkg/docker/containers-view.jsx:129 pkg/docker/containers-view.jsx:412
 #: pkg/docker/containers-view.jsx:687
@@ -2343,7 +2351,7 @@ msgstr "Prodleva"
 msgid "Delete"
 msgstr "Smazat"
 
-#: pkg/networkmanager/interfaces.js:2418 pkg/users/local.js:1183
+#: pkg/networkmanager/interfaces.js:2418 pkg/users/local.js:1197
 msgid "Delete $0"
 msgstr "Smazat $0"
 
@@ -2499,7 +2507,7 @@ msgstr "Složka"
 msgid "Directory $0 isn't writable or doesn't exist."
 msgstr "Složka $0 není zapisovatelná nebo neexistuje."
 
-#: pkg/systemd/hwinfo.jsx:210
+#: pkg/systemd/hwinfo.jsx:195
 msgid "Disable simultaneous multithreading"
 msgstr "Vypnout souběžné vícevláknové zpracovávání"
 
@@ -2549,11 +2557,11 @@ msgstr "Disk $0 se nepodařilo odpojit od virt. stroje $1"
 msgid "Disk I/O"
 msgstr "Diskový vst/výst."
 
-#: pkg/machines/components/diskAdd.jsx:429
+#: pkg/machines/components/diskAdd.jsx:437
 msgid "Disk failed to be attached"
 msgstr "Disk se nepodařilo připojit"
 
-#: pkg/machines/components/diskAdd.jsx:401
+#: pkg/machines/components/diskAdd.jsx:409
 msgid "Disk failed to be created"
 msgstr "Disk se nepodařilo vytvořit"
 
@@ -2565,7 +2573,7 @@ msgstr "Disk je OK"
 msgid "Disk passphrase"
 msgstr "Heslová fráze k disku"
 
-#: pkg/machines/components/diskAdd.jsx:440
+#: pkg/machines/components/diskAdd.jsx:448
 #: pkg/machines/components/diskEdit.jsx:126
 msgid "Disk settings could not be saved"
 msgstr "Nastavení disku nebylo možné uložit"
@@ -2599,7 +2607,7 @@ msgid "Docking Station"
 msgstr "Dokovací stanice"
 
 #: pkg/realmd/operation.html:11 pkg/realmd/operation.js:125
-#: pkg/systemd/overview-cards/configurationCard.jsx:389
+#: pkg/systemd/overview-cards/configurationCard.jsx:367
 msgid "Domain"
 msgstr "Doména"
 
@@ -2751,7 +2759,7 @@ msgstr "Emulovaný stroj"
 msgid "Enable Service"
 msgstr "Zapnout službu"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:423
+#: pkg/systemd/overview-cards/configurationCard.jsx:401
 msgid "Enable stored metrics"
 msgstr "Zapnout uložené metriky"
 
@@ -2825,7 +2833,7 @@ msgstr "Zadejte IP adresu nebo název stroje"
 
 #: pkg/lib/machine-change-auth.html:79
 msgid "Enter passphrase to add identity to ssh-agent"
-msgstr ""
+msgstr "Zadejte heslovou frázi pro přidání identity do ssh-agent"
 
 #: pkg/lib/machine-change-auth.html:57
 msgid ""
@@ -2879,7 +2887,7 @@ msgstr "Errata:"
 #: pkg/apps/utils.jsx:100 pkg/storaged/fsys-tab.jsx:283
 #: pkg/storaged/multipath.jsx:58 pkg/storaged/storage-controls.jsx:83
 #: pkg/storaged/storage-controls.jsx:177 pkg/systemd/service-details.jsx:451
-#: pkg/users/local.js:1476
+#: pkg/users/local.js:1490
 msgid "Error"
 msgstr "Chyba"
 
@@ -2895,7 +2903,7 @@ msgstr "Chyba při načítání uživatelů: {{perm_failed}}"
 msgid "Error message from Docker:"
 msgstr "Chybové hlášení z Docker:"
 
-#: pkg/lib/cockpit-components-modifications.jsx:145
+#: pkg/lib/cockpit-components-modifications.jsx:139
 msgid "Error running semanage to discover system modifications"
 msgstr "Chyba při spouštění semanage pro objevení změn v systému"
 
@@ -2937,7 +2945,7 @@ msgstr "Příklad: 22,ssh,8080,5900-5910"
 msgid "Example: 88,2019,nfs,rsync"
 msgstr "Příkaz: 88,2019,nfs,rsync"
 
-#: pkg/users/local.js:477 pkg/users/local.js:1421
+#: pkg/users/local.js:477 pkg/users/local.js:1435
 msgid "Excellent password"
 msgstr "Skvělé heslo"
 
@@ -3304,7 +3312,7 @@ msgstr "Pro držení v rukou"
 msgid "Hard Disk"
 msgstr "Pevný disk"
 
-#: pkg/systemd/hwinfo.html:4 pkg/systemd/hwinfo.jsx:298
+#: pkg/systemd/hwinfo.html:4 pkg/systemd/hwinfo.jsx:283
 msgid "Hardware Information"
 msgstr "Informace o hardware"
 
@@ -3352,7 +3360,7 @@ msgstr "Název stroje není v doméně možné měnit"
 msgid "Host should not be empty"
 msgstr "Hostitele je třeba vyplnit"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:355
+#: pkg/systemd/overview-cards/configurationCard.jsx:349
 msgid "Hostname"
 msgstr "Název stroje"
 
@@ -3374,7 +3382,7 @@ msgstr "Hodin"
 msgid "I/O Wait"
 msgstr "Čekání na vst./výst."
 
-#: pkg/systemd/hwinfo.jsx:286
+#: pkg/systemd/hwinfo.jsx:271
 msgid "ID"
 msgstr "Identif."
 
@@ -3503,7 +3511,7 @@ msgstr "Obraz"
 msgid "Image $0"
 msgstr "Obraz $0"
 
-#: pkg/users/local.js:753
+#: pkg/users/local.js:767
 msgid "Image Builder"
 msgstr "Tvorba obrazů"
 
@@ -3714,12 +3722,12 @@ msgstr "Neplatná IPv6 předpona"
 msgid "Invalid address $0"
 msgstr "Neplatná adresa $0"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:950
+#: pkg/systemd/overview-cards/configurationCard.jsx:928
 #: pkg/systemd/shutdown.js:154
 msgid "Invalid date format"
 msgstr "Neplatný formát data"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:946
+#: pkg/systemd/overview-cards/configurationCard.jsx:924
 #: pkg/systemd/shutdown.js:150
 msgid "Invalid date format and invalid time format"
 msgstr "Neplatný formát data a času"
@@ -3728,7 +3736,7 @@ msgstr "Neplatný formát data a času"
 msgid "Invalid date format."
 msgstr "Neplatný formát data."
 
-#: pkg/users/local.js:1241
+#: pkg/users/local.js:1255
 msgid "Invalid expiration date"
 msgstr "Neplatné datum skončení platnosti"
 
@@ -3748,7 +3756,7 @@ msgstr "Neplatný klíč"
 msgid "Invalid metric $0"
 msgstr "Neplatná metrika $0"
 
-#: pkg/users/local.js:1317
+#: pkg/users/local.js:1331
 msgid "Invalid number of days"
 msgstr "Neplatný počet dnů"
 
@@ -3776,7 +3784,7 @@ msgstr "Neplatná předpona nebo maska sítě $0"
 msgid "Invalid range"
 msgstr "Neplatný rozsah"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:948
+#: pkg/systemd/overview-cards/configurationCard.jsx:926
 #: pkg/systemd/shutdown.js:152
 msgid "Invalid time format"
 msgstr "Neplatný formát času"
@@ -4020,7 +4028,7 @@ msgstr "Načtení dostupných aktualizací se nezdařilo"
 msgid "Loading available updates, please wait..."
 msgstr "Načítání dostupných aktualizací, čekejte…"
 
-#: pkg/lib/cockpit-components-modifications.jsx:151
+#: pkg/lib/cockpit-components-modifications.jsx:145
 msgid "Loading system modifications..."
 msgstr "Načítání modifikací systému…"
 
@@ -4066,13 +4074,13 @@ msgstr "Uzamknout"
 msgid "Lock Account"
 msgstr "Uzamknout účet"
 
-#: pkg/users/local.js:883 pkg/users/local.js:1222
+#: pkg/users/local.js:897 pkg/users/local.js:1236
 msgid "Lock account on $0"
 msgstr "Uzamknout účet na $0"
 
 #: pkg/lib/machine-change-auth.html:76
 msgid "Locked"
-msgstr ""
+msgstr "Uzamčeno"
 
 #: pkg/storaged/jobs-panel.jsx:38
 msgid "Locking $target"
@@ -4103,7 +4111,7 @@ msgstr "Přihlášení pomocí uživatelského účtu na tomto serveru"
 msgid "Log messages"
 msgstr "Zprávy záznamu událostí"
 
-#: pkg/users/local.js:965
+#: pkg/users/local.js:979
 msgid "Logged In"
 msgstr "Přihlášeni"
 
@@ -4307,7 +4315,7 @@ msgstr "Člen RAID zařízení $0"
 #: pkg/playground/translate.html:90 pkg/systemd/graphs.html:82
 #: pkg/docker/containers-view.jsx:359
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:396
-#: pkg/machines/components/vmOverviewTab.jsx:74 pkg/systemd/hwinfo.jsx:285
+#: pkg/machines/components/vmOverviewTab.jsx:74 pkg/systemd/hwinfo.jsx:270
 #: pkg/systemd/overview-cards/usageCard.jsx:78
 msgid "Memory"
 msgstr "Paměť"
@@ -4331,7 +4339,7 @@ msgstr "Využití operační paměti a odkládacího prostoru (swap)"
 msgid "Memory Graph"
 msgstr "Graf paměti"
 
-#: pkg/systemd/hwinfo.jsx:286
+#: pkg/systemd/hwinfo.jsx:271
 msgid "Memory Technology"
 msgstr "Technologie paměti"
 
@@ -4390,7 +4398,7 @@ msgstr "Je třeba, aby minuta bylo číslo z rozmezí 0-59"
 msgid "Minutes"
 msgstr "Minut"
 
-#: pkg/systemd/hwinfo.jsx:68 pkg/systemd/hwinfo.jsx:73
+#: pkg/systemd/hwinfo.jsx:57
 msgid "Mitigations"
 msgstr "Zmírnění dopadu"
 
@@ -4400,7 +4408,7 @@ msgstr "Režim"
 
 # auto translated by TM merge from project: Cockpit, version: master, DocId:
 # cockpit
-#: pkg/machines/components/nicBody.jsx:44 pkg/systemd/hwinfo.jsx:273
+#: pkg/machines/components/nicBody.jsx:44 pkg/systemd/hwinfo.jsx:258
 #: pkg/systemd/overview-cards/systemInformationCard.jsx:92
 msgid "Model"
 msgstr "Model"
@@ -4552,7 +4560,7 @@ msgstr "Nepodařilo se změnit stav síť. rozhraní $0 virt. stroje $1 "
 msgid "NSNA Ping"
 msgstr "NSNA Ping"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:1019
+#: pkg/systemd/overview-cards/configurationCard.jsx:997
 msgid "NTP Server"
 msgstr "NTP server"
 
@@ -4579,7 +4587,7 @@ msgstr "NTP server"
 #: pkg/storaged/lvol-tabs.jsx:399 pkg/storaged/lvol-tabs.jsx:454
 #: pkg/storaged/mdraids-panel.jsx:61 pkg/storaged/part-tab.jsx:33
 #: pkg/storaged/vdos-panel.jsx:82 pkg/storaged/vgroup-details.jsx:175
-#: pkg/storaged/vgroups-panel.jsx:74 pkg/systemd/hwinfo.jsx:85
+#: pkg/storaged/vgroups-panel.jsx:74 pkg/systemd/hwinfo.jsx:70
 #: pkg/systemd/init.js:308
 msgid "Name"
 msgstr "Název"
@@ -4625,7 +4633,7 @@ msgstr "Název je třeba vyplnit"
 msgid "Name: "
 msgstr "Název:"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:846
+#: pkg/systemd/overview-cards/configurationCard.jsx:824
 msgid "Need at least one NTP server"
 msgstr "Je třeba alespoň jeden NTP server"
 
@@ -4716,15 +4724,15 @@ msgstr "Záznamy událostí sítě"
 msgid "Networks"
 msgstr "Sítě"
 
-#: pkg/users/local.js:967
+#: pkg/users/local.js:981
 msgid "Never"
 msgstr "Nikdy"
 
-#: pkg/users/index.html:297 pkg/users/local.js:872
+#: pkg/users/index.html:297 pkg/users/local.js:886
 msgid "Never expire password"
 msgstr "Heslo platí napořád"
 
-#: pkg/users/index.html:258 pkg/users/local.js:880
+#: pkg/users/index.html:258 pkg/users/local.js:894
 msgid "Never lock account"
 msgstr "Účet nikdy nezamykat"
 
@@ -4817,7 +4825,7 @@ msgstr "Nejsou k dispozici žádné fondy úložiště"
 msgid "No Storage Volumes defined for this Storage Pool"
 msgstr "Pro tento fond úložiště nejsou definované žádné úložné svazky"
 
-#: pkg/lib/cockpit-components-modifications.jsx:144
+#: pkg/lib/cockpit-components-modifications.jsx:138
 msgid "No System Modifications"
 msgstr "Žádné modifikace systému"
 
@@ -5249,7 +5257,7 @@ msgstr "Ostatní volby"
 #: pkg/docker/index.html:299 pkg/systemd/graphs.html:25
 #: pkg/systemd/graphs.html:109 pkg/machines/components/networks/network.jsx:73
 #: pkg/machines/components/storagePools/storagePool.jsx:83
-#: pkg/machines/components/vm/vm.jsx:49 pkg/systemd/hwinfo.jsx:297
+#: pkg/machines/components/vm/vm.jsx:49 pkg/systemd/hwinfo.jsx:282
 #: pkg/systemd/manifest.json.in
 msgid "Overview"
 msgstr "Přehled"
@@ -5258,11 +5266,11 @@ msgstr "Přehled"
 msgid "Overwrite existing data with zeros"
 msgstr "Přepsat existující data nulami"
 
-#: pkg/systemd/hwinfo.jsx:269
+#: pkg/systemd/hwinfo.jsx:254
 msgid "PCI"
 msgstr "PCI"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:420
+#: pkg/systemd/overview-cards/configurationCard.jsx:398
 msgid "PCP"
 msgstr "PCP"
 
@@ -5364,7 +5372,7 @@ msgstr "Heslo není přijatelné"
 msgid "Password is too weak"
 msgstr "Heslo je příliš slabé"
 
-#: pkg/users/local.js:874
+#: pkg/users/local.js:888
 msgid "Password must be changed"
 msgstr "Heslo je třeba změnit"
 
@@ -5436,7 +5444,7 @@ msgstr "Popisy umístění"
 msgid "Pause"
 msgstr "Pozastavit"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:394
+#: pkg/systemd/overview-cards/configurationCard.jsx:372
 msgid "Performance profile"
 msgstr "Profil výkonnosti"
 
@@ -5525,11 +5533,11 @@ msgstr "Potvrďte vynucené smazání $0"
 msgid "Please confirm stopping of $0"
 msgstr "Potvrďte zastavení $0"
 
-#: pkg/machines/components/diskAdd.jsx:378
+#: pkg/machines/components/diskAdd.jsx:386
 msgid "Please enter new volume name"
 msgstr "Zadejte název pro nový svazek"
 
-#: pkg/machines/components/diskAdd.jsx:381
+#: pkg/machines/components/diskAdd.jsx:389
 msgid "Please enter new volume size"
 msgstr "Zadejte velikost nového svazku"
 
@@ -5537,7 +5545,7 @@ msgstr "Zadejte velikost nového svazku"
 msgid "Please install the $0 package"
 msgstr "Nainstalujte balíček $0"
 
-#: pkg/users/local.js:1236
+#: pkg/users/local.js:1250
 msgid "Please specify an expiration date"
 msgstr "Zadejte datum skončení platnosti"
 
@@ -5842,7 +5850,7 @@ msgstr "Rozsah"
 msgid "Range must be strictly ordered"
 msgstr "Je třeba, aby rozsah byl striktně řazený"
 
-#: pkg/systemd/hwinfo.jsx:286
+#: pkg/systemd/hwinfo.jsx:271
 msgid "Rank"
 msgstr "Rank"
 
@@ -5850,7 +5858,7 @@ msgstr "Rank"
 msgid "Raw to a device"
 msgstr "Neupravované na zařízení"
 
-#: pkg/systemd/hwinfo.jsx:212
+#: pkg/systemd/hwinfo.jsx:197
 msgid "Read more..."
 msgstr "Zjistit více…"
 
@@ -5889,7 +5897,7 @@ msgstr "Připraveno"
 msgid "Real Host Name"
 msgstr "Skutečný název stroje"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:517
+#: pkg/systemd/overview-cards/configurationCard.jsx:495
 msgid ""
 "Real host name can only contain lower-case characters, digits, dashes, and "
 "periods (with populated subdomains)"
@@ -5897,7 +5905,7 @@ msgstr ""
 "Skutečný název stroje může obsahovat pouze malá písmena (bez diakritiky), "
 "číslice, spojovníky a tečky (u použitých subdomén)"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:518
+#: pkg/systemd/overview-cards/configurationCard.jsx:496
 msgid "Real host name must be 64 characters or less"
 msgstr "Je třeba, aby skutečný název stroje byl nanejvýš 64 znaků dlouhý"
 
@@ -6147,11 +6155,11 @@ msgstr "Hlášení:"
 msgid "Repository"
 msgstr "Repozitář"
 
-#: pkg/users/local.js:1300
+#: pkg/users/local.js:1314
 msgid "Require password change every $0 days"
 msgstr "Vyžadovat změnu hesla každých $0 dnů"
 
-#: pkg/users/local.js:876
+#: pkg/users/local.js:890
 msgid "Require password change on $0"
 msgstr "Vyžadovat změnu hesla na $0"
 
@@ -6215,7 +6223,7 @@ msgstr ""
 "Zadejte heslovou frázi."
 
 #: pkg/docker/index.html:138 pkg/docker/containers-view.jsx:315
-#: pkg/machines/components/vm/vmActions.jsx:42 pkg/systemd/overview.jsx:117
+#: pkg/machines/components/vm/vmActions.jsx:42 pkg/systemd/overview.jsx:116
 #: pkg/systemd/service-details.jsx:170 pkg/systemd/shutdown.js:99
 #: pkg/systemd/shutdown.js:100
 msgid "Restart"
@@ -6401,7 +6409,7 @@ msgstr "Soboty"
 msgid "Save"
 msgstr "Uložit"
 
-#: pkg/systemd/hwinfo.jsx:241
+#: pkg/systemd/hwinfo.jsx:226
 msgid "Save and reboot"
 msgstr "Uložit a restartovat"
 
@@ -6434,7 +6442,7 @@ msgstr "Hledat"
 msgid "Seconds"
 msgstr "Sekund"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:399
+#: pkg/systemd/overview-cards/configurationCard.jsx:377
 msgid "Secure Shell keys"
 msgstr "Klíče zabezpečeného shellu"
 
@@ -6497,7 +6505,7 @@ msgstr "Server"
 msgid "Server Address"
 msgstr "Adresa serveru"
 
-#: pkg/users/local.js:750 pkg/users/local.js:751
+#: pkg/users/local.js:764 pkg/users/local.js:765
 msgid "Server Administrator"
 msgstr "Správce serveru"
 
@@ -6584,7 +6592,7 @@ msgstr "Nastavit"
 msgid "Set DHCP Range"
 msgstr "Nastavit DHCP rozsah"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:366
+#: pkg/systemd/overview-cards/configurationCard.jsx:330
 msgid "Set Hostname"
 msgstr "Nastavit název stroje"
 
@@ -6642,7 +6650,7 @@ msgstr "Závažnost:"
 msgid "Shared"
 msgstr "Sdílené"
 
-#: pkg/lib/cockpit-components-modifications.jsx:78
+#: pkg/lib/cockpit-components-modifications.jsx:76
 msgid "Shell Script"
 msgstr "Shellový skript"
 
@@ -6674,7 +6682,7 @@ msgstr "Zobrazit všechny kontejnery"
 msgid "Show all images"
 msgstr "Zobrazit všechny obrazy"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:402
+#: pkg/systemd/overview-cards/configurationCard.jsx:380
 msgid "Show fingerprints"
 msgstr "Zobrazit otisky"
 
@@ -6699,7 +6707,7 @@ msgstr "Zmenšit oddíl"
 msgid "Shut Down"
 msgstr "Vypnout"
 
-#: pkg/systemd/overview.jsx:101
+#: pkg/systemd/overview.jsx:104
 msgid "Shutdown"
 msgstr "Vypnout"
 
@@ -6719,7 +6727,7 @@ msgstr "Single Rank"
 #: pkg/storaged/lvol-tabs.jsx:213 pkg/storaged/lvol-tabs.jsx:275
 #: pkg/storaged/lvol-tabs.jsx:403 pkg/storaged/lvol-tabs.jsx:457
 #: pkg/storaged/nfs-details.jsx:322 pkg/storaged/nfs-panel.jsx:104
-#: pkg/storaged/part-tab.jsx:36 pkg/systemd/hwinfo.jsx:286
+#: pkg/storaged/part-tab.jsx:36 pkg/systemd/hwinfo.jsx:271
 msgid "Size"
 msgstr "Velikost"
 
@@ -6743,7 +6751,7 @@ msgstr "Je třeba, aby velikost byla číslo"
 msgid "Size must be at least $0"
 msgstr "Je třeba, aby velikost byla alespoň $0"
 
-#: pkg/systemd/hwinfo.jsx:275
+#: pkg/systemd/hwinfo.jsx:260
 msgid "Slot"
 msgstr "Slot"
 
@@ -6759,7 +6767,7 @@ msgstr "Sokety"
 msgid "Software Updates"
 msgstr "Aktualizace software"
 
-#: pkg/systemd/hwinfo.jsx:227
+#: pkg/systemd/hwinfo.jsx:212
 msgid ""
 "Software-based workarounds help prevent CPU security issues. These "
 "mitigations have the side effect of reducing performance. Change these "
@@ -6796,7 +6804,7 @@ msgid "Sorted from least trusted to most trusted"
 msgstr "Seřazeno od nejméně po nejvíce důvěryhodné"
 
 # auto translated by TM merge from project: dnf, version: master, DocId: dnf
-#: pkg/machines/components/diskAdd.jsx:461
+#: pkg/machines/components/diskAdd.jsx:469
 #: pkg/machines/components/nicBody.jsx:146
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:52
 #: pkg/machines/components/vmDisksTab.jsx:117
@@ -6848,7 +6856,7 @@ msgstr "Náhradní"
 msgid "Specific Time"
 msgstr "Konkrétní čas"
 
-#: pkg/systemd/hwinfo.jsx:286
+#: pkg/systemd/hwinfo.jsx:271
 msgid "Speed"
 msgstr "Rychlost"
 
@@ -6910,7 +6918,7 @@ msgstr "Při spuštění"
 #: pkg/machines/components/networks/networkList.jsx:55
 #: pkg/machines/components/storagePools/storagePoolList.jsx:54
 #: pkg/machines/components/vmnetworktab.jsx:205
-#: pkg/machines/hostvmslist.jsx:83 pkg/systemd/hwinfo.jsx:286
+#: pkg/machines/hostvmslist.jsx:83 pkg/systemd/hwinfo.jsx:271
 #: pkg/systemd/init.js:312
 msgid "State"
 msgstr "Stav"
@@ -7047,7 +7055,7 @@ msgstr "Fond úložiště"
 msgid "Storage size must not be 0"
 msgstr "Velikost úložiště nemůže být nula"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:408
+#: pkg/systemd/overview-cards/configurationCard.jsx:386
 msgid "Store metrics"
 msgstr "Uchovávat metriky"
 
@@ -7159,7 +7167,7 @@ msgstr "Synchronizuje se RAID zařízení $target"
 msgid "System"
 msgstr "Systém"
 
-#: pkg/systemd/hwinfo.jsx:301
+#: pkg/systemd/hwinfo.jsx:286
 msgid "System Information"
 msgstr "Informace o systému"
 
@@ -7179,7 +7187,7 @@ msgstr "Informace o systému"
 msgid "System is up to date"
 msgstr "Systém je aktuální"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:373
+#: pkg/systemd/overview-cards/configurationCard.jsx:357
 msgid "System time"
 msgstr "Systémový čas"
 
@@ -7349,7 +7357,7 @@ msgstr ""
 "Pro odpojení tohoto zařízení je třeba, aby virt. stroj byl spuštěný nebo "
 "vypnutý"
 
-#: pkg/users/local.js:1342
+#: pkg/users/local.js:1356
 msgid "The account '$0' will be forced to change their password on next login"
 msgstr "Účet „$0“ bude při příštím přihlášení vyzván k vynucené změně hesla"
 
@@ -7493,7 +7501,7 @@ msgstr "Poslední zbývající slot klíče není možné odebrat"
 msgid "The last physical volume of a volume group cannot be removed."
 msgstr "Poslední zbývající fyzický svazek skupiny svazků není možné odebrat."
 
-#: pkg/lib/cockpit-components-modifications.jsx:144
+#: pkg/lib/cockpit-components-modifications.jsx:138
 msgid "The logged in user is not permitted to view system modifications"
 msgstr "Přihlášený uživatel není oprávněn zobrazovat modifikace systému"
 
@@ -7501,7 +7509,7 @@ msgstr "Přihlášený uživatel není oprávněn zobrazovat modifikace systému
 msgid "The machine is restarting"
 msgstr "Stroj se restartuje"
 
-#: pkg/users/local.js:443 pkg/users/local.js:1399
+#: pkg/users/local.js:443 pkg/users/local.js:1413
 msgid "The passwords do not match"
 msgstr "Zadání hesla se neshodují"
 
@@ -7549,10 +7557,22 @@ msgstr ""
 msgid "The server refused to authenticate using any supported methods."
 msgstr "Server odmítl ověřit u všech podporovaných metod."
 
-#: pkg/systemd/hwinfo.jsx:71
+#: pkg/systemd/hwinfo.jsx:55
 msgid "The user $0 is not permitted to change cpu security mitigations"
 msgstr ""
 "Uživatel $0 není oprávněn měnit zmírňování dopadu chyb zabezpečení procesoru"
+
+#: pkg/systemd/overview-cards/configurationCard.jsx:337
+msgid "The user $0 is not permitted to change the system time"
+msgstr ""
+
+#: pkg/systemd/overview-cards/configurationCard.jsx:328
+msgid "The user $0 is not permitted to modify hostnames"
+msgstr ""
+
+#: pkg/systemd/overview.jsx:110
+msgid "The user $0 is not permitted to shutdown or restart this server"
+msgstr ""
 
 #: pkg/systemd/init.js:819
 msgid "The user <b>$0</b> does not have permissions for creating timers"
@@ -7561,10 +7581,6 @@ msgstr "Uživatel <b>$0</b> není oprávněn pro vytváření časovačů"
 #: pkg/tuned/dialog.js:98
 msgid "The user <b>$0</b> is not permitted to change profiles"
 msgstr "Uživatel <b>$0</b> není oprávněn měnit profily"
-
-#: pkg/systemd/overview-cards/configurationCard.jsx:118
-msgid "The user <b>$0</b> is not permitted to change the system time"
-msgstr "Uživatel <b>$0</b> není oprávněn měnit systémový čas"
 
 #: pkg/dashboard/list.js:231
 msgid "The user <b>$0</b> is not permitted to manage servers"
@@ -7578,10 +7594,6 @@ msgstr "Uživatel <b>$0</b> není oprávněn spravovat úložiště"
 msgid "The user <b>$0</b> is not permitted to modify accounts"
 msgstr "Uživatel <b>$0</b> není oprávněn upravovat účty"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:104
-msgid "The user <b>$0</b> is not permitted to modify hostnames"
-msgstr "Uživatel <b>$0</b> není oprávněn upravovat názvy strojů"
-
 #: pkg/networkmanager/interfaces.js:1497
 msgid "The user <b>$0</b> is not permitted to modify network settings"
 msgstr "Uživatel <b>$0</b> není oprávněn upravovat nastavení sítě"
@@ -7590,16 +7602,12 @@ msgstr "Uživatel <b>$0</b> není oprávněn upravovat nastavení sítě"
 msgid "The user <b>$0</b> is not permitted to modify realms"
 msgstr "Uživatel <b>$0</b> není oprávněn upravovat oblasti"
 
-#: pkg/systemd/overview.jsx:48
-msgid "The user <b>$0</b> is not permitted to shutdown or restart this server"
-msgstr "Uživatel <b>$0</b> není oprávněn vypínat či restartovat tento server"
-
 #: pkg/users/index.html:436
 msgid "The user must log out and log back in to fully change roles."
 msgstr ""
 "Pro úplnou změnu rolí je třeba, aby se uživatel odhlásil a přihlásil znovu."
 
-#: pkg/users/local.js:553
+#: pkg/users/local.js:567
 msgid ""
 "The user name can only consist of letters from a-z, digits, dots, dashes and"
 " underscores."
@@ -7768,7 +7776,7 @@ msgstr ""
 msgid "This unit is not designed to be enabled explicitly."
 msgstr "Tato jednotka není navržena k tomu, aby byla výslovně zapnuta."
 
-#: pkg/users/local.js:561
+#: pkg/users/local.js:575
 msgid "This user name already exists"
 msgstr "Toto uživatelské jméno už existuje"
 
@@ -7961,8 +7969,8 @@ msgstr "Tuned je vypnuté"
 #: pkg/machines/components/vm/bootOrderModal.jsx:144
 #: pkg/machines/components/vmnetworktab.jsx:139
 #: pkg/storaged/format-dialog.jsx:199 pkg/storaged/part-tab.jsx:42
-#: pkg/storaged/unrecognized-tab.jsx:33 pkg/systemd/hwinfo.jsx:81
-#: pkg/systemd/hwinfo.jsx:286
+#: pkg/storaged/unrecognized-tab.jsx:33 pkg/systemd/hwinfo.jsx:66
+#: pkg/systemd/hwinfo.jsx:271
 msgid "Type"
 msgstr "Typ"
 
@@ -8050,7 +8058,7 @@ msgid "Unavailable"
 msgstr "Nedostupné"
 
 #: pkg/docker/index.html:732 pkg/networkmanager/index.html:707
-#: pkg/shell/base_index.js:840 pkg/users/local.js:1485
+#: pkg/shell/base_index.js:840 pkg/users/local.js:1499
 msgid "Unexpected error"
 msgstr "Neočekávaná chyba"
 
@@ -8261,7 +8269,7 @@ msgstr[2] "Využití $0 jader procesoru"
 msgid "Use 512 Byte emulation"
 msgstr "Použít emulaci 512 bajtů"
 
-#: pkg/machines/components/diskAdd.jsx:481
+#: pkg/machines/components/diskAdd.jsx:489
 msgid "Use Existing"
 msgstr "Použít existující"
 
@@ -8443,7 +8451,7 @@ msgstr "Ověřuje se klíč"
 # libosinfo
 #: pkg/machines/components/vm/bootOrderModal.jsx:120
 #: pkg/machines/components/vm/bootOrderModal.jsx:126
-#: pkg/systemd/hwinfo.jsx:274
+#: pkg/systemd/hwinfo.jsx:259
 msgid "Vendor"
 msgstr "Výrobce"
 
@@ -8464,7 +8472,7 @@ msgstr "Ověřuje se"
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
 #: pkg/shell/index.html:89 pkg/packagekit/updates.jsx:385
-#: pkg/systemd/hwinfo.jsx:89
+#: pkg/systemd/hwinfo.jsx:74
 msgid "Version"
 msgstr "Verze"
 
@@ -8472,7 +8480,7 @@ msgstr "Verze"
 msgid "Very securely erasing $target"
 msgstr "Velmi jisté vymazávání $target"
 
-#: pkg/lib/cockpit-components-modifications.jsx:173
+#: pkg/lib/cockpit-components-modifications.jsx:167
 msgid "View automation script"
 msgstr "Zobrazit automatizační skript"
 
@@ -8929,7 +8937,7 @@ msgstr "vypíná se"
 msgid "e.g. \"$0\""
 msgstr "např. „$0“"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:366
+#: pkg/systemd/overview-cards/configurationCard.jsx:330
 msgid "edit"
 msgstr "upravit"
 
@@ -8969,7 +8977,7 @@ msgstr "každý den"
 msgid "extension"
 msgstr "rozšíření"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:280
+#: pkg/systemd/overview-cards/configurationCard.jsx:256
 msgid "failed to list ssh host keys: $0"
 msgstr "nepodařilo se vypsat ssh klíče stroje: $0"
 
@@ -9280,7 +9288,7 @@ msgstr "role"
 msgid "running"
 msgstr "spuštěné"
 
-#: pkg/systemd/overview.jsx:113
+#: pkg/systemd/overview.jsx:138
 msgid "running $0"
 msgstr "spuštěné $0"
 

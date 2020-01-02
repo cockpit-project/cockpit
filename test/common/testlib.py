@@ -1330,8 +1330,8 @@ class TapRunner(object):
         tries += 1
         setattr(test, "retryCount", tries)
 
-        # Didn't fail or retried too much, just print output and continue
-        if tries >= 3 or not failed:
+        # Didn't fail, just print output and continue
+        if not failed:
             sys.stdout.buffer.write(output)
             return failed, False
 
@@ -1346,8 +1346,8 @@ class TapRunner(object):
             if ex.errno != errno.ENOENT:
                 sys.stderr.write("Couldn't run tests-policy: {0}\n".format(str(ex)))
 
-        # Just retry failures always, we don't need to be precious about flakes
-        if b"# SKIP " not in output:
+        # Just retry failures always (but maximum 3 times), we don't need to be precious about flakes
+        if b"# SKIP " not in output and tries < 3:
             output += b"\n# RETRY \n"
 
         # Write the output bytes

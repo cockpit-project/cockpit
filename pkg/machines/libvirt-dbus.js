@@ -86,6 +86,7 @@ import {
     canSendNMI,
     canShutdown,
     getDiskElemByTarget,
+    getDomainElem,
     getIfaceElemByMac,
     getSingleOptionalElem,
     isRunning,
@@ -1446,6 +1447,10 @@ export function getAllInterfaces(dispatch, connectionName) {
             .fail(ex => console.warn('getAllInterfaces action failed:', JSON.stringify(ex)));
 }
 
+export function getDomainCapabilities(connectionName) {
+    return call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'GetDomainCapabilities', ['', '', '', '', 0], TIMEOUT);
+}
+
 function initResource(connectionName, method, updateOrAddMethod, flags) {
     return call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', method, [flags], TIMEOUT)
             .then(objPaths => {
@@ -1476,6 +1481,34 @@ export function networkDeactivate(connectionName, objPath) {
 
 export function networkUndefine(connectionName, objPath) {
     return call(connectionName, objPath, 'org.libvirt.Network', 'Undefine', [], TIMEOUT);
+}
+
+export function setOSFirmware(connectionName, objPath, loaderType) {
+    return call(connectionName, objPath, 'org.libvirt.Domain', 'GetXMLDesc', [Enum.VIR_DOMAIN_XML_INACTIVE], TIMEOUT)
+            .then(domXml => {
+                const domainElem = getDomainElem(domXml);
+
+                if (!domainElem)
+                    throw new Error("setOSFirmware: domXML has no domain element");
+
+                const osElem = domainElem.getElementsByTagNameNS("", "os")[0];
+                const loaderElem = getSingleOptionalElem(osElem, "loader");
+
+                if (loaderElem)
+                    loaderElem.remove();
+
+                if (!loaderType)
+                    osElem.removeAttribute("firmware");
+                else
+                    osElem.setAttribute("firmware", loaderType);
+
+                domainElem.appendChild(osElem);
+
+                const tmp = document.createElement("div");
+                tmp.appendChild(domainElem);
+
+                return call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'DomainDefineXML', [tmp.innerHTML], TIMEOUT);
+            });
 }
 
 export function storagePoolActivate(connectionName, objPath) {

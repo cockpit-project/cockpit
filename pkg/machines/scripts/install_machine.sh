@@ -12,7 +12,8 @@ VCPUS="$7"
 DISKS="$8"
 DISPLAYS="$9"
 VNICS="${10}"
-AUTOSTART="${11}"
+BOOT="${11}"
+AUTOSTART="${12}"
 
 # prepare virt-install parameters
 
@@ -79,6 +80,12 @@ else
     VCPUS_PARAM="$CREATE_OPTIONS_RESULT"
 fi
 
+if [ -z "$BOOT" ]; then
+    BOOT_PARAM=""
+else
+    BOOT_PARAM="--boot $BOOT"
+fi
+
 # backup
 DOMAIN_FILE="`mktemp`"
 
@@ -101,6 +108,7 @@ virt-install \
     $GRAPHICS_PARAM \
     $VNICS_PARAM \
     $VCPUS_PARAM \
+    $BOOT_PARAM \
     $AUTOSTART_PARAM
 EXIT_STATUS=$?
 

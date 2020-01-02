@@ -40,7 +40,7 @@ const _ = cockpit.gettext;
 /** One VM in the list (a row)
  */
 const Vm = ({
-    vm, vms, config, hostDevices, storagePools, onStart, onInstall, onShutdown, onPause, onResume, onForceoff, onReboot, onForceReboot,
+    vm, vms, config, libvirtVersion, hostDevices, storagePools, onStart, onInstall, onShutdown, onPause, onResume, onForceoff, onReboot, onForceReboot,
     onUsageStartPolling, onUsageStopPolling, onSendNMI, dispatch, networks, interfaces, nodeDevices, resourceHasError, onAddErrorNotification
 }) => {
     const stateAlert = resourceHasError[vm.id] ? <span className='pficon-warning-triangle-o machines-status-alert' /> : null;
@@ -53,7 +53,7 @@ const Vm = ({
     const consolesTabName = (<div id={`${vmId(vm.name)}-consoles`}>{_("Consoles")}</div>);
 
     let tabRenderers = [
-        { name: overviewTabName, renderer: VmOverviewTab, data: { vm, config, dispatch, nodeDevices } },
+        { name: overviewTabName, renderer: VmOverviewTab, data: { vm, config, dispatch, nodeDevices, libvirtVersion } },
         { name: usageTabName, renderer: VmUsageTab, data: { vm, onUsageStartPolling, onUsageStopPolling }, presence: 'onlyActive' },
         { name: disksTabName, renderer: VmDisksTab, data: { vm, vms, config, storagePools, onUsageStartPolling, onUsageStopPolling, dispatch, onAddErrorNotification }, presence: 'onlyActive' },
         { name: networkTabName, renderer: VmNetworkTab, presence: 'onlyActive', data: { vm, dispatch, config, hostDevices, interfaces, networks, nodeDevices, onAddErrorNotification } },
@@ -119,6 +119,7 @@ Vm.propTypes = {
     vm: PropTypes.object.isRequired,
     vms: PropTypes.array.isRequired,
     config: PropTypes.object.isRequired,
+    libvirtVersion: PropTypes.number.isRequired,
     storagePools: PropTypes.array.isRequired,
     hostDevices: PropTypes.object.isRequired,
     onStart: PropTypes.func.isRequired,

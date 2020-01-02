@@ -230,6 +230,8 @@ export function parseDumpxml(dispatch, connectionName, domXml, id_overwrite) {
     const osBoot = parseDumpxmlForOsBoot(osBootElems);
     const arch = osTypeElem.getAttribute("arch");
     const emulatedMachine = osTypeElem.getAttribute("machine");
+    const firmware = osElem.getAttribute("firmware");
+    const loaderElem = getSingleOptionalElem(osElem, "loader");
 
     const currentMemoryUnit = currentMemoryElem.getAttribute("unit");
     const currentMemory = convertToUnit(currentMemoryElem.childNodes[0].nodeValue, currentMemoryUnit, units.KiB);
@@ -263,6 +265,8 @@ export function parseDumpxml(dispatch, connectionName, domXml, id_overwrite) {
         id,
         osType,
         osBoot,
+        firmware,
+        loader: loaderElem ? loaderElem.textContent : undefined,
         arch,
         currentMemory,
         memory,
@@ -1376,7 +1380,7 @@ export function INIT_DATA_RETRIEVAL () {
     };
 }
 
-export function INSTALL_VM({ name, vcpus, cpu, currentMemory, memory, metadata, disks, displays, interfaces, autostart, connectionName, onAddErrorNotification }) {
+export function INSTALL_VM({ name, vcpus, cpu, currentMemory, memory, metadata, disks, displays, interfaces, firmware, autostart, connectionName, onAddErrorNotification }) {
     logDebug(`${this.name}.INSTALL_VM(${name}):`);
     return dispatch => {
         // shows dummy vm until we get vm from virsh (cleans up inProgress)
@@ -1394,6 +1398,7 @@ export function INSTALL_VM({ name, vcpus, cpu, currentMemory, memory, metadata, 
             prepareDisksParam(disks),
             prepareDisplaysParam(displays),
             prepareNICParam(interfaces),
+            firmware == "efi" ? 'uefi' : '',
             autostart,
         ], { err: "message", environ: ['LC_ALL=C'] })
                 .done(() => clearVmUiState(dispatch, name, connectionName))

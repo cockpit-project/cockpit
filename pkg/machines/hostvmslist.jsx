@@ -86,6 +86,7 @@ class HostVmsList extends React.Component {
 
                             return (
                                 <Vm vm={vm} vms={vms} config={config}
+                                    libvirtVersion={this.props.libvirtVersion}
                                     resourceHasError={this.props.resourceHasError}
                                     onAddErrorNotification={this.props.onAddErrorNotification}
                                     hostDevices={this.deviceProxies}
@@ -162,6 +163,7 @@ HostVmsList.propTypes = {
     vms: PropTypes.array.isRequired,
     config: PropTypes.object.isRequired,
     ui: PropTypes.object.isRequired,
+    libvirtVersion: PropTypes.number.isRequired,
     storagePools: PropTypes.array.isRequired,
     dispatch: PropTypes.func.isRequired,
     networks: PropTypes.array.isRequired,

@@ -264,6 +264,36 @@ class TestMachinesDBus(machineslib.TestMachines):
         # Attach some interface
         m.execute("virsh attach-interface --persistent VmNotInstalled bridge virbr0")
 
+        # Change the os boot firmware configuration
+        supports_firmware_config = m.image in ['fedora-31', 'fedora-testing', 'debian-testing', 'ubuntu-stable']
+        if supports_firmware_config:
+            b.wait_in_text("#vm-VmNotInstalled-firmware", "BIOS")
+            b.click("#vm-VmNotInstalled-firmware")
+            b.wait_present(".modal-body")
+            b.select_from_dropdown("select", "UEFI")
+            b.click("#firmware-dialog-apply")
+            b.wait_not_present(".modal-body")
+            b.wait_in_text("#vm-VmNotInstalled-firmware", "UEFI")
+
+            # Temporarily delete the OVMF binary and check the firmware options again
+            if "fedora" in m.image:
+                ovmf_path = "/usr/share/edk2"
+            elif "debian" in m.image or "ubuntu" in m.image:
+                ovmf_path = "/usr/share/OVMF"
+            else:
+                raise AssertionError("Unhandled distro for OVMF path")
+
+            m.execute("mkdir /tmp/ovmf/; mv {0}/* /tmp/ovmf/".format(ovmf_path))
+            b.click("tbody tr[data-row-id=vm-VmNotInstalled] th") # Close and re-expand the row for the new configuration to be read
+            b.click("tbody tr[data-row-id=vm-VmNotInstalled] th")
+            b.mouse("#vm-VmNotInstalled-firmware-tooltip", "mouseover")
+            b.wait_in_text("#missing-uefi-images .tooltip-inner", "Libvirt did not detect any UEFI/OVMF firmware image installed on the host")
+            b.mouse("#vm-VmNotInstalled-firmware-tooltip", "mouseout")
+            b.wait_not_present("#missing-uefi-images")
+            m.execute("mv /tmp/ovmf/* {0}".format(ovmf_path))
+        else:
+            b.wait_not_present("#vm-VmNotInstalled-firmware")
+
         # Install the VM
         b.click("#vm-VmNotInstalled-install")
         b.wait_present("li.active #vm-VmNotInstalled-consoles")
@@ -295,6 +325,12 @@ class TestMachinesDBus(machineslib.TestMachines):
 
         # Check changed boot order have persisted
         b.wait_text_not("#vm-VmNotInstalled-boot-order", bootOrder)
+
+        # Check firmware changes persisted
+        if supports_firmware_config:
+            b.wait_in_text("#vm-VmNotInstalled-firmware", "UEFI")
+        else:
+            b.wait_not_present("#vm-VmNotInstalled-firmware")
 
         # Check autostart have persisted
         self.assertEqual(b.get_checked("#vm-VmNotInstalled-autostart-checkbox"), autostart)

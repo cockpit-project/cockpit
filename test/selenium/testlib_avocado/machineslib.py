@@ -395,11 +395,11 @@ class MachinesLib(SeleniumTest):
     def check_vm_info(self, vm_name):
         self.wait_css('#vm-{}-row'.format(vm_name))
 
-        self.wait_css('#vm-{}-memory'.format(vm_name), cond=text_in, text_='64 MiB')
+        self.wait_css('#vm-{}-memory-count'.format(vm_name), cond=text_in, text_='64 MiB')
         self.wait_css('#vm-{}-vcpus-count'.format(vm_name), cond=text_in, text_='1')
-        self.wait_css('#vm-{}-cputype'.format(vm_name), cond=text_in, text_='custom')
-        self.wait_css('#vm-{}-emulatedmachine'.format(vm_name), cond=text_in, text_='pc')
-        self.wait_css('#vm-{}-bootorder'.format(vm_name), cond=text_in, text_='disk,network')
+        self.wait_css('#vm-{}-cpu-model'.format(vm_name), cond=text_in, text_='custom')
+        self.wait_css('#vm-{}-emulated-machine'.format(vm_name), cond=text_in, text_='pc')
+        self.wait_css('#vm-{}-boot-order'.format(vm_name), cond=text_in, text_='disk,network')
 
     def check_vm_pause_and_resume(self, vm_name):
         self.wait_css('#vm-{}-row'.format(vm_name))

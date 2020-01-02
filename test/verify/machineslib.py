@@ -306,10 +306,10 @@ class TestMachines(NetworkCase):
 
         b.click("tbody tr[data-row-id=vm-subVmTest1] th") # click on the row header
         b.wait_in_text("#vm-subVmTest1-state", "running")
-        b.wait_in_text("#vm-subVmTest1-vcpus", "1")
+        b.wait_in_text("#vm-subVmTest1-vcpus-count", "1")
 
-        b.wait_in_text("#vm-subVmTest1-bootorder", "disk,network")
-        emulated_machine = b.text("#vm-subVmTest1-emulatedmachine")
+        b.wait_in_text("#vm-subVmTest1-boot-order", "disk,network")
+        emulated_machine = b.text("#vm-subVmTest1-emulated-machine")
         self.assertTrue(len(emulated_machine) > 0) # emulated machine varies across test machines
 
         def get_usage(selector):
@@ -365,8 +365,8 @@ class TestMachines(NetworkCase):
         b.wait_in_text("#virtual-machines-listing .listing-ct tbody:nth-of-type(2) th", "subVmTest2")
         b.click("#virtual-machines-listing .listing-ct tbody:nth-of-type(2) th") # click on the row header
         b.wait_in_text("#vm-subVmTest2-state", "running")
-        b.wait_in_text("#vm-subVmTest2-vcpus", "1")
-        b.wait_in_text("#vm-subVmTest2-bootorder", "disk,network")
+        b.wait_in_text("#vm-subVmTest2-vcpus-count", "1")
+        b.wait_in_text("#vm-subVmTest2-boot-order", "disk,network")
 
         # restart libvirtd
         m.execute("systemctl stop libvirtd.service")
@@ -2215,8 +2215,8 @@ class TestMachines(NetworkCase):
                 b.wait_present("li.active #vm-{0}-consoles".format(name))
             else:
                 # wait for Overview tab to open
-                b.wait_present("#vm-{0}-memory".format(name))
-                b.wait_present("#vm-{0}-vcpus".format(name))
+                b.wait_present("#vm-{0}-memory-count".format(name))
+                b.wait_present("#vm-{0}-vcpus-count".format(name))
 
             self.assertCorrectConfiguration(dialog)
 

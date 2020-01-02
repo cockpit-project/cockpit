@@ -23,7 +23,7 @@ import cockpit from 'cockpit';
 import { networkId } from '../../helpers.js';
 import { changeNetworkAutostart } from '../../libvirt-dbus.js';
 
-import './networkOverviewTab.css';
+import '../overviewTab.css';
 import 'form-layout.less';
 
 const _ = cockpit.gettext;
@@ -75,7 +75,7 @@ export class NetworkOverviewTab extends React.Component {
 
         return (
             <>
-                <div className="networks-page-grid">
+                <div className="overview-tab-grid">
                     <div className='ct-form'>
                         <label className='control-label label-title'> {_("General")} </label>
                         <span />

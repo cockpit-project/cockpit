@@ -154,6 +154,7 @@ class App extends React.Component {
                 {pathVms && <HostVmsList vms={vms}
                     config={config}
                     ui={ui}
+                    libvirtVersion={systemInfo.libvirtVersion}
                     storagePools={storagePools}
                     dispatch={dispatch}
                     interfaces={interfaces}

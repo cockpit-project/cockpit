@@ -28,7 +28,6 @@ G_BEGIN_DECLS
 G_DECLARE_FINAL_TYPE(CockpitWebServer, cockpit_web_server, COCKPIT, WEB_SERVER, GObject)
 
 extern guint cockpit_webserver_request_timeout;
-extern gsize cockpit_webserver_request_maximum;
 
 typedef enum {
   COCKPIT_WEB_SERVER_NONE = 0,

@@ -31,7 +31,6 @@ G_BEGIN_DECLS
 typedef struct _CockpitWebServer CockpitWebServer;
 
 extern guint cockpit_webserver_request_timeout;
-extern gsize cockpit_webserver_request_maximum;
 
 typedef enum {
   COCKPIT_WEB_SERVER_NONE = 0,

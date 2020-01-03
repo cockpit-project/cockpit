@@ -65,6 +65,9 @@ setup (TestCase *tc,
     {
       cert = g_tls_certificate_new_from_file (fixture->cert_file, &error);
       g_assert_no_error (error);
+
+      /* don't require system SSL cert database in build environments */
+      cockpit_expect_possible_log ("GLib-Net", G_LOG_LEVEL_WARNING, "couldn't load TLS file database: * No such file or directory");
     }
 
   if (fixture && fixture->local_only)
@@ -339,38 +342,68 @@ on_ready_get_result (GObject *source,
 }
 
 static gchar *
-perform_http_request (const gchar *hostport,
-                      const gchar *request,
-                      gsize *length)
+perform_request (const gchar *hostport,
+                 const gchar *request,
+                 gsize *length,
+                 gboolean tls)
 {
+  GSocketConnectable *connectable;
   GSocketClient *client;
   GSocketConnection *conn;
   GAsyncResult *result;
+  GIOStream *tls_conn = NULL;
   GInputStream *input;
+  GOutputStream *output;
   GError *error = NULL;
   GString *reply;
   gsize len;
   gssize ret;
 
+  connectable = g_network_address_parse (hostport, 0, &error);
+  g_assert_no_error (error);
+
   client = g_socket_client_new ();
 
   result = NULL;
-  g_socket_client_connect_to_host_async (client, hostport, 1, NULL, on_ready_get_result, &result);
+  g_socket_client_connect_async (client, connectable, NULL, on_ready_get_result, &result);
   while (result == NULL)
     g_main_context_iteration (NULL, TRUE);
-  conn = g_socket_client_connect_to_host_finish (client, result, &error);
+  conn = g_socket_client_connect_finish (client, result, &error);
   g_object_unref (result);
   g_assert_no_error (error);
 
-  g_output_stream_write_all (g_io_stream_get_output_stream (G_IO_STREAM (conn)),
-                             request, strlen (request), NULL, NULL, &error);
+  if (tls)
+    {
+      tls_conn = g_tls_client_connection_new (G_IO_STREAM (conn), connectable, &error);
+      g_tls_client_connection_set_validation_flags (G_TLS_CLIENT_CONNECTION (tls_conn), 0);
+      output = g_io_stream_get_output_stream (G_IO_STREAM (tls_conn));
+      input = g_io_stream_get_input_stream (G_IO_STREAM (tls_conn));
+    }
+  else
+    {
+      output = g_io_stream_get_output_stream (G_IO_STREAM (conn));
+      input = g_io_stream_get_input_stream (G_IO_STREAM (conn));
+    }
+
+  result = NULL;
+  g_output_stream_write_all_async (output, request, strlen (request), G_PRIORITY_DEFAULT, NULL,
+                                   on_ready_get_result, &result);
+  while (result == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  g_output_stream_write_all_finish (output, result, NULL, &error);
+  g_object_unref (result);
   g_assert_no_error (error);
+
+  if (tls)
+    {
+      g_output_stream_close (output, NULL, &error);
+      g_assert_no_error (error);
+    }
 
   g_socket_shutdown (g_socket_connection_get_socket (conn), FALSE, TRUE, &error);
   g_assert_no_error (error);
 
   reply = g_string_new ("");
-  input = g_io_stream_get_input_stream (G_IO_STREAM (conn));
   for (;;)
     {
       result = NULL;
@@ -389,12 +422,31 @@ perform_http_request (const gchar *hostport,
         break;
     }
 
+  if (tls)
+    g_object_unref (tls_conn);
   g_object_unref (conn);
   g_object_unref (client);
+  g_object_unref (connectable);
 
   if (length)
     *length = reply->len;
   return g_string_free (reply, FALSE);
+}
+
+static gchar *
+perform_http_request (const gchar *hostport,
+                      const gchar *request,
+                      gsize *length)
+{
+  return perform_request (hostport, request, length, FALSE);
+}
+
+static gchar *
+perform_https_request (const gchar *hostport,
+                       const gchar *request,
+                       gsize *length)
+{
+  return perform_request (hostport, request, length, TRUE);
 }
 
 static gboolean
@@ -451,6 +503,23 @@ test_webserver_not_found (TestCase *tc,
 
   g_free (resp);
 }
+
+static void
+test_webserver_tls (TestCase *tc,
+                    gconstpointer user_data)
+{
+  gchar *resp;
+  gsize length;
+
+  g_signal_connect (tc->web_server, "handle-resource", G_CALLBACK (on_shell_index_html), NULL);
+  resp = perform_https_request (tc->localport, "GET /shell/index.html HTTP/1.0\r\nHost:test\r\n\r\n", &length);
+  g_assert (resp != NULL);
+  g_assert_cmpuint (length, >, 0);
+
+  cockpit_assert_strmatch (resp, "HTTP/* 200 *\r\nContent-Length: *\r\n\r\n<!DOCTYPE html>*");
+  g_free (resp);
+}
+
 
 static const TestFixture fixture_with_cert = {
     .cert_file = SRCDIR "/src/ws/mock_cert"
@@ -923,6 +992,8 @@ main (int argc,
               setup, test_webserver_host_header, teardown);
   g_test_add ("/web-server/not-found", TestCase, NULL,
               setup, test_webserver_not_found, teardown);
+  g_test_add ("/web-server/tls", TestCase, &fixture_with_cert,
+              setup, test_webserver_tls, teardown);
 
   g_test_add ("/web-server/redirect-notls", TestCase, &fixture_with_cert,
               setup, test_webserver_redirect_notls, teardown);

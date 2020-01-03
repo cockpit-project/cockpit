@@ -521,6 +521,62 @@ test_webserver_tls (TestCase *tc,
   g_free (resp);
 }
 
+static gboolean
+on_big_header (CockpitWebServer *server,
+               const gchar *path,
+               GHashTable *headers,
+               CockpitWebResponse *response,
+               gpointer user_data)
+{
+  GBytes *bytes;
+  const gchar *big_header;
+
+  big_header = g_hash_table_lookup (headers, "BigHeader");
+  g_assert (big_header);
+  g_assert_cmpint (strlen (big_header), ==, 7000);
+  g_assert_cmpint (big_header[strlen (big_header) - 1], ==, '1');
+
+  bytes = g_bytes_new_static ("OK", 2);
+  cockpit_web_response_content (response, NULL, bytes, NULL);
+  g_bytes_unref (bytes);
+  return TRUE;
+}
+
+static void
+test_webserver_tls_big_header (TestCase *tc,
+                               gconstpointer user_data)
+{
+  g_autofree gchar *req = NULL;
+  g_autofree gchar *resp = NULL;
+  gsize length;
+
+  /* max request size is 8KiB (2 * cockpit_webserver_request_maximum), stay slightly below that */
+  req = g_strdup_printf ("GET /test HTTP/1.0\r\nHost:test\r\nBigHeader: %07000i\r\n\r\n", 1);
+
+  g_signal_connect (tc->web_server, "handle-resource", G_CALLBACK (on_big_header), NULL);
+  resp = perform_https_request (tc->localport, req, &length);
+  g_assert (resp != NULL);
+  g_assert_cmpuint (length, >, 0);
+
+  cockpit_assert_strmatch (resp, "HTTP/* 200 *\r\nContent-Length: 2\r\n*\r\n\r\nOK");
+}
+
+static void
+test_webserver_tls_request_too_large (TestCase *tc,
+                                      gconstpointer user_data)
+{
+  g_autofree gchar *req = NULL;
+  g_autofree gchar *resp = NULL;
+  gsize length;
+
+  /* request bigger than 8KiB should be rejected */
+  cockpit_expect_log ("cockpit-protocol", G_LOG_LEVEL_MESSAGE, "received HTTP request that was too large");
+  req = g_strdup_printf ("GET /test HTTP/1.0\r\nHost:test\r\nBigHeader: %08200i\r\n\r\n", 1);
+  resp = perform_https_request (tc->localport, req, &length);
+  g_assert (resp != NULL);
+  g_assert_cmpuint (length, ==, 0);
+  g_assert_cmpstr (resp, ==, "");
+}
 
 static const TestFixture fixture_with_cert = {
     .cert_file = SRCDIR "/src/ws/mock_cert"
@@ -1039,6 +1095,10 @@ main (int argc,
               setup, test_webserver_not_found, teardown);
   g_test_add ("/web-server/tls", TestCase, &fixture_with_cert,
               setup, test_webserver_tls, teardown);
+  g_test_add ("/web-server/tls-big-header", TestCase, &fixture_with_cert,
+              setup, test_webserver_tls_big_header, teardown);
+  g_test_add ("/web-server/tls-request-too-large", TestCase, &fixture_with_cert,
+              setup, test_webserver_tls_request_too_large, teardown);
 
   g_test_add ("/web-server/redirect-notls", TestCase, &fixture_with_cert_redirect,
               setup, test_webserver_redirect_notls, teardown);

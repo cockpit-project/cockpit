@@ -352,10 +352,15 @@ WantedBy=default.target
         # so disable them for this test, we don't test PCP here
         m.execute("systemctl disable --now pmie pmlogger || true")
 
+        # set an initial baseline date/time, to ensure that we never jump backwards in subsequent tests
         m.execute("timedatectl set-timezone UTC")
         m.execute("timedatectl set-ntp off")
         wait(lambda: "false" in m.execute(
             "busctl get-property org.freedesktop.timedate1 /org/freedesktop/timedate1 org.freedesktop.timedate1 NTP"))
+        m.execute("timedatectl set-time '2020-01-01 12:00:00'")
+        m.spawn("sync && sync && sync && sleep 0.1 && reboot", "reboot")
+        m.wait_reboot()
+
         m.execute("timedatectl set-time '2020-01-01 15:30:00'")
         self.login_and_go("/system/services")
         b.wait_not_visible("#loading-fallback")

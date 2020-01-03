@@ -450,6 +450,13 @@ class TestConnection(MachineCase):
         output = m.execute('curl -s -S -k https://172.27.0.15:9000/ 2>&1 || true')
         self.assertIn('Connection refused', output)
 
+        # Large requests are processed correctly with plain HTTP
+        self.assertIn('A Custom Title', m.execute('''curl -s -S -H "Authorization: Negotiate $(printf '%0.7000i' 1)" http://localhost:9000/'''))
+
+        # Large requests are processed correctly with TLS
+        if m.image not in ["rhel-8-1-distropkg"]:  # fixed in PR #13351
+            self.assertIn('A Custom Title', m.execute('''curl -s -S -k -H "Authorization: Negotiate $(printf '%0.7000i' 1)" https://localhost:9000/'''))
+
     def testHeadRequest(self):
         m = self.machine
         m.start_cockpit()

@@ -188,15 +188,29 @@ export function validateIpv6Prefix(prefix) {
  * @param {string} ip
  * @returns {string}
  */
-export function ipv6ToBinStr(ip) {
-    const parts = [];
-    ip.split(":").forEach(part => {
-        let bin = parseInt(part, 16).toString(2);
+function ipv6ToBinStr(ip) {
+    const validGroupCount = 8;
+    /* Split address by `:`
+     * Then check if the array contains an empty string (happens at ::), and if so
+     * replace it with the appropriate number of 0 entries.
+     */
+    const arrAddr = ip.split(":");
+    const arrAddrExpanded = arrAddr.reduce((accum, hexNum) => {
+        if (hexNum)
+            accum.push(hexNum);
+        else
+            for (let i = 0; i < (validGroupCount - arrAddr.length + 1); i++)
+                accum.push("0");
+        return accum;
+    }, []);
+
+    /* Convert the array of 8 hex entries into a 128 bits binary string */
+    return arrAddrExpanded.map(num => {
+        let bin = parseInt(num, 16).toString(2);
         while (bin.length < 16)
             bin = "0" + bin;
-        parts.push(bin);
-    });
-    return parts.join("");
+        return bin;
+    }).join("");
 }
 
 /**

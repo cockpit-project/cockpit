@@ -568,9 +568,11 @@ test_webserver_tls_request_too_large (TestCase *tc,
   g_autofree gchar *resp = NULL;
   gsize length;
 
-  /* request bigger than 8KiB should be rejected */
+  /* request bigger than 16 KiB should be rejected */
+  /* FIXME: This really should be 8 KiB, but due to pipelining we reserve twice
+   * that amount in the buffer */
   cockpit_expect_log ("cockpit-protocol", G_LOG_LEVEL_MESSAGE, "received HTTP request that was too large");
-  req = g_strdup_printf ("GET /test HTTP/1.0\r\nHost:test\r\nBigHeader: %08200i\r\n\r\n", 1);
+  req = g_strdup_printf ("GET /test HTTP/1.0\r\nHost:test\r\nBigHeader: %016500i\r\n\r\n", 1);
   resp = perform_https_request (tc->localport, req, &length);
   g_assert (resp != NULL);
   g_assert_cmpuint (length, ==, 0);

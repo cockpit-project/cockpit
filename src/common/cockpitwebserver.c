@@ -40,7 +40,7 @@
 gboolean cockpit_webserver_want_certificate = FALSE;
 
 guint cockpit_webserver_request_timeout = 30;
-gsize cockpit_webserver_request_maximum = 4096;
+const gsize cockpit_webserver_request_maximum = 8192;
 
 struct _CockpitWebServer {
   GObject parent_instance;
@@ -1029,10 +1029,21 @@ on_request_input (GObject *pollable_input,
   gssize count;
 
   length = request->buffer->len;
-  g_byte_array_set_size (request->buffer, length + 4096);
+
+  /* With a GTlsServerConnection, the GSource callback is not called again if
+   * there is still pending data in GnuTLS'es buffer.
+   * (https://gitlab.gnome.org/GNOME/glib-networking/issues/20). Thus read up
+   * to our allowed maximum size to ensure we got everything that's pending.
+   * Add one extra byte so that parse_and_process_request() correctly rejects
+   * requests that are > maximum, instead of hanging.
+   *
+   * FIXME: This may still hang for several large requests that are pipelined;
+   * for these this needs to be changed into a loop.
+   */
+  g_byte_array_set_size (request->buffer, length + cockpit_webserver_request_maximum + 1);
 
   count = g_pollable_input_stream_read_nonblocking (input, request->buffer->data + length,
-                                                    4096, NULL, &error);
+                                                    cockpit_webserver_request_maximum + 1, NULL, &error);
   if (count < 0)
     {
       g_byte_array_set_size (request->buffer, length);

@@ -457,6 +457,9 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.click("tbody tr th") # click on the row header
         b.wait_in_text("#vm-subVmTest1-state", "running")
 
+        # Make sure that the Networks are loaded into the global state
+        b.wait_in_text("#card-pf-networks .card-pf-aggregate-status-count", "2")
+
         b.click("#vm-subVmTest1-networks") # open the "Networks" subtab
 
         # Wait for the edit button

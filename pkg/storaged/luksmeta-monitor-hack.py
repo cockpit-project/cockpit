@@ -109,7 +109,7 @@ def monitor(dev):
     old_infos = info(dev)
     sys.stdout.write(json.dumps(old_infos) + "\n")
     sys.stdout.flush()
-    while True:
+    while mon.poll() is None:
         line = mon.stdout.readline()
         if path in line:
             new_infos = info(dev)

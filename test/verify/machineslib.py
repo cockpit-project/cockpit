@@ -1863,7 +1863,10 @@ class TestMachines(NetworkCase):
                 b.click("#create-new-vm")
 
             b.wait_present("#create-vm-dialog")
-            b.wait_in_text(".modal-dialog .modal-header .modal-title", "Create New Virtual Machine")
+            if self.sourceType == 'disk_image':
+                b.wait_in_text(".modal-dialog .modal-header .modal-title", "Import A Virtual Machine")
+            else:
+                b.wait_in_text(".modal-dialog .modal-header .modal-title", "Create New Virtual Machine")
 
             if self.os_name is not None:
                 # check if there is os present in osinfo-query because it can be filtered out in the UI
@@ -2009,7 +2012,10 @@ class TestMachines(NetworkCase):
 
         def create(self):
             b = self.browser
-            b.click(".modal-footer button:contains(Create)")
+            if self.sourceType == 'disk_image':
+                b.click(".modal-footer button:contains(Import)")
+            else:
+                b.click(".modal-footer button:contains(Create)")
             init_state = "creating VM installation" if self.start_vm else "creating VM"
             second_state = "running" if self.start_vm else "shut off"
 
@@ -2020,7 +2026,10 @@ class TestMachines(NetworkCase):
         def createAndExpectInlineValidationErrors(self, errors):
             b = self.browser
 
-            b.click(".modal-footer button:contains(Create)")
+            if self.sourceType == 'disk_image':
+                b.click(".modal-footer button:contains(Import)")
+            else:
+                b.click(".modal-footer button:contains(Create)")
 
             for error, error_msg in errors.items():
                 error_location = ".modal-body label:contains('{0}') + div.form-group.has-error span.help-block".format(error)
@@ -2028,7 +2037,10 @@ class TestMachines(NetworkCase):
                 if (error_msg):
                     b.wait_in_text(error_location, error_msg)
 
-            b.wait_present(".modal-footer button:contains(Create):disabled")
+            if self.sourceType == 'disk_image':
+                b.wait_present(".modal-footer button:contains(Import):disabled")
+            else:
+                b.wait_present(".modal-footer button:contains(Create):disabled")
 
             return self
 

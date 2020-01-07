@@ -397,9 +397,11 @@ class CreateNetworkModal extends React.Component {
             this.setState({ inProgress: false, validate: true });
         } else {
             const {
-                connectionName, name, forwardMode, ipv4, ipv6, prefix, device,
+                connectionName, name, forwardMode, ip, prefix, device,
                 ipv4DhcpRangeStart, ipv4DhcpRangeEnd, ipv6DhcpRangeStart, ipv6DhcpRangeEnd
             } = this.state;
+            const ipv6 = ip === "IPv4 only" ? undefined : this.state.ipv6;
+            const ipv4 = ip === "IPv6 only" ? undefined : this.state.ipv4;
             const netmask = utils.netmaskConvert(this.state.netmask);
 
             this.setState({ createInProgress: true });

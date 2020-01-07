@@ -27,11 +27,17 @@
   &-hostname {
     align-items: baseline;
     flex: auto;
+    /* Collapse down to 15rem, to help preserve button on the right */
+    flex-basis: 15rem;
 
     > h1 {
-      padding-right: 1rem;
       font-size: var(--pf-global--FontSize--2xl);
     }
+  }
+
+  &-hostname > h1,
+  &-subheading {
+    padding-right: 1rem;
   }
 
   &-actions {
@@ -39,12 +45,12 @@
   }
 
   &-subheading {
-    font-size: var(--pf-global--FontSize--xl);
+    font-size: var(--pf-global--FontSize--md);
   }
 }
 
 .ct-system-overview {
-  --card-width: 24rem;
+  --card-width: 22rem;
   --pf-l-gallery--GridTemplateColumns: repeat(auto-fill, minmax(var(--card-width), 1fr));
 
   .motd-box {
@@ -53,7 +59,7 @@
 
   .pf-c-card {
     &__header {
-      font-size: var(--pf-global--FontSize--2xl);
+      font-size: var(--pf-global--FontSize--xl);
       font-weight: var(--pf-global--FontWeight--normal);
     }
 
@@ -127,6 +133,31 @@
   }
 }
 
+@media (orientation: landscape) and (min-width: 684px) and (max-width: 832px) and (max-height: 703px) {
+  /* Optimize for VMs  */
+  /*
+    Full offset:  Sidebar: 240, switcher: 100
+    Small offset: Sidebar: 192, switcher: 84
+
+    Max sidebar (with switcher): 240 + 100 = 340
+    Min sidebar (without switcher): 192
+
+    Min iframe width (with switcher): 1024 - 340 = 684
+    Max iframe width (without switcher): 1024 - 192 = 832
+
+    Height offset: 65px (for the heading)
+    Max iframe: 768 - 65 = 703
+
+    NOTE: For cross-browser reasons, the above media breakpoints need to be px
+    NOTE 2: This should be updated when the navigation is updated
+  */
+
+  .ct-system-overview {
+    /* Adjust card width to be approx. 2×2 */
+    --card-width: 16rem;
+  }
+}
+
 @media (max-width: 320px) {
   /* Make the overview fit on very narrow screens like an iPhone SE */
 
@@ -144,11 +175,47 @@
   }
 }
 
-/* 640 + 200 + 11(scrollbar) */
-@media (max-width: 851px) {
+@media (max-device-width: 780px) and (orientation: portrait) {
+  /* Allow cards to be stretch to edges on mobile devices */
   .ct-system-overview {
-    /* Allow cards to be narrower on very narrow viewports */
-    --card-width: 15rem;
+    --card-width: 100%;
+  }
+}
+
+@media (max-width: 779px) {
+  /* Reduce gutter & padding on smaller widths, for desktop & mobile */
+
+  .pf-l-gallery {
+    --pf-l-gallery--m-gutter--GridGap: calc(var(--pf-global--gutter--md)/2);
+  }
+
+  .pf-c-card {
+    --pf-c-card--first-child--PaddingTop: var(--pf-global--spacer--md);
+    --pf-c-card--child--PaddingRight: var(--pf-global--spacer--md);
+    --pf-c-card--child--PaddingBottom: var(--pf-global--spacer--md);
+    --pf-c-card--child--PaddingLeft: var(--pf-global--spacer--md);
+    --pf-c-card__header--not-last-child--PaddingBottom: var(--pf-global--spacer--sm);
+  }
+}
+
+@media (min-width: 780px) {
+  /* Embiggen subheading & card headings when there's space */
+
+  .ct-system-overview .pf-c-card__header {
+    font-size: var(--pf-global--FontSize--2xl);
+  }
+
+  .ct-overview-header-subheading {
+    font-size: var(--pf-global--FontSize--lg);
+  }
+}
+
+@media (min-width: 1000px) and (max-width: 1400px) {
+  /* optimize for approx 1600×1200 on desktops */
+  /* (numbers are fudgy due to our nav & possibility of desktop's panels) */
+
+  .ct-system-overview {
+    --card-width: 25rem;
   }
 }
 

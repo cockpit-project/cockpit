@@ -1287,6 +1287,11 @@ class TestMachinesDBus(machineslib.TestMachines):
                         if self.ipv6_dhcp_start and self.ipv6_dhcp_start:
                             b.wait_in_text("#network-{0}-{1}-ipv6-dhcp-range".format(self.name, connectionName), self.ipv6_dhcp_start + " - " + self.ipv6_dhcp_end)
 
+                    if not "4" in self.ip_conf:
+                        b.wait_not_present("#network-{0}-{1}-ipv4-address".format(self.name, connectionName))
+                    if not "6" in self.ip_conf:
+                        b.wait_not_present("#network-{0}-{1}-ipv6-address".format(self.name, connectionName))
+
             def cleanup(self):
                 m.execute("virsh net-undefine {0}".format(self.name))
 

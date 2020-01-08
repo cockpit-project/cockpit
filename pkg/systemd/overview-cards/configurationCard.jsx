@@ -27,8 +27,9 @@ import $ from "jquery";
 import { mustache } from "mustache";
 import * as packagekit from "packagekit.js";
 import { install_dialog } from "cockpit-components-install-dialog.jsx";
-import { PrivilegedButton } from "cockpit-components-privileged.jsx";
+import { Privileged, PrivilegedButton } from "cockpit-components-privileged.jsx";
 import { ServerTime } from './serverTime.js';
+import * as realmd from "./realmd-operation.js";
 
 /* These add themselves to jQuery so just including is enough */
 import "patterns";
@@ -78,6 +79,8 @@ export class ConfigurationCard extends React.Component {
 
         this.host_keys_show = this.host_keys_show.bind(this);
         this.host_keys_hide = this.host_keys_hide.bind(this);
+
+        this.realmd = realmd.setup();
     }
 
     componentDidMount() {
@@ -94,6 +97,8 @@ export class ConfigurationCard extends React.Component {
         });
 
         $("#system_information_ssh_keys").on("hide.bs.modal", () => this.host_keys_hide());
+
+        this.realmd.addEventListener("changed", () => this.setState({}));
     }
 
     systime_setup() {
@@ -321,14 +326,27 @@ export class ConfigurationCard extends React.Component {
     }
 
     render() {
+        // We use a Privileged component for its ability to
+        // conditionally show a tooltip, even when the button is not
+        // actually disabled, so the "allowed" property really means
+        // "does not have tooltip" here.
+
+        const hostname_tooltip = (this.permission.allowed === false
+            ? cockpit.format(_("The user $0 is not permitted to modify hostnames"),
+                             this.permission.user ? this.permission.user.name : '')
+            : this.realmd.hostname_button_tooltip);
+        const hostname_disabled = this.permission.allowed === false || this.realmd.hostname_button_disabled;
+
         const hostname_button = (
-            <PrivilegedButton variant="link" buttonId="system_information_hostname_button"
-                              tooltipId="system_information_hostname_tooltip"
-                              onClick={ () => $('#system_information_change_hostname').modal('show') }
-                              excuse={ _("The user $0 is not permitted to modify hostnames") }
-                              permission={ this.permission } ariaLabel="edit hostname">
-                {this.props.hostname !== "" ? _("edit") : _("Set Hostname")}
-            </PrivilegedButton>);
+            <Privileged allowed={ !hostname_tooltip }
+                        tooltipId="system_information_hostname_tooltip"
+                        excuse={ hostname_tooltip }>
+                <Button id="system_information_hostname_button" variant="link"
+                        onClick={ () => $('#system_information_change_hostname').modal('show') }
+                        isInline isDisabled={ hostname_disabled } aria-label="edit hostname">
+                    {this.props.hostname !== "" ? _("edit") : _("Set Hostname")}
+                </Button>
+            </Privileged>);
 
         const systime_button = (
             <PrivilegedButton variant="link" buttonId="system_information_systime_button"
@@ -338,6 +356,23 @@ export class ConfigurationCard extends React.Component {
                               permission={ this.permission } ariaLabel="edit time">
                 { this.state.serverTime }
             </PrivilegedButton>);
+
+        const domain_tooltip = (this.permission.allowed === false
+            ? cockpit.format(_("The user $0 is not permitted to modify realms"),
+                             this.permission.user ? this.permission.user.name : '')
+            : this.realmd.button_tooltip);
+        const domain_disabled = this.permission.allowed === false || this.realmd.button_disabled;
+
+        const domain_button = (
+            <Privileged allowed={ !domain_tooltip }
+                        tooltipId="system_information_domain_tooltip"
+                        excuse={ domain_tooltip }>
+                <Button id="system_information_domain_button" variant="link"
+                        onClick={ () => this.realmd.clicked() }
+                        isInline isDisabled={ domain_disabled } aria-label="join domain">
+                    { this.realmd.button_text }
+                </Button>
+            </Privileged>);
 
         return (
             <Card className="system-configuration">
@@ -365,7 +400,7 @@ export class ConfigurationCard extends React.Component {
 
                             <tr>
                                 <th scope="row">{_("Domain")}</th>
-                                <td><p id="system-info-domain" /></td>
+                                <td>{domain_button}</td>
                             </tr>
 
                             <tr>

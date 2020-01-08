@@ -12,7 +12,7 @@ To contribute to this component, run a test domain which ends
 up being rather easy. Install the stuff in ```test/README``` near the
 top. And then do the following:
 
-    $ bots/vm-run --network ipa
+    $ bots/vm-run --network services
 
 That runs an IPA domain. Now in another terminal do the following:
 

@@ -198,7 +198,10 @@ export class AddNIC extends React.Component {
                     <Button id={`${idPrefix}-cancel`} bsStyle='default' className='btn-cancel' onClick={this.props.close}>
                         {_("Cancel")}
                     </Button>
-                    <Button disabled={this.state.networkSource === undefined } id={`${idPrefix}-add`} bsStyle='primary' onClick={this.add}>
+                    <Button disabled={["network", "direct", "bridge"].includes(this.state.networkType) && this.state.networkSource === undefined}
+                            id={`${idPrefix}-add`}
+                            bsStyle='primary'
+                            onClick={this.add}>
                         {_("Add")}
                     </Button>
                 </Modal.Footer>

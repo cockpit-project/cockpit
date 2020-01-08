@@ -205,8 +205,9 @@ LIBVIRT_DBUS_PROVIDER = {
         hotplug,
         cacheMode,
         shareable,
+        busType,
     }) {
-        const xmlDesc = getDiskXML(poolName, volumeName, format, target, cacheMode, shareable);
+        const xmlDesc = getDiskXML(poolName, volumeName, format, target, cacheMode, shareable, busType);
 
         return attachDevice({ connectionName, vmId, permanent, hotplug, xmlDesc });
     },
@@ -298,6 +299,7 @@ LIBVIRT_DBUS_PROVIDER = {
         permanent,
         hotplug,
         cacheMode,
+        busType,
     }) {
         const volXmlDesc = getVolumeXML(volumeName, size, format);
 
@@ -309,7 +311,7 @@ LIBVIRT_DBUS_PROVIDER = {
                             });
                 })
                 .then((volPath) => {
-                    return dispatch(attachDisk({ connectionName, poolName, volumeName, format, target, vmId, permanent, hotplug, cacheMode }));
+                    return dispatch(attachDisk({ connectionName, poolName, volumeName, format, target, vmId, permanent, hotplug, cacheMode, busType }));
                 });
     },
 
@@ -1393,10 +1395,10 @@ export function attachIface({ connectionName, vmId, mac, permanent, hotplug, sou
     return attachDevice({ connectionName, vmId, permanent, hotplug, xmlDesc });
 }
 
-export function changeDiskAccessPolicy(connectionName, objPath, target, readonly, shareable) {
+export function updateDiskAttributes({ connectionName, objPath, target, readonly, shareable, busType, existingTargets }) {
     return call(connectionName, objPath, 'org.libvirt.Domain', 'GetXMLDesc', [Enum.VIR_DOMAIN_XML_INACTIVE], TIMEOUT)
             .then(domXml => {
-                const updatedXML = updateDisk(domXml, target, readonly, shareable);
+                const updatedXML = updateDisk({ diskTarget: target, domXml, readonly, shareable, busType, existingTargets });
                 return call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'DomainDefineXML', [updatedXML], TIMEOUT);
             });
 }

@@ -77,8 +77,8 @@ import {
  *  The naming convention for action creator names is: <verb><Noun>
  *  with the present tense.
  */
-export function attachDisk({ connectionName, poolName, volumeName, format, target, permanent, hotplug, cacheMode, vmName, vmId, shareable }) {
-    return virt(ATTACH_DISK, { connectionName, poolName, volumeName, format, target, permanent, hotplug, cacheMode, vmName, vmId, shareable });
+export function attachDisk({ connectionName, poolName, volumeName, format, target, permanent, hotplug, cacheMode, vmName, vmId, shareable, busType }) {
+    return virt(ATTACH_DISK, { connectionName, poolName, volumeName, format, target, permanent, hotplug, cacheMode, vmName, vmId, shareable, busType });
 }
 
 export function changeBootOrder({ vm, devices }) {
@@ -291,8 +291,8 @@ export function vmDesktopConsole(vm, consoleDetail) {
     return virt(CONSOLE_VM, { name: vm.name, id: vm.id, connectionName: vm.connectionName, consoleDetail });
 }
 
-export function volumeCreateAndAttach({ connectionName, poolName, volumeName, size, format, target, permanent, hotplug, cacheMode, vmName, vmId }) {
-    return virt(CREATE_AND_ATTACH_VOLUME, { connectionName, poolName, volumeName, size, format, target, permanent, hotplug, cacheMode, vmName, vmId });
+export function volumeCreateAndAttach({ connectionName, poolName, volumeName, size, format, target, permanent, hotplug, cacheMode, vmName, vmId, busType }) {
+    return virt(CREATE_AND_ATTACH_VOLUME, { connectionName, poolName, volumeName, size, format, target, permanent, hotplug, cacheMode, vmName, vmId, busType });
 }
 
 function delayPollingHelper(action, timeout) {

@@ -22,6 +22,7 @@ import {
 
 import {
     convertToUnit,
+    getNextAvailableTarget,
     logDebug,
     fileDownload,
     rephraseUI,
@@ -916,7 +917,7 @@ export function resolveUiState(dispatch, name) {
     return result;
 }
 
-export function updateDisk(domXml, diskTarget, readonly, shareable) {
+export function updateDisk({ domXml, diskTarget, readonly, shareable, busType, existingTargets }) {
     const domainElem = getDomainElem(domXml);
     if (!domainElem)
         throw new Error("updateBootOrder: domXML has no domain element");
@@ -942,6 +943,17 @@ export function updateDisk(domXml, diskTarget, readonly, shareable) {
                 disk.appendChild(readOnlyElem);
             } else if (readOnlyElem && !readonly) {
                 readOnlyElem.remove();
+            }
+
+            const targetElem = disk.getElementsByTagName("target")[0];
+            const oldBusType = targetElem.getAttribute("bus");
+            if (busType && oldBusType !== busType) {
+                targetElem.setAttribute("bus", busType);
+                const newTarget = getNextAvailableTarget(existingTargets, busType);
+                targetElem.setAttribute("dev", newTarget);
+
+                const addressElem = getSingleOptionalElem(disk, "address");
+                addressElem.remove();
             }
         }
     }

@@ -778,3 +778,17 @@ export function getDiskPrettyName(disk) {
 
     return name;
 }
+
+export function getNextAvailableTarget(existingTargets, busType) {
+    let i = 0;
+    let prefix = 'vd';
+    if (busType !== 'virtio')
+        prefix = 'sd';
+
+    while (i < 26) {
+        const target = prefix + `${String.fromCharCode(97 + i)}`;
+        if (!existingTargets.includes(target))
+            return target;
+        i++;
+    }
+}

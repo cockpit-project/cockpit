@@ -604,7 +604,7 @@ class TestMachines(NetworkCase):
                 volume_size=1, volume_size_unit='GiB',
                 use_existing_volume=False,
                 expected_target='vda', permanent=False, cache_mode=None,
-                verify=True, pool_type=None,
+                bus_type='virtio', verify=True, pool_type=None,
                 volume_format=None,
             ):
                 print(pool_name, volume_name)
@@ -618,6 +618,7 @@ class TestMachines(NetworkCase):
                 self.expected_target = expected_target
                 self.permanent = permanent
                 self.cache_mode = cache_mode
+                self.bus_type = bus_type
                 self.verify = verify
                 self.pool_type = pool_type
                 self.volume_format = volume_format
@@ -673,8 +674,17 @@ class TestMachines(NetworkCase):
 
                 # Configure performance options
                 if self.test_obj.provider == "libvirt-dbus" and self.cache_mode:
-                    b.click("div.modal-dialog button:contains(Show Performance Options)")
+                    b.click("div.modal-dialog button:contains(Show Additional Options)")
                     b.select_from_dropdown("div.modal-dialog #cache-mode", self.cache_mode)
+                    b.click("div.modal-dialog button:contains(Hide Additional Options)")
+                else:
+                    b.wait_not_present("#div.modal-dialog #cache-mode")
+
+                # Configure bus type
+                if self.test_obj.provider == "libvirt-dbus" and self.bus_type != "virtio":
+                    b.click("div.modal-dialog button:contains(Show Additional Options)")
+                    b.select_from_dropdown("div.modal-dialog #bus-type", self.bus_type)
+                    b.click("div.modal-dialog button:contains(Hide Additional Options)")
                 else:
                     b.wait_not_present("#div.modal-dialog #cache-mode")
 
@@ -687,7 +697,7 @@ class TestMachines(NetworkCase):
                 return self
 
             def verify_disk_added(self):
-                b.wait_in_text("#vm-{0}-disks-{1}-bus".format(self.vm_name, self.expected_target), "virtio")
+                b.wait_in_text("#vm-{0}-disks-{1}-bus".format(self.vm_name, self.expected_target), self.bus_type)
                 b.wait_in_text("#vm-{0}-disks-{1}-device".format(self.vm_name, self.expected_target), "disk")
 
                 # Check volume was added to pool's volume list
@@ -868,6 +878,25 @@ class TestMachines(NetworkCase):
                 use_existing_volume='True',
             ).execute()
 
+        if self.provider == "libvirt-dbus":
+            VMAddDiskDialog(
+                self,
+                pool_name='myPoolOne',
+                volume_name='scsi_bus_disk',
+                use_existing_volume=False,
+                bus_type='scsi',
+                expected_target='sda',
+            ).execute()
+
+            VMAddDiskDialog(
+                self,
+                pool_name='myPoolOne',
+                volume_name='usb_bus_disk',
+                use_existing_volume=False,
+                bus_type='usb',
+                expected_target='sdb',
+            ).execute()
+
         # shut off
         b.click("#vm-subVmTest1-off-caret")
         b.click("#vm-subVmTest1-forceOff")
@@ -880,6 +909,16 @@ class TestMachines(NetworkCase):
         b.wait_present("#vm-subVmTest1-disks-vde-device")
 
         if self.provider == "libvirt-dbus":
+            # testing sata disk after VM shutoff because sata disk cannot be hotplugged
+            VMAddDiskDialog(
+                self,
+                pool_name='myPoolOne',
+                volume_name='sata_bus_disk',
+                use_existing_volume=False,
+                bus_type='sata',
+                expected_target='sda',
+            ).execute()
+
             # Undefine all Storage Pools and  confirm that the Add Disk dialog is disabled
             active_pools = filter(lambda pool: pool != '', m.execute("virsh pool-list --name").split('\n'))
             print(active_pools)

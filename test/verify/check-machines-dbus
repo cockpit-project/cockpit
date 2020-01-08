@@ -382,6 +382,27 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_in_text("#vm-subVmTest1-disks-vde-access", "Writeable and shared")
         b.wait_not_present("#vm-subVmTest1-disks-vde-access-tooltip")
 
+        b.wait_in_text("#vm-subVmTest1-disks-vde-bus", "virtio")
+        # Change bus type to scsi
+        b.click("#vm-subVmTest1-disks-vde-edit")
+        b.wait_present("#vm-subVmTest1-disks-vde-edit-dialog")
+        b.select_from_dropdown("#vm-subVmTest1-disks-vde-edit-bus-type", "scsi")
+
+        # Close dialog
+        b.click("#vm-subVmTest1-disks-vde-edit-dialog-save")
+        b.wait_not_present("#vm-subVmTest1-disks-vde-edit-dialog")
+        # Target has changed from vdX to sdX
+        b.wait_in_text("#vm-subVmTest1-disks-sda-bus", "scsi")
+
+        # Start Vm
+        b.click("#vm-subVmTest1-run")
+        b.wait_in_text("#vm-subVmTest1-state", "running")
+
+        # Test disk's bus cannot be changed on running VM
+        b.click("#vm-subVmTest1-disks-sda-edit")
+        b.wait_present("#vm-subVmTest1-disks-sda-edit-dialog")
+        b.wait_present("#vm-subVmTest1-disks-sda-edit-bus-type:disabled")
+
     def testDomainMemorySettings(self):
         b = self.browser
 

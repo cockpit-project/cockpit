@@ -721,7 +721,7 @@
         display: flex !important;
         align-self: end;
         grid-area: navmenu;
-        max-height: 100%;
+        max-device-height: 100%;
         min-height: 50%;
         grid-column: 1;
         grid-row: 2;
@@ -749,7 +749,7 @@
 
     .host-apps {
         flex: auto;
-        max-height: 100%;
+        max-device-height: 100%;
     }
 
     .navbar-collapse > ul,
@@ -790,6 +790,21 @@
     }
 }
 
+
+@media (max-device-width: 1024px) and (max-device-height: 768px) and (orientation: landscape) {
+  /* Shrink nav for VMs @ 1024×768 (and below)  */
+
+  .area-ct-subnav {
+    flex: 0 1 12em;
+  }
+
+  .nav-sidebar-wrap.expanded .nav-sidebar .list-group-item > a {
+    min-height: 0;
+    padding: 0.25rem 0.5rem;
+  }
+}
+
+
 /* Apply Cockpit colors to main nav */
 .main-navbar .list-group-item {
     border-color: var(--color-ct-nav-main-border);
@@ -829,6 +844,6 @@
 }
 
 @keyframes navFadeInSlideDown {
-    from { opacity: 0; max-height: 0; }
-    to { opacity: 1; max-height: auto; }
+    from { opacity: 0; max-device-height: 0; }
+    to { opacity: 1; max-device-height: auto; }
 }

@@ -34,6 +34,7 @@ import * as PK from "packagekit.js";
 import "listing.less";
 
 const _ = cockpit.gettext;
+moment.locale(cockpit.language);
 
 // "available" heading is built dynamically
 const STATE_HEADINGS = {
@@ -177,7 +178,7 @@ function HeaderBar(props) {
         if (!props.unregistered)
             actionButton = <button className="btn btn-default" onClick={props.onRefresh}>{_("Check for Updates")}</button>;
         if (props.timeSinceRefresh !== null)
-            lastChecked = cockpit.format(_("Last checked: $0 ago"), moment.duration(props.timeSinceRefresh * 1000).humanize());
+            lastChecked = cockpit.format(_("Last checked: $0"), moment(moment().valueOf() - props.timeSinceRefresh * 1000).fromNow());
     } else if (props.state == "applying") {
         actionButton = <button className="btn btn-default" onClick={props.onCancel} disabled={!props.allowCancel}>{_("Cancel")}</button>;
     }

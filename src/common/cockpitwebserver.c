@@ -40,7 +40,7 @@
 gboolean cockpit_webserver_want_certificate = FALSE;
 
 guint cockpit_webserver_request_timeout = 30;
-gsize cockpit_webserver_request_maximum = 8192;
+const gsize cockpit_webserver_request_maximum = 8192;
 
 struct _CockpitWebServer {
   GObject parent_instance;
@@ -882,13 +882,6 @@ parse_and_process_request (CockpitRequest *request)
   gssize off2;
   guint64 length;
 
-  /* The hard input limit, we just terminate the connection */
-  if (request->buffer->len > cockpit_webserver_request_maximum)
-    {
-      g_message ("received HTTP request that was too large");
-      goto out;
-    }
-
   off1 = web_socket_util_parse_req_line ((const gchar *)request->buffer->data,
                                          request->buffer->len,
                                          &method,
@@ -1030,24 +1023,10 @@ on_request_input (GObject *pollable_input,
 
   length = request->buffer->len;
 
-  /* With a GTlsServerConnection, the GSource callback is not called again if
-   * there is still pending data in GnuTLS'es buffer.
-   * (https://gitlab.gnome.org/GNOME/glib-networking/issues/20). Thus read up
-   * to our allowed maximum size to ensure we got everything that's pending.
-   * Add one extra byte so that parse_and_process_request() correctly rejects
-   * requests that are > 8 KiB, instead of hanging.
-   *
-   * FIXME: Simplify this, fix the buffer size to 8 KiB, and reject larger
-   * requests right away.
-   */
-  g_byte_array_set_size (request->buffer, length + cockpit_webserver_request_maximum + 1);
-
   count = g_pollable_input_stream_read_nonblocking (input, request->buffer->data + length,
-                                                    cockpit_webserver_request_maximum + 1, NULL, &error);
+                                                    cockpit_webserver_request_maximum - length, NULL, &error);
   if (count < 0)
     {
-      g_byte_array_set_size (request->buffer, length);
-
       /* Just wait and try again */
       if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_WOULD_BLOCK))
         {
@@ -1063,14 +1042,23 @@ on_request_input (GObject *pollable_input,
       return FALSE;
     }
 
-  g_byte_array_set_size (request->buffer, length + count);
-
   if (count == 0)
     {
       if (request->eof_okay)
         close_io_stream (request->io);
       else
         g_debug ("caller closed connection early");
+      cockpit_request_finish (request);
+      return FALSE;
+    }
+
+  length += count;
+  g_byte_array_set_size (request->buffer, length);
+
+  /* Hard input limit, terminate the connection for too big requests */
+  if (length >= cockpit_webserver_request_maximum)
+    {
+      g_message ("received HTTP request that was too large");
       cockpit_request_finish (request);
       return FALSE;
     }
@@ -1230,7 +1218,7 @@ cockpit_request_start (CockpitWebServer *self,
   request = g_new0 (CockpitRequest, 1);
   request->web_server = self;
   request->io = g_object_ref (io);
-  request->buffer = g_byte_array_new ();
+  request->buffer = g_byte_array_sized_new (cockpit_webserver_request_maximum);
 
   /* Right before a request, EOF is not unexpected */
   request->eof_okay = TRUE;

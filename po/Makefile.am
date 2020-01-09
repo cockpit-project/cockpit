@@ -4,6 +4,10 @@ GETTEXT_PACKAGE = cockpit
 # The concrete set of linguas we are using
 LINGUAS = $(shell cat $(srcdir)/po/LINGUAS)
 
+WEBLATE_REPO=tmp/weblate-repo
+WEBLATE_REPO_URL=https://github.com/cockpit-project/cockpit-weblate.git
+WEBLATE_REPO_BRANCH=master
+
 # The full list of various input and output file types
 PO_LINGUAS = $(addprefix po/,$(LINGUAS))
 PO_INPUTS = $(addsuffix .po,$(PO_LINGUAS))
@@ -114,20 +118,19 @@ update-po: po/cockpit.pot
 		$(MSGMERGE) --output-file=$(srcdir)/po/$$lang.po $(srcdir)/po/$$lang.po $<; \
 	done
 
-ZANATA_CLI = LANG=C.UTF-8 LC_ALL=C.UTF-8 zanata
+$(WEBLATE_REPO):
+	git clone --depth=1 -b $(WEBLATE_REPO_BRANCH) $(WEBLATE_REPO_URL) $(WEBLATE_REPO)
 
-upload-pot: po/cockpit.pot
-	$(ZANATA_CLI) push -f --srcdir=$(builddir)/po --push-type=source --project-config=$(srcdir)/po/zanata.xml cockpit.pot
-
-upload-translations: po/cockpit.pot
-	$(ZANATA_CLI) push -f --srcdir=$(srcdir)/po --push-type=target \
-		--transdir=$(srcdir)/po --project-config=$(srcdir)/po/zanata.xml
+upload-pot: po/cockpit.pot $(WEBLATE_REPO)
+	cp $(builddir)/po/cockpit.pot $(WEBLATE_REPO)
+	git -C $(WEBLATE_REPO) commit -m "Update source file" -- cockpit.pot
+	git -C $(WEBLATE_REPO) push
 
 clean-po:
 	rm $(srcdir)/po/*.po
 
-download-po:
-	$(ZANATA_CLI) pull --min-doc-percent 50 --transdir=$(srcdir)/po --project-config=$(srcdir)/po/zanata.xml
+download-po: $(WEBLATE_REPO)
+	cp $(WEBLATE_REPO)/*.po $(srcdir)/po/
 
 CLEANFILES += \
 	$(MO_FILES) \
@@ -145,7 +148,6 @@ EXTRA_DIST += \
 	po/LINGUAS \
 	po/po.empty.js \
 	po/po2json \
-	po/zanata.xml \
 	po/its/polkit.its \
 	po/its/polkit.loc \
 	$(NULL)

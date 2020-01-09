@@ -546,9 +546,9 @@ static void
 test_webserver_tls_big_header (TestCase *tc,
                                gconstpointer user_data)
 {
-  gchar *resp = NULL;
+  g_autofree gchar *resp = NULL;
   gsize length;
-  gchar *req;
+  g_autofree gchar *req = NULL;
 
   /* max request size is 8KiB (2 * cockpit_webserver_request_maximum), stay slightly below that */
   req = g_strdup_printf ("GET /test HTTP/1.0\r\nHost:test\r\nBigHeader: %07000i\r\n\r\n", 1);
@@ -559,8 +559,23 @@ test_webserver_tls_big_header (TestCase *tc,
   g_assert_cmpuint (length, >, 0);
 
   cockpit_assert_strmatch (resp, "HTTP/* 200 *\r\nContent-Length: 2\r\n*\r\n\r\nOK");
-  g_free (resp);
-  g_free (req);
+}
+
+static void
+test_webserver_tls_request_too_large (TestCase *tc,
+                                      gconstpointer user_data)
+{
+  g_autofree gchar *req = NULL;
+  g_autofree gchar *resp = NULL;
+  gsize length;
+
+  /* request bigger than 8KiB should be rejected */
+  cockpit_expect_log ("cockpit-protocol", G_LOG_LEVEL_MESSAGE, "received HTTP request that was too large");
+  req = g_strdup_printf ("GET /test HTTP/1.0\r\nHost:test\r\nBigHeader: %08200i\r\n\r\n", 1);
+  resp = perform_https_request (tc->localport, req, &length);
+  g_assert (resp != NULL);
+  g_assert_cmpuint (length, ==, 0);
+  g_assert_cmpstr (resp, ==, "");
 }
 
 static const TestFixture fixture_with_cert = {
@@ -1082,6 +1097,8 @@ main (int argc,
               setup, test_webserver_tls, teardown);
   g_test_add ("/web-server/tls-big-header", TestCase, &fixture_with_cert,
               setup, test_webserver_tls_big_header, teardown);
+  g_test_add ("/web-server/tls-request-too-large", TestCase, &fixture_with_cert,
+              setup, test_webserver_tls_request_too_large, teardown);
 
   g_test_add ("/web-server/redirect-notls", TestCase, &fixture_with_cert_redirect,
               setup, test_webserver_redirect_notls, teardown);

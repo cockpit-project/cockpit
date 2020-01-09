@@ -30,7 +30,7 @@ import StateIcon from './stateIcon.jsx';
 
 /** One Ui Dummy VM in the list (a row)
  */
-const DummyVm = ({ vm }) => {
+export const DummyVm = ({ vm }) => {
     let state = null;
 
     if (vm.installInProgress) {
@@ -43,12 +43,12 @@ const DummyVm = ({ vm }) => {
 
     const stateIcon = (<StateIcon state={state} valueId={`${vmId(vm.name)}-state`} />);
 
-    const name = (<span id={`${vmId(vm.name)}-row`}>{vm.name}</span>);
+    const name = (<span id={`${vmId(vm.name)}-${vm.connectionName}-row`}>{vm.name}</span>);
 
     return (<ListingRow
         columns={[
             { name, header: true },
-            rephraseUI('connections', null),
+            rephraseUI('connections', vm.connectionName),
             stateIcon,
         ]}
         rowId={`${vmId(vm.name)}`}
@@ -59,4 +59,6 @@ DummyVm.propTypes = {
     vm: PropTypes.object.isRequired,
 };
 
-export default DummyVm;
+export function dummyVmsConvert(vms, uiVms) {
+    return uiVms.filter(uiVm => vms.find(vm => vm.name == uiVm.name && vm.connectionName == uiVm.connectionName) === undefined);
+}

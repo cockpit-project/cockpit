@@ -1331,7 +1331,8 @@ class TestMachines(NetworkCase):
                 .fill() \
                 .createAndExpectInlineValidationErrors(errors) \
                 .cancel(True)
-            runner.assertScriptFinished()
+            if dialog.check_script_finished:
+                runner.assertScriptFinished()
             if dialog.env_is_empty:
                 runner.checkEnvIsEmpty()
 
@@ -1347,7 +1348,9 @@ class TestMachines(NetworkCase):
             dialog.open() \
                 .fill() \
                 .createAndVerifyVirtInstallArgs()
-            runner.checkEnvIsEmpty()
+            if dialog.delete:
+                self.machine.execute("killall -9 virt-install")
+                runner.checkEnvIsEmpty()
 
         def createTest(dialog):
             runner.tryCreate(dialog) \
@@ -1447,10 +1450,29 @@ class TestMachines(NetworkCase):
                                          location=config.VALID_URL, storage_size=1,
                                          delete=False))
 
-        checkDialogFormValidationTest(TestMachines.VmDialog(self, "existing-name", storage_size=1,
-                                                            env_is_empty=False), {"Name": "already exists"})
-
         self.machine.execute("virsh undefine existing-name")
+
+        # name already used from a VM that is currently being created
+        # https://bugzilla.redhat.com/show_bug.cgi?id=1780451
+        # downloadOS option exists only in virt-install >= 2.2.1 which is the reason we have the condition for the OSes list below
+        if self.machine.image in ['debian-stable', 'debian-testing', 'ubuntu-stable', 'ubuntu-1804', 'fedora-30', 'fedora-testing', "centos-8-stream"]:
+            self.browser.wait_not_present('select option[data-value="Download an OS"]')
+        else:
+            createDownloadAnOSTest(TestMachines.VmDialog(self, name='existing-name', sourceType='downloadOS',
+                                                         expected_memory_size=256,
+                                                         expected_storage_size=256,
+                                                         os_name=config.FEDORA_28,
+                                                         os_short_id=config.FEDORA_28_SHORTID,
+                                                         start_vm=True, delete=False))
+
+            checkDialogFormValidationTest(TestMachines.VmDialog(self, "existing-name", storage_size=1,
+                                                                check_script_finished=False, env_is_empty=False), {"Name": "already exists"})
+
+            self.machine.execute("killall -9 virt-install")
+
+            # Close the notificaton which will appear for the failed installation
+            self.browser.click(".toast-notifications-list-pf div.pf-c-alert button.pf-c-button")
+            self.browser.wait_not_present(".toast-notifications-list-pf div.pf-c-alert")
 
         # location
         checkDialogFormValidationTest(TestMachines.VmDialog(self, sourceType='url',
@@ -1856,6 +1878,7 @@ class TestMachines(NetworkCase):
                      start_vm=False,
                      delete=True,
                      env_is_empty=True,
+                     check_script_finished=True,
                      connection=None):
 
             TestMachines.VmDialog.vmId += 1 # This variable is static - don't use self here
@@ -1886,6 +1909,7 @@ class TestMachines(NetworkCase):
             self.storage_volume = storage_volume
             self.delete = delete
             self.env_is_empty = env_is_empty
+            self.check_script_finished = check_script_finished
             self.connection = connection
             if self.connection:
                 self.connectionText = TestMachines.TestCreateConfig.LIBVIRT_CONNECTION[connection]
@@ -1943,8 +1967,6 @@ class TestMachines(NetworkCase):
             wait(lambda: self.machine.execute(virt_install_cmd), delay=3)
             virt_install_cmd_out = self.machine.execute(virt_install_cmd)
             self.assertIn("--install os={}".format(self.os_short_id), virt_install_cmd_out)
-
-            self.machine.execute("killall -9 virt-install")
 
         def fill(self):
             def getSourceTypeLabel(sourceType):

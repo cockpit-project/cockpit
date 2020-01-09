@@ -369,35 +369,32 @@ function ui(state, action) {
     // transient properties
     state = state || {
         notifications: [],
-        vms: {}, // transient property
+        vms: [], // transient property
     };
     const addVm = () => {
-        const newState = Object.assign({}, state);
-        newState.vms = Object.assign({}, state.vms);
-        const oldVm = newState.vms[action.vm.name];
-        const vm = Object.assign({}, oldVm, action.vm);
-
-        newState.vms = Object.assign({}, newState.vms, {
-            [action.vm.name]: vm,
-        });
-        return newState;
+        const existingVm = state.vms.find(vm => vm.name == action.vm.name && vm.connectionName == action.vm.connectionName);
+        if (existingVm === undefined) {
+            return {
+                ...state,
+                vms: [...state.vms, action.vm]
+            };
+        } else {
+            if (existingVm.isUi) {
+                const updatedVm = Object.assign(existingVm, action.vm);
+                return {
+                    ...state,
+                    vms: [...state.vms.filter(vm => !(vm.name == action.vm.name && vm.connectionName == action.vm.connectionName)), updatedVm]
+                };
+            }
+        }
     };
 
     switch (action.type) {
-    case ADD_UI_VM: {
+    case ADD_UI_VM:
+    case UPDATE_UI_VM:
         return addVm();
-    }
-    case UPDATE_UI_VM: {
-        if (state.vms[action.vm.name] && state.vms[action.vm.name].isUi) {
-            return addVm();
-        }
-        return state;
-    }
     case DELETE_UI_VM: {
-        const newState = Object.assign({}, state);
-        newState.vms = Object.assign({}, state.vms);
-        delete newState.vms[action.vm.name];
-        return newState;
+        return { ...state, vms: state.vms.filter(vm => !(vm.name == action.vm.name && vm.connectionName == action.vm.connectionName)) };
     }
     default:
         return state;

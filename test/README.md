@@ -67,9 +67,8 @@ You can set these environment variables to configure the test suite:
                   "centos-8-stream"
                   "debian-stable"
                   "debian-testing"
-                  "fedora-29"
                   "fedora-30"
-                  "fedora-i386"
+                  "fedora-31"
                   "fedora-coreos"
                   "fedora-testing"
                   "rhel-7-7"
@@ -77,6 +76,7 @@ You can set these environment variables to configure the test suite:
                   "rhel-8-1"
                   "rhel-8-1-distropkg"
                   "rhel-8-2"
+                  "rhel-atomic"
                   "ubuntu-1804"
                   "ubuntu-stable"
                "fedora-30" is the default (bots/machine/machine_core/constants.py)

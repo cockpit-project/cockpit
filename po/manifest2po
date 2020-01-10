@@ -106,6 +106,15 @@ function process_keywords(keywords) {
     });
 }
 
+function process_docs(docs) {
+    docs.forEach(doc => {
+        push({
+            msgid: doc.label,
+            locations: [ filename ]
+        })
+    });
+}
+
 function process_menu(menu) {
     for (var m in menu) {
         if (menu[m].label) {
@@ -116,6 +125,8 @@ function process_menu(menu) {
         }
         if (menu[m].keywords)
             process_keywords(menu[m].keywords);
+        if (menu[m].docs)
+            process_docs(menu[m].docs);
     }
 }
 

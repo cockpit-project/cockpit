@@ -24,6 +24,21 @@ from testlib import *
 
 
 class TestPages(MachineCase):
+    def checkDocs(self, items):
+        m = self.machine
+        b = self.browser
+
+        b.click("#navbar-docs > a")
+        b.wait_visible("#navbar-docs-items")
+        expected = "Web Console"
+        expected += "".join(items)
+        # DOCUMENTATION_URL is only in Fedora
+        # RHEL is tracked in rhbz#1789984
+        if "fedora" in m.image:
+            expected = "Fedora documentation" + expected
+        b.wait_collected_text("#navbar-docs-items", expected)
+        b.click("#navbar-docs > a")
+        b.wait_not_visible("#navbar-docs-items")
 
     def testBasic(self):
         m = self.machine
@@ -65,11 +80,18 @@ OnCalendar=daily
         b.enter_page("/system/services")
         b.reload()
         b.enter_page("/system/services")
-        if m.image in ["rhel-8-1-distropkg"]: # Changed in #12265
-            b.wait_text("#service-unit .panel-heading", "Test Service")
-        else:
-            b.wait_text(".service-name", "Test Service")
-
+        b.wait_text(".service-name", "Test Service")
+        if m.image not in ["rhel-8-2-distropkg"]: # Changed in #13376
+            b.switch_to_top()
+            self.checkDocs(["Managing services"])
+            b.click("#navbar-docs > a")
+            b.wait_visible('#navbar-docs-items a:contains("Managing services")[href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_systems_using_the_rhel_8_web_console/managing-services-in-the-web-console_system-management-using-the-rhel-8-web-console"]')
+            b.wait_visible('#navbar-docs-items a:contains("Web Console")[href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_systems_using_the_rhel_8_web_console/index"]')
+            b.click("#navbar-docs > a")
+            b.wait_not_visible("#navbar-docs-items")
+            b.go("/network")
+            self.checkDocs(["Managing networking", "Managing firewall"])
+            b.go("/system/services")
 
         m.restart_cockpit()
         b.relogin("/system/services")
@@ -84,6 +106,8 @@ OnCalendar=daily
         b.enter_page("/system")
         b.wait_present("#system_information_systime_button")
         b.switch_to_top()
+        if m.image not in ["rhel-8-2-distropkg"]: # Changed in #13376
+            self.checkDocs(["Configuring system settings"])
         b.click("a[href='/system/services']")
         b.enter_page("/system/services")
         b.wait_present("ol.breadcrumb")

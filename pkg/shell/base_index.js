@@ -1018,6 +1018,7 @@ function CompiledComponents() {
                     order: info.order === undefined ? 1000 : info.order,
                     icon: info.icon,
                     wants: info.wants,
+                    docs: info.docs,
                     keywords: info.keywords || [{ matches: [] }],
                     keyword: { score: -1 }
                 };

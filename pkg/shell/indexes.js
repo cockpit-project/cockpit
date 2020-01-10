@@ -287,6 +287,7 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
 
         update_navbar(machine, state, compiled);
         update_frame(machine, state, compiled);
+        update_docs(machine, state, compiled);
 
         /* Just replace the state, and URL */
         index.jump(state, true);
@@ -581,6 +582,38 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
         $("#host-nav-item").toggleClass("dashboard-link", !!machine);
 
         update_active_machine(machine ? machine.address : null);
+    }
+
+    function update_docs(machine, state, compiled) {
+        const item = compiled.items[state.component];
+        const docs_items = document.getElementById("navbar-docs-items");
+        docs_items.innerHTML = "";
+
+        function create_item(name, url) {
+            const el_li = document.createElement("li");
+            const el_a = document.createElement("a");
+            const el_icon = document.createElement("i");
+            el_icon.className = "fa fa-external-link fa-xs";
+            el_a.setAttribute("translate", "yes");
+            el_a.setAttribute("href", url);
+            el_a.setAttribute("target", "blank");
+            el_a.setAttribute("rel", "noopener noreferrer");
+
+            el_a.appendChild(document.createTextNode(name));
+            el_a.appendChild(el_icon);
+
+            el_li.appendChild(el_a);
+            docs_items.appendChild(el_li);
+        }
+
+        const os_release = JSON.parse(window.localStorage['os-release'] || "{}");
+        if (os_release.DOCUMENTATION_URL)
+            create_item(cockpit.format(_("$0 documentation"), os_release.NAME), os_release.DOCUMENTATION_URL);
+
+        create_item(_("Web Console"), "https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_systems_using_the_rhel_8_web_console/index");
+
+        if (item && item.docs && item.docs.length > 0)
+            item.docs.forEach(e => create_item(_(e.label), e.url));
     }
 
     function update_navbar(machine, state, compiled) {

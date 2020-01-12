@@ -207,6 +207,15 @@ class TestAccounts(MachineCase):
         b.expect_load()
         b.wait_present('#content')
 
+        # incomplete passwd entry; fixed in PR #13384
+        if m.image not in ["rhel-8-1-distropkg"]:
+            m.execute('echo "damaged:x:1234:1234:Damaged" >> /etc/passwd')
+            b.go("/users")
+            b.enter_page("/users")
+            b.wait_in_text('#accounts-list', "damaged")
+            b.click('.cockpit-account-user-name[href="#/damaged"]')
+            b.wait_in_text("#account-title", "Damaged")
+
         self.allow_journal_messages("Password quality check failed:")
         self.allow_journal_messages("The password is a palindrome")
         self.allow_journal_messages("passwd: user.*does not exist")

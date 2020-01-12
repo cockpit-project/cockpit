@@ -189,9 +189,9 @@ function parse_passwd_content(content) {
             password: column[1],
             uid: parseInt(column[2], 10),
             gid: parseInt(column[3], 10),
-            gecos: column[4].replace(/,*$/, ''),
-            home: column[5],
-            shell: column[6],
+            gecos: (column[4] || '').replace(/,*$/, ''),
+            home: column[5] || '',
+            shell: column[6] || '',
         });
     }
 

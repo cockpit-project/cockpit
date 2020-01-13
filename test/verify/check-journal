@@ -383,7 +383,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
     @skipImage("ABRT does not work on i386", "fedora-i386")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-1804", "fedora-coreos", "rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2", "centos-8-stream")
+               "ubuntu-1804", "fedora-coreos", "rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
     def testAbrtSegv(self):
         self.allow_core_dumps = True
         b = self.browser
@@ -422,7 +422,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
     @skipImage("ABRT does not work on i386", "fedora-i386")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-1804", "fedora-coreos", "rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2", "centos-8-stream")
+               "ubuntu-1804", "fedora-coreos", "rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
     def testAbrtDelete(self):
         self.allow_core_dumps = True
         b = self.browser
@@ -456,7 +456,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
     @skipImage("ABRT does not work on i386", "fedora-i386")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-1804", "fedora-coreos", "rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2", "centos-8-stream")
+               "ubuntu-1804", "fedora-coreos", "rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
     def testAbrtReport(self):
         self.allow_core_dumps = True
         # The testing server is located at verify/files/mock-faf-server.py
@@ -531,7 +531,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
     @skipImage("ABRT does not work on i386", "fedora-i386")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-1804", "fedora-coreos", "rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2", "centos-8-stream")
+               "ubuntu-1804", "fedora-coreos", "rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
     def testAbrtReportCancel(self):
         self.allow_core_dumps = True
 
@@ -571,7 +571,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
     @skipImage("ABRT does not work on i386", "fedora-i386")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-1804", "fedora-coreos", "rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2", "centos-8-stream")
+               "ubuntu-1804", "fedora-coreos", "rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
     def testAbrtReportNoReportd(self):
         self.allow_core_dumps = True
 

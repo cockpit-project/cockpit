@@ -94,6 +94,8 @@ class TestRealms(MachineCase):
 
         if self.machine.image in ["rhel-8-1-distropkg"]:
             self.domain_sel = "#system-info-domain a"
+        elif self.machine.image in ["rhel-8-2-distropkg"]:
+            self.domain_sel = "#system-info-domain button"
         else:
             self.domain_sel = "#system_information_domain_button"
 
@@ -780,12 +782,14 @@ class TestPackageInstall(packagelib.PackageCase):
         super().setUp()
         if self.machine.image in ["rhel-8-1-distropkg"]:
             self.domain_sel = "#system-info-domain a"
+        elif self.machine.image in ["rhel-8-2-distropkg"]:
+            self.domain_sel = "#system-info-domain button"
         else:
             self.domain_sel = "#system_information_domain_button"
 
     def checkTooltip(self, text):
         b = self.browser
-        if self.machine.image in ["rhel-8-1-distropkg"]:
+        if self.machine.image in ["rhel-8-1-distropkg", "rhel-8-2-distropkg"]:
             b.wait_present("#system-info-domain [data-original-title]")
             b.mouse("#system-info-domain span", "mouseover")
             b.wait_in_text(".tooltip-inner", text)

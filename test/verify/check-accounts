@@ -208,7 +208,7 @@ class TestAccounts(MachineCase):
         b.wait_present('#content')
 
         # incomplete passwd entry; fixed in PR #13384
-        if m.image not in ["rhel-8-1-distropkg"]:
+        if m.image not in ["rhel-8-1-distropkg", "rhel-8-2-distropkg"]:
             m.execute('echo "damaged:x:1234:1234:Damaged" >> /etc/passwd')
             b.go("/users")
             b.enter_page("/users")

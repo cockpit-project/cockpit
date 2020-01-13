@@ -304,7 +304,7 @@ class TestSystemInfo(MachineCase):
         b.mouse('#systime-tooltip', 'mouseout')
         b.wait_not_present(tooltip_sel)
 
-    @skipImage("Uses timedatex, no NTP servers config", "rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2", "centos-8-stream",
+    @skipImage("Uses timedatex, no NTP servers config", "rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream",
                "fedora-30", "fedora-testing")
     def testTimeServers(self):
         m = self.machine

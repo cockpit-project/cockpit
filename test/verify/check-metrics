@@ -237,10 +237,8 @@ class TestMetrics(MachineCase):
 
         m.execute("kill %d" % mem_hog)
         # should go back to initial_usage; often below, due to paged out stuff
-        time.sleep(8)
-        last_usage = progressValue(2)
-        self.assertLessEqual(last_usage, initial_usage)
-        self.assertGreater(last_usage, 10)
+        wait(lambda: progressValue(2) <= initial_usage)
+        self.assertGreater(progressValue(2), 10)
 
 
 if __name__ == '__main__':

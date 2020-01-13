@@ -164,9 +164,6 @@ touch dashboard.list
 echo '%dir %{_datadir}/cockpit/pcp' >> pcp.list
 find %{buildroot}%{_datadir}/cockpit/pcp -type f >> pcp.list
 
-echo '%dir %{_datadir}/cockpit/realmd' >> system.list
-find %{buildroot}%{_datadir}/cockpit/realmd -type f >> system.list
-
 echo '%dir %{_datadir}/cockpit/tuned' >> system.list
 find %{buildroot}%{_datadir}/cockpit/tuned -type f >> system.list
 
@@ -221,7 +218,7 @@ touch docker.list
 
 # when not building basic packages, remove their files
 %if 0%{?build_basic} == 0
-for pkg in base1 branding motd kdump networkmanager realmd selinux shell sosreport ssh static systemd tuned users; do
+for pkg in base1 branding motd kdump networkmanager selinux shell sosreport ssh static systemd tuned users; do
     rm -r %{buildroot}/%{_datadir}/cockpit/$pkg
     rm -f %{buildroot}/%{_datadir}/metainfo/org.cockpit-project.cockpit-${pkg}.metainfo.xml
 done
@@ -352,7 +349,6 @@ Requires: shadow-utils
 Requires: grep
 Requires: libpwquality
 Requires: /usr/bin/date
-Provides: cockpit-realmd = %{version}-%{release}
 Provides: cockpit-shell = %{version}-%{release}
 Provides: cockpit-systemd = %{version}-%{release}
 Provides: cockpit-tuned = %{version}-%{release}

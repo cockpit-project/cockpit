@@ -4,7 +4,7 @@ import * as packagekit from "packagekit.js";
 import { install_dialog } from "cockpit-components-install-dialog.jsx";
 import "patterns";
 
-import operation_html from "raw-loader!./operation.html";
+import operation_html from "raw-loader!./realmd-operation.html";
 
 const _ = cockpit.gettext;
 
@@ -16,7 +16,7 @@ var KERBEROS = "org.freedesktop.realmd.Kerberos";
 var KERBEROS_MEMBERSHIP = "org.freedesktop.realmd.KerberosMembership";
 var REALM = "org.freedesktop.realmd.Realm";
 
-function instance(realmd, mode, realm, button) {
+function instance(realmd, mode, realm, state) {
     var dialog = jQuery.parseHTML(operation_html)[0];
 
     /* Scope the jQuery selector to our dialog */
@@ -287,10 +287,8 @@ function instance(realmd, mode, realm, button) {
             }
         }
 
-        if (operation)
-            button.attr('disabled', 'disabled');
-        else
-            button.removeAttr('disabled');
+        state.button_disabled = !!operation;
+        state.dispatchEvent("changed");
 
         if (mode != 'join')
             return;
@@ -564,14 +562,20 @@ function instance(realmd, mode, realm, button) {
     return dialog;
 }
 
-function setup() {
+export function setup() {
     var $ = jQuery;
 
-    var element = $("<span>");
-    var link = $("<button class='pf-c-button pf-m-link pf-m-inline' type='button' aria-label='join domain'>");
-    element.append(link);
-    var hostname_link = $("#system_information_hostname_button");
-    var hostname_tooltip = $("#system_information_hostname_tooltip");
+    var self = {
+        button_text: "",
+        button_tooltip: null,
+        button_disabled: false,
+        hostname_button_tooltip: null,
+        hostname_button_disabled: false,
+
+        clicked: handle_link_click
+    };
+
+    cockpit.event_target(self);
 
     var realmd = null;
     var realms = null;
@@ -581,13 +585,6 @@ function setup() {
 
     var permission = null;
     var install_realmd = false;
-
-    function setTooltip(message) {
-        element
-                .attr('title', message)
-                .tooltip({ container: 'body' })
-                .tooltip('fixTitle');
-    }
 
     function update_realms() {
         var text, path, realm;
@@ -600,16 +597,17 @@ function setup() {
 
         if (!joined || !joined.length) {
             text = _("Join Domain");
-            hostname_link.removeAttr('disabled');
-            hostname_tooltip.removeAttr('title');
-            hostname_tooltip.removeAttr('data-original-title');
+            self.hostname_button_disabled = false;
+            self.hostname_button_tooltip = null;
         } else {
             text = joined.map(function(x) { return x.Name }).join(", ");
-            hostname_link.attr('disabled', true);
-            hostname_tooltip.attr('title', _("Host name should not be changed in a domain"))
-                    .tooltip('fixTitle');
+            self.hostname_button_disabled = true;
+            self.hostname_button_tooltip = _("Host name should not be changed in a domain");
         }
-        link.text(text);
+        self.button_text = text;
+        self.button_disabled = false;
+        self.button_tooltip = null;
+        self.dispatchEvent("changed");
     }
 
     function setup_realms_proxy() {
@@ -622,17 +620,20 @@ function setup() {
                 /* see if we can install it */
                 packagekit.detect().then(function (exists) {
                     if (exists) {
-                        setTooltip("Joining a domain requires installation of realmd");
-                        link.removeAttr("disabled");
+                        self.button_tooltip = _("Joining a domain requires installation of realmd");
+                        self.button_disabled = false;
                         install_realmd = true;
+                        self.dispatchEvent("changed");
                     } else {
-                        setTooltip("Cannot join a domain because realmd is not available on this system");
-                        link.attr("disabled", true);
+                        self.button_tooltip = _("Cannot join a domain because realmd is not available on this system");
+                        self.button_disabled = true;
+                        self.dispatchEvent("changed");
                     }
                 });
             } else {
-                setTooltip(cockpit.message(options));
-                link.attr("disabled", true);
+                self.button_tooltip = cockpit.message(options);
+                self.button_disabled = true;
+                self.dispatchEvent("changed");
             }
             $(realmd).off();
             realmd.close();
@@ -640,21 +641,6 @@ function setup() {
         });
 
         realms = realmd.proxies("org.freedesktop.realmd.Realm");
-        realms.wait(function() {
-            if (!realmd)
-                return;
-
-            permission = cockpit.permission({ admin: true });
-
-            function update_realm_privileged() {
-                $(link).update_privileged(permission,
-                                          cockpit.format(_("The user <b>$0</b> is not permitted to modify realms"),
-                                                         permission.user ? permission.user.name : ''), null, element);
-            }
-
-            $(permission).on("changed", update_realm_privileged);
-        });
-
         $(realms).on("changed", update_realms);
     }
 
@@ -663,7 +649,8 @@ function setup() {
                 .then(function() {
                     install_realmd = false;
                     setup_realms_proxy();
-                    element.tooltip('disable');
+                    self.button_tooltip = null;
+                    self.dispatchEvent("changed");
                     // proceed to domain join dialog after realmd initialized
                     realms.wait().done(handle_link_click);
                 })
@@ -681,9 +668,9 @@ function setup() {
         }
 
         if (joined && joined.length)
-            dialog = instance(realmd, 'leave', joined[0], link);
+            dialog = instance(realmd, 'leave', joined[0], self);
         else
-            dialog = instance(realmd, 'join', null, link);
+            dialog = instance(realmd, 'join', null, self);
 
         $(dialog)
                 .attr("id", "realms-op")
@@ -694,27 +681,15 @@ function setup() {
 
     setup_realms_proxy();
     update_realms();
-    link.on("click", handle_link_click);
 
-    element.close = function close() {
+    self.close = function close() {
         if (dialog)
             dialog.cancel();
-        element.remove();
         if (realmd)
             realmd.close();
         if (permission)
             permission.close();
     };
 
-    return element;
+    return self;
 }
-
-/* Hook this in when loaded */
-jQuery(function() {
-    var placeholder = jQuery("#system-info-domain");
-    if (placeholder.length) {
-        placeholder.append(setup());
-        placeholder.removeAttr('hidden');
-        placeholder.prev().removeAttr('hidden');
-    }
-});

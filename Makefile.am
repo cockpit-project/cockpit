@@ -162,7 +162,6 @@ WEBPACK_PACKAGES = \
 	pcp \
 	packagekit \
 	playground \
-	realmd \
 	selinux \
 	shell \
 	sosreport \

@@ -34,7 +34,7 @@ import cockpit from "cockpit";
  */
 export function Privileged({ excuse, allowed, placement, tooltipId, children }) {
     // wrap into extra <span> so that a disabled child keeps the tooltip working
-    let contents = <span id={tooltipId}>{ children }</span>;
+    let contents = <span id={allowed ? null : tooltipId}>{ children }</span>;
     if (!allowed) {
         contents = (
             <OverlayTrigger placement={ placement || "top" }

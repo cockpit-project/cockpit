@@ -621,7 +621,7 @@ export function parseDumpxmlForInterfaces(devicesElem) {
                 name: interfaceElem.getAttribute('name') ? interfaceElem.getAttribute('name') : undefined, // Name of interface
                 target: targetElem ? targetElem.getAttribute('dev') : undefined,
                 mac: macElem.getAttribute('address'), // MAC address
-                model: modelElem.getAttribute('type'), // Device model
+                model: modelElem ? modelElem.getAttribute('type') : undefined, // Device model
                 aliasName: aliasElem ? aliasElem.getAttribute('name') : undefined,
                 virtualportType: virtualportElem ? virtualportElem.getAttribute('type') : undefined,
                 driverName: driverElem ? driverElem.getAttribute('name') : undefined,

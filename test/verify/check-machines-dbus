@@ -1336,6 +1336,18 @@ class TestMachinesDBus(machineslib.TestMachines):
             ipv6_prefix="64",
         ).execute()
 
+        # Compressed IPv6 addresses should work as well
+        NetworkCreateDialog(
+            self,
+            name="test_network",
+            forward_mode="open",
+            ip_conf="IPv6 only",
+            ipv6_address="fec0::1",
+            ipv6_prefix="48",
+            ipv6_dhcp_start="fec0::1",
+            ipv6_dhcp_end="fec0::10",
+        ).execute()
+
         tmp = NetworkCreateDialog(
             self,
             name="test_network",

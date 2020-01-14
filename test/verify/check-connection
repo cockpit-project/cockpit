@@ -457,6 +457,14 @@ class TestConnection(MachineCase):
         if m.image not in ["rhel-8-1-distropkg"]:  # fixed in PR #13351
             self.assertIn('A Custom Title', m.execute('''curl -s -S -k -H "Authorization: Negotiate $(printf '%0.7000i' 1)" https://localhost:9000/'''))
 
+        # Large requests are processed correctly with plain HTTP through cockpit-tls
+        m.start_cockpit(tls=True)
+        self.assertIn('id="login"', m.execute('''curl -s -S -H "Authorization: Negotiate $(printf '%0.7000i' 1)" http://localhost:9090/'''))
+
+        # Large requests are processed correctly with TLS through cockpit-tls
+        if m.image not in ["rhel-8-1-distropkg"]:  # fixed in PR #13351, and 8.1 is not using cockpit-tls yet
+            self.assertIn('id="login"', m.execute('''curl -s -S -k -H "Authorization: Negotiate $(printf '%0.7000i' 1)" https://localhost:9090/'''))
+
     def testHeadRequest(self):
         m = self.machine
         m.start_cockpit()

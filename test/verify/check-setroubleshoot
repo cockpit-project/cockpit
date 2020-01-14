@@ -172,6 +172,14 @@ class TestSelinux(MachineCase):
         b.wait_in_text(shell_script_sel, "fcontext -a -f a -t samba_share_t -r 's0' '/var/tmp/'")
 
         # Check ansible
+        def normalize(script):
+            # HACK: `permissive` type is exported only since policycoreutils 3.0
+            # See https://github.com/SELinuxProject/selinux/commit/3a9b4505b
+            # Combining of versions < 3.0 with versions >= 3.0 provides a bit
+            # different outputs.
+            return script.replace("permissive -D\n", "")
+
+
         b.click("button:contains('Ansible')")
         b.wait_in_text(ansible_script_sel, "- name: Allow zebra to write config")
 
@@ -185,10 +193,11 @@ class TestSelinux(MachineCase):
     - selinux
 """)
         ansible_m.write("roles/selinux/tasks/main.yml", b.text(ansible_script_sel))
-        se_before = ansible_m.execute("semanage export")
+        se_before = normalize(ansible_m.execute("semanage export"))
         ansible_m.execute("ansible-playbook tests.yml")
-        se_after = ansible_m.execute("semanage export")
-        local = m.execute("semanage export")
+        se_after = normalize(ansible_m.execute("semanage export"))
+        local = normalize(m.execute("semanage export"))
+
         self.assertNotEqual(se_before, se_after)
         self.assertEqual(local, se_after)
 
@@ -202,8 +211,8 @@ class TestSelinux(MachineCase):
         ansible_m.write("roles/selinux/tasks/main.yml", b.text(ansible_script_sel))
         se_before = se_after
         ansible_m.execute("ansible-playbook tests.yml")
-        se_after = ansible_m.execute("semanage export")
-        local = m.execute("semanage export")
+        se_after = normalize(ansible_m.execute("semanage export"))
+        local = normalize(m.execute("semanage export"))
         self.assertNotEqual(se_before, se_after)
         self.assertEqual(local, se_after)
 

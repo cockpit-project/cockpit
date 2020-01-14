@@ -141,7 +141,7 @@ GraphServer.prototype = {
         machine_info.cpu_ram_info()
                 .done(function(info) {
                     $('#link-cpu').text(
-                        cockpit.format(cockpit.ngettext("of $0 CPU core", "of $0 CPU cores", info.cpus), info.cpus)
+                        cockpit.format(cockpit.ngettext("of $0 CPU", "of $0 CPUs", info.cpus), info.cpus)
                     );
                     cpu_data.factor = 0.1 / info.cpus; // millisec / sec -> percent
                     self.cpu_plot.add_metrics_sum_series(cpu_data, { });

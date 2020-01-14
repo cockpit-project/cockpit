@@ -776,6 +776,7 @@ on_transport_control (CockpitTransport *transport,
 {
   CockpitSession *session = user_data;
   const gchar *problem = NULL;
+  const gchar *session_id = NULL;
   const gchar *message = NULL;
   GSimpleAsyncResult *result;
   GError *error = NULL;
@@ -804,6 +805,9 @@ on_transport_control (CockpitTransport *transport,
               g_error_free (error);
             }
         }
+
+      if (cockpit_json_get_string (options, "session-id", NULL, &session_id) && session_id)
+        cockpit_web_service_set_id (session->service, session_id);
 
       ret = FALSE; /* Let this message be handled elsewhere */
     }
@@ -1601,7 +1605,9 @@ out:
 
   /* Successful login */
   if (creds)
-    g_info ("logged in user session for %s", cockpit_creds_get_user (creds));
+    g_info ("User %s logged into session %s",
+            cockpit_creds_get_user (creds),
+            cockpit_web_service_get_id (session->service));
 
   return body;
 }

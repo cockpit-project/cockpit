@@ -69,6 +69,8 @@ load_cert_from_dir (const char *dir_name,
 
   if (n > 0)
     asprintfx (&ret, "%s/%s", dir_name, certs[n-1]->d_name);
+  while (n--)
+    free (certs[n]);
   free (certs);
   return ret;
 }

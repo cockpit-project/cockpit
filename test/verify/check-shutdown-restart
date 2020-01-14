@@ -62,9 +62,12 @@ class TestShutdownRestart(MachineCase):
             b.wait_present("#shutdown-group button[data-action=restart].disabled")
             b.wait_present("#shutdown-group button.dropdown-toggle.disabled")
             b.wait_not_present("#shutdown-group button:not(.disabled)")
-        else:
+        elif m.image == "rhel-8-2-distropkg":
             b.wait_present("#restart-button[disabled]")
             b.wait_present("#restart-button + div.pf-c-dropdown.disabled")
+        else:
+            b.wait_present("#restart-button[disabled]")
+            b.wait_present("#shutdown-group[disabled]")
 
         b.logout()
 
@@ -174,9 +177,12 @@ class TestShutdownRestart(MachineCase):
         if m.image == "rhel-8-1-distropkg":
             b.click("#shutdown-group span.caret")
             b.click("#shutdown-group a:contains('Shut Down')")
-        else:
+        elif m.image == "rhel-8-2-distropkg":
             b.click("#shutdown-group .pf-c-dropdown__toggle")  # kebab
             b.click("#shutdown-group button:contains('Shutdown')")
+        else:
+            b.click("#shutdown-group")  # caret
+            b.click("#shutdown")
         b.wait_popup("shutdown-dialog")
         b.click("#shutdown-dialog .dropdown button")
         b.click("a:contains('Specific Time')")

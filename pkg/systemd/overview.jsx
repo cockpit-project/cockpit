@@ -24,8 +24,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import {
     Page, PageSection, PageSectionVariants,
-    Gallery, Button,
-    Dropdown, DropdownItem, KebabToggle,
+    Gallery,
+    Dropdown, DropdownItem, DropdownToggle, DropdownToggleAction,
 } from '@patternfly/react-core';
 
 import { shutdown, shutdown_modal_setup } from "./shutdown.js";
@@ -45,11 +45,9 @@ class OverviewPage extends React.Component {
         super(props);
 
         this.state = {
-            actionKebabIsOpen: false,
+            actionIsOpen: false,
             privileged: true,
         };
-        this.onKebabToggle = actionKebabIsOpen => this.setState({ actionKebabIsOpen });
-        this.onKebabSelect = event => this.setState({ actionKebabIsOpen: !this.state.actionKebabIsOpen });
         this.hostnameMonitor = this.hostnameMonitor.bind(this);
         this.permission = cockpit.permission({ admin: true });
         this.onPermissionChanged = this.onPermissionChanged.bind(this);
@@ -98,9 +96,12 @@ class OverviewPage extends React.Component {
     }
 
     render() {
-        const { actionKebabIsOpen } = this.state;
+        const { actionIsOpen } = this.state;
         const dropdownItems = [
-            <DropdownItem key="shutdown" onClick={() => shutdown('shutdown', new ServerTime())} component="button">
+            <DropdownItem key="restart" id="restart" onClick={() => shutdown('restart', new ServerTime())} component="button">
+                {_("Restart")}
+            </DropdownItem>,
+            <DropdownItem key="shutdown" id="shutdown" onClick={() => shutdown('shutdown', new ServerTime())} component="button">
                 {_("Shutdown")}
             </DropdownItem>,
         ];
@@ -109,19 +110,27 @@ class OverviewPage extends React.Component {
             <Privileged allowed={ this.state.privileged } placement="bottom"
                         excuse={ cockpit.format(_("The user $0 is not permitted to shutdown or restart this server"),
                                                 this.permission.user ? this.permission.user.name : '') }>
-                <Button id='restart-button' variant="secondary"
-                        onClick={() => shutdown('restart', new ServerTime())}
-                        data-stable={ (this.permission.allowed !== null) ? "yes" : undefined }
-                        isDisabled={ !this.state.privileged }>
-                    {_("Restart")}
-                </Button>
-                <Dropdown id="shutdown-group" position="right"
-                    className={ this.privileged || "disabled" } // does not accept disabled attribute
-                    data-stable={ (this.permission.allowed !== null) ? "yes" : undefined }
-                    onSelect={this.onKebabSelect}
-                    toggle={<KebabToggle onToggle={this.onKebabToggle} />}
-                    isOpen={actionKebabIsOpen}
-                    isPlain
+                <Dropdown
+                    onSelect={() => this.setState({ actionIsOpen: true })}
+                    toggle={
+                        <DropdownToggle
+                            splitButtonItems={[
+                                <DropdownToggleAction id='restart-button' variant="secondary"
+                                    key='restart-button'
+                                    onClick={() => shutdown('restart', new ServerTime())}
+                                    data-stable={ (this.permission.allowed !== null) ? "yes" : undefined }
+                                    isDisabled={ !this.state.privileged }>
+                                    {_("Restart")}
+                                </DropdownToggleAction>
+                            ]}
+                            splitButtonVariant="action"
+                            onToggle={isOpen => this.setState({ actionIsOpen: isOpen })}
+                            isDisabled={ !this.state.privileged }
+                            data-stable={ (this.permission.allowed !== null) ? "yes" : undefined }
+                            id="shutdown-group"
+                        />
+                    }
+                    isOpen={actionIsOpen}
                     dropdownItems={dropdownItems}
                 />
             </Privileged>);

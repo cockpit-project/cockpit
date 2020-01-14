@@ -379,9 +379,13 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
             b.wait_present("#shutdown-group button[data-action=restart][data-stable=yes]")
             b.wait_present("#shutdown-group button.disabled")
             b.wait_not_present("#shutdown-group button:not(.disabled)")
-        else:
+        elif m.image == "rhel-8-2-distropkg":
             b.wait_present("#restart-button[disabled][data-stable=yes]")
             b.wait_present("#shutdown-group.disabled[data-stable=yes]")
+        else:
+            b.wait_present("#restart-button[disabled][data-stable=yes]")
+            b.wait_present("#shutdown-group[disabled][data-stable=yes]")
+
         b.logout()
         self.allow_authorize_journal_messages()
         # not allowed to restricted users

@@ -222,7 +222,7 @@ class TestMetrics(MachineCase):
         wait(lambda: progressValue(1) < 20)
 
         # memory: our test machines have ~ 1 GiB of memory, a reasonable chunk of it should be used
-        b.wait_in_text(".system-usage tr:nth-child(2)", " GiB /")
+        b.wait_in_text(".system-usage tr:nth-child(2)", " GiB")
         initial_usage = progressValue(2)
         self.assertGreater(initial_usage, 10)
         self.assertLess(initial_usage, 80)

@@ -135,7 +135,7 @@ export class UsageCard extends React.Component {
                                         className="pf-m-sm"
                                         min={0} max={Number(this.state.memTotal)}
                                         variant={fraction > 0.9 ? ProgressVariant.danger : ProgressVariant.info}
-                                        label={cockpit.format(_("$0 GiB / $1 GiB"), this.state.memUsed, this.state.memTotal)}
+                                        label={cockpit.format("$0 / $1 GiB", this.state.memUsed, this.state.memTotal)}
                                         measureLocation={ProgressMeasureLocation.outside} />
                                 </td>
                             </tr>

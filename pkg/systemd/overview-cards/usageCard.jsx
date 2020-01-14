@@ -109,7 +109,7 @@ export class UsageCard extends React.Component {
 
     render() {
         const fraction = this.state.memUsed / this.state.memTotal;
-        const cores_str = cockpit.format(cockpit.ngettext("of $0 CPU core", "of $0 CPU cores", this.state.numCpu), this.state.numCpu);
+        const cores_str = cockpit.format(cockpit.ngettext("of $0 CPU", "of $0 CPUs", this.state.numCpu), this.state.numCpu);
 
         return (
             <Card className="system-usage">

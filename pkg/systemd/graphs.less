@@ -214,7 +214,12 @@
 
 .ct-graph-simple {
   display: grid;
-  grid-template-rows: max-content max-content 1fr;
+  grid: max-content 1fr / max-content 1fr;
+  align-items: baseline;
+
+  .server-graph {
+    grid-column: ~"1 / -1";
+  }
 }
 
 /* Style titles */

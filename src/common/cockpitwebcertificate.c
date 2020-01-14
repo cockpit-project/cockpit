@@ -73,6 +73,15 @@ load_cert_from_dir (const char *dir_name,
   return ret;
 }
 
+/**
+ * cockpit_certificate_locate:
+ *
+ * Find Cockpit web server certificate in $XDG_CONFIG_DIRS/cockpit/ws-certs.d/.
+ * The asciibetically latest *.cert file wins.
+ *
+ * Return certificate path on success, or %NULL on error; in the latter case,
+ * @error gets set to an error message.
+ */
 char *
 cockpit_certificate_locate (char **error)
 {
@@ -100,7 +109,8 @@ cockpit_certificate_locate (char **error)
   return NULL;
 }
 
-/** cockpit_certificate_parse:
+/**
+ * cockpit_certificate_parse:
  *
  * Load the ws certificate file, and split it into the private key and
  * certificates PEM strings.

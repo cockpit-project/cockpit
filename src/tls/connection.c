@@ -771,17 +771,18 @@ set_x509_key_from_combined_file (gnutls_certificate_credentials_t x509_cred,
  * support for connections. If this function is not called, the server
  * will only be able to handle http requests.
  *
+ * The certificate file must either contain the key as well, or end with
+ * "*.crt" or "*.cert" and have a corresponding "*.key" file.
+ *
  * @certfile: Server TLS certificate file; cannot be %NULL
- * @keyfile: Server TLS key file; if the key is merged into @certfile, set this
- *           to %NULL.
  * @request_mode: Whether to ask for client certificates
  */
 void
 connection_crypto_init (const char *certfile,
-                        const char *keyfile,
                         gnutls_certificate_request_t request_mode)
 {
   int ret;
+  char *keyfile;
 
   assert (certfile != NULL);
   assert (parameters.x509_cred == NULL);
@@ -790,10 +791,18 @@ connection_crypto_init (const char *certfile,
   if (ret != GNUTLS_E_SUCCESS)
     errx (EXIT_FAILURE, "gnutls_certificate_allocate_credentials failed: %s", gnutls_strerror (ret));
 
-  if (keyfile)
-    ret = gnutls_certificate_set_x509_key_file (parameters.x509_cred, certfile, keyfile, GNUTLS_X509_FMT_PEM);
-  else
-    ret = set_x509_key_from_combined_file (parameters.x509_cred, certfile);
+  /* check if we have a separate key file */
+  keyfile = cockpit_certificate_key_path (certfile);
+  assert (keyfile);
+  ret = gnutls_certificate_set_x509_key_file (parameters.x509_cred, certfile, keyfile, GNUTLS_X509_FMT_PEM);
+
+  /* if not, fall back to combined file */
+  if (ret == GNUTLS_E_FILE_ERROR)
+    {
+      debug(CONNECTION, "connection_crypto_init: %s does not exist, falling back to combined cert+key", keyfile);
+      ret = set_x509_key_from_combined_file (parameters.x509_cred, certfile);
+    }
+  free (keyfile);
 
   if (ret != GNUTLS_E_SUCCESS)
     errx (EXIT_FAILURE, "Failed to initialize server certificate: %s", gnutls_strerror (ret));

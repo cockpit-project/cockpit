@@ -30,11 +30,15 @@
 
     <para>Cockpit will load a certificate from the <code>/etc/cockpit/ws-certs.d</code>
       directory. It will use the last file with a <code>.cert</code> or <code>.crt</code>
-      extension in alphabetical order. The file should contain at least two
-      OpenSSL style PEM blocks. First one or more <literal>BEGIN CERTIFICATE</literal>
-      blocks for the server certificate and the intermediate certificate authorities
-      and a last one containing a <literal>BEGIN PRIVATE KEY</literal> or similar.
-      The key may not be encrypted. For example:</para>
+      extension in alphabetical order. The file should contain one or more OpenSSL
+      style <literal>BEGIN CERTIFICATE</literal> blocks for the server certificate and
+      the intermediate certificate authorities.</para>
+
+    <para>The private key can either be contained in the same <code>.cert</code>/<code>.crt</code>
+    file as an additional <literal>BEGIN PRIVATE KEY</literal> or similar block, or in
+    a separate file with the same name as the certificate, but with a <code>.key</code>
+    suffix instead. The key must not be encrypted. For example, a merged file looks like this:</para>
+
 <programlisting>
 -----BEGIN CERTIFICATE-----
 MIIDUzCCAjugAwIBAgIJAPXW+CuNYS6QMA0GCSqGSIb3DQEBCwUAMD8xKTAnBgNV

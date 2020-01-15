@@ -21,6 +21,7 @@
 #define __COCKPIT_WEBCERTIFICATE_H__
 
 char *  cockpit_certificate_locate   (char **error);
+char *  cockpit_certificate_key_path (const char *certfile);
 int     cockpit_certificate_parse    (const char *file, char **cert, char **key);
 
 #endif /* __COCKPIT_WEBCERTIFICATE_H__ */

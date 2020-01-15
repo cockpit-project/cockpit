@@ -77,7 +77,10 @@ export class HealthCard extends React.Component {
                             <>
                                 {this.state.updateDetails !== undefined ? <>
                                     <span id="system_information_updates_icon" className={updateDetails.icon || ""} />
-                                    <a role="link" tabIndex="0" id="system_information_updates_text" onClick={() => cockpit.jump("/" + (updateDetails.link || "updates"))}>{updateDetails.text || this.state.updateStatus.title || ""}</a>
+                                    <a href={"/" + (updateDetails.link || "updates")} id="system_information_updates_text" onClick={ev => {
+                                        cockpit.jump("/" + (updateDetails.link || "updates"));
+                                        ev.preventDefault();
+                                    }}>{updateDetails.text || this.state.updateStatus.title || ""}</a>
                                 </> : <>
                                     <span className="spinner spinner-xs" />
                                     <span>{_("Checking for package updates...")}</span>
@@ -87,7 +90,10 @@ export class HealthCard extends React.Component {
                         {this.state.insightsLinkVisible && <li className="system-health-insights">
                             <span className="fa fa-exclamation-triangle" />
                             { cockpit.manifests.subscriptions
-                                ? <a id="insights_text" tabIndex='0' role="button" onClick={() => cockpit.jump("/subscriptions")}>{_("Not connected to Insights")}</a>
+                                ? <a id="insights_text" href="/subscriptions" onClick={ ev => {
+                                    cockpit.jump("/subscriptions");
+                                    ev.preventDefault();
+                                }}>{_("Not connected to Insights")}</a>
                                 : <span id="insights_text">{_("Not connected to Insights")}</span>}
                         </li>}
                     </ul>

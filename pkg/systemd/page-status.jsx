@@ -50,13 +50,28 @@ export class PageStatusNotifications extends React.Component {
         // Just this one for now
         const page = "system/services";
         const status = page_status.get(page);
-        if (status && status.type && status.title) {
+        if (status && (status.type || status.details) && status.title) {
             this.props.toggle_label && this.props.toggle_label(true);
-            const jump = () => cockpit.jump("/" + page);
+
+            let action;
+            if (status.details && status.details.link !== undefined) {
+                if (status.details.link)
+                    action = <a role="button" tabIndex="0"
+                                onClick={ () => cockpit.jump("/" + status.details.link) }>{status.title}</a>;
+                else
+                    action = <span>{status.title}</span>; // no link
+            } else {
+                action = <a role="button" tabIndex="0"
+                            onClick={ () => cockpit.jump("/" + page) }>{status.title}</a>;
+            }
+
+            let icon = status.details && status.details.icon;
+            if (!icon)
+                icon = icon_class_for_type(status.type);
             return (
                 <li id={ "page_status_notification_" + page.replace('/', '_') } key={page}>
-                    <span className={icon_class_for_type(status.type)} />
-                    <a role="button" tabIndex="0" onClick={jump}>{status.title}</a>
+                    <span className={icon} />
+                    {action}
                 </li>);
         } else {
             this.props.toggle_label && this.props.toggle_label(false);

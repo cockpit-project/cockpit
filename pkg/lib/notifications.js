@@ -55,7 +55,11 @@ fields:
  An arbitrary value.  The "System" overview page might monitor a
  couple of pages for their status and it will use 'details' to display
  a richer version of the status than possible with just type and
- title.
+ title. The recognized properties are:
+
+   * icon: custom icon name (defaults to standard icon corresponding to type)
+   * link: custom link target (defaults to page name); if false, the
+     notification will not be a link
 
 Usage:
 

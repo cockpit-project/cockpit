@@ -331,6 +331,15 @@ class TestConnection(MachineCase):
         self.assertRegex(output, "s:/?CN *= *localhost")
         self.assertRegex(output, "1 s:/?OU *= *Intermediate")
 
+        # *.crt file also works; added in PR #13388
+        if m.image not in ["rhel-8-1-distropkg", "rhel-8-2-distropkg"]:
+            m.execute ("mv /etc/cockpit/ws-certs.d/cert-chain.cert /etc/cockpit/ws-certs.d/cert-chain.crt")
+            m.restart_cockpit()
+            output = m.execute('openssl s_client -connect 172.27.0.15:9090 2>&1')
+            self.assertIn("DONE", output)
+            self.assertRegex(output, "s:/?CN *= *localhost")
+            self.assertRegex(output, "1 s:/?OU *= *Intermediate")
+
         # login handler: correct password
         m.execute("curl -k -c cockpit.jar -s --head --header 'Authorization: Basic {}' https://127.0.0.1:9090/cockpit/login".format(
             base64.b64encode(b"admin:foobar").decode(), ))

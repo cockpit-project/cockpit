@@ -21,7 +21,6 @@ import React from 'react';
 import { Card, CardHeader, CardBody, CardFooter } from '@patternfly/react-core';
 
 import cockpit from "cockpit";
-import { page_status } from "notifications";
 import { PageStatusNotifications } from "../page-status.jsx";
 import * as service from "service.js";
 
@@ -32,15 +31,11 @@ const _ = cockpit.gettext;
 export class HealthCard extends React.Component {
     constructor() {
         super();
-        this.state = { insightsLinkVisible: false, updateDetails: undefined };
-        this.refresh_os_updates_state = this.refresh_os_updates_state.bind(this);
+        this.state = { insightsLinkVisible: false };
         this.refresh_insights_status = this.refresh_insights_status.bind(this);
     }
 
     componentDidMount() {
-        page_status.addEventListener("changed", this.refresh_os_updates_state);
-        this.refresh_os_updates_state();
-
         this.insights_client_timer = service.proxy("insights-client.timer");
         this.insights_client_timer.addEventListener("changed", this.refresh_insights_status);
         this.refresh_insights_status();
@@ -54,35 +49,13 @@ export class HealthCard extends React.Component {
             this.setState({ insightsLinkVisible: false });
     }
 
-    refresh_os_updates_state() {
-        const status = page_status.get("updates") || { };
-        const details = status.details;
-
-        this.setState({
-            updateDetails: details,
-            updateStatus: status,
-        });
-    }
-
     render() {
-        const updateDetails = this.state.updateDetails || { };
         return (
             <Card className="system-health">
                 <CardHeader>{_("Health")}</CardHeader>
                 <CardBody>
                     <ul className="system-health-events">
                         <PageStatusNotifications />
-                        <li>
-                            <>
-                                {this.state.updateDetails !== undefined ? <>
-                                    <span id="system_information_updates_icon" className={updateDetails.icon || ""} />
-                                    <a role="link" tabIndex="0" id="system_information_updates_text" onClick={() => cockpit.jump("/" + (updateDetails.link || "updates"))}>{updateDetails.text || this.state.updateStatus.title || ""}</a>
-                                </> : <>
-                                    <span className="spinner spinner-xs" />
-                                    <span>{_("Checking for package updates...")}</span>
-                                </>}
-                            </>
-                        </li>
                         {this.state.insightsLinkVisible && <li className="system-health-insights">
                             <span className="fa fa-exclamation-triangle" />
                             { cockpit.manifests.subscriptions

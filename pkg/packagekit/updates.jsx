@@ -814,7 +814,15 @@ class OsUpdates extends React.Component {
         case "loading":
         case "refreshing":
         case "locked":
-            page_status.set_own(null);
+            page_status.set_own({
+                type: null,
+                title: _("Checking for package updates..."),
+                details: {
+                    link: false,
+                    icon: "spinner spinner-xs",
+                }
+            });
+
             if (this.state.loadPercent)
                 return (
                     <div className="progress-main-view">
@@ -931,9 +939,9 @@ class OsUpdates extends React.Component {
 
         case "uptodate":
             page_status.set_own({
+                title: _("System is up to date"),
                 details: {
-                    text: _("System is up to date"),
-                    link: "",
+                    link: false,
                     icon: "fa fa-check-circle-o"
                 }
             });

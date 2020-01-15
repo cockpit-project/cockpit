@@ -56,6 +56,15 @@ class TestUpdates(PackageCase):
         else:
             self.enhancement_severity = "bug"
 
+        if self.machine.image in ["rhel-8-1-distropkg", "rhel-8-2-distropkg"]:
+            self.update_icon = "#system_information_updates_icon"
+            self.update_text = "#system_information_updates_text"
+            self.update_text_action = "#system_information_updates_text"
+        else:
+            self.update_icon = "#page_status_notification_updates span:first-child"
+            self.update_text = "#page_status_notification_updates"
+            self.update_text_action = "#page_status_notification_updates a"
+
     def check_nth_update(self, index, pkgname, version, severity="bug",
                          num_issues=None, desc_matches=[], cves=[], bugs=[], arch=None):
         """Check the contents of the package update table row at index
@@ -97,11 +106,11 @@ class TestUpdates(PackageCase):
         return row
 
     def wait_checking_updates(self):
-        '''Wait until spinner is gone from #system_information_updates_icon for 3 s'''
+        '''Wait until spinner is gone from updates icon for 3 s'''
 
         good_count = 0
         for retry in range(60):
-            classes = self.browser.attr("#system_information_updates_icon", "class")
+            classes = self.browser.attr(self.update_icon, "class")
             if classes is None or "spinner" in classes:
                 good_count = 0
             else:
@@ -126,11 +135,11 @@ class TestUpdates(PackageCase):
         b.login_and_go("/system")
         # status on /system front page: no repos at all, thus no updates
         self.wait_checking_updates()
-        b.wait_text("#system_information_updates_text", up_to_date_text)
+        b.wait_text(self.update_text, up_to_date_text)
         if m.image == "rhel-8-1-distropkg":
-            self.assertEqual(b.attr("#system_information_updates_icon", "class"), "")
+            self.assertEqual(b.attr(self.update_icon, "class"), "")
         else:
-            self.assertEqual(b.attr("#system_information_updates_icon", "class"), "fa fa-check-circle-o")
+            self.assertEqual(b.attr(self.update_icon, "class"), "fa fa-check-circle-o")
 
         # no updates on the Software Updates page
         b.go("/updates")
@@ -169,15 +178,12 @@ class TestUpdates(PackageCase):
         b.enter_page("/system")
         self.wait_checking_updates()
         if m.image == "rhel-8-1-distropkg": #12620
-            b.wait_text("#system_information_updates_text", "Updates Available")
+            b.wait_text(self.update_text, "Updates Available")
         else:
-            b.wait_text("#system_information_updates_text", "Bug Fix Updates Available")
-        self.assertIn("fa-bug", b.attr("#system_information_updates_icon", "class"))
+            b.wait_text(self.update_text, "Bug Fix Updates Available")
+        self.assertIn("fa-bug", b.attr(self.update_icon, "class"))
         # should be a link, click on it to go to /updates
-        if m.image == "rhel-8-1-distropkg":
-            b.click("#system_information_updates_text a")
-        else:
-            b.click("#system_information_updates_text")
+        b.click(self.update_text_action)
         b.enter_page("/updates")
 
         # old versions are still installed
@@ -236,10 +242,10 @@ class TestUpdates(PackageCase):
         b.enter_page("/system")
         self.wait_checking_updates()
         if m.image == "rhel-8-1-distropkg":
-            self.assertEqual(b.attr("#system_information_updates_icon", "class"), "")
+            self.assertEqual(b.attr(self.update_icon, "class"), "")
         else:
-            self.assertEqual(b.attr("#system_information_updates_icon", "class"), "fa fa-check-circle-o")
-        b.wait_text("#system_information_updates_text", up_to_date_text)
+            self.assertEqual(b.attr(self.update_icon, "class"), "fa fa-check-circle-o")
+        b.wait_text(self.update_text, up_to_date_text)
 
     def testInfoSecurity(self):
         b = self.browser
@@ -336,17 +342,14 @@ class TestUpdates(PackageCase):
         b.enter_page("/system")
         self.wait_checking_updates()
         if m.image == "rhel-8-1-distropkg": #12620
-            b.wait_text("#system_information_updates_text", "Updates Available")
-            self.assertIn("bug", b.attr("#system_information_updates_icon", "class"))
+            b.wait_text(self.update_text, "Updates Available")
+            self.assertIn("bug", b.attr(self.update_icon, "class"))
         else:
-            b.wait_text("#system_information_updates_text", "Security Updates Available")
-            self.assertIn("security", b.attr("#system_information_updates_icon", "class"))
+            b.wait_text(self.update_text, "Security Updates Available")
+            self.assertIn("security", b.attr(self.update_icon, "class"))
 
         # should be a link, click on it to go to back to /updates
-        if m.image == "rhel-8-1-distropkg":
-            b.click("#system_information_updates_text a")
-        else:
-            b.click("#system_information_updates_text")
+        b.click(self.update_text_action)
         b.enter_page("/updates")
 
         # install only security updates
@@ -652,11 +655,11 @@ class TestUpdates(PackageCase):
         b.go("/system")
         b.enter_page("/system")
         if m.image == "rhel-8-1-distropkg": #12620
-            b.wait_not_visible("#system_information_updates_text")
-            self.assertEqual(b.attr("#system_information_updates_icon", "class"), "")
+            b.wait_not_visible(self.update_text)
+            self.assertEqual(b.attr(self.update_icon, "class"), "")
         else:
-            b.wait_text("#system_information_updates_text", "Loading available updates failed")
-            self.assertIn("exclamation", b.attr("#system_information_updates_icon", "class"))
+            b.wait_text(self.update_text, "Loading available updates failed")
+            self.assertIn("exclamation", b.attr(self.update_icon, "class"))
 
 
 @skipImage("Image uses OSTree", "fedora-coreos")
@@ -698,6 +701,14 @@ class TestUpdatesSubscriptions(PackageCase):
 
         # Wait for the web service to be accessible
         m.execute(script=WAIT_SCRIPT % {"addr": "10.111.112.100"})
+        if self.machine.image in ["rhel-8-1-distropkg", "rhel-8-2-distropkg"]:
+            self.update_icon = "#system_information_updates_icon"
+            self.update_text = "#system_information_updates_text"
+            self.update_text_action = "#system_information_updates_text"
+        else:
+            self.update_icon = "#page_status_notification_updates span:first-child"
+            self.update_text = "#page_status_notification_updates"
+            self.update_text_action = "#page_status_notification_updates a"
 
     def testNoUpdates(self):
         m = self.machine
@@ -712,8 +723,8 @@ class TestUpdatesSubscriptions(PackageCase):
         m.start_cockpit()
         b.login_and_go("/system")
         # show unregistered status on system front page
-        b.wait_in_text("#system_information_updates_text", "Not Registered")
-        self.assertIn("triangle", b.attr("#system_information_updates_icon", "class"))
+        b.wait_in_text(self.update_text, "Not Registered")
+        self.assertIn("triangle", b.attr(self.update_icon, "class"))
 
         # software updates page also shows unregistered
         b.go("/updates")
@@ -741,10 +752,10 @@ class TestUpdatesSubscriptions(PackageCase):
         b.go("/system")
         b.enter_page("/system")
         if m.image == "rhel-8-1-distropkg":
-            self.assertEqual(b.attr("#system_information_updates_icon", "class"), "")
+            self.assertEqual(b.attr(self.update_icon, "class"), "")
         else:
-            self.assertEqual(b.attr("#system_information_updates_icon", "class"), "fa fa-check-circle-o")
-        b.wait_text("#system_information_updates_text", up_to_date_text)
+            self.assertEqual(b.attr(self.update_icon, "class"), "fa fa-check-circle-o")
+        b.wait_text(self.update_text, up_to_date_text)
 
     def testAvailableUpdates(self):
         m = self.machine
@@ -759,13 +770,10 @@ class TestUpdatesSubscriptions(PackageCase):
 
         b.login_and_go("/system")
         # by default our rhel-* images are not registered; show warning on system page
-        b.wait_in_text("#system_information_updates_text", "Not Registered")
-        self.assertIn("triangle", b.attr("#system_information_updates_icon", "class"))
+        b.wait_in_text(self.update_text, "Not Registered")
+        self.assertIn("triangle", b.attr(self.update_icon, "class"))
         # should be a link leading to subscriptions page
-        if m.image == "rhel-8-1-distropkg":
-            b.click("#system_information_updates_text a")
-        else:
-            b.click("#system_information_updates_text")
+        b.click(self.update_text_action)
         b.enter_page("/subscriptions")
 
         # software updates page also shows unregistered
@@ -797,10 +805,10 @@ class TestUpdatesSubscriptions(PackageCase):
         b.go("/system")
         b.enter_page("/system")
         if m.image == "rhel-8-1-distropkg": #12620
-            b.wait_text("#system_information_updates_text", "Updates Available")
+            b.wait_text(self.update_text, "Updates Available")
         else:
-            b.wait_text("#system_information_updates_text", "Bug Fix Updates Available")
-        self.assertIn("fa-bug", b.attr("#system_information_updates_icon", "class"))
+            b.wait_text(self.update_text, "Bug Fix Updates Available")
+        self.assertIn("fa-bug", b.attr(self.update_icon, "class"))
 
 
 @skipImage("Image uses OSTree", "fedora-coreos")

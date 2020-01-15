@@ -47,35 +47,36 @@ export class PageStatusNotifications extends React.Component {
     }
 
     render() {
-        // Just this one for now
-        const page = "system/services";
-        const status = page_status.get(page);
-        if (status && (status.type || status.details) && status.title) {
-            this.props.toggle_label && this.props.toggle_label(true);
+        // Explicit whitelist for now, until we can get a dynamic list
+        return ["system/services", "updates"].map(page => {
+            const status = page_status.get(page);
+            if (status && (status.type || status.details) && status.title) {
+                this.props.toggle_label && this.props.toggle_label(true);
 
-            let action;
-            if (status.details && status.details.link !== undefined) {
-                if (status.details.link)
+                let action;
+                if (status.details && status.details.link !== undefined) {
+                    if (status.details.link)
+                        action = <a role="button" tabIndex="0"
+                                    onClick={ () => cockpit.jump("/" + status.details.link) }>{status.title}</a>;
+                    else
+                        action = <span>{status.title}</span>; // no link
+                } else {
                     action = <a role="button" tabIndex="0"
-                                onClick={ () => cockpit.jump("/" + status.details.link) }>{status.title}</a>;
-                else
-                    action = <span>{status.title}</span>; // no link
-            } else {
-                action = <a role="button" tabIndex="0"
-                            onClick={ () => cockpit.jump("/" + page) }>{status.title}</a>;
-            }
+                                onClick={ () => cockpit.jump("/" + page) }>{status.title}</a>;
+                }
 
-            let icon = status.details && status.details.icon;
-            if (!icon)
-                icon = icon_class_for_type(status.type);
-            return (
-                <li id={ "page_status_notification_" + page.replace('/', '_') } key={page}>
-                    <span className={icon} />
-                    {action}
-                </li>);
-        } else {
-            this.props.toggle_label && this.props.toggle_label(false);
-            return null;
-        }
+                let icon = status.details && status.details.icon;
+                if (!icon)
+                    icon = icon_class_for_type(status.type);
+                return (
+                    <li id={ "page_status_notification_" + page.replace('/', '_') } key={page}>
+                        <span className={icon} />
+                        {action}
+                    </li>);
+            } else {
+                this.props.toggle_label && this.props.toggle_label(false);
+                return null;
+            }
+        });
     }
 }

@@ -85,6 +85,9 @@ test_locate (void)
   /* asciibetically last one wins */
   do_locate_test (cert_dir_fd, "50-better.cert", "*/cockpit/ws-certs.d/50-better.cert", NULL);
 
+  /* *.crt works, too */
+  do_locate_test (cert_dir_fd, "60-best.crt", "*/cockpit/ws-certs.d/60-best.crt", NULL);
+
   close (cert_dir_fd);
   g_unsetenv ("XDG_CONFIG_DIRS");
   rmdir (cert_dir);

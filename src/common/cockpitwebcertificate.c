@@ -45,10 +45,11 @@
 static int
 filter_cert (const struct dirent *entry)
 {
-  /* check if entry ends with .cert */
-  const char *suffix = ".cert";
-  int diff = strlen (entry->d_name) - strlen (suffix);
-  return diff > 0 && strcmp (entry->d_name + diff, suffix) == 0;
+  int len = strlen (entry->d_name);
+
+  /* check if entry ends with .crt or .cert */
+  return (len > 4 && strcmp (entry->d_name + len - 4, ".crt") == 0) ||
+         (len > 5 && strcmp (entry->d_name + len - 5, ".cert") == 0);
 }
 
 static char *
@@ -79,7 +80,7 @@ load_cert_from_dir (const char *dir_name,
  * cockpit_certificate_locate:
  *
  * Find Cockpit web server certificate in $XDG_CONFIG_DIRS/cockpit/ws-certs.d/.
- * The asciibetically latest *.cert file wins.
+ * The asciibetically latest *.crt or *.cert file wins.
  *
  * Return certificate path on success, or %NULL on error; in the latter case,
  * @error gets set to an error message.

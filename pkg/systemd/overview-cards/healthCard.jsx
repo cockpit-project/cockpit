@@ -65,14 +65,13 @@ export class HealthCard extends React.Component {
     }
 
     render() {
-        const pageStatusNotifications = React.createElement(PageStatusNotifications);
         const updateDetails = this.state.updateDetails || { };
         return (
             <Card className="system-health">
                 <CardHeader>{_("Health")}</CardHeader>
                 <CardBody>
                     <ul className="system-health-events">
-                        <li id="page_status_notifications">{pageStatusNotifications}</li>
+                        <PageStatusNotifications />
                         <li>
                             <>
                                 {this.state.updateDetails !== undefined ? <>

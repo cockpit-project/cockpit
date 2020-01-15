@@ -889,7 +889,7 @@ ExecStart=/usr/bin/false
         # System page should have notification
         b.click('#host-apps a[href="/system"]')
         b.enter_page('/system')
-        b.wait_present('#page_status_notifications:contains("%s")' % health_message)
+        b.wait_in_text(".system-health-events", health_message)
 
         # Clear aab-fail
         m.execute("systemctl reset-failed aab-fail")
@@ -912,7 +912,7 @@ ExecStart=/usr/bin/false
             # System page should not have notification
             b.click('#host-apps a[href="/system"]')
             b.enter_page('/system')
-            b.wait_not_present('#page_status_notifications:contains("failed")')
+            b.wait_not_in_text(".system-health-events", "failed")
 
     def testHiddenFailure(self):
         m = self.machine
@@ -944,7 +944,7 @@ Where=/fail
             # System page should not have notification
             b.click('#host-apps a[href="/system"]')
             b.enter_page('/system')
-            b.wait_not_present('#page_status_notifications:contains("failed")')
+            b.wait_not_in_text(".system-health-events", "failed")
 
         self.allow_journal_messages(".*type=1400 audit(.*): avc:  denied  { create } .* comm=\"systemd\" name=\"fail\".*")
 

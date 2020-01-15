@@ -94,6 +94,22 @@ test_locate (void)
   rmdir (workdir);
 }
 
+static void
+test_keypath (void)
+{
+  char *path;
+
+  path = cockpit_certificate_key_path ("/etc/cockpit/ws-certs.d/50-good.cert");
+  g_assert_cmpstr (path, ==, "/etc/cockpit/ws-certs.d/50-good.key");
+  g_free (path);
+  path = cockpit_certificate_key_path ("a.cert");
+  g_assert_cmpstr (path, ==, "a.key");
+  g_free (path);
+  path = cockpit_certificate_key_path ("a.crt");
+  g_assert_cmpstr (path, ==, "a.key");
+  g_free (path);
+}
+
 int
 main (int argc,
       char *argv[])
@@ -101,6 +117,7 @@ main (int argc,
   cockpit_test_init (&argc, &argv);
 
   g_test_add_func ("/webcertificate/locate", test_locate);
+  g_test_add_func ("/webcertificate/keypath", test_keypath);
 
   return g_test_run ();
 }

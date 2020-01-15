@@ -380,21 +380,42 @@ cockpit_certificate_load (const gchar *cert_path,
                           GError **error)
 {
   int r;
-  g_autofree gchar *certs = NULL;
-  g_autofree gchar *key = NULL;
-  g_autofree gchar *combined = NULL;
+  g_autofree gchar *key_path = cockpit_certificate_key_path (cert_path);
   GTlsCertificate *cert;
+  GError *key_error = NULL;
 
-  r = cockpit_certificate_parse (cert_path, &certs, &key);
-  if (r < 0)
+  /* check if we have a separate .key file */
+  cert = g_tls_certificate_new_from_files (cert_path, key_path, &key_error);
+  if (cert)
     {
-      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (-r), "Failed to load %s: %s", cert_path, g_strerror (-r));
-      return NULL;
+      g_debug ("loaded separate cert %s and key %s", cert_path, key_path);
+    }
+  else if (g_error_matches (key_error, G_FILE_ERROR, G_FILE_ERROR_NOENT))
+    {
+      /* combined cert+key file */
+      g_autofree gchar *certs = NULL;
+      g_autofree gchar *key = NULL;
+      g_autofree gchar *combined = NULL;
+
+      g_debug ("%s does not exist, falling back to combined certificate", key_path);
+      g_clear_error (&key_error);
+
+      r = cockpit_certificate_parse (cert_path, &certs, &key);
+      if (r < 0)
+        {
+          g_set_error (error, G_IO_ERROR, g_io_error_from_errno (-r), "Failed to load %s: %s", cert_path, g_strerror (-r));
+          return NULL;
+        }
+
+      /* Gio only has constructors for parsing certs and key from one string, so combine them */
+      combined = g_strconcat (certs, key, NULL);
+      cert = g_tls_certificate_new_from_pem (combined, -1, error);
+    }
+  else
+    {
+      g_propagate_error (error, key_error);
     }
 
-  /* Gio only has constructors for parsing certs and key from one string, so combine them */
-  combined = g_strconcat (certs, key, NULL);
-  cert = g_tls_certificate_new_from_pem (combined, -1, error);
   if (cert == NULL)
     g_prefix_error (error, "%s: ", cert_path);
   else

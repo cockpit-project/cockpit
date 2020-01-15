@@ -41,8 +41,8 @@
 
 #define SOCKET_ACTIVATION_HELPER BUILDDIR "/socket-activation-helper"
 #define COCKPIT_WS BUILDDIR "/cockpit-ws"
+/* this has a corresponding mock-server.key */
 #define CERTFILE SRCDIR "/src/bridge/mock-server.crt"
-#define KEYFILE SRCDIR "/src/bridge/mock-server.key"
 #define CERTKEYFILE SRCDIR "/src/ws/mock-combined.crt"
 #define CERTCHAINKEYFILE SRCDIR "/test/verify/files/cert-chain.cert"
 
@@ -64,7 +64,6 @@ typedef struct {
 
 typedef struct {
   const char *certfile;
-  const char *keyfile;
   int cert_request_mode;
   int idle_timeout;
   const char *client_crt;
@@ -74,12 +73,10 @@ typedef struct {
 
 static const TestFixture fixture_separate_crt_key = {
   .certfile = CERTFILE,
-  .keyfile = KEYFILE,
 };
 
 static const TestFixture fixture_separate_crt_key_client_cert = {
   .certfile = CERTFILE,
-  .keyfile = KEYFILE,
   .cert_request_mode = GNUTLS_CERT_REQUEST,
   .client_crt = CLIENT_CERTFILE,
   .client_key = CLIENT_KEYFILE,
@@ -88,7 +85,6 @@ static const TestFixture fixture_separate_crt_key_client_cert = {
 
 static const TestFixture fixture_expired_client_cert = {
   .certfile = CERTFILE,
-  .keyfile = KEYFILE,
   .cert_request_mode = GNUTLS_CERT_REQUEST,
   .client_crt = CLIENT_EXPIRED_CERTFILE,
   .client_key = CLIENT_KEYFILE,
@@ -97,7 +93,6 @@ static const TestFixture fixture_expired_client_cert = {
 
 static const TestFixture fixture_alternate_client_cert = {
   .certfile = CERTFILE,
-  .keyfile = KEYFILE,
   .cert_request_mode = GNUTLS_CERT_REQUEST,
   .client_crt = ALTERNATE_CERTFILE,
   .client_key = ALTERNATE_KEYFILE,
@@ -358,7 +353,7 @@ setup (TestCase *tc, gconstpointer data)
 
   server_init (tc->ws_socket_dir, tc->runtime_dir, fixture ? fixture->idle_timeout : 0, server_port);
   if (fixture && fixture->certfile)
-    connection_crypto_init (fixture->certfile, fixture->keyfile, fixture->cert_request_mode);
+    connection_crypto_init (fixture->certfile, fixture->cert_request_mode);
 
   tc->server_addr.sin_family = AF_INET;
   tc->server_addr.sin_port = htons (server_port);

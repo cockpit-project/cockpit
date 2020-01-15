@@ -113,6 +113,31 @@ cockpit_certificate_locate (char **error)
 }
 
 /**
+ * cockpit_certificate_key_path:
+ *
+ * Return key file path for given certfile, i. e. replace ".crt" or ".cert"
+ * suffix with ".key". Invalid names exit the program. All usages of this
+ * function in our code control the file name, so that should not happen.
+ */
+char *
+cockpit_certificate_key_path (const char *certfile)
+{
+  int len = strlen (certfile);
+  char *keypath = NULL;
+
+  /* .cert suffix case: chop off suffix, append ".key" */
+  if (len > 5 && strcmp (certfile + len - 5, ".cert") == 0)
+    asprintfx (&keypath, "%.*s.key", len - 5, certfile);
+  /* *.crt suffix case */
+  else if (len > 4 && strcmp (certfile + len - 4, ".crt") == 0)
+    asprintfx (&keypath, "%.*s.key", len - 4, certfile);
+  else
+    errx (EXIT_FAILURE, "internal error: invalid certificate file name: %s", certfile);
+
+  return keypath;
+}
+
+/**
  * cockpit_certificate_parse:
  *
  * Load the ws certificate file, and split it into the private key and

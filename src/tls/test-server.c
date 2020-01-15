@@ -43,7 +43,7 @@
 #define COCKPIT_WS BUILDDIR "/cockpit-ws"
 #define CERTFILE SRCDIR "/src/bridge/mock-server.crt"
 #define KEYFILE SRCDIR "/src/bridge/mock-server.key"
-#define CERTKEYFILE SRCDIR "/src/ws/mock_cert"
+#define CERTKEYFILE SRCDIR "/src/ws/mock-combined.crt"
 #define CERTCHAINKEYFILE SRCDIR "/test/verify/files/cert-chain.cert"
 
 #define CLIENT_CERTFILE SRCDIR "/src/bridge/mock-client.crt"

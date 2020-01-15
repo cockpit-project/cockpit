@@ -581,12 +581,12 @@ test_webserver_tls_request_too_large (TestCase *tc,
 }
 
 static const TestFixture fixture_with_cert = {
-    .cert_file = SRCDIR "/src/ws/mock_cert"
+    .cert_file = SRCDIR "/src/ws/mock-combined.crt"
 };
 
 static const TestFixture fixture_with_cert_redirect = {
     .server_flags = COCKPIT_WEB_SERVER_REDIRECT_TLS,
-    .cert_file = SRCDIR "/src/ws/mock_cert"
+    .cert_file = SRCDIR "/src/ws/mock-combined.crt"
 };
 
 static void

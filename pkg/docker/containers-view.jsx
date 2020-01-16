@@ -433,7 +433,7 @@ class ImageSecurity extends React.Component {
         } else if (info.vulnerabilities.length === 0) {
             text = _("The scan from $time ($type) found no vulnerabilities.");
         } else {
-            text = cockpit.ngettext("The scan from $time ($type) found one vulnerability:",
+            text = cockpit.ngettext("The scan from $time ($type) found $count vulnerability:",
                                     "The scan from $time ($type) found $count vulnerabilities:",
                                     info.vulnerabilities.length);
 
@@ -611,7 +611,7 @@ export class ImageList extends React.Component {
                     <div>
                         <span className="pficon pficon-warning-triangle-o" />
                         &nbsp;
-                        { cockpit.format(cockpit.ngettext("1 Vulnerability", "$0 Vulnerabilities", count), count) }
+                        { cockpit.format(cockpit.ngettext("$0 Vulnerability", "$0 Vulnerabilities", count), count) }
                     </div>
                 );
         }

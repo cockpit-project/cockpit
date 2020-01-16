@@ -2736,7 +2736,7 @@ PageNetworkInterface.prototype = {
                 }
 
                 if (options.mtu)
-                    add_row(_("$mtu"), options);
+                    add_row("$mtu", options);
                 else
                     add_row(_("Automatic"), options);
 

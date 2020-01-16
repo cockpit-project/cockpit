@@ -51,8 +51,6 @@ export class PageStatusNotifications extends React.Component {
         return ["system/services", "updates"].map(page => {
             const status = page_status.get(page);
             if (status && (status.type || status.details) && status.title) {
-                this.props.toggle_label && this.props.toggle_label(true);
-
                 let action;
                 if (status.details && status.details.link !== undefined) {
                     if (status.details.link)
@@ -74,7 +72,6 @@ export class PageStatusNotifications extends React.Component {
                         {action}
                     </li>);
             } else {
-                this.props.toggle_label && this.props.toggle_label(false);
                 return null;
             }
         });

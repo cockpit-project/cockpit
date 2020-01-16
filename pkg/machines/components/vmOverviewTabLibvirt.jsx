@@ -20,6 +20,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
 import { OverlayTrigger, Tooltip } from "patternfly-react";
+import { Button } from "@patternfly/react-core";
 
 import { VCPUModal } from './vcpuModal.jsx';
 import MemoryModal from './vm/memoryModal.jsx';
@@ -171,22 +172,22 @@ class VmOverviewTabLibvirt extends React.Component {
         );
         const bootOrder = (
             <div>
-                <button className="link-button" disabled={config.provider.name !== "LibvirtDBus"} id={`${idPrefix}-boot-order`} onClick={this.openBootOrder}>
+                <Button variant="link" isInline isDisabled={config.provider.name !== "LibvirtDBus"} id={`${idPrefix}-boot-order`} onClick={this.openBootOrder}>
                     {getBootOrder(vm)}
-                </button>
+                </Button>
                 { vm.state === "running" && bootOrderChanged() && <WarningInactive iconId="boot-order-tooltip" tooltipId="tip-boot-order" /> }
             </div>
         );
         const memoryLink = (
             <div>
-                <button className="link-button" disabled={config.provider.name !== "LibvirtDBus"} id={`${idPrefix}-memory-count`} onClick={this.openMemory}>
+                <Button variant="link" isInline isDisabled={config.provider.name !== "LibvirtDBus"} id={`${idPrefix}-memory-count`} onClick={this.openMemory}>
                     {cockpit.format_bytes(vm.currentMemory * 1024)}
-                </button>
+                </Button>
             </div>
         );
         const vcpuLink = (
             <div>
-                <button className="link-button" id={`${idPrefix}-vcpus-count`} onClick={this.openVcpu}>{vm.vcpus.count}</button>
+                <Button variant="link" isInline id={`${idPrefix}-vcpus-count`} onClick={this.openVcpu}>{vm.vcpus.count}</Button>
                 { vm.state === "running" && vcpusChanged && <WarningInactive iconId="vcpus-tooltip" tooltipId="tip-vcpus" /> }
             </div>
         );
@@ -214,9 +215,9 @@ class VmOverviewTabLibvirt extends React.Component {
                 const firmwareLink = disabled => {
                     return (
                         <div id={`${idPrefix}-firmware-tooltip`}>
-                            <button className="link-button" id={`${idPrefix}-firmware`} disabled={disabled} onClick={this.openFirmware}>
+                            <Button variant="link" isInline id={`${idPrefix}-firmware`} isDisabled={disabled} onClick={this.openFirmware}>
                                 {currentFirmware}
-                            </button>
+                            </Button>
                         </div>
                     );
                 };

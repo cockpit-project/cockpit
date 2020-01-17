@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-12-18 19:13+0000\n"
+"POT-Creation-Date: 2020-01-15 11:50+0000\n"
 "PO-Revision-Date: 2019-09-20 11:25+0000\n"
 "Last-Translator: Jiri Grönroos <jiri.gronroos@iki.fi>\n"
 "Language-Team: Finnish\n"
@@ -23,7 +23,7 @@ msgstr ""
 msgid " (shared with the OS)"
 msgstr " (jaettu OS:n kanssa)"
 
-#: pkg/machines/components/diskAdd.jsx:236
+#: pkg/machines/components/diskAdd.jsx:242
 msgid " Attaching it will make this disk shareable for every VM using it."
 msgstr ""
 
@@ -52,7 +52,7 @@ msgctxt "storage-id-desc"
 msgid "$0 File System"
 msgstr "$0 tiedostojärjestelmä"
 
-#: pkg/systemd/overview-cards/usageCard.jsx:84
+#: pkg/systemd/overview-cards/usageCard.jsx:138
 msgid "$0 GiB / $1 GiB"
 msgstr ""
 
@@ -156,8 +156,8 @@ msgid ""
 "$0 is available for most operating systems. To install it, search for it in "
 "GNOME Software or run the following:"
 msgstr ""
-"$0 on saatavilla useimmille käyttöjärjestelmille. Asentaaksesi sen, hae sitä"
-" GNOME Softwaresta, tai aja seuraava komento:"
+"$0 on saatavilla useimmille käyttöjärjestelmille. Asentaaksesi sen, hae sitä "
+"GNOME Softwaresta, tai aja seuraava komento:"
 
 #: pkg/storaged/content-views.jsx:298 pkg/storaged/content-views.jsx:538
 #: pkg/storaged/format-dialog.jsx:164 pkg/storaged/lvol-tabs.jsx:203
@@ -210,7 +210,7 @@ msgstr "$0 jaot"
 msgid "$0 slots remain"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:162
+#: pkg/packagekit/updates.jsx:163
 msgid "$0 update"
 msgid_plural "$0 updates"
 msgstr[0] "$0 päivitys"
@@ -244,7 +244,7 @@ msgstr "$0, $1 vapaana"
 msgid "$0: crash at $1"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:160
+#: pkg/packagekit/updates.jsx:161
 msgid "$1 security fix"
 msgid_plural "$1 security fixes"
 msgstr[0] "$1 turvallisuuspäivitys"
@@ -274,7 +274,7 @@ msgstr ""
 msgid "(none)"
 msgstr "(ei mitään)"
 
-#: pkg/packagekit/updates.jsx:164
+#: pkg/packagekit/updates.jsx:165
 msgid ", including $1 security fix"
 msgid_plural ", including $1 security fixes"
 msgstr[0] ", mukaan lukien $1 turvallisuuspäivitys"
@@ -529,11 +529,11 @@ msgstr "9."
 
 #: pkg/lib/machine-not-supported.html:5
 msgid ""
-"A compatible version of Cockpit is not installed on "
-"{{#strong}}{{host}}{{/strong}}."
+"A compatible version of Cockpit is not installed on {{#strong}}{{host}}{{/"
+"strong}}."
 msgstr ""
-"Yhteensopivaa versiota Cockpitistä ei ole asennettu kohteessa "
-"{{#strong}}{{host}}{{/strong}}."
+"Yhteensopivaa versiota Cockpitistä ei ole asennettu kohteessa {{#strong}}"
+"{{host}}{{/strong}}."
 
 #: pkg/storaged/vdos-panel.jsx:95
 msgid "A disk is needed."
@@ -569,7 +569,7 @@ msgid "Absent"
 msgstr ""
 
 #: pkg/users/index.html:104 pkg/users/index.html:190
-#: pkg/machines/components/diskEdit.jsx:58
+#: pkg/machines/components/diskEdit.jsx:94
 #: pkg/machines/components/vmDisksTab.jsx:115
 msgid "Access"
 msgstr "Pääsy"
@@ -591,7 +591,7 @@ msgstr "Tili ei ole käytettävissä tai sitä ei voi muokata"
 msgid "Accounts"
 msgstr "Käyttäjätilit"
 
-#: pkg/users/local.js:339 pkg/users/local.js:646
+#: pkg/users/local.js:309 pkg/users/local.js:633
 msgctxt "page-title"
 msgid "Accounts"
 msgstr "Käyttäjätilit"
@@ -635,8 +635,8 @@ msgid "Adaptive transmit load balancing"
 msgstr "Mukautuva lähtevän kuorman tasapainottaja (balance-tlb)"
 
 #: pkg/lib/machine-add.html:43 pkg/shell/index.html:197
-#: pkg/machines/components/diskAdd.jsx:521
-#: pkg/machines/components/nicAdd.jsx:202 pkg/storaged/crypto-keyslots.jsx:235
+#: pkg/machines/components/diskAdd.jsx:549
+#: pkg/machines/components/nicAdd.jsx:205 pkg/storaged/crypto-keyslots.jsx:235
 #: pkg/storaged/iscsi-panel.jsx:137 pkg/storaged/iscsi-panel.jsx:161
 #: pkg/storaged/mdraid-details.jsx:59 pkg/storaged/nfs-details.jsx:191
 #: pkg/storaged/vgroup-details.jsx:65
@@ -659,7 +659,7 @@ msgstr ""
 msgid "Add Bridge"
 msgstr "Lisää silta"
 
-#: pkg/machines/components/diskAdd.jsx:509
+#: pkg/machines/components/diskAdd.jsx:537
 #: pkg/machines/components/vmDisksTab.jsx:93
 msgid "Add Disk"
 msgstr ""
@@ -831,7 +831,7 @@ msgstr "Osoitteet"
 msgid "Administration with Cockpit Web Console"
 msgstr ""
 
-#: pkg/realmd/operation.js:338
+#: pkg/systemd/overview-cards/realmd-operation.js:336
 msgid "Administrator Password"
 msgstr "Ylläpidon salasana"
 
@@ -848,15 +848,15 @@ msgctxt "time-delay"
 msgid "After"
 msgstr ""
 
-#: pkg/realmd/operation.html:27
+#: pkg/systemd/overview-cards/realmd-operation.html:27
 msgid ""
 "After leaving the domain, only users with local credentials will be able to "
-"log into this machine. This may also affect other services as DNS resolution"
-" settings and the list of trusted CAs may change."
+"log into this machine. This may also affect other services as DNS resolution "
+"settings and the list of trusted CAs may change."
 msgstr ""
 
 #: pkg/systemd/services.html:300 pkg/systemd/services.html:304
-#: pkg/systemd/init.js:970
+#: pkg/systemd/init.js:969
 msgid "After system boot"
 msgstr "Järjestelmän käynnistyksen jälkeen"
 
@@ -864,8 +864,7 @@ msgstr "Järjestelmän käynnistyksen jälkeen"
 msgid "Alert and above"
 msgstr ""
 
-#: pkg/systemd/services.html:64 pkg/systemd/logs.js:239
-#: pkg/systemd/logs.js:416
+#: pkg/systemd/services.html:64 pkg/systemd/logs.js:239 pkg/systemd/logs.js:416
 msgid "All"
 msgstr "Kaikki"
 
@@ -893,13 +892,17 @@ msgstr ""
 msgid "Always"
 msgstr "Aina"
 
-#: pkg/machines/components/diskAdd.jsx:118
+#: pkg/machines/components/diskAdd.jsx:106
 #: pkg/machines/components/nicAdd.jsx:86
 msgid "Always attach"
 msgstr ""
 
-#: pkg/lib/cockpit-components-modifications.jsx:82
-msgid "Ansible Playbook"
+#: pkg/lib/cockpit-components-modifications.jsx:81
+msgid "Ansible"
+msgstr ""
+
+#: pkg/lib/cockpit-components-modifications.jsx:91
+msgid "Ansible roles documentation"
 msgstr ""
 
 #: pkg/systemd/terminal.jsx:94
@@ -938,11 +941,11 @@ msgstr "Toteuta tämä ratkaisu"
 msgid "Applying solution..."
 msgstr "Toteutetaan ratkaisu..."
 
-#: pkg/packagekit/updates.jsx:44
+#: pkg/packagekit/updates.jsx:45
 msgid "Applying updates"
 msgstr "Toteutetaan päivityksiä"
 
-#: pkg/packagekit/updates.jsx:46
+#: pkg/packagekit/updates.jsx:47
 msgid "Applying updates failed"
 msgstr "Päivitysten toteuttaminen epäonnistui"
 
@@ -971,8 +974,8 @@ msgstr "Audit-loki"
 msgid "Authenticating"
 msgstr "Tunnistaudutaan"
 
-#: pkg/lib/machine-change-auth.html:32 pkg/realmd/operation.html:47
-#: pkg/shell/index.html:67 pkg/shell/index.html:166
+#: pkg/lib/machine-change-auth.html:32 pkg/shell/index.html:67
+#: pkg/shell/index.html:166 pkg/systemd/overview-cards/realmd-operation.html:47
 msgid "Authentication"
 msgstr "Tunnistautuminen"
 
@@ -1010,7 +1013,8 @@ msgstr "Valtuutetut julkiset SSH-avaimet"
 #: pkg/machines/components/networks/createNetworkDialog.jsx:162
 #: pkg/networkmanager/interfaces.js:1953 pkg/networkmanager/interfaces.js:2741
 #: pkg/networkmanager/interfaces.js:3302 pkg/networkmanager/interfaces.js:3306
-#: pkg/networkmanager/interfaces.js:3312 pkg/realmd/operation.js:341
+#: pkg/networkmanager/interfaces.js:3312
+#: pkg/systemd/overview-cards/realmd-operation.js:339
 msgid "Automatic"
 msgstr "Automaattinen"
 
@@ -1046,7 +1050,7 @@ msgstr "Käytetään automaattisesti NTP:tä"
 msgid "Automatically using specific NTP servers"
 msgstr "Käytetään automaattisesti tiettyjä NTP-palvelimia"
 
-#: pkg/lib/cockpit-components-modifications.jsx:71
+#: pkg/lib/cockpit-components-modifications.jsx:72
 msgid "Automation Script"
 msgstr ""
 
@@ -1062,7 +1066,7 @@ msgstr ""
 msgid "Available"
 msgstr "Saatavilla"
 
-#: pkg/packagekit/updates.jsx:871
+#: pkg/packagekit/updates.jsx:872
 msgid "Available Updates"
 msgstr "Saatavilla olevat päivitykset"
 
@@ -1074,15 +1078,15 @@ msgstr "Käytettävät kohteet $0"
 msgid "Avatar"
 msgstr "Avatar"
 
-#: pkg/systemd/hwinfo.jsx:98
+#: pkg/systemd/hwinfo.jsx:83
 msgid "BIOS"
 msgstr "BIOS"
 
-#: pkg/systemd/hwinfo.jsx:106
+#: pkg/systemd/hwinfo.jsx:91
 msgid "BIOS date"
 msgstr "BIOS-päiväys"
 
-#: pkg/systemd/hwinfo.jsx:102
+#: pkg/systemd/hwinfo.jsx:87
 msgid "BIOS version"
 msgstr "BIOS-versio"
 
@@ -1181,14 +1185,16 @@ msgstr "Lähetys"
 msgid "Broken configuration"
 msgstr "Rikkinäinen asetus"
 
-#: pkg/packagekit/updates.jsx:851
+#: pkg/packagekit/updates.jsx:852
 msgid "Bug Fix Updates Available"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:318
+#: pkg/packagekit/updates.jsx:319
 msgid "Bugs:"
 msgstr ""
 
+#: pkg/machines/components/diskAdd.jsx:180
+#: pkg/machines/components/diskEdit.jsx:63
 #: pkg/machines/components/vm/bootOrderModal.jsx:109
 #: pkg/machines/components/vm/bootOrderModal.jsx:132
 #: pkg/machines/components/vmDisksTab.jsx:113
@@ -1200,7 +1206,8 @@ msgid "Bus Expansion Chassis"
 msgstr ""
 
 #: pkg/dashboard/index.html:70 pkg/docker/index.html:272
-#: pkg/docker/containers-view.jsx:359 pkg/systemd/hwinfo.jsx:114
+#: pkg/docker/containers-view.jsx:359 pkg/systemd/hwinfo.jsx:99
+#: pkg/systemd/overview-cards/usageCard.jsx:121
 msgid "CPU"
 msgstr "Prosessori"
 
@@ -1208,11 +1215,11 @@ msgstr "Prosessori"
 msgid "CPU Graph"
 msgstr ""
 
-#: pkg/systemd/hwinfo.jsx:119
+#: pkg/systemd/hwinfo.jsx:104
 msgid "CPU Security"
 msgstr ""
 
-#: pkg/systemd/hwinfo.jsx:224
+#: pkg/systemd/hwinfo.jsx:209
 msgid "CPU Security Toggles"
 msgstr ""
 
@@ -1233,7 +1240,7 @@ msgstr "Prosessorin prioriteetti"
 msgid "CPU usage:"
 msgstr "Prosessorin käyttö"
 
-#: pkg/machines/components/diskAdd.jsx:175
+#: pkg/machines/components/diskAdd.jsx:164
 #: pkg/machines/components/vmDiskColumns.jsx:75
 msgid "Cache"
 msgstr ""
@@ -1264,19 +1271,20 @@ msgstr ""
 #: pkg/networkmanager/index.html:564 pkg/networkmanager/index.html:590
 #: pkg/networkmanager/index.html:616 pkg/networkmanager/index.html:642
 #: pkg/networkmanager/index.html:668 pkg/networkmanager/index.html:694
-#: pkg/playground/translate.html:39 pkg/realmd/operation.html:83
-#: pkg/shell/index.html:123 pkg/systemd/index.html:122
-#: pkg/systemd/index.html:206 pkg/systemd/index.html:260
+#: pkg/playground/translate.html:39 pkg/shell/index.html:123
+#: pkg/systemd/index.html:122 pkg/systemd/index.html:206
+#: pkg/systemd/index.html:260
+#: pkg/systemd/overview-cards/realmd-operation.html:83
 #: pkg/systemd/services.html:376 pkg/users/index.html:198
 #: pkg/users/index.html:237 pkg/users/index.html:276 pkg/users/index.html:315
 #: pkg/users/index.html:332 pkg/users/index.html:356 pkg/users/index.html:413
 #: pkg/apps/utils.jsx:86 pkg/lib/cockpit-components-dialog.jsx:161
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:816
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:817
 #: pkg/machines/components/deleteDialog.jsx:158
 #: pkg/machines/components/deleteResource.jsx:107
-#: pkg/machines/components/diskAdd.jsx:518
-#: pkg/machines/components/diskEdit.jsx:173
-#: pkg/machines/components/networks/createNetworkDialog.jsx:477
+#: pkg/machines/components/diskAdd.jsx:546
+#: pkg/machines/components/diskEdit.jsx:217
+#: pkg/machines/components/networks/createNetworkDialog.jsx:479
 #: pkg/machines/components/nicAdd.jsx:199
 #: pkg/machines/components/nicEdit.jsx:176
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:511
@@ -1286,9 +1294,9 @@ msgstr ""
 #: pkg/machines/components/vm/bootOrderModal.jsx:327
 #: pkg/machines/components/vm/memoryModal.jsx:155
 #: pkg/networkmanager/firewall.jsx:589 pkg/networkmanager/firewall.jsx:741
-#: pkg/networkmanager/firewall.jsx:766 pkg/packagekit/updates.jsx:182
+#: pkg/networkmanager/firewall.jsx:766 pkg/packagekit/updates.jsx:183
 #: pkg/sosreport/index.js:51 pkg/storaged/dialog.jsx:400
-#: pkg/storaged/jobs-panel.jsx:123 pkg/systemd/hwinfo.jsx:238
+#: pkg/storaged/jobs-panel.jsx:123 pkg/systemd/hwinfo.jsx:223
 #: pkg/systemd/reporting.jsx:419 pkg/systemd/service-details.jsx:108
 msgid "Cancel"
 msgstr "Peru"
@@ -1299,6 +1307,10 @@ msgstr "Ei voida yhdistää tuntemattomaan koneeseen"
 
 #: src/base1/cockpit.js:4048
 msgid "Cannot forward login credentials"
+msgstr ""
+
+#: pkg/systemd/overview-cards/realmd-operation.js:628
+msgid "Cannot join a domain because realmd is not available on this system"
 msgstr ""
 
 #: pkg/systemd/shutdown.js:175
@@ -1314,8 +1326,8 @@ msgid "Carrier"
 msgstr ""
 
 #: pkg/docker/index.html:664 pkg/systemd/index.html:123
-#: pkg/systemd/index.html:261 pkg/users/index.html:277
-#: pkg/users/index.html:316 pkg/storaged/iscsi-panel.jsx:188
+#: pkg/systemd/index.html:261 pkg/users/index.html:277 pkg/users/index.html:316
+#: pkg/storaged/iscsi-panel.jsx:188
 msgid "Change"
 msgstr "Vaihda"
 
@@ -1359,7 +1371,7 @@ msgstr "Muuta resurssien rajoja"
 msgid "Change the settings"
 msgstr "Vaihda asetuksia"
 
-#: pkg/machines/components/diskEdit.jsx:154
+#: pkg/machines/components/diskEdit.jsx:198
 #: pkg/machines/components/nicEdit.jsx:157
 #: pkg/machines/components/vcpuModal.jsx:184
 #: pkg/machines/components/vm/bootOrderModal.jsx:283
@@ -1369,13 +1381,13 @@ msgstr ""
 
 #: pkg/networkmanager/interfaces.js:3137
 msgid ""
-"Changing the settings will break the connection to the server, and will make"
-" the administration UI unavailable."
+"Changing the settings will break the connection to the server, and will make "
+"the administration UI unavailable."
 msgstr ""
 "Asetuksien vaihtaminen katkaisee yhteyden palvelimeen, jolloin "
 "hallintakäyttöliittymä ei ole saatavilla."
 
-#: pkg/packagekit/updates.jsx:178
+#: pkg/packagekit/updates.jsx:179
 msgid "Check for Updates"
 msgstr "Etsi päivityksiä"
 
@@ -1423,7 +1435,7 @@ msgstr "Valitse sovelluksessa käytettävä kieli"
 msgid "Chunk Size"
 msgstr ""
 
-#: pkg/systemd/hwinfo.jsx:272
+#: pkg/systemd/hwinfo.jsx:257
 msgid "Class"
 msgstr ""
 
@@ -1448,20 +1460,21 @@ msgid "Clear mount point configuration"
 msgstr ""
 
 #: pkg/machines/components/desktopConsole.jsx:41
-msgid "Clicking \"Launch Remote Viewer\" will download a .vv file and launch $0."
+msgid ""
+"Clicking \"Launch Remote Viewer\" will download a .vv file and launch $0."
 msgstr "Painamalla \"Launch Remote Viewer\" lataat .vv-tiedoston ja avaat $0."
 
-#: pkg/realmd/operation.html:20
+#: pkg/systemd/overview-cards/realmd-operation.html:20
 msgid "Client Software"
 msgstr ""
 
 #: pkg/docker/index.html:738 pkg/lib/machine-auth-failed.html:20
 #: pkg/lib/machine-change-port.html:45 pkg/lib/machine-invalid-hostkey.html:12
-#: pkg/lib/machine-not-supported.html:8
-#: pkg/lib/machine-unknown-hostkey.html:19 pkg/networkmanager/index.html:713
-#: pkg/shell/index.html:97 pkg/shell/index.html:156 pkg/shell/index.html:351
-#: pkg/systemd/index.html:164 pkg/users/index.html:45 pkg/apps/utils.jsx:108
-#: pkg/lib/cockpit-components-modifications.jsx:109 pkg/sosreport/index.js:45
+#: pkg/lib/machine-not-supported.html:8 pkg/lib/machine-unknown-hostkey.html:19
+#: pkg/networkmanager/index.html:713 pkg/shell/index.html:97
+#: pkg/shell/index.html:156 pkg/shell/index.html:351 pkg/systemd/index.html:164
+#: pkg/users/index.html:45 pkg/apps/utils.jsx:108
+#: pkg/lib/cockpit-components-modifications.jsx:103 pkg/sosreport/index.js:45
 #: pkg/sosreport/index.js:127 pkg/storaged/dialog.jsx:400
 msgid "Close"
 msgstr "Sulje"
@@ -1480,8 +1493,8 @@ msgstr "Cockpitin tunnistautuminen on konfiguroitu virheellisesti."
 
 #: pkg/lib/machine-dialogs.js:433
 msgid ""
-"Cockpit could not contact the given host $0. Make sure it has ssh running on"
-" port $1, or specify another port in the address."
+"Cockpit could not contact the given host $0. Make sure it has ssh running on "
+"port $1, or specify another port in the address."
 msgstr ""
 "Cockpit ei saanut yhteyttä hostiin $0. Varmista, että sillä on ssh "
 "toiminnassa portissa $1, tai määrittele toinen portti osoitteessa."
@@ -1493,8 +1506,8 @@ msgstr "Cockpit ei saanut yhteyttä hostiin."
 #: pkg/shell/base_index.js:841
 msgid ""
 "Cockpit had an unexpected internal error. <br/><br/>You can try restarting "
-"Cockpit by pressing refresh in your browser. The javascript console contains"
-" details about this error (<b>Ctrl-Shift-J</b> in most browsers)."
+"Cockpit by pressing refresh in your browser. The javascript console contains "
+"details about this error (<b>Ctrl-Shift-J</b> in most browsers)."
 msgstr ""
 "Cockpitissä tapahtui odottamaton virhe. <br/><br/>Voit yrittää käynnistää "
 "Cockpitin uudelleen päivittämällä selaimesi sivun. Javascript-konsolissa on "
@@ -1510,8 +1523,8 @@ msgid ""
 msgstr ""
 "Cockpit on palvelinhallintatyökalu, joka tekee ylläpidon helpoksi selaimen "
 "kautta.  Liikkuminen päätteen ja verkkokäyttöliittymän välillä ei ole "
-"ongelma. Cockpitissä aloitettu palvelu voidaan lopettaa päätteessä.  Samaten"
-" päätteessä näkyvä virheilmoitus voidaan nähdä myös Cockpitin journal-"
+"ongelma. Cockpitissä aloitettu palvelu voidaan lopettaa päätteessä.  Samaten "
+"päätteessä näkyvä virheilmoitus voidaan nähdä myös Cockpitin journal-"
 "näkymässä."
 
 #: pkg/shell/index.html:86
@@ -1533,8 +1546,8 @@ msgstr "Cockpit ei ole asennettu järjestelmässä."
 
 #: src/ws/cockpit.appdata.xml.in:18
 msgid ""
-"Cockpit is perfect for new sysadmins, allowing them to easily perform simple"
-" tasks such as storage administration, inspecting journals and starting and "
+"Cockpit is perfect for new sysadmins, allowing them to easily perform simple "
+"tasks such as storage administration, inspecting journals and starting and "
 "stopping services. You can monitor and administer several servers at the "
 "same time. Just add them with a single click and your machines will look "
 "after its buddies."
@@ -1551,15 +1564,15 @@ msgstr "Cockpit ei saanut yhteyttä kohteeseen {{#strong}}{{host}}{{/strong}}."
 
 #: pkg/lib/machine-auth-failed.html:15
 msgid ""
-"Cockpit was unable to log in to {{#strong}}{{host}}{{/strong}}. "
-"{{#can_sync}}You may want to try to {{#sync_link}}synchronize "
-"users{{/sync_link}}.{{/can_sync}} For more authentication options and "
-"troubleshooting support please upgrade cockpit-ws to a newer version."
+"Cockpit was unable to log in to {{#strong}}{{host}}{{/strong}}. {{#can_sync}}"
+"You may want to try to {{#sync_link}}synchronize users{{/sync_link}}.{{/"
+"can_sync}} For more authentication options and troubleshooting support "
+"please upgrade cockpit-ws to a newer version."
 msgstr ""
 "Cockpit ei pystynyt kirjautumaan kohteeseen {{#strong}}{{host}}{{/strong}}. "
-"{{#can_sync}}Haluat ehkä kokeilla {{#sync_link}}käyttäjien "
-"synkronointia{{/sync_link}}.{{/can_sync}} Lisää vaihtoehtoja todentamiseen "
-"ja tukea vianetsintään saat, kun päivität cockpit-ws uudempaan versioon."
+"{{#can_sync}}Haluat ehkä kokeilla {{#sync_link}}käyttäjien synkronointia{{/"
+"sync_link}}.{{/can_sync}} Lisää vaihtoehtoja todentamiseen ja tukea "
+"vianetsintään saat, kun päivität cockpit-ws uudempaan versioon."
 
 #: pkg/lib/machine-change-auth.html:9
 msgid "Cockpit was unable to log into {{#strong}}{{host}}{{/strong}}."
@@ -1574,20 +1587,19 @@ msgid ""
 msgstr ""
 "Cockpit ei pystynyt kirjautumaan kohteeseen {{#strong}}{{host}}{{/strong}}. "
 "Käyttääksesi tätä konetta Cockpitin kanssa sinun tulee ottaa käyttöön jokin "
-"seuraavista todentamismetodeista sshd-konfiguraatiossa kohteessa "
-"{{#strong}}{{host}}{{/strong}}:"
+"seuraavista todentamismetodeista sshd-konfiguraatiossa kohteessa {{#strong}}"
+"{{host}}{{/strong}}:"
 
 #: pkg/lib/machine-change-auth.html:13
 msgid ""
 "Cockpit was unable to log into {{#strong}}{{host}}{{/strong}}. You can "
-"change your authentication credentials below. {{#can_sync}}You may prefer to"
-" {{#sync_link}}synchronize accounts and "
-"passwords{{/sync_link}}.{{/can_sync}}"
+"change your authentication credentials below. {{#can_sync}}You may prefer to "
+"{{#sync_link}}synchronize accounts and passwords{{/sync_link}}.{{/can_sync}}"
 msgstr ""
 "Cockpit ei pystynyt kirjautumaan kohteeseen {{#strong}}{{host}}{{/strong}}. "
 "Voit vaihtaa todentamiseen käyttämiäsi tunnuksi alla. {{#can_sync}}Haluat "
-"ehkä {{#sync_link}}synkronoida käyttäjätilit ja "
-"salasanat{{/sync_link}}.{{/can_sync}}"
+"ehkä {{#sync_link}}synkronoida käyttäjätilit ja salasanat{{/sync_link}}.{{/"
+"can_sync}}"
 
 #: pkg/dashboard/index.html:157 pkg/lib/machine-add.html:27
 msgid "Color"
@@ -1649,8 +1661,7 @@ msgstr "Yhteensopiva kaikkien järjestelmien ja laitteiden kanssa (MBR)"
 
 #: pkg/storaged/content-views.jsx:562
 msgid "Compatible with modern system and hard disks > 2TB (GPT)"
-msgstr ""
-"Yhteensopiva modernien järjestelmien ja kovalevyjen kanssa > 2TB (GPT)"
+msgstr "Yhteensopiva modernien järjestelmien ja kovalevyjen kanssa > 2TB (GPT)"
 
 #: pkg/kdump/kdump-view.jsx:162
 msgid "Compress crash dumps to save space"
@@ -1661,7 +1672,7 @@ msgstr "Tiivistä crash dump säästääksesi tilaa"
 msgid "Compression"
 msgstr "Pakkaus"
 
-#: pkg/realmd/operation.html:44
+#: pkg/systemd/overview-cards/realmd-operation.html:44
 msgid "Computer OU"
 msgstr "Tietokone-OU"
 
@@ -1673,7 +1684,7 @@ msgstr "Ehto $0=$1 ei toteutunut"
 msgid "Condition failed"
 msgstr "Ehto epäonnistui"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:350
+#: pkg/systemd/overview-cards/configurationCard.jsx:379
 msgid "Configuration"
 msgstr "Asetukset"
 
@@ -1773,7 +1784,7 @@ msgstr "Yhdistetään koneeseen"
 #: pkg/machines/components/machinesConnectionSelector.jsx:34
 #: pkg/machines/components/networks/networkList.jsx:55
 #: pkg/machines/components/storagePools/storagePoolList.jsx:54
-#: pkg/machines/hostvmslist.jsx:83
+#: pkg/machines/hostvmslist.jsx:74
 msgid "Connection"
 msgstr "Yhteys"
 
@@ -1805,7 +1816,7 @@ msgstr ""
 msgid "Consoles"
 msgstr "Konsolit"
 
-#: pkg/realmd/operation.js:276
+#: pkg/systemd/overview-cards/realmd-operation.js:276
 msgid "Contacted domain"
 msgstr ""
 
@@ -1813,7 +1824,7 @@ msgstr ""
 msgid "Container"
 msgstr "Kontti"
 
-#: pkg/users/local.js:752
+#: pkg/users/local.js:770
 msgid "Container Administrator"
 msgstr "Kontti-Admin"
 
@@ -1878,7 +1889,7 @@ msgstr ""
 msgid "Copy"
 msgstr ""
 
-#: pkg/lib/cockpit-components-modifications.jsx:106
+#: pkg/lib/cockpit-components-modifications.jsx:100
 msgid "Copy to clipboard"
 msgstr ""
 
@@ -1939,8 +1950,8 @@ msgid "Crash system"
 msgstr ""
 
 #: pkg/users/index.html:199
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:821
-#: pkg/machines/components/networks/createNetworkDialog.jsx:482
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:822
+#: pkg/machines/components/networks/createNetworkDialog.jsx:484
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:514
 #: pkg/machines/components/storagePools/storageVolumeCreate.jsx:96
 #: pkg/storaged/content-views.jsx:128 pkg/storaged/content-views.jsx:736
@@ -1957,7 +1968,7 @@ msgstr ""
 msgid "Create Logical Volume"
 msgstr "Luo looginen taltio"
 
-#: pkg/machines/components/diskAdd.jsx:472
+#: pkg/machines/components/diskAdd.jsx:500
 msgid "Create New"
 msgstr ""
 
@@ -1965,7 +1976,7 @@ msgstr ""
 msgid "Create New Account"
 msgstr "Luo uusi tili"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:808
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:809
 msgid "Create New Virtual Machine"
 msgstr "Luo uusi virtuaalikone"
 
@@ -2022,12 +2033,12 @@ msgstr "Luo ajastimet"
 msgid "Create VDO Device"
 msgstr "Luo VDO-laite"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:884
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:885
 msgid "Create VM"
 msgstr "Luo VM"
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:468
-#: pkg/machines/components/networks/createNetworkDialog.jsx:516
+#: pkg/machines/components/networks/createNetworkDialog.jsx:470
+#: pkg/machines/components/networks/createNetworkDialog.jsx:518
 msgid "Create Virtual Network"
 msgstr ""
 
@@ -2052,6 +2063,10 @@ msgstr "Luo se"
 #: pkg/storaged/content-views.jsx:755
 msgid "Create new Logical Volume"
 msgstr "Luo uusi looginen taltio"
+
+#: pkg/lib/cockpit-components-modifications.jsx:87
+msgid "Create new task file with this content."
+msgstr ""
 
 #: pkg/docker/containers-view.jsx:129 pkg/docker/containers-view.jsx:412
 #: pkg/docker/containers-view.jsx:687
@@ -2114,7 +2129,7 @@ msgstr ""
 msgid "Creating volume group $target"
 msgstr "Luodaan taltioryhmä $target"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:713
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:714
 msgid "Creation of VM $0 failed"
 msgstr ""
 
@@ -2243,7 +2258,7 @@ msgstr "Viive"
 msgid "Delete"
 msgstr "Poista"
 
-#: pkg/networkmanager/interfaces.js:2418 pkg/users/local.js:1183
+#: pkg/networkmanager/interfaces.js:2418 pkg/users/local.js:1199
 msgid "Delete $0"
 msgstr "Poista $0"
 
@@ -2339,7 +2354,7 @@ msgstr ""
 
 #: pkg/shell/index.html:250 pkg/docker/containers-view.jsx:336
 #: pkg/docker/containers-view.jsx:504 pkg/docker/containers-view.jsx:514
-#: pkg/docker/containers-view.jsx:642 pkg/packagekit/updates.jsx:387
+#: pkg/docker/containers-view.jsx:642 pkg/packagekit/updates.jsx:388
 msgid "Details"
 msgstr "Yksityiskohdat"
 
@@ -2383,7 +2398,7 @@ msgstr "Hakemisto"
 msgid "Directory $0 isn't writable or doesn't exist."
 msgstr "Hakemistolle $0 ei voi kirjoittaa tai se ei ole olemassa."
 
-#: pkg/systemd/hwinfo.jsx:210
+#: pkg/systemd/hwinfo.jsx:195
 msgid "Disable simultaneous multithreading"
 msgstr ""
 
@@ -2429,11 +2444,11 @@ msgstr ""
 msgid "Disk I/O"
 msgstr "Levyn I/O"
 
-#: pkg/machines/components/diskAdd.jsx:429
+#: pkg/machines/components/diskAdd.jsx:456
 msgid "Disk failed to be attached"
 msgstr ""
 
-#: pkg/machines/components/diskAdd.jsx:401
+#: pkg/machines/components/diskAdd.jsx:427
 msgid "Disk failed to be created"
 msgstr ""
 
@@ -2445,8 +2460,8 @@ msgstr "Levy on OK"
 msgid "Disk passphrase"
 msgstr ""
 
-#: pkg/machines/components/diskAdd.jsx:440
-#: pkg/machines/components/diskEdit.jsx:126
+#: pkg/machines/components/diskAdd.jsx:468
+#: pkg/machines/components/diskEdit.jsx:165
 msgid "Disk settings could not be saved"
 msgstr ""
 
@@ -2476,33 +2491,34 @@ msgstr "Docker ei ole asennettu tai aktiivisena järjestelmässä"
 msgid "Docking Station"
 msgstr ""
 
-#: pkg/realmd/operation.html:11 pkg/realmd/operation.js:125
-#: pkg/systemd/overview-cards/configurationCard.jsx:389
+#: pkg/systemd/overview-cards/realmd-operation.html:11
+#: pkg/systemd/overview-cards/configurationCard.jsx:402
+#: pkg/systemd/overview-cards/realmd-operation.js:125
 msgid "Domain"
 msgstr "Domain"
 
-#: pkg/realmd/operation.js:194
+#: pkg/systemd/overview-cards/realmd-operation.js:194
 msgid "Domain $0 could not be contacted"
 msgstr "Domainiin $0 ei saatu yhteyttä"
 
-#: pkg/realmd/operation.js:281
+#: pkg/systemd/overview-cards/realmd-operation.js:281
 msgid "Domain $0 is not supported"
 msgstr "Domain $0 ei ole tuettu"
 
-#: pkg/realmd/operation.html:33
+#: pkg/systemd/overview-cards/realmd-operation.html:33
 msgid "Domain Address"
 msgstr "Domain-osoite"
 
-#: pkg/realmd/operation.html:62
+#: pkg/systemd/overview-cards/realmd-operation.html:62
 msgid "Domain Administrator Name"
 msgstr "Domain-ylläpitäjän nimi"
 
-#: pkg/realmd/operation.html:65
+#: pkg/systemd/overview-cards/realmd-operation.html:65
 msgid "Domain Administrator Password"
 msgstr "Domain-ylläpitäjän salasana"
 
 #: pkg/systemd/services.html:337 pkg/systemd/services.html:341
-#: pkg/systemd/init.js:1153
+#: pkg/systemd/init.js:1152
 msgid "Don't Repeat"
 msgstr "Älä toista"
 
@@ -2534,11 +2550,11 @@ msgstr "Lataa raportti"
 msgid "Download the MSI from $0"
 msgstr "Lataa MSI kohteesta $0"
 
-#: pkg/packagekit/updates.jsx:59
+#: pkg/packagekit/updates.jsx:60
 msgid "Downloaded"
 msgstr "Ladattu"
 
-#: pkg/packagekit/updates.jsx:51
+#: pkg/packagekit/updates.jsx:52
 msgid "Downloading"
 msgstr "Ladataan"
 
@@ -2566,7 +2582,7 @@ msgstr "Aliaksen duplikaatti"
 msgid "Duplicate port"
 msgstr "Portin duplikaatti"
 
-#: pkg/machines/components/diskEdit.jsx:211
+#: pkg/machines/components/diskEdit.jsx:255
 #: pkg/machines/components/nicEdit.jsx:212 pkg/storaged/crypto-tab.jsx:129
 #: pkg/storaged/nfs-details.jsx:307
 msgid "Edit"
@@ -2615,7 +2631,7 @@ msgstr ""
 msgid "Enable Service"
 msgstr ""
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:423
+#: pkg/systemd/overview-cards/configurationCard.jsx:436
 msgid "Enable stored metrics"
 msgstr ""
 
@@ -2679,7 +2695,7 @@ msgstr ""
 msgid "Enforcing"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:853
+#: pkg/packagekit/updates.jsx:854
 msgid "Enhancement Updates Available"
 msgstr ""
 
@@ -2731,7 +2747,7 @@ msgstr "Tyhjennä kontit ja resetoi tallennusvaranto"
 msgid "Erasing $target"
 msgstr "Tyhjennetään $target"
 
-#: pkg/packagekit/updates.jsx:316
+#: pkg/packagekit/updates.jsx:317
 msgid "Errata:"
 msgstr ""
 
@@ -2739,7 +2755,7 @@ msgstr ""
 #: pkg/apps/utils.jsx:100 pkg/storaged/fsys-tab.jsx:283
 #: pkg/storaged/multipath.jsx:58 pkg/storaged/storage-controls.jsx:83
 #: pkg/storaged/storage-controls.jsx:177 pkg/systemd/service-details.jsx:451
-#: pkg/users/local.js:1476
+#: pkg/users/local.js:1492
 msgid "Error"
 msgstr "Virhe"
 
@@ -2755,7 +2771,7 @@ msgstr "Virhe ladattaessa käyttäjiä: {{perm_failed}}"
 msgid "Error message from Docker:"
 msgstr "Virheviesti Dockerilta:"
 
-#: pkg/lib/cockpit-components-modifications.jsx:145
+#: pkg/lib/cockpit-components-modifications.jsx:139
 msgid "Error running semanage to discover system modifications"
 msgstr ""
 
@@ -2795,7 +2811,7 @@ msgstr ""
 msgid "Example: 88,2019,nfs,rsync"
 msgstr ""
 
-#: pkg/users/local.js:477 pkg/users/local.js:1421
+#: pkg/users/local.js:447 pkg/users/local.js:1437
 msgid "Excellent password"
 msgstr "Erinomainen salasana"
 
@@ -2847,7 +2863,7 @@ msgstr ""
 msgid "Failed to add zone"
 msgstr ""
 
-#: pkg/lib/credentials.js:228 pkg/users/local.js:130 pkg/users/local.js:162
+#: pkg/lib/credentials.js:228 pkg/users/local.js:100 pkg/users/local.js:132
 msgid "Failed to change password"
 msgstr "Ei voitu vaihtaa salasanaa"
 
@@ -3129,7 +3145,7 @@ msgstr ""
 msgid "Hard Disk"
 msgstr "Kiintolevy"
 
-#: pkg/systemd/hwinfo.html:4 pkg/systemd/hwinfo.jsx:298
+#: pkg/systemd/hwinfo.html:4 pkg/systemd/hwinfo.jsx:283
 msgid "Hardware Information"
 msgstr "Laitteistotiedot"
 
@@ -3141,9 +3157,11 @@ msgstr ""
 msgid "Hello time $hello_time"
 msgstr "Hello time $hello_time"
 
-#: pkg/machines/components/diskAdd.jsx:167
-msgid "Hide Performance Options"
-msgstr ""
+#: pkg/machines/components/diskAdd.jsx:156
+#, fuzzy
+#| msgid "Add Additional Storage"
+msgid "Hide Additional Options"
+msgstr "Lisää uusi tallennustila"
 
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:137
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:35
@@ -3165,7 +3183,7 @@ msgstr "Koneen nimi"
 msgid "Host key is incorrect"
 msgstr "Koneen avain on väärin"
 
-#: pkg/realmd/operation.js:609
+#: pkg/systemd/overview-cards/realmd-operation.js:605
 msgid "Host name should not be changed in a domain"
 msgstr ""
 
@@ -3173,7 +3191,7 @@ msgstr ""
 msgid "Host should not be empty"
 msgstr ""
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:355
+#: pkg/systemd/overview-cards/configurationCard.jsx:384
 msgid "Hostname"
 msgstr ""
 
@@ -3181,7 +3199,7 @@ msgstr ""
 msgid "Hour : Minute"
 msgstr "Tunti : Minuutti"
 
-#: pkg/systemd/init.js:1229 pkg/systemd/init.js:1258
+#: pkg/systemd/init.js:1228 pkg/systemd/init.js:1257
 msgid "Hour needs to be a number between 0-23"
 msgstr "Tunti tarvitsee numeron väliltä 0-23"
 
@@ -3193,7 +3211,7 @@ msgstr "Tuntia"
 msgid "I/O Wait"
 msgstr "I/O Odottaa"
 
-#: pkg/systemd/hwinfo.jsx:286
+#: pkg/systemd/hwinfo.jsx:271
 msgid "ID"
 msgstr ""
 
@@ -3277,7 +3295,7 @@ msgid "IPv6 only"
 msgstr ""
 
 #: pkg/docker/containers-view.jsx:128 pkg/docker/containers-view.jsx:408
-#: pkg/machines/components/diskEdit.jsx:34
+#: pkg/machines/components/diskEdit.jsx:37
 msgid "Id"
 msgstr "Id"
 
@@ -3293,7 +3311,7 @@ msgstr "Id:"
 msgid "If tang-show-keys is not available, run the following:"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:1957 pkg/packagekit/updates.jsx:501
+#: pkg/networkmanager/interfaces.js:1957 pkg/packagekit/updates.jsx:502
 msgid "Ignore"
 msgstr "Ohita"
 
@@ -3306,7 +3324,7 @@ msgstr "Levykuva"
 msgid "Image $0"
 msgstr "Levykuva $0"
 
-#: pkg/users/local.js:753
+#: pkg/users/local.js:771
 msgid "Image Builder"
 msgstr ""
 
@@ -3331,11 +3349,21 @@ msgstr "Levykuvat"
 msgid "Images and running containers"
 msgstr "Levykuvat ja käynnissä olevat kontit"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:799
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:800
 msgid "Immediately Start VM"
 msgstr "Käynnistä VM välittömästi"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:884
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:822
+msgid "Import"
+msgstr ""
+
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:809
+#, fuzzy
+#| msgid "Create New Virtual Machine"
+msgid "Import A Virtual Machine"
+msgstr "Luo uusi virtuaalikone"
+
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:885
 msgid "Import VM"
 msgstr ""
 
@@ -3351,8 +3379,8 @@ msgstr ""
 
 #: pkg/lib/machine-sync-users.html:52
 msgid ""
-"In order to synchronize users, you need to log in to "
-"{{#strong}}{{host}}{{/strong}}."
+"In order to synchronize users, you need to log in to {{#strong}}{{host}}{{/"
+"strong}}."
 msgstr ""
 "Synkronoidaksesi käyttäjät, sinun tulee olla kirjautuneena kohteeseen "
 "{{#strong}}{{host}}{{/strong}}."
@@ -3386,7 +3414,7 @@ msgstr ""
 msgid "Information about the Docker storage pool is not available."
 msgstr "Tieto Dockering tallentovarannosta ei ole saatavilla."
 
-#: pkg/packagekit/updates.jsx:458
+#: pkg/packagekit/updates.jsx:459
 msgid "Initializing..."
 msgstr ""
 
@@ -3404,7 +3432,7 @@ msgstr ""
 msgid "Install"
 msgstr "Asenna"
 
-#: pkg/packagekit/updates.jsx:838
+#: pkg/packagekit/updates.jsx:839
 msgid "Install All Updates"
 msgstr "Asenna kaikki päivitykset"
 
@@ -3412,7 +3440,7 @@ msgstr "Asenna kaikki päivitykset"
 msgid "Install NFS Support"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:838 pkg/packagekit/updates.jsx:844
+#: pkg/packagekit/updates.jsx:839 pkg/packagekit/updates.jsx:845
 msgid "Install Security Updates"
 msgstr "Asenna tietoturvapäivitykset"
 
@@ -3441,12 +3469,12 @@ msgstr ""
 msgid "Installation Type"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:60
+#: pkg/packagekit/updates.jsx:61
 msgid "Installed"
 msgstr "Asennettu"
 
 #: pkg/apps/application-list.jsx:48 pkg/apps/application.jsx:55
-#: pkg/packagekit/updates.jsx:52
+#: pkg/packagekit/updates.jsx:53
 msgid "Installing"
 msgstr "Asennetaan"
 
@@ -3504,21 +3532,21 @@ msgstr ""
 msgid "Invalid address $0"
 msgstr "Virheellinen osoite $0"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:950
+#: pkg/systemd/overview-cards/configurationCard.jsx:963
 #: pkg/systemd/shutdown.js:154
 msgid "Invalid date format"
 msgstr "Virheellinen päivämuoto"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:946
+#: pkg/systemd/overview-cards/configurationCard.jsx:959
 #: pkg/systemd/shutdown.js:150
 msgid "Invalid date format and invalid time format"
 msgstr "Virheellinen päivämuoto ja aikamuoto"
 
-#: pkg/systemd/init.js:1264
+#: pkg/systemd/init.js:1263
 msgid "Invalid date format."
 msgstr "Virheellinen päivämuoto."
 
-#: pkg/users/local.js:1241
+#: pkg/users/local.js:1257
 msgid "Invalid expiration date"
 msgstr "Virheellinen vanhenemispäivä."
 
@@ -3538,11 +3566,11 @@ msgstr "Virheellinen avain"
 msgid "Invalid metric $0"
 msgstr "Virheellinen metriikka $0"
 
-#: pkg/users/local.js:1317
+#: pkg/users/local.js:1333
 msgid "Invalid number of days"
 msgstr ""
 
-#: pkg/systemd/init.js:1211
+#: pkg/systemd/init.js:1210
 msgid "Invalid number."
 msgstr "Virheellinen numero."
 
@@ -3566,7 +3594,7 @@ msgstr "Virheellinen etuliite tai verkkopeite $0"
 msgid "Invalid range"
 msgstr ""
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:948
+#: pkg/systemd/overview-cards/configurationCard.jsx:961
 #: pkg/systemd/shutdown.js:152
 msgid "Invalid time format"
 msgstr "Virheellinen aikamuoto"
@@ -3595,19 +3623,25 @@ msgstr ""
 msgid "Jobs"
 msgstr "Työt"
 
-#: pkg/realmd/operation.js:119
+#: pkg/systemd/overview-cards/realmd-operation.js:119
 msgid "Join"
 msgstr "Liity"
 
-#: pkg/realmd/operation.js:602
+#: pkg/systemd/overview-cards/realmd-operation.js:599
 msgid "Join Domain"
 msgstr "Liity domainiin"
 
-#: pkg/realmd/operation.js:118
+#: pkg/systemd/overview-cards/realmd-operation.js:118
 msgid "Join a Domain"
 msgstr "Liity domainiin"
 
-#: pkg/realmd/operation.js:510
+#: pkg/systemd/overview-cards/realmd-operation.js:623
+#, fuzzy
+#| msgid "Joining this domain is not supported"
+msgid "Joining a domain requires installation of realmd"
+msgstr "Liittyminen tähän domainiin ei ole tuettu"
+
+#: pkg/systemd/overview-cards/realmd-operation.js:508
 msgid "Joining this domain is not supported"
 msgstr "Liittyminen tähän domainiin ei ole tuettu"
 
@@ -3706,15 +3740,18 @@ msgstr "Edellinen kirjautuminen"
 msgid "Last Trigger"
 msgstr "Edellinen liipaisin"
 
-#: pkg/packagekit/updates.jsx:180
-msgid "Last checked: $0 ago"
+#: pkg/packagekit/updates.jsx:181
+#, fuzzy
+#| msgid "Last checked: $0 ago"
+msgid "Last checked: $0"
 msgstr "Viimeksi tarkistettu: $0 sitten"
 
 #: pkg/machines/components/desktopConsole.jsx:128
 msgid "Launch Remote Viewer"
 msgstr "Käynnistä etäkatselin"
 
-#: pkg/realmd/operation.html:24 pkg/realmd/operation.html:28
+#: pkg/systemd/overview-cards/realmd-operation.html:24
+#: pkg/systemd/overview-cards/realmd-operation.html:28
 msgid "Leave Domain"
 msgstr "Jätä domain"
 
@@ -3732,8 +3769,7 @@ msgstr ""
 msgid ""
 "Leave blank to connect to this machine as the currently logged in "
 "user{{#default_user}} ({{default_user}}){{/default_user}}. If you enter a "
-"different username, that user will always be used connecting to this "
-"machine."
+"different username, that user will always be used connecting to this machine."
 msgstr ""
 
 #: pkg/shell/index.html:91
@@ -3788,15 +3824,15 @@ msgstr "Lataa aiemmat merkinnät"
 msgid "Loading Resources"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:47
+#: pkg/packagekit/updates.jsx:48
 msgid "Loading available updates failed"
 msgstr "Saatavilla olevien päivitysten lataus epäonnistui"
 
-#: pkg/packagekit/updates.jsx:40
+#: pkg/packagekit/updates.jsx:41
 msgid "Loading available updates, please wait..."
 msgstr "Ladataan saatavilla olevat päivitykset, odota hetki..."
 
-#: pkg/lib/cockpit-components-modifications.jsx:151
+#: pkg/lib/cockpit-components-modifications.jsx:145
 msgid "Loading system modifications..."
 msgstr ""
 
@@ -3838,7 +3874,7 @@ msgstr "Lukitse"
 msgid "Lock Account"
 msgstr "Lukitse tili"
 
-#: pkg/users/local.js:883 pkg/users/local.js:1222
+#: pkg/users/local.js:901 pkg/users/local.js:1238
 msgid "Lock account on $0"
 msgstr "Lukitse tili $0"
 
@@ -3850,8 +3886,7 @@ msgstr "Lukitse"
 msgid "Locking $target"
 msgstr "Lukitaan $target"
 
-#: pkg/lib/machine-change-auth.html:92 src/ws/login.html:84
-#: src/ws/login.js:516
+#: pkg/lib/machine-change-auth.html:92 src/ws/login.html:84 src/ws/login.js:516
 msgid "Log In"
 msgstr "Kirjaudu sisään"
 
@@ -3871,7 +3906,7 @@ msgstr ""
 msgid "Log messages"
 msgstr "Kirjaa viestit"
 
-#: pkg/users/local.js:965
+#: pkg/users/local.js:981
 msgid "Logged In"
 msgstr "Kirjautunut sisään"
 
@@ -3899,7 +3934,7 @@ msgstr ""
 msgid "Login Again"
 msgstr "Kirjaudu sisään uudelleen"
 
-#: pkg/realmd/operation.html:14
+#: pkg/systemd/overview-cards/realmd-operation.html:14
 msgid "Login Format"
 msgstr ""
 
@@ -3940,8 +3975,7 @@ msgstr ""
 msgid "MAC"
 msgstr "MAC"
 
-#: pkg/machines/components/nicAdd.jsx:40
-#: pkg/machines/components/nicEdit.jsx:43
+#: pkg/machines/components/nicAdd.jsx:40 pkg/machines/components/nicEdit.jsx:43
 #: pkg/machines/components/vmnetworktab.jsx:160
 msgid "MAC Address"
 msgstr "MAC-osoite"
@@ -3969,6 +4003,10 @@ msgstr "Koneen ID"
 #: pkg/systemd/index.html:151
 msgid "Machine SSH Key Fingerprints"
 msgstr "Koneen SSH-avaimen sormenjäljet"
+
+#: pkg/machines/components/diskEdit.jsx:81
+msgid "Machine must be shut off before changing bus type"
+msgstr ""
 
 #: pkg/shell/indexes.js:539
 msgid "Machines"
@@ -4063,8 +4101,8 @@ msgstr ""
 #: pkg/playground/translate.html:90 pkg/systemd/graphs.html:82
 #: pkg/docker/containers-view.jsx:359
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:396
-#: pkg/machines/components/vmOverviewTab.jsx:74 pkg/systemd/hwinfo.jsx:285
-#: pkg/systemd/overview-cards/usageCard.jsx:78
+#: pkg/machines/components/vmOverviewTab.jsx:74 pkg/systemd/hwinfo.jsx:270
+#: pkg/systemd/overview-cards/usageCard.jsx:132
 msgid "Memory"
 msgstr "Muisti"
 
@@ -4085,7 +4123,7 @@ msgstr ""
 msgid "Memory Graph"
 msgstr ""
 
-#: pkg/systemd/hwinfo.jsx:286
+#: pkg/systemd/hwinfo.jsx:271
 msgid "Memory Technology"
 msgstr ""
 
@@ -4132,7 +4170,7 @@ msgstr ""
 msgid "Mini Tower"
 msgstr ""
 
-#: pkg/systemd/init.js:1235 pkg/systemd/init.js:1244 pkg/systemd/init.js:1253
+#: pkg/systemd/init.js:1234 pkg/systemd/init.js:1243 pkg/systemd/init.js:1252
 msgid "Minute needs to be a number between 0-59"
 msgstr "Minuutit tulee olla esitetty numerovälillä 0-59"
 
@@ -4140,7 +4178,7 @@ msgstr "Minuutit tulee olla esitetty numerovälillä 0-59"
 msgid "Minutes"
 msgstr "Minuutit"
 
-#: pkg/systemd/hwinfo.jsx:68 pkg/systemd/hwinfo.jsx:73
+#: pkg/systemd/hwinfo.jsx:57
 msgid "Mitigations"
 msgstr ""
 
@@ -4148,7 +4186,7 @@ msgstr ""
 msgid "Mode"
 msgstr "Tila"
 
-#: pkg/machines/components/nicBody.jsx:44 pkg/systemd/hwinfo.jsx:273
+#: pkg/machines/components/nicBody.jsx:44 pkg/systemd/hwinfo.jsx:258
 #: pkg/systemd/overview-cards/systemInformationCard.jsx:92
 msgid "Model"
 msgstr "Malli"
@@ -4178,7 +4216,7 @@ msgstr "Monitorointiväli"
 msgid "Monitoring Targets"
 msgstr ""
 
-#: pkg/realmd/operation.js:534
+#: pkg/systemd/overview-cards/realmd-operation.js:532
 msgid "More"
 msgstr ""
 
@@ -4292,7 +4330,7 @@ msgstr ""
 msgid "NSNA Ping"
 msgstr ""
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:1019
+#: pkg/systemd/overview-cards/configurationCard.jsx:1032
 msgid "NTP Server"
 msgstr "NTP-palvelin"
 
@@ -4308,7 +4346,7 @@ msgstr "NTP-palvelin"
 #: pkg/machines/components/storagePools/storagePoolList.jsx:54
 #: pkg/machines/components/storagePools/storagePoolVolumesTab.jsx:79
 #: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:33
-#: pkg/machines/hostvmslist.jsx:83 pkg/packagekit/updates.jsx:384
+#: pkg/machines/hostvmslist.jsx:74 pkg/packagekit/updates.jsx:385
 #: pkg/storaged/content-views.jsx:114 pkg/storaged/content-views.jsx:682
 #: pkg/storaged/format-dialog.jsx:201 pkg/storaged/fsys-panel.jsx:94
 #: pkg/storaged/fsys-tab.jsx:340 pkg/storaged/fsys-tab.jsx:492
@@ -4317,7 +4355,7 @@ msgstr "NTP-palvelin"
 #: pkg/storaged/lvol-tabs.jsx:399 pkg/storaged/lvol-tabs.jsx:454
 #: pkg/storaged/mdraids-panel.jsx:61 pkg/storaged/part-tab.jsx:33
 #: pkg/storaged/vdos-panel.jsx:82 pkg/storaged/vgroup-details.jsx:175
-#: pkg/storaged/vgroups-panel.jsx:74 pkg/systemd/hwinfo.jsx:85
+#: pkg/storaged/vgroups-panel.jsx:74 pkg/systemd/hwinfo.jsx:70
 #: pkg/systemd/init.js:308
 msgid "Name"
 msgstr "Nimi"
@@ -4363,7 +4401,7 @@ msgstr "Nimen ei tule olla tyhjä."
 msgid "Name: "
 msgstr ""
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:846
+#: pkg/systemd/overview-cards/configurationCard.jsx:859
 msgid "Need at least one NTP server"
 msgstr "Tarvitaan vähintään yksi NTP-palvelin"
 
@@ -4446,15 +4484,15 @@ msgstr "Verkkolokit"
 msgid "Networks"
 msgstr "Verkot"
 
-#: pkg/users/local.js:967
+#: pkg/users/local.js:983
 msgid "Never"
 msgstr "Ei  koskaan"
 
-#: pkg/users/index.html:297 pkg/users/local.js:872
+#: pkg/users/index.html:297 pkg/users/local.js:890
 msgid "Never expire password"
 msgstr "Älä koskaan vanhenna salasanaa"
 
-#: pkg/users/index.html:258 pkg/users/local.js:880
+#: pkg/users/index.html:258 pkg/users/local.js:898
 msgid "Never lock account"
 msgstr "Älä koskaan lukitse tiliä"
 
@@ -4474,11 +4512,12 @@ msgstr ""
 msgid "New passphrase"
 msgstr ""
 
-#: pkg/lib/credentials.js:237 pkg/users/local.js:139
+#: pkg/lib/credentials.js:237 pkg/users/local.js:109
 msgid "New password was not accepted"
 msgstr "Uutta salasanaa ei hyväksytty"
 
-#: pkg/realmd/operation.html:84 pkg/storaged/iscsi-panel.jsx:50
+#: pkg/systemd/overview-cards/realmd-operation.html:84
+#: pkg/storaged/iscsi-panel.jsx:50
 msgid "Next"
 msgstr "Seuraava"
 
@@ -4536,8 +4575,8 @@ msgstr "Ei SELinux-hälytyksiä."
 msgid "No Storage"
 msgstr ""
 
+#: pkg/machines/components/diskAdd.jsx:121
 #: pkg/machines/components/diskAdd.jsx:133
-#: pkg/machines/components/diskAdd.jsx:145
 msgid "No Storage Pools available"
 msgstr ""
 
@@ -4545,11 +4584,11 @@ msgstr ""
 msgid "No Storage Volumes defined for this Storage Pool"
 msgstr ""
 
-#: pkg/lib/cockpit-components-modifications.jsx:144
+#: pkg/lib/cockpit-components-modifications.jsx:138
 msgid "No System Modifications"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:85
+#: pkg/machines/hostvmslist.jsx:76
 msgid "No VM is running or defined on this host"
 msgstr ""
 
@@ -4686,7 +4725,7 @@ msgstr ""
 msgid "No partitioning"
 msgstr "Ei osiointia"
 
-#: pkg/users/local.js:453
+#: pkg/users/local.js:423
 msgid "No real name specified"
 msgstr ""
 
@@ -4714,11 +4753,11 @@ msgstr ""
 msgid "No such file or directory"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:43
+#: pkg/packagekit/updates.jsx:44
 msgid "No updates pending"
 msgstr "Ei odottavia päivityksiä"
 
-#: pkg/users/local.js:448
+#: pkg/users/local.js:418
 msgid "No user name specified"
 msgstr ""
 
@@ -4730,8 +4769,8 @@ msgstr ""
 
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:189
 msgid ""
-"Non-persistent storage pool cannot be deleted. It ceases to exists when it's"
-" deactivated."
+"Non-persistent storage pool cannot be deleted. It ceases to exists when it's "
+"deactivated."
 msgstr ""
 
 #: pkg/kdump/kdump-view.jsx:422
@@ -4748,7 +4787,7 @@ msgstr ""
 msgid "Not Ready"
 msgstr "Ei valmiina"
 
-#: pkg/packagekit/updates.jsx:789
+#: pkg/packagekit/updates.jsx:790
 msgid "Not Registered"
 msgstr ""
 
@@ -4853,7 +4892,7 @@ msgstr "Vanha salasana"
 msgid "Old passphrase"
 msgstr ""
 
-#: pkg/lib/credentials.js:218 pkg/users/local.js:86
+#: pkg/lib/credentials.js:218 pkg/users/local.js:56
 msgid "Old password not accepted"
 msgstr "Vanhaa salasanaa ei hyväksytty"
 
@@ -4872,11 +4911,12 @@ msgstr[0] ""
 
 #: src/ws/cockpit.appdata.xml.in:26
 msgid ""
-"Once Cockpit is installed, enable it with \"systemctl enable --now "
-"cockpit.socket\"."
+"Once Cockpit is installed, enable it with \"systemctl enable --now cockpit."
+"socket\"."
 msgstr ""
 
-#: pkg/realmd/operation.html:68 pkg/realmd/operation.js:340
+#: pkg/systemd/overview-cards/realmd-operation.html:68
+#: pkg/systemd/overview-cards/realmd-operation.js:338
 msgid "One Time Password"
 msgstr "Kertakäyttöinen salasana"
 
@@ -4894,7 +4934,7 @@ msgstr ""
 msgid "Only Emergency"
 msgstr ""
 
-#: pkg/systemd/init.js:1185
+#: pkg/systemd/init.js:1184
 msgid "Only alphabets, numbers, : , _ , . , @ , - are allowed."
 msgstr ""
 
@@ -4956,7 +4996,7 @@ msgstr "Muut valinnat"
 #: pkg/docker/index.html:299 pkg/systemd/graphs.html:25
 #: pkg/systemd/graphs.html:109 pkg/machines/components/networks/network.jsx:73
 #: pkg/machines/components/storagePools/storagePool.jsx:83
-#: pkg/machines/components/vm/vm.jsx:49 pkg/systemd/hwinfo.jsx:297
+#: pkg/machines/components/vm/vm.jsx:49 pkg/systemd/hwinfo.jsx:282
 #: pkg/systemd/manifest.json.in
 msgid "Overview"
 msgstr ""
@@ -4965,15 +5005,15 @@ msgstr ""
 msgid "Overwrite existing data with zeros"
 msgstr ""
 
-#: pkg/systemd/hwinfo.jsx:269
+#: pkg/systemd/hwinfo.jsx:254
 msgid "PCI"
 msgstr "PCI"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:420
+#: pkg/systemd/overview-cards/configurationCard.jsx:433
 msgid "PCP"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:506
+#: pkg/packagekit/updates.jsx:507
 msgid "Package information"
 msgstr "Paketin tiedot"
 
@@ -4981,11 +5021,11 @@ msgstr "Paketin tiedot"
 msgid "PackageKit crashed"
 msgstr "PackageKit kaatui"
 
-#: pkg/packagekit/updates.jsx:568
+#: pkg/packagekit/updates.jsx:569
 msgid "PackageKit is not installed"
 msgstr "PackageKit ei ole asennettu"
 
-#: pkg/packagekit/updates.jsx:736
+#: pkg/packagekit/updates.jsx:737
 msgid "PackageKit reported error code $0"
 msgstr "PackageKit raportoi virhekoodin $0"
 
@@ -5053,15 +5093,15 @@ msgstr "Salasana"
 msgid "Password Expiration"
 msgstr "Salasanan vanheneminen"
 
-#: pkg/users/local.js:277
+#: pkg/users/local.js:247
 msgid "Password is not acceptable"
 msgstr "Salasana ei ole hyväksyttävä"
 
-#: pkg/users/local.js:265
+#: pkg/users/local.js:235
 msgid "Password is too weak"
 msgstr "Salasana on liian heikko"
 
-#: pkg/users/local.js:874
+#: pkg/users/local.js:892
 msgid "Password must be changed"
 msgstr "Salasana tulee vaihtaa"
 
@@ -5083,7 +5123,7 @@ msgid "Paste the contents of your public SSH key file here"
 msgstr "Liitä julkisen SSH-avaintiedostosi sisältö tähän"
 
 #: pkg/machines/components/deleteDialog.jsx:45
-#: pkg/machines/components/diskEdit.jsx:36 pkg/systemd/service-details.jsx:482
+#: pkg/machines/components/diskEdit.jsx:39 pkg/systemd/service-details.jsx:482
 msgid "Path"
 msgstr "Polku"
 
@@ -5127,7 +5167,7 @@ msgstr "Polut"
 msgid "Pause"
 msgstr ""
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:394
+#: pkg/systemd/overview-cards/configurationCard.jsx:407
 msgid "Performance profile"
 msgstr ""
 
@@ -5147,7 +5187,7 @@ msgstr "Käyttö estetty"
 msgid "Permissive"
 msgstr ""
 
-#: pkg/machines/components/diskAdd.jsx:112
+#: pkg/machines/components/diskAdd.jsx:100
 #: pkg/machines/components/nicAdd.jsx:80
 msgid "Persistence"
 msgstr ""
@@ -5212,11 +5252,11 @@ msgstr "Vahvista kohteen $0 pakotettu poistaminen"
 msgid "Please confirm stopping of $0"
 msgstr "Vahvista kohteen $0 pysäyttäminen"
 
-#: pkg/machines/components/diskAdd.jsx:378
+#: pkg/machines/components/diskAdd.jsx:403
 msgid "Please enter new volume name"
 msgstr ""
 
-#: pkg/machines/components/diskAdd.jsx:381
+#: pkg/machines/components/diskAdd.jsx:406
 msgid "Please enter new volume size"
 msgstr ""
 
@@ -5224,7 +5264,7 @@ msgstr ""
 msgid "Please install the $0 package"
 msgstr ""
 
-#: pkg/users/local.js:1236
+#: pkg/users/local.js:1252
 msgid "Please specify an expiration date"
 msgstr "Määritä vanhenemispäivä"
 
@@ -5245,7 +5285,7 @@ msgid "Plug"
 msgstr ""
 
 #: pkg/machines/components/deleteDialog.jsx:53
-#: pkg/machines/components/diskAdd.jsx:128
+#: pkg/machines/components/diskAdd.jsx:116
 #: pkg/machines/components/vm/bootOrderModal.jsx:95
 #: pkg/machines/components/vmDiskColumns.jsx:45
 #: pkg/storaged/content-views.jsx:138
@@ -5390,7 +5430,7 @@ msgstr ""
 msgid "Project website"
 msgstr "Projektin verkkosivusto"
 
-#: pkg/users/local.js:91
+#: pkg/users/local.js:61
 msgid "Prompting via passwd timed out"
 msgstr ""
 
@@ -5508,7 +5548,7 @@ msgstr ""
 msgid "Range must be strictly ordered"
 msgstr ""
 
-#: pkg/systemd/hwinfo.jsx:286
+#: pkg/systemd/hwinfo.jsx:271
 msgid "Rank"
 msgstr ""
 
@@ -5516,11 +5556,11 @@ msgstr ""
 msgid "Raw to a device"
 msgstr ""
 
-#: pkg/systemd/hwinfo.jsx:212
+#: pkg/systemd/hwinfo.jsx:197
 msgid "Read more..."
 msgstr ""
 
-#: pkg/machines/components/diskEdit.jsx:70
+#: pkg/machines/components/diskEdit.jsx:106
 #: pkg/machines/components/vmDisksTab.jsx:144
 #: pkg/systemd/service-details.jsx:389
 msgid "Read-only"
@@ -5555,13 +5595,13 @@ msgstr "Valmis"
 msgid "Real Host Name"
 msgstr ""
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:517
+#: pkg/systemd/overview-cards/configurationCard.jsx:530
 msgid ""
 "Real host name can only contain lower-case characters, digits, dashes, and "
 "periods (with populated subdomains)"
 msgstr ""
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:518
+#: pkg/systemd/overview-cards/configurationCard.jsx:531
 msgid "Real host name must be 64 characters or less"
 msgstr ""
 
@@ -5599,7 +5639,7 @@ msgstr ""
 msgid "Reformat and add disks"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:42
+#: pkg/packagekit/updates.jsx:43
 msgid "Refreshing package information"
 msgstr "Päivitetään pakettitietoja"
 
@@ -5615,7 +5655,7 @@ msgstr ""
 msgid "Refusing to connect. Hostkey is unknown"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:806
+#: pkg/packagekit/updates.jsx:807
 msgid "Register…"
 msgstr "Rekisteröi…"
 
@@ -5798,11 +5838,11 @@ msgstr ""
 msgid "Repository"
 msgstr ""
 
-#: pkg/users/local.js:1300
+#: pkg/users/local.js:1316
 msgid "Require password change every $0 days"
 msgstr "Vaadi salasanan vaihto $0 päivän välein"
 
-#: pkg/users/local.js:876
+#: pkg/users/local.js:894
 msgid "Require password change on $0"
 msgstr "Vaadi salasanan vaihto $0"
 
@@ -5856,18 +5896,18 @@ msgstr ""
 
 #: pkg/storaged/lvol-tabs.jsx:229 pkg/storaged/lvol-tabs.jsx:314
 msgid ""
-"Resizing an encrypted filesystem requires unlocking the disk. Please provide"
-" a current disk passphrase."
+"Resizing an encrypted filesystem requires unlocking the disk. Please provide "
+"a current disk passphrase."
 msgstr ""
 
 #: pkg/docker/index.html:138 pkg/docker/containers-view.jsx:315
-#: pkg/machines/components/vm/vmActions.jsx:42 pkg/systemd/overview.jsx:117
+#: pkg/machines/components/vm/vmActions.jsx:42 pkg/systemd/overview.jsx:116
 #: pkg/systemd/service-details.jsx:170 pkg/systemd/shutdown.js:99
 #: pkg/systemd/shutdown.js:100
 msgid "Restart"
 msgstr "Käynnistä uudelleen"
 
-#: pkg/packagekit/updates.jsx:503
+#: pkg/packagekit/updates.jsx:504
 msgid "Restart Now"
 msgstr "Käynnistä uudelleen nyt"
 
@@ -5879,11 +5919,11 @@ msgstr "Uudelleenkäynnistyksen käytäntö"
 msgid "Restart Policy:"
 msgstr "Uudelleenkäynnistyksen käytäntö:"
 
-#: pkg/packagekit/updates.jsx:498 pkg/packagekit/updates.jsx:915
+#: pkg/packagekit/updates.jsx:499 pkg/packagekit/updates.jsx:916
 msgid "Restart Recommended"
 msgstr "Uudelleenkäynnistystä suositellaan"
 
-#: pkg/packagekit/updates.jsx:927
+#: pkg/packagekit/updates.jsx:928
 msgid "Restarting"
 msgstr "Käynnistetään uudelleen"
 
@@ -5904,8 +5944,7 @@ msgid "Reuse my password for privileged tasks"
 msgstr ""
 
 #: pkg/shell/index.html:176
-msgid ""
-"Reuse my password for privileged tasks and to connect to other machines"
+msgid "Reuse my password for privileged tasks and to connect to other machines"
 msgstr ""
 
 #: pkg/users/index.html:94
@@ -6016,8 +6055,7 @@ msgstr ""
 
 #: pkg/shell/index.html:434
 msgid ""
-"Safari users need to import and trust the certificate of the self-signing "
-"CA:"
+"Safari users need to import and trust the certificate of the self-signing CA:"
 msgstr ""
 
 #: pkg/systemd/services.html:131
@@ -6028,7 +6066,7 @@ msgstr "Lauantai"
 msgid "Saturdays"
 msgstr ""
 
-#: pkg/systemd/services.html:377 pkg/machines/components/diskEdit.jsx:176
+#: pkg/systemd/services.html:377 pkg/machines/components/diskEdit.jsx:220
 #: pkg/machines/components/nicEdit.jsx:179
 #: pkg/machines/components/vm/bootOrderModal.jsx:330
 #: pkg/machines/components/vm/memoryModal.jsx:158
@@ -6036,7 +6074,7 @@ msgstr ""
 msgid "Save"
 msgstr "Tallenna"
 
-#: pkg/systemd/hwinfo.jsx:241
+#: pkg/systemd/hwinfo.jsx:226
 msgid "Save and reboot"
 msgstr ""
 
@@ -6063,11 +6101,11 @@ msgid "Search"
 msgstr ""
 
 #: pkg/systemd/services.html:313 pkg/systemd/services.html:317
-#: pkg/systemd/init.js:973
+#: pkg/systemd/init.js:972
 msgid "Seconds"
 msgstr "Sekunnit"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:399
+#: pkg/systemd/overview-cards/configurationCard.jsx:412
 msgid "Secure Shell keys"
 msgstr ""
 
@@ -6079,7 +6117,7 @@ msgstr ""
 msgid "Security"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:849
+#: pkg/packagekit/updates.jsx:850
 msgid "Security Updates Available"
 msgstr "Tietoturvapäivityksiä saatavilla"
 
@@ -6089,8 +6127,8 @@ msgstr "Valitse"
 
 #: pkg/lib/machine-sync-users.html:8
 msgid ""
-"Select the users that you would like to be synchronized with "
-"{{#strong}}{{host}}{{/strong}}"
+"Select the users that you would like to be synchronized with {{#strong}}"
+"{{host}}{{/strong}}"
 msgstr ""
 
 #: pkg/systemd/reporting.jsx:245
@@ -6124,11 +6162,11 @@ msgstr "Palvelin"
 msgid "Server Address"
 msgstr "Palvelimen osoite"
 
-#: pkg/users/local.js:750 pkg/users/local.js:751
+#: pkg/users/local.js:768 pkg/users/local.js:769
 msgid "Server Administrator"
 msgstr "Palvelimen ylläpitäjä"
 
-#: pkg/realmd/operation.html:17
+#: pkg/systemd/overview-cards/realmd-operation.html:17
 msgid "Server Software"
 msgstr ""
 
@@ -6203,7 +6241,7 @@ msgstr ""
 msgid "Set DHCP Range"
 msgstr ""
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:366
+#: pkg/systemd/overview-cards/configurationCard.jsx:347
 msgid "Set Hostname"
 msgstr ""
 
@@ -6227,7 +6265,7 @@ msgstr ""
 msgid "Set to"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:62
+#: pkg/packagekit/updates.jsx:63
 msgid "Set up"
 msgstr ""
 
@@ -6236,7 +6274,7 @@ msgid ""
 "Setting deviates from the configured state and will revert on the next boot."
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:54
+#: pkg/packagekit/updates.jsx:55
 msgid "Setting up"
 msgstr ""
 
@@ -6244,11 +6282,11 @@ msgstr ""
 msgid "Setting up loop device $target"
 msgstr ""
 
-#: pkg/systemd/logs.html:48 pkg/packagekit/updates.jsx:386
+#: pkg/systemd/logs.html:48 pkg/packagekit/updates.jsx:387
 msgid "Severity"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:314
+#: pkg/packagekit/updates.jsx:315
 msgid "Severity:"
 msgstr ""
 
@@ -6256,7 +6294,7 @@ msgstr ""
 msgid "Shared"
 msgstr "Jaettu"
 
-#: pkg/lib/cockpit-components-modifications.jsx:78
+#: pkg/lib/cockpit-components-modifications.jsx:76
 msgid "Shell Script"
 msgstr ""
 
@@ -6264,9 +6302,11 @@ msgstr ""
 msgid "Shift+Insert"
 msgstr ""
 
-#: pkg/machines/components/diskAdd.jsx:167
-msgid "Show Performance Options"
-msgstr ""
+#: pkg/machines/components/diskAdd.jsx:156
+#, fuzzy
+#| msgid "Additional Storage"
+msgid "Show Additional Options"
+msgstr "Uusi tallennustila"
 
 #: pkg/storaged/overview.jsx:52
 msgid "Show all"
@@ -6288,7 +6328,7 @@ msgstr "Näytä kaikki kontit"
 msgid "Show all images"
 msgstr ""
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:402
+#: pkg/systemd/overview-cards/configurationCard.jsx:415
 msgid "Show fingerprints"
 msgstr "Näytä sormenjäljet"
 
@@ -6309,7 +6349,7 @@ msgstr ""
 msgid "Shut Down"
 msgstr "Sammuta"
 
-#: pkg/systemd/overview.jsx:101
+#: pkg/systemd/overview.jsx:104
 msgid "Shutdown"
 msgstr ""
 
@@ -6327,7 +6367,7 @@ msgstr ""
 #: pkg/storaged/lvol-tabs.jsx:213 pkg/storaged/lvol-tabs.jsx:275
 #: pkg/storaged/lvol-tabs.jsx:403 pkg/storaged/lvol-tabs.jsx:457
 #: pkg/storaged/nfs-details.jsx:322 pkg/storaged/nfs-panel.jsx:104
-#: pkg/storaged/part-tab.jsx:36 pkg/systemd/hwinfo.jsx:286
+#: pkg/storaged/part-tab.jsx:36 pkg/systemd/hwinfo.jsx:271
 msgid "Size"
 msgstr "Koko"
 
@@ -6351,7 +6391,7 @@ msgstr "Koon tulee olla numero"
 msgid "Size must be at least $0"
 msgstr "Koon tulee olla vähintään $0"
 
-#: pkg/systemd/hwinfo.jsx:275
+#: pkg/systemd/hwinfo.jsx:260
 msgid "Slot"
 msgstr ""
 
@@ -6367,7 +6407,7 @@ msgstr ""
 msgid "Software Updates"
 msgstr "Ohjelmistopäivitykset"
 
-#: pkg/systemd/hwinfo.jsx:227
+#: pkg/systemd/hwinfo.jsx:212
 msgid ""
 "Software-based workarounds help prevent CPU security issues. These "
 "mitigations have the side effect of reducing performance. Change these "
@@ -6390,7 +6430,7 @@ msgstr ""
 msgid "Solutions"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:41
+#: pkg/packagekit/updates.jsx:42
 msgid ""
 "Some other program is currently using the package manager, please wait..."
 msgstr ""
@@ -6399,7 +6439,7 @@ msgstr ""
 msgid "Sorted from least trusted to most trusted"
 msgstr ""
 
-#: pkg/machines/components/diskAdd.jsx:461
+#: pkg/machines/components/diskAdd.jsx:489
 #: pkg/machines/components/nicBody.jsx:146
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:52
 #: pkg/machines/components/vmDisksTab.jsx:117
@@ -6451,7 +6491,7 @@ msgstr ""
 msgid "Specific Time"
 msgstr ""
 
-#: pkg/systemd/hwinfo.jsx:286
+#: pkg/systemd/hwinfo.jsx:271
 msgid "Speed"
 msgstr ""
 
@@ -6510,9 +6550,8 @@ msgstr ""
 #: pkg/docker/containers-view.jsx:133 pkg/docker/containers-view.jsx:359
 #: pkg/machines/components/networks/networkList.jsx:55
 #: pkg/machines/components/storagePools/storagePoolList.jsx:54
-#: pkg/machines/components/vmnetworktab.jsx:205
-#: pkg/machines/hostvmslist.jsx:83 pkg/systemd/hwinfo.jsx:286
-#: pkg/systemd/init.js:312
+#: pkg/machines/components/vmnetworktab.jsx:205 pkg/machines/hostvmslist.jsx:74
+#: pkg/systemd/hwinfo.jsx:271 pkg/systemd/init.js:312
 msgid "State"
 msgstr "Tila"
 
@@ -6612,7 +6651,7 @@ msgstr ""
 msgid "Storage Pools"
 msgstr ""
 
-#: pkg/machines/components/diskEdit.jsx:40
+#: pkg/machines/components/diskEdit.jsx:43
 msgid "Storage Volume"
 msgstr ""
 
@@ -6636,7 +6675,7 @@ msgstr ""
 msgid "Storage size must not be 0"
 msgstr ""
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:408
+#: pkg/systemd/overview-cards/configurationCard.jsx:421
 msgid "Store metrics"
 msgstr ""
 
@@ -6736,7 +6775,7 @@ msgstr "Synkronoidaan RAID-laitetta $target"
 msgid "System"
 msgstr "Järjestelmä"
 
-#: pkg/systemd/hwinfo.jsx:301
+#: pkg/systemd/hwinfo.jsx:286
 msgid "System Information"
 msgstr "Järjestelmätiedot"
 
@@ -6752,11 +6791,11 @@ msgstr "Järjestelmäpalvelut"
 msgid "System information"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:934 pkg/packagekit/updates.jsx:947
+#: pkg/packagekit/updates.jsx:935 pkg/packagekit/updates.jsx:948
 msgid "System is up to date"
 msgstr "Järjestelmä on ajan tasalla"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:373
+#: pkg/systemd/overview-cards/configurationCard.jsx:392
 msgid "System time"
 msgstr ""
 
@@ -6913,7 +6952,7 @@ msgstr ""
 msgid "The VM needs to be running or shut off to detach this device"
 msgstr ""
 
-#: pkg/users/local.js:1342
+#: pkg/users/local.js:1358
 msgid "The account '$0' will be forced to change their password on next login"
 msgstr ""
 "Tili '$0' on pakotettu vaihtamaan salasanan seuraavalla "
@@ -6979,8 +7018,7 @@ msgstr ""
 
 #: pkg/storaged/fsys-tab.jsx:461
 msgid ""
-"The filesystem is currently not mounted but will be mounted on the next "
-"boot."
+"The filesystem is currently not mounted but will be mounted on the next boot."
 msgstr ""
 
 #: pkg/storaged/dialog.jsx:999
@@ -6990,8 +7028,7 @@ msgid ""
 msgstr ""
 
 #: pkg/storaged/dialog.jsx:1001
-msgid ""
-"The filesystem is in use by login sessions. Proceeding will stop these."
+msgid "The filesystem is in use by login sessions. Proceeding will stop these."
 msgstr ""
 
 #: pkg/storaged/dialog.jsx:1003
@@ -7004,8 +7041,7 @@ msgid "The filesystem is not mounted."
 msgstr ""
 
 #: pkg/docker/util.js:631
-msgid ""
-"The following containers depend on this image and will become unusable."
+msgid "The following containers depend on this image and will become unusable."
 msgstr ""
 
 #: pkg/sosreport/index.html:51
@@ -7018,8 +7054,8 @@ msgstr ""
 #: pkg/lib/machine-invalid-hostkey.html:8
 msgid ""
 "The key of {{#strong}}{{host}}{{/strong}} does not match the key previously "
-"in use. Unless this machine was recently replaced, it is likely that someone"
-" is trying to attack your connection to this machine."
+"in use. Unless this machine was recently replaced, it is likely that someone "
+"is trying to attack your connection to this machine."
 msgstr ""
 
 #: pkg/users/authorized-keys.js:124
@@ -7038,7 +7074,7 @@ msgstr ""
 msgid "The last physical volume of a volume group cannot be removed."
 msgstr ""
 
-#: pkg/lib/cockpit-components-modifications.jsx:144
+#: pkg/lib/cockpit-components-modifications.jsx:138
 msgid "The logged in user is not permitted to view system modifications"
 msgstr ""
 
@@ -7046,7 +7082,7 @@ msgstr ""
 msgid "The machine is restarting"
 msgstr "Kone käynnistyy uudelleen"
 
-#: pkg/users/local.js:443 pkg/users/local.js:1399
+#: pkg/users/local.js:413 pkg/users/local.js:1415
 msgid "The passwords do not match"
 msgstr "Salasanat eivät täsmää"
 
@@ -7054,7 +7090,7 @@ msgstr "Salasanat eivät täsmää"
 msgid "The passwords do not match."
 msgstr "Salasanat eivät täsmää."
 
-#: pkg/machines/components/diskAdd.jsx:82
+#: pkg/machines/components/diskAdd.jsx:70
 msgid "The pool is empty"
 msgstr ""
 
@@ -7091,20 +7127,34 @@ msgid "The server refused to authenticate using any supported methods."
 msgstr ""
 "Palvelin kieltäytyi tunnistautumista käyttäen mitään tuetuista tavoista."
 
-#: pkg/systemd/hwinfo.jsx:71
+#: pkg/systemd/hwinfo.jsx:55
 msgid "The user $0 is not permitted to change cpu security mitigations"
 msgstr ""
 
-#: pkg/systemd/init.js:819
+#: pkg/systemd/overview-cards/configurationCard.jsx:355
+msgid "The user $0 is not permitted to change the system time"
+msgstr ""
+
+#: pkg/systemd/overview-cards/configurationCard.jsx:335
+msgid "The user $0 is not permitted to modify hostnames"
+msgstr ""
+
+#: pkg/systemd/overview-cards/configurationCard.jsx:361
+#, fuzzy
+#| msgid "The user <b>$0</b> is not permitted to modify realms"
+msgid "The user $0 is not permitted to modify realms"
+msgstr "Käyttäjällä <b>$0</b> ei ole oikeutta muokata realmeja"
+
+#: pkg/systemd/overview.jsx:110
+msgid "The user $0 is not permitted to shutdown or restart this server"
+msgstr ""
+
+#: pkg/systemd/init.js:818
 msgid "The user <b>$0</b> does not have permissions for creating timers"
 msgstr "Käyttäjällä <b>$0</b> ei ole oikeutta luoda ajastimia"
 
 #: pkg/tuned/dialog.js:98
 msgid "The user <b>$0</b> is not permitted to change profiles"
-msgstr ""
-
-#: pkg/systemd/overview-cards/configurationCard.jsx:118
-msgid "The user <b>$0</b> is not permitted to change the system time"
 msgstr ""
 
 #: pkg/dashboard/list.js:231
@@ -7115,42 +7165,27 @@ msgstr "Käyttäjällä <b>$0</b> ei ole oikeutta hallita palvelimia"
 msgid "The user <b>$0</b> is not permitted to manage storage"
 msgstr "Käyttäjällä  <b>$0</b> ei ole oikeutta hallita tallennustilaa"
 
-#: pkg/users/local.js:43
+#: pkg/users/local.js:641
 msgid "The user <b>$0</b> is not permitted to modify accounts"
 msgstr "Käyttäjällä <b>$0</b> ei ole oikeutta muokata tilejä"
-
-#: pkg/systemd/overview-cards/configurationCard.jsx:104
-msgid "The user <b>$0</b> is not permitted to modify hostnames"
-msgstr ""
 
 #: pkg/networkmanager/interfaces.js:1497
 msgid "The user <b>$0</b> is not permitted to modify network settings"
 msgstr "Käyttäjällä <b>$0</b> ei ole oikeutta muokata verkkoasetuksia"
 
-#: pkg/realmd/operation.js:651
-msgid "The user <b>$0</b> is not permitted to modify realms"
-msgstr "Käyttäjällä <b>$0</b> ei ole oikeutta muokata realmeja"
-
-#: pkg/systemd/overview.jsx:48
-msgid "The user <b>$0</b> is not permitted to shutdown or restart this server"
-msgstr ""
-"Käyttäjällä <b>$0</b> ei ole oikeutta sammuttaa tai käynnistää uudelleen "
-"tätä palvelinta"
-
 #: pkg/users/index.html:436
 msgid "The user must log out and log back in to fully change roles."
 msgstr ""
 
-#: pkg/users/local.js:553
+#: pkg/users/local.js:537
 msgid ""
-"The user name can only consist of letters from a-z, digits, dots, dashes and"
-" underscores."
+"The user name can only consist of letters from a-z, digits, dots, dashes and "
+"underscores."
 msgstr ""
 
 #: src/ws/login.js:135 src/ws/login.js:158
 msgid ""
-"The web browser configuration prevents Cockpit from running (inaccessible "
-"$0)"
+"The web browser configuration prevents Cockpit from running (inaccessible $0)"
 msgstr ""
 
 #: pkg/shell/active-pages-dialog.jsx:58
@@ -7194,10 +7229,10 @@ msgstr ""
 msgid "This VDO device does not use all of its backing device."
 msgstr ""
 
-#: pkg/systemd/init.js:1268
+#: pkg/systemd/init.js:1267
 msgid ""
-"This day doesn't exist in all months.<br> The timer will only be executed in"
-" months that have 31st."
+"This day doesn't exist in all months.<br> The timer will only be executed in "
+"months that have 31st."
 msgstr ""
 "Tätä päivää ei ole kaikissa kuukausissa. <br> Ajastin ajetaan vain "
 "kuukausissa, joissa on 31. päivä."
@@ -7240,7 +7275,7 @@ msgstr ""
 msgid "This disk cannot be removed while the device is recovering."
 msgstr ""
 
-#: pkg/systemd/init.js:1180 pkg/systemd/init.js:1194 pkg/systemd/init.js:1203
+#: pkg/systemd/init.js:1179 pkg/systemd/init.js:1193 pkg/systemd/init.js:1202
 msgid "This field cannot be empty."
 msgstr "Tämä kenttä ei voi olla tyhjä."
 
@@ -7256,7 +7291,7 @@ msgstr ""
 msgid "This machine has already been added."
 msgstr "Tämä kone on jo lisätty."
 
-#: pkg/realmd/operation.html:82
+#: pkg/systemd/overview-cards/realmd-operation.html:82
 msgid "This may take a while"
 msgstr "Tässä voi mennä hetki."
 
@@ -7269,11 +7304,11 @@ msgstr "Tämä paketti ei ole yhteensopiva tämän Cockpitin version kanssa."
 msgid "This package requires Cockpit version %s or later"
 msgstr "Tämä paketti vaatii Cockpitin version %s tai uudemman"
 
-#: pkg/machines/components/diskAdd.jsx:139
+#: pkg/machines/components/diskAdd.jsx:127
 msgid "This pool type does not support Storage Volume creation"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:801
+#: pkg/packagekit/updates.jsx:802
 msgid "This system is not registered"
 msgstr "Tätä järjestelmää ei ole rekisteröity"
 
@@ -7295,7 +7330,7 @@ msgstr ""
 msgid "This unit is not designed to be enabled explicitly."
 msgstr ""
 
-#: pkg/users/local.js:561
+#: pkg/users/local.js:545
 msgid "This user name already exists"
 msgstr "Käyttäjätunnus on jo olemassa"
 
@@ -7309,7 +7344,7 @@ msgstr ""
 msgid "This volume is already used by another VM."
 msgstr ""
 
-#: pkg/machines/components/diskAdd.jsx:234
+#: pkg/machines/components/diskAdd.jsx:240
 msgid "This volume is already used by: "
 msgstr ""
 
@@ -7321,14 +7356,14 @@ msgstr "Tämä taltio tulee aktivoida, ennen kuin sen kokoa voi muuttaa."
 msgid "This web browser is too old to run Cockpit (missing $0)"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:881
+#: pkg/packagekit/updates.jsx:882
 msgid "This web console will be updated."
 msgstr ""
 
 #: pkg/kdump/kdump-view.jsx:296
 msgid ""
-"This will test kdump settings by crashing the kernel and thereby the system."
-" Depending on the settings, the system may not automatically reboot and the "
+"This will test kdump settings by crashing the kernel and thereby the system. "
+"Depending on the settings, the system may not automatically reboot and the "
 "process may take a while."
 msgstr ""
 
@@ -7367,10 +7402,10 @@ msgid ""
 "Tip: Make your key password match your login password to automatically "
 "authenticate against other systems."
 msgstr ""
-"Vinkki: Luo avaimesi salasana vastaamaan käyttäjätunnuksesi salasanaa, jotta"
-" voit automaattisesti tunnistautua muita järjestelmiä kohden."
+"Vinkki: Luo avaimesi salasana vastaamaan käyttäjätunnuksesi salasanaa, jotta "
+"voit automaattisesti tunnistautua muita järjestelmiä kohden."
 
-#: pkg/packagekit/updates.jsx:802
+#: pkg/packagekit/updates.jsx:803
 msgid ""
 "To get software updates, this system needs to be registered with Red Hat, "
 "either using the Red Hat Customer Portal or a local subscription server."
@@ -7467,8 +7502,8 @@ msgstr ""
 #: pkg/machines/components/vm/bootOrderModal.jsx:144
 #: pkg/machines/components/vmnetworktab.jsx:139
 #: pkg/storaged/format-dialog.jsx:199 pkg/storaged/part-tab.jsx:42
-#: pkg/storaged/unrecognized-tab.jsx:33 pkg/systemd/hwinfo.jsx:81
-#: pkg/systemd/hwinfo.jsx:286
+#: pkg/storaged/unrecognized-tab.jsx:33 pkg/systemd/hwinfo.jsx:66
+#: pkg/systemd/hwinfo.jsx:271
 msgid "Type"
 msgstr "Tyyppi"
 
@@ -7508,7 +7543,7 @@ msgstr "Tämän ratkaisun automaattinen asettaminen epäonnistui"
 msgid "Unable to connect to that address"
 msgstr "Siihen osoitteeseen yhdistäminen epäonnistui"
 
-#: pkg/users/local.js:58
+#: pkg/users/local.js:660
 msgid "Unable to delete root account"
 msgstr "Root-käyttäjätilin poistaminen epäonnistui"
 
@@ -7529,7 +7564,7 @@ msgstr "Palvelimeen ei saada yhteyttä"
 msgid "Unable to remove mount"
 msgstr ""
 
-#: pkg/users/local.js:60
+#: pkg/users/local.js:662
 msgid "Unable to rename root account"
 msgstr "Root-käyttäjätilin uudelleennimeäminen epäonnistui"
 
@@ -7550,7 +7585,7 @@ msgid "Unavailable"
 msgstr "Ei käytettävissä"
 
 #: pkg/docker/index.html:732 pkg/networkmanager/index.html:707
-#: pkg/shell/base_index.js:840 pkg/users/local.js:1485
+#: pkg/shell/base_index.js:840 pkg/users/local.js:1501
 msgid "Unexpected error"
 msgstr "Odottamaton virhe"
 
@@ -7703,25 +7738,25 @@ msgstr "Päivitä"
 msgid "Update History"
 msgstr "Päivityshistoria"
 
-#: pkg/packagekit/updates.jsx:476
+#: pkg/packagekit/updates.jsx:477
 msgid "Update Log"
 msgstr "Päivitysloki"
 
-#: pkg/packagekit/updates.jsx:61
+#: pkg/packagekit/updates.jsx:62
 msgid "Updated"
 msgstr "Päivitetty"
 
-#: pkg/packagekit/updates.jsx:499
+#: pkg/packagekit/updates.jsx:500
 msgid "Updated packages may require a restart to take effect."
 msgstr ""
 "Päivitetyt paketit saattavat vaatia uudelleenkäynnistyksen, jotta muutokset "
 "tulevat voimaan."
 
-#: pkg/packagekit/updates.jsx:855
+#: pkg/packagekit/updates.jsx:856
 msgid "Updates Available"
 msgstr "Päivityksiä saatavilla"
 
-#: pkg/packagekit/updates.jsx:53
+#: pkg/packagekit/updates.jsx:54
 msgid "Updating"
 msgstr "Päivitetään"
 
@@ -7729,12 +7764,12 @@ msgstr "Päivitetään"
 msgid "Updating status..."
 msgstr ""
 
-#: pkg/machines/components/diskEdit.jsx:38
+#: pkg/machines/components/diskEdit.jsx:41
 msgid "Url"
 msgstr ""
 
 #: pkg/machines/components/vm/vm.jsx:50 pkg/storaged/unrecognized-tab.jsx:30
-#: pkg/systemd/overview-cards/usageCard.jsx:73
+#: pkg/systemd/overview-cards/usageCard.jsx:116
 msgid "Usage"
 msgstr "Käyttö"
 
@@ -7751,7 +7786,7 @@ msgstr[0] ""
 msgid "Use 512 Byte emulation"
 msgstr ""
 
-#: pkg/machines/components/diskAdd.jsx:481
+#: pkg/machines/components/diskAdd.jsx:509
 msgid "Use Existing"
 msgstr ""
 
@@ -7781,12 +7816,13 @@ msgstr ""
 msgid "User"
 msgstr "Käyttäjä"
 
-#: pkg/realmd/operation.html:56 pkg/users/index.html:90
+#: pkg/systemd/overview-cards/realmd-operation.html:56 pkg/users/index.html:90
 #: pkg/users/index.html:170
 msgid "User Name"
 msgstr "Käyttäjätunnus"
 
-#: pkg/realmd/operation.html:59 pkg/realmd/operation.js:339
+#: pkg/systemd/overview-cards/realmd-operation.html:59
+#: pkg/systemd/overview-cards/realmd-operation.js:337
 msgid "User Password"
 msgstr "Salasana"
 
@@ -7849,15 +7885,15 @@ msgstr "VLAN-asetukset"
 msgid "VM $0 already exists"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:116
+#: pkg/machines/hostvmslist.jsx:107
 msgid "VM $0 failed to Reboot"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:122
+#: pkg/machines/hostvmslist.jsx:113
 msgid "VM $0 failed to force Reboot"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:146
+#: pkg/machines/hostvmslist.jsx:137
 msgid "VM $0 failed to force shutdown"
 msgstr ""
 
@@ -7865,27 +7901,27 @@ msgstr ""
 msgid "VM $0 failed to get deleted"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:110 pkg/machines/libvirt-common.js:1385
+#: pkg/machines/hostvmslist.jsx:101 pkg/machines/libvirt-common.js:1402
 msgid "VM $0 failed to get installed"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:134
+#: pkg/machines/hostvmslist.jsx:125
 msgid "VM $0 failed to pause"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:140
+#: pkg/machines/hostvmslist.jsx:131
 msgid "VM $0 failed to resume"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:152
+#: pkg/machines/hostvmslist.jsx:143
 msgid "VM $0 failed to send NMI"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:128
+#: pkg/machines/hostvmslist.jsx:119
 msgid "VM $0 failed to shutdown"
 msgstr ""
 
-#: pkg/machines/hostvmslist.jsx:104
+#: pkg/machines/hostvmslist.jsx:95
 msgid "VM $0 failed to start"
 msgstr ""
 
@@ -7905,7 +7941,7 @@ msgstr "VNC-portti:"
 msgid "VNC TLS Port:"
 msgstr "VNC-TLS-portti:"
 
-#: pkg/realmd/operation.js:167
+#: pkg/systemd/overview-cards/realmd-operation.js:167
 msgid "Validating address"
 msgstr ""
 
@@ -7918,12 +7954,11 @@ msgid "Validating key"
 msgstr "Vahvistetaan avainta"
 
 #: pkg/machines/components/vm/bootOrderModal.jsx:120
-#: pkg/machines/components/vm/bootOrderModal.jsx:126
-#: pkg/systemd/hwinfo.jsx:274
+#: pkg/machines/components/vm/bootOrderModal.jsx:126 pkg/systemd/hwinfo.jsx:259
 msgid "Vendor"
 msgstr "Toimittaja"
 
-#: pkg/packagekit/updates.jsx:63
+#: pkg/packagekit/updates.jsx:64
 msgid "Verified"
 msgstr "Vahvistettu"
 
@@ -7931,12 +7966,12 @@ msgstr "Vahvistettu"
 msgid "Verify key"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:55
+#: pkg/packagekit/updates.jsx:56
 msgid "Verifying"
 msgstr "Vahvistetaan"
 
-#: pkg/shell/index.html:89 pkg/packagekit/updates.jsx:385
-#: pkg/systemd/hwinfo.jsx:89
+#: pkg/shell/index.html:89 pkg/packagekit/updates.jsx:386
+#: pkg/systemd/hwinfo.jsx:74
 msgid "Version"
 msgstr "Versio"
 
@@ -7944,11 +7979,11 @@ msgstr "Versio"
 msgid "Very securely erasing $target"
 msgstr "Poistetaan hyvin turvallisesti $target"
 
-#: pkg/lib/cockpit-components-modifications.jsx:173
+#: pkg/lib/cockpit-components-modifications.jsx:167
 msgid "View automation script"
 msgstr ""
 
-#: pkg/systemd/overview-cards/usageCard.jsx:93
+#: pkg/systemd/overview-cards/usageCard.jsx:147
 msgid "View graphs"
 msgstr ""
 
@@ -7962,7 +7997,7 @@ msgstr ""
 
 #: pkg/machines/components/networks/networkList.jsx:47
 #: pkg/machines/components/storagePools/storagePoolList.jsx:46
-#: pkg/machines/hostvmslist.jsx:82 pkg/machines/manifest.json.in
+#: pkg/machines/hostvmslist.jsx:73 pkg/machines/manifest.json.in
 msgid "Virtual Machines"
 msgstr "Virtuaalikoneet"
 
@@ -7970,7 +8005,7 @@ msgstr "Virtuaalikoneet"
 msgid "Virtual Network"
 msgstr ""
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:412
+#: pkg/machines/components/networks/createNetworkDialog.jsx:414
 msgid "Virtual Network failed to be created"
 msgstr ""
 
@@ -7984,7 +8019,7 @@ msgstr "Virtualisointipalvelu ei ole saatavilla"
 
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:453
 #: pkg/machines/components/deleteDialog.jsx:50
-#: pkg/machines/components/diskAdd.jsx:91
+#: pkg/machines/components/diskAdd.jsx:79
 #: pkg/machines/components/vm/bootOrderModal.jsx:96
 #: pkg/machines/components/vmDiskColumns.jsx:46
 #: pkg/storaged/content-views.jsx:141
@@ -8097,12 +8132,12 @@ msgstr "Terminaalilla"
 msgid "Write-mostly"
 msgstr ""
 
-#: pkg/machines/components/diskEdit.jsx:82
+#: pkg/machines/components/diskEdit.jsx:118
 #: pkg/machines/components/vmDisksTab.jsx:144
 msgid "Writeable"
 msgstr ""
 
-#: pkg/machines/components/diskEdit.jsx:95
+#: pkg/machines/components/diskEdit.jsx:131
 #: pkg/machines/components/vmDisksTab.jsx:144
 msgid "Writeable and shared"
 msgstr ""
@@ -8163,7 +8198,7 @@ msgstr ""
 msgid "You may try to load older entries."
 msgstr ""
 
-#: pkg/users/local.js:120
+#: pkg/users/local.js:90
 msgid "You must wait longer to change your password"
 msgstr ""
 
@@ -8175,13 +8210,13 @@ msgstr ""
 msgid "You will be logged out in $0 seconds."
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:883
+#: pkg/packagekit/updates.jsx:884
 msgid ""
 "Your browser will disconnect, but this does not affect the update process. "
 "You can reconnect in a few moments to continue watching the progress."
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:928
+#: pkg/packagekit/updates.jsx:929
 msgid ""
 "Your server will close the connection soon. You can reconnect after it has "
 "restarted."
@@ -8277,7 +8312,7 @@ msgstr ""
 msgid "bridge"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:271
+#: pkg/packagekit/updates.jsx:272
 msgid "bug fix"
 msgstr ""
 
@@ -8371,11 +8406,12 @@ msgstr ""
 msgid "dying"
 msgstr "kuolemassa"
 
-#: pkg/realmd/operation.js:301 pkg/realmd/operation.js:307
+#: pkg/systemd/overview-cards/realmd-operation.js:299
+#: pkg/systemd/overview-cards/realmd-operation.js:305
 msgid "e.g. \"$0\""
 msgstr "esim. \"$0\""
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:366
+#: pkg/systemd/overview-cards/configurationCard.jsx:347
 msgid "edit"
 msgstr ""
 
@@ -8391,7 +8427,7 @@ msgstr "käytössä"
 msgid "encryption"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:271
+#: pkg/packagekit/updates.jsx:272
 msgid "enhancement"
 msgstr ""
 
@@ -8411,7 +8447,7 @@ msgstr "päivittäin"
 msgid "extension"
 msgstr ""
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:280
+#: pkg/systemd/overview-cards/configurationCard.jsx:261
 msgid "failed to list ssh host keys: $0"
 msgstr ""
 
@@ -8613,7 +8649,7 @@ msgstr "ei"
 msgid "none"
 msgstr "Ei mitään"
 
-#: pkg/systemd/graphs.js:144
+#: pkg/systemd/graphs.js:144 pkg/systemd/overview-cards/usageCard.jsx:112
 msgid "of $0 CPU core"
 msgid_plural "of $0 CPU cores"
 msgstr[0] ""
@@ -8714,7 +8750,7 @@ msgstr ""
 msgid "running"
 msgstr "suoritetaan"
 
-#: pkg/systemd/overview.jsx:113
+#: pkg/systemd/overview.jsx:138
 msgid "running $0"
 msgstr ""
 
@@ -8722,7 +8758,7 @@ msgstr ""
 msgid "search by name, namespace or description"
 msgstr "etsi nimellä, nimiavaruudella tai kuvauksella"
 
-#: pkg/packagekit/updates.jsx:265 pkg/packagekit/manifest.json.in
+#: pkg/packagekit/updates.jsx:266 pkg/packagekit/manifest.json.in
 msgid "security"
 msgstr ""
 
@@ -8930,7 +8966,7 @@ msgstr ""
 msgid "vhostuser"
 msgstr ""
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:891
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:892
 msgid ""
 "virt-install package needs to be installed on the system in order to create "
 "new VMs"

@@ -26,6 +26,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
+#include <sys/mman.h>
 #include <sys/resource.h>
 #include <sys/wait.h>
 
@@ -630,4 +631,25 @@ void
 authorize_logger (const char *data)
 {
   warnx ("%s", data);
+}
+
+FILE *
+open_memfd (const char *name)
+{
+  int fd = memfd_create ("cockpit login messages", MFD_ALLOW_SEALING);
+
+  if (fd == -1)
+    return NULL;
+
+  return fdopen (fd, "w");
+}
+
+bool
+seal_memfd (FILE *memfd)
+{
+  if (fflush (memfd) != 0)
+    return false;
+
+  const int seals = F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE;
+  return fcntl (fileno (memfd), F_ADD_SEALS, seals) == 0;
 }

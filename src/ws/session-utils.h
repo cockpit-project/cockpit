@@ -88,3 +88,6 @@ GNUC_NORETURN void exit_init_problem (int result_code);
 
 int open_session (pam_handle_t *pamh);
 int fork_session (char **env, int (*session)(char**));
+
+FILE *open_memfd (const char *name);
+bool seal_memfd (FILE *memfd);

@@ -33,6 +33,7 @@
 #include <sched.h>
 #include <utmp.h>
 #include <time.h>
+#include <inttypes.h>
 
 const char *program_name;
 struct passwd *pwd;
@@ -46,6 +47,91 @@ static char *auth_msg = NULL;
 static size_t auth_msg_size = 0;
 static FILE *authf = NULL;
 
+
+static bool
+char_needs_json_escape (char c)
+{
+  return c < ' ' || c == '\\' || c == '"';
+}
+
+static bool
+json_escape_char (FILE *stream,
+                  char c)
+{
+  if (c == '\\')
+    return fputs ("\\\\", stream) >= 0;
+  else if (c == '"')
+    return fputs ("\\\"", stream) >= 0;
+  else
+    return fprintf (stream, "\\u%04x", c) == 6;
+}
+
+static bool
+json_escape_string (FILE       *stream,
+                    const char *str,
+                    size_t      maxlen)
+{
+  size_t offset = 0;
+
+  while (offset < maxlen && str[offset])
+    {
+      size_t start = offset;
+
+      while (offset < maxlen && str[offset] && !char_needs_json_escape (str[offset]))
+        offset++;
+
+      /* print the non-escaped prefix, if there is one */
+      if (offset != start)
+        {
+          size_t length = offset - start;
+          if (fwrite (str + start, 1, length, stream) != length)
+            return false;
+        }
+
+      /* print the escaped character, if there is one */
+      if (offset < maxlen && str[offset])
+        {
+          if (!json_escape_char (stream, str[offset]))
+            return false;
+
+          offset++;
+        }
+    }
+
+  return true;
+}
+
+bool
+json_print_string_property (FILE       *stream,
+                            const char *key,
+                            const char *value,
+                            ssize_t     maxlen)
+{
+  size_t expected = strlen (key) + 7;
+
+  return fprintf (stream, ", \"%s\": \"", key) == expected &&
+         json_escape_string (stream, value, maxlen) &&
+         fputc ('"', stream) >= 0;
+}
+
+bool
+json_print_bool_property (FILE       *stream,
+                          const char *key,
+                          bool        value)
+{
+  size_t expected = 6 + strlen (key) + (value ? 4 : 5); /* "true" or "false" */
+
+  return fprintf (stream, ", \"%s\": %s", key, value ? "true" : "false") == expected;
+}
+
+bool
+json_print_integer_property (FILE       *stream,
+                             const char *key,
+                             uint64_t    value)
+{
+  /* too much effort to figure out the expected length exactly */
+  return fprintf (stream, ", \"%s\": %"PRIu64, key, value) > 6;
+}
 
 char *
 read_authorize_response (const char *what)
@@ -86,36 +172,14 @@ void
 write_control_string (const char *field,
                       const char *str)
 {
-  const unsigned char *at;
-  char buf[8];
-
-  if (!str)
-    return;
-
-  debug ("writing %s %s", field, str);
-  fprintf (authf, ",\"%s\":\"", field);
-  for (at = (const unsigned char *)str; *at; at++)
-    {
-      if (*at == '\\' || *at == '\"' || *at < 0x1f)
-        {
-          snprintf (buf, sizeof (buf), "\\u%04x", (int)*at);
-          fputs_unlocked (buf, authf);
-        }
-      else
-        {
-          fputc_unlocked (*at, authf);
-        }
-    }
-  fputc_unlocked ('\"', authf);
+  json_print_string_property (authf, field, str, -1);
 }
 
 void
 write_control_bool (const char *field,
-                      int val)
+                    bool        val)
 {
-  const char *str = val ? "true" : "false";
-  debug ("writing %s %s", field, str);
-  fprintf (authf, ",\"%s\":%s", field, str);
+  json_print_bool_property (authf, field, val);
 }
 
 void

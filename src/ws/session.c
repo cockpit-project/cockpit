@@ -204,7 +204,7 @@ pam_conv_func (int num_msg,
             write_control_string ("message", txt_msg);
           if (err_msg)
             write_control_string ("error", err_msg);
-          write_control_bool ("echo", msg[i]->msg_style == PAM_PROMPT_ECHO_OFF ? 0 : 1);
+          write_control_bool ("echo", msg[i]->msg_style != PAM_PROMPT_ECHO_OFF);
           write_control_end ();
 
           if (err_msg)

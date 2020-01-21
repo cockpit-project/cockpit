@@ -20,9 +20,11 @@
 #include "config.h"
 
 #include <assert.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <err.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <string.h>
 #include <pwd.h>
 #include <grp.h>
@@ -66,10 +68,14 @@ int fdwalk (int (*cb)(void *data, int fd), void *data);
 #endif
 int closefd (void *data, int fd);
 
+bool json_print_string_property (FILE *stream, const char *key, const char *value, ssize_t maxlen);
+bool json_print_bool_property (FILE *stream, const char *key, bool value);
+bool json_print_integer_property (FILE *stream, const char *key, uint64_t value);
+
 char* read_authorize_response (const char *what);
 void write_authorize_begin (void);
 void write_control_string (const char *field, const char *str);
-void write_control_bool (const char *field, int val);
+void write_control_bool (const char *field, bool val);
 void write_control_end (void);
 
 GNUC_NORETURN void exit_init_problem (int result_code);

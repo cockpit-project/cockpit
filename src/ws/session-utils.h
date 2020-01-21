@@ -62,11 +62,11 @@ void build_string (char **buf, size_t *size, const char *str, size_t len);
 void authorize_logger (const char *data);
 void save_environment (void);
 void pass_to_child (int signo);
-void utmp_log (int login, const char *rhost);
 #ifndef HAVE_FDWALK
 int fdwalk (int (*cb)(void *data, int fd), void *data);
 #endif
 int closefd (void *data, int fd);
+void utmp_log (int login, const char *rhost, FILE *messages);
 
 bool json_print_string_property (FILE *stream, const char *key, const char *value, ssize_t maxlen);
 bool json_print_bool_property (FILE *stream, const char *key, bool value);

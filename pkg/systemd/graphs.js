@@ -42,14 +42,12 @@ function page_show(p, arg) {
         p.enter(arg);
     }
     p._entered_ = true;
-    $('#' + p.id)
-            .show()
-            .removeAttr("hidden");
+    $('#' + p.id).removeAttr("hidden");
     p.show();
 }
 
 function page_hide(p) {
-    $('#' + p.id).hide();
+    $('#' + p.id).prop("hidden", true);
 }
 
 function debug() {
@@ -164,7 +162,7 @@ GraphServer.prototype = {
                             offset: info.memory
                         };
                         self.memory_plot.add_metrics_sum_series(swap_data, { });
-                        $("#link-memory").hide();
+                        $("#link-memory").prop("hidden", true);
                         $("#link-memory-and-swap").prop("hidden", false);
                     } else {
                         memory_options.yaxis.max = info.memory;
@@ -410,7 +408,7 @@ PageMemoryStatus.prototype = {
                 metrics.push({ name: "memory.swap-used" });
                 series.push({ color: "#e41a1c", label: _("Swap Used"), offset: info.memory, factor: 0.25 });
             } else {
-                $("#memory_status .memory-swap").hide();
+                $("#memory_status .memory-swap").prop("hidden", true);
             }
 
             self.channel = cockpit.metrics(1000, {
@@ -480,22 +478,18 @@ $(function() {
             page_hide(cpu_page);
             page_hide(memory_page);
             page_show(server_page);
-            $('#complicated_graphs').hide();
+            $('#complicated_graphs').prop("hidden", true);
         } else if (path.length === 1 && path[0] == 'cpu') {
             page_hide(server_page);
             page_hide(memory_page);
             page_show(cpu_page);
-            $('#complicated_graphs')
-                    .show()
-                    .removeAttr("hidden");
+            $('#complicated_graphs').removeAttr("hidden");
             $("#complicated_graph_current_breadcrumb").text(_("CPU Graph"));
         } else if (path.length === 1 && path[0] == 'memory') {
             page_hide(server_page);
             page_hide(cpu_page);
             page_show(memory_page);
-            $('#complicated_graphs')
-                    .show()
-                    .removeAttr("hidden");
+            $('#complicated_graphs').removeAttr("hidden");
             $("#complicated_graph_current_breadcrumb").text(_("Memory Graph"));
         } else { /* redirect */
             console.warn("not a system location: " + path);

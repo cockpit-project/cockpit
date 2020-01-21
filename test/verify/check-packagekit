@@ -596,14 +596,18 @@ class TestUpdates(PackageCase):
 
         # now pretend that there is a newer cockpit-ws available, warn about disconnect
         self.createPackage("cockpit-ws", "999", "1")
-        self.createPackage("cockpit", "999", "1")  # as that depends on same version of ws
+        # these have strict version dependencies to cockpit-ws, don't get in the way
+        self.createPackage("cockpit", "999", "1")
+        self.createPackage("cockpit-dashboard", "999", "1")
+        m.execute("if type apt; then dpkg -P cockpit-ws-dbgsym; fi")
         self.enableRepo()
         b.wait_in_text(".content-header-extra button", "Check for Updates")
         b.click(".content-header-extra button")
 
         b.wait_in_text(".container-fluid #available h2", "Available Updates")
-        self.assertEqual(b.text("#state"), "2 updates")
+        self.assertEqual(b.text("#state"), "3 updates")
         b.wait_in_text("table.available", "cockpit-ws")
+        b.wait_in_text("table.available", "cockpit-dashboard")
         b.wait_in_text("#app div.alert-warning", "This web console will be updated.")
 
         self.allow_restart_journal_messages()

@@ -35,6 +35,10 @@
 #include <time.h>
 #include <utmp.h>
 
+#ifndef _PATH_BTMP
+#define _PATH_BTMP "/var/log/btmp"
+#endif
+
 const char *program_name;
 struct passwd *pwd;
 pid_t child;
@@ -443,9 +447,182 @@ fork_session (char **env, int (*session)(char**))
   return status;
 }
 
+static bool
+do_lastlog (uid_t                 uid,
+            const struct timeval *now,
+            const char           *rhost,
+            time_t               *out_last_login,
+            FILE                 *messages)
+{
+  struct lastlog entry;
+  bool result = false;
+  int fd = -1;
+  ssize_t r;
+
+  fd = open (_PATH_LASTLOG, O_RDWR);
+  if (fd == -1)
+    {
+      warn ("failed to open %s", _PATH_LASTLOG);
+      goto out;
+    }
+
+  r = pread (fd, &entry, sizeof entry, uid * sizeof entry);
+  if (r == sizeof entry && entry.ll_time != 0)
+    {
+      /* got an entry for the user */
+
+      /* the ll_host and ll_line fields can be nul-terminated, but they
+       * can also extend to the full length of the field without
+       * nul-termination.  use the maxlen parameter to help with that.
+       */
+      if (!json_print_integer_property (messages, "last-login-time", entry.ll_time) ||
+          !json_print_string_property (messages, "last-login-host", entry.ll_host, UT_HOSTSIZE) ||
+          !json_print_string_property (messages, "last-login-line", entry.ll_line, UT_LINESIZE))
+        {
+          warnx ("failed to print last-login details to messages memfd");
+          goto out;
+        }
+
+      if (out_last_login)
+        *out_last_login = entry.ll_time;
+    }
+  else if (r == sizeof entry)
+    {
+      /* read the entry, but it's nul.  user never logged in. */
+      *out_last_login = 0;
+    }
+  else if (r == 0)
+    {
+      /* no such entry in file: never logged in? */
+      *out_last_login = 0;
+    }
+  else if (r < 0)
+    {
+      /* error */
+      warn ("failed to pread() %s for uid %u", _PATH_LASTLOG, (unsigned) uid);
+      goto out;
+    }
+  else
+    {
+      /* some other size (incomplete read) */
+      warnx ("incomplete pread() %s for uid %u: %zu of %zu bytes",
+             _PATH_LASTLOG, (unsigned) uid, r, sizeof entry);
+      goto out;
+    }
+
+  entry.ll_time = now->tv_sec;
+#pragma GCC diagnostic push
+  /* these fields can be (but don't need to be) nul terminated, so ask
+   * GCC not to warn us about that.
+   */
+#if __GNUC__ == 8
+#pragma GCC diagnostic ignored "-Wstringop-truncation"
+#endif
+  strncpy (entry.ll_host, rhost, sizeof entry.ll_host);
+  strncpy (entry.ll_line, "web console", sizeof entry.ll_line);
+#pragma GCC diagnostic pop
+  r = pwrite (fd, &entry, sizeof entry, uid * sizeof entry);
+  if (r == -1)
+    {
+      /* error */
+      warn ("failed to pwrite() %s for uid %u", _PATH_LASTLOG, (unsigned) uid);
+      goto out;
+    }
+  else if (r != sizeof entry)
+    {
+      /* incomplete write */
+      warnx ("incomplete pwrite() %s for uid %u: %zu or %zu bytes",
+             _PATH_LASTLOG, (unsigned) uid, r, sizeof entry);
+      goto out;
+    }
+
+  result = true;
+
+out:
+  if (fd != -1)
+    close (fd);
+
+  return result;
+}
+
+static bool
+scan_btmp (const char *username,
+           time_t      last_success,
+           FILE       *messages)
+{
+  bool success = false;
+  int fail_count = 0;
+  struct utmp last;
+  int fd;
+
+  fd = open (_PATH_BTMP, O_RDONLY | O_CLOEXEC);
+  if (fd == -1)
+    {
+      if (errno == ENOENT)
+        {
+          /* no btmp → no failed attempts */
+          success = true;
+          goto out;
+        }
+
+      warn ("open(%s) failed", _PATH_BTMP);
+      goto out;
+    }
+
+  while (true)
+    {
+      struct utmp entry;
+      ssize_t r;
+
+      do
+        r = read (fd, &entry, sizeof entry);
+      while (r == -1 && errno != EINTR);
+
+      if (r == 0)
+        break;
+
+      if (r < 0)
+        {
+          warn ("read(%s) failed", _PATH_BTMP);
+          goto out;
+        }
+      if (r != sizeof entry)
+        {
+          warnx ("read(%s) returned partial result (%zu of %zu bytes)",
+                 _PATH_BTMP, r, sizeof entry);
+          goto out;
+        }
+
+      if (entry.ut_tv.tv_sec > last_success &&
+          strncmp (entry.ut_user, username, sizeof entry.ut_user) == 0)
+        {
+          last = entry;
+          fail_count++;
+        }
+    }
+
+  if (fail_count == 0)
+    {
+      success = true;
+      goto out;
+    }
+
+  /* only print messages if we actually have failures */
+  success = json_print_integer_property (messages, "fail-count", fail_count) &&
+            json_print_integer_property (messages, "last-fail-time", last.ut_tv.tv_sec) &&
+            json_print_string_property (messages, "last-fail-host", last.ut_host, UT_HOSTSIZE) &&
+            json_print_string_property (messages, "last-fail-line", last.ut_line, UT_LINESIZE);
+
+out:
+  close (fd);
+
+  return success;
+}
+
 void
 utmp_log (int login,
-          const char *rhost)
+          const char *rhost,
+          FILE *messages)
 {
   char id[UT_LINESIZE + 1];
   struct utmp ut;
@@ -487,6 +664,14 @@ utmp_log (int login,
   endutent ();
 
   updwtmp (_PATH_WTMP, &ut);
+
+  if (login)
+    {
+      time_t last_success;
+
+      if (do_lastlog (pwd->pw_uid, &tv, rhost, &last_success, messages))
+        scan_btmp (pwd->pw_name, last_success, messages);
+    }
 }
 
 int

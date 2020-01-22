@@ -169,6 +169,7 @@ class VmDisksTab extends React.Component {
                 const diskActions = (
                     <div className='machines-listing-actions'>
                         <DeleteResource objectType="Disk"
+                           key={`${idPrefixRow}-actions`}
                            className='machines-listing-actions'
                            objectName={disk.target}
                            objectId={vm.name + "-disk-" + disk.target}

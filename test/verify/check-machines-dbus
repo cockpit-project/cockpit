@@ -484,8 +484,8 @@ class TestMachinesDBus(machineslib.TestMachines):
         args = self.startVm("subVmTest1")
 
         m.execute("virsh attach-disk --domain subVmTest1 --source /mnt/vm_one/mydiskofpoolone_1 --target vdd --targetbus virtio")
-        m.execute("virsh attach-disk --domain subVmTest1 --source /mnt/vm_one/mydiskofpoolone_2 --target vde --targetbus virtio --persistent")
-        m.execute("virsh attach-disk --domain subVmTest1 --source /mnt/vm_one/mydiskofpoolone_3 --target vdf --targetbus virtio --persistent")
+        m.execute("virsh attach-disk --domain subVmTest1 --source /mnt/vm_one/mydiskofpoolone_2 --target sdb --targetbus scsi --persistent")
+        m.execute("virsh attach-disk --domain subVmTest1 --source /mnt/vm_one/mydiskofpoolone_3 --target vde --targetbus virtio --persistent")
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
@@ -515,11 +515,11 @@ class TestMachinesDBus(machineslib.TestMachines):
 
         # Test detaching permanent disk of a stopped domain
         b.click("#vm-subVmTest1-disks") # open the "Disks" subtab
-        b.wait_present("#vm-subVmTest1-disks-vde-device")
-        b.click("#delete-subVmTest1-disk-vde")
+        b.wait_present("#vm-subVmTest1-disks-sdb-device")
+        b.click("#delete-subVmTest1-disk-sdb")
         b.wait_present(".modal-dialog")
         b.click(".modal-footer button:contains(Remove)")
-        b.wait_not_present("#vm-subVmTest1-disks-vde-device")
+        b.wait_not_present("#vm-subVmTest1-disks-sdb-device")
 
         # Test detaching disk of a paused domain
         m.execute("virsh start subVmTest1")
@@ -528,7 +528,7 @@ class TestMachinesDBus(machineslib.TestMachines):
             wait(lambda: "Linux version" in m.execute("cat {0}".format(args["logfile"])), delay=3)
         m.execute("virsh suspend subVmTest1")
         b.wait_in_text("#vm-subVmTest1-state", "paused")
-        b.wait_attr("#delete-subVmTest1-disk-vdf", "disabled", "")
+        b.wait_attr("#delete-subVmTest1-disk-vde", "disabled", "")
 
     def testMultipleSettings(self):
         b = self.browser

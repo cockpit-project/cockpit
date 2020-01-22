@@ -56,14 +56,17 @@ class EditNICModal extends React.Component {
         let defaultNetworkSource;
         let currentSource;
         let availableSources = [];
-        if (props.network.type === "network") {
-            availableSources = props.networks.map(network => network.name);
-            currentSource = props.network.source.network;
-        } else if (props.network.type === "direct" || props.network.type === "bridge") {
-            availableSources = props.nodeDevices.map(dev => dev.name);
-            currentSource = props.network.source.dev;
-        }
 
+        if (props.network.type === "network") {
+            currentSource = props.network.source.network;
+            availableSources = props.availableSources.network;
+        } else if (props.network.type === "direct") {
+            currentSource = props.network.source.dev;
+            availableSources = props.availableSources.device;
+        } else if (props.network.type === "bridge") {
+            currentSource = props.network.source.bridge;
+            availableSources = props.availableSources.device;
+        }
         if (availableSources.includes(currentSource))
             defaultNetworkSource = currentSource;
         else
@@ -227,7 +230,7 @@ export class EditNICAction extends React.Component {
 }
 
 EditNICAction.propTypes = {
-    availableSources: PropTypes.array.isRequired,
+    availableSources: PropTypes.object.isRequired,
     dispatch: PropTypes.func.isRequired,
     idPrefix: PropTypes.string.isRequired,
     vm: PropTypes.object.isRequired,

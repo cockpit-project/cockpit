@@ -140,18 +140,26 @@ class TestSelinux(MachineCase):
 
         panel_selector = row_selector + " tr.listing-ct-panel"
 
-        # a solution is present
-        b.wait_in_text(panel_selector, "you can run restorecon")
+        try:
+            # a solution is present
+            b.wait_in_text(panel_selector, "you can run restorecon")
 
-        # and it can be applied
-        btn_sel = "div.list-group-item:contains('you can run restorecon') button.btn-default"
-        b.click(btn_sel)
+            # and it can be applied
+            btn_sel = "div.list-group-item:contains('you can run restorecon') button.btn-default"
+            b.click(btn_sel)
 
-        # the fix should be applied
-        if m.image == "rhel-8-1-distropkg":
-            b.wait_in_text(row_selector, "Solution applied successfully:")
-        else:
-            b.wait_in_text(row_selector + " .pf-c-alert__title", "Solution applied successfully")
+            # the fix should be applied
+            if m.image == "rhel-8-1-distropkg":
+                b.wait_in_text(row_selector, "Solution applied successfully:")
+            else:
+                b.wait_in_text(row_selector + " .pf-c-alert__title", "Solution applied successfully")
+        except Error:
+            print("==== sealert -l '*' ====")
+            print(m.execute("sealert -l '*'"))
+            print("==== audit.log  ====")
+            print(m.execute("cat /var/log/audit/audit.log"))
+            print("====================")
+            raise
 
         b.click(row_selector + " button.pficon-delete")
         b.wait_not_present(row_selector)

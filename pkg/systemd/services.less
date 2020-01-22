@@ -201,6 +201,8 @@ table.systemd-unit-relationship-table td:first-child {
 #services-list td {
   border: 1px solid var(--color-border-default);
   border-width: 0 0 1px;
+  // Some browsers don't support anywhere yet, so we provide break-word as a fallback
+  overflow-wrap: break-word;
   overflow-wrap: anywhere;
 }
 

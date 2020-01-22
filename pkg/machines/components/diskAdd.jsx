@@ -350,14 +350,18 @@ export class AddDiskModalBody extends React.Component {
             break;
         }
         case 'mode': {
-            stateDelta = this.initialState;
-            if (value === USE_EXISTING) { // user moved to USE_EXISTING subtab
-                stateDelta.mode = value;
-                const poolName = this.state.storagePoolName;
-                if (poolName)
-                    stateDelta.existingVolumeName = this.getDefaultVolumeName(poolName);
-            }
-            this.setState(stateDelta);
+            this.setState(prevState => { // to prevent asynchronous for recursive call with existingVolumeName as a key
+                stateDelta = this.initialState;
+                if (value === USE_EXISTING) { // user moved to USE_EXISTING subtab
+                    stateDelta.mode = value;
+                    const poolName = stateDelta.storagePoolName;
+                    if (poolName)
+                        this.onValueChanged('existingVolumeName', this.getDefaultVolumeName(poolName));
+                }
+
+                return stateDelta;
+            });
+
             break;
         }
         case 'busType': {

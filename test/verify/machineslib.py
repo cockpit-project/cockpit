@@ -765,7 +765,7 @@ class TestMachines(NetworkCase):
         m.execute("virsh pool-define-as myPoolOne --type dir --target /mnt/vm_one && virsh pool-start myPoolOne")
         m.execute("virsh pool-define-as myPoolTwo --type dir --target /mnt/vm_two && virsh pool-start myPoolTwo")
 
-        m.execute("virsh vol-create-as default_tmp defaultVol --capacity 1G --format qcow2")
+        m.execute("virsh vol-create-as default_tmp defaultVol --capacity 1G --format raw")
         m.execute("virsh vol-create-as myPoolTwo mydiskofpooltwo_temporary --capacity 1G --format qcow2")
         m.execute("virsh vol-create-as myPoolTwo mydiskofpooltwo_permanent --capacity 1G --format qcow2")
         wait(lambda: "mydiskofpooltwo_permanent" in m.execute("virsh vol-list myPoolTwo"))
@@ -845,14 +845,15 @@ class TestMachines(NetworkCase):
         # check the autoselected options
         # default_tmp pool should be autoselected since it's the first in alphabetical order
         # defaultVol volume should be autoselected since it's the only volume in default_tmp pool
-        VMAddDiskDialog(
-            self,
-            pool_name='default_tmp',
-            volume_name='defaultVol',
-            use_existing_volume=True,
-            expected_target=get_next_free_target(),
-            volume_format='raw',
-        ).open().add_disk().verify_disk_added()
+        if self.provider == "libvirt-dbus": # defaultVol has raw format and virsh provider doesn't parse format info
+            VMAddDiskDialog(
+                self,
+                pool_name='default_tmp',
+                volume_name='defaultVol',
+                use_existing_volume=True,
+                expected_target=get_next_free_target(),
+                volume_format='raw',
+            ).open().add_disk().verify_disk_added()
 
         VMAddDiskDialog(
             self,

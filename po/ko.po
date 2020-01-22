@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-15 11:50+0000\n"
+"POT-Creation-Date: 2020-01-17 08:56+0000\n"
 "PO-Revision-Date: 2020-01-17 08:35+0000\n"
 "Last-Translator: Matej Marusak <mmarusak@redhat.com>\n"
 "Language-Team: Korean <https://translate.stg.fedoraproject.org/projects/"
@@ -28,7 +28,8 @@ msgstr " (OS와 공유)"
 
 #: pkg/machines/components/diskAdd.jsx:242
 msgid " Attaching it will make this disk shareable for every VM using it."
-msgstr " 연결하면 이 디스크를 사용하는 모든 VM에서 이 디스크를 공유 할 수 있습니다."
+msgstr ""
+" 연결하면 이 디스크를 사용하는 모든 VM에서 이 디스크를 공유 할 수 있습니다."
 
 #: pkg/networkmanager/interfaces.js:2317
 msgid "$0 Active Zone"
@@ -71,6 +72,14 @@ msgstr[0] "$0 패키지"
 #: pkg/systemd/init.js:484 pkg/systemd/service-details.jsx:59
 msgid "$0 Template"
 msgstr "$0 템플릿"
+
+#: pkg/docker/containers-view.jsx:614
+#, fuzzy
+#| msgid "1 Vulnerability"
+#| msgid_plural "$0 Vulnerabilities"
+msgid "$0 Vulnerability"
+msgid_plural "$0 Vulnerabilities"
+msgstr[0] "$0 취약점"
 
 #: pkg/networkmanager/firewall.jsx:160
 msgid "$0 Zone"
@@ -151,7 +160,9 @@ msgstr[0] "$0 시"
 msgid ""
 "$0 is available for most operating systems. To install it, search for it in "
 "GNOME Software or run the following:"
-msgstr "$0 대부분의 운영 체제에서 사용할 수 있습니다. 설치하려면 GNOME 소프트웨어에서 검색하거나 다음을 실행하십시오:"
+msgstr ""
+"$0 대부분의 운영 체제에서 사용할 수 있습니다. 설치하려면 GNOME 소프트웨어에"
+"서 검색하거나 다음을 실행하십시오:"
 
 #: pkg/storaged/content-views.jsx:298 pkg/storaged/content-views.jsx:538
 #: pkg/storaged/format-dialog.jsx:164 pkg/storaged/lvol-tabs.jsx:203
@@ -237,17 +248,9 @@ msgid "$1 security fix"
 msgid_plural "$1 security fixes"
 msgstr[0] "$1 보안 수정"
 
-#: pkg/networkmanager/interfaces.js:2739
-msgid "$mtu"
-msgstr "$mtu"
-
 #: pkg/storaged/utils.js:182
 msgid "$name (from $host)"
 msgstr "$name ($host에서)"
-
-#: pkg/docker/details.js:151
-msgid "${hip}:${hport} -> $cport"
-msgstr "${hip}:${hport} -> $cport"
 
 #: pkg/storaged/utils.js:126
 msgid "${size} ${desc}"
@@ -277,11 +280,6 @@ msgstr "1 MiB"
 #: pkg/systemd/index.html:183 pkg/systemd/index.html:187
 msgid "1 Minute"
 msgstr "1 분"
-
-#: pkg/docker/containers-view.jsx:614
-msgid "1 Vulnerability"
-msgid_plural "$0 Vulnerabilities"
-msgstr[0] "$0 취약점"
 
 #: pkg/dashboard/index.html:55 pkg/networkmanager/index.html:72
 #: pkg/networkmanager/index.html:408 pkg/systemd/graphs.html:55
@@ -517,7 +515,8 @@ msgstr "9일"
 msgid ""
 "A compatible version of Cockpit is not installed on {{#strong}}{{host}}{{/"
 "strong}}."
-msgstr "Cockpit 호환 버전이 {{#strong}}{{host}}{{/strong}} 에 설치되어 있지 않습니다."
+msgstr ""
+"Cockpit 호환 버전이 {{#strong}}{{host}}{{/strong}} 에 설치되어 있지 않습니다."
 
 #: pkg/storaged/vdos-panel.jsx:95
 msgid "A disk is needed."
@@ -730,7 +729,9 @@ msgstr "영역 추가"
 msgid ""
 "Adding <b>$0</b> will break the connection to the server, and will make the "
 "administration UI unavailable."
-msgstr "<b>$0</b>을/를 추가하면 서버와의 연결이 끊어지고 관리 UI를 사용할 수 없게 됩니다."
+msgstr ""
+"<b>$0</b>을/를 추가하면 서버와의 연결이 끊어지고 관리 UI를 사용할 수 없게 됩"
+"니다."
 
 #: pkg/networkmanager/firewall.jsx:586
 msgid ""
@@ -838,8 +839,9 @@ msgid ""
 "log into this machine. This may also affect other services as DNS resolution "
 "settings and the list of trusted CAs may change."
 msgstr ""
-"도메인 종료 후 로컬 인증 정보가 있는 사용자만 시스템에 로그인할 수 있습니다. 이 경우 DNS 확인 설정 및 신뢰할 수 있는 CA "
-"목록이 변경될 수 있으므로 다른 서비스에도 영향을 미칠 수 있습니다."
+"도메인 종료 후 로컬 인증 정보가 있는 사용자만 시스템에 로그인할 수 있습니다. "
+"이 경우 DNS 확인 설정 및 신뢰할 수 있는 CA 목록이 변경될 수 있으므로 다른 서"
+"비스에도 영향을 미칠 수 있습니다."
 
 #: pkg/systemd/services.html:300 pkg/systemd/services.html:304
 #: pkg/systemd/init.js:969
@@ -862,7 +864,8 @@ msgstr "일체형"
 msgid ""
 "All data on selected disks will be erased and disks will be added to the "
 "storage pool."
-msgstr "선택된 디스크의 모든 데이터가 삭제되며 디스크는 스토리지 풀에 추가됩니다."
+msgstr ""
+"선택된 디스크의 모든 데이터가 삭제되며 디스크는 스토리지 풀에 추가됩니다."
 
 #: pkg/systemd/service-details.jsx:160
 msgid "Allow running (unmask)"
@@ -1050,7 +1053,7 @@ msgstr "자동 시작"
 msgid "Available"
 msgstr "사용 가능"
 
-#: pkg/packagekit/updates.jsx:872
+#: pkg/packagekit/updates.jsx:880
 msgid "Available Updates"
 msgstr "사용 가능한 업데이트"
 
@@ -1169,7 +1172,7 @@ msgstr "브로트캐스트"
 msgid "Broken configuration"
 msgstr "손상된 설정"
 
-#: pkg/packagekit/updates.jsx:852
+#: pkg/packagekit/updates.jsx:860
 msgid "Bug Fix Updates Available"
 msgstr "사용 가능한 버그 수정 업데이트"
 
@@ -1368,7 +1371,8 @@ msgstr "VM 종료 후 변경사항이 적용됩니다"
 msgid ""
 "Changing the settings will break the connection to the server, and will make "
 "the administration UI unavailable."
-msgstr "설정을 변경하면 서버와의 연결이 끊어지고 관리 UI를 사용할 수 없게 됩니다."
+msgstr ""
+"설정을 변경하면 서버와의 연결이 끊어지고 관리 UI를 사용할 수 없게 됩니다."
 
 #: pkg/packagekit/updates.jsx:179
 msgid "Check for Updates"
@@ -1394,7 +1398,7 @@ msgstr "RAID 장치 $target 확인 및 복구 중"
 msgid "Checking for new applications"
 msgstr "새 애플리케이션 확인 중"
 
-#: pkg/systemd/overview-cards/healthCard.jsx:83
+#: pkg/packagekit/updates.jsx:819
 msgid "Checking for package updates..."
 msgstr "패키지 업데이트 확인 중 ..."
 
@@ -1479,8 +1483,8 @@ msgid ""
 "Cockpit could not contact the given host $0. Make sure it has ssh running on "
 "port $1, or specify another port in the address."
 msgstr ""
-"Cockpit은 지정된 호스트 $0에 연결할 수 없습니다. 포트 $1에서 ssh가 실행되고 있는지 확인하거나 주소에서 다른 포트를 "
-"지정합니다."
+"Cockpit은 지정된 호스트 $0에 연결할 수 없습니다. 포트 $1에서 ssh가 실행되고 "
+"있는지 확인하거나 주소에서 다른 포트를 지정합니다."
 
 #: src/base1/cockpit.js:4054
 msgid "Cockpit could not contact the given host."
@@ -1534,9 +1538,10 @@ msgid ""
 "same time. Just add them with a single click and your machines will look "
 "after its buddies."
 msgstr ""
-"Cockpit은 경험이 적은 시스템 관리자에게 적합합니다. 시스템 관리자는 스토리지 관리, 저널 검사, 서비스 시작 및 중지 등의 간단한 "
-"작업을 쉽게 수행할 수 있으며 여러 서버를 동시에 모니터링 및 관리할 수 있습니다. 간단하게 서버를 클릭하여 서버를 추가할 수 있으며 "
-"추가 후 다른 기기를 관리할 수 있습니다."
+"Cockpit은 경험이 적은 시스템 관리자에게 적합합니다. 시스템 관리자는 스토리지 "
+"관리, 저널 검사, 서비스 시작 및 중지 등의 간단한 작업을 쉽게 수행할 수 있으"
+"며 여러 서버를 동시에 모니터링 및 관리할 수 있습니다. 간단하게 서버를 클릭하"
+"여 서버를 추가할 수 있으며 추가 후 다른 기기를 관리할 수 있습니다."
 
 #: pkg/lib/machine-change-port.html:9
 msgid "Cockpit was unable to contact {{#strong}}{{host}}{{/strong}}."
@@ -2080,25 +2085,30 @@ msgstr "$target 스냅샷 생성 중"
 msgid ""
 "Creating this VLAN will break the connection to the server, and will make "
 "the administration UI unavailable."
-msgstr "이 VLAN을 생성하면 서버와의 연결이 끊어지고 관리 UI를 사용할 수 없게 됩니다."
+msgstr ""
+"이 VLAN을 생성하면 서버와의 연결이 끊어지고 관리 UI를 사용할 수 없게 됩니다."
 
 #: pkg/networkmanager/interfaces.js:3812
 msgid ""
 "Creating this bond will break the connection to the server, and will make "
 "the administration UI unavailable."
-msgstr "이 본드를 생성하면 서버와의 연결이 끊어지고 관리 UI를 사용할 수 없게 됩니다."
+msgstr ""
+"이 본드를 생성하면 서버와의 연결이 끊어지고 관리 UI를 사용할 수 없게 됩니다."
 
 #: pkg/networkmanager/interfaces.js:4270
 msgid ""
 "Creating this bridge will break the connection to the server, and will make "
 "the administration UI unavailable."
-msgstr "이 브릿지를 생성하면 서버와의 연결이 끊어지고 관리 UI를 사용할 수 없게 됩니다."
+msgstr ""
+"이 브릿지를 생성하면 서버와의 연결이 끊어지고 관리 UI를 사용할 수 없게 됩니"
+"다."
 
 #: pkg/networkmanager/interfaces.js:4015
 msgid ""
 "Creating this team will break the connection to the server, and will make "
 "the administration UI unavailable."
-msgstr "이 팀을 생성하면 서버와의 연결이 끊어지고 관리 UI를 사용할 수 없게 됩니다."
+msgstr ""
+"이 팀을 생성하면 서버와의 연결이 끊어지고 관리 UI를 사용할 수 없게 됩니다."
 
 #: pkg/storaged/jobs-panel.jsx:71
 msgid "Creating volume group $target"
@@ -2218,7 +2228,7 @@ msgstr "지연"
 #: pkg/docker/index.html:139 pkg/docker/index.html:251
 #: pkg/networkmanager/index.html:440 pkg/users/index.html:79
 #: pkg/users/index.html:357 pkg/docker/containers-view.jsx:202
-#: pkg/docker/details.js:293 pkg/docker/util.js:641
+#: pkg/docker/details.js:288 pkg/docker/util.js:641
 #: pkg/machines/components/deleteDialog.jsx:145
 #: pkg/machines/components/deleteDialog.jsx:161
 #: pkg/machines/components/deleteResource.jsx:76
@@ -2273,7 +2283,9 @@ msgstr "$target 삭제 중"
 msgid ""
 "Deleting <b>$0</b> will break the connection to the server, and will make "
 "the administration UI unavailable."
-msgstr "<b>$0</b>을/를 삭제하면 서버와의 연결이 끊어지고 관리 UI를 사용할 수 없게 됩니다."
+msgstr ""
+"<b>$0</b>을/를 삭제하면 서버와의 연결이 끊어지고 관리 UI를 사용할 수 없게 됩"
+"니다."
 
 #: pkg/storaged/mdraid-details.jsx:294
 msgid "Deleting a RAID device will erase all data on it."
@@ -2283,7 +2295,7 @@ msgstr "RAID 장치를 제거하면 내부의 모든 데이터를 지우게 됩�
 msgid "Deleting a VDO device will erase all data on it."
 msgstr "VDO 장치를 제거하면 장치 내부의 모든 데이터가 삭제됩니다."
 
-#: pkg/docker/containers-view.jsx:201 pkg/docker/details.js:292
+#: pkg/docker/containers-view.jsx:201 pkg/docker/details.js:287
 msgid "Deleting a container will erase all data in it."
 msgstr "컨테이너를 삭제하시면, 내부의 모든 데이터도 함께 삭제됩니다."
 
@@ -2303,7 +2315,9 @@ msgstr "볼륨 그룹을 삭제하면 내부의 모든 데이터도 함께 삭�
 msgid ""
 "Deleting an inactive Storage Pool will only undefine the Pool. Its content "
 "will not be deleted."
-msgstr "비활성화된 스토리지 풀을 삭제하려면 풀 정의를 해제하면 됩니다. 컨텐츠는 삭제되지 않습니다."
+msgstr ""
+"비활성화된 스토리지 풀을 삭제하려면 풀 정의를 해제하면 됩니다. 컨텐츠는 삭제"
+"되지 않습니다."
 
 #: pkg/storaged/jobs-panel.jsx:72
 msgid "Deleting volume group $target"
@@ -2675,7 +2689,7 @@ msgstr "끝은 비워 둘 수 없습니다"
 msgid "Enforcing"
 msgstr "강제"
 
-#: pkg/packagekit/updates.jsx:854
+#: pkg/packagekit/updates.jsx:862
 msgid "Enhancement Updates Available"
 msgstr "기능 업데이트를 사용할 수 있습니다"
 
@@ -3135,7 +3149,7 @@ msgstr "하드 디스크"
 msgid "Hardware Information"
 msgstr "하드웨어 정보"
 
-#: pkg/systemd/overview-cards/healthCard.jsx:72
+#: pkg/systemd/overview-cards/healthCard.jsx:55
 msgid "Health"
 msgstr "건강"
 
@@ -3369,7 +3383,8 @@ msgstr ""
 msgid ""
 "In order to synchronize users, you need to log in to {{#strong}}{{host}}{{/"
 "strong}}."
-msgstr "사용자를 동기화하려면 {{#strong}}{{host}}{{/strong}}에 로그인해야 합니다."
+msgstr ""
+"사용자를 동기화하려면 {{#strong}}{{host}}{{/strong}}에 로그인해야 합니다."
 
 #: pkg/networkmanager/interfaces.js:828 pkg/networkmanager/interfaces.js:1398
 #: pkg/networkmanager/interfaces.js:1405 pkg/networkmanager/interfaces.js:2588
@@ -3418,7 +3433,7 @@ msgstr "개시자 IQN은 비워둘 수 없습니다"
 msgid "Install"
 msgstr "설치"
 
-#: pkg/packagekit/updates.jsx:839
+#: pkg/packagekit/updates.jsx:847
 msgid "Install All Updates"
 msgstr "모든 업데이트 설치"
 
@@ -3426,7 +3441,7 @@ msgstr "모든 업데이트 설치"
 msgid "Install NFS Support"
 msgstr "NFS 지원 설치"
 
-#: pkg/packagekit/updates.jsx:839 pkg/packagekit/updates.jsx:845
+#: pkg/packagekit/updates.jsx:847 pkg/packagekit/updates.jsx:853
 msgid "Install Security Updates"
 msgstr "보안 업데이트 설치"
 
@@ -3652,7 +3667,9 @@ msgstr "저널 엔트리를 찾을 수 없습니다"
 #: pkg/kdump/kdump-view.jsx:462
 msgid ""
 "Kdump service not installed. Please ensure package kexec-tools is installed."
-msgstr "Kdump 서비스가 설치되어 있지 않습니다. kexec-tools 패키지가 설치되어 있는지 확인하십시오."
+msgstr ""
+"Kdump 서비스가 설치되어 있지 않습니다. kexec-tools 패키지가 설치되어 있는지 "
+"확인하십시오."
 
 #: pkg/networkmanager/index.html:733
 msgid "Keep connection"
@@ -4831,8 +4848,8 @@ msgstr "사용할 수 없습니다"
 msgid "Not connected"
 msgstr "연결되지 않음"
 
-#: pkg/systemd/overview-cards/healthCard.jsx:90
-#: pkg/systemd/overview-cards/healthCard.jsx:91
+#: pkg/systemd/overview-cards/healthCard.jsx:62
+#: pkg/systemd/overview-cards/healthCard.jsx:63
 msgid "Not connected to Insights"
 msgstr "Insights에 연결되어 있지 않습니다"
 
@@ -4840,7 +4857,7 @@ msgstr "Insights에 연결되어 있지 않습니다"
 msgid "Not enough space to grow."
 msgstr "확장 공간이 부족합니다."
 
-#: pkg/docker/details.js:186 pkg/storaged/details.jsx:121
+#: pkg/docker/details.js:181 pkg/storaged/details.jsx:121
 msgid "Not found"
 msgstr "찾을 수 없습니다"
 
@@ -4914,7 +4931,8 @@ msgid ""
 "Once Cockpit is installed, enable it with \"systemctl enable --now cockpit."
 "socket\"."
 msgstr ""
-"Cockpit이 설치되면 \"systemctl enable --now cockpit.socket\"을 사용하여 이를 활성화합니다."
+"Cockpit이 설치되면 \"systemctl enable --now cockpit.socket\"을 사용하여 이를 "
+"활성화합니다."
 
 #: pkg/systemd/overview-cards/realmd-operation.html:68
 #: pkg/systemd/overview-cards/realmd-operation.js:338
@@ -5119,7 +5137,8 @@ msgstr "암호가 허용되지 않습니다"
 #: pkg/shell/index.html:172
 msgid ""
 "Password not usable for privileged tasks or to connect to other machines"
-msgstr "권한 작업 실행 또는 다른 컴퓨터에 연결하기 위해 암호를 사용할 수 없습니다"
+msgstr ""
+"권한 작업 실행 또는 다른 컴퓨터에 연결하기 위해 암호를 사용할 수 없습니다"
 
 #: pkg/lib/cockpit-components-context-menu.jsx:107
 msgid "Paste"
@@ -5246,7 +5265,7 @@ msgstr "Ping 대상"
 msgid "Pizza Box"
 msgstr "Pizza Box"
 
-#: pkg/docker/containers-view.jsx:200 pkg/docker/details.js:291
+#: pkg/docker/containers-view.jsx:200 pkg/docker/details.js:286
 #: pkg/docker/util.js:612 pkg/storaged/content-views.jsx:305
 #: pkg/storaged/mdraid-details.jsx:289 pkg/storaged/vdo-details.jsx:194
 #: pkg/storaged/vgroup-details.jsx:207
@@ -5761,7 +5780,9 @@ msgstr "RAID 장치에서 $target 삭제 중"
 msgid ""
 "Removing <b>$0</b> will break the connection to the server, and will make "
 "the administration UI unavailable."
-msgstr "<b>$0</b>을/를 삭제하면 서버와의 연결이 끊어지고 관리 UI를 사용할 수 없게 됩니다."
+msgstr ""
+"<b>$0</b>을/를 삭제하면 서버와의 연결이 끊어지고 관리 UI를 사용할 수 없게 됩"
+"니다."
 
 #: pkg/storaged/jobs-panel.jsx:74
 msgid "Removing physical volume from $target"
@@ -5941,11 +5962,11 @@ msgstr "재시작 정책"
 msgid "Restart Policy:"
 msgstr "재시작 정책:"
 
-#: pkg/packagekit/updates.jsx:499 pkg/packagekit/updates.jsx:916
+#: pkg/packagekit/updates.jsx:499 pkg/packagekit/updates.jsx:924
 msgid "Restart Recommended"
 msgstr "다시 시작하는 것이 좋습니다"
 
-#: pkg/packagekit/updates.jsx:928
+#: pkg/packagekit/updates.jsx:936
 msgid "Restarting"
 msgstr "재시작 중"
 
@@ -6081,7 +6102,8 @@ msgstr "STP 우선순위"
 #: pkg/shell/index.html:434
 msgid ""
 "Safari users need to import and trust the certificate of the self-signing CA:"
-msgstr "Safari 사용자는 자체 서명 CA 인증서를 가져와서 인증서를 신뢰해야 합니다:"
+msgstr ""
+"Safari 사용자는 자체 서명 CA 인증서를 가져와서 인증서를 신뢰해야 합니다:"
 
 #: pkg/systemd/services.html:131
 msgid "Saturday"
@@ -6144,7 +6166,7 @@ msgstr "$target을 안전하게 삭제"
 msgid "Security"
 msgstr "보안"
 
-#: pkg/packagekit/updates.jsx:850
+#: pkg/packagekit/updates.jsx:858
 msgid "Security Updates Available"
 msgstr "사용 가능한 보안 업데이트"
 
@@ -6776,19 +6798,22 @@ msgstr "$0 켜기"
 msgid ""
 "Switching off <b>$0</b>  will break the connection to the server, and will "
 "make the administration UI unavailable."
-msgstr "<b>$0</b>을/를 끄면 서버와의 연결이 끊어지고 관리 UI를 사용할 수 없게 됩니다."
+msgstr ""
+"<b>$0</b>을/를 끄면 서버와의 연결이 끊어지고 관리 UI를 사용할 수 없게 됩니다."
 
 #: pkg/networkmanager/interfaces.js:3021
 msgid ""
 "Switching off <b>$0</b> will break the connection to the server, and will "
 "make the administration UI unavailable."
-msgstr "<b>$0</b>을/를 끄면 서버와의 연결이 끊어지고 관리 UI를 사용할 수 없게 됩니다."
+msgstr ""
+"<b>$0</b>을/를 끄면 서버와의 연결이 끊어지고 관리 UI를 사용할 수 없게 됩니다."
 
 #: pkg/networkmanager/interfaces.js:2449 pkg/networkmanager/interfaces.js:3009
 msgid ""
 "Switching on <b>$0</b> will break the connection to the server, and will "
 "make the administration UI unavailable."
-msgstr "<b>$0</b>을/를 켜면 서버와의 연결이 끊어지고 관리 UI를 사용할 수 없게 됩니다."
+msgstr ""
+"<b>$0</b>을/를 켜면 서버와의 연결이 끊어지고 관리 UI를 사용할 수 없게 됩니다."
 
 #: pkg/lib/machine-sync-users.html:77
 msgid "Synchronize"
@@ -6834,7 +6859,7 @@ msgid "System information"
 msgstr "시스템 정보"
 
 # ctx::sourcefile::/systems/SystemEntitlements
-#: pkg/packagekit/updates.jsx:935 pkg/packagekit/updates.jsx:948
+#: pkg/packagekit/updates.jsx:942 pkg/packagekit/updates.jsx:956
 msgid "System is up to date"
 msgstr "시스템이 업데이트되었음"
 
@@ -6972,7 +6997,8 @@ msgstr "가상 머신이 유휴 상태입니다."
 
 #: pkg/machines/components/vm/stateIcon.jsx:43
 msgid "The VM is in process of dying (shut down or crash is not completed)."
-msgstr "가상 머신이 종료되고 있습니다 (종료 또는 크래시가 완료되지 않았습니다)."
+msgstr ""
+"가상 머신이 종료되고 있습니다 (종료 또는 크래시가 완료되지 않았습니다)."
 
 #: pkg/machines/components/vm/stateIcon.jsx:37
 msgid "The VM is paused."
@@ -7039,7 +7065,9 @@ msgstr "파일 시스템에 영구 마운트 지점이 없습니다."
 
 #: pkg/storaged/fsys-tab.jsx:256
 msgid "The filesystem is already mounted at $0.  Proceeding will unmount it."
-msgstr "파일 시스템이 이미 $0에 마운트되어 있습니다. 계속 진행할 경우 마운트가 해제됩니다."
+msgstr ""
+"파일 시스템이 이미 $0에 마운트되어 있습니다. 계속 진행할 경우 마운트가 해제됩"
+"니다."
 
 #: pkg/storaged/fsys-tab.jsx:465
 msgid ""
@@ -7052,7 +7080,8 @@ msgstr ""
 msgid ""
 "The filesystem is currently mounted on $0 but will be mounted on $1 on the "
 "next boot."
-msgstr "파일 시스템이 현재 $0에 마운트되어 있지만 다음 부팅 후에는 $1에 마운트됩니다."
+msgstr ""
+"파일 시스템이 현재 $0에 마운트되어 있지만 다음 부팅 후에는 $1에 마운트됩니다."
 
 #: pkg/storaged/fsys-tab.jsx:469
 msgid ""
@@ -7071,16 +7100,22 @@ msgstr "파일 시스템이 현재 마운트되어 있지 않지만 다음 부�
 msgid ""
 "The filesystem is in use by login sessions and system services. Proceeding "
 "will stop these."
-msgstr "파일 시스템은 로그인 세션 및 시스템 서비스에 사용되고 있습니다. 계속 진행하면 이러한 작업이 중지됩니다."
+msgstr ""
+"파일 시스템은 로그인 세션 및 시스템 서비스에 사용되고 있습니다. 계속 진행하"
+"면 이러한 작업이 중지됩니다."
 
 #: pkg/storaged/dialog.jsx:1001
 msgid "The filesystem is in use by login sessions. Proceeding will stop these."
-msgstr "파일 시스템은 로그인 세션에서 사용되고 있습니다. 계속 진행하면 이러한 작업이 중지됩니다."
+msgstr ""
+"파일 시스템은 로그인 세션에서 사용되고 있습니다. 계속 진행하면 이러한 작업이 "
+"중지됩니다."
 
 #: pkg/storaged/dialog.jsx:1003
 msgid ""
 "The filesystem is in use by system services. Proceeding will stop these."
-msgstr "파일 시스템은 시스템 서비스에서 사용되고 있습니다. 계속 진행하면 이러한 작업이 중지됩니다."
+msgstr ""
+"파일 시스템은 시스템 서비스에서 사용되고 있습니다. 계속 진행하면 이러한 작업"
+"이 중지됩니다."
 
 #: pkg/storaged/fsys-tab.jsx:394
 msgid "The filesystem is not mounted."
@@ -7145,14 +7180,17 @@ msgstr "암호가 일치하지 않습니다."
 msgid "The pool is empty"
 msgstr "풀이 비어 있습니다"
 
+#: pkg/docker/containers-view.jsx:436
+#, fuzzy
+#| msgid "The scan from $time ($type) found one vulnerability:"
+#| msgid_plural "The scan from $time ($type) found $count vulnerabilities:"
+msgid "The scan from $time ($type) found $count vulnerability:"
+msgid_plural "The scan from $time ($type) found $count vulnerabilities:"
+msgstr[0] "$time ($type) 검사에서 1 가지 취약점이 발견되었습니다:"
+
 #: pkg/docker/containers-view.jsx:434
 msgid "The scan from $time ($type) found no vulnerabilities."
 msgstr "$time ($type) 검사에서 취약점이 발견되지 않았습니다."
-
-#: pkg/docker/containers-view.jsx:436
-msgid "The scan from $time ($type) found one vulnerability:"
-msgid_plural "The scan from $time ($type) found $count vulnerabilities:"
-msgstr[0] "$time ($type) 검사에서 1 가지 취약점이 발견되었습니다:"
 
 #: pkg/docker/containers-view.jsx:432
 msgid "The scan from $time ($type) was not successful."
@@ -7248,7 +7286,9 @@ msgstr "현재 활성화된 페이지가 없습니다"
 msgid ""
 "There are devices with multiple paths on the system, but the multipath "
 "service is not running."
-msgstr "시스템에 여러 경로를 갖는 장치가 있지만 멀티패스 서비스가 실행되고 있지 않습니다."
+msgstr ""
+"시스템에 여러 경로를 갖는 장치가 있지만 멀티패스 서비스가 실행되고 있지 않습"
+"니다."
 
 #: pkg/networkmanager/firewall.jsx:170
 msgid "There are no active services in this zone"
@@ -7262,7 +7302,9 @@ msgstr "이 계정에 승인된 공개키가 없습니다."
 msgid ""
 "There is not enough free space elsewhere to remove this physical volume. At "
 "least $0 more free space is needed."
-msgstr "이 물리 볼륨을 제거하는데 필요한 공간이 충분하지 않습니다. 최소 $0의 여유 공간이 필요합니다."
+msgstr ""
+"이 물리 볼륨을 제거하는데 필요한 공간이 충분하지 않습니다. 최소 $0의 여유 공"
+"간이 필요합니다."
 
 #: pkg/shell/index.html:429
 msgid "There was an unexpected error while connecting to the machine."
@@ -7284,7 +7326,9 @@ msgstr "이 VDO 장치는 백업 장치를 사용하지 않습니다."
 msgid ""
 "This day doesn't exist in all months.<br> The timer will only be executed in "
 "months that have 31st."
-msgstr "이 날은 모든 달에 존재하지 않습니다.<br> 타이머는 31일이 있는 달에만 실행됩니다."
+msgstr ""
+"이 날은 모든 달에 존재하지 않습니다.<br> 타이머는 31일이 있는 달에만 실행됩니"
+"다."
 
 #: pkg/networkmanager/interfaces.js:2606
 msgid "This device cannot be managed here."
@@ -7294,7 +7338,9 @@ msgstr "이 장치는 여기서 관리할 수 없습니다."
 msgid ""
 "This device has filesystems that are currently in use. Proceeding will "
 "unmount all filesystems on it."
-msgstr "이 장치에는 현재 사용 중인 파일 시스템이 있습니다. 계속 진행하면 이 장치의 파일 시스템을 모두 마운트 해제하게 됩니다."
+msgstr ""
+"이 장치에는 현재 사용 중인 파일 시스템이 있습니다. 계속 진행하면 이 장치의 파"
+"일 시스템을 모두 마운트 해제하게 됩니다."
 
 #: pkg/storaged/dialog.jsx:963
 msgid "This device is currently used for RAID devices."
@@ -7320,7 +7366,9 @@ msgstr "현재 이 장치는 볼륨 그룹으로 사용되고 있습니다."
 msgid ""
 "This device is currently used for volume groups. Proceeding will remove it "
 "from its volume groups."
-msgstr "현재 이 장치는 볼륨 그룹으로 사용되고 있습니다. 계속 진행하면 볼륨 그룹에서 이 장치가 제거됩니다."
+msgstr ""
+"현재 이 장치는 볼륨 그룹으로 사용되고 있습니다. 계속 진행하면 볼륨 그룹에서 "
+"이 장치가 제거됩니다."
 
 #: pkg/storaged/mdraid-details.jsx:112
 msgid "This disk cannot be removed while the device is recovering."
@@ -7411,7 +7459,7 @@ msgstr "볼륨 크기를 변경하기 전에 활성화해야 합니다."
 msgid "This web browser is too old to run Cockpit (missing $0)"
 msgstr "이 웹 브라우저는 오래되어 Cockpit을 실행할 수 없습니다 ($0 누락)"
 
-#: pkg/packagekit/updates.jsx:882
+#: pkg/packagekit/updates.jsx:890
 msgid "This web console will be updated."
 msgstr "이 웹 콘솔은 업데이트됩니다."
 
@@ -7420,7 +7468,9 @@ msgid ""
 "This will test kdump settings by crashing the kernel and thereby the system. "
 "Depending on the settings, the system may not automatically reboot and the "
 "process may take a while."
-msgstr "kdump 설정은 커널을 크래시햐여 테스트합니다. 설정에 따라 재부팅이 자동으로 수행되지 않고 처리 시간이 길어질 수 있습니다."
+msgstr ""
+"kdump 설정은 커널을 크래시햐여 테스트합니다. 설정에 따라 재부팅이 자동으로 수"
+"행되지 않고 처리 시간이 길어질 수 있습니다."
 
 #: pkg/kdump/kdump-view.jsx:492
 msgid "This will test the kdump configuration by crashing the kernel."
@@ -7459,7 +7509,9 @@ msgstr "타이머"
 msgid ""
 "Tip: Make your key password match your login password to automatically "
 "authenticate against other systems."
-msgstr "도움말: 다른 시스템에 자동으로 인증하려면 키 암호가 로그인 암호화 일치해야 합니다."
+msgstr ""
+"도움말: 다른 시스템에 자동으로 인증하려면 키 암호가 로그인 암호화 일치해야 합"
+"니다."
 
 #: pkg/packagekit/updates.jsx:803
 msgid ""
@@ -7473,7 +7525,8 @@ msgstr ""
 msgid ""
 "To try a different port you will need to upgrade cockpit-ws to a newer "
 "version."
-msgstr "다른 포트를 사용하려면 cockpit-ws를 최신 버전으로 업그레이드해야 합니다."
+msgstr ""
+"다른 포트를 사용하려면 cockpit-ws를 최신 버전으로 업그레이드해야 합니다."
 
 #: src/base1/cockpit.js:4056
 msgid "Too much data"
@@ -7810,7 +7863,7 @@ msgstr "업데이트됨"
 msgid "Updated packages may require a restart to take effect."
 msgstr "업데이트된 패키지를 적용하려면 시스템을 다시 시작해야 합니다."
 
-#: pkg/packagekit/updates.jsx:856
+#: pkg/packagekit/updates.jsx:864
 msgid "Updates Available"
 msgstr "사용 가능한 업데이트"
 
@@ -8225,7 +8278,8 @@ msgid ""
 "You are connected to {{#strong}}{{host}}{{/strong}}, however in order to "
 "synchronize users, a user with superuser privileges is required."
 msgstr ""
-"{{#strong}}{{host}}{{/strong}}에 연결되어 있지만 사용자를 동기화하려면 수퍼 유저 권한을 가진 사용자가 필요합니다."
+"{{#strong}}{{host}}{{/strong}}에 연결되어 있지만 사용자를 동기화하려면 수퍼 "
+"유저 권한을 가진 사용자가 필요합니다."
 
 #: pkg/dashboard/list.js:448
 msgid ""
@@ -8268,7 +8322,7 @@ msgstr "가장 일치하는 운영 체제를 선택해야합니다"
 msgid "You will be logged out in $0 seconds."
 msgstr "$0 초 후에 로그 아웃됩니다."
 
-#: pkg/packagekit/updates.jsx:884
+#: pkg/packagekit/updates.jsx:892
 msgid ""
 "Your browser will disconnect, but this does not affect the update process. "
 "You can reconnect in a few moments to continue watching the progress."
@@ -8276,7 +8330,7 @@ msgstr ""
 "브라우저 연결이 해제되지만 업데이트 프로세스에는 영향을 미치지 않습니다. 다"
 "시 연결 하여 진행 상황을 계속 확인할 수 있습니다."
 
-#: pkg/packagekit/updates.jsx:929
+#: pkg/packagekit/updates.jsx:937
 msgid ""
 "Your server will close the connection soon. You can reconnect after it has "
 "restarted."
@@ -9037,7 +9091,8 @@ msgstr "vhostuser"
 msgid ""
 "virt-install package needs to be installed on the system in order to create "
 "new VMs"
-msgstr "새로운 가상 머신을 생성하려면 시스템에 virt-install 패키지를 설치해야 합니다"
+msgstr ""
+"새로운 가상 머신을 생성하려면 시스템에 virt-install 패키지를 설치해야 합니다"
 
 #: pkg/networkmanager/manifest.json.in
 msgid "vlan"
@@ -9069,6 +9124,12 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json.in
 msgid "zone"
 msgstr "영역"
+
+#~ msgid "$mtu"
+#~ msgstr "$mtu"
+
+#~ msgid "${hip}:${hport} -> $cport"
+#~ msgstr "${hip}:${hport} -> $cport"
 
 #~ msgid "Hide Performance Options"
 #~ msgstr "성능 옵션 숨기기   "

@@ -18,7 +18,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-15 11:50+0000\n"
+"POT-Creation-Date: 2020-01-17 08:56+0000\n"
 "PO-Revision-Date: 2020-01-15 15:23+0000\n"
 "Last-Translator: Ludek Janda <ljanda@redhat.com>\n"
 "Language-Team: Chinese (Simplified) <https://translate.stg.fedoraproject.org/"
@@ -79,6 +79,14 @@ msgstr[0] "$0 软件包"
 #: pkg/systemd/init.js:484 pkg/systemd/service-details.jsx:59
 msgid "$0 Template"
 msgstr "$0 模板"
+
+#: pkg/docker/containers-view.jsx:614
+#, fuzzy
+#| msgid "1 Vulnerability"
+#| msgid_plural "$0 Vulnerabilities"
+msgid "$0 Vulnerability"
+msgid_plural "$0 Vulnerabilities"
+msgstr[0] "1 个安全漏洞"
 
 #: pkg/networkmanager/firewall.jsx:160
 msgid "$0 Zone"
@@ -159,7 +167,8 @@ msgstr[0] "$0 小时"
 msgid ""
 "$0 is available for most operating systems. To install it, search for it in "
 "GNOME Software or run the following:"
-msgstr "$0 大多数操作系统可用。为了安装它，请在 GNOME 中搜索它，或运行以下命令："
+msgstr ""
+"$0 大多数操作系统可用。为了安装它，请在 GNOME 中搜索它，或运行以下命令："
 
 #: pkg/storaged/content-views.jsx:298 pkg/storaged/content-views.jsx:538
 #: pkg/storaged/format-dialog.jsx:164 pkg/storaged/lvol-tabs.jsx:203
@@ -245,17 +254,9 @@ msgid "$1 security fix"
 msgid_plural "$1 security fixes"
 msgstr[0] "$1 安全修正"
 
-#: pkg/networkmanager/interfaces.js:2739
-msgid "$mtu"
-msgstr "$mtu"
-
 #: pkg/storaged/utils.js:182
 msgid "$name (from $host)"
 msgstr "$name (来自 $host)"
-
-#: pkg/docker/details.js:151
-msgid "${hip}:${hport} -> $cport"
-msgstr "${hip}:${hport} -> $cport"
 
 #: pkg/storaged/utils.js:126
 msgid "${size} ${desc}"
@@ -285,11 +286,6 @@ msgstr "1 MiB"
 #: pkg/systemd/index.html:183 pkg/systemd/index.html:187
 msgid "1 Minute"
 msgstr "1 分钟"
-
-#: pkg/docker/containers-view.jsx:614
-msgid "1 Vulnerability"
-msgid_plural "$0 Vulnerabilities"
-msgstr[0] "1 个安全漏洞"
 
 #: pkg/dashboard/index.html:55 pkg/networkmanager/index.html:72
 #: pkg/networkmanager/index.html:408 pkg/systemd/graphs.html:55
@@ -843,7 +839,9 @@ msgid ""
 "After leaving the domain, only users with local credentials will be able to "
 "log into this machine. This may also affect other services as DNS resolution "
 "settings and the list of trusted CAs may change."
-msgstr "从域离开后，仅有使用本地凭据的用户可以登录到该主机。这也可能影响到包括DNS解析设置以及信任的CA在内的一系列设置。"
+msgstr ""
+"从域离开后，仅有使用本地凭据的用户可以登录到该主机。这也可能影响到包括DNS解析"
+"设置以及信任的CA在内的一系列设置。"
 
 #: pkg/systemd/services.html:300 pkg/systemd/services.html:304
 #: pkg/systemd/init.js:969
@@ -1054,7 +1052,7 @@ msgstr "自动启动"
 msgid "Available"
 msgstr "可用的"
 
-#: pkg/packagekit/updates.jsx:872
+#: pkg/packagekit/updates.jsx:880
 msgid "Available Updates"
 msgstr "可用的更新"
 
@@ -1173,7 +1171,7 @@ msgstr "广播"
 msgid "Broken configuration"
 msgstr "错误的配置"
 
-#: pkg/packagekit/updates.jsx:852
+#: pkg/packagekit/updates.jsx:860
 msgid "Bug Fix Updates Available"
 msgstr "错误修复的更新可以使用"
 
@@ -1397,7 +1395,7 @@ msgstr "检查并修复 RAID 设备 $target"
 msgid "Checking for new applications"
 msgstr "检查新的应用"
 
-#: pkg/systemd/overview-cards/healthCard.jsx:83
+#: pkg/packagekit/updates.jsx:819
 msgid "Checking for package updates..."
 msgstr "正在检查软件包更新..."
 
@@ -1507,8 +1505,9 @@ msgid ""
 "Likewise, if an error occurs in the terminal, it can be seen in the Cockpit "
 "journal interface."
 msgstr ""
-"Cockpit 是一个服务器管理工具, 可以方便地通过浏览器来管理 Linux 服务器。在终端和 web 工具间自由切换。通过 Cockpit "
-"启动的服务可以通过终端停止。同样，如果在终端中发生错误, 也可以在 Cockpit 的日志接口中看到。"
+"Cockpit 是一个服务器管理工具, 可以方便地通过浏览器来管理 Linux 服务器。在终端"
+"和 web 工具间自由切换。通过 Cockpit 启动的服务可以通过终端停止。同样，如果在"
+"终端中发生错误, 也可以在 Cockpit 的日志接口中看到。"
 
 #: pkg/shell/index.html:86
 msgid "Cockpit is an interactive Linux server admin interface."
@@ -2207,7 +2206,7 @@ msgstr "延时"
 #: pkg/docker/index.html:139 pkg/docker/index.html:251
 #: pkg/networkmanager/index.html:440 pkg/users/index.html:79
 #: pkg/users/index.html:357 pkg/docker/containers-view.jsx:202
-#: pkg/docker/details.js:293 pkg/docker/util.js:641
+#: pkg/docker/details.js:288 pkg/docker/util.js:641
 #: pkg/machines/components/deleteDialog.jsx:145
 #: pkg/machines/components/deleteDialog.jsx:161
 #: pkg/machines/components/deleteResource.jsx:76
@@ -2272,7 +2271,7 @@ msgstr "删除 RAID 设备将擦除其中的所有数据."
 msgid "Deleting a VDO device will erase all data on it."
 msgstr "删除 RAID 设备将擦除其中的所有数据."
 
-#: pkg/docker/containers-view.jsx:201 pkg/docker/details.js:292
+#: pkg/docker/containers-view.jsx:201 pkg/docker/details.js:287
 msgid "Deleting a container will erase all data in it."
 msgstr "删除容器将清除其中的所有数据。"
 
@@ -2658,7 +2657,7 @@ msgstr "结束不应为空"
 msgid "Enforcing"
 msgstr "强制"
 
-#: pkg/packagekit/updates.jsx:854
+#: pkg/packagekit/updates.jsx:862
 msgid "Enhancement Updates Available"
 msgstr "可用的功能增强更新"
 
@@ -3110,7 +3109,7 @@ msgstr "硬盘"
 msgid "Hardware Information"
 msgstr "硬件信息"
 
-#: pkg/systemd/overview-cards/healthCard.jsx:72
+#: pkg/systemd/overview-cards/healthCard.jsx:55
 msgid "Health"
 msgstr "健康"
 
@@ -3388,7 +3387,7 @@ msgstr "启动器 IQN 不能为空"
 msgid "Install"
 msgstr "安装"
 
-#: pkg/packagekit/updates.jsx:839
+#: pkg/packagekit/updates.jsx:847
 msgid "Install All Updates"
 msgstr "安装所有更新"
 
@@ -3396,7 +3395,7 @@ msgstr "安装所有更新"
 msgid "Install NFS Support"
 msgstr "安装 NFS 支持"
 
-#: pkg/packagekit/updates.jsx:839 pkg/packagekit/updates.jsx:845
+#: pkg/packagekit/updates.jsx:847 pkg/packagekit/updates.jsx:853
 msgid "Install Security Updates"
 msgstr "安装安全更新"
 
@@ -4788,8 +4787,8 @@ msgstr "不可用"
 msgid "Not connected"
 msgstr "未连接"
 
-#: pkg/systemd/overview-cards/healthCard.jsx:90
-#: pkg/systemd/overview-cards/healthCard.jsx:91
+#: pkg/systemd/overview-cards/healthCard.jsx:62
+#: pkg/systemd/overview-cards/healthCard.jsx:63
 msgid "Not connected to Insights"
 msgstr "没有连接到 Insights"
 
@@ -4797,7 +4796,7 @@ msgstr "没有连接到 Insights"
 msgid "Not enough space to grow."
 msgstr "没有足够空间增长。"
 
-#: pkg/docker/details.js:186 pkg/storaged/details.jsx:121
+#: pkg/docker/details.js:181 pkg/storaged/details.jsx:121
 msgid "Not found"
 msgstr "未找到"
 
@@ -5195,7 +5194,7 @@ msgstr "Ping 目标"
 msgid "Pizza Box"
 msgstr "披萨盒"
 
-#: pkg/docker/containers-view.jsx:200 pkg/docker/details.js:291
+#: pkg/docker/containers-view.jsx:200 pkg/docker/details.js:286
 #: pkg/docker/util.js:612 pkg/storaged/content-views.jsx:305
 #: pkg/storaged/mdraid-details.jsx:289 pkg/storaged/vdo-details.jsx:194
 #: pkg/storaged/vgroup-details.jsx:207
@@ -5879,11 +5878,11 @@ msgstr "重启策略"
 msgid "Restart Policy:"
 msgstr "重启策略："
 
-#: pkg/packagekit/updates.jsx:499 pkg/packagekit/updates.jsx:916
+#: pkg/packagekit/updates.jsx:499 pkg/packagekit/updates.jsx:924
 msgid "Restart Recommended"
 msgstr "建议重启"
 
-#: pkg/packagekit/updates.jsx:928
+#: pkg/packagekit/updates.jsx:936
 msgid "Restarting"
 msgstr "正在重启"
 
@@ -6077,7 +6076,7 @@ msgstr "安全擦除 $target"
 msgid "Security"
 msgstr "安全性"
 
-#: pkg/packagekit/updates.jsx:850
+#: pkg/packagekit/updates.jsx:858
 msgid "Security Updates Available"
 msgstr "可用的错误修复更新"
 
@@ -6751,7 +6750,7 @@ msgstr "系统服务"
 msgid "System information"
 msgstr "系统信息"
 
-#: pkg/packagekit/updates.jsx:935 pkg/packagekit/updates.jsx:948
+#: pkg/packagekit/updates.jsx:942 pkg/packagekit/updates.jsx:956
 msgid "System is up to date"
 msgstr "系统已更新到最新"
 
@@ -7056,14 +7055,17 @@ msgstr "密码不匹配。"
 msgid "The pool is empty"
 msgstr "池为空"
 
+#: pkg/docker/containers-view.jsx:436
+#, fuzzy
+#| msgid "The scan from $time ($type) found one vulnerability:"
+#| msgid_plural "The scan from $time ($type) found $count vulnerabilities:"
+msgid "The scan from $time ($type) found $count vulnerability:"
+msgid_plural "The scan from $time ($type) found $count vulnerabilities:"
+msgstr[0] "对 $time ($type) 的扫描找到一个安全漏洞："
+
 #: pkg/docker/containers-view.jsx:434
 msgid "The scan from $time ($type) found no vulnerabilities."
 msgstr "从 $time ($type) 开始的扫描没有找到漏洞。"
-
-#: pkg/docker/containers-view.jsx:436
-msgid "The scan from $time ($type) found one vulnerability:"
-msgid_plural "The scan from $time ($type) found $count vulnerabilities:"
-msgstr[0] "对 $time ($type) 的扫描找到一个安全漏洞："
 
 #: pkg/docker/containers-view.jsx:432
 msgid "The scan from $time ($type) was not successful."
@@ -7317,7 +7319,7 @@ msgstr "在调整大小之前，需要激活此卷。"
 msgid "This web browser is too old to run Cockpit (missing $0)"
 msgstr "浏览器太老，不能运行 Cockpit （缺少 $0）"
 
-#: pkg/packagekit/updates.jsx:882
+#: pkg/packagekit/updates.jsx:890
 msgid "This web console will be updated."
 msgstr "此 Web 控制台将会被更新。"
 
@@ -7711,7 +7713,7 @@ msgstr "已更新"
 msgid "Updated packages may require a restart to take effect."
 msgstr "已更新的软件包可能需要重启生效。"
 
-#: pkg/packagekit/updates.jsx:856
+#: pkg/packagekit/updates.jsx:864
 msgid "Updates Available"
 msgstr "可用的更新"
 
@@ -8166,7 +8168,7 @@ msgstr "您需要选择最匹配的操作系统"
 msgid "You will be logged out in $0 seconds."
 msgstr "您将在$0秒钟后登出。"
 
-#: pkg/packagekit/updates.jsx:884
+#: pkg/packagekit/updates.jsx:892
 msgid ""
 "Your browser will disconnect, but this does not affect the update process. "
 "You can reconnect in a few moments to continue watching the progress."
@@ -8174,7 +8176,7 @@ msgstr ""
 "您的浏览器将断开连接，但这不会影响更新过程。您可以在几分钟后重新连接以继续观"
 "察进度。"
 
-#: pkg/packagekit/updates.jsx:929
+#: pkg/packagekit/updates.jsx:937
 msgid ""
 "Your server will close the connection soon. You can reconnect after it has "
 "restarted."
@@ -8960,6 +8962,12 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json.in
 msgid "zone"
 msgstr "区"
+
+#~ msgid "$mtu"
+#~ msgstr "$mtu"
+
+#~ msgid "${hip}:${hport} -> $cport"
+#~ msgstr "${hip}:${hport} -> $cport"
 
 #~ msgid "Hide Performance Options"
 #~ msgstr "隐藏性能选项"

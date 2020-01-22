@@ -10,13 +10,14 @@
 # Ludek Janda <ljanda@redhat.com>, 2019. #zanata, 2020.
 # Matej Marusak <mmarusak@redhat.com>, 2019. #zanata, 2020.
 # corina roe <croe@redhat.com>, 2019. #zanata
+# Julien Humbert <julroy67@gmail.com>, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-15 11:50+0000\n"
-"PO-Revision-Date: 2020-01-16 08:17+0000\n"
-"Last-Translator: Ludek Janda <ljanda@redhat.com>\n"
+"POT-Creation-Date: 2020-01-17 08:56+0000\n"
+"PO-Revision-Date: 2020-01-21 09:15+0000\n"
+"Last-Translator: Julien Humbert <julroy67@gmail.com>\n"
 "Language-Team: French <https://translate.stg.fedoraproject.org/projects/"
 "cockpit/master/fr/>\n"
 "Language: fr\n"
@@ -24,7 +25,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 3.10.1\n"
+"X-Generator: Weblate 3.10.3\n"
 
 #: pkg/docker/storage.jsx:261
 msgid " (shared with the OS)"
@@ -78,6 +79,12 @@ msgstr[1] "0 paquets"
 #: pkg/systemd/init.js:484 pkg/systemd/service-details.jsx:59
 msgid "$0 Template"
 msgstr "$0 Modèle"
+
+#: pkg/docker/containers-view.jsx:614
+msgid "$0 Vulnerability"
+msgid_plural "$0 Vulnerabilities"
+msgstr[0] "$0 vulnérabilité"
+msgstr[1] "$0 vulnérabilités"
 
 #: pkg/networkmanager/firewall.jsx:160
 msgid "$0 Zone"
@@ -262,17 +269,9 @@ msgid_plural "$1 security fixes"
 msgstr[0] "$1 correctif de sécurité"
 msgstr[1] "$1 correctifs de sécurité"
 
-#: pkg/networkmanager/interfaces.js:2739
-msgid "$mtu"
-msgstr "$mtu"
-
 #: pkg/storaged/utils.js:182
 msgid "$name (from $host)"
 msgstr "$name (de $host )"
-
-#: pkg/docker/details.js:151
-msgid "${hip}:${hport} -> $cport"
-msgstr "${hip} : ${hport} -> $cport"
 
 #: pkg/storaged/utils.js:126
 msgid "${size} ${desc}"
@@ -303,12 +302,6 @@ msgstr "1 Mio"
 #: pkg/systemd/index.html:183 pkg/systemd/index.html:187
 msgid "1 Minute"
 msgstr "1 minute"
-
-#: pkg/docker/containers-view.jsx:614
-msgid "1 Vulnerability"
-msgid_plural "$0 Vulnerabilities"
-msgstr[0] "1 Vulnérabilité"
-msgstr[1] "$0 Vulnérabilités"
 
 #: pkg/dashboard/index.html:55 pkg/networkmanager/index.html:72
 #: pkg/networkmanager/index.html:408 pkg/systemd/graphs.html:55
@@ -1091,7 +1084,7 @@ msgstr "Démarrage automatique"
 msgid "Available"
 msgstr "Disponible"
 
-#: pkg/packagekit/updates.jsx:872
+#: pkg/packagekit/updates.jsx:880
 msgid "Available Updates"
 msgstr "Mises à jour disponibles"
 
@@ -1210,7 +1203,7 @@ msgstr "Diffuser"
 msgid "Broken configuration"
 msgstr "Configuration endommagée"
 
-#: pkg/packagekit/updates.jsx:852
+#: pkg/packagekit/updates.jsx:860
 msgid "Bug Fix Updates Available"
 msgstr "Mises à jour des corrections de bogues disponibles"
 
@@ -1339,6 +1332,8 @@ msgstr "Impossible de transférer les identifiants de connexion"
 #: pkg/systemd/overview-cards/realmd-operation.js:628
 msgid "Cannot join a domain because realmd is not available on this system"
 msgstr ""
+"Impossible de joindre un domaine, car realmd n’est pas disponible sur votre "
+"système"
 
 #: pkg/systemd/shutdown.js:175
 msgid "Cannot schedule event in the past"
@@ -1439,7 +1434,7 @@ msgstr "Vérification et réparation du périphérique RAID $target"
 msgid "Checking for new applications"
 msgstr "Vérification de nouvelles applications"
 
-#: pkg/systemd/overview-cards/healthCard.jsx:83
+#: pkg/packagekit/updates.jsx:819
 msgid "Checking for package updates..."
 msgstr "Vérification des mises à jour des paquets..."
 
@@ -2277,7 +2272,7 @@ msgstr "Retard"
 #: pkg/docker/index.html:139 pkg/docker/index.html:251
 #: pkg/networkmanager/index.html:440 pkg/users/index.html:79
 #: pkg/users/index.html:357 pkg/docker/containers-view.jsx:202
-#: pkg/docker/details.js:293 pkg/docker/util.js:641
+#: pkg/docker/details.js:288 pkg/docker/util.js:641
 #: pkg/machines/components/deleteDialog.jsx:145
 #: pkg/machines/components/deleteDialog.jsx:161
 #: pkg/machines/components/deleteResource.jsx:76
@@ -2347,7 +2342,7 @@ msgstr ""
 msgid "Deleting a VDO device will erase all data on it."
 msgstr "Supprimer un appareil VDO effacera toutes les données qu’il contient."
 
-#: pkg/docker/containers-view.jsx:201 pkg/docker/details.js:292
+#: pkg/docker/containers-view.jsx:201 pkg/docker/details.js:287
 msgid "Deleting a container will erase all data in it."
 msgstr "Supprimer un conteneur effacera toutes les données qu’il contient."
 
@@ -2745,7 +2740,7 @@ msgstr "L'extrémité ne doit pas être vide"
 msgid "Enforcing"
 msgstr "Faire exécuter"
 
-#: pkg/packagekit/updates.jsx:854
+#: pkg/packagekit/updates.jsx:862
 msgid "Enhancement Updates Available"
 msgstr "Mises à jour des améliorations disponibles"
 
@@ -3205,7 +3200,7 @@ msgstr "Disque dur"
 msgid "Hardware Information"
 msgstr "Informations sur le matériel"
 
-#: pkg/systemd/overview-cards/healthCard.jsx:72
+#: pkg/systemd/overview-cards/healthCard.jsx:55
 msgid "Health"
 msgstr "Santé"
 
@@ -3489,7 +3484,7 @@ msgstr "L'initiateur IQN ne doit pas rester vide"
 msgid "Install"
 msgstr "Installer"
 
-#: pkg/packagekit/updates.jsx:839
+#: pkg/packagekit/updates.jsx:847
 msgid "Install All Updates"
 msgstr "Installer toutes les mises à jour"
 
@@ -3497,7 +3492,7 @@ msgstr "Installer toutes les mises à jour"
 msgid "Install NFS Support"
 msgstr "Installer la prise en charge de NFS"
 
-#: pkg/packagekit/updates.jsx:839 pkg/packagekit/updates.jsx:845
+#: pkg/packagekit/updates.jsx:847 pkg/packagekit/updates.jsx:853
 msgid "Install Security Updates"
 msgstr "Installer les mises à jour de sécurité"
 
@@ -3692,10 +3687,8 @@ msgid "Join a Domain"
 msgstr "Rejoignez un domaine"
 
 #: pkg/systemd/overview-cards/realmd-operation.js:623
-#, fuzzy
-#| msgid "Joining this domain is not supported"
 msgid "Joining a domain requires installation of realmd"
-msgstr "Rejoindre ce domaine n’est pas pris en charge"
+msgstr "Rejoindre un domaine nécessite l’installation de realmd"
 
 #: pkg/systemd/overview-cards/realmd-operation.js:508
 msgid "Joining this domain is not supported"
@@ -3798,10 +3791,8 @@ msgid "Last Trigger"
 msgstr "Dernier déclencheur"
 
 #: pkg/packagekit/updates.jsx:181
-#, fuzzy
-#| msgid "Last checked: $0 ago"
 msgid "Last checked: $0"
-msgstr "Dernière vérification : il y a $0"
+msgstr "Dernière vérification : il y a $0"
 
 #: pkg/machines/components/desktopConsole.jsx:128
 msgid "Launch Remote Viewer"
@@ -4908,8 +4899,8 @@ msgstr "Indisponible"
 msgid "Not connected"
 msgstr "Pas connecté"
 
-#: pkg/systemd/overview-cards/healthCard.jsx:90
-#: pkg/systemd/overview-cards/healthCard.jsx:91
+#: pkg/systemd/overview-cards/healthCard.jsx:62
+#: pkg/systemd/overview-cards/healthCard.jsx:63
 msgid "Not connected to Insights"
 msgstr "Non Connecté à Red Hat Insights"
 
@@ -4917,7 +4908,7 @@ msgstr "Non Connecté à Red Hat Insights"
 msgid "Not enough space to grow."
 msgstr "Espace insuffisant."
 
-#: pkg/docker/details.js:186 pkg/storaged/details.jsx:121
+#: pkg/docker/details.js:181 pkg/storaged/details.jsx:121
 msgid "Not found"
 msgstr "Non trouvé"
 
@@ -5324,7 +5315,7 @@ msgstr "Clible de ping"
 msgid "Pizza Box"
 msgstr "Pizza Box"
 
-#: pkg/docker/containers-view.jsx:200 pkg/docker/details.js:291
+#: pkg/docker/containers-view.jsx:200 pkg/docker/details.js:286
 #: pkg/docker/util.js:612 pkg/storaged/content-views.jsx:305
 #: pkg/storaged/mdraid-details.jsx:289 pkg/storaged/vdo-details.jsx:194
 #: pkg/storaged/vgroup-details.jsx:207
@@ -6017,11 +6008,11 @@ msgstr "Redémarrer la stratégie"
 msgid "Restart Policy:"
 msgstr "Redémarrer la stratégie :"
 
-#: pkg/packagekit/updates.jsx:499 pkg/packagekit/updates.jsx:916
+#: pkg/packagekit/updates.jsx:499 pkg/packagekit/updates.jsx:924
 msgid "Restart Recommended"
 msgstr "Redémarrage conseillé"
 
-#: pkg/packagekit/updates.jsx:928
+#: pkg/packagekit/updates.jsx:936
 msgid "Restarting"
 msgstr "Redémarrage"
 
@@ -6223,7 +6214,7 @@ msgstr "Effacer en toute sécurité $target"
 msgid "Security"
 msgstr "Sécurité"
 
-#: pkg/packagekit/updates.jsx:850
+#: pkg/packagekit/updates.jsx:858
 msgid "Security Updates Available"
 msgstr "Mises à jour de sécurité disponibles"
 
@@ -6911,7 +6902,7 @@ msgstr "Services système"
 msgid "System information"
 msgstr "Informations sur le système"
 
-#: pkg/packagekit/updates.jsx:935 pkg/packagekit/updates.jsx:948
+#: pkg/packagekit/updates.jsx:942 pkg/packagekit/updates.jsx:956
 msgid "System is up to date"
 msgstr "Le système est à jour"
 
@@ -7256,15 +7247,15 @@ msgstr "Le mot de passe ne correspond pas."
 msgid "The pool is empty"
 msgstr "La pool est vide"
 
+#: pkg/docker/containers-view.jsx:436
+msgid "The scan from $time ($type) found $count vulnerability:"
+msgid_plural "The scan from $time ($type) found $count vulnerabilities:"
+msgstr[0] "Le scan de $time ( $type ) a trouvé $count vulnérabilité :"
+msgstr[1] "Le scan de $time ( $type ) a trouvé $count vulnérabilités :"
+
 #: pkg/docker/containers-view.jsx:434
 msgid "The scan from $time ($type) found no vulnerabilities."
 msgstr "Le scan de $time ( $type ) n’a trouvé aucune vulnérabilité."
-
-#: pkg/docker/containers-view.jsx:436
-msgid "The scan from $time ($type) found one vulnerability:"
-msgid_plural "The scan from $time ($type) found $count vulnerabilities:"
-msgstr[0] "Le scan de $time ( $type ) n’a trouvé aucune vulnérabilité :"
-msgstr[1] "Le scan de $time ( $type ) a trouvé $count vulnérabilités :"
 
 #: pkg/docker/containers-view.jsx:432
 msgid "The scan from $time ($type) was not successful."
@@ -7311,10 +7302,8 @@ msgid "The user $0 is not permitted to modify hostnames"
 msgstr "L’utilisateur $0 n’est pas autorisé à modifier les noms d’hôte"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:361
-#, fuzzy
-#| msgid "The user <b>$0</b> is not permitted to modify realms"
 msgid "The user $0 is not permitted to modify realms"
-msgstr "L’utilisateur <b>$0</b> n’est pas autorisé à modifier les domaines"
+msgstr "L’utilisateur $0 n’est pas autorisé à modifier les domaines"
 
 #: pkg/systemd/overview.jsx:110
 msgid "The user $0 is not permitted to shutdown or restart this server"
@@ -7553,7 +7542,7 @@ msgstr "Ce volume doit être activé avant de pouvoir être redimensionné."
 msgid "This web browser is too old to run Cockpit (missing $0)"
 msgstr "Ce navigateur web est trop ancien pour lancer Cockpit ($0 manquant)"
 
-#: pkg/packagekit/updates.jsx:882
+#: pkg/packagekit/updates.jsx:890
 msgid "This web console will be updated."
 msgstr "Cette console web sera mise à jour."
 
@@ -7956,7 +7945,7 @@ msgid "Updated packages may require a restart to take effect."
 msgstr ""
 "Les paquets mis à jour peuvent nécessiter un redémarrage pour prendre effet."
 
-#: pkg/packagekit/updates.jsx:856
+#: pkg/packagekit/updates.jsx:864
 msgid "Updates Available"
 msgstr "Mises à jour disponibles"
 
@@ -8419,7 +8408,7 @@ msgstr "Vous devez sélectionner le système d'exploitation le plus proche"
 msgid "You will be logged out in $0 seconds."
 msgstr "Vous serez déconnecté dans $0secondes."
 
-#: pkg/packagekit/updates.jsx:884
+#: pkg/packagekit/updates.jsx:892
 msgid ""
 "Your browser will disconnect, but this does not affect the update process. "
 "You can reconnect in a few moments to continue watching the progress."
@@ -8428,7 +8417,7 @@ msgstr ""
 "mise à jour, vous pourrez vous reconnecter dans quelques instants pour "
 "continuer à suivre la progression."
 
-#: pkg/packagekit/updates.jsx:929
+#: pkg/packagekit/updates.jsx:937
 msgid ""
 "Your server will close the connection soon. You can reconnect after it has "
 "restarted."
@@ -9219,6 +9208,12 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json.in
 msgid "zone"
 msgstr "zone"
+
+#~ msgid "$mtu"
+#~ msgstr "$mtu"
+
+#~ msgid "${hip}:${hport} -> $cport"
+#~ msgstr "${hip} : ${hport} -> $cport"
 
 #~ msgid "Hide Performance Options"
 #~ msgstr "Masquer les options de performance"

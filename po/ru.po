@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-15 11:50+0000\n"
+"POT-Creation-Date: 2020-01-17 08:56+0000\n"
 "PO-Revision-Date: 2019-10-09 01:39+0000\n"
 "Last-Translator: Dmitry Astankov <mornie@basealt.ru>\n"
 "Language-Team: Russian\n"
@@ -71,6 +71,16 @@ msgstr[2] "$0 пакетов"
 #: pkg/systemd/init.js:484 pkg/systemd/service-details.jsx:59
 msgid "$0 Template"
 msgstr "Шаблон $0"
+
+#: pkg/docker/containers-view.jsx:614
+#, fuzzy
+#| msgid "1 Vulnerability"
+#| msgid_plural "$0 Vulnerabilities"
+msgid "$0 Vulnerability"
+msgid_plural "$0 Vulnerabilities"
+msgstr[0] "$0 уязвимость"
+msgstr[1] "$0 уязвимости"
+msgstr[2] "$0 уязвимостей"
 
 #: pkg/networkmanager/firewall.jsx:160
 msgid "$0 Zone"
@@ -270,17 +280,9 @@ msgstr[0] "$1 исправление безопасности"
 msgstr[1] "$1 исправления безопасности"
 msgstr[2] "$1 исправлений безопасности"
 
-#: pkg/networkmanager/interfaces.js:2739
-msgid "$mtu"
-msgstr "$mtu"
-
 #: pkg/storaged/utils.js:182
 msgid "$name (from $host)"
 msgstr "$name (от $host)"
-
-#: pkg/docker/details.js:151
-msgid "${hip}:${hport} -> $cport"
-msgstr "${hip}:${hport} -> $cport"
 
 #: pkg/storaged/utils.js:126
 msgid "${size} ${desc}"
@@ -312,13 +314,6 @@ msgstr "1 МиБ"
 #: pkg/systemd/index.html:183 pkg/systemd/index.html:187
 msgid "1 Minute"
 msgstr "1 минута"
-
-#: pkg/docker/containers-view.jsx:614
-msgid "1 Vulnerability"
-msgid_plural "$0 Vulnerabilities"
-msgstr[0] "$0 уязвимость"
-msgstr[1] "$0 уязвимости"
-msgstr[2] "$0 уязвимостей"
 
 #: pkg/dashboard/index.html:55 pkg/networkmanager/index.html:72
 #: pkg/networkmanager/index.html:408 pkg/systemd/graphs.html:55
@@ -1102,7 +1097,7 @@ msgstr "Автозапуск"
 msgid "Available"
 msgstr "Доступно"
 
-#: pkg/packagekit/updates.jsx:872
+#: pkg/packagekit/updates.jsx:880
 msgid "Available Updates"
 msgstr "Доступные обновления"
 
@@ -1223,7 +1218,7 @@ msgstr "Трансляция"
 msgid "Broken configuration"
 msgstr "Неверная конфигурация"
 
-#: pkg/packagekit/updates.jsx:852
+#: pkg/packagekit/updates.jsx:860
 msgid "Bug Fix Updates Available"
 msgstr "Доступны исправления ошибок"
 
@@ -1450,7 +1445,7 @@ msgstr "Проверка и восстановление RAID-устройств
 msgid "Checking for new applications"
 msgstr "Проверка наличия новых приложений"
 
-#: pkg/systemd/overview-cards/healthCard.jsx:83
+#: pkg/packagekit/updates.jsx:819
 msgid "Checking for package updates..."
 msgstr ""
 
@@ -2299,7 +2294,7 @@ msgstr "Задержка"
 #: pkg/docker/index.html:139 pkg/docker/index.html:251
 #: pkg/networkmanager/index.html:440 pkg/users/index.html:79
 #: pkg/users/index.html:357 pkg/docker/containers-view.jsx:202
-#: pkg/docker/details.js:293 pkg/docker/util.js:641
+#: pkg/docker/details.js:288 pkg/docker/util.js:641
 #: pkg/machines/components/deleteDialog.jsx:145
 #: pkg/machines/components/deleteDialog.jsx:161
 #: pkg/machines/components/deleteResource.jsx:76
@@ -2368,7 +2363,7 @@ msgstr "Удаление RAID-устройства приведёт к удал�
 msgid "Deleting a VDO device will erase all data on it."
 msgstr "Удаление устройства VDO приведёт к удалению всех данных на нём."
 
-#: pkg/docker/containers-view.jsx:201 pkg/docker/details.js:292
+#: pkg/docker/containers-view.jsx:201 pkg/docker/details.js:287
 msgid "Deleting a container will erase all data in it."
 msgstr "Удаление контейнера приведёт к удалению всех данных в нем."
 
@@ -2764,7 +2759,7 @@ msgstr "Конец не должен быть пустым"
 msgid "Enforcing"
 msgstr "Принудительная"
 
-#: pkg/packagekit/updates.jsx:854
+#: pkg/packagekit/updates.jsx:862
 msgid "Enhancement Updates Available"
 msgstr "Доступны улучшения"
 
@@ -3227,7 +3222,7 @@ msgstr "Жёсткий диск"
 msgid "Hardware Information"
 msgstr "Сведения об оборудовании"
 
-#: pkg/systemd/overview-cards/healthCard.jsx:72
+#: pkg/systemd/overview-cards/healthCard.jsx:55
 msgid "Health"
 msgstr ""
 
@@ -3516,7 +3511,7 @@ msgstr "IQN инициатора не должно быть пустым"
 msgid "Install"
 msgstr "Установить"
 
-#: pkg/packagekit/updates.jsx:839
+#: pkg/packagekit/updates.jsx:847
 msgid "Install All Updates"
 msgstr "Установить все обновления"
 
@@ -3524,7 +3519,7 @@ msgstr "Установить все обновления"
 msgid "Install NFS Support"
 msgstr "Установка поддержки NFS"
 
-#: pkg/packagekit/updates.jsx:839 pkg/packagekit/updates.jsx:845
+#: pkg/packagekit/updates.jsx:847 pkg/packagekit/updates.jsx:853
 msgid "Install Security Updates"
 msgstr "Установить обновления безопасности"
 
@@ -4937,8 +4932,8 @@ msgstr "Недоступно"
 msgid "Not connected"
 msgstr "Подключение отсутствует"
 
-#: pkg/systemd/overview-cards/healthCard.jsx:90
-#: pkg/systemd/overview-cards/healthCard.jsx:91
+#: pkg/systemd/overview-cards/healthCard.jsx:62
+#: pkg/systemd/overview-cards/healthCard.jsx:63
 msgid "Not connected to Insights"
 msgstr "Нет подключения к Insights"
 
@@ -4946,7 +4941,7 @@ msgstr "Нет подключения к Insights"
 msgid "Not enough space to grow."
 msgstr "Недостаточно места для увеличения."
 
-#: pkg/docker/details.js:186 pkg/storaged/details.jsx:121
+#: pkg/docker/details.js:181 pkg/storaged/details.jsx:121
 msgid "Not found"
 msgstr "Не найдено"
 
@@ -5361,7 +5356,7 @@ msgstr "Цель команды ping"
 msgid "Pizza Box"
 msgstr "Ультратонкий корпус"
 
-#: pkg/docker/containers-view.jsx:200 pkg/docker/details.js:291
+#: pkg/docker/containers-view.jsx:200 pkg/docker/details.js:286
 #: pkg/docker/util.js:612 pkg/storaged/content-views.jsx:305
 #: pkg/storaged/mdraid-details.jsx:289 pkg/storaged/vdo-details.jsx:194
 #: pkg/storaged/vgroup-details.jsx:207
@@ -6060,11 +6055,11 @@ msgstr "Политика перезагрузки"
 msgid "Restart Policy:"
 msgstr "Политика перезагрузки:"
 
-#: pkg/packagekit/updates.jsx:499 pkg/packagekit/updates.jsx:916
+#: pkg/packagekit/updates.jsx:499 pkg/packagekit/updates.jsx:924
 msgid "Restart Recommended"
 msgstr "Рекомендуется перезагрузка"
 
-#: pkg/packagekit/updates.jsx:928
+#: pkg/packagekit/updates.jsx:936
 msgid "Restarting"
 msgstr "Перезапуск"
 
@@ -6264,7 +6259,7 @@ msgstr "Надёжное стирание $target"
 msgid "Security"
 msgstr "Безопасность"
 
-#: pkg/packagekit/updates.jsx:850
+#: pkg/packagekit/updates.jsx:858
 msgid "Security Updates Available"
 msgstr "Доступны обновления безопасности"
 
@@ -6970,7 +6965,7 @@ msgid "System information"
 msgstr ""
 
 # ctx::sourcefile::/systems/SystemEntitlements
-#: pkg/packagekit/updates.jsx:935 pkg/packagekit/updates.jsx:948
+#: pkg/packagekit/updates.jsx:942 pkg/packagekit/updates.jsx:956
 msgid "System is up to date"
 msgstr "Система не нуждается в обновлении"
 
@@ -7298,16 +7293,19 @@ msgstr "Пароли не совпадают."
 msgid "The pool is empty"
 msgstr "Пул пуст"
 
-#: pkg/docker/containers-view.jsx:434
-msgid "The scan from $time ($type) found no vulnerabilities."
-msgstr "При сканировании $time ($type) уязвимостей обнаружено не было."
-
 #: pkg/docker/containers-view.jsx:436
-msgid "The scan from $time ($type) found one vulnerability:"
+#, fuzzy
+#| msgid "The scan from $time ($type) found one vulnerability:"
+#| msgid_plural "The scan from $time ($type) found $count vulnerabilities:"
+msgid "The scan from $time ($type) found $count vulnerability:"
 msgid_plural "The scan from $time ($type) found $count vulnerabilities:"
 msgstr[0] "При сканировании $time ($type) была обнаружена одна уязвимость:"
 msgstr[1] "При сканировании $time ($type) было обнаружено $count уязвимости:"
 msgstr[2] "При сканировании $time ($type) было обнаружено $count уязвимостей:"
+
+#: pkg/docker/containers-view.jsx:434
+msgid "The scan from $time ($type) found no vulnerabilities."
+msgstr "При сканировании $time ($type) уязвимостей обнаружено не было."
 
 #: pkg/docker/containers-view.jsx:432
 msgid "The scan from $time ($type) was not successful."
@@ -7585,7 +7583,7 @@ msgstr ""
 msgid "This web browser is too old to run Cockpit (missing $0)"
 msgstr "Веб-браузер слишком устарел для запуска Cockpit (отсутствует $0)"
 
-#: pkg/packagekit/updates.jsx:882
+#: pkg/packagekit/updates.jsx:890
 msgid "This web console will be updated."
 msgstr "Веб-консоль будет обновлена."
 
@@ -7992,7 +7990,7 @@ msgstr "Обновлено"
 msgid "Updated packages may require a restart to take effect."
 msgstr "После обновления пакетов может потребоваться их перезагрузка."
 
-#: pkg/packagekit/updates.jsx:856
+#: pkg/packagekit/updates.jsx:864
 msgid "Updates Available"
 msgstr "Доступны обновления"
 
@@ -8465,7 +8463,7 @@ msgstr "Необходимо выбрать наиболее соответст�
 msgid "You will be logged out in $0 seconds."
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:884
+#: pkg/packagekit/updates.jsx:892
 msgid ""
 "Your browser will disconnect, but this does not affect the update process. "
 "You can reconnect in a few moments to continue watching the progress."
@@ -8474,7 +8472,7 @@ msgstr ""
 "повторно подключиться через несколько секунд, чтобы продолжить просмотр "
 "прогресса."
 
-#: pkg/packagekit/updates.jsx:929
+#: pkg/packagekit/updates.jsx:937
 msgid ""
 "Your server will close the connection soon. You can reconnect after it has "
 "restarted."
@@ -9273,6 +9271,12 @@ msgstr ""
 #: pkg/networkmanager/manifest.json.in
 msgid "zone"
 msgstr ""
+
+#~ msgid "$mtu"
+#~ msgstr "$mtu"
+
+#~ msgid "${hip}:${hport} -> $cport"
+#~ msgstr "${hip}:${hport} -> $cport"
 
 #~ msgid "Hide Performance Options"
 #~ msgstr "Скрыть параметры быстродействия"

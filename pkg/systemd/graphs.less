@@ -130,9 +130,13 @@
 
 .server-graph {
   &-container {
+    --graph-padding: var(--pf-l-gallery--m-gutter--GridGap);
     display: grid;
     grid-template: "title" "graph" "legend";
-    grid-template-rows: max-content max-content max-content;
+    grid-template-rows: max-content 1fr max-content;
+    padding: var(--graph-padding);
+    height: 100%;
+    max-height: 40rem;
   }
 
   &-graph {
@@ -144,10 +148,6 @@
     > * {
       flex: auto;
       display: flex;
-      width: 100% !important;
-      height: 100% !important;
-      max-height: 100%;
-      max-width: 100%;
     }
   }
 
@@ -235,9 +235,10 @@
     font-size: var(--ct-graph-title-FontSize);
 }
 
-.server-graph-container {
-    --graph-padding: var(--pf-l-gallery--m-gutter--GridGap);
-    padding: var(--graph-padding);
+#complicated_graphs {
+  display: flex;
+  flex-direction: column;
+  flex: auto;
 }
 
 #complicated_graphs .pf-c-page__main-section {

@@ -583,6 +583,7 @@ run_bridge (const gchar *interactive,
   cockpit_dbus_machines_startup ();
   cockpit_dbus_config_startup ();
   cockpit_packages_dbus_startup (packages);
+  cockpit_dbus_login_messages_startup ();
 
   call_update_router_data.router = router;
   call_update_router_data.privileged_slave = privileged_slave;

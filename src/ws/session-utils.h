@@ -91,3 +91,5 @@ int fork_session (char **env, int (*session)(char**));
 
 FILE *open_memfd (const char *name);
 bool seal_memfd (FILE *memfd);
+
+void fd_remap (const int *remap_fds, int n_remap_fds);

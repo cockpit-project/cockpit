@@ -379,6 +379,10 @@ export class AddDiskModalBody extends React.Component {
     onAddClicked() {
         const { vm, dispatch, provider, close, vms, storagePools } = this.props;
 
+        // validate
+        if (!this.state.storagePoolName)
+            return this.dialogErrorSet(_("Please choose a storage pool"));
+
         if (this.state.mode === CREATE_NEW) {
             // validate
             if (!this.state.volumeName) {
@@ -415,6 +419,9 @@ export class AddDiskModalBody extends React.Component {
         }
 
         // use existing volume
+        if (!this.state.existingVolumeName)
+            return this.dialogErrorSet(_("Please choose a volume"));
+
         const storagePool = storagePools.find(pool => pool.name === this.state.storagePoolName);
         const volume = storagePool.volumes.find(vol => vol.name === this.state.existingVolumeName);
         const isVolumeUsed = getStorageVolumesUsage(vms, storagePool);
@@ -430,7 +437,7 @@ export class AddDiskModalBody extends React.Component {
             vmName: vm.name,
             vmId: vm.id,
             cacheMode: this.state.cacheMode,
-            shareable: provider.name == 'LibvirtDBus' && volume.format === "raw" && isVolumeUsed[this.state.existingVolumeName],
+            shareable: provider.name == 'LibvirtDBus' && volume && volume.format === "raw" && isVolumeUsed[this.state.existingVolumeName],
             busType: this.state.busType
         }))
                 .fail(exc => {

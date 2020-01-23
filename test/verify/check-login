@@ -165,6 +165,78 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         self.allow_restart_journal_messages()
 
+
+    @skipImage("logs in via ssh, not cockpit-session", "fedora-coreos")
+    @skipImage("added in PR #13473", "rhel-8-2-distropkg")
+    def testLogging(self):
+        m = self.machine
+        b = self.browser
+
+        def assert_messages(has_last, n_fail):
+            if has_last:
+                b.wait_present('#login-messages')
+                b.wait_present('#last-login')
+                b.wait_in_text('#last-login', "Last login")
+
+                if n_fail:
+                    b.wait_present('#last-failed-login')
+                    b.wait_in_text('#login-messages', 'There were {} failed'.format(n_fail))
+                else:
+                    self.assertFalse(b.is_present('#last-failed-login'))
+                    b.wait_not_in_text('#login-messages', 'failed')
+
+            else:
+                assert not n_fail
+                b.wait_present('#login-messages[empty=yes]')
+                self.assertFalse(b.is_present('#last-login'))
+                self.assertFalse(b.is_present('#last-failed-login'))
+
+        def verify_correct(has_last, n_fail):
+            b.login_and_go('/system')
+            assert_messages(has_last, n_fail)
+
+            # reload and make sure it's still there (or not)
+            b.reload()
+            b.enter_page('/system')
+            assert_messages(has_last, n_fail)
+
+            if has_last:
+                # dismiss and make sure it's gone
+                b.click('#login-messages button')
+                assert_messages(False, 0)
+
+                # reload and make sure it's still gone
+                b.reload()
+                b.enter_page('/system')
+                assert_messages(False, 0)
+
+            b.logout()
+
+        m.start_cockpit()
+
+        # Clean out the relevant logfiles
+        m.execute("truncate -s0 /var/log/{[bw]tmp,lastlog} /var/run/utmp")
+
+        # First login should have no messages
+        verify_correct(False, 0)
+
+        # Next login should see the last login
+        verify_correct(True, 0)
+
+        # Do some bogus login attempts
+        b.try_login('admin', 'xyz')
+        b.wait_text_not("#login-error-message", "")
+        b.try_login('admin', 'xyz')
+        b.wait_text_not("#login-error-message", "")
+        b.try_login('admin', 'xyz')
+        b.wait_text_not("#login-error-message", "")
+
+        # We should see those bogus attempts now
+        verify_correct(True, 3)
+
+        # But after that login, they should be gone again
+        verify_correct(True, 0)
+
     def testExpired(self):
         m = self.machine
         b = self.browser

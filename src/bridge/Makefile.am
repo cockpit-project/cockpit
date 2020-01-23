@@ -44,6 +44,7 @@ libcockpit_bridge_a_SOURCES = \
 	src/bridge/cockpitdbusrules.h \
 	src/bridge/cockpitdbussetup.c \
 	src/bridge/cockpitdbususer.c \
+	src/bridge/cockpitdbusloginmessages.c \
 	src/bridge/cockpitechochannel.c \
 	src/bridge/cockpitechochannel.h \
 	src/bridge/cockpitfslist.c \

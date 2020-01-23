@@ -430,9 +430,10 @@ send_prefixed_message_rfc6455 (WebSocketConnection *self,
    */
   if (!self->pv->server_side)
     {
+      guint32 rand = g_random_int ();
       outer[1] |= 0x80;
       mask = outer + bytes->len;
-      * ((guint32 *)mask) = g_random_int ();
+      memcpy (mask, &rand, sizeof (guint32));
       bytes->len += 4;
     }
 

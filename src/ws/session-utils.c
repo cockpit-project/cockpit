@@ -22,19 +22,18 @@
 #include "common/cockpitframe.h"
 
 #include <ctype.h>
+#include <dirent.h>
 #include <fcntl.h>
+#include <inttypes.h>
+#include <sched.h>
 #include <stdarg.h>
 #include <stdlib.h>
-
+#include <stdnoreturn.h>
 #include <sys/mman.h>
 #include <sys/resource.h>
 #include <sys/wait.h>
-
-#include <dirent.h>
-#include <sched.h>
-#include <utmp.h>
 #include <time.h>
-#include <inttypes.h>
+#include <utmp.h>
 
 const char *program_name;
 struct passwd *pwd;
@@ -401,7 +400,6 @@ int
 fork_session (char **env, int (*session)(char**))
 {
   int status;
-  int from;
 
   fflush (stderr);
   assert (pwd != NULL);
@@ -435,13 +433,6 @@ fork_session (char **env, int (*session)(char**))
         }
 
       debug ("dropped privileges");
-
-      from = 3;
-      if (fdwalk (closefd, &from) < 0)
-        {
-          warnx ("couldn't close all file descirptors");
-          _exit (42);
-        }
 
       _exit (session (env));
     }
@@ -652,4 +643,80 @@ seal_memfd (FILE *memfd)
 
   const int seals = F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE;
   return fcntl (fileno (memfd), F_ADD_SEALS, seals) == 0;
+}
+
+/* signal- and after-fork()-safe function to format a string, print it
+ * to stderr and abort execution.  Never returns.
+ */
+static noreturn void
+__attribute__ ((format (printf, 1, 2)))
+abort_with_message (const char *format,
+                    ...)
+{
+  char buffer[1024];
+  va_list ap;
+
+  va_start (ap, format);
+  size_t length = vsnprintf (buffer, sizeof buffer, format, ap);
+  va_end (ap);
+
+  size_t ofs = 0;
+  while (ofs != length)
+    {
+      ssize_t r;
+      do
+        r = write (STDERR_FILENO, buffer + ofs, length - ofs);
+      while (r == -1 && errno == EINTR);
+
+      if (0 <= r && r <= length - ofs)
+        ofs += r;
+      else
+        break; /* something went wrong, but we can't deal with it */
+    }
+
+  abort ();
+}
+
+/* signal- and after-fork()-safe function to remap file descriptors
+ * according to a specified array.  All other file descriptors are
+ * closed.
+ *
+ * Commonly used after fork() and before exec().
+ */
+void
+fd_remap (const int *remap_fds,
+          int        n_remap_fds)
+{
+  if (n_remap_fds < 0 || n_remap_fds > 1024)
+    abort_with_message ("requested to fd_remap() too many fds!");
+
+  int *fds = alloca (sizeof (int) * n_remap_fds);
+  memcpy (fds, remap_fds, sizeof (int) * n_remap_fds);
+
+  /* we need to get all of the remap-fds to be numerically above
+   * n_remap_fds in order to make sure that we don't overwrite them in
+   * the middle of the dup2() loop below, and also avoid the case that
+   * dup2() is a no-op (which could fail to clear the O_CLOEXEC flag,
+   * for example).
+   */
+  for (int i = 0; i < n_remap_fds; i++)
+    if (fds[i] != -1 && fds[i] < n_remap_fds)
+        {
+          int new_fd = fcntl (fds[i], F_DUPFD, n_remap_fds); /* returns >= n_remap_fds */
+
+          if (new_fd == -1)
+            abort_with_message ("fcntl(%d, F_DUPFD) failed: %m", fds[i]);
+
+          fds[i] = new_fd;
+        }
+
+  /* now we can map the fds into their final spot */
+  for (int i = 0; i < n_remap_fds; i++)
+    if (fds[i] != -1) /* no-op */
+      if (dup2 (fds[i], i) != i)
+        abort_with_message ("dup2(%d, %d) failed: %m", fds[i], i);
+
+  /* close everything else */
+  if (fdwalk (closefd, &n_remap_fds) < 0)
+    abort_with_message ("couldn't close all file descriptors");
 }

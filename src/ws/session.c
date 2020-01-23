@@ -605,8 +605,10 @@ session (char **env)
   /* connect our and cockpit-bridge's stdout via fd 3, to avoid stdout output
    * from ~/.profile and friends to interfere with the protocol; route shell's
    * stdout to its stderr, so that we can still see it in the logs */
-  if (dup2 (1, 3) < 0 || dup2 (2, 1) < 0)
-    err (1, "could not redirect user shell stdout");
+  int remap_fds[5] = { -1, 2, -1, 1 };
+  int n_remap_fds = 4;
+
+  fd_remap (remap_fds, n_remap_fds);
 
   if (env)
     execvpe (argv[0], argv, env);

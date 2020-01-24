@@ -167,11 +167,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         })""", expected)
 
         def wait_journal_empty():
-            # Changed in #13039
-            if m.image == "rhel-8-1-distropkg":
-                wait_log_lines([])
-            else:
-                wait_log_lines(["No Logs FoundCan not find any logs using the current combination of filters."])
+            wait_log_lines(["No Logs FoundCan not find any logs using the current combination of filters."])
 
         b.go("#/?prio=*&service=log123.service")
         wait_journal_empty()
@@ -284,11 +280,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
                         "Load earlier entries",
                         ])
 
-        # Changed in #13039
-        if m.image == "rhel-8-1-distropkg":
-            b.click('#journal-load-earlier')
-        else:
-            b.click('#start-box button:contains("Load earlier entries")')
+        b.click('#start-box button:contains("Load earlier entries")')
 
         wait_log_lines([expected_date,
                         ["check-journal", "AFTER BOOT", ""],
@@ -383,7 +375,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
     @skipImage("ABRT does not work on i386", "fedora-i386")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-1804", "fedora-coreos", "rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
+               "ubuntu-1804", "fedora-coreos", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
     def testAbrtSegv(self):
         self.allow_core_dumps = True
         b = self.browser
@@ -422,7 +414,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
     @skipImage("ABRT does not work on i386", "fedora-i386")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-1804", "fedora-coreos", "rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
+               "ubuntu-1804", "fedora-coreos", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
     def testAbrtDelete(self):
         self.allow_core_dumps = True
         b = self.browser
@@ -456,7 +448,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
     @skipImage("ABRT does not work on i386", "fedora-i386")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-1804", "fedora-coreos", "rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
+               "ubuntu-1804", "fedora-coreos", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
     def testAbrtReport(self):
         self.allow_core_dumps = True
         # The testing server is located at verify/files/mock-faf-server.py
@@ -531,7 +523,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
     @skipImage("ABRT does not work on i386", "fedora-i386")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-1804", "fedora-coreos", "rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
+               "ubuntu-1804", "fedora-coreos", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
     def testAbrtReportCancel(self):
         self.allow_core_dumps = True
 
@@ -571,7 +563,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
     @skipImage("ABRT does not work on i386", "fedora-i386")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-1804", "fedora-coreos", "rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
+               "ubuntu-1804", "fedora-coreos", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
     def testAbrtReportNoReportd(self):
         self.allow_core_dumps = True
 

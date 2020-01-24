@@ -172,10 +172,7 @@ class TestMetrics(MachineCase):
     def testPcp(self):
         m = self.machine
 
-        if m.image in ["rhel-8-1-distropkg"]:
-            self.login_and_go("/system")
-        else:
-            self.login_and_go("/system/graphs")
+        self.login_and_go("/system/graphs")
 
         self.check_host_metrics()
         m.execute("pgrep cockpit-pcp")
@@ -186,15 +183,11 @@ class TestMetrics(MachineCase):
         m.execute("! [ -f /usr/libexec/cockpit-pcp ] || rm /usr/libexec/cockpit-pcp")
         m.execute("! [ -f /usr/lib/cockpit/cockpit-pcp ] || rm /usr/lib/cockpit/cockpit-pcp")
 
-        if m.image in ["rhel-8-1-distropkg"]:
-            self.login_and_go("/system")
-        else:
-            self.login_and_go("/system/graphs")
+        self.login_and_go("/system/graphs")
 
         self.check_host_metrics()
         m.execute("! pgrep cockpit-pcp")
 
-    @skipImage("Changed in #13186", "rhel-8-1-distropkg")
     def testOverview(self):
         m = self.machine
         b = self.browser

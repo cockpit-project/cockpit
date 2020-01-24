@@ -72,12 +72,8 @@ class TestAccounts(MachineCase):
         b.go("#/root")
         b.wait_text("#account-user-name", "root")
         # some operations are not allowed for root user
-        if m.image in ["rhel-8-1-distropkg"]:
-            b.wait_present("#account-delete.disabled")
-            b.wait_present("#account-real-name-wrapper.disabled")
-        else:
-            b.wait_present("#account-delete[disabled]")
-            b.wait_present("#account-real-name-wrapper[disabled]")
+        b.wait_present("#account-delete[disabled]")
+        b.wait_present("#account-real-name-wrapper[disabled]")
         b.wait_attr("#account-logout", "disabled", "disabled")
         b.wait_present("#account-locked:not(:checked)")
         # root account should not be locked by default on our images
@@ -116,9 +112,8 @@ class TestAccounts(MachineCase):
         self.assertEqual(m.execute("stat -c '%U' {0}".format(home_dir)).strip(), "berta")
 
         # Check that we set up shell configured in /etc/default/useradd
-        if m.image != "rhel-8-1-distropkg": # Added in #13329
-            shell = m.execute("getent passwd berta | cut -f7 -d:").strip()
-            self.assertEqual(shell, '/bin/true')
+        shell = m.execute("getent passwd berta | cut -f7 -d:").strip()
+        self.assertEqual(shell, '/bin/true')
 
         # Delete it externally
         m.execute("userdel berta")
@@ -161,10 +156,7 @@ class TestAccounts(MachineCase):
         b.set_checked(admin_role_sel, True)
         b.wait(is_admin)
         # An alert which shows up once we've changed thinrgs
-        if m.image == "rhel-8-1-distropkg":
-            b.wait_present("#account-roles .alert-info")
-        else:
-            b.wait_present("#account-roles .pf-c-alert.pf-m-info")
+        b.wait_present("#account-roles .pf-c-alert.pf-m-info")
         b.wait_present(admin_role_sel + ":checked")
         b.set_checked(admin_role_sel, False)
         b.wait(lambda: not is_admin())
@@ -208,7 +200,7 @@ class TestAccounts(MachineCase):
         b.wait_present('#content')
 
         # incomplete passwd entry; fixed in PR #13384
-        if m.image not in ["rhel-8-1-distropkg", "rhel-8-2-distropkg"]:
+        if m.image not in ["rhel-8-2-distropkg"]:
             m.execute('echo "damaged:x:1234:1234:Damaged" >> /etc/passwd')
             b.go("/users")
             b.enter_page("/users")
@@ -394,15 +386,9 @@ class TestAccounts(MachineCase):
         b.go("#/scruffy")
         b.wait_text("#account-user-name", "scruffy")
         b.wait_text("#account-expiration-button", "Never lock account")
-        if m.image in ["rhel-8-1-distropkg"]:
-            b.wait_present("#account-expiration-button.disabled")
-        else:
-            b.wait_present("#account-expiration-button[disabled]")
+        b.wait_present("#account-expiration-button[disabled]")
         b.wait_in_text("#password-expiration-button", "Require password change on")
-        if m.image in ["rhel-8-1-distropkg"]:
-            b.wait_present("#password-expiration-button.disabled")
-        else:
-            b.wait_present("#password-expiration-button[disabled]")
+        b.wait_present("#password-expiration-button[disabled]")
 
         # Lastly force a password change
         b.logout()

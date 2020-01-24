@@ -42,11 +42,7 @@ class TestNetworking(NetworkCase):
         # Make a VLAN interface
         b.click("button:contains('Add VLAN')")
         b.wait_popup("network-vlan-settings-dialog")
-        if m.image not in [ "rhel-8-1-distropkg" ]:
-            b.select_from_dropdown("#network-vlan-settings-body form select", iface)
-        else:
-            b.click("#network-vlan-settings-body form .btn-group button")
-            b.click("#network-vlan-settings-body form div ul li[value='%s'] a" % iface)
+        b.select_from_dropdown("#network-vlan-settings-body form select", iface)
         b.set_val("#network-vlan-settings-interface-name-input", "tvlan")
         b.set_val("#network-vlan-settings-vlan-id-input", "123")
         b.click("#network-vlan-settings-dialog button:contains('Apply')")

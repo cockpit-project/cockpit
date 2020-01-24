@@ -33,10 +33,7 @@ class TestServices(MachineCase):
         self.machine.execute("systemctl start default.target")
 
     def pick_tab(self, n):
-        if self.machine.image in ["rhel-8-1-distropkg"]: # Changed in #12349
-            self.browser.click('#services-filter :nth-child({0})'.format(n))
-        else:
-            self.browser.click('#services-filter li:nth-child({0}) a'.format(n))
+        self.browser.click('#services-filter li:nth-child({0}) a'.format(n))
 
     def wait_onoff(self, val):
         self.browser.wait_present(".service-top-panel .onoff-ct input" + (":checked" if val else ":not(:checked)"))
@@ -63,13 +60,10 @@ class TestServices(MachineCase):
             self.browser.wait_not_present(".service-top-panel .dropdown-kebab-pf")
 
     def wait_service_present(self, service):
-        if self.machine.image in ["rhel-8-1-distropkg"]: # Changed in #12381
-            self.browser.wait_text('tr[data-goto-unit="{0}"] td:first-child'.format(service), service)
-        else:
-            service_name = service
-            if service.endswith(".service"):
-                service_name = service[:-8]
-            self.browser.wait_text('tr[data-goto-unit="{0}"] td:first-child'.format(service), service_name)
+        service_name = service
+        if service.endswith(".service"):
+            service_name = service[:-8]
+        self.browser.wait_text('tr[data-goto-unit="{0}"] td:first-child'.format(service), service_name)
 
 
     def testBasic(self):
@@ -180,9 +174,6 @@ Unit=test.service
         b.wait_in_text(svc_sel('test-onboot.timer'), "Today")  # next run
         b.wait_in_text(svc_sel('test-onboot.timer'), "unknown")  # last trigger
         m.execute("systemctl stop test-onboot.timer")
-
-        if m.image in ["rhel-8-1-distropkg"]: # Changed in #12265
-            return
 
         # Selects Services tab
         self.pick_tab(1)
@@ -614,7 +605,6 @@ WantedBy=default.target
         m.execute("timedatectl set-ntp on")
         self.allow_restart_journal_messages()
 
-    @skipImage("Reworked in #12265", "rhel-8-1-distropkg")
     def testConditions(self):
         m = self.machine
         b = self.browser
@@ -662,7 +652,6 @@ WantedBy=multi-user.target
         self.check_service_details(["Running", "Automatically starts"], ["Restart", "Stop", "Disallow running (mask)"], True)
         b.wait_not_present("#condition")
 
-    @skipImage("Reworked in #12265", "rhel-8-1-distropkg")
     def testRelationships(self):
         m = self.machine
         b = self.browser
@@ -766,10 +755,8 @@ ExecStart=/bin/true
         b.click(svc_sel("test.service"))
         b.wait_js_cond('window.location.hash === "#/test.service"')
 
-        if m.image not in ["rhel-8-1-distropkg"]: # Changed in #12265
-            b.wait_attr("#Requires a:contains('not-found.service')", "class", "disabled")
+        b.wait_attr("#Requires a:contains('not-found.service')", "class", "disabled")
 
-    @skipImage("Implemented in #12585", "rhel-8-1-distropkg")
     def testResetFailed(self):
         m = self.machine
         b = self.browser
@@ -837,7 +824,6 @@ WantedBy=default.target
     def count_failures(self):
         return int(self.machine.execute("systemctl --failed --plain --no-legend | wc -l"))
 
-    @skipImage("Implemented in #12585", "rhel-8-1-distropkg")
     def testNotifyFailed(self):
         m = self.machine
         b = self.browser

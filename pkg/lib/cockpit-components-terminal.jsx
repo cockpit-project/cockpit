@@ -101,6 +101,7 @@ export class Terminal extends React.Component {
         this.onWindowResize = this.onWindowResize.bind(this);
         this.connectChannel = this.connectChannel.bind(this);
         this.disconnectChannel = this.disconnectChannel.bind(this);
+        this.reset = this.reset.bind(this);
         this.focus = this.focus.bind(this);
         this.onWindowResize = this.onWindowResize.bind(this);
         this.onFocusIn = this.onFocusIn.bind(this);
@@ -238,6 +239,11 @@ export class Terminal extends React.Component {
             channel.removeEventListener('close', this.onChannelClose);
         }
         channel.close();
+    }
+
+    reset() {
+        this.state.terminal.reset();
+        this.props.channel.send(String.fromCharCode(12)); // Send SIGWINCH to show prompt on attaching
     }
 
     focus() {

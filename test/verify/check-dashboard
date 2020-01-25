@@ -212,9 +212,8 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
 
         b.enter_page("/system", "10.111.113.3")
         b.wait_text_not("#system_information_systime_button", "")
-        if m.image not in ["rhel-8-1-distropkg"]:
-            b.click(".system-usage a")  # View graphs
-            b.enter_page("/system/graphs", "10.111.113.3")
+        b.click(".system-usage a")  # View graphs
+        b.enter_page("/system/graphs", "10.111.113.3")
         b.click("#link-network a")
         b.enter_page("/network", "10.111.113.3")
 

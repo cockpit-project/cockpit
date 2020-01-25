@@ -25,7 +25,7 @@ from testlib import *
 
 
 @skipPackage("cockpit-docker")
-@skipImage("No docker packaged", "rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
+@skipImage("No docker packaged", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
 @skipImage("Not supporting cockpit-docker on CoreOS", "fedora-coreos")
 @skipImage("Docker not available", "fedora-31") # https://github.com/cockpit-project/cockpit/issues/12670
 class TestDocker(MachineCase):
@@ -548,7 +548,7 @@ CMD ["/bin/sh"]
 
     @skipImage("No cockpit-docker on i386", "fedora-i386")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-1804", "rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2", "rhel-8-2-distropkg")
+               "ubuntu-1804", "rhel-8-2", "rhel-8-2-distropkg")
     def testContainerProblems(self):
         b = self.browser
         m = self.machine
@@ -590,7 +590,7 @@ CMD ["/bin/sh"]
 @skipImage("Skip on systems without atomic and ones with missing deps", "debian-stable",
            "debian-testing", "ubuntu-1804", "ubuntu-stable", "fedora-coreos", "fedora-i386",
            "fedora-31")
-@skipImage("No docker packaged", "rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
+@skipImage("No docker packaged", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
 @skipPackage("cockpit-docker")
 class TestAtomicScan(MachineCase):
 

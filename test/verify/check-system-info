@@ -197,10 +197,7 @@ class TestSystemInfo(MachineCase):
                     "Foobar Adventure Linux Server 2.0 (Day of Doom)")
 
         m.execute("hostnamectl set-hostname --static --pretty 'Adventure Box'")
-        if m.image == "rhel-8-1-distropkg":
-            b.wait_in_text('#system_information_hostname_button', "Adventure Box")
-        else:
-            b.wait_in_text('#system_information_hostname_text', "Adventure Box")
+        b.wait_in_text('#system_information_hostname_text', "Adventure Box")
 
         b.click('#system_information_hostname_button')
         b.wait_popup("system_information_change_hostname")
@@ -209,10 +206,7 @@ class TestSystemInfo(MachineCase):
         b.click("#system_information_change_hostname button:contains('Change')")
         b.wait_popdown("system_information_change_hostname")
 
-        if m.image == "rhel-8-1-distropkg":
-            b.wait_in_text('#system_information_hostname_button', "Adventure Box (host1.cockpit.lan)")
-        else:
-            b.wait_in_text('#system_information_hostname_text', "Adventure Box (host1.cockpit.lan)")
+        b.wait_in_text('#system_information_hostname_text', "Adventure Box (host1.cockpit.lan)")
         self.assertEqual(m.execute("hostname").strip(), "host1.cockpit.lan")
 
         b.logout()
@@ -293,12 +287,8 @@ class TestSystemInfo(MachineCase):
 
         self.allow_authorize_journal_messages()
         b.relogin('/system', authorized=False)
-        if m.image in ["rhel-8-1-distropkg"]:
-            tooltip_sel = '#systime-tooltip ~ div.tooltip'
-            b.wait_present('.systime-privileged.disabled')
-        else:
-            tooltip_sel = '.tooltip-inner'
-            b.wait_present('#system_information_systime_button[disabled]')
+        tooltip_sel = '.tooltip-inner'
+        b.wait_present('#system_information_systime_button[disabled]')
         b.eval_js('window.cockpit_permission = cockpit.permission({ admin: true })')
         b.wait_js_cond('window.cockpit_permission.allowed !== null')
         b.mouse('#systime-tooltip', 'mouseover')
@@ -306,7 +296,7 @@ class TestSystemInfo(MachineCase):
         b.mouse('#systime-tooltip', 'mouseout')
         b.wait_not_present(tooltip_sel)
 
-    @skipImage("Uses timedatex, no NTP servers config", "rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream",
+    @skipImage("Uses timedatex, no NTP servers config", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream",
                "fedora-30", "fedora-testing")
     def testTimeServers(self):
         m = self.machine
@@ -357,36 +347,19 @@ class TestSystemInfo(MachineCase):
         m.execute("rm -f /etc/motd")
 
         self.login_and_go("/system")
-        if m.image == "rhel-8-1-distropkg":
-            b.wait_not_visible('#motd-box')
-        else:
-            b.wait_not_present('#motd-box')
+        b.wait_not_present('#motd-box')
 
         m.execute(r"printf '  Hello\n  World\n\n' >/etc/motd")
         b.wait_visible('#motd-box')
-        if m.image == 'rhel-8-1-distropkg':
-            # fixed in PR #13021
-            b.wait_text('#motd', "Hello\n  World")
-        else:
-            b.wait_text('#motd', "  Hello\n  World")
+        b.wait_text('#motd', "  Hello\n  World")
 
-        if m.image == "rhel-8-1-distropkg":
-            b.click('#motd-box button.close')
-        else:
-            b.click('#motd-box button.pf-c-button')
-
-        if m.image == "rhel-8-1-distropkg":
-            b.wait_not_visible('#motd-box')
-        else:
-            b.wait_not_present('#motd-box')
+        b.click('#motd-box button.pf-c-button')
+        b.wait_not_present('#motd-box')
 
         # motd should stay dismissed after a reload
         b.reload()
         b.enter_page("/system")
-        if m.image == "rhel-8-1-distropkg":
-            b.wait_not_visible('#motd-box')
-        else:
-            b.wait_not_present('#motd-box')
+        b.wait_not_present('#motd-box')
 
         m.execute("echo Hello again >/etc/motd")
         b.wait_visible('#motd-box')
@@ -402,10 +375,7 @@ class TestSystemInfo(MachineCase):
         self.login_and_go("/system")
         b.wait_in_text('#system_information_hardware_text', "QEMU")
 
-        if m.image == "rhel-8-1-distropkg":
-            hardware_page_link = '#system_information_hardware_text'
-        else:
-            hardware_page_link = '.system-information a'
+        hardware_page_link = '.system-information a'
         b.click(hardware_page_link)
         b.enter_page("/system/hwinfo")
 
@@ -420,64 +390,36 @@ class TestSystemInfo(MachineCase):
         # BIOS date; just ensure it's from this century
         b.wait_in_text('#hwinfo .info-table-ct tbody:nth-of-type(2) tr:nth-of-type(3) td', "/20")
 
-        if m.image in ['rhel-8-1-distropkg']:
-            pci_selector = '#hwinfo'
-            heading_selector = ' .listing-ct caption'
-        else:
-            pci_selector = '#hwinfo #pci-listing'
-            heading_selector = ' .listing-ct-heading'
+        pci_selector = '#hwinfo #pci-listing'
+        heading_selector = ' .listing-ct-heading'
         # PCI
         b.wait_in_text(pci_selector + heading_selector, "PCI")
 
-        if m.image in ['rhel-8-1-distropkg']:
-            b.wait_in_text(pci_selector + ' .listing-ct', "0000:00:00.0")
-        else:
-            b.wait_in_text(pci_selector + ' tr:first-of-type td[data-label=Slot]', "0000:00:00.0")
+        b.wait_in_text(pci_selector + ' tr:first-of-type td[data-label=Slot]', "0000:00:00.0")
 
         # sorted by device class by default; this makes some assumptions about QEMU devices
-        if m.image in ['rhel-8-1-distropkg']:
-            b.wait_in_text(pci_selector + ' .listing-ct tbody:first-of-type td:nth-of-type(2)', "Bridge")
-            b.wait_in_text(pci_selector + ' .listing-ct tbody:last-of-type td:nth-of-type(2)', "Unclassified")
-        else:
-            b.wait_in_text(pci_selector + ' tbody tr:first-of-type td[data-label=Class]', "Bridge")
-            b.wait_in_text(pci_selector + ' tbody tr:last-of-type td[data-label=Class]', "Unclassified")
+        b.wait_in_text(pci_selector + ' tbody tr:first-of-type td[data-label=Class]', "Bridge")
+        b.wait_in_text(pci_selector + ' tbody tr:last-of-type td[data-label=Class]', "Unclassified")
 
         # sort by model
-        if m.image in ['rhel-8-1-distropkg']:
-            b.click(pci_selector + ' .listing-ct thead th:nth-of-type(3)')
-            b.wait_in_text(pci_selector + ' .listing-ct tbody:first-of-type td:nth-of-type(3)', "440FX")
-            b.wait_in_text(pci_selector + ' .listing-ct tbody:last-of-type td:nth-of-type(3)', "Virtio SCSI")
-            b.wait_not_in_text(pci_selector + ' .listing-ct tbody:last-of-type td:nth-of-type(2)', "Unclassified")
-        else:
-            b.click(pci_selector + ' thead th[data-label=Model] button')
-            b.wait_in_text(pci_selector + ' tbody tr:first-of-type td[data-label=Model]', "440FX")
-            b.wait_in_text(pci_selector + ' tbody tr:last-of-type td[data-label=Model]', "Virtio SCSI")
-            b.wait_not_in_text(pci_selector + ' tbody tr:last-of-type td[data-label=Model]', "Unclassified")
+        b.click(pci_selector + ' thead th[data-label=Model] button')
+        b.wait_in_text(pci_selector + ' tbody tr:first-of-type td[data-label=Model]', "440FX")
+        b.wait_in_text(pci_selector + ' tbody tr:last-of-type td[data-label=Model]', "Virtio SCSI")
+        b.wait_not_in_text(pci_selector + ' tbody tr:last-of-type td[data-label=Model]', "Unclassified")
 
         # go back to system page
-        if m.image == "rhel-8-1-distropkg":
-            b.click('.breadcrumb a')
-        else:
-            b.click('.breadcrumb button')
+        b.click('.breadcrumb button')
         b.enter_page("/system")
 
-        # now pretend this is a system without DMI; fixed in PR #11005
-        if self.machine.image in ['rhel-8-1-distropkg']:
-            return
-
+        # now pretend this is a system without DMI
         b.logout()
         self.machine.execute("mount -t tmpfs none /sys/class/dmi/id")
         self.login_and_go("/system")
         # asset tag should be hidden
-        if m.image == "rhel-8-1-distropkg":
-            b.wait_not_visible('#system_information_asset_tag_text')
-            # Hardware can just be a generic link
-            b.wait_text('#system_information_hardware_text', "Details")
-        else:
-            b.wait_not_present('#system_information_asset_tag_text')
-            # Hardware should be hidden
-            b.wait_not_present('#system_information_hardware_text')
-            b.click(hardware_page_link)
+        b.wait_not_present('#system_information_asset_tag_text')
+        # Hardware should be hidden
+        b.wait_not_present('#system_information_hardware_text')
+        b.click(hardware_page_link)
         b.enter_page("/system/hwinfo")
 
         # CPU should still be shown, but not the DMI fields
@@ -487,19 +429,13 @@ class TestSystemInfo(MachineCase):
 
         # PCI should be shown
         b.wait_in_text(pci_selector + heading_selector, "PCI")
-        if m.image in ['rhel-8-1-distropkg']:
-            b.wait_in_text(pci_selector + ' .listing-ct', "0000:00:00.0")
-        else:
-            b.wait_in_text(pci_selector + ' tr:first-of-type td[data-label=Slot]', "0000:00:00.0")
+        b.wait_in_text(pci_selector + ' tr:first-of-type td[data-label=Slot]', "0000:00:00.0")
 
         # Check also variants when only some fields are present
         m.write("/sys/class/dmi/id/chassis_type", "10")
         b.go("/system")
         b.enter_page('/system')
-        if m.image == "rhel-8-1-distropkg":
-            b.wait_text('#system_information_hardware_text', "Details")
-        else:
-            b.wait_not_present('#system_information_hardware_text')
+        b.wait_not_present('#system_information_hardware_text')
 
         m.write("/sys/class/dmi/id/board_vendor", "VENDOR")
         m.write("/sys/class/dmi/id/board_name", "NAME")
@@ -525,31 +461,17 @@ class TestSystemInfo(MachineCase):
             b.reload()
             b.enter_page('/system/hwinfo')
             # first DIMM has unknown technology and rank
-            if m.image in ['rhel-8-1-distropkg']:
-                b.wait_in_text('#memory-listing tbody:nth-of-type(1)', "ChannelA-DIMM0")
-                b.wait_in_text('#memory-listing tbody:nth-of-type(1)', "DDR3")
-                b.wait_in_text('#memory-listing tbody:nth-of-type(1)', "8 GB")
-                b.wait_in_text('#memory-listing tbody:nth-of-type(1)', "Present")
-                b.wait_text('#memory-listing tbody:nth-of-type(1) td:nth-of-type(3)', "Unknown")
-                b.wait_text('#memory-listing tbody:nth-of-type(1) td:nth-of-type(7)', "Unknown")
-                b.wait_in_text('#memory-listing tbody:nth-of-type(1)', "1600 MT/s")
-            else:
-                b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=ID]', "ChannelA-DIMM0")
-                b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=Type]', "DDR3")
-                b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=Size]', "8 GB")
-                b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=State]', "Present")
-                b.wait_text('#memory-listing tr:nth-of-type(1) td[data-label="Memory Technology"]', "Unknown")
-                b.wait_text('#memory-listing tr:nth-of-type(1) td[data-label=Rank]', "Unknown")
-                b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=Speed]', "1600 MT/s")
+            b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=ID]', "ChannelA-DIMM0")
+            b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=Type]', "DDR3")
+            b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=Size]', "8 GB")
+            b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=State]', "Present")
+            b.wait_text('#memory-listing tr:nth-of-type(1) td[data-label="Memory Technology"]', "Unknown")
+            b.wait_text('#memory-listing tr:nth-of-type(1) td[data-label=Rank]', "Unknown")
+            b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=Speed]', "1600 MT/s")
             # second DIMM has known technology and rank
-            if m.image in ['rhel-8-1-distropkg']:
-                b.wait_in_text('#memory-listing tbody:nth-of-type(2)', "ChannelB-DIMM0")
-                b.wait_text('#memory-listing tbody:nth-of-type(2) td:nth-of-type(3)', "Awesome")
-                b.wait_text('#memory-listing tbody:nth-of-type(2) td:nth-of-type(7)', "Single Rank")
-            else:
-                b.wait_in_text('#memory-listing tr:nth-of-type(2) td[data-label=ID]', "ChannelB-DIMM0")
-                b.wait_text('#memory-listing tr:nth-of-type(2) td[data-label="Memory Technology"]', "Awesome")
-                b.wait_text('#memory-listing tr:nth-of-type(2) td[data-label=Rank]', "Single Rank")
+            b.wait_in_text('#memory-listing tr:nth-of-type(2) td[data-label=ID]', "ChannelB-DIMM0")
+            b.wait_text('#memory-listing tr:nth-of-type(2) td[data-label="Memory Technology"]', "Awesome")
+            b.wait_text('#memory-listing tr:nth-of-type(2) td[data-label=Rank]', "Single Rank")
 
             m.execute('umount $(which dmidecode)')
 
@@ -574,10 +496,7 @@ class TestSystemInfo(MachineCase):
                 b.wait_present('#hwinfo th:contains(CPU)')
                 b.wait_not_present('#hwinfo th:contains(CPU Security)')
             else:
-                if m.image == "rhel-8-1-distropkg":
-                    b.click('#hwinfo a:contains(Mitigations)')
-                else:
-                    b.click('#hwinfo button:contains(Mitigations)')
+                b.click('#hwinfo button:contains(Mitigations)')
 
             if expect_smt_state is not None:
                 b.wait_present('#cpu-mitigations-dialog span:contains(nosmt)')
@@ -602,10 +521,7 @@ class TestSystemInfo(MachineCase):
         # Switch nosmt option
         b.reload()
         b.enter_page('/system/hwinfo')
-        if m.image == "rhel-8-1-distropkg":
-            b.click('#hwinfo a:contains(Mitigations)')
-        else:
-            b.click('#hwinfo button:contains(Mitigations)')
+        b.click('#hwinfo button:contains(Mitigations)')
 
 
         b.click('#cpu-mitigations-dialog #nosmt-switch input')
@@ -660,10 +576,7 @@ fi
 
         # Switch back nosmt option
         self.login_and_go('/system/hwinfo')
-        if m.image == "rhel-8-1-distropkg":
-            b.click('#hwinfo a:contains(Mitigations)')
-        else:
-            b.click('#hwinfo button:contains(Mitigations)')
+        b.click('#hwinfo button:contains(Mitigations)')
         b.wait_present('#cpu-mitigations-dialog span:contains(nosmt)')
         b.wait_present('#cpu-mitigations-dialog #nosmt-switch input' +
                        (expect_smt_default and ':not(:checked)' or ':checked'))
@@ -678,30 +591,26 @@ fi
             self.assertNotIn('nosmt', m.execute('cat /proc/cmdline'))
 
         # updates mitigations=nosmt when that is present
-        if m.image != "rhel-8-1-distropkg":  # fixed in PR #13166
-            m.upload(["../pkg/systemd/kernelopt.sh"], "/tmp/")
-            m.execute("/tmp/kernelopt.sh remove nosmt && /tmp/kernelopt.sh set mitigations=auto,nosmt")
-            m.spawn("sync && sleep 0.1 && reboot", "reboot")
-            m.wait_reboot()
-            self.login_and_go('/system/hwinfo')
-            b.click('#hwinfo button:contains(Mitigations)')
-            b.wait_present('#cpu-mitigations-dialog span:contains(nosmt)')
-            b.wait_present('#cpu-mitigations-dialog #nosmt-switch input:checked')
-            b.click('#cpu-mitigations-dialog #nosmt-switch input')
-            b.wait_present('#cpu-mitigations-dialog #nosmt-switch input:not(:checked)')
-            b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
-            m.wait_reboot()
-            self.assertNotIn('nosmt', m.execute('cat /proc/cmdline'))
-            self.assertIn('mitigations=auto', m.execute('cat /proc/cmdline'))
+        m.upload(["../pkg/systemd/kernelopt.sh"], "/tmp/")
+        m.execute("/tmp/kernelopt.sh remove nosmt && /tmp/kernelopt.sh set mitigations=auto,nosmt")
+        m.spawn("sync && sleep 0.1 && reboot", "reboot")
+        m.wait_reboot()
+        self.login_and_go('/system/hwinfo')
+        b.click('#hwinfo button:contains(Mitigations)')
+        b.wait_present('#cpu-mitigations-dialog span:contains(nosmt)')
+        b.wait_present('#cpu-mitigations-dialog #nosmt-switch input:checked')
+        b.click('#cpu-mitigations-dialog #nosmt-switch input')
+        b.wait_present('#cpu-mitigations-dialog #nosmt-switch input:not(:checked)')
+        b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
+        m.wait_reboot()
+        self.assertNotIn('nosmt', m.execute('cat /proc/cmdline'))
+        self.assertIn('mitigations=auto', m.execute('cat /proc/cmdline'))
 
         # Behaviour for non-admins
         self.login_and_go('/system/hwinfo', authorized=False)
         b.wait_present('#hwinfo th:contains(CPU)')
-        if m.image in ["rhel-8-1-distropkg"]:
-            b.mouse('#hwinfo span:contains(Mitigations)', 'mouseover')
-        else:
-            b.wait_present('#cpu_mitigations[disabled]')
-            b.mouse('#tip-cpu-security', 'mouseover')
+        b.wait_present('#cpu_mitigations[disabled]')
+        b.mouse('#tip-cpu-security', 'mouseover')
         b.wait_text('.tooltip-inner', 'The user admin is not permitted to change cpu security mitigations')
 
         # Behaviour if grub update tools are missing
@@ -711,17 +620,11 @@ fi
         m.execute('[ ! -f /usr/sbin/grubby ] || mount --bind /tmp/grubby /usr/sbin/grubby')
         m.execute('systemctl stop rpm-ostreed.service || true; systemctl mask rpm-ostreed.service')
         self.login_and_go('/system/hwinfo')
-        if m.image == "rhel-8-1-distropkg":
-            b.click('#hwinfo a:contains(Mitigations)')
-        else:
-            b.click('#hwinfo button:contains(Mitigations)')
+        b.click('#hwinfo button:contains(Mitigations)')
         b.click('#cpu-mitigations-dialog #nosmt-switch input')
         b.wait_present('#cpu-mitigations-dialog #nosmt-switch input:checked')
         b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
-        if m.image == "rhel-8-1-distropkg":
-            b.wait_present('#cpu-mitigations-dialog .alert:contains(No supported grub update mechanism found)')
-        else:
-            b.wait_present('#cpu-mitigations-dialog .pf-c-alert__title:contains(No supported grub update mechanism found)')
+        b.wait_present('#cpu-mitigations-dialog .pf-c-alert__title:contains(No supported grub update mechanism found)')
 
         self.allow_journal_messages('Sourcing file `/etc/default/grub.*',
                                     'Generating grub configuration file.*',
@@ -732,7 +635,7 @@ fi
         self.allow_authorize_journal_messages()
         self.allow_restart_journal_messages()
 
-    @allowImage("insights-client only on RHEL", "rhel-8-1", "rhel-7-8", "rhel-8-2")
+    @allowImage("insights-client only on RHEL", "rhel-7-8", "rhel-8-2")
     def testInsightsWarning(self):
         m = self.machine
         b = self.browser
@@ -776,23 +679,15 @@ class TestPcp(packagelib.PackageCase):
 
         # the offer to install it should be visible
         self.login_and_go("/system")
-        if m.image in ["rhel-8-1-distropkg"]:
-            b.wait_not_visible("#server-pmlogger-switch")
-            b.wait_in_text("#system-information-enable-pcp-link", "Enable stored metrics")
-            b.click("#system-information-enable-pcp-link")
-        else:
-            b.wait_not_present("#server-pmlogger-switch")
-            b.wait_in_text("#system-configuration-enable-pcp-link", "Enable stored metrics")
-            b.click("#system-configuration-enable-pcp-link")
+        b.wait_not_present("#server-pmlogger-switch")
+        b.wait_in_text("#system-configuration-enable-pcp-link", "Enable stored metrics")
+        b.click("#system-configuration-enable-pcp-link")
         b.click(".modal-footer button.btn-primary:contains('Install')")
         b.wait_not_present(".modal-dialog:contains('Install Software')")
 
 
         b.wait_visible("#server-pmlogger-switch")
-        if m.image in ["rhel-8-1-distropkg"]:
-            b.wait_not_visible("#system-information-enable-pcp-link")
-        else:
-            b.wait_not_present("#system-configuration-enable-pcp-link")
+        b.wait_not_present("#system-configuration-enable-pcp-link")
 
         # Turn stored metrics on
         b.wait_present("#server-pmlogger-switch input:not(:checked)")

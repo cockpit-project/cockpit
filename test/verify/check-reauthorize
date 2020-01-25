@@ -53,7 +53,7 @@ class TestReauthorize(MachineCase):
         b.click("#navbar-dropdown")
         b.click("#credentials-item")
         b.click("button.credential-clear")
-        if m.image in [ "rhel-8-2-distropkg", "rhel-8-1-distropkg" ]:
+        if m.image in [ "rhel-8-2-distropkg" ]:
             b.wait_not_visible("button.credential-clear")
             b.click("#credentials-dialog [data-dismiss]")
         else:
@@ -84,7 +84,7 @@ class TestReauthorize(MachineCase):
         b.click("#navbar-dropdown")
         b.click("#credentials-item")
         b.click("button.credential-clear")
-        if self.machine.image in [ "rhel-8-2-distropkg", "rhel-8-1-distropkg" ]:
+        if self.machine.image in [ "rhel-8-2-distropkg" ]:
             b.wait_not_visible("button.credential-clear")
             b.click("#credentials-dialog [data-dismiss]")
         else:

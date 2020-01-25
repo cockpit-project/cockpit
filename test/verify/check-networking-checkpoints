@@ -53,11 +53,7 @@ class TestNetworking(NetworkCase):
             # Change IP
             b.click("tr:contains('IPv4') a")
             b.wait_popup("network-ip-settings-dialog")
-            if m.image not in [ "rhel-8-1-distropkg" ]:
-                b.select_from_dropdown("#network-ip-settings-dialog select", "Manual")
-            else:
-                b.click("#network-ip-settings-dialog .btn.dropdown-toggle")
-                b.click("#network-ip-settings-dialog a:contains('Manual')")
+            b.select_from_dropdown("#network-ip-settings-dialog select", "Manual")
             b.set_val('#network-ip-settings-dialog input[placeholder="Address"]', "1.2.3.4")
             b.set_val('#network-ip-settings-dialog input[placeholder*="Netmask"]', "24")
             b.click("#network-ip-settings-dialog button:contains('Apply')")

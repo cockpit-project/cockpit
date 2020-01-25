@@ -31,10 +31,6 @@ class TestLogin(MachineCase):
         m = self.machine
         b = self.browser
 
-        # rhel-8-1-distropkg: utmp/who(1) output fixed in PR #13242
-        # fedora-coreos: logs in via ssh, not cockpit-session
-        utmp_works = m.image not in ['rhel-8-1-distropkg', 'fedora-coreos']
-
         # Setup users and passwords
         m.execute("useradd user -c 'Barney Bär' || true")
         m.execute("echo user:abcdefg | chpasswd")
@@ -65,25 +61,24 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
             b.click('#login-button')
 
         # Test banner
-        if m.image != "rhel-8-1-distropkg": # Added in #13237
-            # Test that we don't show banner when not specified
-            b.wait_visible("#login-user-input")
-            b.wait_not_visible("#banner")
+        # Test that we don't show banner when not specified
+        b.wait_visible("#login-user-input")
+        b.wait_not_visible("#banner")
 
-            m.execute("printf '[Session]\nBanner = /etc/issue\n' > /etc/cockpit/cockpit.conf")
-            m.restart_cockpit()
-            b.reload()
-            b.wait_visible("#login-user-input")
-            b.wait_visible("#banner")
-            self.assertEqual(b.text("#banner pre"), m.execute("cat /etc/issue").rstrip())
+        m.execute("printf '[Session]\nBanner = /etc/issue\n' > /etc/cockpit/cockpit.conf")
+        m.restart_cockpit()
+        b.reload()
+        b.wait_visible("#login-user-input")
+        b.wait_visible("#banner")
+        self.assertEqual(b.text("#banner pre"), m.execute("cat /etc/issue").rstrip())
 
-            # Test non existent file
-            m.execute("printf '[Session]\nBanner = /etc/non-existing-file\n' > /etc/cockpit/cockpit.conf")
-            self.allow_journal_messages("error loading contents of banner: Failed to open file “/etc/non-existing-file”: No such file or directory")
-            m.restart_cockpit()
-            b.reload()
-            b.wait_visible("#login-user-input")
-            b.wait_not_visible("#banner")
+        # Test non existent file
+        m.execute("printf '[Session]\nBanner = /etc/non-existing-file\n' > /etc/cockpit/cockpit.conf")
+        self.allow_journal_messages("error loading contents of banner: Failed to open file “/etc/non-existing-file”: No such file or directory")
+        m.restart_cockpit()
+        b.reload()
+        b.wait_visible("#login-user-input")
+        b.wait_not_visible("#banner")
 
         # Try to login as a non-existing user
         login("nonexisting", "blahblah")
@@ -119,7 +114,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.wait_present("#content")
         b.wait_text('#content-user-name', 'Administrator')
 
-        if utmp_works:
+        if m.image not in ['fedora-coreos']: # logs in via ssh, not cockpit-session
             self.assertRegex(m.execute("who"), "^admin *web")
 
         # reload, which should log us in with the cookie
@@ -127,7 +122,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.wait_present("#content")
         b.wait_text('#content-user-name', 'Administrator')
 
-        if utmp_works:
+        if m.image not in ['fedora-coreos']: # logs in via ssh, not cockpit-session
             self.assertRegex(m.execute("who"), "^admin *web")
 
         b.click("#content-user-name")
@@ -375,11 +370,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         m.start_cockpit()
         b.login_and_go("/system", user="unpriv")
         # not an admin
-        if m.image == "rhel-8-1-distropkg":
-            b.wait_present("#shutdown-group button[data-action=restart][data-stable=yes]")
-            b.wait_present("#shutdown-group button.disabled")
-            b.wait_not_present("#shutdown-group button:not(.disabled)")
-        elif m.image == "rhel-8-2-distropkg":
+        if m.image == "rhel-8-2-distropkg":
             b.wait_present("#restart-button[disabled][data-stable=yes]")
             b.wait_present("#shutdown-group.disabled[data-stable=yes]")
         else:
@@ -392,7 +383,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         self.allow_journal_messages(".*/var/lib/cockpit/machines.json.*Permission denied")
         self.allow_journal_messages('.*type=1400.*avc:  denied  { map }.*comm="cockpit-pcp".*')
         self.allow_journal_messages('.*type=1400.*avc:  denied .* comm="sudo".*')
-        if m.image in ["fedora-30", "fedora-testing", "rhel-8-1", "rhel-8-1-distropkg", "centos-8-stream"]:
+        if m.image in ["fedora-30", "fedora-testing", "centos-8-stream"]:
             # older releases have more noise
             self.allow_journal_messages("sudo: .*setresuid.*: Operation not permitted")
             self.allow_journal_messages("sudo: no valid sudoers.*")
@@ -404,10 +395,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         m.execute("semanage login -a -s sysadm_u admin")
         b.login_and_go("/system")
         # shutdown button should be enabled and working
-        if m.image == "rhel-8-1-distropkg":
-            b.click("#shutdown-group button[data-action=restart][data-stable=yes]")
-        else:
-            b.click("#restart-button[data-stable=yes]")
+        b.click("#restart-button[data-stable=yes]")
         b.wait_popup("shutdown-dialog")
         b.wait_in_text("#shutdown-dialog .btn-danger", 'Restart')
         b.click('#shutdown-dialog button[data-dismiss="modal"]')
@@ -427,7 +415,6 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.wait_not_visible("#login-details")
 
     @skipImage("Starting on OSTree is weird", "fedora-coreos")
-    @skipImage("Added in PR #12493", "rhel-8-1-distropkg")
     def testFailingWebsocket(self, safari=False, cacert=False):
         m = self.machine
         b = self.browser

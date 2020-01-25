@@ -58,11 +58,7 @@ class TestShutdownRestart(MachineCase):
         b.click('#login-button')
         b.expect_load()
         b.enter_page("/system")
-        if m.image == "rhel-8-1-distropkg":
-            b.wait_present("#shutdown-group button[data-action=restart].disabled")
-            b.wait_present("#shutdown-group button.dropdown-toggle.disabled")
-            b.wait_not_present("#shutdown-group button:not(.disabled)")
-        elif m.image == "rhel-8-2-distropkg":
+        if m.image == "rhel-8-2-distropkg":
             b.wait_present("#restart-button[disabled]")
             b.wait_present("#restart-button + div.pf-c-dropdown.disabled")
         else:
@@ -79,10 +75,7 @@ class TestShutdownRestart(MachineCase):
         time.sleep(2)
 
         # shutdown button should be enabled and working
-        if m.image == "rhel-8-1-distropkg":
-            b.click("#shutdown-group button[data-action=restart][data-stable=yes]")
-        else:
-            b.click("#restart-button")
+        b.click("#restart-button")
         b.wait_popup("shutdown-dialog")
         b.wait_in_text("#shutdown-dialog .btn-danger", 'Restart')
         b.click("#shutdown-dialog .dropdown button")
@@ -106,10 +99,7 @@ class TestShutdownRestart(MachineCase):
         self.login_and_go("/system")
 
         # Reboot
-        if m.image == "rhel-8-1-distropkg":
-            b.click("#shutdown-group button[data-action=restart][data-stable=yes]")
-        else:
-            b.click("#restart-button")
+        b.click("#restart-button")
         b.wait_popup("shutdown-dialog")
         b.wait_in_text("#shutdown-dialog .btn-danger", 'Restart')
         b.click("#shutdown-dialog .dropdown button")
@@ -145,16 +135,10 @@ class TestShutdownRestart(MachineCase):
         b2.click('#troubleshoot-dialog .btn-primary')
         b2.wait_popdown('troubleshoot-dialog')
         b2.enter_page("/system", host="10.111.113.1")
-        if m.image == "rhel-8-1-distropkg":
-            b2.wait_text("#system_information_hostname_button", "machine1")
-        else:
-            b2.wait_text("#system_information_hostname_text", "machine1")
+        b2.wait_text("#system_information_hostname_text", "machine1")
 
         # Check auto reconnect on restart
-        if m.image == "rhel-8-1-distropkg":
-            b2.click("#shutdown-group button[data-action=restart][data-stable=yes]")
-        else:
-            b2.click("#restart-button")
+        b2.click("#restart-button")
         b2.wait_popup("shutdown-dialog")
         b2.wait_in_text("#shutdown-dialog .btn-danger", 'Restart')
         b2.click("#shutdown-dialog .dropdown button")
@@ -174,10 +158,7 @@ class TestShutdownRestart(MachineCase):
         # Power off with invalid date
         self.login_and_go("/system")
         b.enter_page("/system")
-        if m.image == "rhel-8-1-distropkg":
-            b.click("#shutdown-group span.caret")
-            b.click("#shutdown-group a:contains('Shut Down')")
-        elif m.image == "rhel-8-2-distropkg":
+        if m.image == "rhel-8-2-distropkg":
             b.click("#shutdown-group .pf-c-dropdown__toggle")  # kebab
             b.click("#shutdown-group button:contains('Shutdown')")
         else:

@@ -149,10 +149,7 @@ class TestSelinux(MachineCase):
             b.click(btn_sel)
 
             # the fix should be applied
-            if m.image == "rhel-8-1-distropkg":
-                b.wait_in_text(row_selector, "Solution applied successfully:")
-            else:
-                b.wait_in_text(row_selector + " .pf-c-alert__title", "Solution applied successfully")
+            b.wait_in_text(row_selector + " .pf-c-alert__title", "Solution applied successfully")
         except Error:
             print("==== sealert -l '*' ====")
             print(m.execute("sealert -l '*'"))
@@ -163,9 +160,6 @@ class TestSelinux(MachineCase):
 
         b.click(row_selector + " button.pficon-delete")
         b.wait_not_present(row_selector)
-
-        if m.image in ["rhel-8-1-distropkg"]: # Introduced in #11789
-            return
 
         b.grant_permissions("clipboardRead", "clipboardWrite")
 

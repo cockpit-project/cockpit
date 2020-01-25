@@ -56,7 +56,7 @@ class TestUpdates(PackageCase):
         else:
             self.enhancement_severity = "bug"
 
-        if self.machine.image in ["rhel-8-1-distropkg", "rhel-8-2-distropkg"]:
+        if self.machine.image in ["rhel-8-2-distropkg"]:
             self.update_icon = "#system_information_updates_icon"
             self.update_text = "#system_information_updates_text"
             self.update_text_action = "#system_information_updates_text"
@@ -126,20 +126,12 @@ class TestUpdates(PackageCase):
         b = self.browser
         m = self.machine
 
-        if m.image == "rhel-8-1-distropkg":
-            up_to_date_text = "System Up To Date"
-        else:
-            up_to_date_text = "System is up to date"
-
         m.start_cockpit()
         b.login_and_go("/system")
         # status on /system front page: no repos at all, thus no updates
         self.wait_checking_updates()
-        b.wait_text(self.update_text, up_to_date_text)
-        if m.image == "rhel-8-1-distropkg":
-            self.assertEqual(b.attr(self.update_icon, "class"), "")
-        else:
-            self.assertEqual(b.attr(self.update_icon, "class"), "fa fa-check-circle-o")
+        b.wait_text(self.update_text, "System is up to date")
+        self.assertEqual(b.attr(self.update_icon, "class"), "fa fa-check-circle-o")
 
         # no updates on the Software Updates page
         b.go("/updates")
@@ -177,10 +169,7 @@ class TestUpdates(PackageCase):
         b.go("/system")
         b.enter_page("/system")
         self.wait_checking_updates()
-        if m.image == "rhel-8-1-distropkg": #12620
-            b.wait_text(self.update_text, "Updates Available")
-        else:
-            b.wait_text(self.update_text, "Bug Fix Updates Available")
+        b.wait_text(self.update_text, "Bug Fix Updates Available")
         self.assertIn("fa-bug", b.attr(self.update_icon, "class"))
         # should be a link, click on it to go to /updates
         b.click(self.update_text_action)
@@ -241,11 +230,8 @@ class TestUpdates(PackageCase):
         b.go("/system")
         b.enter_page("/system")
         self.wait_checking_updates()
-        if m.image == "rhel-8-1-distropkg":
-            self.assertEqual(b.attr(self.update_icon, "class"), "")
-        else:
-            self.assertEqual(b.attr(self.update_icon, "class"), "fa fa-check-circle-o")
-        b.wait_text(self.update_text, up_to_date_text)
+        self.assertEqual(b.attr(self.update_icon, "class"), "fa fa-check-circle-o")
+        b.wait_text(self.update_text, "System is up to date")
 
     def testInfoSecurity(self):
         b = self.browser
@@ -341,12 +327,8 @@ class TestUpdates(PackageCase):
         b.go("/system")
         b.enter_page("/system")
         self.wait_checking_updates()
-        if m.image == "rhel-8-1-distropkg": #12620
-            b.wait_text(self.update_text, "Updates Available")
-            self.assertIn("bug", b.attr(self.update_icon, "class"))
-        else:
-            b.wait_text(self.update_text, "Security Updates Available")
-            self.assertIn("security", b.attr(self.update_icon, "class"))
+        b.wait_text(self.update_text, "Security Updates Available")
+        self.assertIn("security", b.attr(self.update_icon, "class"))
 
         # should be a link, click on it to go to back to /updates
         b.click(self.update_text_action)
@@ -658,12 +640,8 @@ class TestUpdates(PackageCase):
         # update status on front page should be invisible
         b.go("/system")
         b.enter_page("/system")
-        if m.image == "rhel-8-1-distropkg": #12620
-            b.wait_not_visible(self.update_text)
-            self.assertEqual(b.attr(self.update_icon, "class"), "")
-        else:
-            b.wait_text(self.update_text, "Loading available updates failed")
-            self.assertIn("exclamation", b.attr(self.update_icon, "class"))
+        b.wait_text(self.update_text, "Loading available updates failed")
+        self.assertIn("exclamation", b.attr(self.update_icon, "class"))
 
 
 @skipImage("Image uses OSTree", "fedora-coreos")
@@ -705,7 +683,7 @@ class TestUpdatesSubscriptions(PackageCase):
 
         # Wait for the web service to be accessible
         m.execute(script=WAIT_SCRIPT % {"addr": "10.111.112.100"})
-        if self.machine.image in ["rhel-8-1-distropkg", "rhel-8-2-distropkg"]:
+        if self.machine.image in ["rhel-8-2-distropkg"]:
             self.update_icon = "#system_information_updates_icon"
             self.update_text = "#system_information_updates_text"
             self.update_text_action = "#system_information_updates_text"
@@ -717,11 +695,6 @@ class TestUpdatesSubscriptions(PackageCase):
     def testNoUpdates(self):
         m = self.machine
         b = self.browser
-
-        if m.image == "rhel-8-1-distropkg":
-            up_to_date_text = "System Up To Date"
-        else:
-            up_to_date_text = "System is up to date"
 
         # fresh machine, no updates available; by default our rhel-* images are not registered
         m.start_cockpit()
@@ -755,11 +728,8 @@ class TestUpdatesSubscriptions(PackageCase):
         # same on system page
         b.go("/system")
         b.enter_page("/system")
-        if m.image == "rhel-8-1-distropkg":
-            self.assertEqual(b.attr(self.update_icon, "class"), "")
-        else:
-            self.assertEqual(b.attr(self.update_icon, "class"), "fa fa-check-circle-o")
-        b.wait_text(self.update_text, up_to_date_text)
+        self.assertEqual(b.attr(self.update_icon, "class"), "fa fa-check-circle-o")
+        b.wait_text(self.update_text, "System is up to date")
 
     def testAvailableUpdates(self):
         m = self.machine
@@ -808,10 +778,7 @@ class TestUpdatesSubscriptions(PackageCase):
         # show available updates on system page too
         b.go("/system")
         b.enter_page("/system")
-        if m.image == "rhel-8-1-distropkg": #12620
-            b.wait_text(self.update_text, "Updates Available")
-        else:
-            b.wait_text(self.update_text, "Bug Fix Updates Available")
+        b.wait_text(self.update_text, "Bug Fix Updates Available")
         self.assertIn("fa-bug", b.attr(self.update_icon, "class"))
 
 

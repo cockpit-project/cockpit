@@ -30,7 +30,7 @@ class TestKdump(MachineCase):
         return new.join(li)
 
     def enableKdump(self):
-        if self.machine.image in ["rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2", "rhel-8-2-distropkg"]:
+        if self.machine.image in ["rhel-8-2", "rhel-8-2-distropkg"]:
             # these images use BootLoaderSpec and grubenv
             self.machine.execute(
                 "sed -i '/^kernelopts=/ { s/crashkernel=[^ ]*//; s/$/ crashkernel=256M/; }' /boot/grub2/grubenv")
@@ -71,7 +71,7 @@ class TestKdump(MachineCase):
         def assertActive(active):
             b.wait_present(".onoff-ct input" + (active and ":checked" or ":not(:checked)"))
 
-        if m.image in ["rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream"]:
+        if m.image in ["rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream"]:
             # some OSes have kdump enabled by default (crashkernel=auto)
             b.wait_in_text("#app", "Service is running")
             assertActive(True)
@@ -94,24 +94,16 @@ class TestKdump(MachineCase):
 
         # minimal nfs validation
         settingsLink = "button:contains('locally in /var/crash')"
-        if m.image == "rhel-8-1-distropkg":
-            settingsLink = "a:contains('locally in /var/crash')"
 
         b.click(settingsLink)
         b.set_val("#kdump-settings-location", "nfs")
         mountInput = "#kdump-settings-nfs-mount"
         b.set_input_text(mountInput, ":/var/crash")
         b.click("button.btn-primary:contains('Apply')")
-        if m.image == "rhel-8-1-distropkg":
-            b.wait_present("div.dialog-error:contains('Unable to apply settings')")
-        else:
-            b.wait_present("h4.pf-c-alert__title:contains('Unable to apply settings')")
+        b.wait_present("h4.pf-c-alert__title:contains('Unable to apply settings')")
         b.set_input_text(mountInput, "localhost:")
         b.click("button.btn-primary:contains('Apply')")
-        if m.image == "rhel-8-1-distropkg":
-            b.wait_present("div.dialog-error:contains('Unable to apply settings')")
-        else:
-            b.wait_present("h4.pf-c-alert__title:contains('Unable to apply settings')")
+        b.wait_present("h4.pf-c-alert__title:contains('Unable to apply settings')")
         b.click("button.btn-default:contains('Cancel')")
 
         # test compression
@@ -143,28 +135,20 @@ class TestKdump(MachineCase):
         # try to change the path to a directory that doesn't exist
         customPath = "/var/crash2"
         settingsLink = "button:contains('Remote over SSH')"
-        if m.image == "rhel-8-1-distropkg":
-            settingsLink = "a:contains('Remote over SSH')"
         b.click(settingsLink)
         b.set_val("#kdump-settings-location", "local")
         pathInput = "#kdump-settings-local-directory"
         b.set_input_text(pathInput, customPath)
         b.click("button.btn-primary:contains('Apply')")
         # we should get an error
-        if m.image == "rhel-8-1-distropkg":
-            b.wait_present("div.dialog-error:contains('Unable to apply settings')")
-        else:
-            b.wait_present("h4.pf-c-alert__title:contains('Unable to apply settings')")
+        b.wait_present("h4.pf-c-alert__title:contains('Unable to apply settings')")
         # also allow the journal message about failed touch
         self.allow_journal_messages(".*mktemp: failed to create file via template.*")
         # create the directory and try again
         m.execute("mkdir -p {0}".format(customPath))
         b.click("button.btn-primary:contains('Apply')")
         b.wait_not_present(pathInput)
-        if m.image == "rhel-8-1-distropkg":
-            b.wait_present("a:contains('locally in {0}')".format(customPath))
-        else:
-            b.wait_present("button:contains('locally in {0}')".format(customPath))
+        b.wait_present("button:contains('locally in {0}')".format(customPath))
 
         # service has to restart after changing the config, wait for it to be running
         # otherwise the button to test will be disabled

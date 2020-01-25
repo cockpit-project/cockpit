@@ -121,7 +121,7 @@ class TestStorage(StorageCase):
                          can_shrink=False,
                          can_grow=True, grow_needs_unmount=False)
 
-    @skipImage("No NTFS support installed", "rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
+    @skipImage("No NTFS support installed", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
     def testResizeNtfs(self):
         self.checkResize("ntfs", None,
                          can_shrink=True, shrink_needs_unmount=True,
@@ -137,7 +137,7 @@ class TestStorage(StorageCase):
             self.checkResize("ext4", True,
                              can_shrink=True, shrink_needs_unmount=True,
                              can_grow=True, grow_needs_unmount=False,
-                             need_passphrase=(self.machine.image in ["rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream"]))
+                             need_passphrase=(self.machine.image in ["rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream"]))
 
     def wait_not_present_with_udev_trigger(self, selector):
         # This is fundamentally the same as Brower.wait, but uses a
@@ -269,7 +269,7 @@ class TestStorage(StorageCase):
 
         b.wait_present(vol_tab + " button:contains(Grow Content)")
         self.content_tab_action(1, 1, "Grow Content")
-        if self.machine.image in ["rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream"]:
+        if self.machine.image in ["rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream"]:
             confirm_with_passphrase()
         self.wait_not_present_with_udev_trigger(vol_tab + " button:contains(Grow Content)")
         size = int(m.execute("df -k --output=size %s | tail -1" % mountpoint).strip())
@@ -285,7 +285,7 @@ class TestStorage(StorageCase):
 
         b.wait_present(vol_tab + " button:contains(Shrink Volume)")
         self.content_tab_action(1, 1, "Shrink Volume")
-        if self.machine.image in ["rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream"]:
+        if self.machine.image in ["rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream"]:
             confirm_with_passphrase()
         self.wait_not_present_with_udev_trigger(vol_tab + " button:contains(Shrink Volume)")
         size = int(m.execute("lvs TEST/vol -o lv_size --noheading --units b --nosuffix"))
@@ -298,7 +298,7 @@ class TestStorage(StorageCase):
 
         b.wait_present(vol_tab + " button:contains(Grow Content)")
         self.content_tab_action(1, 1, "Grow Content")
-        if self.machine.image in ["rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream"]:
+        if self.machine.image in ["rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream"]:
             confirm_with_passphrase()
         self.wait_not_present_with_udev_trigger(vol_tab + " button:contains(Grow Content)")
         size = int(m.execute("df -k --output=size %s | tail -1" % mountpoint).strip())
@@ -314,7 +314,7 @@ class TestStorage(StorageCase):
 
         b.wait_present(vol_tab + " button:contains(Shrink Volume)")
         self.content_tab_action(1, 1, "Shrink Volume")
-        if self.machine.image in ["rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream"]:
+        if self.machine.image in ["rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream"]:
             confirm_with_passphrase()
         self.wait_not_present_with_udev_trigger(vol_tab + " button:contains(Shrink Volume)")
         size = int(m.execute("lvs TEST/vol -o lv_size --noheading --units b --nosuffix"))

@@ -30,19 +30,14 @@ class TestActivePages(MachineCase):
         self.login_and_go("/system")
 
         # Preloading via manifests only happens with #12534
-        if m.image in [ "rhel-8-1-distropkg" ]:
-            n_extra_preloaded = 0
-        elif m.ostree_image:
+        if m.ostree_image:
             # /playground/preloaded and /system/services
             n_extra_preloaded = 2
         else:
             # /playground/preloaded, /system/services, and /updates
             n_extra_preloaded = 3
 
-        if m.image in [ "rhel-8-1-distropkg" ]:
-            b.wait_present("#server")
-        else:
-            b.wait_present("#overview")
+        b.wait_present("#overview")
 
         def showPagesAssertCount(count):
             b.switch_to_top()

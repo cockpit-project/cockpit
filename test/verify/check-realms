@@ -92,9 +92,7 @@ class TestRealms(MachineCase):
 
         self.machines['services'].execute("/run-freeipa")
 
-        if self.machine.image in ["rhel-8-1-distropkg"]:
-            self.domain_sel = "#system-info-domain a"
-        elif self.machine.image in ["rhel-8-2-distropkg"]:
+        if self.machine.image in ["rhel-8-2-distropkg"]:
             self.domain_sel = "#system-info-domain button"
         else:
             self.domain_sel = "#system_information_domain_button"
@@ -141,14 +139,9 @@ class TestRealms(MachineCase):
 
         # when joined to a domain, changing the hostname is fatal, so should be disabled
         b.wait_present("#system_information_hostname_button[disabled]")
-        if m.image in ["rhel-8-1-distropkg"]:
-            b.mouse("#system_information_hostname_button", "mouseover")
-            b.wait_in_text(".tooltip-inner", "Host name should not be changed in a domain")
-            b.mouse("#system_information_hostname_button", "mouseout")
-        else:
-            b.mouse("#system_information_hostname_tooltip", "mouseover")
-            b.wait_in_text(".tooltip-inner", "Host name should not be changed in a domain")
-            b.mouse("#system_information_hostname_tooltip", "mouseout")
+        b.mouse("#system_information_hostname_tooltip", "mouseover")
+        b.wait_in_text(".tooltip-inner", "Host name should not be changed in a domain")
+        b.mouse("#system_information_hostname_tooltip", "mouseout")
         b.wait_not_present(".tooltip-inner")
 
         # should not have any leftover tickets from the joining
@@ -197,15 +190,10 @@ class TestRealms(MachineCase):
         b.password = 'foobarfoo'
 
         self.login_and_go('/system/services#/systemd-tmpfiles-clean.timer', user='admin@cockpit.lan')
-        if m.image in ["rhel-8-1-distropkg"]: # Changed in #12265
-            b.wait_in_text('#service-unit', "active")
-            b.click('#service-unit-primary-action button[data-action="StopUnit"]')
-            b.wait_in_text('#service-unit', "inactive")
-        else:
-            b.wait_in_text("#statuses", "Running")
-            b.click(".service-top-panel .dropdown-kebab-pf button")
-            b.click(".service-top-panel .dropdown-menu a:contains('Stop')")
-            b.wait_in_text("#statuses", "Not running")
+        b.wait_in_text("#statuses", "Running")
+        b.click(".service-top-panel .dropdown-kebab-pf button")
+        b.click(".service-top-panel .dropdown-menu a:contains('Stop')")
+        b.wait_in_text("#statuses", "Not running")
         b.logout()
         b.password = orig_password
         m.execute("chown -R admin /home/admin")
@@ -371,24 +359,16 @@ class TestRealms(MachineCase):
         b.go('/system/services#/systemd-tmpfiles-clean.timer')
         b.enter_page('/system/services')
 
-        if m.image in ["rhel-8-1-distropkg"]: # Changed in #12265
-            b.wait_in_text('#service-unit', "active")
-            b.click('#service-unit-primary-action button[data-action="StopUnit"]')
-            b.wait_in_text('#service-unit', "inactive")
-        else:
-            b.wait_in_text("#statuses", "Running")
-            b.click(".service-top-panel .dropdown-kebab-pf button")
-            b.click(".service-top-panel .dropdown-menu a:contains('Stop')")
-            b.wait_in_text("#statuses", "Not running")
+        b.wait_in_text("#statuses", "Running")
+        b.click(".service-top-panel .dropdown-kebab-pf button")
+        b.click(".service-top-panel .dropdown-menu a:contains('Stop')")
+        b.wait_in_text("#statuses", "Not running")
 
         b.go('/system')
         b.enter_page('/system')
         # shutdown button should be enabled and working
         # it takes a while for the permission check to finish, it is always enabled at first
-        if m.image in ["rhel-8-1-distropkg"]:
-            b.click("#shutdown-group button[data-action=restart][data-stable=yes]")
-        else:
-            b.click("#overview #restart-button")
+        b.click("#overview #restart-button")
 
         b.wait_popup("shutdown-dialog")
         b.wait_in_text("#shutdown-dialog .btn-danger", 'Restart')
@@ -463,7 +443,6 @@ class TestRealms(MachineCase):
         self.allow_journal_messages(".*couldn't introspect /org/freedesktop/realmd.*")
 
     @skipImage("RHEL 8.0 does not yet have the necessary SELinux policy updates", "centos-8-stream")
-    @skipImage("added in PR #11421", "rhel-8-1-distropkg")
     def testClientCertAuthentication(self):
         m = self.machine
 
@@ -793,9 +772,7 @@ class TestPackageInstall(packagelib.PackageCase):
 
     def setUp(self):
         super().setUp()
-        if self.machine.image in ["rhel-8-1-distropkg"]:
-            self.domain_sel = "#system-info-domain a"
-        elif self.machine.image in ["rhel-8-2-distropkg"]:
+        if self.machine.image in ["rhel-8-2-distropkg"]:
             self.domain_sel = "#system-info-domain button"
         else:
             self.domain_sel = "#system_information_domain_button"
@@ -804,7 +781,7 @@ class TestPackageInstall(packagelib.PackageCase):
         b = self.browser
         def check():
             try:
-                if self.machine.image in ["rhel-8-1-distropkg", "rhel-8-2-distropkg"]:
+                if self.machine.image in ["rhel-8-2-distropkg"]:
                     b.wait_present("#system-info-domain [data-original-title]")
                     b.mouse("#system-info-domain span", "mouseover")
                     b.wait_in_text(".tooltip-inner", text)
@@ -829,10 +806,7 @@ class TestPackageInstall(packagelib.PackageCase):
         m.execute("systemctl mask packagekit && systemctl stop packagekit.service || true")
         self.login_and_go("/system")
         b.wait_text(self.domain_sel, "Join Domain")
-        if self.machine.image in ["rhel-8-1-distropkg"]:
-            b.wait_present(self.domain_sel + ".disabled")
-        else:
-            b.wait_present(self.domain_sel + "[disabled]")
+        b.wait_present(self.domain_sel + "[disabled]")
         self.waitTooltip("realmd is not available on this system")
         b.logout()
 
@@ -898,12 +872,7 @@ class TestPackageInstall(packagelib.PackageCase):
         b.wait_popdown("realms-op")
 
         # should not have a tooltip any more
-        if self.machine.image in ["rhel-8-1-distropkg"]:
-            b.mouse("#system-info-domain span", "mouseover")
-            time.sleep(2)
-            self.assertFalse(b.is_present(".tooltip-inner"))
-        else:
-            b.wait_not_present("#system_information_domain_tooltip")
+        b.wait_not_present("#system_information_domain_tooltip")
 
 if __name__ == '__main__':
     test_main()

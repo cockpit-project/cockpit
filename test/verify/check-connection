@@ -145,7 +145,6 @@ class TestConnection(MachineCase):
         self.allow_journal_messages(".*org.freedesktop.hostname1.*DBus.Error.NoReply.*")
 
     @skipImage("OSTree doesn't use systemd units", "fedora-coreos")
-    @skipImage("Introduced in PR #12902", "rhel-8-1-distropkg")
     def testUnitLifecycle(self):
         m = self.machine
 
@@ -247,7 +246,6 @@ class TestConnection(MachineCase):
             self.assertIn("Permission denied", out)
 
     @skipImage("OSTree doesn't use systemd units", "fedora-coreos")
-    @skipImage("Introduced in PR #12972", "rhel-8-1-distropkg")
     def testHttpsInstanceDoS(self):
         m = self.machine
         # prevent generating core dump artifacts
@@ -333,12 +331,12 @@ class TestConnection(MachineCase):
         check_cert_chain()
 
         # *.crt file also works; added in PR #13388
-        if m.image not in ["rhel-8-1-distropkg", "rhel-8-2-distropkg"]:
+        if m.image not in ["rhel-8-2-distropkg"]:
             m.execute ("mv /etc/cockpit/ws-certs.d/cert-chain.cert /etc/cockpit/ws-certs.d/cert-chain.crt")
             check_cert_chain()
 
         # separate *.key file instead of merged .cert; added in PR #13388
-        if m.image not in ["rhel-8-1-distropkg", "rhel-8-2-distropkg"]:
+        if m.image not in ["rhel-8-2-distropkg"]:
             m.execute("sed -n '/---BEGIN PRIVATE KEY/,$ p' /etc/cockpit/ws-certs.d/cert-chain.crt > /etc/cockpit/ws-certs.d/cert-chain.key")
             m.execute("sed -i '/---BEGIN PRIVATE KEY/,$ d' /etc/cockpit/ws-certs.d/cert-chain.crt")
             check_cert_chain()
@@ -467,7 +465,7 @@ class TestConnection(MachineCase):
         self.assertIn('A Custom Title', m.execute('''curl -s -S -H "Authorization: Negotiate $(printf '%0.7000i' 1)" http://localhost:9000/'''))
 
         # Large requests are processed correctly with TLS
-        if m.image not in ["rhel-8-1-distropkg", "rhel-8-2-distropkg"]:  # fixed in PR #13351
+        if m.image not in ["rhel-8-2-distropkg"]:  # fixed in PR #13351
             self.assertIn('A Custom Title', m.execute('''curl -s -S -k -H "Authorization: Negotiate $(printf '%0.7000i' 1)" https://localhost:9000/'''))
 
         # Large requests are processed correctly with plain HTTP through cockpit-tls
@@ -475,8 +473,7 @@ class TestConnection(MachineCase):
         self.assertIn('id="login"', m.execute('''curl -s -S -H "Authorization: Negotiate $(printf '%0.7000i' 1)" http://localhost:9090/'''))
 
         # Large requests are processed correctly with TLS through cockpit-tls
-        if m.image not in ["rhel-8-1-distropkg"]:  # fixed in PR #13351, and 8.1 is not using cockpit-tls yet
-            self.assertIn('id="login"', m.execute('''curl -s -S -k -H "Authorization: Negotiate $(printf '%0.7000i' 1)" https://localhost:9090/'''))
+        self.assertIn('id="login"', m.execute('''curl -s -S -k -H "Authorization: Negotiate $(printf '%0.7000i' 1)" https://localhost:9090/'''))
 
     def testHeadRequest(self):
         m = self.machine
@@ -549,11 +546,7 @@ class TestConnection(MachineCase):
         m.wait_for_cockpit_running('127.0.0.90', 9999)
         # System frame should work directly, no login page
         out = m.execute("curl --compressed http://127.0.0.90:9999/cockpit/@localhost/system/index.html")
-        if m.image == "rhel-8-1-distropkg":
-            self.assertIn('id="system_machine_id"', out)
-            self.assertIn('data-action="shutdown"', out)
-        else:
-            self.assertIn('id="overview"', out)
+        self.assertIn('id="overview"', out)
 
         # shut it down, wait until it is gone
         m.execute("pkill -ef cockpit-ws")
@@ -570,11 +563,7 @@ G_MESSAGES_DEBUG=all XDG_CONFIG_DIRS=/usr/local %s -p 9999 -a 127.0.0.90 --local
 
         # System frame should work directly, no login page
         out = m.execute("curl --compressed http://127.0.0.90:9999/cockpit/@localhost/system/index.html")
-        if m.image == "rhel-8-1-distropkg":
-            self.assertIn('id="system_machine_id"', out)
-            self.assertIn('data-action="shutdown"', out)
-        else:
-            self.assertIn('id="overview"', out)
+        self.assertIn('id="overview"', out)
 
         self.allow_journal_messages("couldn't register polkit authentication agent.*")
 
@@ -584,7 +573,7 @@ G_MESSAGES_DEBUG=all XDG_CONFIG_DIRS=/usr/local %s -p 9999 -a 127.0.0.90 --local
         m = self.machine
 
         cases = [(['/cockpit/@localhost/system/index.html', 'system', 'system/index', 'system/'],
-                  ['id="system_machine_id"' if m.image == "rhel-8-1-distropkg" else 'id="overview"']
+                  ['id="overview"']
                  ),
                  (['/cockpit/@localhost/network/firewall.html', 'network/firewall'],
                   ['div id="firewall"', 'script src="firewall.js"']
@@ -614,7 +603,6 @@ G_MESSAGES_DEBUG=all XDG_CONFIG_DIRS=/usr/local %s -p 9999 -a 127.0.0.90 --local
         self.allow_journal_messages("couldn't register polkit authentication agent.*")
 
     @skipImage("does not use cockpit-ws package", "fedora-coreos")
-    @skipImage("Added in PR #11813 and #12141", "rhel-8-1-distropkg")
     @skipBrowser("Firefox needs proper cert and CA", "firefox")
     def testReverseProxy(self):
         m = self.machine
@@ -709,7 +697,6 @@ G_MESSAGES_DEBUG=all XDG_CONFIG_DIRS=/usr/local %s -p 9999 -a 127.0.0.90 --local
         self.assertIn("HTTP/1.1 301 Moved Permanently", m.execute("curl --silent --head http://172.27.0.15:9091"))
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent --head http://127.0.0.1:9091"))
 
-    @skipImage("Implemented in #12493", "rhel-8-1-distropkg")
     def testCaCert(self):
         m = self.machine
 

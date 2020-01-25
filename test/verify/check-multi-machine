@@ -147,16 +147,12 @@ class TestMultiMachineAdd(MachineCase):
 
     def testBasic(self):
         b = self.browser
-        m = self.machine
         m2 = self.machine2
         m3 = self.machine3
         m3_host = "10.111.113.3:2222"
         change_ssh_port(m3, "10.111.113.3", 2222)
 
-        if m.image == "rhel-8-1-distropkg":
-            hostname_selector = "#system_information_hostname_button"
-        else:
-            hostname_selector = "#system_information_hostname_text"
+        hostname_selector = "#system_information_hostname_text"
 
         self.login_and_go(None)
         add_machine(b, "10.111.113.2")
@@ -249,10 +245,7 @@ class TestMultiMachine(MachineCase):
         m2 = self.machine2
         m = self.machine
 
-        if m.image == "rhel-8-1-distropkg":
-            hostname_selector = "#system_information_hostname_button"
-        else:
-            hostname_selector = "#system_information_hostname_text"
+        hostname_selector = "#system_information_hostname_text"
 
         # Change os-release pretty name on m2
         m2.execute("sed -i '/NAME=.*/d' /etc/os-release")
@@ -475,10 +468,7 @@ class TestMultiMachine(MachineCase):
         b = self.browser
         m = self.machine
 
-        if m.image == "rhel-8-1-distropkg":
-            hostname_selector = "#system_information_hostname_button"
-        else:
-            hostname_selector = "#system_information_hostname_text"
+        hostname_selector = "#system_information_hostname_text"
 
         m.execute('mkdir -p /etc/cockpit/ && echo "[WebService]\nUrlRoot = cockpit-new" > /etc/cockpit/cockpit.conf')
         m.start_cockpit()

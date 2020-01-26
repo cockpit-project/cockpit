@@ -1538,6 +1538,7 @@ def test_main(options=None, suite=None, persistent_machine_suites=[], attachment
     if options.list:
         print_tests(suite)
         for s in persistent_machine_suites:
+            print()
             print_tests(s)
         return 0
 

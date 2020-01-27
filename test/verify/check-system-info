@@ -95,7 +95,7 @@ def ssh_reconnect(machine, timeout_sec=120):
 
 class TestSystemInfo(MachineCase):
     def setUp(self):
-        MachineCase.setUp(self)
+        super().setUp()
 
         # Debian will not allow timesyncd to start if any other NTP packge is installed
         # We only support timesyncd for NTP configuration, so make sure chrony

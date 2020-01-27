@@ -82,7 +82,7 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
     }
 
     def setUp(self):
-        super(TestBasicDashboard, self).setUp()
+        super().setUp()
         HACK_disable_problematic_preloads(self.machines["machine2"])
         HACK_disable_problematic_preloads(self.machines["machine3"])
 

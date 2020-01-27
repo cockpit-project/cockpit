@@ -33,7 +33,7 @@ class TestMachinesVirsh(machineslib.TestMachines):
             m.execute("rpm -e --nodeps libvirt-dbus || true")
 
     def setUp(self):
-        super(TestMachinesVirsh, self).setUp()
+        super().setUp()
 
         self.removeLibvirtDBus()
         self.provider = "virsh"

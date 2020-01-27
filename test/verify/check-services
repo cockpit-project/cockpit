@@ -25,7 +25,7 @@ from testlib import *
 class TestServices(MachineCase):
 
     def setUp(self):
-        MachineCase.setUp(self)
+        super().setUp()
 
         # Make sure the system finishes "booting" so that
         # when we add additional services to this target below

@@ -342,7 +342,7 @@ class SeleniumWinTestSuite(SeleniumTestSuite):
 
 class SeleniumOwnHub(SeleniumTestSuite):
     def __init__(self, address_string, browser, **kwargs):
-        super(SeleniumTestSuite, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.browser = browser
         address_option_list = address_string.split(":")
         hub_address = address_option_list[0]

@@ -195,6 +195,7 @@ class TestMachines(NetworkCase):
     provider = None
 
     def setUp(self):
+        # HACK: fix this to get along with NetworkCase.setUp(), and use super()
         MachineCase.setUp(self)
         self.startLibvirt()
 

@@ -12,7 +12,7 @@ EXAMPLES_DIR = os.path.join(os.path.dirname(TEST_DIR), "examples")
 class TestPinger(MachineCase):
 
     def setUp(self):
-        super(TestPinger, self).setUp()
+        super().setUp()
         self.machine.execute("mkdir -p ~admin/.local/share/cockpit")
         self.machine.upload([os.path.join(EXAMPLES_DIR, "pinger")], "~admin/.local/share/cockpit/")
 

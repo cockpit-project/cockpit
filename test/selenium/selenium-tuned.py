@@ -13,7 +13,7 @@ class TunedProfiles(SeleniumTest):
     """
 
     def setUp(self):
-        super(TunedProfiles, self).setUp()
+        super().setUp()
         self.balanced_profile = "balanced"
         self.desktop_profile = "desktop"
         self.prepare_machine_execute()

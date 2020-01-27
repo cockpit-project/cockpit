@@ -729,7 +729,7 @@ class MachineCase(unittest.TestCase):
         max_retry_hard_limit = 10
         for retry in range(0, max_retry_hard_limit):
             try:
-                super(MachineCase, self).run(result)
+                super().run(result)
             except RetryError as ex:
                 assert retry < max_retry_hard_limit
                 sys.stderr.write("{0}\n".format(ex))
@@ -1149,17 +1149,17 @@ def enableAxe(method):
 class TestResult(tap.TapResult):
     def __init__(self, stream, descriptions, verbosity):
         self.policy = None
-        super(TestResult, self).__init__(verbosity)
+        super().__init__(verbosity)
 
     def startTest(self, test):
         sys.stdout.write("# {0}\n# {1}\n#\n".format('-' * 70, str(test)))
         sys.stdout.flush()
-        super(TestResult, self).startTest(test)
+        super().startTest(test)
 
     def stopTest(self, test):
         sys.stdout.write("\n")
         sys.stdout.flush()
-        super(TestResult, self).stopTest(test)
+        super().stopTest(test)
 
 
 class OutputBuffer(object):

@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-
 # This file is part of Cockpit.
 #
 # Copyright (C) 2014 Red Hat, Inc.
@@ -31,7 +30,7 @@ from testlib import *
 class TestDocker(MachineCase):
 
     def setUp(self):
-        MachineCase.setUp(self)
+        super().setUp()
         m = self.machine
 
         m.execute("systemctl start docker || systemctl start docker-latest")
@@ -595,7 +594,7 @@ CMD ["/bin/sh"]
 class TestAtomicScan(MachineCase):
 
     def setUp(self):
-        MachineCase.setUp(self)
+        super().setUp()
 
         self.machine.execute("systemctl start docker")
 

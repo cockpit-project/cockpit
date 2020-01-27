@@ -90,7 +90,7 @@ def getNetworkDevice(m):
 @skipImage("LibvirtDBus is not available", "ubuntu-1804")
 class TestMachinesDBus(machineslib.TestMachines):
     def setUp(self):
-        super(TestMachinesDBus, self).setUp()
+        super().setUp()
 
         self.provider = "libvirt-dbus"
 

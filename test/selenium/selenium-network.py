@@ -14,7 +14,7 @@ class NeworkTestSuite(SeleniumTest):
     """
 
     def setUp(self):
-        super(NeworkTestSuite, self).setUp()
+        super().setUp()
         self.login()
         self.reload_frame()
 

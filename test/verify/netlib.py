@@ -24,7 +24,7 @@ from testlib import *
 class NetworkCase(MachineCase):
 
     def setUp(self):
-        MachineCase.setUp(self)
+        super().setUp()
 
         m = self.machine
 

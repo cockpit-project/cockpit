@@ -924,42 +924,43 @@ class TestAutoUpdates(NoSubManCase):
         self.assertFalse(b.is_present("#auto-update-type"))
         assertTimer(None)
 
-        # OnCalendar= parsing: only time
-        m.execute("mkdir -p /etc/systemd/system/dnf-automatic.timer.d")
-        m.execute(r'printf "[Timer]\nOnUnitInactiveSec=\nOnCalendar=08:00\n" > '
-                  r'/etc/systemd/system/dnf-automatic.timer.d/cal.conf; systemctl daemon-reload')
-        b.reload()
-        b.enter_page("/updates")
-        b.click("#automatic .onoff-ct input")
-        b.wait_present("#automatic .onoff-ct input:checked")
-        b.wait_in_text("#auto-update-time", "08:00")
-        b.wait_in_text("#auto-update-day", "every day")
+        if self.backend == "dnf":
+            # OnCalendar= parsing: only time
+            m.execute("mkdir -p /etc/systemd/system/dnf-automatic.timer.d")
+            m.execute(r'printf "[Timer]\nOnUnitInactiveSec=\nOnCalendar=08:00\n" > '
+                      r'/etc/systemd/system/dnf-automatic.timer.d/cal.conf; systemctl daemon-reload')
+            b.reload()
+            b.enter_page("/updates")
+            b.click("#automatic .onoff-ct input")
+            b.wait_present("#automatic .onoff-ct input:checked")
+            b.wait_in_text("#auto-update-time", "08:00")
+            b.wait_in_text("#auto-update-day", "every day")
 
-        # OnCalendar= parsing: weekday and time
-        m.execute(r'printf "[Timer]\nOnUnitInactiveSec=\nOnCalendar=Tue 20:00\n" > '
-                  r'/etc/systemd/system/dnf-automatic.timer.d/cal.conf; systemctl daemon-reload')
-        b.reload()
-        b.enter_page("/updates")
-        b.wait_present("#automatic .onoff-ct input:checked")
-        b.wait_in_text("#auto-update-time", "20:00")
-        b.wait_in_text("#auto-update-day", "Tuesday")
+            # OnCalendar= parsing: weekday and time
+            m.execute(r'printf "[Timer]\nOnUnitInactiveSec=\nOnCalendar=Tue 20:00\n" > '
+                      r'/etc/systemd/system/dnf-automatic.timer.d/cal.conf; systemctl daemon-reload')
+            b.reload()
+            b.enter_page("/updates")
+            b.wait_present("#automatic .onoff-ct input:checked")
+            b.wait_in_text("#auto-update-time", "20:00")
+            b.wait_in_text("#auto-update-day", "Tuesday")
 
-        # OnCalendar= parsing: "every day" calendar and time
-        m.execute(r'printf "[Timer]\nOnUnitInactiveSec=\nOnCalendar=*-*-* 07:00\n" > '
-                  r'/etc/systemd/system/dnf-automatic.timer.d/cal.conf; systemctl daemon-reload')
-        b.reload()
-        b.enter_page("/updates")
-        b.wait_present("#automatic .onoff-ct input:checked")
-        b.wait_in_text("#auto-update-time", "07:00")
-        b.wait_in_text("#auto-update-day", "every day")
+            # OnCalendar= parsing: "every day" calendar and time
+            m.execute(r'printf "[Timer]\nOnUnitInactiveSec=\nOnCalendar=*-*-* 07:00\n" > '
+                      r'/etc/systemd/system/dnf-automatic.timer.d/cal.conf; systemctl daemon-reload')
+            b.reload()
+            b.enter_page("/updates")
+            b.wait_present("#automatic .onoff-ct input:checked")
+            b.wait_in_text("#auto-update-time", "07:00")
+            b.wait_in_text("#auto-update-day", "every day")
 
-        # OnCalendar= parsing: unsupported
-        m.execute(r'printf "[Timer]\nOnUnitInactiveSec=\nOnCalendar=*-02-* 11:00\n" > '
-                  r'/etc/systemd/system/dnf-automatic.timer.d/cal.conf; systemctl daemon-reload')
-        b.reload()
-        b.enter_page("/updates")
-        b.wait_in_text(".container-fluid div.blank-slate-pf", "up to date")
-        b.wait_not_present("#automatic")
+            # OnCalendar= parsing: unsupported
+            m.execute(r'printf "[Timer]\nOnUnitInactiveSec=\nOnCalendar=*-02-* 11:00\n" > '
+                      r'/etc/systemd/system/dnf-automatic.timer.d/cal.conf; systemctl daemon-reload')
+            b.reload()
+            b.enter_page("/updates")
+            b.wait_in_text(".container-fluid div.blank-slate-pf", "up to date")
+            b.wait_not_present("#automatic")
 
     def testWithAvailableUpdates(self):
         b = self.browser

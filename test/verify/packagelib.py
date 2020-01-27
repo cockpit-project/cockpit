@@ -80,7 +80,7 @@ class PackageCase(MachineCase):
 
         # have PackageKit start from a clean slate
         self.machine.execute("""
-            systemctl stop packagekit;
+            systemctl kill --signal=SIGKILL packagekit;
             rm -rf /var/cache/PackageKit;
             [ ! -e /var/lib/PackageKit/transactions.db ] || mv /var/lib/PackageKit/transactions.db /var/lib/PackageKit/transactions.db.test""")
         self.addCleanup(self.machine.execute, "mv /var/lib/PackageKit/transactions.db.test /var/lib/PackageKit/transactions.db 2>/dev/null || true")

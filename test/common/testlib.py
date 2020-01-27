@@ -38,6 +38,7 @@ import tempfile
 import time
 import unittest
 import gzip
+import itertools
 
 import tap
 import testvm
@@ -54,6 +55,7 @@ __all__ = (
     'arg_parser',
     'Browser',
     'MachineCase',
+    'PersistentMachineCase',
     'skipImage',
     'skipBrowser',
     'allowImage',
@@ -645,7 +647,7 @@ class Browser:
         self.cdp.kill()
 
 
-class MachineCase(unittest.TestCase):
+class BaseCase(unittest.TestCase):
     image = testvm.DEFAULT_IMAGE
     runner = None
     machine = None
@@ -664,7 +666,7 @@ class MachineCase(unittest.TestCase):
         (unused, sep, label) = self.id().partition(".")
         return label.replace(".", "-")
 
-    def new_machine(self, image=None, forward={}, restrict=True, **kwargs):
+    def new_machine(self, image=None, forward={}, restrict=True, cleanup=True, **kwargs):
         machine_class = self.machine_class
         if image is None:
             image = self.image
@@ -672,19 +674,22 @@ class MachineCase(unittest.TestCase):
             if machine_class or forward:
                 raise unittest.SkipTest("Cannot run this test when specific machine address is specified")
             machine = testvm.Machine(address=opts.address, image=image, verbose=opts.trace, browser=opts.browser)
-            self.addCleanup(lambda: machine.disconnect())
+            if cleanup:
+                self.addCleanup(lambda: machine.disconnect())
         else:
             if not machine_class:
                 machine_class = testvm.VirtMachine
             if not self.network:
                 network = testvm.VirtNetwork(image=image)
-                self.addCleanup(lambda: network.kill())
+                if cleanup:
+                    self.addCleanup(lambda: network.kill())
                 self.network = network
             networking = self.network.host(restrict=restrict, forward=forward)
             machine = machine_class(verbose=opts.trace, networking=networking, image=image, **kwargs)
             if opts.fetch and not os.path.exists(machine.image_file):
                 machine.pull(machine.image_file)
-            self.addCleanup(lambda: machine.kill())
+            if cleanup:
+                self.addCleanup(lambda: machine.kill())
         return machine
 
     def new_browser(self, machine=None):
@@ -729,7 +734,7 @@ class MachineCase(unittest.TestCase):
         max_retry_hard_limit = 10
         for retry in range(0, max_retry_hard_limit):
             try:
-                super(MachineCase, self).run(result)
+                super().run(result)
             except RetryError as ex:
                 assert retry < max_retry_hard_limit
                 sys.stderr.write("{0}\n".format(ex))
@@ -740,49 +745,9 @@ class MachineCase(unittest.TestCase):
         self.currentResult = None
 
     def setUp(self):
-        if opts.address and self.provision is not None:
-            raise unittest.SkipTest("Cannot provision multiple machines if a specific machine address is specified")
-
-        self.machine = None
-        self.browser = None
-        self.machines = {}
-        provision = self.provision or {'machine1': {}}
-
-        # First create all machines, wait for them later
-        for key in sorted(provision.keys()):
-            options = provision[key].copy()
-            if 'address' in options:
-                del options['address']
-            if 'dns' in options:
-                del options['dns']
-            if 'dhcp' in options:
-                del options['dhcp']
-            machine = self.new_machine(**options)
-            self.machines[key] = machine
-            if not self.machine:
-                self.machine = machine
-            if opts.trace:
-                print("Starting {0} {1}".format(key, machine.label))
-            machine.start()
-
-        # Now wait for the other machines to be up
-        for key in self.machines.keys():
-            machine = self.machines[key]
-            machine.wait_boot()
-            address = provision[key].get("address")
-            if address is not None:
-                machine.set_address(address)
-            dns = provision[key].get("dns")
-            if address or dns:
-                machine.set_dns(dns)
-            dhcp = provision[key].get("dhcp", False)
-            if dhcp:
-                machine.dhcp_server()
-
         if self.machine:
             self.journal_start = self.machine.journal_cursor()
             self.browser = self.new_browser()
-        self.tmpdir = tempfile.mkdtemp()
 
         def sitter():
             if opts.sit and not self.checkSuccess():
@@ -805,7 +770,6 @@ class MachineCase(unittest.TestCase):
         if self.checkSuccess() and self.machine.ssh_reachable:
             self.check_journal_messages()
             self.check_browser_errors()
-        shutil.rmtree(self.tmpdir)
 
     def login_and_go(self, path=None, user=None, host=None, authorized=True, urlroot=None, tls=False):
         self.machine.start_cockpit(host, tls=tls)
@@ -1095,7 +1059,83 @@ class MachineCase(unittest.TestCase):
                         attach(dest)
 
 
-some_failed = False
+class MachineCase(BaseCase):
+    def setUp(self):
+        if opts.address and self.provision is not None:
+            raise unittest.SkipTest("Cannot provision multiple machines if a specific machine address is specified")
+
+        self.machine = None
+        self.browser = None
+        self.machines = {}
+        provision = self.provision or {'machine1': {}}
+
+        # First create all machines, wait for them later
+        for key in sorted(provision.keys()):
+            options = provision[key].copy()
+            if 'address' in options:
+                del options['address']
+            if 'dns' in options:
+                del options['dns']
+            if 'dhcp' in options:
+                del options['dhcp']
+            machine = self.new_machine(**options)
+            self.machines[key] = machine
+
+            if not self.machine:
+                self.machine = machine
+            if opts.trace:
+                print("Starting {0} {1}".format(key, machine.label))
+            machine.start()
+
+        # Now wait for the other machines to be up
+        for key in self.machines.keys():
+            machine = self.machines[key]
+            machine.wait_boot()
+            address = provision[key].get("address")
+            if address is not None:
+                machine.set_address(address)
+            dns = provision[key].get("dns")
+            if address or dns:
+                machine.set_dns(dns)
+            dhcp = provision[key].get("dhcp", False)
+            if dhcp:
+                machine.dhcp_server()
+
+        self.tmpdir = tempfile.mkdtemp()
+        super().setUp()
+
+    def tearDown(self):
+        super().tearDown()
+        shutil.rmtree(self.tmpdir)
+
+
+class PersistentMachineCase(BaseCase):
+    @classmethod
+    def setUpClass(cls):
+        if cls.provision is not None:
+            raise unittest.SkipTest("Cannot provision machines on a PersistentMachineCase")
+
+        cls.machine = None
+        cls.browser = None
+        cls.machine_options = {}
+
+        # First create the machine, wait for it later
+        cls.machine = cls.new_machine(cls, cleanup=False, **cls.machine_options)
+        if opts.trace:
+            print("Starting {0} {1}".format('machine1', cls.machine.label))
+        cls.machine.start()
+        cls.machine.wait_boot()
+        cls.tmpdir = tempfile.mkdtemp()
+
+    @classmethod
+    def tearDownClass(cls):
+        if cls.network:
+            cls.network.kill()
+        if cls.machine and opts.address:
+            cls.machine.disconnect()
+        else:
+            cls.machine.kill()
+        shutil.rmtree(cls.tmpdir)
 
 
 def jsquote(str):
@@ -1224,19 +1264,29 @@ class TapRunner(object):
             result.printErrors()
             return result.wasSuccessful()
 
-    def run(self, testable):
-        tap.TapResult.plan(testable)
+    def run(self, testable, testable_no_flatten):
+        """Run tests.
 
+        Arguments:
+          testable: List of TestSuite instances which will be flattened so they
+            run concurrently.
+          testable_no_flatten: List of TestSuite instances will be run serially
+            after the suites in testable.
+        """
+        ts = unittest.TestSuite(testable)
+        ts.addTests(testable_no_flatten)
+        tap.TapResult.plan(ts)
+
+        # Flatten the tests we can run concurrently into a single list
         tests = []
 
-        # The things to test
-        def collapse(test, tests):
+        def flatten(test, tests):
             if test.countTestCases() == 1:
                 tests.append(test)
             else:
                 for t in test:
-                    collapse(t, tests)
-        collapse(testable, tests)
+                    flatten(t, tests)
+        flatten(testable, tests)
 
         # Now setup the count we have
         count = len(tests)
@@ -1278,6 +1328,11 @@ class TapRunner(object):
 
         while True:
             join_some(self.jobs - 1)
+
+            # run the no_flatten serially
+            if not tests and testable_no_flatten:
+                tests = testable_no_flatten
+                self.jobs = 1
 
             if not tests:
                 join_some(0)
@@ -1394,7 +1449,7 @@ def arg_parser():
     return parser
 
 
-def test_main(options=None, suite=None, attachments=None, **kwargs):
+def test_main(options=None, suite=None, persistent_machine_suites=[], attachments=None, **kwargs):
     """
     Run all test cases, as indicated by arguments.
 
@@ -1439,19 +1494,55 @@ def test_main(options=None, suite=None, attachments=None, **kwargs):
         os.makedirs(opts.attachments, exist_ok=True)
 
     import __main__
+
+    def leaf_classes(base_class, exclude=None):
+        subclasses = base_class.__subclasses__()
+        if base_class == exclude:
+            return []
+        if not subclasses:
+            return [base_class]
+        return list(itertools.chain(*[leaf_classes(c, exclude) for c in subclasses if c.__module__ == "__main__"]))
+
+    # Collect unittest.TestCase and MachineCase tests into a single suite so they can be run concurrently
+    # Collect PersistentMachineCase tests into an array of suites (persistent_machine_suites), these we run serially
+    machine_cases = []
     if len(opts.tests) > 0:
         if suite:
             parser.error("tests may not be specified when running a predefined test suite")
-        suite = unittest.TestLoader().loadTestsFromNames(opts.tests, module=__main__)
-    elif not suite:
-        suite = unittest.TestLoader().loadTestsFromModule(__main__)
+        # Because specifying multiple methods belonging to the same
+        # PersistentMachineCase is possible, collect the methods given into a
+        # single array before loading them
+        persistent_tests = {}
+        for test in opts.tests:
+            klass = test.split('.')[0]
+            for machine_case in leaf_classes(unittest.TestCase, exclude=PersistentMachineCase):
+                if klass == machine_case.__qualname__:
+                    machine_cases.append(unittest.TestSuite(
+                        unittest.TestLoader().loadTestsFromName(test, module=__main__)))
+            for persistent_machine_case in leaf_classes(PersistentMachineCase):
+                if klass == persistent_machine_case.__qualname__:
+                    persistent_tests.setdefault(klass, []).append(test)
+        for klass in persistent_tests:
+            persistent_machine_suites.append(unittest.TestSuite(
+                unittest.TestLoader().loadTestsFromNames(persistent_tests[klass], module=__main__)))
+        suite = unittest.TestSuite(machine_cases)
+    elif not suite and not persistent_machine_suites:
+        for machine_case in leaf_classes(unittest.TestCase, exclude=PersistentMachineCase):
+            machine_cases.append(unittest.TestLoader().loadTestsFromTestCase(machine_case))
+        for persistent_machine_case in leaf_classes(PersistentMachineCase):
+            persistent_machine_suites.append(
+                unittest.TestSuite(
+                    unittest.TestLoader().loadTestsFromTestCase(persistent_machine_case)))
+        suite = unittest.TestSuite(machine_cases)
 
     if options.list:
         print_tests(suite)
+        for s in persistent_machine_suites:
+            print_tests(s)
         return 0
 
     runner = TapRunner(verbosity=opts.verbosity, jobs=opts.jobs, thorough=opts.thorough)
-    ret = runner.run(suite)
+    ret = runner.run(suite, persistent_machine_suites)
     if not standalone:
         return ret
     sys.exit(ret)

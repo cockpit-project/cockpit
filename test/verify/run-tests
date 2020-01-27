@@ -7,6 +7,7 @@ import string
 import subprocess
 import sys
 import unittest
+import inspect
 
 import parent
 import testlib
@@ -26,16 +27,29 @@ def run(opts):
     # Now actually load the tests, any modules that start with "check-*"
     loader = unittest.TestLoader()
     suite = unittest.TestSuite()
+    persistent_machine_suites = []
     for filename in glob.glob(os.path.join(os.path.dirname(__file__), "check-*")):
         name = check_valid(filename)
         if not name or not os.path.isfile(filename):
             continue
         with open(filename, 'rb') as fp:
             module = imp.load_module(name, fp, filename, ("", "rb", imp.PY_SOURCE))
-            suite.addTest(loader.loadTestsFromModule(module))
+            for name, obj in inspect.getmembers(module):
+                if inspect.isclass(obj):
+                    # subclasses of MachineCase
+                    if obj != testlib.MachineCase and issubclass(obj, testlib.MachineCase):
+                        suite.addTests(loader.loadTestsFromTestCase(obj))
+                    # subclasses of PersistentMachineCase
+                    elif (obj != testlib.PersistentMachineCase and
+                          issubclass(obj, testlib.PersistentMachineCase)):
+                        persistent_machine_suites.append(loader.loadTestsFromTestCase(obj))
+                    # tests which aren't a MachineCase or a PersistentMachineCase
+                    elif (issubclass(obj, unittest.TestCase)
+                          and not (issubclass(obj, testlib.MachineCase) and issubclass(obj, testlib.PersistentMachineCase))):
+                        suite.addTests(loader.loadTestsFromTestCase(obj))
 
     # And now load new testlib, and run all the tests we got
-    return testlib.test_main(options=opts, suite=suite)
+    return testlib.test_main(options=opts, suite=suite, persistent_machine_suites=persistent_machine_suites)
 
 
 def main():

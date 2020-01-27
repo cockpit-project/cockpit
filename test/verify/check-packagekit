@@ -772,8 +772,7 @@ class TestUpdatesSubscriptions(PackageCase):
         self.assertIn("fa-bug", b.attr(self.update_icon, "class"))
 
 
-@skipImage("Image uses OSTree", "fedora-coreos")
-class TestAutoUpdates(PackageCase):
+class NoSubManCase(PackageCase):
 
     def setUp(self):
         super().setUp()
@@ -782,12 +781,17 @@ class TestAutoUpdates(PackageCase):
         # On other OSes (Fedora/CentOS) we expect sub-man to be disabled in yum, so it should not get in the way there
         if self.machine.image.startswith("rhel") or self.machine.image.startswith("centos-8"):
             self.machine.execute("mv /usr/libexec/rhsmd /usr/libexec/rhsmd.disabled")
+            self.addCleanup(self.machine.execute, "mv /usr/libexec/rhsmd.disabled /usr/libexec/rhsmd")
 
         # not implemented for yum and apt yet, only dnf
         self.supported_backend = self.backend in ["dnf"]
 
         # expected journal messages from enabling/disabling auto upgrade services
         self.allow_journal_messages("(Created symlink|Removed).*dnf-automatic-install.timer.*")
+
+
+@skipImage("Image uses OSTree", "fedora-coreos")
+class TestAutoUpdates(NoSubManCase):
 
     def testBasic(self):
         b = self.browser
@@ -1003,6 +1007,9 @@ class TestAutoUpdates(PackageCase):
         self.assertNotIn("vanilla", out)
         self.assertNotIn("Shutdown", out)
 
+
+@skipImage("Image uses OSTree", "fedora-coreos")
+class TestAutoUpdatesInstall(NoSubManCase):
     def testUnsupported(self):
         b = self.browser
         m = self.machine

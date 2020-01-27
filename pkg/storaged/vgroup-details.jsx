@@ -20,6 +20,7 @@
 import cockpit from "cockpit";
 import React from "react";
 import * as utils from "./utils.js";
+import { fmt_to_fragments } from "./utilsx.jsx";
 import { StdDetailsLayout } from "./details.jsx";
 import { VGroup } from "./content-views.jsx";
 import { StorageButton, StorageBlockNavLink } from "./storage-controls.jsx";
@@ -226,7 +227,7 @@ export class VGroupDetails extends React.Component {
         var header = (
             <div className="panel panel-default">
                 <div className="panel-heading">
-                    {cockpit.format(_("Volume Group $0"), vgroup.Name)}
+                    <span>{fmt_to_fragments(_("Volume Group $0"), <b>{vgroup.Name}</b>)}</span>
                     <span className="pull-right">
                         <StorageButton onClick={rename}>{_("Rename")}</StorageButton>
                         { "\n" }

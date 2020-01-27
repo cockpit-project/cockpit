@@ -41,7 +41,7 @@ done
 class TestUpdates(PackageCase):
 
     def setUp(self):
-        PackageCase.setUp(self)
+        super().setUp()
 
         # Disable Subscription Manager on RHEL for these tests; subscriptions are tested in a separate class
         # On other OSes (Fedora/CentOS) we expect sub-man to be disabled in yum, so it should not get in the way there
@@ -660,7 +660,7 @@ class TestUpdatesSubscriptions(PackageCase):
         self.machine.execute("LC_ALL=en_US.UTF-8 subscription-manager attach --auto")
 
     def setUp(self):
-        PackageCase.setUp(self)
+        super().setUp()
         self.candlepin = self.machines['services']
         m = self.machine
 
@@ -786,7 +786,7 @@ class TestUpdatesSubscriptions(PackageCase):
 class TestAutoUpdates(PackageCase):
 
     def setUp(self):
-        PackageCase.setUp(self)
+        super().setUp()
 
         # Disable Subscription Manager on RHEL for these tests; subscriptions are tested in a separate class
         # On other OSes (Fedora/CentOS) we expect sub-man to be disabled in yum, so it should not get in the way there

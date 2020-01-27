@@ -137,7 +137,7 @@ class TestMultiMachineAdd(MachineCase):
     }
 
     def setUp(self):
-        MachineCase.setUp(self)
+        super().setUp()
         self.machine2 = self.machines['machine2']
         self.machine2.execute("hostnamectl set-hostname machine2")
         self.machine3 = self.machines['machine3']
@@ -232,7 +232,7 @@ class TestMultiMachine(MachineCase):
     }
 
     def setUp(self):
-        MachineCase.setUp(self)
+        super().setUp()
         self.machine.execute("hostnamectl set-hostname machine1")
         self.machine2 = self.machines['machine2']
         self.machine2.execute("hostnamectl set-hostname machine2")

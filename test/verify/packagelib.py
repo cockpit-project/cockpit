@@ -23,7 +23,7 @@ from testlib import *
 
 class PackageCase(MachineCase):
     def setUp(self):
-        super(PackageCase, self).setUp()
+        super().setUp()
 
         self.repo_dir = "/var/tmp/repo"
 

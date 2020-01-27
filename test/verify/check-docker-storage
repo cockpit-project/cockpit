@@ -63,7 +63,7 @@ class TestDockerStorage(MachineCase):
     def setUp(self):
         self.allow_journal_messages('.*refusing to connect to unknown host.*')
         self.allow_journal_messages('.*host key for server is not known.*')
-        MachineCase.setUp(self)
+        super().setUp()
 
     def login(self):
         m = self.machines["machine1"]

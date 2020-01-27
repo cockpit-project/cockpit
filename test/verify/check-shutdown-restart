@@ -31,7 +31,7 @@ class TestShutdownRestart(MachineCase):
     }
 
     def setUp(self):
-        MachineCase.setUp(self)
+        super().setUp()
         self.machine.execute("hostnamectl set-hostname machine1")
         self.machines['machine2'].execute("hostnamectl set-hostname machine2")
         HACK_disable_problematic_preloads(self.machine)

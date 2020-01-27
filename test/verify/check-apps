@@ -27,7 +27,7 @@ from testlib import *
 class TestApps(PackageCase):
 
     def setUp(self):
-        PackageCase.setUp(self)
+        super().setUp()
         self.appstream_collection = set()
         self.machine.upload([ "verify/files/test.png" ], "/var/tmp/")
 

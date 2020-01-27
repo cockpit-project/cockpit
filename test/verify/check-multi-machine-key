@@ -94,7 +94,7 @@ class TestMultiMachineKeyAuth(MachineCase):
                        normalize("\n".join(keys) + "\n")])
 
     def setUp(self):
-        MachineCase.setUp(self)
+        super().setUp()
         self.machine2 = self.machines['machine2']
 
         # Add user

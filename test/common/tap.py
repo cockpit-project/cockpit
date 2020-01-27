@@ -24,7 +24,7 @@ class TapResult(unittest.TestResult):
     def __init__(self, verbosity):
         self.offset = 0
         self.start_time = 0
-        super(TapResult, self).__init__(sys.stderr, False, verbosity)
+        super().__init__(sys.stderr, False, verbosity)
 
     @staticmethod
     def plan(testable):
@@ -54,39 +54,39 @@ class TapResult(unittest.TestResult):
     def stop(self):
         sys.stdout.write("Bail out!\n")
         sys.stdout.flush()
-        super(TapResult, self).stop()
+        super().stop()
 
     def startTest(self, test):
         self.start_time = time.time()
         self.offset += 1
-        super(TapResult, self).startTest(test)
+        super().startTest(test)
 
     def stopTest(self, test):
-        super(TapResult, self).stopTest(test)
+        super().stopTest(test)
 
     def addError(self, test, err):
         self.not_ok(test, err)
-        super(TapResult, self).addError(test, err)
+        super().addError(test, err)
 
     def addFailure(self, test, err):
         self.not_ok(test, err)
-        super(TapResult, self).addError(test, err)
+        super().addError(test, err)
 
     def addSuccess(self, test):
         self.ok(test)
-        super(TapResult, self).addSuccess(test)
+        super().addSuccess(test)
 
     def addSkip(self, test, reason):
         self.skip(test, reason)
-        super(TapResult, self).addSkip(test, reason)
+        super().addSkip(test, reason)
 
     def addExpectedFailure(self, test, err):
         self.ok(test)
-        super(TapResult, self).addExpectedFailure(test, err)
+        super().addExpectedFailure(test, err)
 
     def addUnexpectedSuccess(self, test):
         self.not_ok(test, None)
-        super(TapResult, self).addUnexpectedSuccess(test)
+        super().addUnexpectedSuccess(test)
 
 
 class TapRunner(object):

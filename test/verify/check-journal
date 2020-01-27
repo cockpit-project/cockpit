@@ -24,7 +24,7 @@ from testlib import *
 class TestJournal(MachineCase):
 
     def setUp(self):
-        super(TestJournal, self).setUp()
+        super().setUp()
         self.crash_fn = "__nanosleep"
 
     def select_from_dropdown(self, browser, selector, value, click=True):

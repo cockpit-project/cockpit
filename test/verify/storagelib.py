@@ -27,7 +27,7 @@ class StorageCase(MachineCase):
         if self.image in ["fedora-coreos"]:
             self.skipTest("No udisks/cockpit-storaged on OSTree images")
 
-        super(StorageCase, self).setUp()
+        super().setUp()
         self.storagectl_cmd = "udisksctl"
 
         ver = self.machine.execute("busctl --system get-property org.freedesktop.UDisks2 /org/freedesktop/UDisks2/Manager org.freedesktop.UDisks2.Manager Version || true")

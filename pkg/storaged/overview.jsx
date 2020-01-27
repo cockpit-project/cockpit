@@ -48,7 +48,7 @@ export class OverviewSidePanel extends React.Component {
         if (this.state.collapsed && children.length > 20) {
             show_all_button = (
                 <tr>
-                    <td colSpan="3" onClick={() => { this.setState({ collapsed: false }) }}>
+                    <td onClick={() => { this.setState({ collapsed: false }) }}>
                         {this.props.show_all_text || _("Show all")}
                     </td>
                 </tr>);

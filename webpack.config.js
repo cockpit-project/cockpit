@@ -291,9 +291,27 @@ info.files.forEach(function(value) {
 });
 info.files = files;
 
+// Hide mini-css-extract-plugin spam logs
+class CleanUpStatsPlugin {
+  shouldPickStatChild(child) {
+    return child.name.indexOf('mini-css-extract-plugin') !== 0;
+  }
+
+  apply(compiler) {
+    compiler.hooks.done.tap('CleanUpStatsPlugin', (stats) => {
+      const children = stats.compilation.children;
+      if (Array.isArray(children)) {
+        stats.compilation.children = children
+          .filter(child => this.shouldPickStatChild(child));
+      }
+    });
+  }
+}
+
 var plugins = [
     new copy(info.files),
     new miniCssExtractPlugin("[name].css"),
+    new CleanUpStatsPlugin(),
 ];
 
 var output = {

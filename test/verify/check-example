@@ -28,6 +28,7 @@ from testlib import *
 @skipPackage("example")
 class TestExample(MachineCase):
 
+    @unittest.expectedFailure
     def testFail(self):
         self.login_and_go("/system")
         self.assertFalse(True)
@@ -47,6 +48,7 @@ class TestSimple(unittest.TestCase):
                 print(">2", i)
         self.assertTrue(True)
 
+    @unittest.expectedFailure
     def testTwo(self):
         self.assertFalse(True)
 

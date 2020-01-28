@@ -270,7 +270,7 @@ config: !Configuration
         b.wait_in_text("#devices", "vdo1")
 
 
-class TestStoragePackages(StorageCase, PackageCase):
+class TestStoragePackages(PackageCase, StorageHelpers):
 
     def testVdoMissingPackages(self):
         m = self.machine

@@ -90,6 +90,10 @@ class PackageCase(MachineCase):
             self.machine.execute("mv /etc/resolv.conf /etc/resolv.conf.test")
             self.addCleanup(self.machine.execute, "mv /etc/resolv.conf.test /etc/resolv.conf")
 
+        # reset automatic updates
+        if self.backend == 'dnf':
+            self.machine.execute("systemctl disable --now dnf-automatic dnf-automatic-install dnf-automatic.service dnf-automatic-install.timer; rm -r /etc/systemd/system/dnf-automatic* && systemctl daemon-reload || true")
+
         self.updateInfo = {}
 
     #

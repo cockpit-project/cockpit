@@ -40,6 +40,7 @@ class TestAccounts(MachineCase):
         b.go("#/anton")
         b.wait_text("#account-user-name", "anton")
         b.wait_text("#account-title", "anton")
+        b.wait_not_attr("#account-delete", "disabled", "disabled")
         b.set_val('#account-real-name', "Anton Arbitrary")
         b.wait_not_attr('#account-real-name', 'data-dirty', 'true')
         # don't wait for /etc/passwd to be current - this should hold true once the 'data-dirty' was removed

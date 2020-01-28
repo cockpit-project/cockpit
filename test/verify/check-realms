@@ -764,6 +764,8 @@ class TestPackageInstall(packagelib.PackageCase):
         super().setUp()
         self.domain_sel = "#system_information_domain_button"
 
+        self.machine.execute("systemctl stop realmd")
+
     def waitTooltip(self, text):
         b = self.browser
         def check():

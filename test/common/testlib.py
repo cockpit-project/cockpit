@@ -1501,7 +1501,9 @@ def test_main(options=None, suite=None, persistent_machine_suites=[], attachment
             return []
         if not subclasses:
             return [base_class]
-        return list(itertools.chain(*[leaf_classes(c, exclude) for c in subclasses if c.__module__ == "__main__"]))
+        # Filter out all the subclasses that aren't defined under test/verify
+        return [klass for klass in itertools.chain(*[leaf_classes(subkl, exclude) for subkl in subclasses])
+                if klass.__module__ == "__main__"]
 
     # Collect unittest.TestCase and MachineCase tests into a single suite so they can be run concurrently
     # Collect PersistentMachineCase tests into an array of suites (persistent_machine_suites), these we run serially

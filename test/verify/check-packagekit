@@ -621,10 +621,14 @@ class TestUpdates(PackageCase):
         b = self.browser
         m = self.machine
 
-        m.execute('''systemctl stop packagekit.service
-                     rm `systemctl show -p FragmentPath packagekit.service | cut -f2 -d=`
-                     rm /usr/share/dbus-1/system-services/org.freedesktop.PackageKit.service
-                     systemctl daemon-reload''')
+        system_service = m.execute("systemctl show -p FragmentPath packagekit.service | cut -f2 -d=").strip()
+        m.execute('''mv {0} {0}.disabled
+                     mv /usr/share/dbus-1/system-services/org.freedesktop.PackageKit.service /usr/share/dbus-1/system-services/org.freedesktop.PackageKit.service.disabled
+                     systemctl daemon-reload'''.format(system_service))
+        self.addCleanup(m.execute,
+                        '''mv {0}.disabled {0}
+                           mv /usr/share/dbus-1/system-services/org.freedesktop.PackageKit.service.disabled /usr/share/dbus-1/system-services/org.freedesktop.PackageKit.service
+                           systemctl daemon-reload'''.format(system_service))
 
         m.start_cockpit()
         b.login_and_go("/updates")

@@ -223,7 +223,8 @@ class TestStorage(StorageCase):
         b.wait_present("#detail-header button:contains(Mount)")
 
 
-class TestStoragePackages(StorageCase, PackageCase):
+@skipImage("No udisks/cockpit-storaged on OSTree images", "fedora-coreos")
+class TestStoragePackages(PackageCase, StorageHelpers):
 
     def testNfsMissingPackages(self):
         m = self.machine

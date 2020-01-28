@@ -20,28 +20,8 @@ import re
 from testlib import *
 
 
-class StorageCase(MachineCase):
-
-    def setUp(self):
-
-        if self.image in ["fedora-coreos"]:
-            self.skipTest("No udisks/cockpit-storaged on OSTree images")
-
-        super().setUp()
-        self.storagectl_cmd = "udisksctl"
-
-        ver = self.machine.execute("busctl --system get-property org.freedesktop.UDisks2 /org/freedesktop/UDisks2/Manager org.freedesktop.UDisks2.Manager Version || true")
-        m = re.match('s "(.*)"', ver)
-        if m:
-            self.storaged_version = list(map(int, m.group(1).split(".")))
-        else:
-            self.storaged_version = [0]
-
-        if "debian" in self.machine.image or "ubuntu" in self.machine.image:
-            # Debian's udisks has a patch to use FHS /media directory
-            self.mount_root = "/media"
-        else:
-            self.mount_root = "/run/media"
+class StorageHelpers:
+    '''Mix-in class for using in tests that derive from something else than MachineCase or StorageCase'''
 
     def inode(self, f):
         return self.machine.execute("stat -L '%s' -c %%i" % f)
@@ -398,3 +378,27 @@ class StorageCase(MachineCase):
     def wait_mounted(self, row, col):
         self.content_tab_wait_in_info(row, col, "Mount Point",
                                       cond=lambda cell: "The filesystem is not mounted" not in self.browser.text(cell))
+
+
+class StorageCase(MachineCase, StorageHelpers):
+
+    def setUp(self):
+
+        if self.image in ["fedora-coreos"]:
+            self.skipTest("No udisks/cockpit-storaged on OSTree images")
+
+        super().setUp()
+        self.storagectl_cmd = "udisksctl"
+
+        ver = self.machine.execute("busctl --system get-property org.freedesktop.UDisks2 /org/freedesktop/UDisks2/Manager org.freedesktop.UDisks2.Manager Version || true")
+        m = re.match('s "(.*)"', ver)
+        if m:
+            self.storaged_version = list(map(int, m.group(1).split(".")))
+        else:
+            self.storaged_version = [0]
+
+        if "debian" in self.machine.image or "ubuntu" in self.machine.image:
+            # Debian's udisks has a patch to use FHS /media directory
+            self.mount_root = "/media"
+        else:
+            self.mount_root = "/run/media"

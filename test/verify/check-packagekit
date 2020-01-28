@@ -541,63 +541,6 @@ class TestUpdates(NoSubManCase):
         # not expecting any buttons
         self.assertFalse(b.is_present("#app button"))
 
-    def testRunningUpdate(self):
-        # The main case for this is that cockpit-ws itself gets upgraded, which
-        # restarts the service and terminates the connection. As we can't
-        # (efficiently) build a newer working cockpit-ws package, test the two
-        # parts (reconnect and warning about disconnect) separately.
-
-        # no security updates, no changelogs
-        b = self.browser
-        m = self.machine
-
-        install_lockfile = "/tmp/finish-pk"
-        # updating this package takes longer than a cockpit start and building the page
-        self.createPackage("slow", "1", "1", install=True)
-        self.createPackage(
-            "slow", "1", "2", postinst="while [ ! -e {0} ]; do sleep 1; done; rm -f {0}".format(install_lockfile))
-        self.enableRepo()
-        m.execute("pkcon refresh")
-
-        m.start_cockpit()
-        b.login_and_go("/updates")
-
-        b.click("#app .container-fluid button")
-        b.wait_in_text("#state", "Applying updates")
-        b.wait_in_text("#app div.progress-description", "slow")
-
-        # restarting should pick up that install progress
-        m.restart_cockpit()
-        b.login_and_go("/updates")
-        b.wait_in_text("#state", "Applying updates")
-        b.wait_present("#app div.progress-bar")
-
-        # finish the package installation
-        m.execute("touch {0}".format(install_lockfile))
-
-        # should have succeeded and show restart page; cancel
-        b.wait_in_text("#app .container-fluid h1", "Restart Recommended")
-        b.click("#app .container-fluid button.btn-default")
-        b.wait_in_text("#state", "No updates pending")
-
-        # now pretend that there is a newer cockpit-ws available, warn about disconnect
-        self.createPackage("cockpit-ws", "999", "1")
-        # these have strict version dependencies to cockpit-ws, don't get in the way
-        self.createPackage("cockpit", "999", "1")
-        self.createPackage("cockpit-dashboard", "999", "1")
-        m.execute("if type apt; then dpkg -P cockpit-ws-dbgsym; fi")
-        self.enableRepo()
-        b.wait_in_text(".content-header-extra button", "Check for Updates")
-        b.click(".content-header-extra button")
-
-        b.wait_in_text(".container-fluid #available h2", "Available Updates")
-        self.assertEqual(b.text("#state"), "3 updates")
-        b.wait_in_text("table.available", "cockpit-ws")
-        b.wait_in_text("table.available", "cockpit-dashboard")
-        b.wait_in_text("#app div.alert-warning", "This web console will be updated.")
-
-        self.allow_restart_journal_messages()
-
     def testPackageKitCrash(self):
         b = self.browser
         m = self.machine
@@ -650,6 +593,67 @@ class TestUpdates(NoSubManCase):
         b.enter_page("/system")
         b.wait_text(self.update_text, "Loading available updates failed")
         self.assertIn("exclamation", b.attr(self.update_icon, "class"))
+
+
+@skipImage("Image uses OSTree", "fedora-coreos")
+class TestWsUpdate(NoSubManCase):
+    def testBasic(self):
+        # The main case for this is that cockpit-ws itself gets upgraded, which
+        # restarts the service and terminates the connection. As we can't
+        # (efficiently) build a newer working cockpit-ws package, test the two
+        # parts (reconnect and warning about disconnect) separately.
+        # This test is destructive and thus must run last.
+
+        # no security updates, no changelogs
+        b = self.browser
+        m = self.machine
+
+        install_lockfile = "/tmp/finish-pk"
+        # updating this package takes longer than a cockpit start and building the page
+        self.createPackage("slow", "1", "1", install=True)
+        self.createPackage(
+            "slow", "1", "2", postinst="while [ ! -e {0} ]; do sleep 1; done; rm -f {0}".format(install_lockfile))
+        self.enableRepo()
+        m.execute("pkcon refresh")
+
+        m.start_cockpit()
+        b.login_and_go("/updates")
+
+        b.click("#app .container-fluid button")
+        b.wait_in_text("#state", "Applying updates")
+        b.wait_in_text("#app div.progress-description", "slow")
+
+        # restarting should pick up that install progress
+        m.restart_cockpit()
+        b.login_and_go("/updates")
+        b.wait_in_text("#state", "Applying updates")
+        b.wait_present("#app div.progress-bar")
+
+        # finish the package installation
+        m.execute("touch {0}".format(install_lockfile))
+
+        # should have succeeded and show restart page; cancel
+        b.wait_in_text("#app .container-fluid h1", "Restart Recommended")
+        b.click("#app .container-fluid button.btn-default")
+        b.wait_in_text("#state", "No updates pending")
+
+        # now pretend that there is a newer cockpit-ws available, warn about disconnect
+        self.createPackage("cockpit-ws", "999", "1")
+        # these have strict version dependencies to cockpit-ws, don't get in the way
+        self.createPackage("cockpit", "999", "1")
+        self.createPackage("cockpit-dashboard", "999", "1")
+        m.execute("if type apt; then dpkg -P cockpit-ws-dbgsym; fi")
+        self.enableRepo()
+        b.wait_in_text(".content-header-extra button", "Check for Updates")
+        b.click(".content-header-extra button")
+
+        b.wait_in_text(".container-fluid #available h2", "Available Updates")
+        self.assertEqual(b.text("#state"), "3 updates")
+        b.wait_in_text("table.available", "cockpit-ws")
+        b.wait_in_text("table.available", "cockpit-dashboard")
+        b.wait_in_text("#app div.alert-warning", "This web console will be updated.")
+
+        self.allow_restart_journal_messages()
 
 
 @skipImage("Image uses OSTree", "fedora-coreos")

@@ -71,6 +71,7 @@ function create_tabs(client, target, is_partition) {
     var block_fsys = block && client.blocks_fsys[block.path];
     var block_lvm2 = block && client.blocks_lvm2[block.path];
     var block_pvol = block && client.blocks_pvol[block.path];
+    var block_swap = block && client.blocks_swap[block.path];
 
     var lvol = (endsWith(target.iface, ".LogicalVolume")
         ? target
@@ -263,12 +264,46 @@ function create_tabs(client, target, is_partition) {
         return lvol.Deactivate({});
     }
 
+    function create_snapshot() {
+        dialog_open({
+            Title: _("Create Snapshot"),
+            Fields: [
+                TextInput("name", _("Name"),
+                          { validate: utils.validate_lvm2_name }),
+            ],
+            Action: {
+                Title: _("Create"),
+                action: function (vals) {
+                    return lvol.CreateSnapshot(vals.name, vals.size || 0, { });
+                }
+            }
+        });
+    }
+
     if (lvol) {
         if (lvol.Active) {
             add_menu_action(_("Deactivate"), deactivate);
         } else {
             add_action(_("Activate"), activate);
         }
+        if (client.lvols[lvol.ThinPool]) {
+            add_menu_action(_("Create Snapshot"), create_snapshot);
+        }
+    }
+
+    function swap_start() {
+        return block_swap.Start({});
+    }
+
+    function swap_stop() {
+        return block_swap.Stop({});
+    }
+
+    if (block_swap) {
+        if (block_swap.Active)
+            add_menu_action(_("Stop"), swap_stop);
+        else
+            add_menu_action(_("Start"), swap_start);
     }
 
     function delete_() {

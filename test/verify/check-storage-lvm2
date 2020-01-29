@@ -282,7 +282,7 @@ class TestStorage(StorageCase):
 
         # Take a snapshot of the thin volume and check that it appears
 
-        self.content_tab_action(3, 1, "Create Snapshot")
+        self.content_dropdown_action(2, "Create Snapshot")
         self.dialog({"name": "mysnapshot"})
         self.content_row_wait_in_col(3, 2, "mysnapshot")
 

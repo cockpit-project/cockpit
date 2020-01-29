@@ -350,22 +350,6 @@ export class BlockVolTab extends React.Component {
         var unused_space_warning = self.props.warnings.find(w => w.warning == "unused-space");
         var unused_space = !!unused_space_warning;
 
-        function create_snapshot() {
-            dialog_open({
-                Title: _("Create Snapshot"),
-                Fields: [
-                    TextInput("name", _("Name"),
-                              { validate: utils.validate_lvm2_name }),
-                ],
-                Action: {
-                    Title: _("Create"),
-                    action: function (vals) {
-                        return lvol.CreateSnapshot(vals.name, vals.size || 0, { });
-                    }
-                }
-            });
-        }
-
         function rename() {
             lvol_rename(lvol);
         }
@@ -392,9 +376,6 @@ export class BlockVolTab extends React.Component {
 
         return (
             <div>
-                <div className="tab-actions">
-                    { pool && <StorageButton onClick={create_snapshot}>{_("Create Snapshot")}</StorageButton> }
-                </div>
                 <div className="ct-form">
                     <label className="control-label">{_("Name")}</label>
                     <StorageLink onClick={rename}>{this.props.lvol.Name}</StorageLink>

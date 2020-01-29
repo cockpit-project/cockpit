@@ -403,7 +403,7 @@ docker.console = function console_(container_id, command, options) {
      * protocol. It starts with a HTTP POST, and then quickly
      * degenerates into a stream sometimes binary.
      *
-     * See: http://docs.docker.io/en/latest/reference/api/docker_remote_api_v1.8/#attach-to-a-container
+     * See: https://docs.docker.com/engine/api/v1.40/#operation/ContainerAttach
      */
     function attach(request) {
         if (view)

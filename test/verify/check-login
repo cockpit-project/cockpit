@@ -370,12 +370,8 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         m.start_cockpit()
         b.login_and_go("/system", user="unpriv")
         # not an admin
-        if m.image == "rhel-8-2-distropkg":
-            b.wait_present("#restart-button[disabled][data-stable=yes]")
-            b.wait_present("#shutdown-group.disabled[data-stable=yes]")
-        else:
-            b.wait_present("#restart-button[disabled][data-stable=yes]")
-            b.wait_present("#shutdown-group[disabled][data-stable=yes]")
+        b.wait_present("#restart-button[disabled][data-stable=yes]")
+        b.wait_present("#shutdown-group[disabled][data-stable=yes]")
 
         b.logout()
         self.allow_authorize_journal_messages()

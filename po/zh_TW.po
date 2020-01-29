@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-15 11:50+0000\n"
+"POT-Creation-Date: 2020-01-22 08:44+0000\n"
 "PO-Revision-Date: 2019-12-25 01:02+0000\n"
 "Last-Translator: Su, Jun-Ming <sujunmin@gmail.com>\n"
 "Language-Team: Chinese (Traditional)\n"
@@ -50,10 +50,6 @@ msgctxt "storage-id-desc"
 msgid "$0 File System"
 msgstr "$0 檔案系統"
 
-#: pkg/systemd/overview-cards/usageCard.jsx:138
-msgid "$0 GiB / $1 GiB"
-msgstr ""
-
 #: pkg/machines/components/create-vm-dialog/pxe-helpers.js:105
 msgid "$0 Network"
 msgstr "$0 網路"
@@ -66,6 +62,11 @@ msgstr[0] "$0 軟體包"
 #: pkg/systemd/init.js:484 pkg/systemd/service-details.jsx:59
 msgid "$0 Template"
 msgstr "$0 模板"
+
+#: pkg/docker/containers-view.jsx:614
+msgid "$0 Vulnerability"
+msgid_plural "$0 Vulnerabilities"
+msgstr[0] ""
 
 #: pkg/networkmanager/firewall.jsx:160
 msgid "$0 Zone"
@@ -233,17 +234,9 @@ msgid "$1 security fix"
 msgid_plural "$1 security fixes"
 msgstr[0] "$1 安全修復"
 
-#: pkg/networkmanager/interfaces.js:2739
-msgid "$mtu"
-msgstr "$mtu"
-
 #: pkg/storaged/utils.js:182
 msgid "$name (from $host)"
 msgstr "$name （從 $host）"
-
-#: pkg/docker/details.js:151
-msgid "${hip}:${hport} -> $cport"
-msgstr "${hip}:${hport} -> $cport"
 
 #: pkg/storaged/utils.js:126
 msgid "${size} ${desc}"
@@ -274,11 +267,6 @@ msgstr "1 MiB"
 msgid "1 Minute"
 msgstr "1分鐘"
 
-#: pkg/docker/containers-view.jsx:614
-msgid "1 Vulnerability"
-msgid_plural "$0 Vulnerabilities"
-msgstr[0] ""
-
 #: pkg/dashboard/index.html:55 pkg/networkmanager/index.html:72
 #: pkg/networkmanager/index.html:408 pkg/systemd/graphs.html:55
 #: pkg/storaged/plot.jsx:85
@@ -291,7 +279,7 @@ msgstr "1天"
 msgid "1 hour"
 msgstr "1小時"
 
-#: pkg/systemd/graphs.js:384
+#: pkg/systemd/graphs.js:382
 msgid "1 min"
 msgstr "1分鐘"
 
@@ -357,7 +345,7 @@ msgstr "1"
 msgid "2 MiB"
 msgstr "2 MiB"
 
-#: pkg/systemd/graphs.js:383
+#: pkg/systemd/graphs.js:381
 msgid "2 min"
 msgstr "2分鐘"
 
@@ -409,7 +397,7 @@ msgstr "第29"
 msgid "2nd"
 msgstr "第2"
 
-#: pkg/systemd/graphs.js:382
+#: pkg/systemd/graphs.js:380
 msgid "3 min"
 msgstr "3分鐘"
 
@@ -433,7 +421,7 @@ msgstr "第3"
 msgid "4 KiB"
 msgstr "4 KiB"
 
-#: pkg/systemd/graphs.js:381
+#: pkg/systemd/graphs.js:379
 msgid "4 min"
 msgstr "4分鐘"
 
@@ -449,7 +437,7 @@ msgstr "第四"
 msgid "5 Minutes"
 msgstr "5分鐘"
 
-#: pkg/systemd/graphs.js:380
+#: pkg/systemd/graphs.js:378
 msgid "5 min"
 msgstr "5分鐘"
 
@@ -1044,7 +1032,7 @@ msgstr ""
 msgid "Available"
 msgstr "可用空間"
 
-#: pkg/packagekit/updates.jsx:872
+#: pkg/packagekit/updates.jsx:880
 msgid "Available Updates"
 msgstr "可用的更新"
 
@@ -1163,7 +1151,7 @@ msgstr "廣播"
 msgid "Broken configuration"
 msgstr "配置損壞"
 
-#: pkg/packagekit/updates.jsx:852
+#: pkg/packagekit/updates.jsx:860
 msgid "Bug Fix Updates Available"
 msgstr "錯誤修復更新可用"
 
@@ -1190,7 +1178,7 @@ msgstr "總線擴展機箱"
 msgid "CPU"
 msgstr "CPU"
 
-#: pkg/systemd/graphs.js:491
+#: pkg/systemd/graphs.js:487
 msgid "CPU Graph"
 msgstr ""
 
@@ -1202,7 +1190,7 @@ msgstr ""
 msgid "CPU Security Toggles"
 msgstr ""
 
-#: pkg/systemd/graphs.js:258
+#: pkg/systemd/graphs.js:256
 msgctxt "page-title"
 msgid "CPU Status"
 msgstr "CPU狀態"
@@ -1224,7 +1212,7 @@ msgstr "CPU使用率："
 msgid "Cache"
 msgstr ""
 
-#: pkg/systemd/graphs.html:161 pkg/systemd/graphs.js:394
+#: pkg/systemd/graphs.html:161 pkg/systemd/graphs.js:392
 msgid "Cached"
 msgstr "緩存"
 
@@ -1388,7 +1376,7 @@ msgstr "檢查和修復RAID設備 $target"
 msgid "Checking for new applications"
 msgstr "檢查新的應用程序"
 
-#: pkg/systemd/overview-cards/healthCard.jsx:83
+#: pkg/packagekit/updates.jsx:819
 msgid "Checking for package updates..."
 msgstr ""
 
@@ -2207,7 +2195,7 @@ msgstr "延遲"
 #: pkg/docker/index.html:139 pkg/docker/index.html:251
 #: pkg/networkmanager/index.html:440 pkg/users/index.html:79
 #: pkg/users/index.html:357 pkg/docker/containers-view.jsx:202
-#: pkg/docker/details.js:293 pkg/docker/util.js:641
+#: pkg/docker/details.js:288 pkg/docker/util.js:641
 #: pkg/machines/components/deleteDialog.jsx:145
 #: pkg/machines/components/deleteDialog.jsx:161
 #: pkg/machines/components/deleteResource.jsx:76
@@ -2225,7 +2213,7 @@ msgstr "延遲"
 msgid "Delete"
 msgstr "刪除"
 
-#: pkg/networkmanager/interfaces.js:2418 pkg/users/local.js:1199
+#: pkg/networkmanager/interfaces.js:2418 pkg/users/local.js:1198
 msgid "Delete $0"
 msgstr "刪除 $0"
 
@@ -2272,7 +2260,7 @@ msgstr "刪除RAID設備將清除其上的所有數據。"
 msgid "Deleting a VDO device will erase all data on it."
 msgstr "刪除VDO設備將清除其上的所有數據。"
 
-#: pkg/docker/containers-view.jsx:201 pkg/docker/details.js:292
+#: pkg/docker/containers-view.jsx:201 pkg/docker/details.js:287
 msgid "Deleting a container will erase all data in it."
 msgstr "刪除容器將清除其中的所有數據。"
 
@@ -2409,7 +2397,7 @@ msgstr ""
 
 # translation auto-copied from project virt-manager, version 0.10.0, document
 # virt-manager
-#: pkg/dashboard/index.html:73 pkg/systemd/graphs.js:74
+#: pkg/dashboard/index.html:73 pkg/systemd/graphs.js:72
 msgid "Disk I/O"
 msgstr "磁碟 I/O"
 
@@ -2662,7 +2650,7 @@ msgstr ""
 msgid "Enforcing"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:854
+#: pkg/packagekit/updates.jsx:862
 msgid "Enhancement Updates Available"
 msgstr "可用的增強更新"
 
@@ -2722,7 +2710,7 @@ msgstr "勘誤："
 #: pkg/apps/utils.jsx:100 pkg/storaged/fsys-tab.jsx:283
 #: pkg/storaged/multipath.jsx:58 pkg/storaged/storage-controls.jsx:83
 #: pkg/storaged/storage-controls.jsx:177 pkg/systemd/service-details.jsx:451
-#: pkg/users/local.js:1492
+#: pkg/users/local.js:1491
 msgid "Error"
 msgstr "錯誤"
 
@@ -2778,7 +2766,7 @@ msgstr ""
 msgid "Example: 88,2019,nfs,rsync"
 msgstr ""
 
-#: pkg/users/local.js:447 pkg/users/local.js:1437
+#: pkg/users/local.js:447 pkg/users/local.js:1436
 msgid "Excellent password"
 msgstr "優秀的密碼"
 
@@ -3116,7 +3104,7 @@ msgstr "硬碟"
 msgid "Hardware Information"
 msgstr "硬件信息"
 
-#: pkg/systemd/overview-cards/healthCard.jsx:72
+#: pkg/systemd/overview-cards/healthCard.jsx:55
 msgid "Health"
 msgstr ""
 
@@ -3174,7 +3162,7 @@ msgstr "小時需要是0-23之間的數字"
 msgid "Hours"
 msgstr "時"
 
-#: pkg/systemd/graphs.html:146 pkg/systemd/graphs.js:297
+#: pkg/systemd/graphs.html:146 pkg/systemd/graphs.js:295
 msgid "I/O Wait"
 msgstr "I / O等待"
 
@@ -3404,7 +3392,7 @@ msgstr ""
 msgid "Install"
 msgstr "安裝"
 
-#: pkg/packagekit/updates.jsx:839
+#: pkg/packagekit/updates.jsx:847
 msgid "Install All Updates"
 msgstr "安裝所有更新"
 
@@ -3412,7 +3400,7 @@ msgstr "安裝所有更新"
 msgid "Install NFS Support"
 msgstr "安裝NFS支持"
 
-#: pkg/packagekit/updates.jsx:839 pkg/packagekit/updates.jsx:845
+#: pkg/packagekit/updates.jsx:847 pkg/packagekit/updates.jsx:853
 msgid "Install Security Updates"
 msgstr "安裝安全更新"
 
@@ -3519,7 +3507,7 @@ msgstr "日期格式無效，時間格式無效"
 msgid "Invalid date format."
 msgstr "日期格式無效。"
 
-#: pkg/users/local.js:1257
+#: pkg/users/local.js:1256
 msgid "Invalid expiration date"
 msgstr "失效日期無效"
 
@@ -3539,7 +3527,7 @@ msgstr "無效的密鑰"
 msgid "Invalid metric $0"
 msgstr "指標無效 $0"
 
-#: pkg/users/local.js:1333
+#: pkg/users/local.js:1332
 msgid "Invalid number of days"
 msgstr "無效天數"
 
@@ -3652,7 +3640,7 @@ msgstr "基於Kerberos的SSO"
 msgid "Kerberos Ticket"
 msgstr "Kerberos票證"
 
-#: pkg/systemd/graphs.html:142 pkg/systemd/graphs.js:298
+#: pkg/systemd/graphs.html:142 pkg/systemd/graphs.js:296
 msgid "Kernel"
 msgstr "Kernel"
 
@@ -3847,7 +3835,7 @@ msgstr "鎖定"
 msgid "Lock Account"
 msgstr "鎖定帳戶"
 
-#: pkg/users/local.js:901 pkg/users/local.js:1238
+#: pkg/users/local.js:901 pkg/users/local.js:1237
 msgid "Lock account on $0"
 msgstr "鎖定帳戶 $0"
 
@@ -4081,7 +4069,7 @@ msgstr "RAID設備的成員 $0"
 msgid "Memory"
 msgstr "記憶體"
 
-#: pkg/systemd/graphs.js:356
+#: pkg/systemd/graphs.js:354
 msgctxt "page-title"
 msgid "Memory"
 msgstr "記憶體"
@@ -4090,11 +4078,11 @@ msgstr "記憶體"
 msgid "Memory & Swap"
 msgstr "記憶和交換"
 
-#: pkg/systemd/graphs.js:441
+#: pkg/systemd/graphs.js:439
 msgid "Memory & Swap Usage"
 msgstr ""
 
-#: pkg/systemd/graphs.js:499
+#: pkg/systemd/graphs.js:493
 msgid "Memory Graph"
 msgstr ""
 
@@ -4423,7 +4411,7 @@ msgstr ""
 msgid "Network Selection does not support PXE."
 msgstr ""
 
-#: pkg/systemd/graphs.js:75
+#: pkg/systemd/graphs.js:73
 msgid "Network Traffic"
 msgstr "網絡流量"
 
@@ -4500,7 +4488,7 @@ msgstr "下一步"
 msgid "Next Run"
 msgstr "下次運行"
 
-#: pkg/systemd/graphs.html:134 pkg/systemd/graphs.js:300
+#: pkg/systemd/graphs.html:134 pkg/systemd/graphs.js:298
 msgid "Nice"
 msgstr "Nice"
 
@@ -4808,8 +4796,8 @@ msgstr "不存在"
 msgid "Not connected"
 msgstr "未連線"
 
-#: pkg/systemd/overview-cards/healthCard.jsx:90
-#: pkg/systemd/overview-cards/healthCard.jsx:91
+#: pkg/systemd/overview-cards/healthCard.jsx:62
+#: pkg/systemd/overview-cards/healthCard.jsx:63
 msgid "Not connected to Insights"
 msgstr ""
 
@@ -4817,7 +4805,7 @@ msgstr ""
 msgid "Not enough space to grow."
 msgstr ""
 
-#: pkg/docker/details.js:186 pkg/storaged/details.jsx:121
+#: pkg/docker/details.js:181 pkg/storaged/details.jsx:121
 msgid "Not found"
 msgstr "未找到"
 
@@ -5222,7 +5210,7 @@ msgstr "Ping目標"
 msgid "Pizza Box"
 msgstr "披薩盒"
 
-#: pkg/docker/containers-view.jsx:200 pkg/docker/details.js:291
+#: pkg/docker/containers-view.jsx:200 pkg/docker/details.js:286
 #: pkg/docker/util.js:612 pkg/storaged/content-views.jsx:305
 #: pkg/storaged/mdraid-details.jsx:289 pkg/storaged/vdo-details.jsx:194
 #: pkg/storaged/vgroup-details.jsx:207
@@ -5249,7 +5237,7 @@ msgstr "請輸入新的捲大小"
 msgid "Please install the $0 package"
 msgstr "請安裝 $0 包"
 
-#: pkg/users/local.js:1252
+#: pkg/users/local.js:1251
 msgid "Please specify an expiration date"
 msgstr "請指定到期日期"
 
@@ -5831,7 +5819,7 @@ msgstr ""
 msgid "Repository"
 msgstr "軟體庫"
 
-#: pkg/users/local.js:1316
+#: pkg/users/local.js:1315
 msgid "Require password change every $0 days"
 msgstr "每次都需要密碼更改 $0 天"
 
@@ -5897,9 +5885,9 @@ msgstr ""
 
 # ctx::sourcefile::/rhn/admin/config/Restart.do
 #: pkg/docker/index.html:138 pkg/docker/containers-view.jsx:315
-#: pkg/machines/components/vm/vmActions.jsx:42 pkg/systemd/overview.jsx:116
-#: pkg/systemd/service-details.jsx:170 pkg/systemd/shutdown.js:99
-#: pkg/systemd/shutdown.js:100
+#: pkg/machines/components/vm/vmActions.jsx:42 pkg/systemd/overview.jsx:102
+#: pkg/systemd/overview.jsx:123 pkg/systemd/service-details.jsx:170
+#: pkg/systemd/shutdown.js:99 pkg/systemd/shutdown.js:100
 msgid "Restart"
 msgstr "重新啟動"
 
@@ -5915,11 +5903,11 @@ msgstr "重啟政策"
 msgid "Restart Policy:"
 msgstr "重啟政策："
 
-#: pkg/packagekit/updates.jsx:499 pkg/packagekit/updates.jsx:916
+#: pkg/packagekit/updates.jsx:499 pkg/packagekit/updates.jsx:924
 msgid "Restart Recommended"
 msgstr "重啟推薦"
 
-#: pkg/packagekit/updates.jsx:928
+#: pkg/packagekit/updates.jsx:936
 msgid "Restarting"
 msgstr "重新啟動"
 
@@ -6113,7 +6101,7 @@ msgstr "安全擦除 $target"
 msgid "Security"
 msgstr "安全性"
 
-#: pkg/packagekit/updates.jsx:850
+#: pkg/packagekit/updates.jsx:858
 msgid "Security Updates Available"
 msgstr "安全更新可用"
 
@@ -6352,7 +6340,7 @@ msgstr ""
 msgid "Shut Down"
 msgstr "關機"
 
-#: pkg/systemd/overview.jsx:104
+#: pkg/systemd/overview.jsx:105
 msgid "Shutdown"
 msgstr ""
 
@@ -6727,7 +6715,7 @@ msgctxt "storage-id-desc"
 msgid "Swap Space"
 msgstr "交換空間"
 
-#: pkg/systemd/graphs.html:157 pkg/systemd/graphs.js:411
+#: pkg/systemd/graphs.html:157 pkg/systemd/graphs.js:409
 msgid "Swap Used"
 msgstr "交換使用"
 
@@ -6801,7 +6789,7 @@ msgid "System information"
 msgstr ""
 
 # ctx::sourcefile::/systems/SystemEntitlements
-#: pkg/packagekit/updates.jsx:935 pkg/packagekit/updates.jsx:948
+#: pkg/packagekit/updates.jsx:942 pkg/packagekit/updates.jsx:956
 msgid "System is up to date"
 msgstr "系統已更新至最新狀態"
 
@@ -6966,7 +6954,7 @@ msgstr "客戶端電源管理暫停VM。"
 msgid "The VM needs to be running or shut off to detach this device"
 msgstr ""
 
-#: pkg/users/local.js:1358
+#: pkg/users/local.js:1357
 msgid "The account '$0' will be forced to change their password on next login"
 msgstr "帳戶'$0'將在下次登錄時被迫更改密碼"
 
@@ -7097,7 +7085,7 @@ msgstr ""
 msgid "The machine is restarting"
 msgstr "機器正在重新啟動"
 
-#: pkg/users/local.js:413 pkg/users/local.js:1415
+#: pkg/users/local.js:413 pkg/users/local.js:1414
 msgid "The passwords do not match"
 msgstr "密碼不匹配"
 
@@ -7109,14 +7097,16 @@ msgstr "密碼兩者不相符。"
 msgid "The pool is empty"
 msgstr "游泳池是空的"
 
+#: pkg/docker/containers-view.jsx:436
+#, fuzzy
+#| msgid "The scan from $time ($type) found no vulnerabilities."
+msgid "The scan from $time ($type) found $count vulnerability:"
+msgid_plural "The scan from $time ($type) found $count vulnerabilities:"
+msgstr[0] "從中掃描 $time （$type）沒有發現任何漏洞。"
+
 #: pkg/docker/containers-view.jsx:434
 msgid "The scan from $time ($type) found no vulnerabilities."
 msgstr "從中掃描 $time （$type）沒有發現任何漏洞。"
-
-#: pkg/docker/containers-view.jsx:436
-msgid "The scan from $time ($type) found one vulnerability:"
-msgid_plural "The scan from $time ($type) found $count vulnerabilities:"
-msgstr[0] ""
 
 #: pkg/docker/containers-view.jsx:432
 msgid "The scan from $time ($type) was not successful."
@@ -7159,7 +7149,7 @@ msgstr ""
 msgid "The user $0 is not permitted to modify realms"
 msgstr "用戶 <b>$0</b> 不允許修改領域"
 
-#: pkg/systemd/overview.jsx:110
+#: pkg/systemd/overview.jsx:111
 msgid "The user $0 is not permitted to shutdown or restart this server"
 msgstr ""
 
@@ -7368,7 +7358,7 @@ msgstr "在調整大小之前，需要激活此卷。"
 msgid "This web browser is too old to run Cockpit (missing $0)"
 msgstr "此Web瀏覽器太舊，無法運行Cockpit（缺少 $0）"
 
-#: pkg/packagekit/updates.jsx:882
+#: pkg/packagekit/updates.jsx:890
 msgid "This web console will be updated."
 msgstr "此Web控制台將更新。"
 
@@ -7600,7 +7590,7 @@ msgid "Unavailable"
 msgstr "無法使用"
 
 #: pkg/docker/index.html:732 pkg/networkmanager/index.html:707
-#: pkg/shell/base_index.js:840 pkg/users/local.js:1501
+#: pkg/shell/base_index.js:840 pkg/users/local.js:1500
 msgid "Unexpected error"
 msgstr "未預期的錯誤"
 
@@ -7767,7 +7757,7 @@ msgstr "已更新"
 msgid "Updated packages may require a restart to take effect."
 msgstr "更新的軟件包可能需要重新啟動才能生效。"
 
-#: pkg/packagekit/updates.jsx:856
+#: pkg/packagekit/updates.jsx:864
 msgid "Updates Available"
 msgstr "可用更新"
 
@@ -7794,7 +7784,7 @@ msgstr "使用方法"
 msgid "Usage Graphs"
 msgstr ""
 
-#: pkg/systemd/graphs.js:328
+#: pkg/systemd/graphs.js:326
 msgid "Usage of $0 CPU core"
 msgid_plural "Usage of $0 CPU cores"
 msgstr[0] "用法 $0 CPU核心"
@@ -7815,7 +7805,7 @@ msgstr "使用以下密鑰對其他系統進行身份驗證"
 #: pkg/machines/components/vm/vmUsageTab.jsx:64
 #: pkg/machines/components/vm/vmUsageTab.jsx:75
 #: pkg/machines/components/vmDisksTab.jsx:109 pkg/storaged/fsys-tab.jsx:504
-#: pkg/storaged/swap-tab.jsx:81 pkg/systemd/graphs.js:393
+#: pkg/storaged/swap-tab.jsx:81 pkg/systemd/graphs.js:391
 msgid "Used"
 msgstr "已使用"
 
@@ -7829,7 +7819,7 @@ msgstr "由容器使用"
 
 #: pkg/dashboard/index.html:144 pkg/playground/translate.html:85
 #: pkg/playground/translate.html:105 pkg/systemd/graphs.html:138
-#: pkg/systemd/graphs.js:299
+#: pkg/systemd/graphs.js:297
 msgid "User"
 msgstr "使用者"
 
@@ -8020,6 +8010,12 @@ msgstr ""
 #: pkg/machines/components/storagePools/storagePoolList.jsx:46
 #: pkg/machines/hostvmslist.jsx:73 pkg/machines/manifest.json.in
 msgid "Virtual Machines"
+msgstr "虛擬機器"
+
+#: pkg/machines/index.html:4
+#, fuzzy
+#| msgid "Virtual Machines"
+msgid "Virtual Machines Management"
 msgstr "虛擬機器"
 
 #: pkg/machines/components/create-vm-dialog/pxe-helpers.js:161
@@ -8230,7 +8226,7 @@ msgstr ""
 msgid "You will be logged out in $0 seconds."
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:884
+#: pkg/packagekit/updates.jsx:892
 msgid ""
 "Your browser will disconnect, but this does not affect the update process. "
 "You can reconnect in a few moments to continue watching the progress."
@@ -8238,7 +8234,7 @@ msgstr ""
 "您的瀏覽器將斷開連接，但這不會影響更新過程。您可以在幾分鐘後重新連接以繼續觀"
 "察進度。"
 
-#: pkg/packagekit/updates.jsx:929
+#: pkg/packagekit/updates.jsx:937
 msgid ""
 "Your server will close the connection soon. You can reconnect after it has "
 "restarted."
@@ -8673,9 +8669,12 @@ msgstr "否"
 msgid "none"
 msgstr "none"
 
-#: pkg/systemd/graphs.js:144 pkg/systemd/overview-cards/usageCard.jsx:112
-msgid "of $0 CPU core"
-msgid_plural "of $0 CPU cores"
+#: pkg/systemd/graphs.js:142 pkg/systemd/overview-cards/usageCard.jsx:112
+#, fuzzy
+#| msgid "of $0 CPU core"
+#| msgid_plural "of $0 CPU cores"
+msgid "of $0 CPU"
+msgid_plural "of $0 CPUs"
 msgstr[0] "的 $0 CPU核心"
 
 #: pkg/systemd/manifest.json.in
@@ -8774,7 +8773,7 @@ msgstr ""
 msgid "running"
 msgstr "執行中"
 
-#: pkg/systemd/overview.jsx:138
+#: pkg/systemd/overview.jsx:147
 msgid "running $0"
 msgstr ""
 
@@ -9028,3 +9027,9 @@ msgstr ""
 #: pkg/networkmanager/manifest.json.in
 msgid "zone"
 msgstr ""
+
+#~ msgid "$mtu"
+#~ msgstr "$mtu"
+
+#~ msgid "${hip}:${hport} -> $cport"
+#~ msgstr "${hip}:${hport} -> $cport"

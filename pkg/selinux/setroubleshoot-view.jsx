@@ -185,7 +185,7 @@ class SELinuxEventLog extends React.Component {
 }
 
 /* Implements a subset of the PatternFly Empty State pattern
- * https://www.patternfly.org/patterns/empty-state/
+ * https://www.patternfly.org/v3/pattern-library/communication/empty-state/index.html
  * Special values for icon property:
  *   - 'waiting' - display spinner
  *   - 'error'   - display error icon

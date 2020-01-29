@@ -323,7 +323,7 @@ ListingRow.propTypes = {
     simpleBody: PropTypes.node,
 };
 /* Implements a PatternFly 'List View' pattern
- * https://www.patternfly.org/list-view/
+ * https://www.patternfly.org/v3/pattern-library/content-views/list-view/index.html
  * Properties (all optional):
  * - title
  * - fullWidth: set width to 100% of parent, defaults to true

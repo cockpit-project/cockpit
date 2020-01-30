@@ -127,7 +127,7 @@ class EditNICModal extends React.Component {
     }
 
     render() {
-        const { idPrefix, vm, network, networks, nodeDevices, interfaces } = this.props;
+        const { idPrefix, vm, network, nodeDevices, interfaces } = this.props;
         const networkDevices = getNetworkDevices(vm.connectionName, nodeDevices, interfaces);
 
         const defaultBody = (
@@ -135,7 +135,6 @@ class EditNICModal extends React.Component {
                 <NetworkTypeAndSourceRow idPrefix={idPrefix}
                                          dialogValues={this.state}
                                          onValueChanged={this.onValueChanged}
-                                         networks={networks}
                                          networkDevices={networkDevices}
                                          connectionName={vm.connectionName} />
                 <hr />
@@ -207,7 +206,7 @@ export class EditNICAction extends React.Component {
     }
 
     render() {
-        const { idPrefix, dispatch, vm, network, networks, nodeDevices, interfaces, availableSources } = this.props;
+        const { idPrefix, dispatch, vm, network, nodeDevices, interfaces, availableSources } = this.props;
 
         return (
             <div id={`${idPrefix}-edit-dialog-full`}>
@@ -219,7 +218,6 @@ export class EditNICAction extends React.Component {
                                              dispatch={dispatch}
                                              vm={vm}
                                              network={network}
-                                             networks={networks}
                                              nodeDevices={nodeDevices}
                                              interfaces={interfaces}
                                              availableSources={availableSources}
@@ -235,7 +233,6 @@ EditNICAction.propTypes = {
     idPrefix: PropTypes.string.isRequired,
     vm: PropTypes.object.isRequired,
     network: PropTypes.object.isRequired,
-    networks: PropTypes.array.isRequired,
     interfaces: PropTypes.array.isRequired,
     nodeDevices: PropTypes.array.isRequired,
 };

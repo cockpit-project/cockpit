@@ -86,7 +86,7 @@ class VmNetworkTab extends React.Component {
         const { vm, dispatch, config, hostDevices, networks, nodeDevices, interfaces, onAddErrorNotification } = this.props;
         const id = vmId(vm.name);
         const availableSources = {
-            network: this.props.networks.map(network => network.name),
+            network: networks.map(network => network.name),
             device: this.state.networkDevices,
         };
 
@@ -215,7 +215,6 @@ class VmNetworkTab extends React.Component {
                                        idPrefix={`${id}-network-${networkId}`}
                                        vm={vm}
                                        network={network}
-                                       networks={networks}
                                        nodeDevices={nodeDevices}
                                        availableSources={availableSources}
                                        interfaces={interfaces} />;
@@ -277,7 +276,6 @@ class VmNetworkTab extends React.Component {
                         <AddNIC dispatch={dispatch}
                             idPrefix={`${id}-add-iface`}
                             vm={vm}
-                            networks={networks}
                             provider={config.provider}
                             nodeDevices={nodeDevices}
                             availableSources={availableSources}

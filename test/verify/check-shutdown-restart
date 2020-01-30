@@ -58,12 +58,8 @@ class TestShutdownRestart(MachineCase):
         b.click('#login-button')
         b.expect_load()
         b.enter_page("/system")
-        if m.image == "rhel-8-2-distropkg":
-            b.wait_present("#restart-button[disabled]")
-            b.wait_present("#restart-button + div.pf-c-dropdown.disabled")
-        else:
-            b.wait_present("#restart-button[disabled]")
-            b.wait_present("#shutdown-group[disabled]")
+        b.wait_present("#restart-button[disabled]")
+        b.wait_present("#shutdown-group[disabled]")
 
         b.logout()
 
@@ -158,12 +154,8 @@ class TestShutdownRestart(MachineCase):
         # Power off with invalid date
         self.login_and_go("/system")
         b.enter_page("/system")
-        if m.image == "rhel-8-2-distropkg":
-            b.click("#shutdown-group .pf-c-dropdown__toggle")  # kebab
-            b.click("#shutdown-group button:contains('Shutdown')")
-        else:
-            b.click("#shutdown-group")  # caret
-            b.click("#shutdown")
+        b.click("#shutdown-group")  # caret
+        b.click("#shutdown")
         b.wait_popup("shutdown-dialog")
         b.click("#shutdown-dialog .dropdown button")
         b.click("a:contains('Specific Time')")

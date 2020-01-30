@@ -193,12 +193,14 @@ class VmDisksTab extends React.Component {
         return (
             <>
                 {this.state.deleteDialogProps && <DeleteResourceModal {...this.state.deleteDialogProps} />}
-                <ListingTable variant='compact'
-                    actions={actions}
-                    emptyCaption={_("No disks defined for this VM")}
-                    aria-label={`VM ${vm.name} Disks`}
-                    columns={columnTitles}
-                    rows={rows} />
+                <div className="ct-table-wrapper">
+                    <ListingTable variant='compact'
+                        actions={actions}
+                        emptyCaption={_("No disks defined for this VM")}
+                        aria-label={`VM ${vm.name} Disks`}
+                        columns={columnTitles}
+                        rows={rows} />
+                </div>
             </>
         );
     }

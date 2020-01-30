@@ -68,9 +68,9 @@
 }
 
 .ct-listing > table > thead th {
-    font-weight: normal;
+    font-size: var(--pf-global--FontSize--md);
+    font-weight: var(--pf-global--FontWeight--bold);
     padding: $listing-ct-padding $listing-ct-padding * 2;
-    color: $listing-ct-metadata;
 }
 
 .ct-listing > table > thead th:first-child {
@@ -85,7 +85,6 @@
 tbody > tr.listing-ct-item {
     border: 1px solid transparent;
     border-top: 1px solid var(--color-ct-list-border);
-    border-bottom: 1px solid var(--color-ct-list-border);
     cursor: pointer;
 }
 

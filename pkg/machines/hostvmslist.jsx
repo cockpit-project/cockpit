@@ -34,11 +34,27 @@ import {
     usageStopPolling,
 } from "./actions/provider-actions.js";
 
-import { vmId } from "./helpers.js";
+import { vmId, rephraseUI, dummyVmsFilter } from "./helpers.js";
 
-import { Listing } from "cockpit-components-listing.jsx";
-import Vm from './components/vm/vm.jsx';
-import { dummyVmsConvert, DummyVm } from './components/vm/dummyVm.jsx';
+import { ListingTable } from "cockpit-components-table.jsx";
+import { VmExpandedContent } from './components/vm/vmExpandedContent.jsx';
+import StateIcon from './components/vm/stateIcon.jsx';
+
+const VmState = ({ vm, resourceHasError }) => {
+    let state = null;
+
+    if (vm.installInProgress) {
+        state = _("creating VM installation");
+    } else if (vm.createInProgress) {
+        state = _("creating VM");
+    } else {
+        state = vm.state;
+    }
+
+    const stateAlert = resourceHasError[vm.id] ? <span className='pficon-warning-triangle-o machines-status-alert' /> : null;
+
+    return <StateIcon state={state} valueId={`${vmId(vm.name)}-state`} extra={stateAlert} />;
+};
 
 const _ = cockpit.gettext;
 
@@ -65,27 +81,26 @@ class HostVmsList extends React.Component {
 
     render() {
         const { vms, config, ui, storagePools, dispatch, actions, networks, nodeDevices, interfaces } = this.props;
-        const combinedVms = [...vms, ...dummyVmsConvert(vms, ui.vms)];
+        const combinedVms = [...vms, ...dummyVmsFilter(vms, ui.vms)];
 
         const sortFunction = (vmA, vmB) => vmA.name.localeCompare(vmB.name);
 
         return (<div id='virtual-machines-listing' className='container-fluid'>
-            <Listing title={_("Virtual Machines")}
-                columnTitles={[_("Name"), _("Connection"), _("State")]}
+            <ListingTable caption={_("Virtual Machines")}
+                variant='compact'
+                emptyCaption={_("No VM is running or defined on this host")}
                 actions={actions}
-                emptyCaption={_("No VM is running or defined on this host")}>
-                {combinedVms
+                columns={[
+                    { title: _("Name") },
+                    { title: _("Connection") },
+                    { title: _("State") }
+                ]}
+                rows={ combinedVms
                         .sort(sortFunction)
                         .map(vm => {
                             const connectionName = vm.connectionName;
-                            if (vm.isUi) {
-                                return (
-                                    <DummyVm vm={vm} key={`${vmId(vm.name)}-${connectionName}`} />
-                                );
-                            }
-
-                            return (
-                                <Vm vm={vm} vms={vms} config={config}
+                            const expandedContent = vm.isUi ? undefined : (
+                                <VmExpandedContent vm={vm} vms={vms} config={config}
                                     libvirtVersion={this.props.libvirtVersion}
                                     resourceHasError={this.props.resourceHasError}
                                     onAddErrorNotification={this.props.onAddErrorNotification}
@@ -152,9 +167,23 @@ class HostVmsList extends React.Component {
                                     networks={networks.filter(network => network && network.connectionName == connectionName)}
                                     nodeDevices={nodeDevices.filter(device => device && device.connectionName == connectionName)}
                                     key={`${vmId(vm.name)}`}
-                                />);
-                        })}
-            </Listing>
+                                />
+                            );
+
+                            return {
+                                extraClasses: this.props.resourceHasError[vm.id] ? ['error'] : [],
+                                columns: [
+                                    { title: <span id={`${vmId(vm.name)}-${vm.connectionName}-name`}>{vm.name}</span> },
+                                    { title: rephraseUI('connections', vm.connectionName) },
+                                    { title: <VmState vm={vm} resourceHasError={this.props.resourceHasError} /> },
+                                ],
+                                rowId: cockpit.format("$0-$1", vmId(vm.name), vm.connectionName),
+                                props: { key: cockpit.format("$0-$1-row", vmId(vm.name), vm.connectionName) },
+                                initiallyExpanded: vm.ui ? vm.ui.initiallyExpanded : false,
+                                expandedContent: expandedContent,
+                            };
+                        }) }
+            />
         </div>);
     }
 }

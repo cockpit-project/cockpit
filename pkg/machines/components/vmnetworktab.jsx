@@ -290,11 +290,14 @@ class VmNetworkTab extends React.Component {
                         availableSources={availableSources}
                         interfaces={interfaces}
                         close={this.close} />}
-                <ListingTable aria-label={`VM ${vm.name} Network Interface Cards`}
-                    variant='compact'
-                    emptyCaption={_("No network interfaces defined for this VM")}
-                    columns={columnTitles}
-                    rows={rows} />
+
+                <div className="ct-table-wrapper">
+                    <ListingTable aria-label={`VM ${vm.name} Network Interface Cards`}
+                        variant='compact'
+                        emptyCaption={_("No network interfaces defined for this VM")}
+                        columns={columnTitles}
+                        rows={rows} />
+                </div>
             </div>
         );
     }

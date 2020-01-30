@@ -104,12 +104,12 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             m.execute("until test -e /run/libvirt/libvirt-sock; do sleep 1; done")
             m.execute("chmod o+rwx /run/libvirt/libvirt-sock")
 
-    def toggleVmRow(self, vmName):
-        self.browser.click("tbody tr[data-row-id=vm-{0}] th".format(vmName)) # click on the row header
+    def toggleVmRow(self, vmName, connectionName='system'):
+        self.browser.click("tbody tr[data-row-id=vm-{0}-{1}] .pf-c-table__toggle button".format(vmName, connectionName)) # click on the row header
 
-    def waitVmRow(self, vmName, present=True):
+    def waitVmRow(self, vmName, connectionName='system', present=True):
         b = self.browser
-        vm_row = "tbody tr[data-row-id=vm-{0}] th".format(vmName)
+        vm_row = "tbody tr[data-row-id=vm-{0}-{1}] td".format(vmName, connectionName)
         if present:
             b.wait_present(vm_row)
         else:
@@ -303,10 +303,10 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # switch to and check Usage
         b.click("#vm-subVmTest1-usage")
-        b.wait_in_text("tbody.open .listing-ct-body td:nth-child(1) .usage-donut-caption", "256 MiB")
+        b.wait_in_text("tbody.pf-m-expanded .ct-listing-panel-body td:nth-child(1) .usage-donut-caption", "256 MiB")
         b.wait_present("#chart-donut-0 .donut-title-big-pf")
         b.wait(lambda: get_usage("#chart-donut-0") > 0.0)
-        b.wait_in_text("tbody.open .listing-ct-body td:nth-child(2) .usage-donut-caption", "1 vCPU")
+        b.wait_in_text("tbody.pf-m-expanded .ct-listing-panel-body td:nth-child(2) .usage-donut-caption", "1 vCPU")
         # CPU usage cannot be nonzero with blank image, so just ensure it's a percentage
         b.wait_present("#chart-donut-1 .donut-title-big-pf")
         self.assertLessEqual(get_usage("#chart-donut-1"), 100.0)
@@ -360,7 +360,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # start another one, should appear automatically
         self.startVm("subVmTest2")
-        b.wait_in_text("#virtual-machines-listing .listing-ct > tbody:nth-of-type(2) th", "subVmTest2")
         self.toggleVmRow("subVmTest2")
         b.wait_in_text("#vm-subVmTest2-state", "running")
         b.wait_in_text("#vm-subVmTest2-vcpus-count", "1")
@@ -377,8 +376,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 m.execute("chmod o+rwx /run/libvirt/libvirt-sock")
             b.wait_in_text("body", "Virtual Machines")
             self.waitVmRow("subVmTest1")
-            b.wait_in_text("#virtual-machines-listing .listing-ct > tbody:nth-of-type(1) th", "subVmTest1")
-            b.wait_in_text("#virtual-machines-listing .listing-ct > tbody:nth-of-type(2) th", "subVmTest2")
+            self.waitVmRow("subVmTest2")
             b.wait_in_text("#vm-subVmTest1-state", "shut off")
             b.wait_in_text("#vm-subVmTest2-state", "running")
             self.toggleVmRow("subVmTest2")
@@ -392,7 +390,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.click("#vm-subVmTest2-run")
         b.click("#vm-subVmTest2-run") # make use of slow processing - the button is still present; will cause error
         # triangle by status
-        b.wait_present("tr.listing-ct-item.listing-ct-nonavigate span span.pficon-warning-triangle-o.machines-status-alert")
+        b.wait_present("tbody tr[data-row-id=vm-subVmTest2-system] td span span.pficon-warning-triangle-o.machines-status-alert")
         # inline notification with error
         b.wait_in_text("div.pf-c-alert.pf-m-danger .pf-c-alert__title", "VM subVmTest2 failed to start")
 
@@ -407,8 +405,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # inline notification is gone
         b.wait_not_present("div.pf-c-alert.pf-m-danger")
         # triangle by status is gone
-        b.wait_not_present(
-            "tr.listing-ct-item.listing-ct-nonavigate span span.pficon-warning-triangle-o.machines-status-alert")
+        b.wait_not_present("tbody tr[data-row-id=vm-subVmTest2-system] td span span.pficon-warning-triangle-o.machines-status-alert")
 
         # Check correctness of the toast notifications list
         # We 'll create errors by starting to start domains when the default network in inactive
@@ -416,10 +413,10 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         m.execute("virsh destroy subVmTest2 && virsh destroy subVmTest3 && virsh net-destroy default")
 
         def tryRunDomain(index, name):
-            b.wait_in_text("#virtual-machines-listing .listing-ct tbody:nth-of-type({0}) th".format(index), name)
+            self.waitVmRow(name)
 
-            row_classes = b.attr("#virtual-machines-listing .listing-ct > tbody:nth-of-type({0})".format(index), "class")
-            expanded = row_classes and 'open' in row_classes
+            row_classes = b.attr("#virtual-machines-listing .ct-table > tbody:nth-of-type({0})".format(index), "class")
+            expanded = row_classes and 'pf-m-expanded' in row_classes
             if not expanded:
                 self.toggleVmRow(name)
 
@@ -1293,7 +1290,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.click("#vm-{0}-delete-modal-dialog button:contains(Delete)".format(name))
         b.wait_not_present("#vm-{0}-delete-modal-dialog".format(name))
 
-        b.wait_not_present("#vm-{0}-row".format(name))
+        self.waitVmRow(name, "system", False)
 
         m.execute("while test -f {0}; do sleep 1; done".format(img2))
         m.execute("while test -f {0}; do sleep 1; done".format(secondDiskPoolPath + secondDiskVolName))
@@ -1313,7 +1310,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("#vm-{0}-state".format(name), "paused")
         b.click("#vm-{0}-delete".format(name))
         self.browser.reload()
-        self.waitVmRow(name, False)
+        self.waitVmRow(name, 'system', False)
 
         # Try to delete a transient VM
         name = "transient-VM"
@@ -1325,7 +1322,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_present("#vm-{0}-delete:disabled".format(name))
         b.click("#vm-{0}-off-caret".format(name))
         b.click("#vm-{0}-forceOff".format(name))
-        self.waitVmRow(name, False)
+        self.waitVmRow(name, 'system', False)
         b.wait_not_present(".toast-notifications.list-pf div.pf-c-alert")
 
     def testSerialConsole(self):
@@ -2276,7 +2273,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             self._create(dialog)
 
             # successfully created
-            b.wait_in_text("#vm-{0}-row".format(name), name)
+            self.test_obj.waitVmRow(name, dialog.connection or "system")
 
             if dialog.start_vm:
                 # wait for console tab to open
@@ -2299,7 +2296,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 .fill()
             self._create(dialog)
 
-            b.wait_in_text("#vm-{0}-row".format(name), name)
+            self.test_obj.waitVmRow(name)
             b.click("#vm-{0}-install".format(name))
             b.wait_present("#vm-{0}-consoles.pf-m-current".format(name))
 
@@ -2322,7 +2319,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             b.wait_present("#vm-{0}-delete-modal-dialog".format(dialog.name))
             b.click("#vm-{0}-delete-modal-dialog button:contains(Delete)".format(dialog.name))
             b.wait_not_present("#vm-{0}-delete-modal-dialog".format(dialog.name))
-            b.wait_not_present("vm-{0}-row".format(dialog.name))
+            self.test_obj.waitVmRow(dialog.name, "system", False)
 
             return self
 
@@ -2345,7 +2342,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 memory_text = "%.2f GiB" % (dialog.memory_size/1024)
             else:
                 memory_text = "{0} {1}".format(dialog.memory_size, dialog.memory_size_unit)
-            b.wait_in_text("tbody.open .listing-ct-body td:nth-child(1) .usage-donut-caption", memory_text)
+            b.wait_in_text("tbody.pf-m-expanded .ct-listing-panel-body td:nth-child(1) .usage-donut-caption", memory_text)
 
             # check disks
             b.click("#vm-{0}-disks".format(name)) # open the "Disks" subtab
@@ -2376,7 +2373,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 else:
                     raise AssertionError("Unknown disk device")
             else:
-                b.wait_in_text("div.listing-ct-body", "No disks defined")
+                b.wait_in_text(".ct-table-empty", "No disks defined")
                 b.click("#vm-{0}-disks-adddisk".format(name))
                 b.click("#vm-{0}-disks-adddisk-dialog-cancel".format(name))
             return self
@@ -2504,7 +2501,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("body", "Virtual Machines")
         self.waitVmRow("subVmTest1")
 
-        b.click("tbody tr th") # click on the row header
+        self.toggleVmRow("subVmTest1")
         b.wait_in_text("#vm-subVmTest1-state", "running")
 
 
@@ -2693,7 +2690,10 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
             m.execute("mount -t tmpfs tmpfs " + ovmf_path)
             self.addCleanup(m.execute, "umount {0} || true".format(ovmf_path))
-            self.toggleVmRow("VmNotInstalled") # Close and re-expand the row for the new configuration to be read
+
+            # Reload for the new configuration to be read
+            b.reload()
+            b.enter_page('/machines')
             self.toggleVmRow("VmNotInstalled")
 
             # HACK: Capabilities are not updated dynamically
@@ -2722,13 +2722,14 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.click("#vm-VmNotInstalled-install")
         # Wait for virt-install to define the VM and then stop it - otherwise we get 'domain is ready being removed' error
         wait(lambda: "VmNotInstalled" in m.execute("virsh list --persistent"), delay=3)
+        logfile = "/var/log/libvirt/qemu/VmNotInstalled.log"
+        m.execute("> {0}".format(logfile)) # clear logfile
         b.click("#vm-VmNotInstalled-off-caret")
         b.click("#vm-VmNotInstalled-forceOff")
         # https://bugzilla.redhat.com/show_bug.cgi?id=1818089
         # After shutting it off virt-install will restart the domain and exit because of the above bug
         # We need to wait till it's restarted and shut if off again in order to edit the offline VM configuration
-        logfile = "/var/log/libvirt/qemu/VmNotInstalled.log"
-        wait(lambda: self.machine.execute("cat {0}".format(logfile)).count('starting up libvirt') == 2, delay=3)
+        wait(lambda: "char device" in self.machine.execute("cat {0}".format(logfile)), delay=3)
         b.click("#vm-VmNotInstalled-off-caret")
         b.click("#vm-VmNotInstalled-forceOff")
         b.wait_in_text("#vm-VmNotInstalled-state", "shut off")
@@ -4154,9 +4155,9 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 # Check on the volume tab of the storage pool
                 b.click("#pool-{}-{}-storage-volumes".format(self.name, connectionName))
                 if "iscsi" in self.pool_type:
-                    b.wait_present('#create-volume-button:disabled')
+                    b.wait_present('#{}-{}-create-volume-button:disabled'.format(self.name, connectionName))
                 else:
-                    b.wait_present('#create-volume-button:enabled')
+                    b.wait_present('#{}-{}-create-volume-button:enabled'.format(self.name, connectionName))
 
             def cleanup(self):
                 m.execute("virsh pool-undefine {0}".format(self.name))
@@ -4322,7 +4323,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
                 b.click("#pool-{0}-system-storage-volumes".format(self.pool_name)) # open the "Storage Volumes" subtab
 
-                b.click("#create-volume-button") # open the "Storage Volumes" subtab
+                b.click("#{0}-system-create-volume-button".format(self.pool_name)) # open the "Storage Volumes" subtab
 
                 b.wait_present("#create-volume-dialog-modal")
                 b.wait_in_text(".modal-dialog .modal-header .modal-title", "Create Storage Volume")

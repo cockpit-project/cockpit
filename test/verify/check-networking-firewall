@@ -157,7 +157,10 @@ class TestFirewall(NetworkCase):
         b.wait_js_func("((sel, count) => ph_count(sel) == count)", ".zone-section table.listing tbody", len(active_rules))
 
         b.click(".zone-section[data-id='public'] tr[data-row-id='pop3']")
-        b.wait_in_text(".zone-section[data-id='public'] tbody.open tr.listing-ct-panel", "Post Office Protocol")
+        if m.image not in ["rhel-8-3-distropkg"]: # Changed in #13474
+            b.wait_in_text(".zone-section[data-id='public'] tbody.open tr.ct-listing-panel", "Post Office Protocol")
+        else:
+            b.wait_in_text(".zone-section[data-id='public'] tbody.open tr.listing-ct-panel", "Post Office Protocol")
 
         b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] + tr ." + self.btn_danger)
         b.wait_not_present(".zone-section[data-id='public'] tr[data-row-id='pop3']")
@@ -242,7 +245,10 @@ class TestFirewall(NetworkCase):
         if m.image in ['rhel-8-3', 'rhel-8-3-distropkg', 'debian-testing', 'fedora-31', 'fedora-testing', "fedora-32"]:
             addService('public', 'freeipa-4')
             b.click(".zone-section[data-id='public'] tr[data-row-id='freeipa-4']")
-            b.wait_present(".zone-section[data-id='public'] tbody.open .listing-ct-body:contains(Included Services)")
+            if m.image not in ["rhel-8-3-distropkg"]: # Changed in #14118
+                b.wait_present(".zone-section[data-id='public'] tbody.open .ct-listing-panel:contains(Included Services)")
+            else:
+                b.wait_present(".zone-section[data-id='public'] tbody.open .listing-ct-panel:contains(Included Services)")
             b.click(".zone-section[data-id='public'] tr[data-row-id='freeipa-4']")
 
         # pop3 should now not appear any more in Add Services dialog

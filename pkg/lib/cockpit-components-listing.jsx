@@ -174,7 +174,7 @@ export class ListingRow extends React.Component {
         return (
             <tbody className={this.state.expanded ? 'open' : ''}>
                 {listingItem}
-                <tr className="listing-ct-panel">
+                <tr className="ct-listing-panel">
                     <td colSpan={ headerEntries.length + (expandToggle ? 1 : 0) + (this.props.addCheckbox ? 1 : 0) }>
                         {this.state.expanded && <ListingPanel tabRenderers={this.props.tabRenderers}
                                                               simpleBody={this.props.simpleBody}

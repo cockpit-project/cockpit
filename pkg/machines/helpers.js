@@ -24,6 +24,10 @@ const _ = cockpit.gettext;
 export const LIBVIRT_SESSION_CONNECTION = 'session';
 export const LIBVIRT_SYSTEM_CONNECTION = 'system';
 
+export function dummyVmsFilter(vms, uiVms) {
+    return uiVms.filter(uiVm => vms.find(vm => vm.name == uiVm.name && vm.connectionName == uiVm.connectionName) === undefined);
+}
+
 export function toReadableNumber(number) {
     if (number < 1) {
         return number.toFixed(2);

@@ -386,7 +386,10 @@ class TestSystemInfo(MachineCase):
         b.wait_in_text('#hwinfo .info-table-ct tbody:nth-of-type(2) tr:nth-of-type(3) td', "/20")
 
         pci_selector = '#hwinfo #pci-listing'
-        heading_selector = ' .listing-ct-heading'
+        if m.image not in ["rhel-8-3-distropkg"]: # Changed in PR 13474
+            heading_selector = ' .ct-table-heading'
+        else:
+            heading_selector = ' .listing-ct-heading'
         # PCI
         b.wait_in_text(pci_selector + heading_selector, "PCI")
 

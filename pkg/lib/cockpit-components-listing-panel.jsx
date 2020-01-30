@@ -20,7 +20,8 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { Nav, NavItem, NavList, NavVariants } from '@patternfly/react-core';
-import './listing.scss';
+import './cockpit-components-listing-panel.scss';
+
 /* tabRenderers optional: list of tab renderers for inline expansion, array of objects with
  *     - name tab name (has to be unique in the entry, used as react key)
  *     - renderer react component
@@ -102,15 +103,15 @@ export class ListingPanel extends React.Component {
                 continue;
             row = <Renderer key={ this.props.tabRenderers[tabIdx].name } hidden={ (tabIdx !== this.state.activeTab) } {...rendererData} />;
             if (tabIdx === this.state.activeTab)
-                tabs.push(<div className="listing-ct-body" key={tabIdx}>{row}</div>);
+                tabs.push(<div className="ct-listing-panel-body" key={tabIdx}>{row}</div>);
             else
-                tabs.push(<div className="listing-ct-body" key={tabIdx} hidden>{row}</div>);
+                tabs.push(<div className="ct-listing-panel-body" key={tabIdx} hidden>{row}</div>);
         }
 
         let listingDetail;
         if ('listingDetail' in this.props) {
             listingDetail = (
-                <span className="listing-ct-caption">
+                <span className="ct-listing-panel-caption">
                     {this.props.listingDetail}
                 </span>
             );
@@ -119,21 +120,21 @@ export class ListingPanel extends React.Component {
         let simpleBody, heading;
         if (this.props.simpleBody) {
             heading =
-                <div className="listing-ct-actions listing-ct-simplebody-actions">
+                <div className="ct-listing-panel-actions ct-listing-panel-simplebody-actions">
                     {this.props.listingActions}
                 </div>;
             simpleBody =
-                <div className="listing-ct-body" key="simplebody">
+                <div className="ct-listing-panel-body" key="simplebody">
                     {this.props.simpleBody}
                 </div>;
         } else {
-            heading = (<div className="listing-ct-head">
+            heading = (<div className="ct-listing-panel-head">
                 {links.length && <Nav onSelect={this.handleTabClick}>
                     <NavList variant={NavVariants.tertiary}>
                         {links}
                     </NavList>
                 </Nav>}
-                <div className="listing-ct-actions">
+                <div className="ct-listing-panel-actions">
                     {listingDetail}
                     {this.props.listingActions}
                 </div>

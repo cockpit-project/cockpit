@@ -27,9 +27,8 @@ import { NetworkList } from "./components/networks/networkList.jsx";
 import LibvirtSlate from "./components/libvirtSlate.jsx";
 import { CreateVmAction } from "./components/create-vm-dialog/createVmDialog.jsx";
 import { AggregateStatusCards } from "./components/aggregateStatusCards.jsx";
-import { isObjectEmpty } from "./helpers.js";
+import { isObjectEmpty, dummyVmsFilter } from "./helpers.js";
 import { InlineNotification } from 'cockpit-components-inline-notification.jsx';
-import { dummyVmsConvert } from './components/vm/dummyVm.jsx';
 
 var permission = cockpit.permission({ admin: true });
 
@@ -107,7 +106,7 @@ class App extends React.Component {
         const { vms, config, storagePools, systemInfo, ui, networks, nodeDevices, interfaces } = this.props.store.getState();
         const path = this.state.path;
         const dispatch = this.props.store.dispatch;
-        const combinedVms = [...vms, ...dummyVmsConvert(vms, ui.vms)];
+        const combinedVms = [...vms, ...dummyVmsFilter(vms, ui.vms)];
         const properties = {
             dispatch,
             networks, nodeDevices, nodeMaxMemory: config.nodeMaxMemory,

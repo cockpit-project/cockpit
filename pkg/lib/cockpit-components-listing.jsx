@@ -21,6 +21,8 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import './listing.scss';
 
+import { ListingPanel } from './cockpit-components-listing-panel.jsx';
+
 /* entry for an alert in the listing, can be expanded (with details) or standard
  * rowId optional: an identifier for the row which will be set as "data-row-id" attribute on the <tr>
  * columns list of columns to show in the header
@@ -57,15 +59,12 @@ export class ListingRow extends React.Component {
         super(props);
         this.state = {
             expanded: this.props.initiallyExpanded, // show expanded view if true, otherwise one line compact
-            activeTab: this.props.initiallyActiveTab ? this.props.initiallyActiveTab : 0, // currently active tab in expanded mode, defaults to first tab
-            loadedTabs: {}, // which tabs were already loaded - this is important for 'loadOnDemand' setting
             // contains tab indices
             selected: this.props.selected, // whether the current row is selected
         };
         this.handleNavigateClick = this.handleNavigateClick.bind(this);
         this.handleExpandClick = this.handleExpandClick.bind(this);
         this.handleSelectClick = this.handleSelectClick.bind(this);
-        this.handleTabClick = this.handleTabClick.bind(this);
     }
 
     handleNavigateClick(e) {
@@ -82,27 +81,6 @@ export class ListingRow extends React.Component {
 
         const willBeExpanded = !this.state.expanded && (this.props.tabRenderers.length > 0 || this.props.simpleBody);
         this.setState({ expanded: willBeExpanded });
-
-        const loadedTabs = {};
-        // unload all tabs if not expanded
-        if (willBeExpanded) {
-            // see if we should preload some tabs
-            let tabIdx;
-            let tabPresence;
-            for (tabIdx = 0; tabIdx < this.props.tabRenderers.length; tabIdx++) {
-                if ('presence' in this.props.tabRenderers[tabIdx])
-                    tabPresence = this.props.tabRenderers[tabIdx].presence;
-                else
-                    tabPresence = 'default';
-                // the active tab is covered by separate logic
-                if (tabPresence == 'always')
-                    loadedTabs[tabIdx] = true;
-            }
-            // ensure the active tab is loaded
-            loadedTabs[this.state.activeTab] = true;
-        }
-
-        this.setState({ loadedTabs: loadedTabs });
 
         this.props.expandChanged && this.props.expandChanged(willBeExpanded);
 
@@ -128,31 +106,7 @@ export class ListingRow extends React.Component {
         e.stopPropagation();
     }
 
-    handleTabClick(tabIdx, e) {
-        // only consider primary mouse button
-        if (!e || e.button !== 0)
-            return;
-        const prevTab = this.state.activeTab;
-        let prevTabPresence = 'default';
-        const loadedTabs = this.state.loadedTabs;
-        if (prevTab !== tabIdx) {
-            // see if we need to unload the previous tab
-            if (this.props.tabRenderers[prevTab] && 'presence' in this.props.tabRenderers[prevTab])
-                prevTabPresence = this.props.tabRenderers[prevTab].presence;
-
-            if (prevTabPresence == 'onlyActive')
-                delete loadedTabs[prevTab];
-
-            // ensure the new tab is loaded and update state
-            loadedTabs[tabIdx] = true;
-            this.setState({ loadedTabs: loadedTabs, activeTab: tabIdx });
-        }
-        e.stopPropagation();
-        e.preventDefault();
-    }
-
     render() {
-        const self = this;
         // only enable navigation if a function is provided and the row isn't expanded (prevent accidental navigation)
         const allowNavigate = !!this.props.navigateToItem && !this.state.expanded;
 
@@ -217,85 +171,20 @@ export class ListingRow extends React.Component {
             </tr>
         );
 
-        if (this.state.expanded) {
-            const links = this.props.tabRenderers.map((itm, idx) => {
-                return (
-                    <li key={idx} className={ (idx === self.state.activeTab) ? "active" : ""}>
-                        <a href="#" tabIndex="0" onClick={ self.handleTabClick.bind(self, idx) }>{itm.name}</a>
-                    </li>
-                );
-            });
-            const tabs = [];
-            let tabIdx;
-            let Renderer;
-            let rendererData;
-            let row;
-
-            if (this.state.activeTab >= this.props.tabRenderers.length)
-                this.state.activeTab = this.props.tabRenderers.length - 1;
-
-            for (tabIdx = 0; tabIdx < this.props.tabRenderers.length; tabIdx++) {
-                Renderer = this.props.tabRenderers[tabIdx].renderer;
-                rendererData = this.props.tabRenderers[tabIdx].data;
-                if (tabIdx !== this.state.activeTab && !(tabIdx in this.state.loadedTabs))
-                    continue;
-                row = <Renderer key={ this.props.tabRenderers[tabIdx].name } hidden={ (tabIdx !== this.state.activeTab) } {...rendererData} />;
-                if (tabIdx === this.state.activeTab)
-                    tabs.push(<div className="listing-ct-body" key={tabIdx}>{row}</div>);
-                else
-                    tabs.push(<div className="listing-ct-body" key={tabIdx} hidden>{row}</div>);
-            }
-
-            let listingDetail;
-            if ('listingDetail' in this.props) {
-                listingDetail = (
-                    <span className="listing-ct-caption">
-                        {this.props.listingDetail}
-                    </span>
-                );
-            }
-
-            let simpleBody, heading;
-            if ('simpleBody' in this.props) {
-                heading =
-                    <div className="listing-ct-actions listing-ct-simplebody-actions">
-                        {this.props.listingActions}
-                    </div>;
-                simpleBody =
-                    <div className="listing-ct-body" key="simplebody">
-                        {this.props.simpleBody}
-                    </div>;
-            } else {
-                heading = (<div className="listing-ct-head">
-                    <div className="listing-ct-actions">
-                        {listingDetail}
-                        {this.props.listingActions}
-                    </div>
-                    <ul className="nav nav-tabs nav-tabs-pf">
-                        {links}
-                    </ul>
-                </div>);
-            }
-
-            return (
-                <tbody className="open">
-                    {listingItem}
-                    <tr className="listing-ct-panel">
-                        <td colSpan={ headerEntries.length + (expandToggle ? 1 : 0) + (this.props.addCheckbox ? 1 : 0) }>
-                            {heading}
-                            {simpleBody || tabs}
-                        </td>
-                    </tr>
-                </tbody>
-            );
-        } else {
-            return (
-                <tbody>
-                    {listingItem}
-                    <tr className="listing-ct-panel" />
-                </tbody>
-            );
-        }
+        return (
+            <tbody className={this.state.expanded ? 'open' : ''}>
+                {listingItem}
+                <tr className="listing-ct-panel">
+                    <td colSpan={ headerEntries.length + (expandToggle ? 1 : 0) + (this.props.addCheckbox ? 1 : 0) }>
+                        {this.state.expanded && <ListingPanel tabRenderers={this.props.tabRenderers}
+                                                              simpleBody={this.props.simpleBody}
+                                                              initiallyActiveTab={this.props.initiallyActiveTab}
+                                                              listingActions={this.props.listingActions}
+                                                              listingDetail={this.props.listingDetail} />}
+                    </td>
+                </tr>
+            </tbody>
+        );
     }
 }
 

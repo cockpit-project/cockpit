@@ -123,7 +123,7 @@ export class StorageVolumeCreate extends React.Component {
     }
 
     render() {
-        const idPrefix = `create-volume`;
+        const idPrefix = `${this.props.storagePool.name}-${this.props.storagePool.connectionName}-create-volume`;
         const poolTypesNotSupportingVolumeCreation = ['iscsi', 'iscsi-direct', 'gluster', 'mpath'];
 
         const createButton = () => {
@@ -157,7 +157,7 @@ export class StorageVolumeCreate extends React.Component {
                 { createButton() }
                 { this.state.showModal &&
                 <CreateStorageVolumeModal
-                    idPrefix={idPrefix}
+                    idPrefix="create-volume"
                     storagePool={this.props.storagePool}
                     close={this.close} /> }
             </>

@@ -17,6 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+import cockpit from "cockpit";
 import PropTypes from 'prop-types';
 import React from 'react';
 import {
@@ -27,6 +28,7 @@ import {
     RowWrapper,
     SortByDirection,
     sortable,
+    expandable,
 } from '@patternfly/react-table';
 
 import './cockpit-components-table.scss';
@@ -43,6 +45,9 @@ import './listing.scss';
  *      columns: (React.Node or string)[],
  *      extraClasses: string[],
  *      props: { key: string, ...extraProps: object } - this property is mandatory and should contain a unique `key`, all additional properties are optional
+ *      expandedContent: (React.Node)[])
+ *      initiallyExpanded : the entry will be initially rendered as expanded, but then behaves normally
+ *      rowId: an identifier for the row which will be set as "data-row-id" and attribute on the <tr>
  *   }[]
  * - emptyCaption: header caption to show if list is empty
  * - variant: For compact tables pass 'compact'
@@ -56,8 +61,25 @@ export class ListingTable extends React.Component {
             sortBy.index = props.sortBy.index || 0;
             sortBy.direction = props.sortBy.direction || SortByDirection.asc;
         }
-        this.state = { sortBy };
         this.onSort = this.onSort.bind(this);
+        this.onCollapse = this.onCollapse.bind(this);
+        this.reformatRows = this.reformatRows.bind(this);
+
+        this.state = { sortBy, isOpen: {} };
+    }
+
+    static getDerivedStateFromProps(nextProps, prevState) {
+        const isOpen = {};
+        (nextProps.rows || []).forEach(currentValue => {
+            // For expandable rows
+            if (currentValue.expandedContent) {
+                if (prevState.isOpen[currentValue.props.key] === undefined)
+                    isOpen[currentValue.props.key] = !!currentValue.initiallyExpanded;
+                else
+                    isOpen[currentValue.props.key] = prevState.isOpen[currentValue.props.key];
+            }
+        });
+        return { isOpen };
     }
 
     onSort(_event, index, direction) {
@@ -67,6 +89,13 @@ export class ListingTable extends React.Component {
                 direction,
             },
         });
+    }
+
+    onCollapse(event, rowKey, isOpenCurrent, rowData) {
+        const { isOpen } = this.state;
+
+        isOpen[rowData.props.key] = isOpenCurrent;
+        this.setState({ isOpen });
     }
 
     sortRows(rows) {
@@ -82,11 +111,11 @@ export class ListingTable extends React.Component {
         if (props.row.extraClasses)
             className = props.row.extraClasses.join(' ');
 
-        return <RowWrapper {...props} className={className} />;
+        return <RowWrapper {...props} data-row-id={props.row.rowId} className={className} />;
     }
 
-    reformatColumns(columns) {
-        return columns.map(column => {
+    reformatColumns(columns, isExpandable) {
+        const res = columns.map(column => {
             const res = {};
             if (typeof column == 'string') {
                 res.title = column;
@@ -101,9 +130,15 @@ export class ListingTable extends React.Component {
             }
             return res;
         });
+
+        if (isExpandable)
+            res[0].cellFormatters = [expandable];
+
+        return res;
     }
 
     reformatRows(rows) {
+        let rowIndex = 0;
         return rows.reduce((total, currentValue, currentIndex) => {
             const rowFormatted = {
                 cells: currentValue.columns.map((cell, cellIdx) => {
@@ -118,12 +153,28 @@ export class ListingTable extends React.Component {
             };
             rowFormatted.extraClasses = currentValue.extraClasses;
             rowFormatted.props = currentValue.props;
+            rowFormatted.rowId = currentValue.rowId;
 
             // For selectable rows
             if ('selected' in currentValue)
                 rowFormatted.selected = currentValue.selected;
 
+            // For expandable rows
+            if (currentValue.expandedContent)
+                rowFormatted.isOpen = this.state.isOpen[currentValue.props.key];
+
             total.push(rowFormatted);
+            rowIndex++;
+
+            if (currentValue.expandedContent) {
+                total.push({
+                    parent: rowIndex - 1,
+                    cells: [{ title: currentValue.expandedContent }],
+                    fullWidth: true, noPadding: true,
+                    rowId: currentValue.rowId ? cockpit.format("$0-expanded", currentValue.rowId) : undefined
+                });
+                rowIndex++;
+            }
 
             return total;
         }, []);
@@ -132,8 +183,9 @@ export class ListingTable extends React.Component {
     render() {
         const props = {};
 
+        props.className = "ct-table";
         if (this.props.className)
-            props.className = this.props.className;
+            props.className = props.className + " " + this.props.className;
         props.rowWrapper = this.rowWrapper;
         if (this.props.columns.some(col => col.sortable)) {
             props.onSort = this.onSort;
@@ -143,18 +195,23 @@ export class ListingTable extends React.Component {
             props.onSelect = this.props.onSelect;
         if (this.props.caption || this.props.actions.length != 0) {
             props.header = (
-                <header>
-                    <h3 className='listing-ct-heading'> {this.props.caption} </h3>
-                    {this.props.actions && <div className='listing-ct-actions'> {this.props.actions} </div>}
+                <header className='ct-table-header'>
+                    <h3 className='ct-table-heading'> {this.props.caption} </h3>
+                    {this.props.actions && <div className='ct-table-actions'> {this.props.actions} </div>}
                 </header>
             );
         }
         if (this.props.variant)
             props.variant = this.props.variant;
+
+        const isExpandable = this.props.rows.some(row => row.expandedContent);
+        if (isExpandable)
+            props.onCollapse = this.onCollapse;
+
         props.rows = this.props.rows.length ? this.reformatRows(this.props.rows) : [];
         if (this.state.sortBy.index != undefined)
             props.rows = this.sortRows(props.rows);
-        props.cells = this.reformatColumns(this.props.columns);
+        props.cells = this.reformatColumns(this.props.columns, isExpandable);
         if (this.props['aria-label'])
             props['aria-label'] = this.props['aria-label'];
 
@@ -172,7 +229,7 @@ export class ListingTable extends React.Component {
             props.borders = false;
             return (
                 <Table {...props}>
-                    <thead className='listing-ct-empty'>
+                    <thead className='ct-table-empty'>
                         <tr><td> {this.props.emptyCaption} </td></tr>
                     </thead>
                 </Table>
@@ -191,7 +248,7 @@ ListingTable.propTypes = {
     caption: PropTypes.string,
     emptyCaption: PropTypes.node,
     columns: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.object, PropTypes.string])),
-    rows: PropTypes.arrayOf(PropTypes.shape({ props: PropTypes.object.isRequired })),
+    rows: PropTypes.arrayOf(PropTypes.shape({ props: PropTypes.object })),
     actions: PropTypes.node,
     variant: PropTypes.string,
 };

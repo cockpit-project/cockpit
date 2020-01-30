@@ -16,36 +16,28 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
-import React from 'react';
 import PropTypes from 'prop-types';
+import React from 'react';
 import cockpit from 'cockpit';
 
-import { ListingRow } from "cockpit-components-listing.jsx";
-
-import {
-    rephraseUI,
-    vmId,
-} from "../../helpers.js";
+import { vmId } from "../../helpers.js";
 
 import VmDisksTab from '../vmDisksTabLibvirt.jsx';
 import VmNetworkTab from '../vmnetworktab.jsx';
 import Consoles from '../consoles.jsx';
 import VmOverviewTab from '../vmOverviewTabLibvirt.jsx';
 import VmActions from './vmActions.jsx';
-import StateIcon from './stateIcon.jsx';
 import VmUsageTab from './vmUsageTab.jsx';
+import { ListingPanel } from 'cockpit-components-listing-panel.jsx';
 
 const _ = cockpit.gettext;
 
 /** One VM in the list (a row)
  */
-const Vm = ({
+export const VmExpandedContent = ({
     vm, vms, config, libvirtVersion, hostDevices, storagePools, onStart, onInstall, onShutdown, onPause, onResume, onForceoff, onReboot, onForceReboot,
     onUsageStartPolling, onUsageStopPolling, onSendNMI, dispatch, networks, interfaces, nodeDevices, resourceHasError, onAddErrorNotification
 }) => {
-    const stateAlert = resourceHasError[vm.id] ? <span className='pficon-warning-triangle-o machines-status-alert' /> : null;
-    const stateIcon = (<StateIcon state={vm.state} valueId={`${vmId(vm.name)}-state`} extra={stateAlert} />);
-
     const overviewTabName = (<a href="#" id={`${vmId(vm.name)}-overview`}>{_("Overview")}</a>);
     const usageTabName = (<a href="#" id={`${vmId(vm.name)}-usage`}>{_("Usage")}</a>);
     const disksTabName = (<a href="#" id={`${vmId(vm.name)}-disks`}>{_("Disks")}</a>);
@@ -65,21 +57,8 @@ const Vm = ({
         initiallyActiveTab = tabRenderers.map((o) => o.name).indexOf(consolesTabName);
     }
 
-    const name = (<span id={`${vmId(vm.name)}-row`}>{vm.name}</span>);
-    const extraClasses = [];
-
-    if (resourceHasError[vm.id])
-        extraClasses.push('error');
-
-    return (<ListingRow
-        extraClasses={extraClasses}
-        rowId={`${vmId(vm.name)}`}
-        columns={[
-            { name, header: true },
-            rephraseUI('connections', vm.connectionName),
-            stateIcon,
-        ]}
-        initiallyExpanded={vm.ui.initiallyExpanded}
+    return (<ListingPanel
+        colSpan='4'
         initiallyActiveTab={initiallyActiveTab}
         tabRenderers={tabRenderers}
         listingActions={VmActions({
@@ -98,8 +77,7 @@ const Vm = ({
             onSendNMI,
         })} />);
 };
-
-Vm.propTypes = {
+VmExpandedContent.propTypes = {
     vm: PropTypes.object.isRequired,
     vms: PropTypes.array.isRequired,
     config: PropTypes.object.isRequired,
@@ -119,9 +97,6 @@ Vm.propTypes = {
     dispatch: PropTypes.func.isRequired,
     networks: PropTypes.array.isRequired,
     interfaces: PropTypes.array.isRequired,
-    resourceHasError: PropTypes.object.isRequired,
     onAddErrorNotification: PropTypes.func.isRequired,
     nodeDevices: PropTypes.array.isRequired,
 };
-
-export default Vm;

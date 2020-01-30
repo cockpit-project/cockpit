@@ -568,11 +568,11 @@ CMD ["/bin/sh"]
         b.click(sel)
 
         # wait for the Problems tab then click it
-        sel = '#containers-containers .listing-ct-panel .listing-ct-head ul li a:contains("Problems")'
+        sel = '#containers-containers .ct-listing-panel .listing-ct-head ul li a:contains("Problems")'
         b.click(sel)
 
         # open link to logs
-        sel = "#containers-containers .listing-ct-panel .listing-ct-body a.list-group-item"
+        sel = "#containers-containers .ct-listing-panel .listing-ct-body a.list-group-item"
         b.wait_in_text(sel, "sleep")
         b.click(sel + ':contains("sleep")')
 

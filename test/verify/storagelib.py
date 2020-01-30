@@ -113,18 +113,18 @@ class StorageHelpers:
 
     def content_head_action(self, index, title):
         self.content_row_expand(index)
-        btn = self.content_row_tbody(index) + " .listing-ct-head .listing-ct-actions button:contains(%s)" % title
+        btn = self.content_row_tbody(index) + " .ct-listing-panel-actions button:contains(%s)" % title
         self.browser.click(btn)
 
     def content_dropdown_action(self, index, title):
         self.content_row_expand(index)
-        dropdown = self.content_row_tbody(index) + " .listing-ct-head .listing-ct-actions .dropdown"
+        dropdown = self.content_row_tbody(index) + " .ct-listing-panel-actions .dropdown"
         self.browser.click(dropdown + " [data-toggle=dropdown]")
         self.browser.click(dropdown + " a:contains('%s')" % title)
 
     def content_tab_expand(self, row_index, tab_index):
-        tab_btn = self.content_row_tbody(row_index) + " .listing-ct-head > nav ul li:nth-child(%d) a" % tab_index
-        tab = self.content_row_tbody(row_index) + " .listing-ct-body:nth-child(%d)" % (tab_index + 1)
+        tab_btn = self.content_row_tbody(row_index) + " .ct-listing-panel-head > nav ul li:nth-child(%d) a" % tab_index
+        tab = self.content_row_tbody(row_index) + " .ct-listing-panel-body:nth-child(%d)" % (tab_index + 1)
         self.content_row_expand(row_index)
         self.browser.click(tab_btn)
         self.browser.wait_present(tab)
@@ -163,8 +163,8 @@ class StorageHelpers:
         def check():
             row = self.content_row_tbody(row_index)
             row_item = row + " tr.listing-ct-item"
-            tab_btn = row + " .listing-ct-head > nav ul li:nth-child(%d) a" % tab_index
-            tab = row + " .listing-ct-body:nth-child(%d)" % (tab_index + 1)
+            tab_btn = row + " .ct-listing-panel-head > nav ul li:nth-child(%d) a" % tab_index
+            tab = row + " .ct-listing-panel-body:nth-child(%d)" % (tab_index + 1)
             cell = tab + " div.ct-form label:contains(%s) + *" % title
 
             if not b.is_present(row + ".open"):

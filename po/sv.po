@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-15 11:50+0000\n"
+"POT-Creation-Date: 2020-01-22 08:44+0000\n"
 "PO-Revision-Date: 2019-09-20 11:25+0000\n"
 "Last-Translator: Göran Uddeborg <goeran@uddeborg.se>\n"
 "Language-Team: Swedish\n"
@@ -49,10 +49,6 @@ msgctxt "storage-id-desc"
 msgid "$0 File System"
 msgstr "$0 filsystem"
 
-#: pkg/systemd/overview-cards/usageCard.jsx:138
-msgid "$0 GiB / $1 GiB"
-msgstr ""
-
 #: pkg/machines/components/create-vm-dialog/pxe-helpers.js:105
 msgid "$0 Network"
 msgstr "$0 Nätverk"
@@ -66,6 +62,12 @@ msgstr[1] "$0 Paket"
 #: pkg/systemd/init.js:484 pkg/systemd/service-details.jsx:59
 msgid "$0 Template"
 msgstr "$0 mall"
+
+#: pkg/docker/containers-view.jsx:614
+msgid "$0 Vulnerability"
+msgid_plural "$0 Vulnerabilities"
+msgstr[0] ""
+msgstr[1] ""
 
 #: pkg/networkmanager/firewall.jsx:160
 msgid "$0 Zone"
@@ -248,17 +250,9 @@ msgid_plural "$1 security fixes"
 msgstr[0] "$1 säkerhetsfix"
 msgstr[1] "$1 säkerhetsfixar"
 
-#: pkg/networkmanager/interfaces.js:2739
-msgid "$mtu"
-msgstr "$mtu"
-
 #: pkg/storaged/utils.js:182
 msgid "$name (from $host)"
 msgstr "$name (från $host)"
-
-#: pkg/docker/details.js:151
-msgid "${hip}:${hport} -> $cport"
-msgstr "${hip}:${hport} → $cport"
 
 #: pkg/storaged/utils.js:126
 msgid "${size} ${desc}"
@@ -290,11 +284,6 @@ msgstr "1 MiB"
 msgid "1 Minute"
 msgstr "1 minut"
 
-#: pkg/docker/containers-view.jsx:614
-msgid "1 Vulnerability"
-msgid_plural "$0 Vulnerabilities"
-msgstr[0] ""
-
 #: pkg/dashboard/index.html:55 pkg/networkmanager/index.html:72
 #: pkg/networkmanager/index.html:408 pkg/systemd/graphs.html:55
 #: pkg/storaged/plot.jsx:85
@@ -307,7 +296,7 @@ msgstr "1 dag"
 msgid "1 hour"
 msgstr "1 timma"
 
-#: pkg/systemd/graphs.js:384
+#: pkg/systemd/graphs.js:382
 msgid "1 min"
 msgstr "1 min"
 
@@ -373,7 +362,7 @@ msgstr "1:a"
 msgid "2 MiB"
 msgstr "2 MiB"
 
-#: pkg/systemd/graphs.js:383
+#: pkg/systemd/graphs.js:381
 msgid "2 min"
 msgstr "2 min"
 
@@ -425,7 +414,7 @@ msgstr "29:e"
 msgid "2nd"
 msgstr "2:a"
 
-#: pkg/systemd/graphs.js:382
+#: pkg/systemd/graphs.js:380
 msgid "3 min"
 msgstr "3 min"
 
@@ -449,7 +438,7 @@ msgstr "3:e"
 msgid "4 KiB"
 msgstr "4 KiB"
 
-#: pkg/systemd/graphs.js:381
+#: pkg/systemd/graphs.js:379
 msgid "4 min"
 msgstr "4 min"
 
@@ -465,7 +454,7 @@ msgstr "4:e"
 msgid "5 Minutes"
 msgstr "5 minuter"
 
-#: pkg/systemd/graphs.js:380
+#: pkg/systemd/graphs.js:378
 msgid "5 min"
 msgstr "5 min"
 
@@ -1066,7 +1055,7 @@ msgstr ""
 msgid "Available"
 msgstr "Tillgängliga"
 
-#: pkg/packagekit/updates.jsx:872
+#: pkg/packagekit/updates.jsx:880
 msgid "Available Updates"
 msgstr "Tillgängliga uppdateringar"
 
@@ -1185,7 +1174,7 @@ msgstr "Utsändning"
 msgid "Broken configuration"
 msgstr "Trasig konfiguration"
 
-#: pkg/packagekit/updates.jsx:852
+#: pkg/packagekit/updates.jsx:860
 msgid "Bug Fix Updates Available"
 msgstr "Felrättningsuppdateringar tillgängliga"
 
@@ -1211,7 +1200,7 @@ msgstr "Bussexpansionschassi"
 msgid "CPU"
 msgstr "CPU"
 
-#: pkg/systemd/graphs.js:491
+#: pkg/systemd/graphs.js:487
 msgid "CPU Graph"
 msgstr ""
 
@@ -1223,7 +1212,7 @@ msgstr ""
 msgid "CPU Security Toggles"
 msgstr ""
 
-#: pkg/systemd/graphs.js:258
+#: pkg/systemd/graphs.js:256
 msgctxt "page-title"
 msgid "CPU Status"
 msgstr "CPU-status"
@@ -1245,7 +1234,7 @@ msgstr "CPU-användning:"
 msgid "Cache"
 msgstr ""
 
-#: pkg/systemd/graphs.html:161 pkg/systemd/graphs.js:394
+#: pkg/systemd/graphs.html:161 pkg/systemd/graphs.js:392
 msgid "Cached"
 msgstr "Cachad"
 
@@ -1411,7 +1400,7 @@ msgstr "Kontrollerar och reparerar RAID-enhet $target"
 msgid "Checking for new applications"
 msgstr "Kontrollerar om det finns nya program"
 
-#: pkg/systemd/overview-cards/healthCard.jsx:83
+#: pkg/packagekit/updates.jsx:819
 msgid "Checking for package updates..."
 msgstr ""
 
@@ -2240,7 +2229,7 @@ msgstr "Fördröjning"
 #: pkg/docker/index.html:139 pkg/docker/index.html:251
 #: pkg/networkmanager/index.html:440 pkg/users/index.html:79
 #: pkg/users/index.html:357 pkg/docker/containers-view.jsx:202
-#: pkg/docker/details.js:293 pkg/docker/util.js:641
+#: pkg/docker/details.js:288 pkg/docker/util.js:641
 #: pkg/machines/components/deleteDialog.jsx:145
 #: pkg/machines/components/deleteDialog.jsx:161
 #: pkg/machines/components/deleteResource.jsx:76
@@ -2258,7 +2247,7 @@ msgstr "Fördröjning"
 msgid "Delete"
 msgstr "Ta bort"
 
-#: pkg/networkmanager/interfaces.js:2418 pkg/users/local.js:1199
+#: pkg/networkmanager/interfaces.js:2418 pkg/users/local.js:1198
 msgid "Delete $0"
 msgstr "Ta bort $0"
 
@@ -2307,7 +2296,7 @@ msgstr "Att ta bort en RAID-enhet kommer att radera all data på den."
 msgid "Deleting a VDO device will erase all data on it."
 msgstr "Att ta bort en VDO-enhet kommer att ta bort all data på den."
 
-#: pkg/docker/containers-view.jsx:201 pkg/docker/details.js:292
+#: pkg/docker/containers-view.jsx:201 pkg/docker/details.js:287
 msgid "Deleting a container will erase all data in it."
 msgstr "Att ta bort en behållare kommer att radera all data i den."
 
@@ -2440,7 +2429,7 @@ msgstr "Disk"
 msgid "Disk $0 fail to get detached from VM $1"
 msgstr ""
 
-#: pkg/dashboard/index.html:73 pkg/systemd/graphs.js:74
+#: pkg/dashboard/index.html:73 pkg/systemd/graphs.js:72
 msgid "Disk I/O"
 msgstr "Disk-I/O"
 
@@ -2693,7 +2682,7 @@ msgstr ""
 msgid "Enforcing"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:854
+#: pkg/packagekit/updates.jsx:862
 msgid "Enhancement Updates Available"
 msgstr "Förbättringsuppdateringar är tillgängliga"
 
@@ -2753,7 +2742,7 @@ msgstr "Errata:"
 #: pkg/apps/utils.jsx:100 pkg/storaged/fsys-tab.jsx:283
 #: pkg/storaged/multipath.jsx:58 pkg/storaged/storage-controls.jsx:83
 #: pkg/storaged/storage-controls.jsx:177 pkg/systemd/service-details.jsx:451
-#: pkg/users/local.js:1492
+#: pkg/users/local.js:1491
 msgid "Error"
 msgstr "Fel"
 
@@ -2809,7 +2798,7 @@ msgstr ""
 msgid "Example: 88,2019,nfs,rsync"
 msgstr ""
 
-#: pkg/users/local.js:447 pkg/users/local.js:1437
+#: pkg/users/local.js:447 pkg/users/local.js:1436
 msgid "Excellent password"
 msgstr "Utmärkt lösenord"
 
@@ -3149,7 +3138,7 @@ msgstr "Hårddisk"
 msgid "Hardware Information"
 msgstr "Hårdvaruinformation"
 
-#: pkg/systemd/overview-cards/healthCard.jsx:72
+#: pkg/systemd/overview-cards/healthCard.jsx:55
 msgid "Health"
 msgstr ""
 
@@ -3207,7 +3196,7 @@ msgstr "Timmen måste vara ett tal mellan 0-23"
 msgid "Hours"
 msgstr "Timmar"
 
-#: pkg/systemd/graphs.html:146 pkg/systemd/graphs.js:297
+#: pkg/systemd/graphs.html:146 pkg/systemd/graphs.js:295
 msgid "I/O Wait"
 msgstr "I/O-väntan"
 
@@ -3434,7 +3423,7 @@ msgstr ""
 msgid "Install"
 msgstr "Installera"
 
-#: pkg/packagekit/updates.jsx:839
+#: pkg/packagekit/updates.jsx:847
 msgid "Install All Updates"
 msgstr "Installera alla uppdateringar"
 
@@ -3442,7 +3431,7 @@ msgstr "Installera alla uppdateringar"
 msgid "Install NFS Support"
 msgstr "Installera stöd för NFS"
 
-#: pkg/packagekit/updates.jsx:839 pkg/packagekit/updates.jsx:845
+#: pkg/packagekit/updates.jsx:847 pkg/packagekit/updates.jsx:853
 msgid "Install Security Updates"
 msgstr "Installera säkerhetsuppdateringar"
 
@@ -3547,7 +3536,7 @@ msgstr "Felaktigt datumformat och felaktigt tidsformat"
 msgid "Invalid date format."
 msgstr "Felaktigt datumformat."
 
-#: pkg/users/local.js:1257
+#: pkg/users/local.js:1256
 msgid "Invalid expiration date"
 msgstr "Felaktigt utgångsdatum"
 
@@ -3567,7 +3556,7 @@ msgstr "Felaktig nyckel"
 msgid "Invalid metric $0"
 msgstr "Felaktigt mått $0"
 
-#: pkg/users/local.js:1333
+#: pkg/users/local.js:1332
 msgid "Invalid number of days"
 msgstr "Felaktigt antal dagar"
 
@@ -3681,7 +3670,7 @@ msgstr "Kerberos-baserad SSO"
 msgid "Kerberos Ticket"
 msgstr "Kerberosbiljett"
 
-#: pkg/systemd/graphs.html:142 pkg/systemd/graphs.js:298
+#: pkg/systemd/graphs.html:142 pkg/systemd/graphs.js:296
 msgid "Kernel"
 msgstr "Kärnan"
 
@@ -3879,7 +3868,7 @@ msgstr "Lås"
 msgid "Lock Account"
 msgstr "Lås kontot"
 
-#: pkg/users/local.js:901 pkg/users/local.js:1238
+#: pkg/users/local.js:901 pkg/users/local.js:1237
 msgid "Lock account on $0"
 msgstr "Lås kontot på $0"
 
@@ -4113,7 +4102,7 @@ msgstr "Medlem i RAID-enhet $0"
 msgid "Memory"
 msgstr "Minne"
 
-#: pkg/systemd/graphs.js:356
+#: pkg/systemd/graphs.js:354
 msgctxt "page-title"
 msgid "Memory"
 msgstr "Minne"
@@ -4122,11 +4111,11 @@ msgstr "Minne"
 msgid "Memory & Swap"
 msgstr "Minne och växling"
 
-#: pkg/systemd/graphs.js:441
+#: pkg/systemd/graphs.js:439
 msgid "Memory & Swap Usage"
 msgstr ""
 
-#: pkg/systemd/graphs.js:499
+#: pkg/systemd/graphs.js:493
 msgid "Memory Graph"
 msgstr ""
 
@@ -4455,7 +4444,7 @@ msgstr ""
 msgid "Network Selection does not support PXE."
 msgstr ""
 
-#: pkg/systemd/graphs.js:75
+#: pkg/systemd/graphs.js:73
 msgid "Network Traffic"
 msgstr "Nätverkstrafik"
 
@@ -4532,7 +4521,7 @@ msgstr "Nästa"
 msgid "Next Run"
 msgstr "Nästa körning"
 
-#: pkg/systemd/graphs.html:134 pkg/systemd/graphs.js:300
+#: pkg/systemd/graphs.html:134 pkg/systemd/graphs.js:298
 msgid "Nice"
 msgstr "Nice"
 
@@ -4841,8 +4830,8 @@ msgstr "Inte tillgängligt"
 msgid "Not connected"
 msgstr "Inte ansluten"
 
-#: pkg/systemd/overview-cards/healthCard.jsx:90
-#: pkg/systemd/overview-cards/healthCard.jsx:91
+#: pkg/systemd/overview-cards/healthCard.jsx:62
+#: pkg/systemd/overview-cards/healthCard.jsx:63
 msgid "Not connected to Insights"
 msgstr ""
 
@@ -4850,7 +4839,7 @@ msgstr ""
 msgid "Not enough space to grow."
 msgstr "Inte tillräckligt med utrymme för att växa"
 
-#: pkg/docker/details.js:186 pkg/storaged/details.jsx:121
+#: pkg/docker/details.js:181 pkg/storaged/details.jsx:121
 msgid "Not found"
 msgstr "Finns inte"
 
@@ -5252,7 +5241,7 @@ msgstr "Ping-mål"
 msgid "Pizza Box"
 msgstr "Pizzalåda"
 
-#: pkg/docker/containers-view.jsx:200 pkg/docker/details.js:291
+#: pkg/docker/containers-view.jsx:200 pkg/docker/details.js:286
 #: pkg/docker/util.js:612 pkg/storaged/content-views.jsx:305
 #: pkg/storaged/mdraid-details.jsx:289 pkg/storaged/vdo-details.jsx:194
 #: pkg/storaged/vgroup-details.jsx:207
@@ -5279,7 +5268,7 @@ msgstr "Ange en ny volymstorlek"
 msgid "Please install the $0 package"
 msgstr "Installera paketet $0"
 
-#: pkg/users/local.js:1252
+#: pkg/users/local.js:1251
 msgid "Please specify an expiration date"
 msgstr "Ange ett utgångsdatum"
 
@@ -5857,7 +5846,7 @@ msgstr ""
 msgid "Repository"
 msgstr "Förråd"
 
-#: pkg/users/local.js:1316
+#: pkg/users/local.js:1315
 msgid "Require password change every $0 days"
 msgstr "Begär en lösenordsändring var $0:e dag"
 
@@ -5922,9 +5911,9 @@ msgid ""
 msgstr ""
 
 #: pkg/docker/index.html:138 pkg/docker/containers-view.jsx:315
-#: pkg/machines/components/vm/vmActions.jsx:42 pkg/systemd/overview.jsx:116
-#: pkg/systemd/service-details.jsx:170 pkg/systemd/shutdown.js:99
-#: pkg/systemd/shutdown.js:100
+#: pkg/machines/components/vm/vmActions.jsx:42 pkg/systemd/overview.jsx:102
+#: pkg/systemd/overview.jsx:123 pkg/systemd/service-details.jsx:170
+#: pkg/systemd/shutdown.js:99 pkg/systemd/shutdown.js:100
 msgid "Restart"
 msgstr "Starta om"
 
@@ -5940,11 +5929,11 @@ msgstr "Omstartspolicy"
 msgid "Restart Policy:"
 msgstr "Omstartspolicy:"
 
-#: pkg/packagekit/updates.jsx:499 pkg/packagekit/updates.jsx:916
+#: pkg/packagekit/updates.jsx:499 pkg/packagekit/updates.jsx:924
 msgid "Restart Recommended"
 msgstr "Omstart rekommenderas"
 
-#: pkg/packagekit/updates.jsx:928
+#: pkg/packagekit/updates.jsx:936
 msgid "Restarting"
 msgstr "Startar om"
 
@@ -6142,7 +6131,7 @@ msgstr "Raderar säkert $target"
 msgid "Security"
 msgstr "Säkerhet"
 
-#: pkg/packagekit/updates.jsx:850
+#: pkg/packagekit/updates.jsx:858
 msgid "Security Updates Available"
 msgstr "Säkerhetsuppdateringar tillgängliga"
 
@@ -6378,7 +6367,7 @@ msgstr ""
 msgid "Shut Down"
 msgstr "Stäng av"
 
-#: pkg/systemd/overview.jsx:104
+#: pkg/systemd/overview.jsx:105
 msgid "Shutdown"
 msgstr ""
 
@@ -6749,7 +6738,7 @@ msgctxt "storage-id-desc"
 msgid "Swap Space"
 msgstr "Växlingsutrymme"
 
-#: pkg/systemd/graphs.html:157 pkg/systemd/graphs.js:411
+#: pkg/systemd/graphs.html:157 pkg/systemd/graphs.js:409
 msgid "Swap Used"
 msgstr "Använt växlingsutrymme"
 
@@ -6826,7 +6815,7 @@ msgstr "Systemtjänster"
 msgid "System information"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:935 pkg/packagekit/updates.jsx:948
+#: pkg/packagekit/updates.jsx:942 pkg/packagekit/updates.jsx:956
 msgid "System is up to date"
 msgstr "Systemet är uppdaterat"
 
@@ -6988,7 +6977,7 @@ msgstr "VM:en är i vila av gästens strömhantering."
 msgid "The VM needs to be running or shut off to detach this device"
 msgstr ""
 
-#: pkg/users/local.js:1358
+#: pkg/users/local.js:1357
 msgid "The account '$0' will be forced to change their password on next login"
 msgstr ""
 "Kontot ”$0” kommer att tvingas ändra sitt lösenord vid nästa inloggning"
@@ -7131,7 +7120,7 @@ msgstr ""
 msgid "The machine is restarting"
 msgstr "Maskinen startar om"
 
-#: pkg/users/local.js:413 pkg/users/local.js:1415
+#: pkg/users/local.js:413 pkg/users/local.js:1414
 msgid "The passwords do not match"
 msgstr "Lösenorden stämmer inte överens"
 
@@ -7143,14 +7132,17 @@ msgstr "Lösenorden stämmer inte överens."
 msgid "The pool is empty"
 msgstr "Poolen är tom"
 
+#: pkg/docker/containers-view.jsx:436
+#, fuzzy
+#| msgid "The scan from $time ($type) found no vulnerabilities."
+msgid "The scan from $time ($type) found $count vulnerability:"
+msgid_plural "The scan from $time ($type) found $count vulnerabilities:"
+msgstr[0] "Skanningen från $time ($type) hittade inga sårbarheter."
+msgstr[1] "Skanningen från $time ($type) hittade inga sårbarheter."
+
 #: pkg/docker/containers-view.jsx:434
 msgid "The scan from $time ($type) found no vulnerabilities."
 msgstr "Skanningen från $time ($type) hittade inga sårbarheter."
-
-#: pkg/docker/containers-view.jsx:436
-msgid "The scan from $time ($type) found one vulnerability:"
-msgid_plural "The scan from $time ($type) found $count vulnerabilities:"
-msgstr[0] ""
 
 #: pkg/docker/containers-view.jsx:432
 msgid "The scan from $time ($type) was not successful."
@@ -7195,7 +7187,7 @@ msgstr ""
 msgid "The user $0 is not permitted to modify realms"
 msgstr "Användaren <b>$0</b> har inte rättighet att ändra riken"
 
-#: pkg/systemd/overview.jsx:110
+#: pkg/systemd/overview.jsx:111
 msgid "The user $0 is not permitted to shutdown or restart this server"
 msgstr ""
 
@@ -7424,7 +7416,7 @@ msgstr "Denna volym behöver aktiveras före dess storlek kan ändras."
 msgid "This web browser is too old to run Cockpit (missing $0)"
 msgstr "Denna webbläsare är för gammal för att köra Cockpit (saknar $0)"
 
-#: pkg/packagekit/updates.jsx:882
+#: pkg/packagekit/updates.jsx:890
 msgid "This web console will be updated."
 msgstr "Denna webbkonsol kommer uppdateras."
 
@@ -7659,7 +7651,7 @@ msgid "Unavailable"
 msgstr "Otillgänglig"
 
 #: pkg/docker/index.html:732 pkg/networkmanager/index.html:707
-#: pkg/shell/base_index.js:840 pkg/users/local.js:1501
+#: pkg/shell/base_index.js:840 pkg/users/local.js:1500
 msgid "Unexpected error"
 msgstr "Oväntat fel"
 
@@ -7824,7 +7816,7 @@ msgstr "Uppdaterat"
 msgid "Updated packages may require a restart to take effect."
 msgstr "Uppdaterade paket kan behöva en omstart för att få effekt."
 
-#: pkg/packagekit/updates.jsx:856
+#: pkg/packagekit/updates.jsx:864
 msgid "Updates Available"
 msgstr "Uppdateringar tillgängliga"
 
@@ -7849,7 +7841,7 @@ msgstr "Användning"
 msgid "Usage Graphs"
 msgstr ""
 
-#: pkg/systemd/graphs.js:328
+#: pkg/systemd/graphs.js:326
 msgid "Usage of $0 CPU core"
 msgid_plural "Usage of $0 CPU cores"
 msgstr[0] "Användning av $0 CPU-kärna"
@@ -7871,7 +7863,7 @@ msgstr "Använd följande nycklar för att autentisera mot andra system"
 #: pkg/machines/components/vm/vmUsageTab.jsx:64
 #: pkg/machines/components/vm/vmUsageTab.jsx:75
 #: pkg/machines/components/vmDisksTab.jsx:109 pkg/storaged/fsys-tab.jsx:504
-#: pkg/storaged/swap-tab.jsx:81 pkg/systemd/graphs.js:393
+#: pkg/storaged/swap-tab.jsx:81 pkg/systemd/graphs.js:391
 msgid "Used"
 msgstr "Använt"
 
@@ -7885,7 +7877,7 @@ msgstr "Används av behållare"
 
 #: pkg/dashboard/index.html:144 pkg/playground/translate.html:85
 #: pkg/playground/translate.html:105 pkg/systemd/graphs.html:138
-#: pkg/systemd/graphs.js:299
+#: pkg/systemd/graphs.js:297
 msgid "User"
 msgstr "Användare"
 
@@ -8072,6 +8064,12 @@ msgstr ""
 #: pkg/machines/components/storagePools/storagePoolList.jsx:46
 #: pkg/machines/hostvmslist.jsx:73 pkg/machines/manifest.json.in
 msgid "Virtual Machines"
+msgstr "Virtuella maskiner"
+
+#: pkg/machines/index.html:4
+#, fuzzy
+#| msgid "Virtual Machines"
+msgid "Virtual Machines Management"
 msgstr "Virtuella maskiner"
 
 #: pkg/machines/components/create-vm-dialog/pxe-helpers.js:161
@@ -8284,7 +8282,7 @@ msgstr ""
 msgid "You will be logged out in $0 seconds."
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:884
+#: pkg/packagekit/updates.jsx:892
 msgid ""
 "Your browser will disconnect, but this does not affect the update process. "
 "You can reconnect in a few moments to continue watching the progress."
@@ -8293,7 +8291,7 @@ msgstr ""
 "uppdateringsprocessen.  Du kan återansluta om några ögonblick för att "
 "fortsätta följa förloppet."
 
-#: pkg/packagekit/updates.jsx:929
+#: pkg/packagekit/updates.jsx:937
 msgid ""
 "Your server will close the connection soon. You can reconnect after it has "
 "restarted."
@@ -8728,9 +8726,12 @@ msgstr "nej"
 msgid "none"
 msgstr "ingen"
 
-#: pkg/systemd/graphs.js:144 pkg/systemd/overview-cards/usageCard.jsx:112
-msgid "of $0 CPU core"
-msgid_plural "of $0 CPU cores"
+#: pkg/systemd/graphs.js:142 pkg/systemd/overview-cards/usageCard.jsx:112
+#, fuzzy
+#| msgid "of $0 CPU core"
+#| msgid_plural "of $0 CPU cores"
+msgid "of $0 CPU"
+msgid_plural "of $0 CPUs"
 msgstr[0] "av $0 CPU-kärna"
 msgstr[1] "av $0 CPU-kärnor"
 
@@ -8830,7 +8831,7 @@ msgstr ""
 msgid "running"
 msgstr "kör"
 
-#: pkg/systemd/overview.jsx:138
+#: pkg/systemd/overview.jsx:147
 msgid "running $0"
 msgstr ""
 
@@ -9082,3 +9083,9 @@ msgstr ""
 #: pkg/networkmanager/manifest.json.in
 msgid "zone"
 msgstr ""
+
+#~ msgid "$mtu"
+#~ msgstr "$mtu"
+
+#~ msgid "${hip}:${hport} -> $cport"
+#~ msgstr "${hip}:${hport} → $cport"

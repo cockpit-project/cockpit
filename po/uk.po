@@ -9,18 +9,18 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-15 11:50+0000\n"
-"PO-Revision-Date: 2020-01-17 08:27+0000\n"
+"POT-Creation-Date: 2020-01-22 08:44+0000\n"
+"PO-Revision-Date: 2020-01-26 05:51+0000\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
-"Language-Team: Ukrainian <https://translate.stg.fedoraproject.org/projects/"
-"cockpit/master/uk/>\n"
+"Language-Team: Ukrainian <https://translate.fedoraproject.org/projects/"
+"cockpit/rhel-8-2/uk/>\n"
 "Language: uk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<="
 "4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 3.10.1\n"
+"X-Generator: Weblate 3.10.3\n"
 
 #: pkg/docker/storage.jsx:261
 msgid " (shared with the OS)"
@@ -57,10 +57,6 @@ msgctxt "storage-id-desc"
 msgid "$0 File System"
 msgstr "Файлова система $0"
 
-#: pkg/systemd/overview-cards/usageCard.jsx:138
-msgid "$0 GiB / $1 GiB"
-msgstr "$0 ГіБ з $1 ГіБ"
-
 #: pkg/machines/components/create-vm-dialog/pxe-helpers.js:105
 msgid "$0 Network"
 msgstr "Мережа $0"
@@ -75,6 +71,13 @@ msgstr[2] "$0 пакунків"
 #: pkg/systemd/init.js:484 pkg/systemd/service-details.jsx:59
 msgid "$0 Template"
 msgstr "Шаблон $0"
+
+#: pkg/docker/containers-view.jsx:614
+msgid "$0 Vulnerability"
+msgid_plural "$0 Vulnerabilities"
+msgstr[0] "$0 вразливість"
+msgstr[1] "$0 вразливості"
+msgstr[2] "$0 вразливостей"
 
 #: pkg/networkmanager/firewall.jsx:160
 msgid "$0 Zone"
@@ -274,17 +277,9 @@ msgstr[0] "$1 виправлення захисту"
 msgstr[1] "$1 виправлення захисту"
 msgstr[2] "$1 виправлень захисту"
 
-#: pkg/networkmanager/interfaces.js:2739
-msgid "$mtu"
-msgstr "$mtu"
-
 #: pkg/storaged/utils.js:182
 msgid "$name (from $host)"
 msgstr "$name (з $host)"
-
-#: pkg/docker/details.js:151
-msgid "${hip}:${hport} -> $cport"
-msgstr "${hip}:${hport} -> $cport"
 
 #: pkg/storaged/utils.js:126
 msgid "${size} ${desc}"
@@ -317,13 +312,6 @@ msgstr "1 МіБ"
 msgid "1 Minute"
 msgstr "1 хвилина"
 
-#: pkg/docker/containers-view.jsx:614
-msgid "1 Vulnerability"
-msgid_plural "$0 Vulnerabilities"
-msgstr[0] "$0 вразливість"
-msgstr[1] "$0 вразливості"
-msgstr[2] "$0 вразливостей"
-
 #: pkg/dashboard/index.html:55 pkg/networkmanager/index.html:72
 #: pkg/networkmanager/index.html:408 pkg/systemd/graphs.html:55
 #: pkg/storaged/plot.jsx:85
@@ -336,7 +324,7 @@ msgstr "1 день"
 msgid "1 hour"
 msgstr "1 година"
 
-#: pkg/systemd/graphs.js:384
+#: pkg/systemd/graphs.js:382
 msgid "1 min"
 msgstr "1 хв."
 
@@ -402,7 +390,7 @@ msgstr "1-е"
 msgid "2 MiB"
 msgstr "2 МіБ"
 
-#: pkg/systemd/graphs.js:383
+#: pkg/systemd/graphs.js:381
 msgid "2 min"
 msgstr "2 хв."
 
@@ -454,7 +442,7 @@ msgstr "29-е"
 msgid "2nd"
 msgstr "2-е"
 
-#: pkg/systemd/graphs.js:382
+#: pkg/systemd/graphs.js:380
 msgid "3 min"
 msgstr "3 хв."
 
@@ -478,7 +466,7 @@ msgstr "3-є"
 msgid "4 KiB"
 msgstr "4 КіБ"
 
-#: pkg/systemd/graphs.js:381
+#: pkg/systemd/graphs.js:379
 msgid "4 min"
 msgstr "4 хв."
 
@@ -494,7 +482,7 @@ msgstr "4-е"
 msgid "5 Minutes"
 msgstr "5 хвилин"
 
-#: pkg/systemd/graphs.js:380
+#: pkg/systemd/graphs.js:378
 msgid "5 min"
 msgstr "5 хв."
 
@@ -1102,7 +1090,7 @@ msgstr "Автозапуск"
 msgid "Available"
 msgstr "Доступні"
 
-#: pkg/packagekit/updates.jsx:872
+#: pkg/packagekit/updates.jsx:880
 msgid "Available Updates"
 msgstr "Доступні оновлення"
 
@@ -1221,7 +1209,7 @@ msgstr "Трансляція"
 msgid "Broken configuration"
 msgstr "Помилки у налаштуваннях"
 
-#: pkg/packagekit/updates.jsx:852
+#: pkg/packagekit/updates.jsx:860
 msgid "Bug Fix Updates Available"
 msgstr "Доступні оновлення із виправленнями вад"
 
@@ -1247,7 +1235,7 @@ msgstr "Апаратний блок розширення каналу"
 msgid "CPU"
 msgstr "Процесор"
 
-#: pkg/systemd/graphs.js:491
+#: pkg/systemd/graphs.js:487
 msgid "CPU Graph"
 msgstr "Графік процесора"
 
@@ -1259,7 +1247,7 @@ msgstr "Захист процесора"
 msgid "CPU Security Toggles"
 msgstr "Перемикачі захисту процесора"
 
-#: pkg/systemd/graphs.js:258
+#: pkg/systemd/graphs.js:256
 msgctxt "page-title"
 msgid "CPU Status"
 msgstr "Стан процесора"
@@ -1281,7 +1269,7 @@ msgstr "Використання процесора:"
 msgid "Cache"
 msgstr "Кеш"
 
-#: pkg/systemd/graphs.html:161 pkg/systemd/graphs.js:394
+#: pkg/systemd/graphs.html:161 pkg/systemd/graphs.js:392
 msgid "Cached"
 msgstr "Кеш"
 
@@ -1447,7 +1435,7 @@ msgstr "Перевіряємо і відновлюємо пристрій RAID $
 msgid "Checking for new applications"
 msgstr "Шукаємо нові програми"
 
-#: pkg/systemd/overview-cards/healthCard.jsx:83
+#: pkg/packagekit/updates.jsx:819
 msgid "Checking for package updates..."
 msgstr "Шукаємо оновлення пакунків…"
 
@@ -2144,7 +2132,7 @@ msgid ""
 "Creating this VLAN will break the connection to the server, and will make "
 "the administration UI unavailable."
 msgstr ""
-"Створення цієї VLAN  призведе до розірвання з’єднання із сервером і зробить "
+"Створення цієї VLAN призведе до розірвання з’єднання із сервером і зробить "
 "адміністративний інтерфейс користувача недоступним."
 
 #: pkg/networkmanager/interfaces.js:3812
@@ -2286,7 +2274,7 @@ msgstr "Затримка"
 #: pkg/docker/index.html:139 pkg/docker/index.html:251
 #: pkg/networkmanager/index.html:440 pkg/users/index.html:79
 #: pkg/users/index.html:357 pkg/docker/containers-view.jsx:202
-#: pkg/docker/details.js:293 pkg/docker/util.js:641
+#: pkg/docker/details.js:288 pkg/docker/util.js:641
 #: pkg/machines/components/deleteDialog.jsx:145
 #: pkg/machines/components/deleteDialog.jsx:161
 #: pkg/machines/components/deleteResource.jsx:76
@@ -2304,7 +2292,7 @@ msgstr "Затримка"
 msgid "Delete"
 msgstr "Вилучити"
 
-#: pkg/networkmanager/interfaces.js:2418 pkg/users/local.js:1199
+#: pkg/networkmanager/interfaces.js:2418 pkg/users/local.js:1198
 msgid "Delete $0"
 msgstr "Вилучити $0"
 
@@ -2355,7 +2343,7 @@ msgstr "Вилучення пристрою RAID призведе до вити�
 msgid "Deleting a VDO device will erase all data on it."
 msgstr "Вилучення пристрою VDO призведе до витирання усіх даних на ньому."
 
-#: pkg/docker/containers-view.jsx:201 pkg/docker/details.js:292
+#: pkg/docker/containers-view.jsx:201 pkg/docker/details.js:287
 msgid "Deleting a container will erase all data in it."
 msgstr ""
 "Вилучення контейнера призведе до витирання усіх даних, що на ньому "
@@ -2499,7 +2487,7 @@ msgstr "Диск"
 msgid "Disk $0 fail to get detached from VM $1"
 msgstr "Не вдалося від'єднати диск $0 від віртуальної машини $1"
 
-#: pkg/dashboard/index.html:73 pkg/systemd/graphs.js:74
+#: pkg/dashboard/index.html:73 pkg/systemd/graphs.js:72
 msgid "Disk I/O"
 msgstr "Дисковий ввід/вивід"
 
@@ -2754,7 +2742,7 @@ msgstr "Кінець не може бути порожнім"
 msgid "Enforcing"
 msgstr "Примусово"
 
-#: pkg/packagekit/updates.jsx:854
+#: pkg/packagekit/updates.jsx:862
 msgid "Enhancement Updates Available"
 msgstr "Доступні оновлення із поліпшеннями"
 
@@ -2815,7 +2803,7 @@ msgstr "Помилки:"
 #: pkg/apps/utils.jsx:100 pkg/storaged/fsys-tab.jsx:283
 #: pkg/storaged/multipath.jsx:58 pkg/storaged/storage-controls.jsx:83
 #: pkg/storaged/storage-controls.jsx:177 pkg/systemd/service-details.jsx:451
-#: pkg/users/local.js:1492
+#: pkg/users/local.js:1491
 msgid "Error"
 msgstr "Помилка"
 
@@ -2871,7 +2859,7 @@ msgstr "Приклад: 22,ssh,8080,5900-5910"
 msgid "Example: 88,2019,nfs,rsync"
 msgstr "Приклад: 88,2019,nfs,rsync"
 
-#: pkg/users/local.js:447 pkg/users/local.js:1437
+#: pkg/users/local.js:447 pkg/users/local.js:1436
 msgid "Excellent password"
 msgstr "Чудовий пароль"
 
@@ -3215,7 +3203,7 @@ msgstr "Твердий диск"
 msgid "Hardware Information"
 msgstr "Дані щодо обладнання"
 
-#: pkg/systemd/overview-cards/healthCard.jsx:72
+#: pkg/systemd/overview-cards/healthCard.jsx:55
 msgid "Health"
 msgstr "Здоров'я"
 
@@ -3271,7 +3259,7 @@ msgstr "Години слід вказувати у форматі числа в
 msgid "Hours"
 msgstr "Години"
 
-#: pkg/systemd/graphs.html:146 pkg/systemd/graphs.js:297
+#: pkg/systemd/graphs.html:146 pkg/systemd/graphs.js:295
 msgid "I/O Wait"
 msgstr "Очікування В-В"
 
@@ -3448,8 +3436,8 @@ msgid ""
 "In order to synchronize users, you need to log in to {{#strong}}{{host}}{{/"
 "strong}}."
 msgstr ""
-"Для синхронізації параметрів користувачів, слід увійти до "
-"{{#strong}}{{host}}{{/strong}}."
+"Для синхронізації параметрів користувачів, слід увійти до {{#strong}}{{host}}"
+"{{/strong}}."
 
 #: pkg/networkmanager/interfaces.js:828 pkg/networkmanager/interfaces.js:1398
 #: pkg/networkmanager/interfaces.js:1405 pkg/networkmanager/interfaces.js:2588
@@ -3498,7 +3486,7 @@ msgstr "IQN ініціатора має бути непорожнімy"
 msgid "Install"
 msgstr "Встановити"
 
-#: pkg/packagekit/updates.jsx:839
+#: pkg/packagekit/updates.jsx:847
 msgid "Install All Updates"
 msgstr "Встановити усі оновлення"
 
@@ -3506,7 +3494,7 @@ msgstr "Встановити усі оновлення"
 msgid "Install NFS Support"
 msgstr "Встановити підтримку NFS"
 
-#: pkg/packagekit/updates.jsx:839 pkg/packagekit/updates.jsx:845
+#: pkg/packagekit/updates.jsx:847 pkg/packagekit/updates.jsx:853
 msgid "Install Security Updates"
 msgstr "Встановити оновлення захисту"
 
@@ -3613,7 +3601,7 @@ msgstr "Некоректний формат дати і часу"
 msgid "Invalid date format."
 msgstr "Некоректний формат дати."
 
-#: pkg/users/local.js:1257
+#: pkg/users/local.js:1256
 msgid "Invalid expiration date"
 msgstr "Некоректна дата строку завершення дії"
 
@@ -3633,7 +3621,7 @@ msgstr "Некоректний ключ"
 msgid "Invalid metric $0"
 msgstr "Некоректна метрика $0"
 
-#: pkg/users/local.js:1333
+#: pkg/users/local.js:1332
 msgid "Invalid number of days"
 msgstr "Некоректна кількість днів"
 
@@ -3745,7 +3733,7 @@ msgstr "SSO на основі Kerberos"
 msgid "Kerberos Ticket"
 msgstr "Квиток Kerberos"
 
-#: pkg/systemd/graphs.html:142 pkg/systemd/graphs.js:298
+#: pkg/systemd/graphs.html:142 pkg/systemd/graphs.js:296
 msgid "Kernel"
 msgstr "Ядро"
 
@@ -3941,7 +3929,7 @@ msgstr "Заблокувати"
 msgid "Lock Account"
 msgstr "Заблокувати обліковий запис"
 
-#: pkg/users/local.js:901 pkg/users/local.js:1238
+#: pkg/users/local.js:901 pkg/users/local.js:1237
 msgid "Lock account on $0"
 msgstr "Заблокувати обліковий запис $0"
 
@@ -4178,7 +4166,7 @@ msgstr "Елемент пристрою RAID $0"
 msgid "Memory"
 msgstr "Пам'ять"
 
-#: pkg/systemd/graphs.js:356
+#: pkg/systemd/graphs.js:354
 msgctxt "page-title"
 msgid "Memory"
 msgstr "Пам'ять"
@@ -4187,11 +4175,11 @@ msgstr "Пам'ять"
 msgid "Memory & Swap"
 msgstr "Пам'ять і резерв"
 
-#: pkg/systemd/graphs.js:441
+#: pkg/systemd/graphs.js:439
 msgid "Memory & Swap Usage"
 msgstr "Використання звичайної і резервної пам'яті"
 
-#: pkg/systemd/graphs.js:499
+#: pkg/systemd/graphs.js:493
 msgid "Memory Graph"
 msgstr "Графік пам'яті"
 
@@ -4522,7 +4510,7 @@ msgstr "Інтерфейси мережі"
 msgid "Network Selection does not support PXE."
 msgstr "Для вибору мережі не передбачено підтримки PXE."
 
-#: pkg/systemd/graphs.js:75
+#: pkg/systemd/graphs.js:73
 msgid "Network Traffic"
 msgstr "Навантаження на мережу"
 
@@ -4601,7 +4589,7 @@ msgstr "Далі"
 msgid "Next Run"
 msgstr "Наступний запуск"
 
-#: pkg/systemd/graphs.html:134 pkg/systemd/graphs.js:300
+#: pkg/systemd/graphs.html:134 pkg/systemd/graphs.js:298
 msgid "Nice"
 msgstr "Пріоритетність"
 
@@ -4913,8 +4901,8 @@ msgstr "Недоступний"
 msgid "Not connected"
 msgstr "Не з’єднано"
 
-#: pkg/systemd/overview-cards/healthCard.jsx:90
-#: pkg/systemd/overview-cards/healthCard.jsx:91
+#: pkg/systemd/overview-cards/healthCard.jsx:62
+#: pkg/systemd/overview-cards/healthCard.jsx:63
 msgid "Not connected to Insights"
 msgstr "Не з'єднано із Insights"
 
@@ -4922,7 +4910,7 @@ msgstr "Не з'єднано із Insights"
 msgid "Not enough space to grow."
 msgstr "Недостатньо місця для росту."
 
-#: pkg/docker/details.js:186 pkg/storaged/details.jsx:121
+#: pkg/docker/details.js:181 pkg/storaged/details.jsx:121
 msgid "Not found"
 msgstr "Не знайдено"
 
@@ -5327,7 +5315,7 @@ msgstr "Ціль тестування луною"
 msgid "Pizza Box"
 msgstr "З коробку для піци"
 
-#: pkg/docker/containers-view.jsx:200 pkg/docker/details.js:291
+#: pkg/docker/containers-view.jsx:200 pkg/docker/details.js:286
 #: pkg/docker/util.js:612 pkg/storaged/content-views.jsx:305
 #: pkg/storaged/mdraid-details.jsx:289 pkg/storaged/vdo-details.jsx:194
 #: pkg/storaged/vgroup-details.jsx:207
@@ -5354,7 +5342,7 @@ msgstr "Будь ласка, введіть розмір нового тому"
 msgid "Please install the $0 package"
 msgstr "Будь ласка, встановіть пакунок $0"
 
-#: pkg/users/local.js:1252
+#: pkg/users/local.js:1251
 msgid "Please specify an expiration date"
 msgstr "Будь ласка, вкажіть кінцеву дату строку дії"
 
@@ -5936,7 +5924,7 @@ msgstr "Звіти:"
 msgid "Repository"
 msgstr "Сховище"
 
-#: pkg/users/local.js:1316
+#: pkg/users/local.js:1315
 msgid "Require password change every $0 days"
 msgstr "Вимагати зміну пароля кожні $0 днів"
 
@@ -6003,9 +5991,9 @@ msgstr ""
 "ласка, вкажіть поточний пароль до диска."
 
 #: pkg/docker/index.html:138 pkg/docker/containers-view.jsx:315
-#: pkg/machines/components/vm/vmActions.jsx:42 pkg/systemd/overview.jsx:116
-#: pkg/systemd/service-details.jsx:170 pkg/systemd/shutdown.js:99
-#: pkg/systemd/shutdown.js:100
+#: pkg/machines/components/vm/vmActions.jsx:42 pkg/systemd/overview.jsx:102
+#: pkg/systemd/overview.jsx:123 pkg/systemd/service-details.jsx:170
+#: pkg/systemd/shutdown.js:99 pkg/systemd/shutdown.js:100
 msgid "Restart"
 msgstr "Перезапустити"
 
@@ -6021,11 +6009,11 @@ msgstr "Правила перезапуску"
 msgid "Restart Policy:"
 msgstr "Правила перезапуску:"
 
-#: pkg/packagekit/updates.jsx:499 pkg/packagekit/updates.jsx:916
+#: pkg/packagekit/updates.jsx:499 pkg/packagekit/updates.jsx:924
 msgid "Restart Recommended"
 msgstr "Рекомендовано перезапустити"
 
-#: pkg/packagekit/updates.jsx:928
+#: pkg/packagekit/updates.jsx:936
 msgid "Restarting"
 msgstr "Перезапускаємо"
 
@@ -6225,7 +6213,7 @@ msgstr "Безпечно витираємо $target"
 msgid "Security"
 msgstr "Безпека"
 
-#: pkg/packagekit/updates.jsx:850
+#: pkg/packagekit/updates.jsx:858
 msgid "Security Updates Available"
 msgstr "Доступні оновлення захисту"
 
@@ -6459,7 +6447,7 @@ msgstr "Стиснути том"
 msgid "Shut Down"
 msgstr "Вимкнути"
 
-#: pkg/systemd/overview.jsx:104
+#: pkg/systemd/overview.jsx:105
 msgid "Shutdown"
 msgstr "Вимкнути"
 
@@ -6837,7 +6825,7 @@ msgctxt "storage-id-desc"
 msgid "Swap Space"
 msgstr "Резервна пам’ять"
 
-#: pkg/systemd/graphs.html:157 pkg/systemd/graphs.js:411
+#: pkg/systemd/graphs.html:157 pkg/systemd/graphs.js:409
 msgid "Swap Used"
 msgstr "Використано резерву"
 
@@ -6914,7 +6902,7 @@ msgstr "Служби системи"
 msgid "System information"
 msgstr "Відомості щодо системи"
 
-#: pkg/packagekit/updates.jsx:935 pkg/packagekit/updates.jsx:948
+#: pkg/packagekit/updates.jsx:942 pkg/packagekit/updates.jsx:956
 msgid "System is up to date"
 msgstr "Система не потребує оновлення"
 
@@ -7082,7 +7070,7 @@ msgstr ""
 "Віртуальну машину має бути запущено або вимкнено, щоб можна було від'єднати "
 "цей пристрій"
 
-#: pkg/users/local.js:1358
+#: pkg/users/local.js:1357
 msgid "The account '$0' will be forced to change their password on next login"
 msgstr ""
 "Обліковий запис «$0» має примусово змінити пароль під час наступного входу"
@@ -7243,7 +7231,7 @@ msgstr ""
 msgid "The machine is restarting"
 msgstr "Комп’ютер перезавантажується"
 
-#: pkg/users/local.js:413 pkg/users/local.js:1415
+#: pkg/users/local.js:413 pkg/users/local.js:1414
 msgid "The passwords do not match"
 msgstr "Паролі не збігаються"
 
@@ -7255,16 +7243,16 @@ msgstr "Паролі не збігаються."
 msgid "The pool is empty"
 msgstr "Буфер порожній"
 
+#: pkg/docker/containers-view.jsx:436
+msgid "The scan from $time ($type) found $count vulnerability:"
+msgid_plural "The scan from $time ($type) found $count vulnerabilities:"
+msgstr[0] "Під час сканування $time ($type) виявлено $count вразливість:"
+msgstr[1] "Під час сканування $time ($type) виявлено $count вразливості:"
+msgstr[2] "Під час сканування $time ($type) виявлено $count вразливостей:"
+
 #: pkg/docker/containers-view.jsx:434
 msgid "The scan from $time ($type) found no vulnerabilities."
 msgstr "Скануванням від $time ($type) вразливостей не знайдено."
-
-#: pkg/docker/containers-view.jsx:436
-msgid "The scan from $time ($type) found one vulnerability:"
-msgid_plural "The scan from $time ($type) found $count vulnerabilities:"
-msgstr[0] "Під час сканування $time ($type) виявлено $count помилку:"
-msgstr[1] "Під час сканування $time ($type) виявлено $count помилки:"
-msgstr[2] "Під час сканування $time ($type) виявлено $count помилок:"
 
 #: pkg/docker/containers-view.jsx:432
 msgid "The scan from $time ($type) was not successful."
@@ -7311,7 +7299,7 @@ msgstr "Користувачеві $0 заборонено змінювати н
 msgid "The user $0 is not permitted to modify realms"
 msgstr "Користувачу $0 не дозволено вносити зміни до областей"
 
-#: pkg/systemd/overview.jsx:110
+#: pkg/systemd/overview.jsx:111
 msgid "The user $0 is not permitted to shutdown or restart this server"
 msgstr "Користувачеві $0 заборонено вимикати або перезапускати цей сервер"
 
@@ -7549,7 +7537,7 @@ msgstr ""
 "Ця програма для перегляду інтернету є надто старою для роботи з Cockpit (не "
 "вистачає можливості $0)"
 
-#: pkg/packagekit/updates.jsx:882
+#: pkg/packagekit/updates.jsx:890
 msgid "This web console will be updated."
 msgstr "Цю вебконсоль буде оновлено."
 
@@ -7784,7 +7772,7 @@ msgid "Unavailable"
 msgstr "Недоступний"
 
 #: pkg/docker/index.html:732 pkg/networkmanager/index.html:707
-#: pkg/shell/base_index.js:840 pkg/users/local.js:1501
+#: pkg/shell/base_index.js:840 pkg/users/local.js:1500
 msgid "Unexpected error"
 msgstr "Неочікувана помилка"
 
@@ -7949,7 +7937,7 @@ msgstr "Оновлено"
 msgid "Updated packages may require a restart to take effect."
 msgstr "Використання оновлених пакунків може потребувати перезапуску."
 
-#: pkg/packagekit/updates.jsx:856
+#: pkg/packagekit/updates.jsx:864
 msgid "Updates Available"
 msgstr "Доступні оновлення"
 
@@ -7974,7 +7962,7 @@ msgstr "Використання"
 msgid "Usage Graphs"
 msgstr "Графіки використання"
 
-#: pkg/systemd/graphs.js:328
+#: pkg/systemd/graphs.js:326
 msgid "Usage of $0 CPU core"
 msgid_plural "Usage of $0 CPU cores"
 msgstr[0] "Використання $0 ядра процесора"
@@ -7997,7 +7985,7 @@ msgstr "Використати вказані нижче ключі для ро�
 #: pkg/machines/components/vm/vmUsageTab.jsx:64
 #: pkg/machines/components/vm/vmUsageTab.jsx:75
 #: pkg/machines/components/vmDisksTab.jsx:109 pkg/storaged/fsys-tab.jsx:504
-#: pkg/storaged/swap-tab.jsx:81 pkg/systemd/graphs.js:393
+#: pkg/storaged/swap-tab.jsx:81 pkg/systemd/graphs.js:391
 msgid "Used"
 msgstr "Використано"
 
@@ -8011,7 +7999,7 @@ msgstr "Використано контейнерами"
 
 #: pkg/dashboard/index.html:144 pkg/playground/translate.html:85
 #: pkg/playground/translate.html:105 pkg/systemd/graphs.html:138
-#: pkg/systemd/graphs.js:299
+#: pkg/systemd/graphs.js:297
 msgid "User"
 msgstr "Користувач"
 
@@ -8199,6 +8187,10 @@ msgstr "Переглянути звіт"
 #: pkg/machines/hostvmslist.jsx:73 pkg/machines/manifest.json.in
 msgid "Virtual Machines"
 msgstr "Віртуальні машини"
+
+#: pkg/machines/index.html:4
+msgid "Virtual Machines Management"
+msgstr "Керування віртуальними машинами"
 
 #: pkg/machines/components/create-vm-dialog/pxe-helpers.js:161
 msgid "Virtual Network"
@@ -8413,7 +8405,7 @@ msgstr "Вам слід вибрати найвідповіднішу опера
 msgid "You will be logged out in $0 seconds."
 msgstr "Вашого користувача буде викинуто з системи за $0 секунд."
 
-#: pkg/packagekit/updates.jsx:884
+#: pkg/packagekit/updates.jsx:892
 msgid ""
 "Your browser will disconnect, but this does not affect the update process. "
 "You can reconnect in a few moments to continue watching the progress."
@@ -8422,7 +8414,7 @@ msgstr ""
 "процес оновлення. Ви зможете з'єднатися знову за декілька секунд, щоб "
 "продовжити спостереження за поступом."
 
-#: pkg/packagekit/updates.jsx:929
+#: pkg/packagekit/updates.jsx:937
 msgid ""
 "Your server will close the connection soon. You can reconnect after it has "
 "restarted."
@@ -8860,12 +8852,12 @@ msgstr "ні"
 msgid "none"
 msgstr "немає"
 
-#: pkg/systemd/graphs.js:144 pkg/systemd/overview-cards/usageCard.jsx:112
-msgid "of $0 CPU core"
-msgid_plural "of $0 CPU cores"
-msgstr[0] "з $0 ядра процесора"
-msgstr[1] "з $0 ядер процесора"
-msgstr[2] "з $0 ядер процесора"
+#: pkg/systemd/graphs.js:142 pkg/systemd/overview-cards/usageCard.jsx:112
+msgid "of $0 CPU"
+msgid_plural "of $0 CPUs"
+msgstr[0] "з $0 процесора"
+msgstr[1] "з $0 процесорів"
+msgstr[2] "з $0 процесорів"
 
 #: pkg/systemd/manifest.json.in
 msgid "operating system"
@@ -8963,7 +8955,7 @@ msgstr "ролі"
 msgid "running"
 msgstr "працює"
 
-#: pkg/systemd/overview.jsx:138
+#: pkg/systemd/overview.jsx:147
 msgid "running $0"
 msgstr "запущено $0"
 
@@ -9217,6 +9209,15 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json.in
 msgid "zone"
 msgstr "зона"
+
+#~ msgid "$0 GiB / $1 GiB"
+#~ msgstr "$0 ГіБ з $1 ГіБ"
+
+#~ msgid "$mtu"
+#~ msgstr "$mtu"
+
+#~ msgid "${hip}:${hport} -> $cport"
+#~ msgstr "${hip}:${hport} -> $cport"
 
 #~ msgid "Hide Performance Options"
 #~ msgstr "Приховати параметри швидкодії"

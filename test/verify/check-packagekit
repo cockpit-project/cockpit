@@ -56,14 +56,9 @@ class TestUpdates(PackageCase):
         else:
             self.enhancement_severity = "bug"
 
-        if self.machine.image in ["rhel-8-2-distropkg"]:
-            self.update_icon = "#system_information_updates_icon"
-            self.update_text = "#system_information_updates_text"
-            self.update_text_action = "#system_information_updates_text"
-        else:
-            self.update_icon = "#page_status_notification_updates span:first-child"
-            self.update_text = "#page_status_notification_updates"
-            self.update_text_action = "#page_status_notification_updates a"
+        self.update_icon = "#page_status_notification_updates span:first-child"
+        self.update_text = "#page_status_notification_updates"
+        self.update_text_action = "#page_status_notification_updates a"
 
     def check_nth_update(self, index, pkgname, version, severity="bug",
                          num_issues=None, desc_matches=[], cves=[], bugs=[], arch=None):
@@ -683,14 +678,9 @@ class TestUpdatesSubscriptions(PackageCase):
 
         # Wait for the web service to be accessible
         m.execute(script=WAIT_SCRIPT % {"addr": "10.111.112.100"})
-        if self.machine.image in ["rhel-8-2-distropkg"]:
-            self.update_icon = "#system_information_updates_icon"
-            self.update_text = "#system_information_updates_text"
-            self.update_text_action = "#system_information_updates_text"
-        else:
-            self.update_icon = "#page_status_notification_updates span:first-child"
-            self.update_text = "#page_status_notification_updates"
-            self.update_text_action = "#page_status_notification_updates a"
+        self.update_icon = "#page_status_notification_updates span:first-child"
+        self.update_text = "#page_status_notification_updates"
+        self.update_text_action = "#page_status_notification_updates a"
 
     def testNoUpdates(self):
         m = self.machine

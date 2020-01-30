@@ -154,7 +154,7 @@ export class AddNIC extends React.Component {
     }
 
     render() {
-        const { idPrefix, vm, networks, nodeDevices, interfaces, provider } = this.props;
+        const { idPrefix, vm, nodeDevices, interfaces, provider } = this.props;
         const networkDevices = getNetworkDevices(vm.connectionName, nodeDevices, interfaces);
 
         const defaultBody = (
@@ -162,7 +162,6 @@ export class AddNIC extends React.Component {
                 <NetworkTypeAndSourceRow idPrefix={idPrefix}
                                          dialogValues={this.state}
                                          onValueChanged={this.onValueChanged}
-                                         networks={networks}
                                          networkDevices={networkDevices}
                                          connectionName={vm.connectionName} />
                 <hr />
@@ -215,7 +214,6 @@ AddNIC.propTypes = {
     idPrefix: PropTypes.string.isRequired,
     vm: PropTypes.object.isRequired,
     provider: PropTypes.object.isRequired,
-    networks: PropTypes.array.isRequired,
     interfaces: PropTypes.array.isRequired,
     nodeDevices: PropTypes.array.isRequired,
 };

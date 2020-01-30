@@ -215,15 +215,6 @@ const CreateNewDisk = ({ idPrefix, onValueChanged, dialogValues, vmStoragePools,
                                   storagePool={storagePool}
                                   dialogValues={dialogValues}
                                   onValueChanged={onValueChanged} />
-                <hr />
-                <PermanentChange idPrefix={idPrefix}
-                                 permanent={dialogValues.permanent}
-                                 onValueChanged={onValueChanged}
-                                 provider={provider}
-                                 vm={vm} />
-                {provider.name == 'LibvirtDBus' && <AdditionalOptions cacheMode={dialogValues.cacheMode}
-                                    onValueChanged={onValueChanged}
-                                    busType={dialogValues.busType} />}
             </>}
         </>
     );
@@ -272,15 +263,6 @@ const UseExistingDisk = ({ idPrefix, onValueChanged, dialogValues, vmStoragePool
                     volumeName={dialogValues.existingVolumeName}
                     onValueChanged={onValueChanged}
                     providerName={provider.name} />
-                <hr />
-                <PermanentChange idPrefix={idPrefix}
-                                 permanent={dialogValues.PermanentChange}
-                                 onValueChanged={onValueChanged}
-                                 provider={provider}
-                                 vm={vm} />
-                {provider.name == 'LibvirtDBus' && <AdditionalOptions cacheMode={dialogValues.cacheMode}
-                                    onValueChanged={onValueChanged}
-                                    busType={dialogValues.busType} />}
             </>}
         </>
     );
@@ -527,6 +509,15 @@ export class AddDiskModalBody extends React.Component {
                                      vms={vms}
                                      vm={vm} />
                 )}
+                <hr />
+                <PermanentChange idPrefix={idPrefix}
+                                 permanent={this.state.permanent}
+                                 onValueChanged={this.onValueChanged}
+                                 provider={provider}
+                                 vm={vm} />
+                {provider.name == 'LibvirtDBus' && <AdditionalOptions cacheMode={this.state.cacheMode}
+                                    onValueChanged={this.onValueChanged}
+                                    busType={this.state.busType} />}
             </div>
         );
 

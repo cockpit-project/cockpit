@@ -22,7 +22,6 @@ from testlib import *
 
 
 class TestTerminal(MachineCase):
-    provision = {"machine1": {"dns": "127.0.0.1"}}
 
     @skipBrowser("Firefox needs http to access clipboard", "firefox")
     def testBasic(self):

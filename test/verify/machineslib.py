@@ -661,7 +661,7 @@ class TestMachines(NetworkCase):
 
                     # Configure persistency - by default the check box in unchecked for running VMs
                     if self.permanent:
-                        b.click("#vm-{0}-disks-adddisk-new-permanent".format(self.vm_name))
+                        b.click("#vm-{0}-disks-adddisk-permanent".format(self.vm_name))
                 else:
                     # Choose storage pool
                     b.select_from_dropdown("#vm-{0}-disks-adddisk-existing-select-pool".format(self.vm_name), self.pool_name)
@@ -670,7 +670,7 @@ class TestMachines(NetworkCase):
 
                     # Configure persistency - by default the check box in unchecked for running VMs
                     if self.permanent:
-                        b.click("#vm-{0}-disks-adddisk-existing-permanent".format(self.vm_name))
+                        b.click("#vm-{0}-disks-adddisk-permanent".format(self.vm_name))
 
                 # Configure performance options
                 if self.test_obj.provider == "libvirt-dbus" and self.cache_mode:
@@ -1201,7 +1201,7 @@ class TestMachines(NetworkCase):
             b.set_input_text("#vm-subVmTest1-disks-adddisk-new-name", volName)
             b.set_input_text("#vm-subVmTest1-disks-adddisk-new-size", "10")
             b.select_from_dropdown("#vm-subVmTest1-disks-adddisk-new-unit", "MiB")
-            b.click("#vm-subVmTest1-disks-adddisk-new-permanent")
+            b.click("#vm-subVmTest1-disks-adddisk-permanent")
 
             b.click("#vm-subVmTest1-disks-adddisk-dialog-add")
             b.wait_not_present("#vm-subVmTest1-disks-adddisk-dialog-modal-window")

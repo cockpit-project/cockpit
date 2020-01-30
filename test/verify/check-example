@@ -37,17 +37,6 @@ class TestExample(MachineCase):
         self.login_and_go("/system")
 
 
-class TestPersistentExample(PersistentMachineCase):
-
-    def testOne(self):
-        self.assertEqual(self.machine.execute("whoami").strip(), "root")
-        self.machine.execute("touch /root/the_file")
-
-    def testTwo(self):
-        self.assertIn("usr", self.machine.execute("ls -l /").strip())
-        self.machine.execute("[ -f /root/the_file ] || exit 1")
-
-
 class TestSimple(unittest.TestCase):
 
     def testOne(self):

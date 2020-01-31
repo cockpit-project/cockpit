@@ -761,6 +761,53 @@ fdwalk (int (*cb)(void *data, int fd),
 #endif /* HAVE_FDWALK */
 
 void
+btmp_log (const char *username,
+          const char *rhost)
+{
+  struct timeval tv;
+
+  /* the `tv` in the utmp struct is not actually a `struct timeval`, so
+   * we need to read into a temporary variable and then copy the fields.
+   */
+  gettimeofday (&tv, NULL);
+
+  struct utmp entry = {
+    .ut_line = "web console",
+    .ut_pid = getpid (),
+    .ut_tv.tv_sec = tv.tv_sec,
+    .ut_tv.tv_usec = tv.tv_usec,
+    .ut_type = LOGIN_PROCESS,
+  };
+
+  strncpy (entry.ut_host, rhost, sizeof entry.ut_host);
+  strncpy (entry.ut_user, username, sizeof entry.ut_user);
+
+  int fd = open (_PATH_BTMP, O_WRONLY | O_APPEND);
+  if (fd == -1)
+    {
+      warn ("open(%s) failed", _PATH_BTMP);
+      goto out;
+    }
+
+  ssize_t r = write (fd, &entry, sizeof entry);
+  if (r < 0)
+    {
+      warn ("write() %s failed", _PATH_BTMP);
+      goto out;
+    }
+  else if (r != sizeof entry)
+    {
+      warnx ("incomplete write() %s: %zu of %zu bytes",
+             _PATH_BTMP, r, sizeof entry);
+      goto out;
+    }
+
+out:
+  if (fd != -1)
+    close (fd);
+}
+
+void
 pass_to_child (int signo)
 {
   if (child > 0)

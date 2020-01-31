@@ -67,6 +67,7 @@ int fdwalk (int (*cb)(void *data, int fd), void *data);
 #endif
 int closefd (void *data, int fd);
 void utmp_log (int login, const char *rhost, FILE *messages);
+void btmp_log (const char *username, const char *rhost);
 
 bool json_print_string_property (FILE *stream, const char *key, const char *value, ssize_t maxlen);
 bool json_print_bool_property (FILE *stream, const char *key, bool value);

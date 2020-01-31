@@ -292,6 +292,8 @@ perform_basic (const char *authorization)
   res = pam_authenticate (pamh, 0);
   if (res == PAM_SUCCESS)
     res = open_session (pamh);
+  else
+    btmp_log (user, "");
 
   free (user);
   if (password)
@@ -493,7 +495,10 @@ perform_gssapi (const char *authorization)
 
   res = open_session (pamh);
   if (res != PAM_SUCCESS)
-    goto out;
+    {
+      btmp_log (str, "");
+      goto out;
+    }
 
   /* The creds are used and cleaned up later */
   creds = client;

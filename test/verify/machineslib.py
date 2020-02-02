@@ -497,7 +497,7 @@ class TestMachines(NetworkCase):
         if self.provider == "libvirt-dbus" and m.image == "ubuntu-stable":
             m.execute("chmod o+rwx /run/libvirt/libvirt-sock")
         b.wait_in_text("body", "Virtual Machines")
-        with b.wait_timeout(10):
+        with b.wait_timeout(15):
             b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
 
         m.execute("systemctl stop {0}".format(libvirtServiceName))
@@ -510,7 +510,7 @@ class TestMachines(NetworkCase):
         if self.provider == "libvirt-dbus" and m.image == "ubuntu-stable":
             m.execute("chmod o+rwx /run/libvirt/libvirt-sock")
         b.wait_in_text("body", "Virtual Machines")
-        with b.wait_timeout(10):
+        with b.wait_timeout(15):
             b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
 
         m.execute("systemctl enable {0}".format(libvirtServiceName))

@@ -232,17 +232,21 @@ quick changes, such as adding debugging output to JavaScript.
 
 ## Guidelines for writing tests
 
-It is OK for a test to destroy the test machine OS installation, or
-otherwise modify it without cleaning up.  For example, it is OK to
-remove all of `/etc` just to see what happens.  The next test will get a
-pristine test machine.
+If a test is not decorated with `@nondestructive`, it is OK for a test to
+destroy the test machine OS installation, or otherwise modify it without
+cleaning up.  For example, it is OK to remove all of `/etc` just to see what
+happens.  The next test will get a pristine test machine.
+
+Tests decorated with `@nondestructive` will all run against the same test
+machine. The nondestructive test should clean up after itself and restore the
+state of the machine, such that the next nondestructive test is not impacted.
 
 A fast running test suite is more important than independent,
 small test cases.
 
-Thus, it is OK for tests to be long.  Starting the test machine is so
-slow that we should run as many checks within a single session as make
-sense.
+Thus, it is OK for tests to be long.  Starting the test machine is so slow that
+we should run as many checks within a single session as make sense. Note that
+nondestructive tests do not suffer from this, and are much quicker.
 
 Still, within a long test, try to have independent sections, where
 each section returns the machine to more or less the state that it was

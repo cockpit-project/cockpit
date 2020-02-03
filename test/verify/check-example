@@ -25,7 +25,6 @@ import parent
 from testlib import *
 
 
-@skipPackage("example")
 class TestExample(MachineCase):
 
     @unittest.expectedFailure
@@ -33,8 +32,24 @@ class TestExample(MachineCase):
         self.login_and_go("/system")
         self.assertFalse(True)
 
+    @nondestructive
+    def testNondestructive(self):
+        self.login_and_go("/system")
+
     def testBasic(self):
         self.login_and_go("/system")
+
+
+@nondestructive
+class TestNondestructiveExample(MachineCase):
+
+    def testOne(self):
+        self.assertEqual(self.machine.execute("whoami").strip(), "root")
+        self.machine.execute("touch /root/the_file")
+
+    def testTwo(self):
+        self.assertIn("usr", self.machine.execute("ls -l /").strip())
+        self.machine.execute("[ -f /root/the_file ] || exit 1")
 
 
 class TestSimple(unittest.TestCase):

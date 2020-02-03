@@ -41,7 +41,9 @@ import './listing.less';
  * - columns: { title: string, header: boolean, sortable: boolean }[] or string[]
  * - rows: {
  *      columns: (React.Node or string)[],
- *      extraClasses: string[]
+ *      extraClasses: string[],
+ *      props: { key: string, ...extraProps: object }
+ *          additional properties of each row; the key should be always passed in order to each row to have a unique key
  *   }[]
  * - emptyCaption: header caption to show if list is empty
  * - variant: For compact tables pass 'compact'
@@ -157,10 +159,7 @@ export class ListingTable extends React.Component {
         if (this.props['aria-label'])
             props['aria-label'] = this.props['aria-label'];
 
-        const tableBodyProps = {};
-        // We need the following because of: https://github.com/patternfly/patternfly-react/issues/3090
-        if (props.cells.some(cell => typeof (cell.title) != 'string' || cell.title.toLowerCase() == 'id' || !cell.title))
-            tableBodyProps.rowKey = ({ rowData, rowIndex }) => rowIndex;
+        const tableBodyProps = { rowKey: ({ rowData, rowIndex }) => (rowData.props && rowData.props.key) ? rowData.props.key : rowIndex };
         if (this.props.onRowClick)
             tableBodyProps.onRowClick = this.props.onRowClick;
         if (this.props.rows.length > 0) {

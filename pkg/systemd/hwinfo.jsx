@@ -260,6 +260,7 @@ class HardwareInfo extends React.Component {
                         { title: _("Slot"), sortable: true }
                     ] }
                     rows={ sortedPci.map(dev => ({
+                        props: { key: dev.slot },
                         columns: [dev.cls, dev.model, dev.vendor, dev.slot]
                     }))} />
             );
@@ -270,6 +271,7 @@ class HardwareInfo extends React.Component {
                 <ListingTable caption={ _("Memory") }
                     columns={ [_("ID"), _("Memory Technology"), _("Type"), _("Size"), _("State"), _("Rank"), _("Speed")]}
                     rows={ this.props.info.memory.map(dimm => ({
+                        props: { key: dimm.locator },
                         columns: [dimm.locator, dimm.technology, dimm.type, dimm.size, dimm.state, dimm.rank, dimm.speed]
                     })) } />
             );

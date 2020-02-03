@@ -19,6 +19,7 @@
 
 import unittest
 import subprocess
+import os
 
 import parent
 from testlib import *
@@ -26,17 +27,24 @@ from testlib import *
 
 class TestTestLib(unittest.TestCase):
 
-    def testTestCategorization(self):
-        def compareOutput(cmd, *args):
-            blocks = set(frozenset(block.split("\n")) for block in subprocess.check_output(cmd).strip().decode().split("\n\n"))
-            self.assertEqual(blocks, set(args))
+    def testTestListing(self):
+        dirname = os.path.dirname(__file__)
 
-        compareOutput(["test/verify/check-example", "-l", "TestPersistentExample", "TestSimple"],
-                      frozenset(["TestSimple.testOne", "TestSimple.testThree", "TestSimple.testTwo"]),
-                      frozenset(["TestPersistentExample.testOne", "TestPersistentExample.testTwo"]))
+        # Listing on check-* file
+        self.assertEqual(subprocess.check_output([os.path.join(dirname, "check-example"), "-l", "TestNondestructiveExample"]).strip().decode(),
+                         "TestNondestructiveExample.testOne\nTestNondestructiveExample.testTwo")
+        # Filter on class
+        self.assertIn("1..2\nTestNondestructiveExample.testOne\nTestNondestructiveExample.testTwo",
+                      subprocess.check_output([os.path.join(dirname, "run-tests"), "-l", "TestNondestructiveExample"]).strip().decode())
+        # Filter a specific test
+        self.assertIn("1..1\nTestNondestructiveExample.testOne",
+                      subprocess.check_output([os.path.join(dirname, "run-tests"), "-l", "TestNondestructiveExample.testOne"]).strip().decode())
+        # nondestructive tests are listed together
+        self.assertIn("1..3\nTestExample.testNondestructive\nTestNondestructiveExample.testOne\nTestSimple.testOne",
+                      subprocess.check_output([os.path.join(dirname, "run-tests"), "-l", "TestSimple.testOne", "TestNondestructiveExample.testOne", "testNondestructive"]).strip().decode())
 
-        compareOutput(["test/verify/check-example", "-l", "TestSimple.testOne", "TestPersistentExample.testOne"],
-                      frozenset(["TestSimple.testOne"]), frozenset(["TestPersistentExample.testOne"]))
+        self.assertIn("TestExample.testNondestructive\nTestNondestructiveExample.testOne\nTestNondestructiveExample.testTwo",
+                      subprocess.check_output([os.path.join(dirname, "run-tests"), "-l"]).strip().decode())
 
 if __name__ == '__main__':
     test_main()

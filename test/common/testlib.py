@@ -24,22 +24,19 @@ from time import sleep
 import argparse
 import base64
 import errno
-import subprocess
 import os
-import select
 import shutil
 import socket
 import sys
 import traceback
-import random
 import re
 import json
 import tempfile
 import time
 import unittest
 import gzip
+import inspect
 
-import tap
 import testvm
 import cdp
 
@@ -54,6 +51,7 @@ __all__ = (
     'arg_parser',
     'Browser',
     'MachineCase',
+    'nondestructive',
     'skipImage',
     'skipBrowser',
     'allowImage',
@@ -651,6 +649,7 @@ class MachineCase(unittest.TestCase):
     image = testvm.DEFAULT_IMAGE
     runner = None
     machine = None
+    global_machine = None
     machines = {}
     machine_class = None
     browser = None
@@ -662,11 +661,29 @@ class MachineCase(unittest.TestCase):
     # These will be instantiated during setUp, and replaced with machine objects
     provision = None
 
+    @classmethod
+    def get_global_machine(klass):
+        if not klass.global_machine:
+            klass.global_machine = klass.new_machine(klass, cleanup=False)
+            if opts.trace:
+                print("Starting global machine {0}".format(klass.global_machine.label))
+            klass.global_machine.start()
+        return klass.global_machine
+
+    @classmethod
+    def kill_global_machine(klass):
+        if klass.network:
+            klass.network.kill()
+            klass.network = None
+        if klass.global_machine:
+            klass.global_machine.kill()
+            klass.global_machine = None
+
     def label(self):
         (unused, sep, label) = self.id().partition(".")
         return label.replace(".", "-")
 
-    def new_machine(self, image=None, forward={}, restrict=True, **kwargs):
+    def new_machine(self, image=None, forward={}, restrict=True, cleanup=True, **kwargs):
         machine_class = self.machine_class
         if image is None:
             image = self.image
@@ -674,19 +691,22 @@ class MachineCase(unittest.TestCase):
             if machine_class or forward:
                 raise unittest.SkipTest("Cannot run this test when specific machine address is specified")
             machine = testvm.Machine(address=opts.address, image=image, verbose=opts.trace, browser=opts.browser)
-            self.addCleanup(lambda: machine.disconnect())
+            if cleanup:
+                self.addCleanup(machine.disconnect)
         else:
             if not machine_class:
                 machine_class = testvm.VirtMachine
             if not self.network:
                 network = testvm.VirtNetwork(image=image)
-                self.addCleanup(lambda: network.kill())
+                if cleanup:
+                    self.addCleanup(network.kill)
                 self.network = network
             networking = self.network.host(restrict=restrict, forward=forward)
             machine = machine_class(verbose=opts.trace, networking=networking, image=image, **kwargs)
             if opts.fetch and not os.path.exists(machine.image_file):
                 machine.pull(machine.image_file)
-            self.addCleanup(lambda: machine.kill())
+            if cleanup:
+                self.addCleanup(machine.kill)
         return machine
 
     def new_browser(self, machine=None):
@@ -694,7 +714,7 @@ class MachineCase(unittest.TestCase):
             machine = self.machine
         label = self.label() + "-" + machine.label
         browser = Browser(machine.web_address, label=label, port=machine.web_port)
-        self.addCleanup(lambda: browser.kill())
+        self.addCleanup(browser.kill)
         return browser
 
     def checkSuccess(self):
@@ -745,27 +765,33 @@ class MachineCase(unittest.TestCase):
         if opts.address and self.provision is not None:
             raise unittest.SkipTest("Cannot provision multiple machines if a specific machine address is specified")
 
-        self.machine = None
         self.browser = None
         self.machines = {}
         provision = self.provision or {'machine1': {}}
 
-        # First create all machines, wait for them later
-        for key in sorted(provision.keys()):
-            options = provision[key].copy()
-            if 'address' in options:
-                del options['address']
-            if 'dns' in options:
-                del options['dns']
-            if 'dhcp' in options:
-                del options['dhcp']
-            machine = self.new_machine(**options)
-            self.machines[key] = machine
-            if not self.machine:
-                self.machine = machine
-            if opts.trace:
-                print("Starting {0} {1}".format(key, machine.label))
-            machine.start()
+        test_method = getattr(self.__class__, self._testMethodName)
+        if getattr(test_method, "_testlib__non_destructive", False) and not opts.address:
+            if self.provision:
+                raise unittest.SkipTest("Cannot provision machines if test is marked as nondestructive")
+            self.machine = self.machines['machine1'] = MachineCase.get_global_machine()
+        else:
+            self.machine = None
+            # First create all machines, wait for them later
+            for key in sorted(provision.keys()):
+                options = provision[key].copy()
+                if 'address' in options:
+                    del options['address']
+                if 'dns' in options:
+                    del options['dns']
+                if 'dhcp' in options:
+                    del options['dhcp']
+                machine = self.new_machine(**options)
+                self.machines[key] = machine
+                if not self.machine:
+                    self.machine = machine
+                if opts.trace:
+                    print("Starting {0} {1}".format(key, machine.label))
+                machine.start()
 
         # Now wait for the other machines to be up
         for key in self.machines.keys():
@@ -1097,9 +1123,6 @@ class MachineCase(unittest.TestCase):
                         attach(dest)
 
 
-some_failed = False
-
-
 def jsquote(str):
     return json.dumps(str)
 
@@ -1131,6 +1154,23 @@ def skipPackage(*args):
     return lambda func: func
 
 
+def nondestructive(testEntity):
+    """Tests decorated as nondestructive will all run against the same VM
+
+    Can be used on test classes and individual test methods.
+    """
+    def is_test_function(member):
+        return inspect.isfunction(member) and member.__name__.startswith("test")
+    if inspect.isclass(testEntity) and issubclass(testEntity, MachineCase):
+        for test_function in inspect.getmembers(testEntity, is_test_function):
+            test_function[1]._testlib__non_destructive = True
+    elif is_test_function(testEntity):
+        testEntity._testlib__non_destructive = True
+    else:
+        raise Error("The nondestructive decorator can only be used on test classes and test methods")
+    return testEntity
+
+
 def enableAxe(method):
     """Enable aXe accessibility test code injection for this test case"""
 
@@ -1148,218 +1188,81 @@ def enableAxe(method):
     return wrapper
 
 
-class TestResult(tap.TapResult):
-    def __init__(self, stream, descriptions, verbosity):
-        self.policy = None
-        super().__init__(verbosity)
+class TapRunner:
 
-    def startTest(self, test):
-        sys.stdout.write("# {0}\n# {1}\n#\n".format('-' * 70, str(test)))
-        sys.stdout.flush()
-        super().startTest(test)
-
-    def stopTest(self, test):
-        sys.stdout.write("\n")
-        sys.stdout.flush()
-        super().stopTest(test)
-
-
-class OutputBuffer(object):
-    def __init__(self):
-        self.poll = select.poll()
-        self.buffers = {}
-        self.fds = {}
-
-    def drain(self):
-        while self.fds:
-            for p in self.poll.poll(1000):
-                data = os.read(p[0], 1024)
-                if data == b"":
-                    self.poll.unregister(p[0])
-                else:
-                    self.buffers[p[0]] += data
-            else:
-                break
-
-    def push(self, pid, fd):
-        self.poll.register(fd, select.POLLIN)
-        self.fds[pid] = fd
-        self.buffers[fd] = b""
-
-    def pop(self, pid):
-        fd = self.fds.pop(pid)
-        buffer = self.buffers.pop(fd)
-        try:
-            self.poll.unregister(fd)
-        except KeyError:
-            pass
-        while True:
-            data = os.read(fd, 1024)
-            if data == b"":
-                break
-            buffer += data
-        os.close(fd)
-        return buffer
-
-
-class TapRunner(object):
-    resultclass = TestResult
-
-    def __init__(self, verbosity=1, jobs=1, thorough=False):
+    def __init__(self, verbosity=1):
         self.stream = unittest.runner._WritelnDecorator(sys.stderr)
         self.verbosity = verbosity
-        self.thorough = thorough
-        self.jobs = jobs
 
-    def runOne(self, test, offset):
-        result = TestResult(self.stream, False, self.verbosity)
-        result.offset = offset
+    def runOne(self, test):
+        result = unittest.TestResult()
+        print('# ----------------------------------------------------------------------')
+        print('#', test)
         try:
-            test(result)
+            unittest.TestSuite([test]).run(result)
         except KeyboardInterrupt:
-            return False
+            result.addError(test, sys.exc_info())
+            return result
         except Exception:
+            result.addError(test, sys.exc_info())
             sys.stderr.write("Unexpected exception while running {0}\n".format(test))
             sys.stderr.write(traceback.print_exc())
-            return False
+            return result
         else:
             result.printErrors()
-            return result.wasSuccessful()
+
+        if result.skipped:
+            print("# Result {0} skipped: {1}".format(test, result.skipped[0][1]))
+        elif result.wasSuccessful():
+            print("# Result {0} succeeded".format(test))
+        else:
+            for error in result.errors:
+                print(error[1])
+            print("# Result {0} failed".format(test))
+        return result
 
     def run(self, testable):
-        tap.TapResult.plan(testable)
-
         tests = []
 
         # The things to test
         def collapse(test, tests):
-            if test.countTestCases() == 1:
+            if isinstance(test, unittest.TestCase):
                 tests.append(test)
             else:
                 for t in test:
                     collapse(t, tests)
         collapse(testable, tests)
-
-        # Now setup the count we have
-        count = len(tests)
-        for i, test in enumerate(tests):
-            setattr(test, "tapOffset", i)
+        test_count = len(tests)
 
         # For statistics
         start = time.time()
-
-        pids = {}
-        options = 0
-        buffer = None
-        if not self.thorough and self.verbosity <= 1:
-            buffer = OutputBuffer()
-            options = os.WNOHANG
-        failures = {"count": 0}
-
-        def join_some(n):
-            while len(pids) > n:
-                if buffer:
-                    buffer.drain()
-                try:
-                    (pid, code) = os.waitpid(-1, options)
-                except KeyboardInterrupt:
-                    sys.exit(255)
-                if code & 0xff:
-                    failed = 1
-                else:
-                    failed = (code >> 8) & 0xff
-                if pid:
-                    if buffer:
-                        output = buffer.pop(pid)
-                        test = pids[pid]
-                        failed, retry = self.filterOutput(test, failed, output)
-                        if retry:
-                            tests.append(test)
-                    del pids[pid]
-                failures["count"] += failed
-
-        while True:
-            join_some(self.jobs - 1)
-
-            if not tests:
-                join_some(0)
-
-                # See if we inserted more tests
-                if not tests:
-                    break
-
+        failures = 0
+        skips = []
+        while tests:
             # The next test to test
-            test = tests.pop()
-
-            # Fork off a child process for each test
-            if buffer:
-                (rfd, wfd) = os.pipe()
-
-            sys.stdout.flush()
-            sys.stderr.flush()
-            pid = os.fork()
-            if not pid:
-                if buffer:
-                    os.dup2(wfd, 1)
-                    os.dup2(wfd, 2)
-                random.seed()
-                offset = getattr(test, "tapOffset", 0)
-                if self.runOne(test, offset):
-                    sys.exit(0)
-                else:
-                    sys.exit(1)
-
-            # The parent process
-            pids[pid] = test
-            if buffer:
-                os.close(wfd)
-                buffer.push(pid, rfd)
+            test = tests.pop(0)
+            result = self.runOne(test)
+            if not result.wasSuccessful():
+                failures += 1
+            skips += result.skipped
 
         # Report on the results
         duration = int(time.time() - start)
         hostname = socket.gethostname().split(".")[0]
         details = "[{0}s on {1}]".format(duration, hostname)
-        count = failures["count"]
-        if count:
-            sys.stdout.write("# {0} TESTS FAILED {1}\n".format(count, details))
+
+        MachineCase.kill_global_machine()
+
+        # Return 77 if all tests were skipped
+        if len(skips) == test_count:
+            sys.stdout.write("# SKIP {1}\n".format(failures, ", ".join(["{0} {1}".format(str(s[0]), s[1]) for s in skips])))
+            return 77
+        if failures:
+            sys.stdout.write("# {0} TEST{1} FAILED {2}\n".format(failures, "S" if failures > 1 else "", details))
+            return 1
         else:
-            sys.stdout.write("# TESTS PASSED {0}\n".format(details))
-        return count
-
-    def filterOutput(self, test, failed, output):
-        # Check how many retries we can do of this test
-        tries = getattr(test, "retryCount", 0)
-        tries += 1
-        setattr(test, "retryCount", tries)
-
-        # Didn't fail, just print output and continue
-        if not failed:
-            sys.stdout.buffer.write(output)
-            return failed, False
-
-        # Otherwise pass through this command if it exists
-        cmd = ["tests-policy", testvm.DEFAULT_IMAGE]
-        try:
-            proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-            (changed, unused) = proc.communicate(output)
-            if proc.returncode == 0:
-                output = changed
-        except OSError as ex:
-            if ex.errno != errno.ENOENT:
-                sys.stderr.write("Couldn't run tests-policy: {0}\n".format(str(ex)))
-
-        # Just retry failures always (but maximum 3 times), we don't need to be precious about flakes
-        if b"# SKIP " not in output and tries < 3:
-            output += b"\n# RETRY \n"
-
-        # Write the output bytes
-        sys.stdout.buffer.write(output)
-
-        if b"# SKIP " in output or b"# RETRY" in output:
-            failed = 0
-
-        # Whether we should retry the test or not
-        return failed, b"# RETRY " in output
+            sys.stdout.write("# {0} TEST{1} PASSED {2}\n".format(test_count, "S" if test_count > 1 else "", details))
+            return 0
 
 
 def print_tests(tests):
@@ -1375,16 +1278,12 @@ def print_tests(tests):
 
 def arg_parser():
     parser = argparse.ArgumentParser(description='Run Cockpit test(s)')
-    parser.add_argument('-j', '--jobs', dest="jobs", type=int,
-                        default=os.environ.get("TEST_JOBS", 1), help="Number of concurrent jobs")
     parser.add_argument('-v', '--verbose', dest="verbosity", action='store_const',
                         const=2, help='Verbose output')
     parser.add_argument('-t', "--trace", dest='trace', action='store_true',
                         help='Trace machine boot and commands')
     parser.add_argument('-q', '--quiet', dest='verbosity', action='store_const',
                         const=0, help='Quiet output')
-    parser.add_argument('--thorough', dest='thorough', action='store_true',
-                        help='Thorough mode, no skipping known issues')
     parser.add_argument('-s', "--sit", dest='sit', action='store_true',
                         help="Sit and wait after test failure")
     parser.add_argument('--nonet', dest="fetch", action="store_false",
@@ -1431,9 +1330,6 @@ def test_main(options=None, suite=None, attachments=None, **kwargs):
     for (key, value) in vars(options).items():
         setattr(opts, key, value)
 
-    if opts.sit and opts.jobs > 1:
-        parser.error("the -s or --sit argument not avalible with multiple jobs")
-
     opts.address = getattr(opts, "address", None)
     opts.browser = getattr(opts, "browser", None)
     opts.attachments = os.environ.get("TEST_ATTACHMENTS", attachments)
@@ -1452,7 +1348,7 @@ def test_main(options=None, suite=None, attachments=None, **kwargs):
         print_tests(suite)
         return 0
 
-    runner = TapRunner(verbosity=opts.verbosity, jobs=opts.jobs, thorough=opts.thorough)
+    runner = TapRunner(verbosity=opts.verbosity)
     ret = runner.run(suite)
     if not standalone:
         return ret

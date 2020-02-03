@@ -505,6 +505,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_present(".modal-dialog")
         b.click(".modal-footer button:contains(Remove)")
         b.wait_not_present("#vm-subVmTest1-disks-vdd-device")
+        b.wait_not_present(".modal-dialog")
 
         # Test that detaching disk of a running domain will affect the
         # inactive configuration as well
@@ -520,6 +521,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_present(".modal-dialog")
         b.click(".modal-footer button:contains(Remove)")
         b.wait_not_present("#vm-subVmTest1-disks-vde-device")
+        b.wait_not_present(".modal-dialog")
 
         # Test detaching disk of a paused domain
         m.execute("virsh start subVmTest1")

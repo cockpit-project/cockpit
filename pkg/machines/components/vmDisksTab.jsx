@@ -186,7 +186,7 @@ class VmDisksTab extends React.Component {
                 );
                 columns.push({ title: diskActions });
             }
-            return { columns };
+            return { columns, props: { key: disk.target } };
         });
 
         return (

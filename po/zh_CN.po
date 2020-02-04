@@ -19,16 +19,16 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-01-22 08:44+0000\n"
-"PO-Revision-Date: 2020-01-15 15:23+0000\n"
+"PO-Revision-Date: 2020-02-04 13:01+0000\n"
 "Last-Translator: Ludek Janda <ljanda@redhat.com>\n"
-"Language-Team: Chinese (Simplified) <https://translate.stg.fedoraproject.org/"
-"projects/cockpit/master/zh_CN/>\n"
+"Language-Team: Chinese (Simplified) <https://translate.fedoraproject.org/"
+"projects/cockpit/rhel-8-2/zh_CN/>\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=1; plural=0\n"
-"X-Generator: Weblate 3.10.1\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 3.10.3\n"
 
 #: pkg/docker/storage.jsx:261
 msgid " (shared with the OS)"
@@ -77,12 +77,9 @@ msgid "$0 Template"
 msgstr "$0 模板"
 
 #: pkg/docker/containers-view.jsx:614
-#, fuzzy
-#| msgid "1 Vulnerability"
-#| msgid_plural "$0 Vulnerabilities"
 msgid "$0 Vulnerability"
 msgid_plural "$0 Vulnerabilities"
-msgstr[0] "1 个安全漏洞"
+msgstr[0] "$0 安全漏洞"
 
 #: pkg/networkmanager/firewall.jsx:160
 msgid "$0 Zone"
@@ -1293,7 +1290,7 @@ msgstr "无法转发登录凭证"
 
 #: pkg/systemd/overview-cards/realmd-operation.js:628
 msgid "Cannot join a domain because realmd is not available on this system"
-msgstr ""
+msgstr "无法加入域，因为 realmd 在此系统上不可用"
 
 #: pkg/systemd/shutdown.js:175
 msgid "Cannot schedule event in the past"
@@ -1442,7 +1439,7 @@ msgstr "清除挂载点配置"
 #: pkg/machines/components/desktopConsole.jsx:41
 msgid ""
 "Clicking \"Launch Remote Viewer\" will download a .vv file and launch $0."
-msgstr "点击 \"启动 Remote Viewer\" 将下载一个  .vv 文件并加载 $0。"
+msgstr "点击 \"启动 Remote Viewer\" 将下载一个 .vv 文件并加载 $0。"
 
 #: pkg/systemd/overview-cards/realmd-operation.html:20
 msgid "Client Software"
@@ -3586,10 +3583,8 @@ msgid "Join a Domain"
 msgstr "加入域"
 
 #: pkg/systemd/overview-cards/realmd-operation.js:623
-#, fuzzy
-#| msgid "Joining this domain is not supported"
 msgid "Joining a domain requires installation of realmd"
-msgstr "不支持加入该域"
+msgstr "加入域需要安装 realmd"
 
 #: pkg/systemd/overview-cards/realmd-operation.js:508
 msgid "Joining this domain is not supported"
@@ -3689,10 +3684,8 @@ msgid "Last Trigger"
 msgstr "最近的触发器"
 
 #: pkg/packagekit/updates.jsx:181
-#, fuzzy
-#| msgid "Last checked: $0 ago"
 msgid "Last checked: $0"
-msgstr "最后检查于： $0 前"
+msgstr "最后检查于： $0"
 
 #: pkg/machines/components/desktopConsole.jsx:128
 msgid "Launch Remote Viewer"
@@ -5700,7 +5693,7 @@ msgstr "从 RAID 设备中删除 $target"
 msgid ""
 "Removing <b>$0</b> will break the connection to the server, and will make "
 "the administration UI unavailable."
-msgstr "移除  <b>$0</b> 将断开与服务器的连接，并将导致管理界面不可用。"
+msgstr "移除 <b>$0</b> 将断开与服务器的连接，并将导致管理界面不可用。"
 
 #: pkg/storaged/jobs-panel.jsx:74
 msgid "Removing physical volume from $target"
@@ -7052,12 +7045,9 @@ msgid "The pool is empty"
 msgstr "池为空"
 
 #: pkg/docker/containers-view.jsx:436
-#, fuzzy
-#| msgid "The scan from $time ($type) found one vulnerability:"
-#| msgid_plural "The scan from $time ($type) found $count vulnerabilities:"
 msgid "The scan from $time ($type) found $count vulnerability:"
 msgid_plural "The scan from $time ($type) found $count vulnerabilities:"
-msgstr[0] "对 $time ($type) 的扫描找到一个安全漏洞："
+msgstr[0] "对 $time ($type) 的扫描找到 $count 安全漏洞："
 
 #: pkg/docker/containers-view.jsx:434
 msgid "The scan from $time ($type) found no vulnerabilities."
@@ -7100,10 +7090,8 @@ msgid "The user $0 is not permitted to modify hostnames"
 msgstr "用户 $0 不允许修改主机名"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:361
-#, fuzzy
-#| msgid "The user <b>$0</b> is not permitted to modify realms"
 msgid "The user $0 is not permitted to modify realms"
-msgstr "用户 <b>$0</b> 不允许修改 realms"
+msgstr "用户 $0 不允许修改 realms"
 
 #: pkg/systemd/overview.jsx:111
 msgid "The user $0 is not permitted to shutdown or restart this server"
@@ -7213,8 +7201,7 @@ msgstr "该设备正在被 RAID 设备使用。"
 msgid ""
 "This device is currently used for RAID devices. Proceeding will remove it "
 "from its RAID devices."
-msgstr ""
-"该设备正在被 RAID 设备使用。                继续进行将从 RAID 设备中移除它。"
+msgstr "该设备正在被 RAID 设备使用。继续进行将从 RAID 设备中移除它。"
 
 #: pkg/storaged/dialog.jsx:967
 msgid "This device is currently used for VDO devices."
@@ -7261,7 +7248,7 @@ msgstr "该软件包与该版本的 Cockpit 不兼容"
 #: src/bridge/cockpitpackages.c:495
 #, c-format
 msgid "This package requires Cockpit version %s or later"
-msgstr "该软件包需要  %s 版本或以后的 Cockpit"
+msgstr "该软件包需要 %s 版本或以后的 Cockpit"
 
 #: pkg/machines/components/diskAdd.jsx:127
 msgid "This pool type does not support Storage Volume creation"
@@ -7959,10 +7946,8 @@ msgid "Virtual Machines"
 msgstr "虚拟机"
 
 #: pkg/machines/index.html:4
-#, fuzzy
-#| msgid "Virtual Machines"
 msgid "Virtual Machines Management"
-msgstr "虚拟机"
+msgstr "虚拟机管理"
 
 #: pkg/machines/components/create-vm-dialog/pxe-helpers.js:161
 msgid "Virtual Network"
@@ -8612,12 +8597,9 @@ msgid "none"
 msgstr "空"
 
 #: pkg/systemd/graphs.js:142 pkg/systemd/overview-cards/usageCard.jsx:112
-#, fuzzy
-#| msgid "of $0 CPU core"
-#| msgid_plural "of $0 CPU cores"
 msgid "of $0 CPU"
 msgid_plural "of $0 CPUs"
-msgstr[0] "$0 CPU 内核"
+msgstr[0] "$0 CPU"
 
 #: pkg/systemd/manifest.json.in
 msgid "operating system"

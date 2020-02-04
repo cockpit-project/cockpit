@@ -70,7 +70,7 @@ DOMAIN_XML = """
     <disk type='file' device='disk'>
       <driver name='qemu' type='qcow2'/>
       <source file='{image}'/>
-      <target dev='hda' bus='ide'/>
+      <target dev='vda' bus='virtio'/>
     </disk>
     <controller type='scsi' model='virtio-scsi' index='0' id='hot'/>
     <interface type='network'>

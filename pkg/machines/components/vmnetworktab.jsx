@@ -262,7 +262,7 @@ class VmNetworkTab extends React.Component {
                 return column;
             });
             networkId++;
-            return { columns };
+            return { columns, props: { key: cockpit.format("$0-$1-$2", target.mac, target.address.bus || networkId, target.address.slot || '') } };
         });
 
         return (

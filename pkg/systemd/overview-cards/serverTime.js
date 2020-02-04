@@ -17,6 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 import cockpit from "cockpit";
+import moment from "moment";
 import * as service from "service.js";
 import $ from "jquery";
 
@@ -61,13 +62,9 @@ export function ServerTime() {
     });
 
     self.format = function format(and_time) {
-        var string = self.utc_fake_now.toISOString();
-        if (!and_time)
-            return string.split('T')[0];
-        var pos = string.lastIndexOf(':');
-        if (pos !== -1)
-            string = string.substring(0, pos);
-        return string.replace('T', ' ');
+        if (and_time)
+            return moment.utc(self.utc_fake_now).format('lll');
+        return moment.utc(self.utc_fake_now).format('ll');
     };
 
     self.updateInterval = window.setInterval(function() {

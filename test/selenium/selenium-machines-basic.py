@@ -149,7 +149,5 @@ class MachinesBasicTestSuite(MachinesLib):
                              source=os.environ.get('URLSOURCE'),
                              immediately_start=True)
 
-        self.wait_css('#vm-{}-row'.format(name))
-        self.wait_css('#vm-{}-state'.format(name), cond=text_in, text_='creating VM installation')
         self.wait_css('#vm-{}-state'.format(name), cond=text_in, text_='running')
         self.wait_css('div.toolbar-pf-results canvas')

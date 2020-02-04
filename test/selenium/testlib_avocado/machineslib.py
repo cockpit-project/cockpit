@@ -231,13 +231,8 @@ class MachinesLib(SeleniumTest):
         if source_type != 'disk_image':
             self.select_by_value(self.wait_css('#source-type'), source_type)
 
-        filename = source.rsplit("/", 1)[-1]
-        if source_type in ['file', 'disk_image', 'pxe']:
+        if source_type in ['file', 'disk_image']:
             self.send_keys(self.wait_css('label[for=source-file] + div input[type=text]'), source, ctrla=True)
-            # click on filename link if appear dialog window
-            element = self.wait_link(filename, fatal=False, overridetry=3, cond=clickable)
-            if element:
-                self.click(element)
         elif source_type == 'url':
             self.send_keys(self.wait_css('#source-url'), source)
         elif source_type == 'pxe':
@@ -254,16 +249,25 @@ class MachinesLib(SeleniumTest):
                        clear=False)
 
         if mem_unit == 'M':
-            self.select_by_text(self.wait_css('#memory-size-unit-select'), 'MiB')
+            self.select_by_text(self.wait_css('#memory-size-unit-select'),
+                                'MiB')
 
-        self.send_keys(self.wait_css('#memory-size'), mem, clear=False, ctrla=True)
+        self.send_keys(self.wait_xpath('//*[@id="memory-size"]'),
+                       mem,
+                       ctrla=True)
 
         if source_type != 'disk_image':
             if storage_unit == 'M':
-                self.select_by_text(self.wait_css('#storage-size-unit-select'), 'MiB')
-            self.send_keys(self.wait_css('#storage-size'), storage, clear=False, ctrla=True)
+                self.select_by_text(self.wait_css('#storage-size-unit-select'),
+                                    'MiB')
+            self.send_keys(self.wait_css('#storage-size'),
+                           storage,
+                           clear=False,
+                           ctrla=True)
 
         self.check_box(self.wait_css('#start-vm'), immediately_start)
+        # make sure the OS has been detected or input
+        wait(lambda: self.wait_css('label[for=os-select] + div > div > div > input', cond=clickable).get_attribute('value') != "")
 
         self.click(self.wait_css('#create-vm-dialog .modal-footer .btn.btn-primary', cond=clickable))
 
@@ -276,7 +280,7 @@ class MachinesLib(SeleniumTest):
                              fatal=False):
             self.click(self.wait_text("show more"))
             raise SeleniumElementFailure(self.wait_css('#app > div > section > div > div > p').text)
-        self.wait_css('#vm-{}-row'.format(name))
+        self.wait_css('#vm-{}-row'.format(name), overridetry=300)
 
     def create_storage(self, name, path, active=False):
         pool_xml = STORAGE_XML.format(name, path)

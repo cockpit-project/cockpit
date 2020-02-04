@@ -19,6 +19,7 @@
 
 import 'polyfills.js';
 import cockpit from "cockpit";
+import moment from "moment";
 
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -166,6 +167,7 @@ class OverviewPage extends React.Component {
 
 function init() {
     cockpit.translate();
+    moment.locale(cockpit.language);
     ReactDOM.render(<OverviewPage />, document.getElementById("overview"));
 }
 

@@ -644,6 +644,7 @@ export function parseDumpxmlForInterfaces(devicesElem) {
                 address: {
                     bus: addressElem ? addressElem.getAttribute('bus') : undefined,
                     function: addressElem ? addressElem.getAttribute('function') : undefined,
+                    slot: addressElem ? addressElem.getAttribute('slot') : undefined,
                 },
             };
             interfaces.push(networkInterface);

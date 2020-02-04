@@ -2020,6 +2020,7 @@ class TestMachinesDBus(machineslib.TestMachines):
 
                     # Check NIC is no longer in list
                     b.wait_not_present("#vm-subVmTest1-network-2-mac")
+                    b.wait_not_present(".modal-dialog")
 
         # No NICs present
         b.wait_present("#vm-subVmTest1-add-iface-button") # open the Network Interfaces subtab
@@ -2063,6 +2064,25 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.click("#vm-subVmTest1-off-caret")
         b.click("#vm-subVmTest1-forceOff")
         b.wait_in_text("#vm-subVmTest1-state", "shut off")
+
+        NICAddDialog(
+            self,
+            remove=False,
+        ).execute()
+
+        NICAddDialog(
+            self,
+            remove=False,
+        ).execute()
+
+        # Now there are three NICs present - try to delete the second one and make sure that it's deleted and the dialog is not present anymore
+        b.wait_present("#vm-subVmTest1-network-3-mac")
+        b.click("#delete-vm-subVmTest1-iface-2")
+        b.wait_in_text(".modal-dialog .modal-header .modal-title", "Delete Network Interface")
+        b.click(".modal-footer button:contains(Delete)")
+        # Check NIC is no longer in list
+        b.wait_not_present("#vm-subVmTest1-network-3-mac")
+        b.wait_not_present(".modal-dialog")
 
 if __name__ == '__main__':
     test_main()

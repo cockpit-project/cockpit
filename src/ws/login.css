@@ -411,8 +411,6 @@ label.checkbox {
   border-top: 4px solid rgba(0, 0, 0, .75);
   height: 1.5rem;
   width: 1.5rem;
-  position: relative;
-  margin: 0.25rem 1rem;
 }
 
 .group-hidden {
@@ -590,11 +588,14 @@ label.checkbox {
 }
 
 #login-button {
-  padding: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.5rem;
+  padding: 0.5rem;
 }
 
 #login-button[disabled] {
-  padding: 0;
   background-color: #333;
   background-image: none;
   border-color: #555;

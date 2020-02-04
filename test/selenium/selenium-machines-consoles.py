@@ -39,9 +39,7 @@ class MachinesConsolesTestSuite(MachinesLib):
         self.wait_id('console-type-select', cond=text_in, text_='Graphics Console in Desktop Viewer')
         # Launch remote viewer
         self.click(self.wait_css('#vm-{}-consoles-launch'.format(name), cond=clickable))
-        vv_file_attr = ("data:application/x-virt-viewer,%5Bvirt-viewer%5D%0Atype%3Dspice"
-                        "%0Ahost%3D127.0.0.1%0Aport%3D5900%0Adelete-this-file%3D1%0Afullscreen%3D0%0A")
-        self.wait_css('a[href="{}"]'.format(vv_file_attr), cond=present)
+        self.wait_css('#dynamically-generated-file', cond=present)
         # Check more info link
         self.click(self.wait_css('.machines-desktop-viewer-block .link-button', cond=clickable))
         # Check manual connection info

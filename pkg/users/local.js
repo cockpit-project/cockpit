@@ -19,6 +19,7 @@
 
 import $ from 'jquery';
 import cockpit from 'cockpit';
+import moment from "moment";
 
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -28,6 +29,8 @@ import * as authorized_keys from './authorized-keys.js';
 import 'patterns';
 import 'bootstrap-datepicker/dist/js/bootstrap-datepicker';
 import 'form-layout.less';
+
+moment.locale(cockpit.language);
 
 const _ = cockpit.gettext;
 const C_ = cockpit.gettext;
@@ -982,7 +985,7 @@ PageAccount.prototype = {
             else if (!this.lastLogin)
                 $('#account-last-login').text(_("Never"));
             else
-                $('#account-last-login').text(this.lastLogin.toLocaleString());
+                $('#account-last-login').text(moment(this.lastLogin).format('LLL'));
 
             if (typeof this.locked != 'undefined') {
                 $('#account-locked').prop('checked', this.locked);

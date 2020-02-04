@@ -100,9 +100,9 @@ class MachinesBasicTestSuite(MachinesLib):
         imgdel = "{}/imagetest.img".format(args.get('poolPath'))
         self.machine.execute(
             "sudo qemu-img create -f raw {} 128M && sudo virsh pool-refresh {}".format(imgdel, args.get('poolName')))
-        self.machine.execute("sudo virsh attach-disk {} {} vda".format(name, imgdel))
+        self.machine.execute("sudo virsh attach-disk {} {} vdb".format(name, imgdel))
         self.click(self.wait_css('#vm-{}-disks'.format(name), cond=clickable))
-        self.wait_css('#vm-{}-disks-vda-bus'.format(name))
+        self.wait_css('#vm-{}-disks-vdb-bus'.format(name))
 
         self.click(self.wait_css("#vm-{}-delete".format(name), cond=clickable))
         self.click(self.wait_css("#vm-{}-delete-modal-dialog li:nth-of-type(1) input".format(name), cond=clickable))

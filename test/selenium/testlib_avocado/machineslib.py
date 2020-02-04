@@ -248,10 +248,10 @@ class MachinesLib(SeleniumTest):
                     self.select_by_text(item, sl.text)
                     break
 
-        # click + clear + send_keys can make this field works well
-        # , or the string can not be send to the input
-        self.click(self.wait_css("label[for=os-select] + div > div > div > input"))
-        self.send_keys(self.wait_css("label[for=os-select] + div > div > div > input"), operating_system + Keys.ARROW_DOWN + Keys.ENTER)
+        self.send_keys(self.wait_css("label[for=os-select] + div > div > div > input"), operating_system, clear=False)
+        self.send_keys(self.wait_css("label[for=os-select] + div > div > div > input"),
+                       Keys.ARROW_DOWN + Keys.ENTER,
+                       clear=False)
 
         if mem_unit == 'M':
             self.select_by_text(self.wait_css('#memory-size-unit-select'), 'MiB')

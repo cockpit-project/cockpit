@@ -343,7 +343,7 @@ export class InsightsStatus extends React.Component {
                     { warn && <>{" "}<i className="pficon pficon-warning-triangle-o" /></> }
                     <br />
                     <a href="http://cloud.redhat.com/insights" target="_blank" rel="noopener">
-                    View your Insights results <i className="fa fa-external-link" />
+                        View your Insights results <i className="fa fa-external-link" />
                     </a>
                 </div>
             );

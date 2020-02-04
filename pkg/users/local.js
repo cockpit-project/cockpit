@@ -894,14 +894,14 @@ PageAccount.prototype = {
                     } else if (line[1].indexOf("password must be changed") === 0) {
                         password_expiration = _("Password must be changed");
                     } else {
-                        password_expiration = cockpit.format(_("Require password change on $0"), line[1]);
+                        password_expiration = cockpit.format(_("Require password change on $0"), moment(line[1]).format('LL'));
                     }
                 } else if (line[0] && line[0].indexOf("Account expires") === 0) {
                     if (line[1].indexOf("never") === 0) {
                         account_expiration = _("Never lock account");
                     } else {
                         account_date = new Date(line[1] + " 12:00:00 UTC");
-                        account_expiration = cockpit.format(_("Lock account on $0"), line[1]);
+                        account_expiration = cockpit.format(_("Lock account on $0"), moment(line[1]).format('LL'));
                     }
                 } else if (line[0] && line[0].indexOf("Maximum number of days between password change") === 0) {
                     password_days = line[1];

@@ -229,7 +229,7 @@ class MachinesStoragePoolTestSuite(MachinesLib):
         self.machine.execute('sudo test -f {}/{}'.format(path, vol_name))
 
         # Re-create the storage pool,
-        # then delete it without deleting volumes in it
+        # then delete it with deleting volumes in it
         el_id_prefix = self.create_storage_by_ui(name=name, target_path=path)
         self.click(self.wait_css('#{}-name'.format(el_id_prefix),
                                  cond=clickable))

@@ -156,13 +156,24 @@ class TestAccounts(MachineCase):
         b.wait_present(admin_role_sel + ":not(:checked)")
         b.set_checked(admin_role_sel, True)
         b.wait(is_admin)
-        # An alert which shows up once we've changed thinrgs
-        b.wait_present("#account-roles .pf-c-alert.pf-m-info")
+        if m.image != "rhel-8-2-distropkg": #Changed in #13492
+            b.wait_present(admin_role_sel + ":checked")
+            b.wait_not_present("#account-roles .pf-c-alert.pf-m-info")
+
+        # Login as jussi and change role admin for itself
+        b.logout()
+        b.login_and_go("/users", user="jussi", password=good_password)
+        b.go("#/jussi")
+        b.wait_text("#account-user-name", "jussi")
         b.wait_present(admin_role_sel + ":checked")
         b.set_checked(admin_role_sel, False)
         b.wait(lambda: not is_admin())
+        if m.image != "fedora-coreos": # User is not shown as logged in when logged in through Cockpit
+            b.wait_present("#account-roles .pf-c-alert.pf-m-info")
         m.execute("/usr/sbin/usermod jussi -G %s -a" % m.get_admin_group())
         b.wait_present(admin_role_sel + ":checked:not([disabled])")
+        b.logout()
+        b.login_and_go("/users")
 
         # Change the password of this account
         b.go("#/jussi")

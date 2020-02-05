@@ -682,7 +682,7 @@ class CreateVmModal extends React.Component {
             // leave dialog open to show immediate errors from the backend
             // close the dialog after VMS_CONFIG.LeaveCreateVmDialogVisibleAfterSubmit
             // then show errors in the notification area
-            this.setState({ inProgress: true });
+            this.setState({ inProgress: true, validate: false });
 
             const vmParams = {
                 connectionName: this.state.connectionName,

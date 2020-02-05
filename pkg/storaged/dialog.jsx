@@ -618,6 +618,8 @@ export const SelectSpaces = (tag, title, options) => {
                     data-field={tag} data-field-type="select-spaces">
                     { options.spaces.map(spc => {
                         const selected = (val.indexOf(spc) >= 0);
+                        const block = spc.block ? block_name(spc.block) : "";
+                        const desc = block === spc.desc ? "" : spc.desc;
 
                         const on_change = (event) => {
                             if (event.target.checked && !selected)
@@ -630,8 +632,8 @@ export const SelectSpaces = (tag, title, options) => {
                             <li key={spc.block ? spc.block.Device : spc.desc} className="list-group-item">
                                 <label className="select-space-row">
                                     <input type="checkbox" checked={selected} onChange={on_change} />
-                                    <span className="select-space-name">{format_size_and_text(spc.size, spc.desc)}</span>
-                                    <span className="select-space-details">{spc.block ? block_name(spc.block) : ""}</span>
+                                    <span className="select-space-name">{format_size_and_text(spc.size, desc)}</span>
+                                    <span className="select-space-details">{block}</span>
                                 </label>
                             </li>
                         );
@@ -658,6 +660,8 @@ export const SelectSpace = (tag, title, options) => {
                 <ul className="list-group dialog-list-ct"
                     data-field={tag} data-field-type="select-spaces">
                     { options.spaces.map(spc => {
+                        const block = spc.block ? block_name(spc.block) : "";
+                        const desc = block === spc.desc ? "" : spc.desc;
                         const on_change = (event) => {
                             if (event.target.checked)
                                 change(spc);
@@ -667,8 +671,8 @@ export const SelectSpace = (tag, title, options) => {
                             <li key={spc.block ? spc.block.Device : spc.desc} className="list-group-item">
                                 <label className="select-space-row">
                                     <input type="radio" checked={val == spc} onChange={on_change} />
-                                    <span className="select-space-name">{format_size_and_text(spc.size, spc.desc)}</span>
-                                    <span className="select-space-details">{spc.block ? block_name(spc.block) : ""}</span>
+                                    <span className="select-space-name">{format_size_and_text(spc.size, desc)}</span>
+                                    <span className="select-space-details">{block}</span>
                                 </label>
                             </li>
                         );

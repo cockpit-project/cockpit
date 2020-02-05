@@ -520,9 +520,11 @@ class Browser:
         else:
             self.click(sel + ' button:first-child')
 
-    def login_and_go(self, path=None, user=None, host=None, authorized=True, urlroot=None, tls=False):
+    def login_and_go(self, path=None, user=None, host=None, authorized=True, urlroot=None, tls=False, password=None):
         if user is None:
             user = self.default_user
+        if password is None:
+            password = self.password
         href = path
         if not href:
             href = "/"
@@ -533,7 +535,7 @@ class Browser:
         self.open(href, tls=tls)
         self.wait_visible("#login")
         self.set_val('#login-user-input', user)
-        self.set_val('#login-password-input', self.password)
+        self.set_val('#login-password-input', password)
         self.set_checked('#authorized-input', authorized)
 
         self.click('#login-button')

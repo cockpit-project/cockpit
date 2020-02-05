@@ -20,21 +20,44 @@ import React from 'react';
 import cockpit from 'cockpit';
 
 import { VncConsole } from '@patternfly/react-console';
+import { Dropdown, DropdownToggle, DropdownItem, DropdownSeparator } from '@patternfly/react-core';
 
 import { logDebug } from '../helpers.js';
+import { domainSendKey } from '../libvirt-dbus.js';
 
 const _ = cockpit.gettext;
+// https://github.com/torvalds/linux/blob/master/include/uapi/linux/input-event-codes.h
+const Enum = {
+    KEY_BACKSPACE: 14,
+    KEY_LEFTCTRL: 29,
+    KEY_LEFTALT: 56,
+    KEY_F1: 59,
+    KEY_F2: 60,
+    KEY_F3: 61,
+    KEY_F4: 62,
+    KEY_F5: 63,
+    KEY_F6: 64,
+    KEY_F7: 65,
+    KEY_F8: 66,
+    KEY_F9: 67,
+    KEY_F10: 68,
+    KEY_F11: 87,
+    KEY_F12: 88,
+    KEY_DELETE: 111,
+};
 
 class Vnc extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             path: undefined,
+            isActionOpen: false,
         };
 
         this.connect = this.connect.bind(this);
         this.onDisconnected = this.onDisconnected.bind(this);
         this.onInitFailed = this.onInitFailed.bind(this);
+        this.onExtraKeysDropdownToggle = this.onExtraKeysDropdownToggle.bind(this);
     }
 
     connect(props) {
@@ -83,16 +106,53 @@ class Vnc extends React.Component {
         console.error('VncConsole failed to init: ', detail, this);
     }
 
+    onExtraKeysDropdownToggle() {
+        this.setState({ isActionOpen: false });
+    }
+
     render() {
-        const { consoleDetail } = this.props;
-        const { path } = this.state;
+        const { consoleDetail, vm, onAddErrorNotification } = this.props;
+        const { path, isActionOpen } = this.state;
         if (!consoleDetail || !path) {
             // postpone rendering until consoleDetail is known and channel ready
             return null;
         }
-
         const credentials = consoleDetail.password ? { password: consoleDetail.password } : undefined;
         const encrypt = this.getEncrypt();
+        const renderDropdownItem = keyName => {
+            return (
+                <DropdownItem
+                    id={cockpit.format("ctrl-alt-$0", keyName)}
+                    key={cockpit.format("ctrl-alt-$0", keyName)}
+                    onClick={() => {
+                        return domainSendKey(vm.connectionName, vm.id, [Enum.KEY_LEFTCTRL, Enum.KEY_LEFTALT, Enum[cockpit.format("KEY_$0", keyName.toUpperCase())]])
+                                .fail(ex => onAddErrorNotification({
+                                    text: cockpit.format(_("Failed to send key Ctrl+Alt+$0 to VM $1"), keyName, vm.name),
+                                    detail: ex.message
+                                }));
+                    }}>
+                    {cockpit.format(_("Ctrl+Alt+$0"), keyName)}
+                </DropdownItem>
+            );
+        };
+        const dropdownItems = [
+            ...['Delete', 'Backspace'].map(key => renderDropdownItem(key)),
+            <DropdownSeparator key="separator" />,
+            ...[...Array(12).keys()].map(key => renderDropdownItem(cockpit.format("F$0", key + 1))),
+        ];
+        const additionalButtons = [
+            <Dropdown onSelect={this.onExtraKeysDropdownToggle}
+                id={cockpit.format("$0-$1-vnc-sendkey", vm.name, vm.connectionName)}
+                key={cockpit.format("$0-$1-vnc-sendkey", vm.name, vm.connectionName)}
+                toggle={
+                    <DropdownToggle onToggle={isOpen => this.setState({ isActionOpen: isOpen })}>
+                        {_("Send key")}
+                    </DropdownToggle>
+                }
+                isOpen={isActionOpen}
+                dropdownItems={dropdownItems}
+            />
+        ];
 
         return (
             <VncConsole host={window.location.hostname}
@@ -106,7 +166,8 @@ class Vnc extends React.Component {
                         textConnecting={_("Connecting")}
                         textDisconnected={_("Disconnected")}
                         textSendShortcut={_("Send key")}
-                        textCtrlAltDel={_("Ctrl+Alt+Del")}>
+                        textCtrlAltDel={_("Ctrl+Alt+Del")}
+                        additionalButtons={additionalButtons}>
                 <div className='console-menu'>
                     {this.props.children}
                 </div>

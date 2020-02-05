@@ -57,7 +57,7 @@ const Vm = ({
         { name: usageTabName, renderer: VmUsageTab, data: { vm, onUsageStartPolling, onUsageStopPolling }, presence: 'onlyActive' },
         { name: disksTabName, renderer: VmDisksTab, data: { vm, vms, config, storagePools, onUsageStartPolling, onUsageStopPolling, dispatch, onAddErrorNotification }, presence: 'onlyActive' },
         { name: networkTabName, renderer: VmNetworkTab, presence: 'onlyActive', data: { vm, dispatch, config, hostDevices, interfaces, networks, nodeDevices, onAddErrorNotification } },
-        { name: consolesTabName, renderer: Consoles, data: { vm, config, dispatch } },
+        { name: consolesTabName, renderer: Consoles, data: { vm, config, dispatch, onAddErrorNotification } },
     ];
 
     let initiallyActiveTab = null;

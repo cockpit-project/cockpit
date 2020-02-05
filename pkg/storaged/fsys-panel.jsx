@@ -58,7 +58,7 @@ export class FilesystemsPanel extends React.Component {
             var fsys_size = client.fsys_sizes.data[mount_point];
 
             return {
-                props: { path, client },
+                props: { path, client, key: path },
                 columns: [
                     { title:  block.IdLabel || block_name(block) },
                     { title: mount_point || "-" },

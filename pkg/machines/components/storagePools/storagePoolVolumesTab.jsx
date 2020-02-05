@@ -100,7 +100,7 @@ export class StoragePoolVolumesTab extends React.Component {
                         { title: <div id={`${storagePoolIdPrefix}-volume-${volume.name}-usedby`}>{(isVolumeUsed[volume.name] || []).join(', ')}</div>, },
                         { title: <div id={`${storagePoolIdPrefix}-volume-${volume.name}-size`}>{`${allocation} / ${capacity} GB`}</div> },
                     ];
-                    return { columns, selected: volume.selected };
+                    return { columns, selected: volume.selected, props: { key: volume.name } };
                 });
 
         return (

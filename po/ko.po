@@ -10,17 +10,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-22 08:44+0000\n"
-"PO-Revision-Date: 2020-01-17 08:35+0000\n"
-"Last-Translator: Matej Marusak <mmarusak@redhat.com>\n"
-"Language-Team: Korean <https://translate.stg.fedoraproject.org/projects/"
-"cockpit/master/ko/>\n"
+"POT-Creation-Date: 2020-01-29 12:00+0000\n"
+"PO-Revision-Date: 2020-02-02 08:16+0000\n"
+"Last-Translator: Ludek Janda <ljanda@redhat.com>\n"
+"Language-Team: Korean <https://translate.fedoraproject.org/projects/cockpit/"
+"master/ko/>\n"
 "Language: ko\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=1; plural=0\n"
-"X-Generator: Weblate 3.10.1\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 3.10.3\n"
 
 #: pkg/docker/storage.jsx:261
 msgid " (shared with the OS)"
@@ -70,12 +70,9 @@ msgid "$0 Template"
 msgstr "$0 템플릿"
 
 #: pkg/docker/containers-view.jsx:614
-#, fuzzy
-#| msgid "1 Vulnerability"
-#| msgid_plural "$0 Vulnerabilities"
 msgid "$0 Vulnerability"
 msgid_plural "$0 Vulnerabilities"
-msgstr[0] "$0 취약점"
+msgstr[0] "$0 취약점 "
 
 #: pkg/networkmanager/firewall.jsx:160
 msgid "$0 Zone"
@@ -123,6 +120,12 @@ msgid "$0 disk is missing"
 msgid_plural "$0 disks are missing"
 msgstr[0] "$0 디스크 누락"
 
+#: pkg/shell/indexes.js:611
+#, fuzzy
+#| msgid "Ansible roles documentation"
+msgid "$0 documentation"
+msgstr "Ansible 역할 문서"
+
 #: src/ws/login.js:336 src/ws/login.js:695
 msgid "$0 error"
 msgstr "$0 오류"
@@ -164,7 +167,7 @@ msgstr ""
 #: pkg/storaged/format-dialog.jsx:164 pkg/storaged/lvol-tabs.jsx:203
 #: pkg/storaged/lvol-tabs.jsx:265 pkg/storaged/mdraid-details.jsx:230
 #: pkg/storaged/mdraid-details.jsx:282 pkg/storaged/vdo-details.jsx:128
-#: pkg/storaged/vdo-details.jsx:159 pkg/storaged/vgroup-details.jsx:199
+#: pkg/storaged/vdo-details.jsx:159 pkg/storaged/vgroup-details.jsx:200
 msgid "$0 is in active use"
 msgstr "$0 은/는 현재 사용 중입니다"
 
@@ -231,7 +234,7 @@ msgid "$0 year"
 msgid_plural "$0 years"
 msgstr[0] "$0 년"
 
-#: pkg/storaged/vgroup-details.jsx:111
+#: pkg/storaged/vgroup-details.jsx:112
 msgid "$0, $1 free"
 msgstr "$0, $1 여유 공간"
 
@@ -539,7 +542,7 @@ msgstr "ARP 모니터링"
 msgid "ARP Ping"
 msgstr "ARP Ping"
 
-#: pkg/shell/index.html:57 pkg/shell/index.html:83
+#: pkg/shell/index.html:65 pkg/shell/index.html:91
 msgid "About Cockpit"
 msgstr "Cockpit 정보"
 
@@ -557,7 +560,7 @@ msgstr "액세스"
 msgid "Account Expiration"
 msgstr "계정 만료"
 
-#: pkg/shell/index.html:64
+#: pkg/shell/index.html:72
 msgid "Account Settings"
 msgstr "계정 설정"
 
@@ -593,7 +596,7 @@ msgstr "활성"
 msgid "Active Backup"
 msgstr "활성화된 백업"
 
-#: pkg/shell/index.html:60 pkg/shell/active-pages.js:95
+#: pkg/shell/index.html:68 pkg/shell/active-pages.js:95
 msgid "Active Pages"
 msgstr "활성 페이지"
 
@@ -613,12 +616,12 @@ msgstr "적응형 로드 밸런싱"
 msgid "Adaptive transmit load balancing"
 msgstr "적응형 전송 로드 밸런싱"
 
-#: pkg/lib/machine-add.html:43 pkg/shell/index.html:197
+#: pkg/lib/machine-add.html:43 pkg/shell/index.html:205
 #: pkg/machines/components/diskAdd.jsx:549
 #: pkg/machines/components/nicAdd.jsx:205 pkg/storaged/crypto-keyslots.jsx:235
 #: pkg/storaged/iscsi-panel.jsx:137 pkg/storaged/iscsi-panel.jsx:161
 #: pkg/storaged/mdraid-details.jsx:59 pkg/storaged/nfs-details.jsx:191
-#: pkg/storaged/vgroup-details.jsx:65
+#: pkg/storaged/vgroup-details.jsx:66
 msgid "Add"
 msgstr "추가"
 
@@ -643,7 +646,7 @@ msgstr "브릿지 추가"
 msgid "Add Disk"
 msgstr "디스크 추가"
 
-#: pkg/storaged/mdraid-details.jsx:46 pkg/storaged/vgroup-details.jsx:52
+#: pkg/storaged/mdraid-details.jsx:46 pkg/storaged/vgroup-details.jsx:53
 msgid "Add Disks"
 msgstr "디스크 추가"
 
@@ -697,7 +700,7 @@ msgstr "새로운 영역 추가"
 msgid "Add iSCSI Portal"
 msgstr "iSCSI 포털 추가"
 
-#: pkg/shell/index.html:189 pkg/users/index.html:414
+#: pkg/shell/index.html:197 pkg/users/index.html:414
 msgid "Add key"
 msgstr "키 추가"
 
@@ -932,6 +935,11 @@ msgstr "업데이트 적용 중"
 msgid "Applying updates failed"
 msgstr "업데이트 적용 실패"
 
+#: pkg/storaged/drive-details.jsx:51
+msgctxt "storage"
+msgid "Assessment"
+msgstr ""
+
 #: pkg/systemd/overview-cards/systemInformationCard.jsx:98
 msgid "Asset tag"
 msgstr "자산 태그"
@@ -940,7 +948,7 @@ msgstr "자산 태그"
 msgid "At least $0 disks are needed."
 msgstr "최소 $0 개의 디스크가 필요합니다."
 
-#: pkg/storaged/mdraid-details.jsx:53 pkg/storaged/vgroup-details.jsx:59
+#: pkg/storaged/mdraid-details.jsx:53 pkg/storaged/vgroup-details.jsx:60
 #: pkg/storaged/vgroups-panel.jsx:84
 msgid "At least one disk is needed."
 msgstr "최소 1개의 디스크가 필요합니다."
@@ -957,8 +965,8 @@ msgstr "감사 로그"
 msgid "Authenticating"
 msgstr "인증 중입니다"
 
-#: pkg/lib/machine-change-auth.html:32 pkg/shell/index.html:67
-#: pkg/shell/index.html:166 pkg/systemd/overview-cards/realmd-operation.html:47
+#: pkg/lib/machine-change-auth.html:32 pkg/shell/index.html:75
+#: pkg/shell/index.html:174 pkg/systemd/overview-cards/realmd-operation.html:47
 msgid "Authentication"
 msgstr "인증"
 
@@ -1096,6 +1104,11 @@ msgstr "이전"
 #: pkg/systemd/service-details.jsx:421
 msgid "Binds To"
 msgstr "바인딩"
+
+#: pkg/storaged/mdraid-details.jsx:199
+msgctxt "storage"
+msgid "Bitmap"
+msgstr ""
 
 #: pkg/systemd/terminal.jsx:99
 msgid "Black"
@@ -1255,7 +1268,7 @@ msgstr "이미지를 로드할 수 없습니다"
 #: pkg/networkmanager/index.html:564 pkg/networkmanager/index.html:590
 #: pkg/networkmanager/index.html:616 pkg/networkmanager/index.html:642
 #: pkg/networkmanager/index.html:668 pkg/networkmanager/index.html:694
-#: pkg/playground/translate.html:39 pkg/shell/index.html:123
+#: pkg/playground/translate.html:39 pkg/shell/index.html:131
 #: pkg/systemd/index.html:122 pkg/systemd/index.html:206
 #: pkg/systemd/index.html:260
 #: pkg/systemd/overview-cards/realmd-operation.html:83
@@ -1270,7 +1283,7 @@ msgstr "이미지를 로드할 수 없습니다"
 #: pkg/machines/components/diskEdit.jsx:217
 #: pkg/machines/components/networks/createNetworkDialog.jsx:479
 #: pkg/machines/components/nicAdd.jsx:199
-#: pkg/machines/components/nicEdit.jsx:176
+#: pkg/machines/components/nicEdit.jsx:179
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:511
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:234
 #: pkg/machines/components/storagePools/storageVolumeCreate.jsx:93
@@ -1285,7 +1298,7 @@ msgstr "이미지를 로드할 수 없습니다"
 msgid "Cancel"
 msgstr "취소"
 
-#: pkg/shell/indexes.js:658
+#: pkg/shell/indexes.js:691
 msgid "Cannot connect to an unknown machine"
 msgstr "알 수 없는 컴퓨터에 연결할 수 없습니다"
 
@@ -1295,13 +1308,21 @@ msgstr "로그인 정보를 전송할 수 없습니다"
 
 #: pkg/systemd/overview-cards/realmd-operation.js:628
 msgid "Cannot join a domain because realmd is not available on this system"
-msgstr ""
+msgstr "이 시스템에서 realmd를 사용할 수 없으므로 도메인에 참여할 수 없습니다"
 
 #: pkg/systemd/shutdown.js:175
 msgid "Cannot schedule event in the past"
 msgstr "이전 이벤트를 예약할 수 없습니다"
 
 #: pkg/machines/components/vmDisksTab.jsx:111
+msgid "Capacity"
+msgstr "용량"
+
+#: pkg/storaged/block-details.jsx:37 pkg/storaged/drive-details.jsx:75
+#: pkg/storaged/mdraid-details.jsx:327 pkg/storaged/vgroup-details.jsx:242
+#, fuzzy
+#| msgid "Capacity"
+msgctxt "storage"
 msgid "Capacity"
 msgstr "용량"
 
@@ -1319,7 +1340,7 @@ msgstr "변경"
 msgid "Change Host Name"
 msgstr "호스트 이름 변경"
 
-#: pkg/shell/index.html:339
+#: pkg/shell/index.html:347
 msgid "Change Password"
 msgstr "비밀번호 변경"
 
@@ -1356,7 +1377,7 @@ msgid "Change the settings"
 msgstr "설정 변경"
 
 #: pkg/machines/components/diskEdit.jsx:198
-#: pkg/machines/components/nicEdit.jsx:157
+#: pkg/machines/components/nicEdit.jsx:160
 #: pkg/machines/components/vcpuModal.jsx:184
 #: pkg/machines/components/vm/bootOrderModal.jsx:283
 #: pkg/machines/components/warningInactive.jsx:11
@@ -1410,7 +1431,7 @@ msgstr "설치된 소프트웨어 확인 중"
 msgid "Choose an operating system"
 msgstr "운영 체제를 선택하십시오"
 
-#: pkg/shell/index.html:118
+#: pkg/shell/index.html:126
 msgid "Choose the language to be used in the application"
 msgstr "사용하실 언어를 선택해 주세요"
 
@@ -1434,7 +1455,7 @@ msgstr "‘시작 실패’ 지우기"
 msgid "Clear All Filters"
 msgstr "모든 필터 지우기"
 
-#: pkg/shell/indexes.js:505
+#: pkg/shell/indexes.js:506
 msgid "Clear Search"
 msgstr "검색 지우기"
 
@@ -1454,8 +1475,8 @@ msgstr "클라이언트 소프트웨어"
 #: pkg/docker/index.html:738 pkg/lib/machine-auth-failed.html:20
 #: pkg/lib/machine-change-port.html:45 pkg/lib/machine-invalid-hostkey.html:12
 #: pkg/lib/machine-not-supported.html:8 pkg/lib/machine-unknown-hostkey.html:19
-#: pkg/networkmanager/index.html:713 pkg/shell/index.html:97
-#: pkg/shell/index.html:156 pkg/shell/index.html:351 pkg/systemd/index.html:164
+#: pkg/networkmanager/index.html:713 pkg/shell/index.html:105
+#: pkg/shell/index.html:164 pkg/shell/index.html:359 pkg/systemd/index.html:164
 #: pkg/users/index.html:45 pkg/apps/utils.jsx:108
 #: pkg/lib/cockpit-components-modifications.jsx:103 pkg/sosreport/index.js:45
 #: pkg/sosreport/index.js:127 pkg/storaged/dialog.jsx:400
@@ -1510,7 +1531,7 @@ msgstr ""
 "비스는 터미널을 통해 중지할 수 있습니다. 마찬가지로 터미널에서 오류가 발생한 "
 "경우 해당 오류를 Cockpit 저널 인터페이스에서 확인할 수 있습니다."
 
-#: pkg/shell/index.html:86
+#: pkg/shell/index.html:94
 msgid "Cockpit is an interactive Linux server admin interface."
 msgstr "Cockpit은 대화형 Linux 서버 관리 인터페이스입니다."
 
@@ -1611,7 +1632,7 @@ msgstr "명령을 비워 둘 수 없습니다"
 msgid "Command:"
 msgstr "명령:"
 
-#: pkg/shell/index.html:285
+#: pkg/shell/index.html:293
 msgid "Comment"
 msgstr "설명"
 
@@ -1681,7 +1702,19 @@ msgstr "설정 중입니다"
 msgid "Configuring IP"
 msgstr "IP 인증 중입니다"
 
-#: pkg/shell/index.html:323 pkg/users/index.html:176
+#: pkg/kdump/manifest.json.in
+#, fuzzy
+#| msgid "Configuring"
+msgid "Configuring kdump"
+msgstr "설정 중입니다"
+
+#: pkg/systemd/manifest.json.in
+#, fuzzy
+#| msgid "Change the settings"
+msgid "Configuring system settings"
+msgstr "설정 변경"
+
+#: pkg/shell/index.html:331 pkg/users/index.html:176
 #: pkg/storaged/format-dialog.jsx:221
 msgid "Confirm"
 msgstr "확인"
@@ -1752,7 +1785,7 @@ msgstr "SETroubleshoot 데몬에 연결 중..."
 msgid "Connecting to Virtualization Service"
 msgstr "가상 서비스에 연결 중입니다"
 
-#: pkg/shell/indexes.js:653
+#: pkg/shell/indexes.js:686
 msgid "Connecting to the machine"
 msgstr "장치에 연결 중입니다"
 
@@ -1768,7 +1801,7 @@ msgstr "연결"
 msgid "Connection Error"
 msgstr "연결 오류"
 
-#: pkg/shell/index.html:427
+#: pkg/shell/index.html:435
 msgid "Connection failed"
 msgstr "연결 실패"
 
@@ -1834,7 +1867,7 @@ msgctxt "page-title"
 msgid "Containers"
 msgstr "컨테이너들"
 
-#: pkg/shell/indexes.js:405
+#: pkg/shell/indexes.js:406
 msgid "Contains"
 msgstr "포함"
 
@@ -1844,7 +1877,7 @@ msgstr "포함"
 msgid "Content"
 msgstr "컨텐츠"
 
-#: pkg/shell/index.html:140
+#: pkg/shell/index.html:148
 msgid "Continue Session"
 msgstr "세션 계속 진행"
 
@@ -1895,7 +1928,7 @@ msgstr "사용자 그룹을 변경할 수 없습니다"
 msgid "Couldn't change user password"
 msgstr "사용자 암호를 변경할 수 없습니다"
 
-#: pkg/shell/indexes.js:656
+#: pkg/shell/indexes.js:689
 msgid "Couldn't connect to the machine"
 msgstr "장치에 연결할 수 없습니다"
 
@@ -2237,8 +2270,8 @@ msgstr "지연"
 #: pkg/networkmanager/firewall.jsx:769 pkg/storaged/content-views.jsx:309
 #: pkg/storaged/content-views.jsx:325 pkg/storaged/mdraid-details.jsx:293
 #: pkg/storaged/mdraid-details.jsx:316 pkg/storaged/vdo-details.jsx:198
-#: pkg/storaged/vdo-details.jsx:261 pkg/storaged/vgroup-details.jsx:211
-#: pkg/storaged/vgroup-details.jsx:233
+#: pkg/storaged/vdo-details.jsx:261 pkg/storaged/vgroup-details.jsx:212
+#: pkg/storaged/vgroup-details.jsx:234
 msgid "Delete"
 msgstr "삭제"
 
@@ -2303,7 +2336,7 @@ msgstr "논리 볼륨을 삭제하면 논리 볼륨 내의 모든 데이터도 �
 msgid "Deleting a partition will delete all data in it."
 msgstr "파티션을 삭제하면 파티션 내의 모든 데이터도 함께 삭제됩니다."
 
-#: pkg/storaged/vgroup-details.jsx:210
+#: pkg/storaged/vgroup-details.jsx:211
 msgid "Deleting a volume group will erase all data on it."
 msgstr "볼륨 그룹을 삭제하면 내부의 모든 데이터도 함께 삭제됩니다."
 
@@ -2340,7 +2373,7 @@ msgstr "분리 가능"
 
 # translation auto-copied from project libreport, version master, document
 # libreport
-#: pkg/shell/index.html:250 pkg/docker/containers-view.jsx:336
+#: pkg/shell/index.html:258 pkg/docker/containers-view.jsx:336
 #: pkg/docker/containers-view.jsx:504 pkg/docker/containers-view.jsx:514
 #: pkg/docker/containers-view.jsx:642 pkg/packagekit/updates.jsx:388
 msgid "Details"
@@ -2358,7 +2391,21 @@ msgstr "개발"
 msgid "Device"
 msgstr "장치"
 
+#: pkg/storaged/mdraid-details.jsx:321
+#, fuzzy
+#| msgid "Device"
+msgctxt "storage"
+msgid "Device"
+msgstr "장치"
+
 #: pkg/storaged/vdo-details.jsx:266
+msgid "Device File"
+msgstr "장치 파일"
+
+#: pkg/storaged/block-details.jsx:40 pkg/storaged/drive-details.jsx:77
+#, fuzzy
+#| msgid "Device File"
+msgctxt "storage"
 msgid "Device File"
 msgstr "장치 파일"
 
@@ -2412,7 +2459,7 @@ msgid "Disconnect"
 msgstr "연결 끊김"
 
 #: pkg/machines/components/vnc.jsx:107 pkg/shell/indexes.js:244
-#: pkg/shell/indexes.js:846
+#: pkg/shell/indexes.js:879
 msgid "Disconnected"
 msgstr "연결 해제됨"
 
@@ -2457,11 +2504,11 @@ msgstr "디스크 설정을 저장할 수 없습니다"
 
 #: pkg/machines/components/vm/vm.jsx:51 pkg/storaged/mdraid-details.jsx:48
 #: pkg/storaged/mdraid-details.jsx:148 pkg/storaged/mdraids-panel.jsx:110
-#: pkg/storaged/vgroup-details.jsx:54 pkg/storaged/vgroups-panel.jsx:79
+#: pkg/storaged/vgroup-details.jsx:55 pkg/storaged/vgroups-panel.jsx:79
 msgid "Disks"
 msgstr "디스크"
 
-#: pkg/shell/index.html:53 pkg/shell/index.html:115
+#: pkg/shell/index.html:61 pkg/shell/index.html:123
 msgid "Display Language"
 msgstr "표시 언어"
 
@@ -2575,7 +2622,7 @@ msgid "Duplicate port"
 msgstr "포트 복제"
 
 #: pkg/machines/components/diskEdit.jsx:255
-#: pkg/machines/components/nicEdit.jsx:212 pkg/storaged/crypto-tab.jsx:129
+#: pkg/machines/components/nicEdit.jsx:215 pkg/storaged/crypto-tab.jsx:129
 #: pkg/storaged/nfs-details.jsx:307
 msgid "Edit"
 msgstr "편집"
@@ -2606,7 +2653,8 @@ msgid "Empty"
 msgstr "비었음"
 
 #: pkg/playground/translate.html:62 src/base1/test-locale.js:48
-#: src/base1/test-locale.js:59 pkg/playground/translate.js:17
+#: src/base1/test-locale.js:59 pkg/playground/translate.js:14
+#: pkg/playground/translate.js:17
 msgctxt "verb"
 msgid "Empty"
 msgstr "비었음"
@@ -2936,7 +2984,7 @@ msgstr "필터 서비스"
 msgid "Filter by name or description..."
 msgstr "이름 또는 설명에 따라 필터링..."
 
-#: pkg/lib/machine-unknown-hostkey.html:10 pkg/shell/index.html:293
+#: pkg/lib/machine-unknown-hostkey.html:10 pkg/shell/index.html:301
 msgid "Fingerprint"
 msgstr "지문"
 
@@ -2948,6 +2996,13 @@ msgstr "방화벽"
 #: pkg/networkmanager/firewall.jsx:888
 msgid "Firewall is not available"
 msgstr "방화벽을 사용할 수 없습니다"
+
+#: pkg/storaged/drive-details.jsx:72
+#, fuzzy
+#| msgid "Version"
+msgctxt "storage"
+msgid "Firmware Version"
+msgstr "버전"
 
 #: pkg/storaged/vdos-panel.jsx:129
 msgid "For legacy applications only. Reduces performance."
@@ -3153,6 +3208,10 @@ msgstr "건강"
 msgid "Hello time $hello_time"
 msgstr "Hello 타임 $hello_time"
 
+#: pkg/shell/index.html:48
+msgid "Help"
+msgstr ""
+
 #: pkg/machines/components/diskAdd.jsx:156
 msgid "Hide Additional Options"
 msgstr "추가 옵션 숨기기"
@@ -3160,7 +3219,7 @@ msgstr "추가 옵션 숨기기"
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:137
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:35
 #: pkg/machines/components/vm/bootOrderModal.jsx:97
-#: pkg/machines/components/vmDiskColumns.jsx:47 pkg/shell/indexes.js:575
+#: pkg/machines/components/vmDiskColumns.jsx:47 pkg/shell/indexes.js:576
 msgid "Host"
 msgstr "호스트"
 
@@ -3635,10 +3694,8 @@ msgid "Join a Domain"
 msgstr "도메인에 가입"
 
 #: pkg/systemd/overview-cards/realmd-operation.js:623
-#, fuzzy
-#| msgid "Joining this domain is not supported"
 msgid "Joining a domain requires installation of realmd"
-msgstr "도메인 가입이 지원되지 않습니다"
+msgstr "도메인에 가입하려면 realmd를 설치해야 합니다"
 
 #: pkg/systemd/overview-cards/realmd-operation.js:508
 msgid "Joining this domain is not supported"
@@ -3740,10 +3797,8 @@ msgid "Last Trigger"
 msgstr "마지막 트리거"
 
 #: pkg/packagekit/updates.jsx:181
-#, fuzzy
-#| msgid "Last checked: $0 ago"
 msgid "Last checked: $0"
-msgstr "마지막 접속 날짜: $0 이전  "
+msgstr "마지막 접속 날짜: $0"
 
 #: pkg/machines/components/desktopConsole.jsx:128
 msgid "Launch Remote Viewer"
@@ -3773,7 +3828,7 @@ msgstr ""
 "default_user}}로 연결하려면 비워두십시오. 다른 사용자 이름을 입력하면 이 컴퓨"
 "터에 연결할 때 입력한 사용자가 항상 사용됩니다."
 
-#: pkg/shell/index.html:91
+#: pkg/shell/index.html:99
 msgid "Licensed under:"
 msgstr "라이센스 보유자:"
 
@@ -3894,7 +3949,7 @@ msgstr "$target 잠금 중"
 msgid "Log In"
 msgstr "로그인"
 
-#: pkg/shell/index.html:71
+#: pkg/shell/index.html:79
 msgid "Log Out"
 msgstr "로그 아웃"
 
@@ -4016,7 +4071,7 @@ msgstr "머신 SSH 키 지문"
 msgid "Machine must be shut off before changing bus type"
 msgstr "버스 유형을 변경하기 전에 장치를 종료해야 합니다"
 
-#: pkg/shell/indexes.js:539
+#: pkg/shell/indexes.js:540
 msgid "Machines"
 msgstr "장치들"
 
@@ -4027,6 +4082,52 @@ msgstr "메인 서버 섀시"
 #: pkg/storaged/crypto-keyslots.jsx:327
 msgid "Make sure the key hash from the Tang server matches:"
 msgstr "Tang 서버의 키 해시가 일치하는지 확인합니다:"
+
+#: pkg/networkmanager/manifest.json.in
+#, fuzzy
+#| msgid "firewall"
+msgid "Managing firewall"
+msgstr "방화벽"
+
+#: pkg/networkmanager/manifest.json.in
+#, fuzzy
+#| msgid "Networking"
+msgid "Managing networking"
+msgstr "네트워킹"
+
+#: pkg/storaged/manifest.json.in
+#, fuzzy
+#| msgid "partition"
+msgid "Managing partitions"
+msgstr "파티션"
+
+#: pkg/systemd/manifest.json.in
+#, fuzzy
+#| msgid "Backing Device"
+msgid "Managing services"
+msgstr "백업 장치"
+
+#: pkg/packagekit/manifest.json.in
+#, fuzzy
+#| msgid "Software Updates"
+msgid "Managing software updates"
+msgstr "소프트웨어 업데이트"
+
+#: pkg/storaged/manifest.json.in
+#, fuzzy
+#| msgid "Raw to a device"
+msgid "Managing storage devices"
+msgstr "로우(raw) 장치"
+
+#: pkg/users/manifest.json.in
+msgid "Managing user accounts"
+msgstr ""
+
+#: pkg/machines/manifest.json.in
+#, fuzzy
+#| msgid "Virtual Machines"
+msgid "Managing virtual machines"
+msgstr "가상머신"
 
 #: pkg/networkmanager/interfaces.js:1946 pkg/networkmanager/interfaces.js:1956
 msgid "Manual"
@@ -4158,7 +4259,7 @@ msgstr "메모리 사용량:"
 msgid "Message to logged in users"
 msgstr "로그인한 사용자에게 보내는 메세지"
 
-#: pkg/shell/index.html:430
+#: pkg/shell/index.html:438
 msgid "Messages related to the failure might be found in the journal:"
 msgstr "실행 실패와 관련된 메시지는 저널에서 찾을 수 있습니다:"
 
@@ -4198,6 +4299,13 @@ msgstr "모드"
 
 #: pkg/machines/components/nicBody.jsx:44 pkg/systemd/hwinfo.jsx:258
 #: pkg/systemd/overview-cards/systemInformationCard.jsx:92
+msgid "Model"
+msgstr "모델"
+
+#: pkg/storaged/drive-details.jsx:71
+#, fuzzy
+#| msgid "Model"
+msgctxt "storage"
 msgid "Model"
 msgstr "모델"
 
@@ -4316,6 +4424,13 @@ msgstr "$target 마운트 중"
 msgid "Multi-system Chassis"
 msgstr "멀티 시스템 섀시"
 
+#: pkg/storaged/drive-details.jsx:79
+#, fuzzy
+#| msgid "Other Devices"
+msgctxt "storage"
+msgid "Multipathed Devices"
+msgstr "다른 장치"
+
 #: pkg/machines/components/create-vm-dialog/pxe-helpers.js:93
 msgid "NAT to $0"
 msgstr "$0에 NAT"
@@ -4364,7 +4479,7 @@ msgstr "NTP 서버"
 #: pkg/storaged/lvol-tabs.jsx:35 pkg/storaged/lvol-tabs.jsx:357
 #: pkg/storaged/lvol-tabs.jsx:399 pkg/storaged/lvol-tabs.jsx:454
 #: pkg/storaged/mdraids-panel.jsx:61 pkg/storaged/part-tab.jsx:33
-#: pkg/storaged/vdos-panel.jsx:82 pkg/storaged/vgroup-details.jsx:175
+#: pkg/storaged/vdos-panel.jsx:82 pkg/storaged/vgroup-details.jsx:176
 #: pkg/storaged/vgroups-panel.jsx:74 pkg/systemd/hwinfo.jsx:70
 #: pkg/systemd/init.js:308
 msgid "Name"
@@ -4466,7 +4581,7 @@ msgid "Network devices and graphs require NetworkManager."
 msgstr "네트워크 장치 및 그래프에는 NetworkManager가 필요합니다."
 
 #: pkg/machines/components/nicAdd.jsx:148
-#: pkg/machines/components/nicEdit.jsx:118
+#: pkg/machines/components/nicEdit.jsx:121
 msgid "Network interface settings could not be saved"
 msgstr "네트워크 인터페이스 설정을 저장하지 못했습니다"
 
@@ -4509,7 +4624,7 @@ msgstr "계정 잠금을 하지 않습니다"
 msgid "New NFS Mount"
 msgstr "새 NFS 마운트"
 
-#: pkg/shell/index.html:314 pkg/users/index.html:218
+#: pkg/shell/index.html:322 pkg/users/index.html:218
 msgid "New Password"
 msgstr "새 암호"
 
@@ -4662,7 +4777,7 @@ msgid "No description provided."
 msgstr "설명이 없습니다."
 
 #: pkg/storaged/mdraid-details.jsx:50 pkg/storaged/mdraids-panel.jsx:112
-#: pkg/storaged/vdos-panel.jsx:92 pkg/storaged/vgroup-details.jsx:56
+#: pkg/storaged/vdos-panel.jsx:92 pkg/storaged/vgroup-details.jsx:57
 #: pkg/storaged/vgroups-panel.jsx:81
 msgid "No disks are available."
 msgstr "사용 가능한 디스크가 없습니다."
@@ -4744,7 +4859,7 @@ msgstr "실제 이름이 지정되어 있지 않습니다"
 msgid "No results for $0"
 msgstr "$0의 결과를 찾을 수 없습니다"
 
-#: pkg/shell/indexes.js:524
+#: pkg/shell/indexes.js:525
 msgid "No results found"
 msgstr "결과를 찾을 수 없습니다"
 
@@ -4897,7 +5012,7 @@ msgstr "$0에서 $1 사이의 발생 건수"
 msgid "Ok"
 msgstr "확인"
 
-#: pkg/shell/index.html:305 pkg/users/index.html:215
+#: pkg/shell/index.html:313 pkg/users/index.html:215
 msgid "Old Password"
 msgstr "이전 암호"
 
@@ -5103,8 +5218,8 @@ msgid "Passphrases do not match"
 msgstr "암호가 일치하지 않습니다"
 
 #: pkg/lib/machine-auth-failed.html:8 pkg/lib/machine-change-auth.html:52
-#: pkg/lib/machine-sync-users.html:63 pkg/shell/index.html:223
-#: pkg/shell/index.html:252 pkg/shell/index.html:267 pkg/users/index.html:118
+#: pkg/lib/machine-sync-users.html:63 pkg/shell/index.html:231
+#: pkg/shell/index.html:260 pkg/shell/index.html:275 pkg/users/index.html:118
 #: pkg/users/index.html:173 src/ws/login.html:55
 #: pkg/storaged/iscsi-panel.jsx:47 pkg/storaged/iscsi-panel.jsx:157
 msgid "Password"
@@ -5130,7 +5245,7 @@ msgstr "암호를 변경해야 합니다"
 msgid "Password not accepted"
 msgstr "암호가 허용되지 않습니다"
 
-#: pkg/shell/index.html:172
+#: pkg/shell/index.html:180
 msgid ""
 "Password not usable for privileged tasks or to connect to other machines"
 msgstr ""
@@ -5233,7 +5348,7 @@ msgstr "물리적 디스크 장치"
 msgid "Physical Volume"
 msgstr "물리 볼륨"
 
-#: pkg/storaged/vgroup-details.jsx:127
+#: pkg/storaged/vgroup-details.jsx:128
 msgid "Physical Volumes"
 msgstr "물리 볼륨"
 
@@ -5264,7 +5379,7 @@ msgstr "Pizza Box"
 #: pkg/docker/containers-view.jsx:200 pkg/docker/details.js:286
 #: pkg/docker/util.js:612 pkg/storaged/content-views.jsx:305
 #: pkg/storaged/mdraid-details.jsx:289 pkg/storaged/vdo-details.jsx:194
-#: pkg/storaged/vgroup-details.jsx:207
+#: pkg/storaged/vgroup-details.jsx:208
 msgid "Please confirm deletion of $0"
 msgstr "$0 삭제를 확인해주세요"
 
@@ -5450,7 +5565,7 @@ msgstr "프로세스"
 msgid "Product"
 msgstr "제품"
 
-#: pkg/shell/index.html:87
+#: pkg/shell/index.html:95
 msgid "Project website"
 msgstr "프로젝트 웹사이트"
 
@@ -5476,7 +5591,7 @@ msgstr "새로 고침 전달"
 msgid "Protocol"
 msgstr "프로토콜"
 
-#: pkg/lib/machine-auth-failed.html:9 pkg/shell/index.html:251
+#: pkg/lib/machine-auth-failed.html:9 pkg/shell/index.html:259
 msgid "Public Key"
 msgstr "공개 키"
 
@@ -5550,6 +5665,13 @@ msgid "RAID Device $0"
 msgstr "RAID 장치 $0"
 
 #: pkg/storaged/mdraids-panel.jsx:62
+msgid "RAID Level"
+msgstr "RAID 레벨"
+
+#: pkg/storaged/mdraid-details.jsx:330
+#, fuzzy
+#| msgid "RAID Level"
+msgctxt "storage"
 msgid "RAID Level"
 msgstr "RAID 레벨"
 
@@ -5650,7 +5772,7 @@ msgstr "최근"
 msgid "Recommended default"
 msgstr "기본 권장 사항"
 
-#: pkg/shell/index.html:413
+#: pkg/shell/index.html:421
 msgid "Reconnect"
 msgstr "재연결"
 
@@ -5797,8 +5919,8 @@ msgstr ""
 msgid "Removing the zone will remove all services within it."
 msgstr "영역을 제거하면 영역 내의 모든 서비스가 제거됩니다."
 
-#: pkg/storaged/lvol-tabs.jsx:39 pkg/storaged/vgroup-details.jsx:182
-#: pkg/storaged/vgroup-details.jsx:231
+#: pkg/storaged/lvol-tabs.jsx:39 pkg/storaged/vgroup-details.jsx:183
+#: pkg/storaged/vgroup-details.jsx:232
 msgid "Rename"
 msgstr "이름 변경"
 
@@ -5806,7 +5928,7 @@ msgstr "이름 변경"
 msgid "Rename Logical Volume"
 msgstr "논리 볼륨 이름 변경"
 
-#: pkg/storaged/vgroup-details.jsx:173
+#: pkg/storaged/vgroup-details.jsx:174
 msgid "Rename Volume Group"
 msgstr "볼륨 그룹 이름 변경"
 
@@ -5982,9 +6104,15 @@ msgstr "재시도 횟수:"
 msgid "Reuse my password for privileged tasks"
 msgstr "권한 작업 실행을 위해 암호 재사용"
 
-#: pkg/shell/index.html:176
+#: pkg/shell/index.html:184
 msgid "Reuse my password for privileged tasks and to connect to other machines"
 msgstr "권한 작업 실행 또는 다른 컴퓨터에 연결을 위해 암호를 재사용합니다"
+
+#: pkg/systemd/manifest.json.in
+#, fuzzy
+#| msgid "Networking Logs"
+msgid "Reviewing logs"
+msgstr "네트워킹 로그"
 
 # auto translated by TM merge from project: RHEV Administration Guide,
 # version: 4.0, DocId: chap-
@@ -6095,7 +6223,7 @@ msgstr "STP Maximum message age"
 msgid "STP Priority"
 msgstr "STP 우선순위"
 
-#: pkg/shell/index.html:434
+#: pkg/shell/index.html:442
 msgid ""
 "Safari users need to import and trust the certificate of the self-signing CA:"
 msgstr ""
@@ -6110,7 +6238,7 @@ msgid "Saturdays"
 msgstr "토요일"
 
 #: pkg/systemd/services.html:377 pkg/machines/components/diskEdit.jsx:220
-#: pkg/machines/components/nicEdit.jsx:179
+#: pkg/machines/components/nicEdit.jsx:182
 #: pkg/machines/components/vm/bootOrderModal.jsx:330
 #: pkg/machines/components/vm/memoryModal.jsx:158
 #: pkg/storaged/crypto-keyslots.jsx:266 pkg/storaged/crypto-keyslots.jsx:285
@@ -6141,7 +6269,7 @@ msgstr ""
 msgid "Sealed-case PC"
 msgstr "쉴드 케이스 PC"
 
-#: pkg/shell/index.html:389
+#: pkg/shell/index.html:397
 msgid "Search"
 msgstr "검색"
 
@@ -6166,7 +6294,7 @@ msgstr "보안"
 msgid "Security Updates Available"
 msgstr "사용 가능한 보안 업데이트"
 
-#: pkg/shell/index.html:124
+#: pkg/shell/index.html:132
 msgid "Select"
 msgstr "선택"
 
@@ -6197,6 +6325,11 @@ msgstr "전송 중입니다"
 #: pkg/machines/components/consoles.jsx:69
 msgid "Serial Console"
 msgstr "직렬 콘솔"
+
+#: pkg/storaged/drive-details.jsx:73
+msgctxt "storage"
+msgid "Serial Number"
+msgstr ""
 
 # translation auto-copied from project subscription-manager, version 1.11.X,
 # document keys
@@ -6276,7 +6409,7 @@ msgstr "서비스"
 msgid "Session"
 msgstr "세션"
 
-#: pkg/shell/index.html:134
+#: pkg/shell/index.html:142
 msgid "Session is about to expire"
 msgstr "세션이 곧 만료됩니다"
 
@@ -6608,6 +6741,13 @@ msgstr "시작"
 #: pkg/machines/components/storagePools/storagePoolList.jsx:54
 #: pkg/machines/components/vmnetworktab.jsx:205 pkg/machines/hostvmslist.jsx:74
 #: pkg/systemd/hwinfo.jsx:271 pkg/systemd/init.js:312
+msgid "State"
+msgstr "상태"
+
+#: pkg/storaged/mdraid-details.jsx:335
+#, fuzzy
+#| msgid "State"
+msgctxt "storage"
 msgid "State"
 msgstr "상태"
 
@@ -7152,7 +7292,7 @@ msgstr "RAID의 마지막 디스크는 삭제할 수 없습니다."
 msgid "The last key slot can not be removed"
 msgstr "마지막 키 슬롯은 삭제할 수 없습니다"
 
-#: pkg/storaged/vgroup-details.jsx:90
+#: pkg/storaged/vgroup-details.jsx:91
 msgid "The last physical volume of a volume group cannot be removed."
 msgstr "볼륨 그룹의 마지막 물리 볼륨은 삭제할 수 없습니다."
 
@@ -7160,7 +7300,7 @@ msgstr "볼륨 그룹의 마지막 물리 볼륨은 삭제할 수 없습니다."
 msgid "The logged in user is not permitted to view system modifications"
 msgstr "로그인한 사용자는 시스템 수정 사항을 볼 수 없습니다"
 
-#: pkg/shell/indexes.js:650
+#: pkg/shell/indexes.js:683
 msgid "The machine is restarting"
 msgstr "장치가 재시동되고 있습니다"
 
@@ -7177,12 +7317,9 @@ msgid "The pool is empty"
 msgstr "풀이 비어 있습니다"
 
 #: pkg/docker/containers-view.jsx:436
-#, fuzzy
-#| msgid "The scan from $time ($type) found one vulnerability:"
-#| msgid_plural "The scan from $time ($type) found $count vulnerabilities:"
 msgid "The scan from $time ($type) found $count vulnerability:"
 msgid_plural "The scan from $time ($type) found $count vulnerabilities:"
-msgstr[0] "$time ($type) 검사에서 1 가지 취약점이 발견되었습니다:"
+msgstr[0] "$time ($type) 검사에서 $count 취약점이 발견되었습니다:"
 
 #: pkg/docker/containers-view.jsx:434
 msgid "The scan from $time ($type) found no vulnerabilities."
@@ -7294,7 +7431,7 @@ msgstr "이 영역에는 활성 서비스가 없습니다"
 msgid "There are no authorized public keys for this account."
 msgstr "이 계정에 승인된 공개키가 없습니다."
 
-#: pkg/storaged/vgroup-details.jsx:96
+#: pkg/storaged/vgroup-details.jsx:97
 msgid ""
 "There is not enough free space elsewhere to remove this physical volume. At "
 "least $0 more free space is needed."
@@ -7302,7 +7439,7 @@ msgstr ""
 "이 물리 볼륨을 제거하는데 필요한 공간이 충분하지 않습니다. 최소 $0의 여유 공"
 "간이 필요합니다."
 
-#: pkg/shell/index.html:429
+#: pkg/shell/index.html:437
 msgid "There was an unexpected error while connecting to the machine."
 msgstr "기기에 연결하는 동안 예기치 않은 오류가 발생했습니다."
 
@@ -7501,7 +7638,7 @@ msgstr "시간대"
 msgid "Timers"
 msgstr "타이머"
 
-#: pkg/shell/index.html:332
+#: pkg/shell/index.html:340
 msgid ""
 "Tip: Make your key password match your login password to automatically "
 "authenticate against other systems."
@@ -7548,7 +7685,7 @@ msgstr "트리거 소스"
 msgid "Triggers"
 msgstr "트리거"
 
-#: pkg/shell/index.html:414 pkg/machines/components/libvirtSlate.jsx:112
+#: pkg/shell/index.html:422 pkg/machines/components/libvirtSlate.jsx:112
 msgid "Troubleshoot"
 msgstr "문제 해결"
 
@@ -7596,7 +7733,7 @@ msgstr "Tuned가 실행되고 있지 않습니다"
 msgid "Tuned is off"
 msgstr "Tuned이 종료되어 있습니다"
 
-#: pkg/shell/index.html:289
+#: pkg/shell/index.html:297
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:85
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:74
 #: pkg/machines/components/vm/bootOrderModal.jsx:108
@@ -7635,6 +7772,15 @@ msgstr "URL"
 # translation auto-copied from project subscription-manager, version 1.11.X,
 # document keys
 #: pkg/storaged/part-tab.jsx:39
+msgid "UUID"
+msgstr "UUID"
+
+# translation auto-copied from project subscription-manager, version 1.11.X,
+# document keys
+#: pkg/storaged/mdraid-details.jsx:324 pkg/storaged/vgroup-details.jsx:239
+#, fuzzy
+#| msgid "UUID"
+msgctxt "storage"
 msgid "UUID"
 msgstr "UUID"
 
@@ -7758,7 +7904,7 @@ msgstr "중지될 때 까지"
 msgid "Unlock"
 msgstr "잠금 해제"
 
-#: pkg/shell/index.html:233 pkg/shell/index.html:277
+#: pkg/shell/index.html:241 pkg/shell/index.html:285
 msgid "Unlock Key"
 msgstr "키 잠금 해제"
 
@@ -7899,7 +8045,7 @@ msgstr "512 바이트 에뮬레이션 사용"
 msgid "Use Existing"
 msgstr "기존 사용"
 
-#: pkg/shell/index.html:185
+#: pkg/shell/index.html:193
 msgid "Use the following keys to authenticate against other systems"
 msgstr "다른 시스템에 대해 인증하려면 다음 키를 사용합니다"
 
@@ -8081,7 +8227,7 @@ msgstr "키 확인"
 msgid "Verifying"
 msgstr "확인 중"
 
-#: pkg/shell/index.html:89 pkg/packagekit/updates.jsx:386
+#: pkg/shell/index.html:97 pkg/packagekit/updates.jsx:386
 #: pkg/systemd/hwinfo.jsx:74
 msgid "Version"
 msgstr "버전"
@@ -8113,10 +8259,8 @@ msgid "Virtual Machines"
 msgstr "가상머신"
 
 #: pkg/machines/index.html:4
-#, fuzzy
-#| msgid "Virtual Machines"
 msgid "Virtual Machines Management"
-msgstr "가상머신"
+msgstr "가상 머신 관리"
 
 #: pkg/machines/components/create-vm-dialog/pxe-helpers.js:161
 msgid "Virtual Network"
@@ -8147,7 +8291,7 @@ msgstr "볼륨"
 msgid "Volume Group"
 msgstr "볼륨 그룹"
 
-#: pkg/storaged/utils.js:248 pkg/storaged/vgroup-details.jsx:229
+#: pkg/storaged/utils.js:248 pkg/storaged/vgroup-details.jsx:230
 msgid "Volume Group $0"
 msgstr "볼륨 그룹 $0"
 
@@ -8217,6 +8361,12 @@ msgstr "필요"
 msgid "Warning and above"
 msgstr "경고 이상의 수준"
 
+#: pkg/shell/indexes.js:613
+#, fuzzy
+#| msgid "Consoles"
+msgid "Web Console"
+msgstr "콘솔"
+
 #: src/ws/cockpit.appdata.xml.in:8
 msgid "Web Console for Linux servers"
 msgstr "Linux 서버 용 웹 콘솔"
@@ -8244,6 +8394,11 @@ msgstr "화이트"
 #: pkg/docker/index.html:488
 msgid "With terminal"
 msgstr "터미널 실행"
+
+#: pkg/storaged/drive-details.jsx:74
+msgctxt "storage"
+msgid "World Wide Name"
+msgstr ""
 
 #: pkg/storaged/mdraid-details.jsx:97
 msgid "Write-mostly"
@@ -8769,12 +8924,9 @@ msgid "none"
 msgstr "없음"
 
 #: pkg/systemd/graphs.js:142 pkg/systemd/overview-cards/usageCard.jsx:112
-#, fuzzy
-#| msgid "of $0 CPU core"
-#| msgid_plural "of $0 CPU cores"
 msgid "of $0 CPU"
 msgid_plural "of $0 CPUs"
-msgstr[0] "$0 CPU 코어"
+msgstr[0] "$0 CPU"
 
 #: pkg/systemd/manifest.json.in
 msgid "operating system"

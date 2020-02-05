@@ -1069,7 +1069,8 @@ PageAccount.prototype = {
             else if (!data && !checked)
                 data = "Removed " + self.account.name + " from group " + name;
             console.log(data);
-            self.roles_changed = true;
+            if (self.logged)
+                self.roles_changed = true;
             self.update();
         }, show_unexpected_error).finally(function() {
             input_elements.prop('disabled', false);

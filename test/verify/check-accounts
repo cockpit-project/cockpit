@@ -172,6 +172,11 @@ class TestAccounts(MachineCase):
             b.wait_present("#account-roles .pf-c-alert.pf-m-info")
         m.execute("/usr/sbin/usermod jussi -G %s -a" % m.get_admin_group())
         b.wait_present(admin_role_sel + ":checked:not([disabled])")
+        b.go("#/admin")
+        b.wait_text("#account-user-name", "admin")
+        b.wait_present(admin_role_sel + ":checked")
+        if m.image != "rhel-8-2-distropkg": #Changed in #13492
+            b.wait_not_present("#account-roles .pf-c-alert.pf-m-info")
         b.logout()
         b.login_and_go("/users")
 

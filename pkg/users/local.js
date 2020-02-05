@@ -929,6 +929,7 @@ PageAccount.prototype = {
 
     enter: function(account_id) {
         this.account_id = account_id;
+        this.roles_changed = false;
 
         $("#account-real-name").removeAttr("data-dirty");
         $('#password-reset-button').data('account-id', this.account_id);

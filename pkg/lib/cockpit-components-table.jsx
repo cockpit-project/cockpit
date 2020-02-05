@@ -34,7 +34,7 @@ import './listing.less';
 
 /* This is a wrapper around PF Table component
  * See https://www.patternfly.org/v4/documentation/react/components/table
- * Properties (all optional):
+ * Properties (all optional unless specified otherwise):
  * - caption
  * - className: additional classes added to the Table
  * - actions: additional listing-wide actions (displayed next to the list's title)
@@ -42,8 +42,7 @@ import './listing.less';
  * - rows: {
  *      columns: (React.Node or string)[],
  *      extraClasses: string[],
- *      props: { key: string, ...extraProps: object }
- *          additional properties of each row; the key should be always passed in order to each row to have a unique key
+ *      props: { key: string, ...extraProps: object } - this property is mandatory and should contain a unique `key`, all additional properties are optional
  *   }[]
  * - emptyCaption: header caption to show if list is empty
  * - variant: For compact tables pass 'compact'
@@ -192,7 +191,7 @@ ListingTable.propTypes = {
     caption: PropTypes.string,
     emptyCaption: PropTypes.node,
     columns: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.object, PropTypes.string])),
-    rows: PropTypes.arrayOf(PropTypes.object),
+    rows: PropTypes.arrayOf(PropTypes.shape({ props: PropTypes.object.isRequired })),
     actions: PropTypes.node,
     variant: PropTypes.string,
 };

@@ -42,7 +42,7 @@ export class NFSPanel extends React.Component {
             var remote_dir = entry.fields[0].split(":")[1];
 
             return {
-                props: { entry },
+                props: { entry, key: entry.fields[1] },
                 columns: [
                     { title: server + " " + remote_dir },
                     { title: entry.fields[1] },

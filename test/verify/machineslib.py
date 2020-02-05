@@ -1211,7 +1211,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
     def testInlineConsole(self, urlroot=""):
         b = self.browser
 
-        self.startVm("subVmTest1", graphics='vnc')
+        args = self.startVm("subVmTest1", graphics='vnc')
 
         if urlroot != "":
             self.machine.execute('mkdir -p /etc/cockpit/ && echo "[WebService]\nUrlRoot=%s" > /etc/cockpit/cockpit.conf' % urlroot)
@@ -1227,6 +1227,13 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # since VNC is defined for this VM, the view for "In-Browser Viewer" is rendered by default
         b.wait_present(".toolbar-pf-results canvas")
+
+        # make sure the log file is full - then empty it and reboot the VM - the log file should fill up again
+        wait(lambda: "login as 'cirros' user." in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
+        self.machine.execute("echo '' > {0}".format(args["logfile"]))
+        b.click("#{0}-system-vnc-sendkey button".format("subVmTest1"))
+        b.click("#ctrl-alt-Delete")
+        wait(lambda: "Requesting system reboot" in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
 
     def testInlineConsoleWithUrlRoot(self, urlroot=""):
         self.testInlineConsole(urlroot="/webcon")

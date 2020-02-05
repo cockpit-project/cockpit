@@ -157,6 +157,8 @@ const Enum = {
     VIR_NETWORK_EVENT_STARTED: 2,
     VIR_NETWORK_EVENT_STOPPED: 3,
     VIR_NETWORK_EVENT_LAST: 4,
+    // Keycodes
+    VIR_KEYCODE_SET_LINUX: 0,
 };
 
 const LIBVIRT_DBUS_PROVIDER = {
@@ -1442,6 +1444,13 @@ export function detachIface(mac, connectionName, id, live, persistent, dispatch)
                 return call(connectionName, id, 'org.libvirt.Domain', 'DetachDevice', [ifaceXML, detachFlags], { timeout, type: 'su' });
             })
             .then(() => dispatch(getVm({ connectionName, id })));
+}
+
+export function domainSendKey(connectionName, id, keyCodes) {
+    const holdTime = 0;
+    const flags = 0;
+
+    return call(connectionName, id, 'org.libvirt.Domain', 'SendKey', [Enum.VIR_KEYCODE_SET_LINUX, holdTime, keyCodes, flags], { timeout, type: "uuauu" });
 }
 
 export function getAllInterfaces(dispatch, connectionName) {

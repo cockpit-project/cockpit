@@ -161,7 +161,7 @@ class Consoles extends React.Component {
     }
 
     render () {
-        const { vm, config } = this.props;
+        const { vm, config, onAddErrorNotification } = this.props;
 
         if (!LibvirtDBus.canConsole || !LibvirtDBus.canConsole(vm.state)) {
             return (<VmNotRunning />);
@@ -186,7 +186,7 @@ class Consoles extends React.Component {
         case 'serial-browser':
             return <SerialConsole connectionName={vm.connectionName} vmName={vm.name} spawnArgs={serialConsoleCommand}>{consoleSelector}</SerialConsole>;
         case 'vnc-browser':
-            return <Vnc vm={vm} consoleDetail={this.state.consoleDetail}>{consoleSelector}</Vnc>;
+            return <Vnc vm={vm} consoleDetail={this.state.consoleDetail} onAddErrorNotification={onAddErrorNotification}>{consoleSelector}</Vnc>;
         case 'desktop':
             return <DesktopConsole vm={vm} onDesktopConsole={onDesktopConsole} config={config}>{consoleSelector}</DesktopConsole>;
         default:
@@ -200,6 +200,7 @@ Consoles.propTypes = {
     vm: PropTypes.object.isRequired,
     config: PropTypes.object.isRequired,
     dispatch: PropTypes.func.isRequired,
+    onAddErrorNotification: PropTypes.func.isRequired,
 };
 
 export default Consoles;

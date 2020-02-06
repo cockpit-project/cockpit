@@ -21,6 +21,7 @@ import time
 
 import parent
 from testlib import *
+from machine_core.constants import TEST_OS_DEFAULT
 
 
 class TestPages(MachineCase):
@@ -200,7 +201,7 @@ OnCalendar=daily
         # Test all languages
         # Test that pages do not oops and that locale is valid
 
-        if m.image not in ["fedora-30"]:
+        if m.image not in [TEST_OS_DEFAULT]:
             return
 
         def line_sel(i):

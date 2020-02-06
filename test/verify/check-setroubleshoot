@@ -19,6 +19,7 @@
 
 import parent
 from testlib import *
+from machine_core.constants import TEST_OS_DEFAULT
 
 
 FIX_AUDITD = """
@@ -56,7 +57,7 @@ mv -f ~/.ssh/authorized_keys.test-avc ~/.ssh/authorized_keys
 class TestSelinux(MachineCase):
     provision = {
         "0": {},
-        "ansible_machine": {"image": "fedora-30"}
+        "ansible_machine": {"image": TEST_OS_DEFAULT}
     }
 
     @skipImage("No setroubleshoot", "debian-stable", "debian-testing", "fedora-coreos", "ubuntu-1804", "ubuntu-stable")

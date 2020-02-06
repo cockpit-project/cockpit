@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+from machine_core.constants import TEST_OS_DEFAULT
+
 
 def HACK_disable_problematic_preloads(machine):
     # There is something about pre-loading the packagekit page that
@@ -24,5 +26,5 @@ def HACK_disable_problematic_preloads(machine):
     # from a first machine.  Thus, we only disable packagekit
     # preloading on selected machines, and only for selected images,
     # in order to confirm or improve this theory.
-    if machine.image in ["fedora-30"]:
+    if machine.image in [TEST_OS_DEFAULT]:
         machine.write("/usr/share/cockpit/packagekit/override.json", '{ "preload": [ ] }')

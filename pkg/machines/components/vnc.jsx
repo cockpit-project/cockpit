@@ -165,8 +165,6 @@ class Vnc extends React.Component {
                         onInitFailed={this.onInitFailed}
                         textConnecting={_("Connecting")}
                         textDisconnected={_("Disconnected")}
-                        textSendShortcut={_("Send key")}
-                        textCtrlAltDel={_("Ctrl+Alt+Del")}
                         additionalButtons={additionalButtons}>
                 <div className='console-menu'>
                     {this.props.children}

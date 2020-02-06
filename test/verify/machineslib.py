@@ -2120,12 +2120,10 @@ class TestMachines(NetworkCase):
 
             def allowBugErrors(location, original_exception):
                 # CPU must be supported to detect errors
-                # FIXME: "CPU is incompatible with host CPU" check should not be needed; happens only on fedora i386
-                # see https://github.com/cockpit-project/cockpit/issues/8385
+                # FIXME https://github.com/cockpit-project/cockpit/issues/8385
                 error_message = b.text(location)
 
-                if "CPU is incompatible with host CPU" not in error_message and \
-                    "unsupported configuration: CPU mode" not in error_message and \
+                if "unsupported configuration: CPU mode" not in error_message and \
                         "CPU mode 'custom' for x86_64 kvm domain on x86_64 host is not supported by hypervisor" not in error_message:
                     raise original_exception
 

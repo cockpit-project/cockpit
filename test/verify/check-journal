@@ -373,7 +373,6 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         b.wait_present(journal_line_selector.format("WARNING_MESSAGE"))
         b.wait_present(journal_line_selector.format("INFO_MESSAGE"))
 
-    @skipImage("ABRT does not work on i386", "fedora-i386")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
                "ubuntu-1804", "fedora-coreos", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
     def testAbrtSegv(self):
@@ -412,7 +411,6 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         sel += " .panel-body:contains('signal: 11  executable: ')"
         b.wait_present(sel)
 
-    @skipImage("ABRT does not work on i386", "fedora-i386")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
                "ubuntu-1804", "fedora-coreos", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
     def testAbrtDelete(self):
@@ -446,7 +444,6 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         b.wait_present("#journal-entry-message:contains('crashed in %s')" % self.crash_fn)
         b.wait_not_present("#journal-entry-fields .nav .btn-danger")
 
-    @skipImage("ABRT does not work on i386", "fedora-i386")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
                "ubuntu-1804", "fedora-coreos", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
     def testAbrtReport(self):
@@ -521,7 +518,6 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         sel = "table.reporting-table tr:contains('Report to Cockpit') a[href='https://bugzilla.example.com/show_bug.cgi?id=123456']"
         b.wait_present(sel)
 
-    @skipImage("ABRT does not work on i386", "fedora-i386")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
                "ubuntu-1804", "fedora-coreos", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
     def testAbrtReportCancel(self):
@@ -561,7 +557,6 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         sel = "table.reporting-table tr:contains('Report to Cockpit') td:contains('Reporting was canceled')"
         b.wait_present(sel)
 
-    @skipImage("ABRT does not work on i386", "fedora-i386")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
                "ubuntu-1804", "fedora-coreos", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
     def testAbrtReportNoReportd(self):

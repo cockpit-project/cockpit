@@ -2147,7 +2147,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         ).execute()
 
         # Test NIC attaching to non-persistent VM
-        m.execute("virsh undefine subVmTest1")
+        m.execute("virsh dumpxml --inactive subVmTest1 > /tmp/subVmTest1.xml; virsh undefine subVmTest1")
         NICAddDialog(
             self,
             source_type="Virtual network",
@@ -2156,6 +2156,11 @@ class TestMachinesDBus(machineslib.TestMachines):
             nic_num=3,
             persistent_vm=False,
         ).execute()
+        m.execute("virsh define /tmp/subVmTest1.xml")
+
+        b.click("#vm-subVmTest1-off-caret")
+        b.click("#vm-subVmTest1-forceOff")
+        b.wait_in_text("#vm-subVmTest1-state", "shut off")
 
         NICAddDialog(
             self,

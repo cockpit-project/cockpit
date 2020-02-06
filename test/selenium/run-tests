@@ -26,8 +26,9 @@ import glob
 import time
 
 from testlib_avocado.machine_core import testvm
+from testlib_avocado.machine_core.constants import TEST_OS_DEFAULT
 
-BASE_IMAGE = os.environ.get("TEST_OS", "fedora-30")
+BASE_IMAGE = os.environ.get("TEST_OS", TEST_OS_DEFAULT)
 CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
 if CURRENT_DIR not in sys.path:
     sys.path.insert(1, CURRENT_DIR)

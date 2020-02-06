@@ -406,7 +406,6 @@ CMD ["/bin/sh"]
 
         self.allow_journal_messages('.*denied.*name_connect.*docker.*')
 
-    @skipImage("No cockpit-docker on i386", "fedora-i386")
     def testFailure(self):
         b = self.browser
         m = self.machine
@@ -546,7 +545,6 @@ CMD ["/bin/sh"]
         # This should be updated
         b.wait_in_text("#container-details-cpu-row", "1024 shares")
 
-    @skipImage("No cockpit-docker on i386", "fedora-i386")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
                "ubuntu-1804", "rhel-8-2", "rhel-8-2-distropkg")
     def testContainerProblems(self):
@@ -588,7 +586,7 @@ CMD ["/bin/sh"]
 
 
 @skipImage("Skip on systems without atomic and ones with missing deps", "debian-stable",
-           "debian-testing", "ubuntu-1804", "ubuntu-stable", "fedora-coreos", "fedora-i386",
+           "debian-testing", "ubuntu-1804", "ubuntu-stable", "fedora-coreos",
            "fedora-31")
 @skipImage("No docker packaged", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
 @skipPackage("cockpit-docker")

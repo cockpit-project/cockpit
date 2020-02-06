@@ -102,8 +102,10 @@ function setupLogging(client) {
         let msg = entry["entry"];
         messages.push([ "cdp", msg ]);
         /* Ignore authentication failure log lines that don't denote failures */
-        if (!(msg.url || "").endsWith("/login") || (msg.text || "").indexOf("401") === -1)
-            process.stderr.write("CDP: " + JSON.stringify(msg) + "\n");
+        if (!(msg.url || "").endsWith("/login") || (msg.text || "").indexOf("401") === -1 ||
+            (msg.text || "").indexOf("Refused to apply inline style") === -1) {
+            process.stderr.write("CDP: " + msg + "\n");
+        }
         resolveLogPromise();
     });
 }

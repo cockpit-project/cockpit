@@ -931,7 +931,7 @@ class TestMachines(NetworkCase):
 
             # Apparmor on debian and ubuntu may prevent access to /dev/sdb1 when starting VM,
             # https://bugs.launchpad.net/ubuntu/+source/libvirt/+bug/1677398
-            if not "debian" in m.image and not "ubuntu" in m.image:
+            if "debian" not in m.image and "ubuntu" not in m.image:
                 # Run VM
                 b.click("#vm-subVmTest1-run")
                 b.wait_in_text("#vm-subVmTest1-state", "running")
@@ -979,9 +979,9 @@ class TestMachines(NetworkCase):
         ]
         self.machine.execute(" && ".join(cmds))
         partition = str(self.machine.execute("readlink -f /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 | cut -d '/' -f 3").strip()) + "1"
-        next_target='vdf'
+        next_target = 'vdf'
         if not self.provider == "libvirt-dbus" or "debian" in m.image or "ubuntu" in m.image:
-            next_target='vdc'
+            next_target = 'vdc'
         VMAddDiskDialog(
             self,
             pool_name='pool-disk',

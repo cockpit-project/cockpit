@@ -561,8 +561,7 @@ class TestMachinesDBus(machineslib.TestMachines):
 
         b.click("#vm-subVmTest1-disks") # open the "Disks" subtab
         b.wait_present("#vm-subVmTest1-disks-vdd-device")
-        with b.wait_timeout(2):
-            b.click("#delete-subVmTest1-disk-vdd")
+        b.click("#delete-subVmTest1-disk-vdd")
         b.wait_present(".modal-dialog")
         b.click(".modal-footer button:contains(Remove)")
         b.wait_not_present("#vm-subVmTest1-disks-vdd-device")
@@ -603,11 +602,8 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.click("#delete-subVmTest1-disk-vdd")
         b.wait_present(".modal-dialog")
         b.click(".modal-footer button:contains(Remove)")
-        i = 0
-        while b.is_present(".modal-dialog") and i < 3:
-            i += 1
-            b.click(".modal-footer button:contains(Remove)")
         b.wait_not_present("#vm-subVmTest1-disks-vdd-device")
+        b.wait_not_present(".modal-dialog")
 
     def testMultipleSettings(self):
         b = self.browser

@@ -25,7 +25,7 @@ from testlib import *
 class TestStorage(StorageCase):
 
     def testLuks(self):
-        self.allow_journal_messages("Device is not initialized.*")
+        self.allow_journal_messages("Device is not initialized.*", ".*could not be opened.")
         m = self.machine
         b = self.browser
 
@@ -223,7 +223,7 @@ class TestStorage(StorageCase):
 
     @skipImage("No clevis/tang", "debian-stable", "debian-testing", "ubuntu-1804", "ubuntu-stable")
     def testSlots(self):
-        self.allow_journal_messages("Device is not initialized.*")
+        self.allow_journal_messages("Device is not initialized.*", ".*could not be opened.")
         m = self.machine
         b = self.browser
 

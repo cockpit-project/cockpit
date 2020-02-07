@@ -280,9 +280,15 @@ class TestStorage(StorageCase):
         m.execute("lvcreate TEST -n lvol0 -L 20m")
         m.execute("lvcreate -s -n snap0 -L 20m TEST/lvol0")
 
+        # the above lvol0 will be the new first entry in the table, so
+        # TEST/thin moves to he third row
+        self.content_row_wait_in_col(1, 2, "/dev/TEST/lvol0")
+        self.content_row_wait_in_col(2, 2, "pool")
+        self.content_row_wait_in_col(3, 2, "/dev/TEST/thin")
+
         # Take a snapshot of the thin volume and check that it appears
 
-        self.content_dropdown_action(2, "Create Snapshot")
+        self.content_dropdown_action(3, "Create Snapshot")
         self.dialog({"name": "mysnapshot"})
         self.content_row_wait_in_col(3, 2, "mysnapshot")
 

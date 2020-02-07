@@ -253,11 +253,12 @@ class CDP:
         for inject in self.inject_helpers:
             with open(inject) as f:
                 src = f.read()
-            # HACK: injecting sizzle fails on missing `document` in assert()
-            src = src.replace('function assert( fn ) {', 'function assert( fn ) { return true;')
+            if self.browser == "chromium":
+                # HACK: injecting sizzle fails on missing `document` in assert()
+                src = src.replace('function assert( fn ) {', 'function assert( fn ) { return true;')
             # HACK: sizzle tracks document and when we switch frames, it sees the old document
             # although we execute it in different context.
-            if (self.browser == "firefox"):
+            if self.browser == "firefox":
                 src = src.replace('context = context || document;', 'context = context || window.document;')
             self.invoke("Page.addScriptToEvaluateOnNewDocument", source=src, no_trace=True)
 

@@ -68,6 +68,7 @@ var messages = [];
 var logPromiseResolver;
 var nReportedLogMessages = 0;
 var unhandledExceptions = [];
+var sawRefusedInlineStyle = false;
 
 function clearExceptions() {
     unhandledExceptions.length = 0;
@@ -121,6 +122,15 @@ function setupLogging(client) {
             });
         } else {
             let msg = entry["entry"];
+
+            /* Reduce unsafe-inline messages from PatternFly's usage of Emotion
+             * (https://github.com/patternfly/patternfly-react/issues/2919) */
+            if ((msg.text || "").indexOf("Content Security Policy:") >= 0 && (msg.text || "").indexOf("resource at inline") >= 0) {
+                if (sawRefusedInlineStyle)
+                    return;
+                sawRefusedInlineStyle = true;
+            }
+
             messages.push([ "cdp", msg ]);
             /* Ignore authentication failure log lines that don't denote failures */
             if (!(msg.url || "").endsWith("/login") || (msg.text || "").indexOf("401") === -1)

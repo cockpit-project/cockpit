@@ -476,13 +476,13 @@ export class FilesystemTab extends React.Component {
                     <br />
                     <Alert variant="warning"
                            isInline
-                           title={text}
-                           action={<>
-                               <StorageButton onClick={fix_config}>{fix_config_text}</StorageButton>
-                               { "\n" }
-                               <StorageButton onClick={fix_mount}>{fix_mount_text}</StorageButton>
-                           </>}
-                    />
+                           title={_("Inconsistent filesystem mount")}>
+                        {text}
+                        <div className="storage_alert_action_buttons">
+                            <StorageButton onClick={fix_config}>{fix_config_text}</StorageButton>
+                            <StorageButton onClick={fix_mount}>{fix_mount_text}</StorageButton>
+                        </div>
+                    </Alert>
                 </>);
         }
 

@@ -254,7 +254,7 @@ class CDP:
             with open(inject) as f:
                 src = f.read()
             # HACK: injecting sizzle fails on missing `document` in assert()
-            src = src.replace('function assert( fn ) {', 'function assert( fn ) { return true;')
+            src = src.replace('function assert( fn ) {', 'function assert( fn ) { if (true) return true; else ')
             # HACK: sizzle tracks document and when we switch frames, it sees the old document
             # although we execute it in different context.
             if (self.browser == "firefox"):

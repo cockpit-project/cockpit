@@ -323,6 +323,21 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         self.allow_restart_journal_messages()
 
+    @skipImage("No tlog", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-1804", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream", "fedora-coreos")
+    def testSessionRecordingShell(self):
+        m = self.machine
+        b = self.browser
+
+        m.execute("useradd user --shell /usr/bin/tlog-rec-session || true")
+        self.addCleanup(m.execute, "userdel --force -r user")
+        m.execute("echo user:abcdefg | chpasswd")
+        # this doesn't actually record anything, but logging into cockpit should work
+        m.start_cockpit()
+        b.login_and_go(user="user", password="abcdefg")
+        b.logout()
+
+        self.allow_journal_messages(".*value for the SHELL variable was not found the /etc/shells.*")
+
     def curl_auth(self, url, userpass):
         header = "Authorization: Basic " + base64.b64encode(userpass.encode()).decode()
         return subprocess.check_output(['/usr/bin/curl', '-s', '-k', '-D', '-', '--header', header,

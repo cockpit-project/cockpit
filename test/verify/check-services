@@ -157,8 +157,23 @@ Unit=test.service
         wait_service_state("test.service", "inactive")
         wait_service_state("test.service", "inactive")
 
+        # Selects Targets tab
+        self.pick_tab(2)
+        b.wait_not_in_text("#services-list", "test")
+        wait_service_state("sockets.target", "active")
+        wait_service_state("reboot.target", "inactive")
+
+        # Selects Sockets tab
+        self.pick_tab(3)
+        b.wait_not_in_text("#services-list", "test")
+        b.wait_not_in_text("#services-list", ".target")
+        wait_service_state("dbus.socket", "active (running)")
+
         # Selects Timer tab
         self.pick_tab(4)
+        b.wait_not_in_text("#services-list", "test-fail")
+        b.wait_not_in_text("#services-list", ".target")
+        b.wait_not_in_text("#services-list", ".socket")
         b.wait_present(svc_sel('test.timer'))
         b.wait_text(svc_sel('test.timer') + ' td:nth-child(3)', '')  # next run
         b.wait_text(svc_sel('test.timer') + ' td:nth-child(4)', '')  # last trigger
@@ -174,6 +189,14 @@ Unit=test.service
         b.wait_in_text(svc_sel('test-onboot.timer'), "Today")  # next run
         b.wait_in_text(svc_sel('test-onboot.timer'), "unknown")  # last trigger
         m.execute("systemctl stop test-onboot.timer")
+
+        # Selects Paths tab
+        self.pick_tab(5)
+        b.wait_not_in_text("#services-list", "test")
+        b.wait_not_in_text("#services-list", ".target")
+        b.wait_not_in_text("#services-list", ".socket")
+        b.wait_not_in_text("#services-list", ".timer")
+        b.wait_present(svc_sel("systemd-ask-password-console.path"))
 
         # Selects Services tab
         self.pick_tab(1)

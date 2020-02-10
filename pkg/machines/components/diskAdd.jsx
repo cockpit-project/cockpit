@@ -252,7 +252,7 @@ class PerformanceOptions extends React.Component {
                     </label>
                     <Select.Select id={'cache-mode'}
                         onChange={value => this.props.onValueChanged('cacheMode', value)}
-                        initial={this.props.cacheMode || cacheModes[0]}
+                        initial={this.props.cacheMode}
                         extraClass='form-control ct-form-split'>
                         {cacheModes.map(cacheMode => {
                             return (
@@ -418,6 +418,7 @@ class AddDiskModalBody extends React.Component {
             permanent: !provider.isRunning(vm.state), // default true for a down VM; for a running domain, the disk is attached tentatively only
             hotplug: provider.isRunning(vm.state), // must be kept false for a down VM; the value is not being changed by user
             addDiskInProgress: false,
+            cacheMode: 'default',
         };
     }
 
@@ -429,22 +430,45 @@ class AddDiskModalBody extends React.Component {
     }
 
     onValueChanged(key, value) {
-        const stateDelta = { [key]: value };
+        let stateDelta = {};
 
-        if (key == 'storagePoolName')
-            stateDelta.diskFileFormat = this.getDefaultVolumeFormat(this.props.storagePools.find(pool => pool.name == value));
-
-        if (key === 'storagePoolName' && this.state.mode === USE_EXISTING) { // user changed pool
-            stateDelta.existingVolumeName = this.getDefaultVolumeName(value);
+        switch (key) {
+        case 'storagePoolName': {
+            this.setState({ storagePoolName: value });
+            if (this.state.mode === USE_EXISTING) { // user changed pool
+                this.onValueChanged('existingVolumeName', this.getDefaultVolumeName(value));
+            }
+            break;
         }
-
-        if (key === 'mode' && value === USE_EXISTING) { // user moved to USE_EXISTING subtab
-            const poolName = this.state.storagePoolName;
-            if (poolName)
-                stateDelta.existingVolumeName = this.getDefaultVolumeName(poolName);
+        case 'existingVolumeName': {
+            stateDelta.existingVolumeName = value;
+            this.setState(prevState => { // to prevent asynchronous for recursive call with existingVolumeName as a key
+                const { storagePools, vm } = this.props;
+                const pool = storagePools.find(pool => pool.name === prevState.storagePoolName && pool.connectionName === vm.connectionName);
+                stateDelta.diskFileFormat = this.getDefaultVolumeFormat(pool);
+                if (['dir', 'fs', 'netfs', 'gluster', 'vstorage'].indexOf(pool.type) > -1) {
+                    const volume = pool.volumes.find(vol => vol.name === value);
+                    if (volume && volume.format)
+                        stateDelta.diskFileFormat = volume.format;
+                }
+                return stateDelta;
+            });
+            break;
         }
-
-        this.setState(stateDelta);
+        case 'mode': {
+            stateDelta = this.initialState;
+            if (value === USE_EXISTING) { // user moved to USE_EXISTING subtab
+                stateDelta.mode = value;
+                const poolName = this.state.storagePoolName;
+                if (poolName)
+                    stateDelta.existingVolumeName = this.getDefaultVolumeName(poolName);
+            }
+            this.setState(stateDelta);
+            break;
+        }
+        default:
+            this.setState({ [key]: value });
+        }
     }
 
     dialogErrorSet(text, detail) {

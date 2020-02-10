@@ -23,14 +23,17 @@ import { Breadcrumb } from 'patternfly-react';
 import cockpit from 'cockpit';
 import { Listing } from 'cockpit-components-listing.jsx';
 import { Network } from './network.jsx';
-import { networkId } from '../../helpers.js';
+import { getNetworkDevices, networkId } from '../../helpers.js';
+import { CreateNetworkAction } from './createNetworkDialog.jsx';
 
 const _ = cockpit.gettext;
 
 export class NetworkList extends React.Component {
     render() {
-        const { dispatch, networks, resourceHasError, onAddErrorNotification } = this.props;
+        const { dispatch, networks, resourceHasError, onAddErrorNotification, vms, nodeDevices, interfaces, loggedUser } = this.props;
         const sortFunction = (networkA, networkB) => networkA.name.localeCompare(networkB.name);
+        const devices = getNetworkDevices(vms, nodeDevices, interfaces);
+        const actions = (<CreateNetworkAction devices={devices} dispatch={dispatch} loggedUser={loggedUser} />);
 
         return (
             <React.Fragment>
@@ -45,7 +48,8 @@ export class NetworkList extends React.Component {
                 <div id='networks-listing' className='container-fluid'>
                     <Listing title={_("Networks")}
                         columnTitles={[_("Name"), _("Device"), _("Connection"), _("Forwarding mode"), _("State")]}
-                        emptyCaption={_("No network is defined on this host")}>
+                        emptyCaption={_("No network is defined on this host")}
+                        actions={actions}>
                         {networks
                                 .sort(sortFunction)
                                 .map(network => {
@@ -68,4 +72,8 @@ NetworkList.propTypes = {
     networks: PropTypes.array.isRequired,
     onAddErrorNotification: PropTypes.func.isRequired,
     resourceHasError: PropTypes.object.isRequired,
+    vms: PropTypes.array.isRequired,
+    nodeDevices: PropTypes.array.isRequired,
+    interfaces: PropTypes.array.isRequired,
+    loggedUser: PropTypes.object.isRequired,
 };

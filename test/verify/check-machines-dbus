@@ -809,6 +809,285 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.click("#activate-pool-mypool-system")
         b.wait_present("#activate-pool-mypool-system:disabled")
 
+    def testNetworksCreate(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/machines")
+        b.wait_in_text("body", "Virtual Machines")
+
+        # Click on Networks card
+        b.wait_in_text(".cards-pf #card-pf-networks .card-pf-title-link", "Networks")
+        b.click(".cards-pf .card-pf-title span:contains(Networks)")
+
+        class NetworkCreateDialog(object):
+            def __init__(
+                self, test_obj, name, forward_mode=None, ip_conf=None, ipv4_address=None, ipv4_netmask=None, ipv6_address=None, ipv6_prefix=None,
+                ipv4_dhcp_start=None, ipv4_dhcp_end=None, ipv6_dhcp_start=None, ipv6_dhcp_end=None, xfail=False, xfail_error=None, xfail_objects=None,
+                remove=True
+            ):
+                self.test_obj = test_obj
+                self.name = name
+                self.forward_mode = forward_mode
+                self.ip_conf = ip_conf
+                self.ipv4_address = ipv4_address
+                self.ipv4_netmask = ipv4_netmask
+                self.ipv6_address = ipv6_address
+                self.ipv6_prefix = ipv6_prefix
+                self.ipv4_dhcp_start = ipv4_dhcp_start
+                self.ipv4_dhcp_end = ipv4_dhcp_end
+                self.ipv6_dhcp_start = ipv6_dhcp_start
+                self.ipv6_dhcp_end = ipv6_dhcp_end
+                self.xfail = xfail
+                self.xfail_objects = xfail_objects
+                self.xfail_error = xfail_error
+                self.remove = remove
+
+            def execute(self):
+                self.open()
+                self.fill()
+                self.create()
+                if not self.xfail:
+                    self.verify_dialog()
+                    self.verify_overview()
+                    if self.remove:
+                        self.cleanup()
+
+            def open(self):
+                b.click("#create-network")
+                b.wait_present("#create-network-dialog")
+                b.wait_in_text(".modal-dialog .modal-header .modal-title", "Create Virtual Network")
+
+            def fill(self):
+                b.set_input_text("#create-network-name", self.name)
+
+                if self.forward_mode:
+                    b.set_val("#create-network-forward-mode", self.forward_mode)
+
+                if self.ip_conf:
+                    b.select_from_dropdown("#create-network-ip-configuration", self.ip_conf)
+
+                    if "4" in self.ip_conf:
+                        b.set_input_text("#network-ipv4-address", self.ipv4_address)
+                        b.set_input_text("#network-ipv4-netmask", self.ipv4_netmask)
+                        if self.ipv4_dhcp_start is not None and self.ipv4_dhcp_end is not None:
+                            b.set_checked("#network-ipv4-dhcp", True)
+                            b.set_input_text("#network-ipv4-dhcp-range-start", self.ipv4_dhcp_start)
+                            b.set_input_text("#network-ipv4-dhcp-range-end", self.ipv4_dhcp_end)
+
+                    if "6" in self.ip_conf:
+                        b.set_input_text("#network-ipv6-address", self.ipv6_address)
+                        b.set_input_text("#network-ipv6-prefix", self.ipv6_prefix)
+                        if self.ipv6_dhcp_start is not None and self.ipv6_dhcp_end is not None:
+                            b.set_checked("#network-ipv6-dhcp", True)
+                            b.set_input_text("#network-ipv6-dhcp-range-start", self.ipv6_dhcp_start)
+                            b.set_input_text("#network-ipv6-dhcp-range-end", self.ipv6_dhcp_end)
+
+            def cancel(self):
+                b.click(".modal-footer button:contains(Cancel)")
+                b.wait_not_present("#create-network-dialog")
+
+            def create(self):
+                b.click(".modal-footer button:contains(Create)")
+
+                if (self.xfail):
+                    # Check incomplete dialog
+                    if "name" in self.xfail_objects:
+                        b.wait_in_text("#create-network-dialog .modal-body form div.has-error #create-network-name + span p", self.xfail_error)
+                    if "ipv4_address" in self.xfail_objects:
+                        b.wait_in_text("#create-network-dialog .modal-body form div.has-error #network-ipv4-address + span p", self.xfail_error)
+                    if "ipv4_netmask" in self.xfail_objects:
+                        b.wait_in_text("#create-network-dialog .modal-body form div.has-error #network-ipv4-netmask + span p", self.xfail_error)
+                    if "ipv4_dhcp_start" in self.xfail_objects:
+                        b.wait_in_text("#create-network-dialog .modal-body form div.has-error #network-ipv4-dhcp-range-start + span p", self.xfail_error)
+                    if "ipv4_dhcp_end" in self.xfail_objects:
+                        b.wait_in_text("#create-network-dialog .modal-body form div.has-error #network-ipv4-dhcp-range-end + span p", self.xfail_error)
+                    if "ipv6_address" in self.xfail_objects:
+                        b.wait_in_text("#create-network-dialog .modal-body form div.has-error #network-ipv6-address + span p", self.xfail_error)
+                    if "ipv6_prefix" in self.xfail_objects:
+                        b.wait_in_text("#create-network-dialog .modal-body form div.has-error #network-ipv6-prefix + span p", self.xfail_error)
+                    if "ipv6_dhcp_start" in self.xfail_objects:
+                        b.wait_in_text("#create-network-dialog .modal-body form div.has-error #network-ipv6-dhcp-range-start + span p", self.xfail_error)
+                    if "ipv6_dhcp_end" in self.xfail_objects:
+                        b.wait_in_text("#create-network-dialog .modal-body form div.has-error #network-ipv6-dhcp-range-end + span p", self.xfail_error)
+                    if "footer" in self.xfail_objects:
+                        error_location = "#create-network-dialog .modal-footer .alert-danger"
+                        b.wait_present(error_location)
+                        error_message = b.text(error_location)
+                        self.test_obj.assertIn(self.xfail_error, error_message)
+
+                    self.cancel()
+                else:
+                    b.wait_not_present("#create-network-dialog")
+
+            def verify_dialog(self):
+                # Check that the defined network is now visible
+                b.wait_in_text("body", "Networks")
+
+                # Verify libvirt XML
+                net_xml = "virsh -c qemu:///system net-dumpxml {0}".format(self.name)
+                xmllint_element = "{0} | xmllint --xpath 'string(//network/{{prop}})' - 2>&1 || true".format(net_xml)
+
+                self.test_obj.assertEqual(self.name, m.execute(xmllint_element.format(prop='name')).strip())
+                if (self.forward_mode == "none"):
+                    self.test_obj.assertEqual("", m.execute(xmllint_element.format(prop='forward/@mode')).strip())
+                else:
+                    self.test_obj.assertEqual(self.forward_mode, m.execute(xmllint_element.format(prop='forward/@mode')).strip())
+
+                if (self.ip_conf != "None"):
+                    if "4" in self.ip_conf:
+                        self.test_obj.assertEqual(self.ipv4_address, m.execute(xmllint_element.format(prop='ip/@address')).strip())
+                        self.test_obj.assertEqual(self.ipv4_netmask, m.execute(xmllint_element.format(prop='ip/@netmask')).strip())
+                        if self.ipv4_dhcp_start and self.ipv4_dhcp_start:
+                            self.test_obj.assertEqual(self.ipv4_dhcp_start, m.execute(xmllint_element.format(prop='ip/dhcp/range/@start')).strip())
+                            self.test_obj.assertEqual(self.ipv4_dhcp_end, m.execute(xmllint_element.format(prop='ip/dhcp/range/@end')).strip())
+                    if "6" in self.ip_conf:
+                        self.test_obj.assertEqual(self.ipv6_address, m.execute(xmllint_element.format(prop='ip[starts-with(@family,"ipv6")]/@address')).strip())
+                        self.test_obj.assertEqual(self.ipv6_prefix, m.execute(xmllint_element.format(prop='ip[starts-with(@family,"ipv6")]/@prefix')).strip())
+                        if self.ipv6_dhcp_start and self.ipv6_dhcp_start:
+                            self.test_obj.assertEqual(self.ipv6_dhcp_start, m.execute(xmllint_element.format(prop='ip[starts-with(@family,"ipv6")]/dhcp/range/@start')).strip())
+                            self.test_obj.assertEqual(self.ipv6_dhcp_end, m.execute(xmllint_element.format(prop='ip[starts-with(@family,"ipv6")]/dhcp/range/@end')).strip())
+                else:
+                    self.test_obj.assertEqual("", m.execute(xmllint_element.format(prop='ip')).strip())
+
+            def verify_overview(self):
+                # Check basic network properties
+                modes = {"nat": "NAT", "none": "None (Isolated Network)", "open": "Open", "route": "Routed", \
+                "bridge": "Bridge", "private": "Private", "vepa": "VEPA", "passthrough": "Passthrough", "hostdev": "Hostdev"}
+                connectionName = m.execute("virsh uri | head -1 | cut -d/ -f4").strip()
+
+                b.wait_in_text("#network-{0}-{1}-forwarding".format(self.name, connectionName), modes[self.forward_mode])
+                b.click("tbody tr[data-row-id=network-{0}-{1}] th".format(self.name, connectionName)) # open network tab
+                if self.ip_conf != "None":
+                    if "4" in self.ip_conf:
+                        b.wait_in_text("#network-{0}-{1}-ipv4-address".format(self.name, connectionName), self.ipv4_address)
+                        b.wait_in_text("#network-{0}-{1}-ipv4-netmask".format(self.name, connectionName), self.ipv4_netmask)
+                        if self.ipv4_dhcp_start and self.ipv4_dhcp_start:
+                            b.wait_in_text("#network-{0}-{1}-ipv4-dhcp-range".format(self.name, connectionName), self.ipv4_dhcp_start + " - " + self.ipv4_dhcp_end)
+                    if "6" in self.ip_conf:
+                        b.wait_in_text("#network-{0}-{1}-ipv6-address".format(self.name, connectionName), self.ipv6_address)
+                        b.wait_in_text("#network-{0}-{1}-ipv6-prefix".format(self.name, connectionName), self.ipv6_prefix)
+                        if self.ipv6_dhcp_start and self.ipv6_dhcp_start:
+                            b.wait_in_text("#network-{0}-{1}-ipv6-dhcp-range".format(self.name, connectionName), self.ipv6_dhcp_start + " - " + self.ipv6_dhcp_end)
+
+            def cleanup(self):
+                m.execute("virsh net-undefine {0}".format(self.name))
+
+
+        # Test various forward Modes
+        NetworkCreateDialog(
+            self,
+            name="test_network",
+            forward_mode="nat",
+            ip_conf="IPv4 only",
+            ipv4_address="192.168.110.0",
+            ipv4_netmask="255.255.255.0",
+        ).execute()
+
+        NetworkCreateDialog(
+            self,
+            name="test_network",
+            forward_mode="open",
+            ip_conf="IPv6 only",
+            ipv6_address="fd00:e81d:a6d7:55::100",
+            ipv6_prefix="64",
+        ).execute()
+
+        tmp = NetworkCreateDialog(
+            self,
+            name="test_network",
+            forward_mode="none",
+            ip_conf="None",
+            remove=False,
+        )
+        tmp.execute()
+
+        # Try footer error
+        NetworkCreateDialog(
+            self,
+            name="test_network",
+            xfail=True,
+            xfail_objects=["footer"],
+            xfail_error="network 'test_network' already exists",
+        ).execute()
+
+        tmp.cleanup()
+
+        # Test full configuration
+        NetworkCreateDialog(
+            self,
+            name="test_network",
+            forward_mode="nat",
+            ip_conf="IPv4 and IPv6",
+            ipv4_address="192.168.110.0",
+            ipv4_netmask="255.255.255.0",
+            ipv4_dhcp_start="192.168.110.130",
+            ipv4_dhcp_end="192.168.110.170",
+            ipv6_address="fd00:e81d:a6d7:55::100",
+            ipv6_prefix="64",
+            ipv6_dhcp_start="fd00:e81d:a6d7:55::105",
+            ipv6_dhcp_end="fd00:e81d:a6d7:55::108",
+        ).execute()
+
+        # Check "... should not be empty" warnings
+        NetworkCreateDialog(
+            self,
+            name="",
+            forward_mode="open",
+            ip_conf="IPv4 and IPv6",
+            ipv4_address="",
+            ipv4_netmask="",
+            ipv4_dhcp_start="",
+            ipv4_dhcp_end="",
+            ipv6_address="",
+            ipv6_prefix="",
+            ipv6_dhcp_start="",
+            ipv6_dhcp_end="",
+            xfail=True,
+            xfail_objects = ["name", "ipv4_address", "ipv4_netmask", "ipv4_dhcp_start", "ipv4_dhcp_end", \
+            "ipv6_address", "ipv6_prefix", "ipv6_dhcp_start", "ipv6_dhcp_end"],
+            xfail_error = "should not be empty",
+        ).execute()
+
+        # Check "Invalid..." (invalid IP format or prefix length)
+        NetworkCreateDialog(
+            self,
+            name="test_network",
+            forward_mode="open",
+            ip_conf="IPv4 and IPv6",
+            ipv4_address="ABC.168.22.10",
+            ipv4_netmask="99",
+            ipv4_dhcp_start="300.2.1.1",
+            ipv4_dhcp_end="168..1.1.1",
+            ipv6_address="xz00:e81d:a6d7:55::100",
+            ipv6_prefix="-1",
+            ipv6_dhcp_start="fd00:e81d:a6d7:55:::100",
+            ipv6_dhcp_end="fd00:e81d:a6d7:55::1:1:1:1:1:1:1:1",
+            xfail=True,
+            xfail_objects = ["ipv4_address", "ipv4_netmask", "ipv4_dhcp_start", "ipv4_dhcp_end", \
+            "ipv6_address", "ipv6_prefix", "ipv6_dhcp_start", "ipv6_dhcp_end"],
+            xfail_error = "Invalid",
+        ).execute()
+
+        # Check "Address not withing subnet"
+        NetworkCreateDialog(
+            self,
+            name="test_network",
+            forward_mode="open",
+            ip_conf="IPv4 and IPv6",
+            ipv4_address="192.168.100.1",
+            ipv4_netmask="64",
+            ipv4_dhcp_start="192.168.101.1",
+            ipv4_dhcp_end="191.168.100.1",
+            ipv6_address="fd00:e81d:a6d7:55::100",
+            ipv6_prefix="64",
+            ipv6_dhcp_start="fd00:e81d:a6d7:54::100",
+            ipv6_dhcp_end="ad00:e81d:a6d7:55::100",
+            xfail=True,
+            xfail_objects = ["ipv4_dhcp_start", "ipv4_dhcp_end", "ipv6_dhcp_start", "ipv6_dhcp_end"],
+            xfail_error = "Address not within subnet",
+        ).execute()
+
     def testStoragePoolsCreate(self):
         b = self.browser
         m = self.machine
@@ -869,7 +1148,6 @@ class TestMachinesDBus(machineslib.TestMachines):
                         b.set_input_text("#storage-pool-dialog-source", self.source['source_path'])
                     else:
                         b.set_file_autocomplete_val("#storage-pool-dialog-source", self.source['source_path'])
-
 
                 if 'format' in self.source:
                     b.select_from_dropdown("#storage-pool-dialog-source-format", self.source['format'])
@@ -936,8 +1214,9 @@ class TestMachinesDBus(machineslib.TestMachines):
 
                 source_path_dir = m.execute(xmllint_element.format(prop="source/dir/@path")).strip()
                 source_path_device = m.execute(xmllint_element.format(prop="source/device/@path")).strip()
+                source_name = m.execute(xmllint_element.format(prop="source/name")).strip()
                 if "source_path" in self.source:
-                    self.test_obj.assertTrue(self.source["source_path"] in [source_path_dir, source_path_device])
+                    self.test_obj.assertTrue(self.source["source_path"] in [source_path_dir, source_path_device, source_name])
                 else:
                     self.test_obj.assertEqual("", host.rstrip())
 
@@ -953,6 +1232,8 @@ class TestMachinesDBus(machineslib.TestMachines):
                 else:
                     if self.pool_type == 'netfs':
                         self.test_obj.assertEqual("auto", sourceFormat)
+                    elif self.pool_type == 'logical':
+                        self.test_obj.assertEqual("lvm2", sourceFormat)
                     else:
                         self.test_obj.assertEqual("", sourceFormat.rstrip())
 
@@ -1057,6 +1338,26 @@ class TestMachinesDBus(machineslib.TestMachines):
                 b.wait_not_present("#storage-pool-dialog-type option[value*='isci-direct']")
                 b.click(".modal-footer button:contains(Cancel)")
                 b.wait_not_present("#create-storage-pool-dialog")
+
+        # Prepare a Volume Group to be used as source for the LVM pool
+        m.add_disk("50M", serial="DISK2")
+        m.add_disk("50M", serial="DISK3")
+        b.go("/storage")
+        b.enter_page("/storage")
+        b.wait_in_text("#drives", "DISK2")
+        b.wait_in_text("#drives", "DISK3")
+        dev_2 = "/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK2"
+        dev_3 = "/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK3"
+        m.execute("pvcreate {0} {1} && vgcreate vol_grp1 {0} {1}".format(dev_2, dev_3))
+        b.go("/machines")
+        b.enter_page("/machines")
+
+        StoragePoolCreateDialog(
+            self,
+            name="my_logical_pool",
+            pool_type="logical",
+            source={"source_path": "vol_grp1"},
+        ).execute()
 
 
 if __name__ == '__main__':

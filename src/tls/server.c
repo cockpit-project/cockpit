@@ -65,8 +65,6 @@ static struct {
   struct sigaction old_sigchld;
 } server;
 
-enum DataSource { CLIENT, WS };
-
 /***********************************
  *
  * Helper functions
@@ -152,37 +150,6 @@ check_sd_listen_pid (void)
     }
 
   return true;
-}
-
-/**
- * get_fd_connection: Map an fd to a Connection object and data direction
- *
- * @fd: file descriptor from client (browser) or ws connection
- * @source: Output variable for DataSource; #CLIENT if fd is from
- *          a client #Connection, or #WS if it came from a #WsInstance
- */
-static Connection *
-get_fd_connection (int fd, enum DataSource* source)
-{
-  Connection* ret = NULL;
-  block_sigchld (true);
-  for (Connection *c = server.connections; c; c = c->next)
-    {
-      if (c->client_fd == fd)
-        {
-          *source = CLIENT;
-          ret = c;
-          break;
-        }
-      if  (c->ws_fd == fd)
-        {
-          *source = WS;
-          ret = c;
-          break;
-        }
-    }
-  block_sigchld (false);
-  return ret;
 }
 
 /**
@@ -309,7 +276,7 @@ connection_init_ws (Connection *c)
     server.ws_notls = ws;
 
   /* epoll the fd */
-  ev.data.fd = fd;
+  ev.data.ptr = &c->buf_ws;
   if (epoll_ctl (server.epollfd, EPOLL_CTL_ADD, fd, &ev) < 0)
     err (1, "Failed to epoll cockpit-ws client fd");
 
@@ -329,6 +296,8 @@ handle_accept (void)
   Connection *con;
   struct epoll_event ev = { .events = EPOLLIN };
 
+  debug ("epoll_wait event on server listen fd %i", server.listen_fd);
+
   /* accept and create new connection */
   fd = accept4 (server.listen_fd, NULL, NULL, SOCK_CLOEXEC);
   if (fd < 0)
@@ -340,7 +309,7 @@ handle_accept (void)
   con = connection_new (fd);
 
   /* epoll the connection fd */
-  ev.data.fd = fd;
+  ev.data.ptr = &con->buf_client;
   if (epoll_ctl (server.epollfd, EPOLL_CTL_ADD, fd, &ev) < 0)
     err (1, "Failed to epoll connection fd");
 
@@ -358,7 +327,7 @@ handle_accept (void)
  * HTTP. Initialize TLS and the ws instance.
  */
 static void
-handle_connection_data_first (int fd, Connection *con)
+handle_connection_data_first (Connection *con)
 {
   char b;
   int ret;
@@ -368,13 +337,13 @@ handle_connection_data_first (int fd, Connection *con)
   /* peek the first byte and see if it's a TLS connection (starting with 22).
      We can assume that there is some data to read, as this is called in response
      to an epoll event. */
-  ret = recv (fd, &b, 1, MSG_PEEK);
+  ret = recv (con->client_fd, &b, 1, MSG_PEEK);
   if (ret < 0)
     err (1, "failed to peek first byte");
   if (ret == 0) /* EOF */
     {
       debug ("client disconnected without sending any data");
-      remove_connection (fd, NULL);
+      remove_connection (con->client_fd, NULL);
       return;
     }
 
@@ -387,7 +356,7 @@ handle_connection_data_first (int fd, Connection *con)
       if (!server.x509_cred)
         {
           warnx ("got TLS connection, but our server does not have a certificate/key; refusing");
-          remove_connection (fd, NULL);
+          remove_connection (con->client_fd, NULL);
           return;
         }
 
@@ -400,13 +369,13 @@ handle_connection_data_first (int fd, Connection *con)
           (server.client_cert_mode == CERT_REQUEST) ? GNUTLS_CERT_REQUEST : GNUTLS_CERT_IGNORE);
       gnutls_handshake_set_timeout (session, GNUTLS_DEFAULT_HANDSHAKE_TIMEOUT);
 
-      gnutls_transport_set_int (session, fd);
+      gnutls_transport_set_int (session, con->client_fd);
 
       TLS_RETRY_BLOCK (ret, gnutls_handshake (session));
       if (ret < 0)
         {
           warnx ("TLS handshake failed: %s", gnutls_strerror (ret));
-          remove_connection (fd, NULL);
+          remove_connection (con->client_fd, NULL);
           return;
         }
 
@@ -417,56 +386,7 @@ handle_connection_data_first (int fd, Connection *con)
 
   connection_init_ws (con);
   if (!con->ws)
-    remove_connection (fd, NULL);
-}
-
-static int
-send_all (int socket, const char *data, size_t data_size, int flags)
-{
-  int r;
-
-  while (data_size > 0)
-  {
-    r = send (socket, data, data_size, flags);
-
-    if (r < 0)
-      {
-        if (errno == EAGAIN || errno == EINTR)
-          continue;
-        return -1;
-      }
-    if (r == 0) /* Should Not Happen™, as data_size > 0 */
-      {
-        errno = EIO;
-        return -1;
-      }
-
-    data += r;
-    data_size -= r;
-  }
-  return 0;
-}
-
-static int
-gnutls_send_all (gnutls_session_t session, const char *data, size_t data_size)
-{
-  int r;
-
-  while (data_size > 0)
-  {
-    r = gnutls_record_send (session, data, data_size);
-
-    if (r == GNUTLS_E_AGAIN || r == GNUTLS_E_INTERRUPTED)
-      continue;
-    if (r < 0)
-      return r;
-    if (r == 0) /* Should Not Happen™, as data_size > 0 */
-      return GNUTLS_E_PUSH_ERROR;
-
-    data += r;
-    data_size -= r;
-  }
-  return 0;
+    remove_connection (con->client_fd, NULL);
 }
 
 /**
@@ -478,14 +398,12 @@ gnutls_send_all (gnutls_session_t session, const char *data, size_t data_size)
  * from plain HTTP (handled by handle_connection_data_first).
  */
 static void
-handle_connection_data (int fd)
+handle_connection_data (struct ConnectionBuffer *buf)
 {
-  enum DataSource src;
-  Connection *con;
-  int ret;
-  char buffer[1024 * 1024];
+  Connection *con = buf->connection;
+  DataSource src = buf == &con->buf_client ? CLIENT : WS;
+  ConnectionResult r;
 
-  con = get_fd_connection (fd, &src);
   assert (con);
   debug ("%s connection fd %i has data from %s; ws %s",
          con->is_tls ? "TLS" : "unencrypted", con->client_fd,
@@ -496,95 +414,31 @@ handle_connection_data (int fd)
   if (!con->ws)
     {
       assert (src == CLIENT);
-      handle_connection_data_first (fd, con);
+      handle_connection_data_first (con);
       return;
     }
 
-  /* TLS connections */
-  if (con->is_tls)
+  do
     {
-      if (src == CLIENT)
+      r = connection_read (con, src);
+    } while (r == RETRY);
+  if (r == SUCCESS)
+    {
+      do
         {
-          TLS_RETRY (ret, gnutls_record_recv (con->session, buffer, sizeof (buffer)));
-          if (ret == 0)
-            {
-              debug ("peer has closed the TLS connection");
-              TLS_RETRY_BLOCK (ret, gnutls_bye (con->session, GNUTLS_SHUT_WR));
-              remove_connection (fd, NULL);
-            }
-          else if (ret < 0)
-            {
-              if (gnutls_error_is_fatal (ret))
-                {
-                  warnx ("%s", gnutls_strerror (ret));
-                  remove_connection (fd, NULL);
-                }
-            }
-          else
-            {
-              int r = send_all (con->ws_fd, buffer, ret, 0);
-              if (r < 0)
-                {
-                  warn ("failed to send data");
-                  remove_connection (con->client_fd, NULL);
-                }
-            }
-        }
-      else /* src == WS */
-        {
-          RETRY (ret, recv (con->ws_fd, buffer, sizeof (buffer), MSG_DONTWAIT));
-          if (ret == 0)
-            {
-              debug ("peer has closed the connection");
-              remove_connection (con->client_fd, NULL);
-            }
-          else if (ret < 0)
-            {
-              warn ("failed to receive data");
-              remove_connection (con->client_fd, NULL);
-            }
-          else
-            {
-              int r = gnutls_send_all (con->session, buffer, ret);
-              if (r < 0)
-                {
-                  warnx ("%s", gnutls_strerror (r));
-                  remove_connection (fd, NULL);
-                }
-            }
-        }
+          r = connection_write (con, src);
+        } while (r == RETRY || r == PARTIAL);
     }
-  else /* unencrypted connections */
-    {
-      int in_fd = (src == CLIENT) ? con->client_fd : con->ws_fd;
-      int out_fd = (src == CLIENT) ? con->ws_fd : con->client_fd;
 
-      RETRY (ret, recv (in_fd, buffer, sizeof (buffer), MSG_DONTWAIT));
-      if (ret == 0)
-        {
-          debug ("peer has closed the connection");
-          remove_connection (con->client_fd, NULL);
-        }
-      else if (ret < 0)
-        {
-          warn ("failed to receive data");
-          remove_connection (con->client_fd, NULL);
-        }
-      else
-      {
-        int r = send_all (out_fd, buffer, ret, 0);
-        if (r < 0)
-          {
-            warn ("failed to send data");
-            remove_connection (con->client_fd, NULL);
-          }
-      }
-    }
+  if (r != SUCCESS)
+    remove_connection (con->client_fd, NULL);
 }
 
 static void
-handle_hangup (int fd)
+handle_hangup (struct ConnectionBuffer *buf)
 {
+  Connection *con = buf->connection;
+  int fd = buf == &con->buf_client ? con->client_fd : con->ws_fd;
   debug ("hangup on fd %i", fd);
   assert (fd != server.listen_fd);
   remove_connection (fd, NULL);
@@ -789,16 +643,14 @@ server_poll_event (int timeout)
     }
   else if (ret > 0)
     {
-      debug ("epoll_wait event on fd %i events %x", ev.data.fd, ev.events);
       if (ev.data.fd == server.listen_fd)
         handle_accept ();
-      else
-        handle_connection_data (ev.data.fd);
-
+      else if (ev.events & EPOLLIN)
+        handle_connection_data (ev.data.ptr);
       /* this ought to be handled by recv() == 0 (EOF) already, but make sure
        * we clean up hanged up connections */
-      if (ev.events & EPOLLHUP)
-        handle_hangup (ev.data.fd);
+      else if (ev.events & EPOLLHUP)
+        handle_hangup (ev.data.ptr);
       return true;
     }
 

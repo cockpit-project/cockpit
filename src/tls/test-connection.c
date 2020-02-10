@@ -21,6 +21,7 @@
 
 #include <errno.h>
 #include <fcntl.h>
+#include <sys/socket.h>
 
 #include "connection.h"
 #include "common/cockpittest.h"
@@ -42,6 +43,9 @@ test_no_ws (void)
   c = connection_new (fd);
   g_assert (c);
   g_assert_cmpint (c->client_fd, ==, fd);
+  /* back references from buffer to connection */
+  g_assert (c->buf_client.connection == c);
+  g_assert (c->buf_ws.connection == c);
 
   /* other fields are clear */
   g_assert (!c->is_tls);
@@ -94,6 +98,67 @@ test_tls_session (void)
   connection_free (c);
 }
 
+static void
+test_read_write (void)
+{
+  int client_fds[2];
+  int ws_fds[2];
+  char buffer[10];
+  const char *msg = "hello";
+  const size_t msglen = strlen (msg);
+  Connection *c;
+
+  g_assert_cmpint (socketpair (AF_UNIX, SOCK_STREAM, 0, client_fds), ==, 0);
+  g_assert_cmpint (socketpair (AF_UNIX, SOCK_STREAM, 0, ws_fds), ==, 0);
+  c = connection_new (client_fds[0]);
+  g_assert (c);
+  c->ws_fd = ws_fds[0];
+
+  /* client → ws */
+  g_assert_cmpint (connection_read (c, CLIENT), ==, RETRY);
+  g_assert_cmpint (c->buf_client.length, ==, 0);
+  g_assert_cmpint (send (client_fds[1], msg, msglen, 0), ==, msglen);
+  g_assert_cmpint (connection_read (c, CLIENT), ==, SUCCESS);
+  g_assert_cmpint (c->buf_client.length, ==, msglen);
+  g_assert_cmpint (c->buf_ws.length, ==, 0);
+
+  g_assert_cmpint (connection_write (c, CLIENT), ==, SUCCESS);
+  g_assert_cmpint (c->buf_client.length, ==, 0);
+  g_assert_cmpint (c->buf_client.offset, ==, 0);
+
+  g_assert_cmpint (recv (ws_fds[1], buffer, sizeof (buffer), 0), ==, msglen);
+  buffer[msglen] = '\0';
+  g_assert_cmpstr (buffer, ==, msg);
+
+  g_assert_cmpint (connection_read (c, CLIENT), ==, RETRY);
+
+  /* ws → client */
+  g_assert_cmpint (connection_read (c, WS), ==, RETRY);
+
+  g_assert_cmpint (send (ws_fds[1], msg, msglen, 0), ==, msglen);
+  g_assert_cmpint (connection_read (c, WS), ==, SUCCESS);
+  g_assert_cmpint (c->buf_ws.length, ==, msglen);
+  g_assert_cmpint (c->buf_client.length, ==, 0);
+
+  g_assert_cmpint (connection_write (c, WS), ==, SUCCESS);
+  g_assert_cmpint (c->buf_ws.length, ==, 0);
+
+  bzero (buffer, sizeof (buffer));
+  g_assert_cmpint (recv (client_fds[1], buffer, sizeof (buffer), 0), ==, msglen);
+  buffer[msglen] = '\0';
+  g_assert_cmpstr (buffer, ==, msg);
+
+  g_assert_cmpint (connection_read (c, WS), ==, RETRY);
+
+  /* EOF detection */
+  close (client_fds[1]);
+  g_assert_cmpint (connection_read (c, CLIENT), ==, CLOSED);
+  close (ws_fds[1]);
+  g_assert_cmpint (connection_read (c, WS), ==, CLOSED);
+
+  connection_free (c);
+}
+
 int
 main (int argc,
       char *argv[])
@@ -103,6 +168,7 @@ main (int argc,
   g_test_add_func ("/connection/no-ws", test_no_ws);
   g_test_add_func ("/connection/with-ws", test_with_ws);
   g_test_add_func ("/connection/tls-session", test_tls_session);
+  g_test_add_func ("/connection/read-write", test_read_write);
 
   return g_test_run ();
 }

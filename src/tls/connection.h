@@ -23,16 +23,33 @@
 
 #include "wsinstance.h"
 
+typedef enum { CLIENT, WS } DataSource;
+typedef enum { SUCCESS, PARTIAL, CLOSED, RETRY, FATAL } ConnectionResult;
+
+typedef struct Connection Connection;
+
+/* hold a block of read data that is being written */
+struct ConnectionBuffer {
+  char data[256 * 1024];
+  size_t length;
+  size_t offset; /* for partial writes */
+  Connection *connection;
+};
+
 /* a single TCP connection between the client (browser) and cockpit-tls */
-typedef struct Connection {
+struct Connection {
   int client_fd;
   bool is_tls;
   gnutls_session_t session;
   WsInstance *ws;
   int ws_fd;
+  struct ConnectionBuffer buf_client;
+  struct ConnectionBuffer buf_ws;
   struct Connection *next;
-} Connection;
+};
 
 Connection* connection_new (int client_fd);
 void connection_set_tls_session (Connection *c, gnutls_session_t session);
 void connection_free (Connection *c);
+ConnectionResult connection_read (Connection *c, DataSource source);
+ConnectionResult connection_write (Connection *c, DataSource source);

@@ -107,19 +107,28 @@
       <div class="panel-heading">
         <h2 class="panel-title" translatable="yes">Interfaces</h2>
         <div class="panel-actions">
-          <button translatable="yes" id="networking-add-bond" class="btn btn-default network-privileged">Add Bond</button>
           <button translatable="yes" id="networking-add-team" class="btn btn-default network-privileged">Add Team</button>
-          <button translatable="yes" id="networking-add-bridge" class="btn btn-default network-privileged">Add Bridge</button>
-          <button translatable="yes" id="networking-add-vlan" class="btn btn-default network-privileged">Add VLAN</button>
+          <div class="btn-group dropdown interface-type">
+            <button id="networking-add-new" class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+              <span translatable="yes">Add new</span>
+              <div class="caret"></div>
+            </button>
+              <ul class="dropdown-menu">
+                <li><a tabindex="0" id="networking-add-bond" translatable="yes">Bond</a></li>
+                <li><a tabindex="0" id="networking-add-bridge" translatable="yes">Bridge</a></li>
+                <li><a tabindex="0" id="networking-add-vlan" translatable="yes">VLAN</a></li>
+              </ul>
+          </div>
         </div>
       </div>
       <table class="table table-hover">
         <thead>
           <tr>
             <th translatable="yes">Name</th>
+            <th translatable="yes">Interface</th>
+            <th translatable="yes">Type</th>
             <th translatable="yes">IP Address</th>
-            <th translatable="yes" class="networking-speed">Sending</th>
-            <th translatable="yes" class="networking-speed">Receiving</th>
+            <th translatable="yes" class="networking-speed">Status: (Sending/Receiving)</th>
           </tr>
         </thead>
         <tbody>
@@ -135,9 +144,10 @@
         <thead>
           <tr>
             <th translatable="yes">Name</th>
+            <th translatable="yes">Interface</th>
+            <th translatable="yes">Type</th>
             <th translatable="yes">IP Address</th>
-            <th translatable="yes" class="networking-speed">Sending</th>
-            <th translatable="yes" class="networking-speed">Receiving</th>
+            <th translatable="yes" class="networking-speed">Status: (Sending/Receiving)</th>
           </tr>
         </thead>
         <tbody>
@@ -150,6 +160,33 @@
       <div class="panel-body" id="networking-log" role="rowgroup"></div>
     </div>
   </div>
+
+  <script id="network-general-settings-template" type="x-template/mustache">
+    <form class="ct-form">
+      <label class="control-label" for="network-general-settings-name-input" translatable="yes">Name</label>
+      <input id="network-general-settings-name-input" class="form-control" type="text"
+             value="{{name}}"/>
+
+      <label class="checkbox-inline">
+        <input id="network-general-settings-autoconnect" type="checkbox" checked="false">
+        <span translatable="yes">Automatically connect to this network when it is available</span>
+      </label>
+
+      <div>
+        <span translatable="yes">Connection priority for auto connect</span>
+        <input id="network-autoconnect-priority-input" type="number" min="0"/>
+      </div>
+
+      <label class="checkbox-inline hidden-vpn">
+        <input id="network-general-settings-autovpn" type="checkbox" checked="false"/>
+        <span translatable="yes">Automatically connect to VPN when using this connection</span>
+        <select id="network-general-settings-autovpn-select">
+          <option selected disabled hidden>Select VPN</option>
+          {{! the rather complex dropdown-select will be created dynamically via jquery }}
+        </select>
+      </label>
+    </form>
+  </script>
 
   <script id="network-vlan-settings-template" type="x-template/mustache">
     <form class="ct-form">
@@ -454,6 +491,30 @@
         <tbody>
         </tbody>
       </table>
+    </div>
+  </div>
+
+  <div class="modal" id="network-general-settings-dialog"
+       tabindex="-1" role="dialog"
+       data-backdrop="static">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" translatable="yes">General Settings</h4>
+        </div>
+        <div class="modal-body">
+          <div id="network-general-settings-body">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <div class="alert alert-danger dialog-error" id="network-general-settings-error">
+            <i class="fa fa-exclamation-triangle"></i>
+            <span></span>
+          </div>
+          <button class="btn btn-default" translatable="yes" id="network-general-settings-cancel">Cancel</button>
+          <button class="btn btn-primary" translatable="yes" id="network-general-settings-apply">Apply</button>
+        </div>
+      </div>
     </div>
   </div>
 

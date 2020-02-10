@@ -231,12 +231,14 @@ $(function() {
             }
         }
 
-        function refresh_properties(path, tweak_callback) {
+        function refresh_properties(path, tweak_callback, fail_callback) {
             systemd_client.call(path,
                                 "org.freedesktop.DBus.Properties", "GetAll",
                                 [ "org.freedesktop.systemd1.Unit" ])
                     .fail(function(error) {
                         console.log(error);
+                        if (fail_callback)
+                            fail_callback();
                     })
                     .done(function(result) {
                         var unit = get_unit(path);
@@ -327,9 +329,20 @@ $(function() {
 
         var render_holdoff_timer;
         var need_render;
+        var render_blocks = 0;
+
+        function push_render_block() {
+            render_blocks += 1;
+        }
+
+        function pop_render_block() {
+            render_blocks -= 1;
+            if (render_blocks == 0 && need_render)
+                render();
+        }
 
         function render() {
-            if (!render_holdoff_timer) {
+            if (!render_holdoff_timer && !render_blocks) {
                 render_now();
                 render_holdoff_timer = window.setTimeout(render_holdoff_over, 200);
             } else {
@@ -428,6 +441,8 @@ $(function() {
                  * LoadUnit/GetAll pair of method calls.
                  */
 
+                push_render_block();
+
                 if (path_by_id[name])
                     with_path(path_by_id[name]);
                 else {
@@ -444,7 +459,7 @@ $(function() {
                     if (unit)
                         with_unit(unit);
                     else
-                        refresh_properties(path, with_unit);
+                        refresh_properties(path, with_unit, pop_render_block);
 
                     function with_unit(unit) {
                         if (unit.Id == name) {
@@ -455,6 +470,7 @@ $(function() {
                             unit.aliases.push(name);
                         }
                         update_computed_properties(unit);
+                        pop_render_block();
                     }
                 }
             }
@@ -477,7 +493,6 @@ $(function() {
                                     keys = Object.keys(units_by_path);
                                     for (i = 0; i < keys; i++) {
                                         if (!seen_ids[units_by_path[keys[i]].Id]) {
-                                            console.log("R", keys[i]);
                                             delete units_by_path[keys[i]];
                                         }
                                     }

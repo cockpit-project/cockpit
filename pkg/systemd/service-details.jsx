@@ -333,7 +333,7 @@ export class ServiceDetails extends React.Component {
                 <div key="failed" className="status-failed">
                     <span className="pficon pficon-error-circle-o status-icon" />
                     <span className="status">{ _("Failed to start") }</span>
-                    <button className="btn btn-default action-button" onClick={() => this.props.actionCallback("StartUnit") }>{ _("Start Service") }</button>
+                    <button className="btn btn-default action-button" onClick={() => this.unitAction("StartUnit") }>{ _("Start Service") }</button>
                 </div>
             );
         }

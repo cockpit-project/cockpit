@@ -113,7 +113,8 @@
               <span translatable="yes">Add new</span>
               <div class="caret"></div>
             </button>
-              <ul class="dropdown-menu">
+              <ul class="dropdown-menu left-offset-75-menu">
+                <li><a tabindex="0" id="networking-add-wifi" translatable="yes">WiFi</a></li>
                 <li><a tabindex="0" id="networking-add-bond" translatable="yes">Bond</a></li>
                 <li><a tabindex="0" id="networking-add-bridge" translatable="yes">Bridge</a></li>
                 <li><a tabindex="0" id="networking-add-vlan" translatable="yes">VLAN</a></li>
@@ -414,6 +415,104 @@
       <label class="control-label" for="network-team-port-settings-lacp-key-input" translatable="yes">LACP Key</label>
       <input id="network-team-port-settings-lacp-key-input" class="form-control network-number-field ct-form-relax"
              type="text" value="{{lacp_key}}"/>
+    </form>
+  </script>
+
+  <script id="network-wifi-settings-template" type="x-template/mustache">
+    <form class="ct-form">
+      <label class="control-label" for="network-wifi-settings-ssid-input" translatable="yes">SSID</label>
+      <input id="network-wifi-settings-ssid-input" class="form-control network-number-field ct-form-relax"
+             type="text" value="{{ssid_input}}"/>
+
+     <label class="control-label" for="network-wifi-settings-mode-select" translatable="yes">Mode</label>
+     <div id="network-wifi-settings-mode-select">
+       {{! the rather complex dropdown-select will be created dynamically via jquery }}
+     </div>
+
+     <label class="control-label" for="network-wifi-settings-band-select" translatable="yes">Band</label>
+     <div id="network-wifi-settings-band-select">
+       {{! the rather complex dropdown-select will be created dynamically via jquery }}
+     </div>
+
+     <label class="control-label" for="network-wifi-settings-channel-select" translatable="yes">Channel</label>
+     <div id="network-wifi-settings-channel-select">
+       {{! the rather complex dropdown-select will be created dynamically via jquery }}
+     </div>
+
+     <label class="control-label" for="network-wifi-settings-device-select" translatable="yes">Device</label>
+     <div id="network-wifi-settings-device-select">
+       {{! the rather complex dropdown-select will be created dynamically via jquery }}
+     </div>
+
+     <label class="control-label" for="network-wifi-settings-security-select" translatable="yes">Security</label>
+     <div id="network-wifi-settings-security-select">
+       {{! the rather complex dropdown-select will be created dynamically via jquery }}
+     </div>
+
+     <label class="control-label hidden-ps" for="security-personal-password-input" translatable="yes">Password</label>
+     <input class="hidden-ps" id="security-personal-password-input" type="password" value="{{personal_password}}">
+
+     <label class="checkbox-inline hidden-ps">
+       <input id="security-personal-password-toggle" type="checkbox" checked="false"/>
+       <span translatable="yes">Show password</span>
+     </label>
+
+     <label class="control-label hidden-ep hidden-type" for="security-eap-auth-select" translatable="yes">Authentication</label>
+     <div class="hidden-ep hidden-type" id="security-eap-auth-select">
+       {{! the rather complex dropdown-select will be created dynamically via jquery }}
+     </div>
+
+     <label class="control-label hidden-ep hidden-tls" for="security-tls-identity" translatable="yes">Identity</label>
+     <input class="hidden-ep hidden-tls" id="security-tls-identity" type="text" value="{{tls_identity_input}}">
+
+     <label class="control-label hidden-ep hidden-peap" for="security-peap-identity" translatable="yes">Anonymous identity</label>
+     <input class="hidden-ep hidden-peap" id="security-peap-identity" type="text" value="{{peap_identity_input}}">
+
+     <label class="control-label hidden-ep" for="security-eap-domain" translatable="yes">Domain</label>
+     <input class="hidden-ep" id="security-eap-domain" type="text" value="{{eap_domain_input}}">
+
+     <label class="control-label hidden-ep" for="security-eap-cert-file" translatable="yes">CA certificate</label>
+     <input class="hidden-ep" id="security-eap-cert-file" type="file"/>
+
+     <label class="checkbox-inline hidden-ep">
+       <input id="security-eap-cert-toggle" type="checkbox" checked="false"/>
+       <span translatable="yes">No CA certificate is required</span>
+     </label>
+
+     <label class="control-label hidden-ep hidden-tls" for="security-tls-user-cert-file" translatable="yes">User certificate</label>
+     <input class="hidden-ep hidden-tls" id="security-tls-user-cert-file" type="file"/>
+
+     <label class="control-label hidden-ep hidden-tls" for="security-tls-user-private-key-file" translatable="yes">User private key</label>
+     <input class="hidden-ep hidden-tls" id="security-tls-user-private-key-file" type="file"/>
+
+     <label class="control-label hidden-ep hidden-tls" for="security-tls-private-key-password" translatable="yes">User key password</label>
+     <input class="hidden-ep hidden-tls" id="security-tls-private-key-password" type="password" value="{{tls_key_password_input}}">
+
+     <label class="checkbox-inline hidden-ep hidden-tls">
+       <input id="security-tls-key-password-toggle" type="checkbox" checked="false">
+       <span translatable="yes">Show password</span>
+     </label>
+
+     <label class="control-label hidden-ep hidden-peap" for="security-peap-version-select" translatable="yes">PEAP version</label>
+     <div class="hidden-ep hidden-peap" id="security-peap-version-select">
+       {{! the rather complex dropdown-select will be created dynamically via jquery }}
+     </div>
+
+     <label class="control-label hidden-ep hidden-peap" for="security-peap-inner-auth-select" translatable="yes">Inner authentication</label>
+     <div class="hidden-ep hidden-peap" id="security-peap-inner-auth-select">
+       {{! the rather complex dropdown-select will be created dynamically via jquery }}
+     </div>
+
+     <label class="control-label hidden-ep hidden-peap" for="security-peap-username" translatable="yes">Username</label>
+     <input class="hidden-ep hidden-peap" id="security-peap-username" type="text" value="{{peap_username_input}}">
+
+     <label class="control-label hidden-ep hidden-peap" for="security-peap-password" translatable="yes">Password</label>
+     <input class="hidden-ep hidden-peap" id="security-peap-password" type="password" value="{{peap_password_input}}">
+
+     <label class="checkbox-inline hidden-ep hidden-peap">
+       <input id="security-peap-password-toggle" type="checkbox" checked="false">
+       <span translatable="yes">Show password</span>
+     </label>
     </form>
   </script>
 
@@ -729,6 +828,30 @@
           </div>
           <button class="btn btn-default" translatable="yes" id="network-mac-settings-cancel">Cancel</button>
           <button class="btn btn-primary" translatable="yes" id="network-mac-settings-apply">Apply</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="network-wifi-settings-dialog"
+       tabindex="-1" role="dialog"
+       data-backdrop="static">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" translatable="yes">WiFi</h4>
+        </div>
+        <div class="modal-body">
+          <div id="network-wifi-settings-body">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <div class="alert alert-danger dialog-error" id="network-wifi-settings-error">
+            <i class="fa fa-exclamation-triangle"></i>
+            <span></span>
+          </div>
+          <button class="btn btn-default" translatable="yes" id="network-wifi-settings-cancel">Cancel</button>
+          <button class="btn btn-primary" translatable="yes" id="network-wifi-settings-apply">Apply</button>
         </div>
       </div>
     </div>

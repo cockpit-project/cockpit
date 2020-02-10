@@ -1352,6 +1352,8 @@ function NetworkManagerModel() {
                                 add_to_interface(con.Settings.vlan.interface_name);
                             if (con.Settings.wifi)
                                 add_to_interface(con.Settings.wifi.interface_name);
+                            if (con.Settings.vpn)
+                                add_to_interface(con.Settings.vpn.interface_name);
                         }
                     });
                 }
@@ -1751,6 +1753,7 @@ PageNetworking.prototype = {
 
         update_network_privileged();
         $("#networking-add-wifi").syn_click(self.model, $.proxy(this, "add_wifi"));
+        $("#networking-add-openvpn").syn_click(self.model, $.proxy(this, "add_openvpn"));
         $("#networking-add-bond").syn_click(self.model, $.proxy(this, "add_bond"));
         $("#networking-add-team").syn_click(self.model, $.proxy(this, "add_team"));
         $("#networking-add-bridge").syn_click(self.model, $.proxy(this, "add_bridge"));
@@ -2130,6 +2133,50 @@ PageNetworking.prototype = {
             };
 
         $('#network-wifi-settings-dialog').modal('show');
+    },
+
+    add_openvpn: function () {
+        var i, iface, uuid;
+
+        for (i = 0; i < 100; i++) {
+            iface = "vpn" + i;
+            if (!this.model.find_interface(iface))
+                break;
+        }
+        uuid = generate_uuid();
+
+        PageNetworkOpenVPNSettings.model = this.model;
+        PageNetworkOpenVPNSettings.done = null;
+        PageNetworkOpenVPNSettings.connection = null;
+        PageNetworkOpenVPNSettings.apply_settings = settings_applier(this.model);
+        PageNetworkOpenVPNSettings.ghost_settings =
+            {
+                connection: {
+                    id: iface,
+                    autoconnect: true,
+                    autoconnect_priority: 0,
+                    secondaries: [],
+                    type: "vpn",
+                    uuid: uuid,
+                    interface_name: iface
+                },
+                vpn: {
+                    auth: "SHA256",
+                    cipher: "AES-256-GCM",
+                    connection_type: "password-tls",
+                    dev: "tun",
+                    mssfix: "1450",
+                    password_flags: "1",
+                    remote: [],
+                    remote_cert_tls: "server",
+                    reneg_sec: "0",
+                    ta_dir: "1",
+                    tun_mtu: "1500",
+                    service_type: "org.freedesktop.NetworkManager.openvpn"
+                }
+            };
+
+        $('#network-openvpn-settings-dialog').modal('show');
     }
 };
 
@@ -2815,6 +2862,8 @@ PageNetworkInterface.prototype = {
                 desc = _("Bridge");
             } else if (dev.DeviceType == 'wifi') {
                 desc = _("WiFi");
+            } else if (dev.DeviceType == 'vpn') {
+                desc = _("OpenVPN");
             } else
                 desc = cockpit.format(_("Unknown \"$0\""), dev.DeviceType);
         } else if (iface) {
@@ -2829,6 +2878,8 @@ PageNetworkInterface.prototype = {
                 desc = _("Bridge");
             else if (cs.type == "wifi")
                 desc = _("WiFi");
+            else if (cs.type == "vpn")
+                desc = _("OpenVPN");
             else if (cs.type)
                 desc = cockpit.format(_("Unknown \"$0\""), cs.type);
             else
@@ -2886,7 +2937,8 @@ PageNetworkInterface.prototype = {
                                                        dev.DeviceType == 'team' ||
                                                        dev.DeviceType == 'vlan' ||
                                                        dev.DeviceType == 'bridge' ||
-                                                       dev.DeviceType == 'wifi'));
+                                                       dev.DeviceType == 'wifi' ||
+                                                       dev.DeviceType == 'vpn'));
         $('#network-interface-delete').toggle(is_deletable && managed);
 
         function render_interface_section_separator(title) {
@@ -5501,6 +5553,255 @@ function PageNetworkWiFiSettings() {
     this._init();
 }
 
+PageNetworkOpenVPNSettings.prototype = {
+    _init: function () {
+        this.id = "network-openvpn-settings-dialog";
+        this.openvpn_settings_template = $("#network-openvpn-settings-template").html();
+        mustache.parse(this.openvpn_settings_template);
+    },
+
+    setup: function () {
+        $('#network-openvpn-settings-cancel').click($.proxy(this, "cancel"));
+        $('#network-openvpn-settings-apply').click($.proxy(this, "apply"));
+    },
+
+    enter: function () {
+        $('#network-openvpn-settings-error').hide();
+        this.settings = PageNetworkOpenVPNSettings.ghost_settings || PageNetworkOpenVPNSettings.connection.copy_settings();
+        this.update();
+    },
+
+    show: function() {
+    },
+
+    leave: function() {
+    },
+
+    update: function() {
+        var self = this;
+        var options = self.settings.vpn;
+        var pwd, gateway_input, import_config_btn;
+        var ca_cert_file, dev_cert_file, dev_key_file, ovpn_file;
+        var no_extension = /\.[^/.]+$/;
+        var process = cockpit.spawn(["pwd"]);
+        process.stream(function(data) {
+            pwd = data;
+        });
+
+        function get_prop(input, prop) {
+            return input.match(new RegExp(prop + '\\s(\\w+)'))[1];
+        }
+
+        function parse_props(input) {
+            options.dev = get_prop(input, "dev");
+            options.proto = get_prop(input, "proto");
+            options.resolv_retry = get_prop(input, "resolv-retry");
+            options.tun_mtu = get_prop(input, "tun-mtu");
+            options.mssfix = get_prop(input, "mssfix");
+            options.remote_cert_tls = get_prop(input, "remote-cert-tls");
+            options.verb = get_prop(input, "verb");
+            options.reneg_sec = get_prop(input, "reneg-sec");
+            options.sndbuf = get_prop(input, "sndbuf");
+            options.rcvbuf = get_prop(input, "rcvbuf");
+            options.cipher = get_prop(input, "cipher");
+            options.auth = get_prop(input, "auth");
+            options.key_direction = get_prop(input, "key-direction");
+        }
+
+        function parse_remote(input) {
+            // saved configuration may have multiple remote lines
+            input.match(/[^\r\n]+/g).forEach(function(line) {
+                if (line.match(/\bremote \b/)) {
+                    line = line.replace("remote ", "");
+                    options.remote.push(line.replace(" ", ":"));
+                }
+            });
+        }
+
+        function get_content_from_tag(tag, input) {
+            var reg = new RegExp("<" + tag + ">[\\s\\S]*?<\\/" + tag + ">");
+            var str = reg.exec(input) ? reg.exec(input).toString() : null;
+
+            if (!str)
+                return null;
+
+            str = str.substring(str.indexOf("\n") + 1);
+            return str.substring(str.lastIndexOf("\n") + 1, -1);
+        }
+
+        function read_file_content(file, callback) {
+            var reader = new FileReader();
+            reader.onload = callback;
+            reader.readAsText(file);
+        }
+
+        function save_file(id, blob, prop) {
+            if (!blob)
+                return null;
+
+            cockpit.script("echo \"" + blob + "\" > " + id, { err: "ignore" })
+                    .done(function () {
+                        options[prop] = (pwd + "/" + id).replace(/\r?\n|\r/g, "");
+                    });
+        }
+
+        var body = $(mustache.render(self.openvpn_settings_template, options));
+
+        gateway_input = body.find('#network-openvpn-settings-gateway-input');
+        gateway_input.change(function() {
+            var data = gateway_input.val()
+                    .replace(",", "\n")
+                    .trim();
+            parse_remote(data);
+        });
+        import_config_btn = body.find('#network-openvpn-settings-config-toggle');
+        import_config_btn.on('change', function() {
+            gateway_input.prop('disabled', !gateway_input.prop('disabled'));
+            ca_cert_file.prop('disabled', !ca_cert_file.prop('disabled'));
+            dev_cert_file.prop('disabled', !dev_cert_file.prop('disabled'));
+            dev_key_file.prop('disabled', !dev_key_file.prop('disabled'));
+            ovpn_file.prop('disabled', !ovpn_file.prop('disabled'));
+        });
+        ca_cert_file = body.find('#network-openvpn-settings-cert-file');
+        ca_cert_file.on('change', function(e) {
+            if (!this.files[0])
+                return null;
+            var filename = this.files[0].name.replace(no_extension, "");
+            read_file_content(this.files[0], function(e) {
+                save_file(filename + "-ca.pem", e.target.result, "ca");
+                self.settings.connection.id = filename;
+            });
+        });
+        dev_cert_file = body.find('#network-openvpn-settings-dev-cert-file');
+        dev_cert_file.on('change', function(e) {
+            if (!this.files[0])
+                return null;
+            var filename = this.files[0].name.replace(no_extension, "");
+            read_file_content(this.files[0], function(e) {
+                save_file(filename + "-cert.pem", e.target.result, "cert");
+            });
+        });
+        dev_key_file = body.find('#network-openvpn-settings-dev-key-file');
+        dev_key_file.on('change', function(e) {
+            if (!this.files[0])
+                return null;
+            var filename = this.files[0].name.replace(no_extension, "");
+            read_file_content(this.files[0], function(e) {
+                save_file(filename + "-key.pem", e.target.result, "key");
+            });
+        });
+        ovpn_file = body.find('#network-openvpn-settings-ovpn-file');
+        ovpn_file.on('change', function(e) {
+            if (!this.files[0])
+                return null;
+            var filename = this.files[0].name.replace(no_extension, "");
+            read_file_content(this.files[0], function(e) {
+                save_file(filename + "-ca.pem", get_content_from_tag("ca", e.target.result),
+                          "ca");
+                save_file(filename + "-cert.pem", get_content_from_tag("cert", e.target.result),
+                          "cert");
+                save_file(filename + "-key.pem", get_content_from_tag("key", e.target.result),
+                          "key");
+                save_file(filename + "-tls-auth.pem", get_content_from_tag("tls-auth", e.target.result),
+                          "ta");
+                self.settings.connection.id = filename;
+                parse_remote(e.target.result);
+                parse_props(e.target.result);
+            });
+        });
+
+        $('#network-openvpn-settings-body').html(body);
+
+        import_config_btn.prop('checked', false);
+        ovpn_file.prop('disabled', true);
+    },
+
+    cancel: function() {
+        $('#network-openvpn-settings-dialog').modal('hide');
+    },
+
+    apply: function() {
+        var self = this;
+        var options = self.settings.vpn;
+        var vpn_props = [
+            { line: "+vpn.data auth=", prop: "auth" },
+            { line: "+vpn.data ca=", prop: "ca" },
+            { line: "+vpn.data cert=", prop: "cert" },
+            { line: "+vpn.data cipher=", prop: "cipher" },
+            { line: "+vpn.data dev=", prop: "dev" },
+            { line: "+vpn.data key=", prop: "key" },
+            { line: "+vpn.data key-direction=", prop: "key_direction" },
+            { line: "+vpn.data mssfix=", prop: "mssfix" },
+            { line: "+vpn.data port=", prop: "port" },
+            { line: "+vpn.data proto=", prop: "proto" },
+            { line: "+vpn.data rcvbuf=", prop: "rcvbuf" },
+            { line: "+vpn.data remote-cert-tls=", prop: "remote_cert_tls" },
+            { line: "+vpn.data reneg-sec=", prop: "reneg_sec" },
+            { line: "+vpn.data resolv-retry=", prop: "resolv_retry" },
+            { line: "+vpn.data sndbuf=", prop: "sndbuf" },
+            { line: "+vpn.data ta=", prop: "ta" },
+            { line: "+vpn.data tun-mtu=", prop: "tun_mtu" },
+        ];
+
+        function add_vpn_connection() {
+            var cmd = [
+                "nmcli connection add \\",
+                "connection.id " + self.settings.connection.id + " \\",
+                "connection.interface-name " + self.settings.connection.interface_name + " \\",
+                "connection.type vpn \\",
+                "vpn-type openvpn \\",
+                "connection.autoconnect off \\",
+                "connection.permissions \"user:$USER\" \\",
+                "ipv4.dns-search \"\" \\",
+                "ipv4.method auto \\",
+                "ipv4.never-default true \\",
+                "ipv6.dns-search \"\" \\",
+                "ipv6.method auto \\",
+                "ipv6.never-default true \\",
+                "+vpn.data connection-type=password-tls \\",
+                "+vpn.data username=${USER} \\",
+                "+vpn.data password-flags=1 \\",
+            ];
+
+            options.remote.forEach(function(item) {
+                cmd.push("+vpn.data remote=" + item + " \\");
+            });
+
+            vpn_props.forEach(function(item) {
+                if (options[item.prop])
+                    cmd.push(item.line + options[item.prop] + " \\");
+            });
+
+            cmd.push("+vpn.data service-type=org.freedesktop.NetworkManager.openvpn");
+            cmd = cmd.join("\n");
+
+            cockpit.script(cmd, { err: "ignore" })
+                    .fail(function () {
+                        show_error("Connection has not been established");
+                    });
+        }
+
+        function show_error(error) {
+            show_dialog_error('#network-openvpn-settings-error', error);
+        }
+
+        // show warning if network-manager-openvpn is not installed
+        cockpit.script("test -f /usr/lib*/NetworkManager/nm-openvpn-service",
+                       { err: "ignore" })
+                .done(function () {
+                    add_vpn_connection();
+                    $('#network-openvpn-settings-dialog').modal('hide');
+                })
+                .fail(function () {
+                    show_error("`network-manager-openvpn` is not installed");
+                });
+    }
+};
+
+function PageNetworkOpenVPNSettings() {
+    this._init();
+}
+
 /* INITIALIZATION AND NAVIGATION
  *
  * The code above still uses the legacy 'Page' abstraction for both
@@ -5582,6 +5883,7 @@ function init() {
         dialog_setup(new PageNetworkMtuSettings());
         dialog_setup(new PageNetworkMacSettings());
         dialog_setup(new PageNetworkWiFiSettings());
+        dialog_setup(new PageNetworkOpenVPNSettings());
 
         $(cockpit).on("locationchanged", navigate);
         navigate();

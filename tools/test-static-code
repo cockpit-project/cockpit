@@ -16,7 +16,7 @@ PYFLAKES="python3 -m pyflakes"
 if ! $PYFLAKES /dev/null >/dev/null 2>&1; then
     echo "ok 1 pyflakes pkg tools # SKIP pyflakes3 not installed"
 
-elif $PYFLAKES  pkg/docker/cockpit-atomic-storage tools/build-debian-copyright >&2; then
+elif $PYFLAKES  pkg/docker/cockpit-atomic-storage tools/build-debian-copyright tools/npm-release-time >&2; then
     echo "ok 1 pyflakes pkg tools"
 
 else

@@ -772,16 +772,18 @@ class TestPackageInstall(packagelib.PackageCase):
 
     def waitTooltip(self, text):
         b = self.browser
-        def check():
-            try:
-                b.wait_present("#system_information_domain_tooltip")
-                b.mouse("#system_information_domain_tooltip", "mouseover")
-                b.wait_in_text(".tooltip-inner", text)
-                b.mouse("#system_information_domain_tooltip", "mouseout")
-                return True
-            except:
-                return False
-        self.browser.wait(check)
+
+        # the wait_timeout affects both the waiting in b.mouse() and the b.wait() (times 5!), thus is quadratic
+        with b.wait_timeout(4):
+            def check():
+                try:
+                    b.mouse("#system_information_domain_tooltip", "mouseover")
+                    b.wait_in_text(".tooltip-inner", text)
+                    b.mouse("#system_information_domain_tooltip", "mouseout")
+                    return True
+                except (RuntimeError, Error):
+                    return False
+            b.wait(check)
 
     def testInstall(self):
         m = self.machine

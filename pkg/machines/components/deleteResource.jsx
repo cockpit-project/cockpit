@@ -33,6 +33,7 @@ export class DeleteResource extends React.Component {
         this.state = {
             showModal: false,
             dialogError: undefined,
+            inProgress: false,
         };
 
         this.delete = this.delete.bind(this);
@@ -42,8 +43,12 @@ export class DeleteResource extends React.Component {
     }
 
     delete() {
+        this.setState({ inProgress: true });
         this.props.deleteHandler()
-                .fail(exc => this.dialogErrorSet(cockpit.format(_("The $0 could not be deleted"), this.props.objectType.toLowerCase()), exc.message));
+                .fail(exc => {
+                    this.setState({ inProgress: false });
+                    this.dialogErrorSet(cockpit.format(_("The $0 could not be deleted"), this.props.objectType.toLowerCase()), exc.message);
+                });
     }
 
     open() {
@@ -103,10 +108,11 @@ export class DeleteResource extends React.Component {
                     </Modal.Body>
                     <Modal.Footer>
                         {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
+                        {this.state.inProgress && <div className="spinner spinner-sm pull-left" />}
                         <Button bsStyle='default' className='btn-cancel' onClick={this.close}>
                             {_("Cancel")}
                         </Button>
-                        <Button bsStyle='danger' onClick={this.delete}>
+                        <Button bsStyle='danger' disabled={this.state.inProgress} onClick={this.delete}>
                             {actionName || _("Delete")}
                         </Button>
                     </Modal.Footer>

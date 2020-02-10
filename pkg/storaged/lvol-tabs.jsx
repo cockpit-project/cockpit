@@ -397,15 +397,14 @@ export class BlockVolTab extends React.Component {
                     <br />
                     <Alert variant="warning"
                            isInline
-                           title={_("This logical volume is not completely used by its content.")}
-                           action={<>
-                               <StorageButton excuse={shrink_excuse} onClick={shrink}>{_("Shrink Volume")}</StorageButton>
-                               {"\n"}
-                               <StorageButton excuse={grow_excuse} onClick={grow}>{_("Grow Content")}</StorageButton>
-                           </>}>
+                           title={_("This logical volume is not completely used by its content.")}>
                         {cockpit.format(_("Volume size is $0. Content size is $1."),
                                         utils.fmt_size(unused_space_warning.volume_size),
                                         utils.fmt_size(unused_space_warning.content_size))}
+                        <div className='storage_alert_action_buttons'>
+                            <StorageButton excuse={shrink_excuse} onClick={shrink}>{_("Shrink Volume")}</StorageButton>
+                            <StorageButton excuse={grow_excuse} onClick={grow}>{_("Grow Content")}</StorageButton>
+                        </div>
                     </Alert>
                 </>
                 }

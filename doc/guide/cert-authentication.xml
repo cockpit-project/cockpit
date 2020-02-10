@@ -1,0 +1,128 @@
+<?xml version="1.0"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+	"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<chapter id="cert-authentication">
+  <title>Certificate/smart card authentication</title>
+
+  <para>
+    Cockpit can use TLS client certificates for authenticating users. Commonly
+    these are provided by a smart card, but it's equally possible to import
+    certificates directly into the web browser.
+  </para>
+
+  <para>
+    This requires the host to be in an Identity Management domain like
+    <ulink url="https://www.freeipa.org">FreeIPA</ulink> or
+    <ulink url="https://en.wikipedia.org/wiki/Active_Directory">Active Directory</ulink>,
+    which can associate certificates to users.
+  </para>
+
+
+  <section id="certauth-server-idm">
+    <title>Identity Management setup</title>
+
+    <para>To authenticate users from a Identity Management domain, the server that
+      Cockpit is running on must be joined to that domain. See the
+      <link linkend="sso-server">SSO server requirements</link> for details.</para>
+
+    <para>The domain's users also need to get associated to certificates, usually with
+    the <command>ipa user-add-cert</command> command. See the
+    <ulink url="https://www.freeipa.org/page/V4/User_Certificates#Feature_Management">
+    FreeIPA User Certificates documentation</ulink>
+    for details. As a simple example, these commands will generate a new certificate/key
+    pair and associate it to the user <code>alice</code>:</para>
+
+<programlisting>
+# create self-signed certificate and key
+# some browsers insist on specifying key usage, so it needs a config file
+printf '[req]\ndistinguished_name=dn\nextensions=v3_req\n[dn]\n
+    [v3_req]\nkeyUsage=digitalSignature,keyEncipherment,keyAgreement\n' > /tmp/openssl.cnf
+
+openssl req -x509 -newkey rsa:2048 -days 365 -nodes -keyout alice.key \
+    -out alice.pem -subj "/CN=alice" -config /tmp/openssl.cnf -extensions v3_req
+
+# FreeIPA only accepts DER format, convert it
+openssl x509 -outform der -in alice.pem -out alice.der
+
+# browsers and smart cart utilities accept PKCS#12 format, convert it
+# this needs to set a transfer/import password
+openssl pkcs12 -export -password pass:somepassword \
+    -in alice.pem -inkey alice.key -out alice.p12
+
+# assign it to the IdM user alice
+ipa user-add-cert alice --certificate="$(base64 alice.der)"
+</programlisting>
+
+  <para>You can now import <code>alice.p12</code> directly into your browser,
+    with giving the transfer password set above. Or
+    <ulink url="https://linux.die.net/man/1/pkcs15-init">put the certificate onto a smart card</ulink>:</para>
+
+<programlisting>
+pkcs15-init --store-private-key alice.p12 --format pkcs12 --auth-id 01
+</programlisting>
+
+  </section>
+
+  <section id="certauth-server-cockpitconf">
+    <title>Cockpit web server configuration</title>
+
+    <para>Certificate authentication needs to be enabled in
+      <ulink url="./cockpit.conf.5.html">cockpit.conf</ulink> explicitly:</para>
+
+<programlisting>
+[WebService]
+ClientCertAuthentication = yes
+</programlisting>
+
+  <para>When enabling this mode,
+    <ulink url="https://github.com/cockpit-project/cockpit/blob/master/doc/authentication.md">
+    other authentication types</ulink> commonly get disabled, so that *only* client certificate
+    authentication will be accepted. By default, after a failed certificate authentication attempt,
+    Cockpit's normal login page will appear and permit other login types such as `basic` (passwords)
+    or `gssapi` (Kerberos).  For example, password authentication gets disabled with:</para>
+
+<programlisting>
+[Basic]
+action = none
+</programlisting>
+
+  </section>
+
+  <section id="certauth-server-resourcelimits">
+    <title>Cockpit web server resource limits</title>
+
+      <para>When using certificate authentication, all requests with a particular
+        certificate will be handled by a separate and isolated instance of the
+        <ulink url="./cockpit-ws.8.html">cockpit-ws</ulink> web server. This
+        protects against possible vulnerabilities in the web server and prevents
+        an attacker from impersonating another user. However, this introduces a
+        potential Denial of Service: Some remote attacker could create a
+        large number of certificates and send a large number of http requests
+        to Cockpit with these.</para>
+
+      <para>To mitigate that, all <code>cockpit-ws</code> instances run
+        in a <code>system-cockpithttps.slice</code>
+        <ulink url="https://www.freedesktop.org/software/systemd/man/systemd.slice.html">systemd slice unit</ulink>
+        which <ulink url="https://www.freedesktop.org/software/systemd/man/systemd.resource-control.html">limits
+        the collective resources</ulink> of these web server instances: by default,
+        this slice sets a limit of 200 threads (roughly 100 instances of <code>cockpit-ws</code> -- in other
+        words, a maximum of 100 parallel user sessions with different certificates) and
+        a 75% (soft)/90% (hard) memory limit.</para>
+
+      <para>You are welcome to adjust these limits to your need through
+        a <ulink url="https://www.freedesktop.org/software/systemd/man/systemd.unit.html">drop-in</ulink>.
+        For example:</para>
+
+<programlisting>
+# systemctl edit system-cockpithttps.slice
+
+[Slice]
+# change existing value
+TasksMax=100
+# add new restriction
+CPUQuota=30%
+</programlisting>
+
+  </section>
+
+</chapter>

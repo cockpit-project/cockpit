@@ -1,0 +1,7 @@
+Domain installation does not appear to have been successful.
+If it was, you can restart your domain by running:
+  virsh --connect qemu:///system start VmNotInstalled
+*
+Traceback (most recent call last):
+  File "test/verify/check-machines-dbus", line *, in testConfigureBeforeInstall
+    b.wait_in_text("#vm-VmNotInstalled-state", "shut off")

@@ -1,0 +1,9 @@
+[Unit]
+Description=Resource limits for all cockpit-ws-https@.service instances
+
+[Slice]
+# each instance contains cockpit-ws (with a few threads) and a short-lived
+# cockpit-session; the actual user sessions live in user.slice
+TasksMax=200
+MemoryHigh=75%
+MemoryMax=90%

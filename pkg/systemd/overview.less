@@ -1,0 +1,323 @@
+@import "../../node_modules/@patternfly/react-styles/css/components/Table/table.css";
+@import "./system-global.less";
+
+/* System Time Modal dialog needs table.css */
+@import "../lib/table.css";
+
+#overview {
+  height: 100%;
+}
+
+.ct-overview-header {
+  align-items: center;
+  display: flex;
+  flex: none;
+
+  &,
+  &-hostname {
+    flex-wrap: wrap;
+  }
+
+  &-actions,
+  &-hostname {
+    box-sizing: border-box;
+    display: flex;
+  }
+
+  &-hostname {
+    align-items: baseline;
+    flex: auto;
+    /* Collapse down to 15rem, to help preserve button on the right */
+    flex-basis: 15rem;
+
+    > h1 {
+      font-size: var(--pf-global--FontSize--2xl);
+    }
+  }
+
+  &-hostname > h1,
+  &-subheading {
+    padding-right: 1rem;
+  }
+
+  &-actions {
+    align-items: center;
+  }
+
+  &-subheading {
+    font-size: var(--pf-global--FontSize--md);
+  }
+}
+
+.ct-system-overview {
+  --card-width: 22rem;
+  --pf-l-gallery--GridTemplateColumns: repeat(auto-fill, minmax(var(--card-width), 1fr));
+
+  .motd-box {
+    grid-column: ~"1 / -1";
+  }
+
+  .pf-c-card {
+    &__header {
+      font-size: var(--pf-global--FontSize--xl);
+      font-weight: var(--pf-global--FontWeight--normal);
+    }
+
+    &__body {
+      .fa,
+      .pficon {
+        + a, + span {
+          /* Space out icons + links */
+          margin-left: 0.5rem;
+        }
+      }
+
+      a {
+        > .fa,
+        > .pficon {
+          /* Space out icons inside of links */
+          margin-right: 0.5rem;
+        }
+      }
+
+      &:last-child .pf-c-table:last-child tr:last-child {
+        /* Remove the border of tables when it's the last item in a card and there isn't a card footer */
+        border-bottom: none;
+      }
+
+      p {
+        + p,
+        + button {
+            margin-top: calc(var(--pf-global--LineHeight--md) * 1rem);
+        }
+      }
+
+      td {
+        vertical-align: middle;
+      }
+
+      th {
+        font-size: var(--pf-global--FontSize--sm);
+      }
+    }
+
+    &__footer {
+      &:empty {
+        display: none;
+      }
+    }
+  }
+
+  .pf-c-progress {
+    &__status {
+      display: flex;
+      align-items: baseline;
+
+      &-icon {
+        display: flex;
+        align-self: center;
+      }
+    }
+  }
+
+  .pf-m-compact {
+    th, td {
+      &:first-child {
+        padding-left: 0;
+      }
+
+      &:last-child {
+        padding-right: 0;
+      }
+    }
+  }
+}
+
+@media (orientation: landscape) and (min-width: 684px) and (max-width: 832px) and (max-height: 703px) {
+  /* Optimize for VMs  */
+  /*
+    Full offset:  Sidebar: 240, switcher: 100
+    Small offset: Sidebar: 192, switcher: 84
+
+    Max sidebar (with switcher): 240 + 100 = 340
+    Min sidebar (without switcher): 192
+
+    Min iframe width (with switcher): 1024 - 340 = 684
+    Max iframe width (without switcher): 1024 - 192 = 832
+
+    Height offset: 65px (for the heading)
+    Max iframe: 768 - 65 = 703
+
+    NOTE: For cross-browser reasons, the above media breakpoints need to be px
+    NOTE 2: This should be updated when the navigation is updated
+  */
+
+  .ct-system-overview {
+    /* Adjust card width to be approx. 2×2 */
+    --card-width: 16rem;
+  }
+}
+
+@media (max-width: 320px) {
+  /* Make the overview fit on very narrow screens like an iPhone SE */
+
+  .pf-c-page__main-section:not(.ct-overview-header) {
+    /* Remove left and right padding for cards on narrow viewports */
+    --pf-c-page__main-section--PaddingRight: 0;
+    --pf-c-page__main-section--PaddingLeft: 0;
+    --pf-c-page__main-section--PaddingTop: 0.5rem;
+    --pf-c-page__main-section--PaddingBottom: 0.5rem;
+  }
+
+  .ct-system-overview {
+    /* Reduce spacing between items */
+    --pf-l-gallery--m-gutter--GridGap: 0.25rem;
+  }
+}
+
+@media (max-device-width: 780px) and (orientation: portrait) {
+  /* Allow cards to be stretch to edges on mobile devices */
+  .ct-system-overview {
+    --card-width: 100%;
+  }
+}
+
+@media (max-width: 779px) {
+  /* Reduce gutter & padding on smaller widths, for desktop & mobile */
+
+  .pf-l-gallery {
+    --pf-l-gallery--m-gutter--GridGap: calc(var(--pf-global--gutter--md)/2);
+  }
+
+  .pf-c-card {
+    --pf-c-card--first-child--PaddingTop: var(--pf-global--spacer--md);
+    --pf-c-card--child--PaddingRight: var(--pf-global--spacer--md);
+    --pf-c-card--child--PaddingBottom: var(--pf-global--spacer--md);
+    --pf-c-card--child--PaddingLeft: var(--pf-global--spacer--md);
+    --pf-c-card__header--not-last-child--PaddingBottom: var(--pf-global--spacer--sm);
+  }
+}
+
+@media (min-width: 780px) {
+  /* Embiggen subheading & card headings when there's space */
+
+  .ct-system-overview .pf-c-card__header {
+    font-size: var(--pf-global--FontSize--2xl);
+  }
+
+  .ct-overview-header-subheading {
+    font-size: var(--pf-global--FontSize--lg);
+  }
+}
+
+@media (min-width: 1000px) and (max-width: 1400px) {
+  /* optimize for approx 1600×1200 on desktops */
+  /* (numbers are fudgy due to our nav & possibility of desktop's panels) */
+
+  .ct-system-overview {
+    --card-width: 25rem;
+  }
+}
+
+#machine_id {
+  font-family: var(--pf-global--FontFamily--redhatfont--monospace);
+  // Some browsers don't support anywhere yet, so we provide break-word as a fallback
+  overflow-wrap: break-word;
+  overflow-wrap: anywhere;
+}
+
+.pf-c-table tr > * {
+  vertical-align: top;
+}
+
+.ct-inline-list .pf-c-list.pf-m-inline {
+  display: inline-flex;
+  margin-left: 1rem;
+}
+
+.realms-op-diagnostics {
+  /* standard PF alerts have a wide margin */
+  max-width: 550px;
+  text-align: left;
+  max-height: 200px;
+}
+
+.realms-op-error .realms-op-more-diagnostics {
+  font-weight: normal;
+}
+
+.realms-op-leave-only-row .pf-c-alert {
+  /* standard PF alerts have a wide margin */
+  padding-left: 2ex;
+
+  button {
+    margin: 1ex 0;
+  }
+}
+
+#realms-op-leave-toggle {
+  font-weight: bold;
+  /* leave some space between form and leave toggle */
+  line-height: 5rem;
+}
+
+.realms-op-wait-message {
+  margin-left: 10px;
+  float: left;
+  margin-top: 3px;
+}
+
+#sich-note-1,
+#sich-note-2 {
+  margin: 0;
+}
+
+.small-messages {
+  font-size: smaller;
+}
+
+.systime-inline {
+  .form-control {
+    margin: 0 4px;
+  }
+
+  .form-group {
+    &:first-of-type .form-control {
+      margin: 0 4px 0 0;
+    }
+
+    .form-control {
+      width: 214px;
+    }
+  }
+
+  .form-inline {
+    background: #f4f4f4;
+    border: 1px solid #bababa;
+    padding: 4px;
+
+    &:not(:first-of-type) {
+      border-top-width: 0;
+    }
+  }
+
+  form {
+    .pficon-close,
+    .fa-plus {
+      float: right;
+      margin-left: 5px;
+      padding: 4px;
+      height: 26px;
+      width: 26px;
+    }
+  }
+}
+
+.pf-c-button.no-left-padding {
+    padding-left: 0;
+}
+
+#motd-box > .pf-c-alert {
+  /* Spacing between the MOTD is handled by the .pf-l-gallery grid */
+  margin-bottom: 0;
+}

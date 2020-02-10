@@ -1,0 +1,8 @@
+#! /bin/bash
+
+BASE=$(dirname $0)
+
+# virt-install: using the url "http://mirror.centos.org/centos/8-stream/BaseOS/x86_64/os/" as --location is broken
+wget --continue http://mirrors.mit.edu/centos/8-stream/isos/x86_64/CentOS-Stream-x86_64-dvd1.iso -O "$BASE/centos-8-stream.iso"
+$BASE/virt-install-fedora "$1" x86_64 "$BASE/centos-8-stream.iso"
+rm "$BASE/centos-8-stream.iso"

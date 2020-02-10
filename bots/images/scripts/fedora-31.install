@@ -1,0 +1,8 @@
+#! /bin/bash
+
+set -e
+/var/lib/testvm/fedora.install "$@"
+
+# HACK: packagekit.service hangs on stop; https://bugzilla.redhat.com/show_bug.cgi?id=1717185
+mkdir -p /etc/systemd/system/packagekit.service.d
+printf '[Service]\nTimeoutStopSec=5\n' > /etc/systemd/system/packagekit.service.d/timeout.conf

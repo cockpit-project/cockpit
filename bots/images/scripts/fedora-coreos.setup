@@ -1,0 +1,22 @@
+#!/bin/sh
+set -eux
+
+# disable automatic updates
+systemctl disable --now zincati.service
+
+podman pull docker.io/cockpit/ws
+
+# Prevent SSH from hanging for a long time when no external network access
+echo 'UseDNS no' >> /etc/ssh/sshd_config
+
+# don't hang/fail on non-existing DHCP on eth1 on boot
+# similar to images/scripts/network-ifcfg-eth1 for Fedora/RHEL images
+nmcli connection modify 'Wired connection 2' ipv4.method disabled ipv6.method ignore
+
+# pre-install the distro version, which is useful for testing extensions and manual experiments
+rpm-ostree install cockpit-system cockpit-bridge cockpit-networkmanager
+
+# reduce image size
+rpm-ostree cleanup --repomd
+rm -rf /var/log/journal/*
+/var/lib/testvm/zero-disk.setup

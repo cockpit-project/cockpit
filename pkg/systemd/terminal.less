@@ -1,0 +1,84 @@
+@import "../lib/console.css";
+
+html, body {
+        height: 100%;
+}
+
+.console-ct-container {
+    height: 100%;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    overflow: hidden;
+}
+
+.console-ct-container .panel-body,
+.console-ct-container .console-ct {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+
+.console-ct-container .panel-heading {
+    border-bottom: 1px solid var(--color-border);
+}
+
+.xterm-accessibility {
+    /* Allow for scrollbar clicking */
+    /* (scrollbars are 18px or less across common OSes) */
+    right: 18px !important;
+}
+
+.console-ct-container .panel-body {
+    padding: 0;
+    position: relative;
+}
+
+.console-ct-container .console-ct {
+    position: absolute;
+}
+
+.black-theme {
+    background-color: #000000;
+}
+
+.dark-theme {
+    background-color: #002b36;
+}
+
+.light-theme {
+    background-color: #fdf6e3;
+}
+
+.white-theme {
+    background-color: #ffffff;
+}
+
+#terminal {
+    height: 100%;
+}
+
+.terminal-group {
+    display: grid;
+    grid-gap: 0.5rem;
+    grid-template-columns: 1fr repeat(3, auto);
+    align-content: center;
+    align-items: baseline;
+}
+
+@media (min-width: 640px) {
+    .terminal-group {
+        min-height: 4rem;
+    }
+}
+
+.terminal-group > .btn {
+    align-self: stretch;
+}
+
+.theme-select {
+    margin-left: 5px;
+    margin-right: 5px;
+    width: auto;
+    min-width: 10rem;
+}

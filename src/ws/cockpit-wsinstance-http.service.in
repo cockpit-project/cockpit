@@ -1,0 +1,9 @@
+[Unit]
+Description=Cockpit Web Service http instance
+BindsTo=cockpit.service
+Documentation=man:cockpit-ws(8)
+
+[Service]
+ExecStart=@libexecdir@/cockpit-ws --no-tls --port=0
+User=@wsinstanceuser@
+Group=@wsinstancegroup@

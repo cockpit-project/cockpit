@@ -1,0 +1,251 @@
+@import "./timer.less";
+@import '../lib/journal.css';
+@import "../lib/table.css";
+@import "./system-global.less";
+
+#services-page {
+    overflow-y: scroll;
+}
+
+.comma-list {
+  display: inline;
+  list-style: none;
+  padding-left: 0;
+}
+
+.comma-list > li {
+  display: inline-block;
+}
+
+.comma-list > li:not(:last-child):after {
+  content: ",";
+  margin-right: 0.5em;
+}
+
+table.systemd-unit-relationship-table td:first-child {
+  vertical-align: top;
+  text-align: right;
+}
+
+#services .content-header-extra {
+  display: flex;
+  justify-content: space-between;
+}
+
+#services .content-header-actions {
+  margin: 0 1.5rem 0 0;
+}
+
+#services .nav-tabs {
+  border-bottom: none;
+  flex: auto;
+}
+
+#services .filter-group {
+  display: flex;
+  align-items: start;
+}
+
+.content-header-extra.with-navtabs {
+  padding-bottom: 0;
+}
+
+@media screen and (max-width: 640px) {
+  /*** Make content-header more finger-friendly ***/
+
+  #services .nav-tabs > li {
+    /* Make tabs at least 1/3 width, minus 2px for borders, */
+    /* for better alignment & touchability */
+    min-width: calc(33.333% - 2px);
+    text-align: center;
+  }
+
+  #services .nav-tabs > li > a {
+    /* Add padding to make the tabs more finger friendly */
+    padding: 0.75rem 1.25rem;
+    /* 1px is to compensate for negative margin */
+    width: calc(100% + 1px);
+  }
+
+  /* Stretch the text input to use available width */
+  #services-text-filter {
+    flex: auto;
+  }
+
+  /* Clear header background to allow panel background to shine through */
+  #services-list > .panel thead {
+    background: transparent;
+  }
+
+  /*** Table horizontal overflow & scrolling ***/
+
+  #services-list .table {
+    /* Un-"fix" the widths, to allow it to expand/contract to content */
+    table-layout: auto;
+  }
+
+  #services > .container-fluid {
+    /* Undo the padding, to make the table edge-to-edge (for scrolling) */
+    margin: 0;
+    padding: 0;
+  }
+
+  #services-list thead > tr > th {
+    /* Force table headings to not wrap */
+    white-space: nowrap;
+  }
+
+  #services-list .service-unit-id,
+  #services-list .service-unit-description {
+    /* Make sure first two columns (name and description) have a decent size */
+    min-width: 13em;
+  }
+
+  #services-list .service-unit-id {
+    max-width: 33vw;
+    word-break: break-word;
+  }
+
+  #services-list .service-unit-description {
+    max-width: 50vw;
+  }
+
+  #services-list > .panel > table td:not(.service-unit-id) {
+    /* Collapse metadata into minimum size — and don't wrap */
+    width: auto;
+    white-space: nowrap;
+  }
+}
+
+@media screen and (max-width: 960px) {
+  #services .nav-tabs > li.active > a {
+    border-bottom-color: #ddd;
+  }
+
+  #services .nav-tabs {
+    display: flex;
+    flex-flow: row wrap;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #ddd;
+  }
+
+  #services .nav-tabs > li {
+    float: none;
+  }
+
+  #services .content-header-extra.with-navtabs {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    align-items: stretch;
+  }
+
+  #services .filter-group {
+    margin-top: 1rem;
+  }
+
+  #services .content-header-actions > button {
+    margin-top: 1rem;
+  }
+}
+
+@media screen and (min-width: 641px) {
+  #services > .content-header-extra + .container-fluid {
+    padding: 1rem;
+  }
+}
+@media screen and (min-width: 960px) {
+  #services > .content-header-extra + .container-fluid {
+    padding: 1rem 1.5rem;
+  }
+}
+
+#services-text-filter {
+  width: 21rem;
+  display: inline;
+  vertical-align: middle;
+  padding-right: 35px;
+}
+
+.blank-screen {
+  background-color: initial;
+  border: initial;
+}
+
+#services-dropdown {
+  margin-left: 0.5rem;
+}
+
+#service-type {
+  min-width: 10rem;
+}
+
+#services-dropdown .dropdown-menu {
+  margin-top: 4px;
+  left: auto;
+  right: 0;
+}
+
+#services-list table {
+  table-layout: fixed;
+}
+
+#services-list thead {
+  color: var(--color-subtle-copy);
+  background-color: var(--color-bg);
+  font-weight: normal;
+}
+
+#services-list th,
+#services-list td {
+  border: 1px solid var(--color-border-default);
+  border-width: 0 0 1px;
+  // Some browsers don't support anywhere yet, so we provide break-word as a fallback
+  overflow-wrap: break-word;
+  overflow-wrap: anywhere;
+}
+
+#services-list tbody th {
+  /* make tbody th padding the same as td */
+  padding: 8px;
+}
+
+.service-unit-description {
+  width: 40%;
+}
+
+.service-template input {
+    width: 50em;
+}
+
+.service-unit-failed {
+    color: red;
+}
+
+.service-template input {
+    width: 50em;
+}
+
+.service-unit-failed {
+    color: red;
+}
+
+.service-unit-description {
+    font-weight: bold;
+}
+
+.service-unit-data {
+    text-align: right;
+    white-space: nowrap;
+}
+
+@media screen and (max-width: 960px) {
+    .service-unit-data {
+        white-space: normal;
+    }
+}
+
+.service-unit-failed {
+    color: red;
+}

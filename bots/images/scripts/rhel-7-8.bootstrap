@@ -1,0 +1,6 @@
+#!/bin/bash
+
+set -ex
+
+BASE=$(dirname $0)
+$BASE/virt-install-fedora "$1" x86_64 "http://download.devel.redhat.com/rhel-7/nightly/RHEL-7/latest-RHEL-7.8/compose/Server/x86_64/os/"

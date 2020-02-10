@@ -1,0 +1,9 @@
+Domain installation does not appear to have been successful.
+If it was, you can restart your domain by running:
+  virsh --connect qemu:///system start subVmTestCreate*
+*
+Traceback (most recent call last):
+  File "test/verify/machineslib.py", line *, in createTest
+    runner.deleteVm(dialog) \
+  File "test/verify/machineslib.py", line *, in checkEnvIsEmpty
+    *wait_in_text("#virtual-machines-listing thead tr td", "No VM is running")*

@@ -1,0 +1,38 @@
+# Documentation: https://github.com/coreos/fcct/blob/master/docs/configuration-v1_0.md
+# Download compiler from https://github.com/coreos/fcct/releases
+# Build with fcct-x86_64-unknown-linux-gnu -input images/scripts/lib/cockpit-ci.fcc -pretty -output images/scripts/lib/cockpit-ci.ign
+variant: fcos
+version: 1.0.0
+passwd:
+  users:
+    - name: admin
+      gecos: Administrator
+      # foobar
+      password_hash: $6$mNBJSioSQeVZR.Hp$B7T3O2owkci1XYj5CDOUNotUKNAT7mNDHRi8lqdoThFt7YZQKDmbmX7INado6YniSbyA1YJx0lWbT3GHsoAaJ0
+      ssh_authorized_keys:
+        # from machine/identity.pub
+        - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDUOtNJdBEXyKxBB898rdT54ULjMGuO6v4jLXmRsdRhR5Id/lKNc9hsdioPWUePgYlqML2iSV72vKQoVhkyYkpcsjr3zvBny9+5xej3+TBLoEMAm2hmllKPmxYJDU8jQJ7wJuRrOVOnk0iSNF+FcY/yaQ0owSF02Nphx47j2KWc0IjGGlt4fl0fmHJuZBA2afN/4IYIIsEWZziDewVtaEjWV3InMRLllfdqGMllhFR+ed2hQz9PN2QcapmEvUR4UCy/mJXrke5htyFyHi8ECfyMMyYeHwbWLFQIve4CWix9qtksvKjcetnxT+WWrutdr3c9cfIj/c0v/Zg/c4zETxtp cockpit-test
+      groups: ["wheel"]
+    # same data for root
+    - name: root
+      password_hash: $6$mNBJSioSQeVZR.Hp$B7T3O2owkci1XYj5CDOUNotUKNAT7mNDHRi8lqdoThFt7YZQKDmbmX7INado6YniSbyA1YJx0lWbT3GHsoAaJ0
+      ssh_authorized_keys:
+        - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDUOtNJdBEXyKxBB898rdT54ULjMGuO6v4jLXmRsdRhR5Id/lKNc9hsdioPWUePgYlqML2iSV72vKQoVhkyYkpcsjr3zvBny9+5xej3+TBLoEMAm2hmllKPmxYJDU8jQJ7wJuRrOVOnk0iSNF+FcY/yaQ0owSF02Nphx47j2KWc0IjGGlt4fl0fmHJuZBA2afN/4IYIIsEWZziDewVtaEjWV3InMRLllfdqGMllhFR+ed2hQz9PN2QcapmEvUR4UCy/mJXrke5htyFyHi8ECfyMMyYeHwbWLFQIve4CWix9qtksvKjcetnxT+WWrutdr3c9cfIj/c0v/Zg/c4zETxtp cockpit-test
+systemd:
+  units:
+    # this is a really saddening way of turning off the VM after setup
+    - name: poweroff.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Power off machine after boot
+        After=multi-user.target
+
+        [Service]
+        Type=oneshot
+        ExecStart=/bin/systemctl disable %n
+        ExecStart=/bin/rm /etc/systemd/system/%n
+        ExecStart=/sbin/shutdown --poweroff now
+
+        [Install]
+        WantedBy=multi-user.target

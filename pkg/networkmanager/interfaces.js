@@ -209,11 +209,11 @@ function NetworkManagerModel() {
 
     /* HACK: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=808162 */
     var hacks = { };
-    if (cockpit.manifests["network"] && cockpit.manifests["network"]["hacks"])
-        hacks = cockpit.manifests["network"]["hacks"];
+    if (cockpit.manifests.network && cockpit.manifests.network.hacks)
+        hacks = cockpit.manifests.network.hacks;
     var options = { };
     if (hacks.with_networkmanager_needs_root)
-        options["superuser"] = "try";
+        options.superuser = "try";
 
     var client = cockpit.dbus("org.freedesktop.NetworkManager", options);
 
@@ -327,7 +327,7 @@ function NetworkManagerModel() {
     function remove_signatures(props_with_sigs) {
         var props = { };
         for (var p in props_with_sigs) {
-            if (props_with_sigs.hasOwnProperty(p)) {
+            if (Object.prototype.hasOwnProperty.call(props_with_sigs, p)) {
                 props[p] = props_with_sigs[p].v;
             }
         }
@@ -518,21 +518,21 @@ function NetworkManagerModel() {
      */
 
     function ip4_address_from_nm(addr) {
-        return [ utils.ip4_to_text(addr[0]),
+        return [utils.ip4_to_text(addr[0]),
             utils.ip_prefix_to_text(addr[1]),
             utils.ip4_to_text(addr[2], true)
         ];
     }
 
     function ip4_address_to_nm(addr) {
-        return [ utils.ip4_from_text(addr[0]),
+        return [utils.ip4_from_text(addr[0]),
             utils.ip4_prefix_from_text(addr[1]),
             utils.ip4_from_text(addr[2], true)
         ];
     }
 
     function ip4_route_from_nm(addr) {
-        return [ utils.ip4_to_text(addr[0]),
+        return [utils.ip4_to_text(addr[0]),
             utils.ip_prefix_to_text(addr[1]),
             utils.ip4_to_text(addr[2], true),
             utils.ip_metric_to_text(addr[3])
@@ -540,28 +540,28 @@ function NetworkManagerModel() {
     }
 
     function ip4_route_to_nm(addr) {
-        return [ utils.ip4_from_text(addr[0]),
+        return [utils.ip4_from_text(addr[0]),
             utils.ip4_prefix_from_text(addr[1]),
             utils.ip4_from_text(addr[2], true),
             utils.ip_metric_from_text(addr[3])
         ];
     }
     function ip6_address_from_nm(addr) {
-        return [ utils.ip6_to_text(addr[0]),
+        return [utils.ip6_to_text(addr[0]),
             utils.ip_prefix_to_text(addr[1]),
             utils.ip6_to_text(addr[2], true)
         ];
     }
 
     function ip6_address_to_nm(addr) {
-        return [ utils.ip6_from_text(addr[0]),
+        return [utils.ip6_from_text(addr[0]),
             parseInt(addr[1], 10) || 64,
             utils.ip6_from_text(addr[2], true)
         ];
     }
 
     function ip6_route_from_nm(addr) {
-        return [ utils.ip6_to_text(addr[0]),
+        return [utils.ip6_to_text(addr[0]),
             utils.ip_prefix_to_text(addr[1]),
             utils.ip6_to_text(addr[2], true),
             utils.ip_metric_to_text(addr[3]),
@@ -569,7 +569,7 @@ function NetworkManagerModel() {
     }
 
     function ip6_route_to_nm(addr) {
-        return [ utils.ip6_from_text(addr[0]),
+        return [utils.ip6_from_text(addr[0]),
             utils.ip_prefix_from_text(addr[1]),
             utils.ip6_from_text(addr[2], true),
             utils.ip_metric_from_text(addr[3])
@@ -617,8 +617,9 @@ function NetworkManagerModel() {
         }
 
         if (settings["802-3-ethernet"]) {
-            result.ethernet = { mtu: get("802-3-ethernet", "mtu"),
-                                assigned_mac_address: get("802-3-ethernet", "assigned-mac-address")
+            result.ethernet = {
+                mtu: get("802-3-ethernet", "mtu"),
+                assigned_mac_address: get("802-3-ethernet", "assigned-mac-address")
             };
         }
 
@@ -626,8 +627,9 @@ function NetworkManagerModel() {
             /* Options are documented as part of the Linux bonding driver.
                https://www.kernel.org/doc/Documentation/networking/bonding.txt
             */
-            result.bond = { options:        $.extend({}, get("bond", "options", { })),
-                            interface_name: get("bond", "interface-name")
+            result.bond = {
+                options:        $.extend({}, get("bond", "options", { })),
+                interface_name: get("bond", "interface-name")
             };
         }
 
@@ -640,38 +642,41 @@ function NetworkManagerModel() {
         }
 
         if (settings.team) {
-            result.team = { config:         JSON_parse_carefully(get("team", "config", "{}")),
-                            interface_name: get("team", "interface-name")
+            result.team = {
+                config:         JSON_parse_carefully(get("team", "config", "{}")),
+                interface_name: get("team", "interface-name")
             };
         }
 
         if (settings["team-port"] || result.connection.slave_type == "team") {
-            result.team_port = { config:       JSON_parse_carefully(get("team-port", "config", "{}")),
-            };
+            result.team_port = { config:       JSON_parse_carefully(get("team-port", "config", "{}")), };
         }
 
         if (settings.bridge) {
-            result.bridge = { interface_name: get("bridge", "interface-name"),
-                              stp:            get("bridge", "stp", true),
-                              priority:       get("bridge", "priority", 32768),
-                              forward_delay:  get("bridge", "forward-delay", 15),
-                              hello_time:     get("bridge", "hello-time", 2),
-                              max_age:        get("bridge", "max-age", 20),
-                              ageing_time:    get("bridge", "ageing-time", 300)
+            result.bridge = {
+                interface_name: get("bridge", "interface-name"),
+                stp:            get("bridge", "stp", true),
+                priority:       get("bridge", "priority", 32768),
+                forward_delay:  get("bridge", "forward-delay", 15),
+                hello_time:     get("bridge", "hello-time", 2),
+                max_age:        get("bridge", "max-age", 20),
+                ageing_time:    get("bridge", "ageing-time", 300)
             };
         }
 
         if (settings["bridge-port"] || result.connection.slave_type == "bridge") {
-            result.bridge_port = { priority:       get("bridge-port", "priority", 32),
-                                   path_cost:      get("bridge-port", "path-cost", 100),
-                                   hairpin_mode:   get("bridge-port", "hairpin-mode", false)
+            result.bridge_port = {
+                priority:       get("bridge-port", "priority", 32),
+                path_cost:      get("bridge-port", "path-cost", 100),
+                hairpin_mode:   get("bridge-port", "hairpin-mode", false)
             };
         }
 
         if (settings.vlan) {
-            result.vlan = { parent:         get("vlan", "parent"),
-                            id:             get("vlan", "id"),
-                            interface_name: get("vlan", "interface-name")
+            result.vlan = {
+                parent:         get("vlan", "parent"),
+                id:             get("vlan", "id"),
+                interface_name: get("vlan", "interface-name")
             };
         }
 
@@ -988,9 +993,9 @@ function NetworkManagerModel() {
 
         exporters: [
             function (obj) {
-                obj.Masters = [ ];
-                obj.Slaves = [ ];
-                obj.Interfaces = [ ];
+                obj.Masters = [];
+                obj.Slaves = [];
+                obj.Interfaces = [];
             },
 
             null,
@@ -1122,13 +1127,13 @@ function NetworkManagerModel() {
     // these.
 
     var type_Interface = {
-        interfaces: [ ],
+        interfaces: [],
 
         exporters: [
             function (obj) {
                 obj.Device = null;
-                obj._NonDeviceConnections = [ ];
-                obj.Connections = [ ];
+                obj._NonDeviceConnections = [];
+                obj.Connections = [];
                 obj.MainConnection = null;
             },
 
@@ -1337,7 +1342,7 @@ function NetworkManagerModel() {
 
     self.list_interfaces = function list_interfaces() {
         var path, obj;
-        var result = [ ];
+        var result = [];
         for (path in objects) {
             obj = objects[path];
             if (priv(obj).type === type_Interface)
@@ -1384,7 +1389,7 @@ function NetworkManagerModel() {
     /* Initialization.
      */
 
-    set_object_types([ type_Manager,
+    set_object_types([type_Manager,
         type_Settings,
         type_Device,
         type_Ipv4Config,
@@ -1417,7 +1422,7 @@ function render_interface_link(iface) {
     return $('<a tabindex="0">')
             .text(iface)
             .click(function () {
-                cockpit.location.go([ iface ]);
+                cockpit.location.go([iface]);
             });
 }
 
@@ -1443,7 +1448,7 @@ function render_connection_link(con) {
                     return $('<a tabindex="0">')
                             .text(iface.Name)
                             .click(function () {
-                                cockpit.location.go([ iface.Name ]);
+                                cockpit.location.go([iface.Name]);
                             });
                 }),
                 ", "));
@@ -1451,7 +1456,7 @@ function render_connection_link(con) {
 }
 
 function array_join(elts, sep) {
-    var result = [ ];
+    var result = [];
     for (var i = 0; i < elts.length; i++) {
         result.push(elts[i]);
         if (i < elts.length - 1)
@@ -1461,7 +1466,7 @@ function array_join(elts, sep) {
 }
 
 function render_active_connection(dev, with_link, hide_link_local) {
-    var parts = [ ];
+    var parts = [];
     var con;
 
     if (!dev)
@@ -1540,29 +1545,35 @@ function ensure_usage_monitor() {
 
     usage_samples = { };
     usage_metrics_channel = cockpit.metrics(1000,
-                                            [ { source: "direct",
-                                                metrics: [ { name: "network.interface.in.bytes",
-                                                             units: "bytes",
-                                                             derive: "rate"
+                                            [{
+                                                source: "direct",
+                                                metrics: [{
+                                                    name: "network.interface.in.bytes",
+                                                    units: "bytes",
+                                                    derive: "rate"
                                                 },
-                                                { name: "network.interface.out.bytes",
-                                                  units: "bytes",
-                                                  derive: "rate"
+                                                {
+                                                    name: "network.interface.out.bytes",
+                                                    units: "bytes",
+                                                    derive: "rate"
                                                 },
                                                 ],
-                                                metrics_path_names: [ "rx", "tx" ]
+                                                metrics_path_names: ["rx", "tx"]
                                             },
-                                            { source: "internal",
-                                              metrics: [ { name: "network.interface.rx",
-                                                           units: "bytes",
-                                                           derive: "rate"
-                                              },
-                                              { name: "network.interface.tx",
-                                                units: "bytes",
-                                                derive: "rate"
-                                              },
-                                              ],
-                                              metrics_path_names: [ "rx", "tx" ]
+                                            {
+                                                source: "internal",
+                                                metrics: [{
+                                                    name: "network.interface.rx",
+                                                    units: "bytes",
+                                                    derive: "rate"
+                                                },
+                                                {
+                                                    name: "network.interface.tx",
+                                                    units: "bytes",
+                                                    derive: "rate"
+                                                },
+                                                ],
+                                                metrics_path_names: ["rx", "tx"]
                                             }
                                             ]);
     usage_grid = cockpit.grid(1000, -1, -0);
@@ -1571,8 +1582,8 @@ function ensure_usage_monitor() {
 }
 
 function add_usage_monitor(iface) {
-    usage_samples[iface] = [ usage_grid.add(usage_metrics_channel, [ "rx", iface ]),
-        usage_grid.add(usage_metrics_channel, [ "tx", iface ]),
+    usage_samples[iface] = [usage_grid.add(usage_metrics_channel, ["rx", iface]),
+        usage_grid.add(usage_metrics_channel, ["tx", iface]),
     ];
 }
 
@@ -1678,10 +1689,10 @@ PageNetworking.prototype = {
         };
 
         var rx_plot_options = plot.plot_simple_template();
-        $.extend(rx_plot_options.yaxis, { tickFormatter: plot.format_bits_per_sec_tick_no_unit
-        });
-        $.extend(rx_plot_options.grid, { hoverable: true,
-                                         autoHighlight: false
+        $.extend(rx_plot_options.yaxis, { tickFormatter: plot.format_bits_per_sec_tick_no_unit });
+        $.extend(rx_plot_options.grid, {
+            hoverable: true,
+            autoHighlight: false
         });
         rx_plot_options.setup_hook = network_plot_setup_hook;
         rx_plot_options.post_hook = make_network_plot_post_hook("#networking-rx-unit");
@@ -1700,10 +1711,10 @@ PageNetworking.prototype = {
         };
 
         var tx_plot_options = plot.plot_simple_template();
-        $.extend(tx_plot_options.yaxis, { tickFormatter: plot.format_bits_per_sec_tick_no_unit
-        });
-        $.extend(tx_plot_options.grid, { hoverable: true,
-                                         autoHighlight: false
+        $.extend(tx_plot_options.yaxis, { tickFormatter: plot.format_bits_per_sec_tick_no_unit });
+        $.extend(tx_plot_options.grid, {
+            hoverable: true,
+            autoHighlight: false
         });
         tx_plot_options.setup_hook = network_plot_setup_hook;
         tx_plot_options.post_hook = make_network_plot_post_hook("#networking-tx-unit");
@@ -1719,7 +1730,7 @@ PageNetworking.prototype = {
         });
 
         var plot_controls = plot.setup_plot_controls($('#networking'), $('#networking-graph-toolbar'));
-        plot_controls.reset([ this.rx_plot, this.tx_plot ]);
+        plot_controls.reset([this.rx_plot, this.tx_plot]);
 
         ensure_usage_monitor();
         $(usage_grid).on('notify', function (event, index, count) {
@@ -1747,8 +1758,8 @@ PageNetworking.prototype = {
     },
 
     enter: function () {
-        this.log_box = journal.logbox([ "_SYSTEMD_UNIT=NetworkManager.service",
-            "_SYSTEMD_UNIT=firewalld.service" ], 10);
+        this.log_box = journal.logbox(["_SYSTEMD_UNIT=NetworkManager.service",
+            "_SYSTEMD_UNIT=firewalld.service"], 10);
         $('#networking-log').empty()
                 .append(this.log_box);
 
@@ -1804,18 +1815,19 @@ PageNetworking.prototype = {
             self.tx_series.add_instance(iface.Name);
             add_usage_monitor(iface.Name);
 
-            var row = $('<tr>', { "data-interface": encodeURIComponent(iface.Name),
-                                  "data-sample-id": show_traffic ? encodeURIComponent(iface.Name) : null
+            var row = $('<tr>', {
+                "data-interface": encodeURIComponent(iface.Name),
+                "data-sample-id": show_traffic ? encodeURIComponent(iface.Name) : null
             })
                     .append($('<td>').text(iface.Name),
                             $('<td>').html(render_active_connection(dev, false, true)),
                             (show_traffic
-                                ? [ $('<td>').text(""), $('<td>').text("") ]
+                                ? [$('<td>').text(""), $('<td>').text("")]
                                 : $('<td colspan="2">').text(device_state_text(dev))));
 
             if (!dev || dev.Managed) {
                 managed_tbody.append(row.click(function () {
-                    cockpit.location.go([ iface.Name ]);
+                    cockpit.location.go([iface.Name]);
                 }));
             } else {
                 unmanaged_tbody.append(row);
@@ -2159,7 +2171,7 @@ function with_checkpoint(model, modify, options) {
         return;
     }
 
-    manager.checkpoint_create(options.devices || [ ], rollback_time)
+    manager.checkpoint_create(options.devices || [], rollback_time)
             .done(function (cp) {
                 if (!cp) {
                     modify();
@@ -2245,10 +2257,10 @@ PageNetworkInterface.prototype = {
         };
 
         var rx_plot_options = plot.plot_simple_template();
-        $.extend(rx_plot_options.yaxis, { tickFormatter: plot.format_bits_per_sec_tick_no_unit
-        });
-        $.extend(rx_plot_options.grid, { hoverable: true,
-                                         autoHighlight: false
+        $.extend(rx_plot_options.yaxis, { tickFormatter: plot.format_bits_per_sec_tick_no_unit });
+        $.extend(rx_plot_options.grid, {
+            hoverable: true,
+            autoHighlight: false
         });
         rx_plot_options.setup_hook = network_plot_setup_hook;
         rx_plot_options.post_hook = make_network_plot_post_hook("#network-interface-rx-unit");
@@ -2266,10 +2278,10 @@ PageNetworkInterface.prototype = {
         };
 
         var tx_plot_options = plot.plot_simple_template();
-        $.extend(tx_plot_options.yaxis, { tickFormatter: plot.format_bits_per_sec_tick_no_unit
-        });
-        $.extend(tx_plot_options.grid, { hoverable: true,
-                                         autoHighlight: false
+        $.extend(tx_plot_options.yaxis, { tickFormatter: plot.format_bits_per_sec_tick_no_unit });
+        $.extend(tx_plot_options.grid, {
+            hoverable: true,
+            autoHighlight: false
         });
         tx_plot_options.setup_hook = network_plot_setup_hook;
         tx_plot_options.post_hook = make_network_plot_post_hook("#network-interface-tx-unit");
@@ -2285,7 +2297,7 @@ PageNetworkInterface.prototype = {
         });
 
         var plot_controls = plot.setup_plot_controls($('#network-interface'), $('#network-interface-graph-toolbar'));
-        plot_controls.reset([ this.rx_plot, this.tx_plot ]);
+        plot_controls.reset([this.rx_plot, this.tx_plot]);
 
         ensure_usage_monitor();
         $(usage_grid).on('notify', function (event, index, count) {
@@ -2312,7 +2324,8 @@ PageNetworkInterface.prototype = {
                     id: 'networking-firewall-switch',
                     state: firewall.enabled,
                     disabled: pending,
-                    onChange: onFirewallSwitchChange }),
+                    onChange: onFirewallSwitchChange
+                }),
                 document.querySelector('#networking-firewall .panel-actions')
             );
         }
@@ -2442,7 +2455,7 @@ PageNetworkInterface.prototype = {
         if (self.iface) {
             with_checkpoint(self.model, modify,
                             {
-                                devices: self.dev ? [ self.dev ] : [ ],
+                                devices: self.dev ? [self.dev] : [],
                                 fail_text: cockpit.format(_("Deleting <b>$0</b> will break the connection to the server, and will make the administration UI unavailable."), self.dev_name),
                                 anyway_text: cockpit.format(_("Delete $0"), self.dev_name),
                                 hack_does_add_or_remove: true,
@@ -2474,7 +2487,7 @@ PageNetworkInterface.prototype = {
 
         with_checkpoint(self.model, modify,
                         {
-                            devices: self.dev ? [ self.dev ] : [ ],
+                            devices: self.dev ? [self.dev] : [],
                             fail_text: cockpit.format(_("Switching on <b>$0</b> will break the connection to the server, and will make the administration UI unavailable."), self.dev_name),
                             anyway_text: cockpit.format(_("Switch on $0"), self.dev_name)
                         });
@@ -2499,7 +2512,7 @@ PageNetworkInterface.prototype = {
 
         with_checkpoint(self.model, modify,
                         {
-                            devices: [ self.dev ],
+                            devices: [self.dev],
                             fail_text: cockpit.format(_("Switching off <b>$0</b>  will break the connection to the server, and will make the administration UI unavailable."), self.dev_name),
                             anyway_text: cockpit.format(_("Switch off $0"), self.dev_name)
                         });
@@ -2586,7 +2599,8 @@ PageNetworkInterface.prototype = {
             onoff = React.createElement(OnOffSwitch, {
                 state: !!(dev && dev.ActiveConnection),
                 disabled: !iface || (dev && dev.State == 20),
-                onChange: enable => enable ? self.connect() : self.disconnect() });
+                onChange: enable => enable ? self.connect() : self.disconnect()
+            });
         }
         ReactDOM.render(onoff, document.getElementById('network-interface-delete-switch'));
 
@@ -2637,7 +2651,7 @@ PageNetworkInterface.prototype = {
             }
 
             if (!settings)
-                return [ ];
+                return [];
 
             var master_settings = null;
             if (con && con.Masters.length > 0)
@@ -2652,7 +2666,7 @@ PageNetworkInterface.prototype = {
                                             params.method, _("Unknown configuration")));
 
                 var addr_is_extra = (params.method != "manual");
-                var addrs = [ ];
+                var addrs = [];
                 params.addresses.forEach(function (a) {
                     var addr = a[0] + "/" + a[1];
                     if (a[2] && a[2] != "0.0.0.0" && a[2] != "0:0:0:0:0:0:0:0")
@@ -2727,7 +2741,7 @@ PageNetworkInterface.prototype = {
             }
 
             function render_settings_row(title, rows, configure) {
-                var link_text = [ ];
+                var link_text = [];
                 for (var i = 0; i < rows.length; i++) {
                     link_text.push(rows[i]);
                     if (i < rows.length - 1)
@@ -2755,7 +2769,7 @@ PageNetworkInterface.prototype = {
             }
 
             function render_mtu_settings_row() {
-                var rows = [ ];
+                var rows = [];
                 var options = settings.ethernet;
 
                 if (!options)
@@ -2784,8 +2798,8 @@ PageNetworkInterface.prototype = {
             }
 
             function render_bond_settings_row() {
-                var parts = [ ];
-                var rows = [ ];
+                var parts = [];
+                var rows = [];
                 var options;
 
                 if (!settings.bond)
@@ -2804,8 +2818,8 @@ PageNetworkInterface.prototype = {
             }
 
             function render_team_settings_row() {
-                var parts = [ ];
-                var rows = [ ];
+                var parts = [];
+                var rows = [];
 
                 if (!settings.team)
                     return null;
@@ -2827,8 +2841,8 @@ PageNetworkInterface.prototype = {
             }
 
             function render_team_port_settings_row() {
-                var parts = [ ];
-                var rows = [ ];
+                var parts = [];
+                var rows = [];
 
                 if (!settings.team_port)
                     return null;
@@ -2855,7 +2869,7 @@ PageNetworkInterface.prototype = {
             }
 
             function render_bridge_settings_row() {
-                var rows = [ ];
+                var rows = [];
                 var options = settings.bridge;
 
                 if (!options)
@@ -2881,7 +2895,7 @@ PageNetworkInterface.prototype = {
             }
 
             function render_bridge_port_settings_row() {
-                var rows = [ ];
+                var rows = [];
                 var options = settings.bridge_port;
 
                 if (!options)
@@ -2902,7 +2916,7 @@ PageNetworkInterface.prototype = {
             }
 
             function render_vlan_settings_row() {
-                var rows = [ ];
+                var rows = [];
                 var options = settings.vlan;
 
                 if (!options)
@@ -2919,7 +2933,7 @@ PageNetworkInterface.prototype = {
                                            configure_vlan_settings);
             }
 
-            return [ render_master(),
+            return [render_master(),
                 render_autoconnect_row(),
                 render_ip_settings_row("ipv4", _("IPv4")),
                 render_ip_settings_row("ipv6", _("IPv6")),
@@ -2940,17 +2954,17 @@ PageNetworkInterface.prototype = {
                 },
                 ipv4: {
                     method: "auto",
-                    addresses: [ ],
-                    dns: [ ],
-                    dns_search: [ ],
-                    routes: [ ]
+                    addresses: [],
+                    dns: [],
+                    dns_search: [],
+                    routes: []
                 },
                 ipv6: {
                     method: "auto",
-                    addresses: [ ],
-                    dns: [ ],
-                    dns_search: [ ],
-                    routes: [ ]
+                    addresses: [],
+                    dns: [],
+                    dns_search: [],
+                    routes: []
                 }
             };
             complete_settings(settings, dev);
@@ -3017,12 +3031,13 @@ PageNetworkInterface.prototype = {
                     slave_ifaces[iface.Name] = true;
 
                     rows[iface.Name] =
-                        $('<tr>', { "data-interface": encodeURIComponent(iface.Name),
-                                    "data-sample-id": is_active ? encodeURIComponent(iface.Name) : null
+                        $('<tr>', {
+                            "data-interface": encodeURIComponent(iface.Name),
+                            "data-sample-id": is_active ? encodeURIComponent(iface.Name) : null
                         })
                                 .append($('<td>').text(iface.Name),
                                         (is_active
-                                            ? [ $('<td>').text(""), $('<td>').text("") ]
+                                            ? [$('<td>').text(""), $('<td>').text("")]
                                             : $('<td colspan="2">').text(device_state_text(dev))),
                                         $('<td class="networking-row-configure">').append(
                                             switchbox(!!(dev && dev.ActiveConnection), function(val) {
@@ -3034,7 +3049,7 @@ PageNetworkInterface.prototype = {
                                                                     .fail(show_unexpected_error);
                                                         },
                                                         {
-                                                            devices: dev ? [ dev ] : [ ],
+                                                            devices: dev ? [dev] : [],
                                                             fail_text: cockpit.format(_("Switching on <b>$0</b> will break the connection to the server, and will make the administration UI unavailable."), iface.Name),
                                                             anyway_text: cockpit.format(_("Switch on $0"), iface.Name)
                                                         });
@@ -3046,7 +3061,7 @@ PageNetworkInterface.prototype = {
                                                                     .fail(show_unexpected_error);
                                                         },
                                                         {
-                                                            devices: [ dev ],
+                                                            devices: [dev],
                                                             fail_text: cockpit.format(_("Switching off <b>$0</b> will break the connection to the server, and will make the administration UI unavailable."), iface.Name),
                                                             anyway_text: cockpit.format(_("Switch off $0"), iface.Name)
                                                         });
@@ -3062,7 +3077,7 @@ PageNetworkInterface.prototype = {
                                                                         .fail(show_unexpected_error));
                                                             },
                                                             {
-                                                                devices: dev ? [ dev ] : [ ],
+                                                                devices: dev ? [dev] : [],
                                                                 fail_text: cockpit.format(_("Removing <b>$0</b> will break the connection to the server, and will make the administration UI unavailable."), iface.Name),
                                                                 anyway_text: cockpit.format(_("Remove $0"), iface.Name),
                                                                 hack_does_add_or_remove: true
@@ -3074,7 +3089,7 @@ PageNetworkInterface.prototype = {
                                     // bubble up to here.  Let's catch them.
                                     if ($(event.target).hasClass("btn"))
                                         return;
-                                    cockpit.location.go([ iface.Name ]);
+                                    cockpit.location.go([iface.Name]);
                                 });
                 });
             });
@@ -3085,12 +3100,14 @@ PageNetworkInterface.prototype = {
                     });
 
             var add_btn =
-                $('<div>', { 'class': 'dropdown' }).append(
-                    $('<button>', { 'class': 'network-privileged btn btn-default btn-control-ct dropdown-toggle fa fa-plus',
-                                    'data-toggle': 'dropdown'
+                $('<div>', { class: 'dropdown' }).append(
+                    $('<button>', {
+                        class: 'network-privileged btn btn-default btn-control-ct dropdown-toggle fa fa-plus',
+                        'data-toggle': 'dropdown'
                     }),
-                    $('<ul>', { 'class': 'dropdown-menu add-button',
-                                'role': 'menu'
+                    $('<ul>', {
+                        class: 'dropdown-menu add-button',
+                        role: 'menu'
                     })
                             .append(
                                 self.model.list_interfaces().map(function (iface) {
@@ -3110,7 +3127,7 @@ PageNetworkInterface.prototype = {
                                                                         .fail(show_unexpected_error);
                                                             },
                                                             {
-                                                                devices: iface.Device ? [ iface.Device ] : [ ],
+                                                                devices: iface.Device ? [iface.Device] : [],
                                                                 fail_text: cockpit.format(_("Adding <b>$0</b> will break the connection to the server, and will make the administration UI unavailable."), iface.Name),
                                                                 anyway_text: cockpit.format(_("Add $0"), iface.Name),
                                                                 hack_does_add_or_remove: true
@@ -3175,7 +3192,7 @@ function show_dialog_error(error_id, error) {
 }
 
 function connection_devices(con) {
-    var devices = [ ];
+    var devices = [];
 
     if (con)
         con.Interfaces.forEach(function (iface) { if (iface.Device) devices.push(iface.Device); });
@@ -3247,7 +3264,7 @@ PageNetworkIpSettings.prototype = {
 
             if (typeof columns == "string") {
                 direct = true;
-                columns = [ columns ];
+                columns = [columns];
             }
 
             function get(i, j) {
@@ -3318,8 +3335,8 @@ PageNetworkIpSettings.prototype = {
             var prefix_text = (topic == "ipv4") ? _("Prefix length or Netmask") : _("Prefix length");
             var body =
                 $('<div>').append(
-                    addresses_table = tablebox(_("Addresses"), "addresses", [ "Address", prefix_text, "Gateway" ],
-                                               [ "", "", "" ],
+                    addresses_table = tablebox(_("Addresses"), "addresses", ["Address", prefix_text, "Gateway"],
+                                               ["", "", ""],
                                                choicebox("method", (topic == "ipv4")
                                                    ? ipv4_method_choices : ipv6_method_choices)
                                                        .css('display', 'inline-block')),
@@ -3335,7 +3352,7 @@ PageNetworkIpSettings.prototype = {
                     $('<br>'),
                     routes_table =
                         tablebox(_("Routes"), "routes",
-                                 [ "Address", prefix_text, "Gateway", "Metric" ], [ "", "", "", "" ],
+                                 ["Address", prefix_text, "Gateway", "Metric"], ["", "", "", ""],
                                  auto_routes_btn = inverted_switchbox(_("Automatic"), "ignore_auto_routes")));
             return body;
         }
@@ -3343,7 +3360,7 @@ PageNetworkIpSettings.prototype = {
         // The manual method needs at least one address
         //
         if (params.method == "manual" && params.addresses.length === 0)
-            params.addresses = [ [ "", "", "" ] ];
+            params.addresses = [["", "", ""]];
 
         // The link local, shared, and disabled methods can't take any
         // addresses, dns servers, or dns search domains.  Routes,
@@ -3359,12 +3376,12 @@ PageNetworkIpSettings.prototype = {
                                is_off);
 
         if (!can_have_extra) {
-            params.addresses = [ ];
-            params.dns = [ ];
-            params.dns_search = [ ];
+            params.addresses = [];
+            params.dns = [];
+            params.dns_search = [];
         }
         if (is_off) {
-            params.routes = [ ];
+            params.routes = [];
         }
 
         $('#network-ip-settings-dialog .modal-title').text(
@@ -3465,15 +3482,17 @@ function render_slave_interface_choices(model, master) {
                         .css('margin', "0px")
                         .append(
                             $('<label>').append(
-                                $('<input>', { 'type': "checkbox",
-                                               'data-iface': iface.Name })
+                                $('<input>', {
+                                    type: "checkbox",
+                                    'data-iface': iface.Name
+                                })
                                         .prop('checked', !!slave_connection_for_interface(master, iface)),
                                 $('<span>').text(iface.Name))));
         }));
 }
 
 function slave_chooser_btn(change, slave_choices) {
-    var choices = [ { title: "-", choice: "", is_default: true } ];
+    var choices = [{ title: "-", choice: "", is_default: true }];
     slave_choices.find('input[data-iface]').each(function (i, elt) {
         var name = $(elt).attr("data-iface");
         if ($(elt).prop('checked'))
@@ -3535,11 +3554,13 @@ function set_slave(model, master_connection, master_settings, slave_type,
             delete slave_settings.team_port;
             delete slave_settings.bridge_port;
         } else {
-            slave_settings = { connection:
-                               { autoconnect: true,
-                                 interface_name: iface.Name,
-                                 slave_type: slave_type,
-                                 master: master_iface
+            slave_settings = {
+                connection:
+                               {
+                                   autoconnect: true,
+                                   interface_name: iface.Name,
+                                   slave_type: slave_type,
+                                   master: master_iface
                                }
             };
             complete_settings(slave_settings, iface.Device);
@@ -3570,7 +3591,7 @@ function set_slave(model, master_connection, master_settings, slave_type,
 }
 
 function apply_master_slave(choices, model, apply_master, master_connection, master_settings, slave_type) {
-    var active_settings = [ ];
+    var active_settings = [];
     var iface;
 
     if (!master_connection) {
@@ -3809,7 +3830,7 @@ PageNetworkBondSettings.prototype = {
                     .then(function() {
                         $('#network-bond-settings-dialog').modal('hide');
                         if (PageNetworkBondSettings.connection)
-                            cockpit.location.go([ self.settings.connection.interface_name ]);
+                            cockpit.location.go([self.settings.connection.interface_name]);
                         if (PageNetworkBondSettings.done)
                             return PageNetworkBondSettings.done();
                     })
@@ -3820,10 +3841,11 @@ PageNetworkBondSettings.prototype = {
 
         if (PageNetworkBondSettings.connection) {
             with_settings_checkpoint(PageNetworkBondSettings.model, modify,
-                                     { devices: (self.slaves_changed
-                                         ? [ ] : connection_devices(PageNetworkBondSettings.connection)),
-                                       hack_does_add_or_remove: self.slaves_changed,
-                                       rollback_on_failure: self.slaves_changed
+                                     {
+                                         devices: (self.slaves_changed
+                                             ? [] : connection_devices(PageNetworkBondSettings.connection)),
+                                         hack_does_add_or_remove: self.slaves_changed,
+                                         rollback_on_failure: self.slaves_changed
                                      });
         } else {
             with_checkpoint(
@@ -3939,7 +3961,7 @@ PageNetworkTeamSettings.prototype = {
             downdelay_input.toggle(!toggle_condition);
             downdelay_input.prev().toggle(!toggle_condition);
 
-            config.link_watch = { "name": name };
+            config.link_watch = { name: name };
 
             if (name == "ethtool") {
                 config.link_watch.delay_up = updelay_input.val();
@@ -4008,7 +4030,7 @@ PageNetworkTeamSettings.prototype = {
                     .then(function() {
                         $('#network-team-settings-dialog').modal('hide');
                         if (PageNetworkTeamSettings.connection)
-                            cockpit.location.go([ self.settings.connection.interface_name ]);
+                            cockpit.location.go([self.settings.connection.interface_name]);
                         if (PageNetworkTeamSettings.done)
                             return PageNetworkTeamSettings.done();
                     })
@@ -4019,10 +4041,11 @@ PageNetworkTeamSettings.prototype = {
 
         if (PageNetworkTeamSettings.connection) {
             with_settings_checkpoint(PageNetworkTeamSettings.model, modify,
-                                     { devices: (self.slaves_changed
-                                         ? [ ] : connection_devices(PageNetworkTeamSettings.connection)),
-                                       hack_does_add_or_remove: self.slaves_changed,
-                                       rollback_on_failure: self.slaves_changed
+                                     {
+                                         devices: (self.slaves_changed
+                                             ? [] : connection_devices(PageNetworkTeamSettings.connection)),
+                                         hack_does_add_or_remove: self.slaves_changed,
+                                         rollback_on_failure: self.slaves_changed
                                      });
         } else {
             with_checkpoint(
@@ -4260,7 +4283,7 @@ PageNetworkBridgeSettings.prototype = {
                     .then(function() {
                         $('#network-bridge-settings-dialog').modal('hide');
                         if (PageNetworkBridgeSettings.connection)
-                            cockpit.location.go([ self.settings.connection.interface_name ]);
+                            cockpit.location.go([self.settings.connection.interface_name]);
                         if (PageNetworkBridgeSettings.done)
                             return PageNetworkBridgeSettings.done();
                     })
@@ -4273,10 +4296,11 @@ PageNetworkBridgeSettings.prototype = {
 
         if (PageNetworkBridgeSettings.connection) {
             with_settings_checkpoint(PageNetworkBridgeSettings.model, modify,
-                                     { devices: (self.slaves_changed
-                                         ? [ ] : connection_devices(PageNetworkBridgeSettings.connection)),
-                                       hack_does_add_or_remove: self.slaves_changed,
-                                       rollback_on_failure: self.slaves_changed
+                                     {
+                                         devices: (self.slaves_changed
+                                             ? [] : connection_devices(PageNetworkBridgeSettings.connection)),
+                                         hack_does_add_or_remove: self.slaves_changed,
+                                         rollback_on_failure: self.slaves_changed
                                      });
         } else {
             with_checkpoint(
@@ -4472,7 +4496,7 @@ PageNetworkVlanSettings.prototype = {
                     .then(function () {
                         $('#network-vlan-settings-dialog').modal('hide');
                         if (PageNetworkVlanSettings.connection)
-                            cockpit.location.go([ self.settings.connection.interface_name ]);
+                            cockpit.location.go([self.settings.connection.interface_name]);
                         if (PageNetworkVlanSettings.done)
                             return PageNetworkVlanSettings.done();
                     })

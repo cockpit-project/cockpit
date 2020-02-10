@@ -25,6 +25,7 @@ import {
 } from '@patternfly/react-core';
 import cockpit from 'cockpit';
 
+import { FileAutoComplete } from 'cockpit-components-file-autocomplete.jsx';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { units, convertToUnit, getDefaultVolumeFormat, getNextAvailableTarget, getStorageVolumesUsage, getStorageVolumeDiskTarget } from '../../../helpers.js';
 import { volumeCreateAndAttach, attachDisk, getVm, getAllStoragePools } from '../../../actions/provider-actions.js';
@@ -38,6 +39,12 @@ const _ = cockpit.gettext;
 
 const CREATE_NEW = 'create-new';
 const USE_EXISTING = 'use-existing';
+const CUSTOM_PATH = 'custom-path';
+
+const busTypes = {
+    disk: ['sata', 'scsi', 'usb', 'virtio'],
+    cdrom: ['sata', 'scsi', 'usb']
+};
 
 function getFilteredVolumes(vmStoragePool, disks) {
     const usedDiskPaths = Object.getOwnPropertyNames(disks)
@@ -134,7 +141,6 @@ class AdditionalOptions extends React.Component {
 
     render() {
         const cacheModes = ['default', 'none', 'writethrough', 'writeback', 'directsync', 'unsafe'];
-        const busTypes = ['sata', 'scsi', 'usb', 'virtio'];
 
         return (
             <ExpandableSection toggleText={ this.state.expanded ? _("Hide additional options") : _("Show additional options")}
@@ -159,9 +165,10 @@ class AdditionalOptions extends React.Component {
                             onChange={value => this.props.onValueChanged('busType', value)}
                             value={this.props.busType}
                             className='ct-form-split'>
-                            {busTypes.map(busType => {
+                            {busTypes[this.props.device].map(busType => {
                                 return (
-                                    <FormSelectOption value={busType} key={busType}
+                                    <FormSelectOption value={busType}
+                                                      key={busType}
                                                       label={busType} />
                                 );
                             })}
@@ -234,6 +241,31 @@ const UseExistingDisk = ({ idPrefix, onValueChanged, validationFailed, dialogVal
     );
 };
 
+const CustomPath = ({ idPrefix, onValueChanged, dialogValues }) => {
+    return (<>
+        <FormGroup id={`${idPrefix}-file`}
+                   fieldId={`${idPrefix}-file-autocomplete`}
+                   label={_("Custom path")}>
+            <FileAutoComplete id={`${idPrefix}-file-autocomplete`}
+                placeholder={_("Path to file on host's file system")}
+                onChange={value => onValueChanged("file", value)}
+                superuser="try" />
+        </FormGroup>
+        <FormGroup id={`${idPrefix}-device`}
+                   fieldId={`${idPrefix}-select-device`}
+                   label={_("Device")}>
+            <FormSelect id={`${idPrefix}-select-device`}
+                        onChange={value => onValueChanged('device', value)}
+                        value={dialogValues.device}>
+                <FormSelectOption value="disk" key="disk"
+                                  label={_("Disk image file")} />
+                <FormSelectOption value="cdrom" key="cdrom"
+                                  label={_("CD/DVD disc")} />
+            </FormSelect>
+        </FormGroup>
+    </>);
+};
+
 export class AddDiskModalBody extends React.Component {
     constructor(props) {
         super(props);
@@ -263,6 +295,8 @@ export class AddDiskModalBody extends React.Component {
                     .sort(sortFunction)[0];
 
         return {
+            file: "",
+            device: "disk",
             storagePoolName: defaultPool && defaultPool.name,
             mode: CREATE_NEW,
             volumeName: undefined,
@@ -292,7 +326,7 @@ export class AddDiskModalBody extends React.Component {
     validateParams() {
         const validationFailed = {};
 
-        if (!this.state.storagePoolName)
+        if (this.state.mode !== CUSTOM_PATH && !this.state.storagePoolName)
             validationFailed.storagePool = _("Please choose a storage pool");
 
         if (this.state.mode === CREATE_NEW) {
@@ -304,7 +338,7 @@ export class AddDiskModalBody extends React.Component {
                 validationFailed.size = cockpit.format(_("Storage volume size must not exceed the storage pool's capacity ($0 $1)"), poolCapacity.toFixed(2), this.state.unit);
             }
         } else if (this.state.mode === USE_EXISTING) {
-            if (!this.state.existingVolumeName)
+            if (this.state.mode !== CUSTOM_PATH && !this.state.existingVolumeName)
                 validationFailed.existingVolumeName = _("Please choose a volume");
         }
 
@@ -342,10 +376,13 @@ export class AddDiskModalBody extends React.Component {
             this.setState({ storagePoolName: value });
             // Reset the format only when the Format selection dropdown changes entries - otherwise just keep the old selection
             // All pool types apart from 'disk' have either 'raw' or 'qcow2' format
-            if (currentPool && prevPool && ((currentPool.type == 'disk' && prevPool.type != 'disk') || (currentPool.type != 'disk' && prevPool.type == 'disk')))
+            if (currentPool && prevPool && ((currentPool.type == 'disk' && prevPool.type != 'disk') || (currentPool.type != 'disk' && prevPool.type == 'disk'))) {
+                // use onValueChange instead of setState in order to perform subsequent state change logic
                 this.onValueChanged('format', getDefaultVolumeFormat(value));
+            }
 
             if (this.state.mode === USE_EXISTING) { // user changed pool
+                // use onValueChange instead of setState in order to perform subsequent state change logic
                 this.onValueChanged('existingVolumeName', this.getDefaultVolumeName(value));
             }
             break;
@@ -360,8 +397,8 @@ export class AddDiskModalBody extends React.Component {
         case 'mode': {
             this.setState(prevState => { // to prevent asynchronous for recursive call with existingVolumeName as a key
                 stateDelta = this.initialState;
+                stateDelta.mode = value;
                 if (value === USE_EXISTING) { // user moved to USE_EXISTING subtab
-                    stateDelta.mode = value;
                     const poolName = stateDelta.storagePoolName;
                     if (poolName)
                         stateDelta = { ...stateDelta, ...this.existingVolumeNameDelta(this.getDefaultVolumeName(poolName), prevState.storagePoolName) };
@@ -369,14 +406,51 @@ export class AddDiskModalBody extends React.Component {
 
                 return stateDelta;
             });
-
             break;
         }
         case 'busType': {
             const existingTargets = Object.getOwnPropertyNames(this.props.vm.disks);
             const availableTarget = getNextAvailableTarget(existingTargets, value);
+            // use onValueChange instead of setState in order to perform subsequent state change logic
             this.onValueChanged('target', availableTarget);
             this.setState({ busType: value });
+            break;
+        }
+        case 'file': {
+            stateDelta.file = value;
+            this.setState(prevState => {
+                if (value.endsWith(".iso")) {
+                    // use onValueChange instead of setState in order to perform subsequent state change logic
+                    this.onValueChanged("device", "cdrom");
+                }
+                return stateDelta;
+            });
+            break;
+        }
+        case 'device': {
+            stateDelta.device = value;
+            this.setState(prevState => {
+                let newBus;
+                // If disk with the same device exists, use the same bus too
+                for (const disk of Object.values(this.props.vm.disks)) {
+                    if (disk.device === value) {
+                        newBus = disk.bus;
+                        break;
+                    }
+                }
+
+                if (newBus)
+                    this.onValueChanged("busType", newBus);
+                // Disk device "cdrom" and bus "virtio" are incompatible, see:
+                // https://www.redhat.com/archives/libvir-list/2019-January/msg01104.html
+                else if (value === "cdrom" && prevState.busType === "virtio") {
+                    // use onValueChange instead of setState in order to perform subsequent state change logic
+                    // According to https://libvirt.org/formatdomain.html#hard-drives-floppy-disks-cdroms (section about 'target'),
+                    // scsi is the default option for libvirt in this case too
+                    this.onValueChanged("busType", "scsi");
+                }
+                return stateDelta;
+            });
             break;
         }
         default:
@@ -429,9 +503,12 @@ export class AddDiskModalBody extends React.Component {
 
         return dispatch(attachDisk({
             connectionName: vm.connectionName,
+            type: this.state.mode === CUSTOM_PATH ? "file" : "volume",
+            file: this.state.file,
+            device: this.state.device,
             poolName: this.state.storagePoolName,
             volumeName: this.state.existingVolumeName,
-            format: this.state.format,
+            format: this.state.mode !== CUSTOM_PATH ? this.state.format : "raw", // TODO: let user choose format for disks with custom file path
             target: this.state.target,
             permanent: this.state.permanent,
             hotplug: this.state.hotplug,
@@ -447,7 +524,7 @@ export class AddDiskModalBody extends React.Component {
                 })
                 .then(() => { // force reload of VM data, events are not reliable (i.e. for a down VM)
                     const promises = [];
-                    if (volume.format === "raw" && isVolumeUsed[this.state.existingVolumeName]) {
+                    if (this.state.mode !== CUSTOM_PATH && volume.format === "raw" && isVolumeUsed[this.state.existingVolumeName]) {
                         isVolumeUsed[this.state.existingVolumeName].forEach(vmName => {
                             const vm = vms.find(vm => vm.name === vmName);
                             const diskTarget = getStorageVolumeDiskTarget(vm, storagePool, this.state.existingVolumeName);
@@ -491,6 +568,11 @@ export class AddDiskModalBody extends React.Component {
                                label={_("Use existing")}
                                isChecked={this.state.mode === USE_EXISTING}
                                onChange={e => this.onValueChanged('mode', USE_EXISTING)} />
+                        <Radio id={`${idPrefix}-custompath`}
+                               name="source"
+                               label={_("Custom path")}
+                               isChecked={this.state.mode === CUSTOM_PATH}
+                               onChange={e => this.onValueChanged('mode', CUSTOM_PATH)} />
                     </FormGroup>
                     {this.state.mode === CREATE_NEW && (
                         <CreateNewDisk idPrefix={`${idPrefix}-new`}
@@ -509,12 +591,18 @@ export class AddDiskModalBody extends React.Component {
                                          vms={vms}
                                          vm={vm} />
                     )}
+                    {this.state.mode === CUSTOM_PATH && (
+                        <CustomPath idPrefix={idPrefix}
+                                    onValueChanged={this.onValueChanged}
+                                    dialogValues={this.state} />
+                    )}
                     {vm.persistent &&
                     <PermanentChange idPrefix={idPrefix}
                                      permanent={this.state.permanent}
                                      onValueChanged={this.onValueChanged}
                                      vm={vm} />}
                     <AdditionalOptions cacheMode={this.state.cacheMode}
+                                       device={this.state.device}
                                        onValueChanged={this.onValueChanged}
                                        busType={this.state.busType} />
                 </Form>

@@ -1,9 +1,9 @@
-export function getDiskXML(poolName, volumeName, format, target, cacheMode, shareable, busType) {
+export function getDiskXML(type, file, device, poolName, volumeName, format, target, cacheMode, shareable, busType) {
     var doc = document.implementation.createDocument('', '', null);
 
     var diskElem = doc.createElement('disk');
-    diskElem.setAttribute('type', 'volume');
-    diskElem.setAttribute('device', 'disk');
+    diskElem.setAttribute('type', type);
+    diskElem.setAttribute('device', device);
 
     var driverElem = doc.createElement('driver');
     driverElem.setAttribute('name', 'qemu');
@@ -13,8 +13,12 @@ export function getDiskXML(poolName, volumeName, format, target, cacheMode, shar
     diskElem.appendChild(driverElem);
 
     var sourceElem = doc.createElement('source');
-    sourceElem.setAttribute('volume', volumeName);
-    sourceElem.setAttribute('pool', poolName);
+    if (type === 'file') {
+        sourceElem.setAttribute('file', file);
+    } else {
+        sourceElem.setAttribute('volume', volumeName);
+        sourceElem.setAttribute('pool', poolName);
+    }
     diskElem.appendChild(sourceElem);
 
     var targetElem = doc.createElement('target');

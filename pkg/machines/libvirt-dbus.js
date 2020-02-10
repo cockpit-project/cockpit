@@ -195,6 +195,9 @@ const LIBVIRT_DBUS_PROVIDER = {
 
     ATTACH_DISK({
         connectionName,
+        type,
+        file,
+        device,
         poolName,
         volumeName,
         format,
@@ -207,7 +210,7 @@ const LIBVIRT_DBUS_PROVIDER = {
         shareable,
         busType,
     }) {
-        const xmlDesc = getDiskXML(poolName, volumeName, format, target, cacheMode, shareable, busType);
+        const xmlDesc = getDiskXML(type, file, device, poolName, volumeName, format, target, cacheMode, shareable, busType);
 
         return attachDevice({ connectionName, vmId, permanent, hotplug, xmlDesc });
     },
@@ -311,7 +314,7 @@ const LIBVIRT_DBUS_PROVIDER = {
                             });
                 })
                 .then((volPath) => {
-                    return dispatch(attachDisk({ connectionName, poolName, volumeName, format, target, vmId, permanent, hotplug, cacheMode, busType }));
+                    return dispatch(attachDisk({ connectionName, type: "volume", device: "disk", poolName, volumeName, format, target, vmId, permanent, hotplug, cacheMode, busType }));
                 });
     },
 

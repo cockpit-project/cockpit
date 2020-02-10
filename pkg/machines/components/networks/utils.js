@@ -229,3 +229,34 @@ export function isIpv6InNetwork(network, prefix, ip) {
 
     return network == ip;
 }
+
+/* If you take an IP address an apply the network mask (bitwise and) then you get the network address - no host can have such address
+ * This function returns the first usable address of the block
+ * @param {string} ipv4
+ * @param {string} netmask
+ */
+export function ipv4FirstUsableAddress(ipv4, netmask) {
+    // Within a subnet, two host addresses - all-zeros and one all-ones are reserved as network address and broadcast, respectively.
+    if (!ipv4)
+        return undefined;
+
+    let mask = netmask;
+    if (netmask.split(".").length == 4)
+        mask = netmaskToCIDR(netmask);
+    // For a /31 subnet the number of usable addresses is zero.
+    if (mask > 30)
+        return undefined;
+
+    return ipv4.split(".")
+            .map((item, index) => (item & netmask.split(".")[index]) + Number(index == 3))
+            .join(".");
+}
+
+function netmaskToCIDR(mask) {
+    const maskNodes = mask.match(/(\d+)/g);
+    let cidr = 0;
+    for (const i in maskNodes)
+        cidr += (((maskNodes[i] >>> 0).toString(2)).match(/1/g) || []).length;
+
+    return cidr;
+}

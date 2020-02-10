@@ -50,6 +50,8 @@ function validateParams(dialogValues) {
             validationFailed.netmask = _("Mask or Prefix Length should not be empty");
         else if (!utils.validateNetmask(dialogValues.netmask))
             validationFailed.netmask = _("Invalid IPv4 mask or prefix length");
+        else if (!utils.ipv4FirstUsableAddress(dialogValues.ipv4, dialogValues.netmask))
+            validationFailed.netmask = _("There are not any usable addresses within this subnet");
 
         if (dialogValues.ipv4DhcpEnabled) {
             if (isEmpty(dialogValues.ipv4DhcpRangeStart.trim()))
@@ -406,7 +408,7 @@ class CreateNetworkModal extends React.Component {
 
             this.setState({ createInProgress: true });
             networkCreate({
-                connectionName, name, forwardMode, device, ipv4, netmask, ipv6, prefix,
+                connectionName, name, forwardMode, device, ipv4: utils.ipv4FirstUsableAddress(ipv4, netmask), netmask, ipv6, prefix,
                 ipv4DhcpRangeStart, ipv4DhcpRangeEnd, ipv6DhcpRangeStart, ipv6DhcpRangeEnd
             })
                     .fail(exc => {

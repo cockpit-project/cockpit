@@ -19,6 +19,7 @@
 
 import machineslib
 import parent
+import ipaddress
 from testlib import *
 
 TEST_NETWORK_XML = """
@@ -1182,6 +1183,8 @@ class TestMachinesDBus(machineslib.TestMachines):
                 self.xfail_objects = xfail_objects
                 self.xfail_error = xfail_error
                 self.remove = remove
+                if self.ip_conf and "4" in self.ip_conf and not self.xfail:
+                    self.host_addresses = list(ipaddress.ip_network("{0}/{1}".format(self.ipv4_address, self.ipv4_netmask)).hosts())
 
             def execute(self):
                 self.open()
@@ -1282,7 +1285,7 @@ class TestMachinesDBus(machineslib.TestMachines):
 
                 if (self.ip_conf != "None"):
                     if "4" in self.ip_conf:
-                        self.test_obj.assertEqual(self.ipv4_address, m.execute(xmllint_element.format(prop='ip/@address')).strip())
+                        self.test_obj.assertEqual(str(self.host_addresses[0]), m.execute(xmllint_element.format(prop='ip/@address')).strip())
                         self.test_obj.assertEqual(self.ipv4_netmask, m.execute(xmllint_element.format(prop='ip/@netmask')).strip())
                         if self.ipv4_dhcp_start and self.ipv4_dhcp_start:
                             self.test_obj.assertEqual(self.ipv4_dhcp_start, m.execute(xmllint_element.format(prop='ip/dhcp/range/@start')).strip())
@@ -1306,7 +1309,7 @@ class TestMachinesDBus(machineslib.TestMachines):
                 b.click("tbody tr[data-row-id=network-{0}-{1}] th".format(self.name, connectionName)) # open network tab
                 if self.ip_conf != "None":
                     if "4" in self.ip_conf:
-                        b.wait_in_text("#network-{0}-{1}-ipv4-address".format(self.name, connectionName), self.ipv4_address)
+                        b.wait_in_text("#network-{0}-{1}-ipv4-address".format(self.name, connectionName), str(self.host_addresses[0]))
                         b.wait_in_text("#network-{0}-{1}-ipv4-netmask".format(self.name, connectionName), self.ipv4_netmask)
                         if self.ipv4_dhcp_start and self.ipv4_dhcp_start:
                             b.wait_in_text("#network-{0}-{1}-ipv4-dhcp-range".format(self.name, connectionName), self.ipv4_dhcp_start + " - " + self.ipv4_dhcp_end)

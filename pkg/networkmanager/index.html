@@ -116,6 +116,7 @@
               <ul class="dropdown-menu left-offset-75-menu">
                 <li><a tabindex="0" id="networking-add-wifi" translatable="yes">WiFi</a></li>
                 <li><a tabindex="0" id="networking-add-openvpn" translatable="yes">OpenVPN</a></li>
+                  <li><a tabindex="0" id="networking-add-modem" translatable="yes">Mobile Broadband</a></li>
                 <li><a tabindex="0" id="networking-add-bond" translatable="yes">Bond</a></li>
                 <li><a tabindex="0" id="networking-add-bridge" translatable="yes">Bridge</a></li>
                 <li><a tabindex="0" id="networking-add-vlan" translatable="yes">VLAN</a></li>
@@ -546,6 +547,40 @@
     </form>
   </script>
 
+  <script id="network-modem-settings-template" type="x-template/mustache">
+    <form class="ct-form">
+      <label class="control-label" for="network-modem-settings-device-select" translatable="yes">Device</label>
+      <div id="network-modem-settings-device-select">
+        {{! the rather complex dropdown-select will be created dynamically via jquery }}
+      </div>
+
+      <label class="control-label" for="network-modem-settings-username-input" translatable="yes">Username</label>
+      <input id="network-modem-settings-username-input" class="form-control network-number-field ct-form-relax"
+             type="text" value="{{username_input}}"/>
+
+      <label class="control-label" for="network-modem-settings-password-input" translatable="yes">Password</label>
+      <input id="network-modem-settings-password-input" class="form-control network-number-field ct-form-relax"
+             type="password" value="{{password_input}}"/>
+
+      <label class="checkbox-inline">
+        <input id="network-modem-settings-password-toggle" type="checkbox" checked="false"/>
+        <span translatable="yes">Show password</span>
+      </label>
+
+      <label class="control-label" for="network-modem-settings-number-input" translatable="yes">Phone number</label>
+      <input id="network-modem-settings-number-input" class="form-control network-number-field ct-form-relax"
+             type="tel" value="{{number_input}}"/>
+
+      <label class="control-label" for="network-modem-settings-apn-input" translatable="yes">APN Name</label>
+      <input id="network-modem-settings-apn-input" class="form-control network-number-field ct-form-relax"
+             type="text" value="{{apn_input}}"/>
+
+      <label class="control-label" for="network-modem-settings-sim-input" translatable="yes">SIM Pin</label>
+      <input id="network-modem-settings-sim-input" class="form-control network-number-field ct-form-relax"
+             type="text" value="{{sim_input}}"/>
+    </form>
+  </script>
+
   <div id="network-interface" class="container-fluid" hidden>
     <ol class="breadcrumb">
       <li><a tabindex="0" translatable="yes">Networking</a></li>
@@ -906,6 +941,30 @@
           </div>
           <button class="btn btn-default" translatable="yes" id="network-openvpn-settings-cancel">Cancel</button>
           <button class="btn btn-primary" translatable="yes" id="network-openvpn-settings-apply">Apply</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="network-modem-settings-dialog"
+       tabindex="-1" role="dialog"
+       data-backdrop="static">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" translatable="yes">Mobile Broadband</h4>
+        </div>
+        <div class="modal-body">
+          <div id="network-modem-settings-body">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <div class="alert alert-danger dialog-error" id="network-modem-settings-error">
+            <i class="fa fa-exclamation-triangle"></i>
+            <span></span>
+          </div>
+          <button class="btn btn-default" translatable="yes" id="network-modem-settings-cancel">Cancel</button>
+          <button class="btn btn-primary" translatable="yes" id="network-modem-settings-apply">Apply</button>
         </div>
       </div>
     </div>

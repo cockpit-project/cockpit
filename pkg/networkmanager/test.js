@@ -5682,11 +5682,7 @@ PageNetworkOpenVPNSettings.prototype = {
             pwd = data;
         });
 
-        function get_name(filename) {
-            options.name = filename;
-        }
-
-        /*  function get_prop(input, prop) {
+        function get_prop(input, prop) {
             return input.match(new RegExp(prop + '\\s(\\w+)'))[1];
         }
 
@@ -5704,7 +5700,7 @@ PageNetworkOpenVPNSettings.prototype = {
             options.cipher = get_prop(input, "cipher");
             options.auth = get_prop(input, "auth");
             options.key_direction = get_prop(input, "key-direction");
-        } */
+        }
 
         function parse_remote(input) {
             // saved configuration may have multiple remote lines
@@ -5716,7 +5712,7 @@ PageNetworkOpenVPNSettings.prototype = {
             });
         }
 
-        /* function get_content_from_tag(tag, input) {
+        function get_content_from_tag(tag, input) {
             var reg = new RegExp("<" + tag + ">[\\s\\S]*?<\\/" + tag + ">");
             var str = reg.exec(input) ? reg.exec(input).toString() : null;
 
@@ -5725,7 +5721,7 @@ PageNetworkOpenVPNSettings.prototype = {
 
             str = str.substring(str.indexOf("\n") + 1);
             return str.substring(str.lastIndexOf("\n") + 1, -1);
-        } */
+        }
 
         function read_file_content(file, callback) {
             var reader = new FileReader();
@@ -5792,12 +5788,19 @@ PageNetworkOpenVPNSettings.prototype = {
         ovpn_file.on('change', function(e) {
             if (!this.files[0])
                 return null;
-            var filename = this.files[0].name;
+            var filename = this.files[0].name.replace(no_extension, "");
             read_file_content(this.files[0], function(e) {
-                cockpit.spawn(["mktemp", ("/tmp/XXX" + filename)]).then(tempFile => {
-                    cockpit.file(tempFile.trim()).replace(e.target.result);
-                    get_name(tempFile);
-                });
+                save_file(filename + "-ca.pem", get_content_from_tag("ca", e.target.result),
+                          "ca");
+                save_file(filename + "-cert.pem", get_content_from_tag("cert", e.target.result),
+                          "cert");
+                save_file(filename + "-key.pem", get_content_from_tag("key", e.target.result),
+                          "key");
+                save_file(filename + "-tls-auth.pem", get_content_from_tag("tls-auth", e.target.result),
+                          "ta");
+                self.settings.connection.id = filename;
+                parse_remote(e.target.result);
+                parse_props(e.target.result);
             });
         });
 
@@ -5814,7 +5817,7 @@ PageNetworkOpenVPNSettings.prototype = {
     apply: function() {
         var self = this;
         var options = self.settings.vpn;
-        /* var vpn_props = [
+        var vpn_props = [
             { line: "+vpn.data auth=", prop: "auth" },
             { line: "+vpn.data ca=", prop: "ca" },
             { line: "+vpn.data cert=", prop: "cert" },
@@ -5832,37 +5835,9 @@ PageNetworkOpenVPNSettings.prototype = {
             { line: "+vpn.data sndbuf=", prop: "sndbuf" },
             { line: "+vpn.data ta=", prop: "ta" },
             { line: "+vpn.data tun-mtu=", prop: "tun_mtu" },
-        ]; */
-        cockpit.spawn([
-            "nmcli",
-            "connection",
-            "import",
-            "type",
-            "openvpn",
-            "file",
-            options.name.trim()
-        ], { err: "out" }).done(() => {
-            cockpit.spawn([
-                "nmcli",
-                "connection",
-                "modify",
-                options.name.trim().substr(5, (options.name.trim().length) - 10),
-                "connection.id",
-                options.name.trim().substr(8, (options.name.trim().length) - 13)
-            ], { err: "out" }).done(() => {
-                cockpit.spawn([
-                    "nmcli",
-                    "conn",
-                    "up",
-                    options.name.trim().substr(8, (options.name.trim().length) - 13)
-                ], { err: "out" });
-            });
-        })
-                .fail(function () {
-                    show_error("Connection has not been established");
-                });
+        ];
 
-        /* function add_vpn_connection() {
+        function add_vpn_connection() {
             var cmd = [
                 "nmcli connection add \\",
                 "connection.id " + self.settings.connection.id + " \\",
@@ -5898,7 +5873,7 @@ PageNetworkOpenVPNSettings.prototype = {
                     .fail(function () {
                         show_error("Connection has not been established");
                     });
-        } */
+        }
 
         function show_error(error) {
             show_dialog_error('#network-openvpn-settings-error', error);
@@ -5908,7 +5883,7 @@ PageNetworkOpenVPNSettings.prototype = {
         cockpit.script("test -f /usr/lib*/NetworkManager/nm-openvpn-service",
                        { err: "ignore" })
                 .done(function () {
-                    // add_vpn_connection();
+                    add_vpn_connection();
                     $('#network-openvpn-settings-dialog').modal('hide');
                 })
                 .fail(function () {

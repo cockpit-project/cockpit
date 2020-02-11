@@ -845,13 +845,18 @@ function NetworkManagerModel() {
             delete result["802-11-wireless"];
 
         if (settings.wifi_security) {
+            console.log("No");
             set("802-11-wireless-security", "key-mgmt", 's', settings.wifi_security.key_mgmt);
             set("802-11-wireless-security", "psk", 's', settings.wifi_security.psk);
             // delete wifi_security options if security: None
-            if (!settings.wifi_security.key_mgmt)
+            if (!settings.wifi_security.key_mgmt) {
+                console.log("Nyaw");
                 delete result["802-11-wireless-security"];
-        } else
+            }
+        } else {
+            console.log("Yes");
             delete result["802-11-wireless-security"];
+        }
 
         if (settings.wifi_1x && settings.wifi_security.key_mgmt === "wpa-eap") {
             delete result["802-11-wireless-security"].psk;

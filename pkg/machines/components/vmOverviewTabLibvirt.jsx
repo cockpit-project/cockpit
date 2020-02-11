@@ -188,7 +188,7 @@ class VmOverviewTabLibvirt extends React.Component {
         const vcpuLink = (
             <div>
                 { <Button variant="link" isInline isDisabled={!vm.persistent} id={`${idPrefix}-vcpus-count`} onClick={this.openVcpu}>{vm.vcpus.count}</Button> }
-                { vm.persitent && vm.state === "running" && vcpusChanged && <WarningInactive iconId="vcpus-tooltip" tooltipId="tip-vcpus" /> }
+                { vm.persistent && vm.state === "running" && vcpusChanged && <WarningInactive iconId="vcpus-tooltip" tooltipId="tip-vcpus" /> }
             </div>
         );
 

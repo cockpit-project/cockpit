@@ -205,7 +205,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_in_text("#vm-subVmTest1-state", "running")
         # Non-persistent VM doesn't have configurable boot order
         m.execute("virsh undefine subVmTest1")
-        b.wait_not_present("button#vm-subVmTest1-boot-order")
+        b.wait_present("button#vm-subVmTest1-boot-order:disabled")
 
     # Check various configuration changes made before VM installation persist after installation
     def testConfigureBeforeInstall(self):
@@ -525,7 +525,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_in_text("#vm-subVmTest1-state", "running")
         # Non-persistent VM doesn't have configurable memory
         m.execute("virsh undefine subVmTest1")
-        b.wait_not_present("button#vm-subVmTest1-memory-count")
+        b.wait_present("button#vm-subVmTest1-memory-count:disabled")
 
     def testDetachDisk(self):
         b = self.browser

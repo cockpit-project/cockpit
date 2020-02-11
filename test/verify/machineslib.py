@@ -1156,7 +1156,7 @@ class TestMachines(NetworkCase):
         if self.provider == "libvirt-dbus":
             # non-persistent VM doesn't have configurable vcpu
             m.execute("virsh undefine subVmTest1")
-            b.wait_not_present("button#vm-subVmTest1-vcpus-count")
+            b.wait_present("button#vm-subVmTest1-vcpus-count:disabled")
 
     # HACK: broken with Chromium > 63, see https://github.com/cockpit-project/cockpit/pull/9229
     @unittest.skip("Broken with current chromium, see PR #9229")

@@ -204,15 +204,17 @@ echo '%dir %{_datadir}/cockpit/playground' > tests.list
 find %{buildroot}%{_datadir}/cockpit/playground -type f >> tests.list
 
 %ifarch x86_64 %{arm} aarch64 ppc64le i686 s390x
-%if 0%{?fedora}
+%if 0%{?fedora} && 0%{?build_optional}
+%define build_docker 1
+%endif
+%endif
+
+%if 0%{?build_docker}
 echo '%dir %{_datadir}/cockpit/docker' > docker.list
 find %{buildroot}%{_datadir}/cockpit/docker -type f >> docker.list
 %else
 rm -rf %{buildroot}/%{_datadir}/cockpit/docker
-touch docker.list
-%endif
-%else
-rm -rf %{buildroot}/%{_datadir}/cockpit/docker
+rm -f %{buildroot}/%{_prefix}/share/metainfo/org.cockpit-project.cockpit-docker.metainfo.xml
 touch docker.list
 %endif
 
@@ -250,6 +252,8 @@ rm -r %{buildroot}/%{_libexecdir}/cockpit-pcp %{buildroot}/%{_localstatedir}/lib
 rm -f %{buildroot}/%{_prefix}/share/metainfo/org.cockpit-project.cockpit-machines.metainfo.xml
 # files from -storaged
 rm -f %{buildroot}/%{_prefix}/share/metainfo/org.cockpit-project.cockpit-storaged.metainfo.xml
+# files from -docker
+rm -f %{buildroot}/%{_prefix}/share/metainfo/org.cockpit-project.cockpit-docker.metainfo.xml
 %endif
 
 sed -i "s|%{buildroot}||" *.list
@@ -626,8 +630,7 @@ bastion hosts, and a basic dashboard.
 
 %endif
 
-%ifarch x86_64 %{arm} aarch64 ppc64le i686 s390x
-%if 0%{?fedora}
+%if 0%{?build_docker}
 %package -n cockpit-docker
 Summary: Cockpit user interface for Docker containers
 Requires: cockpit-bridge >= %{required_base}
@@ -640,8 +643,7 @@ The Cockpit components for interacting with Docker and user interface.
 This package is not yet complete.
 
 %files -n cockpit-docker -f docker.list
-
-%endif
+%{_datadir}/metainfo/org.cockpit-project.cockpit-docker.metainfo.xml
 %endif
 
 %package -n cockpit-packagekit

@@ -25,7 +25,7 @@ from testlib import *
 class TestServices(MachineCase):
 
     def setUp(self):
-        MachineCase.setUp(self)
+        super().setUp()
 
         # Make sure the system finishes "booting" so that
         # when we add additional services to this target below
@@ -33,10 +33,7 @@ class TestServices(MachineCase):
         self.machine.execute("systemctl start default.target")
 
     def pick_tab(self, n):
-        if self.machine.image in ["rhel-8-0-distropkg"]: # Changed in #12349
-            self.browser.click('#services-filter :nth-child({0})'.format(n))
-        else:
-            self.browser.click('#services-filter li:nth-child({0}) a'.format(n))
+        self.browser.click('#services-filter li:nth-child({0}) a'.format(n))
 
     def wait_onoff(self, val):
         self.browser.wait_present(".service-top-panel .onoff-ct input" + (":checked" if val else ":not(:checked)"))
@@ -63,13 +60,10 @@ class TestServices(MachineCase):
             self.browser.wait_not_present(".service-top-panel .dropdown-kebab-pf")
 
     def wait_service_present(self, service):
-        if self.machine.image in ["rhel-8-0-distropkg"]: # Changed in #12381
-            self.browser.wait_text('tr[data-goto-unit="{0}"] td:nth-child(2)'.format(service), service)
-        else:
-            service_name = service
-            if service.endswith(".service"):
-                service_name = service[:-8]
-            self.browser.wait_text('tr[data-goto-unit="{0}"] td:first-child'.format(service), service_name)
+        service_name = service
+        if service.endswith(".service"):
+            service_name = service[:-8]
+        self.browser.wait_text('tr[data-goto-unit="{0}"] td:first-child'.format(service), service_name)
 
 
     def testBasic(self):
@@ -83,6 +77,7 @@ Description=Test Service
 
 [Service]
 ExecStart=/bin/sh /usr/local/bin/test-service
+ExecReload=/bin/sh true
 
 [Install]
 WantedBy=default.target
@@ -149,10 +144,7 @@ Unit=test.service
             b.wait_in_text(svc_sel(service), state)
 
         def wait_service_in_panel(service, title):
-            if m.image in ["rhel-8-0-distropkg"]: # Changed in #11241
-                b.wait_in_text(".panel:contains('%s') .panel-heading" % service, title)
-            else:
-                wait_service_state(service, title)
+            wait_service_state(service, title)
 
         self.wait_service_present("test.service")
         wait_service_in_panel("test.service", "Disabled")
@@ -165,8 +157,23 @@ Unit=test.service
         wait_service_state("test.service", "inactive")
         wait_service_state("test.service", "inactive")
 
+        # Selects Targets tab
+        self.pick_tab(2)
+        b.wait_not_in_text("#services-list", "test")
+        wait_service_state("sockets.target", "active")
+        wait_service_state("reboot.target", "inactive")
+
+        # Selects Sockets tab
+        self.pick_tab(3)
+        b.wait_not_in_text("#services-list", "test")
+        b.wait_not_in_text("#services-list", ".target")
+        wait_service_state("dbus.socket", "active (running)")
+
         # Selects Timer tab
         self.pick_tab(4)
+        b.wait_not_in_text("#services-list", "test-fail")
+        b.wait_not_in_text("#services-list", ".target")
+        b.wait_not_in_text("#services-list", ".socket")
         b.wait_present(svc_sel('test.timer'))
         b.wait_text(svc_sel('test.timer') + ' td:nth-child(3)', '')  # next run
         b.wait_text(svc_sel('test.timer') + ' td:nth-child(4)', '')  # last trigger
@@ -183,25 +190,30 @@ Unit=test.service
         b.wait_in_text(svc_sel('test-onboot.timer'), "unknown")  # last trigger
         m.execute("systemctl stop test-onboot.timer")
 
-        if m.image in ["rhel-8-0-distropkg"]: # Changed in #12265
-            return
+        # Selects Paths tab
+        self.pick_tab(5)
+        b.wait_not_in_text("#services-list", "test")
+        b.wait_not_in_text("#services-list", ".target")
+        b.wait_not_in_text("#services-list", ".socket")
+        b.wait_not_in_text("#services-list", ".timer")
+        b.wait_present(svc_sel("systemd-ask-password-console.path"))
 
         # Selects Services tab
         self.pick_tab(1)
 
         # Check test.service and then start it
         b.click(svc_sel("test.service"))
-        self.check_service_details(["Not running", "Automatically starts"], ["Start", "Reload", "Disallow running (mask)"], True)
+        self.check_service_details(["Not running", "Automatically starts"], ["Start", "Disallow running (mask)"], True)
         self.do_action("Start")
-        self.check_service_details(["Running", "Automatically starts"], ["Restart", "Reload", "Disallow running (mask)"], True)
+        self.check_service_details(["Running", "Automatically starts"], ["Reload", "Restart", "Stop", "Disallow running (mask)"], True)
         b.wait_in_text('#service-log', "START")
         b.wait_in_text('#service-log', "WORKING")
 
         # Stop and disable and back again
         self.toggle_onoff()
-        self.check_service_details(["Disabled"], ["Disallow running (mask)"], False)
+        self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)"], False)
         self.toggle_onoff()
-        self.check_service_details(["Running", "Automatically starts"], ["Restart", "Reload", "Disallow running (mask)"], True)
+        self.check_service_details(["Running", "Automatically starts"], ["Reload", "Restart", "Stop", "Disallow running (mask)"], True)
 
         # Check without permissions
         self.allow_authorize_journal_messages()
@@ -211,14 +223,14 @@ Unit=test.service
         b.relogin('/system/services#/test.service', authorized=True)
 
         self.toggle_onoff() # later on we need some disabled test
-        self.check_service_details(["Disabled"], ["Disallow running (mask)"], False)
+        self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)"], False)
 
         # Check service that fails to start
         b.go("#/")
         b.click(svc_sel("test-fail.service"))
-        self.check_service_details(["Disabled"], ["Disallow running (mask)"], False)
+        self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)"], False)
         self.toggle_onoff()
-        self.check_service_details(["Failed to start", "Automatically starts"], ["Start", "Reload", "Disallow running (mask)"], True)
+        self.check_service_details(["Failed to start", "Automatically starts"], ["Start", "Clear 'Failed to start'", "Disallow running (mask)"], True)
         b.click(".action-button:contains('Start Service')")
         b.go("#/")
         self.wait_service_present("test-fail.service")
@@ -226,14 +238,14 @@ Unit=test.service
 
         # Check static service
         b.click(svc_sel("systemd-halt.service"))
-        self.check_service_details(["Static", "Not running"], ["Disallow running (mask)"], True, onoff=False)
+        self.check_service_details(["Static", "Not running"], ["Start", "Disallow running (mask)"], True, onoff=False)
 
         # Mask and unmask
         self.do_action("Disallow running (mask)")
         b.click(".modal-dialog .btn-danger")
         self.check_service_details(["Masked"], ["Allow running (unmask)"], False, onoff=False)
         self.do_action("Allow running (unmask)")
-        self.check_service_details(["Static", "Not running"], ["Disallow running (mask)"], True, onoff=False)
+        self.check_service_details(["Static", "Not running"], ["Start", "Disallow running (mask)"], True, onoff=False)
 
 
         # Instantiate a template
@@ -243,7 +255,7 @@ Unit=test.service
         b.set_input_text("#service-details input", "//param-f//o//o//")
         b.click("#service-details button")
         b.wait_text(".service-name", "Test Template for param-f/o/o")
-        self.check_service_details(["Static", "Not running"], ["Disallow running (mask)"], True, onoff=False)
+        self.check_service_details(["Static", "Not running"], ["Start", "Disallow running (mask)"], True, onoff=False)
         b.wait_in_text("#service-details", "Instance of template: test-template@.service")
         b.click("#service-details .ct-form a:contains('test-template@.service')")
         b.wait_visible("#service-details input")
@@ -354,14 +366,18 @@ WantedBy=default.target
         # so disable them for this test, we don't test PCP here
         m.execute("systemctl disable --now pmie pmlogger || true")
 
+        # set an initial baseline date/time, to ensure that we never jump backwards in subsequent tests
         m.execute("timedatectl set-timezone UTC")
         m.execute("timedatectl set-ntp off")
         wait(lambda: "false" in m.execute(
             "busctl get-property org.freedesktop.timedate1 /org/freedesktop/timedate1 org.freedesktop.timedate1 NTP"))
+        m.execute("timedatectl set-time '2020-01-01 12:00:00'")
+        m.spawn("sync && sync && sync && sleep 0.1 && reboot", "reboot")
+        m.wait_reboot()
+
         m.execute("timedatectl set-time '2020-01-01 15:30:00'")
         self.login_and_go("/system/services")
-        if m.image not in ["rhel-8-0-distropkg"]: # Introduced in #11280
-            b.wait_not_visible("#loading-fallback")
+        b.wait_not_visible("#loading-fallback")
         self.pick_tab(4)
         b.wait_visible("#create-timer")
         b.click('#create-timer')
@@ -612,7 +628,6 @@ WantedBy=default.target
         m.execute("timedatectl set-ntp on")
         self.allow_restart_journal_messages()
 
-    @skipImage("Reworked in #12265", "rhel-8-0-distropkg")
     def testConditions(self):
         m = self.machine
         b = self.browser
@@ -646,24 +661,20 @@ WantedBy=multi-user.target
             return 'tr[data-goto-unit="%s"]' % service
 
         # Selects Services tab
-        if self.machine.image in ["rhel-8-0-distropkg"]: # Changed in #12349
-            self.pick_tab(2)
-        else:
-            self.pick_tab(1)
+        self.pick_tab(1)
 
         b.wait_in_text(svc_sel("condtest.service"), "Enabled")
         b.click(svc_sel("condtest.service"))
-        self.check_service_details(["Not running", "Automatically starts"], ["Start", "Reload", "Disallow running (mask)"], True)
+        self.check_service_details(["Not running", "Automatically starts"], ["Start", "Disallow running (mask)"], True)
         self.do_action("Start")
         b.wait_text("#condition", "Condition ConditionDirectoryNotEmpty=/var/tmp/empty was not met")
 
         # If the condition succeeds the message disappears
         m.execute("touch /var/tmp/empty/non-empty")
         self.do_action("Start")
-        self.check_service_details(["Running", "Automatically starts"], ["Restart", "Reload", "Disallow running (mask)"], True)
+        self.check_service_details(["Running", "Automatically starts"], ["Restart", "Stop", "Disallow running (mask)"], True)
         b.wait_not_present("#condition")
 
-    @skipImage("Reworked in #12265", "rhel-8-0-distropkg")
     def testRelationships(self):
         m = self.machine
         b = self.browser
@@ -767,9 +778,184 @@ ExecStart=/bin/true
         b.click(svc_sel("test.service"))
         b.wait_js_cond('window.location.hash === "#/test.service"')
 
-        if m.image != "rhel-8-0-distropkg": # Changed in #12265
-            b.wait_attr("#Requires a:contains('not-found.service')", "class", "disabled")
+        b.wait_attr("#Requires a:contains('not-found.service')", "class", "disabled")
 
+    def testResetFailed(self):
+        m = self.machine
+        b = self.browser
+
+        # Put it in /run instead of in /etc so that we can mask it,
+        # which needs to put a symlink into /etc.
+        m.write("/run/systemd/system/test-fail.service",
+                """
+[Unit]
+Description=Failing Test Service
+
+[Service]
+ExecStart=/usr/bin/false
+
+[Install]
+WantedBy=default.target
+""")
+
+        m.execute("systemctl daemon-reload")
+        self.machine.execute("systemctl start default.target")
+
+        self.login_and_go("/system/services")
+
+        def svc_sel(service):
+            return 'tr[data-goto-unit="%s"]' % service
+
+        b.click(svc_sel("test-fail.service"))
+        b.wait_js_cond('window.location.hash === "#/test-fail.service"')
+
+        self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)"], False)
+
+        self.wait_onoff(False)
+        self.toggle_onoff()
+
+        self.check_service_details(["Failed to start", "Automatically starts"],
+                                   ["Start", "Clear 'Failed to start'", "Disallow running (mask)"], True)
+
+        # Disabling should reset the "Failed to start" status
+        self.wait_onoff(True)
+        self.toggle_onoff()
+
+        self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)"], False)
+
+        self.wait_onoff(False)
+        self.toggle_onoff()
+
+        self.check_service_details(["Failed to start", "Automatically starts"],
+                                   ["Start", "Clear 'Failed to start'", "Disallow running (mask)"], True)
+
+        # Just reset the failed status, but leave it enabled
+        self.do_action("Clear")
+
+        self.check_service_details(["Not running", "Automatically starts"],
+                                   ["Start", "Disallow running (mask)"], True)
+
+        self.do_action("Start")
+        self.check_service_details(["Failed to start", "Automatically starts"],
+                                   ["Start", "Clear 'Failed to start'", "Disallow running (mask)"], True)
+
+        # Masking should also clear the failed status
+        self.do_action("Disallow running (mask)")
+        b.click(".modal-dialog .btn-danger")
+        self.check_service_details(["Masked"], ["Allow running (unmask)"], False, onoff=False)
+
+    def count_failures(self):
+        return int(self.machine.execute("systemctl --failed --plain --no-legend | wc -l"))
+
+    def testNotifyFailed(self):
+        m = self.machine
+        b = self.browser
+
+        # We use two services with oprefix "aaa" and "aab" so that
+        # they always occupy the first two rows and we can check their
+        # relative order depending on whether "aab" has failed or not.
+
+        m.write("/etc/systemd/system/aaa.service",
+                """
+[Unit]
+Description=First Row Service
+
+[Service]
+ExecStart=/usr/bin/true
+""")
+        m.write("/etc/systemd/system/aab-fail.service",
+                """
+[Unit]
+Description=Failing Test Service
+
+[Service]
+ExecStart=/usr/bin/false
+""")
+
+        m.execute("systemctl daemon-reload")
+        self.machine.execute("systemctl start default.target")
+        self.machine.execute("systemctl reset-failed")
+
+        self.login_and_go("/system/services")
+
+        # Start test-fail
+        m.execute("systemctl start aab-fail")
+
+        # Aab-fail should be at the top, and have failed
+        b.wait_present('tr:nth-child(1)[data-goto-unit="aab-fail.service"]')
+        b.wait_present('tr[data-goto-unit="aab-fail.service"] td:contains("failed")')
+
+        # Services tab should have icon
+        b.wait_present('a:contains("System Services") .fa-exclamation-triangle')
+
+        # Nav link should have icon
+        b.switch_to_top()
+        b.wait_present('a[href="/system/services"] .fa-exclamation-triangle')
+
+        n_failures = self.count_failures()
+        health_message = "1 service has failed" if n_failures == 1 else "%s services have failed" % n_failures
+
+        # System page should have notification
+        b.click('#host-apps a[href="/system"]')
+        b.enter_page('/system')
+        b.wait_in_text(".system-health-events", health_message)
+
+        # Clear aab-fail
+        m.execute("systemctl reset-failed aab-fail")
+
+        # aab-fail should not be at the top
+        b.switch_to_top()
+        b.click('#host-apps a[href="/system/services"]')
+        b.enter_page('/system/services')
+        b.wait_not_present('tr:nth-child(1)[data-goto-unit="aab-fail.service"]')
+
+        if self.count_failures() == 0:
+
+            # Services tab should not have icon
+            b.wait_not_present('a:contains("System Services") .fa-exclamation-triangle')
+
+            # Nav link should not have icon
+            b.switch_to_top()
+            b.wait_not_present('a[href="/system/services"] .fa-exclamation-triangle')
+
+            # System page should not have notification
+            b.click('#host-apps a[href="/system"]')
+            b.enter_page('/system')
+            b.wait_not_in_text(".system-health-events", "failed")
+
+    def testHiddenFailure(self):
+        m = self.machine
+        b = self.browser
+
+        m.write("/etc/systemd/system/fail.mount",
+                """
+[Unit]
+Description=Failing Mount
+
+[Mount]
+What=wrong
+Where=/fail
+""")
+
+        m.execute("systemctl daemon-reload")
+        self.machine.execute("systemctl start default.target")
+        self.machine.execute("systemctl reset-failed")
+        m.execute("systemctl start fail.mount || true")
+
+        self.login_and_go("/system/services")
+
+        if self.count_failures() == 1:
+
+            # Nav link should not have icon
+            b.switch_to_top()
+            b.wait_not_present('a[href="/system/services"] .fa-exclamation-triangle')
+
+            # System page should not have notification
+            b.click('#host-apps a[href="/system"]')
+            b.enter_page('/system')
+            b.wait_not_in_text(".system-health-events", "failed")
+
+        self.allow_journal_messages(".*type=1400 audit(.*): avc:  denied  { create } .* comm=\"systemd\" name=\"fail\".*")
 
 if __name__ == '__main__':
     test_main()

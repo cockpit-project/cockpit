@@ -21,7 +21,7 @@ $(function() {
 
     $(".super-channel .btn").on("click", function() {
         $(".super-channel span").text("checking...");
-        cockpit.spawn(["id"], { "superuser": true })
+        cockpit.spawn(["id"], { superuser: true })
                 .done(function(data) {
                     console.log("done");
                     $(".super-channel span").text("result: " + data);
@@ -32,9 +32,21 @@ $(function() {
                 });
     });
 
+    $(".lock-channel .btn").on("click", function() {
+        $(".lock-channel span").text("locking...");
+        cockpit.spawn(["flock", "-o", "/tmp/playground-test-lock", "-c", "echo locked; sleep infinity"],
+                      { err: "message" })
+                .stream(function(data) {
+                    $(".lock-channel span").text(data);
+                })
+                .fail(function(ex) {
+                    $(".lock-channel span").text("failed: " + ex.toString());
+                });
+    });
+
     function update_nav() {
         $('#nav').empty();
-        var path = [ "top" ].concat(cockpit.location.path);
+        var path = ["top"].concat(cockpit.location.path);
         $(path).each(function (i, p) {
             if (i < path.length - 1) {
                 $('#nav').append(
@@ -106,10 +118,10 @@ $(function() {
     load_file();
 
     $('#delete-file').click(function () {
-        cockpit.spawn([ "rm", "-f", "tmp/counter" ]);
+        cockpit.spawn(["rm", "-f", "tmp/counter"]);
     });
 
-    $("body").show();
+    $("body").prop("hidden", false);
 
     function show_hidden() {
         $("#hidden").text(cockpit.hidden ? "hidden" : "visible");

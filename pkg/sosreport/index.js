@@ -51,9 +51,9 @@ function sos_create() {
     $("#sos-cancel").text(_("Cancel"));
 
     sos_archive_url = null;
-    sos_archive_files = [ ];
+    sos_archive_files = [];
 
-    var task = cockpit.script(run_sosreport_sh, [ "--batch" ],
+    var task = cockpit.script(run_sosreport_sh, ["--batch"],
                               { superuser: true, err: "out", pty: true });
     sos_task = task;
 
@@ -107,7 +107,7 @@ function sos_create() {
                 if (archive.indexOf("/host") === 0)
                     archive = archive.substr(5);
 
-                sos_archive_files = [ archive, archive + ".md5" ];
+                sos_archive_files = [archive, archive + ".md5"];
 
                 var query = window.btoa(JSON.stringify({
                     payload: "fsread1",
@@ -145,13 +145,13 @@ function sos_cancel() {
         sos_task = null;
     }
     if (sos_archive_files.length > 0) {
-        cockpit.spawn([ "rm" ].concat(sos_archive_files), { superuser: true, err: "message" })
+        cockpit.spawn(["rm"].concat(sos_archive_files), { superuser: true, err: "message" })
                 .fail(function (error) {
                     console.log("failed to remove", sos_archive_files, error);
                 });
     }
     sos_archive_url = null;
-    sos_archive_files = [ ];
+    sos_archive_files = [];
     $("#sos").modal('hide');
 }
 
@@ -175,7 +175,7 @@ function init() {
         $('#sos-download button').on('click', sos_download);
 
         cockpit.translate();
-        $('body').show();
+        $('body').prop("hidden", false);
 
         // Send a 'init' message.  This tells the tests that we
         // are ready to go.

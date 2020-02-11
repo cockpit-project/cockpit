@@ -35,6 +35,7 @@ MAINTAINERCLEANFILES = \
 
 EXTRA_DIST = \
 	package.json \
+	package-lock.json \
 	README.md \
 	$(NULL)
 
@@ -118,6 +119,8 @@ SUBST_RULE = \
 	-e 's,[@]SUDO[@],$(SUDO),g' \
 	-e 's,[@]user[@],$(COCKPIT_USER),g' \
 	-e 's,[@]group[@],$(COCKPIT_GROUP),g' \
+	-e 's,[@]wsinstanceuser[@],$(COCKPIT_WSINSTANCE_USER),g' \
+	-e 's,[@]wsinstancegroup[@],$(COCKPIT_WSINSTANCE_GROUP),g' \
 	-e 's,[@]selinux_config_type[@],$(COCKPIT_SELINUX_CONFIG_TYPE),g' \
 	-e 's,[@]with_networkmanager_needs_root[@],$(with_networkmanager_needs_root),g' \
 	-e 's,[@]with_storaged_iscsi_sessions[@],$(with_storaged_iscsi_sessions),g' \
@@ -159,7 +162,6 @@ WEBPACK_PACKAGES = \
 	pcp \
 	packagekit \
 	playground \
-	realmd \
 	selinux \
 	shell \
 	sosreport \
@@ -220,7 +222,7 @@ clean-local::
 	$(AM_V_at)test "$(srcdir)" == "$(builddir)" || rm -rf dist/
 
 maintainer-clean-local::
-	rm -rf dist/ node_modules/
+	rm -rf dist/ node_modules/ package-lock.json
 
 install-data-local:: $(WEBPACK_INSTALL)
 	$(MKDIR_P) $(DESTDIR)$(pkgdatadir)
@@ -280,16 +282,9 @@ VALGRIND_ARGS = --trace-children=yes --quiet --error-exitcode=33 \
 	--num-callers=16 --leak-check=yes --show-leak-kinds=definite \
 	--errors-for-leak-kinds=definite --trace-children-skip='*mock*,/bin*,/usr/bin/*,/usr/local/bin'
 VALGRIND_SUPPRESSIONS = \
-	tools/gcrypt.supp \
 	tools/glib.supp \
-	tools/pthread.supp \
-	tools/travis.supp \
-	tools/polkit.supp \
-	tools/pcp.supp \
-	tools/unknown.supp \
-	tools/zlib.supp \
 	tools/libssh.supp \
-	tools/json-glib.supp \
+	tools/polkit.supp \
 	tools/gnutls.supp \
 	$(NULL)
 
@@ -298,7 +293,7 @@ VALGRIND_ARGS += --aspace-minaddr=0x100000000
 endif
 
 valgrind-suppressions: $(VALGRIND_SUPPRESSIONS)
-	$(AM_V_GEN) cat $^ > $@
+	$(AM_V_GEN) cat $^ /usr/share/glib-2.0/valgrind/glib.supp > $@
 
 check-memory: valgrind-suppressions
 	$(MAKE) LOG_FLAGS="valgrind $(VALGRIND_ARGS)" \
@@ -414,7 +409,7 @@ dist-hook:: $(WEBPACK_PACKAGES:%=dist/%/manifest.json)
 	[ ! -e $(distdir)/tools/cockpit.spec ] || $(srcdir)/tools/gen-spec-dependencies $(distdir)/tools/cockpit.spec
 
 DIST_TAR_MAIN = tar --format=posix -cf - "$(distdir)"
-DIST_TAR_CACHE = tar --format=posix -cf - --transform="flags=r;s|^\./||" --transform="flags=r;s|^|$(distdir)/|" \
+DIST_TAR_CACHE = tar --format=posix -cf - --transform="flags=r;s|^\./||" --transform="flags=r;s|^|$(distdir)/|" --exclude test \
 	"$(srcdir)/node_modules" "$(srcdir)/package.json"
 
 DIST_ARCHIVES = \
@@ -435,6 +430,12 @@ dist-xz: distdir
 
 distcheck-hook::
 	$(srcdir)/tools/check-dist $(distdir)
+
+# checkout Cockpit's bots for standard test VM images and API to launch them
+# must be from master, as only that has current and existing images; but testvm.py API is stable
+# support CI testing against a bots change
+bots:
+	tools/make-bots
 
 include po/Makefile.am
 include pkg/Makefile.am

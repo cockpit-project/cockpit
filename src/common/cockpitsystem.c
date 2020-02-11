@@ -42,6 +42,7 @@ static const gchar *os_release_fields[] = {
   "VARIANT",
   "VARIANT_ID",
   "CPE_NAME",
+  "DOCUMENTATION_URL",
   NULL
 };
 

@@ -19,8 +19,8 @@
 
 /* ---------------------------------------------------------------------------------------------------- */
 
-@import (less) "../lib/page.css";
-@import (less) "../lib/table.css";
+@import "../lib/page.css";
+@import "../lib/table.css";
 @import "variables.less";
 @import "switcher.less";
 @import "active-pages.less";
@@ -287,6 +287,10 @@ html.index-page body {
     padding: 15px;
 }
 
+#machine-change-auth > p {
+    margin-bottom: 5px;
+}
+
 #add-unknown-host pre {
     margin: 0;
 }
@@ -294,6 +298,18 @@ html.index-page body {
 #edit-machine-port {
     width: 100px;
 }
+
+/* navbar documentation */
+
+#navbar-docs-items a {
+    color: var(--color-link)
+}
+
+#navbar-docs .dropdown-menu a i.fa{
+    padding-left: 5px;
+    vertical-align: baseline;
+}
+
 
 /* navbar styles */
 
@@ -689,7 +705,7 @@ thead.credential-lock.credential-unlocked > *:last-child {
 
         td {
             overflow: auto;
-            word-wrap: break-word;
+            overflow-wrap: break-word;
 
             /* server overview dashboard */
             button {
@@ -746,13 +762,21 @@ iframe.container-frame {
 }
 
 /* Credentials dialog */
+#ssh-file-container, #ssh-file-add {
+  display: inline-block;
+}
 
 #credentials-dialog {
-    .modal-body {
+    div.table-scrollable {
         max-height: 500px;
+        overflow-y: auto;
+        margin-right: 7px;
+        padding-right: 8px;
+        margin-top: 15px;
+        padding-top: 0px;
     }
 
-    table.credential-listing {
+    table {
         margin-top: 0px;
         width: 100%;
 
@@ -840,7 +864,7 @@ iframe.container-frame {
 }
 
 .credential-data {
-    word-wrap: break-word;
+    overflow-wrap: break-word;
     word-break: break-all;
 }
 
@@ -875,16 +899,6 @@ iframe.container-frame {
     border-left: 4px solid rgba(255, 255, 255, 0.25);
     border-right: 4px solid rgba(255, 255, 255, 0.25);
     border-top: 4px solid rgba(255, 255, 255, 0.75);
-}
-
-
-/* Scrollable modal body, needs max-height set elsewhere */
-.modal-scrollable {
-    overflow-y: auto;
-    margin-right: 7px;
-    padding-right: 8px;
-    margin-top: 15px;
-    padding-top: 0px;
 }
 
 /* allow text only branding */
@@ -945,8 +959,6 @@ It is less bad than using !important, at least.
             font-size: var(--pf-global--FontSize--md);
             margin: 0;
             color: var(--pf-global--Color--light-100) !important;
-            /* Force better text rendering for dark bg */
-            text-shadow: 0 0;
         }
 
         .credential-unlocked {
@@ -983,6 +995,48 @@ It is less bad than using !important, at least.
 
         .fa-bars {
             margin: 0;
+        }
+    }
+}
+
+// Add color to nav icons
+#host-apps .list-group-item {
+    .fa-info-circle {
+        color: var(--pf-global--info-color--100);
+    }
+
+    .fa-exclamation-triangle {
+        color: var(--pf-global--warning-color--100);
+    }
+
+    .fa-exclamation-circle {
+        color: #f54f42;
+    }
+
+    // Add a background to shine through the icon's gaps
+    // (for better contrast, even when hovering / selected)
+    .fa {
+        // Set position for the icon sandwiching
+        position: relative;
+        // Add a shadow around the icon
+        text-shadow: 1px 0 1px var(--color-ct-nav), 0 1px 1px var(--color-ct-nav), -1px 0 1px var(--color-ct-nav), 0 -1px 1px var(--color-ct-nav);
+
+        // Move the icon up the stack
+        &::before {
+            z-index: 1;
+            position: relative;
+        }
+
+        // Fill the interior gaps
+        &::after {
+            position: absolute;
+            content: '';
+            background-color: var(--color-ct-nav);
+            border-radius: 3px;
+            top: 3px;
+            right: 5px;
+            bottom: 3px;
+            left: 5px;
         }
     }
 }

@@ -26,64 +26,7 @@
     text-align: center;
     margin: 5px;
     color: var(--color-gray-9);
-}
-
-#storage .storage-mounts .table {
-    table-layout: fixed;
-}
-
-#storage .storage-mounts .table th,
-#storage .storage-mounts .table td {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    vertical-align: middle;
-}
-
-@media (max-width: 1200px) {
-    .storage-mounts .mount-name {
-        width: 25%;
-    }
-    .storage-mounts .mount-point {
-        width: 25%;
-    }
-    .storage-mounts .mount-size-graph {
-        width: 25%;
-    }
-    .storage-mounts .mount-size-number {
-        width: 25%;
-    }
-    .storage-mounts .mount-actions {
-        width: 50%;
-    }
-}
-
-@media (min-width: 1200px) {
-    .storage-mounts .mount-name {
-        width: 20%;
-    }
-    .storage-mounts .mount-point {
-        width: 20%;
-    }
-    .storage-mounts .mount-size-graph {
-        width: 45%;
-    }
-    .storage-mounts .mount-size-number {
-        width: 15%;
-    }
-    .storage-mounts .mount-actions {
-        width: 60%;
-    }
-}
-
-#nfs-mounts tr {
-    height: 43px;
-}
-
-@media (max-width: 1814px) {
-    #storage .storage-disk-size {
-        width: 100%;
-    }
+    font-size: var(--pf-global--FontSize--sm);
 }
 
 #storage .create-storage {
@@ -108,7 +51,6 @@
 }
 
 #storage .storage-sidebar .table td {
-    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     vertical-align: top;
@@ -126,39 +68,6 @@
 #storage_raids .row span.raid-size,
 #storage_vgs .row span.vg-size {
     text-align: right;
-}
-
-#storage .storage-sidebar .storage-disk-size {
-    padding-right: 5px;
-}
-
-#storage .storage-sidebar .storage-disk-name {
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.storage-disk-info {
-    font-size: var(--pf-global--FontSize--xs);
-}
-
-.storage-disk-info h3 {
-    font-size: var(--pf-global--FontSize--sm);
-    margin: 0;
-    padding: 0;
-}
-
-.storage-disk-size {
-    margin: 0.125rem 0 0.25rem;
-}
-
-.storage-disk-rates {
-    display: flex;
-    justify-content: space-between;
-}
-
-.storage-disk-rate-read,
-.storage-disk-rate-write {
-    width: calc(50% - 0.5rem);
 }
 
 @media (min-width: 768px) {
@@ -728,4 +637,48 @@ td.storage-action {
 
 .ct-form-box {
     margin-bottom: 1em;
+}
+
+/* Overview side panels */
+
+#storage .storage-sidebar .table {
+    table-layout: fixed;
+}
+
+.sidepanel-row {
+    display: flex;
+    flex-direction: row;
+}
+
+.sidepanel-row-detail {
+    margin-right: 0.5em;
+}
+
+.sidepanel-row-body {
+    flex: auto;
+}
+
+.sidepanel-row-info {
+    font-size: var(--pf-global--FontSize--xs);
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-between;
+}
+
+.sidepanel-row-decoration {
+    align-self: center;
+    white-space: nowrap;
+    margin-left: 1em;
+}
+
+.sidepanel-row .spinner {
+    display: inline-block;
+}
+
+.panel-heading {
+    position: static;
+}
+
+.storage_alert_action_buttons button {
+    margin: 0.5rem 0.2rem 0.2rem 0;
 }

@@ -38,7 +38,21 @@ class TestNetworking(NetworkCase):
 
         iface = self.add_iface()
         self.wait_for_iface(iface)
+        b.wait_not_visible("#network-interface")
 
+        # Graphs are visible
+        el_width = "(function (sel) { return ph_find(sel).offsetWidth; })"
+        el_height = "(function (sel) { return ph_find(sel).offsetHeight; })"
+
+        b.wait_visible("#networking-tx-graph")
+        self.assertGreater(b.call_js_func(el_width, "#networking-tx-graph"), 200)
+        self.assertGreater(b.call_js_func(el_height, "#networking-tx-graph"), 100)
+
+        b.wait_visible("#networking-rx-graph")
+        self.assertGreater(b.call_js_func(el_width, "#networking-rx-graph"), 200)
+        self.assertGreater(b.call_js_func(el_height, "#networking-rx-graph"), 100)
+
+        # Details of test iface
         b.click("#networking-interfaces tr[data-interface='%s']" % iface)
         b.wait_visible("#network-interface")
 
@@ -46,12 +60,12 @@ class TestNetworking(NetworkCase):
         #
         b.click("tr:contains('IPv4') a")
         b.wait_popup("network-ip-settings-dialog")
-        b.click("#network-ip-settings-dialog .btn.dropdown-toggle")
-        b.click("#network-ip-settings-dialog a:contains('Manual')")
+        b.select_from_dropdown("#network-ip-settings-dialog select", "Manual")
+
         b.set_val('#network-ip-settings-dialog input[placeholder="Address"]', "1.2.3.4")
         b.set_val('#network-ip-settings-dialog input[placeholder*="Netmask"]', "255.255.0.8")
         b.click("#network-ip-settings-dialog button:contains('Apply')")
-        b.wait_text_not("#network-ip-settings-error span", "")
+        b.wait_text_not("#network-ip-settings-error h4", "")
         b.set_val('#network-ip-settings-dialog input[placeholder*="Netmask"]', "255.255.192.0")
         b.click("#network-ip-settings-dialog button:contains('Apply')")
         b.wait_popdown("network-ip-settings-dialog")
@@ -137,16 +151,10 @@ systemctl daemon-reload""")
         assert_stopped(True)
         b.click("#networking-nm-crashed a")
         b.enter_page("/system/services")
-        if m.image in ["rhel-8-0-distropkg"]: # Changed in #12265
-            b.wait_in_text("#service-unit", "NetworkManager.service")
-            b.click("button[data-action='StartUnit']")
-            b.wait_in_text("#service-unit", "active")
-            b.wait_present("button[data-action='StopUnit']")
-        else:
-            b.wait_text(".service-name", "Network Manager")
-            b.click(".service-top-panel .dropdown-kebab-pf button")
-            b.click(".service-top-panel .dropdown-menu a:contains('Start')")
-            b.wait_in_text("#statuses", "Running")
+        b.wait_text(".service-name", "Network Manager")
+        b.click(".service-top-panel .dropdown-kebab-pf button")
+        b.click(".service-top-panel .dropdown-menu a:contains('Start')")
+        b.wait_in_text("#statuses", "Running")
 
         # networking page should notice start from Services page
         b.go("/network")

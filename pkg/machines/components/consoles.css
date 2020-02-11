@@ -1,5 +1,68 @@
-.vnc-console .console-menu {
-    display: inline-block;
-    margin-bottom: -10px;
-    margin-top: -3px;
+
+/* Size console based on content, allowing it to wrap */
+.vnc-console {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+}
+
+/* Console menu should stretch to fill available space */
+.vnc-console > .console-menu {
+    flex: auto;
+}
+
+/* Vertical align the label and dropdown */
+.vnc-console .console-menu .form-table-ct td {
+    vertical-align: middle;
+}
+
+/* Provide adaquate padding, regardless of flow */
+.vnc-console > .console-menu,
+.vnc-console > .toolbar-pf-action-right {
+    padding: 0 1rem 0.5rem 0;
+}
+
+/* Make dropdown and button the same height */
+.vnc-console > .toolbar-pf-action-right .dropdown,
+.vnc-console > .toolbar-pf-action-right .btn {
+    min-height: 2rem;
+}
+
+/* Space action buttons apart */
+.vnc-console > .toolbar-pf-action-right .dropdown + .btn {
+    margin-left: 0.5rem;
+}
+
+/* Don't add pixels above "results" VNC area */
+.vnc-console > .toolbar-pf-results {
+    margin: 0;
+}
+
+/* VNC console really shouldn't be a col-sm-12 */
+/* but we inherit the code from PF3/react/console */
+.vnc-console > .toolbar-pf-results .col-sm-12 {
+    margin: 0;
+    padding: 0;
+    float: none;
+}
+
+/* Make the VNC canvas scale down to available width */
+.vnc-console canvas {
+    max-width: 100%;
+    height: auto !important;
+}
+
+.vm-terminal {
+    padding-top: 20px;
+}
+
+.terminal-control {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.terminal-control .form-table-ct {
+    width: unset;
 }

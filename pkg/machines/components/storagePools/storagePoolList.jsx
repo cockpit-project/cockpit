@@ -18,7 +18,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Breadcrumb } from 'patternfly-react';
+import { Breadcrumb, BreadcrumbItem } from '@patternfly/react-core';
 
 import cockpit from 'cockpit';
 import { Listing } from 'cockpit-components-listing.jsx';
@@ -29,20 +29,25 @@ import { CreateStoragePoolAction } from './createStoragePoolDialog.jsx';
 const _ = cockpit.gettext;
 
 export class StoragePoolList extends React.Component {
+    shouldComponentUpdate(nextProps, _) {
+        const storagePools = nextProps.storagePools;
+        return !storagePools.find(pool => !pool.name);
+    }
+
     render() {
         const { storagePools, dispatch, loggedUser, vms, resourceHasError, onAddErrorNotification, libvirtVersion } = this.props;
         const sortFunction = (storagePoolA, storagePoolB) => storagePoolA.name.localeCompare(storagePoolB.name);
         const actions = (<CreateStoragePoolAction dispatch={dispatch} loggedUser={loggedUser} libvirtVersion={libvirtVersion} />);
 
         return (
-            <React.Fragment>
-                <Breadcrumb className='machines-listing-breadcrumb' title>
-                    <Breadcrumb.Item onClick={() => cockpit.location.go(['vms']) }>
+            <>
+                <Breadcrumb className='machines-listing-breadcrumb'>
+                    <BreadcrumbItem to='#'>
                         {_("Virtual Machines")}
-                    </Breadcrumb.Item>
-                    <Breadcrumb.Item active>
+                    </BreadcrumbItem>
+                    <BreadcrumbItem isActive>
                         {_("Storage Pools")}
-                    </Breadcrumb.Item>
+                    </BreadcrumbItem>
                 </Breadcrumb>
                 <div id='storage-pools-listing' className='container-fluid'>
                     <Listing title={_("Storage Pools")}
@@ -55,7 +60,7 @@ export class StoragePoolList extends React.Component {
                                     const filterVmsByConnection = vms.filter(vm => vm.connectionName == storagePool.connectionName);
 
                                     return (
-                                        <StoragePool key={`${storagePoolId(storagePool.name, storagePool.connectionName)}`}
+                                        <StoragePool key={`${storagePoolId(storagePool.id, storagePool.connectionName)}`}
                                             storagePool={storagePool}
                                             vms={filterVmsByConnection}
                                             resourceHasError={resourceHasError}
@@ -65,7 +70,7 @@ export class StoragePoolList extends React.Component {
                         }
                     </Listing>
                 </div>
-            </React.Fragment>
+            </>
         );
     }
 }

@@ -1,3 +1,5 @@
+@import "../../node_modules/@patternfly/react-styles/css/patternfly-variables.css";
+
 a {
     cursor: pointer;
 }
@@ -138,30 +140,37 @@ a.disabled:hover {
    background-color: #e0e0e0;
 }
 
+.link-button {
+    background-color: transparent;
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--pf-global--link--Color);
+    border: none;
+    display: inline;
+    margin: 0;
+    padding: 0;
+}
+
+.link-button:hover,
+.link-button:focus {
+    text-decoration: underline;
+    outline: 0;
+    color: var(--pf-global--link--Color--hover);
+}
+
+.link-button.disabled {
+    pointer-events: none;
+    cursor: default;
+    color: var(--pf-global--disabled-color--100);
+}
+
 /* Small list inside a dialog */
 /* Alert fixups */
 
-.modal-content .alert {
+.modal-content .pf-c-alert {
     text-align: left;
-    padding-top: 5px;
-    padding-bottom: 5px;
+    margin-bottom: 24px;
 }
-
-.modal-content .alert .fa {
-    position: absolute;
-    left: 10px;
-    top: 6px;
-    font-size: 20px;
-}
-
-.modal-content .alert .pficon {
-    top: 5px;
-}
-
-.alert.alert-danger .fa {
-    color: #af151a;
-}
-
 /* Dialog patterns */
 
 .dialog-wait-ct {
@@ -269,24 +278,24 @@ input[type=number] {
     --color-ct-brick-gold : #ffa763;
     --color-ct-brick-red  : #a53131;
 
-    --color-ct-nav            : #292e34;
-    --color-ct-nav-sub        : var(--pf-global--BackgroundColor--100);
-    --color-ct-nav-text       : var(--pf-global--Color--100);
-    --color-ct-nav-active     : var(--pf-global--BackgroundColor--150);
-    --color-ct-nav-active-text: var(--color-link);
-    --color-ct-nav-hover      : var(--pf-global--BackgroundColor--150);
-    --color-ct-nav-hover-text : var(--color-link);
+    --color-ct-nav            : #1b1b1b;
+    --color-ct-nav-sub        : var(--pf-global--BackgroundColor--dark-300);
+    --color-ct-nav-text       : var(--pf-global--BackgroundColor--light-300);
+    --color-ct-nav-active     : var(--pf-global--BackgroundColor--dark-400);
+    --color-ct-nav-active-text: var(--pf-global--BackgroundColor--light-100);
+    --color-ct-nav-hover     : var(--pf-global--BackgroundColor--dark-400);
+    --color-ct-nav-hover-text: var(--pf-global--BackgroundColor--light-100);
     --color-ct-nav-border     : var(--pf-global--BorderColor--100);
-    --color-ct-nav-cover-up   : linear-gradient(to bottom, var(--color-ct-nav-sub), rgba(255,255,255, 0));
-    --color-ct-nav-cover-down : linear-gradient(to top, var(--color-ct-nav-sub), rgba(255,255,255, 0));
+    --color-ct-nav-cover-up   : linear-gradient(to bottom, var(--color-ct-nav-sub), rgba(21,21,21, 0));
+    --color-ct-nav-cover-down : linear-gradient(to top, var(--color-ct-nav-sub), rgba(21,21,21, 0));
 
-    --color-ct-nav-main            : var(--pf-global--BorderColor--300);
+    --color-ct-nav-main            : #1b1b1b;
     --color-ct-nav-main-text       : var(--color-ct-nav-text);
-    --color-ct-nav-main-border     : var(--pf-global--BorderColor--100);
+    --color-ct-nav-main-border     : var(--pf-global--BackgroundColor--dark-200);
     --color-ct-nav-main-active     : var(--color-ct-nav-sub);
-    --color-ct-nav-main-active-text: var(--color-link);
-    --color-ct-nav-main-hover      : var(--pf-global--BackgroundColor--200);
-    --color-ct-nav-main-hover-text : var(--pf-global--Color--300);
+    --color-ct-nav-main-active-text: var(--color-ct-nav-active-text);
+    --color-ct-nav-main-hover      : var(--color-ct-nav-hover);
+    --color-ct-nav-main-hover-text : var(--color-ct-nav-hover-text);
 
     --color-border: var(--pf-global--BorderColor--100);
 
@@ -516,4 +525,28 @@ input[type=number] {
     --color-table-border              : #ededed;
     --color-table-border-bottom       : #ededed;
     --color-table-text                : #393f44;
+}
+
+[hidden] { display: none !important; }
+
+/*** PF4 overrides (when a mix of PF3 + PF4 is used at the same time) ***/
+
+/* WORKAROUND: Override word-break bug */
+/* See: https://github.com/patternfly/patternfly-next/issues/2325 */
+.pf-c-table td {
+    word-break: normal;
+    overflow-wrap: break-word;
+}
+
+/* Fix alignment for icons inside of dropdown toggle (& split) buttons */
+/* Part 1 of 2 */
+.pf-c-dropdown__toggle {
+  align-items: stretch;
+  /* PF4 uses align-items: center here; stretch (the default) is what we need. */
+}
+
+/* Align the icons inside of the toggle. Part 2 of 2 */
+.pf-c-dropdown__toggle-button {
+  display: flex;
+  align-items: center;
 }

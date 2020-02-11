@@ -45,6 +45,8 @@ void                  cockpit_dbus_machines_startup      (void);
 
 void                  cockpit_dbus_machines_cleanup      (void);
 
+void                  cockpit_dbus_config_startup        (void);
+
 G_END_DECLS
 
 #endif /* __COCKPIT_DBUS_INTERNAL_H */

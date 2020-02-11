@@ -51,13 +51,13 @@ function fatal() {
 function fail(err) {
     if (typeof err === 'undefined')
         err = null;
-    process.stdout.write(JSON.stringify({"error": err}) + '\n');
+    process.stdout.write(JSON.stringify({ error: err }) + '\n');
 }
 
 function success(result) {
     if (typeof result === 'undefined')
         result = null;
-    process.stdout.write(JSON.stringify({"result": result}) + '\n');
+    process.stdout.write(JSON.stringify({ result: result }) + '\n');
 }
 
 /**
@@ -68,6 +68,7 @@ var messages = [];
 var logPromiseResolver;
 var nReportedLogMessages = 0;
 var unhandledExceptions = [];
+var sawRefusedInlineStyle = false;
 
 function clearExceptions() {
     unhandledExceptions.length = 0;
@@ -78,15 +79,15 @@ function setupLogging(client) {
     client.Runtime.enable();
 
     client.Runtime.consoleAPICalled(info => {
-        let msg = info.args.map(v => (v.value || "").toString()).join(" ");
-        messages.push([ info.type, msg ]);
-        process.stderr.write("> " + info.type + ": " + msg + "\n")
+        const msg = info.args.map(v => (v.value || "").toString()).join(" ");
+        messages.push([info.type, msg]);
+        process.stderr.write("> " + info.type + ": " + msg + "\n");
 
         resolveLogPromise();
     });
 
     function processException(info) {
-        let details = info.exceptionDetails;
+        const details = info.exceptionDetails;
         // don't log test timeouts, they already get handled
         if (details.exception && details.exception.className === "PhWaitCondTimeout")
             return;
@@ -110,18 +111,28 @@ function setupLogging(client) {
             typeof entry.entry.text === "string" &&
             entry.entry.text.indexOf("Error: ") !== -1) {
             trace = entry.entry.text.split(": ", 1);
-            processException({exceptionDetails: {
-                exception: {
-                    className: trace[0],
-                    message: trace.length > 1 ? trace[1] : "",
-                    stacktrace: entry.entry.stackTrace,
-                    entry: entry.entry,
-                },
-            }
+            processException({
+                exceptionDetails: {
+                    exception: {
+                        className: trace[0],
+                        message: trace.length > 1 ? trace[1] : "",
+                        stacktrace: entry.entry.stackTrace,
+                        entry: entry.entry,
+                    },
+                }
             });
         } else {
-            let msg = entry["entry"];
-            messages.push([ "cdp", msg ]);
+            const msg = entry.entry;
+
+            /* Reduce unsafe-inline messages from PatternFly's usage of Emotion
+             * (https://github.com/patternfly/patternfly-react/issues/2919) */
+            if ((msg.text || "").indexOf("Content Security Policy:") >= 0 && (msg.text || "").indexOf("resource at inline") >= 0) {
+                if (sawRefusedInlineStyle)
+                    return;
+                sawRefusedInlineStyle = true;
+            }
+
+            messages.push(["cdp", msg]);
             /* Ignore authentication failure log lines that don't denote failures */
             if (!(msg.url || "").endsWith("/login") || (msg.text || "").indexOf("401") === -1)
                 process.stderr.write("CDP: " + JSON.stringify(msg) + "\n");
@@ -202,9 +213,9 @@ function setupFrameTracking(client) {
     client.Runtime.executionContextCreated(info => {
         debug("executionContextCreated " + JSON.stringify(info));
         scriptsOnNewContext.forEach(s => {
-            client.Runtime.evaluate({expression: s, contextId:info.context.id});
+            client.Runtime.evaluate({ expression: s, contextId:info.context.id });
         });
-        client.Runtime.evaluate({expression: "window.name", contextId:info.context.id}).then(r => {
+        client.Runtime.evaluate({ expression: "window.name", contextId:info.context.id }).then(r => {
             // HACK: window.name of the topmost/login window on first login is "",
             // but when relogin or refresh it is "cockpit1"
             const frame_name = r.result.value || "cockpit1";
@@ -230,32 +241,32 @@ function getFrameExecId(frame) {
 }
 
 function expectLoad(timeout) {
-    var tm = setTimeout( () => pageLoadReject("timed out waiting for page load"), timeout);
-    pageLoadPromise.then( () => { clearTimeout(tm); pageLoadPromise = null; });
+    var tm = setTimeout(() => pageLoadReject("timed out waiting for page load"), timeout);
+    pageLoadPromise.then(() => { clearTimeout(tm); pageLoadPromise = null });
     return pageLoadPromise;
 }
 
 function expectLoadFrame(name, timeout) {
     return new Promise((resolve, reject) => {
-        let tm = setTimeout( () => reject("timed out waiting for frame load"), timeout );
+        const tm = setTimeout(() => reject("timed out waiting for frame load"), timeout);
 
         // we can only have one Page.frameNavigated() handler, so let our handler above resolve this promise
         frameWaitName = name;
         new Promise((fwpResolve, fwpReject) => { frameWaitPromiseResolve = fwpResolve })
-            .then(() => {
+                .then(() => {
                 // For the frame to be fully valid for queries, it also needs the corresponding
                 // executionContextCreated() signal. This might happen before or after frameNavigated(), so wait in case
                 // it happens afterwards.
-               function pollExecId() {
-                    if (frameNameToContextId[name]) {
-                        clearTimeout(tm);
-                        resolve();
-                    } else {
-                        setTimeout(pollExecId, 100);
+                    function pollExecId() {
+                        if (frameNameToContextId[name]) {
+                            clearTimeout(tm);
+                            resolve();
+                        } else {
+                            setTimeout(pollExecId, 100);
+                        }
                     }
-                }
-                pollExecId();
-            });
+                    pollExecId();
+                });
     });
 }
 
@@ -269,7 +280,7 @@ function expectLoadFrame(name, timeout) {
  */
 process.stdin.setEncoding('utf8');
 
-if (process.env["TEST_CDP_DEBUG"])
+if (process.env.TEST_CDP_DEBUG)
     enable_debug = true;
 
 options = { };
@@ -303,19 +314,21 @@ function evaluate(cmd) {
     return new Promise((resolve, reject) => {
         const match_exp = cmd.expression.match(/ph_wait_cond[^=]*=>\s*([\s\S]*),\s*(\d*)/);
         let stepTimer = null;
-        let tm = setTimeout( () => {
-                if (stepTimer)
-                    clearTimeout(stepTimer);
-                resolve({exceptionDetails: {
+        const tm = setTimeout(() => {
+            if (stepTimer)
+                clearTimeout(stepTimer);
+            resolve({
+                exceptionDetails: {
                     exception: {
                         type: "string",
                         value: "timeout",
                     }
-                }});
-            }, parseInt(match_exp[2]));
+                }
+            });
+        }, parseInt(match_exp[2]));
         function step() {
-            let context = getFrameExecId(last_frame_name);
-            the_client.Runtime.evaluate({expression: match_exp[1], contextId: context}).then(r => {
+            const context = getFrameExecId(last_frame_name);
+            the_client.Runtime.evaluate({ expression: match_exp[1], contextId: context }).then(r => {
                 if (r && r.result && r.result.value === true) {
                     clearTimeout(tm);
                     resolve(r);
@@ -323,18 +336,20 @@ function evaluate(cmd) {
                     stepTimer = setTimeout(step, 100);
                 }
             })
-            .catch(e => {
-                if (e.response.message.indexOf("Unable to find execution context with id")) {
-                    stepTimer = setTimeout(step, 100);
-                } else {
-                    resolve({exceptionDetails: {
-                        exception: {
-                            type: "string",
-                            value: "timeout",
+                    .catch(e => {
+                        if (e.response.message.indexOf("Unable to find execution context with id")) {
+                            stepTimer = setTimeout(step, 100);
+                        } else {
+                            resolve({
+                                exceptionDetails: {
+                                    exception: {
+                                        type: "string",
+                                        value: "timeout",
+                                    }
+                                }
+                            });
                         }
-                    }});
-                }
-            });
+                    });
         }
         step();
     });
@@ -356,70 +371,70 @@ function evaluate(cmd) {
 // Just calling executable to open another tab in the same browser works also for chromium, so
 // should be fine
 CDP(options)
-    .then(client => {
-        the_client = client;
-        setupLogging(client);
-        setupFrameTracking(client);
-        // TODO: Security handling not yet supported in Firefox
+        .then(client => {
+            the_client = client;
+            setupLogging(client);
+            setupFrameTracking(client);
+            // TODO: Security handling not yet supported in Firefox
 
-        let input_buf = '';
-        process.stdin
-            .on('data', chunk => {
-                input_buf += chunk;
-                while (true) {
-                    let i = input_buf.indexOf('\n');
-                    if (i < 0)
-                        break;
-                    let command = input_buf.slice(0, i);
+            let input_buf = '';
+            process.stdin
+                    .on('data', chunk => {
+                        input_buf += chunk;
+                        while (true) {
+                            const i = input_buf.indexOf('\n');
+                            if (i < 0)
+                                break;
+                            let command = input_buf.slice(0, i);
 
-                    // initialize loadEventFired promise for every command except expectLoad() itself (as that
-                    // waits for a load event from the *previous* command); but if the previous command already
-                    // was an expectLoad(), reinitialize also, as there are sometimes two consecutive expectLoad()s
-                    if (!pageLoadPromise || !command.startsWith("expectLoad("))
-                        pageLoadPromise = new Promise((resolve, reject) => { pageLoadResolve = resolve; pageLoadReject = reject; });
+                            // initialize loadEventFired promise for every command except expectLoad() itself (as that
+                            // waits for a load event from the *previous* command); but if the previous command already
+                            // was an expectLoad(), reinitialize also, as there are sometimes two consecutive expectLoad()s
+                            if (!pageLoadPromise || !command.startsWith("expectLoad("))
+                                pageLoadPromise = new Promise((resolve, reject) => { pageLoadResolve = resolve; pageLoadReject = reject });
 
-                    // HACKS: See description of related functions
-                    if (command.startsWith("client.Page.addScriptToEvaluateOnNewDocument"))
-                        command = command.substring(12);
-                    if (command.startsWith("client.Runtime.evaluate") && command.indexOf("ph_wait_cond") !== -1)
-                        command = command.substring(15);
+                            // HACKS: See description of related functions
+                            if (command.startsWith("client.Page.addScriptToEvaluateOnNewDocument"))
+                                command = command.substring(12);
+                            if (command.startsWith("client.Runtime.evaluate") && command.indexOf("ph_wait_cond") !== -1)
+                                command = command.substring(15);
 
-                    // run the command
-                    eval(command).then(reply => {
-                        // HACK: Runtime.evaluate has option returnByValue but Firefox does not
-                        // implement it and thus returns just RemoteObject of type 'array' with no
-                        // data. These data need to be gathered differently.
-                        if (reply && reply.result && reply.result.subtype === "array") {
-                            client.Runtime.getProperties({objectId: reply.result.objectId}).then(r => {
-                                if (unhandledExceptions.length === 0) {
-                                    success({result: {
-                                        type: "array",
-                                        // HACK: getProperties has two ways how to get only own
-                                        // properties, but neither is implemented in Firefox
-                                        value: r.result.filter(x => x.isOwn && x.configurable).map(x => x.value.value),
+                            // run the command
+                            eval(command).then(reply => {
+                                // HACK: Runtime.evaluate has option returnByValue but Firefox does not
+                                // implement it and thus returns just RemoteObject of type 'array' with no
+                                // data. These data need to be gathered differently.
+                                if (reply && reply.result && reply.result.subtype === "array") {
+                                    client.Runtime.getProperties({ objectId: reply.result.objectId }).then(r => {
+                                        if (unhandledExceptions.length === 0) {
+                                            success({
+                                                result: {
+                                                    type: "array",
+                                                    // HACK: getProperties has two ways how to get only own
+                                                    // properties, but neither is implemented in Firefox
+                                                    value: r.result.filter(x => x.isOwn && x.configurable).map(x => x.value.value),
+                                                }
+                                            });
+                                        } else {
+                                            const message = unhandledExceptions[0];
+                                            fail(message.split("\n")[0]);
+                                            clearExceptions();
                                         }
                                     });
                                 } else {
-                                    let message = unhandledExceptions[0];
-                                    fail(message.split("\n")[0]);
-                                    clearExceptions();
+                                    if (unhandledExceptions.length === 0) {
+                                        success(reply);
+                                    } else {
+                                        const message = unhandledExceptions[0];
+                                        fail(message.split("\n")[0]);
+                                        clearExceptions();
+                                    }
                                 }
-                            });
-                        } else {
-                            if (unhandledExceptions.length === 0) {
-                                success(reply);
-                            } else {
-                                let message = unhandledExceptions[0];
-                                fail(message.split("\n")[0]);
-                                clearExceptions();
-                            }
+                            }, fail);
+
+                            input_buf = input_buf.slice(i + 1);
                         }
-                    }, fail);
-
-                    input_buf = input_buf.slice(i+1);
-                }
-
-            })
-           .on('end', () => { process.exit(0) });
-    })
-    .catch(fatal);
+                    })
+                    .on('end', () => { process.exit(0) });
+        })
+        .catch(fatal);

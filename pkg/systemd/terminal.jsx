@@ -22,13 +22,13 @@ const _ = cockpit.gettext;
     class UserTerminal extends React.Component {
         createChannel(user) {
             return cockpit.channel({
-                "payload": "stream",
-                "spawn": [user.shell || "/bin/bash"],
-                "environ": [
+                payload: "stream",
+                spawn: [user.shell || "/bin/bash"],
+                environ: [
                     "TERM=xterm-256color",
                 ],
-                "directory": user.home || "/",
-                "pty": true
+                directory: user.home || "/",
+                pty: true
             });
         }
 
@@ -44,7 +44,7 @@ const _ = cockpit.gettext;
             this.onThemeChanged = this.onThemeChanged.bind(this);
         }
 
-        componentWillMount() {
+        componentDidMount() {
             cockpit.user().done(function (user) {
                 this.setState({ user: user, channel: this.createChannel(user) });
             }.bind(this));
@@ -65,11 +65,7 @@ const _ = cockpit.gettext;
             if (event.button !== 0)
                 return;
 
-            if (this.state.channel)
-                this.state.channel.close();
-
-            if (this.state.user)
-                this.setState({ channel: this.createChannel(this.state.user) });
+            this.refs.terminal.reset();
 
             // don't focus the button, but keep it on the terminal
             this.refs.resetButton.blur();
@@ -82,6 +78,7 @@ const _ = cockpit.gettext;
                 terminal = (<Terminal ref="terminal"
                      channel={this.state.channel}
                      theme={this.state.theme}
+                     parentId="the-terminal"
                      onTitleChanged={this.onTitleChanged} />);
             else
                 terminal = <span>Loading...</span>;
@@ -104,7 +101,7 @@ const _ = cockpit.gettext;
                             className="btn btn-default terminal-reset"
                             onClick={this.onResetClick}>{_("Reset")}</button>
                     </div>
-                    <div className={"panel-body " + this.state.theme}>
+                    <div className={"panel-body " + this.state.theme} id="the-terminal">
                         {terminal}
                     </div>
                 </div>

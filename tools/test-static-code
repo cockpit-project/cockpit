@@ -8,22 +8,19 @@ builddir=$(pwd)
 cd "${srcdir:-.}"
 fail=0
 
-# we don't dist bots, so only check it when running in git
-[ -d bots ] &&  BOTS=$(grep -lI '#!.*python' `find bots/ -type f ! -name '.*'` 2>/dev/null || true) || BOTS=
-
 #
 # pyflakes
 #
 PYFLAKES="python3 -m pyflakes"
 
 if ! $PYFLAKES /dev/null >/dev/null 2>&1; then
-    echo "ok 1 pyflakes bots pkg tools # SKIP pyflakes3 not installed"
+    echo "ok 1 pyflakes pkg tools # SKIP pyflakes3 not installed"
 
-elif $PYFLAKES $BOTS pkg/docker/cockpit-atomic-storage tools/build-debian-copyright >&2; then
-    echo "ok 1 pyflakes bots pkg tools"
+elif $PYFLAKES  pkg/docker/cockpit-atomic-storage tools/build-debian-copyright tools/npm-release-time >&2; then
+    echo "ok 1 pyflakes pkg tools"
 
 else
-    echo "not ok 1 pyflakes bots pkg tools"
+    echo "not ok 1 pyflakes pkg tools"
     fail=1
 fi
 
@@ -48,9 +45,13 @@ fi
 #
 # wrongly marked translatable strings
 #
-
-if out=$(find src/ pkg/ -name '*.js' -o -name '*.jsx' | xargs grep "_('"); then
+if out=$(find src/ pkg/ -name '*.js' -o -name '*.jsx' | xargs grep -n -E "(gettext|_)\(['\`]"); then
     echo 'ERROR: translatable strings must be marked with _("")' >&2
+    echo "$out" >&2
+    echo "not ok 3 js-translatable-strings"
+    fail=1
+elif out=$(grep -r 'translatable=["'\'']yes' pkg/ doc/); then
+    echo "ERROR: 'translatable' HTML attribute is invalid, use 'translate' instead"
     echo "$out" >&2
     echo "not ok 3 js-translatable-strings"
     fail=1

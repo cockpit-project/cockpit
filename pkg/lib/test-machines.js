@@ -23,9 +23,9 @@ import { machines } from "machines";
 
 QUnit.test("colors.parse()", function (assert) {
     var colors = [
-        [ "#960064", "rgb(150, 0, 100)" ],
-        [ "rgb(150, 0, 100)", "rgb(150, 0, 100)" ],
-        [ "#ccc", "rgb(204, 204, 204)" ],
+        ["#960064", "rgb(150, 0, 100)"],
+        ["rgb(150, 0, 100)", "rgb(150, 0, 100)"],
+        ["#ccc", "rgb(204, 204, 204)"],
     ];
     assert.expect(colors.length);
     colors.forEach(function(color) {

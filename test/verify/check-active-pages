@@ -29,17 +29,25 @@ class TestActivePages(MachineCase):
 
         self.login_and_go("/system")
 
-        b.wait_present("#server")
+        # Preloading via manifests only happens with #12534
+        if m.ostree_image:
+            # /playground/preloaded and /system/services
+            n_extra_preloaded = 2
+        else:
+            # /playground/preloaded, /system/services, and /updates
+            n_extra_preloaded = 3
+
+        b.wait_present("#overview")
 
         def showPagesAssertCount(count):
-            # check the pages and make sure there is only one page loaded
             b.switch_to_top()
             b.mouse("#navbar-dropdown", "click", altKey=True)
             b.click("#active-pages")
             b.wait_present("#active-pages-dialog")
             b.call_js_func("ph_count_check", "#active-pages-dialog tbody", count)
 
-        showPagesAssertCount(1)
+        # Initially we have /system and maybe /playground/preloaded
+        showPagesAssertCount(1 + n_extra_preloaded)
         b.click("button.cancel")
         b.wait_not_present("#active-pages-dialog")
 
@@ -47,8 +55,8 @@ class TestActivePages(MachineCase):
         b.enter_page("/users")
         b.wait_present("#accounts-list")
 
-        # now we want a second page to be present in the pages menu
-        showPagesAssertCount(2)
+        # now we want a third page to be present in the pages menu
+        showPagesAssertCount(2 + n_extra_preloaded)
         b.click("button.cancel")
         b.wait_not_present("#active-pages-dialog")
 
@@ -59,10 +67,7 @@ class TestActivePages(MachineCase):
         b.focus(".terminal")
 
         def line_sel(i):
-            if m.image in ["rhel-8-0-distropkg"]:
-                return '.terminal div:nth-child(%d)' % i
-            else:
-                return '.terminal .xterm-accessibility-tree div:nth-child(%d)' % i
+            return '.terminal .xterm-accessibility-tree div:nth-child(%d)' % i
 
         def line_text(t):
             return t + u'\xa0' * (80 - len(t))
@@ -77,7 +82,7 @@ class TestActivePages(MachineCase):
         wait(lambda: m.execute("ps ax | grep 'sleep 99.*999'"))
 
         # now close the page
-        showPagesAssertCount(3)
+        showPagesAssertCount(3 + n_extra_preloaded)
 
         # click on the other page as well
         b.click('tr[data-row-id="cockpit1:localhost/system"]')
@@ -90,8 +95,8 @@ class TestActivePages(MachineCase):
         # running shell command should disappear on the system
         wait(lambda: m.execute("ps ax | grep 'sleep 99.*999'"))
 
-        # there should only be one page left
-        showPagesAssertCount(1)
+        # there should only be the original pages left
+        showPagesAssertCount(1 + n_extra_preloaded)
 
 
 if __name__ == '__main__':

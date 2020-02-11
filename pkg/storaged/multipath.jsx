@@ -19,6 +19,7 @@
 
 import cockpit from "cockpit";
 import React from "react";
+import { Alert } from "@patternfly/react-core";
 
 import { get_multipathd_service } from "./utils.js";
 import { dialog_open } from "./dialog.jsx";
@@ -41,21 +42,21 @@ export class MultipathAlert extends React.Component {
     }
 
     render() {
-        let { client } = this.props;
+        const { client } = this.props;
 
         // When in doubt, assume everything is alright
-        let multipathd_running = !this.multipathd_service.state || this.multipathd_service.state === "running";
-        let multipath_broken = client.broken_multipath_present === true;
+        const multipathd_running = !this.multipathd_service.state || this.multipathd_service.state === "running";
+        const multipath_broken = client.broken_multipath_present === true;
 
         function activate(event) {
             if (!event || event.button !== 0)
                 return;
-            cockpit.spawn([ "mpathconf", "--enable", "--with_multipathd", "y" ],
-                          { superuser: "try"
-                          })
+            cockpit.spawn(["mpathconf", "--enable", "--with_multipathd", "y"],
+                          { superuser: "try" })
                     .fail(function (error) {
-                        dialog_open({ Title: _("Error"),
-                                      Body: error.toString()
+                        dialog_open({
+                            Title: _("Error"),
+                            Body: error.toString()
                         });
                     });
         }
@@ -63,13 +64,14 @@ export class MultipathAlert extends React.Component {
         if (multipath_broken && !multipathd_running) {
             return (
                 <div className="container-fluid page-ct">
-                    <div className="alert alert-danger">
-                        <span className="pficon pficon-error-circle-o" />
-                        <button onClick={activate} className="btn btn-default pull-right">{_("Start Multipath")}</button>
-                        <span className="alert-message">
-                            {_("There are devices with multiple paths on the system, but the multipath service is not running.")}
-                        </span>
-                    </div>
+                    <Alert isInline variant='danger' title={
+                        <>
+                            <button onClick={activate} className="btn btn-default pull-right">{_("Start Multipath")}</button>
+                            <span className="alert-message">
+                                {_("There are devices with multiple paths on the system, but the multipath service is not running.")}
+                            </span>
+                        </>
+                    } />
                 </div>
             );
         } else

@@ -18,13 +18,13 @@ class NavigateTestSuite(SeleniumTest):
     def testNavigateNoReload(self):
         self.login()
         # Bring up a dialog on system page
-        self.click(self.wait_link('System', cond=clickable))
+        self.click(self.wait_link('Overview', cond=clickable))
         self.wait_frame("system")
         self.click(self.wait_id('system_information_systime_button', cond=clickable))
         self.wait_id('system_information_change_systime', cond=visible)
 
         # Check hardware info page
-        self.click(self.wait_id('system_information_hardware_text', cond=clickable))
+        self.click(self.wait_link('View hardware details', cond=clickable))
         self.mainframe()
         self.wait_frame("hwinfo")
         self.wait_text('BIOS date')
@@ -37,6 +37,6 @@ class NavigateTestSuite(SeleniumTest):
         self.mainframe()
 
         # Now navigate back to system page
-        self.click(self.wait_link('System', cond=clickable))
+        self.click(self.wait_link('Overview', cond=clickable))
         self.wait_frame("system")
         self.wait_id('system_information_change_systime', cond=visible)

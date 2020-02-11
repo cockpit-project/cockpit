@@ -21,6 +21,7 @@ import cockpit from "cockpit";
 import * as utils from "./utils.js";
 
 import React from "react";
+import { Alert } from "@patternfly/react-core";
 import { StorageButton, StorageLink } from "./storage-controls.jsx";
 import { existing_passphrase_fields, get_existing_passphrase } from "./crypto-keyslots.jsx";
 import { dialog_open, TextInput, SizeSlider, BlockingMessage, TeardownMessage } from "./dialog.jsx";
@@ -28,17 +29,18 @@ import { dialog_open, TextInput, SizeSlider, BlockingMessage, TeardownMessage } 
 const _ = cockpit.gettext;
 
 function lvol_rename(lvol) {
-    dialog_open({ Title: _("Rename Logical Volume"),
-                  Fields: [
-                      TextInput("name", _("Name"),
-                                { value: lvol.Name })
-                  ],
-                  Action: {
-                      Title: _("Rename"),
-                      action: function (vals) {
-                          return lvol.Rename(vals.name, { });
-                      }
-                  }
+    dialog_open({
+        Title: _("Rename Logical Volume"),
+        Fields: [
+            TextInput("name", _("Name"),
+                      { value: lvol.Name })
+        ],
+        Action: {
+            Title: _("Rename"),
+            action: function (vals) {
+                return lvol.Rename(vals.name, { });
+            }
+        }
     });
 }
 
@@ -95,7 +97,7 @@ function lvol_and_fsys_resize(client, lvol, size, offline, passphrase) {
 
     function crypto_resize() {
         if (crypto) {
-            let opts = { };
+            const opts = { };
             if (passphrase)
                 opts.passphrase = { t: "s", v: passphrase };
             return crypto.Resize(size - crypto_overhead, opts);
@@ -197,22 +199,24 @@ function lvol_grow(client, lvol, info, to_fit) {
     var usage = utils.get_active_usage(client, block && info.grow_needs_unmount ? block.path : null);
 
     if (usage.Blocking) {
-        dialog_open({ Title: cockpit.format(_("$0 is in active use"), lvol.Name),
-                      Body: BlockingMessage(usage)
+        dialog_open({
+            Title: cockpit.format(_("$0 is in active use"), lvol.Name),
+            Body: BlockingMessage(usage)
         });
         return;
     }
 
     let grow_size;
-    let size_fields = [ ];
+    let size_fields = [];
     if (!to_fit) {
         size_fields = [
             SizeSlider("size", _("Size"),
-                       { value: lvol.Size,
-                         min: lvol.Size,
-                         max: (pool ? pool.Size * 3 : lvol.Size + vgroup.FreeSize),
-                         allow_infinite: !!pool,
-                         round: vgroup.ExtentSize
+                       {
+                           value: lvol.Size,
+                           min: lvol.Size,
+                           max: (pool ? pool.Size * 3 : lvol.Size + vgroup.FreeSize),
+                           allow_infinite: !!pool,
+                           round: vgroup.ExtentSize
                        })
         ];
     } else {
@@ -220,7 +224,7 @@ function lvol_grow(client, lvol, info, to_fit) {
     }
 
     let recovered_passphrase;
-    let passphrase_fields = [ ];
+    let passphrase_fields = [];
     if (block && block.IdType == "crypto_LUKS" && block.IdVersion == 2)
         passphrase_fields = existing_passphrase_fields(_("Resizing an encrypted filesystem requires unlocking the disk. Please provide a current disk passphrase."));
 
@@ -228,21 +232,22 @@ function lvol_grow(client, lvol, info, to_fit) {
         return lvol_and_fsys_resize(client, lvol, grow_size, info.grow_needs_unmount, null);
     }
 
-    let dlg = dialog_open({ Title: _("Grow Logical Volume"),
-                            Footer: TeardownMessage(usage),
-                            Fields: size_fields.concat(passphrase_fields),
-                            Action: {
-                                Title: _("Grow"),
-                                action: function (vals) {
-                                    return utils.teardown_active_usage(client, usage)
-                                            .then(function () {
-                                                return lvol_and_fsys_resize(client, lvol,
-                                                                            to_fit ? grow_size : vals.size,
-                                                                            info.grow_needs_unmount,
-                                                                            vals.passphrase || recovered_passphrase);
-                                            });
-                                }
-                            }
+    const dlg = dialog_open({
+        Title: _("Grow Logical Volume"),
+        Footer: TeardownMessage(usage),
+        Fields: size_fields.concat(passphrase_fields),
+        Action: {
+            Title: _("Grow"),
+            action: function (vals) {
+                return utils.teardown_active_usage(client, usage)
+                        .then(function () {
+                            return lvol_and_fsys_resize(client, lvol,
+                                                        to_fit ? grow_size : vals.size,
+                                                        info.grow_needs_unmount,
+                                                        vals.passphrase || recovered_passphrase);
+                        });
+            }
+        }
     });
 
     if (passphrase_fields.length)
@@ -256,25 +261,27 @@ function lvol_shrink(client, lvol, info, to_fit) {
     var usage = utils.get_active_usage(client, block && !to_fit && info.shrink_needs_unmount ? block.path : null);
 
     if (usage.Blocking) {
-        dialog_open({ Title: cockpit.format(_("$0 is in active use"), lvol.Name),
-                      Body: BlockingMessage(usage)
+        dialog_open({
+            Title: cockpit.format(_("$0 is in active use"), lvol.Name),
+            Body: BlockingMessage(usage)
         });
         return;
     }
 
     let shrink_size;
-    let size_fields = [ ];
+    let size_fields = [];
     if (!to_fit) {
         size_fields = [
             SizeSlider("size", _("Size"),
-                       { value: lvol.Size,
-                         max: lvol.Size,
-                         round: vgroup.ExtentSize
+                       {
+                           value: lvol.Size,
+                           max: lvol.Size,
+                           round: vgroup.ExtentSize
                        })
         ];
     } else {
-        let crypto = client.blocks_crypto[block.path];
-        let cleartext = client.blocks_cleartext[block.path];
+        const crypto = client.blocks_crypto[block.path];
+        const cleartext = client.blocks_cleartext[block.path];
         let content_path = null;
         let crypto_overhead = 0;
 
@@ -287,11 +294,11 @@ function lvol_shrink(client, lvol, info, to_fit) {
             content_path = block.path;
         }
 
-        let fsys = client.blocks_fsys[content_path];
+        const fsys = client.blocks_fsys[content_path];
         if (fsys)
             shrink_size = fsys.Size + crypto_overhead;
 
-        let vdo = client.vdo_overlay.find_by_backing_block(client.blocks[content_path]);
+        const vdo = client.vdo_overlay.find_by_backing_block(client.blocks[content_path]);
         if (vdo)
             shrink_size = vdo.physical_size + crypto_overhead;
 
@@ -302,7 +309,7 @@ function lvol_shrink(client, lvol, info, to_fit) {
     }
 
     let recovered_passphrase;
-    let passphrase_fields = [ ];
+    let passphrase_fields = [];
     if (block && block.IdType == "crypto_LUKS" && block.IdVersion == 2)
         passphrase_fields = existing_passphrase_fields(_("Resizing an encrypted filesystem requires unlocking the disk. Please provide a current disk passphrase."));
 
@@ -310,21 +317,22 @@ function lvol_shrink(client, lvol, info, to_fit) {
         return lvol_and_fsys_resize(client, lvol, shrink_size, false, null);
     }
 
-    let dlg = dialog_open({ Title: _("Shrink Logical Volume"),
-                            Footer: TeardownMessage(usage),
-                            Fields: size_fields.concat(passphrase_fields),
-                            Action: {
-                                Title: _("Shrink"),
-                                action: function (vals) {
-                                    return utils.teardown_active_usage(client, usage)
-                                            .then(function () {
-                                                return lvol_and_fsys_resize(client, lvol,
-                                                                            to_fit ? shrink_size : vals.size,
-                                                                            to_fit ? false : info.shrink_needs_unmount,
-                                                                            vals.passphrase || recovered_passphrase);
-                                            });
-                                }
-                            }
+    const dlg = dialog_open({
+        Title: _("Shrink Logical Volume"),
+        Footer: TeardownMessage(usage),
+        Fields: size_fields.concat(passphrase_fields),
+        Action: {
+            Title: _("Shrink"),
+            action: function (vals) {
+                return utils.teardown_active_usage(client, usage)
+                        .then(function () {
+                            return lvol_and_fsys_resize(client, lvol,
+                                                        to_fit ? shrink_size : vals.size,
+                                                        to_fit ? false : info.shrink_needs_unmount,
+                                                        vals.passphrase || recovered_passphrase);
+                        });
+            }
+        }
     });
 
     if (passphrase_fields.length)
@@ -341,21 +349,6 @@ export class BlockVolTab extends React.Component {
         var vgroup = client.vgroups[lvol.VolumeGroup];
         var unused_space_warning = self.props.warnings.find(w => w.warning == "unused-space");
         var unused_space = !!unused_space_warning;
-
-        function create_snapshot() {
-            dialog_open({ Title: _("Create Snapshot"),
-                          Fields: [
-                              TextInput("name", _("Name"),
-                                        { validate: utils.validate_lvm2_name }),
-                          ],
-                          Action: {
-                              Title: _("Create"),
-                              action: function (vals) {
-                                  return lvol.CreateSnapshot(vals.name, vals.size || 0, { });
-                              }
-                          }
-            });
-        }
 
         function rename() {
             lvol_rename(lvol);
@@ -383,14 +376,11 @@ export class BlockVolTab extends React.Component {
 
         return (
             <div>
-                <div className="tab-actions">
-                    { pool && <StorageButton onClick={create_snapshot}>{_("Create Snapshot")}</StorageButton> }
-                </div>
                 <div className="ct-form">
                     <label className="control-label">{_("Name")}</label>
                     <StorageLink onClick={rename}>{this.props.lvol.Name}</StorageLink>
                     { !unused_space &&
-                    <React.Fragment>
+                    <>
                         <label className="control-label">{_("Size")}</label>
                         <div>
                             {utils.fmt_size(this.props.lvol.Size)}
@@ -399,24 +389,24 @@ export class BlockVolTab extends React.Component {
                                 <StorageButton excuse={grow_excuse} onClick={grow}>{_("Grow")}</StorageButton>
                             </div>
                         </div>
-                    </React.Fragment>
+                    </>
                     }
                 </div>
                 { unused_space &&
-                <div>
+                <>
                     <br />
-                    <strong>{_("This logical volume is not completely used by its content.")}</strong>
-                    <br />
-                    {cockpit.format(_("Volume size is $0. Content size is $1."),
-                                    utils.fmt_size(unused_space_warning.volume_size),
-                                    utils.fmt_size(unused_space_warning.content_size))}
-                    { "\n" }
-                    <div className="pull-right">
-                        <StorageButton excuse={shrink_excuse} onClick={shrink}>{_("Shrink Volume")}</StorageButton>
-                        {"\n"}
-                        <StorageButton excuse={grow_excuse} onClick={grow}>{_("Grow Content")}</StorageButton>
-                    </div>
-                </div>
+                    <Alert variant="warning"
+                           isInline
+                           title={_("This logical volume is not completely used by its content.")}>
+                        {cockpit.format(_("Volume size is $0. Content size is $1."),
+                                        utils.fmt_size(unused_space_warning.volume_size),
+                                        utils.fmt_size(unused_space_warning.content_size))}
+                        <div className='storage_alert_action_buttons'>
+                            <StorageButton excuse={shrink_excuse} onClick={shrink}>{_("Shrink Volume")}</StorageButton>
+                            <StorageButton excuse={grow_excuse} onClick={grow}>{_("Grow Content")}</StorageButton>
+                        </div>
+                    </Alert>
+                </>
                 }
             </div>
         );

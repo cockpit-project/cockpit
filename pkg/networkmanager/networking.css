@@ -1,3 +1,8 @@
+@import "../../node_modules/@patternfly/react-styles/css/components/Alert/alert.css";
+body {
+    background: var(--pf-global--BackgroundColor--light-300);
+}
+
 .ipv4-address {
   display: inline;
 }
@@ -24,7 +29,7 @@
 }
 
 .network-ip-settings-row table {
-    margin-top: 10px;
+    margin-top: 20px;
 }
 
 .network-ip-settings-row tr {
@@ -197,6 +202,24 @@ span.inverted-switchbox {
     margin-right: 20px;
 }
 
+.modal-title {
+    display: inline-block;
+}
+
+.modal-header button {
+    margin-left: 10px;
+}
+
+.modal-header i.fa {
+    margin-right: 2px;
+}
+
+.popover-content a {
+    display: block;
+    padding-top: 1em;
+}
+
+
 h1 .onoff-ct {
     margin-left: 1.5em;
     vertical-align: text-bottom;
@@ -316,30 +339,103 @@ h1 .onoff-ct {
     }
 }
 
-#zones-listing,
-#services-listing {
-    margin: 2rem 0;
+#firewall-heading,
+#networking-graphs {
+    background: var(--color-white);
+    padding: 1rem 3rem;
 }
 
-#services-listing .listing-ct-body h5 {
-    margin: 1.5rem 0 1rem;
+#networking-graphs .row {
+    margin: 0;
 }
 
-#services-listing .listing-ct-body ul {
+#firewall-heading {
+    margin-bottom: 2rem;
+}
+
+#firewall-heading > ol.breadcrumb {
+    margin-bottom: 0;
+}
+
+#firewall-heading-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 0;
+}
+
+#firewall-heading-title-group {
+    display: flex;
+    align-items: center;
+}
+
+#firewall-heading-title-group h1 {
+    margin: 0 2rem 0 0;
+}
+
+#zones-listing {
+    margin-top: 0;
+    padding-top: 0;
+}
+
+.zone-section {
+    background: var(--color-white);
+    border-top: 1px solid var(--color-border-default);
+    border-left: 1px solid var(--color-border-default);
+    border-right: 1px solid var(--color-border-default);
+    margin: 0 0 2rem 0;
+    box-shadow: var(--pf-global--BoxShadow--sm);
+}
+
+.zone-section-heading {
+    margin: 0;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--color-border-default);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.zone-section-buttons {
+    display: inline-flex;
+    align-content: center;
+}
+
+.zone-section-buttons > button {
+    margin-left: 2px;
+}
+
+.zone-section-targets {
+    display: inline-flex;
+}
+
+.zone-section-target {
     padding-left: 1rem;
 }
 
-#services-listing .listing-ct-body li + li {
-    margin-top: 1rem;
+.zone-section-heading h4 {
+    display: inline-flex;
+    padding-right: 1rem;
+    font-weight: bold;
 }
 
-#add-zone-dialog .add-zone-zones legend {
+#delete-confirmation-dialog .fa-exclamation-triangle {
+    color: var(--pf-global--warning-color--100);
+    font-size: 300%;
+    margin-right: 1rem;
+}
+
+#delete-confirmation-dialog .delete-confirmation-body {
+    display: flex;
+}
+
+#add-zone-dialog legend {
     all: unset;
     color: var(--color-subtle-copy);
     display: block;
     font: inherit;
     /* Align with label padding */
-    line-height: 3;
+    line-height: 1.5;
     padding: 0 0.5rem;
     font-size: var(--pf-global--FontSize--sm);
 }
@@ -350,6 +446,10 @@ h1 .onoff-ct {
     align-items: last baseline;
     /* Compensate for bottom fieldset padding */
     margin-bottom: -1rem;
+}
+
+.add-zone-zones legend {
+    line-height: 3 !important;
 }
 
 #add-zone-dialog .add-zone-zones > fieldset {
@@ -404,6 +504,11 @@ form.horizontal fieldset {
 #add-zone-description-readonly {
     padding: 0.5rem 0 0;
     color: var(--color-subtle-copy);
+}
+
+#add-zone-services-readonly legend {
+    padding: 0;
+    line-height: 1;
 }
 
 .add-zone-interfaces {

@@ -92,7 +92,7 @@ function MockPeer() {
 function MockSink(expected, callback) {
     var self = this;
 
-    self.samples = [ ];
+    self.samples = [];
 
     function input(beg, items, mapping) {
         for (var i = 0; i < items.length; i++)
@@ -109,19 +109,21 @@ QUnit.test("non-instanced decompression", function (assert) {
     var peer = new MockPeer();
     var sink = new MockSink();
 
-    var metrics = cockpit.metrics(1000, { source: "source",
-                                          metrics: [ { name: "m1" } ],
+    var metrics = cockpit.metrics(1000, {
+        source: "source",
+        metrics: [{ name: "m1" }],
     });
     metrics.series = sink.series;
 
     metrics.follow();
-    peer.send_json({ timestamp: 0, now: 0, interval: 1000,
-                     metrics: [ { name: "m1" } ]
+    peer.send_json({
+        timestamp: 0, now: 0, interval: 1000,
+        metrics: [{ name: "m1" }]
     });
-    peer.send_json([ [ 10 ] ]);
-    peer.send_json([ [ ] ]);
+    peer.send_json([[10]]);
+    peer.send_json([[]]);
 
-    assert.deepEqual(sink.samples, [ [ 10 ], [ 10 ] ], "got correct samples");
+    assert.deepEqual(sink.samples, [[10], [10]], "got correct samples");
 });
 
 QUnit.start();

@@ -57,17 +57,20 @@ const _ = cockpit.gettext;
 export class OptionalPanel extends React.Component {
     constructor() {
         super();
-        this.state = { promise: null,
-                       error: null,
-                       progress: null,
-                       just_installed: false,
+        this.state = {
+            promise: null,
+            error: null,
+            progress: null,
+            just_installed: false,
         };
     }
 
     render() {
         var self = this;
-        var { actions, className, id, title,
-              feature, not_installed_text, install_title } = this.props;
+        var {
+            actions, className, id, title,
+            feature, not_installed_text, install_title
+        } = this.props;
 
         var feature_enabled = !feature || feature.is_enabled();
         var required_package = feature && feature.package;
@@ -90,13 +93,13 @@ export class OptionalPanel extends React.Component {
             heading_right = <StorageButton kind="primary" onClick={install}>{install_title}</StorageButton>;
         } else {
             heading_right = (
-                <React.Fragment>
+                <>
                     { this.state.just_installed
                         ? <span className={this.state.just_installed}>{_("Support is installed.")}</span>
                         : null
                     }
                     { actions }
-                </React.Fragment>
+                </>
             );
         }
 

@@ -33,25 +33,11 @@ import './createStoragePoolDialog.css';
 
 const _ = cockpit.gettext;
 
-const StoragePoolConnectionRow = ({ onValueChanged, dialogValues, loggedUser }) => {
-    return (
-        <React.Fragment>
-            <label className='control-label'>
-                {_("Connection")}
-            </label>
-            <MachinesConnectionSelector id='storage-pool-dialog-connection'
-                dialogValues={dialogValues}
-                onValueChanged={onValueChanged}
-                loggedUser={loggedUser} />
-        </React.Fragment>
-    );
-};
-
 const StoragePoolNameRow = ({ onValueChanged, dialogValues }) => {
     const validationState = dialogValues.name.length == 0 && dialogValues.validationFailed.name ? 'error' : undefined;
 
     return (
-        <React.Fragment>
+        <>
             <label className='control-label'>
                 {_("Name")}
             </label>
@@ -67,12 +53,12 @@ const StoragePoolNameRow = ({ onValueChanged, dialogValues }) => {
                     <p className="text-danger">{_("Name should not be empty")}</p>
                 </HelpBlock> }
             </FormGroup>
-        </React.Fragment>
+        </>
     );
 };
 
 const StoragePoolTypeRow = ({ onValueChanged, dialogValues, libvirtVersion }) => {
-    let poolTypes = [
+    const poolTypes = [
         { type: 'dir', detail: _("Filesystem Directory") },
         { type: 'netfs', detail:_("Network File System") },
         { type: 'iscsi', detail: _("iSCSI Target") },
@@ -94,7 +80,7 @@ const StoragePoolTypeRow = ({ onValueChanged, dialogValues, libvirtVersion }) =>
      */
 
     return (
-        <React.Fragment>
+        <>
             <label className='control-label'>
                 {_("Type")}
             </label>
@@ -111,7 +97,7 @@ const StoragePoolTypeRow = ({ onValueChanged, dialogValues, libvirtVersion }) =>
                         })
                 }
             </Select.Select>
-        </React.Fragment>
+        </>
     );
 };
 
@@ -120,8 +106,8 @@ const StoragePoolTargetRow = ({ onValueChanged, dialogValues }) => {
 
     if (['dir', 'netfs', 'iscsi', 'disk'].includes(dialogValues.type)) {
         return (
-            <React.Fragment>
-                <label className='control-label'>
+            <>
+                <label htmlFor='storage-pool-dialog-target' className='control-label'>
                     {_("Target Path")}
                 </label>
                 <FormGroup validationState={validationState} controlId='target'>
@@ -135,7 +121,7 @@ const StoragePoolTargetRow = ({ onValueChanged, dialogValues }) => {
                     </HelpBlock> }
                 </FormGroup>
                 <hr />
-            </React.Fragment>
+            </>
         );
     }
     return null;
@@ -146,7 +132,7 @@ const StoragePoolHostRow = ({ onValueChanged, dialogValues }) => {
 
     if (['netfs', 'iscsi', 'iscsi-direct'].includes(dialogValues.type))
         return (
-            <React.Fragment>
+            <>
                 <label className='control-label'>
                     {_("Host")}
                 </label>
@@ -155,7 +141,7 @@ const StoragePoolHostRow = ({ onValueChanged, dialogValues }) => {
                            type='text'
                            placeholder={_("Host Name")}
                            value={dialogValues.source.host || ''}
-                           onChange={e => onValueChanged('source', { 'host': e.target.value })}
+                           onChange={e => onValueChanged('source', { host: e.target.value })}
                            className='form-control' />
                     { validationState == 'error' &&
                     <HelpBlock>
@@ -163,7 +149,7 @@ const StoragePoolHostRow = ({ onValueChanged, dialogValues }) => {
                     </HelpBlock> }
                 </FormGroup>
                 <hr />
-            </React.Fragment>
+            </>
         );
     return null;
 };
@@ -173,7 +159,7 @@ const StoragePoolInitiatorRow = ({ onValueChanged, dialogValues }) => {
 
     if (['iscsi-direct'].includes(dialogValues.type))
         return (
-            <React.Fragment>
+            <>
                 <label className='control-label'>
                     {_("Initiator")}
                 </label>
@@ -182,7 +168,7 @@ const StoragePoolInitiatorRow = ({ onValueChanged, dialogValues }) => {
                            type='text'
                            placeholder={_("iSCSI Initiator IQN")}
                            value={dialogValues.source.initiator || ''}
-                           onChange={e => onValueChanged('source', { 'initiator': e.target.value })}
+                           onChange={e => onValueChanged('source', { initiator: e.target.value })}
                            className='form-control' />
                     { validationState == 'error' &&
                     <HelpBlock>
@@ -190,7 +176,7 @@ const StoragePoolInitiatorRow = ({ onValueChanged, dialogValues }) => {
                     </HelpBlock> }
                 </FormGroup>
                 <hr />
-            </React.Fragment>
+            </>
         );
     return null;
 };
@@ -216,7 +202,7 @@ const StoragePoolSourceRow = ({ onValueChanged, dialogValues }) => {
 
     if (['netfs', 'iscsi', 'iscsi-direct'].includes(dialogValues.type))
         return (
-            <React.Fragment>
+            <>
                 <label className='control-label'>
                     {_("Source Path")}
                 </label>
@@ -227,9 +213,9 @@ const StoragePoolSourceRow = ({ onValueChanged, dialogValues }) => {
                            value={dialogValues.source.dir || dialogValues.source.device || ''}
                            onChange={e => {
                                if (dialogValues.type == 'netfs')
-                                   return onValueChanged('source', { 'dir': e.target.value });
+                                   return onValueChanged('source', { dir: e.target.value });
                                else
-                                   return onValueChanged('source', { 'device': e.target.value });
+                                   return onValueChanged('source', { device: e.target.value });
                            }}
                            placeholder={placeholder}
                            className='form-control' />
@@ -239,11 +225,11 @@ const StoragePoolSourceRow = ({ onValueChanged, dialogValues }) => {
                     </HelpBlock> }
                 </FormGroup>
                 <hr />
-            </React.Fragment>
+            </>
         );
     else if (dialogValues.type == 'disk')
         return (
-            <React.Fragment>
+            <>
                 <label className='control-label' htmlFor='storage-pool-dialog-source'>
                     {_("Source Path")}
                 </label>
@@ -253,7 +239,7 @@ const StoragePoolSourceRow = ({ onValueChanged, dialogValues }) => {
                     <FileAutoComplete id='storage-pool-dialog-source'
                         superuser='try'
                         placeholder={placeholder}
-                        onChange={value => onValueChanged('source', { 'device': value })} />
+                        onChange={value => onValueChanged('source', { device: value })} />
                     { validationState == 'error' &&
                     <HelpBlock>
                         <p className="text-danger">{_("Source path should not be empty")}</p>
@@ -265,7 +251,7 @@ const StoragePoolSourceRow = ({ onValueChanged, dialogValues }) => {
                 <Select.Select id='storage-pool-dialog-source-format'
                                extraClass='form-control ct-form-split'
                                initial={dialogValues.source.format}
-                               onChange={value => onValueChanged('source', { 'format': value })}>
+                               onChange={value => onValueChanged('source', { format: value })}>
                     { diskPoolSourceFormatTypes
                             .map(format => {
                                 return (
@@ -277,11 +263,11 @@ const StoragePoolSourceRow = ({ onValueChanged, dialogValues }) => {
                     }
                 </Select.Select>
                 <hr />
-            </React.Fragment>
+            </>
         );
     else if (dialogValues.type == 'logical')
         return (
-            <React.Fragment>
+            <>
                 <label className='control-label' htmlFor='storage-pool-dialog-source'>
                     {_("Source Volume Group")}
                 </label>
@@ -290,7 +276,7 @@ const StoragePoolSourceRow = ({ onValueChanged, dialogValues }) => {
                            type='text'
                            minLength={1}
                            value={dialogValues.source.name || ''}
-                           onChange={e => onValueChanged('source', { 'name': e.target.value })}
+                           onChange={e => onValueChanged('source', { name: e.target.value })}
                            placeholder={placeholder}
                            className='form-control' />
                     { validationState == 'error' &&
@@ -299,14 +285,14 @@ const StoragePoolSourceRow = ({ onValueChanged, dialogValues }) => {
                     </HelpBlock> }
                 </FormGroup>
                 <hr />
-            </React.Fragment>
+            </>
         );
     return null;
 };
 
 const StoragePoolAutostartRow = ({ onValueChanged, dialogValues }) => {
     return (
-        <React.Fragment>
+        <>
             <label className='control-label'>
                 {_("Startup")}
             </label>
@@ -317,7 +303,7 @@ const StoragePoolAutostartRow = ({ onValueChanged, dialogValues }) => {
                     onChange={e => onValueChanged('autostart', e.target.checked)} />
                 {_("Start pool when host boots")}
             </label>
-        </React.Fragment>
+        </>
     );
 };
 
@@ -331,8 +317,8 @@ class CreateStoragePoolModal extends React.Component {
             connectionName: LIBVIRT_SYSTEM_CONNECTION,
             type: 'dir',
             source: {
-                'host': '', 'dir': '', 'device': '', 'name': '',
-                'initiator': '', 'format': undefined
+                host: '', dir: '', device: '', name: '',
+                initiator: '', format: undefined
             },
             target: '',
             autostart: true,
@@ -346,8 +332,8 @@ class CreateStoragePoolModal extends React.Component {
 
     onValueChanged(key, value) {
         if (key == 'source') {
-            let property = Object.keys(value)[0];
-            let propertyValue = value[Object.keys(value)[0]];
+            const property = Object.keys(value)[0];
+            const propertyValue = value[Object.keys(value)[0]];
             this.setState({
                 source: Object.assign({}, this.state.source, { [property]: propertyValue })
             });
@@ -355,11 +341,11 @@ class CreateStoragePoolModal extends React.Component {
             if (value == 'disk') {
                 // When switching to disk type select the default format which is 'dos'
                 this.setState({
-                    source: Object.assign({}, this.state.source, { 'format': 'dos' })
+                    source: Object.assign({}, this.state.source, { format: 'dos' })
                 });
             } else {
                 this.setState({
-                    source: Object.assign({}, this.state.source, { 'format': undefined })
+                    source: Object.assign({}, this.state.source, { format: undefined })
                 });
             }
             this.setState({ [key]: value });
@@ -379,7 +365,7 @@ class CreateStoragePoolModal extends React.Component {
     onCreateClicked() {
         const { dispatch } = this.props;
         let modalIsIncomplete = false;
-        let validationFailed = Object.assign({}, this.state.validationFailed);
+        const validationFailed = Object.assign({}, this.state.validationFailed);
 
         // Mandatory props for all pool types
         ['name'].forEach(prop => {
@@ -483,10 +469,12 @@ class CreateStoragePoolModal extends React.Component {
     render() {
         const defaultBody = (
             <form className="ct-form ct-form-maxmin">
-                <StoragePoolConnectionRow dialogValues={this.state}
-                                          onValueChanged={this.onValueChanged}
-                                          loggedUser={this.props.loggedUser} />
+                <MachinesConnectionSelector id='storage-pool-dialog-connection'
+                    connectionName={this.state.connectionName}
+                    onValueChanged={this.onValueChanged}
+                    loggedUser={this.props.loggedUser} />
                 <hr />
+
                 <StoragePoolNameRow dialogValues={this.state}
                                     onValueChanged={this.onValueChanged} />
                 <hr />
@@ -511,7 +499,7 @@ class CreateStoragePoolModal extends React.Component {
             <Modal id='create-storage-pool-dialog' className='pool-create' show onHide={ this.props.close }>
                 <Modal.Header>
                     <Modal.CloseButton onClick={ this.props.close } />
-                    <Modal.Title> {`Create Storage Pool`} </Modal.Title>
+                    <Modal.Title>{_("Create Storage Pool")}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     {defaultBody}
@@ -555,8 +543,8 @@ export class CreateStoragePoolAction extends React.Component {
 
     render() {
         return (
-            <React.Fragment>
-                <Button className='pull-right' id='create-storage-pool' bsStyle='default' onClick={this.open} >
+            <>
+                <Button className='pull-right' id='create-storage-pool' bsStyle='default' onClick={this.open}>
                     {_("Create Storage Pool")}
                 </Button>
                 { this.state.showModal &&
@@ -565,7 +553,7 @@ export class CreateStoragePoolAction extends React.Component {
                     dispatch={this.props.dispatch}
                     libvirtVersion={this.props.libvirtVersion}
                     loggedUser={this.props.loggedUser} /> }
-            </React.Fragment>
+            </>
         );
     }
 }

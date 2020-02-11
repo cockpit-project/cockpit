@@ -20,7 +20,7 @@
 
 <html>
 <head>
-    <title translatable="yes">Containers</title>
+    <title translate="yes">Containers</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="../base1/patternfly.css" type="text/css" rel="stylesheet">
@@ -30,7 +30,7 @@
     <script src="../*/po.js"></script>
     <script src="docker.js"></script>
 </head>
-<body hidden>
+<body class="pf-m-redhat-font" hidden>
 
   <!-- CURTAIN -->
 
@@ -51,27 +51,27 @@
         {{/other}}
       </div>
       {{#connecting}}
-      <h1 translatable="yes">Connecting to Docker</h1>
+      <h1 translate="yes">Connecting to Docker</h1>
       {{/connecting}}
       {{#denied}}
-      <h1 translatable="yes">Not authorized to access Docker on this system</h1>
+      <h1 translate="yes">Not authorized to access Docker on this system</h1>
       {{/denied}}
       {{#notfound}}
-      <h1 translatable="yes">Docker is not installed or activated on the system</h1>
+      <h1 translate="yes">Docker is not installed or activated on the system</h1>
       {{/notfound}}
       {{#other}}
-      <h1 translatable="yes">Can&rsquo;t connect to Docker</h1>
+      <h1 translate="yes">Can&rsquo;t connect to Docker</h1>
       <p>{{.}}</p>
       {{/other}}
       <div class="blank-slate-pf-main-action">
         {{#notfound}}
-        <button class="btn btn-primary btn-lg" translatable="yes" data-action="docker-start">Start Docker</button>
+        <button class="btn btn-primary btn-lg" translate="yes" data-action="docker-start">Start Docker</button>
         {{/notfound}}
         {{#denied}}
-        <button class="btn btn-primary btn-lg" translatable="yes" data-action="docker-connect">Try again</button>
+        <button class="btn btn-primary btn-lg" translate="yes" data-action="docker-connect">Try again</button>
         {{/denied}}
         {{#other}}
-        <button class="btn btn-primary btn-lg" translatable="yes" data-action="docker-connect">Try again</button>
+        <button class="btn btn-primary btn-lg" translate="yes" data-action="docker-connect">Try again</button>
         {{/other}}
       </div>
     </div>
@@ -99,7 +99,7 @@
           </div>
           <div class="col-sm-4">
             <div>
-              <span class="plot-unit" id="containers-mem-unit"></span><span class="plot-title" translatable="yes">Combined memory usage</span>
+              <span class="plot-unit" id="containers-mem-unit"></span><span class="plot-title" translate="yes">Combined memory usage</span>
             </div>
             <div id="containers-mem-graph"></div>
           </div>
@@ -125,7 +125,7 @@
         <i class="fa fa-cube fa-fw"></i>
         <span></span>
       </h3>
-      <a tabindex="0" translatable="yes">Show all containers</a>
+      <a role="link" tabindex="0" translate="yes">Show all containers</a>
     </div>
     <div class="container-fluid">
       <div class="panel-default panel">
@@ -173,19 +173,19 @@
                 <td colspan="3" id="container-details-restart-policy"></td>
               </tr>
               <tr>
-                <td translatable="yes">IP Address:</td>
+                <td translate="yes">IP Address:</td>
                 <td colspan="3" id="container-details-ipaddr"></td>
               </tr>
               <tr>
-                <td translatable="yes">IP Prefix Length:</td>
+                <td translate="yes">IP Prefix Length:</td>
                 <td colspan="3" id="container-details-ipprefixlen"></td>
               </tr>
               <tr>
-                <td translatable="yes">Gateway:</td>
+                <td translate="yes">Gateway:</td>
                 <td colspan="3" id="container-details-gateway"></td>
               </tr>
               <tr>
-                <td translatable="yes">MAC Address:</td>
+                <td translate="yes">MAC Address:</td>
                 <td colspan="3" id="container-details-macaddr"></td>
               </tr>
               <tr id="container-details-ports-row" hidden>
@@ -246,7 +246,7 @@
         <i class="pficon pficon-image"></i>
         <span></span>
       </h3>
-      <a tabindex="0" translatable="yes">Show all images</a>
+      <a role="link" tabindex="0" translate="yes">Show all images</a>
       <div class="content-filter-actions" id="image-details-buttons">
         <button  title="Delete" translate="title" id="image-details-delete"
             class="btn btn-danger btn-delete pficon pficon-delete"></button>
@@ -286,7 +286,7 @@
 
   <div id="storage" class="container-fluid" hidden>
     <ol class="breadcrumb">
-      <li><a tabindex="0" translatable="yes">Containers</a></li>
+      <li><a role="link" tabindex="0" translate="yes">Containers</a></li>
       <li class="active" translate>Storage</li>
     </ol>
 
@@ -296,17 +296,17 @@
 
     <div id="storage-details">
       <div class="col-sm-6">
-        <h3 translatable="yes">Overview</h3>
+        <h3 translate="yes">Overview</h3>
         <div id="storage-overview">
         </div>
 
-        <button id="storage-reset" class="btn btn-default pull-right" translatable="yes">Reset</button>
-        <h3 translatable="yes">Storage pool</h3>
+        <button id="storage-reset" class="btn btn-default pull-right" translate="yes">Reset</button>
+        <h3 translate="yes">Storage pool</h3>
         <div id="storage-pool">
         </div>
       </div>
       <div class="col-sm-offset-1 col-sm-5" id="storage-drives-panel">
-        <h3 translatable="yes">Additional Storage</h3>
+        <h3 translate="yes">Additional Storage</h3>
         <div id="storage-drives">
         </div>
       </div>
@@ -326,12 +326,12 @@
       <div class="form-group">
           <div class="btn-group dropdown port-expose-protocol">
               <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                  <span translatable="yes">TCP</span>
-                  <div class="caret"></div>
+                  <span translate="yes">TCP</span>
+                  <i class="fa fa-caret-down pf-c-context-selector__toggle-icon" aria-hidden="true"></i>
               </button>
               <ul class="dropdown-menu">
-                  <li><a tabindex="0" value="TCP" translate>TCP</a></li>
-                  <li><a tabindex="0" value="UDP" translate>UDP</a></li>
+                  <li><a role="link" tabindex="0" value="TCP" translate>TCP</a></li>
+                  <li><a role="link" tabindex="0" value="UDP" translate>UDP</a></li>
               </ul>
           </div>
       </div>
@@ -356,13 +356,13 @@
       <div class="form-group">
         <div class="btn-group dropdown mount-mode">
           <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-            <span translatable="yes">Default</span>
-            <div class="caret"></div>
+            <span translate="yes">Default</span>
+            <i class="fa fa-caret-down pf-c-context-selector__toggle-icon" aria-hidden="true"></i>
           </button>
           <ul class="dropdown-menu">
-            <li><a tabindex="0" translatable="yes">Default</a></li>
-            <li><a tabindex="0" translatable="yes">ReadWrite</a></li>
-            <li><a tabindex="0" translatable="yes">ReadOnly</a></li>
+            <li><a role="link" tabindex="0" translate="yes">Default</a></li>
+            <li><a role="link" tabindex="0" translate="yes">ReadWrite</a></li>
+            <li><a role="link" tabindex="0" translate="yes">ReadOnly</a></li>
           </ul>
         </div>
       </div>
@@ -403,11 +403,11 @@
       <div class="form-group">
           <div class="btn-group dropdown link-container">
               <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                  <span><span translatable="yes">select container</span></span>
-                  <div class="caret"></div>
+                  <span><span translate="yes">select container</span></span>
+                  <i class="fa fa-caret-down pf-c-context-selector__toggle-icon" aria-hidden="true"></i>
               </button>
               <ul class="dropdown-menu">
-                  {{#containers}}<li><a tabindex="0" value="{{.}}">{{.}}</a></li>{{/containers}}
+                  {{#containers}}<li><a role="link" tabindex="0" value="{{.}}">{{.}}</a></li>{{/containers}}
               </ul>
           </div>
       </div>
@@ -431,27 +431,27 @@
             <tbody>
               <tr>
                 <td><label class="control-label"
-                           translatable="yes">Image</label></td>
+                           translate="yes">Image</label></td>
                 <td colspan="4">
                   <span id="containers-run-image"></span>
                 </td>
               </tr>
               <tr>
                 <td><label class="control-label" for="containers-run-image-name"
-                           translatable="yes">Container Name</label></td>
+                           translate="yes">Container Name</label></td>
                 <td colspan="4">
                   <input class="form-control" type="text" id="containers-run-image-name"/>
                 </td>
               </tr>
               <tr>
                 <td><label class="control-label" for="containers-run-image-command"
-                           translatable="yes">Command</label></td>
+                           translate="yes">Command</label></td>
                 <td colspan="4">
                   <input class="form-control" type="text" id="containers-run-image-command"/>
                 </td>
               </tr>
               <tr id="containers-run-image-memory">
-                <td><label class="control-label" translatable="yes">Memory limit</label></td>
+                <td><label class="control-label" translate="yes">Memory limit</label></td>
                 <td class="shrink">
                   <input type="checkbox" />
                 </td>
@@ -465,10 +465,10 @@
                 <td class="shrink">
                   <input class="form-control size-text-ct" type='text'/>
                 </td>
-                <td class="shrink" translatable="yes">MiB</td>
+                <td class="shrink" translate="yes">MiB</td>
               </tr>
               <tr id="containers-run-image-cpu">
-                <td><label class="control-label" translatable="yes">CPU priority</label></td>
+                <td><label class="control-label" translate="yes">CPU priority</label></td>
                 <td class="shrink">
                   <input type="checkbox" />
                 </td>
@@ -482,17 +482,17 @@
                 <td class="shrink">
                   <input class="form-control size-text-ct" type='text'/>
                 </td>
-                <td  class="shrink" translatable="yes">shares</td>
+                <td  class="shrink" translate="yes">shares</td>
               </tr>
               <tr>
                 <td><label class="control-label" for="containers-run-image-with-terminal"
-                           translatable="yes">With terminal</label></td>
+                           translate="yes">With terminal</label></td>
                 <td class="shrink">
                   <input type="checkbox" id="containers-run-image-with-terminal" checked />
                 </td>
               </tr>
               <tr>
-                <td><label class="control-label" for="link-containers" translatable="yes">Links</label></td>
+                <td><label class="control-label" for="link-containers" translate="yes">Links</label></td>
                 <td colspan="4">
                   <label>
                     <input type="checkbox" name="link-containers" id="link-containers" checked="false"/>
@@ -503,56 +503,56 @@
                 </td>
               </tr>
               <tr>
-                <td><label class="control-label" for="expose-ports" translatable="yes">Ports</label></td>
+                <td><label class="control-label" for="expose-ports" translate="yes">Ports</label></td>
                 <td colspan="4">
                   <label>
                     <input type="checkbox" name="expose-ports" id="expose-ports" checked="false"/>
-                    <span translatable="yes">Expose container ports</span>
+                    <span translate="yes">Expose container ports</span>
                   </label>
                   <div id="select-exposed-ports" class="containers-run-portmapping containers-run-inline">
                   </div>
                 </td>
               </tr>
               <tr>
-                <td><label class="control-label" for="mount-volumes" translatable="yes">Volumes</label></td>
+                <td><label class="control-label" for="mount-volumes" translate="yes">Volumes</label></td>
                 <td colspan="4">
                   <label>
                     <input type="checkbox" name="mount-volumes" id="mount-volumes" checked="false"/>
-                    <span translatable="yes">Mount container volumes</span>
+                    <span translate="yes">Mount container volumes</span>
                   </label>
                   <div id="select-mounted-volumes" class="containers-run-volumemount containers-run-inline">
                   </div>
                 </td>
               </tr>
               <tr>
-                <td><label class="control-label" for="claim-envvars" translatable="yes">Environment</label></td>
+                <td><label class="control-label" for="claim-envvars" translate="yes">Environment</label></td>
                 <td colspan="4">
                   <label>
                     <input type="checkbox" name="claim-envvars" id="claim-envvars" checked="false"/>
-                    <span translatable="yes">Set container environment variables</span>
+                    <span translate="yes">Set container environment variables</span>
                   </label>
                   <div id="select-claimed-envvars" class="containers-run-envvarclaim containers-run-inline">
                   </div>
                 </td>
               </tr>
               <tr>
-                <td><label class="control-label" for="restart-policy" translatable="yes">Restart Policy</label></td>
+                <td><label class="control-label" for="restart-policy" translate="yes">Restart Policy</label></td>
                 <td colspan="3">
                   <div class="form-inline form-group">
                     <div class="btn-group bootstrap-select dropdown form-control" id="restart-policy-select">
                       <button aria-expanded="false" class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                        <span class="pull-left" translatable="yes" data-value="no">No</span>
-                        <span class="caret"></span>
+                        <span class="pull-left" translate="yes" data-value="no">No</span>
+                        <i class="fa fa-caret-down pf-c-context-selector__toggle-icon" aria-hidden="true"></i>
                       </button>
                       <ul class="dropdown-menu" id="restart-policy-dropdown">
-                        <li><a tabindex="0" translatable="yes" data-value="no">No</a></li>
-                        <li><a tabindex="0" translatable="yes" data-value="on-failure">On Failure</a></li>
-                        <li><a tabindex="0" translatable="yes" data-value="always">Always</a></li>
-                        <li><a tabindex="0" translatable="yes" data-value="unless-stopped">Unless Stopped</a></li>
+                        <li><a role="link" tabindex="0" translate="yes" data-value="no">No</a></li>
+                        <li><a role="link" tabindex="0" translate="yes" data-value="on-failure">On Failure</a></li>
+                        <li><a role="link" tabindex="0" translate="yes" data-value="always">Always</a></li>
+                        <li><a role="link" tabindex="0" translate="yes" data-value="unless-stopped">Unless Stopped</a></li>
                       </ul>
                     </div>
                     <div id="restart-policy-retries-container" class="hidden">
-                      <label class="control-label" for="restart-policy-retries" translatable="yes">Retries:</label>
+                      <label class="control-label" for="restart-policy-retries" translate="yes">Retries:</label>
                       <input id="restart-policy-retries" class="form-control" type="number" value="0" min="0" name="restart-policy-retries">
                     </div>
                   </div>
@@ -562,8 +562,8 @@
           </table>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-default" translatable="yes" data-dismiss="modal">Cancel</button>
-          <button class="btn btn-primary" id="containers-run-image-run" translatable="yes">Run</button>
+          <button class="btn btn-default" translate="yes" data-dismiss="modal">Cancel</button>
+          <button class="btn btn-primary" id="containers-run-image-run" translate="yes">Run</button>
         </div>
       </div>
     </div>
@@ -596,8 +596,8 @@
         </div>
         <div class="modal-footer">
           <input type="text" id="containers-search-tag" class="form-control" disabled="disabled" placeholder="Tag" />
-          <button class="btn btn-default" translatable="yes" data-dismiss="modal">Cancel</button>
-          <button class="btn btn-primary" translatable="yes" disabled="disabled" id="containers-search-download">Download</button>
+          <button class="btn btn-default" translate="yes" data-dismiss="modal">Cancel</button>
+          <button class="btn btn-primary" translate="yes" disabled="disabled" id="containers-search-download">Download</button>
         </div>
       </div>
     </div>
@@ -617,13 +617,13 @@
           <table class="form-table-ct">
             <tbody>
               <tr>
-                <td><label class="control-label" translatable="yes">Container Name</label></td>
+                <td><label class="control-label" translate="yes">Container Name</label></td>
                 <td colspan="3">
                   <span class="container-name"></span>
                 </td>
               </tr>
               <tr class="memory-slider">
-                <td><label class="control-label" translatable="yes">Memory limit</label></td>
+                <td><label class="control-label" translate="yes">Memory limit</label></td>
                 <td class="shrink">
                   <input type="checkbox" />
                 </td>
@@ -637,10 +637,10 @@
                 <td class="shrink">
                   <input class="form-control size-text-ct" type='text'/>
                 </td>
-                <td class="shrink" translatable="yes">MiB</td>
+                <td class="shrink" translate="yes">MiB</td>
               </tr>
               <tr class="cpu-slider">
-                <td><label class="control-label" translatable="yes">CPU priority</label></td>
+                <td><label class="control-label" translate="yes">CPU priority</label></td>
                 <td class="shrink">
                   <input type="checkbox" />
                 </td>
@@ -654,14 +654,14 @@
                 <td class="shrink">
                   <input class="form-control size-text-ct" type='text'/>
                 </td>
-                <td  class="shrink" translatable="yes">shares</td>
+                <td  class="shrink" translate="yes">shares</td>
               </tr>
             </tbody>
           </table>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-default" translatable="yes" data-dismiss="modal">Cancel</button>
-          <button class="btn btn-primary" translatable="yes">Change</button>
+          <button class="btn btn-default" translate="yes" data-dismiss="modal">Cancel</button>
+          <button class="btn btn-primary" translate="yes">Change</button>
         </div>
       </div>
     </div>
@@ -681,31 +681,31 @@
           <table class="form-table-ct">
             <tbody>
               <tr>
-                <td><label class="control-label" translatable="yes">Container Name</label></td>
+                <td><label class="control-label" translate="yes">Container Name</label></td>
                 <td colspan="3">
                   <span class="container-name"/>
                 </td>
               </tr>
               <tr>
-                <td><label class="control-label" translatable="yes">Repository</label></td>
+                <td><label class="control-label" translate="yes">Repository</label></td>
                 <td colspan="3">
                   <input class="form-control container-repository" type="text"/>
                 </td>
               </tr>
               <tr>
-                <td><label class="control-label" translatable="yes">Tag</label></td>
+                <td><label class="control-label" translate="yes">Tag</label></td>
                 <td colspan="3">
                   <input class="form-control container-tag" type="text"/>
                 </td>
               </tr>
               <tr>
-                <td><label class="control-label" translatable="yes">Author</label></td>
+                <td><label class="control-label" translate="yes">Author</label></td>
                 <td colspan="3">
                   <input class="form-control container-author" type="text"/>
                 </td>
               </tr>
               <tr>
-                <td><label class="control-label" translatable="yes">Command</label></td>
+                <td><label class="control-label" translate="yes">Command</label></td>
                 <td colspan="3">
                   <input class="form-control container-command" type="text"/>
                 </td>
@@ -714,8 +714,8 @@
           </table>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-default" translatable="yes" data-dismiss="modal">Cancel</button>
-          <button class="btn btn-primary" translatable="yes" data-dismiss="modal">Commit</button>
+          <button class="btn btn-default" translate="yes" data-dismiss="modal">Cancel</button>
+          <button class="btn btn-primary" translate="yes" data-dismiss="modal">Commit</button>
         </div>
       </div>
     </div>
@@ -729,7 +729,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title" translatable="yes">Unexpected error</h4>
+          <h4 class="modal-title" translate="yes">Unexpected error</h4>
         </div>
         <div class="modal-body">
           <p id="error-popup-message"></p>
@@ -754,7 +754,7 @@
         <div class="modal-body" id="confirmation-dialog-body">
         </div>
         <div class="modal-footer">
-          <button class="btn btn-default" translatable="yes" id="confirmation-dialog-cancel">Cancel</button>
+          <button class="btn btn-default" translate="yes" id="confirmation-dialog-cancel">Cancel</button>
           <button class="btn btn-danger" id="confirmation-dialog-confirm">
           </button>
         </div>
@@ -783,7 +783,7 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-default" translatable="yes" id="delete-image-confirmation-dialog-cancel">Cancel</button>
+          <button class="btn btn-default" translate="yes" id="delete-image-confirmation-dialog-cancel">Cancel</button>
           <span data-toggle="tooltip">
             <button class="btn btn-danger" id="delete-image-confirmation-dialog-confirm" />
           </span>

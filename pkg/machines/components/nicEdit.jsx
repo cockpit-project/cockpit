@@ -25,161 +25,61 @@ import {
 } from 'patternfly-react';
 
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
-import * as Select from 'cockpit-components-select.jsx';
+import { NetworkTypeAndSourceRow, NetworkModelRow } from './nicBody.jsx';
 import {
     changeNetworkSettings,
     getVm
 } from '../actions/provider-actions.js';
+import { getNetworkDevices } from '../helpers.js';
 
-import './nicEdit.css';
 import 'form-layout.less';
 
 const _ = cockpit.gettext;
 
-const NetworkModelRow = ({ idPrefix, onValueChanged, dialogValues, network, osTypeArch, osTypeMachine, isRunning }) => {
-    let availableModelTypes = [
-        { 'name': 'virtio', 'desc': 'Linux, perf' },
-        { 'name': 'e1000e', 'desc': 'PCI' },
-        { 'name': 'e1000', 'desc': 'PCI, legacy' },
-        { 'name': 'rtl8139', 'desc': 'PCI, legacy' } ];
-    let defaultModelType = dialogValues.networkModel;
-
-    if (osTypeArch == 'ppc64' && osTypeMachine == 'pseries') {
-        availableModelTypes.push('spapr-vlan');
-    }
-
-    return (
-        <React.Fragment>
-            <label className='control-label' htmlFor={`${idPrefix}-select-model`}>
-                {_("Model")}
-            </label>
-            <Select.Select id={`${idPrefix}-select-model`}
-                           onChange={value => onValueChanged('networkModel', value)}
-                           initial={defaultModelType}
-                           extraClass='form-control ct-form-split'>
-                {availableModelTypes
-                        .map(networkModel => {
-                            return (
-                                <Select.SelectEntry data={networkModel.name} key={networkModel.name}>
-                                    {networkModel.name} ({networkModel.desc})
-                                </Select.SelectEntry>
-                            );
-                        })}
-            </Select.Select>
-        </React.Fragment>
-    );
-};
-
-const NetworkTypeAndSourceRow = ({ idPrefix, onValueChanged, dialogValues, network, connectionName, networks }) => {
-    let defaultNetworkType = dialogValues.networkType;
-    let availableNetworkTypes = [];
-    let defaultNetworkSource = dialogValues.networkSource;
-    let availableNetworkSources = [];
-    let networkSourcesContent;
-    let networkSourceEnabled = true;
-
-    if (connectionName !== 'session')
-        availableNetworkTypes = [
-            { 'name': 'network', 'desc': 'Virtual network' },
-            { 'name': 'bridge', 'desc': 'Bridge to LAN', 'disabled': true },
-            { 'name': 'ethernet', 'desc': 'Generic ethernet connection', 'disabled': true },
-            { 'name': 'direct', 'desc': 'Direct attachment', 'disabled': true },
-        ];
-    else
-        availableNetworkTypes = [
-            { 'name': 'network', 'desc': 'Virtual network' },
-            { 'name': 'user', 'desc': 'Userspace SLIRP stack' },
-        ];
-
-    // Bring to the first position in dropdown list the initial selection which reflects the current nic type
-    availableNetworkTypes.sort(function(x, y) { return x.name == defaultNetworkType ? -1 : y.name == defaultNetworkType ? 1 : 0 });
-
-    if (dialogValues.networkType == 'network') {
-        availableNetworkSources = networks.map(network => network.name);
-
-        if (availableNetworkSources.length > 0) {
-            networkSourcesContent = availableNetworkSources
-                    .map(networkSource => {
-                        return (
-                            <Select.SelectEntry data={networkSource} key={networkSource}>
-                                {networkSource}
-                            </Select.SelectEntry>
-                        );
-                    });
-        } else {
-            defaultNetworkSource = _("No Virtual Networks");
-            networkSourcesContent = (
-                <Select.SelectEntry data='empty-list' key='empty-list'>
-                    {defaultNetworkSource}
-                </Select.SelectEntry>
-            );
-            networkSourceEnabled = false;
-        }
-    }
-
-    return (
-        <React.Fragment>
-            <label className='control-label' htmlFor={`${idPrefix}-select-type`}>
-                {_("Interface Type")}
-            </label>
-            <Select.Select id={`${idPrefix}-select-type`}
-                           onChange={value => onValueChanged('networkType', value)}
-                           initial={defaultNetworkType}
-                           extraClass='form-control ct-form-split'>
-                {availableNetworkTypes
-                        .map(networkType => {
-                            return (
-                                <Select.SelectEntry data={networkType.name} key={networkType.name} disabled={networkType.disabled || false} >
-                                    {networkType.desc}
-                                </Select.SelectEntry>
-                            );
-                        })}
-            </Select.Select>
-            {(dialogValues.networkType === 'network') && (
-                <React.Fragment>
-                    <label className='control-label' htmlFor={`${idPrefix}-select-source`}>
-                        {_("Source")}
-                    </label>
-                    <Select.Select id={`${idPrefix}-select-source`}
-                                   onChange={value => onValueChanged('networkSource', value)}
-                                   enabled={networkSourceEnabled}
-                                   initial={defaultNetworkSource}
-                                   extraClass='form-control ct-form-split'>
-                        {networkSourcesContent}
-                    </Select.Select>
-                </React.Fragment>
-            )}
-        </React.Fragment>
-    );
-};
-
 const NetworkMacRow = ({ network }) => {
     return (
-        <React.Fragment>
+        <>
             <label className='control-label' htmlFor='mac'>
-                {_("Mac Address")}
+                {_("MAC Address")}
             </label>
             <samp id='mac'>
                 {network.mac}
             </samp>
-        </React.Fragment>
+        </>
     );
 };
 
-export class EditNICAction extends React.Component {
+class EditNICModal extends React.Component {
     constructor(props) {
         super(props);
 
+        let defaultNetworkSource;
+        let currentSource;
+        let availableSources = [];
+
+        if (props.network.type === "network") {
+            currentSource = props.network.source.network;
+            availableSources = props.availableSources.network;
+        } else if (props.network.type === "direct") {
+            currentSource = props.network.source.dev;
+            availableSources = props.availableSources.device;
+        } else if (props.network.type === "bridge") {
+            currentSource = props.network.source.bridge;
+            availableSources = props.availableSources.device;
+        }
+        if (availableSources.includes(currentSource))
+            defaultNetworkSource = currentSource;
+        else
+            defaultNetworkSource = availableSources.length > 0 ? availableSources[0] : undefined;
+
         this.state = {
-            showModal: false,
             dialogError: undefined,
             networkType: props.network.type,
-            networkSource: props.network.source[props.network.type],
+            networkSource: defaultNetworkSource,
             networkModel: props.network.model,
             saveDisabled: false,
+            availableSources: props.availableSources,
         };
-        this.open = this.open.bind(this);
-        this.close = this.close.bind(this);
         this.save = this.save.bind(this);
         this.onValueChanged = this.onValueChanged.bind(this);
         this.dialogErrorSet = this.dialogErrorSet.bind(this);
@@ -190,33 +90,22 @@ export class EditNICAction extends React.Component {
 
         this.setState(stateDelta);
 
-        if (key == 'networkType') {
-            let saveDisabled = false;
+        if (key == 'networkType' && ['network', 'direct', 'bridge'].includes(value)) {
+            let sources;
+            if (value === "network")
+                sources = this.state.availableSources.network;
+            else
+                sources = this.state.availableSources.device;
 
-            if (value == 'network') {
-                const availableNetworkSources = this.props.networks.map(network => network.name);
-
-                if (availableNetworkSources.length > 0) {
-                    this.setState({ 'networkSource': availableNetworkSources[0] });
-                } else {
-                    this.setState({ 'networkSource': undefined });
-                    saveDisabled = true;
-                }
-            }
-            this.setState({ 'saveDisabled': saveDisabled });
+            if (sources && sources.length > 0)
+                this.setState({ networkSource: sources[0], saveDisabled: false });
+            else
+                this.setState({ networkSource: undefined, saveDisabled: true });
         }
     }
 
     dialogErrorSet(text, detail) {
         this.setState({ dialogError: text, dialogErrorDetail: detail });
-    }
-
-    close() {
-        this.setState({ showModal: false, dialogError: undefined });
-    }
-
-    open() {
-        this.setState({ showModal: true });
     }
 
     save() {
@@ -233,29 +122,27 @@ export class EditNICAction extends React.Component {
                 })
                 .then(() => {
                     dispatch(getVm({ connectionName: vm.connectionName, id: vm.id }));
-                    this.close();
+                    this.props.close();
                 });
     }
 
     render() {
-        const { idPrefix, vm, network, networks } = this.props;
+        const { idPrefix, vm, network, nodeDevices, interfaces } = this.props;
+        const networkDevices = getNetworkDevices(vm.connectionName, nodeDevices, interfaces);
+
         const defaultBody = (
             <form className='ct-form'>
                 <NetworkTypeAndSourceRow idPrefix={idPrefix}
                                          dialogValues={this.state}
                                          onValueChanged={this.onValueChanged}
-                                         network={network}
-                                         networks={networks}
-                                         connectionName={vm.connectionName}
-                                         isRunning={vm.state == 'running'} />
+                                         networkDevices={networkDevices}
+                                         connectionName={vm.connectionName} />
                 <hr />
                 <NetworkModelRow idPrefix={idPrefix}
                                  dialogValues={this.state}
                                  onValueChanged={this.onValueChanged}
-                                 network={network}
                                  osTypeArch={vm.arch}
-                                 osTypeMachine={vm.emulatedMachines}
-                                 isRunning={vm.state == 'running'} />
+                                 osTypeMachine={vm.emulatedMachine} />
                 <hr />
                 <NetworkMacRow network={network} />
             </form>
@@ -276,41 +163,78 @@ export class EditNICAction extends React.Component {
         };
 
         return (
+            <Modal id={`${idPrefix}-edit-dialog-modal-window`} onHide={this.props.close} className='nic-edit' show>
+                <Modal.Header>
+                    <Modal.CloseButton onClick={this.props.close} />
+                    <Modal.Title> {`${network.mac} Virtual Network Interface Settings`} </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {defaultBody}
+                </Modal.Body>
+                <Modal.Footer>
+                    {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
+                    { showFooterWarning() }
+                    <Button id={`${idPrefix}-edit-dialog-cancel`} bsStyle='default' className='btn-cancel' onClick={this.props.close}>
+                        {_("Cancel")}
+                    </Button>
+                    <Button disabled={this.state.saveDisabled} id={`${idPrefix}-edit-dialog-save`} bsStyle='primary' onClick={this.save}>
+                        {_("Save")}
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+        );
+    }
+}
+
+export class EditNICAction extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            showModal: false,
+        };
+        this.open = this.open.bind(this);
+        this.close = this.close.bind(this);
+    }
+
+    close() {
+        this.setState({ showModal: false });
+    }
+
+    open() {
+        this.setState({ showModal: true });
+    }
+
+    render() {
+        const { idPrefix, dispatch, vm, network, nodeDevices, interfaces, availableSources } = this.props;
+
+        return (
             <div id={`${idPrefix}-edit-dialog-full`}>
                 <Button id={`${idPrefix}-edit-dialog`} bsStyle='default' onClick={this.open}>
                     {_("Edit")}
                 </Button>
 
-                <Modal id={`${idPrefix}-edit-dialog-modal-window`} show={this.state.showModal} onHide={this.close} className='nic-edit'>
-                    <Modal.Header>
-                        <Modal.CloseButton onClick={this.close} />
-                        <Modal.Title> {`${network.mac} Virtual Network Interface Settings`} </Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        {defaultBody}
-                    </Modal.Body>
-                    <Modal.Footer>
-                        {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
-                        { showFooterWarning() }
-                        <Button id={`${idPrefix}-edit-dialog-cancel`} bsStyle='default' className='btn-cancel' onClick={this.close}>
-                            {_("Cancel")}
-                        </Button>
-                        <Button disabled={this.state.saveDisabled} id={`${idPrefix}-edit-dialog-save`} bsStyle='primary' onClick={this.save}>
-                            {_("Save")}
-                        </Button>
-                    </Modal.Footer>
-                </Modal>
+                {this.state.showModal && <EditNICModal idPrefix={idPrefix}
+                                             dispatch={dispatch}
+                                             vm={vm}
+                                             network={network}
+                                             nodeDevices={nodeDevices}
+                                             interfaces={interfaces}
+                                             availableSources={availableSources}
+                                             close={this.close} />}
             </div>
         );
     }
 }
 
 EditNICAction.propTypes = {
+    availableSources: PropTypes.object.isRequired,
     dispatch: PropTypes.func.isRequired,
     idPrefix: PropTypes.string.isRequired,
     vm: PropTypes.object.isRequired,
     network: PropTypes.object.isRequired,
-    networks: PropTypes.array.isRequired,
+    interfaces: PropTypes.array.isRequired,
+    nodeDevices: PropTypes.array.isRequired,
 };
 
 export default EditNICAction;

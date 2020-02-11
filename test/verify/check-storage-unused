@@ -67,7 +67,7 @@ mkpart logical ext2 24 48"""
             blocks = [block for block in blocks if "/dev/ram" not in block]
             return len(blocks) == 2 and "/dev/sda6" in blocks[0] and "/dev/sdb" in blocks[1]
 
-        self.dialog_with_retry(trigger=lambda: b.click('#create-mdraid'),
+        self.dialog_with_retry(trigger=lambda: self.devices_dropdown('Create RAID Device'),
                                expect=check_free_block_devices,
                                values=None)
 

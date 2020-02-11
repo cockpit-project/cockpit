@@ -26,11 +26,11 @@
 #include <stddef.h>
 #include <stdlib.h>
 
+#include <common/cockpitconf.h>
 #include <common/cockpitwebcertificate.h>
 #include "utils.h"
 #include "server.h"
-
-#define COCKPIT_WS PACKAGE_LIBEXEC_DIR "/cockpit-ws"
+#include "connection.h"
 
 /* CLI arguments */
 struct arguments {
@@ -68,7 +68,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
         arguments->port = arg_parse_int (arg, state, 1, UINT16_MAX, "Invalid port");
         break;
       case OPT_IDLE_TIMEOUT:
-        arguments->idle_timeout = arg_parse_int (arg, state, 0, (INT_MAX / 1000) - 1, "Invalid idle timeout") * 1000;
+        arguments->idle_timeout = arg_parse_int (arg, state, 0, INT_MAX, "Invalid idle timeout");
         break;
       default:
         return ARGP_ERR_UNKNOWN;
@@ -93,29 +93,40 @@ int
 main (int argc, char **argv)
 {
   struct arguments arguments;
-  char *error = NULL;
-  char *certfile = NULL;
+  gnutls_certificate_request_t client_cert_mode = GNUTLS_CERT_IGNORE;
+  const char *runtimedir;
 
   /* default option values */
   arguments.no_tls = false;
   arguments.port = 9090;
-  arguments.idle_timeout = 90000;
+  arguments.idle_timeout = 90;
 
   argp_parse (&argp, argc, argv, 0, 0, &arguments);
 
+  runtimedir = secure_getenv ("RUNTIME_DIRECTORY");
+  if (!runtimedir)
+    errx (EXIT_FAILURE, "$RUNTIME_DIRECTORY environment variable must be set to a private directory");
+
+  server_init ("/run/cockpit/wsinstance", runtimedir, arguments.idle_timeout, arguments.port);
+
   if (!arguments.no_tls)
     {
-      certfile = cockpit_certificate_locate (&error);
+      char *error = NULL;
+      char *certfile = cockpit_certificate_locate (&error);
+
       if (error)
-        errx (1, "Could not locate server certificate: %s", error);
-      debug ("Using certificate %s", certfile);
+        errx (EXIT_FAILURE, "Could not locate server certificate: %s", error);
+      debug (SERVER, "Using certificate %s", certfile);
+
+      if (cockpit_conf_bool ("WebService", "ClientCertAuthentication", false))
+        client_cert_mode = GNUTLS_CERT_REQUEST;
+
+      connection_crypto_init (certfile, client_cert_mode);
+      free (certfile);
     }
 
-  /* TODO: Add cockpit.conf option to enable client-certificate auth, once we support that */
-  server_init (COCKPIT_WS, arguments.port, certfile, NULL, CERT_NONE);
-  free (certfile);
-
-  server_run (arguments.idle_timeout);
+  server_run ();
   server_cleanup ();
+
   return 0;
 }

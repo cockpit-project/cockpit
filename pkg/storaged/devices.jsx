@@ -38,7 +38,7 @@ class StoragePage extends React.Component {
     constructor() {
         super();
         this.state = { inited: false, slow_init: false, path: cockpit.location.path };
-        this.on_client_changed = () => { this.setState({}) };
+        this.on_client_changed = () => { if (!this.props.client.busy) this.setState({}); };
         this.on_navigate = () => { this.setState({ path: cockpit.location.path }) };
     }
 
@@ -70,7 +70,7 @@ class StoragePage extends React.Component {
             }
         }
 
-        if (client.features == false) {
+        if (client.features == false || client.older_than("2.6")) {
             return (
                 <div className="curtains-ct blank-slate-pf">
                     <h1>{_("Storage can not be managed on this system.")}</h1>
@@ -91,18 +91,30 @@ class StoragePage extends React.Component {
             // We keep the Overview mounted at all times to keep the
             // plot running.  Once our plots are more React friendly,
             // we can throw this hack out.
-            <React.Fragment>
+            <>
                 <MultipathAlert client={client} />
-                <div className={detail ? "hidden" : null}><Overview client={client} /></div>
+                <div hidden={!!detail}><Overview client={client} /></div>
                 {detail}
-            </React.Fragment>
+            </>
         );
     }
 }
 
 function init() {
     ReactDOM.render(<StoragePage client={client} />, document.getElementById("storage"));
-    document.body.style.display = "block";
+    document.body.removeAttribute("hidden");
+
+    window.addEventListener('beforeunload', event => {
+        if (client.busy) {
+            // Firefox requires this when the page is in an iframe
+            event.preventDefault();
+
+            // see "an almost cross-browser solution" at
+            // https://developer.mozilla.org/en-US/docs/Web/Events/beforeunload
+            event.returnValue = '';
+            return '';
+        }
+    });
 }
 
 document.addEventListener("DOMContentLoaded", init);

@@ -66,9 +66,11 @@ EXTRA_DIST += \
 noinst_LIBRARIES += libcockpit-ws.a
 
 libcockpit_ws_a_SOURCES = \
-	src/ws/cockpitws.h				\
-	src/ws/cockpithandlers.h	src/ws/cockpithandlers.c	\
-	src/ws/cockpitauth.h		src/ws/cockpitauth.c		\
+	src/ws/cockpitws.h \
+	src/ws/cockpithandlers.h \
+	src/ws/cockpithandlers.c \
+	src/ws/cockpitauth.h \
+	src/ws/cockpitauth.c \
 	src/ws/cockpitcertificate.c \
 	src/ws/cockpitcertificate.h \
 	src/ws/cockpitcompat.c \
@@ -82,6 +84,8 @@ libcockpit_ws_a_SOURCES = \
 	src/ws/cockpitcreds.h src/ws/cockpitcreds.c \
 	src/ws/cockpitwebservice.h \
 	src/ws/cockpitwebservice.c \
+	src/ws/cockpitwsinstancecert.h \
+	src/ws/cockpitwsinstancecert.c \
 	$(NULL)
 
 libcockpit_ws_a_CFLAGS = \
@@ -100,7 +104,9 @@ libcockpit_ws_LIBS = \
 	$(NULL)
 
 EXTRA_DIST += \
-	src/ws/mock_cert \
+	src/ws/mock-combined.crt \
+	src/ws/mock-ecc.crt \
+	src/ws/mock-ecc.key \
 	src/ws/mock-cat-with-init \
 	src/ws/mock-kdc \
 	src/ws/mock-krb5.conf.in \
@@ -161,11 +167,22 @@ remotectl_LDADD = \
 	$(COCKPIT_LIBS) \
 	$(NULL)
 
-nodist_systemdunit_DATA += \
-	src/ws/cockpit.socket \
-	src/ws/cockpit.service \
-	src/ws/cockpit-motd.service \
+systemd_units_in = \
+	src/ws/cockpit-motd.service.in \
+	src/ws/cockpit.service.in \
+	src/ws/cockpit.socket.in \
+	src/ws/cockpit-wsinstance-http.service.in \
+	src/ws/cockpit-wsinstance-http.socket.in \
+	src/ws/cockpit-wsinstance-http-redirect.service.in \
+	src/ws/cockpit-wsinstance-http-redirect.socket.in \
+	src/ws/cockpit-wsinstance-https-factory@.service.in \
+	src/ws/cockpit-wsinstance-https-factory.socket.in \
+	src/ws/cockpit-wsinstance-https@.service.in \
+	src/ws/cockpit-wsinstance-https@.socket.in \
 	$(NULL)
+
+nodist_systemdunit_DATA += $(patsubst %.in,%,$(systemd_units_in))
+dist_systemdunit_DATA += src/ws/system-cockpithttps.slice
 
 firewalldir = $(prefix)/lib/firewalld/services
 firewall_DATA = src/ws/cockpit.xml
@@ -191,8 +208,24 @@ $(nodist_tempconf_DATA): $(tempconf_in)
 # If running cockpit-ws as a non-standard user, we also set up
 # cockpit-session to be setuid root, but only runnable by cockpit-session
 install-exec-hook::
-	chown -f root:$(COCKPIT_GROUP) $(DESTDIR)$(libexecdir)/cockpit-session || true
+	chown -f root:$(COCKPIT_WSINSTANCE_GROUP) $(DESTDIR)$(libexecdir)/cockpit-session || true
 	test "$(COCKPIT_USER)" != "root" && chmod -f 4750 $(DESTDIR)$(libexecdir)/cockpit-session || true
+
+noinst_PROGRAMS += pam_cockpit_cert.so
+pam_cockpit_cert_so_SOURCES = \
+	src/ws/cockpitwsinstancecert.c \
+	src/ws/pam_cockpit_cert.c
+pam_cockpit_cert.so$(EXEEXT): $(pam_cockpit_cert_so_SOURCES)
+	$(AM_V_CCLD) $(CC) -fPIC -shared $(PAM_COCKPIT_CERT_CFLAGS) $(CFLAGS) $(DEFS) -I$(builddir) -o $@ $^ $(LDFLAGS) $(PAM_COCKPIT_CERT_LIBS)
+
+CLEANFILES += pam_cockpit_cert.so
+
+install-exec-local::
+	$(MKDIR_P) $(DESTDIR)$(pamdir)
+	$(INSTALL) pam_cockpit_cert.so $(DESTDIR)$(pamdir)
+
+uninstall-local::
+	$(RM) -f $(DESTDIR)$(pamdir)/pam_cockpit_cert.so
 
 libexec_SCRIPTS = cockpit-desktop
 
@@ -200,18 +233,14 @@ cockpit-desktop: src/ws/cockpit-desktop.in
 	$(SUBST_RULE)
 
 EXTRA_DIST += \
-	src/ws/cockpit-motd.service.in \
-	src/ws/cockpit.service.in \
-	src/ws/cockpit.socket.in \
+	$(systemd_units_in) \
 	src/ws/cockpit-desktop.in \
 	$(firewall_DATA) \
 	$(tempconf_in) \
 	$(NULL)
 
 CLEANFILES += \
-	src/ws/cockpit.socket \
-	src/ws/cockpit.service \
-	src/ws/cockpit-motd.service \
+	$(patsubst %.in,%,$(systemd_units_in)) \
 	$(nodist_tempconf_DATA) \
 	cockpit-desktop \
 	$(NULL)
@@ -221,7 +250,7 @@ nodist_appdata_DATA = src/ws/cockpit.appdata.xml
 appdata_in = src/ws/cockpit.appdata.xml.in
 
 $(nodist_appdata_DATA): $(appdata_in) $(PO_FILES)
-	$(AM_V_GEN) LC_ALL=C $(INTLTOOL_MERGE) -q -x -u $(top_srcdir)/po $< $@
+	$(AM_V_GEN) $(MSGFMT) --xml -d $(top_srcdir)/po --template $< --output $@
 
 pixmapdir = $(datadir)/pixmaps
 pixmap_DATA = src/ws/cockpit.png
@@ -441,9 +470,3 @@ install-tests::
 install-exec-hook::
 	mkdir -p $(DESTDIR)$(sysconfdir)/cockpit/ws-certs.d $(DESTDIR)$(sysconfdir)/cockpit/machines.d
 	chmod 755 $(DESTDIR)$(sysconfdir)/cockpit/ws-certs.d $(DESTDIR)$(sysconfdir)/cockpit/machines.d
-
-prepare-po-appdata: $(appdata_in)
-	cp $< .
-	$(INTLTOOL_EXTRACT) -l --type=gettext/xml $(notdir $(appdata_in))
-
-prepare-po:: prepare-po-appdata

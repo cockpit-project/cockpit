@@ -24,6 +24,7 @@ from testlib import *
 from machine_core.constants import TEST_OS_DEFAULT
 
 
+@skipImage("NetworkManager-team not installed", "fedora-coreos")
 class TestNetworking(NetworkCase):
     provision = {
         "machine1": {},
@@ -55,7 +56,8 @@ class TestNetworking(NetworkCase):
 
         # Check that the configuration file has the expected sane name
         # on systems that use "network-scripts".
-        m.execute("! test -d /etc/sysconfig || test -f /etc/sysconfig/network-scripts/ifcfg-tteam")
+        if m.image not in ["fedora-coreos"]:
+            m.execute("! test -d /etc/sysconfig || test -f /etc/sysconfig/network-scripts/ifcfg-tteam")
 
         # Check that the members are displayed
         b.click("#networking-interfaces tr[data-interface='tteam'] td:first-child")
@@ -82,10 +84,8 @@ class TestNetworking(NetworkCase):
         b.wait_not_present("#networking-interfaces tr[data-interface='tteam']")
 
         # Check that the former members are displayed and both On
-        # Fixed in PR #12400
-        if m.image not in ["rhel-8-0-distropkg"]:
-            self.wait_for_iface(iface1)
-            self.wait_for_iface(iface2)
+        self.wait_for_iface(iface1)
+        self.wait_for_iface(iface2)
 
         # Due to above reload
         self.allow_journal_messages(".*Connection reset by peer.*",

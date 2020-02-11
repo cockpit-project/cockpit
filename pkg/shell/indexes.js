@@ -30,8 +30,21 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
     if (!index_options)
         index_options = {};
 
+    var page_status = { };
+    sessionStorage.removeItem("cockpit:page_status");
+
     index_options.navigate = function (state, sidebar) {
         return navigate(state, sidebar);
+    };
+    index_options.handle_notifications = function (host, page, data) {
+        if (data.page_status !== undefined) {
+            if (!page_status[host])
+                page_status[host] = { };
+            page_status[host][page] = data.page_status;
+            sessionStorage.setItem("cockpit:page_status", JSON.stringify(page_status));
+            // Just for triggering an "updated" event
+            machines.overlay(host, { });
+        }
     };
     var index = base_index.new_index_from_proto(index_options);
 
@@ -101,10 +114,79 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
 
     /* Navigation */
     var ready = false;
+    var filter_timer = null;
     function on_ready() {
         ready = true;
         index.ready();
     }
+
+    function preload_frames () {
+        for (const m of machines.list)
+            index.preload_frames(m, m.manifests);
+    }
+
+    // Click on active menu item (when using arrows to navigate through menu)
+    function clickActiveItem() {
+        const cur = document.activeElement;
+        if (cur.nodeName === "INPUT") {
+            const el = document.querySelector("#host-apps li:first-of-type > a");
+            if (el)
+                el.click();
+        } else {
+            cur.click();
+        }
+    }
+
+    // Move focus to next item in menu (when using arrows to navigate through menu)
+    // With arguments it is possible to change direction
+    function focusNextItem(nth_of_type, sibling) {
+        const cur = document.activeElement;
+        if (cur.nodeName === "INPUT") {
+            const item = document.querySelector("#host-apps li:" + nth_of_type + " > a");
+            if (item)
+                item.focus();
+        } else {
+            const next = cur.parentNode[sibling];
+            if (next)
+                next.children[0].focus();
+            else
+                document.getElementById("filter-menus").focus();
+        }
+    }
+
+    function navigate_apps(ev) {
+        if (ev.keyCode === 13) // Enter
+            clickActiveItem();
+        else if (ev.keyCode === 40) // Arrow Down
+            focusNextItem("first-of-type", "nextSibling");
+        else if (ev.keyCode === 38) // Arrow Up
+            focusNextItem("last-of-type", "previousSibling");
+        else if (ev.keyCode === 27) { // Escape - clean selection
+            document.getElementById("filter-menus").value = "";
+            update_sidebar();
+            document.getElementById("filter-menus").focus();
+        } else {
+            return false;
+        }
+        return true;
+    }
+
+    function on_filter_menus_changed(ev) {
+        if (!navigate_apps(ev)) {
+            if (filter_timer)
+                window.clearTimeout(filter_timer);
+
+            filter_timer = window.setTimeout(function () {
+                if (document.getElementById("filter-menus") === document.activeElement)
+                    update_sidebar();
+                filter_timer = null;
+            }, 250);
+        }
+    }
+
+    document.getElementById("host-apps").addEventListener("keyup", navigate_apps);
+    document.getElementById("filter-menus").addEventListener("keyup", on_filter_menus_changed);
+    document.getElementById("filter-menus").addEventListener("change", on_filter_menus_changed);
 
     /* When the machine list is ready we start processing navigation */
     $(machines)
@@ -116,6 +198,7 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
                     index.frames.remove(machine);
 
                 update_machines();
+                preload_frames();
                 if (ready)
                     navigate();
             })
@@ -137,18 +220,30 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
     });
 
     function show_disconnected() {
+        if (!ready) {
+            const ca_cert_url = window.sessionStorage.getItem("CACertUrl");
+            if (window.navigator.userAgent.indexOf("Safari") >= 0 && ca_cert_url) {
+                $("#safari-cert-help a").attr("href", ca_cert_url);
+                $("#safari-cert-help").prop("hidden", false);
+            }
+            $("#early-failure").prop("hidden", false);
+            $("#main").hide();
+            $("body").prop("hidden", false);
+            return;
+        }
+
         var current_frame = index.current_frame();
 
         if (current_frame)
             $(current_frame).hide();
 
-        $(".curtains-ct .spinner").toggle(false);
+        $(".curtains-ct .spinner").prop("hidden", true);
         $("#machine-reconnect").toggle(true);
         $("#machine-troubleshoot").toggle(false);
         $(".curtains-ct i").toggle(true);
         $(".curtains-ct h1").text(_("Disconnected"));
         $(".curtains-ct p").text(cockpit.message(watchdog_problem));
-        $(".curtains-ct").show();
+        $(".curtains-ct").prop("hidden", false);
         $("#navbar-dropdown").addClass("disabled");
     }
 
@@ -192,6 +287,7 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
 
         update_navbar(machine, state, compiled);
         update_frame(machine, state, compiled);
+        update_docs(machine, state, compiled);
 
         /* Just replace the state, and URL */
         index.jump(state, true);
@@ -259,15 +355,86 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
     }
 
     function update_sidebar(machine, state, compiled) {
+        if (!state)
+            state = index.retrieve_state();
+
+        if (!machine)
+            machine = machines.lookup(state.host);
+
+        if (!compiled)
+            compiled = compile(machine);
+
+        var term = document.getElementById("filter-menus").value
+                .toLowerCase();
+
         function links(component) {
             var active = state.component === component.path;
             var listItem;
+            var status = null;
+            var label;
+
+            if (page_status[machine.key])
+                status = page_status[machine.key][component.path];
+
+            function icon_class_for_type(type) {
+                if (type == "error")
+                    return 'fa fa-exclamation-circle';
+                else if (type == "warning")
+                    return 'fa fa-exclamation-triangle';
+                else
+                    return 'fa fa-info-circle';
+            }
+
+            function mark_text(text, term) {
+                const b = text.toLowerCase().indexOf(term);
+                const e = b + term.length;
+                return (text.substring(0, b) + "<mark>" + text.substring(b, e) + "</mark>" + text.substring(e, text.length));
+            }
+
+            let label_text = document.createElement("span");
+            label_text.append(component.label);
+            // When this label was matched, we want to show why
+            if (component.keyword.keyword) {
+                const k = component.keyword.keyword;
+                if (k === component.label.toLowerCase()) {
+                    label_text.innerHTML = mark_text(component.label, term);
+                } else {
+                    const container = document.createElement("span");
+                    container.append(label_text);
+                    const contains = document.createElement("div");
+                    contains.className = "hint";
+                    contains.innerHTML = _("Contains") + ": " + mark_text(k, term);
+                    container.append(contains);
+                    label_text = container;
+                }
+            }
+
+            if (status && status.type) {
+                label = $("<span>",
+                          {
+                              'data-toggle': 'tooltip',
+                              title: status.title
+                          }).append(
+                    $("<div class='pull-right'>").append(
+                        $('<span>', { class: icon_class_for_type(status.type) })),
+                    label_text);
+            } else
+                label = label_text;
+
+            let path = component.path;
+            let hash = component.hash;
+            if (component.keyword.goto) {
+                if (component.keyword.goto[0] === "/")
+                    path = component.keyword.goto.substr(1);
+                else
+                    hash = component.keyword.goto;
+            }
 
             listItem = $("<li class='list-group-item'>")
                     .toggleClass("active", active)
                     .append($("<a>")
-                            .attr("href", index.href({ host: machine.address, component: component.path, hash: component.hash }))
-                            .append($("<span>").text(component.label)));
+                            .attr("href", index.href({ host: machine.address, component: path, hash: hash }))
+                            .append(label));
 
             if (active)
                 listItem.find('a').attr("aria-current", "page");
@@ -275,13 +442,90 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
             return listItem;
         }
 
-        var menu = compiled.ordered("menu").map(links);
+        function keyword_relevance(current_best, item) {
+            const translate = item.translate || false;
+            const weight = item.weight || 0;
+            let score;
+            let _m = "";
+            let best = { score: -1 };
+            item.matches.forEach(m => {
+                if (translate)
+                    _m = _(m);
+                score = -1;
+                // Best score when starts in translate language
+                if (translate && _m.indexOf(term) == 0)
+                    score = 4 + weight;
+                // Second best score when starts in English
+                else if (m.indexOf(term) == 0)
+                    score = 3 + weight;
+                // Substring consider only when at least 3 letters were used
+                else if (term.length >= 3) {
+                    if (translate && _m.indexOf(term) >= 0)
+                        score = 2 + weight;
+                    else if (m.indexOf(term) >= 0)
+                        score = 1 + weight;
+                }
+                if (score > best.score) {
+                    best = { keyword: m, score: score };
+                }
+            });
+            if (best.score > current_best.score) {
+                current_best = { keyword: best.keyword, score: best.score, goto: item.goto || null };
+            }
+            return current_best;
+        }
+
+        function keyword_filter(item) {
+            item.keyword = { score:-1 };
+            if (!term)
+                return true;
+            const best_keyword = item.keywords.reduce(keyword_relevance, { score:-1 });
+            if (best_keyword.score > -1) {
+                item.keyword = best_keyword;
+                return true;
+            }
+            return false;
+        }
+
+        var menu = compiled.ordered("menu")
+                .filter(keyword_filter)
+                .sort((a, b) => b.keyword.score - a.keyword.score)
+                .map(links);
         $("#sidebar-menu").empty()
                 .append(menu);
 
-        var tools = compiled.ordered("tools").map(links);
-        $("#sidebar-tools").empty()
-                .append(tools);
+        var tools = compiled.ordered("tools")
+                .filter(keyword_filter)
+                .sort((a, b) => { return b.keyword.score - a.keyword.score })
+                .map(links);
+        $("#sidebar-tools").empty();
+
+        if (term !== "") {
+            $("#sidebar-menu").append(tools);
+            const clear_button = document.createElement("button");
+            clear_button.textContent = _("Clear Search");
+            clear_button.className = "link-button hint";
+            clear_button.onclick = function() {
+                document.getElementById("filter-menus").value = "";
+                update_sidebar(machine, state, compiled);
+            };
+            const container = document.createElement("div");
+            container.className = "non-menu-item";
+            container.append(clear_button);
+            $("#sidebar-tools").append(container);
+        } else {
+            $("#sidebar-tools").append(tools);
+        }
+
+        if (!menu.length && !tools.length) {
+            const group = document.createElement("li");
+            group.className = "list-group-item disabled";
+            const text = document.createElement("span");
+            text.className = "non-menu-item";
+            text.append(document.createTextNode(_("No results found")));
+            group.append(text);
+            document.getElementById("sidebar-menu").innerHTML = group.outerHTML;
+        }
 
         $("#machine-avatar").attr("src", machine && machine.avatar ? encodeURI(machine.avatar)
             : "../shell/images/server-small.png");
@@ -338,6 +582,38 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
         $("#host-nav-item").toggleClass("dashboard-link", !!machine);
 
         update_active_machine(machine ? machine.address : null);
+    }
+
+    function update_docs(machine, state, compiled) {
+        const item = compiled.items[state.component];
+        const docs_items = document.getElementById("navbar-docs-items");
+        docs_items.innerHTML = "";
+
+        function create_item(name, url) {
+            const el_li = document.createElement("li");
+            const el_a = document.createElement("a");
+            const el_icon = document.createElement("i");
+            el_icon.className = "fa fa-external-link fa-xs";
+            el_a.setAttribute("translate", "yes");
+            el_a.setAttribute("href", url);
+            el_a.setAttribute("target", "blank");
+            el_a.setAttribute("rel", "noopener noreferrer");
+
+            el_a.appendChild(document.createTextNode(name));
+            el_a.appendChild(el_icon);
+
+            el_li.appendChild(el_a);
+            docs_items.appendChild(el_li);
+        }
+
+        const os_release = JSON.parse(window.localStorage['os-release'] || "{}");
+        if (os_release.DOCUMENTATION_URL)
+            create_item(cockpit.format(_("$0 documentation"), os_release.NAME), os_release.DOCUMENTATION_URL);
+
+        create_item(_("Web Console"), "https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_systems_using_the_rhel_8_web_console/index");
+
+        if (item && item.docs && item.docs.length > 0)
+            item.docs.forEach(e => create_item(_(e.label), e.url));
     }
 
     function update_navbar(machine, state, compiled) {
@@ -433,8 +709,8 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
             }
 
             restarting = !!machine.restarting;
-            $(".curtains-ct").show();
-            $(".curtains-ct .spinner").toggle(connecting || restarting);
+            $(".curtains-ct").prop("hidden", false);
+            $(".curtains-ct .spinner").prop("hidden", !connecting && !restarting);
             $("#machine-reconnect").toggle(!connecting && machine.problem != "not-found");
             $(".curtains-ct i").toggle(!connecting && !restarting);
             $(".curtains-ct h1").text(title);
@@ -472,7 +748,7 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
 
         var label, item;
         if (machine.state == "connected") {
-            $(".curtains-ct").hide();
+            $(".curtains-ct").prop("hidden", true);
             $("#machine-spinner").toggle(frame && !$(frame).attr("data-ready"));
             $(frame).css('display', 'block');
             item = compiled.items[state.component];
@@ -482,7 +758,7 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
     }
 
     function update_machines() {
-        $("#machine-dropdown .caret")
+        $("#machine-dropdown .fa-caret-down")
                 .toggle(machines.list.length > 1);
 
         var machine_link = $("#machine-link");
@@ -527,9 +803,9 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
         if (!machine.manifests || machine.address === "localhost")
             return null;
 
-        var shell = machine.manifests["shell"] || { };
-        var menu = shell["menu"] || { };
-        var tools = shell["tools"] || { };
+        var shell = machine.manifests.shell || { };
+        var menu = shell.menu || { };
+        var tools = shell.tools || { };
 
         var mapping = { };
 
@@ -597,12 +873,12 @@ function SimpleIndex(index_options) {
         if (current_frame)
             $(current_frame).hide();
 
-        $(".curtains-ct .spinner").toggle(false);
+        $(".curtains-ct .spinner").prop("hidden", true);
         $("#machine-reconnect").toggle(true);
         $(".curtains-ct i").toggle(true);
         $(".curtains-ct h1").text(_("Disconnected"));
         $(".curtains-ct p").text(cockpit.message(watchdog_problem));
-        $(".curtains-ct").show();
+        $(".curtains-ct").prop("hidden", false);
         $("#navbar-dropdown").addClass("disabled");
     }
 
@@ -692,7 +968,7 @@ if (document.documentElement.getAttribute("class") === "index-page") {
     window.options = { sink: true, protocol: "cockpit1" };
 
     /* While the index is initializing, snag any messages we receive from frames */
-    window.messages = [ ];
+    window.messages = [];
 
     window.messages.cancel = function() {
         window.removeEventListener("message", message_queue, false);

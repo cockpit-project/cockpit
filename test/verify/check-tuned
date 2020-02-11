@@ -21,7 +21,7 @@ import parent
 from testlib import *
 
 
-@skipImage("No tuned packaged", "fedora-atomic")
+@skipImage("No tuned packaged", "fedora-coreos")
 class TestTuned(MachineCase):
 
     def testBasic(self):
@@ -43,29 +43,29 @@ class TestTuned(MachineCase):
         self.login_and_go("/system")
 
         def check_status_tooltip(expected):
-            b.mouse("#system-info-performance .action-trigger", "mouseover")
+            b.mouse("#system-info-performance span", "mouseover")
             b.wait_text("#system-info-performance .tooltip-inner", expected)
             # move mouse away again, to let the tooltip disappear and update
-            b.mouse("#system-info-performance .action-trigger", "mouseout")
+            b.mouse("#system-info-performance span", "mouseout")
             b.wait_not_present("#system-info-performance .tooltip-inner")
 
-        b.wait_text('#system-info-performance a.action-trigger', "none")
+        b.wait_text('#system-info-performance .action-trigger', "none")
         check_status_tooltip("Tuned is not running")
 
         # Start tuned manually. The recommended profile will be activated automatically.
         m.execute("systemctl start tuned")
-        b.wait_text('#system-info-performance a.action-trigger', recommended_profile)
+        b.wait_text('#system-info-performance .action-trigger', recommended_profile)
         check_status_tooltip("This system is using the recommended profile")
 
         # Informative message when not authorized
         b.relogin('/system', authorized=False)
-        b.wait_text('#system-info-performance a.action-trigger.disabled', recommended_profile)
+        b.wait_text('#system-info-performance .action-trigger.disabled', recommended_profile)
         check_status_tooltip('The user admin is not permitted to change profiles')
         b.relogin('/system', authorized=True)
 
         # Switch the profile
 
-        b.click('#system-info-performance a.action-trigger')
+        b.click('#system-info-performance .action-trigger')
         title_selector = "h4.modal-title:contains('Change Performance Profile')"
         b.wait_present(title_selector)
         body_selector = ".modal-dialog:contains('Change Performance Profile')"
@@ -81,7 +81,7 @@ class TestTuned(MachineCase):
         b.click("{0} button.apply".format(body_selector))
         b.wait_not_present(title_selector)
 
-        b.wait_text('#system-info-performance a.action-trigger', "balanced")
+        b.wait_text('#system-info-performance .action-trigger', "balanced")
         check_status_tooltip("This system is using a custom profile")
 
         # Check the status of tuned, it should show the profile
@@ -91,7 +91,7 @@ class TestTuned(MachineCase):
         self.assertIn("enabled;", output)
 
         # Now disable tuned
-        b.click('#system-info-performance a.action-trigger')
+        b.click('#system-info-performance .action-trigger')
         b.wait_present(title_selector)
         b.wait_present("{0} .list-group-item.active p".format(body_selector))
 
@@ -100,7 +100,7 @@ class TestTuned(MachineCase):
         b.click("{0} button.apply".format(body_selector))
         b.wait_not_present(title_selector)
 
-        b.wait_text('#system-info-performance a.action-trigger', "none")
+        b.wait_text('#system-info-performance .action-trigger', "none")
 
         # Check the status of tuned, it should show disabled
         output = m.execute("tuned-adm active 2>&1 || true")
@@ -109,7 +109,7 @@ class TestTuned(MachineCase):
         self.assertIn("disabled;", output)
 
         # Click on the button again
-        b.click('#system-info-performance a.action-trigger')
+        b.click('#system-info-performance .action-trigger')
         b.wait_present(title_selector)
 
         # Tuned should still be disabled

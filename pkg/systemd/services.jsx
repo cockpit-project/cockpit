@@ -25,6 +25,8 @@ import cockpit from "cockpit";
 
 const _ = cockpit.gettext;
 
+export const service_tabs_suffixes = new Set(["service", "target", "socket", "timer", "path"]);
+
 /*
  * React component showing services tabs
  * Required props:
@@ -33,13 +35,22 @@ const _ = cockpit.gettext;
  */
 export class ServiceTabs extends React.Component {
     render() {
+        const { warnings } = this.props;
+
+        function title(label, tag) {
+            if (warnings[tag])
+                return <span>{label} <span className="fa fa-exclamation-triangle" /></span>;
+            else
+                return label;
+        }
+
         return (
             <Tabs defaultActiveKey=".service$" id="service-tabs" onSelect={this.props.onChange}>
-                <Tab eventKey=".service$" title={ _("System Services") } />
-                <Tab eventKey=".target$" title={ _("Targets") } />
-                <Tab eventKey=".socket$" title={ _("Sockets") } />
-                <Tab eventKey=".timer$" title={ _("Timers") } />
-                <Tab eventKey=".path$" title={ _("Paths") } />
+                <Tab eventKey=".service$" title={ title(_("System Services"), "service") } />
+                <Tab eventKey=".target$" title={ title(_("Targets"), "target") } />
+                <Tab eventKey=".socket$" title={ title(_("Sockets"), "socket") } />
+                <Tab eventKey=".timer$" title={ title(_("Timers"), "timer") } />
+                <Tab eventKey=".path$" title={ title(_("Paths"), "path") } />
             </Tabs>
         );
     }

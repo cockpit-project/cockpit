@@ -19,9 +19,11 @@
 
 import React from "react";
 import { OverlayTrigger, Tooltip } from "patternfly-react";
+import { Progress, ProgressMeasureLocation, ProgressVariant } from '@patternfly/react-core';
 
 import cockpit from "cockpit";
 import * as utils from "./utils.js";
+import client from "./client.js";
 
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 
@@ -43,43 +45,24 @@ const _ = cockpit.gettext;
  *            excuse in a tooltip.
  */
 
-var permission = cockpit.permission({ admin: true });
-
 class StorageControl extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            allowed: permission.allowed !== false
-        };
-        this.onPermissionChanged = this.onPermissionChanged.bind(this);
-    }
-
-    onPermissionChanged() {
-        this.setState({ allowed: permission.allowed !== false });
-    }
-
-    componentDidMount() {
-        permission.addEventListener("changed", this.onPermissionChanged);
-    }
-
-    componentWillUnmount() {
-        permission.removeEventListener("changed", this.onPermissionChanged);
-    }
-
     render() {
         var excuse = this.props.excuse;
-        if (!this.state.allowed) {
+        if (!client.permission.allowed) {
             var markup = {
                 __html: cockpit.format(_("The user <b>$0</b> is not permitted to manage storage"),
-                                       permission.user ? permission.user.name : '')
+                                       client.permission.user ? client.permission.user.name : '')
             };
             excuse = <span dangerouslySetInnerHTML={markup} />;
         }
 
         if (excuse) {
             return (
-                <OverlayTrigger overlay={ <Tooltip id="tip-storage">{excuse}</Tooltip> } placement="top">
-                    { this.props.content(excuse) }
+                <OverlayTrigger overlay={ <Tooltip id="tip-storage">{excuse}</Tooltip> }
+                                placement={this.props.excuse_placement || "top"}>
+                    <span>
+                        { this.props.content(excuse) }
+                    </span>
                 </OverlayTrigger>
             );
         } else {
@@ -93,11 +76,12 @@ function checked(callback) {
         // only consider primary mouse button
         if (!event || event.button !== 0)
             return;
-        var promise = callback();
+        var promise = client.run(callback);
         if (promise)
             promise.fail(function (error) {
-                dialog_open({ Title: _("Error"),
-                              Body: error.toString()
+                dialog_open({
+                    Title: _("Error"),
+                    Body: error.toString()
                 });
             });
         event.stopPropagation();
@@ -118,6 +102,7 @@ export class StorageButton extends React.Component {
                                 <button id={this.props.id}
                                             onClick={checked(this.props.onClick)}
                                             className={classes + (excuse ? " disabled" : "")}
+                                            style={excuse ? { pointerEvents: 'none' } : null}
                                             disabled={excuse}>
                                     {this.props.children}
                                 </button>
@@ -131,12 +116,11 @@ export class StorageLink extends React.Component {
         return (
             <StorageControl excuse={this.props.excuse}
                             content={(excuse) => (
-                                <a onClick={checked(this.props.onClick)}
-                                       role="link"
-                                       tabIndex="0"
-                                       className={excuse ? " disabled" : ""}>
+                                <button onClick={checked(this.props.onClick)}
+                                        style={excuse ? { pointerEvents: 'none' } : null}
+                                        className={"link-button ct-form-relax" + (excuse ? " disabled" : "")}>
                                     {this.props.children}
-                                </a>
+                                </button>
                             )} />
         );
     }
@@ -163,9 +147,9 @@ export class StorageBlockNavLink extends React.Component {
         var parts = utils.get_block_link_parts(client, block.path);
 
         var link = (
-            <a role="link" tabIndex="0" onClick={() => { cockpit.location.go(parts.location) }}>
+            <button role="link" className="link-button" onClick={() => { cockpit.location.go(parts.location) }}>
                 {parts.link}
-            </a>
+            </button>
         );
 
         return <span>{fmt_to_fragments(parts.format, link)}</span>;
@@ -189,8 +173,9 @@ export class StorageOnOff extends React.Component {
             if (promise) {
                 promise.always(() => { self.setState({ promise: null }) });
                 promise.fail((error) => {
-                    dialog_open({ Title: _("Error"),
-                                  Body: error.toString()
+                    dialog_open({
+                        Title: _("Error"),
+                        Body: error.toString()
                     });
                 });
             }
@@ -205,6 +190,7 @@ export class StorageOnOff extends React.Component {
                                     ? this.state.promise_goal_state
                                     : this.props.state}
                                                  disabled={!!(excuse || this.state.promise)}
+                                                 style={(excuse || this.state.promise) ? { pointerEvents: 'none' } : null}
                                                  onChange={onChange} />
                             )} />
         );
@@ -232,7 +218,7 @@ export class StorageMultiAction extends React.Component {
                                         </button>
                                         <ul className="dropdown-menu action-dropdown-menu" role="menu">
                                             { this.props.actions.map((act) => (
-                                                <li className="presentation">
+                                                <li key={act.title} className="presentation">
                                                     <a role="menuitem" tabIndex="0" onClick={checked(act.action)}>
                                                         {act.title}
                                                     </a>
@@ -254,16 +240,46 @@ export class StorageMultiAction extends React.Component {
 export class StorageUsageBar extends React.Component {
     render() {
         var stats = this.props.stats;
-        var fraction = stats ? stats[0] / stats[1] : null;
+        if (!stats)
+            return null;
+
+        var fraction = stats[0] / stats[1];
+        var labelText = utils.format_fsys_usage(stats[0], stats[1]);
 
         return (
-            <div className="progress">
-                { stats
-                    ? <div className={ "progress-bar" + (fraction > this.props.critical ? " progress-bar-danger" : "") }
-                        style={{ width: fraction * 100 + "%" }} />
-                    : null
-                }
-            </div>
+            <Progress value={stats[0]} max={stats[1]}
+                valueText={labelText}
+                label={labelText}
+                variant={fraction > this.props.critical ? ProgressVariant.danger : ProgressVariant.info}
+                measureLocation={ProgressMeasureLocation.outside} />
         );
+    }
+}
+
+export class StorageMenuItem extends React.Component {
+    render() {
+        return <li><a onClick={checked(this.props.onClick)}>{this.props.children}</a></li>;
+    }
+}
+
+export class StorageBarMenu extends React.Component {
+    render() {
+        const { children, label } = this.props;
+
+        function toggle(excuse) {
+            const classes = "btn btn-primary" + (excuse ? " disabled" : "");
+            return (
+                <button className={classes} type="button" data-toggle="dropdown" aria-label={label}>
+                    <span className="fa fa-bars" />
+                </button>);
+        }
+
+        return (
+            <div className="dropdown btn-group">
+                <StorageControl content={toggle} excuse_placement="bottom" />
+                <ul className="dropdown-menu dropdown-menu-right" role="menu">
+                    {children}
+                </ul>
+            </div>);
     }
 }

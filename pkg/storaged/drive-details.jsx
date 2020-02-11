@@ -37,17 +37,17 @@ export class DriveDetails extends React.Component {
             if (!value)
                 return null;
             return (
-                <React.Fragment>
+                <>
                     <label className="control-label">{title}</label>
                     <div>{value}</div>
-                </React.Fragment>
+                </>
             );
         };
 
         var assessment = null;
         if (drive_ata) {
             assessment = (
-                <React.Fragment>
+                <>
                     <label className="control-label">{_("storage", "Assessment")}</label>
                     <div>
                         { drive_ata.SmartFailing
@@ -59,7 +59,7 @@ export class DriveDetails extends React.Component {
                             : null
                         }
                     </div>
-                </React.Fragment>
+                </>
             );
         }
 

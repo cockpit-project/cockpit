@@ -18,14 +18,59 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Modal } from 'patternfly-react';
+import { Button, Modal, OverlayTrigger, Tooltip } from 'patternfly-react';
 
-import { storagePoolId } from '../../helpers.js';
+import { getStorageVolumesUsage, storagePoolId } from '../../helpers.js';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { storagePoolDeactivate, storagePoolUndefine, storageVolumeDelete } from '../../libvirt-dbus.js';
 import cockpit from 'cockpit';
 
+import './storagePoolDelete.css';
+
 const _ = cockpit.gettext;
+
+/*
+ * Finds out if any volume is used as a disk independently
+ * with no reference to a pool (e.g. using direct volume path).
+ * If so, then pool can be deleted but only without its content.
+ *
+ * @param {object} pool
+ * @param {array} vms
+ * returns {boolean}
+ */
+function canDeleteOnlyWithoutVolumes(pool, vms) {
+    if (!canDelete(pool, vms))
+        return false;
+
+    const isVolumeUsed = getStorageVolumesUsage(vms, pool);
+
+    for (const property in isVolumeUsed) {
+        if (isVolumeUsed[property].length > 0)
+            return true;
+    }
+
+    return false;
+}
+
+/*
+ * Finds out if any disk uses pool name in it's definition.
+ * If so, then pool cannot be deleted with nor without its content.
+ *
+ * @param {object} pool
+ * @param {array} vms
+ * returns {boolean}
+ */
+function canDelete(pool, vms) {
+    for (let i = 0; i < vms.length; i++) {
+        const vm = vms[i];
+        const disks = Object.values(vm.disks);
+
+        if (disks.some(disk => disk.source.pool === pool.name))
+            return false;
+    }
+
+    return true;
+}
 
 export class StoragePoolDelete extends React.Component {
     constructor(props) {
@@ -86,33 +131,94 @@ export class StoragePoolDelete extends React.Component {
     }
 
     render() {
-        const { storagePool } = this.props;
+        const { storagePool, vms } = this.props;
         const id = storagePoolId(storagePool.name, storagePool.connectionName);
         const volumes = storagePool.volumes || [];
 
-        let defaultBody = (
-            <div className='ct-form'>
-                { storagePool.active && volumes.length > 0 && <React.Fragment>
-                    <label className='control-label'>
-                        {_("Delete Content")}
-                    </label>
-                    <label className='checkbox-inline'>
-                        <input id='storage-pool-delete-volumes'
-                            type='checkbox'
-                            checked={this.state.deleteVolumes}
-                            onChange={e => this.onValueChanged('deleteVolumes', e.target.checked)} />
-                        {_("Delete the Volumes inside this Pool")}
-                    </label>
-                </React.Fragment>}
-                { !storagePool.active && _("Deleting an inactive Storage Pool will only undefine the Pool. Its content will not be deleted.")}
-            </div>
+        const usage = getStorageVolumesUsage(vms, storagePool);
+        let vmsUsage = [];
+        for (const property in usage)
+            vmsUsage = vmsUsage.concat(usage[property]);
+
+        vmsUsage = [...new Set(vmsUsage)]; // remove duplicates
+        vmsUsage = vmsUsage.join(', ');
+        const showWarning = () => {
+            if (canDeleteOnlyWithoutVolumes(storagePool, vms) && this.state.deleteVolumes) {
+                return (
+                    <span id={`delete-${id}-idle-message`}>
+                        <i className='pficon pficon-info' />
+                        {_("Pool's volumes are used by VMs ")}
+                        <b> {vmsUsage + "."} </b>
+                        {_("Detach the disks using this pool from any VMs before attempting deletion.")}
+                    </span>
+                );
+            }
+        };
+
+        const defaultBody = (
+            <>
+                <div className='ct-form'>
+                    { storagePool.active && volumes.length > 0 && <>
+                        <label className='control-label'>
+                            {_("Delete Content")}
+                        </label>
+                        <div role="group">
+                            <label className='checkbox-inline'>
+                                <input id='storage-pool-delete-volumes'
+                                    type='checkbox'
+                                    checked={this.state.deleteVolumes}
+                                    onChange={e => this.onValueChanged('deleteVolumes', e.target.checked)} />
+                                {_("Delete the Volumes inside this Pool")}
+                            </label>
+                        </div>
+                    </>}
+                    { !storagePool.active && _("Deleting an inactive Storage Pool will only undefine the Pool. Its content will not be deleted.")}
+                </div>
+                { storagePool.active && showWarning() }
+            </>
         );
+        const deleteButton = () => {
+            let tooltipText;
+            if (!canDelete(storagePool, vms)) {
+                tooltipText = (<>
+                    {_("Pool's volumes are used by VMs ")}
+                    <b> {vmsUsage + ". "} </b>
+                    {_("Detach the disks using this pool from any VMs before attempting deletion.")}
+                </>);
+            } else if (!storagePool.persistent) {
+                tooltipText = _("Non-persistent storage pool cannot be deleted. It ceases to exists when it's deactivated.");
+            }
+
+            if (!canDelete(storagePool, vms) || !storagePool.persistent) {
+                return (
+                    <OverlayTrigger overlay={
+                        <Tooltip id='delete-tooltip'>
+                            { tooltipText }
+                        </Tooltip> } placement='top'>
+                        <span>
+                            <Button id={`delete-${id}`}
+                                bsStyle='danger'
+                                style={{ pointerEvents: 'none' }}
+                                disabled>
+                                {_("Delete")}
+                            </Button>
+                        </span>
+                    </OverlayTrigger>
+                );
+            } else {
+                return (
+                    <Button id={`delete-${id}`}
+                        bsStyle='danger'
+                        onClick={this.open}>
+                        {_("Delete")}
+                    </Button>
+                );
+            }
+        };
 
         return (
-            <React.Fragment>
-                <Button id={`delete-${id}`} bsStyle='danger' onClick={this.open}>
-                    {_("Delete")}
-                </Button>
+            <>
+                {deleteButton()}
 
                 <Modal show={this.state.showModal} onHide={this.close}>
                     <Modal.Header>
@@ -127,15 +233,18 @@ export class StoragePoolDelete extends React.Component {
                         <Button bsStyle='default' className='btn-cancel' onClick={this.close}>
                             {_("Cancel")}
                         </Button>
-                        <Button bsStyle='danger' onClick={this.delete}>
+                        <Button bsStyle='danger'
+                            onClick={this.delete}
+                            disabled={canDeleteOnlyWithoutVolumes(storagePool, vms) && this.state.deleteVolumes}>
                             {_("Delete")}
                         </Button>
                     </Modal.Footer>
                 </Modal>
-            </React.Fragment>
+            </>
         );
     }
 }
 StoragePoolDelete.propTypes = {
     storagePool: PropTypes.object.isRequired,
+    vms: PropTypes.array.isRequired,
 };

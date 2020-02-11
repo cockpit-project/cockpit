@@ -189,12 +189,13 @@ reboot"""
 # rmmod kvm-intel && modprobe kvm-intel || true
 
 
-@skipImage("Atomic cannot run virtual machines", "fedora-atomic")
+@skipImage("Atomic cannot run virtual machines", "fedora-coreos")
 class TestMachines(NetworkCase):
     created_pool = False
     provider = None
 
     def setUp(self):
+        # HACK: fix this to get along with NetworkCase.setUp(), and use super()
         MachineCase.setUp(self)
         self.startLibvirt()
 
@@ -203,10 +204,9 @@ class TestMachines(NetworkCase):
         m.execute("systemctl stop firewalld; systemctl try-restart libvirtd")
 
     def tearDown(self):
-        # HACK: Because of https://bugzilla.redhat.com/show_bug.cgi?id=1728530
-        # tests might fail not deterministically, always check journal, even if test failed.
-        if self.machine.image == 'rhel-8-1' and self._testMethodName == 'testCreate' and not self.checkSuccess():
-            self.check_journal_messages()
+        # FIXME: Call `super.tearDown()` or remove this method. There are some unexpected messages
+        # which need to be adjusted before we can do that.
+        pass
 
     def startLibvirt(self):
         m = self.machine
@@ -267,6 +267,11 @@ class TestMachines(NetworkCase):
         m.execute('[ "$(virsh domstate {0})" = running ] || '
                   '{{ virsh dominfo {0} >&2; cat /var/log/libvirt/qemu/{0}.log >&2; exit 1; }}'.format(name))
 
+        # TODO check if kernel is booted
+        # Ideally we would like to check guest agent event for that
+        # Libvirt has a signal for that too: VIR_DOMAIN_EVENT_ID_AGENT_LIFECYCLE
+        # https://libvirt.org/git/?p=libvirt-python.git;a=blob;f=examples/guest-vcpus/guest-vcpu-daemon.py;h=30fcb9ce24165c59dec8d9bbe6039f56382e81e3;hb=HEAD
+
         self.allow_journal_messages('.*denied.*comm="pmsignal".*')
 
         return args
@@ -301,10 +306,10 @@ class TestMachines(NetworkCase):
 
         b.click("tbody tr[data-row-id=vm-subVmTest1] th") # click on the row header
         b.wait_in_text("#vm-subVmTest1-state", "running")
-        b.wait_in_text("#vm-subVmTest1-vcpus", "1")
+        b.wait_in_text("#vm-subVmTest1-vcpus-count", "1")
 
-        b.wait_in_text("#vm-subVmTest1-bootorder", "disk,network")
-        emulated_machine = b.text("#vm-subVmTest1-emulatedmachine")
+        b.wait_in_text("#vm-subVmTest1-boot-order", "disk,network")
+        emulated_machine = b.text("#vm-subVmTest1-emulated-machine")
         self.assertTrue(len(emulated_machine) > 0) # emulated machine varies across test machines
 
         def get_usage(selector):
@@ -360,8 +365,8 @@ class TestMachines(NetworkCase):
         b.wait_in_text("#virtual-machines-listing .listing-ct tbody:nth-of-type(2) th", "subVmTest2")
         b.click("#virtual-machines-listing .listing-ct tbody:nth-of-type(2) th") # click on the row header
         b.wait_in_text("#vm-subVmTest2-state", "running")
-        b.wait_in_text("#vm-subVmTest2-vcpus", "1")
-        b.wait_in_text("#vm-subVmTest2-bootorder", "disk,network")
+        b.wait_in_text("#vm-subVmTest2-vcpus-count", "1")
+        b.wait_in_text("#vm-subVmTest2-boot-order", "disk,network")
 
         # restart libvirtd
         m.execute("systemctl stop libvirtd.service")
@@ -390,24 +395,22 @@ class TestMachines(NetworkCase):
         # triangle by status
         b.wait_present("tr.listing-ct-item.listing-ct-nonavigate span span.pficon-warning-triangle-o.machines-status-alert")
         # inline notification with error
-        b.wait_in_text("div.alert.alert-danger strong", "VM subVmTest2 failed to start")
-
-        b.wait_in_text("a.alert-link.more-button", "show more") # more/less button
-        b.click("a.alert-link.more-button")
-        b.wait_present("a.alert-link + p")
+        b.wait_in_text("div.pf-c-alert.pf-m-danger .pf-c-alert__title", "VM subVmTest2 failed to start")
 
         # the message when trying to start active VM differs between virsh and libvirt-dbus provider
         if (self.provider == "libvirt-dbus"):
-            b.wait_in_text("a.alert-link + p",
-                           "domain is already running")
+            message = "domain is already running"
         else:
-            b.wait_in_text("a.alert-link + p",
-                           "Domain is already active")
+            message = "Domain is already active"
 
-        b.wait_in_text("a.alert-link.more-button", "show less")
-        b.click("div.alert.alert-danger button") # close button
+        b.wait_in_text("button.alert-link.more-button", "show more") # more/less button
+        b.click("button.alert-link.more-button")
+        b.wait_in_text(".pf-c-alert__description", message)
+        b.wait_in_text("button.alert-link.more-button", "show less")
+
+        b.click("div.pf-c-alert.pf-m-danger button.pf-c-button") # close button
         # inline notification is gone
-        b.wait_not_present("div.alert.alert-danger")
+        b.wait_not_present("div.pf-c-alert.pf-m-danger")
         # triangle by status is gone
         b.wait_not_present(
             "tr.listing-ct-item.listing-ct-nonavigate span span.pficon-warning-triangle-o.machines-status-alert")
@@ -429,28 +432,28 @@ class TestMachines(NetworkCase):
 
         # Try to run subVmTest1 - it will fail because of inactive default network
         tryRunDomain(1, 'subVmTest1')
-        b.wait_in_text(".toast-notifications-list-pf div:nth-child(1) strong", "VM subVmTest1 failed to start")
+        b.wait_in_text(".toast-notifications-list-pf div:nth-child(1) h4", "VM subVmTest1 failed to start")
 
         # Try to run subVmTest2
         tryRunDomain(2, 'subVmTest2')
-        b.wait_in_text(".toast-notifications-list-pf div:nth-child(2) strong", "VM subVmTest2 failed to start")
+        b.wait_in_text(".toast-notifications-list-pf div:nth-child(2) h4", "VM subVmTest2 failed to start")
 
         # Delete the first notification and check notifications list again
         b.focus(".toast-notifications-list-pf")
-        b.click(".toast-notifications-list-pf div:nth-child(1) button.close")
-        b.wait_not_present(".toast-notifications-list-pf div:nth-child(2) strong")
-        b.wait_in_text(".toast-notifications-list-pf div:nth-child(1) strong", "VM subVmTest2 failed to start")
+        b.click(".toast-notifications-list-pf div:nth-child(1) button.pf-c-button")
+        b.wait_not_present(".toast-notifications-list-pf div:nth-child(2) h4")
+        b.wait_in_text(".toast-notifications-list-pf div:nth-child(1) h4", "VM subVmTest2 failed to start")
 
         # Add one more notification
         tryRunDomain(3, 'subVmTest3')
-        b.wait_in_text(".toast-notifications-list-pf div:nth-child(1) strong", "VM subVmTest2 failed to start")
-        b.wait_in_text(".toast-notifications-list-pf div:nth-child(2) strong", "VM subVmTest3 failed to start")
+        b.wait_in_text(".toast-notifications-list-pf div:nth-child(1) h4", "VM subVmTest2 failed to start")
+        b.wait_in_text(".toast-notifications-list-pf div:nth-child(2) h4", "VM subVmTest3 failed to start")
 
         # Delete the last notification
         b.focus(".toast-notifications-list-pf")
-        b.click(".toast-notifications-list-pf div:nth-child(2) button.close")
-        b.wait_not_present(".toast-notifications-list-pf div:nth-child(2) strong")
-        b.wait_in_text(".toast-notifications-list-pf div:nth-child(1) strong", "VM subVmTest2 failed to start")
+        b.click(".toast-notifications-list-pf div:nth-child(2) button.pf-c-button")
+        b.wait_not_present(".toast-notifications-list-pf div:nth-child(2) h4")
+        b.wait_in_text(".toast-notifications-list-pf div:nth-child(1) h4", "VM subVmTest2 failed to start")
 
     def wait_for_disk_stats(self, name, target):
         b = self.browser
@@ -489,25 +492,26 @@ class TestMachines(NetworkCase):
         b.wait_in_text("#slate-header", "Virtualization Service (libvirt) is Not Active")
         b.wait_present("#enable-libvirt:checked")
         b.click("#start-libvirt")
-
-        b.wait_in_text("body", "Virtual Machines")
+        b.wait(lambda: checkLibvirtEnabled())
         # HACK: https://launchpad.net/bugs/1802005
         if self.provider == "libvirt-dbus" and m.image == "ubuntu-stable":
             m.execute("chmod o+rwx /run/libvirt/libvirt-sock")
-        b.wait(lambda: checkLibvirtEnabled())
-        b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
+        b.wait_in_text("body", "Virtual Machines")
+        with b.wait_timeout(15):
+            b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
 
         m.execute("systemctl stop {0}".format(libvirtServiceName))
         b.wait_in_text("#slate-header", "Virtualization Service (libvirt) is Not Active")
         b.wait_present("#enable-libvirt:checked")
         b.click("#enable-libvirt") # uncheck it ; ; TODO: fix this, do not assume initial state of the checkbox
         b.click("#start-libvirt")
-        b.wait_in_text("body", "Virtual Machines")
+        b.wait(lambda: not checkLibvirtEnabled())
         # HACK: https://launchpad.net/bugs/1802005
         if self.provider == "libvirt-dbus" and m.image == "ubuntu-stable":
             m.execute("chmod o+rwx /run/libvirt/libvirt-sock")
-        b.wait(lambda: not checkLibvirtEnabled())
-        b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
+        b.wait_in_text("body", "Virtual Machines")
+        with b.wait_timeout(15):
+            b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
 
         m.execute("systemctl enable {0}".format(libvirtServiceName))
         m.execute("systemctl stop {0}".format(libvirtServiceName))
@@ -600,7 +604,7 @@ class TestMachines(NetworkCase):
                 volume_size=1, volume_size_unit='GiB',
                 use_existing_volume=False,
                 expected_target='vda', permanent=False, cache_mode=None,
-                verify=True, pool_type=None,
+                bus_type='virtio', verify=True, pool_type=None,
                 volume_format=None,
             ):
                 print(pool_name, volume_name)
@@ -614,6 +618,7 @@ class TestMachines(NetworkCase):
                 self.expected_target = expected_target
                 self.permanent = permanent
                 self.cache_mode = cache_mode
+                self.bus_type = bus_type
                 self.verify = verify
                 self.pool_type = pool_type
                 self.volume_format = volume_format
@@ -652,11 +657,11 @@ class TestMachines(NetworkCase):
                     b.select_from_dropdown("#vm-{0}-disks-adddisk-new-unit".format(self.vm_name), self.volume_size_unit)
 
                     if self.volume_format:
-                        b.select_from_dropdown("#vm-{0}-disks-adddisk-new-diskfileformat".format(self.vm_name), self.volume_format)
+                        b.select_from_dropdown("#vm-{0}-disks-adddisk-new-format".format(self.vm_name), self.volume_format)
 
                     # Configure persistency - by default the check box in unchecked for running VMs
                     if self.permanent:
-                        b.click("#vm-{0}-disks-adddisk-new-permanent".format(self.vm_name))
+                        b.click("#vm-{0}-disks-adddisk-permanent".format(self.vm_name))
                 else:
                     # Choose storage pool
                     b.select_from_dropdown("#vm-{0}-disks-adddisk-existing-select-pool".format(self.vm_name), self.pool_name)
@@ -665,12 +670,21 @@ class TestMachines(NetworkCase):
 
                     # Configure persistency - by default the check box in unchecked for running VMs
                     if self.permanent:
-                        b.click("#vm-{0}-disks-adddisk-existing-permanent".format(self.vm_name))
+                        b.click("#vm-{0}-disks-adddisk-permanent".format(self.vm_name))
 
                 # Configure performance options
                 if self.test_obj.provider == "libvirt-dbus" and self.cache_mode:
-                    b.click("div.modal-dialog button:contains(Show Performance Options)")
+                    b.click("div.modal-dialog button:contains(Show Additional Options)")
                     b.select_from_dropdown("div.modal-dialog #cache-mode", self.cache_mode)
+                    b.click("div.modal-dialog button:contains(Hide Additional Options)")
+                else:
+                    b.wait_not_present("#div.modal-dialog #cache-mode")
+
+                # Configure bus type
+                if self.test_obj.provider == "libvirt-dbus" and self.bus_type != "virtio":
+                    b.click("div.modal-dialog button:contains(Show Additional Options)")
+                    b.select_from_dropdown("div.modal-dialog #bus-type", self.bus_type)
+                    b.click("div.modal-dialog button:contains(Hide Additional Options)")
                 else:
                     b.wait_not_present("#div.modal-dialog #cache-mode")
 
@@ -683,11 +697,26 @@ class TestMachines(NetworkCase):
                 return self
 
             def verify_disk_added(self):
-                b.wait_in_text("#vm-{0}-disks-{1}-bus".format(self.vm_name, self.expected_target), "virtio")
+                b.wait_in_text("#vm-{0}-disks-{1}-bus".format(self.vm_name, self.expected_target), self.bus_type)
                 b.wait_in_text("#vm-{0}-disks-{1}-device".format(self.vm_name, self.expected_target), "disk")
 
+                # Check volume was added to pool's volume list
+                if self.test_obj.provider == "libvirt-dbus" and not self.use_existing_volume:
+                    b.click(".cards-pf .card-pf-title span:contains(Storage Pool)")
+
+                    b.wait_present("tbody tr[data-row-id=pool-{0}-system] th".format(self.pool_name))
+                    b.click("tbody tr[data-row-id=pool-{0}-system] th".format(self.pool_name))
+
+                    b.wait_present("#pool-{0}-system-storage-volumes".format(self.pool_name))
+                    b.click("#pool-{0}-system-storage-volumes".format(self.pool_name)) # open the "Storage Volumes" subtab
+                    b.wait_present("#pool-{0}-system-volume-{1}-name".format(self.pool_name, self.volume_name))
+
+                    b.click(".machines-listing-breadcrumb li a:contains(Virtual Machines)")
+                    b.click("tbody tr[data-row-id=vm-subVmTest1] th")
+                    b.click("#vm-subVmTest1-disks") # open the "Disks" subtab
+
                 # Detect volume format
-                detect_format_cmd = "virsh vol-dumpxml {0} {1} | xmllint --xpath '/volume/target/format' -".format(self.volume_name, self.pool_name)
+                detect_format_cmd = "virsh vol-dumpxml {0} {1} | xmllint --xpath '{2}' -"
 
                 if self.test_obj.provider == "libvirt-dbus":
                     b.wait_in_text('#vm-{0}-disks-{1}-source-volume'.format(self.vm_name, self.expected_target), self.volume_name)
@@ -698,10 +727,18 @@ class TestMachines(NetworkCase):
                         expected_format = 'unknown'
                     else:
                         expected_format = 'qcow2'
-                    self.test_obj.assertEqual(
-                        m.execute(detect_format_cmd).rstrip(),
-                        '<format type="{0}"/>'.format(self.volume_format or expected_format)
-                    )
+
+                    if self.pool_type == 'disk':
+                        expected_format = 'none'
+
+                    # Unknown pool format isn't present in xml anymore
+                    if expected_format == "unknown" and m.execute("virsh --version") >= "5.6.0":
+                        m.execute(detect_format_cmd.format(self.volume_name, self.pool_name, "/volume/target") + " | grep -qv format")
+                    else:
+                        self.test_obj.assertEqual(
+                            m.execute(detect_format_cmd.format(self.volume_name, self.pool_name, "/volume/target/format")).rstrip(),
+                            '<format type="{0}"/>'.format(self.volume_format or expected_format)
+                        )
                 else:
                     if self.pool_type == 'disk':
                         b.wait_in_text('#vm-{0}-disks-{1}-source-device'.format(self.vm_name, self.expected_target), self.volume_name)
@@ -841,6 +878,25 @@ class TestMachines(NetworkCase):
                 use_existing_volume='True',
             ).execute()
 
+        if self.provider == "libvirt-dbus":
+            VMAddDiskDialog(
+                self,
+                pool_name='myPoolOne',
+                volume_name='scsi_bus_disk',
+                use_existing_volume=False,
+                bus_type='scsi',
+                expected_target='sda',
+            ).execute()
+
+            VMAddDiskDialog(
+                self,
+                pool_name='myPoolOne',
+                volume_name='usb_bus_disk',
+                use_existing_volume=False,
+                bus_type='usb',
+                expected_target='sdb',
+            ).execute()
+
         # shut off
         b.click("#vm-subVmTest1-off-caret")
         b.click("#vm-subVmTest1-forceOff")
@@ -853,6 +909,16 @@ class TestMachines(NetworkCase):
         b.wait_present("#vm-subVmTest1-disks-vde-device")
 
         if self.provider == "libvirt-dbus":
+            # testing sata disk after VM shutoff because sata disk cannot be hotplugged
+            VMAddDiskDialog(
+                self,
+                pool_name='myPoolOne',
+                volume_name='sata_bus_disk',
+                use_existing_volume=False,
+                bus_type='sata',
+                expected_target='sda',
+            ).execute()
+
             # Undefine all Storage Pools and  confirm that the Add Disk dialog is disabled
             active_pools = filter(lambda pool: pool != '', m.execute("virsh pool-list --name").split('\n'))
             print(active_pools)
@@ -880,21 +946,20 @@ class TestMachines(NetworkCase):
 
         prepareDisk(self.machine)
         cmds = [
-            "virsh pool-define-as disk-pool disk - - /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 - /tmp/poolDiskImages",
-            "virsh pool-build disk-pool --overwrite",
-            "virsh pool-start disk-pool",
+            "virsh pool-define-as pool-disk disk - - /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 - /tmp/poolDiskImages",
+            "virsh pool-build pool-disk --overwrite",
+            "virsh pool-start pool-disk",
         ]
         self.machine.execute(" && ".join(cmds))
         partition = str(self.machine.execute("readlink -f /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 | cut -d '/' -f 3").strip()) + "1"
         VMAddDiskDialog(
             self,
-            pool_name='disk-pool',
+            pool_name='pool-disk',
             pool_type='disk',
             volume_name=partition,
             volume_size=10,
             volume_size_unit='MiB',
             expected_target='vdc',
-            volume_format='none',
         ).execute()
 
     def testVmNICs(self):
@@ -1129,16 +1194,17 @@ class TestMachines(NetworkCase):
             b.click("#vm-subVmTest1-disks") # open the "Disks" subtab
 
             b.click("#vm-subVmTest1-disks-adddisk") # button
+            b.wait_present("#vm-subVmTest1-disks-adddisk-dialog-modal-window")
             b.wait_present("label:contains(Create New)") # radio button label in the modal dialog
 
             b.select_from_dropdown("#vm-subVmTest1-disks-adddisk-new-select-pool", poolName)
             b.set_input_text("#vm-subVmTest1-disks-adddisk-new-name", volName)
             b.set_input_text("#vm-subVmTest1-disks-adddisk-new-size", "10")
             b.select_from_dropdown("#vm-subVmTest1-disks-adddisk-new-unit", "MiB")
-            b.click("#vm-subVmTest1-disks-adddisk-new-permanent")
+            b.click("#vm-subVmTest1-disks-adddisk-permanent")
 
             b.click("#vm-subVmTest1-disks-adddisk-dialog-add")
-            b.wait_not_present("#vm-subVmTest1-test-disks-adddisk-dialog-modal-window")
+            b.wait_not_present("#vm-subVmTest1-disks-adddisk-dialog-modal-window")
 
             if self.provider == "libvirt-dbus":
                 b.wait_present("#vm-subVmTest1-disks-vdc-source-volume")
@@ -1149,6 +1215,7 @@ class TestMachines(NetworkCase):
         secondDiskVolName = "mydisk"
         poolName = "images"
         secondDiskPoolPath = "/var/lib/libvirt/images/"
+
         addDisk(secondDiskVolName, poolName)
 
         b.click("#vm-{0}-delete".format(name))
@@ -1196,7 +1263,7 @@ class TestMachines(NetworkCase):
         b.click("#vm-{0}-delete".format(name))
         b.click("#vm-{0}-delete-modal-dialog button:contains(Delete)".format(name))
         b.wait_not_present("tbody tr[data-row-id=vm-{0}] th".format(name))
-        b.wait_not_present(".toast-notifications.list-pf div.alert")
+        b.wait_not_present(".toast-notifications.list-pf div.pf-c-alert")
 
     def testSerialConsole(self):
         b = self.browser
@@ -1214,18 +1281,13 @@ class TestMachines(NetworkCase):
         b.click("#vm-{0}-consoles".format(name)) # open the "Console" subtab
 
         b.set_val("#console-type-select", "serial-browser")
-        b.wait_present("div.terminal canvas.xterm-text-layer") # if connected the xterm canvas is rendered
-
-        b.click("#{0}-serialconsole-reconnect".format(name))
-        b.wait_present("div.terminal canvas.xterm-text-layer")
+        b.wait_in_text("#{0}-terminal .xterm-accessibility-tree > div:nth-child(1)".format(name), "Connected to domain")
 
         b.click("#{0}-serialconsole-disconnect".format(name))
-        b.wait_not_present("div.terminal canvas.xterm-text-layer")
-        b.wait_present("div.blank-slate-pf")
-        b.wait_present("p.blank-slate-pf-info:contains(Disconnected from serial console. Click the Reconnect button.)")
+        b.wait_text("#{0}-terminal".format(name), "Disconnected from serial console. Click the Connect button.")
 
-        b.click("#{0}-serialconsole-reconnect".format(name))
-        b.wait_present("div.terminal canvas.xterm-text-layer")
+        b.click("#{0}-serialconsole-connect".format(name))
+        b.wait_in_text("#{0}-terminal .xterm-accessibility-tree > div:nth-child(1)".format(name), "Connected to domain")
 
         # disconnecting the serial console closes the pty channel
         self.allow_journal_messages("connection unexpectedly closed by peer",
@@ -1269,8 +1331,10 @@ class TestMachines(NetworkCase):
                 .fill() \
                 .createAndExpectInlineValidationErrors(errors) \
                 .cancel(True)
-            runner.assertScriptFinished() \
-                .checkEnvIsEmpty()
+            if dialog.check_script_finished:
+                runner.assertScriptFinished()
+            if dialog.env_is_empty:
+                runner.checkEnvIsEmpty()
 
         def checkDialogErrorTest(dialog, errors):
             dialog.open() \
@@ -1279,6 +1343,14 @@ class TestMachines(NetworkCase):
                 .cancel(False)
             runner.assertScriptFinished() \
                 .checkEnvIsEmpty()
+
+        def createDownloadAnOSTest(dialog):
+            dialog.open() \
+                .fill() \
+                .createAndVerifyVirtInstallArgs()
+            if dialog.delete:
+                self.machine.execute("killall -9 virt-install")
+                runner.checkEnvIsEmpty()
 
         def createTest(dialog):
             runner.tryCreate(dialog) \
@@ -1309,83 +1381,143 @@ class TestMachines(NetworkCase):
 
         runner.checkEnvIsEmpty()
 
+        self.browser.enter_page('/machines')
+        self.browser.wait_in_text("body", "Virtual Machines")
+
+        # Check that when there is no storage pool defined a VM can still be created
+        createTest(TestMachines.VmDialog(self, sourceType='file',
+                                         location=config.NOVELL_MOCKUP_ISO_PATH,
+                                         storage_pool="No Storage",
+                                         start_vm=True))
+
+        self.browser.switch_to_top()
+        self.browser.wait_not_visible("#navbar-oops")
+
         # define default storage pool for system connection
         cmds = [
             "virsh pool-define-as default --type dir --target /var/lib/libvirt/images",
             "virsh pool-start default"
         ]
         self.machine.execute(" && ".join(cmds))
+
+        # Fake the osinfo-db data in order that it will allow spawn the installation - of course we don't expect it to succeed -
+        # we just need to check that the VM was spawned
+        fedora_28_xml = self.machine.execute("cat /usr/share/osinfo/os/fedoraproject.org/fedora-28.xml")
+        self.machine.execute("cat /usr/share/osinfo/os/fedoraproject.org/fedora-28.xml > /tmp/fedora-28.xml")
+        root = ET.fromstring(fedora_28_xml)
+        root.find('os').find('resources').find('minimum').find('ram').text = '134217750'
+        root.find('os').find('resources').find('minimum').find('storage').text = '134217750'
+        root.find('os').find('resources').find('recommended').find('ram').text = '268435500'
+        root.find('os').find('resources').find('recommended').find('storage').text = '268435500'
+        new_fedora_28_xml = ET.tostring(root)
+        self.machine.execute("echo \'{0}\' > /usr/share/osinfo/os/fedoraproject.org/fedora-28.xml".format(str(new_fedora_28_xml, 'utf-8')))
+
         self.browser.reload()
         self.browser.enter_page('/machines')
         self.browser.wait_in_text("body", "Virtual Machines")
 
         createTest(TestMachines.VmDialog(self, sourceType='url',
                                          location=config.VALID_URL,
-                                         storage_size=1,
-                                         os_name=config.CIRROS))
+                                         storage_size=1))
 
         # test just the DIALOG CREATION and cancel
         print("    *\n    * validation errors and ui info/warn messages expected:\n    * ")
         cancelDialogTest(TestMachines.VmDialog(self, sourceType='file',
                                                location=config.NOVELL_MOCKUP_ISO_PATH,
-                                               memory_size=1, memory_size_unit='MiB',
+                                               memory_size=128, memory_size_unit='MiB',
                                                storage_size=12500, storage_size_unit='GiB',
                                                start_vm=True))
 
         cancelDialogTest(TestMachines.VmDialog(self, sourceType='url',
                                                location=config.VALID_URL,
                                                memory_size=256, memory_size_unit='MiB',
-                                               storage_size=0, storage_size_unit='MiB',
                                                os_name=config.FEDORA_28,
                                                start_vm=False))
 
         # check if older os are filtered
-        checkFilteredOsTest(TestMachines.VmDialog(self, storage_size=1, os_name=config.REDHAT_RHEL_4_7_FILTERED_OS))
+        checkFilteredOsTest(TestMachines.VmDialog(self, os_name=config.REDHAT_RHEL_4_7_FILTERED_OS))
 
-        checkFilteredOsTest(TestMachines.VmDialog(self, storage_size=1, os_name=config.MANDRIVA_2011_FILTERED_OS))
+        checkFilteredOsTest(TestMachines.VmDialog(self, os_name=config.MANDRIVA_2011_FILTERED_OS))
 
-        checkFilteredOsTest(TestMachines.VmDialog(self, storage_size=1, os_name=config.MAGEIA_3_FILTERED_OS))
+        checkFilteredOsTest(TestMachines.VmDialog(self, os_name=config.MAGEIA_3_FILTERED_OS))
 
         # try to CREATE WITH DIALOG ERROR
-
         # name
-        checkDialogFormValidationTest(TestMachines.VmDialog(self, "", storage_size=1), {"Name": "Name should not be empty"})
+        checkDialogFormValidationTest(TestMachines.VmDialog(self, "", storage_size=1), {"Name": "Name must not be empty"})
+
+        # name already exists
+        createTest(TestMachines.VmDialog(self, name='existing-name', sourceType='url',
+                                         location=config.VALID_URL, storage_size=1,
+                                         delete=False))
+
+        self.machine.execute("virsh undefine existing-name")
+
+        # name already used from a VM that is currently being created
+        # https://bugzilla.redhat.com/show_bug.cgi?id=1780451
+        # downloadOS option exists only in virt-install >= 2.2.1 which is the reason we have the condition for the OSes list below
+        if self.machine.image in ['debian-stable', 'debian-testing', 'ubuntu-stable', 'ubuntu-1804', 'fedora-30', 'fedora-testing', "centos-8-stream"]:
+            self.browser.wait_not_present('select option[data-value="Download an OS"]')
+        else:
+            createDownloadAnOSTest(TestMachines.VmDialog(self, name='existing-name', sourceType='downloadOS',
+                                                         expected_memory_size=256,
+                                                         expected_storage_size=256,
+                                                         os_name=config.FEDORA_28,
+                                                         os_short_id=config.FEDORA_28_SHORTID,
+                                                         start_vm=True, delete=False))
+
+            checkDialogFormValidationTest(TestMachines.VmDialog(self, "existing-name", storage_size=1,
+                                                                check_script_finished=False, env_is_empty=False), {"Name": "already exists"})
+
+            self.machine.execute("killall -9 virt-install")
+
+            # Close the notificaton which will appear for the failed installation
+            self.browser.click(".toast-notifications-list-pf div.pf-c-alert button.pf-c-button")
+            self.browser.wait_not_present(".toast-notifications-list-pf div.pf-c-alert")
 
         # location
         checkDialogFormValidationTest(TestMachines.VmDialog(self, sourceType='url',
-                                                            location="invalid/url", storage_size=1,
+                                                            location="invalid/url",
                                                             os_name=config.FEDORA_28), {"Source": "Source should start with"})
 
         # memory
-        checkDialogFormValidationTest(TestMachines.VmDialog(self, storage_size=1, memory_size=0), {"Memory": "Memory must not be 0"})
+        checkDialogFormValidationTest(TestMachines.VmDialog(self, memory_size=0, os_name=None), {"Memory": "Memory must not be 0"})
 
-        # memory
-        checkDialogFormValidationTest(TestMachines.VmDialog(self, storage_size=1,
-                                                            os_name=config.FEDORA_28,
-                                                            memory_size=256, memory_size_unit='MiB'), {"Memory": "minimum memory requirement of 1024 MiB"})
+        # storage
+        checkDialogFormValidationTest(TestMachines.VmDialog(self, storage_size=0), {"Size": "Storage size must not be 0"})
 
         # start vm
         checkDialogFormValidationTest(TestMachines.VmDialog(self, storage_size=1,
                                                             os_name=config.FEDORA_28, start_vm=True),
-                                      {"Source": "Installation Source should not be empty"})
+                                      {"Source": "Installation Source must not be empty"})
 
-        # disallow empty OS in case of URL installation media and start_vm=False
+        # disallow empty OS
         checkDialogFormValidationTest(TestMachines.VmDialog(self, sourceType='url', location=config.VALID_URL,
                                                             storage_size=100, storage_size_unit='MiB',
-                                                            start_vm=False),
+                                                            start_vm=False, os_name=None),
                                       {"Operating System": "You need to select the most closely matching Operating System"})
 
         # try to CREATE few machines
+        if self.machine.image in ['debian-stable', 'debian-testing', 'ubuntu-stable', 'ubuntu-1804', 'fedora-30', 'fedora-testing', "centos-8-stream"]:
+            self.browser.wait_not_present('select option[data-value="Download an OS"]')
+        else:
+            createDownloadAnOSTest(TestMachines.VmDialog(self, sourceType='downloadOS',
+                                                         expected_memory_size=256,
+                                                         expected_storage_size=256,
+                                                         os_name=config.FEDORA_28,
+                                                         os_short_id=config.FEDORA_28_SHORTID))
+
+            self.machine.execute('cat /tmp/fedora-28.xml > /usr/share/osinfo/os/fedoraproject.org/fedora-28.xml')
+
         createTest(TestMachines.VmDialog(self, sourceType='url',
                                          location=config.VALID_URL,
                                          memory_size=512, memory_size_unit='MiB',
-                                         storage_size=1,
+                                         storage_pool="No Storage",
                                          os_name=config.MICROSOFT_SERVER_2016))
 
         createTest(TestMachines.VmDialog(self, sourceType='url',
                                          location=config.VALID_URL,
                                          memory_size=512, memory_size_unit='MiB',
-                                         storage_size=100, storage_size_unit='MiB',
+                                         storage_pool="No Storage",
                                          os_name=config.MICROSOFT_SERVER_2016,
                                          start_vm=False))
 
@@ -1393,13 +1525,11 @@ class TestMachines(NetworkCase):
                                          location=config.VALID_URL,
                                          memory_size=256, memory_size_unit='MiB',
                                          storage_size=100, storage_size_unit='MiB',
-                                         os_name=config.CIRROS,
                                          start_vm=False))
         createTest(TestMachines.VmDialog(self, sourceType='file',
                                          location=config.NOVELL_MOCKUP_ISO_PATH,
                                          memory_size=256, memory_size_unit='MiB',
-                                         storage_size=0, storage_size_unit='MiB',
-                                         os_name=config.CIRROS,
+                                         storage_pool="No Storage",
                                          start_vm=False,
                                          connection='session'))
 
@@ -1409,7 +1539,6 @@ class TestMachines(NetworkCase):
                                          location=config.NOVELL_MOCKUP_ISO_PATH,
                                          memory_size=256, memory_size_unit='MiB',
                                          storage_size=100000, storage_size_unit='GiB',
-                                         os_name=config.CIRROS,
                                          start_vm=False))
 
         # Try setting the memory to value bigger than it's available on the OS
@@ -1417,7 +1546,7 @@ class TestMachines(NetworkCase):
         createTest(TestMachines.VmDialog(self, sourceType='file',
                                          location=config.NOVELL_MOCKUP_ISO_PATH,
                                          memory_size=100000, memory_size_unit='MiB',
-                                         storage_size=0, storage_size_unit='MiB',
+                                         storage_pool="No Storage",
                                          os_name=config.OPENBSD_6_3,
                                          start_vm=False))
 
@@ -1425,7 +1554,6 @@ class TestMachines(NetworkCase):
         createTest(TestMachines.VmDialog(self, sourceType='disk_image',
                                          location=config.VALID_DISK_IMAGE_PATH,
                                          memory_size=256, memory_size_unit='MiB',
-                                         os_name=config.CIRROS,
                                          start_vm=False))
 
         # Recreate the image the previous test just deleted to reuse it
@@ -1441,7 +1569,6 @@ class TestMachines(NetworkCase):
         createTest(TestMachines.VmDialog(self, sourceType='disk_image',
                                          location=config.VALID_DISK_IMAGE_PATH,
                                          memory_size=256, memory_size_unit='MiB',
-                                         os_name=config.CIRROS,
                                          start_vm=True))
         # End of tests for import existing disk as installation option
 
@@ -1462,7 +1589,6 @@ class TestMachines(NetworkCase):
         createTest(TestMachines.VmDialog(self, sourceType='file',
                                          location=config.NOVELL_MOCKUP_ISO_PATH,
                                          memory_size=256, memory_size_unit='MiB',
-                                         os_name=config.CIRROS,
                                          storage_pool="tmpPool",
                                          storage_volume="vmTmpDestination.qcow2",
                                          start_vm=True,))
@@ -1471,7 +1597,6 @@ class TestMachines(NetworkCase):
         createTest(TestMachines.VmDialog(self, sourceType='file',
                                          location=config.NOVELL_MOCKUP_ISO_PATH,
                                          memory_size=256, memory_size_unit='MiB',
-                                         os_name=config.CIRROS,
                                          storage_pool="No Storage",
                                          start_vm=True,))
 
@@ -1555,7 +1680,7 @@ class TestMachines(NetworkCase):
             createTest(TestMachines.VmDialog(self, sourceType='url',
                                              location=config.ISO_URL,
                                              memory_size=256, memory_size_unit='MiB',
-                                             storage_size=0, storage_size_unit='MiB',
+                                             storage_pool="No Storage",
                                              start_vm=True))
 
             # This functionality works on debian only because of extra dep.
@@ -1566,7 +1691,7 @@ class TestMachines(NetworkCase):
                 checkDialogErrorTest(TestMachines.VmDialog(self, sourceType='url',
                                                            location=config.ISO_URL,
                                                            memory_size=256, memory_size_unit='MiB',
-                                                           storage_size=0, storage_size_unit='MiB',
+                                                           storage_pool="No Storage",
                                                            start_vm=True), ["qemu", "protocol"])
 
             self.addCleanup(self.machine.execute, "kill {0}".format(server))
@@ -1577,7 +1702,7 @@ class TestMachines(NetworkCase):
             # check that the pxe booting is not available on session connection
             checkPXENotAvailableSessionTest(TestMachines.VmDialog(self, name='pxe-guest',
                                                                   sourceType='pxe',
-                                                                  storage_size=0, storage_size_unit='MiB',
+                                                                  storage_pool="No Storage",
                                                                   connection="session"))
 
             # test PXE Source
@@ -1615,8 +1740,7 @@ class TestMachines(NetworkCase):
             createTest(TestMachines.VmDialog(self, name='pxe-guest', sourceType='pxe',
                                              location="Virtual Network pxe-nat: NAT",
                                              memory_size=256, memory_size_unit='MiB',
-                                             storage_size=0, storage_size_unit='MiB',
-                                             os_name=config.CIRROS,
+                                             storage_pool="No Storage",
                                              start_vm=True, delete=False))
 
             # We don't want to use start_vm == False because if we get a seperate install phase
@@ -1670,8 +1794,7 @@ class TestMachines(NetworkCase):
             createTest(TestMachines.VmDialog(self, sourceType='pxe',
                                              location="Host Device {0}: macvtap".format(iface),
                                              memory_size=256, memory_size_unit='MiB',
-                                             storage_size=0, storage_size_unit='MiB',
-                                             os_name=config.CIRROS,
+                                             storage_pool="No Storage",
                                              start_vm=False))
 
             # When switching from PXE mode to anything else make sure that the source input is empty
@@ -1679,23 +1802,16 @@ class TestMachines(NetworkCase):
                                                                 sourceType='pxe',
                                                                 location="Host Device {0}: macvtap".format(iface),
                                                                 sourceTypeSecondChoice='url',
-                                                                os_name=config.CIRROS, start_vm=False),
-                                          {"Source": "Installation Source should not be empty"})
-
-        # When switching between no pxe installation modes with the source already set
-        # make sure that the source is intact
-        createTest(TestMachines.VmDialog(self, sourceType='file',
-                                         sourceTypeSecondChoice='disk_image',
-                                         location=config.NOVELL_MOCKUP_ISO_PATH,
-                                         memory_size=256, memory_size_unit='MiB',
-                                         os_name=config.OPENBSD_6_3,
-                                         start_vm=False))
+                                                                start_vm=False),
+                                          {"Source": "Installation Source must not be empty"})
 
         # Test that removing virt-install executable will disable Create VM button
         self.machine.execute('rm $(which virt-install)')
         self.browser.reload()
         self.browser.enter_page('/machines')
         self.browser.wait_visible("#create-new-vm:disabled")
+        # There are many reason why the button would be disabled, so check if it's correct one
+        self.browser.wait_attr("#create-new-vm", "testdata", "disabledVirtInstall")
 
         # TODO: add use cases with start_vm=True and check that vm started
         # - for install when creating vm
@@ -1735,6 +1851,7 @@ class TestMachines(NetworkCase):
         REDHAT_RHEL_4_7_FILTERED_OS = 'Red Hat Enterprise Linux 4.9'
 
         FEDORA_28 = 'Fedora 28'
+        FEDORA_28_SHORTID = 'fedora28'
 
         CIRROS = 'CirrOS'
 
@@ -1743,8 +1860,8 @@ class TestMachines(NetworkCase):
         MAGEIA_3_FILTERED_OS = 'Mageia 3'
 
         LIBVIRT_CONNECTION = {
-            'session': 'QEMU/KVM User connection',
-            'system': 'QEMU/KVM System connection'}
+            'session': 'Session',
+            'system': 'System'}
 
     class VmDialog:
         vmId = 0
@@ -1752,11 +1869,16 @@ class TestMachines(NetworkCase):
         def __init__(self, test_obj, name=None,
                      sourceType='file', sourceTypeSecondChoice=None, location='',
                      memory_size=256, memory_size_unit='MiB',
+                     expected_memory_size=None,
                      storage_size=None, storage_size_unit='GiB',
-                     os_name=None,
+                     expected_storage_size=None,
+                     os_name='CirrOS',
+                     os_short_id=None,
                      storage_pool='Create New Volume', storage_volume='',
                      start_vm=False,
                      delete=True,
+                     env_is_empty=True,
+                     check_script_finished=True,
                      connection=None):
 
             TestMachines.VmDialog.vmId += 1 # This variable is static - don't use self here
@@ -1769,19 +1891,25 @@ class TestMachines(NetworkCase):
             self.browser = test_obj.browser
             self.machine = test_obj.machine
             self.assertTrue = test_obj.assertTrue
+            self.assertIn = test_obj.assertIn
 
             self.sourceType = sourceType
             self.sourceTypeSecondChoice = sourceTypeSecondChoice
             self.location = location
             self.memory_size = memory_size
             self.memory_size_unit = memory_size_unit
+            self.expected_memory_size = expected_memory_size
             self.storage_size = storage_size
             self.storage_size_unit = storage_size_unit
+            self.expected_storage_size = expected_storage_size
             self.os_name = os_name
+            self.os_short_id = os_short_id
             self.start_vm = start_vm
             self.storage_pool = storage_pool
             self.storage_volume = storage_volume
             self.delete = delete
+            self.env_is_empty = env_is_empty
+            self.check_script_finished = check_script_finished
             self.connection = connection
             if self.connection:
                 self.connectionText = TestMachines.TestCreateConfig.LIBVIRT_CONNECTION[connection]
@@ -1792,9 +1920,16 @@ class TestMachines(NetworkCase):
         def open(self):
             b = self.browser
 
-            b.click("#create-new-vm")
+            if self.sourceType == 'disk_image':
+                b.click("#import-vm-disk")
+            else:
+                b.click("#create-new-vm")
+
             b.wait_present("#create-vm-dialog")
-            b.wait_in_text(".modal-dialog .modal-header .modal-title", "Create New Virtual Machine")
+            if self.sourceType == 'disk_image':
+                b.wait_in_text(".modal-dialog .modal-header .modal-title", "Import A Virtual Machine")
+            else:
+                b.wait_in_text(".modal-dialog .modal-header .modal-title", "Create New Virtual Machine")
 
             if self.os_name is not None:
                 # check if there is os present in osinfo-query because it can be filtered out in the UI
@@ -1809,11 +1944,10 @@ class TestMachines(NetworkCase):
         def checkOsFiltered(self):
             b = self.browser
 
-            b.focus("label:contains('Operating System') + div > div > div > input")
+            b.focus("label[for=os-select] + div > div > div > input")
             b.key_press(self.os_name)
-            b.key_press("\t")
             try:
-                with b.wait_timeout(1):
+                with b.wait_timeout(5):
                     b.wait_in_text("#os-select li a", "No matches found")
                 return self
             except AssertionError:
@@ -1821,9 +1955,18 @@ class TestMachines(NetworkCase):
                 raise AssertionError("{0} was not filtered".format(self.os_name))
 
         def checkPXENotAvailableSession(self):
-            self.browser.select_from_dropdown("#connection", self.connectionText)
+            self.browser.click("#connection label:contains('{0}')".format(self.connectionText))
             self.browser.wait_present("#source-type option[value*='{0}']:disabled".format(self.sourceType))
             return self
+
+        def createAndVerifyVirtInstallArgs(self):
+            self.browser.click(".modal-footer button:contains(Create)")
+            self.browser.wait_not_present("#create-vm-dialog")
+
+            virt_install_cmd = "ps aux | grep 'virt\-install\ \-\-connect'"
+            wait(lambda: self.machine.execute(virt_install_cmd), delay=3)
+            virt_install_cmd_out = self.machine.execute(virt_install_cmd)
+            self.assertIn("--install os={}".format(self.os_short_id), virt_install_cmd_out)
 
         def fill(self):
             def getSourceTypeLabel(sourceType):
@@ -1833,6 +1976,8 @@ class TestMachines(NetworkCase):
                     expected_source_type = 'Existing Disk Image'
                 elif sourceType == 'pxe':
                     expected_source_type = 'Network Boot (PXE)'
+                elif sourceType == 'downloadOS':
+                    expected_source_type = 'Download an OS'
                 else:
                     expected_source_type = 'URL'
 
@@ -1841,65 +1986,79 @@ class TestMachines(NetworkCase):
             b = self.browser
             b.set_input_text("#vm-name", self.name)
 
-            b.select_from_dropdown("#source-type", getSourceTypeLabel(self.sourceType))
+            if self.sourceType != 'disk_image':
+                b.select_from_dropdown("#source-type", getSourceTypeLabel(self.sourceType))
+            else:
+                b.wait_not_present("#source-type")
             if self.sourceType == 'file':
-                b.set_file_autocomplete_val("#source-file", self.location)
+                b.set_file_autocomplete_val("source-file", self.location)
             elif self.sourceType == 'disk_image':
-                b.set_file_autocomplete_val("#source-disk", self.location)
+                b.set_file_autocomplete_val("source-disk", self.location)
             elif self.sourceType == 'pxe':
                 b.select_from_dropdown("#network-select", self.location)
-            else:
+            elif self.sourceType == 'url':
                 b.set_input_text("#source-url", self.location)
 
             if self.sourceTypeSecondChoice:
                 b.select_from_dropdown("#source-type", getSourceTypeLabel(self.sourceTypeSecondChoice))
-
-            if not self.sourceType == 'disk_image' and not self.sourceTypeSecondChoice == 'disk_image':
-                b.wait_visible("#storage-pool-select")
-                b.select_from_dropdown("#storage-pool-select", self.storage_pool)
-
-                if self.storage_pool == 'Create New Volume' or self.storage_pool == 'No Storage':
-                    b.wait_not_present("#storage-volume-select")
-                else:
-                    b.wait_visible("#storage-volume-select")
-                    b.select_from_dropdown("#storage-volume-select", self.storage_volume)
-
-                if self.storage_size is None or self.storage_pool != 'Create New Volume':
-                    b.wait_not_present("#storage-size")
-                else:
-                    b.select_from_dropdown("#storage-size-unit-select", self.storage_size_unit)
-                    b.set_input_text("#storage-size", str(self.storage_size), value_check=False)
-                    # helpblock will be missing if available storage size could not be calculated (no default storage pool found)
-                    # test images sometimes may not have default storage pool defined for session connection
-                    if self.connection != "session":
-                        help_block_line = b.text("#storage-size-helpblock")
-                        space_available = [int(s) for s in help_block_line.split() if s.isdigit()][0]
-                        # Write the final storage size back to self so that other function can read it
-                        self.storage_size = min(self.storage_size, space_available)
-                        b.wait_val("#storage-size", self.storage_size)
 
             if self.os_name:
                 b.focus("label:contains('Operating System') + div > div > div > input")
                 b.key_press(self.os_name)
                 b.key_press("\t")
 
+            if self.sourceType != 'disk_image':
+                if not self.expected_storage_size:
+                    b.wait_visible("#storage-pool-select")
+                    b.select_from_dropdown("#storage-pool-select", self.storage_pool)
+
+                    if self.storage_pool == 'Create New Volume' or self.storage_pool == 'No Storage':
+                        b.wait_not_present("#storage-volume-select")
+                    else:
+                        b.wait_visible("#storage-volume-select")
+                        b.select_from_dropdown("#storage-volume-select", self.storage_volume)
+
+                    if self.storage_pool != 'Create New Volume':
+                        b.wait_not_present("#storage-size")
+                    else:
+                        b.select_from_dropdown("#storage-size-unit-select", self.storage_size_unit)
+                        if self.storage_size:
+                            b.set_input_text("#storage-size", str(self.storage_size), value_check=False)
+                            b.blur("#storage-size")
+                            # helpblock will be missing if available storage size could not be calculated (no default storage pool found)
+                            # test images sometimes may not have default storage pool defined for session connection
+                            if self.connection != "session":
+                                space_available = int(b.text("#storage-size-slider ~ b"))
+                                # Write the final storage size back to self so that other function can read it
+                                self.storage_size = min(self.storage_size, space_available)
+                                b.wait_val("#storage-size", self.storage_size)
+                else:
+                    b.wait_val("#storage-size", self.expected_storage_size)
+
             # First select the unit so that UI will auto-adjust the memory input
             # value according to the available total memory on the host
-            b.select_from_dropdown("#memory-size-unit-select", self.memory_size_unit)
-            b.set_input_text("#memory-size", str(self.memory_size), value_check=False)
-            help_block_line = b.text("#memory-size-helpblock")
-            host_total_memory = [int(s) for s in help_block_line.split() if s.isdigit()][0]
-            # Write the final memory back to self so that other function can read it
-            self.memory_size = min(self.memory_size, host_total_memory)
-            b.wait_val("#memory-size", self.memory_size)
+            if not self.expected_memory_size:
+                b.select_from_dropdown("#memory-size-unit-select", self.memory_size_unit)
+                b.set_input_text("#memory-size", str(self.memory_size), value_check=True)
+                b.blur('#memory-size')
+                host_total_memory = int(b.text("#memory-size-slider ~ b"))
+                # Write the final memory back to self so that other function can read it
+                self.memory_size = min(self.memory_size, host_total_memory)
+                b.wait_val("#memory-size", self.memory_size)
+            else:
+                b.wait_val("#memory-size", self.expected_memory_size)
+
+            # check minimum memory is correctly set in the slider - the following are fake data
+            if self.os_name in [TestMachines.TestCreateConfig.CIRROS, TestMachines.TestCreateConfig.FEDORA_28]:
+                b.wait_attr("#memory-size-slider  div[role=slider].hide", "aria-valuemin", "128")
 
             b.wait_visible("#start-vm")
-            if self.start_vm:
+            if not self.start_vm:
                 b.click("#start-vm") # TODO: fix this, do not assume initial state of the checkbox
             # b.set_checked("#start-vm", self.start_vm)
 
             if (self.connection):
-                b.select_from_dropdown("#connection", self.connectionText)
+                b.click("#connection label:contains('{0}')".format(self.connectionText))
 
             return self
 
@@ -1914,7 +2073,10 @@ class TestMachines(NetworkCase):
 
         def create(self):
             b = self.browser
-            b.click(".modal-footer button:contains(Create)")
+            if self.sourceType == 'disk_image':
+                b.click(".modal-footer button:contains(Import)")
+            else:
+                b.click(".modal-footer button:contains(Create)")
             init_state = "creating VM installation" if self.start_vm else "creating VM"
             second_state = "running" if self.start_vm else "shut off"
 
@@ -1925,7 +2087,10 @@ class TestMachines(NetworkCase):
         def createAndExpectInlineValidationErrors(self, errors):
             b = self.browser
 
-            b.click(".modal-footer button:contains(Create)")
+            if self.sourceType == 'disk_image':
+                b.click(".modal-footer button:contains(Import)")
+            else:
+                b.click(".modal-footer button:contains(Create)")
 
             for error, error_msg in errors.items():
                 error_location = ".modal-body label:contains('{0}') + div.form-group.has-error span.help-block".format(error)
@@ -1933,7 +2098,10 @@ class TestMachines(NetworkCase):
                 if (error_msg):
                     b.wait_in_text(error_location, error_msg)
 
-            b.wait_present(".modal-footer button:contains(Create):disabled")
+            if self.sourceType == 'disk_image':
+                b.wait_present(".modal-footer button:contains(Import):disabled")
+            else:
+                b.wait_present(".modal-footer button:contains(Create):disabled")
 
             return self
 
@@ -1952,26 +2120,24 @@ class TestMachines(NetworkCase):
 
             def allowBugErrors(location, original_exception):
                 # CPU must be supported to detect errors
-                # FIXME: "CPU is incompatible with host CPU" check should not be needed; happens only on fedora i386
-                # see https://github.com/cockpit-project/cockpit/issues/8385
+                # FIXME https://github.com/cockpit-project/cockpit/issues/8385
                 error_message = b.text(location)
 
-                if "CPU is incompatible with host CPU" not in error_message and \
-                    "unsupported configuration: CPU mode" not in error_message and \
+                if "unsupported configuration: CPU mode" not in error_message and \
                         "CPU mode 'custom' for x86_64 kvm domain on x86_64 host is not supported by hypervisor" not in error_message:
                     raise original_exception
 
             b.click(".modal-footer button:contains(Create)")
 
-            error_location = ".modal-footer div.alert"
+            error_location = ".modal-footer div.pf-c-alert"
 
             b.wait_present(".modal-footer .spinner")
             b.wait_not_present(".modal-footer .spinner")
             try:
                 with b.wait_timeout(10):
                     b.wait_present(error_location)
-                    b.wait_in_text("a.alert-link.more-button", "show more")
-                    b.click("a.alert-link.more-button")
+                    b.wait_in_text("button.alert-link.more-button", "show more")
+                    b.click("button.alert-link.more-button")
                     waitForError(errors, error_location)
 
                 # dialog can complete if the error was not returned immediately
@@ -1981,20 +2147,20 @@ class TestMachines(NetworkCase):
                     allowBugErrors(error_location, x1)
                 else:
                     # then error should be shown in the notification area
-                    error_location = ".toast-notifications-list-pf div.alert"
+                    error_location = ".toast-notifications-list-pf div.pf-c-alert"
                     try:
                         with b.wait_timeout(20):
                             b.wait_present(error_location)
-                            b.wait_in_text("a.alert-link.more-button", "show more")
-                            b.click("a.alert-link.more-button")
+                            b.wait_in_text("button.alert-link.more-button", "show more")
+                            b.click("button.alert-link.more-button")
                             waitForError(errors, error_location)
                     except Error as x2:
                         # allow CPU errors in the notification area
                         allowBugErrors(error_location, x2)
 
             # Close the notificaton
-            b.click(".toast-notifications-list-pf div.alert button.close")
-            b.wait_not_present(".toast-notifications-list-pf div.alert")
+            b.click(".toast-notifications-list-pf div.pf-c-alert button.pf-c-button")
+            b.wait_not_present(".toast-notifications-list-pf div.pf-c-alert")
 
             return self
 
@@ -2047,8 +2213,8 @@ class TestMachines(NetworkCase):
                 b.wait_present("li.active #vm-{0}-consoles".format(name))
             else:
                 # wait for Overview tab to open
-                b.wait_present("#vm-{0}-memory".format(name))
-                b.wait_present("#vm-{0}-vcpus".format(name))
+                b.wait_present("#vm-{0}-memory-count".format(name))
+                b.wait_present("#vm-{0}-vcpus-count".format(name))
 
             self.assertCorrectConfiguration(dialog)
 
@@ -2095,8 +2261,8 @@ class TestMachines(NetworkCase):
             # Overview should be opened
             b.click("#vm-{0}-overview".format(name)) # open the "overView" subtab
 
-            b.wait_in_text("div.alert.alert-danger strong", "VM {0} failed to get installed".format(name))
-            b.wait_in_text("a.alert-link.more-button", "show more")
+            b.wait_in_text("div.pf-c-alert.pf-m-danger strong", "VM {0} failed to get installed".format(name))
+            b.wait_in_text("button.alert-link.more-button", "show more")
 
             return self
 
@@ -2131,7 +2297,7 @@ class TestMachines(NetworkCase):
             b.click("#vm-{0}-disks".format(name)) # open the "Disks" subtab
 
             # Test disk got imported/created
-            if dialog.sourceType == 'disk_image' or dialog.sourceTypeSecondChoice == 'disk_image':
+            if dialog.sourceType == 'disk_image':
                 if b.is_present("#vm-{0}-disks-vda-device".format(name)):
                     b.wait_in_text("#vm-{0}-disks-vda-source-file".format(name), dialog.location)
                 elif b.is_present("#vm-{0}-disks-hda-device".format(name)):
@@ -2156,7 +2322,9 @@ class TestMachines(NetworkCase):
                 else:
                     raise AssertionError("Unknown disk device")
             else:
-                b.wait_in_text("tbody tr td div.listing-ct-body", "No disks defined")
+                b.wait_in_text("div.listing-ct-body", "No disks defined")
+                b.click("#vm-{0}-disks-adddisk".format(name))
+                b.click("#vm-{0}-disks-adddisk-dialog-cancel".format(name))
             return self
 
         def assertScriptFinished(self):
@@ -2191,10 +2359,10 @@ class TestMachines(NetworkCase):
             b.wait(lambda: self.machine.execute(
                 "ls /home/admin/.local/share/libvirt/images/ 2>/dev/null | wc -l") == '0\n')
 
-            if b.is_present(".toast-notifications-list-pf div.alert .close"):
-                b.click(".toast-notifications-list-pf div.alert .close")
+            if b.is_present(".toast-notifications-list-pf div.pf-c-alert .pf-c-button"):
+                b.click(".toast-notifications-list-pf div.pf-c-alert .pf-c-button")
 
-            b.wait_not_present(".toast-notifications-list-pf div.alert")
+            b.wait_not_present(".toast-notifications-list-pf div.pf-c-alert")
 
             return self
 

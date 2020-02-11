@@ -19,6 +19,7 @@
 
 import parent
 from testlib import *
+from machine_core.constants import TEST_OS_DEFAULT
 
 
 FIX_AUDITD = """
@@ -54,8 +55,13 @@ mv -f ~/.ssh/authorized_keys.test-avc ~/.ssh/authorized_keys
 
 
 class TestSelinux(MachineCase):
+    provision = {
+        "0": {},
+        "ansible_machine": {"image": TEST_OS_DEFAULT}
+    }
 
-    @skipImage("No setroubleshoot", "debian-stable", "debian-testing", "fedora-atomic", "ubuntu-1804", "ubuntu-stable")
+    @skipImage("No setroubleshoot", "debian-stable", "debian-testing", "fedora-coreos", "ubuntu-1804", "ubuntu-stable")
+    @skipBrowser("Firefox needs http to access clipboard", "firefox")
     def testTroubleshootAlerts(self):
         b = self.browser
         m = self.machine
@@ -135,34 +141,88 @@ class TestSelinux(MachineCase):
 
         panel_selector = row_selector + " tr.listing-ct-panel"
 
-        # a solution is present
-        b.wait_in_text(panel_selector, "you can run restorecon")
+        try:
+            # a solution is present
+            b.wait_in_text(panel_selector, "you can run restorecon")
 
-        # and it can be applied
-        btn_sel = "div.list-group-item:contains('you can run restorecon') button"
-        b.click(btn_sel)
+            # and it can be applied
+            btn_sel = "div.list-group-item:contains('you can run restorecon') button.btn-default"
+            b.click(btn_sel)
 
-        # the fix should be applied
-        b.wait_in_text(row_selector, "Solution applied successfully:")
+            # the fix should be applied
+            b.wait_in_text(row_selector + " .pf-c-alert__title", "Solution applied successfully")
+        except Error:
+            print("==== sealert -l '*' ====")
+            print(m.execute("sealert -l '*'"))
+            print("==== audit.log  ====")
+            print(m.execute("cat /var/log/audit/audit.log"))
+            print("====================")
+            raise
 
         b.click(row_selector + " button.pficon-delete")
         b.wait_not_present(row_selector)
-
-        if m.image in ["rhel-8-0-distropkg"]: # Introduced in #11789
-            return
 
         b.grant_permissions("clipboardRead", "clipboardWrite")
 
         b.wait_visible("tr.modification-row > td:contains(Allow zebra to write config)")
         b.wait_visible("tr.modification-row > td:contains(fcontext -a -f a -t samba_share_t -r 's0' '/var/tmp/')")
         b.click(".modifications-export")
-        b.wait_in_text("#basic-tabs-pf-pane-shell > pre:nth-child(1)", "boolean -D")
-        b.wait_in_text("#basic-tabs-pf-pane-shell > pre:nth-child(1)", "fcontext -D")
-        b.wait_in_text("#basic-tabs-pf-pane-shell > pre:nth-child(1)", "boolean -m -1 zebra_write_config")
-        b.wait_in_text("#basic-tabs-pf-pane-shell > pre:nth-child(1)", "fcontext -a -f a -t samba_share_t -r 's0' '/var/tmp/'")
-        b.click(".automation-script-modal .fa-clipboard")
+        shell_script_sel = ".automation-script-modal .modal-body section:nth-child(2) pre"
+        ansible_script_sel = ".automation-script-modal .modal-body section:nth-child(3) pre"
+        b.wait_in_text(shell_script_sel, "boolean -D")
+        b.wait_in_text(shell_script_sel, "fcontext -D")
+        b.wait_in_text(shell_script_sel, "boolean -m -1 zebra_write_config")
+        b.wait_in_text(shell_script_sel, "fcontext -a -f a -t samba_share_t -r 's0' '/var/tmp/'")
+
+        # Check ansible
+        def normalize(script):
+            # HACK: `permissive` type is exported only since policycoreutils 3.0
+            # See https://github.com/SELinuxProject/selinux/commit/3a9b4505b
+            # Combining of versions < 3.0 with versions >= 3.0 provides a bit
+            # different outputs.
+            return script.replace("permissive -D\n", "")
+
+
+        b.click("button:contains('Ansible')")
+        b.wait_in_text(ansible_script_sel, "- name: Allow zebra to write config")
+
+        ansible_m = self.machines["ansible_machine"]
+        ansible_m.execute("mkdir -p roles/selinux/tasks/")
+        ansible_m.write("tests.yml",
+"""
+- hosts: localhost
+  connection: local
+  roles:
+    - selinux
+""")
+        ansible_m.write("roles/selinux/tasks/main.yml", b.text(ansible_script_sel))
+        se_before = normalize(ansible_m.execute("semanage export"))
+        ansible_m.execute("ansible-playbook tests.yml")
+        se_after = normalize(ansible_m.execute("semanage export"))
+        local = normalize(m.execute("semanage export"))
+
+        self.assertNotEqual(se_before, se_after)
+        self.assertEqual(local, se_after)
+
+        # Check that ansible is idempotent
+        m.execute("semanage boolean --modify --off zebra_write_config")
+        b.reload()
+        b.enter_page("/selinux/setroubleshoot")
+        b.wait_visible("tr.modification-row > td:contains(Disallow zebra to write config)")
+        b.click(".modifications-export")
+        b.click("button:contains('Ansible')")
+        ansible_m.write("roles/selinux/tasks/main.yml", b.text(ansible_script_sel))
+        se_before = se_after
+        ansible_m.execute("ansible-playbook tests.yml")
+        se_after = normalize(ansible_m.execute("semanage export"))
+        local = normalize(m.execute("semanage export"))
+        self.assertNotEqual(se_before, se_after)
+        self.assertEqual(local, se_after)
 
         # Check the content of clipboard by pasting the clipboard to the terminal
+        b.click("button:contains('Shell Script')")
+        b.wait_in_text(shell_script_sel, "boolean -D")
+        b.click(".automation-script-modal .fa-clipboard")
         b.go("/system/terminal")
         b.enter_page("/system/terminal")
         b.focus('.terminal')
@@ -172,7 +232,7 @@ class TestSelinux(MachineCase):
         b.click('.contextMenu .contextMenuOption:nth-child(2)')
         b.wait_in_text(".xterm-accessibility-tree", "semanage import <<EOF")
         b.wait_in_text(".xterm-accessibility-tree", "boolean -D")
-        b.wait_in_text(".xterm-accessibility-tree", "boolean -m -1 zebra_write_config")
+        b.wait_in_text(".xterm-accessibility-tree", "boolean -m -0 zebra_write_config")
         b.wait_in_text(".xterm-accessibility-tree", "fcontext -a -f a -t samba_share_t -r 's0' '/var/tmp/'")
 
         m.execute("semanage boolean -D && semanage fcontext -D")
@@ -185,7 +245,7 @@ class TestSelinux(MachineCase):
         b.wait_text("table.listing-ct.modifications-table > thead > tr > td", "The logged in user is not permitted to view system modifications")
 
 
-    @skipImage("No cockpit-selinux", "debian-stable", "debian-testing", "fedora-atomic", "ubuntu-1804", "ubuntu-stable")
+    @skipImage("No cockpit-selinux", "debian-stable", "debian-testing", "fedora-coreos", "ubuntu-1804", "ubuntu-stable")
     def testEnforcingToggle(self):
         b = self.browser
         m = self.machine
@@ -202,22 +262,14 @@ class TestSelinux(MachineCase):
         b.wait_in_text("body", "SELinux Policy")
 
         def assertEnforce(active):
-            # changed in PR #11769
-            if m.image in ["rhel-8-0-distropkg"]:
-                b.wait_in_text("div.btn-onoff-ct label.active", active and "On" or "Off")
-            else:
-                b.wait_present(".onoff-ct input" + (active and ":checked" or ":not(:checked)"))
+            b.wait_present(".onoff-ct input" + (active and ":checked" or ":not(:checked)"))
 
         # SELinux should be enabled and enforcing at the beginning
         assertEnforce(True)
         m.execute("getenforce | grep -q 'Enforcing'")
 
         # now set to permissive using the ui button
-        # changed in PR #11769
-        if m.image in ["rhel-8-0-distropkg"]:
-            b.click("div.btn-onoff-ct label.active span")
-        else:
-            b.click(".onoff-ct input")
+        b.click(".onoff-ct input")
         assertEnforce(False)
         m.execute("getenforce | grep -q 'Permissive'")
 

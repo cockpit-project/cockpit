@@ -20,41 +20,44 @@
 import cockpit from "cockpit";
 const _ = cockpit.gettext;
 
-var cpu_ram_info_promises = { };
-
 export function cpu_ram_info(address) {
-    var pr = cpu_ram_info_promises[address];
+    var pr;
     var dfd;
-    if (!pr) {
-        dfd = cockpit.defer();
-        cpu_ram_info_promises[address] = pr = dfd.promise();
+    dfd = cockpit.defer();
+    pr = dfd.promise();
 
-        cockpit.spawn(["cat", "/proc/meminfo", "/proc/cpuinfo"], { host: address })
-                .done(function(text) {
-                    var info = { };
-                    var match = text.match(/MemTotal:[^0-9]*([0-9]+) [kK]B/);
-                    var total_kb = match && parseInt(match[1], 10);
-                    if (total_kb)
-                        info.memory = total_kb * 1024;
-                    var swap_match = text.match(/SwapTotal:[^0-9]*([0-9]+) [kK]B/);
-                    var swap_total_kb = swap_match && parseInt(swap_match[1], 10);
-                    if (swap_total_kb)
-                        info.swap = swap_total_kb * 1024;
+    cockpit.spawn(["cat", "/proc/meminfo", "/proc/cpuinfo"], { host: address })
+            .done(function(text) {
+                var info = { };
+                var match = text.match(/MemTotal:[^0-9]*([0-9]+) [kK]B/);
+                var total_kb = match && parseInt(match[1], 10);
+                if (total_kb)
+                    info.memory = total_kb * 1024;
 
-                    match = text.match(/^model name\s*:\s*(.*)$/m);
-                    if (match)
-                        info.cpu_model = match[1];
+                var available_match = text.match(/MemAvailable:[^0-9]*([0-9]+) [kK]B/);
+                var available_kb = available_match && parseInt(available_match[1], 10);
+                if (available_kb)
+                    info.available_memory = available_kb * 1024;
 
-                    info.cpus = 0;
-                    var re = /^processor/gm;
-                    while (re.test(text))
-                        info.cpus += 1;
-                    dfd.resolve(info);
-                })
-                .fail(function() {
-                    dfd.reject();
-                });
-    }
+                var swap_match = text.match(/SwapTotal:[^0-9]*([0-9]+) [kK]B/);
+                var swap_total_kb = swap_match && parseInt(swap_match[1], 10);
+                if (swap_total_kb)
+                    info.swap = swap_total_kb * 1024;
+
+                match = text.match(/^model name\s*:\s*(.*)$/m);
+                if (match)
+                    info.cpu_model = match[1];
+
+                info.cpus = 0;
+                var re = /^processor/gm;
+                while (re.test(text))
+                    info.cpus += 1;
+                dfd.resolve(info);
+            })
+            .fail(function(ex) {
+                dfd.reject();
+            });
+
     return pr;
 }
 
@@ -102,11 +105,11 @@ const chassis_types = [
 function parseDMIFields(text) {
     var info = {};
     text.split("\n").map(line => {
-        let sep = line.indexOf(':');
+        const sep = line.indexOf(':');
         if (sep <= 0)
             return;
-        let key = line.slice(0, sep).slice(line.lastIndexOf('/') + 1);
-        let value = line.slice(sep + 1);
+        const key = line.slice(0, sep).slice(line.lastIndexOf('/') + 1);
+        const value = line.slice(sep + 1);
         info[key] = value;
 
         if (key === "chassis_type")
@@ -153,7 +156,7 @@ function parseUdevDB(text) {
     var info = {};
     text.split("\n\n").map(paragraph => {
         let syspath = null;
-        let props = {};
+        const props = {};
 
         paragraph = paragraph.trim();
         if (!paragraph)
@@ -201,19 +204,19 @@ function parseMemoryInfo(text) {
     var info = {};
     text.split("\n\n").map(paragraph => {
         let locator = null;
-        let props = {};
+        const props = {};
         paragraph = paragraph.trim();
         if (!paragraph)
             return;
 
         paragraph.split("\n").map(line => {
             line = line.trim();
-            let match = line.match(memoryRE);
+            const match = line.match(memoryRE);
             if (match)
                 props[match[1]] = match[2];
         });
 
-        locator = props["Locator"];
+        locator = props.Locator;
         if (locator)
             info[locator] = props;
     });
@@ -222,14 +225,14 @@ function parseMemoryInfo(text) {
 
 // Select the useful properties to display
 function processMemory(info) {
-    let memoryArray = [];
+    const memoryArray = [];
 
-    for (let dimm in info) {
-        let memoryProperty = info[dimm];
+    for (const dimm in info) {
+        const memoryProperty = info[dimm];
 
-        let memorySize = memoryProperty["Size"];
+        let memorySize = memoryProperty.Size;
         if (memorySize.includes("MB")) {
-            let memorySizeValue = parseInt(memorySize, 10);
+            const memorySizeValue = parseInt(memorySize, 10);
             memorySize = memorySizeValue / 1024 + " GB";
         }
 
@@ -237,20 +240,20 @@ function processMemory(info) {
         if (!memoryTechnology || memoryTechnology == "<OUT OF SPEC>")
             memoryTechnology = _("Unknown");
 
-        let memoryRank = memoryProperty["Rank"];
+        let memoryRank = memoryProperty.Rank;
         if (memoryRank == 1)
             memoryRank = _("Single Rank");
         if (memoryRank == 2)
             memoryRank = _("Dual Rank");
 
         memoryArray.push({
-            locator: memoryProperty["Locator"],
+            locator: memoryProperty.Locator,
             technology: memoryTechnology,
-            type: memoryProperty["Type"],
+            type: memoryProperty.Type,
             size: memorySize,
             state: memoryProperty["Total Width"] == "Unknown" ? _("Absent") : _("Present"),
             rank: memoryRank,
-            speed: memoryProperty["Speed"]
+            speed: memoryProperty.Speed
         });
     }
 

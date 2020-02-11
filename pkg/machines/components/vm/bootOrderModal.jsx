@@ -76,7 +76,7 @@ const DeviceInfo = ({ descr, value }) => {
 
 const DeviceRow = ({ idPrefix, device, index, onToggle, upDisabled, downDisabled, moveUp, moveDown, nodeDevices }) => {
     let heading;
-    let additionalInfo = [];
+    const additionalInfo = [];
 
     const addOptional = (additionalInfo, value, descr) => {
         if (value) {
@@ -100,7 +100,7 @@ const DeviceRow = ({ idPrefix, device, index, onToggle, upDisabled, downDisabled
     }
     case "network": {
         heading = rephraseUI("bootableDisk", "network");
-        addOptional(additionalInfo, device.device.mac, _("Mac"));
+        addOptional(additionalInfo, device.device.mac, _("MAC"));
         break;
     }
     case "redirdev": {

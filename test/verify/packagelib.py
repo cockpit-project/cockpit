@@ -23,21 +23,38 @@ from testlib import *
 
 class PackageCase(MachineCase):
     def setUp(self):
-        super(PackageCase, self).setUp()
+        super().setUp()
 
         self.repo_dir = "/var/tmp/repo"
 
-        if self.machine.atomic_image:
-            warnings.warn("PackageCase: atomic images can't install additional packages")
+        if self.machine.ostree_image:
+            warnings.warn("PackageCase: OSTree images can't install additional packages")
             return
 
         # expected backend; hardcode this on image names to check the auto-detection
         if self.machine.image.startswith("debian") or self.machine.image.startswith("ubuntu"):
             self.backend = "apt"
-        elif self.machine.image.startswith("fedora") or self.machine.image in ["rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1"]:
+            self.primary_arch = "all"
+            self.secondary_arch = "amd64"
+        elif self.machine.image.startswith("fedora") or self.machine.image.startswith("rhel-8") or self.machine.image.startswith("centos-8"):
             self.backend = "dnf"
+            self.primary_arch = "noarch"
+            self.secondary_arch = "x86_64"
         else:
             raise NotImplementedError("unknown image " + self.machine.image)
+
+        # PackageKit refuses to work when offline
+        if self.image in ["ubuntu-1804", "ubuntu-stable"]:
+            # just waiting for NM to get online does not suffice on these images. So disable NM and let PackageKit fall
+            # back to the "unix" network stack; add a bogus default route to coerce it into being "online".
+            self.machine.execute("systemctl disable --now NetworkManager; ip route add default via 172.27.0.1 dev eth0")
+        else:
+            # PackageKit refuses to work when offline; unfortunately nm-online does not wait enough
+            # https://developer.gnome.org/NetworkManager/unstable/nm-dbus-types.html#NMConnectivityState
+            self.machine.execute('''
+                while [ "$(busctl get-property org.freedesktop.NetworkManager /org/freedesktop/NetworkManager \
+                                               org.freedesktop.NetworkManager Connectivity | cut -f2 -d' ')" -lt 3 ]; do sleep 1; done
+            ''')
 
         # disable all existing repositories to avoid hitting the network
         if self.backend == "apt":
@@ -63,7 +80,7 @@ class PackageCase(MachineCase):
 
         # have PackageKit start from a clean slate
         self.machine.execute("""
-            systemctl stop packagekit;
+            systemctl kill --signal=SIGKILL packagekit;
             rm -rf /var/cache/PackageKit;
             [ ! -e /var/lib/PackageKit/transactions.db ] || mv /var/lib/PackageKit/transactions.db /var/lib/PackageKit/transactions.db.test""")
         self.addCleanup(self.machine.execute, "mv /var/lib/PackageKit/transactions.db.test /var/lib/PackageKit/transactions.db 2>/dev/null || true")
@@ -72,11 +89,10 @@ class PackageCase(MachineCase):
             # PackageKit tries to resolve some DNS names, but our test VM is offline; temporarily disable the name server to fail quickly
             self.machine.execute("mv /etc/resolv.conf /etc/resolv.conf.test")
             self.addCleanup(self.machine.execute, "mv /etc/resolv.conf.test /etc/resolv.conf")
-        elif self.image in ["ubuntu-stable"]:
-            # PackageKit refuses to operate when being offline (as on our test images); it's hard to fake
-            # NetworkManager's "is online" state, so disable it and let PackageKit fall back to the "unix"
-            # network stack; add a bogus default route to coerce it into being "online".
-            self.machine.execute("systemctl disable --now NetworkManager; ip route add default via 172.27.0.1 dev eth0")
+
+        # reset automatic updates
+        if self.backend == 'dnf':
+            self.machine.execute("systemctl disable --now dnf-automatic dnf-automatic-install dnf-automatic.service dnf-automatic-install.timer; rm -r /etc/systemd/system/dnf-automatic* && systemctl daemon-reload || true")
 
         self.updateInfo = {}
 
@@ -85,26 +101,28 @@ class PackageCase(MachineCase):
     #
 
     def createPackage(self, name, version, release, install=False,
-                      postinst=None, depends="", content=None, **updateinfo):
+                      postinst=None, depends="", content=None, arch=None, **updateinfo):
         '''Create a dummy package in repo_dir on self.machine
 
         If install is True, install the package. Otherwise, update the package
         index in repo_dir.
         '''
         if self.backend == "apt":
-            self.createDeb(name, version + '-' + release, depends, postinst, install, content)
+            self.createDeb(name, version + '-' + release, depends, postinst, install, content, arch)
         else:
-            self.createRpm(name, version, release, depends, postinst, install, content)
+            self.createRpm(name, version, release, depends, postinst, install, content, arch)
         if updateinfo:
             self.updateInfo[(name, version, release)] = updateinfo
 
-    def createDeb(self, name, version, depends, postinst, install, content):
+    def createDeb(self, name, version, depends, postinst, install, content, arch):
         '''Create a dummy deb in repo_dir on self.machine
 
         If install is True, install the package. Otherwise, update the package
         index in repo_dir.
         '''
-        deb = "{0}/{1}_{2}_all.deb".format(self.repo_dir, name, version)
+        if arch is None:
+            arch = self.primary_arch
+        deb = "{0}/{1}_{2}_{3}.deb".format(self.repo_dir, name, version, arch)
         if postinst:
             postinstcode = "printf '#!/bin/sh\n{0}' > /tmp/b/DEBIAN/postinst; chmod 755 /tmp/b/DEBIAN/postinst".format(
                 postinst)
@@ -119,18 +137,18 @@ class PackageCase(MachineCase):
                 else:
                     self.machine.write(dest, data)
         cmd = '''mkdir -p /tmp/b/DEBIAN {repo}
-                 printf "Package: {name}\nVersion: {ver}\nPriority: optional\nSection: test\nMaintainer: foo\nDepends: {deps}\nArchitecture: all\nDescription: dummy {name}\n" > /tmp/b/DEBIAN/control
+                 printf "Package: {name}\nVersion: {ver}\nPriority: optional\nSection: test\nMaintainer: foo\nDepends: {deps}\nArchitecture: {arch}\nDescription: dummy {name}\n" > /tmp/b/DEBIAN/control
                  {post}
                  touch /tmp/b/stamp-{name}-{ver}
                  dpkg -b /tmp/b {deb}
                  rm -r /tmp/b
-                 '''.format(name=name, ver=version, deps=depends, deb=deb, post=postinstcode, repo=self.repo_dir)
+                 '''.format(name=name, ver=version, deps=depends, deb=deb, post=postinstcode, repo=self.repo_dir, arch=arch)
         if install:
             cmd += "dpkg -i " + deb
         self.machine.execute(cmd)
         self.addCleanup(self.machine.execute, "dpkg -P --force-depends %s 2>/dev/null || true" % name)
 
-    def createRpm(self, name, version, release, requires, post, install, content):
+    def createRpm(self, name, version, release, requires, post, install, content, arch):
         '''Create a dummy rpm in repo_dir on self.machine
 
         If install is True, install the package. Otherwise, update the package
@@ -142,6 +160,8 @@ class PackageCase(MachineCase):
             postcode = ''
         if requires:
             requires = "Requires: %s\n" % requires
+        if arch is None:
+            arch = self.primary_arch
         installcmds = "touch $RPM_BUILD_ROOT/stamp-{0}-{1}-{2}\n".format(name, version, release)
         installedfiles = "/stamp-{0}-{1}-{2}\n".format(name, version, release)
         if content is not None:
@@ -152,13 +172,17 @@ class PackageCase(MachineCase):
                 else:
                     installcmds += 'cat >"$RPM_BUILD_ROOT/{0}" <<\'EOF\'\n'.format(path) + data + '\nEOF\n'
                 installedfiles += "{0}\n".format(path)
+
+        architecture = ""
+        if arch == self.primary_arch:
+            architecture = "BuildArch: {0}".format(self.primary_arch)
         spec = """
 Summary: dummy {0}
 Name: {0}
 Version: {1}
 Release: {2}
 License: BSD
-BuildArch: noarch
+{7}
 {4}
 
 %%install
@@ -171,17 +195,17 @@ Test package.
 {6}
 
 {3}
-""".format(name, version, release, postcode, requires, installcmds, installedfiles)
+""".format(name, version, release, postcode, requires, installcmds, installedfiles, architecture)
         self.machine.write("/tmp/spec", spec)
         cmd = """
 rpmbuild --quiet -bb /tmp/spec
 mkdir -p {0}
-cp ~/rpmbuild/RPMS/noarch/*.rpm {0}
+cp ~/rpmbuild/RPMS/{4}/*.rpm {0}
 rm -rf ~/rpmbuild
 """
         if install:
             cmd += "rpm -i {0}/{1}-{2}-{3}.*.rpm"
-        self.machine.execute(cmd.format(self.repo_dir, name, version, release))
+        self.machine.execute(cmd.format(self.repo_dir, name, version, release, arch))
         self.addCleanup(self.machine.execute, "rpm -e %s 2>/dev/null || true" % name)
 
     def createAptChangelogs(self):

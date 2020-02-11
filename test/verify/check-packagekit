@@ -37,16 +37,17 @@ done
 """
 
 
-@skipImage("Image uses OSTree", "fedora-atomic")
+@skipImage("Image uses OSTree", "fedora-coreos")
 class TestUpdates(PackageCase):
 
     def setUp(self):
-        PackageCase.setUp(self)
+        super().setUp()
 
         # Disable Subscription Manager on RHEL for these tests; subscriptions are tested in a separate class
         # On other OSes (Fedora/CentOS) we expect sub-man to be disabled in yum, so it should not get in the way there
-        if self.machine.image.startswith("rhel"):
+        if self.machine.image.startswith("rhel") or self.machine.image.startswith("centos-8"):
             self.machine.execute("mv /usr/libexec/rhsmd /usr/libexec/rhsmd.disabled")
+            self.addCleanup(self.machine.execute, "mv /usr/libexec/rhsmd.disabled /usr/libexec/rhsmd")
 
         # only the yum backend properly recognizes "enhancement" severity; apt
         # does not have that metadata and PackageKit-dnf does not parse it
@@ -55,13 +56,19 @@ class TestUpdates(PackageCase):
         else:
             self.enhancement_severity = "bug"
 
+        self.update_icon = "#page_status_notification_updates span:first-child"
+        self.update_text = "#page_status_notification_updates"
+        self.update_text_action = "#page_status_notification_updates a"
+
     def check_nth_update(self, index, pkgname, version, severity="bug",
-                         num_issues=None, desc_matches=[], cves=[], bugs=[]):
+                         num_issues=None, desc_matches=[], cves=[], bugs=[], arch=None):
         """Check the contents of the package update table row at index
 
         None properties will not be tested.
         """
         b = self.browser
+        if arch is None:
+            arch = self.primary_arch
         row = "#app .listing-ct tbody:nth-of-type(%i) " % index
         severity_to_icon = {"bug": "fa-bug", "enhancement": "pficon-enhancement", "security": "pficon-security"}
 
@@ -71,7 +78,7 @@ class TestUpdates(PackageCase):
         else:
             self.assertEqual(b.text(row + "th span"), pkgname)
             b.mouse(row + "th span", "mouseover")
-            b.wait_text("div.tooltip", "dummy " + pkgname)
+            b.wait_text("div.tooltip", "dummy " + pkgname + " (" + arch + ")")
             b.mouse(row + "th span", "mouseout")
             b.wait_not_present("div.tooltip")
         self.assertEqual(b.text(row + "td:nth-of-type(2)"), version)
@@ -94,11 +101,11 @@ class TestUpdates(PackageCase):
         return row
 
     def wait_checking_updates(self):
-        '''Wait until spinner is gone from #system_information_updates_icon for 3 s'''
+        '''Wait until spinner is gone from updates icon for 3 s'''
 
         good_count = 0
         for retry in range(60):
-            classes = self.browser.attr("#system_information_updates_icon", "class")
+            classes = self.browser.attr(self.update_icon, "class")
             if classes is None or "spinner" in classes:
                 good_count = 0
             else:
@@ -118,8 +125,8 @@ class TestUpdates(PackageCase):
         b.login_and_go("/system")
         # status on /system front page: no repos at all, thus no updates
         self.wait_checking_updates()
-        b.wait_text("#system_information_updates_text", "System Up To Date")
-        self.assertEqual(b.attr("#system_information_updates_icon", "class"), "")
+        b.wait_text(self.update_text, "System is up to date")
+        self.assertEqual(b.attr(self.update_icon, "class"), "fa fa-check-circle-o")
 
         # no updates on the Software Updates page
         b.go("/updates")
@@ -136,8 +143,8 @@ class TestUpdates(PackageCase):
         self.createPackage("vanilla", "1.0", "1", install=True)
         self.createPackage("vanilla", "1.0", "2", depends="chocolate",
                            postinst="while [ ! -e {0} ]; do sleep 1; done; rm -f {0}".format(install_lockfile))
-        self.createPackage("chocolate", "2.0", "1", install=True)
-        self.createPackage("chocolate", "2.0", "2")
+        self.createPackage("chocolate", "2.0", "1", install=True, arch=self.secondary_arch)
+        self.createPackage("chocolate", "2.0", "2", arch=self.secondary_arch)
         self.enableRepo()
 
         # check again
@@ -150,21 +157,17 @@ class TestUpdates(PackageCase):
         self.assertEqual(b.text("#state"), "2 updates")
 
         b.wait_in_text("table.available", "vanilla")
-        self.check_nth_update(1, "chocolate", "2.0-2")
+        self.check_nth_update(1, "chocolate", "2.0-2", arch=self.secondary_arch)
         self.check_nth_update(2, "vanilla", "1.0-2")
 
         # updates are shown on system page
         b.go("/system")
         b.enter_page("/system")
         self.wait_checking_updates()
-        # PackageKit's dnf backend misparses severities (https://bugs.freedesktop.org/show_bug.cgi?id=101070)
-        if self.backend == "dnf":
-            b.wait_text("#system_information_updates_text", "Updates Available")
-        else:
-            b.wait_text("#system_information_updates_text", "Bug Fix Updates Available")
-        self.assertIn("fa-bug", b.attr("#system_information_updates_icon", "class"))
+        b.wait_text(self.update_text, "Bug Fix Updates Available")
+        self.assertIn("fa-bug", b.attr(self.update_icon, "class"))
         # should be a link, click on it to go to /updates
-        b.click("#system_information_updates_text a")
+        b.click(self.update_text_action)
         b.enter_page("/updates")
 
         # old versions are still installed
@@ -190,7 +193,7 @@ class TestUpdates(PackageCase):
         # update log only exists in the expander, collapsed by default
         self.assertFalse(b.is_present("#update-log"))
         # expand it
-        b.click(".expander-title span")
+        b.click(".expander-title button")
         # should eventually show chocolate when vanilla starts installing
         b.wait_in_text("#update-log", "chocolate")
 
@@ -222,8 +225,8 @@ class TestUpdates(PackageCase):
         b.go("/system")
         b.enter_page("/system")
         self.wait_checking_updates()
-        b.wait_text("#system_information_updates_text", "System Up To Date")
-        self.assertEqual(b.attr("#system_information_updates_icon", "class"), "")
+        self.assertEqual(b.attr(self.update_icon, "class"), "fa fa-check-circle-o")
+        b.wait_text(self.update_text, "System is up to date")
 
     def testInfoSecurity(self):
         b = self.browser
@@ -319,20 +322,11 @@ class TestUpdates(PackageCase):
         b.go("/system")
         b.enter_page("/system")
         self.wait_checking_updates()
-        if self.backend == 'dnf':
-            # PackageKit's dnf backend mis-parses severity (https://bugs.freedesktop.org/show_bug.cgi?id=101070)
-            b.wait_text("#system_information_updates_text", "Updates Available")
-            self.assertIn("bug", b.attr("#system_information_updates_icon", "class"))
-        elif self.backend == 'apt':
-            # PackageKit's deb backend always reports "normal"
-            b.wait_text("#system_information_updates_text", "Bug Fix Updates Available")
-            self.assertIn("bug", b.attr("#system_information_updates_icon", "class"))
-        else:
-            b.wait_text("#system_information_updates_text", "Security Updates Available")
-            self.assertIn("security", b.attr("#system_information_updates_icon", "class"))
+        b.wait_text(self.update_text, "Security Updates Available")
+        self.assertIn("security", b.attr(self.update_icon, "class"))
 
         # should be a link, click on it to go to back to /updates
-        b.click("#system_information_updates_text a")
+        b.click(self.update_text_action)
         b.enter_page("/updates")
 
         # install only security updates
@@ -353,7 +347,7 @@ class TestUpdates(PackageCase):
             self.assertFalse(b.is_present(selector.format(len(updates) + 1)))
 
         # history on restart page should show the three security updates
-        b.click(".expander-title span")
+        b.click(".expander-title button")
         assertHistory("ul", ["secdeclare", "secparse", "sevcritical"])
 
         # ignore restarting
@@ -393,7 +387,7 @@ class TestUpdates(PackageCase):
         m.execute("test -f /stamp-norefs-bin-2-1 && test -f /stamp-norefs-doc-2-1")
 
         # history on restart page should show the three non-security updates
-        b.click(".expander-title span")
+        b.click(".expander-title button")
         assertHistory("ul", ["buggy", "norefs-bin", "norefs-doc"])
 
         # do the reboot; this will disconnect the web UI
@@ -579,14 +573,18 @@ class TestUpdates(PackageCase):
 
         # now pretend that there is a newer cockpit-ws available, warn about disconnect
         self.createPackage("cockpit-ws", "999", "1")
-        self.createPackage("cockpit", "999", "1")  # as that depends on same version of ws
+        # these have strict version dependencies to cockpit-ws, don't get in the way
+        self.createPackage("cockpit", "999", "1")
+        self.createPackage("cockpit-dashboard", "999", "1")
+        m.execute("if type apt; then dpkg -P cockpit-ws-dbgsym; fi")
         self.enableRepo()
         b.wait_in_text(".content-header-extra button", "Check for Updates")
         b.click(".content-header-extra button")
 
         b.wait_in_text(".container-fluid #available h2", "Available Updates")
-        self.assertEqual(b.text("#state"), "2 updates")
+        self.assertEqual(b.text("#state"), "3 updates")
         b.wait_in_text("table.available", "cockpit-ws")
+        b.wait_in_text("table.available", "cockpit-dashboard")
         b.wait_in_text("#app div.alert-warning", "This web console will be updated.")
 
         self.allow_restart_journal_messages()
@@ -623,12 +621,14 @@ class TestUpdates(PackageCase):
         b = self.browser
         m = self.machine
 
-        m.execute('''systemctl stop packagekit.service
-                     rm `systemctl show -p FragmentPath packagekit.service | cut -f2 -d=`
-                     rm /usr/share/dbus-1/system-services/org.freedesktop.PackageKit.service
-                     systemctl daemon-reload''')
-
-        self.allow_browser_errors("loading available updates failed:.*not-found")
+        system_service = m.execute("systemctl show -p FragmentPath packagekit.service | cut -f2 -d=").strip()
+        m.execute('''mv {0} {0}.disabled
+                     mv /usr/share/dbus-1/system-services/org.freedesktop.PackageKit.service /usr/share/dbus-1/system-services/org.freedesktop.PackageKit.service.disabled
+                     systemctl daemon-reload'''.format(system_service))
+        self.addCleanup(m.execute,
+                        '''mv {0}.disabled {0}
+                           mv /usr/share/dbus-1/system-services/org.freedesktop.PackageKit.service.disabled /usr/share/dbus-1/system-services/org.freedesktop.PackageKit.service
+                           systemctl daemon-reload'''.format(system_service))
 
         m.start_cockpit()
         b.login_and_go("/updates")
@@ -639,28 +639,28 @@ class TestUpdates(PackageCase):
         # update status on front page should be invisible
         b.go("/system")
         b.enter_page("/system")
-        b.wait_not_visible("#system_information_updates_text")
-        self.assertEqual(b.attr("#system_information_updates_icon", "class"), "")
+        b.wait_text(self.update_text, "Loading available updates failed")
+        self.assertIn("exclamation", b.attr(self.update_icon, "class"))
 
 
-@skipImage("Image uses OSTree", "fedora-atomic")
-@skipImage("No subscriptions", "debian-stable", "debian-testing",
-           "fedora-30", "fedora-i386", "fedora-testing", "ubuntu-1804", "ubuntu-stable")
+@skipImage("Image uses OSTree", "fedora-coreos")
+@skipImage("No subscriptions", "debian-stable", "debian-testing", "fedora-31", "centos-8-stream",
+           "fedora-30", "fedora-testing", "ubuntu-1804", "ubuntu-stable")
 class TestUpdatesSubscriptions(PackageCase):
     provision = {
-        "0": {"address": "10.111.113.2/20", "dns": "10.111.113.2"},
-        "candlepin": {"image": "candlepin", "address": "10.111.113.5/20"}
+        "0": {"address": "10.111.112.1/20", "dns": "10.111.112.1"},
+        "services": {"image": "services"}
     }
 
     def register(self):
         # this fails with "Unable to find available subscriptions for all your installed products", but works anyway
         self.machine.execute(
-            "LC_ALL=en_US.UTF-8 subscription-manager register --insecure --serverurl https://10.111.113.5:8443/candlepin --org=admin --activationkey=awesome_os_pool || true")
+            "LC_ALL=en_US.UTF-8 subscription-manager register --insecure --serverurl https://10.111.112.100:8443/candlepin --org=admin --activationkey=awesome_os_pool || true")
         self.machine.execute("LC_ALL=en_US.UTF-8 subscription-manager attach --auto")
 
     def setUp(self):
-        PackageCase.setUp(self)
-        self.candlepin = self.machines['candlepin']
+        super().setUp()
+        self.candlepin = self.machines['services']
         m = self.machine
 
         # wait for candlepin to be active and verify
@@ -681,7 +681,10 @@ class TestUpdatesSubscriptions(PackageCase):
         m.execute("sed -i -e 's/insecure = 0/insecure = 1/g' /etc/rhsm/rhsm.conf")
 
         # Wait for the web service to be accessible
-        m.execute(script=WAIT_SCRIPT % {"addr": "10.111.113.5"})
+        m.execute(script=WAIT_SCRIPT % {"addr": "10.111.112.100"})
+        self.update_icon = "#page_status_notification_updates span:first-child"
+        self.update_text = "#page_status_notification_updates"
+        self.update_text_action = "#page_status_notification_updates a"
 
     def testNoUpdates(self):
         m = self.machine
@@ -691,8 +694,8 @@ class TestUpdatesSubscriptions(PackageCase):
         m.start_cockpit()
         b.login_and_go("/system")
         # show unregistered status on system front page
-        b.wait_in_text("#system_information_updates_text", "Not Registered")
-        self.assertIn("triangle", b.attr("#system_information_updates_icon", "class"))
+        b.wait_in_text(self.update_text, "Not Registered")
+        self.assertIn("triangle", b.attr(self.update_icon, "class"))
 
         # software updates page also shows unregistered
         b.go("/updates")
@@ -719,8 +722,8 @@ class TestUpdatesSubscriptions(PackageCase):
         # same on system page
         b.go("/system")
         b.enter_page("/system")
-        b.wait_text("#system_information_updates_text", "System Up To Date")
-        self.assertEqual(b.attr("#system_information_updates_icon", "class"), "")
+        self.assertEqual(b.attr(self.update_icon, "class"), "fa fa-check-circle-o")
+        b.wait_text(self.update_text, "System is up to date")
 
     def testAvailableUpdates(self):
         m = self.machine
@@ -735,10 +738,10 @@ class TestUpdatesSubscriptions(PackageCase):
 
         b.login_and_go("/system")
         # by default our rhel-* images are not registered; show warning on system page
-        b.wait_in_text("#system_information_updates_text", "Not Registered")
-        self.assertIn("triangle", b.attr("#system_information_updates_icon", "class"))
+        b.wait_in_text(self.update_text, "Not Registered")
+        self.assertIn("triangle", b.attr(self.update_icon, "class"))
         # should be a link leading to subscriptions page
-        b.click("#system_information_updates_text a")
+        b.click(self.update_text_action)
         b.enter_page("/subscriptions")
 
         # software updates page also shows unregistered
@@ -769,30 +772,30 @@ class TestUpdatesSubscriptions(PackageCase):
         # show available updates on system page too
         b.go("/system")
         b.enter_page("/system")
-        # PackageKit's dnf backend misparses severities (https://bugs.freedesktop.org/show_bug.cgi?id=101070)
-        if self.backend == "dnf":
-            b.wait_text("#system_information_updates_text", "Updates Available")
-        else:
-            b.wait_text("#system_information_updates_text", "Bug Fix Updates Available")
-        self.assertIn("fa-bug", b.attr("#system_information_updates_icon", "class"))
+        b.wait_text(self.update_text, "Bug Fix Updates Available")
+        self.assertIn("fa-bug", b.attr(self.update_icon, "class"))
 
 
-@skipImage("Image uses OSTree", "fedora-atomic")
-class TestAutoUpdates(PackageCase):
+class NoSubManCase(PackageCase):
 
     def setUp(self):
-        PackageCase.setUp(self)
+        super().setUp()
 
         # Disable Subscription Manager on RHEL for these tests; subscriptions are tested in a separate class
         # On other OSes (Fedora/CentOS) we expect sub-man to be disabled in yum, so it should not get in the way there
-        if self.machine.image.startswith("rhel"):
+        if self.machine.image.startswith("rhel") or self.machine.image.startswith("centos-8"):
             self.machine.execute("mv /usr/libexec/rhsmd /usr/libexec/rhsmd.disabled")
+            self.addCleanup(self.machine.execute, "mv /usr/libexec/rhsmd.disabled /usr/libexec/rhsmd")
 
         # not implemented for yum and apt yet, only dnf
         self.supported_backend = self.backend in ["dnf"]
 
         # expected journal messages from enabling/disabling auto upgrade services
         self.allow_journal_messages("(Created symlink|Removed).*dnf-automatic-install.timer.*")
+
+
+@skipImage("Image uses OSTree", "fedora-coreos")
+class TestAutoUpdates(NoSubManCase):
 
     def testBasic(self):
         b = self.browser
@@ -815,8 +818,8 @@ class TestAutoUpdates(PackageCase):
         def assertTimerDnf(hour, dow):
             out = m.execute("systemctl --no-legend list-timers dnf-automatic-install.timer")
             if hour:
-                # allow some wiggle room in the minutes, due to RandomizedDelaySec=
-                self.assertRegex(out, " %s:0[0-9]:" % hour)
+                # don't test the minutes, due to RandomizedDelaySec=60m
+                self.assertRegex(out, " %s:" % hour)
             else:
                 self.assertEqual(out, "")
             if dow:
@@ -915,6 +918,44 @@ class TestAutoUpdates(PackageCase):
         self.assertFalse(b.is_present("#auto-update-type"))
         assertTimer(None)
 
+        if self.backend == "dnf":
+            # OnCalendar= parsing: only time
+            m.execute("mkdir -p /etc/systemd/system/dnf-automatic.timer.d")
+            m.execute(r'printf "[Timer]\nOnUnitInactiveSec=\nOnCalendar=08:00\n" > '
+                      r'/etc/systemd/system/dnf-automatic.timer.d/cal.conf; systemctl daemon-reload')
+            b.reload()
+            b.enter_page("/updates")
+            b.click("#automatic .onoff-ct input")
+            b.wait_present("#automatic .onoff-ct input:checked")
+            b.wait_in_text("#auto-update-time", "08:00")
+            b.wait_in_text("#auto-update-day", "every day")
+
+            # OnCalendar= parsing: weekday and time
+            m.execute(r'printf "[Timer]\nOnUnitInactiveSec=\nOnCalendar=Tue 20:00\n" > '
+                      r'/etc/systemd/system/dnf-automatic.timer.d/cal.conf; systemctl daemon-reload')
+            b.reload()
+            b.enter_page("/updates")
+            b.wait_present("#automatic .onoff-ct input:checked")
+            b.wait_in_text("#auto-update-time", "20:00")
+            b.wait_in_text("#auto-update-day", "Tuesday")
+
+            # OnCalendar= parsing: "every day" calendar and time
+            m.execute(r'printf "[Timer]\nOnUnitInactiveSec=\nOnCalendar=*-*-* 07:00\n" > '
+                      r'/etc/systemd/system/dnf-automatic.timer.d/cal.conf; systemctl daemon-reload')
+            b.reload()
+            b.enter_page("/updates")
+            b.wait_present("#automatic .onoff-ct input:checked")
+            b.wait_in_text("#auto-update-time", "07:00")
+            b.wait_in_text("#auto-update-day", "every day")
+
+            # OnCalendar= parsing: unsupported
+            m.execute(r'printf "[Timer]\nOnUnitInactiveSec=\nOnCalendar=*-02-* 11:00\n" > '
+                      r'/etc/systemd/system/dnf-automatic.timer.d/cal.conf; systemctl daemon-reload')
+            b.reload()
+            b.enter_page("/updates")
+            b.wait_in_text(".container-fluid div.blank-slate-pf", "up to date")
+            b.wait_not_present("#automatic")
+
     def testWithAvailableUpdates(self):
         b = self.browser
         m = self.machine
@@ -971,6 +1012,9 @@ class TestAutoUpdates(PackageCase):
         self.assertNotIn("vanilla", out)
         self.assertNotIn("Shutdown", out)
 
+
+@skipImage("Image uses OSTree", "fedora-coreos")
+class TestAutoUpdatesInstall(NoSubManCase):
     def testUnsupported(self):
         b = self.browser
         m = self.machine

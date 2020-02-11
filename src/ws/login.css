@@ -12,6 +12,7 @@ html {
   font-family: sans-serif;
   -ms-text-size-adjust: 100%;
   -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -245,8 +246,6 @@ label.checkbox {
   font: inherit;
 }
 
-
-
 .help-block {
   display: block;
   margin-top: 5px;
@@ -367,6 +366,10 @@ label.checkbox {
   text-align: center;
 }
 
+.login-pf #banner {
+  margin-top: 20px;
+}
+
 .login-pf .container {
   background-color: rgba(255, 255, 255, .055);
   clear: right;
@@ -386,7 +389,7 @@ label.checkbox {
 }
 
 .login-pf .container .control-label {
-  font-weight: 400;
+  font-weight: 600;
 }
 
 .login-pf .container .help-block {
@@ -408,22 +411,75 @@ label.checkbox {
   border-top: 4px solid rgba(0, 0, 0, .75);
   height: 1.5rem;
   width: 1.5rem;
-  position: relative;
-  margin: 0.25rem 1rem;
 }
 
-.alert {
-  padding: 7px 11px;
-  margin-bottom: 20px;
-  border: 2px solid transparent;
-  border-radius: 1px;
+.group-hidden {
+    display: none !important;
 }
 
-.alert-danger {
-  background: #c00;
-  border-color: #c00;
-  color: #fff;
-  font-weight: 700;
+/* Alerts */
+.pf-c-alert {
+    color: #151515;
+    position: relative;
+    grid-template-columns: repeat(2, max-content) 1fr max-content;
+    grid-template-rows: 1fr auto;
+    grid-template-areas: "icon title action" ". content content";
+    background-color: #fff;
+    margin: 0 0 1.5rem;
+    align-items: center;
+    display: grid;
+}
+
+.pf-c-alert.pf-m-inline {
+    border: solid #ededed;
+    border-width: 1px 1px 1px 0;
+}
+
+.pf-c-alert.pf-m-inline::before {
+    position: absolute;
+    top: -1px;
+    bottom: -1px;
+    left: 0;
+    width: 3px;
+    content: "";
+}
+
+.pf-c-alert > svg {
+  grid-area: icon;
+  height: 18px;
+  width: 18px;
+  margin: 1rem 0 1rem 1rem;
+}
+
+.pf-c-alert__title {
+  grid-area: title;
+  font-size: 1rem;
+  margin: 1rem;
+  background-color: #fff;
+}
+
+.pf-c-alert.pf-m-inline.pf-m-danger::before {
+    background-color: #c9190b;
+}
+
+.pf-c-alert.pf-m-danger > svg {
+  color: #c9190b;
+}
+
+.pf-c-alert.pf-m-danger .pf-c-alert__title {
+    color: #a30000;
+}
+
+.pf-c-alert.pf-m-inline.pf-m-info::before {
+    background-color: #73bcf7;
+}
+
+.pf-c-alert.pf-m-info > svg {
+  color: #73bcf7;
+}
+
+.pf-c-alert.pf-m-info .pf-c-alert__title {
+    color: #004368;
 }
 
 #server-group:before {
@@ -532,11 +588,14 @@ label.checkbox {
 }
 
 #login-button {
-  padding: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.5rem;
+  padding: 0.5rem;
 }
 
 #login-button[disabled] {
-  padding: 0;
   background-color: #333;
   background-image: none;
   border-color: #555;
@@ -744,7 +803,6 @@ label.checkbox {
 
   [role=form] .control-label,
   form .control-label {
-    justify-content: end;
     padding: 0;
   }
 
@@ -824,8 +882,7 @@ label.checkbox {
   body.login-pf {
     color: #151515;
     display: grid;
-    grid-template-columns: 34rem minmax(34rem, auto);
-    grid-template-areas: "login" "logo";
+    grid-template-areas: "alert" "login" "logo";
     grid-template-columns: 1fr;
     grid-template-rows: minmax(min-content, max-content);
     background-position: 0 0 !important;
@@ -846,9 +903,8 @@ label.checkbox {
     text-align: left;
   }
 
-  .login-button-container {
+  .login-button {
     width: 100%;
-    float: none;
   }
 
   .login-pf .container {
@@ -913,6 +969,11 @@ label.checkbox {
   @media (max-width: 1023px) {
     body.login-pf {
       justify-items: center;
+      grid-gap: 0.5rem;
+    }
+
+    #badge {
+      background-position: center;
     }
   }
 
@@ -930,13 +991,9 @@ label.checkbox {
     }
 
     body.login-pf {
-      grid-template-areas: ". . . ." ". login logo ." ". . . . ";
-      grid-template-rows: 1fr minmax(min-content,max-content) 1fr;
+      grid-template-areas: ". alert alert ." ". . . ." ". login logo ." ". . . . ";
+      grid-template-rows: auto 1fr minmax(min-content,max-content) 1fr;
       grid-template-columns: minmax(0, 2.125rem) 35rem 1fr minmax(0, 2.125rem);
-    }
-
-    .form-group .form-control {
-      margin-left: 1rem;
     }
   }
 
@@ -961,4 +1018,17 @@ label.checkbox {
     display: flex;
     justify-content: space-around;
   }
+}
+
+.dialog-error {
+  grid-area: alert;
+  margin: 0px;
+}
+
+#banner-message {
+  white-space: pre-wrap;
+  max-height: 12em;
+  overflow: auto;
+  padding: 1.5em 1em;
+  margin: 0;
 }

@@ -21,16 +21,20 @@
  * the state in Redux store. This also enables to put derived (computed) data on the same level
  * as the objects stored in the store directly.
  *
- * Reference: http://redux.js.org/docs/recipes/ComputingDerivedData.html
+ * Reference: https://redux.js.org/recipes/computing-derived-data/
  */
 
 export function getRefreshInterval(state) {
     return state.config.refreshInterval;
 }
 
+export function getLibvirtServiceState(state) {
+    return state.systemInfo.libvirtService.activeState;
+}
+
 export function usagePollingEnabled(state, name, connectionName) {
     for (var i = 0; i < state.vms.length; i++) {
-        let vm = state.vms[i];
+        const vm = state.vms[i];
         if (vm.connectionName === connectionName && vm.name === name)
             return vm.usagePolling;
     }

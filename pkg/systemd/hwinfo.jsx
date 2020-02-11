@@ -23,49 +23,40 @@ import '../lib/polyfills.js'; // once per application
 import React from "react";
 import ReactDOM from 'react-dom';
 
-import { Listing, ListingRow } from "cockpit-components-listing.jsx";
-import { Alert, Button, ListView, Modal, OverlayTrigger, Tooltip } from 'patternfly-react';
+import { Button, ListView, Modal } from 'patternfly-react';
+import { Alert, AlertActionCloseButton } from '@patternfly/react-core';
+import { SortByDirection } from "@patternfly/react-table";
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
+import { ListingTable } from "cockpit-components-table.jsx";
 
 import kernelopt_sh from "raw-loader!./kernelopt.sh";
 import detect from "./hw-detect.js";
 
-var permission = cockpit.permission({ admin: true });
+import { PrivilegedButton } from "cockpit-components-privileged.jsx";
 
 const _ = cockpit.gettext;
 
 class SystemInfo extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {
-            allowed: permission.allowed !== false,
-        };
-        this.onPermissionChanged = this.onPermissionChanged.bind(this);
-    }
-
-    onPermissionChanged() {
-        this.setState({ allowed: permission.allowed !== false });
-    }
-
-    componentDidMount() {
-        permission.addEventListener("changed", this.onPermissionChanged);
-    }
-
-    componentWillUnmount() {
-        permission.removeEventListener("changed", this.onPermissionChanged);
+        this.permission = cockpit.permission({ admin: true });
     }
 
     render() {
-        let info = this.props.info;
-        let onSecurityClick = this.props.onSecurityClick;
+        const info = this.props.info;
+        if ((!info.name || !info.version) && info.alt_name && info.alt_version) {
+            info.name = info.alt_name;
+            info.version = info.alt_version;
+        }
+        const onSecurityClick = this.props.onSecurityClick;
 
-        let mitigations = this.state.allowed ? (<a role="link" onClick={onSecurityClick}>{ _("Mitigations") }</a>)
-            : (<OverlayTrigger overlay={
-                <Tooltip id="tip-cpu-security">
-                    { cockpit.format(_("The user $0 is not permitted to change cpu security mitigations"), permission.user ? permission.user.name : '') }
-                </Tooltip> }>
-                <span>{ _("Mitigations") }</span>
-            </OverlayTrigger>);
+        const mitigations = (
+            <PrivilegedButton variant="link" buttonId="cpu_mitigations" tooltipId="tip-cpu-security"
+                        excuse={ _("The user $0 is not permitted to change cpu security mitigations") }
+                        permission={ this.permission } onClick={ onSecurityClick }>
+                { _("Mitigations") }
+            </PrivilegedButton>
+        );
 
         return (
             <table className="info-table-ct wide-split-table-ct">
@@ -87,7 +78,7 @@ class SystemInfo extends React.Component {
                 }
                 <tbody>
                     { info.bios_vendor &&
-                    <React.Fragment>
+                    <>
                         <tr>
                             <th>{ _("BIOS") }</th>
                             <td>{ info.bios_vendor }</td>
@@ -100,10 +91,10 @@ class SystemInfo extends React.Component {
                             <th>{ _("BIOS date") }</th>
                             <td>{ moment(info.bios_date).isValid() ? moment(info.bios_date).format('L') : info.bios_date }</td>
                         </tr>
-                    </React.Fragment>
+                    </>
                     }
                     { info.nproc !== undefined &&
-                    <React.Fragment>
+                    <>
                         <tr>
                             <th>{ _("CPU") }</th>
                             <td>{ (info.nproc > 1) ? `${info.nproc}x ${info.cpu_model}` : info.cpu_model }</td>
@@ -114,7 +105,7 @@ class SystemInfo extends React.Component {
                             <td>{ mitigations }</td>
                         </tr>
                         }
-                    </React.Fragment>
+                    </>
                     }
                 </tbody>
             </table>
@@ -126,7 +117,7 @@ function availableMitigations() {
     if (availableMitigations.cachedMitigations !== undefined)
         return Promise.resolve(availableMitigations.cachedMitigations);
     /* nosmt */
-    let promises = [cockpit.spawn(["lscpu"], { environ: ["LC_ALL=C.UTF-8"], }), cockpit.file("/proc/cmdline").read()];
+    const promises = [cockpit.spawn(["lscpu"], { environ: ["LC_ALL=C.UTF-8"], }), cockpit.file("/proc/cmdline").read()];
     return Promise.all(promises).then(values => {
         let threads_per_core;
         try {
@@ -138,11 +129,16 @@ function availableMitigations() {
             return { available: false };
         }
         /* "nosmt" and "nosmt=force" are valid */
-        let nosmt_enabled = (values[1].indexOf("nosmt") !== -1 && values[1].indexOf("nosmt=") === -1) || values[1].indexOf("nosmt=force") !== -1;
+        const nosmt_enabled = (values[1].indexOf("nosmt") !== -1 && values[1].indexOf("nosmt=") === -1) || values[1].indexOf("nosmt=force") !== -1;
         /* available if threads>1 and the cmdline is valid */
-        let nosmt_available = threads_per_core > 1 && (values[1].indexOf("nosmt=") === -1 || values[1].indexOf("nosmt=force") !== -1);
+        const nosmt_available = threads_per_core > 1 && (values[1].indexOf("nosmt=") === -1 || values[1].indexOf("nosmt=force") !== -1);
+        const mitigations_match = values[1].match(/\bmitigations=(\S*)\b/);
 
-        availableMitigations.cachedMitigations = { available: nosmt_available, nosmt_enabled: nosmt_enabled };
+        availableMitigations.cachedMitigations = {
+            available: nosmt_available,
+            nosmt_enabled: nosmt_enabled,
+            mitigations_arg: mitigations_match ? mitigations_match[1] : undefined,
+        };
         return availableMitigations.cachedMitigations;
     });
 }
@@ -170,10 +166,18 @@ class CPUSecurityMitigationsDialog extends React.Component {
 
     saveAndReboot() {
         let options = [];
-        if (this.state.nosmt)
+        if (this.state.nosmt) {
             options = ['set', 'nosmt'];
-        else
-            options = ['remove', 'nosmt'];
+        } else {
+            // this may either be an argument of its own, or part of mitigations=
+            const ma = availableMitigations.cachedMitigations.mitigations_arg;
+            if (ma && ma.indexOf("nosmt") >= 0) {
+                const new_args = ma.split(',').filter(opt => opt != 'nosmt');
+                options = ['set', 'mitigations=' + new_args.join(',')];
+            } else {
+                options = ['remove', 'nosmt'];
+            }
+        }
 
         cockpit.script(kernelopt_sh, options, { superuser: "require", err: "message" })
                 .then(() => {
@@ -185,7 +189,7 @@ class CPUSecurityMitigationsDialog extends React.Component {
     }
 
     render() {
-        let rows = [];
+        const rows = [];
         if (this.state.nosmt !== undefined)
             rows.push((
                 <ListView.Item key="nosmt" heading={ <span>{ _("Disable simultaneous multithreading") } (nosmt)<small>
@@ -195,7 +199,7 @@ class CPUSecurityMitigationsDialog extends React.Component {
                 </small></span> }
                                actions={ <div id="nosmt-switch">
                                    <OnOffSwitch disabled={this.state.rebooting} onChange={ value => this.setState({ nosmt: value }) } state={ this.state.nosmt } />
-                               </div> } >
+                               </div> }>
                 </ListView.Item>
             ));
 
@@ -209,7 +213,10 @@ class CPUSecurityMitigationsDialog extends React.Component {
                     <ListView>
                         { rows }
                     </ListView>
-                    { this.state.alert !== undefined && <Alert type="error" onDismiss={ () => this.setState({ alert: undefined }) }><span>{ this.state.alert }</span></Alert> }
+                    { this.state.alert !== undefined &&
+                    <Alert variant="danger"
+                        action={<AlertActionCloseButton onClose={() => this.setState({ alert: undefined })} />}
+                        title={this.state.alert} />}
                 </Modal.Body>
                 <Modal.Footer>
                     <Button bsStyle='default' className='btn-cancel' disabled={this.state.rebooting} onClick={this.close}>
@@ -227,9 +234,7 @@ class CPUSecurityMitigationsDialog extends React.Component {
 class HardwareInfo extends React.Component {
     constructor(props) {
         super(props);
-        this.sortColumnFields = [ "cls", "model", "vendor", "slot" ];
         this.state = {
-            sortBy: "cls",
             showCpuSecurityDialog: false,
             mitigationsAvailable: false,
         };
@@ -243,22 +248,32 @@ class HardwareInfo extends React.Component {
         let memory = null;
 
         if (this.props.info.pci.length > 0) {
-            let sortedPci = this.props.info.pci.concat();
-            sortedPci.sort((a, b) => a[this.state.sortBy].localeCompare(b[this.state.sortBy]));
+            const sortedPci = this.props.info.pci.concat();
 
             pci = (
-                <Listing title={ _("PCI") } columnTitles={ [ _("Class"), _("Model"), _("Vendor"), _("Slot") ] }
-                         columnTitleClick={ index => this.setState({ sortBy: this.sortColumnFields[index] }) } >
-                    { sortedPci.map(dev => <ListingRow key={dev.slot} columns={[ dev.cls, dev.model, dev.vendor, dev.slot ]} />) }
-                </Listing>
+                <ListingTable caption={ _("PCI") }
+                    sortBy={{ index: 0, direction: SortByDirection.asc }}
+                    columns={ [
+                        { title: _("Class"), sortable: true },
+                        { title: _("Model"), sortable: true },
+                        { title: _("Vendor"), sortable: true },
+                        { title: _("Slot"), sortable: true }
+                    ] }
+                    rows={ sortedPci.map(dev => ({
+                        props: { key: dev.slot },
+                        columns: [dev.cls, dev.model, dev.vendor, dev.slot]
+                    }))} />
             );
         }
 
         if (this.props.info.memory.length > 0) {
             memory = (
-                <Listing title={ _("Memory") } columnTitles={ [_("ID"), _("Memory Technology"), _("Type"), _("Size"), _("State"), _("Rank"), _("Speed")]}>
-                    { this.props.info.memory.map(dimm => <ListingRow key={dimm.locator} columns={[dimm.locator, dimm.technology, dimm.type, dimm.size, dimm.state, dimm.rank, dimm.speed]} />) }
-                </Listing>
+                <ListingTable caption={ _("Memory") }
+                    columns={ [_("ID"), _("Memory Technology"), _("Type"), _("Size"), _("State"), _("Rank"), _("Speed")]}
+                    rows={ this.props.info.memory.map(dimm => ({
+                        props: { key: dimm.locator },
+                        columns: [dimm.locator, dimm.technology, dimm.type, dimm.size, dimm.state, dimm.rank, dimm.speed]
+                    })) } />
             );
         }
 
@@ -266,7 +281,7 @@ class HardwareInfo extends React.Component {
             <div className="page-ct container-fluid">
                 <CPUSecurityMitigationsDialog show={this.state.showCpuSecurityDialog} onClose={ () => this.setState({ showCpuSecurityDialog: false }) } />
                 <ol className="breadcrumb">
-                    <li><a role="link" tabIndex="0" onClick={ () => cockpit.jump("/system", cockpit.transport.host) }>{ _("System") }</a></li>
+                    <li><button role="link" className="link-button" onClick={ () => cockpit.jump("/system", cockpit.transport.host) }>{ _("Overview") }</button></li>
                     <li className="active">{ _("Hardware Information") }</li>
                 </ol>
 

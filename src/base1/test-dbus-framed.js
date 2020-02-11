@@ -44,7 +44,7 @@ function parent_window() {
     }, false);
 
     /* This keeps coming up in tests ... how to open the transport */
-    var chan = cockpit.channel({ "payload": "resource2" });
+    var chan = cockpit.channel({ payload: "resource2" });
     chan.addEventListener("close", function() {
         test.equal(cockpit.transport.host, "localhost",
                    "parent cockpit.transport.host");
@@ -60,9 +60,9 @@ function child_frame() {
     test.start_from(parent_tests);
 
     document.getElementById("title").innerHTML = "Cockpit Child Frame";
-    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
+    var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { bus: "session" });
     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-              "HelloWorld", [ "Browser-side JS" ])
+              "HelloWorld", ["Browser-side JS"])
             .done(function(reply) {
                 test.equal(reply[0], "Word! You said `Browser-side JS'. I'm Skeleton, btw!", "reply");
                 dbus.close();

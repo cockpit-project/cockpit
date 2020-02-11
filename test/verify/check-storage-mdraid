@@ -35,7 +35,7 @@ class TestStorage(StorageCase):
           var trs = ph_select('#detail-sidebar tr');
           for (i = 0; i < trs.length; ++i) {
             var cell = trs[i].querySelector('td:nth-child(2)');
-            var name = cell.querySelector('a').textContent;
+            var name = cell.querySelector('button').textContent;
             var state = cell.querySelector('.state').textContent;
             found[name] = state;
           };
@@ -53,7 +53,7 @@ class TestStorage(StorageCase):
         self.dialog_apply_with_retry()
 
     def raid_remove_disk(self, name):
-        self.browser.click('#detail-sidebar tr:contains("%s") button' % name)
+        self.browser.click('#detail-sidebar tr:contains("%s") button.btn-default' % name)
 
     def raid_action(self, action):
         self.browser.click('.panel-heading:contains("RAID Device") button:contains(%s)' % action)
@@ -77,7 +77,7 @@ class TestStorage(StorageCase):
                         raise
                     print("Stopping failed, retrying...")
                     if self.browser.is_present("#dialog"):
-                        self.browser.wait_in_text("#dialog", "Error stopping RAID array /dev/md127")
+                        self.browser.wait_in_text("#dialog", "Error stopping RAID array")
                         self.dialog_cancel()
                         self.dialog_wait_close()
                     do_click()
@@ -101,7 +101,7 @@ class TestStorage(StorageCase):
         b.wait_in_text("#drives", "DISK3")
         b.wait_in_text("#drives", "DISK4")
 
-        b.click("#create-mdraid")
+        self.devices_dropdown('Create RAID Device')
         self.dialog_wait_open()
         self.dialog_wait_val("level", "raid5")
         self.dialog_apply()
@@ -117,9 +117,9 @@ class TestStorage(StorageCase):
         self.dialog_set_val("name", "ARR")
         self.dialog_apply()
         self.dialog_wait_close()
-        b.wait_in_text("#mdraids", "ARR")
+        b.wait_in_text("#devices", "ARR")
 
-        b.click('#mdraids tr:contains("ARR")')
+        b.click('#devices tr:contains("ARR")')
         b.wait_present('#storage-detail')
 
         self.wait_states({"QEMU QEMU HARDDISK (DISK1)": "In Sync",
@@ -127,9 +127,9 @@ class TestStorage(StorageCase):
                           "QEMU QEMU HARDDISK (DISK3)": "In Sync"})
 
         def wait_degraded_state(is_degraded):
-            degraded_selector = ".alert span:contains('The RAID Array is in a degraded state')"
+            degraded_selector = ".pf-c-alert h4"
             if is_degraded:
-                b.wait_visible(degraded_selector)
+                b.wait_in_text(degraded_selector, 'The RAID Array is in a degraded state')
             else:
                 b.wait_not_present(degraded_selector)
 
@@ -191,6 +191,8 @@ class TestStorage(StorageCase):
         self.content_row_action(1, "Create Partition")
         self.dialog({"size": 20,
                      "type": "ext4",
+                     "mount_point": "/foo1",
+                     "mount_options.auto": False,
                      "name": "One"})
         self.content_row_wait_in_col(1, 1, "ext4 File System")
         self.content_row_wait_in_col(1, 2, part_prefix + "1")
@@ -198,6 +200,8 @@ class TestStorage(StorageCase):
         # Create second partition
         self.content_row_action(2, "Create Partition")
         self.dialog({"type": "ext4",
+                     "mount_point": "/foo2",
+                     "mount_options.auto": False,
                      "name": "Two"})
 
         self.content_row_wait_in_col(2, 1, "ext4 File System")
@@ -234,7 +238,7 @@ class TestStorage(StorageCase):
         self.confirm()
         with b.wait_timeout(120):
             b.wait_visible("#storage")
-            b.wait_not_in_text("#mdraids", "ARR")
+            b.wait_not_in_text("#devices", "ARR")
 
     def testNotRemovingDisks(self):
         m = self.machine
@@ -253,16 +257,16 @@ class TestStorage(StorageCase):
         b.wait_in_text("#drives", "DISK2")
         b.wait_in_text("#drives", "DISK3")
 
-        b.click("#create-mdraid")
+        self.devices_dropdown('Create RAID Device')
         self.dialog_wait_open()
         self.dialog_set_val("level", "raid5")
         self.dialog_set_val("disks", {"DISK1": True, "DISK2": True})
         self.dialog_set_val("name", "ARR")
         self.dialog_apply()
         self.dialog_wait_close()
-        b.wait_in_text("#mdraids", "ARR")
+        b.wait_in_text("#devices", "ARR")
 
-        b.click('#mdraids tr:contains("ARR")')
+        b.click('#devices tr:contains("ARR")')
         b.wait_present('#storage-detail')
 
         self.wait_states({"QEMU QEMU HARDDISK (DISK1)": "In Sync",

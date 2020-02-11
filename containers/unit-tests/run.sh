@@ -27,20 +27,6 @@ git clone /source /tmp/source
 [ ! -d /source/node_modules ] || cp -r /source/node_modules /tmp/source/
 cd /tmp/source
 
-if [ -d bots ]; then
-    # Set GITHUB_BASE so that "import task" works without failure.
-    # https://github.com/cockpit-project/cockpit/issues/10578
-    GITHUB_BASE=unused bots/test-bots
-fi
-
-# bots/ is by and large an independent project, and for supporting stable
-# ranches, we want build/check/dist to work without it; so run everything
-# without bots/ in one run (to make sure this works), and keep it in the
-# others (to make sure its existence does not break anything)
-if [ "${CC:-}" = clang ]; then
-    rm -rf bots
-fi
-
 ./autogen.sh --prefix=/usr --enable-strict --with-systemdunitdir=/tmp
 
 make V=1 all

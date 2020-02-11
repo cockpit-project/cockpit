@@ -30,7 +30,7 @@ class ZoomControls extends React.Component {
     constructor() {
         super();
         this.classes = { };
-        this.plots = [ ];
+        this.plots = [];
     }
 
     render() {
@@ -65,7 +65,7 @@ class ZoomControls extends React.Component {
                 <div className="dropdown">
                     <button className="btn btn-default dropdown-toggle" data-toggle="dropdown">
                         <span />
-                        <div className="caret" />
+                        <i className="fa fa-caret-down pf-c-context-selector__toggle-icon" aria-hidden="true" />
                     </button>
                     <ul className="dropdown-menu" role="menu">
                         <li role="presentation">
@@ -163,11 +163,13 @@ class StoragePlot extends React.Component {
 
             if (!self.plot) {
                 var plot_options = plot.plot_simple_template();
-                $.extend(plot_options.yaxis, { ticks: plot.memory_ticks,
-                                               tickFormatter: plot.format_bytes_per_sec_tick_no_unit
+                $.extend(plot_options.yaxis, {
+                    ticks: plot.memory_ticks,
+                    tickFormatter: plot.format_bytes_per_sec_tick_no_unit
                 });
-                $.extend(plot_options.grid, { hoverable: true,
-                                              autoHighlight: false
+                $.extend(plot_options.grid, {
+                    hoverable: true,
+                    autoHighlight: false
                 });
                 plot_options.setup_hook = setup_hook;
                 plot_options.post_hook = post_hook;
@@ -226,7 +228,7 @@ class StoragePlot extends React.Component {
 export class StoragePlots extends React.Component {
     constructor() {
         super();
-        this.plots = [ ];
+        this.plots = [];
         this.state = { classes: { } };
     }
 
@@ -255,7 +257,7 @@ export class StoragePlots extends React.Component {
                 threshold: 1000
             };
 
-            devs = [ ];
+            devs = [];
             for (var p in client.drives) {
                 var block = client.drives_block[p];
                 var dev = block && decode_filename(block.Device).replace(/^\/dev\//, "");
@@ -266,16 +268,16 @@ export class StoragePlots extends React.Component {
             // Just a single graph for total I/O
 
             read_plot_data = {
-                direct: [ "disk.all.read_bytes" ],
-                internal: [ "disk.all.read" ],
+                direct: ["disk.all.read_bytes"],
+                internal: ["disk.all.read"],
                 units: "bytes",
                 derive: "rate",
                 threshold: 1000
             };
 
             write_plot_data = {
-                direct: [ "disk.all.write_bytes" ],
-                internal: [ "disk.all.written" ],
+                direct: ["disk.all.write_bytes"],
+                internal: ["disk.all.written"],
                 units: "bytes",
                 derive: "rate",
                 threshold: 1000

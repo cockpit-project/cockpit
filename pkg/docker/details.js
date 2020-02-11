@@ -106,7 +106,7 @@ PageContainerDetails.prototype = {
             this.terminal.close();
             this.terminal = null;
         }
-        $("#container-terminal").hide();
+        $("#container-terminal").prop("hidden", true);
 
         this.container_id = container_id;
         this.name = this.container_id.slice(0, 12);
@@ -129,7 +129,7 @@ PageContainerDetails.prototype = {
             this.terminal.connect();
         }
         this.terminal.typeable(info.State.Running);
-        $("#container-terminal").show();
+        $("#container-terminal").prop("hidden", false);
     },
 
     maybe_reconnect_terminal: function() {
@@ -148,11 +148,7 @@ PageContainerDetails.prototype = {
                 var host_ip = h[i].HostIp;
                 if (host_ip === '')
                     host_ip = '0.0.0.0';
-                var desc = cockpit.format(_("${hip}:${hport} -> $cport"),
-                                          { hip: host_ip,
-                                            hport: h[i].HostPort,
-                                            cport: p
-                                          });
+                var desc = `${host_ip}:${h[i].HostPort} -> ${p}`;
                 /* make sure we don't push anything we already have */
                 if (bindings.indexOf(desc) === -1)
                     bindings.push(desc);
@@ -173,10 +169,10 @@ PageContainerDetails.prototype = {
         $('#container-details-ipprefixlen').text("");
         $('#container-details-gateway').text("");
         $('#container-details-macaddr').text("");
-        $('#container-details-ports-row').hide();
-        $('#container-details-links-row').hide();
-        $('#container-details-resource-row').hide();
-        $('#container-details-volumes-row').hide();
+        $('#container-details-ports-row').prop("hidden", true);
+        $('#container-details-links-row').prop("hidden", true);
+        $('#container-details-resource-row').prop("hidden", true);
+        $('#container-details-volumes-row').prop("hidden", true);
 
         var info = this.client.containers[this.container_id];
         util.docker_debug("container-details", this.container_id, info);
@@ -193,14 +189,14 @@ PageContainerDetails.prototype = {
         $('#container-details-stop').prop('disabled', !info.State.Running);
         $('#container-details-restart').prop('disabled', !info.State.Running);
         $('#container-details-commit').prop('disabled', !!info.State.Running);
-        $('#container-details-memory-row').toggle(!!info.State.Running);
-        $('#container-details-cpu-row').toggle(!!info.State.Running);
-        $('#container-details-resource-row').toggle(!!info.State.Running);
+        $('#container-details-memory-row').prop('hidden', !info.State.Running);
+        $('#container-details-cpu-row').prop('hidden', !info.State.Running);
+        $('#container-details-resource-row').prop('hidden', !info.State.Running);
 
         this.name = util.render_container_name(info.Name);
         $('#container-details .content-filter h3 span').text(this.name);
 
-        var port_bindings = [ ];
+        var port_bindings = [];
         if (info.NetworkSettings)
             this.add_bindings(port_bindings, info.NetworkSettings.Ports);
         if (info.HostConfig)
@@ -223,7 +219,7 @@ PageContainerDetails.prototype = {
         $('#container-details-gateway').text(info.NetworkSettings.Gateway);
         $('#container-details-macaddr').text(info.NetworkSettings.MacAddress);
 
-        $('#container-details-ports-row').toggle(port_bindings.length > 0);
+        $('#container-details-ports-row').prop('hidden', port_bindings.length === 0);
         $('#container-details-ports').html(util.multi_line(port_bindings));
 
         this.update_links(info);
@@ -238,7 +234,7 @@ PageContainerDetails.prototype = {
 
         var volume_bindings = info.HostConfig.Binds;
         if (volume_bindings) {
-            $('#container-details-volumes-row').toggle(volume_bindings.length > 0);
+            $('#container-details-volumes-row').prop('hidden', volume_bindings.length === 0);
             $('#container-details-volumes').html(util.multi_line(volume_bindings));
         }
     },
@@ -247,7 +243,7 @@ PageContainerDetails.prototype = {
         $('#container-details-links').empty();
         var links = info.HostConfig.Links;
         if (links) {
-            $('#container-details-links-row').toggle(true);
+            $('#container-details-links-row').prop("hidden", false);
             $('#container-details-links').html(
                 links.join('<br/>')
             );
@@ -306,12 +302,12 @@ export function init_container_details(client) {
     page.setup();
 
     function hide() {
-        $('#container-details').hide();
+        $('#container-details').prop("hidden", true);
     }
 
     function show(id) {
         page.enter(id);
-        $('#container-details').show();
+        $('#container-details').prop("hidden", false);
     }
 
     return {

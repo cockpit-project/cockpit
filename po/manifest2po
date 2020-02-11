@@ -67,14 +67,22 @@ function step() {
         return;
     }
 
-    if (path.basename(filename) != "manifest.json")
+    if (path.basename(filename) != "manifest.json.in")
         return step();
 
-    fs.readFile(filename, { encoding: "utf-8"}, function(err, data) {
+    /* Qualify the filename if necessary */
+    var full = filename;
+    if (opts.directory)
+        full = path.join(opts.directory, filename);
+
+    fs.readFile(full, { encoding: "utf-8"}, function(err, data) {
         if (err)
             fatal(err.message);
 
-        process_manifest(JSON.parse(data));
+        // There are variables which when not substituted can cause JSON.parse to fail
+        // Dummy replace them. None variable is going to be translated anyway
+        safe_data = data.replace(/\@.+?\@/gi, 1);
+        process_manifest(JSON.parse(safe_data));
 
         return step();
     });
@@ -87,6 +95,26 @@ function process_manifest(manifest) {
         process_menu(manifest.tools);
 }
 
+function process_keywords(keywords) {
+    keywords.forEach(v => {
+        v.matches.forEach(keyword =>
+            push({
+                msgid: keyword,
+                locations: [ filename ]
+            })
+        );
+    });
+}
+
+function process_docs(docs) {
+    docs.forEach(doc => {
+        push({
+            msgid: doc.label,
+            locations: [ filename ]
+        })
+    });
+}
+
 function process_menu(menu) {
     for (var m in menu) {
         if (menu[m].label) {
@@ -95,6 +123,10 @@ function process_menu(menu) {
                 locations: [ filename ]
             });
         }
+        if (menu[m].keywords)
+            process_keywords(menu[m].keywords);
+        if (menu[m].docs)
+            process_docs(menu[m].docs);
     }
 }
 

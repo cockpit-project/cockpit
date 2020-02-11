@@ -132,7 +132,7 @@ util.format_cpu_usage = function format_cpu_usage(usage) {
 };
 
 util.update_memory_bar = function update_memory_bar(bar, usage, limit) {
-    var parts = [ usage ];
+    var parts = [usage];
     if (limit)
         parts.push(limit);
     $(bar)
@@ -224,12 +224,12 @@ util.render_container = function render_container(client, $panel,
         memtext = util.format_memory_and_limit(memuse, memlimit);
 
         membar = true;
-        memtextstyle = { 'color': 'inherit' };
+        memtextstyle = { color: 'inherit' };
     } else {
         cputext = "";
         membar = false;
         memtext = _("Stopped");
-        memtextstyle = { 'color': 'grey', 'text-align': 'right' };
+        memtextstyle = { color: 'grey', 'text-align': 'right' };
     }
 
     var added = false;
@@ -271,7 +271,7 @@ util.render_container = function render_container(client, $panel,
                             });
                     return false;
                 });
-        tr = $('<tr>', { 'id': prefix + id }).append(
+        tr = $('<tr>', { id: prefix + id }).append(
             $('<td class="container-column-name">'),
             $('<td class="container-column-image">'),
             $('<td class="container-column-command">'),
@@ -282,7 +282,7 @@ util.render_container = function render_container(client, $panel,
             $('<td class="container-column-actions cell-buttons">').append(btn_play, btn_stop, img_waiting.clone()));
 
         tr.on('click', function(event) {
-            cockpit.location.go([ id ]);
+            cockpit.location.go([id]);
         });
 
         added = true;
@@ -543,7 +543,7 @@ util.handle_scope_start_container = function handle_scope_start_container(docker
         var start_phrase = 'Unit docker-';
         var idx_start = error_message.indexOf(start_phrase) + start_phrase.length;
         var docker_container = error_message.substring(idx_start, idx_end);
-        cockpit.spawn([ "systemctl", "stop", "docker-" + docker_container + ".scope" ], { "superuser": "try" })
+        cockpit.spawn(["systemctl", "stop", "docker-" + docker_container + ".scope"], { superuser: "try" })
                 .done(function () {
                     docker_client.start(container_id)
                             .fail(function(ex) {
@@ -616,7 +616,7 @@ util.delete_image_confirm = function confirm(client, image) {
 
         $(containers).each(function(index, value) {
             var container = client.containers[value.Id];
-            var $row = $('<tr />', { 'class': 'listing-ct-item' })
+            var $row = $('<tr />', { class: 'listing-ct-item' })
                     .append($('<td />').text(container.Name.startsWith('/')
                         ? container.Name.substring(1) : container.Name))
                     .append($('<td />').text(util.render_container_status(container.State)));
@@ -674,9 +674,9 @@ util.find_container_log = function find_container_log(client, entry, resultCallb
                         })
                         .done(function (elem_result) {
                             if ('container_id' in elem_result[0]) {
-                                var problem_id = sem_result[0]['ID'].v;
+                                var problem_id = sem_result[0].ID.v;
                                 // Wait for a while, until ABRT processes the problem and writes it into journal
-                                window.setTimeout(util.problem_log, 2000, 0, problem_id, elem_result[0]['container_id'].v, resultCallback);
+                                window.setTimeout(util.problem_log, 2000, 0, problem_id, elem_result[0].container_id.v, resultCallback);
                             }
                         });
             });
@@ -685,7 +685,7 @@ util.find_container_log = function find_container_log(client, entry, resultCallb
 util.problem_log = function problem_log (poll_count, problem_id, c_id, resultCallback) {
     var url = null;
     var message = "";
-    var match = [ ];
+    var match = [];
     var log_found = false;
     match.push('SYSLOG_IDENTIFIER=abrt-notification');
     match.push('PROBLEM_DIR=' + problem_id);
@@ -693,12 +693,12 @@ util.problem_log = function problem_log (poll_count, problem_id, c_id, resultCal
             .stream(function(entries) {
                 log_found = true;
                 // Only first entry is enough, since others are only previous occurrences
-                url = cockpit.location.encode(entries[0]['__CURSOR']);
+                url = cockpit.location.encode(entries[0].__CURSOR);
                 url = "/system/logs#" + url;
-                if (entries[0]['PROBLEM_REASON'])
-                    message = entries[0]['PROBLEM_REASON'];
+                if (entries[0].PROBLEM_REASON)
+                    message = entries[0].PROBLEM_REASON;
                 else
-                    message = entries[0]['MESSAGE'];
+                    message = entries[0].MESSAGE;
 
                 resultCallback(c_id, url, message);
             })

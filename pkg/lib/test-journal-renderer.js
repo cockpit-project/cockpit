@@ -41,14 +41,14 @@ var bootid = 0;
 
 function make_entry(message) {
     return {
-        "__REALTIME_TIMESTAMP": time.toString(),
-        "__CURSOR": "fake",
-        "_BOOT_ID": bootid.toString(),
-        "_COMM": "fake",
-        "UNUSED_FIELD": "12",
-        "SYSLOG_IDENTIFIER": "fake",
-        "PRIORITY": "3",
-        "MESSAGE": message
+        __REALTIME_TIMESTAMP: time.toString(),
+        __CURSOR: "fake",
+        _BOOT_ID: bootid.toString(),
+        _COMM: "fake",
+        UNUSED_FIELD: "12",
+        SYSLOG_IDENTIFIER: "fake",
+        PRIORITY: "3",
+        MESSAGE: message
     };
 }
 
@@ -132,7 +132,7 @@ function jexpect(label, expected) {
     QUnit.ok(check(expected), label);
 }
 
-var month_names = [ 'January',
+var month_names = ['January',
     'February',
     'March',
     'April',
@@ -148,7 +148,7 @@ var month_names = [ 'January',
 
 (function() {
     QUnit.testStart(function() {
-        output = [ ];
+        output = [];
         renderer = journal.renderer(funcs);
         var d = new Date(time);
         expected_day = month_names[d.getMonth()] + ' ' + d.getDate().toFixed() + ', ' + d.getFullYear().toFixed();
@@ -159,13 +159,13 @@ var month_names = [ 'January',
         append('foo');
         append_flush();
         jexpect('two repeated lines',
-                [ { day: expected_day },
+                [{ day: expected_day },
                     { message: 'foo', count: 2 }
                 ]);
         append('foo');
         append_flush();
         jexpect('three repeated lines after flush',
-                [ { day: expected_day },
+                [{ day: expected_day },
                     { message: 'foo', count: 3 }
                 ]);
     });
@@ -175,13 +175,13 @@ var month_names = [ 'January',
         prepend('foo');
         prepend_flush();
         jexpect('two repeated lines',
-                [ { day: expected_day },
+                [{ day: expected_day },
                     { message: 'foo', count: 2 }
                 ]);
         prepend('foo');
         prepend_flush();
         jexpect('three repeated lines after flush',
-                [ { day: expected_day },
+                [{ day: expected_day },
                     { message: 'foo', count: 3 }
                 ]);
     });
@@ -192,7 +192,7 @@ var month_names = [ 'January',
         prepend('foo');
         prepend_flush();
         jexpect('two repeated lines',
-                [ { day: expected_day },
+                [{ day: expected_day },
                     { message: 'foo', count: 2 }
                 ]);
     });
@@ -203,7 +203,7 @@ var month_names = [ 'January',
         prepend('bar');
         prepend_flush();
         jexpect('two different lines',
-                [ { day: expected_day },
+                [{ day: expected_day },
                     { message: 'bar', count: 1 },
                     { message: 'foo', count: 1 }
                 ]);
@@ -215,7 +215,7 @@ var month_names = [ 'January',
         append('foo');
         append_flush();
         jexpect('two repeated lines',
-                [ { day: expected_day },
+                [{ day: expected_day },
                     { message: 'foo', count: 2 }
                 ]);
     });
@@ -227,7 +227,7 @@ var month_names = [ 'January',
         append('foo');
         append_flush();
         jexpect('two different lines',
-                [ { day: expected_day },
+                [{ day: expected_day },
                     { message: 'baz', count: 1 },
                     { message: 'bar', count: 1 },
                     { message: 'foo', count: 1 }
@@ -241,7 +241,7 @@ var month_names = [ 'January',
         append('bar');
         append_flush();
         jexpect('two repeated lines',
-                [ { day: expected_day },
+                [{ day: expected_day },
                     { message: 'baz', count: 1 },
                     { message: 'bar', count: 2 },
                 ]);
@@ -254,7 +254,7 @@ var month_names = [ 'January',
         prepend('baz');
         prepend_flush();
         jexpect('two different lines',
-                [ { day: expected_day },
+                [{ day: expected_day },
                     { message: 'baz', count: 1 },
                     { message: 'foo', count: 1 },
                     { message: 'bar', count: 1 },
@@ -268,7 +268,7 @@ var month_names = [ 'January',
         prepend('foo');
         prepend_flush();
         jexpect('two repeated lines',
-                [ { day: expected_day },
+                [{ day: expected_day },
                     { message: 'foo', count: 2 },
                     { message: 'bar', count: 1 },
                 ]);
@@ -281,7 +281,7 @@ var month_names = [ 'January',
         append('foo');
         append_flush();
         jexpect('two repeated lines before reboot',
-                [ { day: expected_day },
+                [{ day: expected_day },
                     { message: 'foo', count: 2 },
                     { reboot: true },
                     { message: 'foo', count: 1 },
@@ -296,7 +296,7 @@ var month_names = [ 'January',
         prepend('bar');
         prepend_flush();
         jexpect('different lines',
-                [ { day: expected_day },
+                [{ day: expected_day },
                     { message: 'bar', count: 1 },
                     { reboot: true },
                     { message: 'foo', count: 1 },
@@ -312,7 +312,7 @@ var month_names = [ 'January',
         prepend('foo');
         prepend_flush();
         jexpect('repeated line',
-                [ { day: expected_day },
+                [{ day: expected_day },
                     { message: 'foo', count: 1 },
                     { reboot: true },
                     { message: 'foo', count: 1 },

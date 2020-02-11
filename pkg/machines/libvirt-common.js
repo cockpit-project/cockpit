@@ -14,7 +14,6 @@ import {
 } from './actions/store-actions.js';
 
 import {
-    checkLibvirtStatus,
     getApiData,
     getHypervisorMaxVCPU,
     getLoggedInUser,
@@ -23,6 +22,7 @@ import {
 
 import {
     convertToUnit,
+    getNextAvailableTarget,
     logDebug,
     fileDownload,
     rephraseUI,
@@ -32,6 +32,9 @@ import {
 import {
     prepareDisksParam,
     prepareDisplaysParam,
+    prepareNICParam,
+    prepareVcpuParam,
+    prepareMemoryParam,
 } from './libvirtUtils.js';
 
 import {
@@ -107,7 +110,7 @@ export function getDiskElemByTarget(domxml, targetOriginal) {
 }
 
 export function getDomainElem(domXml) {
-    let parser = new DOMParser();
+    const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(domXml, "application/xml");
 
     if (!xmlDoc) {
@@ -118,8 +121,43 @@ export function getDomainElem(domXml) {
     return xmlDoc.getElementsByTagName("domain")[0];
 }
 
+export function getIfaceElemByMac(domxml, mac) {
+    const domainElem = getDomainElem(domxml);
+
+    if (!domainElem) {
+        console.warn(`Can't parse dumpxml, input: "${domainElem}"`);
+        return;
+    }
+
+    const devicesElem = domainElem.getElementsByTagName('devices')[0];
+    const ifaceElems = devicesElem.getElementsByTagName('interface');
+
+    if (ifaceElems) {
+        for (let i = 0; i < ifaceElems.length; i++) {
+            const ifaceElem = ifaceElems[i];
+            const macElem = ifaceElem.getElementsByTagName('mac')[0];
+            const address = macElem.getAttribute('address'); // identifier of the iface
+            if (address === mac) {
+                return new XMLSerializer().serializeToString(ifaceElem);
+            }
+        }
+    }
+}
+
+function getIfaceElem(netXml) {
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(netXml, "application/xml");
+
+    if (!xmlDoc) {
+        console.warn(`Can't parse dumpxml, input: "${netXml}"`);
+        return;
+    }
+
+    return xmlDoc.getElementsByTagName("interface")[0];
+}
+
 function getNetworkElem(netXml) {
-    let parser = new DOMParser();
+    const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(netXml, "application/xml");
 
     if (!xmlDoc) {
@@ -131,7 +169,7 @@ function getNetworkElem(netXml) {
 }
 
 function getNodeDeviceElem(deviceXml) {
-    let parser = new DOMParser();
+    const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(deviceXml, "application/xml");
 
     if (!xmlDoc) {
@@ -143,7 +181,7 @@ function getNodeDeviceElem(deviceXml) {
 }
 
 function getStoragePoolElem(poolXml) {
-    let parser = new DOMParser();
+    const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(poolXml, "application/xml");
 
     if (!xmlDoc) {
@@ -155,7 +193,7 @@ function getStoragePoolElem(poolXml) {
 }
 
 function getStorageVolumeElem(poolXml) {
-    let parser = new DOMParser();
+    const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(poolXml, 'application/xml');
     if (!xmlDoc) {
         console.warn(`Can't parse dumpxml, input: "${poolXml}"`);
@@ -192,6 +230,8 @@ export function parseDumpxml(dispatch, connectionName, domXml, id_overwrite) {
     const osBoot = parseDumpxmlForOsBoot(osBootElems);
     const arch = osTypeElem.getAttribute("arch");
     const emulatedMachine = osTypeElem.getAttribute("machine");
+    const firmware = osElem.getAttribute("firmware");
+    const loaderElem = getSingleOptionalElem(osElem, "loader");
 
     const currentMemoryUnit = currentMemoryElem.getAttribute("unit");
     const currentMemory = convertToUnit(currentMemoryElem.childNodes[0].nodeValue, currentMemoryUnit, units.KiB);
@@ -225,6 +265,8 @@ export function parseDumpxml(dispatch, connectionName, domXml, id_overwrite) {
         id,
         osType,
         osBoot,
+        firmware,
+        loader: loaderElem ? loaderElem.textContent : undefined,
         arch,
         currentMemory,
         memory,
@@ -241,7 +283,7 @@ export function parseDumpxml(dispatch, connectionName, domXml, id_overwrite) {
 }
 
 export function parseDumpxmlForOsBoot(osBootElems) {
-    let osBoot = [];
+    const osBoot = [];
 
     for (let bootNum = 0; bootNum < osBootElems.length; bootNum++) {
         const bootElem = osBootElems[bootNum];
@@ -327,7 +369,7 @@ export function parseDumpxmlForConsoles(devicesElem) {
             if (consoleElem.getAttribute('type') === 'pty') {
                 // Definition of serial console is detected.
                 // So far no additional details needs to be parsed since the console is accessed via 'virsh console'.
-                displays['pty'] = {};
+                displays.pty = {};
             }
         }
     }
@@ -373,6 +415,7 @@ export function parseDumpxmlForDisks(devicesElem) {
                     pool: sourceElem ? sourceElem.getAttribute('pool') : undefined,
                     volume: sourceElem ? sourceElem.getAttribute('volume') : undefined,
                     protocol: sourceElem ? sourceElem.getAttribute('protocol') : undefined,
+                    name: sourceElem ? sourceElem.getAttribute('name') : undefined,
                     host: {
                         name: sourceHostElem ? sourceHostElem.getAttribute('name') : undefined,
                         port: sourceHostElem ? sourceHostElem.getAttribute('port') : undefined,
@@ -582,7 +625,7 @@ export function parseDumpxmlForInterfaces(devicesElem) {
                 name: interfaceElem.getAttribute('name') ? interfaceElem.getAttribute('name') : undefined, // Name of interface
                 target: targetElem ? targetElem.getAttribute('dev') : undefined,
                 mac: macElem.getAttribute('address'), // MAC address
-                model: modelElem.getAttribute('type'), // Device model
+                model: modelElem ? modelElem.getAttribute('type') : undefined, // Device model
                 aliasName: aliasElem ? aliasElem.getAttribute('name') : undefined,
                 virtualportType: virtualportElem ? virtualportElem.getAttribute('type') : undefined,
                 driverName: driverElem ? driverElem.getAttribute('name') : undefined,
@@ -605,6 +648,7 @@ export function parseDumpxmlForInterfaces(devicesElem) {
                 address: {
                     bus: addressElem ? addressElem.getAttribute('bus') : undefined,
                     function: addressElem ? addressElem.getAttribute('function') : undefined,
+                    slot: addressElem ? addressElem.getAttribute('slot') : undefined,
                 },
             };
             interfaces.push(networkInterface);
@@ -622,8 +666,17 @@ export function parseDumpxmlMachinesMetadataElement(metadataElem, name) {
     return subElems.length > 0 ? subElems[0].textContent : null;
 }
 
+export function parseIfaceDumpxml(ifaceXml) {
+    const retObj = {};
+    const ifaceElem = getIfaceElem(ifaceXml);
+
+    retObj.type = ifaceElem.getAttribute("type");
+
+    return retObj;
+}
+
 export function parseNetDumpxml(netXml) {
-    let retObj = {};
+    const retObj = {};
     const netElem = getNetworkElem(netXml);
     if (!netElem) {
         return;
@@ -633,7 +686,7 @@ export function parseNetDumpxml(netXml) {
     const bridgeElem = netElem.getElementsByTagName("bridge")[0];
 
     if (bridgeElem)
-        retObj.bridge = { "name": bridgeElem.getAttribute("name") };
+        retObj.bridge = { name: bridgeElem.getAttribute("name") };
 
     const ipElems = netElem.getElementsByTagName("ip");
     retObj.ip = parseNetDumpxmlForIp(ipElems);
@@ -643,18 +696,18 @@ export function parseNetDumpxml(netXml) {
 
     // if mode is not specified, "nat" is assumed, see https://libvirt.org/formatnetwork.html#elementsConnect
     if (forwardElem) {
-        let ifaceElem = forwardElem.getElementsByTagName("interface")[0];
+        const ifaceElem = forwardElem.getElementsByTagName("interface")[0];
         if (ifaceElem)
-            retObj.interface = { "interface": { "dev": ifaceElem.getAttribute("dev") } };
+            retObj.interface = { interface: { dev: ifaceElem.getAttribute("dev") } };
 
-        retObj.forward = { "mode": (forwardElem.getAttribute("mode") || "nat") };
+        retObj.forward = { mode: (forwardElem.getAttribute("mode") || "nat") };
     }
 
     return retObj;
 }
 
 function parseNetDumpxmlForIp(ipElems) {
-    let ip = [];
+    const ip = [];
 
     for (let i = 0; i < ipElems.length; i++) {
         const ipElem = ipElems[i];
@@ -669,7 +722,7 @@ function parseNetDumpxmlForIp(ipElems) {
 
         let rangeElem;
         let bootp;
-        let dhcpHosts = [];
+        const dhcpHosts = [];
         if (dhcpElem) {
             rangeElem = dhcpElem.getElementsByTagName("range")[0];
             const hostElems = dhcpElem.getElementsByTagName("host");
@@ -686,7 +739,7 @@ function parseNetDumpxmlForIp(ipElems) {
 
             const bootpElem = dhcpElem.getElementsByTagName("bootp")[0];
             if (bootpElem)
-                bootp = { 'file': bootpElem.getAttribute("file") };
+                bootp = { file: bootpElem.getAttribute("file") };
         }
 
         const tmp = {
@@ -719,8 +772,8 @@ export function parseNodeDeviceDumpxml(nodeDevice) {
     const name = deviceElem.getElementsByTagName("name")[0].childNodes[0].nodeValue;
     const capabilityElem = deviceElem.getElementsByTagName("capability")[0];
 
-    let capability = {};
-    let path = {};
+    const capability = {};
+    const path = {};
 
     capability.type = capabilityElem.getAttribute("type");
     if (capability.type == 'net')
@@ -767,7 +820,7 @@ export function parseNodeDeviceDumpxml(nodeDevice) {
 export function parseOsInfoList(dispatch, osList) {
     const osinfodata = JSON.parse(osList);
 
-    dispatch(updateOsInfoList(osinfodata.filter(os => os['shortId'])));
+    dispatch(updateOsInfoList(osinfodata.filter(os => os.shortId)));
 }
 
 export function parseStoragePoolDumpxml(connectionName, storagePoolXml, id_overwrite) {
@@ -776,42 +829,42 @@ export function parseStoragePoolDumpxml(connectionName, storagePoolXml, id_overw
         return;
     }
 
-    let result = { connectionName };
-    result['type'] = storagePoolElem.getAttribute('type');
-    result['name'] = storagePoolElem.getElementsByTagName('name')[0].childNodes[0].nodeValue;
-    result['id'] = id_overwrite || storagePoolElem.getElementsByTagName('uuid')[0].childNodes[0].nodeValue;
-    result['capacity'] = storagePoolElem.getElementsByTagName('capacity')[0].childNodes[0].nodeValue;
-    result['available'] = storagePoolElem.getElementsByTagName('available')[0].childNodes[0].nodeValue;
-    result['allocation'] = storagePoolElem.getElementsByTagName('allocation')[0].childNodes[0].nodeValue;
+    const result = { connectionName };
+    result.type = storagePoolElem.getAttribute('type');
+    result.name = storagePoolElem.getElementsByTagName('name')[0].childNodes[0].nodeValue;
+    result.id = id_overwrite || storagePoolElem.getElementsByTagName('uuid')[0].childNodes[0].nodeValue;
+    result.capacity = storagePoolElem.getElementsByTagName('capacity')[0].childNodes[0].nodeValue;
+    result.available = storagePoolElem.getElementsByTagName('available')[0].childNodes[0].nodeValue;
+    result.allocation = storagePoolElem.getElementsByTagName('allocation')[0].childNodes[0].nodeValue;
 
     // Fetch path property if target is contained for this type of pool
     if (['dir', 'fs', 'netfs', 'logical', 'disk', 'iscsi', 'scsi', 'mpath', 'zfs'].indexOf(result.type) > -1) {
         const targetElem = storagePoolElem.getElementsByTagName('target')[0];
-        result['target'] = { 'path': getSingleOptionalElem(targetElem, 'path').childNodes[0].nodeValue };
+        result.target = { path: getSingleOptionalElem(targetElem, 'path').childNodes[0].nodeValue };
     }
     const sourceElem = storagePoolElem.getElementsByTagName('source')[0];
     if (sourceElem) {
-        result['source'] = {};
+        result.source = {};
 
         const hostElem = sourceElem.getElementsByTagName('host');
         if (hostElem[0])
-            result['source']['host'] = { 'name': hostElem[0].getAttribute('name') };
+            result.source.host = { name: hostElem[0].getAttribute('name') };
 
         const deviceElem = sourceElem.getElementsByTagName('device');
         if (deviceElem[0])
-            result['source']['device'] = { 'path': deviceElem[0].getAttribute('path') };
+            result.source.device = { path: deviceElem[0].getAttribute('path') };
 
         const dirElem = sourceElem.getElementsByTagName('dir');
         if (dirElem[0])
-            result['source']['dir'] = { 'path': dirElem[0].getAttribute('path') };
+            result.source.dir = { path: dirElem[0].getAttribute('path') };
 
         const sourceNameElem = sourceElem.getElementsByTagName('name');
         if (sourceNameElem[0])
-            result['source']['name'] = sourceNameElem[0].childNodes[0].nodeValue;
+            result.source.name = sourceNameElem[0].childNodes[0].nodeValue;
 
         const formatElem = sourceElem.getElementsByTagName('format');
         if (formatElem[0])
-            result['source']['format'] = { 'type': formatElem[0].getAttribute('type') };
+            result.source.format = { type: formatElem[0].getAttribute('type') };
     }
 
     return result;
@@ -846,27 +899,75 @@ export function parseStorageVolumeDumpxml(connectionName, storageVolumeXml, id_o
     };
 }
 
-export function resolveUiState(dispatch, name) {
+export function resolveUiState(dispatch, name, connectionName) {
     const result = {
         // used just the first time vm is shown
         initiallyExpanded: false,
         initiallyOpenedConsoleTab: false,
     };
 
-    const uiState = store.getState().ui.vms[name];
+    const uiState = store.getState().ui.vms.find(vm => vm.name == name && vm.connectionName == connectionName);
 
     if (uiState) {
         result.initiallyExpanded = uiState.expanded;
         result.initiallyOpenedConsoleTab = uiState.openConsoleTab;
 
         if (uiState.installInProgress) {
-            removeVmCreateInProgress(dispatch, name);
+            removeVmCreateInProgress(dispatch, name, connectionName);
         } else {
-            clearVmUiState(dispatch, name);
+            clearVmUiState(dispatch, name, connectionName);
         }
     }
 
     return result;
+}
+
+export function updateDisk({ domXml, diskTarget, readonly, shareable, busType, existingTargets }) {
+    const domainElem = getDomainElem(domXml);
+    if (!domainElem)
+        throw new Error("updateBootOrder: domXML has no domain element");
+
+    const deviceElem = domainElem.getElementsByTagName("devices")[0];
+    const disks = deviceElem.getElementsByTagName("disk");
+
+    for (let i = 0; i < disks.length; i++) {
+        const disk = disks[i];
+        const target = disk.getElementsByTagName("target")[0].getAttribute("dev");
+        if (target == diskTarget) {
+            let shareAbleElem = getSingleOptionalElem(disk, "shareable");
+            if (!shareAbleElem && shareable) {
+                shareAbleElem = document.createElement("shareable");
+                disk.appendChild(shareAbleElem);
+            } else if (shareAbleElem && !shareable) {
+                shareAbleElem.remove();
+            }
+
+            let readOnlyElem = getSingleOptionalElem(disk, "readonly");
+            if (!readOnlyElem && readonly) {
+                readOnlyElem = document.createElement("readonly");
+                disk.appendChild(readOnlyElem);
+            } else if (readOnlyElem && !readonly) {
+                readOnlyElem.remove();
+            }
+
+            const targetElem = disk.getElementsByTagName("target")[0];
+            const oldBusType = targetElem.getAttribute("bus");
+            if (busType && oldBusType !== busType) {
+                targetElem.setAttribute("bus", busType);
+                const newTarget = getNextAvailableTarget(existingTargets, busType);
+                targetElem.setAttribute("dev", newTarget);
+
+                const addressElem = getSingleOptionalElem(disk, "address");
+                addressElem.remove();
+            }
+        }
+    }
+
+    const tmp = document.createElement("div");
+
+    tmp.appendChild(domainElem);
+
+    return tmp.innerHTML;
 }
 
 export function unknownConnectionName(action, libvirtServiceName) {
@@ -878,11 +979,7 @@ export function unknownConnectionName(action, libvirtServiceName) {
                         // https://bugzilla.redhat.com/show_bug.cgi?id=1045069
                         connectionName => canLoggedUserConnectSession(connectionName, loggedUser))
                     .map(connectionName => dispatch(action(connectionName, libvirtServiceName)));
-
-            // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
-            // https://github.com/cockpit-project/cockpit/issues/10956
-            // eslint-disable-next-line cockpit/no-cockpit-all
-            return cockpit.all(promises);
+            return Promise.all(promises);
         });
     };
 }
@@ -892,15 +989,15 @@ export function updateBootOrder(domXml, devices) {
     if (!domainElem)
         throw new Error("updateBootOrder: domXML has no domain element");
 
-    let deviceElem = domainElem.getElementsByTagName("devices")[0];
-    let disks = deviceElem.getElementsByTagName("disk");
-    let interfaces = deviceElem.getElementsByTagName("interface");
-    let hostdevs = deviceElem.getElementsByTagName("hostdev");
-    let redirdevs = deviceElem.getElementsByTagName("redirdev");
+    const deviceElem = domainElem.getElementsByTagName("devices")[0];
+    const disks = deviceElem.getElementsByTagName("disk");
+    const interfaces = deviceElem.getElementsByTagName("interface");
+    const hostdevs = deviceElem.getElementsByTagName("hostdev");
+    const redirdevs = deviceElem.getElementsByTagName("redirdev");
 
     if (devices) {
         // only boot option in devices shall be used, boot options in OS therefore has to be removed
-        let osBootElems = domainElem.getElementsByTagName("os")[0].getElementsByTagName("boot");
+        const osBootElems = domainElem.getElementsByTagName("os")[0].getElementsByTagName("boot");
         while (osBootElems.length)
             osBootElems[0].remove();
     }
@@ -1088,10 +1185,10 @@ export function updateBootOrder(domXml, devices) {
 export function updateMaxMemory(domXml, maxMemory) {
     const domainElem = getDomainElem(domXml);
 
-    let memElem = domainElem.getElementsByTagName("memory")[0];
+    const memElem = domainElem.getElementsByTagName("memory")[0];
     memElem.textContent = `${maxMemory}`;
 
-    let tmp = document.createElement("div");
+    const tmp = document.createElement("div");
     tmp.appendChild(domainElem);
 
     return tmp.innerHTML;
@@ -1138,17 +1235,17 @@ export function updateVCPUSettings(domXml, count, max, sockets, cores, threads) 
  * The order should be kept alphabetical in this section.
  */
 
-export let canConsole = (vmState) => vmState == 'running';
-export let canDelete = (vmState, vmId, providerState) => true;
-export let canInstall = (vmState, hasInstallPhase) => vmState != 'running' && hasInstallPhase;
-export let canReset = (vmState) => vmState == 'running' || vmState == 'idle' || vmState == 'paused';
-export let canRun = (vmState, hasInstallPhase) => !hasInstallPhase && vmState == 'shut off';
-export let canSendNMI = (vmState) => canReset(vmState);
-export let canShutdown = (vmState) => canReset(vmState);
-export let canPause = (vmState) => vmState == 'running';
-export let canResume = (vmState) => vmState == 'paused';
-export let isRunning = (vmState) => canReset(vmState);
-export let serialConsoleCommand = ({ vm }) => vm.displays['pty'] ? [ 'virsh', ...VMS_CONFIG.Virsh.connections[vm.connectionName].params, 'console', vm.name ] : false;
+export const canConsole = (vmState) => vmState == 'running';
+export const canDelete = (vmState, vmId, providerState) => true;
+export const canInstall = (vmState, hasInstallPhase) => vmState != 'running' && hasInstallPhase;
+export const canReset = (vmState) => vmState == 'running' || vmState == 'idle' || vmState == 'paused';
+export const canRun = (vmState, hasInstallPhase) => !hasInstallPhase && vmState == 'shut off';
+export const canSendNMI = (vmState) => canReset(vmState);
+export const canShutdown = (vmState) => canReset(vmState);
+export const canPause = (vmState) => vmState == 'running';
+export const canResume = (vmState) => vmState == 'paused';
+export const isRunning = (vmState) => canReset(vmState);
+export const serialConsoleCommand = ({ vm }) => vm.displays.pty ? ['virsh', ...VMS_CONFIG.Virsh.connections[vm.connectionName].params, 'console', vm.name] : false;
 
 export function CHECK_LIBVIRT_STATUS({ serviceName }) {
     logDebug(`${this.name}.CHECK_LIBVIRT_STATUS`);
@@ -1157,8 +1254,8 @@ export function CHECK_LIBVIRT_STATUS({ serviceName }) {
         const dfd = cockpit.defer();
 
         libvirtService.wait(() => {
-            let activeState = libvirtService.exists ? libvirtService.state : 'stopped';
-            let unitState = libvirtService.exists && libvirtService.enabled ? 'enabled' : 'disabled';
+            const activeState = libvirtService.exists ? libvirtService.state : 'stopped';
+            const unitState = libvirtService.exists && libvirtService.enabled ? 'enabled' : 'disabled';
 
             dispatch(updateLibvirtState({
                 activeState,
@@ -1195,10 +1292,10 @@ export function CREATE_VM({ connectionName, vmName, source, sourceType, os, memo
     logDebug(`${this.name}.CREATE_VM(${vmName}):`);
     return dispatch => {
         // shows dummy vm  until we get vm from virsh (cleans up inProgress)
-        setVmCreateInProgress(dispatch, vmName, { openConsoleTab: startVm });
+        setVmCreateInProgress(dispatch, vmName, connectionName, { openConsoleTab: startVm });
 
         if (startVm) {
-            setVmInstallInProgress(dispatch, vmName);
+            setVmInstallInProgress(dispatch, vmName, connectionName);
         }
 
         return cockpit.script(createVmScript, [
@@ -1214,13 +1311,13 @@ export function CREATE_VM({ connectionName, vmName, source, sourceType, os, memo
             storageVolume,
         ], { err: "message", environ: ['LC_ALL=C'] })
                 .done(() => {
-                    finishVmCreateInProgress(dispatch, vmName);
+                    finishVmCreateInProgress(dispatch, vmName, connectionName);
                     if (startVm) {
-                        clearVmUiState(dispatch, vmName);
+                        clearVmUiState(dispatch, vmName, connectionName);
                     }
                 })
                 .fail((exception, data) => {
-                    clearVmUiState(dispatch, vmName); // inProgress cleanup
+                    clearVmUiState(dispatch, vmName, connectionName); // inProgress cleanup
                     console.info(`spawn 'vm creation' returned error: "${JSON.stringify(exception)}", data: "${JSON.stringify(data)}"`);
                 });
     };
@@ -1254,8 +1351,8 @@ export function GET_OS_INFO_LIST () {
                 parseOsInfoList(dispatch, osList);
             })
             .fail((exception, data) => {
-                parseOsInfoList(dispatch, '');
                 console.error(`get os list returned error: "${JSON.stringify(exception)}", data: "${JSON.stringify(data)}"`);
+                parseOsInfoList(dispatch, '[]');
             });
 }
 
@@ -1283,12 +1380,12 @@ export function INIT_DATA_RETRIEVAL () {
     };
 }
 
-export function INSTALL_VM({ name, vcpus, currentMemory, metadata, disks, displays, connectionName, onAddErrorNotification }) {
+export function INSTALL_VM({ name, vcpus, cpu, currentMemory, memory, metadata, disks, displays, interfaces, firmware, autostart, connectionName, onAddErrorNotification }) {
     logDebug(`${this.name}.INSTALL_VM(${name}):`);
     return dispatch => {
         // shows dummy vm until we get vm from virsh (cleans up inProgress)
         // vm should be returned even if script fails
-        setVmInstallInProgress(dispatch, name);
+        setVmInstallInProgress(dispatch, name, connectionName);
 
         return cockpit.script(installVmScript, [
             connectionName,
@@ -1296,14 +1393,17 @@ export function INSTALL_VM({ name, vcpus, currentMemory, metadata, disks, displa
             metadata.installSourceType,
             metadata.installSource,
             metadata.osVariant,
-            convertToUnit(currentMemory, units.KiB, units.MiB),
-            vcpus.count,
+            prepareMemoryParam(convertToUnit(currentMemory, units.KiB, units.MiB), convertToUnit(memory, units.KiB, units.MiB)),
+            prepareVcpuParam(vcpus, cpu),
             prepareDisksParam(disks),
             prepareDisplaysParam(displays),
+            prepareNICParam(interfaces),
+            firmware == "efi" ? 'uefi' : '',
+            autostart,
         ], { err: "message", environ: ['LC_ALL=C'] })
-                .done(() => clearVmUiState(dispatch, name))
+                .done(() => clearVmUiState(dispatch, name, connectionName))
                 .fail(ex => {
-                    clearVmUiState(dispatch, name); // inProgress cleanup
+                    clearVmUiState(dispatch, name, connectionName); // inProgress cleanup
                     buildScriptTimeoutFailHandler(
                         () => onAddErrorNotification({ text: cockpit.format(_("VM $0 failed to get installed"), name), detail: ex.message })
                         , VMS_CONFIG.WaitForRetryInstallVm);
@@ -1315,9 +1415,6 @@ export function START_LIBVIRT({ serviceName }) {
     logDebug(`${this.name}.START_LIBVIRT`);
     return dispatch => {
         return service.proxy(serviceName).start()
-                .done(() => {
-                    dispatch(checkLibvirtStatus(serviceName));
-                })
                 .fail(exception => {
                     console.info(`starting libvirt failed: "${JSON.stringify(exception)}"`);
                 });

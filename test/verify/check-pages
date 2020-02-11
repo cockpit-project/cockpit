@@ -21,9 +21,25 @@ import time
 
 import parent
 from testlib import *
+from machine_core.constants import TEST_OS_DEFAULT
 
 
 class TestPages(MachineCase):
+    def checkDocs(self, items):
+        m = self.machine
+        b = self.browser
+
+        b.click("#navbar-docs > a")
+        b.wait_visible("#navbar-docs-items")
+        expected = "Web Console"
+        expected += "".join(items)
+        # DOCUMENTATION_URL is only in Fedora
+        # RHEL is tracked in rhbz#1789984
+        if "fedora" in m.image:
+            expected = "Fedora documentation" + expected
+        b.wait_collected_text("#navbar-docs-items", expected)
+        b.click("#navbar-docs > a")
+        b.wait_not_visible("#navbar-docs-items")
 
     def testBasic(self):
         m = self.machine
@@ -58,11 +74,6 @@ OnCalendar=daily
         elif m.image in ["ubuntu-1804", "ubuntu-stable"]:
             m.execute("locale-gen de_DE && locale-gen de_DE.UTF-8 && update-locale")
 
-        # On Atomic no locales other than en_US are supported on the host itself
-        # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1186757
-        elif m.image in ["fedora-atomic"]:
-            self.allow_journal_messages("invalid or unusable locale: de_DE.UTF-8")
-
         # login so that we have a cookie.
         self.login_and_go("/system/services#/test.service")
 
@@ -70,32 +81,35 @@ OnCalendar=daily
         b.enter_page("/system/services")
         b.reload()
         b.enter_page("/system/services")
-        if m.image in ["rhel-8-0-distropkg"]: # Changed in #12265
-            b.wait_text("#service-unit .panel-heading", "Test Service")
-        else:
-            b.wait_text(".service-name", "Test Service")
-
+        b.wait_text(".service-name", "Test Service")
+        if m.image not in ["rhel-8-2-distropkg"]: # Changed in #13376
+            b.switch_to_top()
+            self.checkDocs(["Managing services"])
+            b.click("#navbar-docs > a")
+            b.wait_visible('#navbar-docs-items a:contains("Managing services")[href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_systems_using_the_rhel_8_web_console/managing-services-in-the-web-console_system-management-using-the-rhel-8-web-console"]')
+            b.wait_visible('#navbar-docs-items a:contains("Web Console")[href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_systems_using_the_rhel_8_web_console/index"]')
+            b.click("#navbar-docs > a")
+            b.wait_not_visible("#navbar-docs-items")
+            b.go("/network")
+            self.checkDocs(["Managing networking", "Managing firewall"])
+            b.go("/system/services")
 
         m.restart_cockpit()
         b.relogin("/system/services")
-        if m.image in ["rhel-8-0-distropkg"]: # Changed in #12265
-            b.wait_text("#service-unit .panel-heading", "Test Service")
-        else:
-            b.wait_text(".service-name", "Test Service")
+        b.wait_text(".service-name", "Test Service")
 
         # check that navigating away and back preserves place
         b.switch_to_top()
         b.click("a[href='/system']")
         b.enter_page("/system")
-        b.wait_present("#system_information_hostname_button")
+        b.wait_present("#system_information_systime_button")
         b.switch_to_top()
+        if m.image not in ["rhel-8-2-distropkg"]: # Changed in #13376
+            self.checkDocs(["Configuring system settings"])
         b.click("a[href='/system/services']")
         b.enter_page("/system/services")
         b.wait_present("ol.breadcrumb")
-        if m.image in ["rhel-8-0-distropkg"]: # Changed in #12265
-            b.wait_text("#service-unit .panel-heading", "Test Service")
-        else:
-            b.wait_text(".service-name", "Test Service")
+        b.wait_text(".service-name", "Test Service")
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname === "/system/services"')
         b.wait_js_cond('window.location.hash === "#/test.service"')
@@ -105,12 +119,8 @@ OnCalendar=daily
         b.switch_to_top()
         b.click("a[href='/system/services']")
         b.enter_page("/system/services")
-        if m.image in ["rhel-8-0-distropkg"]:
-            b.wait_present("#services-list-enabled")
-            b.wait_not_visible("#service-unit")
-        else:
-            b.wait_present("#services-list")
-            b.wait_not_visible("#service-details")
+        b.wait_present("#services-list")
+        b.wait_not_visible("#service-details")
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname === "/system/services"')
         b.wait_js_cond('window.location.hash === ""')
@@ -136,12 +146,8 @@ OnCalendar=daily
 
         b.switch_to_top()
 
-        # The top bar should not be visible on fedora-atomic because no dashboards
         b.wait_present(".area-ct-body")
-        if "atomic" in m.image:
-            b.wait_present(".area-ct-body.single-nav")
-        else:
-            b.wait_not_present(".area-ct-body.single-nav")
+        b.wait_not_present(".area-ct-body.single-nav")
         b.wait_present("#host-nav")
 
         # Lets try changing the language
@@ -159,15 +165,12 @@ OnCalendar=daily
         # Check that the system page is translated
         b.go("/system")
         b.enter_page("/system")
-        b.wait_in_text("#server", "Neustarten")
+        b.wait_in_text(".ct-overview-header", "Neustarten")
 
         # Systemd timer localization
         b.go("/system/services")
         b.enter_page("/system/services")
-        if m.image in ["rhel-8-0-distropkg"]:
-            b.click('#services-filter button[data-pattern=\'\\\.timer\$\']')
-        else:
-            b.click('#services-filter li:nth-child(4) a')
+        b.click('#services-filter li:nth-child(4) a')
         # HACK: the timers' next run/last trigger (col 3/4) don't always get filled (issue #9439)
         # b.wait_in_text("tr[data-goto-unit='test\.timer'] td:nth-child(3)", "morgen um")
 
@@ -197,7 +200,7 @@ OnCalendar=daily
         # Mustache section
         self.assertEqual(b.text("#translatable-mustache"), "Benutzer")
         self.assertEqual(b.text("#translate-mustache"), "Speicher")
-        self.assertEqual(b.text("#translate-mustache-yes"), "Netzwerk")
+        self.assertEqual(b.text("#translate-mustache-yes"), "Konten")
         self.assertEqual(b.attr("#translate-mustache-title", "title"), "Fehler")
         self.assertEqual(b.text("#translate-mustache-title"), "User")
         self.assertEqual(b.attr("#translate-mustache-yes-title", "title"), "Fehler")
@@ -222,7 +225,7 @@ OnCalendar=daily
         # Test all languages
         # Test that pages do not oops and that locale is valid
 
-        if m.image not in ["fedora-30"]:
+        if m.image not in [TEST_OS_DEFAULT]:
             return
 
         def line_sel(i):
@@ -231,7 +234,7 @@ OnCalendar=daily
         pages = ["/system", "/system/logs", "/network", "/users", "/system/services", "/system/terminal"]
 
         self.login_and_go('/system')
-        b.wait_present('#server')
+        b.wait_present('#overview')
 
         b.switch_to_top()
         b.click('#content-user-name')
@@ -265,11 +268,21 @@ OnCalendar=daily
                 locale.append("")
             locale = "{0}_{1}.UTF-8".format(locale[0], locale[1].upper())
 
-            b.focus('.terminal')
-            function_str = "(function (sel) { return ph_text(sel).trim() != 'Blank line'})"
-            b.wait_js_func(function_str, line_sel(1))
+            b.wait_present(".terminal .xterm-accessibility-tree")
+            b.wait_in_text(line_sel(1), "admin")
             b.key_press("echo $LANG\r")
             b.wait_in_text(line_sel(2), locale)
+
+            b.switch_to_top()
+
+            b.wait_js_func("""(function (lang) {
+                let correct = true;
+                document.querySelectorAll('#content iframe').forEach(el => {
+                    if (el.contentDocument.documentElement.lang !== lang)
+                        correct = false;
+                });
+                return correct;
+            })""", language)
 
     def testPtBRLocale(self):
         m = self.machine
@@ -285,13 +298,8 @@ OnCalendar=daily
         elif m.image in ['ubuntu-1804', 'ubuntu-stable']:
             m.execute('locale-gen pt_BR && locale-gen pt_BR.UTF-8 && update-locale')
 
-        # On Atomic no locales other than en_US are supported on the host itself
-        # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1186757
-        elif m.image in ['fedora-atomic']:
-            self.allow_journal_messages('invalid or unusable locale: pt_BR.UTF-8')
-
         self.login_and_go('/system')
-        b.wait_present('#server')
+        b.wait_present('#overview')
         b.switch_to_top()
         b.click('#content-user-name')
         b.click('.display-language-menu a')
@@ -306,15 +314,12 @@ OnCalendar=daily
         # Check that the system page is translated
         b.go('/system')
         b.enter_page('/system')
-        b.wait_in_text('#server', 'Reiniciar')
+        b.wait_in_text('.ct-overview-header', 'Reiniciar')
 
         # Systemd timer localization
         b.go('/system/services')
         b.enter_page('/system/services')
-        if m.image in ["rhel-8-0-distropkg"]:
-            b.click('#services-filter button[data-pattern=\'\\\.timer\$\']')
-        else:
-            b.click('#services-filter li:nth-child(4) a')
+        b.click('#services-filter li:nth-child(4) a')
         # HACK: the timers' next run/last trigger (col 3/4) don't always get filled (issue #9439)
         # b.wait_in_text('tr[data-goto-unit=\'test\.timer\'] td:nth-child(3)', 'morgen um')
 
@@ -339,7 +344,7 @@ OnCalendar=daily
         # Mustache section
         self.assertEqual(b.text('#translatable-mustache'), u'Usuário')
         self.assertEqual(b.text('#translate-mustache'), u'Memória')
-        self.assertEqual(b.text('#translate-mustache-yes'), 'Rede')
+        self.assertEqual(b.text('#translate-mustache-yes'), 'Contas')
         self.assertEqual(b.attr('#translate-mustache-title', 'title'), 'Erro')
         self.assertEqual(b.text('#translate-mustache-title'), 'User')
         self.assertEqual(b.attr('#translate-mustache-yes-title', 'title'), 'Erro')
@@ -387,7 +392,7 @@ OnCalendar=daily
 
         self.login_and_go()
 
-        b.wait_in_text("#host-apps", "System")
+        b.wait_in_text("#host-apps", "Overview")
         m.execute("mkdir -p /home/admin/.local/share/cockpit/foo")
         m.write("/home/admin/.local/share/cockpit/foo/manifest.json",
                 '{ "menu": { "index": { "label": "FOO!" } } }')
@@ -395,6 +400,137 @@ OnCalendar=daily
         b.wait_in_text("#host-apps", "FOO!")
 
         self.allow_restart_journal_messages()
+
+    def testMenuSearch(self):
+        b = self.browser
+        m = self.machine
+
+        # On Ubuntu and Debian we would need to generate locales - just ignore it
+        self.allow_journal_messages("invalid or unusable locale: de_DE.UTF-8")
+
+        self.login_and_go()
+
+        # Check that some page disappears and some stay
+        b.focus("#filter-menus")
+        b.set_val("#filter-menus", "se")
+        b.wait_not_present("#sidebar-menu > li > a > span:contains('Logs')")
+        b.wait_present("#sidebar-menu > li > a > span:contains('Services')")
+        b.wait_text("#sidebar-menu > li > a > span:contains('Services') mark", "Se")
+
+        b.focus("#filter-menus")
+        b.set_val("#filter-menus", "")
+        b.wait_present("#sidebar-menu > li > a > span:contains('Logs')")
+        b.wait_present("#sidebar-menu > li > a > span:contains('Services')")
+
+        # Check that any substring work
+        b.focus("#filter-menus")
+        b.set_val("#filter-menus", "CoUN")
+        b.wait_not_present("#sidebar-menu > li > a > span:contains('Overview')")
+        b.wait_present("#sidebar-menu > li > a > span:contains('Accounts')")
+        b.wait_text("#sidebar-menu > li > a > span:contains('Accounts') mark", "coun")
+
+        # Check it can also search by keywords
+        b.focus("#filter-menus")
+        b.set_val("#filter-menus", "systemd")
+        b.wait_present("#sidebar-menu > li > a > span:contains('Services')")
+        b.wait_text("#sidebar-menu > li > a > span:contains('Services')", "ServicesContains: systemd")
+        b.wait_text("#sidebar-menu > li > a > span:contains('Services') div mark", "systemd")
+
+        # Check that enter activates first result
+        b.focus("#filter-menus")
+        b.set_val("#filter-menus", "logs")
+        b.wait_not_present("#sidebar-menu > li > a > span:contains('Services')")
+        b.wait_present("#sidebar-menu > li > a > span:contains('Logs')")
+        b.focus("#filter-menus")
+        b.key_press("\r")
+        b.enter_page("/system/logs")
+        b.wait_visible("#journal")
+
+        # Visited page, search should be cleaned up
+        b.switch_to_top()
+        b.wait_val("#filter-menus", "")
+
+        # Check that escape cleans the search
+        b.set_val("#filter-menus", "logs")
+        b.wait_not_present("#sidebar-menu > li > a > span:contains('Services')")
+        b.wait_present("#sidebar-menu > li > a > span:contains('Logs')")
+        b.focus("#filter-menus")
+        b.key_press(chr(27)) # escape
+        b.wait_val("#filter-menus", "")
+        b.wait_present("#sidebar-menu > li > a > span:contains('Services')")
+
+        # Check that clicking on `Clear Search` cleans the search
+        b.set_val("#filter-menus", "logs")
+        b.wait_not_present("#sidebar-menu > li > a > span:contains('Services')")
+        b.wait_present("#sidebar-menu > li > a > span:contains('Logs')")
+        b.click("button:contains('Clear Search')")
+        b.wait_val("#filter-menus", "")
+        b.wait_present("#sidebar-menu > li > a > span:contains('Services')")
+        b.wait_not_present("button:contains('Clear Search')")
+
+        # Check that arrows navigate the menu
+        b.focus("#filter-menus")
+        b.set_val("#filter-menus", "s")
+        b.wait_not_present("#sidebar-menu > li > a > span:contains('Logs')")
+        b.key_press(chr(40), use_ord=True) # arrow down
+        b.key_press(chr(40), use_ord=True) # arrow down
+        b.key_press("\r")
+        if m.image in ["fedora-coreos"]:
+            b.enter_page("/users")
+        else:
+            b.enter_page("/storage")
+
+        # Check we jump into subpage when defined in manifest
+        b.switch_to_top()
+        b.focus("#filter-menus")
+        b.set_val("#filter-menus", "firew")
+        b.wait_present("#sidebar-menu > li > a > span:contains('Networking')")
+        b.wait_not_present("#sidebar-menu > li > a > span:contains('Overview')")
+        b.click("#sidebar-menu > li > a > span:contains('Networking')")
+        b.enter_page("/network/firewall")
+
+        # Search internationalized menu
+        b.switch_to_top()
+        b.click("#content-user-name")
+        b.click(".display-language-menu a")
+        b.wait_popup('display-language')
+        b.set_val("#display-language select", "de-de")
+        b.click("#display-language-select-button")
+        b.expect_load()
+        # HACK: work around language switching in Chrome not working in current session (issue #8160)
+        b.reload(ignore_cache=True)
+        b.wait_present("#content")
+        b.go("/system")
+        b.enter_page("/system")
+        b.wait_in_text(".ct-overview-header", "Neustarten")
+
+        b.switch_to_top()
+        b.wait_present("#sidebar-menu > li > a > span:contains('Dienste')")
+        b.wait_present("#sidebar-menu > li > a > span:contains('Protokolle')")
+        b.set_val("#filter-menus", "dien")
+        b.wait_not_present("#sidebar-menu > li > a > span:contains('Protokolle')")
+        b.wait_present("#sidebar-menu > li > a > span:contains('Dienste')")
+        b.wait_text("#sidebar-menu > li > a > span:contains('Dienste') mark", "Dien")
+
+    def testShellPreload(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go()
+
+        # Check what's going on while playground/preloaded is still invisible
+        b.switch_to_top()
+        b.wait_present('iframe[name="cockpit1:localhost/playground/preloaded"][data-loaded]')
+        b.switch_to_frame("cockpit1:localhost/playground/preloaded")
+        b.wait_js_func('ph_text_is', "#host", m.execute("hostname").replace("\n", ""))
+        time.sleep(3)
+        b.wait_js_func('ph_text_is', "#release", "")
+
+        # Now navigate to it.
+        b.switch_to_top()
+        b.go("/playground/preloaded")
+        b.enter_page("/playground/preloaded")
+        b.wait_text("#release", m.execute("cat /etc/os-release").replace("\n", ""))
 
     def testReactPatterns(self):
         b = self.browser
@@ -408,43 +544,34 @@ OnCalendar=daily
         b.wait_text("#demo-listing tbody.open th", "initially expanded")
 
         # test file completion widget
-        b.focus(".file-autocomplete-ct input")
-        for c in list("/tmp/stuff/"):
-            b.key_press(c)
+        b.focus("#demo-file-ac input[type=text]")
+        b.key_press("/tmp/stuff/")
         # need to wait for the widget's "fast typing" inhibition delay to trigger the completion popup
-        time.sleep(1)
-        b.key_press([" ", "\b"])
-        b.wait_text(".file-autocomplete-ct .dropdown-menu a[data-type='file']", "file1.txt")
-        b.wait_text(".file-autocomplete-ct .dropdown-menu a[data-type='directory']", "dir1/")
-        # no other items; b.text() removes newlines
-        b.wait_text(".file-autocomplete-ct .dropdown-menu", "dir1/file1.txt")
-        b.blur(".file-autocomplete-ct input")
-        b.wait_not_visible(".file-autocomplete-ct .dropdown-menu")
+        b.wait_text("#file-autocomplete-widget.dropdown-menu li:nth-of-type(1) a span span", "dir1/")
+        b.wait_text("#file-autocomplete-widget.dropdown-menu li:nth-of-type(2) a span span", "file1.txt")
+        b.blur("#demo-file-ac input[type=text]")
+        b.wait_not_present("#file-autocomplete-widget")
 
         # now update file1, check robustness with dynamic events
         m.execute("touch /tmp/stuff/file1.txt")
-        b.focus(".file-autocomplete-ct input")
+        b.focus("#demo-file-ac input[type=text]")
         time.sleep(1)
         b.key_press([" ", "\b"])
         # this should still be unique
-        b.wait_text(".file-autocomplete-ct .dropdown-menu a[data-type='file']", "file1.txt")
-        # no other items
-        b.wait_text(".file-autocomplete-ct .dropdown-menu", "dir1/file1.txt")
-        b.blur(".file-autocomplete-ct input")
-        b.wait_not_visible(".file-autocomplete-ct .dropdown-menu")
+        b.wait_text("#file-autocomplete-widget.dropdown-menu li:nth-of-type(2) a span span", "file1.txt")
+        b.blur("#demo-file-ac input[type=text]")
+        b.wait_not_present("#file-autocomplete-widget")
 
         # add new file
         m.execute("touch /tmp/stuff/other")
-        b.focus(".file-autocomplete-ct input")
+        b.focus("#demo-file-ac input[type=text]")
         # FIXME: need to tickle the widget to re-read the directory by changing out and back in
         b.key_press(["\b"])
         time.sleep(1)
         b.key_press("/")
-        time.sleep(1)
-        b.key_press(" ")
-        b.wait_text(".file-autocomplete-ct .dropdown-menu", "dir1/file1.txtother")
+        b.wait_text("#file-autocomplete-widget.dropdown-menu li:nth-of-type(3) a span span", "other")
 
-    @skipImage("No PCP available", "fedora-atomic")
+    @skipImage("No PCP available", "fedora-coreos")
     def testPlots(self):
         b = self.browser
         m = self.machine
@@ -523,6 +650,36 @@ OnCalendar=daily
         mem_used = meminfo['MemTotal'] - meminfo['MemAvailable']
         b.wait_js_func("ph_flot_data_plateau", "#plot_pmcd", mem_used * 0.95, mem_used * 1.05, 15, "mem")
 
+    def testPageStatus(self):
+        b = self.browser
+
+        self.login_and_go("/playground")
+
+        b.set_input_text("#type", "info")
+        b.set_input_text("#title", "My Little Page Status")
+        b.click("#set-status")
+
+        b.switch_to_top()
+        b.wait_present("#host-apps a[href='/playground'] span.fa-info-circle")
+        b.wait_present("#host-apps a[href='/playground'] span[title='My Little Page Status']")
+
+        b.go("/playground/notifications-receiver")
+        b.enter_page("/playground/notifications-receiver")
+        b.wait_text("#received-type", "info")
+        b.wait_text("#received-title", "My Little Page Status")
+
+        b.switch_to_top()
+        b.go("/playground")
+        b.enter_page("/playground")
+        b.click("#clear-status")
+
+        b.switch_to_top()
+        b.wait_not_present("#host-apps a[href='/playground'] span.fa")
+
+        b.go("/playground/notifications-receiver")
+        b.enter_page("/playground/notifications-receiver")
+        b.wait_text("#received-type", "-")
+        b.wait_text("#received-title", "-")
 
 if __name__ == '__main__':
     test_main()

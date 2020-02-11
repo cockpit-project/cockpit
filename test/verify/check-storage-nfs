@@ -37,7 +37,7 @@ class TestStorage(StorageCase):
         m.execute("systemctl restart nfs-server")
 
         # Nothing there in the beginnging
-        b.wait_visible("#nfs-mounts .empty-panel-text")
+        b.wait_visible("#nfs-mounts .listing-ct-empty")
 
         # Add /home/foo
         b.click("#nfs-mounts button .fa-plus")
@@ -50,7 +50,7 @@ class TestStorage(StorageCase):
 
         b.wait_present("#nfs-mounts td:contains(/home/foo)")
         b.wait_present("#nfs-mounts td:contains(/mnt)")
-        b.wait_text_not("#nfs-mounts tr:contains(/mnt) .usage-text", "")
+        b.wait_text_not("#nfs-mounts tr:contains(/mnt) .pf-c-progress__status", "")
 
         # Should be saved to fstab
         self.assertEqual(m.execute("grep -w nfs /etc/fstab").strip(),
@@ -67,11 +67,11 @@ class TestStorage(StorageCase):
 
         b.wait_present("#nfs-mounts td:contains(/home/bar)")
         b.wait_present("#nfs-mounts td:contains(/mounts/bar)")
-        b.wait_text_not("#nfs-mounts tr:contains(/mounts/bar) .usage-text", "")
+        b.wait_text_not("#nfs-mounts tr:contains(/mounts/bar) .pf-c-progress__status", "")
         m.execute("test -d /mounts/bar")
 
         # Go to details of /home/bar
-        b.click("#nfs-mounts tr:contains(/home/bar)")
+        b.mousedown("#nfs-mounts tr:contains(/home/bar)")
         b.wait_present('#storage-detail')
         b.wait_text('#detail-header label:contains("Server") + div', "127.0.0.1:/home/bar")
         b.wait_text('#detail-header label:contains("Mount Point") + div', "/mounts/bar")
@@ -115,7 +115,7 @@ class TestStorage(StorageCase):
         # Go to details of /home/foo
         b.go("#/")
         b.wait_visible("#storage")
-        b.click("#nfs-mounts tr:contains(/home/foo)")
+        b.mousedown("#nfs-mounts tr:contains(/home/foo)")
         b.wait_present('#storage-detail')
         b.wait_text('#detail-header label:contains("Server") + div', "127.0.0.1:/home/foo")
         b.wait_text('#detail-header label:contains("Mount Point") + div', "/mnt")
@@ -168,6 +168,7 @@ class TestStorage(StorageCase):
                 return len(choices) == 2 and "/home/foo" in choices and "/home/bar" in choices
             self.retry(None, check, None)
 
+        b.click('#dialog [data-field="remote"] input.rbt-input-main')
         wait_for_exports()
 
     def testNfsBusy(self):
@@ -182,7 +183,7 @@ class TestStorage(StorageCase):
         m.execute("systemctl restart nfs-server")
 
         # Nothing there in the beginnging
-        b.wait_visible("#nfs-mounts .empty-panel-text")
+        b.wait_visible("#nfs-mounts .listing-ct-empty")
 
         # Add /home/foo
         b.click("#nfs-mounts .fa-plus")
@@ -195,12 +196,12 @@ class TestStorage(StorageCase):
 
         b.wait_present("#nfs-mounts td:contains(/home/foo)")
         b.wait_present("#nfs-mounts td:contains(/mounts/foo)")
-        b.wait_text_not("#nfs-mounts tr:contains(/mounts/foo) .usage-text", "")
+        b.wait_text_not("#nfs-mounts tr:contains(/mounts/foo) .pf-c-progress__status", "")
 
         # Go to details of /home/foo
         b.go("#/")
         b.wait_visible("#storage")
-        b.click("#nfs-mounts tr:contains(/home/foo)")
+        b.mousedown("#nfs-mounts tr:contains(/home/foo)")
         b.wait_present('#storage-detail')
         b.wait_text('#detail-header label:contains("Server") + div', "127.0.0.1:/home/foo")
         b.wait_text('#detail-header label:contains("Mount Point") + div', "/mounts/foo")
@@ -222,7 +223,8 @@ class TestStorage(StorageCase):
         b.wait_present("#detail-header button:contains(Mount)")
 
 
-class TestStoragePackages(StorageCase, PackageCase):
+@skipImage("No udisks/cockpit-storaged on OSTree images", "fedora-coreos")
+class TestStoragePackages(PackageCase, StorageHelpers):
 
     def testNfsMissingPackages(self):
         m = self.machine

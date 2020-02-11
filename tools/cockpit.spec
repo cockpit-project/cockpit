@@ -70,21 +70,21 @@ BuildRequires: pam-devel
 
 BuildRequires: autoconf automake
 BuildRequires: /usr/bin/python3
-BuildRequires: intltool
+BuildRequires: gettext >= 0.19.7
 %if %{defined build_dashboard}
-BuildRequires: libssh-devel >= 0.7.1
+BuildRequires: libssh-devel >= 0.8
 %endif
 BuildRequires: openssl-devel
-BuildRequires: gnutls-devel
+BuildRequires: gnutls-devel >= 3.4.3
 BuildRequires: zlib-devel
-BuildRequires: krb5-devel
+BuildRequires: krb5-devel >= 1.11
 BuildRequires: libxslt-devel
 BuildRequires: docbook-style-xsl
 BuildRequires: glib-networking
 BuildRequires: sed
 
 BuildRequires: glib2-devel >= 2.37.4
-BuildRequires: systemd-devel
+BuildRequires: systemd-devel >= 235
 BuildRequires: pcp-libs-devel
 BuildRequires: krb5-server
 BuildRequires: gdb
@@ -124,6 +124,7 @@ exec 2>&1
 %configure \
     --disable-silent-rules \
     --with-cockpit-user=cockpit-ws \
+    --with-cockpit-ws-instance-user=cockpit-wsinstance \
     --with-selinux-config-type=etc_t \
     --with-appstream-data-packages='[ "appstream-data" ]' \
     --with-nfs-client-package='"nfs-utils"' \
@@ -162,9 +163,6 @@ touch dashboard.list
 
 echo '%dir %{_datadir}/cockpit/pcp' >> pcp.list
 find %{buildroot}%{_datadir}/cockpit/pcp -type f >> pcp.list
-
-echo '%dir %{_datadir}/cockpit/realmd' >> system.list
-find %{buildroot}%{_datadir}/cockpit/realmd -type f >> system.list
 
 echo '%dir %{_datadir}/cockpit/tuned' >> system.list
 find %{buildroot}%{_datadir}/cockpit/tuned -type f >> system.list
@@ -206,21 +204,23 @@ echo '%dir %{_datadir}/cockpit/playground' > tests.list
 find %{buildroot}%{_datadir}/cockpit/playground -type f >> tests.list
 
 %ifarch x86_64 %{arm} aarch64 ppc64le i686 s390x
-%if 0%{?fedora}
+%if 0%{?fedora} && 0%{?build_optional}
+%define build_docker 1
+%endif
+%endif
+
+%if 0%{?build_docker}
 echo '%dir %{_datadir}/cockpit/docker' > docker.list
 find %{buildroot}%{_datadir}/cockpit/docker -type f >> docker.list
 %else
 rm -rf %{buildroot}/%{_datadir}/cockpit/docker
-touch docker.list
-%endif
-%else
-rm -rf %{buildroot}/%{_datadir}/cockpit/docker
+rm -f %{buildroot}/%{_prefix}/share/metainfo/org.cockpit-project.cockpit-docker.metainfo.xml
 touch docker.list
 %endif
 
 # when not building basic packages, remove their files
 %if 0%{?build_basic} == 0
-for pkg in base1 branding motd kdump networkmanager realmd selinux shell sosreport ssh static systemd tuned users; do
+for pkg in base1 branding motd kdump networkmanager selinux shell sosreport ssh static systemd tuned users; do
     rm -r %{buildroot}/%{_datadir}/cockpit/$pkg
     rm -f %{buildroot}/%{_datadir}/metainfo/org.cockpit-project.cockpit-${pkg}.metainfo.xml
 done
@@ -230,7 +230,7 @@ done
 for lib in systemd tmpfiles.d firewalld; do
     rm -r %{buildroot}/%{_prefix}/%{__lib}/$lib
 done
-for libexec in cockpit-askpass cockpit-session cockpit-ws cockpit-tls cockpit-desktop; do
+for libexec in cockpit-askpass cockpit-session cockpit-ws cockpit-tls cockpit-wsinstance-factory cockpit-desktop; do
     rm %{buildroot}/%{_libexecdir}/$libexec
 done
 rm -r %{buildroot}/%{_libdir}/security %{buildroot}/%{_sysconfdir}/pam.d %{buildroot}/%{_sysconfdir}/motd.d %{buildroot}/%{_sysconfdir}/issue.d
@@ -252,6 +252,8 @@ rm -r %{buildroot}/%{_libexecdir}/cockpit-pcp %{buildroot}/%{_localstatedir}/lib
 rm -f %{buildroot}/%{_prefix}/share/metainfo/org.cockpit-project.cockpit-machines.metainfo.xml
 # files from -storaged
 rm -f %{buildroot}/%{_prefix}/share/metainfo/org.cockpit-project.cockpit-storaged.metainfo.xml
+# files from -docker
+rm -f %{buildroot}/%{_prefix}/share/metainfo/org.cockpit-project.cockpit-docker.metainfo.xml
 %endif
 
 sed -i "s|%{buildroot}||" *.list
@@ -351,7 +353,6 @@ Requires: shadow-utils
 Requires: grep
 Requires: libpwquality
 Requires: /usr/bin/date
-Provides: cockpit-realmd = %{version}-%{release}
 Provides: cockpit-shell = %{version}-%{release}
 Provides: cockpit-systemd = %{version}-%{release}
 Provides: cockpit-tuned = %{version}-%{release}
@@ -359,7 +360,7 @@ Provides: cockpit-users = %{version}-%{release}
 %if 0%{?rhel}
 Provides: cockpit-networkmanager = %{version}-%{release}
 Obsoletes: cockpit-networkmanager
-Requires: NetworkManager
+Requires: NetworkManager >= 1.6
 Provides: cockpit-kdump = %{version}-%{release}
 Requires: kexec-tools
 Recommends: polkit
@@ -367,6 +368,11 @@ Recommends: NetworkManager-team
 Recommends: setroubleshoot-server >= 3.3.3
 Provides: cockpit-selinux = %{version}-%{release}
 Provides: cockpit-sosreport = %{version}-%{release}
+%endif
+%if 0%{?fedora} >= 29
+# 0.7.0 (actually) supports task cancellation.
+# 0.7.1 fixes tasks never announcing completion.
+Recommends: (reportd >= 0.7.1 if abrt)
 %endif
 # NPM modules which are also available as packages
 Provides: bundled(js-jquery) = %{npm-version:jquery}
@@ -388,6 +394,8 @@ Requires: glib2 >= 2.37.4
 Conflicts: firewalld < 0.6.0-1
 Recommends: sscg >= 2.3
 Recommends: system-logos
+Requires: systemd >= 235
+Suggests: sssd-dbus
 Requires(post): systemd
 Requires(preun): systemd
 Requires(postun): systemd
@@ -395,12 +403,16 @@ Requires(postun): systemd
 %description ws
 The Cockpit Web Service listens on the network, and authenticates users.
 
+If sssd-dbus is installed, you can enable client certificate/smart card
+authentication via sssd/FreeIPA.
+
 %files ws -f cockpit.lang
 %doc %{_mandir}/man1/cockpit-desktop.1.gz
 %doc %{_mandir}/man5/cockpit.conf.5.gz
 %doc %{_mandir}/man8/cockpit-ws.8.gz
 %doc %{_mandir}/man8/cockpit-tls.8.gz
 %doc %{_mandir}/man8/remotectl.8.gz
+%doc %{_mandir}/man8/pam_cockpit_cert.8.gz
 %doc %{_mandir}/man8/pam_ssh_add.8.gz
 %config(noreplace) %{_sysconfdir}/cockpit/ws-certs.d
 %config(noreplace) %{_sysconfdir}/pam.d/cockpit
@@ -411,52 +423,38 @@ The Cockpit Web Service listens on the network, and authenticates users.
 %{_unitdir}/cockpit.service
 %{_unitdir}/cockpit-motd.service
 %{_unitdir}/cockpit.socket
+%{_unitdir}/cockpit-wsinstance-http.socket
+%{_unitdir}/cockpit-wsinstance-http.service
+%{_unitdir}/cockpit-wsinstance-http-redirect.socket
+%{_unitdir}/cockpit-wsinstance-http-redirect.service
+%{_unitdir}/cockpit-wsinstance-https-factory.socket
+%{_unitdir}/cockpit-wsinstance-https-factory@.service
+%{_unitdir}/cockpit-wsinstance-https@.socket
+%{_unitdir}/cockpit-wsinstance-https@.service
+%{_unitdir}/system-cockpithttps.slice
 %{_prefix}/%{__lib}/tmpfiles.d/cockpit-tempfiles.conf
 %{_sbindir}/remotectl
 %{_libdir}/security/pam_ssh_add.so
+%{_libdir}/security/pam_cockpit_cert.so
 %{_libexecdir}/cockpit-ws
+%{_libexecdir}/cockpit-wsinstance-factory
 %{_libexecdir}/cockpit-tls
 %{_libexecdir}/cockpit-desktop
-%attr(4750, root, cockpit-ws) %{_libexecdir}/cockpit-session
+%attr(4750, root, cockpit-wsinstance) %{_libexecdir}/cockpit-session
 %attr(775, -, wheel) %{_localstatedir}/lib/cockpit
 %{_datadir}/cockpit/static
 %{_datadir}/cockpit/branding
 
 %pre ws
 getent group cockpit-ws >/dev/null || groupadd -r cockpit-ws
-getent passwd cockpit-ws >/dev/null || useradd -r -g cockpit-ws -d /nonexisting -s /sbin/nologin -c "User for cockpit-ws" cockpit-ws
+getent passwd cockpit-ws >/dev/null || useradd -r -g cockpit-ws -d /nonexisting -s /sbin/nologin -c "User for cockpit web service" cockpit-ws
+getent group cockpit-wsinstance >/dev/null || groupadd -r cockpit-wsinstance
+getent passwd cockpit-wsinstance >/dev/null || useradd -r -g cockpit-wsinstance -d /nonexisting -s /sbin/nologin -c "User for cockpit-ws instances" cockpit-wsinstance
 
 %post ws
 %systemd_post cockpit.socket
 # firewalld only partially picks up changes to its services files without this
 test -f %{_bindir}/firewall-cmd && firewall-cmd --reload --quiet || true
-
-%if 0%{?rhel} || 0%{?fedora} == 29
-# HACK: SELinux policy adjustment for cockpit-tls; see https://github.com/fedora-selinux/selinux-policy-contrib/pull/114
-if type semanage >/dev/null 2>&1; then
-    set -ex
-    echo "Applying SELinux policy change for cockpit-tls.."
-    semanage fcontext -a /usr/libexec/cockpit-tls -t cockpit_ws_exec_t
-    restorecon /usr/libexec/cockpit-tls
-    tmp=$(mktemp -d)
-    cat <<EOF > $tmp/local.te
-module local 1.0;
-require {
-    type cockpit_ws_t;
-    type cockpit_ws_exec_t;
-    class unix_stream_socket { create_stream_socket_perms connectto };
-    class file { execute_no_trans};
-}
-
-allow cockpit_ws_t cockpit_ws_t:unix_stream_socket { create_stream_socket_perms connectto };
-allow cockpit_ws_t cockpit_ws_exec_t:file { execute_no_trans };
-EOF
-    checkmodule -M -m -o $tmp/local.mod $tmp/local.te
-    semodule_package -o $tmp/local.pp -m $tmp/local.mod
-    semodule -i $tmp/local.pp
-    rm -rf "$tmp"
-fi
-%endif
 
 %preun ws
 %systemd_preun cockpit.socket
@@ -502,7 +500,7 @@ sosreport tool.
 Summary: Cockpit user interface for networking, using NetworkManager
 Requires: cockpit-bridge >= %{required_base}
 Requires: cockpit-shell >= %{required_base}
-Requires: NetworkManager
+Requires: NetworkManager >= 1.6
 # Optional components
 Recommends: NetworkManager-team
 BuildArch: noarch
@@ -632,8 +630,7 @@ bastion hosts, and a basic dashboard.
 
 %endif
 
-%ifarch x86_64 %{arm} aarch64 ppc64le i686 s390x
-%if 0%{?fedora}
+%if 0%{?build_docker}
 %package -n cockpit-docker
 Summary: Cockpit user interface for Docker containers
 Requires: cockpit-bridge >= %{required_base}
@@ -646,8 +643,7 @@ The Cockpit components for interacting with Docker and user interface.
 This package is not yet complete.
 
 %files -n cockpit-docker -f docker.list
-
-%endif
+%{_datadir}/metainfo/org.cockpit-project.cockpit-docker.metainfo.xml
 %endif
 
 %package -n cockpit-packagekit

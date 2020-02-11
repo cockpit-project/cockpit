@@ -1,18 +1,48 @@
-# Cockpit Web Service Container
+# Cockpit on Fedora CoreOS or other container hosts
 
-Atomic contains the Cockpit bridge process, but not the Web Service. This means you can add an Atomic host to another Cockpit dashboard, but not connect to it directly.
+The standard Fedora and Red Hat Enterprise Linux CoreOS images does not contain
+Cockpit packages.
 
-If you want to connect directly to your Atomic Host with your web browser, use this privileged container.
+1. Install Cockpit packages as overlay RPMs:
+   ```
+   rpm-ostree install cockpit-system cockpit-ostree cockpit-podman
+   ```
 
-Run it like so:
+   Depending on your configuration, you may want to use
+   [other extensions](https://apps.fedoraproject.org/packages/s/cockpit-) as
+   well, such as `cockpit-kdump` or `cockpit-networkmanager`.
 
-    # atomic run cockpit/ws
+   If you have a custom-built OSTree, simply include the same packages in your build.
 
-And then use your web browser to log into port 9090 on your host IP address as usual.
 
-Important: This expects that Atomic (the host operating system) has the cockpit-bridge executable and cockpit-system package.
+2. Reboot
+
+3. Run the Cockpit web service with this privileged container (as root):
+   ```
+   podman container runlabel --name cockpit-ws RUN cockpit/ws
+   ```
+
+4. Make Cockpit start on boot:
+   ```
+   podman container runlabel INSTALL cockpit/ws
+   systemctl enable cockpit.service
+   ```
+
+_Steps 3 and 4 are optional if the CoreOS machine will only be connected to from another host running Cockpit._
+
+Afterward, use a web browser to log into port `9090` on your host IP address as usual.
+
+# Cockpit Web Service Container on Atomic
+
+Fedora and Red Hat Enterprise Linux Atomic contains the Cockpit bridge (cockpit-bridge package) and basic pages (cockpit-system package). Thus you can connect from remote Cockpit hosts through ssh without further modification.
+
+These older operating systems use docker instead of podman and have an `atomic` command that wraps it. To start a web service directly on these hosts, run
+```
+atomic run cockpit/ws
+```
 
 ## More Info
 
  * [Cockpit Project](https://cockpit-project.org)
  * [Cockpit Development](https://github.com/cockpit-project/cockpit)
+ * [cockpit/ws Docker hub page](https://hub.docker.com/r/cockpit/ws)

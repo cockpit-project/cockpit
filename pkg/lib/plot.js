@@ -24,7 +24,9 @@ import 'jquery-flot/jquery.flot';
 import 'jquery-flot/jquery.flot.selection';
 import 'jquery-flot/jquery.flot.time';
 
-const C_ = cockpit.gettext;
+import moment from "moment";
+
+moment.locale(cockpit.language);
 
 /* A thin abstraction over flot and metrics channels.  It mostly
  * shields you from hairy array acrobatics and having to know when it
@@ -138,7 +140,7 @@ class Metrics_series {
         this.flot_data = flot_data;
         this.interval = interval;
         this.channel = null;
-        this.chanopts_list = [ ];
+        this.chanopts_list = [];
     }
 
     stop() {
@@ -167,7 +169,7 @@ class Metrics_series {
     }
 
     hover(val) {
-        $(this).triggerHandler('hover', [ val ]);
+        $(this).triggerHandler('hover', [val]);
     }
 
     move_to_front() {
@@ -237,17 +239,17 @@ class Metrics_sum_series extends Metrics_series {
 
         this.channel = cockpit.metrics(this.interval, this.chanopts_list);
 
-        var metrics_row = this.grid.add(this.channel, [ ]);
+        var metrics_row = this.grid.add(this.channel, []);
         var factor = this.desc.factor || 1;
         var threshold = this.desc.threshold || null;
         var offset = this.desc.offset || 0;
         this.options.data = this.grid.add((row, x, n) => {
             for (let i = 0; i < n; i++) {
-                let value = offset + this.flat_sum(metrics_row[x + i]) * factor;
+                const value = offset + this.flat_sum(metrics_row[x + i]) * factor;
                 if (threshold !== null)
-                    row[x + i] = [ (this.grid.beg + x + i) * this.interval, Math.abs(value) > threshold ? value : null, threshold ];
+                    row[x + i] = [(this.grid.beg + x + i) * this.interval, Math.abs(value) > threshold ? value : null, threshold];
                 else
-                    row[x + i] = [ (this.grid.beg + x + i) * this.interval, value ];
+                    row[x + i] = [(this.grid.beg + x + i) * this.interval, value];
             }
         });
 
@@ -309,17 +311,17 @@ class Metrics_difference_series extends Metrics_series {
 
         this.channel = cockpit.metrics(this.interval, this.chanopts_list);
 
-        var metrics_row = this.grid.add(this.channel, [ ]);
+        var metrics_row = this.grid.add(this.channel, []);
         var factor = this.desc.factor || 1;
         var threshold = this.desc.threshold || null;
         var offset = this.desc.offset || 0;
         this.options.data = this.grid.add((row, x, n) => {
             for (let i = 0; i < n; i++) {
-                let value = offset + this.flat_difference(metrics_row[x + i]) * factor;
+                const value = offset + this.flat_difference(metrics_row[x + i]) * factor;
                 if (threshold !== null)
-                    row[x + i] = [ (this.grid.beg + x + i) * this.interval, Math.abs(value) > threshold ? value : null, threshold ];
+                    row[x + i] = [(this.grid.beg + x + i) * this.interval, Math.abs(value) > threshold ? value : null, threshold];
                 else
-                    row[x + i] = [ (this.grid.beg + x + i) * this.interval, value ];
+                    row[x + i] = [(this.grid.beg + x + i) * this.interval, value];
             }
         });
 
@@ -337,8 +339,8 @@ class Metrics_stacked_instances_series extends Metrics_series {
             this.chanopts_list.push({
                 source: 'direct',
                 archive_source: 'pcp-archive',
-                metrics: [ this.build_metric(this.desc.direct) ],
-                metrics_path_names: [ 'a' ],
+                metrics: [this.build_metric(this.desc.direct)],
+                metrics_path_names: ['a'],
                 instances: this.desc.instances,
                 'omit-instances': this.desc['omit-instances'],
                 host: this.desc.host
@@ -348,7 +350,7 @@ class Metrics_stacked_instances_series extends Metrics_series {
             this.chanopts_list.push({
                 source: 'pmcd',
                 metrics: this.desc.pmcd.map(this.build_metric, this),
-                metrics_path_names: [ 'a' ],
+                metrics_path_names: ['a'],
                 instances: this.desc.instances,
                 'omit-instances': this.desc['omit-instances'],
                 host: this.desc.host
@@ -358,8 +360,8 @@ class Metrics_stacked_instances_series extends Metrics_series {
         if (this.desc.internal) {
             this.chanopts_list.push({
                 source: 'internal',
-                metrics: [ this.build_metric(this.desc.internal) ],
-                metrics_path_names: [ 'a' ],
+                metrics: [this.build_metric(this.desc.internal)],
+                metrics_path_names: ['a'],
                 instances: this.desc.instances,
                 'omit-instances': this.desc['omit-instances'],
                 host: this.desc.host
@@ -373,7 +375,7 @@ class Metrics_stacked_instances_series extends Metrics_series {
         this.channel = cockpit.metrics(this.interval, this.chanopts_list);
         $(this.channel).on('changed', this.check_archives.bind(this));
         this.check_archives();
-        for (let name in this.instances)
+        for (const name in this.instances)
             this.instances[name].reset();
     }
 
@@ -388,11 +390,11 @@ class Metrics_stacked_instances_series extends Metrics_series {
         var last = this.last_instance;
 
         function reset() {
-            metrics_row = this.grid.add(this.channel, [ 'a', name ]);
+            metrics_row = this.grid.add(this.channel, ['a', name]);
             instance_data.data = this.grid.add((row, x, n) => {
                 for (let i = 0; i < n; i++) {
-                    let value = (metrics_row[x + i] || 0) * factor;
-                    let ts = (this.grid.beg + x + i) * this.interval;
+                    const value = (metrics_row[x + i] || 0) * factor;
+                    const ts = (this.grid.beg + x + i) * this.interval;
                     let floor = 0;
 
                     if (last) {
@@ -403,11 +405,11 @@ class Metrics_stacked_instances_series extends Metrics_series {
                     }
 
                     if (Math.abs(value) > threshold) {
-                        row[x + i] = [ ts, floor + value, floor ];
+                        row[x + i] = [ts, floor + value, floor];
                         if (row[x + i - 1] && row[x + i - 1][1] === null)
                             row[x + i - 1][1] = row[x + i - 1][2];
                     } else {
-                        row[x + i] = [ ts, null, floor ];
+                        row[x + i] = [ts, null, floor];
                         if (row[x + i - 1] && row[x + i - 1][1] !== null)
                             row[x + i - 1][1] = row[x + i - 1][2];
                     }
@@ -433,7 +435,7 @@ class Metrics_stacked_instances_series extends Metrics_series {
     }
 
     clear_instances() {
-        for (let i in this.instances)
+        for (const i in this.instances)
             this.instances[i].remove();
         this.instances = { };
         this.last_instance = null;
@@ -449,8 +451,8 @@ class Metrics_stacked_instances_series extends Metrics_series {
         if (index < 0)
             index = 0;
 
-        for (let name in this.instances) {
-            let d = this.instances[name].data;
+        for (const name in this.instances) {
+            const d = this.instances[name].data;
             if (d[index] && d[index][1] && d[index][2] <= pos.y && pos.y <= d[index][1])
                 return this.instances[name].selector || name;
         }
@@ -463,8 +465,8 @@ export class Plot {
         this.element = element;
         this.options = { };
 
-        this.series = [ ];
-        this.flot_data = [ ];
+        this.series = [];
+        this.flot_data = [];
         this.flot = null;
 
         this.interval = Math.ceil(x_range_seconds / 1000) * 1000;
@@ -593,8 +595,8 @@ export class Plot {
             this.series[i].stop();
 
         this.options = { };
-        this.series = [ ];
-        this.flot_data = [ ];
+        this.series = [];
+        this.flot_data = [];
         this.flot = null;
         $(this.element).empty();
         $(this.element).data('flot_data', null);
@@ -664,7 +666,7 @@ export class Plot {
 
         this.series.push(stacked_series);
         this.sync_suppressed++;
-        for (let name in stacked_series.instances)
+        for (const name in stacked_series.instances)
             stacked_series.instances[name].reset();
         this.sync_suppressed--;
         this.sync();
@@ -706,12 +708,12 @@ export class Plot {
 
     selecting(event, ranges) {
         if (ranges)
-            $(event.data).triggerHandler('zoomstart', [ ]);
+            $(event.data).triggerHandler('zoomstart', []);
     }
 
     selected(event, ranges) {
         event.data.flot.clearSelection(true);
-        $(event.data).triggerHandler('zoom', [ (ranges.xaxis.to - ranges.xaxis.from) / 1000, ranges.xaxis.to / 1000 ]);
+        $(event.data).triggerHandler('zoom', [(ranges.xaxis.to - ranges.xaxis.from) / 1000, ranges.xaxis.to / 1000]);
     }
 }
 
@@ -741,7 +743,7 @@ export function plot_simple_template() {
             tickLength: 0,
             mode: 'time',
             tickFormatter: format_date_tick,
-            minTickSize: [ 1, 'minute' ],
+            minTickSize: [1, 'minute'],
             reserveSpace: false
         },
         yaxis: {
@@ -771,26 +773,11 @@ export function plot_simple_template() {
 export function memory_ticks(opts) {
     // Not more than 5 ticks, nicely rounded to powers of 2.
     var size = Math.pow(2.0, Math.ceil(Math.log(opts.max / 5) / Math.LN2));
-    var ticks = [ ];
+    var ticks = [];
     for (let t = 0; t < opts.max; t += size)
         ticks.push(t);
     return ticks;
 }
-
-const month_names = [
-    C_("month-name", 'Jan'),
-    C_("month-name", 'Feb'),
-    C_("month-name", 'Mar'),
-    C_("month-name", 'Apr'),
-    C_("month-name", 'May'),
-    C_("month-name", 'Jun'),
-    C_("month-name", 'Jul'),
-    C_("month-name", 'Aug'),
-    C_("month-name", 'Sep'),
-    C_("month-name", 'Oct'),
-    C_("month-name", 'Nov'),
-    C_("month-name", 'Dec')
-];
 
 export function format_date_tick(val, axis) {
     function pad(n) {
@@ -852,7 +839,7 @@ export function format_date_tick(val, axis) {
     if (year_index >= begin && year_index <= end)
         label += d.getFullYear().toFixed() + ' ';
     if (month_index >= begin && month_index <= end)
-        label += month_names[d.getMonth()] + ' ';
+        label += moment(d).format('MMM') + ' ';
     if (day_index >= begin && day_index <= end)
         label += d.getDate().toFixed() + ' ';
     if (hour_minute_index >= begin && hour_minute_index <= end)
@@ -899,13 +886,13 @@ export function format_bits_per_sec_tick(val, axis) {
 
 export function setup_plot_controls(container, element, plots) {
     var plot_min_x_range = 5 * 60;
-    var plot_zoom_steps = [ 5 * 60, 60 * 60, 6 * 60 * 60, 24 * 60 * 60, 7 * 24 * 60 * 60, 30 * 24 * 60 * 60, 365 * 24 * 60 * 60 ];
+    var plot_zoom_steps = [5 * 60, 60 * 60, 6 * 60 * 60, 24 * 60 * 60, 7 * 24 * 60 * 60, 30 * 24 * 60 * 60, 365 * 24 * 60 * 60];
     var plot_x_range = 5 * 60;
     var plot_x_stop;
-    var zoom_history = [ ];
+    var zoom_history = [];
 
     element.find('[data-range]').click(function () {
-        zoom_history = [ ];
+        zoom_history = [];
         plot_x_range = parseInt($(this).attr('data-range'), 10);
         plot_reset();
     });
@@ -972,22 +959,22 @@ export function setup_plot_controls(container, element, plots) {
         var n;
         if (seconds >= 365 * 24 * 60 * 60) {
             n = Math.ceil(seconds / (365 * 24 * 60 * 60));
-            return cockpit.format(cockpit.ngettext('$0 year', '$0 years', n), n);
+            return cockpit.format(cockpit.ngettext("$0 year", "$0 years", n), n);
         } else if (seconds >= 30 * 24 * 60 * 60) {
             n = Math.ceil(seconds / (30 * 24 * 60 * 60));
-            return cockpit.format(cockpit.ngettext('$0 month', '$0 months', n), n);
+            return cockpit.format(cockpit.ngettext("$0 month", "$0 months", n), n);
         } else if (seconds >= 7 * 24 * 60 * 60) {
             n = Math.ceil(seconds / (7 * 24 * 60 * 60));
-            return cockpit.format(cockpit.ngettext('$0 week', '$0 weeks', n), n);
+            return cockpit.format(cockpit.ngettext("$0 week", "$0 weeks", n), n);
         } else if (seconds >= 24 * 60 * 60) {
             n = Math.ceil(seconds / (24 * 60 * 60));
-            return cockpit.format(cockpit.ngettext('$0 day', '$0 days', n), n);
+            return cockpit.format(cockpit.ngettext("$0 day", "$0 days", n), n);
         } else if (seconds >= 60 * 60) {
             n = Math.ceil(seconds / (60 * 60));
-            return cockpit.format(cockpit.ngettext('$0 hour', '$0 hours', n), n);
+            return cockpit.format(cockpit.ngettext("$0 hour", "$0 hours", n), n);
         } else {
             n = Math.ceil(seconds / 60);
-            return cockpit.format(cockpit.ngettext('$0 minute', '$0 minutes', n), n);
+            return cockpit.format(cockpit.ngettext("$0 minute", "$0 minutes", n), n);
         }
     }
 
@@ -1051,7 +1038,7 @@ export function setup_plot_controls(container, element, plots) {
 
     function reset(p) {
         if (p === undefined)
-            p = [ ];
+            p = [];
         plots = p;
         plots.forEach(function (p) {
             $(p).on('zoomstart', function (event) { zoom_plot_start() });
@@ -1069,7 +1056,7 @@ export function setup_plot_controls(container, element, plots) {
 
 export function setup_plot(graph_id, grid, data, user_options) {
     var options = {
-        colors: [ '#0099d3' ],
+        colors: ['#0099d3'],
         legend: { show: false },
         series: {
             shadowSize: 0,
@@ -1161,6 +1148,9 @@ export function setup_plot(graph_id, grid, data, user_options) {
     function refresh() {
         if (plot && running) {
             plot.setData(data);
+
+            $(graph_id).data('flot_data', data);
+
             if (user_options.setup_hook)
                 user_options.setup_hook(plot);
             plot.setupGrid();

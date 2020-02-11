@@ -16,7 +16,7 @@ $(function () {
     };
     plot_direct.set_options(options_direct);
     plot_direct.add_metrics_difference_series({
-        direct: [ "mem.physmem", "mem.util.available" ],
+        direct: ["mem.physmem", "mem.util.available"],
         units: "bytes"
     }, { });
 
@@ -32,16 +32,16 @@ $(function () {
     };
     plot_pmcd.set_options(options_pmcd);
     plot_pmcd.add_metrics_difference_series({
-        pmcd: [ "mem.physmem", "mem.util.available" ],
+        pmcd: ["mem.physmem", "mem.util.available"],
         units: "bytes"
     }, { });
 
-    $("body").show();
+    $("body").prop("hidden", false);
     $("#plot_direct").css({ height: "200px" });
     $("#plot_pmcd").css({ height: "200px" });
     plot_direct.resize();
     plot_pmcd.resize();
 
     var plot_controls = plot.setup_plot_controls($('body'), $('#toolbar'));
-    plot_controls.reset([ plot_direct, plot_pmcd ]);
+    plot_controls.reset([plot_direct, plot_pmcd]);
 });

@@ -1,4 +1,5 @@
 from testlib_avocado.seleniumlib import SeleniumTest, clickable, visible
+from testlib_avocado.libnetwork import Veth, Bond
 import os
 import sys
 
@@ -13,17 +14,21 @@ class NeworkTestSuite(SeleniumTest):
     """
 
     def setUp(self):
-        super(NeworkTestSuite, self).setUp()
+        super().setUp()
         self.login()
-        self.click(self.wait_link('Network', cond=clickable))
-        self.wait_frame("network")
-        self.wait_id("networking", jscheck=True)
+        self.reload_frame()
+
+    def reload_frame(self):
+        self.mainframe()
+        self.refresh("network", self.wait_link('Network', cond=clickable))
+        self.wait_id("networking")
 
     def testBasePage(self):
-        main_interface = self.machine.execute("/usr/sbin/ip r | grep default | head -1 | cut -d ' ' -f 5").strip()
         self.wait_id("networking-interfaces")
-        self.assertNotEqual(main_interface, '')
-        self.wait_xpath("//tr[@data-interface='{}']".format(main_interface))
+        with Veth(self.machine, "ttiface") as veth:
+            veth.left.set_ipv4("192.168.226.22/24", "192.168.226.1")
+            veth.left.con_up()
+            self.wait_xpath("//tr[@data-interface='{}']".format(veth.left.name))
 
     def testGraphs(self):
         self.wait_id("networking-interfaces", cond=visible)
@@ -46,3 +51,32 @@ class NeworkTestSuite(SeleniumTest):
         self.wait_text("Bond Settings")
         self.click(self.wait_id("network-bond-settings-cancel", cond=clickable))
         self.wait_id("networking-interfaces", cond=visible)
+
+
+class Bonding(NeworkTestSuite):
+    """
+    :avocado: enable
+    """
+    if_prefix = "tt"
+
+    def setUp(self):
+        super().setUp()
+        self.veth1 = Veth(self.machine, self.if_prefix + "sla1")
+        self.bond = Bond(self.machine, self.if_prefix + "bnd")
+        self.bond.attach_slave(self.veth1.left)
+        self.bond.set_ipv4("192.168.223.150/24", "192.168.1.1")
+        self.reload_frame()
+
+    def tearDown(self):
+        super().tearDown()
+        self.bond.cleanup()
+        self.veth1.cleanup()
+        self.bond.remove_connections("^" + self.if_prefix)
+
+    def testSlaveRemove(self):
+        self.wait_css("#networking-interfaces tr[data-interface='%s']" % self.bond.name, cond=clickable)
+        self.click(self.wait_css("#networking-interfaces tr[data-interface='%s']" % self.bond.name, cond=clickable))
+        self.click(self.wait_xpath("//tr[@data-interface='%s']//button" % self.veth1.left.name, cond=clickable))
+        self.click(self.wait_link("Networking", cond=clickable))
+
+        self.wait_xpath("//tr[@data-interface='%s']//td[contains(text(), 'Configuring IP')]" % self.veth1.left.name, cond=clickable)

@@ -39,14 +39,12 @@ import sys
 import termios
 import errno
 
-_PY3 = sys.version[0] >= '3'
-_str = _PY3 and str or unicode
 
 def out(data, stream=None, flush=False):
     if not isinstance(data, bytes):
         data = data.encode("UTF-8")
     if not stream:
-        stream = _PY3 and sys.stdout.buffer or sys.stdout
+        stream = sys.stdout.buffer
     while True:
         try:
             if data:
@@ -101,7 +99,7 @@ class Driver:
         if self.color_tests:
             out('\x1b[m')
         out(": ")
-        msg = "".join([ self.test_name + " " ] + list(map(_str, args)))
+        msg = "".join([ self.test_name + " " ] + list(map(str, args)))
         if code == "PASS" and len(msg) > self.width:
             out(msg[:self.width])
             out("...")
@@ -164,8 +162,7 @@ class Driver:
                 if data == b"":
                     rset.remove(errf)
                 self.log.write(data)
-                stream = _PY3 and sys.stderr.buffer or sys.stderr
-                out(data, stream=stream, flush=True)
+                out(data, stream=sys.stderr.buffer, flush=True)
 
         proc.wait()
 

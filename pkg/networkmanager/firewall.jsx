@@ -21,13 +21,13 @@ import cockpit from "cockpit";
 import React from "react";
 import ReactDOM from "react-dom";
 import {
-    Alert,
     Button,
     ListView,
     Modal,
     OverlayTrigger,
     Tooltip
 } from "patternfly-react";
+import { Alert } from '@patternfly/react-core';
 
 import firewall from "./firewall-client.js";
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
@@ -55,7 +55,7 @@ function ServiceRow(props) {
     var tcp = props.service.ports.filter(p => p.protocol.toUpperCase() == 'TCP');
     var udp = props.service.ports.filter(p => p.protocol.toUpperCase() == 'UDP');
 
-    for (let s of props.service.includes) {
+    for (const s of props.service.includes) {
         if (firewall.services[s]) {
             tcp = tcp.concat(firewall.services[s].ports.filter(p => p.protocol.toUpperCase() == 'TCP'));
             udp = udp.concat(firewall.services[s].ports.filter(p => p.protocol.toUpperCase() == 'UDP'));
@@ -74,52 +74,50 @@ function ServiceRow(props) {
     if (props.readonly) {
         deleteButton = (
             <OverlayTrigger className="pull-right" placement="top"
-                            overlay={ <Tooltip id="tip-auth">{ _("You are not authorized to modify the firewall.") }</Tooltip> } >
-                <button className="btn btn-danger pficon pficon-delete" disabled />
+                            overlay={ <Tooltip id="tip-auth">{ _("You are not authorized to modify the firewall.") }</Tooltip> }>
+                <span>
+                    <button key={props.service.id + "-delete-button"} className="btn btn-danger pficon pficon-delete" aria-label={cockpit.format(_("Not authorized to remove service $0"), props.service.id)} style={{ pointerEvents: 'none' }} disabled />
+                </span>
             </OverlayTrigger>
         );
     } else {
-        deleteButton = <button className="btn btn-danger pficon pficon-delete" onClick={onRemoveService} />;
+        deleteButton = <button key={props.service.id + "-delete-button"} className="btn btn-danger pficon pficon-delete" onClick={onRemoveService} aria-label={cockpit.format(_("Remove service $0"), props.service.id)} />;
     }
 
     var columns = [
         { name: props.service.name, header: true },
-        <div>
+        <div key={props.service.id + "tcp"}>
             { tcp.map(p => p.port).join(', ') }
         </div>,
-        <div>
+        <div key={props.service.id + "udp"}>
             { udp.map(p => p.port).join(', ') }
         </div>,
-        <div>
-            { props.zones.filter(z => z.services.indexOf(props.service.id) !== -1).map(z => z.name || z.id)
-                    .join(', ') }
-        </div>,
-        deleteButton
+        null
     ];
 
-    let description, includes, simpleBody;
+    let description, includes;
     if (props.service.description)
         description = <p>{props.service.description}</p>;
 
     if (props.service.includes.length > 0) {
-        includes = <React.Fragment>
+        includes = <>
             <h5>Included Services</h5>
             <ul>{props.service.includes.map(s => {
-                let service = firewall.services[s];
+                const service = firewall.services[s];
                 if (service && service.description)
                     return <li key={service.id}><strong>{service.name}</strong>: {service.description}</li>;
-            })} </ul></React.Fragment>;
+            })} </ul></>;
     }
-    if (description || includes)
-        simpleBody = <React.Fragment>{description}{includes}</React.Fragment>;
+    const simpleBody = <>{description}{includes}</>;
 
     return <ListingRow key={props.service.id}
                        rowId={props.service.id}
                        columns={columns}
-                       simpleBody={simpleBody} />;
+                       simpleBody={simpleBody}
+                       listingActions={[deleteButton]} />;
 }
 
-function ZoneRow(props) {
+function ZoneSection(props) {
     function onRemoveZone(event) {
         if (event.button !== 0)
             return;
@@ -131,25 +129,56 @@ function ZoneRow(props) {
     let deleteButton;
     if (props.readonly) {
         deleteButton = (
-            <OverlayTrigger className="pull-right" placement="top"
-                            overlay={ <Tooltip id="tip-auth">{ _("You are not authorized to modify the firewall.") }</Tooltip> } >
-                <button className="btn btn-danger pficon pficon-delete" disabled />
+            <OverlayTrigger placement="top"
+                            overlay={ <Tooltip id="tip-auth">{ _("You are not authorized to modify the firewall.") }</Tooltip> }>
+                <button className="btn btn-danger pficon pficon-delete" aria-label={cockpit.format(_("Not authorized to remove zone $0"), props.zone.id)} disabled />
             </OverlayTrigger>
         );
     } else {
-        deleteButton = <button className="btn btn-danger pficon pficon-delete" onClick={onRemoveZone} />;
+        deleteButton = <button className="btn btn-danger pficon pficon-delete" onClick={onRemoveZone} aria-label={cockpit.format(_("Remove zone $0"), props.zone.id)} />;
     }
 
-    let columns = [
-        { name: props.zone.name, header: true },
-        <React.Fragment>{ props.zone.id === firewall.defaultZone ? <React.Fragment><span className="fa fa-check" /> default</React.Fragment> : '' }</React.Fragment>,
-        <React.Fragment>{ props.zone.interfaces.length > 0 ? props.zone.interfaces.join(', ') : '*' }</React.Fragment>,
-        <React.Fragment>{ props.zone.source.length > 0 ? props.zone.source.join(', ') : '*' }</React.Fragment>,
-        deleteButton,
-    ];
-    return <ListingRow key={props.zone.id}
-                       rowId={props.zone.id}
-                       columns={columns} />;
+    let addServiceAction;
+    if (firewall.readonly) {
+        addServiceAction = (
+            <OverlayTrigger placement="top"
+                                overlay={ <Tooltip id="tip-auth">{ _("You are not authorized to modify the firewall.") }</Tooltip> }>
+                <Button bsStyle="primary" className="pull-right" aria-label={cockpit.format(_("Not authorized to add services to zone $0"), props.zone.id)} disabled> {_("Add Services")} </Button>
+            </OverlayTrigger>
+        );
+    } else {
+        addServiceAction = (
+            <Button bsStyle="primary" onClick={() => props.openServicesDialog(props.zone.id, props.zone.name)} className="add-services-button" aria-label={cockpit.format(_("Add services to zone $0"), props.zone.id)}>
+                {_("Add Services")}
+            </Button>
+        );
+    }
+
+    return <div className="zone-section" data-id={props.zone.id}>
+        <div className="zone-section-heading">
+            <span>
+                <h4>{ cockpit.format(_("$0 Zone"), props.zone.name) }</h4>
+                <div className="zone-section-targets">
+                    { props.zone.interfaces.length > 0 && <span className="zone-section-target"><strong>{_("Interfaces")}</strong> {props.zone.interfaces.join(", ")}</span> }
+                    { props.zone.source.length > 0 && <span className="zone-section-target"><strong>{_("Addresses")}</strong> {props.zone.source.join(", ")}</span> }
+                </div>
+            </span>
+            <div className="zone-section-buttons">{deleteButton}{addServiceAction}</div>
+        </div>
+        {props.zone.services.length > 0 &&
+        <Listing columnTitles={[_("Service"), _("TCP"), _("UDP"), ""]}
+                     emptyCaption={_("There are no active services in this zone")}>
+            { props.zone.services.map(s => {
+                if (s in firewall.services)
+                    return <ServiceRow key={firewall.services[s].id}
+                                       service={firewall.services[s]}
+                                       onRemoveService={service => props.onRemoveService(props.zone.id, service)}
+                                       readonly={firewall.readonly} />;
+            })
+            }
+        </Listing>
+        }
+    </div>;
 }
 
 class SearchInput extends React.Component {
@@ -161,7 +190,7 @@ class SearchInput extends React.Component {
     }
 
     onValueChanged(event) {
-        let value = event.target.value;
+        const value = event.target.value;
         this.setState({ value:value });
 
         if (this.timer)
@@ -183,10 +212,10 @@ class SearchInput extends React.Component {
 }
 
 const renderPorts = service => {
-    let tcpPorts = [];
-    let udpPorts = [];
+    const tcpPorts = [];
+    const udpPorts = [];
     function addPorts(ports) {
-        for (let port of ports) {
+        for (const port of ports) {
             if (port.protocol === "tcp")
                 tcpPorts.push(port.port);
             else
@@ -194,14 +223,14 @@ const renderPorts = service => {
         }
     }
     addPorts(service.ports);
-    for (let s of service.includes)
+    for (const s of service.includes)
         addPorts(firewall.services[s].ports);
 
     return (
-        <React.Fragment>
+        <>
             { tcpPorts.length > 0 && <span className="service-ports tcp"><strong>TCP: </strong>{ tcpPorts.join(', ') }</span> }
             { udpPorts.length > 0 && <span className="service-ports udp"><strong>UDP: </strong>{ udpPorts.join(', ') }</span> }
-        </React.Fragment>
+        </>
     );
 };
 
@@ -224,8 +253,6 @@ class AddServicesModal extends React.Component {
             custom_udp_ports: [],
             custom_tcp_value: "",
             custom_udp_value: "",
-            /* If only one zone is active, automatically add services to that zone */
-            zones: firewall.activeZones.size === 1 ? [firewall.defaultZone] : [],
             dialogError: null,
             dialogErrorDetail: null,
         };
@@ -239,7 +266,6 @@ class AddServicesModal extends React.Component {
         this.parseServices = this.parseServices.bind(this);
         this.generateName = this.generateName.bind(this);
         this.onToggleType = this.onToggleType.bind(this);
-        this.onToggleZone = this.onToggleZone.bind(this);
     }
 
     createPorts() {
@@ -252,9 +278,9 @@ class AddServicesModal extends React.Component {
     save() {
         let p;
         if (this.state.custom) {
-            p = firewall.createService(this.state.custom_id, this.state.custom_name, this.createPorts(), this.state.zones);
+            p = firewall.createService(this.state.custom_id, this.state.custom_name, this.createPorts(), this.props.zoneId);
         } else {
-            p = firewall.addServices(this.state.zones, [...this.state.selected]);
+            p = firewall.addServices(this.props.zoneId, [...this.state.selected]);
         }
         p.then(() => this.props.close())
                 .catch(error => {
@@ -270,7 +296,7 @@ class AddServicesModal extends React.Component {
         var enabled = event.target.checked;
 
         this.setState(oldState => {
-            let selected = new Set(oldState.selected);
+            const selected = new Set(oldState.selected);
 
             if (enabled)
                 selected.add(service);
@@ -296,23 +322,23 @@ class AddServicesModal extends React.Component {
     parseServices(content) {
         if (!content) {
             console.warn("Couldn't read /etc/services");
-            return [ ];
+            return [];
         }
 
         var ret = {};
         content.split('\n').forEach(line => {
             if (!line || line.startsWith("#"))
                 return;
-            let m = line.match(/^(\S+)\s+(\d+)\/(\S+).*?(#(.*))?$/);
-            let new_port = { name: m[1], port: m[2], type: [m[3]] };
+            const m = line.match(/^(\S+)\s+(\d+)\/(\S+).*?(#(.*))?$/);
+            const new_port = { name: m[1], port: m[2], type: [m[3]] };
             if (m.length > 5 && m[5])
-                new_port['description'] = m[5].trim();
+                new_port.description = m[5].trim();
             if (ret[m[1]])
-                ret[m[1]]['type'].push(new_port['type'][0]);
+                ret[m[1]].type.push(new_port.type[0]);
             else
                 ret[m[1]] = new_port;
             if (ret[m[2]])
-                ret[m[2]]['type'].push(new_port['type'][0]);
+                ret[m[2]].type.push(new_port.type[0]);
             else
                 ret[m[2]] = new_port;
         });
@@ -327,9 +353,9 @@ class AddServicesModal extends React.Component {
     }
 
     getName(port) {
-        let known = this.state.avail_services[port];
+        const known = this.state.avail_services[port];
         if (known)
-            return known['name'];
+            return known.name;
         else
             return port;
     }
@@ -337,9 +363,9 @@ class AddServicesModal extends React.Component {
     generateName(all_ports) {
         var name = "";
         if (all_ports.length === 1) {
-            let known = this.state.avail_services[all_ports[0]];
+            const known = this.state.avail_services[all_ports[0]];
             if (known)
-                name = known['description'] || known['name'];
+                name = known.description || known.name;
             else
                 name = all_ports[0];
         } else if (all_ports.length > 1) {
@@ -353,14 +379,14 @@ class AddServicesModal extends React.Component {
 
     getPortNumber(port, type, avail) {
         if (!avail) {
-            let num_p = Number(port);
+            const num_p = Number(port);
             if (isNaN(num_p))
                 return [0, _("Unknown service name")];
             else if (num_p <= 0 || num_p > 65535)
                 return [0, _("Invalid port number")];
             else
                 return [port, ""];
-        } else if (avail['type'].indexOf(type) < 0)
+        } else if (avail.type.indexOf(type) < 0)
             return [0, _("Port number and type do not match")];
         else {
             return [avail.port, ""];
@@ -368,14 +394,14 @@ class AddServicesModal extends React.Component {
     }
 
     validate(event) {
-        let ports = event.target.value.split(',');
+        const ports = event.target.value.split(',');
         let error = "";
         let targets = ['tcp', 'custom_tcp_ports', 'tcp_error', 'custom_tcp_value'];
         if (event.target.id === "udp-ports")
             targets = ['udp', 'custom_udp_ports', 'udp_error', 'custom_udp_value'];
 
-        let new_ports = [];
-        let self = this;
+        const new_ports = [];
+        const self = this;
         ports.forEach(function(port) {
             port = port.trim();
             if (!port)
@@ -403,9 +429,11 @@ class AddServicesModal extends React.Component {
                     new_ports.push(ports);
             }
         });
-        let newState = { [targets[1]]: new_ports,
-                         [targets[2]]: error,
-                         [targets[3]]: event.target.value };
+        const newState = {
+            [targets[1]]: new_ports,
+            [targets[2]]: error,
+            [targets[3]]: event.target.value
+        };
 
         let name = this.state.custom_name;
         let all_ports = new_ports.concat(this.state.custom_udp_ports);
@@ -415,25 +443,16 @@ class AddServicesModal extends React.Component {
         if (this.state.generate_name)
             name = this.generateName(all_ports);
 
-        let new_id = "custom--" + all_ports.map(this.getName).join('-');
+        const new_id = "custom--" + all_ports.map(this.getName).join('-');
 
-        newState['custom_name'] = name;
-        newState['custom_id'] = new_id;
+        newState.custom_name = name;
+        newState.custom_id = new_id;
         this.setState(newState);
     }
 
     onToggleType(event) {
         this.setState({
             custom: event.target.value === "ports"
-        });
-    }
-
-    onToggleZone(event) {
-        let zone = event.target.value;
-        this.setState(state => {
-            if (state.zones.indexOf(zone) === -1)
-                return { zones: state.zones.concat(zone) };
-            return { zones: state.zones.filter(z => z !== zone) };
         });
     }
 
@@ -459,7 +478,7 @@ class AddServicesModal extends React.Component {
         let services;
         if (this.state.filter && this.state.services && !isNaN(this.state.filter))
             services = this.state.services.filter(s => {
-                for (let port of s.ports)
+                for (const port of s.ports)
                     if (port.port === this.state.filter)
                         return true;
                 return false;
@@ -469,46 +488,26 @@ class AddServicesModal extends React.Component {
         else
             services = this.state.services;
 
-        // hide services which have been enabled in all zones
-        if (services) {
-            services = services.filter(s => {
-                let allZonesContainService = true;
-                for (let zone of firewall.activeZones)
-                    allZonesContainService &= firewall.zones[zone].services.indexOf(s.id) !== -1;
-                return !allZonesContainService;
-            });
-        }
+        // hide services which have been enabled in the zone
+        if (services)
+            services = services.filter(s => firewall.zones[this.props.zoneId].services.indexOf(s.id) === -1);
 
-        var addText = this.state.custom ? _("Add Ports") : _("Add Services");
-        var zonesText = this.state.custom ? _("Add ports to the following zones:") : _("Add services to following zones:");
+        const addText = this.state.custom ? _("Add Ports") : _("Add Services");
+        const titleText = this.state.custom ? cockpit.format(_("Add ports to $0 zone"), this.props.zoneName) : cockpit.format(_("Add services to $0 zone"), this.props.zoneName);
         return (
             <Modal id="add-services-dialog" show onHide={this.props.close}>
                 <Modal.Header>
-                    <Modal.Title> {addText} </Modal.Title>
+                    <Modal.Title> {titleText} </Modal.Title>
                 </Modal.Header>
                 <div id="cockpit_modal_dialog">
                     <Modal.Body id="add-services-dialog-body">
-                        { firewall.activeZones.size > 1 &&
-                            <React.Fragment>
-                                <form className="ct-form horizontal">
-                                    <label htmlFor="zone-input">{zonesText}</label>
-                                    <fieldset id="zone-input">
-                                        { Array.from(firewall.activeZones).sort((a, b) => a.localeCompare(b))
-                                                .map(z =>
-                                                    <label className="radio" key={z}>
-                                                        <input type="checkbox" value={z} onChange={this.onToggleZone} />{ firewall.zones[z].name || z }{ z === firewall.defaultZone && " " + _("(default)") }
-                                                    </label>) }
-                                    </fieldset>
-                                </form>
-                                <hr />
-                            </React.Fragment>}
                         <form action="" className="toggle-body ct-form">
                             <label className="radio ct-form-full">
                                 <input type="radio" name="type" value="services" onChange={this.onToggleType} defaultChecked />
                                 {_("Services")}
                             </label>
                             { this.state.custom ||
-                                <React.Fragment>
+                                <>
                                     { services ? (
                                         <fieldset>
                                             <div className="ct-form">
@@ -541,14 +540,14 @@ class AddServicesModal extends React.Component {
                                     ) : (
                                         <div className="spinner spinner-lg" />
                                     )}
-                                </React.Fragment>
+                                </>
                             }
                             <label className="radio ct-form-full">
                                 <input type="radio" name="type" value="ports" onChange={this.onToggleType} disabled={this.state.avail_services == null} />
                                 {_("Custom Ports")}
                             </label>
                             { !this.state.custom ||
-                                <React.Fragment>
+                                <>
                                     <label className="control-label" htmlFor="hint" hidden>Hint</label>
                                     <p id="hint">
                                         {_("Comma-separated ports, ranges, and aliases are accepted")}
@@ -572,7 +571,7 @@ class AddServicesModal extends React.Component {
                                     <label className="control-label" htmlFor="service-name">Name</label>
                                     <input id="service-name" className="form-control" type="text" onChange={this.setName}
                                            placeholder={_("(Optional)")} value={this.state.custom_name} />
-                                </React.Fragment>
+                                </>
                             }
                         </form>
                     </Modal.Body>
@@ -582,83 +581,15 @@ class AddServicesModal extends React.Component {
                         this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />
                     }
                     { !this.state.custom ||
-                        <Alert type="warning">
-                            { _("Adding custom ports will reload firewalld. A reload will result in the loss of any runtime-only configuration!")}
-                        </Alert>
+                        <Alert variant="warning"
+                            isInline
+                            title={_("Adding custom ports will reload firewalld. A reload will result in the loss of any runtime-only configuration!")} />
                     }
                     <Button bsStyle='default' className='btn-cancel' onClick={this.props.close}>
                         {_("Cancel")}
                     </Button>
-                    <Button bsStyle='primary' onClick={this.save}>
+                    <Button bsStyle='primary' onClick={this.save} aria-label={titleText}>
                         {addText}
-                    </Button>
-                </Modal.Footer>
-            </Modal>
-        );
-    }
-}
-
-class RemoveServicesModal extends React.Component {
-    constructor(props) {
-        super(props);
-
-        this.zonesWithService = Array.from(firewall.activeZones)
-                .filter(z => firewall.zones[z].services.indexOf(this.props.service) !== -1);
-        this.state = {
-            zones: this.zonesWithService.length === 1 ? this.zonesWithService : [],
-            dialogError: undefined,
-            dialogErrorDetail: undefined,
-        };
-        this.save = this.save.bind(this);
-        this.onToggleZone = this.onToggleZone.bind(this);
-    }
-
-    save() {
-        firewall.removeServiceFromZones(this.state.zones, this.props.service)
-                .then(() => this.props.close())
-                .catch(error => {
-                    this.setState({
-                        dialogError: _("Failed to remove service"),
-                        dialogErrorDetail: error.name + ": " + error.message,
-                    });
-                });
-    }
-
-    onToggleZone(event) {
-        let zone = event.target.value;
-        this.setState(state => {
-            if (state.zones.indexOf(zone) === -1)
-                return { zones: state.zones.concat(zone) };
-            return { zones: state.zones.filter(z => z !== zone) };
-        });
-    }
-
-    render() {
-        return (
-            <Modal id="remove-services-dialog" show onHide={this.props.close}>
-                <Modal.Header>
-                    <Modal.Title>{ _("Remove service from zones") }</Modal.Title>
-                </Modal.Header>
-                <Modal.Body id="remove-services-dialog-body">
-                    <form className="ct-form horizontal">
-                        <fieldset id="zone-input">
-                            { this.zonesWithService.map(z =>
-                                <label className="radio" key={z}>
-                                    <input type="checkbox" value={z} onChange={this.onToggleZone} defaultChecked={ this.zonesWithService.length === 1 } />
-                                    { z }{ z === firewall.defaultZone && " " + _("(default)") }
-                                </label>) }
-                        </fieldset>
-                    </form>
-                </Modal.Body>
-                <Modal.Footer>
-                    {
-                        this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />
-                    }
-                    <Button bsStyle="default" className="btn-cancel" onClick={this.props.close}>
-                        { _("Cancel") }
-                    </Button>
-                    <Button bsStyle="primary" onClick={this.save} disabled={ this.zonesWithService.length === 0 || this.state.zones.length === 0 }>
-                        { _("Remove service") }
                     </Button>
                 </Modal.Footer>
             </Modal>
@@ -684,10 +615,10 @@ class ActivateZoneModal extends React.Component {
     }
 
     onInterfaceChange(event) {
-        let int = event.target.value;
-        let enabled = event.target.checked;
+        const int = event.target.value;
+        const enabled = event.target.checked;
         this.setState(state => {
-            let interfaces = new Set(state.interfaces);
+            const interfaces = new Set(state.interfaces);
             if (enabled)
                 interfaces.add(int);
             else
@@ -701,29 +632,36 @@ class ActivateZoneModal extends React.Component {
     }
 
     save() {
-        let sources = this.state.ipRange === "ip-range" ? this.state.ipRangeValue.split(",").map(ip => ip.trim()) : [];
-        firewall.activateZone(this.state.zone, [...this.state.interfaces], sources)
-                .then(() => this.props.close())
-                .catch(error => {
-                    this.setState({
-                        dialogError: _("Failed to add zone"),
-                        dialogErrorDetail: error.name + ": " + error.message,
-                    });
-                });
+        let p;
+        if (firewall.zones[this.state.zone].services.indexOf("cockpit") === -1)
+            p = firewall.addService(this.state.zone, "cockpit");
+        else
+            p = Promise.resolve();
+
+        const sources = this.state.ipRange === "ip-range" ? this.state.ipRangeValue.split(",").map(ip => ip.trim()) : [];
+        p.then(() =>
+            firewall.activateZone(this.state.zone, [...this.state.interfaces], sources)
+                    .then(() => this.props.close())
+                    .catch(error => {
+                        this.setState({
+                            dialogError: _("Failed to add zone"),
+                            dialogErrorDetail: error.name + ": " + error.message,
+                        });
+                    }));
     }
 
     render() {
-        let zones = Object.keys(firewall.zones).filter(z => firewall.zones[z].target === "default" && !firewall.activeZones.has(z));
-        let customZones = zones.filter(z => firewall.predefinedZones.indexOf(z) === -1);
-        let interfaces = firewall.availableInterfaces.filter(i => {
+        const zones = Object.keys(firewall.zones).filter(z => firewall.zones[z].target === "default" && !firewall.activeZones.has(z));
+        const customZones = zones.filter(z => firewall.predefinedZones.indexOf(z) === -1);
+        const interfaces = firewall.availableInterfaces.filter(i => {
             let inZone = false;
             firewall.activeZones.forEach(z => {
                 inZone |= firewall.zones[z].interfaces.indexOf(i.device) !== -1;
             });
             return !inZone;
         });
-        let virtualDevices = interfaces.filter(i => i.capabilities >= 7 && i.device !== "lo").sort((a, b) => a.device.localeCompare(b.device));
-        let physicalDevices = interfaces.filter(i => (i.capabilities < 5 || i.capabilities > 7) && i.device !== "lo").sort((a, b) => a.device.localeCompare(b.device));
+        const virtualDevices = interfaces.filter(i => i.capabilities >= 7 && i.device !== "lo").sort((a, b) => a.device.localeCompare(b.device));
+        const physicalDevices = interfaces.filter(i => (i.capabilities < 5 || i.capabilities > 7) && i.device !== "lo").sort((a, b) => a.device.localeCompare(b.device));
         return (
             <Modal id="add-zone-dialog" show onHide={this.props.close}>
                 <Modal.Header>
@@ -762,6 +700,7 @@ class ActivateZoneModal extends React.Component {
                         <label htmlFor="add-zone-services-readonly" className="control-label">{ _("Included services") }</label>
                         <div id="add-zone-services-readonly">
                             { (this.state.zone && firewall.zones[this.state.zone].services.join(", ")) || _("None") }
+                            <legend>{_("The cockpit service is automatically included")}</legend>
                         </div>
 
                         <label htmlFor="add-zone-interface" className="control-label">{ _("Interfaces") }</label>
@@ -790,6 +729,7 @@ class ActivateZoneModal extends React.Component {
                             </label>
                             { this.state.ipRange === "ip-range" && <input id="add-zone-ip" onChange={e => this.onChange("ipRangeValue", e.target.value)} /> }
                         </div>
+                        <div>{ this.state.ipRange === "ip-range" && <legend>{_("IP address with routing prefix. Separate multiple values with a comma. Example: 192.0.2.0/24, 2001:db8::/32")}</legend> }</div>
                     </form>
                 </Modal.Body>
                 <Modal.Footer>
@@ -811,22 +751,45 @@ class ActivateZoneModal extends React.Component {
     }
 }
 
+function DeleteConfirmationModal(props) {
+    return (
+        <Modal id="delete-confirmation-dialog" show>
+            <Modal.Header>
+                <Modal.Title>{ props.title }</Modal.Title>
+            </Modal.Header>
+            <Modal.Body className="delete-confirmation-body">
+                {props.body && <span className="fa fa-exclamation-triangle" />}
+                <div>{props.body}</div>
+            </Modal.Body>
+            <Modal.Footer>
+                <Button bsStyle="default" className="btn-cancel" onClick={props.onCancel}>
+                    { _("Cancel") }
+                </Button>
+                <Button bsStyle="danger" onClick={props.onDelete} aria-label={cockpit.format(_("Confirm removal of $0"), props.target)}>
+                    { _("Delete") }
+                </Button>
+            </Modal.Footer>
+        </Modal>
+    );
+}
+
 export class Firewall extends React.Component {
     constructor() {
         super();
 
         this.state = {
-            showAddServicesModal: false,
-            showRemoveServicesModal: false,
+            addServicesModal: undefined,
+            deleteConfirmationModal: undefined,
             firewall,
             pendingTarget: null /* `null` for not pending */
         };
 
         this.onFirewallChanged = this.onFirewallChanged.bind(this);
         this.onSwitchChanged = this.onSwitchChanged.bind(this);
-        this.onRemoveService = this.onRemoveService.bind(this);
         this.openServicesDialog = this.openServicesDialog.bind(this);
         this.openAddZoneDialog = this.openAddZoneDialog.bind(this);
+        this.onRemoveZone = this.onRemoveZone.bind(this);
+        this.onRemoveService = this.onRemoveService.bind(this);
         this.close = this.close.bind(this);
     }
 
@@ -848,12 +811,44 @@ export class Firewall extends React.Component {
             firewall.disable();
     }
 
-    onRemoveService(service) {
-        this.setState({ showRemoveServicesModal: service });
+    onRemoveZone(zone) {
+        let body;
+        if (firewall.zones[zone].services.indexOf("cockpit") !== -1)
+            body = _("This zone contains the cockpit service. Make sure that this zone does not apply to your current web console connection.");
+        else
+            body = _("Removing the zone will remove all services within it.");
+        this.setState({
+            deleteConfirmationModal: <DeleteConfirmationModal title={ cockpit.format(_("Remove zone $0"), zone) }
+            body={body}
+            target={zone}
+            onCancel={ () =>
+                this.setState({ deleteConfirmationModal: undefined })
+            }
+        onDelete={ () => {
+            firewall.deactiveateZone(zone);
+            this.setState({ deleteConfirmationModal: undefined });
+        }} />
+        });
     }
 
-    onRemoveZone(zone) {
-        firewall.deactiveateZone(zone);
+    onRemoveService(zone, service) {
+        if (service === 'cockpit') {
+            const body = _("Removing the cockpit service might result in the web console becoming unreachable. Make sure that this zone does not apply to your current web console connection.");
+            this.setState({
+                deleteConfirmationModal: <DeleteConfirmationModal title={ cockpit.format(_("Remove $0 service from $1 zone"), service, zone) }
+                body={body}
+                target={service}
+                onCancel={ () =>
+                    this.setState({ deleteConfirmationModal: undefined })
+                }
+                onDelete={ () => {
+                    firewall.removeService(zone, service);
+                    this.setState({ deleteConfirmationModal: undefined });
+                }} />
+            });
+        } else {
+            firewall.removeService(zone, service);
+        }
     }
 
     componentDidMount() {
@@ -866,14 +861,14 @@ export class Firewall extends React.Component {
 
     close() {
         this.setState({
-            showAddServicesModal: false,
+            addServicesModal: undefined,
             showRemoveServicesModal: false,
             showActivateZoneModal: false,
         });
     }
 
-    openServicesDialog() {
-        this.setState({ showAddServicesModal: true });
+    openServicesDialog(zoneId, zoneName) {
+        this.setState({ addServicesModal: <AddServicesModal zoneId={zoneId} zoneName={zoneName} close={this.close} /> });
     }
 
     openAddZoneDialog() {
@@ -896,28 +891,17 @@ export class Firewall extends React.Component {
             );
         }
 
-        var addServiceAction, addZoneAction;
+        var addZoneAction;
         if (this.state.firewall.readonly) {
-            addServiceAction = (
-                <OverlayTrigger className="pull-right" placement="top"
-                                overlay={ <Tooltip id="tip-auth">{ _("You are not authorized to modify the firewall.") }</Tooltip> } >
-                    <Button bsStyle="primary" className="pull-right" disabled> {_("Add Services")} </Button>
-                </OverlayTrigger>
-            );
             addZoneAction = (
                 <OverlayTrigger className="pull-right" placement="top"
-                                overlay={ <Tooltip id="tip-auth">{ _("You are not authorized to modify the firewall.") }</Tooltip> } >
-                    <Button bsStyle="primary" className="pull-right" disabled> {_("Add Zone")} </Button>
+                                overlay={ <Tooltip id="tip-auth">{ _("You are not authorized to modify the firewall.") }</Tooltip> }>
+                    <Button bsStyle="primary" className="pull-right" aria-label={_("Not authorized to add a new zone")} disabled> {_("Add Zone")} </Button>
                 </OverlayTrigger>
             );
         } else {
-            addServiceAction = (
-                <Button bsStyle="primary" onClick={this.openServicesDialog} className="pull-right" id="add-services-button">
-                    {_("Add Services")}
-                </Button>
-            );
             addZoneAction = (
-                <Button bsStyle="primary" onClick={this.openAddZoneDialog} className="pull-right" id="add-zone-button">
+                <Button bsStyle="primary" onClick={this.openAddZoneDialog} className="pull-right" id="add-zone-button" aria-label={_("Add a new zone")}>
                     {_("Add Zone")}
                 </Button>
             );
@@ -930,7 +914,9 @@ export class Firewall extends React.Component {
         });
         services.sort((a, b) => a.name.localeCompare(b.name));
 
-        var zones = [...this.state.firewall.activeZones].map(id => {
+        var zones = [...this.state.firewall.activeZones].sort((z1, z2) =>
+            z1 === firewall.defaultZone ? -1 : z2 === firewall.defaultZone ? 1 : 0
+        ).map(id => {
             const zone = this.state.firewall.zones[id];
             zone.name = zone.name || id;
             return zone;
@@ -938,49 +924,54 @@ export class Firewall extends React.Component {
 
         var enabled = this.state.pendingTarget !== null ? this.state.pendingTarget : this.state.firewall.enabled;
 
+        let firewallOnOff;
+        if (firewall.readonly) {
+            firewallOnOff = <OverlayTrigger className="pull-right" placement="top"
+                                            overlay={ <Tooltip id="tip-auth">{ _("You are not authorized to modify the firewall.") }</Tooltip> }>
+                <OnOffSwitch state={enabled}
+                             onChange={this.onSwitchChanged}
+                             aria-label={enabled ? _("Not authorized to disable the firewall") : _("Not authorized to enable the firewall")}
+                             disabled />
+            </OverlayTrigger>;
+        } else {
+            firewallOnOff = <OnOffSwitch state={enabled}
+                                         disabled={!!this.state.pendingTarget}
+                                         onChange={this.onSwitchChanged}
+                                         aria-label={enabled ? _("Disable the firewall") : _("Enable the firewall")} />;
+        }
+
         return (
-            <div className="container-fluid page-ct">
-                <ol className="breadcrumb">
-                    <li><a tabIndex="0" onClick={go_up}>{_("Networking")}</a></li>
-                    <li className="active">{_("Firewall")}</li>
-                </ol>
-                <h1>
-                    {_("Firewall")}
-                    <OnOffSwitch state={enabled}
-                                 disabled={!!this.state.pendingTarget}
-                                 onChange={this.onSwitchChanged} />
-                </h1>
-                <div id="zones-listing">
-                    { enabled && <Listing title={_("Active zones")}
-                             columnTitles={[ _("Zone"), "", _("Interfaces"), _("IP Range"), "" ]}
-                             emptyCaption={_("No active zones")}
-                             actions={addZoneAction}>
-                        {
-                            zones.map(z => <ZoneRow key={z.id}
-                                                    zone={z}
-                                                    readonly={this.state.firewall.readonly}
-                                                    onRemoveZone={this.onRemoveZone} />)
-                        }
-                    </Listing> }
+            <>
+                <div id="firewall-heading">
+                    <ol className="breadcrumb">
+                        <li><button role="link" className="link-button" onClick={go_up}>{_("Networking")}</button></li>
+                        <li className="active">{_("Firewall")}</li>
+                    </ol>
+                    <div id="firewall-heading-title">
+                        <span id="firewall-heading-title-group">
+                            <h1>{_("Firewall")}</h1>
+                            { firewallOnOff }
+                        </span>
+                        { enabled && <span className="btn-group">{addZoneAction}</span> }
+                    </div>
                 </div>
-                <div id="services-listing">
-                    { enabled && <Listing title={_("Allowed Services")}
-                             columnTitles={[ _("Service"), _("TCP"), _("UDP"), _("Zones"), "" ]}
-                             emptyCaption={_("No open ports")}
-                             actions={addServiceAction}>
+                <div id="zones-listing" className="container-fluid page-ct">
+                    { enabled && <>
                         {
-                            services.map(s => <ServiceRow key={s.id}
-                                                      service={s}
-                                                      zones={zones}
-                                                      readonly={this.state.firewall.readonly}
-                                                      onRemoveService={this.onRemoveService} />)
+                            zones.map(z => <ZoneSection key={z.id}
+                                                        zone={z}
+                                                        openServicesDialog={this.openServicesDialog}
+                                                        readonly={this.state.firewall.readonly}
+                                                        onRemoveZone={this.onRemoveZone}
+                                                        onRemoveService={this.onRemoveService} />
+                            )
                         }
-                    </Listing> }
+                    </> }
                 </div>
-                { this.state.showAddServicesModal && <AddServicesModal close={this.close} /> }
-                { this.state.showRemoveServicesModal && <RemoveServicesModal service={this.state.showRemoveServicesModal} close={this.close} /> }
+                { this.state.addServicesModal !== undefined && this.state.addServicesModal }
+                { this.state.deleteConfirmationModal !== undefined && this.state.deleteConfirmationModal }
                 { this.state.showActivateZoneModal && <ActivateZoneModal close={this.close} /> }
-            </div>
+            </>
         );
     }
 }

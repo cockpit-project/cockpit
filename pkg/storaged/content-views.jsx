@@ -27,10 +27,10 @@ import * as utils from "./utils.js";
 import React from "react";
 
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
-import { StorageButton, StorageLink } from "./storage-controls.jsx";
+import { StorageButton, StorageLink, StorageBarMenu, StorageMenuItem } from "./storage-controls.jsx";
 import { format_dialog } from "./format-dialog.jsx";
 
-import { FilesystemTab } from "./fsys-tab.jsx";
+import { FilesystemTab, is_mounted, mounting_dialog } from "./fsys-tab.jsx";
 import { CryptoTab } from "./crypto-tab.jsx";
 import { BlockVolTab, PoolVolTab } from "./lvol-tabs.jsx";
 import { PVolTab, MDRaidMemberTab, VDOBackingTab } from "./pvol-tabs.jsx";
@@ -68,8 +68,10 @@ function create_tabs(client, target, is_partition) {
     }
 
     var block = endsWith(target.iface, ".Block") ? target : null;
+    var block_fsys = block && client.blocks_fsys[block.path];
     var block_lvm2 = block && client.blocks_lvm2[block.path];
     var block_pvol = block && client.blocks_pvol[block.path];
+    var block_swap = block && client.blocks_swap[block.path];
 
     var lvol = (endsWith(target.iface, ".LogicalVolume")
         ? target
@@ -78,26 +80,27 @@ function create_tabs(client, target, is_partition) {
     var is_filesystem = (block && block.IdUsage == 'filesystem');
     var is_crypto = (block && block.IdUsage == 'crypto');
 
-    var warnings = client.path_warnings[target.path] || [ ];
+    var warnings = client.path_warnings[target.path] || [];
 
-    var tabs = [ ];
+    var tabs = [];
     var row_action = null;
 
     function add_tab(name, renderer, associated_warnings) {
-        let tab_warnings = [ ];
+        let tab_warnings = [];
         if (associated_warnings)
             tab_warnings = warnings.filter(w => associated_warnings.indexOf(w.warning) >= 0);
         if (tab_warnings.length > 0)
             name = <span><span className="pficon pficon-warning-triangle-o" /> {name}</span>;
         tabs.push(
-            { name: name,
-              renderer: renderer,
-              data: {
-                  client: client,
-                  block: block,
-                  lvol: lvol,
-                  warnings: tab_warnings,
-              }
+            {
+                name: name,
+                renderer: renderer,
+                data: {
+                    client: client,
+                    block: block,
+                    lvol: lvol,
+                    warnings: tab_warnings,
+                }
             });
     }
 
@@ -106,25 +109,28 @@ function create_tabs(client, target, is_partition) {
         if (!vgroup)
             return;
 
-        dialog_open({ Title: _("Create Thin Volume"),
-                      Fields: [
-                          TextInput("name", _("Name"),
-                                    { value: next_default_logical_volume_name(client, vgroup),
-                                      validate: utils.validate_lvm2_name
-                                    }),
-                          SizeSlider("size", _("Size"),
-                                     { value: lvol.Size,
-                                       max: lvol.Size * 3,
-                                       allow_infinite: true,
-                                       round: vgroup.ExtentSize
-                                     })
-                      ],
-                      Action: {
-                          Title: _("Create"),
-                          action: function (vals) {
-                              return vgroup.CreateThinVolume(vals.name, vals.size, lvol.path, { });
-                          }
-                      }
+        dialog_open({
+            Title: _("Create Thin Volume"),
+            Fields: [
+                TextInput("name", _("Name"),
+                          {
+                              value: next_default_logical_volume_name(client, vgroup),
+                              validate: utils.validate_lvm2_name
+                          }),
+                SizeSlider("size", _("Size"),
+                           {
+                               value: lvol.Size,
+                               max: lvol.Size * 3,
+                               allow_infinite: true,
+                               round: vgroup.ExtentSize
+                           })
+            ],
+            Action: {
+                Title: _("Create"),
+                action: function (vals) {
+                    return vgroup.CreateThinVolume(vals.name, vals.size, lvol.path, { });
+                }
+            }
         });
     }
 
@@ -133,7 +139,7 @@ function create_tabs(client, target, is_partition) {
             add_tab(_("Pool"), PoolVolTab);
             row_action = <StorageButton onClick={create_thin}>{_("Create Thin Volume")}</StorageButton>;
         } else {
-            add_tab(_("Volume"), BlockVolTab, [ "unused-space" ]);
+            add_tab(_("Volume"), BlockVolTab, ["unused-space"]);
         }
     }
 
@@ -141,8 +147,10 @@ function create_tabs(client, target, is_partition) {
         add_tab(_("Partition"), PartitionTab);
     }
 
+    let is_unrecognized = false;
+
     if (is_filesystem) {
-        add_tab(_("Filesystem"), FilesystemTab);
+        add_tab(_("Filesystem"), FilesystemTab, ["mismounted-fsys"]);
     } else if (is_crypto) {
         add_tab(_("Encryption"), CryptoTab);
     } else if ((block && block.IdUsage == "raid" && block.IdType == "LVM2_member") ||
@@ -156,13 +164,19 @@ function create_tabs(client, target, is_partition) {
     } else if (block && block.IdUsage == "other" && block.IdType == "swap") {
         add_tab(_("Swap"), SwapTab);
     } else if (block) {
+        is_unrecognized = true;
         add_tab(_("Unrecognized Data"), UnrecognizedTab);
     }
 
-    var tab_actions = [ ];
+    var tab_actions = [];
+    var tab_menu_actions = [];
 
-    function add_action(title, func, excuse) {
-        tab_actions.push(<StorageButton key={title} onClick={func} excuse={excuse}>{title}</StorageButton>);
+    function add_action(title, func) {
+        tab_actions.push(<StorageButton key={title} onClick={func}>{title}</StorageButton>);
+    }
+
+    function add_menu_action(title, func) {
+        tab_menu_actions.push({ title: title, func: func });
     }
 
     function lock() {
@@ -176,13 +190,13 @@ function create_tabs(client, target, is_partition) {
     function clevis_unlock() {
         var dev = utils.decode_filename(block.Device);
         var clear_dev = "luks-" + block.IdUUID;
-        return cockpit.spawn([ "clevis", "luks", "unlock", "-d", dev, "-n", clear_dev ],
+        return cockpit.spawn(["clevis", "luks", "unlock", "-d", dev, "-n", clear_dev],
                              { superuser: true })
                 .catch(() => {
                     // HACK - https://github.com/latchset/clevis/issues/36
                     // Clevis-luks-unlock before version 10 always exit 1, so
                     // we check whether the expected device exists afterwards.
-                    return cockpit.spawn([ "test", "-e", "/dev/mapper/" + clear_dev ],
+                    return cockpit.spawn(["test", "-e", "/dev/mapper/" + clear_dev],
                                          { superuser: true });
                 });
     }
@@ -219,23 +233,24 @@ function create_tabs(client, target, is_partition) {
                 }
             }
 
-            dialog_open({ Title: _("Unlock"),
-                          Fields: [
-                              PassInput("passphrase", _("Passphrase"), {})
-                          ],
-                          Action: {
-                              Title: _("Unlock"),
-                              action: function (vals) {
-                                  return crypto.Unlock(vals.passphrase, {});
-                              }
-                          }
+            dialog_open({
+                Title: _("Unlock"),
+                Fields: [
+                    PassInput("passphrase", _("Passphrase"), {})
+                ],
+                Action: {
+                    Title: _("Unlock"),
+                    action: function (vals) {
+                        return crypto.Unlock(vals.passphrase, {});
+                    }
+                }
             });
         });
     }
 
     if (is_crypto) {
         if (client.blocks_cleartext[block.path]) {
-            add_action(_("Lock"), lock);
+            add_menu_action(_("Lock"), lock);
         } else {
             add_action(_("Unlock"), unlock);
         }
@@ -249,12 +264,46 @@ function create_tabs(client, target, is_partition) {
         return lvol.Deactivate({});
     }
 
+    function create_snapshot() {
+        dialog_open({
+            Title: _("Create Snapshot"),
+            Fields: [
+                TextInput("name", _("Name"),
+                          { validate: utils.validate_lvm2_name }),
+            ],
+            Action: {
+                Title: _("Create"),
+                action: function (vals) {
+                    return lvol.CreateSnapshot(vals.name, vals.size || 0, { });
+                }
+            }
+        });
+    }
+
     if (lvol) {
         if (lvol.Active) {
-            add_action(_("Deactivate"), deactivate);
+            add_menu_action(_("Deactivate"), deactivate);
         } else {
             add_action(_("Activate"), activate);
         }
+        if (client.lvols[lvol.ThinPool]) {
+            add_menu_action(_("Create Snapshot"), create_snapshot);
+        }
+    }
+
+    function swap_start() {
+        return block_swap.Start({});
+    }
+
+    function swap_stop() {
+        return block_swap.Stop({});
+    }
+
+    if (block_swap) {
+        if (block_swap.Active)
+            add_menu_action(_("Stop"), swap_stop);
+        else
+            add_menu_action(_("Start"), swap_start);
     }
 
     function delete_() {
@@ -280,47 +329,55 @@ function create_tabs(client, target, is_partition) {
             var usage = utils.get_active_usage(client, target.path);
 
             if (usage.Blocking) {
-                dialog_open({ Title: cockpit.format(_("$0 is in active use"), name),
-                              Body: BlockingMessage(usage)
+                dialog_open({
+                    Title: cockpit.format(_("$0 is in active use"), name),
+                    Body: BlockingMessage(usage)
                 });
                 return;
             }
 
-            dialog_open({ Title: cockpit.format(_("Please confirm deletion of $0"), name),
-                          Footer: TeardownMessage(usage),
-                          Action: {
-                              Danger: danger,
-                              Title: _("Delete"),
-                              action: function () {
-                                  return utils.teardown_active_usage(client, usage)
-                                          .then(function () {
-                                              if (lvol)
-                                                  return lvol.Delete({ 'tear-down': { t: 'b', v: true }
-                                                  });
-                                              else if (block_part)
-                                                  return block_part.Delete({ 'tear-down': { t: 'b', v: true }
-                                                  });
-                                          });
-                              }
-                          }
+            dialog_open({
+                Title: cockpit.format(_("Please confirm deletion of $0"), name),
+                Footer: TeardownMessage(usage),
+                Action: {
+                    Danger: danger,
+                    Title: _("Delete"),
+                    action: function () {
+                        return utils.teardown_active_usage(client, usage)
+                                .then(function () {
+                                    if (lvol)
+                                        return lvol.Delete({ 'tear-down': { t: 'b', v: true } });
+                                    else if (block_part)
+                                        return block_part.Delete({ 'tear-down': { t: 'b', v: true } });
+                                });
+                    }
+                }
             });
         }
     }
 
     if (is_partition || lvol) {
-        var excuse = null;
-        if (client.is_old_udisks2 && is_crypto && client.blocks_cleartext[block.path])
-            excuse = _("Can't delete while unlocked");
-        add_action(_("Delete"), delete_, excuse);
+        add_menu_action(_("Delete"), delete_);
     }
 
     if (block) {
-        add_action(_("Format"), () => format_dialog(client, block.path));
+        if (is_unrecognized)
+            add_action(_("Format"), () => format_dialog(client, block.path));
+        else
+            add_menu_action(_("Format"), () => format_dialog(client, block.path));
+    }
+
+    if (block_fsys) {
+        if (is_mounted(client, block))
+            add_menu_action(_("Unmount"), () => mounting_dialog(client, block, "unmount"));
+        else
+            add_action(_("Mount"), () => mounting_dialog(client, block, "mount"));
     }
 
     return {
         renderers: tabs,
-        actions: <React.Fragment>{tab_actions}</React.Fragment>,
+        actions: tab_actions,
+        menu_actions: tab_menu_actions,
         row_action: row_action,
         has_warnings: warnings.length > 0
     };
@@ -387,18 +444,28 @@ function append_row(client, rows, level, key, name, desc, tabs, job_object) {
     }
 
     var cols = [
-        <span className={"content-level-" + level}>
+        <span key={name} className={"content-level-" + level}>
             {utils.format_size_and_text(desc.size, desc.text)}
         </span>,
-        { name: name, 'header': true },
+        { name: name, header: true },
         { name: last_column, tight: true },
     ];
+
+    function menuitem(action) {
+        return <StorageMenuItem key={action.title} onClick={action.func}>{action.title}</StorageMenuItem>;
+    }
+
+    var menu = null;
+    if (tabs.menu_actions && tabs.menu_actions.length > 0)
+        menu = <StorageBarMenu id={"menu-" + name}>{tabs.menu_actions.map(menuitem)}</StorageBarMenu>;
+
+    var actions = <>{tabs.actions}{menu}</>;
 
     rows.push(
         <ListingRow key={key}
                     columns={cols}
                     tabRenderers={tabs.renderers}
-                    listingActions={tabs.actions} />
+                    listingActions={actions} />
     );
 }
 
@@ -436,7 +503,7 @@ function append_partitions(client, rows, level, block) {
         );
 
         var cols = [
-            <span className={"content-level-" + level}>
+            <span key={start.toString() + size.toString()} className={"content-level-" + level}>
                 {utils.format_size_and_text(size, _("Free Space"))}
             </span>,
             "",
@@ -486,7 +553,7 @@ function append_device(client, rows, level, block) {
 // then return proper React component hierarchy based on this collected data.
 // Benefit: much easier debugging, better manipulation with "key" props and relying on well-tested React's functionality
 function block_rows(client, block) {
-    var rows = [ ];
+    var rows = [];
     append_device(client, rows, 0, block);
     return rows;
 }
@@ -502,45 +569,53 @@ const BlockContent = ({ client, block, allow_partitions }) => {
         var usage = utils.get_active_usage(client, block.path);
 
         if (usage.Blocking) {
-            dialog_open({ Title: cockpit.format(_("$0 is in active use"), utils.block_name(block)),
-                          Body: BlockingMessage(usage),
+            dialog_open({
+                Title: cockpit.format(_("$0 is in active use"), utils.block_name(block)),
+                Body: BlockingMessage(usage),
             });
             return;
         }
 
-        dialog_open({ Title: cockpit.format(_("Format Disk $0"), utils.block_name(block)),
-                      Footer: TeardownMessage(usage),
-                      Fields: [
-                          SelectOne("erase", _("Erase"),
-                                    { choices: [
-                                        { value: "no", title: _("Don't overwrite existing data") },
-                                        { value: "zero", title: _("Overwrite existing data with zeros") }
-                                    ] }),
-                          SelectOne("type", _("Partitioning"),
-                                    { value: "gpt",
-                                      choices: [
-                                          { value: "dos", title: _("Compatible with all systems and devices (MBR)") },
-                                          { value: "gpt",
-                                            title: _("Compatible with modern system and hard disks > 2TB (GPT)")
-                                          },
-                                          { value: "empty", title: _("No partitioning") }
-                                      ] })
-                      ],
-                      Action: {
-                          Title: _("Format"),
-                          Danger: _("Formatting a disk will erase all data on it."),
-                          action: function (vals) {
-                              var options = { 'no-block': { t: 'b', v: true },
-                                              'tear-down': { t: 'b', v: true }
-                              };
-                              if (vals.erase != "no")
-                                  options.erase = { t: 's', v: vals.erase };
-                              return utils.teardown_active_usage(client, usage)
-                                      .then(function () {
-                                          return block.Format(vals.type, options);
-                                      });
-                          }
-                      }
+        dialog_open({
+            Title: cockpit.format(_("Format Disk $0"), utils.block_name(block)),
+            Footer: TeardownMessage(usage),
+            Fields: [
+                SelectOne("erase", _("Erase"),
+                          {
+                              choices: [
+                                  { value: "no", title: _("Don't overwrite existing data") },
+                                  { value: "zero", title: _("Overwrite existing data with zeros") }
+                              ]
+                          }),
+                SelectOne("type", _("Partitioning"),
+                          {
+                              value: "gpt",
+                              choices: [
+                                  { value: "dos", title: _("Compatible with all systems and devices (MBR)") },
+                                  {
+                                      value: "gpt",
+                                      title: _("Compatible with modern system and hard disks > 2TB (GPT)")
+                                  },
+                                  { value: "empty", title: _("No partitioning") }
+                              ]
+                          })
+            ],
+            Action: {
+                Title: _("Format"),
+                Danger: _("Formatting a disk will erase all data on it."),
+                action: function (vals) {
+                    var options = {
+                        'no-block': { t: 'b', v: true },
+                        'tear-down': { t: 'b', v: true }
+                    };
+                    if (vals.erase != "no")
+                        options.erase = { t: 's', v: vals.erase };
+                    return utils.teardown_active_usage(client, usage)
+                            .then(function () {
+                                return block.Format(vals.type, options);
+                            });
+                }
+            }
         });
     }
 
@@ -619,8 +694,8 @@ function append_logical_volume(client, rows, level, lvol) {
 }
 
 function vgroup_rows(client, vgroup) {
-    var rows = [ ];
-    (client.vgroups_lvols[vgroup.path] || [ ]).forEach(function (lvol) {
+    var rows = [];
+    (client.vgroups_lvols[vgroup.path] || []).forEach(function (lvol) {
         if (lvol.ThinPool == "/" && lvol.Origin == "/")
             append_logical_volume(client, rows, 0, lvol);
     });
@@ -636,24 +711,29 @@ export class VGroup extends React.Component {
             if (vgroup.FreeSize == 0)
                 return;
 
-            dialog_open({ Title: _("Create Logical Volume"),
-                          Fields: [
-                              TextInput("name", _("Name"),
-                                        { value: next_default_logical_volume_name(self.props.client, vgroup),
-                                          validate: utils.validate_lvm2_name
-                                        }),
-                              SelectOne("purpose", _("Purpose"),
-                                        { value: "block",
-                                          choices: [
-                                              { value: "block",
-                                                title: _("Block device for filesystems"),
-                                              },
-                                              { value: "pool", title: _("Pool for thinly provisioned volumes") }
-                                              /* Not implemented
+            dialog_open({
+                Title: _("Create Logical Volume"),
+                Fields: [
+                    TextInput("name", _("Name"),
+                              {
+                                  value: next_default_logical_volume_name(self.props.client, vgroup),
+                                  validate: utils.validate_lvm2_name
+                              }),
+                    SelectOne("purpose", _("Purpose"),
+                              {
+                                  value: "block",
+                                  choices: [
+                                      {
+                                          value: "block",
+                                          title: _("Block device for filesystems"),
+                                      },
+                                      { value: "pool", title: _("Pool for thinly provisioned volumes") }
+                                      /* Not implemented
                                                  { value: "cache", Title: _("Cache") }
                                                */
-                                          ] }),
-                              /* Not Implemented
+                                  ]
+                              }),
+                    /* Not Implemented
                                  { SelectOne: "layout",
                                  Title: _("Layout"),
                                  Options: [
@@ -681,19 +761,21 @@ export class VGroup extends React.Component {
                                  ],
                                  },
                                */
-                              SizeSlider("size", _("Size"),
-                                         { max: vgroup.FreeSize,
-                                           round: vgroup.ExtentSize })
-                          ],
-                          Action: {
-                              Title: _("Create"),
-                              action: function (vals) {
-                                  if (vals.purpose == "block")
-                                      return vgroup.CreatePlainVolume(vals.name, vals.size, { });
-                                  else if (vals.purpose == "pool")
-                                      return vgroup.CreateThinPoolVolume(vals.name, vals.size, { });
-                              }
-                          }
+                    SizeSlider("size", _("Size"),
+                               {
+                                   max: vgroup.FreeSize,
+                                   round: vgroup.ExtentSize
+                               })
+                ],
+                Action: {
+                    Title: _("Create"),
+                    action: function (vals) {
+                        if (vals.purpose == "block")
+                            return vgroup.CreatePlainVolume(vals.name, vals.size, { });
+                        else if (vals.purpose == "pool")
+                            return vgroup.CreateThinPoolVolume(vals.name, vals.size, { });
+                    }
+                }
             });
         }
 

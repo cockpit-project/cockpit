@@ -19,7 +19,7 @@
 -->
 <html>
 <head>
-<title translatable="yes">Dashboard</title>
+<title translate="yes">Dashboard</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="../base1/patternfly.css" rel="stylesheet">
@@ -31,7 +31,7 @@
     <script src="../manifests.js"></script>
     <script src="../dashboard/dashboard.js"></script>
 </head>
-<body hidden>
+<body class="pf-m-redhat-font" hidden>
 
     <div id="dashboard" class="container-fluid page-ct">
         <div class="row" role="presentation">
@@ -40,7 +40,7 @@
                     <div class="dropdown">
                         <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                             <span></span>
-                            <div class="caret"></div>
+                            <i class="fa fa-caret-down pf-c-context-selector__toggle-icon" aria-hidden="true"></i>
                         </button>
                         <ul class="dropdown-menu" role="menu">
                             <li role="presentation"><a tabindex="0" role="menuitem"
@@ -67,10 +67,10 @@
                     </div>
                 </div>
                 <ul class="nav nav-tabs">
-                    <li data-monitor-id="0"><a tabindex="0"><span translatable="yes">CPU</span></a></li>
-                    <li data-monitor-id="1"><a tabindex="0"><span translatable="yes">Memory</span></a></li>
-                    <li data-monitor-id="2"><a tabindex="0"><span translatable="yes">Network</span></a></li>
-                    <li data-monitor-id="3"><a tabindex="0"><span translatable="yes">Disk I/O</span></a></li>
+                    <li data-monitor-id="0"><a role="link" tabindex="0"><span translate="yes">CPU</span></a></li>
+                    <li data-monitor-id="1"><a role="link" tabindex="0"><span translate="yes">Memory</span></a></li>
+                    <li data-monitor-id="2"><a role="link" tabindex="0"><span translate="yes" context="label">Network</span></a></li>
+                    <li data-monitor-id="3"><a role="link" tabindex="0"><span translate="yes">Disk I/O</span></a></li>
                 </ul>
                 <br>
                 <div class="dashboard-plot zoomable-plot" id="dashboard-plot-0"></div>
@@ -101,7 +101,7 @@
     <script id="dashboard-hosts-tmpl" type="x-template/mustache">
         {{#machines}}
             {{! state can be 'failed' or 'connected' }}
-            <a tabindex="0" data-address="{{address}}" class="list-group-item {{state}}"
+            <a data-address="{{address}}" class="list-group-item {{state}}"
                 data-color="{{ color }}" target="_parent" href="/@{{address}}">
                 <button class="btn btn-danger edit-button servers-privileged pficon btn-delete pficon-delete delete-{{address}}"></button>
                 <button class="btn btn-default edit-button servers-privileged pficon pficon-edit"></button>
@@ -110,7 +110,7 @@
                 <div class="os">{{os}}</div>
                 <span class="host-label">{{label}}
                     <span class="reconnecting {{connecting_display}}"
-                        translatable="yes">Lost connection. Trying to reconnect</span></span>
+                        translate="yes">Lost connection. Trying to reconnect</span></span>
             </a>
         {{/machines}}
     </script>
@@ -134,14 +134,14 @@
                     <input data-role="none" type="file" id="host-edit-file-input" hidden/>
                     <table class="form-table-ct">
                         <tr>
-                            <td class="top" translatable="yes">Host Name</td>
+                            <td class="top" translate="yes">Host Name</td>
                             <td>
                                 <input class="form-control" id="host-edit-name"/>
                             </td>
                             <td></td>
                         </tr>
                         <tr id="host-edit-user-row">
-                            <td class="top" translatable="yes">User</td>
+                            <td class="top" translate="yes">User</td>
                             <td>
                                 <input class="form-control" id="host-edit-user"/>
                             </td>
@@ -154,13 +154,13 @@
                             </td>
                         </tr>
                         <tr>
-                            <td translatable="yes">Color</td>
+                            <td translate="yes">Color</td>
                             <td id="host-edit-colorpicker">
                             </td>
                             <td></td>
                         </tr>
                         <tr>
-                            <td class="top" translatable="yes">Avatar</td>
+                            <td class="top" translate="yes">Avatar</td>
                             <td>
                                 <div id="host-edit-avatar"></div>
                                 <div id="host-edit-fail"></div>
@@ -171,9 +171,9 @@
                 </div>
                 </div>
                 <div class="modal-footer">
-                    <div class="pull-left"><a tabindex="0" id="host-edit-sync-users" translatable="yes">Synchronize users</a></div>
-                    <button class="btn btn-default" data-dismiss="modal" translatable="yes">Cancel</button>
-                    <button class="btn btn-primary" id="host-edit-apply" translatable="yes">Set</button>
+                    <div class="pull-left"><a role="link" tabindex="0" id="host-edit-sync-users" translate="yes">Synchronize users</a></div>
+                    <button class="btn btn-default" data-dismiss="modal" translate="yes">Cancel</button>
+                    <button class="btn btn-primary" id="host-edit-apply" translate="yes">Set</button>
                 </div>
             </div>
         </div>

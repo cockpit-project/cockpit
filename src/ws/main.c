@@ -263,6 +263,8 @@ main (int argc,
                     G_CALLBACK (cockpit_handler_root), &data);
   g_signal_connect (server, "handle-resource::/apple-touch-icon.png",
                     G_CALLBACK (cockpit_handler_root), &data);
+  g_signal_connect (server, "handle-resource::/ca.cer",
+                    G_CALLBACK (cockpit_handler_ca_cert), &data);
 
   /* The fallback handler for everything else */
   g_signal_connect (server, "handle-resource",

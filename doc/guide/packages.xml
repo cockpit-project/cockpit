@@ -118,6 +118,21 @@ $ cockpit-bridge --packages
         <term>version</term>
         <listitem><para>An informational version number for the package.</para></listitem>
       </varlistentry>
+      <varlistentry>
+        <term>preload</term>
+        <listitem><para>A list of identifiers of the
+        components that should be preloaded.  Normally, the files of a
+        component are loaded when the user navigates to it for the
+        first time.  The files of a preloaded component are loaded
+        immediately after the user logs in, and the initialization
+        code of the component is invoked.
+        </para><para>
+        The value of this field is an array of strings, where each
+        string is one of the keys used in the <code>dashboard</code>,
+        <code>menu</code>, or <code>tool</code> fields that are
+        explained below.
+        </para></listitem>
+      </varlistentry>
     </variablelist>
 
     <para>In addition, the following keys contain information about where components of the package
@@ -147,7 +162,7 @@ $ cockpit-bridge --packages
       </varlistentry>
       <varlistentry>
         <term>tools</term>
-        <listitem><para>These items also appear in the sidebar for an individual machine, but are 
+        <listitem><para>These items also appear in the sidebar for an individual machine, but are
         put in a lower position, next to Cockpit's <emphasis>Terminal</emphasis>.
         </para></listitem>
       </varlistentry>
@@ -170,6 +185,48 @@ $ cockpit-bridge --packages
         <term>path</term>
         <listitem><para>The relative path to the HTML file within the package that implements
           the menu item or tool.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>docs</term>
+        <listitem><para>List of documentation URLs for the given page.
+          Each item is an object containing <code>label</code> and <code>url</code>.
+        </para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>keywords</term>
+        <listitem><para>Keywords that describe the page and which are used for searching.
+          These keywords should be lowercase. Keywords is a list containing keyword
+          items as described below. Page label is prepended as first keyword
+          in the first keyword item.
+        </para></listitem>
+      </varlistentry>
+    </variablelist>
+
+    <para>Keyword items are registered using JSON objects that have the
+      following properties:</para>
+
+    <variablelist>
+      <varlistentry>
+        <term>matches</term>
+        <listitem><para>List of keywords to be matched.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>goto</term>
+        <listitem><para>Optional path that is used for all keywords in this item.
+          When this argument starts with slash, then it is used as pathname, otherwise
+          it is used as hash. Defining <code>goto:"page_hash"</code> in page with <code>path:"/page_path"</code>
+          would redirect to <code>/page_path#page_hash</code>, while <code>goto:"/page_path"</code>
+          would redirect to <code>/page_path</code> ignoring default page path.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>weight</term>
+        <listitem><para>How much keywords are prioritized over others. Default is 3.
+          </para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>translate</term>
+        <listitem><para><code>false</code> when keywords should not be localized. Default is <code>true</code>.
+        </para></listitem>
       </varlistentry>
     </variablelist>
 

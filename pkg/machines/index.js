@@ -37,12 +37,12 @@ import { setVirtProvider } from './provider.js';
  */
 
 function detectLibvirtProvider() {
-    let client = cockpit.dbus("org.freedesktop.DBus");
+    const client = cockpit.dbus("org.freedesktop.DBus");
 
     return client.call("/org/freedesktop/DBus", "org.freedesktop.DBus",
                        "ListActivatableNames")
             .then(services => {
-                let libvirtDBusavailable = services[0].includes("org.libvirt");
+                const libvirtDBusavailable = services[0].includes("org.libvirt");
 
                 client.close();
                 return libvirtDBusavailable ? LibvirtDbus : Libvirt;
@@ -62,14 +62,14 @@ function render() {
 }
 
 function renderApp() {
+    // initiate data retrieval
+    store.dispatch(initDataRetrieval());
+
     // re-render app every time the state changes
     store.subscribe(render);
 
     // do initial render
     render();
-
-    // initiate data retrieval
-    store.dispatch(initDataRetrieval());
 }
 
 /**

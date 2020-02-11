@@ -49,8 +49,8 @@ class TestSession(MachineCase):
         self.login_and_go("/system")
         wait_session(True)
 
-        # Check session type (fixed in PR #10963)
-        if not m.atomic_image and m.image not in ["rhel-8-0-distropkg"]:
+        # Check session type
+        if not m.ostree_image:
             id = m.execute("loginctl list-sessions | awk '/admin/ {print $1}'").strip()
             self.assertEqual(m.execute("loginctl show-session -p Type %s" % id).strip(), "Type=web")
 

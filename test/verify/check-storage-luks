@@ -25,7 +25,7 @@ from testlib import *
 class TestStorage(StorageCase):
 
     def testLuks(self):
-        self.allow_journal_messages("Device is not initialized.*")
+        self.allow_journal_messages("Device is not initialized.*", ".*could not be opened.")
         m = self.machine
         b = self.browser
 
@@ -53,79 +53,70 @@ class TestStorage(StorageCase):
         self.dialog_set_val("name", "ENCRYPTED")
         self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
         self.dialog_set_val("passphrase2", "vainu-reku-toma-rolle-kaja")
-        if not self.storaged_is_old_udisks:
-            self.dialog_set_val("crypto_options.store_passphrase", True)
-            self.dialog_set_val("crypto_options.extra", "crypto,options")
-            self.dialog_set_val("mounting", "custom")
-            self.dialog_set_val("mount_point", mount_point_secret)
+        self.dialog_set_val("crypto_options.store_passphrase", True)
+        self.dialog_set_val("crypto_options.extra", "crypto,options")
+        self.dialog_set_val("mount_point", mount_point_secret)
+        self.dialog_set_val("mount_options.auto", False)
         self.dialog_apply()
         self.dialog_wait_close()
         self.content_row_wait_in_col(1, 1, "Encrypted data")
         self.content_row_wait_in_col(2, 1, "ext4 File System")
 
-        if not self.storaged_is_old_udisks:
-            self.wait_in_storaged_configuration(mount_point_secret)
-            self.wait_in_storaged_configuration("crypto,options")
-            # HACK: Put /etc/crypttab in the journal, in order to debug updating issues
-            assert m.execute("cat /etc/crypttab | logger -s 2>&1 | grep 'UUID='") != ""
-            assert m.execute("grep %s /etc/fstab" % mount_point_secret) != ""
-            assert m.execute("cat /etc/luks-keys/*") == "vainu-reku-toma-rolle-kaja"
+        self.wait_in_storaged_configuration(mount_point_secret)
+        self.wait_in_storaged_configuration("crypto,options")
+        # HACK: Put /etc/crypttab in the journal, in order to debug updating issues
+        assert m.execute("cat /etc/crypttab | logger -s 2>&1 | grep 'UUID='") != ""
+        assert m.execute("grep %s /etc/fstab" % mount_point_secret) != ""
+        assert m.execute("cat /etc/luks-keys/*") == "vainu-reku-toma-rolle-kaja"
 
         # Lock it
-        self.content_head_action(1, "Lock")
+        self.content_dropdown_action(1, "Lock")
         b.wait_not_in_text("#detail-content", "ext4 File System")
 
-        if not self.storaged_is_old_udisks:
+        # Unlock, this uses the stored passphrase
+        self.content_head_action(1, "Unlock")
+        self.content_row_wait_in_col(2, 1, "ext4 File System")
 
-            # Unlock, this uses the stored passphrase
-            self.content_head_action(1, "Unlock")
-            self.content_row_wait_in_col(2, 1, "ext4 File System")
+        # Change options.  We keep trying until the stack has synched
+        # up with crypttab and we see the old options.
+        self.dialog_with_retry(trigger=lambda: self.content_tab_info_action(1, 2, "Options"),
+                               expect={"crypto_options.extra": "crypto,options"},
+                               values={"crypto_options.extra": "weird,options"})
 
-            # Change options.  We keep trying until the stack has synched
-            # up with crypttab and we see the old options.
-            self.dialog_with_retry(trigger=lambda: self.content_tab_info_action(1, 2, "Options"),
-                                   expect={"crypto_options.extra": "crypto,options"},
-                                   values={"crypto_options.extra": "weird,options"})
+        assert m.execute("grep 'weird,options' /etc/crypttab") != ""
+        self.wait_in_storaged_configuration("weird,options")
 
-            assert m.execute("grep 'weird,options' /etc/crypttab") != ""
-            self.wait_in_storaged_configuration("weird,options")
+        # Change passphrase
+        edit_button = self.content_tab_info_label(1, 2, "Stored passphrase") + " + div button"
+        self.dialog_with_retry(trigger=lambda: b.click(edit_button),
+                               expect={"passphrase": "vainu-reku-toma-rolle-kaja"},
+                               values={"passphrase": "wrong-passphrase"})
 
-            # Change passphrase
-            edit_button = self.content_tab_info_label(1, 2, "Stored passphrase") + " + div button"
-            self.dialog_with_retry(trigger=lambda: b.click(edit_button),
-                                   expect={"passphrase": "vainu-reku-toma-rolle-kaja"},
-                                   values={"passphrase": "wrong-passphrase"})
+        assert m.execute("cat /etc/luks-keys/*") == "wrong-passphrase"
 
-            assert m.execute("cat /etc/luks-keys/*") == "wrong-passphrase"
+        # Remove passphrase
+        edit_button = self.content_tab_info_label(1, 2, "Stored passphrase") + " + div button"
+        self.dialog_with_retry(trigger=lambda: b.click(edit_button),
+                               expect={"passphrase": "wrong-passphrase"},
+                               values={"passphrase": ""})
+        self.wait_in_storaged_configuration("'passphrase-path': <b''>")
 
-            # Remove passphrase
-            edit_button = self.content_tab_info_label(1, 2, "Stored passphrase") + " + div button"
-            self.dialog_with_retry(trigger=lambda: b.click(edit_button),
-                                   expect={"passphrase": "wrong-passphrase"},
-                                   values={"passphrase": ""})
-            self.wait_in_storaged_configuration("'passphrase-path': <b''>")
+        # Lock it
+        self.content_dropdown_action(1, "Lock")
+        b.wait_not_in_text("#detail-content", "ext4 File System")
 
-            # Lock it
-            self.content_head_action(1, "Lock")
-            b.wait_not_in_text("#detail-content", "ext4 File System")
+        # Unlock, this asks for a passphrase
+        self.content_head_action(1, "Unlock")
+        self.dialog({"passphrase": "vainu-reku-toma-rolle-kaja"})
+        self.content_row_wait_in_col(2, 1, "ext4 File System")
 
-            # Unlock, this asks for a passphrase
-            self.content_head_action(1, "Unlock")
-            self.dialog({"passphrase": "vainu-reku-toma-rolle-kaja"})
-            self.content_row_wait_in_col(2, 1, "ext4 File System")
-
-            # Delete the partition.
-            self.content_head_action(1, "Delete")
-            self.confirm()
-            self.content_row_wait_in_col(1, 1, "Free Space")
-            b.wait_not_in_text("#detail-content", "ext4 File System")
-
-        else:
-
-            # Unlock, this asks for a passphrase because we don't store one with older UDisks2.
-            self.content_head_action(1, "Unlock")
-            self.dialog({"passphrase": "vainu-reku-toma-rolle-kaja"})
-            self.content_row_wait_in_col(2, 1, "ext4 File System")
+        # Delete the partition.
+        self.content_dropdown_action(1, "Delete")
+        self.confirm()
+        self.content_row_wait_in_col(1, 1, "Free Space")
+        b.wait_not_in_text("#detail-content", "ext4 File System")
+        # luksmeta-monitor-hack.py races with the partition deletion
+        self.allow_journal_messages('Unknown device .*: No such file or directory')
 
         assert m.execute("grep -v ^# /etc/crypttab || true").strip() == ""
         assert m.execute("grep %s /etc/fstab || true" % mount_point_secret) == ""
@@ -154,8 +145,8 @@ class TestStorage(StorageCase):
         #        background, and it's not reliable either.
         #
         #        https://github.com/latchset/tang/issues/23
-
-        m.execute("systemctl reset-failed tangd-update; systemctl restart tangd-update")
+        if m.image not in ["rhel-8-2", "rhel-8-2-distropkg"]:
+            m.execute("systemctl reset-failed tangd-update; systemctl restart tangd-update")
 
         m.execute("systemctl start tangd.socket")
 
@@ -171,6 +162,8 @@ class TestStorage(StorageCase):
         self.dialog({"type": "ext4",
                      "crypto.on": True,
                      "name": "ENCRYPTED",
+                     "mount_point": "/foo",
+                     "mount_options.auto": False,
                      "passphrase": "vainu-reku-toma-rolle-kaja",
                      "passphrase2": "vainu-reku-toma-rolle-kaja"})
         self.content_row_wait_in_col(1, 1, "Encrypted data")
@@ -178,7 +171,7 @@ class TestStorage(StorageCase):
 
         # Lock the disk
         #
-        self.content_head_action(1, "Lock")
+        self.content_dropdown_action(1, "Lock")
         b.wait_not_in_text("#detail-content", "ext4 File System")
 
         self.content_tab_wait_in_info(1, 1, "Options", "(none)")
@@ -230,11 +223,11 @@ class TestStorage(StorageCase):
 
     @skipImage("No clevis/tang", "debian-stable", "debian-testing", "ubuntu-1804", "ubuntu-stable")
     def testSlots(self):
-        self.allow_journal_messages("Device is not initialized.*")
+        self.allow_journal_messages("Device is not initialized.*", ".*could not be opened.")
         m = self.machine
         b = self.browser
 
-        luks_2 = m.image in ["rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1"]
+        luks_2 = m.image in ["rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream"]
         error_base = "Error unlocking /dev/sda: Failed to activate device: "
         error_messages = [error_base + "Operation not permitted",
                           error_base + "Incorrect passphrase."]
@@ -250,6 +243,8 @@ class TestStorage(StorageCase):
         self.dialog({"type": "ext4",
                      "crypto.on": True,
                      "name": "ENCRYPTED",
+                     "mount_point": "/foo",
+                     "mount_options.auto": False,
                      "passphrase": "vainu-reku-toma-rolle-kaja",
                      "passphrase2": "vainu-reku-toma-rolle-kaja"})
         self.content_row_wait_in_col(1, 1, "Encrypted data")
@@ -269,13 +264,13 @@ class TestStorage(StorageCase):
         self.dialog_apply()
         self.dialog_wait_close()
         # unlock with first passphrase
-        self.content_head_action(1, "Lock")
+        self.content_dropdown_action(1, "Lock")
         b.wait_not_in_text("#detail-content", "ext4 File System")
         self.content_head_action(1, "Unlock")
         self.dialog({"passphrase": "vainu-reku-toma-rolle-kaja"})
         self.content_row_wait_in_col(2, 1, "ext4 File System")
         # unlock with second passphrase
-        self.content_head_action(1, "Lock")
+        self.content_dropdown_action(1, "Lock")
         b.wait_not_in_text("#detail-content", "ext4 File System")
         self.content_head_action(1, "Unlock")
         self.dialog({"passphrase": "vainu-reku-toma-rolle-kaja-1"})
@@ -287,14 +282,14 @@ class TestStorage(StorageCase):
         self.dialog_apply()
         self.dialog_wait_close()
         # check that it is not possible to unlock with deleted passphrase
-        self.content_head_action(1, "Lock")
+        self.content_dropdown_action(1, "Lock")
         b.wait_not_in_text("#detail-content", "ext4 File System")
         self.content_head_action(1, "Unlock")
         self.dialog_wait_open()
         self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja-1")
         self.dialog_apply()
-        b.wait_present(".dialog-error")
-        self.assertIn(b.text(".dialog-error"), error_messages)
+        b.wait_present(".pf-c-alert")
+        self.assertIn(b.text("h4.pf-c-alert__title:not(span)").split("Danger alert:", 1).pop(), error_messages)
         self.dialog_cancel()
 
         # add more passphrases, seven exactly, to reach the limit of eight for LUKSv1
@@ -336,8 +331,8 @@ class TestStorage(StorageCase):
         self.dialog_wait_open()
         self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
         self.dialog_apply()
-        b.wait_present(".dialog-error")
-        self.assertIn(b.text(".dialog-error"), error_messages)
+        b.wait_present(".pf-c-alert")
+        self.assertIn(b.text("h4.pf-c-alert__title:not(span)").split("Danger alert:", 1).pop(), error_messages)
         self.dialog_cancel()
         # change one of the passphrases
         b.wait_present(slots_table + "tbody tr:last-child .pficon-edit")

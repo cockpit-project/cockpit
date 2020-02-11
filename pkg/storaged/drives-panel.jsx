@@ -21,25 +21,12 @@ import cockpit from "cockpit";
 import React from "react";
 
 import { OverviewSidePanel, OverviewSidePanelRow } from "./overview.jsx";
-import { fmt_size, drive_name, decode_filename } from "./utils.js";
+import { fmt_size, drive_name, decode_filename, block_name } from "./utils.js";
 
 const _ = cockpit.gettext;
 const C_ = cockpit.gettext;
 
 export class DrivesPanel extends React.Component {
-    constructor () {
-        super();
-        this.on_io_samples = () => { this.setState({}) };
-    }
-
-    componentDidMount() {
-        this.props.client.blockdev_io.addEventListener("changed", this.on_io_samples);
-    }
-
-    componentWillUnmount() {
-        this.props.client.blockdev_io.removeEventListener("changed", this.on_io_samples);
-    }
-
     render() {
         var props = this.props;
         var client = props.client;
@@ -75,17 +62,12 @@ export class DrivesPanel extends React.Component {
                 return null;
 
             var dev = decode_filename(block.Device).replace(/^\/dev\//, "");
-            var io = client.blockdev_io.data[dev];
 
             var name = drive_name(drive);
             var classification = classify_drive(drive);
             var size_str = fmt_size(drive.Size);
             var desc;
-            if (classification == "hdd") {
-                desc = size_str + " " + C_("storage", "Hard Disk");
-            } else if (classification == "ssd") {
-                desc = size_str + " " + C_("storage", "Solid-State Disk");
-            } else if (classification == "removable") {
+            if (classification == "removable") {
                 if (drive.Size === 0)
                     desc = C_("storage", "Removable Drive");
                 else
@@ -94,18 +76,18 @@ export class DrivesPanel extends React.Component {
                 desc = C_("storage", "Optical Drive");
             } else {
                 if (drive.Size === 0)
-                    desc = C_("storage", "Drive");
+                    desc = C_("Drive");
                 else
-                    desc = size_str + " " + C_("storage", "Drive");
+                    desc = size_str;
             }
 
             return (
                 <OverviewSidePanelRow client={client}
                                       name={name}
+                                      devname={block_name(block)}
                                       detail={desc}
-                                      stats={io}
                                       highlight={dev == props.highlight}
-                                      go={() => cockpit.location.go([ dev ])}
+                                      go={() => cockpit.location.go([dev])}
                                       job_path={path}
                                       key={path} />
             );

@@ -22,23 +22,23 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include <gnutls/gnutls.h>
 
-enum ClientCertMode { CERT_NONE, CERT_REQUEST };
+void
+server_init (const char *wsinstance_sockdir,
+             const char *cert_session_dir,
+             int idle_timeout,
+             uint16_t port);
 
-//struct Server;
-//typedef struct Server Server;
+void
+server_run (void);
 
-void server_init (const char *ws_path,
-                  uint16_t port,
-                  const char *certfile,
-                  const char* keyfile,
-                  enum ClientCertMode);
-void server_cleanup (void);
-bool server_poll_event (int timeout);
-void server_run (int idle_timeout);
-void server_remove_ws (pid_t ws_pid);
+void
+server_cleanup (void);
 
 /* these are for unit tests only */
-unsigned server_num_connections (void);
-unsigned server_num_ws (void);
-size_t server_get_ws_pids (pid_t* pids, size_t pids_length);
+bool
+server_poll_event (int timeout);
+
+unsigned
+server_num_connections (void);

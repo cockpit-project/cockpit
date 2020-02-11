@@ -430,9 +430,10 @@ send_prefixed_message_rfc6455 (WebSocketConnection *self,
    */
   if (!self->pv->server_side)
     {
+      guint32 rand = g_random_int ();
       outer[1] |= 0x80;
       mask = outer + bytes->len;
-      * ((guint32 *)mask) = g_random_int ();
+      memcpy (mask, &rand, sizeof (guint32));
       bytes->len += 4;
     }
 
@@ -1875,6 +1876,13 @@ _web_socket_connection_choose_protocol (WebSocketConnection *self,
     }
 
   /* Choose one from what client/server agree on */
+  if (!g_str_is_ascii (value))
+    {
+      /* splitting into words by comma might interfere with multi-byte characters,
+       * and they are invalid here anyway */
+      g_message ("received invalid Sec-WebSocket-Protocol, must be ASCII: %s", value);
+      return FALSE;
+    }
   values = g_strsplit_set (value, ", ", -1);
 
   /* Accept any protocol */

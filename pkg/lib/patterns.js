@@ -7,6 +7,7 @@ function clear_errors(sel) {
     sel.find(".has-error").removeClass("has-error");
     sel.find(".dialog-wrapper").off(".dialog-error");
     sel.off(".dialog-error");
+    return sel;
 }
 
 function field_error(target, error) {
@@ -48,10 +49,12 @@ function field_error(target, error) {
 }
 
 function global_error(sel, error) {
-    var alert = $("<div class='alert alert-danger dialog-error'>");
+    var alert = $("<div class='pf-c-alert pf-m-danger pf-m-inline dialog-error' aria-label='inline danger alert'>");
     var text = error.message || error.toString();
-    alert.text(text);
-    $("<span class='fa fa-exclamation-triangle'>").prependTo(alert);
+    $("<div class='pf-c-alert__icon'>").append($("<span class='pficon pficon-error-circle-o'>"))
+            .prependTo(alert);
+    $("<h4 class='pf-c-alert__title'>").text(text)
+            .appendTo(alert);
 
     /* Always log global dialog errors for easier debugging */
     console.warn(text);
@@ -180,7 +183,7 @@ function display_wait(sel, promise, handle) {
             if (cancelled || (state == "resolved" && data.handle))
                 sel.modal('hide');
             else if (state == "rejected" && data.handle)
-                display_errors(sel, [ arguments[0] ]);
+                display_errors(sel, [arguments[0]]);
         }
     }
 
@@ -207,6 +210,8 @@ $.fn.dialog = function dialog(action /* ... */) {
         return display_wait(this, arguments[1]);
     else if (action === "promise")
         return display_wait(this, arguments[1], true);
+    else if (action === "clear_errors")
+        return clear_errors(this);
     else
         console.warn("unknown dialog action: " + action);
 };
@@ -378,7 +383,7 @@ $(document).ready(setup_sliders);
 // by default, tooltip is attached to "this" element; can be attached to
 // another one with setting "tooltip_element" (for <a> links)
 $.fn.update_privileged = function update_privileged(perm, denied_message, placement, tooltip_element) {
-    var allowed = (perm.allowed !== false);
+    var allowed = !!perm.allowed;
     var selector = this;
     if (!tooltip_element)
         tooltip_element = $(this);
@@ -393,20 +398,20 @@ $.fn.update_privileged = function update_privileged(perm, denied_message, placem
 
         var options = { html: true };
         if (placement)
-            options['placement'] = placement;
+            options.placement = placement;
 
         tooltip_element.tooltip(options);
 
-        if ($(this).hasClass("disabled") === allowed) {
-            $(this).toggleClass("disabled", !allowed);
+        if (allowed) {
             tooltip_element.attr('data-original-title', null);
-
-            if (allowed)
-                tooltip_element.attr('title', $(this).data(allowed_key));
-            else
-                tooltip_element.attr('title', denied_message);
+            tooltip_element.attr('title', $(this).data(allowed_key));
+            tooltip_element.removeAttr('disabled');
+        } else {
+            tooltip_element.attr('title', denied_message);
             tooltip_element.tooltip('fixTitle');
+            tooltip_element.attr('disabled', true);
         }
+
         $(this).attr('data-stable', 'yes');
     });
 

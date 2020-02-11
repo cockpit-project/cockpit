@@ -23,6 +23,8 @@ import * as machine_info from "machine-info.js";
 const InfoDMIKey = {
     version: "product_version",
     name: "product_name",
+    alt_version: "board_vendor",
+    alt_name: "board_name",
     type: "chassis_type_str",
     bios_vendor: "bios_vendor",
     bios_version: "bios_version",
@@ -44,18 +46,20 @@ function getDMI(info) {
 
 // Add info.pci [{slot, cls, vendor, model}] list
 function findPCI(udevdb, info) {
-    for (let syspath in udevdb) {
-        let props = udevdb[syspath];
+    for (const syspath in udevdb) {
+        const props = udevdb[syspath];
         if (props.SUBSYSTEM === "pci")
-            info.pci.push({ slot: props.PCI_SLOT_NAME || syspath.split("/").pop(),
-                            cls: props.ID_PCI_CLASS_FROM_DATABASE || props.PCI_CLASS.toString(),
-                            vendor: props.ID_VENDOR_FROM_DATABASE || "",
-                            model: props.ID_MODEL_FROM_DATABASE || props.PCI_ID || "" });
+            info.pci.push({
+                slot: props.PCI_SLOT_NAME || syspath.split("/").pop(),
+                cls: props.ID_PCI_CLASS_FROM_DATABASE || props.PCI_CLASS.toString(),
+                vendor: props.ID_VENDOR_FROM_DATABASE || "",
+                model: props.ID_MODEL_FROM_DATABASE || props.PCI_ID || ""
+            });
     }
 }
 
 export default function detect() {
-    let info = { system: {}, pci: [], memory: [] };
+    const info = { system: {}, pci: [], memory: [] };
     var tasks = [];
 
     tasks.push(new Promise((resolve, reject) => {

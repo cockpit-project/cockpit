@@ -46,19 +46,14 @@ class TestStorage(StorageCase):
 
         b.click('tr:contains("DISK1")')
         b.wait_visible("#storage-detail")
-        self.content_tab_wait_in_info(2, 1, "Mounted At", "/mnt")
 
-        self.content_head_action(2, "Format")
+        self.content_dropdown_action(2, "Format")
         self.dialog_wait_open()
         b.wait_in_text("#dialog", "Proceeding will unmount all filesystems on it.")
         self.dialog_cancel()
         self.dialog_wait_close()
 
-        # Further tear down doesn't work with the old UDisks2
-        if self.storaged_is_old_udisks:
-            return
-
-        self.content_head_action(1, "Delete")
+        self.content_dropdown_action(1, "Delete")
         self.dialog_wait_open()
         b.wait_in_text("#dialog", "Proceeding will unmount all filesystems on it.")
         self.dialog_cancel()

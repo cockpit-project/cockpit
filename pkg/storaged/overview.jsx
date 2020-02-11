@@ -20,15 +20,11 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import { fmt_rate } from "./utils.js";
-
 import { StoragePlots } from "./plot.jsx";
 
 import { FilesystemsPanel } from "./fsys-panel.jsx";
 import { NFSPanel } from "./nfs-panel.jsx";
-import { MDRaidsPanel } from "./mdraids-panel.jsx";
-import { VGroupsPanel } from "./vgroups-panel.jsx";
-import { VDOsPanel } from "./vdos-panel.jsx";
+import { ThingsPanel } from "./things-panel.jsx";
 import { IscsiPanel } from "./iscsi-panel.jsx";
 import { DrivesPanel } from "./drives-panel.jsx";
 import { OthersPanel } from "./others-panel.jsx";
@@ -52,7 +48,7 @@ export class OverviewSidePanel extends React.Component {
         if (this.state.collapsed && children.length > 20) {
             show_all_button = (
                 <tr>
-                    <td colSpan="3" onClick={() => { this.setState({ collapsed: false }) }}>
+                    <td onClick={() => { this.setState({ collapsed: false }) }}>
                         {this.props.show_all_text || _("Show all")}
                     </td>
                 </tr>);
@@ -83,7 +79,7 @@ export class OverviewSidePanel extends React.Component {
 
 export class OverviewSidePanelRow extends React.Component {
     render() {
-        let { client, job_path } = this.props;
+        const { client, job_path } = this.props;
 
         const go = (event) => {
             if (!event || event.button !== 0)
@@ -91,38 +87,26 @@ export class OverviewSidePanelRow extends React.Component {
             return this.props.go();
         };
 
-        let job_spinner = (client.path_jobs[job_path]
-            ? <span className="spinner spinner-sm" />
-            : null);
-
-        let warning_triangle = (client.path_warnings[job_path]
-            ? <span className="pficon pficon-warning-triangle-o" />
-            : null);
+        let decoration = null;
+        if (this.props.actions)
+            decoration = <div className="sidepanel-row-decoration">{this.props.actions}</div>;
+        else if (client.path_jobs[job_path])
+            decoration = <div className="sidepanel-row-decoration spinner spinner-sm" />;
+        else if (client.path_warnings[job_path])
+            decoration = <div className="sidepanel-row-decoration pficon pficon-warning-triangle-o" />;
 
         return (
             <tr data-testkey={this.props.testkey}
                 onClick={this.props.go ? go : null} className={this.props.highlight ? "highlight-ct" : ""}>
-                <td className="storage-icon">
-                    { this.props.kind !== false
-                        ? <img src={"images/storage-" + (this.props.kind || "disk") + ".png"} />
-                        : null
-                    }
-                </td>
-                <td className="row storage-disk-info">
-                    <h3 className="storage-disk-name">{this.props.name}</h3>
-                    <div className="storage-disk-size">{this.props.detail}</div>
-                    { this.props.stats
-                        ? <div className="storage-disk-rates">
-                            <div className="storage-disk-rate-read"><abbr title="read">R</abbr>: {fmt_rate(this.props.stats[0])}</div>
-                            { "\n" }
-                            { "\n" }
-                            <div className="storage-disk-rate-write"><abbr title="write">W</abbr>: {fmt_rate(this.props.stats[1])}</div>
+                <td className={"sidepanel-row " + (this.props.highlight ? "highlight-ct" : "")}>
+                    <div className="sidepanel-row-body">
+                        <div className="sidepanel-row-name">{this.props.name}</div>
+                        <div className="sidepanel-row-info">
+                            <div className="sidepanel-row-detail">{this.props.detail}</div>
+                            <div className="sidepanel-row-devname">{this.props.devname}</div>
                         </div>
-                        : null
-                    }
-                </td>
-                <td className="storage-icon storage-disk-extended">
-                    { this.props.actions || job_spinner || warning_triangle }
+                    </div>
+                    {decoration}
                 </td>
             </tr>
         );
@@ -149,11 +133,9 @@ export class Overview extends React.Component {
                     <StorageLogsPanel />
                 </div>
                 <div className="col-md-4 col-lg-3 storage-sidebar">
-                    <MDRaidsPanel client={client} />
-                    <VGroupsPanel client={client} />
-                    <VDOsPanel client={client} />
-                    <IscsiPanel client={client} />
+                    <ThingsPanel client={client} />
                     <DrivesPanel client={client} highlight={this.state.highlight} />
+                    <IscsiPanel client={client} />
                     <OthersPanel client={client} />
                 </div>
             </div>

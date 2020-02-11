@@ -2,17 +2,44 @@
 
 @import "./variables.less";
 
-table.listing-ct {
-    min-width: 65%;
+.ct-listing {
     font-size: var(--font-size-s);
+    min-width: 65%;
+    // Some parts of Cockpit still float (Docker) and need clearing
+    clear: both;
 
-    + .listing-ct {
-        margin-top: @listing-ct-spacing * 2;
+    > header {
+        display: flex;
+        align-items: center;
+        justify-content: start;
+        flex-flow: wrap;
+
+        > :only-child {
+            flex: auto;
+        }
+    }
+
+    + .ct-listing {
+        margin-top: 1rem;
+    }
+
+    select, .btn, .dropdown, input {
+        font-size: var(--pf-global--FontSize--md);
     }
 }
 
-table.listing-ct > caption,
-table.listing-ct > thead h3 {
+.listing-ct-heading,
+.listing-ct-actions {
+    margin: 0.5rem 0;
+}
+
+.listing-ct-heading,
+.listing-ct-simplebody-actions {
+    flex: auto;
+    padding: 0.25rem 1em 0.25rem 0;
+}
+
+.ct-listing > table > thead h3 {
     font-size: var(--pf-global--FontSize--2xl);
     padding: 1rem 0;
     font-weight: 400;
@@ -27,35 +54,30 @@ table.listing-ct > thead h3 {
     }
 }
 
-table.listing-ct > caption {
-    color: inherit;
-    line-height: 1.1;
-}
-
-table.listing-ct > thead td {
+.ct-listing > table > thead td {
     padding-top: @listing-ct-padding * 2;
 }
 
-table.listing-ct > thead:first-child td {
+.ct-listing > table > thead:first-child td {
     padding-top: 0;
 }
 
-table.listing-ct > thead td > a {
+.ct-listing > table > thead td > a {
     line-height: 30px;
     padding: @listing-ct-padding 0 @listing-ct-padding;
 }
 
-table.listing-ct > thead th {
+.ct-listing > table > thead th {
     font-weight: normal;
     padding: @listing-ct-padding @listing-ct-padding * 2;
     color: @listing-ct-metadata;
 }
 
-table.listing-ct > thead th:first-child {
+.ct-listing > table > thead th:first-child {
     padding-left: @listing-ct-padding * 2;
 }
 
-table.listing-ct > thead th:last-child {
+.ct-listing > table > thead th:last-child {
     text-align: right;
 }
 
@@ -67,16 +89,16 @@ tbody > tr.listing-ct-item {
     cursor: pointer;
 }
 
-table.listing-ct > tbody:last-child {
+.ct-listing > table > tbody:last-child {
     border-bottom: 1px solid var(--color-ct-list-border);
 }
-table.listing-ct > tbody + thead {
+.ct-listing > table > tbody + thead {
     border-top: 1px solid var(--color-ct-list-border);
 }
-table.listing-ct > tbody.open:last-child {
+.ct-listing > table > tbody.open:last-child {
     border-bottom: none;
 }
-table.listing-ct > tbody.open + thead {
+.ct-listing > table > tbody.open + thead {
     border-top: none;
 }
 
@@ -101,6 +123,7 @@ tbody.open > tr.listing-ct-item th {
 
 tbody.open td div.listing-ct-head {
     background-color: @color-pf-white;
+    align-items: end;
 }
 
 tbody.open > .listing-ct-panel > td > .listing-ct-body {
@@ -115,6 +138,7 @@ tbody.open > tr.listing-ct-panel + tr.listing-ct-body {
 tbody.open > tr.listing-ct-panel td div.listing-ct-head {
     border: none;
     border-bottom: 1px solid @listing-ct-border;
+    padding-top: 0;
 }
 
 /* only highlight the row if navigation is available */
@@ -154,6 +178,19 @@ tbody.open .listing-ct-toggle {
 .listing-ct-item > .listing-ct-toggle + th {
     padding-left: @listing-ct-padding / 2;
     position: relative;
+}
+
+td.listing-ct-toggle button {
+    border: 1px solid transparent;
+}
+
+td.listing-ct-toggle button:focus {
+    color: var(--pf-global--Color--100) !important;
+    border-color: var(--pf-global--BackgroundColor--light-300) !important;
+    @-moz-document url-prefix() {
+      /* Approximate Firefox's focus ring, for Firefox only */
+      border: 1px dotted rgba(0, 0, 0, 0.75);
+    }
 }
 
 td.listing-ct-toggle i {
@@ -203,14 +240,6 @@ tr.listing-ct-item > td {
     }
 }
 
-/* Listing caption is text next to the actions, text should be similar to nav (.nav-tabs-pf > li > a)*/
-.listing-ct-actions > .listing-ct-caption {
-    font-size: @font-size-h5;
-    vertical-align: middle;
-    color: @link-color;
-    padding-right: @listing-ct-padding / 2;
-}
-
 /* Listing actions can be used directly as a cell */
 tr.listing-ct-item td.listing-ct-actions,
 td.listing-ct-actions {
@@ -240,7 +269,7 @@ tr.listing-ct-item.listing-ct-selected .badge {
 }
 
 .listing-ct-head .listing-ct-actions {
-    margin-top: -7px;
+    margin: 0.25rem 0;
     order: -1;
 }
 
@@ -311,7 +340,7 @@ tbody.active .listing-ct-head {
 
 .listing-ct-head .nav-tabs-pf {
     /* Counteract listing-ct-head padding */
-    margin: -@listing-ct-padding 0 0 -@listing-ct-padding;
+    margin: 0 0 0 -@listing-ct-padding;
     flex: auto;
 }
 
@@ -429,7 +458,7 @@ tbody.active .listing-ct-head {
     margin-left: 0px;
 }
 
-table.listing-ct > tbody {
+.ct-listing > table > tbody {
     > tr > td:first-child {
         position: relative;
         transition: all 100ms ease-out;
@@ -565,7 +594,7 @@ tr.listing-ct-body td {
 
 /* Used at the end of a group of tbody to show an 'empty' message */
 thead.listing-ct-empty td,
-table.listing-ct > thead.listing-ct-empty td {
+.ct-listing > table > thead.listing-ct-empty td {
     padding: @listing-ct-padding;
 }
 
@@ -578,24 +607,6 @@ tbody + thead.listing-ct-empty {
     width: 100%;
 }
 
-/* Listing pattern mod to redce the padding */
-.listing-ct-compact {
-    > thead > tr > th,
-    > tbody > tr > th,
-    > tbody > tr > td {
-        padding: @listing-ct-padding / 2;
-    }
-
-    > tbody > tr > .listing-ct-toggle:not(:empty) + th,
-    > tbody > tr > .listing-ct-toggle:not(:empty) + td {
-        padding-left: @listing-ct-padding / 2;
-
-        &::before {
-            top: @listing-ct-padding / 2;
-        }
-    }
-}
-
 div.listing-ct-head {
     overflow: visible;
 }
@@ -603,10 +614,6 @@ div.listing-ct-head {
 .listing-ct-head .btn-group,
 .listing-ct-head button:not(.dropdown-toggle) {
     margin-left: 0.3em;
-}
-
-table.listing-ct > caption a {
-    font-size: var(--font-size-md);
 }
 
 tbody tr.listing-ct-noexpand {
@@ -632,10 +639,10 @@ tbody tr.listing-ct-noexpand {
     left: 0px;
 }
 
-/* Force word-wraps when words are too long */
 .listing-ct-item td,
 .listing-ct-item th,
 .listing-ct-body {
+    /* Force wraps when words are too long */
     overflow-wrap: break-word;
     hyphens: auto;
 }

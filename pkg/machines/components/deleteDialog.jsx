@@ -66,14 +66,14 @@ const DeleteDialogBody = ({ disks, destroy, onChange }) => {
     let disksBody = null;
     if (disks.length > 0)
         disksBody = (
-            <React.Fragment>
+            <>
                 <p>{_("Delete associated storage files:")}</p>
                 <form>
                     <ul className="list-group dialog-list-ct">
                         { disks.map(disk_row) }
                     </ul>
                 </form>
-            </React.Fragment>
+            </>
         );
 
     return (
@@ -116,11 +116,11 @@ export class DeleteDialog extends React.Component {
 
     open() {
         const { vm } = this.props;
-        let disks = [];
+        const disks = [];
 
         Object.keys(vm.disks).sort()
                 .forEach(t => {
-                    let d = vm.disks[t];
+                    const d = vm.disks[t];
 
                     if ((d.type == 'file' && d.source.file) || d.type == 'volume')
                         disks.push(Object.assign(d, { checked: !d.readonly }));
@@ -131,7 +131,7 @@ export class DeleteDialog extends React.Component {
     delete() {
         const storage = this.state.disks.filter(d => d.checked);
 
-        return this.props.dispatch(deleteVm(this.props.vm, { destroy: this.state.destroy, storage: storage }))
+        return this.props.dispatch(deleteVm(this.props.vm, { destroy: this.state.destroy, storage: storage }, this.props.storagePools))
                 .catch(exc => {
                     this.dialogErrorSet(cockpit.format(_("VM $0 failed to get deleted"), this.props.vm.name), exc.message);
                 });

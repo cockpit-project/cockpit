@@ -20,12 +20,13 @@
 import React from "react";
 import moment from "moment";
 import PropTypes from "prop-types";
+import { Alert } from "@patternfly/react-core";
 import { Button, Modal, OverlayTrigger, Tooltip, DropdownKebab, MenuItem } from 'patternfly-react';
 
 import cockpit from "cockpit";
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 
-import './service-details.css';
+import './service-details.less';
 
 const _ = cockpit.gettext;
 
@@ -72,7 +73,7 @@ ServiceTemplate.propTypes = {
 };
 /*
  * Note:
-<p translatable="yes">This unit is not designed to be enabled explicitly.</p>
+<p translate="yes">This unit is not designed to be enabled explicitly.</p>
     Error:
     error.toString()
 */
@@ -131,10 +132,10 @@ ServiceConfirmDialog.propTypes = {
  *     Unit is masked
  *  - active
  *     Unit is active (running)
- *  - enabled
- *     Unit is enabled
- *  - isStatic
- *     Unit is static
+ *  - failed
+ *     Unit has failed
+ *  - canReload
+ *      Unit can be reloaded
  *  - actionCallback
  *      Method for calling unit methods like `UnitStart`
  *  - fileActionCallback
@@ -151,7 +152,7 @@ class ServiceActions extends React.Component {
     }
 
     render() {
-        let actions = [];
+        const actions = [];
 
         // If masked, only show unmasking and nothing else
         if (this.props.masked) {
@@ -159,30 +160,21 @@ class ServiceActions extends React.Component {
                 <MenuItem key="unmask" onClick={() => this.props.fileActionCallback("UnmaskUnitFiles", undefined)}>{ _("Allow running (unmask)") }</MenuItem>
             );
         } else { // All cases when not masked
-            // Only show stop when running but not enabled
-            if (this.props.active && !this.props.enabled) {
+            if (this.props.active) {
+                if (this.props.canReload) {
+                    actions.push(
+                        <MenuItem key="reload" onClick={() => this.props.actionCallback("ReloadUnit")}>{ _("Reload") }</MenuItem>
+                    );
+                }
+                actions.push(
+                    <MenuItem key="restart" onClick={() => this.props.actionCallback("RestartUnit")}>{ _("Restart") }</MenuItem>
+                );
                 actions.push(
                     <MenuItem key="stop" onClick={() => this.props.actionCallback("StopUnit")}>{ _("Stop") }</MenuItem>,
                 );
-            }
-            if (this.props.enabled || this.props.active) {
-                if (actions.length > 0) {
-                    actions.push(
-                        <MenuItem key="divider1" divider />
-                    );
-                }
-                if (this.props.active) {
-                    actions.push(
-                        <MenuItem key="restart" onClick={() => this.props.actionCallback("RestartUnit")}>{ _("Restart") }</MenuItem>
-                    );
-                } else {
-                    actions.push(
-                        <MenuItem key="start" onClick={() => this.props.actionCallback("StartUnit")}>{ _("Start") }</MenuItem>
-                    );
-                }
-
+            } else {
                 actions.push(
-                    <MenuItem key="reload" onClick={() => this.props.actionCallback("ReloadUnit")}>{ _("Reload") }</MenuItem>
+                    <MenuItem key="start" onClick={() => this.props.actionCallback("StartUnit")}>{ _("Start") }</MenuItem>
                 );
             }
 
@@ -192,31 +184,41 @@ class ServiceActions extends React.Component {
                 );
             }
 
+            if (this.props.failed)
+                actions.push(
+                    <MenuItem key="reset" onClick={() => this.props.actionCallback("ResetFailedUnit", []) }>{ _("Clear 'Failed to start'") }</MenuItem>
+                );
+
             actions.push(
                 <MenuItem key="mask" onClick={() => this.setState({ dialogMaskedOpened: true }) }>{ _("Disallow running (mask)") }</MenuItem>
             );
         }
 
         return (
-            <React.Fragment>
+            <>
                 { this.state.dialogMaskedOpened &&
                     <ServiceConfirmDialog title={ _("Mask Service") }
                                           message={ _("Masking service prevents all dependant units from running. This can have bigger impact than anticipated. Please confirm that you want to mask this unit.")}
                                           close={() => this.setState({ dialogMaskedOpened: false }) }
                                           confirmText={ _("Mask Service") }
-                                          confirmAction={() => { this.props.fileActionCallback("MaskUnitFiles", false); this.setState({ dialogMaskedOpened: false }) }} />
+                                          confirmAction={() => {
+                                              this.props.fileActionCallback("MaskUnitFiles", false);
+                                              this.props.actionCallback("ResetFailedUnit", []);
+                                              this.setState({ dialogMaskedOpened: false });
+                                          }} />
                 }
                 <DropdownKebab id="service-actions" title={ _("Additional actions") } className={this.props.disabled ? "disabled" : "" }>
                     {actions}
                 </DropdownKebab>
-            </React.Fragment>
+            </>
         );
     }
 }
 ServiceActions.propTypes = {
     masked: PropTypes.bool.isRequired,
     active: PropTypes.bool.isRequired,
-    enabled: PropTypes.bool.isRequired,
+    failed: PropTypes.bool.isRequired,
+    canReload: PropTypes.bool,
     actionCallback: PropTypes.func.isRequired,
     fileActionCallback: PropTypes.func.isRequired,
     disabled: PropTypes.bool,
@@ -268,6 +270,8 @@ export class ServiceDetails extends React.Component {
             this.unitFileAction("DisableUnitFiles", undefined);
             if (this.props.unit.ActiveState === "active" || this.props.unit.ActiveState === "activating")
                 this.unitAction("StopUnit");
+            if (this.props.unit.ActiveState === "failed")
+                this.unitAction("ResetFailedUnit", []);
         } else {
             this.unitFileAction("EnableUnitFiles", false);
             if (this.props.unit.ActiveState !== "active" && this.props.unit.ActiveState !== "activating")
@@ -275,16 +279,18 @@ export class ServiceDetails extends React.Component {
         }
     }
 
-    unitAction(method) {
+    unitAction(method, extra_args) {
+        if (extra_args === undefined)
+            extra_args = ["fail"];
         this.setState({ waitsAction: true });
-        this.props.systemdManager.call(method, [ this.props.unit.Names[0], "fail" ])
+        this.props.systemdManager.call(method, [this.props.unit.Names[0]].concat(extra_args))
                 .fail(error => this.setState({ error: error.toString() }))
                 .finally(() => this.setState({ waitsAction: false }));
     }
 
     unitFileAction(method, force) {
         this.setState({ waitsFileAction: true });
-        let args = [ [ this.props.unit.Names[0] ], false ];
+        const args = [[this.props.unit.Names[0]], false];
         if (force !== undefined)
             args.push(force == "true");
         this.props.systemdManager.call(method, args)
@@ -295,17 +301,19 @@ export class ServiceDetails extends React.Component {
                             .then(() => this.setState({ waitsFileAction: false }));
                 })
                 .fail(error => {
-                    this.setState({ error: error.toString(),
-                                    waitsFileAction: false });
+                    this.setState({
+                        error: error.toString(),
+                        waitsFileAction: false
+                    });
                 });
     }
 
     render() {
-        let active = this.props.unit.ActiveState === "active" || this.props.unit.ActiveState === "activating";
-        let enabled = this.props.unit.UnitFileState === "enabled";
-        let isStatic = this.props.unit.UnitFileState !== "disabled" && !enabled;
-        let failed = this.props.unit.ActiveState === "failed";
-        let masked = this.props.unit.LoadState === "masked";
+        const active = this.props.unit.ActiveState === "active" || this.props.unit.ActiveState === "activating";
+        const enabled = this.props.unit.UnitFileState === "enabled";
+        const isStatic = this.props.unit.UnitFileState !== "disabled" && !enabled;
+        const failed = this.props.unit.ActiveState === "failed";
+        const masked = this.props.unit.LoadState === "masked";
 
         let status = [];
 
@@ -363,12 +371,12 @@ export class ServiceDetails extends React.Component {
                     <span className="pficon pficon-asleep status-icon" />
                     <span className="status">{ _("Static") }</span>
                     { this.props.unit.WantedBy && this.props.unit.WantedBy.length > 0 &&
-                        <React.Fragment>
+                        <>
                             <span className="side-note font-xs">{ _("Required by ") }</span>
                             <ul className="comma-list">
                                 {this.props.unit.WantedBy.map(unit => <li className="font-xs" key={unit}><a href={"#/" + unit}>{unit}</a></li>)}
                             </ul>
-                        </React.Fragment>
+                        </>
                     }
                 </div>
             );
@@ -403,10 +411,10 @@ export class ServiceDetails extends React.Component {
             ];
         }
 
-        let tooltipMessage = enabled ? _("Stop and Disable") : _("Start and Enable");
-        let hasLoadError = this.props.unit.LoadState !== "loaded" && this.props.unit.LoadState !== "masked";
-        let loadError = this.props.unit.LoadError ? this.props.unit.LoadError[1] : null;
-        let relationships = [
+        const tooltipMessage = enabled ? _("Stop and Disable") : _("Start and Enable");
+        const hasLoadError = this.props.unit.LoadState !== "loaded" && this.props.unit.LoadState !== "masked";
+        const loadError = this.props.unit.LoadError ? this.props.unit.LoadError[1] : null;
+        const relationships = [
             { Name: _("Requires"), Units: this.props.unit.Requires },
             { Name: _("Requisite"), Units: this.props.unit.Requisite },
             { Name: _("Wants"), Units: this.props.unit.Wants },
@@ -429,8 +437,8 @@ export class ServiceDetails extends React.Component {
             { Name: _("Joins Namespace Of"), Units: this.props.unit.JoinsNamespaceOf }
         ];
 
-        let conditions = this.props.unit.Conditions;
-        let notMetConditions = [];
+        const conditions = this.props.unit.Conditions;
+        const notMetConditions = [];
         if (conditions)
             conditions.map(condition => {
                 if (condition[4] < 0)
@@ -438,24 +446,22 @@ export class ServiceDetails extends React.Component {
             });
 
         return (
-            <React.Fragment>
+            <>
                 { (this.state.note || this.state.error) &&
                     <ServiceConfirmDialog title={ this.state.error ? _("Error") : _("Note") }
                                           message={ this.state.error || this.state.note }
                                           close={ () => this.setState(this.state.error ? { error:"" } : { note:"" }) }
                     />
                 }
-                { hasLoadError
-                    ? <div className="alert alert-danger">
-                        <span className="pficon pficon-error-circle-o" />
-                        <strong>{this.props.unit.LoadState}</strong>
+                { (hasLoadError && this.props.unit.LoadState)
+                    ? <Alert variant="danger" isInline title={this.props.unit.LoadState}>
                         {loadError}
-                    </div>
-                    : <React.Fragment>
+                    </Alert>
+                    : <>
                         <div className="service-top-panel">
                             <h2 className="service-name">{this.props.unit.Description}</h2>
                             { this.props.permitted &&
-                                <React.Fragment>
+                                <>
                                     { !masked && !isStatic &&
                                         <OverlayTrigger overlay={ <Tooltip id="switch-unit-state">{ tooltipMessage }</Tooltip> } placement='right'>
                                             <span>
@@ -463,8 +469,8 @@ export class ServiceDetails extends React.Component {
                                             </span>
                                         </OverlayTrigger>
                                     }
-                                    <ServiceActions { ...{ active, enabled, masked } } actionCallback={this.unitAction} fileActionCallback={this.unitFileAction} disabled={this.state.waitsAction || this.state.waitsFileAction} />
-                                </React.Fragment>
+                                    <ServiceActions { ...{ active, failed, enabled, masked } } canReload={this.props.unit.CanReload} actionCallback={this.unitAction} fileActionCallback={this.unitFileAction} disabled={this.state.waitsAction || this.state.waitsFileAction} />
+                                </>
                             }
                         </div>
                         <form className="ct-form">
@@ -476,19 +482,19 @@ export class ServiceDetails extends React.Component {
                             <label className="control-label" htmlFor="path">{ _("Path") }</label>
                             <span id="path">{this.props.unit.FragmentPath}</span>
                             <hr />
-                            { this.props.originTemplate &&
-                                <React.Fragment>
-                                    <label className="control-label" />
+                            { this.props.originTemplate && this.props.isValid(this.props.originTemplate) &&
+                                <>
+                                    <div />
                                     <span>{_("Instance of template: ")}<a href={"#/" + this.props.originTemplate}>{this.props.originTemplate}</a></span>
-                                </React.Fragment>
+                                </>
                             }
                             { notMetConditions.length > 0 &&
-                                <React.Fragment>
+                                <>
                                     <label className="control-label failed" htmlFor="condition">{ _("Condition failed") }</label>
                                     <div id="condition" className="ct-validation-wrapper">
                                         {notMetConditions.map(cond => <div key={cond.split(' ').join('')}>{cond}</div>)}
                                     </div>
-                                </React.Fragment>
+                                </>
                             }
                             <hr />
                             {relationships.map(rel =>
@@ -501,9 +507,9 @@ export class ServiceDetails extends React.Component {
                                     </React.Fragment>
                             )}
                         </form>
-                    </React.Fragment>
+                    </>
                 }
-            </React.Fragment>
+            </>
         );
     }
 }

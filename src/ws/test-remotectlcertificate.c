@@ -41,6 +41,7 @@ typedef struct {
 typedef struct {
   const gchar **files;
   const gchar *expected_message;
+  const gchar *preinstall;
   gboolean readonly_dir;
   gboolean ensure;
 } TestFixture;
@@ -96,6 +97,20 @@ setup (TestCase *tc,
     {
       g_assert (g_mkdir_with_parents (tc->cert_dir, 0755) == 0);
       g_assert (g_chmod (tc->cert_dir, 0555) == 0);
+    }
+
+  if (fix->preinstall)
+    {
+      GError *error = NULL;
+      g_autofree gchar *contents = NULL;
+      g_autofree gchar *dest = g_build_filename (tc->cert_dir, "1.crt", NULL);
+
+      g_assert (g_mkdir_with_parents (tc->cert_dir, 0755) == 0);
+      g_file_get_contents (fix->preinstall, &contents, NULL, &error);
+      g_assert_no_error (error);
+      g_assert (contents);
+      g_file_set_contents (dest, contents, -1, &error);
+      g_assert_no_error (error);
     }
 
   g_ptr_array_add (ptr, "certificate");
@@ -164,19 +179,30 @@ test_combine_bad (TestCase *test,
 }
 
 const gchar *no_files[] = { NULL };
-const gchar *good_files[3] = { SRCDIR "/src/bridge/mock-server.crt",
-                               SRCDIR "/src/bridge/mock-server.key", NULL };
-const gchar *bad_files[2] = { "bad", NULL };
-const gchar *bad_files2[3] = { SRCDIR "/src/bridge/mock-server.crt", "bad2", NULL };
-const gchar *invalid_files1[3] = { SRCDIR "/src/ws/mock-config/cockpit/cockpit.conf",
-                                   SRCDIR "/src/ws/mock-config/cockpit/cockpit-alt.conf", NULL };
-const gchar *invalid_files2[3] = { SRCDIR "/src/bridge/mock-server.crt",
-                                   SRCDIR "/src/bridge/mock-client.crt", NULL };
-const gchar *invalid_files3[2] = { SRCDIR "/src/bridge/mock-client.key", NULL };
+const gchar *good_rsa_files[] = { SRCDIR "/src/bridge/mock-server.crt",
+                                  SRCDIR "/src/bridge/mock-server.key", NULL };
+const gchar *good_ecc_files[] = { SRCDIR "/src/ws/mock-ecc.crt",
+                                  SRCDIR "/src/ws/mock-ecc.key", NULL };
+const gchar *bad_files[] = { "bad", NULL };
+const gchar *bad_files2[] = { SRCDIR "/src/bridge/mock-server.crt", "bad2", NULL };
+const gchar *invalid_files1[] = { SRCDIR "/src/ws/mock-config/cockpit/cockpit.conf",
+                                  SRCDIR "/src/ws/mock-config/cockpit/cockpit-alt.conf", NULL };
+const gchar *invalid_files2[] = { SRCDIR "/src/bridge/mock-server.crt",
+                                  SRCDIR "/src/bridge/mock-client.crt", NULL };
+const gchar *invalid_files3[] = { SRCDIR "/src/bridge/mock-client.key", NULL };
 
-static const TestFixture fixture_good_file = {
+/* test both possible orders in combined files: certs|key and key|certs */
+#define combined_key_first SRCDIR "/src/ws/mock-combined.crt"
+#define combined_key_last SRCDIR "/test/verify/files/cert-chain.cert"
+
+static const TestFixture fixture_good_rsa_file = {
   .expected_message = NULL,
-  .files = good_files
+  .files = good_rsa_files
+};
+
+static const TestFixture fixture_good_ecc_file = {
+  .expected_message = NULL,
+  .files = good_ecc_files
 };
 
 static const TestFixture fixture_bad_file = {
@@ -211,13 +237,25 @@ static const TestFixture fixture_create_no_permission = {
   .ensure = TRUE
 };
 
+static const TestFixture fixture_preinstall_combined_key_first = {
+    .preinstall = combined_key_first,
+    .files = no_files,
+};
+
+static const TestFixture fixture_preinstall_combined_key_last = {
+    .preinstall = combined_key_last,
+    .files = no_files,
+};
+
 int
 main (int argc,
       char *argv[])
 {
   cockpit_test_init (&argc, &argv);
 
-  g_test_add ("/remotectl-certificate/combine-good", TestCase, &fixture_good_file,
+  g_test_add ("/remotectl-certificate/combine-good-rsa", TestCase, &fixture_good_rsa_file,
+              setup, test_combine_good, teardown);
+  g_test_add ("/remotectl-certificate/combine-good-ecc", TestCase, &fixture_good_ecc_file,
               setup, test_combine_good, teardown);
   g_test_add ("/remotectl-certificate/combine-bad-file", TestCase, &fixture_bad_file,
               setup, test_combine_bad, teardown);
@@ -231,5 +269,9 @@ main (int argc,
               setup, test_combine_bad, teardown);
   g_test_add ("/remotectl-certificate/create-no-permission", TestCase, &fixture_create_no_permission,
               setup, test_combine_bad, teardown);
+  g_test_add ("/remotectl-certificate/load-combined-key-first", TestCase, &fixture_preinstall_combined_key_first,
+              setup, test_combine_good, teardown);
+  g_test_add ("/remotectl-certificate/load-combined-key-last", TestCase, &fixture_preinstall_combined_key_last,
+              setup, test_combine_good, teardown);
   return g_test_run ();
 }

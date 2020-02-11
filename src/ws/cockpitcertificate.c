@@ -199,13 +199,12 @@ sscg_make_dummy_cert (const gchar *key_file,
                       const gchar *ca_file,
                       GError **error)
 {
-  gboolean ret = FALSE;
   gint exit_status;
-  gchar *stderr_str = NULL;
-  gchar *command_line = NULL;
-  gchar *cn = get_common_name ();
-  gchar *machine_id = get_machine_id ();
-  gchar *org;
+  g_autofree gchar *stderr_str = NULL;
+  g_autofree gchar *command_line = NULL;
+  g_autofree gchar *cn = get_common_name ();
+  g_autofree gchar *machine_id = get_machine_id ();
+  const gchar *org = NULL;
 
   if (machine_id)
     org = machine_id;
@@ -237,30 +236,23 @@ sscg_make_dummy_cert (const gchar *key_file,
       g_info ("Error generating temporary dummy cert using sscg, "
               "falling back to openssl");
       g_clear_error (error);
-      goto out;
+      return FALSE;
     }
 
-  ret = TRUE;
-
-out:
-  g_free (stderr_str);
-  g_free (command_line);
-  g_free (machine_id);
-  g_free (cn);
-  return ret;
+  return TRUE;
 }
 
 gchar *
 cockpit_certificate_create_selfsigned (GError **error)
 {
-  gchar *dir = NULL;
-  gchar *cert_path = NULL;
-  gchar *ca_path = NULL;
-  gchar *tmp_key = NULL;
-  gchar *tmp_pem = NULL;
-  gchar *cert_data = NULL;
-  gchar *pem_data = NULL;
-  gchar *key_data = NULL;
+  g_autofree gchar *dir = NULL;
+  g_autofree gchar *cert_path = NULL;
+  g_autofree gchar *ca_path = NULL;
+  g_autofree gchar *tmp_key = NULL;
+  g_autofree gchar *tmp_pem = NULL;
+  g_autofree gchar *cert_data = NULL;
+  g_autofree gchar *pem_data = NULL;
+  g_autofree gchar *key_data = NULL;
   gchar *ret = NULL;
 
   dir = g_build_filename (cockpit_conf_get_dirs ()[0], "cockpit", "ws-certs.d", NULL);
@@ -321,20 +313,12 @@ cockpit_certificate_create_selfsigned (GError **error)
   cert_path = NULL;
 
 out:
-  g_free (cert_path);
-  g_free (ca_path);
   cockpit_memory_clear (key_data, -1);
-  g_free (key_data);
-  g_free (pem_data);
   cockpit_memory_clear (cert_data, -1);
-  g_free (cert_data);
   if (tmp_key)
     g_unlink (tmp_key);
   if (tmp_pem)
     g_unlink (tmp_pem);
-  g_free (tmp_key);
-  g_free (tmp_pem);
-  g_free (dir);
   return ret;
 }
 
@@ -349,6 +333,32 @@ cockpit_certificate_locate_gerror (GError **error)
       g_free (error_str);
     }
   return path;
+}
+
+gchar *
+cockpit_certificate_locate_selfsign_ca ()
+{
+  g_autofree gchar *cert_path = NULL;
+  g_autofree gchar *base = NULL;
+  gchar *ca_path = NULL;
+
+  cert_path = cockpit_certificate_locate_gerror (NULL);
+  if (cert_path)
+    {
+      base = g_path_get_basename (cert_path);
+      if (g_strcmp0 (base, "0-self-signed.cert") == 0)
+        {
+          g_autofree gchar *dir = g_path_get_dirname (cert_path);
+          ca_path = g_build_filename (dir, "0-self-signed-ca.pem", NULL);
+          if (!g_file_test (ca_path, G_FILE_TEST_EXISTS))
+            {
+              g_free (ca_path);
+              ca_path = NULL;
+            }
+        }
+    }
+
+  return ca_path;
 }
 
 static gint
@@ -370,21 +380,42 @@ cockpit_certificate_load (const gchar *cert_path,
                           GError **error)
 {
   int r;
-  g_autofree gchar *certs = NULL;
-  g_autofree gchar *key = NULL;
-  g_autofree gchar *combined = NULL;
+  g_autofree gchar *key_path = cockpit_certificate_key_path (cert_path);
   GTlsCertificate *cert;
+  GError *key_error = NULL;
 
-  r = cockpit_certificate_parse (cert_path, &certs, &key);
-  if (r < 0)
+  /* check if we have a separate .key file */
+  cert = g_tls_certificate_new_from_files (cert_path, key_path, &key_error);
+  if (cert)
     {
-      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (-r), "Failed to load %s: %s", cert_path, g_strerror (-r));
-      return NULL;
+      g_debug ("loaded separate cert %s and key %s", cert_path, key_path);
+    }
+  else if (g_error_matches (key_error, G_FILE_ERROR, G_FILE_ERROR_NOENT))
+    {
+      /* combined cert+key file */
+      g_autofree gchar *certs = NULL;
+      g_autofree gchar *key = NULL;
+      g_autofree gchar *combined = NULL;
+
+      g_debug ("%s does not exist, falling back to combined certificate", key_path);
+      g_clear_error (&key_error);
+
+      r = cockpit_certificate_parse (cert_path, &certs, &key);
+      if (r < 0)
+        {
+          g_set_error (error, G_IO_ERROR, g_io_error_from_errno (-r), "Failed to load %s: %s", cert_path, g_strerror (-r));
+          return NULL;
+        }
+
+      /* Gio only has constructors for parsing certs and key from one string, so combine them */
+      combined = g_strconcat (certs, key, NULL);
+      cert = g_tls_certificate_new_from_pem (combined, -1, error);
+    }
+  else
+    {
+      g_propagate_error (error, key_error);
     }
 
-  /* Gio only has constructors for parsing certs and key from one string, so combine them */
-  combined = g_strconcat (certs, key, NULL);
-  cert = g_tls_certificate_new_from_pem (combined, -1, error);
   if (cert == NULL)
     g_prefix_error (error, "%s: ", cert_path);
   else

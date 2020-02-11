@@ -17,7 +17,7 @@ dependencies="\
     glib-networking \
     glib-networking-dbgsym\
     gtk-doc-tools \
-    intltool \
+    gettext \
     libc6-dbg \
     libfontconfig1 \
     libglib2.0-0-dbgsym \

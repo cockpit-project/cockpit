@@ -5,9 +5,10 @@ import cockpit from "cockpit";
 import moment from "moment";
 import React from "react";
 import ReactDOM from 'react-dom';
-import { ServiceTabs } from "./services.jsx";
+import { ServiceTabs, service_tabs_suffixes } from "./services.jsx";
 import { ServiceDetails, ServiceTemplate } from "./service-details.jsx";
 import { journal } from "journal";
+import { page_status } from "notifications";
 import "patterns";
 import "bootstrap-datepicker/dist/js/bootstrap-datepicker";
 
@@ -127,6 +128,12 @@ $(function() {
             return name_esc(str);
     }
 
+    function is_template(id) {
+        const tp = id.indexOf("@");
+        const sp = id.lastIndexOf(".");
+        return (tp != -1 && (tp + 1 == sp || tp + 1 == id.length));
+    }
+
     var systemd_client = cockpit.dbus("org.freedesktop.systemd1", { superuser: "try" });
     var systemd_manager = systemd_client.proxy("org.freedesktop.systemd1.Manager",
                                                "/org/freedesktop/systemd1");
@@ -164,7 +171,7 @@ $(function() {
         function get_unit(path) {
             var unit = units_by_path[path];
             if (!unit) {
-                unit = { aliases: [ ], path: path };
+                unit = { aliases: [], path: path };
                 units_by_path[path] = unit;
             }
             return unit;
@@ -182,7 +189,7 @@ $(function() {
             prop("ActiveState");
             prop("SubState");
 
-            if (props["Id"])
+            if (props.Id)
                 path_by_id[unit.Id] = unit.path;
 
             update_computed_properties(unit);
@@ -234,7 +241,7 @@ $(function() {
         function refresh_properties(path, tweak_callback, fail_callback) {
             systemd_client.call(path,
                                 "org.freedesktop.DBus.Properties", "GetAll",
-                                [ "org.freedesktop.systemd1.Unit" ])
+                                ["org.freedesktop.systemd1.Unit"])
                     .fail(function(error) {
                         console.log(error);
                         if (fail_callback)
@@ -282,9 +289,20 @@ $(function() {
                     .toLowerCase();
             var current_type_filter = parseInt($('#services-dropdown').val());
 
-            function cmp_path(a, b) { return units_by_path[a].Id.localeCompare(units_by_path[b].Id) }
-            var sorted_keys = Object.keys(units_by_path).sort(cmp_path);
-            var units = [ ];
+            function cmp_units(a, b) {
+                const unit_a = units_by_path[a];
+                const unit_b = units_by_path[b];
+                const failed_a = unit_a.ActiveState == "failed" ? 1 : 0;
+                const failed_b = unit_b.ActiveState == "failed" ? 1 : 0;
+
+                if (failed_a != failed_b)
+                    return failed_b - failed_a;
+                else
+                    return unit_a.Id.localeCompare(unit_b.Id);
+            }
+
+            var sorted_keys = Object.keys(units_by_path).sort(cmp_units);
+            var units = [];
             var header = {
                 Description: _("Description"),
                 Id: _("Name"),
@@ -369,14 +387,50 @@ $(function() {
             render();
         }
 
-        ReactDOM.render(
-            React.createElement(ServiceTabs, {
-                onChange: tab_changed,
-            }),
-            document.getElementById("services-filter"));
+        let tab_warnings = { };
+
+        function render_tabs() {
+            ReactDOM.render(
+                React.createElement(ServiceTabs, {
+                    onChange: tab_changed,
+                    warnings: tab_warnings,
+                }),
+                document.getElementById("services-filter"));
+        }
+
+        render_tabs();
 
         $("#services-text-filter").on("input", render);
         $(document).on("click", "#clear-all-filters", clear_filters);
+
+        function process_failed_units() {
+            const failed = new Set();
+            tab_warnings = { };
+            for (const p in units_by_path) {
+                const u = units_by_path[p];
+                if (u.ActiveState == "failed") {
+                    const suffix = u.Id.substr(u.Id.lastIndexOf('.') + 1);
+                    if (service_tabs_suffixes.has(suffix)) {
+                        failed.add(u.Id);
+                        tab_warnings[suffix] = true;
+                    }
+                }
+            }
+
+            render_tabs();
+            if (failed.size > 0) {
+                page_status.set_own({
+                    type: "warning",
+                    title: cockpit.format(cockpit.ngettext("$0 service has failed",
+                                                           "$0 services have failed",
+                                                           failed.size),
+                                          failed.size),
+                    details: [...failed]
+                });
+            } else {
+                page_status.set_own(null);
+            }
+        }
 
         var update_run = 0;
 
@@ -423,7 +477,7 @@ $(function() {
 
                 seen_ids[name] = true;
 
-                if (name.indexOf("@") != -1) {
+                if (is_template(name)) {
                     // A template, create a fake unit for it
                     units_by_path[name] = {
                         Id: name,
@@ -482,6 +536,7 @@ $(function() {
                             return;
                         for (var i = 0; i < result.length; i++)
                             record_unit_state(result[i]);
+                        process_failed_units();
                         systemd_manager.ListUnitFiles()
                                 .fail(fail)
                                 .done(function(result) {
@@ -507,23 +562,32 @@ $(function() {
 
         $(systemd_manager).on("JobNew JobRemoved", function(event, number, path, unit_id, result) {
             var unit_path = path_by_id[unit_id];
-            if (unit_path)
+            if (unit_path) {
                 refresh_properties(unit_path);
+                process_failed_units();
+            }
         });
 
-        systemd_client.subscribe({ 'interface': "org.freedesktop.DBus.Properties",
-                                   'member': "PropertiesChanged"
+        systemd_client.subscribe({
+            interface: "org.freedesktop.DBus.Properties",
+            member: "PropertiesChanged"
         },
                                  function(path, iface, signal, args) {
                                      var unit = units_by_path[path];
                                      if (unit) {
                                          update_properties(unit, args[1]);
                                          render();
+                                         process_failed_units();
                                      }
                                  });
 
         $(systemd_manager).on("UnitFilesChanged", function(event) {
             update_all();
+        });
+
+        $(systemd_manager).on("Reloading", function(event, reloading) {
+            if (!reloading)
+                update_all();
         });
 
         $('#services-dropdown').on('change', render);
@@ -548,13 +612,13 @@ $(function() {
                     s = s + systemd_escape(param);
                     if (sp != -1)
                         s = s + cur_unit_id.substring(sp);
-                    cockpit.location.go([ s ]);
+                    cockpit.location.go([s]);
                 }
             }
         }
 
         function is_valid(id) {
-            let unit = units_by_path[path_by_id[id]];
+            const unit = units_by_path[path_by_id[id]];
             return (unit && unit.LoadState !== "not-found");
         }
 
@@ -586,12 +650,12 @@ $(function() {
 
         var permission = cockpit.permission({ admin: true });
 
-        $("#service").hide();
+        $("#service").prop("hidden", true);
         if (unit_id === null) {
             return;
         }
 
-        $('#service-log-box').hide();
+        $('#service-log-box').prop("hidden", true);
         $("#service-invalid").hide();
         $('#service .breadcrumb .active').text(unit_id);
 
@@ -613,7 +677,7 @@ $(function() {
                     instantiateCallback: unit_instantiate,
                 }),
                 document.getElementById("service-details"));
-            $("#service").show();
+            $("#service").prop("hidden", false);
         } else {
             systemd_manager.LoadUnit(unit_id)
                     .done(function(path) {
@@ -623,7 +687,7 @@ $(function() {
                             unit.wait(function() {
                                 if (cur_unit == unit) {
                                     render();
-                                    $("#service").show();
+                                    $("#service").prop("hidden", false);
 
                                     refresh_unit_file_state();
                                     if (cur_unit.LoadState === "loaded" || cur_unit.LoadState === "masked") {
@@ -632,12 +696,12 @@ $(function() {
                                             cur_journal_watcher.stop();
                                             cur_journal_watcher = null;
                                         }
-                                        $('#service-log-box').show();
+                                        $('#service-log-box').prop("hidden", false);
                                     }
 
-                                    cur_journal_watcher = journal.logbox([ "_SYSTEMD_UNIT=" + cur_unit_id, "+",
+                                    cur_journal_watcher = journal.logbox(["_SYSTEMD_UNIT=" + cur_unit_id, "+",
                                         "COREDUMP_UNIT=" + cur_unit_id, "+",
-                                        "UNIT=" + cur_unit_id ], 10);
+                                        "UNIT=" + cur_unit_id], 10);
                                     $('#service-log')
                                             .empty()
                                             .append(cur_journal_watcher);
@@ -651,14 +715,14 @@ $(function() {
                         console.log(error);
                         $("#service-error-message").text(error.toString());
                         $("#service-invalid").show();
-                        $("#service").show();
+                        $("#service").prop("hidden", false);
                         $("#service-details").hide();
                     });
         }
     }
 
     function unit_goto() {
-        cockpit.location.go([ $(this).attr("data-goto-unit") ]);
+        cockpit.location.go([$(this).attr("data-goto-unit")]);
     }
 
     function refresh_unit() {
@@ -666,7 +730,7 @@ $(function() {
         if (unit) {
             systemd_client.call(unit.path,
                                 "org.freedesktop.DBus.Properties", "GetAll",
-                                [ "org.freedesktop.systemd1.Unit" ])
+                                ["org.freedesktop.systemd1.Unit"])
                     .fail(function(error) {
                         console.log(error);
                     })
@@ -716,22 +780,26 @@ $(function() {
     function update() {
         var path = cockpit.location.path;
 
+        if (!systemd_manager.valid)
+            return;
+
         if (path.length === 0) {
             show_unit(null);
             $("#services").show();
         } else if (path.length == 1) {
             $("#services").hide();
-            $('#service-log-box').hide();
+            $('#service-log-box').prop("hidden", true);
             show_unit(cockpit.location.path[0]);
         } else { /* redirect */
             console.warn("not a init location: " + path);
             cockpit.location = '';
         }
-        $("body").show();
+        $("body").prop("hidden", false);
         ensure_units();
     }
 
     $(cockpit).on("locationchanged", update);
+    $(cockpit).on("visibilitychange", update);
 
     $('#service-navigate-home').on("click", function() {
         cockpit.location.go('/');
@@ -744,9 +812,8 @@ $(function() {
      */
     var permission = cockpit.permission({ admin: true });
     $(permission).on("changed", function() {
-        if (permission.allowed === false) {
-            $("#create-timer").addClass("accounts-privileged");
-            $(".accounts-privileged").update_privileged(
+        if (!permission.allowed) {
+            $("#create-timer").update_privileged(
                 permission, cockpit.format(
                     _("The user <b>$0</b> does not have permissions for creating timers"),
                     permission.user ? permission.user.name : ''),
@@ -788,11 +855,11 @@ $(function() {
     update_time();
     var timedate_client = cockpit.dbus('org.freedesktop.timedate1');
     timedate_client.subscribe({
-        'interface': "org.freedesktop.DBus.Properties",
-        'member': "PropertiesChanged"
+        interface: "org.freedesktop.DBus.Properties",
+        member: "PropertiesChanged"
     }, update_time);
     var timer_unit = { };
-    var repeat_array = [ ];
+    var repeat_array = [];
     var error = false;
     var repeat_hourly_template = $("#repeat-hourly-tmpl").html();
     mustache.parse(repeat_hourly_template);
@@ -908,7 +975,7 @@ $(function() {
                 .attr("value", "1");
         $(".form-control").removeClass("has-error");
         $(".has-error").hide();
-        repeat_array = [ ];
+        repeat_array = [];
         timer_unit = {
             Calendar_or_Boot: "Boot",
             boot_time_unit:"sec",
@@ -928,15 +995,15 @@ $(function() {
                 timer_unit.repeat = item;
         });
         if (val === 0) {
-            $("#specific-time-without-repeat").show();
+            $("#specific-time-without-repeat").prop("hidden", false);
             $("#repeat-time-option").hide();
             $("#close_button").hide();
             $("#hr").val("00");
             $("#min").val("00");
         } else {
-            $("#specific-time-without-repeat").hide();
+            $("#specific-time-without-repeat").prop("hidden", true);
             $("#repeat-time-option").show();
-            repeat_array = [ ];
+            repeat_array = [];
             repeat_element();
         }
     }
@@ -952,7 +1019,7 @@ $(function() {
             date_to_parse: new Date(clock_realtime_now),
             date: moment().format("YYYY-MM-DD")
         };
-        if (timer_unit.repeat["index"] === 44640)
+        if (timer_unit.repeat.index === 44640)
             repeat_contents.days_text = "1st";
         sync_repeat();
         repeat_array.push(repeat_contents);
@@ -984,7 +1051,7 @@ $(function() {
 
     function display_repeat() {
         $("#repeat-time").html(mustache.render(timer_unit.repeat.render, { repeat: repeat_array }));
-        if (timer_unit.repeat["index"] === 525600) {
+        if (timer_unit.repeat.index === 525600) {
             var nowDate = new Date(clock_realtime_now);
             var today = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(), 0, 0, 0, 0);
             for (var i = 0; i < repeat_array.length; i++) {
@@ -1002,13 +1069,13 @@ $(function() {
 
     function sync_repeat() {
         var i = 0;
-        if (timer_unit.repeat["index"] === 60) {
+        if (timer_unit.repeat.index === 60) {
             for (; i < repeat_array.length; i++) {
                 repeat_array[i].minutes = $("[data-index='" + i + "'][data-content='minutes']")
                         .val()
                         .trim();
             }
-        } else if (timer_unit.repeat["index"] === 1440) {
+        } else if (timer_unit.repeat.index === 1440) {
             for (; i < repeat_array.length; i++) {
                 repeat_array[i].minutes = $("[data-index='" + i + "'][data-content='minutes']")
                         .val()
@@ -1017,7 +1084,7 @@ $(function() {
                         .val()
                         .trim();
             }
-        } else if (timer_unit.repeat["index"] === 10080) {
+        } else if (timer_unit.repeat.index === 10080) {
             for (; i < repeat_array.length; i++) {
                 repeat_array[i].minutes = $("[data-index='" + i + "'][data-content='minutes']")
                         .val()
@@ -1032,7 +1099,7 @@ $(function() {
                         .first()
                         .attr("value");
             }
-        } else if (timer_unit.repeat["index"] === 44640) {
+        } else if (timer_unit.repeat.index === 44640) {
             for (; i < repeat_array.length; i++) {
                 repeat_array[i].minutes = $("[data-index='" + i + "'][data-content='minutes']")
                         .val()
@@ -1047,7 +1114,7 @@ $(function() {
                         .first()
                         .attr("value");
             }
-        } else if (timer_unit.repeat["index"] === 525600) {
+        } else if (timer_unit.repeat.index === 525600) {
             for (; i < repeat_array.length; i++) {
                 repeat_array[i].minutes = $("[data-index='" + i + "'][data-content='minutes']")
                         .val()
@@ -1066,9 +1133,9 @@ $(function() {
             // boot timer
             $("#boot").show();
             $("#boot-error-row").hide();
-            $("#specific-time-without-repeat").hide();
+            $("#specific-time-without-repeat").prop("hidden", true);
             $("#specific-time-error-row").hide();
-            $("#repeat-options").hide();
+            $("#repeat-options").prop("hidden", true);
             $("#repeat-time-option").hide();
             $("#boot-time").val("00");
             $("#boot-time").removeClass("has-error");
@@ -1078,7 +1145,7 @@ $(function() {
             $("#boot").hide();
             $("#boot-error-row").hide();
             $("#specific-time-error-row").hide();
-            $("#repeat-options").show();
+            $("#repeat-options").prop("hidden", false);
             repeat_options(0);
             $("span", $("#drop-repeat"))
                     .first()
@@ -1148,7 +1215,7 @@ $(function() {
         } else {
             // Calendar timer cases
             var i = 0;
-            if (timer_unit.repeat["index"] === 0) {
+            if (timer_unit.repeat.index === 0) {
                 var hr = $("#hr")
                         .val()
                         .trim();
@@ -1169,7 +1236,7 @@ $(function() {
                     $("#min").addClass('has-error');
                     error = true;
                 }
-            } else if (timer_unit.repeat["index"] === 60) {
+            } else if (timer_unit.repeat.index === 60) {
                 for (; i < repeat_array.length; i++) {
                     if (!(/^[0-9]+$/.test(repeat_array[i].minutes.trim()) && repeat_array[i].minutes.trim() <= 59 && repeat_array[i].minutes.trim() >= 0)) {
                         $("[data-index='" + i + "'][data-content='minutes']").addClass('has-error');
@@ -1189,14 +1256,14 @@ $(function() {
                         $("[data-index='" + i + "'][data-content='hours']").addClass('has-error');
                         $("[data-index='" + i + "'][data-content='hr-error']").text(_("Hour needs to be a number between 0-23"));
                     }
-                    if (timer_unit.repeat["index"] === 525600) {
+                    if (timer_unit.repeat.index === 525600) {
                         if (isNaN(repeat_array[i].date_to_parse.getTime()) || repeat_array[i].date_to_parse.getTime() < 0) {
                             error = true;
                             $("[data-index='" + i + "'][data-content='datepicker']").addClass('has-error');
                             $("[data-index='" + i + "'][data-content='date-error']").text(_("Invalid date format."));
                         }
                     }
-                    if (timer_unit.repeat["index"] === 44640 && repeat_array[i].days_value === '31')
+                    if (timer_unit.repeat.index === 44640 && repeat_array[i].days_value === '31')
                         $("[data-index='" + i + "'][data-content='day-error']").html(_("This day doesn't exist in all months.<br> The timer will only be executed in months that have 31st."));
                 }
             }
@@ -1216,7 +1283,7 @@ $(function() {
         timer_unit.Command = $("#command").val();
         timer_unit.boot_time = $("#boot-time").val();
 
-        if (timer_unit.repeat["index"] === 0) {
+        if (timer_unit.repeat.index === 0) {
             timer_unit.repeat_hour = Number($("#hr")
                     .val()
                     .trim());
@@ -1225,29 +1292,29 @@ $(function() {
                     .trim());
             var today = new Date(clock_realtime_now);
             timer_unit.OnCalendar = "OnCalendar=" + today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + today.getDate() + " " + timer_unit.repeat_hour + ":" + timer_unit.repeat_minute + ":00";
-        } else if (timer_unit.repeat["index"] === 60) {
+        } else if (timer_unit.repeat.index === 60) {
             timer_unit.repeat_minute = repeat_array.map(function(item) {
                 return Number(item.minutes);
             });
             timer_unit.OnCalendar = "OnCalendar=*-*-* *:" + timer_unit.repeat_minute + ":00";
-        } else if (timer_unit.repeat["index"] === 1440) {
+        } else if (timer_unit.repeat.index === 1440) {
             timer_unit.OnCalendar = repeat_array.map(function(item) {
                 return "OnCalendar=*-*-* " + Number(item.hours) + ":" + Number(item.minutes) + ":00";
             });
-        } else if (timer_unit.repeat["index"] === 10080) {
+        } else if (timer_unit.repeat.index === 10080) {
             timer_unit.OnCalendar = repeat_array.map(function(item) {
                 return "OnCalendar=" + item.days_text.slice(0, 3) + " *-*-* " + Number(item.hours) + ":" + Number(item.minutes) + ":00";
             });
-        } else if (timer_unit.repeat["index"] === 44640) {
+        } else if (timer_unit.repeat.index === 44640) {
             timer_unit.OnCalendar = repeat_array.map(function(item) {
                 return "OnCalendar=*-*-" + item.days_value + " " + Number(item.hours) + ":" + Number(item.minutes) + ":00";
             });
-        } else if (timer_unit.repeat["index"] === 525600) {
+        } else if (timer_unit.repeat.index === 525600) {
             timer_unit.OnCalendar = repeat_array.map(function(item) {
                 return "OnCalendar=*-" + moment(item.date_to_parse).format('MM') + "-" + moment(item.date_to_parse).format('DD') + " " + Number(item.hours) + ":" + Number(item.minutes) + ":00";
             });
         }
-        if (timer_unit.repeat["index"] !== 60)
+        if (timer_unit.repeat.index !== 60)
             timer_unit.OnCalendar = timer_unit.OnCalendar.toString().replace(/,/g, "\n");
         var invalid = create_timer_file();
         if (invalid)
@@ -1311,12 +1378,15 @@ $(function() {
      * and update() is called.
      */
     systemd_manager.wait(function() {
-        systemd_manager.Subscribe()
-                .fail(function(error) {
-                    if (error.name != "org.freedesktop.systemd1.AlreadySubscribed" &&
+        if (systemd_manager.valid) {
+            systemd_manager.Subscribe()
+                    .fail(function(error) {
+                        if (error.name != "org.freedesktop.systemd1.AlreadySubscribed" &&
                         error.name != "org.freedesktop.DBus.Error.FileExists")
-                        console.warn("Subscribing to systemd signals failed", error);
-                });
-        update();
+                            console.warn("Subscribing to systemd signals failed", error);
+                    });
+            update();
+        } else
+            console.warn("Connecting to systemd failed");
     });
 });

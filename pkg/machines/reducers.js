@@ -18,7 +18,7 @@
  */
 import { combineReducers } from 'redux/dist/redux';
 import VMS_CONFIG from "./config.js";
-import { logDebug } from './helpers.js';
+import { logDebug, isObjectEmpty } from './helpers.js';
 import {
     ADD_UI_VM,
     DELETE_UI_VM,
@@ -105,9 +105,15 @@ function interfaces(state, action) {
     case UPDATE_ADD_INTERFACE: {
         const { iface } = action.payload;
 
+        if (isObjectEmpty(iface))
+            return [...state, iface]; // initialize iface to empty object
+
         const connectionName = iface.connectionName;
         const index = getFirstIndexOfResource(state, 'name', iface.name, connectionName);
         if (index < 0) { // add
+            const initObjIndex = state.findIndex(obj => isObjectEmpty(obj));
+            if (initObjIndex >= 0)
+                state.splice(initObjIndex, 1); // remove empty initial object
             return [...state, iface];
         }
 
@@ -131,11 +137,22 @@ function networks(state, action) {
     }
     case UPDATE_ADD_NETWORK: {
         const { network, updateOnly } = action.payload;
+
+        if (isObjectEmpty(network))
+            return [...state, network]; // initialize network to empty object
+
         const connectionName = network.connectionName;
         const index = network.id ? getFirstIndexOfResource(state, 'id', network.id, connectionName)
             : getFirstIndexOfResource(state, 'name', network.name, connectionName);
-        if (index < 0 && !updateOnly) { // add
-            return [...state, network];
+        if (index < 0) {
+            if (!updateOnly) {
+                const initObjIndex = state.findIndex(obj => isObjectEmpty(obj));
+                if (initObjIndex >= 0)
+                    state.splice(initObjIndex, 1); // remove empty initial object
+                return [...state, network];
+            } else {
+                return state;
+            }
         }
 
         const updatedNetwork = Object.assign({}, state[index], network);
@@ -152,9 +169,16 @@ function nodeDevices(state, action) {
     switch (action.type) {
     case UPDATE_ADD_NODE_DEVICE: {
         const { nodedev } = action.payload;
+
+        if (isObjectEmpty(nodedev))
+            return [...state, nodedev]; // initialize nodedev to empty object
+
         const connectionName = nodedev.connectionName;
         const index = getFirstIndexOfResource(state, 'name', nodedev.name, connectionName);
         if (index < 0) { // add
+            const initObjIndex = state.findIndex(obj => isObjectEmpty(obj));
+            if (initObjIndex >= 0)
+                state.splice(initObjIndex, 1); // remove empty initial object
             return [...state, nodedev];
         }
 
@@ -189,10 +213,16 @@ function vms(state, action) {
 
     switch (action.type) {
     case UPDATE_ADD_VM: {
+        if (isObjectEmpty(action.vm))
+            return [...state, action.vm]; // initialize vm to empty object
+
         const connectionName = action.vm.connectionName;
         const index = action.vm.id ? getFirstIndexOfResource(state, 'id', action.vm.id, connectionName)
             : getFirstIndexOfResource(state, 'name', action.vm.name, connectionName);
         if (index < 0) { // add
+            const initObjIndex = state.findIndex(obj => isObjectEmpty(obj));
+            if (initObjIndex >= 0)
+                state.splice(initObjIndex, 1); // remove empty initial object
             return [...state, action.vm];
         }
 
@@ -206,7 +236,7 @@ function vms(state, action) {
         }
 
         let updatedVm;
-        if (action.vm['actualTimeInMs'] < 0) { // clear the usage data (i.e. VM went down)
+        if (action.vm.actualTimeInMs < 0) { // clear the usage data (i.e. VM went down)
             logDebug(`Clearing usage data for vm '${action.vm.name}'`);
             updatedVm = Object.assign(indexedVm.vmCopy, action.vm);
             clearUsageData(updatedVm);
@@ -297,13 +327,24 @@ function storagePools(state, action) {
     }
     case UPDATE_ADD_STORAGE_POOL: {
         const { storagePool, updateOnly, } = action.payload;
+
+        if (isObjectEmpty(storagePool))
+            return [...state, storagePool]; // initialize pool to empty object
+
         const connectionName = storagePool.connectionName;
         const index = getFirstIndexOfResource(state, 'id', storagePool.id, connectionName);
-        if (index < 0 && !updateOnly) {
-            return [...state, storagePool];
+        if (index < 0) {
+            if (!updateOnly) {
+                const initObjIndex = state.findIndex(obj => isObjectEmpty(obj));
+                if (initObjIndex >= 0)
+                    state.splice(initObjIndex, 1); // remove empty initial object
+                return [...state, storagePool];
+            } else {
+                return state;
+            }
         }
-        const updatedStoragePool = Object.assign({}, state[index], storagePool);
 
+        const updatedStoragePool = Object.assign({}, state[index], storagePool);
         return replaceResource({ state, updatedResource: updatedStoragePool, index });
     }
     case UPDATE_STORAGE_VOLUMES: {
@@ -328,35 +369,32 @@ function ui(state, action) {
     // transient properties
     state = state || {
         notifications: [],
-        vms: {}, // transient property
+        vms: [], // transient property
     };
     const addVm = () => {
-        let newState = Object.assign({}, state);
-        newState.vms = Object.assign({}, state.vms);
-        const oldVm = newState.vms[action.vm.name];
-        const vm = Object.assign({}, oldVm, action.vm);
-
-        newState.vms = Object.assign({}, newState.vms, {
-            [action.vm.name]: vm,
-        });
-        return newState;
+        const existingVm = state.vms.find(vm => vm.name == action.vm.name && vm.connectionName == action.vm.connectionName);
+        if (existingVm === undefined) {
+            return {
+                ...state,
+                vms: [...state.vms, action.vm]
+            };
+        } else {
+            if (existingVm.isUi) {
+                const updatedVm = Object.assign(existingVm, action.vm);
+                return {
+                    ...state,
+                    vms: [...state.vms.filter(vm => !(vm.name == action.vm.name && vm.connectionName == action.vm.connectionName)), updatedVm]
+                };
+            }
+        }
     };
 
     switch (action.type) {
-    case ADD_UI_VM: {
+    case ADD_UI_VM:
+    case UPDATE_UI_VM:
         return addVm();
-    }
-    case UPDATE_UI_VM: {
-        if (state.vms[action.vm.name] && state.vms[action.vm.name].isUi) {
-            return addVm();
-        }
-        return state;
-    }
     case DELETE_UI_VM: {
-        let newState = Object.assign({}, state);
-        newState.vms = Object.assign({}, state.vms);
-        delete newState.vms[action.vm.name];
-        return newState;
+        return { ...state, vms: state.vms.filter(vm => !(vm.name == action.vm.name && vm.connectionName == action.vm.connectionName)) };
     }
     default:
         return state;
@@ -364,16 +402,16 @@ function ui(state, action) {
 }
 
 function clearUsageData(updatedVm) {
-    updatedVm['actualTimeInMs'] = undefined;
-    updatedVm['cpuTime'] = undefined;
-    updatedVm['cpuUsage'] = undefined;
+    updatedVm.actualTimeInMs = undefined;
+    updatedVm.cpuTime = undefined;
+    updatedVm.cpuUsage = undefined;
 
-    updatedVm['rssMemory'] = undefined;
+    updatedVm.rssMemory = undefined;
 }
 
 function timeSampleUsageData(newVmRecord, previousVmRecord) {
-    if (newVmRecord['actualTimeInMs']) { // new usage data are provided
-        if (previousVmRecord['actualTimeInMs']) { // diff can be computed
+    if (newVmRecord.actualTimeInMs) { // new usage data are provided
+        if (previousVmRecord.actualTimeInMs) { // diff can be computed
             const timeDiff = (newVmRecord.actualTimeInMs - previousVmRecord.actualTimeInMs) * 1000000; // in nanosecs
             if (timeDiff <= 0) {
                 logDebug(`-- timeSampleUsageData(): no time difference`);

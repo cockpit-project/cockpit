@@ -128,6 +128,7 @@ send_init_command (CockpitTransport *transport,
   gchar **names;
   GBytes *bytes;
   gint i;
+  gchar *session_id;
 
   object = json_object_new ();
   json_object_set_string_member (object, "command", "init");
@@ -164,6 +165,10 @@ send_init_command (CockpitTransport *transport,
             json_object_set_object_member (object, "os-release", block);
           g_hash_table_unref (os_release);
         }
+
+      session_id = secure_getenv ("XDG_SESSION_ID");
+      if (session_id)
+        json_object_set_string_member (object, "session-id", session_id);
     }
 
   bytes = cockpit_json_write_bytes (object);
@@ -528,9 +533,6 @@ run_bridge (const gchar *interactive,
   /* Reset the umask, typically this is done in .bashrc for a login shell */
   umask (022);
 
-  sig_term = g_unix_signal_add (SIGTERM, on_signal_done, &terminated);
-  sig_int = g_unix_signal_add (SIGINT, on_signal_done, &interupted);
-
   /* Start daemons if necessary */
   if (!interactive && !privileged_slave)
     {
@@ -539,6 +541,9 @@ run_bridge (const gchar *interactive,
       if (!have_env ("SSH_AUTH_SOCK"))
         agent_pid = start_ssh_agent ();
     }
+
+  sig_term = g_unix_signal_add (SIGTERM, on_signal_done, &terminated);
+  sig_int = g_unix_signal_add (SIGINT, on_signal_done, &interupted);
 
   cockpit_dbus_internal_startup (interactive != NULL);
 
@@ -576,6 +581,7 @@ run_bridge (const gchar *interactive,
   cockpit_dbus_setup_startup ();
   cockpit_dbus_process_startup ();
   cockpit_dbus_machines_startup ();
+  cockpit_dbus_config_startup ();
   cockpit_packages_dbus_startup (packages);
 
   call_update_router_data.router = router;

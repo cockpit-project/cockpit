@@ -53,9 +53,9 @@ export class OthersPanel extends React.Component {
                 <OverviewSidePanelRow client={client}
                                       kind={false}
                                       testkey={dev}
-                                      name={name}
+                                      devname={block_name(block)}
                                       detail={cockpit.format(_("$0 Block Device"), fmt_size(block.Size))}
-                                      go={() => cockpit.location.go([ dev ])}
+                                      go={() => cockpit.location.go([dev])}
                                       job_path={path}
                                       key={path} />
             );

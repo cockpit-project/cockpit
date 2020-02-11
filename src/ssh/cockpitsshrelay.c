@@ -85,6 +85,7 @@ typedef struct {
   gchar *user_known_hosts;
   gint outfd;
 
+  gchar *problem_error;
 } CockpitSshData;
 
 static gchar *tmp_knownhost_file;
@@ -946,31 +947,69 @@ do_password_auth (CockpitSshData *data)
   return rc;
 }
 
+/* We don't support unlocking identities within cockpit-ssh so fail here */
 static int
-do_key_auth (CockpitSshData *data)
+prompt_for_identity_password (const char *prompt, char *buf, size_t len,
+                              int echo, int verify, void *userdata)
+{
+  CockpitSshData *data = (CockpitSshData *) userdata;
+  gchar *identity = NULL;
+  if (ssh_options_get (data->session, SSH_OPTIONS_IDENTITY, &identity) == SSH_OK)
+    {
+      data->problem_error = g_strdup_printf ("locked identity: %s", identity);
+    }
+  if (identity)
+    ssh_string_free_char (identity);
+  return -1;
+}
+
+static int
+do_key_identity_auth (CockpitSshData *data)
 {
   int rc;
+  ssh_key priv_key = NULL;
+  ssh_key pub_key = NULL;
+  gchar *identity = NULL;
+  g_autofree gchar *pub_key_path = NULL;
   const gchar *msg;
-  const gchar *key_data;
-  ssh_key key;
 
-  g_assert (data->initial_auth_data != NULL);
-
-  key_data = cockpit_authorize_type (data->initial_auth_data, NULL);
-  if (!key_data)
-    {
-      g_message ("%s: Got invalid private-key data, %s", data->logname, data->initial_auth_data);
-      return SSH_AUTH_DENIED;
-    }
-
-  rc = ssh_pki_import_privkey_base64 (key_data, NULL, NULL, NULL, &key);
+  rc = ssh_options_get (data->session, SSH_OPTIONS_IDENTITY, &identity);
   if (rc != SSH_OK)
     {
-      g_message ("%s: Got invalid key data, %s", data->logname, data->initial_auth_data);
+      g_debug ("Unable to get identity from config");
       return rc;
     }
 
-  rc = ssh_userauth_publickey (data->session, NULL, key);
+  pub_key_path = g_strconcat (identity, ".pub", NULL);
+  rc = ssh_pki_import_pubkey_file (pub_key_path, &pub_key);
+  /* If the public key file exist and is readable, see if the identity is accepted by the server */
+  if (rc == SSH_OK)
+    {
+      rc = ssh_userauth_try_publickey (data->session, NULL, pub_key);
+      if (rc != SSH_AUTH_SUCCESS)
+        {
+          g_debug ("%s isn't accepted by the server", identity);
+          goto out;
+        }
+    }
+  else if (rc == SSH_EOF)
+    {
+      g_debug ("Public key file %s doesn't exist or isn't readable", pub_key_path);
+    }
+  else
+    {
+      msg = ssh_get_error (data->session);
+      g_warning ("Error importing public key %s: %s", pub_key_path, msg);
+    }
+
+  rc = ssh_pki_import_privkey_file (identity, NULL, prompt_for_identity_password, data, &priv_key);
+  if (rc != SSH_OK)
+    {
+      g_debug ("Unable to import identity %s", identity);
+      goto out;
+    }
+
+  rc = ssh_userauth_publickey (data->session, NULL, priv_key);
   switch (rc)
     {
     case SSH_AUTH_SUCCESS:
@@ -992,7 +1031,67 @@ do_key_auth (CockpitSshData *data)
       g_message ("%s: couldn't key authenticate: %s", data->logname, msg);
     }
 
-  ssh_key_free (key);
+out:
+  if (priv_key)
+      ssh_key_free (priv_key);
+  if (pub_key)
+      ssh_key_free (pub_key);
+  ssh_string_free_char (identity);
+  return rc;
+}
+
+static int
+do_key_auth (CockpitSshData *data)
+{
+  int rc;
+  const gchar *msg;
+
+  g_assert (data->initial_auth_data != NULL);
+
+  rc = do_key_identity_auth (data);
+  if (rc != SSH_AUTH_SUCCESS)
+    {
+      const gchar *key_data;
+      ssh_key key;
+
+      key_data = cockpit_authorize_type (data->initial_auth_data, NULL);
+      if (!key_data)
+        {
+          g_message ("%s: Got invalid private-key data, %s", data->logname, data->initial_auth_data);
+          return SSH_AUTH_DENIED;
+        }
+
+      rc = ssh_pki_import_privkey_base64 (key_data, NULL, NULL, NULL, &key);
+      if (rc != SSH_OK)
+        {
+          g_message ("%s: Got invalid key data, %s", data->logname, data->initial_auth_data);
+          return rc;
+        }
+      rc = ssh_userauth_publickey (data->session, NULL, key);
+      ssh_key_free (key);
+    }
+
+  switch (rc)
+    {
+    case SSH_AUTH_SUCCESS:
+      g_debug ("%s: key auth succeeded", data->logname);
+      break;
+    case SSH_AUTH_DENIED:
+      g_debug ("%s: key auth failed", data->logname);
+      break;
+    case SSH_AUTH_PARTIAL:
+      g_message ("%s: key auth worked, but server wants more authentication",
+                 data->logname);
+      break;
+    case SSH_AUTH_AGAIN:
+      g_message ("%s: key auth failed: server asked for retry",
+                 data->logname);
+      break;
+    default:
+      msg = ssh_get_error (data->session);
+      g_message ("%s: couldn't key authenticate: %s", data->logname, msg);
+    }
+
   return rc;
 }
 
@@ -1002,7 +1101,10 @@ do_agent_auth (CockpitSshData *data)
   int rc;
   const gchar *msg;
 
-  rc = ssh_userauth_agent (data->session, NULL);
+  rc = do_key_identity_auth (data);
+
+  if (rc != SSH_AUTH_SUCCESS)
+    rc = ssh_userauth_agent (data->session, NULL);
   switch (rc)
     {
     case SSH_AUTH_SUCCESS:
@@ -1251,7 +1353,10 @@ send_auth_reply (CockpitSshData *data,
     json_object_set_string_member (object, "host-fingerprint", data->host_fingerprint);
 
   json_object_set_string_member (object, "problem", problem);
-  json_object_set_string_member (object, "error", problem);
+  if (data->problem_error)
+    json_object_set_string_member (object, "error", data->problem_error);
+  else
+    json_object_set_string_member (object, "error", problem);
 
   if (data->auth_results)
     {
@@ -1350,6 +1455,7 @@ cockpit_ssh_connect (CockpitSshData *data,
   const gchar *ignore_hostkey;
   gboolean host_is_whitelisted;
   const gchar *problem;
+  g_autofree gchar *username = NULL;
 
   guint port = 0;
   gchar *host;
@@ -1359,25 +1465,34 @@ cockpit_ssh_connect (CockpitSshData *data,
 
   parse_host (host_arg, &host, &data->username, &port);
 
-  /* Username always comes from auth message when using basic */
-  if (g_strcmp0 (data->auth_type, "basic") == 0)
-    {
-      g_free (data->username);
-      data->username = username_from_basic (data->initial_auth_data);
-    }
-
-  if (!data->username || *data->username == '\0')
-    {
-      g_message ("%s: No username provided", data->logname);
-      problem = "authentication-failed";
-      goto out;
-    }
-
   g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_HOST, host) == 0);
 #if LIBSSH_085
-    g_warn_if_fail (ssh_options_parse_config (data->session, NULL) == 0);
+  g_warn_if_fail (ssh_options_parse_config (data->session, NULL) == 0);
 #endif
-  g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_USER, data->username) == 0);
+
+  if (strrchr (host_arg, '@'))
+    {
+      g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_USER, data->username) == 0);
+    }
+  else if (ssh_options_get (data->session, SSH_OPTIONS_USER, &username) != 0)
+    {
+      /* User comes from auth message when using basic if it's not set in ssh config */
+      if (g_strcmp0 (data->auth_type, "basic") == 0)
+        {
+          g_free (data->username);
+          data->username = username_from_basic (data->initial_auth_data);
+        }
+
+      if (!data->username || *data->username == '\0')
+        {
+          g_message ("%s: No username provided", data->logname);
+          problem = "authentication-failed";
+          goto out;
+        }
+      g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_USER, data->username) == 0);
+    }
+
+  /* If the user specifies a port explicitely, overwrite the config */
   if (port != 0)
     g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_PORT, &port) == 0);
 
@@ -1475,6 +1590,7 @@ cockpit_ssh_data_free (CockpitSshData *data)
   if (data->auth_results)
     g_hash_table_destroy (data->auth_results);
 
+  g_free (data->problem_error);
   g_free (data->conversation);
   g_free (data->username);
   g_free (data->ssh_options);

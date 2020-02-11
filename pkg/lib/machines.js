@@ -185,8 +185,8 @@ function Machines() {
         }
 
         // FIXME: investigate re-using the proxy from Loader (runs in different frame/scope)
-        var bridge = cockpit.dbus(null, { bus: "internal", "superuser": "try" });
-        var mod = bridge.call("/machines", "cockpit.Machines", "Update", [ "99-webui.json", host, values_variant ])
+        var bridge = cockpit.dbus(null, { bus: "internal", superuser: "try" });
+        var mod = bridge.call("/machines", "cockpit.Machines", "Update", ["99-webui.json", host, values_variant])
                 .fail(function(error) {
                     console.error("failed to call cockpit.Machines.Update(): ", error);
                 });
@@ -210,7 +210,7 @@ function Machines() {
 
     self.add = function add(connection_string, color) {
         var values = self.split_connection_string(connection_string);
-        var host = values['address'];
+        var host = values.address;
 
         values = $.extend({
             visible: true,
@@ -221,7 +221,7 @@ function Machines() {
         if (machine)
             machine.on_disk = true;
 
-        return self.change(values['address'], values);
+        return self.change(values.address, values);
     };
 
     self.unused_color = function unused_color() {
@@ -266,7 +266,7 @@ function Machines() {
             if (!machine || machine.label !== values.label) {
                 hostnamed = cockpit.dbus("org.freedesktop.hostname1", { host: conn_to });
                 call = hostnamed.call("/org/freedesktop/hostname1", "org.freedesktop.hostname1",
-                                      "SetPrettyHostname", [ values.label, true ])
+                                      "SetPrettyHostname", [values.label, true])
                         .always(function() {
                             hostnamed.close();
                         })
@@ -310,8 +310,10 @@ function Machines() {
             }
         }
 
-        refresh({ content: content,
-                  overlay: $.extend({ }, last.overlay, changes) }, true);
+        refresh({
+            content: content,
+            overlay: $.extend({ }, last.overlay, changes)
+        }, true);
     };
 
     self.overlay = function overlay(host, values) {
@@ -522,7 +524,7 @@ function Loader(machines, session_only) {
 
         if (!machine.on_disk && machine.host_key) {
             options['temp-session'] = false; /* Compatibility option */
-            options['session'] = 'shared';
+            options.session = 'shared';
             options['host-key'] = machine.host_key;
         }
 
@@ -577,17 +579,20 @@ function Loader(machines, session_only) {
         */
 
         function watch_manifests() {
-            var dbus = cockpit.dbus(null, { bus: "internal",
-                                            host: machine.connection_string
+            var dbus = cockpit.dbus(null, {
+                bus: "internal",
+                host: machine.connection_string
             });
             bridge_dbus[host] = dbus;
-            dbus.subscribe({ path: "/packages",
-                             interface: "org.freedesktop.DBus.Properties",
-                             member: "PropertiesChanged" },
+            dbus.subscribe({
+                path: "/packages",
+                interface: "org.freedesktop.DBus.Properties",
+                member: "PropertiesChanged"
+            },
                            function (path, iface, mamber, args) {
                                if (args[0] == "cockpit.Packages") {
-                                   if (args[1]["Manifests"]) {
-                                       var manifests = JSON.parse(args[1]["Manifests"].v);
+                                   if (args[1].Manifests) {
+                                       var manifests = JSON.parse(args[1].Manifests.v);
                                        machines.overlay(host, { manifests: manifests });
                                    }
                                }
@@ -598,7 +603,7 @@ function Loader(machines, session_only) {
                the first login, but if you reload the shell, we
                will also reload the packages.
             */
-            dbus.call("/packages", "cockpit.Packages", "ReloadHint", [ ]);
+            dbus.call("/packages", "cockpit.Packages", "ReloadHint", []);
         }
 
         function request_hostname() {
@@ -681,8 +686,10 @@ function Loader(machines, session_only) {
 
     self.expect_restart = function expect_restart(host) {
         var parts = machines.split_connection_string(host);
-        machines.overlay(parts.address, { restarting: true,
-                                          problem: null });
+        machines.overlay(parts.address, {
+            restarting: true,
+            problem: null
+        });
     };
 
     self.close = function close() {

@@ -38,6 +38,9 @@ var info = {
             "networkmanager/firewall.jsx"
         ],
 
+        "playground/index": [
+            "playground/index.js",
+        ],
         "playground/exception": [
             "playground/exception.js",
         ],
@@ -68,6 +71,12 @@ var info = {
         "playground/translate": [
             "playground/translate",
         ],
+        "playground/preloaded": [
+            "playground/preloaded.js",
+        ],
+        "playground/notifications-receiver": [
+            "playground/notifications-receiver.js",
+        ],
 
         "realmd/domain": [
             "realmd/operation.js",
@@ -82,9 +91,6 @@ var info = {
             "shell/index.js",
             "shell/shell.less",
         ],
-        "shell/index-no-machines": [
-            "shell/index-no-machines.js",
-        ],
 
         "sosreport/sosreport": [
             "sosreport/index.js",
@@ -97,22 +103,27 @@ var info = {
 
         "systemd/services": [
             "systemd/init.js",
-            "systemd/services.css",
+            "systemd/services.less",
         ],
         "systemd/logs": [
             "systemd/logs.js",
+            "systemd/logs.less",
         ],
-        "systemd/system": [
-            "systemd/host.js",
-            "systemd/host.css",
+        "systemd/overview": [
+            "systemd/overview.jsx",
+            "systemd/overview.less",
         ],
         "systemd/terminal": [
             "systemd/terminal.jsx",
-            "systemd/terminal.css",
+            "systemd/terminal.less",
         ],
         "systemd/hwinfo": [
             "systemd/hwinfo.jsx",
-            "systemd/hwinfo.css",
+            "systemd/hwinfo.less",
+        ],
+        "systemd/graphs": [
+            "systemd/graphs.js",
+            "systemd/graphs.less",
         ],
 
         "tuned/performance": [
@@ -167,6 +178,7 @@ var info = {
 
         "packagekit/index.html",
 
+        "playground/index.html",
         "playground/exception.html",
         "playground/hammer.gif",
         "playground/jquery-patterns.html",
@@ -178,6 +190,8 @@ var info = {
         "playground/speed.html",
         "playground/test.html",
         "playground/translate.html",
+        "playground/preloaded.html",
+        "playground/notifications-receiver.html",
 
         "selinux/setroubleshoot.html",
 
@@ -185,7 +199,6 @@ var info = {
         "shell/images/server-large.png",
         "shell/images/server-small.png",
         "shell/index.html",
-        "shell/simple.html",
         "shell/shell.html",
 
         "sosreport/index.html",
@@ -196,6 +209,7 @@ var info = {
         "storaged/images/storage-disk.png",
 
         "systemd/index.html",
+        "systemd/graphs.html",
         "systemd/logs.html",
         "systemd/services.html",
         "systemd/terminal.html",
@@ -217,8 +231,7 @@ var externals = {
 var webpack = require("webpack");
 var copy = require("copy-webpack-plugin");
 var html = require('html-webpack-plugin');
-var extract = require("extract-text-webpack-plugin");
-var extend = require("extend");
+var miniCssExtractPlugin = require('mini-css-extract-plugin');
 var path = require("path");
 var fs = require("fs");
 
@@ -278,9 +291,27 @@ info.files.forEach(function(value) {
 });
 info.files = files;
 
+// Hide mini-css-extract-plugin spam logs
+class CleanUpStatsPlugin {
+  shouldPickStatChild(child) {
+    return child.name.indexOf('mini-css-extract-plugin') !== 0;
+  }
+
+  apply(compiler) {
+    compiler.hooks.done.tap('CleanUpStatsPlugin', (stats) => {
+      const children = stats.compilation.children;
+      if (Array.isArray(children)) {
+        stats.compilation.children = children
+          .filter(child => this.shouldPickStatChild(child));
+      }
+    });
+  }
+}
+
 var plugins = [
     new copy(info.files),
-    new extract("[name].css"),
+    new miniCssExtractPlugin("[name].css"),
+    new CleanUpStatsPlugin(),
 ];
 
 var output = {
@@ -314,7 +345,6 @@ info.tests.forEach(function(test) {
 var aliases = {
     "d3": "d3/d3.js",
     "moment": "moment/moment.js",
-    "term": "term.js-cockpit/src/term.js"
 };
 
 /* HACK: To get around redux warning about reminimizing code */
@@ -373,9 +403,9 @@ module.exports = {
                 exclude: /\/node_modules\/.*\//, // exclude external dependencies
                 loader: 'strict-loader' // Adds "use strict"
             },
-            /* these are called *.js, but are ES6 */
+            /* these modules need to be babel'ed, they cause bugs in their dist'ed form */
             {
-                test: /\/node_modules\/@novnc.*\.js$/,
+                test: /\/node_modules\/.*(@novnc|react-table).*\.js$/,
                 use: babel_loader
             },
             {
@@ -386,21 +416,21 @@ module.exports = {
             },
             {
                 test: /\.css$/,
-                loader: extract.extract("css-loader?minimize=&root=" + libdir)
+                use: [
+                    miniCssExtractPlugin.loader,
+                    {
+                        loader: 'css-loader',
+                        options: { url: false }
+                    }
+                ],
             },
             {
                 test: /\.less$/,
-                loader: extract.extract("css-loader?sourceMap&minimize=!less-loader?sourceMap&compress=false")
-            },
-            {
-                test: /views\/[^\/]+\.html$/,
-                use: [{
-                    loader: 'ng-cache-loader',
-
-                    options: {
-                        prefix: '[dir]'
-                    }
-                }]
+                use: [
+                    miniCssExtractPlugin.loader,
+                    "css-loader",
+                    "less-loader"
+                ]
             },
         ],
     }

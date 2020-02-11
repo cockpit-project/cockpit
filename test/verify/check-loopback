@@ -21,7 +21,7 @@ import parent
 from testlib import *
 
 
-@skipImage("Atomic always uses loopback", "fedora-atomic")
+@skipImage("OSTree always uses loopback", "fedora-coreos")
 class TestLoopback(MachineCase):
 
     def testBasic(self):

@@ -36,8 +36,8 @@ event_mixin(cockpit, { });
 if (typeof window.debugging === "undefined") {
     try {
         // Sometimes this throws a SecurityError such as during testing
-        window.debugging = window.sessionStorage["debugging"] ||
-                           window.localStorage["debugging"];
+        window.debugging = window.sessionStorage.debugging ||
+                           window.localStorage.debugging;
     } catch (e) { }
 }
 
@@ -92,6 +92,32 @@ function invoke_functions(functions, self, args) {
     for (var i = 0; i < length; i++) {
         if (functions[i])
             functions[i].apply(self, args);
+    }
+}
+
+function iterate_data(data, callback, batch) {
+    var binary = false;
+    var i, n;
+    var len = 0;
+
+    if (!batch)
+        batch = 64 * 1024;
+
+    if (data) {
+         if (data.byteLength) {
+             len = data.byteLength;
+             binary = true;
+         } else if (data.length) {
+             len = data.length;
+         }
+    }
+
+    for (i = 0; i < len; i += batch) {
+        n = Math.min(len - i, batch);
+        if (binary)
+            callback(new window.Uint8Array(data.buffer, i, n));
+        else
+            callback(data.substr(i, n));
     }
 }
 
@@ -217,7 +243,7 @@ function event_mixin(obj, handlers) {
             enumerable: false,
             value: function addEventListener(type, handler) {
                 if (handlers[type] === undefined)
-                    handlers[type] = [ ];
+                    handlers[type] = [];
                 handlers[type].push(handler);
             }
         },
@@ -478,7 +504,7 @@ function Transport() {
                     console.log("health check failure ignored");
                 } else {
                     console.log("health check failed");
-                    self.close({ "problem": "timeout" });
+                    self.close({ problem: "timeout" });
                 }
             }
             got_message = false;
@@ -488,7 +514,7 @@ function Transport() {
     if (!ws) {
         ws = { close: function() { } };
         window.setTimeout(function() {
-            self.close({ "problem": "no-cockpit" });
+            self.close({ problem: "no-cockpit" });
         }, 50);
     }
 
@@ -564,7 +590,7 @@ function Transport() {
 
     self.close = function close(options) {
         if (!options)
-            options = { "problem": "disconnected" };
+            options = { problem: "disconnected" };
         options.command = "close";
         window.clearInterval(check_health_timer);
         var ows = ws;
@@ -587,20 +613,20 @@ function Transport() {
 
     function process_init(options) {
         if (options.problem) {
-            self.close({ "problem": options.problem });
+            self.close({ problem: options.problem });
             return;
         }
 
         if (options.version !== 1) {
             console.error("received unsupported version in init message: " + options.version);
-            self.close({ "problem": "not-supported" });
+            self.close({ problem: "not-supported" });
             return;
         }
 
         if (options["channel-seed"])
             channel_seed = String(options["channel-seed"]);
-        if (options["host"])
-            default_host = options["host"];
+        if (options.host)
+            default_host = options.host;
 
         if (public_transport) {
             public_transport.options = options;
@@ -628,13 +654,13 @@ function Transport() {
             waiting_for_init = false;
             if (data.command != "close" || channel) {
                 console.error("received message before init: ", data.command);
-                data = { "problem": "protocol-error" };
+                data = { problem: "protocol-error" };
             }
             self.close(data);
 
         /* Any pings get sent back as pongs */
         } else if (data.command == "ping") {
-            data["command"] = "pong";
+            data.command = "pong";
             self.send_control(data);
         } else if (data.command == "pong") {
             /* Any pong commands are ignored */
@@ -658,7 +684,6 @@ function Transport() {
     /* The channel/control arguments is used by filters, and auto-populated if necessary */
     self.send_data = function send_data(data, channel, control) {
         if (!ws) {
-            console.log("transport closed, dropped message: ", data);
             return false;
         }
 
@@ -688,7 +713,7 @@ function Transport() {
         if (payload.byteLength || is_array(payload)) {
             if (payload instanceof window.ArrayBuffer)
                 payload = new window.Uint8Array(payload);
-            var output = join_data([ array_from_raw_string(channel), [ 10 ], payload ], true);
+            var output = join_data([array_from_raw_string(channel), [10], payload], true);
             return self.send_data(output.buffer, channel, control);
 
         /* A string message */
@@ -759,7 +784,7 @@ function Channel(options) {
      * Queue while waiting for transport, items are tuples:
      * [is_control ? true : false, payload]
      */
-    var queue = [ ];
+    var queue = [];
 
     /* Handy for callers, but not used by us */
     self.valid = true;
@@ -855,7 +880,7 @@ function Channel(options) {
         while (queue.length > 0) {
             var item = queue.shift();
             if (item[0]) {
-                item[1]["channel"] = id;
+                item[1].channel = id;
                 transport.send_control(item[1]);
             } else {
                 send_payload(item[1]);
@@ -916,9 +941,9 @@ function Channel(options) {
         if (!options)
             options = { };
         else if (typeof options == "string")
-            options = { "problem" : options };
-        options["command"] = "close";
-        options["channel"] = id;
+            options = { problem : options };
+        options.command = "close";
+        options.channel = id;
 
         if (!transport)
             queue.push([true, options]);
@@ -971,14 +996,14 @@ function Channel(options) {
     };
 
     self.toString = function toString() {
-        var host = options["host"] || "localhost";
+        var host = options.host || "localhost";
         return "[Channel " + (self.valid ? id : "<invalid>") + " -> " + host + "]";
     };
 }
 
 /* Resolve dots and double dots */
 function resolve_path_dots(parts) {
-    var out = [ ];
+    var out = [];
     var length = parts.length;
     for (var i = 0; i < length; i++) {
         var part = parts[i];
@@ -1117,8 +1142,8 @@ function factory() {
         if (!options)
             options = default_host;
         if (typeof options == "string")
-            options = { "host": options };
-        options["hint"] = name;
+            options = { host: options };
+        options.hint = name;
         cockpit.transport.control("hint", options);
     };
 
@@ -1135,18 +1160,18 @@ function factory() {
         filter: function filter(callback, out) {
             if (out) {
                 if (!outgoing_filters)
-                    outgoing_filters = [ ];
+                    outgoing_filters = [];
                 outgoing_filters.push(callback);
             } else {
                 if (!incoming_filters)
-                    incoming_filters = [ ];
+                    incoming_filters = [];
                 incoming_filters.push(callback);
             }
         },
         close: function close(problem) {
             var options;
             if (problem)
-                options = { "problem": problem };
+                options = { problem: problem };
             if (default_transport)
                 default_transport.close(options);
             default_transport = null;
@@ -1157,7 +1182,7 @@ function factory() {
         uri: calculate_url,
         control: function(command, options) {
             options = extend({ }, options);
-            options["command"] = command;
+            options.command = command;
             ensure_transport(function(transport) {
                 transport.send_control(options);
             });
@@ -1235,11 +1260,11 @@ function factory() {
             return promise_then(state, fulfilled, rejected, updated) || self;
         };
 
-        self["catch"] = function catch_(callback) {
+        self.catch = function catch_(callback) {
             return promise_then(state, null, callback) || self;
         };
 
-        self["finally"] = function finally_(callback, updated) {
+        self.finally = function finally_(callback, updated) {
             return promise_then(state, function() {
                 return handle_callback(arguments, true, callback);
             }, function() {
@@ -1561,8 +1586,8 @@ function factory() {
     }
 
     var byte_suffixes = {
-        1000: [ null, "KB", "MB", "GB", "TB", "PB", "EB", "ZB" ],
-        1024: [ null, "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB" ]
+        1000: [null, "KB", "MB", "GB", "TB", "PB", "EB", "ZB"],
+        1024: [null, "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB"]
     };
 
     cockpit.format_bytes = function format_bytes(number, factor, separate) {
@@ -1576,12 +1601,13 @@ function factory() {
             factor = 1024;
 
         function unit(index) {
-            return { name: byte_suffixes[factor][index],
+            return {
+ name: byte_suffixes[factor][index],
                      factor: Math.pow(factor, index)
                    };
         }
 
-        var units = [ unit(2), unit(3), unit(4) ];
+        var units = [unit(2), unit(3), unit(4)];
 
         // The default unit is the largest one that gives us at least
         // two decimal digits in front of the comma.
@@ -1597,7 +1623,7 @@ function factory() {
     };
 
     var byte_sec_suffixes = {
-        1024: [ "B/s", "KiB/s", "MiB/s", "GiB/s", "TiB/s", "PiB/s", "EiB/s", "ZiB/s" ]
+        1024: ["B/s", "KiB/s", "MiB/s", "GiB/s", "TiB/s", "PiB/s", "EiB/s", "ZiB/s"]
     };
 
     cockpit.format_bytes_per_sec = function format_bytes_per_sec(number, factor, separate) {
@@ -1607,7 +1633,7 @@ function factory() {
     };
 
     var bit_suffixes = {
-        1000: [ "bps", "Kbps", "Mbps", "Gbps", "Tbps", "Pbps", "Ebps", "Zbps" ]
+        1000: ["bps", "Kbps", "Mbps", "Gbps", "Tbps", "Pbps", "Ebps", "Zbps"]
     };
 
     cockpit.format_bits_per_sec = function format_bits_per_sec(number, factor, separate) {
@@ -1933,7 +1959,7 @@ function factory() {
              * first phase.
              */
 
-            var fetches = [ ];
+            var fetches = [];
 
             /* Data relevant to this range can be at the found index, or earlier */
             for (i = at > 0 ? at - 1 : at; i < len; i++) {
@@ -1948,7 +1974,7 @@ function factory() {
 
                 if (b < e) {
                     if (b > last)
-                        fetches.push([ last, b ]);
+                        fetches.push([last, b]);
                     process(b, entry.items.slice(b - eb, e - eb), entry.mapping);
                     last = e;
                 } else if (i >= at) {
@@ -2055,7 +2081,7 @@ function factory() {
                 throw Error("mismatched metric interval between grid and sink");
             var gdata = registered[id];
             if (!gdata) {
-                gdata = registered[id] = { grid: grid, links: [ ] };
+                gdata = registered[id] = { grid: grid, links: [] };
                 gdata.links.remove = function remove() {
                     delete registered[id];
                 };
@@ -2160,9 +2186,9 @@ function factory() {
          * Used to populate table data, the values are:
          * [ callback, row ]
          */
-        var callbacks = [ ];
+        var callbacks = [];
 
-        var sinks = [ ];
+        var sinks = [];
 
         var suppress = 0;
 
@@ -2201,7 +2227,7 @@ function factory() {
             /* Called as add(sink, path) */
             if (is_object(arguments[0])) {
                 sink = arguments[0];
-                sink = sink["series"] || sink;
+                sink = sink.series || sink;
 
                 /* The path argument can be an array, or a dot separated string */
                 path = arguments[1];
@@ -2217,7 +2243,7 @@ function factory() {
 
             /* Called as add(callback) */
             } else if (is_function(arguments[0])) {
-                cb = [ arguments[0], row ];
+                cb = [arguments[0], row];
                 if (arguments[1] === true)
                     callbacks.unshift(cb);
                 else
@@ -2389,7 +2415,7 @@ function factory() {
         };
     }
 
-    cockpit.logout = function logout(reload) {
+    cockpit.logout = function logout(reload, reason) {
         /* fully clear session storage */
         cockpit.sessionStorage.clear(true);
 
@@ -2401,16 +2427,18 @@ function factory() {
         if (reload !== false)
             reload_after_disconnect = true;
         ensure_transport(function(transport) {
-            if (!transport.send_control({ "command": "logout", "disconnect": true }))
+            if (!transport.send_control({ command: "logout", disconnect: true }))
                 window.location.reload(reload_after_disconnect);
         });
         window.sessionStorage.setItem("logout-intent", "explicit");
+        if (reason)
+            window.sessionStorage.setItem("logout-reason", reason);
     };
 
     /* Not public API ... yet? */
     cockpit.drop_privileges = function drop_privileges() {
         ensure_transport(function(transport) {
-            transport.send_control({ "command": "logout", "disconnect": false });
+            transport.send_control({ command: "logout", disconnect: false });
         });
     };
 
@@ -2433,9 +2461,9 @@ function factory() {
         var dfd = cockpit.defer();
         var dbus;
         if (!the_user) {
-            dbus = cockpit.dbus(null, { "bus": "internal" });
+            dbus = cockpit.dbus(null, { bus: "internal" });
             dbus.call("/user", "org.freedesktop.DBus.Properties", "GetAll",
-                      [ "cockpit.User" ], { "type": "s" })
+                      ["cockpit.User"], { type: "s" })
                 .done(function(reply) {
                     var user = reply[0];
                     dfd.resolve({
@@ -2549,7 +2577,7 @@ function factory() {
                 for (opt in options) {
                     value = options[opt];
                     if (!is_array(value))
-                        value = [ value ];
+                        value = [value];
                     value.forEach(push_option);
                 }
                 if (query.length > 0)
@@ -2576,10 +2604,10 @@ function factory() {
                     var parts = opt.split('=');
                     var name = decodeURIComponent(parts[0]);
                     var value = decodeURIComponent(parts[1]);
-                    if (options.hasOwnProperty(name)) {
+                    if (options[name]) {
                         last = options[name];
                         if (!is_array(value))
-                            last = options[name] = [ last ];
+                            last = options[name] = [last];
                         last.push(value);
                     } else {
                         options[name] = value;
@@ -2657,7 +2685,7 @@ function factory() {
         var hash = window.location.hash;
         if (hash.indexOf("#") === 0)
             hash = hash.substring(1);
-        cockpit.hint("location", { "hash": hash });
+        cockpit.hint("location", { hash: hash });
         cockpit.dispatchEvent("locationchanged");
     });
 
@@ -2775,17 +2803,17 @@ function factory() {
     cockpit.spawn = function(command, options) {
         var dfd = cockpit.defer();
 
-        var args = { "payload": "stream", "spawn": [] };
+        var args = { payload: "stream", spawn: [] };
         if (command instanceof Array) {
             for (var i = 0; i < command.length; i++)
-                args["spawn"].push(String(command[i]));
+                args.spawn.push(String(command[i]));
         } else {
-            args["spawn"].push(String(command));
+            args.spawn.push(String(command));
         }
         if (options !== undefined)
             extend(args, options);
 
-        var name = args["spawn"][0] || "process";
+        var name = args.spawn[0] || "process";
         var channel = cockpit.channel(args);
 
         /* Callback that wants a stream response, see below */
@@ -2818,7 +2846,9 @@ function factory() {
         ret.input = function(message, stream) {
             if (message !== null && message !== undefined) {
                 spawn_debug("process input:", message);
-                channel.send(message);
+                iterate_data(message, function(data) {
+                    channel.send(data);
+                });
             }
             if (!stream)
                 channel.control({ command: "done" });
@@ -2841,7 +2871,7 @@ function factory() {
             options = args;
             args = [];
         }
-        var command = [ "/bin/sh", "-c", script, "--" ];
+        var command = ["/bin/sh", "-c", script, "--"];
         command.push.apply(command, args);
         return cockpit.spawn(command, options);
     };
@@ -2869,7 +2899,7 @@ function factory() {
     function DBusCache() {
         var self = this;
 
-        var callbacks = [ ];
+        var callbacks = [];
         self.data = { };
         self.meta = { };
 
@@ -2943,7 +2973,7 @@ function factory() {
         self.close = function close() {
             self.data = { };
             var copy = callbacks;
-            callbacks = [ ];
+            callbacks = [];
             var i;
             var length = copy.length;
             for (i = 0; i < length; i++)
@@ -2961,20 +2991,23 @@ function factory() {
 
         /* No enumeration on these properties */
         Object.defineProperties(self, {
-            "client": { value: client, enumerable: false, writable: false },
-            "path": { value: path, enumerable: false, writable: false },
-            "iface": { value: iface, enumerable: false, writable: false },
-            "valid": { get: function() { return valid }, enumerable: false },
-            "wait": { enumerable: false, writable: false,
+            client: { value: client, enumerable: false, writable: false },
+            path: { value: path, enumerable: false, writable: false },
+            iface: { value: iface, enumerable: false, writable: false },
+            valid: { get: function() { return valid }, enumerable: false },
+            wait: {
+ enumerable: false, writable: false,
                 value: function(func) {
                     if (func)
                         waits.promise.always(func);
                     return waits.promise;
                 }
             },
-            "call": { value: function(name, args, options) { return client.call(path, iface, name, args, options) },
-                      enumerable: false, writable: false },
-            "data": { value: { }, enumerable: false }
+            call: {
+ value: function(name, args, options) { return client.call(path, iface, name, args, options) },
+                      enumerable: false, writable: false
+},
+            data: { value: { }, enumerable: false }
         });
 
         if (typeof window.$ === "function") {
@@ -3024,7 +3057,7 @@ function factory() {
                 if (prop.flags && prop.flags.indexOf('w') !== -1) {
                     config.set = function(v) {
                         client.call(path, "org.freedesktop.DBus.Properties", "Set",
-                                [ iface, name, cockpit.variant(prop.type, v) ])
+                                [iface, name, cockpit.variant(prop.type, v)])
                             .fail(function(ex) {
                                 console.log("Couldn't set " + iface + " " + name +
                                             " at " + path + ": " + ex);
@@ -3061,7 +3094,7 @@ function factory() {
             }
         }
 
-        client.subscribe({ "path": path, "interface": iface }, signal, options.subscribe !== false);
+        client.subscribe({ path: path, interface: iface }, signal, options.subscribe !== false);
 
         function waited(ex) {
             if (valid)
@@ -3072,7 +3105,7 @@ function factory() {
 
         /* If watching then do a proper watch, otherwise object is done */
         if (options.watch !== false)
-            client.watch({ "path": path, "interface": iface }).always(waited);
+            client.watch({ path: path, interface: iface }).always(waited);
         else
             waited();
     }
@@ -3084,10 +3117,11 @@ function factory() {
         var waits;
 
         Object.defineProperties(self, {
-            "client": { value: client, enumerable: false, writable: false },
-            "iface": { value: iface, enumerable: false, writable: false },
-            "path_namespace": { value: path_namespace, enumerable: false, writable: false },
-            "wait": { enumerable: false, writable: false,
+            client: { value: client, enumerable: false, writable: false },
+            iface: { value: iface, enumerable: false, writable: false },
+            path_namespace: { value: path_namespace, enumerable: false, writable: false },
+            wait: {
+ enumerable: false, writable: false,
                 value: function(func) {
                     if (func)
                         waits.always(func);
@@ -3103,7 +3137,7 @@ function factory() {
         }
 
         /* Subscribe to signals once for all proxies */
-        var match = { "interface": iface, "path_namespace": path_namespace };
+        var match = { interface: iface, path_namespace: path_namespace };
 
         /* Callbacks added by proxies */
         client.subscribe(match);
@@ -3150,7 +3184,7 @@ function factory() {
             if (options.track)
                 track = true;
 
-            delete options['track'];
+            delete options.track;
             extend(args, options);
         }
         args.payload = "dbus-json3";
@@ -3194,7 +3228,7 @@ function factory() {
                 return false;
             if (match.path_namespace && signal[0].indexOf(match.path_namespace) !== 0)
                 return false;
-            if (match["interface"] && signal[1] !== match["interface"])
+            if (match.interface && signal[1] !== match.interface)
                 return false;
             if (match.member && signal[2] !== match.member)
                 return false;
@@ -3212,7 +3246,7 @@ function factory() {
                 console.warn("received invalid dbus json message:", ex);
             }
             if (msg === undefined) {
-                channel.close({ "problem": "protocol-error" });
+                channel.close({ problem: "protocol-error" });
                 return;
             }
             var dfd, options;
@@ -3287,7 +3321,7 @@ function factory() {
                 return;
 
             var message = extend({ }, options, {
-                "meta": data
+                meta: data
             });
 
             send(JSON.stringify(message));
@@ -3324,7 +3358,7 @@ function factory() {
 
         this.close = function close(options) {
             if (typeof options == "string")
-                options = { "problem": options };
+                options = { problem: options };
             if (!options)
                 options = { };
             if (channel)
@@ -3358,8 +3392,8 @@ function factory() {
             var id = String(last_cookie);
             last_cookie++;
             var method_call = extend({ }, options, {
-                "call": [ path, iface, method, args || [] ],
-                "id": id
+                call: [path, iface, method, args || []],
+                id: id
             });
 
             var msg = JSON.stringify(method_call);
@@ -3376,7 +3410,7 @@ function factory() {
                 return;
 
             var message = extend({ }, options, {
-                "signal": [ path, iface, member, args || [] ]
+                signal: [path, iface, member, args || []]
             });
 
             send(JSON.stringify(message));
@@ -3423,7 +3457,7 @@ function factory() {
             last_cookie++;
             var dfd = cockpit.defer();
 
-            var msg = JSON.stringify({ "watch": match, "id": id });
+            var msg = JSON.stringify({ watch: match, id: id });
             if (send(msg))
                 calls[id] = dfd;
             else
@@ -3435,19 +3469,19 @@ function factory() {
                     dfd.reject(new DBusError("cancelled"));
                     delete calls[id];
                 }
-                send(JSON.stringify({ "unwatch": match }));
+                send(JSON.stringify({ unwatch: match }));
             };
             return ret;
         };
 
         function unknown_interface(path, iface) {
             var message = "DBus interface " + iface + " not available at " + path;
-            return cockpit.reject(new DBusError([ "org.freedesktop.DBus.Error.UnknownInterface", [ message ] ]));
+            return cockpit.reject(new DBusError(["org.freedesktop.DBus.Error.UnknownInterface", [message]]));
         }
 
         function unknown_method(path, iface, method) {
             var message = "DBus method " + iface + " " + method + " not available at " + path;
-            return cockpit.reject(new DBusError([ "org.freedesktop.DBus.Error.UnknownMethod", [ message ] ]));
+            return cockpit.reject(new DBusError(["org.freedesktop.DBus.Error.UnknownMethod", [message]]));
         }
 
         function not_implemented(path, iface, method) {
@@ -3477,26 +3511,26 @@ function factory() {
             cockpit.when(result).then(function() {
                 var out = Array.prototype.slice.call(arguments, 0);
                 if (out.length == 1 && typeof out[0] == "undefined")
-                    out = [ ];
-                send(JSON.stringify({ "reply": [ out ], "id": cookie }));
+                    out = [];
+                send(JSON.stringify({ reply: [out], id: cookie }));
             }, function(ex) {
-                var error = [ ];
+                var error = [];
                 error[0] = ex.name || " org.freedesktop.DBus.Error.Failed";
-                error[1] = [ cockpit.message(ex) || error[0] ];
-                send(JSON.stringify({ "error": error, "id": cookie }));
+                error[1] = [cockpit.message(ex) || error[0]];
+                send(JSON.stringify({ error: error, id: cookie }));
             });
         }
 
         self.publish = function(path, iface, object, options) {
-            var publish = [ path, iface ];
+            var publish = [path, iface];
 
             var id = String(last_cookie);
             last_cookie++;
             var dfd = calls[id] = cockpit.defer();
 
             var payload = JSON.stringify(extend({ }, options, {
-                "publish": publish,
-                "id": id,
+                publish: publish,
+                id: id,
             }));
 
             if (send(payload))
@@ -3517,7 +3551,7 @@ function factory() {
                     delete calls[id];
                 }
                 delete published[key];
-                send(JSON.stringify({ "unpublish": publish }));
+                send(JSON.stringify({ unpublish: publish }));
             };
             return ret;
         };
@@ -3559,7 +3593,7 @@ function factory() {
     /* public */
     cockpit.dbus = function dbus(name, options) {
         if (!options)
-            options = { "bus": "system" };
+            options = { bus: "system" };
 
         /*
          * Figure out if this we should use a shared bus.
@@ -3598,7 +3632,7 @@ function factory() {
     };
 
     cockpit.variant = function variant(type, value) {
-        return { 'v': value, 't': type };
+        return { v: value, t: type };
     };
 
     cockpit.byte_array = function byte_array(string) {
@@ -3655,7 +3689,7 @@ function factory() {
 
             function try_read() {
                 read_channel = cockpit.channel(opts);
-                var content_parts = [ ];
+                var content_parts = [];
                 read_channel.addEventListener("message", function (event, message) {
                     content_parts.push(message);
                 });
@@ -3736,26 +3770,9 @@ function factory() {
                 }
             });
 
-            var len = 0;
-            var binary = false;
-            if (file_content) {
-                if (file_content.byteLength) {
-                    len = file_content.byteLength;
-                    binary = true;
-                } else if (file_content.length) {
-                    len = file_content.length;
-                }
-            }
-
-            var i, n;
-            var batch = 16 * 1024;
-            for (i = 0; i < len; i += batch) {
-                n = Math.min(len - i, batch);
-                if (binary)
-                    replace_channel.send(new window.Uint8Array(file_content.buffer, i, n));
-                else
-                    replace_channel.send(file_content.substr(i, n));
-            }
+            iterate_data(file_content, function(data) {
+                replace_channel.send(data);
+            });
 
             replace_channel.control({ command: "done" });
             return dfd.promise;
@@ -3889,8 +3906,8 @@ function factory() {
         if (header) {
             if (header["plural-forms"])
                 po_plural = header["plural-forms"];
-            if (header["language"])
-                lang = header["language"];
+            if (header.language)
+                lang = header.language;
         }
 
         cockpit.language = lang;
@@ -3901,7 +3918,7 @@ function factory() {
 
         /* Called without arguments, entire document */
         if (arguments.length === 0)
-            what = [ document ];
+            what = [document];
 
         /* Called with a single array like argument */
         else if (arguments.length === 1 && arguments[0].length)
@@ -4077,7 +4094,7 @@ function factory() {
         self.options = options;
         options.payload = "http-stream2";
 
-        var active_requests = [ ];
+        var active_requests = [];
 
         if (endpoint !== undefined) {
             if (endpoint.indexOf && endpoint.indexOf("/") === 0) {
@@ -4146,7 +4163,9 @@ function factory() {
             if (input !== undefined) {
                 if (input !== "") {
                     http_debug("http input:", input);
-                    channel.send(input);
+                    iterate_data(input, function(data) {
+                        channel.send(data);
+                    });
                 }
                 http_debug("http done");
                 channel.control({ command: "done" });
@@ -4223,7 +4242,9 @@ function factory() {
             ret.input = function(message, stream) {
                 if (message !== null && message !== undefined) {
                     http_debug("http input:", message);
-                    channel.send(message);
+                    iterate_data(message, function(data) {
+                        channel.send(data);
+                    });
                 }
                 if (!stream) {
                     http_debug("http done");
@@ -4243,11 +4264,11 @@ function factory() {
 
         self.get = function get(path, params, headers) {
             return self.request({
-                "method": "GET",
-                "params": params,
-                "path": path,
-                "body": "",
-                "headers": headers
+                method: "GET",
+                params: params,
+                path: path,
+                body: "",
+                headers: headers
             });
         };
 
@@ -4265,10 +4286,10 @@ function factory() {
             }
 
             return self.request({
-                "method": "POST",
-                "path": path,
-                "body": body,
-                "headers": headers
+                method: "POST",
+                path: path,
+                body: body,
+                headers: headers
             });
         };
 
@@ -4371,9 +4392,9 @@ function factory() {
         event_mixin(self, { });
 
         if (options_list.length === undefined)
-            options_list = [ options_list ];
+            options_list = [options_list];
 
-        var channels = [ ];
+        var channels = [];
         var following = false;
 
         self.series = cockpit.series(interval, cache, fetch_for_series);
@@ -4528,11 +4549,12 @@ function factory() {
             var timestamp = beg * interval - Date.now();
             var limit = end - beg;
 
-            var archive_options_list = [ ];
+            var archive_options_list = [];
             for (var i = 0; i < options_list.length; i++) {
                 if (options_list[i].archive_source) {
                     archive_options_list.push(extend({}, options_list[i],
-                                                       { "source": options_list[i].archive_source,
+                                                       {
+ source: options_list[i].archive_source,
                                                          timestamp: timestamp,
                                                          limit: limit
                                                        }));

@@ -3,14 +3,27 @@
     "name": "updates",
     "priority": 0,
     "requires": {
-        "cockpit": "138"
+        "cockpit": "186"
     },
 
     "tools": {
-        "updates": {
+        "index": {
             "label": "Software Updates",
-            "path": "index.html"
+            "docs": [
+                {
+                    "label": "Managing software updates",
+                    "url": "https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_systems_using_the_rhel_8_web_console/managing-software-updates-in-the-web-console_system-management-using-the-rhel-8-web-console"
+                }
+            ],
+            "keywords": [
+                {
+                    "matches": ["package", "packagekit", "dnf", "yum", "apt-get", "security"]
+                }
+            ]
         }
     },
-  "content-security-policy": "default-src 'self'; img-src 'self' data:; font-src 'self' data:;"
+
+    "preload": [ "index" ],
+
+    "content-security-policy": "default-src 'self'; img-src 'self' data:; font-src 'self' data:;"
 }

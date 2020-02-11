@@ -14,8 +14,26 @@ import time
 TEST_DIR = os.path.normpath(os.path.dirname(os.path.realpath(os.path.join(__file__, ".."))))
 
 
-def browser_path():
-    """Return path to CDP browser.
+def browser_path(browser, show_browser):
+    if browser == "chromium":
+        return browser_path_chromium(show_browser)
+    elif browser == "firefox":
+        return browser_path_firefox()
+    else:
+        raise SystemError("Unsupported browser")
+
+
+def browser_path_firefox():
+    """ Return path to Firefox browser """
+    p = subprocess.check_output("which firefox || true",
+                                shell=True, universal_newlines=True).strip()
+    if p:
+        return p
+    return None
+
+
+def browser_path_chromium(show_browser):
+    """Return path to chromium browser.
 
     Support the following locations:
      - /usr/lib*/chromium-browser/headless_shell (chromium-headless RPM)
@@ -24,9 +42,12 @@ def browser_path():
 
     Exit with an error if none is found.
     """
-    g = glob.glob("/usr/lib*/chromium-browser/headless_shell")
-    if g:
-        return g[0]
+
+    # If we want to have interactive chromium, we don't want to use headless_shell
+    if not show_browser:
+        g = glob.glob("/usr/lib*/chromium-browser/headless_shell")
+        if g:
+            return g[0]
 
     p = subprocess.check_output("which chromium-browser || which chromium || which google-chrome || true",
                                 shell=True, universal_newlines=True).strip()
@@ -52,6 +73,9 @@ class CDP:
         self.verbose = verbose
         self.trace = trace
         self.inject_helpers = inject_helpers
+        self.browser = os.environ.get("TEST_BROWSER", "chromium")
+        self.show_browser = bool(os.environ.get("TEST_SHOW_BROWSER", ""))
+        self.download_dir = tempfile.mkdtemp()
         self._driver = None
         self._browser = None
         self._browser_home = None
@@ -74,7 +98,7 @@ class CDP:
         # frame support for Runtime.evaluate(): map frame name to
         # executionContextId and insert into argument object; this must not be quoted
         # see "Frame tracking" in cdp-driver.js for how this works
-        if fn == 'Runtime.evaluate' and self.cur_frame:
+        if fn == 'Runtime.evaluate':
             cmd = "%s, contextId: getFrameExecId(%s)%s" % (cmd[:-2], jsquote(self.cur_frame), cmd[-2:])
 
         if trace:
@@ -137,9 +161,38 @@ class CDP:
 
     def get_browser_path(self):
         if self._browser_path is None:
-            self._browser_path = browser_path()
+            self._browser_path = browser_path(self.browser, self.show_browser)
 
         return self._browser_path
+
+    def browser_cmd(self, cdp_port, env):
+        exe = self.get_browser_path()
+        if not exe:
+            raise SystemError(self.browser + " is not installed")
+
+        if self.browser == "chromium":
+            return [exe, "--headless" if not self.show_browser else "", "--disable-gpu", "--no-sandbox", "--disable-setuid-sandbox",
+                    "--disable-namespace-sandbox", "--disable-seccomp-filter-sandbox",
+                    "--disable-sandbox-denial-logging", "--disable-pushstate-throttle",
+                    "--window-size=1920x1200", "--remote-debugging-port=%i" % cdp_port, "about:blank"]
+        elif self.browser == "firefox":
+            subprocess.Popen(["firefox", "--headless", "--no-remote", "-CreateProfile", "blank"], env=env).communicate()
+            profile = glob.glob(os.path.join(self._browser_home, ".mozilla/firefox/*.blank"))[0]
+
+            with open(os.path.join(profile, "user.js"), "w") as f:
+                f.write("""
+                    user_pref("remote.enabled", true);
+                    user_pref("datareporting.policy.dataSubmissionEnabled", false);
+                    user_pref("toolkit.telemetry.reportingpolicy.firstRun", false);
+                    user_pref("dom.disable_beforeunload", true);
+                    user_pref("browser.download.dir", "{0}");
+                    user_pref("browser.download.folderList", 2);
+                    """.format(self.download_dir))
+
+            with open(os.path.join(profile, "handlers.json"), "w") as f:
+                f.write('{"defaultHandlersVersion":{"en-US":4},"mimeTypes":{"application/xz":{"action":0,"extensions":["xz"]}}}')
+
+            return [exe, "-P", "blank", "--headless" if not self.show_browser else "", "--window-size=1920,1200", "--remote-debugging-port=%i" % cdp_port, "--no-remote", "localhost"]
 
     def start(self):
         environ = os.environ.copy()
@@ -168,19 +221,12 @@ class CDP:
             except KeyError:
                 pass
 
-            exe = self.get_browser_path()
-            if not exe:
-                raise SystemError("chromium not installed")
-
             # sandboxing does not work in Docker container
             self._browser = subprocess.Popen(
-                [exe, "--headless", "--disable-gpu", "--no-sandbox", "--disable-setuid-sandbox",
-                    "--disable-namespace-sandbox", "--disable-seccomp-filter-sandbox",
-                    "--disable-sandbox-denial-logging", "--disable-pushstate-throttle",
-                    "--window-size=1280x1200", "--remote-debugging-port=%i" % cdp_port, "about:blank"],
-                env=environ, close_fds=True, preexec_fn=lambda: resource.setrlimit(resource.RLIMIT_CORE, (0, 0)))
+                self.browser_cmd(cdp_port, environ), env=environ, close_fds=True,
+                preexec_fn=lambda: resource.setrlimit(resource.RLIMIT_CORE, (0, 0)))
             if self.verbose:
-                sys.stderr.write("Started %s (pid %i) on port %i\n" % (exe, self._browser.pid, cdp_port))
+                sys.stderr.write("Started %s (pid %i) on port %i\n" % (self._browser_path, self._browser.pid, cdp_port))
 
         # wait for CDP to be up
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -197,7 +243,7 @@ class CDP:
         if self.trace:
             # enable frame/execution context debugging if tracing is on
             environ["TEST_CDP_DEBUG"] = "1"
-        self._driver = subprocess.Popen(["%s/cdp-driver.js" % os.path.dirname(__file__), str(cdp_port)],
+        self._driver = subprocess.Popen(["{0}/{1}-cdp-driver.js".format(os.path.dirname(__file__), self.browser), str(cdp_port)],
                                         env=environ,
                                         stdout=subprocess.PIPE,
                                         stdin=subprocess.PIPE,
@@ -208,8 +254,12 @@ class CDP:
             with open(inject) as f:
                 src = f.read()
             # HACK: injecting sizzle fails on missing `document` in assert()
-            src = src.replace('function assert( fn ) {', 'function assert( fn ) { return true;')
-            self.invoke("Page.addScriptToEvaluateOnLoad", scriptSource=src, no_trace=True)
+            src = src.replace('function assert( fn ) {', 'function assert( fn ) { if (true) return true; else ')
+            # HACK: sizzle tracks document and when we switch frames, it sees the old document
+            # although we execute it in different context.
+            if (self.browser == "firefox"):
+                src = src.replace('context = context || document;', 'context = context || window.document;')
+            self.invoke("Page.addScriptToEvaluateOnNewDocument", source=src, no_trace=True)
 
     def kill(self):
         self.valid = False
@@ -218,6 +268,8 @@ class CDP:
             self._driver.stdin.close()
             self._driver.wait()
             self._driver = None
+
+        shutil.rmtree(self.download_dir, ignore_errors=True)
 
         if self._browser:
             if self.verbose:

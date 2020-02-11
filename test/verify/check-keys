@@ -150,6 +150,8 @@ class TestKeys(MachineCase):
         self.allow_journal_messages('Missing callback called fullpath = /home/user/.ssh/authorized_keys')
         self.allow_journal_messages('')
 
+    # Possible workaround - ssh as `admin` and just do `m.execute()`
+    @skipBrowser("Firefox cannot do `cockpit.spawn`", "firefox")
     def testPrivateKeys(self):
         b = self.browser
         m = self.machine
@@ -158,22 +160,13 @@ class TestKeys(MachineCase):
             return b.eval_js("cockpit.spawn([ '/bin/sh', '-c', 'ssh-add -l || true' ])")
 
         def assertKeyState(selector, enabled):
-            # changed in PR #11769
-            if m.image in ["rhel-8-0-distropkg"]:
-                b.wait_present("%s .btn.active:contains('%s')" % (selector, enabled and "On" or "Off"))
-            else:
-                b.wait_present("%s input%s" % (selector, enabled and ":checked" or ":not(:checked)"))
+            b.wait_present("%s input%s" % (selector, enabled and ":checked" or ":not(:checked)"))
 
         def toggleKeyState(selector, on_area=False):
-            # changed in PR #11769
-            if m.image in ["rhel-8-0-distropkg"]:
-                # old On/Off button only accepts half of the widget area
-                b.click(selector + " .btn:contains('%s') span" % (on_area and "On" or "Off"))
-            else:
-                b.click(selector + " .onoff-ct input")
+            b.click(selector + " .onoff-ct input")
 
         # Operating systems where auto loading doesn't work
-        auto_load = "atomic" not in m.image
+        auto_load = not m.ostree_image
 
         # Put all the keys in place
         m.execute("mkdir -p /home/admin/.ssh")
@@ -315,11 +308,11 @@ class TestKeys(MachineCase):
         b.wait_visible("tr.load-custom-key")
         b.wait_visible("tr.load-custom-key button")
         b.wait_visible("#ssh-file-container")
-        b.set_val("#ssh-file-container input", "/bad")
+        b.set_val("#ssh-file-container input[type=text]", "/bad")
         b.click("tr.load-custom-key button")
         b.wait_text("tr.load-custom-key div.dialog-error", "Not a valid private key")
 
-        b.set_val("#ssh-file-container input", "/tmp/new.rsa")
+        b.set_val("#ssh-file-container input[type=text]", "/tmp/new.rsa")
         b.click("tr.load-custom-key button")
         b.wait_not_visible("tr.load-custom-key")
         # OpenSSH 7.8 and up has a new default key format where
@@ -364,10 +357,10 @@ class TestKeys(MachineCase):
             b.click("#credential-keys a")
             b.wait_visible("tr.load-custom-key")
             b.wait_visible("tr.load-custom-key button")
-            b.set_val("#ssh-file-container input", "/bad")
+            b.set_val("#ssh-file-container input[type=text]", "/bad")
             b.click("tr.load-custom-key button")
 
-            b.set_val("#ssh-file-container input", "/tmp/new.rsa")
+            b.set_val("#ssh-file-container input[type=text]", "/tmp/new.rsa")
             b.click("tr.load-custom-key button")
             b.wait_not_visible("tr.load-custom-key")
             b.wait_present("tbody.ssh-add-key-body[data-name='/tmp/new.rsa']")
@@ -376,8 +369,8 @@ class TestKeys(MachineCase):
             b.set_val(new_key_tbody + " .credential-password", "badbad")
             b.click(new_key_tbody + " .credential-unlock .btn")
 
-            b.wait_visible(new_key_tbody + " .alert")
-            b.wait_in_text(new_key_tbody + " .alert", "Password")
+            b.wait_visible(new_key_tbody + " .credential-alert")
+            b.wait_in_text(new_key_tbody + " .credential-alert", "Password")
             b.set_val(new_key_tbody + " .credential-password", "foobar")
             b.click(new_key_tbody + " .credential-unlock .btn")
 

@@ -1,8 +1,0 @@
-#! /bin/bash
-
-set -e
-
-/var/lib/testvm/debian.install "$@"
-
-# HACK: https://bugs.debian.org/914694
-sed -i '/IndividualCalls/ s/=no/=yes/' /etc/firewalld/firewalld.conf

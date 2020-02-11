@@ -47,7 +47,7 @@ const ConsoleSelector = ({ onChange, selected, isSerialConsole, vm }) => {
     if (vm.displays) {
         if (vm.displays.vnc) {
             entries.push(
-                <Select.SelectEntry data={'vnc-browser'} key='vnc-browser'>
+                <Select.SelectEntry data="vnc-browser" key='vnc-browser'>
                     {_("Graphics Console (VNC)")}
                 </Select.SelectEntry>
             );
@@ -56,7 +56,7 @@ const ConsoleSelector = ({ onChange, selected, isSerialConsole, vm }) => {
 
         if (isDesktop || vm.displays.spice) {
             entries.push(
-                <Select.SelectEntry data={'desktop'} key='desktop'>
+                <Select.SelectEntry data="desktop" key='desktop'>
                     {_("Graphics Console in Desktop Viewer")}
                 </Select.SelectEntry>
             );
@@ -65,7 +65,7 @@ const ConsoleSelector = ({ onChange, selected, isSerialConsole, vm }) => {
 
     if (isSerialConsole) {
         entries.push(
-            <Select.SelectEntry data={'serial-browser'} key='serial-browser'>
+            <Select.SelectEntry data="serial-browser" key='serial-browser'>
                 {_("Serial Console")}
             </Select.SelectEntry>
         );
@@ -134,7 +134,7 @@ class Consoles extends React.Component {
         return null;
     }
 
-    componentWillMount () {
+    componentDidMount () {
         this.onConsoleTypeSelected(this.getDefaultConsole());
     }
 

@@ -1,26 +1,26 @@
 <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal"
         aria-hidden="true">&times;</button>
-    <h4 class="modal-title" translatable="yes">Log in to {{host}}</h4>
+    <h4 class="modal-title" translate="yes">Log in to {{host}}</h4>
 </div>
 
-<div class="modal-body">
+<div id="machine-change-auth" class="modal-body">
     {{^available}}
-    <p translatable="yes">Cockpit was unable to log into {{#strong}}{{host}}{{/strong}}.</p>
+    <p translate="yes">Cockpit was unable to log into {{#strong}}{{host}}{{/strong}}.</p>
     {{/available}}
 
     {{#available}}
-    <p translatable="yes">Cockpit was unable to log into {{#strong}}{{host}}{{/strong}}. You can change your authentication credentials below. {{#can_sync}}You may prefer to {{#sync_link}}synchronize accounts and passwords{{/sync_link}}.{{/can_sync}}</p>
+    <p translate="yes">Cockpit was unable to log into {{#strong}}{{host}}{{/strong}}. You can change your authentication credentials below. {{#can_sync}}You may prefer to {{#sync_link}}synchronize accounts and passwords{{/sync_link}}.{{/can_sync}}</p>
 
     <div>
         <table class="form-table-ct">
             <tr>
-                <td translatable="yes" class="top">User name</td>
+                <td translate="yes" class="top">User name</td>
                 <td>
                     <input class="form-control" id="login-custom-user" type="text" value="{{machine_user}}" placeholder="{{ default_user }}"/>
                 </td>
                 <td>
-                    <a tabindex="0" tabindex="0" role="button" data-toggle="popover"
+                    <a tabindex="0" role="button" data-toggle="popover"
                         data-trigger="focus" data-placement="bottom" translate="data-content"
                         data-content="Leave blank to connect to this machine as the currently logged in user{{#default_user}} ({{default_user}}){{/default_user}}. If you enter a different username, that user will always be used connecting to this machine.">
                         <span class="fa fa-lg fa-info-circle"></span>
@@ -29,19 +29,19 @@
             </tr>
 
             <tr>
-                <td translatable="yes">Authentication</td>
+                <td translate="yes">Authentication</td>
                 <td>
                     <div class="btn-group bootstrap-select dropdown form-control" id="login-type">
                         <button class="btn btn-default dropdown-toggle" type="button"
                             data-toggle="dropdown">
-                            <span class="pull-left" translatable="yes"></span>
-                            <div class="caret"></div>
+                            <span class="pull-left" translate="yes"></span>
+                            <i class="fa fa-caret-down pf-c-context-selector__toggle-icon" aria-hidden="true"></i>
                         </button>
                         <ul class="dropdown-menu">
                             {{#password}}
-                            <li value="password"><a tabindex="0" translate>Type a password</a></li>
+                            <li value="password"><a role="link" tabindex="0" translate>Type a password</a></li>
                             {{/password}}
-                            <li value="stored"><a tabindex="0" translate>Using available credentials</a></li>
+                            <li value="stored"><a role="link" tabindex="0" translate>Using available credentials</a></li>
                         </ul>
                     </div>
                 </td>
@@ -49,12 +49,12 @@
 
             {{#password}}
             <tr id="login-diff-password">
-                <td translatable="yes" class="top">Password</td>
+                <td translate="yes" class="top">Password</td>
                 <td>
                     <input class="form-control" id="login-custom-password" type="password" />
                 </td>
                 <td>
-                    <a tabindex="0" tabindex="0" role="button" data-toggle="popover"
+                    <a tabindex="0" role="button" data-toggle="popover"
                         data-trigger="focus" data-placement="bottom" translate="data-content"
                         data-content="Entering a different password here means you will need to retype it every time you reconnect to this machine">
                         <span class="fa fa-lg fa-info-circle"></span>
@@ -63,20 +63,31 @@
             </tr>
             {{/password}}
             <tr id="login-available">
-                <td translatable="yes" class="top">Available</td>
+                <td translate="yes" class="top">Available</td>
                 <td class="top">
                         {{#show_password}}<div translate>Login Password</div>{{/show_password}}
                         {{#show_ticket}}<div translate>Kerberos Ticket</div>{{/show_ticket}}
                         {{^show_password}}{{^show_ticket}}<div class="empty hidden">No available credentials</div>{{/show_ticket}}{{/show_password}}
-                        {{#public-key}}<div class="keys"><div class='dialog-wait-ct pull-left'><div class='spinner spinner-sm'></div><span translatable="yes">Checking for public keys</span></div></div>{{/public-key}}
+                        {{#public-key}}<div class="keys"><div class='dialog-wait-ct pull-left'><div class='spinner spinner-sm'></div><span translate="yes">Checking for public keys</span></div></div>{{/public-key}}
                 </td>
             </tr>
+            {{#show_locked_identity}}
+            <tr class="login-locked">
+                <td translate="yes" class="top">Locked</td>
+                <td class="top key-locked form-group">
+                    <div class="locked-identity"></div>
+                    <div translate="yes">Enter passphrase to add identity to ssh-agent</div>
+                    <input class="locked-identity-password" type="password" autocomplete="off"></input>
+                    <button class="btn btn-primary" translate="yes">Unlock</button>
+                </td>
+            </tr>
+            {{/show_locked_identity}}
         </table>
     </div>
     {{/available}}
 </div>
 
 <div class="modal-footer">
-    <button class="btn btn-default" data-dismiss="modal" translatable="yes">Cancel</button>
-    <button class="btn btn-primary" translatable="yes">Log In</button>
+    <button class="btn btn-default" data-dismiss="modal" translate="yes">Cancel</button>
+    <button class="btn btn-primary" translate="yes">Log In</button>
 </div>

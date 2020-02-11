@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include "cockpitauth.h"
+#include "cockpitwsinstancecert.h"
 
 #include "cockpitws.h"
 
@@ -374,6 +375,13 @@ cockpit_auth_steal_authorization (GHashTable *headers,
     {
       g_hash_table_steal (headers, "Authorization");
       g_free (key);
+
+      /* This is being parsed heavily, enforce ASCII */
+      if (!g_str_is_ascii (line))
+        {
+          g_message ("received invalid Authorize header, must be ASCII");
+          goto out;
+        }
     }
   else
     {
@@ -768,6 +776,7 @@ on_transport_control (CockpitTransport *transport,
 {
   CockpitSession *session = user_data;
   const gchar *problem = NULL;
+  const gchar *session_id = NULL;
   const gchar *message = NULL;
   GSimpleAsyncResult *result;
   GError *error = NULL;
@@ -796,6 +805,9 @@ on_transport_control (CockpitTransport *transport,
               g_error_free (error);
             }
         }
+
+      if (cockpit_json_get_string (options, "session-id", NULL, &session_id) && session_id)
+        cockpit_web_service_set_id (session->service, session_id);
 
       ret = FALSE; /* Let this message be handled elsewhere */
     }
@@ -1403,13 +1415,13 @@ cockpit_auth_login_async (CockpitAuth *self,
                           GAsyncReadyCallback callback,
                           gpointer user_data)
 {
-  GSimpleAsyncResult *result = NULL;
+  g_autoptr(GSimpleAsyncResult) result = NULL;
   CockpitSession *session;
   GError *error = NULL;
-  gchar *type = NULL;
-  gchar *conversation = NULL;
-  gchar *authorization = NULL;
-  gchar *application = NULL;
+  g_autofree gchar *type = NULL;
+  g_autofree gchar *conversation = NULL;
+  g_autofree gchar *authorization = NULL;
+  g_autofree gchar *application = NULL;
 
   g_return_if_fail (path != NULL);
   g_return_if_fail (headers != NULL);
@@ -1429,12 +1441,34 @@ cockpit_auth_login_async (CockpitAuth *self,
     }
 
   application = cockpit_auth_parse_application (path, NULL);
-  authorization = cockpit_auth_steal_authorization (headers, connection, &type, &conversation);
 
-  if (!application || !authorization)
+  /* If the client sends a TLS certificate to cockpit-tls, treat this as a
+   * definitive login type, and don't just silently fall back to other types */
+  if (https_instance_has_certificate_file (NULL, 0) != -1)
+    {
+      g_debug ("TLS connection has peer certificate, using tls-cert auth type");
+      type = g_strdup ("tls-cert");
+      /* don't send any actual authorization here; we don't want to put any trust in data sent from cockpit-ws */
+      authorization = g_strdup ("tls-cert");
+    }
+  else
+    {
+      g_debug ("No peer certificate");
+      authorization = cockpit_auth_steal_authorization (headers, connection, &type, &conversation);
+
+      if (!authorization)
+        {
+          g_simple_async_result_set_error (result, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
+                                           "Authentication required");
+          g_simple_async_result_complete_in_idle (result);
+          goto out;
+        }
+    }
+
+  if (!application)
     {
       g_simple_async_result_set_error (result, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
-                                       "Authentication required");
+                                       "Application required");
       g_simple_async_result_complete_in_idle (result);
       goto out;
     }
@@ -1481,17 +1515,8 @@ cockpit_auth_login_async (CockpitAuth *self,
   reset_authorize_timeout (session, FALSE);
 
 out:
-  g_free (type);
-  g_free (application);
-  g_free (conversation);
-
   if (authorization)
-    {
-      cockpit_memory_clear (authorization, -1);
-      g_free (authorization);
-    }
-
-  g_object_unref (result);
+    cockpit_memory_clear (authorization, -1);
 }
 
 JsonObject *
@@ -1580,7 +1605,9 @@ out:
 
   /* Successful login */
   if (creds)
-    g_info ("logged in user session");
+    g_info ("User %s logged into session %s",
+            cockpit_creds_get_user (creds),
+            cockpit_web_service_get_id (session->service));
 
   return body;
 }

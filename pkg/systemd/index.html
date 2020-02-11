@@ -1,499 +1,269 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title translatable="yes">System</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="../base1/patternfly.css" rel="stylesheet">
-    <link href="../shell/index.css" rel="stylesheet">
-    <link href="system.css" rel="stylesheet">
-    <script src="../base1/jquery.js"></script>
-    <script src="../base1/cockpit.js"></script>
-    <script src="../manifests.js"></script>
-    <script src="../*/po.js"></script>
+  <meta charset="utf-8">
+  <title>Overview</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet" href="../base1/patternfly.css">
+  <link rel="stylesheet" href="overview.css">
+
+  <script type="text/javascript" src="../base1/cockpit.js"></script>
+  <script type="text/javascript" src="../base1/jquery.js"></script>
+<!--  <script type="text/javascript" src="d3.js"></script> -->
+  <script type="text/javascript" src="overview.js"></script>
+  <script type="text/javascript" src="../*/po.js"></script>
+  <script src="../manifests.js"></script>
 </head>
-<body hidden>
+<body class="pf-m-redhat-font">
+  <div id="overview"></div>
 
-    <script id="ssh-host-keys-tmpl" type="x-template/mustache">
-        <div class="list-group dialog-list-ct">
-            {{#keys}}
-                <div class="list-group-item">
-                    <p>{{ title }}</p>
-                    {{#fps}}
-                    <small>{{.}}</small>
-                    {{/fps}}
-                </div>
-            {{/keys}}
-            {{^keys}}
-                <div class="list-group-item">
-                    <p translatable="yes">No host keys found.</p>
-                </div>
-            {{/keys}}
+  <script id="ntp-status-icon-tmpl" type="x-template/mustache">
+    {{#Synched}}
+    <span class="fa fa-lg fa-info-circle"></span>
+    {{/Synched}}
+    {{^Synched}}
+    {{#Server}}
+    <span class="spinner spinner-xs spinner-inline"></span>
+    {{/Server}}
+    {{^Server}}
+    <span class="fa fa-lg fa-exclamation-circle"></span>
+    {{/Server}}
+    {{/Synched}}
+  </script>
+
+  <script id="ntp-status-tmpl" type="x-template/mustache">
+    {{#Synched}}
+    {{#Server}}
+    <div translate="yes">Synchronized with {{Server}}</div>
+    {{/Server}}
+    {{^Server}}
+    <div translate="yes">Synchronized</div>
+    {{/Server}}
+    {{/Synched}}
+    {{^Synched}}
+    {{#Server}}
+    <div translate="yes">Trying to synchronize with {{Server}}</div>
+    {{/Server}}
+    {{^Server}}
+    <div translate="yes">Not synchronized</div>
+    {{#service}}
+    <a role="link" tabindex="0" data-goto-service="{{.}}" class="small-messages" translate>Log messages</a>
+    {{/service}}
+    {{/Server}}
+    {{/Synched}}
+    {{#SubStatus}}
+    <div class="small-messages">{{SubStatus}}</div>
+    {{/SubStatus}}
+  </script>
+
+  <script id="ntp-servers-tmpl" type="x-template/mustache">
+    <div class="systime-inline">
+      {{#NTPServers}}
+      <form class="form-inline">
+        <button data-action="add" data-index="{{index}}" class="btn btn-default fa fa-plus"></button>
+        <button data-action="del" data-index="{{index}}" class="btn btn-default pficon-close"></button>
+        <div class="form-group">
+          <input type="text" class="form-control" value="{{Value}}" placeholder="{{Placeholder}}">
         </div>
-    </script>
-
-    <script id="ntp-status-icon-tmpl" type="x-template/mustache">
-      {{#Synched}}
-      <span class="fa fa-lg fa-info-circle"></span>
-      {{/Synched}}
-      {{^Synched}}
-      {{#Server}}
-      <span class="spinner spinner-xs spinner-inline"></span>
-      {{/Server}}
-      {{^Server}}
-      <span class="fa fa-lg fa-exclamation-circle fa-red"></span>
-      {{/Server}}
-      {{/Synched}}
-    </script>
-
-    <script id="ntp-status-tmpl" type="x-template/mustache">
-      {{#Synched}}
-      {{#Server}}
-      <div translatable="yes">Synchronized with {{Server}}</div>
-      {{/Server}}
-      {{^Server}}
-      <div translatable="yes">Synchronized</div>
-      {{/Server}}
-      {{/Synched}}
-      {{^Synched}}
-      {{#Server}}
-      <div translatable="yes">Trying to synchronize with {{Server}}</div>
-      {{/Server}}
-      {{^Server}}
-      <div translatable="yes">Not synchronized</div>
-      {{#service}}
-      <a tabindex="0" data-goto-service="{{.}}" class="small-messages" translate>Log messages</a>
-      {{/service}}
-      {{/Server}}
-      {{/Synched}}
-      {{#SubStatus}}
-      <div class="small-messages">{{SubStatus}}</div>
-      {{/SubStatus}}
-    </script>
-
-    <div id="server" class="container-fluid page-ct server-overview">
-        <div id="motd-box" class="motd-box" hidden>
-          <div class="alert alert-info">
-            <button type="button" class="close" aria-hidden="true">
-              <span class="pficon pficon-close"></span>
-            </button>
-            <span class="pficon pficon-info"></span>
-            <pre id="motd"></pre>
-          </div>
-        </div>
-
-        <div class="info-table-ct-container">
-            <form class="ct-form">
-                <label class="control-label" for="system_information_hardware_text" translatable="yes">Hardware</label>
-                <span> <!-- wrap the <a> so that it doesn't stretch to the whole page width; otherwise tooltip looks bad -->
-                    <a tabindex="0" id="system_information_hardware_text"></a>
-                </span>
-
-                <label class="control-label" for="system_information_asset_tag_text" translatable="yes">Asset Tag</label>
-                <span id="system_information_asset_tag_text"></span>
-
-                <label class="control-label" for="system_machine_id" translatable="yes">Machine ID</label>
-                <span id="system_machine_id"></span>
-
-                <label class="control-label" for="system_information_os_text" translatable="yes">Operating System</label>
-                <span id="system_information_os_text"></span>
-
-                <div role="group" class="system-information-updates">
-                    <span id="system_information_updates_icon" hidden></span>
-                    <span id="system_information_updates_text"></span>
-                </div>
-
-                <label class="control-label" for="system-ssh-keys-link" translatable="yes">Secure Shell Keys</label>
-                <a tabindex="0" id="system-ssh-keys-link" translatable="yes" data-toggle="modal"
-                   data-target="#system_information_ssh_keys">Show fingerprints</a>
-
-                <label class="control-label hidden" for="system-ostree-version-link" translatable="yes">Version</label>
-                <a tabindex="0" id="system-ostree-version-link" class="hidden"></a>
-
-                <label class="control-label" for="system_information_hostname_button" translatable="yes">Host Name</label>
-                <span id="hostname-tooltip">
-                    <a tabindex="0" class="hostname-privileged" id="system_information_hostname_button"></a>
-                </span>
-
-                <label class="control-label" for="system-info-domain" translatable="yes" hidden>Domain</label>
-                <span id="system-info-domain" hidden></span>
-
-                <label class="control-label" for="system_information_systime_button" translatable="yes">System Time</label>
-                <div role="group">
-                    <span id="systime-tooltip">
-                        <a tabindex="0" class="systime-privileged" id="system_information_systime_button"></a>
-                    </span>
-                      <a tabindex="0" hidden id="system_information_systime_ntp_status"
-                         tabindex="0" role="button" data-toggle="tooltip"
-                         data-placement="bottom" data-html="true" >
-                      </a>
-                </div>
-
-                <label class="control-label" translatable="yes">Power Options</label>
-                <div id="shutdown-group" class="btn-group">
-                    <button class="btn btn-default shutdown-privileged" data-action="restart"
-                        data-container="body" translatable="yes">Restart</button>
-                    <button data-toggle="dropdown" class="btn
-                        btn-default dropdown-toggle
-                        shutdown-privileged"
-                        aria-labelledby="system_information_power_options_label">
-                        <span class="caret"></span>
-                    </button>
-                    <ul role="menu" class="dropdown-menu">
-                        <li class="presentation">
-                            <a tabindex="0" role="menuitem" data-action="restart" translatable="yes">Restart</a>
-                        </li>
-                        <li class="presentation">
-                            <a tabindex="0" role="menuitem" data-action="shutdown" translatable="yes">Shut Down</a>
-                        </li>
-                    </ul>
-                </div>
-
-                <label class="control-label" translatable="yes">Performance Profile</label>
-                <span id="system-info-performance" hidden></span>
-
-                <label class="control-label" for="server-pmlogger-switch" translatable="yes" hidden>Store Metrics</label>
-                <div id="server-pmlogger-switch" hidden>
-                </div>
-
-                <a tabindex="0" id="system-information-enable-pcp-link" hidden>
-                    <span class="pficon pficon-info"></span>
-                    <span translate>Enable stored metrics…</span>
-                </a>
-            </form>
-        </div>
-
-        <div id="server-graph-columns" class="server-graphs" role="presentation">
-            <div id="server-graph-toolbar" class="zoom-controls standard-zoom-controls">
-                <div class="dropdown">
-                    <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                        <span></span>
-                        <div class="caret"></div>
-                    </button>
-                    <ul class="dropdown-menu" role="menu">
-                        <li role="presentation"><a tabindex="0" role="menuitem"
-                            data-action="goto-now" translate>Go to now</a></li>
-                        <li role="presentation" class="divider"></li>
-                        <li role="presentation"><a tabindex="0" role="menuitem"
-                            data-range="300" translate>5 minutes</a></li>
-                        <li role="presentation"><a tabindex="0" role="menuitem"
-                            data-range="3600" translate>1 hour</a></li>
-                        <li role="presentation"><a tabindex="0" role="menuitem"
-                            data-range="21600" translate>6 hours</a></li>
-                        <li role="presentation"><a tabindex="0" role="menuitem"
-                            data-range="86400" translate>1 day</a></li>
-                        <li role="presentation"><a tabindex="0" role="menuitem"
-                            data-range="604800" translate>1 week</a></li>
-                    </ul>
-                </div>
-                <button class="btn btn-default" data-action="zoom-out">
-                    <span class="glyphicon glyphicon-zoom-out"></span>
-                </button>
-                <div class="btn-group">
-                    <button class="btn btn-default fa fa-angle-left" data-action="scroll-left"></button>
-                    <button class="btn btn-default fa fa-angle-right" data-action="scroll-right"></button>
-                </div>
-            </div>
-            <div>
-              <span class="plot-unit" id="server_cpu_unit">%</span><a tabindex="0" id="link-cpu"></a>
-            </div>
-            <div id="server_cpu_graph" class="server-graph zoomable-plot"></div>
-            <br/>
-            <div>
-              <span class="plot-unit" id="server_memory_unit"></span>
-              <a tabindex="0" id="link-memory" translate>Memory</a>
-              <a tabindex="0" id="link-memory-and-swap" hidden translate>Memory & Swap</a>
-            </div>
-            <div id="server_memory_graph" class="server-graph zoomable-plot"></div>
-            <br/>
-            <div>
-              <span class="plot-unit" id="server_disk_io_unit"></span><span id="link-disk"></span>
-            </div>
-            <div id="server_disk_io_graph" class="server-graph zoomable-plot"></div>
-            <br/>
-            <div>
-              <span class="plot-unit" id="server_network_traffic_unit"></span><span id="link-network"></span>
-            </div>
-            <div id="server_network_traffic_graph" class="server-graph zoomable-plot"></div>
-        </div>
+      </form>
+      {{/NTPServers}}
     </div>
+  </script>
 
-    <div class="server-graph-container" id="cpu_status" hidden>
-        <div class="server-graph-title" id="cpu_status_title">&nbsp;</div>
-        <ul class="server-graph-legend">
-            <li class="cpu-nice">
-                <i class="fa fa-square"></i>
-                <span translatable="yes">Nice</span>
-            </li>
-            <li class="cpu-user">
-                <i class="fa fa-square"></i>
-                <span translatable="yes">User</span>
-            </li>
-            <li class="cpu-kernel">
-                <i class="fa fa-square"></i>
-                <span translatable="yes">Kernel</span>
-            </li>
-            <li class="cpu-io-wait">
-                <i class="fa fa-square"></i>
-                <span translatable="yes">I/O Wait</span>
-            </li>
-        </ul>
-        <div class="server-graph-graph" id="cpu_status_graph"></div>
-    </div>
-
-    <div class="server-graph-container" id="memory_status" hidden>
-        <ul class="server-graph-legend">
-            <li class="memory-swap">
-                <i class="fa fa-square"></i>
-                <span translatable="yes">Swap Used</span>
-            </li>
-            <li class="memory-cached">
-                <i class="fa fa-square"></i>
-                <span translatable="yes">Cached</span>
-            </li>
-            <li class="memory-used">
-                <i class="fa fa-square"></i>
-                <span translatable="yes">Used</span>
-            </li>
-        </ul>
-        <div class="server-graph-graph" id="memory_status_graph"></div>
-    </div>
-
-    <div class="modal" id="system_information_ssh_keys" tabindex="-1"
-        role="dialog" data-backdrop="static">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title" translatable="yes">Machine SSH Key Fingerprints</h4>
-                </div>
-                <div class="modal-body">
-                    <div class="spinner spinner-lg"></div>
-                    <div class="alert alert-danger" hidden>
-                      <span class="pficon pficon-error-circle-o"></span>
-                      <strong></strong>
+  <div class="modal" id="system_information_change_systime" tabindex="-1"
+      role="dialog" data-backdrop="static">
+      <div class="modal-dialog">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <h4 class="modal-title" translate>Change System Time</h4>
+              </div>
+              <div class="modal-body ct-form">
+                  <label for="systime-timezones" class="control-label" for="systime-timezones" translate="yes">Time Zone</label>
+                  <div>
+                      <select class="form-control" id="systime-timezones">
+                      </select>
+                      <div class="has-error">
+                          <span id="systime-timezone-error" class="help-block" translate="yes">Invalid time zone</span>
+                      </div>
+                  </div>
+                  <label class="control-label" for="change_systime"
+                                               translate="yes">Set Time</label>
+                  <div class="btn-group bootstrap-select dropdown form-control" id="change_systime">
+                      <button class="btn btn-default dropdown-toggle" type="button"
+                                                                      data-toggle="dropdown">
+                          <span class="pull-left" translate="yes">Manually</span>
+                          <i class="fa fa-caret-down pf-c-context-selector__toggle-icon" aria-hidden="true"></i>
+                      </button>
+                      <ul class="dropdown-menu">
+                          <li value="manual_time"><a role="link" tabindex="0" translate="yes">Manually</a></li>
+                          <li value="ntp_time"><a role="link" tabindex="0" translate="yes">Automatically using NTP</a></li>
+                          <li value="ntp_time_custom"><a role="link" tabindex="0" translate="yes">Automatically using specific NTP servers</a></li>
+                      </ul>
+                  </div>
+                  <div id="systime-manual-row">
+                      <input type='text' class="form-control" id="systime-date-input"/>
+                      <input type='text' class="form-control" id="systime-time-hours"/>
+                      :
+                      <input type='text' class="form-control" id="systime-time-minutes"/>
+                  </div>
+                  <div id="manual-error-row">
+                    <div class="has-error">
+                      <span id="systime-parse-error" class="help-block"></span>
                     </div>
-                    <div class="content" hidden></div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-default" data-dismiss="modal" translate>Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal" id="system_information_change_hostname" tabindex="-1"
-        role="dialog" data-backdrop="static">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title" translate>Change Host Name</h4>
-                </div>
-                <div class="modal-body">
-                    <table class="form-table-ct">
-                        <tr>
-                            <td>
-                                <label class="control-label" for="sich-pretty-hostname"
-                                    translatable="yes">Pretty Host Name</label>
-                            </td>
-                            <td>
-                                <input id="sich-pretty-hostname" class="form-control">
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <label class="control-label" for="sich-hostname"
-                                    translatable="yes">Real Host Name</label>
-                            </td>
-                            <td>
-                                <div id=sich-hostname-error>
-                                    <input id="sich-hostname" class="form-control">
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td>
-                                <div class="has-error">
-                                    <span id="sich-note-1" class="help-block"></span>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td>
-                                <div class="has-error">
-                                    <span id="sich-note-2" class="help-block"></span>
-                                </div>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-default" data-dismiss="modal" translate>Cancel</button>
-                    <button class="btn btn-primary" id="sich-apply-button" translate>Change</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script id="ntp-servers-tmpl" type="x-template/mustache">
-      <div class="systime-inline">
-        {{#NTPServers}}
-        <form class="form-inline">
-          <button data-action="add" data-index="{{index}}" class="btn btn-default fa fa-plus"></button>
-          <button data-action="del" data-index="{{index}}" class="btn btn-default pficon-close"></button>
-          <div class="form-group">
-            <input type="text" class="form-control" value="{{Value}}" placeholder="{{Placeholder}}">
+                  </div>
+                  <div id="systime-ntp-servers-row">
+                      <div id="systime-ntp-servers" />
+                      </div>
+                  </div>
+              </div>
+              <div class="modal-footer">
+                  <button class="btn btn-default" data-dismiss="modal" translate>Cancel</button>
+                  <button class="btn btn-primary" id="systime-apply-button" translate>Change</button>
+              </div>
           </div>
-        </form>
-        {{/NTPServers}}
       </div>
-    </script>
+  </div>
 
-    <div class="modal" id="system_information_change_systime" tabindex="-1"
-        role="dialog" data-backdrop="static">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title" translate>Change System Time</h4>
-                </div>
-                <div class="modal-body">
-                    <table class="form-table-ct">
-                        <tr>
-                            <td>
-                                <label class="control-label" translatable="yes">Time Zone</label>
-                            </td>
-                            <td>
-                                <select class="form-control" id="systime-timezones">
-                                </select>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td class="has-error">
-                                <span id="systime-timezone-error" class="help-block" translatable="yes">Invalid time zone</span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><label class="control-label" for="change_systime"
-                                       translatable="yes">Set Time</label></td>
-                            <td>
-                                <div class="btn-group bootstrap-select dropdown form-control" id="change_systime">
-                                    <button class="btn btn-default dropdown-toggle" type="button"
-                                        data-toggle="dropdown">
-                                        <span class="pull-left" translatable="yes">Manually</span>
-                                        <div class="caret"></div>
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        <li value="manual_time"><a tabindex="0" translatable="yes">Manually</a></li>
-                                        <li value="ntp_time"><a tabindex="0" translatable="yes">Automatically using NTP</a></li>
-                                        <li value="ntp_time_custom"><a tabindex="0" translatable="yes">Automatically using specific NTP servers</a></li>
-                                    </ul>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr id="systime-manual-row">
-                            <td></td>
-                            <td>
-                                <input type='text' class="form-control" id="systime-date-input"/>
-                                <input type='text' class="form-control" id="systime-time-hours"/>
-                                :
-                                <input type='text' class="form-control" id="systime-time-minutes"/>
-                            </td>
-                        </tr>
-                        <tr id="systime-manual-error-row">
-                            <td>
-                            </td>
-                            <td class="has-error">
-                                <span id="systime-parse-error" class="help-block"></span>
-                            </td>
-                        </tr>
-                        <tr id="systime-ntp-servers-row">
-                            <td></td>
-                            <td id="systime-ntp-servers">
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-default" data-dismiss="modal" translate>Cancel</button>
-                    <button class="btn btn-primary" id="systime-apply-button" translate>Change</button>
-                </div>
-            </div>
-        </div>
-    </div>
+  <script id="ssh-host-keys-tmpl" type="x-template/mustache">
+      <div class="list-group dialog-list-ct">
+          {{#keys}}
+              <div class="list-group-item">
+                  <p>{{ title }}</p>
+                  {{#fps}}
+                  <small>{{.}}</small>
+                  {{/fps}}
+              </div>
+          {{/keys}}
+          {{^keys}}
+              <div class="list-group-item">
+                  <p translate="yes">No host keys found.</p>
+              </div>
+          {{/keys}}
+      </div>
+  </script>
+  <div class="modal" id="system_information_ssh_keys" tabindex="-1"
+      role="dialog" data-backdrop="static">
+      <div class="modal-dialog">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <h4 class="modal-title" translate="yes">Machine SSH Key Fingerprints</h4>
+              </div>
+              <div class="modal-body">
+                  <div class="spinner spinner-lg"></div>
+                  <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" hidden>
+                    <div class="pf-c-alert__icon">
+                      <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+                    </div>
+                    <h4 class="pf-c-alert__title"></h4>
+                  </div>
+                  <div class="content" hidden></div>
+              </div>
+              <div class="modal-footer">
+                  <button class="btn btn-default" data-dismiss="modal" translate>Close</button>
+              </div>
+          </div>
+      </div>
+  </div>
+  <div class="modal" id="shutdown-dialog" tabindex="-1" role="dialog" data-backdrop="static">
+      <div class="modal-dialog">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <h4 class="modal-title"></h4>
+              </div>
+              <div class="modal-body ct-form">
+                  <textarea class="form-control">
+                  </textarea>
+                  <label class="control-label" for="action-delay" translate="yes">Delay</label>
+                  <div role='group' id="action-delay">
+                      <div class="btn-group bootstrap-select dropdown form-control">
+                          <button class="btn btn-default dropdown-toggle" type="button"
+                                                                          data-toggle="dropdown">
+                              <span class="pull-left" translate="yes">1 Minute</span>
+                              <i class="fa fa-caret-down pf-c-context-selector__toggle-icon" aria-hidden="true"></i>
+                          </button>
+                          <ul class="dropdown-menu">
+                              <li value="1"><a role="link" tabindex="0" translate="yes">1 Minute</a></li>
+                              <li value="5"><a role="link" tabindex="0" translate="yes">5 Minutes</a></li>
+                              <li value="20"><a role="link" tabindex="0" translate="yes">20 Minutes</a></li>
+                              <li value="40"><a role="link" tabindex="0" translate="yes">40 Minutes</a></li>
+                              <li value="60"><a role="link" tabindex="0" translate="yes">60 Minutes</a></li>
+                              <li role="separator" class="divider"></li>
+                              <li value="0"><a role="link" tabindex="0" translate="yes">No Delay</a></li>
+                              <li value="x"><a role="link" tabindex="0" translate="yes">Specific Time</a></li>
+                          </ul>
+                      </div>
+                      <div>
+                          <input class="form-control shutdown-date" type="text">
+                          <input class="form-control shutdown-hours" type="text">
+                          :
+                          <input class="form-control shutdown-minutes" type="text">
+                      </div>
+                  </div>
+              </div>
+              <div class="modal-footer">
+                  <button class="btn btn-default" translate="yes" data-dismiss="modal">Cancel</button>
+                  <button class="btn btn-danger"></button>
+              </div>
+          </div>
+      </div>
+  </div>
+  <div class="modal" id="system_information_change_hostname" tabindex="-1"
+                                                             role="dialog" data-backdrop="static">
+      <div class="modal-dialog">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <h4 class="modal-title" translate>Change Host Name</h4>
+              </div>
+              <div class="modal-body">
+                  <table class="form-table-ct">
+                      <tr>
+                          <td>
+                              <label class="control-label" for="sich-pretty-hostname"
+                                                           translate="yes">Pretty Host Name</label>
+                          </td>
+                          <td>
+                              <input id="sich-pretty-hostname" class="form-control">
+                          </td>
+                      </tr>
+                      <tr>
+                          <td>
+                              <label class="control-label" for="sich-hostname"
+                                                           translate="yes">Real Host Name</label>
+                          </td>
+                          <td>
+                              <div id=sich-hostname-error>
+                                  <input id="sich-hostname" class="form-control">
+                              </div>
+                          </td>
+                      </tr>
+                      <tr>
+                          <td></td>
+                          <td>
+                              <div class="has-error">
+                                  <span id="sich-note-1" class="help-block"></span>
+                              </div>
+                          </td>
+                      </tr>
+                      <tr>
+                          <td></td>
+                          <td>
+                              <div class="has-error">
+                                  <span id="sich-note-2" class="help-block"></span>
+                              </div>
+                          </td>
+                      </tr>
+                  </table>
+              </div>
+              <div class="modal-footer">
+                  <button class="btn btn-default" data-dismiss="modal" translate>Cancel</button>
+                  <button class="btn btn-primary" id="sich-apply-button" translate>Change</button>
+              </div>
+          </div>
+      </div>
+  </div>
 
-    <div class="modal" id="shutdown-dialog" tabindex="-1" role="dialog" data-backdrop="static">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title"></h4>
-                </div>
-                <div class="modal-body">
-                    <textarea class="form-control">
-                    </textarea>
-                    <table>
-                        <tr>
-                            <td>
-                                <label translatable="yes">Delay</label>
-                            </td>
-                            <td>
-                                <div class="btn-group bootstrap-select dropdown form-control">
-                                    <button class="btn btn-default dropdown-toggle" type="button"
-                                        data-toggle="dropdown">
-                                        <span class="pull-left" translatable="yes">1 Minute</span>
-                                        <div class="caret"></div>
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        <li value="1"><a tabindex="0" translatable="yes">1 Minute</a></li>
-                                        <li value="5"><a tabindex="0" translatable="yes">5 Minutes</a></li>
-                                        <li value="20"><a tabindex="0" translatable="yes">20 Minutes</a></li>
-                                        <li value="40"><a tabindex="0" translatable="yes">40 Minutes</a></li>
-                                        <li value="60"><a tabindex="0" translatable="yes">60 Minutes</a></li>
-                                        <li role="separator" class="divider"></li>
-                                        <li value="0"><a tabindex="0" translatable="yes">No Delay</a></li>
-                                        <li value="x"><a tabindex="0" translatable="yes">Specific Time</a></li>
-                                    </ul>
-                                </div>
-                            </td>
-                            <td>
-                                <div>
-                                    <input class="form-control shutdown-date" type="text">
-                                    <input class="form-control shutdown-hours" type="text">
-                                    :
-                                    <input class="form-control shutdown-minutes" type="text">
-                                </div>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-default" translatable="yes" data-dismiss="modal">Cancel</button>
-                    <button class="btn btn-danger"></button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal" id="confirmation-dialog" tabindex="-1" role="dialog" data-backdrop="static">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title" id="confirmation-dialog-title"></h4>
-                </div>
-                <div class="modal-body" id="confirmation-dialog-body">
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-default" translatable="yes" id="confirmation-dialog-cancel">Cancel</button>
-                    <button class="btn btn-danger" id="confirmation-dialog-confirm">
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="system.js"></script>
-    <script src="../domain/domain.js"></script>
-    <script src="../performance/performance.js"></script>
+  <script src="../performance/performance.js"></script>
 </body>
 </html>

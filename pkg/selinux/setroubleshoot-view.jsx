@@ -20,6 +20,7 @@
 import cockpit from "cockpit";
 
 import React from "react";
+import { Alert, AlertActionCloseButton } from "@patternfly/react-core";
 
 import * as cockpitListing from "cockpit-components-listing.jsx";
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
@@ -91,17 +92,15 @@ class SELinuxEventDetails extends React.Component {
                     } else {
                         if (self.props.fix.success) {
                             msg = (
-                                <div className="alert alert-success">
-                                    <span className="pficon pficon-ok" />
-                                    <span> { _("Solution applied successfully") }: {self.props.fix.result}</span>
-                                </div>
+                                <Alert isInline variant="success" title={ _("Solution applied successfully") }>
+                                    {self.props.fix.result}
+                                </Alert>
                             );
                         } else {
                             msg = (
-                                <div className="alert alert-danger">
-                                    <span className="pficon pficon-error-circle-o" />
-                                    <span> { _("Solution failed") }: {self.props.fix.result}</span>
-                                </div>
+                                <Alert isInline variant="danger" title={ _("Solution failed") }>
+                                    {self.props.fix.result}
+                                </Alert>
                             );
                         }
                     }
@@ -121,7 +120,7 @@ class SELinuxEventDetails extends React.Component {
                     </div>
                 );
             }
-            var detailsLink = <a href="#" tabIndex="0" onClick={ self.handleSolutionDetailsClick.bind(self, itmIdx) }>{ _("solution details") }</a>;
+            var detailsLink = <button className="link-button" onClick={ self.handleSolutionDetailsClick.bind(self, itmIdx) }>{ _("solution details") }</button>;
             var doState;
             var doElem;
             var caret;
@@ -135,12 +134,11 @@ class SELinuxEventDetails extends React.Component {
                 doElem = null;
             }
             return (
-                <div className="list-group-item" key={itm.analysisId}>
+                <div className="list-group-item selinux-details" key={itm.analysisId}>
                     <div>
                         <div>
                             <span>{itm.ifText}</span>
                         </div>
-                        {fixit}
                         <div>
                             {itm.thenText}
                         </div>
@@ -148,6 +146,7 @@ class SELinuxEventDetails extends React.Component {
                         {doElem}
                         {msg}
                     </div>
+                    {fixit}
                 </div>
             );
         });
@@ -186,7 +185,7 @@ class SELinuxEventLog extends React.Component {
 }
 
 /* Implements a subset of the PatternFly Empty State pattern
- * https://www.patternfly.org/patterns/empty-state/
+ * https://www.patternfly.org/v3/pattern-library/communication/empty-state/index.html
  * Special values for icon property:
  *   - 'waiting' - display spinner
  *   - 'error'   - display error icon
@@ -243,13 +242,9 @@ class DismissableError extends React.Component {
 
     render() {
         return (
-            <div className="alert alert-danger alert-dismissable alert-ct-top">
-                <span className="pficon pficon-error-circle-o" />
-                <span>{this.props.children}</span>
-                <button type="button" className="close" aria-hidden="true" onClick={this.handleDismissError}>
-                    <span className="pficon pficon-close" />
-                </button>
-            </div>
+            <Alert isInline
+                variant='danger' title={this.props.children}
+                action={<AlertActionCloseButton onClose={this.handleDismissError} />} />
         );
     }
 }
@@ -293,7 +288,7 @@ class SELinuxStatus extends React.Component {
         else if (!configUnknown && this.props.selinuxStatus.enforcing !== this.props.selinuxStatus.configEnforcing)
             note = _("Setting deviates from the configured state and will revert on the next boot.");
 
-        let statusMsg = this.props.selinuxStatus.enforcing ? _("Enforcing") : _("Permissive");
+        const statusMsg = this.props.selinuxStatus.enforcing ? _("Enforcing") : _("Permissive");
 
         return (
             <div className="selinux-policy-ct">
@@ -432,7 +427,7 @@ export class SETroubleshootPage extends React.Component {
                     criticalAlert = <span className="fa fa-exclamation-triangle" />;
                 var columns = [
                     criticalAlert,
-                    { name: itm.description, 'header': true }
+                    { name: itm.description, header: true }
                 ];
                 var title;
                 if (itm.count > 1) {
@@ -467,6 +462,7 @@ export class SETroubleshootPage extends React.Component {
                 title={ _("System Modifications") }
                 permitted={ this.props.selinuxStatus.permitted }
                 shell={ "semanage import <<EOF\n" + this.props.selinuxStatus.shell.trim() + "\nEOF" }
+                ansible={ this.props.selinuxStatus.ansible }
                 entries={ this.props.selinuxStatus.modifications }
                 failed={ this.props.selinuxStatus.failed }
             />
@@ -475,13 +471,9 @@ export class SETroubleshootPage extends React.Component {
         var errorMessage;
         if (this.props.error) {
             errorMessage = (
-                <div className="alert alert-danger alert-dismissable alert-ct-top">
-                    <span className="pficon pficon-error-circle-o" />
-                    <span>{this.props.error}</span>
-                    <button type="button" className="close" aria-hidden="true" onClick={this.handleDismissError}>
-                        <span className="pficon pficon-close" />
-                    </button>
-                </div>
+                <Alert isInline
+                    variant='danger' title={this.props.error}
+                    action={<AlertActionCloseButton onClose={this.handleDismissError} />} />
             );
         }
 

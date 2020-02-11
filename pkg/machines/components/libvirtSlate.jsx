@@ -22,6 +22,7 @@ import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
 import { mouseClick } from "../helpers.js";
 import {
+    checkLibvirtStatus,
     startLibvirt,
     enableLibvirt,
 } from "../actions/provider-actions.js";
@@ -39,6 +40,7 @@ class LibvirtSlate extends React.Component {
 
         this.onLibvirtEnabledChanged = this.onLibvirtEnabledChanged.bind(this);
         this.startService = this.startService.bind(this);
+        this.checkStatus = this.checkStatus.bind(this);
         this.goToServicePage = this.goToServicePage.bind(this);
     }
 
@@ -48,6 +50,12 @@ class LibvirtSlate extends React.Component {
                 libvirtEnabled: e.target.checked,
             });
         }
+    }
+
+    checkStatus() {
+        const service = this.props.libvirtService;
+
+        this.props.dispatch(checkLibvirtStatus(service.name));
     }
 
     startService() {
@@ -63,8 +71,9 @@ class LibvirtSlate extends React.Component {
     }
 
     render() {
-        let activeState = this.props.libvirtService.activeState;
-        let name = this.props.libvirtService.name;
+        const activeState = this.props.libvirtService.activeState;
+        const name = this.props.libvirtService.name;
+        const loadingResources = this.props.loadingResources;
         let message;
         let icon;
         let detail;
@@ -76,7 +85,11 @@ class LibvirtSlate extends React.Component {
         } else if (name && activeState === 'unknown') { // name === 'unknown' first
             message = _("Connecting to Virtualization Service");
             icon = (<div className="spinner spinner-lg" />);
+        } else if (loadingResources) {
+            message = _("Loading Resources");
+            icon = (<div className="spinner spinner-lg" />);
         } else {
+            this.checkStatus();
             message = _("Virtualization Service (libvirt) is Not Active");
             icon = (<span className="fa fa-exclamation-circle" />);
             detail = (

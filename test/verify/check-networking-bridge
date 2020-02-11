@@ -55,7 +55,7 @@ class TestNetworking(NetworkCase):
 
         # Check that the configuration file has the expected sane name
         # on systems that use "network-scripts".
-        if "ubuntu" not in m.image and "debian" not in m.image:
+        if "ubuntu" not in m.image and "debian" not in m.image and "coreos" not in m.image:
             m.execute("! test -d /etc/sysconfig || test -f /etc/sysconfig/network-scripts/ifcfg-tbridge")
 
         # Delete the bridge
@@ -65,10 +65,8 @@ class TestNetworking(NetworkCase):
         b.wait_not_present("#networking-interfaces tr[data-interface='tbridge']")
 
         # Check that the former members are displayed and both On
-        # Fixed in PR #12400
-        if m.image not in ["rhel-8-0-distropkg"]:
-            self.wait_for_iface(iface1)
-            self.wait_for_iface(iface2)
+        self.wait_for_iface(iface1)
+        self.wait_for_iface(iface2)
 
     def testBridgeActive(self):
         b = self.browser

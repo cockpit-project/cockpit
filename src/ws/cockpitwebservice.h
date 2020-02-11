@@ -51,6 +51,9 @@ void                 cockpit_web_service_socket      (CockpitWebService *self,
                                                       gboolean for_tls_proxy);
 
 CockpitCreds *       cockpit_web_service_get_creds   (CockpitWebService *self);
+const gchar *        cockpit_web_service_get_id      (CockpitWebService *self);
+void                 cockpit_web_service_set_id      (CockpitWebService *self,
+                                                      const gchar *id);
 
 gboolean             cockpit_web_service_get_idling  (CockpitWebService *self);
 

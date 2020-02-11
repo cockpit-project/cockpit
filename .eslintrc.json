@@ -1,9 +1,10 @@
 {
+    "root": true,
     "env": {
         "browser": true,
         "es6": true
     },
-    "extends": ["eslint:recommended", "standard", "standard-react"],
+    "extends": ["eslint:recommended", "standard", "standard-react", "plugin:jsx-a11y/recommended"],
     "parser": "babel-eslint",
     "parserOptions": {
         "ecmaVersion": "7",
@@ -12,7 +13,7 @@
         },
         "sourceType": "module"
     },
-    "plugins": ["flowtype", "react", "cockpit"],
+    "plugins": ["flowtype", "react", "react-hooks", "cockpit", "jsx-a11y"],
     "rules": {
         "indent": ["error", 4,
             {
@@ -27,6 +28,9 @@
         "react/jsx-indent": ["error", 4],
         "semi": ["error", "always", { "omitLastInOneLineBlock": true }],
 
+        "react-hooks/rules-of-hooks": "error",
+        "react-hooks/exhaustive-deps": "error",
+
         "camelcase": "off",
         "comma-dangle": "off",
         "curly": "off",
@@ -37,9 +41,22 @@
         "quotes": "off",
         "react/jsx-curly-spacing": "off",
         "react/jsx-indent-props": "off",
+        "react/jsx-handler-names": "off",
+        "react/jsx-closing-bracket-location": "off",
+        "react/jsx-closing-tag-location": "off",
+        "react/jsx-curly-newline": "off",
+        "react/jsx-first-prop-new-line": "off",
         "react/prop-types": "off",
         "space-before-function-paren": "off",
         "standard/no-callback-literal": "off",
+
+        "jsx-a11y/no-static-element-interactions": "off",
+        "jsx-a11y/click-events-have-key-events": "off",
+        "jsx-a11y/anchor-is-valid": "off",
+        "jsx-a11y/no-autofocus": "off",
+        "jsx-a11y/no-noninteractive-element-interactions": "off",
+        "jsx-a11y/no-interactive-element-to-noninteractive-role": "off",
+        "jsx-a11y/no-onchange": "off",
 
         "eqeqeq": "off",
         "import/no-webpack-loader-syntax": "off",
@@ -54,7 +71,7 @@
     },
     "settings": {
         "react": {
-            "version": "latest"
+            "version": "detect"
         }
     }
 }

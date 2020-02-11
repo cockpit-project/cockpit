@@ -18,6 +18,7 @@
  */
 
 #include "cockpitmachinesjson.h"
+#include "common/cockpitconf.h"
 
 #include <errno.h>
 #include <glob.h>
@@ -142,7 +143,7 @@ get_machines_json_dir (void)
 {
   static gchar *path = NULL;
   if (path == NULL)
-    path = g_strdup_printf ("%s/machines.d", g_getenv ("COCKPIT_TEST_CONFIG_DIR") ?: "/etc/cockpit");
+    path = g_build_filename (cockpit_conf_get_dirs ()[0], "cockpit", "machines.d", NULL);
   return path;
 }
 
@@ -150,13 +151,13 @@ JsonNode *
 read_machines_json (void)
 {
   gchar *glob_str;
-  glob_t conf_glob = { .gl_offs = 1 };
+  glob_t conf_glob;
   int res;
   JsonNode *machines = NULL;
 
   /* find json config files */
   glob_str = g_build_filename (get_machines_json_dir (), "*.json", NULL);
-  res = glob (glob_str, GLOB_DOOFFS, glob_err_func, &conf_glob);
+  res = glob (glob_str, 0, glob_err_func, &conf_glob);
   if (G_UNLIKELY (res != 0 && res != GLOB_NOMATCH))
     {
       g_critical ("glob %s failed with return code %i", glob_str, res);
@@ -165,14 +166,10 @@ read_machines_json (void)
       return NULL;
     }
 
-  /* also read /var/lib/cockpit/machines.json for backwards compat; except when
-   * running unit tests, then disable this (this is covered by an integration test) */
-  conf_glob.gl_pathv[0] = g_getenv ("COCKPIT_TEST_CONFIG_DIR") ? "/dev/null" : "/var/lib/cockpit/machines.json";
-
   /* start with an empty object */
   machines = new_object_node ();
 
-  for (size_t i = 0; i < conf_glob.gl_pathc + 1; ++i)
+  for (size_t i = 0; i < conf_glob.gl_pathc; ++i)
     {
       JsonNode *j = parse_json_file (conf_glob.gl_pathv[i]);
       if (j)

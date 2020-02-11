@@ -24,6 +24,7 @@ import subprocess
 
 from verify import parent
 import testvm
+from machine_core.constants import TEST_OS_DEFAULT
 
 parent  # pyflakes
 
@@ -129,8 +130,6 @@ def run_install_script(machine, do_build, do_install, skips, arg, args):
         do_install = False
 
     skips = list(skips or [])
-    if "atomic" not in machine.image:
-        skips.append("cockpit-ostree")
 
     skip_args = [" --skip '%s'" % skip for skip in skips]
     cmd = "cd /var/tmp; ./%s.install%s%s%s%s%s%s" % (machine.image,
@@ -156,7 +155,7 @@ def build_and_install(build_image, build_results, skips, args):
     # While the machine is booting, make a tarball
     # Do a development build on the latest Fedora image so that we can spot React and other dev-only warnings
     env = os.environ.copy()
-    if os.path.basename(build_image) == "fedora-30":
+    if os.path.basename(build_image) == TEST_OS_DEFAULT:
         env["NODE_ENV"] = "development"
     source = subprocess.check_output([os.path.join(BOTS, "make-source")],
                                      universal_newlines=True, env=env).strip()

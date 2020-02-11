@@ -49,29 +49,29 @@ export class StoragePool extends React.Component {
         const availableTooltipFunction = (max, now) => <Tooltip id='utilization-bar-tooltip-available'> Available {((max - now) / max).toFixed(2) * 100}% </Tooltip>;
         const usedTooltipFunction = (max, now) => <Tooltip id='utilization-bar-tooltip-used'> Used {(now / max).toFixed(2) * 100}% </Tooltip>;
         const size = (
-            <React.Fragment>
+            <>
                 <UtilizationBar
                     now={allocation}
                     max={capacity}
                     availableTooltipFunction={availableTooltipFunction}
                     usedTooltipFunction={usedTooltipFunction}
                 />
-            </React.Fragment>
+            </>
         );
         const sizeLabel = (
-            <React.Fragment>
-                {`${allocation} / ${capacity} GB`}
-            </React.Fragment>
+            <>
+                {`${allocation} / ${capacity} GiB`}
+            </>
         );
         const state = (
-            <React.Fragment>
+            <>
                 { this.props.resourceHasError[storagePool.id] ? <span className='pficon-warning-triangle-o machines-status-alert' /> : null }
                 <span id={`${idPrefix}-state`}>
                     { storagePool.active ? _("active") : _("inactive") }
                 </span>
-            </React.Fragment>);
+            </>);
         const cols = [
-            { name, 'header': true },
+            { name, header: true },
             size,
             sizeLabel,
             rephraseUI('connections', storagePool.connectionName),
@@ -88,7 +88,7 @@ export class StoragePool extends React.Component {
                 {_("Storage Volumes")}
             </div>
         );
-        let tabRenderers = [
+        const tabRenderers = [
             {
                 name: overviewTabName,
                 renderer: StoragePoolOverviewTab,
@@ -100,7 +100,7 @@ export class StoragePool extends React.Component {
                 data: { storagePool, vms }
             },
         ];
-        let extraClasses = [];
+        const extraClasses = [];
 
         if (this.props.resourceHasError[storagePool.id])
             extraClasses.push('error');
@@ -110,7 +110,7 @@ export class StoragePool extends React.Component {
                 extraClasses={extraClasses}
                 columns={cols}
                 tabRenderers={tabRenderers}
-                listingActions={<StoragePoolActions onAddErrorNotification={this.props.onAddErrorNotification} storagePool={storagePool} />} />
+                listingActions={<StoragePoolActions onAddErrorNotification={this.props.onAddErrorNotification} storagePool={storagePool} vms={vms} />} />
         );
     }
 }
@@ -158,37 +158,47 @@ class StoragePoolActions extends React.Component {
     }
 
     render() {
-        const { storagePool } = this.props;
+        const { storagePool, vms } = this.props;
         const id = storagePoolId(storagePool.name, storagePool.connectionName);
         let deactivateButton = (
-            <Button id={`deactivate-${id}`} disabled={this.state.operationInProgress} onClick={this.onDeactivate}>
+            <Button id={`deactivate-${id}`}
+                disabled={this.state.operationInProgress}
+                style={this.state.operationInProgress ? { pointerEvents: 'none' } : null} // Fixes OverlayTrigger not showing up
+                onClick={this.onDeactivate}>
                 {_("Deactivate")}
             </Button>
         );
         let activateButton = (
-            <Button id={`activate-${id}`} disabled={this.state.operationInProgress} onClick={this.onActivate}>
+            <Button id={`activate-${id}`}
+                disabled={this.state.operationInProgress}
+                style={this.state.operationInProgress ? { pointerEvents: 'none' } : null} // Fixes OverlayTrigger not showing up
+                onClick={this.onActivate}>
                 {_("Activate")}
             </Button>
         );
         if (this.state.operationInProgress) {
             deactivateButton = (
                 <OverlayTrigger overlay={ <Tooltip id="tip-in-progress">{_("Operation is in progress")}</Tooltip> } placement="top">
-                    {deactivateButton}
+                    <span>
+                        {deactivateButton}
+                    </span>
                 </OverlayTrigger>
             );
             activateButton = (
                 <OverlayTrigger overlay={ <Tooltip id="tip-in-progress">{_("Operation is in progress")}</Tooltip> } placement="top">
-                    {activateButton}
+                    <span>
+                        {activateButton}
+                    </span>
                 </OverlayTrigger>
             );
         }
 
         return (
-            <React.Fragment>
+            <>
                 { storagePool.active && deactivateButton }
                 { !storagePool.active && activateButton }
-                <StoragePoolDelete storagePool={storagePool} />
-            </React.Fragment>
+                <StoragePoolDelete storagePool={storagePool} vms={vms} />
+            </>
         );
     }
 }

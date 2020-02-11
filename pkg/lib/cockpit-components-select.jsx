@@ -52,7 +52,9 @@ export class Select extends React.Component {
         super();
         this.onChange = this.onChange.bind(this);
 
-        this.state = { value: props.initial,
+        this.state = {
+            value: props.initial,
+            initial: props.initial,
         };
     }
 
@@ -62,8 +64,13 @@ export class Select extends React.Component {
             this.props.onChange(value);
     }
 
-    componentWillReceiveProps(nextProps) {
-        this.setState({ value: nextProps.initial });
+    static getDerivedStateFromProps(nextProps, prevState) {
+        if (nextProps.initial !== prevState.initial)
+            return {
+                value: nextProps.initial,
+                initial: nextProps.initial
+            };
+        return null;
     }
 
     render() {

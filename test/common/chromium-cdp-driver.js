@@ -66,6 +66,7 @@ var messages = [];
 var logPromiseResolver;
 var nReportedLogMessages = 0;
 var unhandledExceptions = [];
+var sawRefusedInlineStyle = false;
 
 function clearExceptions() {
     unhandledExceptions.length = 0;
@@ -100,6 +101,21 @@ function setupLogging(client) {
     client.Log.enable();
     client.Log.entryAdded(entry => {
         let msg = entry["entry"];
+        /* Ignore unsafe-inline messages from PatternFly's usage of Emotion
+         * (https://github.com/patternfly/patternfly-react/issues/2919) */
+        if ((msg.text || "").indexOf("Refused to apply inline style") >= 0) {
+            /* when building with --enable-debug, we have proper symbols and can reliably identify the source */
+            if (msg.stackTrace && msg.stackTrace.callFrames && msg.stackTrace.callFrames[0].functionName === "makeStyleTag")
+                return;
+            /* else, show the error just once */
+            if (sawRefusedInlineStyle)
+                return;
+            sawRefusedInlineStyle = true;
+            /* further trim the output by dropping the stackTrace if it's minified */
+            if (msg.stackTrace && msg.stackTrace.callFrames && msg.stackTrace.callFrames[0].functionName.length == 1)
+                msg.stackTrace = "(minified)";
+        }
+
         messages.push([ "cdp", msg ]);
         /* Ignore authentication failure log lines that don't denote failures */
         if (!(msg.url || "").endsWith("/login") || (msg.text || "").indexOf("401") === -1)

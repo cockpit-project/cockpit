@@ -49,10 +49,10 @@ QUnit.test("config_update", function (assert) {
     var dataWasChanged = cockpit.defer();
     var config;
     var configChanged = function(event, settings) {
-        assert.equal(settings["foo"].value, "moo", "value changed correctly");
+        assert.equal(settings.foo.value, "moo", "value changed correctly");
         assert.equal("key" in settings, false, "setting with comment deleted correctly");
         assert.equal("will" in settings, false, "setting without comment deleted correctly");
-        assert.equal(settings["hooray"].value, "value", "value added correctly");
+        assert.equal(settings.hooray.value, "value", "value added correctly");
         assert.equal(config._rawContent, changedConfig, "raw text for changed config is correct");
         dataWasChanged.resolve();
     };
@@ -67,10 +67,10 @@ QUnit.test("config_update", function (assert) {
                 config = new kdump.ConfigFile(filename);
                 config.wait().always(function() {
                     assert.equal(this.state(), "resolved", "waiting for config didn't fail");
-                    config.settings["foo"].value = "moo";
-                    delete config.settings["key"];
-                    delete config.settings["will"];
-                    config.settings["hooray"] = { value: "value" };
+                    config.settings.foo.value = "moo";
+                    delete config.settings.key;
+                    delete config.settings.will;
+                    config.settings.hooray = { value: "value" };
                     config.addEventListener('kdumpConfigChanged', configChanged);
                     config.write(config.settings)
                             .always(function() {

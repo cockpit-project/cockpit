@@ -61,6 +61,7 @@ typedef struct {
 typedef struct {
     const char *ssh_command;
     const char *mock_sshd_arg;
+    const char *mock_sshd_arg_value;
     const char *client_password;
     const char *hostname;
     const char *username;
@@ -71,8 +72,11 @@ typedef struct {
     const char *host_key_authorize; /* authorize x-host-key response for test_problem() */
     const char *config;
     const char *problem;
+    const char *ssh_config_identity_file;
     gboolean allow_unknown;
     gboolean test_home_ssh_config;
+    enum { USER_NONE = 0, USER_INVALID, USER_INVALID_HOST_PRIORITY, USER_ME } ssh_config_user;
+    enum { PORT_VALID = 0, PORT_INVALID_HOST_PRIORITY } ssh_config_port;
 } TestFixture;
 
 static GString *
@@ -138,7 +142,7 @@ setup_mock_sshd (TestCase *tc,
       "--bind", fixture->hostname ?: "127.0.0.1",
       "--user", g_get_user_name (),
       "--password", PASSWORD,
-      fixture->mock_sshd_arg,
+      fixture->mock_sshd_arg, fixture->mock_sshd_arg_value,
       NULL
   };
 
@@ -241,6 +245,7 @@ setup (TestCase *tc,
 {
   const TestFixture *fixture = data;
   const gchar *argv[] = { BUILDDIR "/cockpit-ssh", NULL, NULL };
+  const gchar *hostname = fixture->hostname ?: "127.0.0.1";
   gchar **env = NULL;
   gchar *host = NULL;
   gchar *path = NULL;
@@ -253,9 +258,9 @@ setup (TestCase *tc,
   setup_mock_sshd (tc, data);
 
   if (tc->ssh_port)
-    host = g_strdup_printf ("%s:%d", fixture->hostname ?: "127.0.0.1", tc->ssh_port);
+    host = g_strdup_printf ("%s:%d", hostname, tc->ssh_port);
   else
-    host = g_strdup (fixture->hostname ?: "127.0.0.1");
+    host = g_strdup (hostname);
   argv[1] = host;
 
   /* run our tests with temp home dir, to avoid influence from the real ~/.ssh */
@@ -289,26 +294,43 @@ setup (TestCase *tc,
 #if LIBSSH_085
   if (fixture->test_home_ssh_config)
     {
-      gchar *content;
-      gchar **host_port;
+      g_autoptr(GString) content = g_string_new (NULL);
+      g_autoptr(GString) new_host = g_string_new (NULL);
 
       tc->home_ssh_config_file = g_build_filename (tc->home_ssh_dir, "config", NULL);
       if (!fixture->knownhosts_home)
           g_assert_cmpint (mkdir (tc->home_ssh_dir, 0700), ==, 0);
-      host_port = g_strsplit (host, ":", 0);
 
-      content = g_strdup_printf ("Host some_host\n "
-                                 "\tHostname %s\n"
-                                 "\tPort %s\n",
-                                 host_port[0],
-                                 g_strv_length (host_port) > 1 ? host_port[1] : "22");
-      g_assert (g_file_set_contents (tc->home_ssh_config_file, content, -1, NULL));
+      g_string_append (content, "Host some_host\n");
+      g_string_append_printf (content, "\tHostname %s\n", hostname);
+
+      if (fixture->ssh_config_port == PORT_VALID)
+        g_string_append_printf (content, "\tPort %hu\n", tc->ssh_port);
+      else if (fixture->ssh_config_port == PORT_INVALID_HOST_PRIORITY)
+        g_string_append_printf (content, "\tPort %d\n", (tc->ssh_port - 1));
+
+      if (fixture->ssh_config_user == USER_ME)
+        g_string_append_printf (content, "\tUser %s\n",  g_get_user_name ());
+      else if (fixture->ssh_config_user == USER_INVALID || fixture->ssh_config_user == USER_INVALID_HOST_PRIORITY)
+        g_string_append (content, "\tUser invalid\n");
+
+      if (fixture->ssh_config_identity_file)
+        g_string_append_printf (content, "\tIdentityFile %s\n", fixture->ssh_config_identity_file);
+
+      g_assert (g_file_set_contents (tc->home_ssh_config_file, content->str, -1, NULL));
+
       g_free (host);
-      host = g_strdup ("some_host");
-      argv[1] = host;
+      /* The user in host should take priority over the user in ssh config */
+      if (fixture->ssh_config_user == USER_INVALID_HOST_PRIORITY)
+        g_string_append_printf (new_host, "%s@", g_get_user_name ());
+      /* Host in the ssh config file */
+      g_string_append (new_host, "some_host");
+      /* The port in host should take priority over the port in ssh config */
+      if (fixture->ssh_config_port == PORT_INVALID_HOST_PRIORITY)
+        g_string_append_printf (new_host, ":%hu", tc->ssh_port);
 
-      g_strfreev (host_port);
-      g_free (content);
+      host = g_strdup (new_host->str);
+      argv[1] = host;
     }
 #endif
 
@@ -823,6 +845,92 @@ static const TestFixture fixture_home_ssh_config = {
   .ssh_command = BUILDDIR "/mock-echo"
 };
 
+static const TestFixture fixture_ssh_config_valid_user = {
+  .knownhosts_file = "/dev/null",
+  .test_home_ssh_config = TRUE,
+  .ssh_config_user = USER_ME,
+  .knownhosts_home = MOCK_RSA_KEY,
+  .allow_unknown = TRUE,
+  .ssh_command = BUILDDIR "/mock-echo"
+};
+
+static const TestFixture fixture_ssh_config_invalid_user = {
+  .knownhosts_file = "/dev/null",
+  .test_home_ssh_config = TRUE,
+  .ssh_config_user = USER_INVALID,
+  .knownhosts_home = MOCK_RSA_KEY,
+  .allow_unknown = TRUE,
+  .ssh_command = BUILDDIR "/mock-echo",
+  .problem = "authentication-failed"
+};
+
+static const TestFixture fixture_ssh_config_invalid_user_host_priority = {
+  .knownhosts_file = "/dev/null",
+  .test_home_ssh_config = TRUE,
+  .ssh_config_user = USER_INVALID_HOST_PRIORITY,
+  .knownhosts_home = MOCK_RSA_KEY,
+  .allow_unknown = TRUE,
+  .ssh_command = BUILDDIR "/mock-echo",
+  .problem = "authentication-failed"
+};
+
+static const TestFixture fixture_ssh_config_invalid_port_host_priority = {
+  .knownhosts_file = "/dev/null",
+  .test_home_ssh_config = TRUE,
+  .knownhosts_home = MOCK_RSA_KEY,
+  .allow_unknown = TRUE,
+  .ssh_command = BUILDDIR "/mock-echo",
+  .ssh_config_port = PORT_INVALID_HOST_PRIORITY
+};
+
+static const TestFixture fixture_ssh_config_good_key = {
+  .knownhosts_file = "/dev/null",
+  .test_home_ssh_config = TRUE,
+  .ssh_config_user = USER_ME,
+  .ssh_config_identity_file = SRCDIR "/src/ssh/test_rsa",
+  .client_password = "bad password", /* we don't need this password because the key will work */
+  .knownhosts_home = MOCK_RSA_KEY,
+  .allow_unknown = TRUE,
+  .ssh_command = BUILDDIR "/mock-echo",
+};
+
+static const TestFixture fixture_ssh_config_good_key_password_protected = {
+  .knownhosts_file = "/dev/null",
+  .test_home_ssh_config = TRUE,
+  .ssh_config_user = USER_ME,
+  .ssh_config_identity_file = SRCDIR "/src/ssh/test_rsa_password_protected",
+  .client_password = "bad password",
+  .knownhosts_home = MOCK_RSA_KEY,
+  .allow_unknown = TRUE,
+  .ssh_command = BUILDDIR "/mock-echo",
+  .mock_sshd_arg = "--import-pubkey",
+  .mock_sshd_arg_value = SRCDIR "/src/ssh/test_rsa_password_protected.pub",
+  .problem = "authentication-failed",
+};
+
+static const TestFixture fixture_ssh_config_bad_key = {
+  .knownhosts_file = "/dev/null",
+  .test_home_ssh_config = TRUE,
+  .ssh_config_user = USER_ME,
+  .ssh_config_identity_file = SRCDIR "/src/ssh/mock_rsa_key",
+  .client_password = "bad password",
+  .knownhosts_home = MOCK_RSA_KEY,
+  .allow_unknown = TRUE,
+  .ssh_command = BUILDDIR "/mock-echo",
+  .problem = "authentication-failed",
+};
+
+static const TestFixture fixture_ssh_config_key_password_fallback = {
+  .knownhosts_file = "/dev/null",
+  .test_home_ssh_config = TRUE,
+  .ssh_config_user = USER_ME,
+  .ssh_config_identity_file = SRCDIR "/src/ssh/mock_rsa_key",
+  .knownhosts_home = MOCK_RSA_KEY,
+  .allow_unknown = TRUE,
+  .ssh_command = BUILDDIR "/mock-echo",
+  .problem = "authentication-failed",
+};
+
 static const TestFixture fixture_knownhost_challenge_preconnect = {
   .knownhosts_file = "/dev/null",
   .allow_unknown = TRUE,
@@ -1333,6 +1441,7 @@ test_multi_auth_3_fail (TestCase *tc,
   json_object_unref (init);
 }
 
+
 int
 main (int argc,
       char *argv[])
@@ -1358,6 +1467,26 @@ main (int argc,
   g_test_add_func ("/ssh-bridge/cannot-connect", test_cannot_connect);
   g_test_add ("/ssh-bridge/ssh-config-home", TestCase, &fixture_home_ssh_config,
               setup, test_echo_and_close, teardown);
+#if LIBSSH_085
+  g_test_add ("/ssh-bridge/ssh-config-valid-user", TestCase, &fixture_ssh_config_valid_user,
+              setup, test_echo_and_close, teardown);
+  g_test_add ("/ssh-bridge/ssh-config-invalid-user", TestCase, &fixture_ssh_config_invalid_user,
+              setup, test_problem, teardown);
+  g_test_add ("/ssh-bridge/ssh-config-host-user-priority", TestCase, &fixture_ssh_config_invalid_user_host_priority,
+              setup, test_echo_and_close, teardown);
+  g_test_add ("/ssh-bridge/ssh-config-host-port-priority", TestCase, &fixture_ssh_config_invalid_port_host_priority,
+              setup, test_echo_and_close, teardown);
+  g_test_add ("/ssh-bridge/ssh-config-home-good-key", TestCase, &fixture_ssh_config_good_key,
+              setup, test_echo_and_close, teardown);
+  g_test_add ("/ssh-bridge/ssh-config-home-good-key-password-protected", TestCase, &fixture_ssh_config_good_key_password_protected,
+              setup, test_problem, teardown);
+  g_test_add ("/ssh-bridge/ssh-config-home-bad-key", TestCase, &fixture_ssh_config_bad_key,
+              setup, test_problem, teardown);
+  g_test_add ("/ssh-bridge/ssh-config-home-bad-key-good-key-fallback", TestCase, &fixture_ssh_config_bad_key,
+              setup, test_key_good, teardown);
+  g_test_add ("/ssh-bridge/ssh-config-home-key-password-fallback", TestCase, &fixture_ssh_config_key_password_fallback,
+              setup, test_echo_and_close, teardown);
+#endif
 
   g_test_add ("/ssh-bridge/terminate-problem", TestCase, &fixture_terminate_problem,
               setup, test_problem, teardown);

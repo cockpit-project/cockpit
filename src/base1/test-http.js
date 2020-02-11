@@ -20,35 +20,64 @@ QUnit.test("public api", function (assert) {
 });
 
 QUnit.test("simple request", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(2);
 
-    cockpit.http({ "internal": "/test-server" }).get("/pkg/playground/manifest.json.in")
+    cockpit.http({ internal: "/test-server" }).get("/pkg/playground/manifest.json.in")
             .done(function(data) {
                 assert.deepEqual(JSON.parse(data), {
                     version: "@VERSION@",
-                    'requires': {
-                        "cockpit": "122"
+                    requires: {
+                        cockpit: "122"
                     },
+
                     tools: {
-                        'exception': {
-                            'label': 'Exceptions'
-                        },
-                        'patterns': {
-                            label: "Design Patterns",
-                            path: "jquery-patterns.html"
-                        },
-                        'react-patterns': {
-                            label: "React Patterns"
-                        },
-                        'translate': {
-                            label: "Translating"
-                        },
-                        'pkgs': {
-                            label: "Packages"
+                        index: {
+                            label: "Development"
                         }
                     },
-                    'content-security-policy': "img-src 'self' data:",
+
+                    playground: {
+                        patterns: {
+                            label: "Design Patterns",
+                            path: "jquery-patterns"
+                        },
+                        "react-patterns": {
+                            label: "React Patterns"
+                        },
+                        translate: {
+                            label: "Translating"
+                        },
+                        exception: {
+                            label: "Exceptions"
+                        },
+                        pkgs: {
+                            label: "Packages"
+                        },
+                        preloaded: {
+                            label: "Preloaded"
+                        },
+                        "notifications-receiver": {
+                            label: "Notifications Receiver"
+                        },
+                        metrics: {
+                            label: "Monitoring"
+                        },
+                        plot: {
+                            label: "Plots"
+                        },
+                        service: {
+                            label: "Generic Service Monitor"
+                        },
+                        speed: {
+                            label: "Speed Tests"
+                        },
+                        test: {
+                            label: "Playground"
+                        }
+                    },
+                    preload: ["preloaded"],
+                    "content-security-policy": "img-src 'self' data:"
                 }, "returned right data");
             })
             .always(function() {
@@ -58,11 +87,11 @@ QUnit.test("simple request", function (assert) {
 });
 
 QUnit.test("with params", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(2);
 
-    cockpit.http({ "internal": "/test-server" })
-            .get("/mock/qs", { "key": "value", "name": "Scruffy the Janitor" })
+    cockpit.http({ internal: "/test-server" })
+            .get("/mock/qs", { key: "value", name: "Scruffy the Janitor" })
             .done(function(resp) {
                 assert.equal(resp, "key=value&name=Scruffy+the+Janitor", "right query string");
             })
@@ -73,10 +102,10 @@ QUnit.test("with params", function (assert) {
 });
 
 QUnit.test("not found", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(7);
 
-    var promise = cockpit.http({ "internal": "/test-server" })
+    var promise = cockpit.http({ internal: "/test-server" })
             .get("/not/found")
             .response(function(status, headers) {
                 assert.equal(status, 404, "status code");
@@ -95,12 +124,12 @@ QUnit.test("not found", function (assert) {
 });
 
 QUnit.test("streaming", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(3);
 
     var at = 0;
     var got = "";
-    var promise = cockpit.http({ "internal": "/test-server" })
+    var promise = cockpit.http({ internal: "/test-server" })
             .get("/mock/stream")
             .stream(function(resp) {
                 if (at === 0)
@@ -119,10 +148,10 @@ QUnit.test("streaming", function (assert) {
 });
 
 QUnit.test("close", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(4);
 
-    var req = cockpit.http({ "internal": "/test-server" }).get("/mock/stream");
+    var req = cockpit.http({ internal: "/test-server" }).get("/mock/stream");
 
     var at = 0;
     req.stream(function(resp) {
@@ -141,10 +170,10 @@ QUnit.test("close", function (assert) {
 });
 
 QUnit.test("close all", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(4);
 
-    var http = cockpit.http({ "internal": "/test-server" });
+    var http = cockpit.http({ internal: "/test-server" });
     var req = http.get("/mock/stream");
 
     var at = 0;
@@ -165,18 +194,18 @@ QUnit.test("close all", function (assert) {
 });
 
 QUnit.test("headers", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(3);
 
-    cockpit.http({ "internal": "/test-server" })
-            .get("/mock/headers", null, { "Header1": "booo", "Header2": "yay value" })
+    cockpit.http({ internal: "/test-server" })
+            .get("/mock/headers", null, { Header1: "booo", Header2: "yay value" })
             .response(function(status, headers) {
                 assert.equal(status, 201, "status code");
                 assert.deepEqual(headers, {
-                    "Header1": "booo",
-                    "Header2": "yay value",
-                    "Header3": "three",
-                    "Header4": "marmalade",
+                    Header1: "booo",
+                    Header2: "yay value",
+                    Header3: "three",
+                    Header4: "marmalade",
                     "Referrer-Policy": "no-referrer",
                     "X-DNS-Prefetch-Control": "off",
                     "X-Content-Type-Options": "nosniff",
@@ -189,10 +218,10 @@ QUnit.test("headers", function (assert) {
 });
 
 QUnit.test("escape host header", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(3);
 
-    cockpit.http({ "internal": "/test-server" })
+    cockpit.http({ internal: "/test-server" })
             .get("/mock/host", null, { })
             .response(function(status, headers) {
                 assert.equal(status, 201, "status code");
@@ -205,19 +234,19 @@ QUnit.test("escape host header", function (assert) {
 });
 
 QUnit.test("connection headers", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(3);
 
-    cockpit.http({ "internal": "/test-server", "headers": { "Header1": "booo", "Header2": "not this" } })
-            .get("/mock/headers", null, { "Header2": "yay value", "Header0": "extra" })
+    cockpit.http({ internal: "/test-server", headers: { Header1: "booo", Header2: "not this" } })
+            .get("/mock/headers", null, { Header2: "yay value", Header0: "extra" })
             .response(function(status, headers) {
                 assert.equal(status, 201, "status code");
                 assert.deepEqual(headers, {
-                    "Header0": "extra",
-                    "Header1": "booo",
-                    "Header2": "yay value",
-                    "Header3": "three",
-                    "Header4": "marmalade",
+                    Header0: "extra",
+                    Header1: "booo",
+                    Header2: "yay value",
+                    Header3: "three",
+                    Header4: "marmalade",
                     "Referrer-Policy": "no-referrer",
                     "X-DNS-Prefetch-Control": "off",
                     "X-Content-Type-Options": "nosniff",
@@ -232,7 +261,7 @@ QUnit.test("connection headers", function (assert) {
 QUnit.test("http promise recursive", function (assert) {
     assert.expect(7);
 
-    var promise = cockpit.http({ "internal": "/test-server" }).get("/");
+    var promise = cockpit.http({ internal: "/test-server" }).get("/");
 
     var target = { };
     var promise2 = promise.promise(target);
@@ -248,7 +277,7 @@ QUnit.test("http promise recursive", function (assert) {
 });
 
 QUnit.test("http keep alive", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(3);
 
     /*
@@ -257,13 +286,13 @@ QUnit.test("http keep alive", function (assert) {
      */
 
     var first;
-    cockpit.http({ "internal": "/test-server", "connection": "marmalade" }).get("/mock/connection")
+    cockpit.http({ internal: "/test-server", connection: "marmalade" }).get("/mock/connection")
             .always(function() {
                 assert.equal(this.state(), "resolved", "response didn't fail");
             })
             .done(function(data) {
                 first = data;
-                cockpit.http({ "internal": "/test-server", "connection": "marmalade" }).get("/mock/connection")
+                cockpit.http({ internal: "/test-server", connection: "marmalade" }).get("/mock/connection")
                         .done(function(data) {
                             assert.equal(first, data, "same connection");
                         })
@@ -275,7 +304,7 @@ QUnit.test("http keep alive", function (assert) {
 });
 
 QUnit.test("http connection different", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(3);
 
     /*
@@ -284,13 +313,13 @@ QUnit.test("http connection different", function (assert) {
      */
 
     var first;
-    cockpit.http({ "internal": "/test-server", "connection": "one" }).get("/mock/connection")
+    cockpit.http({ internal: "/test-server", connection: "one" }).get("/mock/connection")
             .always(function() {
                 assert.equal(this.state(), "resolved", "response didn't fail");
             })
             .done(function(data) {
                 first = data;
-                cockpit.http({ "internal": "/test-server", "connection": "two" }).get("/mock/connection")
+                cockpit.http({ internal: "/test-server", connection: "two" }).get("/mock/connection")
                         .done(function(data) {
                             assert.notEqual(first, data, "different connection");
                         })
@@ -302,7 +331,7 @@ QUnit.test("http connection different", function (assert) {
 });
 
 QUnit.test("http connection without address ", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(3);
 
     /*
@@ -310,13 +339,13 @@ QUnit.test("http connection without address ", function (assert) {
      */
 
     var first;
-    cockpit.http({ "internal": "/test-server", "connection": "one" }).get("/mock/connection")
+    cockpit.http({ internal: "/test-server", connection: "one" }).get("/mock/connection")
             .always(function() {
                 assert.equal(this.state(), "resolved", "response didn't fail");
             })
             .done(function(data) {
                 first = data;
-                cockpit.http({ "connection": "one" }).get("/mock/connection")
+                cockpit.http({ connection: "one" }).get("/mock/connection")
                         .done(function(data) {
                             assert.equal(first, data, "different connection");
                         })
@@ -328,11 +357,13 @@ QUnit.test("http connection without address ", function (assert) {
 });
 
 QUnit.test("no dns address", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(2);
 
-    cockpit.http({ "port": 8080,
-                   "address": "the-other-host.example.com" })
+    cockpit.http({
+        port: 8080,
+        address: "the-other-host.example.com"
+    })
             .get("/")
             .fail(function(ex, data) {
             /* Unfortunately we can see either of these errors when running unit tests */
@@ -347,13 +378,15 @@ QUnit.test("no dns address", function (assert) {
 });
 
 QUnit.test("address with params", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     // use our window's host and port to request external
     assert.expect(2);
 
-    cockpit.http({ port: parseInt(window.location.port, 10),
-                   address: window.location.hostname })
-            .get("/mock/qs", { "key": "value", "name": "Scruffy the Janitor" })
+    cockpit.http({
+        port: parseInt(window.location.port, 10),
+        address: window.location.hostname
+    })
+            .get("/mock/qs", { key: "value", name: "Scruffy the Janitor" })
             .done(function(resp) {
                 assert.equal(resp, "key=value&name=Scruffy+the+Janitor", "right query string");
             })

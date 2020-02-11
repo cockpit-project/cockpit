@@ -173,10 +173,10 @@ LIBVIRT_PROVIDER = {
                             return spawnVirshReadOnly({ connectionName, method: 'dominfo', name });
                         })
                         .then(domInfo => {
-                            let dumpxmlParams = parseDumpxml(dispatch, connectionName, xmlDesc);
-                            let domInfoParams = parseDominfo(dispatch, connectionName, name, domInfo);
+                            const dumpxmlParams = parseDumpxml(dispatch, connectionName, xmlDesc);
+                            const domInfoParams = parseDominfo(dispatch, connectionName, name, domInfo);
 
-                            dumpxmlParams.ui = resolveUiState(dispatch, name);
+                            dumpxmlParams.ui = resolveUiState(dispatch, name, connectionName);
                             dumpxmlParams.inactiveXML = parseDumpxml(dispatch, connectionName, xmlInactiveDesc);
 
                             if (updateOnly)
@@ -204,10 +204,7 @@ LIBVIRT_PROVIDER = {
             });
             logDebug(`GET_ALL_STORAGE_POOLS: vmNames: ${JSON.stringify(storagePoolNames)}`);
 
-            // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
-            // https://github.com/cockpit-project/cockpit/issues/10956
-            // eslint-disable-next-line cockpit/no-cockpit-all
-            return cockpit.all(storagePoolNames.map((name) => dispatch(getStoragePool({ connectionName, name }))));
+            return Promise.all(storagePoolNames.map((name) => dispatch(getStoragePool({ connectionName, name }))));
         });
     },
 
@@ -226,10 +223,7 @@ LIBVIRT_PROVIDER = {
             // remove undefined domains
             dispatch(deleteUnlistedVMs(connectionName, vmNames));
 
-            // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
-            // https://github.com/cockpit-project/cockpit/issues/10956
-            // eslint-disable-next-line cockpit/no-cockpit-all
-            return cockpit.all(vmNames.map((name) => dispatch(getVm({ connectionName, name }))));
+            return Promise.all(vmNames.map((name) => dispatch(getVm({ connectionName, name }))));
         });
     },
 
@@ -252,7 +246,7 @@ LIBVIRT_PROVIDER = {
         if (connectionName) {
             return dispatch => spawnVirshNoHandler({ connectionName, args: ['nodememstats'] })
                     .then(nodememstats => {
-                        let stats = parseNodeMemStats(nodememstats);
+                        const stats = parseNodeMemStats(nodememstats);
                         dispatch(setNodeMaxMemory({ memory: stats.total }));
                     })
                     .catch(ex => console.warn("NodeGetMemoryStats failed: %s", ex));
@@ -372,13 +366,14 @@ LIBVIRT_PROVIDER = {
             name
         })
                 .then((domXml) => {
-                    let domXML = updateVCPUSettings(domXml, count, max, sockets, cores, threads);
+                    const domXML = updateVCPUSettings(domXml, count, max, sockets, cores, threads);
                     return createTempFile(domXML);
                 })
                 .then((tempFilename) => {
-                    return spawnVirsh({ connectionName,
-                                        method: 'SET_VCPU_SETTINGS',
-                                        args: ['define', tempFilename.trim()]
+                    return spawnVirsh({
+                        connectionName,
+                        method: 'SET_VCPU_SETTINGS',
+                        args: ['define', tempFilename.trim()]
                     });
                 });
     },
@@ -388,11 +383,11 @@ LIBVIRT_PROVIDER = {
 
         return dispatch => {
             function destroy() {
-                return spawnVirshNoHandler({ connectionName, args: [ 'destroy', name ] });
+                return spawnVirshNoHandler({ connectionName, args: ['destroy', name] });
             }
 
             function undefine() {
-                let args = ['undefine', name, '--managed-save', '--nvram'];
+                const args = ['undefine', name, '--managed-save', '--nvram'];
                 if (options.storage) {
                     args.push('--storage');
                     args.push(options.storage.map(disk => disk.target).join(','));
@@ -439,10 +434,11 @@ LIBVIRT_PROVIDER = {
     GET_HYPERVISOR_MAX_VCPU ({ connectionName }) {
         logDebug(`${this.name}.GET_HYPERVISOR_MAX_VCPU:`);
         if (connectionName) {
-            return dispatch => spawnVirshNoHandler({ connectionName,
-                                                     method: 'GET_HYPERVISOR_MAX_VCPU',
-                                                     failHandler: (exc) => console.warning("GET HYPERVISOR MAX VCPU action failed: ", exc.message),
-                                                     args: ['-r', 'maxvcpus']
+            return dispatch => spawnVirshNoHandler({
+                connectionName,
+                method: 'GET_HYPERVISOR_MAX_VCPU',
+                failHandler: (exc) => console.warning("GET HYPERVISOR MAX VCPU action failed: ", exc.message),
+                args: ['-r', 'maxvcpus']
             }).then((count) => dispatch(setHypervisorMaxVCPU({ count, connectionName })));
         }
 
@@ -467,7 +463,7 @@ function spawnVirsh({ connectionName, method, failHandler, args }) {
 }
 
 function spawnVirshReadOnly({ connectionName, method, name, params, failHandler }) {
-    let args = params ? ['-r', method, params, name] : ['-r', method, name];
+    const args = params ? ['-r', method, params, name] : ['-r', method, name];
 
     return spawnVirsh({ connectionName, method, args, failHandler });
 }
@@ -495,7 +491,7 @@ function parseDominfo(dispatch, connectionName, name, domInfo) {
 function parseDommemstat(dispatch, connectionName, name, dommemstat) {
     const lines = parseLines(dommemstat);
 
-    let rssMemory = getValueFromLine(lines, 'rss'); // in KiB
+    const rssMemory = getValueFromLine(lines, 'rss'); // in KiB
 
     if (rssMemory) {
         return { connectionName, name, rssMemory };
@@ -509,10 +505,10 @@ function parseDomstats(dispatch, connectionName, name, domstats) {
 
     const cpuTime = getValueFromLine(lines, 'cpu.time=');
     // TODO: Add network usage statistics
-    let retParams = { connectionName, name, actualTimeInMs, disksStats: parseDomstatsForDisks(lines) };
+    const retParams = { connectionName, name, actualTimeInMs, disksStats: parseDomstatsForDisks(lines) };
 
     if (cpuTime) {
-        retParams['cpuTime'] = cpuTime;
+        retParams.cpuTime = cpuTime;
     }
     return retParams;
 }
@@ -545,7 +541,7 @@ function parseDomstatsForDisks(domstatsLines) {
 
 function parseNodeMemStats(nodememstats) {
     const lines = parseLines(nodememstats);
-    return { 'total': getValueFromLine(lines, 'total  :').split(' ')[0] };
+    return { total: getValueFromLine(lines, 'total  :').split(' ')[0] };
 }
 
 function parseStoragePoolInfo(poolInfo) {
@@ -601,14 +597,14 @@ function doUsagePolling (name, connectionName) {
         return spawnVirshReadOnly({ connectionName, method: 'domstats', name, failHandler: canFailHandler })
                 .then(domstats => {
                     if (domstats) {
-                        let domstatsParams = parseDomstats(dispatch, connectionName, name, domstats);
+                        const domstatsParams = parseDomstats(dispatch, connectionName, name, domstats);
                         dispatch(updateVm(domstatsParams));
                     }
                     return spawnVirshReadOnly({ connectionName, method: 'dommemstat', name, failHandler: canFailHandler });
                 })
                 .then(dommemstats => {
                     if (dommemstats) {
-                        let dommemstatsParams = parseDommemstat(dispatch, connectionName, name, dommemstats);
+                        const dommemstatsParams = parseDommemstat(dispatch, connectionName, name, dommemstats);
                         if (dommemstatsParams)
                             dispatch(updateVm(dommemstatsParams));
                     }
@@ -642,7 +638,7 @@ function handleEvent(dispatch, connectionName, line) {
     // types and details: https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainEventID
     switch (event_) {
     case 'lifecycle': {
-        let type = info.split(' ')[0];
+        const type = info.split(' ')[0];
         switch (type) {
         case 'Undefined':
             dispatch(undefineVm({ connectionName, name }));
@@ -694,7 +690,7 @@ function startEventMonitor(dispatch, connectionName, libvirtServiceName) {
 
     // set up event monitor for that connection; force PTY as otherwise the buffering
     // will not show every line immediately
-    cockpit.spawn(['virsh'].concat(VMS_CONFIG.Virsh.connections[connectionName].params).concat(['-r', 'event', '--all', '--loop']), { 'err': 'message', 'pty': true })
+    cockpit.spawn(['virsh'].concat(VMS_CONFIG.Virsh.connections[connectionName].params).concat(['-r', 'event', '--all', '--loop']), { err: 'message', pty: true })
             .stream(data => {
                 if (data.startsWith("error: Disconnected from") || data.startsWith("error: internal error: client socket is closed")) {
                 // libvirt failed
@@ -704,7 +700,7 @@ function startEventMonitor(dispatch, connectionName, libvirtServiceName) {
 
                 // buffer and line-split the output, there is no guarantee that we always get whole lines
                 output_buf += data;
-                let lines = output_buf.split('\n');
+                const lines = output_buf.split('\n');
                 while (lines.length > 1)
                     handleEvent(dispatch, connectionName, lines.shift().trim());
                 output_buf = lines[0];

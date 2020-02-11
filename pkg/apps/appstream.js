@@ -28,14 +28,13 @@ export function get_metainfo_db() {
     if (!metainfo_db) {
         metainfo_db = cockpit.event_target({
             ready: false,
-            components: [ ],
-            origin_files: [ ]
+            components: [],
+            origin_files: []
         });
 
         var buf = "";
-        python.spawn([ inotify_py, watch_appstream_py ], [ ],
-                     { environ: [ "LANGUAGE=" + (cockpit.language || "en") ]
-                     })
+        python.spawn([inotify_py, watch_appstream_py], [],
+                     { environ: ["LANGUAGE=" + (cockpit.language || "en")] })
                 .stream(function (data) {
                     var lines, metadata;
 

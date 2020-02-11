@@ -40,37 +40,31 @@ const NetworkMacRow = ({ idPrefix, dialogValues, onValueChanged }) => {
                     {_("MAC Address")}
                 </label>
                 <label className='checkbox-inline'>
-                    <input
-id={`${idPrefix}-generate-mac`}
+                    <input id={`${idPrefix}-generate-mac`}
                         type="radio"
                         name="generate-mac"
                         checked={!dialogValues.setNetworkMac}
                         onChange={e => onValueChanged('setNetworkMac', false)}
-                        className={!dialogValues.setNetworkMac ? "active" : ''}
-                    />
+                        className={!dialogValues.setNetworkMac ? "active" : ''} />
                     {_("Generate automatically")}
                 </label>
             </>
             <div className='mac-grid'>
                 <label className='checkbox-inline'>
-                    <input
-id={`${idPrefix}-set-mac`}
+                    <input id={`${idPrefix}-set-mac`}
                         type="radio"
                         name="set-mac"
                         checked={dialogValues.setNetworkMac}
                         onChange={e => onValueChanged('setNetworkMac', true)}
-                        className={dialogValues.setNetworkMac ? "active" : ''}
-                    />
+                        className={dialogValues.setNetworkMac ? "active" : ''} />
                     {_("Set manually")}
                 </label>
-                <input
-id={`${idPrefix}-mac`}
+                <input id={`${idPrefix}-mac`}
                     className='form-control'
                     type='text'
                     disabled={!dialogValues.setNetworkMac}
                     value={dialogValues.networkMac}
-                    onChange={e => onValueChanged('networkMac', e.target.value)}
-                />
+                    onChange={e => onValueChanged('networkMac', e.target.value)} />
             </div>
         </>
     );
@@ -85,12 +79,10 @@ const PermanentChange = ({ idPrefix, onValueChanged, dialogValues, provider, vm 
         <>
             <label className="control-label"> {_("Persistence")} </label>
             <label className='checkbox-inline'>
-                <input
-id={`${idPrefix}-permanent`}
+                <input id={`${idPrefix}-permanent`}
                        type="checkbox"
                        checked={dialogValues.permanent}
-                       onChange={e => onValueChanged('permanent', e.target.checked)}
-                />
+                       onChange={e => onValueChanged('permanent', e.target.checked)} />
                 {_("Always attach")}
             </label>
         </>
@@ -162,41 +154,32 @@ export class AddNIC extends React.Component {
     }
 
     render() {
-        const { idPrefix, vm, networks, nodeDevices, interfaces, provider } = this.props;
+        const { idPrefix, vm, nodeDevices, interfaces, provider } = this.props;
         const networkDevices = getNetworkDevices(vm.connectionName, nodeDevices, interfaces);
 
         const defaultBody = (
             <form className='ct-form'>
-                <NetworkTypeAndSourceRow
-idPrefix={idPrefix}
+                <NetworkTypeAndSourceRow idPrefix={idPrefix}
                                          dialogValues={this.state}
                                          onValueChanged={this.onValueChanged}
-                                         networks={networks}
                                          networkDevices={networkDevices}
-                                         connectionName={vm.connectionName}
-                />
+                                         connectionName={vm.connectionName} />
                 <hr />
-                <NetworkModelRow
-idPrefix={idPrefix}
+                <NetworkModelRow idPrefix={idPrefix}
                                  dialogValues={this.state}
                                  onValueChanged={this.onValueChanged}
                                  osTypeArch={vm.arch}
-                                 osTypeMachine={vm.emulatedMachine}
-                />
+                                 osTypeMachine={vm.emulatedMachine} />
                 <hr />
-                <NetworkMacRow
-idPrefix={idPrefix}
+                <NetworkMacRow idPrefix={idPrefix}
                                dialogValues={this.state}
-                               onValueChanged={this.onValueChanged}
-                />
+                               onValueChanged={this.onValueChanged} />
                 <hr />
-                <PermanentChange
-idPrefix={idPrefix}
+                <PermanentChange idPrefix={idPrefix}
                                  dialogValues={this.state}
                                  onValueChanged={this.onValueChanged}
                                  provider={provider}
-                                 vm={vm}
-                />
+                                 vm={vm} />
             </form>
         );
 
@@ -214,12 +197,10 @@ idPrefix={idPrefix}
                     <Button id={`${idPrefix}-cancel`} bsStyle='default' className='btn-cancel' onClick={this.props.close}>
                         {_("Cancel")}
                     </Button>
-                    <Button
-disabled={["network", "direct", "bridge"].includes(this.state.networkType) && this.state.networkSource === undefined}
+                    <Button disabled={["network", "direct", "bridge"].includes(this.state.networkType) && this.state.networkSource === undefined}
                             id={`${idPrefix}-add`}
                             bsStyle='primary'
-                            onClick={this.add}
-                    >
+                            onClick={this.add}>
                         {_("Add")}
                     </Button>
                 </Modal.Footer>
@@ -233,7 +214,6 @@ AddNIC.propTypes = {
     idPrefix: PropTypes.string.isRequired,
     vm: PropTypes.object.isRequired,
     provider: PropTypes.object.isRequired,
-    networks: PropTypes.array.isRequired,
     interfaces: PropTypes.array.isRequired,
     nodeDevices: PropTypes.array.isRequired,
 };

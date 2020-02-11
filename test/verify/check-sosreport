@@ -19,14 +19,13 @@
 
 import glob
 import os.path
-import shutil
-import tempfile
 import tarfile
 
 import parent
 from testlib import *
 
 
+@skipImage("No sosreport", "fedora-coreos")
 class TestSOS(MachineCase):
 
     def testBasic(self, urlroot=""):
@@ -49,29 +48,25 @@ threads=2
         b.wait_visible("#sos")
 
         with b.wait_timeout(360):
-            if m.image not in ["rhel-8-0-distropkg"]: # Fixed in #11484
-                b.wait(lambda: b.eval_js('ph_find(".progress-bar").offsetWidth') > 0)
+            b.wait(lambda: b.eval_js('ph_find(".progress-bar").offsetWidth') > 0)
             b.wait_visible("#sos-download")
 
-        download_dir = tempfile.mkdtemp()
-        self.addCleanup(shutil.rmtree, download_dir)
-        b.cdp.invoke("Page.setDownloadBehavior", behavior="allow", downloadPath=download_dir)
+        if b.cdp.browser == "chromium":
+            b.cdp.invoke("Page.setDownloadBehavior", behavior="allow", downloadPath=b.cdp.download_dir)
 
         b.click("#sos-download button")
         # while the download is ongoing, it will have an *.xz.tmpsuffix name, gets renamed to *.xz when done
-        wait(lambda: len(glob.glob(os.path.join(download_dir, "sosreport-*.xz"))) > 0)
-        report = glob.glob(os.path.join(download_dir, "sosreport-*.xz"))[0]
+        wait(lambda: len(glob.glob(os.path.join(b.cdp.download_dir, "sosreport-*.xz"))) > 0)
+        report = glob.glob(os.path.join(b.cdp.download_dir, "sosreport-*.xz"))[0]
         # Check that /etc/release was saved. It the files does not exist, getmember raises KeyError
         with tarfile.open(report) as tar:
             tar.getmember(os.path.join(tar.getnames()[0], "etc/os-release"))
 
         self.allow_journal_messages('.*comm="sosreport".*')
 
-    @skipImage("Fixed in PR #11853", "rhel-8-0-distropkg")
     def testWithUrlRoot(self):
         self.testBasic(urlroot="/webcon")
 
-    @skipImage("Not supported", "fedora-atomic")
     def testAppStream(self):
         b = self.browser
         m = self.machine

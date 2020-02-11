@@ -18,7 +18,6 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import parent
-import testvm
 from testlib import *
 
 
@@ -34,8 +33,8 @@ def can_manage(machine):
     return machine.image not in non_manageable_images
 
 
-@skipImage("No cockpit-docker on i386", "fedora-i386")
-@skipImage("No docker packaged", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1")
+@skipImage("No docker packaged", "rhel-8-2", "rhel-8-2-distropkg", "fedora-coreos", "centos-8-stream")
+@skipImage("Docker not available", "fedora-31") # https://github.com/cockpit-project/cockpit/issues/12670
 @skipPackage("cockpit-docker")
 class TestDockerStorageDirect(MachineCase):
 
@@ -53,30 +52,16 @@ class TestDockerStorageDirect(MachineCase):
 
 
 
-@skipImage("No cockpit-docker on i386", "fedora-i386")
-@skipImage("No docker packaged", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1")
+@skipImage("No docker packaged", "rhel-8-2", "rhel-8-2-distropkg", "fedora-coreos", "centos-8-stream")
+@skipImage("Docker not available", "fedora-31") # https://github.com/cockpit-project/cockpit/issues/12670
 @skipPackage("cockpit-docker")
 class TestDockerStorage(MachineCase):
     provision = {"machine1": {"address": "10.111.113.1/20"}}
 
     def setUp(self):
-        # On the Atomics, we use two machines: one for running
-        # cockpit-ws, and one whose docker storage pool is managed.
-        # We can't do that both on a single machine since resetting
-        # the pool would kill the cockpit-ws container.
-
-        if "atomic" in testvm.DEFAULT_IMAGE:
-            # We want to use a non-Atomic machine as the login machine
-            # and the build machine that matches the current Atomic is suitable
-            # since we can use the same set of built packages
-            self.provision["login"] = {
-                "address": "10.111.113.2/20",
-                "image": testvm.get_build_image(testvm.DEFAULT_IMAGE)
-            }
-
         self.allow_journal_messages('.*refusing to connect to unknown host.*')
         self.allow_journal_messages('.*host key for server is not known.*')
-        MachineCase.setUp(self)
+        super().setUp()
 
     def login(self):
         m = self.machines["machine1"]

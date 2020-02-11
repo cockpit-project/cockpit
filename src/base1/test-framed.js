@@ -32,7 +32,7 @@ function parent_window() {
     }, false);
 
     /* This keeps coming up in tests ... how to open the transport */
-    var chan = cockpit.channel({ "payload": "resource2" });
+    var chan = cockpit.channel({ payload: "resource2" });
     chan.addEventListener("close", function() {
         test.equal(cockpit.transport.host, "localhost",
                    "parent cockpit.transport.host");
@@ -52,7 +52,7 @@ function child_frame() {
 
     document.getElementById("title").innerHTML = "Cockpit Child Frame";
     cockpit.spawn(["/bin/sh", "-c", "echo hi"],
-                  { "host" : "localhost" })
+                  { host : "localhost" })
             .done(function(resp) {
                 test.assert(resp == "hi\n", "framed channel got output");
             })
@@ -67,8 +67,10 @@ function child_frame() {
                 }
             });
 
-    var channel = cockpit.channel({ "payload": "echo", "binary": true,
-                                    "host" : "localhost" });
+    var channel = cockpit.channel({
+        payload: "echo", binary: true,
+        host : "localhost"
+    });
     channel.addEventListener("message", function(ev, payload) {
         test.assert(typeof payload[0] == "number", "binary channel got a byte array");
 

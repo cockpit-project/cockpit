@@ -1,7 +1,7 @@
 /* global cockpit, QUnit, WebSocket */
 
 QUnit.test("external channel websocket", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(3);
 
     var query = window.btoa(JSON.stringify({
@@ -37,7 +37,7 @@ QUnit.test("external channel websocket", function (assert) {
 });
 
 QUnit.test("bad channel options websocket", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     var payloads = [
         window.btoa(JSON.stringify({
             payload: "websocket-stream1",

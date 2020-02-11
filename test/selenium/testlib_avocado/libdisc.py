@@ -35,25 +35,30 @@ class Disc:
         tmp = self.machine.execute("cat /etc/iscsi/initiatorname.iscsi | sed -r 's/^.*=//'")
         self.initiatorname = str(tmp)
 
-    def addtarget(self, name):
-        self.machine.execute("sudo targetcli /backstores/fileio/ create file_or_dev=/var/tmp/%s_%s.target size=10G sparse=true name=%s_%s" % (self.domain, name, self.domain, name))
+    def addtarget(self, name, size='10G'):
+        self.machine.execute("sudo targetcli /backstores/fileio/ create file_or_dev=/var/tmp/%s_%s.target size=%s sparse=true name=%s_%s" % (self.domain, name, size, self.domain, name))
         self.machine.execute("sudo targetcli /iscsi/ create %s.%s:%s" % (self.prefix, self.domain, name))
         self.machine.execute("sudo targetcli /iscsi/%s.%s:%s/tpg1/acls/ create %s" % (self.prefix, self.domain, name, self.initiatorname))
         self.machine.execute("sudo targetcli /iscsi/%s.%s:%s/tpg1/luns/ create /backstores/fileio/%s_%s" % (self.prefix, self.domain, name, self.domain, name))
         self.machine.execute("sudo targetcli saveconfig")
         self.targetlist.append(name)
+        # fresh in order that
+        # the iscsi can be added directly when create storge pool
+        self.machine.execute(
+            "sudo iscsiadm -m discovery -t sendtargets -p %s" % self.ip)
+        # return the iscsi iqn for some method
+        return '%s.%s:%s' % (self.prefix, self.domain, name)
 
     def createparttable(self, name, parttable='msdos'):
-        self.machine.execute("sudo parted /var/tmp/%s_%s.target mktable %s" % (self.domain, name, parttable))
+        self.machine.execute("sudo parted -s /var/tmp/%s_%s.target mktable %s" % (self.domain, name, parttable))
 
-    def adddisc(self, targetsuffix):
-        self.addtarget(targetsuffix)
+    def adddisc(self, targetsuffix, size='10G'):
+        self.addtarget(targetsuffix, size)
         self.machine.execute("sudo iscsiadm -m discovery -t sendtargets -p %s" % self.ip)
         self.machine.execute("sudo iscsiadm -m node --targetname=%s.%s:%s --login" % (self.prefix, self.domain, targetsuffix))
-        tmp = self.machine.execute("sudo iscsiadm -m node")
-        print(tmp("utf-8"))
+        print(self.machine.execute("sudo iscsiadm -m node"))
         tmp = self.machine.execute("sleep 5; sudo iscsiadm -m session -P 3 | tail -1")
-        tmp1 = re.search(r'Attached scsi disk\s+([a-z]*)\s+', tmp("utf-8"))
+        tmp1 = re.search(r'Attached scsi disk\s+([a-z]*)\s+', tmp)
         return "/dev/%s" % str(tmp1.group(1))
 
     def deldisc(self, name):

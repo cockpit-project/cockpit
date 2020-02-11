@@ -147,7 +147,7 @@ function DockerTerminal(parent, channel) {
     /* Shows and hides the cursor */
     self.typeable = function typeable(yes) {
         term.cursorHidden = !yes;
-        term.refresh(term.y, term.y);
+        term.refresh(term.rows, term.rows);
         enable_input = yes;
     };
 
@@ -157,7 +157,7 @@ function DockerTerminal(parent, channel) {
 
     /* Allows caller to cleanup nicely */
     self.close = function close() {
-        term.destroy();
+        term.dispose();
     };
 
     if (typeof channel == "string") {
@@ -181,7 +181,7 @@ function DockerTerminal(parent, channel) {
         return buffer.length;
     };
 
-    term.on('data', function(data) {
+    term.onData(function(data) {
         /* Send typed input back through channel */
         if (enable_input && channel)
             channel.send(encoder.encode(data));
@@ -336,11 +336,11 @@ docker.console = function console_(container_id, command, options) {
             path: "/v1.15/containers/" + encodeURIComponent(container_id) + "/exec",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                "AttachStdin": tty,
-                "AttachStdout": true,
-                "AttachStderr": true,
-                "Tty": tty,
-                "Cmd": command
+                AttachStdin: tty,
+                AttachStdout: true,
+                AttachStderr: true,
+                Tty: tty,
+                Cmd: command
             })
         };
 
@@ -403,7 +403,7 @@ docker.console = function console_(container_id, command, options) {
      * protocol. It starts with a HTTP POST, and then quickly
      * degenerates into a stream sometimes binary.
      *
-     * See: http://docs.docker.io/en/latest/reference/api/docker_remote_api_v1.8/#attach-to-a-container
+     * See: https://docs.docker.com/engine/api/v1.40/#operation/ContainerAttach
      */
     function attach(request) {
         if (view)
@@ -411,10 +411,10 @@ docker.console = function console_(container_id, command, options) {
         view = null;
 
         var opts = $.extend({ }, options, {
-            "payload": "stream",
-            "unix": "/var/run/docker.sock",
-            "superuser": true,
-            "binary": true
+            payload: "stream",
+            unix: "/var/run/docker.sock",
+            superuser: true,
+            binary: true
         });
 
         channel = cockpit.channel(opts);
@@ -450,7 +450,7 @@ docker.console = function console_(container_id, command, options) {
 
             /* Look for end of headers first */
             if (headers === null) {
-                pos = sequence_find(data, [ 13, 10, 13, 10 ]);
+                pos = sequence_find(data, [13, 10, 13, 10]);
                 if (pos == -1)
                     return ret;
 
@@ -678,7 +678,7 @@ docker.quote_cmdline = function quote_cmdline(words) {
 };
 
 docker.unquote_cmdline = function unquote_cmdline(text) {
-    var words = [ ];
+    var words = [];
     var next;
 
     function is_whitespace(c) {
@@ -725,7 +725,7 @@ docker.unquote_cmdline = function unquote_cmdline(text) {
     return words;
 };
 
-var byte_suffixes = [ null, "KB", "MB", "GB", "TB", "PB", "EB", "ZB" ];
+var byte_suffixes = [null, "KB", "MB", "GB", "TB", "PB", "EB", "ZB"];
 
 docker.bytes_from_format = function bytes_from_format(formatted, separate) {
     var factor = 1024;

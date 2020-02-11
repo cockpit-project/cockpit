@@ -38,17 +38,14 @@ import tempfile
 import time
 import unittest
 import gzip
+import itertools
 
 import tap
-try:
-    from machine_core import testvm
-except ImportError:
-    import testvm
+import testvm
 import cdp
 
 TEST_DIR = os.path.normpath(os.path.dirname(os.path.realpath(os.path.join(__file__, ".."))))
 BOTS_DIR = os.path.normpath(os.path.join(TEST_DIR, "..", "bots"))
-_PY3 = sys.version_info[0] >= 3
 
 os.environ["PATH"] = "{0}:{1}:{2}".format(os.environ.get("PATH"), BOTS_DIR, TEST_DIR)
 
@@ -58,7 +55,9 @@ __all__ = (
     'arg_parser',
     'Browser',
     'MachineCase',
+    'PersistentMachineCase',
     'skipImage',
+    'skipBrowser',
     'allowImage',
     'skipPackage',
     'enableAxe',
@@ -129,6 +128,9 @@ class Browser:
         self.switch_to_top()
         self.cdp.invoke("Page.navigate", url=href)
         self.expect_load()
+
+    def set_user_agent(self, ua):
+        self.cdp.invoke("Emulation.setUserAgentOverride", userAgent=ua)
 
     def reload(self, ignore_cache=False):
         self.switch_to_top()
@@ -210,6 +212,9 @@ class Browser:
     def click(self, selector):
         self.mouse(selector + ":not([disabled])", "click", 0, 0, 0)
 
+    def mousedown(self, selector):
+        self.mouse(selector + ":not([disabled])", "mousedown", 0, 0, 0)
+
     def val(self, selector):
         self.wait_visible(selector)
         return self.call_js_func('ph_val', selector)
@@ -230,6 +235,10 @@ class Browser:
         self.wait_present(selector + ':not([disabled])')
         self.call_js_func('ph_set_attr', selector, attr, val and 'true' or 'false')
 
+    def get_checked(self, selector):
+        self.wait_visible(selector + ':not([disabled])')
+        return self.call_js_func('ph_get_checked', selector)
+
     def set_checked(self, selector, val):
         self.wait_visible(selector + ':not([disabled])')
         self.call_js_func('ph_set_checked', selector, val)
@@ -242,18 +251,50 @@ class Browser:
         self.wait_visible(selector + ':not([disabled])')
         self.call_js_func('ph_blur', selector)
 
-    def key_press(self, keys, modifiers=0):
+    # TODO: Unify them so we can have only one
+    def key_press(self, keys, modifiers=0, use_ord=False):
+        if self.cdp.browser == "chromium":
+            self.key_press_chromium(keys, modifiers, use_ord)
+        else:
+            self.key_press_firefox(keys, modifiers, use_ord)
+
+    def key_press_chromium(self, keys, modifiers=0, use_ord=False):
         for key in keys:
             args = {"type": "keyDown", "modifiers": modifiers}
 
             # If modifiers are used we need to pass windowsVirtualKeyCode which is
             # basically the asci decimal representation of the key
             args["text"] = key
-            if (not key.isalnum() and ord(key) < 32) or modifiers != 0:
+            if use_ord:
+                args["windowsVirtualKeyCode"] = ord(key)
+            elif (not key.isalnum() and ord(key) < 32) or modifiers != 0:
                 args["windowsVirtualKeyCode"] = ord(key.upper())
             else:
                 args["key"] = key
 
+            self.cdp.invoke("Input.dispatchKeyEvent", **args)
+            args["type"] = "keyUp"
+            self.cdp.invoke("Input.dispatchKeyEvent", **args)
+
+    def key_press_firefox(self, keys, modifiers=0, use_ord=False):
+        # https://github.com/GoogleChrome/puppeteer/blob/master/lib/USKeyboardLayout.js
+        keyMap = {
+            8: "Backspace",  # Backspace key
+            9: "Tab",        # Tab key
+            13: "Enter",     # Enter key
+            27: "Escape",    # Escape key
+            40: "ArrowDown", # Arrow key down
+            45: "Insert",    # Insert key
+        }
+        for key in keys:
+            args = {"type": "keyDown", "modifiers": modifiers}
+
+            args["key"] = key
+            if ord(key) < 32 or use_ord:
+                args["key"] = keyMap[ord(key)]
+
+            self.cdp.invoke("Input.dispatchKeyEvent", **args)
+            args["type"] = "keyUp"
             self.cdp.invoke("Input.dispatchKeyEvent", **args)
 
     def select_from_dropdown(self, selector, value, substring=False):
@@ -279,25 +320,24 @@ class Browser:
 
         if value_check:
             self.wait_val(selector, val)
-        self.blur(selector)
 
-    def set_file_autocomplete_val(self, selector, location):
-        caret_selector = "{0} span.caret".format(selector)
-        spinner_selector = "{0} .spinner".format(selector)
-        file_item_selector_template = "{0} ul li a:contains({1})"
+    def set_file_autocomplete_val(self, identifier, location):
+        file_item_selector_template = "#{0} li a:contains({1})"
 
-        self.wait_visible(selector + ':not([disabled])')
-
+        path = ''
+        index = 0
         for path_part in filter(None, location.split('/')):
-            self.wait_not_present(spinner_selector)
-            file_item_selector = file_item_selector_template.format(selector, path_part)
-            if not self.is_present(file_item_selector) or not self.is_visible(file_item_selector):
-                self.click(caret_selector)
-            self.wait_visible(file_item_selector)
+            path += '/' + path_part
+            file_item_selector = file_item_selector_template.format(identifier, path_part)
+            self.click("label[for={0}] + div input[type=text]".format(identifier))
             self.click(file_item_selector)
+            if index != len(list(filter(None, location.split('/')))) - 1 or location[-1] == '/':
+                self.wait_val("label[for={0}] + div input[type=text]".format(identifier), path + '/')
+            else:
+                self.wait_val("label[for={0}] + div input[type=text]".format(identifier), path)
+            index += 1
 
-        self.wait_not_present(spinner_selector)
-        self.wait_val(selector + " input", location)
+        self.wait_val("label[for={0}] + div input[type=text]".format(identifier), location)
 
     def wait_timeout(self, timeout):
         browser = self
@@ -482,9 +522,11 @@ class Browser:
         else:
             self.click(sel + ' button:first-child')
 
-    def login_and_go(self, path=None, user=None, host=None, authorized=True, urlroot=None, tls=False):
+    def login_and_go(self, path=None, user=None, host=None, authorized=True, urlroot=None, tls=False, password=None):
         if user is None:
             user = self.default_user
+        if password is None:
+            password = self.password
         href = path
         if not href:
             href = "/"
@@ -495,7 +537,7 @@ class Browser:
         self.open(href, tls=tls)
         self.wait_visible("#login")
         self.set_val('#login-user-input', user)
-        self.set_val('#login-password-input', self.password)
+        self.set_val('#login-password-input', password)
         self.set_checked('#authorized-input', authorized)
 
         self.click('#login-button')
@@ -561,14 +603,21 @@ class Browser:
             self.cdp.command("clearExceptions()")
 
             filename = "{0}-{1}.png".format(label or self.label, title)
-            ret = self.cdp.invoke("Page.captureScreenshot", no_trace=True)
-            if "data" in ret:
-                with open(filename, 'wb') as f:
-                    f.write(base64.standard_b64decode(ret["data"]))
-                attach(filename)
-                print("Wrote screenshot to " + filename)
-            else:
-                print("Screenshot not available")
+            if self.cdp.browser == "chromium":
+                ret = self.cdp.invoke("Page.captureScreenshot", no_trace=True)
+                if "data" in ret:
+                    with open(filename, 'wb') as f:
+                        f.write(base64.standard_b64decode(ret["data"]))
+                    attach(filename)
+                    print("Wrote screenshot to " + filename)
+                else:
+                    print("Screenshot not available")
+            elif self.cdp.browser == "firefox":
+                # API not yet supported
+                # https://bugzilla.mozilla.org/show_bug.cgi?id=1549466
+                # TODO: Possible workaround could be something like:
+                # Runtime.execute(':screenshot --file <path>)
+                pass
 
             filename = "{0}-{1}.html".format(label or self.label, title)
             html = self.cdp.invoke("Runtime.evaluate", expression="document.documentElement.outerHTML",
@@ -600,7 +649,7 @@ class Browser:
         self.cdp.kill()
 
 
-class MachineCase(unittest.TestCase):
+class BaseCase(unittest.TestCase):
     image = testvm.DEFAULT_IMAGE
     runner = None
     machine = None
@@ -619,11 +668,7 @@ class MachineCase(unittest.TestCase):
         (unused, sep, label) = self.id().partition(".")
         return label.replace(".", "-")
 
-    def new_machine(self, image=None, forward={}, **kwargs):
-        try:
-            from machine_core import testvm
-        except ImportError:
-            import testvm
+    def new_machine(self, image=None, forward={}, restrict=True, cleanup=True, **kwargs):
         machine_class = self.machine_class
         if image is None:
             image = self.image
@@ -631,19 +676,22 @@ class MachineCase(unittest.TestCase):
             if machine_class or forward:
                 raise unittest.SkipTest("Cannot run this test when specific machine address is specified")
             machine = testvm.Machine(address=opts.address, image=image, verbose=opts.trace, browser=opts.browser)
-            self.addCleanup(lambda: machine.disconnect())
+            if cleanup:
+                self.addCleanup(lambda: machine.disconnect())
         else:
             if not machine_class:
                 machine_class = testvm.VirtMachine
             if not self.network:
-                network = testvm.VirtNetwork()
-                self.addCleanup(lambda: network.kill())
+                network = testvm.VirtNetwork(image=image)
+                if cleanup:
+                    self.addCleanup(lambda: network.kill())
                 self.network = network
-            networking = self.network.host(restrict=True, forward=forward)
+            networking = self.network.host(restrict=restrict, forward=forward)
             machine = machine_class(verbose=opts.trace, networking=networking, image=image, **kwargs)
             if opts.fetch and not os.path.exists(machine.image_file):
                 machine.pull(machine.image_file)
-            self.addCleanup(lambda: machine.kill())
+            if cleanup:
+                self.addCleanup(lambda: machine.kill())
         return machine
 
     def new_browser(self, machine=None):
@@ -655,7 +703,7 @@ class MachineCase(unittest.TestCase):
         return browser
 
     def checkSuccess(self):
-        if _PY3 and self._outcome:
+        if self._outcome:
             # errors is a list of (method, exception) calls (usually multiple
             # per method); None exception means success
             return not any(e[1] for e in self._outcome.errors)
@@ -677,16 +725,6 @@ class MachineCase(unittest.TestCase):
         return True
 
     def run(self, result=None):
-        if not _PY3:
-            orig_result = result
-
-            # We need a result to intercept, so create one here
-            if result is None:
-                result = self.defaultTestResult()
-                startTestRun = getattr(result, 'startTestRun', None)
-                if startTestRun is not None:
-                    startTestRun()
-
         self.currentResult = result
 
         # Here's the loop to actually retry running the test. It's an awkward
@@ -698,7 +736,7 @@ class MachineCase(unittest.TestCase):
         max_retry_hard_limit = 10
         for retry in range(0, max_retry_hard_limit):
             try:
-                super(MachineCase, self).run(result)
+                super().run(result)
             except RetryError as ex:
                 assert retry < max_retry_hard_limit
                 sys.stderr.write("{0}\n".format(ex))
@@ -708,66 +746,19 @@ class MachineCase(unittest.TestCase):
 
         self.currentResult = None
 
-        if not _PY3:
-            # Standard book keeping that we have to do
-            if orig_result is None:
-                stopTestRun = getattr(result, 'stopTestRun', None)
-                if stopTestRun is not None:
-                    stopTestRun()
-
     def setUp(self):
-        if opts.address and self.provision is not None:
-            raise unittest.SkipTest("Cannot provision multiple machines if a specific machine address is specified")
-
-        self.machine = None
-        self.browser = None
-        self.machines = {}
-        provision = self.provision or {'machine1': {}}
-
-        # First create all machines, wait for them later
-        for key in sorted(provision.keys()):
-            options = provision[key].copy()
-            if 'address' in options:
-                del options['address']
-            if 'dns' in options:
-                del options['dns']
-            if 'dhcp' in options:
-                del options['dhcp']
-            machine = self.new_machine(**options)
-            self.machines[key] = machine
-            if not self.machine:
-                self.machine = machine
-            if opts.trace:
-                print("Starting {0} {1}".format(key, machine.label))
-            machine.start()
+        if self.machine:
+            self.journal_start = self.machine.journal_cursor()
+            self.browser = self.new_browser()
 
         def sitter():
             if opts.sit and not self.checkSuccess():
-                if _PY3 and self._outcome:
+                if self._outcome:
                     [traceback.print_exception(*e[1]) for e in self._outcome.errors if e[1]]
                 else:
                     self.currentResult.printErrors()
                 sit(self.machines)
         self.addCleanup(sitter)
-
-        # Now wait for the other machines to be up
-        for key in self.machines.keys():
-            machine = self.machines[key]
-            machine.wait_boot()
-            address = provision[key].get("address")
-            if address is not None:
-                machine.set_address(address)
-            dns = provision[key].get("dns")
-            if address or dns:
-                machine.set_dns(dns)
-            dhcp = provision[key].get("dhcp", False)
-            if dhcp:
-                machine.dhcp_server()
-
-        if self.machine:
-            self.journal_start = self.machine.journal_cursor()
-            self.browser = self.new_browser()
-        self.tmpdir = tempfile.mkdtemp()
 
         def intercept():
             if not self.checkSuccess():
@@ -781,7 +772,6 @@ class MachineCase(unittest.TestCase):
         if self.checkSuccess() and self.machine.ssh_reachable:
             self.check_journal_messages()
             self.check_browser_errors()
-        shutil.rmtree(self.tmpdir)
 
     def login_and_go(self, path=None, user=None, host=None, authorized=True, urlroot=None, tls=False):
         self.machine.start_cockpit(host, tls=tls)
@@ -903,6 +893,8 @@ class MachineCase(unittest.TestCase):
                                     "user user was reauthorized",
                                     "sudo: no password was provided",
                                     "sudo: unable to resolve host .*",
+                                    "sudo: unable to open /run/sudo/ts/unpriv: Permission denied",
+                                    "sudo: unable to stat /var/db/sudo: Permission denied",
                                     ".*: sorry, you must have a tty to run sudo",
                                     ".*/pkexec: bridge exited",
                                     "We trust you have received the usual lecture from the local System",
@@ -925,9 +917,13 @@ class MachineCase(unittest.TestCase):
         if "TEST_AUDIT_NO_SELINUX" not in os.environ:
             messages += machine.audit_messages("14", cursor=cursor) # 14xx is selinux
 
-        if self.image in ['fedora-30', 'fedora-testing', 'fedora-i386']:
-            # Fedora 30 switched to dbus-broker
+        if self.image in ['fedora-31', 'fedora-30', 'fedora-testing']:
+            # Fedora >= 30 switched to dbus-broker
             self.allowed_messages.append("dbus-daemon didn't send us a dbus address; not installed?.*")
+
+        if self.image in ['rhel-8-2', 'rhel-8-2-distropkg']:
+            # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1753991
+            self.allowed_messages.append('.*type=1400.*avc:  denied  { dac_override } .* comm="rhsmd" .* scontext=system_u:system_r:rhsmcertd_t:s0-s0:c0.c1023 tcontext=system_u:system_r:rhsmcertd_t:.*')
 
         all_found = True
         first = None
@@ -946,14 +942,13 @@ class MachineCase(unittest.TestCase):
             if not found:
                 all_found = False
                 if not first:
-                    print("Unexpected journal messages:")
                     first = m
                 print(m)
         if not all_found:
             self.copy_js_log("FAIL")
             self.copy_journal("FAIL")
             self.copy_cores("FAIL")
-            raise Error(first)
+            raise Error("FAIL: Test completed, but found unexpected journal messages:\n" + first)
 
     def allow_browser_errors(self, *patterns):
         """Don't fail if the test caused a console error contains the given regexp"""
@@ -983,6 +978,10 @@ class MachineCase(unittest.TestCase):
         """
         # only run this on the default OS test, that's enough
         if os.getenv("TEST_OS") not in [None, testvm.TEST_OS_DEFAULT]:
+            return
+        # HACK: We cannot test axe on Firefox since `axe.run()` returns promise
+        # and Firefox CDP cannot wait for it to resolve
+        if self.browser.cdp.browser == "firefox":
             return
 
         report = self.browser.eval_js("axe.run()", no_trace=True)
@@ -1062,11 +1061,94 @@ class MachineCase(unittest.TestCase):
                         attach(dest)
 
 
-some_failed = False
+class MachineCase(BaseCase):
+    def setUp(self):
+        if opts.address and self.provision is not None:
+            raise unittest.SkipTest("Cannot provision multiple machines if a specific machine address is specified")
+
+        self.machine = None
+        self.browser = None
+        self.machines = {}
+        provision = self.provision or {'machine1': {}}
+
+        # First create all machines, wait for them later
+        for key in sorted(provision.keys()):
+            options = provision[key].copy()
+            if 'address' in options:
+                del options['address']
+            if 'dns' in options:
+                del options['dns']
+            if 'dhcp' in options:
+                del options['dhcp']
+            machine = self.new_machine(**options)
+            self.machines[key] = machine
+
+            if not self.machine:
+                self.machine = machine
+            if opts.trace:
+                print("Starting {0} {1}".format(key, machine.label))
+            machine.start()
+
+        # Now wait for the other machines to be up
+        for key in self.machines.keys():
+            machine = self.machines[key]
+            machine.wait_boot()
+            address = provision[key].get("address")
+            if address is not None:
+                machine.set_address(address)
+            dns = provision[key].get("dns")
+            if address or dns:
+                machine.set_dns(dns)
+            dhcp = provision[key].get("dhcp", False)
+            if dhcp:
+                machine.dhcp_server()
+
+        self.tmpdir = tempfile.mkdtemp()
+        super().setUp()
+
+    def tearDown(self):
+        super().tearDown()
+        shutil.rmtree(self.tmpdir)
+
+
+class PersistentMachineCase(BaseCase):
+    @classmethod
+    def setUpClass(cls):
+        if cls.provision is not None:
+            raise unittest.SkipTest("Cannot provision machines on a PersistentMachineCase")
+
+        cls.machine = None
+        cls.browser = None
+        cls.machine_options = {}
+
+        # First create the machine, wait for it later
+        cls.machine = cls.new_machine(cls, cleanup=False, **cls.machine_options)
+        if opts.trace:
+            print("Starting {0} {1}".format('machine1', cls.machine.label))
+        cls.machine.start()
+        cls.machine.wait_boot()
+        cls.tmpdir = tempfile.mkdtemp()
+
+    @classmethod
+    def tearDownClass(cls):
+        if cls.network:
+            cls.network.kill()
+        if cls.machine and opts.address:
+            cls.machine.disconnect()
+        else:
+            cls.machine.kill()
+        shutil.rmtree(cls.tmpdir)
 
 
 def jsquote(str):
     return json.dumps(str)
+
+
+def skipBrowser(reason, *args):
+    browser = os.environ.get("TEST_BROWSER", "chromium")
+    if browser in args:
+        return unittest.skip("{0}: {1}".format(browser, reason))
+    return lambda func: func
 
 
 def skipImage(reason, *args):
@@ -1100,7 +1182,7 @@ def enableAxe(method):
         with open(os.path.join(TEST_DIR, "common/axe.js")) as f:
             script = f.read()
         # first method argument is "self", a MachineCase instance
-        args[0].browser.cdp.invoke("Page.addScriptToEvaluateOnLoad", scriptSource=script, no_trace=True)
+        args[0].browser.cdp.invoke("Page.addScriptToEvaluateOnNewDocument", source=script, no_trace=True)
         return method(*args)
 
     return wrapper
@@ -1109,17 +1191,17 @@ def enableAxe(method):
 class TestResult(tap.TapResult):
     def __init__(self, stream, descriptions, verbosity):
         self.policy = None
-        super(TestResult, self).__init__(verbosity)
+        super().__init__(verbosity)
 
     def startTest(self, test):
         sys.stdout.write("# {0}\n# {1}\n#\n".format('-' * 70, str(test)))
         sys.stdout.flush()
-        super(TestResult, self).startTest(test)
+        super().startTest(test)
 
     def stopTest(self, test):
         sys.stdout.write("\n")
         sys.stdout.flush()
-        super(TestResult, self).stopTest(test)
+        super().stopTest(test)
 
 
 class OutputBuffer(object):
@@ -1184,19 +1266,29 @@ class TapRunner(object):
             result.printErrors()
             return result.wasSuccessful()
 
-    def run(self, testable):
-        tap.TapResult.plan(testable)
+    def run(self, testable, testable_no_flatten):
+        """Run tests.
 
+        Arguments:
+          testable: List of TestSuite instances which will be flattened so they
+            run concurrently.
+          testable_no_flatten: List of TestSuite instances will be run serially
+            after the suites in testable.
+        """
+        ts = unittest.TestSuite(testable)
+        ts.addTests(testable_no_flatten)
+        tap.TapResult.plan(ts)
+
+        # Flatten the tests we can run concurrently into a single list
         tests = []
 
-        # The things to test
-        def collapse(test, tests):
+        def flatten(test, tests):
             if test.countTestCases() == 1:
                 tests.append(test)
             else:
                 for t in test:
-                    collapse(t, tests)
-        collapse(testable, tests)
+                    flatten(t, tests)
+        flatten(testable, tests)
 
         # Now setup the count we have
         count = len(tests)
@@ -1238,6 +1330,11 @@ class TapRunner(object):
 
         while True:
             join_some(self.jobs - 1)
+
+            # run the no_flatten serially
+            if not tests and testable_no_flatten:
+                tests = testable_no_flatten
+                self.jobs = 1
 
             if not tests:
                 join_some(0)
@@ -1289,12 +1386,10 @@ class TapRunner(object):
         tries = getattr(test, "retryCount", 0)
         tries += 1
         setattr(test, "retryCount", tries)
-        # "output" is bytes, grab corresponding stream
-        out = _PY3 and sys.stdout.buffer or sys.stdout
 
         # Didn't fail, just print output and continue
-        if tries >= 3 or not failed:
-            out.write(output)
+        if not failed:
+            sys.stdout.buffer.write(output)
             return failed, False
 
         # Otherwise pass through this command if it exists
@@ -1308,8 +1403,12 @@ class TapRunner(object):
             if ex.errno != errno.ENOENT:
                 sys.stderr.write("Couldn't run tests-policy: {0}\n".format(str(ex)))
 
+        # Just retry failures always (but maximum 3 times), we don't need to be precious about flakes
+        if b"# SKIP " not in output and tries < 3:
+            output += b"\n# RETRY \n"
+
         # Write the output bytes
-        out.write(output)
+        sys.stdout.buffer.write(output)
 
         if b"# SKIP " in output or b"# RETRY" in output:
             failed = 0
@@ -1352,7 +1451,7 @@ def arg_parser():
     return parser
 
 
-def test_main(options=None, suite=None, attachments=None, **kwargs):
+def test_main(options=None, suite=None, persistent_machine_suites=[], attachments=None, **kwargs):
     """
     Run all test cases, as indicated by arguments.
 
@@ -1364,9 +1463,8 @@ def test_main(options=None, suite=None, attachments=None, **kwargs):
 
     # Turn off python stdout buffering
     buf_arg = 0
-    if _PY3:
-        os.environ['PYTHONUNBUFFERED'] = '1'
-        buf_arg = 1
+    os.environ['PYTHONUNBUFFERED'] = '1'
+    buf_arg = 1
     sys.stdout.flush()
     sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', buf_arg)
 
@@ -1398,19 +1496,58 @@ def test_main(options=None, suite=None, attachments=None, **kwargs):
         os.makedirs(opts.attachments, exist_ok=True)
 
     import __main__
+
+    def leaf_classes(base_class, exclude=None):
+        subclasses = base_class.__subclasses__()
+        if base_class == exclude:
+            return []
+        if not subclasses:
+            return [base_class]
+        # Filter out all the subclasses that aren't defined under test/verify
+        return [klass for klass in itertools.chain(*[leaf_classes(subkl, exclude) for subkl in subclasses])
+                if klass.__module__ == "__main__"]
+
+    # Collect unittest.TestCase and MachineCase tests into a single suite so they can be run concurrently
+    # Collect PersistentMachineCase tests into an array of suites (persistent_machine_suites), these we run serially
+    machine_cases = []
     if len(opts.tests) > 0:
         if suite:
             parser.error("tests may not be specified when running a predefined test suite")
-        suite = unittest.TestLoader().loadTestsFromNames(opts.tests, module=__main__)
-    elif not suite:
-        suite = unittest.TestLoader().loadTestsFromModule(__main__)
+        # Because specifying multiple methods belonging to the same
+        # PersistentMachineCase is possible, collect the methods given into a
+        # single array before loading them
+        persistent_tests = {}
+        for test in opts.tests:
+            klass = test.split('.')[0]
+            for machine_case in leaf_classes(unittest.TestCase, exclude=PersistentMachineCase):
+                if klass == machine_case.__qualname__:
+                    machine_cases.append(unittest.TestSuite(
+                        unittest.TestLoader().loadTestsFromName(test, module=__main__)))
+            for persistent_machine_case in leaf_classes(PersistentMachineCase):
+                if klass == persistent_machine_case.__qualname__:
+                    persistent_tests.setdefault(klass, []).append(test)
+        for klass in persistent_tests:
+            persistent_machine_suites.append(unittest.TestSuite(
+                unittest.TestLoader().loadTestsFromNames(persistent_tests[klass], module=__main__)))
+        suite = unittest.TestSuite(machine_cases)
+    elif not suite and not persistent_machine_suites:
+        for machine_case in leaf_classes(unittest.TestCase, exclude=PersistentMachineCase):
+            machine_cases.append(unittest.TestLoader().loadTestsFromTestCase(machine_case))
+        for persistent_machine_case in leaf_classes(PersistentMachineCase):
+            persistent_machine_suites.append(
+                unittest.TestSuite(
+                    unittest.TestLoader().loadTestsFromTestCase(persistent_machine_case)))
+        suite = unittest.TestSuite(machine_cases)
 
     if options.list:
         print_tests(suite)
+        for s in persistent_machine_suites:
+            print()
+            print_tests(s)
         return 0
 
     runner = TapRunner(verbosity=opts.verbosity, jobs=opts.jobs, thorough=opts.thorough)
-    ret = runner.run(suite)
+    ret = runner.run(suite, persistent_machine_suites)
     if not standalone:
         return ret
     sys.exit(ret)

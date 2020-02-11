@@ -2,9 +2,9 @@
 
 QUnit.test("utf8 basic", function (assert) {
     var str = "Base 64 \u2014 Mozilla Developer Network";
-    var expect = [ 66, 97, 115, 101, 32, 54, 52, 32, 226, 128, 148, 32, 77,
+    var expect = [66, 97, 115, 101, 32, 54, 52, 32, 226, 128, 148, 32, 77,
         111, 122, 105, 108, 108, 97, 32, 68, 101, 118, 101, 108,
-        111, 112, 101, 114, 32, 78, 101, 116, 119, 111, 114, 107 ];
+        111, 112, 101, 114, 32, 78, 101, 116, 119, 111, 114, 107];
 
     var encoded = cockpit.utf8_encoder().encode(str);
     assert.deepEqual(encoded, expect, "encoded");
@@ -108,9 +108,9 @@ QUnit.test("utf8 stream", function (assert) {
 
 QUnit.test("utf8 invalid", function (assert) {
     var sample = "Base 64 \ufffd\ufffd Mozilla Developer Network";
-    var data = [ 66, 97, 115, 101, 32, 54, 52, 32, 226, /* 128 */ 148, 32, 77,
+    var data = [66, 97, 115, 101, 32, 54, 52, 32, 226, /* 128 */ 148, 32, 77,
         111, 122, 105, 108, 108, 97, 32, 68, 101, 118, 101, 108,
-        111, 112, 101, 114, 32, 78, 101, 116, 119, 111, 114, 107 ];
+        111, 112, 101, 114, 32, 78, 101, 116, 119, 111, 114, 107];
 
     var decoded = cockpit.utf8_decoder().decode(data);
 
@@ -118,9 +118,9 @@ QUnit.test("utf8 invalid", function (assert) {
 });
 
 QUnit.test("utf8 fatal", function (assert) {
-    var data = [ 66, 97, 115, 101, 32, 54, 52, 32, 226, /* 128 */ 148, 32, 77,
+    var data = [66, 97, 115, 101, 32, 54, 52, 32, 226, /* 128 */ 148, 32, 77,
         111, 122, 105, 108, 108, 97, 32, 68, 101, 118, 101, 108,
-        111, 112, 101, 114, 32, 78, 101, 116, 119, 111, 114, 107 ];
+        111, 112, 101, 114, 32, 78, 101, 116, 119, 111, 114, 107];
 
     assert.throws(function() { cockpit.utf8_decoder(true).decode(data) }, "fatal throws error");
 });

@@ -20,6 +20,12 @@
 import $ from "jquery";
 import cockpit from "cockpit";
 import { journal } from "journal";
+import moment from "moment";
+import { init_reporting } from "./reporting.jsx";
+
+import ReactDOM from 'react-dom';
+import React from 'react';
+import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 
 $(function() {
     cockpit.translate();
@@ -33,31 +39,32 @@ $(function() {
     var problems = problems_client.proxies('org.freedesktop.Problems2.Entry', '/org/freedesktop/Problems2/Entry');
 
     // A map of ABRT's problems items and it's callback for rendering
-    var problem_render_callbacks = { 'core_backtrace': render_backtrace,
-                                     'os_info': render_table_eq,
-                                     'environ': render_table_eq,
-                                     'limits': render_limits,
-                                     'cgroup': render_cgroup,
-                                     'namespaces': render_table_co,
-                                     'maps': render_maps,
-                                     'dso_list': render_dso_list,
-                                     'mountinfo': render_mountinfo,
-                                     'proc_pid_status': render_table_co,
-                                     'open_fds': render_open_fds,
-                                     'var_log_messages': render_multiline,
-                                     'not-reportable': render_multiline,
-                                     'exploitable': render_multiline,
-                                     'suspend_stats': render_table_co,
-                                     'dmesg': render_multiline,
-                                     'container_rootfs': render_multiline,
-                                     'docker_inspect': render_multiline
+    var problem_render_callbacks = {
+        core_backtrace: render_backtrace,
+        os_info: render_table_eq,
+        environ: render_table_eq,
+        limits: render_limits,
+        cgroup: render_cgroup,
+        namespaces: render_table_co,
+        maps: render_maps,
+        dso_list: render_dso_list,
+        mountinfo: render_mountinfo,
+        proc_pid_status: render_table_co,
+        open_fds: render_open_fds,
+        var_log_messages: render_multiline,
+        'not-reportable': render_multiline,
+        exploitable: render_multiline,
+        suspend_stats: render_table_co,
+        dmesg: render_multiline,
+        container_rootfs: render_multiline,
+        docker_inspect: render_multiline
     };
 
     var problem_info_1 = ['reason', 'cmdline', 'executable', 'package', 'component',
         'crash_function', 'pid', 'pwd', 'hostname', 'count',
         'type', 'analyzer', 'rootdir', 'duphash', 'exception_type',
         'container', 'container_uuid', 'container_cmdline',
-        'container_id', 'container_image' ];
+        'container_id', 'container_image'];
 
     var problem_info_2 = ['Directory', 'username', 'abrt_version', 'architecture', 'global_pid', 'kernel',
         'last_occurrence', 'os_release', 'pkg_fingerprint', 'pkg_vendor',
@@ -86,16 +93,29 @@ $(function() {
     function update_problems(problem_paths) {
         for (var i in problem_paths) {
             var p = problems[problem_paths[i]];
-            displayable_problems[p.ID] = { 'count': p.Count, 'problem_path': p.path };
-            displayable_problems[p.UUID] = { 'count': p.Count, 'problem_path': p.path };
-            displayable_problems[p.Duphash] = { 'count': p.Count, 'problem_path': p.path };
+            displayable_problems[p.ID] = { count: p.Count, problem_path: p.path };
+            displayable_problems[p.UUID] = { count: p.Count, problem_path: p.path };
+            displayable_problems[p.Duphash] = { count: p.Count, problem_path: p.path };
         }
+    }
+
+    function manage_start_box(loading, show_icon, title, text, action, onAction) {
+        ReactDOM.render(
+            React.createElement(EmptyStatePanel, {
+                loading: loading,
+                showIcon: show_icon,
+                title: title,
+                paragraph: text,
+                action: action,
+                onAction: onAction,
+            }),
+            document.getElementById("start-box"));
     }
 
     /* Not public API */
     function journalbox(outer, start, match, day_box) {
         var box = $('<div class="panel panel-default cockpit-log-panel" role="table">');
-        var start_box = $('<div class="journal-start" role="rowgroup">');
+        var start_box = $('<div class="journal-start" id="start-box" role="rowgroup">');
 
         outer.empty().append(box, start_box);
 
@@ -117,7 +137,7 @@ $(function() {
         function prepend_entries(entries) {
             for (var i = 0; i < entries.length; i++) {
                 renderer.prepend(entries[i]);
-                current_services.add(entries[i]['SYSLOG_IDENTIFIER']);
+                current_services.add(entries[i].SYSLOG_IDENTIFIER);
             }
             renderer.prepend_flush();
             show_service_filters();
@@ -134,41 +154,48 @@ $(function() {
         }
 
         function didnt_reach_start(first) {
-            var button = $('<button id="journal-load-earlier" class="btn btn-default" data-inline="true" data-mini="true">' +
-                           _("Load earlier entries") +
-                           '</button>');
-            start_box.html(button);
-            button.click(function() {
-                var count = 0;
-                var stopped = null;
-                start_box.text(_("Loading..."));
-                procs.push(journal.journalctl(match, { follow: false, reverse: true, cursor: first })
-                        .fail(query_error)
-                        .stream(function(entries) {
-                            if (entries[0]["__CURSOR"] == first)
-                                entries.shift();
-                            count += entries.length;
-                            append_entries(entries);
-                            if (count >= query_more) {
-                                stopped = entries[entries.length - 1]["__CURSOR"];
-                                didnt_reach_start(stopped);
-                                this.stop();
-                            }
-                        })
-                        .done(function() {
-                            if (start_box.text() == _("Loading..."))
-                                start_box.empty();
-                        }));
-            });
+            const no_logs = document.querySelector("#journal-box .cockpit-log-panel").innerHTML === "";
+            manage_start_box(false, no_logs,
+                             no_logs ? _("No Logs Found") : "",
+                             no_logs ? _("You may try to load older entries.") : "",
+                             _("Load earlier entries"),
+                             () => {
+                                 var count = 0;
+                                 var stopped = null;
+                                 manage_start_box(true, true, "Loading...", "", "");
+                                 procs.push(journal.journalctl(match, { follow: false, reverse: true, cursor: first })
+                                         .fail(query_error)
+                                         .stream(function(entries) {
+                                             if (entries[0].__CURSOR == first)
+                                                 entries.shift();
+                                             count += entries.length;
+                                             append_entries(entries);
+                                             if (count >= query_more) {
+                                                 stopped = entries[entries.length - 1].__CURSOR;
+                                                 didnt_reach_start(stopped);
+                                                 this.stop();
+                                             }
+                                         })
+                                         .done(function() {
+                                             if (document.querySelector("#journal-box .cockpit-log-panel").innerHTML === "")
+                                                 manage_start_box(false, true, _("No Logs Found"), _("Can not find any logs using the current combination of filters."));
+                                             else if (count < query_more)
+                                                 ReactDOM.unmountComponentAtNode(document.getElementById("start-box"));
+                                         }));
+                             });
         }
 
         function follow(cursor) {
             procs.push(journal.journalctl(match, { follow: true, count: 0, cursor: cursor })
                     .fail(query_error)
                     .stream(function(entries) {
-                        if (entries[0]["__CURSOR"] == cursor)
+                        if (entries[0].__CURSOR == cursor)
                             entries.shift();
                         prepend_entries(entries);
+                        const sb_title = document.querySelector("#start-box .pf-c-title");
+                        if (sb_title && sb_title.innerHTML === "No Logs Found") {
+                            ReactDOM.unmountComponentAtNode(document.getElementById("start-box"));
+                        }
                         update_day_box();
                     }));
         }
@@ -218,7 +245,7 @@ $(function() {
         function load_service_filters(match, options) {
             loading_services = true;
             current_services = new Set();
-            var service_options = Object.assign({ "output": "verbose" }, options);
+            var service_options = Object.assign({ output: "verbose" }, options);
             var cmd = journal.build_cmd(match, service_options)[0].join(" ");
             cmd += " | grep SYSLOG_IDENTIFIER= | sort -u";
             cockpit.spawn(["sh", "-ec", cmd], { host: options.host, superuser: "try" })
@@ -252,7 +279,7 @@ $(function() {
                     });
         }
 
-        start_box.text(_("Loading..."));
+        manage_start_box(true, true, "Loading...", "", "");
 
         $('#journal-service-menu').on("click", "a", function() {
             update_services_list = false;
@@ -273,14 +300,14 @@ $(function() {
 
         var all = false;
         if (start == 'boot') {
-            options["boot"] = null;
+            options.boot = null;
         } else if (start == 'previous-boot') {
-            options["boot"] = "-1";
+            options.boot = "-1";
             last = 1; // Do not try to get newer logs
         } else if (start == 'last-24h') {
-            options["since"] = "-1days";
+            options.since = "-1days";
         } else if (start == 'last-week') {
-            options["since"] = "-7days";
+            options.since = "-7days";
         } else {
             all = true;
         }
@@ -300,13 +327,13 @@ $(function() {
                 .fail(query_error)
                 .stream(function(entries) {
                     if (!last) {
-                        last = entries[0]["__CURSOR"];
+                        last = entries[0].__CURSOR;
                         follow(last);
                         update_day_box();
                     }
                     count += entries.length;
                     append_entries(entries);
-                    oldest = entries[entries.length - 1]["__CURSOR"];
+                    oldest = entries[entries.length - 1].__CURSOR;
                     if (count >= query_count) {
                         stopped = true;
                         didnt_reach_start(oldest);
@@ -314,16 +341,23 @@ $(function() {
                     }
                 })
                 .done(function() {
-                    if (start_box.text() == _("Loading..."))
-                        start_box.empty();
+                    if (document.querySelector("#journal-box .cockpit-log-panel").innerHTML === "")
+                        manage_start_box(false, true, _("No Logs Found"), _("Can not find any logs using the current combination of filters."));
+                    else if (count < query_count)
+                        ReactDOM.unmountComponentAtNode(document.getElementById("start-box"));
                     if (!last) {
-                        procs.push(journal.journalctl(match, { follow: true, count: 0,
-                                                               boot: options["boot"],
-                                                               since: options["since"]
+                        procs.push(journal.journalctl(match, {
+                            follow: true, count: 0,
+                            boot: options.boot,
+                            since: options.since
                         })
                                 .fail(query_error)
                                 .stream(function(entries) {
                                     prepend_entries(entries);
+                                    const sb_title = document.querySelector("#start-box .pf-c-title");
+                                    if (sb_title && sb_title.innerHTML === "No Logs Found") {
+                                        ReactDOM.unmountComponentAtNode(document.getElementById("start-box"));
+                                    }
                                     update_day_box();
                                 }));
                     }
@@ -351,9 +385,9 @@ $(function() {
     function update_query() {
         stop_query();
 
-        var match = [ ];
+        var match = [];
 
-        var query_prio = cockpit.location.options['prio'] || "3";
+        var query_prio = cockpit.location.options.prio || "3";
         var prio_level = parseInt(query_prio, 10);
 
         // Set selected item into priority dropdown menu
@@ -375,13 +409,13 @@ $(function() {
         }
 
         var options = cockpit.location.options;
-        if (options['service'])
-            match.push('_SYSTEMD_UNIT=' + options['service']);
-        else if (options['tag'])
-            match.push('SYSLOG_IDENTIFIER=' + options['tag']);
-        $('#journal-service').text(options['tag'] || _("All"));
+        if (options.service)
+            match.push('_SYSTEMD_UNIT=' + options.service);
+        else if (options.tag)
+            match.push('SYSLOG_IDENTIFIER=' + options.tag);
+        $('#journal-service').text(options.tag || _("All"));
 
-        var query_start = cockpit.location.options['start'] || "recent";
+        var query_start = cockpit.location.options.start || "recent";
         if (query_start == 'recent')
             $(window).scrollTop($(document).height());
 
@@ -392,33 +426,42 @@ $(function() {
         var cursor = cockpit.location.path[0];
         var out = $('#journal-entry-fields');
 
+        const reportingTable = document.getElementById("journal-entry-reporting-table");
+        if (reportingTable != null) {
+            reportingTable.remove();
+        }
+
         out.empty();
 
         function show_entry(entry) {
-            var d = new Date(entry["__REALTIME_TIMESTAMP"] / 1000);
-            $('#journal-entry-date').text(d.toString());
-
             var id;
-            if (entry["SYSLOG_IDENTIFIER"])
-                id = entry["SYSLOG_IDENTIFIER"];
-            else if (entry["_SYSTEMD_UNIT"])
-                id = entry["_SYSTEMD_UNIT"];
+            if (entry.SYSLOG_IDENTIFIER)
+                id = entry.SYSLOG_IDENTIFIER;
+            else if (entry._SYSTEMD_UNIT)
+                id = entry._SYSTEMD_UNIT;
             else
                 id = _("Journal entry");
 
             var is_problem = false;
             if (id === 'abrt-notification') {
                 is_problem = true;
-                id = entry['PROBLEM_BINARY'];
+                id = entry.PROBLEM_BINARY;
             }
 
-            $('#journal-entry-id').text(id);
+            $('#journal-entry-heading').text(id);
+
+            const crumb = $("#journal-entry-crumb");
+            const date = moment(new Date(entry.__REALTIME_TIMESTAMP / 1000));
 
             if (is_problem) {
+                crumb.text(cockpit.format(_("$0: crash at $1"), id, date.format("YYYY-MM-DD HH:mm:ss")));
+
                 find_problems().done(function() {
                     create_problem(out, entry);
                 });
             } else {
+                crumb.text(cockpit.format(_("Entry at $0"), date.format("YYYY-MM-DD HH:mm:ss")));
+
                 create_entry(out, entry);
             }
         }
@@ -432,7 +475,7 @@ $(function() {
 
         journal.journalctl({ cursor: cursor, count: 1, follow: false })
                 .done(function (entries) {
-                    if (entries.length >= 1 && entries[0]["__CURSOR"] == cursor)
+                    if (entries.length >= 1 && entries[0].__CURSOR == cursor)
                         show_entry(entries[0]);
                     else
                         show_error(_("Journal entry not found"));
@@ -442,8 +485,21 @@ $(function() {
                 });
     }
 
+    function create_message_row(entry) {
+        const reasonColumn = document.createElement("th");
+        reasonColumn.setAttribute("colspan", 2);
+        reasonColumn.setAttribute("id", "journal-entry-message");
+        reasonColumn.appendChild(document.createTextNode(journal.printable(entry.MESSAGE)));
+
+        const reason = document.createElement("tr");
+        reason.appendChild(reasonColumn);
+
+        return reason;
+    }
+
     function create_entry(out, entry) {
-        $('#journal-entry-message').text(journal.printable(entry['MESSAGE']));
+        out.append(create_message_row(entry));
+
         var keys = Object.keys(entry).sort();
         $.each(keys, function (i, key) {
             if (key !== 'MESSAGE') {
@@ -459,10 +515,10 @@ $(function() {
 
     function create_problem(out, entry) {
         var problem = null;
-        var all_p = [entry['PROBLEM_DIR'], entry['PROBLEM_DUPHASH'], entry['PROBLEM_UUID']];
+        var all_p = [entry.PROBLEM_DIR, entry.PROBLEM_DUPHASH, entry.PROBLEM_UUID];
         for (var i = 0; i < all_p.length; i++) {
             if (all_p[i] in displayable_problems) {
-                problem = problems[displayable_problems[all_p[i]]['problem_path']];
+                problem = problems[displayable_problems[all_p[i]].problem_path];
                 break;
             }
         }
@@ -481,11 +537,15 @@ $(function() {
                     .replaceWith(new_content);
         }
 
-        $('#journal-entry-message').text('');
+        const heading = document.createElement("h3");
+        heading.appendChild(document.createTextNode(_("Extended Information")));
 
-        var ge_t = $('<li class="active">').append($('<a tabindex="0">').append($('<span translatable="yes">').text(_("General"))));
-        var pi_t = $('<li>').append($('<a tabindex="0">').append($('<span translatable="yes">').text(_("Problem info"))));
-        var pd_t = $('<li>').append($('<a tabindex="0">').append($('<span translatable="yes">').text(_("Problem details"))));
+        const caption = document.createElement("caption");
+        caption.appendChild(heading);
+
+        var ge_t = $('<li class="active">').append($('<a tabindex="0">').append($('<span translate="yes">').text(_("General"))));
+        var pi_t = $('<li>').append($('<a tabindex="0">').append($('<span translate="yes">').text(_("Problem info"))));
+        var pd_t = $('<li>').append($('<a tabindex="0">').append($('<span translate="yes">').text(_("Problem details"))));
 
         var ge = $('<tbody>').addClass('tab');
         var pi = $('<tbody>').addClass('tab');
@@ -493,51 +553,18 @@ $(function() {
                 .append(
                     $('<tr>').append($('<div class="panel-group" id="accordion-markup">')));
 
-        var tab = $('<ul class="nav nav-tabs nav-tabs-pf">');
+        var tab = $('<ul class="nav nav-tabs nav-tabs-pf">')
+                .attr("id", "problem-navigation");
 
         var d_btn = $('<button class="btn btn-danger problem-btn btn-delete pficon pficon-delete">');
-        var r_btn = $();
-        if (problem.IsReported) {
-            for (var pid = 0; pid < problem.Reports.length; pid++) {
-                if (problem.Reports[pid][0] === 'ABRT Server') {
-                    var url = problem.Reports[pid][1]['URL']['v']['v'];
-                    r_btn = $('<a class="problem-btn">')
-                            .attr('href', url)
-                            .attr("target", "_blank")
-                            .text(_("Reported"));
-                    break;
-                }
-            }
-        } else if (problem.CanBeReported) {
-            r_btn = $('<button class="btn btn-primary problem-btn">').text(_("Report"));
 
-            r_btn.click(function() {
-                tab.children(':last-child').replaceWith($('<div class="spinner problem-btn">'));
-                var proc = cockpit.spawn(['reporter-ureport', '-d', problem.ID], { superuser: 'true' });
-                proc.done(function() {
-                    window.location.reload();
-                });
-                proc.fail(function(ex) {
-                    var message;
-                    // 70 is 'This problem has already been reported'
-                    if (ex.exit_status === 70) {
-                        window.location.reload();
-                        return;
-                    } else if (ex.problem === 'access-denied') {
-                        message = _("Not authorized to upload-report");
-                    } else if (ex.problem === "not-found") {
-                        message = _("Reporter 'reporter-ureport' not found.");
-                    } else {
-                        message = _("Reporting was unsucessful. Try running `reporter-ureport -d " + problem.ID + "`");
-                    }
-                    $('<div class="alert alert-danger">')
-                            .append('<span class="pficon pficon-error-circle-o">')
-                            .text(message)
-                            .insertAfter(".breadcrumb");
-                    tab.children(':last-child').replaceWith($('<span>'));
-                });
-            });
-        }
+        const reportingTable = document.createElement("div");
+        reportingTable.setAttribute("id", "journal-entry-reporting-table");
+
+        const journalTable = document.getElementById("journal-entry-fields");
+        journalTable.insertAdjacentElement("beforebegin", reportingTable);
+
+        init_reporting(problem, reportingTable);
 
         ge_t.click(function() {
             switch_tab(ge_t, ge);
@@ -576,13 +603,15 @@ $(function() {
         tab.append(pi_t);
         tab.append(pd_t);
         tab.append(d_btn);
-        tab.append(r_btn);
 
         var header = $('<tr>').append(
             $('<th colspan=2>').append(tab));
 
-        out.html(header).append(ge);
+        out.html(header).append(create_message_row(entry));
+        out.append(ge);
+        out.prepend(caption);
         out.css("margin-bottom", "0px");
+
         create_problem_details(problem, pi, pd);
     }
 
@@ -742,13 +771,13 @@ $(function() {
                 for (var thread_key in threads) {
                     var thread = threads[thread_key];
 
-                    if (thread.hasOwnProperty("crash_thread") && thread['crash_thread']) {
-                        if (thread.hasOwnProperty('frames')) {
-                            crash_thread = thread['frames'];
+                    if (thread.crash_thread) {
+                        if (thread.frames) {
+                            crash_thread = thread.frames;
                         }
                     } else {
-                        if (thread.hasOwnProperty('frames')) {
-                            other_threads.push(thread['frames']);
+                        if (thread.frames) {
+                            other_threads.push(thread.frames);
                         }
                     }
                 }
@@ -864,14 +893,14 @@ $(function() {
     function update() {
         var path = cockpit.location.path;
         if (path.length === 0) {
-            $("#journal-entry").hide();
+            $("#journal-entry").prop("hidden", true);
             update_query();
             $("#journal").show();
         } else if (path.length == 1) {
             stop_query();
             $("#journal").hide();
             update_entry();
-            $("#journal-entry").show();
+            $("#journal-entry").prop("hidden", false);
         } else { /* redirect */
             console.warn("not a journal location: " + path);
             cockpit.location = '';
@@ -892,7 +921,7 @@ $(function() {
     $('#journal-box').on('click', '.cockpit-logline', function() {
         var cursor = $(this).attr('data-cursor');
         if (cursor)
-            cockpit.location.go([ cursor ], { 'parent_options': JSON.stringify(cockpit.location.options) });
+            cockpit.location.go([cursor], { parent_options: JSON.stringify(cockpit.location.options) });
     });
 
     $('#journal-prio-menu a').on('click', function() {

@@ -40,7 +40,7 @@ $(document).on("click", "a[data-address]", function(ev) {
 var common_plot_options = {
     legend: { show: false },
     series: { shadowSize: 0 },
-    xaxis: { tickColor: "#d1d1d1", mode: "time", tickFormatter: plot.format_date_tick, minTickSize: [ 1, 'minute' ] },
+    xaxis: { tickColor: "#d1d1d1", mode: "time", tickFormatter: plot.format_date_tick, minTickSize: [1, 'minute'] },
     // The point radius influences the margin around the grid even if
     // no points are plotted.  We don't want any margin, so we set the
     // radius to zero.
@@ -54,88 +54,96 @@ var common_plot_options = {
 };
 
 var resource_monitors = [
-    { selector: "#dashboard-plot-0",
-      plot: function (info) {
-          return {
-              direct: [
-                  "kernel.all.cpu.nice",
-                  "kernel.all.cpu.user",
-                  "kernel.all.cpu.sys"
-              ],
-              internal: [
-                  "cpu.basic.nice",
-                  "cpu.basic.user",
-                  "cpu.basic.system"
-              ],
-              units: "millisec",
-              derive: "rate",
-              factor: 0.1 / info.cpus // millisec / sec -> percent
-          };
-      },
-      options: { yaxis: { tickColor: "#e1e6ed",
-                          tickFormatter: function(v) { return v + "%" } } },
-      ymax_min: 100
+    {
+        selector: "#dashboard-plot-0",
+        plot: function (info) {
+            return {
+                direct: [
+                    "kernel.all.cpu.nice",
+                    "kernel.all.cpu.user",
+                    "kernel.all.cpu.sys"
+                ],
+                internal: [
+                    "cpu.basic.nice",
+                    "cpu.basic.user",
+                    "cpu.basic.system"
+                ],
+                units: "millisec",
+                derive: "rate",
+                factor: 0.1 / info.cpus // millisec / sec -> percent
+            };
+        },
+        options: {
+            yaxis: {
+                tickColor: "#e1e6ed",
+                tickFormatter: function(v) { return v + "%" }
+            }
+        },
+        ymax_min: 100
     },
-    { selector: "#dashboard-plot-1",
-      plot: {
-          direct: [
-              "mem.util.used"
-          ],
-          internal: [
-              "memory.used"
-          ],
-          units: "bytes",
-      },
-      options: {
-          yaxis: {
-              ticks: plot.memory_ticks,
-              tickColor: "#e1e6ed",
-              tickFormatter: plot.format_bytes_tick
-          }
-      },
-      ymax_unit: 100000000
+    {
+        selector: "#dashboard-plot-1",
+        plot: {
+            direct: [
+                "mem.util.used"
+            ],
+            internal: [
+                "memory.used"
+            ],
+            units: "bytes",
+        },
+        options: {
+            yaxis: {
+                ticks: plot.memory_ticks,
+                tickColor: "#e1e6ed",
+                tickFormatter: plot.format_bytes_tick
+            }
+        },
+        ymax_unit: 100000000
     },
-    { selector: "#dashboard-plot-2",
-      plot: {
-          direct: [
-              "network.interface.total.bytes"
-          ],
-          internal: [
-              "network.interface.rx",
-              "network.interface.tx"
-          ],
-          units: "bytes",
-          'omit-instances': [ "lo" ],
-          derive: "rate"
-      },
-      options: {
-          yaxis: {
-              tickColor: "#e1e6ed",
-              tickFormatter: plot.format_bits_per_sec_tick
-          }
-      },
-      ymax_min: 100000
+    {
+        selector: "#dashboard-plot-2",
+        plot: {
+            direct: [
+                "network.interface.total.bytes"
+            ],
+            internal: [
+                "network.interface.rx",
+                "network.interface.tx"
+            ],
+            units: "bytes",
+            'omit-instances': ["lo"],
+            derive: "rate"
+        },
+        options: {
+            yaxis: {
+                tickColor: "#e1e6ed",
+                tickFormatter: plot.format_bits_per_sec_tick
+            }
+        },
+        ymax_min: 100000
     },
-    { selector: "#dashboard-plot-3",
-      plot: {
-          direct: [
-              "disk.dev.total_bytes"
-          ],
-          internal: [
-              "block.device.read",
-              "block.device.written"
-          ],
-          units: "bytes",
-          derive: "rate"
-      },
-      options: {
-          yaxis: {
-              ticks: plot.memory_ticks,
-              tickColor: "#e1e6ed",
-              tickFormatter: plot.format_bytes_per_sec_tick
-          }
-      },
-      ymax_min: 100000
+    {
+        selector: "#dashboard-plot-3",
+        plot: {
+            direct: [
+                "disk.dev.total_bytes"
+            ],
+            internal: [
+                "block.device.read",
+                "block.device.written"
+            ],
+            units: "bytes",
+            derive: "rate"
+        },
+        options: {
+            yaxis: {
+                ticks: plot.memory_ticks,
+                tickColor: "#e1e6ed",
+                tickFormatter: plot.format_bytes_per_sec_tick
+            }
+        },
+        ymax_min: 100000
     }
 ];
 
@@ -473,7 +481,7 @@ PageDashboard.prototype = {
             if (!machine || machine.state != "connected")
                 return null;
 
-            var series = [ ];
+            var series = [];
             var i = 0;
             resource_monitors.forEach(function (rm) {
                 if (self.plots[i]) {
@@ -482,10 +490,11 @@ PageDashboard.prototype = {
                         desc = rm.plot(info);
                     series.push(self.plots[i].add_metrics_sum_series($.extend({ host: machine.connection_string },
                                                                               desc),
-                                                                     { color: machine.color,
-                                                                       lines: {
-                                                                           lineWidth: 2
-                                                                       }
+                                                                     {
+                                                                         color: machine.color,
+                                                                         lines: {
+                                                                             lineWidth: 2
+                                                                         }
                                                                      }));
                 }
                 i += 1;

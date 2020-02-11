@@ -23,12 +23,12 @@ import QUnit from "qunit-tests";
 
 QUnit.test("bytes_from_format", function (assert) {
     var checks = [
-        [ "999", 999 ],
-        [ "1.9 kb", 1945.6 ],
-        [ "2.0 KB", 2048 ],
-        [ "1.0 MB", 1048576 ],
-        [ "1 GB", 1073741824 ],
-        [ "1 Unknown", 1 ],
+        ["999", 999],
+        ["1.9 kb", 1945.6],
+        ["2.0 KB", 2048],
+        ["1.0 MB", 1048576],
+        ["1 GB", 1073741824],
+        ["1 Unknown", 1],
     ];
 
     var i;
@@ -42,52 +42,52 @@ QUnit.test("bytes_from_format", function (assert) {
 
 QUnit.test("json_skip", function (assert) {
     var checks = [
-        [ "number", "0123456789",
-            [ 10, 0 ] ],
-        [ "number-fancy", "-0123456789.33E-5",
-            [ 17, 0 ] ],
-        [ "string", "\"string\"",
-            [ 8, 0 ] ],
-        [ "string-escaped", "\"st\\\"ring\"",
-            [ 10, 0 ] ],
-        [ "string-truncated", "\"string",
-            [ 0 ] ],
-        [ "boolean", "true",
-            [ 4, 0 ] ],
-        [ "null", "null",
-            [ 4, 0 ] ],
-        [ "string-number", "\"string\"0123456789",
-            [ 8, 18, 0 ] ],
-        [ "number-string", "0123456789\"string\"",
-            [ 10, 18, 0 ] ],
-        [ "number-number", "0123456789 123",
-            [ 10, 14, 0 ] ],
-        [ "string-string-string", "\"string\"\"two\"\"three\"",
-            [ 8, 13, 20, 0 ] ],
-        [ "string-string-truncated", "\"string\"\"tw",
-            [ 8, 0 ] ],
-        [ "array", "[\"string\",\"two\",\"three\"]",
-            [ 24, 0 ] ],
-        [ "array-escaped", "[\"string\",\"two\",\"thr]e\"]",
-            [ 24, 0 ] ],
-        [ "array-spaces", " [ \"string\", \"two\" ,\"thr]e\" ]\t",
-            [ 29, 0 ] ],
-        [ "array-truncated", "[\"string\",\"two\",\"thr",
-            [ 0 ] ],
-        [ "object", "{\"string\":\"two\",\"number\":222}",
-            [ 29, 0 ] ],
-        [ "object-escaped", "{\"string\":\"two\",\"num]}}ber\":222}",
-            [ 32, 0 ] ],
-        [ "object-spaces", "{ \"string\": \"two\", \"number\": 222 }",
-            [ 34, 0 ] ],
-        [ "object-object", "{\"string\":\"two\",\"number\":222}{\"string\":\"two\",\"number\":222}",
-            [ 29, 58, 0 ] ],
-        [ "object-line-object", "{\"string\":\"two\",\"number\":222}\n{\"string\":\"two\",\"number\":222}",
-            [ 29, 59, 0 ] ],
-        [ "object-truncated", "{\"stri}ng\"",
-            [ 0 ] ],
-        [ "whitespace", "  \r\n\t \v",
-            [ 0 ] ],
+        ["number", "0123456789",
+            [10, 0]],
+        ["number-fancy", "-0123456789.33E-5",
+            [17, 0]],
+        ["string", "\"string\"",
+            [8, 0]],
+        ["string-escaped", "\"st\\\"ring\"",
+            [10, 0]],
+        ["string-truncated", "\"string",
+            [0]],
+        ["boolean", "true",
+            [4, 0]],
+        ["null", "null",
+            [4, 0]],
+        ["string-number", "\"string\"0123456789",
+            [8, 18, 0]],
+        ["number-string", "0123456789\"string\"",
+            [10, 18, 0]],
+        ["number-number", "0123456789 123",
+            [10, 14, 0]],
+        ["string-string-string", "\"string\"\"two\"\"three\"",
+            [8, 13, 20, 0]],
+        ["string-string-truncated", "\"string\"\"tw",
+            [8, 0]],
+        ["array", "[\"string\",\"two\",\"three\"]",
+            [24, 0]],
+        ["array-escaped", "[\"string\",\"two\",\"thr]e\"]",
+            [24, 0]],
+        ["array-spaces", " [ \"string\", \"two\" ,\"thr]e\" ]\t",
+            [29, 0]],
+        ["array-truncated", "[\"string\",\"two\",\"thr",
+            [0]],
+        ["object", "{\"string\":\"two\",\"number\":222}",
+            [29, 0]],
+        ["object-escaped", "{\"string\":\"two\",\"num]}}ber\":222}",
+            [32, 0]],
+        ["object-spaces", "{ \"string\": \"two\", \"number\": 222 }",
+            [34, 0]],
+        ["object-object", "{\"string\":\"two\",\"number\":222}{\"string\":\"two\",\"number\":222}",
+            [29, 58, 0]],
+        ["object-line-object", "{\"string\":\"two\",\"number\":222}\n{\"string\":\"two\",\"number\":222}",
+            [29, 59, 0]],
+        ["object-truncated", "{\"stri}ng\"",
+            [0]],
+        ["whitespace", "  \r\n\t \v",
+            [0]],
     ];
 
     assert.expect(checks.length);
@@ -109,13 +109,13 @@ QUnit.test("json_skip", function (assert) {
 
 QUnit.test("quote_cmdline", function (assert) {
     var checks = [
-        [ [ "foo" ], "foo" ],
-        [ [ "foo", "bar" ], "foo bar" ],
-        [ [ "f o o" ], "\"f o o\"" ],
-        [ [ "f\\o" ], "f\\\\o" ],
-        [ [ "f\"o" ], "'f\"o'" ],
-        [ [ "f\"'o" ], "'f\"\\'o'" ],
-        [ [ "f \"o" ], "\"f \\\"o\"" ]
+        [["foo"], "foo"],
+        [["foo", "bar"], "foo bar"],
+        [["f o o"], "\"f o o\""],
+        [["f\\o"], "f\\\\o"],
+        [["f\"o"], "'f\"o'"],
+        [["f\"'o"], "'f\"\\'o'"],
+        [["f \"o"], "\"f \\\"o\""]
     ];
 
     assert.expect(checks.length);
@@ -126,16 +126,16 @@ QUnit.test("quote_cmdline", function (assert) {
 
 QUnit.test("unquote_cmdline", function (assert) {
     var checks = [
-        [ [ "foo" ], "  foo  " ],
-        [ [ "foo", "bar" ], "foo    bar  " ],
-        [ [ "f o o" ], "\"f o o\"" ],
-        [ [ "f o o" ], "'f o o'" ],
-        [ [ "f\\o" ], "f\\\\o" ],
-        [ [ "f\"o" ], "'f\"o'" ],
-        [ [ "f\"'o" ], "'f\"\\'o'" ],
-        [ [ "f \"o" ], "\"f \\\"o\"" ],
-        [ [ "f o o" ], "f' 'o\" \"o" ],
-        [ [ "f'", "o\" \"o" ], "f\\' 'o\" \"o" ]
+        [["foo"], "  foo  "],
+        [["foo", "bar"], "foo    bar  "],
+        [["f o o"], "\"f o o\""],
+        [["f o o"], "'f o o'"],
+        [["f\\o"], "f\\\\o"],
+        [["f\"o"], "'f\"o'"],
+        [["f\"'o"], "'f\"\\'o'"],
+        [["f \"o"], "\"f \\\"o\""],
+        [["f o o"], "f' 'o\" \"o"],
+        [["f'", "o\" \"o"], "f\\' 'o\" \"o"]
     ];
 
     assert.expect(checks.length);
@@ -146,13 +146,13 @@ QUnit.test("unquote_cmdline", function (assert) {
 
 QUnit.test("render_container_status", function (assert) {
     var checks = [
-        [ { Status: "blah", Running: true }, "blah" ],
-        [ { Running: true, Paused: false }, "running" ],
-        [ { Running: false, Paused: true }, "paused" ],
-        [ { Restarting: true }, "restarting" ],
-        [ { FinishedAt: "0001-01-01" }, "created" ],
-        [ { FinishedAt: "2016-11-11" }, "exited" ],
-        [ { }, "exited" ],
+        [{ Status: "blah", Running: true }, "blah"],
+        [{ Running: true, Paused: false }, "running"],
+        [{ Running: false, Paused: true }, "paused"],
+        [{ Restarting: true }, "restarting"],
+        [{ FinishedAt: "0001-01-01" }, "created"],
+        [{ FinishedAt: "2016-11-11" }, "exited"],
+        [{ }, "exited"],
     ];
 
     assert.expect(checks.length);

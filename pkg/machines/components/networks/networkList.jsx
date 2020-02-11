@@ -18,7 +18,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Breadcrumb } from 'patternfly-react';
+import { Breadcrumb, BreadcrumbItem } from '@patternfly/react-core';
 
 import cockpit from 'cockpit';
 import { Listing } from 'cockpit-components-listing.jsx';
@@ -29,6 +29,11 @@ import { CreateNetworkAction } from './createNetworkDialog.jsx';
 const _ = cockpit.gettext;
 
 export class NetworkList extends React.Component {
+    shouldComponentUpdate(nextProps, _) {
+        const networks = nextProps.networks;
+        return !networks.find(network => !network.name);
+    }
+
     render() {
         const { dispatch, networks, resourceHasError, onAddErrorNotification, vms, nodeDevices, interfaces, loggedUser } = this.props;
         const sortFunction = (networkA, networkB) => networkA.name.localeCompare(networkB.name);
@@ -36,14 +41,14 @@ export class NetworkList extends React.Component {
         const actions = (<CreateNetworkAction devices={devices} dispatch={dispatch} loggedUser={loggedUser} />);
 
         return (
-            <React.Fragment>
-                <Breadcrumb className='machines-listing-breadcrumb' title>
-                    <Breadcrumb.Item onClick={() => cockpit.location.go(['vms']) }>
+            <>
+                <Breadcrumb className='machines-listing-breadcrumb'>
+                    <BreadcrumbItem to='#'>
                         {_("Virtual Machines")}
-                    </Breadcrumb.Item>
-                    <Breadcrumb.Item active>
+                    </BreadcrumbItem>
+                    <BreadcrumbItem isActive>
                         {_("Networks")}
-                    </Breadcrumb.Item>
+                    </BreadcrumbItem>
                 </Breadcrumb>
                 <div id='networks-listing' className='container-fluid'>
                     <Listing title={_("Networks")}
@@ -63,7 +68,7 @@ export class NetworkList extends React.Component {
                         }
                     </Listing>
                 </div>
-            </React.Fragment>
+            </>
         );
     }
 }

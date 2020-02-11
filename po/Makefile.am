@@ -4,6 +4,10 @@ GETTEXT_PACKAGE = cockpit
 # The concrete set of linguas we are using
 LINGUAS = $(shell cat $(srcdir)/po/LINGUAS)
 
+WEBLATE_REPO=tmp/weblate-repo
+WEBLATE_REPO_URL=https://github.com/cockpit-project/cockpit-weblate.git
+WEBLATE_REPO_BRANCH=master
+
 # The full list of various input and output file types
 PO_LINGUAS = $(addprefix po/,$(LINGUAS))
 PO_INPUTS = $(addsuffix .po,$(PO_LINGUAS))
@@ -49,7 +53,7 @@ uninstall-local::
 # General code packages to translate
 TRANSLATE = \
 	pkg/ \
-	node_modules/registry-image-widgets/ \
+	src/bridge/ \
 	src/ws/ \
 	$(NULL)
 
@@ -65,11 +69,12 @@ po/POTFILES.js.in:
 	( cd $(srcdir) && find src/base1/ $(TRANSLATE) -name '*.js' -o -name '*.jsx' ) > $@
 po/POTFILES.manifest.in:
 	$(MKDIR_P) $(notdir $@)
-	( cd $(srcdir) && find $(TRANSLATE) -name 'manifest.json' ) > $@
-po/POTFILES.pre.in: prepare-po
-	$(MKDIR_P) $(notdir $@)
-	( cd tmp/ && find . -type f ) > $@
-.PHONY: po/POTFILES.c.in po/POTFILES.html.in po/POTFILES.js.in po/POTFILES.manifest.in po/POTFILES.pre.in
+	( cd $(srcdir) && find $(TRANSLATE) -name 'manifest.json.in' ) > $@
+po/POTFILES.appstream.in:
+	( cd $(srcdir) && find $(TRANSLATE) -name '*.appdata.xml.in' ) > $@
+po/POTFILES.polkit.in:
+	( cd $(srcdir) && find $(TRANSLATE) -name '*.policy.in' ) > $@
+.PHONY: po/POTFILES.c.in po/POTFILES.html.in po/POTFILES.js.in po/POTFILES.manifest.in po/POTFILES.appstream.in po/POTFILES.polkit.in
 
 # Extract from GLib based C code files
 po/cockpit.c.pot: po/POTFILES.c.in
@@ -86,7 +91,7 @@ po/cockpit.html.pot: po/POTFILES.html.in
 # Extract cockpit style javascript translations
 po/cockpit.js.pot: po/POTFILES.js.in
 	$(XGETTEXT) --default-domain=cockpit --output=- --language=C --keyword= \
-		--keyword=_:1,1t --keyword=_:1c,2,1t --keyword=C_:1c,2 \
+		--keyword=_:1,1t --keyword=_:1c,2,2t --keyword=C_:1c,2 \
 		--keyword=N_ --keyword=NC_:1c,2 \
 		--keyword=gettext:1,1t --keyword=gettext:1c,2,2t \
 		--keyword=ngettext:1,2,3t --keyword=ngettext:1c,2,3,4t \
@@ -97,14 +102,14 @@ po/cockpit.js.pot: po/POTFILES.js.in
 po/cockpit.manifest.pot: po/POTFILES.manifest.in
 	$(srcdir)/tools/missing $(srcdir)/po/manifest2po -d $(srcdir) -f $^ -o $@
 
-# Extract pre-processed prepare-po data in tmp/
-po/cockpit.pre.pot: po/POTFILES.pre.in
-	$(XGETTEXT) --default-domain=cockpit --output=$@ \
-		--language=C --keyword=N_ \
-		--from-code=UTF-8 --directory=$(builddir)/tmp --files-from=$^
+po/cockpit.appstream.pot: po/POTFILES.appstream.in
+	cd $(srcdir) && $(XGETTEXT) --output=$(abs_builddir)/$@ --files-from=$(abs_builddir)/$^
+
+po/cockpit.polkit.pot: po/POTFILES.polkit.in
+	cd $(srcdir) && GETTEXTDATADIRS=$(srcdir)/po $(XGETTEXT) --output=$(abs_builddir)/$@ --files-from=$(abs_builddir)/$^
 
 # Combine the above pot files into one
-po/cockpit.pot: po/cockpit.c.pot po/cockpit.html.pot po/cockpit.js.pot po/cockpit.manifest.pot po/cockpit.pre.pot
+po/cockpit.pot: po/cockpit.c.pot po/cockpit.html.pot po/cockpit.js.pot po/cockpit.manifest.pot po/cockpit.appstream.pot po/cockpit.polkit.pot
 	$(MSGCAT) --sort-output --output-file=$@ $^
 
 # Actually update the old translations with new translatable text
@@ -113,22 +118,19 @@ update-po: po/cockpit.pot
 		$(MSGMERGE) --output-file=$(srcdir)/po/$$lang.po $(srcdir)/po/$$lang.po $<; \
 	done
 
-ZANATA_CLI = LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 zanata-cli -B
+$(WEBLATE_REPO):
+	git clone --depth=1 -b $(WEBLATE_REPO_BRANCH) $(WEBLATE_REPO_URL) $(WEBLATE_REPO)
 
-upload-pot: po/cockpit.pot
-	$(ZANATA_CLI) push --includes cockpit.pot --project-config "$(srcdir)/po/zanata.xml" \
-		-s "$(builddir)/po"
-
-upload-translations:
-	$(ZANATA_CLI) push --includes=cockpit.pot --project-config "$(srcdir)/po/zanata.xml" \
-		--push-type trans -s "$(builddir)/po" -t "$(srcdir)/po"
+upload-pot: po/cockpit.pot $(WEBLATE_REPO)
+	cp $(builddir)/po/cockpit.pot $(WEBLATE_REPO)
+	git -C $(WEBLATE_REPO) commit -m "Update source file" -- cockpit.pot
+	git -C $(WEBLATE_REPO) push
 
 clean-po:
 	rm $(srcdir)/po/*.po
 
-download-po:
-	$(ZANATA_CLI) pull --includes=cockpit.pot --project-config "$(srcdir)/po/zanata.xml" \
-		--min-doc-percent 50 -s "$(builddir)/po" -t "$(srcdir)/po"
+download-po: $(WEBLATE_REPO)
+	cp $(WEBLATE_REPO)/*.po $(srcdir)/po/
 
 CLEANFILES += \
 	$(MO_FILES) \
@@ -146,5 +148,6 @@ EXTRA_DIST += \
 	po/LINGUAS \
 	po/po.empty.js \
 	po/po2json \
-	po/zanata.xml \
+	po/its/polkit.its \
+	po/its/polkit.loc \
 	$(NULL)

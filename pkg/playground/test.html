@@ -9,7 +9,7 @@
     <script src="../base1/cockpit.js"></script>
     <script src="test.js"></script>
 </head>
-<body hidden>
+<body class="pf-m-redhat-font" hidden>
     <div id="internal" class="container-fluid">
         <img src="hammer.gif" class="pull-right" id="hammer">
         <div id="nav"></div>
@@ -22,6 +22,10 @@
         </div>
         <div class="super-channel">
             <button class="btn btn-default">Superuser</button>
+            <span></span>
+        </div>
+        <div class="lock-channel">
+            <button class="btn btn-default">Lock /tmp/playground-test-lock</button>
             <span></span>
         </div>
         <button class="btn btn-default" id="modify-file">Increment /tmp/counter atomically</button>

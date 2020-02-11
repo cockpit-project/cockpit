@@ -49,7 +49,7 @@ export class CryptoTab extends React.Component {
             block.GetSecretConfiguration({}).done(
                 function (items) {
                     old_config = array_find(items, function (c) { return c[0] == "crypttab" });
-                    new_config = [ "crypttab", old_config ? Object.assign({ }, old_config[1]) : { } ];
+                    new_config = ["crypttab", old_config ? Object.assign({ }, old_config[1]) : { }];
 
                     // UDisks insists on always having a "passphrase-contents" field when
                     // adding a crypttab entry, but doesn't include one itself when returning
@@ -64,25 +64,27 @@ export class CryptoTab extends React.Component {
 
         function edit_stored_passphrase() {
             edit_config(function (config, commit) {
-                dialog_open({ Title: _("Stored Passphrase"),
-                              Fields: [
-                                  PassInput("passphrase", _("Stored Passphrase"),
-                                            { value: (config && config['passphrase-contents']
-                                                ? decode_filename(config['passphrase-contents'].v)
-                                                : "")
-                                            })
-                              ],
-                              Action: {
-                                  Title: _("Apply"),
-                                  action: function (vals) {
-                                      config["passphrase-contents"] = {
-                                          t: 'ay',
-                                          v: encode_filename(vals.passphrase)
-                                      };
-                                      delete config["passphrase-path"];
-                                      return commit();
-                                  }
-                              }
+                dialog_open({
+                    Title: _("Stored Passphrase"),
+                    Fields: [
+                        PassInput("passphrase", _("Stored Passphrase"),
+                                  {
+                                      value: (config && config['passphrase-contents']
+                                          ? decode_filename(config['passphrase-contents'].v)
+                                          : "")
+                                  })
+                    ],
+                    Action: {
+                        Title: _("Apply"),
+                        action: function (vals) {
+                            config["passphrase-contents"] = {
+                                t: 'ay',
+                                v: encode_filename(vals.passphrase)
+                            };
+                            delete config["passphrase-path"];
+                            return commit();
+                        }
+                    }
                 });
             });
         }
@@ -99,18 +101,19 @@ export class CryptoTab extends React.Component {
 
         function edit_options() {
             edit_config(function (config, commit) {
-                dialog_open({ Title: _("Encryption Options"),
-                              Fields: crypto_options_dialog_fields(old_options),
-                              Action: {
-                                  Title: _("Apply"),
-                                  action: function (vals) {
-                                      config["options"] = {
-                                          t: 'ay',
-                                          v: encode_filename(crypto_options_dialog_options(vals))
-                                      };
-                                      return commit();
-                                  }
-                              }
+                dialog_open({
+                    Title: _("Encryption Options"),
+                    Fields: crypto_options_dialog_fields(old_options),
+                    Action: {
+                        Title: _("Apply"),
+                        action: function (vals) {
+                            config.options = {
+                                t: 'ay',
+                                v: encode_filename(crypto_options_dialog_options(vals))
+                            };
+                            return commit();
+                        }
+                    }
                 });
             });
         }
@@ -121,20 +124,12 @@ export class CryptoTab extends React.Component {
         return (
             <div>
                 <div className="ct-form">
-                    { !self.props.client.is_old_udisks2
-                        ? <React.Fragment>
-                            <label className="control-label">{_("Stored passphrase")}</label>
-                            <div className="ct-form-stretch">
-                                <StorageButton onClick={edit_stored_passphrase}>{_("Edit")}</StorageButton>
-                            </div>
-                        </React.Fragment> : null
-                    }
-                    { !self.props.client.is_old_udisks2
-                        ? <React.Fragment>
-                            <label className="control-label">{_("Options")}</label>
-                            <StorageLink onClick={edit_options}>{old_options || _("(none)")}</StorageLink>
-                        </React.Fragment> : null
-                    }
+                    <label className="control-label">{_("Stored passphrase")}</label>
+                    <div className="ct-form-stretch">
+                        <StorageButton onClick={edit_stored_passphrase}>{_("Edit")}</StorageButton>
+                    </div>
+                    <label className="control-label">{_("Options")}</label>
+                    <StorageLink onClick={edit_options}>{old_options || _("(none)")}</StorageLink>
                 </div>
                 <br />
                 <CryptoKeyslots client={client} block={block} />

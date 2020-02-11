@@ -95,7 +95,7 @@ function AuthorizedKeys (user_name, home_dir) {
             return process_failure(ex);
 
         if (!content)
-            return update_keys([ ], tag);
+            return update_keys([], tag);
 
         parse_pubkeys(content)
                 .done(function(keys) {
@@ -112,7 +112,7 @@ function AuthorizedKeys (user_name, home_dir) {
                     if (obj && obj.valid) {
                         df.notify(_("Adding key"));
                         cockpit
-                                .script(adder, [ user_name, home_dir ], { superuser: "try", err: "message" })
+                                .script(adder, [user_name, home_dir], { superuser: "try", err: "message" })
                                 .input(obj.raw + "\n")
                                 .done(function() {
                                     df.resolve();
@@ -157,7 +157,7 @@ function AuthorizedKeys (user_name, home_dir) {
             file.close();
     };
 
-    file = cockpit.file(filename, { 'superuser': 'try' });
+    file = cockpit.file(filename, { superuser: 'try' });
     watch = file.watch(parse_keys);
 }
 

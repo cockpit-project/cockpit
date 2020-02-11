@@ -21,9 +21,9 @@ import re
 import subprocess
 import time
 
-import atomiclib
 import parent
 from testlib import *
+from hacklib import *
 
 
 def break_hostkey(m, address, filename=None):
@@ -102,7 +102,10 @@ def change_ssh_port(machine, address, port=None, timeout_sec=120):
     # Keep in mind that not all operating systems have firewalld
     machine.execute("firewall-cmd --permanent --zone=public --add-port={0}/tcp || true".format(port))
     machine.execute("firewall-cmd --reload || true")
-    machine.execute("! selinuxenabled || semanage port -a -t ssh_port_t -p tcp {0}".format(port))
+    if machine.image in ["fedora-coreos"]:  # no semanage
+        machine.execute("setenforce 0")
+    else:
+        machine.execute("! selinuxenabled || semanage port -a -t ssh_port_t -p tcp {0}".format(port))
     machine.execute("sed -i 's/.*Port .*/#\\0/' /etc/ssh/sshd_config")
     machine.execute(
         "printf 'ListenAddress 127.27.0.15:22\nListenAddress {0}:{1}\n' >> /etc/ssh/sshd_config".format(address, port))
@@ -134,12 +137,13 @@ class TestMultiMachineAdd(MachineCase):
     }
 
     def setUp(self):
-        MachineCase.setUp(self)
+        super().setUp()
         self.machine2 = self.machines['machine2']
         self.machine2.execute("hostnamectl set-hostname machine2")
         self.machine3 = self.machines['machine3']
         self.machine3.execute("hostnamectl set-hostname machine3")
-        atomiclib.overlay_dashboard(self.machine)
+        HACK_disable_problematic_preloads(self.machine2)
+        HACK_disable_problematic_preloads(self.machine3)
 
     def testBasic(self):
         b = self.browser
@@ -147,6 +151,8 @@ class TestMultiMachineAdd(MachineCase):
         m3 = self.machine3
         m3_host = "10.111.113.3:2222"
         change_ssh_port(m3, "10.111.113.3", 2222)
+
+        hostname_selector = "#system_information_hostname_text"
 
         self.login_and_go(None)
         add_machine(b, "10.111.113.2")
@@ -172,7 +178,7 @@ class TestMultiMachineAdd(MachineCase):
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname != "/dashboard"')
         b.enter_page("/system", host="10.111.113.2")
-        b.wait_text_not("#system_information_hostname_button", "")
+        b.wait_text(hostname_selector, "machine2")
         b.switch_to_top()
         b.go("/dashboard")
         b.enter_page("/dashboard")
@@ -182,7 +188,7 @@ class TestMultiMachineAdd(MachineCase):
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname != "/dashboard"')
         b.enter_page("/system", host=m3_host)
-        b.wait_text_not("#system_information_hostname_button", "")
+        b.wait_text(hostname_selector, "machine3")
         b.switch_to_top()
         b.go("/dashboard")
         b.enter_page("/dashboard")
@@ -198,8 +204,7 @@ class TestMultiMachineAdd(MachineCase):
                                     ".*: bridge failed: .*",
                                     ".*: bridge program failed: Child process exited with code .*")
 
-    @skipImage("Newer version (>= 0.8.5) of libssh required",
-               "ubuntu-1804", "fedora-atomic", "rhel-8-0", "rhel-8-0-distropkg")
+    @skipImage("Newer version (>= 0.8.5) of libssh required", "ubuntu-1804")
     def testGlobalSSHConfig(self):
         b = self.browser
         m = self.machine
@@ -227,17 +232,20 @@ class TestMultiMachine(MachineCase):
     }
 
     def setUp(self):
-        MachineCase.setUp(self)
+        super().setUp()
+        self.machine.execute("hostnamectl set-hostname machine1")
         self.machine2 = self.machines['machine2']
         self.machine2.execute("hostnamectl set-hostname machine2")
-        atomiclib.overlay_dashboard(self.machine)
+        self.machines['machine3'].execute("hostnamectl set-hostname machine3")
+        HACK_disable_problematic_preloads(self.machine2)
+        HACK_disable_problematic_preloads(self.machines["machine3"])
 
     def checkDirectLogin(self, root='/'):
         b = self.browser
         m2 = self.machine2
         m = self.machine
 
-        name = self.machine.execute("hostname")
+        hostname_selector = "#system_information_hostname_text"
 
         # Change os-release pretty name on m2
         m2.execute("sed -i '/NAME=.*/d' /etc/os-release")
@@ -246,7 +254,7 @@ class TestMultiMachine(MachineCase):
         b.switch_to_top()
         b.go("{}/system".format(root))
         b.enter_page("/system")
-        b.wait_in_text('#system_information_hostname_button', name.strip())
+        b.wait_text(hostname_selector, "machine1")
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname == "{0}system"'.format(root))
         b.click("a[href='/dashboard']")
@@ -267,7 +275,7 @@ class TestMultiMachine(MachineCase):
         b.click('#login-button')
         b.expect_load()
         b.enter_page("/system")
-        b.wait_in_text('#system_information_hostname_button', "machine2")
+        b.wait_in_text(hostname_selector, "machine2")
         b.switch_to_top()
 
         # Branding uses m2 pretty name
@@ -275,14 +283,10 @@ class TestMultiMachine(MachineCase):
         b.wait_js_cond('window.location.pathname == "{0}=10.111.113.2/system"'.format(root))
         m2_dashboard_name = "machine2"
 
-        # Dashboard is not installed on secondary atomic machines
-        if not m2.atomic_image:
-            b.click("a[href='/dashboard']")
-            b.enter_page("/dashboard")
-            b.wait_in_text("a[data-address='localhost']", m2_dashboard_name)
-            b.wait_not_present("a[data-address='10.111.113.2']")
-        else:
-            b.wait_not_present("a[href='/dashboard']")
+        b.click("a[href='/dashboard']")
+        b.enter_page("/dashboard")
+        b.wait_in_text("a[data-address='localhost']", m2_dashboard_name)
+        b.wait_not_present("a[data-address='10.111.113.2']")
         b.logout()
 
         # Bad host key
@@ -367,7 +371,7 @@ class TestMultiMachine(MachineCase):
         b.click('#login-button')
         b.expect_load()
         b.enter_page("/system")
-        b.wait_in_text('#system_information_hostname_button', "machine2")
+        b.wait_in_text(hostname_selector, "machine2")
         b.logout()
 
         # Check hostkey isn't saved
@@ -411,32 +415,24 @@ class TestMultiMachine(MachineCase):
         b.set_val("#login-password-input", "alt-password")
         b.click('#login-button')
         b.wait_in_text("#server-name", "10.111.113.2")
-        # fixed in PR #11736: accept unknown hosts
-        if m.image in ["rhel-8-0-distropkg"]:
-            b.wait_visible("#login-error-message")
-            b.wait_in_text("#login-error-message", "Host is unknown")
-        else:
-            b.wait_visible("#conversation-group")
-            b.wait_not_visible("#password-group")
-            b.wait_not_visible("#user-group")
-            b.wait_not_visible("#option-group")
-            b.wait_not_visible("#server-group")
-            b.wait_in_text("#conversation-prompt", "Fingerprint")
-            b.wait_in_text("#conversation-message", "Do you want to proceed this time?")
-            b.click('#login-button')
-            b.expect_load()
-            b.enter_page("/system")
-            b.wait_in_text('#system_information_hostname_button', "machine2")
-            b.switch_to_top()
-            b.wait_js_cond('window.location.pathname == "{0}=10.111.113.2/system"'.format(root))
+        b.wait_visible("#conversation-group")
+        b.wait_not_visible("#password-group")
+        b.wait_not_visible("#user-group")
+        b.wait_not_visible("#option-group")
+        b.wait_not_visible("#server-group")
+        b.wait_in_text("#conversation-prompt", "Fingerprint")
+        b.wait_in_text("#conversation-message", "Do you want to proceed this time?")
+        b.click('#login-button')
+        b.expect_load()
+        b.enter_page("/system")
+        b.wait_in_text(hostname_selector, "machine2")
+        b.switch_to_top()
+        b.wait_js_cond('window.location.pathname == "{0}=10.111.113.2/system"'.format(root))
 
-            if not m2.atomic_image:
-                b.click("a[href='/dashboard']")
-                b.enter_page("/dashboard")
-                b.wait_in_text("a[data-address='localhost']", m2_dashboard_name)
-                b.wait_not_present("a[data-address='10.111.113.2']")
-            else:
-                b.wait_not_present("a[href='/dashboard']")
+        b.click("a[href='/dashboard']")
+        b.enter_page("/dashboard")
+        b.wait_in_text("a[data-address='localhost']", m2_dashboard_name)
+        b.wait_not_present("a[data-address='10.111.113.2']")
 
         # Might happen when we switch away.
         self.allow_hostkey_messages()
@@ -451,7 +447,7 @@ class TestMultiMachine(MachineCase):
         self.checkDirectLogin('/')
 
     @skipImage("test VM image does not have FIPS support", "debian-stable",
-               "debian-testing", "ubuntu-1804", "ubuntu-stable", "fedora-atomic")
+               "debian-testing", "ubuntu-1804", "ubuntu-stable", "fedora-coreos")
     def testFIPS(self):
         b = self.browser
 
@@ -471,6 +467,8 @@ class TestMultiMachine(MachineCase):
     def testUrlRoot(self):
         b = self.browser
         m = self.machine
+
+        hostname_selector = "#system_information_hostname_text"
 
         m.execute('mkdir -p /etc/cockpit/ && echo "[WebService]\nUrlRoot = cockpit-new" > /etc/cockpit/cockpit.conf')
         m.start_cockpit()
@@ -507,7 +505,7 @@ class TestMultiMachine(MachineCase):
         b.enter_page("/dashboard")
         add_machine(b, "10.111.113.2")
         b.enter_page("/system", host="10.111.113.2")
-        b.wait_text("#system_information_hostname_button", "machine2")
+        b.wait_text(hostname_selector, "machine2")
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname == "/cockpit-new/@10.111.113.2/system"')
 
@@ -695,6 +693,10 @@ class TestMultiMachine(MachineCase):
         m1 = self.machine
         m2 = self.machine2
 
+        # Logging in as root is no longer allowed by default by sshd
+        m2.execute("sed -ri 's/#?PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config")
+        m2.execute("systemctl restart sshd")
+
         machine_path = "/@10.111.113.2"
 
         self.login_and_go(None)
@@ -810,12 +812,18 @@ class TestMultiMachine(MachineCase):
         b.logout()
         b.wait_visible("#login")
 
-        m1.execute("! selinuxenabled || semanage port -a -t ssh_port_t -p tcp 2222")
+        if m1.image in ["fedora-coreos"]:  # no semanage
+            m1.execute("setenforce 0")
+        else:
+            m1.execute("! selinuxenabled || semanage port -a -t ssh_port_t -p tcp 2222")
 
         # Keep in mind that not all operating systems have firewalld
         m2.execute("firewall-cmd --permanent --zone=public --add-port=2222/tcp || true")
         m2.execute("firewall-cmd --reload || true")
-        m2.execute("! selinuxenabled || semanage port -a -t ssh_port_t -p tcp 2222")
+        if m2.image in ["fedora-coreos"]:  # no semanage
+            m2.execute("setenforce 0")
+        else:
+            m2.execute("! selinuxenabled || semanage port -a -t ssh_port_t -p tcp 2222")
         m2.execute("sed -i 's/.*Port .*/#\\0/' /etc/ssh/sshd_config")
         m2.execute("printf 'ListenAddress 127.27.0.15:22\nListenAddress 10.111.113.2:2222\n' >> /etc/ssh/sshd_config")
 

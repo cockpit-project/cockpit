@@ -296,30 +296,27 @@ test_parse_version_1_1 (void)
 static void
 test_parse_headers (void)
 {
-  const gchar *input[] = {
+  GHashTable *headers;
+  gssize ret;
+
+  const gchar *input =
       "Header1: value3\r\n"
       "Header2:  field\r\n"
       "Head3:  Another \r\n"
       "Host:https://cockpit-project.org\r\n"
+      "Funny:  a☺b\r\n"
       "\r\n"
-      "BODY  ",
-  };
+      "BODY  ";
 
-  GHashTable *headers;
-  gssize ret;
-  gint i;
-
-  for (i = 0; i < G_N_ELEMENTS (input); i++)
-    {
-      ret = web_socket_util_parse_headers (input[i], strlen (input[i]), &headers);
-      g_assert_cmpint (ret, ==, strlen (input[i]) - 6);
-      g_assert_cmpstr (g_hash_table_lookup (headers, "header1"), ==, "value3");
-      g_assert_cmpstr (g_hash_table_lookup (headers, "Header2"), ==, "field");
-      g_assert_cmpstr (g_hash_table_lookup (headers, "hEAD3"), ==, "Another");
-      g_assert_cmpstr (g_hash_table_lookup (headers, "Host"), ==, "https://cockpit-project.org");
-      g_assert (g_hash_table_lookup (headers, "Something else") == NULL);
-      g_hash_table_unref (headers);
-    }
+  ret = web_socket_util_parse_headers (input, strlen (input), &headers);
+  g_assert_cmpint (ret, ==, strlen (input) - 6);
+  g_assert_cmpstr (g_hash_table_lookup (headers, "header1"), ==, "value3");
+  g_assert_cmpstr (g_hash_table_lookup (headers, "Header2"), ==, "field");
+  g_assert_cmpstr (g_hash_table_lookup (headers, "hEAD3"), ==, "Another");
+  g_assert_cmpstr (g_hash_table_lookup (headers, "Host"), ==, "https://cockpit-project.org");
+  g_assert_cmpstr (g_hash_table_lookup (headers, "Funny"), ==, "a☺b");
+  g_assert (g_hash_table_lookup (headers, "Something else") == NULL);
+  g_hash_table_unref (headers);
 }
 
 static void
@@ -356,7 +353,13 @@ static void
 test_parse_headers_bad (void)
 {
   const gchar *input[] = {
+      /* missing : */
       "Header1 value3\r\n"
+      "\r\n"
+      "BODY  ",
+
+      /* binary garbage (not even UTF8) */
+      "Header1: a\xFF\x01b\r\n"
       "\r\n"
       "BODY  ",
   };
@@ -376,8 +379,10 @@ test_header_equals (void)
 {
   GHashTable *headers = web_socket_util_new_headers ();
   g_hash_table_insert (headers, g_strdup ("Blah"), g_strdup ("VALUE"));
+  g_hash_table_insert (headers, g_strdup ("Funny"), g_strdup ("a☺b"));
 
   g_assert (_web_socket_util_header_equals (headers, "blah", "Value"));
+  g_assert (_web_socket_util_header_equals (headers, "Funny", "a☺b"));
 
   g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_MESSAGE,
                          "received invalid or missing Blah header*");

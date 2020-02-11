@@ -19,8 +19,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
+import { OverlayTrigger, Tooltip } from "patternfly-react";
+import { Button } from "@patternfly/react-core";
 
-import VmOverviewTab, { commonTitles } from './vmOverviewTab.jsx';
 import { VCPUModal } from './vcpuModal.jsx';
 import MemoryModal from './vm/memoryModal.jsx';
 import {
@@ -34,7 +35,12 @@ import {
     getVm
 } from '../actions/provider-actions.js';
 import { BootOrderModal } from './vm/bootOrderModal.jsx';
+import { FirmwareModal } from './vm/firmwareModal.jsx';
 import WarningInactive from './warningInactive.jsx';
+import { supportsUefiXml, labelForFirmwarePath } from './vm/helpers.js';
+import { getDomainCapabilities } from '../libvirt-dbus.js';
+
+import './overviewTab.css';
 
 const _ = cockpit.gettext;
 
@@ -46,7 +52,7 @@ const _ = cockpit.gettext;
  */
 function getBootOrder(vm) {
     let bootOrder = _("No boot device found");
-    let devices = getSortedBootOrderDevices(vm).filter(d => d.bootOrder);
+    const devices = getSortedBootOrderDevices(vm).filter(d => d.bootOrder);
 
     if (devices && devices.length > 0) {
         bootOrder = devices.map(bootDevice => rephraseUI("bootableDisk", bootDevice.type)).join(); // Example: network,disk,disk
@@ -63,13 +69,34 @@ class VmOverviewTabLibvirt extends React.Component {
             runningVmUpdated: false,
             showVcpuModal: false,
             showBootOrderModal: false,
-            showMemoryModal: false
+            showMemoryModal: false,
+            showFirmwareModal: false,
         };
         this.openVcpu = this.openVcpu.bind(this);
         this.openMemory = this.openMemory.bind(this);
         this.openBootOrder = this.openBootOrder.bind(this);
+        this.openFirmware = this.openFirmware.bind(this);
         this.close = this.close.bind(this);
         this.onAutostartChanged = this.onAutostartChanged.bind(this);
+    }
+
+    componentDidMount() {
+        if (this.props.config.provider.name == 'LibvirtDBus') {
+            getDomainCapabilities(this.props.vm.connectionName)
+                    .done(domCaps => {
+                        const parser = new DOMParser();
+                        const xmlDoc = parser.parseFromString(domCaps, "application/xml");
+                        if (!xmlDoc)
+                            return;
+
+                        const domainCapabilities = xmlDoc.getElementsByTagName("domainCapabilities")[0];
+                        const osElem = domainCapabilities.getElementsByTagName("os") && domainCapabilities.getElementsByTagName("os")[0];
+                        const loaderElems = osElem && osElem.getElementsByTagName("loader");
+
+                        this.setState({ loaderElems });
+                    })
+                    .fail(ex => console.warn("getDomainCapabilities failed"));
+        }
     }
 
     onAutostartChanged() {
@@ -83,7 +110,16 @@ class VmOverviewTabLibvirt extends React.Component {
     }
 
     close() {
-        this.setState({ showVcpuModal: false, showMemoryModal: false, showBootOrderModal: false });
+        this.setState({ showVcpuModal: false, showMemoryModal: false, showBootOrderModal: false, showFirmwareModal: false });
+    }
+
+    getOVMFBinariesOnHost(loaderElems) {
+        return Array.prototype.map.call(loaderElems, loader => {
+            const valueElem = loader.getElementsByTagName('value');
+
+            if (valueElem && valueElem[0].parentNode == loader)
+                return valueElem[0].textContent;
+        });
     }
 
     openVcpu() {
@@ -96,6 +132,10 @@ class VmOverviewTabLibvirt extends React.Component {
 
     openMemory() {
         this.setState({ showMemoryModal: true });
+    }
+
+    openFirmware() {
+        this.setState({ showFirmwareModal: true });
     }
 
     render() {
@@ -111,7 +151,7 @@ class VmOverviewTabLibvirt extends React.Component {
                 return !inactiveDevices.every((element, index) => element.bootOrder === activeDevices[index].bootOrder);
         };
 
-        const { vm, dispatch, config, nodeDevices } = this.props;
+        const { vm, dispatch, config, nodeDevices, libvirtVersion } = this.props;
         const idPrefix = vmId(vm.name);
 
         const vcpusChanged = (vm.vcpus.count !== vm.inactiveXML.vcpus.count) ||
@@ -120,60 +160,123 @@ class VmOverviewTabLibvirt extends React.Component {
                              (vm.cpu.threads !== vm.inactiveXML.cpu.threads) ||
                              (vm.cpu.cores !== vm.inactiveXML.cpu.cores);
 
-        let autostart = rephraseUI('autostart', vm.autostart);
-        let bootOrder = getBootOrder(vm);
-        let memoryLink = cockpit.format_bytes(vm.currentMemory * 1024);
-
-        if (config.provider.name === "LibvirtDBus") {
-            autostart = (
-                <label className='checkbox-inline'>
-                    <input id={`${idPrefix}-autostart-checkbox`}
-                           type="checkbox"
-                           checked={vm.autostart}
-                           onChange={this.onAutostartChanged} />
-                    {_("Run when host boots")}
-                </label>
-            );
-
-            bootOrder = (
-                <div>
-                    <a id={`${vmId(vm.name)}-boot-order`} onClick={this.openBootOrder}>
-                        {getBootOrder(vm)}
-                    </a>
-                    { vm.state === "running" && bootOrderChanged() && <WarningInactive iconId="boot-order-tooltip" tooltipId="tip-boot-order" /> }
-                </div>
-            );
-
-            memoryLink = (
-                <a id={`${idPrefix}-memory-count`} onClick={this.openMemory}>
-                    {memoryLink}
-                </a>
-            );
-        }
+        const autostart = (
+            <label className='checkbox-inline'>
+                <input id={`${idPrefix}-autostart-checkbox`}
+                    type="checkbox"
+                    disabled={config.provider.name !== "LibvirtDBus"}
+                    checked={config.provider.name == "LibvirtDBus" ? vm.autostart : vm.autostart != "disable" }
+                    onChange={this.onAutostartChanged} />
+                {_("Run when host boots")}
+            </label>
+        );
+        const bootOrder = (
+            <div>
+                <Button variant="link" isInline isDisabled={config.provider.name !== "LibvirtDBus"} id={`${idPrefix}-boot-order`} onClick={this.openBootOrder}>
+                    {getBootOrder(vm)}
+                </Button>
+                { vm.state === "running" && bootOrderChanged() && <WarningInactive iconId="boot-order-tooltip" tooltipId="tip-boot-order" /> }
+            </div>
+        );
+        const memoryLink = (
+            <div>
+                <Button variant="link" isInline isDisabled={config.provider.name !== "LibvirtDBus"} id={`${idPrefix}-memory-count`} onClick={this.openMemory}>
+                    {cockpit.format_bytes(vm.currentMemory * 1024)}
+                </Button>
+            </div>
+        );
         const vcpuLink = (
-            <React.Fragment>
-                <a id={`${vmId(vm.name)}-vcpus-count`} onClick={this.openVcpu}>{vm.vcpus.count}</a>
+            <div>
+                <Button variant="link" isInline id={`${idPrefix}-vcpus-count`} onClick={this.openVcpu}>{vm.vcpus.count}</Button>
                 { vm.state === "running" && vcpusChanged && <WarningInactive iconId="vcpus-tooltip" tooltipId="tip-vcpus" /> }
-            </React.Fragment>
+            </div>
         );
 
-        let items = [
-            { title: commonTitles.MEMORY, value: memoryLink, idPostfix: 'memory' },
-            { title: _("Emulated Machine"), value: vm.emulatedMachine, idPostfix: 'emulatedmachine' },
-            { title: commonTitles.CPUS, value: vcpuLink, idPostfix: 'vcpus' },
-            { title: _("Boot Order"), value: bootOrder, idPostfix: 'bootorder' },
-            { title: _("CPU Type"), value: vm.cpu.model, idPostfix: 'cputype' },
-            { title: _("Autostart"), value: autostart, idPostfix: 'autostart' },
-        ];
+        let firmwareLinkWrapper;
+        // <os firmware=[bios/efi]' settings is available only for libvirt version >= 5.2. Before that version it silently ignores this attribute in the XML
+        if (config.provider.name == 'LibvirtDBus' && this.state.loaderElems && libvirtVersion >= 5002000) {
+            const hasInstallPhase = vm.metadata.hasInstallPhase;
+            const labelForFirmware = labelForFirmwarePath(vm.loader, vm.arch);
+            let currentFirmware;
+            if (vm.firmware || labelForFirmware == "efi")
+                currentFirmware = "UEFI";
+            else if (labelForFirmware == "custom")
+                currentFirmware = cockpit.format(_("Custom firmware: $0"), vm.loader);
+            else if (labelForFirmware == "unknown")
+                currentFirmware = _("Unknown firmware");
+            else
+                currentFirmware = "BIOS";
+
+            /* If the VM hasn't an install phase then don't show a link, just the text  */
+            if (!config.provider.canInstall(vm.state, hasInstallPhase)) {
+                firmwareLinkWrapper = <div id={`${idPrefix}-firmware`}>{currentFirmware}</div>;
+            } else {
+                const uefiPaths = this.getOVMFBinariesOnHost(this.state.loaderElems).filter(elem => elem !== undefined);
+                const firmwareLink = disabled => {
+                    return (
+                        <div id={`${idPrefix}-firmware-tooltip`}>
+                            <Button variant="link" isInline id={`${idPrefix}-firmware`} isDisabled={disabled} onClick={this.openFirmware}>
+                                {currentFirmware}
+                            </Button>
+                        </div>
+                    );
+                };
+
+                if (vm.state != "shut off") {
+                    firmwareLinkWrapper = (
+                        <OverlayTrigger overlay={ <Tooltip id='firmware-edit-disabled-on-running'>{ _("Shut off the VM in order to edit firmware configuration") }</Tooltip> } placement='top'>
+                            {firmwareLink(true)}
+                        </OverlayTrigger>
+                    );
+                } else if (!supportsUefiXml(this.state.loaderElems[0])) {
+                    firmwareLinkWrapper = (
+                        <OverlayTrigger overlay={ <Tooltip id='missing-uefi-support'>{ _("Libvirt or hypervisor does not support UEFI") }</Tooltip> } placement='top'>
+                            {firmwareLink(true)}
+                        </OverlayTrigger>
+                    );
+                } else if (uefiPaths.length == 0) {
+                    firmwareLinkWrapper = (
+                        <OverlayTrigger overlay={ <Tooltip id='missing-uefi-images'>{ _("Libvirt did not detect any UEFI/OVMF firmware image installed on the host") }</Tooltip> } placement='top'>
+                            {firmwareLink(true)}
+                        </OverlayTrigger>
+                    );
+                } else {
+                    firmwareLinkWrapper = firmwareLink(false);
+                }
+            }
+        }
 
         return (
-            <div>
-                <VmOverviewTab idPrefix={idPrefix} items={items}
-                    extraItems={config.provider.vmOverviewExtra && config.provider.vmOverviewExtra(vm, config.providerState)} />
-                { this.state.showVcpuModal && <VCPUModal close={this.close} vm={vm} dispatch={dispatch} config={config} /> }
+            <>
+                <div className="overview-tab-grid">
+                    <div className='ct-form'>
+                        <label className='control-label label-title'> {_("General")} </label>
+                        <span />
+                        <label className='control-label' htmlFor={`${idPrefix}-memory-count`}>{_("Memory")}</label>
+                        {memoryLink}
+                        <label className='control-label' htmlFor={`${idPrefix}-vcpus-count`}>{_("vCPUs")}</label>
+                        {vcpuLink}
+                        <label className='control-label' htmlFor={`${idPrefix}-cpu-model`}>{_("CPU Type")}</label>
+                        <div id={`${idPrefix}-cpu-model`}>{vm.cpu.model}</div>
+                        <label className='control-label' htmlFor={`${idPrefix}-boot-order`}>{_("Boot Order")}</label>
+                        {bootOrder}
+                        <label className='control-label' htmlFor={`${idPrefix}-autostart-checkbox`}>{_("Autostart")}</label>
+                        {autostart}
+                    </div>
+                    <div className="ct-form">
+                        <label className='control-label label-title'> {_("Hypervisor Details")} </label>
+                        <span />
+                        <label className='control-label' htmlFor={`${idPrefix}-emulated-machine`}>{_("Emulated Machine")}</label>
+                        <div id={`${idPrefix}-emulated-machine`}>{vm.emulatedMachine}</div>
+                        {firmwareLinkWrapper ? <label className='control-label' htmlFor={`${idPrefix}-firmware`}>{_("Firmware")}</label> : null}
+                        {firmwareLinkWrapper}
+                    </div>
+                </div>
                 { this.state.showBootOrderModal && <BootOrderModal close={this.close} vm={vm} dispatch={dispatch} nodeDevices={nodeDevices} /> }
                 { this.state.showMemoryModal && <MemoryModal close={this.close} vm={vm} dispatch={dispatch} config={config} /> }
-            </div>
+                { this.state.showFirmwareModal && <FirmwareModal close={this.close} connectionName={vm.connectionName} vmId={vm.id} firmware={vm.firmware} /> }
+                { this.state.showVcpuModal && <VCPUModal close={this.close} vm={vm} dispatch={dispatch} config={config} /> }
+            </>
         );
     }
 }
@@ -181,6 +284,7 @@ class VmOverviewTabLibvirt extends React.Component {
 VmOverviewTabLibvirt.propTypes = {
     vm: PropTypes.object.isRequired,
     config: PropTypes.object.isRequired,
+    libvirtVersion: PropTypes.number.isRequired,
     dispatch: PropTypes.func.isRequired,
     nodeDevices: PropTypes.array.isRequired,
 };

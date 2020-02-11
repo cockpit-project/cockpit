@@ -24,6 +24,8 @@ import cockpit from "cockpit";
 import "patterns";
 import "bootstrap-datepicker/dist/js/bootstrap-datepicker";
 
+import "./shutdown.less";
+
 const _ = cockpit.gettext;
 
 /* The server time object */
@@ -32,6 +34,9 @@ var server_time = null;
 /* The current operation */
 var operation = null;
 
+/* The delay in the dialog */
+var delay = 0;
+
 /* The entry point, shows the dialog */
 export function shutdown(op, st) {
     operation = op;
@@ -39,65 +44,71 @@ export function shutdown(op, st) {
     $('#shutdown-dialog').modal('show');
 }
 
-$('#shutdown-dialog .shutdown-date').datepicker({
-    autoclose: true,
-    todayHighlight: true,
-    format: 'yyyy-mm-dd',
-    startDate: "today",
-});
-
-$("#shutdown-dialog input")
-        .on('focusout', update)
-        .on('change', update);
-
-/* The delay in the dialog */
-var delay = 0;
-$("#shutdown-dialog .dropdown li")
-        .on("click", function(ev) {
-            delay = $(this).attr("value");
-            update();
-        });
-
-/* Prefilling the date if it's been set */
-var cached_date = null;
-$('#shutdown-dialog .shutdown-date')
-        .on('focusin', function() {
-            cached_date = $(this).val();
-        })
-        .on('focusout', function() {
-            if ($(this).val().length === 0)
-                $(this).val(cached_date);
-        });
-
-$("#shutdown-dialog").on("show.bs.modal", function(ev) {
-    /* The date picker also triggers this event, since it is modal */
-    if (ev.target.id !== "shutdown-dialog")
-        return;
-
-    $("#shutdown-dialog textarea")
-            .val("")
-            .attr("placeholder", _("Message to logged in users"))
-            .attr("rows", 5);
-
-    /* Track the value correctly */
-    delay = $("#shutdown-dialog li:first-child").attr("value");
-
-    server_time.wait().then(function() {
-        $('#shutdown-dialog .shutdown-date').val(server_time.format());
-        $('#shutdown-dialog .shutdown-hours').val(server_time.utc_fake_now.getUTCHours());
-        $('#shutdown-dialog .shutdown-minutes').val(server_time.utc_fake_now.getUTCMinutes());
+export function shutdown_modal_setup() {
+    $('#shutdown-dialog .shutdown-date').datepicker({
+        autoclose: true,
+        todayHighlight: true,
+        format: 'yyyy-mm-dd',
+        startDate: "today",
     });
 
-    if (operation == 'shutdown') {
-        $('#shutdown-dialog .modal-title').text(_("Shut Down"));
-        $("#shutdown-dialog .btn-danger").text(_("Shut Down"));
-    } else {
-        $('#shutdown-dialog .modal-title').text(_("Restart"));
-        $("#shutdown-dialog .btn-danger").text(_("Restart"));
-    }
+    $("#shutdown-dialog input")
+            .on('focusout', update)
+            .on('change', update);
 
-    update();
-});
+    $("#shutdown-dialog .dropdown li")
+            .on("click", function(ev) {
+                delay = $(this).attr("value");
+                update();
+            });
+
+    /* Prefilling the date if it's been set */
+    var cached_date = null;
+    $('#shutdown-dialog .shutdown-date')
+            .on('focusin', function() {
+                cached_date = $(this).val();
+            })
+            .on('focusout', function() {
+                if ($(this).val().length === 0)
+                    $(this).val(cached_date);
+            });
+
+    $("#shutdown-dialog").on("show.bs.modal", function(ev) {
+        /* The date picker also triggers this event, since it is modal */
+        if (ev.target.id !== "shutdown-dialog")
+            return;
+
+        $("#shutdown-dialog textarea")
+                .val("")
+                .attr("placeholder", _("Message to logged in users"))
+                .attr("rows", 5);
+
+        /* Track the value correctly */
+        delay = $("#shutdown-dialog li:first-child").attr("value");
+
+        server_time.wait().then(function() {
+            $('#shutdown-dialog .shutdown-date').val(server_time.format());
+            $('#shutdown-dialog .shutdown-hours').val(server_time.utc_fake_now.getUTCHours());
+            $('#shutdown-dialog .shutdown-minutes').val(server_time.utc_fake_now.getUTCMinutes());
+        });
+
+        if (operation == 'shutdown') {
+            $('#shutdown-dialog .modal-title').text(_("Shut Down"));
+            $("#shutdown-dialog .btn-danger").text(_("Shut Down"));
+        } else {
+            $('#shutdown-dialog .modal-title').text(_("Restart"));
+            $("#shutdown-dialog .btn-danger").text(_("Restart"));
+        }
+
+        update();
+    });
+
+    /* Perform the action */
+
+    $("#shutdown-dialog .btn-danger").click(function() {
+        $("#shutdown-dialog").dialog("promise", perform());
+    });
+}
 
 function update() {
     $("#shutdown-dialog input")

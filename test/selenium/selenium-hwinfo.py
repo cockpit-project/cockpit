@@ -25,17 +25,18 @@ class TestHWinfo(SeleniumTest):
 
     def setUp(self):
         super().setUp()
-        self.login()
+        self.prepare_machine_execute()
         cmd = "cat | sudo tee '%s'" % self.lscpu_file
         self.machine.execute(command=cmd, input=self.lscpu)
         self.machine.execute('sudo chmod a+x {}'.format(self.lscpu_file))
-        self.click(self.wait_link('System', cond=clickable))
+        self.login()
+        self.click(self.wait_link('Overview', cond=clickable))
         self.wait_frame("localhost/system")
 
-        self.click(self.wait_id("system_information_hardware_text"))
+        self.click(self.wait_link("View hardware details"))
         self.mainframe()
         self.wait_frame("localhost/system/hwinfo")
-        self.wait_id("hwinfo", jscheck=True)
+        self.wait_id("hwinfo")
 
     def tearDown(self):
         self.machine.execute('sudo rm -f {}'.format(self.lscpu_file))
@@ -48,10 +49,10 @@ class TestHWinfo(SeleniumTest):
 
     def testSMT(self):
 
-        self.click(self.wait_link("Mitigations"))
-        self.wait_id("cpu-mitigations-dialog", jscheck=True)
+        self.click(self.wait_text("Mitigations", element="button", cond=clickable))
+        self.wait_id("cpu-mitigations-dialog")
         self.click(self.wait_id("nosmt-switch"))
         self.wait_text("Save and reboot", cond=clickable)
         self.click(self.wait_text("Cancel", cond=clickable))
-        self.click(self.wait_link("Mitigations", cond=clickable))
+        self.click(self.wait_text("Mitigations", element="button", cond=clickable))
         self.mainframe()

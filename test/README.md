@@ -64,17 +64,18 @@ You can set these environment variables to configure the test suite:
 
     TEST_OS    The OS to run the tests in.  Currently supported values:
                   "centos-7"
+                  "centos-8-stream"
                   "debian-stable"
                   "debian-testing"
-                  "fedora-29"
                   "fedora-30"
-                  "fedora-i386"
-                  "fedora-atomic"
+                  "fedora-31"
+                  "fedora-coreos"
                   "fedora-testing"
                   "rhel-7-7"
-                  "rhel-8-0"
-                  "rhel-8-0-distropkg"
-                  "rhel-8-1"
+                  "rhel-7-8"
+                  "rhel-8-2"
+                  "rhel-8-2-distropkg"
+                  "rhel-atomic"
                   "ubuntu-1804"
                   "ubuntu-stable"
                "fedora-30" is the default (bots/machine/machine_core/constants.py)
@@ -87,6 +88,14 @@ You can set these environment variables to configure the test suite:
     TEST_CDP_PORT  Attach to an actually running browser that is compatible with
                    the Chrome Debug Protocol, on the given port. Don't use this
                    with parallel tests.
+
+    TEST_BROWSER  What browser should be used for testing. Currently supported values:
+                     "chromium"
+                     "firefox"
+                  "chromium" is the default.
+
+    TEST_SHOW_BROWSER  Set to run browser interactively. When not specified,
+                       browser is run in headless mode.
 
 In addition, you can also set the `cockpit.bots.images-data-dir` variable with
 `git config` to the location to store the (unprepared) virtual machine images.
@@ -112,7 +121,7 @@ with a clean state.
 
 A test machine image is created with image-create, like so:
 
-    $ bots/image-create -v fedora-atomic
+    $ bots/image-create -v fedora-testing
 
 The image will be created in `$TEST_DATA/images/`. In addition a link
 reference will be created in `bots/images/`.
@@ -121,7 +130,7 @@ If you wish that others use this new image then you should commit the
 new reference link, and use `image-upload` to upload the new image. You
 would need to have Cockpit commit access to do this:
 
-    $ bots/image-upload fedora-atomic
+    $ bots/image-upload fedora-testing
 
 There is more than one test machine image. For example, you might
 want to test a scenario where Cockpit on one machine talks to FreeIPA
@@ -133,9 +142,9 @@ and other scripts that work with test machine images.
     "fedora-NN" -- The basic image for running the development version of Cockpit.
                    This is the default.
 
-    "fedora-stock" -- A stock installation of Fedora, including the stock
-                      version of Cockpit.  This is used to test compatibility
-                      between released versions of Cockpit and the development version.
+    "fedora-23-stock" -- A stock installation of Fedora, including the stock
+                         version of Cockpit.  This is used to test compatibility
+                         between released versions of Cockpit and the development version.
 
     "ipa"       -- A FreeIPA server.
 
@@ -210,6 +219,7 @@ log in without authentication:
 
     Host 127.0.0.2
         User root
+        Port 2201
         StrictHostKeyChecking no
         UserKnownHostsFile /dev/null
         IdentityFile ~/src/cockpit/bots/machine/identity

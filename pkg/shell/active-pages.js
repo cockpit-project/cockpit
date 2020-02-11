@@ -38,7 +38,7 @@ export function showDialog (frames) {
     }
 
     function gatherIframes() {
-        var result = [ ];
+        var result = [];
         var address, component, iframe;
         for (address in frames.iframes) {
             for (component in frames.iframes[address]) {
@@ -98,10 +98,11 @@ export function showDialog (frames) {
     };
 
     dataStore.footerProps = {
-        'actions': [
-            { 'clicked': dataStore.closePage,
-              'caption': _("Close Selected Pages"),
-              'style': 'primary',
+        actions: [
+            {
+                clicked: dataStore.closePage,
+                caption: _("Close Selected Pages"),
+                style: 'primary',
             }
         ],
     };

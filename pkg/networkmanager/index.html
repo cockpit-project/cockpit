@@ -20,7 +20,7 @@
 
 <html>
 <head>
-    <title translatable="yes">Networking</title>
+    <title translate="yes">Networking</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="../base1/patternfly.css" type="text/css" rel="stylesheet">
@@ -31,25 +31,29 @@
     <script src="../*/po.js"></script>
     <script src="network.js"></script>
 </head>
-<body hidden>
+<body class="pf-m-redhat-font" hidden>
 
   <div id="testing-connection-curtain" class="curtains-ct blank-slate-pf" hidden>
     <h1><div class="spinner spinner-lg"></div></h1>
-    <h1 id="testing-connection-curtain-testing" translatable="yes">Testing connection</h1>
-    <h1 id="testing-connection-curtain-restoring" translatable="yes">Restoring connection</h1>
+    <h1 id="testing-connection-curtain-testing" translate="yes">Testing connection</h1>
+    <h1 id="testing-connection-curtain-restoring" translate="yes">Restoring connection</h1>
   </div>
 
-  <div id="networking" class="container-fluid page-ct" hidden>
-    <div id="networking-nm-crashed" class="alert alert-danger" hidden>
-      <button class="btn btn-default pull-right" type="submit" translatable="yes">Start Service</button>
+  <div id="networking" hidden>
+    <div id="networking-nm-crashed" class="pf-c-alert pf-m-danger pf-m-inline" aria-label="inline danger alert" hidden>
+      <div class="pf-c-alert__icon">
         <span class="pficon pficon-error-circle-o"></span>
-        <strong translatable="yes">NetworkManager is not running.</strong> <a href="#" class="alert-link">Troubleshoot…</a>
+      </div>
+      <h4 class="pf-c-alert__title"> <span translate="yes" >NetworkManager is not running.</span> <a href="#" class="alert-link">Troubleshoot…</a> <h4>
+      <button class="btn btn-default pull-right" type="submit" translate="yes">Start Service</button>
     </div>
 
-    <div id="networking-nm-disabled" class="alert alert-info" hidden>
-      <button class="btn btn-default pull-right" type="submit" translatable="yes">Enable Service</button>
-      <span class="pficon pficon-info"></span>
-      <strong translatable="yes">Network devices and graphs require NetworkManager.</strong>
+    <div id="networking-nm-disabled" class="pf-c-alert pf-m-info pf-m-inline" aria-label="inline danger alert" hidden>
+      <button class="btn btn-default pull-right" type="submit" translate="yes">Enable Service</button>
+      <div class="pf-c-alert__icon">
+        <span class="pficon pficon-info"></span>
+      </div>
+      <h4 class="pf-c-alert__title" translate="yes">Network devices and graphs require NetworkManager.</h4>
     </div>
 
     <div id="networking-graphs" class="row">
@@ -57,16 +61,16 @@
         <div class="dropdown">
           <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
             <span></span>
-            <div class="caret"></div>
+            <i class="fa fa-caret-down pf-c-context-selector__toggle-icon" aria-hidden="true"></i>
           </button>
           <ul class="dropdown-menu" role="menu">
-            <li role="presentation"><a tabindex="0" role="menuitem" data-action="goto-now" translatable="yes">Go to now</a></li>
+            <li role="presentation"><a tabindex="0" role="menuitem" data-action="goto-now" translate="yes">Go to now</a></li>
             <li role="presentation" class="divider"></li>
-            <li role="presentation"><a tabindex="0" role="menuitem" data-range="300" translatable="yes">5 minutes</a></li>
-            <li role="presentation"><a tabindex="0" role="menuitem" data-range="3600" translatable="yes">1 hour</a></li>
-            <li role="presentation"><a tabindex="0" role="menuitem" data-range="21600" translatable="yes">6 hours</a></li>
-            <li role="presentation"><a tabindex="0" role="menuitem" data-range="86400" translatable="yes">1 day</a></li>
-            <li role="presentation"><a tabindex="0" role="menuitem" data-range="604800" translatable="yes">1 week</a></li>
+            <li role="presentation"><a tabindex="0" role="menuitem" data-range="300" translate="yes">5 minutes</a></li>
+            <li role="presentation"><a tabindex="0" role="menuitem" data-range="3600" translate="yes">1 hour</a></li>
+            <li role="presentation"><a tabindex="0" role="menuitem" data-range="21600" translate="yes">6 hours</a></li>
+            <li role="presentation"><a tabindex="0" role="menuitem" data-range="86400" translate="yes">1 day</a></li>
+            <li role="presentation"><a tabindex="0" role="menuitem" data-range="604800" translate="yes">1 week</a></li>
           </ul>
         </div>
         <button class="btn btn-default" data-action="zoom-out">
@@ -79,27 +83,31 @@
       </div>
       <div class="col-sm-6">
         <div>
-          <span class="plot-unit" id="networking-tx-unit"></span><span class="plot-title" translatable="yes">Sending</span>
+          <span class="plot-unit" id="networking-tx-unit"></span><span class="plot-title" translate="yes">Sending</span>
         </div>
         <div id="networking-tx-graph"></div>
       </div>
       <div class="col-sm-6">
         <div>
-          <span class="plot-unit" id="networking-rx-unit"></span><span class="plot-title" translatable="yes">Receiving</span>
+          <span class="plot-unit" id="networking-rx-unit"></span><span class="plot-title" translate="yes">Receiving</span>
         </div>
         <div id="networking-rx-graph"></div>
       </div>
     </div>
     <br/>
-    <div class="panel panel-default" id="networking-firewall" hidden>
-      <div class="panel-heading">
-        <h2 class="panel-title">
-          <a tabindex="0" id="networking-firewall-link" translatable="yes">Firewall</a>
-        </h2>
-        <div class="panel-actions">
+
+    <div class="networking-page container-fluid">
+      <div class="panel panel-default" id="networking-firewall" hidden>
+        <div class="panel-heading">
+          <h2 class="panel-title">
+            <a role="link" tabindex="0" id="networking-firewall-link" translate="yes">Firewall</a>
+          </h2>
+          <div class="panel-actions">
+          </div>
         </div>
-      </div>
-      <div id="networking-firewall-summary" class="panel-body">
+        <div id="networking-firewall-summary" class="panel-body">
+        </table>
+        </div>
       </div>
     </div>
     <div class="panel panel-default"
@@ -123,6 +131,7 @@
               </ul>
           </div>
         </div>
+        
       </div>
       <table class="table table-hover">
         <thead>
@@ -193,16 +202,16 @@
 
   <script id="network-vlan-settings-template" type="x-template/mustache">
     <form class="ct-form">
-      <label class="control-label" translatable="yes">Parent</label>
+      <label class="control-label" for="network-vlan-settings-parent-select" translate="yes">Parent</label>
       <div id="network-vlan-settings-parent-select">
         {{! the rather complex dropdown-select will be created dynamically via jquery }}
       </div>
 
-      <label class="control-label" for="network-vlan-settings-vlan-id-input" translatable="yes">VLAN Id</label>
+      <label class="control-label" for="network-vlan-settings-vlan-id-input" translate="yes">VLAN Id</label>
       <input id="network-vlan-settings-vlan-id-input" class="form-control" type="text"
              value="{{vlan_id}}"/>
 
-      <label class="control-label" for="network-vlan-settings-interface-name-input" translatable="yes">Name</label>
+      <label class="control-label" for="network-vlan-settings-interface-name-input" translate="yes">Name</label>
       <input id="network-vlan-settings-interface-name-input" class="form-control" type="text"
              value="{{interface_name}}"/>
     </form>
@@ -213,14 +222,14 @@
       <label>
         <input id="network-mtu-settings-auto" {{^mtu}}checked="checked"{{/mtu}}
                type="radio" name="mtu-mode"/>
-        <span translatable="yes">Automatic</span>
+        <span translate="yes">Automatic</span>
       </label>
     </div>
     <div>
       <label>
         <input id="network-mtu-settings-custom"  {{#mtu}}checked="checked"{{/mtu}}
                type="radio" name="mtu-mode"/>
-        <span translatable="yes">Set to</span>
+        <span translate="yes">Set to</span>
         <input id="network-mtu-settings-input"
                class="form-control" type="text" value="{{mtu}}"/>
       </label>
@@ -229,7 +238,7 @@
 
   <script id="network-mac-settings-template" type="x-template/mustache">
     <form class="ct-form">
-      <label class="control-label" for="network-mac-settings-input" translatable="yes">MAC</label>
+      <label class="control-label" for="network-mac-settings-input" translate="yes">MAC</label>
       <div class="input-group">
         <input id="network-mac-settings-input" class="form-control" type="text"
                value="{{assigned_mac_address}}"/>
@@ -246,34 +255,34 @@
 
   <script id="network-bridge-settings-template" type="x-template/mustache">
     <form class="ct-form">
-      <label class="control-label" for="network-bridge-settings-name-input" translatable="yes">Name</label>
+      <label class="control-label" for="network-bridge-settings-name-input" translate="yes">Name</label>
       <input id="network-bridge-settings-name-input" class="form-control" type="text"
              value="{{bridge_name}}"/>
 
-      <label class="control-label" translatable="yes">Ports</label>
+      <label class="control-label" translate="yes">Ports</label>
       <div id="network-bridge-settings-slave-interfaces">
         {{! slave interfaces will be rendered into here as a list of checkboxes }}
       </div>
 
-      <label class="control-label" for="network-bridge-settings-stp-enabled-input" translatable="yes">Spanning Tree Protocol (STP)</label>
+      <label class="control-label" for="network-bridge-settings-stp-enabled-input" translate="yes">Spanning Tree Protocol (STP)</label>
       <label class="checkbox-inline">
         <input id="network-bridge-settings-stp-enabled-input" type="checkbox"
           {{#stp_checked}}checked{{/stp_checked}}/>
       </label>
 
-      <label class="control-label" for="network-bridge-settings-stp-priority-input" translatable="yes">STP Priority</label>
+      <label class="control-label" for="network-bridge-settings-stp-priority-input" translate="yes">STP Priority</label>
       <input id="network-bridge-settings-stp-priority-input" class="form-control" type="text"
              value="{{stp_priority}}"/>
 
-      <label class="control-label" for="network-bridge-settings-stp-forward-delay-input" translatable="yes">STP Forward delay</label>
+      <label class="control-label" for="network-bridge-settings-stp-forward-delay-input" translate="yes">STP Forward delay</label>
       <input id="network-bridge-settings-stp-forward-delay-input" class="form-control" type="text"
              value="{{stp_forward_delay}}"/>
 
-      <label class="control-label" for="network-bridge-settings-stp-hello-time-input" translatable="yes">STP Hello time</label>
+      <label class="control-label" for="network-bridge-settings-stp-hello-time-input" translate="yes">STP Hello time</label>
       <input id="network-bridge-settings-stp-hello-time-input" class="form-control" type="text"
              value="{{stp_hello_time}}"/>
 
-      <label class="control-label" for="network-bridge-settings-stp-max-age-input" translatable="yes">STP Maximum message age</label>
+      <label class="control-label" for="network-bridge-settings-stp-max-age-input" translate="yes">STP Maximum message age</label>
       <input id="network-bridge-settings-stp-max-age-input" class="form-control" type="text"
              value="{{stp_max_age}}"/>
     </form>
@@ -281,15 +290,15 @@
 
   <script id="network-bridge-port-settings-template" type="x-template/mustache">
     <form class="ct-form">
-      <label class="control-label" for="network-bridge-port-settings-priority-input" translatable="yes">Priority</label>
+      <label class="control-label" for="network-bridge-port-settings-priority-input" translate="yes">Priority</label>
       <input id="network-bridge-port-settings-priority-input" class="form-control network-number-field ct-form-relax"
              type="text" value="{{priority}}"/>
 
-      <label class="control-label" for="network-bridge-port-settings-path-cost-input" translatable="yes">Path cost</label>
+      <label class="control-label" for="network-bridge-port-settings-path-cost-input" translate="yes">Path cost</label>
       <input id="network-bridge-port-settings-path-cost-input" class="form-control network-number-field ct-form-relax"
              type="text" value="{{path_cost}}"/>
 
-      <label class="control-label" for="network-bridge-settings-hairpin-mode-input" translatable="yes">Hair Pin mode</label>
+      <label class="control-label" for="network-bridge-settings-hairpin-mode-input" translate="yes">Hair Pin mode</label>
       <label class="checkbox-inline">
         <input id="network-bridge-settings-hairpin-mode-input" type="checkbox"
                {{#hairpin_mode_checked}}checked{{/hairpin_mode_checked}}/>
@@ -299,16 +308,16 @@
 
   <script id="network-bond-settings-template" type="x-template/mustache">
     <form class="ct-form">
-      <label class="control-label" for="network-bond-settings-interface-name-input" translatable="yes">Name</label>
+      <label class="control-label" for="network-bond-settings-interface-name-input" translate="yes">Name</label>
       <input id="network-bond-settings-interface-name-input" class="form-control"
              value="{{interface_name}}"/>
 
-      <label class="control-label" translatable="yes">Interfaces</label>
+      <label class="control-label" translate="yes">Interfaces</label>
       <div id="network-bond-settings-members">
       {{! member interfaces will be rendered into here as a list of checkboxes }}
       </div>
 
-      <label class="control-label" for="network-bond-settings-mac-input" translatable="yes">MAC</label>
+      <label class="control-label" for="network-bond-settings-mac-input" translate="yes">MAC</label>
       <div class="input-group">
         <input id="network-bond-settings-mac-input" class="form-control" type="text"
                value="{{assigned_mac_address}}"/>
@@ -321,34 +330,34 @@
         </div>
       </div>
 
-      <label class="control-label" translatable="yes">Mode</label>
+      <label class="control-label" for="network-bond-settings-mode-select" translate="yes">Mode</label>
       <div id="network-bond-settings-mode-select">
         {{! the rather complex dropdown-select will be created dynamically via jquery }}
       </div>
 
-      <label class="control-label" translatable="yes">Primary</label>
+      <label class="control-label" for="network-bond-settings-primary-select" translate="yes">Primary</label>
       <div id="network-bond-settings-primary-select">
         {{! the rather complex dropdown-select will be created dynamically via jquery }}
       </div>
 
-      <label class="control-label" translatable="yes">Link Monitoring</label>
+      <label class="control-label" for="network-bond-settings-link-monitoring-select" translate="yes">Link Monitoring</label>
       <div id="network-bond-settings-link-monitoring-select">
         {{! the rather complex dropdown-select will be created dynamically via jquery }}
       </div>
 
-      <label class="control-label" for="network-bond-settings-monitoring-interval-input" translatable="yes">Monitoring Interval</label>
+      <label class="control-label" for="network-bond-settings-monitoring-interval-input" translate="yes">Monitoring Interval</label>
       <input id="network-bond-settings-monitoring-interval-input" class="form-control network-number-field ct-form-relax"
              type="text" maxlength="4" value="{{monitoring_interval}}"/>
 
-      <label class="control-label" for="network-bond-settings-monitoring-targets-input" translatable="yes">Monitoring Targets</label>
+      <label class="control-label" for="network-bond-settings-monitoring-targets-input" translate="yes">Monitoring Targets</label>
       <input id="network-bond-settings-monitoring-targets-input" class="form-control"
              type="text" value="{{monitoring_targets}}"/>
 
-      <label class="control-label" for="network-bond-settings-link-up-delay-input" translatable="yes">Link up delay</label>
+      <label class="control-label" for="network-bond-settings-link-up-delay-input" translate="yes">Link up delay</label>
       <input id="network-bond-settings-link-up-delay-input" class="form-control network-number-field ct-form-relax"
              type="text" maxlength="4" value="{{link_up_delay}}"/>
 
-      <label class="control-label" for="network-bond-settings-link-down-delay-input" translatable="yes">Link down delay</label>
+      <label class="control-label" for="network-bond-settings-link-down-delay-input" translate="yes">Link down delay</label>
       <input id="network-bond-settings-link-down-delay-input" class="form-control network-number-field ct-form-relax"
              type="text" maxlength="4" value="{{link_down_delay}}"/>
     </form>
@@ -356,43 +365,43 @@
 
   <script id="network-team-settings-template" type="x-template/mustache">
     <form class="ct-form">
-      <label class="control-label" for="network-team-settings-interface-name-input" translatable="yes">Name</label>
+      <label class="control-label" for="network-team-settings-interface-name-input" translate="yes">Name</label>
       <input id="network-team-settings-interface-name-input" class="form-control"
              value="{{interface_name}}"/>
 
-      <label class="control-label" translatable="yes">Ports</label>
+      <label class="control-label" translate="yes">Ports</label>
       <div id="network-team-settings-members">
           {{! ports will be rendered into here as a list of checkboxes }}
       </div>
 
-      <label class="control-label" translatable="yes">Runner</label>
+      <label class="control-label" for="network-team-settings-runner-select" translate="yes">Runner</label>
       <div id="network-team-settings-runner-select">
           {{! the rather complex dropdown-select will be created dynamically via jquery }}
       </div>
 
-      <label class="control-label" translatable="yes">Balancer</label>
+      <label class="control-label" for="network-team-settings-balancer-select" translate="yes">Balancer</label>
       <div id="network-team-settings-balancer-select">
           {{! the rather complex dropdown-select will be created dynamically via jquery }}
       </div>
 
-      <label class="control-label" translatable="yes">Link Watch</label>
+      <label class="control-label" for="network-team-settings-link-watch-select" translate="yes">Link Watch</label>
       <div id="network-team-settings-link-watch-select">
           {{! the rather complex dropdown-select will be created dynamically via jquery }}
       </div>
 
-      <label class="control-label" for="network-team-settings-ping-interval-input" translatable="yes">Ping Interval</label>
+      <label class="control-label" for="network-team-settings-ping-interval-input" translate="yes">Ping Interval</label>
       <input id="network-team-settings-ping-interval-input" class="form-control network-number-field ct-form-relax"
              type="text" maxlength="4" value="{{config.link_watch.interval}}"/>
 
-      <label class="control-label" for="network-team-settings-ping-target-input" translatable="yes">Ping Target</label>
+      <label class="control-label" for="network-team-settings-ping-target-input" translate="yes">Ping Target</label>
       <input id="network-team-settings-ping-target-input" class="form-control"
              type="text" value="{{config.link_watch.target_host}}"/>
 
-      <label class="control-label" for="network-team-settings-link-up-delay-input" translatable="yes">Link up delay</label>
+      <label class="control-label" for="network-team-settings-link-up-delay-input" translate="yes">Link up delay</label>
       <input id="network-team-settings-link-up-delay-input" class="form-control network-number-field ct-form-relax"
              type="text" maxlength="4" value="{{config.link_watch.delay_up}}"/>
 
-      <label class="control-label" for="network-team-settings-link-down-delay-input" translatable="yes">Link down delay</label>
+      <label class="control-label" for="network-team-settings-link-down-delay-input" translate="yes">Link down delay</label>
       <input id="network-team-settings-link-down-delay-input" class="form-control network-number-field ct-form-relax"
              type="text" maxlength="4" value="{{config.link_watch.delay_down}}"/>
     </form>
@@ -400,21 +409,21 @@
 
   <script id="network-team-port-settings-template" type="x-template/mustache">
     <form class="ct-form">
-      <label class="control-label" for="network-team-port-settings-ab-prio-input" translatable="yes">Priority</label>
+      <label class="control-label" for="network-team-port-settings-ab-prio-input" translate="yes">Priority</label>
       <input id="network-team-port-settings-ab-prio-input" class="form-control network-number-field ct-form-relax"
              type="text" value="{{prio}}"/>
 
-      <label class="control-label" for="network-team-port-settings-ab-sticky-input" translatable="yes">Sticky</label>
+      <label class="control-label" for="network-team-port-settings-ab-sticky-input" translate="yes">Sticky</label>
       <label class="checkbox-inline">
         <input id="network-team-port-settings-ab-sticky-input" type="checkbox"
                {{#sticky}}checked{{/sticky}}/>
       </label>
 
-      <label class="control-label" for="network-team-port-settings-lacp-prio-input" translatable="yes">Priority</label>
+      <label class="control-label" for="network-team-port-settings-lacp-prio-input" translate="yes">Priority</label>
       <input id="network-team-port-settings-lacp-prio-input" class="form-control network-number-field ct-form-relax"
              type="text" value="{{lacp_prio}}"/>
 
-      <label class="control-label" for="network-team-port-settings-lacp-key-input" translatable="yes">LACP Key</label>
+      <label class="control-label" for="network-team-port-settings-lacp-key-input" translate="yes">LACP Key</label>
       <input id="network-team-port-settings-lacp-key-input" class="form-control network-number-field ct-form-relax"
              type="text" value="{{lacp_key}}"/>
     </form>
@@ -583,7 +592,7 @@
 
   <div id="network-interface" class="container-fluid" hidden>
     <ol class="breadcrumb">
-      <li><a tabindex="0" translatable="yes">Networking</a></li>
+      <li><a role="link" tabindex="0" translate="yes">Networking</a></li>
       <li class="active"></li>
     </ol>
     <div class="row">
@@ -594,13 +603,13 @@
             <div class="caret"></div>
           </button>
           <ul class="dropdown-menu" role="menu">
-            <li role="presentation"><a tabindex="0" role="menuitem" data-action="goto-now" translatable="yes">Go to now</a></li>
+            <li role="presentation"><a tabindex="0" role="menuitem" data-action="goto-now" translate="yes">Go to now</a></li>
             <li role="presentation" class="divider"></li>
-            <li role="presentation"><a tabindex="0" role="menuitem" data-range="300" translatable="yes">5 minutes</a></li>
-            <li role="presentation"><a tabindex="0" role="menuitem" data-range="3600" translatable="yes">1 hour</a></li>
-            <li role="presentation"><a tabindex="0" role="menuitem" data-range="21600" translatable="yes">6 hours</a></li>
-            <li role="presentation"><a tabindex="0" role="menuitem" data-range="86400" translatable="yes">1 day</a></li>
-            <li role="presentation"><a tabindex="0" role="menuitem" data-range="604800" translatable="yes">1 week</a></li>
+            <li role="presentation"><a tabindex="0" role="menuitem" data-range="300" translate="yes">5 minutes</a></li>
+            <li role="presentation"><a tabindex="0" role="menuitem" data-range="3600" translate="yes">1 hour</a></li>
+            <li role="presentation"><a tabindex="0" role="menuitem" data-range="21600" translate="yes">6 hours</a></li>
+            <li role="presentation"><a tabindex="0" role="menuitem" data-range="86400" translate="yes">1 day</a></li>
+            <li role="presentation"><a tabindex="0" role="menuitem" data-range="604800" translate="yes">1 week</a></li>
           </ul>
         </div>
         <button class="btn btn-default" data-action="zoom-out">
@@ -613,13 +622,13 @@
       </div>
       <div class="col-sm-6">
         <div>
-          <span class="plot-unit" id="network-interface-tx-unit"></span><span class="plot-title" translatable="yes">Sending</span>
+          <span class="plot-unit" id="network-interface-tx-unit"></span><span class="plot-title" translate="yes">Sending</span>
         </div>
         <div id="network-interface-tx-graph"></div>
       </div>
       <div class="col-sm-6">
         <div>
-          <span class="plot-unit" id="network-interface-rx-unit"></span><span class="plot-title" translatable="yes">Receiving</span>
+          <span class="plot-unit" id="network-interface-rx-unit"></span><span class="plot-title" translate="yes">Receiving</span>
         </div>
         <div id="network-interface-rx-graph"></div>
       </div>
@@ -631,7 +640,7 @@
         <span id="network-interface-hw"></span>
         <span id="network-interface-mac"></span>
         <div class="panel-actions">
-          <button class="btn btn-danger network-privileged" id="network-interface-delete" translatable="yes">Delete</button>
+          <button class="btn btn-danger network-privileged" id="network-interface-delete" translate="yes">Delete</button>
           <span id="network-interface-delete-switch">
           </span>
         </div>
@@ -646,8 +655,8 @@
         <thead>
           <tr>
             <th></th>
-            <th translatable="yes" class="networking-speed">Sending</th>
-            <th translatable="yes" class="networking-speed">Receiving</th>
+            <th translate="yes" class="networking-speed">Sending</th>
+            <th translate="yes" class="networking-speed">Receiving</th>
             <th class="networking-spacer"></th>
             <th class="networking-action"></th>
           </tr>
@@ -688,19 +697,21 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title" translatable="yes">IP Settings</h4>
+          <h4 class="modal-title" translate="yes">IP Settings</h4>
         </div>
         <div class="modal-body">
           <div id="network-ip-settings-body">
           </div>
         </div>
         <div class="modal-footer">
-          <div class="alert alert-danger dialog-error" id="network-ip-settings-error">
-            <i class="fa fa-exclamation-triangle"></i>
-            <span></span>
+          <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-ip-settings-error">
+            <div class="pf-c-alert__icon">
+                <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+            </div>
+            <h4 class="pf-c-alert__title"></h4>
           </div>
-          <button class="btn btn-default" translatable="yes" id="network-ip-settings-cancel">Cancel</button>
-          <button class="btn btn-primary" translatable="yes" id="network-ip-settings-apply">Apply</button>
+          <button class="btn btn-default" translate="yes" id="network-ip-settings-cancel">Cancel</button>
+          <button class="btn btn-primary" translate="yes" id="network-ip-settings-apply">Apply</button>
         </div>
       </div>
     </div>
@@ -712,19 +723,21 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title" translatable="yes">Bond Settings</h4>
+          <h4 class="modal-title" translate="yes">Bond Settings</h4>
         </div>
         <div class="modal-body">
           <div id="network-bond-settings-body">
           </div>
         </div>
         <div class="modal-footer">
-          <div class="alert alert-danger dialog-error" id="network-bond-settings-error">
-            <i class="fa fa-exclamation-triangle"></i>
-            <span></span>
+          <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-bond-settings-error">
+            <div class="pf-c-alert__icon">
+                <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+            </div>
+            <h4 class="pf-c-alert__title"></h4>
           </div>
-          <button class="btn btn-default" translatable="yes" id="network-bond-settings-cancel">Cancel</button>
-          <button class="btn btn-primary" translatable="yes" id="network-bond-settings-apply">Apply</button>
+          <button class="btn btn-default" translate="yes" id="network-bond-settings-cancel">Cancel</button>
+          <button class="btn btn-primary" translate="yes" id="network-bond-settings-apply">Apply</button>
         </div>
       </div>
     </div>
@@ -736,19 +749,21 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title" translatable="yes">Team Settings</h4>
+          <h4 class="modal-title" translate="yes">Team Settings</h4>
         </div>
         <div class="modal-body">
           <div id="network-team-settings-body">
           </div>
         </div>
         <div class="modal-footer">
-          <div class="alert alert-danger dialog-error" id="network-team-settings-error">
-            <i class="fa fa-exclamation-triangle"></i>
-            <span></span>
+          <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-team-settings-error">
+            <div class="pf-c-alert__icon">
+                <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+            </div>
+            <h4 class="pf-c-alert__title"></h4>
           </div>
-          <button class="btn btn-default" translatable="yes" id="network-team-settings-cancel">Cancel</button>
-          <button class="btn btn-primary" translatable="yes" id="network-team-settings-apply">Apply</button>
+          <button class="btn btn-default" translate="yes" id="network-team-settings-cancel">Cancel</button>
+          <button class="btn btn-primary" translate="yes" id="network-team-settings-apply">Apply</button>
         </div>
       </div>
     </div>
@@ -760,19 +775,21 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title" translatable="yes">Team Port Settings</h4>
+          <h4 class="modal-title" translate="yes">Team Port Settings</h4>
         </div>
         <div class="modal-body">
           <div id="network-teamport-settings-body">
           </div>
         </div>
         <div class="modal-footer">
-          <div class="alert alert-danger dialog-error" id="network-teamport-settings-error">
-            <i class="fa fa-exclamation-triangle"></i>
-            <span></span>
+          <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-teamport-settings-error">
+            <div class="pf-c-alert__icon">
+                <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+            </div>
+            <h4 class="pf-c-alert__title"></h4>
           </div>
-          <button class="btn btn-default" translatable="yes" id="network-teamport-settings-cancel">Cancel</button>
-          <button class="btn btn-primary" translatable="yes" id="network-teamport-settings-apply">Apply</button>
+          <button class="btn btn-default" translate="yes" id="network-teamport-settings-cancel">Cancel</button>
+          <button class="btn btn-primary" translate="yes" id="network-teamport-settings-apply">Apply</button>
         </div>
       </div>
     </div>
@@ -784,19 +801,21 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title" translatable="yes">Bridge Settings</h4>
+          <h4 class="modal-title" translate="yes">Bridge Settings</h4>
         </div>
         <div class="modal-body">
           <div id="network-bridge-settings-body">
           </div>
         </div>
         <div class="modal-footer">
-          <div class="alert alert-danger dialog-error" id="network-bridge-settings-error">
-            <i class="fa fa-exclamation-triangle"></i>
-            <span></span>
+          <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-bridge-settings-error">
+              <div class="pf-c-alert__icon">
+                  <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+              </div>
+              <h4 class="pf-c-alert__title"></h4>
           </div>
-          <button class="btn btn-default" translatable="yes" id="network-bridge-settings-cancel">Cancel</button>
-          <button class="btn btn-primary" translatable="yes" id="network-bridge-settings-apply">Apply</button>
+          <button class="btn btn-default" translate="yes" id="network-bridge-settings-cancel">Cancel</button>
+          <button class="btn btn-primary" translate="yes" id="network-bridge-settings-apply">Apply</button>
         </div>
       </div>
     </div>
@@ -808,19 +827,21 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title" translatable="yes">Bridge Port Settings</h4>
+          <h4 class="modal-title" translate="yes">Bridge Port Settings</h4>
         </div>
         <div class="modal-body">
           <div id="network-bridgeport-settings-body">
           </div>
         </div>
         <div class="modal-footer">
-          <div class="alert alert-danger dialog-error" id="network-bridgeport-settings-error">
-            <i class="fa fa-exclamation-triangle"></i>
-            <span></span>
+          <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-bridgeport-settings-error">
+              <div class="pf-c-alert__icon">
+                  <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+              </div>
+              <h4 class="pf-c-alert__title"></h4>
           </div>
-          <button class="btn btn-default" translatable="yes" id="network-bridgeport-settings-cancel">Cancel</button>
-          <button class="btn btn-primary" translatable="yes" id="network-bridgeport-settings-apply">Apply</button>
+          <button class="btn btn-default" translate="yes" id="network-bridgeport-settings-cancel">Cancel</button>
+          <button class="btn btn-primary" translate="yes" id="network-bridgeport-settings-apply">Apply</button>
         </div>
       </div>
     </div>
@@ -832,19 +853,21 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title" translatable="yes">VLAN Settings</h4>
+          <h4 class="modal-title" translate="yes">VLAN Settings</h4>
         </div>
         <div class="modal-body">
           <div id="network-vlan-settings-body">
           </div>
         </div>
         <div class="modal-footer">
-          <div class="alert alert-danger dialog-error" id="network-vlan-settings-error">
-            <i class="fa fa-exclamation-triangle"></i>
-            <span></span>
+          <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-vlan-settings-error">
+              <div class="pf-c-alert__icon">
+                  <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+              </div>
+              <h4 class="pf-c-alert__title"></h4>
           </div>
-          <button class="btn btn-default" translatable="yes" id="network-vlan-settings-cancel">Cancel</button>
-          <button class="btn btn-primary" translatable="yes" id="network-vlan-settings-apply">Apply</button>
+          <button class="btn btn-default" translate="yes" id="network-vlan-settings-cancel">Cancel</button>
+          <button class="btn btn-primary" translate="yes" id="network-vlan-settings-apply">Apply</button>
         </div>
       </div>
     </div>
@@ -856,19 +879,21 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title" translatable="yes">Ethernet MTU</h4>
+          <h4 class="modal-title" translate="yes">Ethernet MTU</h4>
         </div>
         <div class="modal-body">
           <div id="network-mtu-settings-body">
           </div>
         </div>
         <div class="modal-footer">
-          <div class="alert alert-danger dialog-error" id="network-mtu-settings-error">
-            <i class="fa fa-exclamation-triangle"></i>
-            <span></span>
+          <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-mtu-settings-error">
+            <div class="pf-c-alert__icon">
+                <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+            </div>
+            <h4 class="pf-c-alert__title"></h4>
           </div>
-          <button class="btn btn-default" translatable="yes" id="network-mtu-settings-cancel">Cancel</button>
-          <button class="btn btn-primary" translatable="yes" id="network-mtu-settings-apply">Apply</button>
+          <button class="btn btn-default" translate="yes" id="network-mtu-settings-cancel">Cancel</button>
+          <button class="btn btn-primary" translate="yes" id="network-mtu-settings-apply">Apply</button>
         </div>
       </div>
     </div>
@@ -880,19 +905,21 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title" translatable="yes">Ethernet MAC</h4>
+          <h4 class="modal-title" translate="yes">Ethernet MAC</h4>
         </div>
         <div class="modal-body">
           <div id="network-mac-settings-body">
           </div>
         </div>
         <div class="modal-footer">
-          <div class="alert alert-danger dialog-error" id="network-mac-settings-error">
-            <i class="fa fa-exclamation-triangle"></i>
-            <span></span>
+          <div class="pf-c-alert pf-m-danger pf-m-inline dialog-error" aria-label="inline danger alert" id="network-mac-settings-error">
+            <div class="pf-c-alert__icon">
+                <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+            </div>
+            <h4 class="pf-c-alert__title"></h4>
           </div>
-          <button class="btn btn-default" translatable="yes" id="network-mac-settings-cancel">Cancel</button>
-          <button class="btn btn-primary" translatable="yes" id="network-mac-settings-apply">Apply</button>
+          <button class="btn btn-default" translate="yes" id="network-mac-settings-cancel">Cancel</button>
+          <button class="btn btn-primary" translate="yes" id="network-mac-settings-apply">Apply</button>
         </div>
       </div>
     </div>
@@ -976,7 +1003,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title" translatable="yes">Unexpected error</h4>
+          <h4 class="modal-title" translate="yes">Unexpected error</h4>
         </div>
         <div class="modal-body">
           <p id="error-popup-message"></p>
@@ -994,7 +1021,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title" translatable="yes">Connection will be lost</h4>
+          <h4 class="modal-title" translate="yes">Connection will be lost</h4>
         </div>
         <div class="modal-body">
           <div class="pficon pficon-warning-triangle-o"></div>

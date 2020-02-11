@@ -485,6 +485,9 @@ setup_tls (TestTls *test,
 {
   GError *error = NULL;
 
+  /* don't require system SSL cert database in build environments */
+  cockpit_expect_possible_log ("GLib-Net", G_LOG_LEVEL_WARNING, "couldn't load TLS file database: * No such file or directory");
+
   test->certificate = g_tls_certificate_new_from_files (SRCDIR "/src/bridge/mock-server.crt",
                                                         SRCDIR "/src/bridge/mock-server.key", &error);
   g_assert_no_error (error);
@@ -684,6 +687,9 @@ test_tls_certificate (TestTls *test,
 
   /* tell server to request client cert */
   cockpit_webserver_want_certificate = TRUE;
+
+  /* this happens twice, so once more in addition to the ignore in setup_tls */
+  cockpit_expect_possible_log ("GLib-Net", G_LOG_LEVEL_WARNING, "couldn't load TLS file database: * No such file or directory");
 
   tls = cockpit_json_parse_object (json, -1, &error);
   g_assert_no_error (error);

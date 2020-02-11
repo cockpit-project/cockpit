@@ -7,10 +7,13 @@ VM_NAME="$2"
 SOURCE_TYPE="$3"
 SOURCE="$4"
 OS="$5"
-MEMORY_SIZE="$6" # in Mib
+MEMORY="$6"
 VCPUS="$7"
 DISKS="$8"
 DISPLAYS="$9"
+VNICS="${10}"
+BOOT="${11}"
+AUTOSTART="${12}"
 
 # prepare virt-install parameters
 
@@ -37,6 +40,13 @@ else
     DISKS_PARAM="$CREATE_OPTIONS_RESULT"
 fi
 
+if [ -z "$VNICS" ]; then
+    VNICS_PARAM="--network none"
+else
+    createOptions "$VNICS" "--network"
+    VNICS_PARAM="$CREATE_OPTIONS_RESULT"
+fi
+
 if [ -z "$DISPLAYS" ]; then
     GRAPHICS_PARAM="--graphics none"
 else
@@ -45,11 +55,35 @@ else
 fi
 
 if [ "$SOURCE_TYPE" = "pxe" ]; then
-    INSTALL_METHOD="--pxe --network $SOURCE"
+    INSTALL_METHOD="--pxe"
+elif [ "$SOURCE_TYPE" = "os" ]; then
+    INSTALL_METHOD="--install os=$OS"
 elif ( [ "${SOURCE#/}" != "$SOURCE" ] && [ -f "${SOURCE}" ] ) || ( [ "$SOURCE_TYPE" = "url" ] && [ "${SOURCE%.iso}" != "$SOURCE" ] ); then
     INSTALL_METHOD="--cdrom $SOURCE"
 else
     INSTALL_METHOD="--location $SOURCE"
+fi
+
+if [ "$AUTOSTART" = "true" ]; then
+    AUTOSTART_PARAM="--autostart"
+else
+    AUTOSTART_PARAM=""
+fi
+
+createOptions "$MEMORY" "--memory"
+MEMORY_PARAM="$CREATE_OPTIONS_RESULT"
+
+if [ -z "$VCPUS" ]; then
+    VCPUS_PARAM=""
+else
+    createOptions "$VCPUS" "--vcpus"
+    VCPUS_PARAM="$CREATE_OPTIONS_RESULT"
+fi
+
+if [ -z "$BOOT" ]; then
+    BOOT_PARAM=""
+else
+    BOOT_PARAM="--boot $BOOT"
 fi
 
 # backup
@@ -63,16 +97,19 @@ virt-install \
     --connect "$CONNECTION_URI" \
     --name "$VM_NAME" \
     --os-variant "$OS" \
-    --memory "$MEMORY_SIZE" \
-    --vcpus "$VCPUS" \
     --quiet \
     --wait -1 \
     --noautoconsole \
     --noreboot \
     --check path_in_use=off \
+    $MEMORY_PARAM \
     $DISKS_PARAM \
     $INSTALL_METHOD \
-    $GRAPHICS_PARAM
+    $GRAPHICS_PARAM \
+    $VNICS_PARAM \
+    $VCPUS_PARAM \
+    $BOOT_PARAM \
+    $AUTOSTART_PARAM
 EXIT_STATUS=$?
 
 if [ "$EXIT_STATUS" -eq 0 ] && vmExists "$VM_NAME"; then

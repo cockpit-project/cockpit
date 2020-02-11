@@ -1,10 +1,10 @@
 /* global $, cockpit, QUnit, ArrayBuffer, Uint8Array */
 
 QUnit.test("basic", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(4);
 
-    var channel = cockpit.channel({ "payload": "echo" });
+    var channel = cockpit.channel({ payload: "echo" });
     var pass = 0;
 
     $(channel).on("control", function(ev, options) {
@@ -29,12 +29,12 @@ QUnit.test("basic", function (assert) {
 });
 
 QUnit.test("binary empty", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(2);
 
     var channel = cockpit.channel({
-        "payload": "echo",
-        "binary": true
+        payload: "echo",
+        binary: true
     });
 
     $(channel).on("message", function(ev, payload) {
@@ -51,10 +51,10 @@ QUnit.test("binary empty", function (assert) {
 });
 
 QUnit.test("binary", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(3);
 
-    var channel = cockpit.channel({ "payload": "echo", "binary": true });
+    var channel = cockpit.channel({ payload: "echo", binary: true });
 
     $(channel).on("message", function(ev, payload) {
         if (window.Uint8Array)
@@ -65,7 +65,7 @@ QUnit.test("binary", function (assert) {
         var array = [];
         for (var i = 0; i < payload.length; i++)
             array.push(payload[i]);
-        assert.deepEqual(array, [ 0, 1, 2, 3, 4, 5, 6, 7 ], "got back right data");
+        assert.deepEqual(array, [0, 1, 2, 3, 4, 5, 6, 7], "got back right data");
 
         channel.close();
         $(channel).off();
@@ -90,26 +90,26 @@ QUnit.test("binary", function (assert) {
 });
 
 QUnit.test("fence", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(2);
 
-    var before = cockpit.channel({ "payload": "echo" });
+    var before = cockpit.channel({ payload: "echo" });
     before.addEventListener("message", onMessage);
 
-    var fence = cockpit.channel({ "payload": "echo", "group": "fence" });
+    var fence = cockpit.channel({ payload: "echo", group: "fence" });
     fence.addEventListener("message", onMessage);
 
-    var after = cockpit.channel({ "payload": "echo" });
+    var after = cockpit.channel({ payload: "echo" });
     after.addEventListener("message", onMessage);
 
-    var received = [ ];
+    var received = [];
     function onMessage(ev, payload) {
         received.push(payload);
         if (received.length == 3) {
-            assert.deepEqual(received, [ "1", "2", "3", ], "got back before and fence data");
+            assert.deepEqual(received, ["1", "2", "3"], "got back before and fence data");
             fence.close();
         } else if (received.length == 5) {
-            assert.deepEqual(received, [ "1", "2", "3", "4", "5" ], "got back data in right order");
+            assert.deepEqual(received, ["1", "2", "3", "4", "5"], "got back data in right order");
             before.close();
             after.close();
             done();

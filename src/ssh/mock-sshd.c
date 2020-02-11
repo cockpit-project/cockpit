@@ -549,7 +549,8 @@ mock_ssh_server (const gchar *server_addr,
                  gint server_port,
                  const gchar *user,
                  const gchar *password,
-                 gboolean multi_step)
+                 gboolean multi_step,
+                 const gchar *pkey_file)
 {
   char portname[16];
   char addrname[16];
@@ -591,7 +592,7 @@ mock_ssh_server (const gchar *server_addr,
   state.user = user;
   state.password = password;
   state.multi_step = multi_step;
-  ssh_pki_import_pubkey_file (SRCDIR "/src/ssh/test_rsa.pub",
+  ssh_pki_import_pubkey_file (pkey_file ? pkey_file : SRCDIR "/src/ssh/test_rsa.pub",
                               &state.pkey);
   state.buffer = g_byte_array_new ();
 
@@ -671,6 +672,7 @@ main (int argc,
   gboolean multi_step = FALSE;
   gint port = 0;
   int ret;
+  g_autofree gchar *pkey_file = NULL;
 
   GOptionEntry entries[] = {
     { "user", 0, 0, G_OPTION_ARG_STRING, &user, "User name to expect", "name" },
@@ -680,6 +682,7 @@ main (int argc,
     { "verbose", 'v', 0, G_OPTION_ARG_NONE, &verbose, "Verbose info", NULL },
     { "multi-step", 'm', 0, G_OPTION_ARG_NONE, &multi_step, "Multi Step Auth", NULL },
     { "broken-auth", 0, 0, G_OPTION_ARG_NONE, &broken_auth, "Break authentication", NULL },
+    { "import-pubkey", 0, 0, G_OPTION_ARG_STRING, &pkey_file, "Public keyfile to import", NULL },
     { NULL }
   };
 
@@ -712,7 +715,7 @@ main (int argc,
         auth_methods = SSH_AUTH_METHOD_HOSTBASED;
       if (verbose)
         ssh_set_log_level (SSH_LOG_PROTOCOL);
-      ret = mock_ssh_server (bind, port, user, password, multi_step);
+      ret = mock_ssh_server (bind, port, user, password, multi_step, pkey_file);
     }
 
   g_option_context_free (context);

@@ -21,8 +21,8 @@ The command is then responsible to:
  * setup an appropriate session and environment based on those credentials
  * launch a bridge that speaks the cockpit protocol on stdin and stdout.
 
-The default command is `cockpit-session` it is able to handle basic and gssapi
-authentication.
+The default command is `cockpit-session` it is able to handle basic, gssapi,
+and TLS client certificate (tls-cert) authentication.
 
 Authentication commands are called with a single argument which is the host that the user
 is connecting to. They communicate with their parent process using the cockpit protocol on
@@ -128,6 +128,24 @@ string response if there is no available key.
     "response": "ssh-rsa AAAA1234...",
 }
 ```
+
+Client certificate authentication
+---------------------------------
+When a machine is joined to an Identity Management domain (like
+[FreeIPA](https://www.freeipa.org) or Active Directory) which has [client-side
+user certificates](https://www.freeipa.org/page/V4/User_Certificates) set up,
+then these can be enabled for authentication to Cockpit by setting this option
+in cockpit.conf:
+
+```
+[WebService]
+ClientCertAuthentication = yes
+```
+
+This uses the `tls-cert` authentication scheme.
+
+When enabling this mode, other authentication types commonly get disabled. See
+the next section for details.
 
 Actions
 -------

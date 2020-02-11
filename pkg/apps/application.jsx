@@ -63,7 +63,7 @@ export class Application extends React.Component {
             return urls.map(url => {
                 if (url.type == 'homepage') {
                     return (<div className="app-links" key={url.link}>
-                        <a href={url.link} target="_blank" rel="noopener" data-linkedhost={url.link}>
+                        <a href={url.link} target="_blank" rel="noopener noreferrer" data-linkedhost={url.link}>
                             View Project Website <i className="fa fa-external-link" aria-hidden="true" />
                         </a>
                     </div>);
@@ -105,7 +105,7 @@ export class Application extends React.Component {
                 progress_or_launch = <ProgressBar title={self.state.progress_title} data={self.state.progress} />;
                 button = <CancelButton data={self.state.progress} />;
             } else if (comp.installed) {
-                progress_or_launch = <a role="link" tabIndex="0" onClick={left_click(() => launch(comp))}>{_("Go to Application")}</a>;
+                progress_or_launch = <button role="link" className="link-button" onClick={left_click(() => launch(comp))}>{_("Go to Application")}</button>;
                 button = <button className="btn btn-danger" onClick={left_click(remove)}>{_("Remove")}</button>;
             } else {
                 progress_or_launch = null;
@@ -117,7 +117,7 @@ export class Application extends React.Component {
                     <table className="table app">
                         <tbody>
                             <tr>
-                                <td><img src={icon_url(comp.icon)} role="presentation" /></td>
+                                <td><img src={icon_url(comp.icon)} role="presentation" alt="" /></td>
                                 <td>{comp.summary}</td>
                                 <td>{progress_or_launch}</td>
                                 <td>{button}</td>
@@ -126,9 +126,9 @@ export class Application extends React.Component {
                     </table>
                     {render_homepage_link(comp.urls)}
                     <div className="app-description">{render_description(comp.description)}</div>
-                    <center>
-                        { comp.screenshots.map((s, index) => <img key={`comp-${index}`} className="app-screenshot" role="presentation" src={s.full} />) }
-                    </center>
+                    <div className="text-center">
+                        { comp.screenshots.map((s, index) => <img key={`comp-${index}`} className="app-screenshot" role="presentation" alt="" src={s.full} />) }
+                    </div>
                 </div>
             );
         }
@@ -140,7 +140,7 @@ export class Application extends React.Component {
         return (
             <div>
                 <ol className="breadcrumb">
-                    <li><a role="link" tabIndex="0" onClick={left_click(navigate_up)}>{_("Applications")}</a></li>
+                    <li><button role="link" className="link-button" onClick={left_click(navigate_up)}>{_("Applications")}</button></li>
                     <li className="active">{comp ? comp.name : this.props.id}</li>
                 </ol>
                 {render_comp()}

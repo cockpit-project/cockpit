@@ -44,6 +44,16 @@ class TestNetworking(NetworkCase):
         # Bond them
         b.click("button:contains('Add Bond')")
         b.wait_popup("network-bond-settings-dialog")
+        if m.image != "rhel-8-2-distropkg": # Introduced in #13507
+            b.click("#network-bond-settings-dialog .close.pficon-close")
+            b.wait_popdown("network-bond-settings-dialog")
+            b.click("button:contains('Add Bond')")
+            b.wait_popup("network-bond-settings-dialog")
+            b.click("#network-bond-settings-dialog .close.pficon-help")
+            b.wait_visible(".popover .popover-title:contains('Network bond')")
+            b.click("#network-bond-settings-dialog .close.pficon-help")
+            b.wait_not_present(".popover .popover-title:contains('Network bond')")
+
         b.set_val("#network-bond-settings-interface-name-input", "tbond")
         b.set_checked("input[data-iface='%s']" % iface1, True)
         b.set_checked("input[data-iface='%s']" % iface2, True)
@@ -53,7 +63,8 @@ class TestNetworking(NetworkCase):
 
         # Check that the configuration file has the expected sane name
         # on systems that use "network-scripts".
-        m.execute("! test -d /etc/sysconfig || test -f /etc/sysconfig/network-scripts/ifcfg-tbond")
+        if m.image not in ["fedora-coreos"]:
+            m.execute("! test -d /etc/sysconfig || test -f /etc/sysconfig/network-scripts/ifcfg-tbond")
 
         # Check that the members are displayed and both On
         b.click("#networking-interfaces tr[data-interface='tbond'] td:first-child")
@@ -69,12 +80,7 @@ class TestNetworking(NetworkCase):
         self.wait_onoff(".panel-heading:contains('tbond')", True)
         self.toggle_onoff(".panel-heading:contains('tbond')")
         b.wait_in_text("tr:contains('Status')", "Inactive")
-        # changed in PR #11769
-        if m.image in ["rhel-8-0-distropkg"]:
-            self.assertNotIn("disabled",
-                             b.attr(".panel-heading:contains('tbond') .btn:contains('On')", "class"))
-        else:
-            b.wait_not_present(".panel-heading:contains('tbond') .onoff-ct input:disabled")
+        b.wait_not_present(".panel-heading:contains('tbond') .onoff-ct input:disabled")
 
         b.reload()
         b.enter_page("/network")
@@ -89,10 +95,8 @@ class TestNetworking(NetworkCase):
         b.wait_not_present("#networking-interfaces tr[data-interface='tbond']")
 
         # Check that the former members are displayed and both On
-        # Fixed in PR #12400
-        if m.image not in ["rhel-8-0-distropkg"]:
-            self.wait_for_iface(iface1)
-            self.wait_for_iface(iface2)
+        self.wait_for_iface(iface1)
+        self.wait_for_iface(iface2)
 
         # Due to above reload
         self.allow_journal_messages(".*Connection reset by peer.*",

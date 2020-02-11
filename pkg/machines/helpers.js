@@ -65,13 +65,13 @@ export const units = {
 };
 
 const logUnitMap = {
-    '0': units.B,
-    '1': units.KiB,
-    '2': units.MiB,
-    '3': units.GiB,
-    '4': units.TiB,
-    '5': units.PiB,
-    '6': units.EiB,
+    0: units.B,
+    1: units.KiB,
+    2: units.MiB,
+    3: units.GiB,
+    4: units.TiB,
+    5: units.PiB,
+    6: units.EiB,
 };
 
 function getPowerOf1024(exponent) {
@@ -92,7 +92,7 @@ export function convertToUnit(input, inputUnit, outputUnit) {
 }
 
 export function convertToUnitVerbose(input, inputUnit, outputUnit) {
-    let result = {
+    const result = {
         value: 0,
         unit: units.B.name,
     };
@@ -108,15 +108,15 @@ export function convertToUnitVerbose(input, inputUnit, outputUnit) {
         return result;
     }
 
-    let inUnit = units[(typeof inputUnit === 'string' ? inputUnit : inputUnit.name)];
-    let outUnit = units[(typeof outputUnit === 'string' ? outputUnit : outputUnit.name)];
+    const inUnit = units[(typeof inputUnit === 'string' ? inputUnit : inputUnit.name)];
+    const outUnit = units[(typeof outputUnit === 'string' ? outputUnit : outputUnit.name)];
 
     if (!inUnit || !outUnit) {
         console.error(`unknown unit ${!inUnit ? inputUnit : outputUnit}`);
         return result;
     }
 
-    let exponentDiff = inUnit.base1024Exponent - outUnit.base1024Exponent;
+    const exponentDiff = inUnit.base1024Exponent - outUnit.base1024Exponent;
     if (exponentDiff < 0) {
         result.value = input / getPowerOf1024(-1 * exponentDiff);
     } else {
@@ -129,6 +129,13 @@ export function convertToUnitVerbose(input, inputUnit, outputUnit) {
 
 export function isEmpty(str) {
     return (!str || str.length === 0);
+}
+
+export function isObjectEmpty(obj) {
+    if (!obj)
+        return false;
+
+    return Object.keys(obj).length === 0;
 }
 
 export function arrayEquals(arr1, arr2) {
@@ -153,7 +160,7 @@ export function logError(msg, ...params) {
 }
 
 export function digitFilter(event, allowDots = false) {
-    let accept = (allowDots && event.key === '.') || (event.key >= '0' && event.key <= '9') ||
+    const accept = (allowDots && event.key === '.') || (event.key >= '0' && event.key <= '9') ||
                  event.key === 'Backspace' || event.key === 'Delete' || event.key === 'Tab' ||
                  event.key === 'ArrowLeft' || event.key === 'ArrowRight' ||
                  event.key === 'ArrowUp' || event.key === 'ArrowDown' ||
@@ -173,69 +180,69 @@ export function getTodayYearShifted(yearDifference) {
 }
 
 const transform = {
-    'autostart': {
-        'disable': _("disabled"),
-        'enable': _("enabled"),
+    autostart: {
+        disable: _("disabled"),
+        enable: _("enabled"),
         /* The following keys are used in LibvirtDBus provider */
         false: _("disabled"),
         true: _("enabled"),
     },
-    'connections': {
-        'system': _("System"),
-        'session': _("Session"),
+    connections: {
+        system: _("System"),
+        session: _("Session"),
     },
-    'vmStates': {
-        'running': _("running"),
-        'idle': _("idle"),
-        'paused': _("paused"),
-        'shutdown': _("shutdown"),
+    vmStates: {
+        running: _("running"),
+        idle: _("idle"),
+        paused: _("paused"),
+        shutdown: _("shutdown"),
         'shut off': _("shut off"),
-        'crashed': _("crashed"),
-        'dying': _("dying"),
-        'pmsuspended': _("suspended (PM)"),
+        crashed: _("crashed"),
+        dying: _("dying"),
+        pmsuspended: _("suspended (PM)"),
     },
-    'bootableDisk': {
-        'disk': _("disk"),
-        'cdrom': _("cdrom"),
-        'interface': _("network"),
-        'hd': _("disk"),
-        'redirdev': _("redirected device"),
-        'hostdev': _("host device"),
+    bootableDisk: {
+        disk: _("disk"),
+        cdrom: _("cdrom"),
+        interface: _("network"),
+        hd: _("disk"),
+        redirdev: _("redirected device"),
+        hostdev: _("host device"),
     },
-    'cpuMode': {
-        'custom': _("custom"),
+    cpuMode: {
+        custom: _("custom"),
         'host-model': _("host"),
     },
-    'networkType': {
-        'direct': _("direct"),
-        'network': _("network"),
-        'bridge': _("bridge"),
-        'user': _("user"),
-        'ethernet': _("ethernet"),
-        'hostdev': _("hostdev"),
-        'mcast': _("mcast"),
-        'server': _("server"),
-        'udp': _("udp"),
-        'vhostuser': _("vhostuser"),
+    networkType: {
+        direct: _("direct"),
+        network: _("network"),
+        bridge: _("bridge"),
+        user: _("user"),
+        ethernet: _("ethernet"),
+        hostdev: _("hostdev"),
+        mcast: _("mcast"),
+        server: _("server"),
+        udp: _("udp"),
+        vhostuser: _("vhostuser"),
     },
-    'networkForward': {
-        'open': _("Open"),
-        'nat': "NAT",
-        'none': _("None (Isolated Network)"),
-        'route': "Routed",
-        'bridge': "Bridge",
-        'private': _("Private"),
-        'vepa': "VEPA",
-        'passthrough': "Passthrough",
-        'hostdev': "Hostdev",
+    networkForward: {
+        open: _("Open"),
+        nat: "NAT",
+        none: _("None (Isolated Network)"),
+        route: "Routed",
+        bridge: "Bridge",
+        private: _("Private"),
+        vepa: "VEPA",
+        passthrough: "Passthrough",
+        hostdev: "Hostdev",
     },
-    'networkManaged': {
-        'yes': _("yes"),
-        'no': _("no"),
+    networkManaged: {
+        yes: _("yes"),
+        no: _("no"),
     },
-    'networkState': {
-        'up': _("up"),
-        'down': _("down"),
+    networkState: {
+        up: _("up"),
+        down: _("down"),
     },
 };
 
@@ -345,7 +352,7 @@ export function timeoutedPromise(promise, delay, afterTimeoutHandler, afterTimeo
     const deferred = cockpit.defer();
     let done = false;
 
-    let timer = window.setTimeout(() => {
+    const timer = window.setTimeout(() => {
         if (!done) {
             deferred.resolve();
             done = true;
@@ -461,7 +468,7 @@ export function findHostNodeDevice(hostdev, nodeDevices) {
  * @returns {array}
  */
 export function getBootOrderDevices(vm) {
-    let devices = [];
+    const devices = [];
 
     // Create temporary arrays of devices
     const disks = Object.values(vm.disks);
@@ -579,26 +586,47 @@ export function getSortedBootOrderDevices(vm) {
 }
 
 function getVmDisksMap(vms, connectionName) {
-    let vmDisksMap = {};
+    const vmDisksMap = {};
 
-    for (let vm of vms) {
+    for (const vm of vms) {
         if (vm.connectionName != connectionName)
             continue;
 
         if (!(vm.name in vmDisksMap))
             vmDisksMap[vm.name] = [];
 
-        for (let disk in vm.disks) {
+        for (const disk in vm.disks) {
             const diskProps = vm.disks[disk];
 
             if (diskProps.type == 'volume')
-                vmDisksMap[vm.name].push({ 'type': 'volume', 'pool': diskProps.source.pool, 'volume': diskProps.source.volume });
+                vmDisksMap[vm.name].push({ type: 'volume', pool: diskProps.source.pool, volume: diskProps.source.volume });
             else if (diskProps.type == 'file')
-                vmDisksMap[vm.name].push({ 'type': 'file', 'source': diskProps.source.file });
+                vmDisksMap[vm.name].push({ type: 'file', source: diskProps.source.file });
             /* Other disk types should be handled as well when we allow their creation from cockpit UI */
         }
     }
     return vmDisksMap;
+}
+
+/**
+ * Returns a string which represent disk target of volume in VM using the said volume.
+ *
+ * @param {object} vm
+ * @param {object} storagePool
+ * @param {string} volumeName
+ * @returns {string}
+ */
+export function getStorageVolumeDiskTarget(vm, storagePool, volumeName) {
+    const disks = vm.disks || [];
+    const targetPath = storagePool.target ? storagePool.target.path : '';
+    const volumePath = targetPath + '/' + volumeName;
+
+    for (const i in disks) {
+        const disk = disks[i];
+        if ((disk.type == 'volume' && disk.source.volume == volumeName && disk.source.pool == storagePool.name) ||
+            (disk.type == 'file' && disk.source.file == volumePath))
+            return disk.target;
+    }
 }
 
 /**
@@ -615,18 +643,18 @@ export function getStorageVolumesUsage(vms, storagePool) {
     const volumes = storagePool.volumes || [];
 
     // And make it a dictionary of volumeName -> array of Domains using volume
-    let isVolumeUsed = {};
-    for (let i in volumes) {
-        let volumeName = volumes[i].name;
+    const isVolumeUsed = {};
+    for (const i in volumes) {
+        const volumeName = volumes[i].name;
         const targetPath = storagePool.target ? storagePool.target.path : '';
         const volumePath = [targetPath, volumeName].join('/');
         isVolumeUsed[volumeName] = [];
 
-        for (let vmName in vmDisksMap) {
+        for (const vmName in vmDisksMap) {
             const disks = vmDisksMap[vmName];
 
-            for (let i in disks) {
-                let disk = disks[i];
+            for (const i in disks) {
+                const disk = disks[i];
                 if (disk.type == 'volume' && disk.volume == volumeName && disk.pool == storagePool.name)
                     isVolumeUsed[volumeName].push(vmName);
 
@@ -649,7 +677,7 @@ export function getStorageVolumesUsage(vms, storagePool) {
  * @returns {array}
  */
 export function getNetworkDevices(vms, nodeDevices, interfaces) {
-    let devs = [];
+    const devs = [];
 
     nodeDevices.forEach(dev => {
         if (dev.capability.type === "net")
@@ -664,4 +692,103 @@ export function getNetworkDevices(vms, nodeDevices, interfaces) {
     uniq.sort();
 
     return uniq;
+}
+
+export function getDefaultVolumeFormat(pool) {
+    // For the valid volume format types for different pool types see https://libvirt.org/storage.html
+    if (['disk'].indexOf(pool.type) > -1)
+        return 'none';
+
+    if (['dir', 'fs', 'netfs', 'gluster', 'vstorage'].indexOf(pool.type) > -1)
+        return 'qcow2';
+
+    return undefined;
+}
+
+/**
+ * Returns whetever disk property of VM's inactive XML has changed
+ * compared to live XML.
+ * Mainly used for readonly and shareable properties.
+ *
+ * @param {object} vm
+ * @param {string} diskTarget
+ * @param {string} property
+ * @returns {boolean}
+ */
+export function diskPropertyChanged(vm, diskTarget, property) {
+    const disk = vm.disks[diskTarget];
+    const inactiveDisk = vm.inactiveXML.disks[diskTarget];
+
+    if (disk && inactiveDisk) // only persistent disks
+        return disk[property] !== inactiveDisk[property];
+    else
+        return false;
+}
+
+/**
+ * Returns an identifying value which can be used as disk name.
+ * Can be file path, url, pool/volume or disk device type (fallback)
+ *
+ * @param {object} disk
+ * @returns {string}
+ */
+export function getDiskFullName(disk) {
+    let name;
+
+    if (["file", "block", "dir"].includes(disk.type)) {
+        // file path
+        let path;
+        if (disk.type === "file")
+            path = disk.source.file;
+        else if (disk.type === "block")
+            path = disk.source.dev;
+        else if (disk.type === "dir")
+            path = disk.source.dir;
+
+        name = path;
+    } else if (disk.type === "network") {
+        // url
+        name = disk.source.name;
+    } else if (disk.type === "volume") {
+        // pool/volume
+        name = disk.source.pool + '/' + disk.source.volume;
+    }
+
+    // fallback
+    if (name === undefined)
+        name = disk.device;
+
+    return name;
+}
+
+/**
+ * Returns a shortened pretty version of disk name.
+ * File path or pool/volume gets parsed, rest is unmodified.
+ *
+ * @param {object} disk
+ * @returns {string}
+ */
+export function getDiskPrettyName(disk) {
+    let name = getDiskFullName(disk);
+
+    if (["file", "block", "dir"].includes(disk.type) || disk.type === "volume") {
+        const parts = name.split('/');
+        name = parts[parts.length - 1];
+    }
+
+    return name;
+}
+
+export function getNextAvailableTarget(existingTargets, busType) {
+    let i = 0;
+    let prefix = 'vd';
+    if (busType !== 'virtio')
+        prefix = 'sd';
+
+    while (i < 26) {
+        const target = prefix + `${String.fromCharCode(97 + i)}`;
+        if (!existingTargets.includes(target))
+            return target;
+        i++;
+    }
 }

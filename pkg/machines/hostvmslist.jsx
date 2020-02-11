@@ -38,7 +38,7 @@ import { vmId } from "./helpers.js";
 
 import { Listing } from "cockpit-components-listing.jsx";
 import Vm from './components/vm/vm.jsx';
-import DummyVm from './components/vm/dummyVm.jsx';
+import { dummyVmsConvert, DummyVm } from './components/vm/dummyVm.jsx';
 
 const _ = cockpit.gettext;
 
@@ -63,18 +63,9 @@ class HostVmsList extends React.Component {
         this.forceUpdate();
     }
 
-    asDummVms(vms, uiVms) {
-        const result = Object.assign({}, uiVms);
-        vms.forEach(vm => {
-            delete result[vm.name];
-        });
-
-        return Object.keys(result).map((k) => result[k]);
-    }
-
     render() {
-        const { vms, config, ui, storagePools, dispatch, actions, networks, nodeDevices } = this.props;
-        const combinedVms = [...vms, ...this.asDummVms(vms, ui.vms)];
+        const { vms, config, ui, storagePools, dispatch, actions, networks, nodeDevices, interfaces } = this.props;
+        const combinedVms = [...vms, ...dummyVmsConvert(vms, ui.vms)];
 
         const sortFunction = (vmA, vmB) => vmA.name.localeCompare(vmB.name);
 
@@ -86,15 +77,16 @@ class HostVmsList extends React.Component {
                 {combinedVms
                         .sort(sortFunction)
                         .map(vm => {
+                            const connectionName = vm.connectionName;
                             if (vm.isUi) {
                                 return (
-                                    <DummyVm vm={vm} key={`${vmId(vm.name)}`} />
+                                    <DummyVm vm={vm} key={`${vmId(vm.name)}-${connectionName}`} />
                                 );
                             }
-                            const connectionName = vm.connectionName;
 
                             return (
-                                <Vm vm={vm} config={config}
+                                <Vm vm={vm} vms={vms} config={config}
+                                    libvirtVersion={this.props.libvirtVersion}
                                     resourceHasError={this.props.resourceHasError}
                                     onAddErrorNotification={this.props.onAddErrorNotification}
                                     hostDevices={this.deviceProxies}
@@ -156,6 +148,7 @@ class HostVmsList extends React.Component {
                                     onUsageStartPolling={() => dispatch(usageStartPolling(vm))}
                                     onUsageStopPolling={() => dispatch(usageStopPolling(vm))}
                                     dispatch={dispatch}
+                                    interfaces={interfaces}
                                     networks={networks.filter(network => network && network.connectionName == connectionName)}
                                     nodeDevices={nodeDevices.filter(device => device && device.connectionName == connectionName)}
                                     key={`${vmId(vm.name)}`}
@@ -170,9 +163,11 @@ HostVmsList.propTypes = {
     vms: PropTypes.array.isRequired,
     config: PropTypes.object.isRequired,
     ui: PropTypes.object.isRequired,
+    libvirtVersion: PropTypes.number.isRequired,
     storagePools: PropTypes.array.isRequired,
     dispatch: PropTypes.func.isRequired,
     networks: PropTypes.array.isRequired,
+    interfaces: PropTypes.array.isRequired,
     resourceHasError: PropTypes.object.isRequired,
     onAddErrorNotification: PropTypes.func.isRequired,
     nodeDevices: PropTypes.array.isRequired,

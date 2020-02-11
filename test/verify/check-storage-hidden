@@ -40,17 +40,17 @@ class TestStorage(StorageCase):
         # Create a volume group with a logical volume with a encrypted
         # filesystem.
 
-        b.click('#create-volume-group')
+        self.devices_dropdown('Create Volume Group')
         self.dialog_wait_open()
         self.dialog_set_val('name', "TEST")
         self.dialog_set_val('disks', {"DISK1": True})
         self.dialog_apply()
         self.dialog_wait_close()
-        b.wait_in_text('#vgroups', "TEST")
+        b.wait_in_text('#devices', "TEST")
 
-        b.click('#vgroups tr:contains("TEST")')
+        b.click('#devices tr:contains("TEST")')
         b.wait_present('#storage-detail')
-        b.click("a:contains(Create new Logical Volume)")
+        b.click("button:contains(Create new Logical Volume)")
         self.dialog({'purpose': "block",
                      'name': "lvol",
                      'size': 48})
@@ -62,8 +62,8 @@ class TestStorage(StorageCase):
                      "name": "FS",
                      "passphrase": "einszweidrei",
                      "passphrase2": "einszweidrei",
-                     "mounting": "custom",
                      "mount_point": mount_point_1,
+                     "mount_options.auto": False,
                      "crypto_options.extra": "my-crypto-tag"})
         self.content_row_wait_in_col(2, 1, "ext4 File System")
         self.wait_in_storaged_configuration(mount_point_1)
@@ -71,9 +71,9 @@ class TestStorage(StorageCase):
 
         # Now doubly hide the clear text block device by locking the
         # crypto backing device and deactivating /dev/TEST/lvol
-        self.content_head_action(1, "Lock")
+        self.content_dropdown_action(1, "Lock")
         b.wait_not_in_text("#detail-content", "Filesystem")
-        self.content_head_action(1, "Deactivate")
+        self.content_dropdown_action(1, "Deactivate")
         self.content_row_wait_in_col(1, 1, "48 MiB Inactive volume")
 
         # HACK - https://github.com/storaged-project/storaged/issues/17
@@ -110,20 +110,19 @@ class TestStorage(StorageCase):
 
         # Now do the same with a MDRAID
 
-        self.dialog_with_retry(trigger=lambda: b.click('#create-mdraid'),
+        self.dialog_with_retry(trigger=lambda: self.devices_dropdown('Create RAID Device'),
                                expect=lambda: (self.dialog_is_present('disks', "DISK1") and
                                                self.dialog_is_present('disks', "DISK2")),
                                values={"name": "ARR",
                                        "disks": {"DISK1": True,
                                                  "DISK2": True}})
-        b.wait_in_text('#mdraids', "ARR")
+        b.wait_in_text('#devices', "ARR")
 
-        b.click('#mdraids tr:contains("ARR")')
+        b.click('#devices tr:contains("ARR")')
         b.wait_present('#storage-detail')
         self.content_head_action(1, "Format")
         self.dialog({"type": "ext4",
                      "name": "FS2",
-                     "mounting": "custom",
                      "mount_point": mount_point_2})
         self.content_row_wait_in_col(1, 1, "ext4 File System")
         self.wait_in_storaged_configuration(mount_point_2)

@@ -5,6 +5,8 @@
 #
 # The host file system must be mounted at /host
 
+IMAGE=${1:-}
+
 cd /
 PATH="/bin:/sbin"
 
@@ -44,6 +46,26 @@ chown root:wheel /host/var/lib/cockpit
 
 # For sharing ssh's known hosts with container
 mkdir -p /etc/ssh
+
+# For podman, generate a systemd unit for starting on boot
+if [ "${container:-}" = podman ] && [ -n "$IMAGE" ] && [ ! -e /host/etc/systemd/system/cockpit.service ]; then
+    mkdir -p /host/etc/systemd/system/
+    cat << EOF > /host/etc/systemd/system/cockpit.service
+[Unit]
+Description=$IMAGE podman container
+
+[Service]
+Type=oneshot
+ExecStartPre=-/usr/bin/podman rm -f cockpit-ws
+ExecStart=/usr/bin/podman container runlabel --name cockpit-ws RUN $IMAGE
+ExecStop=/usr/bin/podman rm -f cockpit-ws
+RemainAfterExit=yes
+KillMode=none
+
+[Install]
+WantedBy=multi-user.target
+EOF
+fi
 
 # Ensure we have certificates
 /bin/mount --bind /host/etc/cockpit /etc/cockpit

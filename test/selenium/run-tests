@@ -26,11 +26,14 @@ import glob
 import time
 
 from testlib_avocado.machine_core import testvm
+from testlib_avocado.machine_core.constants import TEST_OS_DEFAULT
 
-BASE_IMAGE = os.environ.get("TEST_OS", "fedora-30")
+BASE_IMAGE = os.environ.get("TEST_OS", TEST_OS_DEFAULT)
 CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
 if CURRENT_DIR not in sys.path:
     sys.path.insert(1, CURRENT_DIR)
+
+TEST_TIMEOUT = 600
 
 # this is where we publish logs on the local machine
 arg_attachments_dir = os.environ.get("TEST_ATTACHMENTS", None)
@@ -64,7 +67,9 @@ class TAPformatter:
         own_print("\nTAP output -------------------------")
         own_print("1..%d" % self.total)
 
-    def tap_summary(self, duration):
+    def tap_summary(self, duration, restarted_tests=None):
+        if restarted_tests:
+            own_print("# RESTARTED %d tests: %s" % (len(restarted_tests), restarted_tests))
         if self.counter_failed == 0:
             own_print("# TESTS PASSED duration: %ds" % duration)
         else:
@@ -125,7 +130,8 @@ class AvocadoTestSuite:
         self.machine_cockpit = machine_cockpit
         self.network = network
         self.verbose = verbose
-
+        # store last executed avocado command to variable
+        self.avocado_command = None
         self.machine_avocado = testvm.VirtMachine(verbose=self.verbose, networking=network.host(), image=BASE_IMAGE)
         self.machine_avocado.start()
         self.machine_avocado.wait_boot()
@@ -134,6 +140,7 @@ class AvocadoTestSuite:
             self.machine_cockpit = self.machine_avocado
         self._upload_library()
         self._cockpit_prepare()
+        self.selenium_grid_restarts = []
 
 
     def _cockpit_prepare(self):
@@ -181,14 +188,14 @@ class AvocadoTestSuite:
         start_time = datetime.datetime.now()
         # wrap command to timeout to see also partial run result, to see whats happen
         # instead of empty output and just timeout
-        cmd_parts = ["timeout {}".format(self.timeout - round(self.timeout/100)),
+        self.avocado_command = ["timeout {}".format(self.timeout - round(self.timeout/100)),
                      self.base_cmd, "run",
                      "--show-job-log",
                      test,
                      "2>&1",
                      ]
         try:
-            cmd_output = self.machine_avocado.execute(command=" ".join(cmd_parts),
+            cmd_output = self.machine_avocado.execute(command=" ".join(self.avocado_command),
                                          timeout=self.timeout,
                                          environment=self.env
                                          )
@@ -217,7 +224,7 @@ class AvocadoTestSuite:
             if not status:
                 self.copy_artifacts()
         end_time = datetime.datetime.now()
-        self.tap.tap_summary((end_time - start_time).seconds)
+        self.tap.tap_summary((end_time - start_time).seconds, self.selenium_grid_restarts)
         return self.tap.get_status()
 
     def copy_artifacts(self):
@@ -232,7 +239,6 @@ class AvocadoTestSuite:
 class SeleniumTestSuite(AvocadoTestSuite):
     machine_selenium = None
     ipaddr_selenium = "10.111.112.10"
-    selenium_grid_restarts = 2
     error_messages = [["urlopen error [Errno 113] No route to host"],
                       ["Timeout: Unable to attach remote Browser on hub"],
                       ["Terminated", "Running 'kill"]
@@ -291,7 +297,7 @@ class SeleniumTestSuite(AvocadoTestSuite):
 
     def _prepare_selenium(self):
         if not self.machine_selenium:
-            self.machine_selenium = testvm.VirtMachine(image="selenium", verbose=self.verbose, networking=self.network.host())
+            self.machine_selenium = testvm.VirtMachine(image="services", verbose=self.verbose, networking=self.network.host())
             # actually wait here, because starting selenium takes a while
             self.machine_selenium.pull(self.machine_selenium.image_file)
         self.machine_selenium.start()
@@ -312,16 +318,15 @@ class SeleniumTestSuite(AvocadoTestSuite):
         self._prepare_selenium()
         self.wait_for_selenium_running(self.ipaddr_selenium)
         self._cockpit_prepare()
-        self.selenium_grid_restarts -= 1
 
     def _run_one_avocado_test(self, test):
-
         status, cmd_output, duration = super()._run_one_avocado_test(test)
-        if self.selenium_grid_restarts and not status:
+        if not status:
             # restart test again if it lost selenium grid location
             for error in self.error_messages:
                 if all([x in cmd_output for x in error]):
                     self._restart_grid_and_cockpit()
+                    self.selenium_grid_restarts.append(test)
                     status, cmd_output, duration = super()._run_one_avocado_test(test)
                     break
         return status, cmd_output, duration
@@ -331,15 +336,58 @@ class SeleniumWinTestSuite(SeleniumTestSuite):
     def _prepare_selenium(self):
         if not self.machine_selenium:
             self.machine_avocado.dhcp_server(range=[self.ipaddr_selenium, self.ipaddr_selenium])
-            self.machine_selenium = testvm.VirtMachine(image='windows-10', verbose=self.verbose, networking=self.network.host())
+            self.machine_selenium = testvm.VirtMachine(image='windows-10', verbose=self.verbose, networking=self.network.host(), memory_mb=2048, cpus=2)
             self.machine_selenium.pull(self.machine_selenium.image_file)
         self.machine_selenium.start()
+
+
+class SeleniumOwnHub(SeleniumTestSuite):
+    def __init__(self, address_string, browser, **kwargs):
+        super().__init__(**kwargs)
+        self.browser = browser
+        address_option_list = address_string.split(":")
+        hub_address = address_option_list[0]
+        if len(address_option_list) > 1:
+            guest_adress = address_option_list[1]
+        else:
+            guest_adress = "127.0.0.2"
+        if len(address_option_list) > 2:
+            cockpit_port = address_option_list[2]
+        else:
+            cockpit_port = self.machine_cockpit.forward["9090"].split(":")[1]
+
+        self.env["HUB"] = hub_address
+        self.env["GUEST"] = guest_adress
+        self.env["PORT"] = cockpit_port
+        # avocado and cockpit machine is in same network so use internal adress
+        self.env["SSH_PORT"] = "22"
+        self.env["SSH_GUEST"] = self.ipaddr_cockpit
+        self.env["BROWSER"] = browser
+        self.wait_for_selenium_running(hub_address)
+
+    def _restart_grid_and_cockpit(self):
+        own_print("RESTARTING cockpit machine")
+        own_print("-------------------------------------------")
+        # restart also cockpit machine to have clean env, because
+        # some test could break the machine
+        self.machine_cockpit.kill()
+        self.machine_cockpit.start()
+        self._cockpit_prepare()
 
 
 def main():
     parser = argparse.ArgumentParser(description='Run Cockpit Avocado test(s)')
     parser.add_argument('-v', '--verbose', dest="verbosity", action='store_true',
                         help='Verbose output')
+    parser.add_argument("--hub",
+                        dest="hub",
+                        action="store",
+                        help="Use own Selenium hub (it is important to ensure that hub can see cockpit machine)"
+                             " You can use adress formats:"
+                             " yourHubIP"
+                             " or yourHubIP:CockpitIP"
+                             " or yourHubIP:CockpitIP:CockpitPort"
+                        )
     parser.add_argument("-b", "--browser", choices=['firefox', 'chrome', 'edge'],
                     default='firefox',
                     help="selenium browser choice (default: %(default)s)")
@@ -351,23 +399,39 @@ def main():
 
     opts = parser.parse_args()
 
-    network = testvm.VirtNetwork()
     image = BASE_IMAGE
+    # When Windows in use, we need rtl8139, for anything else we want virtio-net-pci
+    network = testvm.VirtNetwork(image="windows-10" if "edge" in opts.browser else image)
     machine = None
-    test_timeout = 300
+    test_timeout = TEST_TIMEOUT
     testsuite = None
     try:
         machine = testvm.VirtMachine(verbose=opts.verbosity, networking=network.host(), image=image)
         machine.start()
-        if 'edge' in opts.browser:
+        if opts.hub:
+            testsuite = SeleniumOwnHub(address_string=opts.hub,
+                                       browser=opts.browser,
+                                       machine_cockpit=machine,
+                                       network=network,
+                                       verbose=opts.verbosity)
+        elif 'edge' in opts.browser:
             testsuite = SeleniumWinTestSuite(browser=opts.browser, machine_cockpit=machine, network=network, verbose=opts.verbosity)
-            test_timeout = 900
+            test_timeout = TEST_TIMEOUT * 2
         else:
             testsuite = SeleniumTestSuite(browser=opts.browser, machine_cockpit=machine, network=network, verbose=opts.verbosity)
 
         success = testsuite.run(opts.tests, timeout=test_timeout)
         if not success and opts.sit:
-            sys.stderr.write(machine.diagnose() + "\nPress RET to continue...\n")
+            avocado_command = " ".join(["{}={}".format(k, v) for k, v in testsuite.env.items()]
+                                       + testsuite.avocado_command)
+            sys.stderr.write(testsuite.machine_cockpit.diagnose() +
+                             "\nTo rerun tests connect to VM with avocado installed via" +
+                             "\n\tssh -p {} root@127.0.0.2\n".format(
+                                 testsuite.machine_avocado.forward["22"].split(":")[1]) +
+                             "\nand run the command" +
+                             "\n\t " + avocado_command +
+                             "\n\nPress RET to continue...\n"
+                             )
             sys.stdin.readline()
     finally:
         if machine:

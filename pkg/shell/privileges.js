@@ -25,6 +25,7 @@ function Privileges() {
 
     function clicked(ev) {
         cockpit.drop_privileges(false);
+        window.location.reload(true);
         ev.preventDefault();
     }
 

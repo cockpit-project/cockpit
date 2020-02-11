@@ -101,6 +101,7 @@ export class Terminal extends React.Component {
         this.onWindowResize = this.onWindowResize.bind(this);
         this.connectChannel = this.connectChannel.bind(this);
         this.disconnectChannel = this.disconnectChannel.bind(this);
+        this.reset = this.reset.bind(this);
         this.focus = this.focus.bind(this);
         this.onWindowResize = this.onWindowResize.bind(this);
         this.onFocusIn = this.onFocusIn.bind(this);
@@ -108,12 +109,10 @@ export class Terminal extends React.Component {
         this.setText = this.setText.bind(this);
         this.getText = this.getText.bind(this);
         this.setTerminalTheme = this.setTerminalTheme.bind(this);
-    }
 
-    componentWillMount() {
         var term = new Term({
-            cols: this.props.cols || 80,
-            rows: this.props.rows || 25,
+            cols: props.cols || 80,
+            rows: props.rows || 25,
             screenKeys: true,
             cursorBlink: true,
             fontSize: 16,
@@ -121,19 +120,19 @@ export class Terminal extends React.Component {
             screenReaderMode: true
         });
 
-        term.on('data', function(data) {
+        term.onData(function(data) {
             if (this.props.channel.valid)
                 this.props.channel.send(data);
         }.bind(this));
 
-        if (this.props.onTitleChanged)
-            term.on('title', this.props.onTitleChanged);
+        if (props.onTitleChanged)
+            term.onTitleChange(props.onTitleChanged);
 
-        this.setState({ terminal: term });
+        this.state = { terminal: term };
     }
 
     componentDidMount() {
-        this.state.terminal.open(this.refs.terminal);
+        this.state.terminal.open(this.refs[this.props.refName || "terminal"]);
         this.connectChannel();
 
         if (!this.props.rows) {
@@ -144,28 +143,23 @@ export class Terminal extends React.Component {
         this.state.terminal.focus();
     }
 
-    componentWillUpdate(nextProps, nextState) {
-        if (nextState.cols !== this.state.cols || nextState.rows !== this.state.rows) {
-            this.state.terminal.resize(nextState.cols, nextState.rows);
+    componentDidUpdate(prevProps, prevState) {
+        if (prevState.cols !== this.state.cols || prevState.rows !== this.state.rows) {
+            this.state.terminal.resize(this.state.cols, this.state.rows);
             this.props.channel.control({
                 window: {
-                    rows: nextState.rows,
-                    cols: nextState.cols
+                    rows: this.state.rows,
+                    cols: this.state.cols
                 }
             });
         }
 
-        if (nextProps.channel !== this.props.channel) {
-            this.state.terminal.reset();
-            this.disconnectChannel();
-        }
+        if (prevProps.theme !== this.props.theme)
+            this.setTerminalTheme(this.props.theme);
 
-        if (nextProps.theme !== this.props.theme)
-            this.setTerminalTheme(nextProps.theme);
-    }
-
-    componentDidUpdate(prevProps) {
         if (prevProps.channel !== this.props.channel) {
+            this.state.terminal.reset();
+            this.disconnectChannel(prevProps.channel);
             this.connectChannel();
             this.props.channel.control({
                 window: {
@@ -179,21 +173,21 @@ export class Terminal extends React.Component {
 
     render() {
         return (
-            <React.Fragment>
-                <div ref="terminal"
+            <>
+                <div ref={this.props.refName || "terminal"}
                         key={this.state.terminal}
                         className="console-ct"
                         onFocus={this.onFocusIn}
                         onContextMenu={this.contextMenu}
                         onBlur={this.onFocusOut} />
-                <ContextMenu setText={this.setText} getText={this.getText} />
-            </React.Fragment>
+                <ContextMenu parentId={this.props.parentId} setText={this.setText} getText={this.getText} />
+            </>
         );
     }
 
     componentWillUnmount() {
         this.disconnectChannel();
-        this.state.terminal.destroy();
+        this.state.terminal.dispose();
         window.removeEventListener('resize', this.onWindowResize);
     }
 
@@ -226,7 +220,7 @@ export class Terminal extends React.Component {
         var term = this.state.terminal;
         term.write('\x1b[31m' + (options.problem || 'disconnected') + '\x1b[m\r\n');
         term.cursorHidden = true;
-        term.refresh(term.y, term.y);
+        term.refresh(term.rows, term.rows);
     }
 
     connectChannel() {
@@ -237,11 +231,19 @@ export class Terminal extends React.Component {
         }
     }
 
-    disconnectChannel() {
-        if (this.props.channel) {
-            this.props.channel.removeEventListener('message', this.onChannelMessage);
-            this.props.channel.removeEventListener('close', this.onChannelClose);
+    disconnectChannel(channel) {
+        if (channel === undefined)
+            channel = this.props.channel;
+        if (channel) {
+            channel.removeEventListener('message', this.onChannelMessage);
+            channel.removeEventListener('close', this.onChannelClose);
         }
+        channel.close();
+    }
+
+    reset() {
+        this.state.terminal.reset();
+        this.props.channel.send(String.fromCharCode(12)); // Send SIGWINCH to show prompt on attaching
     }
 
     focus() {
@@ -253,12 +255,13 @@ export class Terminal extends React.Component {
         var padding = 2 * 11;
         var node = ReactDOM.findDOMNode(this);
 
-        var realHeight = this.state.terminal._core.renderer.dimensions.actualCellHeight;
-        var realWidth = this.state.terminal._core.renderer.dimensions.actualCellWidth;
-        this.setState({
-            rows: Math.floor((node.parentElement.clientHeight - padding) / realHeight),
-            cols: Math.floor((node.parentElement.clientWidth - padding) / realWidth)
-        });
+        var realHeight = this.state.terminal._core._renderService.dimensions.actualCellHeight;
+        var realWidth = this.state.terminal._core._renderService.dimensions.actualCellWidth;
+        if (realHeight && realWidth && realWidth !== 0 && realHeight !== 0)
+            this.setState({
+                rows: Math.floor((node.parentElement.clientHeight - padding) / realHeight),
+                cols: Math.floor((node.parentElement.clientWidth - padding) / realWidth)
+            });
     }
 
     setTerminalTheme(theme) {
@@ -289,5 +292,7 @@ Terminal.propTypes = {
     rows: PropTypes.number,
     channel: PropTypes.object.isRequired,
     onTitleChanged: PropTypes.func,
-    theme: PropTypes.string
+    theme: PropTypes.string,
+    refName: PropTypes.string,
+    parentId: PropTypes.string.isRequired
 };

@@ -23,51 +23,51 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
   <title translate>Journal</title>
   <meta charset="utf-8">
   <link href="../base1/patternfly.css" rel="stylesheet">
-  <link href="system.css" rel="stylesheet">
+  <link href="logs.css" rel="stylesheet">
   <script type="text/javascript" src="../base1/jquery.js"></script>
   <script type="text/javascript" src="../base1/cockpit.js"></script>
   <script src="../*/po.js"></script>
 </head>
 
-<body>
+<body class="pf-m-redhat-font">
   <div id="journal">
     <div class="content-header-extra">
       <div class="btn-group" id="journal-current-day-menu">
         <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
           <span id="journal-current-day"></span>
-          <span class="caret"></span>
+          <i class="fa fa-caret-down pf-c-context-selector__toggle-icon" aria-hidden="true"></i>
         </button>
         <ul class="dropdown-menu" role="menu">
-          <li><a tabindex="0" data-op="recent" translatable="yes">Recent</a></li>
-          <li><a tabindex="0" data-op="boot" translatable="yes">Current boot</a></li>
-          <li><a tabindex="0" data-op="previous-boot" translatable="yes">Previous boot</a></li>
-          <li><a tabindex="0" data-op="last-24h" translatable="yes">Last 24 hours</a></li>
-          <li><a tabindex="0" data-op="last-week" translatable="yes">Last 7 days</a></li>
+          <li><a role="link" tabindex="0" data-op="recent" translate="yes">Recent</a></li>
+          <li><a role="link" tabindex="0" data-op="boot" translate="yes">Current boot</a></li>
+          <li><a role="link" tabindex="0" data-op="previous-boot" translate="yes">Previous boot</a></li>
+          <li><a role="link" tabindex="0" data-op="last-24h" translate="yes">Last 24 hours</a></li>
+          <li><a role="link" tabindex="0" data-op="last-week" translate="yes">Last 7 days</a></li>
         </ul>
       </div>
       <span class="" translate>Severity</span>
       <div class="btn-group" id="journal-prio-menu">
         <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
           <span id="journal-prio"></span>
-          <span class="caret"></span>
+          <i class="fa fa-caret-down pf-c-context-selector__toggle-icon" aria-hidden="true"></i>
         </button>
         <ul id="prio-lists" class="dropdown-menu" role="menu">
-          <li><a tabindex="0" data-prio="*" translatable="yes">Everything</a></li>
-          <li><a tabindex="0" data-prio="0" translatable="yes">Only Emergency</a></li>
-          <li><a tabindex="0" data-prio="1" translatable="yes">Alert and above</a></li>
-          <li><a tabindex="0" data-prio="2" translatable="yes">Critical and above</a></li>
-          <li><a tabindex="0" data-prio="3" translatable="yes">Error and above</a></li>
-          <li><a tabindex="0" data-prio="4" translatable="yes">Warning and above</a></li>
-          <li><a tabindex="0" data-prio="5" translatable="yes">Notice and above</a></li>
-          <li><a tabindex="0" data-prio="6" translatable="yes">Info and above</a></li>
-          <li><a tabindex="0" data-prio="7" translatable="yes">Debug and above</a></li>
+          <li><a role="link" tabindex="0" data-prio="*" translate="yes">Everything</a></li>
+          <li><a role="link" tabindex="0" data-prio="0" translate="yes">Only Emergency</a></li>
+          <li><a role="link" tabindex="0" data-prio="1" translate="yes">Alert and above</a></li>
+          <li><a role="link" tabindex="0" data-prio="2" translate="yes">Critical and above</a></li>
+          <li><a role="link" tabindex="0" data-prio="3" translate="yes">Error and above</a></li>
+          <li><a role="link" tabindex="0" data-prio="4" translate="yes">Warning and above</a></li>
+          <li><a role="link" tabindex="0" data-prio="5" translate="yes">Notice and above</a></li>
+          <li><a role="link" tabindex="0" data-prio="6" translate="yes">Info and above</a></li>
+          <li><a role="link" tabindex="0" data-prio="7" translate="yes">Debug and above</a></li>
         </ul>
       </div>
-      <span translatable="yes">Service</span>
+      <span translate="yes">Service</span>
       <div class="btn-group" id="journal-service-menu">
         <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
           <span id="journal-service"></span>
-          <span class="caret"></span>
+          <i class="fa fa-caret-down pf-c-context-selector__toggle-icon" aria-hidden="true"></i>
         </button>
         <ul id="journal-services-list" class="dropdown-menu" role="menu">
         </ul>
@@ -79,18 +79,12 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
   <div id="journal-entry" class="container-fluid" hidden>
     <ol class="breadcrumb">
-      <li><a tabindex="0" id="journal-navigate-home" translatable="yes">Logs</a></li>
-      <li class="active" translatable="yes">Entry</li>
+      <li><a role="link" tabindex="0" id="journal-navigate-home" translate="yes">Logs</a></li>
+      <li id="journal-entry-crumb" class="active" translate="yes">Entry</li>
     </ol>
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <span id="journal-entry-id"></span>
-        <span id="journal-entry-date" class="pull-right"></span>
-      </div>
-      <div id="journal-entry-message"></div>
-      <table class="info-table-ct" id="journal-entry-fields">
-      </table>
-    </div>
+    <h2 id="journal-entry-heading"></h2>
+    <table class="info-table-ct panel panel-default" id="journal-entry-fields">
+    </table>
   </div>
 
   <script type="text/javascript" src="logs.js"></script>

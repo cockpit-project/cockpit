@@ -28,12 +28,24 @@ from testlib import *
 @skipPackage("example")
 class TestExample(MachineCase):
 
+    @unittest.expectedFailure
     def testFail(self):
         self.login_and_go("/system")
         self.assertFalse(True)
 
     def testBasic(self):
         self.login_and_go("/system")
+
+
+class TestPersistentExample(PersistentMachineCase):
+
+    def testOne(self):
+        self.assertEqual(self.machine.execute("whoami").strip(), "root")
+        self.machine.execute("touch /root/the_file")
+
+    def testTwo(self):
+        self.assertIn("usr", self.machine.execute("ls -l /").strip())
+        self.machine.execute("[ -f /root/the_file ] || exit 1")
 
 
 class TestSimple(unittest.TestCase):
@@ -47,6 +59,7 @@ class TestSimple(unittest.TestCase):
                 print(">2", i)
         self.assertTrue(True)
 
+    @unittest.expectedFailure
     def testTwo(self):
         self.assertFalse(True)
 

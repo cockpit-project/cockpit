@@ -20,13 +20,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { vmId } from '../helpers.js';
-import { AddDiskAction } from './diskAdd.jsx';
 import VmDisksTab from './vmDisksTab.jsx';
 import { DiskSourceCell, DiskExtras } from './vmDiskColumns.jsx';
 
 class VmDisksTabLibvirt extends React.Component {
-    componentWillMount() {
-        this.props.onUsageStartPolling();
+    constructor(props) {
+        super(props);
+        props.onUsageStartPolling();
     }
 
     componentWillUnmount() {
@@ -71,10 +71,10 @@ class VmDisksTabLibvirt extends React.Component {
          * required checks before reading them.
          */
         if (disk.type == 'volume') {
-            let pool = storagePools.filter(pool => pool.name == disk.source.pool)[0];
-            let volumes = pool ? pool.volumes : [];
-            let volumeName = disk.source.volume;
-            let volume = volumes.filter(vol => vol.name == volumeName)[0];
+            const pool = storagePools.filter(pool => pool.name == disk.source.pool)[0];
+            const volumes = pool ? pool.volumes : [];
+            const volumeName = disk.source.volume;
+            const volume = volumes.filter(vol => vol.name == volumeName)[0];
 
             if (volume) {
                 capacity = volume.capacity;
@@ -87,9 +87,11 @@ class VmDisksTabLibvirt extends React.Component {
             capacity: capacity,
 
             device: disk.device,
+            driver: disk.driver,
             target: disk.target,
             bus: disk.bus,
             readonly: disk.readonly,
+            shareable: disk.shareable,
 
             // ugly hack due to complexity, refactor if abstraction is really needed
             diskSourceCell: (<DiskSourceCell diskSource={disk.source} idPrefix={idPrefix} />),
@@ -105,7 +107,7 @@ class VmDisksTabLibvirt extends React.Component {
     }
 
     render() {
-        const { vm, dispatch, config, storagePools } = this.props;
+        const { vm, dispatch, config, storagePools, vms } = this.props;
 
         const idPrefix = `${vmId(vm.name)}-disks`;
         const areDiskStatsSupported = this.getDiskStatsSupport(vm);
@@ -116,19 +118,15 @@ class VmDisksTabLibvirt extends React.Component {
                                                     vm.disksStats && vm.disksStats[target],
                                                     `${idPrefix}-${target}`,
                                                     storagePools));
-        let actions = [];
-
-        if (config.provider.name != 'oVirt')
-            actions = [<AddDiskAction dispatch={dispatch} provider={config.provider} idPrefix={idPrefix} key='add-disk' vm={vm} storagePools={storagePools} />];
-
         return (
             <VmDisksTab idPrefix={idPrefix}
-                actions={actions}
                 vm={vm}
+                vms={vms}
                 disks={disks}
                 renderCapacity={areDiskStatsSupported}
                 dispatch={dispatch}
-                provider={config.provider.name}
+                provider={config.provider}
+                storagePools={storagePools}
                 onAddErrorNotification={this.props.onAddErrorNotification} />
         );
     }
@@ -136,6 +134,7 @@ class VmDisksTabLibvirt extends React.Component {
 
 VmDisksTabLibvirt.propTypes = {
     vm: PropTypes.object.isRequired,
+    vms: PropTypes.array.isRequired,
     dispatch: PropTypes.func.isRequired,
 
     onUsageStartPolling: PropTypes.func.isRequired,

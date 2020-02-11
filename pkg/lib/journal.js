@@ -22,9 +22,11 @@ import { mustache } from "mustache";
 import day_header_template from 'raw-loader!journal_day_header.mustache';
 import line_template from 'raw-loader!journal_line.mustache';
 import reboot_template from 'raw-loader!journal_reboot.mustache';
+import moment from "moment";
+
+moment.locale(cockpit.language);
 
 const _ = cockpit.gettext;
-var C_ = cockpit.gettext;
 
 export var journal = { };
 
@@ -96,7 +98,7 @@ journal.build_cmd = function build_cmd(/* ... */) {
             options.count = null;
     }
 
-    var cmd = [ "journalctl", "-q" ];
+    var cmd = ["journalctl", "-q"];
     if (!options.count)
         cmd.push("--no-tail");
     else
@@ -228,30 +230,30 @@ function output_funcs_for_box(box) {
 
     function render_line(ident, prio, message, count, time, entry) {
         var parts = {
-            'cursor': entry["__CURSOR"],
-            'time': time,
-            'message': message,
-            'service': ident
+            cursor: entry.__CURSOR,
+            time: time,
+            message: message,
+            service: ident
         };
         if (count > 1)
-            parts['count'] = count;
+            parts.count = count;
         if (ident === 'abrt-notification') {
-            parts['problem'] = true;
-            parts['service'] = entry['PROBLEM_BINARY'];
+            parts.problem = true;
+            parts.service = entry.PROBLEM_BINARY;
         } else if (prio < 4)
-            parts['warning'] = true;
+            parts.warning = true;
         return mustache.render(line_template, parts);
     }
 
     var reboot = _("Reboot");
-    var reboot_line = mustache.render(reboot_template, { 'message': reboot });
+    var reboot_line = mustache.render(reboot_template, { message: reboot });
 
     function render_reboot_separator() {
         return reboot_line;
     }
 
     function render_day_header(day) {
-        return mustache.render(day_header_template, { 'day': day });
+        return mustache.render(day_header_template, { day: day });
     }
 
     function parse_html(string) {
@@ -288,21 +290,6 @@ function output_funcs_for_box(box) {
         },
     };
 }
-
-var month_names = [
-    C_("month-name", 'January'),
-    C_("month-name", 'February'),
-    C_("month-name", 'March'),
-    C_("month-name", 'April'),
-    C_("month-name", 'May'),
-    C_("month-name", 'June'),
-    C_("month-name", 'July'),
-    C_("month-name", 'August'),
-    C_("month-name", 'September'),
-    C_("month-name", 'October'),
-    C_("month-name", 'November'),
-    C_("month-name", 'December')
-];
 
 /* Render the journal entries by passing suitable HTML strings back to
    the caller via the 'output_funcs'.
@@ -383,23 +370,16 @@ journal.renderer = function renderer(funcs_or_box) {
     // 'day', all of which are strings.
 
     function format_entry(journal_entry) {
-        function pad(n) {
-            var str = n.toFixed();
-            if (str.length == 1)
-                str = '0' + str;
-            return str;
-        }
-
-        var d = new Date(journal_entry["__REALTIME_TIMESTAMP"] / 1000);
+        var d = moment(journal_entry.__REALTIME_TIMESTAMP / 1000); // timestamps are in µs
         return {
-            cursor: journal_entry["__CURSOR"],
+            cursor: journal_entry.__CURSOR,
             full: journal_entry,
-            day: month_names[d.getMonth()] + ' ' + d.getDate().toFixed() + ', ' + d.getFullYear().toFixed(),
-            time: pad(d.getHours()) + ':' + pad(d.getMinutes()),
-            bootid: journal_entry["_BOOT_ID"],
-            ident: journal_entry["SYSLOG_IDENTIFIER"] || journal_entry["_COMM"],
-            prio: journal_entry["PRIORITY"],
-            message: journal.printable(journal_entry["MESSAGE"])
+            day: d.format('LL'),
+            time: d.format('LT'),
+            bootid: journal_entry._BOOT_ID,
+            ident: journal_entry.SYSLOG_IDENTIFIER || journal_entry._COMM,
+            prio: journal_entry.PRIORITY,
+            message: journal.printable(journal_entry.MESSAGE)
         };
     }
 
@@ -541,15 +521,16 @@ journal.renderer = function renderer(funcs_or_box) {
         bottom_output();
     }
 
-    return { prepend: prepend,
-             prepend_flush: prepend_flush,
-             append: append,
-             append_flush: append_flush
+    return {
+        prepend: prepend,
+        prepend_flush: prepend_flush,
+        append: append,
+        append_flush: append_flush
     };
 };
 
 journal.logbox = function logbox(match, max_entries) {
-    var entries = [ ];
+    var entries = [];
     var box = document.createElement("div");
 
     function render() {
@@ -561,7 +542,7 @@ journal.logbox = function logbox(match, max_entries) {
         }
         renderer.prepend_flush();
         if (entries.length === 0) {
-            let empty_message = document.createElement("span");
+            const empty_message = document.createElement("span");
             empty_message.textContent = "No log entries";
             empty_message.setAttribute("class", "empty-message");
             box.appendChild(empty_message);

@@ -80,10 +80,10 @@ export class ListingRow extends React.Component {
         if (!e || e.button !== 0)
             return;
 
-        let willBeExpanded = !this.state.expanded && (this.props.tabRenderers.length > 0 || this.props.simpleBody);
+        const willBeExpanded = !this.state.expanded && (this.props.tabRenderers.length > 0 || this.props.simpleBody);
         this.setState({ expanded: willBeExpanded });
 
-        let loadedTabs = {};
+        const loadedTabs = {};
         // unload all tabs if not expanded
         if (willBeExpanded) {
             // see if we should preload some tabs
@@ -119,7 +119,7 @@ export class ListingRow extends React.Component {
         if (this.props.addCheckbox && e.target.type != 'checkbox')
             return;
 
-        let selected = !this.state.selected;
+        const selected = !this.state.selected;
         this.setState({ selected: selected });
 
         if (this.props.selectChanged)
@@ -132,9 +132,9 @@ export class ListingRow extends React.Component {
         // only consider primary mouse button
         if (!e || e.button !== 0)
             return;
-        let prevTab = this.state.activeTab;
+        const prevTab = this.state.activeTab;
         let prevTabPresence = 'default';
-        let loadedTabs = this.state.loadedTabs;
+        const loadedTabs = this.state.loadedTabs;
         if (prevTab !== tabIdx) {
             // see if we need to unload the previous tab
             if (this.props.tabRenderers[prevTab] && 'presence' in this.props.tabRenderers[prevTab])
@@ -152,11 +152,11 @@ export class ListingRow extends React.Component {
     }
 
     render() {
-        let self = this;
+        const self = this;
         // only enable navigation if a function is provided and the row isn't expanded (prevent accidental navigation)
-        let allowNavigate = !!this.props.navigateToItem && !this.state.expanded;
+        const allowNavigate = !!this.props.navigateToItem && !this.state.expanded;
 
-        let headerEntries = this.props.columns.map((itm, index) => {
+        const headerEntries = this.props.columns.map((itm, index) => {
             if (typeof itm === 'string' || typeof itm === 'number' || itm === null || itm === undefined || itm instanceof String || React.isValidElement(itm))
                 return (<td key={index}>{itm}</td>);
             else if ('header' in itm && itm.header)
@@ -167,11 +167,11 @@ export class ListingRow extends React.Component {
                 return (<td key={index}>{itm.name}</td>);
         });
 
-        let allowExpand = (this.props.tabRenderers.length > 0 || this.props.simpleBody);
+        const allowExpand = (this.props.tabRenderers.length > 0 || this.props.simpleBody);
         let expandToggle;
         if (allowExpand) {
             expandToggle = <td key="expandToggle" className="listing-ct-toggle" onClick={ allowNavigate ? this.handleExpandClick : undefined }>
-                <i className="fa fa-fw" />
+                <button className="pf-c-button pf-m-plain" type="button" aria-label="expand row"><i className="fa fa-fw" /></button>
             </td>;
         } else {
             expandToggle = <td key="expandToggle-empty" className="listing-ct-toggle" />;
@@ -187,7 +187,7 @@ export class ListingRow extends React.Component {
         if (!allowExpand)
             listingItemClasses.push("listing-ct-noexpand");
 
-        let allowSelect = !(allowNavigate || allowExpand) && (this.state.selected !== undefined);
+        const allowSelect = !(allowNavigate || allowExpand) && (this.state.selected !== undefined);
         let clickHandler;
         if (allowSelect) {
             clickHandler = this.handleSelectClick;
@@ -202,12 +202,12 @@ export class ListingRow extends React.Component {
 
         let checkboxItem;
         if (this.props.addCheckbox) {
-            checkboxItem = <td key="checkboxItem" className="listing-ct-toggle" >
+            checkboxItem = <td key="checkboxItem" className="listing-ct-toggle">
                 <input type='checkbox' checked={this.state.selected || false} onChange={this.handleSelectClick} />
             </td>;
         }
 
-        let listingItem = (
+        const listingItem = (
             <tr data-row-id={ this.props.rowId }
                 className={ listingItemClasses.join(' ') }
                 onClick={clickHandler}>
@@ -218,14 +218,14 @@ export class ListingRow extends React.Component {
         );
 
         if (this.state.expanded) {
-            let links = this.props.tabRenderers.map((itm, idx) => {
+            const links = this.props.tabRenderers.map((itm, idx) => {
                 return (
-                    <li key={idx} className={ (idx === self.state.activeTab) ? "active" : ""} >
+                    <li key={idx} className={ (idx === self.state.activeTab) ? "active" : ""}>
                         <a href="#" tabIndex="0" onClick={ self.handleTabClick.bind(self, idx) }>{itm.name}</a>
                     </li>
                 );
             });
-            let tabs = [];
+            const tabs = [];
             let tabIdx;
             let Renderer;
             let rendererData;
@@ -257,9 +257,14 @@ export class ListingRow extends React.Component {
 
             let simpleBody, heading;
             if ('simpleBody' in this.props) {
-                simpleBody = (
-                    <div className="listing-ct-body" key="simplebody">{this.props.simpleBody}</div>
-                );
+                heading =
+                    <div className="listing-ct-actions listing-ct-simplebody-actions">
+                        {this.props.listingActions}
+                    </div>;
+                simpleBody =
+                    <div className="listing-ct-body" key="simplebody">
+                        {this.props.simpleBody}
+                    </div>;
             } else {
                 heading = (<div className="listing-ct-head">
                     <div className="listing-ct-actions">
@@ -318,11 +323,10 @@ ListingRow.propTypes = {
     simpleBody: PropTypes.node,
 };
 /* Implements a PatternFly 'List View' pattern
- * https://www.patternfly.org/list-view/
+ * https://www.patternfly.org/v3/pattern-library/content-views/list-view/index.html
  * Properties (all optional):
  * - title
  * - fullWidth: set width to 100% of parent, defaults to true
- * - compact: reduce spacing for each cell, defaults to false
  * - emptyCaption: header caption to show if list is empty
  * - columnTitles: array of column titles, as strings
  * - columnTitleClick: callback for clicking on column title (for sorting)
@@ -331,11 +335,9 @@ ListingRow.propTypes = {
  * - actions: additional listing-wide actions (displayed next to the list's title)
  */
 export const Listing = (props) => {
-    let bodyClasses = ["listing", "listing-ct"];
+    const bodyClasses = ["listing", "listing-ct"];
     if (props.fullWidth)
         bodyClasses.push("listing-ct-wide");
-    if (props.compact)
-        bodyClasses.push("listing-ct-compact");
     let headerClasses;
     let headerRow;
     if (!props.children || props.children.length === 0) {
@@ -357,25 +359,33 @@ export const Listing = (props) => {
     } else {
         headerRow = <tr />;
     }
-    let caption;
+    let heading;
     if (props.title || (props.actions && props.actions.length > 0))
-        caption = <caption className="cockpit-caption">{props.title}{props.actions}</caption>;
+        heading = (
+            <header>
+                {props.title && <h3 className="listing-ct-heading" id="listing-ct-heading">{props.title}</h3>}
+                {props.actions && <div className="listing-ct-actions">
+                    {props.actions}
+                </div>}
+            </header>
+        );
 
     return (
-        <table className={ bodyClasses.join(" ") }>
-            {caption}
-            <thead className={headerClasses}>
-                {headerRow}
-            </thead>
-            {props.children}
-        </table>
+        <section className="ct-listing">
+            {heading}
+            <table aria-labelledby={heading && "listing-ct-heading"} className={ bodyClasses.join(" ") }>
+                <thead className={headerClasses}>
+                    {headerRow}
+                </thead>
+                {props.children}
+            </table>
+        </section>
     );
 };
 
 Listing.defaultProps = {
     title: '',
     fullWidth: true,
-    compact: false,
     emptyCaption: '',
     columnTitles: [],
     actions: []
@@ -384,7 +394,6 @@ Listing.defaultProps = {
 Listing.propTypes = {
     title: PropTypes.string,
     fullWidth: PropTypes.bool,
-    compact: PropTypes.bool,
     emptyCaption: PropTypes.node,
     columnTitles: PropTypes.arrayOf(
         PropTypes.oneOfType([

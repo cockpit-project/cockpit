@@ -23,7 +23,6 @@ import parent
 from testlib import *
 
 
-@skipImage("Don't run upstream tests against distro packages", "rhel-8-0-distropkg")
 class TestAccounts(MachineCase):
 
     def testBasic(self):
@@ -41,6 +40,7 @@ class TestAccounts(MachineCase):
         b.go("#/anton")
         b.wait_text("#account-user-name", "anton")
         b.wait_text("#account-title", "anton")
+        b.wait_not_attr("#account-delete", "disabled", "disabled")
         b.set_val('#account-real-name', "Anton Arbitrary")
         b.wait_not_attr('#account-real-name', 'data-dirty', 'true')
         # don't wait for /etc/passwd to be current - this should hold true once the 'data-dirty' was removed
@@ -73,9 +73,9 @@ class TestAccounts(MachineCase):
         b.go("#/root")
         b.wait_text("#account-user-name", "root")
         # some operations are not allowed for root user
-        b.wait_present("#account-delete.disabled")
+        b.wait_present("#account-delete[disabled]")
+        b.wait_present("#account-real-name-wrapper[disabled]")
         b.wait_attr("#account-logout", "disabled", "disabled")
-        b.wait_present("#account-real-name-wrapper.disabled")
         b.wait_present("#account-locked:not(:checked)")
         # root account should not be locked by default on our images
         self.assertIn(m.execute("passwd -S root").split()[1], ["P", "PS"])
@@ -88,6 +88,7 @@ class TestAccounts(MachineCase):
         b.wait_present("#accounts-create")
 
         # Create a user from the UI
+        m.execute("sed -i 's/^SHELL=.*$/SHELL=\/bin\/true/' /etc/default/useradd")
         b.click('#accounts-create')
         b.wait_popup('accounts-create-dialog')
         b.set_val('#accounts-create-user-name', "berta")
@@ -111,11 +112,16 @@ class TestAccounts(MachineCase):
         self.assertTrue(home_dir.endswith("/berta"))
         self.assertEqual(m.execute("stat -c '%U' {0}".format(home_dir)).strip(), "berta")
 
+        # Check that we set up shell configured in /etc/default/useradd
+        shell = m.execute("getent passwd berta | cut -f7 -d:").strip()
+        self.assertEqual(shell, '/bin/true')
+
         # Delete it externally
         m.execute("userdel berta")
         b.wait_not_in_text('#accounts-list', "Berta Bestimmt")
 
         # Create a locked user
+        m.execute("sed -i 's/^SHELL=.*$/SHELL=/' /etc/default/useradd")
         b.click('#accounts-create')
         b.wait_popup('accounts-create-dialog')
         b.set_val('#accounts-create-user-name', "jussi")
@@ -138,6 +144,10 @@ class TestAccounts(MachineCase):
         b.wait(lambda: not is_admin())
         b.wait(is_locked)
 
+        # Check that by default we set up `/bin/bash`
+        shell = m.execute("getent passwd jussi | cut -f7 -d:").strip()
+        self.assertEqual(shell, '/bin/bash')
+
         # Unlock it and make it an admin
         b.go("#/jussi")
         b.wait_text("#account-user-name", "jussi")
@@ -146,13 +156,29 @@ class TestAccounts(MachineCase):
         b.wait_present(admin_role_sel + ":not(:checked)")
         b.set_checked(admin_role_sel, True)
         b.wait(is_admin)
-        # An alert which shows up once we've changed things
-        b.wait_present("#account-roles .alert-info")
+        if m.image != "rhel-8-2-distropkg": #Changed in #13492
+            b.wait_present(admin_role_sel + ":checked")
+            b.wait_not_present("#account-roles .pf-c-alert.pf-m-info")
+
+        # Login as jussi and change role admin for itself
+        b.logout()
+        b.login_and_go("/users", user="jussi", password=good_password)
+        b.go("#/jussi")
+        b.wait_text("#account-user-name", "jussi")
         b.wait_present(admin_role_sel + ":checked")
         b.set_checked(admin_role_sel, False)
         b.wait(lambda: not is_admin())
+        if m.image != "fedora-coreos": # User is not shown as logged in when logged in through Cockpit
+            b.wait_present("#account-roles .pf-c-alert.pf-m-info")
         m.execute("/usr/sbin/usermod jussi -G %s -a" % m.get_admin_group())
         b.wait_present(admin_role_sel + ":checked:not([disabled])")
+        b.go("#/admin")
+        b.wait_text("#account-user-name", "admin")
+        b.wait_present(admin_role_sel + ":checked")
+        if m.image != "rhel-8-2-distropkg": #Changed in #13492
+            b.wait_not_present("#account-roles .pf-c-alert.pf-m-info")
+        b.logout()
+        b.login_and_go("/users")
 
         # Change the password of this account
         b.go("#/jussi")
@@ -189,6 +215,15 @@ class TestAccounts(MachineCase):
         b.click('#login-button')
         b.expect_load()
         b.wait_present('#content')
+
+        # incomplete passwd entry; fixed in PR #13384
+        if m.image not in ["rhel-8-2-distropkg"]:
+            m.execute('echo "damaged:x:1234:1234:Damaged" >> /etc/passwd')
+            b.go("/users")
+            b.enter_page("/users")
+            b.wait_in_text('#accounts-list', "damaged")
+            b.click('.cockpit-account-user-name[href="#/damaged"]')
+            b.wait_in_text("#account-title", "Damaged")
 
         self.allow_journal_messages("Password quality check failed:")
         self.allow_journal_messages("The password is a palindrome")
@@ -241,6 +276,7 @@ class TestAccounts(MachineCase):
         self.allow_restart_journal_messages()
         self.allow_authorize_journal_messages()
 
+    @skipImage("ssh root login not allowed", "fedora-coreos")
     def testRootLogin(self):
         m = self.machine
         b = self.browser
@@ -367,9 +403,9 @@ class TestAccounts(MachineCase):
         b.go("#/scruffy")
         b.wait_text("#account-user-name", "scruffy")
         b.wait_text("#account-expiration-button", "Never lock account")
-        b.wait_present("#account-expiration-button.disabled")
+        b.wait_present("#account-expiration-button[disabled]")
         b.wait_in_text("#password-expiration-button", "Require password change on")
-        b.wait_present("#password-expiration-button.disabled")
+        b.wait_present("#password-expiration-button[disabled]")
 
         # Lastly force a password change
         b.logout()

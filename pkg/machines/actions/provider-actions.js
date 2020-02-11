@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 import cockpit from 'cockpit';
-import { getRefreshInterval } from '../selectors.js';
+import { getLibvirtServiceState, getRefreshInterval } from '../selectors.js';
 import VMS_CONFIG from "../config.js";
 import { logDebug } from '../helpers.js';
 import { virt } from '../provider.js';
@@ -77,8 +77,8 @@ import {
  *  The naming convention for action creator names is: <verb><Noun>
  *  with the present tense.
  */
-export function attachDisk({ connectionName, poolName, volumeName, format, target, permanent, hotplug, cacheMode, vmName, vmId }) {
-    return virt(ATTACH_DISK, { connectionName, poolName, volumeName, format, target, permanent, hotplug, cacheMode, vmName, vmId });
+export function attachDisk({ connectionName, poolName, volumeName, format, target, permanent, hotplug, cacheMode, vmName, vmId, shareable, busType }) {
+    return virt(ATTACH_DISK, { connectionName, poolName, volumeName, format, target, permanent, hotplug, cacheMode, vmName, vmId, shareable, busType });
 }
 
 export function changeBootOrder({ vm, devices }) {
@@ -122,8 +122,8 @@ export function createVm(vmParams) {
     return virt(CREATE_VM, vmParams);
 }
 
-export function deleteVm(vm, options) {
-    return virt(DELETE_VM, { name: vm.name, id: vm.id, connectionName: vm.connectionName, options: options });
+export function deleteVm(vm, options, storagePools) {
+    return virt(DELETE_VM, { name: vm.name, id: vm.id, connectionName: vm.connectionName, options, storagePools });
 }
 
 export function detachDisk({ connectionName, target, name, id, live = false }) {
@@ -291,8 +291,21 @@ export function vmDesktopConsole(vm, consoleDetail) {
     return virt(CONSOLE_VM, { name: vm.name, id: vm.id, connectionName: vm.connectionName, consoleDetail });
 }
 
-export function volumeCreateAndAttach({ connectionName, poolName, volumeName, size, format, target, permanent, hotplug, cacheMode, vmName, vmId }) {
-    return virt(CREATE_AND_ATTACH_VOLUME, { connectionName, poolName, volumeName, size, format, target, permanent, hotplug, cacheMode, vmName, vmId });
+export function volumeCreateAndAttach({ connectionName, poolName, volumeName, size, format, target, permanent, hotplug, cacheMode, vmName, vmId, busType }) {
+    return virt(CREATE_AND_ATTACH_VOLUME, { connectionName, poolName, volumeName, size, format, target, permanent, hotplug, cacheMode, vmName, vmId, busType });
+}
+
+function delayPollingHelper(action, timeout) {
+    return (dispatch, getState) => {
+        window.setTimeout(() => {
+            const libvirtState = getLibvirtServiceState(getState());
+            if (libvirtState !== "running")
+                return dispatch(delayPollingHelper(action, timeout));
+
+            logDebug('Executing delayed action');
+            dispatch(action);
+        }, timeout);
+    };
 }
 
 /**
@@ -315,10 +328,7 @@ export function delayPolling(action, timeout) {
 
         if (timeout > 0 && !cockpit.hidden) {
             logDebug(`Scheduling ${timeout} ms delayed action`);
-            window.setTimeout(() => {
-                logDebug('Executing delayed action');
-                dispatch(action);
-            }, timeout);
+            dispatch(delayPollingHelper(action, timeout));
         } else {
             // logDebug(`Skipping delayed action since refreshing is switched off`);
             window.setTimeout(() => dispatch(delayPolling(action, timeout)), VMS_CONFIG.DefaultRefreshInterval);

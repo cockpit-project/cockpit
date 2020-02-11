@@ -34,12 +34,31 @@ import { find_warnings } from "./warnings.jsx";
 
 /* HACK: https://github.com/storaged-project/storaged/pull/68 */
 var hacks = { };
-if (cockpit.manifests["storage"] && cockpit.manifests["storage"]["hacks"])
-    hacks = cockpit.manifests["storage"]["hacks"];
+if (cockpit.manifests.storage && cockpit.manifests.storage.hacks)
+    hacks = cockpit.manifests.storage.hacks;
 
-var client = { };
+var client = {
+    busy: 0
+};
 
 cockpit.event_target(client);
+
+client.run = (func) => {
+    const prom = func();
+    if (prom) {
+        client.busy += 1;
+        return prom.finally(() => {
+            client.busy -= 1;
+            client.dispatchEvent("changed");
+        });
+    }
+};
+
+/* Permissions
+ */
+
+client.permission = cockpit.permission({ admin: true });
+client.permission.addEventListener("changed", () => { client.dispatchEvent('changed') });
 
 /* Metrics
  */
@@ -55,11 +74,11 @@ function instance_sampler(metrics, source) {
 
     function handle_meta(msg) {
         self.data = { };
-        instances = [ ];
+        instances = [];
         for (var m = 0; m < msg.metrics.length; m++) {
             instances[m] = msg.metrics[m].instances;
             for (var i = 0; i < instances[m].length; i++)
-                self.data[instances[m][i]] = [ ];
+                self.data[instances[m][i]] = [];
         }
         if (Object.keys(self.data).length > 100) {
             close();
@@ -85,9 +104,10 @@ function instance_sampler(metrics, source) {
             self.dispatchEvent('changed');
     }
 
-    var channel = cockpit.channel({ payload: "metrics1",
-                                    source: source || "internal",
-                                    metrics: metrics
+    var channel = cockpit.channel({
+        payload: "metrics1",
+        source: source || "internal",
+        metrics: metrics
     });
     channel.addEventListener("closed", function (event, error) {
         console.log("closed", error);
@@ -110,18 +130,14 @@ function instance_sampler(metrics, source) {
 /* D-Bus proxies
  */
 
-var STORAGED_SERVICE;
-var STORAGED_OPATH_PFX;
-var STORAGED_IFACE_PFX;
-
 client.time_offset = undefined; /* Number of milliseconds that the server is ahead of us. */
 client.features = undefined;
 
 client.storaged_client = undefined;
 
 function proxy(iface, path) {
-    return client.storaged_client.proxy(STORAGED_IFACE_PFX + "." + iface,
-                                        STORAGED_OPATH_PFX + "/" + path,
+    return client.storaged_client.proxy("org.freedesktop.UDisks2." + iface,
+                                        "/org/freedesktop/UDisks2/" + path,
                                         { watch: true });
 }
 
@@ -131,17 +147,17 @@ function proxies(iface) {
      * efficient since it reduces the number of D-Bus calls done
      * by the cache.
      */
-    return client.storaged_client.proxies(STORAGED_IFACE_PFX + "." + iface,
-                                          STORAGED_OPATH_PFX,
+    return client.storaged_client.proxies("org.freedesktop.UDisks2." + iface,
+                                          "/org/freedesktop/UDisks2",
                                           { watch: false });
 }
 
 client.call = function call(path, iface, method, args, options) {
-    return client.storaged_client.call(path, STORAGED_IFACE_PFX + "." + iface, method, args, options);
+    return client.storaged_client.call(path, "org.freedesktop.UDisks2." + iface, method, args, options);
 };
 
 function init_proxies () {
-    client.storaged_client.watch({ path_namespace: STORAGED_OPATH_PFX });
+    client.storaged_client.watch({ path_namespace: "/org/freedesktop/UDisks2" });
 
     client.mdraids = proxies("MDRaid");
     client.vgroups = proxies("VolumeGroup");
@@ -163,17 +179,13 @@ function init_proxies () {
 /* Monitors
  */
 
-client.fsys_sizes = instance_sampler([ { name: "mount.used" },
+client.fsys_sizes = instance_sampler([{ name: "mount.used" },
     { name: "mount.total" }
 ]);
 
-client.swap_sizes = instance_sampler([ { name: "swapdev.length" },
+client.swap_sizes = instance_sampler([{ name: "swapdev.length" },
     { name: "swapdev.free" },
 ], "direct");
-
-client.blockdev_io = instance_sampler([ { name: "block.device.read", derive: "rate" },
-    { name: "block.device.written", derive: "rate" }
-]);
 
 /* Derived indices.
  */
@@ -197,7 +209,7 @@ function update_indices() {
     client.drives_multipath_blocks = { };
     client.drives_block = { };
     for (path in client.drives) {
-        client.drives_multipath_blocks[path] = [ ];
+        client.drives_multipath_blocks[path] = [];
     }
     for (path in client.blocks) {
         block = client.blocks[path];
@@ -216,7 +228,7 @@ function update_indices() {
 
         if (!client.drives_block[path] && client.drives_multipath_blocks[path].length == 1) {
             client.drives_block[path] = client.drives_multipath_blocks[path][0];
-            client.drives_multipath_blocks[path] = [ ];
+            client.drives_multipath_blocks[path] = [];
         } else {
             client.drives_multipath_blocks[path].sort(utils.block_cmp);
             if (!client.drives_block[path])
@@ -233,7 +245,7 @@ function update_indices() {
 
     client.mdraids_members = { };
     for (path in client.mdraids) {
-        client.mdraids_members[path] = [ ];
+        client.mdraids_members[path] = [];
     }
     for (path in client.blocks) {
         block = client.blocks[path];
@@ -270,7 +282,7 @@ function update_indices() {
 
     client.vgroups_pvols = { };
     for (path in client.vgroups) {
-        client.vgroups_pvols[path] = [ ];
+        client.vgroups_pvols[path] = [];
     }
     for (path in client.blocks_pvol) {
         pvol = client.blocks_pvol[path];
@@ -286,7 +298,7 @@ function update_indices() {
 
     client.vgroups_lvols = { };
     for (path in client.vgroups) {
-        client.vgroups_lvols[path] = [ ];
+        client.vgroups_lvols[path] = [];
     }
     for (path in client.lvols) {
         lvol = client.lvols[path];
@@ -305,7 +317,7 @@ function update_indices() {
     client.lvols_pool_members = { };
     for (path in client.lvols) {
         if (client.lvols[path].Type == "pool")
-            client.lvols_pool_members[path] = [ ];
+            client.lvols_pool_members[path] = [];
     }
     for (path in client.lvols) {
         lvol = client.lvols[path];
@@ -325,7 +337,7 @@ function update_indices() {
 
     client.blocks_partitions = { };
     for (path in client.blocks_ptable) {
-        client.blocks_partitions[path] = [ ];
+        client.blocks_partitions[path] = [];
     }
     for (path in client.blocks_part) {
         part = client.blocks_part[path];
@@ -384,7 +396,7 @@ function init_model(callback) {
                 var defer = cockpit.defer();
                 client.manager_lvm2 = proxy("Manager.LVM2", "Manager");
                 client.manager_iscsi = proxy("Manager.ISCSI.Initiator", "Manager");
-                wait_all([ client.manager_lvm2, client.manager_iscsi ],
+                wait_all([client.manager_lvm2, client.manager_iscsi],
                          function () {
                              client.features.lvm2 = client.manager_lvm2.valid;
                              client.features.iscsi = (hacks.with_storaged_iscsi_sessions != "no" &&
@@ -411,7 +423,7 @@ function init_model(callback) {
     }
 
     function enable_clevis_features() {
-        return cockpit.spawn([ "which", "clevis-luks-bind" ], { err: "ignore" }).then(
+        return cockpit.spawn(["which", "clevis-luks-bind"], { err: "ignore" }).then(
             function () {
                 client.features.clevis = true;
                 return cockpit.resolve();
@@ -425,8 +437,8 @@ function init_model(callback) {
         // mount.nfs might be in */sbin but that ins't always in
         // $PATH, such as when connecting from CentOS to another
         // machine via SSH as non-root.
-        let std_path = "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin";
-        return cockpit.spawn([ "which", "mount.nfs" ], { err: "message", environ: [ std_path ] }).then(
+        const std_path = "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin";
+        return cockpit.spawn(["which", "mount.nfs"], { err: "message", environ: [std_path] }).then(
             function () {
                 client.features.nfs = true;
                 client.nfs.start();
@@ -506,7 +518,7 @@ function init_model(callback) {
         }
     }
 
-    wait_all([ client.manager,
+    wait_all([client.manager,
         client.mdraids, client.vgroups, client.drives,
         client.blocks, client.blocks_ptable, client.blocks_lvm2, client.blocks_fsys
     ], function () {
@@ -538,7 +550,7 @@ client.older_than = function older_than(version) {
 
 function nfs_mounts() {
     var self = {
-        entries: [ ],
+        entries: [],
         fsys_sizes: { },
 
         start: start,
@@ -559,12 +571,12 @@ function nfs_mounts() {
     };
 
     function spawn_nfs_mounts(args) {
-        return python.spawn([ inotify_py, nfs_mounts_py ], args, { superuser: "try", err: "message" });
+        return python.spawn([inotify_py, nfs_mounts_py], args, { superuser: "try", err: "message" });
     }
 
     function start() {
         var buf = "";
-        spawn_nfs_mounts([ "monitor" ])
+        spawn_nfs_mounts(["monitor"])
                 .stream(function (output) {
                     var lines;
 
@@ -593,14 +605,14 @@ function nfs_mounts() {
             return null;
 
         self.fsys_sizes[path] = false;
-        cockpit.spawn([ "stat", "-f", "-c", "[ %S, %f, %b ]", path ], { err: "message" })
+        cockpit.spawn(["stat", "-f", "-c", "[ %S, %f, %b ]", path], { err: "message" })
                 .done(function (output) {
                     var data = JSON.parse(output);
-                    self.fsys_sizes[path] = [ (data[2] - data[1]) * data[0], data[2] * data[0] ];
+                    self.fsys_sizes[path] = [(data[2] - data[1]) * data[0], data[2] * data[0]];
                     client.dispatchEvent('changed');
                 })
                 .fail(function () {
-                    self.fsys_sizes[path] = [ 0, 0 ];
+                    self.fsys_sizes[path] = [0, 0];
                     client.dispatchEvent('changed');
                 });
 
@@ -608,37 +620,37 @@ function nfs_mounts() {
     }
 
     function update_entry(entry, new_fields) {
-        return spawn_nfs_mounts([ "update", JSON.stringify(entry), JSON.stringify(new_fields) ]);
+        return spawn_nfs_mounts(["update", JSON.stringify(entry), JSON.stringify(new_fields)]);
     }
 
     function add_entry(fields) {
-        return spawn_nfs_mounts([ "add", JSON.stringify(fields) ]);
+        return spawn_nfs_mounts(["add", JSON.stringify(fields)]);
     }
 
     function remove_entry(entry) {
-        return spawn_nfs_mounts([ "remove", JSON.stringify(entry) ]);
+        return spawn_nfs_mounts(["remove", JSON.stringify(entry)]);
     }
 
     function mount_entry(entry) {
-        return spawn_nfs_mounts([ "mount", JSON.stringify(entry) ]);
+        return spawn_nfs_mounts(["mount", JSON.stringify(entry)]);
     }
 
     function unmount_entry(entry) {
-        return spawn_nfs_mounts([ "unmount", JSON.stringify(entry) ]);
+        return spawn_nfs_mounts(["unmount", JSON.stringify(entry)]);
     }
 
     function stop_and_unmount_entry(users, entry) {
         var units = users.map(function (u) { return u.unit });
-        return spawn_nfs_mounts([ "stop-and-unmount", JSON.stringify(units), JSON.stringify(entry) ]);
+        return spawn_nfs_mounts(["stop-and-unmount", JSON.stringify(units), JSON.stringify(entry)]);
     }
 
     function stop_and_remove_entry(users, entry) {
         var units = users.map(function (u) { return u.unit });
-        return spawn_nfs_mounts([ "stop-and-remove", JSON.stringify(units), JSON.stringify(entry) ]);
+        return spawn_nfs_mounts(["stop-and-remove", JSON.stringify(units), JSON.stringify(entry)]);
     }
 
     function entry_users(entry) {
-        return spawn_nfs_mounts([ "users", JSON.stringify(entry) ]).then(JSON.parse);
+        return spawn_nfs_mounts(["users", JSON.stringify(entry)]).then(JSON.parse);
     }
 
     function find_entry(remote, local) {
@@ -659,7 +671,7 @@ function vdo_overlay() {
     var self = {
         start: start,
 
-        volumes: [ ],
+        volumes: [],
 
         by_name: { },
         by_dev: { },
@@ -672,9 +684,10 @@ function vdo_overlay() {
     };
 
     function cmd(args) {
-        return cockpit.spawn([ "vdo" ].concat(args),
-                             { superuser: true,
-                               err: "message"
+        return cockpit.spawn(["vdo"].concat(args),
+                             {
+                                 superuser: true,
+                                 err: "message"
                              });
     }
 
@@ -687,55 +700,56 @@ function vdo_overlay() {
             var name = vol.name;
 
             function volcmd(args) {
-                return cmd(args.concat([ "--name", name ]));
+                return cmd(args.concat(["--name", name]));
             }
 
-            var v = { name: name,
-                      broken: vol.broken,
-                      dev: "/dev/mapper/" + name,
-                      backing_dev: vol.device,
-                      logical_size: vol.logical_size,
-                      physical_size: vol.physical_size,
-                      index_mem: vol.index_mem,
-                      compression: vol.compression,
-                      deduplication: vol.deduplication,
-                      activated: vol.activated,
+            var v = {
+                name: name,
+                broken: vol.broken,
+                dev: "/dev/mapper/" + name,
+                backing_dev: vol.device,
+                logical_size: vol.logical_size,
+                physical_size: vol.physical_size,
+                index_mem: vol.index_mem,
+                compression: vol.compression,
+                deduplication: vol.deduplication,
+                activated: vol.activated,
 
-                      set_compression: function(val) {
-                          return volcmd([ val ? "enableCompression" : "disableCompression" ]);
-                      },
+                set_compression: function(val) {
+                    return volcmd([val ? "enableCompression" : "disableCompression"]);
+                },
 
-                      set_deduplication: function(val) {
-                          return volcmd([ val ? "enableDeduplication" : "disableDeduplication" ]);
-                      },
+                set_deduplication: function(val) {
+                    return volcmd([val ? "enableDeduplication" : "disableDeduplication"]);
+                },
 
-                      set_activate: function(val) {
-                          return volcmd([ val ? "activate" : "deactivate" ]);
-                      },
+                set_activate: function(val) {
+                    return volcmd([val ? "activate" : "deactivate"]);
+                },
 
-                      start: function() {
-                          return volcmd([ "start" ]);
-                      },
+                start: function() {
+                    return volcmd(["start"]);
+                },
 
-                      stop: function() {
-                          return volcmd([ "stop" ]);
-                      },
+                stop: function() {
+                    return volcmd(["stop"]);
+                },
 
-                      remove: function() {
-                          return volcmd([ "remove" ]);
-                      },
+                remove: function() {
+                    return volcmd(["remove"]);
+                },
 
-                      force_remove: function() {
-                          return volcmd([ "remove", "--force" ]);
-                      },
+                force_remove: function() {
+                    return volcmd(["remove", "--force"]);
+                },
 
-                      grow_physical: function() {
-                          return volcmd([ "growPhysical" ]);
-                      },
+                grow_physical: function() {
+                    return volcmd(["growPhysical"]);
+                },
 
-                      grow_logical: function(lsize) {
-                          return volcmd([ "growLogical", "--vdoLogicalSize", lsize + "B" ]);
-                      }
+                grow_logical: function(lsize) {
+                    return volcmd(["growLogical", "--vdoLogicalSize", lsize + "B"]);
+                }
             };
 
             self.by_name[v.name] = v;
@@ -756,12 +770,12 @@ function vdo_overlay() {
     function start() {
         var buf = "";
 
-        return cockpit.spawn([ "/bin/sh", "-c", "head -1 $(which vdo || echo /dev/null)" ],
+        return cockpit.spawn(["/bin/sh", "-c", "head -1 $(which vdo || echo /dev/null)"],
                              { err: "ignore" })
                 .then(function (shebang) {
                     if (shebang != "") {
                         self.python = shebang.replace(/#! */, "").trim("\n");
-                        cockpit.spawn([ self.python, "--", "-" ], { superuser: "try", err: "message" })
+                        cockpit.spawn([self.python, "--", "-"], { superuser: "try", err: "message" })
                                 .input(inotify_py + vdo_monitor_py)
                                 .stream(function (output) {
                                     var lines;
@@ -806,8 +820,8 @@ function vdo_overlay() {
     }
 
     function create(options) {
-        var args = [ "create", "--name", options.name,
-            "--device", utils.decode_filename(options.block.PreferredDevice) ];
+        var args = ["create", "--name", options.name,
+            "--device", utils.decode_filename(options.block.PreferredDevice)];
         if (options.logical_size !== undefined)
             args.push("--vdoLogicalSize", options.logical_size + "B");
         if (options.index_mem !== undefined)
@@ -827,43 +841,13 @@ function vdo_overlay() {
 client.vdo_overlay = vdo_overlay();
 
 function init_manager() {
-    /* Storaged 2.6 and later uses the UDisks2 API names, but try the
-     * older storaged API first as a fallback.
-     */
+    var udisks = cockpit.dbus("org.freedesktop.UDisks2");
+    var udisks_manager = udisks.proxy("org.freedesktop.UDisks2.Manager",
+                                      "/org/freedesktop/UDisks2/Manager", { watch: true });
 
-    var storaged_service = "org.storaged.Storaged";
-    var storaged_opath_pfx = "/org/storaged/Storaged";
-    var storaged_iface_pfx = "org.storaged.Storaged";
-
-    var storaged = cockpit.dbus(storaged_service);
-    var storaged_manager = storaged.proxy(storaged_iface_pfx + ".Manager",
-                                          storaged_opath_pfx + "/Manager", { watch: true });
-
-    function fallback_udisks() {
-        STORAGED_SERVICE = "org.freedesktop.UDisks2";
-        STORAGED_OPATH_PFX = "/org/freedesktop/UDisks2";
-        STORAGED_IFACE_PFX = "org.freedesktop.UDisks2";
-
-        var udisks = cockpit.dbus(STORAGED_SERVICE);
-        var udisks_manager = udisks.proxy(STORAGED_IFACE_PFX + ".Manager",
-                                          STORAGED_OPATH_PFX + "/Manager", { watch: true });
-
-        return udisks_manager.wait().then(function () {
-            return udisks_manager;
-        });
-    }
-
-    return storaged_manager.wait().then(function() {
-        if (storaged_manager.valid) {
-            console.log("Using older 'storaged' API: " + storaged_service);
-            STORAGED_SERVICE = storaged_service;
-            STORAGED_OPATH_PFX = storaged_opath_pfx;
-            STORAGED_IFACE_PFX = storaged_iface_pfx;
-            return storaged_manager;
-        } else {
-            return fallback_udisks();
-        }
-    }, fallback_udisks);
+    return udisks_manager.wait().then(function () {
+        return udisks_manager;
+    });
 }
 
 client.init = function init_storaged(callback) {
@@ -871,17 +855,29 @@ client.init = function init_storaged(callback) {
         client.storaged_client = manager.client;
         client.manager = manager;
 
-        // The first storaged version with the UDisks2 API names was 2.6
-        client.is_old_udisks2 = (STORAGED_SERVICE == "org.freedesktop.UDisks2" && client.older_than("2.6"));
-        if (client.is_old_udisks2)
-            console.log("Using older 'udisks2' implementation: " + manager.Version);
-
         init_proxies();
         init_model(callback);
     }, function() {
         client.features = false;
         callback();
     });
+};
+
+client.wait_for = function wait_for(cond) {
+    var dfd = cockpit.defer();
+
+    function check() {
+        var res = cond();
+        if (res) {
+            client.removeEventListener("changed", check);
+            dfd.resolve(res);
+        }
+    }
+
+    client.addEventListener("changed", check);
+    check();
+
+    return dfd.promise();
 };
 
 export default client;

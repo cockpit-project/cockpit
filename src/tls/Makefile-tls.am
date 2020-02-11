@@ -1,9 +1,27 @@
-libexec_PROGRAMS += cockpit-tls
+libexec_PROGRAMS += cockpit-tls cockpit-wsinstance-factory
+noinst_PROGRAMS += wsinstance-start
+
+wsinstance_start_SOURCES = \
+	src/tls/utils.h \
+	src/tls/socket-io.h \
+	src/tls/socket-io.c \
+	src/tls/wsinstance-start.c \
+	$(NULL)
+
+cockpit_wsinstance_factory_LDADD = -lsystemd
+cockpit_wsinstance_factory_SOURCES = \
+	src/tls/utils.h \
+	src/tls/socket-io.h \
+	src/tls/socket-io.c \
+	src/tls/wsinstance-factory.c \
+	$(NULL)
 
 cockpit_tls_SOURCES =					\
 	src/tls/utils.h					\
-	src/tls/wsinstance.h				\
-	src/tls/wsinstance.c				\
+	src/tls/socket-io.h				\
+	src/tls/socket-io.c				\
+	src/tls/certfile.h				\
+	src/tls/certfile.c				\
 	src/tls/connection.h				\
 	src/tls/connection.c				\
 	src/tls/server.h				\
@@ -16,6 +34,7 @@ cockpit_tls_CFLAGS = 					\
 	$(COCKPIT_TLS_CFLAGS)				\
 	$(NULL)
 
+cockpit_tls_LDFLAGS = -pthread
 cockpit_tls_LDADD = 					\
 	libcockpit-common-nodeps.a			\
 	$(COCKPIT_TLS_LIBS)				\
@@ -33,12 +52,31 @@ TEST_LDADD = \
 	$(NULL)
 
 TLS_TESTS = \
-	test-tls-connection				\
-	test-tls-wsinstance				\
-	test-tls-server					\
+	test-tls-connection \
+	test-tls-server \
+	test-tls-certfile \
 	$(NULL)
 
+TLS_SCRIPT_TESTS = \
+	src/tls/test-socket-activation-helper.sh	\
+	$(NULL)
+
+test_tls_certfile_SOURCES = \
+	src/tls/certfile.h \
+	src/tls/certfile.c \
+	src/tls/test-certfile.c \
+	$(NULL)
+
+test_tls_certfile_CFLAGS = $(TEST_CFLAGS)
+test_tls_certfile_LDADD = $(TEST_LDADD)
+
+
 test_tls_connection_SOURCES = \
+	src/tls/testing.h				\
+	src/tls/socket-io.h				\
+	src/tls/socket-io.c				\
+	src/tls/certfile.h				\
+	src/tls/certfile.c				\
 	src/tls/connection.c				\
 	src/tls/test-connection.c			\
 	$(NULL)
@@ -46,16 +84,11 @@ test_tls_connection_SOURCES = \
 test_tls_connection_CFLAGS = $(TEST_CFLAGS)
 test_tls_connection_LDADD = $(TEST_LDADD)
 
-test_tls_wsinstance_SOURCES = \
-	src/tls/wsinstance.c				\
-	src/tls/test-wsinstance.c			\
-	$(NULL)
-
-test_tls_wsinstance_CFLAGS = $(TEST_CFLAGS)
-test_tls_wsinstance_LDADD = $(TEST_LDADD)
-
 test_tls_server_SOURCES = \
-	src/tls/wsinstance.c				\
+	src/tls/socket-io.h				\
+	src/tls/socket-io.c				\
+	src/tls/certfile.h				\
+	src/tls/certfile.c				\
 	src/tls/connection.c				\
 	src/tls/server.c				\
 	src/tls/test-server.c				\
@@ -64,5 +97,18 @@ test_tls_server_SOURCES = \
 test_tls_server_CFLAGS = $(TEST_CFLAGS)
 test_tls_server_LDADD = $(TEST_LDADD)
 
-noinst_PROGRAMS += $(TLS_TESTS)
-TESTS += $(TLS_TESTS)
+socket_activation_helper_CFLAGS = $(TEST_CFLAGS)
+socket_activation_helper_SOURCES = \
+	src/tls/testing.h \
+	src/tls/socket-io.h \
+	src/tls/socket-io.c \
+	src/tls/socket-activation-helper.c \
+	$(NULL)
+
+noinst_PROGRAMS += $(TLS_TESTS) socket-activation-helper
+EXTRA_DIST += \
+	src/tls/alternate.crt \
+	src/tls/alternate.key \
+	$(TLS_SCRIPT_TESTS) \
+	$(NULL)
+TESTS += $(TLS_TESTS) $(TLS_SCRIPT_TESTS)

@@ -5,7 +5,7 @@ QUnit.test("public api", function (assert) {
 });
 
 QUnit.test("single cache", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(6);
 
     var closed = false;
@@ -41,7 +41,7 @@ QUnit.test("single cache", function (assert) {
 });
 
 QUnit.test("multi cache", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(12);
 
     var closed1 = false;

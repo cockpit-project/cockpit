@@ -39,33 +39,32 @@ export class StorageVolumeDelete extends React.Component {
     }
 
     storageVolumeListDelete() {
-        const { volumes, storagePool, resetSelection } = this.props;
+        const { volumes, storagePool } = this.props;
 
         Promise.all(volumes.map(volume =>
-            storageVolumeDelete(storagePool.connectionName, storagePool.name, volume)
+            storageVolumeDelete(storagePool.connectionName, storagePool.name, volume.name)
         ))
                 .catch(exc => {
                     this.props.deleteErrorHandler(_("Storage Volumes could not be deleted"), exc.message);
                 })
                 .then(() => {
                     storagePoolRefresh(storagePool.connectionName, storagePool.id);
-                    resetSelection();
                 });
     }
 
     render() {
         const { volumes, isVolumeUsed } = this.props;
         const volCount = volumes.length;
-        const anyVolumeUsed = volumes.some(volume => isVolumeUsed[volume].length != 0);
+        const anyVolumeUsed = volumes.some(volume => isVolumeUsed[volume.name].length != 0);
 
         if (volCount == 0)
             return null;
 
         const deleteBtn = (
-            <Button className='storage-volumes-actions' id='storage-volumes-delete'
+            <Button id='storage-volumes-delete'
                     bsStyle='danger' onClick={this.storageVolumeListDelete}
                     disabled={ anyVolumeUsed }>
-                {cockpit.format(cockpit.ngettext("Delete $0 volume", 'Delete $0 volumes', volCount), volCount)}
+                {cockpit.format(cockpit.ngettext("Delete $0 volume", "Delete $0 volumes", volCount), volCount)}
             </Button>
         );
 
@@ -84,6 +83,5 @@ StorageVolumeDelete.propTypes = {
     storagePool: PropTypes.object.isRequired,
     volumes: PropTypes.array.isRequired,
     isVolumeUsed: PropTypes.object.isRequired,
-    resetSelection: PropTypes.func.isRequired,
     deleteErrorHandler: PropTypes.func.isRequired,
 };

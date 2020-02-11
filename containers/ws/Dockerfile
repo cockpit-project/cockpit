@@ -10,9 +10,9 @@ RUN echo -e '[group_cockpit-cockpit-preview]\nname=Copr repo for cockpit-preview
 # Again see above ... we do our branching in shell script
 RUN /container/install-package.sh && /container/prep-container.sh
 
-LABEL INSTALL="/usr/bin/docker run --rm --privileged -v /:/host IMAGE /container/atomic-install"
+LABEL INSTALL="/usr/bin/docker run --rm --privileged -v /:/host IMAGE /container/atomic-install IMAGE"
 LABEL UNINSTALL="/usr/bin/docker run --rm --privileged -v /:/host IMAGE /container/atomic-uninstall"
-LABEL RUN="/usr/bin/docker run -d --privileged --pid=host -v /:/host IMAGE /container/atomic-run --local-ssh"
+LABEL RUN="/usr/bin/docker run -d --name NAME --privileged --pid=host -v /:/host IMAGE /container/atomic-run --local-ssh"
 
 # Look ma, no EXPOSE
 

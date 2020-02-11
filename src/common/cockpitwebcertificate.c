@@ -36,16 +36,20 @@
 
 #define PEM_PKCS1_PRIVKEY_HEADER   "-----BEGIN RSA PRIVATE KEY-----"
 #define PEM_PKCS1_PRIVKEY_FOOTER   "-----END RSA PRIVATE KEY-----"
+/* this is slightly asymmetrical -- paraemters and private key occur in the same file */
+#define PEM_PKCS1_ECCKEY_HEADER   "-----BEGIN EC PARAMETERS-----"
+#define PEM_PKCS1_ECCKEY_FOOTER   "-----END EC PRIVATE KEY-----"
 #define PEM_PKCS8_PRIVKEY_HEADER   "-----BEGIN PRIVATE KEY-----"
 #define PEM_PKCS8_PRIVKEY_FOOTER   "-----END PRIVATE KEY-----"
 
 static int
 filter_cert (const struct dirent *entry)
 {
-  /* check if entry ends with .cert */
-  const char *suffix = ".cert";
-  int diff = strlen (entry->d_name) - strlen (suffix);
-  return diff > 0 && strcmp (entry->d_name + diff, suffix) == 0;
+  int len = strlen (entry->d_name);
+
+  /* check if entry ends with .crt or .cert */
+  return (len > 4 && strcmp (entry->d_name + len - 4, ".crt") == 0) ||
+         (len > 5 && strcmp (entry->d_name + len - 5, ".cert") == 0);
 }
 
 static char *
@@ -66,10 +70,21 @@ load_cert_from_dir (const char *dir_name,
 
   if (n > 0)
     asprintfx (&ret, "%s/%s", dir_name, certs[n-1]->d_name);
+  while (n--)
+    free (certs[n]);
   free (certs);
   return ret;
 }
 
+/**
+ * cockpit_certificate_locate:
+ *
+ * Find Cockpit web server certificate in $XDG_CONFIG_DIRS/cockpit/ws-certs.d/.
+ * The asciibetically latest *.crt or *.cert file wins.
+ *
+ * Return certificate path on success, or %NULL on error; in the latter case,
+ * @error gets set to an error message.
+ */
 char *
 cockpit_certificate_locate (char **error)
 {
@@ -97,7 +112,33 @@ cockpit_certificate_locate (char **error)
   return NULL;
 }
 
-/** cockpit_certificate_parse:
+/**
+ * cockpit_certificate_key_path:
+ *
+ * Return key file path for given certfile, i. e. replace ".crt" or ".cert"
+ * suffix with ".key". Invalid names exit the program. All usages of this
+ * function in our code control the file name, so that should not happen.
+ */
+char *
+cockpit_certificate_key_path (const char *certfile)
+{
+  int len = strlen (certfile);
+  char *keypath = NULL;
+
+  /* .cert suffix case: chop off suffix, append ".key" */
+  if (len > 5 && strcmp (certfile + len - 5, ".cert") == 0)
+    asprintfx (&keypath, "%.*s.key", len - 5, certfile);
+  /* *.crt suffix case */
+  else if (len > 4 && strcmp (certfile + len - 4, ".crt") == 0)
+    asprintfx (&keypath, "%.*s.key", len - 4, certfile);
+  else
+    errx (EXIT_FAILURE, "internal error: invalid certificate file name: %s", certfile);
+
+  return keypath;
+}
+
+/**
+ * cockpit_certificate_parse:
  *
  * Load the ws certificate file, and split it into the private key and
  * certificates PEM strings.
@@ -167,13 +208,19 @@ cockpit_certificate_parse (const char *file, char **cert, char **key)
     footer = PEM_PKCS1_PRIVKEY_FOOTER;
   else
     {
-      start = strstr (data, PEM_PKCS8_PRIVKEY_HEADER);
+      start = strstr (data, PEM_PKCS1_ECCKEY_HEADER);
       if (start)
-        footer = PEM_PKCS8_PRIVKEY_FOOTER;
+        footer = PEM_PKCS1_ECCKEY_FOOTER;
       else
         {
-          ret = -ENOKEY;
-          goto out;
+          start = strstr (data, PEM_PKCS8_PRIVKEY_HEADER);
+          if (start)
+            footer = PEM_PKCS8_PRIVKEY_FOOTER;
+          else
+            {
+              ret = -ENOKEY;
+              goto out;
+            }
         }
     }
 

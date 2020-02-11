@@ -28,7 +28,7 @@ const _ = cockpit.gettext;
  * property of job objects.  These are from the storaged
  * documentation at
  *
- *   http://storaged.org/doc/udisks2-api/gdbus-org.freedesktop.UDisks2.Job.html
+ * http://storaged.org/doc/udisks2-api/latest/gdbus-org.freedesktop.UDisks2.Job.html
  */
 
 var descriptions = {
@@ -52,7 +52,7 @@ var descriptions = {
     'partition-modify':            _("Modifying $target"),
     'partition-delete':            _("Deleting $target"),
     'partition-create':            _("Creating partition $target"),
-    'cleanup':                     _("Cleaning up for $target"),
+    cleanup:                     _("Cleaning up for $target"),
     'ata-secure-erase':            _("Securely erasing $target"),
     'ata-enhanced-secure-erase':   _("Very securely erasing $target"),
     'md-raid-stop':                _("Stopping RAID Device $target"),
@@ -161,7 +161,7 @@ export class JobsPanel extends React.Component {
             return false;
         }
 
-        var jobs = [ ];
+        var jobs = [];
         var have_reminder = false;
         for (var p in client.jobs) {
             if (job_is_stable(p)) {

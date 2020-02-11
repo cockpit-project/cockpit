@@ -19,6 +19,7 @@
 
 import cockpit from "cockpit";
 import React from "react";
+import { Alert, AlertActionCloseButton } from "@patternfly/react-core";
 
 import * as PackageKit from "./packagekit.js";
 import { left_click, icon_url, show_error, launch, ProgressBar, CancelButton } from "./utils.jsx";
@@ -54,7 +55,7 @@ class ApplicationRow extends React.Component {
         var name, summary_or_progress, button;
 
         if (comp.installed) {
-            name = <a role="link" tabIndex="0" onClick={left_click(() => launch(comp))}>{comp.name}</a>;
+            name = <button role="link" className="link-button" onClick={left_click(() => launch(comp))}>{comp.name}</button>;
         } else {
             name = comp.name;
         }
@@ -67,14 +68,9 @@ class ApplicationRow extends React.Component {
                 summary_or_progress = (
                     <div>
                         {comp.summary}
-                        <div className="alert alert-danger alert-dismissable">
-                            <button className="close"
-                                    onClick={left_click(() => { this.setState({ error: null }) })}>
-                                <span className="pficon pficon-close" />
-                            </button>
-                            <span className="pficon pficon-error-circle-o" />
-                            {state.error}
-                        </div>
+                        <Alert isInline variant='danger'
+                            action={<AlertActionCloseButton onClose={left_click(() => { this.setState({ error: null }) })} />}
+                            title={state.error} />
                     </div>
                 );
             } else {
@@ -90,7 +86,7 @@ class ApplicationRow extends React.Component {
 
         return (
             <tr onClick={left_click(() => cockpit.location.go(comp.id))}>
-                <td><img src={icon_url(comp.icon)} role="presentation" /></td>
+                <td><img src={icon_url(comp.icon)} role="presentation" alt="" /></td>
                 <td>{name}</td>
                 <td>{summary_or_progress}</td>
                 <td>{button}</td>
@@ -107,16 +103,16 @@ export class ApplicationList extends React.Component {
 
     render() {
         var self = this;
-        var comps = [ ];
+        var comps = [];
         for (var id in this.props.metainfo_db.components)
             comps.push(this.props.metainfo_db.components[id]);
         comps.sort((a, b) => a.name.localeCompare(b.name));
 
         function refresh() {
-            var config = cockpit.manifests["apps"].config || { };
+            var config = cockpit.manifests.apps.config || { };
             PackageKit.refresh(self.props.metainfo_db.origin_files,
-                               config.appstream_config_packages || [ ],
-                               config.appstream_data_packages || [ ],
+                               config.appstream_config_packages || [],
+                               config.appstream_data_packages || [],
                                data => self.setState({ progress: data }))
                     .finally(() => self.setState({ progress: false }))
                     .catch(show_error);

@@ -19,9 +19,11 @@
 
 import cockpit from "cockpit";
 import React from "react";
+import { cellWidth, SortByDirection } from '@patternfly/react-table';
 
+import { ListingTable } from "cockpit-components-table.jsx";
 import { StorageButton, StorageUsageBar } from "./storage-controls.jsx";
-import { format_fsys_usage, get_config } from "./utils.js";
+import { get_config } from "./utils.js";
 import { nfs_fstab_dialog } from "./nfs-details.jsx";
 import { OptionalPanel } from "./optional-panel.jsx";
 
@@ -39,30 +41,18 @@ export class NFSPanel extends React.Component {
             var server = entry.fields[0].split(":")[0];
             var remote_dir = entry.fields[0].split(":")[1];
 
-            function go(event) {
-                if (!event || event.button !== 0)
-                    return;
-                cockpit.location.go([ "nfs", entry.fields[0], entry.fields[1] ]);
-            }
-
-            return (
-                <tr onClick={go} key={entry.fields[0] + ":" + entry.fields[1]}>
-                    <td>{ server + " " + remote_dir }</td>
-                    <td>{ entry.fields[1] }</td>
-                    <td>
-                        { entry.mounted
+            return {
+                props: { entry, key: entry.fields[1] },
+                columns: [
+                    { title: server + " " + remote_dir },
+                    { title: entry.fields[1] },
+                    {
+                        title: entry.mounted
                             ? <StorageUsageBar stats={fsys_size} critical={0.95} />
                             : _("Not mounted")
-                        }
-                    </td>
-                    <td className="usage-text">
-                        { entry.mounted && fsys_size
-                            ? format_fsys_usage(fsys_size[0], fsys_size[1])
-                            : ""
-                        }
-                    </td>
-                </tr>
-            );
+                    }
+                ]
+            };
         }
 
         var mounts = client.nfs.entries.map(make_nfs_mount);
@@ -86,30 +76,34 @@ export class NFSPanel extends React.Component {
             }
         };
 
+        function onRowClick(event, row) {
+            if (!event || event.button !== 0)
+                return;
+            cockpit.location.go(["nfs", row.props.entry.fields[0], row.props.entry.fields[1]]);
+        }
+
+        // table-hover class is needed till PF4 Table has proper support for clickable rows
+        // https://github.com/patternfly/patternfly-react/issues/3267
         return (
             <OptionalPanel className="storage-mounts" id="nfs-mounts"
-                           client={client}
-                           title={_("NFS Mounts")}
-                           actions={actions}
-                           feature={nfs_feature}
-                           not_installed_text={_("NFS Support not installed")}
-                           install_title={_("Install NFS Support")}>
-                { mounts.length > 0
-                    ? <table className="table table-hover">
-                        <thead>
-                            <tr>
-                                <th className="mount-name">{_("Server")}</th>
-                                <th className="mount-point">{_("Mount Point")}</th>
-                                <th className="mount-size-graph">{_("Size")}</th>
-                                <th className="mount-size-number">&nbsp;</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            { mounts }
-                        </tbody>
-                    </table>
-                    : <div className="empty-panel-text">{_("No NFS mounts set up")}</div>
-                }
+                       client={client}
+                       title={_("NFS Mounts")}
+                       actions={actions}
+                       feature={nfs_feature}
+                       not_installed_text={_("NFS Support not installed")}
+                       install_title={_("Install NFS Support")}>
+                <ListingTable variant='compact'
+                    sortBy={{ index: 0, direction: SortByDirection.asc }}
+                    aria-label={_("NFS Mounts")}
+                    onRowClick={onRowClick}
+                    className='table-hover'
+                    emptyCaption={_("No NFS mounts set up")}
+                    columns={[
+                        { title: _("Server"), transforms: [cellWidth(30)], sortable: true },
+                        { title: _("Mount Point"), transforms: [cellWidth(33)], sortable: true },
+                        { title:  _("Size"), transforms: [cellWidth(40)] }
+                    ]}
+                    rows={mounts} />
             </OptionalPanel>
         );
     }

@@ -39,8 +39,10 @@ const _ = cockpit.gettext;
 
 /** One VM in the list (a row)
  */
-const Vm = ({ vm, config, hostDevices, storagePools, onStart, onInstall, onShutdown, onPause, onResume, onForceoff, onReboot, onForceReboot,
-              onUsageStartPolling, onUsageStopPolling, onSendNMI, dispatch, networks, nodeDevices, resourceHasError, onAddErrorNotification }) => {
+const Vm = ({
+    vm, vms, config, libvirtVersion, hostDevices, storagePools, onStart, onInstall, onShutdown, onPause, onResume, onForceoff, onReboot, onForceReboot,
+    onUsageStartPolling, onUsageStopPolling, onSendNMI, dispatch, networks, interfaces, nodeDevices, resourceHasError, onAddErrorNotification
+}) => {
     const stateAlert = resourceHasError[vm.id] ? <span className='pficon-warning-triangle-o machines-status-alert' /> : null;
     const stateIcon = (<StateIcon state={vm.state} config={config} valueId={`${vmId(vm.name)}-state`} extra={stateAlert} />);
 
@@ -51,10 +53,10 @@ const Vm = ({ vm, config, hostDevices, storagePools, onStart, onInstall, onShutd
     const consolesTabName = (<div id={`${vmId(vm.name)}-consoles`}>{_("Consoles")}</div>);
 
     let tabRenderers = [
-        { name: overviewTabName, renderer: VmOverviewTab, data: { vm, config, dispatch, nodeDevices } },
+        { name: overviewTabName, renderer: VmOverviewTab, data: { vm, config, dispatch, nodeDevices, libvirtVersion } },
         { name: usageTabName, renderer: VmUsageTab, data: { vm, onUsageStartPolling, onUsageStopPolling }, presence: 'onlyActive' },
-        { name: disksTabName, renderer: VmDisksTab, data: { vm, config, storagePools, onUsageStartPolling, onUsageStopPolling, dispatch, onAddErrorNotification }, presence: 'onlyActive' },
-        { name: networkTabName, renderer: VmNetworkTab, presence: 'onlyActive', data: { vm, dispatch, config, hostDevices, networks, onAddErrorNotification } },
+        { name: disksTabName, renderer: VmDisksTab, data: { vm, vms, config, storagePools, onUsageStartPolling, onUsageStopPolling, dispatch, onAddErrorNotification }, presence: 'onlyActive' },
+        { name: networkTabName, renderer: VmNetworkTab, presence: 'onlyActive', data: { vm, dispatch, config, hostDevices, interfaces, networks, nodeDevices, onAddErrorNotification } },
         { name: consolesTabName, renderer: Consoles, data: { vm, config, dispatch } },
     ];
 
@@ -80,7 +82,7 @@ const Vm = ({ vm, config, hostDevices, storagePools, onStart, onInstall, onShutd
     }
 
     const name = (<span id={`${vmId(vm.name)}-row`}>{vm.name}</span>);
-    let extraClasses = [];
+    const extraClasses = [];
 
     if (resourceHasError[vm.id])
         extraClasses.push('error');
@@ -89,7 +91,7 @@ const Vm = ({ vm, config, hostDevices, storagePools, onStart, onInstall, onShutd
         extraClasses={extraClasses}
         rowId={`${vmId(vm.name)}`}
         columns={[
-            { name, 'header': true },
+            { name, header: true },
             rephraseUI('connections', vm.connectionName),
             stateIcon,
         ]}
@@ -100,6 +102,7 @@ const Vm = ({ vm, config, hostDevices, storagePools, onStart, onInstall, onShutd
             vm,
             config,
             dispatch,
+            storagePools,
             onStart,
             onInstall,
             onReboot,
@@ -114,7 +117,9 @@ const Vm = ({ vm, config, hostDevices, storagePools, onStart, onInstall, onShutd
 
 Vm.propTypes = {
     vm: PropTypes.object.isRequired,
+    vms: PropTypes.array.isRequired,
     config: PropTypes.object.isRequired,
+    libvirtVersion: PropTypes.number.isRequired,
     storagePools: PropTypes.array.isRequired,
     hostDevices: PropTypes.object.isRequired,
     onStart: PropTypes.func.isRequired,
@@ -129,6 +134,7 @@ Vm.propTypes = {
     onSendNMI: PropTypes.func.isRequired,
     dispatch: PropTypes.func.isRequired,
     networks: PropTypes.array.isRequired,
+    interfaces: PropTypes.array.isRequired,
     resourceHasError: PropTypes.object.isRequired,
     onAddErrorNotification: PropTypes.func.isRequired,
     nodeDevices: PropTypes.array.isRequired,

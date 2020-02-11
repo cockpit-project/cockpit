@@ -18,7 +18,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { ToastNotificationList, ToastNotification } from 'patternfly-react';
+import { ToastNotificationList } from 'patternfly-react';
 import cockpit from 'cockpit';
 
 import HostVmsList from "./hostvmslist.jsx";
@@ -27,7 +27,9 @@ import { NetworkList } from "./components/networks/networkList.jsx";
 import LibvirtSlate from "./components/libvirtSlate.jsx";
 import { CreateVmAction } from "./components/create-vm-dialog/createVmDialog.jsx";
 import { AggregateStatusCards } from "./components/aggregateStatusCards.jsx";
+import { isObjectEmpty } from "./helpers.js";
 import { InlineNotification } from 'cockpit-components-inline-notification.jsx';
+import { dummyVmsConvert } from './components/vm/dummyVm.jsx';
 
 var permission = cockpit.permission({ admin: true });
 
@@ -58,7 +60,7 @@ class App extends React.Component {
     }
 
     onPermissionChanged() {
-        this.setState({ allowed: permission.allowed !== false });
+        this.setState({ allowed: !!permission.allowed });
     }
 
     /*
@@ -67,7 +69,7 @@ class App extends React.Component {
      * @param {object} notification - The notification object to be added to the array.
      */
     onAddErrorNotification(notification) {
-        let resourceHasError = Object.assign({}, this.state.resourceHasError);
+        const resourceHasError = Object.assign({}, this.state.resourceHasError);
 
         if (resourceHasError[notification.resourceId])
             resourceHasError[notification.resourceId]++;
@@ -92,8 +94,8 @@ class App extends React.Component {
      * @param {int} notificationIndex - Index of the notification to be removed.
      */
     onDismissErrorNotification(notificationIndex) {
-        let notifications = Object.assign({}, this.state.notifications);
-        let resourceHasError = Object.assign({}, this.state.resourceHasError);
+        const notifications = Object.assign({}, this.state.notifications);
+        const resourceHasError = Object.assign({}, this.state.resourceHasError);
 
         resourceHasError[notifications[notificationIndex].resourceId]--;
         delete notifications[notificationIndex];
@@ -105,21 +107,25 @@ class App extends React.Component {
         const { vms, config, storagePools, systemInfo, ui, networks, nodeDevices, interfaces } = this.props.store.getState();
         const path = this.state.path;
         const dispatch = this.props.store.dispatch;
-        const createVmAction = (
-            <CreateVmAction dispatch={dispatch}
-                providerName={config.provider ? config.provider.name : 'Libvirt'}
-                networks={networks}
-                nodeDevices={nodeDevices}
-                nodeMaxMemory={config.nodeMaxMemory}
-                onAddErrorNotification={this.onAddErrorNotification}
-                storagePools={storagePools}
-                systemInfo={systemInfo}
-                vms={vms} />
-        );
+        const combinedVms = [...vms, ...dummyVmsConvert(vms, ui.vms)];
+        const properties = {
+            dispatch, providerName:config.provider ? config.provider.name : 'Libvirt',
+            networks, nodeDevices, nodeMaxMemory: config.nodeMaxMemory,
+            onAddErrorNotification: this.onAddErrorNotification,
+            storagePools, systemInfo, vms: combinedVms,
+        };
+        const createVmAction = <CreateVmAction {...properties} mode='create' />;
+        const importDiskAction = <CreateVmAction {...properties} mode='import' />;
+        const vmActions = <div> {createVmAction} {importDiskAction} </div>;
+        const resources = [...storagePools, ...networks, ...nodeDevices, ...interfaces, ...vms];
+        const loadingResources = resources.some(resource => isObjectEmpty(resource));
 
         // Show libvirtSlate component if libvirtd is not running only to users that are allowed to start the service.
-        if (systemInfo.libvirtService.activeState !== 'running' && (this.state.allowed === undefined || this.state.allowed)) {
-            return (<LibvirtSlate libvirtService={systemInfo.libvirtService} dispatch={dispatch} />);
+        if ((systemInfo.libvirtService.activeState !== 'running' && (this.state.allowed === undefined || this.state.allowed)) ||
+            loadingResources) {
+            return (<LibvirtSlate libvirtService={systemInfo.libvirtService}
+                        loadingResources={loadingResources}
+                        dispatch={dispatch} />);
         }
 
         const pathVms = path.length == 0 || (path.length > 0 && path[0] == 'vms');
@@ -136,12 +142,11 @@ class App extends React.Component {
                             const notification = this.state.notifications[notificationId];
 
                             return (
-                                <ToastNotification type='error' key={notification.index}
-                                    onDismiss={() => this.onDismissErrorNotification(notification.index)}>
-                                    <InlineNotification
-                                        text={notification.text}
-                                        detail={notification.detail} />
-                                </ToastNotification>
+                                <InlineNotification type='danger' key={notification.index}
+                                    isInline={false}
+                                    onDismiss={() => this.onDismissErrorNotification(notification.index)}
+                                    text={notification.text}
+                                    detail={notification.detail} />
                             );
                         })}
                     </ToastNotificationList>
@@ -149,10 +154,12 @@ class App extends React.Component {
                 {pathVms && <HostVmsList vms={vms}
                     config={config}
                     ui={ui}
+                    libvirtVersion={systemInfo.libvirtVersion}
                     storagePools={storagePools}
                     dispatch={dispatch}
+                    interfaces={interfaces}
                     networks={networks}
-                    actions={createVmAction}
+                    actions={vmActions}
                     resourceHasError={this.state.resourceHasError}
                     onAddErrorNotification={this.onAddErrorNotification}
                     nodeDevices={nodeDevices} />

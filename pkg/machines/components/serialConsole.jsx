@@ -20,14 +20,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
 
-import { SerialConsole } from '@patternfly/react-console';
+import { Terminal } from "cockpit-components-terminal.jsx";
 
 const _ = cockpit.gettext;
-
-const XTERM_FONT_FAMILY = 'Menlo, Monaco, Consolas, monospace';
-const XTERM_FONT_SIZE = 12;
-const XTERM_COLS = 90;
-const XTERM_ROWS = 30;
 
 class SerialConsoleCockpit extends React.Component {
     constructor (props) {
@@ -37,42 +32,21 @@ class SerialConsoleCockpit extends React.Component {
             channel: undefined,
         };
 
-        this.onConnect = this.onConnect.bind(this);
+        this.createChannel = this.createChannel.bind(this);
         this.onDisconnect = this.onDisconnect.bind(this);
-        this.onResize = this.onResize.bind(this);
-
-        this.onData = this.onData.bind(this);
-        this.onChannelMessage = this.onChannelMessage.bind(this);
-        this.onChannelClose = this.onChannelClose.bind(this);
-
-        this.getStatus = this.getStatus.bind(this);
     }
 
-    /**
-     * Use Cockpit channel
-     */
-    onConnect () {
+    componentDidMount() {
+        this.createChannel();
+    }
+
+    createChannel () {
         const channel = cockpit.channel({
-            "payload": "stream",
-            "spawn": this.props.spawnArgs,
-            "pty": true,
+            payload: "stream",
+            spawn: this.props.spawnArgs,
+            pty: true,
         });
-
-        channel.addEventListener('message', this.onChannelMessage);
-        channel.addEventListener('close', this.onChannelClose);
-
         this.setState({ channel });
-    }
-
-    /**
-     * Terminal component emitted data, like user key press.
-     * Send them to the backend.
-     */
-    onData (data) {
-        const channel = this.state.channel;
-        if (channel && channel.valid) {
-            channel.send(data);
-        }
     }
 
     onDisconnect () {
@@ -86,59 +60,32 @@ class SerialConsoleCockpit extends React.Component {
         }
     }
 
-    onChannelMessage (event, data) {
-        if (this.refs.serialconsole) {
-            this.refs.serialconsole.onDataReceived(data);
-        }
-    }
-
-    onChannelClose (event, options) {
-        if (this.refs.serialconsole) {
-            this.refs.serialconsole.onConnectionClosed(options.problem);
-        }
-    }
-
-    onResize (rows, cols) {
-        if (this.state.channel) {
-            this.state.channel.control({
-                window: {
-                    rows,
-                    cols,
-                }
-            });
-        }
-    }
-
-    getStatus () {
-        if (this.state.channel)
-            return 'connected';
-
-        if (this.state.channel === null)
-            return 'disconnected';
-
-        return 'loading';
-    }
-
     render () {
+        const pid = this.props.vmName + "-terminal";
+        let t = <span>{_("Loading...")}</span>;
+        if (this.state.channel) {
+            t = <Terminal
+             refName={this.props.vmName}
+             channel={this.state.channel}
+             parentId={pid}
+            />;
+        } else if (this.state.channel === null) {
+            t = <span>{_("Disconnected from serial console. Click the Connect button.")}</span>;
+        }
+
         return (
-            <React.Fragment>
-                {this.props.children}
-                <SerialConsole id={this.props.vmName} ref='serialconsole'
-                    rows={XTERM_ROWS}
-                    cols={XTERM_COLS}
-                    fontFamily={XTERM_FONT_FAMILY}
-                    fontSize={XTERM_FONT_SIZE}
-                    status={this.getStatus()}
-                    onConnect={this.onConnect}
-                    onDisconnect={this.onDisconnect}
-                    onResize={this.onResize}
-                    onData={this.onData}
-                    textDisconnect={_("Disconnect")}
-                    textDisconnected={_("Disconnected from serial console. Click the Reconnect button.")}
-                    textReconnect={_("Reconnect")}
-                    textLoading={_("Loading ...")}
-                    topClassName="" />
-            </React.Fragment>
+            <>
+                <div className="terminal-control">
+                    {this.props.children}
+                    {this.state.channel
+                        ? <button id={this.props.vmName + "-serialconsole-disconnect"} className="btn btn-default" onClick={this.onDisconnect}>{_("Disconnect")}</button>
+                        : <button id={this.props.vmName + "-serialconsole-connect"} className="btn btn-default" onClick={this.createChannel}>{_("Connect")}</button>
+                    }
+                </div>
+                <div id={pid} className="vm-terminal">
+                    {t}
+                </div>
+            </>
         );
     }
 }

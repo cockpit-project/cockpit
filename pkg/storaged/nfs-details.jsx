@@ -22,10 +22,10 @@ import "polyfills";
 import cockpit from "cockpit";
 import React from "react";
 import moment from "moment";
+import { Alert } from "@patternfly/react-core";
 
 import { dialog_open, TeardownMessage, TextInput, ComboBox, CheckBoxes } from "./dialog.jsx";
 import * as format from "./format-dialog.jsx";
-import { format_fsys_usage } from "./utils.js";
 
 import { StdDetailsLayout } from "./details.jsx";
 import { StorageButton, StorageUsageBar } from "./storage-controls.jsx";
@@ -35,12 +35,13 @@ const _ = cockpit.gettext;
 function nfs_busy_dialog(client, dialog_title, entry, error, action_title, action) {
     function show(users) {
         if (users.length === 0) {
-            dialog_open({ Title: dialog_title,
-                          Body: error.toString()
+            dialog_open({
+                Title: dialog_title,
+                Body: error.toString()
             });
         } else {
-            let sessions = [ ];
-            let services = [ ];
+            const sessions = [];
+            const services = [];
             users.forEach((u) => {
                 var since = moment.duration(-u.since * 1000).humanize(true);
                 if (u.unit.endsWith(".scope")) {
@@ -50,20 +51,21 @@ function nfs_busy_dialog(client, dialog_title, entry, error, action_title, actio
                 }
             });
 
-            dialog_open({ Title: dialog_title,
-                          Body: TeardownMessage({
-                              Teardown: {
-                                  Sessions: sessions,
-                                  Services: services
-                              }
-                          }),
-                          Action: {
-                              DangerButton: true,
-                              Title: action_title,
-                              action: function () {
-                                  return action(users);
-                              }
-                          }
+            dialog_open({
+                Title: dialog_title,
+                Body: TeardownMessage({
+                    Teardown: {
+                        Sessions: sessions,
+                        Services: services
+                    }
+                }),
+                Action: {
+                    DangerButton: true,
+                    Title: action_title,
+                    action: function () {
+                        return action(users);
+                    }
+                }
             });
         }
     }
@@ -73,14 +75,14 @@ function nfs_busy_dialog(client, dialog_title, entry, error, action_title, actio
                 show(users);
             })
             .fail(function () {
-                show([ ]);
+                show([]);
             });
 }
 
 function get_exported_directories(server) {
-    return cockpit.spawn([ "showmount", "-e", "--no-headers", server ], { err: "message" })
+    return cockpit.spawn(["showmount", "-e", "--no-headers", server], { err: "message" })
             .then(function (output) {
-                var dirs = [ ];
+                var dirs = [];
                 output.split("\n").forEach(function (line) {
                     var d = line.split(" ")[0];
                     if (d)
@@ -98,7 +100,7 @@ export function nfs_fstab_dialog(client, entry) {
     var extra_options = format.unparse_options(split_options);
 
     function mounting_options(vals) {
-        var opts = [ ];
+        var opts = [];
         if (!vals.mount_options.auto)
             opts.push("noauto");
         if (vals.mount_options.ro)
@@ -111,14 +113,7 @@ export function nfs_fstab_dialog(client, entry) {
     function show(busy) {
         let alert = null;
         if (busy)
-            alert = (
-                <div className="alert alert-danger">
-                    <span className="pficon pficon-error-circle-o" />
-                    <span className="alert-message">
-                        {_("This NFS mount is in use and only its options can be changed.")}
-                    </span>
-                </div>
-            );
+            alert = <Alert isInline variant="danger" title={_("This NFS mount is in use and only its options can be changed.")} />;
 
         let server_to_check = null;
         let server_check_timeout = null;
@@ -129,83 +124,88 @@ export function nfs_fstab_dialog(client, entry) {
             server_to_check = server;
             server_check_timeout = window.setTimeout(() => {
                 server_check_timeout = null;
-                dlg.set_options("remote", { "choices": [ ] });
+                dlg.set_options("remote", { choices: [] });
                 get_exported_directories(server).then(choices => {
                     if (server == server_to_check)
-                        dlg.set_options("remote", { "choices": choices });
+                        dlg.set_options("remote", { choices: choices });
                 });
             }, delay);
         }
 
-        let dlg = dialog_open({ Title: entry ? _("NFS Mount") : _("New NFS Mount"),
-                                Body: alert,
-                                Fields: [
-                                    TextInput("server", _("Server Address"),
-                                              { value: entry ? entry.fields[0].split(":")[0] : "",
-                                                validate: function (val) {
-                                                    if (val === "")
-                                                        return _("Server cannot be empty.");
-                                                },
-                                                disabled: busy
-                                              }),
-                                    ComboBox("remote", _("Path on Server"),
-                                             { value: entry ? entry.fields[0].split(":")[1] : "",
-                                               validate: function (val) {
-                                                   if (val === "")
-                                                       return _("Path on server cannot be empty.");
-                                                   if (val[0] !== "/")
-                                                       return _("Path on server must start with \"/\".");
-                                               },
-                                               disabled: busy,
-                                               choices: [ ],
-                                             }),
-                                    TextInput("dir", _("Local Mount Point"),
-                                              { value: entry ? entry.fields[1] : "",
-                                                validate: function (val) {
-                                                    if (val === "")
-                                                        return _("Mount point cannot be empty.");
-                                                    if (val[0] !== "/")
-                                                        return _("Mount point must start with \"/\".");
-                                                },
-                                                disabled: busy
-                                              }),
-                                    CheckBoxes("mount_options", _("Mount Options"),
-                                               { fields: [
-                                                   { title: _("Mount at boot"), tag: "auto" },
-                                                   { title: _("Mount read only"), tag: "ro" },
-                                                   { title: _("Custom mount options"), tag: "extra", type: "checkboxWithInput" },
-                                               ],
-                                                 value: {
-                                                     auto: opt_auto,
-                                                     ro: opt_ro,
-                                                     extra: extra_options === "" ? false : extra_options
-                                                 }
-                                               },
-                                    ),
-                                ],
-                                update: (dlg, vals, trigger) => {
-                                    if (trigger === "server")
-                                        check_server(dlg, vals.server, 500);
-                                },
-                                Action: {
-                                    Title: entry ? _("Apply") : _("Add"),
-                                    action: function (vals) {
-                                        var location = cockpit.location;
-                                        var fields = [ vals.server + ":" + vals.remote,
-                                            vals.dir,
-                                            entry ? entry.fields[2] : "nfs",
-                                            mounting_options(vals) || "defaults" ];
-                                        if (entry) {
-                                            return client.nfs.update_entry(entry, fields)
-                                                    .done(function () {
-                                                        if (entry.fields[0] != fields[0] ||
+        const dlg = dialog_open({
+            Title: entry ? _("NFS Mount") : _("New NFS Mount"),
+            Body: alert,
+            Fields: [
+                TextInput("server", _("Server Address"),
+                          {
+                              value: entry ? entry.fields[0].split(":")[0] : "",
+                              validate: function (val) {
+                                  if (val === "")
+                                      return _("Server cannot be empty.");
+                              },
+                              disabled: busy
+                          }),
+                ComboBox("remote", _("Path on Server"),
+                         {
+                             value: entry ? entry.fields[0].split(":")[1] : "",
+                             validate: function (val) {
+                                 if (val === "")
+                                     return _("Path on server cannot be empty.");
+                                 if (val[0] !== "/")
+                                     return _("Path on server must start with \"/\".");
+                             },
+                             disabled: busy,
+                             choices: [],
+                         }),
+                TextInput("dir", _("Local Mount Point"),
+                          {
+                              value: entry ? entry.fields[1] : "",
+                              validate: function (val) {
+                                  if (val === "")
+                                      return _("Mount point cannot be empty.");
+                                  if (val[0] !== "/")
+                                      return _("Mount point must start with \"/\".");
+                              },
+                              disabled: busy
+                          }),
+                CheckBoxes("mount_options", _("Mount Options"),
+                           {
+                               fields: [
+                                   { title: _("Mount at boot"), tag: "auto" },
+                                   { title: _("Mount read only"), tag: "ro" },
+                                   { title: _("Custom mount options"), tag: "extra", type: "checkboxWithInput" },
+                               ],
+                               value: {
+                                   auto: opt_auto,
+                                   ro: opt_ro,
+                                   extra: extra_options === "" ? false : extra_options
+                               }
+                           },
+                ),
+            ],
+            update: (dlg, vals, trigger) => {
+                if (trigger === "server")
+                    check_server(dlg, vals.server, 500);
+            },
+            Action: {
+                Title: entry ? _("Apply") : _("Add"),
+                action: function (vals) {
+                    var location = cockpit.location;
+                    var fields = [vals.server + ":" + vals.remote,
+                        vals.dir,
+                        entry ? entry.fields[2] : "nfs",
+                        mounting_options(vals) || "defaults"];
+                    if (entry) {
+                        return client.nfs.update_entry(entry, fields)
+                                .done(function () {
+                                    if (entry.fields[0] != fields[0] ||
                                                                  entry.fields[1] != fields[1])
-                                                            location.go([ "nfs", fields[0], fields[1] ]);
-                                                    });
-                                        } else
-                                            return client.nfs.add_entry(fields);
-                                    }
-                                }
+                                        location.go(["nfs", fields[0], fields[1]]);
+                                });
+                    } else
+                        return client.nfs.add_entry(fields);
+                }
+            }
         });
 
         if (entry && !busy)
@@ -234,8 +234,9 @@ export class NFSDetails extends React.Component {
 
         function checked(error_title, promise) {
             promise.fail(function (error) {
-                dialog_open({ Title: error_title,
-                              Body: error.toString()
+                dialog_open({
+                    Title: error_title,
+                    Body: error.toString()
                 });
             });
         }
@@ -319,18 +320,10 @@ export class NFSDetails extends React.Component {
                         <div>{entry.fields[1]}</div>
 
                         <label className="control-label">{_("Size")}</label>
-                        <div className="ct-form-split">
-                            { entry.mounted
-                                ? <StorageUsageBar stats={fsys_size} critical={0.95} />
-                                : _("--")
-                            }
-                        </div>
-                        <div className="ct-form-split">
-                            { entry.mounted && fsys_size
-                                ? format_fsys_usage(fsys_size[0], fsys_size[1])
-                                : null
-                            }
-                        </div>
+                        { entry.mounted
+                            ? <StorageUsageBar stats={fsys_size} critical={0.95} />
+                            : _("--")
+                        }
                     </div>
                 </div>
             </div>

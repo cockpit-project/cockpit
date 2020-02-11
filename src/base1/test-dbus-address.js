@@ -2,18 +2,18 @@
 
 /* no name */
 var direct_options = {
-    "address": direct_address,
-    "bus": "none",
-    "capabilities": ["address"]
+    address: direct_address,
+    bus: "none",
+    capabilities: ["address"]
 };
 
 common_dbus_tests(direct_options, null);
 
 /* with a name */
 var address_options = {
-    "address": bus_address,
-    "bus": "none",
-    "capabilities": ["address"]
+    address: bus_address,
+    bus: "none",
+    capabilities: ["address"]
 };
 common_dbus_tests(address_options, "com.redhat.Cockpit.DBusTests.Test");
 dbus_track_tests(address_options, "com.redhat.Cockpit.DBusTests.Test");

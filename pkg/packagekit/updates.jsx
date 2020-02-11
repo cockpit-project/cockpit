@@ -19,31 +19,33 @@
 
 import cockpit from "cockpit";
 import '../lib/polyfills.js'; // once per application
-import React from "react";
+import React, { useState, useEffect } from "react";
 import ReactDOM from 'react-dom';
 
 import moment from "moment";
 import { OverlayTrigger, Tooltip } from "patternfly-react";
-import Markdown from "react-remarkable";
+import { Remarkable } from "remarkable";
 import AutoUpdates from "./autoupdates.jsx";
 import { History, PackageList } from "./history.jsx";
+import { page_status } from "notifications";
 
 import * as PK from "packagekit.js";
 
 import "listing.less";
 
 const _ = cockpit.gettext;
+moment.locale(cockpit.language);
 
 // "available" heading is built dynamically
 const STATE_HEADINGS = {
-    "loading": _("Loading available updates, please wait..."),
-    "locked": _("Some other program is currently using the package manager, please wait..."),
-    "refreshing": _("Refreshing package information"),
-    "uptodate": _("No updates pending"),
-    "applying": _("Applying updates"),
-    "updateSuccess": null,
-    "updateError": _("Applying updates failed"),
-    "loadError": _("Loading available updates failed"),
+    loading: _("Loading available updates, please wait..."),
+    locked: _("Some other program is currently using the package manager, please wait..."),
+    refreshing: _("Refreshing package information"),
+    uptodate: _("No updates pending"),
+    applying: _("Applying updates"),
+    updateSuccess: null,
+    updateError: _("Applying updates failed"),
+    loadError: _("Loading available updates failed"),
 };
 
 const PK_STATUS_STRINGS = {
@@ -106,40 +108,42 @@ function cleanupChangelogLine(text) {
     return text.trim();
 }
 
-class Expander extends React.Component {
-    constructor() {
-        super();
-        this.state = { expanded: false };
-    }
+function Expander({ title, onExpand, children }) {
+    const [expanded, setExpanded] = useState(false);
 
-    componentDidUpdate(prevProps, prevState) {
-        if (this.props.onExpand && !prevState.expanded && this.state.expanded)
-            this.props.onExpand();
-    }
+    useEffect(() => {
+        if (expanded && onExpand)
+            onExpand();
+    }, [expanded, onExpand]);
 
-    render() {
-        let title = <a href="#">{this.props.title}</a>;
-        let cls = "expander-caret fa " + (this.state.expanded ? "fa-angle-down" : "fa-angle-right");
-        return (
-            <React.Fragment>
-                <div className="expander-title">
-                    <hr />
-                    <span onClick={() => this.setState({ expanded: !this.state.expanded })} >
-                        <i className={cls} />{title}
-                    </span>
-                    <hr />
-                </div>
-                {this.state.expanded ? this.props.children : null}
-            </React.Fragment>);
-    }
+    const cls = "expander-caret fa " + (expanded ? "fa-angle-down" : "fa-angle-right");
+    return (
+        <>
+            <div className="expander-title">
+                <hr />
+                <button className="link-button" onClick={ () => setExpanded(!expanded) }>
+                    <i className={cls} />{title}
+                </button>
+                <hr />
+            </div>
+            {expanded ? children : null}
+        </>);
 }
 
 function count_security_updates(updates) {
     var num_security = 0;
-    for (let u in updates)
+    for (const u in updates)
         if (updates[u].severity === PK.Enum.INFO_SECURITY)
             ++num_security;
     return num_security;
+}
+
+function find_highest_severity(updates) {
+    var max = PK.Enum.INFO_LOW;
+    for (const u in updates)
+        if (updates[u].severity > max)
+            max = updates[u].severity;
+    return max;
 }
 
 function HeaderBar(props) {
@@ -172,11 +176,11 @@ function HeaderBar(props) {
     var actionButton;
     if (props.state == "uptodate" || props.state == "available") {
         if (!props.unregistered)
-            actionButton = <button className="btn btn-default" onClick={props.onRefresh} >{_("Check for Updates")}</button>;
+            actionButton = <button className="btn btn-default" onClick={props.onRefresh}>{_("Check for Updates")}</button>;
         if (props.timeSinceRefresh !== null)
-            lastChecked = cockpit.format(_("Last checked: $0 ago"), moment.duration(props.timeSinceRefresh * 1000).humanize());
+            lastChecked = cockpit.format(_("Last checked: $0"), moment(moment().valueOf() - props.timeSinceRefresh * 1000).fromNow());
     } else if (props.state == "applying") {
-        actionButton = <button className="btn btn-default" onClick={props.onCancel} disabled={!props.allowCancel} >{_("Cancel")}</button>;
+        actionButton = <button className="btn btn-default" onClick={props.onCancel} disabled={!props.allowCancel}>{_("Cancel")}</button>;
     }
 
     return (
@@ -200,7 +204,7 @@ function getSeverityURL(urls) {
     // search URLs for highest valid severity; by all means we expect an update to have at most one, but for paranoia..
     urls.map(value => {
         if (value.startsWith("https://access.redhat.com/security/updates/classification/#")) {
-            let i = knownLevels.indexOf(value.slice(value.indexOf("#") + 1));
+            const i = knownLevels.indexOf(value.slice(value.indexOf("#") + 1));
             if (i > highestIndex) {
                 highestIndex = i;
                 highestURL = value;
@@ -214,6 +218,7 @@ class UpdateItem extends React.Component {
     constructor() {
         super();
         this.state = { expanded: false };
+        this.remarkable = new Remarkable();
     }
 
     render() {
@@ -223,7 +228,7 @@ class UpdateItem extends React.Component {
         if (info.bug_urls && info.bug_urls.length) {
             // we assume a bug URL ends with a number; if not, show the complete URL
             bugs = insertCommas(info.bug_urls.map(url => (
-                <a key={url} rel="noopener" referrerPolicy="no-referrer" target="_blank" href={url}>
+                <a key={url} rel="noopener noreferrer" target="_blank" href={url}>
                     {url.match(/[0-9]+$/) || url}
                 </a>)
             ));
@@ -232,7 +237,7 @@ class UpdateItem extends React.Component {
         var cves = null;
         if (info.cve_urls && info.cve_urls.length) {
             cves = insertCommas(info.cve_urls.map(url => (
-                <a key={url} href={url} rel="noopener" referrerPolicy="no-referrer" target="_blank">
+                <a key={url} href={url} rel="noopener noreferrer" target="_blank">
                     {url.match(/[^/=]+$/)}
                 </a>)
             ));
@@ -241,7 +246,7 @@ class UpdateItem extends React.Component {
         var errata = null;
         if (info.vendor_urls) {
             errata = insertCommas(info.vendor_urls.filter(url => url.indexOf("/errata/") > 0).map(url => (
-                <a key={url} href={url} rel="noopener" referrerPolicy="no-referrer" target="_blank">
+                <a key={url} href={url} rel="noopener noreferrer" target="_blank">
                     {url.match(/[^/=]+$/)}
                 </a>)
             ));
@@ -255,28 +260,28 @@ class UpdateItem extends React.Component {
         var type;
         if (info.severity === PK.Enum.INFO_SECURITY) {
             if (secSeverityURL)
-                secSeverityURL = <a rel="noopener" referrerPolicy="no-referrer" target="_blank" href={secSeverityURL}>{secSeverity}</a>;
+                secSeverityURL = <a rel="noopener noreferrer" target="_blank" href={secSeverityURL}>{secSeverity}</a>;
             type = (
-                <React.Fragment>
+                <>
                     <OverlayTrigger overlay={ <Tooltip id="tip-severity">{ secSeverity || _("security") }</Tooltip> } placement="top">
                         <span className={iconClasses}>&nbsp;</span>
                     </OverlayTrigger>
                     { (info.cve_urls && info.cve_urls.length > 0) ? info.cve_urls.length : "" }
-                </React.Fragment>);
+                </>);
         } else {
             const tip = (info.severity >= PK.Enum.INFO_NORMAL) ? _("bug fix") : _("enhancement");
             type = (
-                <React.Fragment>
+                <>
                     <OverlayTrigger overlay={ <Tooltip id="tip-severity">{tip}</Tooltip> } placement="top">
                         <span className={iconClasses}>&nbsp;</span>
                     </OverlayTrigger>
                     { bugs ? info.bug_urls.length : "" }
-                </React.Fragment>);
+                </>);
         }
 
         var pkgList = this.props.pkgNames.map(n => (
-            <OverlayTrigger key={n} overlay={ <Tooltip id="tip-summary">{packageSummaries[n]}</Tooltip> } placement="top">
-                <span>{n}</span>
+            <OverlayTrigger key={n.name + n.arch} overlay={ <Tooltip id="tip-summary">{packageSummaries[n.name] + " (" + n.arch + ")"}</Tooltip> } placement="top">
+                <span>{n.name}</span>
             </OverlayTrigger>)
         );
         var pkgs = insertCommas(pkgList);
@@ -290,8 +295,8 @@ class UpdateItem extends React.Component {
         descriptionFirstLine = cleanupChangelogLine(descriptionFirstLine);
         var description;
         if (info.markdown) {
-            descriptionFirstLine = <Markdown source={descriptionFirstLine} />;
-            description = <Markdown source={info.description} />;
+            descriptionFirstLine = <span dangerouslySetInnerHTML={{ __html: this.remarkable.render(descriptionFirstLine) }} />;
+            description = <div dangerouslySetInnerHTML={{ __html: this.remarkable.render(info.description) }} />;
         } else {
             description = <div className="changelog">{info.description}</div>;
         }
@@ -324,7 +329,7 @@ class UpdateItem extends React.Component {
         }
 
         return (
-            <tbody className={ this.state.expanded ? "open" : null } >
+            <tbody className={ this.state.expanded ? "open" : null }>
                 <tr className={ "listing-ct-item" + (info.severity === PK.Enum.INFO_SECURITY ? " security" : "") }
                     onClick={ () => this.setState({ expanded: !this.state.expanded }) }>
                     <td className="listing-ct-toggle">
@@ -349,16 +354,16 @@ function UpdatesList(props) {
     var sameUpdate = {};
     var packageNames = {};
     Object.keys(props.updates).forEach(id => {
-        let u = props.updates[id];
+        const u = props.updates[id];
         // did we already see the same version and description? then merge
-        let hash = u.version + u.description;
-        let seenId = sameUpdate[hash];
+        const hash = u.version + u.description;
+        const seenId = sameUpdate[hash];
         if (seenId) {
-            packageNames[seenId].push(u.name);
+            packageNames[seenId].push({ name: u.name, arch: u.arch });
         } else {
             // this is a new update
             sameUpdate[hash] = id;
-            packageNames[id] = [u.name];
+            packageNames[id] = [{ name: u.name, arch: u.arch }];
             updates.push(id);
         }
     });
@@ -383,7 +388,7 @@ function UpdatesList(props) {
                     <th scope="col">{_("Details")}</th>
                 </tr>
             </thead>
-            { updates.map(id => <UpdateItem key={id} pkgNames={packageNames[id].sort()} info={props.updates[id]} />) }
+            { updates.map(id => <UpdateItem key={id} pkgNames={packageNames[id].sort((a, b) => a.name > b.name)} info={props.updates[id]} />) }
         </table>
     );
 }
@@ -401,29 +406,30 @@ class ApplyUpdates extends React.Component {
 
         PK.watchTransaction(transactionPath, {
             Package: (info, packageId) => {
-                let pfields = packageId.split(";");
+                const pfields = packageId.split(";");
 
                 // small timeout to avoid excessive overlaps from the next PackageKit progress signal
                 PK.call(transactionPath, "org.freedesktop.DBus.Properties", "GetAll", [PK.transactionInterface], { timeout: 500 })
                         .done(reply => {
-                            let percent = reply[0].Percentage.v;
+                            const percent = reply[0].Percentage.v;
                             let remain = -1;
                             if ("RemainingTime" in reply[0])
                                 remain = reply[0].RemainingTime.v;
                             // info: see PK_STATUS_* at https://github.com/hughsie/PackageKit/blob/master/lib/packagekit-glib2/pk-enum.h
-                            let newActions = this.state.actions.slice();
-                            newActions.push({ status: info, package: pfields[0] + " " + pfields[1] });
+                            const newActions = this.state.actions.slice();
+                            newActions.push({ status: info, package: pfields[0] + " " + pfields[1] + " (" + pfields[2] + ")" });
 
-                            let log = document.getElementById("update-log");
+                            const log = document.getElementById("update-log");
                             let atBottom = false;
                             if (log) {
                                 if (log.scrollHeight - log.clientHeight <= log.scrollTop + 2)
                                     atBottom = true;
                             }
 
-                            this.setState({ actions: newActions,
-                                            percentage: percent <= 100 ? percent : 0,
-                                            timeRemaining: remain > 0 ? remain : null
+                            this.setState({
+                                actions: newActions,
+                                percentage: percent <= 100 ? percent : 0,
+                                timeRemaining: remain > 0 ? remain : null
                             });
 
                             // scroll update log to the bottom, if it already is (almost) at the bottom
@@ -438,14 +444,14 @@ class ApplyUpdates extends React.Component {
         var actionHTML, logRows;
 
         if (this.state.actions.length > 0) {
-            let lastAction = this.state.actions[this.state.actions.length - 1];
+            const lastAction = this.state.actions[this.state.actions.length - 1];
             actionHTML = (
-                <React.Fragment>
+                <>
                     <strong>{ PK_STATUS_STRINGS[lastAction.status] || PK_STATUS_STRINGS[PK.Enum.STATUS_UPDATE] }</strong>
                     &nbsp;{lastAction.package}
-                </React.Fragment>);
-            logRows = this.state.actions.slice(0, -1).map(action => (
-                <tr key={action.package}>
+                </>);
+            logRows = this.state.actions.slice(0, -1).map((action, i) => (
+                <tr key={action.package + i}>
                     <th>{PK_STATUS_LOG_STRINGS[action.status] || PK_STATUS_LOG_STRINGS[PK.Enum.STATUS_UPDATE]}</th>
                     <td>{action.package}</td>
                 </tr>));
@@ -454,7 +460,7 @@ class ApplyUpdates extends React.Component {
         }
 
         return (
-            <React.Fragment>
+            <>
                 <div className="progress-main-view">
                     <div className="progress-description">
                         <div className="spinner spinner-xs spinner-inline" />
@@ -470,7 +476,7 @@ class ApplyUpdates extends React.Component {
                 <div className="update-log">
                     <Expander title={_("Update Log")} onExpand={() => {
                         // always scroll down on expansion
-                        let log = document.getElementById("update-log");
+                        const log = document.getElementById("update-log");
                         log.scrollTop = log.scrollHeight;
                     }}>
                         <div id="update-log" className="update-log-content">
@@ -482,7 +488,7 @@ class ApplyUpdates extends React.Component {
                         </div>
                     </Expander>
                 </div>
-            </React.Fragment>
+            </>
         );
     }
 }
@@ -509,16 +515,18 @@ function AskRestart(props) {
 class OsUpdates extends React.Component {
     constructor() {
         super();
-        this.state = { state: "loading",
-                       errorMessages: [],
-                       updates: {},
-                       timeSinceRefresh: null,
-                       loadPercent: null,
-                       cockpitUpdate: false,
-                       allowCancel: null,
-                       history: [],
-                       unregistered: false,
-                       autoUpdatesEnabled: undefined };
+        this.state = {
+            state: "loading",
+            errorMessages: [],
+            updates: {},
+            timeSinceRefresh: null,
+            loadPercent: null,
+            cockpitUpdate: false,
+            allowCancel: null,
+            history: [],
+            unregistered: false,
+            autoUpdatesEnabled: undefined
+        };
         this.handleLoadError = this.handleLoadError.bind(this);
         this.handleRefresh = this.handleRefresh.bind(this);
         this.handleRestart = this.handleRestart.bind(this);
@@ -529,18 +537,15 @@ class OsUpdates extends React.Component {
         // check if there is an upgrade in progress already; if so, switch to "applying" state right away
         PK.call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "GetTransactionList", [])
                 .done(result => {
-                    let transactions = result[0];
-                    let promises = transactions.map(transactionPath => PK.call(
+                    const transactions = result[0];
+                    const promises = transactions.map(transactionPath => PK.call(
                         transactionPath, "org.freedesktop.DBus.Properties", "Get", [PK.transactionInterface, "Role"]));
 
-                    // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
-                    // https://github.com/cockpit-project/cockpit/issues/10956
-                    // eslint-disable-next-line cockpit/no-cockpit-all
-                    cockpit.all(promises)
+                    Promise.all(promises)
                             .then(roles => {
                                 // any transaction with UPDATE_PACKAGES role?
                                 for (let idx = 0; idx < roles.length; ++idx) {
-                                    if (roles[idx].v === PK.Enum.ROLE_UPDATE_PACKAGES) {
+                                    if (roles[idx][0].v === PK.Enum.ROLE_UPDATE_PACKAGES) {
                                         this.watchUpdates(transactions[idx]);
                                         return;
                                     }
@@ -559,7 +564,7 @@ class OsUpdates extends React.Component {
     }
 
     handleLoadError(ex) {
-        console.error("loading available updates failed:", JSON.stringify(ex));
+        console.warn("loading available updates failed:", JSON.stringify(ex));
         if (ex.problem === "not-found")
             ex = _("PackageKit is not installed");
         this.state.errorMessages.push(ex.detail || ex.message || ex);
@@ -579,7 +584,7 @@ class OsUpdates extends React.Component {
         PK.cancellableTransaction("GetUpdateDetail", [pkg_ids], null, {
             UpdateDetail: (packageId, updates, obsoletes, vendor_urls, bug_urls, cve_urls, restart,
                 update_text, changelog /* state, issued, updated */) => {
-                let u = this.state.updates[packageId];
+                const u = this.state.updates[packageId];
                 u.vendor_urls = vendor_urls;
                 // HACK: bug_urls and cve_urls also contain titles, in a not-quite-predictable order; ignore them,
                 // only pick out http[s] URLs (https://bugs.freedesktop.org/show_bug.cgi?id=104552)
@@ -618,19 +623,19 @@ class OsUpdates extends React.Component {
                                   data => this.setState({ state: data.waiting ? "locked" : "loading" }),
                                   {
                                       Package: (info, packageId, _summary) => {
-                                          let id_fields = packageId.split(";");
+                                          const id_fields = packageId.split(";");
                                           packageSummaries[id_fields[0]] = _summary;
                                           // HACK: dnf backend yields wrong severity (https://bugs.freedesktop.org/show_bug.cgi?id=101070)
                                           if (info < PK.Enum.INFO_LOW || info > PK.Enum.INFO_SECURITY)
                                               info = PK.Enum.INFO_NORMAL;
-                                          updates[packageId] = { name: id_fields[0], version: id_fields[1], severity: info };
+                                          updates[packageId] = { name: id_fields[0], version: id_fields[1], severity: info, arch: id_fields[2] };
                                           if (id_fields[0] == "cockpit-ws")
                                               cockpitUpdate = true;
                                       },
                                   })
                 .then(() => {
                     // get the details for all packages
-                    let pkg_ids = Object.keys(updates);
+                    const pkg_ids = Object.keys(updates);
                     if (pkg_ids.length) {
                         this.setState({ updates: updates, cockpitUpdate: cockpitUpdate });
                         this.loadUpdateDetails(pkg_ids);
@@ -643,7 +648,7 @@ class OsUpdates extends React.Component {
     }
 
     loadHistory() {
-        let history = [];
+        const history = [];
 
         // would be nice to filter only for "update-packages" role, but can't here
         PK.transaction("GetOldTransactions", [0], {
@@ -653,12 +658,12 @@ class OsUpdates extends React.Component {
                     // data looks like:
                     // downloading\tbash-completion;1:2.6-1.fc26;noarch;updates-testing
                     // updating\tbash-completion;1:2.6-1.fc26;noarch;updates-testing
-                let pkgs = { "_time": Date.parse(timeSpec) };
+                const pkgs = { _time: Date.parse(timeSpec) };
                 let empty = true;
                 data.split("\n").forEach(line => {
-                    let fields = line.trim().split("\t");
+                    const fields = line.trim().split("\t");
                     if (fields.length >= 2) {
-                        let pkgId = fields[1].split(";");
+                        const pkgId = fields[1].split(";");
                         pkgs[pkgId[0]] = pkgId[1];
                         empty = false;
                     }
@@ -679,15 +684,29 @@ class OsUpdates extends React.Component {
     initialLoadOrRefresh() {
         PK.watchRedHatSubscription(registered => this.setState({ unregistered: !registered }));
 
+        cockpit.addEventListener("visibilitychange", () => {
+            if (!cockpit.hidden)
+                this.loadOrRefresh(false);
+        });
+
+        if (!cockpit.hidden)
+            this.loadOrRefresh(true);
+        else
+            this.loadUpdates();
+    }
+
+    loadOrRefresh(always_load) {
         PK.call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "GetTimeSinceAction",
                 [PK.Enum.ROLE_REFRESH_CACHE])
-                .done(seconds => {
+                .done(results => {
+                    const seconds = results[0];
+
                     this.setState({ timeSinceRefresh: seconds });
 
                     // automatically trigger refresh for ≥ 1 day or if never refreshed
                     if (seconds >= 24 * 3600 || seconds < 0)
                         this.handleRefresh();
-                    else
+                    else if (always_load)
                         this.loadUpdates();
                 })
                 .fail(this.handleLoadError);
@@ -756,16 +775,25 @@ class OsUpdates extends React.Component {
                 .catch(ex => {
                     this.state.errorMessages.push(ex.message);
                     this.setState({ state: "updateError" });
-                })
-                // tell the System page to refresh its "Available Updates" status
-                .finally(() => window.sessionStorage.removeItem("last_sw_update_check"));
+                });
     }
 
     renderContent() {
         var applySecurity, applyAll, unregisteredWarning;
 
         if (this.state.unregistered) {
-            // always show empty state pattern, even if there are some repositories enabled that don't require subscriptions
+            // always show empty state pattern, even if there are some
+            // repositories enabled that don't require subscriptions
+
+            page_status.set_own({
+                type: "warning",
+                title: _("Not Registered"),
+                details: {
+                    link: "subscriptions",
+                    icon: "fa fa-exclamation-triangle"
+                }
+            });
+
             return (
                 <div className="blank-slate-pf">
                     <div className="blank-slate-pf-icon">
@@ -786,6 +814,15 @@ class OsUpdates extends React.Component {
         case "loading":
         case "refreshing":
         case "locked":
+            page_status.set_own({
+                type: null,
+                title: _("Checking for package updates..."),
+                details: {
+                    link: false,
+                    icon: "spinner spinner-xs",
+                }
+            });
+
             if (this.state.loadPercent)
                 return (
                     <div className="progress-main-view">
@@ -799,8 +836,10 @@ class OsUpdates extends React.Component {
 
         case "available":
             {
-                let num_updates = Object.keys(this.state.updates).length;
-                let num_security_updates = count_security_updates(this.state.updates);
+                const num_updates = Object.keys(this.state.updates).length;
+                const num_security_updates = count_security_updates(this.state.updates);
+                const highest_severity = find_highest_severity(this.state.updates);
+                let text;
 
                 applyAll = (
                     <button className="pk-update--all btn btn-primary" onClick={ () => this.applyUpdates(false) }>
@@ -814,6 +853,23 @@ class OsUpdates extends React.Component {
                             {_("Install Security Updates")}
                         </button>);
                 }
+
+                if (highest_severity == PK.Enum.INFO_SECURITY)
+                    text = _("Security Updates Available");
+                else if (highest_severity >= PK.Enum.INFO_NORMAL)
+                    text = _("Bug Fix Updates Available");
+                else if (highest_severity >= PK.Enum.INFO_LOW)
+                    text = _("Enhancement Updates Available");
+                else
+                    text = _("Updates Available");
+
+                page_status.set_own({
+                    type: num_security_updates > 0 ? "warning" : "info",
+                    title: text,
+                    details: {
+                        icon: PK.getSeverityIcon(highest_severity)
+                    }
+                });
             }
 
             return (
@@ -849,15 +905,29 @@ class OsUpdates extends React.Component {
 
         case "loadError":
         case "updateError":
+            page_status.set_own({
+                type: "error",
+                title: STATE_HEADINGS[this.state.state],
+                details: {
+                    icon: "fa fa-exclamation-circle"
+                }
+            });
             return this.state.errorMessages.map(m => <pre key={m}>{m}</pre>);
 
         case "applying":
+            page_status.set_own(null);
             return <ApplyUpdates transaction={this.state.applyTransaction} />;
 
         case "updateSuccess":
+            page_status.set_own({
+                type: "warning",
+                title: _("Restart Recommended")
+            });
+
             return <AskRestart onRestart={this.handleRestart} onIgnore={this.loadUpdates} history={this.state.history} />;
 
         case "restart":
+            page_status.set_own(null);
             return (
                 <div className="blank-slate-pf">
                     <div className="blank-slate-pf-icon">
@@ -868,8 +938,16 @@ class OsUpdates extends React.Component {
                 </div>);
 
         case "uptodate":
+            page_status.set_own({
+                title: _("System is up to date"),
+                details: {
+                    link: false,
+                    icon: "fa fa-check-circle-o"
+                }
+            });
+
             return (
-                <React.Fragment>
+                <>
                     <AutoUpdates onInitialized={ enabled => this.setState({ autoUpdatesEnabled: enabled }) } />
                     <div className="blank-slate-pf">
                         <div className="blank-slate-pf-icon">
@@ -882,9 +960,10 @@ class OsUpdates extends React.Component {
                         (this.state.autoUpdatesEnabled !== undefined) &&
                             <History packagekit={this.state.autoUpdatesEnabled ? [] : this.state.history} />
                     }
-                </React.Fragment>);
+                </>);
 
         default:
+            page_status.set_own(null);
             return null;
         }
     }
@@ -894,8 +973,6 @@ class OsUpdates extends React.Component {
         PK.cancellableTransaction("RefreshCache", [true], data => this.setState({ loadPercent: data.percentage }))
                 .then(() => {
                     this.setState({ timeSinceRefresh: 0 });
-                    // tell the System page to refresh its "Available Updates" status
-                    window.sessionStorage.removeItem("last_sw_update_check");
                     this.loadUpdates();
                 })
                 .catch(this.handleLoadError);
@@ -915,7 +992,7 @@ class OsUpdates extends React.Component {
 
     render() {
         return (
-            <div>
+            <>
                 <HeaderBar state={this.state.state} updates={this.state.updates}
                            timeSinceRefresh={this.state.timeSinceRefresh} onRefresh={this.handleRefresh}
                            unregistered={this.state.unregistered}
@@ -924,7 +1001,7 @@ class OsUpdates extends React.Component {
                 <div className="container-fluid">
                     {this.renderContent()}
                 </div>
-            </div>
+            </>
         );
     }
 }

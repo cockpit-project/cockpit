@@ -19,7 +19,7 @@ export function injectMockUpdates(updates) {
         bug_urls: [],
         cve_urls: ["https://cve.example.com?name=CVE-2014-123456", "https://cve.example.com?name=CVE-2017-9999"],
         vendor_urls: ["https://access.redhat.com/security/updates/classification/#critical", "critical",
-            "https://access.redhat.com/errata/RHSA-2000:0001", "https://access.redhat.com/errata/RHSA-2000:0002"],
+            "https://access.redhat.example.com/errata/RHSA-2000:0001", "https://access.redhat.example.com/errata/RHSA-2000:0002"],
         severity: 8,
         description: "This will wreck your data center!",
     };
@@ -62,7 +62,7 @@ export function injectMockUpdates(updates) {
 
     // source with many binaries
     for (let i = 1; i < 50; ++i) {
-        let name = `manypkgs${i}`;
+        const name = `manypkgs${i}`;
         updates[name + ";1-1"] = {
             name: name,
             version: "1-1",

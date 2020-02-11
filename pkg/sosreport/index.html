@@ -19,7 +19,7 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 -->
 <html>
   <head>
-    <title translatable="yes">Diagnostic reports</title>
+    <title translate="yes">Diagnostic reports</title>
     <meta charset="utf-8">
     <link href="../base1/patternfly.css" rel="stylesheet">
     <link href="sosreport.css" rel="stylesheet">
@@ -28,12 +28,12 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
     <script type="text/javascript" src="../*/po.js"></script>
     <script type="text/javascript" src="sosreport.js"></script>
   </head>
-  <body hidden>
+  <body class="pf-m-redhat-font" hidden>
     <div class="page-ct">
-      <img src="sosreport.png">
-      <p translatable="yes">This tool will collect system configuration and diagnostic information from this system for use with diagnosing problems with the system.</p>
-      <p translatable="yes">The collected information will be stored locally on the system.</p>
-      <button translatable="yes" class="btn btn-primary"
+      <img src="sosreport.png" alt="">
+      <p translate="yes">This tool will collect system configuration and diagnostic information from this system for use with diagnosing problems with the system.</p>
+      <p translate="yes">The collected information will be stored locally on the system.</p>
+      <button translate="yes" class="btn btn-primary"
               data-toggle="modal" data-target="#sos">Create Report</button>
     </div>
 
@@ -41,33 +41,32 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h4 class="modal-title" translatable="yes">Create diagnostic report</h4>
+            <h4 class="modal-title" translate="yes">Create diagnostic report</h4>
           </div>
           <div class="modal-body">
-            <div id="sos-intro" hidden>
+            <div id="sos-alert" class="pf-c-alert pf-m-info pf-m-inline" aria-label="inline info alert">
+              <div class="pf-c-alert__icon">
+                <span class="pficon pficon-info"></span>
+              </div>
+              <h4 class="pf-c-alert__title alert-message" translate="yes">The generated archive contains data considered sensitive and its content should be reviewed by the originating organization before being passed to any third party.</span>
+              </h4>
             </div>
-            <div id="sos-alert" class="alert alert-info">
-              <span class="pficon pficon-info"></span>
-              <span class="alert-message" translatable="yes">The generated archive contains data considered sensitive and its content should be reviewed by the originating organization before being passed to any third party.</span>
+            <div id="sos-progress" class="text-center">
+              <div translate="yes">Generating report</div>
+              <div class="progress">
+                <div class="progress-bar" role="progressbar"></div>
+              </div>
             </div>
-            <div id="sos-progress">
-              <center>
-                <div translatable="yes">Generating report</div>
-                <div class="progress">
-                  <div class="progress-bar" role="progressbar"></div>
-                </div>
-              </center>
-            </div>
-            <div id="sos-download">
-              <center>
-                <div translatable="yes">Done!</div>
-                <button class="btn btn-primary" translate>Download report</button>
-              </center>
+            <div id="sos-download" class="text-center">
+              <div translate="yes">Done!</div>
+              <button class="btn btn-primary" translate>Download report</button>
             </div>
             <div id="sos-error">
-              <div class="alert alert-danger">
-                <span class="pficon pficon-error-circle-o"></span>
-                <span class="alert-message"></span>
+              <div class="pf-c-alert pf-m-danger pf-m-inline" aria-label="inline danger alert">
+                <div class="pf-c-alert__icon">
+                  <span class="pficon pficon-info"></span>
+                </div>
+                <h4 class="pf-c-alert__title alert-message"></h4>
               </div>
               <textarea id="sos-error-extra">
               </textarea>

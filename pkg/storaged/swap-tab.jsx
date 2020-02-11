@@ -21,8 +21,6 @@ import React from "react";
 import cockpit from "cockpit";
 import * as utils from "./utils.js";
 
-import { StorageButton } from "./storage-controls.jsx";
-
 const _ = cockpit.gettext;
 
 export class SwapTab extends React.Component {
@@ -59,24 +57,8 @@ export class SwapTab extends React.Component {
             used = "-";
         }
 
-        function start() {
-            if (block_swap)
-                return block_swap.Start({});
-        }
-
-        function stop() {
-            if (block_swap)
-                return block_swap.Stop({});
-        }
-
         return (
             <div>
-                <div className="tab-actions">
-                    { (is_active)
-                        ? <StorageButton onClick={stop}>{_("Stop")}</StorageButton>
-                        : <StorageButton onClick={start}>{_("Start")}</StorageButton>
-                    }
-                </div>
                 <div className="ct-form">
                     <label className="control-label">{_("Used")}</label>
                     <div>{used}</div>

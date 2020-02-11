@@ -37,7 +37,7 @@ class TestStorage(StorageCase):
         b.wait_in_text("#drives", "DISK1")
         b.wait_in_text("#drives", "DISK2")
 
-        b.click("#create-mdraid")
+        self.devices_dropdown('Create RAID Device')
         self.dialog_wait_open()
         self.dialog_set_val("level", "raid1")
         self.dialog_set_val("disks", {"DISK1": True, "DISK2": True})
@@ -45,7 +45,7 @@ class TestStorage(StorageCase):
         # The dialog should make sure that the Chunk size is ignored (has to be 0 for RAID 1)
         self.dialog_apply()
         self.dialog_wait_close()
-        b.wait_in_text("#mdraids", "SOMERAID")
+        b.wait_in_text("#devices", "SOMERAID")
 
 
 if __name__ == '__main__':

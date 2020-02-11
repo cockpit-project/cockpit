@@ -123,10 +123,10 @@ function DockerClient() {
         // "Image" in the ContainerSummary is translated to a name
         // when possible
         if (containers_meta[id]) {
-            if (!containers_meta[id]["ImageID"])
-                containers_meta[id]["ImageID"] = container["Image"];
-            if (containers_meta[id]["Image"])
-                container["Image"] = containers_meta[id]["Image"];
+            if (!containers_meta[id].ImageID)
+                containers_meta[id].ImageID = container.Image;
+            if (containers_meta[id].Image)
+                container.Image = containers_meta[id].Image;
         }
 
         // Add in the fields of the short form of the container
@@ -225,10 +225,10 @@ function DockerClient() {
 
     function update_usage_grid() {
         var meta = usage_metrics_channel.meta || { };
-        var metrics = meta.metrics || [ ];
+        var metrics = meta.metrics || [];
 
         metrics.forEach(function(metric) {
-            var instances = metric.instances || [ ];
+            var instances = metric.instances || [];
 
             /*
              * Take a look at all the cgroups and map them to all the
@@ -258,10 +258,10 @@ function DockerClient() {
                         if (self.containers[id] && !usage_samples[id]) {
                             self.containers[id].CGroup = cgroup;
                             usage_samples[id] = [
-                                usage_grid.add(usage_metrics_channel, [ "cgroup.memory.usage", cgroup ]),
-                                usage_grid.add(usage_metrics_channel, [ "cgroup.cpu.usage", cgroup ]),
-                                usage_grid.add(usage_metrics_channel, [ "cgroup.memory.limit", cgroup ]),
-                                usage_grid.add(usage_metrics_channel, [ "cgroup.cpu.shares", cgroup ])
+                                usage_grid.add(usage_metrics_channel, ["cgroup.memory.usage", cgroup]),
+                                usage_grid.add(usage_metrics_channel, ["cgroup.cpu.usage", cgroup]),
+                                usage_grid.add(usage_metrics_channel, ["cgroup.memory.limit", cgroup]),
+                                usage_grid.add(usage_metrics_channel, ["cgroup.cpu.shares", cgroup])
                             ];
                         }
                     }
@@ -310,8 +310,8 @@ function DockerClient() {
         // the summary version is prettified
         // ie: <none>:<none>
         // and the detail is not.
-        image["ActualRepoTags"] = image.RepoTags;
-        image["ActualRepoDigests"] = image.RepoDigests;
+        image.ActualRepoTags = image.RepoTags;
+        image.ActualRepoDigests = image.RepoDigests;
         $.extend(image, images_meta[id]);
 
         /* HACK: TODO upstream bug */
@@ -409,7 +409,7 @@ function DockerClient() {
             watch.close();
 
         function got_info() {
-            watch = cockpit.channel({ payload: "fslist1", path: self.info["DockerRootDir"], superuser: "try" });
+            watch = cockpit.channel({ payload: "fslist1", path: self.info.DockerRootDir, superuser: "try" });
             $(watch)
                     .on("message", function(event, data) {
                         trigger_event();
@@ -427,21 +427,26 @@ function DockerClient() {
         $(self).triggerHandler("event");
 
         usage_metrics_channel = cockpit.metrics(1000,
-                                                { source: "internal",
-                                                  metrics: [ { name: "cgroup.memory.usage",
-                                                               units: "bytes"
-                                                  },
-                                                  { name: "cgroup.cpu.usage",
-                                                    units: "millisec",
-                                                    derive: "rate"
-                                                  },
-                                                  { name: "cgroup.memory.limit",
-                                                    units: "bytes"
-                                                  },
-                                                  { name: "cgroup.cpu.shares",
-                                                    units: "count"
-                                                  }
-                                                  ]
+                                                {
+                                                    source: "internal",
+                                                    metrics: [{
+                                                        name: "cgroup.memory.usage",
+                                                        units: "bytes"
+                                                    },
+                                                    {
+                                                        name: "cgroup.cpu.usage",
+                                                        units: "millisec",
+                                                        derive: "rate"
+                                                    },
+                                                    {
+                                                        name: "cgroup.memory.limit",
+                                                        units: "bytes"
+                                                    },
+                                                    {
+                                                        name: "cgroup.cpu.shares",
+                                                        units: "count"
+                                                    }
+                                                    ]
                                                 });
 
         $(usage_metrics_channel).on("changed", function() {
@@ -513,7 +518,7 @@ function DockerClient() {
         return http.request({
             method: "POST",
             path: "/v1.12/containers/" + encodeURIComponent(id) + "/stop",
-            params: { 't': timeout },
+            params: { t: timeout },
             body: ""
         })
                 .fail(function(ex) {
@@ -535,7 +540,7 @@ function DockerClient() {
         return http.request({
             method: "POST",
             path: "/v1.12/containers/" + encodeURIComponent(id) + "/restart",
-            params: { 't': timeout },
+            params: { t: timeout },
             body: ""
         })
                 .fail(function(ex) {
@@ -555,7 +560,7 @@ function DockerClient() {
         return http.request({
             method: "POST",
             path: "/v1.12/containers/create",
-            params: { "name": name },
+            params: { name: name },
             headers: { "Content-Type": "application/json" },
             body: body,
         })
@@ -570,7 +575,7 @@ function DockerClient() {
 
     this.search = function search(term) {
         util.docker_debug("searching:", term);
-        return http.get("/v1.12/images/search", { "term": term })
+        return http.get("/v1.12/images/search", { term: term })
                 .fail(function(ex) {
                     util.docker_debug("search failed:", term, ex);
                 })
@@ -581,8 +586,8 @@ function DockerClient() {
 
     this.commit = function create(id, repotag, options, run_config) {
         var args = {
-            "container": id,
-            "repo": repotag
+            container: id,
+            repo: repotag
         };
         $.extend(args, options);
 
@@ -615,7 +620,7 @@ function DockerClient() {
         return http.request({
             method: "DELETE",
             path: "/v1.12/containers/" + encodeURIComponent(id),
-            params: { "force": forced },
+            params: { force: forced },
             body: ""
         })
                 .fail(function(ex) {
@@ -637,7 +642,7 @@ function DockerClient() {
         return http.request({
             method: "DELETE",
             path: "/v1.12/images/" + encodeURIComponent(id),
-            params: { "force": forced },
+            params: { force: forced },
             body: ""
         })
                 .fail(function(ex) {
@@ -654,7 +659,9 @@ function DockerClient() {
 
     this.pull = function (repo, tag, registry) {
         var job = {
-            name: repo
+            name: repo,
+            tag: tag,
+            registry: registry,
         };
 
         docker.pull(repo, tag, registry)
@@ -687,7 +694,7 @@ function DockerClient() {
         var command = "if test -f " + path + "; then echo '" + value.toFixed(0) + "' > " + path + "; fi";
         util.docker_debug("changing cgroup:", command);
 
-        return cockpit.spawn(["sh", "-c", command], { "superuser": "try", "err": "message" });
+        return cockpit.spawn(["sh", "-c", command], { superuser: "try", err: "message" });
     }
 
     this.change_memory_limit = function change_memory_limit(id, value) {
@@ -744,7 +751,7 @@ function DockerClient() {
 
     this.containers_for_image = function containers_for_image(id) {
         util.docker_debug('containers search on image id: ', id);
-        return http.get('/v1.12/containers/json', { all: 1, filters: JSON.stringify({ ancestor: [ id ] }) })
+        return http.get('/v1.12/containers/json', { all: 1, filters: JSON.stringify({ ancestor: [id] }) })
                 .fail(function(ex) {
                     util.docker_debug('containers search on image id failed:', id, ex);
                 })

@@ -66,38 +66,26 @@ AC_MSG_RESULT($enable_prefix_only)
 #
 
 GLIB_VERSION="2.44"
-LIBSSH_VERSION="0.6.0"
+LIBSSH_VERSION="0.8"
 GIO_VERSION="2.37.4" # For appropriate version of TLS logic
 
 GIO_REQUIREMENT="gio-unix-2.0 >= $GIO_VERSION gio-2.0 >= $GIO_VERSION"
-LIBSYSTEMD_REQUIREMENT="libsystemd"
-LIBSYSTEMD_REQUIREMENT_OLD="libsystemd-journal >= 187 libsystemd-daemon libsystemd-login"
+LIBSYSTEMD_REQUIREMENT="libsystemd >= 235"
 JSON_GLIB_REQUIREMENT="json-glib-1.0 >= 0.14.0"
 POLKIT_REQUIREMENT="polkit-agent-1 >= 0.105"
-GNUTLS_REQUIREMENT="gnutls >= 3.3.0"
+GNUTLS_REQUIREMENT="gnutls >= 3.4.3"
+KRB5_REQUIREMENT="krb5-gssapi >= 1.11 krb5 >= 1.11"
 
 PKG_CHECK_MODULES(GIO, [$GIO_REQUIREMENT])
 GLIB_VERSION_DEF="GLIB_VERSION_$(echo $GLIB_VERSION | tr '.' '_')"
 GIO_CFLAGS="$GIO_CFLAGS -DGLIB_VERSION_MIN_REQUIRED=$GLIB_VERSION_DEF"
 GIO_CFLAGS="$GIO_CFLAGS -DGLIB_VERSION_MAX_ALLOWED=$GLIB_VERSION_DEF"
 
-PKG_CHECK_MODULES(LIBSYSTEMD, [$LIBSYSTEMD_REQUIREMENT], [], [
-	PKG_CHECK_MODULES(LIBSYSTEMD, [$LIBSYSTEMD_REQUIREMENT_OLD])
-])
+PKG_CHECK_MODULES(LIBSYSTEMD, [$LIBSYSTEMD_REQUIREMENT])
 PKG_CHECK_MODULES(JSON_GLIB, [$JSON_GLIB_REQUIREMENT])
 PKG_CHECK_MODULES(POLKIT, [$POLKIT_REQUIREMENT])
 PKG_CHECK_MODULES(GNUTLS, [$GNUTLS_REQUIREMENT])
-
-# HACK: We can't yet use the new krb5 pkg-config file
-AC_PATH_PROG(KRB5_CONFIG, krb5-config)
-AC_MSG_CHECKING(for working krb5-config)
-if test -x "$KRB5_CONFIG"; then
-  KRB5_CFLAGS="$($KRB5_CONFIG --cflags gssapi)"
-  KRB5_LIBS="$($KRB5_CONFIG --libs gssapi)"
-  AC_MSG_RESULT(yes)
-else
-  AC_MSG_ERROR(no. Please install MIT kerberos devel package)
-fi
+PKG_CHECK_MODULES(KRB5, [$KRB5_REQUIREMENT])
 
 COCKPIT_CFLAGS="$GIO_CFLAGS $JSON_GLIB_CFLAGS $LIBSYSTEMD_CFLAGS"
 COCKPIT_LIBS="$GIO_LIBS $JSON_GLIB_LIBS $LIBSYSTEMD_LIBS -lutil -lm"
@@ -118,6 +106,11 @@ COCKPIT_SESSION_CFLAGS="$KRB5_CFLAGS"
 COCKPIT_SESSION_LIBS="$KRB5_LIBS"
 AC_SUBST(COCKPIT_SESSION_CFLAGS)
 AC_SUBST(COCKPIT_SESSION_LIBS)
+
+PAM_COCKPIT_CERT_CFLAGS="$COCKPIT_CFLAGS $LIBSYSTEMD_CFLAGS"
+PAM_COCKPIT_CERT_LIBS="$LIBSYSTEMD_LIBS"
+AC_SUBST(PAM_COCKPIT_CERT_CFLAGS)
+AC_SUBST(PAM_COCKPIT_CERT_LIBS)
 
 COCKPIT_WS_CFLAGS="$COCKPIT_CFLAGS"
 COCKPIT_WS_LIBS="$COCKPIT_LIBS"
@@ -273,19 +266,6 @@ else
   AC_MSG_ERROR([no. Please install gettext tools])
 fi
 
-AC_PATH_PROG(INTLTOOL_EXTRACT, intltool-extract)
-AC_PATH_PROG(INTLTOOL_MERGE, intltool-merge)
-AC_PATH_PROG(INTLTOOL_UPDATE, intltool-update)
-AC_MSG_CHECKING(for intltool binaries)
-if test -x "$INTLTOOL_EXTRACT" -a -x "$INTLTOOL_MERGE" -a -x "$INTLTOOL_UPDATE"; then
-  AC_SUBST(INTLTOOL_EXTRACT)
-  AC_SUBST(INTLTOOL_MERGE)
-  AC_SUBST(INTLTOOL_UPDATE)
-  AC_MSG_RESULT(yes)
-else
-  AC_MSG_ERROR(no. Please install intltool package)
-fi
-
 # go
 
 AC_PATH_PROG([GOLANG], [go])
@@ -422,7 +402,7 @@ fi
 AM_CONDITIONAL(WITH_ASAN, test "$enable_asan" = "yes")
 AC_MSG_RESULT($asan_status)
 
-# User and group for running cockpit-ws
+# User and group for running cockpit web server (cockpit-tls or -ws in customized setups)
 
 AC_ARG_WITH(cockpit_user,
 	    AS_HELP_STRING([--with-cockpit-user=<user>],
@@ -448,6 +428,35 @@ fi
 
 AC_SUBST(COCKPIT_USER)
 AC_SUBST(COCKPIT_GROUP)
+
+# User for running cockpit-ws instances from cockpit-tls
+
+AC_ARG_WITH(cockpit_ws_instance_user,
+	    AS_HELP_STRING([--with-cockpit-ws-instance-user=<user>],
+			   [User for running cockpit-ws instances from cockpit-tls (root)]
+                          )
+           )
+AC_ARG_WITH(cockpit_ws_instance_group,
+	    AS_HELP_STRING([--with-cockpit-ws-instance-group=<group>],
+			   [Group for running cockpit-ws instances from cockpit-tls]
+                          )
+           )
+if test -z "$with_cockpit_ws_instance_user"; then
+    if test "$COCKPIT_USER" != "root"; then
+        AC_MSG_ERROR([--with-cockpit-ws-instance-user is required when setting --with-cockpit-user])
+    fi
+    COCKPIT_WSINSTANCE_USER=root
+else
+    COCKPIT_WSINSTANCE_USER=$with_cockpit_ws_instance_user
+    if test -z "$with_cockpit_ws_instance_group"; then
+        COCKPIT_WSINSTANCE_GROUP=$with_cockpit_ws_instance_user
+    else
+        COCKPIT_WSINSTANCE_GROUP=$with_cockpit_ws_instance_group
+    fi
+fi
+
+AC_SUBST(COCKPIT_WSINSTANCE_USER)
+AC_SUBST(COCKPIT_WSINSTANCE_GROUP)
 
 AC_ARG_WITH(selinux_config_type,
 	    AS_HELP_STRING([--with-selinux-config-type=<type>],
@@ -598,6 +607,8 @@ echo "
 
         cockpit-ws user:            ${COCKPIT_USER}
         cockpit-ws group:           ${COCKPIT_GROUP}
+        cockpit-ws instance user:   ${COCKPIT_WSINSTANCE_USER}
+        cockpit-ws instance group:  ${COCKPIT_WSINSTANCE_GROUP}
         selinux config type:        ${COCKPIT_SELINUX_CONFIG_TYPE}
 
         Maintainer mode:            ${USE_MAINTAINER_MODE}
@@ -607,7 +618,7 @@ echo "
         With coverage:              ${enable_coverage}
         With address sanitizer:     ${asan_status}
         With PCP:                   ${enable_pcp}
-	Branding:                   ${BRAND}
+        Branding:                   ${BRAND}
 
         cockpit-ssh:                ${enable_ssh}
         Supports key auth:          ${key_auth}

@@ -31,8 +31,11 @@ function component_checksum(machine, component) {
         return "$" + machine.manifests[pkg][".checksum"];
 }
 
-function Frames(index) {
+function Frames(index, setupTimers) {
     var self = this;
+    let language = document.cookie.replace(/(?:(?:^|.*;\s*)CockpitLang\s*=\s*([^;]*).*$)|^.*$/, "$1");
+    if (!language)
+        language = "en-us";
 
     /* Lists of frames, by host */
     self.iframes = { };
@@ -85,6 +88,11 @@ function Frames(index) {
                 if (count > 0)
                     index.navigate();
             }
+            if (frame.contentWindow)
+                setupTimers(frame.contentWindow);
+
+            if (frame.contentDocument && frame.contentDocument.documentElement)
+                frame.contentDocument.documentElement.lang = language;
         } else {
             frame.timer = window.setTimeout(function() {
                 frame_ready(frame, count + 1);
@@ -302,11 +310,14 @@ function Router(index) {
     }
 
     function register(child) {
-        var host;
+        var host, page;
         var name = child.name || "";
-        if (name.indexOf("cockpit1:") === 0)
-            host = name.substring(9).split("/")[0];
-        if (!name || !host) {
+        if (name.indexOf("cockpit1:") === 0) {
+            var parts = name.substring(9).split("/");
+            host = parts[0];
+            page = parts.slice(1).join("/");
+        }
+        if (!name || !host || !page) {
             console.warn("invalid child window name", child, name);
             return;
         }
@@ -318,6 +329,7 @@ function Router(index) {
             window: child,
             channel_seed: seed,
             default_host: host,
+            page: page,
             inited: false,
         };
         source_by_seed[seed] = source;
@@ -398,14 +410,14 @@ function Router(index) {
                 }
                 if (source) {
                     var reply = $.extend({ }, cockpit.transport.options,
-                                         { command: "init", "host": source.default_host, "channel-seed": source.channel_seed }
+                                         { command: "init", host: source.default_host, "channel-seed": source.channel_seed }
                     );
                     child.postMessage("\n" + JSON.stringify(reply), origin);
                     source.inited = true;
 
                     /* If this new frame is not the current one, tell it */
                     if (child.frameElement != index.current_frame())
-                        self.hint(child.frameElement.contentWindow, { "hidden": true });
+                        self.hint(child.frameElement.contentWindow, { hidden: true });
                 }
             } else if (control.command === "jump") {
                 perform_jump(child, control);
@@ -422,6 +434,9 @@ function Router(index) {
                 return;
             } else if (control.command == "oops") {
                 index.show_oops();
+                return;
+            } else if (control.command == "notify") {
+                index.handle_notifications(source.default_host, source.page, control);
                 return;
 
             /* Only control messages with a channel are forwardable */
@@ -484,11 +499,84 @@ function Index() {
     if (typeof self.navigate !== "function")
         throw Error("Index requires a prototype with a navigate function");
 
-    self.frames = new Frames(self);
+    /* Session timing out after inactivity */
+    let session_final_timer = null;
+    let session_timeout = 0;
+    let current_idle_time = 0;
+    let final_countdown = 30000; // last 30 seconds
+    let title = "";
+    const standard_login = window.localStorage['standard-login'];
+
+    function startTimer() {
+        if (session_timeout > 0 && standard_login)
+            window.setInterval(sessionTimeout, 5000);
+    }
+
+    function sessionTimeout() {
+        current_idle_time += 5000;
+        if (!session_final_timer && current_idle_time >= session_timeout - final_countdown) {
+            title = document.title;
+            sessionFinalTimeout();
+            $("#session-timeout-dialog").modal("show");
+
+            document.getElementById("keep-session-alive").addEventListener("click", e => {
+                window.clearTimeout(session_final_timer);
+                session_final_timer = null;
+                document.title = title;
+                resetTimer();
+                $("#session-timeout-dialog").modal("hide");
+                final_countdown = 30000;
+            });
+        }
+    }
+
+    function updateFinalCountdown() {
+        const remaining_secs = Math.floor(final_countdown / 1000);
+        const timeout_text = cockpit.format(_("You will be logged out in $0 seconds."), remaining_secs);
+        document.getElementById("timeout-message").innerHTML = timeout_text;
+        document.title = "(" + remaining_secs + ") " + title;
+    }
+
+    function sessionFinalTimeout() {
+        final_countdown -= 1000;
+        if (final_countdown > 0) {
+            updateFinalCountdown();
+            session_final_timer = window.setTimeout(sessionFinalTimeout, 1000);
+        } else {
+            cockpit.logout(true, _("You have been logged out due to inactivity."));
+        }
+    }
+
+    function resetTimer() {
+        if (!session_final_timer) {
+            current_idle_time = 0;
+        }
+    }
+
+    function setupTimers(document) {
+        document.addEventListener("mousemove", resetTimer, false);
+        document.addEventListener("mousedown", resetTimer, false);
+        document.addEventListener("keypress", resetTimer, false);
+        document.addEventListener("touchmove", resetTimer, false);
+        document.addEventListener("onscroll", resetTimer, false);
+    }
+
+    setupTimers(window);
+    cockpit.dbus(null, { bus: "internal" }).call("/config", "cockpit.Config", "GetUInt", ["Session", "IdleTimeout", 15, 240, 0], [])
+            .then(result => {
+                session_timeout = result[0] * 60000;
+                startTimer();
+            })
+            .catch(e => {
+                if (e.message.indexOf("GetUInt not available") === -1)
+                    console.warn(e.message);
+            });
+
+    self.frames = new Frames(self, setupTimers);
     self.router = new Router(self);
 
     /* Watchdog for disconnect */
-    var watchdog = cockpit.channel({ "payload": "null" });
+    var watchdog = cockpit.channel({ payload: "null" });
     $(watchdog).on("close", function(event, options) {
         var watchdog_problem = options.problem || "disconnected";
         console.warn("transport closed: " + watchdog_problem);
@@ -499,6 +587,7 @@ function Index() {
     $(document).on("click", "a[href]", function(ev) {
         var a = this;
         if (!a.host || window.location.host === a.host) {
+            document.getElementById("filter-menus").value = "";
             self.jump(a.getAttribute('href'));
             ev.preventDefault();
         }
@@ -641,6 +730,20 @@ function Index() {
         return null;
     }
 
+    self.preload_frames = function (host, manifests) {
+        for (const c in manifests) {
+            const preload = manifests[c].preload;
+            if (preload && preload.length) {
+                for (const p of preload) {
+                    if (p == "index")
+                        self.frames.lookup(host, c);
+                    else
+                        self.frames.lookup(host, c + "/" + p);
+                }
+            }
+        }
+    };
+
     /* Jumps to a given navigate state */
     self.jump = function (state, replace) {
         if (typeof (state) === "string")
@@ -688,16 +791,16 @@ function Index() {
 
     self.show_oops = function () {
         if (self.oops_sel)
-            $(self.oops_sel).show();
+            $(self.oops_sel).prop("hidden", false);
     };
 
     self.current_frame = function (frame) {
         if (frame !== undefined) {
             if (current_frame !== frame) {
                 if (current_frame && current_frame.contentWindow)
-                    self.router.hint(current_frame.contentWindow, { "hidden": true });
+                    self.router.hint(current_frame.contentWindow, { hidden: true });
                 if (frame && frame.contentWindow)
-                    self.router.hint(frame.contentWindow, { "hidden": false });
+                    self.router.hint(frame.contentWindow, { hidden: false });
             }
             current_frame = frame;
         }
@@ -720,7 +823,7 @@ function Index() {
         build_navbar();
         self.navigate();
         cockpit.translate();
-        $("body").show();
+        $("body").prop("hidden", false);
     };
 
     self.expect_restart = function (host) {
@@ -813,7 +916,7 @@ function Index() {
          * to produce this list. Perhaps we would include it somewhere in a
          * separate automatically generated file. Need to see.
          */
-        var manifest = cockpit.manifests["shell"] || { };
+        var manifest = cockpit.manifests.shell || { };
         $(".display-language-menu").toggle(!!manifest.locales);
         var language = document.cookie.replace(/(?:(?:^|.*;\s*)CockpitLang\s*=\s*([^;]*).*$)|^.*$/, "$1");
         if (!language)
@@ -856,7 +959,7 @@ function Index() {
         $(id).on("click", function() {
             self.jump({ host: "localhost", component: "users", hash: "/" + user.name });
         })
-                .show();
+                .prop("hidden", false);
     }
 
     function setup_killer(id) {
@@ -914,8 +1017,21 @@ function CompiledComponents() {
                     label: cockpit.gettext(info.label) || prop,
                     order: info.order === undefined ? 1000 : info.order,
                     icon: info.icon,
-                    wants: info.wants
+                    wants: info.wants,
+                    docs: info.docs,
+                    keywords: info.keywords || [{ matches: [] }],
+                    keyword: { score: -1 }
                 };
+
+                // Always first keyword should be page name
+                item.keywords[0].matches.unshift(item.label.toLowerCase());
+
+                // Keywords from manifest have different defaults than are usual
+                item.keywords.forEach(i => {
+                    i.weight = i.weight || 3;
+                    i.translate = i.translate === undefined ? true : i.translate;
+                });
+
                 if (info.path)
                     item.path = info.path.replace(/\.html$/, "");
                 else

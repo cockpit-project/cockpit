@@ -173,14 +173,14 @@ function download(ev) {
     if (path.value.indexOf("http") === 0) {
         anchor = document.createElement("a");
         anchor.href = path.value;
-        options["payload"] = "http-stream2";
-        options["address"] = anchor.hostname;
-        options["port"] = parseInt(anchor.port, 10);
-        options["path"] = anchor.pathname;
-        options["method"] = "GET";
+        options.payload = "http-stream2";
+        options.address = anchor.hostname;
+        options.port = parseInt(anchor.port, 10);
+        options.path = anchor.pathname;
+        options.method = "GET";
     } else {
-        options["payload"] = "fsread1";
-        options["path"] = path.value;
+        options.payload = "fsread1";
+        options.path = path.value;
     }
 
     console.log("Download", options);
@@ -216,5 +216,5 @@ cockpit.transport.wait(function() {
     document.getElementById("download-external").addEventListener("click", download);
     document.getElementById("stop").addEventListener("click", stop);
     window.setInterval(update, 500);
-    document.body.style.display = "block";
+    document.body.removeAttribute("hidden");
 });

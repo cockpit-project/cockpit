@@ -7,6 +7,7 @@
     try {
         localStorage = window.localStorage;
         window.localStorage.removeItem('url-root');
+        window.localStorage.removeItem('standard-login');
     } catch (ex) {
         localStorage = window.sessionStorage;
         console.warn(String(ex));
@@ -135,7 +136,7 @@
                 throw ex;
             }
             if (ret === undefined) {
-                disableLogin();
+                disableLogin(name);
                 return false;
             }
             return true;
@@ -270,6 +271,11 @@
         if (!requisites())
             return;
 
+        if (environment.banner) {
+            id("banner").classList.remove("group-hidden");
+            id("banner-message").textContent = environment.banner.trimEnd();
+        }
+
         id("show-other-login-options").addEventListener("click", toggle_options);
         id("show-other-login-options").addEventListener("keypress", toggle_options);
         id("server-clear").addEventListener("click", function () {
@@ -279,8 +285,8 @@
         });
 
         /* Setup the user's last choice about the authorized button */
-        var authorized = localStorage.getItem('authorized-default') || "";
-        if (authorized.indexOf("password") !== -1)
+        var authorized = localStorage.getItem('authorized-default');
+        if (authorized === null || authorized.indexOf("password") !== -1)
             id("authorized-input").checked = true;
 
         var os_release = environment["os-release"];
@@ -290,6 +296,10 @@
         var logout_intent = window.sessionStorage.getItem("logout-intent") == "explicit";
         if (logout_intent)
             window.sessionStorage.removeItem("logout-intent");
+
+        var logout_reason = window.sessionStorage.getItem("logout-reason");
+        if (logout_reason)
+            window.sessionStorage.removeItem("logout-reason");
 
         /* Try automatic/kerberos authentication? */
         if (oauth) {
@@ -303,7 +313,7 @@
                 oauth_auto_login();
             }
         } else if (logout_intent) {
-            show_login();
+            show_login(logout_reason);
         } else {
             standard_auto_login();
         }
@@ -393,8 +403,13 @@
     }
 
     function clear_errors() {
-        id("error-group").style.display = "none";
+        id("error-group").classList.add("group-hidden");
         id("login-error-message").textContent = "";
+    }
+
+    function clear_info() {
+        id("info-group").classList.add("group-hidden");
+        id("login-info-message").textContent = "";
     }
 
     function login_failure(msg, in_conversation) {
@@ -406,8 +421,16 @@
             } else {
                 show_form(in_conversation);
                 id("login-error-message").textContent = msg;
-                id("error-group").style.display = "block";
+                id("error-group").classList.remove("group-hidden");
             }
+        }
+    }
+
+    function login_info(msg) {
+        clear_info();
+        if (msg) {
+            id("login-info-message").textContent = msg;
+            id("info-group").classList.remove("group-hidden");
         }
     }
 
@@ -418,7 +441,7 @@
         } else {
             clear_errors();
             id("login-error-message").textContent = msg;
-            id("error-group").style.display = "block";
+            id("error-group").classList.remove("group-hidden");
             toggle_options(null, true);
             show_form();
         }
@@ -465,8 +488,11 @@
             var password = id("login-password-input").value;
             localStorage.setItem('authorized-default', authorized);
 
+            /* Keep information if login page was used */
+            localStorage.setItem('standard-login', true);
+
             var headers = {
-                "Authorization": "Basic " + window.btoa(utf8(user + ":" + password)),
+                Authorization: "Basic " + window.btoa(utf8(user + ":" + password)),
                 "X-Authorize": authorized,
             };
             // allow unknown remote hosts with interactive logins with "Connect to:"
@@ -509,12 +535,14 @@
             id("login-button").addEventListener("click", call_login);
     }
 
-    function show_login() {
+    function show_login(message) {
         /* Show the login screen */
+        login_info(message);
         id("server-name").textContent = document.title;
         login_note(_("Log in with your server user account."));
         id("login-user-input").addEventListener("keydown", function(e) {
             login_failure(null);
+            clear_info();
             if (e.which == 13)
                 id("login-password-input").focus();
         }, false);
@@ -547,10 +575,9 @@
 
         var ei = id("conversation-input");
         ei.value = "";
-        if (prompt_data["default"])
-            ei.value = prompt_data["default"];
+        if (prompt_data.default)
+            ei.value = prompt_data.default;
         ei.setAttribute('type', type);
-        ei.focus();
 
         login_failure("");
 
@@ -571,6 +598,7 @@
         id("conversation-input").addEventListener("keydown", key_down);
         id("login-button").addEventListener("click", call_converse);
         show_form(true);
+        ei.focus();
     }
 
     function utf8(str) {
@@ -673,7 +701,7 @@
 
     function converse(id, msg) {
         var headers = {
-            "Authorization": "X-Conversation " + id + " " + window.btoa(utf8(msg))
+            Authorization: "X-Conversation " + id + " " + window.btoa(utf8(msg))
         };
         send_login_request("GET", headers, true);
     }
@@ -709,8 +737,8 @@
             if (xhr.readyState == 4) {
                 if (xhr.status == 200) {
                     var resp = JSON.parse(xhr.responseText);
-                    var base1 = resp ? resp['base1'] : {};
-                    if (!base1['version'] || base1['version'] < "119.x") {
+                    var base1 = resp ? resp.base1 : {};
+                    if (!base1.version || base1.version < "119.x") {
                         login_reload(embeded_url);
                     } else
                         login_reload(wanted);
@@ -764,6 +792,10 @@
          */
         if (url_root)
             localStorage.setItem('url-root', url_root);
+
+        var ca_cert_url = environment.CACertUrl;
+        if (ca_cert_url)
+            window.sessionStorage.setItem('CACertUrl', ca_cert_url);
     }
 
     function run(response) {

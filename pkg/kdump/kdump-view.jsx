@@ -74,45 +74,45 @@ class KdumpTargetBody extends React.Component {
         var compressionPossible = (
             !this.props.settings ||
             !("core_collector" in this.props.settings) ||
-            (this.props.settings["core_collector"].value.trim().indexOf("makedumpfile") === 0)
+            (this.props.settings.core_collector.value.trim().indexOf("makedumpfile") === 0)
         );
         var directory = "";
         if (this.props.settings && "path" in this.props.settings)
-            directory = this.props.settings["path"].value;
+            directory = this.props.settings.path.value;
 
         if (this.state.storeDest == "local") {
             detailRows = (
-                <React.Fragment>
+                <>
                     <label className="control-label" htmlFor="kdump-settings-local-directory">{_("Directory")}</label>
                     <input id="kdump-settings-local-directory" key="directory" className="form-control" type="text"
                            placeholder="/var/crash" value={directory}
                            data-stored={directory}
                            onChange={this.changeValue.bind(this, "path")} />
-                </React.Fragment>
+                </>
             );
         } else if (this.state.storeDest == "nfs") {
             var nfs = "";
             if (this.props.settings && "nfs" in this.props.settings)
-                nfs = this.props.settings["nfs"].value;
+                nfs = this.props.settings.nfs.value;
             detailRows = (
-                <React.Fragment>
+                <>
                     <label className="control-label" htmlFor="kdump-settings-nfs-mount">{_("Mount")}</label>
                     <label>
                         <input id="kdump-settings-nfs-mount" key="mount" className="form-control" type="text"
                                placeholder="penguin.example.com:/export/cores" value={nfs}
                                onChange={this.changeValue.bind(this, "nfs")} />
                     </label>
-                </React.Fragment>
+                </>
             );
         } else if (this.state.storeDest == "ssh") {
             var ssh = "";
             if (this.props.settings && "ssh" in this.props.settings)
-                ssh = this.props.settings["ssh"].value;
+                ssh = this.props.settings.ssh.value;
             var sshkey = "";
             if (this.props.settings && "sshkey" in this.props.settings)
-                sshkey = this.props.settings["sshkey"].value;
+                sshkey = this.props.settings.sshkey.value;
             detailRows = (
-                <React.Fragment>
+                <>
                     <label className="control-label" htmlFor="kdump-settings-ssh-server">{_("Server")}</label>
                     <input id="kdump-settings-ssh-server" key="server" className="form-control" type="text"
                            placeholder="user@server.com" value={ssh}
@@ -128,7 +128,7 @@ class KdumpTargetBody extends React.Component {
                            placeholder="/var/crash" value={directory}
                            data-stored={directory}
                            onChange={this.changeValue.bind(this, "path")} />
-                </React.Fragment>
+                </>
             );
         }
 
@@ -195,8 +195,8 @@ export class KdumpPage extends React.Component {
         return (
             settings &&
               ("core_collector" in settings) &&
-              settings["core_collector"].value &&
-              (settings["core_collector"].value.split(" ").indexOf("-c") != -1)
+              settings.core_collector.value &&
+              (settings.core_collector.value.split(" ").indexOf("-c") != -1)
         );
     }
 
@@ -208,22 +208,22 @@ export class KdumpPage extends React.Component {
             if (value) {
                 // enable compression
                 if ("core_collector" in settings)
-                    settings["core_collector"].value = settings["core_collector"].value + " -c";
+                    settings.core_collector.value = settings.core_collector.value + " -c";
                 else
-                    settings["core_collector"] = { value: "makedumpfile -c" };
+                    settings.core_collector = { value: "makedumpfile -c" };
             } else {
                 // disable compression
                 if ("core_collector" in this.props.kdumpStatus.config) {
                     // just remove all "-c" parameters
-                    settings["core_collector"].value =
-                        settings["core_collector"].value
+                    settings.core_collector.value =
+                        settings.core_collector.value
                                 .split(" ")
                                 .filter((e) => { return (e != "-c") })
                                 .join(" ");
                 } else {
                     // if we don't have anything on this in the original settings,
                     // we can get rid of the entry altogether
-                    delete settings["core_collector"];
+                    delete settings.core_collector;
                 }
             }
         } else if (key === "target") {
@@ -243,13 +243,13 @@ export class KdumpPage extends React.Component {
                 settings.nfs = { value: "" };
 
             if ("core_collector" in settings &&
-                settings["core_collector"].value.includes("makedumpfile")) {
+                settings.core_collector.value.includes("makedumpfile")) {
                 /* ssh target needs a flattened vmcore for transport */
-                if (value === "ssh" && !settings["core_collector"].value.includes("-F"))
-                    settings["core_collector"].value += " -F";
-                else if (settings["core_collector"].value.includes("-F"))
-                    settings["core_collector"].value =
-                        settings["core_collector"].value
+                if (value === "ssh" && !settings.core_collector.value.includes("-F"))
+                    settings.core_collector.value += " -F";
+                else if (settings.core_collector.value.includes("-F"))
+                    settings.core_collector.value =
+                        settings.core_collector.value
                                 .split(" ")
                                 .filter(e => e != "-F")
                                 .join(" ");
@@ -299,13 +299,14 @@ export class KdumpPage extends React.Component {
         };
         // also test modifying properties in subsequent render calls
         var footerProps = {
-            'actions': [
-                { 'clicked': self.props.onCrashKernel.bind(self),
-                  'caption': _("Crash system"),
-                  'style': 'danger',
+            actions: [
+                {
+                    clicked: self.props.onCrashKernel.bind(self),
+                    caption: _("Crash system"),
+                    style: 'danger',
                 }
             ],
-            'dialog_done': self.dialogClosed,
+            dialog_done: self.dialogClosed,
         };
         var dialogObj = show_modal_dialog(dialogProps, footerProps);
         this.setState({ dialogObj: dialogObj });
@@ -326,6 +327,7 @@ export class KdumpPage extends React.Component {
         // only consider primary mouse button
         if (!e || e.button !== 0)
             return;
+        e.preventDefault();
         var self = this;
         var settings = { };
         Object.keys(self.props.kdumpStatus.config).forEach((key) => {
@@ -347,13 +349,14 @@ export class KdumpPage extends React.Component {
         updateDialogBody();
         // also test modifying properties in subsequent render calls
         var footerProps = {
-            'actions': [
-                { 'clicked': this.handleApplyClick.bind(this),
-                  'caption': _("Apply"),
-                  'style': 'primary',
+            actions: [
+                {
+                    clicked: this.handleApplyClick.bind(this),
+                    caption: _("Apply"),
+                    style: 'primary',
                 },
             ],
-            'dialog_done': this.dialogClosed.bind(this),
+            dialog_done: this.dialogClosed.bind(this),
         };
         var dialogObj = show_modal_dialog(dialogProps, footerProps);
         dialogObj.updateDialogBody = updateDialogBody;
@@ -401,7 +404,7 @@ export class KdumpPage extends React.Component {
         // this.storeLocation(this.props.kdumpStatus.config);
         var settingsLink;
         if (targetCanChange)
-            settingsLink = <a href="#" tabIndex="0" onClick={this.handleSettingsClick}>{ kdumpLocation }</a>;
+            settingsLink = <span><button className="link-button" onClick={this.handleSettingsClick}>{ kdumpLocation }</button></span>;
         else
             settingsLink = <span>{ kdumpLocation }</span>;
         var reservedMemory;
@@ -454,14 +457,14 @@ export class KdumpPage extends React.Component {
                     </OverlayTrigger>
                 );
             }
-            kdumpServiceDetails = <a className="popover-ct-kdump" href="#" tabIndex="0" onClick={this.handleServiceDetailsClick}>{serviceDescription}{serviceHint}</a>;
+            kdumpServiceDetails = <button role="link" className="popover-ct-kdump link-button" onClick={this.handleServiceDetailsClick}>{serviceDescription}{serviceHint}</button>;
         } else if (this.props.kdumpStatus && !this.props.kdumpStatus.installed) {
             const tooltip = _("Kdump service not installed. Please ensure package kexec-tools is installed.");
             kdumpServiceDetails = (
                 <OverlayTrigger overlay={ <Tooltip id="tip-service">{tooltip}</Tooltip> } placement="bottom">
-                    <a tabIndex="0" className="popover-ct-kdump">
+                    <button className="popover-ct-kdump link-button">
                         <span className="fa fa-lg fa-info-circle" />
-                    </a>
+                    </button>
                 </OverlayTrigger>
             );
         }
@@ -506,11 +509,11 @@ export class KdumpPage extends React.Component {
 
                     <div role="group">
                         {testButton}
-                        <a tabIndex="0" className="popover-ct-kdump">
+                        <button className="popover-ct-kdump link-button">
                             <OverlayTrigger overlay={ <Tooltip id="tip-test-info">{tooltip_info}</Tooltip> } placement="top">
                                 <span className="fa fa-lg fa-info-circle" />
                             </OverlayTrigger>
-                        </a>
+                        </button>
                     </div>
                 </form>
             </div>

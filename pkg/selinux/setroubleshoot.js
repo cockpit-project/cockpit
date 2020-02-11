@@ -32,7 +32,7 @@ var initStore = function(rootElement) {
     var dataStore = { };
     dataStore.domRootElement = rootElement;
 
-    dataStore.entries = [ ];
+    dataStore.entries = [];
 
     // connected to the dbus api of setroubleshootd
     dataStore.connected = false;

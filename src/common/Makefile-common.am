@@ -127,6 +127,7 @@ COCKPIT_CHECKS = \
 	test-template \
 	test-webresponse \
 	test-webserver \
+	test-webcertificate \
 	test-config \
 	test-unicode \
 	test-version \
@@ -217,6 +218,10 @@ test_webresponse_LDADD = $(libcockpit_common_a_LIBS)
 test_webserver_SOURCES = src/common/test-webserver.c
 test_webserver_CFLAGS = $(libcockpit_common_a_CFLAGS)
 test_webserver_LDADD = $(libcockpit_common_a_LIBS)
+
+test_webcertificate_SOURCES = src/common/test-webcertificate.c
+test_webcertificate_CFLAGS = $(libcockpit_common_a_CFLAGS)
+test_webcertificate_LDADD = $(libcockpit_common_a_LIBS)
 
 test_config_CFLAGS = $(libcockpit_common_a_CFLAGS)
 test_config_SOURCES = src/common/test-config.c

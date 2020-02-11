@@ -31,6 +31,7 @@ libcockpit_bridge_a_SOURCES = \
 	src/bridge/cockpitconnect.h \
 	src/bridge/cockpitdbuscache.c \
 	src/bridge/cockpitdbuscache.h \
+	src/bridge/cockpitdbusconfig.c \
 	src/bridge/cockpitdbusinternal.c \
 	src/bridge/cockpitdbusinternal.h \
 	src/bridge/cockpitdbusjson.c \
@@ -247,6 +248,7 @@ EXTRA_DIST += \
 	src/bridge/mock-pmda.c \
 	src/bridge/mock-pmns \
 	src/bridge/mock-client.crt \
+	src/bridge/mock-client-expired.crt \
 	src/bridge/mock-client.key \
 	src/bridge/mock-server.crt \
 	src/bridge/mock-server.key \
@@ -259,18 +261,11 @@ polkitdir        = $(datadir)/polkit-1/actions
 polkit_in_files  = src/bridge/org.cockpit-project.cockpit-bridge.policy.in
 polkit_DATA = $(polkit_in_files:.policy.in=.policy)
 
-# gettext-domain= must only occur on C strings, not translated ones
 %.policy: %.policy.in $(PO_FILES)
-	$(AM_V_GEN) $(INTLTOOL_MERGE) -q -x $(top_srcdir)/po $< - | sed '/xml:lang=/ s/\ gettext-domain=".*"//' > $@
+	GETTEXTDATADIRS=$(srcdir)/po $(MSGFMT) --xml -d $(top_srcdir)/po --template $< --output $@
 
 EXTRA_DIST += $(polkit_in_files)
 CLEANFILES += $(polkit_DATA)
-
-prepare-po-bridge-policy: $(polkit_in_files)
-	cp $< .
-	$(AM_V_GEN) $(INTLTOOL_EXTRACT) -l --type=gettext/xml $(notdir $<)
-
-prepare-po:: prepare-po-bridge-policy
 
 # -----------------------------------------------------------------------------
 # PCP

@@ -74,7 +74,7 @@ export function flatten(array_of_arrays) {
     if (array_of_arrays.length > 0)
         return Array.prototype.concat.apply([], array_of_arrays);
     else
-        return [ ];
+        return [];
 }
 
 export function decode_filename(encoded) {
@@ -142,10 +142,10 @@ export function validate_lvm2_name(name) {
 
 export function validate_fsys_label(label, type) {
     var fs_label_max = {
-        "xfs":   12,
-        "ext4":  16,
-        "vfat":  11,
-        "ntfs": 128,
+        xfs:   12,
+        ext4:  16,
+        vfat:  11,
+        ntfs: 128,
     };
 
     var limit = fs_label_max[type.replace("luks+", "")];
@@ -180,8 +180,9 @@ export function mdraid_name(mdraid) {
         return parts[1];
     else
         return cockpit.format(_("$name (from $host)"),
-                              { name: parts[1],
-                                host: parts[0]
+                              {
+                                  name: parts[1],
+                                  host: parts[0]
                               });
 }
 
@@ -199,7 +200,7 @@ export function lvol_name(lvol) {
 }
 
 export function drive_name(drive) {
-    var name_parts = [ ];
+    var name_parts = [];
     if (drive.Vendor)
         name_parts.push(drive.Vendor);
     if (drive.Model)
@@ -237,21 +238,21 @@ export function get_block_link_parts(client, path) {
 
     var location, link;
     if (client.mdraids[block.MDRaid]) {
-        location = [ "mdraid", client.mdraids[block.MDRaid].UUID ];
+        location = ["mdraid", client.mdraids[block.MDRaid].UUID];
         link = cockpit.format(_("RAID Device $0"), mdraid_name(client.mdraids[block.MDRaid]));
     } else if (client.blocks_lvm2[path] &&
                client.lvols[client.blocks_lvm2[path].LogicalVolume] &&
                client.vgroups[client.lvols[client.blocks_lvm2[path].LogicalVolume].VolumeGroup]) {
         var target = client.vgroups[client.lvols[client.blocks_lvm2[path].LogicalVolume].VolumeGroup].Name;
-        location = [ "vg", target ];
+        location = ["vg", target];
         link = cockpit.format(_("Volume Group $0"), target);
     } else {
         var vdo = client.vdo_overlay.find_by_block(block);
         if (vdo) {
-            location = [ "vdo", vdo.name ];
+            location = ["vdo", vdo.name];
             link = cockpit.format(_("VDO Device $0"), vdo.name);
         } else {
-            location = [ block_name(block).replace(/^\/dev\//, "") ];
+            location = [block_name(block).replace(/^\/dev\//, "")];
             if (client.drives[block.Drive])
                 link = drive_name(client.drives[block.Drive]);
             else
@@ -295,7 +296,7 @@ export function get_partitions(client, block) {
         var total_end = container_start + container_size;
         var block, start, size, is_container, is_contained;
 
-        var result = [ ];
+        var result = [];
 
         function append_free_space(start, size) {
             // There is a lot of rounding and aligning going on in
@@ -343,8 +344,10 @@ export function get_partitions(client, block) {
 
             append_free_space(last_end, start - last_end);
             if (is_container) {
-                result.push({ type: 'container', block: block, size: size,
-                              partitions: process_level(level + 1, start, size) });
+                result.push({
+                    type: 'container', block: block, size: size,
+                    partitions: process_level(level + 1, start, size)
+                });
             } else {
                 result.push({ type: 'block', block: block });
             }
@@ -423,8 +426,10 @@ export function get_available_spaces(client) {
             if (p.type == 'free') {
                 link_parts = get_block_link_parts(client, block.path);
                 text = cockpit.format(link_parts.format, link_parts.link);
-                spaces.push({ type: 'free', block: block, start: p.start, size: p.size,
-                              desc: cockpit.format(_("unpartitioned space on $0"), text) });
+                spaces.push({
+                    type: 'free', block: block, start: p.start, size: p.size,
+                    desc: cockpit.format(_("unpartitioned space on $0"), text)
+                });
             }
         }
     }
@@ -445,10 +450,7 @@ export function prepare_available_spaces(client, spcs) {
         }
     }
 
-    // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
-    // https://github.com/cockpit-project/cockpit/issues/10956
-    // eslint-disable-next-line cockpit/no-cockpit-all
-    return cockpit.all(spcs.map(prepare));
+    return Promise.all(spcs.map(prepare));
 }
 
 /* Comparison function for sorting lists of block devices.
@@ -499,16 +501,16 @@ export function get_parent(client, path) {
 export function get_direct_parent_blocks(client, path) {
     var parent = get_parent(client, path);
     if (!parent)
-        return [ ];
+        return [];
     if (client.blocks[parent])
-        return [ parent ];
+        return [parent];
     if (client.mdraids[parent])
         return client.mdraids_members[parent].map(function (m) { return m.path });
     if (client.lvols[parent])
         parent = client.lvols[parent].VolumeGroup;
     if (client.vgroups[parent])
         return client.vgroups_pvols[parent].map(function (pv) { return pv.path });
-    return [ ];
+    return [];
 }
 
 export function get_parent_blocks(client, path) {
@@ -516,7 +518,7 @@ export function get_parent_blocks(client, path) {
     var direct_and_indirect_parents = flatten(direct_parents.map(function (p) {
         return get_parent_blocks(client, p);
     }));
-    return [ path ].concat(direct_and_indirect_parents);
+    return [path].concat(direct_and_indirect_parents);
 }
 
 export function is_netdev(client, path) {
@@ -530,7 +532,7 @@ export function is_netdev(client, path) {
 }
 
 function get_children(client, path) {
-    var children = [ ];
+    var children = [];
 
     if (client.blocks_cleartext[path]) {
         children.push(client.blocks_cleartext[path].path);
@@ -573,28 +575,32 @@ export function get_active_usage(client, path) {
         var usage = flatten(get_children(client, path).map(get_usage));
 
         if (fsys && fsys.MountPoints.length > 0)
-            usage.push({ usage: 'mounted',
-                         block: block,
-                         fsys: fsys
+            usage.push({
+                usage: 'mounted',
+                block: block,
+                fsys: fsys
             });
 
         if (mdraid)
-            usage.push({ usage: 'mdraid-member',
-                         block: block,
-                         mdraid: mdraid
+            usage.push({
+                usage: 'mdraid-member',
+                block: block,
+                mdraid: mdraid
             });
 
         if (vgroup)
-            usage.push({ usage: 'pvol',
-                         block: block,
-                         pvol: pvol,
-                         vgroup: vgroup
+            usage.push({
+                usage: 'pvol',
+                block: block,
+                pvol: pvol,
+                vgroup: vgroup
             });
 
         if (vdo)
-            usage.push({ usage: 'vdo-backing',
-                         block: block,
-                         vdo: vdo
+            usage.push({
+                usage: 'vdo-backing',
+                block: block,
+                vdo: vdo
             });
 
         return usage;
@@ -607,15 +613,15 @@ export function get_active_usage(client, path) {
     var res = {
         raw: usage,
         Teardown: {
-            Mounts: [ ],
-            MDRaidMembers: [ ],
-            PhysicalVolumes: [ ]
+            Mounts: [],
+            MDRaidMembers: [],
+            PhysicalVolumes: []
         },
         Blocking: {
-            Mounts: [ ],
-            MDRaidMembers: [ ],
-            PhysicalVolumes: [ ],
-            VDOs: [ ]
+            Mounts: [],
+            MDRaidMembers: [],
+            PhysicalVolumes: [],
+            VDOs: []
         }
     };
 
@@ -688,24 +694,16 @@ export function teardown_active_usage(client, usage) {
     // condition upfront by reshuffling the data structures.
 
     function unmount(mounteds) {
-        // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
-        // https://github.com/cockpit-project/cockpit/issues/10956
-        // eslint-disable-next-line cockpit/no-cockpit-all
-        return cockpit.all(mounteds.map(function (m) {
+        return Promise.all(mounteds.map(m => {
             if (m.fsys.MountPoints.length > 0)
                 return m.fsys.Unmount({});
             else
-                return cockpit.resolve();
+                return Promise.resolve();
         }));
     }
 
     function mdraid_remove(members) {
-        // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
-        // https://github.com/cockpit-project/cockpit/issues/10956
-        // eslint-disable-next-line cockpit/no-cockpit-all
-        return cockpit.all(members.map(function (m) {
-            return m.mdraid.RemoveDevice(m.block.path, { wipe: { t: 'b', v: true } });
-        }));
+        return Promise.all(members.map(m => m.mdraid.RemoveDevice(m.block.path, { wipe: { t: 'b', v: true } })));
     }
 
     function pvol_remove(pvols) {
@@ -713,7 +711,7 @@ export function teardown_active_usage(client, usage) {
         var p;
         pvols.forEach(function (p) {
             if (!by_vgroup[p.vgroup.path])
-                by_vgroup[p.vgroup.path] = [ ];
+                by_vgroup[p.vgroup.path] = [];
             by_vgroup[p.vgroup.path].push(p.block);
         });
 
@@ -723,15 +721,9 @@ export function teardown_active_usage(client, usage) {
             // If we would remove all physical volumes of a volume
             // group, remove the whole volume group instead.
             if (pvs.length == client.vgroups_pvols[p].length) {
-                return vg.Delete({ 'tear-down': { t: 'b', v: true }
-                });
+                return vg.Delete({ 'tear-down': { t: 'b', v: true } });
             } else {
-                // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
-                // https://github.com/cockpit-project/cockpit/issues/10956
-                // eslint-disable-next-line cockpit/no-cockpit-all
-                return cockpit.all(pvs.map(function (pv) {
-                    return vg.RemoveDevice(pv.path, true, {});
-                }));
+                return Promise.all(pvs.map(pv => vg.RemoveDevice(pv.path, true, {})));
             }
         }
 
@@ -739,18 +731,16 @@ export function teardown_active_usage(client, usage) {
             handle_vg(p);
     }
 
-    // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
-    // https://github.com/cockpit-project/cockpit/issues/10956
-    // eslint-disable-next-line cockpit/no-cockpit-all
-    return cockpit.all([ unmount(usage.raw.filter(function(use) { return use.usage == "mounted" })),
+    return Promise.all(Array.prototype.concat(
+        unmount(usage.raw.filter(function(use) { return use.usage == "mounted" })),
         mdraid_remove(usage.raw.filter(function(use) { return use.usage == "mdraid-member" })),
         pvol_remove(usage.raw.filter(function(use) { return use.usage == "pvol" }))
-    ]);
+    ));
 }
 
 export function get_config(name, def) {
-    if (cockpit.manifests["storage"] && cockpit.manifests["storage"]["config"]) {
-        var val = cockpit.manifests["storage"]["config"][name];
+    if (cockpit.manifests.storage && cockpit.manifests.storage.config) {
+        var val = cockpit.manifests.storage.config[name];
         return val !== undefined ? val : def;
     } else {
         return def;
@@ -761,7 +751,11 @@ export function get_config(name, def) {
 export function fmt_to_array(fmt, arg) {
     var index = fmt.indexOf("$0");
     if (index >= 0)
-        return [ fmt.slice(0, index), arg, fmt.slice(index + 2) ];
+        return [fmt.slice(0, index), arg, fmt.slice(index + 2)];
     else
-        return [ fmt ];
+        return [fmt];
+}
+
+export function reload_systemd() {
+    return cockpit.spawn(["systemctl", "daemon-reload"], { superuser: "require", err: "message" });
 }

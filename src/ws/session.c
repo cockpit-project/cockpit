@@ -258,8 +258,7 @@ pam_conv_func (int num_msg,
 }
 
 static pam_handle_t *
-perform_basic (const char *rhost,
-               const char *authorization)
+perform_basic (const char *authorization)
 {
   struct pam_conv conv = { pam_conv_func, };
   pam_handle_t *pamh;
@@ -283,9 +282,9 @@ perform_basic (const char *rhost,
   res = pam_start ("cockpit", user, &conv, &pamh);
   if (res != PAM_SUCCESS)
     errx (EX, "couldn't start pam: %s", pam_strerror (NULL, res));
-
-  if (pam_set_item (pamh, PAM_RHOST, rhost) != PAM_SUCCESS)
-    errx (EX, "couldn't setup pam");
+  /* DON'T pass COCKPIT_REMOTE_PEER as PAM_RHOST here; we use that for logging,
+   * but it's completely unreliable and untrustworthy (proxies, cockpit-tls,
+   * containers, NAT, VPNs, etc. all destroy the original IP) */
 
   debug ("authenticating");
 
@@ -380,8 +379,7 @@ map_gssapi_to_local (gss_name_t name,
 
 
 static pam_handle_t *
-perform_gssapi (const char *rhost,
-                const char *authorization)
+perform_gssapi (const char *authorization)
 {
   struct pam_conv conv = { pam_conv_func, };
   OM_uint32 major, minor;
@@ -393,6 +391,9 @@ perform_gssapi (const char *rhost,
   gss_name_t name = GSS_C_NO_NAME;
   gss_ctx_id_t context = GSS_C_NO_CONTEXT;
   gss_OID mech_type = GSS_C_NO_OID;
+  /* custom credential store with our cockpit keytab */
+  static gss_key_value_element_desc store_elements[] = { { .key = "keytab", .value = COCKPIT_KTAB } };
+  static const gss_key_value_set_desc cockpit_ktab_store = { .count = 1, .elements = store_elements };
   pam_handle_t *pamh = NULL;
   char *response = NULL;
   char *challenge;
@@ -404,18 +405,13 @@ perform_gssapi (const char *rhost,
 
   res = PAM_AUTH_ERR;
 
-  if (!getenv ("COCKPIT_TEST_KEEP_KTAB") &&
-      access (COCKPIT_KTAB, F_OK) == 0)
-    {
-      setenv ("KRB5_KTNAME", COCKPIT_KTAB, 1);
-    }
-
   debug ("reading kerberos auth from cockpit-ws");
   input.value = cockpit_authorize_parse_negotiate (authorization, &input.length);
 
   debug ("acquiring server credentials");
-  major = gss_acquire_cred (&minor, GSS_C_NO_NAME, GSS_C_INDEFINITE, GSS_C_NO_OID_SET,
-                            GSS_C_ACCEPT, &server, NULL, NULL);
+  major = gss_acquire_cred_from (&minor, GSS_C_NO_NAME, GSS_C_INDEFINITE, GSS_C_NO_OID_SET, GSS_C_ACCEPT,
+          (!getenv ("COCKPIT_TEST_KEEP_KTAB") && access (COCKPIT_KTAB, F_OK) == 0) ? &cockpit_ktab_store : NULL,
+          &server, NULL, NULL);
 
   if (GSS_ERROR (major))
     {
@@ -493,8 +489,6 @@ perform_gssapi (const char *rhost,
 
   if (res != PAM_SUCCESS)
     errx (EX, "couldn't start pam: %s", pam_strerror (NULL, res));
-  if (pam_set_item (pamh, PAM_RHOST, rhost) != PAM_SUCCESS)
-    errx (EX, "couldn't setup pam");
 
   res = open_session (pamh);
   if (res != PAM_SUCCESS)
@@ -522,6 +516,45 @@ out:
 
   return pamh;
 }
+
+static int
+pam_conv_func_dummy (int num_msg,
+                     const struct pam_message **msg,
+                     struct pam_response **ret_resp,
+                     void *appdata_ptr)
+{
+  /* we don't expect (nor can handle) any actual auth conversation here, but
+   * PAM sometimes sends messages like "Creating home directory for USER" */
+  for (int i = 0; i < num_msg; ++i)
+      debug ("got PAM conversation message, ignoring: %s", msg[i]->msg);
+  return PAM_CONV_ERR;
+}
+
+static pam_handle_t *
+perform_tlscert (void)
+{
+  struct pam_conv conv = { pam_conv_func_dummy, };
+  pam_handle_t *pamh;
+  int res;
+
+  debug ("start tls-cert authentication for cockpit-ws %u", getppid ());
+
+  /* pam_cockpit_cert sets the user name from the certificate */
+  res = pam_start ("cockpit", NULL, &conv, &pamh);
+  if (res != PAM_SUCCESS)
+    errx (EX, "couldn't start pam: %s", pam_strerror (NULL, res));
+
+  res = pam_authenticate (pamh, 0);
+  if (res == PAM_SUCCESS)
+    res = open_session (pamh);
+
+  /* Our exit code is a PAM code */
+  if (res != PAM_SUCCESS)
+    exit_init_problem (res);
+
+  return pamh;
+}
+
 
 static int
 session (char **env)
@@ -647,9 +680,11 @@ main (int argc,
     errx (EX, "invalid authorization header received");
 
   if (strcmp (type, "basic") == 0)
-    pamh = perform_basic (rhost, authorization);
+    pamh = perform_basic (authorization);
   else if (strcmp (type, "negotiate") == 0)
-    pamh = perform_gssapi (rhost, authorization);
+    pamh = perform_gssapi (authorization);
+  else if (strcmp (type, "tls-cert") == 0)
+    pamh = perform_tlscert ();
 
   cockpit_memory_clear (authorization, -1);
   free (authorization);

@@ -19,9 +19,12 @@
 
 import cockpit from "cockpit";
 import React from "react";
+import { cellWidth, SortByDirection } from '@patternfly/react-table';
 
+import { ListingTable } from "cockpit-components-table.jsx";
 import { StorageUsageBar } from "./storage-controls.jsx";
-import { decode_filename, block_name, fmt_size, format_fsys_usage, go_to_block } from "./utils.js";
+import { decode_filename, block_name, fmt_size, go_to_block, array_find } from "./utils.js";
+import { OptionalPanel } from "./optional-panel.jsx";
 
 const _ = cockpit.gettext;
 
@@ -48,74 +51,52 @@ export class FilesystemsPanel extends React.Component {
             return fsys && block.IdUsage == "filesystem" && block.IdType != "mpath_member" && !block.HintIgnore;
         }
 
-        function cmp_mount(path_a, path_b) {
-            var name_a = client.blocks[path_a].IdLabel || block_name(client.blocks[path_a]);
-            var name_b = client.blocks[path_b].IdLabel || block_name(client.blocks[path_b]);
-            return name_a.localeCompare(name_b);
-        }
-
         function make_mount(path) {
             var block = client.blocks[path];
-            var fsys = client.blocks_fsys[path];
-            var mount_points = fsys.MountPoints.map(decode_filename);
-            var fsys_size;
-            for (var i = 0; i < mount_points.length && !fsys_size; i++)
-                fsys_size = client.fsys_sizes.data[mount_points[i]];
+            var config = array_find(block.Configuration, function (c) { return c[0] == "fstab" });
+            var mount_point = config && decode_filename(config[1].dir.v);
+            var fsys_size = client.fsys_sizes.data[mount_point];
 
-            function go(event) {
-                if (!event || event.button !== 0)
-                    return;
-                go_to_block(client, path);
-            }
-
-            return (
-                <tr onClick={go} key={path}>
-                    <td>{ block.IdLabel || block_name(block) }</td>
-                    <td>
-                        { fsys.MountPoints.length > 0
-                            ? fsys.MountPoints.map((mp) => <div key={mp}>{decode_filename(mp)}</div>)
-                            : "-"
-                        }
-                    </td>
-                    <td>
-                        { fsys.MountPoints.length > 0
+            return {
+                props: { path, client, key: path },
+                columns: [
+                    { title:  block.IdLabel || block_name(block) },
+                    { title: mount_point || "-" },
+                    {
+                        title: fsys_size
                             ? <StorageUsageBar stats={fsys_size} critical={0.95} />
-                            : null
-                        }
-                    </td>
-                    <td className="usage-text">
-                        { fsys_size
-                            ? format_fsys_usage(fsys_size[0], fsys_size[1])
                             : fmt_size(block.Size)
-                        }
-                    </td>
-                </tr>
-            );
+                    }
+                ]
+            };
         }
 
         var mounts = Object.keys(client.blocks).filter(is_mount)
-                .sort(cmp_mount)
                 .map(make_mount);
 
+        function onRowClick(event, row) {
+            if (!event || event.button !== 0)
+                return;
+            go_to_block(row.props.client, row.props.path);
+        }
+
+        // table-hover class is needed till PF4 Table has proper support for clickable rows
+        // https://github.com/patternfly/patternfly-react/issues/3267
         return (
-            <div id="mounts" className="panel panel-default storage-mounts">
-                <div className="panel-heading">
-                    <h2 className="panel-title">{_("Filesystems")}</h2>
-                </div>
-                <table className="table table-hover">
-                    <thead>
-                        <tr>
-                            <th className="mount-name">{_("Name")}</th>
-                            <th className="mount-point">{_("Mount Point")}</th>
-                            <th className="mount-size-graph">{_("Size")}</th>
-                            <th className="mount-size-number">&nbsp;</th>
-                        </tr>
-                    </thead>
-                    <tbody id="storage_mounts">
-                        { mounts }
-                    </tbody>
-                </table>
-            </div>
+            <OptionalPanel id="mounts" className="storage-mounts"
+                title={_("Filesystems")}>
+                <ListingTable variant='compact'
+                    sortBy={{ index: 0, direction: SortByDirection.asc }}
+                    aria-label={_("Filesystems")}
+                    className='table-hover'
+                    onRowClick={onRowClick}
+                    columns={[
+                        { title: _("Name"), transforms: [cellWidth(30)], sortable: true },
+                        { title: _("Mount Point"), transforms: [cellWidth(30)], sortable: true },
+                        { title:  _("Size"), transforms: [cellWidth(40)] }
+                    ]}
+                    rows={mounts} />
+            </OptionalPanel>
         );
     }
 }

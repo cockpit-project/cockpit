@@ -31,7 +31,7 @@ const _ = cockpit.gettext;
 function format_to_fragments(fmt, arg) {
     var index = fmt.indexOf("$0");
     if (index >= 0)
-        return <React.Fragment>{fmt.slice(0, index)}{arg}{fmt.slice(index + 2)}</React.Fragment>;
+        return <>{fmt.slice(0, index)}{arg}{fmt.slice(index + 2)}</>;
     else
         return fmt;
 }
@@ -50,12 +50,14 @@ function format_to_fragments(fmt, arg) {
  * (If you do anyway, the resulting D-Bus errors will be shown to the user.)
  */
 
-export function install_dialog(pkg) {
+export function install_dialog(pkg, options) {
     var data = null;
     var error_message = null;
     var progress_message = null;
     var cancel = null;
     var done = null;
+
+    options = options || { };
 
     var prom = new Promise((resolve, reject) => { done = f => { if (f) resolve(); else reject(); } });
 
@@ -65,7 +67,7 @@ export function install_dialog(pkg) {
         let remove_details = null;
         let footer_message = null;
 
-        let missing_name = <strong>{pkg}</strong>;
+        const missing_name = <strong>{pkg}</strong>;
 
         if (data && data.extra_names.length > 0)
             extra_details = (
@@ -98,24 +100,25 @@ export function install_dialog(pkg) {
             );
         }
 
-        let body = {
+        const body = {
             id: "dialog",
-            title: _("Install Software"),
+            title: options.title || _("Install Software"),
             body: (
                 <div className="modal-body scroll">
-                    <p>{ format_to_fragments(_("$0 will be installed."), missing_name) }</p>
+                    <p>{ format_to_fragments(options.text || _("$0 will be installed."), missing_name) }</p>
                     { remove_details }
                     { extra_details }
                 </div>
             )
         };
 
-        let footer = {
+        const footer = {
             actions: [
-                { caption: _("Install"),
-                  style: "primary",
-                  clicked: install_missing,
-                  disabled: data == null
+                {
+                    caption: _("Install"),
+                    style: "primary",
+                    clicked: install_missing,
+                    disabled: data == null
                 }
             ],
             static_error: error_message,
@@ -132,7 +135,7 @@ export function install_dialog(pkg) {
     }
 
     function check_missing() {
-        PK.check_missing_packages([ pkg ],
+        PK.check_missing_packages([pkg],
                                   p => {
                                       cancel = p.cancel;
                                       var pm = null;

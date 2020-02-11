@@ -71,7 +71,7 @@ export const ProgressBar = ({ title, data }) => {
                     {title}
                 </div>
                 <div className="progress">
-                    <div className="progress-bar" style={{ "width": data.percentage + "%" }} />
+                    <div className="progress-bar" style={{ width: data.percentage + "%" }} />
                 </div>
             </div>
         );
@@ -106,7 +106,7 @@ export const show_error = ex => {
         },
         {
             cancel_caption: _("Close"),
-            actions: [ ]
+            actions: []
         });
 };
 
@@ -114,7 +114,7 @@ export const launch = (comp) => {
     var i;
     for (i = 0; i < comp.launchables.length; i++) {
         if (comp.launchables[i].type == "cockpit-manifest") {
-            cockpit.jump([ comp.launchables[i].name ]);
+            cockpit.jump([comp.launchables[i].name]);
             return;
         }
     }

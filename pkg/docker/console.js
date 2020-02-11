@@ -29,7 +29,7 @@ function update() {
 
     $("#container").empty()
             .append(box);
-    $("body").show();
+    $("body").prop("hidden", false);
 }
 
 $(cockpit).on("locationchanged", update);

@@ -24,8 +24,8 @@ from testlib import *
 class TestJournal(MachineCase):
 
     def setUp(self):
-        super(TestJournal, self).setUp()
-        self.crash_fn = "os_kill"
+        super().setUp()
+        self.crash_fn = "__nanosleep"
 
     def select_from_dropdown(self, browser, selector, value, click=True):
         button_text_selector = "{0} button span:nth-of-type(1)".format(selector)
@@ -40,6 +40,13 @@ class TestJournal(MachineCase):
                 browser.wait_in_text(button_text_selector, value)
             else:
                 browser.click(button_text_selector)
+
+    def crash(self):
+        m = self.machine
+
+        m.execute("ulimit -c unlimited")
+        sleep = m.spawn("sleep 1m", "sleep.log")
+        m.execute("kill -SEGV %d" % (sleep))
 
     def testBasic(self):
         b = self.browser
@@ -160,7 +167,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         })""", expected)
 
         def wait_journal_empty():
-            wait_log_lines([])
+            wait_log_lines(["No Logs FoundCan not find any logs using the current combination of filters."])
 
         b.go("#/?prio=*&service=log123.service")
         wait_journal_empty()
@@ -252,6 +259,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         # Now reboot things
         m.spawn("sync && sync && sync && sleep 0.1 && reboot", "reboot")
         m.wait_reboot()
+        m.execute("timedatectl set-time '2038-01-01 00:05:00'")
         m.execute("logger -p user.err --tag check-journal AFTER BOOT")
 
         m.start_cockpit()
@@ -272,22 +280,15 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
                         "Load earlier entries",
                         ])
 
-        n = ""
-        # In older version there was bug which showed messages two times
-        # Fixed in #11672
-        if m.image in ["rhel-8-0-distropkg"]:
-            n = "2"
-        b.click('#journal-load-earlier')
+        b.click('#start-box button:contains("Load earlier entries")')
+
         wait_log_lines([expected_date,
-                        ["check-journal", "AFTER BOOT", n],
+                        ["check-journal", "AFTER BOOT", ""],
                         ["", "Reboot", ""],
                         ["check-journal", "BEFORE BOOT", ""]
                         ])
 
         # Check selecting of services
-        if m.image in ["rhel-8-0-distropkg"]: # Introduced in #8347 and #11675
-            return
-
         b.go("#/?start=previous-boot&tag=check-journal")
         wait_log_lines([expected_date,
                         ["check-journal", "BEFORE BOOT", ""],
@@ -317,13 +318,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         b = self.browser
         m = self.machine
 
-        m.execute("""python3 -c '
-import socket
-s = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
-s.connect("/run/systemd/journal/socket")
-s.send(b"MESSAGE=Hello \\01 World\\nPRIORITY=3\\nFOO=bar\\nBIN=a\\01b\\02c\\03\\n")'
-""")
-
+        m.execute(r"printf 'MESSAGE=Hello \01 World\nPRIORITY=3\nFOO=bar\nBIN=a\01b\02c\03\n' | logger --journald")
         self.login_and_go("/system/logs")
 
         sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('[13 bytes of binary data]')"
@@ -342,13 +337,7 @@ s.send(b"MESSAGE=Hello \\01 World\\nPRIORITY=3\\nFOO=bar\\nBIN=a\\01b\\02c\\03\\
         b = self.browser
         m = self.machine
 
-        m.execute("""python3 -c '
-import socket
-s = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
-s.connect("/run/systemd/journal/socket")
-s.send(b"PRIORITY=3\\nFOO=bar\\n")'
-""")
-
+        m.execute(r"printf 'PRIORITY=3\nFOO=bar\n' | logger --journald")
         self.login_and_go("/system/logs")
 
         sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('[no data]')"
@@ -356,7 +345,6 @@ s.send(b"PRIORITY=3\\nFOO=bar\\n")'
 
         b.wait_text("#journal-entry-message", "[no data]")
 
-    @skipImage("https://bugzilla.redhat.com/show_bug.cgi?id=1665421", "rhel-8-0-distropkg")
     def testLogLevel(self):
 
         b = self.browser
@@ -385,17 +373,15 @@ s.send(b"PRIORITY=3\\nFOO=bar\\n")'
         b.wait_present(journal_line_selector.format("WARNING_MESSAGE"))
         b.wait_present(journal_line_selector.format("INFO_MESSAGE"))
 
-    @skipImage("ABRT does not work on i386", "fedora-i386")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-1804", "fedora-atomic", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1")
+               "ubuntu-1804", "fedora-coreos", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
     def testAbrtSegv(self):
         self.allow_core_dumps = True
         b = self.browser
-        m = self.machine
+
+        self.crash()
 
         self.login_and_go("/system/logs")
-
-        m.execute("ulimit -c unlimited; python3 -c 'import os; os.kill(os.getpid(), 11)' || true")
 
         sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in %s')" % self.crash_fn
 
@@ -425,40 +411,41 @@ s.send(b"PRIORITY=3\\nFOO=bar\\n")'
         sel += " .panel-body:contains('signal: 11  executable: ')"
         b.wait_present(sel)
 
-    @skipImage("ABRT does not work on i386", "fedora-i386")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-1804", "fedora-atomic", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1")
+               "ubuntu-1804", "fedora-coreos", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
     def testAbrtDelete(self):
         self.allow_core_dumps = True
         b = self.browser
-        m = self.machine
+
+        # A bit of a race might happen if you delete the journal entry whilst
+        # the reporting code is doing its thing.
+        self.allow_browser_errors("Failed to get workflows for problem /org/freedesktop/Problems2/Entry/.*:.*")
+        self.allow_browser_errors("Getting properties for problem /org/freedesktop/Problems2/Entry/.* failed:.*")
+
+        self.crash()
 
         self.login_and_go("/system/logs")
-
-        m.execute("ulimit -c unlimited; python3 -c 'import os; os.kill(os.getpid(), 11)' || true")
 
         sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in %s')" % self.crash_fn
         b.click(sel)
 
-        b.wait_in_text("#journal-entry-id", "python")
+        b.wait_in_text("#journal-entry-heading", "sleep")
         sel = "#journal-entry-fields .nav .btn-danger"
         b.click(sel)
 
-        b.wait_visible("#journal-box")
         b.wait_in_text('#journal-box', "crashed in " + self.crash_fn)
 
         sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in %s')" % self.crash_fn
         b.click(sel)
 
-        b.wait_in_text("#journal-entry-id", "python")
+        b.wait_in_text("#journal-entry-heading", "sleep")
         # details view should hide log view
         b.wait_not_visible('.cockpit-log-panel')
         b.wait_present("#journal-entry-message:contains('crashed in %s')" % self.crash_fn)
-        b.wait_not_present("#journal-entry-fields .nav")
+        b.wait_not_present("#journal-entry-fields .nav .btn-danger")
 
-    @skipImage("ABRT does not work on i386", "fedora-i386")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-1804", "fedora-atomic", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1")
+               "ubuntu-1804", "fedora-coreos", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
     def testAbrtReport(self):
         self.allow_core_dumps = True
         # The testing server is located at verify/files/mock-faf-server.py
@@ -466,54 +453,139 @@ s.send(b"PRIORITY=3\\nFOO=bar\\n")'
         b = self.browser
         m = self.machine
 
+        # Restarting the reportd service will trigger some errors. Some depend
+        # on timing (interrupting the GetWorkflows call), so let’s ignore some
+        # variations of the same thing.
+        self.allow_journal_messages('.*Remote peer disconnected')
+        self.allow_browser_errors('.*Failed to get workflows for problem .*: disconnected')
+
+        m.upload(["verify/files/mock-bugzilla-server.py"], "/tmp/")
+        m.spawn("setsid /tmp/mock-bugzilla-server.py", "mock-bugzilla.log")
+        m.execute("echo 'BugzillaURL=http://localhost:8080' >> /etc/libreport/plugins/bugzilla.conf")
+
+        # start mock FAF server
+        m.upload(["verify/files/mock-faf-server.py"], "/tmp/")
+        m.spawn("setsid /tmp/mock-faf-server.py", "mock-faf.log")
+        m.execute("echo 'URL=http://localhost:12345' >> /etc/libreport/plugins/ureport.conf")
+
+        m.upload(["verify/files/cockpit_event.conf"], "/etc/libreport/events.d/")
+        m.upload(["verify/files/workflow_Cockpit.xml"], "/usr/share/libreport/workflows/")
+
+        self.crash()
+
+        self.login_and_go("/system/logs")
+
+        sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in __nanosleep()')"
+        b.click(sel)
+
+        sel = "table.reporting-table tr:first-child .btn:contains('Report')"
+        b.click(sel)
+
+        sel = "table.reporting-table tr:first-child a[href$='/reports/bthash/123deadbeef'"
+        b.wait_present(sel)
+
+        # "Unreport" the problem to test reporting unknown problem
+        m.execute('find /var/spool/abrt -name "reported_to" -or -name "ureports_counter" | xargs rm')
+        # reporter-bugzilla will not be run without a duphash file present.
+        m.execute("find /var/spool/abrt -depth -maxdepth 1 | head -1 | xargs -I {} cp '{}/uuid' '{}/duphash'")
+        # The service also needs to be restarted, because the daemon maintains
+        # its own cache that interferes with resetting the state.
+        m.execute('systemctl restart reportd')
+
+        b.reload()
+        b.enter_page("/system/logs")
+
+        sel = "table.reporting-table tr:contains('Report to Cockpit') button:contains('Report')"
+        b.click(sel)
+
+        test_user = 'correcthorsebatterystaple'
+
+        for purpose in ['text', 'password']:
+            b.wait_visible(".modal-content input[type='%s']" % (purpose))
+
+            sel = ".modal-content input"
+            b.set_val(sel, test_user)
+
+            sel = ".modal-footer button:contains('Send')"
+            b.click(sel)
+
+        sel = ".modal-content p:contains('Password')"
+        b.wait_not_present(sel)
+
+        sel = ".modal-footer button:contains('No')"
+        b.click(sel)
+
+        sel = "table.reporting-table tr:contains('Report to Cockpit') a[href='https://bugzilla.example.com/show_bug.cgi?id=123456']"
+        b.wait_present(sel)
+
+    @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
+               "ubuntu-1804", "fedora-coreos", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
+    def testAbrtReportCancel(self):
+        self.allow_core_dumps = True
+
+        b = self.browser
+        m = self.machine
+
+        m.upload(["verify/files/mock-bugzilla-server.py"], "/tmp/")
+        m.spawn("setsid /tmp/mock-bugzilla-server.py", "mock-bugzilla.log")
+        m.execute("echo 'BugzillaURL=http://localhost:8080' >> /etc/libreport/plugins/bugzilla.conf")
+
+        # start mock FAF server
+        m.upload(["verify/files/mock-faf-server.py"], "/tmp/")
+        m.spawn("setsid /tmp/mock-faf-server.py", "mock-faf.log")
+        m.execute("echo 'URL=http://localhost:12345' >> /etc/libreport/plugins/ureport.conf")
+
+        m.upload(["verify/files/cockpit_event.conf"], "/etc/libreport/events.d/")
+        m.upload(["verify/files/workflow_Cockpit.xml"], "/usr/share/libreport/workflows/")
+
+        self.crash()
+
+        self.login_and_go("/system/logs")
+
+        sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in __nanosleep()')"
+        b.click(sel)
+
+        sel = "table.reporting-table tr:contains('Report to Cockpit') button:contains('Report')"
+        b.click(sel)
+
+        sel = "table.reporting-table tr:contains('Report to Cockpit') td:contains('Cancel me')"
+        b.wait_visible(sel)
+
+        sel = "table.reporting-table tr:contains('Report to Cockpit') button:contains('Cancel')"
+        b.click(sel)
+
+        sel = "table.reporting-table tr:contains('Report to Cockpit') td:contains('Reporting was canceled')"
+        b.wait_present(sel)
+
+    @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
+               "ubuntu-1804", "fedora-coreos", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
+    def testAbrtReportNoReportd(self):
+        self.allow_core_dumps = True
+
+        b = self.browser
+        m = self.machine
+
+        self.allow_browser_errors("Channel for reportd D-Bus client closed: .*")
+
         # start mock FAF server
         m.upload(["verify/files/mock-faf-server.py"], "/tmp/")
         m.execute("setsid /tmp/mock-faf-server.py >/tmp/mock-faf.log 2>&1 &")
         m.execute("echo 'URL=http://localhost:12345' >> /etc/libreport/plugins/ureport.conf")
 
-        self.login_and_go("/system/logs")
+        m.execute("systemctl mask --now reportd")
 
-        m.execute("ulimit -c unlimited; echo 'sleep 42m &' > slp; chmod u+x slp")
-        m.execute("./slp; pkill -x -SEGV sleep")
+        self.crash()
+
+        self.login_and_go("/system/logs")
 
         sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in __nanosleep()')"
         b.click(sel)
 
-        # Wait until loaded (when delete button is loaded, all is loaded)
-        sel = "#journal-entry-fields .nav .btn-danger"
-        b.wait_visible(sel)
-
-        sel = "#journal-entry-fields .nav .btn-primary:contains('Report')"
+        sel = "table.reporting-table tr:first-child .btn:contains('Report')"
         b.click(sel)
 
-        # jQuery magic on this page updates the whole frame for changing to "Reported" state
-        b.expect_load_frame("cockpit1:localhost/system/logs")
-        sel = "#journal-entry-fields .nav .problem-btn:contains('Reported')"
-        b.wait_visible(sel)
-        self.assertIn("/reports/bthash/123deadbeef", b.attr(sel, 'href'))
-
-        # "Unreport" the problem to test reporting unknown problem
-        m.execute('find /var/spool/abrt -name "reported_to" | xargs rm')
-
-        b.reload()
-        b.enter_page("/system/logs")
-
-        sel = "#journal-entry-fields"
+        sel = "table.reporting-table tr:first-child a[href$='/reports/bthash/123deadbeef'"
         b.wait_present(sel)
-
-        self.allow_journal_messages('.*This problem has already been reported.')
-        self.allow_journal_messages('.*http://localhost:12345/reports/42/')
-        self.allow_journal_messages('.*https://bugzilla.example.com/show_bug.cgi\?id=123456')
-
-        sel = "#journal-entry-fields .nav .btn-primary:contains('Report')"
-        b.click(sel)
-
-        # jQuery magic on this page updates the whole frame for changing to "Reported" state
-        b.expect_load_frame("cockpit1:localhost/system/logs")
-        sel = "#journal-entry-fields .nav .problem-btn:contains('Reported')"
-        b.wait_visible(sel)
-        self.assertIn("/reports/bthash/123deadbeef", b.attr(sel, 'href'))
-
 
 if __name__ == '__main__':
     test_main()

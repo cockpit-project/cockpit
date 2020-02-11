@@ -844,13 +844,13 @@ main (int argc,
   /* playground config directory */
   config_dir = g_dir_make_tmp ("cockpit.config.XXXXXX", NULL);
   g_assert (config_dir);
-  machines_dir = g_build_filename (config_dir, "machines.d", NULL);
-  g_assert (g_mkdir (machines_dir, 0755) == 0);
+  machines_dir = g_build_filename (config_dir, "cockpit", "machines.d", NULL);
+  g_assert (g_mkdir_with_parents (machines_dir, 0755) == 0);
   g_free (machines_dir);
 
   g_setenv ("XDG_DATA_HOME", SRCDIR "/src/bridge/mock-resource/home", TRUE);
   g_setenv ("XDG_DATA_DIRS", SRCDIR "/src/bridge/mock-resource/system", TRUE);
-  g_setenv ("COCKPIT_TEST_CONFIG_DIR", config_dir, TRUE);
+  g_setenv ("XDG_CONFIG_DIRS", config_dir, TRUE);
 
   setup_path (argv[0]);
 

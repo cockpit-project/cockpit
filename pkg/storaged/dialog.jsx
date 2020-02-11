@@ -214,11 +214,14 @@
 import cockpit from "cockpit";
 
 import React from "react";
-import { OverlayTrigger, Tooltip } from "patternfly-react";
+import { OverlayTrigger, Tooltip, TypeAheadSelect } from "patternfly-react";
+import { Alert } from "@patternfly/react-core";
 
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 import { StatelessSelect, SelectEntry } from "cockpit-components-select.jsx";
+
 import { fmt_size, block_name, format_size_and_text } from "./utils.js";
+import client from "./client.js";
 
 import "form-layout.less";
 
@@ -241,7 +244,7 @@ const Validated = ({ errors, error_key, explanation, children }) => {
 
 const Row = ({ tag, title, errors, options, children }) => {
     if (tag) {
-        let validated = (
+        const validated = (
             <Validated errors={errors} error_key={tag} explanation={options.explanation}>
                 { children }
             </Validated>
@@ -250,16 +253,16 @@ const Row = ({ tag, title, errors, options, children }) => {
         if (title || title == "") {
             if (options.widest_title)
                 title = (
-                    <React.Fragment>
+                    <>
                         <div className="widest-title">{options.widest_title}</div>
                         <div>{title}</div>
-                    </React.Fragment>
+                    </>
                 );
             return (
-                <React.Fragment>
+                <>
                     <label className="control-label">{title}</label>
-                    <React.Fragment>{validated}</React.Fragment>
-                </React.Fragment>
+                    <>{validated}</>
+                </>
             );
         } else {
             return validated;
@@ -292,7 +295,7 @@ const Body = ({ body, fields, values, errors, onChange }) => {
     }
 
     function make_rows(fields, index) {
-        let rows = fields.map(make_row).filter(r => r);
+        const rows = fields.map(make_row).filter(r => r);
         if (rows.length === 0)
             return null;
         else if (index === undefined) // top-level
@@ -314,9 +317,9 @@ function flatten(arr1) {
 }
 
 export const dialog_open = (def) => {
-    let nested_fields = def.Fields || [ ];
-    let fields = flatten(nested_fields);
-    let values = { };
+    const nested_fields = def.Fields || [];
+    const fields = flatten(nested_fields);
+    const values = { };
 
     fields.forEach(f => { values[f.tag] = f.initial_value });
 
@@ -348,45 +351,49 @@ export const dialog_open = (def) => {
     };
 
     const footer_props = (running_title, running_promise) => {
-        let actions = [ ];
+        let actions = [];
         if (def.Action) {
             actions = [
-                { caption: def.Action.Title,
-                  style: (def.Action.Danger || def.Action.DangerButton) ? "danger" : "primary",
-                  disabled: running_promise != null,
-                  clicked: function (progress_callback) {
-                      return validate()
-                              .then(() => {
-                                  let visible_values = { };
-                                  fields.forEach(f => {
-                                      if (is_visible(f, values))
-                                          visible_values[f.tag] = values[f.tag];
-                                  });
-                                  return def.Action.action(visible_values, progress_callback);
-                              })
-                              .catch(error => {
-                                  if (error.toString() != "[object Object]") {
-                                      return Promise.reject(error);
-                                  } else {
-                                      update(error, null);
-                                      return Promise.reject();
-                                  }
-                              });
-                  }
+                {
+                    caption: def.Action.Title,
+                    style: (def.Action.Danger || def.Action.DangerButton) ? "danger" : "primary",
+                    disabled: running_promise != null,
+                    clicked: function (progress_callback) {
+                        const func = () => {
+                            return validate()
+                                    .then(() => {
+                                        const visible_values = { };
+                                        fields.forEach(f => {
+                                            if (is_visible(f, values))
+                                                visible_values[f.tag] = values[f.tag];
+                                        });
+                                        return def.Action.action(visible_values, progress_callback);
+                                    })
+                                    .catch(error => {
+                                        if (error.toString() != "[object Object]") {
+                                            return Promise.reject(error);
+                                        } else {
+                                            update(error, null);
+                                            return Promise.reject();
+                                        }
+                                    });
+                        };
+                        return client.run(func);
+                    }
                 }
             ];
         }
 
-        let extra = <div>
+        const extra = <div>
             { def.Footer }
-            { def.Action && def.Action.Danger ? <div className="alert alert-danger"><div className="pficon pficon-error-circle-o" />{def.Action.Danger}</div> : null }
+            { def.Action && def.Action.Danger ? <Alert isInline variant='danger' title={def.Action.Danger} /> : null }
         </div>;
 
         return {
             idle_message: (running_promise
-                ? <React.Fragment>
+                ? <>
                     <div className="spinner spinner-sm" /><span>{running_title}</span>
-                </React.Fragment>
+                </>
                 : null),
             extra_element: extra,
             actions: actions,
@@ -401,16 +408,16 @@ export const dialog_open = (def) => {
             else
                 return null;
         })).then(results => {
-            let errors = { };
+            const errors = { };
             fields.forEach((f, i) => { if (results[i]) errors[f.tag] = results[i]; });
             if (Object.keys(errors).length > 0)
                 return Promise.reject(errors);
         });
     };
 
-    let dlg = show_modal_dialog(props(null), footer_props(null, null));
+    const dlg = show_modal_dialog(props(null), footer_props(null, null));
 
-    let self = {
+    const self = {
         run: (title, promise) => {
             update_footer(title, promise);
             promise.then(
@@ -430,7 +437,7 @@ export const dialog_open = (def) => {
         },
 
         set_nested_values: (key, new_vals) => {
-            let updated = values[key];
+            const updated = values[key];
             Object.assign(updated, new_vals);
             values[key] = updated;
             update(null, null);
@@ -445,6 +452,9 @@ export const dialog_open = (def) => {
             });
         },
 
+        close: () => {
+            dlg.footerProps.dialog_done();
+        }
     };
 
     return self;
@@ -482,51 +492,6 @@ export const PassInput = (tag, title, options) => {
     };
 };
 
-class ComboboxElement extends React.Component {
-    constructor(props) {
-        super();
-        this.state = { open: false };
-    }
-
-    render() {
-        let { value, onChange, disabled, choices } = this.props;
-
-        const toggle_open = (event) => {
-            if (event.button === 0)
-                this.setState({ open: !this.state.open });
-        };
-
-        const set_from_menu = (event, text) => {
-            if (event.button === 0) {
-                this.setState({ open: false });
-                onChange(text);
-            }
-        };
-
-        return (
-            <div className="combobox-container">
-                <div className={"input-group" + (this.state.open ? " open" : "")}>
-                    <input className="combobox form-control" type="text"
-                       disabled={disabled} value={value}
-                           onChange={event => onChange(event.target.value)} />
-                    { choices.length > 0 && !disabled
-                        ? <React.Fragment>
-                            <span className="input-group-addon"
-                              onClick={toggle_open}>
-                                <span className="caret" />
-                            </span>
-                            <ul className="typeahead typeahead-long dropdown-menu">
-                                { choices.map(c => <li key={c}><a tabIndex="0" onClick={ev => set_from_menu(ev, c)}>{c}</a></li>) }
-                            </ul>
-                        </React.Fragment>
-                        : null
-                    }
-                </div>
-            </div>
-        );
-    }
-}
-
 export const ComboBox = (tag, title, options) => {
     return {
         tag: tag,
@@ -536,8 +501,30 @@ export const ComboBox = (tag, title, options) => {
 
         render: (val, change) =>
             <div data-field={tag} data-field-type="combobox">
-                <ComboboxElement value={val} choices={options.choices}
-                                 disabled={options.disabled} onChange={change} />
+                <TypeAheadSelect
+                    id="nfs-path-on-server"
+                    labelKey="path"
+                    placeholder=""
+                    paginate={false}
+                    onChange={value => change(value[0])}
+                    onInputChange={change}
+                    options={options.choices}
+                    disabled={options.disabled}
+                    onKeyDown={ev => { // Capture ESC event
+                        if (ev.keyCode == 27) {
+                            ev.persist();
+                            ev.nativeEvent.stopImmediatePropagation();
+                            ev.stopPropagation();
+                        }
+                    }}
+                    renderMenu={(results, menuProps) => {
+                        // Hide the menu when there are no results.
+                        if (!results.length) {
+                            return null;
+                        }
+                        return <TypeAheadSelect.TypeaheadMenu {...menuProps} labelKey='path' options={results} />;
+                    }}
+                />
             </div>
     };
 };
@@ -571,7 +558,7 @@ export const SelectOneRadio = (tag, title, options) => {
 
         render: (val, change) => {
             return (
-                <span className="radio radio-horizontal" data-field={tag} data-field-type="select-radio" >
+                <span className="radio radio-horizontal" data-field={tag} data-field-type="select-radio">
                     { options.choices.map(c => (
                         <label key={c.value}>
                             <input type="radio" checked={val == c.value} data-data={c.value}
@@ -620,7 +607,7 @@ export const SelectSpaces = (tag, title, options) => {
         tag: tag,
         title: title,
         options: options,
-        initial_value: [ ],
+        initial_value: [],
 
         render: (val, change) => {
             if (options.spaces.length === 0)
@@ -630,7 +617,9 @@ export const SelectSpaces = (tag, title, options) => {
                 <ul className="list-group dialog-list-ct"
                     data-field={tag} data-field-type="select-spaces">
                     { options.spaces.map(spc => {
-                        let selected = (val.indexOf(spc) >= 0);
+                        const selected = (val.indexOf(spc) >= 0);
+                        const block = spc.block ? block_name(spc.block) : "";
+                        const desc = block === spc.desc ? "" : spc.desc;
 
                         const on_change = (event) => {
                             if (event.target.checked && !selected)
@@ -643,8 +632,8 @@ export const SelectSpaces = (tag, title, options) => {
                             <li key={spc.block ? spc.block.Device : spc.desc} className="list-group-item">
                                 <label className="select-space-row">
                                     <input type="checkbox" checked={selected} onChange={on_change} />
-                                    <span className="select-space-name">{format_size_and_text(spc.size, spc.desc)}</span>
-                                    <span className="select-space-details">{spc.block ? block_name(spc.block) : ""}</span>
+                                    <span className="select-space-name">{format_size_and_text(spc.size, desc)}</span>
+                                    <span className="select-space-details">{block}</span>
                                 </label>
                             </li>
                         );
@@ -671,6 +660,8 @@ export const SelectSpace = (tag, title, options) => {
                 <ul className="list-group dialog-list-ct"
                     data-field={tag} data-field-type="select-spaces">
                     { options.spaces.map(spc => {
+                        const block = spc.block ? block_name(spc.block) : "";
+                        const desc = block === spc.desc ? "" : spc.desc;
                         const on_change = (event) => {
                             if (event.target.checked)
                                 change(spc);
@@ -680,8 +671,8 @@ export const SelectSpace = (tag, title, options) => {
                             <li key={spc.block ? spc.block.Device : spc.desc} className="list-group-item">
                                 <label className="select-space-row">
                                     <input type="radio" checked={val == spc} onChange={on_change} />
-                                    <span className="select-space-name">{format_size_and_text(spc.size, spc.desc)}</span>
-                                    <span className="select-space-details">{spc.block ? block_name(spc.block) : ""}</span>
+                                    <span className="select-space-name">{format_size_and_text(spc.size, desc)}</span>
+                                    <span className="select-space-details">{block}</span>
                                 </label>
                             </li>
                         );
@@ -702,10 +693,10 @@ const CheckBoxComponent = ({ tag, val, title, tooltip, update_function }) => {
                        onChange={event => update_function(event.target.checked)} />
                 {title}
             </label>
-            { tooltip && <OverlayTrigger overlay={ <Tooltip id="tip-service">{tooltip}</Tooltip> } placement="right" >
-                <a tabIndex="0" className="dialog-item-tooltip">
+            { tooltip && <OverlayTrigger overlay={ <Tooltip id="tip-service">{tooltip}</Tooltip> } placement="right">
+                <button className="dialog-item-tooltip link-button">
                     <span className="fa fa-lg fa-info-circle" />
-                </a>
+                </button>
             </OverlayTrigger>
             }
         </div>
@@ -720,9 +711,9 @@ export const CheckBoxes = (tag, title, options) => {
         initial_value: options.value || { },
 
         render: (val, change) => {
-            let fieldset = options.fields.map(field => {
-                let ftag = tag + "." + field.tag;
-                let fval = (val[field.tag] !== undefined) ? val[field.tag] : false;
+            const fieldset = options.fields.map(field => {
+                const ftag = tag + "." + field.tag;
+                const fval = (val[field.tag] !== undefined) ? val[field.tag] : false;
                 function fchange(newval) {
                     val[field.tag] = newval;
                     change(val);
@@ -785,7 +776,7 @@ export const Skip = (className, options) => {
 const StatelessSlider = ({ fraction, onChange }) => {
     function start_dragging(event) {
         let el = event.currentTarget;
-        let width = el.offsetWidth;
+        const width = el.offsetWidth;
         let left = el.offsetLeft;
         while (el.offsetParent) {
             el = el.offsetParent;
@@ -829,9 +820,9 @@ class SizeSliderElement extends React.Component {
     }
 
     render() {
-        let { val, max, round, onChange } = this.props;
-        let min = this.props.min || 0;
-        let { unit } = this.state;
+        const { val, max, round, onChange } = this.props;
+        const min = this.props.min || 0;
+        const { unit } = this.state;
 
         const change_slider = (f) => {
             let value = f * max;
@@ -900,7 +891,7 @@ class SizeSliderElement extends React.Component {
 }
 
 export const SizeSlider = (tag, title, options) => {
-    let validate = (val, vals) => {
+    const validate = (val, vals) => {
         let msg = null;
 
         if (val === "" || isNaN(val))
@@ -923,7 +914,7 @@ export const SizeSlider = (tag, title, options) => {
        have to use it below for the 'max' option in order to pick up
        changes to it.
      */
-    let all_options = Object.assign({ }, options, { validate: validate });
+    const all_options = Object.assign({ }, options, { validate: validate });
 
     return {
         tag: tag,
@@ -962,8 +953,8 @@ function add_usage_message(parts, list, text, c1, c2) {
 }
 
 export const BlockingMessage = (usage) => {
-    let parts = [ ];
-    let blocking = usage.Blocking;
+    const parts = [];
+    const blocking = usage.Blocking;
 
     if (!blocking)
         return null;
@@ -987,8 +978,8 @@ export const BlockingMessage = (usage) => {
 };
 
 export const TeardownMessage = (usage) => {
-    let parts = [ ];
-    let teardown = usage.Teardown;
+    const parts = [];
+    const teardown = usage.Teardown;
 
     if (!teardown)
         return null;
@@ -1005,8 +996,8 @@ export const TeardownMessage = (usage) => {
                       _("This device is currently used for RAID devices. Proceeding will remove it from its RAID devices."),
                       "Name", "MDRaid");
 
-    let has_sessions = teardown.Sessions && teardown.Sessions.length > 0;
-    let has_services = teardown.Services && teardown.Services.length > 0;
+    const has_sessions = teardown.Sessions && teardown.Sessions.length > 0;
+    const has_services = teardown.Services && teardown.Services.length > 0;
 
     if (has_sessions && has_services)
         add_para(parts, _("The filesystem is in use by login sessions and system services. Proceeding will stop these."));

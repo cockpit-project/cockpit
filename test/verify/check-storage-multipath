@@ -87,7 +87,7 @@ class TestStorage(StorageCase):
 
         # Check that neither is offered as a free block device
         b.go("#/")
-        b.click('#create-volume-group')
+        self.devices_dropdown('Create Volume Group')
         self.dialog_wait_open()
         check_free_block_devices([])
         self.dialog_cancel()
@@ -98,14 +98,14 @@ class TestStorage(StorageCase):
 
         # Switch on multipathd.  A primary device should appear.
 
-        b.wait_present('.alert-danger:contains(There are devices with multiple paths on the system, but)')
+        b.wait_present('.pf-m-danger:contains(There are devices with multiple paths on the system, but)')
         b.click('button:contains(Start Multipath)')
         b.wait_in_text(detail_row_value(5), "/dev/mapper/mpatha")
-        b.wait_not_present('.alert-danger:contains(There are devices with multiple paths on the system, but)')
+        b.wait_not_present('.pf-m-danger:contains(There are devices with multiple paths on the system, but)')
 
         # Check that (exactly) the primary device is offered as free
         b.go("#/")
-        b.click('#create-volume-group')
+        self.devices_dropdown('Create Volume Group')
         self.dialog_wait_open()
         check_free_block_devices(["/dev/mapper/mpatha"])
         self.dialog_cancel()

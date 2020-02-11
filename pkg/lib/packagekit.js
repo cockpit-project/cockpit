@@ -69,7 +69,7 @@ var _dbus_client = null;
  */
 function dbus_client() {
     if (_dbus_client === null) {
-        _dbus_client = cockpit.dbus("org.freedesktop.PackageKit", { superuser: "try", "track": true });
+        _dbus_client = cockpit.dbus("org.freedesktop.PackageKit", { superuser: "try", track: true });
         _dbus_client.addEventListener("close", () => {
             console.log("PackageKit went away from D-Bus");
             _dbus_client = null;
@@ -87,13 +87,24 @@ export function call(objectPath, iface, method, args, opts) {
 }
 
 /**
- * Figure out whether PackageKit is available
+ * Figure out whether PackageKit is available and useable
  */
 export function detect() {
-    return call("/org/freedesktop/PackageKit", "org.freedesktop.DBus.Properties",
-                "Get", [ "org.freedesktop.PackageKit", "VersionMajor" ])
-            .then(() => true,
-                  () => false);
+    function dbus_detect() {
+        return call("/org/freedesktop/PackageKit", "org.freedesktop.DBus.Properties",
+                    "Get", ["org.freedesktop.PackageKit", "VersionMajor"])
+                .then(() => true,
+                      () => false);
+    }
+
+    return cockpit.spawn(["findmnt", "-T", "/usr", "-n", "-o", "VFS-OPTIONS"])
+            .then(options => {
+                if (options.split(",").indexOf("ro") >= 0)
+                    return false;
+                else
+                    return dbus_detect();
+            })
+            .catch(dbus_detect);
 }
 
 /**
@@ -174,7 +185,7 @@ export function transaction(method, arglist, signalHandlers, notifyHandler) {
     return new Promise((resolve, reject) => {
         call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "CreateTransaction", [])
                 .done(result => {
-                    let transactionPath = result[0];
+                    const transactionPath = result[0];
                     let watchPromise;
                     if (signalHandlers || notifyHandler)
                         watchPromise = watchTransaction(transactionPath, signalHandlers, notifyHandler);
@@ -225,7 +236,7 @@ export function cancellableTransaction(method, arglist, progress_cb, signalHandl
         let cancelled = false;
         let status;
         let allow_wait_status = false;
-        let progress_data = {
+        const progress_data = {
             waiting: false,
             percentage: 0,
             cancel: null
@@ -321,9 +332,10 @@ export function watchRedHatSubscription(callback) {
                 // check if this is an unregistered RHEL system; if subscription-manager is not installed, ignore
                 var sm = cockpit.dbus("com.redhat.SubscriptionManager");
                 sm.subscribe(
-                    { path: "/EntitlementStatus",
-                      interface: "com.redhat.SubscriptionManager.EntitlementStatus",
-                      member: "entitlement_status_changed"
+                    {
+                        path: "/EntitlementStatus",
+                        interface: "com.redhat.SubscriptionManager.EntitlementStatus",
+                        member: "entitlement_status_changed"
                     },
                     (path, iface, signal, args) => callback(validSubscriptionStates.indexOf(args[0]) >= 0)
                 );
@@ -367,29 +379,29 @@ export function watchRedHatSubscription(callback) {
 
 export function check_missing_packages(names, progress_cb) {
     var data = {
-        missing_names: [ ],
-        unavailable_names: [ ],
+        missing_names: [],
+        unavailable_names: [],
     };
 
     if (names.length === 0)
         return Promise.resolve(data);
 
     function refresh() {
-        return cancellableTransaction("RefreshCache", [ false ], progress_cb);
+        return cancellableTransaction("RefreshCache", [false], progress_cb);
     }
 
     function resolve() {
-        data.missing_ids = [ ];
+        data.missing_ids = [];
 
         var installed_names = { };
 
         return cancellableTransaction("Resolve",
-                                      [ Enum.FILTER_ARCH | Enum.FILTER_NOT_SOURCE | Enum.FILTER_NEWEST, names ],
+                                      [Enum.FILTER_ARCH | Enum.FILTER_NOT_SOURCE | Enum.FILTER_NEWEST, names],
                                       progress_cb,
                                       {
                                           Package: (info, package_id) => {
-                                              let parts = package_id.split(";");
-                                              let repos = parts[3].split(":");
+                                              const parts = package_id.split(";");
+                                              const repos = parts[3].split(":");
                                               if (repos.indexOf("installed") >= 0) {
                                                   installed_names[parts[0]] = true;
                                               } else {
@@ -408,18 +420,18 @@ export function check_missing_packages(names, progress_cb) {
     }
 
     function simulate(data) {
-        data.install_ids = [ ];
-        data.remove_ids = [ ];
-        data.extra_names = [ ];
-        data.remove_names = [ ];
+        data.install_ids = [];
+        data.remove_ids = [];
+        data.extra_names = [];
+        data.remove_names = [];
 
         if (data.missing_ids.length > 0 && data.unavailable_names.length === 0) {
             return cancellableTransaction("InstallPackages",
-                                          [ Enum.TRANSACTION_FLAG_SIMULATE, data.missing_ids ],
+                                          [Enum.TRANSACTION_FLAG_SIMULATE, data.missing_ids],
                                           progress_cb,
                                           {
                                               Package: (info, package_id) => {
-                                                  let name = package_id.split(";")[0];
+                                                  const name = package_id.split(";")[0];
                                                   if (info == Enum.INFO_REMOVING) {
                                                       data.remove_ids.push(package_id);
                                                       data.remove_names.push(name);
@@ -446,7 +458,7 @@ export function check_missing_packages(names, progress_cb) {
         data.download_size = 0;
         if (data.install_ids.length > 0) {
             return cancellableTransaction("GetDetails",
-                                          [ data.install_ids ],
+                                          [data.install_ids],
                                           progress_cb,
                                           {
                                               Details: details => {
@@ -488,7 +500,7 @@ export function install_missing_packages(data, progress_cb) {
         });
     }
 
-    return cancellableTransaction("InstallPackages", [ 0, data.missing_ids ],
+    return cancellableTransaction("InstallPackages", [0, data.missing_ids],
                                   p => {
                                       last_progress = p;
                                       report_progess();

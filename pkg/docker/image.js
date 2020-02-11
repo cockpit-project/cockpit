@@ -160,12 +160,12 @@ export function init_image_details(client) {
     page.setup();
 
     function hide() {
-        $('#image-details').hide();
+        $('#image-details').prop("hidden", true);
     }
 
     function show(id) {
         page.enter(id);
-        $('#image-details').show();
+        $('#image-details').prop("hidden", false);
     }
 
     return {

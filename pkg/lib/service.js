@@ -47,10 +47,14 @@ import cockpit from "cockpit";
  * service.
  *
  * - proxy.unit
+ * - proxy.details
+ *
+ * The raw org.freedesktop.systemd1.Unit and type-specific D-Bus
+ * interface proxies for the service.
+ *
  * - proxy.service
  *
- * The raw org.freedesktop.systemd1.Unit and Service D-Bus
- * interface proxies for the service.
+ * The deprecated name for proxy.details
  *
  * - promise = proxy.start()
  *
@@ -105,7 +109,7 @@ function with_systemd_manager(done) {
     wait_valid(systemd_manager, done);
 }
 
-export function proxy(name) {
+export function proxy(name, kind) {
     var self = {
         exists: null,
         state: null,
@@ -124,11 +128,13 @@ export function proxy(name) {
 
     cockpit.event_target(self);
 
-    var unit, service;
+    var unit, details;
     var wait_callbacks = cockpit.defer();
 
     if (name.indexOf(".") == -1)
         name = name + ".service";
+    if (kind === undefined)
+        kind = "Service";
 
     function update_from_unit() {
         self.exists = (unit.LoadState != "not-found" || unit.ActiveState != "inactive");
@@ -159,8 +165,9 @@ export function proxy(name) {
         wait_callbacks.resolve();
     }
 
-    function update_from_service() {
-        self.service = service;
+    function update_from_details() {
+        self.details = details;
+        self.service = details;
         self.dispatchEvent("changed");
     }
 
@@ -171,9 +178,9 @@ export function proxy(name) {
                     unit.addEventListener('changed', update_from_unit);
                     wait_valid(unit, update_from_unit);
 
-                    service = systemd_client.proxy('org.freedesktop.systemd1.Service', path);
-                    service.addEventListener('changed', update_from_service);
-                    wait_valid(service, update_from_service);
+                    details = systemd_client.proxy('org.freedesktop.systemd1.' + kind, path);
+                    details.addEventListener('changed', update_from_details);
+                    wait_valid(details, update_from_details);
                 })
                 .fail(function () {
                     self.exists = false;
@@ -182,12 +189,12 @@ export function proxy(name) {
     });
 
     function refresh() {
-        if (!unit || !service)
+        if (!unit || !details)
             return;
 
         function refresh_interface(path, iface) {
             systemd_client.call(path,
-                                "org.freedesktop.DBus.Properties", "GetAll", [ iface ])
+                                "org.freedesktop.DBus.Properties", "GetAll", [iface])
                     .fail(function (error) {
                         console.log(error);
                     })
@@ -204,7 +211,7 @@ export function proxy(name) {
         }
 
         refresh_interface(unit.path, "org.freedesktop.systemd1.Unit");
-        refresh_interface(service.path, "org.freedesktop.systemd1.Service");
+        refresh_interface(details.path, "org.freedesktop.systemd1." + kind);
     }
 
     function on_job_new_removed_refresh(event, number, path, unit_id, result) {
@@ -286,7 +293,7 @@ export function proxy(name) {
     function call_manager_with_reload(method, args) {
         return call_manager(method, args).then(function () {
             var dfd = cockpit.defer();
-            call_manager("Reload", [ ])
+            call_manager("Reload", [])
                     .done(function () { dfd.resolve() })
                     .fail(function (error) {
                     // HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1560549
@@ -303,27 +310,27 @@ export function proxy(name) {
     }
 
     function start() {
-        return call_manager_with_job("StartUnit", [ name, "replace" ]);
+        return call_manager_with_job("StartUnit", [name, "replace"]);
     }
 
     function stop() {
-        return call_manager_with_job("StopUnit", [ name, "replace" ]);
+        return call_manager_with_job("StopUnit", [name, "replace"]);
     }
 
     function restart() {
-        return call_manager_with_job("RestartUnit", [ name, "replace" ]);
+        return call_manager_with_job("RestartUnit", [name, "replace"]);
     }
 
     function tryRestart() {
-        return call_manager_with_job("TryRestartUnit", [ name, "replace" ]);
+        return call_manager_with_job("TryRestartUnit", [name, "replace"]);
     }
 
     function enable() {
-        return call_manager_with_reload("EnableUnitFiles", [ [ name ], false, false ]);
+        return call_manager_with_reload("EnableUnitFiles", [[name], false, false]);
     }
 
     function disable() {
-        return call_manager_with_reload("DisableUnitFiles", [ [ name ], false ]);
+        return call_manager_with_reload("DisableUnitFiles", [[name], false]);
     }
 
     return self;

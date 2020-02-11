@@ -44,10 +44,19 @@ fi
 # Development dependencies: See node_modules/README
 npm prune
 
-# npm install is flaky, so give it a few tries
-npm install || { sleep 30; npm install; } || { sleep 30; npm install; }
+retries='3'
+while ! npm install; do
+  # npm install is flaky, and when it fails, it usually leaves
+  # node_modules in a corrupt state, so if that happens, start over
+  # again from scratch
+  retries=$((${retries}-1))
+  if test ${retries} -eq 0; then
+    echo 'failed to install nodejs modules'
+    exit 1
+  fi
 
-find node_modules -name test | xargs rm -rf
+  find node_modules -mindepth 1 -not -path node_modules/README -delete
+done
 
 rm -rf autom4te.cache
 
@@ -66,6 +75,8 @@ if test -z "${NOCONFIGURE:-}"; then
         echo "to pass any to it, please specify them on the $0 command line."
     fi
 fi
+
+tools/make-bots
 
 if test -n "${NOCONFIGURE:-}"; then
     exit 0

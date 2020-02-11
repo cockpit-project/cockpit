@@ -18,34 +18,98 @@
 
 .area-ct-subnav {
     background: var(--color-ct-nav-sub);
-    border-right: 1px solid var(--color-ct-nav-border);
-    -webkit-flex: none;
     flex: none;
-    display: -webkit-flex;
     display: flex;
-    -webkit-flex-direction: column;
     flex-direction: column;
     position: relative;
     z-index: 2;
     opacity: 1;
 
+    mark {
+        padding-left: 0;
+        padding-right: 0;
+        font-weight: bold;
+        color: var(--color-ct-nav-active-text);
+        background: var(--pf-global--BackgroundColor--dark-400);
+    }
+
+    > .search {
+        margin: 1rem 1.5rem;
+
+        > input.form-control {
+            background: var(--color-ct-nav);
+            border: 0 solid var(--color-ct-nav);
+            border-width: 2px 0;
+            color: var(--color-ct-nav-main-text) !important;
+            padding: 0 0.5rem 0 32px !important;
+            transition: var(--pf-global--Transition);
+
+            &::placeholder {
+                color: var(--color-ct-nav-text);
+                opacity: 0.8;
+            }
+
+            &:focus {
+                border-bottom-color: var(--color-ct-nav-main-text);
+            }
+        }
+
+        > .form-control-feedback {
+            color: var(--color-ct-nav-text);
+            opacity: 0.7;
+            margin: 0.5rem;
+            right: auto;
+            width: 16px;
+            height: 16px;
+            left: 0;
+            transition: var(--pf-global--Transition);
+        }
+
+        > input.form-control:focus ~ .form-control-feedback {
+            color: var(--color-ct-nav-active-text);
+            opacity: 1;
+        }
+    }
+
+    .hint {
+        font-size: var(--pf-global--FontSize--sm);
+    }
+
+    .list-group-item .hint {
+        opacity: 0.8;
+    }
+
+    .link-button.hint {
+        color: var(--pf-global--active-color--300);
+    }
+
     .list-group {
         border: none;
-        margin: 0.5rem 0;
+        margin: 1rem 0;
         position: relative;
 
+        &:first-child {
+            margin-top: 0;
+        }
+
         + .list-group {
-            padding-top: calc(0.5rem + 1px);
+            padding-top: calc(1rem + 1px);
 
             &::before {
-                border-top: 1px solid var(--pf-global--BorderColor--100);
+                border-top: 1px solid var(--pf-global--BorderColor--200);
                 content: '';
                 position: absolute;
                 top: 0;
                 right: 1.5rem;
                 left: 1.5rem;
+                opacity: 0.75;
             }
         }
+    }
+
+    .non-menu-item {
+        display: flex;
+        justify-content: center;
     }
 
     .list-group-item {
@@ -54,43 +118,51 @@
         border: none;
         z-index: 1;
 
-        a {
+        > a {
             padding: 0.5rem 1.5rem;
             display: block;
             color: var(--color-ct-nav-text);
             text-decoration: none;
         }
 
-        &:focus,
+        > a:focus,
         &:hover,
         &.active {
             /* Move hover & selected above overflow fade */
             z-index: 3;
         }
 
-        &:focus,
-        &:hover {
+        > a:focus,
+        &:hover > a {
             background: var(--color-ct-nav-hover);
-
-            a {
-                color: var(--color-ct-nav-hover-text);
-            }
+            color: var(--color-ct-nav-hover-text);
         }
 
         &.active {
             background: var(--color-ct-nav-active);
 
-            a {
+            > a {
                 color: var(--color-ct-nav-active-text);
-                font-weight: 500;
+                font-weight: 700;
             }
         }
     }
 
-    /* Fade start and end of the host menu to indicate more content is available */
+    .disabled {
+        color: var(--color-ct-nav-text);
+        font-size: var(--pf-global--FontSize--sm);
 
-    &:before,
-    &:after {
+        &:focus,
+        &:hover {
+            color: var(--color-ct-nav-text);
+            background-color: initial;
+            cursor: default;
+        }
+    }
+
+    /* Fade end of the host menu to indicate more content is available */
+
+    &::after {
         content: '';
         display: block;
         position: absolute;
@@ -101,14 +173,6 @@
         z-index: 2;
         /* Accomodate scrollbars with margin (IE11 needs 18px; rest are less) */
         margin-right: 18px;
-    }
-
-    &:before {
-        background: var(--color-ct-nav-cover-up);
-        top: 4rem; // Move down by the same size as the dropdown
-    }
-
-    &:after {
         background: var(--color-ct-nav-cover-down);
         bottom: 0;
         height: 4rem;
@@ -128,7 +192,6 @@
 
 .machine-dropdown {
     position: relative;
-    -webkit-flex: none;
     flex: none;
 
     &:after {
@@ -150,11 +213,11 @@
 }
 
 .host-apps {
-    -webkit-flex: 1 1 0;
     flex: 1 1 0;
     overflow-x: hidden;
     overflow-y: auto;
     position: relative;
+    scrollbar-color: var(--pf-global--Color--400) var(--pf-global--BackgroundColor--dark-200)
 }
 
 .area-ct-content {
@@ -170,13 +233,11 @@
 /* Desktop navigation */
 @media screen and (min-width: 768px) {
     .area-ct-navbar {
-        -webkit-flex: none;
         flex: none;
         min-width: 100%;
     }
 
     .area-ct-content {
-        -webkit-flex: auto;
         flex: auto;
         position: relative;
 
@@ -201,14 +262,11 @@
 
     .area-ct-body {
         position: relative;
-        -webkit-flex: auto;
         flex: auto;
         z-index: 3;
-        display: -webkit-flex;
         display: flex;
         /* IE11 needs to have the flex-basis set to page max,
            else it stretches too tall */
-        -webkit-flex-basis: 100%;
         flex-basis: 100%;
     }
 
@@ -220,7 +278,6 @@
     }
 
     .nav-sidebar-wrap {
-        -webkit-flex: none;
         flex: none;
         z-index: 3;
 
@@ -355,11 +412,9 @@
     }
 
     .area-ct-layout {
-        display: -webkit-flex;
         display: flex;
         width: 100%;
         height: 100%;
-        -webkit-flex-flow: column;
         flex-flow: column;
         align-content: stretch;
     }
@@ -375,15 +430,11 @@
 
 /* Mobile navigation */
 @media screen and (max-width: 767px) {
-    /* Use native mobile fonts (when available) for nav & menu text */
     .area-ct-navbar, .area-ct-body {
-        font-family: roboto, san francisco, helvetica light, noto, helvetica, sans-serif;
-        font-size: 14px;
         align-content: stretch;
         align-items: stretch;
 
         a {
-            font-size: 14px !important;
             padding: 12px 15px;
         }
     }
@@ -546,11 +597,9 @@
 
         > .list-group {
             position: relative;
-            display: -webkit-flex;
             display: flex;
 
             li {
-                -webkit-flex: auto;
                 flex: auto;
             }
         }
@@ -606,6 +655,7 @@
 
                 a {
                     background: var(--color-ct-nav-sub) !important;
+                    font-weight: 600;
 
                     &:before {
                         bottom: 0 !important;
@@ -668,11 +718,10 @@
     }
 
     .area-ct-subnav {
-        display: -webkit-flex !important;
         display: flex !important;
         align-self: end;
         grid-area: navmenu;
-        max-height: 100%;
+        max-device-height: 100%;
         min-height: 50%;
         grid-column: 1;
         grid-row: 2;
@@ -699,9 +748,8 @@
     }
 
     .host-apps {
-        -webkit-flex: auto;
         flex: auto;
-        max-height: 100%;
+        max-device-height: 100%;
     }
 
     .navbar-collapse > ul,
@@ -742,6 +790,21 @@
     }
 }
 
+
+@media (max-device-width: 1024px) and (max-device-height: 768px) and (orientation: landscape) {
+  /* Shrink nav for VMs @ 1024×768 (and below)  */
+
+  .area-ct-subnav {
+    flex: 0 1 12em;
+  }
+
+  .nav-sidebar-wrap.expanded .nav-sidebar .list-group-item > a {
+    min-height: 0;
+    padding: 0.25rem 0.5rem;
+  }
+}
+
+
 /* Apply Cockpit colors to main nav */
 .main-navbar .list-group-item {
     border-color: var(--color-ct-nav-main-border);
@@ -781,6 +844,6 @@
 }
 
 @keyframes navFadeInSlideDown {
-    from { opacity: 0; max-height: 0; }
-    to { opacity: 1; max-height: auto; }
+    from { opacity: 0; max-device-height: 0; }
+    to { opacity: 1; max-device-height: auto; }
 }

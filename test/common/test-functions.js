@@ -32,10 +32,7 @@ function ph_count(sel) {
 }
 
 function ph_count_check(sel, expected_num) {
-    count = ph_count(sel);
-    if (count != expected_num)
-        throw "found " + count + " " + sel + " not " + expected_num;
-    return count;
+    return (ph_count(sel) == expected_num);
 }
 
 function ph_val (sel)
@@ -106,7 +103,8 @@ function ph_has_attr (sel, attr, val)
 
 function ph_attr_contains (sel, attr, val)
 {
-    return ph_attr(sel, attr).indexOf(val) > -1;
+    var a = ph_attr(sel, attr);
+    return a && a.indexOf(val) > -1;
 }
 
 function ph_mouse(sel, type, x, y, btn, ctrlKey, shiftKey, altKey, metaKey) {
@@ -162,6 +160,15 @@ function ph_mouse(sel, type, x, y, btn, ctrlKey, shiftKey, altKey, metaKey) {
     /* It really had to work */
     if (!processed)
         throw sel + " is disabled or somehow doesn't process events";
+}
+
+function ph_get_checked (sel)
+{
+    var el = ph_find(sel);
+    if (el.checked === undefined)
+        throw sel + " is not checkable";
+
+    return el.checked;
 }
 
 function ph_set_checked (sel, val)

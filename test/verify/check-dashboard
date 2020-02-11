@@ -20,9 +20,9 @@
 import json
 import subprocess
 
-import atomiclib
 import parent
 from testlib import *
+from hacklib import *
 
 
 class DashBoardHelpers:
@@ -73,6 +73,7 @@ class DashBoardHelpers:
         b.wait_popdown('dashboard_setup_server_dialog')
 
 
+@skipBrowser("Firefox looses track of contexts", "firefox")
 class TestBasicDashboard(MachineCase, DashBoardHelpers):
     provision = {
         'machine1': {"address": "10.111.113.1/20"},
@@ -81,8 +82,9 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
     }
 
     def setUp(self):
-        super(TestBasicDashboard, self).setUp()
-        atomiclib.overlay_dashboard(self.machine)
+        super().setUp()
+        HACK_disable_problematic_preloads(self.machines["machine2"])
+        HACK_disable_problematic_preloads(self.machines["machine3"])
 
     def testBasic(self):
         b = self.browser
@@ -94,7 +96,7 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
 
         # Start second browser and check that it is in sync
         b2 = self.new_browser()
-        b2.default_user = "root"
+        b2.default_user = "admin"
         b2.login_and_go("/dashboard")
         self.wait_dashboard_addresses(b2, ["localhost"])
         b.wait_present("#dashboard-hosts a[data-address='localhost'] button.pficon-delete.disabled")
@@ -210,11 +212,9 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
 
         b.enter_page("/system", "10.111.113.3")
         b.wait_text_not("#system_information_systime_button", "")
-        if m.image in ["rhel-8-0-distropkg"]:
-            sel = "#link-network"
-        else:
-            sel = "#link-network a"
-        b.click(sel)
+        b.click(".system-usage a")  # View graphs
+        b.enter_page("/system/graphs", "10.111.113.3")
+        b.click("#link-network a")
         b.enter_page("/network", "10.111.113.3")
 
         self.allow_hostkey_messages()
@@ -228,10 +228,6 @@ class TestDashboardSetup(MachineCase, DashBoardHelpers):
         'machine3': {"address": "10.111.113.3/20"}
     }
 
-    def setUp(self):
-        super(TestDashboardSetup, self).setUp()
-        atomiclib.overlay_dashboard(self.machine)
-
     def testSetup(self):
         b = self.browser
 
@@ -240,6 +236,9 @@ class TestDashboardSetup(MachineCase, DashBoardHelpers):
 
         # lockout admin
         m2.execute("echo admin:badpass | chpasswd")
+        # Logging in as root is no longer allowed by default by sshd
+        m2.execute("sed -ri 's/#?PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config")
+        m2.execute("systemctl restart sshd")
 
         # Create some users on m1 and m2.
         m1.execute("getent group docker >/dev/null || groupadd docker")
@@ -313,10 +312,6 @@ class TestDashboardSetup(MachineCase, DashBoardHelpers):
 
 
 class TestDashboardEditLimits(MachineCase, DashBoardHelpers):
-
-    def setUp(self):
-        super(TestDashboardEditLimits, self).setUp()
-        atomiclib.overlay_dashboard(self.machine)
 
     def testEdit(self):
         b = self.browser

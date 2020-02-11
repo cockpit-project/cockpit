@@ -35,89 +35,75 @@ import './createNetworkDialog.css';
 const _ = cockpit.gettext;
 
 function validateParams(dialogValues) {
-    let validationFailed = {};
+    const validationFailed = {};
 
     if (isEmpty(dialogValues.name.trim()))
-        validationFailed['name'] = _("Name should not be empty");
+        validationFailed.name = _("Name should not be empty");
 
     if (dialogValues.ip === "IPv4 only" || dialogValues.ip === "IPv4 and IPv6") {
         if (isEmpty(dialogValues.ipv4.trim()))
-            validationFailed['ipv4'] = _("IPv4 Network should not be empty");
+            validationFailed.ipv4 = _("IPv4 Network should not be empty");
         else if (!utils.validateIpv4(dialogValues.ipv4))
-            validationFailed['ipv4'] = _("Invalid IPv4 address");
+            validationFailed.ipv4 = _("Invalid IPv4 address");
 
         if (isEmpty(dialogValues.netmask.trim()))
-            validationFailed['netmask'] = _("Mask or Prefix Length should not be empty");
+            validationFailed.netmask = _("Mask or Prefix Length should not be empty");
         else if (!utils.validateNetmask(dialogValues.netmask))
-            validationFailed['netmask'] = _("Invalid IPv4 mask or prefix length");
+            validationFailed.netmask = _("Invalid IPv4 mask or prefix length");
 
         if (dialogValues.ipv4DhcpEnabled) {
             if (isEmpty(dialogValues.ipv4DhcpRangeStart.trim()))
-                validationFailed['ipv4DhcpRangeStart'] = _("Start should not be empty");
+                validationFailed.ipv4DhcpRangeStart = _("Start should not be empty");
             else if (!utils.validateIpv4(dialogValues.ipv4DhcpRangeStart))
-                validationFailed['ipv4DhcpRangeStart'] = _("Invalid IPv4 address");
+                validationFailed.ipv4DhcpRangeStart = _("Invalid IPv4 address");
             else if (!utils.isIpv4InNetwork(dialogValues.ipv4, dialogValues.netmask, dialogValues.ipv4DhcpRangeStart))
-                validationFailed['ipv4DhcpRangeStart'] = _("Address not within subnet");
+                validationFailed.ipv4DhcpRangeStart = _("Address not within subnet");
 
             if (isEmpty(dialogValues.ipv4DhcpRangeEnd.trim()))
-                validationFailed['ipv4DhcpRangeEnd'] = _("End should not be empty");
+                validationFailed.ipv4DhcpRangeEnd = _("End should not be empty");
             else if (!utils.validateIpv4(dialogValues.ipv4DhcpRangeEnd))
-                validationFailed['ipv4DhcpRangeEnd'] = _("Invalid IPv4 address");
+                validationFailed.ipv4DhcpRangeEnd = _("Invalid IPv4 address");
             else if (!utils.isIpv4InNetwork(dialogValues.ipv4, dialogValues.netmask, dialogValues.ipv4DhcpRangeEnd))
-                validationFailed['ipv4DhcpRangeEnd'] = _("Address not within subnet");
+                validationFailed.ipv4DhcpRangeEnd = _("Address not within subnet");
         }
     }
 
     if (dialogValues.ip === "IPv6 only" || dialogValues.ip === "IPv4 and IPv6") {
         if (isEmpty(dialogValues.ipv6.trim()))
-            validationFailed['ipv6'] = _("IPv6 Network should not be empty");
+            validationFailed.ipv6 = _("IPv6 Network should not be empty");
         else if (!utils.validateIpv6(dialogValues.ipv6))
-            validationFailed['ipv6'] = _("Invalid IPv6 address");
+            validationFailed.ipv6 = _("Invalid IPv6 address");
 
         if (isEmpty(dialogValues.prefix.trim()))
-            validationFailed['prefix'] = _("Prefix Length should not be empty");
+            validationFailed.prefix = _("Prefix Length should not be empty");
         else if (!utils.validateIpv6Prefix(dialogValues.prefix))
-            validationFailed['prefix'] = _("Invalid IPv6 prefix");
+            validationFailed.prefix = _("Invalid IPv6 prefix");
 
         if (dialogValues.ipv6DhcpEnabled) {
             if (isEmpty(dialogValues.ipv6DhcpRangeStart.trim()))
-                validationFailed['ipv6DhcpRangeStart'] = _("Start should not be empty");
+                validationFailed.ipv6DhcpRangeStart = _("Start should not be empty");
             else if (!utils.validateIpv6(dialogValues.ipv6DhcpRangeStart))
-                validationFailed['ipv6DhcpRangeStart'] = _("Invalid IPv6 address");
+                validationFailed.ipv6DhcpRangeStart = _("Invalid IPv6 address");
             else if (!utils.isIpv6InNetwork(dialogValues.ipv6, dialogValues.prefix, dialogValues.ipv6DhcpRangeStart))
-                validationFailed['ipv6DhcpRangeStart'] = _("Address not within subnet");
+                validationFailed.ipv6DhcpRangeStart = _("Address not within subnet");
 
             if (isEmpty(dialogValues.ipv6DhcpRangeEnd.trim()))
-                validationFailed['ipv6DhcpRangeEnd'] = _("End should not be empty");
+                validationFailed.ipv6DhcpRangeEnd = _("End should not be empty");
             else if (!utils.validateIpv6(dialogValues.ipv6DhcpRangeEnd))
-                validationFailed['ipv6DhcpRangeEnd'] = _("Invalid IPv6 address");
+                validationFailed.ipv6DhcpRangeEnd = _("Invalid IPv6 address");
             else if (!utils.isIpv6InNetwork(dialogValues.ipv6, dialogValues.prefix, dialogValues.ipv6DhcpRangeEnd))
-                validationFailed['ipv6DhcpRangeEnd'] = _("Address not within subnet");
+                validationFailed.ipv6DhcpRangeEnd = _("Address not within subnet");
         }
     }
 
     return validationFailed;
 }
 
-const NetworkConnectionRow = ({ onValueChanged, dialogValues, loggedUser }) => {
-    return (
-        <React.Fragment>
-            <label className='control-label' htmlFor='create-network-connection'>
-                {_("Connection")}
-            </label>
-            <MachinesConnectionSelector id='create-network-connection'
-                dialogValues={dialogValues}
-                onValueChanged={onValueChanged}
-                loggedUser={loggedUser} />
-        </React.Fragment>
-    );
-};
-
 const NetworkNameRow = ({ onValueChanged, dialogValues, validationFailed }) => {
     const validationState = validationFailed.name ? 'error' : undefined;
 
     return (
-        <React.Fragment>
+        <>
             <label className='control-label' htmlFor='create-network-name'>
                 {_("Name")}
             </label>
@@ -134,7 +120,7 @@ const NetworkNameRow = ({ onValueChanged, dialogValues, validationFailed }) => {
                     <p className='text-danger'>{validationFailed.name}</p>
                 </HelpBlock> }
             </FormGroup>
-        </React.Fragment>
+        </>
     );
 };
 
@@ -142,7 +128,7 @@ const NetworkForwardModeRow = ({ onValueChanged, dialogValues }) => {
     const forwardModes = ['nat', 'open', 'none'];
 
     return (
-        <React.Fragment>
+        <>
             <label className='control-label' htmlFor='create-network-forward-mode'>
                 {_("Forward Mode")}
             </label>
@@ -158,13 +144,13 @@ const NetworkForwardModeRow = ({ onValueChanged, dialogValues }) => {
                 })
                 }
             </Select.Select>
-        </React.Fragment>
+        </>
     );
 };
 
 const NetworkDeviceRow = ({ devices, onValueChanged, dialogValues }) => {
     return (
-        <React.Fragment>
+        <>
             <label className='control-label' htmlFor='create-network-device'>
                 {_("Device")}
             </label>
@@ -186,13 +172,13 @@ const NetworkDeviceRow = ({ devices, onValueChanged, dialogValues }) => {
                     })}
                 </optgroup>
             </Select.Select>
-        </React.Fragment>
+        </>
     );
 };
 
 const IpRow = ({ onValueChanged, dialogValues }) => {
     return (
-        <React.Fragment>
+        <>
             <label className='control-label' htmlFor='create-network-ip-configuration'>
                 {_("IP Configuration")}
             </label>
@@ -213,7 +199,7 @@ const IpRow = ({ onValueChanged, dialogValues }) => {
                     {_("IPv4 and IPv6")}
                 </Select.SelectEntry>
             </Select.Select>
-        </React.Fragment>
+        </>
     );
 };
 
@@ -222,7 +208,7 @@ const DhcpRow = ({ ipVersion, rangeStart, rangeEnd, expanded, onValueChanged, va
     const validationEnd = validationFailed['ipv' + ipVersion + 'DhcpRangeEnd'] ? 'error' : undefined;
 
     return (
-        <React.Fragment>
+        <>
             <label className='checkbox-inline'>
                 <input id={'network-ipv' + ipVersion + '-dhcp'}
                     type='checkbox'
@@ -231,7 +217,7 @@ const DhcpRow = ({ ipVersion, rangeStart, rangeEnd, expanded, onValueChanged, va
                 {_("Set DHCP Range")}
             </label>
 
-            {expanded && <React.Fragment>
+            {expanded && <>
                 <div className='create-network-dialog-grid'>
                     <div className='ct-form'>
                         <label className='control-label' htmlFor={'network-ipv' + ipVersion + '-dhcp-range-start'}> {_("Start")} </label>
@@ -264,8 +250,8 @@ const DhcpRow = ({ ipVersion, rangeStart, rangeEnd, expanded, onValueChanged, va
                         </FormGroup>
                     </div>
                 </div>
-            </React.Fragment> }
-        </React.Fragment>
+            </> }
+        </>
     );
 };
 
@@ -274,7 +260,7 @@ const Ipv4Row = ({ validationFailed, dialogValues, onValueChanged }) => {
     const validationNetmask = validationFailed.netmask ? 'error' : undefined;
 
     return (
-        <React.Fragment>
+        <>
             <div className='ct-form'>
                 <label className='control-label' htmlFor='network-ipv4-address'> {_("IPv4 Network")} </label>
                 <FormGroup validationState={validationAddress} controlId='ipv4-address'>
@@ -309,7 +295,7 @@ const Ipv4Row = ({ validationFailed, dialogValues, onValueChanged }) => {
                 expanded={dialogValues.ipv4DhcpEnabled}
                 onValueChanged={onValueChanged}
                 validationFailed={validationFailed} />
-        </React.Fragment>
+        </>
     );
 };
 
@@ -318,7 +304,7 @@ const Ipv6Row = ({ validationFailed, dialogValues, onValueChanged }) => {
     const validationPrefix = validationFailed.prefix ? 'error' : undefined;
 
     return (
-        <React.Fragment>
+        <>
             <div className='ct-form'>
                 <label className='control-label' htmlFor='network-ipv6-address'> {_("IPv6 Network")} </label>
                 <FormGroup validationState={validationAddress} controlId='ipv6-address'>
@@ -353,7 +339,7 @@ const Ipv6Row = ({ validationFailed, dialogValues, onValueChanged }) => {
                 expanded={dialogValues.ipv6DhcpEnabled}
                 onValueChanged={onValueChanged}
                 validationFailed={validationFailed} />
-        </React.Fragment>
+        </>
     );
 };
 
@@ -397,10 +383,10 @@ class CreateNetworkModal extends React.Component {
     onValueChanged(key, value) {
         if (key === "forwardMode") {
             if (this.state.ip !== "None" && (value === "bridge" || value === "vepa"))
-                this.setState({ "ip": "None" });
+                this.setState({ ip: "None" });
 
             if (this.state.ip === "None" && (value === "nat" || value === "open"))
-                this.setState({ "ip": "IPv4 only" });
+                this.setState({ ip: "IPv4 only" });
         }
 
         this.setState({ [key]: value });
@@ -410,13 +396,19 @@ class CreateNetworkModal extends React.Component {
         if (Object.getOwnPropertyNames(validateParams(this.state)).length > 0) {
             this.setState({ inProgress: false, validate: true });
         } else {
-            const { connectionName, name, forwardMode, ipv4, ipv6, prefix, device,
-                    ipv4DhcpRangeStart, ipv4DhcpRangeEnd, ipv6DhcpRangeStart, ipv6DhcpRangeEnd } = this.state;
+            const {
+                connectionName, name, forwardMode, ip, prefix, device,
+                ipv4DhcpRangeStart, ipv4DhcpRangeEnd, ipv6DhcpRangeStart, ipv6DhcpRangeEnd
+            } = this.state;
+            const ipv6 = ip === "IPv4 only" ? undefined : this.state.ipv6;
+            const ipv4 = ip === "IPv6 only" ? undefined : this.state.ipv4;
             const netmask = utils.netmaskConvert(this.state.netmask);
 
             this.setState({ createInProgress: true });
-            networkCreate({ connectionName, name, forwardMode, device, ipv4, netmask, ipv6, prefix,
-                            ipv4DhcpRangeStart, ipv4DhcpRangeEnd, ipv6DhcpRangeStart, ipv6DhcpRangeEnd })
+            networkCreate({
+                connectionName, name, forwardMode, device, ipv4, netmask, ipv6, prefix,
+                ipv4DhcpRangeStart, ipv4DhcpRangeEnd, ipv6DhcpRangeStart, ipv6DhcpRangeEnd
+            })
                     .fail(exc => {
                         this.setState({ createInProgress: false });
                         this.dialogErrorSet(_("Virtual Network failed to be created"), exc.message);
@@ -430,9 +422,10 @@ class CreateNetworkModal extends React.Component {
 
         const body = (
             <form className='ct-form'>
-                <NetworkConnectionRow dialogValues={this.state}
-                                      onValueChanged={this.onValueChanged}
-                                      loggedUser={this.props.loggedUser} />
+                <MachinesConnectionSelector id='create-network-connection'
+                    connectionName={this.state.connectionName}
+                    onValueChanged={this.onValueChanged}
+                    loggedUser={this.props.loggedUser} />
 
                 <hr />
 
@@ -453,7 +446,7 @@ class CreateNetworkModal extends React.Component {
                 <hr />
 
                 { (this.state.forwardMode !== "vepa" && this.state.forwardMode !== "bridge") &&
-                <React.Fragment>
+                <>
                     <IpRow dialogValues={this.state}
                            onValueChanged={this.onValueChanged} />
 
@@ -466,7 +459,7 @@ class CreateNetworkModal extends React.Component {
                     <Ipv6Row dialogValues={this.state}
                              onValueChanged={this.onValueChanged}
                              validationFailed={validationFailed} /> }
-                </React.Fragment> }
+                </> }
             </form>
         );
 
@@ -519,9 +512,9 @@ export class CreateNetworkAction extends React.Component {
 
     render() {
         return (
-            <React.Fragment>
+            <>
                 <Button className='pull-right' id='create-network'
-                        bsStyle='default' onClick={this.open} >
+                        bsStyle='default' onClick={this.open}>
                     {_("Create Virtual Network")}
                 </Button>
                 { this.state.showModal &&
@@ -529,7 +522,7 @@ export class CreateNetworkAction extends React.Component {
                     close={this.close}
                     devices={this.props.devices}
                     loggedUser={this.props.loggedUser} /> }
-            </React.Fragment>
+            </>
         );
     }
 }

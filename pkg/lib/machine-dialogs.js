@@ -54,10 +54,10 @@ var default_codes = {
 
 function translate_and_init(tmpl) {
     var tmp = $("<div>").append(tmpl);
-    tmp.find("[translatable=\"yes\"]").each(function(i, e) {
+    tmp.find("[translate=\"yes\"]").each(function(i, e) {
         var old = e.outerHTML;
         var translated = cockpit.gettext(e.getAttribute("context"), $(e).text());
-        $(e).removeAttr("translatable")
+        $(e).removeAttr("translate")
                 .text(translated);
         tmpl = tmpl.replace(old, e.outerHTML);
     });
@@ -139,14 +139,16 @@ function Dialog(selector, address, machines_ins, codes) {
 
     self.try_to_connect = function(address, options) {
         var dfd = $.Deferred();
-        var conn_options = $.extend({ "payload": "echo",
-                                      "host": address },
+        var conn_options = $.extend({
+            payload: "echo",
+            host: address
+        },
                                     options);
 
         var machine = self.machines_ins.lookup(address);
         if (machine && machine.host_key && !machine.on_disk) {
             conn_options['temp-session'] = false; /* Compatiblity option */
-            conn_options['session'] = 'shared';
+            conn_options.session = 'shared';
             conn_options['host-key'] = machine.host_key;
         }
         var client = cockpit.channel(conn_options);
@@ -192,10 +194,10 @@ function Dialog(selector, address, machines_ins, codes) {
 
         var address_data = self.machines_ins.split_connection_string(self.address);
         var context = $.extend({
-            'host' : address_or_label(),
-            'full_address' : self.address,
-            'context_title' : self.context_title,
-            'strong' : function() {
+            host : address_or_label(),
+            full_address : self.address,
+            context_title : self.context_title,
+            strong : function() {
                 return function(text, render) {
                     return "<strong>" + render(text) + "</strong>";
                 };
@@ -216,6 +218,10 @@ function Dialog(selector, address, machines_ins, codes) {
             change_content(template, error);
         else
             $(selector).dialog("failure", cockpit.message(error));
+    };
+
+    self.clear_error = function clear_error() {
+        $(selector).dialog("clear_errors");
     };
 
     self.render_template = function render_template(template) {
@@ -290,10 +296,10 @@ function MachineColorPicker(machines_ins) {
         var colors = [];
         for (var i = 0; i < machines.colors.length; i += 6) {
             part = machines.colors.slice(i, i + 6);
-            colors.push({ "list" : part });
+            colors.push({ list : part });
         }
 
-        var text = mustache.render(templates["color-picker"], { 'colors' : colors, });
+        var text = mustache.render(templates["color-picker"], { colors : colors, });
         $(selector).html(text);
 
         $("#host-edit-color", selector).css("background-color", selected_color);
@@ -370,7 +376,7 @@ function AddMachine(dialog) {
         var ex = null;
 
         var addr = $('#add-machine-address').val();
-        var button = dialog.get_sel(".btn-primary");
+        var button = dialog.get_sel(".modal-footer>.btn-primary");
         if (addr === "") {
             disabled = true;
         } else if (!machines.allow_connection_string &&
@@ -433,20 +439,20 @@ function AddMachine(dialog) {
     }
 
     self.load = function() {
-        var manifest = cockpit.manifests["shell"] || {};
+        var manifest = cockpit.manifests.shell || {};
         var limit = parseInt(manifest["machine-limit"], 10);
         var color_picker = new MachineColorPicker(dialog.machines_ins);
         if (!limit || isNaN(limit))
             limit = 20;
 
         dialog.render({
-            'nearlimit' : limit * 0.75 <= dialog.machines_ins.list.length,
-            'limit' : limit,
-            'placeholder' : _("Enter IP address or host name"),
-            'options' : invisible,
+            nearlimit : limit * 0.75 <= dialog.machines_ins.list.length,
+            limit : limit,
+            placeholder : _("Enter IP address or host name"),
+            options : invisible,
         });
 
-        var button = dialog.get_sel(".btn-primary");
+        var button = dialog.get_sel(".modal-footer>.btn-primary");
         button.on("click", add_machine);
 
         $("#add-machine-address").on("keyup", function (ev) {
@@ -474,7 +480,7 @@ function MachinePort(dialog) {
                                                                      parts.address);
         function update_host(ex) {
             dialog.address = address;
-            dialog.machines_ins.change(parts.address, { "port": parts.port })
+            dialog.machines_ins.change(parts.address, { port: parts.port })
                     .done(function () {
                     // We failed before so try to connect again
                     // now that the machine is saved.
@@ -517,10 +523,12 @@ function MachinePort(dialog) {
             return;
         }
 
-        dialog.render({ 'port' : machine.port,
-                        'allow_connection_string' : machines.allow_connection_string });
+        dialog.render({
+            port : machine.port,
+            allow_connection_string : machines.allow_connection_string
+        });
         if (machines.allow_connection_string)
-            dialog.get_sel(".btn-primary").on("click", change_port);
+            dialog.get_sel(".modal-footer>.btn-primary").on("click", change_port);
     };
 }
 
@@ -540,7 +548,7 @@ function HostKey(dialog, problem) {
             /* When machine isn't saved to disk
                don't save the key either */
             q = dialog.machines_ins.change(dialog.address, {
-                'host_key': key
+                host_key: key
             });
         }
 
@@ -552,7 +560,7 @@ function HostKey(dialog, problem) {
                     ex.problem == "unknown-hostkey") &&
                     machine && !machine.on_disk) {
                     dialog.machines_ins.change(dialog.address, {
-                        'host_key': null
+                        host_key: null
                     });
                 }
             });
@@ -575,13 +583,13 @@ function HostKey(dialog, problem) {
         }
 
         dialog.render({
-            'context_title' : dialog.context_title,
-            'key' : fp,
+            context_title : dialog.context_title,
+            key : fp,
         });
 
         if (!key) {
             if (problem == "unknown-host") {
-                options["session"] = "private";
+                options.session = "private";
                 match_problem = "unknown-hostkey";
             }
 
@@ -602,7 +610,7 @@ function HostKey(dialog, problem) {
 
             dialog.get_sel().dialog("wait", promise);
         } else if (allow_change) {
-            dialog.get_sel(".btn-primary").on("click", add_key);
+            dialog.get_sel(".modal-footer>.btn-primary").on("click", add_key);
         }
     }
 
@@ -623,6 +631,7 @@ function ChangeAuth(dialog) {
 
     function update_available() {
         var key_div = dialog.get_sel('.keys');
+        var key_locked_div = dialog.get_sel('.key-locked');
         var have_keys = false;
 
         if (key_div) {
@@ -633,6 +642,27 @@ function ChangeAuth(dialog) {
                     have_keys = true;
                     key_div.append($("<div>").text(key.name || key.comment));
                 }
+            }
+        }
+
+        if (key_locked_div && error_options &&
+            error_options.error && error_options.error.startsWith("locked identity")) {
+            const identity_path = error_options.error.split(": ")[1];
+            key_locked_div.find(".locked-identity").text(identity_path);
+            key_locked_div.find(".btn-primary").on("click", () => {
+                key_locked_div.find(".btn-primary").attr("disabled", true);
+                keys.load(identity_path, key_locked_div.find(".locked-identity-password").val())
+                        .then(() => dialog.clear_error())
+                        .catch(ex => {
+                            dialog.render_error(ex);
+                            key_locked_div.find(".btn-primary").attr("disabled", false);
+                        });
+            });
+
+            for (const id in keys.items) {
+                const key = keys.items[id];
+                if (key.name === identity_path.split("/").pop() && key.loaded)
+                    dialog.get_sel(".login-locked").empty();
             }
         }
 
@@ -655,15 +685,15 @@ function ChangeAuth(dialog) {
                                                                  parts.address);
 
         if ($("#login-type button").val() != 'stored') {
-            options['password'] = $("#login-custom-password").val();
-            options["session"] = 'shared';
+            options.password = $("#login-custom-password").val();
+            options.session = 'shared';
             if (!user) {
                 /* we don't want to save the default user for everyone
                  * so we pass current user as an option, but make sure the
                  * session isn't private
                  */
                 if (self.user && self.user.name)
-                    options["user"] = self.user.name;
+                    options.user = self.user.name;
                 options["temp-session"] = false; /* Compatibility option */
             }
         }
@@ -672,7 +702,7 @@ function ChangeAuth(dialog) {
                 .done(function () {
                     dialog.address = address;
                     if (machine) {
-                        dialog.machines_ins.change(machine.address, { "user" : user })
+                        dialog.machines_ins.change(machine.address, { user : user })
                                 .done(dfp.resolve)
                                 .fail(dfp.reject);
                     } else {
@@ -702,6 +732,7 @@ function ChangeAuth(dialog) {
         var no_password = false;
         var methods = null;
         var available = null;
+        var locked_identity = false;
 
         var machine_user = dialog.machines_ins.split_connection_string(dialog.address).user;
         if (!machine_user && machine)
@@ -712,7 +743,7 @@ function ChangeAuth(dialog) {
 
             methods = error_options["auth-method-results"];
             if (methods) {
-                no_password = methods['password'] === "not-provided";
+                no_password = methods.password === "not-provided";
                 for (var method in methods) {
                     if (is_method_supported(methods, method)) {
                         available[method] = true;
@@ -722,18 +753,21 @@ function ChangeAuth(dialog) {
 
             if ($.isEmptyObject(available))
                 template = "auth-failed";
+
+            locked_identity = error_options.error && error_options.error.startsWith("locked identity");
         }
 
         dialog.render({
-            'supported' : methods,
-            'available' : available,
-            'machine_user' : machine_user,
-            'default_user' : self.user ? self.user.name : "",
-            'show_password' : available && available.password && !no_password,
-            'show_ticket': available && available['gssapi-mic'] && have_ticket,
-            'can_sync': !!dialog.codes['sync-users'],
+            supported : methods,
+            available : available,
+            machine_user : machine_user,
+            default_user : self.user ? self.user.name : "",
+            show_password : available && available.password && !no_password,
+            show_ticket: available && available['gssapi-mic'] && have_ticket,
+            show_locked_identity: available && available['public-key'] && locked_identity,
+            can_sync: !!dialog.codes['sync-users'],
             'machines.allow_connection_string' : machines.allow_connection_string,
-            'sync_link' : function() {
+            sync_link : function() {
                 return function(text, render) {
                     return '<a tabindex="0" id="do-sync-users">' + render(text) + "</a>";
                 };
@@ -758,7 +792,7 @@ function ChangeAuth(dialog) {
                 change_login_type($(this).attr("value"));
             });
             change_login_type($("#login-type li:first-child").attr("value"));
-            dialog.get_sel(".btn-primary").on("click", login);
+            dialog.get_sel(".modal-footer>.btn-primary").on("click", login);
             dialog.get_sel("a[data-content]").popover();
 
             update_available();
@@ -810,14 +844,16 @@ function SyncUsers(dialog) {
     var needs_auth = false;
     var needs_root = false;
     var methods = null;
-    var remote_options = { "superuser": true };
+    var remote_options = { superuser: true };
 
     var perm_failed = null;
 
     function load_users() {
-        var local = cockpit.dbus(null, { bus: "internal",
-                                         host: "localhost",
-                                         superuser: true });
+        var local = cockpit.dbus(null, {
+            bus: "internal",
+            host: "localhost",
+            superuser: true
+        });
         $(local).on("close", function(event, options) {
             perm_failed = options;
             render();
@@ -827,8 +863,8 @@ function SyncUsers(dialog) {
         proxy.wait(function () {
             if (proxy.valid) {
                 var blank = {
-                    "t" : "(asas)",
-                    "v" : [[], []]
+                    t : "(asas)",
+                    v : [[], []]
                 };
 
                 proxy.Transfer("passwd1", blank)
@@ -843,10 +879,10 @@ function SyncUsers(dialog) {
                                 name = parts[0];
 
                                 users[name] = {
-                                    "username" : name,
-                                    "name" : parts[4] || name,
-                                    "raw" : raw,
-                                    "groups" : [],
+                                    username : name,
+                                    name : parts[4] || name,
+                                    raw : raw,
+                                    groups : [],
                                 };
                             }
 
@@ -904,8 +940,8 @@ function SyncUsers(dialog) {
         });
 
         var variant = {
-            "t" : "(asas)",
-            "v" : [[]],
+            t : "(asas)",
+            v : [[]],
         };
 
         var groups = {};
@@ -942,7 +978,7 @@ function SyncUsers(dialog) {
 
     function toggle_button() {
         var any = dialog.get_sel("input:checked").length > 0;
-        dialog.get_sel(".btn-primary").toggleClass("disabled", !any);
+        dialog.get_sel(".modal-footer>.btn-primary").toggleClass("disabled", !any);
     }
 
     function render() {
@@ -962,16 +998,16 @@ function SyncUsers(dialog) {
             allows_password = is_method_supported(methods, 'password');
 
         var text = dialog.render({
-            'needs_auth' : needs_auth,
-            'needs_root' : needs_root,
-            'users' : user_list,
-            'perm_failed' : perm_failed ? cockpit.message(perm_failed) : null,
-            'allows_password' : allows_password,
-            'formated_groups': formated_groups,
+            needs_auth : needs_auth,
+            needs_root : needs_root,
+            users : user_list,
+            perm_failed : perm_failed ? cockpit.message(perm_failed) : null,
+            allows_password : allows_password,
+            formated_groups: formated_groups,
         });
 
         dialog.get_sel(".modal-content").html(text);
-        dialog.get_sel(".btn-primary").on("click", sync_users);
+        dialog.get_sel(".modal-footer>.btn-primary").on("click", sync_users);
         dialog.get_sel("input:checkbox").on("change", function() {
             var name = $(this).attr("name");
             users[name].checked = $(this).is(':checked');
@@ -995,7 +1031,7 @@ function SyncUsers(dialog) {
                      * closes. Passing an invalid username should
                      * open new transport that fails.
                      */
-                    dialog.try_to_connect(dialog.address, { "user" : "1" })
+                    dialog.try_to_connect(dialog.address, { user : "1" })
                             .fail(function(ex) {
                                 methods = ex['auth-method-results'];
                             })

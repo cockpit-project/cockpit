@@ -22,12 +22,12 @@ from packagelib import *
 from testlib import *
 
 
-@skipImage("Not supported", "fedora-atomic")
+@skipImage("Not supported", "fedora-coreos")
 @skipPackage("cockpit-apps")
 class TestApps(PackageCase):
 
     def setUp(self):
-        PackageCase.setUp(self)
+        super().setUp()
         self.appstream_collection = set()
         self.machine.upload([ "verify/files/test.png" ], "/var/tmp/")
 
@@ -100,7 +100,7 @@ class TestApps(PackageCase):
         b.click(".app-list tr:contains('An application for testing')")
         b.wait_present('.app-links a[href="https://app-1.com"]')
         b.wait_present('.app img[src^="%s/cockpit/channel/"]' % urlroot)
-        b.click(".breadcrumb a:contains('Applications')")
+        b.click(".breadcrumb button:contains('Applications')")
 
         b.wait_visible("#list-page")
         b.wait_not_visible("#app-page")

@@ -128,7 +128,7 @@ export function ip4_from_text(text, empty_is_zero) {
 }
 
 var text_to_prefix_bits = {
-    "255": 8, "254": 7, "252": 6, "248": 5, "240": 4, "224": 3, "192": 2, "128": 1, "0": 0
+    255: 8, 254: 7, 252: 6, 248: 5, 240: 4, 224: 3, 192: 2, 128: 1, 0: 0
 };
 
 export function ip4_prefix_from_text(text) {
@@ -176,7 +176,7 @@ export function ip6_from_text(text, empty_is_zero) {
     }
 
     if (text === "" && empty_is_zero)
-        return cockpit.base64_encode([ 0, 0, 0, 0, 0, 0, 0, 0,
+        return cockpit.base64_encode([0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0,
         ]);
 
@@ -218,19 +218,13 @@ export function ip6_from_text(text, empty_is_zero) {
 }
 
 export function list_interfaces() {
-    let client = cockpit.dbus("org.freedesktop.NetworkManager");
+    const client = cockpit.dbus("org.freedesktop.NetworkManager");
     return client.call('/org/freedesktop/NetworkManager',
                        'org.freedesktop.NetworkManager',
                        'GetAllDevices', [])
             .then(reply => {
-                // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
-                // https://github.com/cockpit-project/cockpit/issues/10956
-                // eslint-disable-next-line cockpit/no-cockpit-all
-                let promises = cockpit.all(reply[0].map(device => {
-                    // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
-                    // https://github.com/cockpit-project/cockpit/issues/10956
-                    // eslint-disable-next-line cockpit/no-cockpit-all
-                    let devicePromises = cockpit.all([
+                return Promise.all(reply[0].map(device => {
+                    return Promise.all([
                         client.call(device,
                                     'org.freedesktop.DBus.Properties',
                                     'Get', ['org.freedesktop.NetworkManager.Device', 'Interface'])
@@ -240,17 +234,7 @@ export function list_interfaces() {
                                     'Get', ['org.freedesktop.NetworkManager.Device', 'Capabilities'])
                                 .then(reply => reply[0])
                     ]);
-                    return devicePromises.then(function (device) {
-                        if (Array.isArray(device) && device.length === 0)
-                            return [];
-                        return Array.prototype.slice.call(arguments);
-                    });
                 }));
-                return promises.then(function (devices) {
-                    if (Array.isArray(devices) && devices.length === 0)
-                        return [];
-                    return Array.prototype.slice.call(arguments);
-                });
             })
             .then(interfaces => {
                 client.close();

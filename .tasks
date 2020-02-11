@@ -13,15 +13,6 @@
 
 set -ex
 
-# Consume item from task queue or scan for all tests
-if [ -n "$AMQP_SERVER" ]; then
-    echo bots/run-queue --amqp "$AMQP_SERVER"
-else
-    bots/tests-scan
-    # Any tasks related to issues
-    bots/issue-scan
-fi
-
 # When run automated, randomize to minimize stampeding herd
 if [ -t 0 ]; then
     chance=10
@@ -32,8 +23,6 @@ fi
 # File issues for these tasks
 if [ $chance -gt 9 ]; then
     bots/po-trigger
-    bots/image-trigger
     bots/npm-trigger
-    bots/naughty-trigger
-    bots/learn-trigger
+    ./tools/urls-check
 fi

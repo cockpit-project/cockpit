@@ -1,19 +1,21 @@
 /* global $, cockpit, QUnit */
 
 var pig_latin = {
-    "": { "language": "pig", "plural-forms": function(n) {
-        var plural = (n != 1);
-        return plural;
-    } },
-    "Control": [ null, "Ontrolcay" ],
-    "User": [ null, "Useray" ],
-    "Waiting": [ null, "Aitingway" ],
+    "": {
+        language: "pig", "plural-forms": function(n) {
+            var plural = (n != 1);
+            return plural;
+        }
+    },
+    Control: [null, "Ontrolcay"],
+    User: [null, "Useray"],
+    Waiting: [null, "Aitingway"],
     "$0 disk is missing": [
         "$0 disk is missing",
         "$0 isksbay is issingmay",
         "$0 isksbay are issingmay"
     ],
-    "key\u0004Control": [ null, "OntrolCAY" ],
+    "key\u0004Control": [null, "OntrolCAY"],
     "disk-non-rotational\u0004$0 disk is missing": [
         "disk-non-rotational\u0004$0 disk is missing",
         "$0 isksBAY is issingMAY",
@@ -22,13 +24,14 @@ var pig_latin = {
 };
 
 var ru = {
-    "": { "language": "ru", "plural-forms":
+    "": {
+        language: "ru", "plural-forms":
         function(n) {
             var plural = (n % 10 == 1 && n % 100 != 11 ? 0 : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? 1 : 2);
             return plural;
         }
     },
-    "$0 bit": [ "$0 bits", "$0 бит", "$0 бита", "$0 бит" ]
+    "$0 bit": ["$0 bits", "$0 бит", "$0 бита", "$0 бит"]
 };
 
 QUnit.test("public api", function (assert) {
@@ -146,8 +149,8 @@ QUnit.test("translate glade", function (assert) {
     cockpit.locale(null);
     cockpit.locale(pig_latin);
 
-    var div = $("<div><span translatable='yes' id='translatable-glade'>Control</span>" +
-                "<span translatable='yes' context='key' id='translatable-glade-context'>Control</span></div>");
+    var div = $("<div><span translate='yes' id='translatable-glade'>Control</span>" +
+                "<span translate='yes' context='key' id='translatable-glade-context'>Control</span></div>");
 
     $("#translations").empty()
             .append(div);

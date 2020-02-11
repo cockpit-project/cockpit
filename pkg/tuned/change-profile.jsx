@@ -41,11 +41,11 @@ class TunedDialogProfile extends React.Component {
         if (this.props.recommended)
             recommended = <span className="badge pull-right">{ _("recommended") }</span>;
         return (
-            <div className={ classes } key={ this.props.name } onClick={ this.props.click }>
+            <button className={ classes } key={ this.props.name } onClick={ this.props.click }>
                 {recommended}
                 <p>{ this.props.title }</p>
                 <small>{ this.props.description }</small>
-            </div>
+            </button>
         );
     }
 }
@@ -106,31 +106,3 @@ TunedDialogBody.propTypes = {
     change_selected: PropTypes.func.isRequired,
     profiles: PropTypes.array.isRequired,
 };
-
-export class TunedLink extends React.Component {
-    render() {
-        var self = this;
-
-        var text = self.props.active;
-        var disabled = false;
-
-        if (self.props.failed) {
-            text = _("tuned-failure", "error");
-            disabled = true;
-        } else if (self.props.state != "running") {
-            text = _("tuned-not-running", "none");
-        }
-
-        if (self.props.state == "not-installed")
-            disabled = true;
-
-        var opts = { };
-        var classes = "action-trigger";
-        if (disabled) {
-            opts['disabled'] = 'disabled';
-            classes += " disabled";
-        }
-
-        return <a tabIndex="0" className={ classes } {...opts}>{ text }</a>;
-    }
-}

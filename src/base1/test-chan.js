@@ -35,20 +35,20 @@ function MockPeer() {
             if (command.payload == "echo") {
                 echos[command.channel] = true;
                 self.send(null, JSON.stringify({
-                    "command": "ready",
-                    "channel": command.channel
+                    command: "ready",
+                    channel: command.channel
                 }));
             } else if (command.payload == "null") {
                 nulls[command.channel] = true;
                 self.send(null, JSON.stringify({
-                    "command": "ready",
-                    "channel": command.channel
+                    command: "ready",
+                    channel: command.channel
                 }));
             } else {
                 self.send(null, JSON.stringify({
-                    "command": "close",
-                    "channel": command.channel,
-                    "problem": "not-supported",
+                    command: "close",
+                    channel: command.channel,
+                    problem: "not-supported",
                 }));
             }
         } else if (command.command == "close") {
@@ -110,17 +110,17 @@ function MockWebSocket(url, protocol) {
         if (this.readyState > 1)
             throw Error("WebSocket.close() called on a closed WebSocket" + this.readyState + " " + code + reason);
         this.readyState = 3;
-        this.onclose({ "name": "close", "code": code || 1000, "reason": reason, "wasClean": true });
+        this.onclose({ name: "close", code: code || 1000, reason: reason, wasClean: true });
     };
 
     /* Instantiate the global mock peer */
-    var sending = [ ];
+    var sending = [];
     mock.send = function(channel, payload) {
         if (!channel)
             channel = "";
         var event = {
-            "name": "message",
-            "data": channel.toString() + "\n" + payload
+            name: "message",
+            data: channel.toString() + "\n" + payload
         };
         sending.push(event);
         window.setTimeout(function() {
@@ -141,25 +141,25 @@ function MockWebSocket(url, protocol) {
     window.setTimeout(function() {
         ws.readyState = 1;
         $(mock).triggerHandler("open");
-        ws.onopen({ "name": "open" });
+        ws.onopen({ name: "open" });
         var init = {
-            "command": "init",
-            "version": 1,
+            command: "init",
+            version: 1,
             "channel-seed": "test",
             "csrf-token": "the-csrf-token",
-            "user": {
-                "user": "scruffy",
-                "name": "Scruffy the Janitor"
+            user: {
+                user: "scruffy",
+                name: "Scruffy the Janitor"
             },
-            "system": {
-                "version": "zero.point.zero",
-                "build": "nasty stuff",
+            system: {
+                version: "zero.point.zero",
+                build: "nasty stuff",
             }
         };
         if (force_default_host)
-            init["host"] = force_default_host;
+            init.host = force_default_host;
         force_default_host = null;
-        ws.onmessage({ "data": "\n" + JSON.stringify(init) });
+        ws.onmessage({ data: "\n" + JSON.stringify(init) });
     }, 5);
 }
 
@@ -190,7 +190,7 @@ function check_transport (assert, base_url, application, socket, url_root) {
 }
 
 QUnit.test("public api", function (assert) {
-    var channel = cockpit.channel({ "host": "host.example.com" });
+    var channel = cockpit.channel({ host: "host.example.com" });
     assert.equal(typeof channel, "object", "cockpit.channel() constructor");
     assert.equal(channel.options.host, "host.example.com", "channel.options is dict");
     assert.ok(channel.id !== undefined, "channel.id is a field");
@@ -222,10 +222,10 @@ QUnit.test("public api", function (assert) {
 });
 
 QUnit.test("open channel", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(8);
 
-    var channel = cockpit.channel({ "host": "scruffy" });
+    var channel = cockpit.channel({ host: "scruffy" });
     var is_inited = false;
     $(mock_peer).on("open", function(event) {
         assert.ok(true, "websocket connected");
@@ -248,11 +248,11 @@ QUnit.test("open channel", function (assert) {
 });
 
 QUnit.test("multiple", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(1);
 
-    var channel = cockpit.channel({ "host": "scruffy" });
-    var channelb = cockpit.channel({ "host": "amy" });
+    var channel = cockpit.channel({ host: "scruffy" });
+    var channelb = cockpit.channel({ host: "amy" });
 
     $(mock_peer).on("recv", function(event) {
         $(mock_peer).off("recv");
@@ -262,7 +262,7 @@ QUnit.test("multiple", function (assert) {
 });
 
 QUnit.test("open no host", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(3);
 
     var channel = cockpit.channel({ });
@@ -280,7 +280,7 @@ QUnit.test("open no host", function (assert) {
 });
 
 QUnit.test("open auto host", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(3);
 
     force_default_host = "planetexpress";
@@ -299,7 +299,7 @@ QUnit.test("open auto host", function (assert) {
 });
 
 QUnit.test("send message", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(2);
 
     var channel = cockpit.channel({ });
@@ -317,7 +317,7 @@ QUnit.test("send message", function (assert) {
 });
 
 QUnit.test("queue messages", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(1);
 
     var sentence = [];
@@ -338,7 +338,7 @@ QUnit.test("queue messages", function (assert) {
 });
 
 QUnit.test("receive message", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(1);
 
     $(mock_peer).on("recv", function(event, chan, payload) {
@@ -357,7 +357,7 @@ QUnit.test("receive message", function (assert) {
 });
 
 QUnit.test("close channel", function (assert) {
-    let done = assert.async(2);
+    const done = assert.async(2);
     assert.expect(4);
 
     $(mock_peer).on("recv", function(event, chan, payload) {
@@ -382,7 +382,7 @@ QUnit.test("close channel", function (assert) {
 });
 
 QUnit.test("close early", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(3);
 
     var channel = cockpit.channel({ });
@@ -396,7 +396,7 @@ QUnit.test("close early", function (assert) {
 });
 
 QUnit.test("close problem", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(5);
 
     $(mock_peer).on("recv", function(event, chan, payload) {
@@ -404,7 +404,7 @@ QUnit.test("close problem", function (assert) {
         if (cmd.command == "init") {
             return;
         } else if (cmd.command == "open") {
-            channel.close({ "problem": "problem" });
+            channel.close({ problem: "problem" });
             assert.strictEqual(channel.valid, false, "no longer valid");
             return;
         }
@@ -420,7 +420,7 @@ QUnit.test("close problem", function (assert) {
 });
 
 QUnit.test("close problem string", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(5);
 
     var channel = cockpit.channel({ });
@@ -444,7 +444,7 @@ QUnit.test("close problem string", function (assert) {
 });
 
 QUnit.test("close peer", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(5);
 
     $(mock_peer).on("recv", function(event, chan, payload) {
@@ -452,10 +452,10 @@ QUnit.test("close peer", function (assert) {
         if (msg.command == "init")
             return;
         var cmd = {
-            "command": "close",
-            "channel": channel.id,
-            "problem" : "marmalade",
-            "extra": 5
+            command: "close",
+            channel: channel.id,
+            problem : "marmalade",
+            extra: 5
         };
         mock_peer.send("", JSON.stringify(cmd));
     });
@@ -474,7 +474,7 @@ QUnit.test("close peer", function (assert) {
 });
 
 QUnit.test("close socket", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(4);
 
     var channel = cockpit.channel({ });
@@ -498,10 +498,10 @@ QUnit.test("close socket", function (assert) {
 });
 
 QUnit.test("wait ready", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(5);
 
-    var channel = cockpit.channel({ "payload": "echo" });
+    var channel = cockpit.channel({ payload: "echo" });
     channel.wait().then(function(options) {
         assert.ok(true, "channel is ready");
         assert.equal(typeof options, "object", "wait options");
@@ -517,10 +517,10 @@ QUnit.test("wait ready", function (assert) {
 });
 
 QUnit.test("wait close", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(6);
 
-    var channel = cockpit.channel({ "payload": "unsupported" });
+    var channel = cockpit.channel({ payload: "unsupported" });
     channel.wait().then(function() {
         assert.ok(false, "should not succeed");
     }, function(options) {
@@ -537,10 +537,10 @@ QUnit.test("wait close", function (assert) {
 });
 
 QUnit.test("wait callback", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(5);
 
-    var channel = cockpit.channel({ "payload": "unsupported" });
+    var channel = cockpit.channel({ payload: "unsupported" });
     channel.wait(function(options) {
         assert.equal(typeof options, "object", "wait options");
         assert.ok(!!options, "wait options not null");
@@ -553,7 +553,7 @@ QUnit.test("wait callback", function (assert) {
 });
 
 QUnit.test("logout", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     $(mock_peer).on("recv", function(event, chan, payload) {
         var cmd = JSON.parse(payload);
         if (cmd.command == "logout") {
@@ -562,8 +562,8 @@ QUnit.test("logout", function (assert) {
         }
     });
 
-    var channel = cockpit.channel({ "payload": "echo" });
-    var channelb = cockpit.channel({ "payload": "echo" });
+    var channel = cockpit.channel({ payload: "echo" });
+    var channelb = cockpit.channel({ payload: "echo" });
 
     $(channel).on("close", function(event, options) {
         assert.equal(options.problem, "disconnected", "received reason");
@@ -585,7 +585,7 @@ QUnit.test("logout", function (assert) {
 });
 
 QUnit.test("droppriv", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(1);
     $(mock_peer).on("recv", function(event, chan, payload) {
         var cmd = JSON.parse(payload);
@@ -599,7 +599,7 @@ QUnit.test("droppriv", function (assert) {
 });
 
 QUnit.test("info", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(4);
 
     var info_changed = false;
@@ -620,12 +620,12 @@ QUnit.test("info", function (assert) {
         }
     });
 
-    var channel = cockpit.channel({ "host": "scruffy" });
+    var channel = cockpit.channel({ host: "scruffy" });
     assert.ok(channel);
 });
 
 QUnit.test("send after close", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(1);
 
     console_ignore_log(/sending message on closed.*/);
@@ -647,15 +647,15 @@ QUnit.test("send after close", function (assert) {
 });
 
 QUnit.test("ignore other commands", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(1);
 
-    var channel = cockpit.channel({ "payload": "echo" });
+    var channel = cockpit.channel({ payload: "echo" });
 
     console_ignore_log(/unhandled control message.*/);
 
-    mock_peer.send(0, JSON.stringify({ "command": "ping" }));
-    mock_peer.send(0, JSON.stringify({ "command": "unexpected" }));
+    mock_peer.send(0, JSON.stringify({ command: "ping" }));
+    mock_peer.send(0, JSON.stringify({ command: "unexpected" }));
 
     window.setTimeout(function() {
         assert.ok(channel.valid, "other messages didn't screw up channel");
@@ -664,7 +664,7 @@ QUnit.test("ignore other commands", function (assert) {
 });
 
 QUnit.test("filter message in", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(14);
 
     var filtered = 0;
@@ -685,7 +685,7 @@ QUnit.test("filter message in", function (assert) {
     });
 
     var received = 0;
-    var channel = cockpit.channel({ "payload": "echo" });
+    var channel = cockpit.channel({ payload: "echo" });
     $(channel).on("message", function(data) {
         received += 1;
 
@@ -704,7 +704,7 @@ QUnit.test("filter message in", function (assert) {
 });
 
 QUnit.test("filter message out", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(10);
 
     var filtered = 0;
@@ -732,14 +732,14 @@ QUnit.test("filter message out", function (assert) {
         }
     }, true);
 
-    var channel = cockpit.channel({ "payload": "null" });
+    var channel = cockpit.channel({ payload: "null" });
     channel.send("one");
     channel.send("two");
     channel.send("three");
 });
 
 QUnit.test("inject message out", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(4);
 
     var ret = cockpit.transport.inject("bree\nyellow");
@@ -767,15 +767,15 @@ QUnit.test("inject message out", function (assert) {
 });
 
 QUnit.test("inject message in", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(3);
 
-    var channel = cockpit.channel({ "payload": "null" });
+    var channel = cockpit.channel({ payload: "null" });
     channel.addEventListener("control", function(ev, control) {
         var payload, ret;
 
         if (control.command == "ready") {
-            payload = JSON.stringify({ "command": "blah", "blah": "marmalade", "channel": channel.id });
+            payload = JSON.stringify({ command: "blah", blah: "marmalade", channel: channel.id });
             ret = cockpit.transport.inject("\n" + payload, false);
             assert.equal(ret, true, "returned true");
         } else {
@@ -788,7 +788,7 @@ QUnit.test("inject message in", function (assert) {
 });
 
 QUnit.test("transport options", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(3);
 
     var channel;
@@ -796,17 +796,17 @@ QUnit.test("transport options", function (assert) {
         if (chan) {
             assert.equal(typeof cockpit.transport.options, "object", "is an object");
             assert.deepEqual(cockpit.transport.options, {
-                "command": "init",
-                "version": 1,
+                command: "init",
+                version: 1,
                 "channel-seed": "test",
                 "csrf-token": "the-csrf-token",
-                "user": {
-                    "user": "scruffy",
-                    "name": "Scruffy the Janitor"
+                user: {
+                    user: "scruffy",
+                    name: "Scruffy the Janitor"
                 },
-                "system": {
-                    "version": "zero.point.zero",
-                    "build": "nasty stuff",
+                system: {
+                    version: "zero.point.zero",
+                    build: "nasty stuff",
                 }
             }, "is correct");
             assert.equal(cockpit.transport.csrf_token, "the-csrf-token", "got csrf token");

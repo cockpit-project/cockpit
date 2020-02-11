@@ -1,7 +1,7 @@
 /* global cockpit, QUnit */
 
 QUnit.test("simple process", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(2);
     cockpit.spawn(["/bin/sh", "-c", "echo hi"])
             .done(function(resp) {
@@ -14,7 +14,7 @@ QUnit.test("simple process", function (assert) {
 });
 
 QUnit.test("path", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(1);
     cockpit.spawn(["true"])
             .always(function() {
@@ -24,7 +24,7 @@ QUnit.test("path", function (assert) {
 });
 
 QUnit.test("directory", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(2);
     cockpit.spawn(["pwd"], { directory: "/tmp" })
             .done(function(resp) {
@@ -37,7 +37,7 @@ QUnit.test("directory", function (assert) {
 });
 
 QUnit.test("error log", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(2);
     cockpit.spawn(["/bin/sh", "-c", "echo hi; echo yo >&2"])
             .done(function(resp) {
@@ -50,7 +50,7 @@ QUnit.test("error log", function (assert) {
 });
 
 QUnit.test("error output", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(2);
     cockpit.spawn(["/bin/sh", "-c", "echo hi; echo yo >&2"], { err: "out" })
             .done(function(resp) {
@@ -63,7 +63,7 @@ QUnit.test("error output", function (assert) {
 });
 
 QUnit.test("error message", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(3);
     cockpit.spawn(["/bin/sh", "-c", "echo hi; echo yo >&2"], { err: "message" })
             .done(function(resp, message) {
@@ -77,7 +77,7 @@ QUnit.test("error message", function (assert) {
 });
 
 QUnit.test("error message fail", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(3);
     cockpit.spawn(["/bin/sh", "-c", "echo hi; echo yo >&2; exit 2"], { err: "message" })
             .fail(function(ex, resp) {
@@ -91,7 +91,7 @@ QUnit.test("error message fail", function (assert) {
 });
 
 QUnit.test("write eof read", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(2);
 
     var proc = cockpit.spawn(["/usr/bin/sort"]);
@@ -110,7 +110,7 @@ QUnit.test("write eof read", function (assert) {
 });
 
 QUnit.test("stream", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(4);
 
     var streamed = 0;
@@ -136,7 +136,7 @@ QUnit.test("stream", function (assert) {
 });
 
 QUnit.test("stream packets", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(3);
 
     var streamed = "";
@@ -159,7 +159,7 @@ QUnit.test("stream packets", function (assert) {
 });
 
 QUnit.test("stream replaced", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(3);
 
     var first = false;
@@ -185,7 +185,7 @@ QUnit.test("stream replaced", function (assert) {
 });
 
 QUnit.test("stream partial", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(3);
 
     var streamed = "";
@@ -209,7 +209,7 @@ QUnit.test("stream partial", function (assert) {
 });
 
 QUnit.test("stream partial binary", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(3);
 
     var streamed = [];
@@ -233,12 +233,12 @@ QUnit.test("stream partial binary", function (assert) {
 });
 
 QUnit.test("script with input", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(2);
 
     var script = "#!/bin/sh\n\n# Test\n/usr/bin/sort\necho $2\necho $1";
 
-    var proc = cockpit.script(script, [ "5", "4" ]);
+    var proc = cockpit.script(script, ["5", "4"]);
 
     proc.done(function(resp) {
         assert.equal(resp, "1\n2\n3\n4\n5\n", "output matched");
@@ -254,12 +254,12 @@ QUnit.test("script with input", function (assert) {
 });
 
 QUnit.test("script with options", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(2);
 
     var script = "#!/bin/sh\n\n# Test\n/usr/bin/sort\necho $2\necho $1 >&2";
 
-    var proc = cockpit.script(script, [ "5", "4" ], { err: "out" });
+    var proc = cockpit.script(script, ["5", "4"], { err: "out" });
 
     proc.done(function(resp) {
         assert.equal(resp, "1\n2\n3\n4\n5\n", "output matched");
@@ -275,7 +275,7 @@ QUnit.test("script with options", function (assert) {
 });
 
 QUnit.test("script without args", function (assert) {
-    let done = assert.async();
+    const done = assert.async();
     assert.expect(2);
 
     var script = "#!/bin/sh\n\n# Test\n/usr/bin/sort >&2";

@@ -28,9 +28,10 @@ const _ = cockpit.gettext;
 /*
  * A context menu component that contains copy and paste fields.
  *
- * It requires two properties:
+ * It requires three properties:
  *  - getText, method which is called when copy is clicked
  *  - setText, method which is called when paste is clicked
+ *  - parentId, area in which it listens to left button clicks
  */
 export class ContextMenu extends React.Component {
     constructor() {
@@ -41,12 +42,14 @@ export class ContextMenu extends React.Component {
     }
 
     componentDidMount() {
-        document.addEventListener('contextmenu', this._handleContextMenu);
+        const parent = document.getElementById(this.props.parentId);
+        parent.addEventListener('contextmenu', this._handleContextMenu);
         document.addEventListener('click', this._handleClick);
     }
 
     componentWillUnmount() {
-        document.removeEventListener('contextmenu', this._handleContextMenu);
+        const parent = document.getElementById(this.props.parentId);
+        parent.removeEventListener('contextmenu', this._handleContextMenu);
         document.removeEventListener('click', this._handleClick);
     }
 
@@ -96,19 +99,20 @@ export class ContextMenu extends React.Component {
     render() {
         return this.state.visible &&
             <div ref={ ref => { this.root = ref } } className="contextMenu">
-                <div className="contextMenuOption" onClick={this.props.getText}>
+                <button className="contextMenuOption" onClick={this.props.getText}>
                     <div className="contextMenuName"> { _("Copy") } </div>
                     <div className="contextMenuShortcut">{ _("Ctrl+Insert") }</div>
-                </div>
-                <div className="contextMenuOption" onClick={this.props.setText} >
+                </button>
+                <button className="contextMenuOption" onClick={this.props.setText}>
                     <div className="contextMenuName"> { _("Paste") } </div>
                     <div className="contextMenuShortcut">{ _("Shift+Insert") }</div>
-                </div>
+                </button>
             </div>;
     }
 }
 
 ContextMenu.propTypes = {
     getText: PropTypes.func.isRequired,
-    setText: PropTypes.func.isRequired
+    setText: PropTypes.func.isRequired,
+    parentId: PropTypes.string.isRequired
 };

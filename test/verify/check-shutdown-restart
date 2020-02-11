@@ -21,6 +21,7 @@ import time
 
 import parent
 from testlib import *
+from hacklib import *
 
 
 class TestShutdownRestart(MachineCase):
@@ -30,9 +31,11 @@ class TestShutdownRestart(MachineCase):
     }
 
     def setUp(self):
-        MachineCase.setUp(self)
+        super().setUp()
         self.machine.execute("hostnamectl set-hostname machine1")
         self.machines['machine2'].execute("hostnamectl set-hostname machine2")
+        HACK_disable_problematic_preloads(self.machine)
+        HACK_disable_problematic_preloads(self.machines['machine2'])
 
     def testNoAdminGroup(self):
         m = self.machine
@@ -55,9 +58,8 @@ class TestShutdownRestart(MachineCase):
         b.click('#login-button')
         b.expect_load()
         b.enter_page("/system")
-        b.wait_present("#shutdown-group button[data-action=restart].disabled")
-        b.wait_present("#shutdown-group button.dropdown-toggle.disabled")
-        b.wait_not_present("#shutdown-group button:not(.disabled)")
+        b.wait_present("#restart-button[disabled]")
+        b.wait_present("#shutdown-group[disabled]")
 
         b.logout()
 
@@ -69,7 +71,7 @@ class TestShutdownRestart(MachineCase):
         time.sleep(2)
 
         # shutdown button should be enabled and working
-        b.click("#shutdown-group button[data-action=restart][data-stable=yes]")
+        b.click("#restart-button")
         b.wait_popup("shutdown-dialog")
         b.wait_in_text("#shutdown-dialog .btn-danger", 'Restart')
         b.click("#shutdown-dialog .dropdown button")
@@ -93,7 +95,7 @@ class TestShutdownRestart(MachineCase):
         self.login_and_go("/system")
 
         # Reboot
-        b.click("#shutdown-group button[data-action=restart]")
+        b.click("#restart-button")
         b.wait_popup("shutdown-dialog")
         b.wait_in_text("#shutdown-dialog .btn-danger", 'Restart')
         b.click("#shutdown-dialog .dropdown button")
@@ -117,44 +119,43 @@ class TestShutdownRestart(MachineCase):
         m2.start_cockpit()
         b2.login_and_go("/system")
 
-        if m.image not in ["fedora-atomic"]:
-            # Add machine with static IP to m2
-            b2.switch_to_top()
-            b2.go("/@10.111.113.1")
-            b2.wait_visible("#machine-troubleshoot")
-            b2.click('#machine-troubleshoot')
-            b2.wait_popup('troubleshoot-dialog')
-            b2.wait_text('#troubleshoot-dialog .btn-primary', "Add")
-            b2.click('#troubleshoot-dialog .btn-primary')
-            b2.wait_in_text('#troubleshoot-dialog', "Fingerprint")
-            b2.click('#troubleshoot-dialog .btn-primary')
-            b2.wait_popdown('troubleshoot-dialog')
-            b2.enter_page("/system", host="10.111.113.1")
-            b2.wait_text("#system_information_hostname_button", "machine1")
+        # Add machine with static IP to m2
+        b2.switch_to_top()
+        b2.go("/@10.111.113.1")
+        b2.wait_visible("#machine-troubleshoot")
+        b2.click('#machine-troubleshoot')
+        b2.wait_popup('troubleshoot-dialog')
+        b2.wait_text('#troubleshoot-dialog .btn-primary', "Add")
+        b2.click('#troubleshoot-dialog .btn-primary')
+        b2.wait_in_text('#troubleshoot-dialog', "Fingerprint")
+        b2.click('#troubleshoot-dialog .btn-primary')
+        b2.wait_popdown('troubleshoot-dialog')
+        b2.enter_page("/system", host="10.111.113.1")
+        b2.wait_text("#system_information_hostname_text", "machine1")
 
-            # Check auto reconnect on restart
-            b2.click("#shutdown-group button[data-action=restart][data-stable=yes]")
-            b2.wait_popup("shutdown-dialog")
-            b2.wait_in_text("#shutdown-dialog .btn-danger", 'Restart')
-            b2.click("#shutdown-dialog .dropdown button")
-            b2.click("a:contains('No Delay')")
-            b2.click("#shutdown-dialog .btn-danger")
-            b2.switch_to_top()
+        # Check auto reconnect on restart
+        b2.click("#restart-button")
+        b2.wait_popup("shutdown-dialog")
+        b2.wait_in_text("#shutdown-dialog .btn-danger", 'Restart')
+        b2.click("#shutdown-dialog .dropdown button")
+        b2.click("a:contains('No Delay')")
+        b2.click("#shutdown-dialog .btn-danger")
+        b2.switch_to_top()
 
-            b2.wait_visible(".curtains-ct")
-            b2.wait_visible(".curtains-ct .spinner")
-            b2.wait_in_text(".curtains-ct h1", "restarting")
+        b2.wait_visible(".curtains-ct")
+        b2.wait_visible(".curtains-ct .spinner")
+        b2.wait_in_text(".curtains-ct h1", "restarting")
 
-            m.wait_reboot()
+        m.wait_reboot()
 
-            b2.wait_not_visible(".curtains-ct")
-            b2.enter_page("/system", host="10.111.113.1", reconnect=False)
+        b2.wait_not_visible(".curtains-ct")
+        b2.enter_page("/system", host="10.111.113.1", reconnect=False)
 
         # Power off with invalid date
         self.login_and_go("/system")
         b.enter_page("/system")
-        b.click("#shutdown-group span.caret")
-        b.click("#shutdown-group a:contains('Shut Down')")
+        b.click("#shutdown-group")  # caret
+        b.click("#shutdown")
         b.wait_popup("shutdown-dialog")
         b.click("#shutdown-dialog .dropdown button")
         b.click("a:contains('Specific Time')")

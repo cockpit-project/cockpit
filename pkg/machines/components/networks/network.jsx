@@ -26,10 +26,11 @@ import {
     networkId
 } from '../../helpers.js';
 import { NetworkOverviewTab } from './networkOverviewTab.jsx';
-import { NetworkDelete } from './networkDelete.jsx';
+import { DeleteResource } from '../deleteResource.jsx';
 import {
     networkActivate,
-    networkDeactivate
+    networkDeactivate,
+    networkUndefine
 } from '../../libvirt-dbus.js';
 
 import cockpit from 'cockpit';
@@ -53,14 +54,14 @@ export class Network extends React.Component {
                 { rephraseUI('networkForward', network.forward ? network.forward.mode : "none") }
             </span>);
         const state = (
-            <React.Fragment>
+            <>
                 { resourceHasError[network.id] ? <span className='pficon-warning-triangle-o machines-status-alert' /> : null }
                 <span id={`${idPrefix}-state`}>
                     { network.active ? _("active") : _("inactive") }
                 </span>
-            </React.Fragment>);
+            </>);
         const cols = [
-            { name, 'header': true },
+            { name, header: true },
             device,
             rephraseUI('connections', network.connectionName),
             forwarding,
@@ -73,14 +74,14 @@ export class Network extends React.Component {
             </div>
         );
 
-        let tabRenderers = [
+        const tabRenderers = [
             {
                 name: overviewTabName,
                 renderer: NetworkOverviewTab,
                 data: { network, dispatch, }
             },
         ];
-        let extraClasses = [];
+        const extraClasses = [];
 
         if (resourceHasError[network.id])
             extraClasses.push('error');
@@ -136,9 +137,17 @@ class NetworkActions extends React.Component {
     render() {
         const network = this.props.network;
         const id = networkId(network.name, network.connectionName);
+        const deleteHandler = (network) => {
+            if (network.active) {
+                return networkDeactivate(network.connectionName, network.id)
+                        .then(() => networkUndefine(network.connectionName, network.id));
+            } else {
+                return networkUndefine(network.connectionName, network.id);
+            }
+        };
 
         return (
-            <React.Fragment>
+            <>
                 { network.active &&
                 <Button id={`deactivate-${id}`} onClick={this.onDeactivate}>
                     {_("Deactivate")}
@@ -148,8 +157,13 @@ class NetworkActions extends React.Component {
                     {_("Activate")}
                 </Button>
                 }
-                <NetworkDelete network={network} />
-            </React.Fragment>
+                <DeleteResource objectType="Network"
+                    objectId={id}
+                    objectName={network.name}
+                    deleteHandler={() => deleteHandler(network)}
+                    overlayText={_("Non-persistent network cannot be deleted. It ceases to exists when it's deactivated.")}
+                    disabled={!network.persistent} />
+            </>
         );
     }
 }

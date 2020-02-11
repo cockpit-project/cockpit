@@ -19,32 +19,38 @@
 
 import React from 'react';
 
-import * as Select from 'cockpit-components-select.jsx';
 import { LIBVIRT_SYSTEM_CONNECTION, LIBVIRT_SESSION_CONNECTION } from '../helpers.js';
 import cockpit from 'cockpit';
 
 const _ = cockpit.gettext;
 
-export const MachinesConnectionSelector = ({ onValueChanged, connectionName, loggedUser, id }) => {
-    let connectionUris = [
-        <Select.SelectEntry data={LIBVIRT_SYSTEM_CONNECTION}
-                            key={LIBVIRT_SYSTEM_CONNECTION}>{_("QEMU/KVM System connection")}
-        </Select.SelectEntry>,
-    ];
-
-    // Root user should not be presented the session connection
-    if (loggedUser.id != 0)
-        connectionUris.push(
-            <Select.SelectEntry data={LIBVIRT_SESSION_CONNECTION}
-                key={LIBVIRT_SESSION_CONNECTION}>{_("QEMU/KVM User connection")}
-            </Select.SelectEntry>
-        );
+export const MachinesConnectionSelector = ({ onValueChanged, loggedUser, connectionName, id }) => {
+    if (loggedUser.id == 0)
+        return null;
 
     return (
-        <Select.Select id={id}
-                       initial={connectionName}
-                       onChange={value => onValueChanged('connectionName', value)}>
-            {connectionUris}
-        </Select.Select>
+        <>
+            <label className="control-label" htmlFor={id}>
+                {_("Connection")}
+            </label>
+            <fieldset className='form-inline' id={id}>
+                <div className='radio'>
+                    <label>
+                        <input type="radio"
+                               checked={connectionName === LIBVIRT_SYSTEM_CONNECTION}
+                               onChange={() => onValueChanged('connectionName', LIBVIRT_SYSTEM_CONNECTION)}
+                               className={connectionName === LIBVIRT_SYSTEM_CONNECTION ? "active" : ''} />
+                        {_("System")}
+                    </label>
+                    <label>
+                        <input type="radio"
+                               checked={connectionName == LIBVIRT_SESSION_CONNECTION}
+                               onChange={() => onValueChanged('connectionName', LIBVIRT_SESSION_CONNECTION)}
+                               className={connectionName == LIBVIRT_SESSION_CONNECTION ? "active" : ''} />
+                        {_("Session")}
+                    </label>
+                </div>
+            </fieldset>
+        </>
     );
 };

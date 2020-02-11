@@ -55,7 +55,7 @@ class Dropdown extends React.Component {
                     <span>{ this.props.actions[0].label }</span>
                 </button>
                 <button className="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                    <div className="caret" />
+                    <i className="fa fa-caret-down pf-c-context-selector__toggle-icon" aria-hidden="true" />
                 </button>
                 <ul className="dropdown-menu dropdown-menu-right" role="menu">
                     {
@@ -73,7 +73,7 @@ class Dropdown extends React.Component {
     }
 }
 Dropdown.defaultProps = {
-    actions: [ { label: '' } ]
+    actions: [{ label: '' }]
 };
 
 export class ContainerHeader extends React.Component {
@@ -103,7 +103,7 @@ export class ContainerHeader extends React.Component {
 
     render() {
         return (
-            <React.Fragment>
+            <>
                 <Select.Select id="containers-containers-filter" initial={this.state.filter} onChange={this.handleFilterChange}>
                     <Select.SelectEntry data='all'>{_("Everything")}</Select.SelectEntry>
                     <Select.SelectEntry data='running'>{_("Images and running containers")}</Select.SelectEntry>
@@ -114,7 +114,7 @@ export class ContainerHeader extends React.Component {
                        className="form-control"
                        placeholder={_("Type to filter…")}
                        onChange={this.handleFilterTextChange} />
-            </React.Fragment>
+            </>
         );
     }
 }
@@ -123,7 +123,7 @@ class ContainerDetails extends React.Component {
     render() {
         var container = this.props.container;
         return (
-            <React.Fragment>
+            <>
                 <dl>
                     <dt>{_("Id")}      </dt> <dd>{ container.Id }</dd>
                     <dt>{_("Created")} </dt>
@@ -132,7 +132,7 @@ class ContainerDetails extends React.Component {
                     <dt>{_("Command")}</dt> <dd>{ util.render_container_cmdline(container) }</dd>
                     <dt>{_("State")}   </dt> <dd>{ util.render_container_state(container.State) }</dd>
                 </dl>
-            </React.Fragment>
+            </>
         );
     }
 }
@@ -178,7 +178,7 @@ export class ContainerList extends React.Component {
     }
 
     navigateToContainer(container) {
-        cockpit.location.go([ container.Id ]);
+        cockpit.location.go([container.Id]);
     }
 
     startContainer(container) {
@@ -318,7 +318,7 @@ export class ContainerList extends React.Component {
             });
 
             var actions = (
-                <React.Fragment>
+                <>
                     <button className="btn btn-danger btn-delete pficon pficon-delete"
                             onClick={ this.deleteContainer.bind(this, container) } />
                     <button className="btn btn-default"
@@ -328,7 +328,7 @@ export class ContainerList extends React.Component {
                         {_("Commit")}
                     </button>
                     <Dropdown actions={startStopActions} />
-                </React.Fragment>
+                </>
             );
 
             var tabs = [
@@ -403,7 +403,7 @@ class ImageDetails extends React.Component {
         var author = (image.Labels && image.Labels.maintainer) || image.Author;
 
         return (
-            <React.Fragment>
+            <>
                 <dl className='listing-ct-body'>
                     <dt>{_("Id")}</dt>         <dd title={image.Id}>{ docker.truncate_id(image.Id) }</dd>
                     <dt>{_("Tags")}</dt>       <dd>{ repotags.join(" ") }</dd>
@@ -413,7 +413,7 @@ class ImageDetails extends React.Component {
                     <dt>{_("Author")}</dt>     <dd>{ author }</dd>
                     <dt>{_("Ports")}</dt>      <dd>{ ports.join(', ') }</dd>
                 </dl>
-            </React.Fragment>
+            </>
         );
     }
 }
@@ -433,8 +433,8 @@ class ImageSecurity extends React.Component {
         } else if (info.vulnerabilities.length === 0) {
             text = _("The scan from $time ($type) found no vulnerabilities.");
         } else {
-            text = cockpit.ngettext('The scan from $time ($type) found one vulnerability:',
-                                    'The scan from $time ($type) found $count vulnerabilities:',
+            text = cockpit.ngettext("The scan from $time ($type) found $count vulnerability:",
+                                    "The scan from $time ($type) found $count vulnerabilities:",
                                     info.vulnerabilities.length);
 
             rows = info.vulnerabilities.map(function (vulnerability) {
@@ -534,7 +534,7 @@ export class ImageList extends React.Component {
     }
 
     navigateToImage(image) {
-        cockpit.location.go([ 'image', image.Id ]);
+        cockpit.location.go(['image', image.Id]);
     }
 
     handleSearchImageClick(event) {
@@ -611,7 +611,7 @@ export class ImageList extends React.Component {
                     <div>
                         <span className="pficon pficon-warning-triangle-o" />
                         &nbsp;
-                        { cockpit.format(cockpit.ngettext('1 Vulnerability', '$0 Vulnerabilities', count), count) }
+                        { cockpit.format(cockpit.ngettext("$0 Vulnerability", "$0 Vulnerabilities", count), count) }
                     </div>
                 );
         }
@@ -676,11 +676,15 @@ export class ImageList extends React.Component {
 
         var imageRows = filtered.map(this.renderRow, this);
 
-        var getNewImageAction = <a role="link" tabIndex="0" onClick={this.handleSearchImageClick} className="card-pf-link-with-icon pull-right">
-            <span className="pficon pficon-add-circle-o" />{_("Get new image")}
-        </a>;
+        var getNewImageAction = <div className="pull-right">
+            <button onClick={this.handleSearchImageClick} className="link-button">
+                <span className="pficon pficon-add-circle-o" />
+                {" "}
+                {_("Get new image")}
+            </button>
+        </div>;
 
-        var columnTitles = [ _("Name"), '', _("Created"), _("Size"), '' ];
+        var columnTitles = [_("Name"), '', _("Created"), _("Size"), ''];
 
         var pendingRows = this.state.pulling.map(function (job) {
             if (job.error)
@@ -697,7 +701,7 @@ export class ImageList extends React.Component {
                 );
             }
 
-            return <p className="status">{job.name}: {job.status} {detail}</p>;
+            return <p key={job.registry + job.name + job.tag} className="status">{job.registry}/{job.name}:{job.tag} - {job.status} {detail}</p>;
         });
 
         var emptyCaption;

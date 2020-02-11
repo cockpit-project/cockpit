@@ -69,11 +69,13 @@ export function init_overview (client) {
     var mem_series;
 
     var cpu_options = plot.plot_simple_template();
-    $.extend(cpu_options.yaxis, { tickFormatter: function(v) { return v.toFixed(0) },
-                                  max: 100
+    $.extend(cpu_options.yaxis, {
+        tickFormatter: function(v) { return v.toFixed(0) },
+        max: 100
     });
-    $.extend(cpu_options.grid, { hoverable: true,
-                                 autoHighlight: false
+    $.extend(cpu_options.grid, {
+        hoverable: true,
+        autoHighlight: false
     });
 
     var cpu_plot = new plot.Plot($("#containers-cpu-graph"), 300);
@@ -114,11 +116,13 @@ export function init_overview (client) {
     };
 
     var mem_options = plot.plot_simple_template();
-    $.extend(mem_options.yaxis, { ticks: plot.memory_ticks,
-                                  tickFormatter: plot.format_bytes_tick_no_unit
+    $.extend(mem_options.yaxis, {
+        ticks: plot.memory_ticks,
+        tickFormatter: plot.format_bytes_tick_no_unit
     });
-    $.extend(mem_options.grid, { hoverable: true,
-                                 autoHighlight: false
+    $.extend(mem_options.grid, {
+        hoverable: true,
+        autoHighlight: false
     });
     mem_options.setup_hook = function (flot) {
         var axes = flot.getAxes();
@@ -147,8 +151,10 @@ export function init_overview (client) {
     });
 
     ReactDOM.render(React.createElement(storage.OverviewBox,
-                                        { model: storage.get_storage_model(),
-                                          small: true }),
+                                        {
+                                            model: storage.get_storage_model(),
+                                            small: true
+                                        }),
                     $("#containers-storage-details")[0]);
 
     var commit = $('#container-commit-dialog')[0];
@@ -187,16 +193,18 @@ export function init_overview (client) {
             .find(".btn-primary")
             .on("click", function() {
                 var location = cockpit.location;
-                var run = { "Cmd": util.unquote_cmdline($(commit).find(".container-command")
-                        .val()) };
+                var run = {
+                    Cmd: util.unquote_cmdline($(commit).find(".container-command")
+                            .val())
+                };
                 var options = {
-                    "author": $(commit).find(".container-author")
+                    author: $(commit).find(".container-author")
                             .val()
                 };
                 var tag = $(commit).find(".container-tag")
                         .val();
                 if (tag)
-                    options["tag"] = tag;
+                    options.tag = tag;
                 var repository = $(commit).find(".container-repository")
                         .val();
                 client.commit($(commit).attr('data-container-id'), repository, options, run)
@@ -209,11 +217,11 @@ export function init_overview (client) {
             });
 
     function hide() {
-        $('#containers').hide();
+        $('#containers').prop("hidden", true);
     }
 
     function show() {
-        $('#containers').show();
+        $('#containers').prop("hidden", false);
         cpu_plot.resize();
         mem_plot.resize();
     }

@@ -66,16 +66,15 @@ cockpit_loopback_next_async (GSocketAddressEnumerator *enumerator,
                              gpointer user_data)
 {
   CockpitLoopback *self = COCKPIT_LOOPBACK (enumerator);
-  GSimpleAsyncResult *res;
+  GTask *res;
   GSocketAddress *address;
   GError *error = NULL;
 
   address = cockpit_loopback_next (enumerator, cancellable, &error);
   g_assert (error == NULL);
 
-  res = g_simple_async_result_new (G_OBJECT (self), callback, user_data, NULL);
-  g_simple_async_result_set_op_res_gpointer (res, address, address ? g_object_unref : NULL);
-  g_simple_async_result_complete_in_idle (res);
+  res = g_task_new (G_OBJECT (self), NULL, callback, user_data);
+  g_task_return_pointer (res, address, g_object_unref);
   g_object_unref (res);
 }
 
@@ -84,12 +83,9 @@ cockpit_loopback_next_finish (GSocketAddressEnumerator *enumerator,
                               GAsyncResult *result,
                               GError **error)
 {
-  GSocketAddress *address;
+  g_warn_if_fail (g_task_is_valid (result, enumerator));
 
-  address = g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (result));
-  if (address)
-    g_object_ref (address);
-  return address;
+  return g_task_propagate_pointer (G_TASK (result), error);
 }
 
 static void

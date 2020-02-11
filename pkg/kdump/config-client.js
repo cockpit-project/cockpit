@@ -26,7 +26,7 @@ export class ConfigFile {
     constructor(filename, superuser = false) {
         this.filename = filename;
         this._rawContent = undefined;
-        this._lines = [ ];
+        this._lines = [];
         this._originalSettings = { };
         this._dataAvailable = cockpit.defer();
         this.settings = { };
@@ -85,20 +85,20 @@ export class ConfigFile {
 
         this.settings = { };
         this._lines.forEach((line, index) => {
-            let trimmed = line.trim();
+            const trimmed = line.trim();
             // if the line is empty or only a comment, skip
             if (trimmed.indexOf("#") === 0 || trimmed.length === 0)
                 return;
 
             // we need to have a space between key and value
-            let separatorIndex = trimmed.indexOf(" ");
+            const separatorIndex = trimmed.indexOf(" ");
             if (separatorIndex === -1)
                 return;
-            let key = trimmed.substring(0, separatorIndex);
+            const key = trimmed.substring(0, separatorIndex);
             let value = trimmed.substring(separatorIndex + 1).trim();
 
             // value might have a comment at the end
-            let commentIndex = value.indexOf("#");
+            const commentIndex = value.indexOf("#");
             let comment;
             if (commentIndex !== -1) {
                 comment = value.substring(commentIndex).trim();
@@ -124,12 +124,12 @@ export class ConfigFile {
     /* generate the config file from raw text and settings
      */
     _generateConfig(settings) {
-        let lines = this._lines.slice(0);
-        let linesToDelete = [];
+        const lines = this._lines.slice(0);
+        const linesToDelete = [];
         // first find the settings lines that have been disabled/deleted
         Object.keys(this._originalSettings).forEach((key) => {
             if (!(key in settings) || !(key in settings && settings[key].value)) {
-                let origEntry = this._originalSettings[key];
+                const origEntry = this._originalSettings[key];
                 // if the line had a comment, keep it, otherwise delete
                 if (origEntry.comment !== undefined)
                     lines[origEntry.index] = "#" + origEntry.origLine;
@@ -140,7 +140,7 @@ export class ConfigFile {
 
         // we take the lines from our last read operation and modify them with the new settings
         Object.keys(settings).forEach((key) => {
-            let entry = settings[key];
+            const entry = settings[key];
             let line = key + " " + entry.value;
             if (entry.comment)
                 line = line + " " + entry.comment;
@@ -150,7 +150,7 @@ export class ConfigFile {
                 return;
             }
             // otherwise edit the old line
-            let origEntry = this._originalSettings[key];
+            const origEntry = this._originalSettings[key];
             lines[origEntry.index] = line;
         });
         // now delete the rows we want to delete

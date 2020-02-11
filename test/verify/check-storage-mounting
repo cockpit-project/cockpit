@@ -40,14 +40,8 @@ class TestStorage(StorageCase):
         m = self.machine
         b = self.browser
 
-        if not self.storaged_is_old_udisks:
-            mount_point_foo = "/run/foo"
-            mount_point_bar = "/run/bar"
-        else:
-            # We don't get to set the mountpoint with old UDisks so we
-            # expect UDisks default.  (XXX - I think this is Ubuntu specific.)
-            mount_point_foo = self.mount_root + "/admin/FILESYSTEM"
-            mount_point_bar = self.mount_root + "/admin/FILESYSTEM"
+        mount_point_foo = "/run/foo"
+        mount_point_bar = "/run/bar"
 
         self.login_and_go("/storage")
 
@@ -63,40 +57,34 @@ class TestStorage(StorageCase):
         self.dialog_wait_open()
         self.dialog_set_val("type", "ext4")
         self.dialog_set_val("name", "FILESYSTEM")
-        if not self.storaged_is_old_udisks:
-            self.dialog_set_val("mounting", "custom")
-            self.dialog_set_val("mount_point", mount_point_foo)
+        self.dialog_set_val("mount_point", "")
+        self.dialog_apply()
+        self.dialog_wait_error("mount_point", "Mount point cannot be empty")
+        self.dialog_set_val("mount_point", mount_point_foo)
         self.dialog_apply()
         self.dialog_wait_close()
         self.content_row_wait_in_col(1, 1, "ext4 File System")
         self.content_tab_wait_in_info(1, 1, "Name", "FILESYSTEM")
-        if not self.storaged_is_old_udisks:
-            self.wait_in_storaged_configuration(mount_point_foo)
+        self.wait_in_storaged_configuration(mount_point_foo)
 
-        if not self.storaged_is_old_udisks:
-            self.content_tab_wait_in_info(1, 1, "Mount Point", mount_point_foo)
-        self.content_tab_action(1, 1, "Mount")
-        self.content_tab_wait_in_info(1, 1, "Mounted At", mount_point_foo)
+        self.content_tab_wait_in_info(1, 1, "Mount Point", mount_point_foo)
 
-        self.content_tab_action(1, 1, "Unmount")
-        if not self.storaged_is_old_udisks:
-            b.wait_not_present(self.content_tab_info_label(1, 1, "Mounted At"))
+        self.content_dropdown_action(1, "Unmount")
+        self.content_tab_wait_in_info(1, 1, "Mount Point", "The filesystem is not mounted")
 
         self.content_tab_info_action(1, 1, "Name")
         self.dialog({"name": "filesystem"})
         self.content_tab_wait_in_info(1, 1, "Name", "filesystem")
 
-        if not self.storaged_is_old_udisks:
-            self.dialog_with_retry(trigger=lambda: self.content_tab_info_action(1, 1, "Mount Point", wrapped=True),
-                                   expect={"mounting": "custom",
-                                           "mount_point": mount_point_foo},
-                                   values={"mount_point": mount_point_bar})
-            self.wait_in_storaged_configuration(mount_point_bar)
-        else:
-            mount_point_bar = self.mount_root + "/admin/filesystem"
+        self.dialog_with_retry(trigger=lambda: self.content_tab_info_action(1, 1, "Mount Point", wrapped=True),
+                               expect={"mount_point": mount_point_foo},
+                               values={"mount_point": mount_point_bar})
+        self.wait_in_storaged_configuration(mount_point_bar)
+        self.content_tab_wait_in_info(1, 1, "Mount Point", mount_point_bar)
 
-        self.content_tab_action(1, 1, "Mount")
-        self.content_tab_wait_in_info(1, 1, "Mounted At", mount_point_bar)
+        self.content_head_action(1, "Mount")
+        self.confirm()
+        self.wait_mounted(1, 1)
 
         # Go to overview page and check that the filesystem usage is
         # displayed correctly.
@@ -112,16 +100,14 @@ class TestStorage(StorageCase):
             })""", sel, low, high)
 
         b.go("#/")
-        b.wait_in_text("#storage_mounts", mount_point_bar)
-        bar_selector = '#storage_mounts tr:contains("%s") td:nth-child(4)' % mount_point_bar
+        b.wait_in_text("table[aria-label=Filesystems]", mount_point_bar)
+        bar_selector = 'table[aria-label=Filesystems] tr:contains("%s") td:nth-child(3)' % mount_point_bar
         wait_ratio_in_range(bar_selector, 0.0, 0.1)
         m.execute("dd if=/dev/zero of=%s/zero bs=1M count=30 status=none" % mount_point_bar)
         wait_ratio_in_range(bar_selector, 0.5, 1.0)
         m.execute("rm %s/zero" % mount_point_bar)
         wait_ratio_in_range(bar_selector, 0.0, 0.1)
-        m.execute("umount %s" % mount_point_bar)
-        b.wait_not_in_text("#storage_mounts", mount_point_bar)
-        b.click('#storage_mounts tr:contains("filesystem")')
+        b.mousedown('table[aria-label=Filesystems] tr:contains("filesystem")')
         b.wait_visible("#storage-detail")
 
         def wait_info_field_value(name, value):
@@ -129,28 +115,9 @@ class TestStorage(StorageCase):
 
         wait_info_field_value("Serial Number", "MYDISK")
 
-        if not self.storaged_is_old_udisks:
-            b.wait_not_present(self.content_tab_info_label(1, 1, "Mounted At"))
-            self.content_tab_info_action(1, 1, "Mount Point", wrapped=True)
-            self.dialog(values={"mounting": "default"})
-            self.wait_not_in_storaged_configuration(mount_point_bar)
-
-            self.content_tab_action(1, 1, "Mount")
-            self.content_tab_wait_in_info(1, 1, "Mounted At", self.mount_root + "/admin/filesystem")
-
-            self.content_tab_action(1, 1, "Unmount")
-            b.wait_not_present(self.content_tab_info_label(1, 1, "Mounted At"))
-
-        self.content_head_action(1, "Format")
-        self.dialog({"type": "empty"})
-        self.content_row_wait_in_col(1, 1, "Unrecognized Data")
-
     def testMountOptions(self):
         m = self.machine
         b = self.browser
-
-        if self.storaged_is_old_udisks:
-            self.skipTest("No mount/crypto options with old UDisks")
 
         self.login_and_go("/storage")
 
@@ -166,7 +133,6 @@ class TestStorage(StorageCase):
         self.dialog_wait_open()
         self.dialog_set_val("type", "ext4")
         self.dialog_set_val("crypto.on", True)
-        self.dialog_set_val("mounting", "custom")
 
         def wait_checked(field):
             b.wait_present(self.dialog_field(field) + ":checked")
@@ -217,6 +183,115 @@ class TestStorage(StorageCase):
         m.execute("grep 'noauto,readonly,foo' /etc/crypttab")
         m.execute("grep 'noauto,ro,foo' /etc/fstab")
 
+
+    def testMountingHelp(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        # Add a disk
+        m.add_disk("50M", serial="MYDISK")
+        b.wait_in_text("#drives", "MYDISK")
+        b.click('#drives tr:contains("MYDISK")')
+        b.wait_present('#storage-detail')
+
+        # Format it
+
+        self.content_head_action(1, "Format")
+        self.dialog_wait_open()
+        self.dialog_set_val("type", "ext4")
+        self.dialog_set_val("name", "FILESYSTEM")
+        self.dialog_set_val("mount_point", "/run/foo")
+        self.dialog_apply()
+        self.dialog_wait_close()
+        self.content_row_wait_in_col(1, 1, "ext4 File System")
+        self.content_tab_wait_in_info(1, 1, "Name", "FILESYSTEM")
+        self.content_tab_wait_in_info(1, 1, "Mount Point", "/run/foo")
+
+        fsys_tab = self.content_tab_expand(1, 1)
+
+        # Unmount externally, remount with Cockpit
+
+        m.execute("umount /run/foo")
+        b.click(fsys_tab + " button:contains(Mount now)")
+        b.wait_not_present(fsys_tab + " button:contains(Mount now)")
+        self.wait_mounted(1, 1)
+
+        # Unmount externally, adjust fstab with Cockpit
+
+        m.execute("umount /run/foo")
+        b.click(fsys_tab + " button:contains(Do not mount automatically on boot)")
+        b.wait_not_present(fsys_tab + " button:contains(Do not mount automatically on boot)")
+
+        # Mount externally, unmount with Cockpit
+
+        m.execute("mount /run/foo")
+        b.click(fsys_tab + " button:contains(Unmount now)")
+        b.wait_not_present(fsys_tab + " button:contains(Unmount now)")
+
+        # Mount externally, adjust fstab with Cockpit
+
+        m.execute("mount /run/foo")
+        b.click(fsys_tab + " button:contains(Mount also automatically on boot)")
+        b.wait_not_present(fsys_tab + " button:contains(Mount also automatically on boot)")
+
+        # Move mount point externally, move back with Cockpit
+
+        m.execute("umount /run/foo")
+        m.execute("mkdir -p /run/bar && mount /dev/sda /run/bar")
+        b.click(fsys_tab + " button:contains(Mount on /run/foo now)")
+        b.wait_not_present(fsys_tab + " button:contains(Mount on /run/foo now)")
+
+        # Move mount point externally, adjust fstab with Cockpit
+
+        m.execute("umount /run/foo")
+        m.execute("mkdir -p /run/bar && mount /dev/sda /run/bar")
+        b.click(fsys_tab + " button:contains(Mount automatically on /run/bar on boot)")
+        b.wait_not_present(fsys_tab + " button:contains(Mount automatically on /run/bar on boot)")
+
+    def testDuplicateMountPoints(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        # Quickly make two logical volumes
+        m.add_disk("50M", serial="MYDISK")
+        b.wait_in_text("#drives", "MYDISK")
+        m.execute("vgcreate test /dev/sda && lvcreate test -n one -L 20M && lvcreate test -n two -L 20M")
+        b.click('#devices tr:contains("test")')
+        b.wait_visible("#storage-detail")
+        self.content_row_wait_in_col(1, 2, "/dev/test/one")
+        self.content_row_wait_in_col(2, 2, "/dev/test/two")
+
+        # Encrypt and format the first and give it /run/data as the mount point
+        self.content_head_action(1, "Format")
+        self.dialog({"type": "ext4",
+                     "crypto.on": "True",
+                     "passphrase": "vainu-reku-toma-rolle-kaja",
+                     "passphrase2": "vainu-reku-toma-rolle-kaja",
+                     "mount_point": "/run/data"})
+        self.content_row_wait_in_col(2, 1, "ext4 File System")
+        self.content_tab_wait_in_info(2, 1, "Mount Point", "/run/data")
+
+        # Format the second and also try to use /run/data as the mount point
+        self.content_head_action(3, "Format")
+        self.dialog_wait_open()
+        self.dialog_set_val("type", "ext4")
+        self.dialog_set_val("mount_point", "/run/data")
+        self.dialog_apply()
+        self.dialog_wait_error("mount_point", "Mount point is already used for /dev/mapper/luks-")
+        self.dialog_cancel()
+        self.dialog_wait_close()
+
+        # Format the first and re-use /run/data as the mount point.
+        # This should be allowed.
+        self.content_dropdown_action(1, "Format")
+        self.dialog({"type": "ext4",
+                     "mount_point": "/run/data"})
+        self.content_row_wait_in_col(1, 1, "ext4 File System")
+        self.content_tab_wait_in_info(1, 2, "Mount Point", "/run/data")
 
 if __name__ == '__main__':
     test_main()

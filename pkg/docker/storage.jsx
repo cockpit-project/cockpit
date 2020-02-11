@@ -35,8 +35,8 @@ function init_model() {
 
     var self = {
         error: null,
-        pool_devices: [ ],
-        extra_devices: [ ],
+        pool_devices: [],
+        extra_devices: [],
         total: 0,
         used: 0
     };
@@ -47,9 +47,11 @@ function init_model() {
 
     function update() {
         if (!cockpit.hidden && !process) {
-            process = python.spawn([ cockpit_atomic_storage ], ["monitor"],
-                                   { err: "ignore",
-                                     superuser: true })
+            process = python.spawn([cockpit_atomic_storage], ["monitor"],
+                                   {
+                                       err: "ignore",
+                                       superuser: true
+                                   })
                     .stream(function (data) {
                         // XXX - find the newlines here
                         var info = JSON.parse(data);
@@ -137,7 +139,7 @@ class DriveBox extends React.Component {
     onButtonClicked() {
         var self = this;
         if (self.props.callback) {
-            var drives = [ ];
+            var drives = [];
             for (var d in self.state.checked) {
                 if (self.state.checked[d]) {
                     for (var i = 0; i < self.state.drives.length; i++) {
@@ -157,7 +159,7 @@ class DriveBox extends React.Component {
         var i;
 
         var button_enabled = false;
-        var drive_rows = [ ];
+        var drive_rows = [];
         var drive_paths = { };
 
         function drive_class_desc(cl) {
@@ -182,7 +184,7 @@ class DriveBox extends React.Component {
                                onChange={ () => null /* click handled by parent element, silence React warning */ }
                                checked={self.driveChecked(drive)} />
                     </td>
-                    <td><img role="presentation" src="images/drive-harddisk-symbolic.svg" /></td>
+                    <td><img role="presentation" src="images/drive-harddisk-symbolic.svg" alt="" /></td>
                     <td>
                         <div>{drive.name}</div>
                         <div>{cockpit.format_bytes(drive.size)} {drive_class_desc(drive.class)}</div>
@@ -229,7 +231,7 @@ class PoolBox extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            drives: [ ]
+            drives: []
         };
         this.onModelChanged = this.onModelChanged.bind(this);
     }
@@ -255,7 +257,7 @@ class PoolBox extends React.Component {
                 return (
                     <tr key={drive.name}>
                         <td>{cockpit.format_bytes(drive.size)}</td>
-                        <td><img role="presentation" src="images/drive-harddisk-symbolic.svg" /></td>
+                        <td><img role="presentation" src="images/drive-harddisk-symbolic.svg" alt="" /></td>
                         <td>{drive.name}{drive.shared ? _(" (shared with the OS)") : ""}</td>
                     </tr>);
             });
@@ -288,9 +290,11 @@ export class OverviewBox extends React.Component {
     }
 
     onModelChanged() {
-        this.setState({ error: this.props.model.error,
-                        total: this.props.model.total,
-                        used: this.props.model.used });
+        this.setState({
+            error: this.props.model.error,
+            total: this.props.model.total,
+            used: this.props.model.used
+        });
     }
 
     componentDidMount() {
@@ -328,7 +332,7 @@ export class OverviewBox extends React.Component {
                     <div className="progress">
                         <div className="progress-bar" style={{ width: used_perc }} />
                     </div>
-                    {self.state.error ? "" : <a translatable="yes" href="#/storage">{_("Configure storage...")}</a>}
+                    {self.state.error ? "" : <a translate="yes" href="#/storage">{_("Configure storage...")}</a>}
                 </div>);
         } else {
             return (
@@ -363,7 +367,7 @@ function add_storage(client, drives, model) {
             return (
                 <tr key={drive.name}>
                     <td>{cockpit.format_bytes(drive.size)}</td>
-                    <td><img role="presentation" src="images/drive-harddisk-symbolic.svg" /></td>
+                    <td><img role="presentation" src="images/drive-harddisk-symbolic.svg" alt="" /></td>
                     <td>{drive.name}</td>
                 </tr>);
         });
@@ -375,20 +379,24 @@ function add_storage(client, drives, model) {
     //
     var docker_will_be_stopped = false;
 
-    show_modal_dialog({ 'title': _("Add Additional Storage"),
-                        'body': (
-                            <div className="modal-body">
-                                <p>{_("All data on selected disks will be erased and disks will be added to the storage pool.")}</p>
-                                <table className="drive-list">
-                                    <tbody>
-                                        { render_drive_rows() }
-                                    </tbody>
-                                </table>
-                            </div>),
+    show_modal_dialog({
+        title: _("Add Additional Storage"),
+        body: (
+            <div className="modal-body">
+                <p>{_("All data on selected disks will be erased and disks will be added to the storage pool.")}</p>
+                <table className="drive-list">
+                    <tbody>
+                        { render_drive_rows() }
+                    </tbody>
+                </table>
+            </div>),
     },
-                      { 'actions': [ { 'caption': _("Reformat and add disks"),
-                                       'clicked': add_drives,
-                                       'style': "danger" } ]
+                      {
+                          actions: [{
+                              caption: _("Reformat and add disks"),
+                              clicked: add_drives,
+                              style: "danger"
+                          }]
                       });
 
     function add_drives() {
@@ -402,11 +410,13 @@ function add_storage(client, drives, model) {
         // is currently using, and doesn't unexpectantly change it to
         // something else.
         //
-        var args = { "devs": devs, "driver": model.driver };
+        var args = { devs: devs, driver: model.driver };
 
-        var process = python.spawn(cockpit_atomic_storage, [ "add", JSON.stringify(args) ],
-                                   { 'err': 'out',
-                                     'superuser': true })
+        var process = python.spawn(cockpit_atomic_storage, ["add", JSON.stringify(args)],
+                                   {
+                                       err: 'out',
+                                       superuser: true
+                                   })
                 .done(function () {
                     if (docker_will_be_stopped) {
                         client.connect().done(function () {
@@ -438,22 +448,28 @@ function add_storage(client, drives, model) {
 }
 
 function reset_storage(client) {
-    show_modal_dialog({ 'title': _("Reset Storage Pool"),
-                        'body': (
-                            <div className="modal-body">
-                                <p>{_("Resetting the storage pool will erase all containers and release disks in the pool.")}</p>
-                            </div>),
+    show_modal_dialog({
+        title: _("Reset Storage Pool"),
+        body: (
+            <div className="modal-body">
+                <p>{_("Resetting the storage pool will erase all containers and release disks in the pool.")}</p>
+            </div>),
     },
-                      { 'actions': [ { 'caption': _("Erase containers and reset storage pool"),
-                                       'clicked': reset,
-                                       'style': "danger" } ]
+                      {
+                          actions: [{
+                              caption: _("Erase containers and reset storage pool"),
+                              clicked: reset,
+                              style: "danger"
+                          }]
                       });
     function reset() {
         var dfd = cockpit.defer();
         client.close();
         var process = python.spawn(cockpit_atomic_storage, ["reset-and-reduce"],
-                                   { 'err': 'out',
-                                     'superuser': true })
+                                   {
+                                       err: 'out',
+                                       superuser: true
+                                   })
                 .done(function () {
                     client.connect().done(dfd.resolve);
                 })
@@ -505,10 +521,10 @@ export function init_storage(client) {
             else
                 $('#storage-unsupported-message').text(
                     _("The Docker storage pool cannot be managed on this system."));
-            $("#storage-unsupported").show();
+            $("#storage-unsupported").prop("hidden", false);
             $("#storage-details").hide();
         } else {
-            $("#storage-unsupported").hide();
+            $("#storage-unsupported").prop("hidden", true);
             $("#storage-details").show();
             $("#storage-reset").toggle(model.driver == "devicemapper");
         }
@@ -518,11 +534,11 @@ export function init_storage(client) {
     update();
 
     function hide() {
-        $('#storage').hide();
+        $('#storage').prop("hidden", true);
     }
 
     function show() {
-        $('#storage').show();
+        $('#storage').prop("hidden", false);
     }
 
     return {

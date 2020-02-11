@@ -28,7 +28,7 @@ import cockpit from "cockpit";
 const _ = cockpit.gettext;
 
 function formatPkgs(pkgs) {
-    let names = Object.keys(pkgs).filter(i => i != "_time");
+    const names = Object.keys(pkgs).filter(i => i != "_time");
     names.sort();
     return names.map(n => (
         <OverlayTrigger key={n} overlay={ <Tooltip id="tip-history">{ n + " " + pkgs[n] }</Tooltip> } placement="top">
@@ -46,7 +46,7 @@ export class History extends React.Component {
     }
 
     onExpand(index) {
-        let e = new Set(this.state.expanded);
+        const e = new Set(this.state.expanded);
         if (e.has(index))
             e.delete(index);
         else
@@ -62,12 +62,12 @@ export class History extends React.Component {
      * { time: moment_object, num_packages: 2, packages: {names...}}
      */
     mergeHistory() {
-        let history = [];
+        const history = [];
         let prevTime, prevPackages;
 
         for (let i = 0; i < this.props.packagekit.length; ++i) {
-            let packages = Object.keys(this.props.packagekit[i]).filter(i => i != "_time");
-            let time = moment(this.props.packagekit[i]["_time"]);
+            const packages = Object.keys(this.props.packagekit[i]).filter(i => i != "_time");
+            const time = moment(this.props.packagekit[i]._time);
             packages.sort();
 
             if (prevTime && (time - prevTime) <= 600000 /* 10 mins */ &&
@@ -91,17 +91,16 @@ export class History extends React.Component {
         if (history.length === 0)
             return null;
 
-        let rows = history.map((update, index) => {
+        const rows = history.map((update, index) => {
             const time = update.time.format("YYYY-MM-DD HH:mm");
-            let pkgcount, details;
 
-            pkgcount = (
+            const pkgcount = (
                 <div className="list-view-pf-additional-info-item">
                     <span className="pficon pficon-bundle" />
                     { cockpit.format(cockpit.ngettext("$0 Package", "$0 Packages", update.num_packages), update.num_packages) }
                 </div>);
 
-            details = (
+            const details = (
                 <tr className="listing-ct-panel">
                     <td colSpan="3">
                         <div className="listing-ct-body">
@@ -111,8 +110,8 @@ export class History extends React.Component {
                 </tr>);
 
             return (
-                <tbody key={index} className={ details && this.state.expanded.has(index) ? "open" : null } >
-                    <tr className="listing-ct-item" onClick={ () => this.onExpand(index) } >
+                <tbody key={index} className={ details && this.state.expanded.has(index) ? "open" : null }>
+                    <tr className="listing-ct-item" onClick={ () => this.onExpand(index) }>
                         { details ? <td className="listing-ct-toggle"><i className="fa fa-fw" /></td> : <td /> }
                         <th>{time}</th>
                         <td className="history-pkgcount">{pkgcount}</td>
@@ -122,12 +121,12 @@ export class History extends React.Component {
         });
 
         return (
-            <React.Fragment>
+            <>
                 <h2>{ _("Update History") }</h2>
                 <table className="listing-ct updates-history">
                     {rows}
                 </table>
-            </React.Fragment>
+            </>
         );
     }
 }

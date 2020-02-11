@@ -24,7 +24,7 @@ reasonable environment to work with.
     $ sudo apt-get remove nodejs npm
     $ sudo n lts
 
-On Fedora, the distribution verisons are sufficient:
+On Fedora, the distribution versions are sufficient:
 
     $ sudo dnf install nodejs npm
 
@@ -58,7 +58,7 @@ For running integration tests, the following dependencies are required:
 
 Creating VM images locally (not necessary for running tests) needs the following:
 
-    $ sudo dnf install virt-install libguestfs-tools-c
+    $ sudo dnf install virt-install
 
 ## Building
 
@@ -165,7 +165,7 @@ git checkout directory, run the following, and log into Cockpit again:
 
     $ rm ~/.local/share/cockpit
 
-## Working on your local machine: Web server resources
+## Working on your local machine: Web server
 
 To test changes to the login page or any other resources, you can bind-mount
 the build tree's `dist/static/` directory over the  system one:
@@ -181,8 +181,21 @@ restarts on the next browser request.
 
 To make Cockpit again use the system-installed code, simply umount these again:
 
-   $ sudo umount /usr/share/cockpit/static/ /usr/share/cockpit/branding/
-   $ systemctl stop cockpit.service
+    $ sudo umount /usr/share/cockpit/static/ /usr/share/cockpit/branding/
+    $ systemctl stop cockpit.service
+
+Similarly, if you change cockpit-ws itself, you can make the system (systemd
+units, cockpit-tls, etc.) use that:
+
+    $ sudo mount -o bind cockpit-ws /usr/libexec/cockpit-ws
+
+On Debian based OSes, the path will be `/usr/lib/cockpit/cockpit-ws` instead.
+You need to disable SELinux with
+
+    $ sudo setenforce 0
+
+for this to work, as your local build tree does not otherwise have the expected
+SELinux type.
 
 ## Working on Cockpit using Vagrant
 

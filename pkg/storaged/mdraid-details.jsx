@@ -19,6 +19,7 @@
 
 import cockpit from "cockpit";
 import React from "react";
+import { Alert } from "@patternfly/react-core";
 import * as utils from "./utils.js";
 import { StdDetailsLayout } from "./details.jsx";
 import { Block } from "./content-views.jsx";
@@ -41,33 +42,26 @@ class MDRaidSidebar extends React.Component {
         }
 
         function add_disk() {
-            dialog_open({ Title: _("Add Disks"),
-                          Fields: [
-                              SelectSpaces("disks", _("Disks"),
-                                           {
-                                               empty_warning: _("No disks are available."),
-                                               validate: function (disks) {
-                                                   if (disks.length === 0)
-                                                       return _("At least one disk is needed.");
-                                               },
-                                               spaces: utils.get_available_spaces(client).filter(filter_inside_mdraid)
-                                           })
-                          ],
-                          Action: {
-                              Title: _("Add"),
-                              action: function(vals) {
-                                  return utils.prepare_available_spaces(client, vals.disks).then(function() {
-                                      var paths = Array.prototype.slice.call(arguments);
-
-                                      // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
-                                      // https://github.com/cockpit-project/cockpit/issues/10956
-                                      // eslint-disable-next-line cockpit/no-cockpit-all
-                                      return cockpit.all(paths.map(function(p) {
-                                          return mdraid.AddDevice(p, {});
-                                      }));
-                                  });
-                              }
-                          }
+            dialog_open({
+                Title: _("Add Disks"),
+                Fields: [
+                    SelectSpaces("disks", _("Disks"),
+                                 {
+                                     empty_warning: _("No disks are available."),
+                                     validate: function (disks) {
+                                         if (disks.length === 0)
+                                             return _("At least one disk is needed.");
+                                     },
+                                     spaces: utils.get_available_spaces(client).filter(filter_inside_mdraid)
+                                 })
+                ],
+                Action: {
+                    Title: _("Add"),
+                    action: function(vals) {
+                        return utils.prepare_available_spaces(client, vals.disks).then(paths =>
+                            Promise.all(paths.map(p => mdraid.AddDevice(p, {}))));
+                    }
+                }
             });
         }
 
@@ -96,11 +90,12 @@ class MDRaidSidebar extends React.Component {
             });
 
             function state_text(state) {
-                return { faulty:       _("FAILED"),
-                         in_sync:      _("In Sync"),
-                         spare:        active_state[1] < 0 ? _("Spare") : _("Recovering"),
-                         write_mostly: _("Write-mostly"),
-                         blocked:      _("Blocked")
+                return {
+                    faulty:       _("FAILED"),
+                    in_sync:      _("In Sync"),
+                    spare:        active_state[1] < 0 ? _("Spare") : _("Recovering"),
+                    write_mostly: _("Write-mostly"),
+                    blocked:      _("Blocked")
                 }[state] || cockpit.format(_("Unknown ($0)"), state);
             }
 
@@ -127,7 +122,7 @@ class MDRaidSidebar extends React.Component {
             return (
                 <tr key={block.path}>
                     <td className="storage-icon">
-                        <img src="images/storage-disk.png" />
+                        <img src="images/storage-disk.png" alt="" />
                     </td>
                     <td>
                         {slot || "-"} <StorageBlockNavLink client={client} block={block} />
@@ -176,12 +171,13 @@ export class MDRaidDetails extends React.Component {
         var block = mdraid && client.mdraids_block[mdraid.path];
 
         function format_level(str) {
-            return { "raid0": _("RAID 0"),
-                     "raid1": _("RAID 1"),
-                     "raid4": _("RAID 4"),
-                     "raid5": _("RAID 5"),
-                     "raid6": _("RAID 6"),
-                     "raid10": _("RAID 10")
+            return {
+                raid0: _("RAID 0"),
+                raid1: _("RAID 1"),
+                raid4: _("RAID 4"),
+                raid5: _("RAID 5"),
+                raid6: _("RAID 6"),
+                raid10: _("RAID 10")
             }[str] || cockpit.format(_("RAID ($0)"), str);
         }
 
@@ -199,10 +195,10 @@ export class MDRaidDetails extends React.Component {
         if (mdraid.BitmapLocation) {
             var value = utils.decode_filename(mdraid.BitmapLocation) != "none";
             bitmap = (
-                <React.Fragment>
+                <>
                     <label className="control-label">{_("storage", "Bitmap")}</label>
                     <StorageOnOff state={value} onChange={toggle_bitmap} />
-                </React.Fragment>
+                </>
             );
         }
 
@@ -213,10 +209,7 @@ export class MDRaidDetails extends React.Component {
                 mdraid.Degraded
             );
             degraded_message = (
-                <div className="alert alert-danger">
-                    <span className="pficon pficon-error-circle-o" />
-                    <span>{_("The RAID Array is in a degraded state")}</span> - {text}
-                </div>
+                <Alert isInline variant="danger" title={_("The RAID Array is in a degraded state")}> {text} </Alert>
             );
         }
 
@@ -233,25 +226,27 @@ export class MDRaidDetails extends React.Component {
             var usage = utils.get_active_usage(client, block ? block.path : "");
 
             if (usage.Blocking) {
-                dialog_open({ Title: cockpit.format(_("$0 is in active use"), utils.mdraid_name(mdraid)),
-                              Body: BlockingMessage(usage),
+                dialog_open({
+                    Title: cockpit.format(_("$0 is in active use"), utils.mdraid_name(mdraid)),
+                    Body: BlockingMessage(usage),
                 });
                 return;
             }
 
             if (usage.Teardown) {
-                dialog_open({ Title: cockpit.format(_("Please confirm stopping of $0"),
-                                                    utils.mdraid_name(mdraid)),
-                              Footer: TeardownMessage(usage),
-                              Action: {
-                                  Title: _("Stop Device"),
-                                  action: function () {
-                                      return utils.teardown_active_usage(client, usage)
-                                              .then(function () {
-                                                  return mdraid.Stop({});
-                                              });
-                                  }
-                              }
+                dialog_open({
+                    Title: cockpit.format(_("Please confirm stopping of $0"),
+                                          utils.mdraid_name(mdraid)),
+                    Footer: TeardownMessage(usage),
+                    Action: {
+                        Title: _("Stop Device"),
+                        action: function () {
+                            return utils.teardown_active_usage(client, usage)
+                                    .then(function () {
+                                        return mdraid.Stop({});
+                                    });
+                        }
+                    }
                 });
                 return;
             }
@@ -271,10 +266,7 @@ export class MDRaidDetails extends React.Component {
                 // members.
 
                 function wipe_members() {
-                    // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
-                    // https://github.com/cockpit-project/cockpit/issues/10956
-                    // eslint-disable-next-line cockpit/no-cockpit-all
-                    return cockpit.all(client.mdraids_members[mdraid.path].map(member => member.Format('empty', { })));
+                    return Promise.all(client.mdraids_members[mdraid.path].map(member => member.Format('empty', { })));
                 }
 
                 if (mdraid.ActiveDevices && mdraid.ActiveDevices.length > 0)
@@ -286,26 +278,28 @@ export class MDRaidDetails extends React.Component {
             var usage = utils.get_active_usage(client, block ? block.path : "");
 
             if (usage.Blocking) {
-                dialog_open({ Title: cockpit.format(_("$0 is in active use"), utils.mdraid_name(mdraid)),
-                              Body: BlockingMessage(usage)
+                dialog_open({
+                    Title: cockpit.format(_("$0 is in active use"), utils.mdraid_name(mdraid)),
+                    Body: BlockingMessage(usage)
                 });
                 return;
             }
 
-            dialog_open({ Title: cockpit.format(_("Please confirm deletion of $0"),
-                                                utils.mdraid_name(mdraid)),
-                          Footer: TeardownMessage(usage),
-                          Action: {
-                              Title: _("Delete"),
-                              Danger: _("Deleting a RAID device will erase all data on it."),
-                              action: function () {
-                                  return utils.teardown_active_usage(client, usage)
-                                          .then(delete_)
-                                          .then(function () {
-                                              location.go('/');
-                                          });
-                              }
-                          }
+            dialog_open({
+                Title: cockpit.format(_("Please confirm deletion of $0"),
+                                      utils.mdraid_name(mdraid)),
+                Footer: TeardownMessage(usage),
+                Action: {
+                    Title: _("Delete"),
+                    Danger: _("Deleting a RAID device will erase all data on it."),
+                    action: function () {
+                        return utils.teardown_active_usage(client, usage)
+                                .then(delete_)
+                                .then(function () {
+                                    location.go('/');
+                                });
+                    }
+                }
             });
         }
 

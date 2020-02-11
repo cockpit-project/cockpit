@@ -19,6 +19,7 @@
 
 import base64
 import time
+import subprocess
 
 import parent
 from testlib import *
@@ -32,6 +33,7 @@ class TestConnection(MachineCase):
         if "debian" in self.machine.image or "ubuntu" in self.machine.image:
             self.ws_executable = "/usr/lib/cockpit/cockpit-ws"
 
+    @skipBrowser("Firefox cannot work with cookies", "firefox")
     def testBasic(self):
         b = self.browser
         m = self.machine
@@ -106,7 +108,7 @@ class TestConnection(MachineCase):
         self.assertTrue(cookie["httpOnly"])
         self.assertFalse(cookie["secure"])
 
-        if not m.atomic_image:  # cannot write to /usr on Atomics, and cockpit-session is in a container
+        if not m.ostree_image:  # cannot write to /usr on OSTree, and cockpit-session is in a container
             # damage cockpit-session permissions (Fedora-ish and Debian-ish path), expect generic error message
             m.execute("chmod g-x /usr/libexec/cockpit-session 2>/dev/null || chmod g-x /usr/lib/cockpit/cockpit-session")
             b.open("/system")
@@ -142,6 +144,149 @@ class TestConnection(MachineCase):
         self.allow_core_dumps = True
         self.allow_journal_messages(".*org.freedesktop.hostname1.*DBus.Error.NoReply.*")
 
+    @skipImage("OSTree doesn't use systemd units", "fedora-coreos")
+    def testUnitLifecycle(self):
+        m = self.machine
+
+        def expect_active(unit, is_active):
+            status = m.execute("systemctl is-active %s || true" % unit).strip()
+            self.assertIn(status, ["active", "inactive"])
+            if is_active:
+                self.assertEqual(status, "active", "%s is not active" % unit)
+            else:
+                self.assertEqual(status, "inactive", "%s is active" % unit)
+
+        def expect_actives(ws_socket, instance_sockets, http_instances, https_instances=0):
+            expect_active("cockpit.socket", ws_socket)
+            # http instances
+            for instance in ["http", "http-redirect"]:
+                expect_active("cockpit-wsinstance-%s.socket" % instance, instance_sockets)
+                expect_active("cockpit-wsinstance-%s.service" % instance, instance in http_instances)
+            # number of https instances
+            expect_active("cockpit-wsinstance-https-factory.socket", instance_sockets)
+            for _type in ["service", "socket"]:
+                out = m.execute("systemctl --no-legend -t %s list-units cockpit-wsinstance-https@*" % _type)
+                count = len(out.strip().splitlines())
+                self.assertEqual(count, https_instances, out)
+
+        # at the beginning, no cockpit related units are running
+        expect_actives(False, False, [])
+
+        # http only mode
+
+        m.start_cockpit(tls=False)
+        expect_actives(True, False, [])
+        self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent --head http://127.0.0.1:9090"))
+
+        expect_actives(True, True, ["http"])
+        self.assertRaises(subprocess.CalledProcessError, m.execute,
+                          "curl --silent https://127.0.0.1:9090")
+        # c-tls knows it can't do https, and not activate that instance
+        expect_actives(True, True, ["http"])
+
+        m.restart_cockpit()
+        expect_actives(True, True, ["http"])
+
+        m.stop_cockpit()
+        expect_actives(False, False, [])
+
+        # cleans up also when cockpit-tls crashes or idle-exits, not just by explicit stop request
+        m.start_cockpit(tls=False)
+        self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent --head http://127.0.0.1:9090"))
+        m.execute("pkill -e cockpit-tls")
+        expect_actives(True, False, [])
+
+        # and recovers from that
+        self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent --head http://127.0.0.1:9090"))
+        expect_actives(True, True, ["http"])
+
+        # https mode
+
+        m.start_cockpit(tls=True)
+        expect_actives(True, False, [], 0)
+
+        self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent --head http://127.0.0.1:9090"))
+
+        expect_actives(True, True, ["http-redirect"], 0)
+        self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent -k --head https://127.0.0.1:9090"))
+        expect_actives(True, True, ["http-redirect"], 1)
+
+        m.restart_cockpit()
+        expect_actives(True, True, ["http-redirect"], 1)
+
+        m.stop_cockpit()
+        expect_actives(False, False, [], 0)
+
+        m.start_cockpit(tls=True)
+        expect_actives(True, False, [], 0)
+        self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent --head http://127.0.0.1:9090"))
+
+        expect_actives(True, True, ["http-redirect"], 0)
+        self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent -k --head https://127.0.0.1:9090"))
+        expect_actives(True, True, ["http-redirect"], 1)
+
+        # cleans up also when cockpit-tls crashes or idle-exits, not just by explicit stop request
+        m.execute("pkill -e cockpit-tls")
+        expect_actives(True, False, [], 0)
+        self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent --head http://127.0.0.1:9090"))
+        expect_actives(True, True, ["http-redirect"], 0)
+        # next https request after crash doesn't leak an instance
+        self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent -k --head https://127.0.0.1:9090"))
+        expect_actives(True, True, ["http-redirect"], 1)
+
+        # instance service+socket going away does not confuse cockpit-tls' bookkeeping
+        m.execute("systemctl stop cockpit-wsinstance-https@*.service cockpit-wsinstance-https@*.socket")
+        expect_actives(True, True, ["http-redirect"], 0)
+        self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent --show-error -k --head https://127.0.0.1:9090"))
+        expect_actives(True, True, ["http-redirect"], 1)
+
+        # sockets are inaccessible to users, only to cockpit-tls
+        for s in ["http.sock", "https-factory.sock"]:
+            out = m.execute("su -c '! nc -U /run/cockpit/wsinstance/%s 2>&1 || exit 1' admin" % s)
+            self.assertIn("Permission denied", out)
+
+    @skipImage("OSTree doesn't use systemd units", "fedora-coreos")
+    def testHttpsInstanceDoS(self):
+        m = self.machine
+        # prevent generating core dump artifacts
+        m.execute("echo core > /proc/sys/kernel/core_pattern")
+        m.start_cockpit(tls=True)
+
+        # some netcat versions need an explicit shutdown option, others default to shutting down and don't have -N
+        n_opt = "-N" if "-N" in m.execute("nc -h 2>&1") else ""
+
+        self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent -k --head https://127.0.0.1:9090"))
+
+        # number of https instances is bounded (DoS prevention)
+        # with MaxTasks=200 und 2 threads per ws instance we should have a
+        # rough limit of 100 instances, so at some point curl should start failing
+        m.execute("su -s /bin/sh -c 'RC=1; for i in `seq 120`; do "
+                  "  echo -n $i | nc %s -U /run/cockpit/wsinstance/https-factory.sock;"
+                  "  curl --silent --head --max-time 5 --unix /run/cockpit/wsinstance/https@$i.sock http://dummy > /dev/null || RC=0; "
+                  "done; exit $RC' cockpit-ws" % n_opt)
+
+        for type_ in ["socket", "service"]:
+            active = int(m.execute("systemctl --no-legend list-units -t %s --state=active "
+                                   "'cockpit-wsinstance-https@*' | wc -l" % type_).strip())
+            self.assertGreater(active, 50)
+            self.assertLess(active, 110)
+        failed = int(m.execute("systemctl --no-legend list-units --state=failed 'cockpit-wsinstance-https@*' | wc -l").strip())
+        self.assertGreater(failed, 0)
+        self.assertLess(failed, 60) # services and sockets
+
+        self.allow_journal_messages(".*cockpit-ws.*dumped core.*")
+        self.allow_journal_messages(".*Error creating thread: Resource temporarily unavailable.*")
+
+        # initial instance still works
+        self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent --show-error -k --head https://127.0.0.1:9090"))
+
+        # can launch new instances after freeing up some old ones
+        m.execute("systemctl stop cockpit-wsinstance-https@30 cockpit-wsinstance-https@31 cockpit-wsinstance-https@32")
+        m.execute("echo -n new | nc %s -U /run/cockpit/wsinstance/https-factory.sock" % n_opt)
+        out = m.execute("curl --silent --show-error --head --unix /run/cockpit/wsinstance/https@new.sock http://dummy")
+        self.assertIn("HTTP/1.1 200 OK", out)
+
+    @skipBrowser("Firefox needs proper cert and CA", "firefox")
     def testTls(self):
         m = self.machine
         b = self.browser
@@ -175,14 +320,27 @@ class TestConnection(MachineCase):
         m.upload(["verify/files/cert-chain.cert"], "/etc/cockpit/ws-certs.d")
         m.execute("! selinuxenabled || chcon --type svirt_sandbox_file_t /etc/cockpit/ws-certs.d/cert-chain.cert")
 
-        # This should also reset the file context
-        m.restart_cockpit()
+        def check_cert_chain():
+            # This should also reset the file context
+            m.restart_cockpit()
+            output = m.execute('openssl s_client -connect 172.27.0.15:9090 2>&1')
+            self.assertIn("DONE", output)
+            self.assertRegex(output, "s:/?CN *= *localhost")
+            self.assertRegex(output, "1 s:/?OU *= *Intermediate")
 
-        # Should use the new certificates and entire chain should show up
-        output = m.execute('openssl s_client -connect 172.27.0.15:9090 2>&1')
-        self.assertIn("DONE", output)
-        self.assertRegex(output, "s:/?CN *= *localhost")
-        self.assertRegex(output, "1 s:/?OU *= *Intermediate")
+        check_cert_chain()
+
+        # *.crt file also works; added in PR #13388
+        if m.image not in ["rhel-8-2-distropkg"]:
+            m.execute ("mv /etc/cockpit/ws-certs.d/cert-chain.cert /etc/cockpit/ws-certs.d/cert-chain.crt")
+            check_cert_chain()
+
+        # separate *.key file instead of merged .cert; added in PR #13388
+        if m.image not in ["rhel-8-2-distropkg"]:
+            m.execute("sed -n '/---BEGIN PRIVATE KEY/,$ p' /etc/cockpit/ws-certs.d/cert-chain.crt > /etc/cockpit/ws-certs.d/cert-chain.key")
+            m.execute("sed -i '/---BEGIN PRIVATE KEY/,$ d' /etc/cockpit/ws-certs.d/cert-chain.crt")
+            check_cert_chain()
+
 
         # login handler: correct password
         m.execute("curl -k -c cockpit.jar -s --head --header 'Authorization: Basic {}' https://127.0.0.1:9090/cockpit/login".format(
@@ -213,11 +371,8 @@ class TestConnection(MachineCase):
         b.logout()
         cookie = b.cookie("cockpit")
         self.assertEqual(cookie["value"], "deleted")
-        if m.image not in ["rhel-8-0-distropkg"]:
-            # fixed in PR #10766
-            self.assertTrue(cookie["httpOnly"])
-            # fixed in PR #11279
-            self.assertTrue(cookie["secure"])
+        self.assertTrue(cookie["httpOnly"])
+        self.assertTrue(cookie["secure"])
 
         # http on localhost should not redirect to https
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --head http://127.0.0.1:9090"))
@@ -246,7 +401,7 @@ class TestConnection(MachineCase):
 
         self.allow_journal_messages('peer did not close io when expected')
 
-    @skipImage("Atomic doesn't use socket", "fedora-atomic")
+    @skipImage("OSTree doesn't use systemd units", "fedora-coreos")
     def testSocket(self):
         m = self.machine
 
@@ -264,7 +419,7 @@ class TestConnection(MachineCase):
         # Change port according to documentation: https://cockpit-project.org/guide/latest/listen.html
         m.execute('! selinuxenabled || semanage port -m -t websm_port_t -p tcp 443')
         m.execute(
-            'mkdir -p /etc/systemd/system/cockpit.socket.d/ && printf "[Socket]\nListenStream=\nListenStream=443" > /etc/systemd/system/cockpit.socket.d/listen.conf')
+            'mkdir -p /etc/systemd/system/cockpit.socket.d/ && printf "[Socket]\nListenStream=\nListenStream=/run/cockpit/sock\nListenStream=443" > /etc/systemd/system/cockpit.socket.d/listen.conf')
 
         self.assertIn("systemctl", m.execute("cat /etc/issue.d/cockpit.issue"))
         self.assertIn("systemctl", m.execute("cat /etc/motd.d/cockpit"))
@@ -279,13 +434,15 @@ class TestConnection(MachineCase):
 
         output = m.execute('curl -k https://localhost 2>&1 || true')
         self.assertIn('Loading...', output)
+        output = m.execute('curl -k --unix /run/cockpit/sock https://dummy 2>&1 || true')
+        self.assertIn('Loading...', output)
 
         output = m.execute('curl -k https://localhost:9090 2>&1 || true')
         self.assertIn('Connection refused', output)
 
         self.allow_journal_messages(".*Peer failed to perform TLS handshake")
 
-    @skipImage("Atomic doesn't have cockpit-ws", "fedora-atomic")
+    @skipImage("OSTree doesn't have cockpit-ws", "fedora-coreos")
     def testCommandline(self):
         m = self.machine
         m.execute(
@@ -303,6 +460,20 @@ class TestConnection(MachineCase):
 
         output = m.execute('curl -s -S -k https://172.27.0.15:9000/ 2>&1 || true')
         self.assertIn('Connection refused', output)
+
+        # Large requests are processed correctly with plain HTTP
+        self.assertIn('A Custom Title', m.execute('''curl -s -S -H "Authorization: Negotiate $(printf '%0.7000i' 1)" http://localhost:9000/'''))
+
+        # Large requests are processed correctly with TLS
+        if m.image not in ["rhel-8-2-distropkg"]:  # fixed in PR #13351
+            self.assertIn('A Custom Title', m.execute('''curl -s -S -k -H "Authorization: Negotiate $(printf '%0.7000i' 1)" https://localhost:9000/'''))
+
+        # Large requests are processed correctly with plain HTTP through cockpit-tls
+        m.start_cockpit(tls=True)
+        self.assertIn('id="login"', m.execute('''curl -s -S -H "Authorization: Negotiate $(printf '%0.7000i' 1)" http://localhost:9090/'''))
+
+        # Large requests are processed correctly with TLS through cockpit-tls
+        self.assertIn('id="login"', m.execute('''curl -s -S -k -H "Authorization: Negotiate $(printf '%0.7000i' 1)" https://localhost:9090/'''))
 
     def testHeadRequest(self):
         m = self.machine
@@ -338,6 +509,7 @@ class TestConnection(MachineCase):
         headers = m.execute("curl -s --head http://172.27.0.15:9090/cockpit+123/channel/foo")
         self.assertIn("HTTP/1.1 404 Not Found\r\n", headers)
 
+    @skipImage("ssh root login not allowed", "fedora-coreos")
     def testFlowControl(self):
         m = self.machine
         b = self.browser
@@ -363,7 +535,7 @@ class TestConnection(MachineCase):
         # This fails when flow control is not present
         self.assertLess(rss, 200000)
 
-    @skipImage("Atomic doesn't have cockpit-ws installed", "fedora-atomic")
+    @skipImage("OSTree doesn't have cockpit-ws", "fedora-coreos")
     def testLocalSession(self):
         m = self.machine
 
@@ -374,8 +546,7 @@ class TestConnection(MachineCase):
         m.wait_for_cockpit_running('127.0.0.90', 9999)
         # System frame should work directly, no login page
         out = m.execute("curl --compressed http://127.0.0.90:9999/cockpit/@localhost/system/index.html")
-        self.assertIn('id="system_machine_id"', out)
-        self.assertIn('data-action="shutdown"', out)
+        self.assertIn('id="overview"', out)
 
         # shut it down, wait until it is gone
         m.execute("pkill -ef cockpit-ws")
@@ -392,16 +563,17 @@ G_MESSAGES_DEBUG=all XDG_CONFIG_DIRS=/usr/local %s -p 9999 -a 127.0.0.90 --local
 
         # System frame should work directly, no login page
         out = m.execute("curl --compressed http://127.0.0.90:9999/cockpit/@localhost/system/index.html")
-        self.assertIn('id="system_machine_id"', out)
-        self.assertIn('data-action="shutdown"', out)
+        self.assertIn('id="overview"', out)
 
         self.allow_journal_messages("couldn't register polkit authentication agent.*")
 
-    @skipImage("Atomic doesn't have cockpit-ws installed", "fedora-atomic")
+    @skipImage("OSTree doesn't have cockpit-ws", "fedora-coreos")
     @skipImage("Kernel does not allow user namespaces", "debian-stable", "debian-testing")
     def testCockpitDesktop(self):
+        m = self.machine
+
         cases = [(['/cockpit/@localhost/system/index.html', 'system', 'system/index', 'system/'],
-                  ['id="system_machine_id"', 'data-action="shutdown"']
+                  ['id="overview"']
                  ),
                  (['/cockpit/@localhost/network/firewall.html', 'network/firewall'],
                   ['div id="firewall"', 'script src="firewall.js"']
@@ -411,16 +583,12 @@ G_MESSAGES_DEBUG=all XDG_CONFIG_DIRS=/usr/local %s -p 9999 -a 127.0.0.90 --local
                  ),
                 ]
 
-        m = self.machine
-
         if "debian" in m.image or "ubuntu" in m.image:
             cockpit_desktop = "/usr/lib/cockpit/cockpit-desktop"
         else:
             cockpit_desktop = "/usr/libexec/cockpit-desktop"
 
         for (pages, asserts) in cases:
-            if m.image == "rhel-8-0-distropkg": # rhel-8-0-distropkg can handle only full paths, see #11701
-                pages = [pages[0]]
             for page in pages:
                 m.execute('''su - -c 'BROWSER="curl --silent --compressed -o /tmp/out.html" %s %s' admin''' %
                           (cockpit_desktop, page))
@@ -434,8 +602,8 @@ G_MESSAGES_DEBUG=all XDG_CONFIG_DIRS=/usr/local %s -p 9999 -a 127.0.0.90 --local
 
         self.allow_journal_messages("couldn't register polkit authentication agent.*")
 
-    @skipImage("missing socat", "fedora-atomic")
-    @skipImage("Added in PR #11813 and #12141", "rhel-8-0-distropkg")
+    @skipImage("does not use cockpit-ws package", "fedora-coreos")
+    @skipBrowser("Firefox needs proper cert and CA", "firefox")
     def testReverseProxy(self):
         m = self.machine
         b = self.browser
@@ -450,7 +618,7 @@ G_MESSAGES_DEBUG=all XDG_CONFIG_DIRS=/usr/local %s -p 9999 -a 127.0.0.90 --local
         m.spawn("socat TCP-LISTEN:9091,reuseaddr,fork TCP:localhost:9099", "socat.log")
 
         # ws with plain --no-tls should fail after login with mismatching Origin (expected http, got https)
-        m.spawn("su -s /bin/sh -c '%s --no-tls -p 9099' cockpit-ws" % self.ws_executable,
+        m.spawn("su -s /bin/sh -c '%s --no-tls -p 9099' cockpit-wsinstance" % self.ws_executable,
                 "ws-notls.log")
         m.wait_for_cockpit_running(tls=True)
 
@@ -491,7 +659,7 @@ G_MESSAGES_DEBUG=all XDG_CONFIG_DIRS=/usr/local %s -p 9999 -a 127.0.0.90 --local
         self.allow_browser_errors("Error reading machine id")
 
         # ws with --for-tls-proxy accepts only https origins, thus should work
-        m.spawn("su -s /bin/sh -c '%s --for-tls-proxy -p 9099 -a 127.0.0.1' cockpit-ws" % self.ws_executable,
+        m.spawn("su -s /bin/sh -c '%s --for-tls-proxy -p 9099 -a 127.0.0.1' cockpit-wsinstance" % self.ws_executable,
                 "ws-fortlsproxy.log")
         m.wait_for_cockpit_running(tls=True)
         b.open("https://%s:%s/system" % (b.address, b.port))
@@ -523,11 +691,27 @@ G_MESSAGES_DEBUG=all XDG_CONFIG_DIRS=/usr/local %s -p 9999 -a 127.0.0.90 --local
 
         # ws with --proxy-tls-redirect redirects non-localhost to https
         m.execute("pkill -e cockpit-ws; while pgrep -a cockpit-ws; do sleep 1; done")
-        m.spawn("su -s /bin/sh -c '%s --proxy-tls-redirect --no-tls -p 9099 -a 127.0.0.1' cockpit-ws" % self.ws_executable,
+        m.spawn("su -s /bin/sh -c '%s --proxy-tls-redirect --no-tls -p 9099 -a 127.0.0.1' cockpit-wsinstance" % self.ws_executable,
                 "ws-proxy-tls-redirect.log")
         m.wait_for_cockpit_running(tls=True)
         self.assertIn("HTTP/1.1 301 Moved Permanently", m.execute("curl --silent --head http://172.27.0.15:9091"))
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent --head http://127.0.0.1:9091"))
+
+    def testCaCert(self):
+        m = self.machine
+
+        m.start_cockpit()
+        if not m.ostree_image:
+            # Really start Cockpit to make sure it has generated all its certificates.
+            m.execute("systemctl start cockpit")
+
+        # Start without a CA certificate.
+        m.execute("rm -f /etc/cockpit/ws-certs.d/0-self-signed-ca.pem")
+        m.execute("! curl -sfS http://localhost:9090/ca.cer")
+
+        # Now make one up and check that is is served.
+        m.write("/etc/cockpit/ws-certs.d/0-self-signed-ca.pem", "FAKE CERT FOR TESTING\n")
+        self.assertEqual(m.execute("curl -sfS http://localhost:9090/ca.cer"), "FAKE CERT FOR TESTING\n")
 
 
 if __name__ == '__main__':

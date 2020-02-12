@@ -50,7 +50,7 @@ class MachinesBasicTestSuite(MachinesLib):
             self.click(self.wait_css('#vm-{}-reboot-caret'.format(name), cond=clickable))
             self.click(self.wait_css('#vm-{}-forceReboot'.format(name), cond=clickable))
             wait(lambda: re.search("login:.*Initializing cgroup",
-                                   self.machine.execute("sudo cat {0}".format(args.get('logfile')))), tries=10)
+                                   self.machine.execute("sudo cat {0}".format(args.get('logfile')))))
 
         # Retry when running in edge
         # because the first operations will not take effect in some edge browser

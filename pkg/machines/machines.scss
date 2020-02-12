@@ -75,6 +75,11 @@
     color: var(--color-link);
 }
 
+.machines-desktop {
+    display: flex;
+    flex-wrap: wrap;
+}
+
 .machines-desktop-main {
     width: 100%;
 }
@@ -171,10 +176,6 @@
 
 .panel-heading .btn {
     margin-left: 3px;
-}
-
-.console-menu {
-    padding-bottom: 1em;
 }
 
 .console-actions-buttons {
@@ -369,6 +370,10 @@ $toast-anim-speed: 200ms;
             }
         }
     }
+}
+
+#virtual-machines-listing .listing-ct-body {
+    overflow: visible;
 }
 
 @keyframes toast-fade-in {

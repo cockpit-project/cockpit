@@ -156,7 +156,7 @@ class VmDisksTab extends React.Component {
 
             if (provider.name === 'LibvirtDBus') {
                 const onRemoveDisk = () => {
-                    return dispatch(detachDisk({ connectionName:vm.connectionName, id:vm.id, name:vm.name, target: disk.target, live: vm.state == 'running' }))
+                    return dispatch(detachDisk({ connectionName:vm.connectionName, id:vm.id, name:vm.name, target: disk.target, live: vm.state == 'running', persistent: vm.persistent }))
                             .catch(ex => {
                                 onAddErrorNotification({
                                     text: cockpit.format(_("Disk $0 fail to get detached from VM $1"), disk.target, vm.name),
@@ -176,7 +176,7 @@ class VmDisksTab extends React.Component {
                            overlayText={_("The VM needs to be running or shut off to detach this device")}
                            actionName={_("Remove")}
                            deleteHandler={() => onRemoveDisk()} />
-                        { vm.inactiveXML.disks[disk.target] && // supported only  for persistent disks
+                        { vm.persistent && vm.inactiveXML.disks[disk.target] && // supported only  for persistent disks
                         <EditDiskAction disk={disk}
                             vm={vm}
                             provider={provider}

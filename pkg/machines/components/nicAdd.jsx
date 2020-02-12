@@ -174,12 +174,14 @@ export class AddNIC extends React.Component {
                 <NetworkMacRow idPrefix={idPrefix}
                                dialogValues={this.state}
                                onValueChanged={this.onValueChanged} />
-                <hr />
-                <PermanentChange idPrefix={idPrefix}
-                                 dialogValues={this.state}
-                                 onValueChanged={this.onValueChanged}
-                                 provider={provider}
-                                 vm={vm} />
+                {vm.persistent && <>
+                    <hr />
+                    <PermanentChange idPrefix={idPrefix}
+                                     dialogValues={this.state}
+                                     onValueChanged={this.onValueChanged}
+                                     provider={provider}
+                                     vm={vm} />
+                </>}
             </form>
         );
 

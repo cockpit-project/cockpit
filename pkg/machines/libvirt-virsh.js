@@ -499,7 +499,14 @@ function parseDomstats(dispatch, connectionName, name, domstats) {
 
     const lines = parseLines(domstats);
 
-    const cpuTime = getValueFromLine(lines, 'cpu.time=');
+    let totalCpuTime = 0;
+    for (let i = 0; i < getValueFromLine(lines, 'vcpu.maximum='); i++) {
+        if (isNaN(getValueFromLine(lines, `vcpu.${i}.time=`)))
+            continue;
+        totalCpuTime += Number(getValueFromLine(lines, `vcpu.${i}.time=`));
+    }
+    const cpuTime = totalCpuTime / getValueFromLine(lines, 'vcpu.current=');
+
     // TODO: Add network usage statistics
     let retParams = { connectionName, name, actualTimeInMs, disksStats: parseDomstatsForDisks(lines) };
 

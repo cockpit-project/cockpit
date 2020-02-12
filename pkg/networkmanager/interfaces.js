@@ -5814,25 +5814,6 @@ PageNetworkOpenVPNSettings.prototype = {
     apply: function() {
         var self = this;
         var options = self.settings.vpn;
-        /* var vpn_props = [
-            { line: "+vpn.data auth=", prop: "auth" },
-            { line: "+vpn.data ca=", prop: "ca" },
-            { line: "+vpn.data cert=", prop: "cert" },
-            { line: "+vpn.data cipher=", prop: "cipher" },
-            { line: "+vpn.data dev=", prop: "dev" },
-            { line: "+vpn.data key=", prop: "key" },
-            { line: "+vpn.data key-direction=", prop: "key_direction" },
-            { line: "+vpn.data mssfix=", prop: "mssfix" },
-            { line: "+vpn.data port=", prop: "port" },
-            { line: "+vpn.data proto=", prop: "proto" },
-            { line: "+vpn.data rcvbuf=", prop: "rcvbuf" },
-            { line: "+vpn.data remote-cert-tls=", prop: "remote_cert_tls" },
-            { line: "+vpn.data reneg-sec=", prop: "reneg_sec" },
-            { line: "+vpn.data resolv-retry=", prop: "resolv_retry" },
-            { line: "+vpn.data sndbuf=", prop: "sndbuf" },
-            { line: "+vpn.data ta=", prop: "ta" },
-            { line: "+vpn.data tun-mtu=", prop: "tun_mtu" },
-        ]; */
         cockpit.spawn([
             "nmcli",
             "connection",
@@ -5855,65 +5836,19 @@ PageNetworkOpenVPNSettings.prototype = {
                     "conn",
                     "up",
                     options.name.trim().substr(8, (options.name.trim().length) - 13)
-                ], { err: "out" });
+                ], { err: "out" })
+                        .done(() => {
+                            $('#network-openvpn-settings-dialog').modal('hide');
+                        });
             });
         })
                 .fail(function () {
                     show_error("Connection has not been established");
                 });
 
-        /* function add_vpn_connection() {
-            var cmd = [
-                "nmcli connection add \\",
-                "connection.id " + self.settings.connection.id + " \\",
-                "connection.interface-name " + self.settings.connection.interface_name + " \\",
-                "connection.type vpn \\",
-                "vpn-type openvpn \\",
-                "connection.autoconnect off \\",
-                "connection.permissions \"user:$USER\" \\",
-                "ipv4.dns-search \"\" \\",
-                "ipv4.method auto \\",
-                "ipv4.never-default true \\",
-                "ipv6.dns-search \"\" \\",
-                "ipv6.method auto \\",
-                "ipv6.never-default true \\",
-                "+vpn.data connection-type=password-tls \\",
-                "+vpn.data username=${USER} \\",
-                "+vpn.data password-flags=1 \\",
-            ];
-
-            options.remote.forEach(function(item) {
-                cmd.push("+vpn.data remote=" + item + " \\");
-            });
-
-            vpn_props.forEach(function(item) {
-                if (options[item.prop])
-                    cmd.push(item.line + options[item.prop] + " \\");
-            });
-
-            cmd.push("+vpn.data service-type=org.freedesktop.NetworkManager.openvpn");
-            cmd = cmd.join("\n");
-
-            cockpit.script(cmd, { err: "ignore" })
-                    .fail(function () {
-                        show_error("Connection has not been established");
-                    });
-        } */
-
         function show_error(error) {
             show_dialog_error('#network-openvpn-settings-error', error);
         }
-
-        // show warning if network-manager-openvpn is not installed
-        cockpit.script("test -f /usr/lib*/NetworkManager/nm-openvpn-service",
-                       { err: "ignore" })
-                .done(function () {
-                    // add_vpn_connection();
-                    $('#network-openvpn-settings-dialog').modal('hide');
-                })
-                .fail(function () {
-                    show_error("`network-manager-openvpn` is not installed");
-                });
     }
 };
 

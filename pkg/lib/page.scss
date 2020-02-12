@@ -536,14 +536,8 @@ input[type=number] {
     overflow-wrap: break-word;
 }
 
-/* Fix alignment for icons inside of dropdown toggle (& split) buttons */
+/* Align the icons inside of all dropdown toggles. */
 /* Part 1 of 2 */
-.pf-c-dropdown__toggle {
-  align-items: stretch;
-  /* PF4 uses align-items: center here; stretch (the default) is what we need. */
-}
-
-/* Align the icons inside of the toggle. Part 2 of 2 */
 .pf-c-dropdown__toggle-button {
   display: flex;
   align-items: center;
@@ -561,4 +555,10 @@ input[type=number] {
     font-size: .875rem;
     line-height: 1.5;
     border-radius: .2rem;
+}
+
+/* Make split button dropdowns the same height as their sibling. */
+/* Part 2 of 2 */
+.pf-m-split-button {
+  align-items: stretch;
 }

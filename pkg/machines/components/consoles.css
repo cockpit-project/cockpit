@@ -16,26 +16,23 @@
     vertical-align: middle;
 }
 
-/* Provide adaquate padding, regardless of flow */
-.vnc-console > .console-menu,
-.vnc-console > .toolbar-pf-action-right {
-    padding: 0 1rem 0.5rem 0;
-}
-
-/* Make dropdown and button the same height */
-.vnc-console > .toolbar-pf-action-right .dropdown,
-.vnc-console > .toolbar-pf-action-right .btn {
-    min-height: 2rem;
+/* Use flex to size the send key and disconnect button */
+.vnc-console > .toolbar-pf-action-right > div:not([class]) {
+    display: flex;
 }
 
 /* Space action buttons apart */
-.vnc-console > .toolbar-pf-action-right .dropdown + .btn {
-    margin-left: 0.5rem;
+label[for=console-type-select],
+.console-menu > :not(:last-child),
+.vnc-console > .toolbar-pf-action-right .dropdown {
+    margin-right: 0.5rem;
 }
 
-/* Don't add pixels above "results" VNC area */
-.vnc-console > .toolbar-pf-results {
-    margin: 0;
+/* Size the VNC & terminal area appropriately */
+.vnc-console > .console-menu ~ .toolbar-pf-results,
+.terminal-control ~ .vm-terminal {
+    margin: 0.5rem auto 0;
+    width: 100%;
 }
 
 /* VNC console really shouldn't be a col-sm-12 */
@@ -52,19 +49,23 @@
     height: auto !important;
 }
 
-.vm-terminal {
-    padding-top: 20px;
-}
-
 .terminal-control {
-    display: inline-flex;
-    align-items: center;
+    display: flex;
+    align-items: baseline;
     justify-content: space-between;
     width: 100%;
 }
 
-.terminal-control .form-table-ct {
-    width: unset;
+.terminal-control > .btn {
+    min-height: 2.25rem;
+}
+
+.terminal-control > :not(:last-child) {
+    margin-right: 0.5rem;
+}
+
+.terminal-control > :last-child {
+    margin-left: auto;
 }
 
 /* Hide send key button - there is not way to do that from the JS

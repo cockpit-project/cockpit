@@ -2101,8 +2101,8 @@ function choice_title(choices, choice, def) {
  *                          less patience than Linux in this regard.
  */
 
-var curtain_time = 1.5;
-var settle_time = 1.0;
+var curtain_time = 4.0;
+var settle_time = 3.0;
 var rollback_time = 7.0;
 
 function with_checkpoint(model, modify, options) {

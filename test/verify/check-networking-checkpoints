@@ -117,6 +117,9 @@ class TestNetworking(NetworkCase):
         b.click("#networking-interfaces tr[data-interface='%s']" % iface)
         b.wait_visible("#network-interface")
 
+        # checkpoints are realtime sensitive, avoid long NM operations
+        self.settle_cpu()
+
         self.slow_down_dhclient(dhcp_delay)
 
         # Disconnect and trigger a slow rollback

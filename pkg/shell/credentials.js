@@ -25,7 +25,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 
-import "listing.less";
+import "listing.scss";
 import "patterns";
 
 export function setup() {

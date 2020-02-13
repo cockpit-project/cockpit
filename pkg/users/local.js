@@ -28,7 +28,7 @@ import * as authorized_keys from './authorized-keys.js';
 
 import 'patterns';
 import 'bootstrap-datepicker/dist/js/bootstrap-datepicker';
-import 'form-layout.less';
+import 'form-layout.scss';
 
 moment.locale(cockpit.language);
 

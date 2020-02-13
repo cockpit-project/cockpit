@@ -53,8 +53,8 @@ import MemorySelectRow from '../memorySelectRow.jsx';
 import { storagePoolRefresh } from '../../libvirt-dbus.js';
 import { Password } from './password.jsx';
 
-import './createVmDialog.less';
-import 'form-layout.less';
+import './createVmDialog.scss';
+import 'form-layout.scss';
 import VMS_CONFIG from '../../config.js';
 
 const _ = cockpit.gettext;

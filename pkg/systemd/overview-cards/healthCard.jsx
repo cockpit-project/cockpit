@@ -24,7 +24,7 @@ import cockpit from "cockpit";
 import { PageStatusNotifications } from "../page-status.jsx";
 import * as service from "service.js";
 
-import "./healthCard.less";
+import "./healthCard.scss";
 
 const _ = cockpit.gettext;
 

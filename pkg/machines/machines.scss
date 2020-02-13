@@ -1,5 +1,5 @@
 @import "../lib/page.css";
-@import "../lib/cards.less";
+@import "../lib/cards.scss";
 @import "../lib/table.css";
 
 @import "../../node_modules/c3/c3.css";
@@ -243,8 +243,8 @@ td > .utilization-bar-pf {
 }
 
 // Toast-related variables
-@toast-stack-offset: 0.75rem;
-@toast-anim-speed: 200ms;
+$toast-stack-offset: 0.75rem;
+$toast-anim-speed: 200ms;
 
 // Notification wrapper styles that apply to both mobile and desktop
 .toast-notification-wrapper {
@@ -283,7 +283,7 @@ td > .utilization-bar-pf {
         position: static;
 
         .pf-c-alert {
-            animation: toast-fade-in @toast-anim-speed ease-out;
+            animation: toast-fade-in $toast-anim-speed ease-out;
             transform-origin: bottom;
         }
     }
@@ -295,18 +295,18 @@ td > .utilization-bar-pf {
         // Toast grid can escape a 0 height flex without reflowing
         display: flex;
         height: 0;
-        top: 0.5rem - @toast-stack-offset;
+        top: 0.5rem - $toast-stack-offset;
     }
 
     .toast-notifications-list-pf .pf-c-alert {
         // Animation for toasts fading & sliding in
-        animation: toast-fade-in @toast-anim-speed ease-out;
+        animation: toast-fade-in $toast-anim-speed ease-out;
         // Animations should happen from the top
         transform-origin: top;
         // Animation setup for the stack collapse & expanding
-        transition: all @toast-anim-speed ease-out;
+        transition: all $toast-anim-speed ease-out;
         // Delay the stacking until the fade-in animation is done
-        transition-delay: @toast-anim-speed;
+        transition-delay: $toast-anim-speed;
         margin: 0;
         max-width: calc(100vw - 4rem);
         width: 72ch;
@@ -314,14 +314,14 @@ td > .utilization-bar-pf {
 
         // Animate CSS changes for the icon and other toast children
         .pf-c-alert__icon::before, a, p {
-            transition: all @toast-anim-speed ease-out;
+            transition: all $toast-anim-speed ease-out;
         }
     }
 
     .toast-notifications-list-pf {
         display: grid;
         grid-gap: 0.5rem;
-        margin: @toast-stack-offset auto 0;
+        margin: $toast-stack-offset auto 0;
         max-width: 100% !important;
         position: static;
 
@@ -362,7 +362,7 @@ td > .utilization-bar-pf {
                         // Fade the icon
                         color: transparent;
                         // Delay fading until toast appears and slides up
-                        transition-delay: @toast-anim-speed * 2;
+                        transition-delay: $toast-anim-speed * 2;
                     }
                 }
 

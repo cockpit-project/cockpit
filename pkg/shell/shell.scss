@@ -21,9 +21,9 @@
 
 @import "../lib/page.css";
 @import "../lib/table.css";
-@import "variables.less";
-@import "switcher.less";
-@import "active-pages.less";
+@import "variables";
+@import "switcher.scss";
+@import "active-pages.scss";
 
 /* Hacks on top for now */
 
@@ -387,10 +387,10 @@ html.index-page body {
     margin: 0;
 
     .dropdown-menu {
-        width: unit(@sidebar-width-full, px);
+        width: $sidebar-width-full;
         top: 4rem;
         /* Align to arrow: 50% width + button padding + arrow width */
-        right: ~"calc(-50% + 3rem + 10px)";
+        right: "calc(-50% + 3rem + 10px)";
         left: auto;
         overflow: visible;
         padding: 0;

@@ -29,7 +29,7 @@ import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { updateDiskAttributes } from '../libvirt-dbus.js';
 import { getDiskPrettyName, getDiskFullName } from '../helpers.js';
 
-import 'form-layout.less';
+import 'form-layout.scss';
 
 const _ = cockpit.gettext;
 

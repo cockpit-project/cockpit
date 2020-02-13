@@ -24,7 +24,7 @@ import { networkId } from '../../helpers.js';
 import { changeNetworkAutostart } from '../../libvirt-dbus.js';
 
 import '../overviewTab.css';
-import 'form-layout.less';
+import 'form-layout.scss';
 
 const _ = cockpit.gettext;
 

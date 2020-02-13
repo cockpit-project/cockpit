@@ -32,7 +32,7 @@ import {
 } from '../actions/provider-actions.js';
 import { getNetworkDevices } from '../helpers.js';
 
-import 'form-layout.less';
+import 'form-layout.scss';
 
 const _ = cockpit.gettext;
 

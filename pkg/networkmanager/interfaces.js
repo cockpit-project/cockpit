@@ -39,7 +39,7 @@ import "table.css";
 import "plot.css";
 import "journal.css";
 import "./networking.css";
-import "form-layout.less";
+import "form-layout.scss";
 
 const _ = cockpit.gettext;
 var C_ = cockpit.gettext;

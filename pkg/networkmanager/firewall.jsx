@@ -36,7 +36,7 @@ import { ModalError } from "cockpit-components-inline-notification.jsx";
 
 import "page.css";
 import "table.css";
-import "form-layout.less";
+import "form-layout.scss";
 import "./networking.css";
 
 const _ = cockpit.gettext;

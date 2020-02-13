@@ -28,7 +28,7 @@ import { attachIface } from '../libvirt-dbus.js';
 import { getNetworkDevices } from '../helpers.js';
 
 import './nic.css';
-import 'form-layout.less';
+import 'form-layout.scss';
 
 const _ = cockpit.gettext;
 

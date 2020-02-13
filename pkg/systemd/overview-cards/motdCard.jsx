@@ -21,7 +21,7 @@ import React from 'react';
 
 import cockpit from "cockpit";
 
-import './motdCard.less';
+import './motdCard.scss';
 
 export class MotdCard extends React.Component {
     constructor() {

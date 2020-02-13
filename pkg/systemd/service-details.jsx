@@ -26,7 +26,7 @@ import { Button, Modal, OverlayTrigger, Tooltip, DropdownKebab, MenuItem } from 
 import cockpit from "cockpit";
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 
-import './service-details.less';
+import './service-details.scss';
 
 const _ = cockpit.gettext;
 

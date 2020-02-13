@@ -1096,6 +1096,20 @@ class MachineCase(unittest.TestCase):
                         print("Core dumps downloaded to %s" % (dest))
                         attach(dest)
 
+    def settle_cpu(self):
+        '''Wait until CPU usage in the VM settles down
+
+        Wait until the process with the highest CPU usage drops below 20%
+        usage. Wait for up to a minute, then return. There is no error if the
+        CPU stays busy, as usually a test then should just try to run anyway.
+        '''
+        for retry in range(20):
+            # get the CPU percentage of the most busy process
+            busy_proc = self.machine.execute("ps --no-headers -eo pcpu,pid,args | sort -k 1 -n -r | head -n1")
+            if float(busy_proc.split()[0]) < 20.0:
+                break
+            time.sleep(3)
+
 
 some_failed = False
 

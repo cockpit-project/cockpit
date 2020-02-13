@@ -845,16 +845,13 @@ function NetworkManagerModel() {
             delete result["802-11-wireless"];
 
         if (settings.wifi_security) {
-            console.log("No");
             set("802-11-wireless-security", "key-mgmt", 's', settings.wifi_security.key_mgmt);
             set("802-11-wireless-security", "psk", 's', settings.wifi_security.psk);
             // delete wifi_security options if security: None
             if (!settings.wifi_security.key_mgmt) {
-                console.log("Nyaw");
                 delete result["802-11-wireless-security"];
             }
         } else {
-            console.log("Yes");
             delete result["802-11-wireless-security"];
         }
 
@@ -1847,7 +1844,6 @@ PageNetworking.prototype = {
         });
 
         function handle_usage_samples() {
-            // console.log(JSON.stringify(usage_samples));
             for (var iface in usage_samples) {
                 var samples = usage_samples[iface];
                 var rx = samples[0][0];
@@ -2680,7 +2676,6 @@ PageNetworkInterface.prototype = {
         });
 
         function handle_usage_samples() {
-            // console.log(usage_samples);
             for (var iface in usage_samples) {
                 var samples = usage_samples[iface];
                 var rx = samples[0][0];
@@ -5311,7 +5306,6 @@ PageNetworkWiFiSettings.prototype = {
 
     update: function() {
         var self = this;
-        console.log(self.settings);
         var connection = self.settings.connection;
         var options = self.settings.wifi;
         var security_options = self.settings.wifi_security;

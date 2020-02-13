@@ -432,6 +432,25 @@ module.exports = {
                     "less-loader"
                 ]
             },
+            {
+                test: /\.scss$/,
+                use: [
+                    miniCssExtractPlugin.loader,
+                    "css-loader",
+                    "less-loader",
+                    'sass-loader',
+                    {
+                        loader: 'sass-resources-loader',
+                            // Make PF3 and PF4 variables globably accessible to be used by the components scss
+                            options: {
+                                resources: [
+                                    path.resolve(nodedir, './@patternfly/patternfly/patternfly-variables.scss'),
+                                    path.resolve(nodedir, './patternfly/dist/sass/patternfly/_variables.scss')
+                                ],
+                            },
+                    },
+                ]
+            },
         ],
     }
 };

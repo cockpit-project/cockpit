@@ -5558,9 +5558,9 @@ PageNetworkWiFiSettings.prototype = {
             });
         });
 
-        band_btn.on('click', 'li', channel_block_handler);
-        security_btn.on('click', 'li', security_block_handler);
-        eap_auth_btn.on('click', 'li', security_auth_block_handler);
+        band_btn.on('click', 'option', channel_block_handler);
+        security_btn.on('click', 'option', security_block_handler);
+        eap_auth_btn.on('click', 'option', security_auth_block_handler);
 
         body.find('#security-personal-password-toggle').click(function() {
             toggle_password(personal_password_input);

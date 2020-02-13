@@ -36,7 +36,7 @@ import "patterns";
 import "bootstrap-datepicker/dist/js/bootstrap-datepicker";
 import "patternfly-bootstrap-combobox/js/bootstrap-combobox";
 
-import "./configurationCard.less";
+import "./configurationCard.scss";
 
 const _ = cockpit.gettext;
 

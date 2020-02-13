@@ -1,8 +1,8 @@
 @import "../lib/plot.css";
-@import "../../node_modules/@patternfly/patternfly/components/Breadcrumb/breadcrumb.css";
-@import "../../node_modules/@patternfly/patternfly/layouts/Gallery/gallery.css";
-@import "../../node_modules/@patternfly/patternfly/components/Page/page.css";
-@import "../../node_modules/@patternfly/patternfly/components/Card/card.css";
+@import "../../node_modules/@patternfly/patternfly/components/Breadcrumb/breadcrumb.scss";
+@import "../../node_modules/@patternfly/patternfly/layouts/Gallery/gallery.scss";
+@import "../../node_modules/@patternfly/patternfly/components/Page/page.scss";
+@import "../../node_modules/@patternfly/patternfly/components/Card/card.scss";
 
 
 :root {
@@ -89,7 +89,7 @@
 .ct-graphs-layout {
   --graph-padding: var(--pf-l-gallery--m-gutter--GridGap);
   /* Mobile grid layout */
-  grid-template: ~"repeat(4, minmax(16rem,1fr)) / 1fr";
+  grid-template: repeat(4, minmax(16rem,1fr)) / 1fr;
   width: 100%;
   height: 100%;
 
@@ -122,7 +122,7 @@
 
   .ct-graphs-layout {
     /* Desktop layout */
-    grid-template: ~"repeat(2, minmax(15rem, 1fr)) / repeat(2, 1fr)";
+    grid-template: repeat(2, minmax(15rem, 1fr)) / repeat(2, 1fr);
     /* Set a max height so graphs don't get too wonky vertically */
     max-height: 70rem;
   }
@@ -223,7 +223,7 @@
   align-items: baseline;
 
   .server-graph {
-    grid-column: ~"1 / -1";
+    grid-column: 1 / -1;
     width: 100%;
     height: 100%;
   }

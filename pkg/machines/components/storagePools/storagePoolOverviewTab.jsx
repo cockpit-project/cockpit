@@ -22,7 +22,7 @@ import PropTypes from 'prop-types';
 import { storagePoolId } from '../../helpers.js';
 import cockpit from 'cockpit';
 
-import 'form-layout.less';
+import 'form-layout.scss';
 
 const _ = cockpit.gettext;
 

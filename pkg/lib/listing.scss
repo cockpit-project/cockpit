@@ -1,6 +1,6 @@
 /* Listing pattern */
 
-@import "./variables.less";
+@import "./variables.scss";
 
 .ct-listing {
     font-size: var(--font-size-s);
@@ -55,7 +55,7 @@
 }
 
 .ct-listing > table > thead td {
-    padding-top: @listing-ct-padding * 2;
+    padding-top: $listing-ct-padding * 2;
 }
 
 .ct-listing > table > thead:first-child td {
@@ -64,17 +64,17 @@
 
 .ct-listing > table > thead td > a {
     line-height: 30px;
-    padding: @listing-ct-padding 0 @listing-ct-padding;
+    padding: $listing-ct-padding 0 $listing-ct-padding;
 }
 
 .ct-listing > table > thead th {
     font-weight: normal;
-    padding: @listing-ct-padding @listing-ct-padding * 2;
-    color: @listing-ct-metadata;
+    padding: $listing-ct-padding $listing-ct-padding * 2;
+    color: $listing-ct-metadata;
 }
 
 .ct-listing > table > thead th:first-child {
-    padding-left: @listing-ct-padding * 2;
+    padding-left: $listing-ct-padding * 2;
 }
 
 .ct-listing > table > thead th:last-child {
@@ -103,26 +103,26 @@ tbody > tr.listing-ct-item {
 }
 
 tbody > tr.listing-ct-item.listing-ct-warning {
-    background-color: @listing-ct-warning-color;
+    background-color: $listing-ct-warning-color;
 }
 
 tbody.open > tr.listing-ct-item,
 tbody.open > tr.listing-ct-panel {
-    background-color: @listing-ct-active;
+    background-color: $listing-ct-active;
     border-bottom: none;
     border-top: none;
-    border-left: 1px solid @listing-ct-border;
-    border-right: 1px solid @listing-ct-border;
+    border-left: 1px solid $listing-ct-border;
+    border-right: 1px solid $listing-ct-border;
     transition: all 200ms;
 }
 
 tbody.open > tr.listing-ct-item td,
 tbody.open > tr.listing-ct-item th {
-    border-top: 1px solid @listing-ct-border;
+    border-top: 1px solid $listing-ct-border;
 }
 
 tbody.open td div.listing-ct-head {
-    background-color: @color-pf-white;
+    background-color: $color-pf-white;
     align-items: end;
 }
 
@@ -137,35 +137,35 @@ tbody.open > tr.listing-ct-panel + tr.listing-ct-body {
 
 tbody.open > tr.listing-ct-panel td div.listing-ct-head {
     border: none;
-    border-bottom: 1px solid @listing-ct-border;
+    border-bottom: 1px solid $listing-ct-border;
     padding-top: 0;
 }
 
 /* only highlight the row if navigation is available */
 tbody:not(.open) > tr.listing-ct-item:not(.listing-ct-nonavigate):hover {
-    background-color: @listing-ct-hover;
+    background-color: $listing-ct-hover;
 }
 
 /* if we can't navigate to a row but expand is available, highlight the caret */
 tbody:not(.open) > tr.listing-ct-item.listing-ct-nonavigate:hover td.listing-ct-toggle {
-    color: @listing-ct-hover-icon;
+    color: $listing-ct-hover-icon;
 }
 
 /* use hover color expanded rows even if navigation isn't available */
 tbody.open > tr.listing-ct-item:hover,
 tr.listing-ct-item.listing-ct-nonavigate:hover {
-    background-color: @listing-ct-hover;
+    background-color: $listing-ct-hover;
 }
 
 tr.listing-ct-item .listing-ct-toggle:not(:empty) {
     width: 35px;
-    color: @color-pf-black-800;
+    color: $color-pf-black-800;
 }
 
 /* Highlight toggle color when hovered or if the row is open */
 .listing-ct-toggle:hover,
 tbody.open .listing-ct-toggle {
-    color: @listing-ct-active;
+    color: $listing-ct-active;
 }
 
 .listing-ct .listing-ct-toggle:empty {
@@ -176,7 +176,7 @@ tbody.open .listing-ct-toggle {
 .listing-ct > thead > tr > .listing-ct-toggle + th,
 .listing-ct-item > .listing-ct-toggle + td,
 .listing-ct-item > .listing-ct-toggle + th {
-    padding-left: @listing-ct-padding / 2;
+    padding-left: $listing-ct-padding / 2;
     position: relative;
 }
 
@@ -223,7 +223,7 @@ tbody.open td.listing-ct-toggle i:before {
 .listing-ct > thead > tr > th,
 tr.listing-ct-item > th,
 tr.listing-ct-item > td {
-    padding: @listing-ct-padding * 1.5;
+    padding: $listing-ct-padding * 1.5;
     vertical-align: text-top; /* baseline doesn't support wrapped lines */
 }
 
@@ -243,28 +243,28 @@ tr.listing-ct-item > td {
 /* Listing actions can be used directly as a cell */
 tr.listing-ct-item td.listing-ct-actions,
 td.listing-ct-actions {
-    padding: @listing-ct-padding / 2 @listing-ct-padding;
+    padding: $listing-ct-padding / 2 $listing-ct-padding;
     text-align: right;
     float: none;
 }
 
 /* if the entire row is selected, highlight */
 tr.listing-ct-item.listing-ct-selected {
-    background-color: @color-pf-blue-400;
-    color: @color-pf-white;
-    border-color: multiply(@color-pf-black-200, @color-pf-blue-400);
+    background-color: $color-pf-blue-400;
+    color: $color-pf-white;
+    border-color: multiply($color-pf-black-200, $color-pf-blue-400);
 
     &:hover {
-        background-color: multiply(@color-pf-black-200, @color-pf-blue-400);
-        border-color: multiply(@color-pf-black-200, @color-pf-blue-400);
+        background-color: multiply($color-pf-black-200, $color-pf-blue-400);
+        border-color: multiply($color-pf-black-200, $color-pf-blue-400);
     }
 }
 
 tr.listing-ct-item.listing-ct-selected .badge {
-    background-color: multiply(@badge-bg, @color-pf-blue-400);
+    background-color: multiply($badge-bg, $color-pf-blue-400);
 
     &:hover {
-        background-color: multiply(@badge-bg, @color-pf-blue-500);
+        background-color: multiply($badge-bg, $color-pf-blue-500);
     }
 }
 
@@ -279,19 +279,19 @@ tr.listing-ct-item td:last-child {
 }
 
 div.listing-ct-panel {
-    box-shadow: 1px 1px 1px 1px @listing-ct-open;
-    margin-bottom: @listing-ct-spacing;
+    box-shadow: 1px 1px 1px 1px $listing-ct-open;
+    margin-bottom: $listing-ct-spacing;
 }
 
 div.listing-ct-maybe {
-    border: 1px dashed @listing-ct-border-maybe;
+    border: 1px dashed $listing-ct-border-maybe;
     box-shadow: none;
 }
 
 div.listing-ct-head {
-    padding: @listing-ct-padding @listing-ct-padding 0 @listing-ct-padding;
-    background-color: @listing-ct-open;
-    border-color: @listing-ct-border;
+    padding: $listing-ct-padding $listing-ct-padding 0 $listing-ct-padding;
+    background-color: $listing-ct-open;
+    border-color: $listing-ct-border;
     border-style: solid;
     border-width: 1px 1px 0 1px;
     overflow: hidden;
@@ -301,25 +301,25 @@ div.listing-ct-head {
 }
 
 div.listing-ct-head:last-child {
-    padding-bottom: @listing-ct-padding;
+    padding-bottom: $listing-ct-padding;
 }
 
 div.listing-ct-maybe div.listing-ct-head,
 div.listing-ct-maybe div.listing-ct-body {
-    background-color: @color-pf-white;
+    background-color: $color-pf-white;
     border: none;
 }
 
 tbody.active .listing-ct-head {
-    border-top: @listing-ct-open-width solid var(--color-link);
+    border-top: $listing-ct-open-width solid var(--color-link);
 }
 
 .listing-ct-head h3 {
     font-weight: normal;
     font-size: 18px;
     margin-top: 0px;
-    margin-left: @listing-ct-padding / 2;
-    margin-bottom: @listing-ct-padding;
+    margin-left: $listing-ct-padding / 2;
+    margin-bottom: $listing-ct-padding;
 }
 
 .listing-ct-head h3 i {
@@ -330,7 +330,7 @@ tbody.active .listing-ct-head {
 .listing-ct-head .nav li a {
     font-size: 13px;
     /* Counteract listing-ct-head padding */
-    margin-top: -@listing-ct-padding;
+    margin-top: -$listing-ct-padding;
     margin: 0;
 }
 
@@ -340,7 +340,7 @@ tbody.active .listing-ct-head {
 
 .listing-ct-head .nav-tabs-pf {
     /* Counteract listing-ct-head padding */
-    margin: 0 0 0 -@listing-ct-padding;
+    margin: 0 0 0 -$listing-ct-padding;
     flex: auto;
 }
 
@@ -358,7 +358,7 @@ tbody.active .listing-ct-head {
     font-weight: normal;
     display: inline;
     margin-right: 0.5em;
-    color: @listing-ct-metadata;
+    color: $listing-ct-metadata;
 }
 
 .listing-ct-head dd {
@@ -367,20 +367,20 @@ tbody.active .listing-ct-head {
 }
 
 .listing-ct-body {
-    padding: @listing-ct-padding * 2 @listing-ct-padding + @listing-ct-spacing;
-    border: 1px solid @listing-ct-border;
-    background-color: @color-pf-white;
+    padding: $listing-ct-padding * 2 $listing-ct-padding + $listing-ct-spacing;
+    border: 1px solid $listing-ct-border;
+    background-color: $color-pf-white;
 }
 
 .listing-ct-inline > td > .listing-ct-body {
     border: none;
     padding-top: 0px;
-    padding-left: @listing-ct-padding * 2;
+    padding-left: $listing-ct-padding * 2;
     padding-bottom: 0px;
 }
 
 .listing-ct-inline > h3 {
-    border-top: 1px solid @listing-ct-border;
+    border-top: 1px solid $listing-ct-border;
     padding-top: 20px;
     margin-top: 30px;
 }
@@ -402,9 +402,9 @@ tbody.active .listing-ct-head {
 }
 
 .listing-ct-error {
-    border-top: 1px solid @listing-ct-border;
-    border-left: 1px solid @listing-ct-border;
-    border-right: 1px solid @listing-ct-border;
+    border-top: 1px solid $listing-ct-border;
+    border-left: 1px solid $listing-ct-border;
+    border-right: 1px solid $listing-ct-border;
 }
 
 .listing-ct-error.alert {
@@ -427,7 +427,7 @@ tbody.active .listing-ct-head {
     min-height: 26px;
     white-space: nowrap;
     text-overflow: ellipsis;
-    color: @listing-ct-metadata;
+    color: $listing-ct-metadata;
     font-weight: normal;
 }
 
@@ -565,11 +565,11 @@ tbody.open div.listing-ct-head + div.listing-ct-body:not([hidden]):last-child {
 }
 
 tbody.open tr.listing-ct-head {
-    border-color: @listing-ct-border;
+    border-color: $listing-ct-border;
     border-style: solid;
     border-width: 1px 1px 0 1px;
-    border-top: @listing-ct-open-width solid var(--color-link);
-    background-color: @listing-ct-open;
+    border-top: $listing-ct-open-width solid var(--color-link);
+    background-color: $listing-ct-open;
 }
 
 tr.listing-ct-head + tr.listing-ct-head {
@@ -577,25 +577,25 @@ tr.listing-ct-head + tr.listing-ct-head {
 }
 
 tr.listing-ct-head + tr.listing-ct-head td {
-    padding: 0px @listing-ct-padding 0px @listing-ct-padding;
+    padding: 0px $listing-ct-padding 0px $listing-ct-padding;
 }
 
 tr.listing-ct-body td {
-    padding: @listing-ct-padding * 2 @listing-ct-padding + @listing-ct-spacing;
+    padding: $listing-ct-padding * 2 $listing-ct-padding + $listing-ct-spacing;
     font-size: var(--font-size-s);
 }
 
 .listing-ct-empty {
     color: var(--color-subtle-copy);
     text-align: center;
-    border-top: 1px solid @listing-ct-border-light;
-    border-bottom: 1px solid @listing-ct-border-light;
+    border-top: 1px solid $listing-ct-border-light;
+    border-bottom: 1px solid $listing-ct-border-light;
 }
 
 /* Used at the end of a group of tbody to show an 'empty' message */
 thead.listing-ct-empty td,
 .ct-listing > table > thead.listing-ct-empty td {
-    padding: @listing-ct-padding;
+    padding: $listing-ct-padding;
 }
 
 tbody + thead.listing-ct-empty {
@@ -624,7 +624,7 @@ tbody tr.listing-ct-noexpand {
 
 .nav-tabs-pf > li:first-child a {
     margin-left: 0px !important;
-    padding-left: @listing-ct-spacing !important;
+    padding-left: $listing-ct-spacing !important;
 }
 
 .nav-tabs-pf > li a:before {
@@ -635,7 +635,7 @@ tbody tr.listing-ct-noexpand {
 .nav-tabs-pf > li > a:focus:before,
 .nav-tabs-pf > li > a:hover:before,
 .nav-tabs-pf > li.active a:before {
-    height: @listing-ct-open-width;
+    height: $listing-ct-open-width;
     left: 0px;
 }
 

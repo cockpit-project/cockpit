@@ -23,7 +23,7 @@ import { Button, Modal } from 'patternfly-react';
 import { Tabs, Tab } from '@patternfly/react-core';
 
 import cockpit from "cockpit";
-import './listing.less';
+import './listing.scss';
 import 'cockpit-components-modifications.css';
 
 const _ = cockpit.gettext;

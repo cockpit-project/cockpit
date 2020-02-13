@@ -20,7 +20,7 @@ import {
     getVm
 } from '../../actions/provider-actions.js';
 
-import 'form-layout.less';
+import 'form-layout.scss';
 
 const _ = cockpit.gettext;
 

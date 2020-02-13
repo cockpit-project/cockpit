@@ -2,7 +2,7 @@ import $ from "jquery";
 
 import "patterns";
 import "page.css";
-import "listing.less";
+import "listing.scss";
 import "timeline.css";
 import "table.css";
 

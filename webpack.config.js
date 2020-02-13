@@ -26,7 +26,7 @@ var info = {
 
         "machines/machines": [
             "machines/index.js",
-            "machines/machines.less",
+            "machines/machines.scss",
         ],
 
         "networkmanager/network": [
@@ -89,7 +89,7 @@ var info = {
 
         "shell/index": [
             "shell/index.js",
-            "shell/shell.less",
+            "shell/shell.scss",
         ],
 
         "sosreport/sosreport": [
@@ -103,27 +103,27 @@ var info = {
 
         "systemd/services": [
             "systemd/init.js",
-            "systemd/services.less",
+            "systemd/services.scss",
         ],
         "systemd/logs": [
             "systemd/logs.js",
-            "systemd/logs.less",
+            "systemd/logs.scss",
         ],
         "systemd/overview": [
             "systemd/overview.jsx",
-            "systemd/overview.less",
+            "systemd/overview.scss",
         ],
         "systemd/terminal": [
             "systemd/terminal.jsx",
-            "systemd/terminal.less",
+            "systemd/terminal.scss",
         ],
         "systemd/hwinfo": [
             "systemd/hwinfo.jsx",
-            "systemd/hwinfo.less",
+            "systemd/hwinfo.scss",
         ],
         "systemd/graphs": [
             "systemd/graphs.js",
-            "systemd/graphs.less",
+            "systemd/graphs.scss",
         ],
 
         "tuned/performance": [
@@ -132,7 +132,7 @@ var info = {
 
         "packagekit/updates": [
             "packagekit/updates.jsx",
-            "packagekit/updates.less",
+            "packagekit/updates.scss",
         ],
 
         "users/users": [
@@ -375,7 +375,7 @@ module.exports = {
     resolve: {
         alias: aliases,
         modules: [ libdir, nodedir ],
-        extensions: ["*", ".js", ".json", ".less"]
+        extensions: ["*", ".js", ".json"]
     },
     entry: info.entries,
     output: output,
@@ -425,25 +425,17 @@ module.exports = {
                 ],
             },
             {
-                test: /\.less$/,
-                use: [
-                    miniCssExtractPlugin.loader,
-                    "css-loader",
-                    "less-loader"
-                ]
-            },
-            {
                 test: /\.scss$/,
                 use: [
                     miniCssExtractPlugin.loader,
                     "css-loader",
-                    "less-loader",
                     'sass-loader',
                     {
                         loader: 'sass-resources-loader',
                             // Make PF3 and PF4 variables globably accessible to be used by the components scss
                             options: {
                                 resources: [
+                                    path.resolve(libdir, './_global-variables.scss'),
                                     path.resolve(nodedir, './@patternfly/patternfly/patternfly-variables.scss'),
                                     path.resolve(nodedir, './patternfly/dist/sass/patternfly/_variables.scss')
                                 ],

@@ -26,7 +26,7 @@ import { OverlayTrigger, Tooltip } from "patternfly-react";
 import * as Select from "cockpit-components-select.jsx";
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 
-import "form-layout.less";
+import "form-layout.scss";
 
 const _ = cockpit.gettext;
 

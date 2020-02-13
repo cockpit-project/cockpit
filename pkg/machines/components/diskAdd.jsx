@@ -27,7 +27,7 @@ import { volumeCreateAndAttach, attachDisk, getVm } from '../actions/provider-ac
 import { VolumeCreateBody } from './storagePools/storageVolumeCreateBody.jsx';
 import { updateDiskAttributes } from '../libvirt-dbus.js';
 
-import 'form-layout.less';
+import 'form-layout.scss';
 import './diskAdd.css';
 
 const _ = cockpit.gettext;

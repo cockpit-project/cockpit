@@ -31,7 +31,7 @@ import { page_status } from "notifications";
 
 import * as PK from "packagekit.js";
 
-import "listing.less";
+import "listing.scss";
 
 const _ = cockpit.gettext;
 moment.locale(cockpit.language);

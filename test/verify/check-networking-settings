@@ -38,6 +38,8 @@ class TestNetworking(NetworkCase):
 
         iface = self.add_iface(activate=False)
         self.wait_for_iface(iface, active=False)
+        # checkpoints are realtime sensitive, avoid long NM operations
+        self.settle_cpu()
 
         b.click("#networking-interfaces tr[data-interface='%s']" % iface)
         b.wait_visible("#network-interface")

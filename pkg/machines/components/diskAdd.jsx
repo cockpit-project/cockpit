@@ -509,12 +509,14 @@ export class AddDiskModalBody extends React.Component {
                                      vms={vms}
                                      vm={vm} />
                 )}
-                <hr />
-                <PermanentChange idPrefix={idPrefix}
-                                 permanent={this.state.permanent}
-                                 onValueChanged={this.onValueChanged}
-                                 provider={provider}
-                                 vm={vm} />
+                {vm.persistent && <>
+                    <hr />
+                    <PermanentChange idPrefix={idPrefix}
+                                     permanent={this.state.permanent}
+                                     onValueChanged={this.onValueChanged}
+                                     provider={provider}
+                                     vm={vm} />
+                </>}
                 {provider.name == 'LibvirtDBus' && <AdditionalOptions cacheMode={this.state.cacheMode}
                                     onValueChanged={this.onValueChanged}
                                     busType={this.state.busType} />}

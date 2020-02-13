@@ -845,16 +845,13 @@ function NetworkManagerModel() {
             delete result["802-11-wireless"];
 
         if (settings.wifi_security) {
-            console.log("No");
             set("802-11-wireless-security", "key-mgmt", 's', settings.wifi_security.key_mgmt);
             set("802-11-wireless-security", "psk", 's', settings.wifi_security.psk);
             // delete wifi_security options if security: None
             if (!settings.wifi_security.key_mgmt) {
-                console.log("Nyaw");
                 delete result["802-11-wireless-security"];
             }
         } else {
-            console.log("Yes");
             delete result["802-11-wireless-security"];
         }
 
@@ -1847,7 +1844,6 @@ PageNetworking.prototype = {
         });
 
         function handle_usage_samples() {
-            // console.log(JSON.stringify(usage_samples));
             for (var iface in usage_samples) {
                 var samples = usage_samples[iface];
                 var rx = samples[0][0];
@@ -2496,8 +2492,8 @@ function choice_title(choices, choice, def) {
  *                          less patience than Linux in this regard.
  */
 
-var curtain_time = 1.5;
-var settle_time = 1.0;
+var curtain_time = 4.0;
+var settle_time = 3.0;
 var rollback_time = 7.0;
 
 function with_checkpoint(model, modify, options) {
@@ -2680,7 +2676,6 @@ PageNetworkInterface.prototype = {
         });
 
         function handle_usage_samples() {
-            // console.log(usage_samples);
             for (var iface in usage_samples) {
                 var samples = usage_samples[iface];
                 var rx = samples[0][0];
@@ -5311,7 +5306,6 @@ PageNetworkWiFiSettings.prototype = {
 
     update: function() {
         var self = this;
-        console.log(self.settings);
         var connection = self.settings.connection;
         var options = self.settings.wifi;
         var security_options = self.settings.wifi_security;
@@ -5558,9 +5552,9 @@ PageNetworkWiFiSettings.prototype = {
             });
         });
 
-        band_btn.on('click', 'li', channel_block_handler);
-        security_btn.on('click', 'li', security_block_handler);
-        eap_auth_btn.on('click', 'li', security_auth_block_handler);
+        band_btn.on('click', 'option', channel_block_handler);
+        security_btn.on('click', 'option', security_block_handler);
+        eap_auth_btn.on('click', 'option', security_auth_block_handler);
 
         body.find('#security-personal-password-toggle').click(function() {
             toggle_password(personal_password_input);
@@ -5792,25 +5786,6 @@ PageNetworkOpenVPNSettings.prototype = {
     apply: function() {
         var self = this;
         var options = self.settings.vpn;
-        /* var vpn_props = [
-            { line: "+vpn.data auth=", prop: "auth" },
-            { line: "+vpn.data ca=", prop: "ca" },
-            { line: "+vpn.data cert=", prop: "cert" },
-            { line: "+vpn.data cipher=", prop: "cipher" },
-            { line: "+vpn.data dev=", prop: "dev" },
-            { line: "+vpn.data key=", prop: "key" },
-            { line: "+vpn.data key-direction=", prop: "key_direction" },
-            { line: "+vpn.data mssfix=", prop: "mssfix" },
-            { line: "+vpn.data port=", prop: "port" },
-            { line: "+vpn.data proto=", prop: "proto" },
-            { line: "+vpn.data rcvbuf=", prop: "rcvbuf" },
-            { line: "+vpn.data remote-cert-tls=", prop: "remote_cert_tls" },
-            { line: "+vpn.data reneg-sec=", prop: "reneg_sec" },
-            { line: "+vpn.data resolv-retry=", prop: "resolv_retry" },
-            { line: "+vpn.data sndbuf=", prop: "sndbuf" },
-            { line: "+vpn.data ta=", prop: "ta" },
-            { line: "+vpn.data tun-mtu=", prop: "tun_mtu" },
-        ]; */
         cockpit.spawn([
             "nmcli",
             "connection",
@@ -5833,65 +5808,19 @@ PageNetworkOpenVPNSettings.prototype = {
                     "conn",
                     "up",
                     options.name.trim().substr(8, (options.name.trim().length) - 13)
-                ], { err: "out" });
+                ], { err: "out" })
+                        .done(() => {
+                            $('#network-openvpn-settings-dialog').modal('hide');
+                        });
             });
         })
                 .fail(function () {
                     show_error("Connection has not been established");
                 });
 
-        /* function add_vpn_connection() {
-            var cmd = [
-                "nmcli connection add \\",
-                "connection.id " + self.settings.connection.id + " \\",
-                "connection.interface-name " + self.settings.connection.interface_name + " \\",
-                "connection.type vpn \\",
-                "vpn-type openvpn \\",
-                "connection.autoconnect off \\",
-                "connection.permissions \"user:$USER\" \\",
-                "ipv4.dns-search \"\" \\",
-                "ipv4.method auto \\",
-                "ipv4.never-default true \\",
-                "ipv6.dns-search \"\" \\",
-                "ipv6.method auto \\",
-                "ipv6.never-default true \\",
-                "+vpn.data connection-type=password-tls \\",
-                "+vpn.data username=${USER} \\",
-                "+vpn.data password-flags=1 \\",
-            ];
-
-            options.remote.forEach(function(item) {
-                cmd.push("+vpn.data remote=" + item + " \\");
-            });
-
-            vpn_props.forEach(function(item) {
-                if (options[item.prop])
-                    cmd.push(item.line + options[item.prop] + " \\");
-            });
-
-            cmd.push("+vpn.data service-type=org.freedesktop.NetworkManager.openvpn");
-            cmd = cmd.join("\n");
-
-            cockpit.script(cmd, { err: "ignore" })
-                    .fail(function () {
-                        show_error("Connection has not been established");
-                    });
-        } */
-
         function show_error(error) {
             show_dialog_error('#network-openvpn-settings-error', error);
         }
-
-        // show warning if network-manager-openvpn is not installed
-        cockpit.script("test -f /usr/lib*/NetworkManager/nm-openvpn-service",
-                       { err: "ignore" })
-                .done(function () {
-                    // add_vpn_connection();
-                    $('#network-openvpn-settings-dialog').modal('hide');
-                })
-                .fail(function () {
-                    show_error("`network-manager-openvpn` is not installed");
-                });
     }
 };
 

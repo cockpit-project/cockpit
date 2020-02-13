@@ -126,8 +126,8 @@ export function deleteVm(vm, options, storagePools) {
     return virt(DELETE_VM, { name: vm.name, id: vm.id, connectionName: vm.connectionName, options, storagePools });
 }
 
-export function detachDisk({ connectionName, target, name, id, live = false }) {
-    return virt(DETACH_DISK, { connectionName, target, name, id, live });
+export function detachDisk({ connectionName, target, name, id, live = false, persistent }) {
+    return virt(DETACH_DISK, { connectionName, target, name, id, live, persistent });
 }
 
 export function enableLibvirt(enable, serviceName) {

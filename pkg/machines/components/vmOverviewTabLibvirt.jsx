@@ -172,23 +172,23 @@ class VmOverviewTabLibvirt extends React.Component {
         );
         const bootOrder = (
             <div>
-                <Button variant="link" isInline isDisabled={config.provider.name !== "LibvirtDBus"} id={`${idPrefix}-boot-order`} onClick={this.openBootOrder}>
+                <Button variant="link" isInline isDisabled={config.provider.name !== "LibvirtDBus" || !vm.persistent} id={`${idPrefix}-boot-order`} onClick={this.openBootOrder}>
                     {getBootOrder(vm)}
                 </Button>
-                { vm.state === "running" && bootOrderChanged() && <WarningInactive iconId="boot-order-tooltip" tooltipId="tip-boot-order" /> }
+                { vm.persistent && vm.state === "running" && bootOrderChanged() && <WarningInactive iconId="boot-order-tooltip" tooltipId="tip-boot-order" /> }
             </div>
         );
         const memoryLink = (
             <div>
-                <Button variant="link" isInline isDisabled={config.provider.name !== "LibvirtDBus"} id={`${idPrefix}-memory-count`} onClick={this.openMemory}>
+                <Button variant="link" isInline isDisabled={config.provider.name !== "LibvirtDBus" || !vm.persistent} id={`${idPrefix}-memory-count`} onClick={this.openMemory}>
                     {cockpit.format_bytes(vm.currentMemory * 1024)}
                 </Button>
             </div>
         );
         const vcpuLink = (
             <div>
-                <Button variant="link" isInline id={`${idPrefix}-vcpus-count`} onClick={this.openVcpu}>{vm.vcpus.count}</Button>
-                { vm.state === "running" && vcpusChanged && <WarningInactive iconId="vcpus-tooltip" tooltipId="tip-vcpus" /> }
+                { <Button variant="link" isInline isDisabled={!vm.persistent} id={`${idPrefix}-vcpus-count`} onClick={this.openVcpu}>{vm.vcpus.count}</Button> }
+                { vm.persistent && vm.state === "running" && vcpusChanged && <WarningInactive iconId="vcpus-tooltip" tooltipId="tip-vcpus" /> }
             </div>
         );
 
@@ -223,11 +223,19 @@ class VmOverviewTabLibvirt extends React.Component {
                 };
 
                 if (vm.state != "shut off") {
-                    firmwareLinkWrapper = (
-                        <OverlayTrigger overlay={ <Tooltip id='firmware-edit-disabled-on-running'>{ _("Shut off the VM in order to edit firmware configuration") }</Tooltip> } placement='top'>
-                            {firmwareLink(true)}
-                        </OverlayTrigger>
-                    );
+                    if (vm.persistent) {
+                        firmwareLinkWrapper = (
+                            <OverlayTrigger overlay={ <Tooltip id='firmware-edit-disabled-on-running'>{ _("Shut off the VM in order to edit firmware configuration") }</Tooltip> } placement='top'>
+                                {firmwareLink(true)}
+                            </OverlayTrigger>
+                        );
+                    } else {
+                        firmwareLinkWrapper = (
+                            <OverlayTrigger overlay={ <Tooltip id='firmware-edit-disabled-on-transient'>{ _("Transient VMs don't support editting firmware configuration") }</Tooltip> } placement='top'>
+                                {firmwareLink(true)}
+                            </OverlayTrigger>
+                        );
+                    }
                 } else if (!supportsUefiXml(this.state.loaderElems[0])) {
                     firmwareLinkWrapper = (
                         <OverlayTrigger overlay={ <Tooltip id='missing-uefi-support'>{ _("Libvirt or hypervisor does not support UEFI") }</Tooltip> } placement='top'>
@@ -260,8 +268,10 @@ class VmOverviewTabLibvirt extends React.Component {
                         <div id={`${idPrefix}-cpu-model`}>{vm.cpu.model}</div>
                         <label className='control-label' htmlFor={`${idPrefix}-boot-order`}>{_("Boot Order")}</label>
                         {bootOrder}
-                        <label className='control-label' htmlFor={`${idPrefix}-autostart-checkbox`}>{_("Autostart")}</label>
-                        {autostart}
+                        {vm.persistent && <>
+                            <label className='control-label' htmlFor={`${idPrefix}-autostart-checkbox`}>{_("Autostart")}</label>
+                            {autostart}
+                        </>}
                     </div>
                     <div className="ct-form">
                         <label className='control-label label-title'> {_("Hypervisor Details")} </label>

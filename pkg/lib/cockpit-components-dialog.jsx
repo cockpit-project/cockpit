@@ -24,7 +24,7 @@ import PropTypes from "prop-types";
 import { Alert } from "@patternfly/react-core";
 import { Modal } from 'patternfly-react';
 
-import "page.css";
+import "page.scss";
 import "cockpit-components-dialog.css";
 
 const _ = cockpit.gettext;

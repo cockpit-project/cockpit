@@ -29,7 +29,7 @@ import { init_container_details } from "./details";
 import { init_image_details } from "./image";
 import { init_storage } from "./storage.jsx";
 
-import "page.css";
+import "page.scss";
 import "table.css";
 import "./docker.css";
 

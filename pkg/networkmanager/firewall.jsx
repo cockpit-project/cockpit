@@ -34,7 +34,7 @@ import { Listing, ListingRow } from "cockpit-components-listing.jsx";
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 import { ModalError } from "cockpit-components-inline-notification.jsx";
 
-import "page.css";
+import "page.scss";
 import "table.css";
 import "form-layout.scss";
 import "./networking.css";

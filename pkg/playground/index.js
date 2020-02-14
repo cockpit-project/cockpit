@@ -1,7 +1,7 @@
 import cockpit from "cockpit";
 import { page_status } from "notifications";
 
-import "../lib/page.css";
+import "../lib/page.scss";
 
 function id(sel) {
     return document.getElementById(sel);

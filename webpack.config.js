@@ -21,7 +21,7 @@ var info = {
 
         "kdump/kdump": [
             "kdump/kdump.js",
-            "kdump/kdump.css",
+            "kdump/kdump.scss",
         ],
 
         "machines/machines": [
@@ -84,7 +84,7 @@ var info = {
 
         "selinux/selinux": [
             "selinux/setroubleshoot.js",
-            "selinux/setroubleshoot.css",
+            "selinux/setroubleshoot.scss",
         ],
 
         "shell/index": [
@@ -94,7 +94,7 @@ var info = {
 
         "sosreport/sosreport": [
             "sosreport/index.js",
-            "sosreport/sosreport.css",
+            "sosreport/sosreport.scss",
         ],
 
         "storaged/storage": [
@@ -137,7 +137,7 @@ var info = {
 
         "users/users": [
             "users/local.js",
-            "users/users.css",
+            "users/users.scss",
         ]
     },
 

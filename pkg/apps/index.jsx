@@ -28,7 +28,7 @@ import { ApplicationList } from "./application-list.jsx";
 import { Application } from "./application.jsx";
 import { get_metainfo_db } from "./appstream.js";
 
-import "page.css";
+import "page.scss";
 
 var metainfo_db = get_metainfo_db();
 

@@ -34,7 +34,7 @@ import { journal } from 'journal';
 /* jQuery extensions */
 import 'patterns';
 
-import "page.css";
+import "page.scss";
 import "table.css";
 import "plot.css";
 import "journal.css";

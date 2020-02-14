@@ -48,6 +48,24 @@ utils.list_interfaces().then(interfaces => {
 const firewalld_service = service.proxy('firewalld');
 var firewalld_dbus = null;
 
+firewall.debouncedGetZones = debounce(300, () => {
+    getZones()
+            .then(() => getServices())
+            .then(() => firewall.debouncedEvent('changed'))
+            .catch(error => console.warn(error));
+});
+
+/* As certain dbus signal callbacks might change the firewall frequently
+ * in a short period of time, prevent rapid succession of renders by
+ * debouncing the ('changed') event */
+firewall.debouncedEvent = debounce(300, event => firewall.dispatchEvent(event));
+
+/* As a service might be removed from multiple zones at the same time,
+ * prevent rapid succession of GetServices call */
+firewall.debouncedGetServices = debounce(300, () => {
+    getServices().then(() => firewall.debouncedEvent('changed'));
+});
+
 function initFirewalldDbus() {
     firewalld_dbus = cockpit.dbus('org.fedoraproject.FirewallD1', { superuser: "try" });
 
@@ -64,23 +82,9 @@ function initFirewalldDbus() {
             return;
         }
 
-        /* As certain dbus signal callbacks might change the firewall frequently
-         * in a short period of time, prevent rapid succession of renders by
-         * debouncing the ('changed') event */
-        firewall.debouncedEvent = debounce(300, event => firewall.dispatchEvent(event));
-
-        /* As a service might be removed from multiple zones at the same time,
-         * prevent rapid succession of GetServices call */
-        firewall.debouncedGetServices = debounce(300, getServices);
-
-        firewall.debouncedGetZones = debounce(300, () => {
-            getZones()
-                    .then(() => getServices())
-                    .catch(error => console.warn(error));
-        });
-
         getZones()
                 .then(() => getServices())
+                .then(() => firewall.debouncedEvent('changed'))
                 .catch(error => console.warn(error));
     });
 
@@ -189,6 +193,8 @@ function getZones() {
 }
 
 function getServices() {
+    if (firewall.readonly)
+        return Promise.resolve();
     firewall.enabledServices = new Set();
     return Promise.all([...firewall.activeZones].map(z => {
         return firewalld_dbus.call('/org/fedoraproject/FirewallD1',
@@ -196,7 +202,6 @@ function getServices() {
                                    'getServices', [z])
                 .then(reply => fetchServiceInfos(reply[0]))
                 .then(services => {
-                    if (firewall.readonly) return Promise.resolve();
                     const promises = [];
                     for (const s of services) {
                         firewall.enabledServices.add(s.id);
@@ -205,7 +210,7 @@ function getServices() {
                     }
                     return Promise.all(promises);
                 });
-    })).then(() => firewall.debouncedEvent('changed'));
+    }));
 }
 
 function fetchServiceInfos(services) {
@@ -254,6 +259,20 @@ function fetchServiceInfos(services) {
 
 function fetchZoneInfos(zones) {
     return Promise.all(zones.map(zone => {
+        if (firewall.readonly) {
+            const info = {
+                id: zone,
+                name: zone,
+                description: null,
+                target: null,
+                services: [],
+                ports: [],
+                interfaces: [],
+                source: [],
+            };
+            firewall.zones[zone] = info;
+            return info;
+        }
         return firewalld_dbus.call('/org/fedoraproject/FirewallD1',
                                    'org.fedoraproject.FirewallD1',
                                    'getZoneSettings', [zone])
@@ -280,7 +299,7 @@ initFirewalldDbus();
 cockpit.spawn(['sh', '-c', 'pkcheck --action-id org.fedoraproject.FirewallD1.all --process $$ --allow-user-interaction 2>&1'])
         .done(() => {
             firewall.readonly = false;
-            firewall.dispatchEvent('changed');
+            firewall.debouncedGetZones();
         });
 
 firewall.enable = () => Promise.all([firewalld_service.enable(), firewalld_service.start()]);

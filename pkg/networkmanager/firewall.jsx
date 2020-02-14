@@ -143,7 +143,7 @@ function ZoneSection(props) {
         addServiceAction = (
             <OverlayTrigger placement="top"
                                 overlay={ <Tooltip id="tip-auth">{ _("You are not authorized to modify the firewall.") }</Tooltip> }>
-                <Button bsStyle="primary" className="pull-right" aria-label={cockpit.format(_("Not authorized to add services to zone $0"), props.zone.id)} disabled> {_("Add Services")} </Button>
+                <Button bsStyle="primary" className="pull-right add-services-button" aria-label={cockpit.format(_("Not authorized to add services to zone $0"), props.zone.id)} disabled> {_("Add Services")} </Button>
             </OverlayTrigger>
         );
     } else {
@@ -896,7 +896,7 @@ export class Firewall extends React.Component {
             addZoneAction = (
                 <OverlayTrigger className="pull-right" placement="top"
                                 overlay={ <Tooltip id="tip-auth">{ _("You are not authorized to modify the firewall.") }</Tooltip> }>
-                    <Button bsStyle="primary" className="pull-right" aria-label={_("Not authorized to add a new zone")} disabled> {_("Add Zone")} </Button>
+                    <Button bsStyle="primary" className="pull-right" id="add-zone-button" aria-label={_("Not authorized to add a new zone")} disabled> {_("Add Zone")} </Button>
                 </OverlayTrigger>
             );
         } else {

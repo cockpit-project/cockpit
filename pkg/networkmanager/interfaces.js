@@ -2303,7 +2303,7 @@ PageNetworkInterface.prototype = {
                 React.createElement(OnOffSwitch, {
                     id: 'networking-firewall-switch',
                     state: firewall.enabled,
-                    disabled: pending,
+                    disabled: pending || firewall.readonly,
                     onChange: onFirewallSwitchChange
                 }),
                 document.querySelector('#networking-firewall .panel-actions')

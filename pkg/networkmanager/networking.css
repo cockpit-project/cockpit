@@ -49,6 +49,12 @@ body {
     margin-right: 4px;
 }
 
+.network-interface-separator {
+    font-weight: bold;
+    background: #F4F4F4;
+    border: 1px solid #d1d1d1;
+}
+
 /* Fix padding for network graph controls */
 
 #networking-graph-toolbar,
@@ -63,8 +69,12 @@ body {
     height: 120px;
 }
 
+#networking-interfaces {
+    min-height: 300px;
+}
+
 th.networking-speed {
-    width: 20%;
+    width: 30%;
 }
 
 th.networking-spacer {
@@ -119,6 +129,36 @@ span.inverted-switchbox {
     width: 28px;
 }
 
+.bootstrap-select {
+    min-width: 150px;
+}
+
+#network-general-settings-dialog input[type=number] {
+    width: 5em;
+    margin-left: 0.5em;
+}
+
+#network-general-settings-autoconnect-priority {
+    margin-left: 17px;
+}
+
+#network-general-settings-dialog select {
+    margin-left: 0.5em;
+}
+
+#network-wifi-settings-dialog input {
+    width: 100%;
+}
+
+#network-wifi-settings-dialog input[type=checkbox] {
+    width: auto;
+}
+
+#network-wifi-settings-dialog .control-label {
+    min-width: 11em;
+    text-align: left;
+}
+
 #network-mtu-settings-dialog label {
     font-weight: normal;
 }
@@ -137,6 +177,18 @@ span.inverted-switchbox {
 
 #network-mac-settings-dialog label {
     font-weight: normal;
+}
+
+#network-openvpn-settings-dialog input[type=text] {
+    width: 20em;
+}
+
+#network-modem-settings-dialog input {
+    width: 100%;
+}
+
+#network-modem-settings-dialog input[type=checkbox] {
+    width: auto;
 }
 
 #testing-connection-curtain {

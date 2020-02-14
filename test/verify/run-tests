@@ -8,9 +8,9 @@ import sys
 import unittest
 import dataclasses
 import errno
-import fcntl
 import time
 import socket
+import tempfile
 
 import importlib.machinery
 import importlib.util
@@ -168,27 +168,25 @@ def run(opts):
 
             if test:
                 made_progress = True
-                test.process = subprocess.Popen(test.command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-                file_flags = fcntl.fcntl(test.process.stdout.fileno(), fcntl.F_GETFL)
-                fcntl.fcntl(test.process.stdout.fileno(), fcntl.F_SETFL, file_flags | os.O_NONBLOCK)
+                test.outfile = tempfile.TemporaryFile()
+                test.process = subprocess.Popen(test.command, stdout=test.outfile, stderr=subprocess.STDOUT)
                 running_tests.append(test)
 
 
         for test in running_tests.copy():
             poll_result = test.process.poll()
-            output = test.process.stdout.read()
-            if output:
-                made_progress = True
-                test.output += output
             if poll_result is not None:
                 made_progress = True
+                test.outfile.seek(0)
+                test.output = test.outfile.read()
+                test.outfile.close()
                 running_tests.remove(test)
                 retry, test_result = finish_test(opts, test)
                 result += test_result
 
                 # run again if needed
                 if retry:
-                    test.output = b""
+                    test.output = None
                     test.process = None
                     if test is serial_test:
                         serial_tests.insert(0, test)

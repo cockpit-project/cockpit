@@ -1,7 +1,7 @@
 import $ from "jquery";
 
 import "patterns";
-import "page.css";
+import "page.scss";
 import "listing.scss";
 import "timeline.css";
 import "table.css";

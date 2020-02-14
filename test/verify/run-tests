@@ -10,6 +10,7 @@ import dataclasses
 import errno
 import time
 import socket
+import signal
 import tempfile
 
 import importlib.machinery
@@ -156,8 +157,11 @@ def run(opts):
 
     running_tests = []
     serial_test = None
+
+    # enable sigwait() for our subprocesses
+    orig_sigmask = signal.pthread_sigmask(signal.SIG_BLOCK, [signal.SIGCHLD])
+
     while serial_tests or parallel_tests or running_tests:
-        made_progress = False
         if len(running_tests) < jobs:
             test = None
             if serial_tests and serial_test is None:
@@ -167,7 +171,6 @@ def run(opts):
                 test = parallel_tests.pop(0)
 
             if test:
-                made_progress = True
                 test.outfile = tempfile.TemporaryFile()
                 test.process = subprocess.Popen(test.command, stdout=test.outfile, stderr=subprocess.STDOUT)
                 running_tests.append(test)
@@ -176,7 +179,6 @@ def run(opts):
         for test in running_tests.copy():
             poll_result = test.process.poll()
             if poll_result is not None:
-                made_progress = True
                 test.outfile.seek(0)
                 test.output = test.outfile.read()
                 test.outfile.close()
@@ -196,9 +198,12 @@ def run(opts):
                 if test is serial_test:
                     serial_test = None
 
-        # Sleep if we didn't make progress
-        if not made_progress and not opts.list:
-            time.sleep(0.5)
+        # Wait for any child to finish
+        if running_tests:
+            signal.sigwait([signal.SIGCHLD])
+
+    # reset sigwait mask
+    signal.pthread_sigmask(signal.SIG_SETMASK, orig_sigmask)
 
     testlib.MachineCase.kill_global_machine()
 

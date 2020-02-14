@@ -37,8 +37,7 @@ done
 """
 
 
-@skipImage("Image uses OSTree", "fedora-coreos")
-class TestUpdates(PackageCase):
+class NoSubManCase(PackageCase):
 
     def setUp(self):
         super().setUp()
@@ -48,6 +47,16 @@ class TestUpdates(PackageCase):
         if self.machine.image.startswith("rhel") or self.machine.image.startswith("centos-8"):
             self.machine.execute("mv /usr/libexec/rhsmd /usr/libexec/rhsmd.disabled")
             self.addCleanup(self.machine.execute, "mv /usr/libexec/rhsmd.disabled /usr/libexec/rhsmd")
+
+        # expected journal messages from enabling/disabling auto upgrade services
+        self.allow_journal_messages("(Created symlink|Removed).*dnf-automatic-install.timer.*")
+
+
+@skipImage("Image uses OSTree", "fedora-coreos")
+class TestUpdates(NoSubManCase):
+
+    def setUp(self):
+        super().setUp()
 
         # only the yum backend properly recognizes "enhancement" severity; apt
         # does not have that metadata and PackageKit-dnf does not parse it
@@ -776,26 +785,13 @@ class TestUpdatesSubscriptions(PackageCase):
         self.assertIn("fa-bug", b.attr(self.update_icon, "class"))
 
 
-class NoSubManCase(PackageCase):
+@skipImage("Image uses OSTree", "fedora-coreos")
+class TestAutoUpdates(NoSubManCase):
 
     def setUp(self):
         super().setUp()
-
-        # Disable Subscription Manager on RHEL for these tests; subscriptions are tested in a separate class
-        # On other OSes (Fedora/CentOS) we expect sub-man to be disabled in yum, so it should not get in the way there
-        if self.machine.image.startswith("rhel") or self.machine.image.startswith("centos-8"):
-            self.machine.execute("mv /usr/libexec/rhsmd /usr/libexec/rhsmd.disabled")
-            self.addCleanup(self.machine.execute, "mv /usr/libexec/rhsmd.disabled /usr/libexec/rhsmd")
-
         # not implemented for yum and apt yet, only dnf
         self.supported_backend = self.backend in ["dnf"]
-
-        # expected journal messages from enabling/disabling auto upgrade services
-        self.allow_journal_messages("(Created symlink|Removed).*dnf-automatic-install.timer.*")
-
-
-@skipImage("Image uses OSTree", "fedora-coreos")
-class TestAutoUpdates(NoSubManCase):
 
     def testBasic(self):
         b = self.browser

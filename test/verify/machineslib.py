@@ -760,6 +760,19 @@ class TestMachines(NetworkCase):
 
                 return self
 
+        used_targets = ["vda", "vdb"]
+
+        def get_next_free_target():
+            i = 0
+            while ("vd" + chr(97 + i) in used_targets):
+                i += 1
+
+            used_targets.append("vd" + chr(97 + i))
+            return "vd" + chr(97 + i)
+
+        def release_target(target):
+            used_targets.remove(target)
+
         # prepare libvirt storage pools
         m.execute("mkdir /mnt/vm_one ; mkdir /mnt/vm_two ; mkdir /mnt/default_tmp ; chmod a+rwx /mnt/vm_one /mnt/vm_two /mnt/default_tmp")
         m.execute("virsh pool-define-as default_tmp --type dir --target /mnt/default_tmp && virsh pool-start default_tmp")
@@ -807,7 +820,7 @@ class TestMachines(NetworkCase):
             volume_size=2048,
             volume_size_unit='MiB',
             permanent=False,
-            expected_target='vdc',
+            expected_target=get_next_free_target(),
         ).execute()
 
         VMAddDiskDialog(
@@ -818,7 +831,7 @@ class TestMachines(NetworkCase):
             volume_size=2,
             permanent=True,
             cache_mode='writeback',
-            expected_target='vdd',
+            expected_target=get_next_free_target(),
         ).execute()
 
         VMAddDiskDialog(
@@ -840,7 +853,7 @@ class TestMachines(NetworkCase):
             volume_size=2,
             permanent=True,
             use_existing_volume=True,
-            expected_target='vde',
+            expected_target=get_next_free_target(),
         ).execute()
 
         # check the autoselected options
@@ -851,7 +864,8 @@ class TestMachines(NetworkCase):
             pool_name='default_tmp',
             volume_name='defaultVol',
             use_existing_volume=True,
-            expected_target='vdf',
+            expected_target=get_next_free_target(),
+            volume_format='raw',
         ).open().add_disk().verify_disk_added()
 
         VMAddDiskDialog(
@@ -861,7 +875,7 @@ class TestMachines(NetworkCase):
             use_existing_volume=True,
             volume_size=1,
             volume_size_unit='MiB',
-            expected_target='vdg',
+            expected_target=get_next_free_target(),
         ).execute()
 
         VMAddDiskDialog(
@@ -870,7 +884,7 @@ class TestMachines(NetworkCase):
             volume_name='nfs-volume-1',
             volume_size=1,
             volume_size_unit='MiB',
-            expected_target='vdh',
+            expected_target=get_next_free_target(),
         ).execute()
 
         if "debian" not in m.image and "ubuntu" not in m.image:
@@ -887,7 +901,7 @@ class TestMachines(NetworkCase):
                 pool_name='iscsi-pool',
                 pool_type='iscsi',
                 volume_name='unit:0:0:0',
-                expected_target='vdi',
+                expected_target=get_next_free_target(),
                 use_existing_volume='True',
             ).execute()
 
@@ -918,6 +932,8 @@ class TestMachines(NetworkCase):
         # check if the just added non-permanent disks are gone
         b.wait_not_present("#vm-subVmTest1-disks-vdc-device")
         b.wait_not_present("#vm-subVmTest1-disks-vdf-device")
+        release_target("vdc")
+        release_target("vdf")
         b.wait_present("#vm-subVmTest1-disks-vdd-device")
         b.wait_present("#vm-subVmTest1-disks-vde-device")
 
@@ -946,7 +962,7 @@ class TestMachines(NetworkCase):
                     volume_name='non-peristent-vm-disk',
                     permanent=False,
                     persistent_vm=False,
-                    expected_target='vdc',
+                    expected_target=get_next_free_target(),
                 ).execute()
 
             # Undefine all Storage Pools and  confirm that the Add Disk dialog is disabled
@@ -982,9 +998,6 @@ class TestMachines(NetworkCase):
         ]
         self.machine.execute(" && ".join(cmds))
         partition = str(self.machine.execute("readlink -f /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 | cut -d '/' -f 3").strip()) + "1"
-        next_target = 'vdf'
-        if not self.provider == "libvirt-dbus" or "debian" in m.image or "ubuntu" in m.image:
-            next_target = 'vdc'
         VMAddDiskDialog(
             self,
             pool_name='pool-disk',
@@ -992,7 +1005,7 @@ class TestMachines(NetworkCase):
             volume_name=partition,
             volume_size=10,
             volume_size_unit='MiB',
-            expected_target=next_target,
+            expected_target=get_next_free_target(),
         ).execute()
 
     def testVmNICs(self):

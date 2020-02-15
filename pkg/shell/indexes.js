@@ -244,7 +244,7 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
         $(".curtains-ct h1").text(_("Disconnected"));
         $(".curtains-ct p").text(cockpit.message(watchdog_problem));
         $(".curtains-ct").prop("hidden", false);
-        $("#navbar-dropdown").addClass("disabled");
+        $("#navbar-dropdown").prop("disabled", true);
     }
 
     /* Handles navigation */
@@ -519,7 +519,8 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
 
         if (!menu.length && !tools.length) {
             const group = document.createElement("li");
-            group.className = "list-group-item disabled";
+            group.className = "list-group-item";
+            group.setAttribute("disabled", "");
             const text = document.createElement("span");
             text.className = "non-menu-item";
             text.append(document.createTextNode(_("No results found")));
@@ -879,7 +880,7 @@ function SimpleIndex(index_options) {
         $(".curtains-ct h1").text(_("Disconnected"));
         $(".curtains-ct p").text(cockpit.message(watchdog_problem));
         $(".curtains-ct").prop("hidden", false);
-        $("#navbar-dropdown").addClass("disabled");
+        $("#navbar-dropdown").prop("disabled", true);
     }
 
     index.ready();

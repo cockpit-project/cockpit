@@ -209,7 +209,7 @@ class ServiceActions extends React.Component {
                                               this.setState({ dialogMaskedOpened: false });
                                           }} />
                 }
-                <DropdownKebab id="service-actions" title={ _("Additional actions") } className={this.props.disabled ? "disabled" : "" }>
+                <DropdownKebab id="service-actions" title={ _("Additional actions") } disabled={this.props.disabled}>
                     {actions}
                 </DropdownKebab>
             </>
@@ -504,7 +504,7 @@ export class ServiceDetails extends React.Component {
                                     <React.Fragment key={rel.Name.split().join("")}>
                                         <label className="control-label closer-lines" htmlFor={rel.Name}>{rel.Name}</label>
                                         <ul id={rel.Name.split(" ").join("")} className="comma-list closer-lines">
-                                            {rel.Units.map(unit => <li key={unit}><a href={"#/" + unit} className={this.props.isValid(unit) ? "" : "disabled"}>{unit}</a></li>)}
+                                            {rel.Units.map(unit => <li key={unit}><a href={"#/" + unit} disabled={!this.props.isValid(unit)}>{unit}</a></li>)}
                                         </ul>
                                     </React.Fragment>
                             )}

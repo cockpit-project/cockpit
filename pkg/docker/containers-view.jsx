@@ -61,7 +61,7 @@ class Dropdown extends React.Component {
                     {
                         this.props.actions.map(function (action, index) {
                             return (
-                                <li key={index} className={ action.disabled ? 'disabled' : '' }>
+                                <li key={index} disabled={action.disabled}>
                                     <a data-value={index} role="link" tabIndex="0" onClick={this.handleClick}>{action.label}</a>
                                 </li>
                             );

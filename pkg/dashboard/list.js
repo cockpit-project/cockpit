@@ -447,7 +447,7 @@ PageDashboard.prototype = {
                 $(".delete-localhost").tooltip({
                     title : _("You are currently connected directly to this server. You cannot delete it.")
                 });
-                $(".delete-localhost").attr('disabled', true);
+                $(".delete-localhost").prop('disabled', true);
                 $(".delete-localhost").toggleClass('servers-privileged', false);
                 update_servers_privileged();
                 update_series();

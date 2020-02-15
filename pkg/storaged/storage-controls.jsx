@@ -265,9 +265,8 @@ export class StorageBarMenu extends React.Component {
         const { children, label } = this.props;
 
         function toggle(excuse) {
-            const classes = "pf-c-button pf-m-primary" + (excuse ? " disabled" : "");
             return (
-                <button className={classes} type="button" data-toggle="dropdown" aria-label={label}>
+                <button className="pf-c-button pf-m-primary" type="button" data-toggle="dropdown" aria-label={label} disabled={excuse}>
                     <span className="fa fa-bars" />
                 </button>);
         }

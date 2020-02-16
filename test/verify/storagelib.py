@@ -119,7 +119,7 @@ class StorageHelpers:
 
     def wait_content_tab_action_disabled(self, row_index, tab_index, title):
         tab = self.content_tab_expand(row_index, tab_index)
-        btn = tab + " button.disabled:contains(%s)" % title
+        btn = tab + " button:disabled:contains(%s)" % title
         self.browser.wait_present(btn)
 
     # To check what's in a tab, we need to open the row and select the

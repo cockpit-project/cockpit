@@ -75,7 +75,7 @@ class TestStorage(StorageCase):
         b.wait_not_in_text("#detail-sidebar", "DISK2")
 
         # The remaining lone disk is not removable
-        b.wait_present('#detail-sidebar tr:nth-child(1) button.disabled')
+        b.wait_present('#detail-sidebar tr:nth-child(1) button:disabled')
 
         # Wipe the disk and make sure lvmetad forgets about it.  This
         # might help with reusing it in the second half of this test.
@@ -196,8 +196,8 @@ class TestStorage(StorageCase):
         self.dialog({"size": 70})
 
         # There is not enough free space to remove any of the disks.
-        b.wait_present('#detail-sidebar tr:nth-child(1) button.disabled')
-        b.wait_present('#detail-sidebar tr:nth-child(2) button.disabled')
+        b.wait_present('#detail-sidebar tr:nth-child(1) button:disabled')
+        b.wait_present('#detail-sidebar tr:nth-child(2) button:disabled')
 
         # use almost all of the pool by erasing the thin volume
         self.content_head_action(2, "Format")

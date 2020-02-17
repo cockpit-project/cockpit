@@ -987,6 +987,15 @@ class MachineCase(unittest.TestCase):
             # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1753991
             self.allowed_messages.append('.*type=1400.*avc:  denied  { dac_override } .* comm="rhsmd" .* scontext=system_u:system_r:rhsmcertd_t:s0-s0:c0.c1023 tcontext=system_u:system_r:rhsmcertd_t:.*')
 
+        if self.image in ['debian-testing']:
+            # HACK: https://bugs.debian.org/951477
+            self.allowed_messages.append('Process .* \(ip6?tables\) of user 0 dumped core.*')
+            self.allowed_messages.append('Process .* \(ebtables\) of user 0 dumped core.*')
+            # don't ignore all stack traces
+            self.allowed_messages.append('^#[0-9]+ .*(nftnl|xtables-nft|__libc_start_main).*')
+            # but we have to ignore that general header line
+            self.allowed_messages.append('^Stack trace of.*')
+
         all_found = True
         first = None
         for m in messages:

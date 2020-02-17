@@ -164,6 +164,10 @@ class MachinesLib(SeleniumTest):
         self.storage_pool = {}
         self.vm_stop_list = []
 
+        self.machine.execute("sudo systemctl start libvirtd.service")
+        # Wait until we can get a list of domains
+        self.machine.execute("until virsh list > /dev/null; do sleep 0.5; done")
+
         self.login()
         self.click(self.wait_link('Virtual Machines', cond=clickable))
         self.wait_frame("machines")

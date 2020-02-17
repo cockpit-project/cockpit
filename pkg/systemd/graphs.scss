@@ -23,6 +23,10 @@
     // Set the background of the container to the same as the toolbars…
     // mobile causes a wrap; we want toolbars to visually extend 100% wide
     background-color: var(--pf-c-page__main-section--m-light--BackgroundColor);
+    // Make the toolbar sticky, for mobile mode (when toolbars wrap)
+    position: sticky;
+    top: -3.5rem;
+    z-index: 100;
 
     /* First child (breadcrumbs) should always take max space */
     > .pf-c-page__main-breadcrumb {

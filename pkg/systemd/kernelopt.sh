@@ -53,8 +53,8 @@ grub() {
     # on OSTree, the kernel config is inside the image
     elif cur=$(rpm-ostree kargs 2>&1); then
         if [ "$1" = set ]; then
-            # replace if already present
-            if [ "${cur% $key *}" != "$cur" ] || [ "${cur% $key=*}" != "$cur" ]; then
+            # replace if already present; can happen in the middle (must be separated by space) or at the beginning of line
+            if [ "${cur% $key *}" != "$cur" ] || [ "${cur% $key=*}" != "$cur" ] || [ "${cur#$key[ =]}" != "$cur" ]; then
                 rpm-ostree kargs --replace="$2"
             else
                 rpm-ostree kargs --append="$2"

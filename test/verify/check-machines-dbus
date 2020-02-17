@@ -564,6 +564,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.click("#delete-subVmTest1-disk-vdd")
         b.wait_present(".modal-dialog")
         b.click(".modal-footer button:contains(Remove)")
+        b.wait_present(".modal-footer .spinner")
         b.wait_not_present("#vm-subVmTest1-disks-vdd-device")
         b.wait_not_present(".modal-dialog")
 
@@ -2097,9 +2098,13 @@ class TestMachinesDBus(machineslib.TestMachines):
                     b.click("#vm-subVmTest1-networks") # open the Network Interfaces subtab
                 else:
                     b.click("#delete-vm-subVmTest1-iface-{0}".format(self.nic_num))
-                    # Confirm in confirmation windown
+                    # Confirm in confirmation window
                     b.wait_in_text(".modal-dialog .modal-header .modal-title", "Delete Network Interface")
+                    vm_state = b.text("#vm-subVmTest1-state")
                     b.click(".modal-footer button:contains(Delete)")
+                    # On a running VM detaching NIC takes longer and we can see the spinner
+                    if vm_state == "running":
+                        b.wait_present(".modal-footer .spinner")
 
                     # Check NIC is no longer in list
                     b.wait_not_present("#vm-subVmTest1-network-{0}-mac".format(self.nic_num))

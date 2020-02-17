@@ -10,9 +10,8 @@ if [ $# -ne 1 ]; then
 fi
 
 generate() {
-	if [ -e $BASE/../.git ]; then
-        cd $BASE/..
-		git describe | sed 's/-[0-9]\+-g.*/.x/'
+	if desc=$(git -C "$BASE/.." describe); then
+		echo "$desc" | sed 's/-[0-9]\+-g.*/.x/'
 	else
 		cat $1
 	fi

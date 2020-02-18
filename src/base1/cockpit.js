@@ -4328,6 +4328,16 @@ function factory() {
         var self = this;
         event_mixin(self, { });
 
+        var api = cockpit.dbus(null, { bus: "internal" }).proxy("cockpit.Superuser", "/superuser");
+        api.addEventListener("changed", maybe_reload);
+
+        function maybe_reload() {
+            if (api.valid && self.allowed !== null) {
+                if (self.allowed != (api.Current != "none"))
+                    window.location.reload(true);
+            }
+        }
+
         self.allowed = null;
         self.user = options ? options.user : null; // pre-fill for unit tests
         self.is_superuser = options ? options._is_superuser : null; // pre-fill for unit tests
@@ -4368,6 +4378,7 @@ function factory() {
                     var allowed = decide(user);
                     if (self.allowed !== allowed) {
                         self.allowed = allowed;
+                        maybe_reload();
                         self.dispatchEvent("changed");
                     }
                 });

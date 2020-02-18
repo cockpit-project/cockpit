@@ -143,12 +143,11 @@ def mkdir_if_necessary(path):
     if not os.path.exists(path):
         os.makedirs(path)
 
-def rmdir_if_empty(path):
+def rmdir_maybe(path):
     try:
         os.rmdir(path)
-    except OSError as e:
-        if e.errno not in [ errno.ENOTEMPTY, errno.ENOTDIR, errno.ENOENT ]:
-            raise
+    except OSError:
+        pass
 
 def update(entry, new_fields):
     old_fields = entry["fields"]
@@ -163,13 +162,13 @@ def update(entry, new_fields):
             try:
                 unmount(entry)
                 if old_fields[1] != new_fields[1]:
-                    rmdir_if_empty(old_fields[1])
+                    rmdir_maybe(old_fields[1])
             except subprocess.CalledProcessError:
                 pass
             mount({ "fields": new_fields })
     else:
         if old_fields[1] != new_fields[1]:
-            rmdir_if_empty(old_fields[1])
+            rmdir_maybe(old_fields[1])
     modify_tab("/etc/fstab", lambda fields: new_fields if fields == old_fields else fields)
 
 def add(new_fields):
@@ -181,7 +180,7 @@ def remove(entry):
     old_fields = entry["fields"]
     if entry["mounted"]:
         unmount(entry)
-    rmdir_if_empty(old_fields[1])
+    rmdir_maybe(old_fields[1])
     modify_tab("/etc/fstab", lambda fields: None if fields == old_fields else fields)
 
 def mount(entry):

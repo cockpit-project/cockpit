@@ -25,6 +25,7 @@
 #define __COCKPIT_POLKIT_AGENT_H
 
 #include "common/cockpittransport.h"
+#include "cockpitrouter.h"
 
 #include <glib-object.h>
 #include <gio/gio.h>
@@ -32,10 +33,10 @@
 G_BEGIN_DECLS
 
 gpointer              cockpit_polkit_agent_register     (CockpitTransport *transport,
+                                                         CockpitRouter *router,
                                                          GCancellable *cancellable);
 
 void                  cockpit_polkit_agent_unregister   (gpointer handle);
-
 
 G_END_DECLS
 

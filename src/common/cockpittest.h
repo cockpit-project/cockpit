@@ -83,6 +83,16 @@ void     _cockpit_assert_json_eq_msg        (const char *domain,
 #define cockpit_assert_json_eq(obj_or_arr, json) \
   (_cockpit_assert_json_eq_msg (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, (obj_or_arr), (json)))
 
+void     _cockpit_assert_gvariant_eq_msg        (const char *domain,
+                                                 const char *file,
+                                                 int line,
+                                                 const char *func,
+                                                 GVariant *actual,
+                                                 const gchar *expected);
+
+#define cockpit_assert_gvariant_eq(actual, expected) \
+  (_cockpit_assert_gvariant_eq_msg (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, (actual), (expected)))
+
 void     _cockpit_assert_data_eq_msg        (const char *domain,
                                              const char *file,
                                              int line,

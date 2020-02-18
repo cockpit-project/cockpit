@@ -413,6 +413,26 @@ _cockpit_assert_json_eq_msg (const char *domain,
   json_node_free (exnode);
 }
 
+void
+_cockpit_assert_gvariant_eq_msg (const char *domain,
+                                 const char *file,
+                                 int line,
+                                 const char *func,
+                                 GVariant *actual,
+                                 const gchar *expected)
+{
+  GVariant *expected_variant = g_variant_parse (NULL, expected, NULL, NULL, NULL);
+  if (!g_variant_equal (actual, expected_variant))
+    {
+      gchar *actual_string = g_variant_print (actual, TRUE);
+      gchar *msg = g_strdup_printf ("%s != %s", actual_string, expected);
+      g_assertion_message (domain, file, line, func, msg);
+      g_free (msg);
+      g_free (actual_string);
+    }
+  g_variant_unref (expected_variant);
+}
+
 static gchar *
 test_escape_data (const guchar *data,
                   gssize n_data)

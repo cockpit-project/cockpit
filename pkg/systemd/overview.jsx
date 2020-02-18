@@ -39,6 +39,8 @@ import { HealthCard } from './overview-cards/healthCard.jsx';
 import { MotdCard } from './overview-cards/motdCard.jsx';
 import { UsageCard } from './overview-cards/usageCard.jsx';
 import { ServerTime } from './overview-cards/serverTime.js';
+import { SuperuserAlert } from './superuser-alert.jsx';
+import { SuperuserIndicator } from "../shell/superuser.jsx";
 
 const _ = cockpit.gettext;
 
@@ -242,8 +244,14 @@ class OverviewPage extends React.Component {
                 />
             </Privileged>);
 
+        const show_superuser = (
+            cockpit.transport.host && cockpit.transport.host != "localhost" &&
+            !(window.parent.name == "cockpit1" && window.parent.features &&
+              window.parent.features.navbar_is_for_current_machine));
+
         return (
             <Page>
+                <SuperuserAlert />
                 <PageSection className='ct-overview-header' variant={PageSectionVariants.light}>
                     <div className='ct-overview-header-hostname'>
                         <h1>
@@ -254,6 +262,8 @@ class OverviewPage extends React.Component {
                          <div className="ct-overview-header-subheading" id="system_information_os_text">{cockpit.format(_("running $0"), this.state.hostnameData.OperatingSystemPrettyName)}</div>}
                     </div>
                     <div className='ct-overview-header-actions'>
+                        { show_superuser && <SuperuserIndicator /> }
+                        { "\n" }
                         { headerActions }
                     </div>
                 </PageSection>

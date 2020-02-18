@@ -9,6 +9,34 @@
   height: 100%;
 }
 
+.ct-limited-access-alert {
+  align-items: center;
+  background: var(--pf-global--active-color--200);
+  margin-bottom: 0;
+  padding: 1rem 1.5rem;
+
+  // Override PF4 spacing to better align to the overview page
+  // and rely on ct-limited-access-alert for padding & alignment
+  &.pf-c-alert.pf-m-info.pf-m-inline {
+    > .pf-c-alert__icon,
+    > .pf-c-alert__title,
+    > .pf-c-alert__action {
+      padding: 0;
+    }
+
+    > .pf-c-alert__icon {
+      // Make the icon slightly darker, to compensate for the background
+      color: var(--pf-global--active-color--400);
+      padding-right: 1rem;
+    }
+  }
+
+  // Remove the left-side stripe
+  &:before {
+    display: none;
+  }
+}
+
 .ct-overview-header {
   align-items: center;
   display: flex;
@@ -47,6 +75,10 @@
 
   &-subheading {
     font-size: var(--pf-global--FontSize--md);
+  }
+
+  .fa.fa-lock, .fa.fa-unlock-alt {
+    margin-right: 0.5rem;
   }
 }
 

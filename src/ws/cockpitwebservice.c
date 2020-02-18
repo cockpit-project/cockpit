@@ -541,11 +541,21 @@ process_transport_authorize (CockpitWebService *self,
       data = cockpit_creds_get_password (self->creds);
       if (!data)
         {
-          g_debug ("%s: received \"authorize\" %s \"challenge\", but no password", host, type);
+          g_info ("%s: received \"authorize\" %s \"challenge\", but no password", host, type);
         }
       else if (!g_str_equal ("basic", type) && !authorize_check_user (self->creds, challenge))
         {
-          g_debug ("received \"authorize\" %s \"challenge\", but for wrong user", type);
+          g_info ("received \"authorize\" %s \"challenge\", but for wrong user", type);
+        }
+      else if (g_str_equal ("plain1", type) && g_str_equal (cockpit_creds_get_superuser (self->creds), "none"))
+        {
+          // Older versions of the bridge will send "plain1"
+          // challenges when trying to start a privileged sub-bridge,
+          // but not for anything else.  We use that fact to prevent
+          // them from starting the privileged sub-bridge when the
+          // user has selected that option on the login screen.
+
+          g_info ("received \"plain1\" authorize challenge, but superuser is \"none\"");
         }
       else
         {
@@ -592,6 +602,9 @@ process_transport_init (CockpitWebService *self,
                         JsonObject *options)
 {
   JsonObject *object;
+  JsonObject *capabilities;
+  gboolean explicit_superuser_capability = FALSE;
+  const gchar *superuser;
   GBytes *payload;
   gint64 version;
 
@@ -608,10 +621,32 @@ process_transport_init (CockpitWebService *self,
         json_object_unref (self->init_received);
       self->init_received = json_object_ref (options);
 
+      if (cockpit_json_get_object (options, "capabilities", NULL, &capabilities) && capabilities)
+        {
+          if (!cockpit_json_get_bool (capabilities, "explicit-superuser", FALSE, &explicit_superuser_capability))
+            g_warning ("invalued 'explicit-superuser' value in init message");
+        }
+
       /* Always send an init message down the new transport */
       object = cockpit_transport_build_json ("command", "init", NULL);
       json_object_set_int_member (object, "version", 1);
       json_object_set_string_member (object, "host", "localhost");
+
+      superuser = cockpit_creds_get_superuser (self->creds);
+      if (superuser && *superuser && !g_str_equal (superuser, "none"))
+        {
+          JsonObject *superuser_options;
+
+          superuser_options = json_object_new ();
+          json_object_set_string_member (superuser_options, "id", superuser);
+          json_object_set_object_member (object, "superuser", superuser_options);
+        }
+      else
+        {
+          json_object_set_boolean_member (object, "superuser", FALSE);
+          cockpit_creds_consume_init_password (self->creds);
+        }
+
       payload = cockpit_json_write_bytes (object);
       json_object_unref (object);
       cockpit_transport_send (transport, NULL, payload);
@@ -655,6 +690,11 @@ on_transport_control (CockpitTransport *transport,
       else if (g_strcmp0 (command, "authorize") == 0)
         {
           valid = process_transport_authorize (self, transport, options);
+        }
+      else if (g_strcmp0 (command, "superuser-init-done") == 0)
+        {
+          cockpit_creds_consume_init_password (self->creds);
+          valid = TRUE;
         }
       else
         {

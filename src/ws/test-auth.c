@@ -555,6 +555,7 @@ test_custom_success (Test *test,
   g_hash_table_insert (headers, g_strdup ("Authorization"), g_strdup (fix->header));
   if (fix->authorized)
     g_hash_table_insert (headers, g_strdup ("X-Authorize"), g_strdup ("password"));
+  g_hash_table_insert (headers, g_strdup ("X-Superuser"), g_strdup ("none"));
   cockpit_auth_login_async (test->auth, path, NULL, headers, on_ready_get_result, &result);
   g_hash_table_unref (headers);
 

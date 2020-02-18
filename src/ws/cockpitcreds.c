@@ -36,6 +36,8 @@ struct _CockpitCreds {
   gchar *csrf_token;
   JsonObject *login_data;
   GList *bytes;
+  gchar *for_remote;
+  gchar *superuser;
 };
 
 G_DEFINE_BOXED_TYPE (CockpitCreds, cockpit_creds, cockpit_creds_ref, cockpit_creds_unref);
@@ -53,6 +55,8 @@ cockpit_creds_free (gpointer data)
   g_free (creds->application);
   g_free (creds->rhost);
   g_free (creds->csrf_token);
+  g_free (creds->for_remote);
+  g_free (creds->superuser);
 
   if (creds->login_data)
     json_object_unref (creds->login_data);
@@ -104,6 +108,10 @@ cockpit_creds_new (const gchar *application,
         creds->rhost = g_strdup (va_arg (va, const char *));
       else if (g_str_equal (type, COCKPIT_CRED_CSRF_TOKEN))
         creds->csrf_token = g_strdup (va_arg (va, const char *));
+      else if (g_str_equal (type, COCKPIT_CRED_FOR_REMOTE))
+        creds->for_remote = g_strdup (va_arg (va, const char *));
+      else if (g_str_equal (type, COCKPIT_CRED_SUPERUSER))
+        creds->superuser = g_strdup (va_arg (va, const char *));
       else
         g_assert_not_reached ();
     }
@@ -208,6 +216,20 @@ cockpit_creds_get_csrf_token (CockpitCreds *creds)
   return creds->csrf_token;
 }
 
+const gchar *
+cockpit_creds_get_for_remote (CockpitCreds *creds)
+{
+  g_return_val_if_fail (creds != NULL, NULL);
+  return creds->for_remote;
+}
+
+const gchar *
+cockpit_creds_get_superuser (CockpitCreds *creds)
+{
+  g_return_val_if_fail (creds != NULL, NULL);
+  return creds->superuser;
+}
+
 /**
  * cockpit_creds_get_login_data
  * @creds: the credentials
@@ -267,4 +289,20 @@ cockpit_creds_to_json (CockpitCreds *creds)
       json_object_set_object_member (object, "login-data", json_object_ref (login_data));
 
   return object;
+}
+
+/**
+ * cockpit_creds_consume_init_password
+ * @creds: the credentials
+ *
+ * Declare that the session initialization is now done as far as the
+ * credentials are concerned.  The creds will be poisened if they
+ * aren't needed for the rest of the session.
+ */
+void
+cockpit_creds_consume_init_password (CockpitCreds *creds)
+{
+  g_return_if_fail (creds != NULL);
+  if (!creds->for_remote || !strstr (creds->for_remote, "password"))
+    cockpit_creds_poison (creds);
 }

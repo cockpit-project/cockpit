@@ -925,7 +925,8 @@ build_session_credentials (CockpitAuth *self,
                            const char *authorization)
 {
   CockpitCreds *creds;
-  const gchar *authorized;
+  const gchar *authorized = NULL;
+  const gchar *superuser = NULL;
 
   char *user = NULL;
   char *raw = NULL;
@@ -934,16 +935,23 @@ build_session_credentials (CockpitAuth *self,
   gchar *remote_peer = NULL;
   gchar *csrf_token = NULL;
 
+  superuser = g_hash_table_lookup (headers, "X-Superuser");
+  if (!superuser)
+    superuser = "any";
+
   /* Prepare various credentials */
   if (g_strcmp0 (type, "basic") == 0)
     {
       raw = cockpit_authorize_parse_basic (authorization, &user);
 
-      /* If "password" is in the X-Authorize header, we can keep the password for use */
+      /* If "password" is in the X-Authorize header or X-Superuser is
+         not "none" (and we are not root), we keep the password.
+      */
       authorized = g_hash_table_lookup (headers, "X-Authorize");
       if (!authorized)
         authorized = "";
-      if (strstr (authorized, "password") && raw)
+
+      if (((strcmp (superuser, "none") != 0 && user && strcmp (user, "root") != 0) || strstr (authorized, "password")) && raw)
         {
           password = g_bytes_new_take (raw, strlen (raw));
           raw = NULL;
@@ -958,6 +966,8 @@ build_session_credentials (CockpitAuth *self,
                              COCKPIT_CRED_PASSWORD, password,
                              COCKPIT_CRED_RHOST, remote_peer,
                              COCKPIT_CRED_CSRF_TOKEN, csrf_token,
+                             COCKPIT_CRED_FOR_REMOTE, authorized,
+                             COCKPIT_CRED_SUPERUSER, superuser,
                              NULL);
 
   g_free (remote_peer);

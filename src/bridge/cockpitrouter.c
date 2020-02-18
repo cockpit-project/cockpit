@@ -79,6 +79,11 @@ struct _CockpitRouter {
   GDBusMethodInvocation *superuser_start_invocation;
   GDBusMethodInvocation *superuser_stop_invocation;
 
+  gboolean superuser_init_in_progress;
+  gboolean superuser_legacy_init;
+  gchar *superuser_init_id;
+  GList *superuser_init_next_rule;
+
   CockpitRouterPromptAnswerFunction *superuser_answer_function;
   gpointer superuser_answer_data;
 };
@@ -93,6 +98,9 @@ enum {
   PROP_0,
   PROP_TRANSPORT,
 };
+
+static void superuser_init (CockpitRouter *self, JsonObject *options);
+static void superuser_legacy_init (CockpitRouter *self);
 
 typedef struct {
   gchar **argv;
@@ -391,6 +399,18 @@ process_init (CockpitRouter *self,
       g_assert (host != NULL);
       self->init_host = g_strdup (host);
       problem = NULL;
+
+      if (!self->privileged)
+        {
+          JsonNode *superuser_options = json_object_get_member (options, "superuser");
+          if (superuser_options)
+            {
+              if (JSON_NODE_HOLDS_OBJECT (superuser_options))
+                superuser_init (self, json_node_get_object (superuser_options));
+            }
+          else
+            superuser_legacy_init (self);
+        }
     }
 }
 
@@ -908,6 +928,20 @@ on_transport_control (CockpitTransport *transport,
                       gpointer user_data)
 {
   CockpitRouter *self = user_data;
+  const gchar *auth_cookie;
+  const gchar *auth_response;
+
+  if (g_str_equal (command, "authorize")
+      && cockpit_json_get_string (options, "cookie", NULL, &auth_cookie)
+      && g_str_equal (auth_cookie, "super1")
+      && cockpit_json_get_string (options, "response", NULL, &auth_response)
+      && self->superuser_answer_function)
+    {
+      self->superuser_answer_function (auth_response, self->superuser_answer_data);
+      self->superuser_answer_function = NULL;
+      self->superuser_answer_data = NULL;
+      return TRUE;
+    }
 
   if (g_str_equal (command, "init"))
     {
@@ -1536,10 +1570,45 @@ superuser_get_property (GDBusConnection *connection,
     }
   else if (g_str_equal (property_name, "Current"))
     {
+      /* The Current property is either the "superuser id" of the
+       * current superuser rule, or one of the special values "none",
+       * "init", or "root", with the following meaning:
+       *
+       * "none": No superuser bridge running.
+       *
+       * "init": Bridge is still initializing and in the process of
+       *         starting up a superuser bridge.
+       *
+       * "root": The whole session is running as root and there is no
+       *         separate superuser bridge.
+       *
+       * The first value after the bridge starts is always one of
+       * "none", "init", or "root".  "init" will change later on to a
+       * concrete superuser id, or to "none" when starting the
+       * superuser bridge has failed.
+       *
+       * When calling the Stop method, the value will change to "none"
+       * at some point before the method call finishes (or remain
+       * unchanged when the method call fails).
+       *
+       * When calling the Start method, the value will change to the
+       * concrete superuser id once the superuser bridge is running.
+       * During the whole startup it will remain "none", and will only
+       * change when the startup was successful.
+       *
+       * The motivation for having the special "init" value is to give
+       * pages enough information to manage their automatic reloading.
+       * They want to reload when a superuser bridge is actually
+       * started or stopped, but not when the startup during
+       * initialization fails.
+       */
+
       if (router->privileged)
         return g_variant_new ("s", "root");
-      if (router->superuser_rule == NULL
-          || router->superuser_start_invocation)
+      else if (router->superuser_init_in_progress)
+        return g_variant_new ("s", "init");
+      else if (router->superuser_rule == NULL
+               || router->superuser_start_invocation)
         return g_variant_new ("s", "none");
       else
         {
@@ -1641,6 +1710,101 @@ cockpit_router_dbus_startup (CockpitRouter *router)
     }
 }
 
+/* Superuser init */
+
+static void superuser_init_step (CockpitRouter *router);
+
+static void
+superuser_init_start (CockpitRouter *router,
+                      const gchar *id)
+{
+  router->superuser_init_in_progress = TRUE;
+  router->superuser_init_next_rule = router->rules;
+  router->superuser_init_id = g_strdup (id);
+
+  superuser_init_step (router);
+}
+
+static void
+superuser_init_step_done (const gchar *error, gpointer user_data)
+{
+  CockpitRouter *router = user_data;
+
+  if (error)
+    {
+      router->superuser_rule = NULL;
+      superuser_init_step (router);
+    }
+  else
+    {
+      router->superuser_init_in_progress = FALSE;
+      g_free (router->superuser_init_id);
+      router->superuser_init_id = NULL;
+      superuser_notify_property (router, "Current");
+
+      if (!router->superuser_legacy_init)
+        {
+          GBytes *request = cockpit_transport_build_control ("command", "superuser-init-done",
+                                                             NULL);
+          cockpit_transport_send (router->transport, NULL, request);
+          g_bytes_unref (request);
+        }
+    }
+
+  g_object_unref (router);
+}
+
+static void
+superuser_init_step (CockpitRouter *router)
+{
+  for (GList *l = router->superuser_init_next_rule; l; l = g_list_next (l))
+    {
+      gchar *rule_id = rule_superuser_id (l->data);
+      if (rule_id && (router->superuser_init_id == NULL
+                      || g_str_equal (router->superuser_init_id, rule_id)))
+        {
+          router->superuser_rule = l->data;
+          router->superuser_init_next_rule = g_list_next (l);
+          cockpit_peer_reset (router->superuser_rule->user_data);
+          router->superuser_transport = cockpit_peer_ensure_with_done (router->superuser_rule->user_data,
+                                                                       superuser_init_step_done,
+                                                                       g_object_ref (router));
+          g_signal_connect (router->superuser_transport, "closed",
+                            G_CALLBACK (on_superuser_transport_closed), router);
+          return;
+        }
+      g_free (rule_id);
+    }
+
+  superuser_init_step_done (NULL, g_object_ref (router));
+}
+
+static void
+superuser_init (CockpitRouter *router,
+                JsonObject *options)
+{
+  const gchar *id;
+
+  if (!cockpit_json_get_string (options, "id", NULL, &id)
+      || id == NULL)
+    {
+      g_warning ("invalid superuser options in \"init\" message");
+      return;
+    }
+
+  if (g_str_equal (id, "any"))
+    id = NULL;
+
+  superuser_init_start (router, id);
+}
+
+static void
+superuser_legacy_init (CockpitRouter *router)
+{
+  router->superuser_legacy_init = TRUE;
+  superuser_init_start (router, NULL);
+}
+
 /* Prompting
  */
 
@@ -1672,6 +1836,22 @@ cockpit_router_prompt (CockpitRouter *self,
                                      "Prompt",
                                      g_variant_new ("(sssb)", prompt, "", "", FALSE),
                                      NULL);
+    }
+  else if (self->superuser_init_in_progress)
+    {
+      self->superuser_answer_function = answer;
+      self->superuser_answer_data = data;
+
+      gchar *user_hex = cockpit_hex_encode (user, -1);
+      gchar *challenge = g_strdup_printf ("plain1:%s:", user_hex);
+      GBytes *request = cockpit_transport_build_control ("command", "authorize",
+                                                         "challenge", challenge,
+                                                         "cookie", "super1",
+                                                         NULL);
+      cockpit_transport_send (self->transport, NULL, request);
+      g_bytes_unref (request);
+      g_free (challenge);
+      g_free (user_hex);
     }
   else
     {

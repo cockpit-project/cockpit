@@ -219,10 +219,9 @@ function Router(index) {
                         source.window.postMessage(message, origin);
                 }
             } else if (control.command == "hint") {
-                if (control.credential) {
-                    if (index.privileges)
-                        index.privileges.update(control);
-                }
+                /* This is where we handle hint messages directed at
+                 * the shell.  Right now, there aren't any.
+                 */
             }
 
         /* Forward message to relevant frame */

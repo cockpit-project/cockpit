@@ -370,22 +370,12 @@ If no fields are specified then all channels are terminated.
 Command: logout
 ---------------
 
-The "logout" command is sent by the shell to cockpit-ws. It discards credentials
-for the logged in user. Optionally it disconnects the user.
+The "logout" command is sent by the shell to cockpit-ws. It
+disconnects the user.
 
-The following fields are defined:
-
- * "disconnect": if set to true then disconnect the user
-
-Example logout message:
-
-    {
-        "command": "logout",
-        "disconnect": true
-    }
-
-The "logout" command is broadcast to all bridge instances.
-
+In older versions, the "logout" command was broadcast to all bridges
+and used to terminate privileged ones.  Privileged bridges are now
+terminated by closing their transport.
 
 Command: hint
 -------------

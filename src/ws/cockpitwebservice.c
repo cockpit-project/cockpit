@@ -211,8 +211,6 @@ struct _CockpitWebService {
   gint callers;
   guint next_internal_id;
 
-  gint credential_requests;
-
   CockpitTransport *transport;
   JsonObject *init_received;
   gulong control_sig;
@@ -384,28 +382,6 @@ process_ping (CockpitWebService *self,
 }
 
 static void
-send_socket_hints (CockpitWebService *self,
-                   const gchar *name,
-                   const gchar *value)
-{
-  CockpitSocket *socket;
-  GHashTableIter iter;
-  GBytes *payload;
-
-  payload = cockpit_transport_build_control ("command", "hint", name, value, NULL);
-  g_hash_table_iter_init (&iter, self->sockets.by_connection);
-  while (g_hash_table_iter_next (&iter, NULL, (gpointer *)&socket))
-    {
-      if (web_socket_connection_get_ready_state (socket->connection) == WEB_SOCKET_STATE_OPEN)
-        {
-              web_socket_connection_send (socket->connection, WEB_SOCKET_DATA_TEXT,
-                                          self->control_prefix, payload);
-        }
-    }
-  g_bytes_unref (payload);
-}
-
-static void
 clear_and_free_string (gpointer data)
 {
   cockpit_memory_clear (data, -1);
@@ -450,22 +426,15 @@ process_socket_authorize (CockpitWebService *self,
     }
   else
     {
-      send_socket_hints (self, "credential",
-                         cockpit_creds_get_password (self->creds) ? "password" : "none");
-      if (self->credential_requests)
-        send_socket_hints (self, "credential", "request");
       goto out;
     }
 
   if (password == NULL)
     {
-      send_socket_hints (self, "credential", "none");
-      self->credential_requests = 0;
       bytes = NULL;
     }
   else
     {
-      send_socket_hints (self, "credential", "password");
       bytes = g_bytes_new_with_free_func (password, strlen (password),
                                           clear_and_free_string, password);
       password = NULL;
@@ -589,13 +558,6 @@ process_transport_authorize (CockpitWebService *self,
               response = password;
             }
         }
-    }
-
-  /* Tell the frontend that we're reauthorizing */
-  if (self->init_received)
-    {
-      self->credential_requests++;
-      send_socket_hints (self, "credential", "request");
     }
 
   if (cookie && !self->sent_done)
@@ -913,34 +875,16 @@ process_and_relay_open (CockpitWebService *self,
   return TRUE;
 }
 
-static gboolean
+static void
 process_logout (CockpitWebService *self,
                 JsonObject *options)
 {
-  gboolean disconnect;
-
-  if (!cockpit_json_get_bool (options, "disconnect", FALSE, &disconnect))
-    {
-      g_warning ("received 'logout' command with invalid 'disconnect' field");
-      return FALSE;
-    }
-
   /* Makes the credentials unusable */
   cockpit_creds_poison (self->creds);
 
   /* Destroys our web service, disconnects everything */
-  if (disconnect)
-    {
-      g_info ("Logging out session %s", self->id);
-      g_object_run_dispose (G_OBJECT (self));
-    }
-  else
-    {
-      g_info ("Deauthorizing session %s", self->id);
-    }
-
-  send_socket_hints (self, "credential", "none");
-  return TRUE;
+  g_info ("Logging out session %s", self->id);
+  g_object_run_dispose (G_OBJECT (self));
 }
 
 static const gchar *
@@ -1032,13 +976,7 @@ dispatch_inbound_command (CockpitWebService *self,
     }
   else if (g_strcmp0 (command, "logout") == 0)
     {
-      valid = process_logout (self, options);
-      if (valid)
-        {
-          /* logout is broadcast to everyone */
-          if (!self->sent_done)
-            cockpit_transport_send (self->transport, NULL, payload);
-        }
+      process_logout (self, options);
     }
   else if (g_strcmp0 (command, "close") == 0)
     {
@@ -1149,10 +1087,6 @@ on_web_socket_open (WebSocketConnection *connection,
 
   web_socket_connection_send (connection, WEB_SOCKET_DATA_TEXT, self->control_prefix, command);
   g_bytes_unref (command);
-
-  /* Do we have an authorize password? if so tell the frontend */
-  if (cockpit_creds_get_password (self->creds))
-    send_socket_hints (self, "credential", "password");
 
   g_signal_connect (connection, "message",
                     G_CALLBACK (on_web_socket_message), self);

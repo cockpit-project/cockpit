@@ -191,6 +191,9 @@ router_rule_compile (RouterRule *rule,
 
   g_assert (rule->matches == NULL);
 
+  if (object == NULL)
+    return;
+
   names = json_object_get_members (object);
   rule->matches = g_new0 (RouterMatch, g_list_length (names) + 1);
   for (l = names, i = 0; l != NULL; l = g_list_next (l), i++)
@@ -221,7 +224,10 @@ router_rule_match (RouterRule *rule,
   JsonNode *node;
   guint i;
 
-  for (i = 0; rule->matches && rule->matches[i].name != NULL; i++)
+  if (rule->matches == NULL)
+    return FALSE;
+
+  for (i = 0; rule->matches[i].name != NULL; i++)
     {
       match = &rule->matches[i];
       if (match->glob)
@@ -294,6 +300,7 @@ static void
 router_rule_dump (RouterRule *rule)
 {
   RouterMatch *match;
+  gboolean privileged;
   gchar *text;
   guint i;
 
@@ -316,6 +323,8 @@ router_rule_dump (RouterRule *rule)
           g_print ("  %s\n", match->name);
         }
     }
+  if (rule->config && cockpit_json_get_bool (rule->config, "privileged", FALSE, &privileged) && privileged)
+    g_print ("  privileged\n");
 }
 
 static void
@@ -861,6 +870,7 @@ static void
 cockpit_router_init (CockpitRouter *self)
 {
   RouterRule *rule;
+  JsonObject *match = json_object_new ();
 
   /* Owns the channels */
   self->channels = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, object_unref_if_not_null);
@@ -870,7 +880,10 @@ cockpit_router_init (CockpitRouter *self)
   /* The rules, including a default */
   rule = g_new0 (RouterRule, 1);
   rule->callback = process_open_not_supported;
+  router_rule_compile (rule, match);
+
   self->rules = g_list_prepend (self->rules, rule);
+  json_object_unref (match);
 }
 
 static void

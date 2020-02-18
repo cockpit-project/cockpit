@@ -36,6 +36,8 @@ struct _CockpitCreds {
   gchar *csrf_token;
   JsonObject *login_data;
   GList *bytes;
+  gchar *for_remote;
+  gchar *superuser;
 };
 
 G_DEFINE_BOXED_TYPE (CockpitCreds, cockpit_creds, cockpit_creds_ref, cockpit_creds_unref);
@@ -104,6 +106,10 @@ cockpit_creds_new (const gchar *application,
         creds->rhost = g_strdup (va_arg (va, const char *));
       else if (g_str_equal (type, COCKPIT_CRED_CSRF_TOKEN))
         creds->csrf_token = g_strdup (va_arg (va, const char *));
+      else if (g_str_equal (type, COCKPIT_CRED_FOR_REMOTE))
+        creds->for_remote = g_strdup (va_arg (va, const char *));
+      else if (g_str_equal (type, COCKPIT_CRED_SUPERUSER))
+        creds->superuser = g_strdup (va_arg (va, const char *));
       else
         g_assert_not_reached ();
     }
@@ -206,6 +212,20 @@ cockpit_creds_get_csrf_token (CockpitCreds *creds)
 {
   g_return_val_if_fail (creds != NULL, NULL);
   return creds->csrf_token;
+}
+
+const gchar *
+cockpit_creds_get_for_remote (CockpitCreds *creds)
+{
+  g_return_val_if_fail (creds != NULL, NULL);
+  return creds->for_remote;
+}
+
+const gchar *
+cockpit_creds_get_superuser (CockpitCreds *creds)
+{
+  g_return_val_if_fail (creds != NULL, NULL);
+  return creds->superuser;
 }
 
 /**

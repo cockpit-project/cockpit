@@ -488,12 +488,18 @@
             var password = id("login-password-input").value;
             localStorage.setItem('authorized-default', authorized);
 
+            var superuser_key = "superuser:" + user + (machine ? ":" + machine : "");
+            var superuser = localStorage.getItem(superuser_key) || "any";
+            localStorage.setItem("superuser:key", superuser_key);
+            localStorage.setItem(superuser_key, superuser);
+
             /* Keep information if login page was used */
             localStorage.setItem('standard-login', true);
 
             var headers = {
                 Authorization: "Basic " + window.btoa(utf8(user + ":" + password)),
                 "X-Authorize": authorized,
+                "X-Superuser": superuser,
             };
             // allow unknown remote hosts with interactive logins with "Connect to:"
             if (machine)

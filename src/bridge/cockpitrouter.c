@@ -79,6 +79,11 @@ struct _CockpitRouter {
   GDBusMethodInvocation *superuser_start_invocation;
   GDBusMethodInvocation *superuser_stop_invocation;
 
+  gboolean superuser_init_in_progress;
+  gchar *superuser_init_id;
+  gchar *superuser_init_password;
+  GList *superuser_init_next_rule;
+
   CockpitRouterPromptAnswerFunction *superuser_answer_function;
   gpointer superuser_answer_data;
 };
@@ -93,6 +98,9 @@ enum {
   PROP_0,
   PROP_TRANSPORT,
 };
+
+static void superuser_init (CockpitRouter *self, JsonObject *options);
+static void superuser_legacy_init (CockpitRouter *self);
 
 typedef struct {
   gchar **argv;
@@ -391,6 +399,18 @@ process_init (CockpitRouter *self,
       g_assert (host != NULL);
       self->init_host = g_strdup (host);
       problem = NULL;
+
+      if (!self->privileged)
+        {
+          JsonNode *superuser_options = json_object_get_member (options, "superuser");
+          if (superuser_options)
+            {
+              if (JSON_NODE_HOLDS_OBJECT (superuser_options))
+                superuser_init (self, json_node_get_object (superuser_options));
+            }
+          else
+            superuser_legacy_init (self);
+        }
     }
 }
 
@@ -908,6 +928,20 @@ on_transport_control (CockpitTransport *transport,
                       gpointer user_data)
 {
   CockpitRouter *self = user_data;
+  const gchar *auth_cookie;
+  const gchar *auth_response;
+
+  if (g_str_equal (command, "authorize")
+      && cockpit_json_get_string (options, "cookie", NULL, &auth_cookie)
+      && g_str_equal (auth_cookie, "super1")
+      && cockpit_json_get_string (options, "response", NULL, &auth_response)
+      && self->superuser_answer_function)
+    {
+      self->superuser_answer_function (auth_response, self->superuser_answer_data);
+      self->superuser_answer_function = NULL;
+      self->superuser_answer_data = NULL;
+      return TRUE;
+    }
 
   if (g_str_equal (command, "init"))
     {
@@ -1631,6 +1665,102 @@ cockpit_router_dbus_startup (CockpitRouter *router)
     }
 }
 
+/* Superuser init */
+
+static void superuser_init_step (CockpitRouter *router);
+
+static void
+superuser_init_start (CockpitRouter *router,
+                      const gchar *id,
+                      const gchar *password)
+{
+  router->superuser_init_in_progress = TRUE;
+  router->superuser_init_next_rule = router->rules;
+  router->superuser_init_id = g_strdup (id);
+  router->superuser_init_password = g_strdup (password);
+
+  superuser_init_step (router);
+}
+
+static void
+superuser_init_step_done (const gchar *error, gpointer user_data)
+{
+  CockpitRouter *router = user_data;
+
+  if (error)
+    {
+      router->superuser_rule = NULL;
+      superuser_init_step (router);
+    }
+  else
+    {
+      router->superuser_init_in_progress = FALSE;
+      g_free (router->superuser_init_id);
+      router->superuser_init_id = NULL;
+      g_free (router->superuser_init_password);
+      router->superuser_init_password = NULL;
+      superuser_notify_property (router, "Current");
+    }
+
+  g_object_unref (router);
+}
+
+static void
+superuser_init_step (CockpitRouter *router)
+{
+  for (GList *l = router->superuser_init_next_rule; l; l = g_list_next (l))
+    {
+      gchar *rule_id = rule_superuser_id (l->data);
+      if (rule_id && (router->superuser_init_id == NULL
+                      || g_str_equal (router->superuser_init_id, rule_id)))
+        {
+          router->superuser_rule = l->data;
+          router->superuser_init_next_rule = g_list_next (l);
+          cockpit_peer_reset (router->superuser_rule->user_data);
+          router->superuser_transport = cockpit_peer_ensure_with_done (router->superuser_rule->user_data,
+                                                                       superuser_init_step_done,
+                                                                       g_object_ref (router));
+          g_signal_connect (router->superuser_transport, "closed",
+                            G_CALLBACK (on_superuser_transport_closed), router);
+          return;
+        }
+      g_free (rule_id);
+    }
+
+  superuser_init_step_done (NULL, g_object_ref (router));
+}
+
+static void
+superuser_init (CockpitRouter *router,
+                JsonObject *options)
+{
+  const gchar *id;
+  const gchar *password_hex;
+  gchar *password;
+
+  if (!cockpit_json_get_string (options, "id", NULL, &id)
+      || !cockpit_json_get_string (options, "password", NULL, &password_hex)
+      || id == NULL)
+    {
+      g_warning ("invalid superuser options in \"init\" message");
+      return;
+    }
+
+  password = password_hex ? cockpit_hex_decode (password_hex, -1, NULL) : NULL;
+
+  if (g_str_equal (id, "any"))
+    id = NULL;
+
+  superuser_init_start (router, id, password);
+  g_free (password);
+}
+
+static void
+superuser_legacy_init (CockpitRouter *router)
+{
+  superuser_init_start (router, NULL, NULL);
+}
+
 /* Prompting
  */
 
@@ -1662,6 +1792,29 @@ cockpit_router_prompt (CockpitRouter *self,
                                      "Prompt",
                                      g_variant_new ("(sssb)", prompt, "", "", FALSE),
                                      NULL);
+    }
+  else if (self->superuser_init_in_progress)
+    {
+      if (self->superuser_init_password)
+        {
+          answer (self->superuser_init_password, data);
+        }
+      else
+        {
+          self->superuser_answer_function = answer;
+          self->superuser_answer_data = data;
+
+          gchar *user_hex = cockpit_hex_encode (user, -1);
+          gchar *challenge = g_strdup_printf ("plain1:%s:", user_hex);
+          GBytes *request = cockpit_transport_build_control ("command", "authorize",
+                                                             "challenge", challenge,
+                                                             "cookie", "super1",
+                                                             NULL);
+          cockpit_transport_send (self->transport, NULL, request);
+          g_bytes_unref (request);
+          g_free (challenge);
+          g_free (user_hex);
+        }
     }
   else
     {

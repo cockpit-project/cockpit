@@ -536,6 +536,8 @@ class Browser:
         self.set_val('#login-user-input', user)
         self.set_val('#login-password-input', password)
         self.set_checked('#authorized-input', authorized)
+        if authorized is not None:
+            self.eval_js('window.localStorage.setItem("superuser:%s", "%s");' % (user, "any" if authorized else "none"))
 
         self.click('#login-button')
         self.expect_load()
@@ -566,6 +568,7 @@ class Browser:
         self.set_val("#login-password-input", self.password)
         if authorized is not None:
             self.set_checked('#authorized-input', authorized)
+            self.eval_js('window.localStorage.setItem("superuser:%s", "%s");' % (user, "any" if authorized else "none"))
         self.click('#login-button')
         self.expect_load()
         self.wait_present('#content')

@@ -74,6 +74,10 @@ struct _CockpitPeer {
   gboolean closed;
   gchar *problem;
   JsonObject *failure;
+
+  /* Startup */
+  CockpitPeerDoneFunction *startup_done_function;
+  gpointer startup_done_data;
 };
 
 enum {
@@ -83,6 +87,17 @@ enum {
 };
 
 G_DEFINE_TYPE (CockpitPeer, cockpit_peer, G_TYPE_OBJECT);
+
+static void
+startup_done (CockpitPeer *self,
+              const gchar *problem)
+{
+  if (self->startup_done_function)
+    {
+      self->startup_done_function (problem, self->startup_done_data);
+      self->startup_done_function = NULL;
+    }
+}
 
 static void
 reply_channel_closed (CockpitPeer *self,
@@ -209,6 +224,8 @@ on_other_control (CockpitTransport *transport,
           problem = "not-supported";
         }
 
+      startup_done (self, problem);
+
       if (problem)
         {
           cockpit_transport_close (transport, problem);
@@ -334,6 +351,7 @@ on_other_closed (CockpitTransport *transport,
   CockpitPipe *pipe;
   gint status = 0;
   gint64 timeout;
+  const gchar *startup_problem = problem;
 
   /*
    * If we haven't yet gotten an "init" message, then we use the
@@ -393,6 +411,8 @@ on_other_closed (CockpitTransport *transport,
   self->other = NULL;
 
   self->closed = TRUE;
+
+  startup_done (self, problem ? problem : startup_problem);
 
   /* Handle any remaining open channels */
   channels = g_hash_table_get_values (self->channels);
@@ -860,8 +880,17 @@ cockpit_peer_handle (CockpitPeer *self,
  *
  * Returns: (transfer none): The transport to talk to the peer, or NULL
  */
+
 CockpitTransport *
 cockpit_peer_ensure (CockpitPeer *self)
+{
+  return cockpit_peer_ensure_with_done (self, NULL, NULL);
+}
+
+CockpitTransport *
+cockpit_peer_ensure_with_done (CockpitPeer *self,
+                               CockpitPeerDoneFunction *done_function,
+                               gpointer done_data)
 {
   CockpitPipe *pipe;
 
@@ -869,10 +898,14 @@ cockpit_peer_ensure (CockpitPeer *self)
 
   if (!self->other)
     {
+      self->startup_done_function = done_function;
+      self->startup_done_data = done_data;
+
       pipe = spawn_process_for_config (self);
       if (!pipe)
         {
           self->closed = TRUE;
+          startup_done (self, "spawn failed");
           return NULL;
         }
 
@@ -882,6 +915,11 @@ cockpit_peer_ensure (CockpitPeer *self)
       self->other_recv = g_signal_connect (self->other, "recv", G_CALLBACK (on_other_recv), self);
       self->other_closed = g_signal_connect (self->other, "closed", G_CALLBACK (on_other_closed), self);
       self->other_control = g_signal_connect (self->other, "control", G_CALLBACK (on_other_control), self);
+    }
+  else
+    {
+      if (done_function)
+        done_function (NULL, done_data);
     }
 
   return self->other;

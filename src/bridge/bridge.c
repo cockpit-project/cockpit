@@ -103,20 +103,6 @@ on_closed_set_flag (CockpitTransport *transport,
   *flag = TRUE;
 }
 
-static gboolean
-on_logout_set_flag (CockpitTransport *transport,
-                    const gchar *command,
-                    const gchar *channel,
-                    JsonObject *options,
-                    GBytes *payload,
-                    gpointer user_data)
-{
-  gboolean *flag = user_data;
-  if (g_str_equal (command, "logout"))
-    *flag = TRUE;
-  return FALSE;
-}
-
 static void
 send_init_command (CockpitTransport *transport,
                    gboolean interactive)
@@ -567,15 +553,6 @@ run_bridge (const gchar *interactive,
 
   g_resources_register (cockpitassets_get_resource ());
   cockpit_web_failure_resource = "/org/cockpit-project/Cockpit/fail.html";
-
-  if (privileged_slave)
-    {
-      /*
-       * When in privileged mode, exit right away when we get any sort of logout
-       * This enforces the fact that the user no longer has privileges.
-       */
-      g_signal_connect (transport, "control", G_CALLBACK (on_logout_set_flag), &closed);
-    }
 
   router = setup_router (transport, privileged_slave);
 

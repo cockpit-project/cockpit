@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include "cockpitrouter.h"
+#include "cockpitdbusinternal.h"
 
 #include "common/cockpitchannel.h"
 #include "common/cockpitjson.h"
@@ -40,11 +41,13 @@ typedef struct {
   MockTransport *transport;
   JsonObject *mock_match;
   JsonObject *mock_config;
+  GDBusConnection *connection;
 } TestCase;
 
 typedef struct {
   const gchar *payload;
   gboolean with_env;
+  gboolean privileged;
   const gchar *problem;
   const gchar *bridge;
 } TestFixture;
@@ -74,11 +77,19 @@ setup (TestCase *tc,
   json_array_add_string_element (argv, argument);
   g_free (argument);
   json_object_set_array_member (tc->mock_config, "spawn", argv);
+  if (fixture && fixture->privileged)
+    {
+      json_object_set_boolean_member (tc->mock_config, "privileged", TRUE);
+    }
+
   tc->mock_match = json_object_new ();
   json_object_set_string_member (tc->mock_match, "payload", payload);
 
   tc->transport = g_object_new (mock_transport_get_type (), NULL);
   while (g_main_context_iteration (NULL, FALSE));
+
+  cockpit_dbus_internal_startup (FALSE);
+  tc->connection = cockpit_dbus_internal_client();
 }
 
 static void
@@ -698,6 +709,143 @@ test_reload_remove (TestCase *tc,
   g_object_unref (router);
 }
 
+static void
+on_complete_get_result (GObject *source,
+                        GAsyncResult *result,
+                        gpointer user_data)
+{
+  GAsyncResult **ret = user_data;
+  g_assert (ret != NULL);
+  g_assert (*ret == NULL);
+  *ret = g_object_ref (result);
+}
+
+static GVariant *
+dbus_call_with_main_loop (TestCase *tc,
+                          const gchar *object_path,
+                          const gchar *interface_name,
+                          const gchar *method_name,
+                          GVariant *parameters,
+                          const GVariantType *reply_type,
+                          GError **error)
+{
+  GAsyncResult *result = NULL;
+  GVariant *retval;
+
+  g_dbus_connection_call (tc->connection, NULL, object_path,
+                          interface_name, method_name, parameters,
+                          reply_type, G_DBUS_CALL_FLAGS_NONE, -1,
+                          NULL, on_complete_get_result, &result);
+
+  while (result == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  retval = g_dbus_connection_call_finish (tc->connection, result, error);
+  g_object_unref (result);
+
+  return retval;
+}
+
+static const TestFixture fixture_superuser = {
+  .privileged = TRUE
+};
+
+static void
+test_superuser_none (TestCase *tc,
+                     gconstpointer user_data)
+{
+  CockpitRouter *router;
+  JsonObject *control;
+
+  router = cockpit_router_new (COCKPIT_TRANSPORT (tc->transport), NULL, NULL);
+  cockpit_router_dbus_startup (router);
+
+  cockpit_router_add_bridge (router, tc->mock_config);
+  emit_string (tc, NULL, "{'command': 'init', 'version': 1, 'host': 'localhost', 'superuser': false }");
+
+  // Superuser channels should be rejected
+  //
+  emit_string (tc, NULL, "{'command': 'open', 'channel': 'a', 'payload': 'upper', 'superuser': true}");
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_json_eq (control, "{'command':'close','channel':'a', 'problem':'access-denied'}");
+  control = NULL;
+
+  g_object_unref (router);
+}
+
+static void
+test_superuser_get_all (TestCase *tc,
+                        gconstpointer user_data)
+{
+  CockpitRouter *router;
+  GError *error = NULL;
+  GVariant *retval;
+
+  router = cockpit_router_new (COCKPIT_TRANSPORT (tc->transport), NULL, NULL);
+  cockpit_router_dbus_startup (router);
+
+  cockpit_router_add_bridge (router, tc->mock_config);
+  emit_string (tc, NULL, "{'command': 'init', 'version': 1, 'host': 'localhost', 'superuser': false }");
+
+  retval = dbus_call_with_main_loop (tc, "/superuser", "org.freedesktop.DBus.Properties", "GetAll",
+                                     g_variant_new ("(s)", "cockpit.Superuser"),
+                                     G_VARIANT_TYPE ("(a{sv})"), &error);
+
+  g_assert_no_error (error);
+  cockpit_assert_gvariant_eq (retval, "({'Bridges': <['mock-bridge']>, 'Current': <'none'>},)");
+
+  g_object_unref (router);
+}
+
+static void
+assert_superuser_current (TestCase *tc,
+                          const gchar *expected)
+{
+  GVariant *retval;
+  GError *error = NULL;
+
+  retval = dbus_call_with_main_loop (tc, "/superuser", "org.freedesktop.DBus.Properties", "Get",
+                                     g_variant_new ("(ss)", "cockpit.Superuser", "Current"),
+                                     G_VARIANT_TYPE ("(v)"), &error);
+  g_assert_no_error (error);
+  cockpit_assert_gvariant_eq (retval, g_strdup_printf ("(<'%s'>,)", expected));
+}
+
+static void
+test_superuser_start (TestCase *tc,
+                      gconstpointer user_data)
+{
+  CockpitRouter *router;
+  GError *error = NULL;
+  JsonObject *control;
+
+  router = cockpit_router_new (COCKPIT_TRANSPORT (tc->transport), NULL, NULL);
+  cockpit_router_dbus_startup (router);
+
+  cockpit_router_add_bridge (router, tc->mock_config);
+  emit_string (tc, NULL, "{'command': 'init', 'version': 1, 'host': 'localhost', 'superuser': false }");
+
+  assert_superuser_current (tc, "none");
+
+  dbus_call_with_main_loop (tc, "/superuser", "cockpit.Superuser", "Start",
+                            g_variant_new ("(s)", "mock-bridge"),
+                            G_VARIANT_TYPE ("()"), &error);
+  g_assert_no_error (error);
+
+  assert_superuser_current (tc, "mock-bridge");
+
+  // Superuser channels should now work
+  //
+  emit_string (tc, NULL, "{'command': 'open', 'channel': 'a', 'payload': 'upper', 'superuser': true}");
+  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_assert_json_eq (control, "{'command':'ready','channel':'a'}");
+  control = NULL;
+
+  g_object_unref (router);
+}
+
 int
 main (int argc,
       char *argv[])
@@ -725,6 +873,13 @@ main (int argc,
               setup, test_reload_add, teardown);
   g_test_add ("/router/reload/remove", TestCase, NULL,
               setup, test_reload_remove, teardown);
+
+  g_test_add ("/router/superuser/none", TestCase, &fixture_superuser,
+              setup, test_superuser_none, teardown);
+  g_test_add ("/router/superuser/get-all", TestCase, &fixture_superuser,
+              setup, test_superuser_get_all, teardown);
+  g_test_add ("/router/superuser/start", TestCase, &fixture_superuser,
+              setup, test_superuser_start, teardown);
 
   return g_test_run ();
 }

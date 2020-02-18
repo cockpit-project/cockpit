@@ -543,16 +543,16 @@ run_bridge (const gchar *interactive,
       transport = cockpit_pipe_transport_new_fds ("stdio", 0, outfd);
     }
 
+  router = setup_router (transport, privileged_slave);
+
   if (uid != 0)
     {
       if (!interactive)
-        polkit_agent = cockpit_polkit_agent_register (transport, NULL);
+        polkit_agent = cockpit_polkit_agent_register (transport, router, NULL);
     }
 
   g_resources_register (cockpitassets_get_resource ());
   cockpit_web_failure_resource = "/org/cockpit-project/Cockpit/fail.html";
-
-  router = setup_router (transport, privileged_slave);
 
   cockpit_dbus_user_startup (pwd);
   cockpit_dbus_setup_startup ();
@@ -560,6 +560,7 @@ run_bridge (const gchar *interactive,
   cockpit_dbus_machines_startup ();
   cockpit_dbus_config_startup ();
   cockpit_packages_dbus_startup (packages);
+  cockpit_router_dbus_startup (router);
 
   call_update_router_data.router = router;
   call_update_router_data.privileged_slave = privileged_slave;

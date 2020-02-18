@@ -36,6 +36,9 @@ typedef struct {
 
 typedef struct _CockpitRouter        CockpitRouter;
 
+typedef void CockpitRouterPromptAnswerFunction (const gchar *value,
+                                                gpointer data);
+
 GType           cockpit_router_get_type     (void) G_GNUC_CONST;
 
 CockpitRouter     * cockpit_router_new                             (CockpitTransport *transport,
@@ -56,6 +59,17 @@ void                cockpit_router_set_bridges                      (CockpitRout
                                                                      GList *bridge_configs);
 
 void                cockpit_router_dump_rules                      (CockpitRouter *self);
+
+void                cockpit_router_dbus_startup                    (CockpitRouter *self);
+
+void                cockpit_router_prompt                          (CockpitRouter *self,
+                                                                    const gchar *user,
+                                                                    const gchar *prompt,
+                                                                    CockpitRouterPromptAnswerFunction *answer,
+                                                                    gpointer data);
+
+void                cockpit_router_prompt_cancel                   (CockpitRouter *self,
+                                                                    gpointer data);
 
 G_END_DECLS
 

@@ -187,6 +187,7 @@ main (int argc,
   request = cockpit_transport_build_json ("command", "authorize",
                                           "challenge", challenge,
                                           "cookie", cookie,
+                                          "prompt", argv[1],
                                           NULL);
 
   /* Yes, we write to stdin which we expect to be a socketpair() */

@@ -37,7 +37,7 @@ const _ = cockpit.gettext;
  *                  a privileged action.
  *
  * It can be disabled and will show a tooltip then.  It will
- * automatically disable itself when the logged in user doesn't
+ * automatically disappear when the logged in user doesn't
  * have permission.
  *
  * Properties:
@@ -49,13 +49,8 @@ const _ = cockpit.gettext;
 class StorageControl extends React.Component {
     render() {
         var excuse = this.props.excuse;
-        if (!client.permission.allowed) {
-            var markup = {
-                __html: cockpit.format(_("The user <b>$0</b> is not permitted to manage storage"),
-                                       client.permission.user ? client.permission.user.name : '')
-            };
-            excuse = <span dangerouslySetInnerHTML={markup} />;
-        }
+        if (!client.superuser.allowed)
+            return <div />;
 
         if (excuse) {
             return (

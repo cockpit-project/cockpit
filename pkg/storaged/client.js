@@ -19,6 +19,7 @@
 
 import cockpit from 'cockpit';
 import * as PK from 'packagekit.js';
+import { superuser } from 'superuser.jsx';
 
 import * as utils from './utils';
 
@@ -54,11 +55,12 @@ client.run = (func) => {
     }
 };
 
-/* Permissions
+/* Superuser
  */
 
-client.permission = cockpit.permission({ admin: true });
-client.permission.addEventListener("changed", () => { client.dispatchEvent('changed') });
+client.superuser = superuser;
+client.superuser.reload_page_on_change();
+client.superuser.addEventListener("changed", () => client.dispatchEvent("changed"));
 
 /* Metrics
  */

@@ -24,6 +24,7 @@
 #include "config.h"
 
 #include "cockpitpolkitagent.h"
+#include "cockpitrouter.h"
 
 #include "common/cockpithex.h"
 #include "common/cockpitjson.h"
@@ -48,7 +49,7 @@
 typedef struct {
   PolkitAgentListener parent_instance;
   CockpitTransport *transport;
-  gulong control_sig;
+  CockpitRouter *router;
 
   /* Polkit helper sessions active */
   GHashTable *callers;
@@ -78,6 +79,7 @@ typedef struct {
 enum {
     PROP_0,
     PROP_TRANSPORT,
+    PROP_ROUTER,
 };
 
 static GType cockpit_polkit_agent_get_type (void) G_GNUC_CONST;
@@ -111,6 +113,9 @@ caller_free (gpointer data)
       g_object_unref (caller->result);
     }
 
+  if (caller->self->router)
+    cockpit_router_prompt_cancel (caller->self->router, caller);
+
   g_free (caller->cookie);
   g_free (caller->user);
   g_free (caller);
@@ -122,50 +127,10 @@ cockpit_polkit_agent_init (CockpitPolkitAgent *self)
   self->callers = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, caller_free);
 }
 
-static gboolean
-on_transport_control (CockpitTransport *transport,
-                      const char *command,
-                      guint channel,
-                      JsonObject *options,
-                      GBytes *message,
-                      gpointer user_data)
-{
-  CockpitPolkitAgent *self = COCKPIT_POLKIT_AGENT (user_data);
-  ReauthorizeCaller *caller = NULL;
-  const gchar *response;
-  const gchar *cookie;
-
-  if (!g_str_equal (command, "authorize"))
-    return FALSE;
-
-  if (!cockpit_json_get_string (options, "cookie", NULL, &cookie) ||
-      !cockpit_json_get_string (options, "response", NULL, &response))
-    {
-      g_warning ("got an invalid authorize command from cockpit-ws");
-      return FALSE;
-    }
-
-  if (cookie)
-    caller = g_hash_table_lookup (self->callers, cookie);
-
-  if (caller)
-    {
-      polkit_agent_session_response (caller->session, response ? response : "");
-      return TRUE;
-    }
-
-  return FALSE;
-}
-
 static void
 cockpit_polkit_agent_constructed (GObject *object)
 {
-  CockpitPolkitAgent *self = COCKPIT_POLKIT_AGENT (object);
-
   G_OBJECT_CLASS (cockpit_polkit_agent_parent_class)->constructed (object);
-
-  self->control_sig = g_signal_connect (self->transport, "control",
-                                        G_CALLBACK (on_transport_control), self);
 }
 
  static void
@@ -180,6 +145,11 @@ cockpit_polkit_agent_set_property (GObject *object,
       case PROP_TRANSPORT:
         self->transport = g_value_dup_object (value);
         break;
+      case PROP_ROUTER:
+        self->router = g_value_get_object (value);
+        if (self->router)
+          g_object_add_weak_pointer (G_OBJECT(self->router), (gpointer *)&self->router);
+        break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
         break;
@@ -190,12 +160,6 @@ static void
 cockpit_polkit_agent_dispose (GObject *object)
 {
   CockpitPolkitAgent *self = COCKPIT_POLKIT_AGENT (object);
-
-  if (self->control_sig)
-    {
-      g_signal_handler_disconnect (self->transport, self->control_sig);
-      self->control_sig = 0;
-     }
 
   g_hash_table_remove_all (self->callers);
 
@@ -209,6 +173,8 @@ cockpit_polkit_agent_finalize (GObject *object)
 
   if (self->transport)
     g_object_unref (self->transport);
+  if (self->router)
+    g_object_remove_weak_pointer (G_OBJECT(self->router), (gpointer *)&self->router);
 
   g_hash_table_destroy (self->callers);
 
@@ -234,40 +200,28 @@ on_completed (PolkitAgentSession *session,
 }
 
 static void
+on_answer (const gchar *value,
+           gpointer user_data)
+{
+  ReauthorizeCaller *caller = user_data;
+  polkit_agent_session_response (caller->session, value ? value : "");
+}
+
+static void
 on_request (PolkitAgentSession *session,
             const gchar *request,
             gboolean echo_on,
             gpointer user_data)
 {
   ReauthorizeCaller *caller = user_data;
-  JsonObject *object;
-  GBytes *bytes;
-  gchar *challenge;
-  gchar *user;
 
   if (echo_on)
     {
       g_message ("ignoring polkit helper request: %s", request);
       polkit_agent_session_response (session, "");
     }
-  else
-    {
-      user = cockpit_hex_encode (caller->user, -1);
-      challenge = g_strdup_printf ("plain1:%s:%s", user, request);
-      g_free (user);
-
-      /* send an authorize packet here */
-      object = json_object_new ();
-      json_object_set_string_member (object, "command", "authorize");
-      json_object_set_string_member (object, "cookie", caller->cookie);
-      json_object_set_string_member (object, "challenge", challenge);
-      bytes = cockpit_json_write_bytes (object);
-      json_object_unref (object);
-
-      /* Consume from buffer, including null termination */
-      cockpit_transport_send (caller->self->transport, NULL, bytes);
-      g_bytes_unref (bytes);
-    }
+  else if (caller->self->router)
+    cockpit_router_prompt (caller->self->router, caller->user, NULL, on_answer, caller);
 }
 
 static void
@@ -320,6 +274,13 @@ cockpit_polkit_agent_initiate_authentication (PolkitAgentListener *listener,
   g_debug ("polkit is requesting authentication");
 
   result = g_task_new (G_OBJECT (self), NULL, callback, user_data);
+
+  if (!g_str_equal (action_id, "org.cockpit-project.cockpit.root-bridge"))
+    {
+      g_task_return_new_error (result, POLKIT_ERROR, POLKIT_ERROR_FAILED,
+                               "Unsupported action");
+      goto out;
+    }
 
   uid = getuid ();
 
@@ -403,6 +364,10 @@ cockpit_polkit_agent_class_init (CockpitPolkitAgentClass *klass)
   g_object_class_install_property (gobject_class, PROP_TRANSPORT,
              g_param_spec_object ("transport", "transport", "transport", COCKPIT_TYPE_TRANSPORT,
                                   G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class, PROP_ROUTER,
+             g_param_spec_object ("router", "router", "router", COCKPIT_TYPE_ROUTER,
+                                  G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
 }
 
 typedef struct {
@@ -412,6 +377,7 @@ typedef struct {
 
 gpointer
 cockpit_polkit_agent_register (CockpitTransport *transport,
+                               CockpitRouter *router,
                                GCancellable *cancellable)
 {
   CockpitPolkitRegistered *registered;
@@ -445,7 +411,7 @@ cockpit_polkit_agent_register (CockpitTransport *transport,
       goto out;
     }
 
-  listener = g_object_new (COCKPIT_TYPE_POLKIT_AGENT, "transport", transport, NULL);
+  listener = g_object_new (COCKPIT_TYPE_POLKIT_AGENT, "transport", transport, "router", router, NULL);
   options = NULL;
 
   /*

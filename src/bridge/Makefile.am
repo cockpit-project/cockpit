@@ -291,6 +291,8 @@ libcockpit_pcp_a_SOURCES = \
 	src/bridge/cockpitconnect.h \
 	src/bridge/cockpitpcpmetrics.c \
 	src/bridge/cockpitpcpmetrics.h \
+	src/bridge/cockpitdbusinternal.c \
+	src/bridge/cockpitdbusinternal.h \
 	src/bridge/cockpitpeer.c \
 	src/bridge/cockpitpeer.h \
 	src/bridge/cockpitrouter.c \

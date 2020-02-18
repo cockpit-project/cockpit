@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include "cockpitpeer.h"
+#include "cockpitrouter.h"
 
 #include "common/cockpitauthorize.h"
 #include "common/cockpitjson.h"
@@ -27,6 +28,7 @@
 #include "common/cockpittransport.h"
 #include "common/cockpitpipe.h"
 #include "common/cockpitpipetransport.h"
+#include "common/cockpithex.h"
 
 #include <sys/prctl.h>
 #include <sys/socket.h>
@@ -61,6 +63,7 @@ struct _CockpitPeer {
 
   /* The transport we're routing from */
   CockpitTransport *transport;
+  CockpitRouter *router;
   gulong transport_recv;
   gulong transport_control;
   GBytes *last_init;
@@ -76,6 +79,7 @@ struct _CockpitPeer {
   JsonObject *failure;
 
   /* Startup */
+  gchar *startup_auth_cookie;
   CockpitPeerDoneFunction *startup_done_function;
   gpointer startup_done_data;
 };
@@ -83,7 +87,8 @@ struct _CockpitPeer {
 enum {
   PROP_0,
   PROP_TRANSPORT,
-  PROP_CONFIG
+  PROP_ROUTER,
+  PROP_CONFIG,
 };
 
 G_DEFINE_TYPE (CockpitPeer, cockpit_peer, G_TYPE_OBJECT);
@@ -171,6 +176,27 @@ on_timeout_reset (gpointer user_data)
   return FALSE;
 }
 
+
+static void
+on_answer (const gchar *value,
+           gpointer user_data)
+{
+  CockpitPeer *self = user_data;
+
+  if (self->startup_auth_cookie)
+    {
+      GBytes *reply = cockpit_transport_build_control ("command", "authorize",
+                                                       "cookie", self->startup_auth_cookie,
+                                                       "response",
+                                                       value,
+                                                       NULL);
+      cockpit_transport_send (self->other, NULL, reply);
+      g_bytes_unref (reply);
+      g_free (self->startup_auth_cookie);
+      self->startup_auth_cookie = NULL;
+    }
+}
+
 static gboolean
 on_other_control (CockpitTransport *transport,
                   const char *command,
@@ -184,6 +210,8 @@ on_other_control (CockpitTransport *transport,
   const gchar *problem = NULL;
   const gchar *cookie = NULL;
   const gchar *challenge = NULL;
+  const gchar *prompt;
+  gboolean privileged;
   GBytes *reply;
   gint64 timeout;
   gint64 version;
@@ -261,9 +289,41 @@ on_other_control (CockpitTransport *transport,
           g_message ("%s: received \"authorize\" request without a valid cookie", self->name);
         }
 
-      /* If we have info we can respond to basic authorize challenges */
-      else if (cockpit_json_get_string (options, "challenge", NULL, &challenge) &&
-               challenge && g_hash_table_contains (self->authorize_values, challenge))
+      else if (!cockpit_json_get_string (options, "challenge", NULL, &challenge))
+        {
+          g_message ("%s: received \"authorize\" request with a invalid challenge", self->name);
+        }
+      else if (!cockpit_json_get_string (options, "prompt", NULL, &prompt))
+        {
+          g_message ("%s: received \"authorize\" request with a invalid prompt", self->name);
+        }
+
+      /* Hook into the superuser startup mechanism for privileged bridges.
+       */
+      else if (cockpit_json_get_bool (self->config, "privileged", FALSE, &privileged) && privileged)
+        {
+          if (self->startup_auth_cookie)
+            g_warning ("%s: received overlapping \"authorize\" requests", self->name);
+          else if (!self->router)
+            g_warning ("%s: no router for answering \"authorize\" request", self->name);
+          else
+            {
+              gchar *user_hex;
+              gchar *user;
+              self->startup_auth_cookie = g_strdup (cookie);
+              cockpit_authorize_subject (challenge, &user_hex);
+              user = cockpit_hex_decode (user_hex, -1, NULL);
+              cockpit_router_prompt (self->router, user, prompt, on_answer, self);
+              g_free (user);
+              g_free (user_hex);
+            }
+        }
+
+      /* If we have info we can respond to basic authorize challenges.
+         This is used when troubleshooting connections to remote
+         machines.
+      */
+      else if (challenge && g_hash_table_contains (self->authorize_values, challenge))
         {
           reply = cockpit_transport_build_control ("command", "authorize",
                                                    "cookie", cookie,
@@ -275,7 +335,10 @@ on_other_control (CockpitTransport *transport,
           g_bytes_unref (reply);
         }
 
-      /* Otherwise forward the authorize challenge on */
+      /* Otherwise forward the authorize challenge on.  This is how we
+         use the login password for SSH to remote machines, and also
+         for root bridges on remote machines.
+      */
       else
         {
           g_hash_table_add (self->authorizes, g_strdup (cookie));
@@ -534,6 +597,9 @@ cockpit_peer_get_property (GObject *object,
     case PROP_TRANSPORT:
       g_value_set_object (value, self->transport);
       break;
+    case PROP_ROUTER:
+      g_value_set_object (value, self->router);
+      break;
     case PROP_CONFIG:
       g_value_set_boxed (value, self->config);
       break;
@@ -555,6 +621,11 @@ cockpit_peer_set_property (GObject *object,
     {
     case PROP_TRANSPORT:
       self->transport = g_value_dup_object (value);
+      break;
+    case PROP_ROUTER:
+      self->router = g_value_get_object (value);
+      if (self->router)
+        g_object_add_weak_pointer (G_OBJECT(self->router), (gpointer *)&self->router);
       break;
     case PROP_CONFIG:
       self->config = g_value_dup_boxed (value);
@@ -600,6 +671,11 @@ cockpit_peer_finalize (GObject *object)
     json_object_unref (self->config);
   if (self->transport)
     g_object_unref (self->transport);
+  if (self->router)
+    {
+      cockpit_router_prompt_cancel (self->router, self);
+      g_object_remove_weak_pointer (G_OBJECT(self->router), (gpointer *)&self->router);
+    }
   if (self->last_init)
     g_bytes_unref (self->last_init);
 
@@ -649,6 +725,13 @@ cockpit_peer_class_init (CockpitPeerClass *class)
   g_object_class_install_property (object_class, PROP_TRANSPORT,
                                    g_param_spec_object ("transport", "transport", "transport",
                                                         COCKPIT_TYPE_TRANSPORT,
+                                                        G_PARAM_WRITABLE |
+                                                        G_PARAM_CONSTRUCT_ONLY |
+                                                        G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (object_class, PROP_ROUTER,
+                                   g_param_spec_object ("router", "router", "router",
+                                                        COCKPIT_TYPE_ROUTER,
                                                         G_PARAM_WRITABLE |
                                                         G_PARAM_CONSTRUCT_ONLY |
                                                         G_PARAM_STATIC_STRINGS));
@@ -947,6 +1030,9 @@ cockpit_peer_reset (CockpitPeer *self)
   g_hash_table_remove_all (self->channels);
   g_hash_table_remove_all (self->authorizes);
   g_hash_table_remove_all (self->authorize_values);
+
+  g_free (self->startup_auth_cookie);
+  self->startup_auth_cookie = NULL;
 
   if (self->failure)
     {

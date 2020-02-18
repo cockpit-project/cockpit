@@ -23,6 +23,7 @@
 
 #include "cockpitconnect.h"
 #include "cockpitpeer.h"
+#include "cockpitdbusinternal.h"
 
 #include "common/cockpitchannel.h"
 #include "common/cockpitjson.h"
@@ -30,13 +31,29 @@
 #include "common/cockpitpipe.h"
 #include "common/cockpitpipetransport.h"
 #include "common/cockpittemplate.h"
+#include "common/cockpithex.h"
 
 #include <stdlib.h>
 #include <string.h>
 
+typedef struct {
+  gchar *name;
+  GPatternSpec *glob;
+  JsonNode *node;
+} RouterMatch;
+
+typedef struct {
+  JsonObject *config;
+  RouterMatch *matches;
+  gboolean (* callback) (CockpitRouter *, const gchar *, JsonObject *, GBytes *, gpointer);
+  gpointer user_data;
+  GDestroyNotify destroy;
+} RouterRule;
+
 struct _CockpitRouter {
   GObjectClass parent;
 
+  gboolean privileged;
   gchar *init_host;
   gulong signal_id;
 
@@ -53,6 +70,17 @@ struct _CockpitRouter {
   GHashTable *groups;
   GHashTable *fences;
   GQueue *fenced;
+
+  /* Superuser */
+  RouterRule *superuser_rule;
+  CockpitTransport *superuser_transport;
+
+  gboolean superuser_dbus_inited;
+  GDBusMethodInvocation *superuser_start_invocation;
+  GDBusMethodInvocation *superuser_stop_invocation;
+
+  CockpitRouterPromptAnswerFunction *superuser_answer_function;
+  gpointer superuser_answer_data;
 };
 
 typedef struct _CockpitRouterClass {
@@ -165,20 +193,6 @@ dynamic_peer_free (gpointer data)
   g_free (p->env);
   g_free (p);
 }
-
-typedef struct {
-  gchar *name;
-  GPatternSpec *glob;
-  JsonNode *node;
-} RouterMatch;
-
-typedef struct {
-  JsonObject *config;
-  RouterMatch *matches;
-  gboolean (* callback) (CockpitRouter *, const gchar *, JsonObject *, GBytes *, gpointer);
-  gpointer user_data;
-  GDestroyNotify destroy;
-} RouterRule;
 
 static void
 router_rule_compile (RouterRule *rule,
@@ -656,7 +670,12 @@ process_open_dynamic_peer (CockpitRouter *self,
       if (key.environ)
         json_object_set_array_member (config, "environ", strv_to_json_array (key.environ));
 
-      peer = cockpit_peer_new (self->transport, config);
+      peer = g_object_new (COCKPIT_TYPE_PEER,
+                           "transport", self->transport,
+                           "router", self,
+                           "config", config,
+                           NULL);
+
       g_hash_table_insert (dp->peers, g_memdup (&key, sizeof (DynamicKey)), peer);
     }
   else
@@ -690,6 +709,66 @@ process_open_not_supported (CockpitRouter *self,
 
   /* This creates a temporary channel that closes with not-supported */
   create_channel (self, channel, options, COCKPIT_TYPE_CHANNEL);
+  return TRUE;
+}
+
+static void
+process_open_access_denied (CockpitRouter *self,
+                            const gchar *channel)
+{
+  GBytes *control = cockpit_transport_build_control ("command", "close",
+                                                     "channel", channel,
+                                                     "problem", "access-denied",
+                                                     NULL);
+  cockpit_transport_send (self->transport, NULL, control);
+  g_bytes_unref (control);
+}
+
+static void superuser_notify_property (CockpitRouter *self, const gchar *prop);
+
+static gboolean
+process_open_superuser (CockpitRouter *self,
+                        CockpitTransport *transport,
+                        const gchar *channel,
+                        JsonObject *options,
+                        GBytes *data)
+{
+  const gchar *host = NULL;
+  const gchar *superuser_string;
+
+  /* If we are already privileged, let the normal rules handle everything.
+   */
+  if (self->privileged)
+    return FALSE;
+
+  /* Remote superuser is not handled here.
+   */
+  if (cockpit_json_get_string (options, "host", NULL, &host) && host)
+    return FALSE;
+
+  if (!cockpit_json_get_string (options, "superuser", NULL, &superuser_string))
+    {
+      gboolean superuser_boolean;
+      if (!cockpit_json_get_bool (options, "superuser", FALSE, &superuser_boolean))
+        superuser_boolean = FALSE;
+      superuser_string = superuser_boolean ? "require" : NULL;
+    }
+
+  if (superuser_string == NULL)
+    return FALSE;
+
+  if (!g_str_equal (superuser_string, "require") && self->superuser_rule == NULL)
+    return FALSE;
+
+  if (self->superuser_rule == NULL)
+    process_open_access_denied (self, channel);
+  else
+    {
+      GBytes *new_payload = cockpit_json_write_bytes (options);
+      router_rule_invoke (self->superuser_rule, self, channel, options, new_payload);
+      g_bytes_unref (new_payload);
+    }
+
   return TRUE;
 }
 
@@ -733,7 +812,12 @@ process_open (CockpitRouter *self,
       process_open_not_supported (self, channel, options, data, NULL);
     }
 
-  /* Now go throgh the rules */
+  else if (process_open_superuser (self, transport, channel, options, data))
+    {
+      /* all done above */
+    }
+
+  /* Now go through the rules */
   else
     {
       cockpit_router_normalize_host_params (options);
@@ -970,6 +1054,7 @@ cockpit_router_constructed (GObject *object)
   self->signal_id = g_signal_connect (self->transport, "control",
                                       G_CALLBACK (on_transport_control),
                                       self);
+  self->privileged = (geteuid() == 0);
 }
 
 static void
@@ -1146,11 +1231,26 @@ cockpit_router_add_bridge (CockpitRouter *self,
   if (!output->next)
     {
       rule->callback = process_open_peer;
-      rule->user_data = cockpit_peer_new (self->transport, config);
+      rule->user_data = g_object_new (COCKPIT_TYPE_PEER,
+                                      "transport", self->transport,
+                                      "router", self,
+                                      "config", config,
+                                      NULL);
       rule->destroy = g_object_unref;
     }
   else
     {
+      gboolean privileged;
+
+      if (cockpit_json_get_bool (rule->config, "privileged", FALSE, &privileged)
+          && privileged)
+        {
+          g_warning ("privileged bridges can't be dynamic");
+          json_object_unref (rule->config);
+          g_free (rule);
+          goto out;
+        }
+
       rule->callback = process_open_dynamic_peer;
       rule->user_data = dynamic_peer_create (config);
       rule->destroy = dynamic_peer_free;
@@ -1159,6 +1259,7 @@ cockpit_router_add_bridge (CockpitRouter *self,
   router_rule_compile (rule, match);
   self->rules = g_list_prepend (self->rules, rule);
 
+ out:
   g_bytes_unref (bytes);
   g_list_free_full (output, (GDestroyNotify) g_bytes_unref);
 }
@@ -1225,4 +1326,367 @@ cockpit_router_dump_rules (CockpitRouter *self)
   GList *l;
   for (l = self->rules; l != NULL; l = g_list_next (l))
     router_rule_dump (l->data);
+}
+
+/* Superuser rules */
+
+static gchar *
+rule_superuser_id (RouterRule *rule)
+{
+  gboolean privileged;
+  gchar **spawn = NULL;
+  gchar *id;
+
+  if (rule->config
+      && cockpit_json_get_bool (rule->config, "privileged", FALSE, &privileged)
+      && privileged
+      && cockpit_json_get_strv (rule->config, "spawn", NULL, &spawn)
+      && spawn)
+    {
+      id = g_path_get_basename (spawn[0]);
+      g_free (spawn);
+      return id;
+    }
+  else
+    return NULL;
+}
+
+/* D-Bus interface */
+
+static void
+superuser_notify_property (CockpitRouter *self, const gchar *prop)
+{
+  if (!self->superuser_dbus_inited)
+    return;
+
+  GDBusConnection *connection = cockpit_dbus_internal_server ();
+  GVariant *signal_value;
+  GVariantBuilder builder;
+
+  g_variant_builder_init (&builder, G_VARIANT_TYPE ("as"));
+  g_variant_builder_add (&builder, "s", prop);
+  signal_value = g_variant_ref_sink (g_variant_new ("(sa{sv}as)", "cockpit.Superuser", NULL, &builder));
+
+  g_dbus_connection_emit_signal (connection,
+                                 NULL,
+                                 "/superuser",
+                                 "org.freedesktop.DBus.Properties",
+                                 "PropertiesChanged",
+                                 signal_value,
+                                 NULL);
+
+  g_variant_unref (signal_value);
+}
+
+static void
+superuser_start_done (const gchar *error, gpointer user_data)
+{
+  CockpitRouter *router = user_data;
+
+  if (error)
+    {
+      router->superuser_rule = NULL;
+      g_dbus_method_invocation_return_error (router->superuser_start_invocation, G_DBUS_ERROR, G_DBUS_ERROR_FAILED,
+                                             "%s", error);
+    }
+  else
+    g_dbus_method_invocation_return_value (router->superuser_start_invocation, NULL);
+
+  router->superuser_answer_function = NULL;
+  router->superuser_answer_data = NULL;
+  router->superuser_start_invocation = NULL;
+  superuser_notify_property (router, "Current");
+  g_object_unref (router);
+}
+
+static void
+on_superuser_transport_closed (CockpitTransport *transport,
+                               const gchar *problem,
+                               gpointer user_data)
+{
+  CockpitRouter *router = user_data;
+
+  if (router->superuser_transport == transport)
+    {
+      if (router->superuser_stop_invocation)
+        g_dbus_method_invocation_return_value (router->superuser_stop_invocation, NULL);
+      router->superuser_stop_invocation = NULL;
+      router->superuser_rule = NULL;
+      router->superuser_transport = NULL;
+      superuser_notify_property (router, "Current");
+    }
+}
+
+static void
+superuser_method_call (GDBusConnection *connection,
+                       const gchar *sender,
+                       const gchar *object_path,
+                       const gchar *interface_name,
+                       const gchar *method_name,
+                       GVariant *parameters,
+                       GDBusMethodInvocation *invocation,
+                       gpointer user_data)
+{
+  CockpitRouter *router = user_data;
+
+  if (g_str_equal (method_name, "Start"))
+    {
+      const gchar *id;
+
+      if (router->superuser_rule)
+        {
+          g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR, G_DBUS_ERROR_FAILED,
+                                                 "Already started a superuser bridge");
+          return;
+        }
+
+      g_variant_get (parameters, "(&s)", &id);
+
+      for (GList *l = router->rules; l; l = g_list_next (l))
+        {
+          gchar *rule_id = rule_superuser_id (l->data);
+          if (rule_id)
+            {
+              if (g_str_equal (id, rule_id))
+                {
+                  g_free (rule_id);
+                  router->superuser_start_invocation = invocation;
+                  router->superuser_rule = l->data;
+                  cockpit_peer_reset (router->superuser_rule->user_data);
+                  router->superuser_transport = cockpit_peer_ensure_with_done (router->superuser_rule->user_data,
+                                                                               superuser_start_done,
+                                                                               g_object_ref (router));
+                  if (router->superuser_transport)
+                      g_signal_connect (router->superuser_transport, "closed",
+                                        G_CALLBACK (on_superuser_transport_closed), router);
+                  return;
+                }
+            }
+        }
+
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR, G_DBUS_ERROR_NOT_SUPPORTED,
+                                             "No such superuser bridge");
+    }
+  else if (g_str_equal (method_name, "Stop"))
+    {
+      if (router->superuser_rule == NULL)
+        {
+          g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR, G_DBUS_ERROR_FAILED,
+                                                 "No superuser bridge running");
+          return;
+        }
+
+      router->superuser_stop_invocation = invocation;
+      cockpit_transport_close (router->superuser_transport,
+                               router->superuser_start_invocation ? "cancelled" : "terminated");
+    }
+  else if (g_str_equal (method_name, "Answer"))
+    {
+      const gchar *value;
+
+      if (router->superuser_start_invocation == NULL)
+        {
+          g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR, G_DBUS_ERROR_FAILED,
+                                                 "No bridge startup going on");
+          return;
+        }
+
+      g_variant_get (parameters, "(&s)", &value);
+      if (router->superuser_answer_function)
+        {
+          router->superuser_answer_function (value, router->superuser_answer_data);
+          router->superuser_answer_function = NULL;
+          router->superuser_answer_data = NULL;
+        }
+      g_dbus_method_invocation_return_value (invocation, NULL);
+    }
+  else
+    g_return_if_reached ();
+}
+
+static GVariant *
+superuser_get_property (GDBusConnection *connection,
+                        const gchar *sender,
+                        const gchar *object_path,
+                        const gchar *interface_name,
+                        const gchar *property_name,
+                        GError **error,
+                        gpointer user_data)
+{
+  CockpitRouter *router = user_data;
+
+  g_return_val_if_fail (property_name != NULL, NULL);
+
+  if (g_str_equal (property_name, "Bridges"))
+    {
+      GVariantBuilder bob;
+
+      g_variant_builder_init (&bob, G_VARIANT_TYPE("as"));
+      for (GList *l = router->rules; l; l = g_list_next (l))
+        {
+          gchar *id = rule_superuser_id (l->data);
+          if (id)
+            {
+              g_variant_builder_add (&bob, "s", id);
+              g_free (id);
+            }
+        }
+
+      return g_variant_new ("as", &bob);
+    }
+  else if (g_str_equal (property_name, "Current"))
+    {
+      if (router->privileged)
+        return g_variant_new ("s", "root");
+      if (router->superuser_rule == NULL
+          || router->superuser_start_invocation)
+        return g_variant_new ("s", "none");
+      else
+        {
+          gchar *id = rule_superuser_id (router->superuser_rule);
+          GVariant *v = g_variant_new ("s", id);
+          g_free (id);
+          return v;
+        }
+    }
+  else
+    g_return_val_if_reached (NULL);
+}
+
+static GDBusInterfaceVTable superuser_vtable = {
+  .method_call = superuser_method_call,
+  .get_property = superuser_get_property,
+};
+
+static GDBusArgInfo superuser_start_id_arg = {
+  -1, "id", "s", NULL
+};
+
+static GDBusArgInfo *superuser_start_args[] = {
+  &superuser_start_id_arg,
+  NULL
+};
+
+static GDBusMethodInfo superuser_start_method = {
+  -1, "Start", superuser_start_args, NULL, NULL
+};
+
+static GDBusMethodInfo superuser_stop_method = {
+  -1, "Stop", NULL, NULL, NULL
+};
+
+static GDBusArgInfo superuser_answer_value_arg = {
+  -1, "value", "s", NULL
+};
+
+static GDBusArgInfo *superuser_answer_args[] = {
+  &superuser_answer_value_arg,
+  NULL
+};
+
+static GDBusMethodInfo superuser_answer_method = {
+  -1, "Answer", superuser_answer_args, NULL, NULL
+};
+
+static GDBusMethodInfo *superuser_methods[] = {
+  &superuser_start_method,
+  &superuser_stop_method,
+  &superuser_answer_method,
+  NULL
+};
+
+static GDBusPropertyInfo superuser_bridges_property = {
+  -1, "Bridges", "as", G_DBUS_PROPERTY_INFO_FLAGS_READABLE, NULL
+};
+
+static GDBusPropertyInfo superuser_current_property = {
+  -1, "Current", "s", G_DBUS_PROPERTY_INFO_FLAGS_READABLE, NULL
+};
+
+static GDBusPropertyInfo *superuser_properties[] = {
+  &superuser_bridges_property,
+  &superuser_current_property,
+  NULL
+};
+
+static GDBusInterfaceInfo superuser_interface = {
+  -1, "cockpit.Superuser",
+  superuser_methods,
+  NULL, /* signals */
+  superuser_properties,
+  NULL  /* annotations */
+};
+
+void
+cockpit_router_dbus_startup (CockpitRouter *router)
+{
+  GDBusConnection *connection;
+  GError *error = NULL;
+
+  connection = cockpit_dbus_internal_server ();
+  g_return_if_fail (connection != NULL);
+
+  g_dbus_connection_register_object (connection, "/superuser", &superuser_interface,
+                                     &superuser_vtable, router, NULL, &error);
+
+  g_object_unref (connection);
+
+  router->superuser_dbus_inited = TRUE;
+
+  if (error != NULL)
+    {
+      g_critical ("couldn't register DBus cockpit.Superuser object: %s", error->message);
+      g_error_free (error);
+      return;
+    }
+}
+
+/* Prompting
+ */
+
+void
+cockpit_router_prompt (CockpitRouter *self,
+                       const gchar *user,
+                       const gchar *prompt,
+                       CockpitRouterPromptAnswerFunction *answer,
+                       gpointer data)
+{
+  if (prompt == NULL)
+    prompt = "";
+
+  if (self->superuser_answer_function)
+    {
+      g_warning ("Overlapping prompts");
+      answer (NULL, data);
+      return;
+    }
+
+  if (self->superuser_start_invocation)
+    {
+      self->superuser_answer_function = answer;
+      self->superuser_answer_data = data;
+      g_dbus_connection_emit_signal (cockpit_dbus_internal_server (),
+                                     NULL,
+                                     "/superuser",
+                                     "cockpit.Superuser",
+                                     "Prompt",
+                                     g_variant_new ("(sssb)", prompt, "", "", FALSE),
+                                     NULL);
+    }
+  else
+    {
+      g_warning ("Out of context prompt");
+      answer (NULL, data);
+    }
+}
+
+void
+cockpit_router_prompt_cancel (CockpitRouter *self,
+                              gpointer data)
+{
+  if (self->superuser_answer_data == data)
+    {
+      self->superuser_answer_function = NULL;
+      self->superuser_answer_data = NULL;
+    }
 }

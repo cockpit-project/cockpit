@@ -155,6 +155,10 @@ send_init_command (CockpitTransport *transport,
       session_id = secure_getenv ("XDG_SESSION_ID");
       if (session_id)
         json_object_set_string_member (object, "session-id", session_id);
+
+      block = json_object_new ();
+      json_object_set_boolean_member (block, "explicit-superuser", TRUE);
+      json_object_set_object_member (object, "capabilities", block);
     }
 
   bytes = cockpit_json_write_bytes (object);

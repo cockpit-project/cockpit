@@ -85,6 +85,7 @@ The following fields are defined:
  * "csrf-token": The web service will send a csrf-token for external channels.
  * "os-release": The bridge sends fields from /etc/os-release which identify the system.
  * "packages": The bridge sends a list of package names on the system.
+ * "superuser": Instructs a bridge about whether and how to start a superuser bridge.
 
 If a problem occurs that requires shutdown of a transport, then the "problem"
 field can be set to indicate why the shutdown will be shortly occurring.

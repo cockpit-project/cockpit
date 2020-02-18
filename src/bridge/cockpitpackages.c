@@ -1268,6 +1268,7 @@ cockpit_packages_get_bridges (CockpitPackages *packages)
   JsonArray *bridge;
   JsonObject *item;
   JsonObject *match;
+  gboolean privileged;
   const gchar *problem;
   JsonNode *node;
   guint i;
@@ -1310,9 +1311,13 @@ cockpit_packages_get_bridges (CockpitPackages *packages)
             {
               g_message ("%s: invalid \"match\" field in package manifest", package->name);
             }
-          else if (match == NULL)
+          else if (!cockpit_json_get_bool (item, "privileged", FALSE, &privileged))
             {
-              g_message ("%s: missing \"match\" field in package manifest", package->name);
+              g_message ("%s: invalid \"privileged\" field in package manifest", package->name);
+            }
+          else if ((match == NULL) != privileged)
+            {
+              g_message ("%s: Exactly one of \"match\" or \"privileged\" required", package->name);
             }
           else if (!cockpit_json_get_string (item, "problem", NULL, &problem))
             {
@@ -1322,6 +1327,8 @@ cockpit_packages_get_bridges (CockpitPackages *packages)
             {
               result = g_list_prepend (result, item);
             }
+
+
         }
     }
 

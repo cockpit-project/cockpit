@@ -20,7 +20,6 @@
 import { machines } from "machines";
 import { new_machine_dialog_manager } from "machine-dialogs";
 import * as credentials from "./credentials";
-import * as privileges from "./privileges";
 import * as indexes from "./indexes";
 
 var machines_inst = machines.instance();
@@ -51,7 +50,6 @@ var options = {
     user_sel: "#content-user-name",
     killer_sel: "#active-pages",
     default_title: "Cockpit",
-    privileges: privileges.instance(),
 };
 
 indexes.machines_index(options, machines_inst, loader, dialogs);

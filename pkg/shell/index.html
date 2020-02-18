@@ -29,15 +29,6 @@
                 <div class="spinner spinner-md spinner-white">
                 </div>
               </li>
-              <li class="credential-lock">
-                <span>
-                  <!-- Display nothing when unprivileged -->
-                </span>
-                <span data-toggle="tooltip" data-placement="bottom" translate="title" title="Login has escalated admin privileges" class="navbar-text">
-                  <i class="fa fa-unlock-alt"></i>
-                  <span translate>Privileged</span>
-                </span>
-              </li>
               <li id="navbar-oops" hidden>
                 <a role="link" tabindex="0"><span class="oops-status" translate="yes">Ooops!</span></a>
               </li>
@@ -170,20 +161,6 @@
                     </div>
                     <div class="modal-body">
                         <table class="listing-ct">
-                            <thead class="credential-lock">
-                                <tr>
-                                    <td translate colspan="2">Password not usable for privileged tasks or to connect to other machines</td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td translate colspan="2">Reuse my password for privileged tasks and to connect to other machines</td>
-                                    <td class="listing-ct-actions">
-                                        <button class="pf-c-button pf-m-secondary credential-clear">
-                                            <span class="pficon pficon-close"></span>
-                                        </button>
-                                    </td>
-                                </tr>
-                            </thead>
                             <thead>
                                 <tr id="credential-keys">
                                     <td colspan="2" translate>Use the following keys to authenticate against other systems</td>

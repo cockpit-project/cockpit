@@ -378,6 +378,7 @@ class TestMachines(NetworkCase):
         m.execute("systemctl start libvirtd.service")
         # HACK: https://launchpad.net/bugs/1802005
         if self.provider == "libvirt-dbus" and m.image == "ubuntu-stable":
+            m.execute("until test -e /run/libvirt/libvirt-sock; do sleep 1; done")
             m.execute("chmod o+rwx /run/libvirt/libvirt-sock")
         b.wait_in_text("body", "Virtual Machines")
         b.wait_present("tbody tr[data-row-id=vm-subVmTest1] th")
@@ -499,6 +500,7 @@ class TestMachines(NetworkCase):
         b.wait(lambda: checkLibvirtEnabled())
         # HACK: https://launchpad.net/bugs/1802005
         if self.provider == "libvirt-dbus" and m.image == "ubuntu-stable":
+            m.execute("until test -e /run/libvirt/libvirt-sock; do sleep 1; done")
             m.execute("chmod o+rwx /run/libvirt/libvirt-sock")
         b.wait_in_text("body", "Virtual Machines")
         with b.wait_timeout(15):
@@ -512,6 +514,7 @@ class TestMachines(NetworkCase):
         b.wait(lambda: not checkLibvirtEnabled())
         # HACK: https://launchpad.net/bugs/1802005
         if self.provider == "libvirt-dbus" and m.image == "ubuntu-stable":
+            m.execute("until test -e /run/libvirt/libvirt-sock; do sleep 1; done")
             m.execute("chmod o+rwx /run/libvirt/libvirt-sock")
         b.wait_in_text("body", "Virtual Machines")
         with b.wait_timeout(15):

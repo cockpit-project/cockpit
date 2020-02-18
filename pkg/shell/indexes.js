@@ -22,6 +22,10 @@ import cockpit from "cockpit";
 
 import * as base_index from "./base_index";
 
+import React from "react";
+import ReactDOM from "react-dom";
+import { SuperuserIndicator } from "./superuser.jsx";
+
 const _ = cockpit.gettext;
 
 var shell_embedded = window.location.pathname.indexOf(".html") !== -1;
@@ -288,6 +292,7 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
         update_navbar(machine, state, compiled);
         update_frame(machine, state, compiled);
         update_docs(machine, state, compiled);
+        update_superuser(machine, state, compiled);
 
         /* Just replace the state, and URL */
         index.jump(state, true);
@@ -614,6 +619,14 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
 
         if (item && item.docs && item.docs.length > 0)
             item.docs.forEach(e => create_item(_(e.label), e.url));
+    }
+
+    function update_superuser(machine, state, compiled) {
+        if (state.host == "localhost")
+            ReactDOM.render(React.createElement(SuperuserIndicator, { }),
+                            document.getElementById('super-user-indicator'));
+        else
+            ReactDOM.unmountComponentAtNode(document.getElementById('super-user-indicator'));
     }
 
     function update_navbar(machine, state, compiled) {
@@ -966,6 +979,12 @@ if (document.documentElement.getAttribute("class") === "index-page") {
 
     /* The same thing as above, but compatibility with old cockpit */
     window.options = { sink: true, protocol: "cockpit1" };
+
+    /* Tell the pages about our features. */
+    window.features = {
+        // Not yet, but the Overview is already looking for this:
+        // navbar_is_for_current_machine: true
+    };
 
     /* While the index is initializing, snag any messages we receive from frames */
     window.messages = [];

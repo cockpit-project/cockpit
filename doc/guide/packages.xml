@@ -329,7 +329,7 @@ mypackage/test.min.js.gz
       <link linkend="cockpit-bridge.1"><filename>cockpit-bridge</filename></link> connects
       to various system APIs that the front end UI requests it to. There are additional
       bridges for specific tasks that the main <filename>cockpit-bridge</filename> cannot
-      handle. For example tasks that should be carried out with privilege escalation.</para>
+      handle, such as using the PCP C library API.</para>
 
     <para>These additional bridges can be registered in a <code>"bridges"</code> section of a
       package's <filename>manifest.json</filename> file. Building such a bridge is a complex tasks, and
@@ -340,14 +340,12 @@ mypackage/test.min.js.gz
 
 <programlisting>
 {
-  "bridges": [
-    {
-      "match": { "superuser": null },
-      "environ": [ "SUDO_ASKPASS=/usr/bin/my-password-tool" ],
-      "spawn: [ "/usr/bin/sudo", "-n", "cockpit-bridge", "--privileged" ],
-      "problem": "access-denied"
-    }
-  ]
+    "bridges": [
+        {
+            "match": { "payload": "metrics1" },
+            "spawn": [ "/usr/libexec/cockpit-pcp" ]
+        }
+    ]
 }
 </programlisting>
 
@@ -367,6 +365,10 @@ mypackage/test.min.js.gz
         <listitem><para>The <code>"match"</code> object describes which channel open command
             options need to match for a given channel to be handed over to this
             bridge.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>privileged</term>
+        <listitem><para>If set to <code>true</code>, this marks the bridge as a superuser bridge.  Cockpit will start one of these explicitly when trying to escalate the privileges of a session.  A privileged bridge can not have a <code>"match"</code> property.</para></listitem>
       </varlistentry>
       <varlistentry>
         <term>problem</term>

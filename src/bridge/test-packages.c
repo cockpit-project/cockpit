@@ -949,7 +949,7 @@ test_get_bridges_broken (TestCase *tc,
 
   g_assert (fixture == &fixture_bad_bridges);
 
-  cockpit_expect_message ("missing-match: missing \"match\" field in package manifest");
+  cockpit_expect_message ("missing-match: Exactly one of \"match\" or \"privileged\" required");
   cockpit_expect_message ("broken-problem: invalid \"problem\" field in package manifest");
   cockpit_expect_message ("broken-environ: invalid \"environ\" field in package manifest");
   cockpit_expect_message ("broken-spawn: invalid \"spawn\" field in package manifest");

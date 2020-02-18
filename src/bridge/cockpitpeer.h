@@ -30,6 +30,8 @@ G_BEGIN_DECLS
 
 typedef struct _CockpitPeer        CockpitPeer;
 
+typedef void CockpitPeerDoneFunction (const gchar *error, gpointer data);
+
 typedef struct _CockpitPeerClass {
   GObjectClass parent_class;
 
@@ -46,6 +48,10 @@ CockpitPeer *       cockpit_peer_new                             (CockpitTranspo
                                                                   JsonObject *config);
 
 CockpitTransport *  cockpit_peer_ensure                          (CockpitPeer *peer);
+
+CockpitTransport *  cockpit_peer_ensure_with_done                (CockpitPeer *peer,
+                                                                  CockpitPeerDoneFunction *done_function,
+                                                                  gpointer done_data);
 
 gboolean            cockpit_peer_handle                          (CockpitPeer *peer,
                                                                   const gchar *channel,

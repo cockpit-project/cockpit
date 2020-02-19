@@ -290,6 +290,15 @@ h1 .onoff-ct {
 #firewall-heading,
 #networking-graphs {
     background: var(--color-white);
+}
+
+#networking-graphs {
+    margin: 0;
+    /* Bootstrap uses 20px padding for row children. Compensate. */
+    padding: 1rem calc(3rem - 20px);
+}
+
+#firewall-heading {
     padding: 1rem 3rem;
 }
 

@@ -224,6 +224,7 @@ class TestStorage(StorageCase):
 
 
 @skipImage("No udisks/cockpit-storaged on OSTree images", "fedora-coreos")
+@nondestructive
 class TestStoragePackages(PackageCase, StorageHelpers):
 
     def testNfsMissingPackages(self):
@@ -235,6 +236,7 @@ class TestStoragePackages(PackageCase, StorageHelpers):
 
         self.machine.write("/usr/share/cockpit/storaged/override.json",
                            """{ "config": { "nfs_client_package": "fake-nfs-utils" } }""")
+        self.addCleanup(self.machine.execute, "rm /usr/share/cockpit/storaged/override.json")
 
         m.execute("mv /sbin/mount.nfs /sbin/mount.nfs.off")
 

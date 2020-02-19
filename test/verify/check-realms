@@ -828,6 +828,7 @@ class TestPackageInstall(packagelib.PackageCase):
         # domain" dialog won't ever appear; just check that it was installed
         m.execute("test -e /realmd-stub")
 
+    @nondestructive
     def testDialogTransition(self):
         m = self.machine
         b = self.browser

@@ -810,6 +810,9 @@ class MachineCase(unittest.TestCase):
         if self.machine:
             self.journal_start = self.machine.journal_cursor()
             self.browser = self.new_browser()
+            if getattr(test_method, "_testlib__non_destructive", False):
+                self.nonDestructiveSetup()
+
         self.tmpdir = tempfile.mkdtemp()
 
         def sitter():
@@ -828,6 +831,29 @@ class MachineCase(unittest.TestCase):
                 self.copy_journal("FAIL")
                 self.copy_cores("FAIL")
         self.addCleanup(intercept)
+
+    def nonDestructiveSetup(self):
+        '''generic setUp/tearDown for @nondestructive tests'''
+
+        m = self.machine
+
+        # users/groups/home dirs
+        m.execute("cp -a /etc/passwd /etc/passwd.test && "
+                  "cp -a /etc/shadow /etc/shadow.test && "
+                  "cp -a /etc/group /etc/group.test")
+        self.addCleanup(m.execute, "mv /etc/passwd.test /etc/passwd && "
+                                   "mv /etc/shadow.test /etc/shadow && "
+                                   "mv /etc/group.test /etc/group")
+        home_dirs = m.execute("ls /home").strip().split()
+
+        def cleanup_home_dirs():
+            for d in m.execute("ls /home").strip().split():
+                if d not in home_dirs:
+                    m.execute("rm -rf /home/" + d)
+        self.addCleanup(cleanup_home_dirs)
+
+        # cockpit configuration
+        self.addCleanup(m.execute, "rm -f /etc/cockpit/cockpit.conf")
 
     def tearDown(self):
         if self.checkSuccess() and self.machine.ssh_reachable:

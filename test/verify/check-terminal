@@ -24,6 +24,7 @@ from testlib import *
 class TestTerminal(MachineCase):
 
     @skipBrowser("Firefox needs http to access clipboard", "firefox")
+    @nondestructive
     def testBasic(self):
         b = self.browser
         m = self.machine

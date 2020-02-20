@@ -781,7 +781,10 @@ ExecStart=/bin/true
         b.click(svc_sel("test.service"))
         b.wait_js_cond('window.location.hash === "#/test.service"')
 
-        b.wait_attr("#Requires a:contains('not-found.service')", "disabled", "")
+        if m.image != "rhel-8-2-distropkg": # Changed in #13552
+            b.wait_attr("#Requires a:contains('not-found.service')", "disabled", "")
+        else:
+            b.wait_attr("#Requires a:contains('not-found.service')", "class", "disabled")
 
     def testResetFailed(self):
         m = self.machine

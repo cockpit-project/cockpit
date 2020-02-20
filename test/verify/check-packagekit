@@ -546,6 +546,11 @@ class TestUpdates(NoSubManCase):
         b = self.browser
         m = self.machine
 
+        # this tends to corrupt the rpm database, so do a backup/restore
+        if self.backend == 'dnf':
+            m.execute("cp -a /var/lib/rpm /var/lib/rpm.testbackup")
+            self.addCleanup(m.execute, "rm -rf /var/lib/rpm; mv /var/lib/rpm.testbackup /var/lib/rpm")
+
         # make sure we have enough time to crash PK
         self.createPackage("slow", "1", "1", install=True)
         # we don't want this installation to finish

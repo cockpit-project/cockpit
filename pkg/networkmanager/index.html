@@ -114,7 +114,6 @@
       <div class="panel-heading">
         <h2 class="panel-title" translatable="yes">Interfaces</h2>
         <div class="panel-actions">
-          <button translatable="yes" id="networking-add-team" class="btn btn-default network-privileged">Add Team</button>
           <div class="btn-group dropdown interface-type">
             <button id="networking-add-new" class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
               <span translatable="yes">Add new</span>
@@ -123,25 +122,14 @@
               <ul class="dropdown-menu left-offset-75-menu">
                 <li><a tabindex="0" id="networking-add-wifi" translatable="yes">WiFi</a></li>
                 <li><a tabindex="0" id="networking-add-openvpn" translatable="yes">OpenVPN</a></li>
-                  <li><a tabindex="0" id="networking-add-modem" translatable="yes">Mobile Broadband</a></li>
+                <li><a tabindex="0" id="networking-add-modem" translatable="yes">Modem</a></li>
                 <li><a tabindex="0" id="networking-add-bond" translatable="yes">Bond</a></li>
                 <li><a tabindex="0" id="networking-add-bridge" translatable="yes">Bridge</a></li>
                 <li><a tabindex="0" id="networking-add-vlan" translatable="yes">VLAN</a></li>
+                <li><a tabindex="0" id="networking-add-team" translatable="yes">Team</a></li>
               </ul>
           </div>
         </div>
-        <table class="table table-hover">
-          <thead>
-            <tr>
-              <th translate="yes">Name</th>
-              <th translate="yes">IP Address</th>
-              <th translate="yes" class="networking-speed">Sending</th>
-              <th translate="yes" class="networking-speed">Receiving</th>
-            </tr>
-          </thead>
-          <tbody>
-          </tbody>
-        </table>
       </div>
       <table class="table table-hover">
         <thead>
@@ -150,7 +138,8 @@
             <th translatable="yes">Interface</th>
             <th translatable="yes">Type</th>
             <th translatable="yes">IP Address</th>
-            <th translatable="yes" class="networking-speed">Status: (Sending/Receiving)</th>
+            <th translatable="yes" class="networking-speed">Sending</th>
+            <th translatable="yes" class="networking-speed">Receiving</th>
           </tr>
         </thead>
         <tbody>
@@ -169,7 +158,8 @@
             <th translatable="yes">Interface</th>
             <th translatable="yes">Type</th>
             <th translatable="yes">IP Address</th>
-            <th translatable="yes" class="networking-speed">Status: (Sending/Receiving)</th>
+            <th translatable="yes" class="networking-speed">Sending</th>
+            <th translatable="yes" class="networking-speed">Receiving</th>
           </tr>
         </thead>
         <tbody>
@@ -185,10 +175,6 @@
 
   <script id="network-general-settings-template" type="x-template/mustache">
     <form class="ct-form">
-      <label class="control-label" for="network-general-settings-name-input" translatable="yes">Name</label>
-      <input id="network-general-settings-name-input" class="form-control" type="text"
-             value="{{name}}"/>
-
       <label class="checkbox-inline">
         <input id="network-general-settings-autoconnect" type="checkbox" checked="false">
         <span translatable="yes">Automatically connect to this network when it is available</span>
@@ -196,7 +182,7 @@
 
       <div>
         <span translatable="yes">Connection priority for auto connect</span>
-        <input id="network-autoconnect-priority-input" type="number" min="0"/>
+        <input id="network-autoconnect-priority-input" type="number"/>
       </div>
 
       <label class="checkbox-inline hidden-vpn">

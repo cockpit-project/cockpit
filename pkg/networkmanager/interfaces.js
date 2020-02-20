@@ -2988,17 +2988,17 @@ PageNetworkInterface.prototype = {
         $('#network-interface-delete').prop('hidden', !is_deletable || !managed);
 
         function render_interface_section_separator(title) {
-            return $('<td class="network-interface-separator" colspan="100%">').text(title);
+            return $('<tr>').append($('<td class="network-interface-separator" colspan="100%">').text(title));
         }
 
-        function render_interface_type_row() {
+        /* function render_interface_type_row() {
             if (dev) {
                 return $('<tr>').append(
                     $('<td>').text(_("Type")),
                     $('<td>').append(self.connection_settings.connection.id +
                         " | " + dev.Interface, " | ", dev.DeviceType));
             }
-        }
+        } */
 
         function render_carrier_status_row() {
             if (dev && dev.Carrier !== undefined) {
@@ -3035,7 +3035,7 @@ PageNetworkInterface.prototype = {
 
         function render_general_information_row() {
             return [render_interface_section_separator("General Information"),
-                render_interface_type_row(),
+                /* render_interface_type_row(), */
                 render_carrier_status_row(),
                 render_active_status_row(),
             ];
@@ -3163,14 +3163,14 @@ PageNetworkInterface.prototype = {
                 parts.push("Auto-connection: " +
                      (options.autoconnect ? "Enabled" : "Disabled"));
 
-                if (options.autoconnect)
+                if (options.autoconnect && options.autoconnect_priority != 0)
                     parts.push("(Priority: " + (options.autoconnect_priority >= 0
                         ? options.autoconnect_priority : "None") + ")");
 
                 if (parts.length > 0)
                     rows.push(parts.join(" "));
 
-                if (options.type != "vpn") {
+                if (options.type != "vpn" && options.secondaries) {
                     var vpn_name = $('#network-general-settings-autovpn-select')
                             .children('option:selected')
                             .text() || "Enabled";
@@ -3773,7 +3773,7 @@ PageNetworkGeneralSettings.prototype = {
         }
 
         if (self.settings.connection.autoconnect_priority < 0) {
-            show_error(_("Please select a value that is no less than 0"));
+            show_error(_("Please select a priority value that is no less than 0"));
             return;
         }
 

@@ -25,6 +25,7 @@ import parent
 from testlib import *
 
 
+@nondestructive
 class TestLogin(MachineCase):
 
     def testBasic(self):
@@ -32,7 +33,7 @@ class TestLogin(MachineCase):
         b = self.browser
 
         # Setup users and passwords
-        m.execute("useradd user -c 'Barney Bär' || true")
+        m.execute("useradd user -c 'Barney Bär'")
         m.execute("echo user:abcdefg | chpasswd")
 
         admins_only_pam = """account    sufficient   pam_succeed_if.so uid = 0\\
@@ -40,7 +41,8 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         # Setup a special PAM config that disallows non-wheel users
         def deny_non_root(remote_filename):
-            m.execute("""sed -i '/nologin/a %s' %s || true""" % (admins_only_pam, remote_filename))
+            m.execute("""sed -i.bak '/nologin/a %s' %s || true""" % (admins_only_pam, remote_filename))
+            self.addCleanup(m.execute, "mv {0}.bak {0}".format(remote_filename))
 
         deny_non_root("/etc/pam.d/cockpit")
         deny_non_root("/etc/pam.d/sshd")
@@ -152,7 +154,8 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         # And now we remove cockpit-ssh which affects the default
         if not m.ostree_image:
-            m.execute("rm -f /usr/libexec/cockpit-ssh /usr/lib/cockpit/cockpit-ssh")
+            m.execute("for p in /usr/libexec/cockpit-ssh /usr/lib/cockpit/cockpit-ssh; do mv $p ${p}.disabled || true; done")
+            self.addCleanup(m.execute, "for p in /usr/libexec/cockpit-ssh /usr/lib/cockpit/cockpit-ssh; do mv ${p}.disabled $p || true; done")
             m.restart_cockpit()
             b.open("/system")
             b.wait_not_visible("#option-group")
@@ -179,7 +182,8 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         # On OSTree this happens over ssh
         if m.ostree_image:
             m.execute(
-                "sed -i 's/.*ChallengeResponseAuthentication.*/ChallengeResponseAuthentication yes/' /etc/ssh/sshd_config", direct=True)
+                "sed -i.bak 's/.*ChallengeResponseAuthentication.*/ChallengeResponseAuthentication yes/' /etc/ssh/sshd_config", direct=True)
+            self.addCleanup(m.execute, "mv /etc/ssh/sshd_config.bak /etc/ssh/sshd_config")
             m.execute(
                 "( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service", direct=True)
 
@@ -280,11 +284,13 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         if m.ostree_image:
             conf = "/etc/pam.d/sshd"
             m.execute(
-                "sed -i 's/.*ChallengeResponseAuthentication.*/ChallengeResponseAuthentication yes/' /etc/ssh/sshd_config", direct=True)
+                "sed -i.bak 's/.*ChallengeResponseAuthentication.*/ChallengeResponseAuthentication yes/' /etc/ssh/sshd_config", direct=True)
+            self.addCleanup(m.execute, "mv /etc/ssh/sshd_config.bak /etc/ssh/sshd_config")
             m.execute(
                 "( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service", direct=True)
 
-        m.execute("sed -i '5 a auth       required    {0}' {1}".format(path, conf))
+        m.execute("sed -i.bak '5 a auth       required    {0}' {1}".format(path, conf))
+        self.addCleanup(m.execute, "mv {0}.bak {0}".format(conf))
 
         m.start_cockpit()
         b.open("/system")
@@ -330,7 +336,6 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b = self.browser
 
         m.execute("useradd user --shell /usr/bin/tlog-rec-session || true")
-        self.addCleanup(m.execute, "userdel --force -r user")
         m.execute("echo user:abcdefg | chpasswd")
         # this doesn't actually record anything, but logging into cockpit should work
         m.start_cockpit()
@@ -385,6 +390,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         # non-admin user_u
         m.execute("useradd unpriv; echo 'unpriv:foobar' | chpasswd; semanage login -a -s user_u unpriv")
+        self.addCleanup(m.execute, "semanage login -d -s user_u unpriv")
         m.start_cockpit()
         b.login_and_go("/system", user="unpriv")
         # not an admin
@@ -407,6 +413,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         # sysadm_u
         m.execute("semanage login -a -s sysadm_u admin")
+        self.addCleanup(m.execute, "semanage login -d -s sysadm_u admin")
         b.login_and_go("/system")
         # shutdown button should be enabled and working
         b.click("#restart-button[data-stable=yes]")

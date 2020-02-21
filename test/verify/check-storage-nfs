@@ -239,6 +239,7 @@ class TestStoragePackages(PackageCase, StorageHelpers):
         self.addCleanup(self.machine.execute, "rm /usr/share/cockpit/storaged/override.json")
 
         m.execute("mv /sbin/mount.nfs /sbin/mount.nfs.off")
+        self.addCleanup(m.execute, "mv /sbin/mount.nfs.off /sbin/mount.nfs")
 
         self.login_and_go("/storage")
 

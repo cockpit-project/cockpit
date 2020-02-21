@@ -855,6 +855,10 @@ class MachineCase(unittest.TestCase):
         # cockpit configuration
         self.addCleanup(m.execute, "rm -f /etc/cockpit/cockpit.conf")
 
+        # tests expect cockpit.service to not run at start; also, avoid log leakage into the next test
+        if not m.ostree_image:
+            self.addCleanup(m.execute, "systemctl stop cockpit")
+
     def tearDown(self):
         if self.checkSuccess() and self.machine.ssh_reachable:
             self.check_journal_messages()

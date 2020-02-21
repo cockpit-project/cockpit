@@ -22,13 +22,13 @@ import cockpit from "cockpit";
 
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 import * as service from "service";
+import { superuser } from "superuser.jsx";
 import React from "react";
 
 import { TunedDialogBody } from "./change-profile.jsx";
 import link_html from "raw-loader!./link.html";
 
 const _ = cockpit.gettext;
-var permission = cockpit.permission({ admin: true });
 
 function setup() {
     var tuned_service = service.proxy('tuned.service');
@@ -93,17 +93,13 @@ function setup() {
                         status = _("Tuned is not running");
                     else if (active == "none")
                         status = _("Tuned is off");
-                    else if (!permission.allowed)
-                        status = cockpit.format(
-                            _("The user <b>$0</b> is not permitted to change profiles"),
-                            permission.user ? permission.user.name : '');
                     else if (active == recommended)
                         status = _("This system is using the recommended profile");
                     else
                         status = _("This system is using a custom profile");
 
                     button.text(state == "running" ? active : _("none"));
-                    button.prop('disabled', state == "not-installed" || !permission.allowed);
+                    button.prop('disabled', state == "not-installed" || !superuser.allowed);
                     set_status(status);
                 })
                 .fail(function (ex) {
@@ -290,8 +286,8 @@ function setup() {
     return element[0];
 }
 
-$(permission).on('changed', function () {
+$(superuser).on('changed', function () {
     var element = $('#system-info-performance');
-    element.append(setup());
+    element.empty().append(setup());
     element.removeAttr('hidden');
 });

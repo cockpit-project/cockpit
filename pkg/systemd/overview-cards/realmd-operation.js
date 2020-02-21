@@ -587,7 +587,6 @@ export function setup() {
     /* The realm we are joined to */
     var joined = null;
 
-    var permission = null;
     var install_realmd = false;
 
     function update_realms() {
@@ -691,8 +690,6 @@ export function setup() {
             dialog.cancel();
         if (realmd)
             realmd.close();
-        if (permission)
-            permission.close();
     };
 
     return self;

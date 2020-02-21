@@ -147,7 +147,7 @@ class PackageCase(MachineCase):
         if install:
             cmd += "dpkg -i " + deb
         self.machine.execute(cmd)
-        self.addCleanup(self.machine.execute, "dpkg -P --force-depends %s 2>/dev/null || true" % name)
+        self.addCleanup(self.machine.execute, "dpkg -P --force-depends --force-remove-reinstreq %s 2>/dev/null || true" % name)
 
     def createRpm(self, name, version, release, requires, post, install, content, arch):
         '''Create a dummy rpm in repo_dir on self.machine

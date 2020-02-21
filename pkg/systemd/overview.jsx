@@ -30,8 +30,8 @@ import {
 } from '@patternfly/react-core';
 
 import { shutdown, shutdown_modal_setup } from "./shutdown.js";
+import { superuser } from "superuser.jsx";
 
-import { Privileged } from "cockpit-components-privileged.jsx";
 import { SystemInfomationCard } from './overview-cards/systemInformationCard.jsx';
 import { ConfigurationCard } from './overview-cards/configurationCard.jsx';
 import { HealthCard } from './overview-cards/healthCard.jsx';
@@ -52,24 +52,22 @@ class OverviewPage extends React.Component {
             privileged: true,
         };
         this.hostnameMonitor = this.hostnameMonitor.bind(this);
-        this.permission = cockpit.permission({ admin: true });
         this.onPermissionChanged = this.onPermissionChanged.bind(this);
     }
 
     componentDidMount() {
         this.hostnameMonitor();
         shutdown_modal_setup();
-        this.permission.addEventListener("changed", this.onPermissionChanged);
+        superuser.addEventListener("changed", this.onPermissionChanged);
         this.onPermissionChanged();
     }
 
     componentWillUnmount() {
-        this.permission.removeEventListener("changed", this.onPermissionChanged);
+        superuser.removeEventListener("changed", this.onPermissionChanged);
     }
 
     onPermissionChanged() {
-        // default to allowed while not yet initialized
-        this.setState({ privileged: this.permission.allowed !== false });
+        this.setState({ privileged: superuser.allowed });
     }
 
     hostname_text() {
@@ -89,8 +87,7 @@ class OverviewPage extends React.Component {
     }
 
     hostnameMonitor() {
-        this.client = cockpit.dbus('org.freedesktop.hostname1',
-                                   { superuser : "try" });
+        this.client = cockpit.dbus('org.freedesktop.hostname1');
         this.hostname_proxy = this.client.proxy('org.freedesktop.hostname1',
                                                 '/org/freedesktop/hostname1');
         this.hostname_proxy.addEventListener("changed", data => {
@@ -109,34 +106,27 @@ class OverviewPage extends React.Component {
             </DropdownItem>,
         ];
 
-        const headerActions = (
-            <Privileged allowed={ this.state.privileged } placement="bottom"
-                        excuse={ cockpit.format(_("The user $0 is not permitted to shutdown or restart this server"),
-                                                this.permission.user ? this.permission.user.name : '') }>
-                <Dropdown
-                    onSelect={() => this.setState({ actionIsOpen: true })}
-                    toggle={
-                        <DropdownToggle
+        let headerActions = null;
+        if (this.state.privileged)
+            headerActions = (
+                <Dropdown onSelect={() => this.setState({ actionIsOpen: true })}
+                          toggle={
+                              <DropdownToggle
                             splitButtonItems={[
                                 <DropdownToggleAction id='restart-button' variant="secondary"
                                     key='restart-button'
-                                    onClick={() => shutdown('restart', new ServerTime())}
-                                    data-stable={ (this.permission.allowed !== null) ? "yes" : undefined }
-                                    isDisabled={ !this.state.privileged }>
+                                    onClick={() => shutdown('restart', new ServerTime())}>
                                     {_("Restart")}
                                 </DropdownToggleAction>
                             ]}
                             splitButtonVariant="action"
                             onToggle={isOpen => this.setState({ actionIsOpen: isOpen })}
-                            isDisabled={ !this.state.privileged }
-                            data-stable={ (this.permission.allowed !== null) ? "yes" : undefined }
                             id="shutdown-group"
-                        />
-                    }
+                              />
+                          }
                     isOpen={actionIsOpen}
                     dropdownItems={dropdownItems}
-                />
-            </Privileged>);
+                />);
 
         const show_superuser = (
             cockpit.transport.host && cockpit.transport.host != "localhost" &&

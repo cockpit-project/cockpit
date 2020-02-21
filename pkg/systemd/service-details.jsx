@@ -209,7 +209,8 @@ class ServiceActions extends React.Component {
                                               this.setState({ dialogMaskedOpened: false });
                                           }} />
                 }
-                <DropdownKebab id="service-actions" title={ _("Additional actions") } disabled={this.props.disabled}>
+                {/* DropdownKebab has no disabled prop, see #13552 */}
+                <DropdownKebab id="service-actions" title={ _("Additional actions") } className={this.props.disabled ? "disabled" : "" }>
                     {actions}
                 </DropdownKebab>
             </>

@@ -963,6 +963,13 @@ class MachineCase(unittest.TestCase):
 
         # our core dump retrieval is not entirely reliable
         "Failed to send coredump datagram:.*",
+
+        # The usual sudo finger wagging
+        "We trust you have received the usual lecture from the local System",
+        "Administrator. It usually boils down to these three things:",
+        "#1\) Respect the privacy of others.",
+        "#2\) Think before you type.",
+        "#3\) With great power comes great responsibility.",
     ]
 
     # Whitelist of allowed console.error() messages during tests; these match substrings
@@ -1023,11 +1030,6 @@ class MachineCase(unittest.TestCase):
                                     "sudo: unable to stat /var/db/sudo: Permission denied",
                                     ".*: sorry, you must have a tty to run sudo",
                                     ".*/pkexec: bridge exited",
-                                    "We trust you have received the usual lecture from the local System",
-                                    "Administrator. It usually boils down to these three things:",
-                                    "#1\) Respect the privacy of others.",
-                                    "#2\) Think before you type.",
-                                    "#3\) With great power comes great responsibility.",
                                     ".*Sorry, try again.",
                                     ".*incorrect password attempt.*")
 

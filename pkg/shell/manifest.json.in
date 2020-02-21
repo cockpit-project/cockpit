@@ -25,15 +25,6 @@
     "bridges": [
         {
             "privileged": true,
-            "spawn": [
-                "@PKEXEC@",
-                "--disable-internal-agent",
-                "cockpit-bridge",
-                "--privileged"
-            ]
-        },
-        {
-            "privileged": true,
             "environ": [
                 "SUDO_ASKPASS=@libexecdir@/cockpit-askpass"
             ],

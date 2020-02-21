@@ -267,6 +267,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         self.allow_journal_messages('Error executing command as another user: Not authorized',
                                     'This incident has been reported.',
                                     'sudo: a password is required',
+                                    'sudo: Account or password is expired, reset your password and try again',
                                     'sudo: sorry, you must have a tty to run sudo')
         self.allow_restart_journal_messages()
         self.allow_authorize_journal_messages()

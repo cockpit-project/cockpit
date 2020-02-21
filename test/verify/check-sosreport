@@ -26,12 +26,15 @@ from testlib import *
 
 
 @skipImage("No sosreport", "fedora-coreos")
+@nondestructive
 class TestSOS(MachineCase):
 
     def testBasic(self, urlroot=""):
         b = self.browser
         m = self.machine
 
+        m.execute("mv /etc/sos.conf /etc/sos.conf.bak")
+        self.addCleanup(m.execute, "mv /etc/sos.conf.bak /etc/sos.conf")
         m.write("/etc/sos.conf",
                 """
 [general]

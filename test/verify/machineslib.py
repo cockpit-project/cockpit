@@ -115,16 +115,10 @@ DOMAIN_XML = """
     <acpi/>
   </features>
   <devices>
-    <disk type='block' device='disk'>
-      <driver name='qemu' type='raw'/>
-      <source dev='/dev/{disk}'/>
-      <target dev='vda' bus='virtio'/>
-      <serial>ROOT</serial>
-    </disk>
     <disk type='file' snapshot='external'>
       <driver name='qemu' type='qcow2'/>
       <source file='{image}'/>
-      <target dev='vdb' bus='virtio'/>
+      <target dev='vda' bus='virtio'/>
       <serial>SECOND</serial>
     </disk>
     <controller type='scsi' model='virtio-scsi' index='0' id='hot'/>
@@ -149,18 +143,6 @@ POOL_XML = """
     <path>{path}</path>
   </target>
 </pool>
-"""
-
-VOLUME_XML = """
-<volume type='file'>
-  <name>{name}</name>
-  <key>{image}</key>
-  <capacity unit='bytes'>1073741824</capacity>
-  <target>
-    <path>{image}</path>
-    <format type='qcow2'/>
-  </target>
-</volume>
 """
 
 NETWORK_XML_PXE = """<network>
@@ -225,16 +207,12 @@ class TestMachines(NetworkCase):
         m = self.machine
 
         image_file = m.pull("cirros")
-        m.add_disk(serial="NESTED", path=image_file, type="qcow2")
-        # Wait for the disk to be added
-        wait(lambda: m.execute("ls -l /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_NESTED"))
-
         img = "/var/lib/libvirt/images/{0}-2.img".format(name)
-        output = m.execute("readlink /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_NESTED").strip().split("\n")[-1]
+        m.upload([image_file], img)
+        m.execute("chmod 777 {0}".format(img))
 
         args = {
             "name": name,
-            "disk": os.path.basename(output),
             "image": img,
             "logfile": None,
             "console": "",
@@ -261,9 +239,6 @@ class TestMachines(NetworkCase):
             xml = POOL_XML.format(path="/var/lib/libvirt/images")
             m.execute("echo \"{0}\" > /tmp/xml && virsh pool-define /tmp/xml && virsh pool-start images".format(xml))
             self.created_pool = True
-
-        xml = VOLUME_XML.format(name=os.path.basename(img), image=img)
-        m.execute("echo \"{0}\" > /tmp/xml && virsh vol-create images /tmp/xml".format(xml))
 
         xml = DOMAIN_XML.format(**args)
         m.execute("echo \"{0}\" > /tmp/xml && virsh define /tmp/xml && virsh start {1}".format(xml, name))
@@ -558,27 +533,22 @@ class TestMachines(NetworkCase):
 
         # Test basic disk properties
         b.wait_in_text("#vm-subVmTest1-disks-vda-bus", "virtio")
-        b.wait_in_text("#vm-subVmTest1-disks-vdb-bus", "virtio")
 
         b.wait_in_text("#vm-subVmTest1-disks-vda-device", "disk")
-        b.wait_in_text("#vm-subVmTest1-disks-vdb-device", "disk")
 
-        b.wait_in_text("#vm-subVmTest1-disks-vdb-source-file", "/var/lib/libvirt/images/subVmTest1-2.img")
+        b.wait_in_text("#vm-subVmTest1-disks-vda-source-file", "/var/lib/libvirt/images/subVmTest1-2.img")
 
         # Test domstats
         self.wait_for_disk_stats("subVmTest1", "vda")
         if b.is_present("#vm-subVmTest1-disks-vda-used"):
             b.wait_in_text("#vm-subVmTest1-disks-vda-used", "0.0")
-            b.wait_in_text("#vm-subVmTest1-disks-vdb-used", "0.0")
-
-            b.wait_in_text("#vm-subVmTest1-disks-vdb-capacity", "1")
 
         # Test add disk by external action
         m.execute("qemu-img create -f raw /var/lib/libvirt/images/image3.img 128M")
         # attach to the virtio bus instead of ide
         m.execute("virsh attach-disk subVmTest1 /var/lib/libvirt/images/image3.img vdc")
 
-        b.wait_present("#vm-subVmTest1-disks-vdb-used")
+        b.wait_present("#vm-subVmTest1-disks-vda-used")
 
         b.wait_in_text("#vm-subVmTest1-disks-vda-bus", "virtio")
 
@@ -597,6 +567,7 @@ class TestMachines(NetworkCase):
         b.click("#vm-subVmTest1-reboot-caret")
         b.click("#vm-subVmTest1-forceReboot")
 
+        b.wait_present("#vm-subVmTest1-disks-vda-device")
         b.wait_not_present("#vm-subVmTest1-disks-vdc-device")
 
     # Test Add Disk via dialog
@@ -760,7 +731,7 @@ class TestMachines(NetworkCase):
 
                 return self
 
-        used_targets = ["vda", "vdb"]
+        used_targets = ['vda']
 
         def get_next_free_target():
             i = 0
@@ -931,12 +902,12 @@ class TestMachines(NetworkCase):
         b.wait_in_text("#vm-subVmTest1-state", "shut off")
 
         # check if the just added non-permanent disks are gone
-        b.wait_not_present("#vm-subVmTest1-disks-vdc-device")
-        b.wait_not_present("#vm-subVmTest1-disks-vdf-device")
-        release_target("vdc")
-        release_target("vdf")
+        b.wait_not_present("#vm-subVmTest1-disks-vdb-device")
+        b.wait_not_present("#vm-subVmTest1-disks-vde-device")
+        release_target("vdb")
+        release_target("vde")
+        b.wait_present("#vm-subVmTest1-disks-vdc-device")
         b.wait_present("#vm-subVmTest1-disks-vdd-device")
-        b.wait_present("#vm-subVmTest1-disks-vde-device")
 
         if self.provider == "libvirt-dbus":
             # testing sata disk after VM shutoff because sata disk cannot be hotplugged
@@ -1259,10 +1230,10 @@ class TestMachines(NetworkCase):
             b.wait_not_present("#vm-subVmTest1-disks-adddisk-dialog-modal-window")
 
             if self.provider == "libvirt-dbus":
-                b.wait_present("#vm-subVmTest1-disks-vdc-source-volume")
-                b.wait_present("#vm-subVmTest1-disks-vdc-source-pool")
+                b.wait_present("#vm-subVmTest1-disks-vdb-source-volume")
+                b.wait_present("#vm-subVmTest1-disks-vdb-source-pool")
             else:
-                b.wait_present("#vm-subVmTest1-disks-vdc-source-file")
+                b.wait_present("#vm-subVmTest1-disks-vdb-source-file")
 
         secondDiskVolName = "mydisk"
         poolName = "images"

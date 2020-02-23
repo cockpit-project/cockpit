@@ -543,9 +543,9 @@ class TestMachinesDBus(machineslib.TestMachines):
 
         args = self.startVm("subVmTest1")
 
-        m.execute("virsh attach-disk --domain subVmTest1 --source /mnt/vm_one/mydiskofpoolone_1 --target vdd --targetbus virtio")
-        m.execute("virsh attach-disk --domain subVmTest1 --source /mnt/vm_one/mydiskofpoolone_2 --target vde --targetbus virtio --persistent")
-        m.execute("virsh attach-disk --domain subVmTest1 --source /mnt/vm_one/mydiskofpoolone_3 --target vdf --targetbus virtio --persistent")
+        m.execute("virsh attach-disk --domain subVmTest1 --source /mnt/vm_one/mydiskofpoolone_1 --target vdc --targetbus virtio")
+        m.execute("virsh attach-disk --domain subVmTest1 --source /mnt/vm_one/mydiskofpoolone_2 --target vdd --targetbus virtio --persistent")
+        m.execute("virsh attach-disk --domain subVmTest1 --source /mnt/vm_one/mydiskofpoolone_3 --target vde --targetbus virtio --persistent")
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
@@ -560,12 +560,12 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_in_text("#vm-subVmTest1-state", "running")
 
         b.click("#vm-subVmTest1-disks") # open the "Disks" subtab
-        b.wait_present("#vm-subVmTest1-disks-vdd-device")
-        b.click("#delete-subVmTest1-disk-vdd")
+        b.wait_present("#vm-subVmTest1-disks-vdc-device")
+        b.click("#delete-subVmTest1-disk-vdc")
         b.wait_present(".modal-dialog")
         b.click(".modal-footer button:contains(Remove)")
         b.wait_present(".modal-footer .spinner")
-        b.wait_not_present("#vm-subVmTest1-disks-vdd-device")
+        b.wait_not_present("#vm-subVmTest1-disks-vdc-device")
         b.wait_not_present(".modal-dialog")
 
         # Test that detaching disk of a running domain will affect the
@@ -573,15 +573,15 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.click("#vm-subVmTest1-off-caret")
         b.click("#vm-subVmTest1-forceOff")
         b.wait_in_text("#vm-subVmTest1-state", "shut off")
-        b.wait_not_present("#vm-subVmTest1-disks-vdd-device")
+        b.wait_not_present("#vm-subVmTest1-disks-vdc-device")
 
         # Test detaching permanent disk of a stopped domain
         b.click("#vm-subVmTest1-disks") # open the "Disks" subtab
-        b.wait_present("#vm-subVmTest1-disks-vde-device")
-        b.click("#delete-subVmTest1-disk-vde")
+        b.wait_present("#vm-subVmTest1-disks-vdd-device")
+        b.click("#delete-subVmTest1-disk-vdd")
         b.wait_present(".modal-dialog")
         b.click(".modal-footer button:contains(Remove)")
-        b.wait_not_present("#vm-subVmTest1-disks-vde-device")
+        b.wait_not_present("#vm-subVmTest1-disks-vdd-device")
         b.wait_not_present(".modal-dialog")
 
         # Test detaching disk of a paused domain
@@ -593,18 +593,18 @@ class TestMachinesDBus(machineslib.TestMachines):
             wait(lambda: "Linux version" in m.execute("cat {0}".format(args["logfile"])), delay=3)
         m.execute("virsh suspend subVmTest1")
         b.wait_in_text("#vm-subVmTest1-state", "paused")
-        b.wait_attr("#delete-subVmTest1-disk-vdf", "disabled", "")
+        b.wait_attr("#delete-subVmTest1-disk-vde", "disabled", "")
         m.execute("virsh resume subVmTest1")
         wait(lambda: "login as 'cirros' user" in  m.execute("cat /var/log/libvirt/console-subVmTest1.log"), delay=3)
 
         # Test detaching of disk on non-persistent VM
         m.execute("virsh undefine subVmTest1")
-        m.execute("virsh attach-disk --domain subVmTest1 --source /mnt/vm_one/mydiskofpoolone_1 --target vdd --targetbus virtio")
-        b.wait_present("#vm-subVmTest1-disks-vdd-device")
-        b.click("#delete-subVmTest1-disk-vdd")
+        m.execute("virsh attach-disk --domain subVmTest1 --source /mnt/vm_one/mydiskofpoolone_1 --target vdc --targetbus virtio")
+        b.wait_present("#vm-subVmTest1-disks-vdc-device")
+        b.click("#delete-subVmTest1-disk-vdc")
         b.wait_present(".modal-dialog")
         b.click(".modal-footer button:contains(Remove)")
-        b.wait_not_present("#vm-subVmTest1-disks-vdd-device")
+        b.wait_not_present("#vm-subVmTest1-disks-vdc-device")
         b.wait_not_present(".modal-dialog")
 
     def testMultipleSettings(self):

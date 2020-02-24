@@ -209,6 +209,7 @@ class TestMachines(NetworkCase):
         img = "/var/lib/libvirt/images/{0}-2.img".format(name)
         m.upload([image_file], img)
         m.execute("chmod 777 {0}".format(img))
+        self.addCleanup(self.machine.execute, "rm -f {0}".format(img))
 
         args = {
             "name": name,
@@ -237,10 +238,12 @@ class TestMachines(NetworkCase):
         if not self.created_pool:
             xml = POOL_XML.format(path="/var/lib/libvirt/images")
             m.execute("echo \"{0}\" > /tmp/xml && virsh pool-define /tmp/xml && virsh pool-start images".format(xml))
+            self.addCleanup(self.machine.execute, "virsh pool-destroy images; virsh pool-undefine images || true".format(name))
             self.created_pool = True
 
         xml = DOMAIN_XML.format(**args)
         m.execute("echo \"{0}\" > /tmp/xml && virsh define /tmp/xml && virsh start {1}".format(xml, name))
+        self.addCleanup(self.machine.execute, "virsh destroy {0}; virsh undefine {0} || true".format(name))
 
         m.execute('[ "$(virsh domstate {0})" = running ] || '
                   '{{ virsh dominfo {0} >&2; cat /var/log/libvirt/qemu/{0}.log >&2; exit 1; }}'.format(name))
@@ -254,6 +257,7 @@ class TestMachines(NetworkCase):
 
         return args
 
+    @nondestructive
     def testState(self):
         b = self.browser
         m = self.machine
@@ -1019,6 +1023,7 @@ class TestMachines(NetworkCase):
 
         b.wait_in_text("#vm-subVmTest1-network-2-state", "up")
 
+    @nondestructive
     def testVCPU(self):
         b = self.browser
         m = self.machine
@@ -1146,6 +1151,7 @@ class TestMachines(NetworkCase):
             m.execute("virsh undefine subVmTest1")
             b.wait_present("button#vm-subVmTest1-vcpus-count:disabled")
 
+    @nondestructive
     def testExternalConsole(self):
         b = self.browser
 
@@ -1169,6 +1175,7 @@ class TestMachines(NetworkCase):
         self.assertEqual(b.attr("#dynamically-generated-file", "href"),
                          u"data:application/x-virt-viewer,%5Bvirt-viewer%5D%0Atype%3Dspice%0Ahost%3D127.0.0.1%0Aport%3D5900%0Adelete-this-file%3D1%0Afullscreen%3D0%0A")
 
+    @nondestructive
     def testInlineConsole(self, urlroot=""):
         b = self.browser
 
@@ -1189,9 +1196,11 @@ class TestMachines(NetworkCase):
         # since VNC is defined for this VM, the view for "In-Browser Viewer" is rendered by default
         b.wait_present(".toolbar-pf-results canvas")
 
+    @nondestructive
     def testInlineConsoleWithUrlRoot(self, urlroot=""):
         self.testInlineConsole(urlroot="/webcon")
 
+    @nondestructive
     def testDelete(self):
         b = self.browser
         m = self.machine
@@ -1288,6 +1297,7 @@ class TestMachines(NetworkCase):
         b.wait_not_present("tbody tr[data-row-id=vm-{0}] th".format(name))
         b.wait_not_present(".toast-notifications.list-pf div.pf-c-alert")
 
+    @nondestructive
     def testSerialConsole(self):
         b = self.browser
         name = "vmWithSerialConsole"

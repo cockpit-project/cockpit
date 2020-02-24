@@ -68,6 +68,7 @@ You can set these environment variables to configure the test suite:
                   "debian-stable"
                   "debian-testing"
                   "fedora-31"
+                  "fedora-32"
                   "fedora-coreos"
                   "fedora-testing"
                   "rhel-7-7"

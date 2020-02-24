@@ -216,7 +216,7 @@ class TestFirewall(NetworkCase):
         # now add pop3
         addService('public', 'pop3')
         # firewalld > 0.7.0 supports including services into another service
-        if m.image in ['rhel-8-2', 'debian-testing', 'fedora-31', 'fedora-testing']:
+        if m.image in ['rhel-8-2', 'debian-testing', 'fedora-31', 'fedora-testing', "fedora-32"]:
             addService('public', 'freeipa-4')
             b.click(".zone-section[data-id='public'] tr[data-row-id='freeipa-4']")
             b.wait_present(".zone-section[data-id='public'] tbody.open .listing-ct-body:contains(Included Services)")
@@ -270,7 +270,7 @@ class TestFirewall(NetworkCase):
         self.login_and_go("/network/firewall")
         b.wait_in_text("#zones-listing .zone-section[data-id='public']", "Public Zone")
         # wait until all zones are present, including the ones added at runtime
-        if m.image in ["rhel-8-2", "fedora-31", "fedora-testing"]:
+        if m.image in ["rhel-8-2", "fedora-31", "fedora-testing", "fedora-32"]:
             b.wait_present("#zones-listing .zone-section[data-id='libvirt']")
 
         # add a service to the runtime configuration via the cli, after all the

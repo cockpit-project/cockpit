@@ -58,12 +58,16 @@
                                 data-range="604800" translate>1 week</a></li>
                         </ul>
                     </div>
-                    <button class="btn btn-default" data-action="zoom-out">
+                    <button class="pf-c-button pf-m-secondary" data-action="zoom-out">
                         <span class="glyphicon glyphicon-zoom-out"></span>
                     </button>
                     <div class="btn-group">
-                        <button class="btn btn-default fa fa-angle-left" data-action="scroll-left"></button>
-                        <button class="btn btn-default fa fa-angle-right" data-action="scroll-right"></button>
+                        <button class="pf-c-button pf-m-secondary" data-action="scroll-left">
+                            <span class="fa fa-angle-left" />
+                        </button>
+                        <button class="pf-c-button pf-m-secondary" data-action="scroll-right">
+                            <span class="fa fa-angle-right" />
+                        </button>
                     </div>
                 </div>
                 <ul class="nav nav-tabs">
@@ -85,10 +89,14 @@
                     <div class="panel-heading">
                         <h2 class="panel-title" translate>Servers</h2>
                         <div class="panel-actions">
-                            <button class="btn btn-default fa fa-check"
-                                id="dashboard-enable-edit" aria-label="Edit Server" title="Edit Server"></button>
-                            <button class="btn btn-primary servers-privileged fa fa-plus"
-                                id="dashboard-add" aria-label="Add Server" title="Add Server"></button>
+                            <button class="pf-c-button pf-m-secondary"
+                                id="dashboard-enable-edit" aria-label="Edit Server" title="Edit Server">
+                                <span class="fa fa-check" />
+                            </button>
+                            <button class="pf-c-button pf-m-primary servers-privileged"
+                                id="dashboard-add" aria-label="Add Server" title="Add Server">
+                                <span class="fa fa-plus" />
+                            </button>
                         </div>
                     </div>
                     <div class="list-group">
@@ -103,8 +111,12 @@
             {{! state can be 'failed' or 'connected' }}
             <a data-address="{{address}}" class="list-group-item {{state}}"
                 data-color="{{ color }}" target="_parent" href="/@{{address}}">
-                <button class="btn btn-danger edit-button servers-privileged pficon btn-delete pficon-delete delete-{{address}}"></button>
-                <button class="btn btn-default edit-button servers-privileged pficon pficon-edit"></button>
+                <button class="pf-c-button pf-m-danger delete-button servers-privileged delete-{{address}} btn-sm">
+                    <span class='pficon pficon-delete' />
+                </button>
+                <button class="pf-c-button pf-m-secondary edit-button servers-privileged btn-sm">
+                    <span class="pficon pficon-edit" />
+                </button>
                 <img class="host-avatar {{avatar_display}}" role="{{aria_role}}" alt="{{alt_text}}" title="{{alt_text}}" src="{{render_avatar}}">
                 <div class="spinner {{connecting_display}}"></div>
                 <div class="os">{{os}}</div>
@@ -172,8 +184,8 @@
                 </div>
                 <div class="modal-footer">
                     <div class="pull-left"><a role="link" tabindex="0" id="host-edit-sync-users" translate="yes">Synchronize users</a></div>
-                    <button class="btn btn-default" data-dismiss="modal" translate="yes">Cancel</button>
-                    <button class="btn btn-primary" id="host-edit-apply" translate="yes">Set</button>
+                    <button class="pf-c-button pf-m-secondary" data-dismiss="modal" translate="yes">Cancel</button>
+                    <button class="pf-c-button pf-m-primary" id="host-edit-apply" translate="yes">Set</button>
                 </div>
             </div>
         </div>

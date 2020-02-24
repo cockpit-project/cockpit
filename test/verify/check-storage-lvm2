@@ -168,7 +168,7 @@ class TestStorage(StorageCase):
         self.assertEqual(m.execute("grep %s /etc/fstab || true" % mount_point_one), "")
 
         # remove disk
-        b.click('#detail-sidebar tr:nth-child(2) button.btn-default')
+        b.click('#detail-sidebar tr:nth-child(2) button.pf-m-secondary')
         b.wait_not_in_text("#detail-sidebar", "DISK2")
         b.wait_in_text("#detail-header label:contains(Capacity) + div", "48 MiB")
 

@@ -212,9 +212,9 @@ class TestUpdates(NoSubManCase):
 
         # update should succeed and show restart page; cancel
         b.wait_in_text("#app .container-fluid h1", "Restart Recommended")
-        self.assertEqual(b.text("#app .container-fluid button.btn-primary"), "Restart Now")
-        self.assertEqual(b.text("#app .container-fluid button.btn-default"), "Ignore")
-        b.click("#app .container-fluid button.btn-default")
+        self.assertEqual(b.text("#app .container-fluid button.pf-m-primary"), "Restart Now")
+        self.assertEqual(b.text("#app .container-fluid button.pf-m-secondary"), "Ignore")
+        b.click("#app .container-fluid button.pf-m-secondary")
 
         # should go back to updates overview, nothing pending any more
         b.wait_in_text("#state", "No updates pending")
@@ -340,8 +340,8 @@ class TestUpdates(NoSubManCase):
         b.enter_page("/updates")
 
         # install only security updates
-        self.assertEqual(b.text("#app .container-fluid button.btn-default"), "Install Security Updates")
-        b.click("#app .container-fluid button.btn-default")
+        self.assertEqual(b.text("#app .container-fluid button.pf-m-secondary"), "Install Security Updates")
+        b.click("#app .container-fluid button.pf-m-secondary")
 
         b.wait_in_text("#state", "Applying updates")
         b.wait_present("#app div.progress-bar")
@@ -361,7 +361,7 @@ class TestUpdates(NoSubManCase):
         assertHistory("ul", ["secdeclare", "secparse", "sevcritical"])
 
         # ignore restarting
-        b.click("#app .container-fluid button.btn-default")
+        b.click("#app .container-fluid button.pf-m-secondary")
 
         # should have succeeded; 3 non-security updates left
         b.wait_in_text("#state", "3 updates")
@@ -391,7 +391,7 @@ class TestUpdates(NoSubManCase):
 
         # should have succeeded and show restart
         b.wait_in_text("#app .container-fluid h1", "Restart Recommended")
-        b.wait_present("#app .container-fluid button.btn-default")
+        b.wait_present("#app .container-fluid button.pf-m-secondary")
 
         # new versions are now installed
         m.execute("test -f /stamp-norefs-bin-2-1 && test -f /stamp-norefs-doc-2-1")
@@ -401,7 +401,7 @@ class TestUpdates(NoSubManCase):
         assertHistory("ul", ["buggy", "norefs-bin", "norefs-doc"])
 
         # do the reboot; this will disconnect the web UI
-        b.click("#app .container-fluid button.btn-primary")
+        b.click("#app .container-fluid button.pf-m-primary")
         b.switch_to_top()
         b.wait_in_text(".curtains-ct h1", "Disconnected")
 
@@ -640,7 +640,7 @@ class TestWsUpdate(NoSubManCase):
 
         # should have succeeded and show restart page; cancel
         b.wait_in_text("#app .container-fluid h1", "Restart Recommended")
-        b.click("#app .container-fluid button.btn-default")
+        b.click("#app .container-fluid button.pf-m-secondary")
         b.wait_in_text("#state", "No updates pending")
 
         # now pretend that there is a newer cockpit-ws available, warn about disconnect
@@ -1047,7 +1047,7 @@ class TestAutoUpdatesInstall(NoSubManCase):
         b.click("#app .container-fluid button.pk-update--all")
 
         # empty state visible in main area
-        b.click('.container-fluid div.blank-slate-pf button.btn-default')
+        b.click('.container-fluid div.blank-slate-pf button.pf-m-secondary')
         self.assertFalse(b.is_present("#available"))
         if self.backend == 'dnf':
             b.is_present('#automatic')

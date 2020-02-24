@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Modal } from 'patternfly-react';
+import { Modal } from 'patternfly-react';
 import cockpit from 'cockpit';
-import { Tooltip } from '@patternfly/react-core';
+import { Button, Tooltip } from '@patternfly/react-core';
 import { InfoAltIcon } from '@patternfly/react-icons';
 
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
@@ -253,10 +253,10 @@ export class VCPUModal extends React.Component {
                 <Modal.Footer>
                     {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
                     { caution }
-                    <Button id='machines-vcpu-modal-dialog-cancel' bsStyle='default' className='btn-cancel' onClick={this.props.close}>
+                    <Button id='machines-vcpu-modal-dialog-cancel' variant='secondary' className='btn-cancel' onClick={this.props.close}>
                         {_("Cancel")}
                     </Button>
-                    <Button id='machines-vcpu-modal-dialog-apply' bsStyle='primary' onClick={this.save}>
+                    <Button id='machines-vcpu-modal-dialog-apply' variant='primary' onClick={this.save}>
                         {_("Apply")}
                     </Button>
                 </Modal.Footer>

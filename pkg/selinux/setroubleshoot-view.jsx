@@ -107,7 +107,7 @@ class SELinuxEventDetails extends React.Component {
                 }
                 fixit = (
                     <div className="setroubleshoot-listing-action">
-                        <button className="btn btn-default"
+                        <button className="pf-c-button pf-m-secondary"
                                 onClick={ self.runFix.bind(self, itmIdx) }
                         >{ _("Apply this solution") }
                         </button>
@@ -404,10 +404,13 @@ export class SETroubleshootPage extends React.Component {
                     onDeleteClick = self.handleDeleteAlert.bind(self, itm.details.localId);
                 var dismissAction = (
                     <button
+                        id="selinux-alert-dismiss"
                         title="Dismiss"
-                        className="pficon pficon-delete btn btn-danger"
+                        className="pf-c-button pf-m-danger"
                         onClick={onDeleteClick}
-                        disabled={ !onDeleteClick || !self.props.deleteAlert } />
+                        disabled={ !onDeleteClick || !self.props.deleteAlert }>
+                        <i className="pficon pficon-delete" />
+                    </button>
                 );
                 var tabRenderers = [
                     {

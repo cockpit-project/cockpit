@@ -19,8 +19,8 @@
 
 import PropTypes from 'prop-types';
 import React from 'react';
-import { Button, Modal } from 'patternfly-react';
-import { Tabs, Tab } from '@patternfly/react-core';
+import { Modal } from 'patternfly-react';
+import { Button, Tabs, Tab } from '@patternfly/react-core';
 
 import cockpit from "cockpit";
 import './listing.scss';
@@ -95,11 +95,11 @@ class ModificationsExportDialog extends React.Component {
                     </Tabs>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button bsStyle='default' className='btn' onClick={this.copyToClipboard}>
+                    <Button variant='secondary' onClick={this.copyToClipboard}>
                         { this.state.copied ? <span className="fa fa-check fa-xs green-icon" /> : <span className="fa fa-clipboard fa-xs" /> }
                         <span>{ _("Copy to clipboard") }</span>
                     </Button>
-                    <Button bsStyle='default' className='btn-cancel' onClick={this.props.onClose}>
+                    <Button variant='secondary' className='btn-cancel' onClick={this.props.onClose}>
                         { _("Close") }
                     </Button>
                 </Modal.Footer>

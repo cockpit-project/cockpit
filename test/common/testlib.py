@@ -450,7 +450,7 @@ class Browser:
         """
         self.wait_not_visible('#' + id)
 
-    def dialog_complete(self, sel, button=".btn-primary", result="hide"):
+    def dialog_complete(self, sel, button=".pf-m-primary", result="hide"):
         self.click(sel + " " + button)
         self.wait_not_present(sel + " .dialog-wait-ct")
 
@@ -467,7 +467,7 @@ class Browser:
         else:
             raise Error("invalid dialog result argument: " + result)
 
-    def dialog_cancel(self, sel, button=".btn[data-dismiss='modal']"):
+    def dialog_cancel(self, sel, button="button[data-dismiss='modal']"):
         self.click(sel + " " + button)
         self.wait_not_visible(sel)
 
@@ -821,6 +821,15 @@ class MachineCase(unittest.TestCase):
                 if opts.trace:
                     print("Starting {0} {1}".format(key, machine.label))
                 machine.start()
+
+        if self.machine.image == "rhel-8-2-distropkg":
+            self.danger_btn_class = '.btn-danger'
+            self.primary_btn_class = '.btn-primary'
+            self.default_btn_class = '.btn-default'
+        else:
+            self.danger_btn_class = '.pf-m-danger'
+            self.primary_btn_class = '.pf-m-primary'
+            self.default_btn_class = '.pf-m-secondary'
 
         # Now wait for the other machines to be up
         for key in self.machines.keys():

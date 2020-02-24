@@ -106,7 +106,7 @@ class MachinesBasicTestSuite(MachinesLib):
 
         self.click(self.wait_css("#vm-{}-delete".format(name), cond=clickable))
         self.click(self.wait_css("#vm-{}-delete-modal-dialog li:nth-of-type(1) input".format(name), cond=clickable))
-        self.click(self.wait_css("#vm-{}-delete-modal-dialog button.btn-danger".format(name), cond=clickable))
+        self.click(self.wait_css("#vm-{}-delete-modal-dialog button.pf-m-danger".format(name), cond=clickable))
         self.wait_css("#vm-{}-row".format(name), cond=invisible)
 
         self.machine.execute("while test -f {}; do sleep 1; done".format(imgdel))

@@ -418,11 +418,11 @@ $(function() {
                 host_port_label: _("to host port"),
                 placeholder: _("none"),
             }));
-            row.children("button.fa-plus").on('click', add_row);
+            row.children("button.plus-button").on('click', add_row);
             if (port_internal_editable) {
-                row.children("button.pficon-close").on('click', remove_row);
+                row.children("button.close-button").on('click', remove_row);
             } else {
-                row.children("button.pficon-close").attr('disabled', true);
+                row.children("button.close-button").attr('disabled', true);
             }
 
             var row_container_input = row.find('input[name="container"]');
@@ -474,11 +474,11 @@ $(function() {
                 host_volume_label: _("to host path"),
                 placeholder: _("none")
             }));
-            row.children("button.fa-plus").on('click', add_row);
+            row.children("button.plus-button").on('click', add_row);
             if (volume_internal_editable) {
-                row.children("button.pficon-close").on('click', remove_row);
+                row.children("button.close-button").on('click', remove_row);
             } else {
-                row.children("button.pficon-close").attr('disabled', true);
+                row.children("button.close-button").attr('disabled', true);
             }
 
             var row_container_input = row.find('input[name="container"]');
@@ -528,11 +528,11 @@ $(function() {
                 envvar_value_label: _("value"),
                 placeholder: _("none")
             }));
-            row.children("button.fa-plus").on('click', add_row);
+            row.children("button.plus-button").on('click', add_row);
             if (envvar_internal_editable) {
-                row.children("button.pficon-close").on('click', remove_row);
+                row.children("button.close-button").on('click', remove_row);
             } else {
-                row.children("button.pficon-close").attr('disabled', true);
+                row.children("button.close-button").attr('disabled', true);
             }
 
             var row_envvar_key_input = row.find('input[name="envvar_key"]');
@@ -573,8 +573,8 @@ $(function() {
                 alias_label: _("alias"),
                 placeholder: _("none")
             }));
-            row.children("button.fa-plus").on('click', add_row);
-            row.children("button.pficon-close").on('click', remove_row);
+            row.children("button.plus-button").on('click', add_row);
+            row.children("button.close-button").on('click', remove_row);
             var container_select = row.find("div .link-container");
             container_select.find('a').on('click', function() {
                 container_select.find("button span").text($(this).text());

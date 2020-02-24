@@ -22,6 +22,7 @@ import cockpit from "cockpit";
 import React from "react";
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 import { OverlayTrigger, Tooltip } from "patternfly-react";
+import { Button } from "@patternfly/react-core";
 
 import * as Select from "cockpit-components-select.jsx";
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
@@ -475,17 +476,17 @@ export class KdumpPage extends React.Component {
         var testButton;
         if (serviceRunning) {
             testButton = (
-                <button className="btn btn-default" onClick={this.handleTestSettingsClick}>
+                <Button variant="secondary" onClick={this.handleTestSettingsClick}>
                     {_("Test Configuration")}
-                </button>
+                </Button>
             );
         } else {
             const tooltip = _("Test is only available while the kdump service is running.");
             testButton = (
                 <OverlayTrigger overlay={ <Tooltip id="tip-test">{tooltip}</Tooltip> } placement="top">
-                    <button className="btn btn-default disabled">
+                    <Button variant="secondary" isDisabled>
                         {_("Test Configuration")}
-                    </button>
+                    </Button>
                 </OverlayTrigger>
             );
         }

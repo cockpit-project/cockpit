@@ -556,7 +556,7 @@ $(function() {
         var tab = $('<ul class="nav nav-tabs nav-tabs-pf">')
                 .attr("id", "problem-navigation");
 
-        var d_btn = $('<button class="btn btn-danger problem-btn btn-delete pficon pficon-delete">');
+        var d_btn = $('<button class="pf-c-button pf-m-danger problem-btn btn-delete">').append('<span class="pficon pficon-delete">');
 
         const reportingTable = document.createElement("div");
         reportingTable.setAttribute("id", "journal-entry-reporting-table");
@@ -798,7 +798,7 @@ $(function() {
         detail_content += create_table_from_thread(crash_thread);
 
         if (other_threads.length !== 0) {
-            detail_content += '<div id="other_threads_btn_div"><button class="btn btn-default other-threads-btn" title="">Show all threads</button></div>';
+            detail_content += '<div id="other_threads_btn_div"><button class="pf-c-button pf-m-secondary other-threads-btn" title="">Show all threads</button></div>';
             detail_content += '<div class="hidden other_threads">';
 
             var thread_num = 1;

@@ -78,9 +78,9 @@ class ApplicationRow extends React.Component {
             }
 
             if (comp.installed) {
-                button = <button className="btn btn-danger" onClick={left_click(remove)}>{_("Remove")}</button>;
+                button = <button className="pf-c-button pf-m-danger" onClick={left_click(remove)}>{_("Remove")}</button>;
             } else {
-                button = <button className="btn btn-default" onClick={left_click(install)}>{_("Install")}</button>;
+                button = <button className="pf-c-button pf-m-secondary" onClick={left_click(install)}>{_("Install")}</button>;
             }
         }
 
@@ -124,7 +124,11 @@ export class ApplicationList extends React.Component {
             refresh_button = <CancelButton data={this.state.progress} />;
         } else {
             refresh_progress = null;
-            refresh_button = <button className="btn btn-default fa fa-refresh" onClick={left_click(refresh)} />;
+            refresh_button = (
+                <button className="pf-c-button pf-m-secondary" onClick={left_click(refresh)}>
+                    <i className='fa fa-refresh' />
+                </button>
+            );
         }
 
         table_classes = "table app-list";

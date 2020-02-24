@@ -90,13 +90,13 @@ class ZoomControls extends React.Component {
                     </ul>
                 </div>
                 { "\n" }
-                <button className="btn btn-default" data-action="zoom-out">
+                <button className="pf-c-button pf-m-secondary" data-action="zoom-out">
                     <span className="glyphicon glyphicon-zoom-out" />
                 </button>
                 { "\n" }
                 <div className="btn-group">
-                    <button className="btn btn-default fa fa-angle-left" data-action="scroll-left" />
-                    <button className="btn btn-default fa fa-angle-right" data-action="scroll-right" />
+                    <button className="pf-c-button pf-m-secondary" data-action="scroll-left"> <span className="fa fa-angle-left" /></button>
+                    <button className="pf-c-button pf-m-secondary" data-action="scroll-right"> <span className="fa fa-angle-right" /></button>
                 </div>
             </div>
         );

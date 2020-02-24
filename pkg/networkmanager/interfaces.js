@@ -2166,7 +2166,7 @@ function with_checkpoint(model, modify, options) {
                                         .always(hide_curtain)
                                         .fail(function () {
                                             dialog.find('#confirm-breaking-change-text').html(options.fail_text);
-                                            dialog.find('.modal-footer .btn-danger')
+                                            dialog.find('.modal-footer button.pf-m-danger')
                                                     .off('click')
                                                     .text(options.anyway_text)
                                                     .syn_click(model, function () {
@@ -3036,8 +3036,9 @@ PageNetworkInterface.prototype = {
                                                         });
                                                 }
                                             }, "network-privileged")),
-                                        $('<td width="28px">').append(
-                                            $('<button class="btn btn-default btn-control-ct network-privileged fa fa-minus">')
+                                        $('<td>').append(
+                                            $('<button class="pf-c-button pf-m-secondary network-privileged">')
+                                                    .append('<span class="fa fa-minus">')
                                                     .syn_click(self.model, function () {
                                                         with_checkpoint(
                                                             self.model,
@@ -3071,9 +3072,13 @@ PageNetworkInterface.prototype = {
             var add_btn =
                 $('<div>', { class: 'dropdown' }).append(
                     $('<button>', {
-                        class: 'network-privileged btn btn-default btn-control-ct dropdown-toggle fa fa-plus',
+                        class: 'network-privileged pf-c-button pf-m-primary',
                         'data-toggle': 'dropdown'
-                    }),
+                    }).html(
+                        $('<i>', {
+                            class: 'fa fa-plus'
+                        })
+                    ),
                     $('<ul>', {
                         class: 'dropdown-menu add-button',
                         role: 'menu'
@@ -3270,7 +3275,8 @@ PageNetworkIpSettings.prototype = {
                         $('<strong>').text(title),
                         $('<div class="pull-right">').append(
                             header_buttons,
-                            add_btn = $('<button class="btn btn-default fa fa-plus">')
+                            add_btn = $('<button class="pf-c-button pf-m-secondary btn-sm">')
+                                    .append('<span class="fa fa-plus">')
                                     .css("margin-left", "10px")
                                     .click(add()))),
                     $('<table width="100%">').append(
@@ -3286,7 +3292,8 @@ PageNetworkIpSettings.prototype = {
                                                 }));
                                 }),
                                 $('<td>').append(
-                                    $('<button class="btn btn-default fa fa-minus">')
+                                    $('<button class="pf-c-button pf-m-secondary btn-sm">')
+                                            .append('<span class="fa fa-minus">')
                                             .click(remove(i)))));
                         })));
 

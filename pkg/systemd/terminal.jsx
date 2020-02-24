@@ -98,7 +98,7 @@ const _ = cockpit.gettext;
                             <SelectEntry data='white-theme'>{_("White")}</SelectEntry>
                         </Select>
                         <button ref="resetButton"
-                            className="btn btn-default terminal-reset"
+                            className="pf-c-button pf-m-secondary terminal-reset"
                             onClick={this.onResetClick}>{_("Reset")}</button>
                     </div>
                     <div className={"panel-body " + this.state.theme} id="the-terminal">

@@ -18,7 +18,8 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Tooltip, OverlayTrigger, UtilizationBar } from 'patternfly-react';
+import { Tooltip, OverlayTrigger, UtilizationBar } from 'patternfly-react';
+import { Button } from '@patternfly/react-core';
 
 import { ListingRow } from 'cockpit-components-listing.jsx';
 import {
@@ -162,7 +163,8 @@ class StoragePoolActions extends React.Component {
         const id = storagePoolId(storagePool.name, storagePool.connectionName);
         let deactivateButton = (
             <Button id={`deactivate-${id}`}
-                disabled={this.state.operationInProgress}
+                variant='secondary'
+                isDisabled={this.state.operationInProgress}
                 style={this.state.operationInProgress ? { pointerEvents: 'none' } : null} // Fixes OverlayTrigger not showing up
                 onClick={this.onDeactivate}>
                 {_("Deactivate")}
@@ -170,7 +172,8 @@ class StoragePoolActions extends React.Component {
         );
         let activateButton = (
             <Button id={`activate-${id}`}
-                disabled={this.state.operationInProgress}
+                variant='secondary'
+                isDisabled={this.state.operationInProgress}
                 style={this.state.operationInProgress ? { pointerEvents: 'none' } : null} // Fixes OverlayTrigger not showing up
                 onClick={this.onActivate}>
                 {_("Activate")}

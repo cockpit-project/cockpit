@@ -4,7 +4,7 @@ import cockpit from "cockpit";
 $(function() {
     $("#hammer").on("click", function () { $(this).hide() });
 
-    $(".cockpit-internal-reauthorize .btn").on("click", function() {
+    $(".cockpit-internal-reauthorize .pf-c-button").on("click", function() {
         $(".cockpit-internal-reauthorize span").text("checking...");
         var cmd = "pkcheck --action-id org.freedesktop.policykit.exec --process $$ -u 2>&1";
         cockpit.spawn(["sh", "-c", cmd])
@@ -19,7 +19,7 @@ $(function() {
                 });
     });
 
-    $(".super-channel .btn").on("click", function() {
+    $(".super-channel .pf-c-button").on("click", function() {
         $(".super-channel span").text("checking...");
         cockpit.spawn(["id"], { superuser: true })
                 .done(function(data) {
@@ -32,7 +32,7 @@ $(function() {
                 });
     });
 
-    $(".lock-channel .btn").on("click", function() {
+    $(".lock-channel .pf-c-button").on("click", function() {
         $(".lock-channel span").text("locking...");
         cockpit.spawn(["flock", "-o", "/tmp/playground-test-lock", "-c", "echo locked; sleep infinity"],
                       { err: "message" })

@@ -19,7 +19,8 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Modal, OverlayTrigger, Tooltip } from 'patternfly-react';
+import { Modal, OverlayTrigger, Tooltip } from 'patternfly-react';
+import { Button } from '@patternfly/react-core';
 import cockpit from 'cockpit';
 
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
@@ -89,10 +90,10 @@ class CreateStorageVolumeModal extends React.Component {
                 <Modal.Footer>
                     {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
                     {this.state.createInProgress && <div className="spinner spinner-sm pull-left" />}
-                    <Button bsStyle='default' className='btn-cancel' onClick={ this.props.close }>
+                    <Button variant='secondary' className='btn-cancel' onClick={ this.props.close }>
                         {_("Cancel")}
                     </Button>
-                    <Button bsStyle='primary' onClick={this.onCreateClicked} disabled={this.state.createInProgress}>
+                    <Button variant="primary" onClick={this.onCreateClicked} isDisabled={this.state.createInProgress}>
                         {_("Create")}
                     </Button>
                 </Modal.Footer>
@@ -129,7 +130,7 @@ export class StorageVolumeCreate extends React.Component {
             if (!poolTypesNotSupportingVolumeCreation.includes(this.props.storagePool.type)) {
                 return (
                     <Button id={`${idPrefix}-button`}
-                        bsStyle='default'
+                        variant='secondary'
                         className='pull-right'
                         onClick={this.open}>
                         {_("Create Volume")}
@@ -143,9 +144,9 @@ export class StorageVolumeCreate extends React.Component {
                         </Tooltip> } placement='top'>
                         <span>
                             <Button id={`${idPrefix}-button`}
-                                bsStyle='default'
+                                variant='secondary'
                                 style={{ pointerEvents: 'none' }}
-                                disabled>
+                                isDisabled>
                                 {_("Create Volume")}
                             </Button>
                         </span>

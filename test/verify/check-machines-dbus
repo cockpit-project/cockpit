@@ -210,6 +210,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_present("button#vm-subVmTest1-boot-order:disabled")
 
     # Check various configuration changes made before VM installation persist after installation
+    @nondestructive
     def testConfigureBeforeInstall(self):
         b = self.browser
         m = self.machine
@@ -223,6 +224,7 @@ class TestMachinesDBus(machineslib.TestMachines):
 
         b.set_input_text("#vm-name", "VmNotInstalled")
         m.execute("touch /var/lib/libvirt/novell.iso")
+        self.addCleanup(m.execute, "rm /var/lib/libvirt/novell.iso")
         b.select_from_dropdown("#source-type", "Local Install Media")
         b.set_file_autocomplete_val("source-file", "/var/lib/libvirt/novell.iso")
         b.select_from_dropdown("#storage-size-unit-select", "MiB")
@@ -238,6 +240,8 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_not_present("#create-vm-dialog")
 
         b.wait_in_text("tbody tr[data-row-id=vm-VmNotInstalled] th", "VmNotInstalled")
+        self.addCleanup(m.execute, "virsh destroy VmNotInstalled; virsh undefine --nvram VmNotInstalled")
+        self.addCleanup(m.execute, "virsh pool-destroy default && virsh pool-undefine default")
 
         # Change autostart
         autostart = not b.get_checked("#vm-VmNotInstalled-autostart-checkbox")
@@ -297,7 +301,8 @@ class TestMachinesDBus(machineslib.TestMachines):
             else:
                 raise AssertionError("Unhandled distro for OVMF path")
 
-            m.execute("mkdir /tmp/ovmf/; mv {0}/* /tmp/ovmf/".format(ovmf_path))
+            m.execute("mount -t tmpfs tmpfs " + ovmf_path)
+            self.addCleanup(m.execute, "umount {0} || true".format(ovmf_path))
             b.click("tbody tr[data-row-id=vm-VmNotInstalled] th") # Close and re-expand the row for the new configuration to be read
             b.click("tbody tr[data-row-id=vm-VmNotInstalled] th")
 
@@ -311,7 +316,7 @@ class TestMachinesDBus(machineslib.TestMachines):
             b.wait_in_text("#missing-uefi-images .tooltip-inner", "Libvirt did not detect any UEFI/OVMF firmware image installed on the host")
             b.mouse("#vm-VmNotInstalled-firmware-tooltip", "mouseout")
             b.wait_not_present("#missing-uefi-images")
-            m.execute("mv /tmp/ovmf/* {0}".format(ovmf_path))
+            m.execute("umount " + ovmf_path)
 
             if m.image == "fedora-32":
                 m.execute("systemctl restart libvirtd")

@@ -276,6 +276,7 @@ class TestMachines(NetworkCase):
 
         return args
 
+    @nondestructive
     def testBasic(self):
         b = self.browser
         m = self.machine
@@ -402,6 +403,7 @@ class TestMachines(NetworkCase):
         # We 'll create errors by starting to start domains when the default network in inactive
         self.startVm("subVmTest3")
         m.execute("virsh destroy subVmTest2 && virsh destroy subVmTest3 && virsh net-destroy default")
+        self.addCleanup(self.machine.execute, "virsh net-start default")
 
         def tryRunDomain(index, name):
             b.wait_in_text("#virtual-machines-listing .listing-ct tbody:nth-of-type({0}) th".format(index), name)

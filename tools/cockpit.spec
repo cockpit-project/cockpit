@@ -101,15 +101,16 @@ Requires: cockpit-ws
 Requires: cockpit-system
 
 # Optional components
+Recommends: (cockpit-storaged if udisks2)
+Recommends: cockpit-packagekit
+Suggests: cockpit-pcp
+
 %if 0%{?rhel} == 0
 Recommends: cockpit-dashboard
 %ifarch x86_64 %{arm} aarch64 ppc64le i686 s390x
 Recommends: (cockpit-docker if /usr/bin/docker)
 %endif
 Recommends: (cockpit-networkmanager if NetworkManager)
-Recommends: (cockpit-storaged if udisks2)
-Recommends: cockpit-packagekit
-Suggests: cockpit-pcp
 Suggests: cockpit-selinux
 %endif
 %if 0%{?rhel} && 0%{?centos} == 0
@@ -364,6 +365,7 @@ Requires: NetworkManager >= 1.6
 Provides: cockpit-kdump = %{version}-%{release}
 Requires: kexec-tools
 Recommends: polkit
+Recommends: PackageKit
 Recommends: NetworkManager-team
 Recommends: setroubleshoot-server >= 3.3.3
 Provides: cockpit-selinux = %{version}-%{release}

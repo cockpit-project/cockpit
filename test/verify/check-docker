@@ -86,7 +86,7 @@ class TestDocker(MachineCase):
         b.wait_in_text("#containers-containers-filter", "Everything")
 
         # Run it
-        b.click('#containers-images tr:contains("busybox:latest") button.fa-play')
+        b.click('#containers-images tr:contains("busybox:latest") button.play-button')
         b.wait_popup("containers_run_image_dialog")
         b.set_val("#containers-run-image-name", "PROBE1")
         b.set_val("#containers-run-image-command", """/bin/sh -c 'echo "%s"; sleep 5' """ % message)
@@ -106,7 +106,7 @@ class TestDocker(MachineCase):
 
         # Run it without TTY and make sure it keeps running so that we
         # can link to it.
-        b.click('#containers-images tr:contains("busybox:latest") button.fa-play')
+        b.click('#containers-images tr:contains("busybox:latest") button.play-button')
         b.wait_popup("containers_run_image_dialog")
         b.set_val("#containers-run-image-name", "PROBE1")
         b.set_val("#containers-run-image-command", "/bin/sh -c 'echo \"%s\"; sleep 10000'" % (message))
@@ -120,7 +120,7 @@ class TestDocker(MachineCase):
         self.assertEqual(info[0]["HostConfig"]["Links"], None)
 
         # Create another container linked to old one
-        b.click('#containers-images tr:contains("busybox:latest") button.fa-play')
+        b.click('#containers-images tr:contains("busybox:latest") button.play-button')
         b.wait_popup("containers_run_image_dialog")
         b.set_val("#containers-run-image-name", "PROBE2")
         b.set_val("#containers-run-image-command", "/bin/echo -e '%s\n%s\n'" % (message, message))
@@ -131,7 +131,7 @@ class TestDocker(MachineCase):
         b.click("#select-linked-containers form:last-child .link-container button")
         b.click("#select-linked-containers form:last-child .link-container a[value='PROBE1']")
         b.set_val("#select-linked-containers form:last-child  input[name='alias']", "alias1")
-        b.click("#select-linked-containers form:last-child  button.fa-plus")
+        b.click("#select-linked-containers form:last-child  button.plus-button")
         # new line should be the second group
         b.wait_present("#select-linked-containers .form-group:eq(1)")
         b.click("#select-linked-containers form:last-child .link-container button")
@@ -212,14 +212,14 @@ class TestDocker(MachineCase):
         b.click('#containers-images tr:contains("busybox:latest") td.listing-ct-toggle')
 
         # Create some containers
-        b.click('#containers-images tr:contains("busybox:latest") button.fa-play')
+        b.click('#containers-images tr:contains("busybox:latest") button.play-button')
         b.wait_popup('containers_run_image_dialog')
         b.set_val('#containers-run-image-name', 'C1')
         b.click('#containers-run-image-run')
         b.wait_popdown('containers_run_image_dialog')
         b.wait_in_text('#containers-containers', 'C1')
         b.wait_in_text('#containers-containers', 'busybox:latest')
-        b.click('#containers-images tr:contains("busybox:latest") button.fa-play')
+        b.click('#containers-images tr:contains("busybox:latest") button.play-button')
         b.wait_popup('containers_run_image_dialog')
         b.set_val('#containers-run-image-name', 'C2')
         b.click('#containers-run-image-run')
@@ -274,7 +274,7 @@ CMD ["/listen-on-port.sh", "%(port)d", "%(message)s"]
         nport = port + 1
 
         # Run it and expose additional port via the ui
-        b.click("#containers-images tr:contains(\"%s\") button.fa-play" % (image_name))
+        b.click("#containers-images tr:contains(\"%s\") button.play-button" % (image_name))
         b.wait_popup("containers_run_image_dialog")
         b.set_val("#containers-run-image-name", "PROBE2")
         # Tell our probe to listen on both ports
@@ -287,7 +287,7 @@ CMD ["/listen-on-port.sh", "%(port)d", "%(message)s"]
                      'second_port': nport,
                      'second_message': second_message})
         b.set_val(".containers-run-portmapping form:eq(0) input:eq(1)", port)
-        b.click(".containers-run-portmapping form:eq(0) .fa-plus")
+        b.click(".containers-run-portmapping form:eq(0) .plus-button")
         b.set_val(".containers-run-portmapping form:eq(1) input:eq(0)", nport)
         b.set_val(".containers-run-portmapping form:eq(1) input:eq(1)", nport)
 
@@ -349,7 +349,7 @@ CMD ["/bin/sh"]
         b.wait_in_text("#containers-images", image_name)
 
         # Run it and add another environment variable via the ui
-        b.click("#containers-images tr:contains(\"%s\") button.fa-play" % (image_name))
+        b.click("#containers-images tr:contains(\"%s\") button.play-button" % (image_name))
         b.wait_popup("containers_run_image_dialog")
         b.set_val("#containers-run-image-name", "PROBE4")
         b.set_val("#containers-run-image-command", "/bin/sh")
@@ -357,7 +357,7 @@ CMD ["/bin/sh"]
         # Two environment variables
         b.wait_val("#select-claimed-envvars form:eq(1) input:eq(0)", "zero")
         b.wait_val("#select-claimed-envvars form:eq(1) input:eq(1)", "GGG")
-        b.click("#select-claimed-envvars form:eq(0) .fa-plus")
+        b.click("#select-claimed-envvars form:eq(0) .plus-button")
         b.set_val("#select-claimed-envvars form:eq(2) input:eq(0)", "SECOND")
         b.set_val("#select-claimed-envvars form:eq(2) input:eq(1)", "marmalade")
 
@@ -452,7 +452,7 @@ CMD ["/bin/sh"]
 
         # Run one container without restarting
         b.wait_visible("#containers-images")
-        b.click('#containers-images tr:contains("busybox:latest") button.fa-play')
+        b.click('#containers-images tr:contains("busybox:latest") button.play-button')
         b.wait_popup("containers_run_image_dialog")
         b.set_val("#containers-run-image-name", "NORESTART")
         b.set_val("#containers-run-image-command", "/bin/sh -c 'echo \"no-restart\"; sleep 10000'")
@@ -461,7 +461,7 @@ CMD ["/bin/sh"]
         b.wait_popdown("containers_run_image_dialog")
 
         # Run another container with restarting
-        b.click('#containers-images tr:contains("busybox:latest") button.fa-play')
+        b.click('#containers-images tr:contains("busybox:latest") button.play-button')
         b.wait_popup("containers_run_image_dialog")
         b.set_val("#containers-run-image-name", "YAYRESTART")
         b.set_val("#containers-run-image-command", "/bin/sh -c 'echo \"yay-restart\"; sleep 10000'")
@@ -501,7 +501,7 @@ CMD ["/bin/sh"]
         b.wait_in_text("#containers-images", "busybox:latest")
 
         # Run one container without restarting
-        b.click('#containers-images tr:contains("busybox:latest") button.fa-play')
+        b.click('#containers-images tr:contains("busybox:latest") button.play-button')
         b.wait_popup("containers_run_image_dialog")
         b.set_val("#containers-run-image-name", "RESOURCE")
         b.set_val("#containers-run-image-command", "/bin/sleep 1000000")
@@ -526,7 +526,7 @@ CMD ["/bin/sh"]
         b.wait_popup("container-resources-dialog")
         b.set_val(".memory-slider input.size-text-ct", "246")
         b.set_val(".cpu-slider input.size-text-ct", "256")
-        b.click("#container-resources-dialog .btn-primary")
+        b.click("#container-resources-dialog .pf-m-primary")
         b.wait_popdown("container-resources-dialog")
 
         # This should be updated
@@ -538,7 +538,7 @@ CMD ["/bin/sh"]
         b.wait_popup("container-resources-dialog")
         b.click(".memory-slider input[type='checkbox']")
         b.click(".cpu-slider input[type='checkbox']")
-        b.click("#container-resources-dialog .btn-primary")
+        b.click("#container-resources-dialog .pf-m-primary")
         b.wait_popdown("container-resources-dialog")
 
         # This should be updated

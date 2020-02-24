@@ -106,12 +106,12 @@ class LibvirtSlate extends React.Component {
             );
             action = (
                 <div className="blank-slate-pf-main-action">
-                    <button className="btn btn-default btn-lg"
+                    <button className="pf-c-button pf-m-secondary btn-lg"
                             id="troubleshoot"
                             onClick={mouseClick(this.goToServicePage)}>
                         {_("Troubleshoot")}
                     </button>
-                    <button className="btn btn-primary btn-lg"
+                    <button className="pf-c-button pf-m-primary btn-lg"
                             id="start-libvirt"
                             disabled={!name}
                             onClick={mouseClick(this.startService)}>

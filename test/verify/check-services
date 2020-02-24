@@ -242,7 +242,10 @@ Unit=test.service
 
         # Mask and unmask
         self.do_action("Disallow running (mask)")
-        b.click(".modal-dialog .btn-danger")
+        if self.machine.image == "rhel-8-2-distropkg":
+            b.click(".modal-dialog .btn-danger")
+        else:
+            b.click("#mask-service button.pf-m-danger")
         self.check_service_details(["Masked"], ["Allow running (unmask)"], False, onoff=False)
         self.do_action("Allow running (unmask)")
         self.check_service_details(["Static", "Not running"], ["Start", "Disallow running (mask)"], True, onoff=False)
@@ -841,7 +844,10 @@ WantedBy=default.target
 
         # Masking should also clear the failed status
         self.do_action("Disallow running (mask)")
-        b.click(".modal-dialog .btn-danger")
+        if self.machine.image == "rhel-8-2-distropkg":
+            b.click(".modal-dialog .btn-danger")
+        else:
+            b.click("#mask-service button.pf-m-danger")
         self.check_service_details(["Masked"], ["Allow running (unmask)"], False, onoff=False)
 
     def count_failures(self):

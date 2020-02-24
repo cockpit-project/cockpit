@@ -240,7 +240,7 @@ class TestKeys(MachineCase):
         toggleKeyState("tbody[data-name=id_dsa]", True)
         assert b.is_present("tbody[data-name=id_dsa] .credential-unlock")
         b.set_val("tbody[data-name=id_dsa] .credential-password", "badbad")
-        b.click("tbody[data-name=id_dsa] .credential-unlock .btn")
+        b.click("tbody[data-name=id_dsa] .credential-unlock button")
         b.wait_present("tbody[data-name=id_dsa][data-loaded=1]")
         assertKeyState("tbody[data-name=id_dsa]", True)
 
@@ -367,12 +367,12 @@ class TestKeys(MachineCase):
 
             assert b.is_present(new_key_tbody + " .credential-unlock")
             b.set_val(new_key_tbody + " .credential-password", "badbad")
-            b.click(new_key_tbody + " .credential-unlock .btn")
+            b.click(new_key_tbody + " .credential-unlock button")
 
             b.wait_visible(new_key_tbody + " .credential-alert")
             b.wait_in_text(new_key_tbody + " .credential-alert", "Password")
             b.set_val(new_key_tbody + " .credential-password", "foobar")
-            b.click(new_key_tbody + " .credential-unlock .btn")
+            b.click(new_key_tbody + " .credential-unlock button")
 
             b.wait_present(new_key_tbody + "[data-loaded=1]")
             b.wait_not_present("tbody.ssh-add-key-body[data-name='/tmp/new.rsa']")

@@ -19,7 +19,8 @@
 import React from 'react';
 import cockpit from 'cockpit';
 import PropTypes from 'prop-types';
-import { Modal, Button } from 'patternfly-react';
+import { Modal } from 'patternfly-react';
+import { Button } from '@patternfly/react-core';
 
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { NetworkTypeAndSourceRow, NetworkModelRow } from './nicBody.jsx';
@@ -196,12 +197,12 @@ export class AddNIC extends React.Component {
                 </Modal.Body>
                 <Modal.Footer>
                     {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
-                    <Button id={`${idPrefix}-cancel`} bsStyle='default' className='btn-cancel' onClick={this.props.close}>
+                    <Button id={`${idPrefix}-cancel`} variant='secondary' className='btn-cancel' onClick={this.props.close}>
                         {_("Cancel")}
                     </Button>
-                    <Button disabled={["network", "direct", "bridge"].includes(this.state.networkType) && this.state.networkSource === undefined}
+                    <Button isDisabled={["network", "direct", "bridge"].includes(this.state.networkType) && this.state.networkSource === undefined}
                             id={`${idPrefix}-add`}
-                            bsStyle='primary'
+                            variant='primary'
                             onClick={this.add}>
                         {_("Add")}
                     </Button>

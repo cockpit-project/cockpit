@@ -19,7 +19,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
-import { Button, Modal } from 'patternfly-react';
+import { Modal } from 'patternfly-react';
+import { Button } from '@patternfly/react-core';
 
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import * as Select from "cockpit-components-select.jsx";
@@ -70,10 +71,10 @@ export class FirmwareModal extends React.Component {
                 </Modal.Body>
                 <Modal.Footer>
                     {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
-                    <Button bsStyle='default' onClick={this.close}>
+                    <Button variant='secondary' onClick={this.close}>
                         {_("Cancel")}
                     </Button>
-                    <Button bsStyle='primary' id="firmware-dialog-apply" onClick={this.save}>
+                    <Button variant='primary' id="firmware-dialog-apply" onClick={this.save}>
                         {_("Save")}
                     </Button>
                 </Modal.Footer>

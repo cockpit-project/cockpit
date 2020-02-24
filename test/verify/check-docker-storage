@@ -95,10 +95,10 @@ class TestDockerStorage(MachineCase):
             b.wait_visible("#machine-troubleshoot")
             b.click('#machine-troubleshoot')
             b.wait_popup('troubleshoot-dialog')
-            b.wait_text('#troubleshoot-dialog .btn-primary', "Add")
-            b.click('#troubleshoot-dialog .btn-primary')
+            b.wait_text('#troubleshoot-dialog button:nth-of-type(2)', "Add")
+            b.click('#troubleshoot-dialog button:nth-of-type(2)')
             b.wait_in_text('#troubleshoot-dialog', "Fingerprint")
-            b.click('#troubleshoot-dialog .btn-primary')
+            b.click('#troubleshoot-dialog button:nth-of-type(2)')
             b.wait_popdown('troubleshoot-dialog')
             b.enter_page("/system", host="10.111.113.1")
             b.switch_to_top()
@@ -139,9 +139,9 @@ class TestDockerStorage(MachineCase):
         b.wait_in_text("#storage-drives", "DISK1")
 
         b.click("#storage-drives tr:contains(DISK1)")
-        b.click("#storage-drives .btn-primary")
+        b.click("#storage-drives button")
         b.wait_in_text(".modal-dialog:contains(Add Additional Storage)", "DISK1")
-        b.click(".modal-dialog:contains(Add Additional Storage) .btn-danger")
+        b.click(".modal-dialog:contains(Add Additional Storage) .pf-m-danger")
         b.wait_not_present(".modal-dialog:contains(Add Additional Storage)")
         b.wait_not_in_text("#storage-drives", "DISK1")
 
@@ -152,10 +152,10 @@ class TestDockerStorage(MachineCase):
         m.add_disk("100M", serial="DISK2")
         b.wait_in_text("#storage-drives", "DISK2")
         b.click("#storage-drives tr:contains(DISK2)")
-        b.click("#storage-drives .btn-primary")
+        b.click("#storage-drives button")
         b.wait_in_text(".modal-dialog:contains(Add Additional Storage)", "DISK2")
         b.wait_not_in_text(".modal-dialog:contains(Add Additional Storage)", "DISK1")
-        b.click(".modal-dialog:contains(Add Additional Storage) .btn-danger")
+        b.click(".modal-dialog:contains(Add Additional Storage) .pf-m-danger")
         b.wait_not_present(".modal-dialog:contains(Add Additional Storage)")
         b.wait_not_in_text("#storage-drives", "DISK2")
 
@@ -195,10 +195,10 @@ class TestDockerStorage(MachineCase):
         m.add_disk("100M", serial="DISK2")
         b.wait_in_text("#storage-drives", "DISK2")
         b.click("#storage-drives tr:contains(DISK2)")
-        b.click("#storage-drives .btn-primary")
+        b.click("#storage-drives button")
         b.wait_in_text(".modal-dialog:contains(Add Additional Storage)", "DISK2")
         b.wait_not_in_text(".modal-dialog:contains(Add Additional Storage)", "DISK1")
-        b.click(".modal-dialog:contains(Add Additional Storage) .btn-danger")
+        b.click(".modal-dialog:contains(Add Additional Storage) .pf-m-danger")
         b.wait_not_present(".modal-dialog:contains(Add Additional Storage)")
         b.wait_not_in_text("#storage-drives", "DISK2")
 
@@ -207,7 +207,7 @@ class TestDockerStorage(MachineCase):
         # Reset
 
         b.click("#storage-reset")
-        b.click(".modal-dialog:contains(Reset Storage Pool) .btn-danger")
+        b.click(".modal-dialog:contains(Reset Storage Pool) .pf-m-danger")
         b.wait_not_present(".modal-dialog:contains(Reset Storage Pool)")
 
         if not can_manage(m):

@@ -51,7 +51,7 @@ class Dropdown extends React.Component {
     render() {
         return (
             <div className="btn-group">
-                <button className="btn btn-default" type="button" data-value="0" onClick={this.handleClick}>
+                <button className="pf-c-button pf-m-secondary" type="button" data-value="0" onClick={this.handleClick}>
                     <span>{ this.props.actions[0].label }</span>
                 </button>
                 <button className="btn btn-default dropdown-toggle" data-toggle="dropdown">
@@ -319,9 +319,11 @@ export class ContainerList extends React.Component {
 
             var actions = (
                 <>
-                    <button className="btn btn-danger btn-delete pficon pficon-delete"
-                            onClick={ this.deleteContainer.bind(this, container) } />
-                    <button className="btn btn-default"
+                    <button className="pf-c-button pf-m-danger btn-delete"
+                            onClick={ this.deleteContainer.bind(this, container) }>
+                        <span className="pficon pficon-delete" />
+                    </button>
+                    <button className="pf-c-button pf-m-secondary"
                             disabled={isRunning}
                             data-container-id={container.Id}
                             data-toggle="modal" data-target="#container-commit-dialog">
@@ -620,9 +622,9 @@ export class ImageList extends React.Component {
         if (this.props.client.waiting[image.Id]) {
             element = <div className="spinner" />;
         } else {
-            element = <button className="btn btn-default btn-control-ct fa fa-play"
+            element = <button className="pf-c-button pf-m-secondary play-button btn-sm"
                 onClick={ this.showRunImageDialog }
-                data-image={image.Id} />;
+                data-image={image.Id}><span className="fa fa-play" /></button>;
         }
 
         var columns = [
@@ -656,8 +658,10 @@ export class ImageList extends React.Component {
         }
 
         var actions = (
-            <button className="btn btn-danger btn-delete pficon pficon-delete"
-                    onClick={ this.deleteImage.bind(this, image) } />
+            <button className="pf-c-button pf-m-danger btn-delete"
+                    onClick={ this.deleteImage.bind(this, image) }>
+                <span className="pficon pficon-delete" />
+            </button>
         );
 
         return <Listing.ListingRow key={image.Id}

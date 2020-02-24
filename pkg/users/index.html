@@ -42,14 +42,14 @@
           <p id="error-popup-message"></p>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-primary" data-dismiss="modal" translate>Close</button>
+          <button class="pf-c-button pf-m-primary" data-dismiss="modal" translate>Close</button>
         </div>
       </div>
     </div>
   </div>
 
   <div id="accounts" class="container-fluid" hidden>
-    <button class="btn btn-primary accounts-privileged" id="accounts-create" translate="yes" data-container="body" data-placement="right">Create New Account</button>
+    <button class="pf-c-button pf-m-primary accounts-privileged" id="accounts-create" translate="yes" data-container="body" data-placement="right">Create New Account</button>
     <div id="accounts-list">
     </div>
   </div>
@@ -75,8 +75,8 @@
     <div class="panel panel-default account-details" id="account-details">
       <div class="panel-heading">
         <div class="pull-right">
-          <button translate="yes" class="btn btn-default accounts-privileged" id="account-logout">Terminate Session</button>
-          <button translate="yes" class="btn btn-danger accounts-privileged" data-placement="left" id="account-delete">Delete</button>
+          <button translate="yes" class="pf-c-button pf-m-secondary accounts-privileged" id="account-logout">Terminate Session</button>
+          <button translate="yes" class="pf-c-button pf-m-danger accounts-privileged" data-placement="left" id="account-delete">Delete</button>
         </div>
         <span id="account-title"></span>
       </div>
@@ -118,8 +118,8 @@
             <th scrope="row"><label for="account-set-password" translate="yes">Password</label></th>
             <td>
               <div class="account-column-one">
-                <button class="btn btn-default accounts-self-privileged" translate="yes" id="account-set-password" data-container="body">Set Password</button>
-                <button class="btn btn-default accounts-privileged" translate="yes"
+                <button class="pf-c-button pf-m-secondary accounts-self-privileged" translate="yes" id="account-set-password" data-container="body">Set Password</button>
+                <button class="pf-c-button pf-m-secondary accounts-privileged" translate="yes"
                     id="password-reset-button" data-toggle="modal" data-target="#password-reset"
                     data-container="body">Force Change</button>
               </div>
@@ -139,10 +139,12 @@
                   data-target="#add-authorized-key-dialog"
                   data-original-title="Add Public Key"
                   data-placement="left"
-                  class="btn btn-primary accounts-self-privileged fa fa-plus"
+                  class="pf-c-button pf-m-primary accounts-self-privileged"
                   id="authorized-key-add"
                   title=""
                   type="button">
+
+              <span class="fa fa-plus" />
           </button>
         </div>
         <span translate="yes">Authorized Public SSH Keys</span>
@@ -195,8 +197,8 @@
           </form>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-default" data-dismiss="modal" translate>Cancel</button>
-          <button class="btn btn-primary" id="accounts-create-create" translate>Create</button>
+          <button class="pf-c-button pf-m-secondary" data-dismiss="modal" translate>Cancel</button>
+          <button class="pf-c-button pf-m-primary" id="accounts-create-create" translate>Create</button>
         </div>
       </div>
     </div>
@@ -234,8 +236,8 @@
           </form>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-default" translate="yes" data-dismiss="modal">Cancel</button>
-          <button class="btn btn-primary" id="account-set-password-apply" translate>Set</button>
+          <button class="pf-c-button pf-m-secondary" translate="yes" data-dismiss="modal">Cancel</button>
+          <button class="pf-c-button pf-m-primary" id="account-set-password-apply" translate>Set</button>
         </div>
       </div>
     </div>
@@ -273,8 +275,8 @@
           </form>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-default" data-dismiss="modal" translate>Cancel</button>
-          <button class="btn btn-primary" translate>Change</button>
+          <button class="pf-c-button pf-m-secondary" data-dismiss="modal" translate>Cancel</button>
+          <button class="pf-c-button pf-m-primary" translate>Change</button>
         </div>
       </div>
     </div>
@@ -312,8 +314,8 @@
           </form>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-default" data-dismiss="modal" translate>Cancel</button>
-          <button class="btn btn-primary" translate>Change</button>
+          <button class="pf-c-button pf-m-secondary" data-dismiss="modal" translate>Cancel</button>
+          <button class="pf-c-button pf-m-primary" translate>Change</button>
         </div>
       </div>
     </div>
@@ -329,8 +331,8 @@
           <p></p>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-default" translate="yes" data-dismiss="modal">Cancel</button>
-          <button class="btn btn-danger btn-primary" translate>Reset</button>
+          <button class="pf-c-button pf-m-secondary" translate="yes" data-dismiss="modal">Cancel</button>
+          <button class="pf-c-button pf-m-danger pf-m-primary" translate>Reset</button>
         </div>
       </div>
     </div>
@@ -353,8 +355,8 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-default" translate="yes" data-dismiss="modal">Cancel</button>
-          <button class="btn btn-danger" id="account-confirm-delete-apply" translate>Delete</button>
+          <button class="pf-c-button pf-m-secondary" translate="yes" data-dismiss="modal">Cancel</button>
+          <button class="pf-c-button pf-m-danger" id="account-confirm-delete-apply" translate>Delete</button>
         </div>
       </div>
     </div>
@@ -377,7 +379,11 @@
         <span translate="yes">Invalid key</span>
         {{/valid}}
       </div>
-      <div class="action"><button data-raw="{{raw}}" class="btn btn-default btn-control-ct accounts-self-privileged account-remove-key fa fa-minus"/></div>
+      <div class="action">
+          <button data-raw="{{raw}}" class="pf-c-button pf-m-secondary accounts-self-privileged account-remove-key">
+              <span class="fa fa-minus" />
+          </button>
+      </div>
     </div>
     {{/keys}}
     {{^keys}}
@@ -410,8 +416,8 @@
               class="form-control" translate="placeholder"></textarea>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-default" translate="yes" id="cancel-authorized-key" data-dismiss="modal">Cancel</button>
-          <button class="btn btn-primary" translate="yes" id="add-authorized-key">Add key</button>
+          <button class="pf-c-button pf-m-secondary" translate="yes" id="cancel-authorized-key" data-dismiss="modal">Cancel</button>
+          <button class="pf-c-button pf-m-primary" translate="yes" id="add-authorized-key">Add key</button>
         </div>
       </div>
     </div>

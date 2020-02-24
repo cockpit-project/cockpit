@@ -1,6 +1,7 @@
 import $ from "jquery";
 import * as plot from "plot.js";
 
+import "../../node_modules/@patternfly/patternfly/components/Button/button.css";
 import "plot.css";
 
 $(function () {

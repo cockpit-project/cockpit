@@ -1,4 +1,6 @@
 @import "../../node_modules/@patternfly/react-styles/css/components/Alert/alert.css";
+@import "../../node_modules/@patternfly/patternfly/components/Button/button.css";
+
 body {
     background: var(--pf-global--BackgroundColor--light-300);
 }
@@ -41,11 +43,11 @@ body {
     padding: 4px;
 }
 
-.network-ip-settings-row .btn-default {
+.network-ip-settings-row .pf-m-secondary {
     margin-right: 5px;
 }
 
-.network-ip-settings-row tr td .btn-default {
+.network-ip-settings-row tr td .pf-m-secondary {
     margin-right: 4px;
 }
 
@@ -105,10 +107,6 @@ ul.add-button {
 
 span.inverted-switchbox {
     margin-right: 10px;
-}
-
-.network-ip-settings-row button {
-    width: 2em;
 }
 
 .network-ip-settings-row td {

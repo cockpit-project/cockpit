@@ -19,7 +19,8 @@
 
 import cockpit from 'cockpit';
 import React from 'react';
-import { Button, Modal, OverlayTrigger, Tooltip } from 'patternfly-react';
+import { Modal, OverlayTrigger, Tooltip } from 'patternfly-react';
+import { Button } from '@patternfly/react-core';
 
 import { vmId } from '../helpers.js';
 import { deleteVm } from '../actions/provider-actions.js';
@@ -141,7 +142,7 @@ export class DeleteDialog extends React.Component {
         const id = vmId(this.props.vm.name);
 
         let deleteButton = (
-            <Button id={`${id}-delete`} bsStyle='danger' onClick={this.open}>
+            <Button id={`${id}-delete`} variant='danger' onClick={this.open}>
                 {_("Delete")}
             </Button>
         );
@@ -154,9 +155,9 @@ export class DeleteDialog extends React.Component {
                     </Tooltip> } placement='top'>
                     <span>
                         <Button id={`${id}-delete`}
-                            bsStyle='danger'
+                            variant='danger'
                             style={{ pointerEvents: 'none' }}
-                            disabled>
+                            isDisabled>
                             {_("Delete")}
                         </Button>
                     </span>
@@ -177,10 +178,10 @@ export class DeleteDialog extends React.Component {
                     </Modal.Body>
                     <Modal.Footer>
                         {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
-                        <Button bsStyle='default' className='btn-cancel' onClick={this.close}>
+                        <Button variant='secondary' className='btn-cancel' onClick={this.close}>
                             {_("Cancel")}
                         </Button>
-                        <Button bsStyle='danger' onClick={this.delete}>
+                        <Button variant='danger' onClick={this.delete}>
                             {_("Delete")}
                         </Button>
                     </Modal.Footer>

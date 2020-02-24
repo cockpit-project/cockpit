@@ -214,7 +214,7 @@ class DriveBox extends React.Component {
                     { drive_list }
                 </div>
                 <div className="drives-panel-footer">
-                    <button className="btn btn-primary"
+                    <button className="pf-c-button pf-m-primary"
                             disabled={ !button_enabled }
                             onClick={ self.onButtonClicked }>{_("Add Storage")}</button>
                 </div>

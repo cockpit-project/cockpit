@@ -117,7 +117,11 @@ class TestSelinux(MachineCase):
 
         # now expand again so we can dismiss the alert
         b.click(toggle_selector)
-        b.wait_present(row_selector + " button.pficon-delete")
+
+        if self.machine.image == "rhel-8-2-distropkg":
+            b.wait_present(row_selector + " button.pficon-delete")
+        else:
+            b.wait_present(row_selector + " #selinux-alert-dismiss")
 
         # HACK: we need updated test images for delete to work
         # dismiss the alert
@@ -146,7 +150,7 @@ class TestSelinux(MachineCase):
             b.wait_in_text(panel_selector, "you can run restorecon")
 
             # and it can be applied
-            btn_sel = "div.list-group-item:contains('you can run restorecon') button.btn-default"
+            btn_sel = "div.list-group-item:contains('you can run restorecon') button{}".format(self.default_btn_class)
             b.click(btn_sel)
 
             # the fix should be applied
@@ -159,7 +163,7 @@ class TestSelinux(MachineCase):
             print("====================")
             raise
 
-        b.click(row_selector + " button.pficon-delete")
+        b.click(row_selector + " button{}".format(self.danger_btn_class))
         b.wait_not_present(row_selector)
 
         b.grant_permissions("clipboardRead", "clipboardWrite")

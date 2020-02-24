@@ -164,7 +164,7 @@ export class DialogFooter extends React.Component {
             cancel_style = this.props.cancel_style;
         else
             cancel_style = "cancel";
-        cancel_style = "btn btn-default " + cancel_style;
+        cancel_style = "pf-c-button pf-m-secondary " + cancel_style;
 
         // If an action is in progress, show the spinner with its message and disable all actions.
         // Cancel is only enabled when the action promise has a cancel method, or we get one
@@ -195,11 +195,11 @@ export class DialogFooter extends React.Component {
             else
                 caption = _("Ok");
 
-            var button_style = "btn-default";
-            var button_style_mapping = { primary: 'btn-primary', danger: 'btn-danger' };
+            var button_style = "pf-m-default";
+            var button_style_mapping = { primary: 'pf-m-primary', danger: 'pf-m-danger' };
             if ('style' in action && action.style in button_style_mapping)
                 button_style = button_style_mapping[action.style];
-            button_style = "btn " + button_style + " apply";
+            button_style = "pf-c-button " + button_style + " apply";
             var action_disabled = actions_disabled || ('disabled' in action && action.disabled);
             return (<button
                 key={ caption }

@@ -24,6 +24,7 @@ from testlib import *
 from hacklib import *
 
 
+
 class TestShutdownRestart(MachineCase):
     provision = {
         "machine1": {"address": "10.111.113.1/20"},
@@ -73,10 +74,10 @@ class TestShutdownRestart(MachineCase):
         # shutdown button should be enabled and working
         b.click("#restart-button")
         b.wait_popup("shutdown-dialog")
-        b.wait_in_text("#shutdown-dialog .btn-danger", 'Restart')
+        b.wait_in_text("#shutdown-dialog button{0}".format(self.danger_btn_class), 'Restart')
         b.click("#shutdown-dialog .dropdown button")
         b.click("a:contains('No Delay')")
-        b.click("#shutdown-dialog .btn-danger")
+        b.click("#shutdown-dialog button{0}".format(self.danger_btn_class))
         b.switch_to_top()
 
         b.wait_in_text(".curtains-ct h1", "Disconnected")
@@ -97,10 +98,10 @@ class TestShutdownRestart(MachineCase):
         # Reboot
         b.click("#restart-button")
         b.wait_popup("shutdown-dialog")
-        b.wait_in_text("#shutdown-dialog .btn-danger", 'Restart')
+        b.wait_in_text("#shutdown-dialog button{0}".format(self.danger_btn_class), 'Restart')
         b.click("#shutdown-dialog .dropdown button")
         b.click("a:contains('No Delay')")
-        b.click("#shutdown-dialog .btn-danger")
+        b.click("#shutdown-dialog button{0}".format(self.danger_btn_class))
         b.switch_to_top()
 
         b.wait_in_text(".curtains-ct h1", "Disconnected")
@@ -125,10 +126,10 @@ class TestShutdownRestart(MachineCase):
         b2.wait_visible("#machine-troubleshoot")
         b2.click('#machine-troubleshoot')
         b2.wait_popup('troubleshoot-dialog')
-        b2.wait_text('#troubleshoot-dialog .btn-primary', "Add")
-        b2.click('#troubleshoot-dialog .btn-primary')
+        b2.wait_text('#troubleshoot-dialog {}'.format(self.primary_btn_class), "Add")
+        b2.click('#troubleshoot-dialog {}'.format(self.primary_btn_class))
         b2.wait_in_text('#troubleshoot-dialog', "Fingerprint")
-        b2.click('#troubleshoot-dialog .btn-primary')
+        b2.click('#troubleshoot-dialog {}'.format(self.primary_btn_class))
         b2.wait_popdown('troubleshoot-dialog')
         b2.enter_page("/system", host="10.111.113.1")
         b2.wait_text("#system_information_hostname_text", "machine1")
@@ -136,10 +137,10 @@ class TestShutdownRestart(MachineCase):
         # Check auto reconnect on restart
         b2.click("#restart-button")
         b2.wait_popup("shutdown-dialog")
-        b2.wait_in_text("#shutdown-dialog .btn-danger", 'Restart')
+        b2.wait_in_text("#shutdown-dialog button{0}".format(self.danger_btn_class), 'Restart')
         b2.click("#shutdown-dialog .dropdown button")
         b2.click("a:contains('No Delay')")
-        b2.click("#shutdown-dialog .btn-danger")
+        b2.click("#shutdown-dialog button{0}".format(self.danger_btn_class))
         b2.switch_to_top()
 
         b2.wait_visible(".curtains-ct")
@@ -162,12 +163,12 @@ class TestShutdownRestart(MachineCase):
         b.wait_not_val("#shutdown-dialog input.shutdown-hours", "")
         old = b.val("#shutdown-dialog input.shutdown-hours")
         b.set_val("#shutdown-dialog input.shutdown-hours", "blah")
-        b.click("#shutdown-dialog .btn-danger")
+        b.click("#shutdown-dialog button{0}".format(self.danger_btn_class))
         b.wait_text("#shutdown-dialog .dialog-error", "Invalid time format")
 
         # Now set a correct time and power off
         b.set_val("#shutdown-dialog input.shutdown-hours", old)
-        b.click("#shutdown-dialog .btn-danger")
+        b.click("#shutdown-dialog button{0}".format(self.danger_btn_class))
         b.switch_to_top()
 
         # we don't need to wait for the dialog to close here, just the disconnect

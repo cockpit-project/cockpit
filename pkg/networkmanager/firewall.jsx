@@ -21,13 +21,12 @@ import cockpit from "cockpit";
 import React from "react";
 import ReactDOM from "react-dom";
 import {
-    Button,
     ListView,
     Modal,
     OverlayTrigger,
     Tooltip
 } from "patternfly-react";
-import { Alert } from '@patternfly/react-core';
+import { Alert, Button } from '@patternfly/react-core';
 
 import firewall from "./firewall-client.js";
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
@@ -76,12 +75,12 @@ function ServiceRow(props) {
             <OverlayTrigger className="pull-right" placement="top"
                             overlay={ <Tooltip id="tip-auth">{ _("You are not authorized to modify the firewall.") }</Tooltip> }>
                 <span>
-                    <button key={props.service.id + "-delete-button"} className="btn btn-danger pficon pficon-delete" aria-label={cockpit.format(_("Not authorized to remove service $0"), props.service.id)} style={{ pointerEvents: 'none' }} disabled />
+                    <button key={props.service.id + "-delete-button"} className="pf-c-button pf-m-danger" aria-label={cockpit.format(_("Not authorized to remove service $0"), props.service.id)} style={{ pointerEvents: 'none' }} disabled><span className="pficon pficon-delete" /></button>
                 </span>
             </OverlayTrigger>
         );
     } else {
-        deleteButton = <button key={props.service.id + "-delete-button"} className="btn btn-danger pficon pficon-delete" onClick={onRemoveService} aria-label={cockpit.format(_("Remove service $0"), props.service.id)} />;
+        deleteButton = <button key={props.service.id + "-delete-button"} className="pf-c-button pf-m-danger" onClick={onRemoveService} aria-label={cockpit.format(_("Remove service $0"), props.service.id)}><span className="pficon pficon-delete" /></button>;
     }
 
     var columns = [
@@ -131,11 +130,11 @@ function ZoneSection(props) {
         deleteButton = (
             <OverlayTrigger placement="top"
                             overlay={ <Tooltip id="tip-auth">{ _("You are not authorized to modify the firewall.") }</Tooltip> }>
-                <button className="btn btn-danger pficon pficon-delete" aria-label={cockpit.format(_("Not authorized to remove zone $0"), props.zone.id)} disabled />
+                <Button variant="danger" aria-label={cockpit.format(_("Not authorized to remove zone $0"), props.zone.id)} isDisabled><span className="pficon pficon-delete" /></Button>
             </OverlayTrigger>
         );
     } else {
-        deleteButton = <button className="btn btn-danger pficon pficon-delete" onClick={onRemoveZone} aria-label={cockpit.format(_("Remove zone $0"), props.zone.id)} />;
+        deleteButton = <Button variant="danger" onClick={onRemoveZone} aria-label={cockpit.format(_("Remove zone $0"), props.zone.id)}><span className="pficon pficon-delete" /></Button>;
     }
 
     let addServiceAction;
@@ -143,12 +142,12 @@ function ZoneSection(props) {
         addServiceAction = (
             <OverlayTrigger placement="top"
                                 overlay={ <Tooltip id="tip-auth">{ _("You are not authorized to modify the firewall.") }</Tooltip> }>
-                <Button bsStyle="primary" className="pull-right add-services-button" aria-label={cockpit.format(_("Not authorized to add services to zone $0"), props.zone.id)} disabled> {_("Add Services")} </Button>
+                <Button variant="primary" className="pull-right add-services-button" aria-label={cockpit.format(_("Not authorized to add services to zone $0"), props.zone.id)} isDisabled> {_("Add Services")} </Button>
             </OverlayTrigger>
         );
     } else {
         addServiceAction = (
-            <Button bsStyle="primary" onClick={() => props.openServicesDialog(props.zone.id, props.zone.name)} className="add-services-button" aria-label={cockpit.format(_("Add services to zone $0"), props.zone.id)}>
+            <Button variant="primary" onClick={() => props.openServicesDialog(props.zone.id, props.zone.name)} className="add-services-button" aria-label={cockpit.format(_("Add services to zone $0"), props.zone.id)}>
                 {_("Add Services")}
             </Button>
         );
@@ -585,10 +584,10 @@ class AddServicesModal extends React.Component {
                             isInline
                             title={_("Adding custom ports will reload firewalld. A reload will result in the loss of any runtime-only configuration!")} />
                     }
-                    <Button bsStyle='default' className='btn-cancel' onClick={this.props.close}>
+                    <Button variant='secondary' className='btn-cancel' onClick={this.props.close}>
                         {_("Cancel")}
                     </Button>
-                    <Button bsStyle='primary' onClick={this.save} aria-label={titleText}>
+                    <Button variant='primary' onClick={this.save} aria-label={titleText}>
                         {addText}
                     </Button>
                 </Modal.Footer>
@@ -737,10 +736,10 @@ class ActivateZoneModal extends React.Component {
                         this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />
                     }
 
-                    <Button bsStyle="default" className="btn-cancel" onClick={this.props.close}>
+                    <Button variant="secondary" className="btn-cancel" onClick={this.props.close}>
                         { _("Cancel") }
                     </Button>
-                    <Button bsStyle="primary" onClick={this.save} disabled={this.state.zone === null ||
+                    <Button variant="primary" onClick={this.save} isDisabled={this.state.zone === null ||
                                                                             (this.state.interfaces.size === 0 && this.state.ipRange === "ip-entire-subnet") ||
                                                                             (this.state.ipRange === "ip-range" && !this.state.ipRangeValue)}>
                         { _("Add zone") }
@@ -762,10 +761,10 @@ function DeleteConfirmationModal(props) {
                 <div>{props.body}</div>
             </Modal.Body>
             <Modal.Footer>
-                <Button bsStyle="default" className="btn-cancel" onClick={props.onCancel}>
+                <Button variant="secondary" className="btn-cancel" onClick={props.onCancel}>
                     { _("Cancel") }
                 </Button>
-                <Button bsStyle="danger" onClick={props.onDelete} aria-label={cockpit.format(_("Confirm removal of $0"), props.target)}>
+                <Button variant="danger" onClick={props.onDelete} aria-label={cockpit.format(_("Confirm removal of $0"), props.target)}>
                     { _("Delete") }
                 </Button>
             </Modal.Footer>
@@ -896,12 +895,12 @@ export class Firewall extends React.Component {
             addZoneAction = (
                 <OverlayTrigger className="pull-right" placement="top"
                                 overlay={ <Tooltip id="tip-auth">{ _("You are not authorized to modify the firewall.") }</Tooltip> }>
-                    <Button bsStyle="primary" className="pull-right" id="add-zone-button" aria-label={_("Not authorized to add a new zone")} disabled> {_("Add Zone")} </Button>
+                    <Button variant="primary" className="pull-right" id="add-zone-button" aria-label={_("Not authorized to add a new zone")} isDisabled> {_("Add Zone")} </Button>
                 </OverlayTrigger>
             );
         } else {
             addZoneAction = (
-                <Button bsStyle="primary" onClick={this.openAddZoneDialog} className="pull-right" id="add-zone-button" aria-label={_("Add a new zone")}>
+                <Button variant="primary" onClick={this.openAddZoneDialog} className="pull-right" id="add-zone-button" aria-label={_("Add a new zone")}>
                     {_("Add Zone")}
                 </Button>
             );

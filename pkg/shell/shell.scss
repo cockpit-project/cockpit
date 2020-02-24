@@ -24,6 +24,7 @@
 @import "variables";
 @import "switcher.scss";
 @import "active-pages.scss";
+@import "../../node_modules/@patternfly/patternfly/components/Button/button.scss";
 
 /* Hacks on top for now */
 
@@ -73,27 +74,19 @@ html.index-page body {
 }
 
 #dashboard-hosts .list-group button {
-    height: 28px;
-    width: 28px;
-    padding: 8px;
+    margin-right: 0.3rem;
+    margin-left: 0.3rem;
     float: right;
-    margin-left: 10px;
-}
-
-#dashboard-hosts button.btn.pficon {
-    padding-top: 5px;
-    font-size: 14px;
 }
 
 /* Per server buttons not visible by default */
 #dashboard-hosts .list-group button {
-    margin-top: 2px;
     display: none;
 }
 
 /* When panel is editable, then buttons are visible */
 #dashboard-hosts.editable .list-group button {
-    display: block;
+    display: inline-block;
 }
 
 #dashboard-hosts.editable .list-group-item:hover {
@@ -124,14 +117,10 @@ html.index-page body {
     border-style: none;
 }
 
-#dashboard-hosts .list-group-item span {
-    margin-right: 76px;
-    display: block;
+#dashboard-hosts .list-group-item > span {
     padding-top: 6px;
     padding-bottom: 4px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    display: inline-block;
 }
 
 #dashboard-hosts .list-group-item div.os {
@@ -196,15 +185,15 @@ html.index-page body {
 }
 
 /* Ensure zoom button is proper width */
-.zoom-controls > .btn {
+.zoom-controls > .pf-c-button {
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
 /* Make the custom dropdown button properly stretchy */
-.zoom-controls > .dropdown > .btn,
-.standard-zoom-controls > .dropdown > .btn {
+.zoom-controls > .dropdown > .pf-c-button,
+.standard-zoom-controls > .dropdown > .pf-c-button {
     display: inline-flex;
     align-items: center;
     justify-content: space-between;
@@ -324,31 +313,31 @@ html.index-page body {
     margin: 5px 0;
 }
 
-.navbar-primary .btn-group .btn {
+.navbar-primary .btn-group .pf-c-button {
     background-image:  linear-gradient(to bottom, #151515 0%, #030303 100%);
     padding: 5px 20px;
     color: var(--color-button-text);
     border-color: var(--color-gray-12);
 }
 
-.navbar-primary .btn-group .btn:hover {
+.navbar-primary .btn-group .pf-c-button:hover {
     background-image: linear-gradient(to bottom, #2f2f2f 0%, #232323 100%);
 }
 
-.navbar-primary .btn-group .btn.active {
+.navbar-primary .btn-group .pf-c-button.active {
     background-image: linear-gradient(to bottom, #2f2fFF 0%, #2323FF 100%);
 }
 
 
-.navbar-primary .btn-group > .btn:first-child:not(:last-child):not(.dropdown-toggle) {
+.navbar-primary .btn-group > .pf-c-button:first-child:not(:last-child):not(.dropdown-toggle) {
     border-radius: 5px 0 0 5px;
 }
 
-.navbar-primary .btn-group > .btn:last-child:not(:first-child):not(.dropdown-toggle) {
+.navbar-primary .btn-group > .pf-c-button:last-child:not(:first-child):not(.dropdown-toggle) {
     border-radius: 0 5px 5px 0;
 }
 
-.navbar-primary .btn-group > .btn:only-child:not(.dropdown-toggle) {
+.navbar-primary .btn-group > .pf-c-button:only-child:not(.dropdown-toggle) {
     border-radius: 5px 5px 5px 5px;
 }
 

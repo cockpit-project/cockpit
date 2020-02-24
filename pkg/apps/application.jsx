@@ -106,10 +106,10 @@ export class Application extends React.Component {
                 button = <CancelButton data={self.state.progress} />;
             } else if (comp.installed) {
                 progress_or_launch = <button role="link" className="link-button" onClick={left_click(() => launch(comp))}>{_("Go to Application")}</button>;
-                button = <button className="btn btn-danger" onClick={left_click(remove)}>{_("Remove")}</button>;
+                button = <button className="pf-c-button pf-m-danger" onClick={left_click(remove)}>{_("Remove")}</button>;
             } else {
                 progress_or_launch = null;
-                button = <button className="btn btn-default" onClick={left_click(install)}>{_("Install")}</button>;
+                button = <button className="pf-c-button pf-m-secondary" onClick={left_click(install)}>{_("Install")}</button>;
             }
 
             return (

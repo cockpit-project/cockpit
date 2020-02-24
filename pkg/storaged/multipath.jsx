@@ -66,7 +66,7 @@ export class MultipathAlert extends React.Component {
                 <div className="container-fluid page-ct">
                     <Alert isInline variant='danger' title={
                         <>
-                            <button onClick={activate} className="btn btn-default pull-right">{_("Start Multipath")}</button>
+                            <button onClick={activate} className="pf-c-button pf-m-secondary pull-right">{_("Start Multipath")}</button>
                             <span className="alert-message">
                                 {_("There are devices with multiple paths on the system, but the multipath service is not running.")}
                             </span>

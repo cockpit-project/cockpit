@@ -20,7 +20,7 @@ import "form-layout.scss";
 import React from 'react';
 import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
-import { Button } from 'patternfly-react';
+import { Button } from '@patternfly/react-core';
 
 import { convertToUnit, diskPropertyChanged, toReadableNumber, units } from "../helpers.js";
 import { AddDiskModalBody } from './diskAdd.jsx';
@@ -89,7 +89,7 @@ class VmDisksTab extends React.Component {
         const { idPrefix, vm, vms, disks, renderCapacity, dispatch, provider, onAddErrorNotification, storagePools } = this.props;
         const actions = (
             <>
-                <Button id={`${idPrefix}-adddisk`} bsStyle='primary' onClick={this.open} className='pull-right'>
+                <Button id={`${idPrefix}-adddisk`} variant='primary' onClick={this.open} className='pull-right'>
                     {_("Add Disk")}
                 </Button>
                 {this.state.showModal && <AddDiskModalBody close={this.close} dispatch={dispatch} idPrefix={idPrefix} vm={vm} vms={vms} storagePools={storagePools.filter(pool => pool && pool.active)} provider={provider} />}

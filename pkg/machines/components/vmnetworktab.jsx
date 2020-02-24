@@ -18,7 +18,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button } from 'patternfly-react';
+import { Button } from '@patternfly/react-core';
 
 import cockpit from 'cockpit';
 import { changeNetworkState, getVm } from "../actions/provider-actions.js";
@@ -232,7 +232,7 @@ class VmNetworkTab extends React.Component {
 
                     return (
                         <div className='machines-listing-actions'>
-                            <button className='btn btn-default' onClick={onChangeState(network)} title={`${isUp ? _("Unplug") : _("Plug")}`}>
+                            <button className='pf-c-button pf-m-secondary' onClick={onChangeState(network)} title={`${isUp ? _("Unplug") : _("Plug")}`}>
                                 {isUp ? 'Unplug' : 'Plug'}
                             </button>
                             {editNICAction(config.provider.name)}
@@ -268,7 +268,7 @@ class VmNetworkTab extends React.Component {
             <div className="machines-network-list">
                 {(config.provider.name === "LibvirtDBus") &&
                 <>
-                    <Button id={`${id}-add-iface-button`} bsStyle='default' className='pull-right' onClick={this.open}>
+                    <Button id={`${id}-add-iface-button`} variant='secondary' className='pull-right' onClick={this.open}>
                         {_("Add Network Interface")}
                     </Button>
 

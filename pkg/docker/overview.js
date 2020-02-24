@@ -190,7 +190,7 @@ export function init_overview (client) {
                 $(commit).find(".container-command")
                         .attr('value', command);
             })
-            .find(".btn-primary")
+            .find(".pf-m-primary")
             .on("click", function() {
                 var location = cockpit.location;
                 var run = {

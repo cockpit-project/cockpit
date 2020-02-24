@@ -421,7 +421,10 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         # shutdown button should be enabled and working
         b.click("#restart-button[data-stable=yes]")
         b.wait_popup("shutdown-dialog")
-        b.wait_in_text("#shutdown-dialog .btn-danger", 'Restart')
+        if m.image == "rhel-8-2-distropkg":
+            b.wait_in_text("#shutdown-dialog .btn-danger", 'Restart')
+        else:
+            b.wait_in_text("#shutdown-dialog .pf-m-danger", 'Restart')
         b.click('#shutdown-dialog button[data-dismiss="modal"]')
         b.wait_popdown("shutdown-dialog")
 

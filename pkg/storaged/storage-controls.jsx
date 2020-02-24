@@ -90,11 +90,11 @@ function checked(callback) {
 
 export class StorageButton extends React.Component {
     render() {
-        var classes = "btn";
+        var classes = "pf-c-button";
         if (this.props.kind)
-            classes += " btn-" + this.props.kind;
+            classes += " pf-m-" + this.props.kind;
         else
-            classes += " btn-default";
+            classes += " pf-m-secondary";
 
         return (
             <StorageControl excuse={this.props.excuse}
@@ -204,7 +204,7 @@ export class StorageMultiAction extends React.Component {
         return (
             <StorageControl excuse={this.props.excuse}
                             content={(excuse) => {
-                                var btn_classes = "btn btn-default";
+                                var btn_classes = "pf-c-button pf-m-secondary";
                                 if (excuse)
                                     btn_classes += " disabled";
                                 return (
@@ -267,7 +267,7 @@ export class StorageBarMenu extends React.Component {
         const { children, label } = this.props;
 
         function toggle(excuse) {
-            const classes = "btn btn-primary" + (excuse ? " disabled" : "");
+            const classes = "pf-c-button pf-m-primary" + (excuse ? " disabled" : "");
             return (
                 <button className={classes} type="button" data-toggle="dropdown" aria-label={label}>
                     <span className="fa fa-bars" />

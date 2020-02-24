@@ -11,11 +11,11 @@ a {
     min-width: 26px;
 }
 
-.btn.disabled {
+.btn.disabled, .pf-c-button.disabled {
     pointer-events: auto;
 }
 
-.btn.disabled:hover {
+.btn.disabled:hover, .pf-c-button.disabled:hover {
   z-index: auto;
 }
 
@@ -113,7 +113,7 @@ a.disabled:hover {
 
 /*
  * Control buttons such as play and stop
- * Used with .btn .btn-default
+ * Used with .pf-c-button .pf-m-secondary
  */
 
 .btn-control-ct,
@@ -547,4 +547,18 @@ input[type=number] {
 .pf-c-dropdown__toggle-button {
   display: flex;
   align-items: center;
+}
+
+/* btn-lg, btn-sm don't exist in PF4 */
+.pf-c-button.btn-lg {
+    padding: .5rem 1rem;
+    font-size: 1.25rem;
+    line-height: 1.5;
+    border-radius: .3rem;
+}
+.pf-c-button.btn-sm {
+    padding: .25rem .5rem;
+    font-size: .875rem;
+    line-height: 1.5;
+    border-radius: .2rem;
 }

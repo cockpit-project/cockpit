@@ -53,7 +53,7 @@ class TestStorage(StorageCase):
         self.dialog_apply_with_retry()
 
     def raid_remove_disk(self, name):
-        self.browser.click('#detail-sidebar tr:contains("%s") button.btn-default' % name)
+        self.browser.click('#detail-sidebar tr:contains("%s") button.pf-m-secondary' % name)
 
     def raid_action(self, action):
         self.browser.click('.panel-heading:contains("RAID Device") button:contains(%s)' % action)

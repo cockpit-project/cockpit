@@ -45,11 +45,11 @@
         <span class="pficon pficon-error-circle-o"></span>
       </div>
       <h4 class="pf-c-alert__title"> <span translate="yes" >NetworkManager is not running.</span> <a href="#" class="alert-link">Troubleshoot…</a> <h4>
-      <button class="btn btn-default pull-right" type="submit" translate="yes">Start Service</button>
+      <button class="pf-c-button pf-m-secondary pull-right" type="submit" translate="yes">Start Service</button>
     </div>
 
     <div id="networking-nm-disabled" class="pf-c-alert pf-m-info pf-m-inline" aria-label="inline danger alert" hidden>
-      <button class="btn btn-default pull-right" type="submit" translate="yes">Enable Service</button>
+      <button class="pf-c-button pf-m-secondary pull-right" type="submit" translate="yes">Enable Service</button>
       <div class="pf-c-alert__icon">
         <span class="pficon pficon-info"></span>
       </div>
@@ -73,12 +73,16 @@
             <li role="presentation"><a tabindex="0" role="menuitem" data-range="604800" translate="yes">1 week</a></li>
           </ul>
         </div>
-        <button class="btn btn-default" data-action="zoom-out">
+        <button class="pf-c-button pf-m-secondary" data-action="zoom-out">
           <span class="glyphicon glyphicon-zoom-out"></span>
         </button>
         <div class="btn-group">
-          <button class="btn btn-default fa fa-angle-left" data-action="scroll-left"></button>
-          <button class="btn btn-default fa fa-angle-right" data-action="scroll-right"></button>
+          <button class="pf-c-button pf-m-secondary" data-action="scroll-left">
+              <span class="fa fa-angle-left" />
+          </button>
+          <button class="pf-c-button pf-m-secondary" data-action="scroll-right">
+              <span class="fa fa-angle-right" />
+          </button>
         </div>
       </div>
       <div class="col-sm-6">
@@ -113,10 +117,10 @@
         <div class="panel-heading">
           <h2 class="panel-title" translate="yes">Interfaces</h2>
           <div class="panel-actions">
-            <button translate="yes" id="networking-add-bond" class="btn btn-default network-privileged">Add Bond</button>
-            <button translate="yes" id="networking-add-team" class="btn btn-default network-privileged">Add Team</button>
-            <button translate="yes" id="networking-add-bridge" class="btn btn-default network-privileged">Add Bridge</button>
-            <button translate="yes" id="networking-add-vlan" class="btn btn-default network-privileged">Add VLAN</button>
+            <button translate="yes" id="networking-add-bond" class="pf-c-button pf-m-secondary network-privileged">Add Bond</button>
+            <button translate="yes" id="networking-add-team" class="pf-c-button pf-m-secondary network-privileged">Add Team</button>
+            <button translate="yes" id="networking-add-bridge" class="pf-c-button pf-m-secondary network-privileged">Add Bridge</button>
+            <button translate="yes" id="networking-add-vlan" class="pf-c-button pf-m-secondary network-privileged">Add VLAN</button>
           </div>
         </div>
         <table class="table table-hover">
@@ -409,12 +413,16 @@
             <li role="presentation"><a tabindex="0" role="menuitem" data-range="604800" translate="yes">1 week</a></li>
           </ul>
         </div>
-        <button class="btn btn-default" data-action="zoom-out">
+        <button class="pf-c-button pf-m-secondary" data-action="zoom-out">
           <span class="glyphicon glyphicon-zoom-out"></span>
         </button>
         <div class="btn-group">
-          <button class="btn btn-default fa fa-angle-left" data-action="scroll-left"></button>
-          <button class="btn btn-default fa fa-angle-right" data-action="scroll-right"></button>
+          <button class="pf-c-button pf-m-secondary" data-action="scroll-left">
+              <span class="fa fa-angle-left" />
+          </button>
+          <button class="pf-c-button pf-m-secondary" data-action="scroll-right">
+              <span class="fa fa-angle-right" />
+          </button>
         </div>
       </div>
       <div class="col-sm-6">
@@ -437,7 +445,7 @@
         <span id="network-interface-hw"></span>
         <span id="network-interface-mac"></span>
         <div class="panel-actions">
-          <button class="btn btn-danger network-privileged" id="network-interface-delete" translate="yes">Delete</button>
+          <button class="pf-c-button pf-m-danger network-privileged" id="network-interface-delete" translate="yes">Delete</button>
           <span id="network-interface-delete-switch">
           </span>
         </div>
@@ -484,8 +492,8 @@
             </div>
             <h4 class="pf-c-alert__title"></h4>
           </div>
-          <button class="btn btn-default" translate="yes" id="network-ip-settings-cancel">Cancel</button>
-          <button class="btn btn-primary" translate="yes" id="network-ip-settings-apply">Apply</button>
+          <button class="pf-c-button pf-m-secondary" translate="yes" id="network-ip-settings-cancel">Cancel</button>
+          <button class="pf-c-button pf-m-primary" translate="yes" id="network-ip-settings-apply">Apply</button>
         </div>
       </div>
     </div>
@@ -512,8 +520,8 @@
             </div>
             <h4 class="pf-c-alert__title"></h4>
           </div>
-          <button class="btn btn-default" translate="yes" id="network-bond-settings-cancel">Cancel</button>
-          <button class="btn btn-primary" translate="yes" id="network-bond-settings-apply">Apply</button>
+          <button class="pf-c-button pf-m-secondary" translate="yes" id="network-bond-settings-cancel">Cancel</button>
+          <button class="pf-c-button pf-m-primary" translate="yes" id="network-bond-settings-apply">Apply</button>
         </div>
       </div>
     </div>
@@ -539,8 +547,8 @@
             </div>
             <h4 class="pf-c-alert__title"></h4>
           </div>
-          <button class="btn btn-default" translate="yes" id="network-team-settings-cancel">Cancel</button>
-          <button class="btn btn-primary" translate="yes" id="network-team-settings-apply">Apply</button>
+          <button class="pf-c-button pf-m-secondary" translate="yes" id="network-team-settings-cancel">Cancel</button>
+          <button class="pf-c-button pf-m-primary" translate="yes" id="network-team-settings-apply">Apply</button>
         </div>
       </div>
     </div>
@@ -566,8 +574,8 @@
             </div>
             <h4 class="pf-c-alert__title"></h4>
           </div>
-          <button class="btn btn-default" translate="yes" id="network-teamport-settings-cancel">Cancel</button>
-          <button class="btn btn-primary" translate="yes" id="network-teamport-settings-apply">Apply</button>
+          <button class="pf-c-button pf-m-secondary" translate="yes" id="network-teamport-settings-cancel">Cancel</button>
+          <button class="pf-c-button pf-m-primary" translate="yes" id="network-teamport-settings-apply">Apply</button>
         </div>
       </div>
     </div>
@@ -593,8 +601,8 @@
               </div>
               <h4 class="pf-c-alert__title"></h4>
           </div>
-          <button class="btn btn-default" translate="yes" id="network-bridge-settings-cancel">Cancel</button>
-          <button class="btn btn-primary" translate="yes" id="network-bridge-settings-apply">Apply</button>
+          <button class="pf-c-button pf-m-secondary" translate="yes" id="network-bridge-settings-cancel">Cancel</button>
+          <button class="pf-c-button pf-m-primary" translate="yes" id="network-bridge-settings-apply">Apply</button>
         </div>
       </div>
     </div>
@@ -620,8 +628,8 @@
               </div>
               <h4 class="pf-c-alert__title"></h4>
           </div>
-          <button class="btn btn-default" translate="yes" id="network-bridgeport-settings-cancel">Cancel</button>
-          <button class="btn btn-primary" translate="yes" id="network-bridgeport-settings-apply">Apply</button>
+          <button class="pf-c-button pf-m-secondary" translate="yes" id="network-bridgeport-settings-cancel">Cancel</button>
+          <button class="pf-c-button pf-m-primary" translate="yes" id="network-bridgeport-settings-apply">Apply</button>
         </div>
       </div>
     </div>
@@ -647,8 +655,8 @@
               </div>
               <h4 class="pf-c-alert__title"></h4>
           </div>
-          <button class="btn btn-default" translate="yes" id="network-vlan-settings-cancel">Cancel</button>
-          <button class="btn btn-primary" translate="yes" id="network-vlan-settings-apply">Apply</button>
+          <button class="pf-c-button pf-m-secondary" translate="yes" id="network-vlan-settings-cancel">Cancel</button>
+          <button class="pf-c-button pf-m-primary" translate="yes" id="network-vlan-settings-apply">Apply</button>
         </div>
       </div>
     </div>
@@ -674,8 +682,8 @@
             </div>
             <h4 class="pf-c-alert__title"></h4>
           </div>
-          <button class="btn btn-default" translate="yes" id="network-mtu-settings-cancel">Cancel</button>
-          <button class="btn btn-primary" translate="yes" id="network-mtu-settings-apply">Apply</button>
+          <button class="pf-c-button pf-m-secondary" translate="yes" id="network-mtu-settings-cancel">Cancel</button>
+          <button class="pf-c-button pf-m-primary" translate="yes" id="network-mtu-settings-apply">Apply</button>
         </div>
       </div>
     </div>
@@ -701,8 +709,8 @@
             </div>
             <h4 class="pf-c-alert__title"></h4>
           </div>
-          <button class="btn btn-default" translate="yes" id="network-mac-settings-cancel">Cancel</button>
-          <button class="btn btn-primary" translate="yes" id="network-mac-settings-apply">Apply</button>
+          <button class="pf-c-button pf-m-secondary" translate="yes" id="network-mac-settings-cancel">Cancel</button>
+          <button class="pf-c-button pf-m-primary" translate="yes" id="network-mac-settings-apply">Apply</button>
         </div>
       </div>
     </div>
@@ -721,7 +729,7 @@
           <p id="error-popup-message"></p>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-primary" data-dismiss="modal" translate>Close</button>
+          <button class="pf-c-button pf-m-primary" data-dismiss="modal" translate>Close</button>
         </div>
       </div>
     </div>
@@ -741,8 +749,8 @@
           <div id="confirm-breaking-change-text"></div>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-danger"></button>
-          <button class="btn btn-primary" data-dismiss="modal" translate>Keep connection</button>
+          <button class="pf-c-button pf-m-danger"></button>
+          <button class="pf-c-button pf-m-primary" data-dismiss="modal" translate>Keep connection</button>
         </div>
       </div>
     </div>

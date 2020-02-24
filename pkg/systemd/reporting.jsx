@@ -414,7 +414,7 @@ function WorkflowRow(props) {
     if (props.problemState === ProblemState.REPORTING) {
         button = (
             <button key={"cancel_" + props.label}
-                    className="btn btn-danger"
+                    className="pf-c-button pf-m-danger"
                     onClick={props.onCancelButtonClick}>
                 {_("Cancel")}
             </button>
@@ -422,7 +422,7 @@ function WorkflowRow(props) {
     } else {
         button = (
             <button key={"report_" + props.label}
-                    className="btn btn-primary"
+                    className="pf-c-button pf-m-primary"
                     disabled={props.problemState !== ProblemState.REPORTABLE}
                     onClick={props.problemState === ProblemState.REPORTABLE ? props.onReportButtonClick : undefined}>
                 {_("Report")}

@@ -20,13 +20,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
 import {
-    Button,
     ButtonGroup,
     Icon,
     ListView,
     ListViewItem,
     Modal
 } from 'patternfly-react';
+import { Button } from '@patternfly/react-core';
 
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import {
@@ -151,8 +151,8 @@ const DeviceRow = ({ idPrefix, device, index, onToggle, upDisabled, downDisabled
     }
     }
 
-    const upArrow = <Button disabled={upDisabled} onClick={moveUp}><Icon id={`${idPrefix}-up`} type="fa" name="angle-up" /></Button>;
-    const downArrow = <Button disabled={downDisabled} onClick={moveDown}><Icon id={`${idPrefix}-down`} type="fa" name="angle-down" /></Button>;
+    const upArrow = <Button isDisabled={upDisabled} onClick={moveUp}><Icon id={`${idPrefix}-up`} type="fa" name="angle-up" /></Button>;
+    const downArrow = <Button isDisabled={downDisabled} onClick={moveDown}><Icon id={`${idPrefix}-down`} type="fa" name="angle-down" /></Button>;
 
     const actions = (
         <ButtonGroup>
@@ -323,10 +323,10 @@ export class BootOrderModal extends React.Component {
                 <Modal.Footer>
                     {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
                     {showFooterWarning()}
-                    <Button id={`${idPrefix}-cancel`} bsStyle='default' onClick={this.close}>
+                    <Button id={`${idPrefix}-cancel`} variant='secondary' onClick={this.close}>
                         {_("Cancel")}
                     </Button>
-                    <Button id={`${idPrefix}-save`} bsStyle='primary' onClick={this.save}>
+                    <Button id={`${idPrefix}-save`} variant='primary' onClick={this.save}>
                         {_("Save")}
                     </Button>
                 </Modal.Footer>

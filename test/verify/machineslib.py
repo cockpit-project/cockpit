@@ -452,6 +452,7 @@ class TestMachines(NetworkCase):
             print("Libvirt version does not support disk statistics")
             b.wait_present("#vm-{0}-disks-notification".format(name))
 
+    @nondestructive
     def testLibvirt(self):
         b = self.browser
         m = self.machine
@@ -513,6 +514,7 @@ class TestMachines(NetworkCase):
 
         # Make sure that unprivileged users can see the VM list when libvirtd is not running
         m.execute("systemctl stop libvirtd.service")
+        self.addCleanup(m.execute, "systemctl start libvirtd.service")
         m.execute("useradd nonadmin; echo nonadmin:foobar | chpasswd")
         self.login_and_go("/machines", user="nonadmin", authorized=False)
         b.wait_in_text("body", "Virtual Machines")

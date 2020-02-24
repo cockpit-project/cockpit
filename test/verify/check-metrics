@@ -256,7 +256,7 @@ class TestMetrics(MachineCase):
         self.assertLess(initial_usage, 80)
         # allocate an extra 300 MB; this may cause other stuff to get unmapped,
         # thus not exact addition, but usage should go up
-        mem_hog = m.spawn("MEMBLOB=$(yes | dd bs=1M count=300); touch /tmp/hogged; sleep infinity", "mem_hog.log")
+        mem_hog = m.spawn("MEMBLOB=$(yes | dd bs=1M count=300 iflag=fullblock); touch /tmp/hogged; sleep infinity", "mem_hog.log")
         m.execute("while [ ! -e /tmp/hogged ]; do sleep 1; done")
         # bars update every 5s
         time.sleep(8)

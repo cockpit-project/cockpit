@@ -664,7 +664,7 @@ class TestWsUpdate(NoSubManCase):
 
 @skipImage("Image uses OSTree", "fedora-coreos")
 @skipImage("No subscriptions", "debian-stable", "debian-testing", "fedora-31", "centos-8-stream",
-           "fedora-30", "fedora-testing", "ubuntu-1804", "ubuntu-stable")
+           "fedora-32", "fedora-30", "fedora-testing", "ubuntu-1804", "ubuntu-stable")
 @nondestructive
 class TestUpdatesSubscriptions(PackageCase):
     provision = {

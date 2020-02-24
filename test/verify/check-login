@@ -162,8 +162,11 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
             # login with user shell that prints some stdout/err noise
             # having stdout output in ~/.bashrc confuses docker, so don't run on Atomic
-            m.execute("echo 'echo noise-rc-out; echo noise-rc-err >&2' >> ~admin/.bashrc")
-            m.execute("echo 'echo noise-profile-out; echo noise-profile-err >&2' >> ~admin/.profile")
+            m.execute("set -e; cd ~admin; cp -a .bashrc .bashrc.bak; [ ! -e .profile ] || cp -a .profile .profile.bak; "
+                      "echo 'echo noise-rc-out; echo noise-rc-err >&2' >> .bashrc; "
+                      "echo 'echo noise-profile-out; echo noise-profile-err >&2' >> .profile")
+            self.addCleanup(m.execute, "set -e; cd ~admin; mv .bashrc.bak .bashrc; "
+                                       "if [ -e .profile.bak ]; then mv .profile.bak .profile; else rm .profile; fi")
             login("admin", "foobar")
             b.expect_load()
             b.wait_present("#content")

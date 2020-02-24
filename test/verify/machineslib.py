@@ -19,7 +19,6 @@ import functools
 import os
 import subprocess
 import time
-import unittest
 import xml.etree.ElementTree as ET
 
 import parent
@@ -1146,8 +1145,6 @@ class TestMachines(NetworkCase):
             m.execute("virsh undefine subVmTest1")
             b.wait_present("button#vm-subVmTest1-vcpus-count:disabled")
 
-    # HACK: broken with Chromium > 63, see https://github.com/cockpit-project/cockpit/pull/9229
-    @unittest.skip("Broken with current chromium, see PR #9229")
     def testExternalConsole(self):
         b = self.browser
 

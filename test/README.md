@@ -67,7 +67,6 @@ You can set these environment variables to configure the test suite:
                   "centos-8-stream"
                   "debian-stable"
                   "debian-testing"
-                  "fedora-30"
                   "fedora-31"
                   "fedora-coreos"
                   "fedora-testing"
@@ -78,7 +77,7 @@ You can set these environment variables to configure the test suite:
                   "rhel-atomic"
                   "ubuntu-1804"
                   "ubuntu-stable"
-               "fedora-30" is the default (bots/machine/machine_core/constants.py)
+               "fedora-31" is the default (bots/machine/machine_core/constants.py)
 
     TEST_DATA  Where to find and store test machine images.  The
                default is the same directory that this README file is in.

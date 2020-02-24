@@ -277,7 +277,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         m.execute("virsh attach-interface --persistent VmNotInstalled bridge virbr0")
 
         # Change the os boot firmware configuration
-        supports_firmware_config = m.image in ['fedora-31', 'fedora-testing', 'debian-testing', 'ubuntu-stable']
+        supports_firmware_config = m.image in ['fedora-31', 'fedora-testing', 'debian-testing', 'ubuntu-stable'] and m.execute("virsh --version") >= "5.2.0"
         if supports_firmware_config:
             b.wait_in_text("#vm-VmNotInstalled-firmware", "BIOS")
             b.click("#vm-VmNotInstalled-firmware")

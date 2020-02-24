@@ -106,6 +106,7 @@ class TestBastion(MachineCase):
         m.execute("chown admin /home/admin/.ssh")
 
         m.upload([PUB_AUTH_KEY], "/home/admin/.ssh/authorized_keys")
+        m.execute("chown admin:admin /home/admin/.ssh/authorized_keys && chmod 600 /home/admin/.ssh/authorized_keys")
 
         # works with authorized key
         b.set_val("#login-password-input", "fubar")

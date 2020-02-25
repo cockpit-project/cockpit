@@ -26,6 +26,8 @@ class TestJournal(MachineCase):
     def setUp(self):
         super().setUp()
         self.crash_fn = "__nanosleep"
+        if self.machine.image == "fedora-32":
+            self.crash_fn = "clock_nanosleep"
 
     def select_from_dropdown(self, browser, selector, value, click=True):
         button_text_selector = "{0} button span:nth-of-type(1)".format(selector)

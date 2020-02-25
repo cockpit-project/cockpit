@@ -19,6 +19,11 @@ class SosReportingTab(SeleniumTest):
 
     def test10SosReport(self):
         self.login()
+
+        self.machine.execute("sudo mv /etc/sos.conf /etc/sos.conf.bak")
+        self.addCleanup(self.machine.execute, "sudo mv /etc/sos.conf.bak /etc/sos.conf")
+        self.machine.execute(r"printf '[general]\nonly-plugins=release,date,host\n' | sudo tee /etc/sos.conf")
+
         self.click(self.wait_link('Diagnostic Report', cond=clickable))
         self.wait_frame("sosreport")
         self.wait_text("This tool will collect system configuration and diagnostic")
@@ -34,7 +39,7 @@ class SosReportingTab(SeleniumTest):
         # duration of report generation depends on the target system - as along as sosreport is active, we don't want to timeout
         # it is also important to call some selenium method there to ensure that connection to HUB will not be lost
 
-        @Retry(attempts=150, timeout=10, exceptions=(subprocess.CalledProcessError,),
+        @Retry(attempts=10, timeout=10, exceptions=(subprocess.CalledProcessError,),
                error=Exception('Timeout: sosreport did not finish'), inverse=True)
         def waitforsosreport():
             self.machine.execute("pgrep sosreport")

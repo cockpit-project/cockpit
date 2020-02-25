@@ -195,6 +195,7 @@ class TestRealms(MachineCase):
         m.execute("chown -R admin /home/admin")
 
         self.allow_authorize_journal_messages()
+        self.allow_journal_messages(".*No authentication agent found.*")
 
         # check respecting FreeIPA's/sssd's ssh known host keys; this requires the new
         # --privkey option of sss_ssh_knownhostproxy, thus only works on recent images

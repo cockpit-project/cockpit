@@ -616,6 +616,38 @@ function NetworkManagerModel() {
             };
         }
 
+        if (settings["802-11-wireless"]) {
+            result.wifi = {
+                ssid: get("802-11-wireless", "ssid", []),
+                mode: get("802-11-wireless", "mode"),
+                band: get("802-11-wireless", "band"),
+                channel: get("802-11-wireless", "channel", 0)
+            };
+        }
+
+        if (settings["802-11-wireless-security"]) {
+            result.wifi_security = {
+                key_mgmt: get("802-11-wireless-security", "key-mgmt"),
+                psk: get("802-11-wireless-security", "psk")
+            };
+        }
+
+        if (settings["802-1x"]) {
+            result.wifi_1x = {
+                eap: get("802-1x", "eap", []),
+                identity: get("802-1x", "identity"),
+                anonymous_identity: get("802-1x", "anonymous-identity"),
+                domain_suffix_match: get("802-1x", "domain-suffix-match"),
+                ca_cert: get("802-1x", "ca-cert"),
+                client_cert: get("802-1x", "client-cert"),
+                private_key: get("802-1x", "private-key"),
+                private_key_password: get("802-1x", "private-key-password"),
+                phase1_peapver: get("802-1x", "phase1-peapver"),
+                phase2_autheap: get("802-1x", "phase2-autheap", "none"),
+                password: get("802-1x", "password")
+            };
+        }
+
         if (settings.bond) {
             /* Options are documented as part of the Linux bonding driver.
                https://www.kernel.org/doc/Documentation/networking/bonding.txt
@@ -789,16 +821,76 @@ function NetworkManagerModel() {
         } else
             delete result["802-3-ethernet"];
 
+        if (settings.wifi) {
+            set("802-11-wireless", "ssid", 'ay', settings.wifi.ssid);
+            set("802-11-wireless", "mode", 's', settings.wifi.mode);
+            set("802-11-wireless", "band", 's', settings.wifi.band);
+            set("802-11-wireless", "channel", 'u', settings.wifi.channel);
+            // delete band and channel if wireless mode: Automatic
+            if (!settings.wifi.band) {
+                delete result["802-11-wireless"].band;
+                delete result["802-11-wireless"].channel;
+            }
+        } else
+            delete result["802-11-wireless"];
+
+        if (settings.wifi_security) {
+            set("802-11-wireless-security", "key-mgmt", 's', settings.wifi_security.key_mgmt);
+            set("802-11-wireless-security", "psk", 's', settings.wifi_security.psk);
+            // delete wifi_security options if security: None
+            if (!settings.wifi_security.key_mgmt) {
+                delete result["802-11-wireless-security"];
+            }
+        } else {
+            delete result["802-11-wireless-security"];
+        }
+
+        if (settings.wifi_1x && settings.wifi_security.key_mgmt === "wpa-eap") {
+            delete result["802-11-wireless-security"].psk;
+            set("802-1x", "eap", 'as', settings.wifi_1x.eap);
+            set("802-1x", "identity", 's', settings.wifi_1x.identity);
+            set("802-1x", "anonymous-identity", 's', settings.wifi_1x.anonymous_identity);
+            set("802-1x", "domain-suffix-match", 's', settings.wifi_1x.domain_suffix_match);
+            set("802-1x", "ca-cert", 'ay', settings.wifi_1x.ca_cert);
+            set("802-1x", "client-cert", 'ay', settings.wifi_1x.client_cert);
+            set("802-1x", "private-key", 'ay', settings.wifi_1x.private_key);
+            set("802-1x", "private-key-password", 's', settings.wifi_1x.private_key_password);
+            set("802-1x", "phase1-peapver", 's', settings.wifi_1x.phase1_peapver);
+            set("802-1x", "phase2-autheap", 's', settings.wifi_1x.phase2_autheap);
+            set("802-1x", "password", 's', settings.wifi_1x.password);
+            // delete peapver if version: Automatic
+            if (!settings.wifi_1x.phase1_peapver || settings.wifi_1x.eap[0] === "tls")
+                delete result["802-1x"]["phase1-peapver"];
+            // delete prop if settings not required
+            if (!settings.wifi_1x.phase2_autheap || settings.wifi_1x.eap[0] === "tls")
+                delete result["802-1x"]["phase2-autheap"];
+            if (!settings.wifi_1x.anonymous_identity || settings.wifi_1x.eap[0] === "tls")
+                delete result["802-1x"]["anonymous-identity"];
+            if (settings.wifi_1x.eap[0] === "tls")
+                delete result["802-1x"].password;
+            if (!settings.wifi_1x.domain_suffix_match)
+                delete result["802-1x"]["domain-suffix-match"];
+            if (!settings.wifi_1x.client_cert || settings.wifi_1x.eap[0] === "peap")
+                delete result["802-1x"]["client-cert"];
+            if (!settings.wifi_1x.private_key || settings.wifi_1x.eap[0] === "peap")
+                delete result["802-1x"]["private-key"];
+            if (!settings.wifi_1x.private_key_password || settings.wifi_1x.eap[0] === "peap")
+                delete result["802-1x"]["private-key-password"];
+            if ($('#security-eap-cert-toggle').prop('checked'))
+                delete result["802-1x"]["ca-cert"];
+        } else
+            delete result["802-1x"];
+
         return result;
     }
 
     function device_type_to_symbol(type) {
         // This returns a string that is suitable for the connection.type field of
-        // Connection.Settings, except for "ethernet".
+        // Connection.Settings, except for "ethernet" and "wifi".
         switch (type) {
         case 0: return 'unknown';
         case 1: return 'ethernet'; // 802-3-ethernet
-        case 2: return '802-11-wireless';
+        case 2: return 'wifi'; // 802-11-wireless
         case 3: return 'unused1';
         case 4: return 'unused2';
         case 5: return 'bluetooth';
@@ -1064,6 +1156,7 @@ function NetworkManagerModel() {
         interfaces: [
             "org.freedesktop.NetworkManager.Device",
             "org.freedesktop.NetworkManager.Device.Wired",
+            "org.freedesktop.NetworkManager.Device.Wireless",
             "org.freedesktop.NetworkManager.Device.Bond",
             "org.freedesktop.NetworkManager.Device.Team",
             "org.freedesktop.NetworkManager.Device.Bridge",
@@ -1249,6 +1342,8 @@ function NetworkManagerModel() {
                                 add_to_interface(con.Settings.bridge.interface_name);
                             if (con.Settings.vlan)
                                 add_to_interface(con.Settings.vlan.interface_name);
+                            if (con.Settings.wifi)
+                                add_to_interface(con.Settings.wifi.interface_name);
                         }
                     });
                 }
@@ -1571,6 +1666,9 @@ function complete_settings(settings, device) {
     if (device.DeviceType == 'ethernet') {
         settings.connection.type = '802-3-ethernet';
         settings.ethernet = { };
+    } else if (device.DeviceType == 'wifi') {
+        settings.connection.type = '802-11-wireless';
+        settings.wifi = { };
     } else {
         // The remaining types are identical between Device and Settings, see
         // device_type_to_symbol.
@@ -1621,6 +1719,7 @@ PageNetworking.prototype = {
         var self = this;
 
         update_network_privileged();
+        $("#networking-add-wifi").syn_click(self.model, $.proxy(this, "add_wifi"));
         $("#networking-add-bond").syn_click(self.model, $.proxy(this, "add_bond"));
         $("#networking-add-team").syn_click(self.model, $.proxy(this, "add_team"));
         $("#networking-add-bridge").syn_click(self.model, $.proxy(this, "add_bridge"));
@@ -1960,13 +2059,174 @@ PageNetworking.prototype = {
             };
 
         $('#network-vlan-settings-dialog').modal('show');
-    }
+    },
 
+    add_wifi: function () {
+        var i, iface, uuid;
+
+        for (i = 0; i < 100; i++) {
+            iface = "wifi" + i;
+            if (!this.model.find_interface(iface))
+                break;
+        }
+        uuid = generate_uuid();
+
+        PageNetworkWiFiSettings.model = this.model;
+        PageNetworkWiFiSettings.done = null;
+        PageNetworkWiFiSettings.connection = null;
+        PageNetworkWiFiSettings.apply_settings = settings_applier(this.model);
+        PageNetworkWiFiSettings.ghost_settings =
+        {
+            connection: {
+                id: iface,
+                autoconnect: true,
+                autoconnect_priority: 0,
+                secondaries: [],
+                type: "802-11-wireless",
+                uuid: uuid,
+                interface_name: ""
+            },
+            wifi: {
+                ssid: [],
+                mode: "",
+                band: "",
+                channel: 0
+            },
+            wifi_security: {
+                key_mgmt: "",
+                psk: ""
+            },
+            wifi_1x: {
+                eap: [],
+                identity: "",
+                anonymous_identity: "",
+                domain_suffix_match: "",
+                ca_cert: [],
+                client_cert: [],
+                private_key: [],
+                private_key_password: "",
+                phase1_peapver: "",
+                phase2_autheap: "",
+                password: ""
+            }
+        };
+
+        $('#network-wifi-settings-dialog').modal('show');
+    }
 };
 
 function PageNetworking(model) {
     this._init(model);
 }
+
+var wifi_mode_choices =
+    [
+        { choice: 'infrastructure', title: _("Client") },
+        { choice: 'ap', title: _("Hotspot") }
+    ];
+
+var wifi_band_choices =
+    [
+        { choice: '', title: _("Automatic") },
+        { choice: 'a', title: _("A (5GHz)") },
+        { choice: 'bg', title: _("B-G (2.4GHz)") }
+    ];
+
+var wifi_bg_channel_choices =
+    [
+        { choice: 0, title: _("Default") },
+        { choice: 1, title: _("1 (2412 MHz)") },
+        { choice: 2, title: _("2 (2417 MHz)") },
+        { choice: 3, title: _("3 (2422 MHz)") },
+        { choice: 4, title: _("4 (2427 MHz)") },
+        { choice: 5, title: _("5 (2432 MHz)") },
+        { choice: 6, title: _("6 (2437 MHz)") },
+        { choice: 7, title: _("7 (2442 MHz)") },
+        { choice: 8, title: _("8 (2447 MHz)") },
+        { choice: 9, title: _("9 (2452 MHz)") },
+        { choice: 10, title: _("10 (2457 MHz)") },
+        { choice: 11, title: _("11 (2462 MHz)") },
+        { choice: 12, title: _("12 (2467 MHz)") },
+        { choice: 13, title: _("13 (2472 MHz)") },
+        { choice: 14, title: _("14 (2484 MHz)") }
+    ];
+
+var wifi_a_channel_choices =
+    [
+        { choice: 0, title: _("Default") },
+        { choice: 7, title: _("7 (5035 MHz)") },
+        { choice: 8, title: _("8 (5040 MHz)") },
+        { choice: 9, title: _("9 (5045 MHz)") },
+        { choice: 11, title: _("11 (5055 MHz)") },
+        { choice: 12, title: _("12 (5060 MHz)") },
+        { choice: 16, title: _("16 (5080 MHz)") },
+        { choice: 34, title: _("34 (5170 MHz)") },
+        { choice: 36, title: _("36 (5180 MHz)") },
+        { choice: 38, title: _("38 (5190 MHz)") },
+        { choice: 40, title: _("40 (5200 MHz)") },
+        { choice: 42, title: _("42 (5210 MHz)") },
+        { choice: 44, title: _("44 (5220 MHz)") },
+        { choice: 46, title: _("46 (5230 MHz)") },
+        { choice: 48, title: _("48 (5240 MHz)") },
+        { choice: 50, title: _("50 (5250 MHz)") },
+        { choice: 52, title: _("52 (5260 MHz)") },
+        { choice: 56, title: _("56 (5280 MHz)") },
+        { choice: 58, title: _("58 (5290 MHz)") },
+        { choice: 60, title: _("60 (5300 MHz)") },
+        { choice: 64, title: _("64 (5320 MHz)") },
+        { choice: 100, title: _("100 (5500 MHz)") },
+        { choice: 104, title: _("104 (5520 MHz)") },
+        { choice: 108, title: _("108 (5540 MHz)") },
+        { choice: 112, title: _("112 (5560 MHz)") },
+        { choice: 116, title: _("116 (5580 MHz)") },
+        { choice: 120, title: _("120 (5600 MHz)") },
+        { choice: 124, title: _("124 (5620 MHz)") },
+        { choice: 128, title: _("128 (5640 MHz)") },
+        { choice: 132, title: _("132 (5660 MHz)") },
+        { choice: 136, title: _("136 (5680 MHz)") },
+        { choice: 140, title: _("140 (5700 MHz)") },
+        { choice: 149, title: _("149 (5745 MHz)") },
+        { choice: 152, title: _("152 (5760 MHz)") },
+        { choice: 153, title: _("153 (5765 MHz)") },
+        { choice: 157, title: _("157 (5785 MHz)") },
+        { choice: 160, title: _("160 (5800 MHz)") },
+        { choice: 161, title: _("161 (5805 MHz)") },
+        { choice: 165, title: _("165 (5825 MHz)") },
+        { choice: 183, title: _("183 (4915 MHz)") },
+        { choice: 184, title: _("184 (4920 MHz)") },
+        { choice: 185, title: _("185 (4925 MHz)") },
+        { choice: 187, title: _("187 (4935 MHz)") },
+        { choice: 188, title: _("188 (4945 MHz)") },
+        { choice: 192, title: _("192 (4960 MHz)") },
+        { choice: 196, title: _("196 (4980 MHz)") },
+    ];
+
+var wifi_security_choices =
+    [
+        { choice: '', title: _("None") },
+        { choice: 'wpa-psk', title: _("WPA & WPA2 Personal") },
+        { choice: 'wpa-eap', title: _("WPA & WPA2 Enterprise") }
+    ];
+
+var wifi_eap_auth_choices =
+    [
+        { choice: 'tls', title: _("TLS") },
+        { choice: 'peap', title: _("Protected EAP (PEAP)") }
+    ];
+
+var wifi_peap_version_choices =
+    [
+        { choice: '', title: _("Automatic") },
+        { choice: '0', title: _("Version 0") },
+        { choice: '1', title: _("Version 1") }
+    ];
+
+var wifi_peap_inner_auth_choices =
+    [
+        { choice: 'mschapv2', title: _("MSHAPv2") },
+        { choice: 'md5', title: _("MD5") },
+        { choice: 'gtc', title: _("GTC") }
+    ];
 
 var ipv4_method_choices =
     [
@@ -2526,6 +2786,8 @@ PageNetworkInterface.prototype = {
                 desc = _("VLAN");
             } else if (dev.DeviceType == 'bridge') {
                 desc = _("Bridge");
+            } else if (dev.DeviceType == 'wifi') {
+                desc = _("WiFi");
             } else
                 desc = cockpit.format(_("Unknown \"$0\""), dev.DeviceType);
         } else if (iface) {
@@ -2538,6 +2800,8 @@ PageNetworkInterface.prototype = {
                 desc = _("VLAN");
             else if (cs.type == "bridge")
                 desc = _("Bridge");
+            else if (cs.type == "wifi")
+                desc = _("WiFi");
             else if (cs.type)
                 desc = cockpit.format(_("Unknown \"$0\""), cs.type);
             else
@@ -2592,7 +2856,8 @@ PageNetworkInterface.prototype = {
         var is_deletable = (iface && !dev) || (dev && (dev.DeviceType == 'bond' ||
                                                        dev.DeviceType == 'team' ||
                                                        dev.DeviceType == 'vlan' ||
-                                                       dev.DeviceType == 'bridge'));
+                                                       dev.DeviceType == 'bridge' ||
+                                                       dev.DeviceType == 'wifi'));
         $('#network-interface-delete').prop('hidden', !is_deletable || !managed);
 
         function render_interface_section_separator(title) {
@@ -2730,6 +2995,10 @@ PageNetworkInterface.prototype = {
 
             function configure_mtu_settings() {
                 self.show_dialog(PageNetworkMtuSettings, '#network-mtu-settings-dialog');
+            }
+
+            function configure_wifi_settings() {
+                self.show_dialog(PageNetworkWiFiSettings, '#network-wifi-settings-dialog');
             }
 
             function render_settings_row(title, rows, configure) {
@@ -2954,6 +3223,27 @@ PageNetworkInterface.prototype = {
                                            configure_vlan_settings);
             }
 
+            function render_wifi_settings_row() {
+                var parts = [];
+                var rows = [];
+                var options = settings.wifi;
+                var security_options = settings.wifi_security;
+
+                if (!options)
+                    return null;
+
+                rows.push(_("SSID: " + (options.ssid ? atob(options.ssid) : "Not defined")));
+                parts.push(choice_title(wifi_mode_choices, options.mode, "Not configured"));
+                parts.push(choice_title(wifi_band_choices, options.band, "Automatic"));
+
+                if (parts.length > 0)
+                    rows.push(parts.join(", "));
+
+                rows.push(choice_title(wifi_security_choices, security_options
+                    ? security_options.key_mgmt : null, "Security disabled"));
+                return render_settings_row(_("WiFi"), rows, configure_wifi_settings);
+            }
+
             return [render_interface_section_separator("Settings"),
                 render_master(),
                 render_general_settings_row(),
@@ -2965,7 +3255,8 @@ PageNetworkInterface.prototype = {
                 render_bridge_port_settings_row(),
                 render_bond_settings_row(),
                 render_team_settings_row(),
-                render_team_port_settings_row()
+                render_team_port_settings_row(),
+                render_wifi_settings_row(),
             ];
         }
 
@@ -4845,6 +5136,345 @@ function PageNetworkMacSettings() {
     this._init();
 }
 
+PageNetworkWiFiSettings.prototype = {
+    _init: function () {
+        this.id = "network-wifi-settings-dialog";
+        this.wifi_settings_template = $("#network-wifi-settings-template").html();
+        mustache.parse(this.wifi_settings_template);
+    },
+
+    setup: function () {
+        $('#network-wifi-settings-cancel').click($.proxy(this, "cancel"));
+        $('#network-wifi-settings-apply').click($.proxy(this, "apply"));
+    },
+
+    enter: function () {
+        $('#network-wifi-settings-error').hide();
+        this.settings = PageNetworkWiFiSettings.ghost_settings || PageNetworkWiFiSettings.connection.copy_settings();
+        this.update();
+    },
+
+    show: function() {
+    },
+
+    leave: function() {
+    },
+
+    update: function() {
+        var self = this;
+        var connection = self.settings.connection;
+        var options = self.settings.wifi;
+        var security_options = self.settings.wifi_security;
+        var auth_options = self.settings.wifi_1x;
+        var ssid_input, personal_password_input, tls_identity_input, tls_key_password_input,
+            peap_identity_input, eap_domain_input, peap_username_input, peap_password_input;
+        var mode_btn, band_btn, channel_btn, device_btn, security_btn, eap_auth_btn,
+            peap_version_btn, peap_inner_auth_btn;
+        var eap_cert_file, tls_user_cert_file, tls_user_private_key_file;
+
+        var pwd;
+        var no_extension = /\.[^/.]+$/;
+        var process = cockpit.spawn(["pwd"]);
+        process.stream(function(data) {
+            pwd = data;
+        });
+
+        var device_choices = [];
+        PageNetworkWiFiSettings.model.list_interfaces().forEach(function (i) {
+            if (is_interesting_interface(i) && i.Device && i.Device.DeviceType === "wifi")
+                device_choices.push({ title: i.Name, choice: i.Device.Interface });
+        });
+
+        if (device_choices.length == 0)
+            device_choices.push({ title: "Not detected", choice: "" });
+
+        function search_choices(array, value) {
+            for (var i = 0; i < array.length; i++) {
+                if (array[i].choice === value)
+                    return true;
+            }
+        }
+
+        function choicebox(env, subenv, choices, klass) {
+            var btn = select_btn(
+                function (choice) {
+                    if (env)
+                        env[subenv] = choice;
+                    change();
+                },
+                choices, klass);
+            if (env) {
+                select_btn_select(btn, search_choices(choices, env[subenv])
+                    ? env[subenv] : choices[0].choice);
+            }
+            return btn;
+        }
+
+        function channel_block_handler() {
+            switch (select_btn_selected(band_btn)) {
+            case 'a':
+                channel_btn.replaceWith(channel_btn = choicebox(
+                    options, "channel", wifi_a_channel_choices));
+                break;
+            case 'bg':
+                channel_btn.replaceWith(channel_btn = choicebox(
+                    options, "channel", wifi_bg_channel_choices));
+                break;
+            default:
+                channel_btn.replaceWith(channel_btn = choicebox(
+                    options, "channel", [{ choice: 0, title: _("Default") }]));
+                break;
+            }
+        }
+
+        function restore_wifi_security(value) {
+            if (!security_options) {
+                self.settings.wifi_security = {
+                    key_mgmt : value,
+                    psk : ""
+                };
+                security_options = self.settings.wifi_security;
+                change(); // in case of password managers
+            }
+        }
+
+        function restore_wifi_1x() {
+            if (!auth_options) {
+                self.settings.wifi_1x = {
+                    eap: [],
+                    identity: "",
+                    anonymous_identity: "",
+                    domain_suffix_match: "",
+                    ca_cert: [],
+                    client_cert: [],
+                    private_key: [],
+                    phase1_peapver: "",
+                    phase2_autheap: "",
+                    password: ""
+                };
+                auth_options = self.settings.wifi_1x;
+                change(); // in case of password managers
+            }
+        }
+
+        function security_block_handler() {
+            var value = select_btn_selected(security_btn);
+            switch (value) {
+            case "wpa-psk":
+                $('.hidden-ps').show();
+                $('.hidden-ep').hide();
+                restore_wifi_security();
+                break;
+            case "wpa-eap":
+                $('.hidden-ps').hide();
+                $('.hidden-type').show();
+                restore_wifi_security();
+                restore_wifi_1x();
+                security_auth_block_handler();
+                break;
+            default:
+                $('.hidden-ps').hide();
+                $('.hidden-ep').hide();
+                break;
+            }
+        }
+
+        function security_auth_block_handler() {
+            if (select_btn_selected(eap_auth_btn) === "tls") {
+                $('.hidden-ep').show();
+                $('.hidden-peap').hide();
+            } else if (select_btn_selected(eap_auth_btn) === "peap") {
+                $('.hidden-ep').show();
+                $('.hidden-tls').hide();
+            }
+        }
+
+        function toggle_password(container) {
+            if (container.attr("type") == "password")
+                container.attr('type', "text");
+            else
+                container.attr('type', "password");
+        }
+
+        function read_file_content(file, callback) {
+            var reader = new FileReader();
+            reader.onload = callback;
+            reader.readAsText(file);
+        }
+
+        function save_file(id, blob, prop) {
+            if (!blob)
+                return null;
+
+            cockpit.script("echo \"" + blob + "\" > " + id, { err: "ignore" })
+                    .done(function () {
+                        var temp = (pwd + "/" + id).replace(/\r?\n|\r/g, "");
+                        auth_options[prop] = btoa(temp);
+                    });
+        }
+
+        function change() {
+            options.ssid = btoa(ssid_input.val());
+            options.mode = select_btn_selected(mode_btn);
+            options.band = select_btn_selected(band_btn);
+            options.channel = parseInt(select_btn_selected(channel_btn), 10);
+            connection.interface_name = select_btn_selected(device_btn);
+
+            if (security_options) {
+                security_options.key_mgmt = select_btn_selected(security_btn);
+                security_options.psk = personal_password_input.val();
+            }
+            if (auth_options) {
+                auth_options.eap = [];
+                auth_options.eap.push(select_btn_selected(eap_auth_btn));
+                auth_options.anonymous_identity = peap_identity_input.val();
+                auth_options.domain_suffix_match = eap_domain_input.val();
+                auth_options.phase1_peapver = select_btn_selected(peap_version_btn);
+                auth_options.phase2_autheap = select_btn_selected(peap_inner_auth_btn);
+                auth_options.identity = auth_options.eap[0] === "tls"
+                    ? tls_identity_input.val() : peap_username_input.val();
+                auth_options.private_key_password = tls_key_password_input.val();
+                auth_options.password = peap_password_input.val();
+            }
+        }
+
+        var render_options = { ssid_input: options.ssid ? atob(options.ssid) : "" };
+        if (auth_options) {
+            render_options.tls_identity_input = auth_options.identity;
+            render_options.peap_identity_input = auth_options.anonymous_identity;
+            render_options.eap_domain_input = auth_options.domain_suffix_match;
+            render_options.peap_username_input = auth_options.identity;
+        }
+
+        var body = $(mustache.render(self.wifi_settings_template, render_options));
+
+        ssid_input = body.find('#network-wifi-settings-ssid-input');
+        ssid_input.change(change);
+        body.find('#network-wifi-settings-mode-select').replaceWith(
+            mode_btn = choicebox(options, "mode", wifi_mode_choices));
+        body.find('#network-wifi-settings-band-select').replaceWith(
+            band_btn = choicebox(options, "band", wifi_band_choices));
+        body.find('#network-wifi-settings-channel-select').replaceWith(
+            channel_btn = choicebox(options, "channel", [{ choice: 0, title: _("Default") }]));
+        body.find('#network-wifi-settings-device-select').replaceWith(
+            device_btn = choicebox(connection, "interface_name", device_choices));
+        body.find('#network-wifi-settings-security-select').replaceWith(
+            security_btn = choicebox(security_options, "key_mgmt", wifi_security_choices));
+        personal_password_input = body.find('#security-personal-password-input');
+        personal_password_input.change(change);
+        body.find('#security-eap-auth-select').replaceWith(eap_auth_btn = choicebox(
+            auth_options, "eap", wifi_eap_auth_choices, "hidden-ep hidden-type"));
+        tls_identity_input = body.find('#security-tls-identity');
+        tls_identity_input.change(change);
+        tls_key_password_input = body.find('#security-tls-private-key-password');
+        tls_key_password_input.change(change);
+        peap_identity_input = body.find('#security-peap-identity');
+        peap_identity_input.change(change);
+        eap_domain_input = body.find('#security-eap-domain');
+        eap_domain_input.change(change);
+        body.find('#security-peap-version-select').replaceWith(peap_version_btn = choicebox(
+            auth_options, "phase1_peapver", wifi_peap_version_choices, "hidden-ep hidden-peap"));
+        body.find('#security-peap-inner-auth-select').replaceWith(peap_inner_auth_btn = choicebox(
+            auth_options, "phase2_autheap", wifi_peap_inner_auth_choices, "hidden-ep hidden-peap"));
+        peap_username_input = body.find('#security-peap-username');
+        peap_username_input.change(change);
+        peap_password_input = body.find('#security-peap-password');
+        peap_password_input.change(change);
+        eap_cert_file = body.find('#security-eap-cert-file');
+        eap_cert_file.on('change', function(e) {
+            if (!this.files[0])
+                return null;
+            var filename = this.files[0].name.replace(no_extension, "");
+            read_file_content(this.files[0], function(e) {
+                save_file(filename + "-ca.pem", e.target.result, "ca_cert");
+            });
+        });
+        tls_user_cert_file = body.find('#security-tls-user-cert-file');
+        tls_user_cert_file.on('change', function(e) {
+            if (!this.files[0])
+                return null;
+            var filename = this.files[0].name.replace(no_extension, "");
+            read_file_content(this.files[0], function(e) {
+                save_file(filename + "-dev.pem", e.target.result, "client_cert");
+            });
+        });
+        tls_user_private_key_file = body.find('#security-tls-user-private-key-file');
+        tls_user_private_key_file.on('change', function(e) {
+            if (!this.files[0])
+                return null;
+            var filename = this.files[0].name.replace(no_extension, "");
+            read_file_content(this.files[0], function(e) {
+                save_file(filename + "-key.key", e.target.result, "private_key");
+            });
+        });
+
+        band_btn.on('click', 'option', channel_block_handler);
+        security_btn.on('click', 'option', security_block_handler);
+        eap_auth_btn.on('click', 'option', security_auth_block_handler);
+
+        body.find('#security-personal-password-toggle').click(function() {
+            toggle_password(personal_password_input);
+        });
+        body.find('#security-tls-key-password-toggle').click(function() {
+            toggle_password(tls_key_password_input);
+        });
+        body.find('#security-peap-password-toggle').click(function() {
+            toggle_password(peap_password_input);
+        });
+
+        $('#network-wifi-settings-body').html(body);
+
+        channel_block_handler();
+        security_block_handler();
+
+        $('#security-personal-password-toggle').prop('checked', false);
+        $('#security-eap-cert-toggle').prop('checked', false);
+        $('#security-tls-key-password-toggle').prop('checked', false);
+        $('#security-peap-password-toggle').prop('checked', false);
+    },
+
+    cancel: function() {
+        $('#network-wifi-settings-dialog').modal('hide');
+    },
+
+    apply: function() {
+        var self = this;
+        var security_options = self.settings.wifi_security;
+        var model = PageNetworkWiFiSettings.model;
+
+        function show_error(error) {
+            show_dialog_error('#network-wifi-settings-error', error);
+        }
+
+        if (security_options && security_options.key_mgmt === "wpa-psk" && !security_options.psk) {
+            show_error(_("Password field cannot be empty!"));
+            return;
+        }
+
+        if (!self.settings.connection.interface_name) {
+            show_error(_("Device is not set: Check if network adapter is recognized"));
+            return;
+        }
+
+        function modify () {
+            return PageNetworkWiFiSettings.apply_settings(self.settings)
+                    .then(function () {
+                        $('#network-wifi-settings-dialog').modal('hide');
+                        if (PageNetworkWiFiSettings.done)
+                            return PageNetworkWiFiSettings.done();
+                    })
+                    .fail(show_error);
+        }
+
+        with_settings_checkpoint(model, modify,
+                                 { devices: connection_devices(PageNetworkWiFiSettings.connection) });
+    }
+};
+
+function PageNetworkWiFiSettings() {
+    this._init();
+}
+
 /* INITIALIZATION AND NAVIGATION
  *
  * The code above still uses the legacy 'Page' abstraction for both
@@ -4915,6 +5545,7 @@ function init() {
         interface_page = new PageNetworkInterface(model);
         interface_page.setup();
 
+        dialog_setup(new PageNetworkGeneralSettings());
         dialog_setup(new PageNetworkIpSettings());
         dialog_setup(new PageNetworkBondSettings());
         dialog_setup(new PageNetworkTeamSettings());
@@ -4924,6 +5555,7 @@ function init() {
         dialog_setup(new PageNetworkVlanSettings());
         dialog_setup(new PageNetworkMtuSettings());
         dialog_setup(new PageNetworkMacSettings());
+        dialog_setup(new PageNetworkWiFiSettings());
 
         $(cockpit).on("locationchanged", navigate);
         navigate();

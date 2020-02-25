@@ -298,11 +298,22 @@ class TestMachinesDBus(machineslib.TestMachines):
             m.execute("mkdir /tmp/ovmf/; mv {0}/* /tmp/ovmf/".format(ovmf_path))
             b.click("tbody tr[data-row-id=vm-VmNotInstalled] th") # Close and re-expand the row for the new configuration to be read
             b.click("tbody tr[data-row-id=vm-VmNotInstalled] th")
+
+            # HACK: Capabilities are not updated dynamically
+            # https://bugzilla.redhat.com/show_bug.cgi?id=1807198
+            if m.image == "fedora-32":
+                m.execute("systemctl restart libvirtd")
+                b.click("tbody tr[data-row-id=vm-VmNotInstalled] th")
+
             b.mouse("#vm-VmNotInstalled-firmware-tooltip", "mouseover")
             b.wait_in_text("#missing-uefi-images .tooltip-inner", "Libvirt did not detect any UEFI/OVMF firmware image installed on the host")
             b.mouse("#vm-VmNotInstalled-firmware-tooltip", "mouseout")
             b.wait_not_present("#missing-uefi-images")
             m.execute("mv /tmp/ovmf/* {0}".format(ovmf_path))
+
+            if m.image == "fedora-32":
+                m.execute("systemctl restart libvirtd")
+                b.click("tbody tr[data-row-id=vm-VmNotInstalled] th")
         else:
             b.wait_not_present("#vm-VmNotInstalled-firmware")
 

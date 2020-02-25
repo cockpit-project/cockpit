@@ -26,7 +26,7 @@ import {
 } from "../../helpers.js";
 
 import { DeleteDialog } from "../deleteDialog.jsx";
-import DropdownButtons from '../dropdownButtons.jsx';
+import { DropdownButtons } from '../dropdownButtons.jsx';
 
 const _ = cockpit.gettext;
 
@@ -37,8 +37,8 @@ const VmActions = ({ vm, config, dispatch, storagePools, onStart, onInstall, onR
 
     let reset = null;
     if (config.provider.canReset(state)) {
-        reset = DropdownButtons({
-            buttons: [{
+        reset = <DropdownButtons
+            buttons={[{
                 title: _("Restart"),
                 action: onReboot,
                 id: `${id}-reboot`,
@@ -46,8 +46,7 @@ const VmActions = ({ vm, config, dispatch, storagePools, onStart, onInstall, onR
                 title: _("Force Restart"),
                 action: onForceReboot,
                 id: `${id}-forceReboot`,
-            }],
-        });
+            }]} />;
     }
 
     let shutdown = null;
@@ -68,7 +67,7 @@ const VmActions = ({ vm, config, dispatch, storagePools, onStart, onInstall, onR
                 id: `${id}-sendNMI`,
             });
         }
-        shutdown = DropdownButtons({ buttons: buttons });
+        shutdown = <DropdownButtons buttons={buttons} />;
     }
 
     let pause = null;

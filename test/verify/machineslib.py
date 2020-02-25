@@ -349,7 +349,7 @@ class TestMachines(NetworkCase, StorageHelpers):
         # Send Non-Maskable Interrupt (no change in VM state is expected)
         b.click("#vm-subVmTest1-off-caret")
         b.click("#vm-subVmTest1-sendNMI")
-        b.wait_not_visible("#vm-subVmTest1-sendNMI")
+        b.wait_attr("#vm-subVmTest1-off-caret", "aria-expanded", "false")
 
         if args["logfile"] is not None:
             b.wait(lambda: "NMI received" in self.machine.execute("cat {0}".format(args["logfile"])))

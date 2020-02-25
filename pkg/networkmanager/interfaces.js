@@ -594,6 +594,9 @@ function NetworkManagerModel() {
                 timestamp:      get("connection", "timestamp", 0),
                 id:             get("connection", "id", _("Unknown")),
                 autoconnect:    get("connection", "autoconnect", true),
+                autoconnect_priority:
+                                get("connection", "autoconnect-priority", 0),
+                secondaries:    get("connection", "secondaries"),
                 autoconnect_slaves:
                                 get("connection", "autoconnect-slaves", -1),
                 slave_type:     get("connection", "slave-type"),
@@ -715,12 +718,14 @@ function NetworkManagerModel() {
 
         set("connection", "id", 's', settings.connection.id);
         set("connection", "autoconnect", 'b', settings.connection.autoconnect);
+        set("connection", "autoconnect-priority", 'i', settings.connection.autoconnect_priority);
         set("connection", "autoconnect-slaves", 'i', settings.connection.autoconnect_slaves);
         set("connection", "uuid", 's', settings.connection.uuid);
         set("connection", "interface-name", 's', settings.connection.interface_name);
         set("connection", "type", 's', settings.connection.type);
         set("connection", "slave-type", 's', settings.connection.slave_type);
         set("connection", "master", 's', settings.connection.master);
+        set("connection", "secondaries", 'as', settings.connection.secondaries);
 
         if (settings.ipv4)
             set_ip("ipv4", 'aau', ip4_address_to_nm, 'aau', ip4_route_to_nm, 'au', utils.ip4_from_text);
@@ -1712,8 +1717,8 @@ PageNetworking.prototype = {
                 var tx = samples[1][0];
                 var row = $('#networking-interfaces tr[data-sample-id="' + encodeURIComponent(iface) + '"]');
                 if (rx !== undefined && tx !== undefined && row.length > 0) {
-                    row.find('td:nth-child(3)').text(cockpit.format_bits_per_sec(tx * 8));
-                    row.find('td:nth-child(4)').text(cockpit.format_bits_per_sec(rx * 8));
+                    row.find('td:nth-child(5)').text(cockpit.format_bits_per_sec(tx * 8));
+                    row.find('td:nth-child(6)').text(cockpit.format_bits_per_sec(rx * 8));
                 }
             }
         }
@@ -1799,7 +1804,10 @@ PageNetworking.prototype = {
                 "data-interface": encodeURIComponent(iface.Name),
                 "data-sample-id": show_traffic ? encodeURIComponent(iface.Name) : null
             })
-                    .append($('<td>').text(iface.Name),
+                    .append($('<td>').text((iface.MainConnection && iface.MainConnection.Settings)
+                        ? iface.MainConnection.Settings.connection.id : null),
+                            $('<td>').text(iface.Name),
+                            $('<td>').text(dev ? dev.DeviceType : null),
                             $('<td>').html(render_active_connection(dev, false, true)),
                             (show_traffic
                                 ? [$('<td>').text(""), $('<td>').text("")]
@@ -1835,6 +1843,8 @@ PageNetworking.prototype = {
                 connection: {
                     id: iface,
                     autoconnect: true,
+                    autoconnect_priority: 0,
+                    secondaries: [],
                     type: "bond",
                     uuid: uuid,
                     interface_name: iface
@@ -1869,6 +1879,8 @@ PageNetworking.prototype = {
                 connection: {
                     id: iface,
                     autoconnect: true,
+                    autoconnect_priority: 0,
+                    secondaries: [],
                     type: "team",
                     uuid: uuid,
                     interface_name: iface
@@ -1901,6 +1913,8 @@ PageNetworking.prototype = {
                 connection: {
                     id: iface,
                     autoconnect: true,
+                    autoconnect_priority: 0,
+                    secondaries: [],
                     type: "bridge",
                     uuid: uuid,
                     interface_name: iface
@@ -1933,6 +1947,8 @@ PageNetworking.prototype = {
                 connection: {
                     id: "",
                     autoconnect: true,
+                    autoconnect_priority: 0,
+                    secondaries: [],
                     type: "vlan",
                     uuid: uuid,
                     interface_name: ""
@@ -2579,6 +2595,19 @@ PageNetworkInterface.prototype = {
                                                        dev.DeviceType == 'bridge'));
         $('#network-interface-delete').prop('hidden', !is_deletable || !managed);
 
+        function render_interface_section_separator(title) {
+            return $('<tr>').append($('<td class="network-interface-separator" colspan="100%">').text(title));
+        }
+
+        /* function render_interface_type_row() {
+            if (dev) {
+                return $('<tr>').append(
+                    $('<td>').text(_("Type")),
+                    $('<td>').append(self.connection_settings.connection.id +
+                        " | " + dev.Interface, " | ", dev.DeviceType));
+            }
+        } */
+
         function render_carrier_status_row() {
             if (dev && dev.Carrier !== undefined) {
                 return $('<tr>').append(
@@ -2610,6 +2639,14 @@ PageNetworkInterface.prototype = {
                     render_active_connection(dev, true, false),
                     " ",
                     state ? $('<span>').text(state) : null));
+        }
+
+        function render_general_information_rows() {
+            return [render_interface_section_separator("General Information"),
+                /* render_interface_type_row(), */
+                render_carrier_status_row(),
+                render_active_status_row(),
+            ];
         }
 
         function render_connection_settings_rows(con, settings) {
@@ -2657,6 +2694,10 @@ PageNetworkInterface.prototype = {
                 return parts;
             }
 
+            function configure_general_settings() {
+                self.show_dialog(PageNetworkGeneralSettings, '#network-general-settings-dialog');
+            }
+
             function configure_ip_settings(topic) {
                 PageNetworkIpSettings.topic = topic;
                 self.show_dialog(PageNetworkIpSettings, '#network-ip-settings-dialog');
@@ -2691,24 +2732,6 @@ PageNetworkInterface.prototype = {
                 self.show_dialog(PageNetworkMtuSettings, '#network-mtu-settings-dialog');
             }
 
-            function render_autoconnect_row() {
-                if (settings.connection.autoconnect !== undefined) {
-                    return (
-                        $('<tr>').append(
-                            $('<td>').text(_("General")),
-                            $('<td class="networking-controls">').append(
-                                $('<label for="autoreconnect">').append(
-                                    $('<input type="checkbox" id="autoreconnect">')
-                                            .prop('checked', settings.connection.autoconnect)
-                                            .change(function () {
-                                                settings.connection.autoconnect = $(this).prop('checked');
-                                                settings_applier(self.model, self.dev, con)(settings);
-                                            }),
-                                    $('<span>').text(_("Connect automatically")))))
-                    );
-                }
-            }
-
             function render_settings_row(title, rows, configure) {
                 var link_text = [];
                 for (var i = 0; i < rows.length; i++) {
@@ -2727,6 +2750,35 @@ PageNetworkInterface.prototype = {
                         $('<a tabindex="0" class="network-privileged">')
                                 .append(link_text)
                                 .syn_click(self.model, function () { configure() })));
+            }
+
+            function render_general_settings_row() {
+                var parts = [];
+                var rows = [];
+                var options = settings.connection;
+
+                if (!options)
+                    return null;
+
+                parts.push("Auto-connection: " +
+                     (options.autoconnect ? "Enabled" : "Disabled"));
+
+                if (options.autoconnect && options.autoconnect_priority != 0)
+                    parts.push("(Priority: " + (options.autoconnect_priority >= 0
+                        ? options.autoconnect_priority : "None") + ")");
+
+                if (parts.length > 0)
+                    rows.push(parts.join(" "));
+
+                if (options.type != "vpn" && options.secondaries) {
+                    var vpn_name = $('#network-general-settings-autovpn-select')
+                            .children('option:selected')
+                            .text() || "Enabled";
+                    rows.push("Auto-selected VPN: " +
+                        (options.secondaries ? vpn_name : "None"));
+                }
+
+                return render_settings_row(_("General"), rows, configure_general_settings);
             }
 
             function render_ip_settings_row(topic, title) {
@@ -2902,8 +2954,9 @@ PageNetworkInterface.prototype = {
                                            configure_vlan_settings);
             }
 
-            return [render_master(),
-                render_autoconnect_row(),
+            return [render_interface_section_separator("Settings"),
+                render_master(),
+                render_general_settings_row(),
                 render_ip_settings_row("ipv4", _("IPv4")),
                 render_ip_settings_row("ipv6", _("IPv6")),
                 render_mtu_settings_row(),
@@ -2956,8 +3009,7 @@ PageNetworkInterface.prototype = {
 
         $('#network-interface-settings')
                 .empty()
-                .append(render_active_status_row())
-                .append(render_carrier_status_row())
+                .append(render_general_information_rows())
                 .append(render_connection_settings_rows(self.main_connection, self.connection_settings));
         update_network_privileged();
 
@@ -3167,6 +3219,150 @@ function connection_devices(con) {
         con.Interfaces.forEach(function (iface) { if (iface.Device) devices.push(iface.Device); });
 
     return devices;
+}
+
+PageNetworkGeneralSettings.prototype = {
+    _init: function () {
+        this.id = "network-general-settings-dialog";
+        this.general_settings_template = $("#network-general-settings-template").html();
+        mustache.parse(this.general_settings_template);
+    },
+
+    setup: function () {
+        $('#network-general-settings-cancel').click($.proxy(this, "cancel"));
+        $('#network-general-settings-apply').click($.proxy(this, "apply"));
+    },
+
+    enter: function () {
+        $('#network-general-settings-error').hide();
+        this.settings = PageNetworkGeneralSettings.ghost_settings || PageNetworkGeneralSettings.connection.copy_settings();
+        this.update();
+    },
+
+    show: function() {
+    },
+
+    leave: function() {
+    },
+
+    update: function() {
+        var self = this;
+        var options = self.settings.connection;
+        var vpn_choices = [];
+        var name_input, priority_btn, priority_input, autovpn_btn, autovpn_select;
+
+        function set_vpn_connections(data) {
+            var lines = data.split("\n");
+
+            lines.forEach(function(line, index) {
+                var dict = {};
+                var values = line.split(':');
+
+                if (values[1] === "vpn") {
+                    dict.name = values[0];
+                    dict.uuid = values[2];
+                    vpn_choices.push(dict);
+                }
+            });
+        }
+
+        function vpn_connections_handler() {
+            var process = cockpit.spawn(["nmcli", "-g", "name,type,uuid", "con"]);
+            process.stream(function(data) {
+                set_vpn_connections(data);
+                vpn_choices.forEach(function(item, index, arr) {
+                    if (autovpn_select.find('option[value="' + arr[index].uuid + '"]').length == 0)
+                        autovpn_select.append(new Option(arr[index].name, arr[index].uuid));
+                });
+                if (options.secondaries) {
+                    autovpn_btn.prop('checked', true);
+                    autovpn_select.val(options.secondaries[0]);
+                } else
+                    autovpn_btn.prop('checked', false);
+            });
+        }
+
+        function change() {
+            options.id = name_input.val();
+            options.autoconnect = priority_btn.prop('checked');
+            options.autoconnect_priority = options.autoconnect ? parseInt(priority_input.val()) : 0;
+            options.secondaries = [];
+            if (autovpn_btn.prop('checked') && autovpn_select.val() !== undefined)
+                options.secondaries.push(autovpn_select.val());
+        }
+
+        var body = $(mustache.render(self.general_settings_template, { name: options.id }));
+        name_input = body.find('#network-general-settings-name-input');
+        name_input.change(change);
+        priority_btn = body.find('#network-general-settings-autoconnect');
+        priority_btn.change(change);
+        priority_input = body.find('#network-autoconnect-priority-input');
+        priority_input.change(change);
+        autovpn_btn = body.find('#network-general-settings-autovpn');
+        autovpn_btn.change(change);
+        autovpn_select = body.find('#network-general-settings-autovpn-select');
+        autovpn_select.change(change);
+
+        $('#network-general-settings-body').html(body);
+        priority_btn.prop('checked', options.autoconnect);
+        priority_input.val(options.autoconnect_priority);
+
+        if (options.type !== "vpn") {
+            vpn_connections_handler();
+            $('.hidden-vpn').show();
+        } else
+            $('.hidden-vpn').hide();
+
+        priority_input.focus(function () {
+            priority_btn.prop('checked', true);
+        });
+
+        autovpn_select.focus(function () {
+            autovpn_btn.prop('checked', true);
+        });
+    },
+
+    cancel: function() {
+        $('#network-general-settings-dialog').modal('hide');
+    },
+
+    apply: function() {
+        var self = this;
+        var model = PageNetworkGeneralSettings.model;
+
+        function show_error(error) {
+            show_dialog_error('#network-general-settings-error', error);
+        }
+
+        if (self.settings.connection.autoconnect_priority < 0) {
+            show_error(_("Please select a priority value that is no less than 0"));
+            return;
+        }
+
+        if (self.settings.connection.type !== "vpn" &&
+            $('#network-general-settings-autovpn').prop('checked') &&
+            !self.settings.connection.secondaries) {
+            show_error(_("Disable or select VPN connection"));
+            return;
+        }
+
+        function modify () {
+            return PageNetworkGeneralSettings.apply_settings(self.settings)
+                    .then(function () {
+                        $('#network-general-settings-dialog').modal('hide');
+                        if (PageNetworkGeneralSettings.done)
+                            return PageNetworkGeneralSettings.done();
+                    })
+                    .fail(show_error);
+        }
+
+        with_settings_checkpoint(model, modify,
+                                 { devices: connection_devices(PageNetworkGeneralSettings.connection) });
+    }
+};
+
+function PageNetworkGeneralSettings() {
+    this._init();
 }
 
 PageNetworkIpSettings.prototype = {

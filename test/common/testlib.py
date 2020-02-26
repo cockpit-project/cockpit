@@ -931,6 +931,9 @@ class MachineCase(unittest.TestCase):
         # ssh messages may be dropped when closing
         '10.*: dropping message while waiting for child to exit',
 
+        # pkg/packagekit/autoupdates.jsx backend check often gets interrupted by logout
+        "xargs: basename: terminated by signal 13",
+
         # SELinux messages to ignore
         "(audit: )?type=1403 audit.*",
         "(audit: )?type=1404 audit.*",

@@ -673,6 +673,16 @@ function NetworkManagerModel() {
             };
         }
 
+        if (settings.gsm) {
+            result.modem = {
+                username:  get("gsm", "username"),
+                password:  get("gsm", "password"),
+                number:    get("gsm", "number"),
+                apn:       get("gsm", "apn"),
+                pin:       get("gsm", "pin")
+            };
+        }
+
         return result;
     }
 
@@ -788,6 +798,21 @@ function NetworkManagerModel() {
             delete result["802-3-ethernet"]["cloned-mac-address"];
         } else
             delete result["802-3-ethernet"];
+
+        if (settings.modem) {
+            set("gsm", "username", 's', settings.modem.username);
+            set("gsm", "password", 's', settings.modem.password);
+            set("gsm", "number", 's', settings.modem.number);
+            set("gsm", "apn", 's', settings.modem.apn);
+            set("gsm", "pin", 's', settings.modem.pin);
+            if (!settings.modem.username)
+                delete result.gsm.username;
+            if (!settings.modem.password)
+                delete result.gsm.password;
+            if (!settings.modem.pin)
+                delete result.gsm.pin;
+        } else
+            delete result.gsm;
 
         return result;
     }
@@ -1064,6 +1089,7 @@ function NetworkManagerModel() {
         interfaces: [
             "org.freedesktop.NetworkManager.Device",
             "org.freedesktop.NetworkManager.Device.Wired",
+            "org.freedesktop.NetworkManager.Device.Modem",
             "org.freedesktop.NetworkManager.Device.Bond",
             "org.freedesktop.NetworkManager.Device.Team",
             "org.freedesktop.NetworkManager.Device.Bridge",
@@ -1249,6 +1275,8 @@ function NetworkManagerModel() {
                                 add_to_interface(con.Settings.bridge.interface_name);
                             if (con.Settings.vlan)
                                 add_to_interface(con.Settings.vlan.interface_name);
+                            if (con.Settings.modem)
+                                add_to_interface(con.Settings.modem.interface_name);
                         }
                     });
                 }
@@ -1571,6 +1599,9 @@ function complete_settings(settings, device) {
     if (device.DeviceType == 'ethernet') {
         settings.connection.type = '802-3-ethernet';
         settings.ethernet = { };
+    } else if (device.DeviceType == 'modem') {
+        settings.connection.type = 'gsm';
+        settings.modem = { };
     } else {
         // The remaining types are identical between Device and Settings, see
         // device_type_to_symbol.
@@ -1621,6 +1652,7 @@ PageNetworking.prototype = {
         var self = this;
 
         update_network_privileged();
+        $("#networking-add-modem").syn_click(self.model, $.proxy(this, "add_modem"));
         $("#networking-add-bond").syn_click(self.model, $.proxy(this, "add_bond"));
         $("#networking-add-team").syn_click(self.model, $.proxy(this, "add_team"));
         $("#networking-add-bridge").syn_click(self.model, $.proxy(this, "add_bridge"));
@@ -1960,8 +1992,44 @@ PageNetworking.prototype = {
             };
 
         $('#network-vlan-settings-dialog').modal('show');
-    }
+    },
 
+    add_modem: function () {
+        var i, iface, uuid;
+
+        for (i = 0; i < 100; i++) {
+            iface = "modem" + i;
+            if (!this.model.find_interface(iface))
+                break;
+        }
+        uuid = generate_uuid();
+
+        PageNetworkModemSettings.model = this.model;
+        PageNetworkModemSettings.done = null;
+        PageNetworkModemSettings.connection = null;
+        PageNetworkModemSettings.apply_settings = settings_applier(this.model);
+        PageNetworkModemSettings.ghost_settings =
+            {
+                connection: {
+                    id: iface,
+                    autoconnect: true,
+                    autoconnect_priority: 0,
+                    secondaries: [],
+                    type: "gsm",
+                    uuid: uuid,
+                    interface_name: ""
+                },
+                modem: {
+                    username: "",
+                    password: "",
+                    number: "",
+                    apn: "",
+                    pin: ""
+                }
+            };
+
+        $('#network-modem-settings-dialog').modal('show');
+    }
 };
 
 function PageNetworking(model) {
@@ -2526,6 +2594,8 @@ PageNetworkInterface.prototype = {
                 desc = _("VLAN");
             } else if (dev.DeviceType == 'bridge') {
                 desc = _("Bridge");
+            } else if (dev.DeviceType == 'modem') {
+                desc = _("Modem");
             } else
                 desc = cockpit.format(_("Unknown \"$0\""), dev.DeviceType);
         } else if (iface) {
@@ -2538,6 +2608,8 @@ PageNetworkInterface.prototype = {
                 desc = _("VLAN");
             else if (cs.type == "bridge")
                 desc = _("Bridge");
+            else if (cs.type == "modem")
+                desc = _("Modem");
             else if (cs.type)
                 desc = cockpit.format(_("Unknown \"$0\""), cs.type);
             else
@@ -2592,7 +2664,8 @@ PageNetworkInterface.prototype = {
         var is_deletable = (iface && !dev) || (dev && (dev.DeviceType == 'bond' ||
                                                        dev.DeviceType == 'team' ||
                                                        dev.DeviceType == 'vlan' ||
-                                                       dev.DeviceType == 'bridge'));
+                                                       dev.DeviceType == 'bridge' ||
+                                                       dev.DeviceType == 'modem'));
         $('#network-interface-delete').prop('hidden', !is_deletable || !managed);
 
         function render_interface_section_separator(title) {
@@ -2730,6 +2803,10 @@ PageNetworkInterface.prototype = {
 
             function configure_mtu_settings() {
                 self.show_dialog(PageNetworkMtuSettings, '#network-mtu-settings-dialog');
+            }
+
+            function configure_modem_settings() {
+                self.show_dialog(PageNetworkModemSettings, '#network-modem-settings-dialog');
             }
 
             function render_settings_row(title, rows, configure) {
@@ -2954,6 +3031,21 @@ PageNetworkInterface.prototype = {
                                            configure_vlan_settings);
             }
 
+            function render_modem_settings_row() {
+                var rows = [];
+                var options = settings.modem;
+                if (!options)
+                    return null;
+                function add_row(fmt, args) {
+                    rows.push(cockpit.format(fmt, args));
+                }
+
+                add_row(_("APN: $apn"), options);
+                add_row(_("Phone number: $number"), options);
+
+                return render_settings_row(_("Modem"), rows, configure_modem_settings);
+            }
+
             return [render_interface_section_separator("Settings"),
                 render_master(),
                 render_general_settings_row(),
@@ -2965,7 +3057,10 @@ PageNetworkInterface.prototype = {
                 render_bridge_port_settings_row(),
                 render_bond_settings_row(),
                 render_team_settings_row(),
-                render_team_port_settings_row()
+                render_team_port_settings_row(),
+                render_modem_settings_row(),
+                render_ip_settings_row("ipv4", _("IPv4")),
+                render_ip_settings_row("ipv6", _("IPv6"))
             ];
         }
 
@@ -4845,6 +4940,132 @@ function PageNetworkMacSettings() {
     this._init();
 }
 
+PageNetworkModemSettings.prototype = {
+    _init: function () {
+        this.id = "network-modem-settings-dialog";
+        this.modem_settings_template = $("#network-modem-settings-template").html();
+        mustache.parse(this.modem_settings_template);
+    },
+
+    setup: function () {
+        $('#network-modem-settings-cancel').click($.proxy(this, "cancel"));
+        $('#network-modem-settings-apply').click($.proxy(this, "apply"));
+    },
+
+    enter: function () {
+        $('#network-modem-settings-error').hide();
+        this.settings = PageNetworkModemSettings.ghost_settings || PageNetworkModemSettings.connection.copy_settings();
+        this.update();
+    },
+
+    show: function() {
+    },
+
+    leave: function() {
+    },
+
+    update: function() {
+        var self = this;
+        var options = self.settings.modem;
+        var connection = self.settings.connection;
+        var username_input, password_input, number_input;
+        var apn_input, pin_input, device_btn;
+
+        var device_choices = [];
+        PageNetworkModemSettings.model.list_interfaces().forEach(function (i) {
+            if (is_interesting_interface(i) && i.Device && i.Device.DeviceType === "modem")
+                device_choices.push({ title: i.Name, choice: i.Device.Interface });
+        });
+
+        if (device_choices.length == 0)
+            device_choices.push({ title: "Not detected", choice: "" });
+
+        function choicebox(env, subenv, choices, klass) {
+            var btn = select_btn(
+                function (choice) {
+                    if (env)
+                        env[subenv] = choice;
+                    change();
+                },
+                choices, klass);
+            select_btn_select(btn, choices[0].choice);
+            return btn;
+        }
+
+        function change() {
+            connection.interface_name = select_btn_selected(device_btn);
+            options.username = username_input.val();
+            options.password = password_input.val();
+            options.number = number_input.val();
+            options.apn = apn_input.val();
+            options.pin = pin_input.val();
+        }
+
+        var body = $(mustache.render(self.modem_settings_template, options));
+
+        body.find('#network-modem-settings-device-select').replaceWith(
+            device_btn = choicebox(connection, "interface_name", device_choices));
+        username_input = body.find('#network-modem-settings-username-input');
+        username_input.change(change);
+        password_input = body.find('#network-modem-settings-password-input');
+        password_input.change(change);
+        number_input = body.find('#network-modem-settings-number-input');
+        number_input.change(change);
+        apn_input = body.find('#network-modem-settings-apn-input');
+        apn_input.change(change);
+        pin_input = body.find('#network-modem-settings-pin-input');
+        pin_input.change(change);
+
+        $('#network-modem-settings-body').html(body);
+
+        // hide password by default
+        $('#network-modem-settings-password-toggle').prop('checked', false);
+
+        $('#network-modem-settings-password-toggle').click(function() {
+            if (password_input.attr("type") == "password")
+                password_input.attr('type', "text");
+            else
+                password_input.attr('type', "password");
+        });
+        change();
+    },
+
+    cancel: function() {
+        $('#network-modem-settings-dialog').modal('hide');
+    },
+
+    apply: function() {
+        var self = this;
+        var model = PageNetworkModemSettings.model;
+
+        function show_error(error) {
+            show_dialog_error('#network-modem-settings-error', error);
+        }
+
+        if (!self.settings.connection.interface_name) {
+            show_error(_("Device is not set: Check if modem adapter is recognized"));
+            return;
+        }
+
+        function modify () {
+            return PageNetworkModemSettings.apply_settings(self.settings)
+                    .then(function () {
+                        $('#network-modem-settings-dialog').modal('hide');
+                        if (PageNetworkModemSettings.done)
+                            return PageNetworkModemSettings.done();
+                    })
+                    .fail(show_error);
+        }
+
+        with_settings_checkpoint(model, modify,
+                                 { devices: connection_devices(PageNetworkModemSettings.connection) });
+    }
+};
+
+function PageNetworkModemSettings() {
+    this._init();
+}
+
 /* INITIALIZATION AND NAVIGATION
  *
  * The code above still uses the legacy 'Page' abstraction for both
@@ -4915,6 +5136,7 @@ function init() {
         interface_page = new PageNetworkInterface(model);
         interface_page.setup();
 
+        dialog_setup(new PageNetworkGeneralSettings());
         dialog_setup(new PageNetworkIpSettings());
         dialog_setup(new PageNetworkBondSettings());
         dialog_setup(new PageNetworkTeamSettings());
@@ -4924,6 +5146,7 @@ function init() {
         dialog_setup(new PageNetworkVlanSettings());
         dialog_setup(new PageNetworkMtuSettings());
         dialog_setup(new PageNetworkMacSettings());
+        dialog_setup(new PageNetworkModemSettings());
 
         $(cockpit).on("locationchanged", navigate);
         navigate();

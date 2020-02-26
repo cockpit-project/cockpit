@@ -120,9 +120,7 @@
               <div class="caret"></div>
             </button>
               <ul class="dropdown-menu left-offset-75-menu">
-
-
-
+                <li><a tabindex="0" id="networking-add-openvpn" translatable="yes">OpenVPN</a></li>
                 <li><a tabindex="0" id="networking-add-bond" translatable="yes">Bond</a></li>
                 <li><a tabindex="0" id="networking-add-bridge" translatable="yes">Bridge</a></li>
                 <li><a tabindex="0" id="networking-add-vlan" translatable="yes">VLAN</a></li>
@@ -422,6 +420,35 @@
       <label class="control-label" for="network-team-port-settings-lacp-key-input" translate="yes">LACP Key</label>
       <input id="network-team-port-settings-lacp-key-input" class="form-control network-number-field ct-form-relax"
              type="text" value="{{lacp_key}}"/>
+    </form>
+  </script>
+
+  <script id="network-openvpn-settings-template" type="x-template/mustache">
+    <form class="ct-form">
+      <label class="control-label" for="network-openvpn-settings-gateway-input" translatable="yes">Gateway</label>
+      <input id="network-openvpn-settings-gateway-input" class="form-control network-number-field ct-form-relax"
+             type="text" value="{{gateway_input}}"/>
+
+     <label class="control-label" for="network-openvpn-settings-auth" translatable="yes">Authentication</label>
+     <span translatable="yes">Certificates (TLS)</span>
+
+     <label class="control-label" for="network-openvpn-settings-cert-file" translatable="yes">CA Certificate</label>
+     <input id="network-openvpn-settings-cert-file" type="file"/>
+     </label>
+
+     <label class="control-label" for="network-openvpn-settings-dev-cert-file" translatable="yes">Device Certificate</label>
+     <input id="network-openvpn-settings-dev-cert-file" type="file"/>
+
+     <label class="control-label" for="network-openvpn-settings-dev-key-file" translatable="yes">Device private key</label>
+     <input id="network-openvpn-settings-dev-key-file" type="file"/>
+
+     <label class="checkbox-inline">
+       <input id="network-openvpn-settings-config-toggle" type="checkbox" checked="false"/>
+       <span translatable="yes">Import a saved VPN configuration</span>
+     </label>
+
+     <label class="control-label" for="network-openvpn-settings-ovpn-file" translatable="yes">Import (.ovpn)</label>
+     <input id="network-openvpn-settings-ovpn-file" type="file"/>
     </form>
   </script>
 
@@ -765,6 +792,30 @@
           </div>
           <button class="btn btn-default" translate="yes" id="network-mac-settings-cancel">Cancel</button>
           <button class="btn btn-primary" translate="yes" id="network-mac-settings-apply">Apply</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="network-openvpn-settings-dialog"
+       tabindex="-1" role="dialog"
+       data-backdrop="static">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" translatable="yes">OpenVPN</h4>
+        </div>
+        <div class="modal-body">
+          <div id="network-openvpn-settings-body">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <div class="alert alert-danger dialog-error" id="network-openvpn-settings-error">
+            <i class="fa fa-exclamation-triangle"></i>
+            <span></span>
+          </div>
+          <button class="btn btn-default" translatable="yes" id="network-openvpn-settings-cancel">Cancel</button>
+          <button class="btn btn-primary" translatable="yes" id="network-openvpn-settings-apply">Apply</button>
         </div>
       </div>
     </div>

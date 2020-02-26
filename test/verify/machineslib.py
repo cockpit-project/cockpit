@@ -571,6 +571,7 @@ class TestMachines(NetworkCase):
         b.wait_not_present("#vm-subVmTest1-disks-vdc-device")
 
     # Test Add Disk via dialog
+    @timeout(900)
     def testAddDisk(self):
         b = self.browser
         m = self.machine
@@ -1319,6 +1320,7 @@ class TestMachines(NetworkCase):
                                     ".*Connection reset by peer")
         self.allow_browser_errors("Disconnection timed out.")
 
+    @timeout(1200)
     def testCreate(self):
         """
         this test will print many expected error messages

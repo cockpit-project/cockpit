@@ -300,7 +300,7 @@ class TestSystemInfo(MachineCase):
         b.wait_not_present(tooltip_sel)
 
     @skipImage("Uses timedatex, no NTP servers config", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream",
-               "fedora-30", "fedora-testing")
+               "fedora-30")
     def testTimeServers(self):
         m = self.machine
         b = self.browser

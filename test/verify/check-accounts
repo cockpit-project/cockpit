@@ -23,6 +23,7 @@ import parent
 from testlib import *
 
 
+@nondestructive
 class TestAccounts(MachineCase):
 
     def testBasic(self):
@@ -88,7 +89,8 @@ class TestAccounts(MachineCase):
         b.wait_present("#accounts-create")
 
         # Create a user from the UI
-        m.execute("sed -i 's/^SHELL=.*$/SHELL=\/bin\/true/' /etc/default/useradd")
+        m.execute("sed -i.bak 's/^SHELL=.*$/SHELL=\/bin\/true/' /etc/default/useradd")
+        self.addCleanup(m.execute, "mv {0}.bak {0}".format("/etc/default/useradd"))
         b.click('#accounts-create')
         b.wait_popup('accounts-create-dialog')
         b.set_val('#accounts-create-user-name', "berta")

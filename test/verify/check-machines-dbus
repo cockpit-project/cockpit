@@ -1263,9 +1263,11 @@ class TestMachinesDBus(machineslib.TestMachines):
         # Check it's not present after deactivation
         b.wait_not_present("tbody tr[data-row-id=pool-myPoolThree-{0}] td.listing-ct-toggle".format(connectionName)) # click on the row header
 
+    @nondestructive
     def testNetworksCreate(self):
         b = self.browser
         m = self.machine
+        test_self = self
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
@@ -1376,6 +1378,7 @@ class TestMachinesDBus(machineslib.TestMachines):
 
                     self.cancel()
                 else:
+                    test_self.addCleanup(m.execute, "virsh net-destroy {0}; virsh net-undefine {0} || true".format(self.name))
                     b.wait_not_present("#create-network-dialog")
 
             def verify_dialog(self):

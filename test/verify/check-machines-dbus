@@ -959,6 +959,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.click(".modal-footer button:contains(Delete)")
         b.wait_not_present("tbody tr[data-row-id=network-test_network2-{0}] th".format(connectionName))
 
+    @nondestructive
     def testNetworks(self):
         b = self.browser
         m = self.machine
@@ -973,10 +974,13 @@ class TestMachinesDBus(machineslib.TestMachines):
 
         # Create dummy network
         m.execute("echo \"{0}\" > /tmp/xml && virsh net-define /tmp/xml".format(TEST_NETWORK2_XML))
+        self.addCleanup(m.execute, "virsh net-destroy test_network2; virsh net-undefine test_network2")
         b.wait_in_text(".cards-pf #card-pf-networks .card-pf-title-link", "Networks")
         b.wait_in_text(".cards-pf #card-pf-networks .card-pf-aggregate-status-count", "2")
         m.execute("echo \"{0}\" > /tmp/xml && virsh net-define /tmp/xml".format(TEST_NETWORK3_XML))
+        self.addCleanup(m.execute, "virsh net-destroy test_network3; virsh net-undefine test_network3")
         m.execute("echo \"{0}\" > /tmp/xml && virsh net-create /tmp/xml".format(TEST_NETWORK4_XML))
+        self.addCleanup(m.execute, "virsh net-destroy test_network4; virsh net-undefine test_network4 || true")
 
         # Click on Networks card
         b.click(".cards-pf .card-pf-title span:contains(Networks)")

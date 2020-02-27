@@ -225,7 +225,7 @@ OnCalendar=daily
         # Test all languages
         # Test that pages do not oops and that locale is valid
 
-        if m.image not in [TEST_OS_DEFAULT]:
+        if m.image not in [TEST_OS_DEFAULT] and not m.image.startswith("rhel-"):
             return
 
         def line_sel(i):

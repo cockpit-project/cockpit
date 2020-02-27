@@ -2008,6 +2008,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         ).execute()
 
 
+    @nondestructive
     def testNICAdd(self):
         b = self.browser
         m = self.machine
@@ -2144,6 +2145,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_present("#vm-subVmTest1-add-iface-button") # open the Network Interfaces subtab
         # Test network type source
         m.execute("echo \"{0}\" > /tmp/xml && virsh net-define /tmp/xml && virsh net-start test_network".format(TEST_NETWORK_XML))
+        self.addCleanup(m.execute, "virsh net-destroy test_network; virsh net-undefine test_network")
 
         NICAddDialog(
             self,

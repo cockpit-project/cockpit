@@ -988,6 +988,7 @@ class TestMachines(NetworkCase):
             expected_target=get_next_free_target(),
         ).execute()
 
+    @nondestructive
     def testVmNICs(self):
         b = self.browser
         m = self.machine

@@ -858,12 +858,14 @@ class TestMachinesDBus(machineslib.TestMachines):
         m.execute("virsh undefine subVmTest1")
         b.wait_not_present("#vm-subVmTest1-network-1-edit-dialog")
 
+    @nondestructive
     def testNetworkAutostart(self):
         b = self.browser
         m = self.machine
 
         # Create dummy network
         m.execute("echo \"{0}\" > /tmp/xml && virsh net-define /tmp/xml".format(TEST_NETWORK2_XML))
+        self.addCleanup(m.execute, "virsh net-destroy test_network2; virsh net-undefine test_network2")
 
         connectionName = m.execute("virsh uri | head -1 | cut -d/ -f4").strip()
 

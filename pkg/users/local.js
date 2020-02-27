@@ -1364,7 +1364,7 @@ function PasswordReset() {
         $("#password-reset .modal-body p").text(msg);
     });
 
-    $("#password-reset .pf-m-primary").on("click", function() {
+    $("#password-reset .pf-m-danger").on("click", function() {
         var account_id = $("#password-reset").data("account-id");
         var promise = cockpit.spawn(["/usr/bin/passwd", "-e", account_id],
                                     { superuser : true, err: "message" });

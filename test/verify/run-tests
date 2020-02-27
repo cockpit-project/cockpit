@@ -80,7 +80,7 @@ def finish_test(opts, test):
             print_test(test, print_tap=False)
             return False, 0
 
-    if test.retries < 2 or b"# RETRY" in test.output:
+    if test.retries < 2 and b"# RETRY" in test.output:
         test.retries += 1
         test.output += " # RETRY {0}\n".format(test.retries).encode()
         print_test(test, print_tap=opts.thorough)

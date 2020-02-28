@@ -66,7 +66,7 @@ export function getIfaceXML(sourceType, source, model, mac) {
     return new XMLSerializer().serializeToString(doc.documentElement);
 }
 
-export function getNetworkXML({ name, forwardMode, device, ipv4, netmask, ipv6, prefix, ipv4DhcpRangeStart, ipv4DhcpRangeEnd, ipv6DhcpRangeStart, ipv6DhcpRangeEnd }) {
+export function getNetworkXML({ name, forwardMode, device, checkedIfaces, ipv4, netmask, ipv6, prefix, ipv4DhcpRangeStart, ipv4DhcpRangeEnd, ipv6DhcpRangeStart, ipv6DhcpRangeEnd }) {
     const doc = document.implementation.createDocument('', '', null);
 
     const networkElem = doc.createElement('network');
@@ -81,6 +81,14 @@ export function getNetworkXML({ name, forwardMode, device, ipv4, netmask, ipv6, 
         if ((forwardMode === 'nat' || forwardMode === 'route') && device !== 'automatic')
             forwardElem.setAttribute('dev', device);
         networkElem.appendChild(forwardElem);
+
+        if (forwardMode === 'bridge') {
+            checkedIfaces.forEach(iface => {
+                const interfaceElem = doc.createElement('interface');
+                interfaceElem.setAttribute('dev', iface);
+                forwardElem.appendChild(interfaceElem);
+            });
+        }
     }
 
     if (forwardMode === 'none' ||
@@ -93,7 +101,7 @@ export function getNetworkXML({ name, forwardMode, device, ipv4, netmask, ipv6, 
         networkElem.appendChild(domainElem);
     }
 
-    if (ipv4) {
+    if (ipv4 && forwardMode !== 'bridge') {
         const dnsElem = doc.createElement('dns');
         const hostElem = doc.createElement('host');
         hostElem.setAttribute('ip', ipv4);
@@ -121,7 +129,7 @@ export function getNetworkXML({ name, forwardMode, device, ipv4, netmask, ipv6, 
         }
     }
 
-    if (ipv6) {
+    if (ipv6 && forwardMode !== 'bridge') {
         const ipv6Elem = doc.createElement('ip');
         ipv6Elem.setAttribute('family', 'ipv6');
         ipv6Elem.setAttribute('address', ipv6);

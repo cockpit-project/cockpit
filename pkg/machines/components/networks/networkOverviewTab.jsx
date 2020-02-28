@@ -76,7 +76,7 @@ export class NetworkOverviewTab extends React.Component {
         ip[0] = network.ip.find(ip => ip.family === "ipv4");
         ip[1] = network.ip.find(ip => ip.family === "ipv6");
         let interfaceDevices;
-        if (network.forward.interfaces && network.forward.interfaces.length > 0)
+        if (network.forward && network.forward.interfaces && network.forward.interfaces.length > 0)
             interfaceDevices = network.forward.interfaces.map(iface => iface.dev);
 
         return (

@@ -174,7 +174,10 @@ class TestMachinesNetworks(VirtualMachinesCase):
                     b.set_val("#create-network-forward-mode", self.forward_mode)
 
                 if self.device:
-                    b.select_from_dropdown("#create-network-device", self.device)
+                    if self.forward_mode == "bridge":
+                        b.click("#create-network-bridge-iface-{0}".format(self.device))
+                    else:
+                        b.select_from_dropdown("#create-network-device", self.device)
 
                 if self.ip_conf:
                     b.select_from_dropdown("#create-network-ip-configuration", self.ip_conf)
@@ -254,7 +257,7 @@ class TestMachinesNetworks(VirtualMachinesCase):
                 if self.device:
                     self.test_obj.assertEqual(self.device, m.execute(xmllint_element.format(prop='forward/interface/@dev')).strip())
 
-                if (self.ip_conf != "None"):
+                if self.ip_conf and self.ip_conf != "None":
                     if "4" in self.ip_conf:
                         self.test_obj.assertEqual(self.ipv4_address, m.execute(xmllint_element.format(prop='ip/@address')).strip())
                         self.test_obj.assertEqual(self.ipv4_netmask, m.execute(xmllint_element.format(prop='ip/@netmask')).strip())
@@ -285,7 +288,7 @@ class TestMachinesNetworks(VirtualMachinesCase):
                     if self.xfail_objects and 'danger_alert' in self.xfail_objects:
                         self.verify_expected_error_on_head(self.xfail_error)
 
-                if self.ip_conf != "None":
+                if self.ip_conf and self.ip_conf != "None":
                     if "4" in self.ip_conf:
                         b.wait_in_text("#network-{0}-{1}-ipv4-address".format(self.name, connectionName), self.ipv4_address)
                         b.wait_in_text("#network-{0}-{1}-ipv4-netmask".format(self.name, connectionName), self.ipv4_netmask)
@@ -454,7 +457,7 @@ class TestMachinesNetworks(VirtualMachinesCase):
             xfail_error = "Address not within subnet",
         ).execute()
 
-        # Test network devices
+        # Test network NAT devices
         device = getNetworkDevice(m)
         NetworkCreateDialog(
             self,
@@ -480,6 +483,16 @@ class TestMachinesNetworks(VirtualMachinesCase):
             xfail_objects = ["ipv4_dhcp_start", "ipv4_dhcp_end"],
             xfail_error = "Address not within subnet",
         ).execute()
+
+        # Test network Bridge interface devices (macvtap)
+        device = getNetworkDevice(m)
+        NetworkCreateDialog(
+            self,
+            name="test_network",
+            forward_mode="bridge",
+            device=device,
+        ).execute()
+
 
     def testNetworkSettings(self):
         b = self.browser

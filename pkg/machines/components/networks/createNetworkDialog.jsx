@@ -31,6 +31,7 @@ import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { networkCreate } from '../../libvirt-dbus.js';
 import { isEmpty, LIBVIRT_SYSTEM_CONNECTION, rephraseUI } from '../../helpers.js';
 import * as utils from './utils';
+import { SelectableListing } from "cockpit-components-selectable-listing.jsx";
 import cockpit from 'cockpit';
 
 import './createNetworkDialog.css';
@@ -129,7 +130,7 @@ const NetworkNameRow = ({ onValueChanged, dialogValues, validationFailed }) => {
 };
 
 const NetworkForwardModeRow = ({ onValueChanged, dialogValues }) => {
-    const forwardModes = ['nat', 'open', 'none'];
+    const forwardModes = ['nat', 'bridge', 'open', 'none'];
 
     return (
         <FormGroup fieldId='create-network-forward-mode' label={_("Forward mode")}>
@@ -166,6 +167,16 @@ const NetworkDeviceRow = ({ devices, onValueChanged, dialogValues }) => {
                     })}
                 </FormSelectOptionGroup>
             </FormSelect>
+        </FormGroup>
+    );
+};
+
+const InterfacesRow = ({ ifaceRows, onIfaceToggle }) => {
+    return (
+        <FormGroup fieldId="create-network-ifaces" label={_("Interfaces")}>
+            <SelectableListing rows={ifaceRows}
+                onRowToggle={onIfaceToggle}
+                idPrefix="create-network-bridge-iface" />
         </FormGroup>
     );
 };
@@ -294,6 +305,11 @@ const Ipv6Row = ({ validationFailed, dialogValues, onValueChanged }) => {
 class CreateNetworkModal extends React.Component {
     constructor(props) {
         super(props);
+        const ifaces = [];
+        props.devices.forEach(iface => {
+            ifaces.push({ name: iface, id: iface, selected: false });
+        });
+
         this.state = {
             createInProgress: false,
             dialogError: undefined,
@@ -301,6 +317,7 @@ class CreateNetworkModal extends React.Component {
             name: '',
             forwardMode: 'nat',
             device: 'automatic',
+            ifaceRows: ifaces,
             ip: 'IPv4 only',
             ipv4: '192.168.100.1',
             netmask: '24',
@@ -316,6 +333,7 @@ class CreateNetworkModal extends React.Component {
         this.dialogErrorSet = this.dialogErrorSet.bind(this);
         this.dialogErrorDismiss = this.dialogErrorDismiss.bind(this);
         this.onValueChanged = this.onValueChanged.bind(this);
+        this.onIfaceToggle = this.onIfaceToggle.bind(this);
         this.onCreate = this.onCreate.bind(this);
     }
 
@@ -339,21 +357,31 @@ class CreateNetworkModal extends React.Component {
         this.setState({ [key]: value });
     }
 
+    onIfaceToggle(ifaceName) {
+        const ifaceRows = [...this.state.ifaceRows];
+        const index = ifaceRows.findIndex(row => row.name === ifaceName);
+        ifaceRows[index].selected = !ifaceRows[index].selected;
+
+        this.setState({ ifaceRows });
+    }
+
     onCreate() {
         if (Object.getOwnPropertyNames(validateParams(this.state)).length > 0) {
             this.setState({ inProgress: false, validate: true });
         } else {
             const {
-                name, forwardMode, ip, prefix, device,
+                name, forwardMode, ip, prefix, device, ifaceRows,
                 ipv4DhcpRangeStart, ipv4DhcpRangeEnd, ipv6DhcpRangeStart, ipv6DhcpRangeEnd
             } = this.state;
             const ipv6 = ["IPv4 only", "None"].includes(ip) ? undefined : this.state.ipv6;
             const ipv4 = ["IPv6 only", "None"].includes(ip) ? undefined : this.state.ipv4;
             const netmask = utils.netmaskConvert(this.state.netmask);
+            const checkedIfaces = ifaceRows.filter(iface => iface.selected)
+                    .map(iface => iface.name);
 
             this.setState({ createInProgress: true });
             networkCreate({
-                connectionName: LIBVIRT_SYSTEM_CONNECTION, name, forwardMode, device, ipv4, netmask, ipv6, prefix,
+                connectionName: LIBVIRT_SYSTEM_CONNECTION, name, forwardMode, device, checkedIfaces, ipv4, netmask, ipv6, prefix,
                 ipv4DhcpRangeStart, ipv4DhcpRangeEnd, ipv6DhcpRangeStart, ipv6DhcpRangeEnd
             })
                     .fail(exc => {
@@ -382,6 +410,9 @@ class CreateNetworkModal extends React.Component {
                                   devices={this.props.devices}
                                   onValueChanged={this.onValueChanged}
                                   validationFailed={validationFailed} /> }
+                { this.state.forwardMode === "bridge" &&
+                <InterfacesRow ifaceRows={this.state.ifaceRows}
+                               onIfaceToggle={this.onIfaceToggle} /> }
 
                 { (this.state.forwardMode !== "vepa" && this.state.forwardMode !== "bridge") &&
                 <IpRow dialogValues={this.state}

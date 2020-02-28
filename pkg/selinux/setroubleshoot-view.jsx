@@ -406,7 +406,7 @@ export class SETroubleshootPage extends React.Component {
                     <button
                         id="selinux-alert-dismiss"
                         title="Dismiss"
-                        className="pf-c-button pf-m-danger"
+                        className="pf-c-button pf-m-danger btn-sm"
                         onClick={onDeleteClick}
                         disabled={ !onDeleteClick || !self.props.deleteAlert }>
                         <i className="pficon pficon-delete" />

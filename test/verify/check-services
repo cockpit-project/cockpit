@@ -33,7 +33,7 @@ class TestServices(MachineCase):
         self.machine.execute("systemctl start default.target")
 
     def pick_tab(self, n):
-        self.browser.click('#services-filter li:nth-child({0}) a'.format(n))
+        self.browser.click('#services-filter li:nth-child({0}) button'.format(n))
 
     def wait_onoff(self, val):
         self.browser.wait_present(".service-top-panel .onoff-ct input" + (":checked" if val else ":not(:checked)"))

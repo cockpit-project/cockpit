@@ -17,9 +17,9 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import React from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { Tabs, Tab } from 'patternfly-react';
+import { Nav, NavList, NavItem, NavVariants } from '@patternfly/react-core';
 
 import cockpit from "cockpit";
 
@@ -33,29 +33,29 @@ export const service_tabs_suffixes = new Set(["service", "target", "socket", "ti
  *  - onChange:
  *      When different tab is selected this callback is called
  */
-export class ServiceTabs extends React.Component {
-    render() {
-        const { warnings } = this.props;
+export function ServiceTabs({ onChange, warnings }) {
+    const [activeItem, setActiveItem] = useState(".service$");
 
-        function title(label, tag) {
-            if (warnings[tag])
-                return <span>{label} <span className="fa fa-exclamation-triangle" /></span>;
-            else
-                return label;
-        }
-
-        return (
-            <Tabs defaultActiveKey=".service$" id="service-tabs" onSelect={this.props.onChange}>
-                <Tab eventKey=".service$" title={ title(_("System Services"), "service") } />
-                <Tab eventKey=".target$" title={ title(_("Targets"), "target") } />
-                <Tab eventKey=".socket$" title={ title(_("Sockets"), "socket") } />
-                <Tab eventKey=".timer$" title={ title(_("Timers"), "timer") } />
-                <Tab eventKey=".path$" title={ title(_("Paths"), "path") } />
-            </Tabs>
-        );
+    function title(label, tag) {
+        if (warnings[tag])
+            return <span>{label} <span className="fa fa-exclamation-triangle" /></span>;
+        else
+            return label;
     }
-}
 
+    return (
+        <Nav id="service-tabs"
+            onSelect={result => { setActiveItem(result.itemId); onChange(result.itemId) }}>
+            <NavList variant={NavVariants.tertiary}>
+                <NavItem itemId=".service$" isActive={activeItem == ".service$"}> { title(_("System Services"), "service") } </NavItem>
+                <NavItem itemId=".target$" isActive={activeItem == ".target$"}> { title(_("Targets"), "target") } </NavItem>
+                <NavItem itemId=".socket$" isActive={activeItem == ".socket$"}> { title(_("Sockets"), "socket") } </NavItem>
+                <NavItem itemId=".timer$" isActive={activeItem == ".timer$"}> { title(_("Timers"), "timer") } </NavItem>
+                <NavItem itemId=".path$" isActive={activeItem == ".path$"}> { title(_("Paths"), "path") } </NavItem>
+            </NavList>
+        </Nav>
+    );
+}
 ServiceTabs.propTypes = {
     onChange: PropTypes.func.isRequired,
 };

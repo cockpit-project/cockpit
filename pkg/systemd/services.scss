@@ -36,11 +36,6 @@ table.systemd-unit-relationship-table td:first-child {
   margin: 0 1.5rem 0 0;
 }
 
-#services .nav-tabs {
-  border-bottom: none;
-  flex: auto;
-}
-
 #services .filter-group {
   display: flex;
   align-items: start;
@@ -52,21 +47,6 @@ table.systemd-unit-relationship-table td:first-child {
 
 @media screen and (max-width: 640px) {
   /*** Make content-header more finger-friendly ***/
-
-  #services .nav-tabs > li {
-    /* Make tabs at least 1/3 width, minus 2px for borders, */
-    /* for better alignment & touchability */
-    min-width: calc(33.333% - 2px);
-    text-align: center;
-  }
-
-  #services .nav-tabs > li > a {
-    /* Add padding to make the tabs more finger friendly */
-    padding: 0.75rem 1.25rem;
-    /* 1px is to compensate for negative margin */
-    width: calc(100% + 1px);
-  }
-
   /* Stretch the text input to use available width */
   #services-text-filter {
     flex: auto;
@@ -118,21 +98,6 @@ table.systemd-unit-relationship-table td:first-child {
 }
 
 @media screen and (max-width: 960px) {
-  #services .nav-tabs > li.active > a {
-    border-bottom-color: #ddd;
-  }
-
-  #services .nav-tabs {
-    display: flex;
-    flex-flow: row wrap;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid #ddd;
-  }
-
-  #services .nav-tabs > li {
-    float: none;
-  }
-
   #services .content-header-extra.with-navtabs {
     display: flex;
     flex-direction: column;

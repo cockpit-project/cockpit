@@ -1,5 +1,18 @@
-#service-details {
-    padding-bottom: 2.5rem;
+@import '../../lib/journal.css';
+
+.comma-list {
+  display: inline;
+  list-style: none;
+  padding-left: 0;
+}
+
+.comma-list > li {
+  display: inline-block;
+}
+
+.comma-list > li:not(:last-child):after {
+  content: ",";
+  margin-right: 0.5em;
 }
 
 .service-top-panel {

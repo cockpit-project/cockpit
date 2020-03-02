@@ -106,8 +106,8 @@ var info = {
         ],
 
         "systemd/services": [
-            "systemd/init.js",
-            "systemd/services.scss",
+            "systemd/services/services.jsx",
+            "systemd/services/services.scss",
         ],
         "systemd/logs": [
             "systemd/logs.js",
@@ -458,8 +458,10 @@ module.exports = {
                 test: /\.css$/,
                 include: stylesheet => {
                     return (
+                        stylesheet.includes('@patternfly/react-styles/css/components/Table/') ||
+                        stylesheet.includes('@patternfly/react-styles/css/components/Nav/') ||
                         stylesheet.includes('@patternfly/react-styles/css/components/Page/') ||
-                        stylesheet.includes('@patternfly/react-styles/css/components/Table/')
+                        stylesheet.includes('@patternfly/react-styles/css/components/Toolbar/')
                     );
                 },
                 use: ["null-loader"]

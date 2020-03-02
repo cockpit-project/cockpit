@@ -8,84 +8,12 @@
     <link href="services.css" type="text/css" rel="stylesheet">
     <script src="../base1/jquery.js"></script>
     <script src="../base1/cockpit.js"></script>
+    <script src="services.js"></script>
     <script src="../*/po.js"></script>
 </head>
 
-<body class="pf-m-redhat-font" id="services-page" hidden>
-  <script id="services-units-tmpl" type="x-template/mustache">
-    <div class="panel panel-default">
-      <table class="table table-hover">
-        {{#table_head}}
-          <thead>
-            <tr>
-              <th scope="col" class="service-unit-id">{{Id}}</th>
-              <th scope="col" class="service-unit-description">{{Description}}</th>
-              {{#is_timer}}
-                <th scope="col" class="service-unit-next">{{Next_Run_Time}}</th>
-                <th scope="col" class="service-unit-last">{{Last_Trigger_Time}}</th>
-              {{/is_timer}}
-              <th scope="col" class="service-unit-status {{#HasFailed}}service-unit-failed{{/HasFailed}}">{{Current_State}}</th>
-              <th scope="col" class="service-unit-data" id="service-automatic-startup-label">{{Automatic_Startup}}</th>
-            </tr>
-          </thead>
-        {{/table_head}}
-
-        {{#units}}
-        <tr data-goto-unit="{{Id}}">
-          <td class="service-unit-id">{{shortId}}</td>
-          <th scope="row" class="service-unit-description">{{Description}}</th>
-          {{#is_timer}}
-            <td class="service-unit-next">{{#NextRunTime}}{{NextRunTime}}{{/NextRunTime}}</td>
-            <td class="service-unit-last">{{#LastTriggerTime}}{{LastTriggerTime}}{{/LastTriggerTime}}</td>
-          {{/is_timer}}
-          <td class="service-unit-status {{#HasFailed}}service-unit-failed{{/HasFailed}}">
-            {{CombinedState}}
-          </td>
-          <td class="service-unit-data">
-            {{AutomaticStartup}}
-          </td>
-        {{/units}}
-      </table>
-    </div>
-  </script>
-
-  <div id="services">
-    <div class="content-header-extra with-navtabs">
-      <div id="services-filter"></div>
-
-      <div class="content-header-actions">
-        <button id="create-timer" data-toggle="#timer-dialog" data-target="#timer-dialog" class="pf-c-button pf-m-primary" translate>Create Timer</button>
-      </div>
-
-      <div class="filter-group">
-        <input type="search" id="services-text-filter" class="form-control" aria-label="Filter" placeholder="Filter by name or description..." translate="placeholder"/>
-
-        <select class="ct-select" id="services-dropdown" aria-labelledby="service-automatic-startup-label">
-          <option value="0" data-value="All" translate="yes" selected>All</option>
-          <option value="1" data-value="Enabled" translate="yes">Enabled</option>
-          <option value="2" data-value="Disabled" translate="yes">Disabled</option>
-          <option value="3" data-value="Static" translate="yes">Static</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="container-fluid" role="tabpanel">
-      <div id="services-list"></div>
-    </div>
-    <div id="loading-fallback" class="blank-slate-pf blank-screen">
-      <div class="spinner spinner-lg"></div>
-      <h1 translate>Loading...</h1>
-    </div>
-  </div>
-
-  <script id="service-empty-tmpl" type="x-template/mustache">
-    <div id="empty-search" class="blank-slate-pf blank-screen">
-      <h1 translate>No Matching Results</h1>
-      <p>
-        <a id="clear-all-filters" href="#" translate>Clear All Filters</a>
-      </p>
-    </div>
-  </script>
+<body class="pf-m-redhat-font" id="services-page">
+  <div id="services"></div>
 
   <script id="repeat-hourly-tmpl" type="x-template/mustache">
   {{#repeat}}
@@ -215,28 +143,6 @@
     </div>
   {{/repeat}}
   </script>
-
-  <div id="service" class="container-fluid" hidden>
-    <ol class="breadcrumb">
-      <li><a role="link" tabindex="0" id="service-navigate-home" translate="yes">Services</a></li>
-      <li class="active"></li>
-    </ol>
-
-    <div id="service-details"></div>
-
-    <div class="panel panel-default cockpit-log-panel" id="service-log-box" role="table" aria-describedby="service-log-box-heading" hidden>
-        <div class="panel-heading" id="service-log-box-heading" translate="yes">Service Logs</div>
-        <div class="panel-body" id="service-log" role="rowgroup"></div>
-    </div>
-
-    <div id="service-template">
-    </div>
-
-    <div id="service-invalid">
-      <div id="service-error-message"></div>
-    </div>
-
-  </div>
 
   <div class="modal" id="timer-dialog"
      tabindex="-1" role="dialog"
@@ -379,7 +285,5 @@
       </div>
     </div>
   </div>
-
-  <script src="services.js"></script>
 </body>
 </html>

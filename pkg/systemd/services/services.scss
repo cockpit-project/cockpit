@@ -1,0 +1,86 @@
+@import "~@patternfly/patternfly/components/Nav/nav.scss";
+@import "~@patternfly/patternfly/components/Page/page.scss";
+@import "~@patternfly/patternfly/components/Toolbar/toolbar.scss";
+@import "./timer.scss";
+@import "../../lib/table.css";
+@import "../system-global.scss";
+
+// Stretch content to fill viewport
+#services {
+    height: 100%;
+}
+
+/* There is too much padding between the Nav and the Toolbar */
+.pf-c-page__main-section:first-of-type {
+    padding-bottom: 0;
+}
+
+.service-unit-failed {
+    background-color: var(--color-ct-list-critical-bg);
+}
+
+.service-unit-description {
+    font-weight: bold;
+}
+
+.service-unit-status-failed {
+    color: red;
+}
+
+.service-unit-status {
+    white-space: nowrap;
+    min-width: 5rem;
+}
+
+.service-unit-file-state {
+    min-width: 5rem;
+    font-size: var(--pf-global--FontSize--sm);
+}
+.service-unit-file-state:not(.pf-c-badge) {
+    text-align: center;
+    opacity: 0.8;
+}
+
+.pf-c-data-list__item-action {
+    align-items: baseline;
+}
+
+@media screen and (min-width: $pf-global--breakpoint--lg) {
+    .pf-c-data-list__item-action {
+        min-width: 14rem;
+        flex-direction: row;
+        justify-content: flex-end;
+        flex-wrap: nowrap;
+    }
+}
+
+// Add some spacing between the tab label and the icon
+.pf-c-nav__link > .fa {
+    margin-left: 0.5rem;
+}
+
+// Add some spacing between the icon and the status string in the list
+.service-unit-status-failed > .fa {
+    margin-right: 0.5rem;
+}
+
+@media screen and (max-width: $pf-global--breakpoint--xl) {
+    .service-unit-id {
+        // Adjust padding, so things better align in mobile mode
+        padding-bottom: 0.875rem;
+    }
+}
+
+.service-unit-id {
+    // Make service IDs look like links
+    color: var(--pf-global--link--Color);
+}
+
+.pf-c-data-list__item:focus,
+.pf-c-data-list__item-content:hover {
+    .service-unit-id {
+        // Darken & underline ID "link" when item is focused or content is hovered
+        color: var(--pf-global--link--Color--hover);
+        text-decoration: underline;
+    }
+}

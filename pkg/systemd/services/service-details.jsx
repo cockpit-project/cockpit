@@ -300,6 +300,9 @@ export class ServiceDetails extends React.Component {
                 .then(results => {
                     if (results.length == 2 && !results[0])
                         this.setState({ note:_("This unit is not designed to be enabled explicitly.") });
+                    /* Executing daemon reload after file operations is necessary -
+                     * see https://github.com/systemd/systemd/blob/master/src/systemctl/systemctl.c [enable_unit function]
+                     */
                     this.props.systemdManager.Reload()
                             .then(() => this.setState({ waitsFileAction: false }));
                 })

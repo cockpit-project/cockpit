@@ -65,12 +65,31 @@ class TestServices(MachineCase):
         else:
             self.browser.wait_not_present(".service-top-panel .dropdown-kebab-pf")
 
+    def svc_sel(self, service):
+        if self.machine.image == "rhel-8-2-distropkg":
+            return 'tr[data-goto-unit="%s"]' % service
+        else:
+            return 'li[data-goto-unit="%s"]' % service
+
+    def wait_service_state(self, service, state):
+        b.wait_in_text(self.svc_sel(service), state)
+
+    def wait_page_load(self):
+        if self.machine.image == "rhel-8-2-distropkg":
+            self.browser.wait_not_visible("#loading-fallback")
+        else:
+            self.browser.wait_not_present(".pf-c-spinner[aria-valuetext='Loading...']")
+
+    def wait_service_in_panel(self, service, title):
+        self.wait_service_state(service, title)
+
     def wait_service_present(self, service):
-        service_name = service
         if service.endswith(".service"):
             service_name = service[:-8]
-        self.browser.wait_text('tr[data-goto-unit="{0}"] td:first-child'.format(service), service_name)
-
+        if self.machine.image == "rhel-8-2-distropkg":
+            self.browser.wait_text('tr[data-goto-unit="{0}"] td:first-child'.format(service), service_name)
+        else:
+            self.browser.wait_text('li[data-goto-unit="{0}"] .service-unit-id'.format(service), service_name)
 
     def testBasic(self):
         m = self.machine
@@ -146,63 +165,69 @@ Unit=test.service
         self.addCleanup(self.machine.execute, "systemctl stop test")
 
         self.login_and_go("/system/services")
-
-        def svc_sel(service):
-            return 'tr[data-goto-unit="%s"]' % service
-
-        def wait_service_state(service, state):
-            b.wait_in_text(svc_sel(service), state)
-
-        def wait_service_in_panel(service, title):
-            wait_service_state(service, title)
+        self.wait_page_load()
 
         self.wait_service_present("test.service")
-        wait_service_in_panel("test.service", "Disabled")
-        wait_service_state("test.service", "inactive")
+        self.wait_service_in_panel("test.service", "Disabled")
+        self.wait_service_state("test.service", "inactive")
 
         m.execute("systemctl start test.service")
-        wait_service_state("test.service", "running")
-        wait_service_in_panel("test.service", "Disabled")
+        self.wait_service_state("test.service", "active")
+        self.wait_service_in_panel("test.service", "Disabled")
 
         m.execute("systemctl stop test.service")
-        wait_service_state("test.service", "inactive")
-        wait_service_in_panel("test.service", "Disabled")
+        self.wait_service_state("test.service", "inactive")
+        self.wait_service_in_panel("test.service", "Disabled")
 
         m.execute("systemctl enable test.service")
-        wait_service_state("test.service", "inactive")
-        wait_service_in_panel("test.service", "Enabled")
+        self.wait_service_state("test.service", "inactive")
+        self.wait_service_in_panel("test.service", "Enabled")
 
         # Selects Targets tab
         self.pick_tab(2)
         b.wait_not_in_text("#services-list", "test")
-        wait_service_state("sockets.target", "active")
-        wait_service_state("reboot.target", "inactive")
+        self.wait_service_state("sockets.target", "active")
+        self.wait_service_state("reboot.target", "inactive")
 
         # Selects Sockets tab
         self.pick_tab(3)
         b.wait_not_in_text("#services-list", "test")
         b.wait_not_in_text("#services-list", ".target")
-        wait_service_state("dbus.socket", "active (running)")
+        self.wait_service_state("dbus.socket", "active (running)")
 
         # Selects Timer tab
         self.pick_tab(4)
         b.wait_not_in_text("#services-list", "test-fail")
         b.wait_not_in_text("#services-list", ".target")
         b.wait_not_in_text("#services-list", ".socket")
-        b.wait_present(svc_sel('test.timer'))
-        b.wait_text(svc_sel('test.timer') + ' td:nth-child(3)', '')  # next run
-        b.wait_text(svc_sel('test.timer') + ' td:nth-child(4)', '')  # last trigger
+        b.wait_present(self.svc_sel('test.timer'))
+        if self.machine.image == "rhel-8-2-distropkg":
+            b.wait_text(self.svc_sel('test.timer') + ' td:nth-child(3)', '')  # next run
+            b.wait_text(self.svc_sel('test.timer') + ' td:nth-child(4)', '')  # last trigger
+        else:
+            b.wait_text(self.svc_sel('test.timer') + ' .service-unit-triggers', '')
         m.execute("systemctl start test.timer")
-        b.wait_in_text(svc_sel('test.timer'), "Today")  # next run
-        b.wait_in_text(svc_sel('test.timer'), "unknown")  # last trigger
+        if self.machine.image == "rhel-8-2-distropkg":
+            b.wait_in_text(self.svc_sel('test.timer'), "Today")  # next run
+            b.wait_in_text(self.svc_sel('test.timer'), "unknown")  # last trigger
+        else:
+            b.wait_in_text(self.svc_sel('test.timer') + ' .service-unit-next-trigger', "Today")  # next run
+            b.wait_in_text(self.svc_sel('test.timer') + ' .service-unit-last-trigger', "unknown")  # last trigger
         m.execute("systemctl stop test.timer")
 
-        b.wait_present(svc_sel('test-onboot.timer'))
-        b.wait_text(svc_sel('test-onboot.timer') + ' td:nth-child(3)', '')  # next run
-        b.wait_text(svc_sel('test-onboot.timer') + ' td:nth-child(4)', '')  # last trigger
+        b.wait_present(self.svc_sel('test-onboot.timer'))
+        if self.machine.image == "rhel-8-2-distropkg":
+            b.wait_text(self.svc_sel('test-onboot.timer') + ' td:nth-child(3)', '')  # next run
+            b.wait_text(self.svc_sel('test-onboot.timer') + ' td:nth-child(4)', '')  # last trigger
+        else:
+            b.wait_text(self.svc_sel('test-onboot.timer') + ' .service-unit-triggers', '')
         m.execute("systemctl start test-onboot.timer")
-        b.wait_in_text(svc_sel('test-onboot.timer'), "Today")  # next run
-        b.wait_in_text(svc_sel('test-onboot.timer'), "unknown")  # last trigger
+        if self.machine.image == "rhel-8-2-distropkg":
+            b.wait_in_text(self.svc_sel('test-onboot.timer'), "Today")  # next run
+            b.wait_in_text(self.svc_sel('test-onboot.timer'), "unknown")  # last trigger
+        else:
+            b.wait_in_text(self.svc_sel('test-onboot.timer') + ' .service-unit-next-trigger', "Today")  # next run
+            b.wait_in_text(self.svc_sel('test-onboot.timer') + ' .service-unit-last-trigger', "unknown")  # last trigger
         m.execute("systemctl stop test-onboot.timer")
 
         # Make sure that test.service was not started by either test.timer or test-onboot.timer
@@ -214,13 +239,13 @@ Unit=test.service
         b.wait_not_in_text("#services-list", ".target")
         b.wait_not_in_text("#services-list", ".socket")
         b.wait_not_in_text("#services-list", ".timer")
-        b.wait_present(svc_sel("systemd-ask-password-console.path"))
+        b.wait_present(self.svc_sel("systemd-ask-password-console.path"))
 
         # Selects Services tab
         self.pick_tab(1)
 
         # Check test.service and then start it
-        b.click(svc_sel("test.service"))
+        b.click(self.svc_sel("test.service"))
         self.check_service_details(["Not running", "Automatically starts"], ["Start", "Disallow running (mask)"], True)
         self.do_action("Start")
         self.check_service_details(["Running", "Automatically starts"], ["Reload", "Restart", "Stop", "Disallow running (mask)"], True)
@@ -236,26 +261,27 @@ Unit=test.service
         # Check without permissions
         self.allow_authorize_journal_messages()
         b.relogin('/system/services#/test.service', authorized=False)
-        self.check_service_details(["Read-only", "Running", "Automatically starts"], [], False, onoff=False, kebab=False)
+        self.wait_page_load()
 
         b.relogin('/system/services#/test.service', authorized=True)
+        self.wait_page_load()
 
         self.toggle_onoff() # later on we need some disabled test
         self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)"], False)
 
         # Check service that fails to start
         b.go("#/")
-        b.click(svc_sel("test-fail.service"))
+        b.click(self.svc_sel("test-fail.service"))
         self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)"], False)
         self.toggle_onoff()
         self.check_service_details(["Failed to start", "Automatically starts"], ["Start", "Clear 'Failed to start'", "Disallow running (mask)"], True)
         b.click(".action-button:contains('Start Service')")
         b.go("#/")
         self.wait_service_present("test-fail.service")
-        wait_service_state("test-fail.service", "failed")
+        self.wait_service_state("test-fail.service", "failed")
 
         # Check static service
-        b.click(svc_sel("systemd-halt.service"))
+        b.click(self.svc_sel("systemd-halt.service"))
         self.check_service_details(["Static", "Not running"], ["Start", "Disallow running (mask)"], True, onoff=False)
 
         # Mask and unmask
@@ -272,7 +298,7 @@ Unit=test.service
         # Instantiate a template
         b.go("#/")
         self.wait_service_present("test-template@.service")
-        b.click(svc_sel("test-template@.service"))
+        b.click(self.svc_sel("test-template@.service"))
         b.set_input_text("#service-details input", "//param-f//o//o//")
         b.click("#service-details button")
         b.wait_text(".service-name", "Test Template for param-f/o/o")
@@ -282,7 +308,7 @@ Unit=test.service
         b.wait_visible("#service-details input")
 
         def wait_service_not_present(service):
-            b.wait_not_present(svc_sel(service))
+            b.wait_not_present(self.svc_sel(service))
 
         def init_filter_state():
             b.set_input_text("#services-text-filter", "")
@@ -320,7 +346,10 @@ Unit=test.service
         # Check filtering and selecting together - empty state
         b.set_input_text("#services-text-filter", "failing")
         wait_service_not_present("test.service")
-        b.wait_visible("#empty-search")
+        if self.machine.image == "rhel-8-2-distropkg":
+            b.wait_visible("#empty-search")
+        else:
+            b.wait_visible("#services-page .pf-c-empty-state")
 
         # Check resetting filter
         b.click("#clear-all-filters")
@@ -328,10 +357,13 @@ Unit=test.service
         self.wait_service_present("test-fail.service")
         self.wait_service_present("systemd-halt.service")
         self.assertEqual(b.val("#services-text-filter"), "")
-        self.assertEqual(b.val("#services-dropdown"), "0")
+        if self.machine.image == "rhel-8-2-distropkg":
+            self.assertEqual(b.val("#services-dropdown"), "0")
+        else:
+            self.assertEqual(b.val("#services-dropdown"), "all")
 
         # Check that journalbox shows empty state
-        b.click(svc_sel("systemd-halt.service"))
+        b.click(self.svc_sel("systemd-halt.service"))
         b.wait_text('#service-log', "No log entries")
 
     def testApi(self):
@@ -403,14 +435,11 @@ WantedBy=multi-user.target
 
         self.login_and_go("/system/services")
 
-        def svc_sel(service):
-            return 'tr[data-goto-unit="%s"]' % service
-
         # Selects Services tab
         self.pick_tab(1)
 
-        b.wait_in_text(svc_sel("condtest.service"), "Enabled")
-        b.click(svc_sel("condtest.service"))
+        self.wait_service_in_panel("condtest.service", "Enabled")
+        b.click(self.svc_sel("condtest.service"))
         self.check_service_details(["Not running", "Automatically starts"], ["Start", "Disallow running (mask)"], True)
         self.do_action("Start")
         b.wait_text("#condition", "Condition ConditionDirectoryNotEmpty=/var/tmp/empty was not met")
@@ -461,16 +490,14 @@ ExecStart=/bin/sh -c "while true; do sleep 5; done"
         # After writing files out tell systemd about them
         m.execute("systemctl daemon-reload")
 
-        def svc_sel(service):
-            return 'tr[data-goto-unit="%s"]' % service
-
         def rel_sel(reltype, service):
             return "#{0} a:contains('{1}')".format("".join(reltype.split(" ")), service)
 
         # services page
         self.login_and_go("/system/services")
+        self.wait_page_load()
         self.wait_service_present("test-a.service")
-        b.click(svc_sel("test-a.service"))
+        b.click(self.svc_sel("test-a.service"))
 
         # service a
         b.wait_js_cond('window.location.hash === "#/test-a.service"')
@@ -515,14 +542,12 @@ ExecStart=/bin/true
         self.machine.execute("systemctl start default.target")
 
         self.login_and_go("/system/services")
+        self.wait_page_load()
 
-        def svc_sel(service):
-            return 'tr[data-goto-unit="%s"]' % service
+        b.wait_present(self.svc_sel("test.service"))
+        b.wait_not_present(self.svc_sel("not-found.service"))
 
-        b.wait_present(svc_sel("test.service"))
-        b.wait_not_present(svc_sel("not-found.service"))
-
-        b.click(svc_sel("test.service"))
+        b.click(self.svc_sel("test.service"))
         b.wait_js_cond('window.location.hash === "#/test.service"')
 
         b.wait_attr("#Requires a:contains('not-found.service')", "class", "disabled")
@@ -549,11 +574,9 @@ WantedBy=default.target
         self.machine.execute("systemctl start default.target")
 
         self.login_and_go("/system/services")
+        self.wait_page_load()
 
-        def svc_sel(service):
-            return 'tr[data-goto-unit="%s"]' % service
-
-        b.click(svc_sel("test-fail.service"))
+        b.click(self.svc_sel("test-fail.service"))
         b.wait_js_cond('window.location.hash === "#/test-fail.service"')
 
         self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)"], False)
@@ -627,16 +650,20 @@ ExecStart=/usr/bin/false
         self.machine.execute("systemctl reset-failed")
 
         self.login_and_go("/system/services")
+        self.wait_page_load()
 
         # Start test-fail
         m.execute("systemctl start aab-fail")
 
-        # Aab-fail should be at the top, and have failed
-        b.wait_present('tr:nth-child(1)[data-goto-unit="aab-fail.service"]')
-        b.wait_present('tr[data-goto-unit="aab-fail.service"] td:contains("failed")')
-
         # Services tab should have icon
         b.wait_present('a:contains("System Services") .fa-exclamation-triangle')
+        # Aab-fail should be at the top, and have failed
+        if self.machine.image == "rhel-8-2-distropkg":
+            b.wait_present('tr:nth-child(1)[data-goto-unit="aab-fail.service"]')
+            b.wait_present('tr[data-goto-unit="aab-fail.service"] td:contains("failed")')
+        else:
+            b.wait_present('li[data-goto-unit="aab-fail.service"]')
+            b.wait_present('li[data-goto-unit="aab-fail.service"] .service-unit-status:contains("Failed")')
 
         # Nav link should have icon
         b.switch_to_top()
@@ -657,10 +684,12 @@ ExecStart=/usr/bin/false
         b.switch_to_top()
         b.click('#host-apps a[href="/system/services"]')
         b.enter_page('/system/services')
-        b.wait_not_present('tr:nth-child(1)[data-goto-unit="aab-fail.service"]')
+        if self.machine.image == "rhel-8-2-distropkg":
+            b.wait_not_present('tr:nth-child(1)[data-goto-unit="aab-fail.service"]')
+        else:
+            b.wait_not_present('li:nth-child(1)[data-goto-unit="aab-fail.service"]')
 
         if self.count_failures() == 0:
-
             # Services tab should not have icon
             b.wait_not_present('a:contains("System Services") .fa-exclamation-triangle')
 
@@ -694,9 +723,9 @@ Where=/fail
         m.execute("systemctl start fail.mount || true")
 
         self.login_and_go("/system/services")
+        self.wait_page_load()
 
         if self.count_failures() == 1:
-
             # Nav link should not have icon
             b.switch_to_top()
             b.wait_not_present('a[href="/system/services"] .fa-exclamation-triangle')
@@ -711,12 +740,21 @@ Where=/fail
 
 
 class TestTimers(MachineCase):
+    def svc_sel(self, service):
+        if self.machine.image == "rhel-8-2-distropkg":
+            return 'tr[data-goto-unit="%s"]' % service
+        else:
+            return 'li[data-goto-unit="%s"]' % service
+
+    def wait_page_load(self):
+        if self.machine.image == "rhel-8-2-distropkg":
+            self.browser.wait_not_visible("#loading-fallback")
+        else:
+            self.browser.wait_not_present(".pf-c-spinner[aria-valuetext='Loading...']")
+
     def testCreate(self):
         m = self.machine
         b = self.browser
-
-        def svc_sel(service):
-            return 'tr[data-goto-unit="%s"]' % service
 
         def wait_systemctl_timer(time):
             with testvm.Timeout(seconds=20, machine=m, error_message="Timeout while waiting for systemctl list-timers"):
@@ -737,7 +775,7 @@ class TestTimers(MachineCase):
 
         m.execute("timedatectl set-time '2036-01-01 15:30:00'")
         self.login_and_go("/system/services")
-        b.wait_not_visible("#loading-fallback")
+        self.wait_page_load()
         # Select "Timers" tab
         self.browser.click('#services-filter li:nth-child(4) a')
         b.wait_visible("#create-timer")
@@ -784,11 +822,11 @@ class TestTimers(MachineCase):
         b.set_val("[data-index=1][data-content='minutes']", "22")
         b.click("#timer-save-button")
         b.wait_popdown("timer-dialog")
-        b.wait_present(svc_sel('yearly_timer.timer'))
+        b.wait_present(self.svc_sel('yearly_timer.timer'))
 
         m.execute("timedatectl set-time '2036-01-01 15:30:00'")
-        b.wait_present(svc_sel('yearly_timer.timer'))
-        b.wait_in_text(svc_sel('yearly_timer.timer'), "Yearly timer")
+        b.wait_present(self.svc_sel('yearly_timer.timer'))
+        b.wait_in_text(self.svc_sel('yearly_timer.timer'), "Yearly timer")
         wait_systemctl_timer("2036-01-01 16:00")
         self.assertIn("2036-01-01 16:00", m.execute("systemctl list-timers"))
         m.execute("timedatectl set-time '2036-01-01 16:10:00'")
@@ -819,11 +857,11 @@ class TestTimers(MachineCase):
         b.set_val("[data-index=1][data-content='minutes']", "12")
         b.click("#timer-save-button")
         b.wait_popdown("timer-dialog")
-        b.wait_present(svc_sel('monthly_timer.timer'))
+        b.wait_present(self.svc_sel('monthly_timer.timer'))
 
         m.execute("timedatectl set-time '2036-01-01 16:15:00'")
-        b.wait_present(svc_sel('monthly_timer.timer'))
-        b.wait_in_text(svc_sel('monthly_timer.timer'), "Monthly timer")
+        b.wait_present(self.svc_sel('monthly_timer.timer'))
+        b.wait_in_text(self.svc_sel('monthly_timer.timer'), "Monthly timer")
         wait_systemctl_timer("2036-01-06 14:12")
         self.assertIn("2036-01-06 14:12", m.execute("systemctl list-timers"))
         m.execute("timedatectl set-time '2036-01-07 00:00:00'")
@@ -861,11 +899,11 @@ class TestTimers(MachineCase):
         b.set_val("[data-index=1][data-content='minutes']", "12")
         b.click("#timer-save-button")
         b.wait_popdown("timer-dialog")
-        b.wait_present(svc_sel('weekly_timer.timer'))
+        b.wait_present(self.svc_sel('weekly_timer.timer'))
 
         m.execute("timedatectl set-time '2036-03-08 00:00:00'")
-        b.wait_present(svc_sel('weekly_timer.timer'))
-        b.wait_in_text(svc_sel('weekly_timer.timer'), "Weekly timer")
+        b.wait_present(self.svc_sel('weekly_timer.timer'))
+        b.wait_in_text(self.svc_sel('weekly_timer.timer'), "Weekly timer")
         wait_systemctl_timer("Sun 2036-03-09 20:12")
         self.assertIn("Sun 2036-03-09 20:12", m.execute("systemctl list-timers"))
         m.execute("timedatectl set-time '2036-03-10 00:00:00'")
@@ -896,11 +934,11 @@ class TestTimers(MachineCase):
         b.set_val("[data-index=1][data-content='minutes']", "15")
         b.click("#timer-save-button")
         b.wait_popdown("timer-dialog")
-        b.wait_present(svc_sel('daily_timer.timer'))
+        b.wait_present(self.svc_sel('daily_timer.timer'))
 
         m.execute("timedatectl set-time '2036-03-17 00:00:00'")
-        b.wait_present(svc_sel('daily_timer.timer'))
-        b.wait_in_text(svc_sel('daily_timer.timer'), "Daily timer")
+        b.wait_present(self.svc_sel('daily_timer.timer'))
+        b.wait_in_text(self.svc_sel('daily_timer.timer'), "Daily timer")
         wait_systemctl_timer("2036-03-17 02:40")
         self.assertIn("2036-03-17 02:40", m.execute("systemctl list-timers"))
         m.execute("timedatectl set-time '2036-03-17 03:00:00'")
@@ -929,11 +967,11 @@ class TestTimers(MachineCase):
         b.set_val("[data-index=1][data-content='minutes']", "26")
         b.click("#timer-save-button")
         b.wait_popdown("timer-dialog")
-        b.wait_present(svc_sel('hourly_timer.timer'))
+        b.wait_present(self.svc_sel('hourly_timer.timer'))
 
         m.execute("timedatectl set-time '2036-04-10 03:00:00'")
-        b.wait_present(svc_sel('hourly_timer.timer'))
-        b.wait_in_text(svc_sel('hourly_timer.timer'), "Hourly timer")
+        b.wait_present(self.svc_sel('hourly_timer.timer'))
+        b.wait_in_text(self.svc_sel('hourly_timer.timer'), "Hourly timer")
         wait_systemctl_timer("2036-04-10 03:05")
         self.assertIn("2036-04-10 03:05", m.execute("systemctl list-timers"))
         m.execute("timedatectl set-time '2036-04-10 03:07:00'")
@@ -959,11 +997,11 @@ class TestTimers(MachineCase):
         b.set_val("#min", "59")
         b.click("#timer-save-button")
         b.wait_popdown("timer-dialog")
-        b.wait_present(svc_sel('no_repeat_timer.timer'))
-        b.wait_in_text(svc_sel('no_repeat_timer.timer'), "No repeat timer")
+        b.wait_present(self.svc_sel('no_repeat_timer.timer'))
+        b.wait_in_text(self.svc_sel('no_repeat_timer.timer'), "No repeat timer")
 
         m.execute("timedatectl set-time '2036-04-10 04:10:00'")
-        b.wait_present(svc_sel('no_repeat_timer.timer'))
+        b.wait_present(self.svc_sel('no_repeat_timer.timer'))
         wait_systemctl_timer("2036-04-10 23:59")
         self.assertIn("2036-04-10 23:59", m.execute("systemctl list-timers"))
 
@@ -979,7 +1017,7 @@ class TestTimers(MachineCase):
         b.set_val("#boot-time", "2")
         b.click("#timer-save-button")
         b.wait_popdown("timer-dialog")
-        b.wait_present(svc_sel('boot_timer.timer'))
+        b.wait_present(self.svc_sel('boot_timer.timer'))
         m.spawn("sync && sync && sync && sleep 0.1 && reboot", "reboot")
         m.wait_reboot()
         m.start_cockpit()

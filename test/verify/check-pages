@@ -109,7 +109,10 @@ OnCalendar=daily
             self.checkDocs(["Configuring system settings"])
         b.click("a[href='/system/services']")
         b.enter_page("/system/services")
-        b.wait_present("ol.breadcrumb")
+        if m.image == "rhel-8-2-distropkg":
+            b.wait_present("ol.breadcrumb")
+        else:
+            b.wait_present("ol.pf-c-breadcrumb__list")
         b.wait_text(".service-name", "Test Service")
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname === "/system/services"')
@@ -121,7 +124,10 @@ OnCalendar=daily
         b.click("a[href='/system/services']")
         b.enter_page("/system/services")
         b.wait_present("#services-list")
-        b.wait_not_visible("#service-details")
+        if m.image == "rhel-8-2-distropkg":
+            b.wait_not_visible("#service-details")
+        else:
+            b.wait_not_present("#service-details")
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname === "/system/services"')
         b.wait_js_cond('window.location.hash === ""')

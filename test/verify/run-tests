@@ -83,10 +83,16 @@ def finish_test(opts, test):
             print_test(test, print_tap=False)
             return None, 0
 
-    if test.retries < 2 and b"# RETRY" in test.output:
-        retry_reason = re.search(b"# RETRY (.*)$", test.output, re.MULTILINE).group(1)
+    if test.retries < 2:
+        # do we get a specific retry reason from tests-policy?
+        m = re.search(b"# RETRY (.*)$", test.output, re.MULTILINE)
+        if m:
+            retry_reason = m.group(1)
+        else:
+            # HACK: many tests are unstable, always retry them 3 times
+            retry_reason = b"be robust against unstable tests"
         test.retries += 1
-        test.output += " # RETRY {0}\n".format(test.retries).encode()
+        test.output += b" # RETRY %i (%s)\n" % (test.retries, retry_reason)
         print_test(test, print_tap=opts.thorough)
         return retry_reason, 0
     else:
@@ -191,11 +197,9 @@ def run(opts):
                 # sometimes our global machine gets messed up
                 # restart it to avoid an unbounded number of test retries and follow-up errors
                 if test is serial_test and retry_reason and b"test harness" in retry_reason:
-                        # try hard to keep the test output consistent
-                        sys.stdout.buffer.write(b"WARNING: restarting global machine due to global machine failure\n")
-                        sys.stdout.buffer.flush()
-                        testlib.MachineCase.kill_global_machine()
-                        testlib.MachineCase.get_global_machine()
+                    # try hard to keep the test output consistent
+                    testlib.MachineCase.kill_global_machine()
+                    testlib.MachineCase.get_global_machine()
 
                 # run again if needed
                 if retry_reason:

@@ -10,6 +10,7 @@ var info = {
 
         "dashboard/dashboard": [
             "dashboard/list.js",
+            "dashboard/dashboard.scss",
         ],
 
         "docker/docker": [

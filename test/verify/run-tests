@@ -224,7 +224,7 @@ def run(opts):
     details = "[{0}s on {1}]".format(duration, hostname)
     print()
     if result > 0:
-        print("# {0} TESTS FAILED {1}".format(result, duration))
+        print("# {0} TESTS FAILED {1}".format(result, details))
     else:
         print("# TESTS PASSED {0}".format(details))
     print("Test run finished, return code: {0}".format(result))

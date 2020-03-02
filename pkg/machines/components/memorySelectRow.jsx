@@ -51,7 +51,7 @@ class MemorySelectRow extends React.Component {
          * https://github.com/patternfly/patternfly-react/issues/3191
          */
         return (
-            <div className='slider-input-group' disabled={readOnly}
+            <div className={'slider-input-group' + (readOnly ? ' disabled' : '')}
                  key={[id, "slider", minValue, maxValue].join("-")}>
                 { (minValue != undefined && maxValue != undefined && value >= minValue) ? <Slider id={id + "-slider"}
                     type="range"

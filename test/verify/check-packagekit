@@ -1004,7 +1004,9 @@ class TestAutoUpdates(NoSubManCase):
         # then manually start the upgrade job like the timer would
         m.execute("systemctl start dnf-automatic-install.service")
         # new vanilla package got installed, and triggered reboot; cancel that
-        m.execute("set -e; test -f /stamp-vanilla-1.0-2; test -f /run/nologin; shutdown -c; test ! -f /run/nologin")
+        m.execute("test -f /stamp-vanilla-1.0-2")
+        m.execute("until test -f /run/nologin; do sleep 1; done")
+        m.execute("set -e; shutdown -c; test ! -f /run/nologin")
         # service should show vanilla upgrade and scheduling shutdown
         out = m.execute(
             "if systemctl status dnf-automatic-install.service; then echo 'expected service to be stopped'; exit 1; fi")

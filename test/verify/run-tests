@@ -60,8 +60,7 @@ def finish_test(opts, test):
 
     Return (retry_reason, exit_code). retry_reason can be None or a string.
     """
-
-    if test.process.returncode != 1:
+    if test.process.returncode in [0, 77]:
         print_test(test, not opts.list)
         return None, 0
 

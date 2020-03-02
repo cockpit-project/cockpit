@@ -36,7 +36,6 @@ import time
 import unittest
 import gzip
 import inspect
-import signal
 
 import testvm
 import cdp
@@ -657,7 +656,6 @@ class MachineCase(unittest.TestCase):
     browser = None
     network = None
     journal_start = None
-    test_timeout_orig_sighand = None
 
     # provision is a dictionary of dictionaries, one for each additional machine to be created, e.g.:
     # provision = { 'openshift' : { 'image': 'openshift', 'memory_mb': 1024 } }
@@ -742,28 +740,6 @@ class MachineCase(unittest.TestCase):
                 return False
         return True
 
-    def armTestTimeout(self):
-        assert self.test_timeout_orig_sighand is None
-
-        # most tests should take much less than 10mins, so default to that;
-        # longer tests can be annotated with @timeout(seconds)
-        # check the test function first, fall back to the class'es timeout
-        test_method = getattr(self.__class__, self._testMethodName)
-        timeout = getattr(test_method, "__timeout", getattr(self, "__timeout", 600))
-
-        def timeout_handler(signum, frame):
-            raise Error("%s timed out after %is" % (self, timeout))
-
-        self.test_timeout_orig_sighand = signal.signal(signal.SIGALRM, timeout_handler)
-        signal.alarm(timeout)
-
-    def disarmTestTimeout(self):
-        # this may be called multiple times
-        if self.test_timeout_orig_sighand is not None:
-            signal.alarm(0)
-            signal.signal(signal.SIGALRM, self.test_timeout_orig_sighand)
-            self.test_timeout_orig_sighand = None
-
     def run(self, result=None):
         self.currentResult = result
 
@@ -776,11 +752,7 @@ class MachineCase(unittest.TestCase):
         max_retry_hard_limit = 10
         for retry in range(0, max_retry_hard_limit):
             try:
-                self.armTestTimeout()
-                try:
-                    super().run(result)
-                finally:
-                    self.disarmTestTimeout()
+                super().run(result)
             except RetryError as ex:
                 assert retry < max_retry_hard_limit
                 sys.stderr.write("{0}\n".format(ex))
@@ -850,7 +822,6 @@ class MachineCase(unittest.TestCase):
                     [traceback.print_exception(*e[1]) for e in self._outcome.errors if e[1]]
                 else:
                     self.currentResult.printErrors()
-                self.disarmTestTimeout()
                 sit(self.machines)
         self.addCleanup(sitter)
 
@@ -1280,7 +1251,8 @@ def enableAxe(method):
 def timeout(seconds):
     """Change default test timeout of 600s, for long running tests
 
-    Can be applied to an individual test method or the entire class.
+    Can be applied to an individual test method or the entire class. This only
+    applies to test/verify/run-tests, not to calling check-* directly.
     """
     def wrapper(testEntity):
         testEntity.__timeout = seconds

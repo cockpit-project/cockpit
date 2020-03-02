@@ -28,6 +28,7 @@ os.environ['PYTHONUNBUFFERED'] = '1'
 class Test:
     test_id: int
     command: list
+    timeout: int
     process: subprocess.Popen = None
     retries: int = 0
     output: bytes = b""
@@ -141,9 +142,13 @@ def run(opts):
             for test in test_suite:
                 test_method = getattr(test.__class__, test._testMethodName)
                 test_str = "{0}.{1}".format(test.__class__.__name__, test._testMethodName)
+                # most tests should take much less than 10mins, so default to that;
+                # longer tests can be annotated with @timeout(seconds)
+                # check the test function first, fall back to the class'es timeout
+                test_timeout = getattr(test_method, "__timeout", getattr(test, "__timeout", 600))
                 if opts.tests and not any([t in test_str for t in opts.tests]):
                     continue
-                test = Test(test_id, build_command(filename, test_str, opts))
+                test = Test(test_id, build_command(filename, test_str, opts), test_timeout)
                 if getattr(test_method, "_testlib__non_destructive", False):
                     serial_tests.append(test)
                 else:
@@ -178,7 +183,8 @@ def run(opts):
             if test:
                 made_progress = True
                 test.outfile = tempfile.TemporaryFile()
-                test.process = subprocess.Popen(test.command, stdout=test.outfile, stderr=subprocess.STDOUT)
+                test.process = subprocess.Popen(["timeout", str(test.timeout)] + test.command,
+                                                stdout=test.outfile, stderr=subprocess.STDOUT)
                 running_tests.append(test)
 
 

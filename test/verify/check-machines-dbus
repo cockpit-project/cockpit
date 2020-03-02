@@ -813,7 +813,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         self.addCleanup(m.execute, "virsh net-start default")
         b.wait_in_text("#card-pf-networks .card-pf-aggregate-status-notification:nth-of-type(1)", "0")
         m.execute("virsh net-undefine test_network && virsh net-undefine default")
-        self.addCleanup(m.execute, "virsh net-define /tmp/net-default.xml")
+        self.addCleanup(m.execute, "virsh net-define /tmp/net-default.xml && virsh net-autostart default")
         b.wait_in_text("#card-pf-networks .card-pf-aggregate-status-notification:nth-of-type(2)", "0")
         b.wait_in_text("#card-pf-networks .card-pf-aggregate-status-count", "0")
 

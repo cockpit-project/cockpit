@@ -22,9 +22,9 @@ from storagelib import *
 from testlib import *
 
 
+@nondestructive
 class TestStorage(StorageCase):
 
-    @nondestructive
     def testPartitions(self):
         m = self.machine
         b = self.browser
@@ -72,9 +72,8 @@ class TestStorage(StorageCase):
         self.login_and_go("/storage")
         b.wait_in_text("#drives", "VirtIO")
 
-        m.add_disk("50M", serial="DISK1")
-        b.wait_in_text("#drives", "DISK1")
-        b.click('#drives tr:contains("DISK1")')
+        disk = self.add_ram_disk()
+        b.click('#drives tr:contains("scsi_debug")')
         b.wait_present('#storage-detail')
 
         b.click('button:contains(Create Partition Table)')
@@ -101,7 +100,7 @@ class TestStorage(StorageCase):
 
         # With old Udisks2 versions, the partition will end up being
         # 25.1M while newer versions give us 26M.
-        wait(lambda: m.execute("lsblk -no SIZE /dev/sda1").strip() in ["25.1M", "26M"])
+        wait(lambda: m.execute("lsblk -no SIZE %s1" % disk).strip() in ["25.1M", "26M"])
 
 
 if __name__ == '__main__':

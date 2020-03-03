@@ -194,7 +194,8 @@ class TestMachines(NetworkCase, StorageHelpers):
         # Wait until we can get a list of domains
         wait(lambda: m.execute("virsh list"))
         # Wait for the network 'default' to become active
-        wait(lambda: m.execute(command="virsh net-info default | grep Active"))
+        m.execute("virsh net-start default || true")
+        wait(lambda: m.execute(command="virsh net-info default | grep 'Active:\s*yes'"))
 
     def startVm(self, name, graphics='spice', ptyconsole=False):
         m = self.machine

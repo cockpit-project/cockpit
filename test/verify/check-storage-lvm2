@@ -249,6 +249,7 @@ class TestStorage(StorageCase):
                                values={"disks": {"DISK2": True}})
         b.wait_in_text("#detail-sidebar", "Partition of QEMU QEMU HARDDISK (DISK2)")
 
+    @nondestructive
     def testSnapshots(self):
         m = self.machine
         b = self.browser
@@ -256,25 +257,26 @@ class TestStorage(StorageCase):
         self.login_and_go("/storage")
         b.wait_in_text("#drives", "VirtIO")
 
-        m.add_disk("200M", serial="DISK1")
-        b.wait_in_text("#drives", "DISK1")
+        disk = self.add_ram_disk(100)
+        b.wait_in_text("#drives", disk)
 
-        m.execute("vgcreate TEST /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1")
+        m.execute("vgcreate TEST %s" % disk)
+        self.addCleanup(m.execute, "vgremove --force TEST")
         b.wait_in_text("#devices", "TEST")
         b.click('tr:contains("TEST")')
         b.wait_visible("#storage-detail")
 
         # Create a thinpool and a thin volume in it
 
-        m.execute("lvcreate TEST --thinpool pool -L 20m")
-        m.execute("lvcreate -T TEST/pool -n thin -V 100m")
+        m.execute("lvcreate TEST --thinpool pool -L 10m")
+        m.execute("lvcreate -T TEST/pool -n thin -V 30m")
         self.content_row_wait_in_col(2, 2, "/dev/TEST/thin")
 
         # Create a logical volume and take a snapshot of it.  We will
         # later check that the snapshot isn't shown.
 
-        m.execute("lvcreate TEST -n lvol0 -L 20m")
-        m.execute("lvcreate -s -n snap0 -L 20m TEST/lvol0")
+        m.execute("lvcreate TEST -n lvol0 -L 10m")
+        m.execute("lvcreate -s -n snap0 -L 10m TEST/lvol0")
 
         # the above lvol0 will be the new first entry in the table, so
         # TEST/thin moves to he third row

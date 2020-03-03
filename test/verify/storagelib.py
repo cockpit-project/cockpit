@@ -38,6 +38,23 @@ class StorageHelpers:
 
         self.browser.wait(step)
 
+    def add_ram_disk(self, size=50):
+        '''Add per-test RAM disk
+
+        The disk gets removed automatically when the test ends. This is safe for @nondestructive tests.
+
+        Return the device name.
+        '''
+        # sanity test: should not yet be loaded
+        self.machine.execute("test ! -e /sys/module/scsi_debug")
+        self.machine.execute("modprobe scsi_debug dev_size_mb=%s" % size)
+        dev = self.machine.execute('set -e; while true; do O=$(ls /sys/bus/pseudo/drivers/scsi_debug/adapter*/host*/target*/*:*/block 2>/dev/null || true); '
+                                   '[ -n "$O" ] && break || sleep 0.1; done; echo "/dev/$O"').strip()
+
+        # right after unmounting the device is often still busy, so retry a few times
+        self.addCleanup(self.machine.execute, "umount %s; until rmmod scsi_debug; do sleep 1; done" % dev, timeout=10)
+        return dev
+
     def devices_dropdown(self, title):
         self.browser.click("#devices .dropdown [data-toggle=dropdown]")
         self.browser.click("#devices .dropdown a:contains('%s')" % title)

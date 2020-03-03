@@ -1789,15 +1789,16 @@ class TestMachinesDBus(machineslib.TestMachines):
             source={"host": "127.0.0.1", "source_path": "/mnt/exports"}
         ).execute()
 
-        # Prepare a ramdisk with gpt partition table to test the disk storage pool type
-        machineslib.prepareDisk(m)
+        # Prepare a disk with gpt partition table to test the disk storage pool type
+        dev = self.add_ram_disk()
+        m.execute("parted %s mklabel gpt" % dev)
 
         StoragePoolCreateDialog(
             self,
             name="my_disk_pool",
             pool_type="disk",
             target="/media/",
-            source={"source_path": "/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1", "format": "gpt"},
+            source={"source_path": dev, "format": "gpt"},
         ).execute()
 
         # Debian and ubuntu images don't have open-iscsi already installed
@@ -1838,16 +1839,8 @@ class TestMachinesDBus(machineslib.TestMachines):
                 b.wait_not_present("#create-storage-pool-dialog")
 
         # Prepare a Volume Group to be used as source for the LVM pool
-        m.add_disk("50M", serial="DISK2")
-        m.add_disk("50M", serial="DISK3")
-        b.go("/storage")
-        b.enter_page("/storage")
-        b.wait_in_text("#drives", "DISK2")
-        b.wait_in_text("#drives", "DISK3")
-        dev_2 = "/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK2"
-        dev_3 = "/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK3"
-        m.execute("pvcreate {0} {1} && vgcreate vol_grp1 {0} {1}".format(dev_2, dev_3))
-        b.go("/machines")
+        m.execute("wipefs -a {0} && pvcreate {0} && vgcreate vol_grp1 {0}".format(dev))
+        b.go("/machines#/storages")
         b.enter_page("/machines")
 
         StoragePoolCreateDialog(
@@ -1871,9 +1864,9 @@ class TestMachinesDBus(machineslib.TestMachines):
         m.execute("virsh pool-define-as nfs-pool --type netfs --target /mnt/nfs-pool --source-host 127.0.0.1 --source-path /mnt/exports && virsh pool-start nfs-pool")
 
         # Prepare disk/block pool
-        machineslib.prepareDisk(m)
+        dev = self.add_ram_disk()
         cmds = [
-            "virsh pool-define-as disk-pool disk - - /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 - /tmp/poolDiskImages",
+            "virsh pool-define-as disk-pool disk - - %s - /tmp/poolDiskImages" % dev,
             "virsh pool-build disk-pool --overwrite",
             "virsh pool-start disk-pool",
         ]

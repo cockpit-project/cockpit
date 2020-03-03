@@ -367,6 +367,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.click("#vm-VmNotInstalled-networks")
         b.wait_present("#vm-VmNotInstalled-network-1-type")
 
+    @nondestructive
     def testDiskEdit(self):
         b = self.browser
         m = self.machine
@@ -545,6 +546,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         m.execute("virsh undefine subVmTest1")
         b.wait_present("button#vm-subVmTest1-memory-count:disabled")
 
+    @nondestructive
     def testDetachDisk(self):
         b = self.browser
         m = self.machine
@@ -1061,6 +1063,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         state = m.execute("virsh dominfo subVmTest1 | grep 'State:' | awk '{print $2}'").strip()
         self.assertEqual(state, "running")
 
+    @nondestructive
     def testStoragePools(self):
         b = self.browser
         m = self.machine

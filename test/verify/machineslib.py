@@ -24,6 +24,7 @@ import xml.etree.ElementTree as ET
 import parent
 from testlib import *
 from netlib import NetworkCase
+from storagelib import StorageHelpers
 
 
 def readFile(name):
@@ -32,13 +33,6 @@ def readFile(name):
         with open(name, 'r') as f:
             content = f.read().replace('\n', '')
     return content
-
-
-# Preparations for physical disk storage pool
-def prepareDisk(m):
-    m.add_disk("50M", serial="DISK1")
-    wait(lambda: m.execute("ls -l /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1"))
-    m.execute("parted /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 mklabel gpt")
 
 
 # Preparations for iscsi storage pool
@@ -175,7 +169,7 @@ reboot"""
 
 
 @skipImage("Atomic cannot run virtual machines", "fedora-coreos")
-class TestMachines(NetworkCase):
+class TestMachines(NetworkCase, StorageHelpers):
     created_pool = False
     provider = None
 
@@ -583,6 +577,8 @@ class TestMachines(NetworkCase):
         b = self.browser
         m = self.machine
 
+        dev = self.add_ram_disk()
+
         class VMAddDiskDialog(object):
             def __init__(
                 self, test_obj, pool_name=None, volume_name=None,
@@ -970,14 +966,13 @@ class TestMachines(NetworkCase):
             # Check that usage information can't be fetched since the pool is inactive
             b.wait_not_present("#vm-subVmTest1-disks-vdd-used")
 
-        prepareDisk(self.machine)
         cmds = [
-            "virsh pool-define-as pool-disk disk - - /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 - /tmp/poolDiskImages",
+            "virsh pool-define-as pool-disk disk - - %s - /tmp/poolDiskImages" % dev,
             "virsh pool-build pool-disk --overwrite",
             "virsh pool-start pool-disk",
         ]
         self.machine.execute(" && ".join(cmds))
-        partition = str(self.machine.execute("readlink -f /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 | cut -d '/' -f 3").strip()) + "1"
+        partition = os.path.basename(dev) + "1"
         VMAddDiskDialog(
             self,
             pool_name='pool-disk',
@@ -1663,9 +1658,9 @@ class TestMachines(NetworkCase):
                                          start_vm=True,))
 
         # Test create VM with disk of type "block"
-        prepareDisk(self.machine)
+        dev = self.add_ram_disk()
         cmds = [
-            "virsh pool-define-as poolDisk disk - - /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 - /tmp/poolDiskImages",
+            "virsh pool-define-as poolDisk disk - - %s - /tmp/poolDiskImages" % dev,
             "virsh pool-build poolDisk --overwrite",
             "virsh pool-start poolDisk",
             "virsh vol-create-as poolDisk sda1 1024"

@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import os
 import machineslib
 import parent
 from testlib import *
@@ -224,7 +225,6 @@ class TestMachinesDBus(machineslib.TestMachines):
 
         b.set_input_text("#vm-name", "VmNotInstalled")
         m.execute("touch /var/lib/libvirt/novell.iso")
-        self.addCleanup(m.execute, "rm /var/lib/libvirt/novell.iso")
         b.select_from_dropdown("#source-type", "Local Install Media")
         b.set_file_autocomplete_val("source-file", "/var/lib/libvirt/novell.iso")
         b.select_from_dropdown("#storage-size-unit-select", "MiB")
@@ -240,8 +240,6 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_not_present("#create-vm-dialog")
 
         b.wait_in_text("tbody tr[data-row-id=vm-VmNotInstalled] th", "VmNotInstalled")
-        self.addCleanup(m.execute, "virsh destroy VmNotInstalled; virsh undefine --nvram VmNotInstalled")
-        self.addCleanup(m.execute, "virsh pool-destroy default && virsh pool-undefine default")
 
         # Change autostart
         autostart = not b.get_checked("#vm-VmNotInstalled-autostart-checkbox")
@@ -376,8 +374,9 @@ class TestMachinesDBus(machineslib.TestMachines):
         self.startVm("subVmTest1")
 
         # prepare libvirt storage pools
-        m.execute("mkdir /mnt/vm_one; chmod a+rwx /mnt/vm_one")
-        m.execute("virsh pool-create-as myPoolOne --type dir --target /mnt/vm_one")
+        p1 = os.path.join(self.tmp_storage, "vm_one")
+        m.execute("mkdir --mode 777 {0}".format(p1))
+        m.execute("virsh pool-create-as myPoolOne --type dir --target {0}".format(p1))
         m.execute("virsh vol-create-as myPoolOne mydisk --capacity 100M --format raw") # raw support shareable
         m.execute("virsh vol-create-as myPoolOne mydisk2 --capacity 100M --format raw")
         m.execute("virsh vol-create-as myPoolOne mydisk3 --capacity 100M --format qcow2")
@@ -385,9 +384,9 @@ class TestMachinesDBus(machineslib.TestMachines):
         wait(lambda: "mydisk2" in m.execute("virsh vol-list myPoolOne"))
         wait(lambda: "mydisk3" in m.execute("virsh vol-list myPoolOne"))
 
-        m.execute("virsh attach-disk --domain subVmTest1 --source /mnt/vm_one/mydisk --target vde --targetbus virtio --persistent")
-        m.execute("virsh attach-disk --domain subVmTest1 --source /mnt/vm_one/mydisk2 --target vdf --targetbus virtio")
-        m.execute("virsh attach-disk --domain subVmTest1 --source /mnt/vm_one/mydisk3 --target vdg --targetbus virtio --subdriver qcow2 --persistent")
+        m.execute("virsh attach-disk --domain subVmTest1 --source {0}/mydisk --target vde --targetbus virtio --persistent".format(p1))
+        m.execute("virsh attach-disk --domain subVmTest1 --source {0}/mydisk2 --target vdf --targetbus virtio".format(p1))
+        m.execute("virsh attach-disk --domain subVmTest1 --source {0}/mydisk3 --target vdg --targetbus virtio --subdriver qcow2 --persistent".format(p1))
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
@@ -551,8 +550,9 @@ class TestMachinesDBus(machineslib.TestMachines):
         m = self.machine
 
         # prepare libvirt storage pools
-        m.execute("mkdir /mnt/vm_one; chmod a+rwx /mnt/vm_one")
-        m.execute("virsh pool-create-as myPoolOne --type dir --target /mnt/vm_one")
+        p1 = os.path.join(self.tmp_storage, "vm_one")
+        m.execute("mkdir --mode 777 {0}".format(p1))
+        m.execute("virsh pool-create-as myPoolOne --type dir --target {0}".format(p1))
         m.execute("virsh vol-create-as myPoolOne mydiskofpoolone_1 --capacity 1G --format qcow2")
         m.execute("virsh vol-create-as myPoolOne mydiskofpoolone_2 --capacity 1G --format qcow2")
         m.execute("virsh vol-create-as myPoolOne mydiskofpoolone_3 --capacity 1M --format qcow2")
@@ -562,9 +562,9 @@ class TestMachinesDBus(machineslib.TestMachines):
 
         args = self.startVm("subVmTest1")
 
-        m.execute("virsh attach-disk --domain subVmTest1 --source /mnt/vm_one/mydiskofpoolone_1 --target vdc --targetbus virtio")
-        m.execute("virsh attach-disk --domain subVmTest1 --source /mnt/vm_one/mydiskofpoolone_2 --target vdd --targetbus virtio --persistent")
-        m.execute("virsh attach-disk --domain subVmTest1 --source /mnt/vm_one/mydiskofpoolone_3 --target vde --targetbus virtio --persistent")
+        m.execute("virsh attach-disk --domain subVmTest1 --source {0}/mydiskofpoolone_1 --target vdc --targetbus virtio".format(p1))
+        m.execute("virsh attach-disk --domain subVmTest1 --source {0}/mydiskofpoolone_2 --target vdd --targetbus virtio --persistent".format(p1))
+        m.execute("virsh attach-disk --domain subVmTest1 --source {0}/mydiskofpoolone_3 --target vde --targetbus virtio --persistent".format(p1))
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
@@ -618,7 +618,7 @@ class TestMachinesDBus(machineslib.TestMachines):
 
         # Test detaching of disk on non-persistent VM
         m.execute("virsh undefine subVmTest1")
-        m.execute("virsh attach-disk --domain subVmTest1 --source /mnt/vm_one/mydiskofpoolone_1 --target vdc --targetbus virtio")
+        m.execute("virsh attach-disk --domain subVmTest1 --source {0}/mydiskofpoolone_1 --target vdc --targetbus virtio".format(p1))
         b.wait_present("#vm-subVmTest1-disks-vdc-device")
         b.click("#delete-subVmTest1-disk-vdc")
         b.wait_present(".modal-dialog")
@@ -673,7 +673,6 @@ class TestMachinesDBus(machineslib.TestMachines):
 
         # Create dummy network
         m.execute("echo \"{0}\" > /tmp/xml && virsh net-define /tmp/xml && virsh net-start test_network".format(TEST_NETWORK_XML))
-        self.addCleanup(m.execute, "virsh net-destroy test_network; virsh net-undefine test_network")
 
         # Create a second bridge to LAN NIC, virbr0 does not make sense but let's use it for test purposes
         m.execute("virsh attach-interface --persistent subVmTest1 bridge virbr0")
@@ -806,14 +805,12 @@ class TestMachinesDBus(machineslib.TestMachines):
         # Remove all Virtual Networks and confirm that trying to choose
         # Virtual Networks type for a NIC disables the save button
         m.execute("virsh net-dumpxml default > /tmp/net-default.xml")
-        self.addCleanup(m.execute, "rm /tmp/net-default.xml")
         m.execute("virsh net-dumpxml test_network > /tmp/net-test-network.xml")
-        self.addCleanup(m.execute, "rm /tmp/net-test-network.xml")
         m.execute("virsh net-destroy test_network && virsh net-destroy default")
-        self.addCleanup(m.execute, "virsh net-start default")
+        self.addCleanup(m.execute, "virsh net-define /tmp/net-default.xml && virsh net-autostart default")
+
         b.wait_in_text("#card-pf-networks .card-pf-aggregate-status-notification:nth-of-type(1)", "0")
         m.execute("virsh net-undefine test_network && virsh net-undefine default")
-        self.addCleanup(m.execute, "virsh net-define /tmp/net-default.xml && virsh net-autostart default")
         b.wait_in_text("#card-pf-networks .card-pf-aggregate-status-notification:nth-of-type(2)", "0")
         b.wait_in_text("#card-pf-networks .card-pf-aggregate-status-count", "0")
 
@@ -865,7 +862,6 @@ class TestMachinesDBus(machineslib.TestMachines):
 
         # Create dummy network
         m.execute("echo \"{0}\" > /tmp/xml && virsh net-define /tmp/xml".format(TEST_NETWORK2_XML))
-        self.addCleanup(m.execute, "virsh net-destroy test_network2; virsh net-undefine test_network2")
 
         connectionName = m.execute("virsh uri | head -1 | cut -d/ -f4").strip()
 
@@ -913,7 +909,6 @@ class TestMachinesDBus(machineslib.TestMachines):
 
         # Create dummy network
         m.execute("echo \"{0}\" > /tmp/xml && virsh net-define /tmp/xml".format(TEST_NETWORK2_XML))
-        self.addCleanup(m.execute, "virsh net-destroy test_network2; virsh net-undefine test_network2 || true")
 
         connectionName = m.execute("virsh uri | head -1 | cut -d/ -f4").strip()
 
@@ -974,13 +969,10 @@ class TestMachinesDBus(machineslib.TestMachines):
 
         # Create dummy network
         m.execute("echo \"{0}\" > /tmp/xml && virsh net-define /tmp/xml".format(TEST_NETWORK2_XML))
-        self.addCleanup(m.execute, "virsh net-destroy test_network2; virsh net-undefine test_network2")
         b.wait_in_text(".cards-pf #card-pf-networks .card-pf-title-link", "Networks")
         b.wait_in_text(".cards-pf #card-pf-networks .card-pf-aggregate-status-count", "2")
         m.execute("echo \"{0}\" > /tmp/xml && virsh net-define /tmp/xml".format(TEST_NETWORK3_XML))
-        self.addCleanup(m.execute, "virsh net-destroy test_network3; virsh net-undefine test_network3")
         m.execute("echo \"{0}\" > /tmp/xml && virsh net-create /tmp/xml".format(TEST_NETWORK4_XML))
-        self.addCleanup(m.execute, "virsh net-destroy test_network4; virsh net-undefine test_network4 || true")
 
         # Click on Networks card
         b.click(".cards-pf .card-pf-title span:contains(Networks)")
@@ -1083,10 +1075,13 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_in_text(".cards-pf #card-pf-storage-pools .card-pf-title-link", "Storage Pool")
 
         # prepare libvirt storage pools
-        m.execute("mkdir /mnt/vm_one; mkdir /mnt/vm_two; mkdir /mnt/vm_three; chmod a+rwx /mnt/vm_one /mnt/vm_two /mnt/vm_three")
-        m.execute("virsh pool-define-as myPoolOne --type dir --target /mnt/vm_one; virsh pool-start myPoolOne")
-        m.execute("virsh pool-define-as myPoolTwo --type dir --target /mnt/vm_two; virsh pool-start myPoolTwo")
-        m.execute("virsh pool-create-as myPoolThree --type dir --target /mnt/vm_three") # Transient pool
+        p1 = os.path.join(self.tmp_storage, "vm_one")
+        p2 = os.path.join(self.tmp_storage, "vm_two")
+        p3 = os.path.join(self.tmp_storage, "vm_three")
+        m.execute("mkdir --mode 777 {0} {1} {2}".format(p1, p2, p3))
+        m.execute("virsh pool-define-as myPoolOne --type dir --target {0}; virsh pool-start myPoolOne".format(p1))
+        m.execute("virsh pool-define-as myPoolTwo --type dir --target {0}; virsh pool-start myPoolTwo".format(p2))
+        m.execute("virsh pool-create-as myPoolThree --type dir --target {0}".format(p3)) # Transient pool
 
         b.wait_in_text("#card-pf-storage-pools .card-pf-aggregate-status-count", "3")
         b.wait_in_text(".cards-pf #card-pf-storage-pools .card-pf-title-link", "Storage Pools")
@@ -1124,7 +1119,7 @@ class TestMachinesDBus(machineslib.TestMachines):
 
         # Check basic pool properties
         b.click("tbody tr[data-row-id=pool-myPoolOne-{0}] th".format(connectionName)) # click on the row header
-        b.wait_in_text("#pool-myPoolOne-{0}-target-path".format(connectionName), "/mnt/vm_one")
+        b.wait_in_text("#pool-myPoolOne-{0}-target-path".format(connectionName), p1)
         b.wait_in_text("#pool-myPoolOne-{0}-type".format(connectionName), "dir")
 
         # Check storage volumes of a pool
@@ -1147,7 +1142,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_not_present("#storage-volumes-delete")
 
         # Delete a volume from terminal and verify that refresh worked by reloading the browser page
-        m.execute("rm -f /mnt/vm_two/VolumeThree")
+        m.execute("rm -f {0}".format(os.path.join(p2, "VolumeThree")))
         b.wait_present("#pool-myPoolTwo-{0}-volume-VolumeThree-name".format(connectionName))
         b.reload()
         b.enter_page('/machines')
@@ -1199,7 +1194,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.click('div.modal-footer button:contains("Delete")')
         b.wait_not_present("div.modal-dialog")
         b.wait_not_present("#pool-myPoolTwo-{0}-storage-volumes-list".format(connectionName))
-        self.assertNotEqual(m.execute("ls -A /mnt/vm_two"), "")
+        self.assertNotEqual(m.execute("ls -A {0}".format(p2)), "")
 
         # Redefine the deleted Pool
         m.execute("virsh pool-define /tmp/myPoolTwo.xml")
@@ -1217,12 +1212,11 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.click('div.modal-footer button:contains("Delete")')
         b.wait_not_present("div.modal-dialog")
         b.wait_not_present("#pool-myPoolTwo-{0}-storage-volumes-list".format(connectionName))
-        self.assertEqual(m.execute("ls -A /mnt/vm_two"), "")
+        self.assertEqual(m.execute("ls -A {0}".format(p2)), "")
         b.wait_not_present("tbody tr[data-row-id=pool-myPoolTwo-{0}]".format(connectionName))
 
         # Recreate the myPoolTwo to test Used By column
-        m.execute("mkdir -p /mnt/vm_two; chmod a+rwx /mnt/vm_two")
-        m.execute("virsh pool-define-as myPoolTwo --type dir --target /mnt/vm_two; virsh pool-start myPoolTwo")
+        m.execute("virsh pool-define-as myPoolTwo --type dir --target {0}; virsh pool-start myPoolTwo".format(p2))
         m.execute("virsh vol-create-as myPoolTwo VolumeOne --capacity 1G --format qcow2 && virsh pool-refresh myPoolTwo")
 
         wait(lambda: "VolumeOne" in m.execute("virsh vol-list myPoolTwo"))
@@ -1267,7 +1261,6 @@ class TestMachinesDBus(machineslib.TestMachines):
     def testNetworksCreate(self):
         b = self.browser
         m = self.machine
-        test_self = self
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
@@ -1378,7 +1371,6 @@ class TestMachinesDBus(machineslib.TestMachines):
 
                     self.cancel()
                 else:
-                    test_self.addCleanup(m.execute, "virsh net-destroy {0}; virsh net-undefine {0} || true".format(self.name))
                     b.wait_not_present("#create-network-dialog")
 
             def verify_dialog(self):
@@ -2154,7 +2146,6 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_present("#vm-subVmTest1-add-iface-button") # open the Network Interfaces subtab
         # Test network type source
         m.execute("echo \"{0}\" > /tmp/xml && virsh net-define /tmp/xml && virsh net-start test_network".format(TEST_NETWORK_XML))
-        self.addCleanup(m.execute, "virsh net-destroy test_network; virsh net-undefine test_network")
 
         NICAddDialog(
             self,

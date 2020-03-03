@@ -178,13 +178,41 @@ reboot"""
 class TestMachines(NetworkCase):
     created_pool = False
     provider = None
+    tmp_storage = "/mnt/libvirt"
 
     def setUp(self):
         # HACK: fix this to get along with NetworkCase.setUp(), and use super()
         MachineCase.setUp(self)
-        self.startLibvirt()
-
         m = self.machine
+
+        # Prepare tmp directory
+        m.execute("mkdir {0}".format(self.tmp_storage))
+        self.addCleanup(m.execute, "rm -rf {0}".format(self.tmp_storage))
+
+        # Keep pristine state of libvirt
+        orig = "/var/lib/libvirt"
+        backup = os.path.join(self.tmp_storage, "libvirt.backup")
+        m.execute("cp -a {0} {1} && mount -o bind {1} {0}".format(orig, backup))
+        self.addCleanup(m.execute, "umount -lf {0}".format(orig))
+
+        # Cleanup domains definitions
+        etc_orig = "/etc/libvirt"
+        etc_backup = os.path.join(self.tmp_storage, "etc_libvirt.backup")
+        m.execute("cp -a {0} {1} && mount -o bind {1} {0}".format(etc_orig, etc_backup))
+        self.addCleanup(m.execute, "umount -lf {0}".format(etc_orig, etc_backup))
+
+        # Cleanup pools
+        self.addCleanup(m.execute, "rm -rf /run/libvirt/storage/*")
+
+        # Cleanup networks
+        self.addCleanup(m.execute, "rm -rf /run/libvirt/network/test_network*")
+
+        self.startLibvirt()
+        self.addCleanup(m.execute, "systemctl stop libvirtd")
+
+        # Stop all networks
+        self.addCleanup(m.execute, "for n in $(virsh net-list --all --name); do virsh net-destroy $n || true; done")
+
         # we don't have configuration to open the firewall for local libvirt machines, so just stop firewalld
         m.execute("systemctl stop firewalld; systemctl try-restart libvirtd")
 
@@ -210,7 +238,6 @@ class TestMachines(NetworkCase):
         img = "/var/lib/libvirt/images/{0}-2.img".format(name)
         m.upload([image_file], img)
         m.execute("chmod 777 {0}".format(img))
-        self.addCleanup(self.machine.execute, "rm -f {0}".format(img))
 
         args = {
             "name": name,
@@ -239,12 +266,10 @@ class TestMachines(NetworkCase):
         if not self.created_pool:
             xml = POOL_XML.format(path="/var/lib/libvirt/images")
             m.execute("echo \"{0}\" > /tmp/xml && virsh pool-define /tmp/xml && virsh pool-start images".format(xml))
-            self.addCleanup(self.machine.execute, "virsh pool-destroy images; virsh pool-undefine images || true".format(name))
             self.created_pool = True
 
         xml = DOMAIN_XML.format(**args)
         m.execute("echo \"{0}\" > /tmp/xml && virsh define /tmp/xml && virsh start {1}".format(xml, name))
-        self.addCleanup(self.machine.execute, "virsh destroy {0}; virsh undefine {0} || true".format(name))
 
         m.execute('[ "$(virsh domstate {0})" = running ] || '
                   '{{ virsh dominfo {0} >&2; cat /var/log/libvirt/qemu/{0}.log >&2; exit 1; }}'.format(name))
@@ -404,7 +429,6 @@ class TestMachines(NetworkCase):
         # We 'll create errors by starting to start domains when the default network in inactive
         self.startVm("subVmTest3")
         m.execute("virsh destroy subVmTest2 && virsh destroy subVmTest3 && virsh net-destroy default")
-        self.addCleanup(self.machine.execute, "virsh net-start default")
 
         def tryRunDomain(index, name):
             b.wait_in_text("#virtual-machines-listing .listing-ct tbody:nth-of-type({0}) th".format(index), name)
@@ -515,7 +539,6 @@ class TestMachines(NetworkCase):
 
         # Make sure that unprivileged users can see the VM list when libvirtd is not running
         m.execute("systemctl stop libvirtd.service")
-        self.addCleanup(m.execute, "systemctl start libvirtd.service")
         m.execute("useradd nonadmin; echo nonadmin:foobar | chpasswd")
         self.login_and_go("/machines", user="nonadmin", authorized=False)
         b.wait_in_text("body", "Virtual Machines")

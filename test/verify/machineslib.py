@@ -541,6 +541,7 @@ class TestMachines(NetworkCase, StorageHelpers):
 
         self.allow_authorize_journal_messages()
 
+    @nondestructive
     def testDisks(self):
         b = self.browser
         m = self.machine

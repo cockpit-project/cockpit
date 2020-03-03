@@ -55,6 +55,25 @@ class StorageHelpers:
 
         return dev
 
+    def add_loopback_disk(self, size=50):
+        '''Add per-test loopback disk
+
+        The disk gets removed automatically when the test ends. This is safe for @nondestructive tests.
+
+        Unlike add_ram_disk(), this can be called multiple times, and is less size constrained.
+        However, loopback devices look quite special to the OS, so they are not a very good
+        simulation of a "real" disk.
+
+        Return the device name.
+        '''
+        dev = self.machine.execute("set -e; F=$(mktemp /var/tmp/loop.XXXX); "
+                                   "dd if=/dev/zero of=$F bs=1M count=%s; "
+                                   "losetup --find --show $F; "
+                                   "rm $F" % size).strip()
+        # right after unmounting the device is often still busy, so retry a few times
+        self.addCleanup(self.machine.execute, "umount {0}; until losetup -d {0}; do sleep 1; done".format(dev), timeout=10)
+        return dev
+
     def force_remove_disk(self, device):
         '''Act like the given device gets physically removed.
 

@@ -16,6 +16,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import re
+import os.path
 
 from testlib import *
 
@@ -53,6 +54,14 @@ class StorageHelpers:
         # don't use addCleanup() here, this is often busy and needs to be cleaned up late; done in MachineCase.nonDestructiveSetup()
 
         return dev
+
+    def force_remove_disk(self, device):
+        '''Act like the given device gets physically removed.
+
+        This circumvents all the normal EBUSY failures, and thus can be used for testing
+        the cleanup after a forceful removal.
+        '''
+        self.machine.execute('echo 1 > /sys/block/%s/device/delete' % os.path.basename(device))
 
     def devices_dropdown(self, title):
         self.browser.click("#devices .dropdown [data-toggle=dropdown]")

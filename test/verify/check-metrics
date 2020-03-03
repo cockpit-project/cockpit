@@ -23,6 +23,7 @@ import re
 
 import parent
 from testlib import *
+from storagelib import StorageHelpers
 
 
 def read_mem_info(machine):
@@ -36,7 +37,7 @@ def read_mem_info(machine):
     return info
 
 
-class TestMetrics(MachineCase):
+class TestMetrics(MachineCase, StorageHelpers):
     provision = {
         "0": {"forward": {"2000": 2000}},
     }
@@ -124,8 +125,8 @@ class TestMetrics(MachineCase):
 
         # Disk.  Anything above 100 kiB/s is good for now.
         #
-        m.add_disk("10M", serial="MYSERIAL")
-        disk_pid = m.spawn("while true; do dd if=/dev/sda of=/dev/sda; done", "load-disk.log")
+        dev = self.add_ram_disk()
+        disk_pid = m.spawn("while true; do dd if={0} of={0}; done".format(dev), "load-disk.log")
         b.wait_js_func("ph_flot_data_plateau", "#server_disk_io_graph", 100 * 1024, None, 5, "disk io")
         m.execute("kill %d" % disk_pid)
 

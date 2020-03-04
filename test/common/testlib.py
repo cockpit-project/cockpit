@@ -869,6 +869,15 @@ class MachineCase(unittest.TestCase):
         if not m.ostree_image:
             self.addCleanup(m.execute, "systemctl stop cockpit")
 
+        # reset scsi_debug (see e. g. StorageHelpers.add_ram_disk()
+        # this needs to happen very late in the cleanup, so that test cases can clean up the users of that disk first
+        # right after unmounting the device is often still busy, so retry a few times
+        self.addCleanup(self.machine.execute,
+                        "set -e; [ -e /sys/module/scsi_debug ] || exit 0; "
+                        "for dev in $(ls /sys/bus/pseudo/drivers/scsi_debug/adapter*/host*/target*/*:*/block); do "
+                        "   umount /dev/$dev 2>/dev/null || true; "
+                        "done; until rmmod scsi_debug; do sleep 1; done")
+
     def tearDown(self):
         if self.checkSuccess() and self.machine.ssh_reachable:
             self.check_journal_messages()

@@ -50,9 +50,8 @@ class StorageHelpers:
         self.machine.execute("modprobe scsi_debug dev_size_mb=%s" % size)
         dev = self.machine.execute('set -e; while true; do O=$(ls /sys/bus/pseudo/drivers/scsi_debug/adapter*/host*/target*/*:*/block 2>/dev/null || true); '
                                    '[ -n "$O" ] && break || sleep 0.1; done; echo "/dev/$O"').strip()
+        # don't use addCleanup() here, this is often busy and needs to be cleaned up late; done in MachineCase.nonDestructiveSetup()
 
-        # right after unmounting the device is often still busy, so retry a few times
-        self.addCleanup(self.machine.execute, "umount %s; until rmmod scsi_debug; do sleep 1; done" % dev, timeout=10)
         return dev
 
     def devices_dropdown(self, title):

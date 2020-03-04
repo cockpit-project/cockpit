@@ -52,7 +52,7 @@ class PackageCase(MachineCase):
         else:
             # PackageKit refuses to work when offline; unfortunately nm-online does not wait enough
             # https://developer.gnome.org/NetworkManager/unstable/nm-dbus-types.html#NMConnectivityState
-            self.machine.execute('''
+            self.machine.execute('''set -e; systemctl start libvirtd;
                 while [ "$(busctl get-property org.freedesktop.NetworkManager /org/freedesktop/NetworkManager \
                                                org.freedesktop.NetworkManager Connectivity | cut -f2 -d' ')" -lt 3 ]; do sleep 1; done
             ''')

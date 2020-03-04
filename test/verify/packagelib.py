@@ -46,7 +46,7 @@ class PackageCase(MachineCase):
         # PackageKit refuses to work when offline
         if self.image in ["ubuntu-1804", "ubuntu-stable"]:
             # on these images, PackageKit insists on a default route, so add a fake one to virbr0
-            self.machine.execute("until nmcli c show virbr0 >/dev/null 2>&1; do sleep 1; done; nmcli c modify virbr0 ipv4.gateway 192.168.122.1")
+            self.machine.execute("systemctl start libvirtd; until nmcli c show virbr0 >/dev/null 2>&1; do sleep 1; done; nmcli c modify virbr0 ipv4.gateway 192.168.122.1")
             # this is a dynamic interface, next reboot will shadow the static file anyway, so clean it up
             self.machine.execute("rm /etc/NetworkManager/system-connections/virbr0*")
         else:

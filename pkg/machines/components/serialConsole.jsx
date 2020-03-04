@@ -41,11 +41,14 @@ class SerialConsoleCockpit extends React.Component {
     }
 
     createChannel () {
-        const channel = cockpit.channel({
+        const opts = {
             payload: "stream",
             spawn: this.props.spawnArgs,
             pty: true,
-        });
+        };
+        if (this.props.connectionName == "system")
+            opts.superuser = "try";
+        const channel = cockpit.channel(opts);
         this.setState({ channel });
     }
 
@@ -91,6 +94,7 @@ class SerialConsoleCockpit extends React.Component {
 }
 
 SerialConsoleCockpit.propTypes = {
+    connectionName: PropTypes.string.isRequired,
     vmName: PropTypes.string.isRequired,
     spawnArgs: PropTypes.array.isRequired,
     children: PropTypes.node.isRequired,

@@ -130,6 +130,7 @@ def run(opts):
     result = 0
     jobs = 1 if opts.list else opts.jobs
     start_time = time.time()
+    serial_tests_duration = 0
 
     for filename in glob.glob(os.path.join(os.path.dirname(__file__), "check-*")):
         name = check_valid(filename)
@@ -170,6 +171,7 @@ def run(opts):
 
     running_tests = []
     serial_test = None
+    serial_tests_len = len(serial_tests)
     while serial_tests or parallel_tests or running_tests:
         made_progress = False
         if len(running_tests) < jobs:
@@ -177,6 +179,7 @@ def run(opts):
             if serial_tests and serial_test is None:
                 test = serial_tests.pop(0)
                 serial_test = test
+                serial_test_start = time.time()
             elif parallel_tests:
                 test = parallel_tests.pop(0)
 
@@ -199,12 +202,15 @@ def run(opts):
                 retry_reason, test_result = finish_test(opts, test)
                 result += test_result
 
-                # sometimes our global machine gets messed up
-                # restart it to avoid an unbounded number of test retries and follow-up errors
-                if test is serial_test and retry_reason and b"test harness" in retry_reason:
-                    # try hard to keep the test output consistent
-                    testlib.MachineCase.kill_global_machine()
-                    testlib.MachineCase.get_global_machine()
+                if test is serial_test:
+                    serial_tests_duration += (time.time() - serial_test_start)
+
+                    # sometimes our global machine gets messed up
+                    # restart it to avoid an unbounded number of test retries and follow-up errors
+                    if retry_reason and b"test harness" in retry_reason:
+                        # try hard to keep the test output consistent
+                        testlib.MachineCase.kill_global_machine()
+                        testlib.MachineCase.get_global_machine()
 
                 # run again if needed
                 if retry_reason:
@@ -226,13 +232,12 @@ def run(opts):
 
     duration = int(time.time() - start_time)
     hostname = socket.gethostname().split(".")[0]
-    details = "[{0}s on {1}]".format(duration, hostname)
+    details = "[{0}s on {1}, {2} serial tests took {3}s]".format(duration, hostname, serial_tests_len, int(serial_tests_duration))
     print()
     if result > 0:
         print("# {0} TESTS FAILED {1}".format(result, details))
     else:
         print("# TESTS PASSED {0}".format(details))
-    print("Test run finished, return code: {0}".format(result))
 
     return result
 

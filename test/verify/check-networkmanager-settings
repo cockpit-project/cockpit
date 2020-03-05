@@ -84,6 +84,16 @@ class TestNetworkingSettings(NetworkCase):
         self.assertEqual(m.execute('nmcli -m tabular -t -f ipv4.method con show "%s"' % con_id).strip(),
                          "auto")
 
+        self.configure_iface_setting('IPv6')
+        b.wait_visible("#network-ip-settings-dialog")
+        b.select_from_dropdown("#network-ip-settings-select-method", "disabled")
+        b.click("#network-ip-settings-apply")
+        b.wait_not_present("#network-ip-settings-dialog")
+
+        con_id = wait(lambda: self.iface_con_id(iface))
+        self.assertEqual(m.execute('nmcli -m tabular -t -f ipv6.method con show "%s"' % con_id).strip(),
+                         "disabled")
+
     def testOtherSettings(self):
         b = self.browser
         m = self.machine

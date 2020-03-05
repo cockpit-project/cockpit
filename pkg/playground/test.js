@@ -1,5 +1,6 @@
 import $ from "jquery";
 import cockpit from "cockpit";
+import "../../node_modules/@patternfly/patternfly/components/Button/button.scss";
 
 $(function() {
     $("#hammer").on("click", function () { $(this).hide() });

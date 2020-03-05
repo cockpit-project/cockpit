@@ -5,6 +5,7 @@ import "page.scss";
 import "listing.scss";
 import "timeline.css";
 import "table.css";
+import "../../node_modules/@patternfly/patternfly/components/Button/button.scss";
 
 $(function() {
     $(document).ready(function() {

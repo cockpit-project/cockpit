@@ -1,0 +1,638 @@
+@import "variables";
+
+/* Navigation base, used for both desktop & mobile navigation */
+
+$phone: 767px;
+$desktop: $phone + 1px;
+
+.area-ct-subnav {
+    background: var(--color-ct-nav-sub);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+
+    mark {
+        padding-left: 0;
+        padding-right: 0;
+        font-weight: bold;
+        color: var(--color-ct-nav-active-text);
+        background: var(--pf-global--BackgroundColor--dark-400);
+    }
+
+    .search {
+        margin: 1rem 1.5rem;
+
+        > input.form-control {
+            background: var(--color-ct-nav);
+            border: 0 solid var(--color-ct-nav);
+            border-width: 2px 0;
+            color: var(--color-ct-nav-main-text) !important;
+            padding: 0 0.5rem 0 32px !important;
+            transition: var(--pf-global--Transition);
+
+            &::placeholder {
+                color: var(--color-ct-nav-text);
+                opacity: 0.8;
+            }
+
+            &:focus {
+                border-bottom-color: var(--color-ct-nav-main-text);
+            }
+        }
+
+        > .form-control-feedback {
+            color: var(--color-ct-nav-text);
+            opacity: 0.7;
+            margin: 0.5rem;
+            right: auto;
+            width: 16px;
+            height: 16px;
+            left: 0;
+            transition: var(--pf-global--Transition);
+            z-index: 0;
+        }
+
+        > input.form-control:focus ~ .form-control-feedback {
+            color: var(--color-ct-nav-active-text);
+            opacity: 1;
+        }
+    }
+
+    .hint {
+        width: 100%;
+        font-size: var(--pf-global--FontSize--sm);
+        font-weight: var(--pf-global--FontWeight--normal);
+        color: var(--pf-c-nav--m-dark__list-link--Color);
+        display: inline-block;
+        opacity: 0.8;
+    }
+
+    .link-button.hint {
+        color: var(--pf-global--active-color--300);
+    }
+
+    .non-menu-item {
+        color: var(--pf-c-nav__list-link--Color);
+        display: flex;
+        justify-content: center;
+    }
+}
+
+.header {
+    background: var(--pf-global--BackgroundColor--dark-300);
+    display: grid;
+    align-items: center;
+    grid-template-columns: auto;
+    grid-auto-columns: max-content;
+    grid-auto-flow: column;
+    overflow: visible;
+
+    .ct-header-item {
+        display: flex;
+        height: 100%;
+        align-items: center;
+    }
+
+    .ct-header-item > a,
+    .ct-header-item > span {
+        color: var(--pf-global--Color--light-100) !important;
+    }
+
+    .fa,
+    .pficon {
+        align-items: center;
+        border-radius: 50%;
+        display: inline-flex;
+        font-size: 1rem;
+        justify-content: center;
+        margin-right: 0.5rem;
+        padding-right: 0;
+        position: static;
+        vertical-align: middle;
+        height: 2rem;
+    }
+
+    .pficon-user {
+        width: 2rem;
+        font-size: 2rem;
+        background: #fff;
+        color: #bbb;
+        overflow: hidden;
+
+        &::before {
+            font-size: 80%;
+            position: relative;
+            top: 8%;
+        }
+    }
+
+    .user-name {
+        display: inline-flex;
+    }
+}
+
+.area-ct-content {
+    position: relative;
+    z-index: 1;
+    display: block;
+
+    > iframe {
+        height: 100%;
+        position: absolute;
+    }
+
+    > .curtains-ct {
+        position: static !important;
+        // position: absolute !important;
+    }
+}
+
+.pf-c-select button:hover,
+.pf-c-select button:focus,
+.pf-c-select button:active,
+.ct-header-item a:hover,
+.ct-header-item a:focus,
+.ct-header-item a:active {
+    text-decoration: none;
+    background-color: var(--pf-global--BackgroundColor--dark-400);
+}
+.screenreader-text {
+    position: absolute;
+    left: -999px;
+    width:1px;
+    height: 1px;
+    top: auto;
+}
+
+/* Desktop navigation */
+@media (min-width: $desktop) {
+
+    .screenreader-text:focus {
+        display: inline-block;
+        height: auto;
+        width: auto;
+        position: static;
+        padding: 19px 0;
+        width: 100%;
+        text-align: center;
+        background-color: var(--pf-global--BackgroundColor--dark-300);
+        color: white;
+    }
+
+    .mobile_v {
+        display: none !important;
+    }
+
+    .desktop_v {
+        display: block;
+    }
+
+    .view-hosts .sidebar-hosts {
+        animation: navHostsSlide 300ms ease-out;
+        transform-origin: top;
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background: var(--pf-global--BackgroundColor--dark-200);
+        z-index: 999;
+
+        &.edit-hosts {
+            .pf-c-nav__list {
+                width: calc(100% + 8rem);
+                animation: navHostsEditSlideOut 200ms;
+
+                .pf-c-nav__link {
+                    padding-right: 1rem;
+                    transition: all 200ms;
+                }
+
+                .pf-c-button {
+                    animation: navHostsEditButtonsAppear 400ms;
+                }
+
+                &,
+                .pf-c-button {
+                    animation-timing-function: ease-in-out;
+                }
+            }
+        }
+    }
+
+    .ct-switcher,
+    .header {
+        border-top: 3px solid var(--pf-global--primary-color--light-100);
+        border: 1px solid #999;
+        border-width: 0 1px 0 0;
+    }
+
+    .header {
+        .ct-header-item > a,
+        .ct-header-item > span {
+            line-height: 2rem;
+            padding: 0 1rem 0 1rem;
+            font-size: var(--pf-global--FontSize--md);
+            margin: 0;
+        }
+
+        .credential-unlocked {
+            /* AAA contrast: simulate #a1a1a1 on #151515 */
+            opacity: 0.6;
+        }
+
+        .fa,
+        .pficon {
+            vertical-align: bottom;
+        }
+    }
+
+    .ct-switcher > .pf-c-select > button {
+        padding-left: 1.5rem;
+    }
+
+    .area-ct-subnav {
+        /* Fade end of the host menu to indicate more content is available */
+
+        &::after {
+            content: '';
+            display: block;
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 2rem;
+            pointer-events: none;
+            z-index: 2;
+            /* Accomodate scrollbars with margin (IE11 needs 18px; rest are less) */
+            margin-right: 18px;
+            background: var(--color-ct-nav-cover-down);
+            bottom: 0;
+            height: 4rem;
+        }
+    }
+
+    #nav-hosts {
+        display: none;
+
+        &.interact {
+            display: block;
+        }
+    }
+}
+
+/* Mobile navigation */
+@media (max-width: $phone) {
+    .mobile_v {
+        display: block;
+    }
+
+    .view-hosts .sidebar-hosts {
+        animation: navHostsSlide 300ms ease-out;
+        transform-origin: bottom;
+    }
+
+    .desktop_v {
+        display: none !important;
+    }
+
+    .area-ct-subnav {
+        align-self: end;
+        height: 90%;
+        margin-left: 10px;
+        margin-right: 10px;
+        z-index: 2;
+        position: relative;
+        overflow: hidden;
+        opacity: 0;
+        transform: translate(0,100%) scaleY(0);
+        transition: opacity 200ms ease-in 100ms, transform 100ms ease-in 300ms;
+        display: none;
+
+        &.interact {
+            display: block;
+            transform: none;
+            opacity: 1;
+            overflow: visible;
+            transition: bottom 300ms ease-out, box-shadow 300ms ease-out, transform 300ms ease-out;
+        }
+    }
+
+    .dropdown-menu {
+        width: auto !important;
+        animation: navFadeInSlide 600ms;
+    }
+
+    .header {
+        .dropdown-menu > li > a,
+        .dropdown-menu > li > span {
+            /* Make menu items a consistent, touch-friendly size */
+            padding: 0 40px;
+            line-height: 54px;
+        }
+
+        .open .dropdown-menu {
+            position: absolute;
+            bottom: 100%;
+            top: unset;
+            left: -200px; // TODO - this needs to be somehow better
+        }
+    }
+
+    .pf-c-select__toggle {
+        display: block;
+        width: auto;
+    }
+
+    .pf-c-select__toggle-arrow {
+        transform: rotate(180deg) scale(1.5);
+        margin: unset;
+        margin-top: 4px;
+    }
+
+    .ct-switcher > .pf-c-select > button {
+        flex-flow: column-reverse;
+        padding-left: 0;
+    }
+
+    .menu-toggle,
+    .sidebar-toggle .fa {
+        display: block;
+        transform: scale(1.5);
+        border-radius: 0 !important;
+    }
+
+    #navbar-docs-dropdown {
+        height: 100%;
+        padding-top: 8px;
+
+        .pficon {
+            display: block;
+            transform: scale(1.5);
+            height: auto;
+            line-height: unset;
+            margin-left: 9px;
+        }
+    }
+
+    .view-hosts .sidebar-hosts {
+        button {
+            margin: 0.75rem 1rem;
+            display: inline;
+
+            + button {
+                margin-left: 0;
+            }
+        }
+    }
+
+    .pf-m-dark .pf-c-select__toggle {
+        background: var(--pf-global--BackgroundColor--dark-100);
+    }
+}
+
+// Shrink nav for VMs $ 1024×768 (and below)
+@media (max-device-width: 1024px) and (max-device-height: $phone) and (orientation: landscape) {
+  .area-ct-subnav {
+    flex: 0 1 12em;
+  }
+}
+
+.navbar.navbar-pf-vertical {
+    border-top: 0px;
+}
+
+.navbar-pf .navbar-header,
+.navbar-pf .navbar-header div {
+    height: 100%;
+}
+
+.ct-switcher {
+    > .pf-c-select {
+
+        > button {
+            display: flex;
+
+            &:hover {
+                background-color: var(--pf-global--BackgroundColor--dark-400);
+            }
+        }
+
+        .pf-c-select__toggle-text {
+            text-align: left;
+        }
+    }
+
+    .username {
+        display: inline-block;
+    }
+
+    .at {
+        opacity: 0.8;
+    }
+
+    .hostname {
+        display: block;
+        font-weight: 600;
+    }
+}
+
+.pf-m-dark {
+    .pf-c-select__toggle > * {
+        color: var(--pf-global--Color--light-100);
+    }
+
+    .pf-c-select__toggle {
+        background-color: var(--pf-global--BackgroundColor--dark-300);
+        height: 100%;
+    }
+}
+
+.sidebar {
+    overflow: visible;
+}
+
+.nav-action {
+    margin: 0 0 0 auto !important;
+}
+
+.host-apps {
+    flex: 1 1 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    position: relative;
+    scrollbar-color: var(--pf-global--Color--400) var(--pf-global--BackgroundColor--dark-200)
+}
+
+// Give additional style to individual menu items
+.nav-item {
+
+    &:hover {
+        cursor: pointer;
+        background-color: var(--pf-global--BackgroundColor--dark-400);
+    }
+
+    a {
+        color: unset;
+        flex: auto;
+
+        &:hover,
+        &:focus {
+            text-decoration: none;
+        }
+    }
+
+    button,
+    .nav-status {
+        margin-left: auto;
+        align-self: end;
+    }
+
+    // Add a background to shine through the icon's gaps
+    // (for better contrast, even when hovering / selected)
+    // TODO this does not seem to actually work
+    svg {
+        // Set position for the icon sandwiching
+        position: relative;
+        // Add a shadow around the icon
+        text-shadow: 1px 0 1px var(--color-ct-nav), 0 1px 1px var(--color-ct-nav), -1px 0 1px var(--color-ct-nav), 0 -1px 1px var(--color-ct-nav);
+
+        // Move the icon up the stack
+        &::before {
+            z-index: 1;
+            position: relative;
+        }
+
+        // Fill the interior gaps
+        &::after {
+            position: absolute;
+            content: '';
+            background-color: var(--color-ct-nav);
+            border-radius: 3px;
+            top: 3px;
+            right: 5px;
+            bottom: 3px;
+            left: 5px;
+        }
+    }
+}
+
+.view-hosts .sidebar-hosts {
+
+    button {
+        margin: 0.75rem 1.5rem;
+        max-width: 12rem; // 15rem (side panel) - 2*1.5rem (margin) // TODO this need to be in a better way
+        color: var(--pf-global--BackgroundColor--200);
+
+        &:first-of-type {
+            margin-top: 1.5rem;
+        }
+
+        &::after {
+            border-color: var(--pf-global--BackgroundColor--200);
+        }
+    }
+
+    .pf-c-nav__list {
+        overflow-y: auto;
+    }
+
+    .nav-item {
+        --pf-c-nav--m-dark__item--m-current--BackgroundColor: var(--pf-global--BackgroundColor--dark-400);
+
+        button {
+            // FIXME: This shouldn't need !important
+            margin-left: 0.5rem !important;
+        }
+    }
+}
+
+/* Navigation animation */
+
+@keyframes navFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes navFadeInSlide {
+    from { opacity: 0; max-device-height: 0; }
+    to { opacity: 1; max-device-height: auto; }
+}
+
+@keyframes navHostsSlide {
+    0% { opacity: 0.25; transform: scaleY(0); }
+    25% { opacity: 0.5; transform: scaleY(0.25); }
+    100% { opacity: 1; transform: scaleY(1); }
+}
+
+@keyframes navHostsEditSlideOut {
+    0% { width: 100%; }
+    100% { width: calc(100% + 9rem); }
+}
+
+@keyframes navHostsEditButtonsAppear {
+    0% { opacity: 0; width: 0; }
+    50% { opacity: 0; width: 0; }
+    75% { opacity: 0; width: auto; }
+    100% {opacity: 1; width: auto }
+}
+
+#nav-system {
+    .pf-c-nav__list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(10rem, auto));
+
+        > a {
+            text-align: center;
+        }
+    }
+}
+
+// HACK: Don't span the navigation as wide or tall as possible
+#nav-hosts {
+    height: auto;
+
+    .pf-c-page__sidebar .pf-c-nav {
+        width: unset;
+    }
+}
+
+// TODO - this should come from PF, just overwrite until new version is available
+.pf-c-nav__list > .pf-c-nav__item > .pf-c-nav__link::after {
+    left: 0;
+    top: 0;
+    bottom: 0;
+    height: 100%; // We may actually need this even with the new PF version (when item has 'Contains:...'
+    width: var(--pf-c-nav__list-link--after--Height);
+}
+
+// TODO - this should come from PF, just overwrite until new version is available
+.pf-c-nav__list .pf-c-nav__link {
+    padding-bottom: var(--pf-c-nav__list-link--PaddingTop);
+}
+
+// FIXME: This is a hack to target the nav buttons in mobile mode.
+// There should be a unified way to target these (with common classes).
+.ct-header-item,
+.sidebar-toggle,
+.navbar {
+    .pf-c-select__toggle,
+    .dropdown-toggle {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        @media (max-width: $phone) {
+            min-width: 4rem;
+            padding: 0.5rem;
+            flex-direction: column;
+
+            .fa,
+            .pficon {
+                height: 16px;
+                width: 16px;
+                margin: 0;
+            }
+        }
+    }
+}

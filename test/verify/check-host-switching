@@ -2,7 +2,7 @@
 
 # This file is part of Cockpit.
 #
-# Copyright (C) 2013 Red Hat, Inc.
+# Copyright (C) 2020 Red Hat, Inc.
 #
 # Cockpit is free software; you can redistribute it and/or modify it
 # under the terms of the GNU Lesser General Public License as published by
@@ -22,59 +22,51 @@ import subprocess
 
 import parent
 from testlib import *
-from machine_core.constants import TEST_OS_DEFAULT
+from hacklib import *
 
 
-class DashBoardHelpers:
+class HostSwitcherHelpers:
 
     def check_discovered_addresses(self, b, addresses):
-        b.click('#dashboard-add')
-        b.wait_popup('dashboard_setup_server_dialog')
+        b.click("button:contains('Add new host')")
+        b.wait_popup('hosts_setup_server_dialog')
         self.wait_discovered_addresses(b, addresses)
-        b.click('#dashboard_setup_server_dialog .pf-m-link')
-        b.wait_popdown('dashboard_setup_server_dialog')
+        b.click('#hosts_setup_server_dialog .pf-m-link')
+        b.wait_popdown('hosts_setup_server_dialog')
 
     def wait_discovered_addresses(self, b, expected):
-        b.wait_js_func(
-            """(function(expected) {
-                var nodes = document.querySelectorAll('#dashboard_setup_server_dialog datalist option');
-                var actual = Array.prototype.map.call(nodes, function(e) {
-                    return e.getAttribute("value");
-                });
-                return expected.sort().toString() == actual.sort().toString();
-                })""", expected)
+        b.wait_js_cond('ph_select("#hosts_setup_server_dialog datalist option").length == {0}'.format(len(expected)))
+        for address in expected:
+            b.wait_present("#hosts_setup_server_dialog datalist option[value='{0}']".format(address))
 
     def wait_dashboard_addresses(self, b, expected):
-        b.wait_js_func(
-            """(function(expected) {
-                var nodes = document.querySelectorAll('#dashboard-hosts .list-group-item');
-                var addresses = Array.prototype.map.call(nodes, function(e) {
-                    return e.getAttribute("data-address");
-                });
-                return expected.sort().toString() == addresses.sort().toString();
-            })""", expected)
+        b.wait_js_cond('ph_select("#nav-hosts .nav-item a").length == {0}'.format(len(expected)))
+        for address in expected:
+            b.wait_visible("#nav-hosts .nav-item a[href='/@{0}']".format(address))
 
     def machine_remove(self, b, address):
-        b.click("#dashboard-enable-edit")
-        b.click("#dashboard-hosts a[data-address='%s'] button.delete-button" % address)
+        b.click("button:contains('Edit hosts')")
+        b.click(".nav-item span[data-for='/@{0}'] button.nav-action.pf-m-danger".format(address))
+        b.click("button:contains('Stop editing hosts')")
 
     def add_machine(self, b, address, known_host=False):
-        b.click('#dashboard-add')
-        b.wait_popup('dashboard_setup_server_dialog')
+        b.click("button:contains('Add new host')")
+        b.wait_popup('hosts_setup_server_dialog')
         b.set_val('#add-machine-address', address)
         self.add_machine_finish(b, known_host=known_host)
 
     def add_machine_finish(self, b, known_host=False):
-        b.wait_text('#dashboard_setup_server_dialog .pf-m-primary', "Add")
-        b.click('#dashboard_setup_server_dialog .pf-m-primary')
+        b.click('#hosts_setup_server_dialog .pf-m-primary:contains("Add")')
         if not known_host:
-            b.wait_in_text('#dashboard_setup_server_dialog', "Fingerprint")
-            b.click('#dashboard_setup_server_dialog .pf-m-primary')
-        b.wait_popdown('dashboard_setup_server_dialog')
+            b.wait_in_text('#hosts_setup_server_dialog', "Fingerprint")
+            b.click('#hosts_setup_server_dialog .pf-m-primary')
+        b.wait_popdown('hosts_setup_server_dialog')
 
 
-@skipBrowser("Firefox looses track of contexts", "firefox")
-class TestBasicDashboard(MachineCase, DashBoardHelpers):
+# TODO check if we need this browser skip
+# @skipBrowser("Firefox looses track of contexts", "firefox")
+@skipImage("Introduced in #13663", "rhel-8-2-distropkg")
+class TestHostSwitching(MachineCase, HostSwitcherHelpers):
     provision = {
         'machine1': {"address": "10.111.113.1/20"},
         'machine2': {"address": "10.111.113.2/20"},
@@ -83,40 +75,38 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
 
     def setUp(self):
         super().setUp()
-
-        # Disable preloading on all machines ("machine1" is done in testlib.py)
-        # Preloading on machines with debug build can overload the browser and cause slowness and browser crashes
-        # In these tests we actually switch between machines in quick succession which can make things even worse
-        if self.machine.image == TEST_OS_DEFAULT:
-            self.machines["machine2"].write("/usr/share/cockpit/packagekit/override.json", '{ "preload": [ ] }')
-            self.machines["machine2"].write("/usr/share/cockpit/systemd/override.json", '{ "preload": [ ] }')
-            self.machines["machine3"].write("/usr/share/cockpit/packagekit/override.json", '{ "preload": [ ] }')
-            self.machines["machine3"].write("/usr/share/cockpit/systemd/override.json", '{ "preload": [ ] }')
+        HACK_disable_problematic_preloads(self.machines["machine2"])
+        HACK_disable_problematic_preloads(self.machines["machine3"])
 
     def testBasic(self):
         b = self.browser
         m = self.machine
 
-        self.login_and_go("/dashboard")
+        self.login_and_go()
 
+        b.click("#hosts-sel button")
         self.wait_dashboard_addresses(b, ["localhost"])
+
+        b.click("button:contains('Edit hosts')")
+        b.wait_visible(".nav-item button.nav-action.pf-m-danger:disabled")
+        b.wait_visible(".nav-item button.nav-action.pf-m-secondary:disabled")
+        b.click("button:contains('Stop editing hosts')")
+        b.wait_not_visible(".nav-item button.nav-action.pf-m-danger")
+        b.wait_not_visible(".nav-item button.nav-action.pf-m-secondary")
 
         # Start second browser and check that it is in sync
         b2 = self.new_browser()
         b2.default_user = "admin"
-        b2.login_and_go("/dashboard")
+        b2.login_and_go()
+
+        b2.click("#hosts-sel button")
         self.wait_dashboard_addresses(b2, ["localhost"])
-        b.wait_present("#dashboard-hosts a[data-address='localhost'] button.delete-localhost:disabled")
 
         self.add_machine(b, "10.111.113.2")
         self.wait_dashboard_addresses(b, ["localhost", "10.111.113.2"])
         self.wait_dashboard_addresses(b2, ["localhost", "10.111.113.2"])
 
-        # Should show successful state and icon
-        b.wait_attr("#dashboard-hosts a.connected[data-address='10.111.113.2'] img",
-                    'src', '../shell/images/server-small.png')
-        b2.wait_attr("#dashboard-hosts a.connected[data-address='10.111.113.2'] img",
-                     'src', '../shell/images/server-small.png')
+        b.wait_not_present(".nav-item span[data-for='/@10.111.113.2'] .nav-status")
 
         self.add_machine(b, "10.111.113.3")
         self.wait_dashboard_addresses(b, ["localhost", "10.111.113.3", "10.111.113.2"])
@@ -143,11 +133,7 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
         self.check_discovered_addresses(b, ["10.111.113.3"])
         self.check_discovered_addresses(b2, ["10.111.113.3"])
 
-        # Should show successful state and icon again
-        b.wait_attr("#dashboard-hosts a.connected[data-address='10.111.113.2'] img",
-                    'src', '../shell/images/server-small.png')
-        b2.wait_attr("#dashboard-hosts a.connected[data-address='10.111.113.2'] img",
-                     'src', '../shell/images/server-small.png')
+        b.wait_not_present(".nav-item span[data-for='/@10.111.113.2'] .nav-status")
 
         # And the second one, check addresses on both browsers
         self.add_machine(b, "10.111.113.3", True)
@@ -164,72 +150,50 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
             "mkdir -p ~admin/.ssh && echo '{0}' > ~admin/.ssh/known_hosts && chown -R admin:admin ~admin/.ssh""".format(key))
         self.add_machine(b, "10.111.113.2", True)
         self.wait_dashboard_addresses(b, ["localhost", "10.111.113.2", "10.111.113.3"])
-        # Should be connected, no error
-        b.wait_attr("#dashboard-hosts a.connected[data-address='10.111.113.2'] img",
-                    'src', '../shell/images/server-small.png')
+        b.wait_not_present(".nav-item span[data-for='/@10.111.113.2'] .nav-status")
 
         # Test change user, not doing in edit to reuse machines
 
         # Navigate to load iframe
-        b.click("#dashboard-hosts .list-group-item[data-address='10.111.113.3']")
-        b.enter_page("/system", "10.111.113.3")
-
-        b.switch_to_top()
-        b.go("/dashboard")
-        b.enter_page("/dashboard")
-        b.switch_to_top()
+        b.click("#nav-hosts .nav-item a[href='/@10.111.113.3']")
         b.wait_present("iframe.container-frame[name='cockpit1:10.111.113.3/system']")
-        b.enter_page("/dashboard")
 
-        b.click('#dashboard-enable-edit')
+        b.click("#hosts-sel button")
+        b.click("button:contains('Edit hosts')")
 
-        b.click("#dashboard-hosts .list-group-item[data-address='10.111.113.3'] button.edit-button")
+        b.click("#nav-hosts .nav-item span[data-for='/@10.111.113.3'] button.nav-action.pf-m-secondary")
 
-        b.wait_popup('host-edit-dialog')
-        b.set_val('#host-edit-user', 'bad-user')
+        b.wait_popup('edit-host-dialog')
+        b.set_val('#edit-host-user', 'bad-user')
 
-        b.click('#host-edit-apply')
-        b.wait_popdown('host-edit-dialog')
+        b.click('#edit-host-apply')
+        b.wait_popdown('edit-host-dialog')
         b.wait_not_present("iframe.container-frame[name='cockpit1:10.111.113.3/system']")
-        b.wait_present("#dashboard-hosts .failed[data-address='10.111.113.3']")
+        b.wait_visible(".nav-item span[data-for='/@10.111.113.3'] .nav-status")
+        b.wait_visible(".nav-item span[data-for='/@10.111.113.3'] #localhost\.localdomain-error")
+        b.mouse("#localhost\.localdomain-error", "mouseover")
+        b.wait_in_text("div.tooltip", "Connection Error")
 
-        b.click('#dashboard-enable-edit')
-        b.click("#dashboard-hosts .list-group-item[data-address='10.111.113.3'] button.edit-button")
-        b.wait_popup('host-edit-dialog')
-        b.set_val('#host-edit-user', '')
-        b.click('#host-edit-apply')
-        b.wait_popdown('host-edit-dialog')
-        b.wait_present("#dashboard-hosts .connected[data-address='10.111.113.3']")
+        b.click("#nav-hosts .nav-item span[data-for='/@10.111.113.3'] button.nav-action.pf-m-secondary")
+        b.wait_popup('edit-host-dialog')
+        b.set_val('#edit-host-user', '')
+        b.click('#edit-host-apply')
+        b.wait_popdown('edit-host-dialog')
+        b.wait_not_present(".nav-item span[data-for='/@10.111.113.3'] .nav-status")
 
         # Test switching
-        b.leave_page()
-        if m.image == "rhel-8-2-distropkg": # New hosts switching introduced in #13663
-            b.wait_js_cond('ph_select("#machine-dropdown ul li").length == 3')
+        b.wait_js_cond('ph_select("#nav-hosts .nav-item a").length == 3')
 
-            b.click("#nav-system-link")
+        b.click("#nav-hosts .nav-item a[href='/@localhost']")
+        b.wait_js_cond('window.location.pathname == "/system"')
 
-            b.click("#machine-link")
-            b.click("#machine-dropdown ul a[data-address='localhost']")
-            b.wait_js_cond('window.location.pathname == "/system"')
-            b.click("#machine-link")
-            b.click("#machine-dropdown ul a[data-address='10.111.113.2']")
-            b.wait_js_cond('window.location.pathname.indexOf("/@10.111.113.2") === 0')
-            b.click("#machine-link")
-            b.click("#machine-dropdown ul a[data-address='10.111.113.3']")
-            b.wait_js_cond('window.location.pathname.indexOf("/@10.111.113.3") === 0')
-        else:
-            b.click("#hosts-sel button")
-            b.wait_js_cond('ph_select("#nav-hosts .nav-item a").length == 3')
+        b.click("#hosts-sel button")
+        b.click("#nav-hosts .nav-item a[href='/@10.111.113.2']")
+        b.wait_js_cond('window.location.pathname.indexOf("/@10.111.113.2") === 0')
 
-            b.click("#nav-hosts .nav-item a[href='/@localhost']")
-            b.wait_js_cond('window.location.pathname == "/system"')
-
-            b.click("#nav-hosts .nav-item a[href='/@10.111.113.2']")
-            b.wait_js_cond('window.location.pathname.indexOf("/@10.111.113.2") === 0')
-
-            b.click("#hosts-sel button")
-            b.click("#nav-hosts .nav-item a[href='/@10.111.113.3']")
-            b.wait_js_cond('window.location.pathname.indexOf("/@10.111.113.3") === 0')
+        b.click("#hosts-sel button")
+        b.click("#nav-hosts .nav-item a[href='/@10.111.113.3']")
+        b.wait_js_cond('window.location.pathname.indexOf("/@10.111.113.3") === 0')
 
         b.enter_page("/system", "10.111.113.3")
         b.wait_text_not("#system_information_systime_button", "")
@@ -240,14 +204,6 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
 
         self.allow_hostkey_messages()
         self.allow_journal_messages(".*server offered unsupported authentication methods: password public-key.*")
-
-
-class TestDashboardSetup(MachineCase, DashBoardHelpers):
-    provision = {
-        'machine1': {"address": "10.111.113.1/20"},
-        'machine2': {"address": "10.111.113.2/20"},
-        'machine3': {"address": "10.111.113.3/20"}
-    }
 
     def testSetup(self):
         b = self.browser
@@ -277,20 +233,21 @@ class TestDashboardSetup(MachineCase, DashBoardHelpers):
 
         # Sync them via Setup.
 
-        self.login_and_go("/dashboard")
+        self.login_and_go()
 
+        b.click("#hosts-sel button")
         self.wait_dashboard_addresses(b, ["localhost"])
-        b.click('#dashboard-add')
-        b.wait_popup('dashboard_setup_server_dialog')
+
+        b.click("button:contains('Add new host')")
+        b.wait_popup('hosts_setup_server_dialog')
         b.set_val('#add-machine-address', "10.111.113.2")
-        b.wait_text('#dashboard_setup_server_dialog .pf-m-primary', "Add")
-        b.click('#dashboard_setup_server_dialog .pf-m-primary')
-        b.wait_in_text('#dashboard_setup_server_dialog', "Fingerprint")
-        b.click('#dashboard_setup_server_dialog .pf-m-primary')
-        b.wait_in_text('#dashboard_setup_server_dialog .modal-title', "Log in to")
+        b.click('#hosts_setup_server_dialog button:contains("Add")')
+        b.wait_in_text('#hosts_setup_server_dialog', "Fingerprint")
+        b.click('#hosts_setup_server_dialog button:contains("Connect")')
+        b.wait_in_text('#hosts_setup_server_dialog .modal-title', "Log in to")
         b.click("#do-sync-users")
 
-        b.wait_text('#dashboard_setup_server_dialog .pf-m-primary', "Synchronize")
+        b.wait_text('#hosts_setup_server_dialog .pf-m-primary', "Synchronize")
         b.wait_in_text("#sync-users", "admin")
         b.wait_present("#sync-username")
 
@@ -300,12 +257,12 @@ class TestDashboardSetup(MachineCase, DashBoardHelpers):
 
         b.set_val('#sync-username', "root")
         b.set_val('#sync-password', "notthepassword")
-        b.click('#dashboard_setup_server_dialog .pf-m-primary')
-        b.wait_text('#dashboard_setup_server_dialog .dialog-error', "Login failed")
+        b.click('#hosts_setup_server_dialog .pf-m-primary')
+        b.wait_text('#hosts_setup_server_dialog .dialog-error', "Login failed")
         b.set_val('#sync-password', "foobar")
 
-        b.click('#dashboard_setup_server_dialog .pf-m-primary')
-        b.wait_popdown('dashboard_setup_server_dialog')
+        b.click('#hosts_setup_server_dialog .pf-m-primary')
+        b.wait_popdown('hosts_setup_server_dialog')
 
         # Check the result
         def password_hash(machine, user):
@@ -331,36 +288,60 @@ class TestDashboardSetup(MachineCase, DashBoardHelpers):
         m2.execute("ps aux | grep cockpit-bridge | grep admin")
         self.allow_hostkey_messages()
 
-
-class TestDashboardEditLimits(MachineCase, DashBoardHelpers):
-
     def testEdit(self):
         b = self.browser
-        m = self.machine
+        m3 = self.machines['machine3']
 
-        self.login_and_go("/dashboard")
-        self.wait_dashboard_addresses(b, ["localhost"])
-        old_style = b.attr("#dashboard-hosts .list-group-item[data-address='localhost']", "style")
+        m3.execute("useradd franz")
+        m3.execute("echo franz:foobar | chpasswd")
 
-        b.wait_not_visible('#dashboard-hosts a:first-child button.edit-button')
-        b.click('#dashboard-enable-edit')
+        self.login_and_go()
 
-        b.click('#dashboard-hosts a:first-child button.edit-button')
-        b.wait_not_visible('#dashboard-hosts a:first-child button.edit-button')
+        b.click("#hosts-sel button")
+        self.add_machine(b, "10.111.113.3")
+        self.wait_dashboard_addresses(b, ["localhost", "10.111.113.3"])
 
-        b.wait_popup('host-edit-dialog')
-        b.set_val('#host-edit-name', "Horst")
+        b.click("button:contains('Edit hosts')")
+        b.click("#nav-hosts .nav-item span[data-for='/@10.111.113.3'] button.nav-action.pf-m-secondary")
+
+        b.wait_popup('edit-host-dialog')
+        old_color = b.attr("#host-edit-color", "style")
+        b.set_val('#edit-host-user', 'franz')
+        b.set_val('#edit-host-name', "MesMer")
         b.click('#host-edit-color')
         b.wait_visible('#host-edit-color-popover')
-        b.wait_visible('#host-edit-user[disabled]')
         b.click('#host-edit-color-popover div.popover-content > div:first-child > div:nth-child(3)')
         b.wait_not_visible('#host-edit-color-popover')
-        b.click('#host-edit-apply')
-        b.wait_popdown('host-edit-dialog')
 
-        b.wait_in_text('#dashboard-hosts a:first-child span.host-label', "Horst")
-        b.wait_not_attr("#dashboard-hosts .list-group-item[data-address='localhost']", "style", old_style)
-        self.assertEqual(m.execute("hostnamectl --pretty"), "Horst\n")
+        b.click('#edit-host-apply')
+        b.wait_popdown('edit-host-dialog')
+
+        b.wait_text(".nav-item span[data-for='/@10.111.113.3']", "franz @MesMer")
+        self.assertEqual(m3.execute("hostnamectl --pretty"), "MesMer\n")
+
+        # Go to the updated machine and try to change whilst on it
+        b.click("#nav-hosts .nav-item a[href='/@10.111.113.3']")
+        b.wait_present("iframe.container-frame[name='cockpit1:franz@10.111.113.3/system']")
+
+        b.wait_text("#hosts-sel button .pf-c-select__toggle-text", "franz@MesMer")
+        b.click("#hosts-sel button")
+        b.wait_text(".nav-item span[data-for='/@10.111.113.3']", "franz @MesMer")
+        b.click("button:contains('Edit hosts')")
+        b.click("#nav-hosts .nav-item span[data-for='/@10.111.113.3'] button.nav-action.pf-m-secondary")
+
+        b.wait_val('#edit-host-user', 'franz')
+        b.wait_val('#edit-host-name', "MesMer")
+        b.set_val('#edit-host-user', 'admin')
+        new_color = b.attr("#host-edit-color", "style")
+        self.assertNotEqual(old_color, new_color)
+
+        b.click('#edit-host-apply')
+        b.wait_popdown('edit-host-dialog')
+
+        b.wait_text(".nav-item span[data-for='/@10.111.113.3']", "admin @MesMer")
+        b.wait_text("#hosts-sel button .pf-c-select__toggle-text", "admin@MesMer")
+
+class TestHostEditing(MachineCase, HostSwitcherHelpers):
 
     def testLimits(self):
         b = self.browser
@@ -380,18 +361,20 @@ class TestDashboardEditLimits(MachineCase, DashBoardHelpers):
             return list(d.keys())
 
         def check_limit(limit):
-            b.click('#dashboard-add')
-            b.wait_popup('dashboard_setup_server_dialog')
+            b.click("button:contains('Add new host')")
+            b.wait_popup('hosts_setup_server_dialog')
             if limit:
-                b.wait_in_text("#dashboard_setup_server_dialog .dashboard-machine-warning",
+                b.wait_in_text("#hosts_setup_server_dialog .dashboard-machine-warning",
                                "{0} machines".format(limit))
             else:
-                b.wait_not_present("#dashboard_setup_server_dialog .dashboard-machine-warning")
+                b.wait_not_present("#hosts_setup_server_dialog .dashboard-machine-warning")
 
-            b.click("#dashboard_setup_server_dialog .pf-m-link")
+            b.click("#hosts_setup_server_dialog .pf-m-link")
 
-        self.login_and_go("/dashboard")
+        self.login_and_go()
 
+
+        b.click("#hosts-sel button")
         self.wait_dashboard_addresses(b, ["localhost"])
         check_limit(0)
 

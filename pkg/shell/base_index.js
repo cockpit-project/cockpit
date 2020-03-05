@@ -485,7 +485,7 @@ function Router(index) {
  * As a convenience, common menu items can be setup by adding the
  * selector to be used to hook them up. The accepted selectors
  * are.
- * oops_sel, logout_sel, language_sel, brand_sel, about_sel,
+ * oops_sel, logout_sel, language_sel, about_sel,
  * user_sel, account_sel
  *
  * Emits "disconnect" and "expect_restart" signals, that should be
@@ -580,13 +580,24 @@ function Index() {
         $(self).triggerHandler("disconnect", watchdog_problem);
     });
 
+    /* Handle navigation */
+    $(document).on("click", ".nav-item", function(ev) {
+        if (ev.target.nodeName === "BUTTON") // Buttons in navigation have their own handlers
+            return;
+        const a = this.querySelector("a");
+        if (!a.host || window.location.host === a.host) {
+            self.jump(a.getAttribute('href'));
+            ev.preventDefault();
+        }
+    });
+
     /* Handles an href link as seen below */
     $(document).on("click", "a[href]", function(ev) {
         var a = this;
         if (!a.host || window.location.host === a.host) {
-            document.getElementById("filter-menus").value = "";
             self.jump(a.getAttribute('href'));
             ev.preventDefault();
+            ev.stopImmediatePropagation();
         }
     });
 
@@ -655,46 +666,6 @@ function Index() {
             path.pop();
         state.component = path.join("/");
         return state;
-    }
-
-    function build_navbar() {
-        var navbar = $("#main-navbar");
-        navbar.on("click", function () {
-            navbar.parent().toggleClass("clicked", true);
-        });
-
-        navbar.on("mouseout", function () {
-            navbar.parent().toggleClass("clicked", false);
-        });
-
-        function links(component) {
-            var sm = $("<span class='fa'>")
-                    .attr("data-toggle", "tooltip")
-                    .attr("role", "presentation")
-                    .attr("title", "")
-                    .attr("data-original-title", component.label);
-
-            if (component.icon)
-                sm.addClass(component.icon);
-            else
-                sm.addClass("first-letter").text(component.label);
-
-            var value = $("<span class='list-group-item-value'>")
-                    .text(component.label);
-
-            var a = $("<a>")
-                    .attr("href", self.href({ host: "localhost", component: component.path }))
-                    .append(sm)
-                    .append(value);
-
-            return $("<li class='dashboard-link list-group-item'>")
-                    .attr("data-component", component.path)
-                    .append(a);
-        }
-
-        var local_compiled = new CompiledComponents();
-        local_compiled.load(cockpit.manifests, "dashboard");
-        navbar.append(local_compiled.ordered("dashboard").map(links));
     }
 
     self.retrieve_state = function() {
@@ -774,6 +745,7 @@ function Index() {
 
         if (frame_change || state.hash !== current.hash) {
             history.pushState(state, "", target);
+            $("#nav-system").toggleClass("interact", false);
             self.navigate(state, true);
             return true;
         }
@@ -817,7 +789,6 @@ function Index() {
             self.navigate(ev.state, true);
         });
 
-        build_navbar();
         self.navigate();
         cockpit.translate();
         $("body").prop("hidden", false);
@@ -839,64 +810,6 @@ function Index() {
             $("#error-popup-message").html(details);
             $('#error-popup').modal('show');
         });
-    }
-
-    function css_content(elt) {
-        var styles, i;
-        var style, content;
-        var el_style, el_content;
-
-        if (elt)
-            style = window.getComputedStyle(elt, ":before");
-        if (!style)
-            return;
-
-        content = style.content;
-        // Old branding had style on the element itself
-        if (!content) {
-            el_style = window.getComputedStyle(elt);
-            if (el_style)
-                el_content = el_style.content;
-        }
-
-        // getComputedStyle is broken for pseudo elements
-        // in Phantomjs and some old browsers
-        // those support the depricated getMatchedCSSRules
-        if (!content && style.length === 0 && window.getMatchedCSSRules) {
-            styles = window.getMatchedCSSRules(elt, ":before") || [];
-            for (i = 0; i < styles.length; i++) {
-                if (styles[i].style.content) {
-                    content = styles[i].style.content;
-                    break;
-                }
-            }
-        }
-
-        return content || el_content;
-    }
-
-    /* Branding */
-    function setup_brand(id, default_title) {
-        var elt = $(id)[0];
-        var os_release = {};
-        try {
-            os_release = JSON.parse(window.localStorage['os-release'] || "{}");
-        } catch (ex) {
-            console.warn("Couldn't parse os-release", ex);
-        }
-
-        var len;
-        var content = css_content(elt);
-        if (content && content != "none" && content != "normal") {
-            len = content.length;
-            if ((content[0] === '"' || content[0] === '\'') &&
-                len > 2 && content[len - 1] === content[0])
-                content = content.substr(1, len - 2);
-            elt.innerHTML = cockpit.format(content, os_release) || default_title;
-            return $(elt).text();
-        } else {
-            elt.removeAttribute("class");
-        }
     }
 
     /* Logout link */
@@ -980,13 +893,6 @@ function Index() {
     if (self.language_sel)
         setup_language(self.language_sel);
 
-    var cal_title;
-    if (self.brand_sel) {
-        cal_title = setup_brand(self.brand_sel, self.default_title);
-        if (cal_title && !self.skip_brand_title)
-            self.default_title = cal_title;
-    }
-
     if (self.about_sel)
         setup_about(self.about_sel);
     if (self.killer_sel)
@@ -998,6 +904,8 @@ function Index() {
                 setup_user(self.user_sel, user);
             if (self.account_sel)
                 setup_account(self.account_sel, user);
+            if (self.user_mobile_sel)
+                setup_user(self.user_mobile_sel, user);
         });
     }
 }
@@ -1013,8 +921,6 @@ function CompiledComponents() {
                     section: section,
                     label: cockpit.gettext(info.label) || prop,
                     order: info.order === undefined ? 1000 : info.order,
-                    icon: info.icon,
-                    wants: info.wants,
                     docs: info.docs,
                     keywords: info.keywords || [{ matches: [] }],
                     keyword: { score: -1 }

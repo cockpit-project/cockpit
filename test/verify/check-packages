@@ -61,7 +61,7 @@ class TestPackages(MachineCase):
         self.login_and_go("/playground/pkgs")
 
         b.switch_to_top()
-        b.wait_present("#sidebar-tools li:contains(Terminal)")
+        b.wait_present("#nav-system li:contains(Terminal)")
 
         m.execute("mkdir /usr/share/cockpit/test")
         m.write("/usr/share/cockpit/test/manifest.json", test_manifest)
@@ -70,7 +70,7 @@ class TestPackages(MachineCase):
         b.click("#reload")
 
         b.switch_to_top()
-        b.click("#sidebar-tools a:contains(Test)")
+        b.click("#nav-system a:contains(Test)")
 
         b.enter_page("/test/test")
         b.wait_text("h1", "Test")
@@ -81,7 +81,7 @@ class TestPackages(MachineCase):
         b.click("#reload")
 
         b.switch_to_top()
-        b.wait_not_present("#sidebar-tools a:contains(Test)")
+        b.wait_not_present("#nav-system a:contains(Test)")
 
 
 if __name__ == '__main__':

@@ -24,6 +24,7 @@ import ReactDOM from 'react-dom';
 
 import moment from "moment";
 import { OverlayTrigger, Tooltip } from "patternfly-react";
+import { Button } from '@patternfly/react-core';
 import { Remarkable } from "remarkable";
 import AutoUpdates from "./autoupdates.jsx";
 import { History, PackageList } from "./history.jsx";
@@ -121,9 +122,9 @@ function Expander({ title, onExpand, children }) {
         <>
             <div className="expander-title">
                 <hr />
-                <button className="link-button" onClick={ () => setExpanded(!expanded) }>
+                <Button variant="link" onClick={ () => setExpanded(!expanded) }>
                     <i className={cls} />{title}
-                </button>
+                </Button>
                 <hr />
             </div>
             {expanded ? children : null}
@@ -176,11 +177,11 @@ function HeaderBar(props) {
     var actionButton;
     if (props.state == "uptodate" || props.state == "available") {
         if (!props.unregistered)
-            actionButton = <button className="pf-c-button pf-m-secondary" onClick={props.onRefresh}>{_("Check for Updates")}</button>;
+            actionButton = <Button variant="secondary" onClick={props.onRefresh}>{_("Check for Updates")}</Button>;
         if (props.timeSinceRefresh !== null)
             lastChecked = cockpit.format(_("Last checked: $0"), moment(moment().valueOf() - props.timeSinceRefresh * 1000).fromNow());
     } else if (props.state == "applying") {
-        actionButton = <button className="pf-c-button pf-m-secondary" onClick={props.onCancel} disabled={!props.allowCancel}>{_("Cancel")}</button>;
+        actionButton = <Button variant="secondary" onClick={props.onCancel} isDisabled={!props.allowCancel}>{_("Cancel")}</Button>;
     }
 
     return (
@@ -499,9 +500,9 @@ function AskRestart(props) {
             <h1>{_("Restart Recommended")}</h1>
             <p>{_("Updated packages may require a restart to take effect.")}</p>
             <div className="blank-slate-pf-secondary-action">
-                <button className="pf-c-button pf-m-secondary" onClick={props.onIgnore}>{_("Ignore")}</button>
+                <Button variant="secondary" onClick={props.onIgnore}>{_("Ignore")}</Button>
                 &nbsp;
-                <button className="pf-c-button pf-m-primary" onClick={props.onRestart}>{_("Restart Now")}</button>
+                <Button variant="primary" onClick={props.onRestart}>{_("Restart Now")}</Button>
             </div>
             <div className="flow-list-blank-slate">
                 <Expander title={_("Package information")}>
@@ -802,10 +803,10 @@ class OsUpdates extends React.Component {
                     <h1>{_("This system is not registered")}</h1>
                     <p>{_("To get software updates, this system needs to be registered with Red Hat, either using the Red Hat Customer Portal or a local subscription server.")}</p>
                     <div className="blank-slate-pf-main-action">
-                        <button className="pf-c-button btn-lg pf-m-primary"
+                        <Button variant="primary"
                             onClick={ () => cockpit.jump("/subscriptions", cockpit.transport.host) }>
                             {_("Register…")}
-                        </button>
+                        </Button>
                     </div>
                 </div>);
         }
@@ -842,16 +843,16 @@ class OsUpdates extends React.Component {
                 let text;
 
                 applyAll = (
-                    <button className="pk-update--all pf-c-button pf-m-primary" onClick={ () => this.applyUpdates(false) }>
+                    <Button variant="primary" className="pk-update--all" onClick={ () => this.applyUpdates(false) }>
                         { num_updates == num_security_updates
                             ? _("Install Security Updates") : _("Install All Updates") }
-                    </button>);
+                    </Button>);
 
                 if (num_security_updates > 0 && num_updates > num_security_updates) {
                     applySecurity = (
-                        <button className="pk-update--security pf-c-button pf-m-secondary" onClick={ () => this.applyUpdates(true) }>
+                        <Button variant="secondary" className="pk-update--security" onClick={ () => this.applyUpdates(true) }>
                             {_("Install Security Updates")}
-                        </button>);
+                        </Button>);
                 }
 
                 if (highest_severity == PK.Enum.INFO_SECURITY)

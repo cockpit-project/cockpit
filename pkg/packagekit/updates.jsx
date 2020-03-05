@@ -24,7 +24,9 @@ import ReactDOM from 'react-dom';
 
 import moment from "moment";
 import { OverlayTrigger, Tooltip } from "patternfly-react";
-import { Button } from '@patternfly/react-core';
+import { Button, EmptyState, EmptyStateVariant, EmptyStateIcon, EmptyStateBody, Title } from '@patternfly/react-core';
+import { Spinner } from '@patternfly/react-core/dist/esm/experimental';
+import { RebootingIcon, CheckIcon, ExclamationCircleIcon } from "@patternfly/react-icons";
 import { Remarkable } from "remarkable";
 import AutoUpdates from "./autoupdates.jsx";
 import { History, PackageList } from "./history.jsx";
@@ -494,24 +496,23 @@ class ApplyUpdates extends React.Component {
     }
 }
 
-function AskRestart(props) {
-    return (
-        <div className="blank-slate-pf">
-            <h1>{_("Restart Recommended")}</h1>
-            <p>{_("Updated packages may require a restart to take effect.")}</p>
-            <div className="blank-slate-pf-secondary-action">
-                <Button variant="secondary" onClick={props.onIgnore}>{_("Ignore")}</Button>
-                &nbsp;
-                <Button variant="primary" onClick={props.onRestart}>{_("Restart Now")}</Button>
-            </div>
-            <div className="flow-list-blank-slate">
-                <Expander title={_("Package information")}>
-                    <PackageList packages={props.history[0]} />
-                </Expander>
-            </div>
+const AskRestart = ({ onIgnore, onRestart, history }) => (
+    <EmptyState variant={EmptyStateVariant.full}>
+        <EmptyStateIcon icon={RebootingIcon} />
+        <Title headingLevel="h1" size="lg">{_("Restart Recommended")}</Title>
+        <EmptyStateBody>{_("Updated packages may require a restart to take effect.")}</EmptyStateBody>
+
+        <Button variant="secondary" onClick={onIgnore}>{_("Ignore")}</Button>
+        &nbsp;
+        <Button variant="primary" onClick={onRestart}>{_("Restart Now")}</Button>
+
+        <div className="flow-list-blank-slate">
+            <Expander title={_("Package information")}>
+                <PackageList packages={history[0]} />
+            </Expander>
         </div>
-    );
-}
+    </EmptyState>
+);
 
 class OsUpdates extends React.Component {
     constructor() {
@@ -796,19 +797,14 @@ class OsUpdates extends React.Component {
             });
 
             return (
-                <div className="blank-slate-pf">
-                    <div className="blank-slate-pf-icon">
-                        <span className="fa fa-exclamation-circle" />
-                    </div>
-                    <h1>{_("This system is not registered")}</h1>
-                    <p>{_("To get software updates, this system needs to be registered with Red Hat, either using the Red Hat Customer Portal or a local subscription server.")}</p>
-                    <div className="blank-slate-pf-main-action">
-                        <Button variant="primary"
-                            onClick={ () => cockpit.jump("/subscriptions", cockpit.transport.host) }>
-                            {_("Register…")}
-                        </Button>
-                    </div>
-                </div>);
+                <EmptyState variant={EmptyStateVariant.full}>
+                    <EmptyStateIcon icon={ExclamationCircleIcon} />
+                    <Title headingLevel="h1" size="lg">{_("This system is not registered")}</Title>
+                    <EmptyStateBody>{_("To get software updates, this system needs to be registered with Red Hat, either using the Red Hat Customer Portal or a local subscription server.")}</EmptyStateBody>
+                    <Button variant="primary" onClick={ () => cockpit.jump("/subscriptions", cockpit.transport.host) }>
+                        {_("Register…")}
+                    </Button>
+                </EmptyState>);
         }
 
         switch (this.state.state) {
@@ -930,13 +926,11 @@ class OsUpdates extends React.Component {
         case "restart":
             page_status.set_own(null);
             return (
-                <div className="blank-slate-pf">
-                    <div className="blank-slate-pf-icon">
-                        <div className="spinner spinner-lg" />
-                    </div>
-                    <h1>{_("Restarting")}</h1>
-                    <p>{_("Your server will close the connection soon. You can reconnect after it has restarted.")}</p>
-                </div>);
+                <EmptyState variant={EmptyStateVariant.full}>
+                    <Spinner size="xl" />
+                    <Title headingLevel="h1" size="lg">{_("Restarting")}</Title>
+                    <EmptyStateBody>{_("Your server will close the connection soon. You can reconnect after it has restarted.")}</EmptyStateBody>
+                </EmptyState>);
 
         case "uptodate":
             page_status.set_own({
@@ -950,12 +944,10 @@ class OsUpdates extends React.Component {
             return (
                 <>
                     <AutoUpdates onInitialized={ enabled => this.setState({ autoUpdatesEnabled: enabled }) } />
-                    <div className="blank-slate-pf">
-                        <div className="blank-slate-pf-icon">
-                            <span className="fa fa-check" />
-                        </div>
-                        <p>{_("System is up to date")}</p>
-                    </div>
+                    <EmptyState variant={EmptyStateVariant.full}>
+                        <EmptyStateIcon icon={CheckIcon} />
+                        <Title headingLevel="h1" size="lg">{_("System is up to date")}</Title>
+                    </EmptyState>
 
                     { // automatic updates are not tracked by PackageKit, hide history when they are enabled
                         (this.state.autoUpdatesEnabled !== undefined) &&

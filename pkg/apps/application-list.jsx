@@ -19,7 +19,8 @@
 
 import cockpit from "cockpit";
 import React from "react";
-import { Alert, AlertActionCloseButton } from "@patternfly/react-core";
+import { Alert, AlertActionCloseButton, Button } from "@patternfly/react-core";
+import { RebootingIcon } from "@patternfly/react-icons";
 
 import * as PackageKit from "./packagekit.js";
 import { left_click, icon_url, show_error, launch, ProgressBar, CancelButton } from "./utils.jsx";
@@ -78,9 +79,9 @@ class ApplicationRow extends React.Component {
             }
 
             if (comp.installed) {
-                button = <button className="pf-c-button pf-m-danger" onClick={left_click(remove)}>{_("Remove")}</button>;
+                button = <Button variant="danger" onClick={left_click(remove)}>{_("Remove")}</Button>;
             } else {
-                button = <button className="pf-c-button pf-m-secondary" onClick={left_click(install)}>{_("Install")}</button>;
+                button = <Button variant="secondary" onClick={left_click(install)}>{_("Install")}</Button>;
             }
         }
 
@@ -125,9 +126,9 @@ export class ApplicationList extends React.Component {
         } else {
             refresh_progress = null;
             refresh_button = (
-                <button className="pf-c-button pf-m-secondary" onClick={left_click(refresh)}>
-                    <i className='fa fa-refresh' />
-                </button>
+                <Button variant="secondary" onClick={left_click(refresh)} aria-label={ _("Update package information") }>
+                    <RebootingIcon />
+                </Button>
             );
         }
 

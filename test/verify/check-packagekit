@@ -146,7 +146,7 @@ class TestUpdates(NoSubManCase):
         # PK starts from a blank state, thus should force refresh and set the "time since" to 0
         b.wait_text(".content-header-extra--updated", "Last checked: a few seconds ago")
         # empty state visible in main area
-        b.wait_present(".container-fluid div.blank-slate-pf")
+        b.wait_present(".container-fluid .pf-c-empty-state")
 
         install_lockfile = "/tmp/finish-pk"
         # create two updates; force installing chocolate before vanilla
@@ -221,7 +221,7 @@ class TestUpdates(NoSubManCase):
         b.wait_in_text(".content-header-extra--updated", "Last checked:")
 
         # empty state visible in main area
-        b.wait_present(".container-fluid div.blank-slate-pf")
+        b.wait_present(".container-fluid .pf-c-empty-state")
 
         # new versions are now installed
         m.execute("test -f /stamp-vanilla-1.0-2 && test -f /stamp-chocolate-2.0-2")
@@ -414,7 +414,7 @@ class TestUpdates(NoSubManCase):
         # no further updates
         b.wait_in_text("#state", "No updates pending")
         # empty state visible in main area
-        b.wait_present(".container-fluid div.blank-slate-pf")
+        b.wait_present(".container-fluid .pf-c-empty-state")
 
         # history on "up to date" page should show the recent update (expanded by default)
         assertHistory("table.updates-history tbody.open ul", ["buggy", "norefs-bin", "norefs-doc"])
@@ -720,13 +720,13 @@ class TestUpdatesSubscriptions(PackageCase):
         b.go("/updates")
         b.enter_page("/updates")
         # empty state visible in main area
-        b.wait_present(".container-fluid div.blank-slate-pf button")
-        b.wait_in_text(".container-fluid div.blank-slate-pf", "This system is not registered")
+        b.wait_present(".container-fluid .pf-c-empty-state button")
+        b.wait_in_text(".container-fluid .pf-c-empty-state", "This system is not registered")
         # no header bar
         b.wait_not_present(".content-header-extra")
 
         # test the button to switch to Subscriptions
-        b.click(".container-fluid div.blank-slate-pf button")
+        b.click(".container-fluid .pf-c-empty-state button")
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname === "/subscriptions"')
 
@@ -736,7 +736,7 @@ class TestUpdatesSubscriptions(PackageCase):
         b.enter_page("/updates")
         b.wait_present(".content-header-extra button")
         b.wait_in_text("#state", "No updates pending")
-        b.wait_in_text(".container-fluid div.blank-slate-pf", "up to date")
+        b.wait_in_text(".container-fluid .pf-c-empty-state", "up to date")
 
         # same on system page
         b.go("/system")
@@ -768,8 +768,8 @@ class TestUpdatesSubscriptions(PackageCase):
         b.enter_page("/updates")
 
         # empty state visible in main area
-        b.wait_present(".container-fluid div.blank-slate-pf button")
-        b.wait_in_text(".container-fluid div.blank-slate-pf", "This system is not registered")
+        b.wait_present(".container-fluid .pf-c-empty-state button")
+        b.wait_in_text(".container-fluid .pf-c-empty-state", "This system is not registered")
 
         # should show header bar
         b.wait_text("#state", "1 update")
@@ -779,7 +779,7 @@ class TestUpdatesSubscriptions(PackageCase):
         self.register()
         b.go("/updates")
         b.enter_page("/updates")
-        b.wait_not_present(".container-fluid div.blank-slate-pf")
+        b.wait_not_present(".container-fluid .pf-c-empty-state")
         b.wait_in_text("#available h2", "Available Updates")
         # no update history yet
         self.assertFalse(b.is_present("table.updates-history"))
@@ -960,7 +960,7 @@ class TestAutoUpdates(NoSubManCase):
                       r'/etc/systemd/system/dnf-automatic.timer.d/cal.conf; systemctl daemon-reload')
             b.reload()
             b.enter_page("/updates")
-            b.wait_in_text(".container-fluid div.blank-slate-pf", "up to date")
+            b.wait_in_text(".container-fluid .pf-c-empty-state", "up to date")
             b.wait_not_present("#automatic")
 
     def testWithAvailableUpdates(self):
@@ -1048,7 +1048,7 @@ class TestAutoUpdatesInstall(NoSubManCase):
         b.click("#app .container-fluid button.pk-update--all")
 
         # empty state visible in main area
-        b.click('.container-fluid div.blank-slate-pf button.pf-m-secondary')
+        b.click('.container-fluid .pf-c-empty-state button.pf-m-secondary')
         self.assertFalse(b.is_present("#available"))
         if self.backend == 'dnf':
             b.is_present('#automatic')

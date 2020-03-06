@@ -20,6 +20,7 @@
 import cockpit from "cockpit";
 import React from "react";
 import ReactDOM from 'react-dom';
+import { Button } from "@patternfly/react-core";
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 
 const _ = cockpit.gettext;
@@ -413,20 +414,20 @@ function WorkflowRow(props) {
     let button = null;
     if (props.problemState === ProblemState.REPORTING) {
         button = (
-            <button key={"cancel_" + props.label}
-                    className="pf-c-button pf-m-danger"
+            <Button key={"cancel_" + props.label}
+                    variant="danger"
                     onClick={props.onCancelButtonClick}>
                 {_("Cancel")}
-            </button>
+            </Button>
         );
     } else {
         button = (
-            <button key={"report_" + props.label}
-                    className="pf-c-button pf-m-primary"
-                    disabled={props.problemState !== ProblemState.REPORTABLE}
+            <Button key={"report_" + props.label}
+                    variant="primary"
+                    isDisabled={props.problemState !== ProblemState.REPORTABLE}
                     onClick={props.problemState === ProblemState.REPORTABLE ? props.onReportButtonClick : undefined}>
                 {_("Report")}
-            </button>
+            </Button>
         );
     }
 

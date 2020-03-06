@@ -280,7 +280,7 @@ class HardwareInfo extends React.Component {
             <div className="page-ct container-fluid">
                 <CPUSecurityMitigationsDialog show={this.state.showCpuSecurityDialog} onClose={ () => this.setState({ showCpuSecurityDialog: false }) } />
                 <ol className="breadcrumb">
-                    <li><button role="link" className="link-button" onClick={ () => cockpit.jump("/system", cockpit.transport.host) }>{ _("Overview") }</button></li>
+                    <li><Button variant="link" isInline onClick={ () => cockpit.jump("/system", cockpit.transport.host) }>{ _("Overview") }</Button></li>
                     <li className="active">{ _("Hardware Information") }</li>
                 </ol>
 

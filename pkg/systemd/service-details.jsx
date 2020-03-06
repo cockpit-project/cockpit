@@ -60,7 +60,9 @@ export class ServiceTemplate extends React.Component {
                     </div>
                     <div className="list-group-item">
                         <input type="text" onChange={ this.handleChange } />
-                        <button onClick={() => this.props.instantiateCallback(this.state.inputText)}>{ _("Instantiate") }</button>
+                    </div>
+                    <div className="list-group-item">
+                        <Button variant="primary" onClick={() => this.props.instantiateCallback(this.state.inputText)}>{ _("Instantiate") }</Button>
                     </div>
                 </div>
             </div>
@@ -341,7 +343,7 @@ export class ServiceDetails extends React.Component {
                 <div key="failed" className="status-failed">
                     <span className="pficon pficon-error-circle-o status-icon" />
                     <span className="status">{ _("Failed to start") }</span>
-                    <button className="pf-c-button pf-m-secondary action-button" onClick={() => this.unitAction("StartUnit") }>{ _("Start Service") }</button>
+                    <Button variant="secondary" className="action-button" onClick={() => this.unitAction("StartUnit") }>{ _("Start Service") }</Button>
                 </div>
             );
         }

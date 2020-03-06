@@ -19,6 +19,7 @@
 
 import cockpit from "cockpit";
 import React from "react";
+import { Button } from "@patternfly/react-core";
 
 import * as PackageKit from "./packagekit.js";
 import { left_click, icon_url, show_error, launch, ProgressBar, CancelButton } from "./utils.jsx";
@@ -106,10 +107,10 @@ export class Application extends React.Component {
                 button = <CancelButton data={self.state.progress} />;
             } else if (comp.installed) {
                 progress_or_launch = <button role="link" className="link-button" onClick={left_click(() => launch(comp))}>{_("Go to Application")}</button>;
-                button = <button className="pf-c-button pf-m-danger" onClick={left_click(remove)}>{_("Remove")}</button>;
+                button = <Button variant="danger" onClick={left_click(remove)}>{_("Remove")}</Button>;
             } else {
                 progress_or_launch = null;
-                button = <button className="pf-c-button pf-m-secondary" onClick={left_click(install)}>{_("Install")}</button>;
+                button = <Button variant="secondary" onClick={left_click(install)}>{_("Install")}</Button>;
             }
 
             return (

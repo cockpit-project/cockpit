@@ -44,11 +44,10 @@ class PackageCase(MachineCase):
             raise NotImplementedError("unknown image " + self.machine.image)
 
         # PackageKit refuses to work when offline
-        if self.image in ["ubuntu-1804", "ubuntu-stable"]:
-            # on these images, PackageKit insists on a default route, so add a fake one to virbr0
-            self.machine.execute("systemctl start libvirtd; until nmcli c show virbr0 >/dev/null 2>&1; do sleep 1; done; nmcli c modify virbr0 ipv4.gateway 192.168.122.1")
-            # this is a dynamic interface, next reboot will shadow the static file anyway, so clean it up
-            self.machine.execute("rm /etc/NetworkManager/system-connections/virbr0*")
+        if "ubuntu" in self.image:
+            # Ubuntu images don't use NM for the main interface; PackageKit insists on a default route, so add a fake one
+            self.machine.execute("nmcli con add type dummy con-name fake ifname fake0 ip4 1.2.3.4/24 gw4 1.2.3.1")
+            self.addCleanup(self.machine.execute, "nmcli con delete fake")
         else:
             # PackageKit refuses to work when offline; unfortunately nm-online does not wait enough
             # https://developer.gnome.org/NetworkManager/unstable/nm-dbus-types.html#NMConnectivityState

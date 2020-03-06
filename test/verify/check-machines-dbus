@@ -306,9 +306,15 @@ class TestMachinesDBus(machineslib.TestMachines):
 
             # HACK: Capabilities are not updated dynamically
             # https://bugzilla.redhat.com/show_bug.cgi?id=1807198
-            if m.image in ["fedora-32", "ubuntu-2004"]:
-                m.execute("systemctl restart libvirtd")
-                b.click("tbody tr[data-row-id=vm-VmNotInstalled] th")
+            def hack_broken_caps():
+                if m.image in ["fedora-32", "ubuntu-2004"]:
+                    m.execute("systemctl restart libvirtd")
+                    # We don't get events for shut off VMs so reload the page
+                    b.reload()
+                    b.enter_page('/machines')
+                    b.click("tbody tr[data-row-id=vm-VmNotInstalled] th")
+
+            hack_broken_caps()
 
             b.mouse("#vm-VmNotInstalled-firmware-tooltip", "mouseover")
             b.wait_in_text("#missing-uefi-images .tooltip-inner", "Libvirt did not detect any UEFI/OVMF firmware image installed on the host")
@@ -316,9 +322,7 @@ class TestMachinesDBus(machineslib.TestMachines):
             b.wait_not_present("#missing-uefi-images")
             m.execute("umount " + ovmf_path)
 
-            if m.image == "fedora-32":
-                m.execute("systemctl restart libvirtd")
-                b.click("tbody tr[data-row-id=vm-VmNotInstalled] th")
+            hack_broken_caps()
         else:
             b.wait_not_present("#vm-VmNotInstalled-firmware")
 

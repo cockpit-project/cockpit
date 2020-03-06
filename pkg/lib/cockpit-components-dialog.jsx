@@ -36,8 +36,6 @@ const _ = cockpit.gettext;
  * Expected props:
  *  - cancel_clicked optional
  *     Callback called when the dialog is canceled
- *  - cancel_style
- *     css class used for the cancel button, defaults to 'cancel'
  *  - cancel_caption optional, defaults to 'Cancel'
  *  - list of actions, each an object with:
  *      - clicked
@@ -154,17 +152,11 @@ export class DialogFooter extends React.Component {
     }
 
     render() {
-        var cancel_caption, cancel_style;
+        var cancel_caption;
         if ('cancel_caption' in this.props)
             cancel_caption = this.props.cancel_caption;
         else
             cancel_caption = _("Cancel");
-
-        if ('cancel_style' in this.props)
-            cancel_style = this.props.cancel_style;
-        else
-            cancel_style = "cancel";
-        cancel_style = "pf-c-button pf-m-secondary " + cancel_style;
 
         // If an action is in progress, show the spinner with its message and disable all actions.
         // Cancel is only enabled when the action promise has a cancel method, or we get one
@@ -225,7 +217,7 @@ export class DialogFooter extends React.Component {
                 { this.props.extra_element }
                 { wait_element }
                 <button
-                    className={ cancel_style }
+                    className="pf-c-button pf-m-secondary cancel"
                     onClick={ this.cancel_click }
                     disabled={ cancel_disabled }
                 >{ cancel_caption }</button>

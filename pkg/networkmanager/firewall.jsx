@@ -147,7 +147,7 @@ function ZoneSection(props) {
         );
     } else {
         addServiceAction = (
-            <Button variant="primary" onClick={() => props.openServicesDialog(props.zone.id, props.zone.name)} className="add-services-button" aria-label={cockpit.format(_("Add services to zone $0"), props.zone.id)}>
+            <Button variant="primary" onClick={() => props.openServicesDialog(props.zone.id, props.zone.id)} className="add-services-button" aria-label={cockpit.format(_("Add services to zone $0"), props.zone.id)}>
                 {_("Add Services")}
             </Button>
         );
@@ -156,7 +156,7 @@ function ZoneSection(props) {
     return <div className="zone-section" data-id={props.zone.id}>
         <div className="zone-section-heading">
             <span>
-                <h4>{ cockpit.format(_("$0 Zone"), props.zone.name) }</h4>
+                <h4>{ cockpit.format(_("$0 zone"), props.zone.id) }</h4>
                 <div className="zone-section-targets">
                     { props.zone.interfaces.length > 0 && <span className="zone-section-target"><strong>{_("Interfaces")}</strong> {props.zone.interfaces.join(", ")}</span> }
                     { props.zone.source.length > 0 && <span className="zone-section-target"><strong>{_("Addresses")}</strong> {props.zone.source.join(", ")}</span> }
@@ -915,11 +915,7 @@ export class Firewall extends React.Component {
 
         var zones = [...this.state.firewall.activeZones].sort((z1, z2) =>
             z1 === firewall.defaultZone ? -1 : z2 === firewall.defaultZone ? 1 : 0
-        ).map(id => {
-            const zone = this.state.firewall.zones[id];
-            zone.name = zone.name || id;
-            return zone;
-        });
+        ).map(id => this.state.firewall.zones[id]);
 
         var enabled = this.state.pendingTarget !== null ? this.state.pendingTarget : this.state.firewall.enabled;
 

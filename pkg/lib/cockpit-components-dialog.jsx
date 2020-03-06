@@ -21,7 +21,7 @@ import cockpit from "cockpit";
 import React from "react";
 import ReactDOM from "react-dom";
 import PropTypes from "prop-types";
-import { Alert } from "@patternfly/react-core";
+import { Alert, Button } from "@patternfly/react-core";
 import { Modal } from 'patternfly-react';
 
 import "page.scss";
@@ -43,7 +43,7 @@ const _ = cockpit.gettext;
  *         parameter: callback to set the progress text (will be displayed next to spinner)
  *      - caption optional, defaults to 'Ok'
  *      - disabled optional, defaults to false
- *      - style defaults to 'default', other options: 'primary', 'danger'
+ *      - style defaults to 'secondary', other options: 'primary', 'danger'
  *  - static_error optional, always show this error
  *  - idle_message optional, always show this message on the last row when idle
  *  - dialog_done optional, callback when dialog is finished (param true if success, false on cancel)
@@ -165,9 +165,9 @@ export class DialogFooter extends React.Component {
         var actions_disabled;
         var cancel_disabled;
         if (this.state.action_in_progress) {
-            actions_disabled = 'disabled';
+            actions_disabled = true;
             if (!(this.state.action_in_progress_promise && this.state.action_in_progress_promise.cancel) && !this.state.action_progress_cancel)
-                cancel_disabled = 'disabled';
+                cancel_disabled = true;
             wait_element = <div className="dialog-wait-ct pull-left">
                 <div className="spinner spinner-sm" />
                 <span>{ this.state.action_progress_message }</span>
@@ -185,18 +185,13 @@ export class DialogFooter extends React.Component {
             else
                 caption = _("Ok");
 
-            let button_style = "pf-m-default";
-            const button_style_mapping = { primary: 'pf-m-primary', danger: 'pf-m-danger' };
-            if ('style' in action && action.style in button_style_mapping)
-                button_style = button_style_mapping[action.style];
-            button_style = "pf-c-button " + button_style + " apply";
-            const action_disabled = actions_disabled || ('disabled' in action && action.disabled);
-            return (<button
+            return (<Button
                 key={ caption }
-                className={ button_style }
+                className="apply"
+                variant={ action.style || "secondary" }
                 onClick={ this.action_click.bind(this, action.clicked) }
-                disabled={ action_disabled }
-            >{ caption }</button>
+                isDisabled={ actions_disabled || ('disabled' in action && action.disabled) }
+            >{ caption }</Button>
             );
         });
 
@@ -214,11 +209,7 @@ export class DialogFooter extends React.Component {
                 { error_element }
                 { this.props.extra_element }
                 { wait_element }
-                <button
-                    className="pf-c-button pf-m-secondary cancel"
-                    onClick={ this.cancel_click }
-                    disabled={ cancel_disabled }
-                >{ cancel_caption }</button>
+                <Button variant="secondary" className="cancel" onClick={this.cancel_click} isDisabled={cancel_disabled}>{ cancel_caption }</Button>
                 { action_buttons }
             </Modal.Footer>
         );

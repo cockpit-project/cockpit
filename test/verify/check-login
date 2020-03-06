@@ -492,9 +492,20 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         self.addCleanup(m.execute, "semanage login -d -s user_u unpriv")
         m.start_cockpit()
         b.login_and_go("/system", user="unpriv")
+        # generate lastlog entry
+        b.logout()
+        b.login_and_go("/system", user="unpriv")
         # not an admin
         b.wait_present("#restart-button[disabled][data-stable=yes]")
         b.wait_present("#shutdown-group[disabled][data-stable=yes]")
+
+        # with current SELinux policy, user_u and staff_u are not allowed to read cockpit_tmpfs_t memfd: https://bugzilla.redhat.com/show_bug.cgi?id=1814052
+        if m.image in ["fedora-31", "fedora-32", "fedora-testing", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream"]:
+            self.allow_journal_messages('Could not query seals on fd .*: not memfd.*')
+            self.assertFalse(b.is_present('#last-login'))
+        else:
+            b.wait_in_text('#last-login', "Last login:")
+            b.wait_in_text('#last-login', "web console")
 
         b.logout()
         self.allow_authorize_journal_messages()
@@ -516,6 +527,12 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         m.execute("semanage login -a -s sysadm_u admin")
         self.addCleanup(m.execute, "semanage login -d -s sysadm_u admin")
         b.login_and_go("/system")
+        # passing login info memfd should work
+        if m.image != "rhel-8-2-distropkg":  # changed in PR #13473
+            b.logout()
+            b.login_and_go("/system")
+            b.wait_in_text('#last-login', "Last login:")
+            b.wait_in_text('#last-login', "web console")
         # shutdown button should be enabled and working
         b.click("#restart-button[data-stable=yes]")
         b.wait_popup("shutdown-dialog")

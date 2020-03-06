@@ -58,7 +58,7 @@ class TestFirewall(NetworkCase):
         b = self.browser
         m = self.machine
         # on images with libvirt, wait until libvirt adds its zone (older versions don't do that yet), so that we get a stable count
-        if m.image not in ["debian-stable", "ubuntu-1804", "ubuntu-stable"]:
+        if m.image not in ["debian-stable", "ubuntu-1804", "ubuntu-2004", "ubuntu-stable"]:
             m.execute("until firewall-cmd --get-active-zones | grep -q libvirt; do sleep 1; done")
 
         active_zones = len(m.execute("firewall-cmd --get-active-zones | grep '^[a-zA-Z]'").split())
@@ -443,7 +443,7 @@ class TestFirewall(NetworkCase):
         # add zone with interface
         # The public zone in these images are attached to eth1
         interface = ""
-        if m.image in ["debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-1804"]:
+        if m.image in ["debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-1804", "ubuntu-2004"]:
             interface = "eth0"
         # The public zone in these images are attached to both eth0 and eth1
         else:

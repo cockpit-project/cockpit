@@ -68,10 +68,10 @@ OnCalendar=daily
         self.allow_restart_journal_messages()
         self.allow_journal_messages("Failed to get realtime timestamp: Cannot assign requested address")
 
-        # On Debian and Ubuntu we have to generate the other locales :S
-        if m.image in ["debian-stable", "debian-testing"]:
+        # On Debian and Ubuntu we have to generate the other locales
+        if "debian" in m.image:
             m.execute("echo 'de_DE.UTF-8 UTF-8' >> /etc/locale.gen && locale-gen && update-locale")
-        elif m.image in ["ubuntu-1804", "ubuntu-stable"]:
+        elif "ubuntu" in m.image:
             m.execute("locale-gen de_DE && locale-gen de_DE.UTF-8 && update-locale")
 
         # login so that we have a cookie.
@@ -293,9 +293,9 @@ OnCalendar=daily
 
         self.allow_restart_journal_messages()
 
-        if m.image in ['debian-stable', 'debian-testing']:
+        if "debian" in m.image:
             m.execute('echo \'pt_BR.UTF-8 UTF-8\' >> /etc/locale.gen && locale-gen && update-locale')
-        elif m.image in ['ubuntu-1804', 'ubuntu-stable']:
+        elif "ubuntu" in m.image:
             m.execute('locale-gen pt_BR && locale-gen pt_BR.UTF-8 && update-locale')
 
         self.login_and_go('/system')

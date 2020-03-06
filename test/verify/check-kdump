@@ -22,7 +22,7 @@ from testlib import *
 
 
 @skipImage("kexec-tools not installed", "fedora-coreos", "debian-stable",
-           "debian-testing", "ubuntu-1804", "ubuntu-stable")
+           "debian-testing", "ubuntu-1804", "ubuntu-2004", "ubuntu-stable")
 @timeout(900)
 class TestKdump(MachineCase):
 

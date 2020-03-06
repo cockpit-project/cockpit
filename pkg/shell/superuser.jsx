@@ -46,12 +46,21 @@ class UnlockDialog extends React.Component {
             </form>;
         } else if (state.method)
             body = <form className="ct-form">
-                <label className="control-label">{_("Method")}</label>
+                <label className="control-label">{_("Password")}</label>
                 <StatelessSelect extraClass="form-control"
                                  selected={state.method}
                                  onChange={state.change}>
                     { state.methods.map(m => <SelectEntry key={m} data={m}>{m}</SelectEntry>) }
                 </StatelessSelect>
+            </form>;
+        else if (state.password !== undefined)
+            body = <form className="ct-form">
+                <span>{_("Please authenticate to gain administrative access")}</span>
+                <label className="control-label">{_("Password")}</label>
+                <input type="password" className="form-control" value={state.password}
+                       onChange={event => {
+                           state.change(event.target.value);
+                       }} />
             </form>;
         else if (state.message)
             body = <p>{state.message}</p>;
@@ -163,7 +172,7 @@ export class SuperuserDialogs extends React.Component {
     unlock(error) {
         this.superuser.Stop().always(() => {
             if (this.superuser.Bridges.length == 1) {
-                this.start(this.superuser.Bridges[0], error);
+                this.password(this.superuser.Bridges[0], error);
             } else {
                 this.set_unlock_state({
                     method: this.superuser.Bridges[0],
@@ -172,13 +181,24 @@ export class SuperuserDialogs extends React.Component {
                     error: error,
                     change: val => this.update_unlock_state({ method: val }),
                     cancel: () => this.set_unlock_state({ closed: true }),
-                    apply: () => this.start(this.state.unlock_dialog_state.method)
+                    apply: () => this.password(this.state.unlock_dialog_state.method)
                 });
             }
         });
     }
 
-    start(method, error) {
+    password(method, error) {
+        this.set_unlock_state({
+            password: "",
+
+            error: error,
+            change: val => this.update_unlock_state({ password: val }),
+            cancel: () => this.set_unlock_state({ closed: true }),
+            apply: () => this.start(method, this.state.unlock_dialog_state.password)
+        });
+    }
+
+    start(method, password) {
         const cancel = () => {
             this.superuser.Stop();
             this.set_unlock_state({ busy: true, prompt: this.state.unlock_dialog_state.prompt });
@@ -187,11 +207,10 @@ export class SuperuserDialogs extends React.Component {
         this.set_unlock_state({
             busy: true,
 
-            error: error,
             cancel: cancel
         });
 
-        let did_prompt = this.superuser.Bridges.length > 1;
+        let did_prompt = this.superuser.Bridges.length > 1 || true;
 
         const onprompt = (event, message, prompt, def, echo) => {
             did_prompt = true;
@@ -216,7 +235,7 @@ export class SuperuserDialogs extends React.Component {
         };
 
         this.superuser.addEventListener("Prompt", onprompt);
-        this.superuser.Start(method)
+        this.superuser.Start(method, password)
                 .then(() => {
                     this.superuser.removeEventListener("Prompt", onprompt);
 

@@ -35,10 +35,10 @@ var dbusPathFixit = "/org/fedoraproject/SetroubleshootFixit/object";
 
 client.init = function(capabilitiesChangedCallback) {
     client.connected = false;
-    var dbusClientSeTroubleshoot = cockpit.dbus(busName, { superuser: "try" });
+    var dbusClientSeTroubleshoot = cockpit.dbus(busName);
     client.proxy = dbusClientSeTroubleshoot.proxy(dbusInterface, dbusPath);
 
-    client.proxyFixit = cockpit.dbus(busNameFixit, { superuser: "try" }).proxy(dbusInterfaceFixit, dbusPathFixit);
+    client.proxyFixit = cockpit.dbus(busNameFixit).proxy(dbusInterfaceFixit, dbusPathFixit);
 
     var dfd = cockpit.defer();
 

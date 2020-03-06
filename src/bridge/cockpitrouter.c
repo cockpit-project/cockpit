@@ -74,6 +74,7 @@ struct _CockpitRouter {
   /* Superuser */
   RouterRule *superuser_rule;
   CockpitTransport *superuser_transport;
+  gchar *superuser_password;
 
   gboolean superuser_dbus_inited;
   GDBusMethodInvocation *superuser_start_invocation;
@@ -81,7 +82,6 @@ struct _CockpitRouter {
 
   gboolean superuser_init_in_progress;
   gchar *superuser_init_id;
-  gchar *superuser_init_password;
   GList *superuser_init_next_rule;
 
   CockpitRouterPromptAnswerFunction *superuser_answer_function;
@@ -1456,6 +1456,7 @@ superuser_method_call (GDBusConnection *connection,
   if (g_str_equal (method_name, "Start"))
     {
       const gchar *id;
+      const gchar *password;
 
       if (router->superuser_rule)
         {
@@ -1464,7 +1465,9 @@ superuser_method_call (GDBusConnection *connection,
           return;
         }
 
-      g_variant_get (parameters, "(&s)", &id);
+      g_variant_get (parameters, "(&s&s)", &id, &password);
+      if (password && !password[0])
+        password = NULL;
 
       for (GList *l = router->rules; l; l = g_list_next (l))
         {
@@ -1475,6 +1478,7 @@ superuser_method_call (GDBusConnection *connection,
                 {
                   g_free (rule_id);
                   router->superuser_start_invocation = invocation;
+                  router->superuser_password = g_strdup (password);
                   router->superuser_rule = l->data;
                   cockpit_peer_reset (router->superuser_rule->user_data);
                   router->superuser_transport = cockpit_peer_ensure_with_done (router->superuser_rule->user_data,
@@ -1493,16 +1497,20 @@ superuser_method_call (GDBusConnection *connection,
     }
   else if (g_str_equal (method_name, "Stop"))
     {
-      if (router->superuser_rule == NULL)
-        {
-          g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR, G_DBUS_ERROR_FAILED,
-                                                 "No superuser bridge running");
-          return;
-        }
+      g_free (router->superuser_password);
+      router->superuser_password = NULL;
 
-      router->superuser_stop_invocation = invocation;
-      cockpit_transport_close (router->superuser_transport,
-                               router->superuser_start_invocation ? "cancelled" : "terminated");
+      if (router->superuser_transport)
+        {
+          router->superuser_stop_invocation = invocation;
+          cockpit_transport_close (router->superuser_transport,
+                                   router->superuser_start_invocation ? "cancelled" : "terminated");
+        }
+      else
+        {
+          superuser_notify_property (router, "Current");
+          g_dbus_method_invocation_return_value (invocation, NULL);
+        }
     }
   else if (g_str_equal (method_name, "Answer"))
     {
@@ -1562,16 +1570,18 @@ superuser_get_property (GDBusConnection *connection,
     {
       if (router->privileged)
         return g_variant_new ("s", "root");
-      if (router->superuser_rule == NULL
-          || router->superuser_start_invocation)
+      if (router->superuser_start_invocation)
         return g_variant_new ("s", "none");
-      else
+      if (router->superuser_rule)
         {
           gchar *id = rule_superuser_id (router->superuser_rule);
           GVariant *v = g_variant_new ("s", id);
           g_free (id);
           return v;
         }
+      if (router->superuser_password)
+        return g_variant_new ("s", "password");
+      return g_variant_new ("s", "none");
     }
   else
     g_return_val_if_reached (NULL);
@@ -1586,8 +1596,13 @@ static GDBusArgInfo superuser_start_id_arg = {
   -1, "id", "s", NULL
 };
 
+static GDBusArgInfo superuser_start_password_arg = {
+  -1, "password", "s", NULL
+};
+
 static GDBusArgInfo *superuser_start_args[] = {
   &superuser_start_id_arg,
+  &superuser_start_password_arg,
   NULL
 };
 
@@ -1677,7 +1692,7 @@ superuser_init_start (CockpitRouter *router,
   router->superuser_init_in_progress = TRUE;
   router->superuser_init_next_rule = router->rules;
   router->superuser_init_id = g_strdup (id);
-  router->superuser_init_password = g_strdup (password);
+  router->superuser_password = g_strdup (password);
 
   superuser_init_step (router);
 }
@@ -1697,8 +1712,6 @@ superuser_init_step_done (const gchar *error, gpointer user_data)
       router->superuser_init_in_progress = FALSE;
       g_free (router->superuser_init_id);
       router->superuser_init_id = NULL;
-      g_free (router->superuser_init_password);
-      router->superuser_init_password = NULL;
       superuser_notify_property (router, "Current");
     }
 
@@ -1781,7 +1794,11 @@ cockpit_router_prompt (CockpitRouter *self,
       return;
     }
 
-  if (self->superuser_start_invocation)
+  if (self->superuser_password)
+    {
+      answer (self->superuser_password, data);
+    }
+  else if (self->superuser_start_invocation)
     {
       self->superuser_answer_function = answer;
       self->superuser_answer_data = data;
@@ -1795,32 +1812,22 @@ cockpit_router_prompt (CockpitRouter *self,
     }
   else if (self->superuser_init_in_progress)
     {
-      if (self->superuser_init_password)
-        {
-          answer (self->superuser_init_password, data);
-        }
-      else
-        {
-          self->superuser_answer_function = answer;
-          self->superuser_answer_data = data;
+      self->superuser_answer_function = answer;
+      self->superuser_answer_data = data;
 
-          gchar *user_hex = cockpit_hex_encode (user, -1);
-          gchar *challenge = g_strdup_printf ("plain1:%s:", user_hex);
-          GBytes *request = cockpit_transport_build_control ("command", "authorize",
-                                                             "challenge", challenge,
-                                                             "cookie", "super1",
-                                                             NULL);
-          cockpit_transport_send (self->transport, NULL, request);
-          g_bytes_unref (request);
-          g_free (challenge);
-          g_free (user_hex);
-        }
+      gchar *user_hex = cockpit_hex_encode (user, -1);
+      gchar *challenge = g_strdup_printf ("plain1:%s:", user_hex);
+      GBytes *request = cockpit_transport_build_control ("command", "authorize",
+                                                         "challenge", challenge,
+                                                         "cookie", "super1",
+                                                         NULL);
+      cockpit_transport_send (self->transport, NULL, request);
+      g_bytes_unref (request);
+      g_free (challenge);
+      g_free (user_hex);
     }
   else
-    {
-      g_warning ("Out of context prompt");
-      answer (NULL, data);
-    }
+    answer (NULL, data);
 }
 
 void

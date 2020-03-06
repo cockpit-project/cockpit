@@ -275,13 +275,6 @@ cockpit_polkit_agent_initiate_authentication (PolkitAgentListener *listener,
 
   result = g_task_new (G_OBJECT (self), NULL, callback, user_data);
 
-  if (!g_str_equal (action_id, "org.cockpit-project.cockpit.root-bridge"))
-    {
-      g_task_return_new_error (result, POLKIT_ERROR, POLKIT_ERROR_FAILED,
-                               "Unsupported action");
-      goto out;
-    }
-
   uid = getuid ();
 
   unsupported = g_string_new ("");

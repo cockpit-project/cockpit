@@ -843,7 +843,7 @@ function vdo_overlay() {
 client.vdo_overlay = vdo_overlay();
 
 function init_manager() {
-    var udisks = cockpit.dbus("org.freedesktop.UDisks2", { superuser: "try" });
+    var udisks = cockpit.dbus("org.freedesktop.UDisks2");
     var udisks_manager = udisks.proxy("org.freedesktop.UDisks2.Manager",
                                       "/org/freedesktop/UDisks2/Manager", { watch: true });
 

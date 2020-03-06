@@ -610,7 +610,7 @@ export function setup() {
 
     function setup_realms_proxy() {
         // HACK: need to reinitialize after installing realmd (https://github.com/cockpit-project/cockpit/pull/9125)
-        realmd = cockpit.dbus("org.freedesktop.realmd", { superuser: "try" });
+        realmd = cockpit.dbus("org.freedesktop.realmd");
         realmd.watch(MANAGER);
 
         $(realmd).on("close", function(ev, options) {

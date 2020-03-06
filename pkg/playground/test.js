@@ -8,7 +8,7 @@ $(function() {
     $(".cockpit-internal-reauthorize .pf-c-button").on("click", function() {
         $(".cockpit-internal-reauthorize span").text("checking...");
         var cmd = "pkcheck --action-id org.freedesktop.policykit.exec --process $$ -u 2>&1";
-        cockpit.spawn(["sh", "-c", cmd], { superuser: "try" })
+        cockpit.spawn(["sh", "-c", cmd])
                 .stream(function(data) {
                     console.debug(data);
                 })

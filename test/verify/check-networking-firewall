@@ -48,9 +48,11 @@ class TestFirewall(NetworkCase):
         if self.machine.image not in ["rhel-8-2-distropkg"]:
             self.btn_danger = "pf-m-danger"
             self.btn_primary = "pf-m-primary"
+            self.default_zone = "public zone"
         else:
             self.btn_danger = "btn-danger"
             self.btn_primary = "btn-primary"
+            self.default_zone = "Public Zone"
 
     def testNetworkingPage(self):
         b = self.browser
@@ -113,7 +115,7 @@ class TestFirewall(NetworkCase):
             self.wait_onoff("#firewall-heading-title-group", False)
             wait_unit_state(m, "firewalld", "active")
             # Wait until the default zone is listed
-            b.wait_in_text("#zones-listing .zone-section[data-id='public']", "public Zone")
+            b.wait_in_text("#zones-listing .zone-section[data-id='public']", self.default_zone)
             b.wait_present("#add-zone-button:disabled")
             # "Add Services" button should be disabled
             b.wait_present(".zone-section[data-id='public'] .add-services-button:disabled")
@@ -132,7 +134,7 @@ class TestFirewall(NetworkCase):
         wait_unit_state(m, "firewalld", "active")
 
         # Wait until the default zone is listed
-        b.wait_in_text("#zones-listing .zone-section[data-id='public']", "Public Zone")
+        b.wait_in_text("#zones-listing .zone-section[data-id='public']", self.default_zone)
 
         # "Add Services" button should be enabled
         b.wait_present(".zone-section[data-id='public'] .add-services-button:enabled")
@@ -173,7 +175,7 @@ class TestFirewall(NetworkCase):
         m = self.machine
 
         self.login_and_go("/network/firewall")
-        b.wait_in_text("#zones-listing .zone-section[data-id='public']", "Public Zone")
+        b.wait_in_text("#zones-listing .zone-section[data-id='public']", self.default_zone)
 
         # add a service to the runtime configuration via the cli, after all the
         # operations it should still be there, indicating no reload took place
@@ -276,7 +278,7 @@ class TestFirewall(NetworkCase):
         m = self.machine
 
         self.login_and_go("/network/firewall")
-        b.wait_in_text("#zones-listing .zone-section[data-id='public']", "Public Zone")
+        b.wait_in_text("#zones-listing .zone-section[data-id='public']", self.default_zone)
         # wait until all zones are present, including the ones added at runtime
         if m.image in ["rhel-8-2", "fedora-31", "fedora-testing", "fedora-32"]:
             b.wait_present("#zones-listing .zone-section[data-id='libvirt']")
@@ -414,14 +416,14 @@ class TestFirewall(NetworkCase):
             b.wait_not_present(".zone-section[data-id='{}']".format(zone))
 
         self.login_and_go("/network/firewall")
-        b.wait_in_text("#zones-listing .zone-section[data-id='public']", "Public Zone")
+        b.wait_in_text("#zones-listing .zone-section[data-id='public']", self.default_zone)
 
         # add predefined work zone
         addZone("work", sources="192.168.1.0/24")
 
         addServiceToZone("pop3", "work")
         b.wait_present(".zone-section[data-id='work'] tr[data-row-id='pop3']")
-        self.assertNotIn("Public", b.text("tr[data-row-id='pop3']"))
+        self.assertNotIn(self.default_zone.split(" ")[0], b.text("tr[data-row-id='pop3']"))
         addServiceToZone("pop3", "public")
         b.wait_present(".zone-section[data-id='public'] tr[data-row-id='pop3']")
 

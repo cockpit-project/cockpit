@@ -89,7 +89,6 @@ export class DialogFooter extends React.Component {
         // only consider clicks with the primary button
         if (e && e.button !== 0)
             return;
-        var self = this;
         this.setState({
             error_message: null,
             action_progress_message: '',
@@ -98,22 +97,22 @@ export class DialogFooter extends React.Component {
         });
 
         var p = handler(this.update_progress)
-                .then(function() {
-                    self.setState({ action_in_progress: false, error_message: null });
-                    if (self.props.dialog_done)
-                        self.props.dialog_done(true);
+                .then(() => {
+                    this.setState({ action_in_progress: false, error_message: null });
+                    if (this.props.dialog_done)
+                        this.props.dialog_done(true);
                 })
-                .catch(function(error) {
-                    if (self.state.action_canceled) {
-                        if (self.props.dialog_done)
-                            self.props.dialog_done(false);
+                .catch(error => {
+                    if (this.state.action_canceled) {
+                        if (this.props.dialog_done)
+                            this.props.dialog_done(false);
                     }
 
                     /* Always log global dialog errors for easier debugging */
                     if (error)
                         console.warn(error.message || error.toString());
 
-                    self.setState({ action_in_progress: false, error_message: error });
+                    this.setState({ action_in_progress: false, error_message: error });
                 });
 
         if (p.progress)
@@ -179,24 +178,23 @@ export class DialogFooter extends React.Component {
             </div>;
         }
 
-        var self = this;
-        var action_buttons = this.props.actions.map(function(action) {
-            var caption;
+        var action_buttons = this.props.actions.map(action => {
+            let caption;
             if ('caption' in action)
                 caption = action.caption;
             else
                 caption = _("Ok");
 
-            var button_style = "pf-m-default";
-            var button_style_mapping = { primary: 'pf-m-primary', danger: 'pf-m-danger' };
+            let button_style = "pf-m-default";
+            const button_style_mapping = { primary: 'pf-m-primary', danger: 'pf-m-danger' };
             if ('style' in action && action.style in button_style_mapping)
                 button_style = button_style_mapping[action.style];
             button_style = "pf-c-button " + button_style + " apply";
-            var action_disabled = actions_disabled || ('disabled' in action && action.disabled);
+            const action_disabled = actions_disabled || ('disabled' in action && action.disabled);
             return (<button
                 key={ caption }
                 className={ button_style }
-                onClick={ self.action_click.bind(self, action.clicked) }
+                onClick={ this.action_click.bind(this, action.clicked) }
                 disabled={ action_disabled }
             >{ caption }</button>
             );

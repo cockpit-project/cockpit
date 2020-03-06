@@ -333,7 +333,8 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         self.allow_restart_journal_messages()
 
-    @skipImage("No tlog", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-1804", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream", "fedora-coreos")
+    @skipImage("No tlog", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-1804", "ubuntu-2004",
+               "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream", "fedora-coreos")
     def testSessionRecordingShell(self):
         m = self.machine
         b = self.browser
@@ -385,7 +386,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
                                     "couldn't parse login input: Malformed input",
                                     "couldn't parse login input: Authentication failed")
 
-    @skipImage("No SELinux", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-1804")
+    @skipImage("No SELinux", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-1804", "ubuntu-2004")
     @skipImage("No semanage", "fedora-coreos")
     def testSELinuxRestrictedUser(self):
         m = self.machine

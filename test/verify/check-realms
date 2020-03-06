@@ -74,7 +74,7 @@ def hotp_token(secret, counter, digits=6, hash_alg=hashlib.sha1):
 
 
 @skipImage("No realmd available", "fedora-coreos")
-@skipImage("freeipa not currently in testing", "debian-testing")
+@skipImage("freeipa not currently available", "debian-testing", "ubuntu-2004")
 class TestRealms(MachineCase):
     provision = {
         "0": {"address": "10.111.113.1/20", "dns": "10.111.112.100"},
@@ -637,7 +637,7 @@ sed -i '/^sudoers:/ s/files sss/sss files/' /etc/nsswitch.conf
 
 
 @skipImage("No realmd available", "fedora-coreos")
-@skipImage("freeipa not currently in testing", "debian-testing")
+@skipImage("freeipa not currently available", "debian-testing", "ubuntu-2004")
 class TestKerberos(MachineCase):
     provision = {
         "0": {"address": "10.111.113.1/20", "dns": "10.111.112.100"},

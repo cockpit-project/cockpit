@@ -22,7 +22,7 @@ from storagelib import *
 from testlib import *
 
 
-@skipImage("UDisks doesn't have support for multipath", "debian-stable", "debian-testing", "ubuntu-1804", "ubuntu-stable")
+@skipImage("UDisks doesn't have support for multipath", "debian-stable", "debian-testing", "ubuntu-1804", "ubuntu-2004", "ubuntu-stable")
 class TestStorage(StorageCase):
 
     def testBasic(self):

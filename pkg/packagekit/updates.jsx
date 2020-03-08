@@ -24,13 +24,13 @@ import ReactDOM from 'react-dom';
 
 import moment from "moment";
 import { OverlayTrigger, Tooltip } from "patternfly-react";
-import { Button, EmptyState, EmptyStateVariant, EmptyStateIcon, EmptyStateBody, Title } from '@patternfly/react-core';
-import { Spinner } from '@patternfly/react-core/dist/esm/experimental';
+import { Button } from '@patternfly/react-core';
 import { RebootingIcon, CheckIcon, ExclamationCircleIcon } from "@patternfly/react-icons";
 import { Remarkable } from "remarkable";
 import AutoUpdates from "./autoupdates.jsx";
 import { History, PackageList } from "./history.jsx";
 import { page_status } from "notifications";
+import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 
 import * as PK from "packagekit.js";
 
@@ -496,23 +496,20 @@ class ApplyUpdates extends React.Component {
     }
 }
 
-const AskRestart = ({ onIgnore, onRestart, history }) => (
-    <EmptyState variant={EmptyStateVariant.full}>
-        <EmptyStateIcon icon={RebootingIcon} />
-        <Title headingLevel="h1" size="lg">{_("Restart Recommended")}</Title>
-        <EmptyStateBody>{_("Updated packages may require a restart to take effect.")}</EmptyStateBody>
+const AskRestart = ({ onIgnore, onRestart, history }) => <>
+    <EmptyStatePanel icon={RebootingIcon}
+                     title={ _("Restart Recommended") }
+                     paragraph={ _("Updated packages may require a restart to take effect.") }
+                     action={ _("Restart Now") }
+                     onAction={ onRestart}
+                     secondary={ [<Button key="ignore" variant="secondary" onClick={onIgnore}>{_("Ignore")}</Button>] } />
 
-        <Button variant="secondary" onClick={onIgnore}>{_("Ignore")}</Button>
-        &nbsp;
-        <Button variant="primary" onClick={onRestart}>{_("Restart Now")}</Button>
-
-        <div className="flow-list-blank-slate">
-            <Expander title={_("Package information")}>
-                <PackageList packages={history[0]} />
-            </Expander>
-        </div>
-    </EmptyState>
-);
+    <div className="flow-list-blank-slate">
+        <Expander title={_("Package information")}>
+            <PackageList packages={history[0]} />
+        </Expander>
+    </div>
+</>;
 
 class OsUpdates extends React.Component {
     constructor() {
@@ -796,15 +793,12 @@ class OsUpdates extends React.Component {
                 }
             });
 
-            return (
-                <EmptyState variant={EmptyStateVariant.full}>
-                    <EmptyStateIcon icon={ExclamationCircleIcon} />
-                    <Title headingLevel="h1" size="lg">{_("This system is not registered")}</Title>
-                    <EmptyStateBody>{_("To get software updates, this system needs to be registered with Red Hat, either using the Red Hat Customer Portal or a local subscription server.")}</EmptyStateBody>
-                    <Button variant="primary" onClick={ () => cockpit.jump("/subscriptions", cockpit.transport.host) }>
-                        {_("Register…")}
-                    </Button>
-                </EmptyState>);
+            return <EmptyStatePanel
+                title={_("This system is not registered")}
+                paragraph={ _("To get software updates, this system needs to be registered with Red Hat, either using the Red Hat Customer Portal or a local subscription server.") }
+                icon={ExclamationCircleIcon}
+                action={ _("Register…") }
+                onAction={ () => cockpit.jump("/subscriptions", cockpit.transport.host) } />;
         }
 
         switch (this.state.state) {
@@ -829,7 +823,7 @@ class OsUpdates extends React.Component {
                     </div>
                 );
             else
-                return <div className="spinner spinner-lg progress-main-view" />;
+                return <EmptyStatePanel loading />;
 
         case "available":
             {
@@ -925,12 +919,8 @@ class OsUpdates extends React.Component {
 
         case "restart":
             page_status.set_own(null);
-            return (
-                <EmptyState variant={EmptyStateVariant.full}>
-                    <Spinner size="xl" />
-                    <Title headingLevel="h1" size="lg">{_("Restarting")}</Title>
-                    <EmptyStateBody>{_("Your server will close the connection soon. You can reconnect after it has restarted.")}</EmptyStateBody>
-                </EmptyState>);
+            return <EmptyStatePanel loading title={ _("Restarting") }
+                                    paragraph={ _("Your server will close the connection soon. You can reconnect after it has restarted.") } />;
 
         case "uptodate":
             page_status.set_own({
@@ -944,10 +934,7 @@ class OsUpdates extends React.Component {
             return (
                 <>
                     <AutoUpdates onInitialized={ enabled => this.setState({ autoUpdatesEnabled: enabled }) } />
-                    <EmptyState variant={EmptyStateVariant.full}>
-                        <EmptyStateIcon icon={CheckIcon} />
-                        <Title headingLevel="h1" size="lg">{_("System is up to date")}</Title>
-                    </EmptyState>
+                    <EmptyStatePanel icon={CheckIcon} title={ _("System is up to date") } />
 
                     { // automatic updates are not tracked by PackageKit, hide history when they are enabled
                         (this.state.autoUpdatesEnabled !== undefined) &&

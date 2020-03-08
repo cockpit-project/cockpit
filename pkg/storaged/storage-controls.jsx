@@ -103,7 +103,7 @@ export class StorageButton extends React.Component {
                                             onClick={checked(this.props.onClick)}
                                             className={classes}
                                             style={excuse ? { pointerEvents: 'none' } : null}
-                                            disabled={excuse}>
+                                            disabled={!!excuse}>
                                     {this.props.children}
                                 </button>
                             )} />
@@ -118,7 +118,7 @@ export class StorageLink extends React.Component {
                             content={(excuse) => (
                                 <button onClick={checked(this.props.onClick)}
                                         style={excuse ? { pointerEvents: 'none' } : null}
-                                        className="link-button ct-form-relax" disabled={excuse}>
+                                        className="link-button ct-form-relax" disabled={!!excuse}>
                                     {this.props.children}
                                 </button>
                             )} />
@@ -207,7 +207,7 @@ export class StorageMultiAction extends React.Component {
                                 var btn_classes = "pf-c-button pf-m-secondary";
                                 return (
                                     <div className="btn-group">
-                                        <button className={btn_classes} onClick={checked(dflt.action)} disabled={excuse}>
+                                        <button className={btn_classes} onClick={checked(dflt.action)} disabled={!!excuse}>
                                             {dflt.title}
                                         </button>
                                         <button className={btn_classes + " dropdown-toggle"}
@@ -266,7 +266,7 @@ export class StorageBarMenu extends React.Component {
 
         function toggle(excuse) {
             return (
-                <button className="pf-c-button pf-m-primary" type="button" data-toggle="dropdown" aria-label={label} disabled={excuse}>
+                <button className="pf-c-button pf-m-primary" type="button" data-toggle="dropdown" aria-label={label} disabled={!!excuse}>
                     <span className="fa fa-bars" />
                 </button>);
         }

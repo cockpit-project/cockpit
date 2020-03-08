@@ -31,23 +31,21 @@ import { Spinner } from '@patternfly/react-core/dist/esm/experimental';
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 import "./cockpit-components-empty-state.css";
 
-export class EmptyStatePanel extends React.Component {
-    render() {
-        const slimType = this.props.title || this.props.paragraph ? "" : "slim";
-        return (
-            <EmptyState variant={EmptyStateVariant.full}>
-                { this.props.showIcon && (this.props.loading ? <Spinner size="xl" /> : <EmptyStateIcon icon={ExclamationCircleIcon} />) }
-                <Title headingLevel="h5" size="lg">
-                    {this.props.title}
-                </Title>
-                <EmptyStateBody>
-                    {this.props.paragraph}
-                </EmptyStateBody>
-                {this.props.action && <Button variant="primary" className={slimType} onClick={this.props.onAction}>{this.props.action}</Button>}
-            </EmptyState>
-        );
-    }
-}
+export const EmptyStatePanel = ({ title, paragraph, loading, showIcon, action, onAction }) => {
+    const slimType = title || paragraph ? "" : "slim";
+    return (
+        <EmptyState variant={EmptyStateVariant.full}>
+            { showIcon && (loading ? <Spinner size="xl" /> : <EmptyStateIcon icon={ExclamationCircleIcon} />) }
+            <Title headingLevel="h5" size="lg">
+                {title}
+            </Title>
+            <EmptyStateBody>
+                {paragraph}
+            </EmptyStateBody>
+            { action && <Button variant="primary" className={slimType} onClick={onAction}>{action}</Button> }
+        </EmptyState>
+    );
+};
 
 EmptyStatePanel.propTypes = {
     loading: PropTypes.bool,

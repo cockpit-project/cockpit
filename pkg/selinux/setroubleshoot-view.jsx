@@ -21,10 +21,12 @@ import cockpit from "cockpit";
 
 import React from "react";
 import { Alert, AlertActionCloseButton } from "@patternfly/react-core";
+import { ExclamationCircleIcon } from "@patternfly/react-icons";
 
 import * as cockpitListing from "cockpit-components-listing.jsx";
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 import { Modifications } from "cockpit-components-modifications.jsx";
+import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 
 const _ = cockpit.gettext;
 
@@ -67,15 +69,12 @@ class SELinuxEventDetails extends React.Component {
     render() {
         if (!this.props.details) {
             // details should be requested by default, so we just need to wait for them
-            var waiting = (this.props.details === undefined);
-            return (
-                <EmptyState
-                    icon={ waiting ? 'waiting' : 'error' }
-                    description={ waiting ? _("Waiting for details...") : _("Unable to get alert details.") }
-                    message={null}
-                    relative />
-            );
+            if (this.props.details === undefined)
+                return <EmptyStatePanel loading title={ _("Waiting for details...") } />;
+            else
+                return <EmptyStatePanel icon={ExclamationCircleIcon} title={ _("Unable to get alert details.") } />;
         }
+
         var self = this;
         var fixEntries = this.props.details.pluginAnalysis.map(function(itm, itmIdx) {
             var fixit = null;
@@ -159,68 +158,22 @@ class SELinuxEventDetails extends React.Component {
 }
 
 /* Show the audit log events for an alert */
-class SELinuxEventLog extends React.Component {
-    render() {
-        if (!this.props.details) {
-            // details should be requested by default, so we just need to wait for them
-            var waiting = (this.props.details === undefined);
-            return (
-                <EmptyState
-                    icon={ waiting ? 'waiting' : 'error' }
-                    description={ waiting ? _("Waiting for details...") : _("Unable to get alert details.") }
-                    message={null}
-                    relative />
-            );
-        }
-        var self = this;
-        var logEntries = this.props.details.auditEvent.map(function(itm, idx) {
-            // use the alert id and index in the event log array as the data key for react
-            // if the log becomes dynamic, the entire log line might need to be considered as the key
-            return (<div key={ self.props.details.localId + "." + idx }>{itm}</div>);
-        });
-        return (
-            <div className="setroubleshoot-log">{logEntries}</div>
-        );
+const SELinuxEventLog = ({ details }) => {
+    if (!details) {
+        // details should be requested by default, so we just need to wait for them
+        if (details === undefined)
+            return <EmptyStatePanel loading title={ _("Waiting for details...") } />;
+        else
+            return <EmptyStatePanel icon={ExclamationCircleIcon} title={ _("Unable to get alert details.") } />;
     }
-}
 
-/* Implements a subset of the PatternFly Empty State pattern
- * https://www.patternfly.org/v3/pattern-library/communication/empty-state/index.html
- * Special values for icon property:
- *   - 'waiting' - display spinner
- *   - 'error'   - display error icon
- */
-class EmptyState extends React.Component {
-    render() {
-        var description = null;
-        if (this.props.description)
-            description = <h1>{this.props.description}</h1>;
-
-        var message = null;
-        if (this.props.message)
-            message = <p>{this.props.message}</p>;
-
-        var curtains = "curtains-ct";
-        if (this.props.relative)
-            curtains = "curtains-relative";
-
-        var icon = this.props.icon;
-        if (icon == 'waiting')
-            icon = <div className="spinner spinner-lg" />;
-        else if (icon == 'error')
-            icon = <div className="pficon pficon-error-circle-o" />;
-
-        return (
-            <div className={ curtains + " blank-slate-pf" }>
-                <div className="blank-slate-pf-icon">
-                    {icon}
-                </div>
-                {description}
-                {message}
-            </div>
-        );
-    }
-}
+    const logEntries = details.auditEvent.map((itm, idx) => {
+        // use the alert id and index in the event log array as the data key for react
+        // if the log becomes dynamic, the entire log line might need to be considered as the key
+        return <div key={ details.localId + "." + idx }>{itm}</div>;
+    });
+    return <div className="setroubleshoot-log">{logEntries}</div>;
+};
 
 /* Component to show a dismissable error, message as child text
  * dismissError callback function triggered when the close button is pressed
@@ -354,13 +307,7 @@ export class SETroubleshootPage extends React.Component {
     render() {
         // if selinux is disabled, we only show EmptyState
         if (this.props.selinuxStatus.enabled === false) {
-            return (
-                <EmptyState
-                    icon={ <div className="fa fa-exclamation-circle" /> }
-                    description={ _("SELinux is disabled on the system") }
-                    message={null}
-                    relative={false} />
-            );
+            return <EmptyStatePanel icon={ ExclamationCircleIcon } title={ _("SELinux is disabled on the system") } />;
         }
         var self = this;
         var entries;

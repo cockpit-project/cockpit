@@ -26,11 +26,12 @@ import {
     EmptyStateVariant,
     EmptyStateIcon,
     EmptyStateBody,
+    EmptyStateSecondaryActions,
 } from '@patternfly/react-core';
 import { Spinner } from '@patternfly/react-core/dist/esm/experimental';
 import "./cockpit-components-empty-state.css";
 
-export const EmptyStatePanel = ({ title, paragraph, loading, icon, action, onAction }) => {
+export const EmptyStatePanel = ({ title, paragraph, loading, icon, action, onAction, secondary }) => {
     const slimType = title || paragraph ? "" : "slim";
     return (
         <EmptyState variant={EmptyStateVariant.full}>
@@ -43,6 +44,7 @@ export const EmptyStatePanel = ({ title, paragraph, loading, icon, action, onAct
                 {paragraph}
             </EmptyStateBody>
             { action && <Button variant="primary" className={slimType} onClick={onAction}>{action}</Button> }
+            { secondary && <EmptyStateSecondaryActions>{secondary}</EmptyStateSecondaryActions> }
         </EmptyState>
     );
 };
@@ -54,4 +56,5 @@ EmptyStatePanel.propTypes = {
     paragraph: PropTypes.string,
     action: PropTypes.string,
     onAction: PropTypes.func,
+    secondary: PropTypes.arrayOf(PropTypes.object),
 };

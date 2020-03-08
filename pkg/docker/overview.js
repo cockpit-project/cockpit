@@ -27,7 +27,6 @@ import * as plot from "plot.js";
 import { cpu_ram_info } from "machine-info.js";
 
 import { util } from "./util";
-import * as storage from "./storage.jsx";
 import * as view from "./containers-view.jsx";
 
 import "plot.css";
@@ -149,13 +148,6 @@ export function init_overview (client) {
         cpu_plot.resize();
         mem_plot.resize();
     });
-
-    ReactDOM.render(React.createElement(storage.OverviewBox,
-                                        {
-                                            model: storage.get_storage_model(),
-                                            small: true
-                                        }),
-                    $("#containers-storage-details")[0]);
 
     var commit = $('#container-commit-dialog')[0];
     $(commit)

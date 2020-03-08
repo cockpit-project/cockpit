@@ -27,7 +27,6 @@ import * as client from "./client";
 import { init_overview } from "./overview";
 import { init_container_details } from "./details";
 import { init_image_details } from "./image";
-import { init_storage } from "./storage.jsx";
 
 import "page.scss";
 import "table.css";
@@ -103,7 +102,6 @@ function init() {
     var overview_page;
     var container_details_page;
     var image_details_page;
-    var storage_page;
 
     function navigate() {
         var path = cockpit.location.path;
@@ -113,22 +111,14 @@ function init() {
         if (path.length === 0) {
             container_details_page.hide();
             image_details_page.hide();
-            storage_page.hide();
             overview_page.show();
-        } else if (path.length === 1 && path[0] == "storage") {
-            overview_page.hide();
-            container_details_page.hide();
-            image_details_page.hide();
-            storage_page.show();
         } else if (path.length === 1) {
             overview_page.hide();
             image_details_page.hide();
-            storage_page.hide();
             container_details_page.show(path[0]);
         } else if (path.length === 2 && path[0] == "image") {
             overview_page.hide();
             container_details_page.hide();
-            storage_page.hide();
             image_details_page.show(path[1]);
         } else { /* redirect */
             console.warn("not a containers location: " + path);
@@ -143,7 +133,6 @@ function init() {
     overview_page = init_overview(docker_client);
     container_details_page = init_container_details(docker_client);
     image_details_page = init_image_details(docker_client);
-    storage_page = init_storage(docker_client);
 
     show_curtain(null);
     docker_client.connect().done(navigate);

@@ -1,3 +1,4 @@
+@import "../../node_modules/@patternfly/patternfly/components/Button/button.css";
 
 .listing-ct-body-header {
     margin-bottom: 1.5em;
@@ -66,15 +67,6 @@ div.spinner {
  */
 .cell-buttons,
 .table > tbody > tr > .cell-buttons {
-}
-
-/* Align with the top of the graphs
-  only when not wrapped
-*/
-@media (min-width: 1200px) {
-  #containers-storage {
-    margin-top: 19px;
-  }
 }
 
 .container-column-cpu,
@@ -539,79 +531,6 @@ div.spinner {
     padding: 15px;
     background: #DDD;
     text-align: right;
-}
-
-#storage-overview {
-    height: 90px;
-    margin-top: -13px;
-    margin-bottom: 30px;
-}
-
-#storage-overview .free-text {
-    font-size: 32px;
-    margin-right: 3px;
-}
-
-#storage-overview .free-unit {
-    display: inline-block;
-    font-size: 12px;
-    line-height: 10.5rem;
-}
-
-#storage-overview .used-total {
-    float: right;
-    font-size: 12px;
-    line-height: 10.5rem;
-    margin-top: 13px;
-    border-left: 2px solid #DDD;
-}
-
-#storage-overview .used-total td {
-    padding-left: 10px;
-}
-
-#containers-storage-details .free-text {
-    font-size: 18px;
-}
-
-#containers-storage-details .used-total {
-    float: right;
-    padding-top: 10px;
-}
-
-#containers-storage-details .progress {
-    margin-bottom: 0px;
-    height: 5px;
-}
-
-#containers-storage a {
-    display: block;
-    text-align: right;
-    margin-top: 5px;
-}
-
-table.drive-list {
-    width: 100%;
-}
-
-table.drive-list td {
-    vertical-align: top;
-}
-
-table.drive-list td:nth-child(1) {
-    color: black;
-    text-align: right;
-    white-space: nowrap;
-}
-
-table.drive-list td:nth-child(2) {
-    width: 18px;
-}
-
-table.drive-list td:nth-child(2) img {
-    margin-left: 5px;
-    margin-right: 5px;
-    height: 18px;
 }
 
 .modal-body .alert {

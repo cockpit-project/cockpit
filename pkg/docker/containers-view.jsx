@@ -20,6 +20,8 @@
 import React from 'react';
 import cockpit from 'cockpit';
 
+import { ExclamationCircleIcon } from "@patternfly/react-icons";
+
 import $ from "jquery";
 import { docker } from './docker';
 import { atomic } from './atomic';
@@ -28,6 +30,7 @@ import { search } from "./search";
 
 import * as Listing from 'cockpit-components-listing.jsx';
 import * as Select from 'cockpit-components-select.jsx';
+import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import moment from 'moment';
 
 const _ = cockpit.gettext;
@@ -487,16 +490,8 @@ export class ImageInline extends React.Component {
     render() {
         var image = this.props.image;
 
-        if (!image) {
-            return (
-                <div className="curtains-ct blank-slate-pf">
-                    <div className="blank-slate-pf-icon">
-                        <i className="fa fa-exclamation-circle" />
-                    </div>
-                    <h1>{_("This image does not exist.")}</h1>
-                </div>
-            );
-        }
+        if (!image)
+            return <EmptyStatePanel icon={ExclamationCircleIcon} title={ _("This image does not exist.") } />;
 
         var vulnerableInfo = this.state.vulnerableInfos[image.Id.replace(/^sha256:/, '')];
 

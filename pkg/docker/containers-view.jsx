@@ -22,7 +22,6 @@ import cockpit from 'cockpit';
 
 import $ from "jquery";
 import { docker } from './docker';
-import { atomic } from './atomic';
 import { util } from "./util";
 import { search } from "./search";
 
@@ -420,70 +419,7 @@ class ImageDetails extends React.Component {
     }
 }
 
-class ImageSecurity extends React.Component {
-    render() {
-        var info = this.props.info;
-        var text, rows;
-        var args = {
-            time: info.finishedTime.format('MMM Do'),
-            type: info.scanType,
-            count: info.vulnerabilities.length
-        };
-
-        if (info.successful === false) {
-            text = _("The scan from $time ($type) was not successful.");
-        } else if (info.vulnerabilities.length === 0) {
-            text = _("The scan from $time ($type) found no vulnerabilities.");
-        } else {
-            text = cockpit.ngettext("The scan from $time ($type) found $count vulnerability:",
-                                    "The scan from $time ($type) found $count vulnerabilities:",
-                                    info.vulnerabilities.length);
-
-            rows = info.vulnerabilities.map(function (vulnerability) {
-                return (
-                    <div key={vulnerability.description}
-                         className="vulnerability-row-ct-docker" title={vulnerability.description}>
-                        <span>{vulnerability.title}</span>
-                        <span className="pull-right">{vulnerability.severity}</span>
-                    </div>
-                );
-            });
-        }
-
-        return (
-            <div>
-                <div className="listing-ct-body-header">
-                    { cockpit.format(text, args) }
-                </div>
-                <div>
-                    {rows}
-                </div>
-            </div>
-        );
-    }
-}
-
 export class ImageInline extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            vulnerableInfos: {}
-        };
-        this.vulnerableInfoChanged = this.vulnerableInfoChanged.bind(this);
-    }
-
-    vulnerableInfoChanged(event, infos) {
-        this.setState({ vulnerableInfos: infos });
-    }
-
-    componentDidMount() {
-        atomic.addEventListener('vulnerableInfoChanged', this.vulnerableInfoChanged);
-    }
-
-    componentWillUnmount() {
-        atomic.removeEventListener('vulnerableInfoChanged', this.vulnerableInfoChanged);
-    }
-
     render() {
         var image = this.props.image;
 
@@ -494,19 +430,6 @@ export class ImageInline extends React.Component {
                         <i className="fa fa-exclamation-circle" />
                     </div>
                     <h1>{_("This image does not exist.")}</h1>
-                </div>
-            );
-        }
-
-        var vulnerableInfo = this.state.vulnerableInfos[image.Id.replace(/^sha256:/, '')];
-
-        if (vulnerableInfo) {
-            return (
-                <div className="listing-ct-inline">
-                    <h3>{_("Details")}</h3>
-                    <ImageDetails image={image} />
-                    <h3>{_("Security")}</h3>
-                    <ImageSecurity image={image} info={vulnerableInfo} />
                 </div>
             );
         }
@@ -526,12 +449,10 @@ export class ImageList extends React.Component {
         this.state = {
             images: [],
             pulling: [],
-            vulnerableInfos: {}
         };
         this.handleSearchImageClick = this.handleSearchImageClick.bind(this);
         this.imagesChanged = this.imagesChanged.bind(this);
         this.pullingChanged = this.pullingChanged.bind(this);
-        this.vulnerableInfoChanged = this.vulnerableInfoChanged.bind(this);
         this.renderRow = this.renderRow.bind(this);
     }
 
@@ -582,42 +503,17 @@ export class ImageList extends React.Component {
         this.setState({ pulling: this.props.client.pulling });
     }
 
-    vulnerableInfoChanged(event, infos) {
-        this.setState({ vulnerableInfos: infos });
-    }
-
     componentDidMount() {
         $(this.props.client).on('image.containers', this.imagesChanged);
         $(this.props.client).on('pulling.containers', this.pullingChanged);
-
-        atomic.addEventListener('vulnerableInfoChanged', this.vulnerableInfoChanged);
     }
 
     componentWillUnmount() {
         $(this.props.client).off('image.containers', this.imagesChanged);
         $(this.props.client).off('pulling.containers', this.pullingChanged);
-
-        atomic.removeEventListener('vulnerableInfoChanged', this.vulnerableInfoChanged);
     }
 
     renderRow(image) {
-        var vulnerabilityColumn = '';
-
-        var vulnerableInfo = this.state.vulnerableInfos[image.Id.replace(/^sha256:/, '')];
-        var count;
-
-        if (vulnerableInfo) {
-            count = vulnerableInfo.vulnerabilities.length;
-            if (count > 0)
-                vulnerabilityColumn = (
-                    <div>
-                        <span className="pficon pficon-warning-triangle-o" />
-                        &nbsp;
-                        { cockpit.format(cockpit.ngettext("$0 Vulnerability", "$0 Vulnerabilities", count), count) }
-                    </div>
-                );
-        }
-
         var element;
         if (this.props.client.waiting[image.Id]) {
             element = <div className="spinner" />;
@@ -629,7 +525,6 @@ export class ImageList extends React.Component {
 
         var columns = [
             { name: image.RepoTags[0], header: true },
-            vulnerabilityColumn,
             moment.unix(image.Created).calendar(),
             cockpit.format_bytes(image.VirtualSize),
             {
@@ -645,17 +540,6 @@ export class ImageList extends React.Component {
             renderer: ImageDetails,
             data: { image: image }
         });
-
-        if (vulnerableInfo !== undefined) {
-            tabs.push({
-                name: _("Security"),
-                renderer: ImageSecurity,
-                data: {
-                    image: image,
-                    info: vulnerableInfo,
-                }
-            });
-        }
 
         var actions = (
             <button className="pf-c-button pf-m-danger btn-delete"

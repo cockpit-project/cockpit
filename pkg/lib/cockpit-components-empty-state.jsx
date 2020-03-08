@@ -28,14 +28,14 @@ import {
     EmptyStateBody,
 } from '@patternfly/react-core';
 import { Spinner } from '@patternfly/react-core/dist/esm/experimental';
-import { ExclamationCircleIcon } from '@patternfly/react-icons';
 import "./cockpit-components-empty-state.css";
 
-export const EmptyStatePanel = ({ title, paragraph, loading, showIcon, action, onAction }) => {
+export const EmptyStatePanel = ({ title, paragraph, loading, icon, action, onAction }) => {
     const slimType = title || paragraph ? "" : "slim";
     return (
         <EmptyState variant={EmptyStateVariant.full}>
-            { showIcon && (loading ? <Spinner size="xl" /> : <EmptyStateIcon icon={ExclamationCircleIcon} />) }
+            { loading && <Spinner size="xl" /> }
+            { icon && <EmptyStateIcon icon={icon} /> }
             <Title size="lg">
                 {title}
             </Title>
@@ -49,7 +49,7 @@ export const EmptyStatePanel = ({ title, paragraph, loading, showIcon, action, o
 
 EmptyStatePanel.propTypes = {
     loading: PropTypes.bool,
-    showIcon: PropTypes.bool,
+    icon: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
     title: PropTypes.string,
     paragraph: PropTypes.string,
     action: PropTypes.string,

@@ -27,22 +27,16 @@ import {
     EmptyStateIcon,
     EmptyStateBody,
 } from '@patternfly/react-core';
+import { Spinner } from '@patternfly/react-core/dist/esm/experimental';
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 import "./cockpit-components-empty-state.css";
 
 export class EmptyStatePanel extends React.Component {
     render() {
-        const Spinner = () => (
-            <span className="pf-c-spinner" role="progressbar" aria-valuetext="Loading...">
-                <span className="pf-c-spinner__clipper" />
-                <span className="pf-c-spinner__lead-ball" />
-                <span className="pf-c-spinner__tail-ball" />
-            </span>
-        );
         const slimType = this.props.title || this.props.paragraph ? "" : "slim";
         return (
             <EmptyState variant={EmptyStateVariant.full}>
-                {this.props.showIcon && (this.props.loading ? <EmptyStateIcon variant="container" component={Spinner} /> : <EmptyStateIcon icon={ExclamationCircleIcon} />)}
+                { this.props.showIcon && (this.props.loading ? <Spinner size="xl" /> : <EmptyStateIcon icon={ExclamationCircleIcon} />) }
                 <Title headingLevel="h5" size="lg">
                     {this.props.title}
                 </Title>

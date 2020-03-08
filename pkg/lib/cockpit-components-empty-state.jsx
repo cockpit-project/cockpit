@@ -36,7 +36,7 @@ export const EmptyStatePanel = ({ title, paragraph, loading, showIcon, action, o
     return (
         <EmptyState variant={EmptyStateVariant.full}>
             { showIcon && (loading ? <Spinner size="xl" /> : <EmptyStateIcon icon={ExclamationCircleIcon} />) }
-            <Title headingLevel="h5" size="lg">
+            <Title size="lg">
                 {title}
             </Title>
             <EmptyStateBody>

@@ -199,8 +199,7 @@ class CPUSecurityMitigationsDialog extends React.Component {
                 </small></span> }
                                actions={ <div id="nosmt-switch">
                                    <OnOffSwitch disabled={this.state.rebooting} onChange={ value => this.setState({ nosmt: value }) } state={ this.state.nosmt } />
-                               </div> }>
-                </ListView.Item>
+                               </div> } />
             ));
 
         return (

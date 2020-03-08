@@ -529,8 +529,7 @@ class AddServicesModal extends React.Component {
                                                                                                 onChange={this.onToggleService} /> }
                                                                         stacked
                                                                         heading={ <label htmlFor={"firewall-service-" + s.id}>{s.name}</label> }
-                                                                        description={ renderPorts(s) }>
-                                                            </ListView.Item>
+                                                                        description={ renderPorts(s) } />
                                                         ))
                                                     }
                                                 </ListView>

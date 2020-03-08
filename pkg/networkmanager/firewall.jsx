@@ -32,6 +32,8 @@ import firewall from "./firewall-client.js";
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 import { ModalError } from "cockpit-components-inline-notification.jsx";
+import { ExclamationCircleIcon } from '@patternfly/react-icons';
+import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 
 import "page.scss";
 import "table.css";
@@ -39,16 +41,6 @@ import "form-layout.scss";
 import "./networking.css";
 
 const _ = cockpit.gettext;
-
-function EmptyState(props) {
-    return (
-        <div className="curtains-ct blank-slate-pf">
-            {props.icon && <div className={"blank-slate-pf-icon " + props.icon} />}
-            <h1>{props.title}</h1>
-            {props.children}
-        </div>
-    );
-}
 
 function ServiceRow(props) {
     var tcp = props.service.ports.filter(p => p.protocol.toUpperCase() == 'TCP');
@@ -882,11 +874,9 @@ export class Firewall extends React.Component {
         }
 
         if (!this.state.firewall.installed) {
-            return (
-                <EmptyState title={_("Firewall is not available")} icon="fa fa-exclamation-circle">
-                    <p>{cockpit.format(_("Please install the $0 package"), "firewalld")}</p>
-                </EmptyState>
-            );
+            return <EmptyStatePanel title={ _("Firewall is not available") }
+                                    paragraph={ cockpit.format(_("Please install the $0 package"), "firewalld") }
+                                    icon={ ExclamationCircleIcon } />;
         }
 
         var addZoneAction;

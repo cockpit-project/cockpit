@@ -39,6 +39,9 @@ def get_active_rules(machine):
     active_rules = []
     for zone in active_zones:
         active_rules += machine.execute("firewall-cmd --zone '{}' --list-services".format(zone)).split()
+        ports = machine.execute("firewall-cmd --zone '{}' --list-ports".format(zone)).strip()
+        if ports and machine.image not in ["rhel-8-2-distropkg"]: # Changed in #13686
+            active_rules += [ports]
     return active_rules
 
 @skipImage("no firewalld", "fedora-coreos")
@@ -110,6 +113,11 @@ class TestFirewall(NetworkCase):
         m = self.machine
 
         if m.image not in ["rhel-8-2-distropkg"]: # Changed in #13555
+            # Changed in #13686, remove all existing ports before testing
+            for port in m.execute("firewall-cmd --zone 'public' --list-ports").split():
+                m.execute("firewall-cmd --remove-port='{}' --zone 'public'".format(port))
+                m.execute("firewall-cmd --permanent --remove-port='{}' --zone 'public'".format(port))
+
             # Zones should be visible as unprivileged user
             self.login_and_go("/network/firewall", authorized=False)
             self.wait_onoff("#firewall-heading-title-group", False)
@@ -160,6 +168,13 @@ class TestFirewall(NetworkCase):
         # Test that service without name is shown properly
         m.execute("firewall-cmd --permanent --new-service=empty && firewall-cmd --reload && firewall-cmd --add-service=empty")
         b.wait_present(".zone-section[data-id='public'] tr[data-row-id='empty']")
+
+        if m.image not in ["rhel-8-2-distropkg"]: # Changed in #13686
+            m.execute("firewall-cmd --add-port=9998/udp --add-port=9999/udp --add-port=6666/tcp")
+            b.wait_in_text(".zone-section[data-id='public'] tr[data-row-id='public-ports'] > td:nth-of-type(3)", "6666")
+            b.wait_in_text(".zone-section[data-id='public'] tr[data-row-id='public-ports'] > td:nth-of-type(4)", "9998, 9999")
+            m.execute("firewall-cmd --remove-port=9998/udp --remove-port=9999/udp --remove-port=6666/tcp")
+            b.wait_not_present(".zone-section[data-id='public'] tr[data-row-id='public-ports']")
 
         # switch service off again
         self.toggle_onoff("#firewall-heading-title-group")

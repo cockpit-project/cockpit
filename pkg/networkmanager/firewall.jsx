@@ -116,6 +116,24 @@ function ServiceRow(props) {
                        listingActions={[deleteButton]} />;
 }
 
+function PortRow(props) {
+    const columns = [
+        <i key={props.zone.id + "-additional-ports"}>{ _("Additional ports") }</i>,
+        props.zone.ports
+                .filter(p => p.protocol === "tcp")
+                .map(p => p.port)
+                .join(", "),
+        props.zone.ports
+                .filter(p => p.protocol === "udp")
+                .map(p => p.port)
+                .join(", "),
+        null
+    ];
+    return <ListingRow key={props.zone.id + "-ports"}
+                       rowId={props.zone.id + "-ports"}
+                       columns={columns} />;
+}
+
 function ZoneSection(props) {
     function onRemoveZone(event) {
         if (event.button !== 0)
@@ -175,6 +193,11 @@ function ZoneSection(props) {
                                        readonly={firewall.readonly} />;
             })
             }
+            { props.zone.ports.length > 0 &&
+            <PortRow key={props.zone.id + "-ports"}
+                     zone={props.zone}
+                     readonly={firewall.readonly} />}
+
         </Listing>
         }
     </div>;

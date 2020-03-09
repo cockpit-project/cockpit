@@ -20,6 +20,8 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import PropTypes from "prop-types";
+import { Button } from "@patternfly/react-core";
+import { PlayIcon } from "@patternfly/react-icons";
 
 import * as cockpitListing from "cockpit-components-listing.jsx";
 
@@ -93,10 +95,12 @@ export function showListingDemo (rootElement, rootElementSelectable, rootElement
         },
     ];
 
-    var addLink = <button className="pull-right link-button" onClick={handleAddClick}>Add Row</button>;
+    var addLink = <Button variant="link" isInline className="pull-right" onClick={handleAddClick}>Add Row</Button>;
 
     var rowAction = {
-        element: <button className="pf-c-button pf-m-secondary btn-control" onClick={handlePlayClick}><i className="fa fa-play" /></button>,
+        element: <Button variant="secondary" isInline className="btn-control"
+                         aria-label="row specific action"
+                         onClick={handlePlayClick}><PlayIcon /></Button>,
         tight: true
     };
 

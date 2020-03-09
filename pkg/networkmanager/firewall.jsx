@@ -27,12 +27,12 @@ import {
     Tooltip
 } from "patternfly-react";
 import { Alert, Button } from '@patternfly/react-core';
+import { ExclamationCircleIcon, TrashIcon } from '@patternfly/react-icons';
 
 import firewall from "./firewall-client.js";
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 import { ModalError } from "cockpit-components-inline-notification.jsx";
-import { ExclamationCircleIcon } from '@patternfly/react-icons';
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 
 import "page.scss";
@@ -67,12 +67,12 @@ function ServiceRow(props) {
             <OverlayTrigger className="pull-right" placement="top"
                             overlay={ <Tooltip id="tip-auth">{ _("You are not authorized to modify the firewall.") }</Tooltip> }>
                 <span>
-                    <button key={props.service.id + "-delete-button"} className="pf-c-button pf-m-danger" aria-label={cockpit.format(_("Not authorized to remove service $0"), props.service.id)} style={{ pointerEvents: 'none' }} disabled><span className="pficon pficon-delete" /></button>
+                    <Button key={props.service.id + "-delete-button"} variant="danger" aria-label={cockpit.format(_("Not authorized to remove service $0"), props.service.id)} style={{ pointerEvents: 'none' }} isDisabled><TrashIcon /></Button>
                 </span>
             </OverlayTrigger>
         );
     } else {
-        deleteButton = <button key={props.service.id + "-delete-button"} className="pf-c-button pf-m-danger" onClick={onRemoveService} aria-label={cockpit.format(_("Remove service $0"), props.service.id)}><span className="pficon pficon-delete" /></button>;
+        deleteButton = <Button key={props.service.id + "-delete-button"} variant="danger" onClick={onRemoveService} aria-label={cockpit.format(_("Remove service $0"), props.service.id)}><TrashIcon /></Button>;
     }
 
     var columns = [

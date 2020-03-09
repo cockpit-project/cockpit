@@ -153,7 +153,7 @@ class TestFirewall(NetworkCase):
         b.click(".zone-section[data-id='public'] tr[data-row-id='pop3']")
         b.wait_in_text(".zone-section[data-id='public'] tbody.open tr.listing-ct-panel", "Post Office Protocol")
 
-        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] + tr .pficon-delete")
+        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] + tr ." + self.btn_danger)
         b.wait_not_present(".zone-section[data-id='public'] tr[data-row-id='pop3']")
         self.assertNotIn('pop3', m.execute("firewall-cmd --list-services").split())
 
@@ -270,7 +270,7 @@ class TestFirewall(NetworkCase):
         # remove service via cli and cockpit
         m.execute("firewall-cmd --remove-service=pop3")
         b.click(".zone-section[data-id='public'] tr[data-row-id='pop3']")
-        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] + tr .pficon-delete")
+        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] + tr ."  + self.btn_danger)
         b.wait_not_present(".zone-section[data-id='public'] tr[data-row-id='pop3']")
 
     def testAddCustomServices(self):
@@ -429,13 +429,13 @@ class TestFirewall(NetworkCase):
 
         # Remove the service from public zone
         b.click(".zone-section[data-id='public'] tr[data-row-id='pop3']")
-        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] + tr .pficon-delete")
+        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] + tr ." + self.btn_danger)
         b.wait_not_present(".zone-section[data-id='public'] tr[data-row-id='pop3']")
         b.wait_present(".zone-section[data-id='work'] tr[data-row-id='pop3']")
 
         # Remove the service from the work zone
         b.click(".zone-section[data-id='work'] tr[data-row-id='pop3']")
-        b.click(".zone-section[data-id='work'] tr[data-row-id='pop3'] + tr .pficon-delete")
+        b.click(".zone-section[data-id='work'] tr[data-row-id='pop3'] + tr ." + self.btn_danger)
         b.wait_not_present(".zone-section[data-id='work'] tr[data-row-id='pop3']")
 
         # remove predefined work zone

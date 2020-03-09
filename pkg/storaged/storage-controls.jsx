@@ -19,7 +19,8 @@
 
 import React from "react";
 import { OverlayTrigger, Tooltip } from "patternfly-react";
-import { Progress, ProgressMeasureLocation, ProgressVariant } from '@patternfly/react-core';
+import { Button, Progress, ProgressMeasureLocation, ProgressVariant } from '@patternfly/react-core';
+import { BarsIcon } from '@patternfly/react-icons';
 
 import cockpit from "cockpit";
 import * as utils from "./utils.js";
@@ -88,43 +89,32 @@ function checked(callback) {
     };
 }
 
-export class StorageButton extends React.Component {
-    render() {
-        var classes = "pf-c-button";
-        if (this.props.kind)
-            classes += " pf-m-" + this.props.kind;
-        else
-            classes += " pf-m-secondary";
+export const StorageButton = ({ id, kind, excuse, onClick, children }) => (
+    <StorageControl excuse={excuse}
+                    content={excuse => (
+                        <Button id={id}
+                                    onClick={checked(onClick)}
+                                    variant={kind || "secondary"}
+                                    isDisabled={!!excuse}
+                                    style={excuse ? { pointerEvents: 'none' } : null}>
+                            {children}
+                        </Button>
+                    )} />
+);
 
-        return (
-            <StorageControl excuse={this.props.excuse}
-                            content={(excuse) => (
-                                <button id={this.props.id}
-                                            onClick={checked(this.props.onClick)}
-                                            className={classes}
-                                            style={excuse ? { pointerEvents: 'none' } : null}
-                                            disabled={!!excuse}>
-                                    {this.props.children}
-                                </button>
-                            )} />
-        );
-    }
-}
-
-export class StorageLink extends React.Component {
-    render() {
-        return (
-            <StorageControl excuse={this.props.excuse}
-                            content={(excuse) => (
-                                <button onClick={checked(this.props.onClick)}
-                                        style={excuse ? { pointerEvents: 'none' } : null}
-                                        className="link-button ct-form-relax" disabled={!!excuse}>
-                                    {this.props.children}
-                                </button>
-                            )} />
-        );
-    }
-}
+export const StorageLink = ({ id, excuse, onClick, children }) => (
+    <StorageControl excuse={excuse}
+                    content={excuse => (
+                        <Button onClick={checked(onClick)}
+                                style={excuse ? { pointerEvents: 'none' } : null}
+                                variant="link"
+                                isInline
+                                className="ct-form-relax"
+                                isDisabled={!!excuse}>
+                            {children}
+                        </Button>
+                    )} />
+);
 
 /* StorageBlockNavLink - describe a given block device concisely and
                          allow navigating to its details.
@@ -135,26 +125,20 @@ export class StorageLink extends React.Component {
    - block
  */
 
-export class StorageBlockNavLink extends React.Component {
-    render() {
-        var self = this;
-        var client = self.props.client;
-        var block = self.props.block;
+export const StorageBlockNavLink = ({ client, block }) => {
+    if (!block)
+        return null;
 
-        if (!block)
-            return null;
+    const parts = utils.get_block_link_parts(client, block.path);
 
-        var parts = utils.get_block_link_parts(client, block.path);
+    const link = (
+        <Button isInline variant="link" onClick={() => { cockpit.location.go(parts.location) }}>
+            {parts.link}
+        </Button>
+    );
 
-        var link = (
-            <button role="link" className="link-button" onClick={() => { cockpit.location.go(parts.location) }}>
-                {parts.link}
-            </button>
-        );
-
-        return <span>{fmt_to_fragments(parts.format, link)}</span>;
-    }
-}
+    return <span>{fmt_to_fragments(parts.format, link)}</span>;
+};
 
 // StorageOnOff - OnOff switch for asynchronous actions.
 //
@@ -197,86 +181,43 @@ export class StorageOnOff extends React.Component {
     }
 }
 
-export class StorageMultiAction extends React.Component {
-    render() {
-        var dflt = this.props.actions[this.props.default];
-
-        return (
-            <StorageControl excuse={this.props.excuse}
-                            content={(excuse) => {
-                                var btn_classes = "pf-c-button pf-m-secondary";
-                                return (
-                                    <div className="btn-group">
-                                        <button className={btn_classes} onClick={checked(dflt.action)} disabled={!!excuse}>
-                                            {dflt.title}
-                                        </button>
-                                        <button className={btn_classes + " dropdown-toggle"}
-                                                    data-toggle="dropdown">
-                                            <span className="caret" />
-                                        </button>
-                                        <ul className="dropdown-menu action-dropdown-menu" role="menu">
-                                            { this.props.actions.map((act) => (
-                                                <li key={act.title} className="presentation">
-                                                    <a role="menuitem" tabIndex="0" onClick={checked(act.action)}>
-                                                        {act.title}
-                                                    </a>
-                                                </li>))
-                                            }
-                                        </ul>
-                                    </div>
-                                );
-                            }} />
-        );
-    }
-}
-
 /* Render a usage bar showing props.stats[0] out of props.stats[1]
  * bytes in use.  If the ratio is above props.critical, the bar will be
  * in a dangerous color.
  */
 
-export class StorageUsageBar extends React.Component {
-    render() {
-        var stats = this.props.stats;
-        if (!stats)
-            return null;
+export const StorageUsageBar = ({ stats, critical }) => {
+    if (!stats)
+        return null;
 
-        var fraction = stats[0] / stats[1];
-        var labelText = utils.format_fsys_usage(stats[0], stats[1]);
+    const fraction = stats[0] / stats[1];
+    const labelText = utils.format_fsys_usage(stats[0], stats[1]);
 
-        return (
-            <Progress value={stats[0]} max={stats[1]}
-                valueText={labelText}
-                label={labelText}
-                variant={fraction > this.props.critical ? ProgressVariant.danger : ProgressVariant.info}
-                measureLocation={ProgressMeasureLocation.outside} />
-        );
-    }
-}
+    return (
+        <Progress value={stats[0]} max={stats[1]}
+            valueText={labelText}
+            label={labelText}
+            variant={fraction > critical ? ProgressVariant.danger : ProgressVariant.info}
+            measureLocation={ProgressMeasureLocation.outside} />
+    );
+};
 
-export class StorageMenuItem extends React.Component {
-    render() {
-        return <li><a onClick={checked(this.props.onClick)}>{this.props.children}</a></li>;
-    }
-}
+export const StorageMenuItem = ({ onClick, children }) => (
+    <li><a onClick={checked(onClick)}>{children}</a></li>
+);
 
-export class StorageBarMenu extends React.Component {
-    render() {
-        const { children, label } = this.props;
+export const StorageBarMenu = ({ label, children }) => {
+    const toggle = excuse => (
+        <Button variant="primary" isDisabled={!!excuse} data-toggle="dropdown" aria-label={label}>
+            <BarsIcon />
+        </Button>
+    );
 
-        function toggle(excuse) {
-            return (
-                <button className="pf-c-button pf-m-primary" type="button" data-toggle="dropdown" aria-label={label} disabled={!!excuse}>
-                    <span className="fa fa-bars" />
-                </button>);
-        }
-
-        return (
-            <div className="dropdown btn-group">
-                <StorageControl content={toggle} excuse_placement="bottom" />
-                <ul className="dropdown-menu dropdown-menu-right" role="menu">
-                    {children}
-                </ul>
-            </div>);
-    }
-}
+    return (
+        <div className="dropdown btn-group">
+            <StorageControl content={toggle} excuse_placement="bottom" />
+            <ul className="dropdown-menu dropdown-menu-right" role="menu">
+                {children}
+            </ul>
+        </div>);
+};

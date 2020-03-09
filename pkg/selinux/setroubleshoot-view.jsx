@@ -20,8 +20,8 @@
 import cockpit from "cockpit";
 
 import React from "react";
-import { Alert, AlertActionCloseButton } from "@patternfly/react-core";
-import { ExclamationCircleIcon } from "@patternfly/react-icons";
+import { Alert, AlertActionCloseButton, Button } from "@patternfly/react-core";
+import { ExclamationCircleIcon, TrashIcon } from "@patternfly/react-icons";
 
 import * as cockpitListing from "cockpit-components-listing.jsx";
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
@@ -106,10 +106,9 @@ class SELinuxEventDetails extends React.Component {
                 }
                 fixit = (
                     <div className="setroubleshoot-listing-action">
-                        <button className="pf-c-button pf-m-secondary"
-                                onClick={ self.runFix.bind(self, itmIdx) }
-                        >{ _("Apply this solution") }
-                        </button>
+                        <Button variant="secondary" onClick={ self.runFix.bind(self, itmIdx) }>
+                            { _("Apply this solution") }
+                        </Button>
                     </div>
                 );
             } else {
@@ -119,7 +118,7 @@ class SELinuxEventDetails extends React.Component {
                     </div>
                 );
             }
-            var detailsLink = <button className="link-button" onClick={ self.handleSolutionDetailsClick.bind(self, itmIdx) }>{ _("solution details") }</button>;
+            var detailsLink = <Button variant="link" isInline onClick={ self.handleSolutionDetailsClick.bind(self, itmIdx) }>{ _("solution details") }</Button>;
             var doState;
             var doElem;
             var caret;
@@ -350,14 +349,14 @@ export class SETroubleshootPage extends React.Component {
                 if (itm.details)
                     onDeleteClick = self.handleDeleteAlert.bind(self, itm.details.localId);
                 var dismissAction = (
-                    <button
-                        id="selinux-alert-dismiss"
-                        title="Dismiss"
-                        className="pf-c-button pf-m-danger btn-sm"
-                        onClick={onDeleteClick}
-                        disabled={ !onDeleteClick || !self.props.deleteAlert }>
-                        <i className="pficon pficon-delete" />
-                    </button>
+                    <Button id="selinux-alert-dismiss"
+                            className="btn-sm"
+                            variant="danger"
+                            aria-label={ _("Dismiss") }
+                            onClick={onDeleteClick}
+                            isDisabled={ !onDeleteClick || !self.props.deleteAlert }>
+                        <TrashIcon />
+                    </Button>
                 );
                 var tabRenderers = [
                     {

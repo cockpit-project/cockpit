@@ -51,10 +51,19 @@ class App extends React.Component {
             notificationIdCnt: 0,
             path: cockpit.location.path,
         };
+        this.deviceProxyHandler = this.deviceProxyHandler.bind(this);
+        this.client = cockpit.dbus("org.freedesktop.NetworkManager", {});
+        this.deviceProxies = this.client.proxies("org.freedesktop.NetworkManager.Device");
+        this.deviceProxies.addEventListener('changed', this.deviceProxyHandler);
+        this.deviceProxies.addEventListener('removed', this.deviceProxyHandler);
         this.onAddErrorNotification = this.onAddErrorNotification.bind(this);
         this.onDismissErrorNotification = this.onDismissErrorNotification.bind(this);
         this.onNavigate = () => this.setState({ path: cockpit.location.path });
         this.onSuperuserChanged = this.onSuperuserChanged.bind(this);
+    }
+
+    deviceProxyHandler() {
+        this.forceUpdate();
     }
 
     componentDidMount() {
@@ -65,6 +74,7 @@ class App extends React.Component {
     componentWillUnmount() {
         cockpit.removeEventListener("locationchanged", this.onNavigate);
         superuser.removeEventListener("changed", this.onSuperuserChanged);
+        this.client.close();
     }
 
     onSuperuserChanged() {
@@ -216,6 +226,7 @@ class App extends React.Component {
                     actions={vmActions}
                     resourceHasError={this.state.resourceHasError}
                     onAddErrorNotification={this.onAddErrorNotification}
+                    hostDevices={this.deviceProxies}
                     nodeDevices={nodeDevices} />
                 }
                 {path.length > 0 && path[0] == 'vms' && vmContent}
@@ -234,6 +245,7 @@ class App extends React.Component {
                     onAddErrorNotification={this.onAddErrorNotification}
                     vms={vms}
                     nodeDevices={nodeDevices}
+                    hostDevices={this.deviceProxies}
                     interfaces={interfaces} />
                 }
             </>

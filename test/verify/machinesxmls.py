@@ -59,8 +59,9 @@ TEST_NETWORK2_XML = """
 TEST_NETWORK3_XML = """
 <network>
   <name>test_network3</name>
-  <forward mode='bridge'/>
-  <bridge name='br0'/>
+  <forward mode='bridge'>
+    <interface dev='{0}'/>
+  </forward>
 </network>
 """
 

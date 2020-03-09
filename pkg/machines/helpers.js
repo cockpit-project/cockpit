@@ -16,6 +16,8 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
+import React from 'react';
+
 import cockpit from 'cockpit';
 import VMS_CONFIG from './config.js';
 
@@ -797,3 +799,33 @@ export function getNextAvailableTarget(existingTargets, busType) {
         i++;
     }
 }
+
+const checkDeviceAviability = (network, hostDevices) => {
+    for (const i in hostDevices) {
+        if (hostDevices[i].valid && hostDevices[i].Interface == network) {
+            return true;
+        }
+    }
+    return false;
+};
+
+const sourceJump = (source, hostDevices) => {
+    return () => {
+        if (source !== null && checkDeviceAviability(source, hostDevices)) {
+            cockpit.jump(`/network#/${source}`, cockpit.transport.host);
+        }
+    };
+};
+
+/**
+ * Provides redirection link to network device's page
+ *
+ * @param {string} source
+ * @param {array} hostDevices
+ * @return {DOMElement}
+ */
+export const networkDeviceLink = (source, hostDevices) => {
+    return (checkDeviceAviability(source, hostDevices)
+        ? <button role="link" className='machines-network-source-link link-button' onClick={sourceJump(source, hostDevices)}>{source}</button>
+        : source);
+};

@@ -38,7 +38,7 @@ import cockpit from 'cockpit';
 
 const _ = cockpit.gettext;
 
-export const getNetworkRow = ({ dispatch, network, onAddErrorNotification }) => {
+export const getNetworkRow = ({ dispatch, network, onAddErrorNotification, hostDevices }) => {
     const idPrefix = `${networkId(network.name, network.connectionName)}`;
     const name = (
         <span id={`${idPrefix}-name`}>
@@ -79,7 +79,7 @@ export const getNetworkRow = ({ dispatch, network, onAddErrorNotification }) => 
         {
             name: overviewTabName,
             renderer: NetworkOverviewTab,
-            data: { network, dispatch, }
+            data: { network, dispatch, hostDevices }
         },
     ];
 

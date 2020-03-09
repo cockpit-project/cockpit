@@ -25,7 +25,7 @@ import {
 } from '@patternfly/react-core';
 import cockpit from 'cockpit';
 
-import { networkId } from '../../helpers.js';
+import { networkDeviceLink, networkId } from "../../helpers.js";
 import { changeNetworkAutostart } from '../../libvirt-dbus.js';
 
 import '../common/overviewCard.css';
@@ -68,14 +68,16 @@ export class NetworkOverviewTab extends React.Component {
     }
 
     render() {
-        const network = this.props.network;
+        const { network, hostDevices } = this.props;
         const idPrefix = `${networkId(network.name, network.connectionName)}`;
-
         const ip = [];
         // Libvirt allows network to have multiple ipv6 and ipv4 addresses.
         // But we only first one of each
         ip[0] = network.ip.find(ip => ip.family === "ipv4");
         ip[1] = network.ip.find(ip => ip.family === "ipv6");
+        let interfaceDevices;
+        if (network.forward.interfaces && network.forward.interfaces.length > 0)
+            interfaceDevices = network.forward.interfaces.map(iface => iface.dev);
 
         return (
             <Flex className="overview-tab">
@@ -102,6 +104,18 @@ export class NetworkOverviewTab extends React.Component {
                                 </div>
                             </DescriptionListDescription>
                         </DescriptionListGroup>}
+
+                        { interfaceDevices && <DescriptionListGroup>
+                            <DescriptionListTerm> {_("Interface devices:")} </DescriptionListTerm>
+                            <DescriptionListDescription id={`${idPrefix}-interfaces`}>
+                                {interfaceDevices.map((iface, index) => {
+                                    return (<>
+                                        { networkDeviceLink(iface, hostDevices) }
+                                        { index + 1 < interfaceDevices.length && ", " }
+                                    </>);
+                                })}
+                            </DescriptionListDescription>
+                        </DescriptionListGroup> }
 
                         { network.mtu && <DescriptionListGroup>
                             <DescriptionListTerm> {_("Maximum transmission unit")} </DescriptionListTerm>
@@ -167,4 +181,5 @@ export class NetworkOverviewTab extends React.Component {
 NetworkOverviewTab.propTypes = {
     dispatch: PropTypes.func.isRequired,
     network: PropTypes.object.isRequired,
+    hostDevices: PropTypes.array.isRequired,
 };

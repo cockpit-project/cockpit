@@ -678,11 +678,13 @@ export function parseNetDumpxml(netXml) {
 
     // if mode is not specified, "nat" is assumed, see https://libvirt.org/formatnetwork.html#elementsConnect
     if (forwardElem) {
-        const ifaceElem = forwardElem.getElementsByTagName("interface")[0];
-        if (ifaceElem)
-            retObj.interface = { interface: { dev: ifaceElem.getAttribute("dev") } };
+        const ifaceElems = forwardElem.getElementsByTagName("interface");
+        retObj.forward = { mode: (forwardElem.getAttribute("mode") || "nat"), interfaces: [] };
 
-        retObj.forward = { mode: (forwardElem.getAttribute("mode") || "nat") };
+        if (ifaceElems) {
+            for (let i = 0; i < ifaceElems.length; i++)
+                retObj.forward.interfaces.push({ dev: ifaceElems[i].getAttribute("dev") });
+        }
     }
 
     return retObj;

@@ -53,7 +53,7 @@ class TestMachinesNetworks(VirtualMachinesCase):
         # Create dummy network
         m.execute("echo \"{0}\" > /tmp/xml && virsh net-define /tmp/xml".format(TEST_NETWORK2_XML))
         b.wait_in_text("#card-pf-networks .card-pf-title-link", "2 Networks")
-        m.execute("echo \"{0}\" > /tmp/xml && virsh net-define /tmp/xml".format(TEST_NETWORK3_XML))
+        m.execute("echo \"{0}\" > /tmp/xml && virsh net-define /tmp/xml".format(TEST_NETWORK3_XML.format(getNetworkDevice(m))))
         m.execute("echo \"{0}\" > /tmp/xml && virsh net-create /tmp/xml".format(TEST_NETWORK4_XML))
 
         # Click on Networks card
@@ -69,7 +69,6 @@ class TestMachinesNetworks(VirtualMachinesCase):
         b.wait_in_text("#network-test_network2-{0}-device".format(connectionName), "virbr1")
         b.wait_in_text("#network-test_network2-{0}-forwarding".format(connectionName), "None (isolated network)")
         b.wait_in_text("#network-test_network3-{0}-name".format(connectionName), "test_network3")
-        b.wait_in_text("#network-test_network3-{0}-device".format(connectionName), "br0")
         b.wait_in_text("#network-test_network3-{0}-forwarding".format(connectionName), "Bridge")
 
         # Expand row for first network
@@ -97,6 +96,7 @@ class TestMachinesNetworks(VirtualMachinesCase):
         # Check overview network properties are present
         b.wait_in_text("#network-test_network3-{0}-persistent".format(connectionName), "yes")
         b.wait_visible("#network-test_network3-{0}-autostart-checkbox:not(:checked)".format(connectionName))
+        b.wait_in_text("#network-test_network3-{0}-interfaces".format(connectionName), getNetworkDevice(m))
 
         # Check overview network properties are not present
         b.wait_not_present("#network-test_network3-{0}-ipv4-address".format(connectionName))

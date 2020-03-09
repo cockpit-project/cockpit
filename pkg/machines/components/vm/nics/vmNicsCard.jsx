@@ -22,7 +22,7 @@ import { Button } from '@patternfly/react-core';
 
 import cockpit from 'cockpit';
 import { changeNetworkState, getVm } from "../../../actions/provider-actions.js";
-import { rephraseUI, vmId } from "../../../helpers.js";
+import { rephraseUI, networkDeviceLink, vmId } from "../../../helpers.js";
 import AddNIC from './nicAdd.jsx';
 import { EditNICModal } from './nicEdit.jsx';
 import WarningInactive from '../../common/warningInactive.jsx';
@@ -143,6 +143,7 @@ export class VmNetworkTab extends React.Component {
     }
 
     render() {
+        const hostDevices = this.hostDevices;
         const { vm, dispatch, networks, nodeDevices, interfaces, onAddErrorNotification } = this.props;
         const id = vmId(vm.name);
         const availableSources = {
@@ -152,23 +153,6 @@ export class VmNetworkTab extends React.Component {
 
         const nicLookupByMAC = (interfacesList, mac) => {
             return interfacesList.filter(iface => iface.mac == mac)[0];
-        };
-
-        const checkDeviceAviability = (network) => {
-            for (const i in this.hostDevices) {
-                if (this.hostDevices[i].valid && this.hostDevices[i].Interface == network) {
-                    return true;
-                }
-            }
-            return false;
-        };
-
-        const sourceJump = (source) => {
-            return () => {
-                if (source !== null && checkDeviceAviability(source)) {
-                    cockpit.jump(`/network#/${source}`, cockpit.transport.host);
-                }
-            };
         };
 
         const onChangeState = (network) => {
@@ -237,11 +221,10 @@ export class VmNetworkTab extends React.Component {
             },
             {
                 name: _("Source"), value: (network, networkId) => {
-                    const sourceElem = source => checkDeviceAviability(source) ? <button role="link" className='machines-network-source-link link-button' onClick={sourceJump(source)}>{source}</button> : source;
                     const mapSource = {
-                        direct: (source) => sourceElem(source.dev),
-                        network: (source) => sourceElem(source.network),
-                        bridge: (source) => sourceElem(source.bridge),
+                        direct: (source) => networkDeviceLink(source.dev, hostDevices),
+                        network: (source) => networkDeviceLink(source.network, hostDevices),
+                        bridge: (source) => networkDeviceLink(source.bridge, hostDevices),
                         mcast: addressPortSource,
                         server: addressPortSource,
                         client: addressPortSource,

@@ -56,7 +56,7 @@ class ApplicationRow extends React.Component {
         var name, summary_or_progress, button;
 
         if (comp.installed) {
-            name = <button role="link" className="link-button" onClick={left_click(() => launch(comp))}>{comp.name}</button>;
+            name = <Button variant="link" onClick={left_click(() => launch(comp))}>{comp.name}</Button>;
         } else {
             name = comp.name;
         }

@@ -43,8 +43,8 @@ class TestStorage(StorageCase):
         # Add a disk, partition it, format it, and finally remove it.
         disk = self.add_ram_disk()
 
-        b.wait_in_text("#drives", "scsi_debug")
-        b.click('tr:contains("scsi_debug")')
+        b.wait_in_text("#drives", disk)
+        b.click('tr:contains("%s")' % disk)
         b.wait_present('#storage-detail')
         self.content_row_wait_in_col(1, 1, "Unrecognized Data")
 
@@ -65,9 +65,9 @@ class TestStorage(StorageCase):
 
         b.go("#/")
         b.wait_visible('#storage')
-        b.wait_in_text("#drives", "scsi_debug")
+        b.wait_in_text("#drives", disk)
         self.force_remove_disk(disk)
-        b.wait_not_in_text("#drives", "scsi_debug")
+        b.wait_not_in_text("#drives", disk)
 
 
 if __name__ == '__main__':

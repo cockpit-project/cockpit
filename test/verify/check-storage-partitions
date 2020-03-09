@@ -73,7 +73,7 @@ class TestStorage(StorageCase):
         b.wait_in_text("#drives", "VirtIO")
 
         disk = self.add_ram_disk()
-        b.click('#drives tr:contains("scsi_debug")')
+        b.click('#drives tr:contains("%s")' % disk)
         b.wait_present('#storage-detail')
 
         b.click('button:contains(Create Partition Table)')

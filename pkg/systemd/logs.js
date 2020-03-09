@@ -163,7 +163,7 @@ $(function() {
                              () => {
                                  var count = 0;
                                  var stopped = null;
-                                 manage_start_box(true, false, "Loading...", "", "");
+                                 manage_start_box(true, false, _("Loading..."), "", "");
                                  procs.push(journal.journalctl(match, { follow: false, reverse: true, cursor: first })
                                          .fail(query_error)
                                          .stream(function(entries) {
@@ -280,7 +280,7 @@ $(function() {
                     });
         }
 
-        manage_start_box(true, false, "Loading...", "", "");
+        manage_start_box(true, false, _("Loading..."), "", "");
 
         $('#journal-service-menu').on("click", "a", function() {
             update_services_list = false;

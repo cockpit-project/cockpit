@@ -415,7 +415,7 @@ function WorkflowRow(props) {
     if (props.problemState === ProblemState.REPORTING) {
         button = (
             <Button key={"cancel_" + props.label}
-                    variant="danger"
+                    variant="secondary"
                     onClick={props.onCancelButtonClick}>
                 {_("Cancel")}
             </Button>

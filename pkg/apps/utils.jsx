@@ -19,6 +19,7 @@
 
 import cockpit from "cockpit";
 import React from "react";
+import { Button } from "@patternfly/react-core";
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 
 const _ = cockpit.gettext;
@@ -78,15 +79,10 @@ export const ProgressBar = ({ title, data }) => {
     }
 };
 
-export const CancelButton = ({ data }) => {
-    return (
-        <button className="pf-c-button pf-m-secondary"
-                disabled={!data.cancel}
-                onClick={left_click(data.cancel)}>
-            {_("Cancel")}
-        </button>
-    );
-};
+export const CancelButton = ({ data }) => (
+    <Button variant="secondary" isDisabled={!data.cancel} onClick={left_click(data.cancel)}>
+        {_("Cancel")}
+    </Button>);
 
 export const show_error = ex => {
     if (ex.code == "cancelled")

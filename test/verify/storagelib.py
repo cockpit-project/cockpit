@@ -202,9 +202,9 @@ class StorageHelpers:
     def content_tab_info_action(self, row_index, tab_index, title, wrapped=False):
         label = self.content_tab_info_label(row_index, tab_index, title)
         if wrapped:
-            link = label + " + div button.link-button"
+            link = label + " + div button.pf-m-link"
         else:
-            link = label + " + button.link-button"
+            link = label + " + button.pf-m-link"
         self.browser.click(link)
 
     # Dialogs

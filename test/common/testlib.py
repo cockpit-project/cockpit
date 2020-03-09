@@ -865,8 +865,14 @@ class MachineCase(unittest.TestCase):
         # cockpit configuration
         self.addCleanup(m.execute, "rm -f /etc/cockpit/cockpit.conf")
 
-        # tests expect cockpit.service to not run at start; also, avoid log leakage into the next test
         if not m.ostree_image:
+            # for storage tests
+            m.execute("cp -a /etc/fstab /etc/fstab.test && "
+                      "cp -a /etc/crypttab /etc/crypttab.test")
+            self.addCleanup(m.execute, "mv /etc/fstab.test /etc/fstab && "
+                                       "mv /etc/crypttab.test /etc/crypttab")
+
+            # tests expect cockpit.service to not run at start; also, avoid log leakage into the next test
             self.addCleanup(m.execute, "systemctl stop cockpit")
 
         # reset scsi_debug (see e. g. StorageHelpers.add_ram_disk()

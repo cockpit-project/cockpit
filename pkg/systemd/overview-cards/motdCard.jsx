@@ -19,6 +19,8 @@
 
 import React from 'react';
 
+import { Alert, AlertActionCloseButton } from '@patternfly/react-core';
+
 import cockpit from "cockpit";
 
 import './motdCard.scss';
@@ -27,6 +29,11 @@ export class MotdCard extends React.Component {
     constructor() {
         super();
         this.state = { motdText: "", motdVisible: false };
+
+        this.hideAlert = () => {
+            this.setState({ motdVisible: false });
+            cockpit.localStorage.setItem('dismissed-motd', this.state.motdText);
+        };
     }
 
     componentDidMount() {
@@ -46,24 +53,9 @@ export class MotdCard extends React.Component {
             return null;
 
         return (
-            <div id="motd-box" className="motd-box">
-                <div className="pf-c-alert pf-m-info pf-m-inline" aria-label="Info alert">
-                    <div className="pf-c-alert__icon">
-                        <i className="fa fa-info-circle" aria-hidden="true" />
-                    </div>
-                    <h4 className="pf-c-alert__title">
-                        <pre id="motd">{this.state.motdText}</pre>
-                    </h4>
-                    <div className="pf-c-alert__action">
-                        <button className="pf-c-button pf-m-plain" type="button" onClick={() => {
-                            this.setState({ motdVisible: false });
-                            cockpit.localStorage.setItem('dismissed-motd', this.state.motdText);
-                        }}>
-                            <i className="fa fa-times" aria-hidden="true" />
-                        </button>
-                    </div>
-                </div>
-            </div>
+            <Alert id="motd-box" isInline variant="info" className="motd-box"
+                   title={ <pre id="motd">{this.state.motdText}</pre> }
+                   action={ <AlertActionCloseButton onClose={this.hideAlert} /> } />
         );
     }
 }

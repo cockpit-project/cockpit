@@ -978,7 +978,7 @@ function SyncUsers(dialog) {
 
     function toggle_button() {
         var any = dialog.get_sel("input:checked").length > 0;
-        dialog.get_sel(".modal-footer>.pf-m-primary").toggleClass("disabled", !any);
+        dialog.get_sel(".modal-footer>.pf-m-primary").prop("disabled", !any);
     }
 
     function render() {

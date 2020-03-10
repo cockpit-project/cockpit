@@ -313,7 +313,7 @@ util.render_container = function render_container(client, $panel,
             .toggle(waiting);
     $(row[6]).children("button.btn-delete")
             .toggle(!waiting)
-            .toggleClass('disabled', container.State.Running);
+            .prop('disabled', container.State.Running);
 
     var title = (waiting || container.State.Running) ? "You can only delete<br/> stopped containers" : "Delete immediately";
 

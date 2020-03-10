@@ -4418,7 +4418,7 @@ PageNetworkVlanSettings.prototype = {
         function change() {
             // XXX - parse errors
             options.parent = select_btn_selected(parent_btn);
-            $("#network-vlan-settings-apply").toggleClass("disabled", !options.parent);
+            $("#network-vlan-settings-apply").prop("disabled", !options.parent);
 
             options.id = parseInt(id_input.val(), 10);
 

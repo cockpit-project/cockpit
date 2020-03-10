@@ -1581,13 +1581,18 @@ class TestMachinesDBus(machineslib.TestMachines):
         ).execute()
 
 
+    @nondestructive
     def testStoragePoolsCreate(self):
         b = self.browser
         m = self.machine
 
-        m.execute("mkdir /tmp/my_dir_pool_one")
-        m.execute("mkdir /tmp/my_dir_pool_two")
-        m.execute("mkdir /mnt/exports && echo '/mnt/exports 127.0.0.1/24(rw,sync,no_root_squash,no_subtree_check)' > /etc/exports")
+        p1 = os.path.join(self.tmp_storage, "my_dir_pool_one")
+        p2 = os.path.join(self.tmp_storage, "my_dir_pool_two")
+        mnt_exports = os.path.join(self.tmp_storage, "mnt_exports")
+        m.execute("mkdir {0} {1} {2}".format(p1, p2, mnt_exports))
+        m.execute("mv /etc/exports /etc/exports.backup")
+        self.addCleanup(m.execute, "mv /etc/exports.backup /etc/exports")
+        m.execute("echo '{0} 127.0.0.1/24(rw,sync,no_root_squash,no_subtree_check)' > /etc/exports".format(mnt_exports))
         m.execute("systemctl restart nfs-server")
 
         self.login_and_go("/machines")
@@ -1754,7 +1759,7 @@ class TestMachinesDBus(machineslib.TestMachines):
             self,
             name="my_dir_pool_one",
             pool_type="dir",
-            target="/tmp/my_dir_pool_one/",
+            target=p1 + "/",
             remove=False,
         ).execute()
 
@@ -1763,7 +1768,7 @@ class TestMachinesDBus(machineslib.TestMachines):
             self,
             name="my_dir_pool_one",
             pool_type="dir",
-            target="/tmp/my_dir_pool_one/",
+            target=p1 + "/",
             xfail=True,
             xfail_error="pool 'my_dir_pool_one' already exists"
         ).execute()
@@ -1784,8 +1789,8 @@ class TestMachinesDBus(machineslib.TestMachines):
             self,
             name="my_dir_pool_two",
             pool_type="netfs",
-            target="/tmp/my_dir_pool_two/",
-            source={"host": "127.0.0.1", "source_path": "/mnt/exports"}
+            target=p2 + "/",
+            source={"host": "127.0.0.1", "source_path": mnt_exports}
         ).execute()
 
         # Prepare a disk with gpt partition table to test the disk storage pool type

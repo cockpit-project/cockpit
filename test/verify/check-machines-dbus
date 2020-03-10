@@ -1849,18 +1849,25 @@ class TestMachinesDBus(machineslib.TestMachines):
             source={"source_path": "vol_grp1"},
         ).execute()
 
+    @nondestructive
     def testStorageVolumesCreate(self):
         b = self.browser
         m = self.machine
 
         # Prepare dir pool
-        m.execute("mkdir /mnt/dir_pool ; chmod a+rwx /mnt/dir_pool ")
-        m.execute("virsh pool-define-as dir-pool --type dir --target /mnt/dir_pool && virsh pool-start dir-pool")
+        dir_pool = os.path.join(self.tmp_storage, "dir_pool")
+        m.execute("mkdir --mode 777 {0}".format(dir_pool))
+        m.execute("virsh pool-define-as dir-pool --type dir --target {0} && virsh pool-start dir-pool".format(dir_pool))
 
         # Prepare net-fs pool
-        m.execute("mkdir /mnt/nfs-pool && mkdir /mnt/exports && echo '/mnt/exports 127.0.0.1/24(rw,sync,no_root_squash,no_subtree_check,fsid=0)' > /etc/exports")
+        nfs_pool = os.path.join(self.tmp_storage, "nfs_pool")
+        mnt_exports = os.path.join(self.tmp_storage, "mnt_exports")
+        m.execute("mv /etc/exports /etc/exports.backup")
+        self.addCleanup(m.execute, "mv /etc/exports.backup /etc/exports")
+        m.execute("mkdir {0} {1} && echo '{1} 127.0.0.1/24(rw,sync,no_root_squash,no_subtree_check,fsid=0)' > /etc/exports".format(nfs_pool, mnt_exports))
         m.execute("systemctl restart nfs-server")
-        m.execute("virsh pool-define-as nfs-pool --type netfs --target /mnt/nfs-pool --source-host 127.0.0.1 --source-path /mnt/exports && virsh pool-start nfs-pool")
+        m.execute("virsh pool-define-as nfs-pool --type netfs --target {0} --source-host 127.0.0.1 --source-path {1} && virsh pool-start nfs-pool".format(nfs_pool, mnt_exports))
+        self.addCleanup(m.execute, "virsh pool-destroy nfs-pool || true") # Destroy pool as it block removal of `nfs_pool`
 
         # Prepare disk/block pool
         dev = self.add_ram_disk()

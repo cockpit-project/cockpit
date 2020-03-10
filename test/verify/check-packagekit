@@ -674,8 +674,8 @@ class TestUpdatesSubscriptions(PackageCase):
     def register(self):
         # this fails with "Unable to find available subscriptions for all your installed products", but works anyway
         self.machine.execute(
-            "LC_ALL=en_US.UTF-8 subscription-manager register --insecure --serverurl https://10.111.112.100:8443/candlepin --org=admin --activationkey=awesome_os_pool || true")
-        self.machine.execute("LC_ALL=en_US.UTF-8 subscription-manager attach --auto")
+            "LC_ALL=C.UTF-8 subscription-manager register --insecure --serverurl https://10.111.112.100:8443/candlepin --org=admin --activationkey=awesome_os_pool || true")
+        self.machine.execute("LC_ALL=C.UTF-8 subscription-manager attach --auto")
 
     def setUp(self):
         super().setUp()

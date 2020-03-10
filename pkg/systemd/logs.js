@@ -163,7 +163,7 @@ $(function() {
                              () => {
                                  var count = 0;
                                  var stopped = null;
-                                 manage_start_box(true, false, _("Loading..."), "", "");
+                                 manage_start_box(true, false, no_logs ? ("Loading...") : null, "", "");
                                  procs.push(journal.journalctl(match, { follow: false, reverse: true, cursor: first })
                                          .fail(query_error)
                                          .stream(function(entries) {

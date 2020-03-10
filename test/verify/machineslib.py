@@ -782,6 +782,7 @@ class TestMachines(NetworkCase, StorageHelpers):
 
     # Test Add Disk via dialog
     @timeout(900)
+    @nondestructive
     def testAddDisk(self):
         b = self.browser
         m = self.machine
@@ -789,10 +790,13 @@ class TestMachines(NetworkCase, StorageHelpers):
         dev = self.add_ram_disk()
 
         # prepare libvirt storage pools
-        m.execute("mkdir /mnt/vm_one ; mkdir /mnt/vm_two ; mkdir /mnt/default_tmp ; chmod a+rwx /mnt/vm_one /mnt/vm_two /mnt/default_tmp")
-        m.execute("virsh pool-define-as default_tmp --type dir --target /mnt/default_tmp && virsh pool-start default_tmp")
-        m.execute("virsh pool-define-as myPoolOne --type dir --target /mnt/vm_one && virsh pool-start myPoolOne")
-        m.execute("virsh pool-define-as myPoolTwo --type dir --target /mnt/vm_two && virsh pool-start myPoolTwo")
+        v1 = os.path.join(self.tmp_storage, "vm_one")
+        v2 = os.path.join(self.tmp_storage, "vm_two")
+        default_tmp = os.path.join(self.tmp_storage, "default_tmp")
+        m.execute("mkdir --mode 777 {0} {1} {2}".format(v1, v2, default_tmp))
+        m.execute("virsh pool-define-as default_tmp --type dir --target {0} && virsh pool-start default_tmp".format(default_tmp))
+        m.execute("virsh pool-define-as myPoolOne --type dir --target {0} && virsh pool-start myPoolOne".format(v1))
+        m.execute("virsh pool-define-as myPoolTwo --type dir --target {0} && virsh pool-start myPoolTwo".format(v2))
 
         m.execute("virsh vol-create-as default_tmp defaultVol --capacity 1G --format raw")
         m.execute("virsh vol-create-as myPoolTwo mydiskofpooltwo_temporary --capacity 1G --format qcow2")
@@ -800,9 +804,13 @@ class TestMachines(NetworkCase, StorageHelpers):
         wait(lambda: "mydiskofpooltwo_permanent" in m.execute("virsh vol-list myPoolTwo"))
 
         # Prepare a local NFS pool
-        m.execute("mkdir /mnt/nfs-pool && mkdir /mnt/exports && echo '/mnt/exports 127.0.0.1/24(rw,sync,no_root_squash,no_subtree_check,fsid=0)' > /etc/exports")
+        m.execute("mv /etc/exports /etc/exports.backup")
+        self.addCleanup(m.execute, "mv /etc/exports.backup /etc/exports")
+        nfs_pool = os.path.join(self.tmp_storage, "nfs_pool")
+        mnt_exports = os.path.join(self.tmp_storage, "mnt_exports")
+        m.execute("mkdir {0} {1} && echo '{1} 127.0.0.1/24(rw,sync,no_root_squash,no_subtree_check,fsid=0)' > /etc/exports".format(nfs_pool, mnt_exports))
         m.execute("systemctl restart nfs-server")
-        m.execute("virsh pool-define-as nfs-pool --type netfs --target /mnt/nfs-pool --source-host 127.0.0.1 --source-path /mnt/exports && virsh pool-start nfs-pool")
+        m.execute("virsh pool-define-as nfs-pool --type netfs --target {0} --source-host 127.0.0.1 --source-path {1} && virsh pool-start nfs-pool".format(nfs_pool, mnt_exports))
         # And create a volume on it in order to test use existing volume dialog
         m.execute("virsh vol-create-as --pool nfs-pool --name nfs-volume-0 --capacity 1M --format qcow2")
 
@@ -992,6 +1000,9 @@ class TestMachines(NetworkCase, StorageHelpers):
             volume_size_unit='MiB',
             expected_target=self.get_next_free_target(),
         ).execute()
+
+        # avoid error noise about resources getting cleaned up
+        b.logout()
 
     @nondestructive
     @skipImage("open-iscsi not installed", "debian-stable", "debian-testing", "ubuntu-1804", "ubuntu-2004", "ubuntu-stable")

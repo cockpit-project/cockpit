@@ -36,6 +36,7 @@ MAINTAINERCLEANFILES = \
 EXTRA_DIST = \
 	package.json \
 	package-lock.json \
+	node_modules/.stamp \
 	README.md \
 	$(NULL)
 
@@ -226,7 +227,7 @@ dist/%/Makefile.deps:
 
 # This is the primary rule for running webpack; some pkgs like ssh or pcp only
 # have a manifest, no actual webpack, so don't call webpack-make for these
-dist/%/stamp: $(WEBPACK_CONFIG) $(srcdir)/tools/webpack-make
+dist/%/stamp: $(WEBPACK_CONFIG) $(srcdir)/tools/webpack-make $(srcdir)/node_modules/.stamp
 	$(V_WEBPACK) $(MKDIR_P) dist/$* && \
 	(if ls $(srcdir)/pkg/$*/*.js >/dev/null 2>&1; then $(WEBPACK_MAKE) -d dist/$*/Makefile.deps -c $(WEBPACK_CONFIG); else touch dist/$*/Makefile.deps; fi ) && \
 	  touch $@
@@ -242,6 +243,16 @@ clean-local::
 
 maintainer-clean-local::
 	rm -rf dist/ node_modules/ package-lock.json
+
+node_modules/.stamp: package.json
+	@echo ''
+	@echo '    package.json changed'
+	@echo ''
+	@echo '    Please run:'
+	@echo ''
+	@echo '        tools/npm-install'
+	@echo ''
+	@false
 
 install-data-local:: $(WEBPACK_INSTALL)
 	$(MKDIR_P) $(DESTDIR)$(pkgdatadir)

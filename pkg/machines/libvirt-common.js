@@ -1350,7 +1350,7 @@ export function GET_LOGGED_IN_USER() {
 
 export function GET_OS_INFO_LIST () {
     logDebug(`${this.name}.GET_OS_INFO_LIST():`);
-    return dispatch => python.spawn(getOSListScript, null, { err: "message", environ: ['LC_ALL=en_US.UTF-8'] })
+    return dispatch => python.spawn(getOSListScript, null, { err: "message", environ: ['LC_ALL=C.UTF-8'] })
             .then(osList => {
                 parseOsInfoList(dispatch, osList);
             })
@@ -1365,7 +1365,7 @@ export function INIT_DATA_RETRIEVAL () {
     return dispatch => {
         dispatch(getOsInfoList());
         dispatch(getLoggedInUser());
-        return cockpit.script(getLibvirtServiceNameScript, null, { err: "message", environ: ['LC_ALL=en_US.UTF-8'] })
+        return cockpit.script(getLibvirtServiceNameScript, null, { err: "message", environ: ['LC_ALL=C.UTF-8'] })
                 .then(serviceName => {
                     const match = serviceName.match(/([^\s]+)/);
                     const name = match ? match[0] : null;

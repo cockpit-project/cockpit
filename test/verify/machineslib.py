@@ -201,6 +201,15 @@ class TestMachines(NetworkCase, StorageHelpers):
         # which need to be adjusted before we can do that.
         pass
 
+    def addIface(self, name):
+        self.machine.execute(r"""
+            mkdir -p /run/udev/rules.d/ &&
+            echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="%(name)s", ENV{NM_UNMANAGED}="0"' > /run/udev/rules.d/99-nm-veth-test.rules &&
+            udevadm control --reload &&
+            ip link add name %(name)s type veth
+            """ % {"name": name})
+        self.addCleanup(self.machine.execute, "rm /run/udev/rules.d/99-nm-veth-test.rules; ip link del dev {0}".format(name))
+
     def startLibvirt(self):
         m = self.machine
         # Ensure everything has started correctly
@@ -1376,6 +1385,7 @@ class TestMachines(NetworkCase, StorageHelpers):
         self.allow_browser_errors("Disconnection timed out.")
 
     @timeout(1200)
+    @nondestructive
     def testCreate(self):
         """
         this test will print many expected error messages
@@ -1485,14 +1495,15 @@ class TestMachines(NetworkCase, StorageHelpers):
         # Fake the osinfo-db data in order that it will allow spawn the installation - of course we don't expect it to succeed -
         # we just need to check that the VM was spawned
         fedora_28_xml = self.machine.execute("cat /usr/share/osinfo/os/fedoraproject.org/fedora-28.xml")
-        self.machine.execute("cat /usr/share/osinfo/os/fedoraproject.org/fedora-28.xml > /tmp/fedora-28.xml")
         root = ET.fromstring(fedora_28_xml)
         root.find('os').find('resources').find('minimum').find('ram').text = '134217750'
         root.find('os').find('resources').find('minimum').find('storage').text = '134217750'
         root.find('os').find('resources').find('recommended').find('ram').text = '268435500'
         root.find('os').find('resources').find('recommended').find('storage').text = '268435500'
         new_fedora_28_xml = ET.tostring(root)
-        self.machine.execute("echo \'{0}\' > /usr/share/osinfo/os/fedoraproject.org/fedora-28.xml".format(str(new_fedora_28_xml, 'utf-8')))
+        self.machine.execute("echo \'{0}\' > /tmp/fedora-28.xml".format(str(new_fedora_28_xml, 'utf-8')))
+        self.machine.execute("mount -o bind /tmp/fedora-28.xml /usr/share/osinfo/os/fedoraproject.org/fedora-28.xml")
+        self.addCleanup(self.machine.execute, "umount /usr/share/osinfo/os/fedoraproject.org/fedora-28.xml || true")
 
         self.browser.reload()
         self.browser.enter_page('/machines')
@@ -1611,7 +1622,7 @@ class TestMachines(NetworkCase, StorageHelpers):
                                                          os_name=config.FEDORA_28,
                                                          os_short_id=config.FEDORA_28_SHORTID))
 
-            self.machine.execute('cat /tmp/fedora-28.xml > /usr/share/osinfo/os/fedoraproject.org/fedora-28.xml')
+            self.machine.execute("umount /usr/share/osinfo/os/fedoraproject.org/fedora-28.xml || true")
 
         createTest(TestMachines.VmDialog(self, sourceType='url',
                                          location=config.VALID_URL,
@@ -1708,7 +1719,7 @@ class TestMachines(NetworkCase, StorageHelpers):
         # Test create VM with disk of type "block"
         dev = self.add_ram_disk()
         cmds = [
-            "virsh pool-define-as poolDisk disk - - %s - /tmp/poolDiskImages" % dev,
+            "virsh pool-define-as poolDisk disk - - {0} - {1}".format(dev, os.path.join(self.tmp_storage, "poolDiskImages")),
             "virsh pool-build poolDisk --overwrite",
             "virsh pool-start poolDisk",
             "virsh vol-create-as poolDisk sda1 1024"
@@ -1738,6 +1749,7 @@ class TestMachines(NetworkCase, StorageHelpers):
                 "virsh pool-refresh poolIscsi", # pool-start takes too long, libvirt's pool-refresh might not catch all volumes, so we do pool-refresh separately
             ]
             self.machine.execute(" && ".join(cmds))
+            self.addCleanup(self.machine.execute, "virsh pool-destroy poolIscsi; virsh pool-delete pool-delete; virsh pool-undefine poolIscsi")
 
             self.browser.reload()
             self.browser.enter_page('/machines')
@@ -1761,6 +1773,7 @@ class TestMachines(NetworkCase, StorageHelpers):
                 "openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -subj '/CN=localhost' -nodes -config /tmp/min-openssl-config.cnf",
                 "cat cert.pem key.pem > server.pem"
             ]
+
             if self.machine.image.startswith("ubuntu") or self.machine.image.startswith("debian"):
                 cmds += [
                     "cp /tmp/cert.pem /usr/local/share/ca-certificates/cert.crt",
@@ -1780,7 +1793,8 @@ class TestMachines(NetworkCase, StorageHelpers):
             #
             # and on certain distribution supports only https (not http)
             # see: block-drv-ro-whitelist option in qemu-kvm.spec for certain distribution
-            server = self.machine.spawn("cd /var/lib/libvirt && python3 /tmp/mock-range-server.py /tmp/server.pem", "httpsserver")
+            server = self.machine.spawn("cd /var/lib/libvirt && exec python3 /tmp/mock-range-server.py /tmp/server.pem", "httpsserver")
+            self.addCleanup(self.machine.execute, "kill {0}".format(server))
 
             createTest(TestMachines.VmDialog(self, sourceType='url',
                                              location=config.ISO_URL,
@@ -1799,7 +1813,6 @@ class TestMachines(NetworkCase, StorageHelpers):
                                                            storage_pool="No Storage",
                                                            start_vm=True), ["qemu", "protocol"])
 
-            self.addCleanup(self.machine.execute, "kill {0}".format(server))
             # End of test detection of ISO file in URL
 
         # test PXE Source
@@ -1812,9 +1825,6 @@ class TestMachines(NetworkCase, StorageHelpers):
 
             # test PXE Source
             self.machine.execute("virsh net-destroy default && virsh net-undefine default")
-
-            # Disable selinux because it makes TFTP directory inaccesible and we don't want sophisticated configuration for tests
-            self.machine.execute("if type selinuxenabled >/dev/null 2>&1 && selinuxenabled; then setenforce 0; fi")
 
             # Set up the PXE server configuration files
             cmds = [
@@ -1833,7 +1843,8 @@ class TestMachines(NetworkCase, StorageHelpers):
             self.machine.execute(" && ".join(cmds))
 
             # Add an extra network interface that should appear in the PXE source dropdown
-            iface = self.add_iface(activate=False)
+            iface = "eth42"
+            self.addIface(iface)
 
             # We don't handle events for networks yet, so reload the page to refresh the state
             self.browser.reload()
@@ -1874,8 +1885,7 @@ class TestMachines(NetworkCase, StorageHelpers):
                     p.remove(element)
 
             # Set useserial attribute for bios os element
-            os = root.find('os')
-            bios = ET.SubElement(os, 'bios')
+            bios = ET.SubElement(root.find('os'), 'bios')
             bios.set('useserial', 'yes')
 
             # Add a serial console of type file
@@ -1911,7 +1921,9 @@ class TestMachines(NetworkCase, StorageHelpers):
                                           {"Source": "Installation Source must not be empty"})
 
         # Test that removing virt-install executable will disable Create VM button
-        self.machine.execute('rm $(which virt-install)')
+        virt_install_bin = self.machine.execute("which virt-install").strip()
+        self.machine.execute('mount -o bind /dev/null {0}'.format(virt_install_bin))
+        self.addCleanup(self.machine.execute, "umount {0}".format(virt_install_bin))
         self.browser.reload()
         self.browser.enter_page('/machines')
         self.browser.wait_visible("#create-new-vm:disabled")

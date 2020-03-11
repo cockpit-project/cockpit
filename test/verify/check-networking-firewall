@@ -75,12 +75,12 @@ class TestFirewall(NetworkCase):
 
         if m.image not in ["rhel-8-2-distropkg"]: # Changed in #13555
             # Zones should be visible as unprivileged user
-            self.login_and_go("/network", authorized=False)
+            self.login_and_go("/network", superuser=False)
             self.wait_onoff("#networking-firewall-switch", True)
             wait_unit_state(m, "firewalld", "active")
             b.wait_in_text("#networking-firewall-summary", "{} Active Zone".format(active_zones))
             m.execute("systemctl stop firewalld")
-            b.relogin("/network", authorized=True)
+            b.relogin("/network", superuser=True)
         else:
             m.execute("systemctl stop firewalld")
             self.login_and_go("/network")
@@ -126,7 +126,7 @@ class TestFirewall(NetworkCase):
                 m.execute("firewall-cmd --permanent --remove-port='{}' --zone 'public'".format(port))
 
             # Zones should be visible as unprivileged user
-            self.login_and_go("/network/firewall", authorized=False)
+            self.login_and_go("/network/firewall", superuser=False)
             self.wait_onoff("#firewall-heading-title-group", False)
             wait_unit_state(m, "firewalld", "active")
             # Wait until the default zone is listed
@@ -135,7 +135,7 @@ class TestFirewall(NetworkCase):
             # "Add Services" button should be disabled
             b.wait_present(".zone-section[data-id='public'] .add-services-button:disabled")
             m.execute("systemctl stop firewalld")
-            b.relogin("/network/firewall", authorized=True)
+            b.relogin("/network/firewall", superuser=True)
         else:
             m.execute("systemctl stop firewalld")
             self.login_and_go("/network/firewall")

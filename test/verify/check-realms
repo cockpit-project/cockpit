@@ -109,11 +109,10 @@ class CommonTests:
             wait_number_domains(1)
 
         # when joined to a domain, changing the hostname is fatal, so should be disabled
-        b.wait_present("#system_information_hostname_button[disabled]")
-        b.mouse("#system_information_hostname_tooltip", "mouseover")
-        b.wait_in_text(".tooltip-inner", "Host name should not be changed in a domain")
-        b.mouse("#system_information_hostname_tooltip", "mouseout")
-        b.wait_not_present(".tooltip-inner")
+        if m.image in [ "rhel-8-2-distropkg" ]:
+            b.wait_present("#system_information_hostname_button[disabled]")
+        else:
+            b.wait_not_present("#system_information_hostname_button")
 
         # should not have any leftover tickets from the joining
         m.execute("! klist")
@@ -491,7 +490,8 @@ class TestIPA(TestRealms, CommonTests):
         b.click(".realms-op-apply")
         b.wait_text(".realms-op-message", "Joining this domain is not supported")
 
-        self.allow_journal_messages(".*couldn't introspect /org/freedesktop/realmd.*")
+        self.allow_journal_messages(".*couldn't introspect /org/freedesktop/realmd.*",
+                                    "sudo: unable to resolve host x0.cockpit.lan: Name or service not known")
 
     @skipImage("RHEL 8.0 does not yet have the necessary SELinux policy updates", "centos-8-stream")
     def testClientCertAuthentication(self):
@@ -557,8 +557,14 @@ for s in key p12 pem; do docker cp freeipa:jane.$s .; done
                 self.assertNotIn(s, output)
 
             if session_leader:
-                out = m.execute('loginctl show-user --property=Sessions jane')
-                sessions = out.split('=')[1].split()
+                tries = 0
+                while tries < 10:
+                    out = m.execute('loginctl show-user --property=Sessions jane')
+                    sessions = out.split('=')[1].split()
+                    if len(sessions) == 1:
+                        break
+                    time.sleep(5)
+                    tries += 1
                 self.assertEqual(len(sessions), 1)
                 out = m.execute('loginctl session-status ' + sessions[0])
                 self.assertIn(session_leader, out)
@@ -570,6 +576,11 @@ for s in key p12 pem; do docker cp freeipa:jane.$s .; done
                 m.execute("while loginctl show-user jane; do sleep 1; done")
 
             m.stop_cockpit()
+
+        self.allow_journal_messages("jane is not allowed to run sudo on x0.  This incident will be reported.",
+                                    "Sorry, try again.",
+                                    "sudo: no password was provided",
+                                    "sudo: 1 incorrect password attempt")
 
         # cert auth should not be enabled by default
         do_test(['--cert', '/var/tmp/jane.pem', '--key', '/var/tmp/jane.key'],

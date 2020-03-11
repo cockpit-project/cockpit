@@ -227,7 +227,8 @@ class TestSystemInfo(MachineCase):
             with b.wait_timeout(70):
                 b.wait_text("#system_uptime", "4 months")
 
-        self.allow_journal_messages("error loading contents of os-release: .*")
+        self.allow_journal_messages("error loading contents of os-release: .*",
+                                    "sudo: unable to resolve host host1.cockpit.lan: .*")
 
     def testTime(self):
         m = self.machine
@@ -300,15 +301,8 @@ class TestSystemInfo(MachineCase):
         self.assertIn("EEST 2018\n", m.execute("date"))
 
         self.allow_authorize_journal_messages()
-        b.relogin('/system', authorized=False)
-        tooltip_sel = '.tooltip-inner'
+        b.relogin('/system', superuser=False)
         b.wait_present('#system_information_systime_button[disabled]')
-        b.eval_js('window.cockpit_permission = cockpit.permission({ admin: true })')
-        b.wait_js_cond('window.cockpit_permission.allowed !== null')
-        b.mouse('#systime-tooltip', 'mouseover')
-        b.wait_text(tooltip_sel, 'The user admin is not permitted to change the system time')
-        b.mouse('#systime-tooltip', 'mouseout')
-        b.wait_not_present(tooltip_sel)
 
     @skipImage("Uses timedatex, no NTP servers config", "rhel-8-2", "rhel-8-2-distropkg", "rhel-8-3", "centos-8-stream")
     def testTimeServers(self):
@@ -624,7 +618,7 @@ fi
         self.assertIn('mitigations=auto', m.execute('cat /proc/cmdline'))
 
         # Behaviour for non-admins
-        self.login_and_go('/system/hwinfo', authorized=False)
+        self.login_and_go('/system/hwinfo', superuser=False)
         b.wait_present('#hwinfo th:contains(CPU)')
         b.wait_present('#cpu_mitigations[disabled]')
         b.mouse('#tip-cpu-security', 'mouseover')

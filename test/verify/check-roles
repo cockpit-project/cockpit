@@ -82,7 +82,7 @@ class TestRoles(MachineCase):
         m.execute("usermod -a -G %s user" % m.get_admin_group())
         b.wait_present(admin_role_sel + ":checked")
 
-        b.relogin("/users", "user")
+        b.relogin("/users", "user", superuser=True)
         b.wait_text("#account-user-name", "user")
 
         # Check permissions for admin again

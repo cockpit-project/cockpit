@@ -406,6 +406,7 @@ parameters:
         self.send_keys(self.wait_id('login-user-input'), tmpuser)
         self.send_keys(self.wait_id('login-password-input'), tmppasswd)
         self.check_box(self.wait_id('authorized-input'), authorized)
+        self.execute_script('window.localStorage.setItem("superuser:%s", "%s");' % (tmpuser, "any" if authorized else "none"))
         self.click(self.wait_id("login-button", cond=clickable))
         if wait_hostapp:
             self.wait_id("host-apps")

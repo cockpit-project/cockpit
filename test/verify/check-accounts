@@ -246,7 +246,7 @@ class TestAccounts(MachineCase):
         new_password_2 = "cEwghLYX"
 
         m.execute("useradd anton; echo anton:foobar | chpasswd")
-        self.login_and_go("/users", user="anton", authorized=False)
+        self.login_and_go("/users", user="anton", superuser=False)
         b.go("#/anton")
         b.wait_text("#account-user-name", "anton")
         b.wait_present('#account-set-password:enabled')
@@ -292,7 +292,7 @@ class TestAccounts(MachineCase):
         new_password = "tqymuVh.Zf5"
 
         m.execute("useradd anton; echo anton:foobar | chpasswd")
-        self.login_and_go("/users", user="root", authorized=False)
+        self.login_and_go("/users", user="root", superuser=False)
 
         # test this on root and a normal user account
         for user in ["anton", "root"]:

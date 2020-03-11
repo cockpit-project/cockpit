@@ -416,7 +416,7 @@ CMD ["/bin/sh"]
 
         self.allow_journal_messages("http:///var/run/docker.sock/.*: couldn't connect: .*")
 
-        self.login_and_go("/docker", authorized=False)
+        self.login_and_go("/docker", superuser=False)
 
         # We can not become root, so we can't access docker.
         b.wait_text("#curtain h1", "Not authorized to access Docker on this system")
@@ -425,7 +425,7 @@ CMD ["/bin/sh"]
         # Give "admin" access via the admin group and login again
         m.execute("usermod -G %s admin" % m.get_admin_group())
         m.execute("systemctl stop docker")
-        b.relogin("/docker", authorized=True)
+        b.relogin("/docker", superuser=True)
         self.allow_restart_journal_messages()
 
         # Now we can become root and start docker

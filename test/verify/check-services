@@ -288,10 +288,10 @@ Unit=test.service
 
         # Check without permissions
         self.allow_authorize_journal_messages()
-        b.relogin('/system/services#/test.service', authorized=False)
+        b.relogin('/system/services#/test.service', superuser=False)
         self.wait_page_load()
 
-        b.relogin('/system/services#/test.service', authorized=True)
+        b.relogin('/system/services#/test.service', superuser=True)
         self.wait_page_load()
 
         self.toggle_onoff() # later on we need some disabled test

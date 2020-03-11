@@ -542,7 +542,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # Make sure that unprivileged users can see the VM list when libvirtd is not running
         m.execute("systemctl stop libvirtd.service")
         m.execute("useradd nonadmin; echo nonadmin:foobar | chpasswd")
-        self.login_and_go("/machines", user="nonadmin", authorized=False)
+        self.login_and_go("/machines", user="nonadmin", superuser=False)
         b.wait_in_text("body", "Virtual Machines")
         b.wait_in_text("#virtual-machines-listing thead tr td", "No VM is running")
         b.logout()

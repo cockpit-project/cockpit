@@ -518,7 +518,7 @@ class Browser:
         else:
             self.click(sel + ' button:first-child')
 
-    def try_login(self, user, password, authorized=True):
+    def try_login(self, user, password, authorized=True, superuser=True):
         """Fills in the login dialog and clicks the button.
 
         This differs from login_and_go() by not expecting any particular result.
@@ -527,9 +527,11 @@ class Browser:
         self.set_val('#login-user-input', user)
         self.set_val('#login-password-input', password)
         self.set_checked('#authorized-input', authorized)
+        if superuser is not None:
+            self.eval_js('window.localStorage.setItem("superuser:%s", "%s");' % (user, "any" if superuser else "none"))
         self.click('#login-button')
 
-    def login_and_go(self, path=None, user=None, host=None, authorized=True, urlroot=None, tls=False, password=None):
+    def login_and_go(self, path=None, user=None, host=None, authorized=True, superuser=True, urlroot=None, tls=False, password=None):
         if user is None:
             user = self.default_user
         if password is None:
@@ -543,7 +545,7 @@ class Browser:
             href = "/@" + host + href
         self.open(href, tls=tls)
 
-        self.try_login(user, password, authorized=authorized)
+        self.try_login(user, password, authorized=authorized, superuser=superuser)
 
         self.expect_load()
         self.wait_present('#content')
@@ -564,7 +566,7 @@ class Browser:
             self.click('#go-logout')
         self.expect_load()
 
-    def relogin(self, path=None, user=None, authorized=None):
+    def relogin(self, path=None, user=None, authorized=None, superuser=None):
         if user is None:
             user = self.default_user
         self.logout()
@@ -573,6 +575,8 @@ class Browser:
         self.set_val("#login-password-input", self.password)
         if authorized is not None:
             self.set_checked('#authorized-input', authorized)
+        if superuser is not None:
+            self.eval_js('window.localStorage.setItem("superuser:%s", "%s");' % (user, "any" if superuser else "none"))
         self.click('#login-button')
         self.expect_load()
         self.wait_present('#content')
@@ -912,9 +916,14 @@ class MachineCase(unittest.TestCase):
             self.check_browser_errors()
         shutil.rmtree(self.tmpdir)
 
-    def login_and_go(self, path=None, user=None, host=None, authorized=True, urlroot=None, tls=False):
+    def login_and_go(self, path=None, user=None, host=None, authorized="unset", superuser=True, urlroot=None, tls=False):
         self.machine.start_cockpit(host, tls=tls)
-        self.browser.login_and_go(path, user=user, host=host, authorized=authorized, urlroot=urlroot, tls=tls)
+        if authorized == "unset":
+            if self.machine.image in ["rhel-8-2-distropkg"]: # 13482
+                authorized = superuser
+            else:
+                authorized = True
+        self.browser.login_and_go(path, user=user, host=host, authorized=authorized, superuser=superuser, urlroot=urlroot, tls=tls)
 
     allow_core_dumps = False
 

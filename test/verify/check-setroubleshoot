@@ -280,7 +280,10 @@ class TestSelinux(MachineCase):
         b.reload()
         b.enter_page("/selinux/setroubleshoot")
         b.wait_text("table.listing-ct.modifications-table > thead > tr > td", "No System Modifications")
-        b.relogin("/selinux/setroubleshoot", "admin", authorized=False)
+        if m.image in [ "rhel-8-2-distropkg" ]:
+            b.relogin("/selinux/setroubleshoot", "admin", authorized=False)
+        else:
+            b.relogin("/selinux/setroubleshoot", "admin", superuser=False)
         b.wait_text("table.listing-ct.modifications-table > thead > tr > td", "The logged in user is not permitted to view system modifications")
 
 

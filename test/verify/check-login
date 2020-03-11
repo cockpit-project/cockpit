@@ -386,7 +386,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         # this doesn't actually record anything, but logging into cockpit should work
         m.start_cockpit()
         b.login_and_go("/system", user="user", password="abcdefg")
-        b.wait_present("#restart-button[disabled][data-stable=yes]")
+        b.wait_visible(".pf-c-alert:contains('Web console is running in limited access mode.')")
         b.logout()
 
         self.allow_journal_messages(".*value for the SHELL variable was not found the /etc/shells.*")
@@ -430,60 +430,6 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
     @skipImage("No SELinux", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-2004")
     @skipImage("No semanage", "fedora-coreos")
-    def testSELinuxRestrictedUserSudo(self):
-        m = self.machine
-        b = self.browser
-
-        # Configure only sudo, and without using cockpit-askpass
-        m.write("/usr/share/cockpit/shell/override.json", """
-{ "bridges": [
-        {
-            "match": {
-                "superuser": null
-            },
-            "spawn": [
-                "/usr/bin/sudo",
-                "cockpit-bridge",
-                "--privileged"
-            ],
-            "privileged": true
-        }
-
-] }
-""")
-        self.addCleanup(m.execute, "rm /usr/share/cockpit/shell/override.json")
-
-        # No password so that it all works without cockpit-askpass
-        m.write("/etc/sudoers.d/admin", "admin ALL=(ALL) NOPASSWD:ALL")
-        self.addCleanup(m.execute, "rm /etc/sudoers.d/admin")
-
-        # Verify that this setup works as expected
-        m.start_cockpit()
-        b.login_and_go("/playground/test")
-        b.click(".super-channel button")
-        b.wait_in_text(".super-channel span", 'result: ')
-        self.assertIn('result: uid=0', b.text(".super-channel span"))
-        b.logout()
-
-        # Now as sysadm_u
-        m.execute("semanage login -a -s sysadm_u admin")
-        self.addCleanup(m.execute, "semanage login -d -s sysadm_u admin")
-
-        m.start_cockpit()
-        b.login_and_go("/playground/test")
-        b.click(".super-channel button")
-        b.wait_in_text(".super-channel span", 'result: ')
-
-        # This should work, but it will not because of
-        # https://bugzilla.redhat.com/show_bug.cgi?id=1814569
-        working_images = [ ] # none yet :-(
-        if m.image in working_images:
-            self.assertIn('result: uid=0', b.text(".super-channel span"))
-        else:
-            self.assertIn('result: access-denied', b.text(".super-channel span"))
-
-    @skipImage("No SELinux", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-2004")
-    @skipImage("No semanage", "fedora-coreos")
     def testSELinuxRestrictedUser(self):
         m = self.machine
         b = self.browser
@@ -497,8 +443,11 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.logout()
         b.login_and_go("/system", user="unpriv")
         # not an admin
-        b.wait_present("#restart-button[disabled][data-stable=yes]")
-        b.wait_present("#shutdown-group[disabled][data-stable=yes]")
+        if m.image in [ "rhel-8-2-distropkg" ]: # 13482
+            b.wait_present("#shutdown-group[disabled][data-stable=yes]")
+            b.wait_present("#restart-button[disabled][data-stable=yes]")
+        else:
+            b.wait_visible(".pf-c-alert:contains('Web console is running in limited access mode.')")
 
         # with current SELinux policy, user_u and staff_u are not allowed to read cockpit_tmpfs_t memfd: https://bugzilla.redhat.com/show_bug.cgi?id=1814052
         if m.image in ["fedora-31", "fedora-32", "fedora-testing", "rhel-8-2", "rhel-8-2-distropkg", "rhel-8-3", "centos-8-stream"]:
@@ -534,15 +483,19 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
             b.login_and_go("/system")
             b.wait_in_text('#last-login', "Last login:")
             b.wait_in_text('#last-login', "web console")
-        # shutdown button should be enabled and working
-        b.click("#restart-button[data-stable=yes]")
-        b.wait_popup("shutdown-dialog")
-        if m.image == "rhel-8-2-distropkg":
-            b.wait_in_text("#shutdown-dialog .btn-danger", 'Restart')
+
+        b.go("/playground/test")
+        b.enter_page("/playground/test")
+        b.click(".super-channel button")
+        b.wait_in_text(".super-channel span", 'result: ')
+
+        # This should work, but it will not because of
+        # https://bugzilla.redhat.com/show_bug.cgi?id=1814569
+        working_images = [ ] # none yet :-(
+        if m.image in working_images or m.image in [ "rhel-8-2-distropkg" ]:
+            self.assertIn('result: uid=0', b.text(".super-channel span"))
         else:
-            b.wait_in_text("#shutdown-dialog .pf-m-danger", 'Restart')
-        b.click('#shutdown-dialog button[data-dismiss="modal"]')
-        b.wait_popdown("shutdown-dialog")
+            self.assertIn('result: access-denied', b.text(".super-channel span"))
 
     def testUnsupportedBrowser(self):
         m = self.machine

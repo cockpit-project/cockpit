@@ -30,12 +30,17 @@ class TestStorage(StorageCase):
         b = self.browser
 
         self.allow_authorize_journal_messages()
-        self.login_and_go("/storage", authorized=False)
+        self.login_and_go("/storage", superuser=False)
 
-        b.wait_present("#devices [data-toggle=dropdown]:disabled")
+        b.wait_present("#devices")
+        b.wait_not_present("#devices [data-toggle=dropdown]")
 
-        b.relogin('/storage', authorized=True)
-        self.browser.wait_present("#devices [data-toggle=dropdown]:not(:disabled)")
+        if m.image in [ "rhel-8-2-distropkg" ]: #13482
+            b.relogin('/storage', authorized=True)
+        else:
+            b.relogin('/storage', superuser=True)
+
+        self.browser.wait_present("#devices [data-toggle=dropdown]")
 
         b.wait_in_text("#drives", "VirtIO")
         b.wait_not_in_text("#drives", "Show all")

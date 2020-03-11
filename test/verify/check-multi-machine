@@ -231,6 +231,7 @@ class TestMultiMachine(MachineCase):
         self.machine2 = self.machines['machine2']
         self.machine2.execute("hostnamectl set-hostname machine2")
         self.machines['machine3'].execute("hostnamectl set-hostname machine3")
+        self.allow_journal_messages("sudo: unable to resolve host machine1: .*")
 
     def checkDirectLogin(self, root='/'):
         b = self.browser
@@ -857,6 +858,9 @@ class TestMultiMachine(MachineCase):
         b.set_val("#login-user-input", "admin")
         b.set_val("#login-password-input", "foobar")
         b.set_checked("#authorized-input", False)
+        # We also need to switch off superuser since SSH connections
+        # might use the password saved for the superuser startup.
+        b.eval_js('window.localStorage.setItem("superuser:admin", "none");')
         b.click('#login-button')
         b.expect_load()
 

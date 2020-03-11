@@ -17,8 +17,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-import time
-
 import parent
 from testlib import *
 from hacklib import *
@@ -45,9 +43,10 @@ class TestShutdownRestart(MachineCase):
         self.allow_authorize_journal_messages()
         self.allow_restart_journal_messages()
 
-        # Create a user without any role
+        # Create a user that is not in wheel but can sudo
         m.execute("useradd user -s /bin/bash -c 'User' || true")
         m.execute("echo user:foobar | chpasswd")
+        m.execute("echo 'user ALL=(ALL) ALL' > /etc/sudoers.d/user")
 
         m.start_cockpit()
 
@@ -59,17 +58,6 @@ class TestShutdownRestart(MachineCase):
         b.click('#login-button')
         b.expect_load()
         b.enter_page("/system")
-        b.wait_present("#restart-button[disabled]")
-        b.wait_present("#shutdown-group[disabled]")
-
-        b.logout()
-
-        # now give user direct sudo access
-        m.execute("echo 'user ALL=(ALL) ALL' > /etc/sudoers.d/user")
-        self.login_and_go("/system", user="user")
-
-        # it takes a while for the permission check to finish, it is always enabled at first
-        time.sleep(2)
 
         # shutdown button should be enabled and working
         b.click("#restart-button")

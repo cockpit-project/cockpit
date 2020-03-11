@@ -57,14 +57,13 @@ class TestTuned(MachineCase):
         b.wait_text('#system-info-performance .action-trigger', recommended_profile)
         check_status_tooltip("This system is using the recommended profile")
 
-        # Informative message when not authorized
+        # Disabled when not authorized
         b.relogin('/system', authorized=False)
         if m.image != "rhel-8-2-distropkg": # Changed in #13552
             trigger_selector = '#system-info-performance .action-trigger:disabled'
         else:
             trigger_selector = '#system-info-performance .action-trigger.disabled'
         b.wait_text(trigger_selector, recommended_profile)
-        check_status_tooltip('The user admin is not permitted to change profiles')
         b.relogin('/system', authorized=True)
 
         # Switch the profile

@@ -344,7 +344,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         # this doesn't actually record anything, but logging into cockpit should work
         m.start_cockpit()
         b.login_and_go("/system", user="user", password="abcdefg")
-        b.wait_present("#restart-button[disabled][data-stable=yes]")
+        b.wait_visible(".pf-c-alert:contains('Web console is running in limited access mode.')")
         b.logout()
 
         self.allow_journal_messages(".*value for the SHELL variable was not found the /etc/shells.*")
@@ -398,9 +398,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         m.start_cockpit()
         b.login_and_go("/system", user="unpriv")
         # not an admin
-        b.wait_present("#restart-button[disabled][data-stable=yes]")
-        b.wait_present("#shutdown-group[disabled][data-stable=yes]")
-
+        b.wait_visible(".pf-c-alert:contains('Web console is running in limited access mode.')")
         b.logout()
         self.allow_authorize_journal_messages()
         # not allowed to restricted users
@@ -421,7 +419,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         self.addCleanup(m.execute, "semanage login -d -s sysadm_u admin")
         b.login_and_go("/system")
         # shutdown button should be enabled and working
-        b.click("#restart-button[data-stable=yes]")
+        b.click("#restart-button")
         b.wait_popup("shutdown-dialog")
         if m.image == "rhel-8-2-distropkg":
             b.wait_in_text("#shutdown-dialog .btn-danger", 'Restart')

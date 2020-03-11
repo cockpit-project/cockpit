@@ -31,12 +31,18 @@ class TestReauthorize(MachineCase):
 
         # Log in without being authorized
         self.login_and_go("/playground/test", authorized=False)
+        b.leave_page()
+        b.wait_text("#super-user-indicator", "Limited access")
+        b.enter_page("/playground/test")
         b.click(".cockpit-internal-reauthorize button")
         b.wait_in_text(".cockpit-internal-reauthorize span", 'result:')
         self.assertEqual(b.text(".cockpit-internal-reauthorize span"), 'result: access-denied')
 
         # Log in again but be authorized
         b.relogin("/playground/test", authorized=True)
+        b.leave_page()
+        b.wait_text("#super-user-indicator", "Administrative access")
+        b.enter_page("/playground/test")
         b.click(".cockpit-internal-reauthorize button")
         b.wait_in_text(".cockpit-internal-reauthorize span", 'result:')
         self.assertEqual(b.text(".cockpit-internal-reauthorize span"), 'result: authorized')
@@ -50,17 +56,15 @@ class TestReauthorize(MachineCase):
 
         # Deauthorize user
         b.leave_page()
-        b.click("#navbar-dropdown")
-        b.click("#credentials-item")
-        b.click("button.credential-clear")
-        b.expect_load()
-        m.execute("flock -n /tmp/playground-test-lock true")
+        b.click("#super-user-indicator span")
+        b.click(".modal-dialog:contains('Limited access') button:contains('Apply')")
+        b.wait_not_present(".modal-dialog:contains('Limited access')")
 
         b.enter_page("/playground/test")
 
+        m.execute("flock -n /tmp/playground-test-lock true")
         b.click(".cockpit-internal-reauthorize button")
         b.wait_in_text(".cockpit-internal-reauthorize span", 'result:')
-
         self.assertEqual(b.text(".cockpit-internal-reauthorize span"), 'result: access-denied')
 
     @skipImage("ssh root login not allowed", "fedora-coreos")
@@ -77,29 +81,21 @@ class TestReauthorize(MachineCase):
 
         # Deauthorize
         b.leave_page()
-        b.click("#navbar-dropdown")
-        b.click("#credentials-item")
-        b.click("button.credential-clear")
-        b.expect_load()
+        b.click("#super-user-indicator span")
+        b.click(".modal-dialog:contains('Limited access') button:contains('Apply')")
+        b.wait_not_present(".modal-dialog:contains('Limited access')")
 
         b.enter_page("/playground/test")
-
-        # Twice to avoid races. This race is with cockpit-bridge --privileged exiting
-        b.click(".super-channel button")
-        b.wait_in_text(".super-channel span", 'result:')
-
         b.click(".super-channel button")
         b.wait_in_text(".super-channel span", 'result: access-denied')
 
-        # Now log in as root even without password caching
+        # When root, the 'Limited access' etc indicators should not be visible
         b.logout()
-        self.login_and_go("/playground/test", authorized=False, user="root")
+        self.login_and_go("/playground/test", user="root")
         b.click(".super-channel button")
         b.wait_in_text(".super-channel span", 'result: uid=0')
-
-        # When root and not authorized, the 'Locked' or 'Unlocked' indicators should not be visible
         b.leave_page()
-        b.wait_not_visible("li.credential-lock")
+        b.wait_not_visible("#super-user-indicator")
 
     def testSudo(self):
         self.allow_authorize_journal_messages()
@@ -128,19 +124,19 @@ class TestReauthorize(MachineCase):
         self.assertIn('result: uid=0', b.text(".super-channel span"))
         b.logout()
 
-        # Next don't allow password to authorize the user, we should fail
+        # Next login without starting a privileged bridge
         self.login_and_go("/playground/test", authorized=False)
         b.click(".super-channel button")
         b.wait_in_text(".super-channel span", 'result: ')
         self.assertEqual(b.text(".super-channel span"), 'result: access-denied')
         b.logout()
 
-        # Next allow the user to do this without a password, succeeds
+        # Even if sudo doesn't require a password, we shouldn't start a privileged bridge
         m.execute("echo 'user ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/user-override")
         self.login_and_go("/playground/test", authorized=False)
         b.click(".super-channel button")
         b.wait_in_text(".super-channel span", 'result: ')
-        self.assertIn('result: uid=0', b.text(".super-channel span"))
+        self.assertEqual(b.text(".super-channel span"), 'result: access-denied')
 
 
 if __name__ == '__main__':

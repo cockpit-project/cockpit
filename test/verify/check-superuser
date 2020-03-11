@@ -1,0 +1,353 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2020 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+
+class TestSuperuser(MachineCase):
+
+    def testBasic(self):
+        b = self.browser
+
+        # Log in with all defaults
+        self.login_and_go()
+        b.wait_text("#super-user-indicator", "Administrative access")
+
+        # Drop privileges
+        b.click("#super-user-indicator span")
+        b.click(".modal-dialog:contains('Limited access') button:contains('Apply')")
+        b.wait_not_present(".modal-dialog:contains('Limited access')")
+        b.wait_text("#super-user-indicator", "Limited access")
+
+        # Check they are still gone after logout
+        b.relogin()
+        b.leave_page()
+        b.wait_text("#super-user-indicator", "Limited access")
+
+        # Get them back
+        b.click("#super-user-indicator span")
+        b.wait_in_text(".modal-dialog:contains('Administrative access')", "password for admin")
+        b.set_input_text(".modal-dialog:contains('Administrative access') input", "foobar")
+        b.click(".modal-dialog button:contains('Authenticate')")
+        b.wait_not_present(".modal-dialog:contains('Administrative access')")
+        b.wait_text("#super-user-indicator", "Administrative access")
+
+        # Check we still have them after logout
+        b.relogin()
+        b.leave_page()
+        b.wait_text("#super-user-indicator", "Administrative access")
+
+    def testNoPasswd(self):
+        b = self.browser
+        m = self.machine
+
+        # Log in with limited access
+        self.login_and_go(authorized=False)
+        b.wait_text("#super-user-indicator", "Limited access")
+
+        # Give us password-less sudo and use it
+        m.write("/etc/sudoers.d/admin", "admin ALL=(ALL) NOPASSWD:ALL")
+        b.click("#super-user-indicator span")
+        b.wait_in_text(".modal-dialog:contains('Administrative access')", "You now have administrative access")
+        b.click(".modal-dialog:contains('Administrative access') button:contains('Close')")
+        b.wait_not_present(".modal-dialog:contains('Administrative access')")
+        b.wait_text("#super-user-indicator", "Administrative access")
+
+    def testTwoPasswds(self):
+        b = self.browser
+        m = self.machine
+
+        # Log in with limited access
+        self.login_and_go(authorized=False)
+        b.wait_text("#super-user-indicator", "Limited access")
+
+        # Configure the sudo PAM stack to make two propmts
+        m.write("/etc/pam.d/sudo", """
+auth required pam_unix.so
+auth required /usr/lib/cockpit-test-assets/mock-pam-conv-mod.so
+account include system-auth
+password include system-auth
+session include system-auth
+""")
+
+        b.click("#super-user-indicator span")
+        b.wait_in_text(".modal-dialog:contains('Administrative access')", "password for admin")
+        b.set_input_text(".modal-dialog:contains('Administrative access') input", "foobar")
+        b.click(".modal-dialog button:contains('Authenticate')")
+        b.wait_in_text(".modal-dialog:contains('Administrative access')", "universe and everything")
+        b.set_input_text(".modal-dialog:contains('Administrative access') input", "42")
+        b.click(".modal-dialog button:contains('Authenticate')")
+        b.wait_not_present(".modal-dialog:contains('Administrative access')")
+        b.wait_text("#super-user-indicator", "Administrative access")
+
+    def testWrongPasswd(self):
+        b = self.browser
+
+        self.allow_journal_messages("Sorry, try again.",
+                                    "sudo: 3 incorrect password attempts",
+                                    "sudo: no password was provided")
+
+        # Log in with limited access
+        self.login_and_go(authorized=False)
+        b.wait_text("#super-user-indicator", "Limited access")
+
+        b.click("#super-user-indicator span")
+        b.wait_in_text(".modal-dialog:contains('Administrative access')", "password for admin")
+        b.set_input_text(".modal-dialog:contains('Administrative access') input", "wrong")
+        b.click(".modal-dialog button:contains('Authenticate')")
+        b.wait_in_text(".modal-dialog:contains('Administrative access')", "password for admin")
+        b.set_input_text(".modal-dialog:contains('Administrative access') input", "wronger")
+        b.click(".modal-dialog button:contains('Authenticate')")
+        b.wait_in_text(".modal-dialog:contains('Administrative access')", "password for admin")
+        b.set_input_text(".modal-dialog:contains('Administrative access') input", "wrongest")
+        b.click(".modal-dialog button:contains('Authenticate')")
+        b.wait_in_text(".modal-dialog:contains('Administrative access')", "This didn't work")
+        b.click(".modal-dialog:contains('Administrative access') button:contains('Cancel')")
+        b.wait_not_present(".modal-dialog:contains('Administrative access')")
+        b.wait_text("#super-user-indicator", "Limited access")
+
+    def testNotAdmin(self):
+        b = self.browser
+        m = self.machine
+
+        m.execute("gpasswd -d admin %s" % m.get_admin_group())
+        self.allow_journal_messages("admin is not in the sudoers file.  This incident will be reported.",
+                                    "sudo: no password was provided")
+
+        self.login_and_go(authorized=True)
+        b.wait_text("#super-user-indicator", "Limited access")
+
+        b.click("#super-user-indicator span")
+        b.wait_in_text(".modal-dialog:contains('Administrative access')", "password for admin")
+        b.set_input_text(".modal-dialog:contains('Administrative access') input", "foobar")
+        b.click(".modal-dialog button:contains('Authenticate')")
+        b.wait_in_text(".modal-dialog:contains('Administrative access')", "This didn't work")
+        b.click(".modal-dialog:contains('Administrative access') button:contains('Cancel')")
+        b.wait_not_present(".modal-dialog:contains('Administrative access')")
+        b.wait_text("#super-user-indicator", "Limited access")
+
+    def testPolkit(self):
+        b = self.browser
+        m = self.machine
+
+        m.write("/usr/share/cockpit/shell/override.json", """
+{
+  "bridges": [
+    {
+      "privileged": true,
+      "spawn": [
+        "/usr/bin/pkexec",
+        "--disable-internal-agent",
+        "cockpit-bridge",
+        "--privileged"
+      ]
+    }
+  ]
+}
+""")
+
+        self.login_and_go(authorized=False)
+        b.wait_text("#super-user-indicator", "Limited access")
+
+        b.click("#super-user-indicator span")
+        b.wait_in_text(".modal-dialog:contains('Administrative access')", "Please authenticate")
+        b.set_input_text(".modal-dialog:contains('Administrative access') input", "foobar")
+        b.click(".modal-dialog button:contains('Authenticate')")
+        b.wait_not_present(".modal-dialog:contains('Administrative access')")
+        b.wait_text("#super-user-indicator", "Administrative access")
+
+    def testBrokenBridgeConfig(self):
+        b = self.browser
+        m = self.machine
+
+        m.write("/usr/share/cockpit/shell/override.json", """
+{
+  "bridges": [
+    {
+      "privileged": true,
+      "spawn": [
+        "no-such-program",
+        "cockpit-bridge",
+        "--privileged"
+      ]
+    }
+  ]
+}
+""")
+
+        self.login_and_go(authorized=False)
+        b.wait_text("#super-user-indicator", "Limited access")
+
+        b.click("#super-user-indicator span")
+        b.wait_in_text(".modal-dialog:contains('Administrative access')", "Something went wrong")
+        b.wait_in_text(".modal-dialog:contains('Administrative access')", "spawn failed")
+        b.click(".modal-dialog:contains('Administrative access') button:contains('Close')")
+        b.wait_not_present(".modal-dialog:contains('Administrative access')")
+        b.wait_text("#super-user-indicator", "Limited access")
+
+    def testOverview(self):
+        b = self.browser
+
+        self.login_and_go("/system", authorized=False)
+        b.wait_visible(".pf-c-alert:contains('Web console is running in limited access mode.')")
+        b.click(".pf-c-alert:contains('Web console is running in limited access mode.') button:contains('Turn on')")
+        b.wait_in_text(".modal-dialog:contains('Administrative access')", "password for admin")
+        b.set_input_text(".modal-dialog:contains('Administrative access') input", "foobar")
+        b.click(".modal-dialog button:contains('Authenticate')")
+        b.wait_not_present(".modal-dialog:contains('Administrative access')")
+        b.wait_not_visible(".pf-c-alert:contains('Web console is running in limited access mode.')")
+
+class TestSuperuserOldShell(MachineCase):
+    provision = {
+        "machine1": {"address": "10.111.113.2/20" },
+        "machine2": {"address": "10.111.113.1/20", "image": "centos-7" },
+    }
+
+    def test(self, superuser=True):
+        b = self.browser
+        m = self.machine
+
+        m.start_cockpit()
+
+        # Use m1 to login into m2
+        b.open("/")
+        b.wait_visible("#login")
+        b.set_val("#login-user-input", "admin")
+        b.set_val("#login-password-input", "foobar")
+        b.click("#show-other-login-options")
+        b.wait_visible("#server-group")
+        b.set_val("#server-field", "10.111.113.2")
+        b.click('#login-button')
+        b.wait_in_text("#server-name", "10.111.113.2")
+        b.wait_visible("#conversation-group")
+        b.wait_in_text("#conversation-prompt", "Fingerprint")
+        b.wait_in_text("#conversation-message", "Do you want to proceed this time?")
+        b.click('#login-button')
+        b.expect_load()
+        b.wait_present('#content')
+        b.wait_visible('#content')
+
+        # The old shell should have gotten the password from cockpit-ws and it should work
+        b.wait_text("#super-user-indicator", "Administrative access")
+        b.go("/playground/test")
+        b.enter_page("/playground/test")
+        b.click(".super-channel button")
+        b.wait_in_text(".super-channel span", 'result: ')
+        self.assertIn('result: uid=0', b.text(".super-channel span"))
+
+class TestSuperuserOldWebserver(MachineCase):
+    provision = {
+        "machine1": {"address": "10.111.113.1/20", "image": "centos-7" },
+        "machine2": {"address": "10.111.113.2/20" },
+    }
+
+    def test(self):
+        b = self.browser
+        m = self.machine
+
+        m.execute("firewall-cmd --add-service cockpit")
+        m.start_cockpit()
+
+        # Use m1 to login into m2
+        b.open("/")
+        b.wait_visible("#login")
+        b.set_val("#login-user-input", "admin")
+        b.set_val("#login-password-input", "foobar")
+        b.set_checked('#authorized-input', True)
+        b.click("#show-other-login-options")
+        b.wait_visible("#server-group")
+        b.set_val("#server-field", "10.111.113.2")
+        b.click('#login-button')
+        b.wait_in_text("#server-name", "10.111.113.2")
+        b.wait_visible("#conversation-group")
+        b.wait_in_text("#conversation-prompt", "Fingerprint")
+        b.wait_in_text("#conversation-message", "Do you want to proceed this time?")
+        b.click('#login-button')
+        b.expect_load()
+        b.wait_present('#content')
+        b.wait_visible('#content')
+
+        # We should have gotten the password from cockpit-ws and it should work
+        b.wait_text("#super-user-indicator", "Administrative access")
+        b.go("/playground/test")
+        b.enter_page("/playground/test")
+        b.click(".super-channel button")
+        b.wait_in_text(".super-channel span", 'result: ')
+        self.assertIn('result: uid=0', b.text(".super-channel span"))
+
+class TestSuperuserDashboard(MachineCase):
+    provision = {
+        "machine1": {"address": "10.111.113.1/20" },
+        "machine2": {"address": "10.111.113.2/20" },
+    }
+
+    def test(self):
+        b = self.browser
+
+        self.login_and_go()
+        b.go("/@10.111.113.2")
+        b.wait_visible("#machine-troubleshoot")
+        b.click('#machine-troubleshoot')
+        b.wait_popup('troubleshoot-dialog')
+        b.click('#troubleshoot-dialog button:contains("Add")')
+        b.wait_in_text('#troubleshoot-dialog', "Fingerprint")
+        b.click('#troubleshoot-dialog button:contains("Connect")')
+        b.wait_popdown('troubleshoot-dialog')
+
+        # The superuser indicator should be on the Overview page and not in the Shell
+
+        b.wait_not_visible("#super-user-indicator")
+        b.enter_page("/system", host="10.111.113.2")
+        b.wait_in_text(".ct-overview-header-actions", "Administrative access")
+        b.go("/@10.111.113.2/playground/test")
+        b.enter_page("/playground/test", host="10.111.113.2")
+        b.click(".super-channel button")
+        b.wait_in_text(".super-channel span", 'result: ')
+        self.assertIn('result: uid=0', b.text(".super-channel span"))
+
+        b.go("/@10.111.113.2")
+        b.enter_page("/system", host="10.111.113.2")
+        b.click(".ct-overview-header-actions span:contains('Administrative access')")
+        b.click(".modal-dialog:contains('Limited access') button:contains('Apply')")
+        b.wait_not_present(".modal-dialog:contains('Limited access')")
+        b.wait_in_text(".ct-overview-header-actions", "Limited access")
+        b.go("/@10.111.113.2/playground/test")
+        b.enter_page("/playground/test", host="10.111.113.2")
+        b.click(".super-channel button")
+        b.wait_in_text(".super-channel span", 'access-denied')
+
+        # Make sure sudo asks for a password
+        self.machines["machine2"].execute("rm /run/sudo/ts/admin")
+
+        b.go("/@10.111.113.2")
+        b.enter_page("/system", host="10.111.113.2")
+        b.click(".ct-overview-header-actions span:contains('Limited access')")
+        b.wait_in_text(".modal-dialog:contains('Administrative access')", "password for admin")
+        b.set_input_text(".modal-dialog:contains('Administrative access') input", "foobar")
+        b.click(".modal-dialog button:contains('Authenticate')")
+        b.wait_not_present(".modal-dialog:contains('Administrative access')")
+        b.wait_in_text(".ct-overview-header-actions", "Administrative access")
+        b.go("/@10.111.113.2/playground/test")
+        b.enter_page("/playground/test", host="10.111.113.2")
+        b.click(".super-channel button")
+        b.wait_in_text(".super-channel span", 'result: ')
+        self.assertIn('result: uid=0', b.text(".super-channel span"))
+
+if __name__ == '__main__':
+    test_main()

@@ -207,6 +207,9 @@ class TestMachines(NetworkCase, StorageHelpers):
         # Stop all networks
         self.addCleanup(m.execute, "for n in $(virsh net-list --all --name); do virsh net-destroy $n || true; done")
 
+        # Stop all domains
+        self.addCleanup(m.execute, "for d in $(virsh list --name); do virsh destroy $d || true; done")
+
         # we don't have configuration to open the firewall for local libvirt machines, so just stop firewalld
         m.execute("systemctl stop firewalld; systemctl try-restart libvirtd")
 

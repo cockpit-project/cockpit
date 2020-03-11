@@ -329,6 +329,10 @@ class TestMachines(NetworkCase, StorageHelpers):
         m.execute("mkdir {0}".format(self.tmp_storage))
         self.addCleanup(m.execute, "findmnt --list --noheadings --output TARGET | grep ^{0} | xargs -r umount && rm -rf {0}".format(self.tmp_storage))
 
+        # Clean up iscsi
+        m.execute("mkdir -p /var/lib/iscsi && mount -t tmpfs tmpfs /var/lib/iscsi")
+        self.addCleanup(m.execute, "umount /var/lib/iscsi")
+
         # Keep pristine state of libvirt
         orig = "/var/lib/libvirt"
         backup = os.path.join(self.tmp_storage, "libvirt.backup")
@@ -802,18 +806,6 @@ class TestMachines(NetworkCase, StorageHelpers):
         # And create a volume on it in order to test use existing volume dialog
         m.execute("virsh vol-create-as --pool nfs-pool --name nfs-volume-0 --capacity 1M --format qcow2")
 
-        # Prepare an iscsi pool
-        # Debian and ubuntu images don't have open-iscsi already installed
-        # FIXME: Add open-iscsi to debian and ubuntu images
-        if "debian" not in m.image and "ubuntu" not in m.image:
-            # Preparations for testing ISCSI pools
-
-            target_iqn = "iqn.2019-09.cockpit.lan"
-            self.prepareStorageDeviceOnISCSI(target_iqn)
-
-            m.execute("virsh pool-define-as iscsi-pool --type iscsi --target /dev/disk/by-path --source-host 127.0.0.1 --source-dev {0} && virsh pool-start iscsi-pool".format(target_iqn))
-            wait(lambda: "unit:0:0:0" in self.machine.execute("virsh pool-refresh iscsi-pool && virsh vol-list iscsi-pool"), delay=3)
-
         self.startVm("subVmTest1")
 
         self.login_and_go("/machines")
@@ -898,24 +890,6 @@ class TestMachines(NetworkCase, StorageHelpers):
             volume_size_unit='MiB',
             expected_target=self.get_next_free_target(),
         ).execute()
-
-        if "debian" not in m.image and "ubuntu" not in m.image:
-            # ISCSI driver does not support virStorageVolCreate API
-            VMAddDiskDialog(
-                self,
-                pool_name='iscsi-pool',
-                pool_type='iscsi',
-                verify=False
-            ).execute()
-
-            VMAddDiskDialog(
-                self,
-                pool_name='iscsi-pool',
-                pool_type='iscsi',
-                volume_name='unit:0:0:0',
-                expected_target=self.get_next_free_target(),
-                use_existing_volume='True',
-            ).execute()
 
         if self.provider == "libvirt-dbus":
             VMAddDiskDialog(
@@ -1018,6 +992,56 @@ class TestMachines(NetworkCase, StorageHelpers):
             volume_size_unit='MiB',
             expected_target=self.get_next_free_target(),
         ).execute()
+
+    @nondestructive
+    @skipImage("open-iscsi not installed", "debian-stable", "debian-testing", "ubuntu-1804", "ubuntu-2004", "ubuntu-stable")
+    def testAddDiskISCSI(self):
+        b = self.browser
+        m = self.machine
+
+        target_iqn = "iqn.2019-09.cockpit.lan"
+        self.prepareStorageDeviceOnISCSI(target_iqn)
+
+        m.execute("virsh pool-define-as iscsi-pool --type iscsi --target /dev/disk/by-path --source-host 127.0.0.1 --source-dev {0} && virsh pool-start iscsi-pool".format(target_iqn))
+        wait(lambda: "unit:0:0:0" in self.machine.execute("virsh pool-refresh iscsi-pool && virsh vol-list iscsi-pool"), delay=3)
+
+        self.startVm("subVmTest1")
+
+        self.login_and_go("/machines")
+        b.wait_in_text("body", "Virtual Machines")
+
+        b.click("tbody tr[data-row-id=vm-subVmTest1] th")
+        b.wait_in_text("#vm-subVmTest1-state", "running")
+        b.click("#vm-subVmTest1-disks") # open the "Disks" subtab
+
+        # ISCSI driver does not support virStorageVolCreate API
+        VMAddDiskDialog(
+            self,
+            pool_name='iscsi-pool',
+            pool_type='iscsi',
+            verify=False
+        ).execute()
+
+        iscsi_device = self.get_next_free_target()
+
+        VMAddDiskDialog(
+            self,
+            pool_name='iscsi-pool',
+            pool_type='iscsi',
+            volume_name='unit:0:0:0',
+            expected_target=iscsi_device,
+            use_existing_volume='True',
+        ).execute()
+
+        # shut off
+        b.click("#vm-subVmTest1-off-caret")
+        b.click("#vm-subVmTest1-forceOff")
+        b.wait_in_text("#vm-subVmTest1-state", "shut off")
+
+        # check if the just added non-permanent disk is gone
+        b.wait_not_present("#vm-subVmTest1-disks-%s-device" % iscsi_device)
+        # the primary disk is still present
+        b.wait_present("#vm-subVmTest1-disks-vda-device")
 
     @nondestructive
     def testVmNICs(self):

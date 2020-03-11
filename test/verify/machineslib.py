@@ -181,7 +181,7 @@ class TestMachines(NetworkCase, StorageHelpers):
 
         # Prepare tmp directory
         m.execute("mkdir {0}".format(self.tmp_storage))
-        self.addCleanup(m.execute, "rm -rf {0}".format(self.tmp_storage))
+        self.addCleanup(m.execute, "findmnt --list --noheadings --output TARGET | grep ^{0} | xargs -r umount && rm -rf {0}".format(self.tmp_storage))
 
         # Keep pristine state of libvirt
         orig = "/var/lib/libvirt"

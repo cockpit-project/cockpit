@@ -35,23 +35,6 @@ def readFile(name):
     return content
 
 
-# Preparations for iscsi storage pool
-def prepareStorageDeviceOnISCSI(m, target_iqn, orig_iqn=None):
-    if orig_iqn is None:
-        orig_iqn = m.execute("sed </etc/iscsi/initiatorname.iscsi -e 's/^.*=//'").rstrip()
-
-    # Increase the iSCSI timeouts for heavy load during our testing
-    m.execute("""sed -i 's|^\(node\..*log.*_timeout = \).*|\\1 60|' /etc/iscsi/iscsid.conf""")
-
-    # Setup a iSCSI target
-    m.execute("""
-              targetcli /backstores/ramdisk create test 50M
-              targetcli /iscsi create %(tgt)s
-              targetcli /iscsi/%(tgt)s/tpg1/luns create /backstores/ramdisk/test
-              targetcli /iscsi/%(tgt)s/tpg1/acls create %(ini)s
-              """ % {"tgt": target_iqn, "ini": orig_iqn})
-
-
 SPICE_XML = """
     <video>
       <model type='vga' heads='1' primary='yes'/>
@@ -454,6 +437,26 @@ class TestMachines(NetworkCase, StorageHelpers):
     def release_target(self, target):
         self.used_targets.remove(target)
 
+    # Preparations for iscsi storage pool
+    def prepareStorageDeviceOnISCSI(self, target_iqn, orig_iqn=None):
+        m = self.machine
+
+        if orig_iqn is None:
+            orig_iqn = m.execute("sed </etc/iscsi/initiatorname.iscsi -e 's/^.*=//'").rstrip()
+
+        # Increase the iSCSI timeouts for heavy load during our testing
+        m.execute("""sed -i 's|^\(node\..*log.*_timeout = \).*|\\1 60|' /etc/iscsi/iscsid.conf""")
+
+        # Setup a iSCSI target
+        m.execute("""
+                  targetcli /backstores/ramdisk create test 50M
+                  targetcli /iscsi create %(tgt)s
+                  targetcli /iscsi/%(tgt)s/tpg1/luns create /backstores/ramdisk/test
+                  targetcli /iscsi/%(tgt)s/tpg1/acls create %(ini)s
+                  """ % {"tgt": target_iqn, "ini": orig_iqn})
+
+        self.addCleanup(m.execute, "targetcli /backstores/ramdisk delete test && targetcli /iscsi delete %s" % target_iqn)
+
     @nondestructive
     def testState(self):
         b = self.browser
@@ -806,7 +809,7 @@ class TestMachines(NetworkCase, StorageHelpers):
             # Preparations for testing ISCSI pools
 
             target_iqn = "iqn.2019-09.cockpit.lan"
-            prepareStorageDeviceOnISCSI(m, target_iqn)
+            self.prepareStorageDeviceOnISCSI(target_iqn)
 
             m.execute("virsh pool-define-as iscsi-pool --type iscsi --target /dev/disk/by-path --source-host 127.0.0.1 --source-dev {0} && virsh pool-start iscsi-pool".format(target_iqn))
             wait(lambda: "unit:0:0:0" in self.machine.execute("virsh pool-refresh iscsi-pool && virsh vol-list iscsi-pool"), delay=3)
@@ -1714,7 +1717,7 @@ class TestMachines(NetworkCase, StorageHelpers):
         if "debian" not in self.machine.image and "ubuntu" not in self.machine.image:
             # Test create VM with disk of type "network"
             target_iqn = "iqn.2019-09.cockpit.lan"
-            prepareStorageDeviceOnISCSI(self.machine, target_iqn)
+            self.prepareStorageDeviceOnISCSI(target_iqn)
 
             cmds = [
                 "virsh pool-define-as --name poolIscsi --type iscsi --source-host 127.0.0.1 --source-dev {0} --target /dev/disk/by-path/".format(target_iqn),

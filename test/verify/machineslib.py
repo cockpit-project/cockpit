@@ -340,6 +340,7 @@ class TestMachines(NetworkCase, StorageHelpers):
         # HACK: fix this to get along with NetworkCase.setUp(), and use super()
         MachineCase.setUp(self)
         m = self.machine
+        self.used_targets = ['vda']
 
         # Prepare tmp directory
         m.execute("mkdir {0}".format(self.tmp_storage))
@@ -441,6 +442,17 @@ class TestMachines(NetworkCase, StorageHelpers):
         self.allow_journal_messages('.*denied.*comm="pmsignal".*')
 
         return args
+
+    def get_next_free_target(self):
+        i = 0
+        while ("vd" + chr(97 + i) in self.used_targets):
+            i += 1
+
+        self.used_targets.append("vd" + chr(97 + i))
+        return "vd" + chr(97 + i)
+
+    def release_target(self, target):
+        self.used_targets.remove(target)
 
     @nondestructive
     def testState(self):
@@ -768,18 +780,6 @@ class TestMachines(NetworkCase, StorageHelpers):
         m = self.machine
 
         dev = self.add_ram_disk()
-        used_targets = ['vda']
-
-        def get_next_free_target():
-            i = 0
-            while ("vd" + chr(97 + i) in used_targets):
-                i += 1
-
-            used_targets.append("vd" + chr(97 + i))
-            return "vd" + chr(97 + i)
-
-        def release_target(target):
-            used_targets.remove(target)
 
         # prepare libvirt storage pools
         m.execute("mkdir /mnt/vm_one ; mkdir /mnt/vm_two ; mkdir /mnt/default_tmp ; chmod a+rwx /mnt/vm_one /mnt/vm_two /mnt/default_tmp")
@@ -828,7 +828,7 @@ class TestMachines(NetworkCase, StorageHelpers):
             volume_size=2048,
             volume_size_unit='MiB',
             permanent=False,
-            expected_target=get_next_free_target(),
+            expected_target=self.get_next_free_target(),
         ).execute()
 
         VMAddDiskDialog(
@@ -839,7 +839,7 @@ class TestMachines(NetworkCase, StorageHelpers):
             volume_size=2,
             permanent=True,
             cache_mode='writeback',
-            expected_target=get_next_free_target(),
+            expected_target=self.get_next_free_target(),
         ).execute()
 
         VMAddDiskDialog(
@@ -861,7 +861,7 @@ class TestMachines(NetworkCase, StorageHelpers):
             volume_size=2,
             permanent=True,
             use_existing_volume=True,
-            expected_target=get_next_free_target(),
+            expected_target=self.get_next_free_target(),
         ).execute()
 
         # check the autoselected options
@@ -873,7 +873,7 @@ class TestMachines(NetworkCase, StorageHelpers):
                 pool_name='default_tmp',
                 volume_name='defaultVol',
                 use_existing_volume=True,
-                expected_target=get_next_free_target(),
+                expected_target=self.get_next_free_target(),
                 volume_format='raw',
             ).open().add_disk().verify_disk_added()
 
@@ -884,7 +884,7 @@ class TestMachines(NetworkCase, StorageHelpers):
             use_existing_volume=True,
             volume_size=1,
             volume_size_unit='MiB',
-            expected_target=get_next_free_target(),
+            expected_target=self.get_next_free_target(),
         ).execute()
 
         VMAddDiskDialog(
@@ -893,7 +893,7 @@ class TestMachines(NetworkCase, StorageHelpers):
             volume_name='nfs-volume-1',
             volume_size=1,
             volume_size_unit='MiB',
-            expected_target=get_next_free_target(),
+            expected_target=self.get_next_free_target(),
         ).execute()
 
         if "debian" not in m.image and "ubuntu" not in m.image:
@@ -910,7 +910,7 @@ class TestMachines(NetworkCase, StorageHelpers):
                 pool_name='iscsi-pool',
                 pool_type='iscsi',
                 volume_name='unit:0:0:0',
-                expected_target=get_next_free_target(),
+                expected_target=self.get_next_free_target(),
                 use_existing_volume='True',
             ).execute()
 
@@ -941,8 +941,8 @@ class TestMachines(NetworkCase, StorageHelpers):
         # check if the just added non-permanent disks are gone
         b.wait_not_present("#vm-subVmTest1-disks-vdb-device")
         b.wait_not_present("#vm-subVmTest1-disks-vde-device")
-        release_target("vdb")
-        release_target("vde")
+        self.release_target("vdb")
+        self.release_target("vde")
         b.wait_present("#vm-subVmTest1-disks-vdc-device")
         b.wait_present("#vm-subVmTest1-disks-vdd-device")
 
@@ -971,7 +971,7 @@ class TestMachines(NetworkCase, StorageHelpers):
                     volume_name='non-peristent-vm-disk',
                     permanent=False,
                     persistent_vm=False,
-                    expected_target=get_next_free_target(),
+                    expected_target=self.get_next_free_target(),
                 ).execute()
 
             # Undefine all Storage Pools and  confirm that the Add Disk dialog is disabled
@@ -1013,7 +1013,7 @@ class TestMachines(NetworkCase, StorageHelpers):
             volume_name=partition,
             volume_size=10,
             volume_size_unit='MiB',
-            expected_target=get_next_free_target(),
+            expected_target=self.get_next_free_target(),
         ).execute()
 
     @nondestructive

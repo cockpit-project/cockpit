@@ -703,7 +703,6 @@ class MachineCase(unittest.TestCase):
     machines = {}
     machine_class = None
     browser = None
-    network = None
     journal_start = None
 
     # provision is a dictionary of dictionaries, one for each additional machine to be created, e.g.:
@@ -722,9 +721,6 @@ class MachineCase(unittest.TestCase):
 
     @classmethod
     def kill_global_machine(klass):
-        if klass.network:
-            klass.network.kill()
-            klass.network = None
         if klass.global_machine:
             klass.global_machine.kill()
             klass.global_machine = None
@@ -746,12 +742,10 @@ class MachineCase(unittest.TestCase):
         else:
             if not machine_class:
                 machine_class = testvm.VirtMachine
-            if not self.network:
-                network = testvm.VirtNetwork(image=image)
-                if cleanup:
-                    self.addCleanup(network.kill)
-                self.network = network
-            networking = self.network.host(restrict=restrict, forward=forward)
+            network = testvm.VirtNetwork(image=image)
+            if cleanup:
+                self.addCleanup(network.kill)
+            networking = network.host(restrict=restrict, forward=forward)
             machine = machine_class(verbose=opts.trace, networking=networking, image=image, **kwargs)
             if opts.fetch and not os.path.exists(machine.image_file):
                 machine.pull(machine.image_file)

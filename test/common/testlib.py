@@ -1373,7 +1373,7 @@ def print_tests(tests):
             print(test.id().replace("__main__.", ""))
 
 
-def arg_parser():
+def arg_parser(enable_sit=True):
     parser = argparse.ArgumentParser(description='Run Cockpit test(s)')
     parser.add_argument('-v', '--verbose', dest="verbosity", action='store_const',
                         const=2, help='Verbose output')
@@ -1381,8 +1381,9 @@ def arg_parser():
                         help='Trace machine boot and commands')
     parser.add_argument('-q', '--quiet', dest='verbosity', action='store_const',
                         const=0, help='Quiet output')
-    parser.add_argument('-s', "--sit", dest='sit', action='store_true',
-                        help="Sit and wait after test failure")
+    if enable_sit:
+        parser.add_argument('-s', "--sit", dest='sit', action='store_true',
+                            help="Sit and wait after test failure")
     parser.add_argument('--nonet', dest="fetch", action="store_false",
                         help="Don't go online to download images or data")
     parser.add_argument('tests', nargs='*')

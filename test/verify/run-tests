@@ -111,8 +111,6 @@ def check_valid(filename):
 
 def build_command(filename, test, opts):
     cmd = [filename]
-    if opts.sit:
-        cmd.append("-s")
     if opts.trace:
         cmd.append("-t")
     if opts.verbosity:
@@ -248,7 +246,7 @@ def run(opts):
 
 
 def main():
-    parser = testlib.arg_parser()
+    parser = testlib.arg_parser(enable_sit=False)
     parser.add_argument('--publish', action='store', help="Unused")
     parser.add_argument('-j', '--jobs', type=int,
                         default=os.environ.get("TEST_JOBS", 1), help="Number of concurrent jobs")
@@ -257,9 +255,6 @@ def main():
     parser.add_argument('-n', '--nondestructive', action='store_true',
                         help='Only consider @nondestructive tests')
     opts = parser.parse_args()
-
-    if opts.sit and opts.jobs > 1:
-        parser.error("the -s or --sit argument not avalible with multiple jobs")
 
     image = testvm.DEFAULT_IMAGE
     revision = os.environ.get("TEST_REVISION")

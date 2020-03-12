@@ -231,16 +231,17 @@ def run(opts):
         if not made_progress and not opts.list:
             time.sleep(0.5)
 
-    testlib.MachineCase.kill_global_machine()
+    if not opts.list:
+        testlib.MachineCase.kill_global_machine()
 
-    duration = int(time.time() - start_time)
-    hostname = socket.gethostname().split(".")[0]
-    details = "[{0}s on {1}, {2} serial tests took {3}s]".format(duration, hostname, serial_tests_len, int(serial_tests_duration))
-    print()
-    if result > 0:
-        print("# {0} TESTS FAILED {1}".format(result, details))
-    else:
-        print("# TESTS PASSED {0}".format(details))
+        duration = int(time.time() - start_time)
+        hostname = socket.gethostname().split(".")[0]
+        details = "[{0}s on {1}, {2} serial tests took {3}s]".format(duration, hostname, serial_tests_len, int(serial_tests_duration))
+        print()
+        if result > 0:
+            print("# {0} TESTS FAILED {1}".format(result, details))
+        else:
+            print("# TESTS PASSED {0}".format(details))
 
     return result
 

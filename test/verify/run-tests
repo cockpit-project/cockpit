@@ -156,7 +156,8 @@ def run(opts):
                 if getattr(test_method, "_testlib__non_destructive", False):
                     serial_tests.append(test)
                 else:
-                    parallel_tests.append(test)
+                    if not opts.nondestructive:
+                        parallel_tests.append(test)
                 test_id += 1
 
     print("1..{0}".format(len(parallel_tests) + len(serial_tests)))
@@ -249,10 +250,12 @@ def run(opts):
 def main():
     parser = testlib.arg_parser()
     parser.add_argument('--publish', action='store', help="Unused")
-    parser.add_argument('-j', '--jobs', dest="jobs", type=int,
+    parser.add_argument('-j', '--jobs', type=int,
                         default=os.environ.get("TEST_JOBS", 1), help="Number of concurrent jobs")
-    parser.add_argument('--thorough', dest='thorough', action='store_true',
+    parser.add_argument('--thorough', action='store_true',
                         help='Thorough mode, no skipping known issues')
+    parser.add_argument('-n', '--nondestructive', action='store_true',
+                        help='Only consider @nondestructive tests')
     opts = parser.parse_args()
 
     if opts.sit and opts.jobs > 1:

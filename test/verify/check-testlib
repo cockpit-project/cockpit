@@ -24,12 +24,11 @@ import os
 import parent
 from testlib import *
 
+dirname = os.path.dirname(__file__)
 
 class TestTestLib(unittest.TestCase):
 
     def testTestListing(self):
-        dirname = os.path.dirname(__file__)
-
         # Listing on check-* file
         self.assertEqual(subprocess.check_output([os.path.join(dirname, "check-example"), "-l", "TestNondestructiveExample"]).strip().decode(),
                          "TestNondestructiveExample.testOne\nTestNondestructiveExample.testTwo")
@@ -45,6 +44,14 @@ class TestTestLib(unittest.TestCase):
 
         self.assertIn("TestExample.testNondestructive\nTestNondestructiveExample.testOne\nTestNondestructiveExample.testTwo",
                       subprocess.check_output([os.path.join(dirname, "run-tests"), "-l"]).strip().decode())
+
+    def testNonDestructive(self):
+        self.assertEqual(subprocess.check_output([os.path.join(dirname, "run-tests"), "--nondestructive", "-l", "TestExample"]).strip().decode(),
+                         "1..1\nTestExample.testNondestructive")
+
+        # with short option and substring
+        self.assertEqual(subprocess.check_output([os.path.join(dirname, "run-tests"), "-nl", "TestExamp"]).strip().decode(),
+                         "1..1\nTestExample.testNondestructive")
 
 if __name__ == '__main__':
     test_main()

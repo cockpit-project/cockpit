@@ -23,7 +23,7 @@ class TestKdump(SeleniumTest):
     def requirements(self):
         execs = [
             # start NFS server
-            "sudo yum install -y nfs-utils || true",
+            "rpm -q nfs-utils || sudo yum install -y nfs-utils || true",
             "sudo mkdir -p {}".format(self.share),
             "sudo chmod a+rwx {}".format(self.share),
             "echo '{}' | sudo tee {}".format(self.exporttab, self.export_file),

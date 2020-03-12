@@ -2,12 +2,6 @@
 
 DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 
-# only build cockpit-pcp if pcp is available
-ifneq ($(shell dpkg -s libpcp3-dev >/dev/null 2>&1 && echo yes),yes)
-	export DH_OPTIONS = -Ncockpit-pcp
-	CONFIG_OPTIONS = --disable-pcp
-endif
-
 # newer firewalld ships cockpit.xml, but keep it for backports
 FIREWALLD_SERVICE = $(findstring $(shell . /etc/os-release; echo $$VERSION_ID),9 18.04)
 ifeq ($(FIREWALLD_SERVICE),)

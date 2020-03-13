@@ -379,7 +379,7 @@ class TestMachines(NetworkCase, StorageHelpers):
 
         # restart libvirtd
         m.execute("systemctl stop libvirtd.service")
-        b.wait_in_text("#slate-header", "Virtualization Service (libvirt) is Not Active")
+        b.wait_in_text(".pf-c-empty-state", "Virtualization Service (libvirt) is Not Active")
         m.execute("systemctl start libvirtd.service")
         # HACK: https://launchpad.net/bugs/1802005
         if self.provider == "libvirt-dbus" and m.image == "ubuntu-stable":
@@ -500,9 +500,9 @@ class TestMachines(NetworkCase, StorageHelpers):
         m.execute("systemctl disable {0}".format(libvirtServiceName))
         m.execute("systemctl stop {0}".format(libvirtServiceName))
 
-        b.wait_in_text("#slate-header", "Virtualization Service (libvirt) is Not Active")
+        b.wait_in_text(".pf-c-empty-state", "Virtualization Service (libvirt) is Not Active")
         b.wait_present("#enable-libvirt:checked")
-        b.click("#start-libvirt")
+        b.click(".pf-c-empty-state button.pf-m-primary")  # Start libvirt
         b.wait(lambda: checkLibvirtEnabled())
         # HACK: https://launchpad.net/bugs/1802005
         if self.provider == "libvirt-dbus" and m.image == "ubuntu-stable":
@@ -513,10 +513,10 @@ class TestMachines(NetworkCase, StorageHelpers):
             b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
 
         m.execute("systemctl stop {0}".format(libvirtServiceName))
-        b.wait_in_text("#slate-header", "Virtualization Service (libvirt) is Not Active")
+        b.wait_in_text(".pf-c-empty-state", "Virtualization Service (libvirt) is Not Active")
         b.wait_present("#enable-libvirt:checked")
         b.click("#enable-libvirt") # uncheck it ; ; TODO: fix this, do not assume initial state of the checkbox
-        b.click("#start-libvirt")
+        b.click(".pf-c-empty-state button.pf-m-primary")  # Start libvirt
         b.wait(lambda: not checkLibvirtEnabled())
         # HACK: https://launchpad.net/bugs/1802005
         if self.provider == "libvirt-dbus" and m.image == "ubuntu-stable":
@@ -529,10 +529,10 @@ class TestMachines(NetworkCase, StorageHelpers):
         m.execute("systemctl enable {0}".format(libvirtServiceName))
         m.execute("systemctl stop {0}".format(libvirtServiceName))
 
-        b.wait_in_text("#slate-header", "Virtualization Service (libvirt) is Not Active")
+        b.wait_in_text(".pf-c-empty-state", "Virtualization Service (libvirt) is Not Active")
         b.wait_present("#enable-libvirt:checked")
 
-        b.click("#troubleshoot")
+        b.click(".pf-c-empty-state button.pf-m-secondary")  # Troubleshoot
         b.leave_page()
         url_location = "/system/services#/{0}".format(libvirtServiceName)
         b.wait(lambda: url_location in b.eval_js("window.location.href"))

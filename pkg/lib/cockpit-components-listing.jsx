@@ -157,14 +157,23 @@ export class ListingRow extends React.Component {
         const allowNavigate = !!this.props.navigateToItem && !this.state.expanded;
 
         const headerEntries = this.props.columns.map((itm, index) => {
-            if (typeof itm === 'string' || typeof itm === 'number' || itm === null || itm === undefined || itm instanceof String || React.isValidElement(itm))
-                return (<td key={index}>{itm}</td>);
+            if (typeof itm === 'string' || typeof itm === 'number' || itm === null || itm === undefined || itm instanceof String)
+                return (<td key={String(itm)}>{itm}</td>);
+
+            let key;
+            if ('key' in itm)
+                key = itm.key;
+            else if ('name' in itm)
+                key = itm.name;
+
+            if (React.isValidElement(itm))
+                return (<td key={key}>{itm}</td>);
             else if ('header' in itm && itm.header)
-                return (<th key={index}>{itm.name}</th>);
+                return (<th key={key}>{itm.name}</th>);
             else if ('tight' in itm && itm.tight)
-                return (<td key={index} className="listing-ct-actions">{itm.name || itm.element}</td>);
+                return (<td key={key} className="listing-ct-actions">{itm.name || itm.element}</td>);
             else
-                return (<td key={index}>{itm.name}</td>);
+                return (<td key={key}>{itm.name}</td>);
         });
 
         const allowExpand = (this.props.tabRenderers.length > 0 || this.props.simpleBody);
@@ -352,7 +361,7 @@ export const Listing = (props) => {
                     let clickHandler = null;
                     if (props.columnTitleClick)
                         clickHandler = function() { props.columnTitleClick(index) };
-                    return <th key={index} onClick={clickHandler}>{title}</th>;
+                    return <th key={"header-row-" + title} onClick={clickHandler}>{title}</th>;
                 }) }
             </tr>
         );

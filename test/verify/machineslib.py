@@ -497,6 +497,12 @@ class TestMachines(NetworkCase, StorageHelpers):
         b.wait_in_text("body", "Virtual Machines")
         b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
 
+        # newer libvirtd versions use socket activation
+        # we should test that separately, but here we test only using the service unit
+        if m.image not in ["debian-stable", "ubuntu-1804", "ubuntu-stable", "rhel-8-2-distropkg", "rhel-8-2", "centos-8-stream"]:
+            m.execute("systemctl stop libvirtd-ro.socket libvirtd.socket libvirtd-admin.socket")
+            self.addCleanup(m.execute, "systemctl start libvirtd-ro.socket libvirtd.socket libvirtd-admin.socket")
+
         m.execute("systemctl disable {0}".format(libvirtServiceName))
         m.execute("systemctl stop {0}".format(libvirtServiceName))
 

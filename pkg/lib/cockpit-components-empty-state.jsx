@@ -53,8 +53,8 @@ EmptyStatePanel.propTypes = {
     loading: PropTypes.bool,
     icon: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
     title: PropTypes.string,
-    paragraph: PropTypes.string,
+    paragraph: PropTypes.node,
     action: PropTypes.string,
     onAction: PropTypes.func,
-    secondary: PropTypes.arrayOf(PropTypes.object),
+    secondary: PropTypes.node,
 };

@@ -46,9 +46,10 @@ def get_active_rules(machine):
 class TestFirewall(NetworkCase):
     def setUp(self):
         MachineCase.setUp(self)
-        self.machine.execute("cp -a /etc/firewalld /etc/firewalld.test")
-        self.addCleanup(self.machine.execute, "systemctl stop firewalld && rm -rf  /etc/firewalld && mv /etc/firewalld.test /etc/firewalld")
-        self.machine.execute("systemctl start firewalld")
+        m = self.machine
+        m.execute("cp -a /etc/firewalld /etc/firewalld.test")
+        self.addCleanup(m.execute, "systemctl stop firewalld && rm -rf  /etc/firewalld && mv /etc/firewalld.test /etc/firewalld")
+        m.execute("systemctl start firewalld")
         if self.machine.image not in ["rhel-8-2-distropkg"]:
             self.btn_danger = "pf-m-danger"
             self.btn_primary = "pf-m-primary"
@@ -58,13 +59,16 @@ class TestFirewall(NetworkCase):
             self.btn_primary = "btn-primary"
             self.default_zone = "Public Zone"
 
+        # many tests expect the "libvirt" zone; on images with libvirt, wait until libvirt adds its zone
+        # (older versions don't do that yet)
+        if m.image not in ["debian-stable", "ubuntu-1804", "ubuntu-2004", "ubuntu-stable"]:
+            m.execute("systemctl start libvirtd")
+            m.execute("virsh net-list | grep -qw default || virsh net-start default")
+            m.execute("until firewall-cmd --get-active-zones | grep -q libvirt; do sleep 1; done")
+
     def testNetworkingPage(self):
         b = self.browser
         m = self.machine
-        # on images with libvirt, wait until libvirt adds its zone (older versions don't do that yet), so that we get a stable count
-        if m.image not in ["debian-stable", "ubuntu-1804", "ubuntu-2004", "ubuntu-stable"]:
-            m.execute("systemctl start libvirtd; until firewall-cmd --get-active-zones | grep -q libvirt; do sleep 1; done")
-
         active_zones = len(m.execute("firewall-cmd --get-active-zones | grep '^[a-zA-Z]'").split())
 
         if m.image not in ["rhel-8-2-distropkg"]: # Changed in #13555
@@ -284,8 +288,7 @@ class TestFirewall(NetworkCase):
         self.login_and_go("/network/firewall")
         b.wait_in_text("#zones-listing .zone-section[data-id='public']", self.default_zone)
         # wait until all zones are present, including the ones added at runtime
-        if m.image in ["rhel-8-2", "fedora-31", "fedora-testing", "fedora-32"]:
-            m.execute("systemctl start libvirtd")
+        if m.image not in ["debian-stable", "ubuntu-1804", "ubuntu-2004", "ubuntu-stable"]:
             b.wait_present("#zones-listing .zone-section[data-id='libvirt']")
 
         # add a service to the runtime configuration via the cli, after all the

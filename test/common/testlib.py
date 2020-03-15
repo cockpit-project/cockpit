@@ -727,48 +727,9 @@ class MachineCase(unittest.TestCase):
         return browser
 
     def checkSuccess(self):
-        if self._outcome:
-            # errors is a list of (method, exception) calls (usually multiple
-            # per method); None exception means success
-            return not any(e[1] for e in self._outcome.errors)
-
-        if not self.currentResult:
-            return False
-        for error in self.currentResult.errors:
-            if self == error[0]:
-                return False
-        for failure in self.currentResult.failures:
-            if self == failure[0]:
-                return False
-        for success in self.currentResult.unexpectedSuccesses:
-            if self == success:
-                return False
-        for skipped in self.currentResult.skipped:
-            if self == skipped[0]:
-                return False
-        return True
-
-    def run(self, result=None):
-        self.currentResult = result
-
-        # Here's the loop to actually retry running the test. It's an awkward
-        # place for this loop, since it only applies to MachineCase based
-        # TestCases. However for the time being there is no better place for it.
-        #
-        # Policy actually dictates retries.  The number here is an upper bound to
-        # prevent endless retries if Policy.check_retry is buggy.
-        max_retry_hard_limit = 10
-        for retry in range(0, max_retry_hard_limit):
-            try:
-                super().run(result)
-            except RetryError as ex:
-                assert retry < max_retry_hard_limit
-                sys.stderr.write("{0}\n".format(ex))
-                sleep(retry * 10)
-            else:
-                break
-
-        self.currentResult = None
+        # errors is a list of (method, exception) calls (usually multiple
+        # per method); None exception means success
+        return not any(e[1] for e in self._outcome.errors)
 
     def setUp(self):
         if opts.address and self.provision is not None:
@@ -835,10 +796,7 @@ class MachineCase(unittest.TestCase):
 
         def sitter():
             if opts.sit and not self.checkSuccess():
-                if self._outcome:
-                    [traceback.print_exception(*e[1]) for e in self._outcome.errors if e[1]]
-                else:
-                    self.currentResult.printErrors()
+                [traceback.print_exception(*e[1]) for e in self._outcome.errors if e[1]]
                 sit(self.machines)
         self.addCleanup(sitter)
 
@@ -1467,10 +1425,6 @@ class Error(Exception):
 
     def __str__(self):
         return self.msg
-
-
-class RetryError(Error):
-    pass
 
 
 def wait(func, msg=None, delay=1, tries=60):

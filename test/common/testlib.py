@@ -654,6 +654,37 @@ class Browser:
         self.cdp.kill()
 
 
+class _DebugOutcome(unittest.case._Outcome):
+    '''Run debug actions after test methods
+
+    This will do screenshots, HTML dumps, and sitting before cleanup handlers run.
+    '''
+    def testPartExecutor(self, test_case, isTest=False):
+        # we want to do the debug actions after the test function got called (isTest==True), but before
+        # TestCase.run() calls tearDown(); thus remember whether we are after isTest and already ran
+        if isTest:
+            self.ran_debug = False
+        else:
+            if getattr(self, "ran_debug", None) is False:
+                self.ran_debug = True
+                (err_case, exc_info) = self.errors[-1]
+                if exc_info and isinstance(test_case, MachineCase):
+                    assert err_case == test_case
+                    # strip off the two topmost frames for testPartExecutor and TestCase.run(); uninteresting and breaks naughties
+                    traceback.print_exception(exc_info[0], exc_info[1], exc_info[2].tb_next.tb_next)
+                    test_case.snapshot("FAIL")
+                    test_case.copy_js_log("FAIL")
+                    test_case.copy_journal("FAIL")
+                    test_case.copy_cores("FAIL")
+                    if opts.sit:
+                        sit(test_case.machines)
+
+        return super().testPartExecutor(test_case, isTest)
+
+
+unittest.case._Outcome = _DebugOutcome
+
+
 class MachineCase(unittest.TestCase):
     image = testvm.DEFAULT_IMAGE
     runner = None
@@ -793,20 +824,6 @@ class MachineCase(unittest.TestCase):
                 self.nonDestructiveSetup()
 
         self.tmpdir = tempfile.mkdtemp()
-
-        def sitter():
-            if opts.sit and not self.checkSuccess():
-                [traceback.print_exception(*e[1]) for e in self._outcome.errors if e[1]]
-                sit(self.machines)
-        self.addCleanup(sitter)
-
-        def intercept():
-            if not self.checkSuccess():
-                self.snapshot("FAIL")
-                self.copy_js_log("FAIL")
-                self.copy_journal("FAIL")
-                self.copy_cores("FAIL")
-        self.addCleanup(intercept)
 
     def nonDestructiveSetup(self):
         '''generic setUp/tearDown for @nondestructive tests'''

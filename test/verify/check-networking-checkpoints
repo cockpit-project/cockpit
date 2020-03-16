@@ -32,8 +32,8 @@ class TestNetworking(NetworkCase):
         iface = self.get_iface(m, "52:54:00:12:34:56")
 
         if "debian" in m.image:
-            m.execute("sed -i -e 's/managed=false/managed=true/' /etc/NetworkManager/NetworkManager.conf")
-            m.execute("systemctl restart NetworkManager")
+            self.sed_file("s/managed=false/managed=true/", "/etc/NetworkManager/NetworkManager.conf",
+                          "systemctl restart NetworkManager")
             # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1400525
             wait(lambda: m.execute("nmcli dev con %s" % iface))
 

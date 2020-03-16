@@ -292,7 +292,7 @@ class TestMachines(MachineCase, StorageHelpers):
             orig_iqn = m.execute("sed </etc/iscsi/initiatorname.iscsi -e 's/^.*=//'").rstrip()
 
         # Increase the iSCSI timeouts for heavy load during our testing
-        m.execute("""sed -i 's|^\(node\..*log.*_timeout = \).*|\\1 60|' /etc/iscsi/iscsid.conf""")
+        self.sed_file(r"s|^\(node\..*log.*_timeout = \).*|\1 60|", "/etc/iscsi/iscsid.conf")
 
         # Setup a iSCSI target
         m.execute("""

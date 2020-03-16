@@ -50,18 +50,6 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         m.start_cockpit()
         b.open("/system")
 
-        def login(user, password):
-            b.wait_visible("#login")
-            b.wait_visible("#login-user-input")
-            b.wait_not_visible("#unsupported-browser")
-            b.wait_not_present("#login-button:disabled")
-            # :focus selector doesn't work in phantomjs
-            b.wait_js_cond("document.activeElement.getAttribute('id') === 'login-user-input'")
-            b.set_val('#login-user-input', user)
-            b.set_val('#login-password-input', password)
-            b.set_checked('#authorized-input', True)
-            b.click('#login-button')
-
         # Test banner
         # Test that we don't show banner when not specified
         b.wait_visible("#login-user-input")
@@ -83,17 +71,17 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.wait_not_visible("#banner")
 
         # Try to login as a non-existing user
-        login("nonexisting", "blahblah")
+        b.try_login("nonexisting", "blahblah")
         b.wait_text_not("#login-error-message", "")
         self.assertNotIn("web", m.execute("who"))
 
         # Try to login as user with a wrong password
-        login("user", "gfedcba")
+        b.try_login("user", "gfedcba")
         b.wait_text_not("#login-error-message", "")
         self.assertNotIn("web", m.execute("who"))
 
         # Try to login as user with correct password
-        login("user", "abcdefg")
+        b.try_login("user", "abcdefg")
         if m.ostree_image:
             b.wait_in_text("#login-error-message", "Server closed connection")
         else:
@@ -105,13 +93,13 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         if not m.ostree_image:
             m.execute("usermod --shell /bin/false admin; sync")
             b.reload()
-            login("admin", "foobar")
+            b.try_login("admin", "foobar")
             b.wait_text_not("#login-error-message", "")
             m.execute("usermod --shell /bin/bash admin; sync")
 
         # Login as admin
         b.open("/system")
-        login("admin", "foobar")
+        b.try_login("admin", "foobar")
         b.expect_load()
         b.wait_present("#content")
         b.wait_text('#content-user-name', 'Administrator')
@@ -167,7 +155,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
                       "echo 'echo noise-profile-out; echo noise-profile-err >&2' >> .profile")
             self.addCleanup(m.execute, "set -e; cd ~admin; mv .bashrc.bak .bashrc; "
                                        "if [ -e .profile.bak ]; then mv .profile.bak .profile; else rm .profile; fi")
-            login("admin", "foobar")
+            b.try_login("admin", "foobar")
             b.expect_load()
             b.wait_present("#content")
 
@@ -298,18 +286,8 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         m.start_cockpit()
         b.open("/system")
 
-        def login(user, password):
-            b.wait_visible("#login")
-            b.wait_not_visible("#conversation-group")
-            b.wait_visible("#password-group")
-            b.wait_visible("#user-group")
-            b.set_val('#login-user-input', user)
-            b.set_val('#login-password-input', password)
-            b.set_checked('#authorized-input', True)
-            b.click('#login-button')
-
         # Try to login as a non-existing user
-        login("nonexisting", "blahblah")
+        b.try_login("nonexisting", "blahblah")
 
         b.wait_visible("#conversation-group")
         b.wait_not_visible("#password-group")
@@ -319,7 +297,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.click('#login-button')
 
         b.wait_text_not("#login-error-message", "")
-        login("admin", "foobar")
+        b.try_login("admin", "foobar")
         b.wait_visible("#conversation-group")
         b.wait_not_visible("#password-group")
         b.wait_not_visible("#user-group")

@@ -79,11 +79,8 @@ class PackageCase(MachineCase):
                 mv /etc/yum.repos.d.test /etc/yum.repos.d""")
 
         # have PackageKit start from a clean slate
-        self.machine.execute("""
-            systemctl kill --signal=SIGKILL packagekit;
-            rm -rf /var/cache/PackageKit;
-            [ ! -e /var/lib/PackageKit/transactions.db ] || mv /var/lib/PackageKit/transactions.db /var/lib/PackageKit/transactions.db.test""")
-        self.addCleanup(self.machine.execute, "mv /var/lib/PackageKit/transactions.db.test /var/lib/PackageKit/transactions.db 2>/dev/null || true")
+        self.machine.execute("systemctl kill --signal=SIGKILL packagekit; rm -rf /var/cache/PackageKit")
+        self.restore_file("/var/lib/PackageKit/transactions.db")
 
         if self.image in ["debian-stable", "debian-testing"]:
             # PackageKit tries to resolve some DNS names, but our test VM is offline; temporarily disable the name server to fail quickly

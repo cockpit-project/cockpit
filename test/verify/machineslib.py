@@ -222,10 +222,10 @@ class TestMachines(MachineCase, StorageHelpers):
         # Ensure everything has started correctly
         m.execute("systemctl start libvirtd.service")
         # Wait until we can get a list of domains
-        wait(lambda: m.execute("virsh list"))
+        m.execute("until virsh list; do sleep 1; done")
         # Wait for the network 'default' to become active
         m.execute("virsh net-start default || true")
-        wait(lambda: m.execute(command="virsh net-info default | grep 'Active:\s*yes'"))
+        m.execute("until virsh net-info default | grep 'Active:\s*yes'; do sleep 1; done")
 
     def startVm(self, name, graphics='spice', ptyconsole=False):
         m = self.machine
@@ -1334,7 +1334,7 @@ class TestMachines(MachineCase, StorageHelpers):
         m.execute("while test -f {0}; do sleep 1; done".format(img2))
         m.execute("while test -f {0}; do sleep 1; done".format(secondDiskPoolPath + secondDiskVolName))
 
-        self.assertNotIn(name, m.execute("virsh list --all"))
+        self.assertNotIn(name, m.execute("virsh list --all --name"))
 
         # Try to delete a paused VM
         name = "paused-test-vm"
@@ -2508,9 +2508,8 @@ class TestMachines(MachineCase, StorageHelpers):
             b = self.browser
             b.wait_in_text("#virtual-machines-listing thead tr td", "No VM is running")
             # wait for the vm and disks to be deleted
-            b.wait(lambda: self.machine.execute("virsh list --all | wc -l") == '3\n')
-            b.wait(lambda: self.machine.execute(
-                "ls /home/admin/.local/share/libvirt/images/ 2>/dev/null | wc -l") == '0\n')
+            self.machine.execute("until test -z $(virsh list --all --name); do sleep 1; done")
+            self.machine.execute("until test -z $(ls /home/admin/.local/share/libvirt/images/ 2>/dev/null); do sleep 1; done")
 
             if b.is_present(".toast-notifications-list-pf div.pf-c-alert .pf-c-button"):
                 b.click(".toast-notifications-list-pf div.pf-c-alert .pf-c-button")

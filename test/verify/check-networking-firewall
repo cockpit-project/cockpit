@@ -50,8 +50,7 @@ class TestFirewall(NetworkCase):
     def setUp(self):
         MachineCase.setUp(self)
         m = self.machine
-        m.execute("cp -a /etc/firewalld /etc/firewalld.test")
-        self.addCleanup(m.execute, "systemctl stop firewalld && rm -rf  /etc/firewalld && mv /etc/firewalld.test /etc/firewalld")
+        self.restore_dir("/etc/firewalld", "systemctl try-restart firewalld")
         m.execute("systemctl start firewalld")
         if self.machine.image not in ["rhel-8-2-distropkg"]:
             self.btn_danger = "pf-m-danger"

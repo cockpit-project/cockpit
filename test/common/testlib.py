@@ -1227,6 +1227,24 @@ class MachineCase(unittest.TestCase):
                 self.addCleanup(m.execute, apply_change_action)
             self.addCleanup(m.execute, "mv {0}.cockpittest {0}".format(path))
 
+    def restore_dir(self, path, post_restore_action=None):
+        '''Backup/restore a directory for a nondestructive test
+
+        This takes care to not ever touch the original content on disk, but uses transient overlays.
+        As this uses a bind mount, it does not work for files that get changed atomically (with mv).
+
+        The optional post_restore_action will run after restoring the original content.
+        '''
+        if not self.is_nondestructive():
+            return  # skip for efficiency reasons
+
+        backup = os.path.join(self.vm_tmpdir, path.replace('/', '_'))
+        self.machine.execute("mkdir -p %(vm_tmpdir)s && cp -a %(path)s/ %(backup)s/ && mount -o bind %(backup)s %(path)s" % {
+            "vm_tmpdir": self.vm_tmpdir, "path": path, "backup": backup})
+        if post_restore_action:
+            self.addCleanup(self.machine.execute, post_restore_action)
+        self.addCleanup(self.machine.execute, "umount -lf " + path)
+
 
 def jsquote(str):
     return json.dumps(str)

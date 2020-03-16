@@ -160,16 +160,8 @@ class TestMachines(MachineCase, StorageHelpers):
         m = self.machine
 
         # Keep pristine state of libvirt
-        orig = "/var/lib/libvirt"
-        backup = os.path.join(self.vm_tmpdir, "libvirt.backup")
-        m.execute("cp -a {0} {1} && mount -o bind {1} {0}".format(orig, backup))
-        self.addCleanup(m.execute, "umount -lf {0}".format(orig))
-
-        # Cleanup domains definitions
-        etc_orig = "/etc/libvirt"
-        etc_backup = os.path.join(self.vm_tmpdir, "etc_libvirt.backup")
-        m.execute("cp -a {0} {1} && mount -o bind {1} {0}".format(etc_orig, etc_backup))
-        self.addCleanup(m.execute, "umount -lf {0}".format(etc_orig, etc_backup))
+        self.restore_dir("/var/lib/libvirt")
+        self.restore_dir("/etc/libvirt")
 
         # Cleanup pools
         self.addCleanup(m.execute, "rm -rf /run/libvirt/storage/*")

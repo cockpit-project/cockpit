@@ -65,7 +65,7 @@ class TestFirewall(NetworkCase):
         # many tests expect the "libvirt" zone; on images with libvirt, wait until libvirt adds its zone
         # (older versions don't do that yet)
         if m.image not in ["debian-stable", "ubuntu-1804", "ubuntu-2004", "ubuntu-stable"]:
-            m.execute("systemctl start libvirtd")
+            m.execute("systemctl restart libvirtd")  # https://bugzilla.redhat.com/show_bug.cgi?id=1813830
             m.execute("virsh net-list | grep -qw default || virsh net-start default")
             m.execute("until firewall-cmd --get-active-zones | grep -q libvirt; do sleep 1; done")
 

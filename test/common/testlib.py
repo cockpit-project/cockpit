@@ -773,6 +773,9 @@ class MachineCase(unittest.TestCase):
         self.browser = None
         self.machines = {}
         provision = self.provision or {'machine1': {}}
+        self.tmpdir = tempfile.mkdtemp()
+        # automatically cleaned up for @nondestructive tests, but you have to create it yourself
+        self.vm_tmpdir = "/var/lib/cockpittest"
 
         if self.is_nondestructive() and not opts.address:
             if self.provision:
@@ -826,12 +829,13 @@ class MachineCase(unittest.TestCase):
             if self.is_nondestructive():
                 self.nonDestructiveSetup()
 
-        self.tmpdir = tempfile.mkdtemp()
-
     def nonDestructiveSetup(self):
         '''generic setUp/tearDown for @nondestructive tests'''
 
         m = self.machine
+
+        # temporary directory in the VM
+        self.addCleanup(m.execute, "if [ -d {0} ]; then findmnt --list --noheadings --output TARGET | grep ^{0} | xargs -r umount && rm -r {0}; fi".format(self.vm_tmpdir))
 
         # users/groups/home dirs
         m.execute("cp -a /etc/passwd /etc/passwd.test && "

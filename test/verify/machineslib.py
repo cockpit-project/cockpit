@@ -154,25 +154,20 @@ reboot"""
 class TestMachines(MachineCase, StorageHelpers):
     created_pool = False
     provider = None
-    tmp_storage = "/mnt/libvirt"
 
     def setUp(self):
         super().setUp()
         m = self.machine
 
-        # Prepare tmp directory
-        m.execute("mkdir {0}".format(self.tmp_storage))
-        self.addCleanup(m.execute, "findmnt --list --noheadings --output TARGET | grep ^{0} | xargs -r umount && rm -rf {0}".format(self.tmp_storage))
-
         # Keep pristine state of libvirt
         orig = "/var/lib/libvirt"
-        backup = os.path.join(self.tmp_storage, "libvirt.backup")
+        backup = os.path.join(self.vm_tmpdir, "libvirt.backup")
         m.execute("cp -a {0} {1} && mount -o bind {1} {0}".format(orig, backup))
         self.addCleanup(m.execute, "umount -lf {0}".format(orig))
 
         # Cleanup domains definitions
         etc_orig = "/etc/libvirt"
-        etc_backup = os.path.join(self.tmp_storage, "etc_libvirt.backup")
+        etc_backup = os.path.join(self.vm_tmpdir, "etc_libvirt.backup")
         m.execute("cp -a {0} {1} && mount -o bind {1} {0}".format(etc_orig, etc_backup))
         self.addCleanup(m.execute, "umount -lf {0}".format(etc_orig, etc_backup))
 
@@ -196,6 +191,8 @@ class TestMachines(MachineCase, StorageHelpers):
 
         # FIXME: report downstream; AppArmor noisily denies some operations, but they are not required for us
         self.allow_journal_messages('.* type=1400 .* apparmor="DENIED" operation="capable" profile="\S*libvirtd.* capname="sys_rawio".*')
+        # AppArmor doesn't like the non-standard path for our storage pools
+        self.allow_journal_messages('.* type=1400 .* apparmor="DENIED" operation="open" profile="virt-aa-helper" name="%s.*' % self.vm_tmpdir)
         if m.image in ["ubuntu-2004"]:
             self.allow_journal_messages('.* type=1400 .* apparmor="DENIED" operation="open" profile="libvirt.* name="/" .* denied_mask="r" .*')
             self.allow_journal_messages('.* type=1400 .* apparmor="DENIED" operation="open" profile="libvirt.* name="/sys/bus/nd/devices/" .* denied_mask="r" .*')
@@ -806,9 +803,9 @@ class TestMachines(MachineCase, StorageHelpers):
             used_targets.remove(target)
 
         # prepare libvirt storage pools
-        v1 = os.path.join(self.tmp_storage, "vm_one")
-        v2 = os.path.join(self.tmp_storage, "vm_two")
-        default_tmp = os.path.join(self.tmp_storage, "default_tmp")
+        v1 = os.path.join(self.vm_tmpdir, "vm_one")
+        v2 = os.path.join(self.vm_tmpdir, "vm_two")
+        default_tmp = os.path.join(self.vm_tmpdir, "default_tmp")
         m.execute("mkdir --mode 777 {0} {1} {2}".format(v1, v2, default_tmp))
         m.execute("virsh pool-define-as default_tmp --type dir --target {0} && virsh pool-start default_tmp".format(default_tmp))
         m.execute("virsh pool-define-as myPoolOne --type dir --target {0} && virsh pool-start myPoolOne".format(v1))
@@ -822,8 +819,8 @@ class TestMachines(MachineCase, StorageHelpers):
         # Prepare a local NFS pool
         m.execute("mv /etc/exports /etc/exports.backup")
         self.addCleanup(m.execute, "mv /etc/exports.backup /etc/exports")
-        nfs_pool = os.path.join(self.tmp_storage, "nfs_pool")
-        mnt_exports = os.path.join(self.tmp_storage, "mnt_exports")
+        nfs_pool = os.path.join(self.vm_tmpdir, "nfs_pool")
+        mnt_exports = os.path.join(self.vm_tmpdir, "mnt_exports")
         m.execute("mkdir {0} {1} && echo '{1} 127.0.0.1/24(rw,sync,no_root_squash,no_subtree_check,fsid=0)' > /etc/exports".format(nfs_pool, mnt_exports))
         m.execute("systemctl restart nfs-server")
         m.execute("virsh pool-define-as nfs-pool --type netfs --target {0} --source-host 127.0.0.1 --source-path {1} && virsh pool-start nfs-pool".format(nfs_pool, mnt_exports))
@@ -1052,7 +1049,7 @@ class TestMachines(MachineCase, StorageHelpers):
 
         # AppArmor doesn't like the non-standard path for our storage pools
         if m.image in ["debian-testing", "ubuntu-stable"]:
-            self.allow_journal_messages('.* type=1400 .* apparmor="DENIED" operation="open" profile="libvirt.* name="%s.*' % self.tmp_storage)
+            self.allow_journal_messages('.* type=1400 .* apparmor="DENIED" operation="open" profile="libvirt.* name="%s.*' % self.vm_tmpdir)
 
     @nondestructive
     def testVmNICs(self):
@@ -1733,7 +1730,7 @@ class TestMachines(MachineCase, StorageHelpers):
         # Test create VM with disk of type "block"
         dev = self.add_ram_disk()
         cmds = [
-            "virsh pool-define-as poolDisk disk - - {0} - {1}".format(dev, os.path.join(self.tmp_storage, "poolDiskImages")),
+            "virsh pool-define-as poolDisk disk - - {0} - {1}".format(dev, os.path.join(self.vm_tmpdir, "poolDiskImages")),
             "virsh pool-build poolDisk --overwrite",
             "virsh pool-start poolDisk",
             "virsh vol-create-as poolDisk sda1 1024"

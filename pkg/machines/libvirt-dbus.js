@@ -679,7 +679,7 @@ LIBVIRT_DBUS_PROVIDER = {
                     .then(poolXml => {
                         dumpxmlParams = parseStoragePoolDumpxml(connectionName, poolXml[0], objPath);
 
-                        return call(connectionName, objPath, 'org.freedesktop.DBus.Properties', 'GetAll', ['org.libvirt.StoragePool'], { timeout });
+                        return call(connectionName, objPath, 'org.freedesktop.DBus.Properties', 'GetAll', ['org.libvirt.StoragePool'], { timeout, type: 's' });
                     })
                     .then((resultProps) => {
                         /* Sometimes not all properties are returned; for example when some storage got deleted while part
@@ -1304,7 +1304,7 @@ function dbus_client(connectionName) {
 }
 
 export function getLibvirtVersion(connectionName) {
-    return (dispatch) => call(connectionName, "/org/libvirt/QEMU", "org.freedesktop.DBus.Properties", "Get", ["org.libvirt.Connect", "LibVersion"], { timeout })
+    return (dispatch) => call(connectionName, "/org/libvirt/QEMU", "org.freedesktop.DBus.Properties", "Get", ["org.libvirt.Connect", "LibVersion"], { timeout, type: 'ss' })
             .then(version => dispatch(updateLibvirtVersion({ libvirtVersion: version[0].v })));
 }
 
@@ -1427,7 +1427,7 @@ export function changeNetworkAutostart(network, autostart, dispatch) {
             .then(networkPath => {
                 const args = ['org.libvirt.Network', 'Autostart', cockpit.variant('b', autostart)];
 
-                return call(network.connectionName, networkPath[0], 'org.freedesktop.DBus.Properties', 'Set', args, { timeout });
+                return call(network.connectionName, networkPath[0], 'org.freedesktop.DBus.Properties', 'Set', args, { timeout, type: 'ssv' });
             })
             .then(() => dispatch(getNetwork({ connectionName: network.connectionName, id: network.id, name: network.name })));
 }
@@ -1466,7 +1466,7 @@ export function getAllInterfaces(dispatch, connectionName) {
 }
 
 export function getDomainCapabilities(connectionName) {
-    return call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'GetDomainCapabilities', ['', '', '', '', 0], { timeout });
+    return call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'GetDomainCapabilities', ['', '', '', '', 0], { timeout, type: 'ssssu' });
 }
 
 function initResource(connectionName, method, updateOrAddMethod, flags) {

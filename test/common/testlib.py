@@ -1202,6 +1202,23 @@ class MachineCase(unittest.TestCase):
                 break
             time.sleep(3)
 
+    def sed_file(self, expr, path, apply_change_action=None):
+        '''sed a file on primary machine
+
+        This is safe for @nondestructive tests, the file will be restored during cleanup.
+
+        The optional apply_change_action will be run both after sedding and after restoring the file.
+        '''
+        m = self.machine
+        m.execute("sed -i.cockpittest '{0}' {1}".format(expr, path))
+        if apply_change_action:
+            m.execute(apply_change_action)
+
+        if self.is_nondestructive():
+            if apply_change_action:
+                self.addCleanup(m.execute, apply_change_action)
+            self.addCleanup(m.execute, "mv {0}.cockpittest {0}".format(path))
+
 
 def jsquote(str):
     return json.dumps(str)

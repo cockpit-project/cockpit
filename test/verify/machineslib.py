@@ -809,8 +809,7 @@ class TestMachines(MachineCase, StorageHelpers):
         wait(lambda: "mydiskofpooltwo_permanent" in m.execute("virsh vol-list myPoolTwo"))
 
         # Prepare a local NFS pool
-        m.execute("mv /etc/exports /etc/exports.backup")
-        self.addCleanup(m.execute, "mv /etc/exports.backup /etc/exports")
+        self.restore_file("/etc/exports")
         nfs_pool = os.path.join(self.vm_tmpdir, "nfs_pool")
         mnt_exports = os.path.join(self.vm_tmpdir, "mnt_exports")
         m.execute("mkdir {0} {1} && echo '{1} 127.0.0.1/24(rw,sync,no_root_squash,no_subtree_check,fsid=0)' > /etc/exports".format(nfs_pool, mnt_exports))

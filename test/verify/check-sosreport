@@ -33,8 +33,7 @@ class TestSOS(MachineCase):
         b = self.browser
         m = self.machine
 
-        m.execute("mv /etc/sos.conf /etc/sos.conf.bak")
-        self.addCleanup(m.execute, "mv /etc/sos.conf.bak /etc/sos.conf")
+        self.restore_file("/etc/sos.conf")
         m.write("/etc/sos.conf",
                 """
 [general]

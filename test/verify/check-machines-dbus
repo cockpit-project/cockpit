@@ -1594,8 +1594,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         p2 = os.path.join(self.vm_tmpdir, "my_dir_pool_two")
         mnt_exports = os.path.join(self.vm_tmpdir, "mnt_exports")
         m.execute("mkdir {0} {1} {2}".format(p1, p2, mnt_exports))
-        m.execute("mv /etc/exports /etc/exports.backup")
-        self.addCleanup(m.execute, "mv /etc/exports.backup /etc/exports")
+        self.restore_file("/etc/exports")
         m.execute("echo '{0} 127.0.0.1/24(rw,sync,no_root_squash,no_subtree_check)' > /etc/exports".format(mnt_exports))
         m.execute("systemctl restart nfs-server")
 
@@ -1870,8 +1869,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         # Prepare net-fs pool
         nfs_pool = os.path.join(self.vm_tmpdir, "nfs_pool")
         mnt_exports = os.path.join(self.vm_tmpdir, "mnt_exports")
-        m.execute("mv /etc/exports /etc/exports.backup")
-        self.addCleanup(m.execute, "mv /etc/exports.backup /etc/exports")
+        self.restore_file("/etc/exports")
         m.execute("mkdir {0} {1} && echo '{1} 127.0.0.1/24(rw,sync,no_root_squash,no_subtree_check,fsid=0)' > /etc/exports".format(nfs_pool, mnt_exports))
         m.execute("systemctl restart nfs-server")
         m.execute("virsh pool-define-as nfs-pool --type netfs --target {0} --source-host 127.0.0.1 --source-path {1} && virsh pool-start nfs-pool".format(nfs_pool, mnt_exports))

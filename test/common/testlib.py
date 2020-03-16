@@ -838,12 +838,9 @@ class MachineCase(unittest.TestCase):
         self.addCleanup(m.execute, "if [ -d {0} ]; then findmnt --list --noheadings --output TARGET | grep ^{0} | xargs -r umount && rm -r {0}; fi".format(self.vm_tmpdir))
 
         # users/groups/home dirs
-        m.execute("cp -a /etc/passwd /etc/passwd.test && "
-                  "cp -a /etc/shadow /etc/shadow.test && "
-                  "cp -a /etc/group /etc/group.test")
-        self.addCleanup(m.execute, "mv /etc/passwd.test /etc/passwd && "
-                                   "mv /etc/shadow.test /etc/shadow && "
-                                   "mv /etc/group.test /etc/group")
+        self.restore_file("/etc/passwd")
+        self.restore_file("/etc/group")
+        self.restore_file("/etc/shadow")
         home_dirs = m.execute("ls /home").strip().split()
 
         def cleanup_home_dirs():
@@ -857,10 +854,8 @@ class MachineCase(unittest.TestCase):
 
         if not m.ostree_image:
             # for storage tests
-            m.execute("cp -a /etc/fstab /etc/fstab.test && "
-                      "cp -a /etc/crypttab /etc/crypttab.test")
-            self.addCleanup(m.execute, "mv /etc/fstab.test /etc/fstab && "
-                                       "mv /etc/crypttab.test /etc/crypttab")
+            self.restore_file("/etc/fstab")
+            self.restore_file("/etc/crypttab")
 
             # tests expect cockpit.service to not run at start; also, avoid log leakage into the next test
             self.addCleanup(m.execute, "systemctl stop cockpit")
@@ -1231,7 +1226,8 @@ class MachineCase(unittest.TestCase):
         '''Backup/restore a directory for a nondestructive test
 
         This takes care to not ever touch the original content on disk, but uses transient overlays.
-        As this uses a bind mount, it does not work for files that get changed atomically (with mv).
+        As this uses a bind mount, it does not work for files that get changed atomically (with mv);
+        use restore_file() for these.
 
         The optional post_restore_action will run after restoring the original content.
 
@@ -1256,6 +1252,24 @@ class MachineCase(unittest.TestCase):
             self.addCleanup(self.machine.execute, "rm -rf {0} && mv {1} {0}".format(path, backup))
         else:
             self.addCleanup(self.machine.execute, "umount -lf " + path)
+
+    def restore_file(self, path, post_restore_action=None):
+        '''Backup/restore a file for a nondestructive test
+
+        This is less robust than restore_dir(), but works for files that need to get changed atomically.
+
+        If path does not currently exist, it will be removed again on cleanup.
+        '''
+        exists = self.machine.execute("if test -e %s; then echo yes; fi" % path).strip() != ""
+        if exists:
+            backup = os.path.join(self.vm_tmpdir, path.replace('/', '_'))
+            self.machine.execute("mkdir -p %(vm_tmpdir)s && cp -a %(path)s %(backup)s" % {
+                "vm_tmpdir": self.vm_tmpdir, "path": path, "backup": backup})
+            if post_restore_action:
+                self.addCleanup(self.machine.execute, post_restore_action)
+            self.addCleanup(self.machine.execute, "mv %(backup)s %(path)s" % {"path": path, "backup": backup})
+        else:
+            self.addCleanup(self.machine.execute, "rm -rf %s" % path)
 
 
 def jsquote(str):

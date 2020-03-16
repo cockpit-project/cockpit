@@ -762,6 +762,10 @@ class MachineCase(unittest.TestCase):
         # per method); None exception means success
         return not any(e[1] for e in self._outcome.errors)
 
+    def is_nondestructive(self):
+        test_method = getattr(self.__class__, self._testMethodName)
+        return getattr(test_method, "_testlib__non_destructive", False)
+
     def setUp(self):
         if opts.address and self.provision is not None:
             raise unittest.SkipTest("Cannot provision multiple machines if a specific machine address is specified")
@@ -770,8 +774,7 @@ class MachineCase(unittest.TestCase):
         self.machines = {}
         provision = self.provision or {'machine1': {}}
 
-        test_method = getattr(self.__class__, self._testMethodName)
-        if getattr(test_method, "_testlib__non_destructive", False) and not opts.address:
+        if self.is_nondestructive() and not opts.address:
             if self.provision:
                 raise unittest.SkipTest("Cannot provision machines if test is marked as nondestructive")
             self.machine = self.machines['machine1'] = MachineCase.get_global_machine()
@@ -820,7 +823,7 @@ class MachineCase(unittest.TestCase):
         if self.machine:
             self.journal_start = self.machine.journal_cursor()
             self.browser = self.new_browser()
-            if getattr(test_method, "_testlib__non_destructive", False):
+            if self.is_nondestructive():
                 self.nonDestructiveSetup()
 
         self.tmpdir = tempfile.mkdtemp()

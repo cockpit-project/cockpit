@@ -31,7 +31,7 @@ class TestTuned(MachineCase):
         b = self.browser
         m = self.machine
 
-        recommended_profile = "virtual-guest"
+        recommended_profile = m.execute("tuned-adm recommend").strip()
 
         # Stop tuned in case it is running by default, as on RHEL.
 

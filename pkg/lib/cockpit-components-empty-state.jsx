@@ -43,7 +43,7 @@ export const EmptyStatePanel = ({ title, paragraph, loading, icon, action, onAct
             <EmptyStateBody>
                 {paragraph}
             </EmptyStateBody>
-            { action && <Button variant="primary" className={slimType} onClick={onAction}>{action}</Button> }
+            { action && (typeof action == "string" ? <Button variant="primary" className={slimType} onClick={onAction}>{action}</Button> : action)}
             { secondary && <EmptyStateSecondaryActions>{secondary}</EmptyStateSecondaryActions> }
         </EmptyState>
     );
@@ -54,7 +54,7 @@ EmptyStatePanel.propTypes = {
     icon: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
     title: PropTypes.string,
     paragraph: PropTypes.node,
-    action: PropTypes.string,
+    action: PropTypes.node,
     onAction: PropTypes.func,
     secondary: PropTypes.node,
 };

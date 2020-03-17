@@ -76,7 +76,7 @@ function ServiceRow(props) {
     }
 
     var columns = [
-        { name: props.service.name, header: true },
+        { name: props.service.id, header: true },
         <div key={props.service.id + "tcp"}>
             { tcp.map(p => p.port).join(', ') }
         </div>,
@@ -96,7 +96,7 @@ function ServiceRow(props) {
             <ul>{props.service.includes.map(s => {
                 const service = firewall.services[s];
                 if (service && service.description)
-                    return <li key={service.id}><strong>{service.name}</strong>: {service.description}</li>;
+                    return <li key={service.id}><strong>{service.id}</strong>: {service.description}</li>;
             })} </ul></>;
     }
     const simpleBody = <>{description}{includes}</>;
@@ -472,12 +472,7 @@ class AddServicesModal extends React.Component {
 
     componentDidMount() {
         firewall.getAvailableServices()
-                .then(services => this.setState({
-                    services: services.map(s => {
-                        s.name = s.name || s.id;
-                        return s;
-                    })
-                }));
+                .then(services => this.setState({ services }));
         cockpit.file('/etc/services').read()
                 .done(content => this.setState({
                     avail_services: this.parseServices(content)
@@ -543,7 +538,7 @@ class AddServicesModal extends React.Component {
                                                                                                 checked={this.state.selected.has(s.id)}
                                                                                                 onChange={this.onToggleService} /> }
                                                                         stacked
-                                                                        heading={ <label htmlFor={"firewall-service-" + s.id}>{s.name}</label> }
+                                                                        heading={ <label htmlFor={"firewall-service-" + s.id}>{s.id}</label> }
                                                                         description={ renderPorts(s) } />
                                                         ))
                                                     }
@@ -691,7 +686,7 @@ class ActivateZoneModal extends React.Component {
                                 { zones.filter(z => firewall.predefinedZones.indexOf(z) !== -1).sort((a, b) => firewall.predefinedZones.indexOf(a) - firewall.predefinedZones.indexOf(b))
                                         .map(z =>
                                             <label className="radio" key={z}><input type="radio" name="zone" value={z} onChange={e => this.onChange("zone", e.target.value)} />
-                                                { firewall.zones[z].name || firewall.zones[z].id }
+                                                { firewall.zones[z].id }
                                             </label>
                                         )}
                             </fieldset>
@@ -699,7 +694,7 @@ class ActivateZoneModal extends React.Component {
                                 { customZones.length > 0 && <legend>{ _("Custom zones") }</legend> }
                                 { customZones.map(z =>
                                     <label className="radio" key={z}><input type="radio" name="zone" value={z} onChange={e => this.onChange("zone", e.target.value)} />
-                                        { firewall.zones[z].name || firewall.zones[z].id }
+                                        { firewall.zones[z].id }
                                     </label>
                                 )}
                             </fieldset>
@@ -917,13 +912,6 @@ export class Firewall extends React.Component {
                 </Button>
             );
         }
-
-        var services = [...this.state.firewall.enabledServices].map(id => {
-            const service = this.state.firewall.services[id];
-            service.name = service.name || id;
-            return service;
-        });
-        services.sort((a, b) => a.name.localeCompare(b.name));
 
         var zones = [...this.state.firewall.activeZones].sort((z1, z2) =>
             z1 === firewall.defaultZone ? -1 : z2 === firewall.defaultZone ? 1 : 0

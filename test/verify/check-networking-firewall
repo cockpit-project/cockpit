@@ -331,7 +331,7 @@ class TestFirewall(NetworkCase):
             b.wait_not_present("#add-services-dialog")
             line_sel = ".zone-section[data-id='public'] tr[data-row-id='{0}']".format(identifier)
             b.wait_present(line_sel)
-            b.wait_in_text(line_sel, "".join([name, tcp, udp]))
+            b.wait_in_text(line_sel, "".join([name if m.image in ["rhel-8-2-distropkg"] else identifier, tcp, udp]))
 
         open_dialog()
         set_field("#tcp-ports", "80", "WorldWideWeb HTTP")

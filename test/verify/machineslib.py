@@ -196,11 +196,6 @@ class TestMachines(NetworkCase, StorageHelpers):
         # we don't have configuration to open the firewall for local libvirt machines, so just stop firewalld
         m.execute("systemctl stop firewalld; systemctl try-restart libvirtd")
 
-    def tearDown(self):
-        # FIXME: Call `super.tearDown()` or remove this method. There are some unexpected messages
-        # which need to be adjusted before we can do that.
-        pass
-
     def addIface(self, name):
         self.machine.execute(r"""
             mkdir -p /run/udev/rules.d/ &&

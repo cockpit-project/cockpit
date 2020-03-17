@@ -371,6 +371,10 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.click("#vm-VmNotInstalled-networks")
         b.wait_present("#vm-VmNotInstalled-network-1-type")
 
+        self.allow_browser_errors("Failed when connecting: Connection closed")
+        self.allow_browser_errors("Tried changing state of a disconnected RFB object")
+        self.allow_journal_messages(".* couldn't shutdown fd: Transport endpoint is not connected")
+
     @nondestructive
     def testDiskEdit(self):
         b = self.browser

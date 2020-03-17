@@ -176,11 +176,8 @@ class TestMachines(MachineCase, StorageHelpers):
         m.execute("cp -a {0} {1} && mount -o bind {1} {0}".format(etc_orig, etc_backup))
         self.addCleanup(m.execute, "umount -lf {0}".format(etc_orig, etc_backup))
 
-        # Cleanup pools
-        self.addCleanup(m.execute, "rm -rf /run/libvirt/storage/*")
-
-        # Cleanup networks
-        self.addCleanup(m.execute, "rm -rf /run/libvirt/network/test_network*")
+        # Cleanup all other runtime state, except for the sockets
+        self.addCleanup(m.execute, "find /run/libvirt -depth -mindepth 1 ! -type s -delete")
 
         self.startLibvirt()
         self.addCleanup(m.execute, "systemctl stop libvirtd")

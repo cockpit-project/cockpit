@@ -969,14 +969,14 @@ export class CreateVmAction extends React.Component {
     }
 
     componentDidMount() {
-        cockpit.spawn(['which', 'virt-install'], { err: 'message' })
+        cockpit.spawn(['which', 'virt-install'], { err: 'ignore' })
                 .then(() => {
                     this.setState({ virtInstallAvailable: true });
-                    cockpit.spawn(['virt-install', '--install=?'])
+                    cockpit.spawn(['virt-install', '--install=?'], { err: 'ignore' })
                             .then(() => this.setState({ downloadOSSupported: true }),
                                   () => this.setState({ downloadOSSupported: false }));
 
-                    cockpit.spawn(['virt-install', '--unattended=?'])
+                    cockpit.spawn(['virt-install', '--unattended=?'], { err: 'ignore' })
                             .then(() => this.setState({ unattendedSupported: true }),
                                   () => this.setState({ unattendedSupported: false }));
                 },

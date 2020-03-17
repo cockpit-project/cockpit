@@ -41,17 +41,10 @@ class BastionContainerMachine(VirtMachine):
             extra = " -e COCKPIT_SSH_KEY_PATH='/var/secret/enc_rsa' -v /tmp/enc_rsa:/var/secret/enc_rsa"
             self.upload([AUTH_KEY], "/tmp")
 
-        if self.image == 'fedora-30':
-            self.execute("""#!/bin/sh
-                systemctl start docker
-                # HACK: Allow container to talk to the host
-                iptables -I INPUT 4 -i docker0 -j ACCEPT
-                /usr/bin/docker run -d -e G_MESSAGES_DEBUG=all -e COCKPIT_SSH_ALLOW_UNKNOWN=1{} -p 9090:9090 cockpit/bastion /usr/libexec/cockpit-ws --no-tls
-                """.format(extra))
-        else:
-            self.execute("podman run -d -e G_MESSAGES_DEBUG=all -e COCKPIT_SSH_ALLOW_UNKNOWN=1{} -p 9090:9090 "
-                         "cockpit/bastion /usr/libexec/cockpit-ws --no-tls """.format(extra))
+        self.execute("podman run -d -e G_MESSAGES_DEBUG=all -e COCKPIT_SSH_ALLOW_UNKNOWN=1{} -p 9090:9090 "
+                     "cockpit/bastion /usr/libexec/cockpit-ws --no-tls """.format(extra))
         self.wait_for_cockpit_running(seconds=180)
+
 
 class TestBastion(MachineCase):
     machine_class = BastionContainerMachine

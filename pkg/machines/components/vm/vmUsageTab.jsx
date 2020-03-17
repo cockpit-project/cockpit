@@ -52,9 +52,7 @@ class VmUsageTab extends React.Component {
         available = available < 0 ? 0 : available;
 
         const totalCpus = vm.vcpus && vm.vcpus.count > 0 ? vm.vcpus.count : 0;
-        // 4 CPU system can have usage 400%, let's keep % between 0..100
-        let cpuUsage = vm['cpuUsage'] / (totalCpus > 0 ? totalCpus : 1);
-        cpuUsage = isNaN(cpuUsage) ? 0 : cpuUsage;
+        let cpuUsage = isNaN(vm['cpuUsage']) ? 0 : vm['cpuUsage'];
         cpuUsage = toFixedPrecision(cpuUsage, 1);
 
         logDebug(`VmUsageTab.render(): rssMem: ${rssMem} KiB, memTotal: ${memTotal} KiB, available: ${available} KiB, totalCpus: ${totalCpus}, cpuUsage: ${cpuUsage}`);

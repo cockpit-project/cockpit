@@ -1286,7 +1286,7 @@ class TapRunner:
         except Exception:
             result.addError(test, sys.exc_info())
             sys.stderr.write("Unexpected exception while running {0}\n".format(test))
-            sys.stderr.write(traceback.print_exc())
+            sys.stderr.write(traceback.format_exc())
             return result
         else:
             result.printErrors()

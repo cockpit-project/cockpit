@@ -23,7 +23,6 @@ import xml.etree.ElementTree as ET
 
 import parent
 from testlib import *
-from netlib import NetworkCase
 from storagelib import StorageHelpers
 
 
@@ -152,14 +151,13 @@ reboot"""
 
 
 @skipImage("Atomic cannot run virtual machines", "fedora-coreos")
-class TestMachines(NetworkCase, StorageHelpers):
+class TestMachines(MachineCase, StorageHelpers):
     created_pool = False
     provider = None
     tmp_storage = "/mnt/libvirt"
 
     def setUp(self):
-        # HACK: fix this to get along with NetworkCase.setUp(), and use super()
-        MachineCase.setUp(self)
+        super().setUp()
         m = self.machine
 
         # Prepare tmp directory
@@ -196,10 +194,24 @@ class TestMachines(NetworkCase, StorageHelpers):
         # we don't have configuration to open the firewall for local libvirt machines, so just stop firewalld
         m.execute("systemctl stop firewalld; systemctl try-restart libvirtd")
 
-    def tearDown(self):
-        # FIXME: Call `super.tearDown()` or remove this method. There are some unexpected messages
-        # which need to be adjusted before we can do that.
-        pass
+        # FIXME: report downstream; AppArmor noisily denies some operations, but they are not required for us
+        self.allow_journal_messages('.* type=1400 .* apparmor="DENIED" operation="capable" profile="\S*libvirtd.* capname="sys_rawio".*')
+        if m.image in ["ubuntu-2004"]:
+            self.allow_journal_messages('.* type=1400 .* apparmor="DENIED" operation="open" profile="libvirt.* name="/" .* denied_mask="r" .*')
+            self.allow_journal_messages('.* type=1400 .* apparmor="DENIED" operation="open" profile="libvirt.* name="/sys/bus/nd/devices/" .* denied_mask="r" .*')
+
+        # FIXME: report downstream: qemu often crashes in testAddDisk and testMultipleSettings
+        if m.image in ["ubuntu-stable"]:
+            self.allow_journal_messages('Process .*qemu-system-x86.* of user .* dumped core.')
+
+        # FIXME: we get tons of these in --enable-debug mode, unbreak tests for now
+        self.allow_browser_errors('Warning: Each child in a list should have a unique "key" prop')
+        self.allow_browser_errors('Warning: An update .* was scheduled from inside an update function.*')
+        self.allow_browser_errors('Warning: Failed prop type: .* libvirtVersion` .* marked as required .* HostVmsList.*')
+
+        # FIXME: testDomainMemorySettings on Fedora-32 reports this. Figure out where it comes from.
+        # Ignoring just to unbreak tests for now
+        self.allow_journal_messages("Failed to get COMM: No such process")
 
     def addIface(self, name):
         self.machine.execute(r"""
@@ -1039,6 +1051,10 @@ class TestMachines(NetworkCase, StorageHelpers):
 
         # avoid error noise about resources getting cleaned up
         b.logout()
+
+        # AppArmor doesn't like the non-standard path for our storage pools
+        if m.image in ["debian-testing"]:
+            self.allow_journal_messages('.* type=1400 .* apparmor="DENIED" operation="open" profile="libvirt.* name="%s.*denied_mask="r".*' % self.tmp_storage)
 
     @nondestructive
     def testVmNICs(self):

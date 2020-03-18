@@ -284,12 +284,14 @@ class TestMachines(MachineCase, StorageHelpers):
 
         return args
 
-    # Preparations for iscsi storage pool
-    def prepareStorageDeviceOnISCSI(self, target_iqn, orig_iqn=None):
+    # Preparations for iscsi storage pool; return the system's initiator name
+    def prepareStorageDeviceOnISCSI(self, target_iqn):
         m = self.machine
 
-        if orig_iqn is None:
-            orig_iqn = m.execute("sed </etc/iscsi/initiatorname.iscsi -e 's/^.*=//'").rstrip()
+        # ensure that we generate a /etc/iscsi/initiatorname.iscsi
+        m.execute("systemctl start iscsid")
+
+        orig_iqn = m.execute("sed -n '/^InitiatorName=/ { s/^.*=//; p }' /etc/iscsi/initiatorname.iscsi").strip()
 
         # Increase the iSCSI timeouts for heavy load during our testing
         m.execute("""sed -i 's|^\(node\..*log.*_timeout = \).*|\\1 60|' /etc/iscsi/iscsid.conf""")
@@ -303,6 +305,7 @@ class TestMachines(MachineCase, StorageHelpers):
                   """ % {"tgt": target_iqn, "ini": orig_iqn})
 
         self.addCleanup(m.execute, "targetcli /backstores/ramdisk delete test && targetcli /iscsi delete %s" % target_iqn)
+        return orig_iqn
 
     @nondestructive
     def testState(self):

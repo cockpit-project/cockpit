@@ -87,7 +87,7 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
         b.wait_in_text(".terminal-title", '@')
 
         # now reset terminal
-        b.click('.btn:contains("Reset")')
+        b.click('button:contains("Reset")')
 
         # assert that the output from earlier is gone
         wait_line(n + 1, blank_state)
@@ -130,7 +130,7 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
             b.wait_in_text(line_sel(n + 3), 'XYZ')
 
         # now reset terminal
-        b.click('.btn:contains("Reset")')
+        b.click('button:contains("Reset")')
 
         # assert that the output from earlier is gone
         wait_line(n + 1, blank_state)

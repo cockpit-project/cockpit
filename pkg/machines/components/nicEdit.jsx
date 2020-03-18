@@ -19,10 +19,8 @@
 import React from 'react';
 import cockpit from 'cockpit';
 import PropTypes from 'prop-types';
-import {
-    Modal,
-    Button
-} from 'patternfly-react';
+import { Modal } from 'patternfly-react';
+import { Button } from '@patternfly/react-core';
 
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { NetworkTypeAndSourceRow, NetworkModelRow } from './nicBody.jsx';
@@ -32,7 +30,7 @@ import {
 } from '../actions/provider-actions.js';
 import { getNetworkDevices } from '../helpers.js';
 
-import 'form-layout.less';
+import 'form-layout.scss';
 
 const _ = cockpit.gettext;
 
@@ -174,10 +172,10 @@ class EditNICModal extends React.Component {
                 <Modal.Footer>
                     {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
                     { showFooterWarning() }
-                    <Button id={`${idPrefix}-edit-dialog-cancel`} bsStyle='default' className='btn-cancel' onClick={this.props.close}>
+                    <Button id={`${idPrefix}-edit-dialog-cancel`} variant='secondary' className='btn-cancel' onClick={this.props.close}>
                         {_("Cancel")}
                     </Button>
-                    <Button disabled={this.state.saveDisabled} id={`${idPrefix}-edit-dialog-save`} bsStyle='primary' onClick={this.save}>
+                    <Button isDisabled={this.state.saveDisabled} id={`${idPrefix}-edit-dialog-save`} variant='primary' onClick={this.save}>
                         {_("Save")}
                     </Button>
                 </Modal.Footer>
@@ -210,7 +208,7 @@ export class EditNICAction extends React.Component {
 
         return (
             <div id={`${idPrefix}-edit-dialog-full`}>
-                <Button id={`${idPrefix}-edit-dialog`} bsStyle='default' onClick={this.open}>
+                <Button id={`${idPrefix}-edit-dialog`} variant='secondary' onClick={this.open}>
                     {_("Edit")}
                 </Button>
 

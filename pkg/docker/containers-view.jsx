@@ -20,14 +20,16 @@
 import React from 'react';
 import cockpit from 'cockpit';
 
+import { ExclamationCircleIcon } from "@patternfly/react-icons";
+
 import $ from "jquery";
 import { docker } from './docker';
-import { atomic } from './atomic';
 import { util } from "./util";
 import { search } from "./search";
 
 import * as Listing from 'cockpit-components-listing.jsx';
 import * as Select from 'cockpit-components-select.jsx';
+import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import moment from 'moment';
 
 const _ = cockpit.gettext;
@@ -51,7 +53,7 @@ class Dropdown extends React.Component {
     render() {
         return (
             <div className="btn-group">
-                <button className="btn btn-default" type="button" data-value="0" onClick={this.handleClick}>
+                <button className="pf-c-button pf-m-secondary" type="button" data-value="0" onClick={this.handleClick}>
                     <span>{ this.props.actions[0].label }</span>
                 </button>
                 <button className="btn btn-default dropdown-toggle" data-toggle="dropdown">
@@ -319,9 +321,11 @@ export class ContainerList extends React.Component {
 
             var actions = (
                 <>
-                    <button className="btn btn-danger btn-delete pficon pficon-delete"
-                            onClick={ this.deleteContainer.bind(this, container) } />
-                    <button className="btn btn-default"
+                    <button className="pf-c-button pf-m-danger btn-delete"
+                            onClick={ this.deleteContainer.bind(this, container) }>
+                        <span className="pficon pficon-delete" />
+                    </button>
+                    <button className="pf-c-button pf-m-secondary"
                             disabled={isRunning}
                             data-container-id={container.Id}
                             data-toggle="modal" data-target="#container-commit-dialog">
@@ -418,96 +422,12 @@ class ImageDetails extends React.Component {
     }
 }
 
-class ImageSecurity extends React.Component {
-    render() {
-        var info = this.props.info;
-        var text, rows;
-        var args = {
-            time: info.finishedTime.format('MMM Do'),
-            type: info.scanType,
-            count: info.vulnerabilities.length
-        };
-
-        if (info.successful === false) {
-            text = _("The scan from $time ($type) was not successful.");
-        } else if (info.vulnerabilities.length === 0) {
-            text = _("The scan from $time ($type) found no vulnerabilities.");
-        } else {
-            text = cockpit.ngettext("The scan from $time ($type) found $count vulnerability:",
-                                    "The scan from $time ($type) found $count vulnerabilities:",
-                                    info.vulnerabilities.length);
-
-            rows = info.vulnerabilities.map(function (vulnerability) {
-                return (
-                    <div key={vulnerability.description}
-                         className="vulnerability-row-ct-docker" title={vulnerability.description}>
-                        <span>{vulnerability.title}</span>
-                        <span className="pull-right">{vulnerability.severity}</span>
-                    </div>
-                );
-            });
-        }
-
-        return (
-            <div>
-                <div className="listing-ct-body-header">
-                    { cockpit.format(text, args) }
-                </div>
-                <div>
-                    {rows}
-                </div>
-            </div>
-        );
-    }
-}
-
 export class ImageInline extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            vulnerableInfos: {}
-        };
-        this.vulnerableInfoChanged = this.vulnerableInfoChanged.bind(this);
-    }
-
-    vulnerableInfoChanged(event, infos) {
-        this.setState({ vulnerableInfos: infos });
-    }
-
-    componentDidMount() {
-        atomic.addEventListener('vulnerableInfoChanged', this.vulnerableInfoChanged);
-    }
-
-    componentWillUnmount() {
-        atomic.removeEventListener('vulnerableInfoChanged', this.vulnerableInfoChanged);
-    }
-
     render() {
         var image = this.props.image;
 
-        if (!image) {
-            return (
-                <div className="curtains-ct blank-slate-pf">
-                    <div className="blank-slate-pf-icon">
-                        <i className="fa fa-exclamation-circle" />
-                    </div>
-                    <h1>{_("This image does not exist.")}</h1>
-                </div>
-            );
-        }
-
-        var vulnerableInfo = this.state.vulnerableInfos[image.Id.replace(/^sha256:/, '')];
-
-        if (vulnerableInfo) {
-            return (
-                <div className="listing-ct-inline">
-                    <h3>{_("Details")}</h3>
-                    <ImageDetails image={image} />
-                    <h3>{_("Security")}</h3>
-                    <ImageSecurity image={image} info={vulnerableInfo} />
-                </div>
-            );
-        }
+        if (!image)
+            return <EmptyStatePanel icon={ExclamationCircleIcon} title={ _("This image does not exist.") } />;
 
         return (
             <div className="listing-ct-inline">
@@ -524,12 +444,10 @@ export class ImageList extends React.Component {
         this.state = {
             images: [],
             pulling: [],
-            vulnerableInfos: {}
         };
         this.handleSearchImageClick = this.handleSearchImageClick.bind(this);
         this.imagesChanged = this.imagesChanged.bind(this);
         this.pullingChanged = this.pullingChanged.bind(this);
-        this.vulnerableInfoChanged = this.vulnerableInfoChanged.bind(this);
         this.renderRow = this.renderRow.bind(this);
     }
 
@@ -580,54 +498,28 @@ export class ImageList extends React.Component {
         this.setState({ pulling: this.props.client.pulling });
     }
 
-    vulnerableInfoChanged(event, infos) {
-        this.setState({ vulnerableInfos: infos });
-    }
-
     componentDidMount() {
         $(this.props.client).on('image.containers', this.imagesChanged);
         $(this.props.client).on('pulling.containers', this.pullingChanged);
-
-        atomic.addEventListener('vulnerableInfoChanged', this.vulnerableInfoChanged);
     }
 
     componentWillUnmount() {
         $(this.props.client).off('image.containers', this.imagesChanged);
         $(this.props.client).off('pulling.containers', this.pullingChanged);
-
-        atomic.removeEventListener('vulnerableInfoChanged', this.vulnerableInfoChanged);
     }
 
     renderRow(image) {
-        var vulnerabilityColumn = '';
-
-        var vulnerableInfo = this.state.vulnerableInfos[image.Id.replace(/^sha256:/, '')];
-        var count;
-
-        if (vulnerableInfo) {
-            count = vulnerableInfo.vulnerabilities.length;
-            if (count > 0)
-                vulnerabilityColumn = (
-                    <div>
-                        <span className="pficon pficon-warning-triangle-o" />
-                        &nbsp;
-                        { cockpit.format(cockpit.ngettext("$0 Vulnerability", "$0 Vulnerabilities", count), count) }
-                    </div>
-                );
-        }
-
         var element;
         if (this.props.client.waiting[image.Id]) {
             element = <div className="spinner" />;
         } else {
-            element = <button className="btn btn-default btn-control-ct fa fa-play"
+            element = <button className="pf-c-button pf-m-secondary play-button btn-sm"
                 onClick={ this.showRunImageDialog }
-                data-image={image.Id} />;
+                data-image={image.Id}><span className="fa fa-play" /></button>;
         }
 
         var columns = [
             { name: image.RepoTags[0], header: true },
-            vulnerabilityColumn,
             moment.unix(image.Created).calendar(),
             cockpit.format_bytes(image.VirtualSize),
             {
@@ -644,20 +536,11 @@ export class ImageList extends React.Component {
             data: { image: image }
         });
 
-        if (vulnerableInfo !== undefined) {
-            tabs.push({
-                name: _("Security"),
-                renderer: ImageSecurity,
-                data: {
-                    image: image,
-                    info: vulnerableInfo,
-                }
-            });
-        }
-
         var actions = (
-            <button className="btn btn-danger btn-delete pficon pficon-delete"
-                    onClick={ this.deleteImage.bind(this, image) } />
+            <button className="pf-c-button pf-m-danger btn-delete"
+                    onClick={ this.deleteImage.bind(this, image) }>
+                <span className="pficon pficon-delete" />
+            </button>
         );
 
         return <Listing.ListingRow key={image.Id}

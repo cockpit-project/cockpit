@@ -25,7 +25,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 
-import "listing.less";
+import "listing.scss";
 import "patterns";
 
 export function setup() {
@@ -242,7 +242,7 @@ export function setup() {
                 var body = $(this).parents("tbody");
                 if (ev.type == "keypress" && ev.keyCode == 13)
                     $(this).parents("dl")
-                            .find(".btn-primary")
+                            .find(".pf-m-primary")
                             .click();
                 body.find(".pf-c-alert").hide();
             })

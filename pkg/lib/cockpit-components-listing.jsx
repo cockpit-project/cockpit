@@ -19,7 +19,7 @@
 
 import PropTypes from 'prop-types';
 import React from 'react';
-import './listing.less';
+import './listing.scss';
 
 /* entry for an alert in the listing, can be expanded (with details) or standard
  * rowId optional: an identifier for the row which will be set as "data-row-id" attribute on the <tr>

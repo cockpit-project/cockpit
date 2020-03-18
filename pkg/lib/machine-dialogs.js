@@ -36,6 +36,8 @@ import not_supported_tmpl from "raw-loader!machine-not-supported.html";
 import sync_users_tmpl from "raw-loader!machine-sync-users.html";
 import unknown_hosts_tmpl from "raw-loader!machine-unknown-hostkey.html";
 
+import "./machine-dialogs.scss";
+
 const _ = cockpit.gettext;
 
 var default_codes = {
@@ -376,7 +378,7 @@ function AddMachine(dialog) {
         var ex = null;
 
         var addr = $('#add-machine-address').val();
-        var button = dialog.get_sel(".modal-footer>.btn-primary");
+        var button = dialog.get_sel(".modal-footer>.pf-m-primary");
         if (addr === "") {
             disabled = true;
         } else if (!machines.allow_connection_string &&
@@ -452,7 +454,7 @@ function AddMachine(dialog) {
             options : invisible,
         });
 
-        var button = dialog.get_sel(".modal-footer>.btn-primary");
+        var button = dialog.get_sel(".modal-footer>.pf-m-primary");
         button.on("click", add_machine);
 
         $("#add-machine-address").on("keyup", function (ev) {
@@ -528,7 +530,7 @@ function MachinePort(dialog) {
             allow_connection_string : machines.allow_connection_string
         });
         if (machines.allow_connection_string)
-            dialog.get_sel(".modal-footer>.btn-primary").on("click", change_port);
+            dialog.get_sel(".modal-footer>.pf-m-primary").on("click", change_port);
     };
 }
 
@@ -610,7 +612,7 @@ function HostKey(dialog, problem) {
 
             dialog.get_sel().dialog("wait", promise);
         } else if (allow_change) {
-            dialog.get_sel(".modal-footer>.btn-primary").on("click", add_key);
+            dialog.get_sel(".modal-footer>.pf-m-primary").on("click", add_key);
         }
     }
 
@@ -649,13 +651,13 @@ function ChangeAuth(dialog) {
             error_options.error && error_options.error.startsWith("locked identity")) {
             const identity_path = error_options.error.split(": ")[1];
             key_locked_div.find(".locked-identity").text(identity_path);
-            key_locked_div.find(".btn-primary").on("click", () => {
-                key_locked_div.find(".btn-primary").attr("disabled", true);
+            key_locked_div.find(".pf-m-primary").on("click", () => {
+                key_locked_div.find(".pf-m-primary").attr("disabled", true);
                 keys.load(identity_path, key_locked_div.find(".locked-identity-password").val())
                         .then(() => dialog.clear_error())
                         .catch(ex => {
                             dialog.render_error(ex);
-                            key_locked_div.find(".btn-primary").attr("disabled", false);
+                            key_locked_div.find(".pf-m-primary").attr("disabled", false);
                         });
             });
 
@@ -792,7 +794,7 @@ function ChangeAuth(dialog) {
                 change_login_type($(this).attr("value"));
             });
             change_login_type($("#login-type li:first-child").attr("value"));
-            dialog.get_sel(".modal-footer>.btn-primary").on("click", login);
+            dialog.get_sel(".modal-footer>.pf-m-primary").on("click", login);
             dialog.get_sel("a[data-content]").popover();
 
             update_available();
@@ -978,7 +980,7 @@ function SyncUsers(dialog) {
 
     function toggle_button() {
         var any = dialog.get_sel("input:checked").length > 0;
-        dialog.get_sel(".modal-footer>.btn-primary").toggleClass("disabled", !any);
+        dialog.get_sel(".modal-footer>.pf-m-primary").prop("disabled", !any);
     }
 
     function render() {
@@ -1007,7 +1009,7 @@ function SyncUsers(dialog) {
         });
 
         dialog.get_sel(".modal-content").html(text);
-        dialog.get_sel(".modal-footer>.btn-primary").on("click", sync_users);
+        dialog.get_sel(".modal-footer>.pf-m-primary").on("click", sync_users);
         dialog.get_sel("input:checkbox").on("change", function() {
             var name = $(this).attr("name");
             users[name].checked = $(this).is(':checked');

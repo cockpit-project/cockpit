@@ -20,8 +20,6 @@
 import cockpit from "cockpit";
 import $ from "jquery";
 
-import run_sosreport_sh from "raw-loader!./run-sosreport.sh";
-
 const _ = cockpit.gettext;
 
 var sos_task;
@@ -53,8 +51,8 @@ function sos_create() {
     sos_archive_url = null;
     sos_archive_files = [];
 
-    var task = cockpit.script(run_sosreport_sh, ["--batch"],
-                              { superuser: true, err: "out", pty: true });
+    var task = cockpit.spawn(["sosreport", "--batch"],
+                             { superuser: true, err: "out", pty: true });
     sos_task = task;
 
     // TODO - Use a real API instead of scraping stdout once such

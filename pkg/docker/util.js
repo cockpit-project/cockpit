@@ -185,7 +185,8 @@ util.insert_table_sorted_generic = function insert_table_sorted_generic(table, r
 };
 
 util.setup_danger_button = function setup_danger_button(id, parent_id, callback) {
-    var danger_button = $('<button class="btn btn-default btn-control-ct fa fa-check enable-danger">')
+    var danger_button = $('<button class="pf-c-button pf-m-secondary btn-sm enable-danger">')
+            .append('<span class="fa fa-check">')
             .toggle(false)
             .on("click", callback);
     $(id + ' th.container-column-actions').append(danger_button);
@@ -236,7 +237,8 @@ util.render_container = function render_container(client, $panel,
     if (!tr.length) {
         $panel.find('button.enable-danger').toggle(true);
         var img_waiting = $('<div class="spinner">');
-        var btn_delete = $('<button class="btn btn-danger pficon pficon-delete btn-delete">')
+        var btn_delete = $('<button class="pf-c-button pf-m-danger btn-delete">')
+                .append('<span class="pficon pficon-delete">')
                 .on("click", function() {
                     var self = this;
                     $(self).hide()
@@ -249,7 +251,8 @@ util.render_container = function render_container(client, $panel,
                     });
                     return false;
                 });
-        var btn_play = $('<button class="btn btn-default btn-control-ct fa fa-play">')
+        var btn_play = $('<button class="pf-c-button pf-m-secondary btn-sm play-button">')
+                .append('<span class="fa fa-play">')
                 .on("click", function() {
                     $(this).hide()
                             .siblings("div.spinner")
@@ -260,7 +263,8 @@ util.render_container = function render_container(client, $panel,
                             });
                     return false;
                 });
-        var btn_stop = $('<button class="btn btn-default btn-control-ct fa fa-stop">')
+        var btn_stop = $('<button class="pf-c-button pf-m-secondary btn-sm stop-button">')
+                .append('<span class="fa fa-stop"')
                 .on("click", function() {
                     $(this).hide()
                             .siblings("div.spinner")
@@ -309,7 +313,7 @@ util.render_container = function render_container(client, $panel,
             .toggle(waiting);
     $(row[6]).children("button.btn-delete")
             .toggle(!waiting)
-            .toggleClass('disabled', container.State.Running);
+            .prop('disabled', container.State.Running);
 
     var title = (waiting || container.State.Running) ? "You can only delete<br/> stopped containers" : "Delete immediately";
 
@@ -320,9 +324,9 @@ util.render_container = function render_container(client, $panel,
 
     $(row[7]).children("div.spinner")
             .toggle(waiting);
-    $(row[7]).children("button.fa-play")
+    $(row[7]).children("button.play-button")
             .toggle(!waiting && !container.State.Running);
-    $(row[7]).children("button.fa-stop")
+    $(row[7]).children("button.stop-button")
             .toggle(!waiting && container.State.Running);
 
     $(row[6]).toggle(danger_mode);

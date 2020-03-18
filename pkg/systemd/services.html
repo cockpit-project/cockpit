@@ -54,7 +54,7 @@
       <div id="services-filter"></div>
 
       <div class="content-header-actions">
-        <button id="create-timer" data-toggle="#timer-dialog" data-target="#timer-dialog" class="btn btn-primary" translate>Create Timer</button>
+        <button id="create-timer" data-toggle="#timer-dialog" data-target="#timer-dialog" class="pf-c-button pf-m-primary" translate>Create Timer</button>
       </div>
 
       <div class="filter-group">
@@ -93,8 +93,8 @@
       <input type="text" value="{{hours}}" data-index="{{index}}" data-content="hours" class="form-control" disabled>
       <div class="position-colon">:</div>
       <input type="text" value="{{minutes}}" data-index="{{index}}" data-content="minutes" class="form-control">
-      <button class="btn btn-default dropdown-toggle fa fa-plus" data-content="add" data-index="{{index}}" type="button" ></button>
-      <button class="btn btn-default dropdown-toggle pficon-close" data-content="close" data-index="{{index}}" type="button" {{close}}></button>
+      <button class="pf-c-button pf-m-secondary btn-sm" data-content="add" data-index="{{index}}" type="button" ><span class="fa fa-plus" /></button>
+      <button class="pf-c-button pf-m-secondary btn-sm" data-content="close" data-index="{{index}}" type="button" {{close}}><span class="pficon-close" /></button>
       <div data-content="min-error" class="repeat-error" data-index="{{index}}"></div>
     </div>
   {{/repeat}}
@@ -106,8 +106,8 @@
       <input type="text" value="{{hours}}" data-index="{{index}}" data-content="hours" class="form-control" >
       <div class="position-colon">:</div>
       <input type="text" data-index="{{index}}" data-content="minutes" value="{{minutes}}" class="form-control">
-      <button class="btn btn-default dropdown-toggle fa fa-plus" data-content="add" data-index="{{index}}" type="button" ></button>
-      <button class="btn btn-default dropdown-toggle pficon-close" data-content="close" data-index="{{index}}" type="button" {{close}}></button>
+      <button class="pf-c-button pf-m-secondary btn-sm" data-content="add" data-index="{{index}}" type="button" ><span class="fa fa-plus" /></button>
+      <button class="pf-c-button pf-m-secondary btn-sm" data-content="close" data-index="{{index}}" type="button" {{close}}><span class="pficon-close" /></button>
       <div data-content="hr-error" class="repeat-error" data-index="{{index}}"></div>
       <div data-content="min-error" class="repeat-error" data-index="{{index}}"></div>
     </div>
@@ -135,8 +135,8 @@
       <input type="text" value="{{hours}}" data-index="{{index}}" data-content="hours" class="form-control" >
       <div class="position-colon">:</div>
       <input type="text" data-index="{{index}}" data-content="minutes" value="{{minutes}}" class="form-control">
-      <button class="btn btn-default dropdown-toggle fa fa-plus" data-content="add" data-index="{{index}}" type="button" ></button>
-      <button class="btn btn-default dropdown-toggle pficon-close" data-content="close" data-index="{{index}}" type="button" {{close}}></button>
+      <button class="pf-c-button pf-m-secondary btn-sm" data-content="add" data-index="{{index}}" type="button" ><span class="fa fa-plus" /></button>
+      <button class="pf-c-button pf-m-secondary btn-sm" data-content="close" data-index="{{index}}" type="button" {{close}}><span class="pficon-close" /></button>
       <div data-content="hr-error" class="repeat-error" data-index="{{index}}"></div>
       <div data-content="min-error" class="repeat-error" data-index="{{index}}"></div>
     </div>
@@ -188,8 +188,8 @@
       <input type="text" value="{{hours}}" data-index="{{index}}" data-content="hours" class="form-control" >
       <div class="position-colon">:</div>
       <input type="text" data-index="{{index}}" data-content="minutes" value="{{minutes}}" class="form-control">
-      <button class="btn btn-default dropdown-toggle fa fa-plus" data-content="add" data-index="{{index}}" type="button" ></button>
-      <button class="btn btn-default dropdown-toggle pficon-close" data-content="close" data-index="{{index}}" type="button" {{close}}></button>
+      <button class="pf-c-button pf-m-secondary btn-sm" data-content="add" data-index="{{index}}" type="button" ><span class="fa fa-plus" /></button>
+      <button class="pf-c-button pf-m-secondary btn-sm" data-content="close" data-index="{{index}}" type="button" {{close}}><span class="pficon-close" /></button>
       <div data-content="hr-error" class="repeat-error" data-index="{{index}}"></div>
       <div data-content="min-error" class="repeat-error" data-index="{{index}}"></div>
       <div data-content="day-error" class="repeat-error" data-index="{{index}}"></div>
@@ -207,8 +207,8 @@
       <input type="text" value="{{hours}}" data-index="{{index}}" data-content="hours" class="form-control" >
       <div class="position-colon">:</div>
       <input type="text" data-index="{{index}}" data-content="minutes" value="{{minutes}}" class="form-control">
-      <button class="btn btn-default dropdown-toggle fa fa-plus" data-content="add" data-index="{{index}}" type="button" ></button>
-      <button class="btn btn-default dropdown-toggle pficon-close" data-content="close" data-index="{{index}}" type="button" {{close}}></button>
+      <button class="pf-c-button pf-m-secondary" data-content="add" data-index="{{index}}" type="button" ><span class="fa fa-plus" /></button>
+      <button class="pf-c-button pf-m-secondary" data-content="close" data-index="{{index}}" type="button" {{close}}><span class="pficon-close" /></button>
       <div data-content="hr-error" class="repeat-error" data-index="{{index}}"></div>
       <div data-content="min-error" class="repeat-error" data-index="{{index}}"></div>
       <div data-content="date-error" class="repeat-error" data-index="{{index}}"></div>
@@ -373,8 +373,8 @@
           </table>
         </div>
         <div class="modal-footer">
-          <button type="button" id="timer-cancel-button" class="btn btn-default" data-dismiss="modal" translate="yes">Cancel</button>
-          <button type="button" id="timer-save-button" class="btn btn-primary" translate="yes">Save</button>
+          <button id="timer-cancel-button" class="pf-c-button pf-m-secondary" data-dismiss="modal" translate="yes">Cancel</button>
+          <button id="timer-save-button" class="pf-c-button pf-m-primary" translate="yes">Save</button>
         </div>
       </div>
     </div>

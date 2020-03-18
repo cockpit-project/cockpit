@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import os
 import machineslib
 import parent
 from testlib import *
@@ -98,6 +99,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         if self.machine.image == "ubuntu-stable":
             self.machine.execute("chmod o+rwx /run/libvirt/libvirt-sock")
 
+    @nondestructive
     def testAutostart(self):
         b = self.browser
         m = self.machine
@@ -137,6 +139,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         m.execute("virsh undefine subVmTest1")
         b.wait_not_present("#vm-subVmTest1-autostart-checkbox")
 
+    @nondestructive
     def testBootOrder(self):
         b = self.browser
         m = self.machine
@@ -208,6 +211,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_present("button#vm-subVmTest1-boot-order:disabled")
 
     # Check various configuration changes made before VM installation persist after installation
+    @nondestructive
     def testConfigureBeforeInstall(self):
         b = self.browser
         m = self.machine
@@ -277,7 +281,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         m.execute("virsh attach-interface --persistent VmNotInstalled bridge virbr0")
 
         # Change the os boot firmware configuration
-        supports_firmware_config = m.image in ['fedora-31', 'fedora-testing', 'debian-testing', 'ubuntu-stable']
+        supports_firmware_config = m.image in ['fedora-32', 'fedora-31', 'fedora-testing', 'debian-testing', 'ubuntu-stable', 'ubuntu-2004']
         if supports_firmware_config:
             b.wait_in_text("#vm-VmNotInstalled-firmware", "BIOS")
             b.click("#vm-VmNotInstalled-firmware")
@@ -295,14 +299,30 @@ class TestMachinesDBus(machineslib.TestMachines):
             else:
                 raise AssertionError("Unhandled distro for OVMF path")
 
-            m.execute("mkdir /tmp/ovmf/; mv {0}/* /tmp/ovmf/".format(ovmf_path))
+            m.execute("mount -t tmpfs tmpfs " + ovmf_path)
+            self.addCleanup(m.execute, "umount {0} || true".format(ovmf_path))
             b.click("tbody tr[data-row-id=vm-VmNotInstalled] th") # Close and re-expand the row for the new configuration to be read
             b.click("tbody tr[data-row-id=vm-VmNotInstalled] th")
+
+            # HACK: Capabilities are not updated dynamically
+            # https://bugzilla.redhat.com/show_bug.cgi?id=1807198
+            def hack_broken_caps():
+                if m.image in ["fedora-32", "ubuntu-2004"]:
+                    m.execute("systemctl restart libvirtd")
+                    # We don't get events for shut off VMs so reload the page
+                    b.reload()
+                    b.enter_page('/machines')
+                    b.click("tbody tr[data-row-id=vm-VmNotInstalled] th")
+
+            hack_broken_caps()
+
             b.mouse("#vm-VmNotInstalled-firmware-tooltip", "mouseover")
             b.wait_in_text("#missing-uefi-images .tooltip-inner", "Libvirt did not detect any UEFI/OVMF firmware image installed on the host")
             b.mouse("#vm-VmNotInstalled-firmware-tooltip", "mouseout")
             b.wait_not_present("#missing-uefi-images")
-            m.execute("mv /tmp/ovmf/* {0}".format(ovmf_path))
+            m.execute("umount " + ovmf_path)
+
+            hack_broken_caps()
         else:
             b.wait_not_present("#vm-VmNotInstalled-firmware")
 
@@ -351,6 +371,11 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.click("#vm-VmNotInstalled-networks")
         b.wait_present("#vm-VmNotInstalled-network-1-type")
 
+        self.allow_browser_errors("Failed when connecting: Connection closed")
+        self.allow_browser_errors("Tried changing state of a disconnected RFB object")
+        self.allow_journal_messages(".* couldn't shutdown fd: Transport endpoint is not connected")
+
+    @nondestructive
     def testDiskEdit(self):
         b = self.browser
         m = self.machine
@@ -358,8 +383,9 @@ class TestMachinesDBus(machineslib.TestMachines):
         self.startVm("subVmTest1")
 
         # prepare libvirt storage pools
-        m.execute("mkdir /mnt/vm_one; chmod a+rwx /mnt/vm_one")
-        m.execute("virsh pool-create-as myPoolOne --type dir --target /mnt/vm_one")
+        p1 = os.path.join(self.tmp_storage, "vm_one")
+        m.execute("mkdir --mode 777 {0}".format(p1))
+        m.execute("virsh pool-create-as myPoolOne --type dir --target {0}".format(p1))
         m.execute("virsh vol-create-as myPoolOne mydisk --capacity 100M --format raw") # raw support shareable
         m.execute("virsh vol-create-as myPoolOne mydisk2 --capacity 100M --format raw")
         m.execute("virsh vol-create-as myPoolOne mydisk3 --capacity 100M --format qcow2")
@@ -367,9 +393,9 @@ class TestMachinesDBus(machineslib.TestMachines):
         wait(lambda: "mydisk2" in m.execute("virsh vol-list myPoolOne"))
         wait(lambda: "mydisk3" in m.execute("virsh vol-list myPoolOne"))
 
-        m.execute("virsh attach-disk --domain subVmTest1 --source /mnt/vm_one/mydisk --target vde --targetbus virtio --persistent")
-        m.execute("virsh attach-disk --domain subVmTest1 --source /mnt/vm_one/mydisk2 --target vdf --targetbus virtio")
-        m.execute("virsh attach-disk --domain subVmTest1 --source /mnt/vm_one/mydisk3 --target vdg --targetbus virtio --subdriver qcow2 --persistent")
+        m.execute("virsh attach-disk --domain subVmTest1 --source {0}/mydisk --target vde --targetbus virtio --persistent".format(p1))
+        m.execute("virsh attach-disk --domain subVmTest1 --source {0}/mydisk2 --target vdf --targetbus virtio".format(p1))
+        m.execute("virsh attach-disk --domain subVmTest1 --source {0}/mydisk3 --target vdg --targetbus virtio --subdriver qcow2 --persistent".format(p1))
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
@@ -455,6 +481,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         m.execute("virsh undefine subVmTest1")
         b.wait_not_present("#vm-subVmTest1-disks-vde-edit")
 
+    @nondestructive
     def testDomainMemorySettings(self):
         b = self.browser
         m = self.machine
@@ -527,13 +554,15 @@ class TestMachinesDBus(machineslib.TestMachines):
         m.execute("virsh undefine subVmTest1")
         b.wait_present("button#vm-subVmTest1-memory-count:disabled")
 
+    @nondestructive
     def testDetachDisk(self):
         b = self.browser
         m = self.machine
 
         # prepare libvirt storage pools
-        m.execute("mkdir /mnt/vm_one; chmod a+rwx /mnt/vm_one")
-        m.execute("virsh pool-create-as myPoolOne --type dir --target /mnt/vm_one")
+        p1 = os.path.join(self.tmp_storage, "vm_one")
+        m.execute("mkdir --mode 777 {0}".format(p1))
+        m.execute("virsh pool-create-as myPoolOne --type dir --target {0}".format(p1))
         m.execute("virsh vol-create-as myPoolOne mydiskofpoolone_1 --capacity 1G --format qcow2")
         m.execute("virsh vol-create-as myPoolOne mydiskofpoolone_2 --capacity 1G --format qcow2")
         m.execute("virsh vol-create-as myPoolOne mydiskofpoolone_3 --capacity 1M --format qcow2")
@@ -543,9 +572,9 @@ class TestMachinesDBus(machineslib.TestMachines):
 
         args = self.startVm("subVmTest1")
 
-        m.execute("virsh attach-disk --domain subVmTest1 --source /mnt/vm_one/mydiskofpoolone_1 --target vdc --targetbus virtio")
-        m.execute("virsh attach-disk --domain subVmTest1 --source /mnt/vm_one/mydiskofpoolone_2 --target vdd --targetbus virtio --persistent")
-        m.execute("virsh attach-disk --domain subVmTest1 --source /mnt/vm_one/mydiskofpoolone_3 --target vde --targetbus virtio --persistent")
+        m.execute("virsh attach-disk --domain subVmTest1 --source {0}/mydiskofpoolone_1 --target vdc --targetbus virtio".format(p1))
+        m.execute("virsh attach-disk --domain subVmTest1 --source {0}/mydiskofpoolone_2 --target vdd --targetbus virtio --persistent".format(p1))
+        m.execute("virsh attach-disk --domain subVmTest1 --source {0}/mydiskofpoolone_3 --target vde --targetbus virtio --persistent".format(p1))
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
@@ -599,7 +628,7 @@ class TestMachinesDBus(machineslib.TestMachines):
 
         # Test detaching of disk on non-persistent VM
         m.execute("virsh undefine subVmTest1")
-        m.execute("virsh attach-disk --domain subVmTest1 --source /mnt/vm_one/mydiskofpoolone_1 --target vdc --targetbus virtio")
+        m.execute("virsh attach-disk --domain subVmTest1 --source {0}/mydiskofpoolone_1 --target vdc --targetbus virtio".format(p1))
         b.wait_present("#vm-subVmTest1-disks-vdc-device")
         b.click("#delete-subVmTest1-disk-vdc")
         b.wait_present(".modal-dialog")
@@ -607,6 +636,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_not_present("#vm-subVmTest1-disks-vdc-device")
         b.wait_not_present(".modal-dialog")
 
+    @nondestructive
     def testMultipleSettings(self):
         b = self.browser
 
@@ -644,6 +674,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_not_in_text("#vm-subVmTest1-boot-order", bootOrder)
         b.wait_in_text("#vm-subVmTest1-vcpus-count", "3")
 
+    @nondestructive
     def testNetworkSettings(self):
         b = self.browser
         m = self.machine
@@ -786,6 +817,8 @@ class TestMachinesDBus(machineslib.TestMachines):
         m.execute("virsh net-dumpxml default > /tmp/net-default.xml")
         m.execute("virsh net-dumpxml test_network > /tmp/net-test-network.xml")
         m.execute("virsh net-destroy test_network && virsh net-destroy default")
+        self.addCleanup(m.execute, "virsh net-define /tmp/net-default.xml && virsh net-autostart default")
+
         b.wait_in_text("#card-pf-networks .card-pf-aggregate-status-notification:nth-of-type(1)", "0")
         m.execute("virsh net-undefine test_network && virsh net-undefine default")
         b.wait_in_text("#card-pf-networks .card-pf-aggregate-status-notification:nth-of-type(2)", "0")
@@ -799,6 +832,7 @@ class TestMachinesDBus(machineslib.TestMachines):
 
         # Create a second bridge to LAN NIC
         m.execute("ip link add name br1 type bridge && virsh attach-interface --current subVmTest1 bridge br1")
+        self.addCleanup(m.execute, "ip link delete br1")
 
         # Open the modal dialog
         b.click("#vm-subVmTest1-network-1-edit-dialog")
@@ -831,6 +865,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         m.execute("virsh undefine subVmTest1")
         b.wait_not_present("#vm-subVmTest1-network-1-edit-dialog")
 
+    @nondestructive
     def testNetworkAutostart(self):
         b = self.browser
         m = self.machine
@@ -877,6 +912,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         autostartState = m.execute("virsh net-info test_network2 | grep 'Autostart:' | awk '{print $2}'").strip()
         self.assertEqual(autostartState, "yes")
 
+    @nondestructive
     def testNetworkState(self):
         b = self.browser
         m = self.machine
@@ -928,6 +964,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.click(".modal-footer button:contains(Delete)")
         b.wait_not_present("tbody tr[data-row-id=network-test_network2-{0}] th".format(connectionName))
 
+    @nondestructive
     def testNetworks(self):
         b = self.browser
         m = self.machine
@@ -1007,6 +1044,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.click('#deactivate-network-test_network4-{0}'.format(connectionName)) # Deactivate transient network
         b.wait_not_present("tbody tr[data-row-id=network-test_network4-{0}] th".format(connectionName)) # Check it's not present after deactivation
 
+    @nondestructive
     def testPause(self):
         b = self.browser
         m = self.machine
@@ -1033,6 +1071,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         state = m.execute("virsh dominfo subVmTest1 | grep 'State:' | awk '{print $2}'").strip()
         self.assertEqual(state, "running")
 
+    @nondestructive
     def testStoragePools(self):
         b = self.browser
         m = self.machine
@@ -1047,10 +1086,13 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_in_text(".cards-pf #card-pf-storage-pools .card-pf-title-link", "Storage Pool")
 
         # prepare libvirt storage pools
-        m.execute("mkdir /mnt/vm_one; mkdir /mnt/vm_two; mkdir /mnt/vm_three; chmod a+rwx /mnt/vm_one /mnt/vm_two /mnt/vm_three")
-        m.execute("virsh pool-define-as myPoolOne --type dir --target /mnt/vm_one; virsh pool-start myPoolOne")
-        m.execute("virsh pool-define-as myPoolTwo --type dir --target /mnt/vm_two; virsh pool-start myPoolTwo")
-        m.execute("virsh pool-create-as myPoolThree --type dir --target /mnt/vm_three") # Transient pool
+        p1 = os.path.join(self.tmp_storage, "vm_one")
+        p2 = os.path.join(self.tmp_storage, "vm_two")
+        p3 = os.path.join(self.tmp_storage, "vm_three")
+        m.execute("mkdir --mode 777 {0} {1} {2}".format(p1, p2, p3))
+        m.execute("virsh pool-define-as myPoolOne --type dir --target {0}; virsh pool-start myPoolOne".format(p1))
+        m.execute("virsh pool-define-as myPoolTwo --type dir --target {0}; virsh pool-start myPoolTwo".format(p2))
+        m.execute("virsh pool-create-as myPoolThree --type dir --target {0}".format(p3)) # Transient pool
 
         b.wait_in_text("#card-pf-storage-pools .card-pf-aggregate-status-count", "3")
         b.wait_in_text(".cards-pf #card-pf-storage-pools .card-pf-title-link", "Storage Pools")
@@ -1088,7 +1130,7 @@ class TestMachinesDBus(machineslib.TestMachines):
 
         # Check basic pool properties
         b.click("tbody tr[data-row-id=pool-myPoolOne-{0}] th".format(connectionName)) # click on the row header
-        b.wait_in_text("#pool-myPoolOne-{0}-target-path".format(connectionName), "/mnt/vm_one")
+        b.wait_in_text("#pool-myPoolOne-{0}-target-path".format(connectionName), p1)
         b.wait_in_text("#pool-myPoolOne-{0}-type".format(connectionName), "dir")
 
         # Check storage volumes of a pool
@@ -1111,7 +1153,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_not_present("#storage-volumes-delete")
 
         # Delete a volume from terminal and verify that refresh worked by reloading the browser page
-        m.execute("rm -f /mnt/vm_two/VolumeThree")
+        m.execute("rm -f {0}".format(os.path.join(p2, "VolumeThree")))
         b.wait_present("#pool-myPoolTwo-{0}-volume-VolumeThree-name".format(connectionName))
         b.reload()
         b.enter_page('/machines')
@@ -1163,7 +1205,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.click('div.modal-footer button:contains("Delete")')
         b.wait_not_present("div.modal-dialog")
         b.wait_not_present("#pool-myPoolTwo-{0}-storage-volumes-list".format(connectionName))
-        self.assertNotEqual(m.execute("ls -A /mnt/vm_two"), "")
+        self.assertNotEqual(m.execute("ls -A {0}".format(p2)), "")
 
         # Redefine the deleted Pool
         m.execute("virsh pool-define /tmp/myPoolTwo.xml")
@@ -1181,12 +1223,11 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.click('div.modal-footer button:contains("Delete")')
         b.wait_not_present("div.modal-dialog")
         b.wait_not_present("#pool-myPoolTwo-{0}-storage-volumes-list".format(connectionName))
-        self.assertEqual(m.execute("ls -A /mnt/vm_two"), "")
+        self.assertEqual(m.execute("ls -A {0}".format(p2)), "")
         b.wait_not_present("tbody tr[data-row-id=pool-myPoolTwo-{0}]".format(connectionName))
 
         # Recreate the myPoolTwo to test Used By column
-        m.execute("mkdir -p /mnt/vm_two; chmod a+rwx /mnt/vm_two")
-        m.execute("virsh pool-define-as myPoolTwo --type dir --target /mnt/vm_two; virsh pool-start myPoolTwo")
+        m.execute("virsh pool-define-as myPoolTwo --type dir --target {0}; virsh pool-start myPoolTwo".format(p2))
         m.execute("virsh vol-create-as myPoolTwo VolumeOne --capacity 1G --format qcow2 && virsh pool-refresh myPoolTwo")
 
         wait(lambda: "VolumeOne" in m.execute("virsh vol-list myPoolTwo"))
@@ -1227,6 +1268,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         # Check it's not present after deactivation
         b.wait_not_present("tbody tr[data-row-id=pool-myPoolThree-{0}] td.listing-ct-toggle".format(connectionName)) # click on the row header
 
+    @nondestructive
     def testNetworksCreate(self):
         b = self.browser
         m = self.machine
@@ -1543,13 +1585,18 @@ class TestMachinesDBus(machineslib.TestMachines):
         ).execute()
 
 
+    @nondestructive
     def testStoragePoolsCreate(self):
         b = self.browser
         m = self.machine
 
-        m.execute("mkdir /tmp/my_dir_pool_one")
-        m.execute("mkdir /tmp/my_dir_pool_two")
-        m.execute("mkdir /mnt/exports && echo '/mnt/exports 127.0.0.1/24(rw,sync,no_root_squash,no_subtree_check)' > /etc/exports")
+        p1 = os.path.join(self.tmp_storage, "my_dir_pool_one")
+        p2 = os.path.join(self.tmp_storage, "my_dir_pool_two")
+        mnt_exports = os.path.join(self.tmp_storage, "mnt_exports")
+        m.execute("mkdir {0} {1} {2}".format(p1, p2, mnt_exports))
+        m.execute("mv /etc/exports /etc/exports.backup")
+        self.addCleanup(m.execute, "mv /etc/exports.backup /etc/exports")
+        m.execute("echo '{0} 127.0.0.1/24(rw,sync,no_root_squash,no_subtree_check)' > /etc/exports".format(mnt_exports))
         m.execute("systemctl restart nfs-server")
 
         self.login_and_go("/machines")
@@ -1716,7 +1763,7 @@ class TestMachinesDBus(machineslib.TestMachines):
             self,
             name="my_dir_pool_one",
             pool_type="dir",
-            target="/tmp/my_dir_pool_one/",
+            target=p1 + "/",
             remove=False,
         ).execute()
 
@@ -1725,7 +1772,7 @@ class TestMachinesDBus(machineslib.TestMachines):
             self,
             name="my_dir_pool_one",
             pool_type="dir",
-            target="/tmp/my_dir_pool_one/",
+            target=p1 + "/",
             xfail=True,
             xfail_error="pool 'my_dir_pool_one' already exists"
         ).execute()
@@ -1746,19 +1793,20 @@ class TestMachinesDBus(machineslib.TestMachines):
             self,
             name="my_dir_pool_two",
             pool_type="netfs",
-            target="/tmp/my_dir_pool_two/",
-            source={"host": "127.0.0.1", "source_path": "/mnt/exports"}
+            target=p2 + "/",
+            source={"host": "127.0.0.1", "source_path": mnt_exports}
         ).execute()
 
-        # Prepare a ramdisk with gpt partition table to test the disk storage pool type
-        machineslib.prepareDisk(m)
+        # Prepare a disk with gpt partition table to test the disk storage pool type
+        dev = self.add_ram_disk()
+        m.execute("parted %s mklabel gpt" % dev)
 
         StoragePoolCreateDialog(
             self,
             name="my_disk_pool",
             pool_type="disk",
             target="/media/",
-            source={"source_path": "/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1", "format": "gpt"},
+            source={"source_path": dev, "format": "gpt"},
         ).execute()
 
         # Debian and ubuntu images don't have open-iscsi already installed
@@ -1768,7 +1816,7 @@ class TestMachinesDBus(machineslib.TestMachines):
 
             target_iqn = "iqn.2019-09.cockpit.lan"
             orig_iqn = m.execute("sed </etc/iscsi/initiatorname.iscsi -e 's/^.*=//'").rstrip()
-            machineslib.prepareStorageDeviceOnISCSI(m, target_iqn, orig_iqn)
+            self.prepareStorageDeviceOnISCSI(target_iqn, orig_iqn)
 
             StoragePoolCreateDialog(
                 self,
@@ -1799,16 +1847,8 @@ class TestMachinesDBus(machineslib.TestMachines):
                 b.wait_not_present("#create-storage-pool-dialog")
 
         # Prepare a Volume Group to be used as source for the LVM pool
-        m.add_disk("50M", serial="DISK2")
-        m.add_disk("50M", serial="DISK3")
-        b.go("/storage")
-        b.enter_page("/storage")
-        b.wait_in_text("#drives", "DISK2")
-        b.wait_in_text("#drives", "DISK3")
-        dev_2 = "/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK2"
-        dev_3 = "/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK3"
-        m.execute("pvcreate {0} {1} && vgcreate vol_grp1 {0} {1}".format(dev_2, dev_3))
-        b.go("/machines")
+        m.execute("wipefs -a {0} && pvcreate {0} && vgcreate vol_grp1 {0}".format(dev))
+        b.go("/machines#/storages")
         b.enter_page("/machines")
 
         StoragePoolCreateDialog(
@@ -1818,23 +1858,30 @@ class TestMachinesDBus(machineslib.TestMachines):
             source={"source_path": "vol_grp1"},
         ).execute()
 
+    @nondestructive
     def testStorageVolumesCreate(self):
         b = self.browser
         m = self.machine
 
         # Prepare dir pool
-        m.execute("mkdir /mnt/dir_pool ; chmod a+rwx /mnt/dir_pool ")
-        m.execute("virsh pool-define-as dir-pool --type dir --target /mnt/dir_pool && virsh pool-start dir-pool")
+        dir_pool = os.path.join(self.tmp_storage, "dir_pool")
+        m.execute("mkdir --mode 777 {0}".format(dir_pool))
+        m.execute("virsh pool-define-as dir-pool --type dir --target {0} && virsh pool-start dir-pool".format(dir_pool))
 
         # Prepare net-fs pool
-        m.execute("mkdir /mnt/nfs-pool && mkdir /mnt/exports && echo '/mnt/exports 127.0.0.1/24(rw,sync,no_root_squash,no_subtree_check,fsid=0)' > /etc/exports")
+        nfs_pool = os.path.join(self.tmp_storage, "nfs_pool")
+        mnt_exports = os.path.join(self.tmp_storage, "mnt_exports")
+        m.execute("mv /etc/exports /etc/exports.backup")
+        self.addCleanup(m.execute, "mv /etc/exports.backup /etc/exports")
+        m.execute("mkdir {0} {1} && echo '{1} 127.0.0.1/24(rw,sync,no_root_squash,no_subtree_check,fsid=0)' > /etc/exports".format(nfs_pool, mnt_exports))
         m.execute("systemctl restart nfs-server")
-        m.execute("virsh pool-define-as nfs-pool --type netfs --target /mnt/nfs-pool --source-host 127.0.0.1 --source-path /mnt/exports && virsh pool-start nfs-pool")
+        m.execute("virsh pool-define-as nfs-pool --type netfs --target {0} --source-host 127.0.0.1 --source-path {1} && virsh pool-start nfs-pool".format(nfs_pool, mnt_exports))
+        self.addCleanup(m.execute, "virsh pool-destroy nfs-pool || true") # Destroy pool as it block removal of `nfs_pool`
 
         # Prepare disk/block pool
-        machineslib.prepareDisk(m)
+        dev = self.add_ram_disk()
         cmds = [
-            "virsh pool-define-as disk-pool disk - - /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 - /tmp/poolDiskImages",
+            "virsh pool-define-as disk-pool disk - - %s - /tmp/poolDiskImages" % dev,
             "virsh pool-build disk-pool --overwrite",
             "virsh pool-start disk-pool",
         ]
@@ -1978,6 +2025,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         ).execute()
 
 
+    @nondestructive
     def testNICAdd(self):
         b = self.browser
         m = self.machine

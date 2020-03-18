@@ -22,6 +22,7 @@ from storagelib import *
 from testlib import *
 
 
+@nondestructive
 class TestStorage(StorageCase):
 
     def testUsed(self):
@@ -31,20 +32,20 @@ class TestStorage(StorageCase):
         self.login_and_go("/storage")
         b.wait_in_text("#drives", "VirtIO")
 
-        m.add_disk("50M", serial="DISK1")
-        b.wait_in_text("#drives", "DISK1")
-        m.execute("parted -s /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 mktable msdos")
-        m.execute("parted -s /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 mkpart primary ext2 1M 25")
+        disk = self.add_ram_disk()
+        b.wait_in_text("#drives", disk)
+        m.execute("parted -s %s mktable msdos" % disk)
+        m.execute("parted -s %s mkpart primary ext2 1M 25" % disk)
         m.execute("udevadm settle")
-        m.execute("echo einszweidrei | cryptsetup luksFormat /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1-part1")
-        m.execute("echo einszweidrei | cryptsetup luksOpen /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1-part1 dm-test")
+        m.execute("echo einszweidrei | cryptsetup luksFormat %s1" % disk)
+        m.execute("echo einszweidrei | cryptsetup luksOpen %s1 dm-test" % disk)
         m.execute("udevadm settle")
         m.execute("mke2fs -q -L TEST /dev/mapper/dm-test")
         m.execute("mount /dev/mapper/dm-test /mnt")
 
         # Now all of /dev/mapper/dm-test, /dev/sda1, and /dev/sda should be 'in use'.
 
-        b.click('tr:contains("DISK1")')
+        b.click('tr:contains("%s")' % disk)
         b.wait_visible("#storage-detail")
 
         self.content_dropdown_action(2, "Format")

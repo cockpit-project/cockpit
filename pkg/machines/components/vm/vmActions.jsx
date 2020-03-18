@@ -26,7 +26,7 @@ import {
 } from "../../helpers.js";
 
 import { DeleteDialog } from "../deleteDialog.jsx";
-import DropdownButtons from '../dropdownButtons.jsx';
+import { DropdownButtons } from '../dropdownButtons.jsx';
 
 const _ = cockpit.gettext;
 
@@ -37,8 +37,9 @@ const VmActions = ({ vm, config, dispatch, storagePools, onStart, onInstall, onR
 
     let reset = null;
     if (config.provider.canReset(state)) {
-        reset = DropdownButtons({
-            buttons: [{
+        reset = <DropdownButtons
+            key='action-reset'
+            buttons={[{
                 title: _("Restart"),
                 action: onReboot,
                 id: `${id}-reboot`,
@@ -46,8 +47,7 @@ const VmActions = ({ vm, config, dispatch, storagePools, onStart, onInstall, onR
                 title: _("Force Restart"),
                 action: onForceReboot,
                 id: `${id}-forceReboot`,
-            }],
-        });
+            }]} />;
     }
 
     let shutdown = null;
@@ -68,33 +68,33 @@ const VmActions = ({ vm, config, dispatch, storagePools, onStart, onInstall, onR
                 id: `${id}-sendNMI`,
             });
         }
-        shutdown = DropdownButtons({ buttons: buttons });
+        shutdown = <DropdownButtons key='action-shutdown' buttons={buttons} />;
     }
 
     let pause = null;
     if (config.provider.name === "LibvirtDBus" && config.provider.canPause(state)) {
-        pause = (<button key='action-pause' className="btn btn-default" onClick={mouseClick(onPause)} id={`${id}-pause`}>
+        pause = (<button key='action-pause' className="pf-c-button pf-m-secondary" onClick={mouseClick(onPause)} id={`${id}-pause`}>
             {_("Pause")}
         </button>);
     }
 
     let resume = null;
     if (config.provider.name === "LibvirtDBus" && config.provider.canResume(state)) {
-        resume = (<button key='action-resume' className="btn btn-default" onClick={mouseClick(onResume)} id={`${id}-resume`}>
+        resume = (<button key='action-resume' className="pf-c-button pf-m-secondary" onClick={mouseClick(onResume)} id={`${id}-resume`}>
             {_("Resume")}
         </button>);
     }
 
     let run = null;
     if (config.provider.canRun(state, hasInstallPhase)) {
-        run = (<button key='action-run' className="btn btn-default" onClick={mouseClick(onStart)} id={`${id}-run`}>
+        run = (<button key='action-run' className="pf-c-button pf-m-secondary" onClick={mouseClick(onStart)} id={`${id}-run`}>
             {_("Run")}
         </button>);
     }
 
     let install = null;
     if (config.provider.canInstall(state, hasInstallPhase)) {
-        install = (<button key='action-install' className="btn btn-default" onClick={mouseClick(onInstall)} id={`${id}-install`}>
+        install = (<button key='action-install' className="pf-c-button pf-m-secondary" onClick={mouseClick(onInstall)} id={`${id}-install`}>
             {_("Install")}
         </button>);
     }

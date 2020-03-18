@@ -2,16 +2,16 @@
 
 DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 
-# only build cockpit-pcp if pcp is available
-ifneq ($(shell dpkg -s libpcp3-dev >/dev/null 2>&1 && echo yes),yes)
-	export DH_OPTIONS = -Ncockpit-pcp
-	CONFIG_OPTIONS = --disable-pcp
-endif
-
 # newer firewalld ships cockpit.xml, but keep it for backports
 FIREWALLD_SERVICE = $(findstring $(shell . /etc/os-release; echo $$VERSION_ID),9 18.04)
 ifeq ($(FIREWALLD_SERVICE),)
 	WS_CONFLICTS = firewalld (<< 0.6.0)
+endif
+
+# only build deprecated cockpit-docker for stable releases (backports); Debian sid/testing has no VERSION_ID
+BUILD_DOCKER = $(findstring $(shell . /etc/os-release; echo $${VERSION_ID:-unstable}),10 18.04 19.10)
+ifeq ($(BUILD_DOCKER),)
+       export DH_OPTIONS = -Ncockpit-docker
 endif
 
 %:

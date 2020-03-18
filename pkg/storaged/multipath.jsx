@@ -19,7 +19,7 @@
 
 import cockpit from "cockpit";
 import React from "react";
-import { Alert } from "@patternfly/react-core";
+import { Alert, Button } from "@patternfly/react-core";
 
 import { get_multipathd_service } from "./utils.js";
 import { dialog_open } from "./dialog.jsx";
@@ -66,7 +66,7 @@ export class MultipathAlert extends React.Component {
                 <div className="container-fluid page-ct">
                     <Alert isInline variant='danger' title={
                         <>
-                            <button onClick={activate} className="btn btn-default pull-right">{_("Start Multipath")}</button>
+                            <Button onClick={activate} variant="secondary" className="pull-right">{_("Start Multipath")}</Button>
                             <span className="alert-message">
                                 {_("There are devices with multiple paths on the system, but the multipath service is not running.")}
                             </span>

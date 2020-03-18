@@ -74,7 +74,7 @@ def hotp_token(secret, counter, digits=6, hash_alg=hashlib.sha1):
 
 
 @skipImage("No realmd available", "fedora-coreos")
-@skipImage("freeipa not currently in testing", "debian-testing")
+@skipImage("freeipa not currently available", "debian-testing", "ubuntu-2004")
 class TestRealms(MachineCase):
     provision = {
         "0": {"address": "10.111.113.1/20", "dns": "10.111.112.100"},
@@ -195,6 +195,7 @@ class TestRealms(MachineCase):
         m.execute("chown -R admin /home/admin")
 
         self.allow_authorize_journal_messages()
+        self.allow_journal_messages(".*No authentication agent found.*")
 
         # check respecting FreeIPA's/sssd's ssh known host keys; this requires the new
         # --privkey option of sss_ssh_knownhostproxy, thus only works on recent images
@@ -202,13 +203,13 @@ class TestRealms(MachineCase):
         b.click('#dashboard-add')
         b.wait_popup('dashboard_setup_server_dialog')
         b.set_val('#add-machine-address', 'x0.cockpit.lan')
-        b.wait_text('#dashboard_setup_server_dialog .btn-primary', "Add")
-        b.click('#dashboard_setup_server_dialog .btn-primary')
+        b.wait_text('#dashboard_setup_server_dialog button:nth-of-type(2)', "Add")
+        b.click('#dashboard_setup_server_dialog button:nth-of-type(2)')
 
         # with --pubkey support this should Just Work, otherwise confirm fingerprint
         if '--pubkey' not in m.execute("sss_ssh_knownhostsproxy --help || true"):
             b.wait_in_text('#dashboard_setup_server_dialog', "Fingerprint")
-            b.click('#dashboard_setup_server_dialog .btn-primary')
+            b.click('#dashboard_setup_server_dialog button:nth-of-type(2)')
         b.wait_popdown('dashboard_setup_server_dialog')
         b.wait_present("#dashboard-hosts a[data-address='x0.cockpit.lan']")
         b.logout()
@@ -367,10 +368,10 @@ class TestRealms(MachineCase):
         b.click("#overview #restart-button")
 
         b.wait_popup("shutdown-dialog")
-        b.wait_in_text("#shutdown-dialog .btn-danger", 'Restart')
+        b.wait_in_text("#shutdown-dialog button:nth-of-type(2)", 'Restart')
         b.click("#shutdown-dialog .dropdown button")
         b.click("a:contains('No Delay')")
-        b.click("#shutdown-dialog .btn-danger")
+        b.click("#shutdown-dialog button:nth-of-type(2)")
         b.switch_to_top()
         b.wait_in_text(".curtains-ct h1", "Disconnected")
         m.wait_reboot()
@@ -613,16 +614,9 @@ for x in $(seq 1 20); do
     fi
 done
 
-# C.UTF-8 has existed for a long time, but still not on RHEL 7
-if locale -a | grep -iq ^'C\.utf'; then
-   loc=C.UTF-8
-else
-   loc=en_US.UTF-8
-fi
-
 # create SPN and keytab for ws
 if type ipa >/dev/null 2>&1; then
-    LC_ALL=$loc ipa service-add --ok-as-delegate=true --force HTTP/x0.cockpit.lan@COCKPIT.LAN
+    LC_ALL=C.UTF-8 ipa service-add --ok-as-delegate=true --force HTTP/x0.cockpit.lan@COCKPIT.LAN
 else
     curl --insecure -s --negotiate -u : https://services.cockpit.lan/ipa/json --header 'Referer: https://services.cockpit.lan/ipa' --header "Content-Type: application/json" --header "Accept: application/json" --data '{"params": [["HTTP/x0.cockpit.lan@COCKPIT.LAN"], {"raw": false, "all": false, "version": "2.101", "force": true, "no_members": false, "ipakrbokasdelegate": true}], "method": "service_add", "id": 0}'
 fi
@@ -636,7 +630,7 @@ sed -i '/^sudoers:/ s/files sss/sss files/' /etc/nsswitch.conf
 
 
 @skipImage("No realmd available", "fedora-coreos")
-@skipImage("freeipa not currently in testing", "debian-testing")
+@skipImage("freeipa not currently available", "debian-testing", "ubuntu-2004")
 class TestKerberos(MachineCase):
     provision = {
         "0": {"address": "10.111.113.1/20", "dns": "10.111.112.100"},
@@ -715,12 +709,12 @@ class TestKerberos(MachineCase):
         b.wait_popup('troubleshoot-dialog')
 
         b.set_val("#add-machine-address", "bad-user@x0.cockpit.lan")
-        b.wait_text('#troubleshoot-dialog .btn-primary', "Add")
-        b.click('#troubleshoot-dialog .btn-primary')
+        b.wait_text('#troubleshoot-dialog button:nth-of-type(2)', "Add")
+        b.click('#troubleshoot-dialog button:nth-of-type(2)')
         # with --pubkey support the fingerprint is already known, otherwise confirm fingerprint
         if '--pubkey' not in m.execute("sss_ssh_knownhostsproxy --help || true"):
             b.wait_in_text('#troubleshoot-dialog', "Fingerprint")
-            b.click('#troubleshoot-dialog .btn-primary')
+            b.click('#troubleshoot-dialog button:nth-of-type(2)')
         b.wait_in_text('#troubleshoot-dialog h4', "Log in to")
         b.click("#login-type button")
         b.click("#login-type li[value=stored] a")
@@ -730,7 +724,7 @@ class TestKerberos(MachineCase):
         b.wait_in_text("#login-available", "Kerberos Ticket")
         b.wait_not_present("#login-available .empty")
         b.set_val("#login-custom-user", "")
-        b.click('#troubleshoot-dialog .btn-primary')
+        b.click('#troubleshoot-dialog button:nth-of-type(2)')
 
         b.wait_popdown('troubleshoot-dialog')
         b.enter_page("/system/terminal", host="x0.cockpit.lan")
@@ -804,7 +798,7 @@ class TestPackageInstall(packagelib.PackageCase):
 
         b.click(self.domain_sel)
         b.wait_in_text(".modal-dialog:contains('Install Software')", "realmd is not available")
-        b.wait_present(".modal-dialog:contains('Install Software') .modal-footer button.btn-primary:disabled")
+        b.wait_present(".modal-dialog:contains('Install Software') .modal-footer button:nth-of-type(2):disabled")
         b.click(".modal-dialog:contains('Install Software') .modal-footer button.cancel")
         b.wait_not_present(".modal-dialog:contains('Install Software')")
         b.logout()
@@ -821,7 +815,7 @@ class TestPackageInstall(packagelib.PackageCase):
         self.waitTooltip("requires installation of realmd")
 
         b.click(self.domain_sel)
-        b.click(".modal-dialog:contains('Install Software') .modal-footer button.btn-primary")
+        b.click(".modal-dialog:contains('Install Software') .modal-footer button:nth-of-type(2)")
         b.wait_not_present(".modal-dialog:contains('Install Software')")
 
         # the stub package doesn't provide a realmd D-Bus service, so the "join

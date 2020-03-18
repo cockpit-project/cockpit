@@ -20,7 +20,7 @@
 import parent
 from testlib import *
 
-
+@nondestructive
 @skipImage("No tuned packaged", "fedora-coreos")
 class TestTuned(MachineCase):
 
@@ -31,12 +31,13 @@ class TestTuned(MachineCase):
         b = self.browser
         m = self.machine
 
-        recommended_profile = "virtual-guest"
+        recommended_profile = m.execute("tuned-adm recommend").strip()
 
         # Stop tuned in case it is running by default, as on RHEL.
 
         m.execute("systemctl stop tuned")
         m.execute("systemctl disable tuned")
+        self.addCleanup(m.execute, "tuned-adm auto_profile") # Enable and set default profile
 
         # Login and check initial state
 
@@ -59,7 +60,11 @@ class TestTuned(MachineCase):
 
         # Informative message when not authorized
         b.relogin('/system', authorized=False)
-        b.wait_text('#system-info-performance .action-trigger.disabled', recommended_profile)
+        if m.image != "rhel-8-2-distropkg": # Changed in #13552
+            trigger_selector = '#system-info-performance .action-trigger:disabled'
+        else:
+            trigger_selector = '#system-info-performance .action-trigger.disabled'
+        b.wait_text(trigger_selector, recommended_profile)
         check_status_tooltip('The user admin is not permitted to change profiles')
         b.relogin('/system', authorized=True)
 

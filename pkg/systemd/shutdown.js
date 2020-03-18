@@ -24,7 +24,7 @@ import cockpit from "cockpit";
 import "patterns";
 import "bootstrap-datepicker/dist/js/bootstrap-datepicker";
 
-import "./shutdown.less";
+import "./shutdown.scss";
 
 const _ = cockpit.gettext;
 
@@ -94,10 +94,10 @@ export function shutdown_modal_setup() {
 
         if (operation == 'shutdown') {
             $('#shutdown-dialog .modal-title').text(_("Shut Down"));
-            $("#shutdown-dialog .btn-danger").text(_("Shut Down"));
+            $("#shutdown-dialog .pf-m-danger").text(_("Shut Down"));
         } else {
             $('#shutdown-dialog .modal-title').text(_("Restart"));
-            $("#shutdown-dialog .btn-danger").text(_("Restart"));
+            $("#shutdown-dialog .pf-m-danger").text(_("Restart"));
         }
 
         update();
@@ -105,7 +105,7 @@ export function shutdown_modal_setup() {
 
     /* Perform the action */
 
-    $("#shutdown-dialog .btn-danger").click(function() {
+    $("#shutdown-dialog .pf-m-danger").click(function() {
         $("#shutdown-dialog").dialog("promise", perform());
     });
 }
@@ -194,6 +194,6 @@ function perform(message) {
 
 /* Perform the action */
 
-$("#shutdown-dialog .btn-danger").click(function() {
+$("#shutdown-dialog .pf-m-danger").click(function() {
     $("#shutdown-dialog").dialog("promise", perform());
 });

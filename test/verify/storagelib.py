@@ -16,6 +16,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import re
+import os.path
 
 from testlib import *
 
@@ -37,6 +38,49 @@ class StorageHelpers:
             return False
 
         self.browser.wait(step)
+
+    def add_ram_disk(self, size=50):
+        '''Add per-test RAM disk
+
+        The disk gets removed automatically when the test ends. This is safe for @nondestructive tests.
+
+        Return the device name.
+        '''
+        # sanity test: should not yet be loaded
+        self.machine.execute("test ! -e /sys/module/scsi_debug")
+        self.machine.execute("modprobe scsi_debug dev_size_mb=%s" % size)
+        dev = self.machine.execute('set -e; while true; do O=$(ls /sys/bus/pseudo/drivers/scsi_debug/adapter*/host*/target*/*:*/block 2>/dev/null || true); '
+                                   '[ -n "$O" ] && break || sleep 0.1; done; echo "/dev/$O"').strip()
+        # don't use addCleanup() here, this is often busy and needs to be cleaned up late; done in MachineCase.nonDestructiveSetup()
+
+        return dev
+
+    def add_loopback_disk(self, size=50):
+        '''Add per-test loopback disk
+
+        The disk gets removed automatically when the test ends. This is safe for @nondestructive tests.
+
+        Unlike add_ram_disk(), this can be called multiple times, and is less size constrained.
+        However, loopback devices look quite special to the OS, so they are not a very good
+        simulation of a "real" disk.
+
+        Return the device name.
+        '''
+        dev = self.machine.execute("set -e; F=$(mktemp /var/tmp/loop.XXXX); "
+                                   "dd if=/dev/zero of=$F bs=1M count=%s; "
+                                   "losetup --find --show $F; "
+                                   "rm $F" % size).strip()
+        # right after unmounting the device is often still busy, so retry a few times
+        self.addCleanup(self.machine.execute, "umount {0}; until losetup -d {0}; do sleep 1; done".format(dev), timeout=10)
+        return dev
+
+    def force_remove_disk(self, device):
+        '''Act like the given device gets physically removed.
+
+        This circumvents all the normal EBUSY failures, and thus can be used for testing
+        the cleanup after a forceful removal.
+        '''
+        self.machine.execute('echo 1 > /sys/block/%s/device/delete' % os.path.basename(device))
 
     def devices_dropdown(self, title):
         self.browser.click("#devices .dropdown [data-toggle=dropdown]")
@@ -94,7 +138,7 @@ class StorageHelpers:
 
     def wait_content_tab_action_disabled(self, row_index, tab_index, title):
         tab = self.content_tab_expand(row_index, tab_index)
-        btn = tab + " button.disabled:contains(%s)" % title
+        btn = tab + " button:disabled:contains(%s)" % title
         self.browser.wait_present(btn)
 
     # To check what's in a tab, we need to open the row and select the
@@ -158,9 +202,9 @@ class StorageHelpers:
     def content_tab_info_action(self, row_index, tab_index, title, wrapped=False):
         label = self.content_tab_info_label(row_index, tab_index, title)
         if wrapped:
-            link = label + " + div button.link-button"
+            link = label + " + div button.pf-m-link"
         else:
-            link = label + " + button.link-button"
+            link = label + " + button.pf-m-link"
         self.browser.click(link)
 
     # Dialogs

@@ -245,8 +245,8 @@ export class IscsiPanel extends React.Component {
         var actions = (
             <>
                 { sessions.length > 0
-                    ? <button className={"btn btn-default fa fa-check" + (this.state.armed ? " active" : "")}
-                  onClick={toggle_armed} /> : null
+                    ? <button className={"pf-c-button pf-m-secondary toggle-armed" + (this.state.armed ? " active" : "")}
+                  onClick={toggle_armed}><span className="fa fa-check" /></button> : null
                 }
                 { "\n" }
                 <StorageButton onClick={iscsi_change_name} id="edit-iscsi">

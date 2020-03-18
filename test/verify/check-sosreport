@@ -38,8 +38,8 @@ class TestSOS(MachineCase):
         m.write("/etc/sos.conf",
                 """
 [general]
-only-plugins=release,date,host
-threads=2
+only-plugins=release,date,host,cgroups,networking
+threads=1
 """)
 
         if urlroot != "":

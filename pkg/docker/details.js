@@ -81,7 +81,7 @@ PageContainerDetails.prototype = {
                     self.memory_limit.value = info.MemoryLimit || undefined;
                     self.cpu_priority.value = info.CpuPriority || undefined;
                 })
-                .find(".btn-primary")
+                .find(".pf-m-primary")
                 .on("click", function() {
                     var mem;
                     var prom = self.client.change_cpu_priority(self.container_id, self.cpu_priority.value);

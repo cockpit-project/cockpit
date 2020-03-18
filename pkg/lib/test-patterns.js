@@ -26,11 +26,11 @@ QUnit.test("update_privileged", function (assert) {
     var p_false = { allowed : false };
     var p_unknown = { };
 
-    var b1 = $('<button class="btn" id="b1">');
-    var b2 = $('<button class="btn" id="b2" title="A Real title">');
+    var b1 = $('<button class="pf-c-button" id="b1">');
+    var b2 = $('<button class="pf-c-button" id="b2" title="A Real title">');
 
     $(document.body).append(b1, b2);
-    $(".btn").update_privileged(p_true, "disabled message");
+    $(".pf-c-button").update_privileged(p_true, "disabled message");
 
     assert.equal($("#b1").attr('data-original-title'), "", 'b1 true, normal blank title');
     assert.equal($("#b2").attr('data-original-title'), "A Real title", 'b2 true, normal title');
@@ -39,7 +39,7 @@ QUnit.test("update_privileged", function (assert) {
     assert.ok(!$("#b1").attr("disabled"), 'b1 true, not disabled');
     assert.ok(!$("#b2").attr("disabled"), 'b2 true, not disabled');
 
-    $(".btn").update_privileged(p_false, "disabled message");
+    $(".pf-c-button").update_privileged(p_false, "disabled message");
 
     assert.equal($("#b1").attr('data-original-title'), "disabled message", 'b1 false, disabled title');
     assert.equal($("#b2").attr('data-original-title'), "disabled message", 'b2 false, disabled title');
@@ -48,7 +48,7 @@ QUnit.test("update_privileged", function (assert) {
     assert.ok(!$("#b1").attr("disabled"), 'b1 false, not disabled');
     assert.ok(!$("#b2").attr("disabled"), 'b2 false, not disabled');
 
-    $(".btn").update_privileged(p_unknown, "disabled message");
+    $(".pf-c-button").update_privileged(p_unknown, "disabled message");
 
     assert.equal($("#b1").attr('data-original-title'), "", 'b1 unknown, back to normal blank title');
     assert.equal($("#b2").attr('data-original-title'), "A Real title", 'b2 unknown, back to normal title');

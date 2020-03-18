@@ -299,8 +299,7 @@ class TestSystemInfo(MachineCase):
         b.mouse('#systime-tooltip', 'mouseout')
         b.wait_not_present(tooltip_sel)
 
-    @skipImage("Uses timedatex, no NTP servers config", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream",
-               "fedora-30", "fedora-testing")
+    @skipImage("Uses timedatex, no NTP servers config", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
     def testTimeServers(self):
         m = self.machine
         b = self.browser
@@ -356,7 +355,7 @@ class TestSystemInfo(MachineCase):
         b.wait_visible('#motd-box')
         b.wait_text('#motd', "  Hello\n  World")
 
-        b.click('#motd-box button.pf-c-button')
+        b.click('#motd-box button')
         b.wait_not_present('#motd-box')
 
         # motd should stay dismissed after a reload
@@ -685,7 +684,7 @@ class TestPcp(packagelib.PackageCase):
         b.wait_not_present("#server-pmlogger-switch")
         b.wait_in_text("#system-configuration-enable-pcp-link", "Enable stored metrics")
         b.click("#system-configuration-enable-pcp-link")
-        b.click(".modal-footer button.btn-primary:contains('Install')")
+        b.click(".modal-footer button:nth-of-type(2):contains('Install')")
         b.wait_not_present(".modal-dialog:contains('Install Software')")
 
 

@@ -22,7 +22,7 @@ import { Card, CardHeader, CardBody, CardFooter } from '@patternfly/react-core';
 import cockpit from "cockpit";
 import * as machine_info from "machine-info.js";
 
-import "./systemInformationCard.less";
+import "./systemInformationCard.scss";
 
 const _ = cockpit.gettext;
 

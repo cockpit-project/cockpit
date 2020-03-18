@@ -1,4 +1,6 @@
-@mobile-button-size: 56px;
+@import "variables";
+
+$mobile-button-size: 56px;
 
 /* Navigation base, used for both desktop & mobile navigation */
 
@@ -282,10 +284,10 @@
         z-index: 3;
 
         &:not(.expanded) {
-            width: unit(@sidebar-width-sm, px);
+            width: $sidebar-width-sm;
 
             .nav-sidebar {
-                width: unit(@sidebar-width-sm, px);
+                width: $sidebar-width-sm;
             }
 
             .list-group-item-value {
@@ -376,7 +378,7 @@
 
     .nav-sidebar-wrap:not(.expanded) .nav-sidebar:not(.clicked):focus-within,
     .nav-sidebar-wrap:not(.expanded) .nav-sidebar:not(.clicked):hover {
-        width: unit(@sidebar-width-full, px);
+        width: $sidebar-width-full;
         box-shadow: 0 0 3px rgba(0,0,0,0.5), 0 0 32px rgba(0,0,0,0.75);
         transition-duration: 300ms;
         transition-timing-function: cubic-bezier(0,1.2,0.8,1);
@@ -448,7 +450,7 @@
     However, display: container and subgrids are not implemented in Chrome yet.
     To work around this, we do a little more complex gridding by overlapping
     child grids on top of the parent grid. We basically set up the main grid
-    as with a gutter of @mobile-button-size ("56px") on the top, right side,
+    as with a gutter of $mobile-button-size ("56px") on the top, right side,
     and bottom. We then stretch the child grids to this.
 
     The elements are then assigned grid names with 'grid-area' and placed in the
@@ -461,7 +463,7 @@
     (which basically means go from first and stop when it hits the grid
     column/row _after_ the one you want to last fill).
 
-    Note: Due to less, we have to wrap some of the values in ~"" so that they
+    Note: Due to less, we have to wrap some of the values in "" so that they
     will be passed directly to the resulting CSS... else less will want to try
     to do math, which isn't want we want.
 
@@ -471,8 +473,8 @@
 
     .area-ct-layout, .area-ct-body, .area-ct-navbar {
         display: grid;
-        grid-template-columns: auto @mobile-button-size;
-        grid-template-rows: @mobile-button-size 1fr @mobile-button-size;
+        grid-template-columns: auto $mobile-button-size;
+        grid-template-rows: $mobile-button-size 1fr $mobile-button-size;
         align-content: end;
     }
 
@@ -488,11 +490,11 @@
 
     .area-ct-body {
         /* Stretch the nav wrapper to the same area on the parent grid */
-        grid-column: ~"1/3";
-        grid-row: ~"1/4";
+        grid-column: 1/3;
+        grid-row: 1/4;
         // As Chrome on Mobile is wonky,
         // here's an alternate way to set the size that works everywhere
-        grid-template-rows: ~"@{mobile-button-size} calc(100% - @{mobile-button-size} * 2) @{mobile-button-size}";
+        grid-template-rows: #{$mobile-button-size} calc(100% - #{$mobile-button-size} * 2) #{$mobile-button-size};
         z-index: 2;
 
         /* Pass through mouse events */
@@ -516,15 +518,15 @@
         background: transparent;
         border: none;
 
-        grid-template:
+        grid-template-areas:
             "notmenu menu menu"
             "notheader notheader header";
 
         grid-area: topbar;
-        grid-column: ~"1/3"; /* Expand to the whole column */
-        grid-row: ~"2/4";
-        grid-template-rows: auto @mobile-button-size;
-        grid-template-columns: minmax(@mobile-button-size, auto) auto @mobile-button-size;
+        grid-column: 1/3; /* Expand to the whole column */
+        grid-row: 2/4;
+        grid-template-rows: auto $mobile-button-size;
+        grid-template-columns: minmax($mobile-button-size, auto) auto $mobile-button-size;
 
         z-index: 3;
 
@@ -575,7 +577,7 @@
     .nav-sidebar-wrap {
         grid-area: nav;
         z-index: 3;
-        max-width: ~"calc(100vw - @{mobile-button-size})";
+        max-width: "calc(100vw - #{$mobile-button-size})";
         overflow: auto;
         overflow-y: hidden;
         position: relative;
@@ -637,7 +639,7 @@
                 width: auto !important;
                 min-width: 80px;
                 width: 100% !important;
-                height: @mobile-button-size !important;
+                height: $mobile-button-size !important;
                 margin-bottom: 12px; // Hack to hide the scrollbar
             }
 
@@ -714,7 +716,7 @@
 
     /* Restrict width of hostname nav label in mobile */
     #host-nav-item .list-group-item-value {
-        max-width: ~"calc(20vw - 24px)";
+        max-width: "calc(20vw - 24px)";
     }
 
     .area-ct-subnav {
@@ -741,8 +743,8 @@
 
         .dropdown-menu {
             width: auto !important;
-            left: @mobile-button-size / 2 !important;
-            right: @mobile-button-size / -2 !important;
+            left: $mobile-button-size / 2 !important;
+            right: $mobile-button-size / -2 !important;
             animation: navFadeInSlideDown 600ms;
         }
     }
@@ -754,7 +756,7 @@
 
     .navbar-collapse > ul,
     .area-ct-subnav {
-        box-shadow: 0 0 9px ~"rgba(0, 0, 0, 0.4)" !important;
+        box-shadow: 0 0 9px "rgba(0, 0, 0, 0.4)" !important;
     }
 
     /* Add an indicator for the host menu in mobile nav */
@@ -792,7 +794,7 @@
 
 
 @media (max-device-width: 1024px) and (max-device-height: 768px) and (orientation: landscape) {
-  /* Shrink nav for VMs @ 1024×768 (and below)  */
+  /* Shrink nav for VMs $ 1024×768 (and below)  */
 
   .area-ct-subnav {
     flex: 0 1 12em;

@@ -28,7 +28,7 @@ import * as authorized_keys from './authorized-keys.js';
 
 import 'patterns';
 import 'bootstrap-datepicker/dist/js/bootstrap-datepicker';
-import 'form-layout.less';
+import 'form-layout.scss';
 
 moment.locale(cockpit.language);
 
@@ -1244,7 +1244,7 @@ function AccountExpiration() {
         $("#account-expiration-after").text(parts[1]);
     });
 
-    $('#account-expiration .btn-primary').on('click', function() {
+    $('#account-expiration .pf-m-primary').on('click', function() {
         var date, value;
         var ex;
         var promise = null;
@@ -1322,7 +1322,7 @@ function PasswordExpiration() {
         $("#password-expiration-after").text(parts[1]);
     });
 
-    $('#password-expiration .btn-primary').on('click', function() {
+    $('#password-expiration .pf-m-primary').on('click', function() {
         var days, ex;
         var promise = null;
 
@@ -1364,7 +1364,7 @@ function PasswordReset() {
         $("#password-reset .modal-body p").text(msg);
     });
 
-    $("#password-reset .btn-primary").on("click", function() {
+    $("#password-reset .pf-m-danger").on("click", function() {
         var account_id = $("#password-reset").data("account-id");
         var promise = cockpit.spawn(["/usr/bin/passwd", "-e", account_id],
                                     { superuser : true, err: "message" });

@@ -26,6 +26,7 @@ import { init_reporting } from "./reporting.jsx";
 import ReactDOM from 'react-dom';
 import React from 'react';
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
+import { ExclamationCircleIcon } from '@patternfly/react-icons';
 
 $(function() {
     cockpit.translate();
@@ -103,7 +104,7 @@ $(function() {
         ReactDOM.render(
             React.createElement(EmptyStatePanel, {
                 loading: loading,
-                showIcon: show_icon,
+                icon: show_icon ? ExclamationCircleIcon : undefined,
                 title: title,
                 paragraph: text,
                 action: action,
@@ -162,7 +163,7 @@ $(function() {
                              () => {
                                  var count = 0;
                                  var stopped = null;
-                                 manage_start_box(true, true, "Loading...", "", "");
+                                 manage_start_box(true, false, no_logs ? ("Loading...") : null, "", "");
                                  procs.push(journal.journalctl(match, { follow: false, reverse: true, cursor: first })
                                          .fail(query_error)
                                          .stream(function(entries) {
@@ -279,7 +280,7 @@ $(function() {
                     });
         }
 
-        manage_start_box(true, true, "Loading...", "", "");
+        manage_start_box(true, false, _("Loading..."), "", "");
 
         $('#journal-service-menu').on("click", "a", function() {
             update_services_list = false;
@@ -556,7 +557,7 @@ $(function() {
         var tab = $('<ul class="nav nav-tabs nav-tabs-pf">')
                 .attr("id", "problem-navigation");
 
-        var d_btn = $('<button class="btn btn-danger problem-btn btn-delete pficon pficon-delete">');
+        var d_btn = $('<button class="pf-c-button pf-m-danger problem-btn btn-delete">').append('<span class="pficon pficon-delete">');
 
         const reportingTable = document.createElement("div");
         reportingTable.setAttribute("id", "journal-entry-reporting-table");
@@ -798,7 +799,7 @@ $(function() {
         detail_content += create_table_from_thread(crash_thread);
 
         if (other_threads.length !== 0) {
-            detail_content += '<div id="other_threads_btn_div"><button class="btn btn-default other-threads-btn" title="">Show all threads</button></div>';
+            detail_content += '<div id="other_threads_btn_div"><button class="pf-c-button pf-m-secondary other-threads-btn" title="">Show all threads</button></div>';
             detail_content += '<div class="hidden other_threads">';
 
             var thread_num = 1;

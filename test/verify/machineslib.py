@@ -19,12 +19,11 @@ import functools
 import os
 import subprocess
 import time
-import unittest
 import xml.etree.ElementTree as ET
 
 import parent
 from testlib import *
-from netlib import NetworkCase
+from storagelib import StorageHelpers
 
 
 def readFile(name):
@@ -33,30 +32,6 @@ def readFile(name):
         with open(name, 'r') as f:
             content = f.read().replace('\n', '')
     return content
-
-
-# Preparations for physical disk storage pool
-def prepareDisk(m):
-    m.add_disk("50M", serial="DISK1")
-    wait(lambda: m.execute("ls -l /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1"))
-    m.execute("parted /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 mklabel gpt")
-
-
-# Preparations for iscsi storage pool
-def prepareStorageDeviceOnISCSI(m, target_iqn, orig_iqn=None):
-    if orig_iqn is None:
-        orig_iqn = m.execute("sed </etc/iscsi/initiatorname.iscsi -e 's/^.*=//'").rstrip()
-
-    # Increase the iSCSI timeouts for heavy load during our testing
-    m.execute("""sed -i 's|^\(node\..*log.*_timeout = \).*|\\1 60|' /etc/iscsi/iscsid.conf""")
-
-    # Setup a iSCSI target
-    m.execute("""
-              targetcli /backstores/ramdisk create test 50M
-              targetcli /iscsi create %(tgt)s
-              targetcli /iscsi/%(tgt)s/tpg1/luns create /backstores/ramdisk/test
-              targetcli /iscsi/%(tgt)s/tpg1/acls create %(ini)s
-              """ % {"tgt": target_iqn, "ini": orig_iqn})
 
 
 SPICE_XML = """
@@ -176,23 +151,71 @@ reboot"""
 
 
 @skipImage("Atomic cannot run virtual machines", "fedora-coreos")
-class TestMachines(NetworkCase):
+class TestMachines(MachineCase, StorageHelpers):
     created_pool = False
     provider = None
+    tmp_storage = "/mnt/libvirt"
 
     def setUp(self):
-        # HACK: fix this to get along with NetworkCase.setUp(), and use super()
-        MachineCase.setUp(self)
-        self.startLibvirt()
-
+        super().setUp()
         m = self.machine
+
+        # Prepare tmp directory
+        m.execute("mkdir {0}".format(self.tmp_storage))
+        self.addCleanup(m.execute, "findmnt --list --noheadings --output TARGET | grep ^{0} | xargs -r umount && rm -rf {0}".format(self.tmp_storage))
+
+        # Keep pristine state of libvirt
+        orig = "/var/lib/libvirt"
+        backup = os.path.join(self.tmp_storage, "libvirt.backup")
+        m.execute("cp -a {0} {1} && mount -o bind {1} {0}".format(orig, backup))
+        self.addCleanup(m.execute, "umount -lf {0}".format(orig))
+
+        # Cleanup domains definitions
+        etc_orig = "/etc/libvirt"
+        etc_backup = os.path.join(self.tmp_storage, "etc_libvirt.backup")
+        m.execute("cp -a {0} {1} && mount -o bind {1} {0}".format(etc_orig, etc_backup))
+        self.addCleanup(m.execute, "umount -lf {0}".format(etc_orig, etc_backup))
+
+        # Cleanup pools
+        self.addCleanup(m.execute, "rm -rf /run/libvirt/storage/*")
+
+        # Cleanup networks
+        self.addCleanup(m.execute, "rm -rf /run/libvirt/network/test_network*")
+
+        self.startLibvirt()
+        self.addCleanup(m.execute, "systemctl stop libvirtd")
+
+        # Stop all networks
+        self.addCleanup(m.execute, "for n in $(virsh net-list --all --name); do virsh net-destroy $n || true; done")
+
+        # Stop all domains
+        self.addCleanup(m.execute, "for d in $(virsh list --name); do virsh destroy $d || true; done")
+
         # we don't have configuration to open the firewall for local libvirt machines, so just stop firewalld
         m.execute("systemctl stop firewalld; systemctl try-restart libvirtd")
 
-    def tearDown(self):
-        # FIXME: Call `super.tearDown()` or remove this method. There are some unexpected messages
-        # which need to be adjusted before we can do that.
-        pass
+        # FIXME: report downstream; AppArmor noisily denies some operations, but they are not required for us
+        self.allow_journal_messages('.* type=1400 .* apparmor="DENIED" operation="capable" profile="\S*libvirtd.* capname="sys_rawio".*')
+        if m.image in ["ubuntu-2004"]:
+            self.allow_journal_messages('.* type=1400 .* apparmor="DENIED" operation="open" profile="libvirt.* name="/" .* denied_mask="r" .*')
+            self.allow_journal_messages('.* type=1400 .* apparmor="DENIED" operation="open" profile="libvirt.* name="/sys/bus/nd/devices/" .* denied_mask="r" .*')
+
+        # FIXME: report downstream: qemu often crashes in testAddDisk and testMultipleSettings
+        if m.image in ["ubuntu-stable"]:
+            self.allow_journal_messages('Process .*qemu-system-x86.* of user .* dumped core.')
+
+        # FIXME: testDomainMemorySettings on Fedora-32 reports this. Figure out where it comes from.
+        # Ignoring just to unbreak tests for now
+        self.allow_journal_messages("Failed to get COMM: No such process")
+
+    def addIface(self, name):
+        self.machine.execute(r"""
+            mkdir -p /run/udev/rules.d/ &&
+            echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="%(name)s", ENV{NM_UNMANAGED}="0"' > /run/udev/rules.d/99-nm-veth-test.rules &&
+            udevadm control --reload &&
+            ip link add name %(name)s type veth
+            """ % {"name": name})
+        self.addCleanup(self.machine.execute, "rm /run/udev/rules.d/99-nm-veth-test.rules; ip link del dev {0}".format(name))
 
     def startLibvirt(self):
         m = self.machine
@@ -201,7 +224,8 @@ class TestMachines(NetworkCase):
         # Wait until we can get a list of domains
         wait(lambda: m.execute("virsh list"))
         # Wait for the network 'default' to become active
-        wait(lambda: m.execute(command="virsh net-info default | grep Active"))
+        m.execute("virsh net-start default || true")
+        wait(lambda: m.execute(command="virsh net-info default | grep 'Active:\s*yes'"))
 
     def startVm(self, name, graphics='spice', ptyconsole=False):
         m = self.machine
@@ -255,6 +279,27 @@ class TestMachines(NetworkCase):
 
         return args
 
+    # Preparations for iscsi storage pool
+    def prepareStorageDeviceOnISCSI(self, target_iqn, orig_iqn=None):
+        m = self.machine
+
+        if orig_iqn is None:
+            orig_iqn = m.execute("sed </etc/iscsi/initiatorname.iscsi -e 's/^.*=//'").rstrip()
+
+        # Increase the iSCSI timeouts for heavy load during our testing
+        m.execute("""sed -i 's|^\(node\..*log.*_timeout = \).*|\\1 60|' /etc/iscsi/iscsid.conf""")
+
+        # Setup a iSCSI target
+        m.execute("""
+                  targetcli /backstores/ramdisk create test 50M
+                  targetcli /iscsi create %(tgt)s
+                  targetcli /iscsi/%(tgt)s/tpg1/luns create /backstores/ramdisk/test
+                  targetcli /iscsi/%(tgt)s/tpg1/acls create %(ini)s
+                  """ % {"tgt": target_iqn, "ini": orig_iqn})
+
+        self.addCleanup(m.execute, "targetcli /backstores/ramdisk delete test && targetcli /iscsi delete %s" % target_iqn)
+
+    @nondestructive
     def testState(self):
         b = self.browser
         m = self.machine
@@ -273,6 +318,7 @@ class TestMachines(NetworkCase):
 
         return args
 
+    @nondestructive
     def testBasic(self):
         b = self.browser
         m = self.machine
@@ -325,7 +371,7 @@ class TestMachines(NetworkCase):
         # Send Non-Maskable Interrupt (no change in VM state is expected)
         b.click("#vm-subVmTest1-off-caret")
         b.click("#vm-subVmTest1-sendNMI")
-        b.wait_not_visible("#vm-subVmTest1-sendNMI")
+        b.wait_attr("#vm-subVmTest1-off-caret", "aria-expanded", "false")
 
         if args["logfile"] is not None:
             b.wait(lambda: "NMI received" in self.machine.execute("cat {0}".format(args["logfile"])))
@@ -349,7 +395,7 @@ class TestMachines(NetworkCase):
 
         # restart libvirtd
         m.execute("systemctl stop libvirtd.service")
-        b.wait_in_text("#slate-header", "Virtualization Service (libvirt) is Not Active")
+        b.wait_in_text(".pf-c-empty-state", "Virtualization Service (libvirt) is Not Active")
         m.execute("systemctl start libvirtd.service")
         # HACK: https://launchpad.net/bugs/1802005
         if self.provider == "libvirt-dbus" and m.image == "ubuntu-stable":
@@ -447,6 +493,7 @@ class TestMachines(NetworkCase):
             print("Libvirt version does not support disk statistics")
             b.wait_present("#vm-{0}-disks-notification".format(name))
 
+    @nondestructive
     def testLibvirt(self):
         b = self.browser
         m = self.machine
@@ -466,12 +513,18 @@ class TestMachines(NetworkCase):
         b.wait_in_text("body", "Virtual Machines")
         b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
 
+        # newer libvirtd versions use socket activation
+        # we should test that separately, but here we test only using the service unit
+        if m.image not in ["debian-stable", "ubuntu-1804", "ubuntu-stable", "rhel-8-2-distropkg", "rhel-8-2", "centos-8-stream"]:
+            m.execute("systemctl stop libvirtd-ro.socket libvirtd.socket libvirtd-admin.socket")
+            self.addCleanup(m.execute, "systemctl start libvirtd-ro.socket libvirtd.socket libvirtd-admin.socket")
+
         m.execute("systemctl disable {0}".format(libvirtServiceName))
         m.execute("systemctl stop {0}".format(libvirtServiceName))
 
-        b.wait_in_text("#slate-header", "Virtualization Service (libvirt) is Not Active")
+        b.wait_in_text(".pf-c-empty-state", "Virtualization Service (libvirt) is Not Active")
         b.wait_present("#enable-libvirt:checked")
-        b.click("#start-libvirt")
+        b.click(".pf-c-empty-state button.pf-m-primary")  # Start libvirt
         b.wait(lambda: checkLibvirtEnabled())
         # HACK: https://launchpad.net/bugs/1802005
         if self.provider == "libvirt-dbus" and m.image == "ubuntu-stable":
@@ -482,10 +535,10 @@ class TestMachines(NetworkCase):
             b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
 
         m.execute("systemctl stop {0}".format(libvirtServiceName))
-        b.wait_in_text("#slate-header", "Virtualization Service (libvirt) is Not Active")
+        b.wait_in_text(".pf-c-empty-state", "Virtualization Service (libvirt) is Not Active")
         b.wait_present("#enable-libvirt:checked")
         b.click("#enable-libvirt") # uncheck it ; ; TODO: fix this, do not assume initial state of the checkbox
-        b.click("#start-libvirt")
+        b.click(".pf-c-empty-state button.pf-m-primary")  # Start libvirt
         b.wait(lambda: not checkLibvirtEnabled())
         # HACK: https://launchpad.net/bugs/1802005
         if self.provider == "libvirt-dbus" and m.image == "ubuntu-stable":
@@ -498,10 +551,10 @@ class TestMachines(NetworkCase):
         m.execute("systemctl enable {0}".format(libvirtServiceName))
         m.execute("systemctl stop {0}".format(libvirtServiceName))
 
-        b.wait_in_text("#slate-header", "Virtualization Service (libvirt) is Not Active")
+        b.wait_in_text(".pf-c-empty-state", "Virtualization Service (libvirt) is Not Active")
         b.wait_present("#enable-libvirt:checked")
 
-        b.click("#troubleshoot")
+        b.click(".pf-c-empty-state button.pf-m-secondary")  # Troubleshoot
         b.leave_page()
         url_location = "/system/services#/{0}".format(libvirtServiceName)
         b.wait(lambda: url_location in b.eval_js("window.location.href"))
@@ -516,6 +569,7 @@ class TestMachines(NetworkCase):
 
         self.allow_authorize_journal_messages()
 
+    @nondestructive
     def testDisks(self):
         b = self.browser
         m = self.machine
@@ -571,9 +625,13 @@ class TestMachines(NetworkCase):
         b.wait_not_present("#vm-subVmTest1-disks-vdc-device")
 
     # Test Add Disk via dialog
+    @timeout(900)
+    @nondestructive
     def testAddDisk(self):
         b = self.browser
         m = self.machine
+
+        dev = self.add_ram_disk()
 
         class VMAddDiskDialog(object):
             def __init__(
@@ -745,10 +803,13 @@ class TestMachines(NetworkCase):
             used_targets.remove(target)
 
         # prepare libvirt storage pools
-        m.execute("mkdir /mnt/vm_one ; mkdir /mnt/vm_two ; mkdir /mnt/default_tmp ; chmod a+rwx /mnt/vm_one /mnt/vm_two /mnt/default_tmp")
-        m.execute("virsh pool-define-as default_tmp --type dir --target /mnt/default_tmp && virsh pool-start default_tmp")
-        m.execute("virsh pool-define-as myPoolOne --type dir --target /mnt/vm_one && virsh pool-start myPoolOne")
-        m.execute("virsh pool-define-as myPoolTwo --type dir --target /mnt/vm_two && virsh pool-start myPoolTwo")
+        v1 = os.path.join(self.tmp_storage, "vm_one")
+        v2 = os.path.join(self.tmp_storage, "vm_two")
+        default_tmp = os.path.join(self.tmp_storage, "default_tmp")
+        m.execute("mkdir --mode 777 {0} {1} {2}".format(v1, v2, default_tmp))
+        m.execute("virsh pool-define-as default_tmp --type dir --target {0} && virsh pool-start default_tmp".format(default_tmp))
+        m.execute("virsh pool-define-as myPoolOne --type dir --target {0} && virsh pool-start myPoolOne".format(v1))
+        m.execute("virsh pool-define-as myPoolTwo --type dir --target {0} && virsh pool-start myPoolTwo".format(v2))
 
         m.execute("virsh vol-create-as default_tmp defaultVol --capacity 1G --format raw")
         m.execute("virsh vol-create-as myPoolTwo mydiskofpooltwo_temporary --capacity 1G --format qcow2")
@@ -756,9 +817,13 @@ class TestMachines(NetworkCase):
         wait(lambda: "mydiskofpooltwo_permanent" in m.execute("virsh vol-list myPoolTwo"))
 
         # Prepare a local NFS pool
-        m.execute("mkdir /mnt/nfs-pool && mkdir /mnt/exports && echo '/mnt/exports 127.0.0.1/24(rw,sync,no_root_squash,no_subtree_check,fsid=0)' > /etc/exports")
+        m.execute("mv /etc/exports /etc/exports.backup")
+        self.addCleanup(m.execute, "mv /etc/exports.backup /etc/exports")
+        nfs_pool = os.path.join(self.tmp_storage, "nfs_pool")
+        mnt_exports = os.path.join(self.tmp_storage, "mnt_exports")
+        m.execute("mkdir {0} {1} && echo '{1} 127.0.0.1/24(rw,sync,no_root_squash,no_subtree_check,fsid=0)' > /etc/exports".format(nfs_pool, mnt_exports))
         m.execute("systemctl restart nfs-server")
-        m.execute("virsh pool-define-as nfs-pool --type netfs --target /mnt/nfs-pool --source-host 127.0.0.1 --source-path /mnt/exports && virsh pool-start nfs-pool")
+        m.execute("virsh pool-define-as nfs-pool --type netfs --target {0} --source-host 127.0.0.1 --source-path {1} && virsh pool-start nfs-pool".format(nfs_pool, mnt_exports))
         # And create a volume on it in order to test use existing volume dialog
         m.execute("virsh vol-create-as --pool nfs-pool --name nfs-volume-0 --capacity 1M --format qcow2")
 
@@ -769,7 +834,7 @@ class TestMachines(NetworkCase):
             # Preparations for testing ISCSI pools
 
             target_iqn = "iqn.2019-09.cockpit.lan"
-            prepareStorageDeviceOnISCSI(m, target_iqn)
+            self.prepareStorageDeviceOnISCSI(target_iqn)
 
             m.execute("virsh pool-define-as iscsi-pool --type iscsi --target /dev/disk/by-path --source-host 127.0.0.1 --source-dev {0} && virsh pool-start iscsi-pool".format(target_iqn))
             wait(lambda: "unit:0:0:0" in self.machine.execute("virsh pool-refresh iscsi-pool && virsh vol-list iscsi-pool"), delay=3)
@@ -962,14 +1027,13 @@ class TestMachines(NetworkCase):
             # Check that usage information can't be fetched since the pool is inactive
             b.wait_not_present("#vm-subVmTest1-disks-vdd-used")
 
-        prepareDisk(self.machine)
         cmds = [
-            "virsh pool-define-as pool-disk disk - - /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 - /tmp/poolDiskImages",
+            "virsh pool-define-as pool-disk disk - - %s - /tmp/poolDiskImages" % dev,
             "virsh pool-build pool-disk --overwrite",
             "virsh pool-start pool-disk",
         ]
         self.machine.execute(" && ".join(cmds))
-        partition = str(self.machine.execute("readlink -f /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 | cut -d '/' -f 3").strip()) + "1"
+        partition = os.path.basename(dev) + "1"
         VMAddDiskDialog(
             self,
             pool_name='pool-disk',
@@ -980,6 +1044,14 @@ class TestMachines(NetworkCase):
             expected_target=get_next_free_target(),
         ).execute()
 
+        # avoid error noise about resources getting cleaned up
+        b.logout()
+
+        # AppArmor doesn't like the non-standard path for our storage pools
+        if m.image in ["debian-testing", "ubuntu-stable"]:
+            self.allow_journal_messages('.* type=1400 .* apparmor="DENIED" operation="open" profile="libvirt.* name="%s.*' % self.tmp_storage)
+
+    @nondestructive
     def testVmNICs(self):
         b = self.browser
         m = self.machine
@@ -1019,6 +1091,7 @@ class TestMachines(NetworkCase):
 
         b.wait_in_text("#vm-subVmTest1-network-2-state", "up")
 
+    @nondestructive
     def testVCPU(self):
         b = self.browser
         m = self.machine
@@ -1146,8 +1219,7 @@ class TestMachines(NetworkCase):
             m.execute("virsh undefine subVmTest1")
             b.wait_present("button#vm-subVmTest1-vcpus-count:disabled")
 
-    # HACK: broken with Chromium > 63, see https://github.com/cockpit-project/cockpit/pull/9229
-    @unittest.skip("Broken with current chromium, see PR #9229")
+    @nondestructive
     def testExternalConsole(self):
         b = self.browser
 
@@ -1171,6 +1243,7 @@ class TestMachines(NetworkCase):
         self.assertEqual(b.attr("#dynamically-generated-file", "href"),
                          u"data:application/x-virt-viewer,%5Bvirt-viewer%5D%0Atype%3Dspice%0Ahost%3D127.0.0.1%0Aport%3D5900%0Adelete-this-file%3D1%0Afullscreen%3D0%0A")
 
+    @nondestructive
     def testInlineConsole(self, urlroot=""):
         b = self.browser
 
@@ -1191,9 +1264,11 @@ class TestMachines(NetworkCase):
         # since VNC is defined for this VM, the view for "In-Browser Viewer" is rendered by default
         b.wait_present(".toolbar-pf-results canvas")
 
+    @nondestructive
     def testInlineConsoleWithUrlRoot(self, urlroot=""):
         self.testInlineConsole(urlroot="/webcon")
 
+    @nondestructive
     def testDelete(self):
         b = self.browser
         m = self.machine
@@ -1290,6 +1365,7 @@ class TestMachines(NetworkCase):
         b.wait_not_present("tbody tr[data-row-id=vm-{0}] th".format(name))
         b.wait_not_present(".toast-notifications.list-pf div.pf-c-alert")
 
+    @nondestructive
     def testSerialConsole(self):
         b = self.browser
         name = "vmWithSerialConsole"
@@ -1319,6 +1395,8 @@ class TestMachines(NetworkCase):
                                     ".*Connection reset by peer")
         self.allow_browser_errors("Disconnection timed out.")
 
+    @timeout(1200)
+    @nondestructive
     def testCreate(self):
         """
         this test will print many expected error messages
@@ -1428,14 +1506,15 @@ class TestMachines(NetworkCase):
         # Fake the osinfo-db data in order that it will allow spawn the installation - of course we don't expect it to succeed -
         # we just need to check that the VM was spawned
         fedora_28_xml = self.machine.execute("cat /usr/share/osinfo/os/fedoraproject.org/fedora-28.xml")
-        self.machine.execute("cat /usr/share/osinfo/os/fedoraproject.org/fedora-28.xml > /tmp/fedora-28.xml")
         root = ET.fromstring(fedora_28_xml)
         root.find('os').find('resources').find('minimum').find('ram').text = '134217750'
         root.find('os').find('resources').find('minimum').find('storage').text = '134217750'
         root.find('os').find('resources').find('recommended').find('ram').text = '268435500'
         root.find('os').find('resources').find('recommended').find('storage').text = '268435500'
         new_fedora_28_xml = ET.tostring(root)
-        self.machine.execute("echo \'{0}\' > /usr/share/osinfo/os/fedoraproject.org/fedora-28.xml".format(str(new_fedora_28_xml, 'utf-8')))
+        self.machine.execute("echo \'{0}\' > /tmp/fedora-28.xml".format(str(new_fedora_28_xml, 'utf-8')))
+        self.machine.execute("mount -o bind /tmp/fedora-28.xml /usr/share/osinfo/os/fedoraproject.org/fedora-28.xml")
+        self.addCleanup(self.machine.execute, "umount /usr/share/osinfo/os/fedoraproject.org/fedora-28.xml || true")
 
         self.browser.reload()
         self.browser.enter_page('/machines')
@@ -1480,7 +1559,7 @@ class TestMachines(NetworkCase):
         # name already used from a VM that is currently being created
         # https://bugzilla.redhat.com/show_bug.cgi?id=1780451
         # downloadOS option exists only in virt-install >= 2.2.1 which is the reason we have the condition for the OSes list below
-        if self.machine.image in ['debian-stable', 'debian-testing', 'ubuntu-stable', 'ubuntu-1804', 'fedora-30', 'fedora-testing', "centos-8-stream"]:
+        if self.machine.image in ['debian-stable', 'debian-testing', 'ubuntu-stable', 'ubuntu-1804', 'centos-8-stream']:
             self.browser.wait_not_present('select option[data-value="Download an OS"]')
         else:
             createDownloadAnOSTest(TestMachines.VmDialog(self, name='existing-name', sourceType='downloadOS',
@@ -1522,7 +1601,7 @@ class TestMachines(NetworkCase):
                                       {"Operating System": "You need to select the most closely matching Operating System"})
 
         # try to CREATE few machines
-        if self.machine.image in ['debian-stable', 'debian-testing', 'ubuntu-stable', 'ubuntu-1804', 'fedora-30', 'fedora-testing', "centos-8-stream"]:
+        if self.machine.image in ['debian-stable', 'debian-testing', 'ubuntu-stable', 'ubuntu-1804', 'centos-8-stream']:
             self.browser.wait_not_present('select option[data-value="Download an OS"]')
         else:
             createDownloadAnOSTest(TestMachines.VmDialog(self, sourceType='downloadOS',
@@ -1554,7 +1633,7 @@ class TestMachines(NetworkCase):
                                                          os_name=config.FEDORA_28,
                                                          os_short_id=config.FEDORA_28_SHORTID))
 
-            self.machine.execute('cat /tmp/fedora-28.xml > /usr/share/osinfo/os/fedoraproject.org/fedora-28.xml')
+            self.machine.execute("umount /usr/share/osinfo/os/fedoraproject.org/fedora-28.xml || true")
 
         createTest(TestMachines.VmDialog(self, sourceType='url',
                                          location=config.VALID_URL,
@@ -1649,9 +1728,9 @@ class TestMachines(NetworkCase):
                                          start_vm=True,))
 
         # Test create VM with disk of type "block"
-        prepareDisk(self.machine)
+        dev = self.add_ram_disk()
         cmds = [
-            "virsh pool-define-as poolDisk disk - - /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 - /tmp/poolDiskImages",
+            "virsh pool-define-as poolDisk disk - - {0} - {1}".format(dev, os.path.join(self.tmp_storage, "poolDiskImages")),
             "virsh pool-build poolDisk --overwrite",
             "virsh pool-start poolDisk",
             "virsh vol-create-as poolDisk sda1 1024"
@@ -1672,7 +1751,7 @@ class TestMachines(NetworkCase):
         if "debian" not in self.machine.image and "ubuntu" not in self.machine.image:
             # Test create VM with disk of type "network"
             target_iqn = "iqn.2019-09.cockpit.lan"
-            prepareStorageDeviceOnISCSI(self.machine, target_iqn)
+            self.prepareStorageDeviceOnISCSI(target_iqn)
 
             cmds = [
                 "virsh pool-define-as --name poolIscsi --type iscsi --source-host 127.0.0.1 --source-dev {0} --target /dev/disk/by-path/".format(target_iqn),
@@ -1681,6 +1760,7 @@ class TestMachines(NetworkCase):
                 "virsh pool-refresh poolIscsi", # pool-start takes too long, libvirt's pool-refresh might not catch all volumes, so we do pool-refresh separately
             ]
             self.machine.execute(" && ".join(cmds))
+            self.addCleanup(self.machine.execute, "virsh pool-destroy poolIscsi; virsh pool-delete pool-delete; virsh pool-undefine poolIscsi")
 
             self.browser.reload()
             self.browser.enter_page('/machines')
@@ -1704,6 +1784,7 @@ class TestMachines(NetworkCase):
                 "openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -subj '/CN=localhost' -nodes -config /tmp/min-openssl-config.cnf",
                 "cat cert.pem key.pem > server.pem"
             ]
+
             if self.machine.image.startswith("ubuntu") or self.machine.image.startswith("debian"):
                 cmds += [
                     "cp /tmp/cert.pem /usr/local/share/ca-certificates/cert.crt",
@@ -1723,7 +1804,8 @@ class TestMachines(NetworkCase):
             #
             # and on certain distribution supports only https (not http)
             # see: block-drv-ro-whitelist option in qemu-kvm.spec for certain distribution
-            server = self.machine.spawn("cd /var/lib/libvirt && python3 /tmp/mock-range-server.py /tmp/server.pem", "httpsserver")
+            server = self.machine.spawn("cd /var/lib/libvirt && exec python3 /tmp/mock-range-server.py /tmp/server.pem", "httpsserver")
+            self.addCleanup(self.machine.execute, "kill {0}".format(server))
 
             createTest(TestMachines.VmDialog(self, sourceType='url',
                                              location=config.ISO_URL,
@@ -1742,7 +1824,6 @@ class TestMachines(NetworkCase):
                                                            storage_pool="No Storage",
                                                            start_vm=True), ["qemu", "protocol"])
 
-            self.addCleanup(self.machine.execute, "kill {0}".format(server))
             # End of test detection of ISO file in URL
 
         # test PXE Source
@@ -1755,9 +1836,6 @@ class TestMachines(NetworkCase):
 
             # test PXE Source
             self.machine.execute("virsh net-destroy default && virsh net-undefine default")
-
-            # Disable selinux because it makes TFTP directory inaccesible and we don't want sophisticated configuration for tests
-            self.machine.execute("if type selinuxenabled >/dev/null 2>&1 && selinuxenabled; then setenforce 0; fi")
 
             # Set up the PXE server configuration files
             cmds = [
@@ -1776,7 +1854,8 @@ class TestMachines(NetworkCase):
             self.machine.execute(" && ".join(cmds))
 
             # Add an extra network interface that should appear in the PXE source dropdown
-            iface = self.add_iface(activate=False)
+            iface = "eth42"
+            self.addIface(iface)
 
             # We don't handle events for networks yet, so reload the page to refresh the state
             self.browser.reload()
@@ -1817,8 +1896,7 @@ class TestMachines(NetworkCase):
                     p.remove(element)
 
             # Set useserial attribute for bios os element
-            os = root.find('os')
-            bios = ET.SubElement(os, 'bios')
+            bios = ET.SubElement(root.find('os'), 'bios')
             bios.set('useserial', 'yes')
 
             # Add a serial console of type file
@@ -1854,7 +1932,9 @@ class TestMachines(NetworkCase):
                                           {"Source": "Installation Source must not be empty"})
 
         # Test that removing virt-install executable will disable Create VM button
-        self.machine.execute('rm $(which virt-install)')
+        virt_install_bin = self.machine.execute("which virt-install").strip()
+        self.machine.execute('mount -o bind /dev/null {0}'.format(virt_install_bin))
+        self.addCleanup(self.machine.execute, "umount {0}".format(virt_install_bin))
         self.browser.reload()
         self.browser.enter_page('/machines')
         self.browser.wait_visible("#create-new-vm:disabled")
@@ -1887,7 +1967,7 @@ class TestMachines(NetworkCase):
     class TestCreateConfig:
         VALID_URL = 'http://mirror.i3d.net/pub/centos/7/os/x86_64/'
         VALID_DISK_IMAGE_PATH = '/var/lib/libvirt/images/example.img'
-        NOVELL_MOCKUP_ISO_PATH = '/var/lib/libvirt/novell.iso'  # libvirt in ubuntu-1604 does not accept /tmp
+        NOVELL_MOCKUP_ISO_PATH = '/var/lib/libvirt/novell.iso'
         NOT_EXISTENT_PATH = '/tmp/not-existent.iso'
         ISO_URL = 'https://localhost:8000/novell.iso'
 

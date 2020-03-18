@@ -25,7 +25,7 @@ import {
 import * as machine_info from "machine-info.js";
 import cockpit from "cockpit";
 
-import "./usageCard.less";
+import "./usageCard.scss";
 
 const _ = cockpit.gettext;
 

@@ -23,8 +23,8 @@ import '../lib/polyfills.js'; // once per application
 import React from "react";
 import ReactDOM from 'react-dom';
 
-import { Button, ListView, Modal } from 'patternfly-react';
-import { Alert, AlertActionCloseButton } from '@patternfly/react-core';
+import { ListView, Modal } from 'patternfly-react';
+import { Alert, AlertActionCloseButton, Button } from '@patternfly/react-core';
 import { SortByDirection } from "@patternfly/react-table";
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 import { ListingTable } from "cockpit-components-table.jsx";
@@ -199,8 +199,7 @@ class CPUSecurityMitigationsDialog extends React.Component {
                 </small></span> }
                                actions={ <div id="nosmt-switch">
                                    <OnOffSwitch disabled={this.state.rebooting} onChange={ value => this.setState({ nosmt: value }) } state={ this.state.nosmt } />
-                               </div> }>
-                </ListView.Item>
+                               </div> } />
             ));
 
         return (
@@ -219,10 +218,10 @@ class CPUSecurityMitigationsDialog extends React.Component {
                         title={this.state.alert} />}
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button bsStyle='default' className='btn-cancel' disabled={this.state.rebooting} onClick={this.close}>
+                    <Button variant='secondary' className='btn-cancel' isDisabled={this.state.rebooting} onClick={this.close}>
                         { _("Cancel") }
                     </Button>
-                    <Button bsStyle='danger' disabled={this.state.rebooting || this.state.nosmt === undefined} onClick={this.saveAndReboot}>
+                    <Button variant='danger' isDisabled={this.state.rebooting || this.state.nosmt === undefined} onClick={this.saveAndReboot}>
                         { _("Save and reboot") }
                     </Button>
                 </Modal.Footer>
@@ -281,7 +280,7 @@ class HardwareInfo extends React.Component {
             <div className="page-ct container-fluid">
                 <CPUSecurityMitigationsDialog show={this.state.showCpuSecurityDialog} onClose={ () => this.setState({ showCpuSecurityDialog: false }) } />
                 <ol className="breadcrumb">
-                    <li><button role="link" className="link-button" onClick={ () => cockpit.jump("/system", cockpit.transport.host) }>{ _("Overview") }</button></li>
+                    <li><Button variant="link" isInline onClick={ () => cockpit.jump("/system", cockpit.transport.host) }>{ _("Overview") }</Button></li>
                     <li className="active">{ _("Hardware Information") }</li>
                 </ol>
 

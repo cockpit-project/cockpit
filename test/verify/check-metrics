@@ -23,6 +23,7 @@ import re
 
 import parent
 from testlib import *
+from storagelib import StorageHelpers
 
 
 def read_mem_info(machine):
@@ -36,7 +37,7 @@ def read_mem_info(machine):
     return info
 
 
-class TestMetrics(MachineCase):
+class TestMetrics(MachineCase, StorageHelpers):
     provision = {
         "0": {"forward": {"2000": 2000}},
     }
@@ -124,8 +125,8 @@ class TestMetrics(MachineCase):
 
         # Disk.  Anything above 100 kiB/s is good for now.
         #
-        m.add_disk("10M", serial="MYSERIAL")
-        disk_pid = m.spawn("while true; do dd if=/dev/sda of=/dev/sda; done", "load-disk.log")
+        dev = self.add_ram_disk()
+        disk_pid = m.spawn("while true; do dd if={0} of={0}; done".format(dev), "load-disk.log")
         b.wait_js_func("ph_flot_data_plateau", "#server_disk_io_graph", 100 * 1024, None, 5, "disk io")
         m.execute("kill %d" % disk_pid)
 
@@ -184,12 +185,15 @@ class TestMetrics(MachineCase):
         b.wait_visible(".server-graph-legend .cpu-kernel")
 
         # go back to graphs overview
-        b.click("#graphs-link")
+        if m.image != "rhel-8-2-distropkg": # Changed in #13589
+            b.click(".graphs-link")
+        else:
+            b.click("#graphs-link")
         b.wait_visible(".ct-graph-memory")
         b.wait_visible(".ct-graph-cpu")
 
         # memory graph page
-        if m.image in ["fedora-coreos", "ubuntu-1804", "ubuntu-stable", "debian-stable", "debian-testing"]:
+        if m.image in ["fedora-coreos", "ubuntu-1804", "ubuntu-2004", "ubuntu-stable", "debian-stable", "debian-testing"]:
             # no swap on these
             b.wait_not_visible("#link-memory-and-swap")
             b.click("#link-memory")
@@ -202,6 +206,13 @@ class TestMetrics(MachineCase):
         self.assertGreater(b.call_js_func(el_width, "#memory_status_graph"), 500)
         self.assertGreater(b.call_js_func(el_height, "#memory_status_graph"), 300)
         b.wait_visible(".server-graph-legend .memory-used")
+
+        # go back to overview
+        if m.image != "rhel-8-2-distropkg": # Changed in #13589
+            b.click("#complicated_graphs .system-link")
+            b.wait_not_visible("#memory_status_graph")
+            b.enter_page("/system")
+            b.wait_visible(".ct-overview-header-hostname")
 
     @skipImage("No PCP available", "fedora-coreos")
     def testPcp(self):

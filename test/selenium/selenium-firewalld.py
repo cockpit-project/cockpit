@@ -85,5 +85,5 @@ class FirewalldPage(FirewalldBasePage):
         self.machine.execute("sudo firewall-cmd --add-service={}".format(service))
         self.assertIn(service, self.machine.execute("sudo firewall-cmd --list-services"))
         self.click(self.wait_xpath("//div[@data-id='{}']//tr[@data-row-id='{}']".format(self.zone_default, service)))
-        self.click(self.wait_xpath("//div[@data-id='{}']//tr[@data-row-id='{}']/following-sibling::tr[1]//button[contains(@class, 'btn-danger')]".format(self.zone_default, service)))
+        self.click(self.wait_xpath("//div[@data-id='{}']//tr[@data-row-id='{}']/following-sibling::tr[1]//button[contains(@class, 'pf-m-danger')]".format(self.zone_default, service)))
         self.assertFalse(self.wait_id("firewall-service-{}".format(service), cond=clickable, overridetry=3, fatal=False))

@@ -104,14 +104,12 @@ function setup() {
 
                     button.text(state == "running" ? active : _("none"));
                     button.prop('disabled', state == "not-installed" || !permission.allowed);
-                    button.toggleClass('disabled', state == "not-installed" || !permission.allowed);
                     set_status(status);
                 })
                 .fail(function (ex) {
                     console.warn("failed to poll tuned", ex);
                     button.text("error");
                     button.prop('disabled', true);
-                    button.toggleClass('disabled', true);
                     set_status(_("Communication with tuned has failed"));
                 });
     }

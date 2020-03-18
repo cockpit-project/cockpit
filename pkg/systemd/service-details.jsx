@@ -20,13 +20,13 @@
 import React from "react";
 import moment from "moment";
 import PropTypes from "prop-types";
-import { Alert } from "@patternfly/react-core";
-import { Button, Modal, OverlayTrigger, Tooltip, DropdownKebab, MenuItem } from 'patternfly-react';
+import { Alert, Button } from "@patternfly/react-core";
+import { Modal, OverlayTrigger, Tooltip, DropdownKebab, MenuItem } from 'patternfly-react';
 
 import cockpit from "cockpit";
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 
-import './service-details.less';
+import './service-details.scss';
 
 const _ = cockpit.gettext;
 
@@ -60,7 +60,9 @@ export class ServiceTemplate extends React.Component {
                     </div>
                     <div className="list-group-item">
                         <input type="text" onChange={ this.handleChange } />
-                        <button onClick={() => this.props.instantiateCallback(this.state.inputText)}>{ _("Instantiate") }</button>
+                    </div>
+                    <div className="list-group-item">
+                        <Button variant="primary" onClick={() => this.props.instantiateCallback(this.state.inputText)}>{ _("Instantiate") }</Button>
                     </div>
                 </div>
             </div>
@@ -96,7 +98,7 @@ ServiceTemplate.propTypes = {
 class ServiceConfirmDialog extends React.Component {
     render() {
         return (
-            <Modal show>
+            <Modal id={this.props.id} show>
                 <Modal.Header>
                     <Modal.Title>{this.props.title}</Modal.Title>
                 </Modal.Header>
@@ -104,11 +106,11 @@ class ServiceConfirmDialog extends React.Component {
                     {this.props.message}
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button bsStyle='default' className='btn-cancel' onClick={this.props.close}>
+                    <Button variant='secondary' className='btn-cancel' onClick={this.props.close}>
                         { _("Cancel") }
                     </Button>
                     { this.props.confirmText && this.props.confirmAction &&
-                        <Button bsStyle='danger' onClick={this.props.confirmAction}>
+                        <Button variant='danger' onClick={this.props.confirmAction}>
                             {this.props.confirmText}
                         </Button>
                     }
@@ -197,7 +199,7 @@ class ServiceActions extends React.Component {
         return (
             <>
                 { this.state.dialogMaskedOpened &&
-                    <ServiceConfirmDialog title={ _("Mask Service") }
+                    <ServiceConfirmDialog id="mask-service" title={ _("Mask Service") }
                                           message={ _("Masking service prevents all dependant units from running. This can have bigger impact than anticipated. Please confirm that you want to mask this unit.")}
                                           close={() => this.setState({ dialogMaskedOpened: false }) }
                                           confirmText={ _("Mask Service") }
@@ -207,6 +209,7 @@ class ServiceActions extends React.Component {
                                               this.setState({ dialogMaskedOpened: false });
                                           }} />
                 }
+                {/* DropdownKebab has no disabled prop, see #13552 */}
                 <DropdownKebab id="service-actions" title={ _("Additional actions") } className={this.props.disabled ? "disabled" : "" }>
                     {actions}
                 </DropdownKebab>
@@ -341,7 +344,7 @@ export class ServiceDetails extends React.Component {
                 <div key="failed" className="status-failed">
                     <span className="pficon pficon-error-circle-o status-icon" />
                     <span className="status">{ _("Failed to start") }</span>
-                    <button className="btn btn-default action-button" onClick={() => this.unitAction("StartUnit") }>{ _("Start Service") }</button>
+                    <Button variant="secondary" className="action-button" onClick={() => this.unitAction("StartUnit") }>{ _("Start Service") }</Button>
                 </div>
             );
         }

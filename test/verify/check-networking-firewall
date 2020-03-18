@@ -39,10 +39,35 @@ def get_active_rules(machine):
     active_rules = []
     for zone in active_zones:
         active_rules += machine.execute("firewall-cmd --zone '{}' --list-services".format(zone)).split()
+        ports = machine.execute("firewall-cmd --zone '{}' --list-ports".format(zone)).strip()
+        if ports and machine.image not in ["rhel-8-2-distropkg"]: # Changed in #13686
+            active_rules += [ports]
     return active_rules
 
 @skipImage("no firewalld", "fedora-coreos")
+@nondestructive
 class TestFirewall(NetworkCase):
+    def setUp(self):
+        MachineCase.setUp(self)
+        m = self.machine
+        m.execute("cp -a /etc/firewalld /etc/firewalld.test")
+        self.addCleanup(m.execute, "systemctl stop firewalld && rm -rf  /etc/firewalld && mv /etc/firewalld.test /etc/firewalld")
+        m.execute("systemctl start firewalld")
+        if self.machine.image not in ["rhel-8-2-distropkg"]:
+            self.btn_danger = "pf-m-danger"
+            self.btn_primary = "pf-m-primary"
+            self.default_zone = "public zone"
+        else:
+            self.btn_danger = "btn-danger"
+            self.btn_primary = "btn-primary"
+            self.default_zone = "Public Zone"
+
+        # many tests expect the "libvirt" zone; on images with libvirt, wait until libvirt adds its zone
+        # (older versions don't do that yet)
+        if m.image not in ["debian-stable", "ubuntu-1804", "ubuntu-2004", "ubuntu-stable"]:
+            m.execute("systemctl restart libvirtd")  # https://bugzilla.redhat.com/show_bug.cgi?id=1813830
+            m.execute("virsh net-list | grep -qw default || virsh net-start default")
+            m.execute("until firewall-cmd --get-active-zones | grep -q libvirt; do sleep 1; done")
 
     def testNetworkingPage(self):
         b = self.browser
@@ -96,12 +121,17 @@ class TestFirewall(NetworkCase):
         m = self.machine
 
         if m.image not in ["rhel-8-2-distropkg"]: # Changed in #13555
+            # Changed in #13686, remove all existing ports before testing
+            for port in m.execute("firewall-cmd --zone 'public' --list-ports").split():
+                m.execute("firewall-cmd --remove-port='{}' --zone 'public'".format(port))
+                m.execute("firewall-cmd --permanent --remove-port='{}' --zone 'public'".format(port))
+
             # Zones should be visible as unprivileged user
             self.login_and_go("/network/firewall", authorized=False)
             self.wait_onoff("#firewall-heading-title-group", False)
             wait_unit_state(m, "firewalld", "active")
             # Wait until the default zone is listed
-            b.wait_in_text("#zones-listing .zone-section[data-id='public']", "public Zone")
+            b.wait_in_text("#zones-listing .zone-section[data-id='public']", self.default_zone)
             b.wait_present("#add-zone-button:disabled")
             # "Add Services" button should be disabled
             b.wait_present(".zone-section[data-id='public'] .add-services-button:disabled")
@@ -120,7 +150,7 @@ class TestFirewall(NetworkCase):
         wait_unit_state(m, "firewalld", "active")
 
         # Wait until the default zone is listed
-        b.wait_in_text("#zones-listing .zone-section[data-id='public']", "Public Zone")
+        b.wait_in_text("#zones-listing .zone-section[data-id='public']", self.default_zone)
 
         # "Add Services" button should be enabled
         b.wait_present(".zone-section[data-id='public'] .add-services-button:enabled")
@@ -139,13 +169,20 @@ class TestFirewall(NetworkCase):
         b.click(".zone-section[data-id='public'] tr[data-row-id='pop3']")
         b.wait_in_text(".zone-section[data-id='public'] tbody.open tr.listing-ct-panel", "Post Office Protocol")
 
-        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] + tr .btn.pficon-delete")
+        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] + tr ." + self.btn_danger)
         b.wait_not_present(".zone-section[data-id='public'] tr[data-row-id='pop3']")
         self.assertNotIn('pop3', m.execute("firewall-cmd --list-services").split())
 
         # Test that service without name is shown properly
         m.execute("firewall-cmd --permanent --new-service=empty && firewall-cmd --reload && firewall-cmd --add-service=empty")
         b.wait_present(".zone-section[data-id='public'] tr[data-row-id='empty']")
+
+        if m.image not in ["rhel-8-2-distropkg"]: # Changed in #13686
+            m.execute("firewall-cmd --add-port=9998/udp --add-port=9999/udp --add-port=6666/tcp")
+            b.wait_in_text(".zone-section[data-id='public'] tr[data-row-id='public-ports'] > td:nth-of-type(3)", "6666")
+            b.wait_in_text(".zone-section[data-id='public'] tr[data-row-id='public-ports'] > td:nth-of-type(4)", "9998, 9999")
+            m.execute("firewall-cmd --remove-port=9998/udp --remove-port=9999/udp --remove-port=6666/tcp")
+            b.wait_not_present(".zone-section[data-id='public'] tr[data-row-id='public-ports']")
 
         # switch service off again
         self.toggle_onoff("#firewall-heading-title-group")
@@ -161,7 +198,7 @@ class TestFirewall(NetworkCase):
         m = self.machine
 
         self.login_and_go("/network/firewall")
-        b.wait_in_text("#zones-listing .zone-section[data-id='public']", "Public Zone")
+        b.wait_in_text("#zones-listing .zone-section[data-id='public']", self.default_zone)
 
         # add a service to the runtime configuration via the cli, after all the
         # operations it should still be there, indicating no reload took place
@@ -197,14 +234,14 @@ class TestFirewall(NetworkCase):
         b.wait_present(".modal-dialog .list-view-pf input[data-id='pop3']")
 
         # don't select anything in the dialog
-        b.click("#add-services-dialog .modal-footer .btn-primary")
+        b.click("#add-services-dialog .modal-footer .{0}".format(self.btn_primary))
         b.wait_not_present(".modal-dialog")
 
 
         def addService(zone, service):
             b.click(".zone-section[data-id='{}'] .add-services-button".format(zone))
             b.click("#add-services-dialog .list-view-pf input[data-id='{}']".format(service))
-            b.click("#add-services-dialog .modal-footer .btn-primary")
+            b.click("#add-services-dialog .modal-footer .{0}".format(self.btn_primary))
             b.wait_not_present(".modal-dialog")
             b.wait_present(".zone-section[data-id='{}'] tr[data-row-id='{}']".format(zone, service))
             self.assertIn(service, m.execute("firewall-cmd --zone={} --list-services".format(zone)))
@@ -212,7 +249,7 @@ class TestFirewall(NetworkCase):
         # now add pop3
         addService('public', 'pop3')
         # firewalld > 0.7.0 supports including services into another service
-        if m.image in ['rhel-8-2', 'debian-testing', 'fedora-31']:
+        if m.image in ['rhel-8-2', 'debian-testing', 'fedora-31', 'fedora-testing', "fedora-32"]:
             addService('public', 'freeipa-4')
             b.click(".zone-section[data-id='public'] tr[data-row-id='freeipa-4']")
             b.wait_present(".zone-section[data-id='public'] tbody.open .listing-ct-body:contains(Included Services)")
@@ -243,10 +280,10 @@ class TestFirewall(NetworkCase):
         # belonging either libvirt or public
         for service in services:
             b.click(".zone-section[data-id='public'] tr[data-row-id='{}']".format(service))
-            b.click(".zone-section[data-id='public'] tr[data-row-id='{}'] + tr button.btn-danger".format(service))
+            b.click(".zone-section[data-id='public'] tr[data-row-id='{}'] + tr button.{}".format(service, self.btn_danger))
             # removing cockpit services requires confirmation
             if service == "cockpit":
-                b.click("#delete-confirmation-dialog button.btn-danger")
+                b.click("#delete-confirmation-dialog button.{}".format(self.btn_danger))
             b.wait_not_present(".zone-section[data-id='public'] tr[data-row-id='{}']".format(service))
         self.assertEqual(m.execute("firewall-cmd --list-services").strip(), "")
 
@@ -256,7 +293,7 @@ class TestFirewall(NetworkCase):
         # remove service via cli and cockpit
         m.execute("firewall-cmd --remove-service=pop3")
         b.click(".zone-section[data-id='public'] tr[data-row-id='pop3']")
-        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] + tr .btn.pficon-delete")
+        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] + tr ."  + self.btn_danger)
         b.wait_not_present(".zone-section[data-id='public'] tr[data-row-id='pop3']")
 
     def testAddCustomServices(self):
@@ -264,9 +301,9 @@ class TestFirewall(NetworkCase):
         m = self.machine
 
         self.login_and_go("/network/firewall")
-        b.wait_in_text("#zones-listing .zone-section[data-id='public']", "Public Zone")
+        b.wait_in_text("#zones-listing .zone-section[data-id='public']", self.default_zone)
         # wait until all zones are present, including the ones added at runtime
-        if m.image in ["rhel-8-2", "fedora-31"]:
+        if m.image not in ["debian-stable", "ubuntu-1804", "ubuntu-2004", "ubuntu-stable"]:
             b.wait_present("#zones-listing .zone-section[data-id='libvirt']")
 
         # add a service to the runtime configuration via the cli, after all the
@@ -294,7 +331,7 @@ class TestFirewall(NetworkCase):
             b.wait_not_present("#add-services-dialog")
             line_sel = ".zone-section[data-id='public'] tr[data-row-id='{0}']".format(identifier)
             b.wait_present(line_sel)
-            b.wait_in_text(line_sel, "".join([name, tcp, udp]))
+            b.wait_in_text(line_sel, "".join([name if m.image in ["rhel-8-2-distropkg"] else identifier, tcp, udp]))
 
         open_dialog()
         set_field("#tcp-ports", "80", "WorldWideWeb HTTP")
@@ -349,7 +386,7 @@ class TestFirewall(NetworkCase):
         m.execute("firewall-cmd --permanent --service=custom--19834 --add-port=19834/udp")
         open_dialog()
         set_field("#udp-ports", "19834", "19834")
-        b.click("#add-services-dialog button.btn-primary")
+        b.click("#add-services-dialog .{0}".format(self.btn_primary))
         b.wait_in_text("#add-services-dialog div.pf-m-danger", "org.fedoraproject.FirewallD1.Exception: NAME_CONFLICT: new_service(): 'custom--19834'")
 
         # should have been removed in the reload
@@ -363,7 +400,7 @@ class TestFirewall(NetworkCase):
         def addServiceToZone(service, zone):
             b.click(".zone-section[data-id='{}'] .add-services-button".format(zone))
             b.click("#add-services-dialog .list-view-pf input[data-id='{}']".format(service))
-            b.click("#add-services-dialog .modal-footer .btn-primary")
+            b.click("#add-services-dialog .modal-footer .{0}".format(self.btn_primary))
             b.wait_not_present(".modal-dialog")
             b.wait_present(".zone-section[data-id='{}'] tr[data-row-id='{}']".format(zone, service))
             self.assertIn(service, m.execute("firewall-cmd --zone={} --list-services".format(zone)))
@@ -371,7 +408,7 @@ class TestFirewall(NetworkCase):
         def addZone(zone, interfaces=[], sources=None, error=None):
             b.click("#add-zone-button")
             b.wait_present("#add-zone-dialog")
-            b.wait_present("#add-zone-dialog .modal-footer button.btn-primary:disabled")
+            b.wait_present("#add-zone-dialog .modal-footer button.{0}:disabled".format(self.btn_primary))
             b.click("#add-zone-dialog .add-zone-zones-firewalld input[value='{}']".format(zone))
 
             for i in interfaces:
@@ -380,7 +417,7 @@ class TestFirewall(NetworkCase):
                 b.click("#add-zone-dialog-body input[value='ip-range']")
                 b.set_input_text("#add-zone-dialog-body #add-zone-ip", sources)
 
-            b.click("#add-zone-dialog .modal-footer button.btn-primary:enabled")
+            b.click("#add-zone-dialog .modal-footer button.{0}:enabled".format(self.btn_primary))
 
             if error:
                 b.wait_in_text("#add-zone-dialog div.pf-m-danger", error)
@@ -397,31 +434,31 @@ class TestFirewall(NetworkCase):
             b.wait_present("#zones-listing .zone-section[data-id='{}'] tr[data-row-id='cockpit']".format(zone))
 
         def removeZone(zone):
-            b.click(".zone-section[data-id='{}'] .zone-section-buttons button.btn-danger".format(zone))
-            b.click("#delete-confirmation-dialog button.btn-danger")
+            b.click(".zone-section[data-id='{}'] .zone-section-buttons button.{}".format(zone, self.btn_danger))
+            b.click("#delete-confirmation-dialog button.{}".format(self.btn_danger))
             b.wait_not_present(".zone-section[data-id='{}']".format(zone))
 
         self.login_and_go("/network/firewall")
-        b.wait_in_text("#zones-listing .zone-section[data-id='public']", "Public Zone")
+        b.wait_in_text("#zones-listing .zone-section[data-id='public']", self.default_zone)
 
         # add predefined work zone
         addZone("work", sources="192.168.1.0/24")
 
         addServiceToZone("pop3", "work")
         b.wait_present(".zone-section[data-id='work'] tr[data-row-id='pop3']")
-        self.assertNotIn("Public", b.text("tr[data-row-id='pop3']"))
+        self.assertNotIn(self.default_zone.split(" ")[0], b.text("tr[data-row-id='pop3']"))
         addServiceToZone("pop3", "public")
         b.wait_present(".zone-section[data-id='public'] tr[data-row-id='pop3']")
 
         # Remove the service from public zone
         b.click(".zone-section[data-id='public'] tr[data-row-id='pop3']")
-        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] + tr .btn.pficon-delete")
+        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] + tr ." + self.btn_danger)
         b.wait_not_present(".zone-section[data-id='public'] tr[data-row-id='pop3']")
         b.wait_present(".zone-section[data-id='work'] tr[data-row-id='pop3']")
 
         # Remove the service from the work zone
         b.click(".zone-section[data-id='work'] tr[data-row-id='pop3']")
-        b.click(".zone-section[data-id='work'] tr[data-row-id='pop3'] + tr .btn.pficon-delete")
+        b.click(".zone-section[data-id='work'] tr[data-row-id='pop3'] + tr ." + self.btn_danger)
         b.wait_not_present(".zone-section[data-id='work'] tr[data-row-id='pop3']")
 
         # remove predefined work zone
@@ -429,7 +466,7 @@ class TestFirewall(NetworkCase):
         # add zone with interface
         # The public zone in these images are attached to eth1
         interface = ""
-        if m.image in ["debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-1804"]:
+        if m.image in ["debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-1804", "ubuntu-2004"]:
             interface = "eth0"
         # The public zone in these images are attached to both eth0 and eth1
         else:

@@ -33,6 +33,14 @@ class TestExample(MachineCase):
         self.login_and_go("/system")
         self.assertFalse(True)
 
+    @unittest.skip
+    def testSkip(self):
+        self.login_and_go("/system")
+        self.assertFalse(True)
+
+    def testRaiseSkip(self):
+        raise unittest.SkipTest("dynamic skip")
+
     @nondestructive
     def testNondestructive(self):
         self.login_and_go("/system")

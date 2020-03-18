@@ -1,5 +1,6 @@
 @import "../../node_modules/@patternfly/react-styles/css/components/Alert/alert.css";
-@import "../lib/page.css";
+@import "../lib/page.scss";
+@import "../../node_modules/@patternfly/patternfly/components/Button/button.scss";
 @import "../lib/table.css";
 
 #accounts-list {
@@ -89,9 +90,6 @@
     align-items: center;
 }
 
-#account-authorized-keys-list > .list-group-item > .action {
-}
-
 #account-authorized-keys-list .comment {
     flex: auto;
     overflow: hidden;
@@ -106,11 +104,6 @@
     overflow: hidden;
     text-overflow: ellipsis;
     display: inline-block;
-}
-
-#account-authorized-keys-list .action {
-    float: right;
-    width: 28px;
 }
 
 #authorized-key-add {

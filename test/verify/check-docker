@@ -17,7 +17,6 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import json
-import os
 
 import parent
 from testlib import *
@@ -26,7 +25,8 @@ from testlib import *
 @skipPackage("cockpit-docker")
 @skipImage("No docker packaged", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
 @skipImage("Not supporting cockpit-docker on CoreOS", "fedora-coreos")
-@skipImage("Docker not available", "fedora-31") # https://github.com/cockpit-project/cockpit/issues/12670
+@skipImage("Not supporting cockpit-docker on Debian >= 11 and Ubuntu >= 20.04", "debian-testing", "ubuntu-2004")
+@skipImage("Docker not available", "fedora-31", "fedora-testing", "fedora-32") # https://github.com/cockpit-project/cockpit/issues/12670
 class TestDocker(MachineCase):
 
     def setUp(self):
@@ -86,7 +86,7 @@ class TestDocker(MachineCase):
         b.wait_in_text("#containers-containers-filter", "Everything")
 
         # Run it
-        b.click('#containers-images tr:contains("busybox:latest") button.fa-play')
+        b.click('#containers-images tr:contains("busybox:latest") button.play-button')
         b.wait_popup("containers_run_image_dialog")
         b.set_val("#containers-run-image-name", "PROBE1")
         b.set_val("#containers-run-image-command", """/bin/sh -c 'echo "%s"; sleep 5' """ % message)
@@ -106,7 +106,7 @@ class TestDocker(MachineCase):
 
         # Run it without TTY and make sure it keeps running so that we
         # can link to it.
-        b.click('#containers-images tr:contains("busybox:latest") button.fa-play')
+        b.click('#containers-images tr:contains("busybox:latest") button.play-button')
         b.wait_popup("containers_run_image_dialog")
         b.set_val("#containers-run-image-name", "PROBE1")
         b.set_val("#containers-run-image-command", "/bin/sh -c 'echo \"%s\"; sleep 10000'" % (message))
@@ -120,7 +120,7 @@ class TestDocker(MachineCase):
         self.assertEqual(info[0]["HostConfig"]["Links"], None)
 
         # Create another container linked to old one
-        b.click('#containers-images tr:contains("busybox:latest") button.fa-play')
+        b.click('#containers-images tr:contains("busybox:latest") button.play-button')
         b.wait_popup("containers_run_image_dialog")
         b.set_val("#containers-run-image-name", "PROBE2")
         b.set_val("#containers-run-image-command", "/bin/echo -e '%s\n%s\n'" % (message, message))
@@ -131,7 +131,7 @@ class TestDocker(MachineCase):
         b.click("#select-linked-containers form:last-child .link-container button")
         b.click("#select-linked-containers form:last-child .link-container a[value='PROBE1']")
         b.set_val("#select-linked-containers form:last-child  input[name='alias']", "alias1")
-        b.click("#select-linked-containers form:last-child  button.fa-plus")
+        b.click("#select-linked-containers form:last-child  button.plus-button")
         # new line should be the second group
         b.wait_present("#select-linked-containers .form-group:eq(1)")
         b.click("#select-linked-containers form:last-child .link-container button")
@@ -212,14 +212,14 @@ class TestDocker(MachineCase):
         b.click('#containers-images tr:contains("busybox:latest") td.listing-ct-toggle')
 
         # Create some containers
-        b.click('#containers-images tr:contains("busybox:latest") button.fa-play')
+        b.click('#containers-images tr:contains("busybox:latest") button.play-button')
         b.wait_popup('containers_run_image_dialog')
         b.set_val('#containers-run-image-name', 'C1')
         b.click('#containers-run-image-run')
         b.wait_popdown('containers_run_image_dialog')
         b.wait_in_text('#containers-containers', 'C1')
         b.wait_in_text('#containers-containers', 'busybox:latest')
-        b.click('#containers-images tr:contains("busybox:latest") button.fa-play')
+        b.click('#containers-images tr:contains("busybox:latest") button.play-button')
         b.wait_popup('containers_run_image_dialog')
         b.set_val('#containers-run-image-name', 'C2')
         b.click('#containers-run-image-run')
@@ -274,7 +274,7 @@ CMD ["/listen-on-port.sh", "%(port)d", "%(message)s"]
         nport = port + 1
 
         # Run it and expose additional port via the ui
-        b.click("#containers-images tr:contains(\"%s\") button.fa-play" % (image_name))
+        b.click("#containers-images tr:contains(\"%s\") button.play-button" % (image_name))
         b.wait_popup("containers_run_image_dialog")
         b.set_val("#containers-run-image-name", "PROBE2")
         # Tell our probe to listen on both ports
@@ -287,7 +287,7 @@ CMD ["/listen-on-port.sh", "%(port)d", "%(message)s"]
                      'second_port': nport,
                      'second_message': second_message})
         b.set_val(".containers-run-portmapping form:eq(0) input:eq(1)", port)
-        b.click(".containers-run-portmapping form:eq(0) .fa-plus")
+        b.click(".containers-run-portmapping form:eq(0) .plus-button")
         b.set_val(".containers-run-portmapping form:eq(1) input:eq(0)", nport)
         b.set_val(".containers-run-portmapping form:eq(1) input:eq(1)", nport)
 
@@ -349,7 +349,7 @@ CMD ["/bin/sh"]
         b.wait_in_text("#containers-images", image_name)
 
         # Run it and add another environment variable via the ui
-        b.click("#containers-images tr:contains(\"%s\") button.fa-play" % (image_name))
+        b.click("#containers-images tr:contains(\"%s\") button.play-button" % (image_name))
         b.wait_popup("containers_run_image_dialog")
         b.set_val("#containers-run-image-name", "PROBE4")
         b.set_val("#containers-run-image-command", "/bin/sh")
@@ -357,7 +357,7 @@ CMD ["/bin/sh"]
         # Two environment variables
         b.wait_val("#select-claimed-envvars form:eq(1) input:eq(0)", "zero")
         b.wait_val("#select-claimed-envvars form:eq(1) input:eq(1)", "GGG")
-        b.click("#select-claimed-envvars form:eq(0) .fa-plus")
+        b.click("#select-claimed-envvars form:eq(0) .plus-button")
         b.set_val("#select-claimed-envvars form:eq(2) input:eq(0)", "SECOND")
         b.set_val("#select-claimed-envvars form:eq(2) input:eq(1)", "marmalade")
 
@@ -365,7 +365,7 @@ CMD ["/bin/sh"]
         b.click("#mount-volumes")
         b.set_val("#select-mounted-volumes form:eq(0) input:eq(0)", "/blah")
         b.set_val("#select-mounted-volumes form:eq(0) input:eq(1)", "/mnt")
-        if m.image not in ["debian-stable", "debian-testing", "ubuntu-1804", "ubuntu-stable"]:
+        if "debian" not in m.image and "ubuntu" not in m.image:
             m.execute("chcon --dereference -HRt svirt_sandbox_file_t /mnt")
         m.execute("touch /mnt/dripping.txt")
 
@@ -452,7 +452,7 @@ CMD ["/bin/sh"]
 
         # Run one container without restarting
         b.wait_visible("#containers-images")
-        b.click('#containers-images tr:contains("busybox:latest") button.fa-play')
+        b.click('#containers-images tr:contains("busybox:latest") button.play-button')
         b.wait_popup("containers_run_image_dialog")
         b.set_val("#containers-run-image-name", "NORESTART")
         b.set_val("#containers-run-image-command", "/bin/sh -c 'echo \"no-restart\"; sleep 10000'")
@@ -461,7 +461,7 @@ CMD ["/bin/sh"]
         b.wait_popdown("containers_run_image_dialog")
 
         # Run another container with restarting
-        b.click('#containers-images tr:contains("busybox:latest") button.fa-play')
+        b.click('#containers-images tr:contains("busybox:latest") button.play-button')
         b.wait_popup("containers_run_image_dialog")
         b.set_val("#containers-run-image-name", "YAYRESTART")
         b.set_val("#containers-run-image-command", "/bin/sh -c 'echo \"yay-restart\"; sleep 10000'")
@@ -501,7 +501,7 @@ CMD ["/bin/sh"]
         b.wait_in_text("#containers-images", "busybox:latest")
 
         # Run one container without restarting
-        b.click('#containers-images tr:contains("busybox:latest") button.fa-play')
+        b.click('#containers-images tr:contains("busybox:latest") button.play-button')
         b.wait_popup("containers_run_image_dialog")
         b.set_val("#containers-run-image-name", "RESOURCE")
         b.set_val("#containers-run-image-command", "/bin/sleep 1000000")
@@ -526,7 +526,7 @@ CMD ["/bin/sh"]
         b.wait_popup("container-resources-dialog")
         b.set_val(".memory-slider input.size-text-ct", "246")
         b.set_val(".cpu-slider input.size-text-ct", "256")
-        b.click("#container-resources-dialog .btn-primary")
+        b.click("#container-resources-dialog .pf-m-primary")
         b.wait_popdown("container-resources-dialog")
 
         # This should be updated
@@ -538,14 +538,14 @@ CMD ["/bin/sh"]
         b.wait_popup("container-resources-dialog")
         b.click(".memory-slider input[type='checkbox']")
         b.click(".cpu-slider input[type='checkbox']")
-        b.click("#container-resources-dialog .btn-primary")
+        b.click("#container-resources-dialog .pf-m-primary")
         b.wait_popdown("container-resources-dialog")
 
         # This should be updated
         b.wait_in_text("#container-details-cpu-row", "1024 shares")
 
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-1804", "rhel-8-2", "rhel-8-2-distropkg")
+               "ubuntu-1804", "ubuntu-2004", "rhel-8-2", "rhel-8-2-distropkg")
     def testContainerProblems(self):
         b = self.browser
         m = self.machine
@@ -582,96 +582,6 @@ CMD ["/bin/sh"]
         # check for abrtd service in text
         b.wait_in_text("#journal-entry-heading", "sleep")
         b.wait_in_text("#journal-entry-fields", "abrtd.service")
-
-
-@skipImage("Skip on systems without atomic and ones with missing deps", "debian-stable",
-           "debian-testing", "ubuntu-1804", "ubuntu-stable", "fedora-coreos",
-           "fedora-31")
-@skipImage("No docker packaged", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
-@skipPackage("cockpit-docker")
-class TestAtomicScan(MachineCase):
-
-    def setUp(self):
-        super().setUp()
-
-        self.machine.execute("systemctl start docker")
-
-    def testBasic(self):
-        b = self.browser
-        m = self.machine
-
-        # HACK put scan results for one of the images into /var/lib/atomic
-        #
-        # This mimics what `atomic scan` would put there, without us having to install
-        # a known vulnerable image and initiating a scan from this test.
-
-        infos = json.loads(m.execute("docker inspect busybox"))
-        image_id = infos[0]["Id"]
-        short_id = image_id.replace("sha256:", "")
-        result_path = os.path.join("/var/lib/atomic/atomic_scan_openscap/2016-12-11-12-09-57-674487/", short_id)
-        result_filename = os.path.join(result_path, "json")
-
-        scan_summary = {
-            short_id: {
-                "Scan Type": "Standards Compliance",
-                "json_file": result_filename,
-                "Scanner": "openscap",
-                "Time": "2016-12-11T12:09:59",
-                "Vulnerable": True,
-                "UUID": short_id
-            }
-        }
-
-        scan_result = {
-            "Scanner": "openscap",
-            "Vulnerabilities": [
-                {
-                    "Description": "\nThe RPM package management system can check file access\npermissions of installed software packages, including many that are\nimportant to system security. \nAfter locating a file with incorrect permissions, run the following command to determine which package owns it:\n",
-                    "Title": "Verify and Correct File Permissions with RPM",
-                    "Custom": {
-                        "XCCDF result": "fail"
-                    },
-                    "Severity": "Low"
-                },
-                {
-                    "Description": "\nSystem executables are stored in the following directories by default:\n",
-                    "Title": "Verify that System Executables Have Restrictive Permissions",
-                    "Custom": {
-                        "XCCDF result": "fail"
-                    },
-                    "Severity": "Moderate"
-                }
-            ],
-            "Finished Time": "2016-12-11T12:10:27",
-            "UUID": "/scanin/d6fe5fdc49c2886ccad1c781d38a0c9fe679c6e7ca0297d23186c385873e86fa",
-            "Scan Type": "Standard Compliance",
-            "Time": "2016-12-11T12:09:59",
-            "Successful": "true"
-        }
-
-        m.execute("mkdir -p " + result_path)
-        m.execute("echo '%s' > /var/lib/atomic/scan_summary.json" % json.dumps(scan_summary))
-        m.execute("echo '%s' > %s" % (json.dumps(scan_result), result_filename))
-
-        self.login_and_go("/docker")
-
-        row_selector = '#containers-images tr[data-row-id="%s"]' % image_id
-
-        # warning badge should exist
-        b.wait_present(row_selector + ' td span.pficon-warning-triangle-o')
-        b.wait_visible(row_selector + ' td span.pficon-warning-triangle-o')
-
-        # Security tab should exist
-        b.click(row_selector + ' td.listing-ct-toggle')
-        b.wait_visible(row_selector + ' + tr a:contains("Security")')
-        b.click(row_selector + ' + tr a:contains("Security")')
-        b.wait_in_text(row_selector + ' + tr', 'Verify and Correct File Permissions with RPM')
-
-        # Collapse the tab and click through to the image
-        b.click(row_selector + ' td.listing-ct-toggle')
-        b.click(row_selector + ' th')
-        b.wait_in_text("#image-details", "Security")
-        b.wait_in_text("#image-details", "Verify and Correct File Permissions with RPM")
 
 
 if __name__ == '__main__':

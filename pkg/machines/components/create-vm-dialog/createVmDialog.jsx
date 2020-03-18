@@ -19,7 +19,8 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, FormGroup, HelpBlock, Modal, OverlayTrigger, Tooltip, TypeAheadSelect } from 'patternfly-react';
+import { FormGroup, HelpBlock, Modal, OverlayTrigger, Tooltip, TypeAheadSelect } from 'patternfly-react';
+import { Button } from '@patternfly/react-core';
 
 import cockpit from 'cockpit';
 import { MachinesConnectionSelector } from '../machinesConnectionSelector.jsx';
@@ -53,8 +54,8 @@ import MemorySelectRow from '../memorySelectRow.jsx';
 import { storagePoolRefresh } from '../../libvirt-dbus.js';
 import { Password } from './password.jsx';
 
-import './createVmDialog.less';
-import 'form-layout.less';
+import './createVmDialog.scss';
+import 'form-layout.scss';
 import VMS_CONFIG from '../../config.js';
 
 const _ = cockpit.gettext;
@@ -940,11 +941,11 @@ class CreateVmModal extends React.Component {
                 </Modal.Body>
                 <Modal.Footer>
                     {this.state.inProgress && <div className="spinner spinner-sm pull-left" />}
-                    <Button bsStyle='default' className='btn-cancel' onClick={ this.props.close }>
+                    <Button variant='secondary' className='btn-cancel' onClick={ this.props.close }>
                         {_("Cancel")}
                     </Button>
-                    <Button bsStyle='primary'
-                            disabled={Object.getOwnPropertyNames(validationFailed).length > 0}
+                    <Button variant="primary"
+                            isDisabled={Object.getOwnPropertyNames(validationFailed).length > 0}
                             onClick={this.onCreateClicked}>
                         {this.props.mode == 'create' ? _("Create") : _("Import")}
                     </Button>
@@ -968,14 +969,14 @@ export class CreateVmAction extends React.Component {
     }
 
     componentDidMount() {
-        cockpit.spawn(['which', 'virt-install'], { err: 'message' })
+        cockpit.spawn(['which', 'virt-install'], { err: 'ignore' })
                 .then(() => {
                     this.setState({ virtInstallAvailable: true });
-                    cockpit.spawn(['virt-install', '--install=?'])
+                    cockpit.spawn(['virt-install', '--install=?'], { err: 'ignore' })
                             .then(() => this.setState({ downloadOSSupported: true }),
                                   () => this.setState({ downloadOSSupported: false }));
 
-                    cockpit.spawn(['virt-install', '--unattended=?'])
+                    cockpit.spawn(['virt-install', '--unattended=?'], { err: 'ignore' })
                             .then(() => this.setState({ unattendedSupported: true }),
                                   () => this.setState({ unattendedSupported: false }));
                 },
@@ -1007,13 +1008,13 @@ export class CreateVmAction extends React.Component {
         else if (this.state.downloadOSSupported === undefined)
             testdata = "disabledDownloadOS";
         let createButton = (
-            <Button disabled={!(this.props.systemInfo.osInfoList &&
+            <Button isDisabled={!(this.props.systemInfo.osInfoList &&
                                (this.state.virtInstallAvailable !== undefined ||
                                    (this.state.virtInstallAvailable &&
                                        (this.state.downloadOSSupported === undefined || this.state.unattendedSupported === undefined))))}
                     testdata={testdata}
                     id={this.props.mode == 'create' ? 'create-new-vm' : 'import-vm-disk'}
-                    bsStyle='default'
+                    variant='secondary'
                     style={!this.state.virtInstallAvailable ? { pointerEvents: 'none' } : null} // Fixes OverlayTrigger not showing up
                     onClick={this.open}>
                 {this.props.mode == 'create' ? _("Create VM") : _("Import VM")}

@@ -17,10 +17,11 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-function prepareObj(dataElem, result, valueTransformer) {
+function prepareObj(dataElem, valueTransformer) {
     const options = valueTransformer(dataElem);
 
     let startLine = true;
+    let result = "";
     Object.keys(options).forEach((optionKey) => {
         const option = options[optionKey];
         if (option) {
@@ -33,29 +34,20 @@ function prepareObj(dataElem, result, valueTransformer) {
         }
     });
 
-    return result + '\n';
+    return result;
 }
 
 function prepareParamsFromObj(dataElem, valueTransformer) {
-    return prepareObj(dataElem, '', valueTransformer);
+    return prepareObj(dataElem, valueTransformer);
 }
 
 function prepareParamsFromArrOfObjs(arrayData, valueTransformer) {
-    let result = '';
-    arrayData.forEach((dataElem) => {
-        result = prepareObj(dataElem, result, valueTransformer);
-    });
-
-    return result;
+    return arrayData.map(dataElem => prepareObj(dataElem, valueTransformer)).join("\n");
 }
 
 function prepareParamsFromObjOfObjs(objectData, valueTransformer) {
-    let result = '';
-    Object.keys(objectData).forEach((key) => {
-        result = prepareObj(objectData[key], result, valueTransformer);
-    });
-
-    return result;
+    return Object.keys(objectData).map(key => prepareObj(objectData[key], valueTransformer))
+            .join("\n");
 }
 
 export function prepareDisplaysParam(displays) {

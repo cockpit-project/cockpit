@@ -425,11 +425,11 @@ select.form-control {
   }
 
   &-footer {
-    padding: 1rem 0 0;
-
-    > .btn {
-      padding: 0.375rem 1rem;
+    > .pf-c-button:not(:last-child) {
+        --pf-c-modal-box__footer--c-button--MarginRight: var(--pf-global--spacer--md);
+        margin-right: calc(var(--pf-c-modal-box__footer--c-button--MarginRight) / 2);
     }
+    padding: 1rem 0 0;
   }
 
   &-body {

@@ -68,14 +68,15 @@ You can set these environment variables to configure the test suite:
                   "debian-stable"
                   "debian-testing"
                   "fedora-31"
+                  "fedora-32"
                   "fedora-coreos"
                   "fedora-testing"
                   "rhel-7-7"
                   "rhel-7-8"
                   "rhel-8-2"
                   "rhel-8-2-distropkg"
-                  "rhel-atomic"
                   "ubuntu-1804"
+                  "ubuntu-2004"
                   "ubuntu-stable"
                "fedora-31" is the default (bots/machine/machine_core/constants.py)
 

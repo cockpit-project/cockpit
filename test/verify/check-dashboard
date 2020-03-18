@@ -31,7 +31,7 @@ class DashBoardHelpers:
         b.click('#dashboard-add')
         b.wait_popup('dashboard_setup_server_dialog')
         self.wait_discovered_addresses(b, addresses)
-        b.click('#dashboard_setup_server_dialog .btn-default')
+        b.click('#dashboard_setup_server_dialog .pf-m-secondary')
         b.wait_popdown('dashboard_setup_server_dialog')
 
     def wait_discovered_addresses(self, b, expected):
@@ -56,7 +56,7 @@ class DashBoardHelpers:
 
     def machine_remove(self, b, address):
         b.click("#dashboard-enable-edit")
-        b.click("#dashboard-hosts a[data-address='%s'] button.pficon-delete" % address)
+        b.click("#dashboard-hosts a[data-address='%s'] button.delete-button" % address)
 
     def add_machine(self, b, address, known_host=False):
         b.click('#dashboard-add')
@@ -65,11 +65,11 @@ class DashBoardHelpers:
         self.add_machine_finish(b, known_host=known_host)
 
     def add_machine_finish(self, b, known_host=False):
-        b.wait_text('#dashboard_setup_server_dialog .btn-primary', "Add")
-        b.click('#dashboard_setup_server_dialog .btn-primary')
+        b.wait_text('#dashboard_setup_server_dialog .pf-m-primary', "Add")
+        b.click('#dashboard_setup_server_dialog .pf-m-primary')
         if not known_host:
             b.wait_in_text('#dashboard_setup_server_dialog', "Fingerprint")
-            b.click('#dashboard_setup_server_dialog .btn-primary')
+            b.click('#dashboard_setup_server_dialog .pf-m-primary')
         b.wait_popdown('dashboard_setup_server_dialog')
 
 
@@ -99,7 +99,7 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
         b2.default_user = "admin"
         b2.login_and_go("/dashboard")
         self.wait_dashboard_addresses(b2, ["localhost"])
-        b.wait_present("#dashboard-hosts a[data-address='localhost'] button.pficon-delete.disabled")
+        b.wait_present("#dashboard-hosts a[data-address='localhost'] button.delete-localhost:disabled")
 
         self.add_machine(b, "10.111.113.2")
         self.wait_dashboard_addresses(b, ["localhost", "10.111.113.2"])
@@ -176,7 +176,7 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
 
         b.click('#dashboard-enable-edit')
 
-        b.click("#dashboard-hosts .list-group-item[data-address='10.111.113.3'] button.pficon-edit")
+        b.click("#dashboard-hosts .list-group-item[data-address='10.111.113.3'] button.edit-button")
 
         b.wait_popup('host-edit-dialog')
         b.set_val('#host-edit-user', 'bad-user')
@@ -187,7 +187,7 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
         b.wait_present("#dashboard-hosts .failed[data-address='10.111.113.3']")
 
         b.click('#dashboard-enable-edit')
-        b.click("#dashboard-hosts .list-group-item[data-address='10.111.113.3'] button.pficon-edit")
+        b.click("#dashboard-hosts .list-group-item[data-address='10.111.113.3'] button.edit-button")
         b.wait_popup('host-edit-dialog')
         b.set_val('#host-edit-user', '')
         b.click('#host-edit-apply')
@@ -262,14 +262,14 @@ class TestDashboardSetup(MachineCase, DashBoardHelpers):
         b.click('#dashboard-add')
         b.wait_popup('dashboard_setup_server_dialog')
         b.set_val('#add-machine-address', "10.111.113.2")
-        b.wait_text('#dashboard_setup_server_dialog .btn-primary', "Add")
-        b.click('#dashboard_setup_server_dialog .btn-primary')
+        b.wait_text('#dashboard_setup_server_dialog .pf-m-primary', "Add")
+        b.click('#dashboard_setup_server_dialog .pf-m-primary')
         b.wait_in_text('#dashboard_setup_server_dialog', "Fingerprint")
-        b.click('#dashboard_setup_server_dialog .btn-primary')
+        b.click('#dashboard_setup_server_dialog .pf-m-primary')
         b.wait_in_text('#dashboard_setup_server_dialog .modal-title', "Log in to")
         b.click("#do-sync-users")
 
-        b.wait_text('#dashboard_setup_server_dialog .btn-primary', "Synchronize")
+        b.wait_text('#dashboard_setup_server_dialog .pf-m-primary', "Synchronize")
         b.wait_in_text("#sync-users", "admin")
         b.wait_present("#sync-username")
 
@@ -279,11 +279,11 @@ class TestDashboardSetup(MachineCase, DashBoardHelpers):
 
         b.set_val('#sync-username', "root")
         b.set_val('#sync-password', "notthepassword")
-        b.click('#dashboard_setup_server_dialog .btn-primary')
+        b.click('#dashboard_setup_server_dialog .pf-m-primary')
         b.wait_text('#dashboard_setup_server_dialog .dialog-error', "Login failed")
         b.set_val('#sync-password', "foobar")
 
-        b.click('#dashboard_setup_server_dialog .btn-primary')
+        b.click('#dashboard_setup_server_dialog .pf-m-primary')
         b.wait_popdown('dashboard_setup_server_dialog')
 
         # Check the result
@@ -321,11 +321,11 @@ class TestDashboardEditLimits(MachineCase, DashBoardHelpers):
         self.wait_dashboard_addresses(b, ["localhost"])
         old_style = b.attr("#dashboard-hosts .list-group-item[data-address='localhost']", "style")
 
-        b.wait_not_visible('#dashboard-hosts a:first-child button.pficon-edit')
+        b.wait_not_visible('#dashboard-hosts a:first-child button.edit-button')
         b.click('#dashboard-enable-edit')
 
-        b.click('#dashboard-hosts a:first-child button.pficon-edit')
-        b.wait_not_visible('#dashboard-hosts a:first-child button.pficon-edit')
+        b.click('#dashboard-hosts a:first-child button.edit-button')
+        b.wait_not_visible('#dashboard-hosts a:first-child button.edit-button')
 
         b.wait_popup('host-edit-dialog')
         b.set_val('#host-edit-name', "Horst")
@@ -367,7 +367,7 @@ class TestDashboardEditLimits(MachineCase, DashBoardHelpers):
             else:
                 b.wait_not_present("#dashboard_setup_server_dialog .dashboard-machine-warning")
 
-            b.click("#dashboard_setup_server_dialog .btn-default")
+            b.click("#dashboard_setup_server_dialog .pf-m-secondary")
 
         self.login_and_go("/dashboard")
 

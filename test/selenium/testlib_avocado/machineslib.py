@@ -269,7 +269,7 @@ class MachinesLib(SeleniumTest):
         # make sure the OS has been detected or input
         wait(lambda: self.wait_css('label[for=os-select] + div > div > div > input', cond=clickable).get_attribute('value') != "")
 
-        self.click(self.wait_css('#create-vm-dialog .modal-footer .btn.btn-primary', cond=clickable))
+        self.click(self.wait_css('#create-vm-dialog .modal-footer .pf-c-button.pf-m-primary', cond=clickable))
 
         self.wait_dialog_disappear()
         self.wait_css('#create-vm-dialog', cond=invisible)
@@ -333,7 +333,7 @@ class MachinesLib(SeleniumTest):
 
         self.check_box(self.wait_css('#storage-pool-dialog-autostart', cond=clickable), start_up)
 
-        self.click(self.wait_css('#create-storage-pool-dialog button.btn.btn-primary', cond=clickable))
+        self.click(self.wait_css('#create-storage-pool-dialog button.pf-c-button.pf-m-primary', cond=clickable))
 
         self.wait_dialog_disappear()
         el_id_prefix = 'pool-{}-{}'.format(name, connection)

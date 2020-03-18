@@ -19,7 +19,8 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Modal, OverlayTrigger, Tooltip } from 'patternfly-react';
+import { Modal, OverlayTrigger, Tooltip } from 'patternfly-react';
+import { Button } from '@patternfly/react-core';
 
 import cockpit from 'cockpit';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
@@ -75,9 +76,9 @@ export class DeleteResource extends React.Component {
                         </Tooltip> } placement='top'>
                         <span>
                             <Button id={`delete-${objectId}`}
-                                bsStyle='danger'
+                                variant='danger'
                                 style={{ pointerEvents: 'none' }}
-                                disabled>
+                                isDisabled>
                                 {actionName || _("Delete")}
                             </Button>
                         </span>
@@ -86,7 +87,7 @@ export class DeleteResource extends React.Component {
             } else {
                 return (
                     <Button id={`delete-${objectId}`}
-                        bsStyle='danger'
+                        variant='danger'
                         onClick={this.open}>
                         {actionName || _("Delete")}
                     </Button>
@@ -109,10 +110,10 @@ export class DeleteResource extends React.Component {
                     <Modal.Footer>
                         {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
                         {this.state.inProgress && <div className="spinner spinner-sm pull-left" />}
-                        <Button bsStyle='default' className='btn-cancel' onClick={this.close}>
+                        <Button variant='secondary' className='btn-cancel' onClick={this.close}>
                             {_("Cancel")}
                         </Button>
-                        <Button bsStyle='danger' disabled={this.state.inProgress} onClick={this.delete}>
+                        <Button variant='danger' isDisabled={this.state.inProgress} onClick={this.delete}>
                             {actionName || _("Delete")}
                         </Button>
                     </Modal.Footer>

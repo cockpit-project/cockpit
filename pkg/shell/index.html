@@ -33,8 +33,7 @@
                 <span>
                   <!-- Display nothing when unprivileged -->
                 </span>
-                <span data-toggle="tooltip" data-placement="bottom" translate="title"
--                    title="Login has escalated admin privileges" class="navbar-text">
+                <span data-toggle="tooltip" data-placement="bottom" translate="title" title="Login has escalated admin privileges" class="navbar-text">
                   <i class="fa fa-unlock-alt"></i>
                   <span translate>Privileged</span>
                 </span>
@@ -102,7 +101,7 @@
                 </div>
               </div>
               <div class="modal-footer">
-                <button class="btn btn-primary" data-dismiss="modal" translate>Close</button>
+                <button class="pf-c-button pf-m-secondary" data-dismiss="modal" translate>Close</button>
               </div>
             </div>
           </div>
@@ -128,8 +127,8 @@
                 </select>
               </div>
               <div class="modal-footer">
-                <button class="btn btn-default" data-dismiss="modal" translate="yes">Cancel</button>
-                <button class="btn btn-primary" id="display-language-select-button" translate="yes">Select</button>
+                <button class="pf-c-button pf-m-secondary" data-dismiss="modal" translate="yes">Cancel</button>
+                <button class="pf-c-button pf-m-primary" id="display-language-select-button" translate="yes">Select</button>
               </div>
             </div>
           </div>
@@ -145,7 +144,7 @@
                   <p id="timeout-message" />
               </div>
               <div class="modal-footer">
-                <button class="btn btn-primary" id="keep-session-alive" translate="yes">Continue Session</button>
+                <button class="pf-c-button pf-m-primary" id="keep-session-alive" translate="yes">Continue Session</button>
               </div>
             </div>
           </div>
@@ -161,7 +160,7 @@
                 <p id="error-popup-message"></p>
               </div>
               <div class="modal-footer">
-                <button class="btn btn-primary" data-dismiss="modal" translate="yes">Close</button>
+                <button class="pf-c-button pf-m-secondary" data-dismiss="modal" translate="yes">Close</button>
               </div>
             </div>
           </div>
@@ -183,7 +182,8 @@
                                 <tr>
                                     <td translate colspan="2">Reuse my password for privileged tasks and to connect to other machines</td>
                                     <td class="listing-ct-actions">
-                                        <button class="btn btn-default pficon pficon-close credential-clear">
+                                        <button class="pf-c-button pf-m-secondary credential-clear">
+                                            <span class="pficon pficon-close"></span>
                                         </button>
                                     </td>
                                 </tr>
@@ -202,7 +202,7 @@
                                     <td colspan="3">
                                         <div role="group">
                                             <div id="ssh-file-container"></div>
-                                            <button class="btn btn-default" id="ssh-file-add" translate>Add</button>
+                                            <button class="pf-c-button pf-m-secondary" id="ssh-file-add" translate>Add</button>
                                         </div>
                                         <div class="dialog-error help-block"></div>
                                     </td>
@@ -238,7 +238,7 @@
                                                     </dd>
                                                     <dt></dt>
                                                     <dd>
-                                                        <button class="btn btn-primary"
+                                                        <button class="pf-c-button pf-m-primary"
                                                                 translate>Unlock Key</button>
                                                     </dd>
                                                 </dl>
@@ -282,7 +282,7 @@
                                                     </dd>
                                                     <dt></dt>
                                                     <dd>
-                                                        <button class="btn btn-primary"
+                                                        <button class="pf-c-button pf-m-primary"
                                                                 translate>Unlock Key</button>
                                                     </dd>
                                                 </dl>
@@ -344,7 +344,7 @@
                                                         </a>
                                                     </dt>
                                                     <dd>
-                                                        <button class="credential-change btn btn-primary"
+                                                        <button class="credential-change pf-c-button pf-m-primary"
                                                             translate="yes">Change Password</button>
                                                     </dd>
                                                 </dl>
@@ -356,7 +356,7 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button class="btn btn-primary" data-dismiss="modal" translate="yes">Close</button>
+                        <button class="pf-c-button pf-m-secondary" data-dismiss="modal" translate="yes">Close</button>
                     </div>
                 </div>
             </div>
@@ -418,8 +418,8 @@
               <h1 id="machine-error-heading"></h1>
               <p id="machine-error-desc"></p>
               <div class="blank-slate-pf-main-action">
-                <button id="machine-reconnect" class="btn btn-primary btn-lg" translate="yes">Reconnect</button>
-                <button id="machine-troubleshoot" class="btn btn-primary btn-lg" translate="yes">Troubleshoot</button>
+                <button id="machine-reconnect" class="pf-c-button pf-m-primary btn-lg" translate="yes">Reconnect</button>
+                <button id="machine-troubleshoot" class="pf-c-button pf-m-primary btn-lg" translate="yes">Troubleshoot</button>
               </div>
             </div>
 

@@ -296,7 +296,7 @@ PageDashboard.prototype = {
                     if (self.edit_enabled)
                         return false;
                 })
-                .on("click", "button.pficon-delete", function() {
+                .on("click", "button.pf-m-danger", function() {
                     var item = $(this).parent(".list-group-item");
                     self.toggle_edit(false);
                     var machine = self.machines.lookup(item.attr("data-address"));
@@ -304,7 +304,7 @@ PageDashboard.prototype = {
                         self.machines.change(machine.key, { visible: false });
                     return false;
                 })
-                .on("click", "button.pficon-edit", function() {
+                .on("click", "button.edit-button", function() {
                     var item = $(this).parent(".list-group-item");
                     var host = item.attr("data-address");
                     self.toggle_edit(false);
@@ -447,7 +447,7 @@ PageDashboard.prototype = {
                 $(".delete-localhost").tooltip({
                     title : _("You are currently connected directly to this server. You cannot delete it.")
                 });
-                $(".delete-localhost").toggleClass('disabled', true);
+                $(".delete-localhost").prop('disabled', true);
                 $(".delete-localhost").toggleClass('servers-privileged', false);
                 update_servers_privileged();
                 update_series();

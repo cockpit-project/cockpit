@@ -403,9 +403,8 @@ function instance(realmd, mode, realm, state) {
         script += 'kinit ' + user + '@' + kerberos.RealmName + ' || exit 0; ';
 
         // ensure this gets run with a non-C locale; ipa fails otherwise
-        // C.UTF-8 exists on most OSes now, except for RHEL 7
         script += "if [ $(sh -c 'eval `locale`; echo $LC_CTYPE') = 'C' ]; then " +
-                  "    locale -a | grep -iq ^'C.utf' && export LC_CTYPE=C.UTF-8 || export LC_CTYPE=en_US.UTF-8; " +
+                  "    export LC_CTYPE=C.UTF-8; " +
                   "fi; ";
 
         // create a kerberos Service Principal Name for cockpit-ws, unless already present
@@ -612,7 +611,7 @@ export function setup() {
 
     function setup_realms_proxy() {
         // HACK: need to reinitialize after installing realmd (https://github.com/cockpit-project/cockpit/pull/9125)
-        realmd = cockpit.dbus("org.freedesktop.realmd");
+        realmd = cockpit.dbus("org.freedesktop.realmd", { superuser: "try" });
         realmd.watch(MANAGER);
 
         $(realmd).on("close", function(ev, options) {

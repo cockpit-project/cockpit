@@ -57,6 +57,7 @@ __all__ = (
     'allowImage',
     'skipPackage',
     'enableAxe',
+    'timeout',
     'Error',
 
     'sit',
@@ -448,7 +449,7 @@ class Browser:
         """
         self.wait_not_visible('#' + id)
 
-    def dialog_complete(self, sel, button=".btn-primary", result="hide"):
+    def dialog_complete(self, sel, button=".pf-m-primary", result="hide"):
         self.click(sel + " " + button)
         self.wait_not_present(sel + " .dialog-wait-ct")
 
@@ -465,7 +466,7 @@ class Browser:
         else:
             raise Error("invalid dialog result argument: " + result)
 
-    def dialog_cancel(self, sel, button=".btn[data-dismiss='modal']"):
+    def dialog_cancel(self, sel, button="button[data-dismiss='modal']"):
         self.click(sel + " " + button)
         self.wait_not_visible(sel)
 
@@ -518,6 +519,17 @@ class Browser:
         else:
             self.click(sel + ' button:first-child')
 
+    def try_login(self, user, password, authorized=True):
+        """Fills in the login dialog and clicks the button.
+
+        This differs from login_and_go() by not expecting any particular result.
+        """
+        self.wait_visible("#login")
+        self.set_val('#login-user-input', user)
+        self.set_val('#login-password-input', password)
+        self.set_checked('#authorized-input', authorized)
+        self.click('#login-button')
+
     def login_and_go(self, path=None, user=None, host=None, authorized=True, urlroot=None, tls=False, password=None):
         if user is None:
             user = self.default_user
@@ -531,12 +543,9 @@ class Browser:
         if host:
             href = "/@" + host + href
         self.open(href, tls=tls)
-        self.wait_visible("#login")
-        self.set_val('#login-user-input', user)
-        self.set_val('#login-password-input', password)
-        self.set_checked('#authorized-input', authorized)
 
-        self.click('#login-button')
+        self.try_login(user, password, authorized=authorized)
+
         self.expect_load()
         self.wait_present('#content')
         self.wait_visible('#content')
@@ -645,6 +654,37 @@ class Browser:
         self.cdp.kill()
 
 
+class _DebugOutcome(unittest.case._Outcome):
+    '''Run debug actions after test methods
+
+    This will do screenshots, HTML dumps, and sitting before cleanup handlers run.
+    '''
+    def testPartExecutor(self, test_case, isTest=False):
+        # we want to do the debug actions after the test function got called (isTest==True), but before
+        # TestCase.run() calls tearDown(); thus remember whether we are after isTest and already ran
+        if isTest:
+            self.ran_debug = False
+        else:
+            if getattr(self, "ran_debug", None) is False:
+                self.ran_debug = True
+                (err_case, exc_info) = self.errors[-1]
+                if exc_info and isinstance(test_case, MachineCase):
+                    assert err_case == test_case
+                    # strip off the two topmost frames for testPartExecutor and TestCase.run(); uninteresting and breaks naughties
+                    traceback.print_exception(exc_info[0], exc_info[1], exc_info[2].tb_next.tb_next)
+                    test_case.snapshot("FAIL")
+                    test_case.copy_js_log("FAIL")
+                    test_case.copy_journal("FAIL")
+                    test_case.copy_cores("FAIL")
+                    if opts.sit:
+                        sit(test_case.machines)
+
+        return super().testPartExecutor(test_case, isTest)
+
+
+unittest.case._Outcome = _DebugOutcome
+
+
 class MachineCase(unittest.TestCase):
     image = testvm.DEFAULT_IMAGE
     runner = None
@@ -718,48 +758,9 @@ class MachineCase(unittest.TestCase):
         return browser
 
     def checkSuccess(self):
-        if self._outcome:
-            # errors is a list of (method, exception) calls (usually multiple
-            # per method); None exception means success
-            return not any(e[1] for e in self._outcome.errors)
-
-        if not self.currentResult:
-            return False
-        for error in self.currentResult.errors:
-            if self == error[0]:
-                return False
-        for failure in self.currentResult.failures:
-            if self == failure[0]:
-                return False
-        for success in self.currentResult.unexpectedSuccesses:
-            if self == success:
-                return False
-        for skipped in self.currentResult.skipped:
-            if self == skipped[0]:
-                return False
-        return True
-
-    def run(self, result=None):
-        self.currentResult = result
-
-        # Here's the loop to actually retry running the test. It's an awkward
-        # place for this loop, since it only applies to MachineCase based
-        # TestCases. However for the time being there is no better place for it.
-        #
-        # Policy actually dictates retries.  The number here is an upper bound to
-        # prevent endless retries if Policy.check_retry is buggy.
-        max_retry_hard_limit = 10
-        for retry in range(0, max_retry_hard_limit):
-            try:
-                super().run(result)
-            except RetryError as ex:
-                assert retry < max_retry_hard_limit
-                sys.stderr.write("{0}\n".format(ex))
-                sleep(retry * 10)
-            else:
-                break
-
-        self.currentResult = None
+        # errors is a list of (method, exception) calls (usually multiple
+        # per method); None exception means success
+        return not any(e[1] for e in self._outcome.errors)
 
     def setUp(self):
         if opts.address and self.provision is not None:
@@ -793,6 +794,15 @@ class MachineCase(unittest.TestCase):
                     print("Starting {0} {1}".format(key, machine.label))
                 machine.start()
 
+        if self.machine.image == "rhel-8-2-distropkg":
+            self.danger_btn_class = '.btn-danger'
+            self.primary_btn_class = '.btn-primary'
+            self.default_btn_class = '.btn-default'
+        else:
+            self.danger_btn_class = '.pf-m-danger'
+            self.primary_btn_class = '.pf-m-primary'
+            self.default_btn_class = '.pf-m-secondary'
+
         # Now wait for the other machines to be up
         for key in self.machines.keys():
             machine = self.machines[key]
@@ -814,23 +824,6 @@ class MachineCase(unittest.TestCase):
                 self.nonDestructiveSetup()
 
         self.tmpdir = tempfile.mkdtemp()
-
-        def sitter():
-            if opts.sit and not self.checkSuccess():
-                if self._outcome:
-                    [traceback.print_exception(*e[1]) for e in self._outcome.errors if e[1]]
-                else:
-                    self.currentResult.printErrors()
-                sit(self.machines)
-        self.addCleanup(sitter)
-
-        def intercept():
-            if not self.checkSuccess():
-                self.snapshot("FAIL")
-                self.copy_js_log("FAIL")
-                self.copy_journal("FAIL")
-                self.copy_cores("FAIL")
-        self.addCleanup(intercept)
 
     def nonDestructiveSetup(self):
         '''generic setUp/tearDown for @nondestructive tests'''
@@ -855,9 +848,24 @@ class MachineCase(unittest.TestCase):
         # cockpit configuration
         self.addCleanup(m.execute, "rm -f /etc/cockpit/cockpit.conf")
 
-        # tests expect cockpit.service to not run at start; also, avoid log leakage into the next test
         if not m.ostree_image:
+            # for storage tests
+            m.execute("cp -a /etc/fstab /etc/fstab.test && "
+                      "cp -a /etc/crypttab /etc/crypttab.test")
+            self.addCleanup(m.execute, "mv /etc/fstab.test /etc/fstab && "
+                                       "mv /etc/crypttab.test /etc/crypttab")
+
+            # tests expect cockpit.service to not run at start; also, avoid log leakage into the next test
             self.addCleanup(m.execute, "systemctl stop cockpit")
+
+        # reset scsi_debug (see e. g. StorageHelpers.add_ram_disk()
+        # this needs to happen very late in the cleanup, so that test cases can clean up the users of that disk first
+        # right after unmounting the device is often still busy, so retry a few times
+        self.addCleanup(self.machine.execute,
+                        "set -e; [ -e /sys/module/scsi_debug ] || exit 0; "
+                        "for dev in $(ls /sys/bus/pseudo/drivers/scsi_debug/adapter*/host*/target*/*:*/block); do "
+                        "   umount /dev/$dev 2>/dev/null || true; "
+                        "done; until rmmod scsi_debug; do sleep 1; done")
 
     def tearDown(self):
         if self.checkSuccess() and self.machine.ssh_reachable:
@@ -901,6 +909,9 @@ class MachineCase(unittest.TestCase):
         # ssh messages may be dropped when closing
         '10.*: dropping message while waiting for child to exit',
 
+        # pkg/packagekit/autoupdates.jsx backend check often gets interrupted by logout
+        "xargs: basename: terminated by signal 13",
+
         # SELinux messages to ignore
         "(audit: )?type=1403 audit.*",
         "(audit: )?type=1404 audit.*",
@@ -911,6 +922,9 @@ class MachineCase(unittest.TestCase):
         "(audit: )?type=1400 .*denied.*comm=\"cockpit-ws\".*name=\"unix\".*dev=\"proc\".*",
         "(audit: )?type=1400 .*denied.*comm=\"ssh-transport-c\".*name=\"unix\".*dev=\"proc\".*",
         "(audit: )?type=1400 .*denied.*comm=\"cockpit-ssh\".*name=\"unix\".*dev=\"proc\".*",
+
+        # https://bugzilla.redhat.com/show_bug.cgi?id=1795524
+        "(audit: )?type=1400 .*denied  { setsched } .* comm=\"cockpit-ws\".*",
 
         # apparmor loading
         "(audit: )?type=1400.*apparmor=\"STATUS\".*",
@@ -1009,7 +1023,7 @@ class MachineCase(unittest.TestCase):
         if "TEST_AUDIT_NO_SELINUX" not in os.environ:
             messages += machine.audit_messages("14", cursor=cursor) # 14xx is selinux
 
-        if self.image in ['fedora-31', 'fedora-30', 'fedora-testing']:
+        if self.image in ['fedora-32', 'fedora-31', 'fedora-testing']:
             # Fedora >= 30 switched to dbus-broker
             self.allowed_messages.append("dbus-daemon didn't send us a dbus address; not installed?.*")
 
@@ -1133,11 +1147,21 @@ class MachineCase(unittest.TestCase):
             title: Used for the filename.
         """
         if self.browser is not None:
-            self.browser.snapshot(title, label)
+            try:
+                self.browser.snapshot(title, label)
+            except RuntimeError:
+                # this usually runs in exception handlers; raising an exception here skips cleanup handlers, so don't
+                sys.stderr.write("Unexpected exception in snapshot():\n")
+                sys.stderr.write(traceback.format_exc())
 
     def copy_js_log(self, title, label=None):
         if self.browser is not None:
-            self.browser.copy_js_log(title, label)
+            try:
+                self.browser.copy_js_log(title, label)
+            except RuntimeError:
+                # this usually runs in exception handlers; raising an exception here skips cleanup handlers, so don't
+                sys.stderr.write("Unexpected exception in copy_js_log():\n")
+                sys.stderr.write(traceback.format_exc())
 
     def copy_journal(self, title, label=None):
         for name, m in self.machines.items():
@@ -1241,6 +1265,19 @@ def enableAxe(method):
     return wrapper
 
 
+def timeout(seconds):
+    """Change default test timeout of 600s, for long running tests
+
+    Can be applied to an individual test method or the entire class. This only
+    applies to test/verify/run-tests, not to calling check-* directly.
+    """
+    def wrapper(testEntity):
+        testEntity.__timeout = seconds
+        return testEntity
+
+    return wrapper
+
+
 class TapRunner:
 
     def __init__(self, verbosity=1):
@@ -1259,7 +1296,7 @@ class TapRunner:
         except Exception:
             result.addError(test, sys.exc_info())
             sys.stderr.write("Unexpected exception while running {0}\n".format(test))
-            sys.stderr.write(traceback.print_exc())
+            sys.stderr.write(traceback.format_exc())
             return result
         else:
             result.printErrors()
@@ -1329,7 +1366,7 @@ def print_tests(tests):
             print(test.id().replace("__main__.", ""))
 
 
-def arg_parser():
+def arg_parser(enable_sit=True):
     parser = argparse.ArgumentParser(description='Run Cockpit test(s)')
     parser.add_argument('-v', '--verbose', dest="verbosity", action='store_const',
                         const=2, help='Verbose output')
@@ -1337,8 +1374,9 @@ def arg_parser():
                         help='Trace machine boot and commands')
     parser.add_argument('-q', '--quiet', dest='verbosity', action='store_const',
                         const=0, help='Quiet output')
-    parser.add_argument('-s', "--sit", dest='sit', action='store_true',
-                        help="Sit and wait after test failure")
+    if enable_sit:
+        parser.add_argument('-s', "--sit", dest='sit', action='store_true',
+                            help="Sit and wait after test failure")
     parser.add_argument('--nonet', dest="fetch", action="store_false",
                         help="Don't go online to download images or data")
     parser.add_argument('tests', nargs='*')
@@ -1414,10 +1452,6 @@ class Error(Exception):
 
     def __str__(self):
         return self.msg
-
-
-class RetryError(Error):
-    pass
 
 
 def wait(func, msg=None, delay=1, tries=60):

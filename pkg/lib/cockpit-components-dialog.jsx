@@ -21,10 +21,10 @@ import cockpit from "cockpit";
 import React from "react";
 import ReactDOM from "react-dom";
 import PropTypes from "prop-types";
-import { Alert } from "@patternfly/react-core";
+import { Alert, Button } from "@patternfly/react-core";
 import { Modal } from 'patternfly-react';
 
-import "page.css";
+import "page.scss";
 import "cockpit-components-dialog.css";
 
 const _ = cockpit.gettext;
@@ -36,8 +36,6 @@ const _ = cockpit.gettext;
  * Expected props:
  *  - cancel_clicked optional
  *     Callback called when the dialog is canceled
- *  - cancel_style
- *     css class used for the cancel button, defaults to 'cancel'
  *  - cancel_caption optional, defaults to 'Cancel'
  *  - list of actions, each an object with:
  *      - clicked
@@ -45,7 +43,7 @@ const _ = cockpit.gettext;
  *         parameter: callback to set the progress text (will be displayed next to spinner)
  *      - caption optional, defaults to 'Ok'
  *      - disabled optional, defaults to false
- *      - style defaults to 'default', other options: 'primary', 'danger'
+ *      - style defaults to 'secondary', other options: 'primary', 'danger'
  *  - static_error optional, always show this error
  *  - idle_message optional, always show this message on the last row when idle
  *  - dialog_done optional, callback when dialog is finished (param true if success, false on cancel)
@@ -91,7 +89,6 @@ export class DialogFooter extends React.Component {
         // only consider clicks with the primary button
         if (e && e.button !== 0)
             return;
-        var self = this;
         this.setState({
             error_message: null,
             action_progress_message: '',
@@ -100,22 +97,22 @@ export class DialogFooter extends React.Component {
         });
 
         var p = handler(this.update_progress)
-                .then(function() {
-                    self.setState({ action_in_progress: false, error_message: null });
-                    if (self.props.dialog_done)
-                        self.props.dialog_done(true);
+                .then(() => {
+                    this.setState({ action_in_progress: false, error_message: null });
+                    if (this.props.dialog_done)
+                        this.props.dialog_done(true);
                 })
-                .catch(function(error) {
-                    if (self.state.action_canceled) {
-                        if (self.props.dialog_done)
-                            self.props.dialog_done(false);
+                .catch(error => {
+                    if (this.state.action_canceled) {
+                        if (this.props.dialog_done)
+                            this.props.dialog_done(false);
                     }
 
                     /* Always log global dialog errors for easier debugging */
                     if (error)
                         console.warn(error.message || error.toString());
 
-                    self.setState({ action_in_progress: false, error_message: error });
+                    this.setState({ action_in_progress: false, error_message: error });
                 });
 
         if (p.progress)
@@ -154,17 +151,11 @@ export class DialogFooter extends React.Component {
     }
 
     render() {
-        var cancel_caption, cancel_style;
+        var cancel_caption;
         if ('cancel_caption' in this.props)
             cancel_caption = this.props.cancel_caption;
         else
             cancel_caption = _("Cancel");
-
-        if ('cancel_style' in this.props)
-            cancel_style = this.props.cancel_style;
-        else
-            cancel_style = "cancel";
-        cancel_style = "btn btn-default " + cancel_style;
 
         // If an action is in progress, show the spinner with its message and disable all actions.
         // Cancel is only enabled when the action promise has a cancel method, or we get one
@@ -174,9 +165,9 @@ export class DialogFooter extends React.Component {
         var actions_disabled;
         var cancel_disabled;
         if (this.state.action_in_progress) {
-            actions_disabled = 'disabled';
+            actions_disabled = true;
             if (!(this.state.action_in_progress_promise && this.state.action_in_progress_promise.cancel) && !this.state.action_progress_cancel)
-                cancel_disabled = 'disabled';
+                cancel_disabled = true;
             wait_element = <div className="dialog-wait-ct pull-left">
                 <div className="spinner spinner-sm" />
                 <span>{ this.state.action_progress_message }</span>
@@ -187,26 +178,20 @@ export class DialogFooter extends React.Component {
             </div>;
         }
 
-        var self = this;
-        var action_buttons = this.props.actions.map(function(action) {
-            var caption;
+        var action_buttons = this.props.actions.map(action => {
+            let caption;
             if ('caption' in action)
                 caption = action.caption;
             else
                 caption = _("Ok");
 
-            var button_style = "btn-default";
-            var button_style_mapping = { primary: 'btn-primary', danger: 'btn-danger' };
-            if ('style' in action && action.style in button_style_mapping)
-                button_style = button_style_mapping[action.style];
-            button_style = "btn " + button_style + " apply";
-            var action_disabled = actions_disabled || ('disabled' in action && action.disabled);
-            return (<button
+            return (<Button
                 key={ caption }
-                className={ button_style }
-                onClick={ self.action_click.bind(self, action.clicked) }
-                disabled={ action_disabled }
-            >{ caption }</button>
+                className="apply"
+                variant={ action.style || "secondary" }
+                onClick={ this.action_click.bind(this, action.clicked) }
+                isDisabled={ actions_disabled || ('disabled' in action && action.disabled) }
+            >{ caption }</Button>
             );
         });
 
@@ -224,11 +209,7 @@ export class DialogFooter extends React.Component {
                 { error_element }
                 { this.props.extra_element }
                 { wait_element }
-                <button
-                    className={ cancel_style }
-                    onClick={ this.cancel_click }
-                    disabled={ cancel_disabled }
-                >{ cancel_caption }</button>
+                <Button variant="secondary" className="cancel" onClick={this.cancel_click} isDisabled={cancel_disabled}>{ cancel_caption }</Button>
                 { action_buttons }
             </Modal.Footer>
         );

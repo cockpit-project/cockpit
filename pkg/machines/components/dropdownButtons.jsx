@@ -16,8 +16,9 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import { Dropdown, DropdownToggle, DropdownToggleAction, DropdownItem } from '@patternfly/react-core';
 
 import { mouseClick } from '../helpers.js';
 import './dropdownButtons.css';
@@ -30,40 +31,36 @@ import './dropdownButtons.css';
  * @returns {*}
  * @constructor
  */
-const DropdownButtons = ({ buttons }) => {
-    if (buttons.length > 1) { // do not display caret for single option
-        const buttonsHtml = buttons
-                .filter(button => buttons[0].id === undefined || buttons[0].id !== button.id)
-                .map(button => {
-                    return (<li className='presentation' key={button.title}>
-                        <a role='menuitem' tabIndex="0" onClick={mouseClick(button.action)} id={button.id}>
-                            {button.title}
-                        </a>
-                    </li>);
-                });
-
-        const caretId = buttons[0].id ? `${buttons[0].id}-caret` : undefined;
-        return (<div className='btn-group dropdown-buttons-container' key={`dropdown-${caretId}`}>
-            <button className='btn btn-default' id={buttons[0].id} onClick={mouseClick(buttons[0].action)}>
-                {buttons[0].title}
-            </button>
-            <button data-toggle='dropdown' className='btn btn-default dropdown-toggle'>
-                <i className="fa fa-caret-down pf-c-context-selector__toggle-icon" aria-hidden="true" id={caretId} />
-            </button>
-            <ul role='menu' className='dropdown-menu'>
-                {buttonsHtml}
-            </ul>
-        </div>);
-    }
-
-    return (<div className='btn-group'>
-        <button className='btn btn-default' onClick={mouseClick(buttons[0].action)} id={buttons[0].id}>
-            {buttons[0].title}
-        </button>
-    </div>);
-};
+export function DropdownButtons({ buttons }) {
+    const [isActionOpen, setIsActionOpen] = useState(false);
+    const dropdownItems = buttons.map(button => {
+        return (
+            <DropdownItem key={button.id} id={button.id} onClick={mouseClick(button.action)}>
+                {button.title}
+            </DropdownItem>
+        );
+    });
+    const dropdownId = buttons[0].id ? `${buttons[0].id}-caret` : undefined;
+    return (
+        <Dropdown key={dropdownId}
+            onSelect={() => setIsActionOpen(!isActionOpen)}
+            toggle={
+                <DropdownToggle
+                    id={dropdownId}
+                    splitButtonItems={[
+                        <DropdownToggleAction key={buttons[0].id} id={buttons[0].id} onClick={buttons[0].action}>
+                            {buttons[0].title}
+                        </DropdownToggleAction>
+                    ]}
+                    splitButtonVariant="action"
+                    onToggle={isOpen => setIsActionOpen(isOpen)}
+                />
+            }
+            isOpen={isActionOpen}
+            dropdownItems={dropdownItems}
+        />
+    );
+}
 DropdownButtons.propTypes = {
     buttons: PropTypes.array.isRequired
 };
-
-export default DropdownButtons;

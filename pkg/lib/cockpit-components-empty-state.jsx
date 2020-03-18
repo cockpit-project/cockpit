@@ -26,40 +26,35 @@ import {
     EmptyStateVariant,
     EmptyStateIcon,
     EmptyStateBody,
+    EmptyStateSecondaryActions,
 } from '@patternfly/react-core';
-import { ExclamationCircleIcon } from '@patternfly/react-icons';
+import { Spinner } from '@patternfly/react-core/dist/esm/experimental';
 import "./cockpit-components-empty-state.css";
 
-export class EmptyStatePanel extends React.Component {
-    render() {
-        const Spinner = () => (
-            <span className="pf-c-spinner" role="progressbar" aria-valuetext="Loading...">
-                <span className="pf-c-spinner__clipper" />
-                <span className="pf-c-spinner__lead-ball" />
-                <span className="pf-c-spinner__tail-ball" />
-            </span>
-        );
-        const slimType = this.props.title || this.props.paragraph ? "" : "slim";
-        return (
-            <EmptyState variant={EmptyStateVariant.full}>
-                {this.props.showIcon && (this.props.loading ? <EmptyStateIcon variant="container" component={Spinner} /> : <EmptyStateIcon icon={ExclamationCircleIcon} />)}
-                <Title headingLevel="h5" size="lg">
-                    {this.props.title}
-                </Title>
-                <EmptyStateBody>
-                    {this.props.paragraph}
-                </EmptyStateBody>
-                {this.props.action && <Button variant="primary" className={slimType} onClick={this.props.onAction}>{this.props.action}</Button>}
-            </EmptyState>
-        );
-    }
-}
+export const EmptyStatePanel = ({ title, paragraph, loading, icon, action, onAction, secondary }) => {
+    const slimType = title || paragraph ? "" : "slim";
+    return (
+        <EmptyState variant={EmptyStateVariant.full}>
+            { loading && <Spinner size="xl" /> }
+            { icon && <EmptyStateIcon icon={icon} /> }
+            <Title size="lg">
+                {title}
+            </Title>
+            <EmptyStateBody>
+                {paragraph}
+            </EmptyStateBody>
+            { action && <Button variant="primary" className={slimType} onClick={onAction}>{action}</Button> }
+            { secondary && <EmptyStateSecondaryActions>{secondary}</EmptyStateSecondaryActions> }
+        </EmptyState>
+    );
+};
 
 EmptyStatePanel.propTypes = {
     loading: PropTypes.bool,
-    showIcon: PropTypes.bool,
+    icon: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
     title: PropTypes.string,
-    paragraph: PropTypes.string,
+    paragraph: PropTypes.node,
     action: PropTypes.string,
     onAction: PropTypes.func,
+    secondary: PropTypes.node,
 };

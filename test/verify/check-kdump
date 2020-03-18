@@ -22,7 +22,8 @@ from testlib import *
 
 
 @skipImage("kexec-tools not installed", "fedora-coreos", "debian-stable",
-           "debian-testing", "ubuntu-1804", "ubuntu-stable")
+           "debian-testing", "ubuntu-1804", "ubuntu-2004", "ubuntu-stable")
+@timeout(900)
 class TestKdump(MachineCase):
 
     def rreplace(self, s, old, new, count):
@@ -99,18 +100,18 @@ class TestKdump(MachineCase):
         b.set_val("#kdump-settings-location", "nfs")
         mountInput = "#kdump-settings-nfs-mount"
         b.set_input_text(mountInput, ":/var/crash")
-        b.click("button.btn-primary:contains('Apply')")
+        b.click("button{}:contains('Apply')".format(self.primary_btn_class))
         b.wait_present("h4.pf-c-alert__title:contains('Unable to apply settings')")
         b.set_input_text(mountInput, "localhost:")
-        b.click("button.btn-primary:contains('Apply')")
+        b.click("button{}:contains('Apply')".format(self.primary_btn_class))
         b.wait_present("h4.pf-c-alert__title:contains('Unable to apply settings')")
-        b.click("button.btn-default:contains('Cancel')")
+        b.click("button{}:contains('Apply')".format(self.primary_btn_class))
 
         # test compression
         b.click(settingsLink)
         b.click("#kdump-settings-compression")
         pathInput = "#kdump-settings-local-directory"
-        b.click("button.btn-primary:contains('Apply')")
+        b.click("button{}:contains('Apply')".format(self.primary_btn_class))
         b.wait_not_present(pathInput)
         m.execute("cat /etc/kdump.conf | grep -qE 'makedumpfile.*-c.*'")
 
@@ -122,7 +123,7 @@ class TestKdump(MachineCase):
         sshKeyInput = "#kdump-settings-ssh-key"
         b.set_input_text(sshKeyInput, "/root/.ssh/id_rsa")
         b.set_input_text(pathInput, "/var/crash")
-        b.click("button.btn-primary:contains('Apply')")
+        b.click("button{}:contains('Apply')".format(self.primary_btn_class))
         b.wait_not_present(pathInput)
 
         # we should have the amount of memory reserved that we indicated
@@ -139,14 +140,14 @@ class TestKdump(MachineCase):
         b.set_val("#kdump-settings-location", "local")
         pathInput = "#kdump-settings-local-directory"
         b.set_input_text(pathInput, customPath)
-        b.click("button.btn-primary:contains('Apply')")
+        b.click("button{}:contains('Apply')".format(self.primary_btn_class))
         # we should get an error
         b.wait_present("h4.pf-c-alert__title:contains('Unable to apply settings')")
         # also allow the journal message about failed touch
         self.allow_journal_messages(".*mktemp: failed to create file via template.*")
         # create the directory and try again
         m.execute("mkdir -p {0}".format(customPath))
-        b.click("button.btn-primary:contains('Apply')")
+        b.click("button{}:contains('Apply')".format(self.primary_btn_class))
         b.wait_not_present(pathInput)
         b.wait_present("button:contains('locally in {0}')".format(customPath))
 
@@ -156,9 +157,9 @@ class TestKdump(MachineCase):
         assertActive(True)
 
         # crash the kernel and make sure it wrote a report into the right directory
-        b.click("button.btn-default")
+        b.click("button{}".format(self.default_btn_class))
         # we should get a warning dialog, confirm
-        crashButton = "button.btn-danger:contains('Crash system')"
+        crashButton = "button{}:contains('Crash system')".format(self.danger_btn_class)
         b.click(crashButton)
 
         # wait until we've actuall triggered a crash

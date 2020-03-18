@@ -19,7 +19,8 @@
 
 import cockpit from "cockpit";
 import React from "react";
-import { Alert, AlertActionCloseButton } from "@patternfly/react-core";
+import { Alert, AlertActionCloseButton, Button } from "@patternfly/react-core";
+import { RebootingIcon } from "@patternfly/react-icons";
 
 import * as PackageKit from "./packagekit.js";
 import { left_click, icon_url, show_error, launch, ProgressBar, CancelButton } from "./utils.jsx";
@@ -55,7 +56,7 @@ class ApplicationRow extends React.Component {
         var name, summary_or_progress, button;
 
         if (comp.installed) {
-            name = <button role="link" className="link-button" onClick={left_click(() => launch(comp))}>{comp.name}</button>;
+            name = <Button variant="link" onClick={left_click(() => launch(comp))}>{comp.name}</Button>;
         } else {
             name = comp.name;
         }
@@ -78,9 +79,9 @@ class ApplicationRow extends React.Component {
             }
 
             if (comp.installed) {
-                button = <button className="btn btn-danger" onClick={left_click(remove)}>{_("Remove")}</button>;
+                button = <Button variant="danger" onClick={left_click(remove)}>{_("Remove")}</Button>;
             } else {
-                button = <button className="btn btn-default" onClick={left_click(install)}>{_("Install")}</button>;
+                button = <Button variant="secondary" onClick={left_click(install)}>{_("Install")}</Button>;
             }
         }
 
@@ -124,7 +125,11 @@ export class ApplicationList extends React.Component {
             refresh_button = <CancelButton data={this.state.progress} />;
         } else {
             refresh_progress = null;
-            refresh_button = <button className="btn btn-default fa fa-refresh" onClick={left_click(refresh)} />;
+            refresh_button = (
+                <Button variant="secondary" onClick={left_click(refresh)} aria-label={ _("Update package information") }>
+                    <RebootingIcon />
+                </Button>
+            );
         }
 
         table_classes = "table app-list";

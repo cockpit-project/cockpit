@@ -204,9 +204,6 @@ class TestMachines(MachineCase, StorageHelpers):
         if m.image in ["ubuntu-stable"]:
             self.allow_journal_messages('Process .*qemu-system-x86.* of user .* dumped core.')
 
-        # FIXME: we get tons of these in --enable-debug mode, unbreak tests for now
-        self.allow_browser_errors('Warning: An update .* was scheduled from inside an update function.*')
-
         # FIXME: testDomainMemorySettings on Fedora-32 reports this. Figure out where it comes from.
         # Ignoring just to unbreak tests for now
         self.allow_journal_messages("Failed to get COMM: No such process")

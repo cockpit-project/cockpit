@@ -71,7 +71,7 @@ body { overflow: hidden; }
     }
 
     function applications() {
-        var environ = [ "GDK_BACKEND=broadway", "BROADWAY_DISPLAY=:5", "LANG=en_US.UTF-8" ];
+        var environ = [ "GDK_BACKEND=broadway", "BROADWAY_DISPLAY=:5", "LANG=C.UTF-8" ];
         process(["nautilus"], environ);
         process(["gnome-calculator"], environ);
     }

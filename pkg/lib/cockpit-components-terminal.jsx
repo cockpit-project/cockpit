@@ -189,6 +189,7 @@ export class Terminal extends React.Component {
         this.disconnectChannel();
         this.state.terminal.dispose();
         window.removeEventListener('resize', this.onWindowResize);
+        this.onFocusOut();
     }
 
     setText() {

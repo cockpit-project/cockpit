@@ -9,6 +9,7 @@ import unittest
 import dataclasses
 import errno
 import time
+import re
 import socket
 import tempfile
 
@@ -27,6 +28,7 @@ os.environ['PYTHONUNBUFFERED'] = '1'
 class Test:
     test_id: int
     command: list
+    timeout: int
     process: subprocess.Popen = None
     retries: int = 0
     output: bytes = b""
@@ -56,11 +58,12 @@ def finish_test(opts, test):
     """Returns if a test should retry or not
 
     Call test-policy on the test's output, print if needed.
-    """
 
-    if test.process.returncode != 1:
+    Return (retry_reason, exit_code). retry_reason can be None or a string.
+    """
+    if test.process.returncode in [0, 77]:
         print_test(test, not opts.list)
-        return False, 0
+        return None, 0
 
     if not opts.thorough:
         cmd = ["tests-policy", testvm.DEFAULT_IMAGE]
@@ -78,16 +81,26 @@ def finish_test(opts, test):
 
         if b"# SKIP" in test.output:
             print_test(test, print_tap=False)
-            return False, 0
+            return None, 0
 
-    if test.retries < 2 or b"# RETRY" in test.output:
+    # do we get a specific retry reason from tests-policy?
+    m = re.search(b"\s*# RETRY (.*)$", test.output, re.MULTILINE)
+    if m:
+        retry_reason = m.group(1)
+        # remove it from test output; we must not print it after the 3rd time, and going to print it separately
+        test.output = re.sub(b"\s*# RETRY .*\\n", b"", test.output)
+    else:
+        # HACK: many tests are unstable, always retry them 3 times
+        retry_reason = b"be robust against unstable tests"
+
+    if test.retries < 2:
         test.retries += 1
-        test.output += " # RETRY {0}\n".format(test.retries).encode()
+        test.output += b" # RETRY %i (%s)\n" % (test.retries, retry_reason)
         print_test(test, print_tap=opts.thorough)
-        return True, 0
+        return retry_reason, 0
     else:
         print_test(test, print_tap=opts.thorough)
-    return False, 1
+    return None, 1
 
 def check_valid(filename):
     name = os.path.basename(filename)
@@ -98,8 +111,6 @@ def check_valid(filename):
 
 def build_command(filename, test, opts):
     cmd = [filename]
-    if opts.sit:
-        cmd.append("-s")
     if opts.trace:
         cmd.append("-t")
     if opts.verbosity:
@@ -120,6 +131,7 @@ def run(opts):
     result = 0
     jobs = 1 if opts.list else opts.jobs
     start_time = time.time()
+    serial_tests_duration = 0
 
     for filename in glob.glob(os.path.join(os.path.dirname(__file__), "check-*")):
         name = check_valid(filename)
@@ -132,13 +144,18 @@ def run(opts):
             for test in test_suite:
                 test_method = getattr(test.__class__, test._testMethodName)
                 test_str = "{0}.{1}".format(test.__class__.__name__, test._testMethodName)
+                # most tests should take much less than 10mins, so default to that;
+                # longer tests can be annotated with @timeout(seconds)
+                # check the test function first, fall back to the class'es timeout
+                test_timeout = getattr(test_method, "__timeout", getattr(test, "__timeout", 600))
                 if opts.tests and not any([t in test_str for t in opts.tests]):
                     continue
-                test = Test(test_id, build_command(filename, test_str, opts))
+                test = Test(test_id, build_command(filename, test_str, opts), test_timeout)
                 if getattr(test_method, "_testlib__non_destructive", False):
                     serial_tests.append(test)
                 else:
-                    parallel_tests.append(test)
+                    if not opts.nondestructive:
+                        parallel_tests.append(test)
                 test_id += 1
 
     print("1..{0}".format(len(parallel_tests) + len(serial_tests)))
@@ -156,6 +173,7 @@ def run(opts):
 
     running_tests = []
     serial_test = None
+    serial_tests_len = len(serial_tests)
     while serial_tests or parallel_tests or running_tests:
         made_progress = False
         if len(running_tests) < jobs:
@@ -163,13 +181,15 @@ def run(opts):
             if serial_tests and serial_test is None:
                 test = serial_tests.pop(0)
                 serial_test = test
+                serial_test_start = time.time()
             elif parallel_tests:
                 test = parallel_tests.pop(0)
 
             if test:
                 made_progress = True
                 test.outfile = tempfile.TemporaryFile()
-                test.process = subprocess.Popen(test.command, stdout=test.outfile, stderr=subprocess.STDOUT)
+                test.process = subprocess.Popen(["timeout", str(test.timeout)] + test.command,
+                                                stdout=test.outfile, stderr=subprocess.STDOUT)
                 running_tests.append(test)
 
 
@@ -181,11 +201,21 @@ def run(opts):
                 test.output = test.outfile.read()
                 test.outfile.close()
                 running_tests.remove(test)
-                retry, test_result = finish_test(opts, test)
+                retry_reason, test_result = finish_test(opts, test)
                 result += test_result
 
+                if test is serial_test:
+                    serial_tests_duration += (time.time() - serial_test_start)
+
+                    # sometimes our global machine gets messed up
+                    # restart it to avoid an unbounded number of test retries and follow-up errors
+                    if retry_reason and b"test harness" in retry_reason:
+                        # try hard to keep the test output consistent
+                        testlib.MachineCase.kill_global_machine()
+                        testlib.MachineCase.get_global_machine()
+
                 # run again if needed
-                if retry:
+                if retry_reason:
                     test.output = None
                     test.process = None
                     if test is serial_test:
@@ -200,32 +230,31 @@ def run(opts):
         if not made_progress and not opts.list:
             time.sleep(0.5)
 
-    testlib.MachineCase.kill_global_machine()
+    if not opts.list:
+        testlib.MachineCase.kill_global_machine()
 
-    duration = int(time.time() - start_time)
-    hostname = socket.gethostname().split(".")[0]
-    details = "[{0}s on {1}]".format(duration, hostname)
-    print()
-    if result > 0:
-        print("# {0} TESTS FAILED {1}".format(result, duration))
-    else:
-        print("# TESTS PASSED {0}".format(details))
-    print("Test run finished, return code: {0}".format(result))
+        duration = int(time.time() - start_time)
+        hostname = socket.gethostname().split(".")[0]
+        details = "[{0}s on {1}, {2} serial tests took {3}s]".format(duration, hostname, serial_tests_len, int(serial_tests_duration))
+        print()
+        if result > 0:
+            print("# {0} TESTS FAILED {1}".format(result, details))
+        else:
+            print("# TESTS PASSED {0}".format(details))
 
     return result
 
 
 def main():
-    parser = testlib.arg_parser()
+    parser = testlib.arg_parser(enable_sit=False)
     parser.add_argument('--publish', action='store', help="Unused")
-    parser.add_argument('-j', '--jobs', dest="jobs", type=int,
+    parser.add_argument('-j', '--jobs', type=int,
                         default=os.environ.get("TEST_JOBS", 1), help="Number of concurrent jobs")
-    parser.add_argument('--thorough', dest='thorough', action='store_true',
+    parser.add_argument('--thorough', action='store_true',
                         help='Thorough mode, no skipping known issues')
+    parser.add_argument('-n', '--nondestructive', action='store_true',
+                        help='Only consider @nondestructive tests')
     opts = parser.parse_args()
-
-    if opts.sit and opts.jobs > 1:
-        parser.error("the -s or --sit argument not avalible with multiple jobs")
 
     image = testvm.DEFAULT_IMAGE
     revision = os.environ.get("TEST_REVISION")

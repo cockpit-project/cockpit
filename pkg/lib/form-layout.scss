@@ -1,6 +1,6 @@
 /* Form layout */
 
-@import "./variables.less";
+@import "./variables.scss";
 
 :root {
   // CSS variable to define the number of (label + control) columns.
@@ -63,16 +63,16 @@
 
 .ct-form {
   // Locally redefine padding to Bootstrap values for this LESS block
-  @padding-large-vertical: 1rem;
-  @padding-small-vertical: 0.5rem;
-  @padding-small-horizontal: 1.5rem;
+  $padding-large-vertical: 1rem;
+  $padding-small-vertical: 0.5rem;
+  $padding-small-horizontal: 1.5rem;
   // Bootstrap & PatternFly use a 1px border around widgets
-  @border-width: 1px;
-  @widget-height: 2.25rem; // (36px for PF4 widgets)
+  $border-width: 1px;
+  $widget-height: 2.25rem; // (36px for PF4 widgets)
 
   align-self: start; // Don't vertically fill content by default
   display: grid;
-  grid-gap: @padding-small-vertical @padding-small-horizontal;
+  grid-gap: $padding-small-vertical $padding-small-horizontal;
   // Repeat a label that is a minimum of 4em and its control that
   // fills the remaining space by a CSS variable (default: 2)
   grid-template-columns: repeat(var(--ct-form-columns), max-content 1fr);
@@ -99,7 +99,7 @@
   // Put all control elements to the right of the labels,
   // stretching to the rightmost column
   > :not(.control-label):not(hr):not(.ct-form-split):not(.ct-form-full) {
-    grid-column: ~"2 / -1";
+    grid-column: 2 / -1;
   }
 
   // Auto-stretch elements to the grid (except when relaxed)
@@ -115,9 +115,9 @@
   // in the usual ways as well as adding a role="group".
   > hr {
     border: none;
-    // LESS needs this to be escaped with ~"". You'll see it below too.
+    // LESS needs this to be escaped with "". You'll see it below too.
     // CSS wants the string to be 1 / -1 without escaping.
-    grid-column: ~"1 / -1";
+    grid-column: 1 / -1;
     height: 0.5rem;
     // Reset padding to ensure all browsers treat this the same
     margin: 0;
@@ -142,7 +142,7 @@
 
   // Special considerations for widgets (and widget-like elements)
   // This is a LESS mixin that will not be in the compiled CSS.
-  .widget-rules() {
+  @mixin widget-rules() {
     > input,
     > textarea,
     > select,
@@ -164,7 +164,7 @@
   }
 
   &, > .ct-validation-wrapper {
-    .widget-rules();
+    @include widget-rules;
   }
 
   // Some elements need special width considerations
@@ -189,7 +189,7 @@
     align-self: start;
     align-content: center;
     display: grid;
-    grid-gap: @padding-small-vertical;
+    grid-gap: $padding-small-vertical;
     min-height: 2.25rem;
     justify-content: start;
     // Only support 2 splits for now (can change to 3 later, if needed)
@@ -198,7 +198,7 @@
     &.ct-form-vertical {
       > :not(.ct-form-split) {
         // Stretch across the grid (unless it's a split)
-        grid-column: ~"1 / -1";
+        grid-column: 1 / -1;
       }
     }
 
@@ -238,7 +238,7 @@
   .radio-inline {
     display: inline-flex;
     padding-left: 0;
-    padding-right: @padding-small-horizontal;
+    padding-right: $padding-small-horizontal;
     align-items: center;
 
     > input[type="checkbox"],
@@ -265,21 +265,21 @@
 
   // List groups override the grid gap, so we're adding it manually
   .list-group {
-    margin-bottom: @padding-small-vertical;
+    margin-bottom: $padding-small-vertical;
   }
 
   // Relax split elements to only take up one column
   > .ct-form-split {
-    grid-column: ~"auto / auto";
+    grid-column: auto / auto;
   }
 
   // Stretch to full width
   > .ct-form-full {
-    grid-column: ~"1 / -1";
+    grid-column: 1 / -1;
   }
 
   // Move warnings, errors, info, etc. up a bit to associate with previous field
-  .bump-up() {
+  @mixin bump-up() {
     position: relative;
     margin-top: -0.5rem;
   }
@@ -293,7 +293,7 @@
   }
 
   > .help-block {
-    .bump-up();
+    @include bump-up;
   }
 
   .help-block {
@@ -336,7 +336,7 @@
 // much width. This allows for using the same HTML layout in both
 // narrow and normal dialogs.
 .modal-dialog.modal-sm .ct-form > .ct-form-split {
-  grid-column: ~"2 / -1";
+  grid-column: 2 / -1;
 }
 
 @media (max-width: 640px) {
@@ -363,7 +363,7 @@
   grid-template-columns: max-content 1fr max-content min-content;
 }
 
-@media (max-width: @screen-xs) {
+@media (max-width: $screen-xs) {
   // When inside of lists or modals & the page is *very* narrow,
   // collapse the grid further, so labels are above controls
   //
@@ -391,7 +391,7 @@
 
       // Reduce vertical height spacing between groups of elements
       > hr {
-        height: @padding-large-vertical * 2;
+        height: $padding-large-vertical * 2;
       }
     }
   }

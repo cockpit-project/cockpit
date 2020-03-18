@@ -1,5 +1,3 @@
-@import "../../node_modules/@patternfly/patternfly/patternfly-variables.css";
-
 a {
     cursor: pointer;
 }
@@ -13,11 +11,11 @@ a {
     min-width: 26px;
 }
 
-.btn.disabled {
+.btn.disabled, .pf-c-button.disabled {
     pointer-events: auto;
 }
 
-.btn.disabled:hover {
+.btn.disabled:hover, .pf-c-button.disabled:hover {
   z-index: auto;
 }
 
@@ -115,7 +113,7 @@ a.disabled:hover {
 
 /*
  * Control buttons such as play and stop
- * Used with .btn .btn-default
+ * Used with .pf-c-button .pf-m-secondary
  */
 
 .btn-control-ct,
@@ -125,7 +123,7 @@ a.disabled:hover {
     background-repeat: no-repeat;
     background-image: none;
     -webkit-border-radius: 2;
-    -moz-border-radius: 2;
+    @moz-border-radius: 2;
     border-radius: 2px;
     height: 28px;
     width: 28px;
@@ -549,4 +547,18 @@ input[type=number] {
 .pf-c-dropdown__toggle-button {
   display: flex;
   align-items: center;
+}
+
+/* btn-lg, btn-sm don't exist in PF4 */
+.pf-c-button.btn-lg {
+    padding: .5rem 1rem;
+    font-size: 1.25rem;
+    line-height: 1.5;
+    border-radius: .3rem;
+}
+.pf-c-button.btn-sm {
+    padding: .25rem .75rem;
+    font-size: .875rem;
+    line-height: 1.5;
+    border-radius: .2rem;
 }

@@ -116,6 +116,33 @@ function initFirewalldDbus() {
     });
 
     firewalld_dbus.subscribe({
+        interface: 'org.fedoraproject.FirewallD1.zone',
+        path: '/org/fedoraproject/FirewallD1',
+        member: 'PortAdded'
+    }, (path, iface, signal, args) => {
+        const zone = args[0];
+        const port = args[1];
+        const protocol = args[2];
+        if (!firewall.zones[zone].ports.some(p => p.port === port && p.protocol === protocol)) {
+            firewall.zones[zone].ports.push({ port, protocol });
+            firewall.debouncedEvent('changed');
+        }
+    });
+
+    firewalld_dbus.subscribe({
+        interface: 'org.fedoraproject.FirewallD1.zone',
+        path: '/org/fedoraproject/FirewallD1',
+        member: 'PortRemoved'
+    }, (path, iface, signal, args) => {
+        const zone = args[0];
+        const port = args[1];
+        const protocol = args[2];
+        firewall.zones[zone].ports = firewall.zones[zone].ports
+                .filter(p => p.port !== port || p.protocol !== protocol);
+        firewall.debouncedEvent('changed');
+    });
+
+    firewalld_dbus.subscribe({
         interface: 'org.fedoraproject.FirewallD1',
         path: '/org/fedoraproject/FirewallD1',
         member: 'Reloaded'
@@ -296,9 +323,10 @@ function fetchZoneInfos(zones) {
 
 initFirewalldDbus();
 
-cockpit.spawn(['sh', '-c', 'pkcheck --action-id org.fedoraproject.FirewallD1.all --process $$ --allow-user-interaction 2>&1'])
+cockpit.spawn(['sh', '-c', 'pkcheck --action-id org.fedoraproject.FirewallD1.all --process $$ --allow-user-interaction 2>&1'], { superuser: "try" })
         .done(() => {
             firewall.readonly = false;
+            firewall.debouncedEvent('changed');
             firewall.debouncedGetZones();
         });
 

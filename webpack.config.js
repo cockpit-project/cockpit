@@ -10,6 +10,7 @@ var info = {
 
         "dashboard/dashboard": [
             "dashboard/list.js",
+            "dashboard/dashboard.scss",
         ],
 
         "docker/docker": [
@@ -21,12 +22,12 @@ var info = {
 
         "kdump/kdump": [
             "kdump/kdump.js",
-            "kdump/kdump.css",
+            "kdump/kdump.scss",
         ],
 
         "machines/machines": [
             "machines/index.js",
-            "machines/machines.less",
+            "machines/machines.scss",
         ],
 
         "networkmanager/network": [
@@ -84,17 +85,17 @@ var info = {
 
         "selinux/selinux": [
             "selinux/setroubleshoot.js",
-            "selinux/setroubleshoot.css",
+            "selinux/setroubleshoot.scss",
         ],
 
         "shell/index": [
             "shell/index.js",
-            "shell/shell.less",
+            "shell/shell.scss",
         ],
 
         "sosreport/sosreport": [
             "sosreport/index.js",
-            "sosreport/sosreport.css",
+            "sosreport/sosreport.scss",
         ],
 
         "storaged/storage": [
@@ -103,27 +104,27 @@ var info = {
 
         "systemd/services": [
             "systemd/init.js",
-            "systemd/services.less",
+            "systemd/services.scss",
         ],
         "systemd/logs": [
             "systemd/logs.js",
-            "systemd/logs.less",
+            "systemd/logs.scss",
         ],
         "systemd/overview": [
             "systemd/overview.jsx",
-            "systemd/overview.less",
+            "systemd/overview.scss",
         ],
         "systemd/terminal": [
             "systemd/terminal.jsx",
-            "systemd/terminal.less",
+            "systemd/terminal.scss",
         ],
         "systemd/hwinfo": [
             "systemd/hwinfo.jsx",
-            "systemd/hwinfo.less",
+            "systemd/hwinfo.scss",
         ],
         "systemd/graphs": [
             "systemd/graphs.js",
-            "systemd/graphs.less",
+            "systemd/graphs.scss",
         ],
 
         "tuned/performance": [
@@ -132,12 +133,12 @@ var info = {
 
         "packagekit/updates": [
             "packagekit/updates.jsx",
-            "packagekit/updates.less",
+            "packagekit/updates.scss",
         ],
 
         "users/users": [
             "users/local.js",
-            "users/users.css",
+            "users/users.scss",
         ]
     },
 
@@ -375,7 +376,7 @@ module.exports = {
     resolve: {
         alias: aliases,
         modules: [ libdir, nodedir ],
-        extensions: ["*", ".js", ".json", ".less"]
+        extensions: ["*", ".js", ".json"]
     },
     entry: info.entries,
     output: output,
@@ -425,11 +426,22 @@ module.exports = {
                 ],
             },
             {
-                test: /\.less$/,
+                test: /\.scss$/,
                 use: [
                     miniCssExtractPlugin.loader,
                     "css-loader",
-                    "less-loader"
+                    'sass-loader',
+                    {
+                        loader: 'sass-resources-loader',
+                            // Make PF3 and PF4 variables globably accessible to be used by the components scss
+                            options: {
+                                resources: [
+                                    path.resolve(libdir, './_global-variables.scss'),
+                                    path.resolve(nodedir, './@patternfly/patternfly/patternfly-variables.scss'),
+                                    path.resolve(nodedir, './patternfly/dist/sass/patternfly/_variables.scss')
+                                ],
+                            },
+                    },
                 ]
             },
         ],

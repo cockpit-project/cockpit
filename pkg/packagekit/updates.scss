@@ -14,7 +14,7 @@
         padding-right: 15px;
     }
     &--actions {
-        > .btn,
+        > .pf-c-button,
         > .btn-group {
             margin: 5px 5px 0 0;
 
@@ -34,6 +34,7 @@
 /* override default cockpit CSS, as this doesn't fit our table */
 table.listing-ct {
     margin-top: 0;
+    margin-bottom: 3rem;
     width: 100%;
 }
 
@@ -216,7 +217,7 @@ tr.security.listing-ct-item {
     margin: 10ex auto 0;
 }
 
-/* stolen from pkg/systemd/overview.less */
+/* stolen from pkg/systemd/overview.scss */
 .content-header-extra {
     background: #f5f5f5;
     border-bottom: 1px solid #ddd;
@@ -270,20 +271,6 @@ tr.security.listing-ct-item {
         flex: none;
     }
 }
-
-.blank-slate-pf {
-    /* PatternFly empty state has a gray background which we don't want here */
-    background: inherit;
-    border: none;
-
-    /* standard blank-slate-pf does not limit width of paragraph, which looks ugly */
-    p {
-        max-width: 50rem;
-        margin: 0 auto;
-        text-align: center;
-    }
-}
-
 
 .flow-list-blank-slate {
     padding-top: 8em;

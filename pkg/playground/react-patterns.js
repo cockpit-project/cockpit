@@ -94,7 +94,6 @@ var onStandardDemoClicked = function(staticError) {
             {
                 clicked: onDialogStandardClicked.bind(null, 'steps'),
                 caption: "Wait",
-                style: 'primary',
             },
         ],
         static_error: staticError,

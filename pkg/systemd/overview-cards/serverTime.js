@@ -24,7 +24,7 @@ import $ from "jquery";
 export function ServerTime() {
     var self = this;
 
-    var client = cockpit.dbus('org.freedesktop.timedate1');
+    var client = cockpit.dbus('org.freedesktop.timedate1', { superuser: "try" });
     var timedate = client.proxy();
 
     var time_offset = null;

@@ -21,35 +21,26 @@ import cockpit from "cockpit";
 import React from "react";
 import ReactDOM from "react-dom";
 import {
-    Button,
     ListView,
     Modal,
     OverlayTrigger,
     Tooltip
 } from "patternfly-react";
-import { Alert } from '@patternfly/react-core';
+import { Alert, Button } from '@patternfly/react-core';
+import { ExclamationCircleIcon, TrashIcon } from '@patternfly/react-icons';
 
 import firewall from "./firewall-client.js";
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 import { ModalError } from "cockpit-components-inline-notification.jsx";
+import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 
-import "page.css";
+import "page.scss";
 import "table.css";
-import "form-layout.less";
+import "form-layout.scss";
 import "./networking.css";
 
 const _ = cockpit.gettext;
-
-function EmptyState(props) {
-    return (
-        <div className="curtains-ct blank-slate-pf">
-            {props.icon && <div className={"blank-slate-pf-icon " + props.icon} />}
-            <h1>{props.title}</h1>
-            {props.children}
-        </div>
-    );
-}
 
 function ServiceRow(props) {
     var tcp = props.service.ports.filter(p => p.protocol.toUpperCase() == 'TCP');
@@ -76,16 +67,16 @@ function ServiceRow(props) {
             <OverlayTrigger className="pull-right" placement="top"
                             overlay={ <Tooltip id="tip-auth">{ _("You are not authorized to modify the firewall.") }</Tooltip> }>
                 <span>
-                    <button key={props.service.id + "-delete-button"} className="btn btn-danger pficon pficon-delete" aria-label={cockpit.format(_("Not authorized to remove service $0"), props.service.id)} style={{ pointerEvents: 'none' }} disabled />
+                    <Button key={props.service.id + "-delete-button"} variant="danger" aria-label={cockpit.format(_("Not authorized to remove service $0"), props.service.id)} style={{ pointerEvents: 'none' }} isDisabled><TrashIcon /></Button>
                 </span>
             </OverlayTrigger>
         );
     } else {
-        deleteButton = <button key={props.service.id + "-delete-button"} className="btn btn-danger pficon pficon-delete" onClick={onRemoveService} aria-label={cockpit.format(_("Remove service $0"), props.service.id)} />;
+        deleteButton = <Button key={props.service.id + "-delete-button"} variant="danger" onClick={onRemoveService} aria-label={cockpit.format(_("Remove service $0"), props.service.id)}><TrashIcon /></Button>;
     }
 
     var columns = [
-        { name: props.service.name, header: true },
+        { name: props.service.id, header: true },
         <div key={props.service.id + "tcp"}>
             { tcp.map(p => p.port).join(', ') }
         </div>,
@@ -105,7 +96,7 @@ function ServiceRow(props) {
             <ul>{props.service.includes.map(s => {
                 const service = firewall.services[s];
                 if (service && service.description)
-                    return <li key={service.id}><strong>{service.name}</strong>: {service.description}</li>;
+                    return <li key={service.id}><strong>{service.id}</strong>: {service.description}</li>;
             })} </ul></>;
     }
     const simpleBody = <>{description}{includes}</>;
@@ -115,6 +106,24 @@ function ServiceRow(props) {
                        columns={columns}
                        simpleBody={simpleBody}
                        listingActions={[deleteButton]} />;
+}
+
+function PortRow(props) {
+    const columns = [
+        <i key={props.zone.id + "-additional-ports"}>{ _("Additional ports") }</i>,
+        props.zone.ports
+                .filter(p => p.protocol === "tcp")
+                .map(p => p.port)
+                .join(", "),
+        props.zone.ports
+                .filter(p => p.protocol === "udp")
+                .map(p => p.port)
+                .join(", "),
+        null
+    ];
+    return <ListingRow key={props.zone.id + "-ports"}
+                       rowId={props.zone.id + "-ports"}
+                       columns={columns} />;
 }
 
 function ZoneSection(props) {
@@ -131,11 +140,11 @@ function ZoneSection(props) {
         deleteButton = (
             <OverlayTrigger placement="top"
                             overlay={ <Tooltip id="tip-auth">{ _("You are not authorized to modify the firewall.") }</Tooltip> }>
-                <button className="btn btn-danger pficon pficon-delete" aria-label={cockpit.format(_("Not authorized to remove zone $0"), props.zone.id)} disabled />
+                <Button variant="danger" aria-label={cockpit.format(_("Not authorized to remove zone $0"), props.zone.id)} isDisabled><span className="pficon pficon-delete" /></Button>
             </OverlayTrigger>
         );
     } else {
-        deleteButton = <button className="btn btn-danger pficon pficon-delete" onClick={onRemoveZone} aria-label={cockpit.format(_("Remove zone $0"), props.zone.id)} />;
+        deleteButton = <Button variant="danger" onClick={onRemoveZone} aria-label={cockpit.format(_("Remove zone $0"), props.zone.id)}><span className="pficon pficon-delete" /></Button>;
     }
 
     let addServiceAction;
@@ -143,12 +152,12 @@ function ZoneSection(props) {
         addServiceAction = (
             <OverlayTrigger placement="top"
                                 overlay={ <Tooltip id="tip-auth">{ _("You are not authorized to modify the firewall.") }</Tooltip> }>
-                <Button bsStyle="primary" className="pull-right add-services-button" aria-label={cockpit.format(_("Not authorized to add services to zone $0"), props.zone.id)} disabled> {_("Add Services")} </Button>
+                <Button variant="primary" className="pull-right add-services-button" aria-label={cockpit.format(_("Not authorized to add services to zone $0"), props.zone.id)} isDisabled> {_("Add Services")} </Button>
             </OverlayTrigger>
         );
     } else {
         addServiceAction = (
-            <Button bsStyle="primary" onClick={() => props.openServicesDialog(props.zone.id, props.zone.name)} className="add-services-button" aria-label={cockpit.format(_("Add services to zone $0"), props.zone.id)}>
+            <Button variant="primary" onClick={() => props.openServicesDialog(props.zone.id, props.zone.id)} className="add-services-button" aria-label={cockpit.format(_("Add services to zone $0"), props.zone.id)}>
                 {_("Add Services")}
             </Button>
         );
@@ -157,7 +166,7 @@ function ZoneSection(props) {
     return <div className="zone-section" data-id={props.zone.id}>
         <div className="zone-section-heading">
             <span>
-                <h4>{ cockpit.format(_("$0 Zone"), props.zone.name) }</h4>
+                <h4>{ cockpit.format(_("$0 zone"), props.zone.id) }</h4>
                 <div className="zone-section-targets">
                     { props.zone.interfaces.length > 0 && <span className="zone-section-target"><strong>{_("Interfaces")}</strong> {props.zone.interfaces.join(", ")}</span> }
                     { props.zone.source.length > 0 && <span className="zone-section-target"><strong>{_("Addresses")}</strong> {props.zone.source.join(", ")}</span> }
@@ -176,6 +185,11 @@ function ZoneSection(props) {
                                        readonly={firewall.readonly} />;
             })
             }
+            { props.zone.ports.length > 0 &&
+            <PortRow key={props.zone.id + "-ports"}
+                     zone={props.zone}
+                     readonly={firewall.readonly} />}
+
         </Listing>
         }
     </div>;
@@ -458,12 +472,7 @@ class AddServicesModal extends React.Component {
 
     componentDidMount() {
         firewall.getAvailableServices()
-                .then(services => this.setState({
-                    services: services.map(s => {
-                        s.name = s.name || s.id;
-                        return s;
-                    })
-                }));
+                .then(services => this.setState({ services }));
         cockpit.file('/etc/services').read()
                 .done(content => this.setState({
                     avail_services: this.parseServices(content)
@@ -529,9 +538,8 @@ class AddServicesModal extends React.Component {
                                                                                                 checked={this.state.selected.has(s.id)}
                                                                                                 onChange={this.onToggleService} /> }
                                                                         stacked
-                                                                        heading={ <label htmlFor={"firewall-service-" + s.id}>{s.name}</label> }
-                                                                        description={ renderPorts(s) }>
-                                                            </ListView.Item>
+                                                                        heading={ <label htmlFor={"firewall-service-" + s.id}>{s.id}</label> }
+                                                                        description={ renderPorts(s) } />
                                                         ))
                                                     }
                                                 </ListView>
@@ -585,10 +593,10 @@ class AddServicesModal extends React.Component {
                             isInline
                             title={_("Adding custom ports will reload firewalld. A reload will result in the loss of any runtime-only configuration!")} />
                     }
-                    <Button bsStyle='default' className='btn-cancel' onClick={this.props.close}>
+                    <Button variant='secondary' className='btn-cancel' onClick={this.props.close}>
                         {_("Cancel")}
                     </Button>
-                    <Button bsStyle='primary' onClick={this.save} aria-label={titleText}>
+                    <Button variant='primary' onClick={this.save} aria-label={titleText}>
                         {addText}
                     </Button>
                 </Modal.Footer>
@@ -678,7 +686,7 @@ class ActivateZoneModal extends React.Component {
                                 { zones.filter(z => firewall.predefinedZones.indexOf(z) !== -1).sort((a, b) => firewall.predefinedZones.indexOf(a) - firewall.predefinedZones.indexOf(b))
                                         .map(z =>
                                             <label className="radio" key={z}><input type="radio" name="zone" value={z} onChange={e => this.onChange("zone", e.target.value)} />
-                                                { firewall.zones[z].name || firewall.zones[z].id }
+                                                { firewall.zones[z].id }
                                             </label>
                                         )}
                             </fieldset>
@@ -686,7 +694,7 @@ class ActivateZoneModal extends React.Component {
                                 { customZones.length > 0 && <legend>{ _("Custom zones") }</legend> }
                                 { customZones.map(z =>
                                     <label className="radio" key={z}><input type="radio" name="zone" value={z} onChange={e => this.onChange("zone", e.target.value)} />
-                                        { firewall.zones[z].name || firewall.zones[z].id }
+                                        { firewall.zones[z].id }
                                     </label>
                                 )}
                             </fieldset>
@@ -737,10 +745,10 @@ class ActivateZoneModal extends React.Component {
                         this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />
                     }
 
-                    <Button bsStyle="default" className="btn-cancel" onClick={this.props.close}>
+                    <Button variant="secondary" className="btn-cancel" onClick={this.props.close}>
                         { _("Cancel") }
                     </Button>
-                    <Button bsStyle="primary" onClick={this.save} disabled={this.state.zone === null ||
+                    <Button variant="primary" onClick={this.save} isDisabled={this.state.zone === null ||
                                                                             (this.state.interfaces.size === 0 && this.state.ipRange === "ip-entire-subnet") ||
                                                                             (this.state.ipRange === "ip-range" && !this.state.ipRangeValue)}>
                         { _("Add zone") }
@@ -762,10 +770,10 @@ function DeleteConfirmationModal(props) {
                 <div>{props.body}</div>
             </Modal.Body>
             <Modal.Footer>
-                <Button bsStyle="default" className="btn-cancel" onClick={props.onCancel}>
+                <Button variant="secondary" className="btn-cancel" onClick={props.onCancel}>
                     { _("Cancel") }
                 </Button>
-                <Button bsStyle="danger" onClick={props.onDelete} aria-label={cockpit.format(_("Confirm removal of $0"), props.target)}>
+                <Button variant="danger" onClick={props.onDelete} aria-label={cockpit.format(_("Confirm removal of $0"), props.target)}>
                     { _("Delete") }
                 </Button>
             </Modal.Footer>
@@ -884,11 +892,9 @@ export class Firewall extends React.Component {
         }
 
         if (!this.state.firewall.installed) {
-            return (
-                <EmptyState title={_("Firewall is not available")} icon="fa fa-exclamation-circle">
-                    <p>{cockpit.format(_("Please install the $0 package"), "firewalld")}</p>
-                </EmptyState>
-            );
+            return <EmptyStatePanel title={ _("Firewall is not available") }
+                                    paragraph={ cockpit.format(_("Please install the $0 package"), "firewalld") }
+                                    icon={ ExclamationCircleIcon } />;
         }
 
         var addZoneAction;
@@ -896,31 +902,20 @@ export class Firewall extends React.Component {
             addZoneAction = (
                 <OverlayTrigger className="pull-right" placement="top"
                                 overlay={ <Tooltip id="tip-auth">{ _("You are not authorized to modify the firewall.") }</Tooltip> }>
-                    <Button bsStyle="primary" className="pull-right" id="add-zone-button" aria-label={_("Not authorized to add a new zone")} disabled> {_("Add Zone")} </Button>
+                    <Button variant="primary" className="pull-right" id="add-zone-button" aria-label={_("Not authorized to add a new zone")} isDisabled> {_("Add Zone")} </Button>
                 </OverlayTrigger>
             );
         } else {
             addZoneAction = (
-                <Button bsStyle="primary" onClick={this.openAddZoneDialog} className="pull-right" id="add-zone-button" aria-label={_("Add a new zone")}>
+                <Button variant="primary" onClick={this.openAddZoneDialog} className="pull-right" id="add-zone-button" aria-label={_("Add a new zone")}>
                     {_("Add Zone")}
                 </Button>
             );
         }
 
-        var services = [...this.state.firewall.enabledServices].map(id => {
-            const service = this.state.firewall.services[id];
-            service.name = service.name || id;
-            return service;
-        });
-        services.sort((a, b) => a.name.localeCompare(b.name));
-
         var zones = [...this.state.firewall.activeZones].sort((z1, z2) =>
             z1 === firewall.defaultZone ? -1 : z2 === firewall.defaultZone ? 1 : 0
-        ).map(id => {
-            const zone = this.state.firewall.zones[id];
-            zone.name = zone.name || id;
-            return zone;
-        });
+        ).map(id => this.state.firewall.zones[id]);
 
         var enabled = this.state.pendingTarget !== null ? this.state.pendingTarget : this.state.firewall.enabled;
 

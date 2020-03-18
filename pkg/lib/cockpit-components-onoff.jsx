@@ -19,7 +19,7 @@
 
 import React from "react";
 
-import "./cockpit-components-onoff.less";
+import "./cockpit-components-onoff.scss";
 
 /* Component to show an on/off switch
  * state      boolean value (off or on)

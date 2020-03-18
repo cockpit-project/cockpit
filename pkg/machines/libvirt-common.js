@@ -1298,6 +1298,10 @@ export function CREATE_VM({ connectionName, vmName, source, sourceType, os, memo
             setVmInstallInProgress(dispatch, vmName, connectionName);
         }
 
+        const opts = { err: "message", environ: ['LC_ALL=C'] };
+        if (connectionName === 'system')
+            opts.superuser = 'try';
+
         return cockpit.script(createVmScript, [
             connectionName,
             vmName,
@@ -1313,7 +1317,7 @@ export function CREATE_VM({ connectionName, vmName, source, sourceType, os, memo
             userPassword,
             rootPassword,
             profile,
-        ], { err: "message", environ: ['LC_ALL=C'] })
+        ], opts)
                 .done(() => {
                     finishVmCreateInProgress(dispatch, vmName, connectionName);
                     if (startVm) {
@@ -1350,7 +1354,7 @@ export function GET_LOGGED_IN_USER() {
 
 export function GET_OS_INFO_LIST () {
     logDebug(`${this.name}.GET_OS_INFO_LIST():`);
-    return dispatch => python.spawn(getOSListScript, null, { err: "message", environ: ['LC_ALL=en_US.UTF-8'] })
+    return dispatch => python.spawn(getOSListScript, null, { err: "message", environ: ['LC_ALL=C.UTF-8'] })
             .then(osList => {
                 parseOsInfoList(dispatch, osList);
             })
@@ -1365,7 +1369,7 @@ export function INIT_DATA_RETRIEVAL () {
     return dispatch => {
         dispatch(getOsInfoList());
         dispatch(getLoggedInUser());
-        return cockpit.script(getLibvirtServiceNameScript, null, { err: "message", environ: ['LC_ALL=en_US.UTF-8'] })
+        return cockpit.script(getLibvirtServiceNameScript, null, { err: "message", environ: ['LC_ALL=C.UTF-8'] })
                 .then(serviceName => {
                     const match = serviceName.match(/([^\s]+)/);
                     const name = match ? match[0] : null;
@@ -1391,6 +1395,10 @@ export function INSTALL_VM({ name, vcpus, cpu, currentMemory, memory, metadata, 
         // vm should be returned even if script fails
         setVmInstallInProgress(dispatch, name, connectionName);
 
+        const opts = { err: "message", environ: ['LC_ALL=C'] };
+        if (connectionName === 'system')
+            opts.superuser = 'try';
+
         return cockpit.script(installVmScript, [
             connectionName,
             name,
@@ -1404,7 +1412,7 @@ export function INSTALL_VM({ name, vcpus, cpu, currentMemory, memory, metadata, 
             prepareNICParam(interfaces),
             firmware == "efi" ? 'uefi' : '',
             autostart,
-        ], { err: "message", environ: ['LC_ALL=C'] })
+        ], opts)
                 .done(() => clearVmUiState(dispatch, name, connectionName))
                 .fail(ex => {
                     clearVmUiState(dispatch, name, connectionName); // inProgress cleanup

@@ -26,6 +26,8 @@ class TestJournal(MachineCase):
     def setUp(self):
         super().setUp()
         self.crash_fn = "__nanosleep"
+        if self.machine.image == "fedora-32":
+            self.crash_fn = "clock_nanosleep"
 
     def select_from_dropdown(self, browser, selector, value, click=True):
         button_text_selector = "{0} button span:nth-of-type(1)".format(selector)
@@ -374,7 +376,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         b.wait_present(journal_line_selector.format("INFO_MESSAGE"))
 
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-1804", "fedora-coreos", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
+               "ubuntu-1804", "ubuntu-2004", "fedora-coreos", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
     def testAbrtSegv(self):
         self.allow_core_dumps = True
         b = self.browser
@@ -412,7 +414,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         b.wait_present(sel)
 
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-1804", "fedora-coreos", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
+               "ubuntu-1804", "ubuntu-2004", "fedora-coreos", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
     def testAbrtDelete(self):
         self.allow_core_dumps = True
         b = self.browser
@@ -430,7 +432,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         b.click(sel)
 
         b.wait_in_text("#journal-entry-heading", "sleep")
-        sel = "#journal-entry-fields .nav .btn-danger"
+        sel = "#journal-entry-fields .nav .pf-m-danger"
         b.click(sel)
 
         b.wait_in_text('#journal-box', "crashed in " + self.crash_fn)
@@ -442,10 +444,10 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         # details view should hide log view
         b.wait_not_visible('.cockpit-log-panel')
         b.wait_present("#journal-entry-message:contains('crashed in %s')" % self.crash_fn)
-        b.wait_not_present("#journal-entry-fields .nav .btn-danger")
+        b.wait_not_present("#journal-entry-fields .nav .pf-m-danger")
 
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-1804", "fedora-coreos", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
+               "ubuntu-1804", "ubuntu-2004", "fedora-coreos", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
     def testAbrtReport(self):
         self.allow_core_dumps = True
         # The testing server is located at verify/files/mock-faf-server.py
@@ -475,10 +477,10 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
         self.login_and_go("/system/logs")
 
-        sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in __nanosleep()')"
+        sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in %s')" % self.crash_fn
         b.click(sel)
 
-        sel = "table.reporting-table tr:first-child .btn:contains('Report')"
+        sel = "table.reporting-table tr:first-child button:contains('Report')"
         b.click(sel)
 
         sel = "table.reporting-table tr:first-child a[href$='/reports/bthash/123deadbeef'"
@@ -519,7 +521,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         b.wait_present(sel)
 
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-1804", "fedora-coreos", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
+               "ubuntu-1804", "ubuntu-2004", "fedora-coreos", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
     def testAbrtReportCancel(self):
         self.allow_core_dumps = True
 
@@ -542,7 +544,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
         self.login_and_go("/system/logs")
 
-        sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in __nanosleep()')"
+        sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in %s')" % self.crash_fn
         b.click(sel)
 
         sel = "table.reporting-table tr:contains('Report to Cockpit') button:contains('Report')"
@@ -558,7 +560,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         b.wait_present(sel)
 
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-1804", "fedora-coreos", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
+               "ubuntu-1804", "ubuntu-2004", "fedora-coreos", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
     def testAbrtReportNoReportd(self):
         self.allow_core_dumps = True
 
@@ -578,10 +580,10 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
         self.login_and_go("/system/logs")
 
-        sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in __nanosleep()')"
+        sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in %s')" % self.crash_fn
         b.click(sel)
 
-        sel = "table.reporting-table tr:first-child .btn:contains('Report')"
+        sel = "table.reporting-table tr:first-child button:contains('Report')"
         b.click(sel)
 
         sel = "table.reporting-table tr:first-child a[href$='/reports/bthash/123deadbeef'"

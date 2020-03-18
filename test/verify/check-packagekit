@@ -45,7 +45,7 @@ class NoSubManCase(PackageCase):
         # Disable Subscription Manager on RHEL for these tests; subscriptions are tested in a separate class
         # On other OSes (Fedora/CentOS) we expect sub-man to be disabled in yum, so it should not get in the way there
         if self.machine.image.startswith("rhel") or self.machine.image.startswith("centos-8"):
-            self.machine.execute("mv /usr/libexec/rhsmd /usr/libexec/rhsmd.disabled")
+            self.machine.execute("mv /usr/libexec/rhsmd /usr/libexec/rhsmd.disabled; pkill -e rhsmd || true")
             self.addCleanup(self.machine.execute, "mv /usr/libexec/rhsmd.disabled /usr/libexec/rhsmd")
 
         # expected journal messages from enabling/disabling auto upgrade services
@@ -146,7 +146,7 @@ class TestUpdates(NoSubManCase):
         # PK starts from a blank state, thus should force refresh and set the "time since" to 0
         b.wait_text(".content-header-extra--updated", "Last checked: a few seconds ago")
         # empty state visible in main area
-        b.wait_present(".container-fluid div.blank-slate-pf")
+        b.wait_present(".container-fluid .pf-c-empty-state")
 
         install_lockfile = "/tmp/finish-pk"
         # create two updates; force installing chocolate before vanilla
@@ -212,16 +212,16 @@ class TestUpdates(NoSubManCase):
 
         # update should succeed and show restart page; cancel
         b.wait_in_text("#app .container-fluid h1", "Restart Recommended")
-        self.assertEqual(b.text("#app .container-fluid button.btn-primary"), "Restart Now")
-        self.assertEqual(b.text("#app .container-fluid button.btn-default"), "Ignore")
-        b.click("#app .container-fluid button.btn-default")
+        self.assertEqual(b.text("#app .container-fluid button.pf-m-primary"), "Restart Now")
+        self.assertEqual(b.text("#app .container-fluid button.pf-m-secondary"), "Ignore")
+        b.click("#app .container-fluid button.pf-m-secondary")
 
         # should go back to updates overview, nothing pending any more
         b.wait_in_text("#state", "No updates pending")
         b.wait_in_text(".content-header-extra--updated", "Last checked:")
 
         # empty state visible in main area
-        b.wait_present(".container-fluid div.blank-slate-pf")
+        b.wait_present(".container-fluid .pf-c-empty-state")
 
         # new versions are now installed
         m.execute("test -f /stamp-vanilla-1.0-2 && test -f /stamp-chocolate-2.0-2")
@@ -340,8 +340,8 @@ class TestUpdates(NoSubManCase):
         b.enter_page("/updates")
 
         # install only security updates
-        self.assertEqual(b.text("#app .container-fluid button.btn-default"), "Install Security Updates")
-        b.click("#app .container-fluid button.btn-default")
+        self.assertEqual(b.text("#app .container-fluid button.pf-m-secondary"), "Install Security Updates")
+        b.click("#app .container-fluid button.pf-m-secondary")
 
         b.wait_in_text("#state", "Applying updates")
         b.wait_present("#app div.progress-bar")
@@ -361,7 +361,7 @@ class TestUpdates(NoSubManCase):
         assertHistory("ul", ["secdeclare", "secparse", "sevcritical"])
 
         # ignore restarting
-        b.click("#app .container-fluid button.btn-default")
+        b.click("#app .container-fluid button.pf-m-secondary")
 
         # should have succeeded; 3 non-security updates left
         b.wait_in_text("#state", "3 updates")
@@ -391,7 +391,7 @@ class TestUpdates(NoSubManCase):
 
         # should have succeeded and show restart
         b.wait_in_text("#app .container-fluid h1", "Restart Recommended")
-        b.wait_present("#app .container-fluid button.btn-default")
+        b.wait_present("#app .container-fluid button.pf-m-secondary")
 
         # new versions are now installed
         m.execute("test -f /stamp-norefs-bin-2-1 && test -f /stamp-norefs-doc-2-1")
@@ -401,7 +401,7 @@ class TestUpdates(NoSubManCase):
         assertHistory("ul", ["buggy", "norefs-bin", "norefs-doc"])
 
         # do the reboot; this will disconnect the web UI
-        b.click("#app .container-fluid button.btn-primary")
+        b.click("#app .container-fluid button.pf-m-primary")
         b.switch_to_top()
         b.wait_in_text(".curtains-ct h1", "Disconnected")
 
@@ -414,7 +414,7 @@ class TestUpdates(NoSubManCase):
         # no further updates
         b.wait_in_text("#state", "No updates pending")
         # empty state visible in main area
-        b.wait_present(".container-fluid div.blank-slate-pf")
+        b.wait_present(".container-fluid .pf-c-empty-state")
 
         # history on "up to date" page should show the recent update (expanded by default)
         assertHistory("table.updates-history tbody.open ul", ["buggy", "norefs-bin", "norefs-doc"])
@@ -640,7 +640,7 @@ class TestWsUpdate(NoSubManCase):
 
         # should have succeeded and show restart page; cancel
         b.wait_in_text("#app .container-fluid h1", "Restart Recommended")
-        b.click("#app .container-fluid button.btn-default")
+        b.click("#app .container-fluid button.pf-m-secondary")
         b.wait_in_text("#state", "No updates pending")
 
         # now pretend that there is a newer cockpit-ws available, warn about disconnect
@@ -664,8 +664,7 @@ class TestWsUpdate(NoSubManCase):
 
 @skipImage("Image uses OSTree", "fedora-coreos")
 @skipImage("No subscriptions", "debian-stable", "debian-testing", "fedora-31", "centos-8-stream",
-           "fedora-30", "fedora-testing", "ubuntu-1804", "ubuntu-stable")
-@nondestructive
+           "fedora-32", "fedora-testing", "ubuntu-1804", "ubuntu-2004", "ubuntu-stable")
 class TestUpdatesSubscriptions(PackageCase):
     provision = {
         "0": {"address": "10.111.112.1/20", "dns": "10.111.112.1"},
@@ -675,8 +674,8 @@ class TestUpdatesSubscriptions(PackageCase):
     def register(self):
         # this fails with "Unable to find available subscriptions for all your installed products", but works anyway
         self.machine.execute(
-            "LC_ALL=en_US.UTF-8 subscription-manager register --insecure --serverurl https://10.111.112.100:8443/candlepin --org=admin --activationkey=awesome_os_pool || true")
-        self.machine.execute("LC_ALL=en_US.UTF-8 subscription-manager attach --auto")
+            "LC_ALL=C.UTF-8 subscription-manager register --insecure --serverurl https://10.111.112.100:8443/candlepin --org=admin --activationkey=awesome_os_pool || true")
+        self.machine.execute("LC_ALL=C.UTF-8 subscription-manager attach --auto")
 
     def setUp(self):
         super().setUp()
@@ -698,7 +697,7 @@ class TestUpdatesSubscriptions(PackageCase):
         m.upload([product_file], "/etc/pki/product")
 
         # make sure that rhsm skips certificate checks for the server
-        m.execute("sed -i -e 's/insecure = 0/insecure = 1/g' /etc/rhsm/rhsm.conf")
+        self.sed_file("s/insecure = 0/insecure = 1/g", "/etc/rhsm/rhsm.conf")
 
         # Wait for the web service to be accessible
         m.execute(script=WAIT_SCRIPT % {"addr": "10.111.112.100"})
@@ -721,13 +720,13 @@ class TestUpdatesSubscriptions(PackageCase):
         b.go("/updates")
         b.enter_page("/updates")
         # empty state visible in main area
-        b.wait_present(".container-fluid div.blank-slate-pf button")
-        b.wait_in_text(".container-fluid div.blank-slate-pf", "This system is not registered")
+        b.wait_present(".container-fluid .pf-c-empty-state button")
+        b.wait_in_text(".container-fluid .pf-c-empty-state", "This system is not registered")
         # no header bar
         b.wait_not_present(".content-header-extra")
 
         # test the button to switch to Subscriptions
-        b.click(".container-fluid div.blank-slate-pf button")
+        b.click(".container-fluid .pf-c-empty-state button")
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname === "/subscriptions"')
 
@@ -737,7 +736,7 @@ class TestUpdatesSubscriptions(PackageCase):
         b.enter_page("/updates")
         b.wait_present(".content-header-extra button")
         b.wait_in_text("#state", "No updates pending")
-        b.wait_in_text(".container-fluid div.blank-slate-pf", "up to date")
+        b.wait_in_text(".container-fluid .pf-c-empty-state", "up to date")
 
         # same on system page
         b.go("/system")
@@ -769,8 +768,8 @@ class TestUpdatesSubscriptions(PackageCase):
         b.enter_page("/updates")
 
         # empty state visible in main area
-        b.wait_present(".container-fluid div.blank-slate-pf button")
-        b.wait_in_text(".container-fluid div.blank-slate-pf", "This system is not registered")
+        b.wait_present(".container-fluid .pf-c-empty-state button")
+        b.wait_in_text(".container-fluid .pf-c-empty-state", "This system is not registered")
 
         # should show header bar
         b.wait_text("#state", "1 update")
@@ -780,7 +779,7 @@ class TestUpdatesSubscriptions(PackageCase):
         self.register()
         b.go("/updates")
         b.enter_page("/updates")
-        b.wait_not_present(".container-fluid div.blank-slate-pf")
+        b.wait_not_present(".container-fluid .pf-c-empty-state")
         b.wait_in_text("#available h2", "Available Updates")
         # no update history yet
         self.assertFalse(b.is_present("table.updates-history"))
@@ -961,7 +960,7 @@ class TestAutoUpdates(NoSubManCase):
                       r'/etc/systemd/system/dnf-automatic.timer.d/cal.conf; systemctl daemon-reload')
             b.reload()
             b.enter_page("/updates")
-            b.wait_in_text(".container-fluid div.blank-slate-pf", "up to date")
+            b.wait_in_text(".container-fluid .pf-c-empty-state", "up to date")
             b.wait_not_present("#automatic")
 
     def testWithAvailableUpdates(self):
@@ -1000,11 +999,13 @@ class TestAutoUpdates(NoSubManCase):
         m = self.machine
 
         # dial down the random sleep to avoid the test having to wait 5 mins
-        m.execute("sed -i '/random_sleep/ s/=.*$/= 3/' /etc/dnf/automatic.conf")
+        self.sed_file("/random_sleep/ s/=.*$/= 3/", "/etc/dnf/automatic.conf")
         # then manually start the upgrade job like the timer would
         m.execute("systemctl start dnf-automatic-install.service")
         # new vanilla package got installed, and triggered reboot; cancel that
-        m.execute("set -e; test -f /stamp-vanilla-1.0-2; test -f /run/nologin; shutdown -c; test ! -f /run/nologin")
+        m.execute("test -f /stamp-vanilla-1.0-2")
+        m.execute("until test -f /run/nologin; do sleep 1; done")
+        m.execute("set -e; shutdown -c; test ! -f /run/nologin")
         # service should show vanilla upgrade and scheduling shutdown
         out = m.execute(
             "if systemctl status dnf-automatic-install.service; then echo 'expected service to be stopped'; exit 1; fi")
@@ -1047,7 +1048,7 @@ class TestAutoUpdatesInstall(NoSubManCase):
         b.click("#app .container-fluid button.pk-update--all")
 
         # empty state visible in main area
-        b.click('.container-fluid div.blank-slate-pf button.btn-default')
+        b.click('.container-fluid .pf-c-empty-state button.pf-m-secondary')
         self.assertFalse(b.is_present("#available"))
         if self.backend == 'dnf':
             b.is_present('#automatic')
@@ -1055,7 +1056,7 @@ class TestAutoUpdatesInstall(NoSubManCase):
             # on-demand installation isn't supported
             self.assertFalse(b.is_present('#automatic'))
 
-    @skipImage("No supported auto update backend", "debian-stable", "debian-testing", "ubuntu-1804", "ubuntu-stable")
+    @skipImage("No supported auto update backend", "debian-stable", "debian-testing", "ubuntu-1804", "ubuntu-2004", "ubuntu-stable")
     def testInstall(self):
         b = self.browser
         m = self.machine

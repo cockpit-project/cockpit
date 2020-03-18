@@ -19,11 +19,8 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-    Button,
-    OverlayTrigger,
-    Tooltip,
-} from 'patternfly-react';
+import { OverlayTrigger, Tooltip } from 'patternfly-react';
+import { Button } from '@patternfly/react-core';
 
 import { storageVolumeDelete, storagePoolRefresh } from '../../libvirt-dbus.js';
 import cockpit from 'cockpit';
@@ -62,8 +59,8 @@ export class StorageVolumeDelete extends React.Component {
 
         const deleteBtn = (
             <Button id='storage-volumes-delete'
-                    bsStyle='danger' onClick={this.storageVolumeListDelete}
-                    disabled={ anyVolumeUsed }>
+                    variant='danger' onClick={this.storageVolumeListDelete}
+                    isDisabled={ anyVolumeUsed }>
                 {cockpit.format(cockpit.ngettext("Delete $0 volume", "Delete $0 volumes", volCount), volCount)}
             </Button>
         );

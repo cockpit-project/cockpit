@@ -36,7 +36,7 @@ import "patterns";
 import "bootstrap-datepicker/dist/js/bootstrap-datepicker";
 import "patternfly-bootstrap-combobox/js/bootstrap-combobox";
 
-import "./configurationCard.less";
+import "./configurationCard.scss";
 
 const _ = cockpit.gettext;
 
@@ -432,9 +432,9 @@ export class ConfigurationCard extends React.Component {
                             <tr>
                                 <th scope="row">{_("PCP")}</th>
                                 <td>
-                                    <button type="button" className="pf-c-button pf-m-link pf-m-inline" tabIndex="0" id="system-configuration-enable-pcp-link" onClick={() => install_dialog("cockpit-pcp")}>
+                                    <Button isInline variant="link" id="system-configuration-enable-pcp-link" onClick={() => install_dialog("cockpit-pcp")}>
                                         {_("Enable stored metrics")}
-                                    </button>
+                                    </Button>
                                 </td>
                             </tr>}
 

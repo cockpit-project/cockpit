@@ -20,13 +20,16 @@
 import cockpit from "cockpit";
 import React from "react";
 import ReactDOM from "react-dom";
+import { ExclamationCircleIcon } from "@patternfly/react-icons";
+
+import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 
 import client from "./client";
 import { MultipathAlert } from "./multipath.jsx";
 import { Overview } from "./overview.jsx";
 import { Details } from "./details.jsx";
 
-import "page.css";
+import "page.scss";
 import "table.css";
 import "plot.css";
 import "journal.css";
@@ -59,24 +62,14 @@ class StoragePage extends React.Component {
         const { inited, slow_init, path } = this.state;
 
         if (!inited) {
-            if (slow_init) {
-                return (
-                    <div className="curtains-ct blank-slate-pf">
-                        <h1>{_("Loading...")}</h1>
-                    </div>
-                );
-            } else {
+            if (slow_init)
+                return <EmptyStatePanel loading title={ _("Loading...") } />;
+            else
                 return null;
-            }
         }
 
-        if (client.features == false || client.older_than("2.6")) {
-            return (
-                <div className="curtains-ct blank-slate-pf">
-                    <h1>{_("Storage can not be managed on this system.")}</h1>
-                </div>
-            );
-        }
+        if (client.features == false || client.older_than("2.6"))
+            return <EmptyStatePanel icon={ExclamationCircleIcon} title={ _("Storage can not be managed on this system.") } />;
 
         let detail;
 

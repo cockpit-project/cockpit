@@ -25,7 +25,7 @@ Build-Depends: debhelper (>= 10),
                glib-networking,
                openssh-client <!nocheck>,
                python3,
-Standards-Version: 4.4.0
+Standards-Version: 4.5.0
 Homepage: https://cockpit-project.org/
 Vcs-Git: https://salsa.debian.org/utopia-team/cockpit.git
 Vcs-Browser: https://salsa.debian.org/utopia-team/cockpit
@@ -34,18 +34,17 @@ Package: cockpit
 Architecture: all
 Multi-Arch: foreign
 Depends: ${misc:Depends},
-         cockpit-bridge,
-         cockpit-ws,
-         cockpit-system,
-Recommends: cockpit-storaged,
-            cockpit-networkmanager,
-            cockpit-dashboard,
-            cockpit-sosreport,
-            cockpit-packagekit,
-Suggests: cockpit-doc,
-          cockpit-pcp,
-          cockpit-docker,
-          cockpit-machines,
+         cockpit-bridge (>= ${source:Version}),
+         cockpit-ws (>= ${source:Version}),
+         cockpit-system (>= ${source:Version}),
+Recommends: cockpit-storaged (>= ${source:Version}),
+            cockpit-networkmanager (>= ${source:Version}),
+            cockpit-dashboard (>= ${source:Version}),
+            cockpit-packagekit (>= ${source:Version}),
+Suggests: cockpit-doc (>= ${source:Version}),
+          cockpit-pcp (>= ${source:Version}),
+          cockpit-sosreport (>= ${source:Version}),
+          cockpit-machines (>= ${source:Version}),
           xdg-utils,
 Description: Web Console for Linux servers
  The Cockpit Web Console enables users to administer GNU/Linux servers using a

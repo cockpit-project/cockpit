@@ -21,7 +21,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import cockpit from "cockpit";
 
-import "page.css";
+import "page.scss";
 
 const _ = cockpit.gettext;
 

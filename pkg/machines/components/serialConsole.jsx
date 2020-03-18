@@ -41,11 +41,14 @@ class SerialConsoleCockpit extends React.Component {
     }
 
     createChannel () {
-        const channel = cockpit.channel({
+        const opts = {
             payload: "stream",
             spawn: this.props.spawnArgs,
             pty: true,
-        });
+        };
+        if (this.props.connectionName == "system")
+            opts.superuser = "try";
+        const channel = cockpit.channel(opts);
         this.setState({ channel });
     }
 
@@ -78,8 +81,8 @@ class SerialConsoleCockpit extends React.Component {
                 <div className="terminal-control">
                     {this.props.children}
                     {this.state.channel
-                        ? <button id={this.props.vmName + "-serialconsole-disconnect"} className="btn btn-default" onClick={this.onDisconnect}>{_("Disconnect")}</button>
-                        : <button id={this.props.vmName + "-serialconsole-connect"} className="btn btn-default" onClick={this.createChannel}>{_("Connect")}</button>
+                        ? <button id={this.props.vmName + "-serialconsole-disconnect"} className="pf-c-button pf-m-secondary" onClick={this.onDisconnect}>{_("Disconnect")}</button>
+                        : <button id={this.props.vmName + "-serialconsole-connect"} className="pf-c-button pf-m-secondary" onClick={this.createChannel}>{_("Connect")}</button>
                     }
                 </div>
                 <div id={pid} className="vm-terminal">
@@ -91,6 +94,7 @@ class SerialConsoleCockpit extends React.Component {
 }
 
 SerialConsoleCockpit.propTypes = {
+    connectionName: PropTypes.string.isRequired,
     vmName: PropTypes.string.isRequired,
     spawnArgs: PropTypes.array.isRequired,
     children: PropTypes.node.isRequired,

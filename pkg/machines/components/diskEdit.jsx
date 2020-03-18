@@ -18,9 +18,9 @@
  */
 
 import React from 'react';
-import { Button, Modal } from 'patternfly-react';
+import { Modal } from 'patternfly-react';
 import cockpit from 'cockpit';
-import { Tooltip } from '@patternfly/react-core';
+import { Button, Tooltip } from '@patternfly/react-core';
 import { InfoAltIcon } from '@patternfly/react-icons';
 
 import * as Select from 'cockpit-components-select.jsx';
@@ -29,7 +29,7 @@ import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { updateDiskAttributes } from '../libvirt-dbus.js';
 import { getDiskPrettyName, getDiskFullName } from '../helpers.js';
 
-import 'form-layout.less';
+import 'form-layout.scss';
 
 const _ = cockpit.gettext;
 
@@ -213,10 +213,10 @@ class EditDiskModalBody extends React.Component {
                 <Modal.Footer>
                     {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
                     { showFooterWarning() }
-                    <Button id={`${idPrefix}-dialog-cancel`} bsStyle='default' className='btn-cancel' onClick={this.props.close}>
+                    <Button id={`${idPrefix}-dialog-cancel`} variant='secondary' className='btn-cancel' onClick={this.props.close}>
                         {_("Cancel")}
                     </Button>
-                    <Button id={`${idPrefix}-dialog-save`} bsStyle='primary' onClick={this.onSaveClicked}>
+                    <Button id={`${idPrefix}-dialog-save`} variant='primary' onClick={this.onSaveClicked}>
                         {_("Save")}
                     </Button>
                 </Modal.Footer>
@@ -251,7 +251,7 @@ export class EditDiskAction extends React.Component {
 
         return (
             <>
-                <Button id={`${idPrefix}-edit`} bsStyle='default' onClick={this.open} className='pull-right'>
+                <Button id={`${idPrefix}-edit`} variant='secondary' onClick={this.open} className='pull-right'>
                     {_("Edit")}
                 </Button>
                 { showModal && <EditDiskModalBody close={this.close} disk={disk} idPrefix={idPrefix} vm={vm} provider={provider} /> }

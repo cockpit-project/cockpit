@@ -223,7 +223,7 @@ import { StatelessSelect, SelectEntry } from "cockpit-components-select.jsx";
 import { fmt_size, block_name, format_size_and_text } from "./utils.js";
 import client from "./client.js";
 
-import "form-layout.less";
+import "form-layout.scss";
 
 const _ = cockpit.gettext;
 

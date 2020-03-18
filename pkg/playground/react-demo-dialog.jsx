@@ -20,7 +20,7 @@
 import React from "react";
 import * as Select from "cockpit-components-select.jsx";
 
-import "form-layout.less";
+import "form-layout.scss";
 
 /* Sample dialog body
  */

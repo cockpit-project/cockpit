@@ -278,6 +278,7 @@ function systemInfo(state, action) {
             activeState: 'unknown',
             unitState: 'unknown',
         },
+        libvirtVersion: 0,
         osInfoList: null,
         loggedUser: null,
     };

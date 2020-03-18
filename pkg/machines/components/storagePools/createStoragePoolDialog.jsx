@@ -19,7 +19,8 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, FormGroup, HelpBlock, Modal } from 'patternfly-react';
+import { FormGroup, HelpBlock, Modal } from 'patternfly-react';
+import { Button } from '@patternfly/react-core';
 
 import { LIBVIRT_SYSTEM_CONNECTION } from '../../helpers.js';
 import { MachinesConnectionSelector } from '../machinesConnectionSelector.jsx';
@@ -507,10 +508,10 @@ class CreateStoragePoolModal extends React.Component {
                 <Modal.Footer>
                     {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
                     {this.state.createInProgress && <div className="spinner spinner-sm pull-left" />}
-                    <Button bsStyle='default' className='btn-cancel' onClick={ this.props.close }>
+                    <Button variant='secondary' className='btn-cancel' onClick={ this.props.close }>
                         {_("Cancel")}
                     </Button>
-                    <Button bsStyle='primary' disabled={this.state.createInProgress} onClick={this.onCreateClicked}>
+                    <Button variant='primary' isDisabled={this.state.createInProgress} onClick={this.onCreateClicked}>
                         {_("Create")}
                     </Button>
                 </Modal.Footer>
@@ -544,7 +545,7 @@ export class CreateStoragePoolAction extends React.Component {
     render() {
         return (
             <>
-                <Button className='pull-right' id='create-storage-pool' bsStyle='default' onClick={this.open}>
+                <Button className='pull-right' id='create-storage-pool' variant='secondary' onClick={this.open}>
                     {_("Create Storage Pool")}
                 </Button>
                 { this.state.showModal &&

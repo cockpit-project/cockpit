@@ -19,6 +19,7 @@
 
 import cockpit from "cockpit";
 import React from "react";
+import { Button } from "@patternfly/react-core";
 
 import * as PackageKit from "./packagekit.js";
 import { left_click, icon_url, show_error, launch, ProgressBar, CancelButton } from "./utils.jsx";
@@ -105,11 +106,11 @@ export class Application extends React.Component {
                 progress_or_launch = <ProgressBar title={self.state.progress_title} data={self.state.progress} />;
                 button = <CancelButton data={self.state.progress} />;
             } else if (comp.installed) {
-                progress_or_launch = <button role="link" className="link-button" onClick={left_click(() => launch(comp))}>{_("Go to Application")}</button>;
-                button = <button className="btn btn-danger" onClick={left_click(remove)}>{_("Remove")}</button>;
+                progress_or_launch = <Button variant="link" onClick={left_click(() => launch(comp))}>{_("Go to Application")}</Button>;
+                button = <Button variant="danger" onClick={left_click(remove)}>{_("Remove")}</Button>;
             } else {
                 progress_or_launch = null;
-                button = <button className="btn btn-default" onClick={left_click(install)}>{_("Install")}</button>;
+                button = <Button variant="secondary" onClick={left_click(install)}>{_("Install")}</Button>;
             }
 
             return (
@@ -140,7 +141,7 @@ export class Application extends React.Component {
         return (
             <div>
                 <ol className="breadcrumb">
-                    <li><button role="link" className="link-button" onClick={left_click(navigate_up)}>{_("Applications")}</button></li>
+                    <li><Button variant="link" onClick={left_click(navigate_up)}>{_("Applications")}</Button></li>
                     <li className="active">{comp ? comp.name : this.props.id}</li>
                 </ol>
                 {render_comp()}

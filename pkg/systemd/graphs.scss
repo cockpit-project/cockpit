@@ -1,27 +1,16 @@
 @import "../lib/plot.css";
-@import "../../node_modules/@patternfly/patternfly/components/Breadcrumb/breadcrumb.css";
-@import "../../node_modules/@patternfly/patternfly/layouts/Gallery/gallery.css";
-@import "../../node_modules/@patternfly/patternfly/components/Page/page.css";
-@import "../../node_modules/@patternfly/patternfly/components/Card/card.css";
-
+@import "../../node_modules/@patternfly/patternfly/components/Breadcrumb/breadcrumb.scss";
+@import "../../node_modules/@patternfly/patternfly/layouts/Gallery/gallery.scss";
+@import "../../node_modules/@patternfly/patternfly/components/Page/page.scss";
+@import "../../node_modules/@patternfly/patternfly/components/Card/card.scss";
 
 :root {
   /* Font size for titles */
   --ct-graph-title-FontSize: var(--pf-global--FontSize--xl);
+}
 
-  /* We're not pulling in enough of PF4 for these variables to be set, so set them here */
-  --pf-c-page__main-breadcrumb--PaddingTop: var(--pf-global--spacer--lg);
-  --pf-c-page__main-breadcrumb--PaddingRight: var(--pf-global--spacer--lg);
-  --pf-c-page__main-breadcrumb--PaddingBottom: var(--pf-global--spacer--lg);
-  --pf-c-page__main-breadcrumb--PaddingLeft: var(--pf-global--spacer--lg);
-
-  --pf-c-page__main-section--PaddingTop: var(--pf-global--spacer--md);
-  --pf-c-page__main-section--PaddingRight: var(--pf-global--spacer--md);
-  --pf-c-page__main-section--PaddingBottom: var(--pf-global--spacer--md);
-  --pf-c-page__main-section--PaddingLeft: var(--pf-global--spacer--md);
-
-  /* Set the gallery background color*/
-  --pf-c-page__main-section--BackgroundColor: var(--pf-global--BackgroundColor--300);
+.pf-c-page header {
+  background-color: var(--pf-global--BackgroundColor--300);
 }
 
 .pf-c-page__main {
@@ -31,7 +20,13 @@
   > div > header {
     display: flex;
     flex-flow: row wrap;
-    align-items: baseline;
+    // Set the background of the container to the same as the toolbars…
+    // mobile causes a wrap; we want toolbars to visually extend 100% wide
+    background-color: var(--pf-c-page__main-section--m-light--BackgroundColor);
+    // Make the toolbar sticky, for mobile mode (when toolbars wrap)
+    position: sticky;
+    top: -3.5rem;
+    z-index: 100;
 
     /* First child (breadcrumbs) should always take max space */
     > .pf-c-page__main-breadcrumb {
@@ -40,6 +35,14 @@
 
     > .ct-page_main-toolbar {
       flex: none;
+      // Remove padding and align to the center of the stretched parent
+      padding-top: 0;
+      padding-bottom: 0;
+      align-items: center;
+      display: flex;
+      // Use a min-height of the text + padding of breadcrumbs to stack similarly
+      // when wrapped due to content size
+      min-height: 3.5rem;
     }
   }
 }
@@ -72,7 +75,7 @@
   grid-auto-flow: column;
   grid-gap: 0.5rem;
   grid-template-columns: minmax(min-content, max-content);
-  margin: 0 1.5rem 1rem;
+  margin: 0 var(--pf-c-page__main-section--PaddingRight) 0 var(--pf-c-page__main-section--PaddingLeft);
 
   .ct-select,
   .dropdown {
@@ -89,7 +92,7 @@
 .ct-graphs-layout {
   --graph-padding: var(--pf-l-gallery--m-gutter--GridGap);
   /* Mobile grid layout */
-  grid-template: ~"repeat(4, minmax(16rem,1fr)) / 1fr";
+  grid-template: repeat(4, minmax(16rem,1fr)) / 1fr;
   width: 100%;
   height: 100%;
 
@@ -122,7 +125,7 @@
 
   .ct-graphs-layout {
     /* Desktop layout */
-    grid-template: ~"repeat(2, minmax(15rem, 1fr)) / repeat(2, 1fr)";
+    grid-template: repeat(2, minmax(15rem, 1fr)) / repeat(2, 1fr);
     /* Set a max height so graphs don't get too wonky vertically */
     max-height: 70rem;
   }
@@ -132,7 +135,7 @@
   &-container {
     --graph-padding: var(--pf-l-gallery--m-gutter--GridGap);
     display: grid;
-    grid-template: "title" "graph" "legend";
+    grid-template-areas: "title" "graph" "legend";
     grid-template-rows: max-content 1fr max-content;
     padding: var(--graph-padding);
     height: 100%;
@@ -223,7 +226,7 @@
   align-items: baseline;
 
   .server-graph {
-    grid-column: ~"1 / -1";
+    grid-column: 1 / -1;
     width: 100%;
     height: 100%;
   }
@@ -241,6 +244,8 @@
   flex: auto;
 }
 
-#complicated_graphs .pf-c-page__main-section {
-    background-color: transparent;
+#complicated_graphs .pf-c-card {
+  /* Fill all available space with detailed graph cards */
+  grid-column: 1 / -1;
+  grid-row: 1 / -1;
 }

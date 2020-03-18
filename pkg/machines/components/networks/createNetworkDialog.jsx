@@ -20,7 +20,8 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, FormGroup, HelpBlock, Modal } from 'patternfly-react';
+import { FormGroup, HelpBlock, Modal } from 'patternfly-react';
+import { Button } from '@patternfly/react-core';
 
 import { MachinesConnectionSelector } from '../machinesConnectionSelector.jsx';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
@@ -475,11 +476,11 @@ class CreateNetworkModal extends React.Component {
                 <Modal.Footer>
                     {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
                     {this.state.createInProgress && <div className="spinner spinner-sm pull-left" />}
-                    <Button bsStyle='default' className='btn-cancel' onClick={ this.props.close }>
+                    <Button variant='secondary' className='btn-cancel' onClick={ this.props.close }>
                         {_("Cancel")}
                     </Button>
-                    <Button bsStyle='primary'
-                        disabled={ this.state.createInProgress || Object.getOwnPropertyNames(validationFailed).length > 0 }
+                    <Button variant='primary'
+                        isDisabled={ this.state.createInProgress || Object.getOwnPropertyNames(validationFailed).length > 0 }
                         onClick={ this.onCreate }>
                         {_("Create")}
                     </Button>
@@ -514,7 +515,7 @@ export class CreateNetworkAction extends React.Component {
         return (
             <>
                 <Button className='pull-right' id='create-network'
-                        bsStyle='default' onClick={this.open}>
+                        variant='secondary' onClick={this.open}>
                     {_("Create Virtual Network")}
                 </Button>
                 { this.state.showModal &&

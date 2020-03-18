@@ -1,4 +1,5 @@
 import cockpit from "cockpit";
+import "../../node_modules/@patternfly/patternfly/components/Button/button.scss";
 
 var channel = null;
 var websocket = null;

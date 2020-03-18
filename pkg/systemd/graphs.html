@@ -14,15 +14,15 @@
         <script src="../*/po.js"></script>
     </head>
 
-    <body class="pf-m-redhat-font">
+    <body class="pf-m-redhat-font pf-c-page">
         <main role="main" class="pf-c-page__main" tabindex="-1">
             <div id="simple_graphs">
                 <header>
-                    <section class="pf-c-page__main-breadcrumb">
+                    <section class="pf-c-page__main-breadcrumb pf-m-light pf-c-page__main-section">
                         <nav class="pf-c-breadcrumb" aria-label="breadcrumb">
                             <ol class="pf-c-breadcrumb__list">
                                 <li class="pf-c-breadcrumb__item">
-                                    <a role="link" tabindex="0" translate='yes' class="pf-c-breadcrumb__link" id="system-link">Overview</a>
+                                    <a role="link" tabindex="0" translate='yes' class="pf-c-breadcrumb__link system-link">Overview</a>
                                     <span class="pf-c-breadcrumb__item-divider">
                                         <i class="fa fa-angle-right" aria-hidden="true"></i>
                                     </span>
@@ -58,12 +58,12 @@
                                         </li>
                                     </ul>
                                 </div>
-                                <button type="button" class="btn btn-default" data-action="zoom-out">
+                                <button class="pf-c-button pf-m-secondary" data-action="zoom-out">
                                     <span class="glyphicon glyphicon-zoom-out"></span>
                                 </button>
                                 <div class="btn-group">
-                                    <button type="button" class="btn btn-default fa fa-angle-left" data-action="scroll-left"></button>
-                                    <button type="button" class="btn btn-default fa fa-angle-right" data-action="scroll-right"></button>
+                                    <button class="pf-c-button pf-m-secondary" data-action="scroll-left"><span class="fa fa-angle-left"/></button>
+                                    <button class="pf-c-button pf-m-secondary" data-action="scroll-right"><span class="fa fa-angle-right"/></button>
                                 </div>
                             </div>
                         </div>
@@ -102,17 +102,17 @@
 
             <div id="complicated_graphs">
                 <header>
-                    <section class="pf-c-page__main-breadcrumb">
+                    <section class="pf-c-page__main-breadcrumb pf-m-light pf-c-page__main-section">
                         <nav class="pf-c-breadcrumb" aria-label="breadcrumb">
                             <ol class="pf-c-breadcrumb__list">
                                 <li class="pf-c-breadcrumb__item">
-                                    <a role="link" tabindex="0" translate='yes' class="pf-c-breadcrumb__link" id="system-link">Overview</a>
+                                    <a role="link" tabindex="0" translate='yes' class="pf-c-breadcrumb__link system-link">Overview</a>
                                     <span class="pf-c-breadcrumb__item-divider">
                                         <i class="fa fa-angle-right" aria-hidden="true"></i>
                                     </span>
                                 </li>
                                 <li class="pf-c-breadcrumb__item">
-                                    <a role="link" tabindex="0" translate='yes' class="pf-c-breadcrumb__link" id="graphs-link">Usage Graphs</a>
+                                    <a role="link" tabindex="0" translate='yes' class="pf-c-breadcrumb__link graphs-link">Usage Graphs</a>
                                     <span class="pf-c-breadcrumb__item-divider">
                                         <i class="fa fa-angle-right" aria-hidden="true"></i>
                                     </span>
@@ -126,46 +126,48 @@
                 </header>
 
                 <section class="pf-c-page__main-section">
-                    <div class="server-graph-container" id="cpu_status" hidden>
-                        <div class="server-graph-title" id="cpu_status_title">&nbsp;</div>
-                        <ul class="server-graph-legend">
-                            <li class="cpu-nice">
-                                <i class="fa fa-square"></i>
-                                <span translate="yes">Nice</span>
-                            </li>
-                            <li class="cpu-user">
-                                <i class="fa fa-square"></i>
-                                <span translate="yes">User</span>
-                            </li>
-                            <li class="cpu-kernel">
-                                <i class="fa fa-square"></i>
-                                <span translate="yes">Kernel</span>
-                            </li>
-                            <li class="cpu-io-wait">
-                                <i class="fa fa-square"></i>
-                                <span translate="yes">I/O Wait</span>
-                            </li>
-                        </ul>
-                        <div class="server-graph server-graph-graph" id="cpu_status_graph"></div>
-                    </div>
+                    <div class="ct-graphs-layout pf-l-gallery pf-m-gutter">
+                        <div class="server-graph-container pf-c-card" id="cpu_status" hidden>
+                            <div class="server-graph-title" id="cpu_status_title">&nbsp;</div>
+                            <ul class="server-graph-legend">
+                                <li class="cpu-nice">
+                                    <i class="fa fa-square"></i>
+                                    <span translate="yes">Nice</span>
+                                </li>
+                                <li class="cpu-user">
+                                    <i class="fa fa-square"></i>
+                                    <span translate="yes">User</span>
+                                </li>
+                                <li class="cpu-kernel">
+                                    <i class="fa fa-square"></i>
+                                    <span translate="yes">Kernel</span>
+                                </li>
+                                <li class="cpu-io-wait">
+                                    <i class="fa fa-square"></i>
+                                    <span translate="yes">I/O Wait</span>
+                                </li>
+                            </ul>
+                            <div class="server-graph server-graph-graph" id="cpu_status_graph"></div>
+                        </div>
 
-                    <div class="server-graph-container" id="memory_status" hidden>
-                        <div class="server-graph-title" id="memory_status_title">&nbsp;</div>
-                        <ul class="server-graph-legend">
-                            <li class="memory-swap">
-                                <i class="fa fa-square"></i>
-                                <span translate="yes">Swap Used</span>
-                            </li>
-                            <li class="memory-cached">
-                                <i class="fa fa-square"></i>
-                                <span translate="yes">Cached</span>
-                            </li>
-                            <li class="memory-used">
-                                <i class="fa fa-square"></i>
-                                <span translate="yes">Used</span>
-                            </li>
-                        </ul>
-                        <div class="server-graph server-graph-graph" id="memory_status_graph"></div>
+                        <div class="server-graph-container pf-c-card" id="memory_status" hidden>
+                            <div class="server-graph-title" id="memory_status_title">&nbsp;</div>
+                            <ul class="server-graph-legend">
+                                <li class="memory-swap">
+                                    <i class="fa fa-square"></i>
+                                    <span translate="yes">Swap Used</span>
+                                </li>
+                                <li class="memory-cached">
+                                    <i class="fa fa-square"></i>
+                                    <span translate="yes">Cached</span>
+                                </li>
+                                <li class="memory-used">
+                                    <i class="fa fa-square"></i>
+                                    <span translate="yes">Used</span>
+                                </li>
+                            </ul>
+                            <div class="server-graph server-graph-graph" id="memory_status_graph"></div>
+                        </div>
                     </div>
                 </section>
             </div>

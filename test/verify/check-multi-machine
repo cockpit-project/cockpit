@@ -56,9 +56,9 @@ def fix_bridge(m):
 
 
 def check_failed_state(b, expected_title):
-    b.wait_in_text('#troubleshoot-dialog .btn-default', "Close")
+    b.wait_in_text('#troubleshoot-dialog button:nth-of-type(1)', "Close")
     b.wait_in_text('#troubleshoot-dialog h4', expected_title)
-    b.click("#troubleshoot-dialog .btn-default")
+    b.click("#troubleshoot-dialog button:nth-of-type(1)")
     b.wait_popdown('troubleshoot-dialog')
 
 
@@ -67,17 +67,17 @@ def start_machine_troubleshoot(b, new=False, known_host=False):
     b.click('#machine-troubleshoot')
     b.wait_popup('troubleshoot-dialog')
     if (new):
-        b.wait_text('#troubleshoot-dialog .btn-primary', "Add")
-        b.click('#troubleshoot-dialog .btn-primary')
+        b.wait_text('#troubleshoot-dialog button:nth-of-type(2)', "Add")
+        b.click('#troubleshoot-dialog button:nth-of-type(2)')
 
         if not known_host:
             b.wait_in_text('#troubleshoot-dialog', "Fingerprint")
-            b.click('#troubleshoot-dialog .btn-primary')
+            b.click('#troubleshoot-dialog button:nth-of-type(2)')
 
 
 def fail_login(b):
-    b.click('#troubleshoot-dialog .btn-primary')
-    b.wait_present("#troubleshoot-dialog .btn-primary:not([disabled])")
+    b.click('#troubleshoot-dialog button:nth-of-type(2)')
+    b.wait_present('#troubleshoot-dialog button:nth-of-type(2):not([disabled])')
     b.wait_in_text("#troubleshoot-dialog .dialog-error", "Login failed")
 
 
@@ -447,7 +447,7 @@ class TestMultiMachine(MachineCase):
         self.checkDirectLogin('/')
 
     @skipImage("test VM image does not have FIPS support", "debian-stable",
-               "debian-testing", "ubuntu-1804", "ubuntu-stable", "fedora-coreos")
+               "debian-testing", "ubuntu-1804", "ubuntu-2004", "ubuntu-stable", "fedora-coreos")
     def testFIPS(self):
         b = self.browser
 
@@ -707,10 +707,10 @@ class TestMultiMachine(MachineCase):
         # Bad hostkey
         break_hostkey(m1, "10.111.113.2")
         start_machine_troubleshoot(b, True, True)
-        b.wait_in_text('#troubleshoot-dialog .btn-default', "Close")
+        b.wait_in_text('#troubleshoot-dialog {}'.format(self.default_btn_class), "Close")
         b.wait_in_text('#troubleshoot-dialog h4', "Incorrect Host Key")
         b.wait_in_text("#troubleshoot-dialog", "10.111.113.2")
-        b.click("#troubleshoot-dialog .btn-default")
+        b.click("#troubleshoot-dialog {}".format(self.default_btn_class))
         b.wait_popdown('troubleshoot-dialog')
         fix_hostkey(m1)
 
@@ -719,11 +719,11 @@ class TestMultiMachine(MachineCase):
         break_hostkey(m1, "10.111.113.2", filename="/home/admin/.ssh/known_hosts")
 
         start_machine_troubleshoot(b, True, True)
-        b.wait_in_text('#troubleshoot-dialog .btn-default', "Close")
+        b.wait_in_text('#troubleshoot-dialog {}'.format(self.default_btn_class), "Close")
         b.wait_in_text('#troubleshoot-dialog h4', "Incorrect Host Key")
         b.wait_in_text("#troubleshoot-dialog", "10.111.113.2")
         # only fixed in 141 (PR #6720)
-        b.click("#troubleshoot-dialog .btn-default")
+        b.click("#troubleshoot-dialog button")
         b.wait_popdown('troubleshoot-dialog')
         fix_hostkey(m1, filename="/home/admin/.ssh/known_hosts")
 
@@ -756,8 +756,8 @@ class TestMultiMachine(MachineCase):
         b.click("#machine-reconnect")
         start_machine_troubleshoot(b)
         b.wait_in_text('#troubleshoot-dialog h4', "Unknown Host Key")
-        b.wait_in_text('#troubleshoot-dialog .btn-primary', "Connect")
-        b.click('#troubleshoot-dialog .btn-primary')
+        b.wait_in_text('#troubleshoot-dialog {}'.format(self.primary_btn_class), "Connect")
+        b.click('#troubleshoot-dialog {}'.format(self.primary_btn_class))
         b.wait_popdown('troubleshoot-dialog')
 
         # Reconnect
@@ -777,7 +777,7 @@ class TestMultiMachine(MachineCase):
         start_machine_troubleshoot(b)
 
         b.wait_in_text('#troubleshoot-dialog h4', "Log in to")
-        b.wait_present("#troubleshoot-dialog .btn-primary:not([disabled])")
+        b.wait_present("#troubleshoot-dialog {}:not([disabled])".format(self.primary_btn_class))
         b.wait_visible("#login-diff-password")
         b.wait_not_visible("#login-available")
         self.assertEqual(b.text("#login-type button span"), "Type a password")
@@ -803,7 +803,7 @@ class TestMultiMachine(MachineCase):
         b.set_val("#login-custom-password", "bad")
         fail_login(b)
         b.set_val("#login-custom-password", "alt-password")
-        b.click('#troubleshoot-dialog .btn-primary')
+        b.click('#troubleshoot-dialog {}'.format(self.primary_btn_class))
         b.wait_popdown('troubleshoot-dialog')
 
         # Reconnect
@@ -841,19 +841,19 @@ class TestMultiMachine(MachineCase):
         start_machine_troubleshoot(b)
         b.wait_in_text('#troubleshoot-dialog h4', "Could not contact")
         b.set_val("#edit-machine-port", "2222")
-        b.click('#troubleshoot-dialog .btn-primary')
+        b.click('#troubleshoot-dialog {}'.format(self.primary_btn_class))
         # Using libssh's knownhosts api port is taken into account when verifying a host
         if m1.image not in [ 'ubuntu-1804']:
             b.wait_in_text('#troubleshoot-dialog h4', "Unknown Host Key")
-            b.wait_in_text('#troubleshoot-dialog .btn-primary', "Connect")
-            b.click('#troubleshoot-dialog .btn-primary')
+            b.wait_in_text('#troubleshoot-dialog {}'.format(self.primary_btn_class), "Connect")
+            b.click('#troubleshoot-dialog {}'.format(self.primary_btn_class))
         b.wait_in_text('#troubleshoot-dialog h4', "Log in to")
         b.wait_visible("#login-diff-password")
         b.click("#login-type button")
         b.click("#login-type ul li[value='stored'] a")
         b.wait_not_visible("#login-diff-password")
         b.set_val("#login-custom-user", "root")
-        b.click('#troubleshoot-dialog .btn-primary')
+        b.click('#troubleshoot-dialog {}'.format(self.primary_btn_class))
         b.wait_popdown('troubleshoot-dialog')
 
         b.wait_not_visible(".curtains-ct")

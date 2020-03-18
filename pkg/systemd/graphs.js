@@ -468,8 +468,8 @@ $(function() {
     cpu_page = new PageCpuStatus();
     memory_page = new PageMemoryStatus();
 
-    $("#system-link").on("click", () => cockpit.jump('/system'));
-    $("#graphs-link").on("click", () => cockpit.jump('/system/graphs'));
+    $(".system-link").on("click", () => cockpit.jump('/system'));
+    $(".graphs-link").on("click", () => cockpit.jump('/system/graphs'));
 
     function navigate() {
         var path = cockpit.location.path;

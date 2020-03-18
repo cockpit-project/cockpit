@@ -65,13 +65,13 @@
       {{/other}}
       <div class="blank-slate-pf-main-action">
         {{#notfound}}
-        <button class="btn btn-primary btn-lg" translate="yes" data-action="docker-start">Start Docker</button>
+        <button class="pf-c-button pf-m-primary btn-lg" translate="yes" data-action="docker-start">Start Docker</button>
         {{/notfound}}
         {{#denied}}
-        <button class="btn btn-primary btn-lg" translate="yes" data-action="docker-connect">Try again</button>
+        <button class="pf-c-button pf-m-primary btn-lg" translate="yes" data-action="docker-connect">Try again</button>
         {{/denied}}
         {{#other}}
-        <button class="btn btn-primary btn-lg" translate="yes" data-action="docker-connect">Try again</button>
+        <button class="pf-c-button pf-m-primary btn-lg" translate="yes" data-action="docker-connect">Try again</button>
         {{/other}}
       </div>
     </div>
@@ -103,12 +103,6 @@
             </div>
             <div id="containers-mem-graph"></div>
           </div>
-          <div class="col-sm-4">
-            <div class="panel-body">
-              <div id="containers-storage-details">
-              </div>
-            </div>
-          </div>
         </div>
         <br/>
       </div>
@@ -133,11 +127,11 @@
           <span translate>Container:</span>
           <span id="container-details-names"></span>
           <div class="pull-right">
-            <button class="btn btn-default" id="container-details-start" translate>Start</button>
-            <button class="btn btn-default" id="container-details-stop" translate>Stop</button>
-            <button class="btn btn-default" id="container-details-restart" translate>Restart</button>
-            <button class="btn btn-danger" id="container-details-delete" translate>Delete</button>
-            <button class="btn btn-default" id="container-details-commit"
+            <button class="pf-c-button pf-m-secondary" id="container-details-start" translate>Start</button>
+            <button class="pf-c-button pf-m-secondary" id="container-details-stop" translate>Stop</button>
+            <button class="pf-c-button pf-m-secondary" id="container-details-restart" translate>Restart</button>
+            <button class="pf-c-button pf-m-danger" id="container-details-delete" translate>Delete</button>
+            <button class="pf-c-button pf-m-secondary" id="container-details-commit"
                     data-toggle="modal" data-target="#container-commit-dialog" translate>Commit</button>
             <div class="spinner spinner-sm" hidden></div>
           </div>
@@ -226,7 +220,7 @@
               <tr id="container-details-resource-row" hidden>
                 <td></td>
                 <td>
-                  <button class="btn btn-default resource-button" data-toggle="modal"
+                  <button class="pf-c-button pf-m-secondary resource-button" data-toggle="modal"
                           data-target="#container-resources-dialog" translate>Change resource limits</button>
                 </td>
               </tr>
@@ -249,8 +243,8 @@
       <a role="link" tabindex="0" translate="yes">Show all images</a>
       <div class="content-filter-actions" id="image-details-buttons">
         <button  title="Delete" translate="title" id="image-details-delete"
-            class="btn btn-danger btn-delete pficon pficon-delete"></button>
-        <button class="btn btn-default" id="image-details-run"
+            class="pf-c-button pf-m-danger btn-delete"><span class="pficon pficon-delete" /></button>
+        <button class="pf-c-button pf-m-secondary" id="image-details-run"
             data-toggle="modal" data-target="#containers_run_image_dialog" translate>Run</button>
         <div class="spinner" hidden></div>
       </div>
@@ -282,44 +276,12 @@
     </div>
   </div>
 
-  <!-- STORAGE -->
-
-  <div id="storage" class="container-fluid" hidden>
-    <ol class="breadcrumb">
-      <li><a role="link" tabindex="0" translate="yes">Containers</a></li>
-      <li class="active" translate>Storage</li>
-    </ol>
-
-    <div class="blank-slate-pf" id="storage-unsupported" hidden>
-      <h1 id="storage-unsupported-message"></h1>
-    </div>
-
-    <div id="storage-details">
-      <div class="col-sm-6">
-        <h3 translate="yes">Overview</h3>
-        <div id="storage-overview">
-        </div>
-
-        <button id="storage-reset" class="btn btn-default pull-right" translate="yes">Reset</button>
-        <h3 translate="yes">Storage pool</h3>
-        <div id="storage-pool">
-        </div>
-      </div>
-      <div class="col-sm-offset-1 col-sm-5" id="storage-drives-panel">
-        <h3 translate="yes">Additional Storage</h3>
-        <div id="storage-drives">
-        </div>
-      </div>
-    </div>
-
-  </div>
-
   <!-- RUN DIALOG -->
 
   <script id="port-expose-tmpl" type="x-template/mustache">
     <form class="form-inline dialog-wrapper">
-      <button type="button" class="btn btn-default fa fa-plus"></button>
-      <button type="button" class="btn btn-default pficon pficon-close"></button>
+      <button type="button" class="pf-c-button pf-m-secondary plus-button btn-sm"><span class="fa fa-plus" /></button>
+      <button type="button" class="pf-c-button pf-m-secondary close-button btn-sm"><span class="pficon pficon-close" /></button>
       <div class="form-group">
         <input type="text" name="container" class="form-control" placeholder="{{placeholder}}">
       </div>
@@ -344,8 +306,8 @@
 
   <script id="volume-mount-tmpl" type="x-template/mustache">
     <form class="form-inline">
-      <button type="button" class="btn btn-default fa fa-plus"></button>
-      <button type="button" class="btn btn-default pficon pficon-close"></button>
+      <button type="button" class="pf-c-button pf-m-secondary plus-button btn-sm"><span class="fa fa-plus" /></button>
+      <button type-"button" class="pf-c-button pf-m-secondary close-button btn-sm"><span class="pficon pficon-close" /></button>
       <div class="form-group">
         <input type="text" name="container" class="form-control" placeholder="{{placeholder}}">
       </div>
@@ -377,8 +339,8 @@
 
   <script id="envvar-claim-tmpl" type="x-template/mustache">
     <form class="form-inline">
-      <button type="button" class="btn btn-default fa fa-plus"></button>
-      <button type="button" class="btn btn-default pficon pficon-close"></button>
+      <button type="button" class="pf-c-button pf-m-secondary plus-button btn-sm"><span class="fa fa-plus" /></button>
+      <button type="button" class="pf-c-button pf-m-secondary close-button btn-sm"><span class="pficon pficon-close" /></button>
       <div class="form-group">
         <label>{{envvar_key_label}}</label>
         <input type="text" name="envvar_key" class="form-control" placeholder="{{placeholder}}">
@@ -398,8 +360,8 @@
 
   <script id="container-link-tmpl" type="x-template/mustache">
     <form class="form-inline dialog-wrapper">
-      <button type="button" class="btn btn-default fa fa-plus"></button>
-      <button type="button" class="btn btn-default pficon pficon-close"></button>
+      <button type="button" class="pf-c-button pf-m-secondary plus-button btn-sm"><span class="fa fa-plus" /></button>
+      <button type="button" class="pf-c-button pf-m-secondary close-button btn-sm"><span class="pficon pficon-close" /></button>
       <div class="form-group">
           <div class="btn-group dropdown link-container">
               <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
@@ -562,8 +524,8 @@
           </table>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-default" translate="yes" data-dismiss="modal">Cancel</button>
-          <button class="btn btn-primary" id="containers-run-image-run" translate="yes">Run</button>
+          <button class="pf-c-button pf-m-secondary" translate="yes" data-dismiss="modal">Cancel</button>
+          <button class="pf-c-button pf-m-primary" id="containers-run-image-run" translate="yes">Run</button>
         </div>
       </div>
     </div>
@@ -596,8 +558,8 @@
         </div>
         <div class="modal-footer">
           <input type="text" id="containers-search-tag" class="form-control" disabled="disabled" placeholder="Tag" />
-          <button class="btn btn-default" translate="yes" data-dismiss="modal">Cancel</button>
-          <button class="btn btn-primary" translate="yes" disabled="disabled" id="containers-search-download">Download</button>
+          <button class="pf-c-button pf-m-secondary" translate="yes" data-dismiss="modal">Cancel</button>
+          <button class="pf-c-button pf-m-primary" translate="yes" disabled="disabled" id="containers-search-download">Download</button>
         </div>
       </div>
     </div>
@@ -660,8 +622,8 @@
           </table>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-default" translate="yes" data-dismiss="modal">Cancel</button>
-          <button class="btn btn-primary" translate="yes">Change</button>
+          <button class="pf-c-button pf-m-secondary" translate="yes" data-dismiss="modal">Cancel</button>
+          <button class="pf-c-button pf-m-primary" translate="yes">Change</button>
         </div>
       </div>
     </div>
@@ -714,8 +676,8 @@
           </table>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-default" translate="yes" data-dismiss="modal">Cancel</button>
-          <button class="btn btn-primary" translate="yes" data-dismiss="modal">Commit</button>
+          <button class="pf-c-button pf-m-secondary" translate="yes" data-dismiss="modal">Cancel</button>
+          <button class="pf-c-button pf-m-primary" translate="yes" data-dismiss="modal">Commit</button>
         </div>
       </div>
     </div>
@@ -735,7 +697,7 @@
           <p id="error-popup-message"></p>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-primary" data-dismiss="modal" translate>Close</button>
+          <button class="pf-c-button pf-m-primary" data-dismiss="modal" translate>Close</button>
         </div>
       </div>
     </div>
@@ -754,8 +716,8 @@
         <div class="modal-body" id="confirmation-dialog-body">
         </div>
         <div class="modal-footer">
-          <button class="btn btn-default" translate="yes" id="confirmation-dialog-cancel">Cancel</button>
-          <button class="btn btn-danger" id="confirmation-dialog-confirm">
+          <button class="pf-c-button pf-m-secondary" translate="yes" id="confirmation-dialog-cancel">Cancel</button>
+          <button class="pf-c-button pf-m-danger" id="confirmation-dialog-confirm">
           </button>
         </div>
       </div>
@@ -783,9 +745,9 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-default" translate="yes" id="delete-image-confirmation-dialog-cancel">Cancel</button>
+          <button class="pf-c-button pf-m-secondary" translate="yes" id="delete-image-confirmation-dialog-cancel">Cancel</button>
           <span data-toggle="tooltip">
-            <button class="btn btn-danger" id="delete-image-confirmation-dialog-confirm" />
+            <button class="pf-c-button pf-m-danger" id="delete-image-confirmation-dialog-confirm" />
           </span>
         </div>
       </div>

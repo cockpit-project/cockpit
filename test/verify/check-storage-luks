@@ -121,7 +121,7 @@ class TestStorage(StorageCase):
         assert m.execute("grep -v ^# /etc/crypttab || true").strip() == ""
         assert m.execute("grep %s /etc/fstab || true" % mount_point_secret) == ""
 
-    @skipImage("No clevis/tang", "debian-stable", "debian-testing", "ubuntu-1804", "ubuntu-stable")
+    @skipImage("No clevis/tang", "debian-stable", "debian-testing", "ubuntu-1804", "ubuntu-2004", "ubuntu-stable")
     def testClevisTang(self):
         m = self.machine
         b = self.browser
@@ -221,7 +221,7 @@ class TestStorage(StorageCase):
         self.confirm()
         b.wait_not_present(panel + ".table tr:nth-child(2)")
 
-    @skipImage("No clevis/tang", "debian-stable", "debian-testing", "ubuntu-1804", "ubuntu-stable")
+    @skipImage("No clevis/tang", "debian-stable", "debian-testing", "ubuntu-1804", "ubuntu-2004", "ubuntu-stable")
     def testSlots(self):
         self.allow_journal_messages("Device is not initialized.*", ".*could not be opened.")
         m = self.machine
@@ -306,10 +306,10 @@ class TestStorage(StorageCase):
 
         if not luks_2:
             # check if add button is inactive
-            b.wait_present(panel + ".disabled")
+            b.wait_present(panel + ":disabled")
             # check if edit button is inactive
             slots_table = tab + " .panel table "
-            b.wait_present(slots_table + ".disabled")
+            b.wait_present(slots_table + ":disabled")
 
         # remove one slot
         slots_table = tab + " .panel table "
@@ -319,8 +319,8 @@ class TestStorage(StorageCase):
         self.dialog_apply()
         self.dialog_wait_close()
         # check if buttons have become enabled after removing last slot
-        b.wait_not_present(slots_table + ".disabled")
-        b.wait_not_present(panel + ".disabled")
+        b.wait_not_present(slots_table + ":disabled")
+        b.wait_not_present(panel + ":disabled")
         # remove slot 0, with the original passphrase
         b.click(slots_table + "tbody tr:nth-child(1) .fa-minus")
         b.click(self.dialog_field("passphrase") + " label:contains(Force remove passphrase in key slot 0)")

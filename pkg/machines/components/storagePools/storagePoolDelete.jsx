@@ -18,7 +18,8 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Modal, OverlayTrigger, Tooltip } from 'patternfly-react';
+import { Modal, OverlayTrigger, Tooltip } from 'patternfly-react';
+import { Button } from '@patternfly/react-core';
 
 import { getStorageVolumesUsage, storagePoolId } from '../../helpers.js';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
@@ -197,9 +198,9 @@ export class StoragePoolDelete extends React.Component {
                         </Tooltip> } placement='top'>
                         <span>
                             <Button id={`delete-${id}`}
-                                bsStyle='danger'
+                                variant='danger'
                                 style={{ pointerEvents: 'none' }}
-                                disabled>
+                                isDisabled>
                                 {_("Delete")}
                             </Button>
                         </span>
@@ -208,7 +209,7 @@ export class StoragePoolDelete extends React.Component {
             } else {
                 return (
                     <Button id={`delete-${id}`}
-                        bsStyle='danger'
+                        variant='danger'
                         onClick={this.open}>
                         {_("Delete")}
                     </Button>
@@ -230,12 +231,12 @@ export class StoragePoolDelete extends React.Component {
                     </Modal.Body>
                     <Modal.Footer>
                         {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
-                        <Button bsStyle='default' className='btn-cancel' onClick={this.close}>
+                        <Button variant='secondary' className='btn-cancel' onClick={this.close}>
                             {_("Cancel")}
                         </Button>
-                        <Button bsStyle='danger'
+                        <Button variant='danger'
                             onClick={this.delete}
-                            disabled={canDeleteOnlyWithoutVolumes(storagePool, vms) && this.state.deleteVolumes}>
+                            isDisabled={canDeleteOnlyWithoutVolumes(storagePool, vms) && this.state.deleteVolumes}>
                             {_("Delete")}
                         </Button>
                     </Modal.Footer>

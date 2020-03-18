@@ -27,7 +27,9 @@ import {
     enableLibvirt,
 } from "../actions/provider-actions.js";
 
-import './libvirtSlate.css';
+import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
+import { Button } from "@patternfly/react-core";
+import { ExclamationCircleIcon } from "@patternfly/react-icons";
 
 const _ = cockpit.gettext;
 
@@ -71,66 +73,40 @@ class LibvirtSlate extends React.Component {
     }
 
     render() {
-        const activeState = this.props.libvirtService.activeState;
         const name = this.props.libvirtService.name;
-        const loadingResources = this.props.loadingResources;
-        let message;
-        let icon;
-        let detail;
-        let action;
 
-        if (activeState === 'running') {
-            message = _("Virtualization Service is Available");
-            icon = (<span className="pficon-ok" />);
-        } else if (name && activeState === 'unknown') { // name === 'unknown' first
-            message = _("Connecting to Virtualization Service");
-            icon = (<div className="spinner spinner-lg" />);
-        } else if (loadingResources) {
-            message = _("Loading Resources");
-            icon = (<div className="spinner spinner-lg" />);
-        } else {
-            this.checkStatus();
-            message = _("Virtualization Service (libvirt) is Not Active");
-            icon = (<span className="fa fa-exclamation-circle" />);
-            detail = (
-                <div className="checkbox">
-                    <label>
-                        <input type="checkbox"
-                               id="enable-libvirt"
-                               disabled={!name}
-                               checked={this.state.libvirtEnabled}
-                               onChange={this.onLibvirtEnabledChanged} />
-                        {_("Automatically start libvirt on boot")}
-                    </label>
-                </div>
-            );
-            action = (
-                <div className="blank-slate-pf-main-action">
-                    <button className="btn btn-default btn-lg"
-                            id="troubleshoot"
-                            onClick={mouseClick(this.goToServicePage)}>
-                        {_("Troubleshoot")}
-                    </button>
-                    <button className="btn btn-primary btn-lg"
-                            id="start-libvirt"
-                            disabled={!name}
-                            onClick={mouseClick(this.startService)}>
-                        {_("Start libvirt")}
-                    </button>
-                </div>
-            );
-        }
-        return (
-            <div className="curtains-ct blank-slate-pf">
-                <div className="blank-slate-pf-icon">
-                    {icon}
-                </div>
-                <h1 className="header" id="slate-header">
-                    {message}
-                </h1>
-                {detail}
-                {action}
-            </div>);
+        if (name && this.props.libvirtService.activeState === 'unknown')
+            return <EmptyStatePanel title={ _("Connecting to Virtualization Service") } loading />;
+
+        if (this.props.loadingResources)
+            return <EmptyStatePanel title={ _("Loading Resources") } loading />;
+
+        this.checkStatus();
+        // TODO: Convert to PF4-React Checkbox, but this is badly aligned
+        const detail = (
+            <div className="checkbox">
+                <label>
+                    <input type="checkbox"
+                           id="enable-libvirt"
+                           disabled={!name}
+                           checked={this.state.libvirtEnabled}
+                           onChange={this.onLibvirtEnabledChanged} />
+                    {_("Automatically start libvirt on boot")}
+                </label>
+            </div>
+        );
+
+        const troubleshoot_btn = (
+            <Button variant="secondary" onClick={ mouseClick(this.goToServicePage) }>
+                { _("Troubleshoot") }
+            </Button>);
+
+        return <EmptyStatePanel icon={ ExclamationCircleIcon }
+                                title={ _("Virtualization Service (libvirt) is Not Active") }
+                                paragraph={ detail }
+                                action={ name ? _("Start libvirt") : null }
+                                onAction={ mouseClick(this.startService) }
+                                secondary={ troubleshoot_btn } />;
     }
 }
 

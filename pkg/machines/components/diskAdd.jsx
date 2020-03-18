@@ -17,7 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 import React from 'react';
-import { Button, Modal } from 'patternfly-react';
+import { Modal } from 'patternfly-react';
+import { Button } from '@patternfly/react-core';
 import cockpit from 'cockpit';
 
 import * as Select from "cockpit-components-select.jsx";
@@ -27,7 +28,7 @@ import { volumeCreateAndAttach, attachDisk, getVm } from '../actions/provider-ac
 import { VolumeCreateBody } from './storagePools/storageVolumeCreateBody.jsx';
 import { updateDiskAttributes } from '../libvirt-dbus.js';
 
-import 'form-layout.less';
+import 'form-layout.scss';
 import './diskAdd.css';
 
 const _ = cockpit.gettext;
@@ -151,7 +152,7 @@ class AdditionalOptions extends React.Component {
             <>
                 <div className='expand-collapse-pf' id='expand-collapse-button'>
                     <div className='expand-collapse-pf-link-container'>
-                        <button className='btn btn-link' onClick={() => this.setState({ expanded: !this.state.expanded })}>
+                        <button className='pf-c-button pf-m-inline pf-m-link' onClick={() => this.setState({ expanded: !this.state.expanded })}>
                             { this.state.expanded ? <span className='fa fa-angle-down' /> : <span className='fa fa-angle-right' /> }
                             { this.state.expanded ? _("Hide Additional Options") : _("Show Additional Options")}
                         </button>
@@ -276,6 +277,7 @@ export class AddDiskModalBody extends React.Component {
         this.dialogErrorSet = this.dialogErrorSet.bind(this);
         this.onAddClicked = this.onAddClicked.bind(this);
         this.getDefaultVolumeName = this.getDefaultVolumeName.bind(this);
+        this.existingVolumeNameDelta = this.existingVolumeNameDelta.bind(this);
     }
 
     get initialState() {
@@ -308,6 +310,19 @@ export class AddDiskModalBody extends React.Component {
         };
     }
 
+    existingVolumeNameDelta(value, poolName) {
+        const { storagePools, vm } = this.props;
+        const stateDelta = { existingVolumeName: value };
+        const pool = storagePools.find(pool => pool.name === poolName && pool.connectionName === vm.connectionName);
+        stateDelta.format = getDefaultVolumeFormat(pool);
+        if (['dir', 'fs', 'netfs', 'gluster', 'vstorage'].indexOf(pool.type) > -1) {
+            const volume = pool.volumes.find(vol => vol.name === value);
+            if (volume && volume.format)
+                stateDelta.format = volume.format;
+        }
+        return stateDelta;
+    }
+
     getDefaultVolumeName(poolName) {
         const { storagePools, vm } = this.props;
         const vmStoragePool = storagePools.find(pool => pool.name == poolName);
@@ -338,14 +353,7 @@ export class AddDiskModalBody extends React.Component {
         case 'existingVolumeName': {
             stateDelta.existingVolumeName = value;
             this.setState(prevState => { // to prevent asynchronous for recursive call with existingVolumeName as a key
-                const pool = storagePools.find(pool => pool.name === prevState.storagePoolName && pool.connectionName === vm.connectionName);
-                stateDelta.format = getDefaultVolumeFormat(pool);
-                if (['dir', 'fs', 'netfs', 'gluster', 'vstorage'].indexOf(pool.type) > -1) {
-                    const volume = pool.volumes.find(vol => vol.name === value);
-                    if (volume && volume.format)
-                        stateDelta.format = volume.format;
-                }
-                return stateDelta;
+                return this.existingVolumeNameDelta(value, prevState.storagePoolName);
             });
             break;
         }
@@ -356,7 +364,7 @@ export class AddDiskModalBody extends React.Component {
                     stateDelta.mode = value;
                     const poolName = stateDelta.storagePoolName;
                     if (poolName)
-                        this.onValueChanged('existingVolumeName', this.getDefaultVolumeName(poolName));
+                        stateDelta = { ...stateDelta, ...this.existingVolumeNameDelta(this.getDefaultVolumeName(poolName), prevState.storagePoolName) };
                 }
 
                 return stateDelta;
@@ -546,10 +554,10 @@ export class AddDiskModalBody extends React.Component {
                 <Modal.Footer>
                     {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
                     {this.state.addDiskInProgress && <div className="spinner spinner-sm pull-left" />}
-                    <Button id={`${idPrefix}-dialog-cancel`} bsStyle='default' className='btn-cancel' onClick={this.props.close}>
+                    <Button id={`${idPrefix}-dialog-cancel`} variant='secondary' className='btn-cancel' onClick={this.props.close}>
                         {_("Cancel")}
                     </Button>
-                    <Button id={`${idPrefix}-dialog-add`} bsStyle='primary' disabled={this.state.addDiskInProgress || storagePools.length == 0} onClick={this.onAddClicked}>
+                    <Button id={`${idPrefix}-dialog-add`} variant='primary' isDisabled={this.state.addDiskInProgress || storagePools.length == 0} onClick={this.onAddClicked}>
                         {_("Add")}
                     </Button>
                 </Modal.Footer>

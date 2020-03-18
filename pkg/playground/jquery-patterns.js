@@ -1,10 +1,11 @@
 import $ from "jquery";
 
 import "patterns";
-import "page.css";
-import "listing.less";
+import "page.scss";
+import "listing.scss";
 import "timeline.css";
 import "table.css";
+import "../../node_modules/@patternfly/patternfly/components/Button/button.scss";
 
 $(function() {
     $(document).ready(function() {
@@ -93,17 +94,17 @@ $(function() {
                 if ($(this).parents("tbody.open").length)
                     $(this).parents("tbody.open")
                             .toggleClass("open");
-                /* Only proceed if a .btn a li or .timeline-ct was not clicked on */
+                /* Only proceed if a .pf-c-button a li or .timeline-ct was not clicked on */
                 else if ($(ev.target).parents()
                         .addBack()
-                        .filter(".btn, a, li, .timeline-ct").length === 0)
+                        .filter(".pf-c-button, a, li, .timeline-ct").length === 0)
                     window.alert("Navigate to details page");
             })
             .on("click", "tr.listing-ct-head", function(ev) {
-            /* Only proceed if a .btn a li or .timeline-ct was not clicked on */
+            /* Only proceed if a .pf-c-button a li or .timeline-ct was not clicked on */
                 if ($(ev.target).parents()
                         .addBack()
-                        .filter(".btn, a, li, .timeline-ct").length === 0)
+                        .filter(".pf-c-button, a, li, .timeline-ct").length === 0)
                     $(this).parents("tbody")
                             .toggleClass("open");
             })

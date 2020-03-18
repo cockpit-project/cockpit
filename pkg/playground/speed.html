@@ -5,6 +5,7 @@
     <title>Cockpit Speed Tests</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="../base1/patternfly.css" type="text/css" rel="stylesheet">
+    <link href="speed.css" type="text/css" rel="stylesheet">
     <script src="../base1/cockpit.js"></script>
     <script src="speed.js"></script>
 </head>
@@ -27,7 +28,7 @@
                 </tr>
             </tbody>
         </table>
-        <p><button class="btn btn-default btn-primary" id="stop">Stop</button></p>
+        <p><button class="pf-c-button pf-m-secondary pf-m-primary" id="stop">Stop</button></p>
 
         <h2>Echo Tests</h2>
         <table>
@@ -49,8 +50,8 @@
                     <td><input type="checkbox" id="binary"></td>
                 </tr>
                 <tr>
-                    <td><button class="btn btn-default btn-primary" id="echo-normal">Normal Channel</button></td>
-                    <td><button class="btn btn-default btn-primary" id="echo-sideband">Sideband Channel</button></td>
+                    <td><button class="pf-c-button pf-m-secondary pf-m-primary" id="echo-normal">Normal Channel</button></td>
+                    <td><button class="pf-c-button pf-m-secondary pf-m-primary" id="echo-sideband">Sideband Channel</button></td>
                 </tr>
             </tbody>
         </table>
@@ -64,8 +65,8 @@
                     <td><input class="form-control" id="read-path" value="/dev/sda"></td>
                 </tr>
                 <tr>
-                    <td><button class="btn btn-default btn-primary" id="read-normal">Normal Channel</button></td>
-                    <td><button class="btn btn-default btn-primary" id="read-sideband">Sideband Channel</button></td>
+                    <td><button class="pf-c-button pf-m-secondary pf-m-primary" id="read-normal">Normal Channel</button></td>
+                    <td><button class="pf-c-button pf-m-secondary pf-m-primary" id="read-sideband">Sideband Channel</button></td>
                 </tr>
             </tbody>
         </table>
@@ -79,7 +80,7 @@
                     <td><input class="form-control" id="download-path" value="/dev/sda"></td>
                 </tr>
                 <tr>
-                    <td><button class="btn btn-default btn-primary" id="download-external">External Download</button></td>
+                    <td><button class="pf-c-button pf-m-secondary pf-m-primary" id="download-external">External Download</button></td>
                 </tr>
             </tbody>
         </table>

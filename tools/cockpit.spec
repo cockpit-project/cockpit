@@ -105,11 +105,15 @@ Recommends: (cockpit-storaged if udisks2)
 Recommends: cockpit-packagekit
 Suggests: cockpit-pcp
 
-%if 0%{?rhel} == 0
-Recommends: cockpit-dashboard
 %ifarch x86_64 %{arm} aarch64 ppc64le i686 s390x
+%if 0%{?fedora} == 31 && 0%{?build_optional}
+%define build_docker 1
 Recommends: (cockpit-docker if /usr/bin/docker)
 %endif
+%endif
+
+%if 0%{?rhel} == 0
+Recommends: cockpit-dashboard
 Recommends: (cockpit-networkmanager if NetworkManager)
 Suggests: cockpit-selinux
 %endif
@@ -203,12 +207,6 @@ find %{buildroot}%{_datadir}/cockpit/selinux -type f >> selinux.list
 
 echo '%dir %{_datadir}/cockpit/playground' > tests.list
 find %{buildroot}%{_datadir}/cockpit/playground -type f >> tests.list
-
-%ifarch x86_64 %{arm} aarch64 ppc64le i686 s390x
-%if 0%{?fedora} && 0%{?build_optional}
-%define build_docker 1
-%endif
-%endif
 
 %if 0%{?build_docker}
 echo '%dir %{_datadir}/cockpit/docker' > docker.list

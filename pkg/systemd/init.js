@@ -1032,9 +1032,9 @@ $(function() {
             check_inputs();
     }
 
-    $("#repeat-time-option").on("click", ".btn.btn-default.dropdown-toggle.fa.fa-plus", repeat_element);
+    $("#repeat-time-option").on("click", "[data-content=add]", repeat_element);
 
-    $(".form-table-ct").on("click", ".btn.btn-default.dropdown-toggle.pficon-close", function() {
+    $(".form-table-ct").on("click", "[data-content=close]", function() {
         sync_repeat();
         repeat_array.splice($(this).attr('data-index'), 1);
         for (var i = 0; i < repeat_array.length; i++) {

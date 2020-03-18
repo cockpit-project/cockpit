@@ -39,6 +39,7 @@
     <cmdsynopsis>
       <command>cockpit-desktop</command>
        <arg choice="req">URLPATH</arg>
+       <arg choice="opt">SSH_HOST</arg>
     </cmdsynopsis>
   </refsynopsisdiv>
 
@@ -70,6 +71,17 @@
       <literal>/cockpit/@localhost/storage/index.html</literal> will open the Storage
       page.  It is also possible to give abbreviated forms of urls, such as "<literal>storage</literal>"
       or "<literal>network/firewall</literal>".
+    </para>
+
+    <para>
+      <literal>SSH_HOST</literal> is an optional SSH remote host specification
+        (<code>hostname</code> or <code>username@hostname</code>). If given,
+        <literal>cockpit-bridge</literal> will be started on the remote host through
+        <citerefentry>
+          <refentrytitle>ssh</refentrytitle><manvolnum>1</manvolnum>
+        </citerefentry>
+        instead, i. e. the Cockpit web browser will show that remote host.
+        Note that this is more of an experimental/demo feature.
     </para>
   </refsect1>
 

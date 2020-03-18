@@ -26,6 +26,14 @@
 #   cockpit-desktop /cockpit/@localhost/system/index.html
 #   cockpit-desktop network/firewall
 #   cockpit-desktop users
+#
+# As an experimental/demo feature, the bridge can also be started on a remote
+# ssh host. The host name is given as (optional) second argument, which is
+# passed verbatim to ssh.
+#
+# Example:
+#   cockpit-desktop system svr1
+#   cockpit-desktop / username@svr1
 set -eu
 
 # minimalistic WebKit browser
@@ -130,7 +138,7 @@ detect_browser()
 
 
 if [ -z "${1:-}" ]; then
-    echo "Usage: $0 <Cockpit path>" >&2
+    echo "Usage: $0 <Cockpit path> [ssh host]" >&2
     exit 1
 fi
 
@@ -153,7 +161,7 @@ esac
 detect_browser
 
 # start the bridge; this needs to run in the normal user session/namespace
-coproc cockpit-bridge
+coproc ${2:+ssh "$2"} cockpit-bridge
 trap "kill $COPROC_PID; wait $COPROC_PID || true" EXIT INT QUIT PIPE
 
 # start ws and browser in a detached network namespace

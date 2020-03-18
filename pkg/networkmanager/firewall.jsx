@@ -257,12 +257,11 @@ class AddServicesModal extends React.Component {
             selected: new Set(),
             filter: "",
             custom: false,
-            generate_name: true,
+            generate_custom_id: true,
             tcp_error: "",
             udp_error: "",
             avail_services: null,
             custom_id: "",
-            custom_name: "",
             custom_tcp_ports: [],
             custom_udp_ports: [],
             custom_tcp_value: "",
@@ -273,12 +272,11 @@ class AddServicesModal extends React.Component {
         this.save = this.save.bind(this);
         this.onFilterChanged = this.onFilterChanged.bind(this);
         this.onToggleService = this.onToggleService.bind(this);
-        this.setName = this.setName.bind(this);
+        this.setId = this.setId.bind(this);
         this.getName = this.getName.bind(this);
         this.validate = this.validate.bind(this);
         this.createPorts = this.createPorts.bind(this);
         this.parseServices = this.parseServices.bind(this);
-        this.generateName = this.generateName.bind(this);
         this.onToggleType = this.onToggleType.bind(this);
     }
 
@@ -292,7 +290,7 @@ class AddServicesModal extends React.Component {
     save() {
         let p;
         if (this.state.custom) {
-            p = firewall.createService(this.state.custom_id, this.state.custom_name, this.createPorts(), this.props.zoneId);
+            p = firewall.createService(this.state.custom_id, this.createPorts(), this.props.zoneId);
         } else {
             p = firewall.addServices(this.props.zoneId, [...this.state.selected]);
         }
@@ -359,10 +357,10 @@ class AddServicesModal extends React.Component {
         return ret;
     }
 
-    setName(event) {
+    setId(event) {
         this.setState({
-            custom_name: event.target.value,
-            generate_name: false,
+            custom_id: event.target.value,
+            generate_custom_id: event.target.value.length === 0,
         });
     }
 
@@ -372,23 +370,6 @@ class AddServicesModal extends React.Component {
             return known.name;
         else
             return port;
-    }
-
-    generateName(all_ports) {
-        var name = "";
-        if (all_ports.length === 1) {
-            const known = this.state.avail_services[all_ports[0]];
-            if (known)
-                name = known.description || known.name;
-            else
-                name = all_ports[0];
-        } else if (all_ports.length > 1) {
-            name = all_ports.slice(0, 3).map(this.getName)
-                    .join(", ");
-            if (all_ports.length > 3)
-                name += "...";
-        }
-        return name;
     }
 
     getPortNumber(port, type, avail) {
@@ -408,60 +389,62 @@ class AddServicesModal extends React.Component {
     }
 
     validate(event) {
-        const ports = event.target.value.split(',');
         let error = "";
         let targets = ['tcp', 'custom_tcp_ports', 'tcp_error', 'custom_tcp_value'];
         if (event.target.id === "udp-ports")
             targets = ['udp', 'custom_udp_ports', 'udp_error', 'custom_udp_value'];
-
         const new_ports = [];
-        const self = this;
-        ports.forEach(function(port) {
-            port = port.trim();
-            if (!port)
-                return;
-            let ports;
-            if (port.indexOf("-") > -1) {
-                ports = port.split("-");
-                if (ports.length != 2) {
-                    error = _("Invalid range");
+        const event_value = event.target.value;
+        const event_id = event.target.id;
+
+        this.setState(oldState => {
+            const ports = event_value.split(',');
+            ports.forEach((port) => {
+                port = port.trim();
+                if (!port)
                     return;
-                }
-                [ports[0], error] = self.getPortNumber(ports[0], targets[0], self.state.avail_services[ports[0]]);
-                if (!error) {
-                    [ports[1], error] = self.getPortNumber(ports[1], targets[0], self.state.avail_services[ports[1]]);
-                    if (!error) {
-                        if (Number(ports[0]) >= Number(ports[1]))
-                            error = _("Range must be strictly ordered");
-                        else
-                            new_ports.push(ports[0] + "-" + ports[1]);
+                let ports;
+                if (port.indexOf("-") > -1) {
+                    ports = port.split("-");
+                    if (ports.length != 2) {
+                        error = _("Invalid range");
+                        return;
                     }
+                    [ports[0], error] = this.getPortNumber(ports[0], targets[0], oldState.avail_services[ports[0]]);
+                    if (!error) {
+                        [ports[1], error] = this.getPortNumber(ports[1], targets[0], oldState.avail_services[ports[1]]);
+                        if (!error) {
+                            if (Number(ports[0]) >= Number(ports[1]))
+                                error = _("Range must be strictly ordered");
+                            else
+                                new_ports.push(ports[0] + "-" + ports[1]);
+                        }
+                    }
+                } else {
+                    [ports, error] = this.getPortNumber(port, targets[0], oldState.avail_services[port]);
+                    if (!error)
+                        new_ports.push(ports);
                 }
-            } else {
-                [ports, error] = self.getPortNumber(port, targets[0], self.state.avail_services[port]);
-                if (!error)
-                    new_ports.push(ports);
+            });
+            const newState = {
+                [targets[1]]: new_ports,
+                [targets[2]]: error,
+                [targets[3]]: event_value
+            };
+
+            let all_ports = new_ports.concat(oldState.custom_udp_ports);
+            if (event_id === "udp-ports")
+                all_ports = oldState.custom_tcp_ports.concat(new_ports);
+
+            if (oldState.generate_custom_id) {
+                if (all_ports.length > 0)
+                    newState.custom_id = "custom--" + all_ports.map(this.getName).join('-');
+                else
+                    newState.custom_id = "";
             }
+
+            return newState;
         });
-        const newState = {
-            [targets[1]]: new_ports,
-            [targets[2]]: error,
-            [targets[3]]: event.target.value
-        };
-
-        let name = this.state.custom_name;
-        let all_ports = new_ports.concat(this.state.custom_udp_ports);
-        if (event.target.id === "udp-ports")
-            all_ports = this.state.custom_tcp_ports.concat(new_ports);
-
-        if (this.state.generate_name)
-            name = this.generateName(all_ports);
-
-        const new_id = "custom--" + all_ports.map(this.getName).join('-');
-
-        newState.custom_name = name;
-        newState.custom_id = new_id;
-        this.setState(newState);
     }
 
     onToggleType(event) {
@@ -576,9 +559,9 @@ class AddServicesModal extends React.Component {
                                            placeholder={_("Example: 88,2019,nfs,rsync")} />
                                     <output className="has-error" htmlFor="udp-ports">{this.state.udp_error}</output>
 
-                                    <label className="control-label" htmlFor="service-name">Name</label>
-                                    <input id="service-name" className="form-control" type="text" onChange={this.setName}
-                                           placeholder={_("(Optional)")} value={this.state.custom_name} />
+                                    <label className="control-label" htmlFor="service-name">{_("Id")}</label>
+                                    <input id="service-name" className="form-control" type="text" onChange={this.setId}
+                                           placeholder={_("(Optional)")} value={this.state.custom_id} />
                                 </>
                             }
                         </form>

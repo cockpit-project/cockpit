@@ -83,7 +83,7 @@ def main():
                 task.api.post("issues/{0}".format(new_issue["number"]), {"state": "closed"})
 
 def check_urls(verbose):
-    command = r'git grep -IEho "(https?)://[-a-zA-Z0-9@:%_\+.~#?&=/]+" pkg | sort -u'
+    command = r'git grep -IEho "(https?)://[-a-zA-Z0-9@:%_\+.~#?&=/]+" -- pkg ":!*.svg" | sort -u'
     urls = subprocess.check_output(command, shell=True, universal_newlines=True).split("\n")
     failed = []
     for url in urls:
@@ -91,9 +91,6 @@ def check_urls(verbose):
             continue
 
         if "example.com" in url: # Some tests use demo urls
-            continue
-
-        if "sodipodi.sourceforge.net" in url: # Some .svg files contain url that does not exist
             continue
 
         if verbose:

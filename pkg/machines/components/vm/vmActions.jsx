@@ -38,6 +38,7 @@ const VmActions = ({ vm, config, dispatch, storagePools, onStart, onInstall, onR
     let reset = null;
     if (config.provider.canReset(state)) {
         reset = <DropdownButtons
+            key='action-reset'
             buttons={[{
                 title: _("Restart"),
                 action: onReboot,
@@ -67,7 +68,7 @@ const VmActions = ({ vm, config, dispatch, storagePools, onStart, onInstall, onR
                 id: `${id}-sendNMI`,
             });
         }
-        shutdown = <DropdownButtons buttons={buttons} />;
+        shutdown = <DropdownButtons key='action-shutdown' buttons={buttons} />;
     }
 
     let pause = null;

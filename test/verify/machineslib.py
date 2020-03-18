@@ -205,7 +205,6 @@ class TestMachines(MachineCase, StorageHelpers):
             self.allow_journal_messages('Process .*qemu-system-x86.* of user .* dumped core.')
 
         # FIXME: we get tons of these in --enable-debug mode, unbreak tests for now
-        self.allow_browser_errors('Warning: Each child in a list should have a unique "key" prop')
         self.allow_browser_errors('Warning: An update .* was scheduled from inside an update function.*')
         self.allow_browser_errors('Warning: Failed prop type: .* libvirtVersion` .* marked as required .* HostVmsList.*')
 

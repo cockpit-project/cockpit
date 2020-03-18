@@ -867,7 +867,11 @@ class MachineCase(unittest.TestCase):
         self.addCleanup(self.machine.execute,
                         "set -e; [ -e /sys/module/scsi_debug ] || exit 0; "
                         "for dev in $(ls /sys/bus/pseudo/drivers/scsi_debug/adapter*/host*/target*/*:*/block); do "
-                        "   umount /dev/$dev 2>/dev/null || true; "
+                        "    for s in /sys/block/*/slaves/${dev}*; do [ -e $s ] || break; "
+                        "        d=/dev/$(dirname $(dirname ${s#/sys/block/})); "
+                        "        umount $d || true; dmsetup remove --force $d || true; "
+                        "    done; "
+                        "    umount /dev/$dev 2>/dev/null || true; "
                         "done; until rmmod scsi_debug; do sleep 1; done")
 
     def tearDown(self):

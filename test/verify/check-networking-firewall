@@ -296,6 +296,7 @@ class TestFirewall(NetworkCase):
         b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] + tr ."  + self.btn_danger)
         b.wait_not_present(".zone-section[data-id='public'] tr[data-row-id='pop3']")
 
+    @skipImage("Changed extensively in #13756", "rhel-8-2-distropkg")
     def testAddCustomServices(self):
         b = self.browser
         m = self.machine
@@ -326,38 +327,38 @@ class TestFirewall(NetworkCase):
             b.wait_present(".has-error:contains({0})".format(text))
             b.wait_visible(".has-error:contains({0})".format(text))
 
-        def save(identifier, name, tcp, udp):
+        def save(identifier, tcp, udp):
             b.click("button:contains(Add Ports)")
             b.wait_not_present("#add-services-dialog")
             line_sel = ".zone-section[data-id='public'] tr[data-row-id='{0}']".format(identifier)
             b.wait_present(line_sel)
-            b.wait_in_text(line_sel, "".join([name if m.image in ["rhel-8-2-distropkg"] else identifier, tcp, udp]))
+            b.wait_in_text(line_sel, "".join([identifier, tcp, udp]))
 
         open_dialog()
-        set_field("#tcp-ports", "80", "WorldWideWeb HTTP")
+        set_field("#tcp-ports", "80", "custom--http")
         set_field("#tcp-ports", "", "")
-        set_field("#tcp-ports", "80,7", "http, echo")
-        set_field("#udp-ports", "123", "http, echo, ntp")
-        set_field("#udp-ports", "123,   50000", "http, echo, ntp...")
-        set_field("#tcp-ports", "", "ntp, 50000")
-        set_field("#tcp-ports", "https", "https, ntp, 50000")
-        save("custom--https-ntp-50000", "https, ntp, 50000", "443", "123, 50000")
+        set_field("#tcp-ports", "80,7", "custom--http-echo")
+        set_field("#udp-ports", "123", "custom--http-echo-ntp")
+        set_field("#udp-ports", "123,   50000", "custom--http-echo-ntp-50000")
+        set_field("#tcp-ports", "", "custom--ntp-50000")
+        set_field("#tcp-ports", "https", "custom--https-ntp-50000")
+        save("custom--https-ntp-50000", "443", "123, 50000")
 
         open_dialog()
-        set_field("#tcp-ports", "80-82", "80-82")
-        set_field("#tcp-ports", "80-82, echo", "80-82, echo")
-        set_field("#udp-ports", "ntp-snmp", "80-82, echo, 123-161")
-        set_field("#udp-ports", "83-ntp", "80-82, echo, 83-123")
-        set_field("#udp-ports", "83-ntp, snmp", "80-82, echo, 83-123...")
-        save("custom--80-82-echo-83-123-snmp", "80-82, echo, 83-123...", "80-82, 7", "83-123, 161")
+        set_field("#tcp-ports", "80-82", "custom--80-82")
+        set_field("#tcp-ports", "80-82, echo", "custom--80-82-echo")
+        set_field("#udp-ports", "ntp, snmp", "custom--80-82-echo-ntp-snmp")
+        set_field("#udp-ports", "83-ntp", "custom--80-82-echo-83-123")
+        set_field("#udp-ports", "83-ntp, snmp", "custom--80-82-echo-83-123-snmp")
+        save("custom--80-82-echo-83-123-snmp", "80-82, 7", "83-123, 161")
 
         open_dialog()
-        set_field("#tcp-ports", "80", "WorldWideWeb HTTP")
-        b.set_input_text("#service-name", "I am persistent")
+        set_field("#tcp-ports", "80", "custom--http")
+        b.set_input_text("#service-name", "I-am-persistent")
         b.set_input_text("#tcp-ports", "7")
         time.sleep(5) # We need to validate that the service name did not change
-        b.wait_val("#service-name", "I am persistent")
-        save("custom--echo", "I am persistent", "7", "")
+        b.wait_val("#service-name", "I-am-persistent")
+        save("I-am-persistent", "7", "")
 
         open_dialog()
         set_field("#tcp-ports", "500000", "")
@@ -385,7 +386,7 @@ class TestFirewall(NetworkCase):
         m.execute("firewall-cmd --permanent --new-service=custom--19834")
         m.execute("firewall-cmd --permanent --service=custom--19834 --add-port=19834/udp")
         open_dialog()
-        set_field("#udp-ports", "19834", "19834")
+        set_field("#udp-ports", "19834", "custom--19834")
         b.click("#add-services-dialog .{0}".format(self.btn_primary))
         b.wait_in_text("#add-services-dialog div.pf-m-danger", "org.fedoraproject.FirewallD1.Exception: NAME_CONFLICT: new_service(): 'custom--19834'")
 

@@ -1147,11 +1147,21 @@ class MachineCase(unittest.TestCase):
             title: Used for the filename.
         """
         if self.browser is not None:
-            self.browser.snapshot(title, label)
+            try:
+                self.browser.snapshot(title, label)
+            except RuntimeError:
+                # this usually runs in exception handlers; raising an exception here skips cleanup handlers, so don't
+                sys.stderr.write("Unexpected exception in snapshot():\n")
+                sys.stderr.write(traceback.format_exc())
 
     def copy_js_log(self, title, label=None):
         if self.browser is not None:
-            self.browser.copy_js_log(title, label)
+            try:
+                self.browser.copy_js_log(title, label)
+            except RuntimeError:
+                # this usually runs in exception handlers; raising an exception here skips cleanup handlers, so don't
+                sys.stderr.write("Unexpected exception in copy_js_log():\n")
+                sys.stderr.write(traceback.format_exc())
 
     def copy_journal(self, title, label=None):
         for name, m in self.machines.items():

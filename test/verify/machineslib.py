@@ -1053,8 +1053,8 @@ class TestMachines(MachineCase, StorageHelpers):
         b.logout()
 
         # AppArmor doesn't like the non-standard path for our storage pools
-        if m.image in ["debian-testing"]:
-            self.allow_journal_messages('.* type=1400 .* apparmor="DENIED" operation="open" profile="libvirt.* name="%s.*denied_mask="r".*' % self.tmp_storage)
+        if m.image in ["debian-testing", "ubuntu-stable"]:
+            self.allow_journal_messages('.* type=1400 .* apparmor="DENIED" operation="open" profile="libvirt.* name="%s.*' % self.tmp_storage)
 
     @nondestructive
     def testVmNICs(self):

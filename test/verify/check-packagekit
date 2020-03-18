@@ -697,7 +697,7 @@ class TestUpdatesSubscriptions(PackageCase):
         m.upload([product_file], "/etc/pki/product")
 
         # make sure that rhsm skips certificate checks for the server
-        m.execute("sed -i -e 's/insecure = 0/insecure = 1/g' /etc/rhsm/rhsm.conf")
+        self.sed_file("s/insecure = 0/insecure = 1/g", "/etc/rhsm/rhsm.conf")
 
         # Wait for the web service to be accessible
         m.execute(script=WAIT_SCRIPT % {"addr": "10.111.112.100"})
@@ -999,7 +999,7 @@ class TestAutoUpdates(NoSubManCase):
         m = self.machine
 
         # dial down the random sleep to avoid the test having to wait 5 mins
-        m.execute("sed -i '/random_sleep/ s/=.*$/= 3/' /etc/dnf/automatic.conf")
+        self.sed_file("/random_sleep/ s/=.*$/= 3/", "/etc/dnf/automatic.conf")
         # then manually start the upgrade job like the timer would
         m.execute("systemctl start dnf-automatic-install.service")
         # new vanilla package got installed, and triggered reboot; cancel that

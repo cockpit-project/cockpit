@@ -1815,8 +1815,7 @@ class TestMachinesDBus(machineslib.TestMachines):
             # Preparations for testing ISCSI pools
 
             target_iqn = "iqn.2019-09.cockpit.lan"
-            orig_iqn = m.execute("sed </etc/iscsi/initiatorname.iscsi -e 's/^.*=//'").rstrip()
-            self.prepareStorageDeviceOnISCSI(target_iqn, orig_iqn)
+            orig_iqn = self.prepareStorageDeviceOnISCSI(target_iqn)
 
             StoragePoolCreateDialog(
                 self,

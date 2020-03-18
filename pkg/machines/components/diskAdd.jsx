@@ -277,6 +277,7 @@ export class AddDiskModalBody extends React.Component {
         this.dialogErrorSet = this.dialogErrorSet.bind(this);
         this.onAddClicked = this.onAddClicked.bind(this);
         this.getDefaultVolumeName = this.getDefaultVolumeName.bind(this);
+        this.existingVolumeNameDelta = this.existingVolumeNameDelta.bind(this);
     }
 
     get initialState() {
@@ -309,6 +310,19 @@ export class AddDiskModalBody extends React.Component {
         };
     }
 
+    existingVolumeNameDelta(value, poolName) {
+        const { storagePools, vm } = this.props;
+        const stateDelta = { existingVolumeName: value };
+        const pool = storagePools.find(pool => pool.name === poolName && pool.connectionName === vm.connectionName);
+        stateDelta.format = getDefaultVolumeFormat(pool);
+        if (['dir', 'fs', 'netfs', 'gluster', 'vstorage'].indexOf(pool.type) > -1) {
+            const volume = pool.volumes.find(vol => vol.name === value);
+            if (volume && volume.format)
+                stateDelta.format = volume.format;
+        }
+        return stateDelta;
+    }
+
     getDefaultVolumeName(poolName) {
         const { storagePools, vm } = this.props;
         const vmStoragePool = storagePools.find(pool => pool.name == poolName);
@@ -339,14 +353,7 @@ export class AddDiskModalBody extends React.Component {
         case 'existingVolumeName': {
             stateDelta.existingVolumeName = value;
             this.setState(prevState => { // to prevent asynchronous for recursive call with existingVolumeName as a key
-                const pool = storagePools.find(pool => pool.name === prevState.storagePoolName && pool.connectionName === vm.connectionName);
-                stateDelta.format = getDefaultVolumeFormat(pool);
-                if (['dir', 'fs', 'netfs', 'gluster', 'vstorage'].indexOf(pool.type) > -1) {
-                    const volume = pool.volumes.find(vol => vol.name === value);
-                    if (volume && volume.format)
-                        stateDelta.format = volume.format;
-                }
-                return stateDelta;
+                return this.existingVolumeNameDelta(value, prevState.storagePoolName);
             });
             break;
         }
@@ -357,7 +364,7 @@ export class AddDiskModalBody extends React.Component {
                     stateDelta.mode = value;
                     const poolName = stateDelta.storagePoolName;
                     if (poolName)
-                        this.onValueChanged('existingVolumeName', this.getDefaultVolumeName(poolName));
+                        stateDelta = { ...stateDelta, ...this.existingVolumeNameDelta(this.getDefaultVolumeName(poolName), prevState.storagePoolName) };
                 }
 
                 return stateDelta;

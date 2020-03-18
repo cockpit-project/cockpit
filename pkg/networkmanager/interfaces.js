@@ -2864,15 +2864,6 @@ PageNetworkInterface.prototype = {
             return $('<tr>').append($('<td class="network-interface-separator" colspan="100%">').text(title));
         }
 
-        /* function render_interface_type_row() {
-            if (dev) {
-                return $('<tr>').append(
-                    $('<td>').text(_("Type")),
-                    $('<td>').append(self.connection_settings.connection.id +
-                        " | " + dev.Interface, " | ", dev.DeviceType));
-            }
-        } */
-
         function render_carrier_status_row() {
             if (dev && dev.Carrier !== undefined) {
                 return $('<tr>').append(
@@ -2908,7 +2899,6 @@ PageNetworkInterface.prototype = {
 
         function render_general_information_rows() {
             return [render_interface_section_separator("General Information"),
-                /* render_interface_type_row(), */
                 render_carrier_status_row(),
                 render_active_status_row(),
             ];
@@ -3029,12 +3019,12 @@ PageNetworkInterface.prototype = {
                 if (!options)
                     return null;
 
-                parts.push("Auto-connection: " +
-                     (options.autoconnect ? "Enabled" : "Disabled"));
+                parts.push(_("Auto-connection: ") +
+                     (options.autoconnect ? _("Enabled") : _("Disabled")));
 
                 if (options.autoconnect && options.autoconnect_priority != 0)
-                    parts.push("(Priority: " + (options.autoconnect_priority >= 0
-                        ? options.autoconnect_priority : "None") + ")");
+                    parts.push(_("(Priority: ") + (options.autoconnect_priority >= 0
+                        ? options.autoconnect_priority : _("None")) + ")");
 
                 if (parts.length > 0)
                     rows.push(parts.join(" "));
@@ -3042,12 +3032,12 @@ PageNetworkInterface.prototype = {
                 if (options.type != "vpn" && options.secondaries) {
                     var vpn_name = $('#network-general-settings-autovpn-select')
                             .children('option:selected')
-                            .text() || "Enabled";
-                    rows.push("Auto-selected VPN: " +
-                        (options.secondaries ? vpn_name : "None"));
+                            .text() || _("Enabled");
+                    rows.push(_("Auto-selected VPN: ") +
+                        (options.secondaries ? vpn_name : _("None")));
                 }
 
-                return render_settings_row(_("General"), rows, configure_general_settings);
+                return render_settings_row(_(_("General")), rows, configure_general_settings);
             }
 
             function render_ip_settings_row(topic, title) {
@@ -3232,7 +3222,7 @@ PageNetworkInterface.prototype = {
                 if (!options)
                     return null;
 
-                rows.push(_("SSID: " + (options.ssid ? atob(options.ssid) : "Not defined")));
+                rows.push(cockpit.format(_("SSID: $0"), options.ssid ? atob(options.ssid) : _("Not defined")));
                 parts.push(choice_title(wifi_mode_choices, options.mode, "Not configured"));
                 parts.push(choice_title(wifi_band_choices, options.band, "Automatic"));
 

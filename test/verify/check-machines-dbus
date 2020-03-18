@@ -1808,9 +1808,9 @@ class TestMachinesDBus(machineslib.TestMachines):
             source={"source_path": dev, "format": "gpt"},
         ).execute()
 
-        # Debian and ubuntu images don't have open-iscsi already installed
-        # FIXME: Add open-iscsi to debian and ubuntu images
-        if "debian" not in m.image and "ubuntu" not in m.image:
+        # Debian images' -cloud kernel don't have target-cli-mod kmod
+        # Ubuntu 19.10 is affected by https://bugzilla.redhat.com/show_bug.cgi?id=1659195
+        if "debian" not in m.image and m.image != "ubuntu-stable":
             # Preparations for testing ISCSI pools
 
             target_iqn = "iqn.2019-09.cockpit.lan"
@@ -1824,8 +1824,8 @@ class TestMachinesDBus(machineslib.TestMachines):
                 source={"host": "127.0.0.1", "source_path": target_iqn}
             ).execute()
 
-            if float(m.execute("virsh --version").strip()[:3]) >= 4.7:
-                # iscsi-direct pool type is available since libvirt 4.7
+            if "debian" not in m.image and "ubuntu" not in m.image and float(m.execute("virsh --version").strip()[:3]) >= 4.7:
+                # iscsi-direct pool type is available since libvirt 4.7, but not in Debian/Ubuntu (https://bugs.debian.org/918728)
                 StoragePoolCreateDialog(
                     self,
                     name="my_iscsi_direct_pool",

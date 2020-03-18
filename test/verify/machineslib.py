@@ -819,9 +819,9 @@ class TestMachines(MachineCase, StorageHelpers):
         m.execute("virsh vol-create-as --pool nfs-pool --name nfs-volume-0 --capacity 1M --format qcow2")
 
         # Prepare an iscsi pool
-        # Debian and ubuntu images don't have open-iscsi already installed
-        # FIXME: Add open-iscsi to debian and ubuntu images
-        if "debian" not in m.image and "ubuntu" not in m.image:
+        # Debian images' -cloud kernel don't have target-cli-mod kmod
+        # Ubuntu 19.10 is affected by https://bugzilla.redhat.com/show_bug.cgi?id=1659195
+        if "debian" not in m.image and m.image != "ubuntu-stable":
             # Preparations for testing ISCSI pools
 
             target_iqn = "iqn.2019-09.cockpit.lan"

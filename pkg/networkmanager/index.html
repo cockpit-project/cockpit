@@ -108,17 +108,16 @@
         <div id="networking-firewall-summary" class="panel-body">
         </div>
       </div>
-    </div>
-    <div class="panel panel-default"
+      <div class="panel panel-default"
          id="networking-interfaces">
-      <div class="panel-heading">
-        <h2 class="panel-title" translatable="yes">Interfaces</h2>
-        <div class="panel-actions">
-          <div class="btn-group dropdown interface-type">
-            <button id="networking-add-new" class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-              <span translatable="yes">Add new</span>
-              <div class="caret"></div>
-            </button>
+        <div class="panel-heading">
+          <h2 class="panel-title" translatable="yes">Interfaces</h2>
+          <div class="panel-actions">
+            <div class="btn-group dropdown interface-type">
+              <button id="networking-add-new" class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                <span translatable="yes">Add new</span>
+                <div class="caret"></div>
+              </button>
               <ul class="dropdown-menu left-offset-75-menu">
                 <li><a tabindex="0" id="networking-add-wifi" translatable="yes">WiFi</a></li>
                 <li><a tabindex="0" id="networking-add-bond" translatable="yes">Bond</a></li>
@@ -126,48 +125,49 @@
                 <li><a tabindex="0" id="networking-add-vlan" translatable="yes">VLAN</a></li>
                 <li><a tabindex="0" id="networking-add-team" translatable="yes">Team</a></li>
               </ul>
+            </div>
           </div>
         </div>
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th translatable="yes">Name</th>
+              <th translatable="yes">Interface</th>
+              <th translatable="yes">Type</th>
+              <th translatable="yes">IP Address</th>
+              <th translatable="yes" class="networking-speed">Sending</th>
+              <th translatable="yes" class="networking-speed">Receiving</th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
       </div>
-      <table class="table table-hover">
-        <thead>
-          <tr>
-            <th translatable="yes">Name</th>
-            <th translatable="yes">Interface</th>
-            <th translatable="yes">Type</th>
-            <th translatable="yes">IP Address</th>
-            <th translatable="yes" class="networking-speed">Sending</th>
-            <th translatable="yes" class="networking-speed">Receiving</th>
-          </tr>
-        </thead>
-        <tbody>
-        </tbody>
-      </table>
-    </div>
-    <div class="panel panel-default"
-         id="networking-unmanaged-interfaces">
-      <div class="panel-heading">
-        <h2 class="panel-title" translatable="yes">Unmanaged Interfaces</h2>
+      <div class="panel panel-default"
+          id="networking-unmanaged-interfaces">
+        <div class="panel-heading">
+          <h2 class="panel-title" translatable="yes">Unmanaged Interfaces</h2>
+        </div>
+        <table class="table">
+          <thead>
+            <tr>
+              <th translatable="yes">Name</th>
+              <th translatable="yes">Interface</th>
+              <th translatable="yes">Type</th>
+              <th translatable="yes">IP Address</th>
+              <th translatable="yes" class="networking-speed">Sending</th>
+              <th translatable="yes" class="networking-speed">Receiving</th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
       </div>
-      <table class="table">
-        <thead>
-          <tr>
-            <th translatable="yes">Name</th>
-            <th translatable="yes">Interface</th>
-            <th translatable="yes">Type</th>
-            <th translatable="yes">IP Address</th>
-            <th translatable="yes" class="networking-speed">Sending</th>
-            <th translatable="yes" class="networking-speed">Receiving</th>
-          </tr>
-        </thead>
-        <tbody>
-        </tbody>
-      </table>
-    </div>
-    <div class="panel panel-default cockpit-log-panel" role="table"
-     aria-labelledby="networking-log-header">
-      <div class="panel-heading"><h2 class="panel-title" translatable="yes" id="networking-log-header">Networking Logs</h2></div>
-      <div class="panel-body" id="networking-log" role="rowgroup"></div>
+      <div class="panel panel-default cockpit-log-panel" role="table"
+      aria-labelledby="networking-log-header">
+        <div class="panel-heading"><h2 class="panel-title" translatable="yes" id="networking-log-header">Networking Logs</h2></div>
+        <div class="panel-body" id="networking-log" role="rowgroup"></div>
+      </div>
     </div>
   </div>
 

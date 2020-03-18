@@ -206,7 +206,6 @@ class TestMachines(MachineCase, StorageHelpers):
 
         # FIXME: we get tons of these in --enable-debug mode, unbreak tests for now
         self.allow_browser_errors('Warning: An update .* was scheduled from inside an update function.*')
-        self.allow_browser_errors('Warning: Failed prop type: .* libvirtVersion` .* marked as required .* HostVmsList.*')
 
         # FIXME: testDomainMemorySettings on Fedora-32 reports this. Figure out where it comes from.
         # Ignoring just to unbreak tests for now

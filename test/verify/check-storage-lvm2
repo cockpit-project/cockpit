@@ -42,7 +42,7 @@ class TestStorage(StorageCase):
         # Create a volume group out of two disks
         m.execute("vgcreate TEST1 %s %s" % (dev_1, dev_2))
         # just in case the test fails
-        self.addCleanup(m.execute, "vgremove --force TEST 2>/dev/null || true")
+        self.addCleanup(m.execute, "vgremove --force TEST1 2>/dev/null || true")
         b.wait_in_text("#devices", "TEST1")
         b.wait_in_text("#devices", "/dev/TEST1/")
         b.click('tr:contains("TEST1")')

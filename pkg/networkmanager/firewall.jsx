@@ -476,7 +476,7 @@ class AddServicesModal extends React.Component {
                 return false;
             });
         else if (this.state.filter && this.state.services)
-            services = this.state.services.filter(s => s.name.toLowerCase().indexOf(this.state.filter) > -1);
+            services = this.state.services.filter(s => s.id.indexOf(this.state.filter) > -1);
         else
             services = this.state.services;
 

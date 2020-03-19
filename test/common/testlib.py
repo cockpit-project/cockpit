@@ -1169,9 +1169,9 @@ class MachineCase(unittest.TestCase):
     def copy_journal(self, title, label=None):
         for name, m in self.machines.items():
             if m.ssh_reachable:
-                log = "%s-%s-%s.log" % (label or self.label(), m.label, title)
+                log = "%s-%s-%s.log.gz" % (label or self.label(), m.label, title)
                 with open(log, "w") as fp:
-                    m.execute("journalctl", stdout=fp)
+                    m.execute("journalctl|gzip", stdout=fp)
                     print("Journal extracted to %s" % (log))
                     attach(log)
 

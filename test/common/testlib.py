@@ -1227,23 +1227,35 @@ class MachineCase(unittest.TestCase):
                 self.addCleanup(m.execute, apply_change_action)
             self.addCleanup(m.execute, "mv {0}.cockpittest {0}".format(path))
 
-    def restore_dir(self, path, post_restore_action=None):
+    def restore_dir(self, path, post_restore_action=None, reboot_safe=False):
         '''Backup/restore a directory for a nondestructive test
 
         This takes care to not ever touch the original content on disk, but uses transient overlays.
         As this uses a bind mount, it does not work for files that get changed atomically (with mv).
 
         The optional post_restore_action will run after restoring the original content.
+
+        If the directory needs to survive reboot, `reboot_safe=True` needs to be specified; then this
+        will just backup/restore the directory instead of bind-mounting, which is less robust.
         '''
         if not self.is_nondestructive():
             return  # skip for efficiency reasons
 
         backup = os.path.join(self.vm_tmpdir, path.replace('/', '_'))
-        self.machine.execute("mkdir -p %(vm_tmpdir)s && cp -a %(path)s/ %(backup)s/ && mount -o bind %(backup)s %(path)s" % {
+        self.machine.execute("mkdir -p %(vm_tmpdir)s && cp -a %(path)s/ %(backup)s/" % {
             "vm_tmpdir": self.vm_tmpdir, "path": path, "backup": backup})
+
+        if not reboot_safe:
+            self.machine.execute("mount -o bind %(backup)s %(path)s" % {
+                "path": path, "backup": backup})
+
         if post_restore_action:
             self.addCleanup(self.machine.execute, post_restore_action)
-        self.addCleanup(self.machine.execute, "umount -lf " + path)
+
+        if reboot_safe:
+            self.addCleanup(self.machine.execute, "rm -rf {0} && mv {1} {0}".format(path, backup))
+        else:
+            self.addCleanup(self.machine.execute, "umount -lf " + path)
 
 
 def jsquote(str):

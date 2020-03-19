@@ -2274,15 +2274,6 @@ class TestMachines(MachineCase, StorageHelpers):
                     raise Error("Retry limit exceeded: None of [%s] is part of the error message '%s'" % (
                         ', '.join(errors), b.text(error_location)))
 
-            def allowBugErrors(location, original_exception):
-                # CPU must be supported to detect errors
-                # FIXME https://github.com/cockpit-project/cockpit/issues/8385
-                error_message = b.text(location)
-
-                if "unsupported configuration: CPU mode" not in error_message and \
-                        "CPU mode 'custom' for x86_64 kvm domain on x86_64 host is not supported by hypervisor" not in error_message:
-                    raise original_exception
-
             b.click(".modal-footer button:contains(Create)")
 
             error_location = ".modal-footer div.pf-c-alert"
@@ -2297,22 +2288,17 @@ class TestMachines(MachineCase, StorageHelpers):
                     waitForError(errors, error_location)
 
                 # dialog can complete if the error was not returned immediately
-            except Error as x1:
+            except Error:
                 if b.is_present("#create-vm-dialog"):
-                    # allow CPU errors in the dialog
-                    allowBugErrors(error_location, x1)
+                    raise
                 else:
                     # then error should be shown in the notification area
                     error_location = ".toast-notifications-list-pf div.pf-c-alert"
-                    try:
-                        with b.wait_timeout(20):
-                            b.wait_present(error_location)
-                            b.wait_in_text("button.alert-link.more-button", "show more")
-                            b.click("button.alert-link.more-button")
-                            waitForError(errors, error_location)
-                    except Error as x2:
-                        # allow CPU errors in the notification area
-                        allowBugErrors(error_location, x2)
+                    with b.wait_timeout(20):
+                        b.wait_present(error_location)
+                        b.wait_in_text("button.alert-link.more-button", "show more")
+                        b.click("button.alert-link.more-button")
+                        waitForError(errors, error_location)
 
             # Close the notificaton
             b.click(".toast-notifications-list-pf div.pf-c-alert button.pf-c-button")

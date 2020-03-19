@@ -241,7 +241,7 @@ class TestRealms(MachineCase):
         # should have cleaned up certificates
         m.execute("! test -e /etc/cockpit/ws-certs.d/10-ipa.cert")
         # should have stopped cert tracking
-        self.assertNotIn("status:", m.execute("ipa-getcert list"))
+        wait(lambda: "status:" not in m.execute("ipa-getcert list"))
 
         # Sometimes with some versions of realmd the Leave operation
         # from above is still active in the realmd daemon.  So we loop

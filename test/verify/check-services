@@ -22,6 +22,7 @@ import testvm
 from testlib import *
 
 
+@nondestructive
 class TestServices(MachineCase):
 
     def setUp(self):
@@ -31,6 +32,11 @@ class TestServices(MachineCase):
         # when we add additional services to this target below
         # we don't race with the boot process
         self.machine.execute("systemctl start default.target")
+
+        # We manipulate with `/etc/systemd/system` so `daemon-reload` to keep it in proper state
+        # Also `reset-failed` as failed units can be still listed with `systemctl` even when all files
+        # were removed and daemon reloaded.
+        self.restore_dir("/etc/systemd/system", "systemctl daemon-reload && systemctl reset-failed", True)
 
     def pick_tab(self, n):
         self.browser.click('#services-filter li:nth-child({0}) a'.format(n))
@@ -82,7 +88,7 @@ ExecReload=/bin/sh true
 [Install]
 WantedBy=default.target
 """)
-        m.write("/usr/local/bin/test-service",
+        self.write_file("/usr/local/bin/test-service",
                 """
 #! /bin/sh
 
@@ -134,6 +140,10 @@ Unit=test.service
         # After writing files out tell systemd about them
         m.execute("systemctl daemon-reload")
         self.machine.execute("systemctl start default.target")
+
+        # When the test fails while `test.service` is active, the process keeps running and
+        # `systemct status test.service` still shows it as active until this process dies
+        self.addCleanup(self.machine.execute, "systemctl stop test")
 
         self.login_and_go("/system/services")
 
@@ -334,6 +344,7 @@ WantedBy=default.target
 
         # After writing files out tell systemd about them
         m.execute("systemctl daemon-reload")
+        m.execute("systemctl stop test")
 
         self.login_and_go("/playground/service#/test")
 
@@ -386,6 +397,7 @@ WantedBy=default.target
         b.click('#create-timer')
         b.wait_popup("timer-dialog")
         b.set_val("#servicename", "testing timer")
+        m.execute("rm -f /tmp/date")
         b.set_val("#command", "/bin/sh -c '/bin/date >> /tmp/date'")
         b.click("#boot-or-specific-time button")
         b.click("#boot-or-specific-time .dropdown-menu li[value=2] a")
@@ -649,6 +661,7 @@ WantedBy=multi-user.target
 
         m.execute("mkdir -p /var/tmp/empty")
         m.execute("rm -rf /var/tmp/empty/*")
+        self.addCleanup(m.execute, "systemctl stop condtest")
 
         # After writing files out tell systemd about them
         m.execute("systemctl daemon-reload")
@@ -674,6 +687,7 @@ WantedBy=multi-user.target
 
         # If the condition succeeds the message disappears
         m.execute("touch /var/tmp/empty/non-empty")
+        self.addCleanup(m.execute, "rm /var/tmp/empty/non-empty")
         self.do_action("Start")
         self.check_service_details(["Running", "Automatically starts"], ["Restart", "Stop", "Disallow running (mask)"], True)
         b.wait_not_present("#condition")
@@ -789,7 +803,7 @@ ExecStart=/bin/true
 
         # Put it in /run instead of in /etc so that we can mask it,
         # which needs to put a symlink into /etc.
-        m.write("/run/systemd/system/test-fail.service",
+        self.write_file("/run/systemd/system/test-fail.service",
                 """
 [Unit]
 Description=Failing Test Service
@@ -857,7 +871,7 @@ WantedBy=default.target
         m = self.machine
         b = self.browser
 
-        # We use two services with oprefix "aaa" and "aab" so that
+        # We use two services with prefix "aaa" and "aab" so that
         # they always occupy the first two rows and we can check their
         # relative order depending on whether "aab" has failed or not.
 

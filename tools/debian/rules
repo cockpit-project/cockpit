@@ -14,6 +14,12 @@ ifeq ($(BUILD_DOCKER),)
        export DH_OPTIONS = -Ncockpit-docker
 endif
 
+# Stop building cockpit-machines for ubuntu-1804 (backports);
+BUILD_MACHINES = $(findstring $(shell . /etc/os-release; echo $${VERSION_ID}),18.04)
+ifeq ($(BUILD_MACHINES),18.04)
+       export DH_OPTIONS = -Ncockpit-machines
+endif
+
 %:
 	dh $@
 

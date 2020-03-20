@@ -245,7 +245,7 @@ export class EditDiskAction extends React.Component {
     }
 
     render() {
-        const { disk, vm, provider } = this.props;
+        const { disk, vm } = this.props;
         const idPrefix = `${this.props.idPrefix}`;
         const showModal = EditDiskActionShowModal[this.props.idPrefix];
 
@@ -254,7 +254,7 @@ export class EditDiskAction extends React.Component {
                 <Button id={`${idPrefix}-edit`} variant='secondary' onClick={this.open} className='pull-right'>
                     {_("Edit")}
                 </Button>
-                { showModal && <EditDiskModalBody close={this.close} disk={disk} idPrefix={idPrefix} vm={vm} provider={provider} /> }
+                { showModal && <EditDiskModalBody close={this.close} disk={disk} idPrefix={idPrefix} vm={vm} /> }
             </>
         );
     }

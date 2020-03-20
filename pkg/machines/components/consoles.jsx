@@ -27,6 +27,7 @@ import DesktopConsole from './desktopConsole.jsx';
 
 import { logDebug } from '../helpers.js';
 import { vmDesktopConsole } from '../actions/provider-actions.js';
+import LibvirtDBus from '../libvirt-dbus.js';
 
 import './consoles.css';
 
@@ -114,7 +115,7 @@ class Consoles extends React.Component {
     }
 
     getDefaultConsole () {
-        const { vm, config } = this.props;
+        const { vm } = this.props;
 
         if (vm.displays) {
             if (vm.displays.vnc) {
@@ -125,7 +126,7 @@ class Consoles extends React.Component {
             }
         }
 
-        const serialConsoleCommand = config.provider.serialConsoleCommand({ vm });
+        const serialConsoleCommand = LibvirtDBus.serialConsoleCommand({ vm });
         if (serialConsoleCommand) {
             return 'serial-browser';
         }
@@ -141,32 +142,11 @@ class Consoles extends React.Component {
     onConsoleTypeSelected (key) {
         logDebug('onConsoleTypeSelected', key);
 
-        const { vm, config } = this.props;
-        const { provider, providerState } = config;
-
+        const { vm } = this.props;
         let consoleDetail;
 
-        if (key === 'vnc-browser') {
-            if (provider.onConsoleAboutToShow) {
-                // Hook: Give provider chance to update consoleDetail before noVNC is initialized.
-                // This update needs to be performed at the time of console retrieval, since provider-specific console
-                // details might vary over time, like the password (in oVirt: the password is valid for 2 minutes only).
-                provider.onConsoleAboutToShow({ type: 'vnc', vm, providerState }).then(consoleDetail => {
-                    logDebug('onConsoleTypeSelected(), provider updated console details');
-                    if (!consoleDetail) {
-                        // vnc console can't be rendered (see provider for the reason)
-                        console.info(`In-Browser VNC console is disabled by external provider`);
-                    }
-
-                    this.setState({
-                        consoleType: key,
-                        consoleDetail,
-                    });
-                });
-            } else {
-                consoleDetail = vm.displays.vnc;
-            }
-        }
+        if (key === 'vnc-browser')
+            consoleDetail = vm.displays.vnc;
 
         this.setState({
             consoleType: key,
@@ -182,13 +162,12 @@ class Consoles extends React.Component {
 
     render () {
         const { vm, config } = this.props;
-        const { provider } = config;
 
-        if (!provider.canConsole || !provider.canConsole(vm.state)) {
+        if (!LibvirtDBus.canConsole || !LibvirtDBus.canConsole(vm.state)) {
             return (<VmNotRunning />);
         }
 
-        const serialConsoleCommand = config.provider.serialConsoleCommand({ vm });
+        const serialConsoleCommand = LibvirtDBus.serialConsoleCommand({ vm });
 
         const onDesktopConsole = () => { // prefer spice over vnc
             this.onDesktopConsoleDownload(vm.displays.spice ? 'spice' : 'vnc');

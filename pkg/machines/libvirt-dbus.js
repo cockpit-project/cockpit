@@ -159,19 +159,8 @@ const Enum = {
     VIR_NETWORK_EVENT_LAST: 4,
 };
 
-let LIBVIRT_DBUS_PROVIDER = {};
-LIBVIRT_DBUS_PROVIDER = {
+const LIBVIRT_DBUS_PROVIDER = {
     name: 'LibvirtDBus',
-
-    /*
-     * Initialize the provider.
-     *
-     * @param providerContext
-     * @returns {boolean} - true, if initialization succeeded; or Promise
-     */
-    init(providerContext) {
-        return true;
-    },
 
     /* Start of common provider functions */
     canConsole,

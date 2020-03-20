@@ -26,12 +26,12 @@ import {
 
 const _ = cockpit.gettext;
 
-const StateIcon = ({ state, config, valueId, extra }) => {
+const StateIcon = ({ state, valueId, extra }) => {
     if (state === undefined) {
         return (<div />);
     }
 
-    let stateMap = {
+    const stateMap = {
         running: { className: 'pficon pficon-ok icon-1x-vms', title: _("The VM is running.") }, // TODO: display VM screenshot if available or the ok-icon otherwise
         idle: { className: 'pficon pficon-running icon-1x-vms', title: _("The VM is idle.") },
         paused: { className: 'pficon pficon-pause icon-1x-vms', title: _("The VM is paused.") },
@@ -49,9 +49,6 @@ const StateIcon = ({ state, config, valueId, extra }) => {
         'creating VM': { className: 'pficon pficon-pending icon-1x-vms' },
         'creating VM installation': { className: 'pficon pficon-pending icon-1x-vms' },
     };
-    if (config && config.provider && config.provider.vmStateMap) { // merge default and provider's stateMap to allow both reuse and extension
-        stateMap = Object.assign(stateMap, config.provider.vmStateMap);
-    }
 
     if (stateMap[state]) {
         return (
@@ -65,7 +62,6 @@ const StateIcon = ({ state, config, valueId, extra }) => {
 
 StateIcon.propTypes = {
     state: PropTypes.string,
-    config: PropTypes.object,
     valueId: PropTypes.string,
     extra: PropTypes.any,
 };

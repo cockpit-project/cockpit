@@ -24,7 +24,6 @@ import {
     DELETE_UI_VM,
     DELETE_UNLISTED_VMS,
     SET_NODE_MAX_MEMORY,
-    SET_PROVIDER,
     SET_LOGGED_IN_USER,
     UNDEFINE_NETWORK,
     UNDEFINE_STORAGE_POOL,
@@ -58,14 +57,10 @@ function replaceResource({ state, updatedResource, index }) {
 // --- reducers ------------------
 function config(state, action) {
     state = state || {
-        provider: null,
-        providerState: null,
         refreshInterval: VMS_CONFIG.DefaultRefreshInterval,
     };
 
     switch (action.type) {
-    case SET_PROVIDER:
-        return Object.assign({}, state, { provider: action.provider });
     case 'SET_HYPERVISOR_MAX_VCPU': {
         const newState = Object.assign({}, state);
         newState.hypervisorMaxVCPU = Object.assign({}, newState.hypervisorMaxVCPU, { [action.payload.connectionName]: action.payload.count });

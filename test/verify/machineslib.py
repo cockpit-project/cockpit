@@ -390,7 +390,7 @@ class TestMachines(MachineCase, StorageHelpers):
         b.wait_in_text(".pf-c-empty-state", "Virtualization Service (libvirt) is Not Active")
         m.execute("systemctl start libvirtd.service")
         # HACK: https://launchpad.net/bugs/1802005
-        if self.provider == "libvirt-dbus" and m.image == "ubuntu-stable":
+        if m.image == "ubuntu-stable":
             m.execute("until test -e /run/libvirt/libvirt-sock; do sleep 1; done")
             m.execute("chmod o+rwx /run/libvirt/libvirt-sock")
         b.wait_in_text("body", "Virtual Machines")
@@ -415,11 +415,7 @@ class TestMachines(MachineCase, StorageHelpers):
         # inline notification with error
         b.wait_in_text("div.pf-c-alert.pf-m-danger .pf-c-alert__title", "VM subVmTest2 failed to start")
 
-        # the message when trying to start active VM differs between virsh and libvirt-dbus provider
-        if (self.provider == "libvirt-dbus"):
-            message = "domain is already running"
-        else:
-            message = "Domain is already active"
+        message = "domain is already running"
 
         b.wait_in_text("button.alert-link.more-button", "show more") # more/less button
         b.click("button.alert-link.more-button")
@@ -519,7 +515,7 @@ class TestMachines(MachineCase, StorageHelpers):
         b.click(".pf-c-empty-state button.pf-m-primary")  # Start libvirt
         b.wait(lambda: checkLibvirtEnabled())
         # HACK: https://launchpad.net/bugs/1802005
-        if self.provider == "libvirt-dbus" and m.image == "ubuntu-stable":
+        if m.image == "ubuntu-stable":
             m.execute("until test -e /run/libvirt/libvirt-sock; do sleep 1; done")
             m.execute("chmod o+rwx /run/libvirt/libvirt-sock")
         b.wait_in_text("body", "Virtual Machines")
@@ -533,7 +529,7 @@ class TestMachines(MachineCase, StorageHelpers):
         b.click(".pf-c-empty-state button.pf-m-primary")  # Start libvirt
         b.wait(lambda: not checkLibvirtEnabled())
         # HACK: https://launchpad.net/bugs/1802005
-        if self.provider == "libvirt-dbus" and m.image == "ubuntu-stable":
+        if m.image == "ubuntu-stable":
             m.execute("until test -e /run/libvirt/libvirt-sock; do sleep 1; done")
             m.execute("chmod o+rwx /run/libvirt/libvirt-sock")
         b.wait_in_text("body", "Virtual Machines")
@@ -707,7 +703,7 @@ class TestMachines(MachineCase, StorageHelpers):
                     b.wait_not_present("#vm-{0}-disks-adddisk-new-permanent".format(self.vm_name))
 
                 # Configure performance options
-                if self.test_obj.provider == "libvirt-dbus" and self.cache_mode:
+                if self.cache_mode:
                     b.click("div.modal-dialog button:contains(Show Additional Options)")
                     b.select_from_dropdown("div.modal-dialog #cache-mode", self.cache_mode)
                     b.click("div.modal-dialog button:contains(Hide Additional Options)")
@@ -715,7 +711,7 @@ class TestMachines(MachineCase, StorageHelpers):
                     b.wait_not_present("#div.modal-dialog #cache-mode")
 
                 # Configure bus type
-                if self.test_obj.provider == "libvirt-dbus" and self.bus_type != "virtio":
+                if self.bus_type != "virtio":
                     b.click("div.modal-dialog button:contains(Show Additional Options)")
                     b.select_from_dropdown("div.modal-dialog #bus-type", self.bus_type)
                     b.click("div.modal-dialog button:contains(Hide Additional Options)")
@@ -735,7 +731,7 @@ class TestMachines(MachineCase, StorageHelpers):
                 b.wait_in_text("#vm-{0}-disks-{1}-device".format(self.vm_name, self.expected_target), "disk")
 
                 # Check volume was added to pool's volume list
-                if self.test_obj.provider == "libvirt-dbus" and not self.use_existing_volume:
+                if not self.use_existing_volume:
                     b.click(".cards-pf .card-pf-title span:contains(Storage Pool)")
 
                     b.wait_present("tbody tr[data-row-id=pool-{0}-system] th".format(self.pool_name))
@@ -752,33 +748,26 @@ class TestMachines(MachineCase, StorageHelpers):
                 # Detect volume format
                 detect_format_cmd = "virsh vol-dumpxml {0} {1} | xmllint --xpath '{2}' -"
 
-                if self.test_obj.provider == "libvirt-dbus":
-                    b.wait_in_text('#vm-{0}-disks-{1}-source-volume'.format(self.vm_name, self.expected_target), self.volume_name)
-                    if self.cache_mode:
-                        b.wait_in_text("#vm-{0}-disks-{1}-cache".format(self.vm_name, self.expected_target), self.cache_mode)
-                    # Guess by the name of the pool it's format to avoid passing more parameters
-                    if self.pool_type == 'iscsi':
-                        expected_format = 'unknown'
-                    else:
-                        expected_format = 'qcow2'
-
-                    if self.pool_type == 'disk':
-                        expected_format = 'none'
-
-                    # Unknown pool format isn't present in xml anymore
-                    if expected_format == "unknown" and m.execute("virsh --version") >= "5.6.0":
-                        m.execute(detect_format_cmd.format(self.volume_name, self.pool_name, "/volume/target") + " | grep -qv format")
-                    else:
-                        self.test_obj.assertEqual(
-                            m.execute(detect_format_cmd.format(self.volume_name, self.pool_name, "/volume/target/format")).rstrip(),
-                            '<format type="{0}"/>'.format(self.volume_format or expected_format)
-                        )
+                b.wait_in_text('#vm-{0}-disks-{1}-source-volume'.format(self.vm_name, self.expected_target), self.volume_name)
+                if self.cache_mode:
+                    b.wait_in_text("#vm-{0}-disks-{1}-cache".format(self.vm_name, self.expected_target), self.cache_mode)
+                # Guess by the name of the pool it's format to avoid passing more parameters
+                if self.pool_type == 'iscsi':
+                    expected_format = 'unknown'
                 else:
-                    if self.pool_type == 'disk':
-                        b.wait_in_text('#vm-{0}-disks-{1}-source-device'.format(self.vm_name, self.expected_target), self.volume_name)
-                    else:
-                        b.wait_in_text('#vm-{0}-disks-{1}-source-file'.format(self.vm_name, self.expected_target), self.volume_name)
+                    expected_format = 'qcow2'
 
+                if self.pool_type == 'disk':
+                    expected_format = 'none'
+
+                # Unknown pool format isn't present in xml anymore
+                if expected_format == "unknown" and m.execute("virsh --version") >= "5.6.0":
+                    m.execute(detect_format_cmd.format(self.volume_name, self.pool_name, "/volume/target") + " | grep -qv format")
+                else:
+                    self.test_obj.assertEqual(
+                        m.execute(detect_format_cmd.format(self.volume_name, self.pool_name, "/volume/target/format")).rstrip(),
+                        '<format type="{0}"/>'.format(self.volume_format or expected_format)
+                    )
                 return self
 
         used_targets = ['vda']
@@ -886,15 +875,14 @@ class TestMachines(MachineCase, StorageHelpers):
         # check the autoselected options
         # default_tmp pool should be autoselected since it's the first in alphabetical order
         # defaultVol volume should be autoselected since it's the only volume in default_tmp pool
-        if self.provider == "libvirt-dbus": # defaultVol has raw format and virsh provider doesn't parse format info
-            VMAddDiskDialog(
-                self,
-                pool_name='default_tmp',
-                volume_name='defaultVol',
-                use_existing_volume=True,
-                expected_target=get_next_free_target(),
-                volume_format='raw',
-            ).open().add_disk().verify_disk_added()
+        VMAddDiskDialog(
+            self,
+            pool_name='default_tmp',
+            volume_name='defaultVol',
+            use_existing_volume=True,
+            expected_target=get_next_free_target(),
+            volume_format='raw',
+        ).open().add_disk().verify_disk_added()
 
         VMAddDiskDialog(
             self,
@@ -933,24 +921,23 @@ class TestMachines(MachineCase, StorageHelpers):
                 use_existing_volume='True',
             ).execute()
 
-        if self.provider == "libvirt-dbus":
-            VMAddDiskDialog(
-                self,
-                pool_name='myPoolOne',
-                volume_name='scsi_bus_disk',
-                use_existing_volume=False,
-                bus_type='scsi',
-                expected_target='sda',
-            ).execute()
+        VMAddDiskDialog(
+            self,
+            pool_name='myPoolOne',
+            volume_name='scsi_bus_disk',
+            use_existing_volume=False,
+            bus_type='scsi',
+            expected_target='sda',
+        ).execute()
 
-            VMAddDiskDialog(
-                self,
-                pool_name='myPoolOne',
-                volume_name='usb_bus_disk',
-                use_existing_volume=False,
-                bus_type='usb',
-                expected_target='sdb',
-            ).execute()
+        VMAddDiskDialog(
+            self,
+            pool_name='myPoolOne',
+            volume_name='usb_bus_disk',
+            use_existing_volume=False,
+            bus_type='usb',
+            expected_target='sdb',
+        ).execute()
 
         # shut off
         b.click("#vm-subVmTest1-off-caret")
@@ -965,58 +952,57 @@ class TestMachines(MachineCase, StorageHelpers):
         b.wait_present("#vm-subVmTest1-disks-vdc-device")
         b.wait_present("#vm-subVmTest1-disks-vdd-device")
 
-        if self.provider == "libvirt-dbus":
-            # testing sata disk after VM shutoff because sata disk cannot be hotplugged
+        # testing sata disk after VM shutoff because sata disk cannot be hotplugged
+        VMAddDiskDialog(
+            self,
+            pool_name='myPoolOne',
+            volume_name='sata_bus_disk',
+            use_existing_volume=False,
+            bus_type='sata',
+            expected_target='sda',
+        ).execute()
+
+        # Apparmor on debian and ubuntu may prevent access to /dev/sdb1 when starting VM,
+        # https://bugs.launchpad.net/ubuntu/+source/libvirt/+bug/1677398
+        if "debian" not in m.image and "ubuntu" not in m.image:
+            # Run VM
+            b.click("#vm-subVmTest1-run")
+            b.wait_in_text("#vm-subVmTest1-state", "running")
+            # Test disk attachment to non-persistent VM
+            m.execute("virsh undefine subVmTest1")
             VMAddDiskDialog(
                 self,
                 pool_name='myPoolOne',
-                volume_name='sata_bus_disk',
-                use_existing_volume=False,
-                bus_type='sata',
-                expected_target='sda',
+                volume_name='non-peristent-vm-disk',
+                permanent=False,
+                persistent_vm=False,
+                expected_target=get_next_free_target(),
             ).execute()
 
-            # Apparmor on debian and ubuntu may prevent access to /dev/sdb1 when starting VM,
-            # https://bugs.launchpad.net/ubuntu/+source/libvirt/+bug/1677398
-            if "debian" not in m.image and "ubuntu" not in m.image:
-                # Run VM
-                b.click("#vm-subVmTest1-run")
-                b.wait_in_text("#vm-subVmTest1-state", "running")
-                # Test disk attachment to non-persistent VM
-                m.execute("virsh undefine subVmTest1")
-                VMAddDiskDialog(
-                    self,
-                    pool_name='myPoolOne',
-                    volume_name='non-peristent-vm-disk',
-                    permanent=False,
-                    persistent_vm=False,
-                    expected_target=get_next_free_target(),
-                ).execute()
+        # Undefine all Storage Pools and  confirm that the Add Disk dialog is disabled
+        active_pools = filter(lambda pool: pool != '', m.execute("virsh pool-list --name").split('\n'))
+        print(active_pools)
+        for pool in active_pools:
+            m.execute("virsh pool-destroy {0}".format(pool))
+        b.wait_in_text("#card-pf-storage-pools .card-pf-aggregate-status-notification:nth-of-type(1)", "0")
+        inactive_pools = filter(lambda pool: pool != '', m.execute("virsh pool-list --inactive --name").split('\n'))
+        for pool in inactive_pools:
+            m.execute("virsh pool-undefine {0}".format(pool))
+        b.wait_in_text("#card-pf-storage-pools .card-pf-aggregate-status-notification:nth-of-type(2)", "0")
+        b.click("#vm-subVmTest1-disks-adddisk") # radio button label in modal dialog
+        b.wait_present("#vm-subVmTest1-disks-adddisk-dialog-add:disabled")
+        b.click("label:contains(Use Existing)")
+        b.wait_present("#vm-subVmTest1-disks-adddisk-dialog-add:disabled")
+        b.click(".modal-footer button:contains(Cancel)")
 
-            # Undefine all Storage Pools and  confirm that the Add Disk dialog is disabled
-            active_pools = filter(lambda pool: pool != '', m.execute("virsh pool-list --name").split('\n'))
-            print(active_pools)
-            for pool in active_pools:
-                m.execute("virsh pool-destroy {0}".format(pool))
-            b.wait_in_text("#card-pf-storage-pools .card-pf-aggregate-status-notification:nth-of-type(1)", "0")
-            inactive_pools = filter(lambda pool: pool != '', m.execute("virsh pool-list --inactive --name").split('\n'))
-            for pool in inactive_pools:
-                m.execute("virsh pool-undefine {0}".format(pool))
-            b.wait_in_text("#card-pf-storage-pools .card-pf-aggregate-status-notification:nth-of-type(2)", "0")
-            b.click("#vm-subVmTest1-disks-adddisk") # radio button label in modal dialog
-            b.wait_present("#vm-subVmTest1-disks-adddisk-dialog-add:disabled")
-            b.click("label:contains(Use Existing)")
-            b.wait_present("#vm-subVmTest1-disks-adddisk-dialog-add:disabled")
-            b.click(".modal-footer button:contains(Cancel)")
-
-            # Make sure that trying to inspect the Disks tab will just show the fields that are available when a pool is inactive
-            b.reload()
-            b.enter_page('/machines')
-            b.wait_in_text("body", "Virtual Machines")
-            b.click("tbody tr[data-row-id=vm-subVmTest1] th") # click on the row header
-            b.click("#vm-subVmTest1-disks") # open the "Disks" subtab
-            # Check that usage information can't be fetched since the pool is inactive
-            b.wait_not_present("#vm-subVmTest1-disks-vdd-used")
+        # Make sure that trying to inspect the Disks tab will just show the fields that are available when a pool is inactive
+        b.reload()
+        b.enter_page('/machines')
+        b.wait_in_text("body", "Virtual Machines")
+        b.click("tbody tr[data-row-id=vm-subVmTest1] th") # click on the row header
+        b.click("#vm-subVmTest1-disks") # open the "Disks" subtab
+        # Check that usage information can't be fetched since the pool is inactive
+        b.wait_not_present("#vm-subVmTest1-disks-vdd-used")
 
         cmds = [
             "virsh pool-define-as pool-disk disk - - %s - /tmp/poolDiskImages" % dev,
@@ -1065,10 +1051,7 @@ class TestMachines(MachineCase, StorageHelpers):
         b.wait_in_text("#vm-subVmTest1-network-1-type", "network")
         b.wait_in_text("#vm-subVmTest1-network-1-source", "default")
 
-        if self.provider == "libvirt-dbus":
-            b.wait_in_text("#vm-subVmTest1-network-1-ipaddress", "192.168.122.")
-        else:
-            b.wait_not_present("#vm-subVmTest1-network-1-ipaddress")
+        b.wait_in_text("#vm-subVmTest1-network-1-ipaddress", "192.168.122.")
 
         b.wait_in_text("#vm-subVmTest1-network-1-state", "up")
 
@@ -1205,10 +1188,9 @@ class TestMachines(MachineCase, StorageHelpers):
         m.execute(
             "virsh dumpxml subVmTest1 | xmllint --xpath '/domain/cpu/topology[@sockets=\"2\"][@threads=\"1\"][@cores=\"2\"]' -")
 
-        if self.provider == "libvirt-dbus":
-            # non-persistent VM doesn't have configurable vcpu
-            m.execute("virsh undefine subVmTest1")
-            b.wait_present("button#vm-subVmTest1-vcpus-count:disabled")
+        # non-persistent VM doesn't have configurable vcpu
+        m.execute("virsh undefine subVmTest1")
+        b.wait_present("button#vm-subVmTest1-vcpus-count:disabled")
 
     @nondestructive
     def testExternalConsole(self):
@@ -1295,11 +1277,8 @@ class TestMachines(MachineCase, StorageHelpers):
             b.click("#vm-subVmTest1-disks-adddisk-dialog-add")
             b.wait_not_present("#vm-subVmTest1-disks-adddisk-dialog-modal-window")
 
-            if self.provider == "libvirt-dbus":
-                b.wait_present("#vm-subVmTest1-disks-vdb-source-volume")
-                b.wait_present("#vm-subVmTest1-disks-vdb-source-pool")
-            else:
-                b.wait_present("#vm-subVmTest1-disks-vdb-source-file")
+            b.wait_present("#vm-subVmTest1-disks-vdb-source-volume")
+            b.wait_present("#vm-subVmTest1-disks-vdb-source-pool")
 
         secondDiskVolName = "mydisk"
         poolName = "images"
@@ -1312,11 +1291,8 @@ class TestMachines(MachineCase, StorageHelpers):
         b.wait_present("#vm-{0}-delete-modal-dialog div:contains(The VM is running)".format(name))
         b.wait_present("#vm-{1}-delete-modal-dialog ul li:first-child #disk-source-file:contains({0})".format(img2, name))
         # virsh attach-disk does not create disks of type volume
-        if self.provider == "libvirt-dbus":
-            b.wait_present("#vm-{1}-delete-modal-dialog #disk-source-volume:contains({0})".format(secondDiskVolName, name))
-            b.wait_present("#vm-{1}-delete-modal-dialog #disk-source-pool:contains({0})".format(poolName, name))
-        else:
-            b.wait_present("#vm-{1}-delete-modal-dialog ul li:nth-child(2) #disk-source-file:contains({0})".format(secondDiskPoolPath, name))
+        b.wait_present("#vm-{1}-delete-modal-dialog #disk-source-volume:contains({0})".format(secondDiskVolName, name))
+        b.wait_present("#vm-{1}-delete-modal-dialog #disk-source-pool:contains({0})".format(poolName, name))
         b.click("#vm-{0}-delete-modal-dialog button:contains(Delete)".format(name))
         b.wait_not_present("#vm-{0}-delete-modal-dialog".format(name))
 
@@ -1818,109 +1794,108 @@ class TestMachines(MachineCase, StorageHelpers):
             # End of test detection of ISO file in URL
 
         # test PXE Source
-        if self.provider == "libvirt-dbus":
-            # check that the pxe booting is not available on session connection
-            checkPXENotAvailableSessionTest(TestMachines.VmDialog(self, name='pxe-guest',
-                                                                  sourceType='pxe',
-                                                                  storage_pool="No Storage",
-                                                                  connection="session"))
+        # check that the pxe booting is not available on session connection
+        checkPXENotAvailableSessionTest(TestMachines.VmDialog(self, name='pxe-guest',
+                                                              sourceType='pxe',
+                                                              storage_pool="No Storage",
+                                                              connection="session"))
 
-            # test PXE Source
-            self.machine.execute("virsh net-destroy default && virsh net-undefine default")
+        # test PXE Source
+        self.machine.execute("virsh net-destroy default && virsh net-undefine default")
 
-            # Set up the PXE server configuration files
-            cmds = [
-                "mkdir -p /var/lib/libvirt/pxe-config",
-                "echo \"{0}\" > /var/lib/libvirt/pxe-config/pxe.cfg".format(PXE_SERVER_CFG),
-                "chmod 666 /var/lib/libvirt/pxe-config/pxe.cfg"
-            ]
-            self.machine.execute(" && ".join(cmds))
+        # Set up the PXE server configuration files
+        cmds = [
+            "mkdir -p /var/lib/libvirt/pxe-config",
+            "echo \"{0}\" > /var/lib/libvirt/pxe-config/pxe.cfg".format(PXE_SERVER_CFG),
+            "chmod 666 /var/lib/libvirt/pxe-config/pxe.cfg"
+        ]
+        self.machine.execute(" && ".join(cmds))
 
-            # Define and start a NAT network with tftp server configuration
-            cmds = [
-                "echo \"{0}\" > /tmp/pxe-nat.xml".format(NETWORK_XML_PXE),
-                "virsh net-define /tmp/pxe-nat.xml",
-                "virsh net-start pxe-nat"
-            ]
-            self.machine.execute(" && ".join(cmds))
+        # Define and start a NAT network with tftp server configuration
+        cmds = [
+            "echo \"{0}\" > /tmp/pxe-nat.xml".format(NETWORK_XML_PXE),
+            "virsh net-define /tmp/pxe-nat.xml",
+            "virsh net-start pxe-nat"
+        ]
+        self.machine.execute(" && ".join(cmds))
 
-            # Add an extra network interface that should appear in the PXE source dropdown
-            iface = "eth42"
-            self.addIface(iface)
+        # Add an extra network interface that should appear in the PXE source dropdown
+        iface = "eth42"
+        self.addIface(iface)
 
-            # We don't handle events for networks yet, so reload the page to refresh the state
-            self.browser.reload()
-            self.browser.enter_page('/machines')
-            self.browser.wait_in_text("body", "Virtual Machines")
+        # We don't handle events for networks yet, so reload the page to refresh the state
+        self.browser.reload()
+        self.browser.enter_page('/machines')
+        self.browser.wait_in_text("body", "Virtual Machines")
 
-            # First create the PXE VM but do not start it. We 'll need to tweak a bit the XML
-            # to have serial console at bios and also redirect serial console to a file
-            createTest(TestMachines.VmDialog(self, name='pxe-guest', sourceType='pxe',
-                                             location="Virtual Network pxe-nat: NAT",
-                                             memory_size=256, memory_size_unit='MiB',
-                                             storage_pool="No Storage",
-                                             start_vm=True, delete=False))
+        # First create the PXE VM but do not start it. We 'll need to tweak a bit the XML
+        # to have serial console at bios and also redirect serial console to a file
+        createTest(TestMachines.VmDialog(self, name='pxe-guest', sourceType='pxe',
+                                         location="Virtual Network pxe-nat: NAT",
+                                         memory_size=256, memory_size_unit='MiB',
+                                         storage_pool="No Storage",
+                                         start_vm=True, delete=False))
 
-            # We don't want to use start_vm == False because if we get a seperate install phase
-            # virt-install will overwrite our changes.
-            self.machine.execute("virsh destroy pxe-guest")
+        # We don't want to use start_vm == False because if we get a seperate install phase
+        # virt-install will overwrite our changes.
+        self.machine.execute("virsh destroy pxe-guest")
 
-            # Remove all serial ports and consoles first and tehn add a console of type file
-            # virt-xml tool does not allow to remove both serial and console devices at once
-            # https://bugzilla.redhat.com/show_bug.cgi?id=1685541
-            # So use python xml parsing to change the domain XML.
-            domainXML = self.machine.execute("virsh dumpxml pxe-guest")
-            root = ET.fromstring(domainXML)
+        # Remove all serial ports and consoles first and tehn add a console of type file
+        # virt-xml tool does not allow to remove both serial and console devices at once
+        # https://bugzilla.redhat.com/show_bug.cgi?id=1685541
+        # So use python xml parsing to change the domain XML.
+        domainXML = self.machine.execute("virsh dumpxml pxe-guest")
+        root = ET.fromstring(domainXML)
 
-            # Find the parent element of each "console" element, using XPATH
-            for p in root.findall('.//console/..'):
-                # Find each console element
-                for element in p.findall('console'):
-                    # Remove the console element from its parent element
-                    p.remove(element)
+        # Find the parent element of each "console" element, using XPATH
+        for p in root.findall('.//console/..'):
+            # Find each console element
+            for element in p.findall('console'):
+                # Remove the console element from its parent element
+                p.remove(element)
 
-            # Find the parent element of each "serial" element, using XPATH
-            for p in root.findall('.//serial/..'):
-                # Find each serial element
-                for element in p.findall('serial'):
-                    # Remove the serial element from its parent element
-                    p.remove(element)
+        # Find the parent element of each "serial" element, using XPATH
+        for p in root.findall('.//serial/..'):
+            # Find each serial element
+            for element in p.findall('serial'):
+                # Remove the serial element from its parent element
+                p.remove(element)
 
-            # Set useserial attribute for bios os element
-            bios = ET.SubElement(root.find('os'), 'bios')
-            bios.set('useserial', 'yes')
+        # Set useserial attribute for bios os element
+        bios = ET.SubElement(root.find('os'), 'bios')
+        bios.set('useserial', 'yes')
 
-            # Add a serial console of type file
-            console = ET.fromstring(self.machine.execute("virt-xml --build --console file,path=/tmp/serial.txt,target_type=serial"))
-            devices = root.find('devices')
-            devices.append(console)
+        # Add a serial console of type file
+        console = ET.fromstring(self.machine.execute("virt-xml --build --console file,path=/tmp/serial.txt,target_type=serial"))
+        devices = root.find('devices')
+        devices.append(console)
 
-            # Redefine the domain with the new XML
-            xmlstr = ET.tostring(root, encoding='unicode', method='xml')
+        # Redefine the domain with the new XML
+        xmlstr = ET.tostring(root, encoding='unicode', method='xml')
 
-            self.machine.execute("echo \'{0}\' > /tmp/domain.xml && virsh define --file /tmp/domain.xml".format(xmlstr))
+        self.machine.execute("echo \'{0}\' > /tmp/domain.xml && virsh define --file /tmp/domain.xml".format(xmlstr))
 
-            self.machine.execute("virsh start pxe-guest")
+        self.machine.execute("virsh start pxe-guest")
 
-            # The file is full of ANSI control characters in between every letter, filter them out
-            wait(lambda: self.machine.execute(r"sed 's,\x1B\[[0-9;]*[a-zA-Z],,g' /tmp/serial.txt | grep 'Rebooting in 60'"), delay=3)
+        # The file is full of ANSI control characters in between every letter, filter them out
+        wait(lambda: self.machine.execute(r"sed 's,\x1B\[[0-9;]*[a-zA-Z],,g' /tmp/serial.txt | grep 'Rebooting in 60'"), delay=3)
 
-            self.machine.execute("virsh destroy pxe-guest && virsh undefine pxe-guest")
+        self.machine.execute("virsh destroy pxe-guest && virsh undefine pxe-guest")
 
-            # Check that host network devices are appearing in the options for PXE boot sources
-            createTest(TestMachines.VmDialog(self, sourceType='pxe',
-                                             location="Host Device {0}: macvtap".format(iface),
-                                             memory_size=256, memory_size_unit='MiB',
-                                             storage_pool="No Storage",
-                                             start_vm=False))
+        # Check that host network devices are appearing in the options for PXE boot sources
+        createTest(TestMachines.VmDialog(self, sourceType='pxe',
+                                         location="Host Device {0}: macvtap".format(iface),
+                                         memory_size=256, memory_size_unit='MiB',
+                                         storage_pool="No Storage",
+                                         start_vm=False))
 
-            # When switching from PXE mode to anything else make sure that the source input is empty
-            checkDialogFormValidationTest(TestMachines.VmDialog(self, storage_size=1,
-                                                                sourceType='pxe',
-                                                                location="Host Device {0}: macvtap".format(iface),
-                                                                sourceTypeSecondChoice='url',
-                                                                start_vm=False),
-                                          {"Source": "Installation Source must not be empty"})
+        # When switching from PXE mode to anything else make sure that the source input is empty
+        checkDialogFormValidationTest(TestMachines.VmDialog(self, storage_size=1,
+                                                            sourceType='pxe',
+                                                            location="Host Device {0}: macvtap".format(iface),
+                                                            sourceTypeSecondChoice='url',
+                                                            start_vm=False),
+                                      {"Source": "Installation Source must not be empty"})
 
         # Test that removing virt-install executable will disable Create VM button
         virt_install_bin = self.machine.execute("which virt-install").strip()

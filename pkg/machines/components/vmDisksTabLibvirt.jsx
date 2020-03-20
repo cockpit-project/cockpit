@@ -107,7 +107,7 @@ class VmDisksTabLibvirt extends React.Component {
     }
 
     render() {
-        const { vm, dispatch, config, storagePools, vms } = this.props;
+        const { vm, dispatch, storagePools, vms } = this.props;
 
         const idPrefix = `${vmId(vm.name)}-disks`;
         const areDiskStatsSupported = this.getDiskStatsSupport(vm);
@@ -125,7 +125,6 @@ class VmDisksTabLibvirt extends React.Component {
                 disks={disks}
                 renderCapacity={areDiskStatsSupported}
                 dispatch={dispatch}
-                provider={config.provider}
                 storagePools={storagePools}
                 onAddErrorNotification={this.props.onAddErrorNotification} />
         );

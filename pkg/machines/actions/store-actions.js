@@ -23,7 +23,6 @@ import {
     SET_HYPERVISOR_MAX_VCPU,
     SET_NODE_MAX_MEMORY,
     SET_LOGGED_IN_USER,
-    SET_PROVIDER,
     UNDEFINE_NETWORK,
     UNDEFINE_STORAGE_POOL,
     UNDEFINE_VM,
@@ -95,13 +94,6 @@ export function setLoggedInUser({ loggedUser }) {
         payload: {
             loggedUser
         }
-    };
-}
-
-export function setProvider(provider) {
-    return {
-        type: SET_PROVIDER,
-        provider,
     };
 }
 

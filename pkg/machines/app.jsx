@@ -109,7 +109,7 @@ class App extends React.Component {
         const dispatch = this.props.store.dispatch;
         const combinedVms = [...vms, ...dummyVmsConvert(vms, ui.vms)];
         const properties = {
-            dispatch, providerName:config.provider ? config.provider.name : 'Libvirt',
+            dispatch,
             networks, nodeDevices, nodeMaxMemory: config.nodeMaxMemory,
             onAddErrorNotification: this.onAddErrorNotification,
             storagePools, systemInfo, vms: combinedVms,
@@ -132,7 +132,7 @@ class App extends React.Component {
 
         return (
             <div>
-                { config.provider.name === 'LibvirtDBus' && pathVms &&
+                { pathVms &&
                 <AggregateStatusCards networks={networks} storagePools={storagePools} />
                 }
                 {Object.keys(this.state.notifications).length > 0 &&
@@ -164,7 +164,7 @@ class App extends React.Component {
                     onAddErrorNotification={this.onAddErrorNotification}
                     nodeDevices={nodeDevices} />
                 }
-                {config.provider.name === 'LibvirtDBus' && path.length > 0 && path[0] == 'storages' &&
+                {path.length > 0 && path[0] == 'storages' &&
                 <StoragePoolList storagePools={storagePools}
                     dispatch={dispatch}
                     vms={vms}
@@ -173,7 +173,7 @@ class App extends React.Component {
                     resourceHasError={this.state.resourceHasError}
                     onAddErrorNotification={this.onAddErrorNotification} />
                 }
-                {config.provider.name === 'LibvirtDBus' && path.length > 0 && path[0] == 'networks' &&
+                {path.length > 0 && path[0] == 'networks' &&
                 <NetworkList networks={networks}
                     dispatch={dispatch}
                     loggedUser={systemInfo.loggedUser}

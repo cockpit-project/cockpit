@@ -25,7 +25,7 @@ import { Button } from '@patternfly/react-core';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { NetworkTypeAndSourceRow, NetworkModelRow } from './nicBody.jsx';
 import { getVm } from '../actions/provider-actions.js';
-import { attachIface } from '../libvirt-dbus.js';
+import LibvirtDBus, { attachIface } from '../libvirt-dbus.js';
 import { getNetworkDevices } from '../helpers.js';
 
 import './nic.css';
@@ -71,9 +71,9 @@ const NetworkMacRow = ({ idPrefix, dialogValues, onValueChanged }) => {
     );
 };
 
-const PermanentChange = ({ idPrefix, onValueChanged, dialogValues, provider, vm }) => {
+const PermanentChange = ({ idPrefix, onValueChanged, dialogValues, vm }) => {
     // By default for a running VM, the iface is attached until shut down only. Enable permanent change of the domain.xml
-    if (!provider.isRunning(vm.state))
+    if (!LibvirtDBus.isRunning(vm.state))
         return null;
 
     return (
@@ -155,7 +155,7 @@ export class AddNIC extends React.Component {
     }
 
     render() {
-        const { idPrefix, vm, nodeDevices, interfaces, provider } = this.props;
+        const { idPrefix, vm, nodeDevices, interfaces } = this.props;
         const networkDevices = getNetworkDevices(vm.connectionName, nodeDevices, interfaces);
 
         const defaultBody = (
@@ -180,7 +180,6 @@ export class AddNIC extends React.Component {
                     <PermanentChange idPrefix={idPrefix}
                                      dialogValues={this.state}
                                      onValueChanged={this.onValueChanged}
-                                     provider={provider}
                                      vm={vm} />
                 </>}
             </form>
@@ -216,7 +215,6 @@ AddNIC.propTypes = {
     dispatch: PropTypes.func.isRequired,
     idPrefix: PropTypes.string.isRequired,
     vm: PropTypes.object.isRequired,
-    provider: PropTypes.object.isRequired,
     interfaces: PropTypes.array.isRequired,
     nodeDevices: PropTypes.array.isRequired,
 };

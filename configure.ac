@@ -16,14 +16,13 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 AC_INIT([Cockpit],
-        [m4_esyscmd([tools/git-version-gen .tarball])],
+        [m4_esyscmd_s([if [ -d .git ]; then echo $(git describe | tr - . ); else cat .tarball; fi])],
         [devel@lists.cockpit-project.org],
         [cockpit],
         [https://cockpit-project.org/])
 
-# The above git-version-gen command can either use .git or a .tarball file
-# in the top level directory to determine the version. If that didn't work
-# bail early. Cockpit needs to know its own version number
+# The above command needs to run in a git repository or `.tarball` file needs to be
+# present. If that didn't work bail early. Cockpit needs to know its own version number
 AC_MSG_CHECKING(that PACKAGE_VERSION is properly set)
 if test -z "$PACKAGE_VERSION"; then
   AC_MSG_RESULT(no)

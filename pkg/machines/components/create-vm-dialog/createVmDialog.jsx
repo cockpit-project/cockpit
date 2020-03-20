@@ -213,7 +213,7 @@ const NameRow = ({ vmName, onValueChanged, validationFailed }) => {
     );
 };
 
-const SourceRow = ({ connectionName, source, sourceType, networks, nodeDevices, providerName, os, osInfoList, downloadOSSupported, onValueChanged, validationFailed }) => {
+const SourceRow = ({ connectionName, source, sourceType, networks, nodeDevices, os, osInfoList, downloadOSSupported, onValueChanged, validationFailed }) => {
     let installationSource;
     let installationSourceId;
     let installationSourceWarning;
@@ -295,12 +295,11 @@ const SourceRow = ({ connectionName, source, sourceType, networks, nodeDevices, 
                     <Select.SelectEntry data={LOCAL_INSTALL_MEDIA_SOURCE}
                         key={LOCAL_INSTALL_MEDIA_SOURCE}>{_("Local Install Media")}</Select.SelectEntry>
                     <Select.SelectEntry data={URL_SOURCE} key={URL_SOURCE}>{_("URL")}</Select.SelectEntry>
-                    { providerName == 'LibvirtDBus' &&
                     <Select.SelectEntry title={connectionName == 'session' ? _("Network Boot is available only when using System connection") : null}
                         disabled={connectionName == 'session'}
                         data={PXE_SOURCE}
                         key={PXE_SOURCE}>{_("Network Boot (PXE)")}
-                    </Select.SelectEntry>}
+                    </Select.SelectEntry>
                 </Select.Select>
             </>}
 
@@ -762,7 +761,7 @@ class CreateVmModal extends React.Component {
     }
 
     onCreateClicked() {
-        const { dispatch, providerName, storagePools, close, onAddErrorNotification, osInfoList, vms } = this.props;
+        const { dispatch, storagePools, close, onAddErrorNotification, osInfoList, vms } = this.props;
 
         const validation = validateParams({ ...this.state, osInfoList, vms: vms.filter(vm => vm.connectionName == this.state.connectionName) });
         if (Object.getOwnPropertyNames(validation).length > 0) {
@@ -796,7 +795,7 @@ class CreateVmModal extends React.Component {
                 () => {
                     close();
 
-                    if (providerName == 'LibvirtDBus' && this.state.storagePool === "NewVolume") {
+                    if (this.state.storagePool === "NewVolume") {
                         const storagePool = storagePools.find(pool => pool.connectionName === this.state.connectionName && pool.name === "default");
                         if (storagePool)
                             storagePoolRefresh(storagePool.connectionName, storagePool.id);
@@ -813,7 +812,7 @@ class CreateVmModal extends React.Component {
     }
 
     render() {
-        const { nodeMaxMemory, nodeDevices, networks, osInfoList, loggedUser, providerName, storagePools, vms } = this.props;
+        const { nodeMaxMemory, nodeDevices, networks, osInfoList, loggedUser, storagePools, vms } = this.props;
         const validationFailed = this.state.validate && validateParams({ ...this.state, osInfoList, vms: vms.filter(vm => vm.connectionName == this.state.connectionName) });
         let startVmCheckbox = (
             <label className="checkbox-inline">
@@ -862,7 +861,6 @@ class CreateVmModal extends React.Component {
                     connectionName={this.state.connectionName}
                     networks={networks.filter(network => network.connectionName == this.state.connectionName)}
                     nodeDevices={nodeDevices.filter(nodeDevice => nodeDevice.connectionName == this.state.connectionName)}
-                    providerName={providerName}
                     source={this.state.source}
                     sourceType={this.state.sourceType}
                     os={this.state.os}
@@ -1038,7 +1036,6 @@ export class CreateVmAction extends React.Component {
                 { this.state.showModal &&
                 <CreateVmModal
                     mode={this.props.mode}
-                    providerName={this.props.providerName}
                     close={this.close} dispatch={this.props.dispatch}
                     networks={this.props.networks}
                     nodeDevices={this.props.nodeDevices}
@@ -1064,7 +1061,6 @@ CreateVmAction.propTypes = {
     nodeDevices: PropTypes.array.isRequired,
     nodeMaxMemory: PropTypes.number,
     onAddErrorNotification: PropTypes.func.isRequired,
-    providerName: PropTypes.string.isRequired,
     systemInfo: PropTypes.object.isRequired,
 };
 CreateVmAction.defaultProps = {

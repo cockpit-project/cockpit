@@ -27,6 +27,7 @@ import {
 
 import { DeleteDialog } from "../deleteDialog.jsx";
 import { DropdownButtons } from '../dropdownButtons.jsx';
+import LibvirtDBus from '../../libvirt-dbus.js';
 
 const _ = cockpit.gettext;
 
@@ -36,7 +37,7 @@ const VmActions = ({ vm, config, dispatch, storagePools, onStart, onInstall, onR
     const hasInstallPhase = vm.metadata.hasInstallPhase;
 
     let reset = null;
-    if (config.provider.canReset(state)) {
+    if (LibvirtDBus.canReset(state)) {
         reset = <DropdownButtons
             key='action-reset'
             buttons={[{
@@ -51,7 +52,7 @@ const VmActions = ({ vm, config, dispatch, storagePools, onStart, onInstall, onR
     }
 
     let shutdown = null;
-    if (config.provider.canShutdown(state)) {
+    if (LibvirtDBus.canShutdown(state)) {
         const buttons = [{
             title: _("Shut Down"),
             action: onShutdown,
@@ -61,7 +62,7 @@ const VmActions = ({ vm, config, dispatch, storagePools, onStart, onInstall, onR
             action: onForceoff,
             id: `${id}-forceOff`,
         }];
-        if (config.provider.canSendNMI && config.provider.canSendNMI(state)) {
+        if (LibvirtDBus.canSendNMI && LibvirtDBus.canSendNMI(state)) {
             buttons.push({
                 title: _("Send Non-Maskable Interrupt"),
                 action: onSendNMI,
@@ -72,41 +73,35 @@ const VmActions = ({ vm, config, dispatch, storagePools, onStart, onInstall, onR
     }
 
     let pause = null;
-    if (config.provider.name === "LibvirtDBus" && config.provider.canPause(state)) {
+    if (LibvirtDBus.canPause(state)) {
         pause = (<button key='action-pause' className="pf-c-button pf-m-secondary" onClick={mouseClick(onPause)} id={`${id}-pause`}>
             {_("Pause")}
         </button>);
     }
 
     let resume = null;
-    if (config.provider.name === "LibvirtDBus" && config.provider.canResume(state)) {
+    if (LibvirtDBus.canResume(state)) {
         resume = (<button key='action-resume' className="pf-c-button pf-m-secondary" onClick={mouseClick(onResume)} id={`${id}-resume`}>
             {_("Resume")}
         </button>);
     }
 
     let run = null;
-    if (config.provider.canRun(state, hasInstallPhase)) {
+    if (LibvirtDBus.canRun(state, hasInstallPhase)) {
         run = (<button key='action-run' className="pf-c-button pf-m-secondary" onClick={mouseClick(onStart)} id={`${id}-run`}>
             {_("Run")}
         </button>);
     }
 
     let install = null;
-    if (config.provider.canInstall(state, hasInstallPhase)) {
+    if (LibvirtDBus.canInstall(state, hasInstallPhase)) {
         install = (<button key='action-install' className="pf-c-button pf-m-secondary" onClick={mouseClick(onInstall)} id={`${id}-install`}>
             {_("Install")}
         </button>);
     }
 
-    let providerActions = null;
-    if (config.provider.VmActions) {
-        const ProviderActions = config.provider.VmActions;
-        providerActions = <ProviderActions vm={vm} providerState={config.providerState} dispatch={dispatch} key='provider-actions' />;
-    }
-
     let deleteAction = null;
-    if (state !== undefined && config.provider.canDelete && config.provider.canDelete(state, vm.id, config.providerState)) {
+    if (state !== undefined && LibvirtDBus.canDelete && LibvirtDBus.canDelete(state, vm.id)) {
         deleteAction = (
             <DeleteDialog key='action-delete' vm={vm} dispatch={dispatch} storagePools={storagePools} />
         );
@@ -119,7 +114,6 @@ const VmActions = ({ vm, config, dispatch, storagePools, onStart, onInstall, onR
         shutdown,
         run,
         install,
-        providerActions,
         deleteAction,
     ];
 };

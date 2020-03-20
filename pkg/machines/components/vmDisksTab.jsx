@@ -86,13 +86,13 @@ class VmDisksTab extends React.Component {
     }
 
     render() {
-        const { idPrefix, vm, vms, disks, renderCapacity, dispatch, provider, onAddErrorNotification, storagePools } = this.props;
+        const { idPrefix, vm, vms, disks, renderCapacity, dispatch, onAddErrorNotification, storagePools } = this.props;
         const actions = (
             <>
                 <Button id={`${idPrefix}-adddisk`} variant='primary' onClick={this.open} className='pull-right'>
                     {_("Add Disk")}
                 </Button>
-                {this.state.showModal && <AddDiskModalBody close={this.close} dispatch={dispatch} idPrefix={idPrefix} vm={vm} vms={vms} storagePools={storagePools.filter(pool => pool && pool.active)} provider={provider} />}
+                {this.state.showModal && <AddDiskModalBody close={this.close} dispatch={dispatch} idPrefix={idPrefix} vm={vm} vms={vms} storagePools={storagePools.filter(pool => pool && pool.active)} />}
             </>
         );
         let renderCapacityUsed, renderAccess, renderAdditional;
@@ -118,8 +118,7 @@ class VmDisksTab extends React.Component {
             if (renderAdditional)
                 columnTitles.push(_("Additional"));
 
-            if (provider.name === 'LibvirtDBus')
-                columnTitles.push('');
+            columnTitles.push('');
         }
 
         const rows = disks.map(disk => {
@@ -154,38 +153,35 @@ class VmDisksTab extends React.Component {
             if (renderAdditional)
                 columns.push({ title: disk.diskExtras || '' });
 
-            if (provider.name === 'LibvirtDBus') {
-                const onRemoveDisk = () => {
-                    return dispatch(detachDisk({ connectionName:vm.connectionName, id:vm.id, name:vm.name, target: disk.target, live: vm.state == 'running', persistent: vm.persistent }))
-                            .catch(ex => {
-                                onAddErrorNotification({
-                                    text: cockpit.format(_("Disk $0 fail to get detached from VM $1"), disk.target, vm.name),
-                                    detail: ex.message, resourceId: vm.id,
-                                });
-                            })
-                            .then(() => dispatch(getVm({ connectionName: vm.connectionName, id:vm.id })));
-                };
+            const onRemoveDisk = () => {
+                return dispatch(detachDisk({ connectionName:vm.connectionName, id:vm.id, name:vm.name, target: disk.target, live: vm.state == 'running', persistent: vm.persistent }))
+                        .catch(ex => {
+                            onAddErrorNotification({
+                                text: cockpit.format(_("Disk $0 fail to get detached from VM $1"), disk.target, vm.name),
+                                detail: ex.message, resourceId: vm.id,
+                            });
+                        })
+                        .then(() => dispatch(getVm({ connectionName: vm.connectionName, id:vm.id })));
+            };
 
-                const diskActions = (
-                    <div className='machines-listing-actions'>
-                        <DeleteResource objectType="Disk"
-                           className='machines-listing-actions'
-                           objectName={disk.target}
-                           objectId={vm.name + "-disk-" + disk.target}
-                           disabled={vm.state != 'shut off' && vm.state != 'running'}
-                           overlayText={_("The VM needs to be running or shut off to detach this device")}
-                           actionName={_("Remove")}
-                           deleteHandler={() => onRemoveDisk()} />
-                        { vm.persistent && vm.inactiveXML.disks[disk.target] && // supported only  for persistent disks
-                        <EditDiskAction disk={disk}
-                            vm={vm}
-                            provider={provider}
-                            idPrefix={idPrefixRow}
-                            onAddErrorNotification={onAddErrorNotification} /> }
-                    </div>
-                );
-                columns.push({ title: diskActions });
-            }
+            const diskActions = (
+                <div className='machines-listing-actions'>
+                    <DeleteResource objectType="Disk"
+                       className='machines-listing-actions'
+                       objectName={disk.target}
+                       objectId={vm.name + "-disk-" + disk.target}
+                       disabled={vm.state != 'shut off' && vm.state != 'running'}
+                       overlayText={_("The VM needs to be running or shut off to detach this device")}
+                       actionName={_("Remove")}
+                       deleteHandler={() => onRemoveDisk()} />
+                    { vm.persistent && vm.inactiveXML.disks[disk.target] && // supported only  for persistent disks
+                    <EditDiskAction disk={disk}
+                        vm={vm}
+                        idPrefix={idPrefixRow}
+                        onAddErrorNotification={onAddErrorNotification} /> }
+                </div>
+            );
+            columns.push({ title: diskActions });
             return { columns, props: { key: disk.target } };
         });
 
@@ -203,7 +199,6 @@ VmDisksTab.propTypes = {
     idPrefix: PropTypes.string.isRequired,
     disks: PropTypes.array.isRequired,
     renderCapacity: PropTypes.bool,
-    provider: PropTypes.object,
     onAddErrorNotification: PropTypes.func.isRequired,
 };
 

@@ -38,7 +38,7 @@ import { BootOrderModal } from './vm/bootOrderModal.jsx';
 import { FirmwareModal } from './vm/firmwareModal.jsx';
 import WarningInactive from './warningInactive.jsx';
 import { supportsUefiXml, labelForFirmwarePath } from './vm/helpers.js';
-import { getDomainCapabilities } from '../libvirt-dbus.js';
+import LibvirtDBus, { getDomainCapabilities } from '../libvirt-dbus.js';
 
 import './overviewTab.css';
 
@@ -81,22 +81,20 @@ class VmOverviewTabLibvirt extends React.Component {
     }
 
     componentDidMount() {
-        if (this.props.config.provider.name == 'LibvirtDBus') {
-            getDomainCapabilities(this.props.vm.connectionName)
-                    .done(domCaps => {
-                        const parser = new DOMParser();
-                        const xmlDoc = parser.parseFromString(domCaps, "application/xml");
-                        if (!xmlDoc)
-                            return;
+        getDomainCapabilities(this.props.vm.connectionName)
+                .done(domCaps => {
+                    const parser = new DOMParser();
+                    const xmlDoc = parser.parseFromString(domCaps, "application/xml");
+                    if (!xmlDoc)
+                        return;
 
-                        const domainCapabilities = xmlDoc.getElementsByTagName("domainCapabilities")[0];
-                        const osElem = domainCapabilities.getElementsByTagName("os") && domainCapabilities.getElementsByTagName("os")[0];
-                        const loaderElems = osElem && osElem.getElementsByTagName("loader");
+                    const domainCapabilities = xmlDoc.getElementsByTagName("domainCapabilities")[0];
+                    const osElem = domainCapabilities.getElementsByTagName("os") && domainCapabilities.getElementsByTagName("os")[0];
+                    const loaderElems = osElem && osElem.getElementsByTagName("loader");
 
-                        this.setState({ loaderElems });
-                    })
-                    .fail(ex => console.warn("getDomainCapabilities failed"));
-        }
+                    this.setState({ loaderElems });
+                })
+                .fail(ex => console.warn("getDomainCapabilities failed"));
     }
 
     onAutostartChanged() {
@@ -164,15 +162,14 @@ class VmOverviewTabLibvirt extends React.Component {
             <label className='checkbox-inline'>
                 <input id={`${idPrefix}-autostart-checkbox`}
                     type="checkbox"
-                    disabled={config.provider.name !== "LibvirtDBus"}
-                    checked={config.provider.name == "LibvirtDBus" ? vm.autostart : vm.autostart != "disable" }
+                    checked={vm.autostart}
                     onChange={this.onAutostartChanged} />
                 {_("Run when host boots")}
             </label>
         );
         const bootOrder = (
             <div>
-                <Button variant="link" isInline isDisabled={config.provider.name !== "LibvirtDBus" || !vm.persistent} id={`${idPrefix}-boot-order`} onClick={this.openBootOrder}>
+                <Button variant="link" isInline isDisabled={!vm.persistent} id={`${idPrefix}-boot-order`} onClick={this.openBootOrder}>
                     {getBootOrder(vm)}
                 </Button>
                 { vm.persistent && vm.state === "running" && bootOrderChanged() && <WarningInactive iconId="boot-order-tooltip" tooltipId="tip-boot-order" /> }
@@ -180,7 +177,7 @@ class VmOverviewTabLibvirt extends React.Component {
         );
         const memoryLink = (
             <div>
-                <Button variant="link" isInline isDisabled={config.provider.name !== "LibvirtDBus" || !vm.persistent} id={`${idPrefix}-memory-count`} onClick={this.openMemory}>
+                <Button variant="link" isInline isDisabled={!vm.persistent} id={`${idPrefix}-memory-count`} onClick={this.openMemory}>
                     {cockpit.format_bytes(vm.currentMemory * 1024)}
                 </Button>
             </div>
@@ -194,7 +191,7 @@ class VmOverviewTabLibvirt extends React.Component {
 
         let firmwareLinkWrapper;
         // <os firmware=[bios/efi]' settings is available only for libvirt version >= 5.2. Before that version it silently ignores this attribute in the XML
-        if (config.provider.name == 'LibvirtDBus' && this.state.loaderElems && libvirtVersion >= 5002000) {
+        if (this.state.loaderElems && libvirtVersion >= 5002000) {
             const hasInstallPhase = vm.metadata.hasInstallPhase;
             const labelForFirmware = labelForFirmwarePath(vm.loader, vm.arch);
             let currentFirmware;
@@ -208,7 +205,7 @@ class VmOverviewTabLibvirt extends React.Component {
                 currentFirmware = "BIOS";
 
             /* If the VM hasn't an install phase then don't show a link, just the text  */
-            if (!config.provider.canInstall(vm.state, hasInstallPhase)) {
+            if (!LibvirtDBus.canInstall(vm.state, hasInstallPhase)) {
                 firmwareLinkWrapper = <div id={`${idPrefix}-firmware`}>{currentFirmware}</div>;
             } else {
                 const uefiPaths = this.getOVMFBinariesOnHost(this.state.loaderElems).filter(elem => elem !== undefined);

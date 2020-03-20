@@ -1236,7 +1236,7 @@ export function updateVCPUSettings(domXml, count, max, sockets, cores, threads) 
  */
 
 export const canConsole = (vmState) => vmState == 'running';
-export const canDelete = (vmState, vmId, providerState) => true;
+export const canDelete = (vmState, vmId) => true;
 export const canInstall = (vmState, hasInstallPhase) => vmState != 'running' && hasInstallPhase;
 export const canReset = (vmState) => vmState == 'running' || vmState == 'idle' || vmState == 'paused';
 export const canRun = (vmState, hasInstallPhase) => !hasInstallPhase && vmState == 'shut off';

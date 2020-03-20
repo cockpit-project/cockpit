@@ -26,34 +26,6 @@ import App from './app.jsx';
 import { initDataRetrieval } from './actions/provider-actions.js';
 import { logDebug } from './helpers.js';
 
-import cockpit from 'cockpit';
-import LibvirtDbus from './libvirt-dbus.js';
-import Libvirt from './libvirt-virsh.js';
-import { setVirtProvider } from './provider.js';
-
-/**
- * Returns promise that will have as return value the Provider that should be set.
- * @return {Promise}
- */
-
-function detectLibvirtProvider() {
-    const client = cockpit.dbus("org.freedesktop.DBus");
-
-    return client.call("/org/freedesktop/DBus", "org.freedesktop.DBus",
-                       "ListActivatableNames")
-            .then(services => {
-                const libvirtDBusavailable = services[0].includes("org.libvirt");
-
-                client.close();
-                return libvirtDBusavailable ? LibvirtDbus : Libvirt;
-            })
-            .catch(exception => {
-                console.warn("Could not get a list of services from DBus.", exception);
-                client.close();
-                return Libvirt;
-            });
-}
-
 function render() {
     ReactDOM.render(
         <App store={store} />,
@@ -77,12 +49,7 @@ function renderApp() {
  */
 function appMain() {
     logDebug('index.js: initial state: ' + JSON.stringify(store.getState()));
-
-    detectLibvirtProvider().then((providerVal) => {
-        console.info(`index.js: Setting ${providerVal.name} as virt provider.`);
-        setVirtProvider(providerVal);
-        renderApp();
-    });
+    renderApp();
 }
 
 (function() {

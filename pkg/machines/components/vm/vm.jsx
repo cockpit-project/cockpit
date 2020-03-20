@@ -44,7 +44,7 @@ const Vm = ({
     onUsageStartPolling, onUsageStopPolling, onSendNMI, dispatch, networks, interfaces, nodeDevices, resourceHasError, onAddErrorNotification
 }) => {
     const stateAlert = resourceHasError[vm.id] ? <span className='pficon-warning-triangle-o machines-status-alert' /> : null;
-    const stateIcon = (<StateIcon state={vm.state} config={config} valueId={`${vmId(vm.name)}-state`} extra={stateAlert} />);
+    const stateIcon = (<StateIcon state={vm.state} valueId={`${vmId(vm.name)}-state`} extra={stateAlert} />);
 
     const overviewTabName = (<div id={`${vmId(vm.name)}-overview`}>{_("Overview")}</div>);
     const usageTabName = (<div id={`${vmId(vm.name)}-usage`}>{_("Usage")}</div>);
@@ -52,29 +52,13 @@ const Vm = ({
     const networkTabName = (<div id={`${vmId(vm.name)}-networks`}>{_("Network Interfaces")}</div>);
     const consolesTabName = (<div id={`${vmId(vm.name)}-consoles`}>{_("Consoles")}</div>);
 
-    let tabRenderers = [
+    const tabRenderers = [
         { name: overviewTabName, renderer: VmOverviewTab, data: { vm, config, dispatch, nodeDevices, libvirtVersion } },
         { name: usageTabName, renderer: VmUsageTab, data: { vm, onUsageStartPolling, onUsageStopPolling }, presence: 'onlyActive' },
         { name: disksTabName, renderer: VmDisksTab, data: { vm, vms, config, storagePools, onUsageStartPolling, onUsageStopPolling, dispatch, onAddErrorNotification }, presence: 'onlyActive' },
         { name: networkTabName, renderer: VmNetworkTab, presence: 'onlyActive', data: { vm, dispatch, config, hostDevices, interfaces, networks, nodeDevices, onAddErrorNotification } },
         { name: consolesTabName, renderer: Consoles, data: { vm, config, dispatch } },
     ];
-
-    if (config.provider.vmTabRenderers) { // External Provider might extend the subtab list
-        tabRenderers = tabRenderers.concat(config.provider.vmTabRenderers.map(
-            tabRender => {
-                let tabName = tabRender.name;
-                if (tabRender.idPostfix) {
-                    tabName = (<div id={`${vmId(vm.name)}-${tabRender.idPostfix}`}>{tabRender.name}</div>);
-                }
-                return {
-                    name: tabName,
-                    renderer: tabRender.component,
-                    data: { vm, providerState: config.providerState, dispatch },
-                };
-            }
-        ));
-    }
 
     let initiallyActiveTab = null;
     if (vm.ui.initiallyOpenedConsoleTab) {

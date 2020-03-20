@@ -64,9 +64,6 @@ class VmNetworkTab extends React.Component {
                     this.setState({ networkDevices: devs });
                 });
 
-        if (this.props.config.provider.name != 'LibvirtDBus')
-            return;
-
         if (this.props.vm.state != 'running' && this.props.vm.state != 'paused')
             return;
 
@@ -83,7 +80,7 @@ class VmNetworkTab extends React.Component {
     }
 
     render() {
-        const { vm, dispatch, config, hostDevices, networks, nodeDevices, interfaces, onAddErrorNotification } = this.props;
+        const { vm, dispatch, hostDevices, networks, nodeDevices, interfaces, onAddErrorNotification } = this.props;
         const id = vmId(vm.name);
         const availableSources = {
             network: networks.map(network => network.name),
@@ -159,7 +156,7 @@ class VmNetworkTab extends React.Component {
             },
             { name: _("MAC Address"), value: 'mac' },
             {
-                name: _("IP Address"), hidden: config.provider.name != 'LibvirtDBus', value: (network) => {
+                name: _("IP Address"), value: (network) => {
                     const iface = this.state.interfaceAddress.find(iface => iface[1] == network.mac);
                     const ips = (iface && iface[2]) ? iface[2] : undefined;
 
@@ -209,8 +206,8 @@ class VmNetworkTab extends React.Component {
             {
                 name: "", value: (network, networkId) => {
                     const isUp = network.state === 'up';
-                    const editNICAction = (providerName) => {
-                        if (providerName === "LibvirtDBus" && vm.persistent && this.state.networkDevices !== undefined)
+                    const editNICAction = () => {
+                        if (vm.persistent && this.state.networkDevices !== undefined)
                             return <EditNICAction dispatch={dispatch}
                                        idPrefix={`${id}-network-${networkId}`}
                                        vm={vm}
@@ -220,23 +217,22 @@ class VmNetworkTab extends React.Component {
                                        interfaces={interfaces} />;
                     };
 
-                    const deleteNICAction = (providerName) => {
-                        if (providerName === "LibvirtDBus")
-                            return <DeleteResource objectType="Network Interface"
-                                       objectName={network.mac}
-                                       objectId={`${id}-iface-${networkId}`}
-                                       disabled={vm.state != 'shut off' && vm.state != 'running'}
-                                       overlayText={_("The VM needs to be running or shut off to detach this device")}
-                                       deleteHandler={() => detachIface(network.mac, vm.connectionName, vm.id, vm.state === "running", vm.persistent, dispatch)} />;
-                    };
+                    const deleteNICAction = (
+                        <DeleteResource objectType="Network Interface"
+                                        objectName={network.mac}
+                                        objectId={`${id}-iface-${networkId}`}
+                                        disabled={vm.state != 'shut off' && vm.state != 'running'}
+                                        overlayText={_("The VM needs to be running or shut off to detach this device")}
+                                        deleteHandler={() => detachIface(network.mac, vm.connectionName, vm.id, vm.state === "running", vm.persistent, dispatch)} />
+                    );
 
                     return (
                         <div className='machines-listing-actions'>
                             <button className='pf-c-button pf-m-secondary' onClick={onChangeState(network)} title={`${isUp ? _("Unplug") : _("Plug")}`}>
                                 {isUp ? 'Unplug' : 'Plug'}
                             </button>
-                            {editNICAction(config.provider.name)}
-                            {deleteNICAction(config.provider.name)}
+                            {editNICAction()}
+                            {deleteNICAction}
                         </div>
                     );
                 }
@@ -266,22 +262,18 @@ class VmNetworkTab extends React.Component {
 
         return (
             <div className="machines-network-list">
-                {(config.provider.name === "LibvirtDBus") &&
-                <>
-                    <Button id={`${id}-add-iface-button`} variant='secondary' className='pull-right' onClick={this.open}>
-                        {_("Add Network Interface")}
-                    </Button>
+                <Button id={`${id}-add-iface-button`} variant='secondary' className='pull-right' onClick={this.open}>
+                    {_("Add Network Interface")}
+                </Button>
 
-                    {this.state.showModal && this.state.networkDevices !== undefined &&
-                        <AddNIC dispatch={dispatch}
-                            idPrefix={`${id}-add-iface`}
-                            vm={vm}
-                            provider={config.provider}
-                            nodeDevices={nodeDevices}
-                            availableSources={availableSources}
-                            interfaces={interfaces}
-                            close={this.close} />}
-                </>}
+                {this.state.showModal && this.state.networkDevices !== undefined &&
+                    <AddNIC dispatch={dispatch}
+                        idPrefix={`${id}-add-iface`}
+                        vm={vm}
+                        nodeDevices={nodeDevices}
+                        availableSources={availableSources}
+                        interfaces={interfaces}
+                        close={this.close} />}
                 <ListingTable aria-label={`VM ${vm.name} Network Interface Cards`}
                     variant='compact'
                     emptyCaption={_("No network interfaces defined for this VM")}

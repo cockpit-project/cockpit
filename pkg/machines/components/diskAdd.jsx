@@ -26,7 +26,7 @@ import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { units, convertToUnit, getDefaultVolumeFormat, getNextAvailableTarget, getStorageVolumesUsage, getStorageVolumeDiskTarget } from '../helpers.js';
 import { volumeCreateAndAttach, attachDisk, getVm } from '../actions/provider-actions.js';
 import { VolumeCreateBody } from './storagePools/storageVolumeCreateBody.jsx';
-import { updateDiskAttributes } from '../libvirt-dbus.js';
+import LibvirtDBus, { updateDiskAttributes } from '../libvirt-dbus.js';
 
 import 'form-layout.scss';
 import './diskAdd.css';
@@ -90,9 +90,9 @@ const SelectExistingVolume = ({ idPrefix, storagePoolName, existingVolumeName, o
     );
 };
 
-const PermanentChange = ({ idPrefix, onValueChanged, permanent, provider, vm }) => {
+const PermanentChange = ({ idPrefix, onValueChanged, permanent, vm }) => {
     // By default for a running VM, the disk is attached until shut down only. Enable permanent change of the domain.xml
-    if (!provider.isRunning(vm.state)) {
+    if (!LibvirtDBus.isRunning(vm.state)) {
         return null;
     }
 
@@ -198,7 +198,7 @@ class AdditionalOptions extends React.Component {
     }
 }
 
-const CreateNewDisk = ({ idPrefix, onValueChanged, dialogValues, vmStoragePools, provider, vm }) => {
+const CreateNewDisk = ({ idPrefix, onValueChanged, dialogValues, vmStoragePools, vm }) => {
     const storagePool = vmStoragePools.find(pool => pool.name == dialogValues.storagePoolName);
     const poolTypesNotSupportingVolumeCreation = ['iscsi', 'iscsi-direct', 'gluster', 'mpath'];
 
@@ -221,7 +221,7 @@ const CreateNewDisk = ({ idPrefix, onValueChanged, dialogValues, vmStoragePools,
     );
 };
 
-const ChangeShareable = ({ idPrefix, vms, storagePool, volumeName, onValueChanged, providerName }) => {
+const ChangeShareable = ({ idPrefix, vms, storagePool, volumeName, onValueChanged }) => {
     const isVolumeUsed = getStorageVolumesUsage(vms, storagePool);
     const volume = storagePool.volumes.find(vol => vol.name === volumeName);
 
@@ -230,7 +230,7 @@ const ChangeShareable = ({ idPrefix, vms, storagePool, volumeName, onValueChange
 
     const vmsUsing = isVolumeUsed[volumeName].join(', ') + '.';
     let text = _("This volume is already used by: ") + vmsUsing;
-    if (providerName == 'LibvirtDBus' && volume.format === "raw")
+    if (volume.format === "raw")
         text += _(" Attaching it will make this disk shareable for every VM using it.");
 
     return (<>
@@ -241,7 +241,7 @@ const ChangeShareable = ({ idPrefix, vms, storagePool, volumeName, onValueChange
     </>);
 };
 
-const UseExistingDisk = ({ idPrefix, onValueChanged, dialogValues, vmStoragePools, provider, vm, vms }) => {
+const UseExistingDisk = ({ idPrefix, onValueChanged, dialogValues, vmStoragePools, vm, vms }) => {
     return (
         <>
             <hr />
@@ -262,8 +262,7 @@ const UseExistingDisk = ({ idPrefix, onValueChanged, dialogValues, vmStoragePool
                     vms={vms}
                     storagePool={vmStoragePools.find(pool => pool.name === dialogValues.storagePoolName)}
                     volumeName={dialogValues.existingVolumeName}
-                    onValueChanged={onValueChanged}
-                    providerName={provider.name} />
+                    onValueChanged={onValueChanged} />
             </>}
         </>
     );
@@ -281,7 +280,7 @@ export class AddDiskModalBody extends React.Component {
     }
 
     get initialState() {
-        const { vm, storagePools, provider } = this.props;
+        const { vm, storagePools } = this.props;
         const defaultBus = 'virtio';
         const existingTargets = Object.getOwnPropertyNames(vm.disks);
         const availableTarget = getNextAvailableTarget(existingTargets, defaultBus);
@@ -301,8 +300,8 @@ export class AddDiskModalBody extends React.Component {
             unit: units.GiB.name,
             format: defaultPool && getDefaultVolumeFormat(defaultPool),
             target: availableTarget,
-            permanent: !provider.isRunning(vm.state), // default true for a down VM; for a running domain, the disk is attached tentatively only
-            hotplug: provider.isRunning(vm.state), // must be kept false for a down VM; the value is not being changed by user
+            permanent: !LibvirtDBus.isRunning(vm.state), // default true for a down VM; for a running domain, the disk is attached tentatively only
+            hotplug: LibvirtDBus.isRunning(vm.state), // must be kept false for a down VM; the value is not being changed by user
             addDiskInProgress: false,
             cacheMode: 'default',
             busType: defaultBus,
@@ -389,7 +388,7 @@ export class AddDiskModalBody extends React.Component {
     }
 
     onAddClicked() {
-        const { vm, dispatch, provider, close, vms, storagePools } = this.props;
+        const { vm, dispatch, close, vms, storagePools } = this.props;
 
         // validate
         if (!this.state.storagePoolName)
@@ -449,7 +448,7 @@ export class AddDiskModalBody extends React.Component {
             vmName: vm.name,
             vmId: vm.id,
             cacheMode: this.state.cacheMode,
-            shareable: provider.name == 'LibvirtDBus' && volume && volume.format === "raw" && isVolumeUsed[this.state.existingVolumeName],
+            shareable: volume && volume.format === "raw" && isVolumeUsed[this.state.existingVolumeName],
             busType: this.state.busType
         }))
                 .fail(exc => {
@@ -459,7 +458,7 @@ export class AddDiskModalBody extends React.Component {
                 .then(() => { // force reload of VM data, events are not reliable (i.e. for a down VM)
                     const promises = [];
 
-                    if (provider.name == 'LibvirtDBus' && volume.format === "raw" && isVolumeUsed[this.state.existingVolumeName]) {
+                    if (volume.format === "raw" && isVolumeUsed[this.state.existingVolumeName]) {
                         isVolumeUsed[this.state.existingVolumeName].forEach(vmName => {
                             const vm = vms.find(vm => vm.name === vmName);
                             const diskTarget = getStorageVolumeDiskTarget(vm, storagePool, this.state.existingVolumeName);
@@ -481,7 +480,7 @@ export class AddDiskModalBody extends React.Component {
     }
 
     render() {
-        const { vm, storagePools, provider, vms } = this.props;
+        const { vm, storagePools, vms } = this.props;
         const idPrefix = `${this.props.idPrefix}-adddisk`;
 
         const defaultBody = (
@@ -516,7 +515,6 @@ export class AddDiskModalBody extends React.Component {
                                    onValueChanged={this.onValueChanged}
                                    dialogValues={this.state}
                                    vmStoragePools={storagePools}
-                                   provider={provider}
                                    vm={vm} />
                 )}
                 {this.state.mode === USE_EXISTING && (
@@ -524,7 +522,6 @@ export class AddDiskModalBody extends React.Component {
                                      onValueChanged={this.onValueChanged}
                                      dialogValues={this.state}
                                      vmStoragePools={storagePools}
-                                     provider={provider}
                                      vms={vms}
                                      vm={vm} />
                 )}
@@ -533,12 +530,11 @@ export class AddDiskModalBody extends React.Component {
                     <PermanentChange idPrefix={idPrefix}
                                      permanent={this.state.permanent}
                                      onValueChanged={this.onValueChanged}
-                                     provider={provider}
                                      vm={vm} />
                 </>}
-                {provider.name == 'LibvirtDBus' && <AdditionalOptions cacheMode={this.state.cacheMode}
-                                    onValueChanged={this.onValueChanged}
-                                    busType={this.state.busType} />}
+                <AdditionalOptions cacheMode={this.state.cacheMode}
+                                   onValueChanged={this.onValueChanged}
+                                   busType={this.state.busType} />
             </div>
         );
 

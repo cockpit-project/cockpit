@@ -1276,6 +1276,17 @@ class MachineCase(unittest.TestCase):
         else:
             self.addCleanup(self.machine.execute, "rm -rf %s" % path)
 
+    def write_file(self, path, content):
+        '''Write a new file on primary machine
+
+        This is safe for @nondestructive tests, the file will be removed during cleanup.
+        '''
+        m = self.machine
+        m.write(path, content)
+
+        if self.is_nondestructive():
+            self.addCleanup(m.execute, "rm -f {0}".format(path))
+
 
 def jsquote(str):
     return json.dumps(str)

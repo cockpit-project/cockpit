@@ -160,10 +160,8 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_present("#vm-subVmTest1-order-modal-window")
         # Make sure the footer warning does not appear
         b.wait_not_present("#vm-subVmTest1-order-modal-min-message")
-        # Move first device down and check whetever succeeded
-        row = b.text("#vm-subVmTest1-order-modal-device-row-1 .list-view-pf-additional-info")
-        b.click("#vm-subVmTest1-order-modal-device-row-0 #vm-subVmTest1-order-modal-down")
-        b.wait_in_text("#vm-subVmTest1-order-modal-device-row-0 .list-view-pf-additional-info", row)
+        # Move first device down
+        b.click("#vm-subVmTest1-order-modal-0-actions #vm-subVmTest1-order-modal-down")
         # Make sure the footer warning does appear
         b.wait_present("#vm-subVmTest1-order-modal-min-message")
 
@@ -190,7 +188,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         # Make sure the footer warning does not appear
         b.wait_not_present("#vm-subVmTest1-order-modal-min-message")
         # Unselect second device
-        b.click("#vm-subVmTest1-order-modal-device-row-1 input")
+        b.click("#vm-subVmTest1-order-modal-1-checkbox")
         # Make sure the footer warning still does not appear, since machine is shut down
         b.wait_not_present("#vm-subVmTest1-order-modal-min-message")
 
@@ -270,8 +268,8 @@ class TestMachinesDBus(machineslib.TestMachines):
         bootOrder = b.text("#vm-VmNotInstalled-boot-order")
         b.click("#vm-VmNotInstalled-boot-order")
         b.wait_present(".modal-body")
-        b.set_checked("#vm-VmNotInstalled-order-modal-device-row-1-checkbox", True)
-        b.click("#vm-VmNotInstalled-order-modal-device-row-0 #vm-VmNotInstalled-order-modal-down")
+        b.set_checked("#vm-VmNotInstalled-order-modal-1-checkbox", True)
+        b.click("#vm-VmNotInstalled-order-modal-0-actions #vm-VmNotInstalled-order-modal-down")
         b.click("#vm-VmNotInstalled-order-modal-save")
         b.wait_not_present(".modal-body")
 
@@ -647,7 +645,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         bootOrder = b.text("#vm-subVmTest1-boot-order")
         b.click("#vm-subVmTest1-boot-order") # Open dialog
         b.wait_present(".modal-body")
-        b.click("#vm-subVmTest1-order-modal-device-row-0 #vm-subVmTest1-order-modal-down") # Change order
+        b.click("#vm-subVmTest1-order-modal-0-actions #vm-subVmTest1-order-modal-down") # Change order
         b.click("#vm-subVmTest1-order-modal-save") # Save
         b.wait_not_present(".modal-body")
 

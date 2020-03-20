@@ -22,12 +22,11 @@ import cockpit from 'cockpit';
 import {
     ButtonGroup,
     Icon,
-    ListView,
-    ListViewItem,
     Modal
 } from 'patternfly-react';
 import { Button } from '@patternfly/react-core';
 
+import { SelectableListing } from 'cockpit-components-listing.jsx';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import {
     findHostNodeDevice,
@@ -53,9 +52,10 @@ const _ = cockpit.gettext;
 function getUIBootOrderDevices(vm) {
     const devices = getSortedBootOrderDevices(vm.inactiveXML);
 
-    devices.forEach(dev => {
-        dev.checked = typeof dev.bootOrder !== 'undefined';
+    devices.forEach((dev, index) => {
+        dev.selected = typeof dev.bootOrder !== 'undefined';
         dev.initialOrder = parseInt(dev.bootOrder);
+        dev.index = index;
     });
 
     return devices;
@@ -64,12 +64,12 @@ function getUIBootOrderDevices(vm) {
 const DeviceInfo = ({ descr, value }) => {
     return (
         <div className='ct-form'>
-            <label className='control-label' htmlFor={value}>
+            <span className='control-label' htmlFor={value}>
                 {descr}
-            </label>
-            <span id={value}>
-                {value}
             </span>
+            <samp id={value}>
+                {value}
+            </samp>
         </div>
     );
 };
@@ -151,32 +151,17 @@ const DeviceRow = ({ idPrefix, device, index, onToggle, upDisabled, downDisabled
     }
     }
 
-    const upArrow = <Button isDisabled={upDisabled} onClick={moveUp}><Icon id={`${idPrefix}-up`} type="fa" name="angle-up" /></Button>;
-    const downArrow = <Button isDisabled={downDisabled} onClick={moveDown}><Icon id={`${idPrefix}-down`} type="fa" name="angle-down" /></Button>;
+    const upArrow = <Button isDisabled={upDisabled} variant="secondary" onClick={moveUp}><Icon id={`${idPrefix}-up`} type="fa" name="angle-up" /></Button>;
+    const downArrow = <Button isDisabled={downDisabled} variant="secondary" onClick={moveDown}><Icon id={`${idPrefix}-down`} type="fa" name="angle-down" /></Button>;
 
-    const actions = (
+    const actions = ((!upDisabled || !downDisabled) &&
         <ButtonGroup>
             {upArrow}
             {downArrow}
         </ButtonGroup>
     );
 
-    const checkbox = (
-        <label htmlFor={`${idPrefix}-device-row-${index}-checkbox`}>
-            <input id={`${idPrefix}-device-row-${index}-checkbox`} type="checkbox" checked={device.checked} onChange={onToggle} />
-        </label>
-    );
-
-    return (
-        <ListViewItem
-            id={`${idPrefix}-device-row-${index}`}
-            className={ device.checked ? "is-checked" : "" }
-            checkboxInput={checkbox}
-            heading={heading}
-            additionalInfo={additionalInfo}
-            actions={actions}
-        />
-    );
+    return { name: heading, id: device.index, selected: device.selected, additionalInfo, actions };
 };
 
 export class BootOrderModal extends React.Component {
@@ -199,7 +184,7 @@ export class BootOrderModal extends React.Component {
 
     save() {
         const { dispatch, vm } = this.props;
-        const devices = this.state.devices.filter((device) => device.checked);
+        const devices = this.state.devices.filter((device) => device.selected);
 
         dispatch(changeBootOrder({
             vm,
@@ -212,11 +197,11 @@ export class BootOrderModal extends React.Component {
                 });
     }
 
-    onToggleDevice(device) {
+    onToggleDevice(index) {
         // create new array so we don't edit state
         const devices = [...this.state.devices];
 
-        devices[devices.indexOf(device)].checked = !devices[devices.indexOf(device)].checked;
+        devices[devices.findIndex(dev => dev.index === index)].selected = !devices[devices.findIndex(dev => dev.index === index)].selected;
 
         this.setState({ devices: devices });
     }
@@ -260,11 +245,11 @@ export class BootOrderModal extends React.Component {
          */
         function deviceStateHasChanged(device, index) {
             // device was selected
-            if (device.checked && !device.initialOrder)
+            if (device.selected && !device.initialOrder)
                 return true;
 
             // device was unselected
-            if (!device.checked && device.initialOrder)
+            if (!device.selected && device.initialOrder)
                 return true;
 
             // device was moved in boot order list
@@ -286,26 +271,28 @@ export class BootOrderModal extends React.Component {
             }
         };
 
+        const rows = this.state.devices.map((device, index) => {
+            const nextDevice = this.state.devices[index + 1];
+            return DeviceRow({
+                key: index,
+                idPrefix: idPrefix,
+                index: index,
+                device: device,
+                onClick: () => this.onToggleDevice(device.index),
+                onToggle: () => this.onToggleDevice(device.index),
+                upDisabled: !index || !device.selected,
+                downDisabled: index + 1 == this.state.devices.length || !nextDevice.selected,
+                moveUp: () => this.moveUp(device),
+                moveDown: () => this.moveDown(device),
+                nodeDevices: nodeDevices
+            });
+        });
+
         const defaultBody = (
             <div className="list-group dialog-list-ct">
-                <ListView className="boot-order-list-view">
-                    {this.state.devices.map((device, index) => {
-                        const nextDevice = this.state.devices[index + 1];
-                        return <DeviceRow
-                                    key={index}
-                                    idPrefix={idPrefix}
-                                    index={index}
-                                    device={device}
-                                    onClick={() => this.onToggleDevice(device)}
-                                    onToggle={() => this.onToggleDevice(device)}
-                                    upDisabled={!index || !device.checked}
-                                    downDisabled={index + 1 == this.state.devices.length || !nextDevice.checked}
-                                    moveUp={() => this.moveUp(device)}
-                                    moveDown={() => this.moveDown(device)}
-                                    nodeDevices={nodeDevices}
-                        />;
-                    })}
-                </ListView>
+                <SelectableListing rows={rows}
+                    onRowToggle={this.onToggleDevice}
+                    idPrefix={idPrefix} />
             </div>
         );
 

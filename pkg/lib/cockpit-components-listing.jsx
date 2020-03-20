@@ -19,6 +19,7 @@
 
 import PropTypes from 'prop-types';
 import React from 'react';
+import { Flex, FlexItem, FlexModifiers } from '@patternfly/react-core';
 import './listing.scss';
 import '../../node_modules/@patternfly/patternfly/components/Select/select.scss';
 import '../../node_modules/@patternfly/patternfly/components/Check/check.scss';
@@ -418,14 +419,32 @@ export const SelectableListing = ({ rows, onRowToggle, idPrefix }) => {
         <fieldset className="list-group dialog-list-ct pf-c-select" id={idPrefix + "-selectable-listing"}>
             {rows.map(row => {
                 return (
-                    <label className="pf-c-check pf-c-select__menu-item" htmlFor={idPrefix + "-" + row.id} key={row.id}>
-                        <input className="pf-c-check__input"
-                            name="select-checkbox-expanded-active"
-                            onChange={() => onRowToggle(row.id)}
-                            type="checkbox"
-                            id={idPrefix + "-" + row.id + "-checkbox"}
-                            checked={row.selected} />
-                        <span className="pf-c-check__label">{row.name}</span>
+                    <label className="pf-c-select__menu-item" htmlFor={idPrefix + "-" + row.id} key={row.id}>
+                        <Flex>
+                            <Flex>
+                                <FlexItem>
+                                    <input className="pf-c-check__input"
+                                        name="select-checkbox-expanded-active"
+                                        onChange={() => onRowToggle(row.id)}
+                                        type="checkbox"
+                                        id={idPrefix + "-" + row.id + "-checkbox"}
+                                        checked={row.selected} />
+                                </FlexItem>
+                                <FlexItem>
+                                    <span id={idPrefix + "-" + row.id + "-name"} className="pf-c-check__label">{row.name}</span>
+                                </FlexItem>
+                            </Flex>
+                            <Flex breakpointMods={[{ modifier: FlexModifiers["flex-1"] }]}>
+                                <FlexItem>
+                                    <span id={idPrefix + "-" + row.id + "-additionalinfo"}>{row.additionalInfo && row.additionalInfo.map(info => info)}</span>
+                                </FlexItem>
+                            </Flex>
+                            <Flex>
+                                <FlexItem breakpointMods={ [{ modifier: FlexModifiers["justify-content-flex-end"] }] }>
+                                    <span id={idPrefix + "-" + row.id + "-actions"}>{row.actions}</span>
+                                </FlexItem>
+                            </Flex>
+                        </Flex>
                     </label>);
             })}
         </fieldset>

@@ -176,7 +176,6 @@ class App extends React.Component {
                 {config.provider.name === 'LibvirtDBus' && path.length > 0 && path[0] == 'networks' &&
                 <NetworkList networks={networks}
                     dispatch={dispatch}
-                    loggedUser={systemInfo.loggedUser}
                     resourceHasError={this.state.resourceHasError}
                     onAddErrorNotification={this.onAddErrorNotification}
                     vms={vms}

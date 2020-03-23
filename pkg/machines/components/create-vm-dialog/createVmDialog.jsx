@@ -939,7 +939,7 @@ class CreateVmModal extends React.Component {
                 </Modal.Body>
                 <Modal.Footer>
                     {this.state.inProgress && <div className="spinner spinner-sm pull-left" />}
-                    <Button variant='secondary' className='btn-cancel' onClick={ this.props.close }>
+                    <Button variant='link' className='btn-cancel' onClick={ this.props.close }>
                         {_("Cancel")}
                     </Button>
                     <Button variant="primary"

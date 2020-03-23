@@ -31,7 +31,7 @@ class DashBoardHelpers:
         b.click('#dashboard-add')
         b.wait_popup('dashboard_setup_server_dialog')
         self.wait_discovered_addresses(b, addresses)
-        b.click('#dashboard_setup_server_dialog .pf-m-secondary')
+        b.click('#dashboard_setup_server_dialog .pf-m-link')
         b.wait_popdown('dashboard_setup_server_dialog')
 
     def wait_discovered_addresses(self, b, expected):
@@ -367,7 +367,7 @@ class TestDashboardEditLimits(MachineCase, DashBoardHelpers):
             else:
                 b.wait_not_present("#dashboard_setup_server_dialog .dashboard-machine-warning")
 
-            b.click("#dashboard_setup_server_dialog .pf-m-secondary")
+            b.click("#dashboard_setup_server_dialog .pf-m-link")
 
         self.login_and_go("/dashboard")
 

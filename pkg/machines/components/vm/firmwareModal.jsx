@@ -71,7 +71,7 @@ export class FirmwareModal extends React.Component {
                 </Modal.Body>
                 <Modal.Footer>
                     {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
-                    <Button variant='secondary' onClick={this.close}>
+                    <Button variant='link' onClick={this.close}>
                         {_("Cancel")}
                     </Button>
                     <Button variant='primary' id="firmware-dialog-apply" onClick={this.save}>

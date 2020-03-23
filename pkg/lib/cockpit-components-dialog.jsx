@@ -209,7 +209,7 @@ export class DialogFooter extends React.Component {
                 { error_element }
                 { this.props.extra_element }
                 { wait_element }
-                <Button variant="secondary" className="cancel" onClick={this.cancel_click} isDisabled={cancel_disabled}>{ cancel_caption }</Button>
+                <Button variant="link" className="cancel" onClick={this.cancel_click} isDisabled={cancel_disabled}>{ cancel_caption }</Button>
                 { action_buttons }
             </Modal.Footer>
         );

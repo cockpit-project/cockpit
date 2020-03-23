@@ -476,7 +476,7 @@ class CreateNetworkModal extends React.Component {
                 <Modal.Footer>
                     {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
                     {this.state.createInProgress && <div className="spinner spinner-sm pull-left" />}
-                    <Button variant='secondary' className='btn-cancel' onClick={ this.props.close }>
+                    <Button variant='link' className='btn-cancel' onClick={ this.props.close }>
                         {_("Cancel")}
                     </Button>
                     <Button variant='primary'

@@ -231,7 +231,7 @@ export class StoragePoolDelete extends React.Component {
                     </Modal.Body>
                     <Modal.Footer>
                         {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
-                        <Button variant='secondary' className='btn-cancel' onClick={this.close}>
+                        <Button variant='link' className='btn-cancel' onClick={this.close}>
                             {_("Cancel")}
                         </Button>
                         <Button variant='danger'

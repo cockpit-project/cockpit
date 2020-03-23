@@ -253,7 +253,7 @@ export class VCPUModal extends React.Component {
                 <Modal.Footer>
                     {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
                     { caution }
-                    <Button id='machines-vcpu-modal-dialog-cancel' variant='secondary' className='btn-cancel' onClick={this.props.close}>
+                    <Button id='machines-vcpu-modal-dialog-cancel' variant='link' className='btn-cancel' onClick={this.props.close}>
                         {_("Cancel")}
                     </Button>
                     <Button id='machines-vcpu-modal-dialog-apply' variant='primary' onClick={this.save}>

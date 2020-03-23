@@ -192,7 +192,9 @@ class TestStorage(StorageCase):
         self.dialog_apply()
         self.dialog_wait_close()
         b.wait_in_text("#detail-sidebar", dev_2)
-        b.wait_in_text("#detail-header label:contains(Capacity) + div", "96 MiB")
+        # this is sometimes 92, sometimes 96 MiB
+        b.wait_js_cond("Number(ph_text('#detail-header label:contains(Capacity) + div').split(' ')[0]) >= 92")
+        b.wait_js_cond("Number(ph_text('#detail-header label:contains(Capacity) + div').split(' ')[0]) <= 96")
 
         self.content_tab_action(1, 1, "Grow")
         self.dialog({"size": 70})

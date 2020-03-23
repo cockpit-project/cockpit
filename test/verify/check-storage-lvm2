@@ -235,7 +235,8 @@ class TestStorage(StorageCase):
 
         # Create a volume group out of disk1
         self.dialog_with_retry(trigger=lambda: self.devices_dropdown('Create Volume Group'),
-                               expect=lambda: self.dialog_is_present('disks', disk1),
+                               expect=lambda: self.dialog_is_present('disks', disk1) and
+                                              self.dialog_is_present('disks', "unpartitioned space on Linux scsi_debug"),
                                values={"disks": {disk1: True}})
 
         b.wait_in_text("#devices", "vgroup0")

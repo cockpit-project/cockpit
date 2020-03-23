@@ -123,7 +123,7 @@ class StorageHelpers:
         self.browser.click(dropdown + " a:contains('%s')" % title)
 
     def content_tab_expand(self, row_index, tab_index):
-        tab_btn = self.content_row_tbody(row_index) + " .listing-ct-head > ul li:nth-child(%d) a" % tab_index
+        tab_btn = self.content_row_tbody(row_index) + " .listing-ct-head > nav ul li:nth-child(%d) a" % tab_index
         tab = self.content_row_tbody(row_index) + " .listing-ct-body:nth-child(%d)" % (tab_index + 1)
         self.content_row_expand(row_index)
         self.browser.click(tab_btn)
@@ -163,7 +163,7 @@ class StorageHelpers:
         def check():
             row = self.content_row_tbody(row_index)
             row_item = row + " tr.listing-ct-item"
-            tab_btn = row + " .listing-ct-head > ul li:nth-child(%d) a" % tab_index
+            tab_btn = row + " .listing-ct-head > nav ul li:nth-child(%d) a" % tab_index
             tab = row + " .listing-ct-body:nth-child(%d)" % (tab_index + 1)
             cell = tab + " div.ct-form label:contains(%s) + *" % title
 

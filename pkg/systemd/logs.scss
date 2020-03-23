@@ -2,14 +2,8 @@
 @import "../lib/journal.css";
 @import "./system-global.scss";
 
-/* Make sure to not break log message lines in order to preserve information */
-#journal-entry .info-table-ct td {
-    white-space: normal;
-    word-break: break-all;
-}
-
+/* Do not break labels */
 #journal-entry .info-table-ct td:first-child {
-    white-space: normal;
     word-break: keep-all;
 }
 
@@ -24,6 +18,16 @@
 
 #journal-entry-fields th {
     font-weight: normal;
+}
+
+.journal-entry-value,
+#journal-entry-message {
+    word-break: break-all;
+    white-space: pre-wrap !important;
+}
+
+.journal-entry-value {
+    font-family: monospace, monospace;
 }
 
 .other-threads-btn {

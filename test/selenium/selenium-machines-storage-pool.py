@@ -146,10 +146,7 @@ class MachinesStoragePoolTestSuite(MachinesLib):
                                                   parted=part)
             self.click(self.wait_css('#{}-name'.format(pool_name), cond=clickable))
             self.click(self.wait_css('#delete-{}'.format(pool_name), cond=clickable))
-            self.click(
-                self.wait_xpath(
-                    '/html/body/div[2]/div[2]/div/div/div[3]/button[2]',
-                    cond=clickable))
+            self.click(self.wait_css('.modal-dialog button.pf-m-danger', cond=clickable))
             self.wait_css('#{}-name', cond=invisible)
 
         pdd.clear()
@@ -222,9 +219,7 @@ class MachinesStoragePoolTestSuite(MachinesLib):
             self.wait_css('#{}-name'.format(el_id_prefix), cond=clickable))
         self.click(
             self.wait_css('#delete-{}'.format(el_id_prefix), cond=clickable))
-        self.click(
-            self.wait_xpath('/html/body/div[2]/div[2]/div/div/div[3]/button[2]',
-                            cond=clickable))
+        self.click(self.wait_css('.modal-dialog button.pf-m-danger', cond=clickable))
         self.wait_css('#{}-name'.format(el_id_prefix), cond=invisible)
         self.machine.execute('sudo test -f {}/{}'.format(path, vol_name))
 
@@ -236,9 +231,7 @@ class MachinesStoragePoolTestSuite(MachinesLib):
         self.click(self.wait_css(
             '#delete-{}'.format(el_id_prefix), cond=clickable))
         self.check_box(self.wait_css('#storage-pool-delete-volumes'))
-        self.click(
-            self.wait_xpath('/html/body/div[2]/div[2]/div/div/div[3]/button[2]',
-                            cond=clickable))
+        self.click(self.wait_css('.modal-dialog button.pf-m-danger', cond=clickable))
         self.wait_dialog_disappear()
         self.wait_css('#{}-name'.format(el_id_prefix), cond=invisible)
         self.machine.execute(
@@ -250,7 +243,5 @@ class MachinesStoragePoolTestSuite(MachinesLib):
             self.wait_css('#{}-name'.format(el_id_prefix), cond=clickable))
         self.click(
             self.wait_css('#delete-{}'.format(el_id_prefix), cond=clickable))
-        self.click(
-            self.wait_xpath('/html/body/div[2]/div[2]/div/div/div[3]/button[2]',
-                            cond=clickable))
+        self.click(self.wait_css('.modal-dialog button.pf-m-danger', cond=clickable))
         self.wait_css('#{}-name'.format(el_id_prefix), cond=invisible)

@@ -212,13 +212,13 @@ class EditDiskModalBody extends React.Component {
                 </Modal.Body>
                 <Modal.Footer>
                     {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
-                    { showFooterWarning() }
-                    <Button id={`${idPrefix}-dialog-cancel`} variant='link' className='btn-cancel' onClick={this.props.close}>
-                        {_("Cancel")}
-                    </Button>
                     <Button id={`${idPrefix}-dialog-save`} variant='primary' onClick={this.onSaveClicked}>
                         {_("Save")}
                     </Button>
+                    <Button id={`${idPrefix}-dialog-cancel`} variant='link' className='btn-cancel' onClick={this.props.close}>
+                        {_("Cancel")}
+                    </Button>
+                    { showFooterWarning() }
                 </Modal.Footer>
             </Modal>
         );

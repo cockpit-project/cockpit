@@ -507,13 +507,13 @@ class CreateStoragePoolModal extends React.Component {
                 </Modal.Body>
                 <Modal.Footer>
                     {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
-                    {this.state.createInProgress && <div className="spinner spinner-sm pull-left" />}
-                    <Button variant='link' className='btn-cancel' onClick={ this.props.close }>
-                        {_("Cancel")}
-                    </Button>
                     <Button variant='primary' isDisabled={this.state.createInProgress} onClick={this.onCreateClicked}>
                         {_("Create")}
                     </Button>
+                    <Button variant='link' className='btn-cancel' onClick={ this.props.close }>
+                        {_("Cancel")}
+                    </Button>
+                    {this.state.createInProgress && <div className="spinner spinner-sm pull-left" />}
                 </Modal.Footer>
             </Modal>
         );

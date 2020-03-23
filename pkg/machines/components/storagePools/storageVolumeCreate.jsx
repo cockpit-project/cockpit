@@ -89,13 +89,13 @@ class CreateStorageVolumeModal extends React.Component {
                 </Modal.Body>
                 <Modal.Footer>
                     {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
-                    {this.state.createInProgress && <div className="spinner spinner-sm pull-left" />}
-                    <Button variant='link' className='btn-cancel' onClick={ this.props.close }>
-                        {_("Cancel")}
-                    </Button>
                     <Button variant="primary" onClick={this.onCreateClicked} isDisabled={this.state.createInProgress}>
                         {_("Create")}
                     </Button>
+                    <Button variant='link' className='btn-cancel' onClick={ this.props.close }>
+                        {_("Cancel")}
+                    </Button>
+                    {this.state.createInProgress && <div className="spinner spinner-sm pull-right" />}
                 </Modal.Footer>
             </Modal>
         );

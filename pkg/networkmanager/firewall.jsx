@@ -576,11 +576,11 @@ class AddServicesModal extends React.Component {
                             isInline
                             title={_("Adding custom ports will reload firewalld. A reload will result in the loss of any runtime-only configuration!")} />
                     }
-                    <Button variant='link' className='btn-cancel' onClick={this.props.close}>
-                        {_("Cancel")}
-                    </Button>
                     <Button variant='primary' onClick={this.save} aria-label={titleText}>
                         {addText}
+                    </Button>
+                    <Button variant='link' className='btn-cancel' onClick={this.props.close}>
+                        {_("Cancel")}
                     </Button>
                 </Modal.Footer>
             </Modal>
@@ -727,14 +727,13 @@ class ActivateZoneModal extends React.Component {
                     {
                         this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />
                     }
-
-                    <Button variant="link" className="btn-cancel" onClick={this.props.close}>
-                        { _("Cancel") }
-                    </Button>
                     <Button variant="primary" onClick={this.save} isDisabled={this.state.zone === null ||
                                                                             (this.state.interfaces.size === 0 && this.state.ipRange === "ip-entire-subnet") ||
                                                                             (this.state.ipRange === "ip-range" && !this.state.ipRangeValue)}>
                         { _("Add zone") }
+                    </Button>
+                    <Button variant="link" className="btn-cancel" onClick={this.props.close}>
+                        { _("Cancel") }
                     </Button>
                 </Modal.Footer>
             </Modal>
@@ -753,11 +752,11 @@ function DeleteConfirmationModal(props) {
                 <div>{props.body}</div>
             </Modal.Body>
             <Modal.Footer>
-                <Button variant="link" className="btn-cancel" onClick={props.onCancel}>
-                    { _("Cancel") }
-                </Button>
                 <Button variant="danger" onClick={props.onDelete} aria-label={cockpit.format(_("Confirm removal of $0"), props.target)}>
                     { _("Delete") }
+                </Button>
+                <Button variant="link" className="btn-cancel" onClick={props.onCancel}>
+                    { _("Cancel") }
                 </Button>
             </Modal.Footer>
         </Modal>

@@ -33,12 +33,12 @@
 </div>
 
 <div class="modal-footer">
+    <button class="pf-c-button pf-m-primary" translate="yes">Add</button>
+    <button class="pf-c-button pf-m-link" data-dismiss="modal" translate="yes">Cancel</button>
     {{#nearlimit}}
     <div class="alert alert-warning dialog-error dashboard-machine-warning">
         <span class="pficon pficon-warning-triangle-o"></span>
         <span translate="yes">Connecting simultaneously to more than {{ limit }} machines is unsupported.</span>
     </div>
     {{/nearlimit}}
-    <button class="pf-c-button pf-m-link" data-dismiss="modal" translate="yes">Cancel</button>
-    <button class="pf-c-button pf-m-primary" translate="yes">Add</button>
 </div>

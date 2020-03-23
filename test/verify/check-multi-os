@@ -47,7 +47,7 @@ def add_machine(b, address):
 class TestMultiOS(MachineCase):
     provision = {
         "0": {"address": "10.111.113.1/20"},
-        "fedora-23-stock": {"address": "10.111.113.5/20", "image": "fedora-23-stock"}
+        "centos-7": {"address": "10.111.113.5/20", "image": "centos-7"}
     }
 
     def check_spawn(self, b, address):
@@ -65,7 +65,7 @@ class TestMultiOS(MachineCase):
                 .proxy("org.freedesktop.DBus", "/").call("GetId");
         })""", address)
 
-    def testFedora23(self):
+    def testCentOS7(self):
         dev_m = self.machine
         dev_b = self.browser
 
@@ -82,26 +82,9 @@ class TestMultiOS(MachineCase):
         dev_dashboard_addresses = ["localhost"]
         wait_dashboard_addresses(dev_b, dev_dashboard_addresses)
 
-        def stock_login_and_go(browser, page, href):
-            browser.open(href)
-            browser.wait_visible("#login")
-            browser.set_val('#login-user-input', browser.default_user)
-            browser.set_val('#login-password-input', "foobar")
-            browser.click('#login-button')
-            browser.expect_load()
-            browser.wait_visible('#content')
-            if page:
-                stock_enter_page(browser, page)
-
-        def stock_enter_page(browser, page):
-            frame = "cockpit1:localhost/" + page
-            browser.switch_to_top()
-            browser.wait_present("iframe.container-frame[name='%s'][data-loaded]" % frame)
-            browser.wait_visible("iframe.container-frame[name='%s']" % frame)
-            browser.switch_to_frame(frame)
-            browser.wait_visible('#' + page)
-
-        stock_m = self.machines['fedora-23-stock']
+        stock_m = self.machines['centos-7']
+        stock_m.execute("firewall-cmd --add-service cockpit")
+        stock_m.start_cockpit()
 
         # Wait for connectivity between the two
         wait(lambda: stock_m.execute("ip addr >&2 && ping -q -w5 -c5 10.111.113.1"))
@@ -110,7 +93,7 @@ class TestMultiOS(MachineCase):
         stock_m.execute("hostnamectl set-hostname stock")
         stock_b = self.new_browser(stock_m)
 
-        stock_login_and_go(stock_b, "dashboard", href="/dashboard")
+        stock_b.login_and_go("/dashboard")
         wait_dashboard_addresses(stock_b, ["localhost"])
 
         add_machine(stock_b, "10.111.113.1")
@@ -155,10 +138,10 @@ class TestMultiOS(MachineCase):
 class TestMultiOSDirect(MachineCase):
     provision = {
         "0": {"address": "10.111.113.1/20"},
-        "fedora-23-stock": {"address": "10.111.113.5/20", "image": "fedora-23-stock"}
+        "centos-7": {"address": "10.111.113.5/20", "image": "centos-7"}
     }
 
-    def testFedora23Direct(self):
+    def testCentos7Direct(self):
         b = self.browser
 
         self.allow_hostkey_messages()
@@ -168,7 +151,8 @@ class TestMultiOSDirect(MachineCase):
         dev_dashboard_addresses = ["localhost"]
         wait_dashboard_addresses(b, dev_dashboard_addresses)
 
-        stock_m = self.machines['fedora-23-stock']
+        dev_m = self.machine
+        stock_m = self.machines['centos-7']
         stock_m.execute("hostnamectl set-hostname stock")
 
         add_machine(b, "10.111.113.5")
@@ -187,17 +171,20 @@ class TestMultiOSDirect(MachineCase):
         b.expect_load()
 
         b.wait_present("iframe.container-frame[name='cockpit1:localhost/system'][data-loaded]")
-        b.wait_not_visible(".curtains")
+        b.wait_not_visible(".curtains-ct")
         b.wait_visible("iframe.container-frame[name='cockpit1:localhost/system']")
         b.switch_to_frame("cockpit1:localhost/system")
         b.wait_visible("body")
         b.wait_in_text('#system_information_hostname_button', "stock")
         b.switch_to_top()
 
-        # Branding uses default because there is no os information
-        b.wait_not_present("#index-brand.hide-before")
+        # Debian/Ubuntu don't ship CentOS branding
+        if "debian" in dev_m.image or "ubuntu" in dev_m.image:
+            b.wait_in_text("#index-brand", "Cockpit")
+        else:
+            b.wait_in_text("#index-brand", "CentOS")
 
-        b.wait_js_cond('window.location.pathname.indexOf("shell/index.html") > -1')
+        b.wait_js_cond('window.location.pathname == "/=10.111.113.5/system"')
 
 
 if __name__ == '__main__':

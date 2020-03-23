@@ -104,7 +104,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.wait_text('#content-user-name', 'Administrator')
 
         if m.image not in ['fedora-coreos']: # logs in via ssh, not cockpit-session
-            self.assertRegex(m.execute("who"), "^admin *web")
+            self.assertRegex(m.execute("who"), r"(^|\n)admin *web")
 
         # reload, which should log us in with the cookie
         b.reload()
@@ -112,7 +112,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.wait_text('#content-user-name', 'Administrator')
 
         if m.image not in ['fedora-coreos']: # logs in via ssh, not cockpit-session
-            self.assertRegex(m.execute("who"), "^admin *web")
+            self.assertRegex(m.execute("who"), r"(^|\n)admin *web")
 
         b.click("#content-user-name")
         b.click('#go-account')

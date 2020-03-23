@@ -37,10 +37,9 @@ def add_machine(b, address):
     b.wait_popup('dashboard_setup_server_dialog')
     b.set_val('#add-machine-address', address)
 
-    b.wait_text('#dashboard_setup_server_dialog button:nth-of-type(2)', "Add")
-    b.click('#dashboard_setup_server_dialog button:nth-of-type(2)')
+    b.click('#dashboard_setup_server_dialog .modal-footer button:contains(Add)')
     b.wait_in_text('#dashboard_setup_server_dialog', "Fingerprint")
-    b.click('#dashboard_setup_server_dialog button:nth-of-type(2)')
+    b.click('#dashboard_setup_server_dialog .modal-footer button:contains(Connect)')
     b.wait_popdown('dashboard_setup_server_dialog')
 
 

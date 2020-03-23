@@ -56,9 +56,8 @@ def fix_bridge(m):
 
 
 def check_failed_state(b, expected_title):
-    b.wait_in_text('#troubleshoot-dialog button:nth-of-type(1)', "Close")
     b.wait_in_text('#troubleshoot-dialog h4', expected_title)
-    b.click("#troubleshoot-dialog button:nth-of-type(1)")
+    b.click("#troubleshoot-dialog .modal-footer button:contains(Close)")
     b.wait_popdown('troubleshoot-dialog')
 
 
@@ -67,17 +66,16 @@ def start_machine_troubleshoot(b, new=False, known_host=False):
     b.click('#machine-troubleshoot')
     b.wait_popup('troubleshoot-dialog')
     if (new):
-        b.wait_text('#troubleshoot-dialog button:nth-of-type(2)', "Add")
-        b.click('#troubleshoot-dialog button:nth-of-type(2)')
+        b.click('#troubleshoot-dialog .modal-footer button:contains(Add)')
 
         if not known_host:
             b.wait_in_text('#troubleshoot-dialog', "Fingerprint")
-            b.click('#troubleshoot-dialog button:nth-of-type(2)')
+            b.click('#troubleshoot-dialog .modal-footer button:contains(Connect)')
 
 
 def fail_login(b):
-    b.click('#troubleshoot-dialog button:nth-of-type(2)')
-    b.wait_present('#troubleshoot-dialog button:nth-of-type(2):not([disabled])')
+    b.click('#troubleshoot-dialog .modal-footer button:contains(Log In)')
+    b.wait_present('#troubleshoot-dialog .modal-footer button:contains(Log In):not([disabled])')
     b.wait_in_text("#troubleshoot-dialog .dialog-error", "Login failed")
 
 

@@ -346,13 +346,13 @@ class TestAccounts(MachineCase):
 
         # Try an invalid date
         b.set_val("#account-expiration-input", "blah")
-        b.click("#account-expiration button:nth-of-type(2)")
+        b.click("#account-expiration .modal-footer button:contains(Change)")
         b.wait_text("#account-expiration .dialog-error", "Invalid expiration date")
 
         # Now a valid date 30 days in the future
         when = datetime.datetime.now() + datetime.timedelta(days=30)
         b.set_val("#account-expiration-input", when.isoformat().split("T")[0])
-        b.click("#account-expiration button:nth-of-type(2)")
+        b.click("#account-expiration .modal-footer button:contains(Change)")
         b.wait_popdown("account-expiration")
         b.wait_in_text("#account-expiration-button", "Lock account on")
         self.assertNotEqual(self.accountExpiryInfo("scruffy", "Account expires"), "never")
@@ -361,7 +361,7 @@ class TestAccounts(MachineCase):
         b.click("#account-expiration-button")
         b.wait_popup("account-expiration")
         b.click("#account-expiration-never")
-        b.click("#account-expiration button:nth-of-type(2)")
+        b.click("#account-expiration .modal-footer button:contains(Change)")
         b.wait_popdown("account-expiration")
         b.wait_text("#account-expiration-button", "Never lock account")
         self.assertEqual(self.accountExpiryInfo("scruffy", "Account expires"), "never")
@@ -375,12 +375,12 @@ class TestAccounts(MachineCase):
 
         # Try an invalid number
         b.set_val("#password-expiration-input", "-3")
-        b.click("#password-expiration button:nth-of-type(2)")
+        b.click("#password-expiration .modal-footer button:contains(Change)")
         b.wait_text("#password-expiration .dialog-error", "Invalid number of days")
 
         # Expire password every 30 days
         b.set_val("#password-expiration-input", "30")
-        b.click("#password-expiration button:nth-of-type(2)")
+        b.click("#password-expiration .modal-footer button:contains(Change)")
         b.wait_popdown("password-expiration")
         b.wait_in_text("#password-expiration-button", "Require password change on")
         self.assertNotEqual(self.accountExpiryInfo("scruffy", "Password expires"), "never")
@@ -389,7 +389,7 @@ class TestAccounts(MachineCase):
         b.click("#password-expiration-button")
         b.wait_popup("password-expiration")
         b.click("#password-expiration-never")
-        b.click("#password-expiration button:nth-of-type(2)")
+        b.click("#password-expiration .modal-footer button:contains(Change)")
         b.wait_popdown("password-expiration")
         b.wait_text("#password-expiration-button", "Never expire password")
         self.assertEqual(self.accountExpiryInfo("scruffy", "Password expires"), "never")
@@ -399,7 +399,7 @@ class TestAccounts(MachineCase):
         b.wait_popup("password-expiration")
         b.click("#password-expiration-expires")
         b.set_val("#password-expiration-input", "30")
-        b.click("#password-expiration button:nth-of-type(2)")
+        b.click("#password-expiration .modal-footer button:contains(Change)")
         b.wait_popdown("password-expiration")
 
         b.logout()
@@ -419,7 +419,7 @@ class TestAccounts(MachineCase):
         b.wait_text("#account-user-name", "scruffy")
         b.click("#password-reset-button")
         b.wait_popup("password-reset")
-        b.click("#password-reset button:nth-of-type(2)")
+        b.click("#password-reset .modal-footer button:contains(Reset)")
         b.wait_popdown("password-reset")
         b.wait_in_text("#password-expiration-button", "Password must be changed")
         self.assertEqual(self.accountExpiryInfo("scruffy", "Password expires"), "password must be changed")

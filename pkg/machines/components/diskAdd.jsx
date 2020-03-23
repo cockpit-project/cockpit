@@ -549,13 +549,13 @@ export class AddDiskModalBody extends React.Component {
                 </Modal.Body>
                 <Modal.Footer>
                     {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
-                    {this.state.addDiskInProgress && <div className="spinner spinner-sm pull-left" />}
-                    <Button id={`${idPrefix}-dialog-cancel`} variant='link' className='btn-cancel' onClick={this.props.close}>
-                        {_("Cancel")}
-                    </Button>
                     <Button id={`${idPrefix}-dialog-add`} variant='primary' isDisabled={this.state.addDiskInProgress || storagePools.length == 0} onClick={this.onAddClicked}>
                         {_("Add")}
                     </Button>
+                    <Button id={`${idPrefix}-dialog-cancel`} variant='link' className='btn-cancel' onClick={this.props.close}>
+                        {_("Cancel")}
+                    </Button>
+                    {this.state.addDiskInProgress && <div className="spinner spinner-sm pull-right" />}
                 </Modal.Footer>
             </Modal>
         );

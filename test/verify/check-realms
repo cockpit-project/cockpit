@@ -203,13 +203,12 @@ class TestRealms(MachineCase):
         b.click('#dashboard-add')
         b.wait_popup('dashboard_setup_server_dialog')
         b.set_val('#add-machine-address', 'x0.cockpit.lan')
-        b.wait_text('#dashboard_setup_server_dialog button:nth-of-type(2)', "Add")
-        b.click('#dashboard_setup_server_dialog button:nth-of-type(2)')
+        b.click('#dashboard_setup_server_dialog .modal-footer button:contains(Add)')
 
         # with --pubkey support this should Just Work, otherwise confirm fingerprint
         if '--pubkey' not in m.execute("sss_ssh_knownhostsproxy --help || true"):
             b.wait_in_text('#dashboard_setup_server_dialog', "Fingerprint")
-            b.click('#dashboard_setup_server_dialog button:nth-of-type(2)')
+            b.click('#dashboard_setup_server_dialog .modal-footer button:contains(Connect)')
         b.wait_popdown('dashboard_setup_server_dialog')
         b.wait_present("#dashboard-hosts a[data-address='x0.cockpit.lan']")
         b.logout()
@@ -385,10 +384,9 @@ class TestRealms(MachineCase):
         b.click("#overview #restart-button")
 
         b.wait_popup("shutdown-dialog")
-        b.wait_in_text("#shutdown-dialog button:nth-of-type(2)", 'Restart')
         b.click("#shutdown-dialog .dropdown button")
         b.click("a:contains('No Delay')")
-        b.click("#shutdown-dialog button:nth-of-type(2)")
+        b.click("#shutdown-dialog .modal-footer button:contains(Restart)")
         b.switch_to_top()
         b.wait_in_text(".curtains-ct h1", "Disconnected")
         m.wait_reboot()
@@ -726,12 +724,11 @@ class TestKerberos(MachineCase):
         b.wait_popup('troubleshoot-dialog')
 
         b.set_val("#add-machine-address", "bad-user@x0.cockpit.lan")
-        b.wait_text('#troubleshoot-dialog button:nth-of-type(2)', "Add")
-        b.click('#troubleshoot-dialog button:nth-of-type(2)')
+        b.click('#troubleshoot-dialog .modal-footer button:contains(Add)')
         # with --pubkey support the fingerprint is already known, otherwise confirm fingerprint
         if '--pubkey' not in m.execute("sss_ssh_knownhostsproxy --help || true"):
             b.wait_in_text('#troubleshoot-dialog', "Fingerprint")
-            b.click('#troubleshoot-dialog button:nth-of-type(2)')
+            b.click('#troubleshoot-dialog .modal-footer button:contains(Connect)')
         b.wait_in_text('#troubleshoot-dialog h4', "Log in to")
         b.click("#login-type button")
         b.click("#login-type li[value=stored] a")
@@ -741,7 +738,7 @@ class TestKerberos(MachineCase):
         b.wait_in_text("#login-available", "Kerberos Ticket")
         b.wait_not_present("#login-available .empty")
         b.set_val("#login-custom-user", "")
-        b.click('#troubleshoot-dialog button:nth-of-type(2)')
+        b.click('#troubleshoot-dialog .modal-footer button:contains(Log In)')
 
         b.wait_popdown('troubleshoot-dialog')
         b.enter_page("/system/terminal", host="x0.cockpit.lan")
@@ -815,7 +812,7 @@ class TestPackageInstall(packagelib.PackageCase):
 
         b.click(self.domain_sel)
         b.wait_in_text(".modal-dialog:contains('Install Software')", "realmd is not available")
-        b.wait_present(".modal-dialog:contains('Install Software') .modal-footer button:nth-of-type(2):disabled")
+        b.wait_present(".modal-dialog:contains('Install Software') .modal-footer button:contains(Install):disabled")
         b.click(".modal-dialog:contains('Install Software') .modal-footer button.cancel")
         b.wait_not_present(".modal-dialog:contains('Install Software')")
         b.logout()
@@ -832,7 +829,7 @@ class TestPackageInstall(packagelib.PackageCase):
         self.waitTooltip("requires installation of realmd")
 
         b.click(self.domain_sel)
-        b.click(".modal-dialog:contains('Install Software') .modal-footer button:nth-of-type(2)")
+        b.click(".modal-dialog:contains('Install Software') .modal-footer button:contains(Install)")
         b.wait_not_present(".modal-dialog:contains('Install Software')")
 
         # the stub package doesn't provide a realmd D-Bus service, so the "join

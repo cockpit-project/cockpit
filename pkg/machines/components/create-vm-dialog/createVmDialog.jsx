@@ -938,15 +938,15 @@ class CreateVmModal extends React.Component {
                     {dialogBody}
                 </Modal.Body>
                 <Modal.Footer>
-                    {this.state.inProgress && <div className="spinner spinner-sm pull-left" />}
-                    <Button variant='link' className='btn-cancel' onClick={ this.props.close }>
-                        {_("Cancel")}
-                    </Button>
                     <Button variant="primary"
                             isDisabled={Object.getOwnPropertyNames(validationFailed).length > 0}
                             onClick={this.onCreateClicked}>
                         {this.props.mode == 'create' ? _("Create") : _("Import")}
                     </Button>
+                    <Button variant='link' className='btn-cancel' onClick={ this.props.close }>
+                        {_("Cancel")}
+                    </Button>
+                    {this.state.inProgress && <div className="spinner spinner-sm pull-right" />}
                 </Modal.Footer>
             </Modal>
         );

@@ -178,11 +178,11 @@ export class DeleteDialog extends React.Component {
                     </Modal.Body>
                     <Modal.Footer>
                         {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
-                        <Button variant='link' className='btn-cancel' onClick={this.close}>
-                            {_("Cancel")}
-                        </Button>
                         <Button variant='danger' onClick={this.delete}>
                             {_("Delete")}
+                        </Button>
+                        <Button variant='link' className='btn-cancel' onClick={this.close}>
+                            {_("Cancel")}
                         </Button>
                     </Modal.Footer>
                 </Modal>

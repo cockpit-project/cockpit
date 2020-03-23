@@ -106,14 +106,14 @@ class ServiceConfirmDialog extends React.Component {
                     {this.props.message}
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant='link' className='btn-cancel' onClick={this.props.close}>
-                        { _("Cancel") }
-                    </Button>
                     { this.props.confirmText && this.props.confirmAction &&
                         <Button variant='danger' onClick={this.props.confirmAction}>
                             {this.props.confirmText}
                         </Button>
                     }
+                    <Button variant='link' className='btn-cancel' onClick={this.props.close}>
+                        { _("Cancel") }
+                    </Button>
                 </Modal.Footer>
             </Modal>
         );

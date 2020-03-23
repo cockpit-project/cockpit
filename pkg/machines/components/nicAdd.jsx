@@ -196,14 +196,14 @@ export class AddNIC extends React.Component {
                 </Modal.Body>
                 <Modal.Footer>
                     {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
-                    <Button id={`${idPrefix}-cancel`} variant='link' className='btn-cancel' onClick={this.props.close}>
-                        {_("Cancel")}
-                    </Button>
                     <Button isDisabled={["network", "direct", "bridge"].includes(this.state.networkType) && this.state.networkSource === undefined}
                             id={`${idPrefix}-add`}
                             variant='primary'
                             onClick={this.add}>
                         {_("Add")}
+                    </Button>
+                    <Button id={`${idPrefix}-cancel`} variant='link' className='btn-cancel' onClick={this.props.close}>
+                        {_("Cancel")}
                     </Button>
                 </Modal.Footer>
             </Modal>

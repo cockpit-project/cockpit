@@ -506,10 +506,16 @@ $(function() {
             if (key !== 'MESSAGE') {
                 out.append(
                     $('<tr>').append(
-                        $('<td>').css('text-align', 'right')
-                                .text(key),
-                        $('<td>').css('text-align', 'left')
-                                .text(journal.printable(entry[key]))));
+                        $('<td>', {
+                            class: "journal-entry-key",
+                            text: key
+                        }),
+                        $('<td>', {
+                            class: "journal-entry-value",
+                            text: journal.printable(entry[key])
+                        })
+                    )
+                );
             }
         });
     }

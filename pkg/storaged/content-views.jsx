@@ -90,7 +90,7 @@ function create_tabs(client, target, is_partition) {
         if (associated_warnings)
             tab_warnings = warnings.filter(w => associated_warnings.indexOf(w.warning) >= 0);
         if (tab_warnings.length > 0)
-            name = <span><span className="pficon pficon-warning-triangle-o" /> {name}</span>;
+            name = <a><span className="pficon pficon-warning-triangle-o" /> {name}</a>;
         tabs.push(
             {
                 name: name,

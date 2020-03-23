@@ -321,18 +321,7 @@ tbody.active .listing-ct-head {
     padding-right: 7px;
 }
 
-.listing-ct-head .nav li a {
-    font-size: 13px;
-    /* Counteract listing-ct-head padding */
-    margin-top: -$listing-ct-padding;
-    margin: 0;
-}
-
-.listing-ct-head .nav-tabs {
-    border-bottom: none;
-}
-
-.listing-ct-head .nav-tabs-pf {
+.listing-ct-head .pf-c-nav {
     flex: auto;
 }
 
@@ -610,25 +599,6 @@ div.listing-ct-head {
 
 tbody tr.listing-ct-noexpand {
     cursor: default;
-}
-
-/* Fix up nav-tabs-pf to work properly */
-
-.nav-tabs-pf > li:first-child a {
-    margin-left: 0px !important;
-    padding-left: $listing-ct-spacing !important;
-}
-
-.nav-tabs-pf > li a:before {
-    right: 0px !important;
-}
-
-.nav-tabs-pf > li > a:active:before,
-.nav-tabs-pf > li > a:focus:before,
-.nav-tabs-pf > li > a:hover:before,
-.nav-tabs-pf > li.active a:before {
-    height: $listing-ct-open-width;
-    left: 0px;
 }
 
 .listing-ct-item td,

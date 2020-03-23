@@ -19,6 +19,7 @@
 
 import PropTypes from 'prop-types';
 import React from 'react';
+import { Nav, NavItem, NavList, NavVariants } from '@patternfly/react-core';
 import './listing.scss';
 /* tabRenderers optional: list of tab renderers for inline expansion, array of objects with
  *     - name tab name (has to be unique in the entry, used as react key)
@@ -57,14 +58,13 @@ export class ListingPanel extends React.Component {
         this.handleTabClick = this.handleTabClick.bind(this);
     }
 
-    handleTabClick(tabIdx, e) {
-        // only consider primary mouse button
-        if (!e || e.button !== 0)
-            return;
+    handleTabClick(result) {
+        result.event.preventDefault();
+
         const prevTab = this.state.activeTab;
         let prevTabPresence = 'default';
         const loadedTabs = this.state.loadedTabs;
-        if (prevTab !== tabIdx) {
+        if (prevTab !== result.itemId) {
             // see if we need to unload the previous tab
             if (this.props.tabRenderers[prevTab] && 'presence' in this.props.tabRenderers[prevTab])
                 prevTabPresence = this.props.tabRenderers[prevTab].presence;
@@ -73,19 +73,17 @@ export class ListingPanel extends React.Component {
                 delete loadedTabs[prevTab];
 
             // ensure the new tab is loaded and update state
-            loadedTabs[tabIdx] = true;
-            this.setState({ loadedTabs: loadedTabs, activeTab: tabIdx });
+            loadedTabs[result.itemId] = true;
+            this.setState({ loadedTabs: loadedTabs, activeTab: result.itemId });
         }
-        e.stopPropagation();
-        e.preventDefault();
     }
 
     render() {
         const links = this.props.tabRenderers.map((itm, idx) => {
             return (
-                <li key={idx} className={ (idx === this.state.activeTab) ? "active" : ""}>
-                    <a href="#" tabIndex="0" onClick={ this.handleTabClick.bind(self, idx) }>{itm.name}</a>
-                </li>
+                <NavItem key={idx} id={itm.id} itemId={idx} isActive={idx === this.state.activeTab}>
+                    {itm.name}
+                </NavItem>
             );
         });
         const tabs = [];
@@ -130,13 +128,15 @@ export class ListingPanel extends React.Component {
                 </div>;
         } else {
             heading = (<div className="listing-ct-head">
+                {links.length && <Nav onSelect={this.handleTabClick}>
+                    <NavList variant={NavVariants.tertiary}>
+                        {links}
+                    </NavList>
+                </Nav>}
                 <div className="listing-ct-actions">
                     {listingDetail}
                     {this.props.listingActions}
                 </div>
-                <ul className="nav nav-tabs nav-tabs-pf">
-                    {links}
-                </ul>
             </div>);
         }
 

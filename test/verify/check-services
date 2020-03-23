@@ -158,14 +158,19 @@ Unit=test.service
 
         self.wait_service_present("test.service")
         wait_service_in_panel("test.service", "Disabled")
+        wait_service_state("test.service", "inactive")
 
         m.execute("systemctl start test.service")
         wait_service_state("test.service", "running")
-        m.execute("systemctl stop test.service")
         wait_service_in_panel("test.service", "Disabled")
+
+        m.execute("systemctl stop test.service")
+        wait_service_state("test.service", "inactive")
+        wait_service_in_panel("test.service", "Disabled")
+
         m.execute("systemctl enable test.service")
         wait_service_state("test.service", "inactive")
-        wait_service_state("test.service", "inactive")
+        wait_service_in_panel("test.service", "Enabled")
 
         # Selects Targets tab
         self.pick_tab(2)
@@ -199,6 +204,9 @@ Unit=test.service
         b.wait_in_text(svc_sel('test-onboot.timer'), "Today")  # next run
         b.wait_in_text(svc_sel('test-onboot.timer'), "unknown")  # last trigger
         m.execute("systemctl stop test-onboot.timer")
+
+        # Make sure that test.service was not started by either test.timer or test-onboot.timer
+        m.execute("systemctl stop test.service")
 
         # Selects Paths tab
         self.pick_tab(5)

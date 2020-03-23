@@ -110,7 +110,7 @@ export class DeleteResource extends React.Component {
                     <Modal.Footer>
                         {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
                         {this.state.inProgress && <div className="spinner spinner-sm pull-left" />}
-                        <Button variant='secondary' className='btn-cancel' onClick={this.close}>
+                        <Button variant='link' className='btn-cancel' onClick={this.close}>
                             {_("Cancel")}
                         </Button>
                         <Button variant='danger' isDisabled={this.state.inProgress} onClick={this.delete}>

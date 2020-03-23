@@ -323,7 +323,7 @@ export class BootOrderModal extends React.Component {
                 <Modal.Footer>
                     {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
                     {showFooterWarning()}
-                    <Button id={`${idPrefix}-cancel`} variant='secondary' onClick={this.close}>
+                    <Button id={`${idPrefix}-cancel`} variant='link' onClick={this.close}>
                         {_("Cancel")}
                     </Button>
                     <Button id={`${idPrefix}-save`} variant='primary' onClick={this.save}>

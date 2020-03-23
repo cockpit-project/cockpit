@@ -218,7 +218,7 @@ class CPUSecurityMitigationsDialog extends React.Component {
                         title={this.state.alert} />}
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant='secondary' className='btn-cancel' isDisabled={this.state.rebooting} onClick={this.close}>
+                    <Button variant='link' className='btn-cancel' isDisabled={this.state.rebooting} onClick={this.close}>
                         { _("Cancel") }
                     </Button>
                     <Button variant='danger' isDisabled={this.state.rebooting || this.state.nosmt === undefined} onClick={this.saveAndReboot}>

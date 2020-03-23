@@ -148,7 +148,7 @@ export class MemoryModal extends React.Component {
                 </Modal.Body>
                 <Modal.Footer>
                     {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
-                    <Button id={`${idPrefix}-cancel`} variant='secondary' onClick={this.close}>
+                    <Button id={`${idPrefix}-cancel`} variant='link' onClick={this.close}>
                         {_("Cancel")}
                     </Button>
                     <Button id={`${idPrefix}-save`} variant='primary' onClick={this.save}>

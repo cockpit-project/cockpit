@@ -183,7 +183,7 @@ function HeaderBar(props) {
         if (props.timeSinceRefresh !== null)
             lastChecked = cockpit.format(_("Last checked: $0"), moment(moment().valueOf() - props.timeSinceRefresh * 1000).fromNow());
     } else if (props.state == "applying") {
-        actionButton = <Button variant="secondary" onClick={props.onCancel} isDisabled={!props.allowCancel}>{_("Cancel")}</Button>;
+        actionButton = <Button variant="link" onClick={props.onCancel} isDisabled={!props.allowCancel}>{_("Cancel")}</Button>;
     }
 
     return (

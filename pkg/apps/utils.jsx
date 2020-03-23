@@ -80,7 +80,7 @@ export const ProgressBar = ({ title, data }) => {
 };
 
 export const CancelButton = ({ data }) => (
-    <Button variant="secondary" isDisabled={!data.cancel} onClick={left_click(data.cancel)}>
+    <Button variant="link" isDisabled={!data.cancel} onClick={left_click(data.cancel)}>
         {_("Cancel")}
     </Button>);
 

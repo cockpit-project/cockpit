@@ -19,7 +19,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
-import { Button, Tooltip } from "@patternfly/react-core";
+import { Button, Text, TextVariants, Tooltip } from "@patternfly/react-core";
 
 import { VCPUModal } from './vcpuModal.jsx';
 import MemoryModal from './vm/memoryModal.jsx';
@@ -99,7 +99,7 @@ class VmOverviewTabLibvirt extends React.Component {
                     if (this._isMounted)
                         this.setState({ loaderElems });
                 })
-                .fail(ex => console.warn("getDomainCapabilities failed"));
+                .fail(() => console.warn("getDomainCapabilities failed"));
     }
 
     onAutostartChanged() {
@@ -260,8 +260,9 @@ class VmOverviewTabLibvirt extends React.Component {
             <>
                 <div className="overview-tab-grid">
                     <div className='ct-form'>
-                        <label className='control-label label-title'> {_("General")} </label>
-                        <span />
+                        <Text component={TextVariants.h4} className='ct-form-full'>
+                            {_("General")}
+                        </Text>
                         <label className='control-label' htmlFor={`${idPrefix}-memory-count`}>{_("Memory")}</label>
                         {memoryLink}
                         <label className='control-label' htmlFor={`${idPrefix}-vcpus-count`}>{_("vCPUs")}</label>
@@ -276,8 +277,9 @@ class VmOverviewTabLibvirt extends React.Component {
                         </>}
                     </div>
                     <div className="ct-form">
-                        <label className='control-label label-title'> {_("Hypervisor Details")} </label>
-                        <span />
+                        <Text component={TextVariants.h4} className='ct-form-full'>
+                            {_("Hypervisor Details")}
+                        </Text>
                         <label className='control-label' htmlFor={`${idPrefix}-emulated-machine`}>{_("Emulated Machine")}</label>
                         <div id={`${idPrefix}-emulated-machine`}>{vm.emulatedMachine}</div>
                         {firmwareLinkWrapper ? <label className='control-label' htmlFor={`${idPrefix}-firmware`}>{_("Firmware")}</label> : null}

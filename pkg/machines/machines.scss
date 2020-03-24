@@ -162,6 +162,7 @@
 .machines-listing-actions {
     display: inline-flex;
     justify-content: space-between;
+    flex-flow: wrap;
 }
 
 .machines-listing-actions > *:not(:last-child) {
@@ -170,7 +171,6 @@
 
 .machines-network-list {
     max-height: 500px;
-    overflow: auto;
     padding-bottom: 15px;
 }
 
@@ -394,8 +394,34 @@ $toast-anim-speed: 200ms;
     padding: .5rem
 }
 
-// Add spacing around buttons in the VM overview
-.listing-ct-actions .pf-c-button {
-    margin-left: 0.3em;
-    margin-right: 0.3em;
+.pf-c-dropdown__menu-item.pf-m-danger {
+    color: var(--pf-global--danger-color--200);
+}
+
+// FIXME: Target the action row with classes, not widgets based on position and hierarchy.
+// (This would make the CSS _much_ clearer and less fragile.)
+.ct-table {
+    > thead, > tbody {
+        > tr:not(.pf-c-table__expandable-row) {
+            > th, > td {
+                &:last-child:not(.first-child) {
+                    text-align: right;
+
+                    .btn-group {
+                        align-items: center;
+                    }
+
+                    .pf-c-button {
+                        // vertical: compensate for padding; fixing alignment
+                        // horizontal: add some needed padding
+                        margin: -0.25rem 0.25rem;
+                    }
+                }
+            }
+        }
+    }
+
+    .pf-c-table__toggle {
+        padding-left: 0;
+    }
 }

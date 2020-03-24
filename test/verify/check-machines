@@ -322,35 +322,37 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         wait(lambda: "login as 'cirros' user." in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
 
         # Send Non-Maskable Interrupt (no change in VM state is expected)
-        b.click("#vm-subVmTest1-off-caret")
+        b.click("#vm-subVmTest1-action-kebab button")
         b.click("#vm-subVmTest1-sendNMI")
-        b.wait_attr("#vm-subVmTest1-off-caret", "aria-expanded", "false")
 
         b.wait(lambda: "NMI received" in self.machine.execute("cat {0}".format(args["logfile"])))
 
         # pause
+        b.click("#vm-subVmTest1-action-kebab button")
         b.click("#vm-subVmTest1-pause")
         b.wait_in_text("#vm-subVmTest1-state", "paused")
 
         # resume
+        b.click("#vm-subVmTest1-action-kebab button")
         b.click("#vm-subVmTest1-resume")
         b.wait_in_text("#vm-subVmTest1-state", "running")
 
         # reboot
         self.machine.execute("echo '' > {0}".format(args["logfile"]))
+        b.click("#vm-subVmTest1-action-kebab button")
         b.click("#vm-subVmTest1-reboot")
         wait(lambda: "reboot: Power down" in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
         b.wait_in_text("#vm-subVmTest1-state", "running")
 
         # force reboot
         self.machine.execute("echo '' > {0}".format(args["logfile"]))
-        b.click("#vm-subVmTest1-reboot-caret")
+        b.click("#vm-subVmTest1-action-kebab button")
         b.click("#vm-subVmTest1-forceReboot")
         wait(lambda: "Initializing cgroup subsys" in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
         b.wait_in_text("#vm-subVmTest1-state", "running")
 
         # shut off
-        b.click("#vm-subVmTest1-off-caret")
+        b.click("#vm-subVmTest1-action-kebab button")
         b.click("#vm-subVmTest1-forceOff")
         b.wait_in_text("#vm-subVmTest1-state", "shut off")
 
@@ -382,7 +384,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             self.toggleVmRow("subVmTest2")
 
         # stop second VM, event handling should still work
-        b.click("#vm-subVmTest2-off-caret")
+        b.click("#vm-subVmTest2-action-kebab button")
         b.click("#vm-subVmTest2-forceOff")
         b.wait_in_text("#vm-subVmTest2-state", "shut off")
 
@@ -594,7 +596,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # Test remove disk - by external action
         m.execute("virsh detach-disk subVmTest1 vdc")
         print("Restarting vm-subVmTest1, might take a while")
-        b.click("#vm-subVmTest1-reboot-caret")
+        b.click("#vm-subVmTest1-action-kebab button")
         b.click("#vm-subVmTest1-forceReboot")
 
         b.wait_present("#vm-subVmTest1-disks-vda-device")
@@ -928,7 +930,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         ).execute()
 
         # shut off
-        b.click("#vm-subVmTest1-off-caret")
+        b.click("#vm-subVmTest1-action-kebab button")
         b.click("#vm-subVmTest1-forceOff")
         b.wait_in_text("#vm-subVmTest1-state", "shut off")
 
@@ -1091,7 +1093,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_present("#vcpus-tooltip")
 
         # Shut off VM for applying changes after save
-        b.click("#vm-subVmTest1-off-caret")
+        b.click("#vm-subVmTest1-action-kebab button")
         b.click("#vm-subVmTest1-forceOff")
         b.wait_in_text("#vm-subVmTest1-state", "shut off")
 
@@ -1126,7 +1128,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_not_present("#machines-vcpu-modal-dialog")
 
         # Shut off VM
-        b.click("#vm-subVmTest1-off-caret")
+        b.click("#vm-subVmTest1-action-kebab button")
         b.click("#vm-subVmTest1-forceOff")
         b.wait_in_text("#vm-subVmTest1-state", "shut off")
 
@@ -1280,6 +1282,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         addDisk(secondDiskVolName, poolName)
 
+        b.click("#vm-{0}-action-kebab button".format(name))
         b.click("#vm-{0}-delete".format(name))
 
         b.wait_present("#vm-{0}-delete-modal-dialog div:contains(The VM is running)".format(name))
@@ -1308,6 +1311,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         self.machine.execute("virsh -c qemu:///system suspend {0}".format(name))
         b.wait_in_text("#vm-{0}-state".format(name), "paused")
+        b.click("#vm-{0}-action-kebab button".format(name))
         b.click("#vm-{0}-delete".format(name))
         self.browser.reload()
         self.waitVmRow(name, 'system', False)
@@ -1319,8 +1323,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.reload()
         self.browser.enter_page('/machines')
         self.toggleVmRow(name)
-        b.wait_present("#vm-{0}-delete:disabled".format(name))
-        b.click("#vm-{0}-off-caret".format(name))
+        b.click("#vm-{0}-action-kebab button".format(name))
+        b.wait_present("#vm-{0}-delete a.pf-m-disabled".format(name))
         b.click("#vm-{0}-forceOff".format(name))
         self.waitVmRow(name, 'system', False)
         b.wait_not_present(".toast-notifications.list-pf div.pf-c-alert")
@@ -2303,7 +2307,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             self._assertCorrectConfiguration(dialog)
 
             # unfinished install script runs indefinitelly, so we need to force it off
-            b.click("#vm-{0}-off-caret".format(name))
+            b.click("#vm-{0}-action-kebab button".format(name))
             b.click("#vm-{0}-forceOff".format(name))
             # https://bugzilla.redhat.com/show_bug.cgi?id=1818089
             # After shutting it off virt-install will restart the domain and exit because of the above bug
@@ -2315,6 +2319,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             b = self.browser
             vm_delete_button = "#vm-{0}-delete".format(dialog.name)
 
+            b.click("#vm-{0}-action-kebab button".format(dialog.name))
             b.click(vm_delete_button)
             b.wait_present("#vm-{0}-delete-modal-dialog".format(dialog.name))
             b.click("#vm-{0}-delete-modal-dialog button:contains(Delete)".format(dialog.name))
@@ -2565,7 +2570,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_present("#boot-order-tooltip")
 
         # Shut off domain and check changes are applied
-        b.click("#vm-subVmTest1-off-caret")
+        b.click("#vm-subVmTest1-action-kebab button")
         b.click("#vm-subVmTest1-forceOff")
         b.wait_in_text("#vm-subVmTest1-state", "shut off")
 
@@ -2720,17 +2725,19 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Install the VM
         b.click("#vm-VmNotInstalled-install")
+
         # Wait for virt-install to define the VM and then stop it - otherwise we get 'domain is ready being removed' error
         wait(lambda: "VmNotInstalled" in m.execute("virsh list --persistent"), delay=3)
         logfile = "/var/log/libvirt/qemu/VmNotInstalled.log"
         m.execute("> {0}".format(logfile)) # clear logfile
-        b.click("#vm-VmNotInstalled-off-caret")
+        b.wait_present("#vm-VmNotInstalled-consoles.pf-m-current")
+        b.click("#vm-VmNotInstalled-action-kebab button")
         b.click("#vm-VmNotInstalled-forceOff")
         # https://bugzilla.redhat.com/show_bug.cgi?id=1818089
         # After shutting it off virt-install will restart the domain and exit because of the above bug
         # We need to wait till it's restarted and shut if off again in order to edit the offline VM configuration
         wait(lambda: "char device" in self.machine.execute("cat {0}".format(logfile)), delay=3)
-        b.click("#vm-VmNotInstalled-off-caret")
+        b.click("#vm-VmNotInstalled-action-kebab button")
         b.click("#vm-VmNotInstalled-forceOff")
         b.wait_in_text("#vm-VmNotInstalled-state", "shut off")
 
@@ -2833,7 +2840,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_present("#vm-subVmTest1-disks-vde-access-tooltip")
 
         # Shut off VM and see state has changed
-        b.click("#vm-subVmTest1-off-caret")
+        b.click("#vm-subVmTest1-action-kebab button")
         b.click("#vm-subVmTest1-forceOff")
         b.wait_in_text("#vm-subVmTest1-state", "shut off")
         # Check change has been applied after shutoff
@@ -2923,7 +2930,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("#vm-subVmTest1-memory-count", "{0} MiB".format(current_memory - 10))
 
         # Shut off domain and check changes are  still there
-        b.click("#vm-subVmTest1-off-caret")
+        b.click("#vm-subVmTest1-action-kebab button")
         b.wait_visible("#vm-subVmTest1-forceOff")
         b.click("#vm-subVmTest1-forceOff")
         b.wait_in_text("#vm-subVmTest1-state", "shut off")
@@ -3001,7 +3008,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Test that detaching disk of a running domain will affect the
         # inactive configuration as well
-        b.click("#vm-subVmTest1-off-caret")
+        b.click("#vm-subVmTest1-action-kebab button")
         b.click("#vm-subVmTest1-forceOff")
         b.wait_in_text("#vm-subVmTest1-state", "shut off")
         b.wait_not_present("#vm-subVmTest1-disks-vdc-device")
@@ -3065,7 +3072,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_not_present(".modal-body")
 
         # Shut off domain
-        b.click("#vm-subVmTest1-off-caret")
+        b.click("#vm-subVmTest1-action-kebab button")
         b.click("#vm-subVmTest1-forceOff")
         b.wait_in_text("#vm-subVmTest1-state", "shut off")
 
@@ -3132,7 +3139,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_present("#vm-subVmTest1-network-1-source-tooltip")
 
         # Shut off domain and check changes are applied
-        b.click("#vm-subVmTest1-off-caret")
+        b.click("#vm-subVmTest1-action-kebab button")
         b.click("#vm-subVmTest1-forceOff")
         b.wait_in_text("#vm-subVmTest1-state", "shut off")
         b.wait_in_text("#vm-subVmTest1-network-1-model", "e1000e")
@@ -3249,7 +3256,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         m.execute("virsh net-define /tmp/net-test-network.xml && virsh net-start test_network")
 
         # First shut of the VM otherwise the interface will not be the same in the live and config XML https://www.redhat.com/archives/libvir-list/2019-August/msg01034.html
-        b.click("#vm-subVmTest1-off-caret")
+        b.click("#vm-subVmTest1-action-kebab button")
         b.click("#vm-subVmTest1-forceOff")
         b.wait_in_text("#vm-subVmTest1-state", "shut off")
 
@@ -3483,7 +3490,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # Shuf off the VM in order to allow deleting volumes that are used as
         # disks later
         self.toggleVmRow("subVmTest1")
-        b.click("#vm-subVmTest1-off-caret")
+        b.click("#vm-subVmTest1-action-kebab button")
         b.click("#vm-subVmTest1-forceOff")
         b.wait_in_text("#vm-subVmTest1-state", "shut off")
 
@@ -4452,7 +4459,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.click("#vm-subVmTest1-networks") # open the Network Interfaces subtab
 
         # Shut off domain
-        b.click("#vm-subVmTest1-off-caret")
+        b.click("#vm-subVmTest1-action-kebab button")
         b.click("#vm-subVmTest1-forceOff")
         b.wait_in_text("#vm-subVmTest1-state", "shut off")
 
@@ -4625,7 +4632,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         ).execute()
         m.execute("virsh define /tmp/subVmTest1.xml")
 
-        b.click("#vm-subVmTest1-off-caret")
+        b.click("#vm-subVmTest1-action-kebab button")
         b.click("#vm-subVmTest1-forceOff")
         b.wait_in_text("#vm-subVmTest1-state", "shut off")
 

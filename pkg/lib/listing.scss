@@ -270,6 +270,16 @@ tr.listing-ct-item.listing-ct-selected .badge {
 tr.listing-ct-item td:last-child {
     text-align: right;
 }
+.pf-c-table {
+    tbody, thead:not(.listing-ct-empty) {
+        tr:not(.pf-m-expanded) {
+            td:last-child,
+            th:last-child {
+                text-align: right;
+            }
+        }
+    }
+}
 
 div.listing-ct-panel {
     box-shadow: 1px 1px 1px 1px $listing-ct-open;
@@ -288,9 +298,11 @@ div.listing-ct-head {
     border-style: solid;
     border-width: 1px 1px 0 1px;
     overflow: hidden;
+    align-items: center;
+}
+table:not(.pf-c-table) div.listing-ct-head {
     display: flex;
     flex-flow: row-reverse wrap;
-    align-items: center;
 }
 
 div.listing-ct-head:last-child {

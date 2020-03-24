@@ -26,7 +26,6 @@ import VmDisksTab from '../vmDisksTabLibvirt.jsx';
 import VmNetworkTab from '../vmnetworktab.jsx';
 import Consoles from '../consoles.jsx';
 import VmOverviewTab from '../vmOverviewTabLibvirt.jsx';
-import VmActions from './vmActions.jsx';
 import VmUsageTab from './vmUsageTab.jsx';
 import { ListingPanel } from 'cockpit-components-listing-panel.jsx';
 
@@ -35,8 +34,8 @@ const _ = cockpit.gettext;
 /** One VM in the list (a row)
  */
 export const VmExpandedContent = ({
-    vm, vms, config, libvirtVersion, hostDevices, storagePools, onStart, onInstall, onShutdown, onPause, onResume, onForceoff, onReboot, onForceReboot,
-    onUsageStartPolling, onUsageStopPolling, onSendNMI, dispatch, networks, interfaces, nodeDevices, resourceHasError, onAddErrorNotification
+    vm, vms, config, libvirtVersion, hostDevices, storagePools,
+    onUsageStartPolling, onUsageStopPolling, dispatch, networks, interfaces, nodeDevices, resourceHasError, onAddErrorNotification
 }) => {
     const overviewTabName = (<a href="#" id={`${vmId(vm.name)}-overview`}>{_("Overview")}</a>);
     const usageTabName = (<a href="#" id={`${vmId(vm.name)}-usage`}>{_("Usage")}</a>);
@@ -60,22 +59,7 @@ export const VmExpandedContent = ({
     return (<ListingPanel
         colSpan='4'
         initiallyActiveTab={initiallyActiveTab}
-        tabRenderers={tabRenderers}
-        listingActions={VmActions({
-            vm,
-            config,
-            dispatch,
-            storagePools,
-            onStart,
-            onInstall,
-            onReboot,
-            onForceReboot,
-            onShutdown,
-            onPause,
-            onResume,
-            onForceoff,
-            onSendNMI,
-        })} />);
+        tabRenderers={tabRenderers} />);
 };
 VmExpandedContent.propTypes = {
     vm: PropTypes.object.isRequired,
@@ -84,16 +68,6 @@ VmExpandedContent.propTypes = {
     libvirtVersion: PropTypes.number.isRequired,
     storagePools: PropTypes.array.isRequired,
     hostDevices: PropTypes.object.isRequired,
-    onStart: PropTypes.func.isRequired,
-    onShutdown: PropTypes.func.isRequired,
-    onPause: PropTypes.func.isRequired,
-    onResume: PropTypes.func.isRequired,
-    onForceoff: PropTypes.func.isRequired,
-    onReboot: PropTypes.func.isRequired,
-    onForceReboot: PropTypes.func.isRequired,
-    onUsageStartPolling: PropTypes.func.isRequired,
-    onUsageStopPolling: PropTypes.func.isRequired,
-    onSendNMI: PropTypes.func.isRequired,
     dispatch: PropTypes.func.isRequired,
     networks: PropTypes.array.isRequired,
     interfaces: PropTypes.array.isRequired,

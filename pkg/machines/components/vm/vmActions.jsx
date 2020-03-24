@@ -17,110 +17,164 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 import cockpit from 'cockpit';
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import { Tooltip } from 'patternfly-react';
+import {
+    Button,
+    Dropdown, DropdownItem, DropdownSeparator, KebabToggle,
+} from '@patternfly/react-core';
 
 import {
     vmId,
-    mouseClick,
 } from "../../helpers.js";
 
 import { DeleteDialog } from "../deleteDialog.jsx";
-import { DropdownButtons } from '../dropdownButtons.jsx';
 import LibvirtDBus from '../../libvirt-dbus.js';
 
 const _ = cockpit.gettext;
 
-const VmActions = ({ vm, config, dispatch, storagePools, onStart, onInstall, onReboot, onForceReboot, onShutdown, onPause, onResume, onForceoff, onSendNMI }) => {
+const VmActions = ({ vm, dispatch, storagePools, onStart, onInstall, onReboot, onForceReboot, onShutdown, onPause, onResume, onForceoff, onSendNMI }) => {
+    const [isActionOpen, setIsActionOpen] = useState(false);
+    const [showDeleteDialog, toggleDeleteModal] = useState(false);
+
     const id = vmId(vm.name);
     const state = vm.state;
     const hasInstallPhase = vm.metadata.hasInstallPhase;
+    const dropdownItems = [];
 
-    let reset = null;
-    if (LibvirtDBus.canReset(state)) {
-        reset = <DropdownButtons
-            key='action-reset'
-            buttons={[{
-                title: _("Restart"),
-                action: onReboot,
-                id: `${id}-reboot`,
-            }, {
-                title: _("Force Restart"),
-                action: onForceReboot,
-                id: `${id}-forceReboot`,
-            }]} />;
-    }
+    let shutdown;
 
-    let shutdown = null;
-    if (LibvirtDBus.canShutdown(state)) {
-        const buttons = [{
-            title: _("Shut Down"),
-            action: onShutdown,
-            id: `${id}-off`,
-        }, {
-            title: _("Force Shut Down"),
-            action: onForceoff,
-            id: `${id}-forceOff`,
-        }];
-        if (LibvirtDBus.canSendNMI && LibvirtDBus.canSendNMI(state)) {
-            buttons.push({
-                title: _("Send Non-Maskable Interrupt"),
-                action: onSendNMI,
-                id: `${id}-sendNMI`,
-            });
-        }
-        shutdown = <DropdownButtons key='action-shutdown' buttons={buttons} />;
-    }
-
-    let pause = null;
     if (LibvirtDBus.canPause(state)) {
-        pause = (<button key='action-pause' className="pf-c-button pf-m-secondary" onClick={mouseClick(onPause)} id={`${id}-pause`}>
-            {_("Pause")}
-        </button>);
+        dropdownItems.push(
+            <DropdownItem key={`${id}-pause`}
+                          id={`${id}-pause`}
+                          onClick={() => onPause()}>
+                {_("Pause")}
+            </DropdownItem>
+        );
+        dropdownItems.push(<DropdownSeparator key="separator-pause" />);
     }
 
-    let resume = null;
     if (LibvirtDBus.canResume(state)) {
-        resume = (<button key='action-resume' className="pf-c-button pf-m-secondary" onClick={mouseClick(onResume)} id={`${id}-resume`}>
-            {_("Resume")}
-        </button>);
+        dropdownItems.push(
+            <DropdownItem key={`${id}-resume`}
+                          id={`${id}-resume`}
+                          onClick={() => onResume()}>
+                {_("Resume")}
+            </DropdownItem>
+        );
+        dropdownItems.push(<DropdownSeparator key="separator-resume" />);
+    }
+
+    if (LibvirtDBus.canShutdown(state)) {
+        shutdown = (<Button key='action-shutdown' variant='secondary' onClick={() => onShutdown()} id={`${id}-shutdown-button`}>
+            {_("Shut Down")}
+        </Button>);
+        dropdownItems.push(
+            <DropdownItem key={`${id}-off`}
+                          id={`${id}-off`}
+                          onClick={() => onShutdown()}>
+                {_("Shut Down")}
+            </DropdownItem>
+        );
+        dropdownItems.push(
+            <DropdownItem key={`${id}-forceOff`}
+                          id={`${id}-forceOff`}
+                          onClick={() => onForceoff()}>
+                {_("Force Shut Down")}
+            </DropdownItem>
+        );
+        dropdownItems.push(<DropdownSeparator key="separator-shutdown" />);
+        dropdownItems.push(
+            <DropdownItem key={`${id}-sendNMI`}
+                          id={`${id}-sendNMI`}
+                          onClick={() => onSendNMI()}>
+                {_("Send Non-Maskable Interrupt")}
+            </DropdownItem>
+        );
+        dropdownItems.push(<DropdownSeparator key="separator-sendnmi" />);
+    }
+
+    if (LibvirtDBus.canReset(state)) {
+        dropdownItems.push(
+            <DropdownItem key={`${id}-reboot`}
+                          id={`${id}-reboot`}
+                          onClick={() => onReboot()}>
+                {_("Restart")}
+            </DropdownItem>
+        );
+        dropdownItems.push(
+            <DropdownItem key={`${id}-forceReboot`}
+                          id={`${id}-forceReboot`}
+                          onClick={() => onForceReboot()}>
+                {_("Force Restart")}
+            </DropdownItem>
+        );
+        dropdownItems.push(<DropdownSeparator key="separator-reset" />);
     }
 
     let run = null;
     if (LibvirtDBus.canRun(state, hasInstallPhase)) {
-        run = (<button key='action-run' className="pf-c-button pf-m-secondary" onClick={mouseClick(onStart)} id={`${id}-run`}>
+        run = (<Button key='action-run' variant="secondary" onClick={() => onStart()} id={`${id}-run`}>
             {_("Run")}
-        </button>);
+        </Button>);
     }
 
     let install = null;
     if (LibvirtDBus.canInstall(state, hasInstallPhase)) {
-        install = (<button key='action-install' className="pf-c-button pf-m-secondary" onClick={mouseClick(onInstall)} id={`${id}-install`}>
+        install = (<Button key='action-install' variant="secondary" onClick={() => onInstall()} id={`${id}-install`}>
             {_("Install")}
-        </button>);
+        </Button>);
     }
 
     let deleteAction = null;
     if (state !== undefined && LibvirtDBus.canDelete && LibvirtDBus.canDelete(state, vm.id)) {
-        deleteAction = (
-            <DeleteDialog key='action-delete' vm={vm} dispatch={dispatch} storagePools={storagePools} />
-        );
+        if (!vm.persistent) {
+            dropdownItems.push(
+                <DropdownItem key={`${id}-delete`}
+                              id={`${id}-delete`}
+                              className='pf-m-danger'
+                              tooltip={<Tooltip id={`${id}-delete-tooltip`}>
+                                  {_("This VM is transient. Shut it down if you wish to delete it.")}
+                              </Tooltip>}
+                              isDisabled>
+                    {_("Delete")}
+                </DropdownItem>
+            );
+        } else {
+            dropdownItems.push(
+                <DropdownItem className='pf-m-danger' key={`${id}-delete`} id={`${id}-delete`} onClick={() => toggleDeleteModal(true)}>
+                    {_("Delete")}
+                </DropdownItem>
+            );
+        }
+        if (showDeleteDialog) {
+            deleteAction = (
+                <DeleteDialog key='action-delete' vm={vm} dispatch={dispatch} storagePools={storagePools} toggleModal={() => toggleDeleteModal(!showDeleteDialog)} />
+            );
+        }
     }
 
-    return [
-        reset,
-        pause,
-        resume,
-        shutdown,
-        run,
-        install,
-        deleteAction,
-    ];
+    return (
+        <div className='btn-group'>
+            {run}
+            {shutdown}
+            {install}
+            {deleteAction}
+            <Dropdown onSelect={() => setIsActionOpen(!isActionOpen)}
+                      id={`${id}-action-kebab`}
+                      toggle={<KebabToggle onToggle={isOpen => setIsActionOpen(isOpen)} />}
+                      isPlain
+                      isOpen={isActionOpen}
+                      position='right'
+                      dropdownItems={dropdownItems} />
+        </div>
+    );
 };
 
 VmActions.propTypes = {
     vm: PropTypes.object.isRequired,
-    config: PropTypes.string.isRequired,
     dispatch: PropTypes.func.isRequired,
     storagePools: PropTypes.array.isRequired,
     onStart: PropTypes.func.isRequired,

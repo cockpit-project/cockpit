@@ -1928,8 +1928,6 @@ class TestMachines(MachineCase, StorageHelpers):
         # offer whitelisting this directory for qemu process
         self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied .*for .* comm="qemu-.* dev="proc" .*')
 
-        runner.destroy()
-
     class TestCreateConfig:
         VALID_URL = 'http://mirror.i3d.net/pub/centos/7/os/x86_64/'
         VALID_DISK_IMAGE_PATH = '/var/lib/libvirt/images/example.img'
@@ -2274,10 +2272,9 @@ class TestMachines(MachineCase, StorageHelpers):
 
             self.machine.execute("touch {0}".format(TestMachines.TestCreateConfig.NOVELL_MOCKUP_ISO_PATH))
             self.machine.execute("qemu-img create {0} 500M".format(TestMachines.TestCreateConfig.VALID_DISK_IMAGE_PATH))
-
-        def destroy(self):
-            self.machine.execute("rm -f {0}".format(TestMachines.TestCreateConfig.NOVELL_MOCKUP_ISO_PATH))
-            self.machine.execute("rm -f {0}".format(TestMachines.TestCreateConfig.VALID_DISK_IMAGE_PATH))
+            test_obj.addCleanup(test_obj.machine.execute, "rm -f {0} {1}".format(
+                TestMachines.TestCreateConfig.NOVELL_MOCKUP_ISO_PATH,
+                TestMachines.TestCreateConfig.VALID_DISK_IMAGE_PATH))
 
         @staticmethod
         def assertVmStates(test_obj, name, before, after):

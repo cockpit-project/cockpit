@@ -24,12 +24,25 @@ import './consoles.css';
 
 const _ = cockpit.gettext;
 
+function fmt_to_fragments(fmt) {
+    const args = Array.prototype.slice.call(arguments, 1);
+
+    function replace(part) {
+        if (part[0] == "$") {
+            return args[parseInt(part.slice(1))];
+        } else
+            return part;
+    }
+
+    return React.createElement.apply(null, [React.Fragment, { }].concat(fmt.split(/(\$[0-9]+)/g).map(replace)));
+}
+
 const MoreInformationInstallVariant = ({ os, command, innerHtml }) => {
     return (
         <li className='machines-desktop-install-instructs-item'>
             <div className='machines-desktop-install-instructs-row'>
                 <b>{os}:</b>&nbsp;
-                {innerHtml && <div dangerouslySetInnerHTML={{ __html: innerHtml }} />}
+                {innerHtml && <div>{innerHtml}</div>}
                 {!innerHtml && <div className='machines-desktop-shell-command'>{command}</div>}
             </div>
         </li>
@@ -38,19 +51,16 @@ const MoreInformationInstallVariant = ({ os, command, innerHtml }) => {
 };
 
 const MoreInformationContent = () => {
-    const msg1 = cockpit.format(_("Clicking \"Launch Remote Viewer\" will download a .vv file and launch $0."),
-                                '<i>Remote Viewer</i>');
+    const msg1 = fmt_to_fragments(_("Clicking \"Launch Remote Viewer\" will download a .vv file and launch $0."), <i>Remote Viewer</i>);
 
-    const msg2 = cockpit.format(_("$0 is available for most operating systems. To install it, search for it in GNOME Software or run the following:"),
-                                '<i>Remote Viewer</i>');
+    const msg2 = fmt_to_fragments(_("$0 is available for most operating systems. To install it, search for it in GNOME Software or run the following:"), <i>Remote Viewer</i>);
 
-    const downloadMsg = cockpit.format(_("Download the MSI from $0"),
-                                       '<a href="https://virt-manager.org/download/" rel="noopener noreferrer" target="_blank">virt-manager.org</a>');
+    const downloadMsg = fmt_to_fragments(_("Download the MSI from $0"), <a href="https://virt-manager.org/download/" rel="noopener noreferrer" target="_blank">virt-manager.org</a>);
 
     return (
         <div>
-            <p className='machines-desktop-more-info-text' dangerouslySetInnerHTML={{ __html: msg1 }} />
-            <p className='machines-desktop-more-info-text' dangerouslySetInnerHTML={{ __html: msg2 }} />
+            <p className='machines-desktop-more-info-text'>{msg1}</p>
+            <p className='machines-desktop-more-info-text'>{msg2}</p>
 
             <ul className='machines-desktop-install-instructs'>
                 <MoreInformationInstallVariant os='RHEL, CentOS' command='sudo yum install virt-viewer' />
@@ -81,17 +91,7 @@ class MoreInformation extends React.Component {
     }
 
     getContent() {
-        const { vm } = this.props;
-        const { provider, providerState } = this.props.config;
-
-        let content = <MoreInformationContent />;
-        if (provider.ConsoleClientResources) {
-            // external provider can have specific instructions for console setup
-            const ProviderConsoleClientResources = provider.ConsoleClientResources; // (vm, providerState);
-            content = <ProviderConsoleClientResources displays={vm.displays} vm={vm} providerState={providerState} />;
-        }
-
-        return content;
+        return <MoreInformationContent />;
     }
 
     render() {
@@ -128,9 +128,9 @@ const ConnectWithRemoteViewer = ({ vm, config, onDesktopConsole }) => {
                     {_("Launch Remote Viewer")}
                 </button>
             </p>
-            <p className='machines-desktop-viewer-block'>
+            <div className='machines-desktop-viewer-block'>
                 <MoreInformation vm={vm} config={config} />
-            </p>
+            </div>
         </td>
     );
 };

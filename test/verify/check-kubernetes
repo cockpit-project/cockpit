@@ -27,7 +27,7 @@ from testlib import *
 
 
 @skipImage("No kubernetes packaged", "debian-stable", "debian-testing", "ubuntu-1804",
-           "ubuntu-stable", "fedora-i386", "rhel-7-6", "rhel-7-6-distropkg", "rhel-7-7", "rhel-7-8", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1", "centos-7")
+           "ubuntu-stable", "fedora-i386", "rhel-7-6", "rhel-7-6-distropkg", "rhel-7-7", "rhel-7-8", "rhel-7-9", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1", "centos-7")
 @skipImage("No cockpit-kubernetes packaged", "continuous-atomic", "fedora-atomic", "rhel-atomic", "fedora-30", "fedora-testing")
 @skipPackage("cockpit-kubernetes")
 class TestKubernetes(kubelib.KubernetesCase, kubelib.KubernetesCommonTests):
@@ -46,7 +46,7 @@ class TestKubernetes(kubelib.KubernetesCase, kubelib.KubernetesCommonTests):
 
 
 @skipImage("No kubernetes packaged", "debian-stable", "debian-testing", "ubuntu-1804",
-           "ubuntu-stable", "fedora-i386", "rhel-7-6", "rhel-7-6-distropkg", "rhel-7-7", "rhel-7-8", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1", "centos-7")
+           "ubuntu-stable", "fedora-i386", "rhel-7-6", "rhel-7-6-distropkg", "rhel-7-7", "rhel-7-8", "rhel-7-9", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1", "centos-7")
 @skipImage("No cockpit-kubernetes packaged", "continuous-atomic", "fedora-atomic", "rhel-atomic", "fedora-30", "fedora-testing")
 @skipPackage("cockpit-kubernetes")
 class TestConnection(kubelib.KubernetesCase):
@@ -224,7 +224,7 @@ class TestConnection(kubelib.KubernetesCase):
 
 
 @skipImage("No kubernetes packaged", "debian-stable", "debian-testing", "ubuntu-1804",
-           "ubuntu-stable", "fedora-i386", "rhel-7-6", "rhel-7-6-distropkg", "rhel-7-7", "rhel-7-8", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1", "centos-7")
+           "ubuntu-stable", "fedora-i386", "rhel-7-6", "rhel-7-6-distropkg", "rhel-7-7", "rhel-7-8", "rhel-7-9", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1", "centos-7")
 @unittest.skipIf(True, "Nulecule deploys temporarily removed.")
 @skipPackage("cockpit-kubernetes")
 class TestNulecule(kubelib.KubernetesCase):

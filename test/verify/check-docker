@@ -548,7 +548,7 @@ CMD ["/bin/sh"]
         # This should be updated
         b.wait_in_text("#container-details-cpu-row", "1024 shares")
 
-    @skipImage("Newer version of ABRT required", "centos-7", "rhel-7-6", "rhel-7-6-distropkg", "rhel-7-7", "rhel-7-8")
+    @skipImage("Newer version of ABRT required", "centos-7", "rhel-7-6", "rhel-7-6-distropkg", "rhel-7-7", "rhel-7-8", "rhel-7-9")
     @skipImage("No cockpit-docker on i386", "fedora-i386")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
                "ubuntu-1804", "rhel-atomic", "fedora-atomic", "continuous-atomic", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1")

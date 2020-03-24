@@ -481,8 +481,9 @@ function NetworkManagerModel() {
                 $.each(ifaces, function(iface, props) {
                     if (props)
                         interface_properties(path, iface, props);
-                    else
+                    else {
                         interface_removed(path, iface);
+                    }
                 });
             });
         });
@@ -1151,7 +1152,8 @@ function NetworkManagerModel() {
             "org.freedesktop.NetworkManager.Device.Bond",
             "org.freedesktop.NetworkManager.Device.Team",
             "org.freedesktop.NetworkManager.Device.Bridge",
-            "org.freedesktop.NetworkManager.Device.Vlan"
+            "org.freedesktop.NetworkManager.Device.Vlan",
+            "org.freedesktop.NetworkManager.Device.Vpn"
         ],
 
         props: {
@@ -3527,40 +3529,26 @@ PageNetworkGeneralSettings.prototype = {
         var options = self.settings.connection;
         var vpn_choices = [];
         var name_input, priority_btn, priority_input, autovpn_btn, autovpn_select;
-
-        function set_vpn_connections(data) {
-            var lines = data.split("\n");
-
-            lines.forEach(function(line, index) {
-                var dict = {};
-                var values = line.split(':');
-
-                if (values[1] === "vpn") {
-                    dict.name = values[0];
-                    dict.uuid = values[2];
-                    vpn_choices.push(dict);
-                }
-            });
-        }
+        var model = PageNetworkGeneralSettings.model;
+        var setts = model.get_settings().Connections;
 
         function vpn_connections_handler() {
-            var process = cockpit.spawn(["nmcli", "-g", "name,type,uuid", "con"]);
-            process.stream(function(data) {
-                set_vpn_connections(data);
-                vpn_choices.forEach(function(item, index, arr) {
-                    if (autovpn_select.find('option[value="' + arr[index].uuid + '"]').length == 0)
-                        autovpn_select.append(new Option(arr[index].name, arr[index].uuid));
-                });
-                if (options.secondaries) {
-                    autovpn_btn.prop('checked', true);
-                    autovpn_select.val(options.secondaries[0]);
-                } else
-                    autovpn_btn.prop('checked', false);
-            });
+            for (var i in setts) {
+                var iface = setts[i][' priv'].orig.connection;
+                if (iface.type.v == "vpn") {
+                    if (autovpn_select.find('option[value="' + iface.uuid.v + '"]').length == 0)
+                        autovpn_select.append(new Option(iface.id.v, iface.uuid.v));
+                }
+            }
+
+            if (options.secondaries) {
+                autovpn_btn.prop('checked', true);
+                autovpn_select.val(options.secondaries[0]);
+            } else
+                autovpn_btn.prop('checked', false);
         }
 
         function change() {
-            options.id = name_input.val();
             options.autoconnect = priority_btn.prop('checked');
             options.autoconnect_priority = options.autoconnect ? parseInt(priority_input.val()) : 0;
             options.secondaries = [];

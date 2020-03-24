@@ -89,6 +89,7 @@ def getNetworkDevice(m):
     return device
 
 @skipImage("LibvirtDBus is not available", "ubuntu-1804")
+@nondestructive
 class TestMachinesDBus(machineslib.TestMachines):
     def setUp(self):
         super().setUp()
@@ -99,7 +100,6 @@ class TestMachinesDBus(machineslib.TestMachines):
         if self.machine.image == "ubuntu-stable":
             self.machine.execute("chmod o+rwx /run/libvirt/libvirt-sock")
 
-    @nondestructive
     def testAutostart(self):
         b = self.browser
         m = self.machine
@@ -139,7 +139,6 @@ class TestMachinesDBus(machineslib.TestMachines):
         m.execute("virsh undefine subVmTest1")
         b.wait_not_present("#vm-subVmTest1-autostart-checkbox")
 
-    @nondestructive
     def testBootOrder(self):
         b = self.browser
         m = self.machine
@@ -211,7 +210,6 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_present("button#vm-subVmTest1-boot-order:disabled")
 
     # Check various configuration changes made before VM installation persist after installation
-    @nondestructive
     def testConfigureBeforeInstall(self):
         b = self.browser
         m = self.machine
@@ -375,7 +373,6 @@ class TestMachinesDBus(machineslib.TestMachines):
         self.allow_browser_errors("Tried changing state of a disconnected RFB object")
         self.allow_journal_messages(".* couldn't shutdown fd: Transport endpoint is not connected")
 
-    @nondestructive
     def testDiskEdit(self):
         b = self.browser
         m = self.machine
@@ -481,7 +478,6 @@ class TestMachinesDBus(machineslib.TestMachines):
         m.execute("virsh undefine subVmTest1")
         b.wait_not_present("#vm-subVmTest1-disks-vde-edit")
 
-    @nondestructive
     def testDomainMemorySettings(self):
         b = self.browser
         m = self.machine
@@ -554,7 +550,6 @@ class TestMachinesDBus(machineslib.TestMachines):
         m.execute("virsh undefine subVmTest1")
         b.wait_present("button#vm-subVmTest1-memory-count:disabled")
 
-    @nondestructive
     def testDetachDisk(self):
         b = self.browser
         m = self.machine
@@ -636,7 +631,6 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_not_present("#vm-subVmTest1-disks-vdc-device")
         b.wait_not_present(".modal-dialog")
 
-    @nondestructive
     def testMultipleSettings(self):
         b = self.browser
 
@@ -674,7 +668,6 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_not_in_text("#vm-subVmTest1-boot-order", bootOrder)
         b.wait_in_text("#vm-subVmTest1-vcpus-count", "3")
 
-    @nondestructive
     def testNetworkSettings(self):
         b = self.browser
         m = self.machine
@@ -865,7 +858,6 @@ class TestMachinesDBus(machineslib.TestMachines):
         m.execute("virsh undefine subVmTest1")
         b.wait_not_present("#vm-subVmTest1-network-1-edit-dialog")
 
-    @nondestructive
     def testNetworkAutostart(self):
         b = self.browser
         m = self.machine
@@ -912,7 +904,6 @@ class TestMachinesDBus(machineslib.TestMachines):
         autostartState = m.execute("virsh net-info test_network2 | grep 'Autostart:' | awk '{print $2}'").strip()
         self.assertEqual(autostartState, "yes")
 
-    @nondestructive
     def testNetworkState(self):
         b = self.browser
         m = self.machine
@@ -964,7 +955,6 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.click(".modal-footer button:contains(Delete)")
         b.wait_not_present("tbody tr[data-row-id=network-test_network2-{0}] th".format(connectionName))
 
-    @nondestructive
     def testNetworks(self):
         b = self.browser
         m = self.machine
@@ -1044,7 +1034,6 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.click('#deactivate-network-test_network4-{0}'.format(connectionName)) # Deactivate transient network
         b.wait_not_present("tbody tr[data-row-id=network-test_network4-{0}] th".format(connectionName)) # Check it's not present after deactivation
 
-    @nondestructive
     def testPause(self):
         b = self.browser
         m = self.machine
@@ -1071,7 +1060,6 @@ class TestMachinesDBus(machineslib.TestMachines):
         state = m.execute("virsh dominfo subVmTest1 | grep 'State:' | awk '{print $2}'").strip()
         self.assertEqual(state, "running")
 
-    @nondestructive
     def testStoragePools(self):
         b = self.browser
         m = self.machine
@@ -1268,7 +1256,6 @@ class TestMachinesDBus(machineslib.TestMachines):
         # Check it's not present after deactivation
         b.wait_not_present("tbody tr[data-row-id=pool-myPoolThree-{0}] td.listing-ct-toggle".format(connectionName)) # click on the row header
 
-    @nondestructive
     def testNetworksCreate(self):
         b = self.browser
         m = self.machine
@@ -1585,7 +1572,6 @@ class TestMachinesDBus(machineslib.TestMachines):
         ).execute()
 
 
-    @nondestructive
     def testStoragePoolsCreate(self):
         b = self.browser
         m = self.machine
@@ -1856,7 +1842,6 @@ class TestMachinesDBus(machineslib.TestMachines):
             source={"source_path": "vol_grp1"},
         ).execute()
 
-    @nondestructive
     def testStorageVolumesCreate(self):
         b = self.browser
         m = self.machine
@@ -2022,7 +2007,6 @@ class TestMachinesDBus(machineslib.TestMachines):
         ).execute()
 
 
-    @nondestructive
     def testNICAdd(self):
         b = self.browser
         m = self.machine

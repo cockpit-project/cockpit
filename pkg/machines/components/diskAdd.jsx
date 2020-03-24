@@ -18,7 +18,7 @@
  */
 import React from 'react';
 import { Modal } from 'patternfly-react';
-import { Button } from '@patternfly/react-core';
+import { Button, Alert } from '@patternfly/react-core';
 import cockpit from 'cockpit';
 
 import * as Select from "cockpit-components-select.jsx";
@@ -233,12 +233,7 @@ const ChangeShareable = ({ idPrefix, vms, storagePool, volumeName, onValueChange
     if (volume.format === "raw")
         text += _(" Attaching it will make this disk shareable for every VM using it.");
 
-    return (<>
-        <span id={`${idPrefix}-vms-usage`} className='idle-message'>
-            <i className='pficon pficon-warning-triangle-o' />
-            <span>{text}</span>
-        </span>
-    </>);
+    return <Alert isInline variant='warning' id={`${idPrefix}-vms-usage`} title={text} />;
 };
 
 const UseExistingDisk = ({ idPrefix, onValueChanged, dialogValues, vmStoragePools, vm, vms }) => {

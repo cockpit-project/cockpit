@@ -1953,10 +1953,6 @@ class TestMachines(MachineCase, StorageHelpers):
 
         MAGEIA_3_FILTERED_OS = 'Mageia 3'
 
-        LIBVIRT_CONNECTION = {
-            'session': 'Session',
-            'system': 'System'}
-
     class VmDialog:
         vmId = 0
 
@@ -2014,7 +2010,7 @@ class TestMachines(MachineCase, StorageHelpers):
             self.check_script_finished = check_script_finished
             self.connection = connection
             if self.connection:
-                self.connectionText = TestMachines.TestCreateConfig.LIBVIRT_CONNECTION[connection]
+                self.connectionText = connection.capitalize()
 
         def getMemoryText(self):
             return "{0} {1}".format(self.memory_size, self.memory_size_unit)

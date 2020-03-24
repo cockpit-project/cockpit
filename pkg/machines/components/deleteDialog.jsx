@@ -20,7 +20,7 @@
 import cockpit from 'cockpit';
 import React from 'react';
 import { Modal } from 'patternfly-react';
-import { Button, Tooltip } from '@patternfly/react-core';
+import { Button } from '@patternfly/react-core';
 
 import { vmId } from '../helpers.js';
 import { deleteVm } from '../actions/provider-actions.js';
@@ -88,16 +88,21 @@ const DeleteDialogBody = ({ disks, destroy, onChange }) => {
 export class DeleteDialog extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {
-            showModal: false,
-            destroy: false,
-            disks: []
-        };
-        this.open = this.open.bind(this);
-        this.close = this.close.bind(this);
         this.delete = this.delete.bind(this);
         this.onDiskCheckedChanged = this.onDiskCheckedChanged.bind(this);
         this.dialogErrorSet = this.dialogErrorSet.bind(this);
+
+        const vm = props.vm;
+        const disks = [];
+
+        Object.keys(vm.disks).sort()
+                .forEach(t => {
+                    const d = vm.disks[t];
+
+                    if ((d.type == 'file' && d.source.file) || d.type == 'volume')
+                        disks.push(Object.assign(d, { checked: !d.readonly }));
+                });
+        this.state = { disks: disks, destroy: vm.state != 'shut off' };
     }
 
     dialogErrorSet(text, detail) {
@@ -111,24 +116,6 @@ export class DeleteDialog extends React.Component {
         this.setState(disks);
     }
 
-    close() {
-        this.setState({ showModal: false, dialogError: undefined });
-    }
-
-    open() {
-        const { vm } = this.props;
-        const disks = [];
-
-        Object.keys(vm.disks).sort()
-                .forEach(t => {
-                    const d = vm.disks[t];
-
-                    if ((d.type == 'file' && d.source.file) || d.type == 'volume')
-                        disks.push(Object.assign(d, { checked: !d.readonly }));
-                });
-        this.setState({ showModal: true, disks: disks, destroy: vm.state != 'shut off' });
-    }
-
     delete() {
         const storage = this.state.disks.filter(d => d.checked);
 
@@ -140,50 +127,24 @@ export class DeleteDialog extends React.Component {
 
     render() {
         const id = vmId(this.props.vm.name);
-
-        let deleteButton = (
-            <Button id={`${id}-delete`} variant='danger' onClick={this.open}>
-                {_("Delete")}
-            </Button>
-        );
-
-        if (!this.props.vm.persistent) {
-            deleteButton = (
-                <Tooltip id={`${id}-delete-tooltip`}
-                    content={_("This VM is transient. Shut it down if you wish to delete it.")}>
-                    <span>
-                        <Button id={`${id}-delete`}
-                            variant='danger'
-                            isDisabled>
-                            {_("Delete")}
-                        </Button>
-                    </span>
-                </Tooltip>
-            );
-        }
-
         return (
-            <>
-                { deleteButton }
-
-                <Modal id={`${id}-delete-modal-dialog`} show={this.state.showModal} onHide={this.close}>
-                    <Modal.Header>
-                        <Modal.Title> {`Confirm deletion of ${this.props.vm.name}`} </Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <DeleteDialogBody disks={this.state.disks} destroy={this.state.destroy} onChange={this.onDiskCheckedChanged} />
-                    </Modal.Body>
-                    <Modal.Footer>
-                        {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
-                        <Button variant='danger' onClick={this.delete}>
-                            {_("Delete")}
-                        </Button>
-                        <Button variant='link' className='btn-cancel' onClick={this.close}>
-                            {_("Cancel")}
-                        </Button>
-                    </Modal.Footer>
-                </Modal>
-            </>
+            <Modal id={`${id}-delete-modal-dialog`} show onHide={this.props.toggleModal}>
+                <Modal.Header>
+                    <Modal.Title> {`Confirm deletion of ${this.props.vm.name}`} </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <DeleteDialogBody disks={this.state.disks} destroy={this.state.destroy} onChange={this.onDiskCheckedChanged} />
+                </Modal.Body>
+                <Modal.Footer>
+                    {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
+                    <Button variant='danger' onClick={this.delete}>
+                        {_("Delete")}
+                    </Button>
+                    <Button variant='link' className='btn-cancel' onClick={this.props.toggleModal}>
+                        {_("Cancel")}
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         );
     }
 }

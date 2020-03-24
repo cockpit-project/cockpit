@@ -20,7 +20,7 @@
 import React from 'react';
 import { Modal } from 'patternfly-react';
 import cockpit from 'cockpit';
-import { Button, Tooltip } from '@patternfly/react-core';
+import { Button, Tooltip, Alert } from '@patternfly/react-core';
 import { InfoAltIcon } from '@patternfly/react-icons';
 
 import * as Select from 'cockpit-components-select.jsx';
@@ -188,16 +188,11 @@ class EditDiskModalBody extends React.Component {
             </div>
         );
 
-        const showFooterWarning = () => {
+        const showWarning = () => {
             if (vm.state === 'running' && (
                 this.state.readonly !== disk.readonly ||
                 this.state.shareable !== disk.shareable)) {
-                return (
-                    <span id={`${idPrefix}-idle-message`} className='idle-message'>
-                        <i className='pficon pficon-pending' />
-                        <span>{_("Changes will take effect after shutting down the VM")}</span>
-                    </span>
-                );
+                return <Alert isInline variant='warning' id={`${idPrefix}-idle-message`} title={_("Changes will take effect after shutting down the VM")} />;
             }
         };
 
@@ -208,6 +203,7 @@ class EditDiskModalBody extends React.Component {
                     <Modal.Title> {'Edit ' + getDiskPrettyName(vm.disks[disk.target]) + ' Attributes'} </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
+                    { showWarning() }
                     {defaultBody}
                 </Modal.Body>
                 <Modal.Footer>
@@ -218,7 +214,6 @@ class EditDiskModalBody extends React.Component {
                     <Button id={`${idPrefix}-dialog-cancel`} variant='link' className='btn-cancel' onClick={this.props.close}>
                         {_("Cancel")}
                     </Button>
-                    { showFooterWarning() }
                 </Modal.Footer>
             </Modal>
         );

@@ -30,7 +30,7 @@ class MachinesOverviewTestSuite(MachinesLib):
             cond = visible
         else:
             cond = invisible
-        self.wait_css('#machines-vcpu-modal-dialog span.idle-message', cond=cond)
+        self.wait_css('#machines-vcpu-modal-dialog .pf-m-warning', cond=cond)
 
         # apply settings
         self.click(self.wait_css('#machines-vcpu-modal-dialog-apply', cond=clickable))

@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Modal } from 'patternfly-react';
 import cockpit from 'cockpit';
-import { Button, Tooltip } from '@patternfly/react-core';
+import { Alert, Button, Tooltip } from '@patternfly/react-core';
 import { InfoAltIcon } from '@patternfly/react-icons';
 
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
@@ -178,12 +178,7 @@ export class VCPUModal extends React.Component {
             this.state.max != vm.vcpus.max ||
             this.state.count != vm.vcpus.count)
         ) {
-            caution = (
-                <span className='idle-message'>
-                    <i className='pficon pficon-pending' />
-                    <span>{_("Changes will take effect after shutting down the VM")}</span>
-                </span>
-            );
+            caution = <Alert isInline variant='warning' title={_("Changes will take effect after shutting down the VM")} />;
         }
 
         const defaultBody = (
@@ -248,6 +243,7 @@ export class VCPUModal extends React.Component {
                     <Modal.Title> {`${vm.name} VCPU details`} </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
+                    { caution }
                     { defaultBody }
                 </Modal.Body>
                 <Modal.Footer>
@@ -258,7 +254,6 @@ export class VCPUModal extends React.Component {
                     <Button id='machines-vcpu-modal-dialog-cancel' variant='link' className='btn-cancel' onClick={this.props.close}>
                         {_("Cancel")}
                     </Button>
-                    { caution }
                 </Modal.Footer>
             </Modal>
         );

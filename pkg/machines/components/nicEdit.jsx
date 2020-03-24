@@ -20,7 +20,7 @@ import React from 'react';
 import cockpit from 'cockpit';
 import PropTypes from 'prop-types';
 import { Modal } from 'patternfly-react';
-import { Button } from '@patternfly/react-core';
+import { Button, Alert } from '@patternfly/react-core';
 
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { NetworkTypeAndSourceRow, NetworkModelRow } from './nicBody.jsx';
@@ -145,18 +145,13 @@ class EditNICModal extends React.Component {
                 <NetworkMacRow network={network} />
             </form>
         );
-        const showFooterWarning = () => {
+        const showWarning = () => {
             if (vm.state === 'running' && (
                 this.state.networkType !== network.type ||
                 this.state.networkSource !== network.source[network.type] ||
                 this.state.networkModel !== network.model)
             ) {
-                return (
-                    <span id={`${idPrefix}-edit-dialog-idle-message`} className='idle-message'>
-                        <i className='pficon pficon-pending' />
-                        <span>{_("Changes will take effect after shutting down the VM")}</span>
-                    </span>
-                );
+                return <Alert isInline variant='warning' id={`${idPrefix}-edit-dialog-idle-message`} title={_("Changes will take effect after shutting down the VM")} />;
             }
         };
 
@@ -167,6 +162,7 @@ class EditNICModal extends React.Component {
                     <Modal.Title> {`${network.mac} Virtual Network Interface Settings`} </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
+                    { showWarning() }
                     {defaultBody}
                 </Modal.Body>
                 <Modal.Footer>
@@ -177,7 +173,6 @@ class EditNICModal extends React.Component {
                     <Button id={`${idPrefix}-edit-dialog-cancel`} variant='link' className='btn-cancel' onClick={this.props.close}>
                         {_("Cancel")}
                     </Button>
-                    { showFooterWarning() }
                 </Modal.Footer>
             </Modal>
         );

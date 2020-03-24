@@ -1004,7 +1004,7 @@ class TestAutoUpdates(PackageCase):
             self.assertFalse(b.is_present('#automatic'))
 
     @skipImage("No supported auto update backend", "centos-7", "debian-stable", "debian-testing",
-               "ubuntu-1804", "ubuntu-stable", "rhel-7-6", "rhel-7-6-distropkg", "rhel-7-7", "rhel-7-8")
+               "ubuntu-1804", "ubuntu-stable", "rhel-7-6", "rhel-7-6-distropkg", "rhel-7-7", "rhel-7-8", "rhel-7-9")
     def testInstall(self):
         b = self.browser
         m = self.machine

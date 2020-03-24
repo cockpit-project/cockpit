@@ -23,7 +23,7 @@ from testlib import *
 
 
 @skipImage("LibvirtDBus is the only available provider",
-           "fedora-29", "fedora-30", "fedora-i386", "fedora-testing", "rhel-7-8", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1")
+           "fedora-29", "fedora-30", "fedora-i386", "fedora-testing", "rhel-7-8", "rhel-7-9", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1")
 class TestMachinesVirsh(machineslib.TestMachines):
 
     def removeLibvirtDBus(self):

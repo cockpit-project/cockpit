@@ -38,7 +38,7 @@ class PackageCase(MachineCase):
             self.backend = "apt"
         elif self.machine.image.startswith("fedora") or self.machine.image in ["rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1"]:
             self.backend = "dnf"
-        elif self.machine.image in ["centos-7", "rhel-7-6", "rhel-7-6-distropkg", "rhel-7-7", "rhel-7-8"]:
+        elif self.machine.image in ["centos-7", "rhel-7-6", "rhel-7-6-distropkg", "rhel-7-7", "rhel-7-8", "rhel-7-9"]:
             self.backend = "yum"
         else:
             raise NotImplementedError("unknown image " + self.machine.image)

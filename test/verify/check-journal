@@ -27,7 +27,7 @@ class TestJournal(MachineCase):
     def setUp(self):
         super(TestJournal, self).setUp()
 
-        if self.machine.image in ["rhel-7-6", "rhel-7-6-distropkg", "rhel-7-7", "rhel-7-8", "centos-7", "rhel-atomic", "continuous-atomic"]:
+        if self.machine.image in ["rhel-7-6", "rhel-7-6-distropkg", "rhel-7-7", "rhel-7-8", "rhel-7-9", "centos-7", "rhel-atomic", "continuous-atomic"]:
             self.python = "python"
             self.crash_fn = "posix_kill"
         else:
@@ -394,7 +394,7 @@ s.send(b"PRIORITY=3\\nFOO=bar\\n")'
         b.wait_present(journal_line_selector.format("WARNING_MESSAGE"))
         b.wait_present(journal_line_selector.format("INFO_MESSAGE"))
 
-    @skipImage("Newer version of ABRT required", "centos-7", "rhel-7-6", "rhel-7-6-distropkg", "rhel-7-7", "rhel-7-8")
+    @skipImage("Newer version of ABRT required", "centos-7", "rhel-7-6", "rhel-7-6-distropkg", "rhel-7-7", "rhel-7-8", "rhel-7-9")
     @skipImage("ABRT does not work on i386", "fedora-i386")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
                "ubuntu-1804", "rhel-atomic", "fedora-atomic", "continuous-atomic", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1")
@@ -440,7 +440,7 @@ s.send(b"PRIORITY=3\\nFOO=bar\\n")'
         sel += " .panel-body:contains('signal: 11  executable: ')"
         b.wait_present(sel)
 
-    @skipImage("Newer version of ABRT required", "centos-7", "rhel-7-6", "rhel-7-6-distropkg", "rhel-7-7", "rhel-7-8")
+    @skipImage("Newer version of ABRT required", "centos-7", "rhel-7-6", "rhel-7-6-distropkg", "rhel-7-7", "rhel-7-8", "rhel-7-9")
     @skipImage("ABRT does not work on i386", "fedora-i386")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
                "ubuntu-1804", "rhel-atomic", "fedora-atomic", "continuous-atomic", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1")
@@ -472,7 +472,7 @@ s.send(b"PRIORITY=3\\nFOO=bar\\n")'
         b.wait_present("#journal-entry-message:contains('crashed in %s')" % self.crash_fn)
         b.wait_not_present("#journal-entry-fields .nav")
 
-    @skipImage("Newer version of ABRT required", "centos-7", "rhel-7-6", "rhel-7-6-distropkg", "rhel-7-7", "rhel-7-8")
+    @skipImage("Newer version of ABRT required", "centos-7", "rhel-7-6", "rhel-7-6-distropkg", "rhel-7-7", "rhel-7-8", "rhel-7-9")
     @skipImage("ABRT does not work on i386", "fedora-i386")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
                "ubuntu-1804", "rhel-atomic", "fedora-atomic", "continuous-atomic", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1")

@@ -149,8 +149,8 @@ reboot"""
 # echo "options kvm-intel nested=1" > /etc/modprobe.d/kvm-intel.conf
 # rmmod kvm-intel && modprobe kvm-intel || true
 
-
 @skipImage("Atomic cannot run virtual machines", "fedora-coreos")
+@nondestructive
 class TestMachines(MachineCase, StorageHelpers):
     created_pool = False
     provider = None
@@ -291,7 +291,6 @@ class TestMachines(MachineCase, StorageHelpers):
         self.addCleanup(m.execute, "targetcli /backstores/ramdisk delete test && targetcli /iscsi delete %s" % target_iqn)
         return orig_iqn
 
-    @nondestructive
     def testState(self):
         b = self.browser
         m = self.machine
@@ -310,7 +309,6 @@ class TestMachines(MachineCase, StorageHelpers):
 
         return args
 
-    @nondestructive
     def testBasic(self):
         b = self.browser
         m = self.machine
@@ -481,7 +479,6 @@ class TestMachines(MachineCase, StorageHelpers):
             print("Libvirt version does not support disk statistics")
             b.wait_present("#vm-{0}-disks-notification".format(name))
 
-    @nondestructive
     def testLibvirt(self):
         b = self.browser
         m = self.machine
@@ -557,7 +554,6 @@ class TestMachines(MachineCase, StorageHelpers):
 
         self.allow_authorize_journal_messages()
 
-    @nondestructive
     def testDisks(self):
         b = self.browser
         m = self.machine
@@ -614,7 +610,6 @@ class TestMachines(MachineCase, StorageHelpers):
 
     # Test Add Disk via dialog
     @timeout(900)
-    @nondestructive
     def testAddDisk(self):
         b = self.browser
         m = self.machine
@@ -1028,7 +1023,6 @@ class TestMachines(MachineCase, StorageHelpers):
         if m.image in ["debian-testing", "ubuntu-stable"]:
             self.allow_journal_messages('.* type=1400 .* apparmor="DENIED" operation="open" profile="libvirt.* name="%s.*' % self.vm_tmpdir)
 
-    @nondestructive
     def testVmNICs(self):
         b = self.browser
         m = self.machine
@@ -1065,7 +1059,6 @@ class TestMachines(MachineCase, StorageHelpers):
 
         b.wait_in_text("#vm-subVmTest1-network-2-state", "up")
 
-    @nondestructive
     def testVCPU(self):
         b = self.browser
         m = self.machine
@@ -1192,7 +1185,6 @@ class TestMachines(MachineCase, StorageHelpers):
         m.execute("virsh undefine subVmTest1")
         b.wait_present("button#vm-subVmTest1-vcpus-count:disabled")
 
-    @nondestructive
     def testExternalConsole(self):
         b = self.browser
 
@@ -1216,7 +1208,6 @@ class TestMachines(MachineCase, StorageHelpers):
         self.assertEqual(b.attr("#dynamically-generated-file", "href"),
                          u"data:application/x-virt-viewer,%5Bvirt-viewer%5D%0Atype%3Dspice%0Ahost%3D127.0.0.1%0Aport%3D5900%0Adelete-this-file%3D1%0Afullscreen%3D0%0A")
 
-    @nondestructive
     def testInlineConsole(self, urlroot=""):
         b = self.browser
 
@@ -1237,11 +1228,9 @@ class TestMachines(MachineCase, StorageHelpers):
         # since VNC is defined for this VM, the view for "In-Browser Viewer" is rendered by default
         b.wait_present(".toolbar-pf-results canvas")
 
-    @nondestructive
     def testInlineConsoleWithUrlRoot(self, urlroot=""):
         self.testInlineConsole(urlroot="/webcon")
 
-    @nondestructive
     def testDelete(self):
         b = self.browser
         m = self.machine
@@ -1332,7 +1321,6 @@ class TestMachines(MachineCase, StorageHelpers):
         b.wait_not_present("tbody tr[data-row-id=vm-{0}] th".format(name))
         b.wait_not_present(".toast-notifications.list-pf div.pf-c-alert")
 
-    @nondestructive
     def testSerialConsole(self):
         b = self.browser
         name = "vmWithSerialConsole"
@@ -1363,7 +1351,6 @@ class TestMachines(MachineCase, StorageHelpers):
         self.allow_browser_errors("Disconnection timed out.")
 
     @timeout(1200)
-    @nondestructive
     def testCreate(self):
         """
         this test will print many expected error messages

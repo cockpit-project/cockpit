@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-03-10 10:37+0000\n"
+"POT-Creation-Date: 2020-03-17 16:33+0000\n"
 "PO-Revision-Date: 2020-02-06 08:43+0000\n"
 "Last-Translator: Ludek Janda <ljanda@redhat.com>\n"
 "Language-Team: Korean <https://translate.fedoraproject.org/projects/cockpit/"
@@ -22,20 +22,16 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0\n"
 "X-Generator: Weblate 3.10.3\n"
 
-#: pkg/docker/storage.jsx:261
-msgid " (shared with the OS)"
-msgstr " (OS와 공유)"
-
 #: pkg/machines/components/diskAdd.jsx:234
 msgid " Attaching it will make this disk shareable for every VM using it."
 msgstr ""
 " 연결하면 이 디스크를 사용하는 모든 VM에서 이 디스크를 공유 할 수 있습니다."
 
-#: pkg/networkmanager/interfaces.js:2330
+#: pkg/networkmanager/interfaces.js:2321
 msgid "$0 Active Zone"
 msgstr "$0 활성 영역"
 
-#: pkg/networkmanager/interfaces.js:2330
+#: pkg/networkmanager/interfaces.js:2321
 msgid "$0 Active Zones"
 msgstr "$0 활성 영역"
 
@@ -68,11 +64,6 @@ msgstr[0] "$0 패키지"
 #: pkg/systemd/init.js:484 pkg/systemd/service-details.jsx:59
 msgid "$0 Template"
 msgstr "$0 템플릿"
-
-#: pkg/docker/containers-view.jsx:616
-msgid "$0 Vulnerability"
-msgid_plural "$0 Vulnerabilities"
-msgstr[0] "$0 취약점"
 
 #: src/base1/test-locale.js:83 src/base1/test-locale.js:84
 #: src/base1/test-locale.js:85 src/base1/test-locale.js:86
@@ -185,7 +176,7 @@ msgid "$0 month"
 msgid_plural "$0 months"
 msgstr[0] "$0 달"
 
-#: pkg/selinux/setroubleshoot-view.jsx:437
+#: pkg/selinux/setroubleshoot-view.jsx:383
 msgid "$0 occurrence"
 msgid_plural "$1 occurrences"
 msgstr[0] "$0 발생"
@@ -230,7 +221,7 @@ msgid "$0 year"
 msgid_plural "$0 years"
 msgstr[0] "$0 년"
 
-#: pkg/networkmanager/firewall.jsx:159
+#: pkg/networkmanager/firewall.jsx:169
 #, fuzzy
 #| msgid "zone"
 msgid "$0 zone"
@@ -240,7 +231,7 @@ msgstr "영역"
 msgid "$0, $1 free"
 msgstr "$0, $1 여유 공간"
 
-#: pkg/systemd/logs.js:457
+#: pkg/systemd/logs.js:458
 msgid "$0: crash at $1"
 msgstr "$0: $1에서 충돌"
 
@@ -257,7 +248,7 @@ msgstr "$name ($host에서)"
 msgid "${size} ${desc}"
 msgstr "${size} ${desc}"
 
-#: pkg/networkmanager/firewall.jsx:571
+#: pkg/networkmanager/firewall.jsx:586
 msgid "(Optional)"
 msgstr "(옵션)"
 
@@ -496,11 +487,11 @@ msgstr "7일"
 msgid "8 KiB"
 msgstr "8 KiB"
 
-#: pkg/networkmanager/interfaces.js:1979
+#: pkg/networkmanager/interfaces.js:1970
 msgid "802.3ad"
 msgstr "802.3ad"
 
-#: pkg/networkmanager/interfaces.js:1996
+#: pkg/networkmanager/interfaces.js:1987
 msgid "802.3ad LACP"
 msgstr "802.3ad LACP"
 
@@ -528,7 +519,7 @@ msgid ""
 "A modern browser is required for security, reliability, and performance."
 msgstr "보안, 안정성, 성능을 위해 최신 브라우저가 필요합니다."
 
-#: pkg/networkmanager/interfaces.js:1726
+#: pkg/networkmanager/interfaces.js:1717
 msgid ""
 "A network bond combines multiple network interfaces into one logical "
 "interface with higher throughput or redundancy."
@@ -538,15 +529,15 @@ msgstr ""
 msgid "A spare disk needs to be added first before this disk can be removed."
 msgstr "디스크를 제거하기 전 예비용 디스크를 추가해야 합니다."
 
-#: pkg/networkmanager/interfaces.js:1987
+#: pkg/networkmanager/interfaces.js:1978
 msgid "ARP"
 msgstr "ARP"
 
-#: pkg/networkmanager/interfaces.js:2781
+#: pkg/networkmanager/interfaces.js:2772
 msgid "ARP Monitoring"
 msgstr "ARP 모니터링"
 
-#: pkg/networkmanager/interfaces.js:2008
+#: pkg/networkmanager/interfaces.js:1999
 msgid "ARP Ping"
 msgstr "ARP Ping"
 
@@ -596,11 +587,11 @@ msgstr "활성화"
 msgid "Activating $target"
 msgstr "$target 활성화 중"
 
-#: pkg/networkmanager/interfaces.js:842 pkg/networkmanager/interfaces.js:2002
+#: pkg/networkmanager/interfaces.js:833 pkg/networkmanager/interfaces.js:1993
 msgid "Active"
 msgstr "활성"
 
-#: pkg/networkmanager/interfaces.js:1976 pkg/networkmanager/interfaces.js:1993
+#: pkg/networkmanager/interfaces.js:1967 pkg/networkmanager/interfaces.js:1984
 msgid "Active Backup"
 msgstr "활성화된 백업"
 
@@ -616,11 +607,11 @@ msgstr "이후 활성화"
 msgid "Active since "
 msgstr "이후 활성화 "
 
-#: pkg/networkmanager/interfaces.js:1981
+#: pkg/networkmanager/interfaces.js:1972
 msgid "Adaptive load balancing"
 msgstr "적응형 로드 밸런싱"
 
-#: pkg/networkmanager/interfaces.js:1980
+#: pkg/networkmanager/interfaces.js:1971
 msgid "Adaptive transmit load balancing"
 msgstr "적응형 전송 로드 밸런싱"
 
@@ -633,13 +624,9 @@ msgstr "적응형 전송 로드 밸런싱"
 msgid "Add"
 msgstr "추가"
 
-#: pkg/networkmanager/interfaces.js:3106
+#: pkg/networkmanager/interfaces.js:3097
 msgid "Add $0"
 msgstr "$0 추가"
-
-#: pkg/docker/storage.jsx:383
-msgid "Add Additional Storage"
-msgstr "스토리지 추가"
 
 #: pkg/networkmanager/index.html:120
 msgid "Add Bond"
@@ -670,18 +657,14 @@ msgstr "대시보드에 시스템 추가"
 msgid "Add Network Interface"
 msgstr "네트워크 인터페이스 추가"
 
-#: pkg/networkmanager/firewall.jsx:494
+#: pkg/networkmanager/firewall.jsx:509
 msgid "Add Ports"
 msgstr "포트 추가"
 
-#: pkg/networkmanager/firewall.jsx:145 pkg/networkmanager/firewall.jsx:151
-#: pkg/networkmanager/firewall.jsx:494
+#: pkg/networkmanager/firewall.jsx:155 pkg/networkmanager/firewall.jsx:161
+#: pkg/networkmanager/firewall.jsx:509
 msgid "Add Services"
 msgstr "서비스 추가"
-
-#: pkg/docker/storage.jsx:219
-msgid "Add Storage"
-msgstr "스토리지 추가"
 
 #: pkg/networkmanager/index.html:121
 msgid "Add Team"
@@ -695,12 +678,12 @@ msgstr "VLAN 추가"
 msgid "Add Virtual Network Interface"
 msgstr "가상 네트워크 인터페이스 추가"
 
-#: pkg/networkmanager/firewall.jsx:666 pkg/networkmanager/firewall.jsx:897
-#: pkg/networkmanager/firewall.jsx:903
+#: pkg/networkmanager/firewall.jsx:681 pkg/networkmanager/firewall.jsx:910
+#: pkg/networkmanager/firewall.jsx:916
 msgid "Add Zone"
 msgstr "영역 추가"
 
-#: pkg/networkmanager/firewall.jsx:902
+#: pkg/networkmanager/firewall.jsx:915
 msgid "Add a new zone"
 msgstr "새로운 영역 추가"
 
@@ -712,7 +695,7 @@ msgstr "iSCSI 포털 추가"
 msgid "Add key"
 msgstr "키 추가"
 
-#: pkg/networkmanager/firewall.jsx:495
+#: pkg/networkmanager/firewall.jsx:510
 msgid "Add ports to $0 zone"
 msgstr "$0 영역에 포트 추가"
 
@@ -720,19 +703,19 @@ msgstr "$0 영역에 포트 추가"
 msgid "Add public key"
 msgstr "공개 키 추가"
 
-#: pkg/networkmanager/firewall.jsx:495
+#: pkg/networkmanager/firewall.jsx:510
 msgid "Add services to $0 zone"
 msgstr "$0 영역에 서비스 추가"
 
-#: pkg/networkmanager/firewall.jsx:150
+#: pkg/networkmanager/firewall.jsx:160
 msgid "Add services to zone $0"
 msgstr "$0 영역에 서비스 추가"
 
-#: pkg/networkmanager/firewall.jsx:744
+#: pkg/networkmanager/firewall.jsx:759
 msgid "Add zone"
 msgstr "영역 추가"
 
-#: pkg/networkmanager/interfaces.js:3105
+#: pkg/networkmanager/interfaces.js:3096
 msgid ""
 "Adding <b>$0</b> will break the connection to the server, and will make the "
 "administration UI unavailable."
@@ -740,7 +723,7 @@ msgstr ""
 "<b>$0</b>을/를 추가하면 서버와의 연결이 끊어지고 관리 UI를 사용할 수 없게 됩"
 "니다."
 
-#: pkg/networkmanager/firewall.jsx:584
+#: pkg/networkmanager/firewall.jsx:599
 msgid ""
 "Adding custom ports will reload firewalld. A reload will result in the loss "
 "of any runtime-only configuration!"
@@ -760,29 +743,31 @@ msgstr "$target에 물리 볼륨 추가 중"
 msgid "Additional"
 msgstr "추가"
 
-#: pkg/networkmanager/interfaces.js:2651
+#: pkg/networkmanager/interfaces.js:2642
 msgid "Additional DNS $val"
 msgstr "추가 DNS $val"
 
-#: pkg/networkmanager/interfaces.js:2654
+#: pkg/networkmanager/interfaces.js:2645
 msgid "Additional DNS Search Domains $val"
 msgstr "추가 DNS 검색 도메인 $val"
-
-#: pkg/docker/index.html:309
-msgid "Additional Storage"
-msgstr "추가 스토리지"
 
 #: pkg/systemd/service-details.jsx:213
 msgid "Additional actions"
 msgstr "추가 동작"
 
-#: pkg/networkmanager/interfaces.js:2646
+#: pkg/networkmanager/interfaces.js:2637
 msgid "Additional address $val"
 msgstr "추가 주소 $val"
 
 #: pkg/lib/cockpit-components-install-dialog.jsx:75
 msgid "Additional packages:"
 msgstr "추가 패키지 :"
+
+#: pkg/networkmanager/firewall.jsx:113
+#, fuzzy
+#| msgid "Additional"
+msgid "Additional ports"
+msgstr "추가"
 
 #: pkg/lib/machine-add.html:11
 #: pkg/machines/components/networks/networkOverviewTab.jsx:109
@@ -792,7 +777,7 @@ msgstr "추가 패키지 :"
 msgid "Address"
 msgstr "주소"
 
-#: pkg/networkmanager/interfaces.js:2646
+#: pkg/networkmanager/interfaces.js:2637
 msgid "Address $val"
 msgstr "주소 $val"
 
@@ -815,7 +800,7 @@ msgstr "서브넷 내에 없는 주소"
 msgid "Address:"
 msgstr "주소:"
 
-#: pkg/networkmanager/firewall.jsx:162 pkg/networkmanager/interfaces.js:3314
+#: pkg/networkmanager/firewall.jsx:172 pkg/networkmanager/interfaces.js:3305
 msgid "Addresses"
 msgstr "주소"
 
@@ -859,7 +844,7 @@ msgstr "시스템 부팅 후"
 msgid "Alert and above"
 msgstr "경고 이상의 수준"
 
-#: pkg/systemd/services.html:64 pkg/systemd/logs.js:239 pkg/systemd/logs.js:416
+#: pkg/systemd/services.html:64 pkg/systemd/logs.js:240 pkg/systemd/logs.js:417
 msgid "All"
 msgstr "모두"
 
@@ -867,22 +852,15 @@ msgstr "모두"
 msgid "All In One"
 msgstr "일체형"
 
-#: pkg/docker/storage.jsx:386
-msgid ""
-"All data on selected disks will be erased and disks will be added to the "
-"storage pool."
-msgstr ""
-"선택된 디스크의 모든 데이터가 삭제되며 디스크는 스토리지 풀에 추가됩니다."
-
 #: pkg/systemd/service-details.jsx:162
 msgid "Allow running (unmask)"
 msgstr "실행 허용 (마스크 해제)"
 
-#: pkg/networkmanager/firewall.jsx:718
+#: pkg/networkmanager/firewall.jsx:733
 msgid "Allowed Addresses"
 msgstr "허용된 주소"
 
-#: pkg/docker/index.html:550 pkg/docker/util.js:108
+#: pkg/docker/index.html:512 pkg/docker/util.js:108
 msgid "Always"
 msgstr "항상"
 
@@ -927,11 +905,11 @@ msgstr "모든 업데이트 적용"
 msgid "Apply security updates"
 msgstr "보안 업데이트 적용"
 
-#: pkg/selinux/setroubleshoot-view.jsx:112
+#: pkg/selinux/setroubleshoot-view.jsx:110
 msgid "Apply this solution"
 msgstr "솔루션 적용"
 
-#: pkg/selinux/setroubleshoot-view.jsx:89
+#: pkg/selinux/setroubleshoot-view.jsx:88
 msgid "Applying solution..."
 msgstr "솔루션 적용 중 ..."
 
@@ -965,11 +943,11 @@ msgstr "최소 1개의 디스크가 필요합니다."
 msgid "At specific time"
 msgstr "특정 시간"
 
-#: pkg/selinux/setroubleshoot-view.jsx:422
+#: pkg/selinux/setroubleshoot-view.jsx:368
 msgid "Audit log"
 msgstr "감사 로그"
 
-#: pkg/networkmanager/interfaces.js:834
+#: pkg/networkmanager/interfaces.js:825
 msgid "Authenticating"
 msgstr "인증 중입니다"
 
@@ -1000,7 +978,7 @@ msgstr "Cockpit Web 콘솔의 권한 작업을 수행하려면 인증이 필요�
 msgid "Authentication required"
 msgstr "인증이 필요합니다"
 
-#: pkg/docker/index.html:702 pkg/docker/containers-view.jsx:415
+#: pkg/docker/index.html:664 pkg/docker/containers-view.jsx:417
 msgid "Author"
 msgstr "작성자"
 
@@ -1010,18 +988,18 @@ msgstr "승인된 공개 SSH 키"
 
 #: pkg/networkmanager/index.html:187
 #: pkg/machines/components/networks/createNetworkDialog.jsx:163
-#: pkg/networkmanager/interfaces.js:1966 pkg/networkmanager/interfaces.js:2754
-#: pkg/networkmanager/interfaces.js:3322 pkg/networkmanager/interfaces.js:3326
-#: pkg/networkmanager/interfaces.js:3332
+#: pkg/networkmanager/interfaces.js:1957 pkg/networkmanager/interfaces.js:2745
+#: pkg/networkmanager/interfaces.js:3313 pkg/networkmanager/interfaces.js:3317
+#: pkg/networkmanager/interfaces.js:3323
 #: pkg/systemd/overview-cards/realmd-operation.js:339
 msgid "Automatic"
 msgstr "자동"
 
-#: pkg/networkmanager/interfaces.js:1967
+#: pkg/networkmanager/interfaces.js:1958
 msgid "Automatic (DHCP only)"
 msgstr "자동(DHCP만)"
 
-#: pkg/networkmanager/interfaces.js:1957
+#: pkg/networkmanager/interfaces.js:1948
 msgid "Automatic (DHCP)"
 msgstr "자동(DHCP)"
 
@@ -1033,7 +1011,7 @@ msgstr "자동 시작"
 msgid "Automatic Updates"
 msgstr "자동 업데이트"
 
-#: pkg/machines/components/libvirtSlate.jsx:103
+#: pkg/machines/components/libvirtSlate.jsx:94
 msgid "Automatically start libvirt on boot"
 msgstr "부트시 자동으로 libvirt 시작"
 
@@ -1065,7 +1043,7 @@ msgstr "자동 시작"
 msgid "Available"
 msgstr "사용 가능"
 
-#: pkg/packagekit/updates.jsx:877
+#: pkg/packagekit/updates.jsx:871
 msgid "Available Updates"
 msgstr "사용 가능한 업데이트"
 
@@ -1142,8 +1120,8 @@ msgstr "파일 시스템의 블록 장치"
 msgid "Blocked"
 msgstr "차단됨"
 
-#: pkg/networkmanager/interfaces.js:2506 pkg/networkmanager/interfaces.js:2518
-#: pkg/networkmanager/interfaces.js:2786
+#: pkg/networkmanager/interfaces.js:2497 pkg/networkmanager/interfaces.js:2509
+#: pkg/networkmanager/interfaces.js:2777
 msgid "Bond"
 msgstr "본드"
 
@@ -1164,8 +1142,8 @@ msgstr "부팅 순서 설정을 저장하지 못했습니다"
 msgid "Bound By"
 msgstr "바인딩됨"
 
-#: pkg/networkmanager/interfaces.js:2512 pkg/networkmanager/interfaces.js:2524
-#: pkg/networkmanager/interfaces.js:2863
+#: pkg/networkmanager/interfaces.js:2503 pkg/networkmanager/interfaces.js:2515
+#: pkg/networkmanager/interfaces.js:2854
 msgid "Bridge"
 msgstr "브릿지"
 
@@ -1177,19 +1155,19 @@ msgstr "브릿지 포트 설정"
 msgid "Bridge Settings"
 msgstr "브릿지 설정"
 
-#: pkg/networkmanager/interfaces.js:2884
+#: pkg/networkmanager/interfaces.js:2875
 msgid "Bridge port"
 msgstr "브릿지 포트"
 
-#: pkg/networkmanager/interfaces.js:1978 pkg/networkmanager/interfaces.js:1995
+#: pkg/networkmanager/interfaces.js:1969 pkg/networkmanager/interfaces.js:1986
 msgid "Broadcast"
 msgstr "브로트캐스트"
 
-#: pkg/networkmanager/interfaces.js:2799 pkg/networkmanager/interfaces.js:2833
+#: pkg/networkmanager/interfaces.js:2790 pkg/networkmanager/interfaces.js:2824
 msgid "Broken configuration"
 msgstr "손상된 설정"
 
-#: pkg/packagekit/updates.jsx:857
+#: pkg/packagekit/updates.jsx:851
 msgid "Bug Fix Updates Available"
 msgstr "사용 가능한 버그 수정 업데이트"
 
@@ -1210,8 +1188,8 @@ msgstr "버스"
 msgid "Bus Expansion Chassis"
 msgstr "버스 확장 섀시"
 
-#: pkg/dashboard/index.html:74 pkg/docker/index.html:272
-#: pkg/docker/containers-view.jsx:361 pkg/systemd/hwinfo.jsx:99
+#: pkg/dashboard/index.html:74 pkg/docker/index.html:266
+#: pkg/docker/containers-view.jsx:363 pkg/systemd/hwinfo.jsx:99
 #: pkg/systemd/overview-cards/usageCard.jsx:121
 msgid "CPU"
 msgstr "CPU"
@@ -1237,11 +1215,11 @@ msgstr "CPU 상태"
 msgid "CPU Type"
 msgstr "CPU 유형"
 
-#: pkg/docker/index.html:471 pkg/docker/index.html:643
+#: pkg/docker/index.html:433 pkg/docker/index.html:605
 msgid "CPU priority"
 msgstr "CPU 우선순위"
 
-#: pkg/docker/index.html:218
+#: pkg/docker/index.html:212
 msgid "CPU usage:"
 msgstr "CPU 사용량:"
 
@@ -1254,7 +1232,7 @@ msgstr "캐시"
 msgid "Cached"
 msgstr "캐시됨"
 
-#: pkg/systemd/logs.js:181 pkg/systemd/logs.js:345
+#: pkg/systemd/logs.js:182 pkg/systemd/logs.js:346
 msgid "Can not find any logs using the current combination of filters."
 msgstr "현재 필터 조합을 사용하여 로그를 찾을 수 없습니다."
 
@@ -1266,10 +1244,10 @@ msgstr "Docker에 연결할 수 없습니다"
 msgid "Can't load image"
 msgstr "이미지를 로드할 수 없습니다"
 
-#: pkg/dashboard/index.html:187 pkg/docker/index.html:565
-#: pkg/docker/index.html:599 pkg/docker/index.html:663
-#: pkg/docker/index.html:717 pkg/docker/index.html:757
-#: pkg/docker/index.html:786 pkg/lib/machine-add.html:42
+#: pkg/dashboard/index.html:187 pkg/docker/index.html:527
+#: pkg/docker/index.html:561 pkg/docker/index.html:625
+#: pkg/docker/index.html:679 pkg/docker/index.html:719
+#: pkg/docker/index.html:748 pkg/lib/machine-add.html:42
 #: pkg/lib/machine-change-auth.html:91 pkg/lib/machine-change-port.html:40
 #: pkg/lib/machine-sync-users.html:76 pkg/networkmanager/index.html:495
 #: pkg/networkmanager/index.html:523 pkg/networkmanager/index.html:550
@@ -1283,7 +1261,7 @@ msgstr "이미지를 로드할 수 없습니다"
 #: pkg/systemd/services.html:376 pkg/users/index.html:200
 #: pkg/users/index.html:239 pkg/users/index.html:278 pkg/users/index.html:317
 #: pkg/users/index.html:334 pkg/users/index.html:358 pkg/users/index.html:419
-#: pkg/apps/utils.jsx:86 pkg/lib/cockpit-components-dialog.jsx:158
+#: pkg/apps/utils.jsx:84 pkg/lib/cockpit-components-dialog.jsx:158
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:945
 #: pkg/machines/components/deleteDialog.jsx:182
 #: pkg/machines/components/deleteResource.jsx:114
@@ -1299,9 +1277,9 @@ msgstr "이미지를 로드할 수 없습니다"
 #: pkg/machines/components/vm/bootOrderModal.jsx:327
 #: pkg/machines/components/vm/firmwareModal.jsx:75
 #: pkg/machines/components/vm/memoryModal.jsx:152
-#: pkg/networkmanager/firewall.jsx:587 pkg/networkmanager/firewall.jsx:739
-#: pkg/networkmanager/firewall.jsx:764 pkg/packagekit/updates.jsx:186
-#: pkg/sosreport/index.js:51 pkg/storaged/dialog.jsx:400
+#: pkg/networkmanager/firewall.jsx:602 pkg/networkmanager/firewall.jsx:754
+#: pkg/networkmanager/firewall.jsx:779 pkg/packagekit/updates.jsx:186
+#: pkg/sosreport/index.js:49 pkg/storaged/dialog.jsx:400
 #: pkg/storaged/jobs-panel.jsx:123 pkg/systemd/hwinfo.jsx:222
 #: pkg/systemd/reporting.jsx:420 pkg/systemd/service-details.jsx:110
 msgid "Cancel"
@@ -1315,7 +1293,7 @@ msgstr "알 수 없는 컴퓨터에 연결할 수 없습니다"
 msgid "Cannot forward login credentials"
 msgstr "로그인 정보를 전송할 수 없습니다"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:628
+#: pkg/systemd/overview-cards/realmd-operation.js:627
 msgid "Cannot join a domain because realmd is not available on this system"
 msgstr "이 시스템에서 realmd를 사용할 수 없으므로 도메인에 참여할 수 없습니다"
 
@@ -1335,11 +1313,11 @@ msgctxt "storage"
 msgid "Capacity"
 msgstr "용량"
 
-#: pkg/networkmanager/interfaces.js:2585
+#: pkg/networkmanager/interfaces.js:2576
 msgid "Carrier"
 msgstr "캐리어"
 
-#: pkg/docker/index.html:664 pkg/systemd/index.html:123
+#: pkg/docker/index.html:626 pkg/systemd/index.html:123
 #: pkg/systemd/index.html:261 pkg/users/index.html:279 pkg/users/index.html:318
 #: pkg/storaged/iscsi-panel.jsx:188
 msgid "Change"
@@ -1379,15 +1357,15 @@ msgstr "iSCSI 개시자 이름 변경"
 msgid "Change passphrase"
 msgstr "암호문 변경"
 
-#: pkg/docker/index.html:229
+#: pkg/docker/index.html:223
 msgid "Change resource limits"
 msgstr "리소스 제한 변경"
 
-#: pkg/docker/index.html:614
+#: pkg/docker/index.html:576
 msgid "Change resources limits"
 msgstr "리소스 제한 변경"
 
-#: pkg/networkmanager/interfaces.js:3156
+#: pkg/networkmanager/interfaces.js:3147
 msgid "Change the settings"
 msgstr "설정 변경"
 
@@ -1399,7 +1377,7 @@ msgstr "설정 변경"
 msgid "Changes will take effect after shutting down the VM"
 msgstr "VM 종료 후 변경사항이 적용됩니다"
 
-#: pkg/networkmanager/interfaces.js:3155
+#: pkg/networkmanager/interfaces.js:3146
 msgid ""
 "Changing the settings will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -1414,7 +1392,7 @@ msgstr "업데이트 확인"
 msgid "Checking $target"
 msgstr "$target 확인 중"
 
-#: pkg/networkmanager/interfaces.js:838
+#: pkg/networkmanager/interfaces.js:829
 msgid "Checking IP"
 msgstr "IP확인 중입니다"
 
@@ -1430,7 +1408,7 @@ msgstr "RAID 장치 $target 확인 및 복구 중"
 msgid "Checking for new applications"
 msgstr "새 애플리케이션 확인 중"
 
-#: pkg/packagekit/updates.jsx:816
+#: pkg/packagekit/updates.jsx:810
 msgid "Checking for package updates..."
 msgstr "패키지 업데이트 확인 중 ..."
 
@@ -1487,14 +1465,14 @@ msgstr "\"원격 뷰어 시작\"을 클릭하면 .vv 파일을 다운로드하�
 msgid "Client Software"
 msgstr "클라이언트 소프트웨어"
 
-#: pkg/docker/index.html:738 pkg/lib/machine-auth-failed.html:20
+#: pkg/docker/index.html:700 pkg/lib/machine-auth-failed.html:20
 #: pkg/lib/machine-change-port.html:45 pkg/lib/machine-invalid-hostkey.html:12
 #: pkg/lib/machine-not-supported.html:8 pkg/lib/machine-unknown-hostkey.html:19
 #: pkg/networkmanager/index.html:732 pkg/shell/index.html:105
 #: pkg/shell/index.html:164 pkg/shell/index.html:360 pkg/systemd/index.html:164
-#: pkg/users/index.html:45 pkg/apps/utils.jsx:108
-#: pkg/lib/cockpit-components-modifications.jsx:103 pkg/sosreport/index.js:45
-#: pkg/sosreport/index.js:127 pkg/storaged/dialog.jsx:400
+#: pkg/users/index.html:45 pkg/apps/utils.jsx:104
+#: pkg/lib/cockpit-components-modifications.jsx:103 pkg/sosreport/index.js:43
+#: pkg/sosreport/index.js:125 pkg/storaged/dialog.jsx:400
 msgid "Close"
 msgstr "닫기"
 
@@ -1623,19 +1601,19 @@ msgstr "색"
 msgid "Combined memory usage"
 msgstr "총 메모리 사용량"
 
-#: pkg/docker/overview.js:88
+#: pkg/docker/overview.js:87
 msgid "Combined usage of $0 CPU core"
 msgid_plural "Combined usage of $0 CPU cores"
 msgstr[0] "$0 CPU 코어의 총 사용량"
 
-#: pkg/networkmanager/firewall.jsx:551
+#: pkg/networkmanager/firewall.jsx:566
 msgid "Comma-separated ports, ranges, and aliases are accepted"
 msgstr "콤마로 구분하여 포트, 범위, 별칭을 사용할 수 있습니다"
 
-#: pkg/docker/index.html:271 pkg/docker/index.html:447
-#: pkg/docker/index.html:708 pkg/systemd/services.html:281
-#: pkg/docker/containers-view.jsx:132 pkg/docker/containers-view.jsx:361
-#: pkg/docker/containers-view.jsx:413
+#: pkg/docker/index.html:265 pkg/docker/index.html:409
+#: pkg/docker/index.html:670 pkg/systemd/services.html:281
+#: pkg/docker/containers-view.jsx:134 pkg/docker/containers-view.jsx:363
+#: pkg/docker/containers-view.jsx:415
 msgid "Command"
 msgstr "명령"
 
@@ -1643,7 +1621,7 @@ msgstr "명령"
 msgid "Command can't be empty"
 msgstr "명령을 비워 둘 수 없습니다"
 
-#: pkg/docker/index.html:164
+#: pkg/docker/index.html:158
 msgid "Command:"
 msgstr "명령:"
 
@@ -1651,12 +1629,12 @@ msgstr "명령:"
 msgid "Comment"
 msgstr "설명"
 
-#: pkg/docker/index.html:140 pkg/docker/index.html:718
-#: pkg/docker/containers-view.jsx:330
+#: pkg/docker/index.html:134 pkg/docker/index.html:680
+#: pkg/docker/containers-view.jsx:332
 msgid "Commit"
 msgstr "커밋"
 
-#: pkg/docker/index.html:678
+#: pkg/docker/index.html:640
 msgid "Commit Image"
 msgstr "이미지 커밋"
 
@@ -1701,19 +1679,15 @@ msgstr "조건이 충족되지 않았습니다"
 msgid "Configuration"
 msgstr "설정"
 
-#: pkg/networkmanager/interfaces.js:2720
+#: pkg/networkmanager/interfaces.js:2711
 msgid "Configure"
 msgstr "설정"
 
-#: pkg/docker/storage.jsx:335
-msgid "Configure storage..."
-msgstr "스토리지 설정..."
-
-#: pkg/networkmanager/interfaces.js:832
+#: pkg/networkmanager/interfaces.js:823
 msgid "Configuring"
 msgstr "설정 중입니다"
 
-#: pkg/networkmanager/interfaces.js:836
+#: pkg/networkmanager/interfaces.js:827
 msgid "Configuring IP"
 msgstr "IP 인증 중입니다"
 
@@ -1738,7 +1712,7 @@ msgstr "확인"
 msgid "Confirm New Password"
 msgstr "새 암호 확인"
 
-#: pkg/networkmanager/firewall.jsx:766
+#: pkg/networkmanager/firewall.jsx:781
 msgid "Confirm removal of $0"
 msgstr "$0 제거 확인"
 
@@ -1759,11 +1733,11 @@ msgid "Conflicts"
 msgstr "충돌"
 
 #: pkg/lib/machine-unknown-hostkey.html:22
-#: pkg/machines/components/serialConsole.jsx:82
+#: pkg/machines/components/serialConsole.jsx:85
 msgid "Connect"
 msgstr "연결"
 
-#: pkg/networkmanager/interfaces.js:2707
+#: pkg/networkmanager/interfaces.js:2698
 msgid "Connect automatically"
 msgstr "자동으로 연결"
 
@@ -1792,11 +1766,11 @@ msgstr "{{ limit }} 대 이상의 컴퓨터에 동시 연결을 지원하지 않
 msgid "Connecting to Docker"
 msgstr "Docker에 연결중입니다"
 
-#: pkg/selinux/setroubleshoot-view.jsx:376
+#: pkg/selinux/setroubleshoot-view.jsx:322
 msgid "Connecting to SETroubleshoot daemon..."
 msgstr "SETroubleshoot 데몬에 연결 중..."
 
-#: pkg/machines/components/libvirtSlate.jsx:86
+#: pkg/machines/components/libvirtSlate.jsx:79
 msgid "Connecting to Virtualization Service"
 msgstr "가상 서비스에 연결 중입니다"
 
@@ -1852,8 +1826,8 @@ msgstr "컨테이너"
 msgid "Container Administrator"
 msgstr "컨테이너 관리자"
 
-#: pkg/docker/index.html:440 pkg/docker/index.html:620
-#: pkg/docker/index.html:684
+#: pkg/docker/index.html:402 pkg/docker/index.html:582
+#: pkg/docker/index.html:646
 msgid "Container Name"
 msgstr "컨테이너 이름"
 
@@ -1868,12 +1842,11 @@ msgstr ""
 msgid "Container is currently running."
 msgstr "컨테이너가 현재 실행중입니다."
 
-#: pkg/docker/index.html:133
+#: pkg/docker/index.html:127
 msgid "Container:"
 msgstr "컨테이너:"
 
-#: pkg/docker/index.html:23 pkg/docker/index.html:289
-#: pkg/docker/containers-view.jsx:377
+#: pkg/docker/index.html:23 pkg/docker/containers-view.jsx:379
 msgid "Containers"
 msgstr "컨테이너들"
 
@@ -1923,17 +1896,9 @@ msgstr "클립보드로 복사"
 msgid "Cores per socket"
 msgstr "소켓당 코어 수"
 
-#: pkg/docker/storage.jsx:438
-msgid "Could not add all disks"
-msgstr "모든 디스크를 추가할 수 없습니다"
-
 #: pkg/lib/machine-change-port.html:4
 msgid "Could not contact {{host}}"
 msgstr "{{host}}에 연결할 수 없습니다"
-
-#: pkg/docker/storage.jsx:484
-msgid "Could not reset the storage pool"
-msgstr "스토리지 풀을 재설정할 수 없습니다"
 
 #: src/bridge/cockpitdbussetup.c:467
 msgid "Couldn't change user groups"
@@ -2081,8 +2046,8 @@ msgstr "볼륨 그룹 생성"
 msgid "Create diagnostic report"
 msgstr "진단 보고서 작성"
 
-#: pkg/networkmanager/interfaces.js:3833 pkg/networkmanager/interfaces.js:4036
-#: pkg/networkmanager/interfaces.js:4291 pkg/networkmanager/interfaces.js:4497
+#: pkg/networkmanager/interfaces.js:3824 pkg/networkmanager/interfaces.js:4027
+#: pkg/networkmanager/interfaces.js:4282 pkg/networkmanager/interfaces.js:4488
 msgid "Create it"
 msgstr "만들기"
 
@@ -2096,12 +2061,12 @@ msgstr "이 컨텐츠로 새 작업 파일을 만듭니다."
 
 # translation auto-copied from project subscription-manager, version 1.11.X,
 # document keys
-#: pkg/docker/containers-view.jsx:129 pkg/docker/containers-view.jsx:414
-#: pkg/docker/containers-view.jsx:691
+#: pkg/docker/containers-view.jsx:131 pkg/docker/containers-view.jsx:416
+#: pkg/docker/containers-view.jsx:570
 msgid "Created"
 msgstr "생성 일시"
 
-#: pkg/docker/index.html:153
+#: pkg/docker/index.html:147
 msgid "Created:"
 msgstr "작성일:"
 
@@ -2125,21 +2090,21 @@ msgstr "파티션 $target 생성 중"
 msgid "Creating snapshot of $target"
 msgstr "$target 스냅샷 생성 중"
 
-#: pkg/networkmanager/interfaces.js:4496
+#: pkg/networkmanager/interfaces.js:4487
 msgid ""
 "Creating this VLAN will break the connection to the server, and will make "
 "the administration UI unavailable."
 msgstr ""
 "이 VLAN을 생성하면 서버와의 연결이 끊어지고 관리 UI를 사용할 수 없게 됩니다."
 
-#: pkg/networkmanager/interfaces.js:3832
+#: pkg/networkmanager/interfaces.js:3823
 msgid ""
 "Creating this bond will break the connection to the server, and will make "
 "the administration UI unavailable."
 msgstr ""
 "이 본드를 생성하면 서버와의 연결이 끊어지고 관리 UI를 사용할 수 없게 됩니다."
 
-#: pkg/networkmanager/interfaces.js:4290
+#: pkg/networkmanager/interfaces.js:4281
 msgid ""
 "Creating this bridge will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -2147,7 +2112,7 @@ msgstr ""
 "이 브릿지를 생성하면 서버와의 연결이 끊어지고 관리 UI를 사용할 수 없게 됩니"
 "다."
 
-#: pkg/networkmanager/interfaces.js:4035
+#: pkg/networkmanager/interfaces.js:4026
 msgid ""
 "Creating this team will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -2182,7 +2147,7 @@ msgstr "현재 할당"
 msgid "Current boot"
 msgstr "현재 부팅"
 
-#: pkg/networkmanager/firewall.jsx:545
+#: pkg/networkmanager/firewall.jsx:560
 msgid "Custom Ports"
 msgstr "사용자 지정 포트"
 
@@ -2199,7 +2164,7 @@ msgstr ""
 msgid "Custom mount options"
 msgstr "사용자 정의 마운트 옵션"
 
-#: pkg/networkmanager/firewall.jsx:684
+#: pkg/networkmanager/firewall.jsx:699
 msgid "Custom zones"
 msgstr "사용자 지정 영역"
 
@@ -2212,19 +2177,19 @@ msgstr "DHCP 범위"
 msgid "DISK IS FAILING"
 msgstr "디스크에 오류 발생"
 
-#: pkg/networkmanager/interfaces.js:3321
+#: pkg/networkmanager/interfaces.js:3312
 msgid "DNS"
 msgstr "DNS"
 
-#: pkg/networkmanager/interfaces.js:2651
+#: pkg/networkmanager/interfaces.js:2642
 msgid "DNS $val"
 msgstr "DNS $val"
 
-#: pkg/networkmanager/interfaces.js:3325
+#: pkg/networkmanager/interfaces.js:3316
 msgid "DNS Search Domains"
 msgstr "DNS 검색 도메인"
 
-#: pkg/networkmanager/interfaces.js:2654
+#: pkg/networkmanager/interfaces.js:2645
 msgid "DNS Search Domains $val"
 msgstr "DNS 검색 도메인 $val"
 
@@ -2249,7 +2214,7 @@ msgstr "사용된 데이터"
 msgid "Deactivate"
 msgstr "비활성화"
 
-#: pkg/networkmanager/interfaces.js:844
+#: pkg/networkmanager/interfaces.js:835
 msgid "Deactivating"
 msgstr "비활성화 중 입니다"
 
@@ -2265,7 +2230,7 @@ msgstr "디버그 이상의 수준"
 msgid "Deduplication"
 msgstr "중복"
 
-#: pkg/docker/index.html:359 pkg/docker/index.html:363
+#: pkg/docker/index.html:321 pkg/docker/index.html:325
 msgid "Default"
 msgstr "기본"
 
@@ -2273,9 +2238,9 @@ msgstr "기본"
 msgid "Delay"
 msgstr "지연"
 
-#: pkg/docker/index.html:139 pkg/docker/index.html:251
+#: pkg/docker/index.html:133 pkg/docker/index.html:245
 #: pkg/networkmanager/index.html:448 pkg/users/index.html:79
-#: pkg/users/index.html:359 pkg/docker/containers-view.jsx:202
+#: pkg/users/index.html:359 pkg/docker/containers-view.jsx:204
 #: pkg/docker/details.js:288 pkg/docker/util.js:645
 #: pkg/machines/components/deleteDialog.jsx:146
 #: pkg/machines/components/deleteDialog.jsx:161
@@ -2287,7 +2252,7 @@ msgstr "지연"
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:204
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:214
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:240
-#: pkg/networkmanager/firewall.jsx:767 pkg/storaged/content-views.jsx:344
+#: pkg/networkmanager/firewall.jsx:782 pkg/storaged/content-views.jsx:344
 #: pkg/storaged/content-views.jsx:360 pkg/storaged/mdraid-details.jsx:293
 #: pkg/storaged/mdraid-details.jsx:316 pkg/storaged/vdo-details.jsx:198
 #: pkg/storaged/vdo-details.jsx:261 pkg/storaged/vgroup-details.jsx:212
@@ -2295,7 +2260,7 @@ msgstr "지연"
 msgid "Delete"
 msgstr "삭제"
 
-#: pkg/networkmanager/interfaces.js:2431 pkg/users/local.js:1203
+#: pkg/networkmanager/interfaces.js:2422 pkg/users/local.js:1203
 msgid "Delete $0"
 msgstr "$0 삭제"
 
@@ -2328,7 +2293,7 @@ msgstr "풀 내에 있는 볼륨을 삭제합니다"
 msgid "Deleting $target"
 msgstr "$target 삭제 중"
 
-#: pkg/networkmanager/interfaces.js:2430
+#: pkg/networkmanager/interfaces.js:2421
 msgid ""
 "Deleting <b>$0</b> will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -2344,7 +2309,7 @@ msgstr "RAID 장치를 제거하면 내부의 모든 데이터를 지우게 됩�
 msgid "Deleting a VDO device will erase all data on it."
 msgstr "VDO 장치를 제거하면 장치 내부의 모든 데이터가 삭제됩니다."
 
-#: pkg/docker/containers-view.jsx:201 pkg/docker/details.js:287
+#: pkg/docker/containers-view.jsx:203 pkg/docker/details.js:287
 msgid "Deleting a container will erase all data in it."
 msgstr "컨테이너를 삭제하시면, 내부의 모든 데이터도 함께 삭제됩니다."
 
@@ -2372,7 +2337,7 @@ msgstr ""
 msgid "Deleting volume group $target"
 msgstr "볼륨 그룹 $target 삭제 중"
 
-#: pkg/systemd/services.html:267 pkg/networkmanager/firewall.jsx:693
+#: pkg/systemd/services.html:267 pkg/networkmanager/firewall.jsx:708
 #: pkg/systemd/init.js:307
 msgid "Description"
 msgstr "설명"
@@ -2393,9 +2358,9 @@ msgstr "분리 가능"
 
 # translation auto-copied from project libreport, version master, document
 # libreport
-#: pkg/shell/index.html:259 pkg/docker/containers-view.jsx:338
-#: pkg/docker/containers-view.jsx:506 pkg/docker/containers-view.jsx:516
-#: pkg/docker/containers-view.jsx:644 pkg/packagekit/updates.jsx:391
+#: pkg/shell/index.html:259 pkg/docker/containers-view.jsx:340
+#: pkg/docker/containers-view.jsx:434 pkg/docker/containers-view.jsx:534
+#: pkg/packagekit/updates.jsx:391
 msgid "Details"
 msgstr "상세 정보"
 
@@ -2457,7 +2422,7 @@ msgstr "디렉토리 $0에 쓰기 불가능하거나 존재하지 않습니다."
 msgid "Disable simultaneous multithreading"
 msgstr "동시 멀티스레딩 비활성화"
 
-#: pkg/networkmanager/firewall.jsx:934
+#: pkg/networkmanager/firewall.jsx:947
 msgid "Disable the firewall"
 msgstr "방화벽 비활성화"
 
@@ -2465,7 +2430,7 @@ msgstr "방화벽 비활성화"
 msgid "Disable tuned"
 msgstr "tuned 비활성화"
 
-#: pkg/systemd/services.html:66 pkg/networkmanager/interfaces.js:1961
+#: pkg/systemd/services.html:66 pkg/networkmanager/interfaces.js:1952
 #: pkg/systemd/init.js:225 pkg/systemd/service-details.jsx:337
 msgid "Disabled"
 msgstr "사용 안함"
@@ -2474,7 +2439,7 @@ msgstr "사용 안함"
 msgid "Disallow running (mask)"
 msgstr "실행할 수 없음 (마스크)"
 
-#: pkg/machines/components/serialConsole.jsx:81
+#: pkg/machines/components/serialConsole.jsx:84
 msgid "Disconnect"
 msgstr "연결 끊김"
 
@@ -2483,7 +2448,7 @@ msgstr "연결 끊김"
 msgid "Disconnected"
 msgstr "연결 해제됨"
 
-#: pkg/machines/components/serialConsole.jsx:73
+#: pkg/machines/components/serialConsole.jsx:76
 msgid "Disconnected from serial console. Click the Connect button."
 msgstr "직렬 콘솔에서 연결이 끊어졌습니다. 연결 버튼을 클릭하십시오."
 
@@ -2527,6 +2492,10 @@ msgstr "디스크 설정을 저장할 수 없습니다"
 #: pkg/storaged/vgroup-details.jsx:55 pkg/storaged/vgroups-panel.jsx:79
 msgid "Disks"
 msgstr "디스크"
+
+#: pkg/selinux/setroubleshoot-view.jsx:355
+msgid "Dismiss"
+msgstr ""
 
 #: pkg/shell/index.html:61 pkg/shell/index.html:123
 msgid "Display Language"
@@ -2589,7 +2558,7 @@ msgstr "완료!"
 
 # translation auto-copied from project CFSE, version sam-1.2, document app,
 # author eukim
-#: pkg/docker/index.html:600
+#: pkg/docker/index.html:562
 msgid "Download"
 msgstr "다운로드"
 
@@ -2621,7 +2590,7 @@ msgstr "다운로드 중"
 msgid "Downloading $0"
 msgstr "$0 다운로드 중"
 
-#: pkg/docker/storage.jsx:169 pkg/storaged/drive-details.jsx:68
+#: pkg/storaged/drive-details.jsx:68
 msgid "Drive"
 msgstr "드라이브"
 
@@ -2695,7 +2664,7 @@ msgstr "서비스 활성화"
 msgid "Enable stored metrics"
 msgstr "저장된 항목 사용"
 
-#: pkg/networkmanager/firewall.jsx:934
+#: pkg/networkmanager/firewall.jsx:947
 msgid "Enable the firewall"
 msgstr "방화벽 활성화"
 
@@ -2749,11 +2718,11 @@ msgstr "종료"
 msgid "End should not be empty"
 msgstr "끝은 비워 둘 수 없습니다"
 
-#: pkg/selinux/setroubleshoot-view.jsx:291
+#: pkg/selinux/setroubleshoot-view.jsx:243
 msgid "Enforcing"
 msgstr "강제"
 
-#: pkg/packagekit/updates.jsx:859
+#: pkg/packagekit/updates.jsx:853
 msgid "Enhancement Updates Available"
 msgstr "기능 업데이트를 사용할 수 있습니다"
 
@@ -2773,7 +2742,7 @@ msgstr ""
 "여기에 다른 암호를 입력하면 이 컴퓨터에 연결할 때 마다 암호를 다시 입력해야 "
 "합니다"
 
-#: pkg/networkmanager/firewall.jsx:721
+#: pkg/networkmanager/firewall.jsx:736
 msgid "Entire subnet"
 msgstr "전체 서브넷"
 
@@ -2781,27 +2750,23 @@ msgstr "전체 서브넷"
 msgid "Entry"
 msgstr "항목"
 
-#: pkg/systemd/logs.js:463
+#: pkg/systemd/logs.js:464
 msgid "Entry at $0"
 msgstr "$0에서 항목"
 
-#: pkg/docker/containers-view.jsx:412
+#: pkg/docker/containers-view.jsx:414
 msgid "Entrypoint"
 msgstr "시작점"
 
 # translation auto-copied from project subscription-manager, version 1.11.X,
 # document keys
-#: pkg/docker/index.html:528
+#: pkg/docker/index.html:490
 msgid "Environment"
 msgstr "환경"
 
 #: pkg/storaged/content-views.jsx:583 pkg/storaged/format-dialog.jsx:192
 msgid "Erase"
 msgstr "지우기"
-
-#: pkg/docker/storage.jsx:460
-msgid "Erase containers and reset storage pool"
-msgstr "컨테이너 제거 및 스토리지 풀 재설정"
 
 #: pkg/storaged/jobs-panel.jsx:49
 msgid "Erasing $target"
@@ -2812,9 +2777,9 @@ msgid "Errata:"
 msgstr "에라타:"
 
 #: pkg/playground/translate.html:100 pkg/playground/translate.html:105
-#: pkg/apps/utils.jsx:100 pkg/storaged/fsys-tab.jsx:283
-#: pkg/storaged/multipath.jsx:58 pkg/storaged/storage-controls.jsx:83
-#: pkg/storaged/storage-controls.jsx:177 pkg/systemd/service-details.jsx:454
+#: pkg/apps/utils.jsx:96 pkg/storaged/fsys-tab.jsx:283
+#: pkg/storaged/multipath.jsx:58 pkg/storaged/storage-controls.jsx:84
+#: pkg/storaged/storage-controls.jsx:161 pkg/systemd/service-details.jsx:454
 #: pkg/users/local.js:1496
 msgid "Error"
 msgstr "오류"
@@ -2855,19 +2820,19 @@ msgstr "Ethernet MAC"
 msgid "Ethernet MTU"
 msgstr "Ethernet MTU"
 
-#: pkg/networkmanager/interfaces.js:2007
+#: pkg/networkmanager/interfaces.js:1998
 msgid "Ethtool"
 msgstr "Ethtool"
 
-#: pkg/systemd/logs.html:55 pkg/docker/containers-view.jsx:108
+#: pkg/systemd/logs.html:55 pkg/docker/containers-view.jsx:110
 msgid "Everything"
 msgstr "전체"
 
-#: pkg/networkmanager/firewall.jsx:558
+#: pkg/networkmanager/firewall.jsx:573
 msgid "Example: 22,ssh,8080,5900-5910"
 msgstr "예: 22,ssh,8080,5900-5910"
 
-#: pkg/networkmanager/firewall.jsx:566
+#: pkg/networkmanager/firewall.jsx:581
 msgid "Example: 88,2019,nfs,rsync"
 msgstr "예: 88,2019,nfs,rsync"
 
@@ -2887,11 +2852,11 @@ msgstr "$ExitCode 로 종료"
 msgid "Expansion Chassis"
 msgstr "확장 섀시"
 
-#: pkg/docker/index.html:510
+#: pkg/docker/index.html:472
 msgid "Expose container ports"
 msgstr "컨테이너 포트 공개"
 
-#: pkg/systemd/logs.js:541
+#: pkg/systemd/logs.js:542
 msgid "Extended Information"
 msgstr "확장 정보"
 
@@ -2903,7 +2868,7 @@ msgstr "확장 파티션"
 msgid "FAILED"
 msgstr "실패"
 
-#: pkg/networkmanager/interfaces.js:846
+#: pkg/networkmanager/interfaces.js:837
 msgid "Failed"
 msgstr "실패하였습니다"
 
@@ -2911,15 +2876,15 @@ msgstr "실패하였습니다"
 msgid "Failed to add machine: $0"
 msgstr "컴퓨터를 추가하지 못했습니다: $0"
 
-#: pkg/networkmanager/firewall.jsx:287
+#: pkg/networkmanager/firewall.jsx:302
 msgid "Failed to add port"
 msgstr "포트를 추가하지 못했습니다"
 
-#: pkg/networkmanager/firewall.jsx:287
+#: pkg/networkmanager/firewall.jsx:302
 msgid "Failed to add service"
 msgstr "서비스 추가 실패"
 
-#: pkg/networkmanager/firewall.jsx:645
+#: pkg/networkmanager/firewall.jsx:660
 msgid "Failed to add zone"
 msgstr "영역 추가 실패"
 
@@ -2965,7 +2930,7 @@ msgstr "승인된 키를 불러오지 못했습니다."
 msgid "Failed to start"
 msgstr "시작하지 못했습니다"
 
-#: pkg/docker/containers.js:60
+#: pkg/docker/containers.js:59
 msgid "Failed to start Docker: $0"
 msgstr "Docker 실행을 실패하였습니다: $0"
 
@@ -3002,7 +2967,7 @@ msgstr "파일 시스템 이름"
 msgid "Filesystems"
 msgstr "파일 시스템"
 
-#: pkg/networkmanager/firewall.jsx:514
+#: pkg/networkmanager/firewall.jsx:529
 msgid "Filter Services"
 msgstr "필터 서비스"
 
@@ -3015,11 +2980,11 @@ msgid "Fingerprint"
 msgstr "지문"
 
 #: pkg/networkmanager/firewall.html:22 pkg/networkmanager/index.html:107
-#: pkg/networkmanager/firewall.jsx:942 pkg/networkmanager/firewall.jsx:946
+#: pkg/networkmanager/firewall.jsx:955 pkg/networkmanager/firewall.jsx:959
 msgid "Firewall"
 msgstr "방화벽"
 
-#: pkg/networkmanager/firewall.jsx:886
+#: pkg/networkmanager/firewall.jsx:900
 msgid "Firewall is not available"
 msgstr "방화벽을 사용할 수 없습니다"
 
@@ -3095,7 +3060,7 @@ msgstr "장치를 포멧하면 내부의 모든 데이터를 지우게 됩니다
 msgid "Forward Mode"
 msgstr "포워드 모드"
 
-#: pkg/networkmanager/interfaces.js:2856
+#: pkg/networkmanager/interfaces.js:2847
 msgid "Forward delay $forward_delay"
 msgstr "포워드 딜레이 $forward_delay"
 
@@ -3103,7 +3068,6 @@ msgstr "포워드 딜레이 $forward_delay"
 msgid "Forwarding mode"
 msgstr "전송 모드"
 
-#: pkg/docker/storage.jsx:329 pkg/docker/storage.jsx:352
 #: pkg/storaged/pvol-tabs.jsx:44
 msgid "Free"
 msgstr "남은 양"
@@ -3134,13 +3098,13 @@ msgstr "성명"
 
 # translation auto-copied from project virt-manager, version 0.10.0, document
 # virt-manager
-#: pkg/docker/index.html:184
+#: pkg/docker/index.html:178
 msgid "Gateway:"
 msgstr "게이트웨이:"
 
 #: pkg/machines/components/networks/networkOverviewTab.jsx:80
 #: pkg/machines/components/vmOverviewTabLibvirt.jsx:261
-#: pkg/networkmanager/interfaces.js:2698 pkg/systemd/logs.js:546
+#: pkg/networkmanager/interfaces.js:2689 pkg/systemd/logs.js:547
 msgid "General"
 msgstr "일반"
 
@@ -3152,7 +3116,7 @@ msgstr "자동 생성"
 msgid "Generating report"
 msgstr "보고서 생성"
 
-#: pkg/docker/containers-view.jsx:687
+#: pkg/docker/containers-view.jsx:566
 msgid "Get new image"
 msgstr "새 이미지 가져오기"
 
@@ -3162,7 +3126,7 @@ msgstr "새 이미지 가져오기"
 msgid "GiB"
 msgstr "GiB"
 
-#: pkg/systemd/logs.js:226
+#: pkg/systemd/logs.js:227
 msgid "Go to"
 msgstr "이동"
 
@@ -3217,17 +3181,13 @@ msgstr "모든 공간을 사용하여 확장하기"
 msgid "Hair Pin mode"
 msgstr "Hair Pin 모드"
 
-#: pkg/networkmanager/interfaces.js:2882
+#: pkg/networkmanager/interfaces.js:2873
 msgid "Hairpin mode"
 msgstr "Hairpin 모드"
 
 #: pkg/lib/machine-info.js:77
 msgid "Hand Held"
 msgstr "휴대용"
-
-#: pkg/docker/storage.jsx:168
-msgid "Hard Disk"
-msgstr "하드 디스크"
 
 #: pkg/systemd/hwinfo.html:4 pkg/systemd/hwinfo.jsx:284
 msgid "Hardware Information"
@@ -3237,7 +3197,7 @@ msgstr "하드웨어 정보"
 msgid "Health"
 msgstr "건강"
 
-#: pkg/networkmanager/interfaces.js:2858
+#: pkg/networkmanager/interfaces.js:2849
 msgid "Hello time $hello_time"
 msgstr "Hello 타임 $hello_time"
 
@@ -3269,7 +3229,7 @@ msgstr "호스트명"
 msgid "Host key is incorrect"
 msgstr "호스트 키가 잘못되었습니다"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:605
+#: pkg/systemd/overview-cards/realmd-operation.js:604
 msgid "Host name should not be changed in a domain"
 msgstr "도메인에서 호스트 이름을 변경할 수 없습니다"
 
@@ -3312,7 +3272,7 @@ msgstr "ID"
 msgid "IP Address"
 msgstr "IP 주소"
 
-#: pkg/docker/index.html:176
+#: pkg/docker/index.html:170
 msgid "IP Address:"
 msgstr "IP 주소:"
 
@@ -3320,7 +3280,7 @@ msgstr "IP 주소:"
 msgid "IP Configuration"
 msgstr "IP 설정"
 
-#: pkg/docker/index.html:180
+#: pkg/docker/index.html:174
 msgid "IP Prefix Length:"
 msgstr "IP 접두어 길이:"
 
@@ -3328,7 +3288,7 @@ msgstr "IP 접두어 길이:"
 msgid "IP Settings"
 msgstr "IP 설정"
 
-#: pkg/networkmanager/firewall.jsx:730
+#: pkg/networkmanager/firewall.jsx:745
 msgid ""
 "IP address with routing prefix. Separate multiple values with a comma. "
 "Example: 192.0.2.0/24, 2001:db8::/32"
@@ -3336,7 +3296,7 @@ msgstr ""
 "라우팅 접두사가 있는 IP 주소입니다. 여러 값이 있을 경우 쉼표로 구분하십시오. "
 "예: 192.0.2.0/24, 2001 : db8 :: / 32"
 
-#: pkg/networkmanager/interfaces.js:2907
+#: pkg/networkmanager/interfaces.js:2898
 msgid "IPv4"
 msgstr "IPv4"
 
@@ -3352,7 +3312,7 @@ msgstr "IPv4 네트워크"
 msgid "IPv4 Network should not be empty"
 msgstr "IPv4 네트워크는 비워 둘 수 없습니다"
 
-#: pkg/networkmanager/interfaces.js:3364
+#: pkg/networkmanager/interfaces.js:3355
 msgid "IPv4 Settings"
 msgstr "IPv4 설정"
 
@@ -3364,7 +3324,7 @@ msgstr "IPv4 및 IPv6"
 msgid "IPv4 only"
 msgstr "IPv4만"
 
-#: pkg/networkmanager/interfaces.js:2908
+#: pkg/networkmanager/interfaces.js:2899
 msgid "IPv6"
 msgstr "IPv6"
 
@@ -3380,7 +3340,7 @@ msgstr "IPv6 네트워크"
 msgid "IPv6 Network should not be empty"
 msgstr "IPv6 네트워크는 비워 둘 수 없습니다"
 
-#: pkg/networkmanager/interfaces.js:3364
+#: pkg/networkmanager/interfaces.js:3355
 msgid "IPv6 Settings"
 msgstr "IPv6 설정"
 
@@ -3390,16 +3350,16 @@ msgstr "IPv6 만"
 
 # translation auto-copied from project Satellite6 Hammer CLI Foreman, version
 # 6.1, document hammer-cli-foreman
-#: pkg/docker/containers-view.jsx:128 pkg/docker/containers-view.jsx:410
+#: pkg/docker/containers-view.jsx:130 pkg/docker/containers-view.jsx:412
 #: pkg/machines/components/diskEdit.jsx:37
 msgid "Id"
 msgstr "ID"
 
-#: pkg/networkmanager/interfaces.js:2899
+#: pkg/networkmanager/interfaces.js:2890
 msgid "Id $id"
 msgstr "Id $id"
 
-#: pkg/docker/index.html:149
+#: pkg/docker/index.html:143
 msgid "Id:"
 msgstr "Id:"
 
@@ -3407,12 +3367,12 @@ msgstr "Id:"
 msgid "If tang-show-keys is not available, run the following:"
 msgstr "tang-show-keys를 사용할 수 없는 경우 다음을 실행합니다:"
 
-#: pkg/networkmanager/interfaces.js:1970 pkg/packagekit/updates.jsx:505
+#: pkg/networkmanager/interfaces.js:1961 pkg/packagekit/updates.jsx:505
 msgid "Ignore"
 msgstr "무시"
 
-#: pkg/docker/index.html:270 pkg/docker/index.html:433
-#: pkg/docker/containers-view.jsx:131 pkg/docker/containers-view.jsx:361
+#: pkg/docker/index.html:264 pkg/docker/index.html:395
+#: pkg/docker/containers-view.jsx:133 pkg/docker/containers-view.jsx:363
 msgid "Image"
 msgstr "이미지"
 
@@ -3424,15 +3384,15 @@ msgstr "이미지 $0"
 msgid "Image Builder"
 msgstr "이미지 빌더"
 
-#: pkg/docker/index.html:580
+#: pkg/docker/index.html:542
 msgid "Image Search"
 msgstr "이미지 검색"
 
-#: pkg/docker/index.html:157
+#: pkg/docker/index.html:151
 msgid "Image:"
 msgstr "이미지:"
 
-#: pkg/docker/containers-view.jsx:719
+#: pkg/docker/containers-view.jsx:598
 msgid "Images"
 msgstr "이미지"
 
@@ -3441,7 +3401,7 @@ msgctxt "page-title"
 msgid "Images"
 msgstr "이미지"
 
-#: pkg/docker/containers-view.jsx:109
+#: pkg/docker/containers-view.jsx:111
 msgid "Images and running containers"
 msgstr "이미지 및 실행 중인 컨테이너"
 
@@ -3480,8 +3440,8 @@ msgid ""
 msgstr ""
 "사용자를 동기화하려면 {{#strong}}{{host}}{{/strong}}에 로그인해야 합니다."
 
-#: pkg/networkmanager/interfaces.js:828 pkg/networkmanager/interfaces.js:1398
-#: pkg/networkmanager/interfaces.js:1405 pkg/networkmanager/interfaces.js:2601
+#: pkg/networkmanager/interfaces.js:819 pkg/networkmanager/interfaces.js:1389
+#: pkg/networkmanager/interfaces.js:1396 pkg/networkmanager/interfaces.js:2592
 msgid "Inactive"
 msgstr "비활성"
 
@@ -3489,7 +3449,7 @@ msgstr "비활성"
 msgid "Inactive volume"
 msgstr "비활성 볼륨"
 
-#: pkg/networkmanager/firewall.jsx:698
+#: pkg/networkmanager/firewall.jsx:713
 msgid "Included services"
 msgstr "포함된 서비스"
 
@@ -3511,10 +3471,6 @@ msgstr "인덱스 메모리"
 msgid "Info and above"
 msgstr "정보 이상의 수준"
 
-#: pkg/docker/storage.jsx:313
-msgid "Information about the Docker storage pool is not available."
-msgstr "Docker 스토리지 풀에 관한 정보를 사용할 수 없습니다."
-
 #: pkg/packagekit/updates.jsx:462
 msgid "Initializing..."
 msgstr "초기화 중..."
@@ -3533,7 +3489,7 @@ msgstr "개시자 IQN은 비워둘 수 없습니다"
 msgid "Install"
 msgstr "설치"
 
-#: pkg/packagekit/updates.jsx:844
+#: pkg/packagekit/updates.jsx:838
 msgid "Install All Updates"
 msgstr "모든 업데이트 설치"
 
@@ -3541,7 +3497,7 @@ msgstr "모든 업데이트 설치"
 msgid "Install NFS Support"
 msgstr "NFS 지원 설치"
 
-#: pkg/packagekit/updates.jsx:844 pkg/packagekit/updates.jsx:850
+#: pkg/packagekit/updates.jsx:838 pkg/packagekit/updates.jsx:844
 msgid "Install Security Updates"
 msgstr "보안 업데이트 설치"
 
@@ -3553,7 +3509,7 @@ msgstr "소프트웨어 설치"
 msgid "Install VDO Support"
 msgstr "VDO 지원 설치"
 
-#: pkg/selinux/setroubleshoot-view.jsx:384
+#: pkg/selinux/setroubleshoot-view.jsx:330
 msgid "Install setroubleshoot-server to troubleshoot SELinux events."
 msgstr "setroubleshoot-server를 설치하여 SELinux 이벤트를 해결합니다."
 
@@ -3597,8 +3553,8 @@ msgid "Interface Type"
 msgstr "인터페이스 유형"
 
 #: pkg/networkmanager/index.html:118 pkg/networkmanager/index.html:277
-#: pkg/networkmanager/firewall.jsx:161 pkg/networkmanager/firewall.jsx:704
-#: pkg/networkmanager/interfaces.js:2981
+#: pkg/networkmanager/firewall.jsx:171 pkg/networkmanager/firewall.jsx:719
+#: pkg/networkmanager/interfaces.js:2972
 msgid "Interfaces"
 msgstr "인터페이스"
 
@@ -3680,7 +3636,7 @@ msgstr "잘못된 번호."
 msgid "Invalid port"
 msgstr "잘못된 포트"
 
-#: pkg/networkmanager/firewall.jsx:385
+#: pkg/networkmanager/firewall.jsx:400
 msgid "Invalid port number"
 msgstr "잘못된 포트 번호"
 
@@ -3692,7 +3648,7 @@ msgstr "잘못된 접두어 $0"
 msgid "Invalid prefix or netmask $0"
 msgstr "잘못된 접두어 또는 넷마스크 $0"
 
-#: pkg/networkmanager/firewall.jsx:412
+#: pkg/networkmanager/firewall.jsx:427
 msgid "Invalid range"
 msgstr "잘못된 범위"
 
@@ -3730,7 +3686,7 @@ msgstr "작업"
 msgid "Join"
 msgstr "참가"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:599
+#: pkg/systemd/overview-cards/realmd-operation.js:598
 msgid "Join Domain"
 msgstr "도메인 참가"
 
@@ -3738,11 +3694,11 @@ msgstr "도메인 참가"
 msgid "Join a Domain"
 msgstr "도메인에 가입"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:623
+#: pkg/systemd/overview-cards/realmd-operation.js:622
 msgid "Joining a domain requires installation of realmd"
 msgstr "도메인에 가입하려면 realmd를 설치해야 합니다"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:508
+#: pkg/systemd/overview-cards/realmd-operation.js:507
 msgid "Joining this domain is not supported"
 msgstr "도메인 가입이 지원되지 않습니다"
 
@@ -3754,11 +3710,11 @@ msgstr "네임스페이스에 참여"
 msgid "Journal"
 msgstr "저널"
 
-#: pkg/systemd/logs.js:443
+#: pkg/systemd/logs.js:444
 msgid "Journal entry"
 msgstr "저널 엔트리"
 
-#: pkg/systemd/logs.js:481
+#: pkg/systemd/logs.js:482
 msgid "Journal entry not found"
 msgstr "저널 엔트리를 찾을 수 없습니다"
 
@@ -3849,7 +3805,7 @@ msgstr "마지막 접속 날짜: $0"
 msgid "Launch Remote Viewer"
 msgstr "원격 뷰어 시작"
 
-#: pkg/networkmanager/interfaces.js:1727
+#: pkg/networkmanager/interfaces.js:1718
 #, fuzzy
 #| msgid "Read more..."
 msgid "Learn more"
@@ -3920,11 +3876,11 @@ msgstr "링크 보기"
 msgid "Link down delay"
 msgstr "링크 다운 딜레이"
 
-#: pkg/networkmanager/interfaces.js:1958 pkg/networkmanager/interfaces.js:1968
+#: pkg/networkmanager/interfaces.js:1949 pkg/networkmanager/interfaces.js:1959
 msgid "Link local"
 msgstr "로컬 링크"
 
-#: pkg/docker/index.html:499
+#: pkg/docker/index.html:461
 msgid "Link to another container"
 msgstr "다른 컨테이너로의 링크"
 
@@ -3932,23 +3888,23 @@ msgstr "다른 컨테이너로의 링크"
 msgid "Link up delay"
 msgstr "링크 업 딜레이"
 
-#: pkg/docker/index.html:495
+#: pkg/docker/index.html:457
 msgid "Links"
 msgstr "링크"
 
-#: pkg/docker/index.html:196
+#: pkg/docker/index.html:190
 msgid "Links:"
 msgstr "링크:"
 
-#: pkg/networkmanager/interfaces.js:1994
+#: pkg/networkmanager/interfaces.js:1985
 msgid "Load Balancing"
 msgstr "로드 밸런싱"
 
-#: pkg/systemd/logs.js:161
+#: pkg/systemd/logs.js:162
 msgid "Load earlier entries"
 msgstr "이전 항목 로드"
 
-#: pkg/machines/components/libvirtSlate.jsx:89
+#: pkg/machines/components/libvirtSlate.jsx:82
 msgid "Loading Resources"
 msgstr "리소스 로딩 중"
 
@@ -3967,18 +3923,14 @@ msgstr "시스템 수정 로딩 중..."
 # translation auto-copied from project oVirt, version ovirt-3.5, document
 # frontend/webadmin/modules/webadmin/src/main/resources/org/ovirt/engine/ui/frontend/org.ovirt.engine.ui.webadmin.ApplicationConstants
 #: pkg/systemd/services.html:77 pkg/kdump/kdump-view.jsx:371
-#: pkg/machines/components/serialConsole.jsx:65 pkg/storaged/devices.jsx:65
-#: pkg/systemd/logs.js:233
+#: pkg/machines/components/serialConsole.jsx:68 pkg/storaged/devices.jsx:66
+#: pkg/systemd/logs.js:234 pkg/systemd/logs.js:283
 msgid "Loading..."
 msgstr "로딩..."
 
 #: pkg/users/index.html:23
 msgid "Local Accounts"
 msgstr "로컬 계정"
-
-#: pkg/docker/storage.jsx:200
-msgid "Local Disks"
-msgstr "로컬 디스크"
 
 #: pkg/kdump/kdump-view.jsx:137
 msgid "Local Filesystem"
@@ -4115,19 +4067,19 @@ msgstr "MAC"
 msgid "MAC Address"
 msgstr "MAC 주소"
 
-#: pkg/docker/index.html:188
+#: pkg/docker/index.html:182
 msgid "MAC Address:"
 msgstr "MAC 주소:"
 
-#: pkg/networkmanager/interfaces.js:1986
+#: pkg/networkmanager/interfaces.js:1977
 msgid "MII (Recommended)"
 msgstr "MII (권장 사항)"
 
-#: pkg/networkmanager/interfaces.js:2756
+#: pkg/networkmanager/interfaces.js:2747
 msgid "MTU"
 msgstr "MTU"
 
-#: pkg/networkmanager/interfaces.js:4562
+#: pkg/networkmanager/interfaces.js:4553
 msgid "MTU must be a positive number"
 msgstr "MTU는 양수여야 합니다"
 
@@ -4201,7 +4153,7 @@ msgstr ""
 msgid "Managing virtual machines"
 msgstr "가상머신"
 
-#: pkg/networkmanager/interfaces.js:1959 pkg/networkmanager/interfaces.js:1969
+#: pkg/networkmanager/interfaces.js:1950 pkg/networkmanager/interfaces.js:1960
 msgid "Manual"
 msgstr "수동"
 
@@ -4246,7 +4198,7 @@ msgstr ""
 "마스크 서비스는 모든 종속 장치가 실행되지 않도록합니다. 이는 예상보다 큰 영향"
 "을 미칠 수 있습니다. 이 장치에 마스크를 설정할 지 확인하십시오."
 
-#: pkg/networkmanager/interfaces.js:2762
+#: pkg/networkmanager/interfaces.js:2753
 msgid "Master"
 msgstr "마스터"
 
@@ -4262,7 +4214,7 @@ msgstr "MTU (Maximum Transmission Unit)"
 msgid "Maximum memory could not be saved"
 msgstr "최대 메모리는 저장할 수 없습니다"
 
-#: pkg/networkmanager/interfaces.js:2860
+#: pkg/networkmanager/interfaces.js:2851
 msgid "Maximum message age $max_age"
 msgstr "최대 메세지 수명 $max_age"
 
@@ -4280,9 +4232,9 @@ msgstr "RAID 장치 멤버"
 msgid "Member of RAID Device $0"
 msgstr "RAID 장치 $0 멤버"
 
-#: pkg/dashboard/index.html:75 pkg/docker/index.html:273
+#: pkg/dashboard/index.html:75 pkg/docker/index.html:267
 #: pkg/playground/translate.html:90 pkg/systemd/graphs.html:82
-#: pkg/docker/containers-view.jsx:361
+#: pkg/docker/containers-view.jsx:363
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:472
 #: pkg/machines/components/vmOverviewTabLibvirt.jsx:263
 #: pkg/systemd/hwinfo.jsx:270 pkg/systemd/overview-cards/usageCard.jsx:132
@@ -4315,7 +4267,7 @@ msgstr "메모리 기술"
 msgid "Memory could not be saved"
 msgstr "메모리를 저장할 수 없습니다"
 
-#: pkg/docker/index.html:454 pkg/docker/index.html:626
+#: pkg/docker/index.html:416 pkg/docker/index.html:588
 msgid "Memory limit"
 msgstr "메모리 제한"
 
@@ -4323,7 +4275,7 @@ msgstr "메모리 제한"
 msgid "Memory must not be 0"
 msgstr "메모리는 0이 아니어야 합니다"
 
-#: pkg/docker/index.html:211
+#: pkg/docker/index.html:205
 msgid "Memory usage:"
 msgstr "메모리 사용량:"
 
@@ -4339,7 +4291,7 @@ msgstr "실행 실패와 관련된 메시지는 저널에서 찾을 수 있습�
 msgid "Metadata Used"
 msgstr "사용된 메타데이터"
 
-#: pkg/docker/index.html:468 pkg/docker/index.html:640
+#: pkg/docker/index.html:430 pkg/docker/index.html:602
 #: pkg/machines/components/memorySelectRow.jsx:84
 #: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:95
 msgid "MiB"
@@ -4406,7 +4358,7 @@ msgstr "모니터링 주기"
 msgid "Monitoring Targets"
 msgstr "모니터링 대상"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:532
+#: pkg/systemd/overview-cards/realmd-operation.js:531
 msgid "More"
 msgstr "기타"
 
@@ -4455,7 +4407,7 @@ msgstr "부팅 시 마운트"
 msgid "Mount automatically on $0 on boot"
 msgstr "$0에서 부팅시 자동으로 마운트하지 마십시오"
 
-#: pkg/docker/index.html:521
+#: pkg/docker/index.html:483
 msgid "Mount container volumes"
 msgstr "컨테이너 볼륨 마운트"
 
@@ -4523,7 +4475,7 @@ msgstr "NFS 지원이 설치되어 있지 않습니다"
 msgid "NIC $0 of VM $1 failed to change state"
 msgstr "VM $1의 NIC $0은 상태 변경에 실패했습니다"
 
-#: pkg/networkmanager/interfaces.js:2009
+#: pkg/networkmanager/interfaces.js:2000
 msgid "NSNA Ping"
 msgstr "NSNA Ping"
 
@@ -4531,11 +4483,11 @@ msgstr "NSNA Ping"
 msgid "NTP Server"
 msgstr "NTP 서버"
 
-#: pkg/docker/index.html:269 pkg/networkmanager/index.html:129
+#: pkg/docker/index.html:263 pkg/networkmanager/index.html:129
 #: pkg/networkmanager/index.html:147 pkg/networkmanager/index.html:176
 #: pkg/networkmanager/index.html:220 pkg/networkmanager/index.html:273
-#: pkg/networkmanager/index.html:330 pkg/docker/containers-view.jsx:361
-#: pkg/docker/containers-view.jsx:691
+#: pkg/networkmanager/index.html:330 pkg/docker/containers-view.jsx:363
+#: pkg/docker/containers-view.jsx:570
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:198
 #: pkg/machines/components/networks/createNetworkDialog.jsx:109
 #: pkg/machines/components/networks/networkList.jsx:55
@@ -4648,7 +4600,7 @@ msgstr "네트워크 선택은 PXE를 지원하지 않습니다."
 msgid "Network Traffic"
 msgstr "네트워크 통신량"
 
-#: pkg/networkmanager/interfaces.js:1734
+#: pkg/networkmanager/interfaces.js:1725
 #, fuzzy
 #| msgid "Network"
 #| msgid_plural "Networks"
@@ -4669,11 +4621,11 @@ msgid "NetworkManager is not running."
 msgstr "NetworkManager가 실행되고 있지 않습니다."
 
 #: pkg/networkmanager/index.html:23 pkg/networkmanager/index.html:396
-#: pkg/networkmanager/firewall.jsx:941 pkg/networkmanager/manifest.json.in
+#: pkg/networkmanager/firewall.jsx:954 pkg/networkmanager/manifest.json.in
 msgid "Networking"
 msgstr "네트워킹"
 
-#: pkg/networkmanager/interfaces.js:1612 pkg/networkmanager/interfaces.js:2208
+#: pkg/networkmanager/interfaces.js:1603 pkg/networkmanager/interfaces.js:2199
 msgctxt "page-title"
 msgid "Networking"
 msgstr "네트워킹"
@@ -4732,8 +4684,8 @@ msgstr "다음 실행"
 msgid "Nice"
 msgstr "Nice"
 
-#: pkg/docker/index.html:544 pkg/docker/index.html:548 pkg/docker/run.js:239
-#: pkg/docker/util.js:103 pkg/networkmanager/interfaces.js:2589
+#: pkg/docker/index.html:506 pkg/docker/index.html:510 pkg/docker/run.js:239
+#: pkg/docker/util.js:103 pkg/networkmanager/interfaces.js:2580
 #: pkg/systemd/reporting.jsx:271
 msgid "No"
 msgstr "아니오"
@@ -4754,7 +4706,7 @@ msgstr "파일 시스템 없음"
 msgid "No Logical Volumes"
 msgstr "논리 볼륨 없음"
 
-#: pkg/systemd/logs.js:159 pkg/systemd/logs.js:181 pkg/systemd/logs.js:345
+#: pkg/systemd/logs.js:160 pkg/systemd/logs.js:182 pkg/systemd/logs.js:346
 msgid "No Logs Found"
 msgstr "로그를 찾을 수 없음"
 
@@ -4770,7 +4722,7 @@ msgstr "NFS 마운트 설정 없음"
 msgid "No Network Devices"
 msgstr "네트워크 장치가 없음"
 
-#: pkg/selinux/setroubleshoot-view.jsx:370
+#: pkg/selinux/setroubleshoot-view.jsx:316
 msgid "No SELinux alerts."
 msgstr "SELinux 알림이 없습니다."
 
@@ -4799,10 +4751,6 @@ msgstr "이 호스트에서 실행 중이거나 정의된 가상 머신이 없�
 msgid "No Virtual Networks"
 msgstr "가상 네트워크가 없습니다"
 
-#: pkg/docker/storage.jsx:208
-msgid "No additional local storage found."
-msgstr "추가 로컬 스토리지를 찾을 수 없습니다."
-
 #: pkg/docker/run.js:338
 msgid "No alias specified"
 msgstr "alias가 지정되지 않았습니다"
@@ -4811,7 +4759,7 @@ msgstr "alias가 지정되지 않았습니다"
 msgid "No applications installed or available"
 msgstr "애플리케이션이 설치되어 있지 않거나 사용할 수 없습니다"
 
-#: pkg/sosreport/index.js:129
+#: pkg/sosreport/index.js:127
 msgid "No archive has been created."
 msgstr "생성된 아카이브가 없습니다."
 
@@ -4823,7 +4771,7 @@ msgstr "사용 가능한 슬롯이 없습니다"
 msgid "No boot device found"
 msgstr "부팅 장치를 찾을 수 없습니다"
 
-#: pkg/networkmanager/interfaces.js:1400
+#: pkg/networkmanager/interfaces.js:1391
 msgid "No carrier"
 msgstr "캐리어가 없습니다"
 
@@ -4839,15 +4787,15 @@ msgstr "이 가상 머신에 지정된 콘솔이 없습니다."
 msgid "No container specified"
 msgstr "컨테이너가 지정되지 않았습니다"
 
-#: pkg/docker/containers-view.jsx:371
+#: pkg/docker/containers-view.jsx:373
 msgid "No containers"
 msgstr "컨테이너 없음"
 
-#: pkg/docker/containers-view.jsx:373
+#: pkg/docker/containers-view.jsx:375
 msgid "No containers that match the current filter"
 msgstr "현재 필터에 일치하는 컨테이너가 없습니다"
 
-#: pkg/networkmanager/firewall.jsx:695
+#: pkg/networkmanager/firewall.jsx:710
 msgid "No description available"
 msgstr "사용 가능한 설명이 없음"
 
@@ -4885,21 +4833,27 @@ msgstr "호스트 키를 찾을 수 없습니다."
 msgid "No iSCSI targets set up"
 msgstr "iSCSI 대상이 설정되어 있지 않습니다"
 
-#: pkg/docker/containers-view.jsx:713
+#: pkg/docker/containers-view.jsx:592
 msgid "No images"
 msgstr "이미지 없음"
 
-#: pkg/docker/containers-view.jsx:715
+#: pkg/docker/containers-view.jsx:594
 msgid "No images that match the current filter"
 msgstr "현재 필터에 일치하는 이미지가 없습니다"
 
-#: pkg/apps/utils.jsx:96
+#: pkg/apps/utils.jsx:92
 msgid "No installation package found for this application."
 msgstr "이 패키지에 대한 설치 패키지를 찾을 수 없습니다."
 
 #: pkg/storaged/crypto-keyslots.jsx:533
 msgid "No keys added"
 msgstr "추가된 키가 없습니다"
+
+#: pkg/lib/journal.js:546
+#, fuzzy
+#| msgid "Load earlier entries"
+msgid "No log entries"
+msgstr "이전 항목 로드"
 
 #: pkg/storaged/drive-details.jsx:75
 msgid "No media inserted"
@@ -4942,11 +4896,11 @@ msgstr "$0의 결과를 찾을 수 없습니다"
 msgid "No results found"
 msgstr "결과를 찾을 수 없습니다"
 
-#: pkg/docker/containers-view.jsx:366
+#: pkg/docker/containers-view.jsx:368
 msgid "No running containers"
 msgstr "실행 중인 컨테이너가 없습니다"
 
-#: pkg/docker/containers-view.jsx:368
+#: pkg/docker/containers-view.jsx:370
 msgid "No running containers that match the current filter"
 msgstr "현재 필터에 일치하는 실행 중인 컨테이너가 없습니다"
 
@@ -4982,7 +4936,7 @@ msgstr ""
 
 #: pkg/kdump/kdump-view.jsx:423
 #: pkg/machines/components/networks/createNetworkDialog.jsx:191
-#: pkg/networkmanager/firewall.jsx:700 pkg/tuned/dialog.js:230
+#: pkg/networkmanager/firewall.jsx:715 pkg/tuned/dialog.js:230
 msgid "None"
 msgstr "없음"
 
@@ -4994,7 +4948,7 @@ msgstr "없음 (격리된 네트워크)"
 msgid "Not Ready"
 msgstr "준비되지 않음"
 
-#: pkg/packagekit/updates.jsx:792
+#: pkg/packagekit/updates.jsx:789
 msgid "Not Registered"
 msgstr "등록 취소되었습니다"
 
@@ -5006,31 +4960,31 @@ msgstr "유효한 개인 키가 없습니다"
 msgid "Not authorized to access Docker on this system"
 msgstr "본 시스템 상의 Docker에 대한 접근 권한이 없습니다"
 
-#: pkg/networkmanager/firewall.jsx:897
+#: pkg/networkmanager/firewall.jsx:910
 msgid "Not authorized to add a new zone"
 msgstr "새 영역을 추가할 권한이 없습니다"
 
-#: pkg/networkmanager/firewall.jsx:145
+#: pkg/networkmanager/firewall.jsx:155
 msgid "Not authorized to add services to zone $0"
 msgstr "$0 영역에 서비스를 추가할 권한이 없습니다"
 
-#: pkg/networkmanager/firewall.jsx:927
+#: pkg/networkmanager/firewall.jsx:940
 msgid "Not authorized to disable the firewall"
 msgstr "방화벽을 비활성화할 권한이 없습니다"
 
-#: pkg/networkmanager/firewall.jsx:927
+#: pkg/networkmanager/firewall.jsx:940
 msgid "Not authorized to enable the firewall"
 msgstr "방화벽을 활성화할 권한이 없습니다"
 
-#: pkg/networkmanager/firewall.jsx:78
+#: pkg/networkmanager/firewall.jsx:70
 msgid "Not authorized to remove service $0"
 msgstr "$0 서비스를 제거 할 권한이 없습니다"
 
-#: pkg/networkmanager/firewall.jsx:133
+#: pkg/networkmanager/firewall.jsx:143
 msgid "Not authorized to remove zone $0"
 msgstr "$0 영역을 제거할 권한이 없습니다"
 
-#: pkg/networkmanager/interfaces.js:826
+#: pkg/networkmanager/interfaces.js:817
 msgid "Not available"
 msgstr "사용할 수 없습니다"
 
@@ -5079,11 +5033,11 @@ msgstr "노트북"
 msgid "Notice and above"
 msgstr "알림 이상의 수준"
 
-#: pkg/selinux/setroubleshoot-view.jsx:399
+#: pkg/selinux/setroubleshoot-view.jsx:345
 msgid "Occurred $0"
 msgstr "발생 건수 $0"
 
-#: pkg/selinux/setroubleshoot-view.jsx:394
+#: pkg/selinux/setroubleshoot-view.jsx:340
 msgid "Occurred between $0 and $1"
 msgstr "$0에서 $1 사이의 발생 건수"
 
@@ -5103,7 +5057,7 @@ msgstr "이전 암호문"
 msgid "Old password not accepted"
 msgstr "이전 암호가 허용되지 않습니다"
 
-#: pkg/docker/index.html:549 pkg/systemd/service-details.jsx:435
+#: pkg/docker/index.html:511 pkg/systemd/service-details.jsx:435
 msgid "On Failure"
 msgstr "오류 발생 시"
 
@@ -5206,8 +5160,8 @@ msgstr "기타 옵션"
 
 # translation auto-copied from project virt-manager, version 0.10.0, document
 # virt-manager
-#: pkg/docker/index.html:299 pkg/systemd/graphs.html:25
-#: pkg/systemd/graphs.html:109 pkg/machines/components/networks/network.jsx:73
+#: pkg/systemd/graphs.html:25 pkg/systemd/graphs.html:109
+#: pkg/machines/components/networks/network.jsx:73
 #: pkg/machines/components/storagePools/storagePool.jsx:84
 #: pkg/machines/components/vm/vm.jsx:49 pkg/systemd/hwinfo.jsx:283
 #: pkg/systemd/manifest.json.in
@@ -5226,7 +5180,7 @@ msgstr "PCI"
 msgid "PCP"
 msgstr "PCP"
 
-#: pkg/packagekit/updates.jsx:510
+#: pkg/packagekit/updates.jsx:508
 msgid "Package information"
 msgstr "패키지 정보"
 
@@ -5234,11 +5188,11 @@ msgstr "패키지 정보"
 msgid "PackageKit crashed"
 msgstr "PackageKit가 크래시되었습니다"
 
-#: pkg/packagekit/updates.jsx:571
+#: pkg/packagekit/updates.jsx:568
 msgid "PackageKit is not installed"
 msgstr "PackageKit이 설치되어 있지 않습니다"
 
-#: pkg/packagekit/updates.jsx:739
+#: pkg/packagekit/updates.jsx:736
 msgid "PackageKit reported error code $0"
 msgstr "PackageKit가 오류 코드 $0을/를 보고했습니다"
 
@@ -5246,7 +5200,7 @@ msgstr "PackageKit가 오류 코드 $0을/를 보고했습니다"
 msgid "Parent"
 msgstr "부모"
 
-#: pkg/networkmanager/interfaces.js:2898
+#: pkg/networkmanager/interfaces.js:2889
 msgid "Parent $parent"
 msgstr "부모 $parent"
 
@@ -5254,7 +5208,7 @@ msgstr "부모 $parent"
 msgid "Part Of"
 msgstr "일부분"
 
-#: pkg/networkmanager/interfaces.js:1446
+#: pkg/networkmanager/interfaces.js:1437
 msgid "Part of "
 msgstr "일부분 "
 
@@ -5270,7 +5224,7 @@ msgstr "$0의 파티션"
 msgid "Partitioning"
 msgstr "파티션"
 
-#: pkg/networkmanager/interfaces.js:2001
+#: pkg/networkmanager/interfaces.js:1992
 msgid "Passive"
 msgstr "수동"
 
@@ -5355,7 +5309,7 @@ msgstr "경로"
 msgid "Path cost"
 msgstr "Path cost"
 
-#: pkg/networkmanager/interfaces.js:2880
+#: pkg/networkmanager/interfaces.js:2871
 msgid "Path cost $path_cost"
 msgstr "Path cost $path_cost"
 
@@ -5399,7 +5353,7 @@ msgstr "성능 프로파일"
 msgid "Peripheral Chassis"
 msgstr "주변 장치 섀시"
 
-#: pkg/networkmanager/interfaces.js:3639
+#: pkg/networkmanager/interfaces.js:3630
 msgid "Permanent"
 msgstr "영구적"
 
@@ -5407,7 +5361,7 @@ msgstr "영구적"
 msgid "Permission denied"
 msgstr "권한이 거부되었습니다"
 
-#: pkg/selinux/setroubleshoot-view.jsx:291
+#: pkg/selinux/setroubleshoot-view.jsx:243
 msgid "Permissive"
 msgstr "허용"
 
@@ -5475,7 +5429,7 @@ msgstr "스토리지 풀을 재설정할 수 없습니다"
 msgid "Please choose a volume"
 msgstr "새 볼륨 이름을 입력해 주십시오"
 
-#: pkg/docker/containers-view.jsx:200 pkg/docker/details.js:286
+#: pkg/docker/containers-view.jsx:202 pkg/docker/details.js:286
 #: pkg/docker/util.js:616 pkg/storaged/content-views.jsx:340
 #: pkg/storaged/mdraid-details.jsx:289 pkg/storaged/vdo-details.jsx:194
 #: pkg/storaged/vgroup-details.jsx:208
@@ -5498,7 +5452,7 @@ msgstr "새 볼륨 이름을 입력해 주십시오"
 msgid "Please enter new volume size"
 msgstr "새 볼륨 크기를 입력해 주십시오"
 
-#: pkg/networkmanager/firewall.jsx:887
+#: pkg/networkmanager/firewall.jsx:901
 msgid "Please install the $0 package"
 msgstr "$0 패키지를 설치해 주십시오"
 
@@ -5564,7 +5518,7 @@ msgstr "풀 볼륨은 VM에서 사용됩니다 "
 msgid "Port"
 msgstr "포트"
 
-#: pkg/networkmanager/firewall.jsx:389
+#: pkg/networkmanager/firewall.jsx:404
 msgid "Port number and type do not match"
 msgstr "포트 번호 및 유형이 일치하지 않습니다"
 
@@ -5572,13 +5526,13 @@ msgstr "포트 번호 및 유형이 일치하지 않습니다"
 msgid "Portable"
 msgstr "이동식"
 
-#: pkg/docker/index.html:506 pkg/networkmanager/index.html:224
-#: pkg/networkmanager/index.html:334 pkg/docker/containers-view.jsx:416
-#: pkg/networkmanager/interfaces.js:2981
+#: pkg/docker/index.html:468 pkg/networkmanager/index.html:224
+#: pkg/networkmanager/index.html:334 pkg/docker/containers-view.jsx:418
+#: pkg/networkmanager/interfaces.js:2972
 msgid "Ports"
 msgstr "포트"
 
-#: pkg/docker/index.html:192
+#: pkg/docker/index.html:186
 msgid "Ports:"
 msgstr "포트:"
 
@@ -5598,15 +5552,15 @@ msgstr "접두사 길이"
 msgid "Prefix Length should not be empty"
 msgstr "접두사 길이는 비워둘 수 없습니다"
 
-#: pkg/networkmanager/interfaces.js:3311
+#: pkg/networkmanager/interfaces.js:3302
 msgid "Prefix length"
 msgstr "접두 길이"
 
-#: pkg/networkmanager/interfaces.js:3311
+#: pkg/networkmanager/interfaces.js:3302
 msgid "Prefix length or Netmask"
 msgstr "접두 길이 또는 넷마스크"
 
-#: pkg/networkmanager/interfaces.js:830
+#: pkg/networkmanager/interfaces.js:821
 msgid "Preparing"
 msgstr "준비 중입니다"
 
@@ -5614,7 +5568,7 @@ msgstr "준비 중입니다"
 msgid "Present"
 msgstr "존재"
 
-#: pkg/networkmanager/interfaces.js:3640
+#: pkg/networkmanager/interfaces.js:3631
 msgid "Preserve"
 msgstr "저장"
 
@@ -5635,7 +5589,7 @@ msgstr "주"
 msgid "Priority"
 msgstr "우선순위"
 
-#: pkg/networkmanager/interfaces.js:2854 pkg/networkmanager/interfaces.js:2878
+#: pkg/networkmanager/interfaces.js:2845 pkg/networkmanager/interfaces.js:2869
 msgid "Priority $priority"
 msgstr "우선순위 $priority"
 
@@ -5647,15 +5601,15 @@ msgstr "비공개"
 msgid "Privileged"
 msgstr "권한"
 
-#: pkg/systemd/logs.js:548
+#: pkg/systemd/logs.js:549
 msgid "Problem details"
 msgstr "문제 상세 정보"
 
-#: pkg/systemd/logs.js:547
+#: pkg/systemd/logs.js:548
 msgid "Problem info"
 msgstr "문제 정보"
 
-#: pkg/docker/containers-view.jsx:347
+#: pkg/docker/containers-view.jsx:349
 msgid "Problems"
 msgstr "문제"
 
@@ -5792,15 +5746,15 @@ msgstr "RAID 멤버"
 msgid "Rack Mount Chassis"
 msgstr "랙 마운트 섀시"
 
-#: pkg/networkmanager/interfaces.js:3641
+#: pkg/networkmanager/interfaces.js:3632
 msgid "Random"
 msgstr "임의"
 
-#: pkg/networkmanager/firewall.jsx:726
+#: pkg/networkmanager/firewall.jsx:741
 msgid "Range"
 msgstr "범위"
 
-#: pkg/networkmanager/firewall.jsx:420
+#: pkg/networkmanager/firewall.jsx:435
 msgid "Range must be strictly ordered"
 msgstr "범위의 순서를 준수해야 합니다"
 
@@ -5822,11 +5776,11 @@ msgstr "더 알아보기..."
 msgid "Read-only"
 msgstr "읽기 전용"
 
-#: pkg/docker/index.html:365
+#: pkg/docker/index.html:327
 msgid "ReadOnly"
 msgstr "읽기 전용"
 
-#: pkg/docker/index.html:364
+#: pkg/docker/index.html:326
 msgid "ReadWrite"
 msgstr "읽기쓰기"
 
@@ -5893,10 +5847,6 @@ msgstr "복구 중"
 msgid "Recovering RAID Device $target"
 msgstr "RAID 장치 $target 복구 중"
 
-#: pkg/docker/storage.jsx:396
-msgid "Reformat and add disks"
-msgstr "디스크 재포맷 및 디스크 추가"
-
 #: pkg/packagekit/updates.jsx:46
 msgid "Refreshing package information"
 msgstr "패키지 정보 새로고침 중"
@@ -5913,7 +5863,7 @@ msgstr "연결을 거부하고 있습니다. 호스트키가 일치하지 않습
 msgid "Refusing to connect. Hostkey is unknown"
 msgstr "연결을 거부하고 있습니다. 알 수 없는 호스트키입니다"
 
-#: pkg/packagekit/updates.jsx:805
+#: pkg/packagekit/updates.jsx:800
 msgid "Register…"
 msgstr "등록 중…"
 
@@ -5953,11 +5903,11 @@ msgstr "삭제:"
 msgid "Remove"
 msgstr "제거"
 
-#: pkg/networkmanager/interfaces.js:3052
+#: pkg/networkmanager/interfaces.js:3043
 msgid "Remove $0"
 msgstr "$0 삭제"
 
-#: pkg/networkmanager/firewall.jsx:836
+#: pkg/networkmanager/firewall.jsx:851
 msgid "Remove $0 service from $1 zone"
 msgstr "$1영역에서 $0 서비스 제거"
 
@@ -5981,11 +5931,11 @@ msgstr "암호문 삭제"
 msgid "Remove passphrase in $0?"
 msgstr "$0에서 암호를 삭제하시겠습니까?"
 
-#: pkg/networkmanager/firewall.jsx:83
+#: pkg/networkmanager/firewall.jsx:75
 msgid "Remove service $0"
 msgstr "$0 서비스 제거"
 
-#: pkg/networkmanager/firewall.jsx:137 pkg/networkmanager/firewall.jsx:819
+#: pkg/networkmanager/firewall.jsx:147 pkg/networkmanager/firewall.jsx:834
 msgid "Remove zone $0"
 msgstr "$0 영역 제거"
 
@@ -6003,7 +5953,7 @@ msgstr "$0 삭제 중"
 msgid "Removing $target from RAID Device"
 msgstr "RAID 장치에서 $target 삭제 중"
 
-#: pkg/networkmanager/interfaces.js:3051
+#: pkg/networkmanager/interfaces.js:3042
 msgid ""
 "Removing <b>$0</b> will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -6015,7 +5965,7 @@ msgstr ""
 msgid "Removing physical volume from $target"
 msgstr "$target에서 물리 볼륨 삭제 중"
 
-#: pkg/networkmanager/firewall.jsx:834
+#: pkg/networkmanager/firewall.jsx:849
 msgid ""
 "Removing the cockpit service might result in the web console becoming "
 "unreachable. Make sure that this zone does not apply to your current web "
@@ -6024,7 +5974,7 @@ msgstr ""
 "Cockpit 서비스를 제거하면 web 콘솔에 액세스하지 못할 수 있습니다. 이 영역이 "
 "현재 사용중인 web 콘솔 연결에 적용되지 않는지 확인하십시오."
 
-#: pkg/networkmanager/firewall.jsx:817
+#: pkg/networkmanager/firewall.jsx:832
 msgid "Removing the zone will remove all services within it."
 msgstr "영역을 제거하면 영역 내의 모든 서비스가 제거됩니다."
 
@@ -6098,7 +6048,7 @@ msgstr "보고가 취소되었습니다"
 msgid "Reports:"
 msgstr "보고서 :"
 
-#: pkg/docker/index.html:690
+#: pkg/docker/index.html:652
 msgid "Repository"
 msgstr "리포지터리"
 
@@ -6140,21 +6090,9 @@ msgstr "필수 사항"
 msgid "Reserved memory"
 msgstr "예약된 메모리"
 
-#: pkg/docker/index.html:303 pkg/users/index.html:335
-#: pkg/systemd/terminal.jsx:102
+#: pkg/users/index.html:335 pkg/systemd/terminal.jsx:102
 msgid "Reset"
 msgstr "초기화"
-
-#: pkg/docker/storage.jsx:452
-msgid "Reset Storage Pool"
-msgstr "스토리지 풀 재설정"
-
-#: pkg/docker/storage.jsx:455
-msgid ""
-"Resetting the storage pool will erase all containers and release disks in "
-"the pool."
-msgstr ""
-"스토리지 풀을 재설정하면 풀의 모든 컨테이너와 릴리스 디스크가 삭제됩니다."
 
 #: pkg/storaged/jobs-panel.jsx:40 pkg/storaged/jobs-panel.jsx:46
 #: pkg/storaged/jobs-panel.jsx:78
@@ -6170,30 +6108,30 @@ msgstr ""
 "디스크의 암호를 입력하십시오."
 
 # ctx::sourcefile::/rhn/admin/config/Restart.do
-#: pkg/docker/index.html:138 pkg/docker/containers-view.jsx:315
+#: pkg/docker/index.html:132 pkg/docker/containers-view.jsx:317
 #: pkg/machines/components/vm/vmActions.jsx:42 pkg/systemd/overview.jsx:103
 #: pkg/systemd/overview.jsx:124 pkg/systemd/service-details.jsx:172
 #: pkg/systemd/shutdown.js:99 pkg/systemd/shutdown.js:100
 msgid "Restart"
 msgstr "재시작"
 
-#: pkg/packagekit/updates.jsx:507
+#: pkg/packagekit/updates.jsx:503
 msgid "Restart Now"
 msgstr "지금 다시 시작"
 
-#: pkg/docker/index.html:539
+#: pkg/docker/index.html:501
 msgid "Restart Policy"
 msgstr "재시작 정책"
 
-#: pkg/docker/index.html:172
+#: pkg/docker/index.html:166
 msgid "Restart Policy:"
 msgstr "재시작 정책:"
 
-#: pkg/packagekit/updates.jsx:502 pkg/packagekit/updates.jsx:921
+#: pkg/packagekit/updates.jsx:501 pkg/packagekit/updates.jsx:915
 msgid "Restart Recommended"
 msgstr "다시 시작하는 것이 좋습니다"
 
-#: pkg/packagekit/updates.jsx:931
+#: pkg/packagekit/updates.jsx:922
 msgid "Restarting"
 msgstr "재시작 중"
 
@@ -6205,7 +6143,7 @@ msgstr "연결 복원 중"
 msgid "Resume"
 msgstr "다시 시작"
 
-#: pkg/docker/index.html:555
+#: pkg/docker/index.html:517
 msgid "Retries:"
 msgstr "재시도 횟수:"
 
@@ -6236,7 +6174,7 @@ msgstr "역할"
 msgid "Root Password"
 msgstr "암호 설정"
 
-#: pkg/networkmanager/interfaces.js:1975 pkg/networkmanager/interfaces.js:1992
+#: pkg/networkmanager/interfaces.js:1966 pkg/networkmanager/interfaces.js:1983
 msgid "Round Robin"
 msgstr "Round Robin"
 
@@ -6248,16 +6186,16 @@ msgstr "$0로 라우팅"
 msgid "Routed Network"
 msgstr "라우팅된 네트워크"
 
-#: pkg/networkmanager/interfaces.js:3330
+#: pkg/networkmanager/interfaces.js:3321
 msgid "Routes"
 msgstr "경로"
 
-#: pkg/docker/index.html:253 pkg/docker/index.html:566
+#: pkg/docker/index.html:247 pkg/docker/index.html:528
 #: pkg/systemd/services.html:295 pkg/machines/components/vm/vmActions.jsx:90
 msgid "Run"
 msgstr "실행"
 
-#: pkg/docker/index.html:427
+#: pkg/docker/index.html:389
 msgid "Run Image"
 msgstr "이미지 실행"
 
@@ -6282,11 +6220,11 @@ msgstr "작동중"
 msgid "SELinux"
 msgstr "SELinux"
 
-#: pkg/selinux/setroubleshoot-view.jsx:369
+#: pkg/selinux/setroubleshoot-view.jsx:315
 msgid "SELinux Access Control Errors"
 msgstr "SELinux 액세스 컨트롤 오류"
 
-#: pkg/selinux/setroubleshoot-view.jsx:296
+#: pkg/selinux/setroubleshoot-view.jsx:248
 msgid "SELinux Policy"
 msgstr "SELinux 정책"
 
@@ -6294,15 +6232,15 @@ msgstr "SELinux 정책"
 msgid "SELinux Troubleshoot"
 msgstr "SELinux 문제 해결"
 
-#: pkg/selinux/setroubleshoot-view.jsx:360
+#: pkg/selinux/setroubleshoot-view.jsx:309
 msgid "SELinux is disabled on the system"
 msgstr "시스템에서 SELinux가 비활성화되어 있습니다"
 
-#: pkg/selinux/setroubleshoot-view.jsx:280
+#: pkg/selinux/setroubleshoot-view.jsx:232
 msgid "SELinux is disabled on the system."
 msgstr "시스템에서 SELinux가 비활성화되어 있습니다."
 
-#: pkg/selinux/setroubleshoot-view.jsx:272
+#: pkg/selinux/setroubleshoot-view.jsx:224
 msgid "SELinux system status is unknown."
 msgstr "SELinux 시스템 상태를 알 수 없습니다."
 
@@ -6406,11 +6344,7 @@ msgstr "보안 쉘 키"
 msgid "Securely erasing $target"
 msgstr "$target을 안전하게 삭제"
 
-#: pkg/docker/containers-view.jsx:508 pkg/docker/containers-view.jsx:651
-msgid "Security"
-msgstr "보안"
-
-#: pkg/packagekit/updates.jsx:855
+#: pkg/packagekit/updates.jsx:849
 msgid "Security Updates Available"
 msgstr "사용 가능한 보안 업데이트"
 
@@ -6486,7 +6420,7 @@ msgstr "서버 연결이 종료되었습니다."
 msgid "Servers"
 msgstr "서버"
 
-#: pkg/systemd/logs.html:66 pkg/networkmanager/firewall.jsx:168
+#: pkg/systemd/logs.html:66 pkg/networkmanager/firewall.jsx:178
 #: pkg/storaged/dialog.jsx:1038
 msgid "Service"
 msgstr "서비스"
@@ -6520,7 +6454,7 @@ msgid "Service name"
 msgstr "서비스 이름"
 
 #: pkg/systemd/services.html:4 pkg/systemd/services.html:221
-#: pkg/networkmanager/firewall.jsx:506 pkg/systemd/manifest.json.in
+#: pkg/networkmanager/firewall.jsx:521 pkg/systemd/manifest.json.in
 msgid "Services"
 msgstr "서비스"
 
@@ -6554,7 +6488,7 @@ msgstr "암호 설정"
 msgid "Set Time"
 msgstr "시간 설정"
 
-#: pkg/docker/index.html:532
+#: pkg/docker/index.html:494
 msgid "Set container environment variables"
 msgstr "컨테이너 환경 변수 설정"
 
@@ -6570,7 +6504,7 @@ msgstr "설정"
 msgid "Set up"
 msgstr "설정"
 
-#: pkg/selinux/setroubleshoot-view.jsx:289
+#: pkg/selinux/setroubleshoot-view.jsx:241
 msgid ""
 "Setting deviates from the configured state and will revert on the next boot."
 msgstr "설정은 구성된 상태가 다르기 때문에 다음 부팅시 원래 상태로 돌아갑니다."
@@ -6599,7 +6533,7 @@ msgstr "심각도"
 msgid "Severity:"
 msgstr "심각도:"
 
-#: pkg/networkmanager/interfaces.js:1960
+#: pkg/networkmanager/interfaces.js:1951
 msgid "Shared"
 msgstr "공유됨"
 
@@ -6627,11 +6561,11 @@ msgstr "모든 $0 장치 표시"
 msgid "Show all $0 drives"
 msgstr "모든 $0 드라이브 표시"
 
-#: pkg/docker/index.html:128
+#: pkg/docker/index.html:122
 msgid "Show all containers"
 msgstr "모든 컨테이너 표시"
 
-#: pkg/docker/index.html:249
+#: pkg/docker/index.html:243
 msgid "Show all images"
 msgstr "모든 이미지 표시"
 
@@ -6670,7 +6604,7 @@ msgstr "종료"
 msgid "Single Rank"
 msgstr "단일 등급"
 
-#: pkg/docker/containers-view.jsx:691
+#: pkg/docker/containers-view.jsx:570
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:546
 #: pkg/machines/components/storagePools/storagePoolList.jsx:54
 #: pkg/machines/components/storagePools/storagePoolVolumesTab.jsx:79
@@ -6732,19 +6666,15 @@ msgstr ""
 "다. 이러한 완화 옵션은 성능을 저하시키는 부작용이 있습니다. 이러한 부작용을 "
 "인지하고 필요에 따라 설정을 변경하십시오."
 
-#: pkg/docker/storage.jsx:167
-msgid "Solid-State Disk"
-msgstr "솔리드 스테이트 디스크"
-
-#: pkg/selinux/setroubleshoot-view.jsx:95
+#: pkg/selinux/setroubleshoot-view.jsx:94
 msgid "Solution applied successfully"
 msgstr "솔루션이 성공적으로 적용되었습니다"
 
-#: pkg/selinux/setroubleshoot-view.jsx:101
+#: pkg/selinux/setroubleshoot-view.jsx:100
 msgid "Solution failed"
 msgstr "솔루션이 실패했습니다"
 
-#: pkg/selinux/setroubleshoot-view.jsx:417
+#: pkg/selinux/setroubleshoot-view.jsx:363
 msgid "Solutions"
 msgstr "솔루션"
 
@@ -6754,7 +6684,7 @@ msgid ""
 msgstr ""
 "다른 프로그램이 패키지 관리자를 사용 중입니다. 잠시만 기다려주십시오..."
 
-#: pkg/networkmanager/firewall.jsx:675
+#: pkg/networkmanager/firewall.jsx:690
 msgid "Sorted from least trusted to most trusted"
 msgstr "신뢰성이 가장 낮은 순서에서 가장 높은 순으로 정렬"
 
@@ -6794,7 +6724,7 @@ msgstr "소스는 http, ftp, nfs 프로토콜로 시작해야 합니다"
 msgid "Space-saving Computer"
 msgstr "공간 절약형 컴퓨터"
 
-#: pkg/networkmanager/interfaces.js:2852
+#: pkg/networkmanager/interfaces.js:2843
 msgid "Spanning Tree Protocol"
 msgstr "Spanning Tree Protocol"
 
@@ -6814,11 +6744,11 @@ msgstr "특정 시간"
 msgid "Speed"
 msgstr "속도"
 
-#: pkg/networkmanager/interfaces.js:3642
+#: pkg/networkmanager/interfaces.js:3633
 msgid "Stable"
 msgstr "안정적"
 
-#: pkg/docker/index.html:136 pkg/docker/containers-view.jsx:312
+#: pkg/docker/index.html:130 pkg/docker/containers-view.jsx:314
 #: pkg/machines/components/networks/createNetworkDialog.jsx:224
 #: pkg/storaged/content-views.jsx:306 pkg/storaged/mdraid-details.jsx:313
 #: pkg/storaged/vdo-details.jsx:258 pkg/systemd/service-details.jsx:179
@@ -6841,7 +6771,7 @@ msgstr "서비스 시작"
 msgid "Start and Enable"
 msgstr "시작 및 활성화"
 
-#: pkg/machines/components/libvirtSlate.jsx:118
+#: pkg/machines/components/libvirtSlate.jsx:107
 msgid "Start libvirt"
 msgstr "libvirt 시작"
 
@@ -6866,7 +6796,7 @@ msgstr "스왑공간 $target 시작"
 msgid "Startup"
 msgstr "시작"
 
-#: pkg/docker/containers-view.jsx:133 pkg/docker/containers-view.jsx:361
+#: pkg/docker/containers-view.jsx:135 pkg/docker/containers-view.jsx:363
 #: pkg/machines/components/networks/networkList.jsx:55
 #: pkg/machines/components/storagePools/storagePoolList.jsx:54
 #: pkg/machines/components/vmnetworktab.jsx:205 pkg/machines/hostvmslist.jsx:74
@@ -6883,7 +6813,7 @@ msgstr "상태"
 
 # translation auto-copied from project virt-manager, version 0.10.0, document
 # virt-manager
-#: pkg/docker/index.html:168
+#: pkg/docker/index.html:162
 msgid "State:"
 msgstr "상태:"
 
@@ -6892,7 +6822,7 @@ msgstr "상태:"
 msgid "Static"
 msgstr "정적"
 
-#: pkg/networkmanager/interfaces.js:2608 pkg/systemd/service-details.jsx:480
+#: pkg/networkmanager/interfaces.js:2599 pkg/systemd/service-details.jsx:480
 msgid "Status"
 msgstr "상태"
 
@@ -6904,7 +6834,7 @@ msgstr "스틱 PC"
 msgid "Sticky"
 msgstr "Sticky"
 
-#: pkg/docker/index.html:137 pkg/docker/containers-view.jsx:310
+#: pkg/docker/index.html:131 pkg/docker/containers-view.jsx:312
 #: pkg/storaged/content-views.jsx:304 pkg/storaged/mdraid-details.jsx:312
 #: pkg/storaged/vdo-details.jsx:140 pkg/storaged/vdo-details.jsx:257
 #: pkg/systemd/service-details.jsx:175
@@ -6943,7 +6873,7 @@ msgstr "RAID 장치 $target 중지"
 msgid "Stopping swapspace $target"
 msgstr "스왑공간 $target 중지"
 
-#: pkg/docker/index.html:290 pkg/storaged/index.html:23
+#: pkg/storaged/index.html:23
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:509
 #: pkg/storaged/details.jsx:127 pkg/storaged/manifest.json.in
 msgid "Storage"
@@ -6991,13 +6921,9 @@ msgstr "스토리지 볼륨"
 msgid "Storage Volumes could not be deleted"
 msgstr "스토리지 볼륨은 삭제할 수 없습니다"
 
-#: pkg/storaged/devices.jsx:76
+#: pkg/storaged/devices.jsx:72
 msgid "Storage can not be managed on this system."
 msgstr "스토리지는 이 시스템에서 관리할 수 없습니다."
-
-#: pkg/docker/index.html:304
-msgid "Storage pool"
-msgstr "스토리지 풀"
 
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:174
 msgid "Storage size must not be 0"
@@ -7052,29 +6978,29 @@ msgstr "스왑 공간"
 msgid "Swap Used"
 msgstr "사용된 스왑"
 
-#: pkg/networkmanager/interfaces.js:2488 pkg/networkmanager/interfaces.js:3035
+#: pkg/networkmanager/interfaces.js:2479 pkg/networkmanager/interfaces.js:3026
 msgid "Switch off $0"
 msgstr "$0 끄기"
 
-#: pkg/networkmanager/interfaces.js:2463 pkg/networkmanager/interfaces.js:3023
+#: pkg/networkmanager/interfaces.js:2454 pkg/networkmanager/interfaces.js:3014
 msgid "Switch on $0"
 msgstr "$0 켜기"
 
-#: pkg/networkmanager/interfaces.js:2487
+#: pkg/networkmanager/interfaces.js:2478
 msgid ""
 "Switching off <b>$0</b>  will break the connection to the server, and will "
 "make the administration UI unavailable."
 msgstr ""
 "<b>$0</b>을/를 끄면 서버와의 연결이 끊어지고 관리 UI를 사용할 수 없게 됩니다."
 
-#: pkg/networkmanager/interfaces.js:3034
+#: pkg/networkmanager/interfaces.js:3025
 msgid ""
 "Switching off <b>$0</b> will break the connection to the server, and will "
 "make the administration UI unavailable."
 msgstr ""
 "<b>$0</b>을/를 끄면 서버와의 연결이 끊어지고 관리 UI를 사용할 수 없게 됩니다."
 
-#: pkg/networkmanager/interfaces.js:2462 pkg/networkmanager/interfaces.js:3022
+#: pkg/networkmanager/interfaces.js:2453 pkg/networkmanager/interfaces.js:3013
 msgid ""
 "Switching on <b>$0</b> will break the connection to the server, and will "
 "make the administration UI unavailable."
@@ -7112,7 +7038,7 @@ msgstr "시스템"
 msgid "System Information"
 msgstr "시스템 정보"
 
-#: pkg/selinux/setroubleshoot-view.jsx:465
+#: pkg/selinux/setroubleshoot-view.jsx:411
 msgid "System Modifications"
 msgstr "시스템 수정"
 
@@ -7125,7 +7051,7 @@ msgid "System information"
 msgstr "시스템 정보"
 
 # ctx::sourcefile::/systems/SystemEntitlements
-#: pkg/packagekit/updates.jsx:937 pkg/packagekit/updates.jsx:949
+#: pkg/packagekit/updates.jsx:927 pkg/packagekit/updates.jsx:937
 msgid "System is up to date"
 msgstr "시스템이 업데이트되었음"
 
@@ -7133,8 +7059,8 @@ msgstr "시스템이 업데이트되었음"
 msgid "System time"
 msgstr "시스템 시간"
 
-#: pkg/docker/index.html:329 pkg/docker/index.html:333
-#: pkg/networkmanager/firewall.jsx:168
+#: pkg/docker/index.html:291 pkg/docker/index.html:295
+#: pkg/networkmanager/firewall.jsx:178
 msgid "TCP"
 msgstr "TCP"
 
@@ -7142,11 +7068,11 @@ msgstr "TCP"
 msgid "Tablet"
 msgstr "타블렛"
 
-#: pkg/docker/index.html:696
+#: pkg/docker/index.html:658
 msgid "Tag"
 msgstr "태그"
 
-#: pkg/docker/containers-view.jsx:411
+#: pkg/docker/containers-view.jsx:413
 msgid "Tags"
 msgstr "태그"
 
@@ -7171,12 +7097,12 @@ msgstr "대상 경로를 비워둘 수 없습니다"
 msgid "Targets"
 msgstr "대상"
 
-#: pkg/networkmanager/interfaces.js:2508 pkg/networkmanager/interfaces.js:2520
-#: pkg/networkmanager/interfaces.js:2809
+#: pkg/networkmanager/interfaces.js:2499 pkg/networkmanager/interfaces.js:2511
+#: pkg/networkmanager/interfaces.js:2800
 msgid "Team"
 msgstr "팀"
 
-#: pkg/networkmanager/interfaces.js:2837
+#: pkg/networkmanager/interfaces.js:2828
 msgid "Team Port"
 msgstr "팀 포트"
 
@@ -7219,10 +7145,6 @@ msgstr "$0을(를) 삭제할 수 없습니다"
 #: pkg/storaged/vdos-panel.jsx:45
 msgid "The $0 package must be installed to create VDO devices."
 msgstr "VDO 장치를 생성하려면 $0 패키지를 설치해야합니다."
-
-#: pkg/docker/storage.jsx:523
-msgid "The Docker storage pool cannot be managed on this system."
-msgstr "Docker 스토리지 풀은 이 시스템에서 관리할 수 없습니다."
 
 #: pkg/lib/machine-dialogs.js:390
 msgid "The IP address or host name cannot contain whitespace."
@@ -7299,7 +7221,7 @@ msgstr ""
 "호스트 {{#strong}}{{host}}{{/strong}} 인증을 설정할 수 없습니다. 연결을 유지"
 "하시겠습니까?"
 
-#: pkg/networkmanager/firewall.jsx:701
+#: pkg/networkmanager/firewall.jsx:716
 msgid "The cockpit service is automatically included"
 msgstr "cockpit 서비스가 자동으로 포함됩니다"
 
@@ -7307,7 +7229,7 @@ msgstr "cockpit 서비스가 자동으로 포함됩니다"
 msgid "The collected information will be stored locally on the system."
 msgstr "수집된 정보는 시스템에 로컬로 저장됩니다."
 
-#: pkg/selinux/setroubleshoot-view.jsx:287
+#: pkg/selinux/setroubleshoot-view.jsx:239
 msgid "The configured state is unknown, it might change on the next boot."
 msgstr "설정된 상태를 알 수 없습니다. 이는 다음 부팅시에 변경될 수 있습니다."
 
@@ -7446,19 +7368,6 @@ msgstr "암호가 일치하지 않습니다."
 msgid "The pool is empty"
 msgstr "풀이 비어 있습니다"
 
-#: pkg/docker/containers-view.jsx:438
-msgid "The scan from $time ($type) found $count vulnerability:"
-msgid_plural "The scan from $time ($type) found $count vulnerabilities:"
-msgstr[0] "$time ($type) 검사에서 $count 취약점이 발견되었습니다:"
-
-#: pkg/docker/containers-view.jsx:436
-msgid "The scan from $time ($type) found no vulnerabilities."
-msgstr "$time ($type) 검사에서 취약점이 발견되지 않았습니다."
-
-#: pkg/docker/containers-view.jsx:434
-msgid "The scan from $time ($type) was not successful."
-msgstr "$time ($type) 검사에 성공하지 못했습니다."
-
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:408
 #, fuzzy
 #| msgid ""
@@ -7520,7 +7429,7 @@ msgstr "사용자 <b>$0</b>는 프로파일을 변경할 수 없습니다"
 msgid "The user <b>$0</b> is not permitted to manage servers"
 msgstr "사용자 <b>$0</b> 는 서버 관리 권한이 없습니다"
 
-#: pkg/storaged/storage-controls.jsx:53
+#: pkg/storaged/storage-controls.jsx:54
 msgid "The user <b>$0</b> is not permitted to manage storage"
 msgstr "사용자 <b>$0</b>는 스토리지를 관리할 수 없습니다"
 
@@ -7528,7 +7437,7 @@ msgstr "사용자 <b>$0</b>는 스토리지를 관리할 수 없습니다"
 msgid "The user <b>$0</b> is not permitted to modify accounts"
 msgstr "사용자 <b>$0</b>는 계정을 수정할 수 없습니다"
 
-#: pkg/networkmanager/interfaces.js:1497
+#: pkg/networkmanager/interfaces.js:1488
 msgid "The user <b>$0</b> is not permitted to modify network settings"
 msgstr "사용자 <b>$0</b> 는 네트워크 설정 권한이 없습니다"
 
@@ -7561,7 +7470,7 @@ msgstr ""
 "시스템에 여러 경로를 갖는 장치가 있지만 멀티패스 서비스가 실행되고 있지 않습"
 "니다."
 
-#: pkg/networkmanager/firewall.jsx:169
+#: pkg/networkmanager/firewall.jsx:179
 msgid "There are no active services in this zone"
 msgstr "이 영역에는 활성 서비스가 없습니다"
 
@@ -7605,7 +7514,7 @@ msgstr ""
 "이 날은 모든 달에 존재하지 않습니다.<br> 타이머는 31일이 있는 달에만 실행됩니"
 "다."
 
-#: pkg/networkmanager/interfaces.js:2619
+#: pkg/networkmanager/interfaces.js:2610
 msgid "This device cannot be managed here."
 msgstr "이 장치는 여기서 관리할 수 없습니다."
 
@@ -7653,7 +7562,7 @@ msgstr "장치를 복구하는 동안 디스크를 제거할 수 없습니다."
 msgid "This field cannot be empty."
 msgstr "이 필드를 비워둘 수 없습니다."
 
-#: pkg/docker/containers-view.jsx:496
+#: pkg/docker/containers-view.jsx:430
 msgid "This image does not exist."
 msgstr "이미지가 존재하지 않습니다."
 
@@ -7682,7 +7591,7 @@ msgstr "이 패키지에는 Cockpit 버전 %s 이상이 필요합니다"
 msgid "This pool type does not support Storage Volume creation"
 msgstr "이 풀 유형은 스토리지 볼륨 생성을 지원하지 않습니다"
 
-#: pkg/packagekit/updates.jsx:802
+#: pkg/packagekit/updates.jsx:797
 msgid "This system is not registered"
 msgstr "이 시스템은 등록되어 있지 않습니다"
 
@@ -7734,7 +7643,7 @@ msgstr "볼륨 크기를 변경하기 전에 활성화해야 합니다."
 msgid "This web browser is too old to run Cockpit (missing $0)"
 msgstr "이 웹 브라우저는 오래되어 Cockpit을 실행할 수 없습니다 ($0 누락)"
 
-#: pkg/packagekit/updates.jsx:887
+#: pkg/packagekit/updates.jsx:881
 msgid "This web console will be updated."
 msgstr "이 웹 콘솔은 업데이트됩니다."
 
@@ -7751,7 +7660,7 @@ msgstr ""
 msgid "This will test the kdump configuration by crashing the kernel."
 msgstr "kdump 설정은 커널을 크래시햐여 테스트합니다."
 
-#: pkg/networkmanager/firewall.jsx:815
+#: pkg/networkmanager/firewall.jsx:830
 msgid ""
 "This zone contains the cockpit service. Make sure that this zone does not "
 "apply to your current web console connection."
@@ -7788,7 +7697,7 @@ msgstr ""
 "도움말: 다른 시스템에 자동으로 인증하려면 키 암호가 로그인 암호화 일치해야 합"
 "니다."
 
-#: pkg/packagekit/updates.jsx:803
+#: pkg/packagekit/updates.jsx:798
 msgid ""
 "To get software updates, this system needs to be registered with Red Hat, "
 "either using the Red Hat Customer Portal or a local subscription server."
@@ -7806,10 +7715,6 @@ msgstr ""
 #: src/base1/cockpit.js:4056
 msgid "Too much data"
 msgstr "데이터가 너무 많습니다"
-
-#: pkg/docker/storage.jsx:345
-msgid "Total"
-msgstr "전체"
 
 #: pkg/lib/cockpit-components-install-dialog.jsx:98
 msgid "Total size: $0"
@@ -7831,7 +7736,7 @@ msgstr "트리거 소스"
 msgid "Triggers"
 msgstr "트리거"
 
-#: pkg/shell/index.html:423 pkg/machines/components/libvirtSlate.jsx:112
+#: pkg/shell/index.html:423 pkg/machines/components/libvirtSlate.jsx:101
 msgid "Troubleshoot"
 msgstr "문제 해결"
 
@@ -7839,7 +7744,7 @@ msgstr "문제 해결"
 msgid "Trust key"
 msgstr "신뢰 키"
 
-#: pkg/networkmanager/firewall.jsx:671
+#: pkg/networkmanager/firewall.jsx:686
 msgid "Trust level"
 msgstr "신뢰 레벨"
 
@@ -7903,11 +7808,11 @@ msgstr "ID 입력"
 msgid "Type a password"
 msgstr "암호 입력"
 
-#: pkg/docker/containers-view.jsx:115
+#: pkg/docker/containers-view.jsx:117
 msgid "Type to filter…"
 msgstr "필터 입력…"
 
-#: pkg/docker/index.html:334 pkg/networkmanager/firewall.jsx:168
+#: pkg/docker/index.html:296 pkg/networkmanager/firewall.jsx:178
 msgid "UDP"
 msgstr "UDP"
 
@@ -7934,7 +7839,7 @@ msgstr "UUID"
 msgid "Unable to apply settings: $0"
 msgstr "설정을 적용할 수 없음: $0"
 
-#: pkg/selinux/setroubleshoot-view.jsx:119
+#: pkg/selinux/setroubleshoot-view.jsx:117
 msgid "Unable to apply this solution automatically"
 msgstr "이 솔루션을 자동으로 적용할 수 없습니다"
 
@@ -7946,8 +7851,8 @@ msgstr "해당 주소에 연결할 수 없음"
 msgid "Unable to delete root account"
 msgstr "root 계정을 삭제할 수 없음"
 
-#: pkg/selinux/setroubleshoot-view.jsx:74
-#: pkg/selinux/setroubleshoot-view.jsx:170
+#: pkg/selinux/setroubleshoot-view.jsx:75
+#: pkg/selinux/setroubleshoot-view.jsx:166
 msgid "Unable to get alert details."
 msgstr "알림 세부 정보를 가져올 수 없습니다."
 
@@ -7983,7 +7888,7 @@ msgstr "파일 시스템을 마운트 해제할 수 없습니다"
 msgid "Unavailable"
 msgstr "사용 불가능"
 
-#: pkg/docker/index.html:732 pkg/networkmanager/index.html:725
+#: pkg/docker/index.html:694 pkg/networkmanager/index.html:725
 #: pkg/shell/base_index.js:840 pkg/users/local.js:1505
 msgid "Unexpected error"
 msgstr "예상치 못한 오류"
@@ -8003,13 +7908,13 @@ msgstr "단위"
 
 #: pkg/lib/machine-info.js:68 pkg/lib/machine-info.js:241
 #: pkg/machines/components/vmnetworktab.jsx:168
-#: pkg/networkmanager/interfaces.js:595 pkg/networkmanager/interfaces.js:1071
-#: pkg/networkmanager/interfaces.js:2528 pkg/networkmanager/interfaces.js:2530
+#: pkg/networkmanager/interfaces.js:586 pkg/networkmanager/interfaces.js:1062
+#: pkg/networkmanager/interfaces.js:2519 pkg/networkmanager/interfaces.js:2521
 #: pkg/storaged/fsys-tab.jsx:369 pkg/storaged/swap-tab.jsx:55
 msgid "Unknown"
 msgstr "알 수 없음"
 
-#: pkg/networkmanager/interfaces.js:2514 pkg/networkmanager/interfaces.js:2526
+#: pkg/networkmanager/interfaces.js:2505 pkg/networkmanager/interfaces.js:2517
 msgid "Unknown \"$0\""
 msgstr "알 수 없는 \"$0\""
 
@@ -8025,7 +7930,7 @@ msgstr "알 수 없는 애플리케이션"
 msgid "Unknown Host Key"
 msgstr "알 수 없는 호스트 키"
 
-#: pkg/networkmanager/interfaces.js:2635
+#: pkg/networkmanager/interfaces.js:2626
 msgid "Unknown configuration"
 msgstr "알 수 없는 설정"
 
@@ -8039,7 +7944,7 @@ msgstr "알 수 없는 대상"
 msgid "Unknown host name"
 msgstr "알 수 없는 호스트 이름"
 
-#: pkg/networkmanager/firewall.jsx:383
+#: pkg/networkmanager/firewall.jsx:398
 msgid "Unknown service name"
 msgstr "알 수 없는 서비스 이름"
 
@@ -8047,7 +7952,7 @@ msgstr "알 수 없는 서비스 이름"
 msgid "Unknown type"
 msgstr "알 수 없는 유형"
 
-#: pkg/docker/index.html:551 pkg/docker/util.js:110
+#: pkg/docker/index.html:513 pkg/docker/util.js:110
 msgid "Unless Stopped"
 msgstr "중지될 때 까지"
 
@@ -8159,11 +8064,11 @@ msgstr "패키지 정보"
 msgid "Updated"
 msgstr "업데이트됨"
 
-#: pkg/packagekit/updates.jsx:503
+#: pkg/packagekit/updates.jsx:502
 msgid "Updated packages may require a restart to take effect."
 msgstr "업데이트된 패키지를 적용하려면 시스템을 다시 시작해야 합니다."
 
-#: pkg/packagekit/updates.jsx:861
+#: pkg/packagekit/updates.jsx:855
 msgid "Updates Available"
 msgstr "사용 가능한 업데이트"
 
@@ -8207,8 +8112,7 @@ msgstr "기존 사용"
 msgid "Use the following keys to authenticate against other systems"
 msgstr "다른 시스템에 대해 인증하려면 다음 키를 사용합니다"
 
-#: pkg/systemd/graphs.html:166 pkg/docker/storage.jsx:344
-#: pkg/machines/components/vm/vmUsageTab.jsx:62
+#: pkg/systemd/graphs.html:166 pkg/machines/components/vm/vmUsageTab.jsx:62
 #: pkg/machines/components/vm/vmUsageTab.jsx:73
 #: pkg/machines/components/vmDisksTab.jsx:109 pkg/storaged/fsys-tab.jsx:504
 #: pkg/storaged/swap-tab.jsx:63 pkg/systemd/graphs.js:391
@@ -8219,7 +8123,7 @@ msgstr "사용 중"
 msgid "Used by"
 msgstr "사용됨"
 
-#: pkg/docker/index.html:264
+#: pkg/docker/index.html:258
 msgid "Used by Containers"
 msgstr "컨테이너에 의해 사용"
 
@@ -8281,8 +8185,8 @@ msgstr "VDO 장치 $0"
 msgid "VDO backing devices can not be made smaller"
 msgstr "VDO 백업 장치를 작게 할 수 없습니다"
 
-#: pkg/networkmanager/interfaces.js:2510 pkg/networkmanager/interfaces.js:2522
-#: pkg/networkmanager/interfaces.js:2901
+#: pkg/networkmanager/interfaces.js:2501 pkg/networkmanager/interfaces.js:2513
+#: pkg/networkmanager/interfaces.js:2892
 msgid "VLAN"
 msgstr "VLAN"
 
@@ -8314,7 +8218,7 @@ msgstr "VM $0 강제 종료에 실패했습니다"
 msgid "VM $0 failed to get deleted"
 msgstr "VM $0 삭제에 실패했습니다"
 
-#: pkg/machines/hostvmslist.jsx:102 pkg/machines/libvirt-common.js:1412
+#: pkg/machines/hostvmslist.jsx:102 pkg/machines/libvirt-common.js:1420
 msgid "VM $0 failed to get installed"
 msgstr "VM $0 설치에 실패했습니다"
 
@@ -8428,13 +8332,9 @@ msgstr "가상 네트워크"
 msgid "Virtual Network failed to be created"
 msgstr "가상 네트워크를 만들지 못했습니다"
 
-#: pkg/machines/components/libvirtSlate.jsx:93
+#: pkg/machines/components/libvirtSlate.jsx:105
 msgid "Virtualization Service (libvirt) is Not Active"
 msgstr "가상화 서비스 (libvirt)가 활성화되어 있지 않습니다"
-
-#: pkg/machines/components/libvirtSlate.jsx:83
-msgid "Virtualization Service is Available"
-msgstr "가상화 서비스를 사용할 수 있습니다"
 
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:529
 #: pkg/machines/components/deleteDialog.jsx:51
@@ -8469,11 +8369,11 @@ msgstr "볼륨을 만들지 못했습니다"
 msgid "Volume size is $0. Content size is $1."
 msgstr "볼륨 크기는 $0입니다. 컨텐츠 크기는 $1입니다."
 
-#: pkg/docker/index.html:517
+#: pkg/docker/index.html:479
 msgid "Volumes"
 msgstr "볼륨"
 
-#: pkg/docker/index.html:200
+#: pkg/docker/index.html:194
 msgid "Volumes:"
 msgstr "볼륨:"
 
@@ -8481,12 +8381,12 @@ msgstr "볼륨:"
 msgid "WWPN"
 msgstr "WWPN"
 
-#: pkg/networkmanager/interfaces.js:840
+#: pkg/networkmanager/interfaces.js:831
 msgid "Waiting"
 msgstr "대기 중입니다"
 
-#: pkg/selinux/setroubleshoot-view.jsx:74
-#: pkg/selinux/setroubleshoot-view.jsx:170
+#: pkg/selinux/setroubleshoot-view.jsx:73
+#: pkg/selinux/setroubleshoot-view.jsx:164
 msgid "Waiting for details..."
 msgstr "상세 정보 대기 중..."
 
@@ -8494,7 +8394,7 @@ msgstr "상세 정보 대기 중..."
 msgid "Waiting for input…"
 msgstr "입력 대기 중…"
 
-#: pkg/apps/utils.jsx:63
+#: pkg/apps/utils.jsx:64
 msgid "Waiting for other programs to finish using the package manager..."
 msgstr "패키지 관리자를 사용하여 다른 프로그램을 종료할 때 까지 대기 중..."
 
@@ -8549,7 +8449,7 @@ msgstr "tang-show-keys를 사용할 수 없는 경우는 어떻게 합니까?"
 msgid "White"
 msgstr "화이트"
 
-#: pkg/docker/index.html:488
+#: pkg/docker/index.html:450
 msgid "With terminal"
 msgstr "터미널 실행"
 
@@ -8580,11 +8480,11 @@ msgstr "쓰기"
 msgid "Wrong user name or password"
 msgstr "잘못된 사용자 이름 또는 암호"
 
-#: pkg/networkmanager/interfaces.js:1977
+#: pkg/networkmanager/interfaces.js:1968
 msgid "XOR"
 msgstr "XOR"
 
-#: pkg/networkmanager/interfaces.js:2588 pkg/systemd/reporting.jsx:262
+#: pkg/networkmanager/interfaces.js:2579 pkg/systemd/reporting.jsx:262
 msgid "Yes"
 msgstr "네"
 
@@ -8601,9 +8501,9 @@ msgid ""
 "You are currently connected directly to this server. You cannot delete it."
 msgstr "현재 직접적으로 이 서버에 연결되어 있습니다. 삭제하실 수 없습니다."
 
-#: pkg/networkmanager/firewall.jsx:76 pkg/networkmanager/firewall.jsx:132
-#: pkg/networkmanager/firewall.jsx:144 pkg/networkmanager/firewall.jsx:896
-#: pkg/networkmanager/firewall.jsx:924
+#: pkg/networkmanager/firewall.jsx:68 pkg/networkmanager/firewall.jsx:142
+#: pkg/networkmanager/firewall.jsx:154 pkg/networkmanager/firewall.jsx:909
+#: pkg/networkmanager/firewall.jsx:937
 msgid "You are not authorized to modify the firewall."
 msgstr "방화벽을 수정할 수있는 권한이 없습니다."
 
@@ -8613,15 +8513,11 @@ msgid ""
 "account."
 msgstr "이 계정에 승인된 공개 키를 표시할 수 있는 권한이 없습니다."
 
-#: pkg/docker/storage.jsx:520
-msgid "You don't have permission to manage the Docker storage pool."
-msgstr "Docker 스토리지 풀을 관리할 수 있는 권한이 없습니다."
-
 #: pkg/shell/base_index.js:546
 msgid "You have been logged out due to inactivity."
 msgstr "비활성 상태로 인해 로그 아웃되었습니다."
 
-#: pkg/systemd/logs.js:160
+#: pkg/systemd/logs.js:161
 msgid "You may try to load older entries."
 msgstr "오래된 항목이 로드될 수 있습니다."
 
@@ -8637,7 +8533,7 @@ msgstr "가장 일치하는 운영 체제를 선택해야합니다"
 msgid "You will be logged out in $0 seconds."
 msgstr "$0 초 후에 로그 아웃됩니다."
 
-#: pkg/packagekit/updates.jsx:889
+#: pkg/packagekit/updates.jsx:883
 msgid ""
 "Your browser will disconnect, but this does not affect the update process. "
 "You can reconnect in a few moments to continue watching the progress."
@@ -8645,7 +8541,7 @@ msgstr ""
 "브라우저 연결이 해제되지만 업데이트 프로세스에는 영향을 미치지 않습니다. 다"
 "시 연결 하여 진행 상황을 계속 확인할 수 있습니다."
 
-#: pkg/packagekit/updates.jsx:932
+#: pkg/packagekit/updates.jsx:923
 msgid ""
 "Your server will close the connection soon. You can reconnect after it has "
 "restarted."
@@ -9194,7 +9090,7 @@ msgstr "이름, 네임 스페이스, 설명으로 검색"
 msgid "security"
 msgstr "보안"
 
-#: pkg/docker/index.html:406
+#: pkg/docker/index.html:368
 msgid "select container"
 msgstr "컨테이너 선택"
 
@@ -9218,7 +9114,7 @@ msgstr "서비스"
 msgid "setroubleshoot"
 msgstr "setroubleshoot"
 
-#: pkg/docker/index.html:485 pkg/docker/index.html:657
+#: pkg/docker/index.html:447 pkg/docker/index.html:619
 msgid "shares"
 msgstr "공유"
 
@@ -9250,7 +9146,7 @@ msgstr "종료"
 msgid "socket"
 msgstr "소켓"
 
-#: pkg/selinux/setroubleshoot-view.jsx:123
+#: pkg/selinux/setroubleshoot-view.jsx:121
 msgid "solution details"
 msgstr "솔루션 상세 정보"
 
@@ -9439,6 +9335,95 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json.in
 msgid "zone"
 msgstr "영역"
+
+#~ msgid " (shared with the OS)"
+#~ msgstr " (OS와 공유)"
+
+#~ msgid "$0 Vulnerability"
+#~ msgid_plural "$0 Vulnerabilities"
+#~ msgstr[0] "$0 취약점"
+
+#~ msgid "Add Additional Storage"
+#~ msgstr "스토리지 추가"
+
+#~ msgid "Add Storage"
+#~ msgstr "스토리지 추가"
+
+#~ msgid "Additional Storage"
+#~ msgstr "추가 스토리지"
+
+#~ msgid ""
+#~ "All data on selected disks will be erased and disks will be added to the "
+#~ "storage pool."
+#~ msgstr ""
+#~ "선택된 디스크의 모든 데이터가 삭제되며 디스크는 스토리지 풀에 추가됩니다."
+
+#~ msgid "Configure storage..."
+#~ msgstr "스토리지 설정..."
+
+#~ msgid "Could not add all disks"
+#~ msgstr "모든 디스크를 추가할 수 없습니다"
+
+#~ msgid "Could not reset the storage pool"
+#~ msgstr "스토리지 풀을 재설정할 수 없습니다"
+
+#~ msgid "Erase containers and reset storage pool"
+#~ msgstr "컨테이너 제거 및 스토리지 풀 재설정"
+
+#~ msgid "Hard Disk"
+#~ msgstr "하드 디스크"
+
+#~ msgid "Information about the Docker storage pool is not available."
+#~ msgstr "Docker 스토리지 풀에 관한 정보를 사용할 수 없습니다."
+
+#~ msgid "Local Disks"
+#~ msgstr "로컬 디스크"
+
+#~ msgid "No additional local storage found."
+#~ msgstr "추가 로컬 스토리지를 찾을 수 없습니다."
+
+#~ msgid "Reformat and add disks"
+#~ msgstr "디스크 재포맷 및 디스크 추가"
+
+#~ msgid "Reset Storage Pool"
+#~ msgstr "스토리지 풀 재설정"
+
+#~ msgid ""
+#~ "Resetting the storage pool will erase all containers and release disks in "
+#~ "the pool."
+#~ msgstr ""
+#~ "스토리지 풀을 재설정하면 풀의 모든 컨테이너와 릴리스 디스크가 삭제됩니다."
+
+#~ msgid "Security"
+#~ msgstr "보안"
+
+#~ msgid "Solid-State Disk"
+#~ msgstr "솔리드 스테이트 디스크"
+
+#~ msgid "Storage pool"
+#~ msgstr "스토리지 풀"
+
+#~ msgid "The Docker storage pool cannot be managed on this system."
+#~ msgstr "Docker 스토리지 풀은 이 시스템에서 관리할 수 없습니다."
+
+#~ msgid "The scan from $time ($type) found $count vulnerability:"
+#~ msgid_plural "The scan from $time ($type) found $count vulnerabilities:"
+#~ msgstr[0] "$time ($type) 검사에서 $count 취약점이 발견되었습니다:"
+
+#~ msgid "The scan from $time ($type) found no vulnerabilities."
+#~ msgstr "$time ($type) 검사에서 취약점이 발견되지 않았습니다."
+
+#~ msgid "The scan from $time ($type) was not successful."
+#~ msgstr "$time ($type) 검사에 성공하지 못했습니다."
+
+#~ msgid "Total"
+#~ msgstr "전체"
+
+#~ msgid "Virtualization Service is Available"
+#~ msgstr "가상화 서비스를 사용할 수 있습니다"
+
+#~ msgid "You don't have permission to manage the Docker storage pool."
+#~ msgstr "Docker 스토리지 풀을 관리할 수 있는 권한이 없습니다."
 
 #~ msgid "$0 Zone"
 #~ msgstr "$0 영역"

@@ -1884,16 +1884,6 @@ class TestMachines(MachineCase, StorageHelpers):
                                                             start_vm=False),
                                       {"Source": "Installation Source must not be empty"})
 
-        # Test that removing virt-install executable will disable Create VM button
-        virt_install_bin = self.machine.execute("which virt-install").strip()
-        self.machine.execute('mount -o bind /dev/null {0}'.format(virt_install_bin))
-        self.addCleanup(self.machine.execute, "umount {0}".format(virt_install_bin))
-        self.browser.reload()
-        self.browser.enter_page('/machines')
-        self.browser.wait_visible("#create-new-vm:disabled")
-        # There are many reason why the button would be disabled, so check if it's correct one
-        self.browser.wait_attr("#create-new-vm", "testdata", "disabledVirtInstall")
-
         # TODO: add use cases with start_vm=True and check that vm started
         # - for install when creating vm
         # - for create vm and then install
@@ -1914,6 +1904,21 @@ class TestMachines(MachineCase, StorageHelpers):
         # It suggests configure auditd to dontaudit these messages since selinux can't
         # offer whitelisting this directory for qemu process
         self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied .*for .* comm="qemu-.* dev="proc" .*')
+
+    def testDisabledCreate(self):
+        self.login_and_go("/machines")
+        self.browser.wait_in_text("body", "Virtual Machines")
+        self.browser.wait_visible("#create-new-vm:not(:disabled)")
+
+        virt_install_bin = self.machine.execute("which virt-install").strip()
+        self.machine.execute('mount -o bind /dev/null {0}'.format(virt_install_bin))
+        self.addCleanup(self.machine.execute, "umount {0}".format(virt_install_bin))
+
+        self.browser.reload()
+        self.browser.enter_page('/machines')
+        self.browser.wait_visible("#create-new-vm:disabled")
+        # There are many reasons why the button would be disabled, so check if it's correct one
+        self.browser.wait_attr("#create-new-vm", "testdata", "disabledVirtInstall")
 
     class TestCreateConfig:
         VALID_URL = 'http://mirror.i3d.net/pub/centos/7/os/x86_64/'

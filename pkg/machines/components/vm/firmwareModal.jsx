@@ -59,7 +59,7 @@ export class FirmwareModal extends React.Component {
                 <Modal.Body>
                     <Select.Select
                                    onChange={value => this.setState({ firmware: value })}
-                                   initial={this.props.firmware == 'efi' ? 'UEFI' : 'BIOS' }
+                                   initial={this.props.firmware == 'efi' ? this.props.firmware : 'bios' }
                                    extraClass='form-control'>
                         <Select.SelectEntry data='bios' key='bios'>
                             BIOS

@@ -21,8 +21,24 @@ import subprocess
 from testlib import *
 
 
-class NetworkCase(MachineCase):
+class NetworkHelpers:
+    '''Mix-in class for tests that require network setup'''
 
+    def add_veth(self, name):
+        '''Add a veth device that is manageable with NetworkManager
+
+        This is safe for @nondestructive tests, the interface gets cleaned up automatically.
+        '''
+        self.machine.execute(r"""
+            mkdir -p /run/udev/rules.d/ &&
+            echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="%(name)s", ENV{NM_UNMANAGED}="0"' > /run/udev/rules.d/99-nm-veth-%(name)s-test.rules &&
+            udevadm control --reload &&
+            ip link add name %(name)s type veth
+            """ % {"name": name})
+        self.addCleanup(self.machine.execute, "rm /run/udev/rules.d/99-nm-veth-{0}-test.rules; ip link del dev {0}".format(name))
+
+
+class NetworkCase(MachineCase, NetworkHelpers):
     def setUp(self):
         super().setUp()
 

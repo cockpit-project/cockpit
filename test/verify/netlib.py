@@ -37,6 +37,15 @@ class NetworkHelpers:
             """ % {"name": name})
         self.addCleanup(self.machine.execute, "rm /run/udev/rules.d/99-nm-veth-{0}-test.rules; ip link del dev {0}".format(name))
 
+    def nm_activate_eth(self, iface):
+        '''Create an NM connection for a given interface'''
+
+        m = self.machine
+        wait(lambda: m.execute('nmcli device | grep %s | grep -v unavailable' % iface))
+        m.execute("nmcli con add type ethernet ifname %s con-name %s" % (iface, iface))
+        m.execute("nmcli con up %s ifname %s" % (iface, iface))
+        self.addCleanup(m.execute, "nmcli con delete %s" % iface)
+
 
 class NetworkCase(MachineCase, NetworkHelpers):
     def setUp(self):
@@ -88,10 +97,8 @@ class NetworkCase(MachineCase, NetworkHelpers):
         # Trigger udev to make sure that it has been renamed to its final name
         m.execute("udevadm trigger && udevadm settle")
         iface = self.get_iface(m, mac)
-        wait(lambda: m.execute('nmcli device | grep %s | grep -v unavailable' % iface))
         if activate:
-            m.execute("nmcli con add type ethernet ifname %s con-name %s" % (iface, iface))
-            m.execute("nmcli con up %s ifname %s" % (iface, iface))
+            self.nm_activate_eth(iface)
         return iface
 
     def wait_for_iface(self, iface, active=True, state=None, prefix="10.111."):

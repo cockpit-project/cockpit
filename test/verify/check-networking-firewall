@@ -396,6 +396,11 @@ class TestFirewall(NetworkCase):
         b = self.browser
         m = self.machine
 
+        # create unused interface for adding a new zone
+        # FIXME: Firewall page does not pick this up once it's already open
+        home_iface = "ethome"
+        self.add_veth(home_iface)
+
         def addServiceToZone(service, zone):
             b.click(".zone-section[data-id='{}'] .add-services-button".format(zone))
             b.click("#add-services-dialog .list-view-pf input[data-id='{}']".format(service))
@@ -462,20 +467,13 @@ class TestFirewall(NetworkCase):
 
         # remove predefined work zone
         removeZone("work")
-        # add zone with interface
-        # The public zone in these images are attached to eth1
-        interface = ""
-        if m.image in ["debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-1804", "ubuntu-2004"]:
-            interface = "eth0"
-        # The public zone in these images are attached to both eth0 and eth1
-        else:
-            interface = "eth1"
-        addZone("home", interfaces=[interface])
+        # add zone with previously unused interface
+        addZone("home", interfaces=[home_iface])
         # Interfaces which already belong to an active zone shouldn't show up in
         # the Add Zone dialog anymore
         b.click("#add-zone-button")
         b.wait_present("#add-zone-dialog")
-        b.wait_not_present("#add-zone-body input[value='{}']".format(interface))
+        b.wait_not_present("#add-zone-body input[value='{}']".format(home_iface))
         b.click("#add-zone-dialog .modal-footer button.btn-cancel")
         b.wait_not_present("#add-zone-dialog")
 

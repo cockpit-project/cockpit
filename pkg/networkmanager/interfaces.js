@@ -481,9 +481,8 @@ function NetworkManagerModel() {
                 $.each(ifaces, function(iface, props) {
                     if (props)
                         interface_properties(path, iface, props);
-                    else {
+                    else
                         interface_removed(path, iface);
-                    }
                 });
             });
         });
@@ -3531,12 +3530,12 @@ PageNetworkGeneralSettings.prototype = {
         var options = self.settings.connection;
         var name_input, priority_btn, priority_input, autovpn_btn, autovpn_select;
         var model = PageNetworkGeneralSettings.model;
-        var setts = model.get_settings().Connections;
+        var settings = model.get_settings().Connections;
 
         function vpn_connections_handler() {
-            for (var i in setts) {
-                var iface = setts[i][' priv'].orig.connection;
-                if (iface.type.v == "vpn") {
+            for (var i in settings) {
+                var iface = settings[i][' priv'].orig.connection;
+                if (iface.type.v === "vpn") {
                     if (autovpn_select.find('option[value="' + iface.uuid.v + '"]').length == 0)
                         autovpn_select.append(new Option(iface.id.v, iface.uuid.v));
                 }

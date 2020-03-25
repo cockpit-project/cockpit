@@ -21,22 +21,17 @@ import parent
 from netlib import *
 from testlib import *
 
-from machine_core.constants import TEST_OS_DEFAULT
-
-
+@nondestructive
 class TestNetworking(NetworkCase):
-    provision = {
-        "machine1": {},
-        "machine2": {"image": TEST_OS_DEFAULT, "address": "10.111.113.2/20", "dhcp": True}
-    }
-
     def testBasic(self):
         b = self.browser
         m = self.machine
 
         self.login_and_go("/network")
 
-        iface = self.add_iface()
+        iface = 'cockpit1'
+        self.add_veth(iface, dhcp_cidr="10.111.113.2/20")
+        self.nm_activate_eth(iface)
         self.wait_for_iface(iface)
         b.wait_not_visible("#network-interface")
 
@@ -128,13 +123,6 @@ class TestNetworking(NetworkCase):
 
         self.login_and_go("/network")
         assert_running()
-
-        # Disable NM D-Bus activation; it auto-starts at unpredictable times from background actions,
-        # which makes it impossible/meaningless to write a test; copy the full unit file, Alias= cannot
-        # be reliably disabled with drop-ins
-        m.execute("""systemctl cat NetworkManager.service | sed '/Alias=/d' > /etc/systemd/system/NetworkManager.service
-rm -f --verbose /etc/systemd/system/dbus-org.freedesktop.NetworkManager.service
-systemctl daemon-reload""")
 
         # stop/start NM on CLI, page should notice
         m.execute("systemctl stop NetworkManager")

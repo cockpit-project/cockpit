@@ -183,7 +183,7 @@ function validateParams(vmParams) {
             );
         }
     }
-    if (vmParams.unattendedInstallation && !vmParams.rootPassword && !vmParams.userPassword)
+    if (vmParams.unattendedInstallation && !vmParams.rootPassword && (permission.user.name == 'root' || !vmParams.userPassword))
         validationFailed.password = _("Please set a root or a user password");
 
     return validationFailed;
@@ -445,7 +445,7 @@ const UnattendedRow = ({ validationFailed, unattendedDisabled, unattendedInstall
                         {profile == 'desktop' && <p className="text-info">{_("Leave the password blank if you do not wish to have a root account created")}</p>}
                     </HelpBlock>
                 </FormGroup>
-                {profile == 'desktop' && <>
+                {permission.user.name != 'root' && profile == 'desktop' && <>
                     <label htmlFor='user-password' className='control-label'>
                         {cockpit.format(_("Password for $0"), permission.user.name)}
                     </label>

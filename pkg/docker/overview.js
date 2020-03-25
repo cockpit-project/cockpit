@@ -30,6 +30,7 @@ import { util } from "./util";
 import * as view from "./containers-view.jsx";
 
 import "plot.css";
+import "form-layout.scss";
 
 /* OVERVIEW PAGE
  */

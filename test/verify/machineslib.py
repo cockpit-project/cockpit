@@ -23,6 +23,7 @@ import xml.etree.ElementTree as ET
 
 import parent
 from testlib import *
+from netlib import NetworkHelpers
 from storagelib import StorageHelpers
 
 
@@ -151,7 +152,7 @@ reboot"""
 
 @skipImage("Atomic cannot run virtual machines", "fedora-coreos")
 @nondestructive
-class TestMachines(MachineCase, StorageHelpers):
+class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
     created_pool = False
     provider = None
 
@@ -196,15 +197,6 @@ class TestMachines(MachineCase, StorageHelpers):
         # FIXME: testDomainMemorySettings on Fedora-32 reports this. Figure out where it comes from.
         # Ignoring just to unbreak tests for now
         self.allow_journal_messages("Failed to get COMM: No such process")
-
-    def addIface(self, name):
-        self.machine.execute(r"""
-            mkdir -p /run/udev/rules.d/ &&
-            echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="%(name)s", ENV{NM_UNMANAGED}="0"' > /run/udev/rules.d/99-nm-veth-test.rules &&
-            udevadm control --reload &&
-            ip link add name %(name)s type veth
-            """ % {"name": name})
-        self.addCleanup(self.machine.execute, "rm /run/udev/rules.d/99-nm-veth-test.rules; ip link del dev {0}".format(name))
 
     def startLibvirt(self):
         m = self.machine
@@ -1808,7 +1800,7 @@ class TestMachines(MachineCase, StorageHelpers):
 
         # Add an extra network interface that should appear in the PXE source dropdown
         iface = "eth42"
-        self.addIface(iface)
+        self.add_veth(iface)
 
         # We don't handle events for networks yet, so reload the page to refresh the state
         self.browser.reload()

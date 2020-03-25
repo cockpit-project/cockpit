@@ -24,7 +24,7 @@ from testlib import *
 class NetworkHelpers:
     '''Mix-in class for tests that require network setup'''
 
-    def add_veth(self, name):
+    def add_veth(self, name, dhcp_cidr=None, dhcp_range=['10.111.112.2', '10.111.127.254']):
         '''Add a veth device that is manageable with NetworkManager
 
         This is safe for @nondestructive tests, the interface gets cleaned up automatically.
@@ -33,9 +33,18 @@ class NetworkHelpers:
             mkdir -p /run/udev/rules.d/ &&
             echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="%(name)s", ENV{NM_UNMANAGED}="0"' > /run/udev/rules.d/99-nm-veth-%(name)s-test.rules &&
             udevadm control --reload &&
-            ip link add name %(name)s type veth
+            ip link add name %(name)s type veth peer name v_%(name)s
             """ % {"name": name})
         self.addCleanup(self.machine.execute, "rm /run/udev/rules.d/99-nm-veth-{0}-test.rules; ip link del dev {0}".format(name))
+        if dhcp_cidr:
+            # up the router end, give it an IP, and start DHCP server
+            self.machine.execute("ip a add {0} dev v_{1} && ip link set v_{1} up".format(dhcp_cidr, name))
+            server = self.machine.spawn("dnsmasq --keep-in-foreground --log-queries --log-facility=- "
+                                        "--conf-file=/dev/null --dhcp-leasefile=/tmp/leases.{0} "
+                                        "--bind-interfaces --interface=v_{0} --dhcp-range={1},{2},4h".format(name, dhcp_range[0], dhcp_range[1]),
+                                        "dhcp.log")
+            self.addCleanup(self.machine.execute, "kill %i" % server)
+            self.machine.execute("if firewall-cmd --state >/dev/null 3>&1; then firewall-cmd --add-service=dhcp; fi")
 
     def nm_activate_eth(self, iface):
         '''Create an NM connection for a given interface'''

@@ -272,6 +272,9 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # Increase the iSCSI timeouts for heavy load during our testing
         self.sed_file(r"s|^\(node\..*log.*_timeout = \).*|\1 60|", "/etc/iscsi/iscsid.conf")
 
+        # make sure this gets cleaned up, to avoid reboot hangs (https://bugzilla.redhat.com/show_bug.cgi?id=1817241)
+        self.restore_dir("/var/lib/iscsi")
+
         # Setup a iSCSI target
         m.execute("""
                   targetcli /backstores/ramdisk create test 50M

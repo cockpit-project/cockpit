@@ -653,7 +653,12 @@ class TestUpdatesSubscriptions(PackageCase):
         # this fails with "Unable to find available subscriptions for all your installed products", but works anyway
         self.machine.execute(
             "LC_ALL=en_US.UTF-8 subscription-manager register --insecure --serverurl https://10.111.112.100:8443/candlepin --org=admin --activationkey=awesome_os_pool || true")
-        self.machine.execute("LC_ALL=en_US.UTF-8 subscription-manager attach --auto")
+        # HACK: regressed in 7.9: https://bugzilla.redhat.com/show_bug.cgi?id=1816926
+        self.machine.execute("LC_ALL=en_US.UTF-8 subscription-manager attach --auto || true")
+        # Make sure that subscription worked
+        self.assertEqual(
+            self.machine.execute("busctl call com.redhat.SubscriptionManager /EntitlementStatus com.redhat.SubscriptionManager.EntitlementStatus check_status").strip(),
+            "i 0")
 
     def setUp(self):
         PackageCase.setUp(self)

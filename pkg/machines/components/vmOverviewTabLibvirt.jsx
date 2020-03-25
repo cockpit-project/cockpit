@@ -195,7 +195,7 @@ class VmOverviewTabLibvirt extends React.Component {
             const hasInstallPhase = vm.metadata.hasInstallPhase;
             const labelForFirmware = labelForFirmwarePath(vm.loader, vm.arch);
             let currentFirmware;
-            if (vm.firmware || labelForFirmware == "efi")
+            if (vm.firmware == "efi" || labelForFirmware == "efi")
                 currentFirmware = "UEFI";
             else if (labelForFirmware == "custom")
                 currentFirmware = cockpit.format(_("Custom firmware: $0"), vm.loader);

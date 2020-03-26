@@ -1237,6 +1237,11 @@ class MachineCase(unittest.TestCase):
         if not self.is_nondestructive():
             return  # skip for efficiency reasons
 
+        exists = self.machine.execute("if test -e %s; then echo yes; fi" % path).strip() != ""
+        if not exists:
+            self.addCleanup(self.machine.execute, "rm -rf {0}".format(path))
+            return
+
         backup = os.path.join(self.vm_tmpdir, path.replace('/', '_'))
         self.machine.execute("mkdir -p %(vm_tmpdir)s && cp -a %(path)s/ %(backup)s/" % {
             "vm_tmpdir": self.vm_tmpdir, "path": path, "backup": backup})

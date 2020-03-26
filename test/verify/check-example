@@ -61,6 +61,15 @@ class TestNondestructiveExample(MachineCase):
         # nonexisting file
         self.restore_file("/var/lib/cockpittest.txt")
         self.machine.execute("echo data > /var/lib/cockpittest.txt")
+
+        # existing dir
+        self.machine.execute("mkdir -p /var/lib/cockpittestdir && echo hello > /var/lib/cockpittestdir/original")
+        self.restore_dir("/var/lib/cockpittestdir")
+        self.machine.execute("rm /var/lib/cockpittestdir/original && echo pwned > /var/lib/cockpittestdir/new")
+        # nonexisting dir
+        self.restore_dir("/var/lib/cockpittestnew")
+        self.machine.execute("mkdir -p /var/lib/cockpittestnew && echo hello > /var/lib/cockpittestnew/cruft")
+
         # NSS is backed up by default
         self.machine.execute("useradd cockpittest")
         # marker that VM stays running in between tests
@@ -72,9 +81,17 @@ class TestNondestructiveExample(MachineCase):
         self.assertEqual("original", self.machine.execute("cat /etc/someconfig").strip())
         # testOne correctly cleaned up nonexisting file
         self.machine.execute("test ! -e /var/lib/cockpittest.txt")
+
+        # testOne correctly restored existing dir
+        self.assertEqual("original", self.machine.execute("ls /var/lib/cockpittestdir").strip())
+        self.assertEqual("hello\n", self.machine.execute("cat /var/lib/cockpittestdir/original"))
+        # testOne correctly removed nonexisting dir
+        self.machine.execute("test ! -e /var/lib/cockpittestnew")
+
         # NSS/home got restored
         self.assertNotIn("cockpittest", self.machine.execute("cat /etc/passwd"))
         self.machine.execute("test ! -e /home/cockpittest")
+
         # machine was not reset after testOne
         self.machine.execute("[ -f /root/the_file ] || exit 1")
 

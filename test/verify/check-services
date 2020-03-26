@@ -72,7 +72,16 @@ class TestServices(MachineCase):
             return 'li[data-goto-unit="%s"]' % service
 
     def wait_service_state(self, service, state):
-        b.wait_in_text(self.svc_sel(service), state)
+        state_new = state
+        if self.machine.image != "rhel-8-2-distropkg":
+            if 'inactive' in state:
+                state_new  = 'Not running'
+            elif 'active' in state:
+                state_new = 'Running'
+            elif 'failed' in state:
+                state_new = 'Failed to'
+
+        self.browser.wait_in_text(self.svc_sel(service), state_new)
 
     def wait_page_load(self):
         if self.machine.image == "rhel-8-2-distropkg":

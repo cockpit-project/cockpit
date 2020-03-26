@@ -54,10 +54,28 @@ class TestNondestructiveExample(MachineCase):
 
     def testOne(self):
         self.assertEqual(self.machine.execute("whoami").strip(), "root")
+        # existing file
+        self.machine.execute("echo original > /etc/someconfig")
+        self.restore_file("/etc/someconfig")
+        self.machine.execute("echo changed > /etc/someconfig")
+        # nonexisting file
+        self.restore_file("/var/lib/cockpittest.txt")
+        self.machine.execute("echo data > /var/lib/cockpittest.txt")
+        # NSS is backed up by default
+        self.machine.execute("useradd cockpittest")
+        # marker that VM stays running in between tests
         self.machine.execute("touch /root/the_file")
 
     def testTwo(self):
         self.assertIn("usr", self.machine.execute("ls -l /").strip())
+        # testOne correctly restored existing file
+        self.assertEqual("original", self.machine.execute("cat /etc/someconfig").strip())
+        # testOne correctly cleaned up nonexisting file
+        self.machine.execute("test ! -e /var/lib/cockpittest.txt")
+        # NSS/home got restored
+        self.assertNotIn("cockpittest", self.machine.execute("cat /etc/passwd"))
+        self.machine.execute("test ! -e /home/cockpittest")
+        # machine was not reset after testOne
         self.machine.execute("[ -f /root/the_file ] || exit 1")
 
 

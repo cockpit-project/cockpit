@@ -427,31 +427,21 @@ class ServicesPage extends React.Component {
     /* Add some computed properties into a unit object - does not call setState */
     updateComputedProperties(unit) {
         let load_state = unit.LoadState;
-        let active_state = unit.ActiveState;
-        let sub_state = unit.SubState;
+        const active_state = unit.ActiveState;
 
         if (load_state == "loaded")
             load_state = "";
 
         unit.HasFailed = (active_state == "failed" || (load_state !== "" && load_state != "masked"));
 
-        load_state = _(load_state);
-        active_state = _(active_state);
-        sub_state = _(sub_state);
+        if (active_state === "active" || active_state === "activating")
+            unit.CombinedState = _("Running");
+        else if (active_state == "failed")
+            unit.CombinedState = _("Failed to start");
+        else
+            unit.CombinedState = _("Not running");
 
-        if (sub_state !== "" && sub_state != active_state)
-            active_state = active_state + " (" + sub_state + ")";
-
-        if (load_state !== "")
-            active_state = load_state + " / " + active_state;
-
-        if (active_state == _("failed"))
-            active_state = _("Failed to start");
-
-        unit.CombinedState = active_state;
-        unit.AutomaticStartup = _("Static");
-        unit.AutomaticStartupKey = 'static';
-
+        unit.AutomaticStartup = "";
         if (unit.UnitFileState && unit.UnitFileState.indexOf('enabled') == 0) {
             unit.AutomaticStartup = _("Enabled");
             unit.AutomaticStartupKey = 'enabled';
@@ -466,7 +456,7 @@ class ServicesPage extends React.Component {
         }
 
         if (load_state !== "" && load_state != "masked")
-            unit.AutomaticStartup = unit.AutomaticStartup ? _(load_state) + " / " + unit.AutomaticStartup : _(load_state);
+            unit.CombinedState = cockpit.format("$0 ($1)", unit.CombinedState, _(load_state));
 
         unit.shortId = unit.Id;
         // Remove ".service" from services as this is not necessary

@@ -112,7 +112,6 @@ virt-install \
     --quiet \
     --wait -1 \
     --noautoconsole \
-    --noreboot \
     --check path_in_use=off \
     $MEMORY_PARAM \
     $DISKS_PARAM \

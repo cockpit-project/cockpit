@@ -22,33 +22,13 @@ import { Card, CardHeader, CardBody, CardFooter } from '@patternfly/react-core';
 
 import cockpit from "cockpit";
 import { PageStatusNotifications } from "../page-status.jsx";
-import * as service from "service.js";
+import { InsightsStatus } from "./insights.jsx";
 
 import "./healthCard.scss";
 
 const _ = cockpit.gettext;
 
 export class HealthCard extends React.Component {
-    constructor() {
-        super();
-        this.state = { insightsLinkVisible: false };
-        this.refresh_insights_status = this.refresh_insights_status.bind(this);
-    }
-
-    componentDidMount() {
-        this.insights_client_timer = service.proxy("insights-client.timer");
-        this.insights_client_timer.addEventListener("changed", this.refresh_insights_status);
-        this.refresh_insights_status();
-    }
-
-    refresh_insights_status() {
-        const subfeats = (cockpit.manifests.subscriptions && cockpit.manifests.subscriptions.features) || { };
-        if (subfeats.insights && this.insights_client_timer.exists && !this.insights_client_timer.enabled)
-            this.setState({ insightsLinkVisible: true });
-        else
-            this.setState({ insightsLinkVisible: false });
-    }
-
     render() {
         return (
             <Card className="system-health">
@@ -56,12 +36,7 @@ export class HealthCard extends React.Component {
                 <CardBody>
                     <ul className="system-health-events">
                         <PageStatusNotifications />
-                        {this.state.insightsLinkVisible && <li className="system-health-insights">
-                            <span className="fa fa-exclamation-triangle" />
-                            { cockpit.manifests.subscriptions
-                                ? <a id="insights_text" tabIndex='0' role="button" onClick={() => cockpit.jump("/subscriptions")}>{_("Not connected to Insights")}</a>
-                                : <span id="insights_text">{_("Not connected to Insights")}</span>}
-                        </li>}
+                        <InsightsStatus />
                     </ul>
                 </CardBody>
                 <CardFooter />

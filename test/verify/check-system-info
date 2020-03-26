@@ -635,20 +635,37 @@ fi
         self.allow_restart_journal_messages()
 
     @allowImage("insights-client only on RHEL", "rhel-7-8", "rhel-8-2")
-    def testInsightsWarning(self):
+    def testInsightsStatus(self):
         m = self.machine
         b = self.browser
 
         # Pretend that the Subscriptions page can do Insights stuff
         m.write("/usr/share/cockpit/subscription-manager/override.json", '{ "features": { "insights": true } }')
 
+        # Run a mock version of the Insights API locally and configure
+        # insights-client to access it.
+
+        m.upload(["verify/files/mock-insights"], "/var/tmp")
+        m.spawn("/var/tmp/mock-insights", "mock-insights")
+        m.write("/etc/insights-client/insights-client.conf",
+"""
+[insights-client]
+gpg=False
+auto_config=False
+base_url=127.0.0.1:8888/r/insights
+username=admin
+password=foobar
+insecure_connection=True
+""")
+
+        # Initially we are not registered
         self.login_and_go('/system')
+        b.wait_text(".system-health-insights a", "Not connected to Insights")
 
-        m.execute("systemctl disable insights-client.timer")
-        b.wait_text("#insights_text", "Not connected to Insights")
-
-        m.execute("systemctl enable insights-client.timer")
-        b.wait_not_present("#insights_text")
+        # Enable insights, results should appear automatically
+        m.execute("insights-client --register")
+        b.wait_in_text(".system-health-insights a", "3 hits, including important")
+        self.assertIn("123-nice-id", b.attr(".system-health-insights a", "href"))
 
 class TestPcp(packagelib.PackageCase):
 

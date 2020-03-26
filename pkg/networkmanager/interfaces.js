@@ -1561,7 +1561,7 @@ function render_active_connection(dev, with_link, hide_link_local) {
         });
     }
 
-    return $('<span>').text(parts.join(", "));
+    return `<span> ${parts.join(", ")} </span>`;
 }
 
 function network_plot_setup_hook(pl) {
@@ -2854,27 +2854,29 @@ PageNetworkInterface.prototype = {
 
         function render_interface_section_separator(title) {
             return `<tr>
-                        <td class="network-interface-separator" colspan="100%">${title}</td>
+                        <td class="network-interface-separator">${title}</td>
                     </tr>`;
         }
 
         function render_carrier_status_row() {
             if (dev && dev.Carrier !== undefined) {
-                return $('<tr>').append(
-                    $('<td>').text(_("Carrier")),
-                    $('<td>').append(
-                        dev.Carrier
-                            ? (dev.Speed ? cockpit.format_bits_per_sec(dev.Speed * 1e6) : _("Yes"))
-                            : _("No")));
+                return `<tr>
+                            <td>
+                                ${_("Carrier")}
+                            </td>
+                            <td>
+                                ${dev.Carrier ? (dev.Speed ? cockpit.format_bits_per_sec(dev.Speed * 1e6) : _("Yes")) : _("No")}
+                            </td>
+                        </tr>`;
             } else
-                return null;
+                return "";
         }
 
         function render_active_status_row() {
             var state;
 
             if (self.main_connection && self.main_connection.Masters.length > 0)
-                return null;
+                return "";
 
             if (!dev)
                 state = _("Inactive");
@@ -2883,12 +2885,10 @@ PageNetworkInterface.prototype = {
             else
                 state = null;
 
-            return $('<tr>').append(
-                $('<td>').text(_("Status")),
-                $('<td>').append(
-                    render_active_connection(dev, true, false),
-                    " ",
-                    state ? $('<span>').text(state) : null));
+            return `<tr>
+                        <td>${_("Status")}</td>
+                        <td> ${render_active_connection(dev, true, false)} ${state ? '<span>' + state + '</span>' : ""}</td>
+                    </tr>`;
         }
 
         function render_general_information_rows() {
@@ -3282,11 +3282,28 @@ PageNetworkInterface.prototype = {
             }
         }
 
+        var isettings = document.getElementById('network-interface-settings');
+
+        while (isettings.firstChild) {
+            isettings.removeChild(isettings.firstChild);
+        }
+
+        const information_rows = render_general_information_rows();
+
+        for (var i in information_rows) {
+            isettings.insertRow(isettings.rows.length).innerHTML = information_rows[i];
+        }
+
         $('#network-interface-settings')
                 .empty()
                 .append(render_general_information_rows())
                 .append(render_connection_settings_rows(self.main_connection, self.connection_settings));
         update_network_privileged();
+
+        var separators = document.querySelectorAll('.network-interface-separator');
+        for (var j = 0; j < separators.length; j++) {
+            separators[j].setAttribute("colspan", "100%");
+        }
 
         function update_connection_slaves(con) {
             var tbody = $('#network-interface-slaves tbody');

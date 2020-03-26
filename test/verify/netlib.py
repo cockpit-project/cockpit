@@ -41,7 +41,7 @@ class NetworkHelpers:
         '''Create an NM connection for a given interface'''
 
         m = self.machine
-        wait(lambda: m.execute('nmcli device | grep %s | grep -v unavailable' % iface))
+        wait(lambda: m.execute('nmcli device | grep "%s.*disconnected"' % iface))
         m.execute("nmcli con add type ethernet ifname %s con-name %s" % (iface, iface))
         m.execute("nmcli con up %s ifname %s" % (iface, iface))
         self.addCleanup(m.execute, "nmcli con delete %s" % iface)

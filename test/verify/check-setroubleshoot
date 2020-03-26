@@ -75,8 +75,20 @@ class TestSelinux(MachineCase):
 
         self.login_and_go("/selinux/setroubleshoot")
 
-        # at the beginning, there should be no entries
-        b.wait_in_text("body", "No SELinux alerts.")
+        if self.machine.image == "rhel-8-2-distropkg":
+            dismiss_sel = "button.pficon-delete"
+        else:
+            dismiss_sel = "#selinux-alert-dismiss"
+
+        # there are some distros with broken SELinux policies which always appear; so first, clean these up
+        while True:
+            # we either have no alerts, or an expand button in the table
+            b.wait_js_cond("ph_in_text('body', 'No SELinux alerts.') || ph_is_present('tbody .listing-ct-toggle')")
+            if "No SELinux alerts." in b.text('body'):
+                break
+            b.click('tbody:first-of-type .listing-ct-toggle')
+            b.click(dismiss_sel)
+            b.wait_not_present(dismiss_sel)
 
         # fix audit events first
         self.machine.execute(script=FIX_AUDITD)
@@ -118,10 +130,7 @@ class TestSelinux(MachineCase):
         # now expand again so we can dismiss the alert
         b.click(toggle_selector)
 
-        if self.machine.image == "rhel-8-2-distropkg":
-            b.wait_present(row_selector + " button.pficon-delete")
-        else:
-            b.wait_present(row_selector + " #selinux-alert-dismiss")
+        b.wait_present(row_selector + " " + dismiss_sel)
 
         # HACK: we need updated test images for delete to work
         # dismiss the alert

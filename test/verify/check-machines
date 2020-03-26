@@ -2308,6 +2308,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             # unfinished install script runs indefinitelly, so we need to force it off
             b.click("#vm-{0}-off-caret".format(name))
             b.click("#vm-{0}-forceOff".format(name))
+            # https://bugzilla.redhat.com/show_bug.cgi?id=1818089
+            # After shutting it off virt-install will restart the domain and exit because of the above bug
             b.wait_in_text("#vm-{0}-state".format(name), "shut off")
 
             return self
@@ -2721,6 +2723,13 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # Wait for virt-install to define the VM and then stop it - otherwise we get 'domain is ready being removed' error
         wait(lambda: "VmNotInstalled" in m.execute("virsh list --persistent"), delay=3)
         b.wait_present("li.active #vm-VmNotInstalled-consoles")
+        b.click("#vm-VmNotInstalled-off-caret")
+        b.click("#vm-VmNotInstalled-forceOff")
+        # https://bugzilla.redhat.com/show_bug.cgi?id=1818089
+        # After shutting it off virt-install will restart the domain and exit because of the above bug
+        # We need to wait till it's restarted and shut if off again in order to edit the offline VM configuration
+        logfile = "/var/log/libvirt/qemu/VmNotInstalled.log"
+        wait(lambda: self.machine.execute("cat {0}".format(logfile)).count('starting up libvirt') == 2, delay=3)
         b.click("#vm-VmNotInstalled-off-caret")
         b.click("#vm-VmNotInstalled-forceOff")
         b.wait_in_text("#vm-VmNotInstalled-state", "shut off")

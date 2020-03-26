@@ -63,9 +63,9 @@ class TestNondestructiveExample(MachineCase):
         self.machine.execute("echo data > /var/lib/cockpittest.txt")
 
         # existing dir
-        self.machine.execute("mkdir -p /var/lib/cockpittestdir && echo hello > /var/lib/cockpittestdir/original")
-        self.restore_dir("/var/lib/cockpittestdir")
-        self.machine.execute("rm /var/lib/cockpittestdir/original && echo pwned > /var/lib/cockpittestdir/new")
+        self.machine.execute("mkdir -p /var/lib/existing_dir && echo hello > /var/lib/existing_dir/original")
+        self.restore_dir("/var/lib/existing_dir")
+        self.machine.execute("rm /var/lib/existing_dir/original && echo pwned > /var/lib/existing_dir/new")
         # nonexisting dir
         self.restore_dir("/var/lib/cockpittestnew")
         self.machine.execute("mkdir -p /var/lib/cockpittestnew && echo hello > /var/lib/cockpittestnew/cruft")
@@ -79,12 +79,14 @@ class TestNondestructiveExample(MachineCase):
         self.assertIn("usr", self.machine.execute("ls -l /").strip())
         # testOne correctly restored existing file
         self.assertEqual("original", self.machine.execute("cat /etc/someconfig").strip())
+        self.machine.execute("rm /etc/someconfig")
         # testOne correctly cleaned up nonexisting file
         self.machine.execute("test ! -e /var/lib/cockpittest.txt")
 
         # testOne correctly restored existing dir
-        self.assertEqual("original", self.machine.execute("ls /var/lib/cockpittestdir").strip())
-        self.assertEqual("hello\n", self.machine.execute("cat /var/lib/cockpittestdir/original"))
+        self.assertEqual("original", self.machine.execute("ls /var/lib/existing_dir").strip())
+        self.assertEqual("hello\n", self.machine.execute("cat /var/lib/existing_dir/original"))
+        self.machine.execute("rm -r /var/lib/existing_dir")
         # testOne correctly removed nonexisting dir
         self.machine.execute("test ! -e /var/lib/cockpittestnew")
 

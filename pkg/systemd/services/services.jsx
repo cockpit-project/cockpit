@@ -133,7 +133,7 @@ class ServicesPage extends React.Component {
         super(props);
         this.state = {
             /* State related to the toolbar/tabs components */
-            activeTab: ".service$",
+            activeTab: 'service',
             stateDropdownIsExpanded: false,
             currentTypeFilter: null,
             currentTextFilter: '',
@@ -166,7 +166,7 @@ class ServicesPage extends React.Component {
         this.operationInProgress = {};
 
         this.getLoadingInProgress = this.getLoadingInProgress.bind(this);
-        this.on_navigate = () => { this.setState({ path: cockpit.location.path }) };
+        this.on_navigate = this.on_navigate.bind(this);
     }
 
     componentDidMount() {
@@ -175,6 +175,7 @@ class ServicesPage extends React.Component {
         this.onPermissionChanged();
 
         cockpit.addEventListener("locationchanged", this.on_navigate);
+        this.on_navigate();
 
         /* Prepare the "Create Timer" dialog - TODO: this needs to be rewritten in React */
         timerDialogSetup();
@@ -261,6 +262,13 @@ class ServicesPage extends React.Component {
 
     getLoadingInProgress() {
         return this.state.loadingUnits || (this.seenPaths.size == 0 || this.seenPaths.size > Object.keys(this.state.unit_by_path).length);
+    }
+
+    on_navigate() {
+        const newState = { path: cockpit.location.path };
+        if (cockpit.location.options && cockpit.location.options.type)
+            newState.activeTab = cockpit.location.options.type;
+        this.setState(newState);
     }
 
     /**
@@ -615,7 +623,7 @@ class ServicesPage extends React.Component {
         const units = Object.keys(unit_by_path)
                 .map(path => unit_by_path[path])
                 .filter(unit => {
-                    if (!(unit.Id && activeTab && unit.Id.match(activeTab)))
+                    if (!(unit.Id && activeTab && unit.Id.match(cockpit.format(".$0$", activeTab))))
                         return false;
 
                     if (unit.LoadState == "not-found")
@@ -656,7 +664,7 @@ class ServicesPage extends React.Component {
                     </Select.StatelessSelect>
                 </DataToolbarItem>
             </DataToolbarGroup>
-            {activeTab == ".timer$" &&
+            {activeTab == "timer" &&
             <>
                 <DataToolbarItem variant="separator" />
                 <DataToolbarItem>
@@ -677,7 +685,9 @@ class ServicesPage extends React.Component {
                 <PageSection variant={PageSectionVariants.light} type='nav'>
                     <ServiceTabs activeTab={activeTab}
                                  tabWarnings={this.state.tabWarnings}
-                                 onChange={activeTab => this.setState({ activeTab })} />
+                                 onChange={activeTab => {
+                                     cockpit.location.go([], Object.assign(cockpit.location.options, { type: activeTab }));
+                                 }} />
                 </PageSection>
                 <PageSection>
                     <Card isCompact>

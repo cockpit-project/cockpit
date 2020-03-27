@@ -48,9 +48,9 @@ export function ServiceTabs({ onChange, activeTab, tabWarnings }) {
             <NavList variant={NavVariants.tertiary} className="ct-m-nav__tertiary-wrap ct-m-nav__tertiary-center">
                 {Object.keys(service_tabs_suffixes).map(key => {
                     return (
-                        <NavItem itemId={cockpit.format(".$0$", key)}
+                        <NavItem itemId={key}
                                  key={key}
-                                 isActive={activeItem == cockpit.format(".$0$", key)}>
+                                 isActive={activeItem == key}>
                             <a>
                                 {service_tabs_suffixes[key]}
                                 {tabWarnings[key] ? <span className="fa fa-exclamation-triangle" /> : null}

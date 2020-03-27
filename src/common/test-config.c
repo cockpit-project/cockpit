@@ -27,7 +27,6 @@
 
 /* Mock override cockpitconf.c */
 extern const gchar *cockpit_config_file;
-extern const gchar *cockpit_config_dirs[];
 
 static void
 test_get_strings (void)
@@ -134,11 +133,11 @@ test_get_strvs (void)
 static void
 test_load_dir (void)
 {
-  cockpit_config_dirs[0] = SRCDIR "/src/ws/mock-config";
+  g_setenv("XDG_CONFIG_DIRS", "/does-not-exist:" SRCDIR "/src/ws/mock-config", 1);
   cockpit_config_file = "cockpit.conf";
 
   g_assert_cmpstr (cockpit_conf_string ("Section2", "value1"), ==, "string");
-  g_assert_cmpstr (cockpit_conf_get_dirs ()[0], ==, SRCDIR "/src/ws/mock-config");
+  g_assert_cmpstr (cockpit_conf_get_dirs ()[1], ==, SRCDIR "/src/ws/mock-config");
   cockpit_conf_cleanup ();
 }
 

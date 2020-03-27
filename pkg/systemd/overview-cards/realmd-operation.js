@@ -383,6 +383,12 @@ function instance(realmd, mode, realm, state) {
         if (cockpit.transport.host !== "localhost")
             return cockpit.resolve();
 
+        const server_sw = find_detail(realm, "server-software");
+        if (server_sw !== "ipa") {
+            console.log("installing ws credentials not supported for server software", server_sw);
+            return cockpit.resolve();
+        }
+
         if (auth !== "password/administrator") {
             console.log("Installing kerberos keytab and SSL certificate not supported for auth mode", auth);
             return cockpit.resolve();

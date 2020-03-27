@@ -261,6 +261,23 @@ class TestRealms(MachineCase):
             b.wait_text_not(".realms-op-message", "")
             error = b.text(".realms-op-message")
             b.wait_not_visible(".realms-op-leave-only-row")
+            if not "Already running another action" in error:
+                # More link is part of the message component, so this looks a little funny here
+                # also, older releases have a less useful error message
+                if m.image in ["ubuntu-1804", "debian-stable"]:
+                    self.assertEqual(error, "Running ipa-client-install failed More")
+                else:
+                    self.assertEqual(error, "Password is incorrect More")
+                # "More" should be visible, and diagnostics not shown by default
+                b.wait_not_visible(".realms-op-diagnostics")
+                b.click(".realms-op-more-diagnostics")
+                # that hides the initial message and the More link
+                b.wait_not_visible(".realms-op-message")
+                b.wait_not_visible(".realms-op-more-diagnostics")
+                # and shows the raw log; fixed in PR #13802
+                if m.image not in ["rhel-8-2-distropkg"]:
+                    b.wait_visible(".realms-op-diagnostics")
+                    b.wait_in_text(".realms-op-diagnostics", "ipa-client-install command failed")
             b.click(".realms-op-cancel")
             b.wait_popdown("realms-op")
             if not "Already running another action" in error:

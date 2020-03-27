@@ -33,8 +33,7 @@ function instance(realmd, mode, realm, state) {
     var kerberos_membership = null;
     var kerberos = null;
 
-    // Hidden attribute does not work because .pf-c-class has diplay: grid
-    $(".realms-op-error").hide();
+    $(".realms-op-error").prop("hidden", true);
 
     /* If in an operation first time cancel is clicked, cancel operation */
     $(".realms-op-cancel").on("click", function() {
@@ -56,8 +55,8 @@ function instance(realmd, mode, realm, state) {
             });
 
     $(dialog).on("click", ".realms-op-more-diagnostics", function() {
-        $(".realms-op-error").hide();
-        $(".realms-op-diagnostics").show();
+        $(".realms-op-error").prop("hidden", true);
+        $(".realms-op-diagnostics").prop("hidden", false);
     });
 
     var timeout = null;
@@ -474,7 +473,7 @@ function instance(realmd, mode, realm, state) {
         var id = "cockpit-" + unique;
         unique += 1;
         busy(id);
-        $(".realms-op-error").hide();
+        $(".realms-op-error").prop("hidden", true);
 
         ensure()
                 .fail(function() {
@@ -485,7 +484,7 @@ function instance(realmd, mode, realm, state) {
 
                     $(".realms-op-message").empty();
                     $(".realms-op-diagnostics").empty()
-                            .hide();
+                            .prop("hidden", true);
 
                     var diagnostics = "";
                     var sub = realmd.subscribe({ member: "Diagnostics" }, function(path, iface, signal, args) {
@@ -505,7 +504,7 @@ function instance(realmd, mode, realm, state) {
                             busy(null);
                             $(".realms-op-message").empty()
                                     .text(_("Joining this domain is not supported"));
-                            $(".realms-op-error").show();
+                            $(".realms-op-error").prop("hidden", false);
                         }
                     } else if (mode == 'leave') {
                         call = cleanup_ws_credentials().then(function() { realm.Deconfigure(options) });
@@ -525,7 +524,7 @@ function instance(realmd, mode, realm, state) {
                                     console.log("Failed to " + mode + " domain: " + realm.Name + ": " + ex);
                                     $(".realms-op-message").empty()
                                             .text(ex + " ");
-                                    $(".realms-op-error").show();
+                                    $(".realms-op-error").prop("hidden", false);
                                     if (diagnostics) {
                                         $(".realms-op-message")
                                                 .append('<a tabindex="0" class="realms-op-more-diagnostics">' + _("More") + '</a>');

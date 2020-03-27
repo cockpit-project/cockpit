@@ -235,6 +235,7 @@ var html = require('html-webpack-plugin');
 var miniCssExtractPlugin = require('mini-css-extract-plugin');
 var path = require("path");
 var fs = require("fs");
+const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 
 /* These can be overridden, typically from the Makefile.am */
 var srcdir = process.env.SRCDIR || __dirname;
@@ -313,6 +314,7 @@ var plugins = [
     new copy(info.files),
     new miniCssExtractPlugin("[name].css"),
     new CleanUpStatsPlugin(),
+    new OptimizeCSSAssetsPlugin({cssProcessorOptions: {map: {inline: false} } }),
 ];
 
 var output = {

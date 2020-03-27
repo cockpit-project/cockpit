@@ -1203,6 +1203,11 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self.assertEqual(b.attr("#dynamically-generated-file", "href"),
                          u"data:application/x-virt-viewer,%5Bvirt-viewer%5D%0Atype%3Dspice%0Ahost%3D127.0.0.1%0Aport%3D5900%0Adelete-this-file%3D1%0Afullscreen%3D0%0A")
 
+        # Check "More Information"
+        b.click('.machines-desktop-viewer-block .link-button')
+        b.wait_in_text('.machines-desktop-more-info-container',
+                       'Clicking "Launch Remote Viewer" will download')
+
     def testInlineConsole(self, urlroot=""):
         b = self.browser
 

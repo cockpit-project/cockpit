@@ -147,7 +147,8 @@ class MachinesStoragePoolTestSuite(MachinesLib):
             self.click(self.wait_css('#{}-name'.format(pool_name), cond=clickable))
             self.click(self.wait_css('#delete-{}'.format(pool_name), cond=clickable))
             self.click(self.wait_css('.modal-dialog button.pf-m-danger', cond=clickable))
-            self.wait_css('#{}-name', cond=invisible)
+            self.wait_dialog_disappear()
+            self.wait_css('#{}-name'.format(pool_name), cond=invisible)
 
         pdd.clear()
 

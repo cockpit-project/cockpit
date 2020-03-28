@@ -199,12 +199,7 @@ class MachinesLib(SeleniumTest):
                     'sudo virsh pool-destroy {} && sudo virsh pool-undefine {}'.format(item[1], item[1]))
 
     def wait_dialog_disappear(self):
-        # loop for the dialog disappear and it will break after trying with 40 times
-        count = 0
-        while self.wait_css('#app').get_attribute('aria-hidden'):
-            count += 1
-            if count == self.default_try:
-                break
+        self.wait_css('.modal-dialog', cond=invisible)
 
     def create_vm_by_ui(self,
                         connection='system',

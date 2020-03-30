@@ -54,7 +54,7 @@ class SELinuxEventDetails extends React.Component {
         e.preventDefault();
     }
 
-    runFix(itmIdx) {
+    runFix(itmIdx, runCommand) {
         // make sure the details for the solution are collapsed, or they can hide the progress and result
         var solutionExpanded = this.state.solutionExpanded;
         if (solutionExpanded[itmIdx]) {
@@ -63,7 +63,7 @@ class SELinuxEventDetails extends React.Component {
         }
         var localId = this.props.details.localId;
         var analysisId = this.props.details.pluginAnalysis[itmIdx].analysisId;
-        this.props.runFix(localId, analysisId);
+        this.props.runFix(localId, analysisId, runCommand);
     }
 
     render() {
@@ -78,8 +78,18 @@ class SELinuxEventDetails extends React.Component {
         var self = this;
         var fixEntries = this.props.details.pluginAnalysis.map(function(itm, itmIdx) {
             var fixit = null;
+            var fixit_command = null;
             var msg = null;
-            if (itm.fixable) {
+
+            /* some plugins like catchall_sebool don't report fixable as they offer multiple solutions;
+             * we can offer to run a single setsebool command for convenience */
+            var fixable = itm.fixable;
+            if (!fixable && itm.doText && itm.doText.startsWith("setsebool") && itm.doText.indexOf("\n") < 0) {
+                fixable = true;
+                fixit_command = itm.doText;
+            }
+
+            if (fixable) {
                 if ((self.props.fix) && (self.props.fix.plugin == itm.analysisId)) {
                     if (self.props.fix.running) {
                         msg = (
@@ -107,7 +117,7 @@ class SELinuxEventDetails extends React.Component {
                 if (!self.props.fix) {
                     fixit = (
                         <div className="setroubleshoot-listing-action">
-                            <Button variant="secondary" onClick={ self.runFix.bind(self, itmIdx) }>
+                            <Button variant="secondary" onClick={ self.runFix.bind(self, itmIdx, fixit_command) }>
                                 { _("Apply this solution") }
                             </Button>
                         </div>

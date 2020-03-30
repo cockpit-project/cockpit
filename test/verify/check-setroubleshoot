@@ -30,7 +30,7 @@ restorecon -r /var/log/audit
 systemctl start auditd
 """
 
-SELINUX_ALERT_SCRIPT = """
+SELINUX_SEBOOL_ALERT_SCRIPT = """
 set -e
 mkdir -p ~/selinux_temp
 cd ~/selinux_temp
@@ -40,7 +40,7 @@ chcon -t httpd_exec_t ls
 runcon -u system_u -r system_r -t httpd_t -- ./ls  /home/* || true
 """
 
-SELINUX_FIXABLE_ALERT_SCRIPT = """
+SELINUX_RESTORECON_ALERT_SCRIPT = """
 set -e
 mkdir -p ~/.ssh
 ssh-keygen -t rsa -f ~/.ssh/test-avc-rsa -N ""
@@ -93,9 +93,14 @@ class TestSelinux(MachineCase):
         # fix audit events first
         self.machine.execute(script=FIX_AUDITD)
 
+        # httpd_read_user_content should be off by default
+        self.assertIn("-> off", m.execute("getsebool httpd_read_user_content"))
+
         #########################################################
-        # trigger an alert
-        self.machine.execute(script=SELINUX_ALERT_SCRIPT)
+        # trigger an sebool alert
+        # this triggers two solutions -- the preferred sebool module, which can be applied automatically,
+        # and the fallback "report a bug" ausearch one, which cannot be applied automatically
+        self.machine.execute(script=SELINUX_SEBOOL_ALERT_SCRIPT)
 
         row_selector = "tbody:contains('ls from read access on the directory')"
 
@@ -110,34 +115,38 @@ class TestSelinux(MachineCase):
         # b.wait_in_text(row_selector, "2 occurrences")
 
         panel_selector = row_selector + " tr.listing-ct-panel"
+        sebool_selector = panel_selector + " .selinux-details:nth-of-type(1)"
+        fallback_selector = panel_selector + " .selinux-details:nth-of-type(2)"
 
-        # a solution is present
-        b.wait_in_text(
-            panel_selector,
-            "You must tell SELinux about this by enabling the 'httpd_read_user_content' boolean.")
+        # fallback solution is present
+        b.wait_in_text(fallback_selector, "report this as a bug")
+        b.wait_in_text(fallback_selector, "Unable to apply this solution automatically")
 
-        # ... but we can't apply it automatically
-        # there are several solutions this can match against - that's ok, we want at least one to have this message
-        b.wait_in_text(panel_selector, "Unable to apply this solution automatically")
+        # an automatic default solution is present for sebool
+        b.wait_in_text(sebool_selector, "by enabling the 'httpd_read_user_content' boolean")
 
         # collapse again
         b.click(toggle_selector)
 
         # wait until it is collapsed
-        b.wait_not_in_text(
-            row_selector, "You must tell SELinux about this by enabling the 'httpd_read_user_content' boolean.")
+        b.wait_not_in_text(row_selector, "httpd_read_user_content")
 
-        # now expand again so we can dismiss the alert
+        # now expand again so we can apply the solution
         b.click(toggle_selector)
 
-        # dismiss the alert
+        if m.image not in ["rhel-8-2-distropkg"]:  # fixed in PR #13822
+            b.click(sebool_selector + " button" + self.default_btn_class)
+            b.wait_in_text(sebool_selector + " .pf-c-alert__title", "Solution applied successfully")
+            self.assertIn("-> on", m.execute("getsebool httpd_read_user_content"))
+
+        # now dismiss the alert
         b.click(row_selector + " " + dismiss_sel)
         b.wait_not_present(row_selector)
         b.wait_in_text("body", "No SELinux alerts.")
 
         #########################################################
-        # trigger a fixable alert
-        self.machine.execute(script=SELINUX_FIXABLE_ALERT_SCRIPT)
+        # trigger a fixable restorecon alert
+        self.machine.execute(script=SELINUX_RESTORECON_ALERT_SCRIPT)
 
         row_selector = "tbody:contains('read access on the file /root/.ssh/authorized_keys')"
 

@@ -132,7 +132,7 @@ class SELinuxEventDetails extends React.Component {
                 doElem = null;
             }
             return (
-                <div className="list-group-item selinux-details" key={itm.analysisId}>
+                <div className="list-group-item selinux-details" key={itm.analysisId + (itm.ifText || "") + (itm.doText || "")}>
                     <div>
                         <div>
                             <span>{itm.ifText}</span>

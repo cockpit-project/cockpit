@@ -22,6 +22,8 @@ import React from 'react';
 import cockpit from "cockpit";
 import * as service from "service.js";
 
+import insights_poll_hack_sh from "raw-loader!./insights-poll-hack.sh";
+
 import "./insights.scss";
 
 const _ = cockpit.gettext;
@@ -82,11 +84,22 @@ export class InsightsStatus extends React.Component {
                                         n_by_risk: n_hits_by_risk
                                     };
                                 });
+
+        // Let's try to keep the results up-to-date
+        this.upload_watch = cockpit.file("/etc/insights-client/.lastupload").watch(data => {
+            if (this.pollster) {
+                this.pollster.close();
+                this.pollster = null;
+            }
+            if (data)
+                this.pollster = cockpit.script(insights_poll_hack_sh, [], { superuser: true });
+        });
     }
 
     componentWillUnmount() {
         this.id_watch.remove();
         this.hits_watch.remove();
+        this.upload_watch.remove();
     }
 
     render() {

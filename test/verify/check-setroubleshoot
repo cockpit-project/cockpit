@@ -130,14 +130,10 @@ class TestSelinux(MachineCase):
         # now expand again so we can dismiss the alert
         b.click(toggle_selector)
 
-        b.wait_present(row_selector + " " + dismiss_sel)
-
-        # HACK: we need updated test images for delete to work
         # dismiss the alert
-        #b.click(row_selector + " button.pficon-delete")
-        #b.wait_not_present(row_selector)
-
-        #b.wait_in_text("body", "No SELinux alerts.")
+        b.click(row_selector + " " + dismiss_sel)
+        b.wait_not_present(row_selector)
+        b.wait_in_text("body", "No SELinux alerts.")
 
         #########################################################
         # trigger a fixable alert

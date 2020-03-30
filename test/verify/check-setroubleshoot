@@ -158,8 +158,16 @@ class TestSelinux(MachineCase):
             btn_sel = "div.list-group-item:contains('you can run restorecon') button{}".format(self.default_btn_class)
             b.click(btn_sel)
 
+            # the button should disappear; fixed in PR #13822
+            if m.image not in ["rhel-8-2-distropkg"]:
+                b.wait_not_present(btn_sel)
+
             # the fix should be applied
             b.wait_in_text(row_selector + " .pf-c-alert__title", "Solution applied successfully")
+
+            # and the button should not come back; fixed in PR #13822
+            if m.image not in ["rhel-8-2-distropkg"]:
+                b.wait_not_present(btn_sel)
         except Error:
             print("==== sealert -l '*' ====")
             print(m.execute("sealert -l '*'"))

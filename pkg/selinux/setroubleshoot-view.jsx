@@ -104,13 +104,15 @@ class SELinuxEventDetails extends React.Component {
                         }
                     }
                 }
-                fixit = (
-                    <div className="setroubleshoot-listing-action">
-                        <Button variant="secondary" onClick={ self.runFix.bind(self, itmIdx) }>
-                            { _("Apply this solution") }
-                        </Button>
-                    </div>
-                );
+                if (!self.props.fix) {
+                    fixit = (
+                        <div className="setroubleshoot-listing-action">
+                            <Button variant="secondary" onClick={ self.runFix.bind(self, itmIdx) }>
+                                { _("Apply this solution") }
+                            </Button>
+                        </div>
+                    );
+                }
             } else {
                 fixit = (
                     <div className="setroubleshoot-listing-action">

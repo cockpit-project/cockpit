@@ -1,5 +1,6 @@
 FROM fedora:30
 LABEL maintainer="cockpit-devel@lists.fedorahosted.org"
+LABEL VERSION=master
 
 ARG VERSION
 

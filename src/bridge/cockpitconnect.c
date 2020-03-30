@@ -135,7 +135,7 @@ on_socket_connect (GObject *object,
 
       if (connectable->tls)
         {
-          cs->io = g_tls_client_connection_new (G_IO_STREAM (object), NULL, &error);
+          cs->io = g_tls_client_connection_new (G_IO_STREAM (object), connectable->address, &error);
           if (cs->io)
             {
               g_debug ("%s: tls handshake", connectable->name);

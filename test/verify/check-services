@@ -949,7 +949,8 @@ ExecStart=/usr/bin/false
             # System page should not have notification
             b.click('#host-apps a[href="/system"]')
             b.enter_page('/system')
-            b.wait_not_in_text(".system-health-events", "failed")
+            b.wait_not_in_text(".system-health-events", "service has failed")
+            b.wait_not_in_text(".system-health-events", "services have failed")
 
     def testHiddenFailure(self):
         m = self.machine

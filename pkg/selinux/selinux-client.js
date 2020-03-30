@@ -106,108 +106,6 @@ export function init(statusChangedCallback) {
         );
     };
 
-    function parseBoolean(result, item) {
-        // Example:
-        // authlogin_nsswitch_use_ldap (on , on) Allow authlogin to nsswitch use ldap
-        // Split by first ')', as the name cannot contain ')'
-        if (item) {
-            const match = item.match(/(\S*)\s*\((\S*)\s*,.*\)\s*(.*)/);
-            if (match) {
-                let description = match[3];
-                let state = "yes";
-                if (match[2] !== "on") {
-                    state = "no";
-                    description = description.replace("Allow", "Disallow");
-                }
-                const ansible = `
-- name: ${description}
-  seboolean:
-    name: ${match[1]}
-    state: ${state}
-    persistent: yes
-`;
-                result.push({ description, ansible });
-            }
-        }
-        return result;
-    }
-
-    function getModifications() {
-        // List of items we know how to parse
-        const manageditems_callbacks = [["boolean", parseBoolean]];
-        const manageditems = manageditems_callbacks.map(item => item[0]);
-
-        // Building a query to get information from semanage
-        // Use `semanage export` to show shell script (and parse types we yet don't parse explicitly)
-        // Use `semanage <type> --list -C` to get better readable and parsable local changes
-        // Use `echo '~~~~~'` as separator, so we don't need to execute multiple commands
-        let script = "semanage export";
-        manageditems.forEach(item => { script += " && echo '~~~~~' && semanage " + item + " --list -C --noheading" });
-        cockpit.script(script, [], { err: 'message', environ: ["LC_MESSAGES=C"], superuser: "try" })
-                .then(output => {
-                    output = output.split("~~~~~");
-                    status.shell = output[0];
-                    status.modifications = [];
-                    status.ansible = "";
-
-                    for (let i = 1; i < output.length; i++) {
-                        const parsed = output[i].trim().split("\n")
-                                .reduce(manageditems_callbacks[i - 1][1], []);
-                        parsed.forEach(p => {
-                            status.modifications.push(p.description);
-                            status.ansible += p.ansible;
-                        });
-                    }
-
-                    const shell_rules = {};
-                    // As long as we don't parse all items, we need to get some from general export
-                    // Once we can parse all types, this can be dropped
-                    status.modifications.push(...(output[0].split("\n").reduce(function (result, mod) {
-                        mod = mod.trim();
-                        if (mod === "")
-                            return result;
-
-                        const items = mod.split(" ");
-
-                        // Skip enumeration of types, e.g. 'boolean -D'
-                        if (items.length === 2 && items[1] == "-D")
-                            return result;
-
-                        if (manageditems.indexOf(items[0]) < 0) {
-                            if (items[0] in shell_rules)
-                                shell_rules[items[0]].push("    semanage " + mod);
-                            else
-                                shell_rules[items[0]] = ["    semanage " + mod];
-                            result.push(mod);
-                        }
-                        return result;
-                    }, [])));
-
-                    // Create shell rule for every ansible group separately
-                    Object.keys(shell_rules).forEach(t => {
-                        const rules = shell_rules[t].join("\n");
-                        status.ansible += `
-- name: Set up ${t} customizations
-  shell: |
-    semanage ${t} -D
-${rules}
-`;
-                    });
-
-                    statusChangedCallback(status, undefined);
-                })
-                .catch(e => {
-                    status.modifications = [];
-                    if (e.message.indexOf("ValueError:") >= 0) {
-                        status.permitted = false;
-                        statusChangedCallback(status, undefined);
-                    } else {
-                        status.failed = true;
-                        statusChangedCallback(status, e.message);
-                    }
-                });
-    }
-
     var polling = null;
 
     function setupPolling() {
@@ -217,7 +115,7 @@ ${rules}
         } else if (polling === null) {
             polling = window.setInterval(refreshInfo, pollingInterval);
             refreshInfo();
-            getModifications();
+            getModifications(statusChangedCallback);
         }
     }
 
@@ -229,6 +127,108 @@ ${rules}
         refreshInfo();
 
     return status;
+}
+
+function parseBoolean(result, item) {
+    // Example:
+    // authlogin_nsswitch_use_ldap (on , on) Allow authlogin to nsswitch use ldap
+    // Split by first ')', as the name cannot contain ')'
+    if (item) {
+        const match = item.match(/(\S*)\s*\((\S*)\s*,.*\)\s*(.*)/);
+        if (match) {
+            let description = match[3];
+            let state = "yes";
+            if (match[2] !== "on") {
+                state = "no";
+                description = description.replace("Allow", "Disallow");
+            }
+            const ansible = `
+- name: ${description}
+  seboolean:
+    name: ${match[1]}
+    state: ${state}
+    persistent: yes
+`;
+            result.push({ description, ansible });
+        }
+    }
+    return result;
+}
+
+export function getModifications(statusChangedCallback) {
+    // List of items we know how to parse
+    const manageditems_callbacks = [["boolean", parseBoolean]];
+    const manageditems = manageditems_callbacks.map(item => item[0]);
+
+    // Building a query to get information from semanage
+    // Use `semanage export` to show shell script (and parse types we yet don't parse explicitly)
+    // Use `semanage <type> --list -C` to get better readable and parsable local changes
+    // Use `echo '~~~~~'` as separator, so we don't need to execute multiple commands
+    let script = "semanage export";
+    manageditems.forEach(item => { script += " && echo '~~~~~' && semanage " + item + " --list -C --noheading" });
+    cockpit.script(script, [], { err: 'message', environ: ["LC_MESSAGES=C"], superuser: "try" })
+            .then(output => {
+                output = output.split("~~~~~");
+                status.shell = output[0];
+                status.modifications = [];
+                status.ansible = "";
+
+                for (let i = 1; i < output.length; i++) {
+                    const parsed = output[i].trim().split("\n")
+                            .reduce(manageditems_callbacks[i - 1][1], []);
+                    parsed.forEach(p => {
+                        status.modifications.push(p.description);
+                        status.ansible += p.ansible;
+                    });
+                }
+
+                const shell_rules = {};
+                // As long as we don't parse all items, we need to get some from general export
+                // Once we can parse all types, this can be dropped
+                status.modifications.push(...(output[0].split("\n").reduce(function (result, mod) {
+                    mod = mod.trim();
+                    if (mod === "")
+                        return result;
+
+                    const items = mod.split(" ");
+
+                    // Skip enumeration of types, e.g. 'boolean -D'
+                    if (items.length === 2 && items[1] == "-D")
+                        return result;
+
+                    if (manageditems.indexOf(items[0]) < 0) {
+                        if (items[0] in shell_rules)
+                            shell_rules[items[0]].push("    semanage " + mod);
+                        else
+                            shell_rules[items[0]] = ["    semanage " + mod];
+                        result.push(mod);
+                    }
+                    return result;
+                }, [])));
+
+                // Create shell rule for every ansible group separately
+                Object.keys(shell_rules).forEach(t => {
+                    const rules = shell_rules[t].join("\n");
+                    status.ansible += `
+- name: Set up ${t} customizations
+  shell: |
+    semanage ${t} -D
+${rules}
+`;
+                });
+
+                statusChangedCallback(status, undefined);
+            })
+            .catch(e => {
+                status.modifications = [];
+                if (e.message.indexOf("ValueError:") >= 0) {
+                    status.permitted = false;
+                    statusChangedCallback(status, undefined);
+                } else {
+                    status.failed = true;
+                    statusChangedCallback(status, e.message);
+                }
+            });
 }
 
 // returns a promise of the command used to set enforcing mode

@@ -93,8 +93,13 @@ class TestSelinux(MachineCase):
         # fix audit events first
         self.machine.execute(script=FIX_AUDITD)
 
+        # wait for Modifications table to initialize
+        b.wait_in_text(".modifications-table", "Allow zebra to write config")
+
         # httpd_read_user_content should be off by default
         self.assertIn("-> off", m.execute("getsebool httpd_read_user_content"))
+        # and not part of modifications
+        b.wait_not_in_text(".modifications-table", "httpd to read user content")
 
         #########################################################
         # trigger an sebool alert
@@ -138,6 +143,8 @@ class TestSelinux(MachineCase):
             b.click(sebool_selector + " button" + self.default_btn_class)
             b.wait_in_text(sebool_selector + " .pf-c-alert__title", "Solution applied successfully")
             self.assertIn("-> on", m.execute("getsebool httpd_read_user_content"))
+            # system modifications automatically update for this new sebool
+            b.wait_in_text(".modifications-table", "Allow httpd to read user content")
 
         # now dismiss the alert
         b.click(row_selector + " " + dismiss_sel)

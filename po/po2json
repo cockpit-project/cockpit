@@ -72,7 +72,7 @@ function prepareHeader(header) {
 /* Parse and process the po data */
 function parse() {
     filename = opts.args[0];
-    po2json.parseFile(opts.args[0], { "fuzzy": true }, function(err, jsonData) {
+    po2json.parseFile(opts.args[0], { "fuzzy": false }, function(err, jsonData) {
         var plurals, pos;
 
         if (err)

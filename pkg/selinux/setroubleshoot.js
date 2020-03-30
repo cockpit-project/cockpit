@@ -72,7 +72,7 @@ var initStore = function(rootElement) {
     dataStore.selinuxStatus = selinuxClient.init(selinuxStatusChanged);
 
     // run a fix and update the entries accordingly
-    var runFix = function(alertId, analysisId) {
+    var runFix = function(alertId, analysisId, runCommand) {
         var idx;
         for (idx = dataStore.entries.length - 1; idx >= 0; --idx) {
             if (dataStore.entries[idx].key == alertId)
@@ -89,7 +89,13 @@ var initStore = function(rootElement) {
             success: false,
         };
         dataStore.render();
-        dataStore.client.runFix(alertId, analysisId)
+        var promise;
+        if (runCommand)
+            promise = cockpit.script(runCommand, { err: "message", superuser: "require" });
+        else
+            promise = dataStore.client.runFix(alertId, analysisId);
+
+        promise
                 .done(function(output) {
                     dataStore.entries[idx].fix = {
                         plugin: analysisId,

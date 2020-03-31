@@ -130,14 +130,44 @@ class SELinuxEventDetails extends React.Component {
                     </div>
                 );
             }
+
+            // Formatted solution
+            let doElement = "";
+
+            // One line usually means one command
+            if (itm.doText && itm.doText.indexOf("\n") < 0)
+                doElement = <pre>{itm.doText}</pre>;
+
+            // There can be text with commands. Command always starts on a new line with '#'
+            // Group subsequent commands into one `<pre>` element.
+            if (itm.doText && itm.doText.indexOf("\n") >= 0) {
+                const parts = [];
+                const lines = itm.doText.split("\n");
+                let lastCommand = false;
+                lines.forEach(l => {
+                    if (l[0] == "#") { // command
+                        if (lastCommand) // When appending command remove "# ". Only the first command keeps it and it is removed later on
+                            parts[parts.length - 1] += ("\n" + l.substr(2));
+                        else
+                            parts.push(l);
+                        lastCommand = true;
+                    } else {
+                        parts.push(l);
+                        lastCommand = false;
+                    }
+                });
+                doElement = parts.map(p => p[0] == "#" ? <pre key={p}>{p.substr(2)}</pre> : <span key={p}>{p}</span>);
+            }
+
             var detailsLink = <Button variant="link" isInline onClick={ self.handleSolutionDetailsClick.bind(self, itmIdx) }>{ _("solution details") }</Button>;
             var doState;
             var doElem;
             var caret;
+
             if (self.state.solutionExpanded[itmIdx]) {
                 caret = <i className="fa fa-angle-down" />;
                 doState = <div>{caret} {detailsLink}</div>;
-                doElem = <div>{itm.doText}</div>;
+                doElem = doElement;
             } else {
                 caret = <i className="fa fa-angle-right" />;
                 doState = <div>{caret} {detailsLink}</div>;

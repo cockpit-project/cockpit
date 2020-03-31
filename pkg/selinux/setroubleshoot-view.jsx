@@ -94,7 +94,7 @@ class SELinuxEventDetails extends React.Component {
                     if (itm.fix.running) {
                         msg = (
                             <div>
-                                <div className="spinner setroubleshoot-progress-spinner" />
+                                <div className="spinner spinner-xs setroubleshoot-progress-spinner" />
                                 <span className="setroubleshoot-progress-message"> { _("Applying solution...") }</span>
                             </div>
                         );

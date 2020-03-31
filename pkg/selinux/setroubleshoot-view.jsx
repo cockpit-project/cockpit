@@ -63,7 +63,7 @@ class SELinuxEventDetails extends React.Component {
         }
         var localId = this.props.details.localId;
         var analysisId = this.props.details.pluginAnalysis[itmIdx].analysisId;
-        this.props.runFix(localId, analysisId, runCommand);
+        this.props.runFix(localId, analysisId, itmIdx, runCommand);
     }
 
     render() {
@@ -90,8 +90,8 @@ class SELinuxEventDetails extends React.Component {
             }
 
             if (fixable) {
-                if ((self.props.fix) && (self.props.fix.plugin == itm.analysisId)) {
-                    if (self.props.fix.running) {
+                if ((itm.fix) && (itm.fix.plugin == itm.analysisId)) {
+                    if (itm.fix.running) {
                         msg = (
                             <div>
                                 <div className="spinner setroubleshoot-progress-spinner" />
@@ -99,22 +99,22 @@ class SELinuxEventDetails extends React.Component {
                             </div>
                         );
                     } else {
-                        if (self.props.fix.success) {
+                        if (itm.fix.success) {
                             msg = (
                                 <Alert isInline variant="success" title={ _("Solution applied successfully") }>
-                                    {self.props.fix.result}
+                                    {itm.fix.result}
                                 </Alert>
                             );
                         } else {
                             msg = (
                                 <Alert isInline variant="danger" title={ _("Solution failed") }>
-                                    {self.props.fix.result}
+                                    {itm.fix.result}
                                 </Alert>
                             );
                         }
                     }
                 }
-                if (!self.props.fix) {
+                if (!itm.fix) {
                     fixit = (
                         <div className="setroubleshoot-listing-action">
                             <Button variant="secondary" onClick={ self.runFix.bind(self, itmIdx, fixit_command) }>

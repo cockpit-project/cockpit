@@ -98,6 +98,8 @@ BuildRequires: pcp-devel
 BuildRequires: libpcp3
 BuildRequires: libpcp_import1
 BuildRequires: openssh
+BuildRequires: distribution-logos
+BuildRequires: wallpaper-branding
 %else
 BuildRequires: pcp-libs-devel
 BuildRequires: openssh-clients
@@ -283,7 +285,7 @@ sed -i "s|%{buildroot}||" *.list
 # remove brandings that don't match the distro as they may contain
 # stale symlinks
 pushd %{buildroot}/%{_datadir}/cockpit/branding
-ls -1 | grep -v default | xargs rm -vr
+ls -1 | (. /etc/os-release; grep -v "default\|$ID") | xargs rm -vr
 popd
 # need this in SUSE as post build checks dislike stale symlinks
 install -m 644 -D /dev/null %{buildroot}/run/cockpit/motd

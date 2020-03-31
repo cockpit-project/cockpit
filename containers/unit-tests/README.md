@@ -16,7 +16,7 @@ or root.
 ## Building
 
 The `build` script will build the `cockpit/unit-tests` and
-`cockpit/unit-tests:i386` containers.  It should be run as root.
+`cockpit/unit-tests:i386` containers.
 
 ## Running tests
 

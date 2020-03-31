@@ -16,7 +16,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 AC_INIT([Cockpit],
-        [m4_esyscmd_s([if [ -d .git ]; then echo $(git describe | tr - . ); else cat .tarball; fi])],
+        [m4_esyscmd_s([if [ -e .git ]; then echo $(git describe | tr - . ); else cat .tarball; fi])],
         [devel@lists.cockpit-project.org],
         [cockpit],
         [https://cockpit-project.org/])

@@ -47,6 +47,12 @@
 %define vdo_on_demand 1
 %endif
 
+%if 0%{?suse_version}
+%define pamdir /%{_lib}/security
+%else
+%define pamdir %{_libdir}/security
+%endif
+
 Name:           cockpit
 Summary:        Web Console for Linux servers
 
@@ -79,16 +85,26 @@ BuildRequires: gnutls-devel >= 3.4.3
 BuildRequires: zlib-devel
 BuildRequires: krb5-devel >= 1.11
 BuildRequires: libxslt-devel
-BuildRequires: docbook-style-xsl
 BuildRequires: glib-networking
 BuildRequires: sed
 
 BuildRequires: glib2-devel >= 2.37.4
+# this is for runtimedir in the tls proxy ace21c8879
 BuildRequires: systemd-devel >= 235
+%if 0%{?suse_version}
+BuildRequires: distribution-release
+BuildRequires: libpcp-devel
+BuildRequires: pcp-devel
+BuildRequires: libpcp3
+BuildRequires: libpcp_import1
+BuildRequires: openssh
+%else
 BuildRequires: pcp-libs-devel
+BuildRequires: openssh-clients
+BuildRequires: docbook-style-xsl
+%endif
 BuildRequires: krb5-server
 BuildRequires: gdb
-BuildRequires: openssh-clients
 
 # For documentation
 BuildRequires: xmlto
@@ -133,6 +149,10 @@ exec 2>&1
     --with-selinux-config-type=etc_t \
     --with-appstream-data-packages='[ "appstream-data" ]' \
     --with-nfs-client-package='"nfs-utils"' \
+%if 0%{?suse_version}
+    --docdir=%_defaultdocdir/%{name} \
+%endif
+    --with-pamdir='%{pamdir}' \
     %{?vdo_on_demand:--with-vdo-package='"vdo"'}
 make -j4 %{?extra_flags} all
 
@@ -148,13 +168,15 @@ install -p -m 644 tools/cockpit.pam $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/cockpit
 rm -f %{buildroot}/%{_libdir}/cockpit/*.so
 # shipped in firewalld since 0.6, everywhere in Fedora/RHEL 8
 rm -f %{buildroot}/%{_prefix}/%{__lib}/firewalld/services/cockpit.xml
-install -p -m 644 AUTHORS COPYING README.md %{buildroot}%{_docdir}/cockpit/
+install -D -p -m 644 AUTHORS COPYING README.md %{buildroot}%{_docdir}/cockpit/
 
 # Build the package lists for resource packages
 echo '%dir %{_datadir}/cockpit/base1' > base.list
+echo '%dir %{_datadir}/cockpit/base1/fonts' >> base.list
 find %{buildroot}%{_datadir}/cockpit/base1 -type f >> base.list
 echo '%{_sysconfdir}/cockpit/machines.d' >> base.list
 echo %{buildroot}%{_datadir}/polkit-1/actions/org.cockpit-project.cockpit-bridge.policy >> base.list
+echo '%dir %{_datadir}/cockpit/ssh' >> base.list
 find %{buildroot}%{_datadir}/cockpit/ssh -type f >> base.list
 echo '%{_libexecdir}/cockpit-ssh' >> base.list
 
@@ -257,12 +279,34 @@ rm -f %{buildroot}/%{_prefix}/share/metainfo/org.cockpit-project.cockpit-docker.
 
 sed -i "s|%{buildroot}||" *.list
 
+%if 0%{?suse_version}
+# remove brandings that don't match the distro as they may contain
+# stale symlinks
+pushd %{buildroot}/%{_datadir}/cockpit/branding
+ls -1 | grep -v default | xargs rm -vr
+popd
+# need this in SUSE as post build checks dislike stale symlinks
+install -m 644 -D /dev/null %{buildroot}/run/cockpit/motd
+%else
+%global _debugsource_packages 1
+%global _debuginfo_subpackages 0
+
+%define find_debug_info %{_rpmconfigdir}/find-debuginfo.sh %{?_missing_build_ids_terminate_build:--strict-build-id} %{?_include_minidebuginfo:-m} %{?_find_debuginfo_dwz_opts} %{?_find_debuginfo_opts} %{?_debugsource_packages:-S debugsourcefiles.list} "%{_builddir}/%{?buildsubdir}"
+
+# Redefine how debug info is built to slip in our extra debug files
+%define __debug_install_post   \
+   %{find_debug_info} \
+   cat debug.partial >> %{_builddir}/%{?buildsubdir}/debugfiles.list \
+%{nil}
+
 # Build the package lists for debug package, and move debug files to installed locations
 find %{buildroot}/usr/src/debug%{_datadir}/cockpit -type f -o -type l > debug.partial
 sed -i "s|%{buildroot}/usr/src/debug||" debug.partial
 sed -n 's/\.map\(\.gz\)\?$/\0/p' *.list >> debug.partial
 sed -i '/\.map\(\.gz\)\?$/d' *.list
 tar -C %{buildroot}/usr/src/debug -cf - . | tar -C %{buildroot} -xf -
+%endif
+# /suse_version
 rm -rf %{buildroot}/usr/src/debug
 
 # On RHEL kdump, networkmanager, selinux, and sosreport are part of the system package
@@ -277,17 +321,6 @@ rm -f %{buildroot}%{_datadir}/pixmaps/cockpit-sosreport.png
 %if 0%{?build_basic}
 %find_lang cockpit
 %endif
-
-%global _debugsource_packages 1
-%global _debuginfo_subpackages 0
-
-%define find_debug_info %{_rpmconfigdir}/find-debuginfo.sh %{?_missing_build_ids_terminate_build:--strict-build-id} %{?_include_minidebuginfo:-m} %{?_find_debuginfo_dwz_opts} %{?_find_debuginfo_opts} %{?_debugsource_packages:-S debugsourcefiles.list} "%{_builddir}/%{?buildsubdir}"
-
-# Redefine how debug info is built to slip in our extra debug files
-%define __debug_install_post   \
-   %{find_debug_info} \
-   cat debug.partial >> %{_builddir}/%{?buildsubdir}/debugfiles.list \
-%{nil}
 
 # -------------------------------------------------------------------------------
 # Basic Sub-packages
@@ -348,7 +381,9 @@ embed or extend Cockpit.
 Summary: Cockpit admin interface package for configuring and troubleshooting a system
 BuildArch: noarch
 Requires: cockpit-bridge >= %{version}-%{release}
+%if !0%{?suse_version}
 Requires: shadow-utils
+%endif
 Requires: grep
 Requires: libpwquality
 Requires: /usr/bin/date
@@ -385,6 +420,7 @@ Provides: bundled(xstatic-patternfly-common) = %{npm-version:patternfly}
 This package contains the Cockpit shell and system configuration interfaces.
 
 %files system -f system.list
+%dir %{_datadir}/cockpit/shell/images
 
 %package ws
 Summary: Cockpit Web Service
@@ -414,10 +450,14 @@ authentication via sssd/FreeIPA.
 %doc %{_mandir}/man8/remotectl.8.gz
 %doc %{_mandir}/man8/pam_cockpit_cert.8.gz
 %doc %{_mandir}/man8/pam_ssh_add.8.gz
+%dir %{_sysconfdir}/cockpit
 %config(noreplace) %{_sysconfdir}/cockpit/ws-certs.d
 %config(noreplace) %{_sysconfdir}/pam.d/cockpit
 %config %{_sysconfdir}/issue.d/cockpit.issue
 %config %{_sysconfdir}/motd.d/cockpit
+%ghost /run/cockpit/motd
+%ghost %dir /run/cockpit
+%dir %{_datadir}/cockpit/motd
 %{_datadir}/cockpit/motd/update-motd
 %{_datadir}/cockpit/motd/inactive.motd
 %{_unitdir}/cockpit.service
@@ -434,8 +474,8 @@ authentication via sssd/FreeIPA.
 %{_unitdir}/system-cockpithttps.slice
 %{_prefix}/%{__lib}/tmpfiles.d/cockpit-tempfiles.conf
 %{_sbindir}/remotectl
-%{_libdir}/security/pam_ssh_add.so
-%{_libdir}/security/pam_cockpit_cert.so
+%{pamdir}/pam_ssh_add.so
+%{pamdir}/pam_cockpit_cert.so
 %{_libexecdir}/cockpit-ws
 %{_libexecdir}/cockpit-wsinstance-factory
 %{_libexecdir}/cockpit-tls
@@ -530,13 +570,15 @@ utility setroubleshoot to diagnose and resolve SELinux issues.
 
 %endif
 
-%else # build basic packages
+#/ build basic packages
+%else
 
 # RPM requires this
 %description
 Dummy package from building optional packages only; never install or publish me.
 
-%endif # build basic packages
+#/ build basic packages
+%endif
 
 # -------------------------------------------------------------------------------
 # Sub-packages that are optional extensions
@@ -552,13 +594,18 @@ Recommends: udisks2-iscsi >= 2.6
 Recommends: device-mapper-multipath
 Recommends: clevis-luks
 Requires: %{__python3}
+%if 0%{?suse_version}
+Requires: python3-dbus-python
+%else
 Requires: python3-dbus
+%endif
 BuildArch: noarch
 
 %description -n cockpit-storaged
 The Cockpit component for managing storage.  This package uses udisks.
 
 %files -n cockpit-storaged -f storaged.list
+%dir %{_datadir}/cockpit/storaged/images
 %{_datadir}/metainfo/org.cockpit-project.cockpit-storaged.metainfo.xml
 
 %package -n cockpit-tests
@@ -581,7 +628,11 @@ BuildArch: noarch
 Summary: Cockpit user interface for virtual machines
 Requires: cockpit-bridge >= %{required_base}
 Requires: cockpit-system >= %{required_base}
+%if 0%{?suse_version}
+Requires: libvirt-daemon-qemu
+%else
 Requires: libvirt-daemon-kvm
+%endif
 Requires: libvirt-client
 Requires: libvirt-dbus >= 1.2.0
 # Optional components
@@ -600,7 +651,7 @@ If "virt-install" is installed, you can also create new virtual machines.
 %package -n cockpit-pcp
 Summary: Cockpit PCP integration
 Requires: cockpit-bridge >= %{required_base}
-Requires: pcp
+Requires(post): pcp
 
 %description -n cockpit-pcp
 Cockpit support for reading PCP metrics and loading PCP archives.
@@ -658,7 +709,8 @@ via PackageKit.
 
 %files -n cockpit-packagekit -f packagekit.list
 
-%endif # build optional extension packages
+#/ build optional extension packages
+%endif
 
 # The changelog is automatically generated and merged
 %changelog

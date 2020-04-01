@@ -492,11 +492,37 @@ class ServicesPage extends React.Component {
         prop("Description");
         prop("Names");
         prop("LoadState");
+        prop("LoadError");
         prop("ActiveState");
         prop("SubState");
         prop("UnitFileState");
         prop("FragmentPath");
         unitNew.path = path;
+
+        prop("Requires");
+        prop("Requisite");
+        prop("Wants");
+        prop("BindsTo");
+        prop("PartOf");
+        prop("RequiredBy");
+        prop("RequisiteOf");
+        prop("WantedBy");
+        prop("BoundBy");
+        prop("ConsistsOf");
+        prop("Conflicts");
+        prop("ConflictedBy");
+        prop("Before");
+        prop("After");
+        prop("OnFailure");
+        prop("Triggers");
+        prop("TriggeredBy");
+        prop("PropagatesReloadTo");
+        prop("PropagatesReloadFrom");
+        prop("JoinsNamespaceOf");
+        prop("Conditions");
+        prop("CanReload");
+
+        prop("ActiveEnterTimestamp");
 
         if (!shouldUpdate)
             return;
@@ -569,6 +595,9 @@ class ServicesPage extends React.Component {
     render() {
         const { path, unit_by_path } = this.state;
 
+        if (this.state.loadingUnits || this.seenPaths.size > Object.keys(this.state.unit_by_path).length)
+            return <EmptyStatePanel loading title={_("Loading...")} />;
+
         /* Perform navigation */
         if (path.length == 1) {
             const unit_id = path[0];
@@ -583,9 +612,6 @@ class ServicesPage extends React.Component {
                             key={unit_id}
                             unit={unit} />;
         }
-
-        if (this.state.loadingUnits || this.seenPaths.size > Object.keys(this.state.unit_by_path).length)
-            return <EmptyStatePanel loading title={_("Loading...")} />;
 
         const typeDropdownOptions = [
             { key: 'all', value: _("All") },

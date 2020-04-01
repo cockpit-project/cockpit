@@ -19,14 +19,14 @@
 
 import React from "react";
 import {
+    Alert,
     Breadcrumb, BreadcrumbItem,
     Page, PageSection, PageSectionVariants,
 } from '@patternfly/react-core';
 
-import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import { ServiceDetails, ServiceTemplate } from "./service-details.jsx";
 import { journal } from "journal";
-import { systemd_manager, systemd_client } from "./services.jsx";
+import { systemd_manager } from "./services.jsx";
 
 import $ from 'jquery';
 
@@ -40,34 +40,11 @@ export class Service extends React.Component {
         super(props);
 
         this.updateLogBox = this.updateLogBox.bind(this);
+        this.state = { error: undefined };
         this.getCurrentUnitTemplate = this.getCurrentUnitTemplate.bind(this);
         this.unitInstantiate = this.unitInstantiate.bind(this);
 
         this.getCurrentUnitTemplate();
-        if (this.cur_unit_is_template) {
-            this.state = { loadingUnit: false };
-        } else {
-            this.state = { loadingUnit: true };
-            systemd_manager.wait(() => {
-                systemd_manager.LoadUnit(this.props.unit).then(path => {
-                    this.unit = systemd_client.proxy('org.freedesktop.systemd1.Unit', path);
-                    this.unit.wait(() => {
-                        this.setState({ unit: this.unit, loadingUnit: false });
-                        this.unit.addEventListener("changed", () => this.setState({ unit: this.unit }));
-
-                        systemd_manager.addEventListener("Reloading", (event, reloading) => {
-                            if (!reloading && this.unit.FragmentPath)
-                                systemd_manager.GetUnitFileState(this.unit.Id)
-                                        .then(state => {
-                                            this.setState({
-                                                unit: { ...this.unit, UnitFileState: state }
-                                            });
-                                        });
-                        });
-                    });
-                });
-            });
-        }
     }
 
     componentDidMount() {
@@ -82,9 +59,8 @@ export class Service extends React.Component {
         if (this.cur_unit_is_template)
             return;
 
-        if (!this.state.loadingUnit &&
-            (this.unit.LoadState === "loaded" || this.unit.LoadState === "masked")) {
-            const cur_unit_id = this.unit.Id;
+        if (this.props.unit.LoadState === "loaded" || this.props.unit.LoadState === "masked") {
+            const cur_unit_id = this.props.unit.Id;
             this.cur_journal_watcher = journal.logbox(["_SYSTEMD_UNIT=" + cur_unit_id, "+",
                 "COREDUMP_UNIT=" + cur_unit_id, "+",
                 "UNIT=" + cur_unit_id], 10);
@@ -96,7 +72,7 @@ export class Service extends React.Component {
     }
 
     getCurrentUnitTemplate() {
-        const cur_unit_id = this.props.unit;
+        const cur_unit_id = this.props.unit.Id;
         const tp = cur_unit_id.indexOf("@");
         const sp = cur_unit_id.lastIndexOf(".");
 
@@ -155,7 +131,7 @@ export class Service extends React.Component {
     }
 
     unitInstantiate(param) {
-        const cur_unit_id = this.unit.Id;
+        const cur_unit_id = this.props.unit.Id;
 
         if (cur_unit_id) {
             var tp = cur_unit_id.indexOf("@");
@@ -166,27 +142,23 @@ export class Service extends React.Component {
                 if (sp != -1)
                     s = s + cur_unit_id.substring(sp);
 
-                systemd_manager.LoadUnit(s)
-                        .then(() => {
-                            cockpit.location.go([s]);
-                        });
+                systemd_manager.call("StartUnit", [s, "fail"])
+                        .done(() => setTimeout(() => cockpit.location.go([s]), 2000))
+                        .fail(error => this.setState({ error: error.toString() }));
             }
         }
     }
 
     render() {
-        if (this.state.loadingUnit)
-            return <EmptyStatePanel loading title={_("Loading...")} />;
-
         let serviceDetails;
         if (this.cur_unit_is_template) {
             serviceDetails = (
-                <ServiceTemplate template={this.props.unit}
+                <ServiceTemplate template={this.props.unit.Id}
                                  instantiateCallback={this.unitInstantiate} />
             );
         } else {
             serviceDetails = (
-                <ServiceDetails unit={this.state.unit}
+                <ServiceDetails unit={this.props.unit}
                                 originTemplate={this.cur_unit_template}
                                 permitted={permission.allowed}
                                 systemdManager={systemd_manager}
@@ -200,14 +172,15 @@ export class Service extends React.Component {
                     <Breadcrumb>
                         <BreadcrumbItem to='#'>{_("Services")}</BreadcrumbItem>
                         <BreadcrumbItem isActive>
-                            {this.props.unit}
+                            {this.props.unit.Id}
                         </BreadcrumbItem>
                     </Breadcrumb>
                 </PageSection>
                 <PageSection variant={PageSectionVariants.light}>
+                    {this.state.error && <Alert variant="danger" isInline title={this.state.error} />}
                     {serviceDetails}
                 </PageSection>
-                {!this.cur_unit_is_template && (this.unit.LoadState === "loaded" || this.unit.LoadState === "masked") &&
+                {!this.cur_unit_is_template && (this.props.unit.LoadState === "loaded" || this.props.unit.LoadState === "masked") &&
                 <PageSection variant={PageSectionVariants.light}>
                     <div className="panel panel-default cockpit-log-panel" id="service-log-box" role="table" aria-describedby="service-log-box-heading">
                         <div className="panel-heading" id="service-log-box-heading">{_("Service Logs")}</div>

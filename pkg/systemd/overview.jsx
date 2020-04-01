@@ -46,7 +46,6 @@ class LoginMessages extends React.Component {
     constructor() {
         super();
         this.state = { messages: {} };
-        this.permission = cockpit.permission({ admin: true });
 
         this.close = this.close.bind(this);
 

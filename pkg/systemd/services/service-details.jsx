@@ -25,6 +25,7 @@ import { Modal, OverlayTrigger, Tooltip, DropdownKebab, MenuItem } from 'pattern
 
 import cockpit from "cockpit";
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
+import { systemd_manager } from "./services.jsx";
 
 import './service-details.scss';
 
@@ -43,35 +44,106 @@ export class ServiceTemplate extends React.Component {
         super(props);
         this.state = {
             inputText: "",
+            error: undefined,
+            instantiateInProgress: false,
         };
         this.handleChange = this.handleChange.bind(this);
+        this.unitInstantiate = this.unitInstantiate.bind(this);
     }
 
     handleChange(e) {
         this.setState({ inputText: e.target.value });
     }
 
+    /* See systemd-escape(1), used for instantiating templates.
+     */
+    systemd_escape(str) {
+        function name_esc(str) {
+            var validchars = /[0-9a-zA-Z:-_.\\]/;
+            var res = "";
+            var i;
+
+            for (i = 0; i < str.length; i++) {
+                var c = str[i];
+                if (c == "/")
+                    res += "-";
+                else if (c == "-" || c == "\\" || !validchars.test(c)) {
+                    res += "\\x";
+                    var h = c.charCodeAt(0).toString(16);
+                    while (h.length < 2)
+                        h = "0" + h;
+                    res += h;
+                } else
+                    res += c;
+            }
+            return res;
+        }
+
+        function kill_slashes(str) {
+            str = str.replace(/\/+/g, "/");
+            if (str.length > 1)
+                str = str.replace(/\/$/, "").replace(/^\//, "");
+            return str;
+        }
+
+        function path_esc(str) {
+            str = kill_slashes(str);
+            if (str == "/")
+                return "-";
+            else
+                return name_esc(str);
+        }
+
+        if (str.length > 0 && str[0] == "/")
+            return path_esc(str);
+        else
+            return name_esc(str);
+    }
+
+    unitInstantiate(param) {
+        const cur_unit_id = this.props.template;
+
+        if (cur_unit_id) {
+            var tp = cur_unit_id.indexOf("@");
+            var sp = cur_unit_id.lastIndexOf(".");
+            if (tp != -1) {
+                var s = cur_unit_id.substring(0, tp + 1);
+                s = s + this.systemd_escape(param);
+                if (sp != -1)
+                    s = s + cur_unit_id.substring(sp);
+
+                this.setState({ instantiateInProgress: true });
+                systemd_manager.call("StartUnit", [s, "fail"])
+                        .done(() => setTimeout(() => cockpit.location.go([s]), 2000))
+                        .fail(error => this.setState({ error: error.toString(), instantiateInProgress: false }));
+            }
+        }
+    }
+
     render() {
         return (
-            <div className="panel panel-default">
-                <div className="list-group">
-                    <div className="list-group-item">
-                        { cockpit.format(_("$0 Template"), this.props.template) }
-                    </div>
-                    <div className="list-group-item">
-                        <input type="text" onChange={ this.handleChange } />
-                    </div>
-                    <div className="list-group-item">
-                        <Button variant="primary" onClick={() => this.props.instantiateCallback(this.state.inputText)}>{ _("Instantiate") }</Button>
+            <>
+                {this.state.error && <Alert variant="danger" isInline title={this.state.error} />}
+                <div className="panel panel-default">
+                    <div className="list-group">
+                        <div className="list-group-item">
+                            { cockpit.format(_("$0 Template"), this.props.template) }
+                        </div>
+                        <div className="list-group-item">
+                            <input type="text" onChange={ this.handleChange } />
+                        </div>
+                        <div className="list-group-item">
+                            <Button variant="primary" isDisabled={this.state.instantiateInProgress} onClick={() => this.unitInstantiate(this.state.inputText)}>{ _("Instantiate") }</Button>
+                            {this.state.instantiateInProgress && <div className="spinner spinner-sm pull-right" />}
+                        </div>
                     </div>
                 </div>
-            </div>
+            </>
         );
     }
 }
 ServiceTemplate.propTypes = {
     template: PropTypes.string.isRequired,
-    instantiateCallback: PropTypes.func.isRequired,
 };
 /*
  * Note:

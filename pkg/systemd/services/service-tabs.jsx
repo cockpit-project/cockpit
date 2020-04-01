@@ -39,7 +39,7 @@ export const service_tabs_suffixes = {
  *  - onChange:
  *      When different tab is selected this callback is called
  */
-export function ServiceTabs({ onChange, activeTab, tabWarnings }) {
+export function ServiceTabs({ onChange, activeTab, tabErrors }) {
     const [activeItem, setActiveItem] = useState(activeTab);
 
     return (
@@ -53,7 +53,7 @@ export function ServiceTabs({ onChange, activeTab, tabWarnings }) {
                                  isActive={activeItem == key}>
                             <a>
                                 {service_tabs_suffixes[key]}
-                                {tabWarnings[key] ? <span className="fa fa-exclamation-triangle" /> : null}
+                                {tabErrors[key] ? <span className="fa fa-exclamation-circle" /> : null}
                             </a>
                         </NavItem>
                     );

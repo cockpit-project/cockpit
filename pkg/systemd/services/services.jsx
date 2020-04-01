@@ -142,7 +142,7 @@ class ServicesPage extends React.Component {
             loadingUnits: true,
             privileged: true,
             path: cockpit.location.path,
-            tabWarnings: {},
+            tabErrors: {},
         };
         /* Functions for controlling the toolbar's components */
         this.onClearAllFilters = this.onClearAllFilters.bind(this);
@@ -563,23 +563,23 @@ class ServicesPage extends React.Component {
 
     processFailedUnits() {
         const failed = new Set();
-        const tabWarnings = { };
+        const tabErrors = { };
 
         for (const p in this.state.unit_by_path) {
             const u = this.state.unit_by_path[p];
             if (u.ActiveState == "failed") {
                 const suffix = u.Id.substr(u.Id.lastIndexOf('.') + 1);
                 if (Object.keys(service_tabs_suffixes).includes(suffix)) {
-                    tabWarnings[suffix] = true;
+                    tabErrors[suffix] = true;
                     failed.add(u.Id);
                 }
             }
         }
-        this.setState({ tabWarnings });
+        this.setState({ tabErrors });
 
         if (failed.size > 0) {
             page_status.set_own({
-                type: "warning",
+                type: "error",
                 title: cockpit.format(cockpit.ngettext("$0 service has failed",
                                                        "$0 services have failed",
                                                        failed.size), failed.size),
@@ -684,7 +684,7 @@ class ServicesPage extends React.Component {
             <Page>
                 <PageSection variant={PageSectionVariants.light} type='nav'>
                     <ServiceTabs activeTab={activeTab}
-                                 tabWarnings={this.state.tabWarnings}
+                                 tabErrors={this.state.tabErrors}
                                  onChange={activeTab => {
                                      cockpit.location.go([], Object.assign(cockpit.location.options, { type: activeTab }));
                                  }} />

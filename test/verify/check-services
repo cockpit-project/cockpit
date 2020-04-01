@@ -669,18 +669,22 @@ ExecStart=/usr/bin/false
         m.execute("systemctl start aab-fail")
 
         # Services tab should have icon
-        b.wait_present('a:contains("System Services") .fa-exclamation-triangle')
         # Aab-fail should be at the top, and have failed
         if self.machine.image == "rhel-8-2-distropkg":
+            b.wait_present('a:contains("System Services") .fa-exclamation-triangle')
             b.wait_present('tr:nth-child(1)[data-goto-unit="aab-fail.service"]')
             b.wait_present('tr[data-goto-unit="aab-fail.service"] td:contains("failed")')
         else:
+            b.wait_present('a:contains("System Services") .fa-exclamation-circle')
             b.wait_present('li[data-goto-unit="aab-fail.service"]')
             b.wait_present('li[data-goto-unit="aab-fail.service"] .service-unit-status:contains("Failed")')
 
         # Nav link should have icon
         b.switch_to_top()
-        b.wait_present('a[href="/system/services"] .fa-exclamation-triangle')
+        if self.machine.image == "rhel-8-2-distropkg":
+            b.wait_present('a[href="/system/services"] .fa-exclamation-triangle')
+        else:
+            b.wait_present('a[href="/system/services"] .fa-exclamation-circle')
 
         n_failures = self.count_failures()
         health_message = "1 service has failed" if n_failures == 1 else "%s services have failed" % n_failures
@@ -704,11 +708,17 @@ ExecStart=/usr/bin/false
 
         if self.count_failures() == 0:
             # Services tab should not have icon
-            b.wait_not_present('a:contains("System Services") .fa-exclamation-triangle')
+            if self.machine.image == "rhel-8-2-distropkg":
+                b.wait_not_present('a:contains("System Services") .fa-exclamation-triangle')
+            else:
+                b.wait_not_present('a:contains("System Services") .fa-exclamation-circle')
 
             # Nav link should not have icon
             b.switch_to_top()
-            b.wait_not_present('a[href="/system/services"] .fa-exclamation-triangle')
+            if self.machine.image == "rhel-8-2-distropkg":
+                b.wait_not_present('a[href="/system/services"] .fa-exclamation-triangle')
+            else:
+                b.wait_not_present('a[href="/system/services"] .fa-exclamation-circle')
 
             # System page should not have notification
             b.click('#host-apps a[href="/system"]')
@@ -741,7 +751,10 @@ Where=/fail
         if self.count_failures() == 1:
             # Nav link should not have icon
             b.switch_to_top()
-            b.wait_not_present('a[href="/system/services"] .fa-exclamation-triangle')
+            if self.machine.image == "rhel-8-2-distropkg":
+                b.wait_not_present('a[href="/system/services"] .fa-exclamation-triangle')
+            else:
+                b.wait_not_present('a[href="/system/services"] .fa-exclamation-circle')
 
             # System page should not have notification
             b.click('#host-apps a[href="/system"]')

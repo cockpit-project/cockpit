@@ -34,7 +34,7 @@ function debug() {
 
 /**
  * Package manager specific implementations; PackageKit does not cover
- * automatic updates , so we have to implement dnf-automatic, yum-cron, and
+ * automatic updates, so we have to implement dnf-automatic and
  * unattended-upgrades configuration ourselves
  */
 
@@ -220,14 +220,13 @@ function getBackend(forceReinit) {
         const dfd = cockpit.defer();
         getBackend.promise = dfd.promise();
 
-        cockpit.spawn(["bash", "-ec", "command -v dnf yum apt | head -n1 | xargs basename"], [], { err: "message" })
+        cockpit.spawn(["bash", "-ec", "command -v dnf apt | head -n1 | xargs basename"], [], { err: "message" })
                 .done(output => {
                     output = output.trim();
                     debug("getBackend(): detection finished, output", output);
                     let backend;
                     if (output === "dnf")
                         backend = new DnfImpl();
-                    // yum-cron is too limited: neither auto-reboot nor customized time, and nowhere to hook them in
                     // TODO: apt backend
                     if (backend)
                         backend.getConfig().then(() => {

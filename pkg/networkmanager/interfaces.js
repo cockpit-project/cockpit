@@ -1151,8 +1151,7 @@ function NetworkManagerModel() {
             "org.freedesktop.NetworkManager.Device.Bond",
             "org.freedesktop.NetworkManager.Device.Team",
             "org.freedesktop.NetworkManager.Device.Bridge",
-            "org.freedesktop.NetworkManager.Device.Vlan",
-            "org.freedesktop.NetworkManager.Device.Vpn"
+            "org.freedesktop.NetworkManager.Device.Vlan"
         ],
 
         props: {
@@ -3025,7 +3024,7 @@ PageNetworkInterface.prototype = {
                         (options.secondaries ? vpn_name : _("None")));
                 }
 
-                return render_settings_row(_(_("General")), rows, configure_general_settings);
+                return render_settings_row(_("General"), rows, configure_general_settings);
             }
 
             function render_ip_settings_row(topic, title) {
@@ -3211,14 +3210,14 @@ PageNetworkInterface.prototype = {
                     return null;
 
                 rows.push(cockpit.format(_("SSID: $0"), options.ssid ? atob(options.ssid) : _("Not defined")));
-                parts.push(choice_title(wifi_mode_choices, options.mode, "Not configured"));
-                parts.push(choice_title(wifi_band_choices, options.band, "Automatic"));
+                parts.push(choice_title(wifi_mode_choices, options.mode, _("Not configured")));
+                parts.push(choice_title(wifi_band_choices, options.band, _("Automatic")));
 
                 if (parts.length > 0)
                     rows.push(parts.join(", "));
 
                 rows.push(choice_title(wifi_security_choices, security_options
-                    ? security_options.key_mgmt : null, "Security disabled"));
+                    ? security_options.key_mgmt : null, _("Security disabled")));
                 return render_settings_row(_("WiFi"), rows, configure_wifi_settings);
             }
 
@@ -3284,18 +3283,13 @@ PageNetworkInterface.prototype = {
 
         const information_rows = render_general_information_rows();
 
-        for (var i in information_rows) {
+        for (const i in information_rows) {
             isettings.insertRow(isettings.rows.length).innerHTML = information_rows[i];
         }
 
         $('#network-interface-settings')
                 .append(render_connection_settings_rows(self.main_connection, self.connection_settings));
         update_network_privileged();
-
-        var separators = document.querySelectorAll('.network-interface-separator');
-        for (var j = 0; j < separators.length; j++) {
-            separators[j].setAttribute("colspan", "100%");
-        }
 
         function update_connection_slaves(con) {
             var tbody = $('#network-interface-slaves tbody');

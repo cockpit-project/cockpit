@@ -113,21 +113,21 @@
         </div>
       </div>
       <div class="panel panel-default"
-         id="networking-interfaces">
+        id="networking-interfaces">
         <div class="panel-heading">
-          <h2 class="panel-title" translatable="yes">Interfaces</h2>
+          <h2 class="panel-title" translate="yes">Interfaces</h2>
           <div class="panel-actions">
             <div class="btn-group dropdown interface-type">
               <button id="networking-add-new" class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                <span translatable="yes">Add new</span>
+                <span translate="yes">Add new</span>
                 <div class="caret"></div>
               </button>
               <ul class="dropdown-menu left-offset-75-menu">
-                <li><a tabindex="0" id="networking-add-bond" translatable="yes">Bond</a></li>
-                <li><a tabindex="0" id="networking-add-bridge" translatable="yes">Bridge</a></li>
-                <li><a tabindex="0" id="networking-add-team" translatable="yes">Team</a></li>
-                <li><a tabindex="0" id="networking-add-vlan" translatable="yes">VLAN</a></li>
-                <li><a tabindex="0" id="networking-add-wifi" translatable="yes">WiFi</a></li>
+                <li><a tabindex="0" id="networking-add-bond" translate="yes">Bond</a></li>
+                <li><a tabindex="0" id="networking-add-bridge" translate="yes">Bridge</a></li>
+                <li><a tabindex="0" id="networking-add-team" translate="yes">Team</a></li>
+                <li><a tabindex="0" id="networking-add-vlan" translate="yes">VLAN</a></li>
+                <li><a tabindex="0" id="networking-add-wifi" translate="yes">WiFi</a></li>
               </ul>
             </div>
           </div>
@@ -135,12 +135,12 @@
         <table class="table table-hover">
           <thead>
             <tr>
-              <th translatable="yes">Name</th>
-              <th translatable="yes">Interface</th>
-              <th translatable="yes">Type</th>
-              <th translatable="yes">IP Address</th>
-              <th translatable="yes" class="networking-speed">Sending</th>
-              <th translatable="yes" class="networking-speed">Receiving</th>
+              <th translate="yes">Name</th>
+              <th translate="yes">Interface</th>
+              <th translate="yes">Type</th>
+              <th translate="yes">IP Address</th>
+              <th translate="yes" class="networking-speed">Sending</th>
+              <th translate="yes" class="networking-speed">Receiving</th>
             </tr>
           </thead>
           <tbody>
@@ -150,17 +150,17 @@
       <div class="panel panel-default"
           id="networking-unmanaged-interfaces">
         <div class="panel-heading">
-          <h2 class="panel-title" translatable="yes">Unmanaged Interfaces</h2>
+          <h2 class="panel-title" translate="yes">Unmanaged Interfaces</h2>
         </div>
         <table class="table">
           <thead>
             <tr>
-              <th translatable="yes">Name</th>
-              <th translatable="yes">Interface</th>
-              <th translatable="yes">Type</th>
-              <th translatable="yes">IP Address</th>
-              <th translatable="yes" class="networking-speed">Sending</th>
-              <th translatable="yes" class="networking-speed">Receiving</th>
+              <th translate="yes">Name</th>
+              <th translate="yes">Interface</th>
+              <th translate="yes">Type</th>
+              <th translate="yes">IP Address</th>
+              <th translate="yes" class="networking-speed">Sending</th>
+              <th translate="yes" class="networking-speed">Receiving</th>
             </tr>
           </thead>
           <tbody>
@@ -169,7 +169,7 @@
       </div>
       <div class="panel panel-default cockpit-log-panel" role="table"
       aria-labelledby="networking-log-header">
-        <div class="panel-heading"><h2 class="panel-title" translatable="yes" id="networking-log-header">Networking Logs</h2></div>
+        <div class="panel-heading"><h2 class="panel-title" translate="yes" id="networking-log-header">Networking Logs</h2></div>
         <div class="panel-body" id="networking-log" role="rowgroup"></div>
       </div>
     </div>
@@ -179,17 +179,17 @@
     <form class="ct-form">
       <label class="checkbox-inline">
         <input id="network-general-settings-autoconnect" type="checkbox" checked="false">
-        <span translatable="yes">Automatically connect to this network when it is available</span>
+        <span translate="yes">Automatically connect to this network when it is available</span>
       </label>
 
       <div>
-        <span translatable="yes">Connection priority for auto connect</span>
+        <span translate="yes">Connection priority for auto connect</span>
         <input id="network-autoconnect-priority-input" type="number"/>
       </div>
 
       <label class="checkbox-inline hidden-vpn">
         <input id="network-general-settings-autovpn" type="checkbox" checked="false"/>
-        <span translatable="yes">Automatically connect to VPN when using this connection</span>
+        <span translate="yes">Automatically connect to VPN when using this connection</span>
         <select id="network-general-settings-autovpn-select">
           <option selected disabled hidden>Select VPN</option>
           {{! the rather complex dropdown-select will be created dynamically via jquery }}
@@ -429,98 +429,98 @@
 
   <script id="network-wifi-settings-template" type="x-template/mustache">
     <form class="ct-form">
-      <label class="control-label" for="network-wifi-settings-ssid-input" translatable="yes">SSID</label>
+      <label class="control-label" for="network-wifi-settings-ssid-input" translate="yes">SSID</label>
       <input id="network-wifi-settings-ssid-input" class="form-control network-number-field ct-form-relax"
              type="text" value="{{ssid_input}}"/>
 
-     <label class="control-label" for="network-wifi-settings-mode-select" translatable="yes">Mode</label>
+     <label class="control-label" for="network-wifi-settings-mode-select" translate="yes">Mode</label>
      <div id="network-wifi-settings-mode-select">
        {{! the rather complex dropdown-select will be created dynamically via jquery }}
      </div>
 
-     <label class="control-label" for="network-wifi-settings-band-select" translatable="yes">Band</label>
+     <label class="control-label" for="network-wifi-settings-band-select" translate="yes">Band</label>
      <div id="network-wifi-settings-band-select">
        {{! the rather complex dropdown-select will be created dynamically via jquery }}
      </div>
 
-     <label class="control-label" for="network-wifi-settings-channel-select" translatable="yes">Channel</label>
+     <label class="control-label" for="network-wifi-settings-channel-select" translate="yes">Channel</label>
      <div id="network-wifi-settings-channel-select">
        {{! the rather complex dropdown-select will be created dynamically via jquery }}
      </div>
 
-     <label class="control-label" for="network-wifi-settings-device-select" translatable="yes">Device</label>
+     <label class="control-label" for="network-wifi-settings-device-select" translate="yes">Device</label>
      <div id="network-wifi-settings-device-select">
        {{! the rather complex dropdown-select will be created dynamically via jquery }}
      </div>
 
-     <label class="control-label" for="network-wifi-settings-security-select" translatable="yes">Security</label>
+     <label class="control-label" for="network-wifi-settings-security-select" translate="yes">Security</label>
      <div id="network-wifi-settings-security-select">
        {{! the rather complex dropdown-select will be created dynamically via jquery }}
      </div>
 
-     <label class="control-label hidden-ps" for="security-personal-password-input" translatable="yes">Password</label>
+     <label class="control-label hidden-ps" for="security-personal-password-input" translate="yes">Password</label>
      <input class="hidden-ps" id="security-personal-password-input" type="password" value="{{personal_password}}">
 
      <label class="checkbox-inline hidden-ps">
        <input id="security-personal-password-toggle" type="checkbox" checked="false"/>
-       <span translatable="yes">Show password</span>
+       <span translate="yes">Show password</span>
      </label>
 
-     <label class="control-label hidden-ep hidden-type" for="security-eap-auth-select" translatable="yes">Authentication</label>
+     <label class="control-label hidden-ep hidden-type" for="security-eap-auth-select" translate="yes">Authentication</label>
      <div class="hidden-ep hidden-type" id="security-eap-auth-select">
        {{! the rather complex dropdown-select will be created dynamically via jquery }}
      </div>
 
-     <label class="control-label hidden-ep hidden-tls" for="security-tls-identity" translatable="yes">Identity</label>
+     <label class="control-label hidden-ep hidden-tls" for="security-tls-identity" translate="yes">Identity</label>
      <input class="hidden-ep hidden-tls" id="security-tls-identity" type="text" value="{{tls_identity_input}}">
 
-     <label class="control-label hidden-ep hidden-peap" for="security-peap-identity" translatable="yes">Anonymous identity</label>
+     <label class="control-label hidden-ep hidden-peap" for="security-peap-identity" translate="yes">Anonymous identity</label>
      <input class="hidden-ep hidden-peap" id="security-peap-identity" type="text" value="{{peap_identity_input}}">
 
-     <label class="control-label hidden-ep" for="security-eap-domain" translatable="yes">Domain</label>
+     <label class="control-label hidden-ep" for="security-eap-domain" translate="yes">Domain</label>
      <input class="hidden-ep" id="security-eap-domain" type="text" value="{{eap_domain_input}}">
 
-     <label class="control-label hidden-ep" for="security-eap-cert-file" translatable="yes">CA certificate</label>
+     <label class="control-label hidden-ep" for="security-eap-cert-file" translate="yes">CA certificate</label>
      <input class="hidden-ep" id="security-eap-cert-file" type="file"/>
 
      <label class="checkbox-inline hidden-ep">
        <input id="security-eap-cert-toggle" type="checkbox" checked="false"/>
-       <span translatable="yes">No CA certificate is required</span>
+       <span translate="yes">No CA certificate is required</span>
      </label>
 
-     <label class="control-label hidden-ep hidden-tls" for="security-tls-user-cert-file" translatable="yes">User certificate</label>
+     <label class="control-label hidden-ep hidden-tls" for="security-tls-user-cert-file" translate="yes">User certificate</label>
      <input class="hidden-ep hidden-tls" id="security-tls-user-cert-file" type="file"/>
 
-     <label class="control-label hidden-ep hidden-tls" for="security-tls-user-private-key-file" translatable="yes">User private key</label>
+     <label class="control-label hidden-ep hidden-tls" for="security-tls-user-private-key-file" translate="yes">User private key</label>
      <input class="hidden-ep hidden-tls" id="security-tls-user-private-key-file" type="file"/>
 
-     <label class="control-label hidden-ep hidden-tls" for="security-tls-private-key-password" translatable="yes">User key password</label>
+     <label class="control-label hidden-ep hidden-tls" for="security-tls-private-key-password" translate="yes">User key password</label>
      <input class="hidden-ep hidden-tls" id="security-tls-private-key-password" type="password" value="{{tls_key_password_input}}">
 
      <label class="checkbox-inline hidden-ep hidden-tls">
        <input id="security-tls-key-password-toggle" type="checkbox" checked="false">
-       <span translatable="yes">Show password</span>
+       <span translate="yes">Show password</span>
      </label>
 
-     <label class="control-label hidden-ep hidden-peap" for="security-peap-version-select" translatable="yes">PEAP version</label>
+     <label class="control-label hidden-ep hidden-peap" for="security-peap-version-select" translate="yes">PEAP version</label>
      <div class="hidden-ep hidden-peap" id="security-peap-version-select">
        {{! the rather complex dropdown-select will be created dynamically via jquery }}
      </div>
 
-     <label class="control-label hidden-ep hidden-peap" for="security-peap-inner-auth-select" translatable="yes">Inner authentication</label>
+     <label class="control-label hidden-ep hidden-peap" for="security-peap-inner-auth-select" translate="yes">Inner authentication</label>
      <div class="hidden-ep hidden-peap" id="security-peap-inner-auth-select">
        {{! the rather complex dropdown-select will be created dynamically via jquery }}
      </div>
 
-     <label class="control-label hidden-ep hidden-peap" for="security-peap-username" translatable="yes">Username</label>
+     <label class="control-label hidden-ep hidden-peap" for="security-peap-username" translate="yes">Username</label>
      <input class="hidden-ep hidden-peap" id="security-peap-username" type="text" value="{{peap_username_input}}">
 
-     <label class="control-label hidden-ep hidden-peap" for="security-peap-password" translatable="yes">Password</label>
+     <label class="control-label hidden-ep hidden-peap" for="security-peap-password" translate="yes">Password</label>
      <input class="hidden-ep hidden-peap" id="security-peap-password" type="password" value="{{peap_password_input}}">
 
      <label class="checkbox-inline hidden-ep hidden-peap">
        <input id="security-peap-password-toggle" type="checkbox" checked="false">
-       <span translatable="yes">Show password</span>
+       <span translate="yes">Show password</span>
      </label>
     </form>
   </script>
@@ -612,7 +612,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title" translatable="yes">General Settings</h4>
+          <h4 class="modal-title" translate="yes">General Settings</h4>
         </div>
         <div class="modal-body">
           <div id="network-general-settings-body">
@@ -623,8 +623,8 @@
             <i class="fa fa-exclamation-triangle"></i>
             <span></span>
           </div>
-          <button class="btn btn-default" translatable="yes" id="network-general-settings-cancel">Cancel</button>
-          <button class="btn btn-primary" translatable="yes" id="network-general-settings-apply">Apply</button>
+          <button class="btn btn-default" translate="yes" id="network-general-settings-cancel">Cancel</button>
+          <button class="btn btn-primary" translate="yes" id="network-general-settings-apply">Apply</button>
         </div>
       </div>
     </div>
@@ -880,7 +880,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title" translatable="yes">WiFi</h4>
+          <h4 class="modal-title" translate="yes">WiFi</h4>
         </div>
         <div class="modal-body">
           <div id="network-wifi-settings-body">
@@ -891,8 +891,8 @@
             <i class="fa fa-exclamation-triangle"></i>
             <span></span>
           </div>
-          <button class="btn btn-default" translatable="yes" id="network-wifi-settings-cancel">Cancel</button>
-          <button class="btn btn-primary" translatable="yes" id="network-wifi-settings-apply">Apply</button>
+          <button class="btn btn-default" translate="yes" id="network-wifi-settings-cancel">Cancel</button>
+          <button class="btn btn-primary" translate="yes" id="network-wifi-settings-apply">Apply</button>
         </div>
       </div>
     </div>

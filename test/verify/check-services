@@ -302,7 +302,11 @@ Unit=test.service
         b.set_input_text("#service-details input", "//param-f//o//o//")
         b.click("#service-details button")
         b.wait_text(".service-name", "Test Template for param-f/o/o")
-        self.check_service_details(["Static", "Not running"], ["Start", "Disallow running (mask)"], True, onoff=False)
+        if self.machine.image == "rhel-8-2-distropkg":
+            self.check_service_details(["Static", "Not running"], ["Start", "Disallow running (mask)"], True, onoff=False)
+        else:
+            self.check_service_details(["Static", "Failed to start"],
+                                       ["Start", "Clear 'Failed to start'", "Disallow running (mask)"], False, onoff=False)
         b.wait_in_text("#service-details", "Instance of template: test-template@.service")
         b.click("#service-details .ct-form a:contains('test-template@.service')")
         b.wait_visible("#service-details input")

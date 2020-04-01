@@ -19,7 +19,6 @@
 
 import React from "react";
 import {
-    Alert,
     Breadcrumb, BreadcrumbItem,
     Page, PageSection, PageSectionVariants,
 } from '@patternfly/react-core';
@@ -39,11 +38,10 @@ export class Service extends React.Component {
     constructor(props) {
         super(props);
 
-        this.updateLogBox = this.updateLogBox.bind(this);
         this.state = { error: undefined };
-        this.getCurrentUnitTemplate = this.getCurrentUnitTemplate.bind(this);
-        this.unitInstantiate = this.unitInstantiate.bind(this);
 
+        this.updateLogBox = this.updateLogBox.bind(this);
+        this.getCurrentUnitTemplate = this.getCurrentUnitTemplate.bind(this);
         this.getCurrentUnitTemplate();
     }
 
@@ -85,76 +83,11 @@ export class Service extends React.Component {
         }
     }
 
-    /* See systemd-escape(1), used for instantiating templates.
-     */
-    systemd_escape(str) {
-        function name_esc(str) {
-            var validchars = /[0-9a-zA-Z:-_.\\]/;
-            var res = "";
-            var i;
-
-            for (i = 0; i < str.length; i++) {
-                var c = str[i];
-                if (c == "/")
-                    res += "-";
-                else if (c == "-" || c == "\\" || !validchars.test(c)) {
-                    res += "\\x";
-                    var h = c.charCodeAt(0).toString(16);
-                    while (h.length < 2)
-                        h = "0" + h;
-                    res += h;
-                } else
-                    res += c;
-            }
-            return res;
-        }
-
-        function kill_slashes(str) {
-            str = str.replace(/\/+/g, "/");
-            if (str.length > 1)
-                str = str.replace(/\/$/, "").replace(/^\//, "");
-            return str;
-        }
-
-        function path_esc(str) {
-            str = kill_slashes(str);
-            if (str == "/")
-                return "-";
-            else
-                return name_esc(str);
-        }
-
-        if (str.length > 0 && str[0] == "/")
-            return path_esc(str);
-        else
-            return name_esc(str);
-    }
-
-    unitInstantiate(param) {
-        const cur_unit_id = this.props.unit.Id;
-
-        if (cur_unit_id) {
-            var tp = cur_unit_id.indexOf("@");
-            var sp = cur_unit_id.lastIndexOf(".");
-            if (tp != -1) {
-                var s = cur_unit_id.substring(0, tp + 1);
-                s = s + this.systemd_escape(param);
-                if (sp != -1)
-                    s = s + cur_unit_id.substring(sp);
-
-                systemd_manager.call("StartUnit", [s, "fail"])
-                        .done(() => setTimeout(() => cockpit.location.go([s]), 2000))
-                        .fail(error => this.setState({ error: error.toString() }));
-            }
-        }
-    }
-
     render() {
         let serviceDetails;
         if (this.cur_unit_is_template) {
             serviceDetails = (
-                <ServiceTemplate template={this.props.unit.Id}
-                                 instantiateCallback={this.unitInstantiate} />
+                <ServiceTemplate template={this.props.unit.Id} />
             );
         } else {
             serviceDetails = (
@@ -177,7 +110,6 @@ export class Service extends React.Component {
                     </Breadcrumb>
                 </PageSection>
                 <PageSection variant={PageSectionVariants.light}>
-                    {this.state.error && <Alert variant="danger" isInline title={this.state.error} />}
                     {serviceDetails}
                 </PageSection>
                 {!this.cur_unit_is_template && (this.props.unit.LoadState === "loaded" || this.props.unit.LoadState === "masked") &&

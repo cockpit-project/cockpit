@@ -614,6 +614,19 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
 
         if (item && item.docs && item.docs.length > 0)
             item.docs.forEach(e => create_item(_(e.label), e.url));
+
+        // Add 'About Web Console' item
+        const divider = document.createElement("li");
+        divider.className = "divider";
+        const about = document.createElement("li");
+        const el_a = document.createElement("a");
+        el_a.setAttribute("data-toggle", "modal");
+        el_a.setAttribute("data-target", "#about");
+        el_a.appendChild(document.createTextNode(_("About Web Console")));
+        about.appendChild(el_a);
+
+        docs_items.appendChild(divider);
+        docs_items.appendChild(about);
     }
 
     function update_navbar(machine, state, compiled) {

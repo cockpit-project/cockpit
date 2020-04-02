@@ -122,7 +122,7 @@ typedef struct {
   guint authorize_timeout;
 
   /* An open /login request from client */
-  GSimpleAsyncResult *result;
+  GTask *result;
 
   /* An authorization header from client */
   gchar *authorization;
@@ -138,7 +138,7 @@ static void
 cockpit_session_reset (gpointer data)
 {
   CockpitSession *session = data;
-  GSimpleAsyncResult *result;
+  GTask *result;
   char *conversation;
   CockpitAuth *self;
   char *cookie;
@@ -147,7 +147,7 @@ cockpit_session_reset (gpointer data)
     {
       result = session->result;
       session->result = NULL;
-      g_simple_async_result_complete (result);
+      g_task_return_pointer (result, NULL, NULL);
       g_object_unref (result);
     }
 
@@ -778,7 +778,7 @@ on_transport_control (CockpitTransport *transport,
   const gchar *problem = NULL;
   const gchar *session_id = NULL;
   const gchar *message = NULL;
-  GSimpleAsyncResult *result;
+  GTask *result;
   GError *error = NULL;
   gboolean ret = TRUE;
 
@@ -797,7 +797,7 @@ on_transport_control (CockpitTransport *transport,
           propagate_problem_to_error (session, options, problem, message, &error);
           if (session->result)
             {
-              g_simple_async_result_take_error (session->result, error);
+              g_task_return_error (session->result, error);
             }
           else
             {
@@ -846,7 +846,7 @@ on_transport_control (CockpitTransport *transport,
     {
       result = session->result;
       session->result = NULL;
-      g_simple_async_result_complete (result);
+      g_task_return_pointer (result, NULL, NULL);
       g_object_unref (result);
     }
 
@@ -859,7 +859,7 @@ on_transport_closed (CockpitTransport *transport,
                      gpointer user_data)
 {
   CockpitSession *session = user_data;
-  GSimpleAsyncResult *result;
+  GTask *result;
   CockpitPipe *pipe;
   GError *error = NULL;
   gint status = 0;
@@ -904,8 +904,7 @@ on_transport_closed (CockpitTransport *transport,
     {
       result = session->result;
       session->result = NULL;
-      g_simple_async_result_take_error (result, error);
-      g_simple_async_result_complete (result);
+      g_task_return_error (result, error);
       g_object_unref (result);
     }
   else
@@ -1348,8 +1347,8 @@ cockpit_auth_local_async (CockpitAuth *self,
   session->cookie = g_strdup (LOCAL_SESSION);
   g_hash_table_insert (self->sessions, session->cookie, session);
 
-  session->result = g_simple_async_result_new (G_OBJECT (self), callback, user_data,
-                                               cockpit_auth_local_async);
+  session->result = g_task_new (G_OBJECT (self), NULL, callback, user_data);
+  g_task_return_boolean (session->result, TRUE);
 
   g_free (csrf_token);
   g_object_unref (transport);
@@ -1361,10 +1360,8 @@ cockpit_auth_local_finish (CockpitAuth *self,
                            GAsyncResult *result,
                            GError **error)
 {
-  g_return_val_if_fail (g_simple_async_result_is_valid (result, G_OBJECT (self),
-                        cockpit_auth_local_async), FALSE);
-
-  return g_simple_async_result_propagate_error (G_SIMPLE_ASYNC_RESULT (result), error);
+  g_return_val_if_fail (g_task_is_valid (result, G_OBJECT (self)), FALSE);
+  return g_task_propagate_boolean (G_TASK (result), error);
 }
 
 /*
@@ -1415,7 +1412,7 @@ cockpit_auth_login_async (CockpitAuth *self,
                           GAsyncReadyCallback callback,
                           gpointer user_data)
 {
-  g_autoptr(GSimpleAsyncResult) result = NULL;
+  g_autoptr(GTask) result = NULL;
   CockpitSession *session;
   GError *error = NULL;
   g_autofree gchar *type = NULL;
@@ -1428,15 +1425,14 @@ cockpit_auth_login_async (CockpitAuth *self,
 
   self->startups++;
 
-  result = g_simple_async_result_new (G_OBJECT (self), callback, user_data,
-                                      cockpit_auth_login_async);
+  result = g_task_new (G_OBJECT (self), NULL, callback, user_data);
+  g_task_set_source_tag (result, cockpit_auth_login_async); /* FIXME: do we need this? */
 
   if (!can_start_auth (self))
     {
       g_message ("Request dropped; too many startup connections: %u", self->startups);
-      g_simple_async_result_set_error (result, COCKPIT_ERROR, COCKPIT_ERROR_FAILED,
-                                       "Connection closed by host");
-      g_simple_async_result_complete_in_idle (result);
+      g_task_return_new_error (result, COCKPIT_ERROR, COCKPIT_ERROR_FAILED,
+                               "Connection closed by host");
       goto out;
     }
 
@@ -1458,18 +1454,16 @@ cockpit_auth_login_async (CockpitAuth *self,
 
       if (!authorization)
         {
-          g_simple_async_result_set_error (result, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
-                                           "Authentication required");
-          g_simple_async_result_complete_in_idle (result);
+          g_task_return_new_error (result, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
+                                   "Authentication required");
           goto out;
         }
     }
 
   if (!application)
     {
-      g_simple_async_result_set_error (result, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
-                                       "Application required");
-      g_simple_async_result_complete_in_idle (result);
+      g_task_return_new_error (result, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
+                               "Application required");
       goto out;
     }
 
@@ -1478,24 +1472,22 @@ cockpit_auth_login_async (CockpitAuth *self,
       session = g_hash_table_lookup (self->conversations, conversation);
       if (!session)
         {
-          g_simple_async_result_set_error (result, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
-                                           "Invalid conversation token");
-          g_simple_async_result_complete_in_idle (result);
+          g_task_return_new_error (result, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
+                                   "Invalid conversation token");
           goto out;
         }
 
-      g_simple_async_result_set_op_res_gpointer (result, cockpit_session_ref (session), cockpit_session_unref);
+      g_task_return_pointer (result, cockpit_session_ref (session), cockpit_session_unref);
     }
   else
     {
       session = cockpit_session_launch (self, connection, headers, type, authorization, application, &error);
       if (!session)
         {
-          g_simple_async_result_take_error (result, error);
-          g_simple_async_result_complete_in_idle (result);
+          g_task_return_error (result, error);
           goto out;
         }
-      g_simple_async_result_set_op_res_gpointer (result, session, cockpit_session_unref);
+      g_task_return_pointer (result, session, cockpit_session_unref);
     }
 
   cockpit_session_reset (session);
@@ -1506,9 +1498,8 @@ cockpit_auth_login_async (CockpitAuth *self,
 
   if (conversation && !reply_authorize_challenge (session))
     {
-      g_simple_async_result_set_error (result, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
-                                       "Invalid conversation reply");
-      g_simple_async_result_complete_in_idle (result);
+      g_task_return_new_error (result, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
+                               "Invalid conversation reply");
       goto out;
     }
 
@@ -1535,13 +1526,12 @@ cockpit_auth_login_finish (CockpitAuth *self,
   gchar *header;
   gchar *id;
 
-  g_return_val_if_fail (g_simple_async_result_is_valid (result, G_OBJECT (self),
-                        cockpit_auth_login_async), NULL);
+  g_return_val_if_fail (g_task_is_valid (result, G_OBJECT (self)), NULL);
 
   g_object_ref (result);
-  session = g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (result));
+  session = g_task_propagate_pointer (G_TASK (result), error);
 
-  if (g_simple_async_result_propagate_error (G_SIMPLE_ASYNC_RESULT (result), error))
+  if (!session)
     goto out;
 
   g_return_val_if_fail (session != NULL, NULL);

@@ -39,11 +39,12 @@ class TestMenu(MachineCase):
         self.login_and_go("/system")
 
         b.switch_to_top()
-        b.click('#navbar-dropdown')
-        b.click('a[data-target="#about"]')
-        b.wait_popup('about')
-        b.click('#about button[data-dismiss="modal"]')
-        b.wait_popdown("about")
+        if m.image != "rhel-8-2-distropkg": # Changed in #13836
+            b.click('#navbar-docs-dropdown')
+            b.click('a[data-target="#about"]')
+            b.wait_popup('about')
+            b.click('#about button[data-dismiss="modal"]')
+            b.wait_popdown("about")
 
         # Test session timeout
         time.sleep(20)

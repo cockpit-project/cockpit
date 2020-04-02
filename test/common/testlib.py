@@ -826,6 +826,8 @@ class MachineCase(unittest.TestCase):
         if self.machine:
             self.journal_start = self.machine.journal_cursor()
             self.browser = self.new_browser()
+            # fail tests on criticals
+            self.machine.write("/etc/cockpit/cockpit.conf", "[Log]\nFatal = criticals\n")
             if self.is_nondestructive():
                 self.nonDestructiveSetup()
 

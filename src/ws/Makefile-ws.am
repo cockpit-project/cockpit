@@ -457,7 +457,6 @@ mock-pam-conv-mod.so$(EXEEXT): $(mock_pam_conv_mod_so_SOURCES)
 
 noinst_PROGRAMS += mock-pam-conv-mod.so
 CLEANFILES += mock-pam-conv-mod.so
-EXTRA_DIST += src/ws/fatal.conf
 
 testassetsdir = $(prefix)/lib/cockpit-test-assets
 testserviceddir = $(systemdunitdir)/cockpit.service.d
@@ -465,7 +464,6 @@ testserviceddir = $(systemdunitdir)/cockpit.service.d
 install-tests::
 	$(MKDIR_P) $(DESTDIR)$(testassetsdir) $(DESTDIR)$(testserviceddir) $(DESTDIR)/etc/cockpit
 	$(INSTALL_DATA) mock-pam-conv-mod.so $(DESTDIR)$(testassetsdir)
-	$(INSTALL_DATA) $(srcdir)/src/ws/fatal.conf $(DESTDIR)/etc/cockpit/cockpit.conf
 
 install-exec-hook::
 	mkdir -p $(DESTDIR)$(sysconfdir)/cockpit/ws-certs.d $(DESTDIR)$(sysconfdir)/cockpit/machines.d

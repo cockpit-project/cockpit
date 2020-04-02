@@ -23,5 +23,5 @@ if test -z "${docker:=$(which podman || which docker || true)}"; then
 fi
 
 set -ex
-exec ${docker} run --shm-size=512M --volume "${top_srcdir}":/source:ro,Z \
+exec ${docker} run --shm-size=512M --volume "${top_srcdir}":/source:ro \
        ${ccarg:+"$ccarg"} $flags -- "$image" $cmd

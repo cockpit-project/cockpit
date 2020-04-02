@@ -20,7 +20,7 @@ python3 -c "import fcntl, os; assert fcntl.fcntl(0, fcntl.F_GETFL) & os.O_NONBLO
 
 # copy host's source tree to avoid changing that, and make sure we have a clean tree
 if [ ! -e /source/.git ]; then
-    echo "This container must be run with --volume <host cockpit source checkout>:/source:ro,Z" >&2
+    echo "This container must be run with --volume <host cockpit source checkout>:/source:ro" >&2
     exit 1
 fi
 git clone /source /tmp/source

@@ -241,7 +241,7 @@ OnCalendar=daily
         b.click(".display-language-menu a")
         b.wait_popup('display-language')
         languages = b.eval_js("ph_select('#display-language-list option').map(function(e) { return e.value })")
-        b.click("#display-language button:nth-child(1)") # Close the menu
+        b.click("#display-language button[data-dismiss]") # Close the menu
 
         for language in languages:
             b.go("/system")

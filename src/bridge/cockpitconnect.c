@@ -111,8 +111,8 @@ on_socket_connect (GObject *object,
                    GAsyncResult *result,
                    gpointer user_data)
 {
-  GSimpleAsyncResult *simple = G_SIMPLE_ASYNC_RESULT (user_data);
-  ConnectStream *cs = g_simple_async_result_get_op_res_gpointer (simple);
+  GTask *task = G_TASK (user_data);
+  ConnectStream *cs = g_task_propagate_pointer (task, NULL);
   CockpitConnectable *connectable = cs->connectable;
   GError *error = NULL;
 
@@ -127,7 +127,7 @@ on_socket_connect (GObject *object,
       cs->error = error;
 
       g_socket_address_enumerator_next_async (cs->enumerator, cs->cancellable,
-                                              on_address_next, g_object_ref (simple));
+                                              on_address_next, g_object_ref (task));
     }
   else
     {
@@ -163,12 +163,10 @@ on_socket_connect (GObject *object,
         {
           cs->io = g_object_ref (object);
         }
-
-      g_simple_async_result_complete (simple);
     }
 
   g_object_unref (object);
-  g_object_unref (simple);
+  g_object_unref (task);
 }
 
 static void
@@ -176,8 +174,8 @@ on_address_next (GObject *object,
                  GAsyncResult *result,
                  gpointer user_data)
 {
-  GSimpleAsyncResult *simple = G_SIMPLE_ASYNC_RESULT (user_data);
-  ConnectStream *cs = g_simple_async_result_get_op_res_gpointer (simple);
+  GTask *task = G_TASK (user_data);
+  ConnectStream *cs = g_task_propagate_pointer (task, NULL);
   CockpitConnectable *connectable = cs->connectable;
   GSocketConnection *connection;
   GSocketAddress *address;
@@ -192,7 +190,6 @@ on_address_next (GObject *object,
       g_debug ("%s: couldn't resolve: %s", connectable->name, error->message);
       g_clear_error (&cs->error);
       cs->error = error;
-      g_simple_async_result_complete (simple);
     }
   else if (address)
     {
@@ -205,7 +202,7 @@ on_address_next (GObject *object,
           g_object_unref (sock);
 
           g_socket_connection_connect_async (connection, address, cs->cancellable,
-                                             on_socket_connect, g_object_ref (simple));
+                                             on_socket_connect, g_object_ref (task));
         }
 
       if (error)
@@ -213,7 +210,6 @@ on_address_next (GObject *object,
           g_debug ("%s: couldn't open socket: %s", connectable->name, error->message);
           g_clear_error (&cs->error);
           cs->error = error;
-          g_simple_async_result_complete (simple);
         }
       g_object_unref (address);
     }
@@ -221,10 +217,9 @@ on_address_next (GObject *object,
     {
       if (!cs->error)
           g_message ("%s: no addresses found", connectable->name);
-      g_simple_async_result_complete (simple);
     }
 
-  g_object_unref (simple);
+  g_object_unref (task);
 }
 
 void
@@ -247,37 +242,39 @@ cockpit_connect_stream_full (CockpitConnectable *connectable,
                              GAsyncReadyCallback callback,
                              gpointer user_data)
 {
-  GSimpleAsyncResult *simple;
+  GTask *task;
   ConnectStream *cs;
 
   g_return_if_fail (connectable != NULL);
   g_return_if_fail (G_IS_SOCKET_CONNECTABLE (connectable->address));
   g_return_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable));
 
-  simple = g_simple_async_result_new (NULL, callback, user_data, cockpit_connect_stream);
+  task = g_task_new (NULL, NULL, callback, user_data);
+  g_task_set_source_tag (task, cockpit_connect_stream); /* FIXME: do we need this? */
   cs = g_new0 (ConnectStream, 1);
   cs->connectable = cockpit_connectable_ref (connectable);
   cs->cancellable = cancellable ? g_object_ref (cancellable) : NULL;
   cs->enumerator = g_socket_connectable_enumerate (connectable->address);
-  g_simple_async_result_set_op_res_gpointer (simple, cs, connect_stream_free);
+  g_message ("XXX cockpit_connect_stream_full set task %p ptr %p", task, cs);
+  g_task_return_pointer (task, cs, connect_stream_free);
 
   g_socket_address_enumerator_next_async (cs->enumerator, NULL,
-                                          on_address_next, g_object_ref (simple));
+                                          on_address_next, g_object_ref (task));
 
-  g_object_unref (simple);
+  g_object_unref (task);
 }
 
 GIOStream *
 cockpit_connect_stream_finish (GAsyncResult *result,
                                GError **error)
 {
-  GSimpleAsyncResult *simple;
   ConnectStream *cs;
 
-  g_return_val_if_fail (g_simple_async_result_is_valid (result, NULL, cockpit_connect_stream), NULL);
+  g_message ("XXX cockpit_connect_stream_finish task %p completed %i", result, g_task_get_completed (G_TASK (result)));
 
-  simple = G_SIMPLE_ASYNC_RESULT (result);
-  cs = g_simple_async_result_get_op_res_gpointer (simple);
+  g_return_val_if_fail (g_task_is_valid (result, NULL), NULL);
+
+  cs = g_task_propagate_pointer (G_TASK (result), error);
 
   if (cs->io)
     {

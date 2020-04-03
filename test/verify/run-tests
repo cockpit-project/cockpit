@@ -12,6 +12,7 @@ import time
 import re
 import socket
 import tempfile
+import binascii
 
 import importlib.machinery
 import importlib.util
@@ -125,7 +126,7 @@ def build_command(filename, test, opts):
     cmd.append(test)
     return cmd
 
-def run(opts):
+def run(opts, image):
     # Build the list of tests we'll parallellize and the ones we'll run serially
     test_loader = unittest.TestLoader()
     parallel_tests = []
@@ -161,6 +162,11 @@ def run(opts):
                     if not opts.nondestructive:
                         parallel_tests.append(test)
                 test_id += 1
+
+    # sort serial tests by class/test name, to avoid spurious errors where failures depend on the order of execution
+    # but let's make sure we always test them both ways around; hash the image name, which is robust, reproducible, and provides
+    # an even distribution of both directions
+    serial_tests.sort(key=lambda t: t.command[-1], reverse=bool(binascii.crc32(image.encode()) & 1))
 
     print("1..{0}".format(len(parallel_tests) + len(serial_tests)))
     sys.stdout.flush()
@@ -273,7 +279,7 @@ def main():
     testvm.DEFAULT_IMAGE = image
     os.environ["TEST_OS"] = image
 
-    return run(opts)
+    return run(opts, image)
 
 
 if __name__ == '__main__':

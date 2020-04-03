@@ -1406,8 +1406,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 .fill() \
                 .createAndVerifyVirtInstallArgs()
             if dialog.delete:
-                self.machine.execute("killall -9 virt-install")
-                runner.checkEnvIsEmpty()
+                runner.deleteVm(dialog) \
+                      .checkEnvIsEmpty()
 
         def createTest(dialog):
             runner.tryCreate(dialog) \
@@ -1436,6 +1436,61 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 .deleteVm(dialog) \
                 .checkEnvIsEmpty()
 
+        def setupMockFileServer():
+            self.machine.upload(["verify/files/min-openssl-config.cnf", "verify/files/mock-range-server.py"], "/tmp/")
+            cmds = [
+                # Generate certificate for https server
+                "cd /tmp",
+                "openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -subj '/CN=archive.fedoraproject.org' -nodes -config /tmp/min-openssl-config.cnf",
+                "cat cert.pem key.pem > server.pem"
+            ]
+
+            if self.machine.image.startswith("ubuntu") or self.machine.image.startswith("debian"):
+                cmds += [
+                    "cp /tmp/cert.pem /usr/local/share/ca-certificates/cert.crt",
+                    "update-ca-certificates"
+                ]
+            else:
+                cmds += [
+                    "cp /tmp/cert.pem /etc/pki/ca-trust/source/anchors/cert.pem",
+                    "update-ca-trust"
+                ]
+            self.machine.execute(" && ".join(cmds))
+
+            # Run https server with range option support. QEMU uses range option
+            # see: https://lists.gnu.org/archive/html/qemu-devel/2013-06/msg02661.html
+            # or
+            # https://github.com/qemu/qemu/blob/master/block/curl.c
+            #
+            # and on certain distribution supports only https (not http)
+            # see: block-drv-ro-whitelist option in qemu-kvm.spec for certain distribution
+            server = self.machine.spawn("cd /var/lib/libvirt && exec python3 /tmp/mock-range-server.py /tmp/server.pem", "httpsserver")
+            self.addCleanup(self.machine.execute, "kill {0}".format(server))
+
+        def fakeFedoraTree():
+            distro_tree_path = "/var/lib/libvirt/pub/archive/fedora/linux/releases/28/Server/x86_64/os/"
+            self.machine.execute("mkdir -p {0}".format(distro_tree_path))
+            self.machine.upload(["verify/files/fakefedoratree/.treeinfo", "verify/files/fakefedoratree/images"], distro_tree_path)
+            # borrow the kernel executable for the test server
+            self.machine.execute("cp /boot/vmlinuz-{0} {1}images/pxeboot/vmlinuz".format(self.machine.execute("uname -r").rstrip(), distro_tree_path))
+            self.machine.execute("chown -R 777 /var/lib/libvirt/pub")
+            self.restore_file("/etc/hosts")
+            self.machine.execute('echo "127.0.0.1 archive.fedoraproject.org" >> /etc/hosts')
+
+        def fakeOsDBInfo():
+            # Fake the osinfo-db data in order that it will allow spawn the installation - of course we don't expect it to succeed -
+            # we just need to check that the VM was spawned
+            fedora_28_xml = self.machine.execute("cat /usr/share/osinfo/os/fedoraproject.org/fedora-28.xml")
+            root = ET.fromstring(fedora_28_xml)
+            root.find('os').find('resources').find('minimum').find('ram').text = '134217750'
+            root.find('os').find('resources').find('minimum').find('storage').text = '134217750'
+            root.find('os').find('resources').find('recommended').find('ram').text = '268435500'
+            root.find('os').find('resources').find('recommended').find('storage').text = '268435500'
+            new_fedora_28_xml = ET.tostring(root)
+            self.machine.execute("echo \'{0}\' > /tmp/fedora-28.xml".format(str(new_fedora_28_xml, 'utf-8')))
+            self.machine.execute("mount -o bind /tmp/fedora-28.xml /usr/share/osinfo/os/fedoraproject.org/fedora-28.xml")
+            self.addCleanup(self.machine.execute, "umount /usr/share/osinfo/os/fedoraproject.org/fedora-28.xml || true")
+
         runner.checkEnvIsEmpty()
 
         self.browser.enter_page('/machines')
@@ -1450,25 +1505,16 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self.browser.switch_to_top()
         self.browser.wait_not_visible("#navbar-oops")
 
+        fakeFedoraTree()
+        setupMockFileServer()
+
         # define default storage pool for system connection
         cmds = [
             "virsh pool-define-as default --type dir --target /var/lib/libvirt/images",
             "virsh pool-start default"
         ]
         self.machine.execute(" && ".join(cmds))
-
-        # Fake the osinfo-db data in order that it will allow spawn the installation - of course we don't expect it to succeed -
-        # we just need to check that the VM was spawned
-        fedora_28_xml = self.machine.execute("cat /usr/share/osinfo/os/fedoraproject.org/fedora-28.xml")
-        root = ET.fromstring(fedora_28_xml)
-        root.find('os').find('resources').find('minimum').find('ram').text = '134217750'
-        root.find('os').find('resources').find('minimum').find('storage').text = '134217750'
-        root.find('os').find('resources').find('recommended').find('ram').text = '268435500'
-        root.find('os').find('resources').find('recommended').find('storage').text = '268435500'
-        new_fedora_28_xml = ET.tostring(root)
-        self.machine.execute("echo \'{0}\' > /tmp/fedora-28.xml".format(str(new_fedora_28_xml, 'utf-8')))
-        self.machine.execute("mount -o bind /tmp/fedora-28.xml /usr/share/osinfo/os/fedoraproject.org/fedora-28.xml")
-        self.addCleanup(self.machine.execute, "umount /usr/share/osinfo/os/fedoraproject.org/fedora-28.xml || true")
+        fakeOsDBInfo()
 
         self.browser.reload()
         self.browser.enter_page('/machines')
@@ -1526,11 +1572,10 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             checkDialogFormValidationTest(TestMachines.VmDialog(self, "existing-name", storage_size=1,
                                                                 check_script_finished=False, env_is_empty=False), {"Name": "already exists"})
 
-            self.machine.execute("killall -9 virt-install")
-
-            # Close the notificaton which will appear for the failed installation
-            self.browser.click(".toast-notifications-list-pf div.pf-c-alert button.pf-c-button")
-            self.browser.wait_not_present(".toast-notifications-list-pf div.pf-c-alert")
+            mock_dialog = type('', (), {})
+            mock_dialog.name = 'existing-name'
+            runner.deleteVm(mock_dialog) \
+                  .checkEnvIsEmpty()
 
         # location
         checkDialogFormValidationTest(TestMachines.VmDialog(self, sourceType='url',
@@ -1562,7 +1607,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                                                          expected_memory_size=256,
                                                          expected_storage_size=256,
                                                          os_name=config.FEDORA_28,
-                                                         os_short_id=config.FEDORA_28_SHORTID))
+                                                         os_short_id=config.FEDORA_28_SHORTID,
+                                                         start_vm=True))
 
             createDownloadAnOSTest(TestMachines.VmDialog(self, sourceType='downloadOS',
                                                          is_unattended=True, profile="Workstation",
@@ -1729,38 +1775,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         virtInstallVersion = self.machine.execute("virt-install --version")
         if virtInstallVersion >= "2":
-            self.machine.upload(["verify/files/min-openssl-config.cnf", "verify/files/mock-range-server.py"], "/tmp/")
-
             # Test detection of ISO file in URL
-            cmds = [
-                # Generate certificate for https server
-                "cd /tmp",
-                "openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -subj '/CN=localhost' -nodes -config /tmp/min-openssl-config.cnf",
-                "cat cert.pem key.pem > server.pem"
-            ]
-
-            if self.machine.image.startswith("ubuntu") or self.machine.image.startswith("debian"):
-                cmds += [
-                    "cp /tmp/cert.pem /usr/local/share/ca-certificates/cert.crt",
-                    "update-ca-certificates"
-                ]
-            else:
-                cmds += [
-                    "cp /tmp/cert.pem /etc/pki/ca-trust/source/anchors/cert.pem",
-                    "update-ca-trust"
-                ]
-            self.machine.execute(" && ".join(cmds))
-
-            # Run https server with range option support. QEMU uses range option
-            # see: https://lists.gnu.org/archive/html/qemu-devel/2013-06/msg02661.html
-            # or
-            # https://github.com/qemu/qemu/blob/master/block/curl.c
-            #
-            # and on certain distribution supports only https (not http)
-            # see: block-drv-ro-whitelist option in qemu-kvm.spec for certain distribution
-            server = self.machine.spawn("cd /var/lib/libvirt && exec python3 /tmp/mock-range-server.py /tmp/server.pem", "httpsserver")
-            self.addCleanup(self.machine.execute, "kill {0}".format(server))
-
             createTest(TestMachines.VmDialog(self, sourceType='url',
                                              location=config.ISO_URL,
                                              memory_size=256, memory_size_unit='MiB',
@@ -1925,7 +1940,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         VALID_DISK_IMAGE_PATH = '/var/lib/libvirt/images/example.img'
         NOVELL_MOCKUP_ISO_PATH = '/var/lib/libvirt/novell.iso'
         NOT_EXISTENT_PATH = '/tmp/not-existent.iso'
-        ISO_URL = 'https://localhost:8000/novell.iso'
+        ISO_URL = 'https://archive.fedoraproject.org/pub/archive/fedora/linux/releases/28/Server/x86_64/os/images/boot.iso'
 
         OPENBSD_6_3 = 'OpenBSD 6.3'
 

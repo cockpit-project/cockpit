@@ -29,9 +29,13 @@ class Test:
     test_id: int
     command: list
     timeout: int
+    nondestructive: bool = False
     process: subprocess.Popen = None
     retries: int = 0
     output: bytes = b""
+
+def test_name(test):
+    return "{0} {1} {2}{3}".format(test.test_id, test.command[0], test.command[-1], " [ND]" if test.nondestructive else "")
 
 
 def print_test(test, print_tap=True):
@@ -43,15 +47,14 @@ def print_test(test, print_tap=True):
         return
 
     if test.process.returncode == 0:
-        print("ok {0} {1} {2}".format(test.test_id, test.command[0], test.command[-1]))
+        print("ok " +  test_name(test))
     elif test.process.returncode == 77 or b"# SKIP " in test.output:
         # If the test was skipped, add the last line (which contains the reason
         # for the skip) to the result
-        print("ok {0} {1} {2} {3}".format(test.test_id, test.command[0], test.command[-1],
-                                          test.output.splitlines()[-1].strip().decode()
-                                          if test.process.returncode == 77 else ""))
+        print("ok {0} {1}".format(test_name(test),
+                                  test.output.splitlines()[-1].strip().decode() if test.process.returncode == 77 else ""))
     else:
-        print("not ok {0} {1} {2}".format(test.test_id, test.command[0], test.command[-1]))
+        print("not ok " + test_name(test))
     sys.stdout.flush()
 
 def finish_test(opts, test):
@@ -68,7 +71,7 @@ def finish_test(opts, test):
     if not opts.thorough:
         cmd = ["tests-policy", testvm.DEFAULT_IMAGE]
         try:
-            test.output += "not ok {0} {1} {2}".format(test.test_id, test.command[0], test.command[-1]).encode()
+            test.output += ("not ok " + test_name(test)).encode()
             proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
             changed = proc.communicate(test.output)[0]
             if proc.returncode == 0:
@@ -150,8 +153,9 @@ def run(opts):
                 test_timeout = getattr(test_method, "__timeout", getattr(test, "__timeout", 600))
                 if opts.tests and not any([t in test_str for t in opts.tests]):
                     continue
-                test = Test(test_id, build_command(filename, test_str, opts), test_timeout)
-                if getattr(test_method, "_testlib__non_destructive", False):
+                nd = getattr(test_method, "_testlib__non_destructive", False)
+                test = Test(test_id, build_command(filename, test_str, opts), test_timeout, nd)
+                if nd:
                     serial_tests.append(test)
                 else:
                     if not opts.nondestructive:

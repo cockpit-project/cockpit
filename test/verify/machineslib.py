@@ -1437,22 +1437,22 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 .checkEnvIsEmpty()
 
         def setupMockFileServer():
-            self.machine.upload(["verify/files/min-openssl-config.cnf", "verify/files/mock-range-server.py"], "/tmp/")
+            self.machine.upload(["verify/files/min-openssl-config.cnf", "verify/files/mock-range-server.py"], self.vm_tmpdir)
             cmds = [
                 # Generate certificate for https server
-                "cd /tmp",
-                "openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -subj '/CN=archive.fedoraproject.org' -nodes -config /tmp/min-openssl-config.cnf",
+                "cd {0}".format(self.vm_tmpdir),
+                "openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -subj '/CN=archive.fedoraproject.org' -nodes -config {0}/min-openssl-config.cnf".format(self.vm_tmpdir),
                 "cat cert.pem key.pem > server.pem"
             ]
 
             if self.machine.image.startswith("ubuntu") or self.machine.image.startswith("debian"):
                 cmds += [
-                    "cp /tmp/cert.pem /usr/local/share/ca-certificates/cert.crt",
+                    "cp {0}/cert.pem /usr/local/share/ca-certificates/cert.crt".format(self.vm_tmpdir),
                     "update-ca-certificates"
                 ]
             else:
                 cmds += [
-                    "cp /tmp/cert.pem /etc/pki/ca-trust/source/anchors/cert.pem",
+                    "cp {0}/cert.pem /etc/pki/ca-trust/source/anchors/cert.pem".format(self.vm_tmpdir),
                     "update-ca-trust"
                 ]
             self.machine.execute(" && ".join(cmds))
@@ -1464,7 +1464,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             #
             # and on certain distribution supports only https (not http)
             # see: block-drv-ro-whitelist option in qemu-kvm.spec for certain distribution
-            server = self.machine.spawn("cd /var/lib/libvirt && exec python3 /tmp/mock-range-server.py /tmp/server.pem", "httpsserver")
+            server = self.machine.spawn("cd /var/lib/libvirt && exec python3 {0}/mock-range-server.py {0}/server.pem".format(self.vm_tmpdir), "httpsserver")
             self.addCleanup(self.machine.execute, "kill {0}".format(server))
 
         def fakeFedoraTree():
@@ -1487,8 +1487,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             root.find('os').find('resources').find('recommended').find('ram').text = '268435500'
             root.find('os').find('resources').find('recommended').find('storage').text = '268435500'
             new_fedora_28_xml = ET.tostring(root)
-            self.machine.execute("echo \'{0}\' > /tmp/fedora-28.xml".format(str(new_fedora_28_xml, 'utf-8')))
-            self.machine.execute("mount -o bind /tmp/fedora-28.xml /usr/share/osinfo/os/fedoraproject.org/fedora-28.xml")
+            self.machine.execute("echo \'{0}\' > {1}/fedora-28.xml".format(str(new_fedora_28_xml, 'utf-8'), self.vm_tmpdir))
+            self.machine.execute("mount -o bind  {0}/fedora-28.xml /usr/share/osinfo/os/fedoraproject.org/fedora-28.xml".format(self.vm_tmpdir))
             self.addCleanup(self.machine.execute, "umount /usr/share/osinfo/os/fedoraproject.org/fedora-28.xml || true")
 
         runner.checkEnvIsEmpty()

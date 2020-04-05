@@ -268,7 +268,7 @@ for pkg in apps dashboard docker machines packagekit pcp playground storaged; do
     rm -rf %{buildroot}/%{_datadir}/cockpit/$pkg
 done
 # files from -tests
-rm -r %{buildroot}/%{_prefix}/%{__lib}/cockpit-test-assets %{buildroot}/%{_sysconfdir}/cockpit/cockpit.conf
+rm -r %{buildroot}/%{_prefix}/%{__lib}/cockpit-test-assets
 # files from -pcp
 rm -r %{buildroot}/%{_libexecdir}/cockpit-pcp %{buildroot}/%{_localstatedir}/lib/pcp/
 # files from -machines
@@ -622,7 +622,6 @@ This package contains tests and files used while testing Cockpit.
 These files are not required for running Cockpit.
 
 %files -n cockpit-tests -f tests.list
-%config(noreplace) %{_sysconfdir}/cockpit/cockpit.conf
 %{_prefix}/%{__lib}/cockpit-test-assets
 
 %package -n cockpit-machines

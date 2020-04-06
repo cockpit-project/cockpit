@@ -390,8 +390,8 @@ class ServicesPage extends React.Component {
       * Sort units by alphabetically - failed units go on the top of the list
       */
     compareUnits(unit_a, unit_b) {
-        const failed_a = unit_a.ActiveState == "failed" ? 1 : 0;
-        const failed_b = unit_b.ActiveState == "failed" ? 1 : 0;
+        const failed_a = unit_a.HasFailed ? 1 : 0;
+        const failed_b = unit_b.HasFailed ? 1 : 0;
 
         if (!unit_a || !unit_b)
             return false;

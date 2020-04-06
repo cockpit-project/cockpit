@@ -836,6 +836,9 @@ class MachineCase(unittest.TestCase):
 
         m = self.machine
 
+        # core dumps get copied per-test, don't clobber subsequent tests with them
+        self.addCleanup(m.execute, "rm -rf /var/lib/systemd/coredump")
+
         # temporary directory in the VM
         self.addCleanup(m.execute, "if [ -d {0} ]; then findmnt --list --noheadings --output TARGET | grep ^{0} | xargs -r umount && rm -r {0}; fi".format(self.vm_tmpdir))
 

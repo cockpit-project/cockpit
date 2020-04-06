@@ -862,6 +862,11 @@ class MachineCase(unittest.TestCase):
             # tests expect cockpit.service to not run at start; also, avoid log leakage into the next test
             self.addCleanup(m.execute, "systemctl stop cockpit")
 
+        # The sssd daemon seems to get confused when we restore
+        # backups of /etc/group etc and stops following updates to it.
+        # Let's restart the daemon to reset that condition.
+        m.execute("systemctl try-restart sssd || true")
+
         # reset scsi_debug (see e. g. StorageHelpers.add_ram_disk()
         # this needs to happen very late in the cleanup, so that test cases can clean up the users of that disk first
         # right after unmounting the device is often still busy, so retry a few times

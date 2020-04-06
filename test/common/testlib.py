@@ -1190,6 +1190,9 @@ class MachineCase(unittest.TestCase):
             if m.ssh_reachable:
                 directory = "%s-%s-%s.core" % (label or self.label(), m.label, title)
                 dest = os.path.abspath(directory)
+                # overwrite core dumps from previous retries
+                if os.path.exists(dest):
+                    shutil.rmtree(dest)
                 m.download_dir("/var/lib/systemd/coredump", dest)
                 try:
                     os.rmdir(dest)

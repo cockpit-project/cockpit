@@ -23,7 +23,6 @@ import PropTypes from 'prop-types';
 import { FormGroup, HelpBlock, Modal } from 'patternfly-react';
 import { Button } from '@patternfly/react-core';
 
-import { MachinesConnectionSelector } from '../machinesConnectionSelector.jsx';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { networkCreate } from '../../libvirt-dbus.js';
 import * as Select from 'cockpit-components-select.jsx';
@@ -34,6 +33,19 @@ import cockpit from 'cockpit';
 import './createNetworkDialog.css';
 
 const _ = cockpit.gettext;
+
+const ConnectionRow = ({ connectionName }) => {
+    return (
+        <>
+            <label className='control-label' htmlFor="create-network-connection-name">
+                {_("Connection")}
+            </label>
+            <samp id="create-network-connection-name">
+                {connectionName}
+            </samp>
+        </>
+    );
+};
 
 function validateParams(dialogValues) {
     const validationFailed = {};
@@ -350,7 +362,6 @@ class CreateNetworkModal extends React.Component {
         this.state = {
             createInProgress: false,
             dialogError: undefined,
-            connectionName: LIBVIRT_SYSTEM_CONNECTION,
             validate: false,
             name: '',
             forwardMode: 'nat',
@@ -398,7 +409,7 @@ class CreateNetworkModal extends React.Component {
             this.setState({ inProgress: false, validate: true });
         } else {
             const {
-                connectionName, name, forwardMode, ip, prefix, device,
+                name, forwardMode, ip, prefix, device,
                 ipv4DhcpRangeStart, ipv4DhcpRangeEnd, ipv6DhcpRangeStart, ipv6DhcpRangeEnd
             } = this.state;
             const ipv6 = ip === "IPv4 only" ? undefined : this.state.ipv6;
@@ -407,7 +418,7 @@ class CreateNetworkModal extends React.Component {
 
             this.setState({ createInProgress: true });
             networkCreate({
-                connectionName, name, forwardMode, device, ipv4, netmask, ipv6, prefix,
+                connectionName: LIBVIRT_SYSTEM_CONNECTION, name, forwardMode, device, ipv4, netmask, ipv6, prefix,
                 ipv4DhcpRangeStart, ipv4DhcpRangeEnd, ipv6DhcpRangeStart, ipv6DhcpRangeEnd
             })
                     .fail(exc => {
@@ -423,10 +434,7 @@ class CreateNetworkModal extends React.Component {
 
         const body = (
             <form className='ct-form'>
-                <MachinesConnectionSelector id='create-network-connection'
-                    connectionName={this.state.connectionName}
-                    onValueChanged={this.onValueChanged}
-                    loggedUser={this.props.loggedUser} />
+                <ConnectionRow connectionName={LIBVIRT_SYSTEM_CONNECTION} />
 
                 <hr />
 
@@ -492,7 +500,6 @@ class CreateNetworkModal extends React.Component {
 CreateNetworkModal.propTypes = {
     close: PropTypes.func.isRequired,
     devices: PropTypes.array.isRequired,
-    loggedUser: PropTypes.object.isRequired,
 };
 
 export class CreateNetworkAction extends React.Component {
@@ -521,13 +528,11 @@ export class CreateNetworkAction extends React.Component {
                 { this.state.showModal &&
                 <CreateNetworkModal
                     close={this.close}
-                    devices={this.props.devices}
-                    loggedUser={this.props.loggedUser} /> }
+                    devices={this.props.devices} /> }
             </>
         );
     }
 }
 CreateNetworkAction.propTypes = {
-    loggedUser: PropTypes.object.isRequired,
     devices: PropTypes.array.isRequired,
 };

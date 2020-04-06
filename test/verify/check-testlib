@@ -26,9 +26,9 @@ from testlib import *
 
 dirname = os.path.dirname(__file__)
 
-class TestTestLib(unittest.TestCase):
+class TestRunTestListing(unittest.TestCase):
 
-    def testTestListing(self):
+    def testBasic(self):
         # Listing on check-* file
         self.assertEqual(subprocess.check_output([os.path.join(dirname, "check-example"), "-l", "TestNondestructiveExample"]).strip().decode(),
                          "TestNondestructiveExample.testOne\nTestNondestructiveExample.testTwo")
@@ -52,6 +52,53 @@ class TestTestLib(unittest.TestCase):
         # with short option and substring
         self.assertEqual(subprocess.check_output([os.path.join(dirname, "run-tests"), "-nl", "TestExamp"]).strip().decode(),
                          "1..1\nTestExample.testNondestructive")
+
+
+class TestTestlib(MachineCase):
+    @nondestructive
+    def testRestoreAPI(self):
+        m = self.machine
+
+        self.assertEqual(m.execute("whoami").strip(), "root")
+        # existing file
+        m.execute("echo original > /etc/someconfig")
+        self.restore_file("/etc/someconfig")
+        m.execute("echo changed > /etc/someconfig")
+        # nonexisting file
+        self.restore_file("/var/lib/cockpittest.txt")
+        m.execute("echo data > /var/lib/cockpittest.txt")
+
+        # existing dir
+        m.execute("mkdir -p /var/lib/existing_dir && echo hello > /var/lib/existing_dir/original")
+        self.restore_dir("/var/lib/existing_dir")
+        m.execute("rm /var/lib/existing_dir/original && echo pwned > /var/lib/existing_dir/new")
+        # nonexisting dir
+        self.restore_dir("/var/lib/cockpittestnew")
+        m.execute("mkdir -p /var/lib/cockpittestnew && echo hello > /var/lib/cockpittestnew/cruft")
+
+        # NSS is backed up by default
+        m.execute("useradd cockpittest")
+
+        # now pretend the test ends here
+        self.doCleanups()
+
+        # correctly restored existing file
+        self.assertEqual("original", m.execute("cat /etc/someconfig").strip())
+        m.execute("rm /etc/someconfig")
+        # correctly cleaned up nonexisting file
+        m.execute("test ! -e /var/lib/cockpittest.txt")
+
+        # correctly restored existing dir
+        self.assertEqual("original", m.execute("ls /var/lib/existing_dir").strip())
+        self.assertEqual("hello\n", m.execute("cat /var/lib/existing_dir/original"))
+        m.execute("rm -r /var/lib/existing_dir")
+        # correctly removed nonexisting dir
+        m.execute("test ! -e /var/lib/cockpittestnew")
+
+        # NSS/home got restored
+        self.assertNotIn("cockpittest", self.machine.execute("cat /etc/passwd"))
+        self.machine.execute("test ! -e /home/cockpittest")
+
 
 if __name__ == '__main__':
     test_main()

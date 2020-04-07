@@ -2030,9 +2030,9 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
             b.wait_present("#create-vm-dialog")
             if self.sourceType == 'disk_image':
-                b.wait_in_text(".modal-dialog .modal-header .modal-title", "Import A Virtual Machine")
+                b.wait_in_text(".pf-c-modal-box .pf-c-title", "Import A Virtual Machine")
             else:
-                b.wait_in_text(".modal-dialog .modal-header .modal-title", "Create New Virtual Machine")
+                b.wait_in_text(".pf-c-modal-box .pf-c-title", "Create New Virtual Machine")
 
             if self.os_name is not None:
                 # check if there is os present in osinfo-query because it can be filtered out in the UI
@@ -2063,7 +2063,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             return self
 
         def createAndVerifyVirtInstallArgs(self):
-            self.browser.click(".modal-footer button:contains(Create)")
+            self.browser.click(".pf-c-modal-box__footer button:contains(Create)")
             self.browser.wait_not_present("#create-vm-dialog")
 
             virt_install_cmd = "ps aux | grep 'virt\-install\ \-\-connect'"
@@ -2185,7 +2185,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         def cancel(self, force=False):
             b = self.browser
             if b.is_present("#create-vm-dialog"):
-                b.click(".modal-footer button:contains(Cancel)")
+                b.click(".pf-c-modal-box__footer button:contains(Cancel)")
                 b.wait_not_present("#create-vm-dialog")
             elif force:
                 raise Exception("There is no dialog to cancel")
@@ -2194,9 +2194,9 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         def create(self):
             b = self.browser
             if self.sourceType == 'disk_image':
-                b.click(".modal-footer button:contains(Import)")
+                b.click(".pf-c-modal-box__footer button:contains(Import)")
             else:
-                b.click(".modal-footer button:contains(Create)")
+                b.click(".pf-c-modal-box__footer button:contains(Create)")
             init_state = "creating VM installation" if self.start_vm else "creating VM"
             second_state = "running" if self.start_vm else "shut off"
 
@@ -2208,20 +2208,20 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             b = self.browser
 
             if self.sourceType == 'disk_image':
-                b.click(".modal-footer button:contains(Import)")
+                b.click(".pf-c-modal-box__footer button:contains(Import)")
             else:
-                b.click(".modal-footer button:contains(Create)")
+                b.click(".pf-c-modal-box__footer button:contains(Create)")
 
             for error, error_msg in errors.items():
-                error_location = ".modal-body label:contains('{0}') + div.form-group.has-error span.help-block".format(error)
+                error_location = ".pf-c-modal-box__body label:contains('{0}') + div.form-group.has-error span.help-block".format(error)
                 b.wait_visible(error_location)
                 if (error_msg):
                     b.wait_in_text(error_location, error_msg)
 
             if self.sourceType == 'disk_image':
-                b.wait_present(".modal-footer button:contains(Import):disabled")
+                b.wait_present(".pf-c-modal-box__footer button:contains(Import):disabled")
             else:
-                b.wait_present(".modal-footer button:contains(Create):disabled")
+                b.wait_present(".pf-c-modal-box__footer button:contains(Create):disabled")
 
             return self
 
@@ -2238,12 +2238,12 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                     raise Error("Retry limit exceeded: None of [%s] is part of the error message '%s'" % (
                         ', '.join(errors), b.text(error_location)))
 
-            b.click(".modal-footer button:contains(Create)")
+            b.click(".pf-c-modal-box__footer button:contains(Create)")
 
-            error_location = ".modal-footer div.pf-c-alert"
+            error_location = ".pf-c-modal-box__footer div.pf-c-alert"
 
-            b.wait_present(".modal-footer .spinner")
-            b.wait_not_present(".modal-footer .spinner")
+            b.wait_present(".pf-c-modal-box__footer .spinner")
+            b.wait_not_present(".pf-c-modal-box__footer .spinner")
             try:
                 with b.wait_timeout(10):
                     b.wait_present(error_location)

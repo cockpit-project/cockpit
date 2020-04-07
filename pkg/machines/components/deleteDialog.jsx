@@ -19,8 +19,8 @@
 
 import cockpit from 'cockpit';
 import React from 'react';
-import { Modal, OverlayTrigger, Tooltip } from 'patternfly-react';
-import { Button } from '@patternfly/react-core';
+import { OverlayTrigger, Tooltip } from 'patternfly-react';
+import { Button, Modal } from '@patternfly/react-core';
 
 import { vmId } from '../helpers.js';
 import { deleteVm } from '../actions/provider-actions.js';
@@ -78,10 +78,10 @@ const DeleteDialogBody = ({ disks, destroy, onChange }) => {
         );
 
     return (
-        <div className="modal-body">
+        <>
             {alert}
             {disksBody}
-        </div>
+        </>
     );
 };
 
@@ -169,22 +169,21 @@ export class DeleteDialog extends React.Component {
             <span>
                 { deleteButton }
 
-                <Modal id={`${id}-delete-modal-dialog`} show={this.state.showModal} onHide={this.close}>
-                    <Modal.Header>
-                        <Modal.Title> {`Confirm deletion of ${this.props.vm.name}`} </Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <DeleteDialogBody disks={this.state.disks} destroy={this.state.destroy} onChange={this.onDiskCheckedChanged} />
-                    </Modal.Body>
-                    <Modal.Footer>
-                        {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
-                        <Button variant='danger' onClick={this.delete}>
-                            {_("Delete")}
-                        </Button>
-                        <Button variant='link' className='btn-cancel' onClick={this.close}>
-                            {_("Cancel")}
-                        </Button>
-                    </Modal.Footer>
+                <Modal id={`${id}-delete-modal-dialog`} isOpen={this.state.showModal} onClose={this.close}
+                       className="pf-m-md"
+                       appendTo={document.body}
+                       title={`Confirm deletion of ${this.props.vm.name}`}
+                       footer={<>
+                           {this.state.dialogError && <ModalError key="error" dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
+                           <Button variant='danger' key="btn-delete" onClick={this.delete}>
+                               {_("Delete")}
+                           </Button>
+                           <Button variant='link' key="btn-cancel" className='btn-cancel' onClick={this.close}>
+                               {_("Cancel")}
+                           </Button>
+                       </>}
+                       isFooterLeftAligned>
+                    <DeleteDialogBody disks={this.state.disks} destroy={this.state.destroy} onChange={this.onDiskCheckedChanged} />
                 </Modal>
             </span>
         );

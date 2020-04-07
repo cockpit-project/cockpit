@@ -562,3 +562,21 @@ input[type=number] {
     line-height: 1.5;
     border-radius: .2rem;
 }
+
+/* PF4 modals have a max height and scroll on overflow - unset the maximum height to avoid getting a scrollbar */
+.pf-c-modal-box {
+    max-height: calc(100vh - var(--pf-global--spacer--2xl));
+
+    /* PF4 modals are missing pf-m-md class for medium size modals */
+    &.pf-m-md {
+        max-width: 50rem;
+        margin: var(--pf-global--spacer--lg);
+
+        @media screen and (max-width: 50rem) {
+            max-width: calc(100% - var(--pf-global--spacer--lg)); // Ensure modal has gutters at full width
+        }
+    }
+}
+.pf-c-backdrop > .pf-l-bullseye {
+    align-items: start;
+}

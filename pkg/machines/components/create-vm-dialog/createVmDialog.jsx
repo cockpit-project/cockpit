@@ -19,8 +19,8 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { FormGroup, HelpBlock, Modal, OverlayTrigger, Tooltip, TypeAheadSelect } from 'patternfly-react';
-import { Button } from '@patternfly/react-core';
+import { FormGroup, HelpBlock, OverlayTrigger, Tooltip, TypeAheadSelect } from 'patternfly-react';
+import { Button, Modal } from '@patternfly/react-core';
 
 import cockpit from 'cockpit';
 import { MachinesConnectionSelector } from '../machinesConnectionSelector.jsx';
@@ -929,25 +929,26 @@ class CreateVmModal extends React.Component {
         );
 
         return (
-            <Modal id='create-vm-dialog' show onHide={ this.props.close }>
-                <Modal.Header>
-                    <Modal.CloseButton onClick={ this.props.close } />
-                    <Modal.Title> {this.props.mode == 'create' ? _("Create New Virtual Machine") : _("Import A Virtual Machine")} </Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    {dialogBody}
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="primary"
-                            isDisabled={Object.getOwnPropertyNames(validationFailed).length > 0}
-                            onClick={this.onCreateClicked}>
-                        {this.props.mode == 'create' ? _("Create") : _("Import")}
-                    </Button>
-                    <Button variant='link' className='btn-cancel' onClick={ this.props.close }>
-                        {_("Cancel")}
-                    </Button>
-                    {this.state.inProgress && <div className="spinner spinner-sm pull-right" />}
-                </Modal.Footer>
+            <Modal id='create-vm-dialog' appendTo={document.body} isOpen onClose={ this.props.close }
+                   className='pf-m-md'
+                   title={this.props.mode == 'create' ? _("Create New Virtual Machine") : _("Import A Virtual Machine")}
+                   footer={<>
+                       <Button variant="primary"
+                               key="btn-create"
+                               isDisabled={Object.getOwnPropertyNames(validationFailed).length > 0}
+                               onClick={this.onCreateClicked}>
+                           {this.props.mode == 'create' ? _("Create") : _("Import")}
+                       </Button>
+                       <Button variant='link'
+                               key="btn-cancel"
+                               className='btn-cancel'
+                               onClick={ this.props.close }>
+                           {_("Cancel")}
+                       </Button>
+                       {this.state.inProgress && <div key="spiner" className="spinner spinner-sm pull-right" />}
+                   </>}
+                   isFooterLeftAligned>
+                {dialogBody}
             </Modal>
         );
     }

@@ -348,11 +348,6 @@ test_tls_authority_bad (TestTls *test,
 
   GBytes *bytes;
   JsonObject *resp;
-  gchar *expected_pem = NULL;
-  gchar *expected_json = NULL;
-
-  g_object_get (test->certificate, "certificate-pem", &expected_pem, NULL);
-  g_assert_true (expected_pem != NULL);
 
   tls = cockpit_json_parse_object (json, -1, &error);
   g_assert_no_error (error);
@@ -378,13 +373,10 @@ test_tls_authority_bad (TestTls *test,
     g_main_context_iteration (NULL, TRUE);
 
   resp = mock_transport_pop_control (test->transport);
-  expected_json = g_strdup_printf ("{\"command\":\"close\",\"channel\":\"444\",\"problem\":\"unknown-hostkey\", "
-                                   " \"rejected-certificate\":\"%s\"}", expected_pem);
-  cockpit_assert_json_eq (resp, expected_json);
+  json_object_remove_member (resp, "message");
+  cockpit_assert_json_eq (resp, "{\"command\":\"close\",\"channel\":\"444\",\"problem\":\"unknown-hostkey\"}");
 
   g_object_unref (channel);
-  g_free (expected_pem);
-  g_free (expected_json);
 }
 
 int

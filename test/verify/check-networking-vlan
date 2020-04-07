@@ -21,23 +21,17 @@ import parent
 from netlib import *
 from testlib import *
 
-from machine_core.constants import TEST_OS_DEFAULT
 
-
+@nondestructive
 class TestNetworking(NetworkCase):
-    provision = {
-        "machine1": {},
-        "machine2": {"image": TEST_OS_DEFAULT, "address": "10.111.113.2/20", "dhcp": True}
-    }
-
     def testVlan(self):
         b = self.browser
         m = self.machine
 
         self.login_and_go("/network")
 
-        iface = self.add_iface()
-        self.wait_for_iface(iface)
+        iface = 'cockpit1'
+        self.add_veth(iface, dhcp_cidr="10.111.113.2/20")
 
         # Make a VLAN interface
         b.click("button:contains('Add VLAN')")

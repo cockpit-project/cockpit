@@ -562,3 +562,17 @@ input[type=number] {
 .pf-m-split-button {
   align-items: stretch;
 }
+
+/* Helper mod to wrap pf-c-nav__tertiary */
+.ct-m-nav__tertiary-wrap {
+    flex-wrap: wrap;
+
+    .pf-c-nav__scroll-button {
+        display: none;
+    }
+}
+
+/* Helper mod to center pf-c-nav__tertiary when it wraps */
+.ct-m-nav__tertiary-center {
+    justify-content: center;
+}

@@ -259,8 +259,10 @@ rm -rf ~/rpmbuild
                                     xz -c Packages > Packages.xz
                                     O=$(apt-ftparchive -o APT::FTPArchive::Release::Origin=cockpittest release .); echo "$O" > Release
                                     echo 'Changelogs: http://localhost:12345/changelogs/@CHANGEPATH@' >> Release
-                                    setsid python3 -m http.server 12345 >/dev/null 2>&1 < /dev/null &
                                     '''.format(self.repo_dir))
+            pid = self.machine.spawn("cd %s && exec python3 -m http.server 12345" % self.repo_dir, "changelog")
+            # pid will not be present for rebooting tests
+            self.addCleanup(self.machine.execute, "kill %i || true" % pid)
             self.machine.wait_for_cockpit_running(port=12345)  # wait for changelog HTTP server to start up
         else:
             self.machine.execute('''set -e; printf '[updates]\nname=cockpittest\nbaseurl=file://{0}\nenabled=1\ngpgcheck=0\n' > /etc/yum.repos.d/cockpittest.repo

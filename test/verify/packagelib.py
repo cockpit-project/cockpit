@@ -25,7 +25,7 @@ class PackageCase(MachineCase):
     def setUp(self):
         super().setUp()
 
-        self.repo_dir = "/var/tmp/repo"
+        self.repo_dir = os.path.join(self.vm_tmpdir, "repo")
 
         if self.machine.ostree_image:
             warnings.warn("PackageCase: OSTree images can't install additional packages")
@@ -58,25 +58,14 @@ class PackageCase(MachineCase):
 
         # disable all existing repositories to avoid hitting the network
         if self.backend == "apt":
-            self.machine.execute("""
-                mv /etc/apt/sources.list.d /etc/apt/sources.list.d.test;
-                mkdir -p /etc/apt/sources.list.d;
-                mv /etc/apt/sources.list /etc/apt/sources.list.test;
-                touch /etc/apt/sources.list;
-                apt-get update""")
-
-            self.addCleanup(self.machine.execute, """
-                rm -rf /etc/apt/sources.list.d;
-                mv /etc/apt/sources.list.d.test /etc/apt/sources.list.d;
-                mv /etc/apt/sources.list.test /etc/apt/sources.list""")
+            self.restore_dir("/var/lib/apt", reboot_safe=True)
+            self.restore_dir("/var/cache/apt", reboot_safe=True)
+            self.restore_dir("/etc/apt", reboot_safe=True)
+            self.machine.execute("echo > /etc/apt/sources.list && rm -f /etc/apt/sources.list.d/* && apt-get clean && apt-get update")
         else:
-            self.machine.execute("""
-                mv /etc/yum.repos.d /etc/yum.repos.d.test;
-                mkdir -p /etc/yum.repos.d;
-                rm -rf /var/cache/yum/* /var/cache/dnf/*""")
-            self.addCleanup(self.machine.execute, """
-                rm -rf /etc/yum.repos.d;
-                mv /etc/yum.repos.d.test /etc/yum.repos.d""")
+            self.restore_dir("/etc/yum.repos.d", reboot_safe=True)
+            self.restore_dir("/var/cache/dnf", reboot_safe=True)
+            self.machine.execute("rm -rf /etc/yum.repos.d/* /var/cache/yum/* /var/cache/dnf/*")
 
         # have PackageKit start from a clean slate
         self.machine.execute("systemctl kill --signal=SIGKILL packagekit; rm -rf /var/cache/PackageKit")

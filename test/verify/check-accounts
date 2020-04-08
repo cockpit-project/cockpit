@@ -26,6 +26,10 @@ from testlib import *
 @nondestructive
 class TestAccounts(MachineCase):
 
+    def tearDown(self):
+        # ensure that there are no lingering processes after the test which prevent userdel
+        self.machine.execute("pkill -e -u anton 2>/dev/null; pkill -e -u scruffy 2>/dev/null || true")
+
     def testBasic(self):
         b = self.browser
         m = self.machine

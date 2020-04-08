@@ -28,7 +28,7 @@ import { getAllStoragePools, getVm, detachDisk } from '../actions/provider-actio
 import { EditDiskAction } from './diskEdit.jsx';
 import WarningInactive from './warningInactive.jsx';
 import { ListingTable } from "cockpit-components-table.jsx";
-import { DeleteResource } from './deleteResource.jsx';
+import { DeleteResourceButton, DeleteResourceModal } from './deleteResource.jsx';
 
 const _ = cockpit.gettext;
 
@@ -161,19 +161,24 @@ class VmDisksTab extends React.Component {
                                 detail: ex.message, resourceId: vm.id,
                             });
                         })
-                        .then(() => dispatch(getVm({ connectionName: vm.connectionName, id:vm.id })));
+                        .then(() => {
+                            dispatch(getVm({ connectionName: vm.connectionName, id:vm.id }));
+                        });
             };
-
+            const deleteDialogProps = {
+                objectType: "Disk",
+                objectName: disk.target,
+                actionName: _("Remove"),
+                onClose: () => this.setState({ deleteDialogProps: undefined }),
+                deleteHandler: () => onRemoveDisk(),
+            };
             const diskActions = (
                 <div className='machines-listing-actions'>
-                    <DeleteResource objectType="Disk"
-                       className='machines-listing-actions'
-                       objectName={disk.target}
-                       objectId={vm.name + "-disk-" + disk.target}
+                    <DeleteResourceButton objectId={vm.name + "-disk-" + disk.target}
                        disabled={vm.state != 'shut off' && vm.state != 'running'}
+                       showDialog={() => this.setState({ deleteDialogProps })}
                        overlayText={_("The VM needs to be running or shut off to detach this device")}
-                       actionName={_("Remove")}
-                       deleteHandler={() => onRemoveDisk()} />
+                       actionName={_("Remove")} />
                     { vm.persistent && vm.inactiveXML.disks[disk.target] && // supported only  for persistent disks
                     <EditDiskAction disk={disk}
                         vm={vm}
@@ -186,12 +191,15 @@ class VmDisksTab extends React.Component {
         });
 
         return (
-            <ListingTable variant='compact'
-                actions={actions}
-                emptyCaption={_("No disks defined for this VM")}
-                aria-label={`VM ${vm.name} Disks`}
-                columns={columnTitles}
-                rows={rows} />
+            <>
+                {this.state.deleteDialogProps && <DeleteResourceModal {...this.state.deleteDialogProps} />}
+                <ListingTable variant='compact'
+                    actions={actions}
+                    emptyCaption={_("No disks defined for this VM")}
+                    aria-label={`VM ${vm.name} Disks`}
+                    columns={columnTitles}
+                    rows={rows} />
+            </>
         );
     }
 }

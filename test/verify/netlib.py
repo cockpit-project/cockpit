@@ -141,11 +141,15 @@ class NetworkCase(MachineCase, NetworkHelpers):
         m.execute("systemctl restart NetworkManager")
 
     def slow_down_dhclient(self, delay):
-        m = self.machine
-        m.needs_writable_usr()
-        m.execute("mv /usr/sbin/dhclient /usr/sbin/dhclient.real")
-        m.write("/usr/sbin/dhclient", '#! /bin/sh\nsleep %s\nexec /usr/sbin/dhclient.real "$@"' % delay)
-        m.execute("chmod a+x /usr/sbin/dhclient")
+        self.machine.execute("""set -e
+        mkdir -p {0}
+        cp -a /usr/sbin/dhclient {0}/dhclient.real
+        printf '#!/bin/sh\\nsleep {1}\\nexec {0}/dhclient.real "$@"' > {0}/dhclient
+        chmod a+x {0}/dhclient
+        if type chcon >/dev/null 2>&1; then chcon --reference /usr/sbin/dhclient {0}/dhclient; fi
+        mount -o bind {0}/dhclient /usr/sbin/dhclient
+        """.format(self.vm_tmpdir, delay))
+        self.addCleanup(self.machine.execute, "umount /usr/sbin/dhclient")
 
     def wait_onoff(self, sel, val):
         self.browser.wait_present(sel + " input" + (":checked" if val else ":not(:checked)"))

@@ -49,13 +49,14 @@ test_html = """
 """
 
 
+@nondestructive
 class TestPackages(MachineCase):
 
     def testBasic(self):
         m = self.machine
         b = self.browser
 
-        m.needs_writable_usr()
+        self.restore_dir("/usr/share/cockpit")
 
         self.login_and_go("/playground/pkgs")
 

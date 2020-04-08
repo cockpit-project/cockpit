@@ -883,6 +883,11 @@ class MachineCase(unittest.TestCase):
                         "    umount /dev/$dev 2>/dev/null || true; "
                         "done; until rmmod scsi_debug; do sleep 1; done")
 
+        # Terminate all lingering Cockpit sessions
+        self.addCleanup(self.machine.execute,
+                        "loginctl --no-legend list-sessions | awk '/web console/ { print $1 }' | "
+                        "xargs --no-run-if-empty -L1 loginctl terminate-session")
+
     def tearDown(self):
         if self.checkSuccess() and self.machine.ssh_reachable:
             self.check_journal_messages()

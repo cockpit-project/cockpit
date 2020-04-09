@@ -62,6 +62,20 @@ class NetworkCase(MachineCase, NetworkHelpers):
 
         m = self.machine
 
+        # clean up after nondestructive tests
+        if self.is_nondestructive():
+            def devs():
+                return set(self.machine.execute("ls /sys/class/net/ | grep -v bonding_masters").strip().split())
+
+            def cleanupDevs():
+                new = devs() - self.orig_devs
+                self.machine.execute("for d in %s; do ip link del dev $d; done" % ' '.join(new))
+
+            self.orig_devs = devs()
+            self.addCleanup(cleanupDevs)
+            self.restore_dir("/etc/NetworkManager", post_restore_action="systemctl try-restart NetworkManager")
+            self.restore_dir("/etc/sysconfig/network-scripts")
+
         # Ensure a clean and consistent state.  We remove rogue
         # connections that might still be here from the time of
         # creating the image and we prevent NM from automatically

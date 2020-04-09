@@ -27,37 +27,26 @@ import { ModalError } from 'cockpit-components-inline-notification.jsx';
 
 const _ = cockpit.gettext;
 
-export class DeleteResource extends React.Component {
+export class DeleteResourceModal extends React.Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            showModal: false,
             dialogError: undefined,
             inProgress: false,
         };
 
         this.delete = this.delete.bind(this);
-        this.close = this.close.bind(this);
-        this.open = this.open.bind(this);
         this.dialogErrorSet = this.dialogErrorSet.bind(this);
     }
 
     delete() {
         this.setState({ inProgress: true });
         this.props.deleteHandler()
-                .fail(exc => {
+                .then(this.props.onClose, exc => {
                     this.setState({ inProgress: false });
                     this.dialogErrorSet(cockpit.format(_("The $0 could not be deleted"), this.props.objectType.toLowerCase()), exc.message);
                 });
-    }
-
-    open() {
-        this.setState({ showModal: true });
-    }
-
-    close() {
-        this.setState({ showModal: false, dialogError: undefined });
     }
 
     dialogErrorSet(text, detail) {
@@ -65,70 +54,70 @@ export class DeleteResource extends React.Component {
     }
 
     render() {
-        const { objectName, objectType, objectId, disabled, overlayText, actionName } = this.props;
-
-        const deleteButton = () => {
-            if (disabled) {
-                return (
-                    <OverlayTrigger overlay={
-                        <Tooltip id={`delete-${objectId}-tooltip`}>
-                            { overlayText }
-                        </Tooltip> } placement='top'>
-                        <span>
-                            <Button id={`delete-${objectId}`}
-                                variant='danger'
-                                style={{ pointerEvents: 'none' }}
-                                isDisabled>
-                                {actionName || _("Delete")}
-                            </Button>
-                        </span>
-                    </OverlayTrigger>
-                );
-            } else {
-                return (
-                    <Button id={`delete-${objectId}`}
-                        variant='danger'
-                        onClick={this.open}>
-                        {actionName || _("Delete")}
-                    </Button>
-                );
-            }
-        };
+        const { objectName, objectType, actionName, onClose } = this.props;
 
         return (
-            <>
-                { deleteButton() }
-
-                <Modal show={this.state.showModal} onHide={this.close}>
-                    <Modal.Header>
-                        <Modal.CloseButton onClick={this.close} />
-                        <Modal.Title>{ (actionName || _("Delete")) + cockpit.format((" $0 $1"), objectType, objectName) }</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        { cockpit.format(_("Confirm this action")) }
-                    </Modal.Body>
-                    <Modal.Footer>
-                        {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
-                        <Button variant='danger' isDisabled={this.state.inProgress} onClick={this.delete}>
-                            {actionName || _("Delete")}
-                        </Button>
-                        <Button variant='link' className='btn-cancel' onClick={this.close}>
-                            {_("Cancel")}
-                        </Button>
-                        {this.state.inProgress && <div className="spinner spinner-sm pull-right" />}
-                    </Modal.Footer>
-                </Modal>
-            </>
+            <Modal show onHide={onClose}>
+                <Modal.Header>
+                    <Modal.CloseButton onClick={onClose} />
+                    <Modal.Title>{ (actionName || _("Delete")) + cockpit.format((" $0 $1"), objectType, objectName) }</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    { cockpit.format(_("Confirm this action")) }
+                </Modal.Body>
+                <Modal.Footer>
+                    {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
+                    <Button variant='danger' isDisabled={this.state.inProgress} onClick={this.delete}>
+                        {actionName || _("Delete")}
+                    </Button>
+                    <Button variant='link' className='btn-cancel' onClick={onClose}>
+                        {_("Cancel")}
+                    </Button>
+                    {this.state.inProgress && <div className="spinner spinner-sm pull-right" />}
+                </Modal.Footer>
+            </Modal>
         );
     }
 }
 
-DeleteResource.propTypes = {
+DeleteResourceModal.propTypes = {
     objectType: PropTypes.string.isRequired,
     objectName: PropTypes.string.isRequired,
-    objectId: PropTypes.string.isRequired,
     deleteHandler: PropTypes.func.isRequired,
+    onClose: PropTypes.func.isRequired,
+};
+
+export const DeleteResourceButton = ({ objectId, disabled, overlayText, actionName, showDialog }) => {
+    if (disabled) {
+        return (
+            <OverlayTrigger overlay={
+                <Tooltip id={`delete-${objectId}-tooltip`}>
+                    { overlayText }
+                </Tooltip> } placement='top'>
+                <span>
+                    <Button id={`delete-${objectId}`}
+                        variant='danger'
+                        style={{ pointerEvents: 'none' }}
+                        isDisabled>
+                        {actionName || _("Delete")}
+                    </Button>
+                </span>
+            </OverlayTrigger>
+        );
+    } else {
+        return (
+            <Button id={`delete-${objectId}`}
+                variant='danger'
+                onClick={showDialog}>
+                {actionName || _("Delete")}
+            </Button>
+        );
+    }
+};
+DeleteResourceButton.propTypes = {
+    objectId: PropTypes.string.isRequired,
     disabled: PropTypes.bool,
     overlayText: PropTypes.string,
     actionName: PropTypes.string,
+    showDialog: PropTypes.func.isRequired,
 };

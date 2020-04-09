@@ -26,7 +26,7 @@ import {
     networkId
 } from '../../helpers.js';
 import { NetworkOverviewTab } from './networkOverviewTab.jsx';
-import { DeleteResource } from '../deleteResource.jsx';
+import { DeleteResourceModal, DeleteResourceButton } from '../deleteResource.jsx';
 import {
     networkActivate,
     networkDeactivate,
@@ -106,6 +106,7 @@ Network.propTypes = {
 class NetworkActions extends React.Component {
     constructor() {
         super();
+        this.state = { deleteDialogProps: undefined };
         this.onActivate = this.onActivate.bind(this);
         this.onDeactivate = this.onDeactivate.bind(this);
     }
@@ -145,6 +146,12 @@ class NetworkActions extends React.Component {
                 return networkUndefine(network.connectionName, network.id);
             }
         };
+        const deleteDialogProps = {
+            objectType: "Network",
+            objectName: network.name,
+            onClose: () => this.setState({ deleteDialogProps: undefined }),
+            deleteHandler: () => deleteHandler(network),
+        };
 
         return (
             <>
@@ -157,12 +164,11 @@ class NetworkActions extends React.Component {
                     {_("Activate")}
                 </Button>
                 }
-                <DeleteResource objectType="Network"
-                    objectId={id}
-                    objectName={network.name}
-                    deleteHandler={() => deleteHandler(network)}
-                    overlayText={_("Non-persistent network cannot be deleted. It ceases to exists when it's deactivated.")}
-                    disabled={!network.persistent} />
+                {this.state.deleteDialogProps && <DeleteResourceModal {...this.state.deleteDialogProps} />}
+                <DeleteResourceButton objectId={id}
+                                      showDialog={() => this.setState({ deleteDialogProps })}
+                                      overlayText={_("Non-persistent network cannot be deleted. It ceases to exists when it's deactivated.")}
+                                      disabled={!network.persistent} />
             </>
         );
     }

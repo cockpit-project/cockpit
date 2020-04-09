@@ -36,6 +36,8 @@ import time
 import unittest
 import gzip
 import inspect
+import hashlib
+import pathlib
 
 import testvm
 import cdp
@@ -1305,6 +1307,23 @@ class MachineCase(unittest.TestCase):
         if self.is_nondestructive():
             self.addCleanup(m.execute, "rm -f {0}".format(path))
 
+    def check_coverage(self):
+        """Collect code coverage result and save to file
+
+        Hash result as part of file name, like "coverage-<coverage hash result>.json",
+        to avoid duplicate coverage file and save file to ".nyc_output" folder.
+        """
+        coverage_data = self.browser.eval_js("window.__coverage__", no_trace=True)
+        str_coverage = json.dumps(coverage_data)
+        hash_str = hashlib.sha256(str_coverage.encode('utf-8')).hexdigest()
+
+        cov_out_dir = pathlib.Path(".nyc_output")
+        cov_out_dir.mkdir(exist_ok=True)
+
+        cov_out_file = cov_out_dir / "coverage-{}.json".format(hash_str)
+        # avoid duplecate result file
+        if not cov_out_file.is_file():
+            cov_out_file.write_text(str_coverage)
 
 def jsquote(str):
     return json.dumps(str)

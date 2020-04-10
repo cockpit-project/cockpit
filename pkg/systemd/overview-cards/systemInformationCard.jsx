@@ -31,13 +31,16 @@ export class SystemInfomationCard extends React.Component {
         super(props);
 
         this.state = {};
+        this.system_uptime = null;
         this.getDMIInfo = this.getDMIInfo.bind(this);
         this.getMachineId = this.getMachineId.bind(this);
+        this.getSystemUptime = this.getSystemUptime.bind(this);
     }
 
     componentDidMount() {
         this.getDMIInfo();
         this.getMachineId();
+        this.getSystemUptime();
     }
 
     getMachineId() {
@@ -81,6 +84,44 @@ export class SystemInfomationCard extends React.Component {
                 });
     }
 
+    getSystemUptime() {
+        var self = this;
+
+        cockpit.spawn(["cat", "/proc/uptime"])
+                .done(function(text) {
+                    var uptime_days = 0;
+                    var uptime_hours = 0;
+                    var uptime_minutes = 0;
+                    var match = text.match(/[0-9]*\.[0-9]{2}/);
+                    var uptime_raw = match && parseFloat(match[0]);
+
+                    uptime_days = Math.floor(uptime_raw / 86400);
+                    uptime_raw = uptime_raw - (uptime_days * 86400);
+
+                    uptime_hours = Math.floor(uptime_raw / 3600);
+                    uptime_raw = uptime_raw - (uptime_hours * 3600);
+
+                    uptime_minutes = Math.floor(uptime_raw / 60);
+
+                    if (uptime_days == 0) {
+                        if (uptime_hours == 0) {
+                            self.system_uptime = (<> <div id="system_uptime">{uptime_minutes} {_("Minutes")} </div> </>);
+                        } else {
+                            self.system_uptime = (<> <div id="system_uptime">{uptime_hours} {_("Hours")} {uptime_minutes} {_("Minutes")} </div> </>);
+                        }
+                    } else {
+                        if (uptime_hours == 0) {
+                            self.system_uptime = (<> <div id="system_uptime">{uptime_days} {_("Days")} {uptime_minutes} {_("Minutes")} </div> </>);
+                        } else {
+                            self.system_uptime = (<> <div id="system_uptime">{uptime_days} {_("Days")} {uptime_hours} {_("Hours")} </div> </>);
+                        }
+                    }
+                })
+                .fail(function(ex) {
+                    console.error("Error reading system uptime", ex);
+                });
+    }
+
     render() {
         return (
             <Card className="system-information">
@@ -104,6 +145,12 @@ export class SystemInfomationCard extends React.Component {
                                 <th scope="row" className="system-information-machine-id">{_("Machine ID")}</th>
                                 <td>
                                     <div id="system_machine_id">{this.state.machineID}</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row" className="system-information-uptime">{_("System uptime")}</th>
+                                <td>
+                                    {this.system_uptime}
                                 </td>
                             </tr>
                         </tbody>

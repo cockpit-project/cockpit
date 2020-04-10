@@ -367,6 +367,7 @@ class TestSystemInfo(MachineCase):
         # because of the reload
         self.allow_restart_journal_messages()
 
+    @nondestructive
     def testHardwareInfo(self):
         b = self.browser
         m = self.machine
@@ -412,7 +413,8 @@ class TestSystemInfo(MachineCase):
 
         # now pretend this is a system without DMI
         b.logout()
-        self.machine.execute("mount -t tmpfs none /sys/class/dmi/id")
+        m.execute("mount -t tmpfs none /sys/class/dmi/id")
+        self.addCleanup(m.execute, "umount /sys/class/dmi/id")
         self.login_and_go("/system")
         # asset tag should be hidden
         b.wait_not_present('#system_information_asset_tag_text')
@@ -445,7 +447,6 @@ class TestSystemInfo(MachineCase):
         b.enter_page("/system/hwinfo")
         b.wait_in_text('#hwinfo .info-table-ct tbody:nth-of-type(1) tr:nth-of-type(2) td', "NAME")
         b.wait_in_text('#hwinfo .info-table-ct tbody:nth-of-type(1) tr:nth-of-type(3) td', "VENDOR")
-        self.machine.execute("umount /sys/class/dmi/id")
 
         # Memory details should be shown for generic QEMU memory
         # demidecode not available on certain images
@@ -457,6 +458,7 @@ class TestSystemInfo(MachineCase):
             # Test more specific memory data with a fake dmidecode
             m.write('/tmp/dmidecode', dmidecode)
             m.execute('chmod +x /tmp/dmidecode; mount -o bind /tmp/dmidecode $(which dmidecode)')
+            self.addCleanup(m.execute, 'umount $(which dmidecode)')
             b.reload()
             b.enter_page('/system/hwinfo')
             # first DIMM has unknown technology and rank
@@ -471,8 +473,6 @@ class TestSystemInfo(MachineCase):
             b.wait_in_text('#memory-listing tr:nth-of-type(2) td[data-label=ID]', "ChannelB-DIMM0")
             b.wait_text('#memory-listing tr:nth-of-type(2) td[data-label="Memory Technology"]', "Awesome")
             b.wait_text('#memory-listing tr:nth-of-type(2) td[data-label=Rank]', "Single Rank")
-
-            m.execute('umount $(which dmidecode)')
 
     def testCPUSecurityMitigations(self):
         b = self.browser

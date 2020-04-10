@@ -56,13 +56,13 @@ class VmNetworkTab extends React.Component {
     }
 
     componentDidMount() {
-        cockpit.spawn(["ls", "/sys/class/net"])
-                .fail(e => console.log(e))
-                .done(output => {
-                    const devs = output.split('\n');
-                    devs.pop();
+        // only consider symlinks -- there might be other stuff like "bonding_masters" which we don't want
+        cockpit.spawn(["find", "/sys/class/net", "-type", "l", "-printf", '%f\n'], { err: "message" })
+                .then(output => {
+                    const devs = output.trim().split('\n');
                     this.setState({ networkDevices: devs });
-                });
+                })
+                .catch(e => console.warn("could not read /sys/class/net:", e.toString()));
 
         if (this.props.vm.state != 'running' && this.props.vm.state != 'paused')
             return;

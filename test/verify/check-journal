@@ -26,14 +26,14 @@ class TestJournal(MachineCase):
     def select_priority(self, value):
         prio_map = {
             "Everything": "*",
-            "Only Emergency": "0",
-            "Alert and above": "1",
-            "Critical and above": "2",
-            "Error and above": "3",
-            "Warning and above": "4",
-            "Notice and above": "5",
-            "Info and above": "6",
-            "Debug and above": "7",
+            "Only Emergency": "emerg",
+            "Alert and above": "alert",
+            "Critical and above": "crit",
+            "Error and above": "err",
+            "Warning and above": "warning",
+            "Notice and above": "notice",
+            "Info and above": "info",
+            "Debug and above": "debug",
         }
 
         if self.machine.image == "rhel-8-2-distropkg": # Changed in #13905
@@ -309,7 +309,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
                         "Load earlier entries"
                         ])
 
-        b.go("#/?start=boot&prio=6")
+        b.go("#/?start=boot&prio=info")
 
         wait_log_present("AFTER BOOT")
         m.execute("logger -p 5 --tag just-a-service WORK PLEASE")

@@ -114,7 +114,7 @@ $(function() {
     }
 
     /* Not public API */
-    function journalbox(outer, start, match, day_box) {
+    function journalbox(outer, start, match, day_box, priority) {
         var box = $('<div class="panel panel-default cockpit-log-panel" role="table">');
         var start_box = $('<div class="journal-start" id="start-box" role="rowgroup">');
 
@@ -164,7 +164,7 @@ $(function() {
                                  var count = 0;
                                  var stopped = null;
                                  manage_start_box(true, false, no_logs ? ("Loading...") : null, "", "");
-                                 procs.push(journal.journalctl(match, { follow: false, reverse: true, cursor: first })
+                                 procs.push(journal.journalctl(match, { follow: false, reverse: true, cursor: first, priority: priority })
                                          .fail(query_error)
                                          .stream(function(entries) {
                                              if (entries[0].__CURSOR == first)
@@ -187,7 +187,7 @@ $(function() {
         }
 
         function follow(cursor) {
-            procs.push(journal.journalctl(match, { follow: true, count: 0, cursor: cursor })
+            procs.push(journal.journalctl(match, { follow: true, count: 0, cursor: cursor, priority: priority })
                     .fail(query_error)
                     .stream(function(entries) {
                         if (entries[0].__CURSOR == cursor)
@@ -291,7 +291,8 @@ $(function() {
 
         var options = {
             follow: false,
-            reverse: true
+            reverse: true,
+            priority: priority
         };
 
         var last = null;
@@ -350,7 +351,8 @@ $(function() {
                         procs.push(journal.journalctl(match, {
                             follow: true, count: 0,
                             boot: options.boot,
-                            since: options.since
+                            since: options.since,
+                            priority: priority,
                         })
                                 .fail(query_error)
                                 .stream(function(entries) {
@@ -388,22 +390,16 @@ $(function() {
 
         var match = [];
 
-        var query_prio = cockpit.location.options.prio || "3";
-        var prio_level = parseInt(query_prio, 10);
+        const prio_level = cockpit.location.options.prio || "err";
 
         // Set selected item into priority select menu
         const prio_options = [...document.getElementById('journal-prio-menu').children];
         prio_options.forEach(p => {
-            if (p.getAttribute('value') === query_prio)
+            if (p.getAttribute('value') === prio_level)
                 p.selected = true;
             else
                 p.selected = false;
         });
-
-        if (!isNaN(prio_level)) {
-            for (var i = 0; i <= prio_level; i++)
-                match.push('PRIORITY=' + i.toString());
-        }
 
         var options = cockpit.location.options;
         if (options.service)
@@ -416,7 +412,7 @@ $(function() {
         if (query_start == 'recent')
             $(window).scrollTop($(document).height());
 
-        journalbox($("#journal-box"), query_start, match, $('#journal-current-day'));
+        journalbox($("#journal-box"), query_start, match, $('#journal-current-day'), prio_level !== "*" ? prio_level : null);
     }
 
     function update_entry() {

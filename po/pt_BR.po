@@ -13,13 +13,15 @@
 # Mateus de Melo Santos <mateusms@tutanota.com>, 2019. #zanata
 # cockpit <cockpituous@gmail.com>, 2019. #zanata
 # Daniel Lara Souza <daniellarasouza@yahoo.com.br>, 2020.
+# Paulo Eduardo Faversani <pauloeduardo2709@gmail.com>, 2020.
+# Anonymous <noreply@weblate.org>, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-03-24 20:44+0000\n"
-"PO-Revision-Date: 2020-03-12 13:38+0000\n"
-"Last-Translator: Daniel Lara Souza <daniellarasouza@yahoo.com.br>\n"
+"POT-Creation-Date: 2020-04-03 12:56+0000\n"
+"PO-Revision-Date: 2020-04-04 23:36+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: Portuguese (Brazil) <https://translate.fedoraproject.org/"
 "projects/cockpit/master/pt_BR/>\n"
 "Language: pt_BR\n"
@@ -27,11 +29,12 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"X-Generator: Weblate 3.11.2\n"
+"X-Generator: Weblate 3.11.3\n"
 
 #: pkg/machines/components/diskAdd.jsx:234
 msgid " Attaching it will make this disk shareable for every VM using it."
 msgstr ""
+" Ao anexa-lo, esse disco será compartilhado por todas as VM que o utilizarem."
 
 #: pkg/networkmanager/interfaces.js:2321
 msgid "$0 Active Zone"
@@ -60,12 +63,13 @@ msgstr "$0 Sistema de Arquivos"
 
 #: pkg/machines/components/create-vm-dialog/pxe-helpers.js:105
 msgid "$0 Network"
-msgstr ""
+msgstr "$0 Rede"
 
 #: pkg/packagekit/history.jsx:100
 msgid "$0 Package"
 msgid_plural "$0 Packages"
-msgstr[0] ""
+msgstr[0] "$0 Pacote"
+msgstr[1] "$0 Pacotes"
 
 #: pkg/systemd/init.js:484 pkg/systemd/service-details.jsx:59
 msgid "$0 Template"
@@ -120,10 +124,8 @@ msgstr[0] "$0 disco não encontrado"
 msgstr[1] "$0 discos não encontrados"
 
 #: pkg/shell/indexes.js:611
-#, fuzzy
-#| msgid "Authentication"
 msgid "$0 documentation"
-msgstr "Autenticação"
+msgstr "$0 documentação"
 
 #: src/ws/login.js:338 src/ws/login.js:697
 msgid "$0 error"
@@ -149,13 +151,23 @@ msgstr "$0 sistemas de arquivos não podem ser menores."
 msgid "$0 filesystems can not be resized here."
 msgstr "$0 sistemas de arquivos não podem ser redimensionados aqui."
 
+#: pkg/systemd/overview.jsx:96
+msgctxt "<date> from <host>"
+msgid "$0 from $1"
+msgstr ""
+
+#: pkg/systemd/overview.jsx:94
+msgctxt "<date> from <host> on <terminal>"
+msgid "$0 from $1 on $2"
+msgstr ""
+
 #: pkg/lib/plot.js:974
 msgid "$0 hour"
 msgid_plural "$0 hours"
 msgstr[0] "$0 horas"
 msgstr[1] "$0 horas"
 
-#: pkg/machines/components/desktopConsole.jsx:44
+#: pkg/machines/components/desktopConsole.jsx:56
 msgid ""
 "$0 is available for most operating systems. To install it, search for it in "
 "GNOME Software or run the following:"
@@ -191,7 +203,7 @@ msgid_plural "$0 months"
 msgstr[0] "$0 mês"
 msgstr[1] "$0 meses"
 
-#: pkg/selinux/setroubleshoot-view.jsx:383
+#: pkg/selinux/setroubleshoot-view.jsx:425
 msgid "$0 occurrence"
 msgid_plural "$1 occurrences"
 msgstr[0] "$0 ocorrência"
@@ -201,10 +213,18 @@ msgstr[1] "$1 ocorrências"
 msgid "$0 of $1"
 msgstr "$0 of $1"
 
+#: pkg/systemd/overview.jsx:98
+#, fuzzy
+#| msgid "$0 of $1"
+msgctxt "<date> on <terminal>"
+msgid "$0 on $1"
+msgstr "$0 of $1"
+
 #: pkg/systemd/init.js:424
 msgid "$0 service has failed"
 msgid_plural "$0 services have failed"
-msgstr[0] ""
+msgstr[0] "$0 serviço falhou"
+msgstr[1] "$0 serviços falharam"
 
 #: pkg/docker/util.js:125
 msgid "$0 shares"
@@ -241,10 +261,8 @@ msgstr[0] "$0 ano"
 msgstr[1] "$0 anos"
 
 #: pkg/networkmanager/firewall.jsx:169
-#, fuzzy
-#| msgid "Add zone"
 msgid "$0 zone"
-msgstr "Adicionar zona"
+msgstr "$0 zona"
 
 #: pkg/storaged/vgroup-details.jsx:112
 msgid "$0, $1 free"
@@ -268,7 +286,7 @@ msgstr "$nome(vindo de $host)"
 msgid "${size} ${desc}"
 msgstr "${size} ${desc}"
 
-#: pkg/networkmanager/firewall.jsx:581
+#: pkg/networkmanager/firewall.jsx:564
 msgid "(Optional)"
 msgstr "(Opcional)"
 
@@ -567,13 +585,15 @@ msgstr "ARP Monitoramento"
 msgid "ARP Ping"
 msgstr "ARP Ping"
 
-#: pkg/shell/index.html:64 pkg/shell/index.html:90
-msgid "About Cockpit"
-msgstr "Sobre o Cockpit"
+#: pkg/shell/index.html:86 pkg/shell/indexes.js:625
+#, fuzzy
+#| msgid "Consoles"
+msgid "About Web Console"
+msgstr "Consoles"
 
 #: pkg/lib/machine-info.js:254
 msgid "Absent"
-msgstr ""
+msgstr "Ausente"
 
 #: pkg/users/index.html:104 pkg/users/index.html:192
 #: pkg/machines/components/diskEdit.jsx:94
@@ -585,7 +605,7 @@ msgstr "Acesso"
 msgid "Account Expiration"
 msgstr "Conta expirou"
 
-#: pkg/shell/index.html:71
+#: pkg/shell/index.html:67
 msgid "Account Settings"
 msgstr "Configurações de Conta"
 
@@ -621,7 +641,7 @@ msgstr "Ativo"
 msgid "Active Backup"
 msgstr "Backup Ativo"
 
-#: pkg/shell/index.html:67 pkg/shell/active-pages.js:95
+#: pkg/shell/index.html:64 pkg/shell/active-pages.js:95
 msgid "Active Pages"
 msgstr "Páginas Ativas"
 
@@ -641,9 +661,9 @@ msgstr "Balanceamento de carga dinâmico"
 msgid "Adaptive transmit load balancing"
 msgstr "Transmissão dinâmica de balanceamento de carga"
 
-#: pkg/lib/machine-add.html:43 pkg/shell/index.html:205
-#: pkg/machines/components/diskAdd.jsx:557
-#: pkg/machines/components/nicAdd.jsx:206 pkg/storaged/crypto-keyslots.jsx:235
+#: pkg/lib/machine-add.html:36 pkg/shell/index.html:201
+#: pkg/machines/components/diskAdd.jsx:548
+#: pkg/machines/components/nicAdd.jsx:203 pkg/storaged/crypto-keyslots.jsx:235
 #: pkg/storaged/iscsi-panel.jsx:137 pkg/storaged/iscsi-panel.jsx:161
 #: pkg/storaged/mdraid-details.jsx:59 pkg/storaged/nfs-details.jsx:191
 #: pkg/storaged/vgroup-details.jsx:66
@@ -662,7 +682,7 @@ msgstr "Adicionar Vínculo"
 msgid "Add Bridge"
 msgstr "Adicionar Ponte"
 
-#: pkg/machines/components/diskAdd.jsx:545
+#: pkg/machines/components/diskAdd.jsx:540
 #: pkg/machines/components/vmDisksTab.jsx:93
 msgid "Add Disk"
 msgstr "Adicionar disco"
@@ -681,14 +701,14 @@ msgstr "Adicionar Máquina ao Painel"
 
 #: pkg/machines/components/vmnetworktab.jsx:266
 msgid "Add Network Interface"
-msgstr ""
+msgstr "Adicionar Interface de Rede"
 
-#: pkg/networkmanager/firewall.jsx:504
+#: pkg/networkmanager/firewall.jsx:487
 msgid "Add Ports"
-msgstr ""
+msgstr "Adicionar Portas"
 
 #: pkg/networkmanager/firewall.jsx:155 pkg/networkmanager/firewall.jsx:161
-#: pkg/networkmanager/firewall.jsx:504
+#: pkg/networkmanager/firewall.jsx:487
 msgid "Add Services"
 msgstr "Adicionar serviços"
 
@@ -702,14 +722,14 @@ msgstr "Adicionar VLAN"
 
 #: pkg/machines/components/nicAdd.jsx:192
 msgid "Add Virtual Network Interface"
-msgstr ""
+msgstr "Adicionar Interface Virtual de Rede"
 
-#: pkg/networkmanager/firewall.jsx:676 pkg/networkmanager/firewall.jsx:905
-#: pkg/networkmanager/firewall.jsx:911
+#: pkg/networkmanager/firewall.jsx:659 pkg/networkmanager/firewall.jsx:887
+#: pkg/networkmanager/firewall.jsx:893
 msgid "Add Zone"
-msgstr ""
+msgstr "Adicionar zona"
 
-#: pkg/networkmanager/firewall.jsx:910
+#: pkg/networkmanager/firewall.jsx:892
 msgid "Add a new zone"
 msgstr ""
 
@@ -717,11 +737,11 @@ msgstr ""
 msgid "Add iSCSI Portal"
 msgstr "Adicionar Portal iSCSI"
 
-#: pkg/shell/index.html:197 pkg/users/index.html:420
+#: pkg/shell/index.html:193 pkg/users/index.html:419
 msgid "Add key"
 msgstr "Adicionar chave"
 
-#: pkg/networkmanager/firewall.jsx:505
+#: pkg/networkmanager/firewall.jsx:488
 msgid "Add ports to $0 zone"
 msgstr "Adicionar portas para zona $0"
 
@@ -729,7 +749,7 @@ msgstr "Adicionar portas para zona $0"
 msgid "Add public key"
 msgstr "Adicionar chave pública"
 
-#: pkg/networkmanager/firewall.jsx:505
+#: pkg/networkmanager/firewall.jsx:488
 msgid "Add services to $0 zone"
 msgstr "Adicionar serviços para zona $0"
 
@@ -737,7 +757,7 @@ msgstr "Adicionar serviços para zona $0"
 msgid "Add services to zone $0"
 msgstr "Adicionar serviços na zona $0"
 
-#: pkg/networkmanager/firewall.jsx:754
+#: pkg/networkmanager/firewall.jsx:733
 msgid "Add zone"
 msgstr "Adicionar zona"
 
@@ -749,7 +769,7 @@ msgstr ""
 "Adicionando <b>$0</b> a conexão com o servidor será interrompida e tornará a "
 "administração da interface do usuário indisponível."
 
-#: pkg/networkmanager/firewall.jsx:594
+#: pkg/networkmanager/firewall.jsx:577
 msgid ""
 "Adding custom ports will reload firewalld. A reload will result in the loss "
 "of any runtime-only configuration!"
@@ -788,10 +808,8 @@ msgid "Additional packages:"
 msgstr "Pacotes adicionais:"
 
 #: pkg/networkmanager/firewall.jsx:113
-#, fuzzy
-#| msgid "Additional"
 msgid "Additional ports"
-msgstr "Adicional"
+msgstr "Portas adicionais"
 
 #: pkg/lib/machine-add.html:11
 #: pkg/machines/components/networks/networkOverviewTab.jsx:109
@@ -830,9 +848,9 @@ msgstr "Endereços"
 
 #: src/bridge/org.cockpit-project.cockpit-bridge.policy.in:10
 msgid "Administration with Cockpit Web Console"
-msgstr ""
+msgstr "Administração com o Console Web do Cockpit"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:336
+#: pkg/systemd/overview-cards/realmd-operation.js:335
 msgid "Administrator Password"
 msgstr "Senha de Administrador"
 
@@ -877,7 +895,7 @@ msgstr "Tudo em um"
 msgid "Allow running (unmask)"
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:728
+#: pkg/networkmanager/firewall.jsx:711
 msgid "Allowed Addresses"
 msgstr ""
 
@@ -907,30 +925,30 @@ msgstr "Aparência:"
 msgid "Applications"
 msgstr "Aplicações"
 
-#: pkg/networkmanager/index.html:496 pkg/networkmanager/index.html:524
-#: pkg/networkmanager/index.html:551 pkg/networkmanager/index.html:578
-#: pkg/networkmanager/index.html:605 pkg/networkmanager/index.html:632
-#: pkg/networkmanager/index.html:659 pkg/networkmanager/index.html:686
-#: pkg/networkmanager/index.html:713 pkg/kdump/kdump-view.jsx:356
-#: pkg/machines/components/vcpuModal.jsx:260 pkg/storaged/crypto-tab.jsx:78
+#: pkg/networkmanager/index.html:495 pkg/networkmanager/index.html:523
+#: pkg/networkmanager/index.html:550 pkg/networkmanager/index.html:577
+#: pkg/networkmanager/index.html:604 pkg/networkmanager/index.html:631
+#: pkg/networkmanager/index.html:658 pkg/networkmanager/index.html:685
+#: pkg/networkmanager/index.html:712 pkg/kdump/kdump-view.jsx:356
+#: pkg/machines/components/vcpuModal.jsx:252 pkg/storaged/crypto-tab.jsx:78
 #: pkg/storaged/crypto-tab.jsx:108 pkg/storaged/fsys-tab.jsx:270
 #: pkg/storaged/fsys-tab.jsx:347 pkg/storaged/nfs-details.jsx:191
 msgid "Apply"
 msgstr "Aplicar"
 
-#: pkg/packagekit/autoupdates.jsx:311
+#: pkg/packagekit/autoupdates.jsx:310
 msgid "Apply all updates"
 msgstr "Aplicar todas as atualizações"
 
-#: pkg/packagekit/autoupdates.jsx:312
+#: pkg/packagekit/autoupdates.jsx:311
 msgid "Apply security updates"
 msgstr "Aplicar atualizações de segurança"
 
-#: pkg/selinux/setroubleshoot-view.jsx:110
+#: pkg/selinux/setroubleshoot-view.jsx:121
 msgid "Apply this solution"
 msgstr "Aplicar essa solução"
 
-#: pkg/selinux/setroubleshoot-view.jsx:88
+#: pkg/selinux/setroubleshoot-view.jsx:98
 msgid "Applying solution..."
 msgstr "Aplicando solução..."
 
@@ -964,7 +982,7 @@ msgstr "Pelo menos um disco é necessário."
 msgid "At specific time"
 msgstr "Em tempo específico"
 
-#: pkg/selinux/setroubleshoot-view.jsx:368
+#: pkg/selinux/setroubleshoot-view.jsx:410
 msgid "Audit log"
 msgstr "Log de auditoria"
 
@@ -972,8 +990,8 @@ msgstr "Log de auditoria"
 msgid "Authenticating"
 msgstr "Autenticando"
 
-#: pkg/lib/machine-change-auth.html:32 pkg/shell/index.html:74
-#: pkg/shell/index.html:173 pkg/systemd/overview-cards/realmd-operation.html:47
+#: pkg/lib/machine-change-auth.html:32 pkg/shell/index.html:70
+#: pkg/shell/index.html:169 pkg/systemd/overview-cards/realmd-operation.html:47
 msgid "Authentication"
 msgstr "Autenticação"
 
@@ -1001,7 +1019,7 @@ msgstr ""
 msgid "Authentication required"
 msgstr "Autenticação requerida"
 
-#: pkg/docker/index.html:664 pkg/docker/containers-view.jsx:417
+#: pkg/docker/index.html:667 pkg/docker/containers-view.jsx:417
 msgid "Author"
 msgstr "Autor"
 
@@ -1014,7 +1032,7 @@ msgstr "Chaves Públicas Autorizadas de SSH"
 #: pkg/networkmanager/interfaces.js:1957 pkg/networkmanager/interfaces.js:2745
 #: pkg/networkmanager/interfaces.js:3313 pkg/networkmanager/interfaces.js:3317
 #: pkg/networkmanager/interfaces.js:3323
-#: pkg/systemd/overview-cards/realmd-operation.js:339
+#: pkg/systemd/overview-cards/realmd-operation.js:338
 msgid "Automatic"
 msgstr "Automático"
 
@@ -1030,7 +1048,7 @@ msgstr "Automático (DHCP)"
 msgid "Automatic Startup"
 msgstr ""
 
-#: pkg/packagekit/autoupdates.jsx:350
+#: pkg/packagekit/autoupdates.jsx:349
 msgid "Automatic Updates"
 msgstr "Atualizações automáticas"
 
@@ -1152,7 +1170,7 @@ msgstr "Bond"
 msgid "Bond Settings"
 msgstr "Configurações de Vínculo"
 
-#: pkg/machines/components/vm/bootOrderModal.jsx:312
+#: pkg/machines/components/vm/bootOrderModal.jsx:307
 #: pkg/machines/components/vmOverviewTabLibvirt.jsx:266
 msgid "Boot Order"
 msgstr "Ordem de Inicialização"
@@ -1237,7 +1255,7 @@ msgstr "Status da CPU"
 msgid "CPU Type"
 msgstr "Tipo da CPU"
 
-#: pkg/docker/index.html:433 pkg/docker/index.html:605
+#: pkg/docker/index.html:433 pkg/docker/index.html:608
 msgid "CPU priority"
 msgstr "Prioridade de CPU"
 
@@ -1266,48 +1284,48 @@ msgstr "Pode&rsquo;t conectar ao Docker"
 msgid "Can't load image"
 msgstr "Não é possível carregar a imagem"
 
-#: pkg/dashboard/index.html:187 pkg/docker/index.html:527
-#: pkg/docker/index.html:561 pkg/docker/index.html:625
-#: pkg/docker/index.html:679 pkg/docker/index.html:719
-#: pkg/docker/index.html:748 pkg/lib/machine-add.html:42
-#: pkg/lib/machine-change-auth.html:91 pkg/lib/machine-change-port.html:40
-#: pkg/lib/machine-sync-users.html:76 pkg/networkmanager/index.html:495
-#: pkg/networkmanager/index.html:523 pkg/networkmanager/index.html:550
-#: pkg/networkmanager/index.html:577 pkg/networkmanager/index.html:604
-#: pkg/networkmanager/index.html:631 pkg/networkmanager/index.html:658
-#: pkg/networkmanager/index.html:685 pkg/networkmanager/index.html:712
-#: pkg/playground/translate.html:39 pkg/shell/index.html:130
-#: pkg/systemd/index.html:122 pkg/systemd/index.html:206
-#: pkg/systemd/index.html:260
-#: pkg/systemd/overview-cards/realmd-operation.html:83
-#: pkg/systemd/services.html:376 pkg/users/index.html:200
-#: pkg/users/index.html:239 pkg/users/index.html:278 pkg/users/index.html:317
-#: pkg/users/index.html:334 pkg/users/index.html:358 pkg/users/index.html:419
+#: pkg/dashboard/index.html:187 pkg/docker/index.html:528
+#: pkg/docker/index.html:565 pkg/docker/index.html:629
+#: pkg/docker/index.html:683 pkg/docker/index.html:723
+#: pkg/docker/index.html:754 pkg/lib/machine-add.html:37
+#: pkg/lib/machine-change-auth.html:92 pkg/lib/machine-change-port.html:41
+#: pkg/lib/machine-sync-users.html:77 pkg/networkmanager/index.html:496
+#: pkg/networkmanager/index.html:524 pkg/networkmanager/index.html:551
+#: pkg/networkmanager/index.html:578 pkg/networkmanager/index.html:605
+#: pkg/networkmanager/index.html:632 pkg/networkmanager/index.html:659
+#: pkg/networkmanager/index.html:686 pkg/networkmanager/index.html:713
+#: pkg/playground/translate.html:39 pkg/shell/index.html:127
+#: pkg/systemd/index.html:123 pkg/systemd/index.html:207
+#: pkg/systemd/index.html:261
+#: pkg/systemd/overview-cards/realmd-operation.html:82
+#: pkg/systemd/services.html:377 pkg/users/index.html:201
+#: pkg/users/index.html:240 pkg/users/index.html:279 pkg/users/index.html:318
+#: pkg/users/index.html:335 pkg/users/index.html:359 pkg/users/index.html:420
 #: pkg/apps/utils.jsx:84 pkg/lib/cockpit-components-dialog.jsx:158
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:943
-#: pkg/machines/components/deleteDialog.jsx:182
-#: pkg/machines/components/deleteResource.jsx:114
-#: pkg/machines/components/diskAdd.jsx:554
-#: pkg/machines/components/diskEdit.jsx:217
-#: pkg/machines/components/networks/createNetworkDialog.jsx:480
-#: pkg/machines/components/nicAdd.jsx:200
-#: pkg/machines/components/nicEdit.jsx:176
-#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:512
-#: pkg/machines/components/storagePools/storagePoolDelete.jsx:235
-#: pkg/machines/components/storagePools/storageVolumeCreate.jsx:94
-#: pkg/machines/components/vcpuModal.jsx:257
-#: pkg/machines/components/vm/bootOrderModal.jsx:327
-#: pkg/machines/components/vm/firmwareModal.jsx:75
-#: pkg/machines/components/vm/memoryModal.jsx:152
-#: pkg/networkmanager/firewall.jsx:597 pkg/networkmanager/firewall.jsx:749
-#: pkg/networkmanager/firewall.jsx:774 pkg/packagekit/updates.jsx:186
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:947
+#: pkg/machines/components/deleteDialog.jsx:185
+#: pkg/machines/components/deleteResource.jsx:116
+#: pkg/machines/components/diskAdd.jsx:551
+#: pkg/machines/components/diskEdit.jsx:215
+#: pkg/machines/components/networks/createNetworkDialog.jsx:484
+#: pkg/machines/components/nicAdd.jsx:206
+#: pkg/machines/components/nicEdit.jsx:174
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:514
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:240
+#: pkg/machines/components/storagePools/storageVolumeCreate.jsx:96
+#: pkg/machines/components/vcpuModal.jsx:255
+#: pkg/machines/components/vm/bootOrderModal.jsx:325
+#: pkg/machines/components/vm/firmwareModal.jsx:78
+#: pkg/machines/components/vm/memoryModal.jsx:155
+#: pkg/networkmanager/firewall.jsx:583 pkg/networkmanager/firewall.jsx:736
+#: pkg/networkmanager/firewall.jsx:759 pkg/packagekit/updates.jsx:186
 #: pkg/sosreport/index.js:49 pkg/storaged/dialog.jsx:400
-#: pkg/storaged/jobs-panel.jsx:123 pkg/systemd/hwinfo.jsx:222
-#: pkg/systemd/reporting.jsx:420 pkg/systemd/service-details.jsx:110
+#: pkg/storaged/jobs-panel.jsx:123 pkg/systemd/hwinfo.jsx:225
+#: pkg/systemd/reporting.jsx:420 pkg/systemd/service-details.jsx:115
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: pkg/shell/indexes.js:691
+#: pkg/shell/indexes.js:704
 msgid "Cannot connect to an unknown machine"
 msgstr "Não pode conectar a uma máquina desconhecida"
 
@@ -1315,7 +1333,7 @@ msgstr "Não pode conectar a uma máquina desconhecida"
 msgid "Cannot forward login credentials"
 msgstr "Não é possível prosseguir com as credenciais de login"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:627
+#: pkg/systemd/overview-cards/realmd-operation.js:632
 msgid "Cannot join a domain because realmd is not available on this system"
 msgstr ""
 
@@ -1339,8 +1357,8 @@ msgstr "Capacidade"
 msgid "Carrier"
 msgstr "Sinal"
 
-#: pkg/docker/index.html:626 pkg/systemd/index.html:123
-#: pkg/systemd/index.html:261 pkg/users/index.html:279 pkg/users/index.html:318
+#: pkg/docker/index.html:628 pkg/systemd/index.html:122
+#: pkg/systemd/index.html:260 pkg/users/index.html:278 pkg/users/index.html:317
 #: pkg/storaged/iscsi-panel.jsx:188
 msgid "Change"
 msgstr "Alterar"
@@ -1355,7 +1373,7 @@ msgstr "Alterar senha"
 msgid "Change Host Name"
 msgstr "Alterar o Nome do Host"
 
-#: pkg/shell/index.html:347
+#: pkg/shell/index.html:343
 msgid "Change Password"
 msgstr "Alterar Senha"
 
@@ -1383,7 +1401,7 @@ msgstr "Alterar senha"
 msgid "Change resource limits"
 msgstr "Alterar limites de recursos"
 
-#: pkg/docker/index.html:576
+#: pkg/docker/index.html:579
 msgid "Change resources limits"
 msgstr "Alterar limites de recursos"
 
@@ -1391,10 +1409,10 @@ msgstr "Alterar limites de recursos"
 msgid "Change the settings"
 msgstr "Alterar as configurações"
 
-#: pkg/machines/components/diskEdit.jsx:198
-#: pkg/machines/components/nicEdit.jsx:157
-#: pkg/machines/components/vcpuModal.jsx:184
-#: pkg/machines/components/vm/bootOrderModal.jsx:283
+#: pkg/machines/components/diskEdit.jsx:195
+#: pkg/machines/components/nicEdit.jsx:154
+#: pkg/machines/components/vcpuModal.jsx:181
+#: pkg/machines/components/vm/bootOrderModal.jsx:280
 #: pkg/machines/components/warningInactive.jsx:11
 msgid "Changes will take effect after shutting down the VM"
 msgstr "As alterações entrarão em vigor após o desligamento da VM"
@@ -1447,7 +1465,7 @@ msgstr "Verificando o software instalado"
 msgid "Choose an operating system"
 msgstr ""
 
-#: pkg/shell/index.html:125
+#: pkg/shell/index.html:121
 msgid "Choose the language to be used in the application"
 msgstr "Escolha o idioma a ser usado no aplicativo"
 
@@ -1479,7 +1497,7 @@ msgstr "Limpar pesquisa"
 msgid "Clear mount point configuration"
 msgstr ""
 
-#: pkg/machines/components/desktopConsole.jsx:41
+#: pkg/machines/components/desktopConsole.jsx:54
 msgid ""
 "Clicking \"Launch Remote Viewer\" will download a .vv file and launch $0."
 msgstr ""
@@ -1490,11 +1508,11 @@ msgstr ""
 msgid "Client Software"
 msgstr ""
 
-#: pkg/docker/index.html:700 pkg/lib/machine-auth-failed.html:20
+#: pkg/docker/index.html:703 pkg/lib/machine-auth-failed.html:20
 #: pkg/lib/machine-change-port.html:45 pkg/lib/machine-invalid-hostkey.html:12
 #: pkg/lib/machine-not-supported.html:8 pkg/lib/machine-unknown-hostkey.html:19
-#: pkg/networkmanager/index.html:732 pkg/shell/index.html:104
-#: pkg/shell/index.html:163 pkg/shell/index.html:359 pkg/systemd/index.html:164
+#: pkg/networkmanager/index.html:732 pkg/shell/index.html:100
+#: pkg/shell/index.html:159 pkg/shell/index.html:355 pkg/systemd/index.html:164
 #: pkg/users/index.html:45 pkg/apps/utils.jsx:104
 #: pkg/lib/cockpit-components-modifications.jsx:103 pkg/sosreport/index.js:43
 #: pkg/sosreport/index.js:125 pkg/storaged/dialog.jsx:400
@@ -1550,7 +1568,7 @@ msgstr ""
 "finalizado pelo Terminal. Da mesma forma, se um erro ocorrer no terminal, "
 "este pode ser detectado via interface do Cockpit."
 
-#: pkg/shell/index.html:93
+#: pkg/shell/index.html:89
 msgid "Cockpit is an interactive Linux server admin interface."
 msgstr "Cockpit é uma interface interativa de administração de servidor Linux."
 
@@ -1631,18 +1649,18 @@ msgstr "Cor"
 msgid "Combined memory usage"
 msgstr "Uso de memória combinada"
 
-#: pkg/docker/overview.js:87
+#: pkg/docker/overview.js:88
 msgid "Combined usage of $0 CPU core"
 msgid_plural "Combined usage of $0 CPU cores"
 msgstr[0] "Uso combinado de núcleo de CPU de $0"
 msgstr[1] "Uso combinado de núcleos de CPU de $0 CPU"
 
-#: pkg/networkmanager/firewall.jsx:561
+#: pkg/networkmanager/firewall.jsx:544
 msgid "Comma-separated ports, ranges, and aliases are accepted"
 msgstr ""
 
 #: pkg/docker/index.html:265 pkg/docker/index.html:409
-#: pkg/docker/index.html:670 pkg/systemd/services.html:281
+#: pkg/docker/index.html:673 pkg/systemd/services.html:281
 #: pkg/docker/containers-view.jsx:134 pkg/docker/containers-view.jsx:363
 #: pkg/docker/containers-view.jsx:415
 msgid "Command"
@@ -1656,16 +1674,16 @@ msgstr "O comando não pode estar vazio"
 msgid "Command:"
 msgstr "Comando:"
 
-#: pkg/shell/index.html:293
+#: pkg/shell/index.html:289
 msgid "Comment"
 msgstr "Comentário"
 
-#: pkg/docker/index.html:134 pkg/docker/index.html:680
+#: pkg/docker/index.html:134 pkg/docker/index.html:682
 #: pkg/docker/containers-view.jsx:332
 msgid "Commit"
 msgstr "Commit"
 
-#: pkg/docker/index.html:640
+#: pkg/docker/index.html:643
 msgid "Commit Image"
 msgstr "Imagem Commit "
 
@@ -1734,7 +1752,7 @@ msgstr "Configurando"
 msgid "Configuring system settings"
 msgstr "Alterar as configurações"
 
-#: pkg/shell/index.html:331 pkg/users/index.html:178
+#: pkg/shell/index.html:327 pkg/users/index.html:178
 #: pkg/storaged/format-dialog.jsx:221
 msgid "Confirm"
 msgstr "Confirmar"
@@ -1743,7 +1761,7 @@ msgstr "Confirmar"
 msgid "Confirm New Password"
 msgstr "Confirmar Nova Senha"
 
-#: pkg/networkmanager/firewall.jsx:776
+#: pkg/networkmanager/firewall.jsx:755
 msgid "Confirm removal of $0"
 msgstr "Confirmar remoção de $0"
 
@@ -1788,7 +1806,7 @@ msgstr "Conecte-se com qualquer aplicativo visualizador SPICE ou VNC."
 msgid "Connecting"
 msgstr "Conectando"
 
-#: pkg/lib/machine-add.html:39
+#: pkg/lib/machine-add.html:41
 msgid ""
 "Connecting simultaneously to more than {{ limit }} machines is unsupported."
 msgstr ""
@@ -1799,7 +1817,7 @@ msgstr ""
 msgid "Connecting to Docker"
 msgstr "Conectando ao Docker"
 
-#: pkg/selinux/setroubleshoot-view.jsx:322
+#: pkg/selinux/setroubleshoot-view.jsx:364
 msgid "Connecting to SETroubleshoot daemon..."
 msgstr "Conectando-se ao daemon SETroubleshoot..."
 
@@ -1807,7 +1825,7 @@ msgstr "Conectando-se ao daemon SETroubleshoot..."
 msgid "Connecting to Virtualization Service"
 msgstr "Conectando-se ao serviço de virtualização"
 
-#: pkg/shell/indexes.js:686
+#: pkg/shell/indexes.js:699
 msgid "Connecting to the machine"
 msgstr "Conectando a máquina"
 
@@ -1822,7 +1840,7 @@ msgstr "Conexão"
 msgid "Connection Error"
 msgstr "Erro de Conexão"
 
-#: pkg/shell/index.html:435
+#: pkg/shell/index.html:431
 msgid "Connection failed"
 msgstr "Conexão falhou"
 
@@ -1846,7 +1864,7 @@ msgstr "Tipo de console"
 msgid "Consoles"
 msgstr "Consoles"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:276
+#: pkg/systemd/overview-cards/realmd-operation.js:275
 msgid "Contacted domain"
 msgstr ""
 
@@ -1858,8 +1876,8 @@ msgstr "Container"
 msgid "Container Administrator"
 msgstr "Administrador de contêineres"
 
-#: pkg/docker/index.html:402 pkg/docker/index.html:582
-#: pkg/docker/index.html:646
+#: pkg/docker/index.html:402 pkg/docker/index.html:585
+#: pkg/docker/index.html:649
 msgid "Container Name"
 msgstr "Nome do Container"
 
@@ -1894,7 +1912,7 @@ msgstr ""
 msgid "Content"
 msgstr "Conteúdo"
 
-#: pkg/shell/index.html:147
+#: pkg/shell/index.html:143
 msgid "Continue Session"
 msgstr ""
 
@@ -1921,7 +1939,7 @@ msgstr "Copiar"
 msgid "Copy to clipboard"
 msgstr "Copiar para área de transferência"
 
-#: pkg/machines/components/vcpuModal.jsx:232
+#: pkg/machines/components/vcpuModal.jsx:227
 msgid "Cores per socket"
 msgstr "Núcleos por soquete"
 
@@ -1937,7 +1955,7 @@ msgstr "Não foi possível alterar os grupos de usuários"
 msgid "Couldn't change user password"
 msgstr "Não foi possível alterar a senha do usuário"
 
-#: pkg/shell/indexes.js:689
+#: pkg/shell/indexes.js:702
 msgid "Couldn't connect to the machine"
 msgstr "Não pode conectar a máquina"
 
@@ -1969,11 +1987,11 @@ msgstr "Local de despejo de travamento"
 msgid "Crash system"
 msgstr "Sistema de travamento"
 
-#: pkg/users/index.html:201
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:948
-#: pkg/machines/components/networks/createNetworkDialog.jsx:485
-#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:515
-#: pkg/machines/components/storagePools/storageVolumeCreate.jsx:97
+#: pkg/users/index.html:200
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:944
+#: pkg/machines/components/networks/createNetworkDialog.jsx:481
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:511
+#: pkg/machines/components/storagePools/storageVolumeCreate.jsx:93
 #: pkg/storaged/content-views.jsx:129 pkg/storaged/content-views.jsx:275
 #: pkg/storaged/content-views.jsx:771 pkg/storaged/mdraids-panel.jsx:123
 #: pkg/storaged/vdos-panel.jsx:146 pkg/storaged/vgroups-panel.jsx:90
@@ -1988,7 +2006,7 @@ msgstr "Criar dispositivos"
 msgid "Create Logical Volume"
 msgstr "Criar Volume Lógico"
 
-#: pkg/machines/components/diskAdd.jsx:500
+#: pkg/machines/components/diskAdd.jsx:495
 msgid "Create New"
 msgstr "Criar novo"
 
@@ -2177,7 +2195,7 @@ msgstr "Alocação atual"
 msgid "Current boot"
 msgstr "Inicialização atual"
 
-#: pkg/networkmanager/firewall.jsx:555
+#: pkg/networkmanager/firewall.jsx:538
 msgid "Custom Ports"
 msgstr ""
 
@@ -2194,7 +2212,7 @@ msgstr ""
 msgid "Custom mount options"
 msgstr "Opções de montagem personalizadas"
 
-#: pkg/networkmanager/firewall.jsx:694
+#: pkg/networkmanager/firewall.jsx:677
 msgid "Custom zones"
 msgstr ""
 
@@ -2267,19 +2285,19 @@ msgstr "Atraso"
 
 #: pkg/docker/index.html:133 pkg/docker/index.html:245
 #: pkg/networkmanager/index.html:448 pkg/users/index.html:79
-#: pkg/users/index.html:359 pkg/docker/containers-view.jsx:204
+#: pkg/users/index.html:358 pkg/docker/containers-view.jsx:204
 #: pkg/docker/details.js:288 pkg/docker/util.js:645
 #: pkg/machines/components/deleteDialog.jsx:146
 #: pkg/machines/components/deleteDialog.jsx:161
-#: pkg/machines/components/deleteDialog.jsx:185
+#: pkg/machines/components/deleteDialog.jsx:182
 #: pkg/machines/components/deleteResource.jsx:82
 #: pkg/machines/components/deleteResource.jsx:92
 #: pkg/machines/components/deleteResource.jsx:105
-#: pkg/machines/components/deleteResource.jsx:117
+#: pkg/machines/components/deleteResource.jsx:113
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:204
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:214
-#: pkg/machines/components/storagePools/storagePoolDelete.jsx:240
-#: pkg/networkmanager/firewall.jsx:777 pkg/storaged/content-views.jsx:344
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:237
+#: pkg/networkmanager/firewall.jsx:756 pkg/storaged/content-views.jsx:344
 #: pkg/storaged/content-views.jsx:360 pkg/storaged/mdraid-details.jsx:293
 #: pkg/storaged/mdraid-details.jsx:316 pkg/storaged/vdo-details.jsx:198
 #: pkg/storaged/vdo-details.jsx:261 pkg/storaged/vgroup-details.jsx:212
@@ -2362,7 +2380,7 @@ msgstr ""
 msgid "Deleting volume group $target"
 msgstr "Excluindo grupo de volume $target"
 
-#: pkg/systemd/services.html:267 pkg/networkmanager/firewall.jsx:703
+#: pkg/systemd/services.html:267 pkg/networkmanager/firewall.jsx:686
 #: pkg/systemd/init.js:307
 msgid "Description"
 msgstr "Descrição"
@@ -2381,7 +2399,7 @@ msgstr ""
 msgid "Detachable"
 msgstr "Destacável"
 
-#: pkg/shell/index.html:258 pkg/docker/containers-view.jsx:340
+#: pkg/shell/index.html:254 pkg/docker/containers-view.jsx:340
 #: pkg/docker/containers-view.jsx:434 pkg/docker/containers-view.jsx:534
 #: pkg/packagekit/updates.jsx:391
 msgid "Details"
@@ -2445,7 +2463,7 @@ msgstr "O diretório $0 não é gravável ou não existe."
 msgid "Disable simultaneous multithreading"
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:935
+#: pkg/networkmanager/firewall.jsx:917
 msgid "Disable the firewall"
 msgstr "Desabilitar o firewall"
 
@@ -2467,7 +2485,7 @@ msgid "Disconnect"
 msgstr "Desconectar"
 
 #: pkg/machines/components/vnc.jsx:107 pkg/shell/indexes.js:244
-#: pkg/shell/indexes.js:879
+#: pkg/shell/indexes.js:892
 msgid "Disconnected"
 msgstr "Desconectado"
 
@@ -2487,11 +2505,11 @@ msgstr ""
 msgid "Disk I/O"
 msgstr "Entrada e Saida de disco"
 
-#: pkg/machines/components/diskAdd.jsx:456
+#: pkg/machines/components/diskAdd.jsx:451
 msgid "Disk failed to be attached"
 msgstr "Disco falhou ao ser anexado"
 
-#: pkg/machines/components/diskAdd.jsx:424
+#: pkg/machines/components/diskAdd.jsx:419
 msgid "Disk failed to be created"
 msgstr "Disco falhou ao ser criado"
 
@@ -2503,7 +2521,7 @@ msgstr "O Disco está OK"
 msgid "Disk passphrase"
 msgstr "Senha de disco"
 
-#: pkg/machines/components/diskAdd.jsx:468
+#: pkg/machines/components/diskAdd.jsx:463
 #: pkg/machines/components/diskEdit.jsx:165
 msgid "Disk settings could not be saved"
 msgstr ""
@@ -2514,11 +2532,11 @@ msgstr ""
 msgid "Disks"
 msgstr "Discos"
 
-#: pkg/selinux/setroubleshoot-view.jsx:355
+#: pkg/selinux/setroubleshoot-view.jsx:397
 msgid "Dismiss"
 msgstr ""
 
-#: pkg/shell/index.html:60 pkg/shell/index.html:122
+#: pkg/shell/index.html:60 pkg/shell/index.html:118
 msgid "Display Language"
 msgstr "Linguagem Exibida"
 
@@ -2540,15 +2558,15 @@ msgstr "Estação de ancoragem."
 
 #: pkg/systemd/overview-cards/realmd-operation.html:11
 #: pkg/systemd/overview-cards/configurationCard.jsx:402
-#: pkg/systemd/overview-cards/realmd-operation.js:125
+#: pkg/systemd/overview-cards/realmd-operation.js:124
 msgid "Domain"
 msgstr "Domínio"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:194
+#: pkg/systemd/overview-cards/realmd-operation.js:193
 msgid "Domain $0 could not be contacted"
 msgstr "O Domínio $0 não pôde ser contatado"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:281
+#: pkg/systemd/overview-cards/realmd-operation.js:280
 msgid "Domain $0 is not supported"
 msgstr "O Domínio $0 não é suportado"
 
@@ -2577,7 +2595,7 @@ msgstr "Não sobrescrever dados existentes"
 msgid "Done!"
 msgstr "Feito!"
 
-#: pkg/docker/index.html:562
+#: pkg/docker/index.html:564
 msgid "Download"
 msgstr "Baixar"
 
@@ -2593,7 +2611,7 @@ msgstr "Baixar um SO"
 msgid "Download report"
 msgstr "Relatório de download"
 
-#: pkg/machines/components/desktopConsole.jsx:47
+#: pkg/machines/components/desktopConsole.jsx:58
 msgid "Download the MSI from $0"
 msgstr "Baixe o MSI de $0"
 
@@ -2629,8 +2647,8 @@ msgstr "Apelido duplicado"
 msgid "Duplicate port"
 msgstr "Porta duplicada"
 
-#: pkg/machines/components/diskEdit.jsx:255
-#: pkg/machines/components/nicEdit.jsx:212 pkg/storaged/crypto-tab.jsx:129
+#: pkg/machines/components/diskEdit.jsx:250
+#: pkg/machines/components/nicEdit.jsx:207 pkg/storaged/crypto-tab.jsx:129
 #: pkg/storaged/nfs-details.jsx:307
 msgid "Edit"
 msgstr "Editar"
@@ -2683,7 +2701,7 @@ msgstr "Ativar serviço"
 msgid "Enable stored metrics"
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:935
+#: pkg/networkmanager/firewall.jsx:917
 msgid "Enable the firewall"
 msgstr ""
 
@@ -2739,7 +2757,7 @@ msgstr ""
 msgid "End should not be empty"
 msgstr ""
 
-#: pkg/selinux/setroubleshoot-view.jsx:243
+#: pkg/selinux/setroubleshoot-view.jsx:285
 msgid "Enforcing"
 msgstr ""
 
@@ -2763,7 +2781,7 @@ msgstr ""
 "Introduzir uma senha diferente aqui significa que você precisará digitá-la "
 "cada vez que você se reconecta a esta máquina"
 
-#: pkg/networkmanager/firewall.jsx:731
+#: pkg/networkmanager/firewall.jsx:714
 msgid "Entire subnet"
 msgstr ""
 
@@ -2847,11 +2865,11 @@ msgstr "Ethtool"
 msgid "Everything"
 msgstr "Tudo"
 
-#: pkg/networkmanager/firewall.jsx:568
+#: pkg/networkmanager/firewall.jsx:551
 msgid "Example: 22,ssh,8080,5900-5910"
 msgstr "Exemplo: 22,ssh,8080,5900-5910"
 
-#: pkg/networkmanager/firewall.jsx:576
+#: pkg/networkmanager/firewall.jsx:559
 msgid "Example: 88,2019,nfs,rsync"
 msgstr "Exemplo: 88,2019,nfs,rsync"
 
@@ -2895,15 +2913,15 @@ msgstr "Falhou"
 msgid "Failed to add machine: $0"
 msgstr "Falha ao adicionar a máquina: $0"
 
-#: pkg/networkmanager/firewall.jsx:302
+#: pkg/networkmanager/firewall.jsx:300
 msgid "Failed to add port"
 msgstr "Falha ao adicionar porta"
 
-#: pkg/networkmanager/firewall.jsx:302
+#: pkg/networkmanager/firewall.jsx:300
 msgid "Failed to add service"
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:655
+#: pkg/networkmanager/firewall.jsx:638
 msgid "Failed to add zone"
 msgstr "Falha ao adicionar zona"
 
@@ -2961,7 +2979,7 @@ msgstr "Falha ao parar Docker escopo: $0"
 msgid "Failed to switch profile"
 msgstr "Falha ao mudar de perfil"
 
-#: pkg/machines/components/vcpuModal.jsx:198
+#: pkg/machines/components/vcpuModal.jsx:193
 msgid "Fewer than the maximum number of virtual CPUs should be enabled."
 msgstr "Menos do que o número máximo de CPUs virtuais deve ser ativado."
 
@@ -2986,7 +3004,7 @@ msgstr "Nome do Sistema de Arquivos"
 msgid "Filesystems"
 msgstr "Sistema de Arquivos"
 
-#: pkg/networkmanager/firewall.jsx:524
+#: pkg/networkmanager/firewall.jsx:507
 msgid "Filter Services"
 msgstr "Serviços de filtro"
 
@@ -2994,16 +3012,16 @@ msgstr "Serviços de filtro"
 msgid "Filter by name or description..."
 msgstr "Filtrar por nome ou descrição..."
 
-#: pkg/lib/machine-unknown-hostkey.html:10 pkg/shell/index.html:301
+#: pkg/lib/machine-unknown-hostkey.html:10 pkg/shell/index.html:297
 msgid "Fingerprint"
 msgstr "Digital"
 
 #: pkg/networkmanager/firewall.html:22 pkg/networkmanager/index.html:107
-#: pkg/networkmanager/firewall.jsx:943 pkg/networkmanager/firewall.jsx:947
+#: pkg/networkmanager/firewall.jsx:925 pkg/networkmanager/firewall.jsx:929
 msgid "Firewall"
 msgstr "Firewall"
 
-#: pkg/networkmanager/firewall.jsx:895
+#: pkg/networkmanager/firewall.jsx:877
 msgid "Firewall is not available"
 msgstr "Firewall não está disponível"
 
@@ -3105,7 +3123,7 @@ msgstr ""
 msgid "Friday"
 msgstr "Sexta-feira"
 
-#: pkg/packagekit/autoupdates.jsx:325
+#: pkg/packagekit/autoupdates.jsx:324
 msgid "Fridays"
 msgstr ""
 
@@ -3246,7 +3264,7 @@ msgstr "Nome do host"
 msgid "Host key is incorrect"
 msgstr "Chave de Host incorreta"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:604
+#: pkg/systemd/overview-cards/realmd-operation.js:609
 msgid "Host name should not be changed in a domain"
 msgstr ""
 
@@ -3305,7 +3323,7 @@ msgstr "Comprimento do prefixo IP:"
 msgid "IP Settings"
 msgstr "Configurações de IP"
 
-#: pkg/networkmanager/firewall.jsx:740
+#: pkg/networkmanager/firewall.jsx:723
 msgid ""
 "IP address with routing prefix. Separate multiple values with a comma. "
 "Example: 192.0.2.0/24, 2001:db8::/32"
@@ -3366,7 +3384,7 @@ msgid "IPv6 only"
 msgstr ""
 
 #: pkg/docker/containers-view.jsx:130 pkg/docker/containers-view.jsx:412
-#: pkg/machines/components/diskEdit.jsx:37
+#: pkg/machines/components/diskEdit.jsx:37 pkg/networkmanager/firewall.jsx:562
 msgid "Id"
 msgstr "Id"
 
@@ -3424,7 +3442,7 @@ msgstr "Imagens e contêineres em execução"
 msgid "Immediately Start VM"
 msgstr "Imediatamente Iniciar VM"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:948
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:944
 #, fuzzy
 #| msgid "Import VM"
 msgid "Import"
@@ -3469,7 +3487,7 @@ msgstr "Inativo"
 msgid "Inactive volume"
 msgstr "Volume inativo"
 
-#: pkg/networkmanager/firewall.jsx:708
+#: pkg/networkmanager/firewall.jsx:691
 msgid "Included services"
 msgstr ""
 
@@ -3527,7 +3545,7 @@ msgstr "Instale Software"
 msgid "Install VDO Support"
 msgstr ""
 
-#: pkg/selinux/setroubleshoot-view.jsx:330
+#: pkg/selinux/setroubleshoot-view.jsx:372
 msgid "Install setroubleshoot-server to troubleshoot SELinux events."
 msgstr ""
 "Instale o setroubleshoot-server para solucionar problemas de eventos SELinux."
@@ -3570,7 +3588,7 @@ msgid "Interface Type"
 msgstr ""
 
 #: pkg/networkmanager/index.html:118 pkg/networkmanager/index.html:277
-#: pkg/networkmanager/firewall.jsx:171 pkg/networkmanager/firewall.jsx:714
+#: pkg/networkmanager/firewall.jsx:171 pkg/networkmanager/firewall.jsx:697
 #: pkg/networkmanager/interfaces.js:2972
 msgid "Interfaces"
 msgstr "Interfaces"
@@ -3653,7 +3671,7 @@ msgstr "Número inválido."
 msgid "Invalid port"
 msgstr "Porta inválida"
 
-#: pkg/networkmanager/firewall.jsx:400
+#: pkg/networkmanager/firewall.jsx:381
 msgid "Invalid port number"
 msgstr ""
 
@@ -3665,7 +3683,7 @@ msgstr "Prefixo inválido $0"
 msgid "Invalid prefix or netmask $0"
 msgstr "Prefixo ou máscara de rede inválidos $0"
 
-#: pkg/networkmanager/firewall.jsx:427
+#: pkg/networkmanager/firewall.jsx:410
 msgid "Invalid range"
 msgstr ""
 
@@ -3698,25 +3716,25 @@ msgstr ""
 msgid "Jobs"
 msgstr "Trabalhos"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:119
+#: pkg/systemd/overview-cards/realmd-operation.js:118
 msgid "Join"
 msgstr "Afiliar-se"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:598
+#: pkg/systemd/overview-cards/realmd-operation.js:603
 msgid "Join Domain"
 msgstr "Associar-se ao domínio"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:118
+#: pkg/systemd/overview-cards/realmd-operation.js:117
 msgid "Join a Domain"
 msgstr "Ingressar em um domínio"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:622
+#: pkg/systemd/overview-cards/realmd-operation.js:627
 #, fuzzy
 #| msgid "Joining this domain is not supported"
 msgid "Joining a domain requires installation of realmd"
 msgstr "A adesão à este domínio não é suportada"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:507
+#: pkg/systemd/overview-cards/realmd-operation.js:512
 msgid "Joining this domain is not supported"
 msgstr "A adesão à este domínio não é suportada"
 
@@ -3821,6 +3839,18 @@ msgstr "Último Trigger"
 msgid "Last checked: $0"
 msgstr "Última verificação: $0 atrás"
 
+#: pkg/systemd/overview.jsx:133
+#, fuzzy
+#| msgid "Last Login"
+msgid "Last failed login:"
+msgstr "Último Login"
+
+#: pkg/systemd/overview.jsx:132
+#, fuzzy
+#| msgid "Last Login"
+msgid "Last login:"
+msgstr "Último Login"
+
 #: pkg/machines/components/desktopConsole.jsx:128
 msgid "Launch Remote Viewer"
 msgstr "Iniciar o Visualizador Remoto"
@@ -3876,7 +3906,7 @@ msgstr ""
 msgid "Libvirt or hypervisor does not support UEFI"
 msgstr ""
 
-#: pkg/shell/index.html:98
+#: pkg/shell/index.html:94
 msgid "Licensed under:"
 msgstr "Licenciado em:"
 
@@ -3986,11 +4016,11 @@ msgstr "Bloqueado"
 msgid "Locking $target"
 msgstr "Bloqueando $target"
 
-#: pkg/lib/machine-change-auth.html:92 src/ws/login.html:84 src/ws/login.js:518
+#: pkg/lib/machine-change-auth.html:91 src/ws/login.html:84 src/ws/login.js:518
 msgid "Log In"
 msgstr "Entrar"
 
-#: pkg/shell/index.html:78
+#: pkg/shell/index.html:74
 msgid "Log Out"
 msgstr "Log Out"
 
@@ -4227,7 +4257,7 @@ msgstr ""
 msgid "Maximum message age $max_age"
 msgstr "Máxima permanência da mensagem $max_age"
 
-#: pkg/machines/components/vcpuModal.jsx:211
+#: pkg/machines/components/vcpuModal.jsx:206
 msgid ""
 "Maximum number of virtual CPUs allocated for the guest OS, which must be "
 "between 1 and $0"
@@ -4278,7 +4308,7 @@ msgstr ""
 msgid "Memory could not be saved"
 msgstr ""
 
-#: pkg/docker/index.html:416 pkg/docker/index.html:588
+#: pkg/docker/index.html:416 pkg/docker/index.html:591
 msgid "Memory limit"
 msgstr "Limite de Memória"
 
@@ -4294,7 +4324,7 @@ msgstr "Uso de memória:"
 msgid "Message to logged in users"
 msgstr "Mensagem para usuários logados"
 
-#: pkg/shell/index.html:438
+#: pkg/shell/index.html:434
 msgid "Messages related to the failure might be found in the journal:"
 msgstr ""
 
@@ -4302,7 +4332,7 @@ msgstr ""
 msgid "Metadata Used"
 msgstr "Metadados Usados"
 
-#: pkg/docker/index.html:430 pkg/docker/index.html:602
+#: pkg/docker/index.html:430 pkg/docker/index.html:605
 #: pkg/machines/components/memorySelectRow.jsx:84
 #: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:95
 msgid "MiB"
@@ -4357,7 +4387,7 @@ msgstr "Modificando $target"
 msgid "Monday"
 msgstr "Segunda-feira"
 
-#: pkg/packagekit/autoupdates.jsx:321
+#: pkg/packagekit/autoupdates.jsx:320
 msgid "Mondays"
 msgstr ""
 
@@ -4369,7 +4399,7 @@ msgstr "Monitorando Intervalo"
 msgid "Monitoring Targets"
 msgstr "Alvod e Monitoramento"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:531
+#: pkg/systemd/overview-cards/realmd-operation.js:536
 msgid "More"
 msgstr "Mais"
 
@@ -4631,7 +4661,7 @@ msgid "NetworkManager is not running."
 msgstr "NetworkManager não está rodando."
 
 #: pkg/networkmanager/index.html:23 pkg/networkmanager/index.html:396
-#: pkg/networkmanager/firewall.jsx:942 pkg/networkmanager/manifest.json.in
+#: pkg/networkmanager/firewall.jsx:924 pkg/networkmanager/manifest.json.in
 msgid "Networking"
 msgstr "Rede"
 
@@ -4665,7 +4695,7 @@ msgstr "Nunca bloquear conta"
 msgid "New NFS Mount"
 msgstr "Nova montagem de volume NFS"
 
-#: pkg/shell/index.html:322 pkg/users/index.html:220
+#: pkg/shell/index.html:318 pkg/users/index.html:220
 msgid "New Password"
 msgstr "Nova Senha"
 
@@ -4681,7 +4711,7 @@ msgstr "Nova senha"
 msgid "New password was not accepted"
 msgstr "Nova senha não foi aceita"
 
-#: pkg/systemd/overview-cards/realmd-operation.html:84
+#: pkg/systemd/overview-cards/realmd-operation.html:81
 #: pkg/storaged/iscsi-panel.jsx:50
 msgid "Next"
 msgstr "Próximo"
@@ -4732,7 +4762,7 @@ msgstr "Nenhum volume NFS montado"
 msgid "No Network Devices"
 msgstr ""
 
-#: pkg/selinux/setroubleshoot-view.jsx:316
+#: pkg/selinux/setroubleshoot-view.jsx:358
 msgid "No SELinux alerts."
 msgstr "Nenhum alerta SELinux."
 
@@ -4806,7 +4836,7 @@ msgstr "Nenhum contêiner"
 msgid "No containers that match the current filter"
 msgstr "Nenhum contêiner que corresponda ao filtro atual"
 
-#: pkg/networkmanager/firewall.jsx:705
+#: pkg/networkmanager/firewall.jsx:688
 msgid "No description available"
 msgstr ""
 
@@ -4946,7 +4976,7 @@ msgstr ""
 
 #: pkg/kdump/kdump-view.jsx:423
 #: pkg/machines/components/networks/createNetworkDialog.jsx:191
-#: pkg/networkmanager/firewall.jsx:710 pkg/tuned/dialog.js:230
+#: pkg/networkmanager/firewall.jsx:693 pkg/tuned/dialog.js:230
 msgid "None"
 msgstr "Nenhum"
 
@@ -4970,7 +5000,7 @@ msgstr "Chave privada não válida"
 msgid "Not authorized to access Docker on this system"
 msgstr "Não autorizado para acessar Docker neste sistema"
 
-#: pkg/networkmanager/firewall.jsx:905
+#: pkg/networkmanager/firewall.jsx:887
 msgid "Not authorized to add a new zone"
 msgstr ""
 
@@ -4978,11 +5008,11 @@ msgstr ""
 msgid "Not authorized to add services to zone $0"
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:928
+#: pkg/networkmanager/firewall.jsx:910
 msgid "Not authorized to disable the firewall"
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:928
+#: pkg/networkmanager/firewall.jsx:910
 msgid "Not authorized to enable the firewall"
 msgstr ""
 
@@ -4998,7 +5028,7 @@ msgstr ""
 msgid "Not available"
 msgstr "Indisponível"
 
-#: pkg/selinux/setroubleshoot.js:240
+#: pkg/selinux/setroubleshoot.js:247
 msgid "Not connected"
 msgstr "Não conectado"
 
@@ -5043,11 +5073,11 @@ msgstr "Notebook"
 msgid "Notice and above"
 msgstr "Observe e acima"
 
-#: pkg/selinux/setroubleshoot-view.jsx:345
+#: pkg/selinux/setroubleshoot-view.jsx:387
 msgid "Occurred $0"
 msgstr "Ocorreu $0"
 
-#: pkg/selinux/setroubleshoot-view.jsx:340
+#: pkg/selinux/setroubleshoot-view.jsx:382
 msgid "Occurred between $0 and $1"
 msgstr "Ocorreu entre $0 e $1"
 
@@ -5055,7 +5085,7 @@ msgstr "Ocorreu entre $0 e $1"
 msgid "Ok"
 msgstr "Ok"
 
-#: pkg/shell/index.html:313 pkg/users/index.html:217
+#: pkg/shell/index.html:309 pkg/users/index.html:217
 msgid "Old Password"
 msgstr "Senha Atual"
 
@@ -5090,7 +5120,7 @@ msgstr ""
 "socket\"."
 
 #: pkg/systemd/overview-cards/realmd-operation.html:68
-#: pkg/systemd/overview-cards/realmd-operation.js:338
+#: pkg/systemd/overview-cards/realmd-operation.js:337
 msgid "One Time Password"
 msgstr "Uma senha do tempo"
 
@@ -5256,8 +5286,8 @@ msgid "Passphrases do not match"
 msgstr "As senhas não correspondem"
 
 #: pkg/lib/machine-auth-failed.html:8 pkg/lib/machine-change-auth.html:52
-#: pkg/lib/machine-sync-users.html:63 pkg/shell/index.html:231
-#: pkg/shell/index.html:260 pkg/shell/index.html:275 pkg/users/index.html:118
+#: pkg/lib/machine-sync-users.html:63 pkg/shell/index.html:227
+#: pkg/shell/index.html:256 pkg/shell/index.html:271 pkg/users/index.html:118
 #: pkg/users/index.html:175 src/ws/login.html:55
 #: pkg/storaged/iscsi-panel.jsx:47 pkg/storaged/iscsi-panel.jsx:157
 msgid "Password"
@@ -5291,7 +5321,7 @@ msgstr "A senha deve ser alterada"
 msgid "Password not accepted"
 msgstr "Senha não aceita"
 
-#: pkg/shell/index.html:179
+#: pkg/shell/index.html:175
 msgid ""
 "Password not usable for privileged tasks or to connect to other machines"
 msgstr ""
@@ -5367,7 +5397,7 @@ msgstr "Permanente"
 msgid "Permission denied"
 msgstr "Permissão negada"
 
-#: pkg/selinux/setroubleshoot-view.jsx:243
+#: pkg/selinux/setroubleshoot-view.jsx:285
 msgid "Permissive"
 msgstr ""
 
@@ -5421,13 +5451,13 @@ msgstr "Alvo do Ping"
 msgid "Pizza Box"
 msgstr "Pizza Box"
 
-#: pkg/machines/components/diskAdd.jsx:395
+#: pkg/machines/components/diskAdd.jsx:390
 #, fuzzy
 #| msgid "Could not reset the storage pool"
 msgid "Please choose a storage pool"
 msgstr "Não foi possível redefinir o pool de armazenamento"
 
-#: pkg/machines/components/diskAdd.jsx:434
+#: pkg/machines/components/diskAdd.jsx:429
 #, fuzzy
 #| msgid "Please enter new volume name"
 msgid "Please choose a volume"
@@ -5448,15 +5478,15 @@ msgstr "Por favor, confirme a exclusão forçada de $0"
 msgid "Please confirm stopping of $0"
 msgstr "Por favor confirme a parada de $0"
 
-#: pkg/machines/components/diskAdd.jsx:400
+#: pkg/machines/components/diskAdd.jsx:395
 msgid "Please enter new volume name"
 msgstr "Por favor insira o novo nome do volume"
 
-#: pkg/machines/components/diskAdd.jsx:403
+#: pkg/machines/components/diskAdd.jsx:398
 msgid "Please enter new volume size"
 msgstr "Por favor insira o novo tamanho do volume"
 
-#: pkg/networkmanager/firewall.jsx:896
+#: pkg/networkmanager/firewall.jsx:878
 msgid "Please install the $0 package"
 msgstr "Por favor, instale o pacote de $0"
 
@@ -5522,7 +5552,7 @@ msgstr ""
 msgid "Port"
 msgstr "Porta"
 
-#: pkg/networkmanager/firewall.jsx:404
+#: pkg/networkmanager/firewall.jsx:385
 msgid "Port number and type do not match"
 msgstr ""
 
@@ -5540,7 +5570,7 @@ msgstr "Portas"
 msgid "Ports:"
 msgstr "Portas:"
 
-#: pkg/machines/components/vcpuModal.jsx:225
+#: pkg/machines/components/vcpuModal.jsx:220
 msgid "Preferred number of sockets to expose to the guest."
 msgstr "Número preferido de soquetes para expor ao convidado."
 
@@ -5632,7 +5662,7 @@ msgstr ""
 msgid "Profile"
 msgstr "Alterar o perfil"
 
-#: pkg/shell/index.html:94
+#: pkg/shell/index.html:90
 msgid "Project website"
 msgstr "Site do projeto"
 
@@ -5658,7 +5688,7 @@ msgstr "Propaga Recarregar para"
 msgid "Protocol"
 msgstr "Protocolo"
 
-#: pkg/lib/machine-auth-failed.html:9 pkg/shell/index.html:259
+#: pkg/lib/machine-auth-failed.html:9 pkg/shell/index.html:255
 msgid "Public Key"
 msgstr "Chave Pública"
 
@@ -5753,11 +5783,11 @@ msgstr "Rack Mount Chassis"
 msgid "Random"
 msgstr "Aleatório(a)"
 
-#: pkg/networkmanager/firewall.jsx:736
+#: pkg/networkmanager/firewall.jsx:719
 msgid "Range"
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:435
+#: pkg/networkmanager/firewall.jsx:418
 msgid "Range must be strictly ordered"
 msgstr ""
 
@@ -5838,7 +5868,7 @@ msgstr "Recente"
 msgid "Recommended default"
 msgstr ""
 
-#: pkg/shell/index.html:421
+#: pkg/shell/index.html:417
 msgid "Reconnect"
 msgstr "Reconectar"
 
@@ -5910,7 +5940,7 @@ msgstr "Remover"
 msgid "Remove $0"
 msgstr "Remover $0"
 
-#: pkg/networkmanager/firewall.jsx:846
+#: pkg/networkmanager/firewall.jsx:828
 msgid "Remove $0 service from $1 zone"
 msgstr ""
 
@@ -5938,7 +5968,7 @@ msgstr "Remover frase secreta em $0?"
 msgid "Remove service $0"
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:147 pkg/networkmanager/firewall.jsx:829
+#: pkg/networkmanager/firewall.jsx:147 pkg/networkmanager/firewall.jsx:811
 msgid "Remove zone $0"
 msgstr ""
 
@@ -5966,14 +5996,14 @@ msgstr ""
 msgid "Removing physical volume from $target"
 msgstr "Removendo volume físico de $target"
 
-#: pkg/networkmanager/firewall.jsx:844
+#: pkg/networkmanager/firewall.jsx:826
 msgid ""
 "Removing the cockpit service might result in the web console becoming "
 "unreachable. Make sure that this zone does not apply to your current web "
 "console connection."
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:827
+#: pkg/networkmanager/firewall.jsx:809
 msgid "Removing the zone will remove all services within it."
 msgstr ""
 
@@ -6047,7 +6077,7 @@ msgstr ""
 msgid "Reports:"
 msgstr ""
 
-#: pkg/docker/index.html:652
+#: pkg/docker/index.html:655
 msgid "Repository"
 msgstr "Repositório"
 
@@ -6087,7 +6117,7 @@ msgstr "Requisitode"
 msgid "Reserved memory"
 msgstr "Memória reservada"
 
-#: pkg/users/index.html:335 pkg/systemd/terminal.jsx:102
+#: pkg/users/index.html:334 pkg/systemd/terminal.jsx:102
 msgid "Reset"
 msgstr "Redefinir"
 
@@ -6103,8 +6133,8 @@ msgid ""
 msgstr ""
 
 #: pkg/docker/index.html:132 pkg/docker/containers-view.jsx:317
-#: pkg/machines/components/vm/vmActions.jsx:44 pkg/systemd/overview.jsx:103
-#: pkg/systemd/overview.jsx:124 pkg/systemd/service-details.jsx:172
+#: pkg/machines/components/vm/vmActions.jsx:44 pkg/systemd/overview.jsx:209
+#: pkg/systemd/overview.jsx:230 pkg/systemd/service-details.jsx:172
 #: pkg/systemd/shutdown.js:99 pkg/systemd/shutdown.js:100
 msgid "Restart"
 msgstr "Reiniciar"
@@ -6145,7 +6175,7 @@ msgstr "Tentativas:"
 msgid "Reuse my password for privileged tasks"
 msgstr "Reutilize minha senha para tarefas privilegiadas"
 
-#: pkg/shell/index.html:183
+#: pkg/shell/index.html:179
 msgid "Reuse my password for privileged tasks and to connect to other machines"
 msgstr ""
 "Reutilizar minha senha para tarefas privilegiadas e conectar-se a outras "
@@ -6183,7 +6213,7 @@ msgstr ""
 msgid "Routes"
 msgstr "Rotas"
 
-#: pkg/docker/index.html:247 pkg/docker/index.html:528
+#: pkg/docker/index.html:247 pkg/docker/index.html:527
 #: pkg/systemd/services.html:295 pkg/machines/components/vm/vmActions.jsx:92
 msgid "Run"
 msgstr "Executar"
@@ -6213,11 +6243,11 @@ msgstr "Executando"
 msgid "SELinux"
 msgstr ""
 
-#: pkg/selinux/setroubleshoot-view.jsx:315
+#: pkg/selinux/setroubleshoot-view.jsx:357
 msgid "SELinux Access Control Errors"
 msgstr "SELinux Erros de Controle de Acesso"
 
-#: pkg/selinux/setroubleshoot-view.jsx:248
+#: pkg/selinux/setroubleshoot-view.jsx:290
 msgid "SELinux Policy"
 msgstr "Política de SELinux"
 
@@ -6225,15 +6255,15 @@ msgstr "Política de SELinux"
 msgid "SELinux Troubleshoot"
 msgstr "Solução de problemas de SELinux"
 
-#: pkg/selinux/setroubleshoot-view.jsx:309
+#: pkg/selinux/setroubleshoot-view.jsx:351
 msgid "SELinux is disabled on the system"
 msgstr "SELinux está desativado no sistema"
 
-#: pkg/selinux/setroubleshoot-view.jsx:232
+#: pkg/selinux/setroubleshoot-view.jsx:274
 msgid "SELinux is disabled on the system."
 msgstr "SELinux está desativado no sistema."
 
-#: pkg/selinux/setroubleshoot-view.jsx:224
+#: pkg/selinux/setroubleshoot-view.jsx:266
 msgid "SELinux system status is unknown."
 msgstr "O status do sistema SELinux é desconhecido."
 
@@ -6273,7 +6303,7 @@ msgstr "STP Máxima permanência de mensagem"
 msgid "STP Priority"
 msgstr "STP Prioridade"
 
-#: pkg/shell/index.html:442
+#: pkg/shell/index.html:438
 msgid ""
 "Safari users need to import and trust the certificate of the self-signing CA:"
 msgstr ""
@@ -6282,20 +6312,20 @@ msgstr ""
 msgid "Saturday"
 msgstr "Sábado"
 
-#: pkg/packagekit/autoupdates.jsx:326
+#: pkg/packagekit/autoupdates.jsx:325
 msgid "Saturdays"
 msgstr ""
 
-#: pkg/systemd/services.html:377 pkg/machines/components/diskEdit.jsx:220
-#: pkg/machines/components/nicEdit.jsx:179
-#: pkg/machines/components/vm/bootOrderModal.jsx:330
-#: pkg/machines/components/vm/firmwareModal.jsx:78
-#: pkg/machines/components/vm/memoryModal.jsx:155
+#: pkg/systemd/services.html:376 pkg/machines/components/diskEdit.jsx:212
+#: pkg/machines/components/nicEdit.jsx:171
+#: pkg/machines/components/vm/bootOrderModal.jsx:322
+#: pkg/machines/components/vm/firmwareModal.jsx:75
+#: pkg/machines/components/vm/memoryModal.jsx:152
 #: pkg/storaged/crypto-keyslots.jsx:266 pkg/storaged/crypto-keyslots.jsx:285
 msgid "Save"
 msgstr "Salvar"
 
-#: pkg/systemd/hwinfo.jsx:225
+#: pkg/systemd/hwinfo.jsx:222
 msgid "Save and reboot"
 msgstr ""
 
@@ -6319,7 +6349,7 @@ msgstr ""
 msgid "Sealed-case PC"
 msgstr "PC com caixa vedada"
 
-#: pkg/shell/index.html:397
+#: pkg/shell/index.html:393
 msgid "Search"
 msgstr ""
 
@@ -6340,7 +6370,7 @@ msgstr "Apagando com segurança $target"
 msgid "Security Updates Available"
 msgstr "Atualizações de segurança disponíveis"
 
-#: pkg/shell/index.html:131
+#: pkg/shell/index.html:126
 msgid "Select"
 msgstr "Selecione"
 
@@ -6446,7 +6476,7 @@ msgid "Service name"
 msgstr "Nome do serviço"
 
 #: pkg/systemd/services.html:4 pkg/systemd/services.html:221
-#: pkg/networkmanager/firewall.jsx:516 pkg/systemd/manifest.json.in
+#: pkg/networkmanager/firewall.jsx:499 pkg/systemd/manifest.json.in
 msgid "Services"
 msgstr "Serviços"
 
@@ -6455,11 +6485,11 @@ msgstr "Serviços"
 msgid "Session"
 msgstr "Sessão"
 
-#: pkg/shell/index.html:141
+#: pkg/shell/index.html:137
 msgid "Session is about to expire"
 msgstr ""
 
-#: pkg/dashboard/index.html:188 pkg/users/index.html:240
+#: pkg/dashboard/index.html:186 pkg/users/index.html:239
 msgid "Set"
 msgstr "Definir"
 
@@ -6495,7 +6525,7 @@ msgstr "Configurado para"
 msgid "Set up"
 msgstr "Configuração"
 
-#: pkg/selinux/setroubleshoot-view.jsx:241
+#: pkg/selinux/setroubleshoot-view.jsx:283
 msgid ""
 "Setting deviates from the configured state and will revert on the next boot."
 msgstr ""
@@ -6587,7 +6617,7 @@ msgstr "Encerrar"
 msgid "Shut off the VM in order to edit firmware configuration"
 msgstr ""
 
-#: pkg/systemd/overview.jsx:106
+#: pkg/systemd/overview.jsx:212
 msgid "Shutdown"
 msgstr ""
 
@@ -6637,7 +6667,7 @@ msgstr "Slot"
 msgid "Slot $0"
 msgstr "Slot $0"
 
-#: pkg/machines/components/vcpuModal.jsx:220 pkg/systemd/services.jsx:51
+#: pkg/machines/components/vcpuModal.jsx:215 pkg/systemd/services.jsx:51
 msgid "Sockets"
 msgstr "Sockets"
 
@@ -6652,15 +6682,15 @@ msgid ""
 "settings at your own risk."
 msgstr ""
 
-#: pkg/selinux/setroubleshoot-view.jsx:94
+#: pkg/selinux/setroubleshoot-view.jsx:104
 msgid "Solution applied successfully"
 msgstr "Solução aplicada com êxito"
 
-#: pkg/selinux/setroubleshoot-view.jsx:100
+#: pkg/selinux/setroubleshoot-view.jsx:110
 msgid "Solution failed"
 msgstr "Falha na solução"
 
-#: pkg/selinux/setroubleshoot-view.jsx:363
+#: pkg/selinux/setroubleshoot-view.jsx:405
 msgid "Solutions"
 msgstr "Soluções"
 
@@ -6671,11 +6701,11 @@ msgstr ""
 "Algum outro programa está atualmente usando o gerenciador de pacotes, por "
 "favor aguarde ..."
 
-#: pkg/networkmanager/firewall.jsx:685
+#: pkg/networkmanager/firewall.jsx:668
 msgid "Sorted from least trusted to most trusted"
 msgstr ""
 
-#: pkg/machines/components/diskAdd.jsx:489
+#: pkg/machines/components/diskAdd.jsx:484
 #: pkg/machines/components/nicBody.jsx:146
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:52
 #: pkg/machines/components/vmDisksTab.jsx:117
@@ -6942,7 +6972,7 @@ msgstr "Sub Notebook"
 msgid "Sunday"
 msgstr "Domingo"
 
-#: pkg/packagekit/autoupdates.jsx:327
+#: pkg/packagekit/autoupdates.jsx:326
 msgid "Sundays"
 msgstr ""
 
@@ -6995,11 +7025,11 @@ msgstr ""
 "Ligando <b>$0</b> irá encerrar a conexão com o servidor e tornará a "
 "administração da interface do usuário indisponível."
 
-#: pkg/lib/machine-sync-users.html:77
+#: pkg/lib/machine-sync-users.html:76
 msgid "Synchronize"
 msgstr "Sincronizar"
 
-#: pkg/dashboard/index.html:186 pkg/lib/machine-sync-users.html:4
+#: pkg/dashboard/index.html:188 pkg/lib/machine-sync-users.html:4
 msgid "Synchronize users"
 msgstr "Sincronizar usuários"
 
@@ -7024,7 +7054,7 @@ msgstr "Sistema"
 msgid "System Information"
 msgstr "Informação do sistema"
 
-#: pkg/selinux/setroubleshoot-view.jsx:411
+#: pkg/selinux/setroubleshoot-view.jsx:453
 msgid "System Modifications"
 msgstr ""
 
@@ -7053,7 +7083,8 @@ msgstr "TCP"
 msgid "Tablet"
 msgstr "Tablet"
 
-#: pkg/docker/index.html:658
+#: pkg/docker/index.html:561 pkg/docker/index.html:562
+#: pkg/docker/index.html:661
 msgid "Tag"
 msgstr "Marca"
 
@@ -7208,7 +7239,7 @@ msgstr ""
 "A autenticidade do host {{#strong}}{{host}}{{/strong}} não pode ser "
 "estabelecida. Tem certeza de que deseja continuar conectando?"
 
-#: pkg/networkmanager/firewall.jsx:711
+#: pkg/networkmanager/firewall.jsx:694
 msgid "The cockpit service is automatically included"
 msgstr ""
 
@@ -7216,7 +7247,7 @@ msgstr ""
 msgid "The collected information will be stored locally on the system."
 msgstr "As informações coletadas serão armazenadas localmente no sistema."
 
-#: pkg/selinux/setroubleshoot-view.jsx:239
+#: pkg/selinux/setroubleshoot-view.jsx:281
 msgid "The configured state is unknown, it might change on the next boot."
 msgstr ""
 "O estado configurado é desconhecido, pode mudar na próxima inicialização."
@@ -7336,7 +7367,7 @@ msgstr "O último volume físico de um grupo de volumes não pode ser removido."
 msgid "The logged in user is not permitted to view system modifications"
 msgstr ""
 
-#: pkg/shell/indexes.js:683
+#: pkg/shell/indexes.js:696
 msgid "The machine is restarting"
 msgstr "A máquina esta reiniciando"
 
@@ -7396,7 +7427,7 @@ msgstr ""
 msgid "The user $0 is not permitted to modify realms"
 msgstr "O usuário <b>$0</b> não tem permissão para modificar reinos"
 
-#: pkg/systemd/overview.jsx:112
+#: pkg/systemd/overview.jsx:218
 msgid "The user $0 is not permitted to shutdown or restart this server"
 msgstr ""
 
@@ -7472,7 +7503,14 @@ msgstr ""
 "Não há espaço livre suficiente em outro lugar para remover este volume "
 "físico. Pelo menos mais $0 de espaço livre é necessário."
 
-#: pkg/shell/index.html:437
+#: pkg/systemd/overview.jsx:124
+msgid "There was $0 failed login attempt since the last successful login."
+msgid_plural ""
+"There were $0 failed login attempts since the last successful login."
+msgstr[0] ""
+msgstr[1] ""
+
+#: pkg/shell/index.html:433
 msgid "There was an unexpected error while connecting to the machine."
 msgstr "Ocorreu um erro inesperado enquanto conectava-se à máquina."
 
@@ -7562,7 +7600,7 @@ msgstr ""
 msgid "This machine has already been added."
 msgstr "Esta máquina já foi adicionada"
 
-#: pkg/systemd/overview-cards/realmd-operation.html:82
+#: pkg/systemd/overview-cards/realmd-operation.html:83
 msgid "This may take a while"
 msgstr "Isso pode demorar um pouco"
 
@@ -7649,13 +7687,13 @@ msgstr ""
 msgid "This will test the kdump configuration by crashing the kernel."
 msgstr "Isso testará a configuração do kdump, quebrando o kernel."
 
-#: pkg/networkmanager/firewall.jsx:825
+#: pkg/networkmanager/firewall.jsx:807
 msgid ""
 "This zone contains the cockpit service. Make sure that this zone does not "
 "apply to your current web console connection."
 msgstr ""
 
-#: pkg/machines/components/vcpuModal.jsx:237
+#: pkg/machines/components/vcpuModal.jsx:232
 msgid "Threads per core"
 msgstr "Tópicos por núcleo"
 
@@ -7663,7 +7701,7 @@ msgstr "Tópicos por núcleo"
 msgid "Thursday"
 msgstr "Quinta-feira"
 
-#: pkg/packagekit/autoupdates.jsx:324
+#: pkg/packagekit/autoupdates.jsx:323
 msgid "Thursdays"
 msgstr ""
 
@@ -7675,7 +7713,7 @@ msgstr "Fuso Horário"
 msgid "Timers"
 msgstr "Temporizadores"
 
-#: pkg/shell/index.html:340
+#: pkg/shell/index.html:336
 msgid ""
 "Tip: Make your key password match your login password to automatically "
 "authenticate against other systems."
@@ -7724,7 +7762,7 @@ msgstr "Disparado por"
 msgid "Triggers"
 msgstr "Triggers"
 
-#: pkg/shell/index.html:422 pkg/machines/components/libvirtSlate.jsx:101
+#: pkg/shell/index.html:418 pkg/machines/components/libvirtSlate.jsx:101
 msgid "Troubleshoot"
 msgstr "Solução de problemas"
 
@@ -7732,7 +7770,7 @@ msgstr "Solução de problemas"
 msgid "Trust key"
 msgstr "Chave de confiança"
 
-#: pkg/networkmanager/firewall.jsx:681
+#: pkg/networkmanager/firewall.jsx:664
 msgid "Trust level"
 msgstr ""
 
@@ -7752,7 +7790,7 @@ msgstr "Tentando sincronizar com {{Server}}"
 msgid "Tuesday"
 msgstr "Terça-feira"
 
-#: pkg/packagekit/autoupdates.jsx:322
+#: pkg/packagekit/autoupdates.jsx:321
 msgid "Tuesdays"
 msgstr ""
 
@@ -7772,7 +7810,7 @@ msgstr "Tuned não está em execução"
 msgid "Tuned is off"
 msgstr "Tuned está fora"
 
-#: pkg/shell/index.html:297
+#: pkg/shell/index.html:293
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:86
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:74
 #: pkg/machines/components/vm/bootOrderModal.jsx:108
@@ -7823,7 +7861,7 @@ msgstr "UUID"
 msgid "Unable to apply settings: $0"
 msgstr "ão é possível aplicar as configurações: $0"
 
-#: pkg/selinux/setroubleshoot-view.jsx:117
+#: pkg/selinux/setroubleshoot-view.jsx:129
 msgid "Unable to apply this solution automatically"
 msgstr "Não é possível aplicar esta solução automaticamente"
 
@@ -7836,7 +7874,7 @@ msgid "Unable to delete root account"
 msgstr "Incapaz de deletar a conta root"
 
 #: pkg/selinux/setroubleshoot-view.jsx:75
-#: pkg/selinux/setroubleshoot-view.jsx:166
+#: pkg/selinux/setroubleshoot-view.jsx:208
 msgid "Unable to get alert details."
 msgstr "Não é possível obter detalhes de alerta."
 
@@ -7872,7 +7910,7 @@ msgstr "Não é possível desmontar o sistema de arquivos"
 msgid "Unavailable"
 msgstr "Indisponível"
 
-#: pkg/docker/index.html:694 pkg/networkmanager/index.html:725
+#: pkg/docker/index.html:697 pkg/networkmanager/index.html:725
 #: pkg/shell/base_index.js:840 pkg/users/local.js:1505
 msgid "Unexpected error"
 msgstr "Erro inesperado"
@@ -7928,7 +7966,7 @@ msgstr "alvo desconhecido"
 msgid "Unknown host name"
 msgstr "Nome de host desconhecido"
 
-#: pkg/networkmanager/firewall.jsx:398
+#: pkg/networkmanager/firewall.jsx:379
 msgid "Unknown service name"
 msgstr ""
 
@@ -7945,7 +7983,7 @@ msgstr "Parou-se"
 msgid "Unlock"
 msgstr "Destravar"
 
-#: pkg/shell/index.html:241 pkg/shell/index.html:285
+#: pkg/shell/index.html:237 pkg/shell/index.html:281
 msgid "Unlock Key"
 msgstr "Desbloquear Chave"
 
@@ -8024,7 +8062,7 @@ msgstr "Host não confiável"
 msgid "Up since $0"
 msgstr "Ativo desde $0"
 
-#: pkg/lib/machine-change-port.html:41
+#: pkg/lib/machine-change-port.html:40
 msgid "Update"
 msgstr "Atualizar"
 
@@ -8086,11 +8124,11 @@ msgstr[1] "Uso de $0 núcleos da CPU"
 msgid "Use 512 Byte emulation"
 msgstr "Use a emulação de 512 bytes"
 
-#: pkg/machines/components/diskAdd.jsx:509
+#: pkg/machines/components/diskAdd.jsx:504
 msgid "Use Existing"
 msgstr "Usar existente"
 
-#: pkg/shell/index.html:193
+#: pkg/shell/index.html:189
 msgid "Use the following keys to authenticate against other systems"
 msgstr "Use as seguintes chaves para autenticar contra outros sistemas"
 
@@ -8121,7 +8159,7 @@ msgid "User Name"
 msgstr "Nome de Usuário"
 
 #: pkg/systemd/overview-cards/realmd-operation.html:59
-#: pkg/systemd/overview-cards/realmd-operation.js:337
+#: pkg/systemd/overview-cards/realmd-operation.js:336
 msgid "User Password"
 msgstr "Senha de Usuário"
 
@@ -8240,7 +8278,7 @@ msgstr "VNC Porta:"
 msgid "VNC TLS Port:"
 msgstr "VNC TLS Porta:"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:167
+#: pkg/systemd/overview-cards/realmd-operation.js:166
 msgid "Validating address"
 msgstr ""
 
@@ -8269,7 +8307,7 @@ msgstr "Verificar chave"
 msgid "Verifying"
 msgstr "Verificando"
 
-#: pkg/shell/index.html:96 pkg/packagekit/updates.jsx:389
+#: pkg/shell/index.html:92 pkg/packagekit/updates.jsx:389
 #: pkg/systemd/hwinfo.jsx:74
 msgid "Version"
 msgstr "Versão"
@@ -8368,7 +8406,7 @@ msgid "Waiting"
 msgstr "Aguardando"
 
 #: pkg/selinux/setroubleshoot-view.jsx:73
-#: pkg/selinux/setroubleshoot-view.jsx:164
+#: pkg/selinux/setroubleshoot-view.jsx:206
 msgid "Waiting for details..."
 msgstr "Esperando por detalhes..."
 
@@ -8416,7 +8454,7 @@ msgstr "Console da Web para servidores Linux"
 msgid "Wednesday"
 msgstr "Quarta-feira"
 
-#: pkg/packagekit/autoupdates.jsx:323
+#: pkg/packagekit/autoupdates.jsx:322
 msgid "Wednesdays"
 msgstr ""
 
@@ -8487,8 +8525,8 @@ msgstr ""
 "Você está conectado diretamente a este servidor. Você não pode excluí-lo."
 
 #: pkg/networkmanager/firewall.jsx:68 pkg/networkmanager/firewall.jsx:142
-#: pkg/networkmanager/firewall.jsx:154 pkg/networkmanager/firewall.jsx:904
-#: pkg/networkmanager/firewall.jsx:925
+#: pkg/networkmanager/firewall.jsx:154 pkg/networkmanager/firewall.jsx:886
+#: pkg/networkmanager/firewall.jsx:907
 msgid "You are not authorized to modify the firewall."
 msgstr "Você não está autorizado a modificar o firewall."
 
@@ -8583,7 +8621,7 @@ msgstr ""
 msgid "alias"
 msgstr "apelido"
 
-#: pkg/packagekit/autoupdates.jsx:340
+#: pkg/packagekit/autoupdates.jsx:339
 msgid "and restart the machine automatically."
 msgstr "e reinicie a máquina automaticamente."
 
@@ -8599,7 +8637,7 @@ msgstr ""
 msgid "asset tag"
 msgstr ""
 
-#: pkg/packagekit/autoupdates.jsx:332
+#: pkg/packagekit/autoupdates.jsx:331
 msgid "at"
 msgstr "no"
 
@@ -8721,8 +8759,8 @@ msgstr ""
 msgid "dying"
 msgstr "morrendo"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:299
-#: pkg/systemd/overview-cards/realmd-operation.js:305
+#: pkg/systemd/overview-cards/realmd-operation.js:298
+#: pkg/systemd/overview-cards/realmd-operation.js:304
 msgid "e.g. \"$0\""
 msgstr "e.g. \"$0\""
 
@@ -8754,7 +8792,7 @@ msgstr "erro"
 msgid "ethernet"
 msgstr "ethernet"
 
-#: pkg/packagekit/autoupdates.jsx:319
+#: pkg/packagekit/autoupdates.jsx:318
 msgid "every day"
 msgstr "todo dia"
 
@@ -9069,7 +9107,7 @@ msgstr ""
 msgid "running"
 msgstr "executando"
 
-#: pkg/systemd/overview.jsx:148
+#: pkg/systemd/overview.jsx:254
 msgid "running $0"
 msgstr ""
 
@@ -9105,7 +9143,7 @@ msgstr ""
 msgid "setroubleshoot"
 msgstr ""
 
-#: pkg/docker/index.html:447 pkg/docker/index.html:619
+#: pkg/docker/index.html:447 pkg/docker/index.html:622
 msgid "shares"
 msgstr "compartilhamentos"
 
@@ -9137,7 +9175,7 @@ msgstr "desligar"
 msgid "socket"
 msgstr ""
 
-#: pkg/selinux/setroubleshoot-view.jsx:121
+#: pkg/selinux/setroubleshoot-view.jsx:162
 msgid "solution details"
 msgstr "detalhes da solução"
 
@@ -9257,11 +9295,11 @@ msgstr ""
 msgid "username"
 msgstr ""
 
-#: pkg/machines/components/vcpuModal.jsx:193
+#: pkg/machines/components/vcpuModal.jsx:188
 msgid "vCPU Count"
 msgstr "quantidade de vCPU"
 
-#: pkg/machines/components/vcpuModal.jsx:205
+#: pkg/machines/components/vcpuModal.jsx:200
 msgid "vCPU Maximum"
 msgstr "Máximo de vCPU"
 
@@ -9321,6 +9359,9 @@ msgstr ""
 #: pkg/networkmanager/manifest.json.in
 msgid "zone"
 msgstr ""
+
+#~ msgid "About Cockpit"
+#~ msgstr "Sobre o Cockpit"
 
 #~ msgid " (shared with the OS)"
 #~ msgstr "(compartilhado com o SO)"

@@ -56,6 +56,7 @@ export var journal = { };
  *  * "until": if specified list entries until the date/time
  *  * "cursor": a cursor to start listing entries from
  *  * "after": a cursor to start listing entries after
+ *  * "priority": if specified list entries below the specific priority, inclusive
  *
  * Returns a jQuery deferred promise. You can call these
  * functions on the deferred to handle the responses. Note that
@@ -120,6 +121,8 @@ journal.build_cmd = function build_cmd(/* ... */) {
         cmd.push("--cursor=" + options.cursor);
     if (options.after)
         cmd.push("--after=" + options.after);
+    if (options.priority)
+        cmd.push("--priority=" + options.priority);
 
     /* journalctl doesn't allow reverse and follow together */
     if (options.reverse)

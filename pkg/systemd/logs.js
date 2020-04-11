@@ -369,11 +369,20 @@ $(function() {
             match.push('SYSLOG_IDENTIFIER=' + options.tag);
         $('#journal-service').text(options.tag || _("All"));
 
+        // Set selected item into start time select menu
         var query_start = cockpit.location.options.start || "recent";
         if (query_start == 'recent')
             $(window).scrollTop($(document).height());
 
-        journalbox($("#journal-box"), query_start, match, prio_level !== "*" ? prio_level : null); // TODO current day
+        const time_options = [...document.getElementById('journal-current-day-menu').children];
+        time_options.forEach(p => {
+            if (p.getAttribute('value') === query_start)
+                p.selected = true;
+            else
+                p.selected = false;
+        });
+
+        journalbox($("#journal-box"), query_start, match, prio_level !== "*" ? prio_level : null);
     }
 
     function update_entry() {
@@ -873,9 +882,9 @@ $(function() {
         update();
     });
 
-    $('#journal-current-day-menu a').on('click', function() {
+    $('#journal-current-day-menu').on('change', function() {
         update_services_list = true;
-        cockpit.location.go([], $.extend(cockpit.location.options, { start: $(this).attr("data-op") }));
+        cockpit.location.go([], $.extend(cockpit.location.options, { start: $(this).val() }));
     });
 
     $('#journal-box').on('click', '.cockpit-logline', function() {

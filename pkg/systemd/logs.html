@@ -32,19 +32,14 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 <body class="pf-m-redhat-font">
   <div id="journal">
     <div class="content-header-extra">
-      <div class="btn-group" id="journal-current-day-menu">
-        <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-          <span id="journal-current-day"></span>
-          <i class="fa fa-caret-down pf-c-context-selector__toggle-icon" aria-hidden="true"></i>
-        </button>
-        <ul class="dropdown-menu" role="menu">
-          <li><a role="link" tabindex="0" data-op="recent" translate="yes">Recent</a></li>
-          <li><a role="link" tabindex="0" data-op="boot" translate="yes">Current boot</a></li>
-          <li><a role="link" tabindex="0" data-op="previous-boot" translate="yes">Previous boot</a></li>
-          <li><a role="link" tabindex="0" data-op="last-24h" translate="yes">Last 24 hours</a></li>
-          <li><a role="link" tabindex="0" data-op="last-week" translate="yes">Last 7 days</a></li>
-        </ul>
-      </div>
+      <label for="journal-current-day-menu" hidden translate>Time Limit</label>
+      <select id="journal-current-day-menu" class="ct-select">
+        <option value="recent" translate>Recent</option>
+        <option value="boot" translate>Current boot</option>
+        <option value="previous-boot" translate>Previous boot</option>
+        <option value="last-24h" translate>Last 24 hours</option>
+        <option value="last-week" translate>Last 7 days</option>
+      </select>
       <label for="journal-prio-menu" translate>Severity</label>
       <select id="journal-prio-menu" class="ct-select">
         <option value="*" translate>Everything</option>

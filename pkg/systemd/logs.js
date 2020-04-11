@@ -204,6 +204,7 @@ $(function() {
             $('#journal-service-menu').empty()
                     .append($('<option value="*">').text(_("All")))
                     .append($('<option value="" role="separator" className="divider" disabled>').text("──────────"));
+            fit_filters();
         }
 
         function load_service_filters(match, options) {
@@ -863,6 +864,16 @@ $(function() {
         $("body").show();
     }
 
+    function fit_filters() {
+        if ($(".filters-toggle button").is(":hidden")) {
+            $("#journal .content-header-extra").toggleClass("toggle-filters-closed");
+            $(".filters-toggle").prop("hidden", false);
+            $(".filters-toggle button").text(_("Show filters"));
+        } else {
+            $(".filters-toggle button").text(_("Hide filters"));
+        }
+    }
+
     $(cockpit).on("locationchanged", function() {
         update_services_list = true;
         update();
@@ -902,5 +913,17 @@ $(function() {
         cockpit.location.go('/', parent_options);
     });
 
+    $(".filters-toggle button").on("click", () => {
+        if ($("#journal .content-header-extra").hasClass("toggle-filters-closed"))
+            $(".filters-toggle button").text(_("Hide filters"));
+        else
+            $(".filters-toggle button").text(_("Show filters"));
+        $("#journal .content-header-extra").toggleClass("toggle-filters-closed");
+    });
+
+    // Check if the last filter is still on the same line, or it was wrapped.
+    window.addEventListener("resize", fit_filters);
+
+    fit_filters();
     update();
 });

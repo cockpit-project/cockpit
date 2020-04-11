@@ -52,15 +52,10 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
         <option value="info" translate>Info and above</option>
         <option value="debug" translate>Debug and above</option>
       </select>
-      <span translate="yes">Service</span>
-      <div class="btn-group" id="journal-service-menu">
-        <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-          <span id="journal-service"></span>
-          <i class="fa fa-caret-down pf-c-context-selector__toggle-icon" aria-hidden="true"></i>
-        </button>
-        <ul id="journal-services-list" class="dropdown-menu" role="menu">
-        </ul>
-      </div>
+      <label for="journal-service-menu" translate>Service</label>
+      <select id="journal-service-menu" class="ct-select">
+          <!-- This is filled by from logs.js !-->
+      </select>
     </div>
 
     <div id="journal-box" class="container-fluid"></div>

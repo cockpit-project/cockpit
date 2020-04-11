@@ -114,7 +114,7 @@ $(function() {
     }
 
     /* Not public API */
-    function journalbox(outer, start, match, priority) {
+    function journalbox(outer, start, match, priority, tag) {
         var box = $('<div class="panel panel-default cockpit-log-panel" role="table">');
         var start_box = $('<div class="journal-start" id="start-box" role="rowgroup">');
 
@@ -196,17 +196,14 @@ $(function() {
 
         function clear_service_list() {
             if (loading_services) {
-                $('#journal-services-list').empty()
-                        .append($('<li>').text(_("Loading...")));
+                $('#journal-service-menu').empty()
+                        .append($('<option selected disabled>').text(_("Loading...")));
                 return;
             }
 
-            $('#journal-services-list').empty()
-                    .append($('<li>').append($('<a>')
-                            .text(_("All"))
-                            .attr('data-service', "")))
-                    .append($('<li>')
-                            .addClass("divider"));
+            $('#journal-service-menu').empty()
+                    .append($('<option value="*">').text(_("All")))
+                    .append($('<option value="" role="separator" className="divider" disabled>').text("──────────"));
         }
 
         function load_service_filters(match, options) {
@@ -238,20 +235,10 @@ $(function() {
             Array.from(current_services).sort((a, b) =>
                 a.toLowerCase().localeCompare(b.toLowerCase())
             )
-                    .forEach(function(unit) {
-                        $('#journal-services-list').append(
-                            $('<li>').append($('<a>')
-                                    .text(unit)
-                                    .attr('data-service', unit)));
-                    });
+                    .forEach(unit => $('#journal-service-menu').append($('<option value="' + unit + '"' + (unit === tag ? ' selected>' : '>')).text(unit)));
         }
 
         manage_start_box(true, false, _("Loading..."), "", "");
-
-        $('#journal-service-menu').on("click", "a", function() {
-            update_services_list = false;
-            cockpit.location.go([], $.extend(cockpit.location.options, { tag: $(this).attr('data-service') }));
-        });
 
         var options = {
             follow: false,
@@ -365,9 +352,8 @@ $(function() {
         var options = cockpit.location.options;
         if (options.service)
             match.push('_SYSTEMD_UNIT=' + options.service);
-        else if (options.tag)
+        else if (options.tag && options.tag !== "*")
             match.push('SYSLOG_IDENTIFIER=' + options.tag);
-        $('#journal-service').text(options.tag || _("All"));
 
         // Set selected item into start time select menu
         var query_start = cockpit.location.options.start || "recent";
@@ -382,7 +368,7 @@ $(function() {
                 p.selected = false;
         });
 
-        journalbox($("#journal-box"), query_start, match, prio_level !== "*" ? prio_level : null);
+        journalbox($("#journal-box"), query_start, match, prio_level !== "*" ? prio_level : null, options.tag);
     }
 
     function update_entry() {
@@ -896,6 +882,11 @@ $(function() {
     $('#journal-prio-menu').on('change', function() {
         update_services_list = true;
         cockpit.location.go([], $.extend(cockpit.location.options, { prio: $(this).val() }));
+    });
+
+    $('#journal-service-menu').on("change", function() {
+        update_services_list = false;
+        cockpit.location.go([], $.extend(cockpit.location.options, { tag: $(this).val() }));
     });
 
     $('#journal-navigate-home').on("click", function() {

@@ -2,6 +2,16 @@
 @import "../lib/journal.css";
 @import "./system-global.scss";
 
+#journal {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    height: 100%;
+
+    .cockpit-log-panel {
+        border: none;
+    }
+}
+
 /* Do not break labels */
 #journal-entry .info-table-ct td:first-child {
     word-break: keep-all;
@@ -59,18 +69,134 @@
     margin-top: 4px;
 }
 
-#journal select {
-    margin-right: 20px;
+#journal .filter select {
+    margin-right: var(--pf-global--spacer--md);
 }
 
 #journal-box .panel-heading {
     position: sticky;
-    top: 58px;
+    top: 0;
+    color: var(--pf-global--Color--300);
+    background-color: var(--pf-global--BackgroundColor--100);
+    border: none;
+    font-size: var(--pf-global--FontSize--md);
+    font-family: var(--pf-global--FontFamily--heading--sans-serif);
+    font-weight: var(--pf-global--FontWeight--semi-bold);
+    padding: var(--pf-global--spacer--lg) var(--pf-global--spacer--lg) var(--pf-global--spacer--sm);
+}
+
+.filter {
+    display: flex;
+    align-items: baseline;
+    flex-direction: row;
+    margin: 1rem 0 0;
+    text-align: right;
+
+    > label {
+        display: block;
+        margin-right: var(--pf-global--spacer--md);
+    }
+}
+
+@media (max-width: 1300px) {
+    .filter {
+        // Switch label to row in certain screen sizes
+        flex-direction: column;
+        text-align: left;
+    }
+}
+@media (min-width: 561px) {
+    .filters-toggle {
+        display: none;
+    }
+
+    .cockpit-logline {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+}
+
+@media (max-width: 560px) {
+    .filter {
+        // Switch label to row in certain screen sizes
+        flex-direction: row;
+
+        > label {
+            min-width: 4em;
+        }
+    }
+
+    .filter-separator {
+        display: none;
+    }
+
+    .content-header-extra {
+        flex-wrap: wrap;
+
+        &.toggle-filters-closed .filter {
+            display: none;
+        }
+    }
 }
 
 .content-header-extra + #journal-box {
     margin: 0;
-    padding: 1.5rem;
+    padding: 0;
+    overflow: auto;
+}
+
+.content-header-extra {
+    display: flex;
+    align-items: end;
+    padding: 0 var(--pf-global--spacer--lg) var(--pf-global--spacer--md);
+}
+
+.filters {
+    display: flex;
+    flex-wrap: wrap;
+    flex: auto;
+}
+
+.filters-toggle {
+    > .link-button {
+        padding: 1rem 0;
+        padding: var(--pf-global--spacer--form-element) 0;
+    }
+}
+
+.filter-actions {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+    margin: var(--pf-global--spacer--md) 0 0;
+
+    > :not(:first-child) {
+        margin-left: var(--pf-global--spacer--md);
+    }
+}
+
+// Simulate a pf-c-data-toolbar__item.pf-m-separator
+// (as PF4 isn't used in the page currently)
+.filter-separator {
+    height: var(--pf-global--FontSize--lg);
+    width: var(--pf-global--BorderWidth--md);
+    background-color: var(--pf-global--BorderColor--100);
+    // Align-self and margin may still be needed when swapping out for the PF4 widget
+    margin: var(--pf-global--spacer--sm) var(--pf-global--spacer--md);
+}
+
+#journal-service-menu {
+    width: 8em; // Static width as it likes to resize a lot while loading
+}
+
+.filters-toggle button {
+    white-space: nowrap;
+}
+
+.filter.text-search {
+    min-width: 8em;
+    flex-grow: 1;
 }
 
 #accordion-markup {

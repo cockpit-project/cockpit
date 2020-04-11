@@ -32,30 +32,49 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 <body class="pf-m-redhat-font">
   <div id="journal">
     <div class="content-header-extra">
-      <label for="journal-current-day-menu" hidden translate>Time Limit</label>
-      <select id="journal-current-day-menu" class="ct-select">
-        <option value="recent" translate>Recent</option>
-        <option value="boot" translate>Current boot</option>
-        <option value="previous-boot" translate>Previous boot</option>
-        <option value="last-24h" translate>Last 24 hours</option>
-        <option value="last-week" translate>Last 7 days</option>
-      </select>
-      <label for="journal-prio-menu" translate>Severity</label>
-      <select id="journal-prio-menu" class="ct-select">
-        <option value="*" translate>Everything</option>
-        <option value="emerg" translate>Only Emergency</option>
-        <option value="alert" translate>Alert and above</option>
-        <option value="crit" translate>Critical and above</option>
-        <option value="err" translate>Error and above</option>
-        <option value="warning" translate>Warning and above</option>
-        <option value="notice" translate>Notice and above</option>
-        <option value="info" translate>Info and above</option>
-        <option value="debug" translate>Debug and above</option>
-      </select>
-      <label for="journal-service-menu" translate>Service</label>
-      <select id="journal-service-menu" class="ct-select">
-          <!-- This is filled by from logs.js !-->
-      </select>
+      <div class="filters">
+        <div class="filter">
+            <label for="journal-current-day-menu" translate>Time</label>
+            <select id="journal-current-day-menu" class="ct-select">
+              <option value="recent" translate>Recent</option>
+              <option value="boot" translate>Current boot</option>
+              <option value="previous-boot" translate>Previous boot</option>
+              <option value="last-24h" translate>Last 24 hours</option>
+              <option value="last-week" translate>Last 7 days</option>
+            </select>
+        </div>
+
+        <div class="filter">
+            <label for="journal-prio-menu" translate>Priority</label>
+            <select id="journal-prio-menu" class="ct-select">
+              <option value="emerg" translate>Only Emergency</option>
+              <option value="alert" translate>Alert and above</option>
+              <option value="crit" translate>Critical and above</option>
+              <option value="err" translate>Error and above</option>
+              <option value="warning" translate>Warning and above</option>
+              <option value="notice" translate>Notice and above</option>
+              <option value="info" translate>Info and above</option>
+              <option value="debug" translate>Debug and above</option>
+            </select>
+        </div>
+
+        <div class="filter">
+            <label for="journal-service-menu" translate>Service</label>
+            <select id="journal-service-menu" class="ct-select">
+                <!-- This is filled by from logs.js !-->
+            </select>
+        </div>
+      </div>
+
+      <div class="filter-separator"></div>
+
+      <div class="filter-actions">
+        <span class="filters-toggle" hidden>
+          <button class="link-button" translate>Show filters</button>
+        </span>
+
+        <button id="journal-follow" class="pf-c-button pf-m-secondary" type="button" translate>Pause</button>
+      </div>
     </div>
 
     <div id="journal-box" class="container-fluid"></div>

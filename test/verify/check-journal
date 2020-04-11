@@ -231,11 +231,6 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
         wait_log123()
 
-        b.go("#/?prio=*&start=oldest&service=nonexisting.service")
-        wait_journal_empty()
-        b.go("#/?prio=*&start=oldest&service=log123.service")
-        wait_log123()
-
         b.go("#/?prio=*&start=recent&service=nonexisting.service")
         wait_journal_empty()
         b.go("#/?prio=*&start=recent&service=log123.service")
@@ -260,9 +255,9 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
         wait_slow10()
 
-        b.go("#/?prio=*&start=oldest&service=nonexisting.service")
+        b.go("#/?prio=*&start=recent&service=nonexisting.service")
         wait_journal_empty()
-        b.go("#/?prio=*&start=oldest&service=slow10.service")
+        b.go("#/?prio=*&start=recent&service=slow10.service")
         wait_slow10()
 
         # insert messages as errors because we know these will be shown by default

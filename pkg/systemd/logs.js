@@ -391,18 +391,14 @@ $(function() {
         var query_prio = cockpit.location.options.prio || "3";
         var prio_level = parseInt(query_prio, 10);
 
-        // Set selected item into priority dropdown menu
-        var all_prios = document.getElementById('prio-lists').childNodes;
-        var item;
-        for (var j = 0; j < all_prios.length; j++) {
-            if (all_prios[j].nodeName === 'LI') {
-                item = all_prios[j].childNodes[0];
-                if (item.getAttribute('data-prio') === query_prio) {
-                    $('#journal-prio').text(item.text);
-                    break;
-                }
-            }
-        }
+        // Set selected item into priority select menu
+        const prio_options = [...document.getElementById('journal-prio-menu').children];
+        prio_options.forEach(p => {
+            if (p.getAttribute('value') === query_prio)
+                p.selected = true;
+            else
+                p.selected = false;
+        });
 
         if (!isNaN(prio_level)) {
             for (var i = 0; i <= prio_level; i++)
@@ -931,9 +927,9 @@ $(function() {
             cockpit.location.go([cursor], { parent_options: JSON.stringify(cockpit.location.options) });
     });
 
-    $('#journal-prio-menu a').on('click', function() {
+    $('#journal-prio-menu').on('change', function() {
         update_services_list = true;
-        cockpit.location.go([], $.extend(cockpit.location.options, { prio: $(this).attr('data-prio') }));
+        cockpit.location.go([], $.extend(cockpit.location.options, { prio: $(this).val() }));
     });
 
     $('#journal-navigate-home').on("click", function() {

@@ -45,24 +45,18 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
           <li><a role="link" tabindex="0" data-op="last-week" translate="yes">Last 7 days</a></li>
         </ul>
       </div>
-      <span class="" translate>Severity</span>
-      <div class="btn-group" id="journal-prio-menu">
-        <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-          <span id="journal-prio"></span>
-          <i class="fa fa-caret-down pf-c-context-selector__toggle-icon" aria-hidden="true"></i>
-        </button>
-        <ul id="prio-lists" class="dropdown-menu" role="menu">
-          <li><a role="link" tabindex="0" data-prio="*" translate="yes">Everything</a></li>
-          <li><a role="link" tabindex="0" data-prio="0" translate="yes">Only Emergency</a></li>
-          <li><a role="link" tabindex="0" data-prio="1" translate="yes">Alert and above</a></li>
-          <li><a role="link" tabindex="0" data-prio="2" translate="yes">Critical and above</a></li>
-          <li><a role="link" tabindex="0" data-prio="3" translate="yes">Error and above</a></li>
-          <li><a role="link" tabindex="0" data-prio="4" translate="yes">Warning and above</a></li>
-          <li><a role="link" tabindex="0" data-prio="5" translate="yes">Notice and above</a></li>
-          <li><a role="link" tabindex="0" data-prio="6" translate="yes">Info and above</a></li>
-          <li><a role="link" tabindex="0" data-prio="7" translate="yes">Debug and above</a></li>
-        </ul>
-      </div>
+      <label for="journal-prio-menu" translate>Severity</label>
+      <select id="journal-prio-menu" class="ct-select">
+        <option value="*" translate>Everything</option>
+        <option value="0" translate>Only Emergency</option>
+        <option value="1" translate>Alert and above</option>
+        <option value="2" translate>Critical and above</option>
+        <option value="3" translate>Error and above</option>
+        <option value="4" translate>Warning and above</option>
+        <option value="5" translate>Notice and above</option>
+        <option value="6" translate>Info and above</option>
+        <option value="7" translate>Debug and above</option>
+      </select>
       <span translate="yes">Service</span>
       <div class="btn-group" id="journal-service-menu">
         <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">

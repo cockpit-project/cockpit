@@ -23,6 +23,24 @@ from testlib import *
 
 class TestJournal(MachineCase):
 
+    def select_priority(self, value):
+        prio_map = {
+            "Everything": "*",
+            "Only Emergency": "0",
+            "Alert and above": "1",
+            "Critical and above": "2",
+            "Error and above": "3",
+            "Warning and above": "4",
+            "Notice and above": "5",
+            "Info and above": "6",
+            "Debug and above": "7",
+        }
+
+        if self.machine.image == "rhel-8-2-distropkg": # Changed in #13905
+            self.select_from_dropdown(self.browser, "#journal-prio-menu", value)
+        else:
+            self.browser.set_val("#journal-prio-menu", prio_map[value])
+
     def select_from_dropdown(self, browser, selector, value, click=True):
         button_text_selector = "{0} button span:nth-of-type(1)".format(selector)
 
@@ -304,7 +322,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         wait_log_present("AFTER BOOT")
         wait_log_present("WORK PLEASE")
 
-        self.select_from_dropdown(b, "#journal-prio-menu", "Error and above")
+        self.select_priority("Error and above")
         self.select_from_dropdown(b, "#journal-service-menu", "check-journal", click=False)
         b.click("#journal-service-menu button")
         b.wait_not_present("#journal-services-list ul li a:contains('just-a-service')")
@@ -354,17 +372,17 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
         journal_line_selector = "#journal-box .cockpit-logline:has(span:contains({0}))"
 
-        self.select_from_dropdown(b, "#journal-prio-menu", "Only Emergency")
+        self.select_priority("Only Emergency")
         b.wait_present(journal_line_selector.format("EMERGENCY_MESSAGE"))
         b.wait_not_present(journal_line_selector.format("WARNING_MESSAGE"))
         b.wait_not_present(journal_line_selector.format("INFO_MESSAGE"))
 
-        self.select_from_dropdown(b, "#journal-prio-menu", "Warning and above")
+        self.select_priority("Warning and above")
         b.wait_present(journal_line_selector.format("EMERGENCY_MESSAGE"))
         b.wait_present(journal_line_selector.format("WARNING_MESSAGE"))
         b.wait_not_present(journal_line_selector.format("INFO_MESSAGE"))
 
-        self.select_from_dropdown(b, "#journal-prio-menu", "Info and above")
+        self.select_priority("Info and above")
         b.wait_present(journal_line_selector.format("EMERGENCY_MESSAGE"))
         b.wait_present(journal_line_selector.format("WARNING_MESSAGE"))
         b.wait_present(journal_line_selector.format("INFO_MESSAGE"))
@@ -382,13 +400,13 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
         sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('(sleep) crashed in')"
 
-        self.select_from_dropdown(b, "#journal-prio-menu", "Critical and above")
+        self.select_priority("Critical and above")
         b.wait_visible(sel)
 
-        self.select_from_dropdown(b, "#journal-prio-menu", "Alert and above")
+        self.select_priority("Alert and above")
         b.wait_not_present(sel)
 
-        self.select_from_dropdown(b, "#journal-prio-menu", "Critical and above")
+        self.select_priority("Critical and above")
         b.click(sel)
 
         def wait_field(name, value):

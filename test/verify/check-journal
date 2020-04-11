@@ -311,19 +311,29 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         wait_log_present("AFTER BOOT")
         m.execute("logger -p 5 --tag just-a-service WORK PLEASE")
         wait_log_present("WORK PLEASE")
-        self.select_from_dropdown(b, "#journal-service-menu", "check-journal", click=False)
-        self.select_from_dropdown(b, "#journal-service-menu", "just-a-service", click=True)
+        if m.image == "rhel-8-2-distropkg": # Changed in #13905
+            self.select_from_dropdown(b, "#journal-service-menu", "check-journal", click=False)
+            self.select_from_dropdown(b, "#journal-service-menu", "just-a-service", click=True)
+        else:
+            b.wait_present("#journal-service-menu option[value='check-journal']")
+            b.set_val("#journal-service-menu", "just-a-service")
         wait_log_not_present("AFTER BOOT")
         wait_log_present("WORK PLEASE")
-        self.select_from_dropdown(b, "#journal-service-menu", "All", click=True)
+        if m.image == "rhel-8-2-distropkg": # Changed in #13905
+            self.select_from_dropdown(b, "#journal-service-menu", "All", click=True)
+        else:
+            b.set_val("#journal-service-menu", "*")
         wait_log_present("AFTER BOOT")
         wait_log_present("WORK PLEASE")
 
         self.select_priority("Error and above")
-        self.select_from_dropdown(b, "#journal-service-menu", "check-journal", click=False)
-        b.click("#journal-service-menu button")
-        b.wait_not_present("#journal-services-list ul li a:contains('just-a-service')")
-
+        if m.image == "rhel-8-2-distropkg": # Changed in #13905
+            self.select_from_dropdown(b, "#journal-service-menu", "check-journal", click=False)
+            b.click("#journal-service-menu button")
+            b.wait_not_present("#journal-services-list ul li a:contains('just-a-service')")
+        else:
+            b.set_val("#journal-service-menu", "check-journal")
+            b.wait_not_present("#journal-service-menu option[value='just-a-service']")
 
     def testBinary(self):
         b = self.browser

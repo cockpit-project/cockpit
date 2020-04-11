@@ -85,15 +85,14 @@ export class SystemInfomationCard extends React.Component {
     }
 
     getSystemUptime() {
-        var self = this;
-
         cockpit.spawn(["cat", "/proc/uptime"])
-                .done(function(text) {
-                    var uptime_days = 0;
-                    var uptime_hours = 0;
-                    var uptime_minutes = 0;
-                    var match = text.match(/[0-9]*\.[0-9]{2}/);
-                    var uptime_raw = match && parseFloat(match[0]);
+                .then(text => {
+                    let uptime_days = 0;
+                    let uptime_hours = 0;
+                    let uptime_minutes = 0;
+
+                    const match = text.match(/[0-9]*\.[0-9]{2}/);
+                    let uptime_raw = match && parseFloat(match[0]);
 
                     uptime_days = Math.floor(uptime_raw / 86400);
                     uptime_raw = uptime_raw - (uptime_days * 86400);
@@ -105,19 +104,19 @@ export class SystemInfomationCard extends React.Component {
 
                     if (uptime_days == 0) {
                         if (uptime_hours == 0) {
-                            self.system_uptime = (<> <div id="system_uptime">{uptime_minutes} {_("Minutes")} </div> </>);
+                            this.system_uptime = (<div id="system_uptime">{uptime_minutes} {_("Minutes")} </div>);
                         } else {
-                            self.system_uptime = (<> <div id="system_uptime">{uptime_hours} {_("Hours")} {uptime_minutes} {_("Minutes")} </div> </>);
+                            this.system_uptime = (<div id="system_uptime">{uptime_hours} {_("Hours")} {uptime_minutes} {_("Minutes")} </div>);
                         }
                     } else {
                         if (uptime_hours == 0) {
-                            self.system_uptime = (<> <div id="system_uptime">{uptime_days} {_("Days")} {uptime_minutes} {_("Minutes")} </div> </>);
+                            this.system_uptime = (<div id="system_uptime">{uptime_days} {_("Days")} {uptime_minutes} {_("Minutes")} </div>);
                         } else {
-                            self.system_uptime = (<> <div id="system_uptime">{uptime_days} {_("Days")} {uptime_hours} {_("Hours")} </div> </>);
+                            this.system_uptime = (<div id="system_uptime">{uptime_days} {_("Days")} {uptime_hours} {_("Hours")} </div>);
                         }
                     }
                 })
-                .fail(function(ex) {
+                .catch(function(ex) {
                     console.error("Error reading system uptime", ex);
                 });
     }

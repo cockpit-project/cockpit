@@ -114,7 +114,7 @@ $(function() {
     }
 
     /* Not public API */
-    function journalbox(outer, start, match, day_box, priority) {
+    function journalbox(outer, start, match, priority) {
         var box = $('<div class="panel panel-default cockpit-log-panel" role="table">');
         var start_box = $('<div class="journal-start" id="start-box" role="rowgroup">');
 
@@ -124,8 +124,6 @@ $(function() {
         var query_more = 1000;
 
         var renderer = journal.renderer(box);
-        /* cache to store offsets for days */
-        var renderitems_day_cache = null;
         var procs = [];
 
         var loading_services = false;
@@ -142,16 +140,12 @@ $(function() {
             }
             renderer.prepend_flush();
             show_service_filters();
-            /* empty cache for day offsets */
-            renderitems_day_cache = null;
         }
 
         function append_entries(entries) {
             for (var i = 0; i < entries.length; i++)
                 renderer.append(entries[i]);
             renderer.append_flush();
-            /* empty cache for day offsets */
-            renderitems_day_cache = null;
         }
 
         function didnt_reach_start(first) {
@@ -197,35 +191,7 @@ $(function() {
                         if (sb_title && sb_title.innerHTML === "No Logs Found") {
                             ReactDOM.unmountComponentAtNode(document.getElementById("start-box"));
                         }
-                        update_day_box();
                     }));
-        }
-
-        function update_day_box() {
-            /* Build cache if empty
-             */
-            if (renderitems_day_cache === null) {
-                renderitems_day_cache = [];
-                for (var d = box[0].firstChild; d; d = d.nextSibling) {
-                    if ($(d).hasClass('panel-heading'))
-                        renderitems_day_cache.push([$(d).offset().top, $(d).text()]);
-                }
-            }
-            if (renderitems_day_cache.length > 0) {
-                /* Find the last day that begins above top
-                 */
-                var currentIndex = 0;
-                var top = window.scrollY;
-                while ((currentIndex + 1) < renderitems_day_cache.length &&
-                        renderitems_day_cache[currentIndex + 1][0] < top) {
-                    currentIndex++;
-                }
-                day_box.text(renderitems_day_cache[currentIndex][1]);
-            } else {
-                /* No visible day headers
-                 */
-                day_box.text(_("Go to"));
-            }
         }
 
         function clear_service_list() {
@@ -287,8 +253,6 @@ $(function() {
             cockpit.location.go([], $.extend(cockpit.location.options, { tag: $(this).attr('data-service') }));
         });
 
-        $(window).on('scroll', update_day_box);
-
         var options = {
             follow: false,
             reverse: true,
@@ -331,7 +295,6 @@ $(function() {
                     if (!last) {
                         last = entries[0].__CURSOR;
                         follow(last);
-                        update_day_box();
                     }
                     count += entries.length;
                     append_entries(entries);
@@ -361,7 +324,6 @@ $(function() {
                                     if (sb_title && sb_title.innerHTML === "No Logs Found") {
                                         ReactDOM.unmountComponentAtNode(document.getElementById("start-box"));
                                     }
-                                    update_day_box();
                                 }));
                     }
                     if (!all || stopped)
@@ -369,7 +331,6 @@ $(function() {
                 }));
 
         outer.stop = function stop() {
-            $(window).off('scroll', update_day_box);
             $.each(procs, function(i, proc) {
                 proc.stop();
             });
@@ -412,7 +373,7 @@ $(function() {
         if (query_start == 'recent')
             $(window).scrollTop($(document).height());
 
-        journalbox($("#journal-box"), query_start, match, $('#journal-current-day'), prio_level !== "*" ? prio_level : null);
+        journalbox($("#journal-box"), query_start, match, prio_level !== "*" ? prio_level : null); // TODO current day
     }
 
     function update_entry() {

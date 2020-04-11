@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-03-24 20:44+0000\n"
+"POT-Creation-Date: 2020-04-03 12:56+0000\n"
 "PO-Revision-Date: 2020-03-22 12:47+0000\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <https://translate.fedoraproject.org/projects/"
@@ -150,6 +150,16 @@ msgstr "Файлові системи $0 не можна звужувати."
 msgid "$0 filesystems can not be resized here."
 msgstr "Тут не можна змінювати розмір файлових систем $0."
 
+#: pkg/systemd/overview.jsx:96
+msgctxt "<date> from <host>"
+msgid "$0 from $1"
+msgstr ""
+
+#: pkg/systemd/overview.jsx:94
+msgctxt "<date> from <host> on <terminal>"
+msgid "$0 from $1 on $2"
+msgstr ""
+
 #: pkg/lib/plot.js:974
 msgid "$0 hour"
 msgid_plural "$0 hours"
@@ -157,7 +167,7 @@ msgstr[0] "$0 година"
 msgstr[1] "$0 години"
 msgstr[2] "$0 годин"
 
-#: pkg/machines/components/desktopConsole.jsx:44
+#: pkg/machines/components/desktopConsole.jsx:56
 msgid ""
 "$0 is available for most operating systems. To install it, search for it in "
 "GNOME Software or run the following:"
@@ -196,7 +206,7 @@ msgstr[0] "$0 місяць"
 msgstr[1] "$0 місяці"
 msgstr[2] "$0 місяців"
 
-#: pkg/selinux/setroubleshoot-view.jsx:383
+#: pkg/selinux/setroubleshoot-view.jsx:425
 msgid "$0 occurrence"
 msgid_plural "$1 occurrences"
 msgstr[0] "$0 відповідник"
@@ -205,6 +215,13 @@ msgstr[2] "$0 відповідників"
 
 #: pkg/storaged/fsys-tab.jsx:365
 msgid "$0 of $1"
+msgstr "$0 з $1"
+
+#: pkg/systemd/overview.jsx:98
+#, fuzzy
+#| msgid "$0 of $1"
+msgctxt "<date> on <terminal>"
+msgid "$0 on $1"
 msgstr "$0 з $1"
 
 #: pkg/systemd/init.js:424
@@ -278,7 +295,7 @@ msgstr "$name (з $host)"
 msgid "${size} ${desc}"
 msgstr "${size} ${desc}"
 
-#: pkg/networkmanager/firewall.jsx:581
+#: pkg/networkmanager/firewall.jsx:564
 msgid "(Optional)"
 msgstr "(Необов’язково)"
 
@@ -577,9 +594,11 @@ msgstr "Стеження за ARP"
 msgid "ARP Ping"
 msgstr "Луна-імпульс ARP"
 
-#: pkg/shell/index.html:64 pkg/shell/index.html:90
-msgid "About Cockpit"
-msgstr "Про Cockpit"
+#: pkg/shell/index.html:86 pkg/shell/indexes.js:625
+#, fuzzy
+#| msgid "Web Console"
+msgid "About Web Console"
+msgstr "Вебконсоль"
 
 #: pkg/lib/machine-info.js:254
 msgid "Absent"
@@ -595,7 +614,7 @@ msgstr "Доступ"
 msgid "Account Expiration"
 msgstr "Строк дії облікового запису"
 
-#: pkg/shell/index.html:71
+#: pkg/shell/index.html:67
 msgid "Account Settings"
 msgstr "Параметри облікового запису"
 
@@ -631,7 +650,7 @@ msgstr "Активний"
 msgid "Active Backup"
 msgstr "Активне резервування"
 
-#: pkg/shell/index.html:67 pkg/shell/active-pages.js:95
+#: pkg/shell/index.html:64 pkg/shell/active-pages.js:95
 msgid "Active Pages"
 msgstr "Активні сторінки"
 
@@ -651,9 +670,9 @@ msgstr "Адаптивне урівноваження навантаження"
 msgid "Adaptive transmit load balancing"
 msgstr "Адаптивне урівноваження навантаження за передаванням"
 
-#: pkg/lib/machine-add.html:43 pkg/shell/index.html:205
-#: pkg/machines/components/diskAdd.jsx:557
-#: pkg/machines/components/nicAdd.jsx:206 pkg/storaged/crypto-keyslots.jsx:235
+#: pkg/lib/machine-add.html:36 pkg/shell/index.html:201
+#: pkg/machines/components/diskAdd.jsx:548
+#: pkg/machines/components/nicAdd.jsx:203 pkg/storaged/crypto-keyslots.jsx:235
 #: pkg/storaged/iscsi-panel.jsx:137 pkg/storaged/iscsi-panel.jsx:161
 #: pkg/storaged/mdraid-details.jsx:59 pkg/storaged/nfs-details.jsx:191
 #: pkg/storaged/vgroup-details.jsx:66
@@ -672,7 +691,7 @@ msgstr "Додати зв’язок"
 msgid "Add Bridge"
 msgstr "Додати місток"
 
-#: pkg/machines/components/diskAdd.jsx:545
+#: pkg/machines/components/diskAdd.jsx:540
 #: pkg/machines/components/vmDisksTab.jsx:93
 msgid "Add Disk"
 msgstr "Додати диск"
@@ -693,12 +712,12 @@ msgstr "Додати запис комп’ютера на панель"
 msgid "Add Network Interface"
 msgstr "Додати інтерфейс мережі"
 
-#: pkg/networkmanager/firewall.jsx:504
+#: pkg/networkmanager/firewall.jsx:487
 msgid "Add Ports"
 msgstr "Додати порти"
 
 #: pkg/networkmanager/firewall.jsx:155 pkg/networkmanager/firewall.jsx:161
-#: pkg/networkmanager/firewall.jsx:504
+#: pkg/networkmanager/firewall.jsx:487
 msgid "Add Services"
 msgstr "Додавання служб"
 
@@ -714,12 +733,12 @@ msgstr "Додати VLAN"
 msgid "Add Virtual Network Interface"
 msgstr "Додати інтерфейс віртуальної мережі"
 
-#: pkg/networkmanager/firewall.jsx:676 pkg/networkmanager/firewall.jsx:905
-#: pkg/networkmanager/firewall.jsx:911
+#: pkg/networkmanager/firewall.jsx:659 pkg/networkmanager/firewall.jsx:887
+#: pkg/networkmanager/firewall.jsx:893
 msgid "Add Zone"
 msgstr "Додати зону"
 
-#: pkg/networkmanager/firewall.jsx:910
+#: pkg/networkmanager/firewall.jsx:892
 msgid "Add a new zone"
 msgstr "Додати нову зону"
 
@@ -727,11 +746,11 @@ msgstr "Додати нову зону"
 msgid "Add iSCSI Portal"
 msgstr "Додати портал iSCSI"
 
-#: pkg/shell/index.html:197 pkg/users/index.html:420
+#: pkg/shell/index.html:193 pkg/users/index.html:419
 msgid "Add key"
 msgstr "Додати клавішу"
 
-#: pkg/networkmanager/firewall.jsx:505
+#: pkg/networkmanager/firewall.jsx:488
 msgid "Add ports to $0 zone"
 msgstr "Додати порти до зони $0"
 
@@ -739,7 +758,7 @@ msgstr "Додати порти до зони $0"
 msgid "Add public key"
 msgstr "Додати відкритий ключ"
 
-#: pkg/networkmanager/firewall.jsx:505
+#: pkg/networkmanager/firewall.jsx:488
 msgid "Add services to $0 zone"
 msgstr "Додати служби до зони $0"
 
@@ -747,7 +766,7 @@ msgstr "Додати служби до зони $0"
 msgid "Add services to zone $0"
 msgstr "Додати служби до зони $0"
 
-#: pkg/networkmanager/firewall.jsx:754
+#: pkg/networkmanager/firewall.jsx:733
 msgid "Add zone"
 msgstr "Додати зону"
 
@@ -759,7 +778,7 @@ msgstr ""
 "Додавання <b>$0</b> призведе до розірвання з’єднання із сервером і зробить "
 "адміністративний інтерфейс користувача недоступним."
 
-#: pkg/networkmanager/firewall.jsx:594
+#: pkg/networkmanager/firewall.jsx:577
 msgid ""
 "Adding custom ports will reload firewalld. A reload will result in the loss "
 "of any runtime-only configuration!"
@@ -842,7 +861,7 @@ msgstr "Адреси"
 msgid "Administration with Cockpit Web Console"
 msgstr "Адміністрування за допомогою вебконсолі Cockpit"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:336
+#: pkg/systemd/overview-cards/realmd-operation.js:335
 msgid "Administrator Password"
 msgstr "Пароль адміністратора"
 
@@ -891,7 +910,7 @@ msgstr "Усе-в-одному"
 msgid "Allow running (unmask)"
 msgstr "Дозволити запуск (зняти маску)"
 
-#: pkg/networkmanager/firewall.jsx:728
+#: pkg/networkmanager/firewall.jsx:711
 msgid "Allowed Addresses"
 msgstr "Дозволені адреси"
 
@@ -921,30 +940,30 @@ msgstr "Вигляд:"
 msgid "Applications"
 msgstr "Програми"
 
-#: pkg/networkmanager/index.html:496 pkg/networkmanager/index.html:524
-#: pkg/networkmanager/index.html:551 pkg/networkmanager/index.html:578
-#: pkg/networkmanager/index.html:605 pkg/networkmanager/index.html:632
-#: pkg/networkmanager/index.html:659 pkg/networkmanager/index.html:686
-#: pkg/networkmanager/index.html:713 pkg/kdump/kdump-view.jsx:356
-#: pkg/machines/components/vcpuModal.jsx:260 pkg/storaged/crypto-tab.jsx:78
+#: pkg/networkmanager/index.html:495 pkg/networkmanager/index.html:523
+#: pkg/networkmanager/index.html:550 pkg/networkmanager/index.html:577
+#: pkg/networkmanager/index.html:604 pkg/networkmanager/index.html:631
+#: pkg/networkmanager/index.html:658 pkg/networkmanager/index.html:685
+#: pkg/networkmanager/index.html:712 pkg/kdump/kdump-view.jsx:356
+#: pkg/machines/components/vcpuModal.jsx:252 pkg/storaged/crypto-tab.jsx:78
 #: pkg/storaged/crypto-tab.jsx:108 pkg/storaged/fsys-tab.jsx:270
 #: pkg/storaged/fsys-tab.jsx:347 pkg/storaged/nfs-details.jsx:191
 msgid "Apply"
 msgstr "Застосувати"
 
-#: pkg/packagekit/autoupdates.jsx:311
+#: pkg/packagekit/autoupdates.jsx:310
 msgid "Apply all updates"
 msgstr "Застосувати усі оновлення"
 
-#: pkg/packagekit/autoupdates.jsx:312
+#: pkg/packagekit/autoupdates.jsx:311
 msgid "Apply security updates"
 msgstr "Застосувати оновлення захисту"
 
-#: pkg/selinux/setroubleshoot-view.jsx:110
+#: pkg/selinux/setroubleshoot-view.jsx:121
 msgid "Apply this solution"
 msgstr "Застосувати це рішення"
 
-#: pkg/selinux/setroubleshoot-view.jsx:88
+#: pkg/selinux/setroubleshoot-view.jsx:98
 msgid "Applying solution..."
 msgstr "Застосовуємо рішення…"
 
@@ -978,7 +997,7 @@ msgstr "Потрібен принаймні один диск."
 msgid "At specific time"
 msgstr "У вказаний момент часу"
 
-#: pkg/selinux/setroubleshoot-view.jsx:368
+#: pkg/selinux/setroubleshoot-view.jsx:410
 msgid "Audit log"
 msgstr "Журнал інспектування"
 
@@ -986,8 +1005,8 @@ msgstr "Журнал інспектування"
 msgid "Authenticating"
 msgstr "Автентифікація"
 
-#: pkg/lib/machine-change-auth.html:32 pkg/shell/index.html:74
-#: pkg/shell/index.html:173 pkg/systemd/overview-cards/realmd-operation.html:47
+#: pkg/lib/machine-change-auth.html:32 pkg/shell/index.html:70
+#: pkg/shell/index.html:169 pkg/systemd/overview-cards/realmd-operation.html:47
 msgid "Authentication"
 msgstr "Розпізнавання"
 
@@ -1015,7 +1034,7 @@ msgstr ""
 msgid "Authentication required"
 msgstr "Слід пройти розпізнавання"
 
-#: pkg/docker/index.html:664 pkg/docker/containers-view.jsx:417
+#: pkg/docker/index.html:667 pkg/docker/containers-view.jsx:417
 msgid "Author"
 msgstr "Автор"
 
@@ -1028,7 +1047,7 @@ msgstr "Уповноважені відкриті ключі SSH"
 #: pkg/networkmanager/interfaces.js:1957 pkg/networkmanager/interfaces.js:2745
 #: pkg/networkmanager/interfaces.js:3313 pkg/networkmanager/interfaces.js:3317
 #: pkg/networkmanager/interfaces.js:3323
-#: pkg/systemd/overview-cards/realmd-operation.js:339
+#: pkg/systemd/overview-cards/realmd-operation.js:338
 msgid "Automatic"
 msgstr "Автоматично"
 
@@ -1044,7 +1063,7 @@ msgstr "Автоматично (DHCP)"
 msgid "Automatic Startup"
 msgstr "Автоматичний запуск"
 
-#: pkg/packagekit/autoupdates.jsx:350
+#: pkg/packagekit/autoupdates.jsx:349
 msgid "Automatic Updates"
 msgstr "Автоматичні оновлення"
 
@@ -1166,7 +1185,7 @@ msgstr "Прив’язка"
 msgid "Bond Settings"
 msgstr "Параметри зв’язку"
 
-#: pkg/machines/components/vm/bootOrderModal.jsx:312
+#: pkg/machines/components/vm/bootOrderModal.jsx:307
 #: pkg/machines/components/vmOverviewTabLibvirt.jsx:266
 msgid "Boot Order"
 msgstr "Порядок завантаження"
@@ -1251,7 +1270,7 @@ msgstr "Стан процесора"
 msgid "CPU Type"
 msgstr "Тип процесора"
 
-#: pkg/docker/index.html:433 pkg/docker/index.html:605
+#: pkg/docker/index.html:433 pkg/docker/index.html:608
 msgid "CPU priority"
 msgstr "Пріоритетність процесора"
 
@@ -1280,48 +1299,48 @@ msgstr "Не вдалося зв’язатися із Docker"
 msgid "Can't load image"
 msgstr "Не вдалося завантажити образ"
 
-#: pkg/dashboard/index.html:187 pkg/docker/index.html:527
-#: pkg/docker/index.html:561 pkg/docker/index.html:625
-#: pkg/docker/index.html:679 pkg/docker/index.html:719
-#: pkg/docker/index.html:748 pkg/lib/machine-add.html:42
-#: pkg/lib/machine-change-auth.html:91 pkg/lib/machine-change-port.html:40
-#: pkg/lib/machine-sync-users.html:76 pkg/networkmanager/index.html:495
-#: pkg/networkmanager/index.html:523 pkg/networkmanager/index.html:550
-#: pkg/networkmanager/index.html:577 pkg/networkmanager/index.html:604
-#: pkg/networkmanager/index.html:631 pkg/networkmanager/index.html:658
-#: pkg/networkmanager/index.html:685 pkg/networkmanager/index.html:712
-#: pkg/playground/translate.html:39 pkg/shell/index.html:130
-#: pkg/systemd/index.html:122 pkg/systemd/index.html:206
-#: pkg/systemd/index.html:260
-#: pkg/systemd/overview-cards/realmd-operation.html:83
-#: pkg/systemd/services.html:376 pkg/users/index.html:200
-#: pkg/users/index.html:239 pkg/users/index.html:278 pkg/users/index.html:317
-#: pkg/users/index.html:334 pkg/users/index.html:358 pkg/users/index.html:419
+#: pkg/dashboard/index.html:187 pkg/docker/index.html:528
+#: pkg/docker/index.html:565 pkg/docker/index.html:629
+#: pkg/docker/index.html:683 pkg/docker/index.html:723
+#: pkg/docker/index.html:754 pkg/lib/machine-add.html:37
+#: pkg/lib/machine-change-auth.html:92 pkg/lib/machine-change-port.html:41
+#: pkg/lib/machine-sync-users.html:77 pkg/networkmanager/index.html:496
+#: pkg/networkmanager/index.html:524 pkg/networkmanager/index.html:551
+#: pkg/networkmanager/index.html:578 pkg/networkmanager/index.html:605
+#: pkg/networkmanager/index.html:632 pkg/networkmanager/index.html:659
+#: pkg/networkmanager/index.html:686 pkg/networkmanager/index.html:713
+#: pkg/playground/translate.html:39 pkg/shell/index.html:127
+#: pkg/systemd/index.html:123 pkg/systemd/index.html:207
+#: pkg/systemd/index.html:261
+#: pkg/systemd/overview-cards/realmd-operation.html:82
+#: pkg/systemd/services.html:377 pkg/users/index.html:201
+#: pkg/users/index.html:240 pkg/users/index.html:279 pkg/users/index.html:318
+#: pkg/users/index.html:335 pkg/users/index.html:359 pkg/users/index.html:420
 #: pkg/apps/utils.jsx:84 pkg/lib/cockpit-components-dialog.jsx:158
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:943
-#: pkg/machines/components/deleteDialog.jsx:182
-#: pkg/machines/components/deleteResource.jsx:114
-#: pkg/machines/components/diskAdd.jsx:554
-#: pkg/machines/components/diskEdit.jsx:217
-#: pkg/machines/components/networks/createNetworkDialog.jsx:480
-#: pkg/machines/components/nicAdd.jsx:200
-#: pkg/machines/components/nicEdit.jsx:176
-#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:512
-#: pkg/machines/components/storagePools/storagePoolDelete.jsx:235
-#: pkg/machines/components/storagePools/storageVolumeCreate.jsx:94
-#: pkg/machines/components/vcpuModal.jsx:257
-#: pkg/machines/components/vm/bootOrderModal.jsx:327
-#: pkg/machines/components/vm/firmwareModal.jsx:75
-#: pkg/machines/components/vm/memoryModal.jsx:152
-#: pkg/networkmanager/firewall.jsx:597 pkg/networkmanager/firewall.jsx:749
-#: pkg/networkmanager/firewall.jsx:774 pkg/packagekit/updates.jsx:186
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:947
+#: pkg/machines/components/deleteDialog.jsx:185
+#: pkg/machines/components/deleteResource.jsx:116
+#: pkg/machines/components/diskAdd.jsx:551
+#: pkg/machines/components/diskEdit.jsx:215
+#: pkg/machines/components/networks/createNetworkDialog.jsx:484
+#: pkg/machines/components/nicAdd.jsx:206
+#: pkg/machines/components/nicEdit.jsx:174
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:514
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:240
+#: pkg/machines/components/storagePools/storageVolumeCreate.jsx:96
+#: pkg/machines/components/vcpuModal.jsx:255
+#: pkg/machines/components/vm/bootOrderModal.jsx:325
+#: pkg/machines/components/vm/firmwareModal.jsx:78
+#: pkg/machines/components/vm/memoryModal.jsx:155
+#: pkg/networkmanager/firewall.jsx:583 pkg/networkmanager/firewall.jsx:736
+#: pkg/networkmanager/firewall.jsx:759 pkg/packagekit/updates.jsx:186
 #: pkg/sosreport/index.js:49 pkg/storaged/dialog.jsx:400
-#: pkg/storaged/jobs-panel.jsx:123 pkg/systemd/hwinfo.jsx:222
-#: pkg/systemd/reporting.jsx:420 pkg/systemd/service-details.jsx:110
+#: pkg/storaged/jobs-panel.jsx:123 pkg/systemd/hwinfo.jsx:225
+#: pkg/systemd/reporting.jsx:420 pkg/systemd/service-details.jsx:115
 msgid "Cancel"
 msgstr "Скасувати"
 
-#: pkg/shell/indexes.js:691
+#: pkg/shell/indexes.js:704
 msgid "Cannot connect to an unknown machine"
 msgstr "Неможливо встановити з’єднання із невідомим комп’ютером"
 
@@ -1329,7 +1348,7 @@ msgstr "Неможливо встановити з’єднання із нев�
 msgid "Cannot forward login credentials"
 msgstr "Не вдалося переспрямувати реєстраційні дані для входу"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:627
+#: pkg/systemd/overview-cards/realmd-operation.js:632
 msgid "Cannot join a domain because realmd is not available on this system"
 msgstr "Неможливо долучитися до домену, оскільки у цій системі немає realmd"
 
@@ -1351,8 +1370,8 @@ msgstr "Місткість"
 msgid "Carrier"
 msgstr "Носій сигналу"
 
-#: pkg/docker/index.html:626 pkg/systemd/index.html:123
-#: pkg/systemd/index.html:261 pkg/users/index.html:279 pkg/users/index.html:318
+#: pkg/docker/index.html:628 pkg/systemd/index.html:122
+#: pkg/systemd/index.html:260 pkg/users/index.html:278 pkg/users/index.html:317
 #: pkg/storaged/iscsi-panel.jsx:188
 msgid "Change"
 msgstr "Змінити"
@@ -1365,7 +1384,7 @@ msgstr "Змінити мікропрограму"
 msgid "Change Host Name"
 msgstr "Змінити назву вузла"
 
-#: pkg/shell/index.html:347
+#: pkg/shell/index.html:343
 msgid "Change Password"
 msgstr "Змінити пароль"
 
@@ -1393,7 +1412,7 @@ msgstr "Змінити пароль"
 msgid "Change resource limits"
 msgstr "Змінити обмеження ресурсів"
 
-#: pkg/docker/index.html:576
+#: pkg/docker/index.html:579
 msgid "Change resources limits"
 msgstr "Змінити обмеження ресурсів"
 
@@ -1401,10 +1420,10 @@ msgstr "Змінити обмеження ресурсів"
 msgid "Change the settings"
 msgstr "Змінити параметри"
 
-#: pkg/machines/components/diskEdit.jsx:198
-#: pkg/machines/components/nicEdit.jsx:157
-#: pkg/machines/components/vcpuModal.jsx:184
-#: pkg/machines/components/vm/bootOrderModal.jsx:283
+#: pkg/machines/components/diskEdit.jsx:195
+#: pkg/machines/components/nicEdit.jsx:154
+#: pkg/machines/components/vcpuModal.jsx:181
+#: pkg/machines/components/vm/bootOrderModal.jsx:280
 #: pkg/machines/components/warningInactive.jsx:11
 msgid "Changes will take effect after shutting down the VM"
 msgstr "Зміни буде застосовано після завершення роботи ВМ"
@@ -1457,7 +1476,7 @@ msgstr "Перевіряємо встановлене програмне заб�
 msgid "Choose an operating system"
 msgstr "Виберіть операційну систему"
 
-#: pkg/shell/index.html:125
+#: pkg/shell/index.html:121
 msgid "Choose the language to be used in the application"
 msgstr "Виберіть мову перекладу, яку буде використано для інтерфейсу програми"
 
@@ -1489,7 +1508,7 @@ msgstr "Очистити критерій пошуку"
 msgid "Clear mount point configuration"
 msgstr "Вилучити налаштування точки монтування"
 
-#: pkg/machines/components/desktopConsole.jsx:41
+#: pkg/machines/components/desktopConsole.jsx:54
 msgid ""
 "Clicking \"Launch Remote Viewer\" will download a .vv file and launch $0."
 msgstr ""
@@ -1500,11 +1519,11 @@ msgstr ""
 msgid "Client Software"
 msgstr "Клієнтське програмне забезпечення"
 
-#: pkg/docker/index.html:700 pkg/lib/machine-auth-failed.html:20
+#: pkg/docker/index.html:703 pkg/lib/machine-auth-failed.html:20
 #: pkg/lib/machine-change-port.html:45 pkg/lib/machine-invalid-hostkey.html:12
 #: pkg/lib/machine-not-supported.html:8 pkg/lib/machine-unknown-hostkey.html:19
-#: pkg/networkmanager/index.html:732 pkg/shell/index.html:104
-#: pkg/shell/index.html:163 pkg/shell/index.html:359 pkg/systemd/index.html:164
+#: pkg/networkmanager/index.html:732 pkg/shell/index.html:100
+#: pkg/shell/index.html:159 pkg/shell/index.html:355 pkg/systemd/index.html:164
 #: pkg/users/index.html:45 pkg/apps/utils.jsx:104
 #: pkg/lib/cockpit-components-modifications.jsx:103 pkg/sosreport/index.js:43
 #: pkg/sosreport/index.js:125 pkg/storaged/dialog.jsx:400
@@ -1562,7 +1581,7 @@ msgstr ""
 "зупинити за допомогою термінала. І навпаки, якщо трапиться помилка у "
 "терміналі, ви побачите її у інтерфейсі журналу Cockpit."
 
-#: pkg/shell/index.html:93
+#: pkg/shell/index.html:89
 msgid "Cockpit is an interactive Linux server admin interface."
 msgstr "Cockpit — інтерактивний інтерфейс адміністратора сервера Linux."
 
@@ -1644,19 +1663,19 @@ msgstr "Колір"
 msgid "Combined memory usage"
 msgstr "Поєднане використання пам’яті"
 
-#: pkg/docker/overview.js:87
+#: pkg/docker/overview.js:88
 msgid "Combined usage of $0 CPU core"
 msgid_plural "Combined usage of $0 CPU cores"
 msgstr[0] "Комбіноване використання $0 ядра процесора"
 msgstr[1] "Комбіноване використання $0 ядер процесора"
 msgstr[2] "Комбіноване використання $0 ядер процесора"
 
-#: pkg/networkmanager/firewall.jsx:561
+#: pkg/networkmanager/firewall.jsx:544
 msgid "Comma-separated ports, ranges, and aliases are accepted"
 msgstr "Відокремлені комами порти, діапазони і альтернативні назви прийнято"
 
 #: pkg/docker/index.html:265 pkg/docker/index.html:409
-#: pkg/docker/index.html:670 pkg/systemd/services.html:281
+#: pkg/docker/index.html:673 pkg/systemd/services.html:281
 #: pkg/docker/containers-view.jsx:134 pkg/docker/containers-view.jsx:363
 #: pkg/docker/containers-view.jsx:415
 msgid "Command"
@@ -1670,16 +1689,16 @@ msgstr "Команда не може бути порожньою"
 msgid "Command:"
 msgstr "Команда:"
 
-#: pkg/shell/index.html:293
+#: pkg/shell/index.html:289
 msgid "Comment"
 msgstr "Коментар"
 
-#: pkg/docker/index.html:134 pkg/docker/index.html:680
+#: pkg/docker/index.html:134 pkg/docker/index.html:682
 #: pkg/docker/containers-view.jsx:332
 msgid "Commit"
 msgstr "Надіслати"
 
-#: pkg/docker/index.html:640
+#: pkg/docker/index.html:643
 msgid "Commit Image"
 msgstr "Надіслати образ"
 
@@ -1744,7 +1763,7 @@ msgstr "Налаштовування kdump"
 msgid "Configuring system settings"
 msgstr "Налаштовування параметрів системи"
 
-#: pkg/shell/index.html:331 pkg/users/index.html:178
+#: pkg/shell/index.html:327 pkg/users/index.html:178
 #: pkg/storaged/format-dialog.jsx:221
 msgid "Confirm"
 msgstr "Підтвердити"
@@ -1753,7 +1772,7 @@ msgstr "Підтвердити"
 msgid "Confirm New Password"
 msgstr "Підтвердження нового пароля"
 
-#: pkg/networkmanager/firewall.jsx:776
+#: pkg/networkmanager/firewall.jsx:755
 msgid "Confirm removal of $0"
 msgstr "Підтвердження вилучення $0"
 
@@ -1798,7 +1817,7 @@ msgstr "З’єднатися із будь-якою програмою пере
 msgid "Connecting"
 msgstr "Встановлюємо з’єднання"
 
-#: pkg/lib/machine-add.html:39
+#: pkg/lib/machine-add.html:41
 msgid ""
 "Connecting simultaneously to more than {{ limit }} machines is unsupported."
 msgstr ""
@@ -1809,7 +1828,7 @@ msgstr ""
 msgid "Connecting to Docker"
 msgstr "Встановлюємо з’єднання із Docker"
 
-#: pkg/selinux/setroubleshoot-view.jsx:322
+#: pkg/selinux/setroubleshoot-view.jsx:364
 msgid "Connecting to SETroubleshoot daemon..."
 msgstr "Встановлюємо з’єднання із фоновою службою SETroubleshoot…"
 
@@ -1817,7 +1836,7 @@ msgstr "Встановлюємо з’єднання із фоновою слу�
 msgid "Connecting to Virtualization Service"
 msgstr "Встановлюємо зв'язок із службою віртуалізації"
 
-#: pkg/shell/indexes.js:686
+#: pkg/shell/indexes.js:699
 msgid "Connecting to the machine"
 msgstr "Встановлюємо з’єднання із комп’ютером"
 
@@ -1832,7 +1851,7 @@ msgstr "З’єднання"
 msgid "Connection Error"
 msgstr "Помилка з'єднання"
 
-#: pkg/shell/index.html:435
+#: pkg/shell/index.html:431
 msgid "Connection failed"
 msgstr "Не вдалося встановити з'єднання"
 
@@ -1856,7 +1875,7 @@ msgstr "Тип консолі"
 msgid "Consoles"
 msgstr "Консолі"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:276
+#: pkg/systemd/overview-cards/realmd-operation.js:275
 msgid "Contacted domain"
 msgstr "Пов'язаний домен"
 
@@ -1868,8 +1887,8 @@ msgstr "Контейнер"
 msgid "Container Administrator"
 msgstr "Адміністратор контейнера"
 
-#: pkg/docker/index.html:402 pkg/docker/index.html:582
-#: pkg/docker/index.html:646
+#: pkg/docker/index.html:402 pkg/docker/index.html:585
+#: pkg/docker/index.html:649
 msgid "Container Name"
 msgstr "Назва контейнера"
 
@@ -1905,7 +1924,7 @@ msgstr "Містить"
 msgid "Content"
 msgstr "Вміст"
 
-#: pkg/shell/index.html:147
+#: pkg/shell/index.html:143
 msgid "Continue Session"
 msgstr "Продовжити сеанс"
 
@@ -1932,7 +1951,7 @@ msgstr "Копіювати"
 msgid "Copy to clipboard"
 msgstr "Копіювати до буфера"
 
-#: pkg/machines/components/vcpuModal.jsx:232
+#: pkg/machines/components/vcpuModal.jsx:227
 msgid "Cores per socket"
 msgstr "Кількість ядер на сокет"
 
@@ -1948,7 +1967,7 @@ msgstr "Не вдалося змінити групи користувачів"
 msgid "Couldn't change user password"
 msgstr "Не вдалося змінити пароль користувача"
 
-#: pkg/shell/indexes.js:689
+#: pkg/shell/indexes.js:702
 msgid "Couldn't connect to the machine"
 msgstr "Не вдалося встановити з’єднання із комп’ютером"
 
@@ -1980,11 +1999,11 @@ msgstr "Розташування дампу аварійного заверше�
 msgid "Crash system"
 msgstr "Аварійно завершити роботу системи"
 
-#: pkg/users/index.html:201
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:948
-#: pkg/machines/components/networks/createNetworkDialog.jsx:485
-#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:515
-#: pkg/machines/components/storagePools/storageVolumeCreate.jsx:97
+#: pkg/users/index.html:200
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:944
+#: pkg/machines/components/networks/createNetworkDialog.jsx:481
+#: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:511
+#: pkg/machines/components/storagePools/storageVolumeCreate.jsx:93
 #: pkg/storaged/content-views.jsx:129 pkg/storaged/content-views.jsx:275
 #: pkg/storaged/content-views.jsx:771 pkg/storaged/mdraids-panel.jsx:123
 #: pkg/storaged/vdos-panel.jsx:146 pkg/storaged/vgroups-panel.jsx:90
@@ -1999,7 +2018,7 @@ msgstr "Створити пристрої"
 msgid "Create Logical Volume"
 msgstr "Створити логічний том"
 
-#: pkg/machines/components/diskAdd.jsx:500
+#: pkg/machines/components/diskAdd.jsx:495
 msgid "Create New"
 msgstr "Створити"
 
@@ -2188,7 +2207,7 @@ msgstr "Поточне отримання"
 msgid "Current boot"
 msgstr "Поточне завантаження"
 
-#: pkg/networkmanager/firewall.jsx:555
+#: pkg/networkmanager/firewall.jsx:538
 msgid "Custom Ports"
 msgstr "Нетипові порти"
 
@@ -2205,7 +2224,7 @@ msgstr "Нетипова мікропрограма: $0"
 msgid "Custom mount options"
 msgstr "Нетипові параметри монтування"
 
-#: pkg/networkmanager/firewall.jsx:694
+#: pkg/networkmanager/firewall.jsx:677
 msgid "Custom zones"
 msgstr "Нетипові зони"
 
@@ -2278,19 +2297,19 @@ msgstr "Затримка"
 
 #: pkg/docker/index.html:133 pkg/docker/index.html:245
 #: pkg/networkmanager/index.html:448 pkg/users/index.html:79
-#: pkg/users/index.html:359 pkg/docker/containers-view.jsx:204
+#: pkg/users/index.html:358 pkg/docker/containers-view.jsx:204
 #: pkg/docker/details.js:288 pkg/docker/util.js:645
 #: pkg/machines/components/deleteDialog.jsx:146
 #: pkg/machines/components/deleteDialog.jsx:161
-#: pkg/machines/components/deleteDialog.jsx:185
+#: pkg/machines/components/deleteDialog.jsx:182
 #: pkg/machines/components/deleteResource.jsx:82
 #: pkg/machines/components/deleteResource.jsx:92
 #: pkg/machines/components/deleteResource.jsx:105
-#: pkg/machines/components/deleteResource.jsx:117
+#: pkg/machines/components/deleteResource.jsx:113
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:204
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:214
-#: pkg/machines/components/storagePools/storagePoolDelete.jsx:240
-#: pkg/networkmanager/firewall.jsx:777 pkg/storaged/content-views.jsx:344
+#: pkg/machines/components/storagePools/storagePoolDelete.jsx:237
+#: pkg/networkmanager/firewall.jsx:756 pkg/storaged/content-views.jsx:344
 #: pkg/storaged/content-views.jsx:360 pkg/storaged/mdraid-details.jsx:293
 #: pkg/storaged/mdraid-details.jsx:316 pkg/storaged/vdo-details.jsx:198
 #: pkg/storaged/vdo-details.jsx:261 pkg/storaged/vgroup-details.jsx:212
@@ -2384,7 +2403,7 @@ msgstr ""
 msgid "Deleting volume group $target"
 msgstr "Вилучаємо групу томів $target"
 
-#: pkg/systemd/services.html:267 pkg/networkmanager/firewall.jsx:703
+#: pkg/systemd/services.html:267 pkg/networkmanager/firewall.jsx:686
 #: pkg/systemd/init.js:307
 msgid "Description"
 msgstr "Опис"
@@ -2405,7 +2424,7 @@ msgstr ""
 msgid "Detachable"
 msgstr "Змінний"
 
-#: pkg/shell/index.html:258 pkg/docker/containers-view.jsx:340
+#: pkg/shell/index.html:254 pkg/docker/containers-view.jsx:340
 #: pkg/docker/containers-view.jsx:434 pkg/docker/containers-view.jsx:534
 #: pkg/packagekit/updates.jsx:391
 msgid "Details"
@@ -2465,7 +2484,7 @@ msgstr "Каталог $0 є непридатним до запису або н�
 msgid "Disable simultaneous multithreading"
 msgstr "Вимкнути багатопотоковість"
 
-#: pkg/networkmanager/firewall.jsx:935
+#: pkg/networkmanager/firewall.jsx:917
 msgid "Disable the firewall"
 msgstr "Вимкнути брандмауер"
 
@@ -2487,7 +2506,7 @@ msgid "Disconnect"
 msgstr "Від’єднатися"
 
 #: pkg/machines/components/vnc.jsx:107 pkg/shell/indexes.js:244
-#: pkg/shell/indexes.js:879
+#: pkg/shell/indexes.js:892
 msgid "Disconnected"
 msgstr "Роз'єднано"
 
@@ -2507,11 +2526,11 @@ msgstr "Не вдалося від'єднати диск $0 від віртуа�
 msgid "Disk I/O"
 msgstr "Дисковий ввід/вивід"
 
-#: pkg/machines/components/diskAdd.jsx:456
+#: pkg/machines/components/diskAdd.jsx:451
 msgid "Disk failed to be attached"
 msgstr "Не вдалося долучити диск"
 
-#: pkg/machines/components/diskAdd.jsx:424
+#: pkg/machines/components/diskAdd.jsx:419
 msgid "Disk failed to be created"
 msgstr "Не вдалося створити диск"
 
@@ -2523,7 +2542,7 @@ msgstr "З диском усе гаразд"
 msgid "Disk passphrase"
 msgstr "Пароль до диска"
 
-#: pkg/machines/components/diskAdd.jsx:468
+#: pkg/machines/components/diskAdd.jsx:463
 #: pkg/machines/components/diskEdit.jsx:165
 msgid "Disk settings could not be saved"
 msgstr "Не вдалося зберегти параметри диска"
@@ -2534,11 +2553,11 @@ msgstr "Не вдалося зберегти параметри диска"
 msgid "Disks"
 msgstr "Диски"
 
-#: pkg/selinux/setroubleshoot-view.jsx:355
+#: pkg/selinux/setroubleshoot-view.jsx:397
 msgid "Dismiss"
 msgstr "Відкинути"
 
-#: pkg/shell/index.html:60 pkg/shell/index.html:122
+#: pkg/shell/index.html:60 pkg/shell/index.html:118
 msgid "Display Language"
 msgstr "Мова перекладу"
 
@@ -2560,15 +2579,15 @@ msgstr "Станція заряджання"
 
 #: pkg/systemd/overview-cards/realmd-operation.html:11
 #: pkg/systemd/overview-cards/configurationCard.jsx:402
-#: pkg/systemd/overview-cards/realmd-operation.js:125
+#: pkg/systemd/overview-cards/realmd-operation.js:124
 msgid "Domain"
 msgstr "Домен"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:194
+#: pkg/systemd/overview-cards/realmd-operation.js:193
 msgid "Domain $0 could not be contacted"
 msgstr "Не вдалося встановити зв’язок із доменом $0"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:281
+#: pkg/systemd/overview-cards/realmd-operation.js:280
 msgid "Domain $0 is not supported"
 msgstr "Підтримки домену $0 не передбачено"
 
@@ -2597,7 +2616,7 @@ msgstr "Не перезаписувати наявні дані"
 msgid "Done!"
 msgstr "Готово!"
 
-#: pkg/docker/index.html:562
+#: pkg/docker/index.html:564
 msgid "Download"
 msgstr "Отримати"
 
@@ -2613,7 +2632,7 @@ msgstr "Отримати операційну систему"
 msgid "Download report"
 msgstr "Звіт щодо отримання"
 
-#: pkg/machines/components/desktopConsole.jsx:47
+#: pkg/machines/components/desktopConsole.jsx:58
 msgid "Download the MSI from $0"
 msgstr "Отримати MSI з $0"
 
@@ -2649,8 +2668,8 @@ msgstr "Дублювання псевдоніма"
 msgid "Duplicate port"
 msgstr "Дублювання порту"
 
-#: pkg/machines/components/diskEdit.jsx:255
-#: pkg/machines/components/nicEdit.jsx:212 pkg/storaged/crypto-tab.jsx:129
+#: pkg/machines/components/diskEdit.jsx:250
+#: pkg/machines/components/nicEdit.jsx:207 pkg/storaged/crypto-tab.jsx:129
 #: pkg/storaged/nfs-details.jsx:307
 msgid "Edit"
 msgstr "Змінити"
@@ -2703,7 +2722,7 @@ msgstr "Увімкнути службу"
 msgid "Enable stored metrics"
 msgstr "Увімкнути збережену метрику"
 
-#: pkg/networkmanager/firewall.jsx:935
+#: pkg/networkmanager/firewall.jsx:917
 msgid "Enable the firewall"
 msgstr "Увімкнути брандмауер"
 
@@ -2759,7 +2778,7 @@ msgstr "Кінець"
 msgid "End should not be empty"
 msgstr "Кінець не може бути порожнім"
 
-#: pkg/selinux/setroubleshoot-view.jsx:243
+#: pkg/selinux/setroubleshoot-view.jsx:285
 msgid "Enforcing"
 msgstr "Примусово"
 
@@ -2784,7 +2803,7 @@ msgstr ""
 "вводити його кожного разу, коли ви повторно встановлюватимете з’єднання із "
 "цією машиною"
 
-#: pkg/networkmanager/firewall.jsx:731
+#: pkg/networkmanager/firewall.jsx:714
 msgid "Entire subnet"
 msgstr "Уся підмережа"
 
@@ -2868,11 +2887,11 @@ msgstr "Ethtool"
 msgid "Everything"
 msgstr "Все"
 
-#: pkg/networkmanager/firewall.jsx:568
+#: pkg/networkmanager/firewall.jsx:551
 msgid "Example: 22,ssh,8080,5900-5910"
 msgstr "Приклад: 22,ssh,8080,5900-5910"
 
-#: pkg/networkmanager/firewall.jsx:576
+#: pkg/networkmanager/firewall.jsx:559
 msgid "Example: 88,2019,nfs,rsync"
 msgstr "Приклад: 88,2019,nfs,rsync"
 
@@ -2916,15 +2935,15 @@ msgstr "Помилка"
 msgid "Failed to add machine: $0"
 msgstr "Не вдалося додати комп’ютер: $0"
 
-#: pkg/networkmanager/firewall.jsx:302
+#: pkg/networkmanager/firewall.jsx:300
 msgid "Failed to add port"
 msgstr "Не вдалося додати порт"
 
-#: pkg/networkmanager/firewall.jsx:302
+#: pkg/networkmanager/firewall.jsx:300
 msgid "Failed to add service"
 msgstr "Не вдалося додати службу"
 
-#: pkg/networkmanager/firewall.jsx:655
+#: pkg/networkmanager/firewall.jsx:638
 msgid "Failed to add zone"
 msgstr "Не вдалося додати зону"
 
@@ -2980,7 +2999,7 @@ msgstr "Не вдалося зупинити область Docker: $0"
 msgid "Failed to switch profile"
 msgstr "Не вдалося перемкнути профіль"
 
-#: pkg/machines/components/vcpuModal.jsx:198
+#: pkg/machines/components/vcpuModal.jsx:193
 msgid "Fewer than the maximum number of virtual CPUs should be enabled."
 msgstr ""
 "Має бути увімкнено менше за максимальну кількість віртуальних процесорів."
@@ -3006,7 +3025,7 @@ msgstr "Назва файлової системи"
 msgid "Filesystems"
 msgstr "Файлові системи"
 
-#: pkg/networkmanager/firewall.jsx:524
+#: pkg/networkmanager/firewall.jsx:507
 msgid "Filter Services"
 msgstr "Фільтрувати служби"
 
@@ -3014,16 +3033,16 @@ msgstr "Фільтрувати служби"
 msgid "Filter by name or description..."
 msgstr "Фільтрувати за назвою або описом…"
 
-#: pkg/lib/machine-unknown-hostkey.html:10 pkg/shell/index.html:301
+#: pkg/lib/machine-unknown-hostkey.html:10 pkg/shell/index.html:297
 msgid "Fingerprint"
 msgstr "Відбиток"
 
 #: pkg/networkmanager/firewall.html:22 pkg/networkmanager/index.html:107
-#: pkg/networkmanager/firewall.jsx:943 pkg/networkmanager/firewall.jsx:947
+#: pkg/networkmanager/firewall.jsx:925 pkg/networkmanager/firewall.jsx:929
 msgid "Firewall"
 msgstr "Брандмауер"
 
-#: pkg/networkmanager/firewall.jsx:895
+#: pkg/networkmanager/firewall.jsx:877
 msgid "Firewall is not available"
 msgstr "Брандмауер недоступний"
 
@@ -3126,7 +3145,7 @@ msgstr ""
 msgid "Friday"
 msgstr "п'ятниця"
 
-#: pkg/packagekit/autoupdates.jsx:325
+#: pkg/packagekit/autoupdates.jsx:324
 msgid "Fridays"
 msgstr "П'ятниці"
 
@@ -3265,7 +3284,7 @@ msgstr "Назва вузла"
 msgid "Host key is incorrect"
 msgstr "Ключ вузла є неправильним"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:604
+#: pkg/systemd/overview-cards/realmd-operation.js:609
 msgid "Host name should not be changed in a domain"
 msgstr "У домені не слід змінювати назву вузла"
 
@@ -3322,7 +3341,7 @@ msgstr "Довжина префікса IP:"
 msgid "IP Settings"
 msgstr "Параметри IP"
 
-#: pkg/networkmanager/firewall.jsx:740
+#: pkg/networkmanager/firewall.jsx:723
 msgid ""
 "IP address with routing prefix. Separate multiple values with a comma. "
 "Example: 192.0.2.0/24, 2001:db8::/32"
@@ -3383,7 +3402,7 @@ msgid "IPv6 only"
 msgstr "Лише IPv6"
 
 #: pkg/docker/containers-view.jsx:130 pkg/docker/containers-view.jsx:412
-#: pkg/machines/components/diskEdit.jsx:37
+#: pkg/machines/components/diskEdit.jsx:37 pkg/networkmanager/firewall.jsx:562
 msgid "Id"
 msgstr "Ід."
 
@@ -3441,7 +3460,7 @@ msgstr "Образи і запущені контейнери"
 msgid "Immediately Start VM"
 msgstr "Негайно запустити ВМ"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:948
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:944
 msgid "Import"
 msgstr "Імпортувати"
 
@@ -3482,7 +3501,7 @@ msgstr "Неактивний"
 msgid "Inactive volume"
 msgstr "Неактивний том"
 
-#: pkg/networkmanager/firewall.jsx:708
+#: pkg/networkmanager/firewall.jsx:691
 msgid "Included services"
 msgstr "Включені служби"
 
@@ -3540,7 +3559,7 @@ msgstr "Встановити програмне забезпечення"
 msgid "Install VDO Support"
 msgstr "Встановити підтримку VDO"
 
-#: pkg/selinux/setroubleshoot-view.jsx:330
+#: pkg/selinux/setroubleshoot-view.jsx:372
 msgid "Install setroubleshoot-server to troubleshoot SELinux events."
 msgstr ""
 "Встановіть setroubleshoot-server, щоб мати змогу діагностувати причини подій "
@@ -3584,7 +3603,7 @@ msgid "Interface Type"
 msgstr "Тип інтерфейсу"
 
 #: pkg/networkmanager/index.html:118 pkg/networkmanager/index.html:277
-#: pkg/networkmanager/firewall.jsx:171 pkg/networkmanager/firewall.jsx:714
+#: pkg/networkmanager/firewall.jsx:171 pkg/networkmanager/firewall.jsx:697
 #: pkg/networkmanager/interfaces.js:2972
 msgid "Interfaces"
 msgstr "Інтерфейси"
@@ -3667,7 +3686,7 @@ msgstr "Некоректне число."
 msgid "Invalid port"
 msgstr "Некоректний порт"
 
-#: pkg/networkmanager/firewall.jsx:400
+#: pkg/networkmanager/firewall.jsx:381
 msgid "Invalid port number"
 msgstr "Некоректний номер порту"
 
@@ -3679,7 +3698,7 @@ msgstr "Некоректний префікс $0"
 msgid "Invalid prefix or netmask $0"
 msgstr "Некоректний префікс або маска мережі $0"
 
-#: pkg/networkmanager/firewall.jsx:427
+#: pkg/networkmanager/firewall.jsx:410
 msgid "Invalid range"
 msgstr "Некоректний діапазон"
 
@@ -3712,23 +3731,23 @@ msgstr "Ізольована мережа"
 msgid "Jobs"
 msgstr "Завдання"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:119
+#: pkg/systemd/overview-cards/realmd-operation.js:118
 msgid "Join"
 msgstr "З'єднати"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:598
+#: pkg/systemd/overview-cards/realmd-operation.js:603
 msgid "Join Domain"
 msgstr "Долучитися до домену"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:118
+#: pkg/systemd/overview-cards/realmd-operation.js:117
 msgid "Join a Domain"
 msgstr "Долучитися до домену"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:622
+#: pkg/systemd/overview-cards/realmd-operation.js:627
 msgid "Joining a domain requires installation of realmd"
 msgstr "Для долучення до домену слід встановити realmd"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:507
+#: pkg/systemd/overview-cards/realmd-operation.js:512
 msgid "Joining this domain is not supported"
 msgstr "Підтримки долучення до цього домену не передбачено"
 
@@ -3831,6 +3850,18 @@ msgstr "Останній перемикач"
 msgid "Last checked: $0"
 msgstr "Востаннє перевірено: $0"
 
+#: pkg/systemd/overview.jsx:133
+#, fuzzy
+#| msgid "Last Login"
+msgid "Last failed login:"
+msgstr "Останній вхід"
+
+#: pkg/systemd/overview.jsx:132
+#, fuzzy
+#| msgid "Last Login"
+msgid "Last login:"
+msgstr "Останній вхід"
+
 #: pkg/machines/components/desktopConsole.jsx:128
 msgid "Launch Remote Viewer"
 msgstr "Запустити віддалений переглядач"
@@ -3890,7 +3921,7 @@ msgstr ""
 msgid "Libvirt or hypervisor does not support UEFI"
 msgstr "У libvirt або гіпервізорі не передбачено підтримки UEFI"
 
-#: pkg/shell/index.html:98
+#: pkg/shell/index.html:94
 msgid "Licensed under:"
 msgstr "Умови ліцензування:"
 
@@ -4000,11 +4031,11 @@ msgstr "Заблоковано"
 msgid "Locking $target"
 msgstr "Блокуємо $target"
 
-#: pkg/lib/machine-change-auth.html:92 src/ws/login.html:84 src/ws/login.js:518
+#: pkg/lib/machine-change-auth.html:91 src/ws/login.html:84 src/ws/login.js:518
 msgid "Log In"
 msgstr "Увійти"
 
-#: pkg/shell/index.html:78
+#: pkg/shell/index.html:74
 msgid "Log Out"
 msgstr "Вийти"
 
@@ -4232,7 +4263,7 @@ msgstr "Не вдалося зберегти дані щодо максимал�
 msgid "Maximum message age $max_age"
 msgstr "Максимальний вік повідомлення $max_age"
 
-#: pkg/machines/components/vcpuModal.jsx:211
+#: pkg/machines/components/vcpuModal.jsx:206
 msgid ""
 "Maximum number of virtual CPUs allocated for the guest OS, which must be "
 "between 1 and $0"
@@ -4283,7 +4314,7 @@ msgstr "Технологія пам'яті"
 msgid "Memory could not be saved"
 msgstr "Не вдалося зберегти дані щодо обсягу пам'яті"
 
-#: pkg/docker/index.html:416 pkg/docker/index.html:588
+#: pkg/docker/index.html:416 pkg/docker/index.html:591
 msgid "Memory limit"
 msgstr "Обмеження пам’яті"
 
@@ -4299,7 +4330,7 @@ msgstr "Використання пам'яті:"
 msgid "Message to logged in users"
 msgstr "Повідомлення користувачам, які увійшли"
 
-#: pkg/shell/index.html:438
+#: pkg/shell/index.html:434
 msgid "Messages related to the failure might be found in the journal:"
 msgstr "Повідомлення, пов'язані із аварією, яких може не бути у журналі:"
 
@@ -4307,7 +4338,7 @@ msgstr "Повідомлення, пов'язані із аварією, яки�
 msgid "Metadata Used"
 msgstr "Використано метаданих"
 
-#: pkg/docker/index.html:430 pkg/docker/index.html:602
+#: pkg/docker/index.html:430 pkg/docker/index.html:605
 #: pkg/machines/components/memorySelectRow.jsx:84
 #: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:95
 msgid "MiB"
@@ -4360,7 +4391,7 @@ msgstr "Змінюємо $target"
 msgid "Monday"
 msgstr "понеділок"
 
-#: pkg/packagekit/autoupdates.jsx:321
+#: pkg/packagekit/autoupdates.jsx:320
 msgid "Mondays"
 msgstr "Понеділки"
 
@@ -4372,7 +4403,7 @@ msgstr "Інтервал оновлення"
 msgid "Monitoring Targets"
 msgstr "Спостерігаємо за цілями"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:531
+#: pkg/systemd/overview-cards/realmd-operation.js:536
 msgid "More"
 msgstr "Більше"
 
@@ -4635,7 +4666,7 @@ msgid "NetworkManager is not running."
 msgstr "NetworkManager не запущено."
 
 #: pkg/networkmanager/index.html:23 pkg/networkmanager/index.html:396
-#: pkg/networkmanager/firewall.jsx:942 pkg/networkmanager/manifest.json.in
+#: pkg/networkmanager/firewall.jsx:924 pkg/networkmanager/manifest.json.in
 msgid "Networking"
 msgstr "Робота у мережі"
 
@@ -4669,7 +4700,7 @@ msgstr "Ніколи не блокувати обліковий запис"
 msgid "New NFS Mount"
 msgstr "Нове монтування NFS"
 
-#: pkg/shell/index.html:322 pkg/users/index.html:220
+#: pkg/shell/index.html:318 pkg/users/index.html:220
 msgid "New Password"
 msgstr "Новий пароль"
 
@@ -4685,7 +4716,7 @@ msgstr "Новий пароль"
 msgid "New password was not accepted"
 msgstr "Новий пароль не прийнято"
 
-#: pkg/systemd/overview-cards/realmd-operation.html:84
+#: pkg/systemd/overview-cards/realmd-operation.html:81
 #: pkg/storaged/iscsi-panel.jsx:50
 msgid "Next"
 msgstr "Далі"
@@ -4736,7 +4767,7 @@ msgstr "Монтувань NFS не налаштовано"
 msgid "No Network Devices"
 msgstr "Немає пристроїв мережі"
 
-#: pkg/selinux/setroubleshoot-view.jsx:316
+#: pkg/selinux/setroubleshoot-view.jsx:358
 msgid "No SELinux alerts."
 msgstr "Немає сповіщень SELinux."
 
@@ -4809,7 +4840,7 @@ msgstr "Немає контейнерів"
 msgid "No containers that match the current filter"
 msgstr "Немає контейнерів, які проходять поточні умови фільтрування"
 
-#: pkg/networkmanager/firewall.jsx:705
+#: pkg/networkmanager/firewall.jsx:688
 msgid "No description available"
 msgstr "Немає опису"
 
@@ -4950,7 +4981,7 @@ msgstr ""
 
 #: pkg/kdump/kdump-view.jsx:423
 #: pkg/machines/components/networks/createNetworkDialog.jsx:191
-#: pkg/networkmanager/firewall.jsx:710 pkg/tuned/dialog.js:230
+#: pkg/networkmanager/firewall.jsx:693 pkg/tuned/dialog.js:230
 msgid "None"
 msgstr "Немає"
 
@@ -4974,7 +5005,7 @@ msgstr "Некоректний закритий ключ"
 msgid "Not authorized to access Docker on this system"
 msgstr "Не уповноважено на доступ до Docker у цій системі"
 
-#: pkg/networkmanager/firewall.jsx:905
+#: pkg/networkmanager/firewall.jsx:887
 msgid "Not authorized to add a new zone"
 msgstr "Не уповноважено додавати нову зону"
 
@@ -4982,11 +5013,11 @@ msgstr "Не уповноважено додавати нову зону"
 msgid "Not authorized to add services to zone $0"
 msgstr "Не уповноважено додавати служби до зони $0"
 
-#: pkg/networkmanager/firewall.jsx:928
+#: pkg/networkmanager/firewall.jsx:910
 msgid "Not authorized to disable the firewall"
 msgstr "Не уповноважено вимикати брандмауер"
 
-#: pkg/networkmanager/firewall.jsx:928
+#: pkg/networkmanager/firewall.jsx:910
 msgid "Not authorized to enable the firewall"
 msgstr "Не уповноважено вмикати брандмауер"
 
@@ -5002,7 +5033,7 @@ msgstr "Не уповноважено вилучати зону $0"
 msgid "Not available"
 msgstr "Недоступний"
 
-#: pkg/selinux/setroubleshoot.js:240
+#: pkg/selinux/setroubleshoot.js:247
 msgid "Not connected"
 msgstr "Не з’єднано"
 
@@ -5047,11 +5078,11 @@ msgstr "Ноутбук"
 msgid "Notice and above"
 msgstr "Зауваження і вище"
 
-#: pkg/selinux/setroubleshoot-view.jsx:345
+#: pkg/selinux/setroubleshoot-view.jsx:387
 msgid "Occurred $0"
 msgstr "Сталося $0"
 
-#: pkg/selinux/setroubleshoot-view.jsx:340
+#: pkg/selinux/setroubleshoot-view.jsx:382
 msgid "Occurred between $0 and $1"
 msgstr "Сталося між $0 і $1"
 
@@ -5059,7 +5090,7 @@ msgstr "Сталося між $0 і $1"
 msgid "Ok"
 msgstr "Гаразд"
 
-#: pkg/shell/index.html:313 pkg/users/index.html:217
+#: pkg/shell/index.html:309 pkg/users/index.html:217
 msgid "Old Password"
 msgstr "Старий пароль"
 
@@ -5095,7 +5126,7 @@ msgstr ""
 "«systemctl enable --now cockpit.socket»."
 
 #: pkg/systemd/overview-cards/realmd-operation.html:68
-#: pkg/systemd/overview-cards/realmd-operation.js:338
+#: pkg/systemd/overview-cards/realmd-operation.js:337
 msgid "One Time Password"
 msgstr "Одноразовий пароль"
 
@@ -5263,8 +5294,8 @@ msgid "Passphrases do not match"
 msgstr "Паролі не збігаються"
 
 #: pkg/lib/machine-auth-failed.html:8 pkg/lib/machine-change-auth.html:52
-#: pkg/lib/machine-sync-users.html:63 pkg/shell/index.html:231
-#: pkg/shell/index.html:260 pkg/shell/index.html:275 pkg/users/index.html:118
+#: pkg/lib/machine-sync-users.html:63 pkg/shell/index.html:227
+#: pkg/shell/index.html:256 pkg/shell/index.html:271 pkg/users/index.html:118
 #: pkg/users/index.html:175 src/ws/login.html:55
 #: pkg/storaged/iscsi-panel.jsx:47 pkg/storaged/iscsi-panel.jsx:157
 msgid "Password"
@@ -5296,7 +5327,7 @@ msgstr "Пароль має бути змінено"
 msgid "Password not accepted"
 msgstr "Пароль не прийнято"
 
-#: pkg/shell/index.html:179
+#: pkg/shell/index.html:175
 msgid ""
 "Password not usable for privileged tasks or to connect to other machines"
 msgstr ""
@@ -5372,7 +5403,7 @@ msgstr "Постійний"
 msgid "Permission denied"
 msgstr "Доступ заборонено"
 
-#: pkg/selinux/setroubleshoot-view.jsx:243
+#: pkg/selinux/setroubleshoot-view.jsx:285
 msgid "Permissive"
 msgstr "Дозвільна"
 
@@ -5426,11 +5457,11 @@ msgstr "Ціль тестування луною"
 msgid "Pizza Box"
 msgstr "З коробку для піци"
 
-#: pkg/machines/components/diskAdd.jsx:395
+#: pkg/machines/components/diskAdd.jsx:390
 msgid "Please choose a storage pool"
 msgstr "Будь ласка, виберіть буфер зберігання даних"
 
-#: pkg/machines/components/diskAdd.jsx:434
+#: pkg/machines/components/diskAdd.jsx:429
 msgid "Please choose a volume"
 msgstr "Будь ласка, виберіть том"
 
@@ -5449,15 +5480,15 @@ msgstr "Будь ласка, підтвердьте примусове вилу�
 msgid "Please confirm stopping of $0"
 msgstr "Будь ласка, підтвердьте зупинку $0"
 
-#: pkg/machines/components/diskAdd.jsx:400
+#: pkg/machines/components/diskAdd.jsx:395
 msgid "Please enter new volume name"
 msgstr "Будь ласка, введіть назву нового тому"
 
-#: pkg/machines/components/diskAdd.jsx:403
+#: pkg/machines/components/diskAdd.jsx:398
 msgid "Please enter new volume size"
 msgstr "Будь ласка, введіть розмір нового тому"
 
-#: pkg/networkmanager/firewall.jsx:896
+#: pkg/networkmanager/firewall.jsx:878
 msgid "Please install the $0 package"
 msgstr "Будь ласка, встановіть пакунок $0"
 
@@ -5524,7 +5555,7 @@ msgstr "Томи буфера використовуються ВМ "
 msgid "Port"
 msgstr "Порт"
 
-#: pkg/networkmanager/firewall.jsx:404
+#: pkg/networkmanager/firewall.jsx:385
 msgid "Port number and type do not match"
 msgstr "Номер порту і тип не є сумісними"
 
@@ -5542,7 +5573,7 @@ msgstr "Порти"
 msgid "Ports:"
 msgstr "Порти:"
 
-#: pkg/machines/components/vcpuModal.jsx:225
+#: pkg/machines/components/vcpuModal.jsx:220
 msgid "Preferred number of sockets to expose to the guest."
 msgstr "Бажана кількість сокетів, які слід надавати гостьовій системі."
 
@@ -5632,7 +5663,7 @@ msgstr "Продукт"
 msgid "Profile"
 msgstr "Профіль"
 
-#: pkg/shell/index.html:94
+#: pkg/shell/index.html:90
 msgid "Project website"
 msgstr "Сайт проєкту"
 
@@ -5658,7 +5689,7 @@ msgstr "Поширює перезавантаження на"
 msgid "Protocol"
 msgstr "Протокол"
 
-#: pkg/lib/machine-auth-failed.html:9 pkg/shell/index.html:259
+#: pkg/lib/machine-auth-failed.html:9 pkg/shell/index.html:255
 msgid "Public Key"
 msgstr "Відкритий ключ"
 
@@ -5751,11 +5782,11 @@ msgstr "Апаратний блок монтування стійок"
 msgid "Random"
 msgstr "Випадковий"
 
-#: pkg/networkmanager/firewall.jsx:736
+#: pkg/networkmanager/firewall.jsx:719
 msgid "Range"
 msgstr "Діапазон"
 
-#: pkg/networkmanager/firewall.jsx:435
+#: pkg/networkmanager/firewall.jsx:418
 msgid "Range must be strictly ordered"
 msgstr "Діапазон має бути строго упорядковано"
 
@@ -5836,7 +5867,7 @@ msgstr "Нещодавні"
 msgid "Recommended default"
 msgstr "Рекомендоване типове значення"
 
-#: pkg/shell/index.html:421
+#: pkg/shell/index.html:417
 msgid "Reconnect"
 msgstr "Повторно з’єднатися"
 
@@ -5908,7 +5939,7 @@ msgstr "Вилучити"
 msgid "Remove $0"
 msgstr "Вилучити $0"
 
-#: pkg/networkmanager/firewall.jsx:846
+#: pkg/networkmanager/firewall.jsx:828
 msgid "Remove $0 service from $1 zone"
 msgstr "Вилучити службу $0 із зони $1"
 
@@ -5936,7 +5967,7 @@ msgstr "Вилучити пароль у $0?"
 msgid "Remove service $0"
 msgstr "Вилучити службу $0"
 
-#: pkg/networkmanager/firewall.jsx:147 pkg/networkmanager/firewall.jsx:829
+#: pkg/networkmanager/firewall.jsx:147 pkg/networkmanager/firewall.jsx:811
 msgid "Remove zone $0"
 msgstr "Вилучити зону $0"
 
@@ -5964,7 +5995,7 @@ msgstr ""
 msgid "Removing physical volume from $target"
 msgstr "Вилучаємо фізичний том з $target"
 
-#: pkg/networkmanager/firewall.jsx:844
+#: pkg/networkmanager/firewall.jsx:826
 msgid ""
 "Removing the cockpit service might result in the web console becoming "
 "unreachable. Make sure that this zone does not apply to your current web "
@@ -5974,7 +6005,7 @@ msgstr ""
 "Переконайтеся, що застосування цієї зони не поширюється на ваше поточне "
 "з'єднання за допомогою вебконсолі."
 
-#: pkg/networkmanager/firewall.jsx:827
+#: pkg/networkmanager/firewall.jsx:809
 msgid "Removing the zone will remove all services within it."
 msgstr "Вилучення запису зони призведе до вилучення усіх служб у ній."
 
@@ -6048,7 +6079,7 @@ msgstr "Звітування було скасовано"
 msgid "Reports:"
 msgstr "Звіти:"
 
-#: pkg/docker/index.html:652
+#: pkg/docker/index.html:655
 msgid "Repository"
 msgstr "Сховище"
 
@@ -6088,7 +6119,7 @@ msgstr "Потрібний для"
 msgid "Reserved memory"
 msgstr "Зарезервована пам’ять"
 
-#: pkg/users/index.html:335 pkg/systemd/terminal.jsx:102
+#: pkg/users/index.html:334 pkg/systemd/terminal.jsx:102
 msgid "Reset"
 msgstr "Скинути"
 
@@ -6106,8 +6137,8 @@ msgstr ""
 "ласка, вкажіть поточний пароль до диска."
 
 #: pkg/docker/index.html:132 pkg/docker/containers-view.jsx:317
-#: pkg/machines/components/vm/vmActions.jsx:44 pkg/systemd/overview.jsx:103
-#: pkg/systemd/overview.jsx:124 pkg/systemd/service-details.jsx:172
+#: pkg/machines/components/vm/vmActions.jsx:44 pkg/systemd/overview.jsx:209
+#: pkg/systemd/overview.jsx:230 pkg/systemd/service-details.jsx:172
 #: pkg/systemd/shutdown.js:99 pkg/systemd/shutdown.js:100
 msgid "Restart"
 msgstr "Перезапустити"
@@ -6148,7 +6179,7 @@ msgstr "Кількість спроб:"
 msgid "Reuse my password for privileged tasks"
 msgstr "Повторно використати ваш пароль для привілейованих завдань"
 
-#: pkg/shell/index.html:183
+#: pkg/shell/index.html:179
 msgid "Reuse my password for privileged tasks and to connect to other machines"
 msgstr ""
 "Повторно використати ваш пароль для привілейованих завдань та з’єднання з "
@@ -6182,7 +6213,7 @@ msgstr "Маршрутизована мережа"
 msgid "Routes"
 msgstr "Маршрути"
 
-#: pkg/docker/index.html:247 pkg/docker/index.html:528
+#: pkg/docker/index.html:247 pkg/docker/index.html:527
 #: pkg/systemd/services.html:295 pkg/machines/components/vm/vmActions.jsx:92
 msgid "Run"
 msgstr "Запустити"
@@ -6212,11 +6243,11 @@ msgstr "Працює"
 msgid "SELinux"
 msgstr "SELinux"
 
-#: pkg/selinux/setroubleshoot-view.jsx:315
+#: pkg/selinux/setroubleshoot-view.jsx:357
 msgid "SELinux Access Control Errors"
 msgstr "Помилка керування доступом SELinux"
 
-#: pkg/selinux/setroubleshoot-view.jsx:248
+#: pkg/selinux/setroubleshoot-view.jsx:290
 msgid "SELinux Policy"
 msgstr "Правила SELinux"
 
@@ -6224,15 +6255,15 @@ msgstr "Правила SELinux"
 msgid "SELinux Troubleshoot"
 msgstr "Усування вад SELinux"
 
-#: pkg/selinux/setroubleshoot-view.jsx:309
+#: pkg/selinux/setroubleshoot-view.jsx:351
 msgid "SELinux is disabled on the system"
 msgstr "У системі вимкнено SELinux"
 
-#: pkg/selinux/setroubleshoot-view.jsx:232
+#: pkg/selinux/setroubleshoot-view.jsx:274
 msgid "SELinux is disabled on the system."
 msgstr "SELinux вимкнено у системі."
 
-#: pkg/selinux/setroubleshoot-view.jsx:224
+#: pkg/selinux/setroubleshoot-view.jsx:266
 msgid "SELinux system status is unknown."
 msgstr "Стан системи SELinux є невідомим."
 
@@ -6272,7 +6303,7 @@ msgstr "Максимальний вік повідомлення STP"
 msgid "STP Priority"
 msgstr "Пріоритет STP"
 
-#: pkg/shell/index.html:442
+#: pkg/shell/index.html:438
 msgid ""
 "Safari users need to import and trust the certificate of the self-signing CA:"
 msgstr ""
@@ -6283,20 +6314,20 @@ msgstr ""
 msgid "Saturday"
 msgstr "субота"
 
-#: pkg/packagekit/autoupdates.jsx:326
+#: pkg/packagekit/autoupdates.jsx:325
 msgid "Saturdays"
 msgstr "Суботи"
 
-#: pkg/systemd/services.html:377 pkg/machines/components/diskEdit.jsx:220
-#: pkg/machines/components/nicEdit.jsx:179
-#: pkg/machines/components/vm/bootOrderModal.jsx:330
-#: pkg/machines/components/vm/firmwareModal.jsx:78
-#: pkg/machines/components/vm/memoryModal.jsx:155
+#: pkg/systemd/services.html:376 pkg/machines/components/diskEdit.jsx:212
+#: pkg/machines/components/nicEdit.jsx:171
+#: pkg/machines/components/vm/bootOrderModal.jsx:322
+#: pkg/machines/components/vm/firmwareModal.jsx:75
+#: pkg/machines/components/vm/memoryModal.jsx:152
 #: pkg/storaged/crypto-keyslots.jsx:266 pkg/storaged/crypto-keyslots.jsx:285
 msgid "Save"
 msgstr "Зберегти"
 
-#: pkg/systemd/hwinfo.jsx:225
+#: pkg/systemd/hwinfo.jsx:222
 msgid "Save and reboot"
 msgstr "Зберегти і перезавантажити"
 
@@ -6320,7 +6351,7 @@ msgstr ""
 msgid "Sealed-case PC"
 msgstr "ПК з опломбованим корпусом"
 
-#: pkg/shell/index.html:397
+#: pkg/shell/index.html:393
 msgid "Search"
 msgstr "Пошук"
 
@@ -6341,7 +6372,7 @@ msgstr "Безпечно витираємо $target"
 msgid "Security Updates Available"
 msgstr "Доступні оновлення захисту"
 
-#: pkg/shell/index.html:131
+#: pkg/shell/index.html:126
 msgid "Select"
 msgstr "Вибрати"
 
@@ -6447,7 +6478,7 @@ msgid "Service name"
 msgstr "Назва служби"
 
 #: pkg/systemd/services.html:4 pkg/systemd/services.html:221
-#: pkg/networkmanager/firewall.jsx:516 pkg/systemd/manifest.json.in
+#: pkg/networkmanager/firewall.jsx:499 pkg/systemd/manifest.json.in
 msgid "Services"
 msgstr "Служби"
 
@@ -6456,11 +6487,11 @@ msgstr "Служби"
 msgid "Session"
 msgstr "Сеанс"
 
-#: pkg/shell/index.html:141
+#: pkg/shell/index.html:137
 msgid "Session is about to expire"
 msgstr "Строк дії сеансу вичерпується"
 
-#: pkg/dashboard/index.html:188 pkg/users/index.html:240
+#: pkg/dashboard/index.html:186 pkg/users/index.html:239
 msgid "Set"
 msgstr "Встановити"
 
@@ -6496,7 +6527,7 @@ msgstr "Встановити значення"
 msgid "Set up"
 msgstr "Налаштувати"
 
-#: pkg/selinux/setroubleshoot-view.jsx:241
+#: pkg/selinux/setroubleshoot-view.jsx:283
 msgid ""
 "Setting deviates from the configured state and will revert on the next boot."
 msgstr ""
@@ -6590,7 +6621,7 @@ msgstr ""
 "Вимкніть віртуальну машину, щоб розпочати редагування налаштувань "
 "мікропрограми"
 
-#: pkg/systemd/overview.jsx:106
+#: pkg/systemd/overview.jsx:212
 msgid "Shutdown"
 msgstr "Вимкнути"
 
@@ -6640,7 +6671,7 @@ msgstr "Слот"
 msgid "Slot $0"
 msgstr "Слот $0"
 
-#: pkg/machines/components/vcpuModal.jsx:220 pkg/systemd/services.jsx:51
+#: pkg/machines/components/vcpuModal.jsx:215 pkg/systemd/services.jsx:51
 msgid "Sockets"
 msgstr "Сокети"
 
@@ -6658,15 +6689,15 @@ msgstr ""
 "заходи мають побіжний ефект — зниження швидкодії. Змінюйте ці параметри, "
 "лише якщо повністю усвідомлюєте наслідки."
 
-#: pkg/selinux/setroubleshoot-view.jsx:94
+#: pkg/selinux/setroubleshoot-view.jsx:104
 msgid "Solution applied successfully"
 msgstr "Рішення успішно застосовано"
 
-#: pkg/selinux/setroubleshoot-view.jsx:100
+#: pkg/selinux/setroubleshoot-view.jsx:110
 msgid "Solution failed"
 msgstr "Помилка рішення"
 
-#: pkg/selinux/setroubleshoot-view.jsx:363
+#: pkg/selinux/setroubleshoot-view.jsx:405
 msgid "Solutions"
 msgstr "Рішення"
 
@@ -6677,11 +6708,11 @@ msgstr ""
 "Програмою для керування пакунків користується якась інша програма, будь "
 "ласка, зачекайте…"
 
-#: pkg/networkmanager/firewall.jsx:685
+#: pkg/networkmanager/firewall.jsx:668
 msgid "Sorted from least trusted to most trusted"
 msgstr "Упорядковано від найменшої до найбільшої довіри"
 
-#: pkg/machines/components/diskAdd.jsx:489
+#: pkg/machines/components/diskAdd.jsx:484
 #: pkg/machines/components/nicBody.jsx:146
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:52
 #: pkg/machines/components/vmDisksTab.jsx:117
@@ -6948,7 +6979,7 @@ msgstr "Підноутбук"
 msgid "Sunday"
 msgstr "неділя"
 
-#: pkg/packagekit/autoupdates.jsx:327
+#: pkg/packagekit/autoupdates.jsx:326
 msgid "Sundays"
 msgstr "Неділі"
 
@@ -7001,11 +7032,11 @@ msgstr ""
 "Вмикання <b>$0</b> призведе до розірвання з’єднання із сервером і зробить "
 "адміністративний інтерфейс користувача недоступним."
 
-#: pkg/lib/machine-sync-users.html:77
+#: pkg/lib/machine-sync-users.html:76
 msgid "Synchronize"
 msgstr "Синхронізувати"
 
-#: pkg/dashboard/index.html:186 pkg/lib/machine-sync-users.html:4
+#: pkg/dashboard/index.html:188 pkg/lib/machine-sync-users.html:4
 msgid "Synchronize users"
 msgstr "Синхронізувати користувачів"
 
@@ -7030,7 +7061,7 @@ msgstr "Система"
 msgid "System Information"
 msgstr "Дані щодо системи"
 
-#: pkg/selinux/setroubleshoot-view.jsx:411
+#: pkg/selinux/setroubleshoot-view.jsx:453
 msgid "System Modifications"
 msgstr "Модифікації системи"
 
@@ -7059,7 +7090,8 @@ msgstr "TCP"
 msgid "Tablet"
 msgstr "Планшет"
 
-#: pkg/docker/index.html:658
+#: pkg/docker/index.html:561 pkg/docker/index.html:562
+#: pkg/docker/index.html:661
 msgid "Tag"
 msgstr "Мітка"
 
@@ -7219,7 +7251,7 @@ msgstr ""
 "Не вдалося встановити ідентичність вузла {{#strong}}{{host}}{{/strong}}. Ви "
 "справді хочете продовжити спробу встановити з’єднання?"
 
-#: pkg/networkmanager/firewall.jsx:711
+#: pkg/networkmanager/firewall.jsx:694
 msgid "The cockpit service is automatically included"
 msgstr "Службу cockpit включено автоматично"
 
@@ -7227,7 +7259,7 @@ msgstr "Службу cockpit включено автоматично"
 msgid "The collected information will be stored locally on the system."
 msgstr "Зібрані дані буде збережено локально у операційній системі."
 
-#: pkg/selinux/setroubleshoot-view.jsx:239
+#: pkg/selinux/setroubleshoot-view.jsx:281
 msgid "The configured state is unknown, it might change on the next boot."
 msgstr ""
 "Налаштований стан є невідомим, його може бути змінено під час наступного "
@@ -7363,7 +7395,7 @@ msgstr ""
 "Користувач, який увійшов до системи, не має права переглядати модифікації "
 "системи"
 
-#: pkg/shell/indexes.js:683
+#: pkg/shell/indexes.js:696
 msgid "The machine is restarting"
 msgstr "Комп’ютер перезавантажується"
 
@@ -7426,7 +7458,7 @@ msgstr "Користувачеві $0 заборонено змінювати н
 msgid "The user $0 is not permitted to modify realms"
 msgstr "Користувачу $0 не дозволено вносити зміни до областей"
 
-#: pkg/systemd/overview.jsx:112
+#: pkg/systemd/overview.jsx:218
 msgid "The user $0 is not permitted to shutdown or restart this server"
 msgstr "Користувачеві $0 заборонено вимикати або перезапускати цей сервер"
 
@@ -7502,7 +7534,15 @@ msgstr ""
 "Для вилучення цього фізичного тому недостатньо вільного місця. Потрібно "
 "принаймні $0 вільного місця."
 
-#: pkg/shell/index.html:437
+#: pkg/systemd/overview.jsx:124
+msgid "There was $0 failed login attempt since the last successful login."
+msgid_plural ""
+"There were $0 failed login attempts since the last successful login."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: pkg/shell/index.html:433
 msgid "There was an unexpected error while connecting to the machine."
 msgstr ""
 "Під час спроби встановити з'єднання із комп'ютером сталася неочікувана "
@@ -7598,7 +7638,7 @@ msgstr ""
 msgid "This machine has already been added."
 msgstr "Цей комп’ютер вже було додано."
 
-#: pkg/systemd/overview-cards/realmd-operation.html:82
+#: pkg/systemd/overview-cards/realmd-operation.html:83
 msgid "This may take a while"
 msgstr "Зачекайте"
 
@@ -7687,7 +7727,7 @@ msgstr ""
 msgid "This will test the kdump configuration by crashing the kernel."
 msgstr "Перевіряє налаштування kdump, аварійно завершуючи роботу ядра."
 
-#: pkg/networkmanager/firewall.jsx:825
+#: pkg/networkmanager/firewall.jsx:807
 msgid ""
 "This zone contains the cockpit service. Make sure that this zone does not "
 "apply to your current web console connection."
@@ -7695,7 +7735,7 @@ msgstr ""
 "У цій зоні міститься служба cockpit. Переконайтеся, що застосування цієї "
 "зони не поширюється на ваше поточне з'єднання за допомогою вебконсолі."
 
-#: pkg/machines/components/vcpuModal.jsx:237
+#: pkg/machines/components/vcpuModal.jsx:232
 msgid "Threads per core"
 msgstr "Потоків на ядро"
 
@@ -7703,7 +7743,7 @@ msgstr "Потоків на ядро"
 msgid "Thursday"
 msgstr "четвер"
 
-#: pkg/packagekit/autoupdates.jsx:324
+#: pkg/packagekit/autoupdates.jsx:323
 msgid "Thursdays"
 msgstr "Четверги"
 
@@ -7715,7 +7755,7 @@ msgstr "Часовий пояс"
 msgid "Timers"
 msgstr "Таймери"
 
-#: pkg/shell/index.html:340
+#: pkg/shell/index.html:336
 msgid ""
 "Tip: Make your key password match your login password to automatically "
 "authenticate against other systems."
@@ -7764,7 +7804,7 @@ msgstr "Причина вмикання"
 msgid "Triggers"
 msgstr "Умовні зміни"
 
-#: pkg/shell/index.html:422 pkg/machines/components/libvirtSlate.jsx:101
+#: pkg/shell/index.html:418 pkg/machines/components/libvirtSlate.jsx:101
 msgid "Troubleshoot"
 msgstr "Діагностика проблем"
 
@@ -7772,7 +7812,7 @@ msgstr "Діагностика проблем"
 msgid "Trust key"
 msgstr "Довіряти ключу"
 
-#: pkg/networkmanager/firewall.jsx:681
+#: pkg/networkmanager/firewall.jsx:664
 msgid "Trust level"
 msgstr "Рівень довіри"
 
@@ -7792,7 +7832,7 @@ msgstr "Намагаємося синхронізуватися з {{Server}}"
 msgid "Tuesday"
 msgstr "вівторок"
 
-#: pkg/packagekit/autoupdates.jsx:322
+#: pkg/packagekit/autoupdates.jsx:321
 msgid "Tuesdays"
 msgstr "Вівторки"
 
@@ -7812,7 +7852,7 @@ msgstr "Tuned не запущено"
 msgid "Tuned is off"
 msgstr "Tuned вимкнено"
 
-#: pkg/shell/index.html:297
+#: pkg/shell/index.html:293
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:86
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:74
 #: pkg/machines/components/vm/bootOrderModal.jsx:108
@@ -7861,7 +7901,7 @@ msgstr "UUID"
 msgid "Unable to apply settings: $0"
 msgstr "Не вдалося застосувати параметри: $0"
 
-#: pkg/selinux/setroubleshoot-view.jsx:117
+#: pkg/selinux/setroubleshoot-view.jsx:129
 msgid "Unable to apply this solution automatically"
 msgstr "Не вдалося застосувати це рішення у автоматичному режимі"
 
@@ -7874,7 +7914,7 @@ msgid "Unable to delete root account"
 msgstr "Неможливо вилучити обліковий запис root"
 
 #: pkg/selinux/setroubleshoot-view.jsx:75
-#: pkg/selinux/setroubleshoot-view.jsx:166
+#: pkg/selinux/setroubleshoot-view.jsx:208
 msgid "Unable to get alert details."
 msgstr "Не вдалося отримати параметри нагадувань."
 
@@ -7910,7 +7950,7 @@ msgstr "Не вдалося демонтувати файлову систему
 msgid "Unavailable"
 msgstr "Недоступний"
 
-#: pkg/docker/index.html:694 pkg/networkmanager/index.html:725
+#: pkg/docker/index.html:697 pkg/networkmanager/index.html:725
 #: pkg/shell/base_index.js:840 pkg/users/local.js:1505
 msgid "Unexpected error"
 msgstr "Неочікувана помилка"
@@ -7964,7 +8004,7 @@ msgstr "Невідома мікропрограма"
 msgid "Unknown host name"
 msgstr "Невідома назва вузла"
 
-#: pkg/networkmanager/firewall.jsx:398
+#: pkg/networkmanager/firewall.jsx:379
 msgid "Unknown service name"
 msgstr "Невідома назва служби"
 
@@ -7981,7 +8021,7 @@ msgstr "Якщо не зупинено"
 msgid "Unlock"
 msgstr "Розблокувати"
 
-#: pkg/shell/index.html:241 pkg/shell/index.html:285
+#: pkg/shell/index.html:237 pkg/shell/index.html:281
 msgid "Unlock Key"
 msgstr "Розблокувати ключ"
 
@@ -8060,7 +8100,7 @@ msgstr "Ненадійний вузол"
 msgid "Up since $0"
 msgstr "Працює з $0"
 
-#: pkg/lib/machine-change-port.html:41
+#: pkg/lib/machine-change-port.html:40
 msgid "Update"
 msgstr "Оновити"
 
@@ -8120,11 +8160,11 @@ msgstr[2] "Використання $0 ядер процесора"
 msgid "Use 512 Byte emulation"
 msgstr "Емуляція 512 байтів"
 
-#: pkg/machines/components/diskAdd.jsx:509
+#: pkg/machines/components/diskAdd.jsx:504
 msgid "Use Existing"
 msgstr "Використати наявний"
 
-#: pkg/shell/index.html:193
+#: pkg/shell/index.html:189
 msgid "Use the following keys to authenticate against other systems"
 msgstr "Використати вказані нижче ключі для розпізнавання у інших системах"
 
@@ -8155,7 +8195,7 @@ msgid "User Name"
 msgstr "Ім'я користувача"
 
 #: pkg/systemd/overview-cards/realmd-operation.html:59
-#: pkg/systemd/overview-cards/realmd-operation.js:337
+#: pkg/systemd/overview-cards/realmd-operation.js:336
 msgid "User Password"
 msgstr "Пароль користувача"
 
@@ -8274,7 +8314,7 @@ msgstr "Порт VNC:"
 msgid "VNC TLS Port:"
 msgstr "Порт TLS VNC:"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:167
+#: pkg/systemd/overview-cards/realmd-operation.js:166
 msgid "Validating address"
 msgstr "Перевіряємо чинність адреси"
 
@@ -8303,7 +8343,7 @@ msgstr "Перевірити ключ"
 msgid "Verifying"
 msgstr "Перевіряємо"
 
-#: pkg/shell/index.html:96 pkg/packagekit/updates.jsx:389
+#: pkg/shell/index.html:92 pkg/packagekit/updates.jsx:389
 #: pkg/systemd/hwinfo.jsx:74
 msgid "Version"
 msgstr "Версія"
@@ -8400,7 +8440,7 @@ msgid "Waiting"
 msgstr "Очікування"
 
 #: pkg/selinux/setroubleshoot-view.jsx:73
-#: pkg/selinux/setroubleshoot-view.jsx:164
+#: pkg/selinux/setroubleshoot-view.jsx:206
 msgid "Waiting for details..."
 msgstr "Очікуємо на подробиці…"
 
@@ -8447,7 +8487,7 @@ msgstr "Вебконсоль для серверів під керуванням
 msgid "Wednesday"
 msgstr "середа"
 
-#: pkg/packagekit/autoupdates.jsx:323
+#: pkg/packagekit/autoupdates.jsx:322
 msgid "Wednesdays"
 msgstr "Середи"
 
@@ -8519,8 +8559,8 @@ msgstr ""
 "його вилучити."
 
 #: pkg/networkmanager/firewall.jsx:68 pkg/networkmanager/firewall.jsx:142
-#: pkg/networkmanager/firewall.jsx:154 pkg/networkmanager/firewall.jsx:904
-#: pkg/networkmanager/firewall.jsx:925
+#: pkg/networkmanager/firewall.jsx:154 pkg/networkmanager/firewall.jsx:886
+#: pkg/networkmanager/firewall.jsx:907
 msgid "You are not authorized to modify the firewall."
 msgstr "Вас не уповноважено на внесення змін до брандмауера."
 
@@ -8617,7 +8657,7 @@ msgstr "addon"
 msgid "alias"
 msgstr "псевдонім"
 
-#: pkg/packagekit/autoupdates.jsx:340
+#: pkg/packagekit/autoupdates.jsx:339
 msgid "and restart the machine automatically."
 msgstr "і перезапуск системи автоматично."
 
@@ -8633,7 +8673,7 @@ msgstr "apt-get"
 msgid "asset tag"
 msgstr "мітка активу"
 
-#: pkg/packagekit/autoupdates.jsx:332
+#: pkg/packagekit/autoupdates.jsx:331
 msgid "at"
 msgstr "на"
 
@@ -8755,8 +8795,8 @@ msgstr "диск"
 msgid "dying"
 msgstr "вмирає"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:299
-#: pkg/systemd/overview-cards/realmd-operation.js:305
+#: pkg/systemd/overview-cards/realmd-operation.js:298
+#: pkg/systemd/overview-cards/realmd-operation.js:304
 msgid "e.g. \"$0\""
 msgstr "наприклад «$0»"
 
@@ -8788,7 +8828,7 @@ msgstr "помилка"
 msgid "ethernet"
 msgstr "ethernet"
 
-#: pkg/packagekit/autoupdates.jsx:319
+#: pkg/packagekit/autoupdates.jsx:318
 msgid "every day"
 msgstr "кожного дня"
 
@@ -9102,7 +9142,7 @@ msgstr "ролі"
 msgid "running"
 msgstr "працює"
 
-#: pkg/systemd/overview.jsx:148
+#: pkg/systemd/overview.jsx:254
 msgid "running $0"
 msgstr "запущено $0"
 
@@ -9138,7 +9178,7 @@ msgstr "служба"
 msgid "setroubleshoot"
 msgstr "setroubleshoot"
 
-#: pkg/docker/index.html:447 pkg/docker/index.html:619
+#: pkg/docker/index.html:447 pkg/docker/index.html:622
 msgid "shares"
 msgstr "спільний"
 
@@ -9170,7 +9210,7 @@ msgstr "завершити роботу"
 msgid "socket"
 msgstr "сокет"
 
-#: pkg/selinux/setroubleshoot-view.jsx:121
+#: pkg/selinux/setroubleshoot-view.jsx:162
 msgid "solution details"
 msgstr "параметри рішення"
 
@@ -9290,11 +9330,11 @@ msgstr "useradd"
 msgid "username"
 msgstr "користувач"
 
-#: pkg/machines/components/vcpuModal.jsx:193
+#: pkg/machines/components/vcpuModal.jsx:188
 msgid "vCPU Count"
 msgstr "К-ть вірт. процесорів"
 
-#: pkg/machines/components/vcpuModal.jsx:205
+#: pkg/machines/components/vcpuModal.jsx:200
 msgid "vCPU Maximum"
 msgstr "Макс. вірт. процесорів"
 
@@ -9356,6 +9396,9 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json.in
 msgid "zone"
 msgstr "зона"
+
+#~ msgid "About Cockpit"
+#~ msgstr "Про Cockpit"
 
 #~ msgid " (shared with the OS)"
 #~ msgstr " (спільний із операційною системою)"

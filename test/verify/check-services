@@ -269,6 +269,14 @@ Unit=test.service
         b.wait_in_text('.cockpit-log-panel .panel-body', "START")
         b.wait_in_text('.cockpit-log-panel .panel-body', "WORKING")
 
+        if m.image != "rhel-8-2-distropkg": # Introduced in #13905
+            b.click(".cockpit-log-panel .panel-heading button")
+            b.enter_page("/system/logs")
+            b.wait_in_text("#journal-box .cockpit-log-panel > div:nth-child(2)", "WORKING")
+            b.wait_in_text("#journal-box .cockpit-log-panel > div:nth-child(3)", "START")
+            b.go("/system/services#test.service")
+            b.enter_page("/system/services")
+
         # Stop and disable and back again
         self.toggle_onoff()
         self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)"], False)

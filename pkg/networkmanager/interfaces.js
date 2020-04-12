@@ -1736,6 +1736,9 @@ PageNetworking.prototype = {
                 .append(this.log_box);
 
         $(this.model).on('changed.networking', $.proxy(this, "update_devices"));
+        $("#goto-networking-logs").on("click", function() {
+            cockpit.jump("/system/logs/#/?prio=debug&_SYSTEMD_UNIT=NetworkManager.service,firewalld.service");
+        });
         this.update_devices();
     },
 

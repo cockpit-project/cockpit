@@ -130,7 +130,10 @@ export class LogsPanel extends React.Component {
     render() {
         return (
             <div className="panel panel-default cockpit-log-panel" role="table">
-                <div className="panel-heading">{this.props.title}</div>
+                <div className="panel-heading">
+                    <h2 className="panel-title">{this.props.title}</h2>
+                    { this.props.goto_url && <button className="link-button" role="link" onClick={e => cockpit.jump(this.props.goto_url)}>{_("All logs")}</button> }
+                </div>
                 <div className={"panel-body " + ((!this.state.logs.length && this.props.emptyMessage.length) ? "empty-message" : "")} role="rowgroup">
                     { this.state.logs.length ? this.state.logs : this.props.emptyMessage }
                 </div>

@@ -397,7 +397,17 @@ $(function() {
         }
 
         const grep = options.grep || "";
-        document.getElementById("journal-grep").value = grep;
+        let full_grep = grep;
+
+        // Other filters may be passed as well
+        Object.keys(options).forEach(k => {
+            if (k === k.toUpperCase() && options[k]) {
+                options[k].split(",").forEach(v => match.push(k + "=" + v));
+                full_grep = k + '=' + options[k] + " " + full_grep;
+            }
+        });
+
+        document.getElementById("journal-grep").value = full_grep;
 
         the_journal = journalbox($("#journal-box"), query_start, match, prio_level !== "*" ? prio_level : null, options.tag, follow, grep);
     }
@@ -986,7 +996,26 @@ $(function() {
     $('#journal-grep').on("keyup", function(e) {
         if (e.keyCode == 13) { // Submitted by enter
             update_services_list = true;
-            cockpit.location.go([], $.extend(cockpit.location.options, { grep: $(this).val() }));
+            const new_items = {};
+            const values = $(this).val()
+                    .split(" ")
+                    .filter(item => {
+                        const s = item.split("=");
+                        if (s.length === 2 && s[0] === s[0].toUpperCase()) {
+                            new_items[s[0]] = s[1];
+                            return false;
+                        }
+                        return true;
+                    });
+            new_items.grep = values.join(" ");
+
+            const prev_options = cockpit.location.options;
+            Object.keys(prev_options).forEach(o => {
+                if (o === o.toUpperCase())
+                    delete prev_options[o];
+            });
+
+            cockpit.location.go([], $.extend(prev_options, new_items));
         }
     });
 

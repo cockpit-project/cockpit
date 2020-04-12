@@ -378,6 +378,29 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         b.wait_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 2')")
         b.wait_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 3')")
 
+        m.execute(r"printf 'MESSAGE=Message 4\nPRIORITY=3\nFOO=bar\n' | logger --journald")
+        m.execute(r"printf 'MESSAGE=Message 5\nPRIORITY=3\nFOO=bar\n' | logger --journald")
+        m.execute(r"printf 'MESSAGE=Message 6\nPRIORITY=3\nBAR=foo\n' | logger --journald")
+
+        b.go("#/?tag=logger")
+
+        b.wait_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 4')")
+        b.wait_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 5')")
+        b.wait_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 6')")
+
+        b.focus("#journal-grep")
+        b.key_press("FOO=bar [5-6]\r")
+
+        b.wait_not_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 4')")
+        b.wait_not_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 6')")
+        b.wait_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 5')")
+
+        b.focus("#journal-grep")
+        b.key_press("\b"*13 + "[5-6]\r")
+        b.wait_not_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 4')")
+        b.wait_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 6')")
+        b.wait_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 5')")
+
     def testBinary(self):
         b = self.browser
         m = self.machine

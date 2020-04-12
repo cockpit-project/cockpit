@@ -34,6 +34,7 @@ $(function() {
 
     var update_services_list = true;
     var current_services = new Set();
+    let the_journal = null;
 
     var problems_client = cockpit.dbus('org.freedesktop.problems', { superuser: "try" });
     var service = problems_client.proxy('org.freedesktop.Problems2', '/org/freedesktop/Problems2');
@@ -114,7 +115,7 @@ $(function() {
     }
 
     /* Not public API */
-    function journalbox(outer, start, match, priority, tag) {
+    function journalbox(outer, start, match, priority, tag, keep_following) {
         var box = $('<div class="panel panel-default cockpit-log-panel" role="table">');
         var start_box = $('<div class="journal-start" id="start-box" role="rowgroup">');
 
@@ -125,6 +126,7 @@ $(function() {
 
         var renderer = journal.renderer(box);
         var procs = [];
+        var following_procs = [];
 
         var loading_services = false;
 
@@ -181,7 +183,7 @@ $(function() {
         }
 
         function follow(cursor) {
-            procs.push(journal.journalctl(match, { follow: true, count: 0, cursor: cursor, priority: priority })
+            following_procs.push(journal.journalctl(match, { follow: true, count: 0, cursor: cursor || null, priority: priority })
                     .fail(query_error)
                     .stream(function(entries) {
                         if (entries[0].__CURSOR == cursor)
@@ -193,6 +195,7 @@ $(function() {
                         }
                     }));
         }
+        outer.follow = follow;
 
         function clear_service_list() {
             if (loading_services) {
@@ -247,7 +250,7 @@ $(function() {
             priority: priority
         };
 
-        var last = null;
+        let last = keep_following ? null : 1;
         var count = 0;
         var oldest = null;
         var stopped = false;
@@ -257,7 +260,6 @@ $(function() {
             options.boot = null;
         } else if (start == 'previous-boot') {
             options.boot = "-1";
-            last = 1; // Do not try to get newer logs
         } else if (start == 'last-24h') {
             options.since = "-1days";
         } else if (start == 'last-week') {
@@ -299,7 +301,7 @@ $(function() {
                     else if (count < query_count)
                         ReactDOM.unmountComponentAtNode(document.getElementById("start-box"));
                     if (!last) {
-                        procs.push(journal.journalctl(match, {
+                        following_procs.push(journal.journalctl(match, {
                             follow: true, count: 0,
                             boot: options.boot,
                             since: options.since,
@@ -320,6 +322,15 @@ $(function() {
 
         outer.stop = function stop() {
             $.each(procs, function(i, proc) {
+                proc.stop();
+            });
+            $.each(following_procs, function(i, proc) {
+                proc.stop();
+            });
+        };
+
+        outer.stop_following = function stop_following() {
+            $.each(following_procs, function(i, proc) {
                 proc.stop();
             });
         };
@@ -369,7 +380,21 @@ $(function() {
                 p.selected = false;
         });
 
-        journalbox($("#journal-box"), query_start, match, prio_level !== "*" ? prio_level : null, options.tag);
+        let follow = !(options.follow && options.follow === "false");
+
+        if (query_start == "previous-boot") // Don't follow if we want to see only previous boot
+            follow = false;
+
+        const follow_button = document.getElementById("journal-follow");
+        if (follow) {
+            follow_button.textContent = _("Pause");
+            follow_button.setAttribute("data-following", true);
+        } else {
+            follow_button.textContent = _("Resume");
+            follow_button.setAttribute("data-following", false);
+        }
+
+        the_journal = journalbox($("#journal-box"), query_start, match, prio_level !== "*" ? prio_level : null, options.tag, follow);
     }
 
     function update_entry() {
@@ -898,6 +923,26 @@ $(function() {
     $('#journal-service-menu').on("change", function() {
         update_services_list = false;
         cockpit.location.go([], $.extend(cockpit.location.options, { tag: $(this).val() }));
+    });
+
+    $('#journal-follow').on("click", function() {
+        const state = $(this).attr("data-following") === "true";
+        if (state) {
+            $(this).text(_("Resume"));
+            $(this).attr("data-following", false);
+            the_journal.stop_following();
+        } else {
+            $(this).text(_("Pause"));
+            $(this).attr("data-following", true);
+
+            const cursor = document.querySelector(".cockpit-logline");
+            if (cursor)
+                the_journal.follow(cursor.getAttribute("data-cursor"));
+            else
+                the_journal.follow();
+        }
+
+        // TODO make sure that it is propagated when other filters change
     });
 
     $('#journal-navigate-home').on("click", function() {

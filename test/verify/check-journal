@@ -19,6 +19,7 @@
 
 import parent
 from testlib import *
+import time
 
 
 class TestJournal(MachineCase):
@@ -334,6 +335,29 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         else:
             b.set_val("#journal-service-menu", "check-journal")
             b.wait_not_present("#journal-service-menu option[value='just-a-service']")
+
+        if m.image == "rhel-8-2-distropkg": # Introduced in #13905
+            return
+
+        # Test following
+        b.go("#/?tag=test-stream&prio=notice")
+        wait_journal_empty()
+
+        m.execute("logger --tag test-stream Message 1")
+        b.wait_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 1')")
+
+        b.click("#journal-follow:contains('Pause')")
+        b.wait_visible("#journal-follow:contains('Resume')")
+        m.execute("logger --tag test-stream Message 2")
+        time.sleep(3)
+        b.wait_not_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 2')")
+
+        b.click("#journal-follow:contains('Resume')")
+        b.wait_visible("#journal-follow:contains('Pause')")
+        b.wait_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 2')")
+        m.execute("logger --tag test-stream Message 3")
+        b.wait_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 3')")
+
 
     def testBinary(self):
         b = self.browser

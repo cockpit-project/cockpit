@@ -31,7 +31,6 @@ export class SystemInfomationCard extends React.Component {
         super(props);
 
         this.state = {};
-        this.system_uptime = null;
         this.getDMIInfo = this.getDMIInfo.bind(this);
         this.getMachineId = this.getMachineId.bind(this);
         this.getSystemUptime = this.getSystemUptime.bind(this);
@@ -41,6 +40,15 @@ export class SystemInfomationCard extends React.Component {
         this.getDMIInfo();
         this.getMachineId();
         this.getSystemUptime();
+
+        this.uptimeTimer = setInterval(
+            () => this.getSystemUptime(),
+            60000
+        );
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.uptimeTimer);
     }
 
     getMachineId() {
@@ -104,15 +112,15 @@ export class SystemInfomationCard extends React.Component {
 
                     if (uptime_days == 0) {
                         if (uptime_hours == 0) {
-                            this.system_uptime = (<div id="system_uptime">{uptime_minutes} {_("Minutes")} </div>);
+                            this.setState({ systemUptime: uptime_minutes + " " + _("Minutes") });
                         } else {
-                            this.system_uptime = (<div id="system_uptime">{uptime_hours} {_("Hours")} {uptime_minutes} {_("Minutes")} </div>);
+                            this.setState({ systemUptime: uptime_hours + " " + _("Hours") + " " + uptime_minutes + " " + ("Minutes") });
                         }
                     } else {
                         if (uptime_hours == 0) {
-                            this.system_uptime = (<div id="system_uptime">{uptime_days} {_("Days")} {uptime_minutes} {_("Minutes")} </div>);
+                            this.setState({ system_uptime: uptime_days + " " + _("Days") + " " + uptime_minutes + " " + _("Minutes") });
                         } else {
-                            this.system_uptime = (<div id="system_uptime">{uptime_days} {_("Days")} {uptime_hours} {_("Hours")} </div>);
+                            this.setState({ system_uptime: uptime_days + " " + _("Days") + " " + uptime_hours + " " + _("Hours") });
                         }
                     }
                 })
@@ -149,7 +157,7 @@ export class SystemInfomationCard extends React.Component {
                             <tr>
                                 <th scope="row" className="system-information-uptime">{_("System uptime")}</th>
                                 <td>
-                                    {this.system_uptime}
+                                    <div id="system_uptime">{this.state.systemUptime}</div>
                                 </td>
                             </tr>
                         </tbody>

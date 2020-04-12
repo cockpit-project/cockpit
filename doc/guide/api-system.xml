@@ -63,6 +63,15 @@
           </listitem>
         </varlistentry>
         <varlistentry>
+          <term>Filter by message</term>
+          <listitem>
+            <para><code>#?grep=</code></para>
+            <para>Filters the log to show entries where the <code>MESSAGE=</code> field matches the specified regular expression.
+              PERL-compatible regular expressions are used. If the pattern is all lowercase, matching is case insensitive.
+              Otherwise, matching is case sensitive.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
           <term>Start at point</term>
           <listitem>
             <para><code>#?start=boot</code></para>

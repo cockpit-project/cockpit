@@ -69,7 +69,8 @@
     margin-top: 4px;
 }
 
-#journal .filter select {
+#journal .filter select,
+#journal .filter input {
     margin-right: var(--pf-global--spacer--md);
 }
 
@@ -182,12 +183,17 @@
     height: var(--pf-global--FontSize--lg);
     width: var(--pf-global--BorderWidth--md);
     background-color: var(--pf-global--BorderColor--100);
-    // Align-self and margin may still be needed when swapping out for the PF4 widget
+    // margin may still be needed when swapping out for the PF4 widget
     margin: var(--pf-global--spacer--sm) var(--pf-global--spacer--md);
+    align-self: flex-end;
 }
 
 #journal-service-menu {
     width: 8em; // Static width as it likes to resize a lot while loading
+}
+
+.filters-toggle {
+    flex-grow: 1;
 }
 
 .filters-toggle button {

@@ -115,7 +115,7 @@ $(function() {
     }
 
     /* Not public API */
-    function journalbox(outer, start, match, priority, tag, keep_following) {
+    function journalbox(outer, start, match, priority, tag, keep_following, grep) {
         var box = $('<div class="panel panel-default cockpit-log-panel" role="table">');
         var start_box = $('<div class="journal-start" id="start-box" role="rowgroup">');
 
@@ -160,7 +160,7 @@ $(function() {
                                  var count = 0;
                                  var stopped = null;
                                  manage_start_box(true, false, no_logs ? ("Loading...") : null, "", "");
-                                 procs.push(journal.journalctl(match, { follow: false, reverse: true, cursor: first, priority: priority })
+                                 procs.push(journal.journalctl(match, { follow: false, reverse: true, cursor: first, priority: priority, grep: grep })
                                          .fail(query_error)
                                          .stream(function(entries) {
                                              if (entries[0].__CURSOR == first)
@@ -183,7 +183,7 @@ $(function() {
         }
 
         function follow(cursor) {
-            following_procs.push(journal.journalctl(match, { follow: true, count: 0, cursor: cursor || null, priority: priority })
+            following_procs.push(journal.journalctl(match, { follow: true, count: 0, cursor: cursor || null, priority: priority, grep: grep })
                     .fail(query_error)
                     .stream(function(entries) {
                         if (entries[0].__CURSOR == cursor)
@@ -247,7 +247,8 @@ $(function() {
         var options = {
             follow: false,
             reverse: true,
-            priority: priority
+            priority: priority,
+            grep: grep,
         };
 
         let last = keep_following ? null : 1;
@@ -306,6 +307,7 @@ $(function() {
                             boot: options.boot,
                             since: options.since,
                             priority: priority,
+                            grep: grep,
                         })
                                 .fail(query_error)
                                 .stream(function(entries) {
@@ -394,7 +396,10 @@ $(function() {
             follow_button.setAttribute("data-following", false);
         }
 
-        the_journal = journalbox($("#journal-box"), query_start, match, prio_level !== "*" ? prio_level : null, options.tag, follow);
+        const grep = options.grep || "";
+        document.getElementById("journal-grep").value = grep;
+
+        the_journal = journalbox($("#journal-box"), query_start, match, prio_level !== "*" ? prio_level : null, options.tag, follow, grep);
     }
 
     function update_entry() {
@@ -889,6 +894,18 @@ $(function() {
         $("body").show();
     }
 
+    function check_grep() {
+        // Sometimes `journalctl` can be compiled without `PCRE2` which means
+        // that `--grep` is not usable. Hide the search box in such cases.
+        cockpit.spawn(["journalctl", "--version"])
+                .then(m => {
+                    if (m.indexOf("-PCRE2") !== -1) {
+                        document.querySelector(".text-search").hidden = true;
+                        fit_filters();
+                    }
+                });
+    }
+
     function fit_filters() {
         if ($(".filters-toggle button").is(":hidden")) {
             $("#journal .content-header-extra").toggleClass("toggle-filters-closed");
@@ -966,9 +983,17 @@ $(function() {
         $("#journal .content-header-extra").toggleClass("toggle-filters-closed");
     });
 
+    $('#journal-grep').on("keyup", function(e) {
+        if (e.keyCode == 13) { // Submitted by enter
+            update_services_list = true;
+            cockpit.location.go([], $.extend(cockpit.location.options, { grep: $(this).val() }));
+        }
+    });
+
     // Check if the last filter is still on the same line, or it was wrapped.
     window.addEventListener("resize", fit_filters);
 
+    check_grep();
     fit_filters();
     update();
 });

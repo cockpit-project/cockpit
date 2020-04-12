@@ -123,6 +123,8 @@ journal.build_cmd = function build_cmd(/* ... */) {
         cmd.push("--after=" + options.after);
     if (options.priority)
         cmd.push("--priority=" + options.priority);
+    if (options.grep)
+        cmd.push("--grep=" + options.grep);
 
     /* journalctl doesn't allow reverse and follow together */
     if (options.reverse)

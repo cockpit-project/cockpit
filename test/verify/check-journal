@@ -356,6 +356,25 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         m.execute("logger --tag test-stream Message 3")
         b.wait_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 3')")
 
+        # Test message filtering
+
+        # Debian supports grep only from 19.10, see https://bugs.launchpad.net/ubuntu/+source/systemd/+bug/1751006
+        if m.image == "debian-stable":
+            b.wait_not_visible(".text-search")
+            return
+
+        b.focus("#journal-grep")
+        b.key_press("1\r")
+        b.wait_js_cond('window.location.hash === "#/?prio=notice&tag=test-stream&grep=1"')
+        b.wait_not_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 2')")
+        b.wait_not_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 3')")
+        b.wait_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 1')")
+
+        b.focus("#journal-grep")
+        b.key_press("\bm.*[2-5]\r")
+        b.wait_not_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 1')")
+        b.wait_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 2')")
+        b.wait_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 3')")
 
     def testBinary(self):
         b = self.browser

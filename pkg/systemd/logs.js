@@ -351,8 +351,21 @@ $(function() {
         stop_query();
 
         var match = [];
+        const options = cockpit.location.options;
 
-        const prio_level = cockpit.location.options.prio || "err";
+        const grep = options.grep || "";
+        let full_grep = "";
+
+        // Set selected item into start time select menu
+        var query_start = options.start || "recent";
+        if (query_start == 'recent')
+            $(window).scrollTop($(document).height());
+        else
+            full_grep += "start:" + query_start + " ";
+
+        const prio_level = options.prio || "err";
+        if (prio_level !== "*")
+            full_grep += "priority:" + prio_level + " ";
 
         // Set selected item into priority select menu
         const prio_options = [...document.getElementById('journal-prio-menu').children];
@@ -362,19 +375,6 @@ $(function() {
             else
                 p.selected = false;
         });
-
-        var options = cockpit.location.options;
-
-        if (options.service)
-            match.push(...['_SYSTEMD_UNIT=' + options.service, "+", "COREDUMP_UNIT=" + options.service, "+", "UNIT=" + options.service]);
-
-        if (options.tag && options.tag !== "*")
-            match.push('SYSLOG_IDENTIFIER=' + options.tag);
-
-        // Set selected item into start time select menu
-        var query_start = cockpit.location.options.start || "recent";
-        if (query_start == 'recent')
-            $(window).scrollTop($(document).height());
 
         const time_options = [...document.getElementById('journal-current-day-menu').children];
         time_options.forEach(p => {
@@ -398,17 +398,25 @@ $(function() {
             follow_button.setAttribute("data-following", false);
         }
 
-        const grep = options.grep || "";
-        let full_grep = grep;
+        if (options.service) {
+            match.push(...['_SYSTEMD_UNIT=' + options.service, "+", "COREDUMP_UNIT=" + options.service, "+", "UNIT=" + options.service]);
+            full_grep += "service:" + options.service + " ";
+        }
+
+        if (options.tag && options.tag !== "*") {
+            match.push('SYSLOG_IDENTIFIER=' + options.tag);
+            full_grep += "identifier:" + options.tag + " ";
+        }
 
         // Other filters may be passed as well
         Object.keys(options).forEach(k => {
             if (k === k.toUpperCase() && options[k]) {
                 options[k].split(",").forEach(v => match.push(k + "=" + v));
-                full_grep = k + '=' + options[k] + " " + full_grep;
+                full_grep += k + '=' + options[k] + " ";
             }
         });
 
+        full_grep += grep;
         document.getElementById("journal-grep").value = full_grep;
 
         the_journal = journalbox($("#journal-box"), query_start, match, prio_level !== "*" ? prio_level : null, options.tag, follow, grep);
@@ -928,14 +936,39 @@ $(function() {
         }
     }
 
+    function parse_search(value) {
+        const new_items = {};
+        const values = value.split(" ")
+                .filter(item => {
+                    let s = item.split("=");
+                    if (s.length === 2 && s[0] === s[0].toUpperCase()) {
+                        new_items[s[0]] = s[1];
+                        return false;
+                    }
+
+                    const well_know_keys = ["start", "priority", "follow", "service", "identifier"];
+                    const map_keys = (key) => {
+                        if (key === "priority")
+                            return "prio";
+                        if (key === "identifier")
+                            return "tag";
+                        return key;
+                    };
+                    s = item.split(":");
+                    if (s.length === 2 && well_know_keys.includes(s[0])) {
+                        new_items[map_keys(s[0])] = s[1];
+                        return false;
+                    }
+
+                    return true;
+                });
+        new_items.grep = values.join(" ");
+        return new_items;
+    }
+
     $(cockpit).on("locationchanged", function() {
         update_services_list = true;
         update();
-    });
-
-    $('#journal-current-day-menu').on('change', function() {
-        update_services_list = true;
-        cockpit.location.go([], $.extend(cockpit.location.options, { start: $(this).val() }));
     });
 
     $('#journal-box').on('click', '.cockpit-logline', function() {
@@ -944,14 +977,22 @@ $(function() {
             cockpit.location.go([cursor], { parent_options: JSON.stringify(cockpit.location.options) });
     });
 
-    $('#journal-prio-menu').on('change', function() {
+    $('#journal-current-day-menu').on('change', function() {
+        const options = parse_search(document.getElementById("journal-grep").value);
         update_services_list = true;
-        cockpit.location.go([], $.extend(cockpit.location.options, { prio: $(this).val() }));
+        cockpit.location.go([], $.extend(options, { start: $(this).val() }));
+    });
+
+    $('#journal-prio-menu').on('change', function() {
+        const options = parse_search(document.getElementById("journal-grep").value);
+        update_services_list = true;
+        cockpit.location.go([], $.extend(options, { prio: $(this).val() }));
     });
 
     $('#journal-service-menu').on("change", function() {
+        const options = parse_search(document.getElementById("journal-grep").value);
         update_services_list = false;
-        cockpit.location.go([], $.extend(cockpit.location.options, { tag: $(this).val() }));
+        cockpit.location.go([], $.extend(options, { tag: $(this).val() }));
     });
 
     $('#journal-follow').on("click", function() {
@@ -970,8 +1011,6 @@ $(function() {
             else
                 the_journal.follow();
         }
-
-        // TODO make sure that it is propagated when other filters change
     });
 
     $('#journal-navigate-home').on("click", function() {
@@ -998,26 +1037,7 @@ $(function() {
     $('#journal-grep').on("keyup", function(e) {
         if (e.keyCode == 13) { // Submitted by enter
             update_services_list = true;
-            const new_items = {};
-            const values = $(this).val()
-                    .split(" ")
-                    .filter(item => {
-                        const s = item.split("=");
-                        if (s.length === 2 && s[0] === s[0].toUpperCase()) {
-                            new_items[s[0]] = s[1];
-                            return false;
-                        }
-                        return true;
-                    });
-            new_items.grep = values.join(" ");
-
-            const prev_options = cockpit.location.options;
-            Object.keys(prev_options).forEach(o => {
-                if (o === o.toUpperCase())
-                    delete prev_options[o];
-            });
-
-            cockpit.location.go([], $.extend(prev_options, new_items));
+            cockpit.location.go([], parse_search($(this).val()));
         }
     });
 

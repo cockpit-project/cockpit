@@ -337,6 +337,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
             b.click("#journal-service-menu button")
             b.wait_not_present("#journal-services-list ul li a:contains('just-a-service')")
         else:
+            wait_log_not_present("WORK PLEASE")
             b.set_val("#journal-service-menu", "check-journal")
             b.wait_not_present("#journal-service-menu option[value='just-a-service']")
 
@@ -394,6 +395,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
         b.focus("#journal-grep")
         b.key_press("FOO=bar [5-6]\r")
+        b.wait_val("#journal-grep", "priority:err identifier:logger FOO=bar [5-6]")
 
         b.wait_not_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 4')")
         b.wait_not_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 6')")
@@ -404,6 +406,10 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         b.wait_not_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 4')")
         b.wait_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 6')")
         b.wait_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 5')")
+
+        b.go("#/?tag=logger&start=last-24h&prio=crit&grep=foo")
+        b.wait_val("#journal-grep", "start:last-24h priority:crit identifier:logger foo")
+
 
     def testBinary(self):
         b = self.browser

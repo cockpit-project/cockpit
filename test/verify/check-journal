@@ -205,9 +205,9 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
               // console.log("repeat", l[2], "?");
               return false;
             }
-            if (l[0] == "systemd: ") {
+            if (l[0] == "systemd") {
               // console.log(l[1], "?");
-              return false;
+              i++;
             } else if (l[0] == "sh") {
               if (l[1] != seq.toString()) {
                 // console.log(l[1], "?");
@@ -241,8 +241,14 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         wait_journal_empty()
 
         def wait_slow10():
-            wait_log_lines([expected_date, ["sh", "SLOW", "10"]
-                            ])
+            if m.image == "rhel-8-2-distropkg": # Changed in #13905
+                wait_log_lines([expected_date, ["sh", "SLOW", "10"]])
+            elif m.image.startswith("rhel") or m.image.startswith("centos"): # Older systemd does not show when unit finishes
+                wait_log_lines([expected_date, ["sh", "SLOW", "10"],
+                               ["systemd", "Started Slowly log 10 identical lines.", ""]])
+            else:
+                wait_log_lines([expected_date, ["systemd", "slow10.service: Succeeded.", ""], ["sh", "SLOW", "10"],
+                               ["systemd", "Started Slowly log 10 identical lines.", ""]])
 
         def wait_log_present(message):
             sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('%s')" % message

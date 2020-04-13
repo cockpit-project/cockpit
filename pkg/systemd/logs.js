@@ -364,9 +364,11 @@ $(function() {
         });
 
         var options = cockpit.location.options;
+
         if (options.service)
-            match.push('_SYSTEMD_UNIT=' + options.service);
-        else if (options.tag && options.tag !== "*")
+            match.push(...['_SYSTEMD_UNIT=' + options.service, "+", "COREDUMP_UNIT=" + options.service, "+", "UNIT=" + options.service]);
+
+        if (options.tag && options.tag !== "*")
             match.push('SYSLOG_IDENTIFIER=' + options.tag);
 
         // Set selected item into start time select menu

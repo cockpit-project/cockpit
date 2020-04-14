@@ -145,16 +145,14 @@ export class ApplicationList extends React.Component {
 
         return (
             <table className={table_classes}>
-                <caption>
-                    <table>
-                        <tbody>
-                            <tr>
-                                <td><h2>{_("Applications")}</h2></td>
-                                <td>{refresh_progress}</td>
-                                <td>{refresh_button}</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <caption className="caption-with-actions">
+                    <span>
+                        <h2>{_("Applications")}</h2>
+                        <div className="right-menu">
+                            {refresh_progress}
+                            {refresh_button}
+                        </div>
+                    </span>
                 </caption>
                 <tbody>
                     { tbody }

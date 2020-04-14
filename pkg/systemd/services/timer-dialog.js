@@ -333,8 +333,10 @@ function timer_init() {
 function create_timer() {
     sync_repeat();
     var error = check_inputs();
-    if (error)
-        return false;
+    if (error) {
+        $('#create-timer-spinner').prop("hidden", true);
+        return;
+    }
     timer_unit.name = $("#servicename")
             .val()
             .replace(/\s/g, '');
@@ -375,10 +377,7 @@ function create_timer() {
     }
     if (timer_unit.repeat.index !== 60)
         timer_unit.OnCalendar = timer_unit.OnCalendar.toString().replace(/,/g, "\n");
-    var invalid = create_timer_file();
-    if (invalid)
-        return false;
-    return true;
+    create_timer_file();
 }
 
 function create_timer_file() {
@@ -408,8 +407,12 @@ function create_timer_file() {
     file.replace(timer_file)
             .done(function(tag) {
                 systemd_manager.EnableUnitFiles([timer_unit.name + ".timer"], false, false)
-                        .then(() => systemd_manager.Reload())
+                        .then(() => systemd_manager.Reload().then(() => {
+                            $('#create-timer-spinner').prop("hidden", true);
+                            $("#timer-dialog").modal("toggle");
+                        }))
                         .fail(function(error) {
+                            $('#create-timer-spinner').prop("hidden", true);
                             console.warn("Failed to enable timer unit:", error);
                         });
                 // start calendar timers
@@ -421,6 +424,7 @@ function create_timer_file() {
                 }
             })
             .fail(function(error) {
+                $('#create-timer-spinner').prop("hidden", false);
                 console.log(error);
             });
 }
@@ -461,11 +465,11 @@ export function timerDialogSetup() {
     ];
 
     timer_init();
+    $('#create-timer-spinner').prop("hidden", true);
 
     $("#timer-dialog").on("click", "#timer-save-button", function() {
-        var close_modal = create_timer();
-        if (close_modal)
-            $("#timer-dialog").modal("toggle");
+        $('#create-timer-spinner').prop("hidden", false);
+        create_timer();
     });
 
     // Removes error notification when user starts typing in the error-field.

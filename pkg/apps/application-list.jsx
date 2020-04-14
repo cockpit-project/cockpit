@@ -56,7 +56,7 @@ class ApplicationRow extends React.Component {
         if (comp.installed) {
             name = <a role="link" tabIndex="0" onClick={left_click(() => launch(comp))}>{comp.name}</a>;
         } else {
-            name = comp.name;
+            name = <span className="noninstalled">{comp.name}</span>;
         }
 
         if (state.progress) {

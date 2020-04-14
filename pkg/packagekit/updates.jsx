@@ -502,7 +502,7 @@ const AskRestart = ({ onIgnore, onRestart, history }) => <>
                      paragraph={ _("Updated packages may require a restart to take effect.") }
                      action={ _("Restart Now") }
                      onAction={ onRestart}
-                     secondary={ <Button variant="secondary" onClick={onIgnore}>{_("Ignore")}</Button> } />
+                     secondary={ <Button variant="link" onClick={onIgnore}>{_("Ignore")}</Button> } />
 
     <div className="flow-list-blank-slate">
         <Expander title={_("Package information")}>

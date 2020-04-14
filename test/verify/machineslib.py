@@ -534,7 +534,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text(".pf-c-empty-state", "Virtualization Service (libvirt) is Not Active")
         b.wait_present("#enable-libvirt:checked")
 
-        b.click(".pf-c-empty-state button.pf-m-secondary")  # Troubleshoot
+        b.click(".pf-c-empty-state button.pf-m-link")  # Troubleshoot
         b.leave_page()
         url_location = "/system/services#/{0}".format(libvirtServiceName)
         b.wait(lambda: url_location in b.eval_js("window.location.href"))

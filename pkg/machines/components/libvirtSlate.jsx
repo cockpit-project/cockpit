@@ -97,7 +97,7 @@ class LibvirtSlate extends React.Component {
         );
 
         const troubleshoot_btn = (
-            <Button variant="secondary" onClick={ mouseClick(this.goToServicePage) }>
+            <Button variant="link" onClick={ mouseClick(this.goToServicePage) }>
                 { _("Troubleshoot") }
             </Button>);
 

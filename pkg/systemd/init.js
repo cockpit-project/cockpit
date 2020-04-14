@@ -18,6 +18,23 @@ $(function() {
     const _ = cockpit.gettext;
     moment.locale(cockpit.language);
 
+    // We need to enumerate these so we can translate them later on.
+    // Look for 'TRANSLATIONS' in this file to see where it is being used.
+    // See `systemctl --state=help`
+    // eslint-disable-next-line no-unused-vars
+    const _t = [_("abandoned"), _("activating"), _("activating-done"), _("active"),
+        _("auto-restart"), _("bad"), _("bad-setting"), _("cleaning"), _("condition"),
+        _("deactivating"), _("deactivating-sigkill"), _("deactivating-sigterm"), _("dead"),
+        _("disabled"), _("elapsed"), _("enabled"), _("enabled-runtime"), _("error"), _("exited"),
+        _("failed"), _("final-sigkill"), _("final-sigterm"), _("generated"), _("inactive"),
+        _("indirect"), _("linked"), _("linked-runtime"), _("listening"), _("loaded"), _("maintenance"),
+        _("masked"), _("masked-runtime"), _("merged"), _("mounted"), _("mounting"), _("mounting-done"),
+        _("not-found"), _("plugged"), _("reload"), _("reloading"), _("remounting"), _("remounting-sigkill"),
+        _("remounting-sigterm"), _("running"), _("start"), _("start-chown"), _("start-post"), _("start-pre"),
+        _("static"), _("stop"), _("stop-post"), _("stop-pre"), _("stop-pre-sigkill"), _("stop-pre-sigterm"),
+        _("stop-sigkill"), _("stop-sigterm"), _("stop-watchdog"), _("stub"), _("tentative"), _("transient"),
+        _("unmounting"), _("unmounting-sigkill"), _("unmounting-sigterm"), _("waiting")];
+
     /* Notes about the systemd D-Bus API
      *
      * - One can use an object path for a unit that isn't currently
@@ -205,6 +222,8 @@ $(function() {
 
             unit.HasFailed = (active_state == "failed" || load_state !== "");
 
+            // For translating these, we actually need to list all options.
+            // Look for 'TRANSLATIONS' in this file to see this list.
             load_state = _(load_state);
             active_state = _(active_state);
             sub_state = _(sub_state);

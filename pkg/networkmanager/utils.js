@@ -244,3 +244,41 @@ export function list_interfaces() {
             })
             .catch(error => console.warn(error));
 }
+
+export function update_wifi_ap(device_path) {
+    const client = cockpit.dbus("org.freedesktop.NetworkManager");
+    return new Promise((resolve, reject) => {
+        client.call(device_path,
+                    "org.freedesktop.NetworkManager.Device.Wireless", 'RequestScan', [{}])
+                .done((reply, options) => {
+                    client.close();
+                    resolve();
+                })
+                .catch(error => console.warn(error.message));
+    });
+}
+
+export function list_ssid_available(device) {
+    const client = cockpit.dbus("org.freedesktop.NetworkManager");
+
+    return (client.call(device,
+                        'org.freedesktop.DBus.Properties', 'GetAll',
+                        ["org.freedesktop.NetworkManager.Device.Wireless"], { flags: "" })
+            .then(reply => {
+                return Promise.all(reply[0].AccessPoints.v.map(accessPoint => {
+                    return Promise.all([
+                        client.call(accessPoint,
+                                    'org.freedesktop.DBus.Properties',
+                                    'Get', ['org.freedesktop.NetworkManager.AccessPoint', 'Ssid'])
+                                .then(reply => reply[0])
+                    ]);
+                }));
+            })
+            .then(wifi => {
+                client.close();
+                return Promise.resolve(wifi.map(i => {
+                    return { choice: atob(i[0].v), title: atob(i[0].v) };
+                }));
+            })
+            .catch(error => console.warn(error)));
+}

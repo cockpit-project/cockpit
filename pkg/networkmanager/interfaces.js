@@ -585,9 +585,6 @@ function NetworkManagerModel() {
                 timestamp:      get("connection", "timestamp", 0),
                 id:             get("connection", "id", _("Unknown")),
                 autoconnect:    get("connection", "autoconnect", true),
-                autoconnect_priority:
-                                get("connection", "autoconnect-priority", 0),
-                secondaries:    get("connection", "secondaries"),
                 autoconnect_slaves:
                                 get("connection", "autoconnect-slaves", -1),
                 slave_type:     get("connection", "slave-type"),
@@ -741,14 +738,12 @@ function NetworkManagerModel() {
 
         set("connection", "id", 's', settings.connection.id);
         set("connection", "autoconnect", 'b', settings.connection.autoconnect);
-        set("connection", "autoconnect-priority", 'i', settings.connection.autoconnect_priority);
         set("connection", "autoconnect-slaves", 'i', settings.connection.autoconnect_slaves);
         set("connection", "uuid", 's', settings.connection.uuid);
         set("connection", "interface-name", 's', settings.connection.interface_name);
         set("connection", "type", 's', settings.connection.type);
         set("connection", "slave-type", 's', settings.connection.slave_type);
         set("connection", "master", 's', settings.connection.master);
-        set("connection", "secondaries", 'as', settings.connection.secondaries);
 
         if (settings.ipv4)
             set_ip("ipv4", 'aau', ip4_address_to_nm, 'aau', ip4_route_to_nm, 'au', utils.ip4_from_text);
@@ -1807,8 +1802,8 @@ PageNetworking.prototype = {
                 var tx = samples[1][0];
                 var row = $('#networking-interfaces tr[data-sample-id="' + encodeURIComponent(iface) + '"]');
                 if (rx !== undefined && tx !== undefined && row.length > 0) {
-                    row.find('td:nth-child(5)').text(cockpit.format_bits_per_sec(tx * 8));
-                    row.find('td:nth-child(6)').text(cockpit.format_bits_per_sec(rx * 8));
+                    row.find('td:nth-child(3)').text(cockpit.format_bits_per_sec(tx * 8));
+                    row.find('td:nth-child(4)').text(cockpit.format_bits_per_sec(rx * 8));
                 }
             }
         }
@@ -1894,10 +1889,7 @@ PageNetworking.prototype = {
                 "data-interface": encodeURIComponent(iface.Name),
                 "data-sample-id": show_traffic ? encodeURIComponent(iface.Name) : null
             })
-                    .append($('<td>').text((iface.MainConnection && iface.MainConnection.Settings)
-                        ? iface.MainConnection.Settings.connection.id : null),
-                            $('<td>').text(iface.Name),
-                            $('<td>').text(dev ? dev.DeviceType : null),
+                    .append($('<td>').text(iface.Name),
                             $('<td>').html(render_active_connection(dev, false, true)),
                             (show_traffic
                                 ? [$('<td>').text(""), $('<td>').text("")]
@@ -1933,8 +1925,6 @@ PageNetworking.prototype = {
                 connection: {
                     id: iface,
                     autoconnect: true,
-                    autoconnect_priority: 0,
-                    secondaries: [],
                     type: "bond",
                     uuid: uuid,
                     interface_name: iface
@@ -1969,8 +1959,6 @@ PageNetworking.prototype = {
                 connection: {
                     id: iface,
                     autoconnect: true,
-                    autoconnect_priority: 0,
-                    secondaries: [],
                     type: "team",
                     uuid: uuid,
                     interface_name: iface
@@ -2003,8 +1991,6 @@ PageNetworking.prototype = {
                 connection: {
                     id: iface,
                     autoconnect: true,
-                    autoconnect_priority: 0,
-                    secondaries: [],
                     type: "bridge",
                     uuid: uuid,
                     interface_name: iface
@@ -2037,8 +2023,6 @@ PageNetworking.prototype = {
                 connection: {
                     id: "",
                     autoconnect: true,
-                    autoconnect_priority: 0,
-                    secondaries: [],
                     type: "vlan",
                     uuid: uuid,
                     interface_name: ""
@@ -2104,11 +2088,17 @@ PageNetworking.prototype = {
 
         $('#network-wifi-settings-dialog').modal('show');
     }
+
 };
 
 function PageNetworking(model) {
     this._init(model);
 }
+
+const ssid_choices =
+    [
+        { choice: '', title: _("Not detected") },
+    ];
 
 const wifi_mode_choices =
     [
@@ -2884,13 +2874,6 @@ PageNetworkInterface.prototype = {
                     </tr>`;
         }
 
-        function render_general_information_rows() {
-            return [
-                render_carrier_status_row(),
-                render_active_status_row(),
-            ];
-        }
-
         function render_connection_settings_rows(con, settings) {
             if (!managed) {
                 return $('<tr>').append(
@@ -2936,10 +2919,6 @@ PageNetworkInterface.prototype = {
                 return parts;
             }
 
-            function configure_general_settings() {
-                self.show_dialog(PageNetworkGeneralSettings, '#network-general-settings-dialog');
-            }
-
             function configure_ip_settings(topic) {
                 PageNetworkIpSettings.topic = topic;
                 self.show_dialog(PageNetworkIpSettings, '#network-ip-settings-dialog');
@@ -2978,6 +2957,24 @@ PageNetworkInterface.prototype = {
                 self.show_dialog(PageNetworkWiFiSettings, '#network-wifi-settings-dialog');
             }
 
+            function render_autoconnect_row() {
+                if (settings.connection.autoconnect !== undefined) {
+                    return (
+                        $('<tr>').append(
+                            $('<td>').text(_("General")),
+                            $('<td class="networking-controls">').append(
+                                $('<label for="autoreconnect">').append(
+                                    $('<input type="checkbox" id="autoreconnect">')
+                                            .prop('checked', settings.connection.autoconnect)
+                                            .change(function () {
+                                                settings.connection.autoconnect = $(this).prop('checked');
+                                                settings_applier(self.model, self.dev, con)(settings);
+                                            }),
+                                    $('<span>').text(_("Connect automatically")))))
+                    );
+                }
+            }
+
             function render_settings_row(title, rows, configure) {
                 var link_text = [];
                 for (var i = 0; i < rows.length; i++) {
@@ -2996,35 +2993,6 @@ PageNetworkInterface.prototype = {
                         $('<a tabindex="0" class="network-privileged">')
                                 .append(link_text)
                                 .syn_click(self.model, function () { configure() })));
-            }
-
-            function render_general_settings_row() {
-                var parts = [];
-                var rows = [];
-                var options = settings.connection;
-
-                if (!options)
-                    return null;
-
-                parts.push(_("Auto-connection: ") +
-                     (options.autoconnect ? _("Enabled") : _("Disabled")));
-
-                if (options.autoconnect && options.autoconnect_priority != 0)
-                    parts.push(_("(Priority: ") + (options.autoconnect_priority >= 0
-                        ? options.autoconnect_priority : _("None")) + ")");
-
-                if (parts.length > 0)
-                    rows.push(parts.join(" "));
-
-                if (options.type != "vpn" && options.secondaries) {
-                    var vpn_name = $('#network-general-settings-autovpn-select')
-                            .children('option:selected')
-                            .text() || _("Enabled");
-                    rows.push(_("Auto-selected VPN: ") +
-                        (options.secondaries ? vpn_name : _("None")));
-                }
-
-                return render_settings_row(_("General"), rows, configure_general_settings);
             }
 
             function render_ip_settings_row(topic, title) {
@@ -3223,7 +3191,7 @@ PageNetworkInterface.prototype = {
 
             return [
                 render_master(),
-                render_general_settings_row(),
+                render_autoconnect_row(),
                 render_ip_settings_row("ipv4", _("IPv4")),
                 render_ip_settings_row("ipv6", _("IPv6")),
                 render_mtu_settings_row(),
@@ -3275,19 +3243,10 @@ PageNetworkInterface.prototype = {
             }
         }
 
-        const isettings = document.getElementById('network-interface-settings');
-
-        while (isettings.firstChild) {
-            isettings.removeChild(isettings.firstChild);
-        }
-
-        const information_rows = render_general_information_rows();
-
-        for (const i in information_rows) {
-            isettings.insertRow(isettings.rows.length).innerHTML = information_rows[i];
-        }
-
         $('#network-interface-settings')
+                .empty()
+                .append(render_active_status_row())
+                .append(render_carrier_status_row())
                 .append(render_connection_settings_rows(self.main_connection, self.connection_settings));
         update_network_privileged();
 
@@ -3502,134 +3461,6 @@ function connection_devices(con) {
         con.Interfaces.forEach(function (iface) { if (iface.Device) devices.push(iface.Device); });
 
     return devices;
-}
-
-PageNetworkGeneralSettings.prototype = {
-    _init: function () {
-        this.id = "network-general-settings-dialog";
-        this.general_settings_template = $("#network-general-settings-template").html();
-        mustache.parse(this.general_settings_template);
-    },
-
-    setup: function () {
-        $('#network-general-settings-cancel').click($.proxy(this, "cancel"));
-        $('#network-general-settings-apply').click($.proxy(this, "apply"));
-    },
-
-    enter: function () {
-        $('#network-general-settings-error').hide();
-        this.settings = PageNetworkGeneralSettings.ghost_settings || PageNetworkGeneralSettings.connection.copy_settings();
-        this.update();
-    },
-
-    show: function() {
-    },
-
-    leave: function() {
-    },
-
-    update: function() {
-        const self = this;
-        const options = self.settings.connection;
-        const model = PageNetworkGeneralSettings.model;
-        const setts = model.get_settings().Connections;
-
-        function vpn_connections_handler() {
-            for (const i in setts) {
-                const iface = setts[i][' priv'].orig.connection;
-                if (iface.type.v == "vpn") {
-                    if (autovpn_select.find('option[value="' + iface.uuid.v + '"]').length == 0)
-                        autovpn_select.append(new Option(iface.id.v, iface.uuid.v));
-                }
-            }
-
-            if (options.secondaries) {
-                autovpn_btn.prop('checked', true);
-                autovpn_select.val(options.secondaries[0]);
-            } else
-                autovpn_btn.prop('checked', false);
-        }
-
-        function change() {
-            options.autoconnect = priority_btn.prop('checked');
-            options.autoconnect_priority = options.autoconnect ? parseInt(priority_input.val()) : 0;
-            options.secondaries = [];
-            if (autovpn_btn.prop('checked') && autovpn_select.val() !== undefined)
-                options.secondaries.push(autovpn_select.val());
-        }
-
-        const body = $(mustache.render(self.general_settings_template, { name: options.id }));
-        const name_input = body.find('#network-general-settings-name-input');
-        name_input.change(change);
-        const priority_btn = body.find('#network-general-settings-autoconnect');
-        priority_btn.change(change);
-        const priority_input = body.find('#network-autoconnect-priority-input');
-        priority_input.change(change);
-        const autovpn_btn = body.find('#network-general-settings-autovpn');
-        autovpn_btn.change(change);
-        const autovpn_select = body.find('#network-general-settings-autovpn-select');
-        autovpn_select.change(change);
-
-        $('#network-general-settings-body').html(body);
-        priority_btn.prop('checked', options.autoconnect);
-        priority_input.val(options.autoconnect_priority);
-
-        if (options.type !== "vpn") {
-            vpn_connections_handler();
-            $('.hidden-vpn').show();
-        } else
-            $('.hidden-vpn').hide();
-
-        priority_input.focus(function () {
-            priority_btn.prop('checked', true);
-        });
-
-        autovpn_select.focus(function () {
-            autovpn_btn.prop('checked', true);
-        });
-    },
-
-    cancel: function() {
-        $('#network-general-settings-dialog').modal('hide');
-    },
-
-    apply: function() {
-        var self = this;
-        var model = PageNetworkGeneralSettings.model;
-
-        function show_error(error) {
-            show_dialog_error('#network-general-settings-error', error);
-        }
-
-        if (self.settings.connection.autoconnect_priority < 0) {
-            show_error(_("Please select a priority value that is no less than 0"));
-            return;
-        }
-
-        if (self.settings.connection.type !== "vpn" &&
-            $('#network-general-settings-autovpn').prop('checked') &&
-            !self.settings.connection.secondaries) {
-            show_error(_("Disable or select VPN connection"));
-            return;
-        }
-
-        function modify () {
-            return PageNetworkGeneralSettings.apply_settings(self.settings)
-                    .then(function () {
-                        $('#network-general-settings-dialog').modal('hide');
-                        if (PageNetworkGeneralSettings.done)
-                            return PageNetworkGeneralSettings.done();
-                    })
-                    .fail(show_error);
-        }
-
-        with_settings_checkpoint(model, modify,
-                                 { devices: connection_devices(PageNetworkGeneralSettings.connection) });
-    }
-};
-
-function PageNetworkGeneralSettings() {
-    this._init();
 }
 
 PageNetworkIpSettings.prototype = {
@@ -5129,7 +4960,7 @@ PageNetworkWiFiSettings.prototype = {
     enter: function () {
         $('#network-wifi-settings-error').hide();
         this.settings = PageNetworkWiFiSettings.ghost_settings || PageNetworkWiFiSettings.connection.copy_settings();
-        this.update();
+        this.update_network();
     },
 
     show: function() {
@@ -5138,13 +4969,29 @@ PageNetworkWiFiSettings.prototype = {
     leave: function() {
     },
 
+    update_network: function() {
+        const self = this;
+        const promises = [];
+        self.device_choices = [];
+        PageNetworkWiFiSettings.model.list_interfaces().forEach(function (i) {
+            if (is_interesting_interface(i) && i.Device && i.Device.DeviceType === "wifi") {
+                const device_path = i.Device[' priv'].path;
+                self.device_choices.push({ title: i.Name, choice: i.Device.Interface, path: device_path });
+                promises.push(utils.update_wifi_ap(device_path));
+            }
+        });
+        Promise.all(promises).then(values => {
+            this.update();
+        });
+    },
+
     update: function() {
         const self = this;
         const connection = self.settings.connection;
         const options = self.settings.wifi;
         let security_options = self.settings.wifi_security;
         let auth_options = self.settings.wifi_1x;
-        var mode_btn, band_btn, channel_btn, device_btn, security_btn, eap_auth_btn,
+        let mode_btn, band_btn, ssid_btn, channel_btn, device_btn, security_btn, eap_auth_btn,
             peap_version_btn, peap_inner_auth_btn;
 
         let pwd;
@@ -5154,14 +5001,17 @@ PageNetworkWiFiSettings.prototype = {
             pwd = data;
         });
 
-        const device_choices = [];
-        PageNetworkWiFiSettings.model.list_interfaces().forEach(function (i) {
-            if (is_interesting_interface(i) && i.Device && i.Device.DeviceType === "wifi")
-                device_choices.push({ title: i.Name, choice: i.Device.Interface });
-        });
+        function scan_ssids (device) {
+            utils.list_ssid_available(device).then(ssid_choices => {
+                ssid_btn.replaceWith(ssid_btn = choicebox(
+                    options, "ssid", ssid_choices));
+            });
+        }
 
-        if (device_choices.length == 0)
-            device_choices.push({ title: "Not detected", choice: "" });
+        if (this.device_choices.length == 0)
+            this.device_choices.push({ title: "Not detected", choice: "" });
+        else
+            scan_ssids(self.device_choices[0].path);
 
         function search_choices(array, value) {
             for (let i = 0; i < array.length; i++) {
@@ -5264,6 +5114,11 @@ PageNetworkWiFiSettings.prototype = {
             }
         }
 
+        function device_block_handler(e) {
+            const dev_path = self.device_choices.find(dev => dev.title === select_btn_selected(device_btn)).path;
+            scan_ssids(dev_path);
+        }
+
         function toggle_password(container) {
             if (container.attr("type") == "password")
                 container.attr('type', "text");
@@ -5289,7 +5144,7 @@ PageNetworkWiFiSettings.prototype = {
         }
 
         function change() {
-            options.ssid = btoa(ssid_input.val());
+            options.ssid = select_btn_selected(ssid_btn);
             options.mode = select_btn_selected(mode_btn);
             options.band = select_btn_selected(band_btn);
             options.channel = parseInt(select_btn_selected(channel_btn), 10);
@@ -5325,6 +5180,8 @@ PageNetworkWiFiSettings.prototype = {
 
         const ssid_input = body.find('#network-wifi-settings-ssid-input');
         ssid_input.change(change);
+        body.find('#network-wifi-settings-ssid-select').replaceWith(
+            ssid_btn = choicebox(options, "ssid", ssid_choices));
         body.find('#network-wifi-settings-mode-select').replaceWith(
             mode_btn = choicebox(options, "mode", wifi_mode_choices));
         body.find('#network-wifi-settings-band-select').replaceWith(
@@ -5332,7 +5189,7 @@ PageNetworkWiFiSettings.prototype = {
         body.find('#network-wifi-settings-channel-select').replaceWith(
             channel_btn = choicebox(options, "channel", [{ choice: 0, title: _("Default") }]));
         body.find('#network-wifi-settings-device-select').replaceWith(
-            device_btn = choicebox(connection, "interface_name", device_choices));
+            device_btn = choicebox(connection, "interface_name", self.device_choices));
         body.find('#network-wifi-settings-security-select').replaceWith(
             security_btn = choicebox(security_options, "key_mgmt", wifi_security_choices));
         const personal_password_input = body.find('#security-personal-password-input');
@@ -5386,6 +5243,7 @@ PageNetworkWiFiSettings.prototype = {
         band_btn.on('click', 'option', channel_block_handler);
         security_btn.on('click', 'option', security_block_handler);
         eap_auth_btn.on('click', 'option', security_auth_block_handler);
+        device_btn.on('click', 'option', device_block_handler);
 
         body.find('#security-personal-password-toggle').click(function() {
             toggle_password(personal_password_input);
@@ -5520,7 +5378,6 @@ function init() {
         interface_page = new PageNetworkInterface(model);
         interface_page.setup();
 
-        dialog_setup(new PageNetworkGeneralSettings());
         dialog_setup(new PageNetworkIpSettings());
         dialog_setup(new PageNetworkBondSettings());
         dialog_setup(new PageNetworkTeamSettings());
@@ -5531,7 +5388,6 @@ function init() {
         dialog_setup(new PageNetworkMtuSettings());
         dialog_setup(new PageNetworkMacSettings());
         dialog_setup(new PageNetworkWiFiSettings());
-
         $(cockpit).on("locationchanged", navigate);
         navigate();
     });

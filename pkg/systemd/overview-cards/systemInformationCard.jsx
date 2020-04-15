@@ -18,6 +18,7 @@
  */
 import React from 'react';
 import { Card, CardHeader, CardBody, CardFooter } from '@patternfly/react-core';
+import moment from 'moment';
 
 import cockpit from "cockpit";
 import * as machine_info from "machine-info.js";
@@ -41,10 +42,7 @@ export class SystemInfomationCard extends React.Component {
         this.getMachineId();
         this.getSystemUptime();
 
-        this.uptimeTimer = setInterval(
-            () => this.getSystemUptime(),
-            60000
-        );
+        this.uptimeTimer = setInterval(this.getSystemUptime, 60000);
     }
 
     componentWillUnmount() {
@@ -93,38 +91,12 @@ export class SystemInfomationCard extends React.Component {
     }
 
     getSystemUptime() {
-        cockpit.spawn(["cat", "/proc/uptime"])
-                .then(text => {
-                    let uptime_days = 0;
-                    let uptime_hours = 0;
-                    let uptime_minutes = 0;
-
-                    const match = text.match(/[0-9]*\.[0-9]{2}/);
-                    let uptime_raw = match && parseFloat(match[0]);
-
-                    uptime_days = Math.floor(uptime_raw / 86400);
-                    uptime_raw = uptime_raw - (uptime_days * 86400);
-
-                    uptime_hours = Math.floor(uptime_raw / 3600);
-                    uptime_raw = uptime_raw - (uptime_hours * 3600);
-
-                    uptime_minutes = Math.floor(uptime_raw / 60);
-
-                    if (uptime_days == 0) {
-                        if (uptime_hours == 0) {
-                            this.setState({ systemUptime: uptime_minutes + " " + _("Minutes") });
-                        } else {
-                            this.setState({ systemUptime: uptime_hours + " " + _("Hours") + " " + uptime_minutes + " " + ("Minutes") });
-                        }
-                    } else {
-                        if (uptime_hours == 0) {
-                            this.setState({ system_uptime: uptime_days + " " + _("Days") + " " + uptime_minutes + " " + _("Minutes") });
-                        } else {
-                            this.setState({ system_uptime: uptime_days + " " + _("Days") + " " + uptime_hours + " " + _("Hours") });
-                        }
-                    }
+        cockpit.file("/proc/uptime").read()
+                .then(content => {
+                    const uptime = parseFloat(content.split(' ')[0]);
+                    this.setState({ systemUptime: moment.duration(uptime * 1000).humanize() });
                 })
-                .catch(function(ex) {
+                .fail(ex => {
                     console.error("Error reading system uptime", ex);
                 });
     }

@@ -258,8 +258,8 @@ Unit=test.service
         self.check_service_details(["Not running", "Automatically starts"], ["Start", "Disallow running (mask)"], True)
         self.do_action("Start")
         self.check_service_details(["Running", "Automatically starts"], ["Reload", "Restart", "Stop", "Disallow running (mask)"], True)
-        b.wait_in_text('#service-log', "START")
-        b.wait_in_text('#service-log', "WORKING")
+        b.wait_in_text('.cockpit-log-panel .panel-body', "START")
+        b.wait_in_text('.cockpit-log-panel .panel-body', "WORKING")
 
         # Stop and disable and back again
         self.toggle_onoff()
@@ -377,7 +377,7 @@ Unit=test.service
 
         # Check that journalbox shows empty state
         b.click(self.svc_sel("systemd-halt.service"))
-        b.wait_text('#service-log', "No log entries")
+        b.wait_text('.cockpit-log-panel .panel-body', "No log entries")
 
     def testApi(self):
         m = self.machine

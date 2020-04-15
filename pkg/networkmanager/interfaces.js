@@ -80,6 +80,7 @@ function select_btn(func, spec, klass) {
     });
 
     function select(a) {
+        choice = a;
         $(btn).val(a);
     }
 

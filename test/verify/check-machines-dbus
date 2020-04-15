@@ -2178,6 +2178,8 @@ class TestMachinesDBus(machineslib.TestMachines):
         # Test permanent attachment to running VM
         NICAddDialog(
             self,
+            source_type="Virtual network",
+            source="test_network",
             permanent=True,
         ).execute()
 

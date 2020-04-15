@@ -24,10 +24,8 @@ import {
 } from '@patternfly/react-core';
 
 import { ServiceDetails, ServiceTemplate } from "./service-details.jsx";
-import { journal } from "journal";
+import { LogsPanel } from "cockpit-components-logs-panel.jsx";
 import { systemd_manager } from "./services.jsx";
-
-import $ from 'jquery';
 
 import cockpit from "cockpit";
 
@@ -40,33 +38,8 @@ export class Service extends React.Component {
 
         this.state = { error: undefined };
 
-        this.updateLogBox = this.updateLogBox.bind(this);
         this.getCurrentUnitTemplate = this.getCurrentUnitTemplate.bind(this);
         this.getCurrentUnitTemplate();
-    }
-
-    componentDidMount() {
-        this.updateLogBox();
-    }
-
-    componentDidUpdate() {
-        this.updateLogBox();
-    }
-
-    updateLogBox() {
-        if (this.cur_unit_is_template)
-            return;
-
-        if (this.props.unit.LoadState === "loaded" || this.props.unit.LoadState === "masked") {
-            const cur_unit_id = this.props.unit.Id;
-            this.cur_journal_watcher = journal.logbox(["_SYSTEMD_UNIT=" + cur_unit_id, "+",
-                "COREDUMP_UNIT=" + cur_unit_id, "+",
-                "UNIT=" + cur_unit_id], 10);
-
-            $('#service-log')
-                    .empty()
-                    .append(this.cur_journal_watcher);
-        }
     }
 
     getCurrentUnitTemplate() {
@@ -99,6 +72,13 @@ export class Service extends React.Component {
             );
         }
 
+        const cur_unit_id = this.props.unit.Id;
+        const match = [
+            "_SYSTEMD_UNIT=" + cur_unit_id, "+",
+            "COREDUMP_UNIT=" + cur_unit_id, "+",
+            "UNIT=" + cur_unit_id,
+        ];
+
         return (
             <Page id="service-details">
                 <PageSection variant={PageSectionVariants.light}>
@@ -114,10 +94,7 @@ export class Service extends React.Component {
                 </PageSection>
                 {!this.cur_unit_is_template && (this.props.unit.LoadState === "loaded" || this.props.unit.LoadState === "masked") &&
                 <PageSection variant={PageSectionVariants.light}>
-                    <div className="panel panel-default cockpit-log-panel" id="service-log-box" role="table" aria-describedby="service-log-box-heading">
-                        <div className="panel-heading" id="service-log-box-heading">{_("Service Logs")}</div>
-                        <div className="panel-body" id="service-log" role="rowgroup" />
-                    </div>
+                    <LogsPanel title={_("Service Logs")} match={match} emptyMessage={_("No log entries")} max={10} />
                 </PageSection>}
             </Page>
         );

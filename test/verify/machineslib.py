@@ -1932,6 +1932,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self.login_and_go("/machines")
         self.browser.wait_in_text("body", "Virtual Machines")
         self.browser.wait_visible("#create-new-vm:not(:disabled)")
+        self.browser.wait_attr("#create-new-vm", "testdata", None)
 
         virt_install_bin = self.machine.execute("which virt-install").strip()
         self.machine.execute('mount -o bind /dev/null {0}'.format(virt_install_bin))

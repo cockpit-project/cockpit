@@ -21,6 +21,7 @@ import cockpit from "cockpit";
 import React from "react";
 
 import { journal } from "journal";
+import "journal.css";
 
 const _ = cockpit.gettext;
 
@@ -46,7 +47,7 @@ class JournalOutput {
         }
 
         return (
-            <div className="cockpit-logline" role="row" key={entry.__MONOTONIC_TIMESTAMP}>
+            <div className="cockpit-logline" role="row" key={entry.__CURSOR}>
                 <div className="cockpit-log-warning" role="cell">
                     { warning
                         ? <i className="fa fa-exclamation-triangle" />
@@ -94,7 +95,7 @@ class JournalOutput {
 
     limit(max) {
         if (this.logs.length > max)
-            this.logs = this.logs.slice(-max);
+            this.logs = this.logs.slice(0, max);
     }
 }
 
@@ -114,7 +115,9 @@ export class LogsPanel extends React.Component {
             for (var i = 0; i < entries.length; i++)
                 render.prepend(entries[i]);
             render.prepend_flush();
-            out.limit(this.props.max);
+            // "max + 1" since there is always a date header and we
+            // want to show "max" entries below it.
+            out.limit(this.props.max + 1);
             this.setState({ logs: out.logs });
         });
     }
@@ -123,9 +126,6 @@ export class LogsPanel extends React.Component {
         this.journalctl.stop();
     }
 
-    // TODO: refactor, the state object can't store neither functions nor React components
-    // Better approach: store just data to the component's state and render rows directly in the render() method
-    // Do not use helper functions (the "render_*" above) to generate elements but make components from them (start with CapitalLetter)
     render() {
         return (
             <div className="panel panel-default cockpit-log-panel" role="table">

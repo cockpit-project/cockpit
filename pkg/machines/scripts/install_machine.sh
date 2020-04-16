@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -u -o noglob
+set -eu -o noglob
 
 CONNECTION_URI="qemu:///$1" # example: qemu:///system
 VM_NAME="$2"
@@ -89,9 +89,21 @@ fi
 # backup
 DOMAIN_FILE="`mktemp`"
 
-virsh -c "$CONNECTION_URI" -q destroy "$VM_NAME" 2>/dev/null
+virsh -c "$CONNECTION_URI" -q destroy "$VM_NAME" 2>/dev/null || true
 virsh -c "$CONNECTION_URI" -q dumpxml "$VM_NAME" > "$DOMAIN_FILE"
 virsh -c "$CONNECTION_URI" -q undefine "$VM_NAME" --managed-save
+
+handleFailure() {
+    # If virt-install returned non-zero return code but the VM exists, redefine
+    # the VM show that we get back the metadata which enable the 'Install'
+    # button, so that the user can re-attempt installation
+    set +e
+    if vmExists "$VM_NAME"; then
+        virsh -c "$CONNECTION_URI" -q define "$DOMAIN_FILE"
+    fi
+    rm -f "$DOMAIN_FILE"
+    exit $1
+}
 
 virt-install \
     --connect "$CONNECTION_URI" \
@@ -109,36 +121,25 @@ virt-install \
     $VNICS_PARAM \
     $VCPUS_PARAM \
     $BOOT_PARAM \
-    $AUTOSTART_PARAM
-EXIT_STATUS=$?
+    $AUTOSTART_PARAM || handleFailure $?
 
-if [ "$EXIT_STATUS" -eq 0 ] && vmExists "$VM_NAME"; then
-    # set metadata
-    virsh -c "$CONNECTION_URI"  -q dumpxml "$VM_NAME" > "$DOMAIN_FILE"
-    METADATA_LINE=`grep -n '</metadata>' "$DOMAIN_FILE" | sed 's/[^0-9]//g'`
-    METADATA='    <cockpit_machines:data xmlns:cockpit_machines="https://github.com/cockpit-project/cockpit/tree/master/pkg/machines"> \
-      <cockpit_machines:has_install_phase>false</cockpit_machines:has_install_phase> \
-      <cockpit_machines:install_source>'"$SOURCE"'</cockpit_machines:install_source> \
-      <cockpit_machines:os_variant>'"$OS"'</cockpit_machines:os_variant> \
-    </cockpit_machines:data>'
+vmExists "$VM_NAME"
+# set metadata
+virsh -c "$CONNECTION_URI"  -q dumpxml --inactive "$VM_NAME" > "$DOMAIN_FILE"
+METADATA_LINE=`grep -n '</metadata>' "$DOMAIN_FILE" | sed 's/[^0-9]//g'`
+METADATA='    <cockpit_machines:data xmlns:cockpit_machines="https://github.com/cockpit-project/cockpit/tree/master/pkg/machines"> \
+  <cockpit_machines:has_install_phase>false</cockpit_machines:has_install_phase> \
+  <cockpit_machines:install_source>'"$SOURCE"'</cockpit_machines:install_source> \
+  <cockpit_machines:os_variant>'"$OS"'</cockpit_machines:os_variant> \
+</cockpit_machines:data>'
 
-    if [ -z "$METADATA_LINE"  ]; then
-        METADATA_LINE="`cat "$DOMAIN_FILE" | wc -l`"
-        METADATA='\ \ <metadata> \
+if [ -z "$METADATA_LINE"  ]; then
+    METADATA_LINE="`cat "$DOMAIN_FILE" | wc -l`"
+    METADATA='\ \ <metadata> \
 '"$METADATA"' \
-  </metadata>'
-    fi
-
-    #inject metadata, and define
-    sed "$METADATA_LINE""i $METADATA" "$DOMAIN_FILE" | virsh -c "$CONNECTION_URI" -q define /dev/stdin
-    rm -f "$DOMAIN_FILE"
-else
-    # return back if failed
-    if vmExists "$VM_NAME"; then
-        # undefine if the domain was created but still failed
-        virsh -c "$CONNECTION_URI" -q undefine "$VM_NAME" --managed-save
-        virsh -c "$CONNECTION_URI" -q define "$DOMAIN_FILE"
-    fi
-    rm -f "$DOMAIN_FILE"
-    exit $EXIT_STATUS
+/metadata>'
 fi
+
+#inject metadata, and define
+sed "$METADATA_LINE""i $METADATA" "$DOMAIN_FILE" | virsh -c "$CONNECTION_URI" -q define /dev/stdin
+rm -f "$DOMAIN_FILE"

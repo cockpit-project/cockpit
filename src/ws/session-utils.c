@@ -30,6 +30,7 @@
 #include <stdlib.h>
 #include <stdnoreturn.h>
 #include <sys/mman.h>
+#include <sys/param.h>
 #include <sys/resource.h>
 #include <sys/wait.h>
 #include <time.h>
@@ -510,17 +511,29 @@ do_lastlog (uid_t                 uid,
       goto out;
     }
 
-  entry.ll_time = now->tv_sec;
-#pragma GCC diagnostic push
-  /* these fields can be (but don't need to be) nul terminated, so ask
-   * GCC not to warn us about that.
+  /* XXX: We'd really like to use strncpy() here, which is perfectly
+   * designed for what we need to do: copy a string up to N characters
+   * into a fixed width field, adding nul bytes if the string is shorter
+   * than N.
+   *
+   * Unfortunately, when you use it in this way, GCC is convinced that
+   * you don't know what you're doing and gives a warning that's very
+   * difficult to get rid of.  We tried using #pragma here before, but
+   * after several attempts, it was difficult to get the
+   * conditionalising (for the compiler version) correct.
+   *
+   * Let's just nul out the struct and use memcpy().  Sigh.
+   *
+   *  strncpy (entry.ll_host, rhost, sizeof entry.ll_host);
+   *  strncpy (entry.ll_line, "web console", sizeof entry.ll_line);
    */
-#if __GNUC__ == 8
-#pragma GCC diagnostic ignored "-Wstringop-truncation"
-#endif
-  strncpy (entry.ll_host, rhost, sizeof entry.ll_host);
-  strncpy (entry.ll_line, "web console", sizeof entry.ll_line);
-#pragma GCC diagnostic pop
+  memset (&entry, 0, sizeof entry);
+  memcpy (entry.ll_host, rhost, MIN (strlen (rhost), sizeof entry.ll_host));
+  const char * const line = "web console";
+  memcpy (entry.ll_line, line, MIN (strlen (line), sizeof entry.ll_line));
+
+  entry.ll_time = now->tv_sec;
+
   r = pwrite (fd, &entry, sizeof entry, uid * sizeof entry);
   if (r == -1)
     {

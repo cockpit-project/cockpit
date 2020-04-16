@@ -51,6 +51,15 @@ browser manually and tell the test which debug port it should attach to:
     $ chromium-browser --remote-debugging-port=9222 about:blank
     $ TEST_CDP_PORT=9222 ./test/verify/check-session --trace
 
+Finally, you can conduct manual testing against a test image by starting the
+image like so:
+
+     $ bots/vm-run -s cockpit.socket debian-stable
+
+Once the machine is booted and the cockpit socket has been activated, a
+message will be printed describing how to access the virtual machine, via
+ssh and web.  See the "Helpful tips" section below.
+
 ## Details
 
 The verify test suite is the main test suite:
@@ -209,16 +218,8 @@ will pause when a failure occurs so that you can log into the test
 machine and investigate the problem.
 
 A test will print out the commands to access it when it fails in this
-way. You can log into a running test-machine using ssh. If you add
-a snippet like this to your `~/.ssh/config` then you'll be able to
-log in without authentication:
-
-    Host 127.0.0.2
-        User root
-        Port 2201
-        StrictHostKeyChecking no
-        UserKnownHostsFile /dev/null
-        IdentityFile ~/src/cockpit/bots/machine/identity
+way. You can log into a running test-machine using ssh.  See the
+"Helpful tips" section below.
 
 You can also put calls to `sit()` into the tests themselves to stop them
 at strategic places.
@@ -248,3 +249,29 @@ Still, within a long test, try to have independent sections, where
 each section returns the machine to more or less the state that it was
 in before the section.  This makes it easier to run these sections
 ad-hoc when doing incremental development.
+
+## Helpful tips
+
+If you add a snippet like this to your `~/.ssh/config` then you'll be able to
+log in to test machines without authentication:
+
+    Host 127.0.0.2
+        User root
+        Port 2201
+        StrictHostKeyChecking no
+        UserKnownHostsFile /dev/null
+        IdentityFile ~/src/cockpit/bots/machine/identity
+
+Many cockpit developers take it a step further, and add an alias to
+allow typing `ssh c`:
+
+    Host 127.0.0.2 c
+        Hostname 127.0.0.2
+        User root
+        ... etc
+
+For web access, if you'd like to avoid Chromium (or Chrome) prompting
+about certificate errors while connecting to localhost, you can change
+the following setting:
+
+    chrome://flags/#allow-insecure-localhost

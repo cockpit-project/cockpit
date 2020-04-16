@@ -161,7 +161,7 @@ OnCalendar=*:1/2
 Description=Test OnBoot Timer
 
 [Timer]
-OnBootSec=10min
+OnBootSec=100min
 Unit=test.service
 """)
 
@@ -238,6 +238,7 @@ Unit=test.service
             b.wait_in_text(self.svc_sel('test-onboot.timer') + ' .service-unit-next-trigger', "Today")  # next run
             b.wait_in_text(self.svc_sel('test-onboot.timer') + ' .service-unit-last-trigger', "unknown")  # last trigger
         m.execute("systemctl stop test-onboot.timer")
+        m.execute("systemctl mask test-onboot.timer")
 
         # Make sure that test.service was not started by either test.timer or test-onboot.timer
         m.execute("systemctl stop test.service")

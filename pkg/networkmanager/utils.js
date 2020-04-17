@@ -246,16 +246,21 @@ export function list_interfaces() {
 }
 
 export function update_wifi_ap(device_path) {
-    const client = cockpit.dbus("org.freedesktop.NetworkManager");
-    return new Promise((resolve, reject) => {
-        client.call(device_path,
-                    "org.freedesktop.NetworkManager.Device.Wireless", 'RequestScan', [{}])
-                .done((reply, options) => {
-                    client.close();
-                    resolve();
-                })
-                .catch(error => console.warn(error.message));
-    });
+    try {
+        const client = cockpit.dbus("org.freedesktop.NetworkManager");
+        return new Promise((resolve, reject) => {
+            client.call(device_path,
+                        "org.freedesktop.NetworkManager.Device.Wireless", 'RequestScan', [{}])
+                    .done((reply, options) => {
+                        client.close();
+                        resolve();
+                    })
+                    .catch(error => console.warn(error.message));
+        });
+    } catch (e) {
+        console.warn(e);
+        return null;
+    }
 }
 
 export function list_ssid_available(device) {
@@ -276,7 +281,7 @@ export function list_ssid_available(device) {
             })
             .then(wifi => {
                 client.close();
-                return Promise.resolve(wifi.map(i => {
+                return Promise.resolve(wifi.filter(i => atob(i[0].v)).map(i => {
                     return { choice: atob(i[0].v), title: atob(i[0].v) };
                 }));
             })

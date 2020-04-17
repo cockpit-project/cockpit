@@ -75,11 +75,11 @@ export const NetworkTypeAndSourceRow = ({ idPrefix, onValueChanged, dialogValues
     let networkSourcesContent;
     let networkSourceEnabled = true;
 
+    // { name: 'ethernet', desc: 'Generic ethernet connection' }, Add back to the list when implemented
     if (connectionName !== 'session') {
         availableNetworkTypes = [
             { name: 'network', desc: 'Virtual network' },
             { name: 'bridge', desc: 'Bridge to LAN' },
-            { name: 'ethernet', desc: 'Generic ethernet connection', disabled: true },
             { name: 'direct', desc: 'Direct attachment' },
         ];
     } else {

@@ -420,7 +420,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.click("#vm-subVmTest2-forceOff")
         b.wait_in_text("#vm-subVmTest2-state", "Shut off")
 
-        # test VM error messages
         b.click("#vm-subVmTest2-run")
 
         b.set_input_text("#text-search", "subVmTest2")
@@ -455,28 +454,15 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Try to run subVmTest1 - it will fail because of inactive default network
         tryRunDomain(1, 'subVmTest1')
-        b.wait_in_text(".toast-notifications-list-pf div:nth-child(1) h4", "VM subVmTest1 failed to start")
+        b.click('#vm-subVmTest1-state button:contains("view more")')
+        b.wait_in_text(".pf-c-popover", "VM subVmTest1 failed to start")
+        b.click('#vm-subVmTest1-state button[aria-label=label-close-button]')
 
         # Try to run subVmTest2
         tryRunDomain(2, 'subVmTest2')
-        b.wait_in_text(".toast-notifications-list-pf div:nth-child(2) h4", "VM subVmTest2 failed to start")
-
-        # Delete the first notification and check notifications list again
-        b.focus(".toast-notifications-list-pf")
-        b.click(".toast-notifications-list-pf div:nth-child(1) button.pf-c-button")
-        b.wait_not_present(".toast-notifications-list-pf div:nth-child(2) h4")
-        b.wait_in_text(".toast-notifications-list-pf div:nth-child(1) h4", "VM subVmTest2 failed to start")
-
-        # Add one more notification
-        tryRunDomain(3, 'subVmTest3')
-        b.wait_in_text(".toast-notifications-list-pf div:nth-child(1) h4", "VM subVmTest2 failed to start")
-        b.wait_in_text(".toast-notifications-list-pf div:nth-child(2) h4", "VM subVmTest3 failed to start")
-
-        # Delete the last notification
-        b.focus(".toast-notifications-list-pf")
-        b.click(".toast-notifications-list-pf div:nth-child(2) button.pf-c-button")
-        b.wait_not_present(".toast-notifications-list-pf div:nth-child(2) h4")
-        b.wait_in_text(".toast-notifications-list-pf div:nth-child(1) h4", "VM subVmTest2 failed to start")
+        b.click('#vm-subVmTest2-state button:contains("view more")')
+        b.wait_in_text(".pf-c-popover", "VM subVmTest2 failed to start")
+        b.click('#vm-subVmTest2-state button[aria-label=label-close-button]')
 
     def wait_for_disk_stats(self, name, target):
         b = self.browser
@@ -1397,7 +1383,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_present("#vm-{0}-delete a.pf-m-disabled".format(name))
         b.click("#vm-{0}-forceOff".format(name))
         self.waitVmRow(name, 'system', False)
-        b.wait_not_present(".toast-notifications.list-pf div.pf-c-alert")
+        b.wait_not_present('#vm-{0}-state button:contains("view more")'.format(name))
 
         # Deleting a running guest will disconnect the serial console
         self.allow_browser_errors("Disconnection timed out.")
@@ -2289,7 +2275,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                     raise
                 else:
                     # then error should be shown in the notification area
-                    error_location = ".toast-notifications-list-pf div.pf-c-alert"
+                    error_location = ".pf-c-alert-group li .pf-c-alert"
                     with b.wait_timeout(20):
                         b.wait_present(error_location)
                         b.wait_in_text("button.alert-link.more-button", "show more")
@@ -2297,8 +2283,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                         waitForError(errors, error_location)
 
             # Close the notification
-            b.click(".toast-notifications-list-pf div.pf-c-alert button.pf-c-button")
-            b.wait_not_present(".toast-notifications-list-pf div.pf-c-alert")
+            b.click(".pf-c-alert-group li .pf-c-alert button.pf-c-button")
+            b.wait_not_present(".pf-c-alert-group li .pf-c-alert")
 
             return self
 
@@ -2569,10 +2555,10 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             self.machine.execute("until test -z $(virsh list --all --name); do sleep 1; done")
             self.machine.execute("until test -z $(ls /home/admin/.local/share/libvirt/images/ 2>/dev/null); do sleep 1; done")
 
-            if b.is_present(".toast-notifications-list-pf div.pf-c-alert .pf-c-button"):
-                b.click(".toast-notifications-list-pf div.pf-c-alert .pf-c-button")
+            if b.is_present(".pf-c-alert-group li .pf-c-alert .pf-c-button"):
+                b.click(".pf-c-alert-group li .pf-c-alert .pf-c-button")
 
-            b.wait_not_present(".toast-notifications-list-pf div.pf-c-alert")
+            b.wait_not_present(".pf-c-alert-group li .pf-c-alert")
 
             return self
 
@@ -4016,13 +4002,9 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                     b.wait_not_present("#create-network-dialog")
 
             def verify_expected_error_on_head(self, error_message):
-                b.wait_present("#app > .toast-notification-wrapper .pf-m-danger")
-                # Click show more button
-                b.click("#app > .toast-notification-wrapper .pf-m-danger .more-button")
-                b.wait_in_text("#app > .toast-notification-wrapper div.pf-c-alert__description > p", error_message)
-                # Close the danger alert
-                b.click("#app > .toast-notification-wrapper div.pf-c-alert__action > button")
-                b.wait_not_present("#app > .toast-notification-wrapper .pf-m-danger")
+                b.click('#network-{0}-system-state button:contains("view more")'.format(self.name))
+                b.wait_in_text(".pf-c-popover", error_message)
+                b.click('#network-{0}-system-state button[aria-label=label-close-button]'.format(self.name))
 
             def verify_dialog(self):
                 # Check that the defined network is now visible

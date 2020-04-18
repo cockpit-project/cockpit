@@ -69,6 +69,7 @@ export class InlineNotification extends React.Component {
 
         return (
             <Alert variant={type || 'danger'}
+                isLiveRegion={this.props.isLiveRegion}
                 isInline={this.props.isInline != undefined ? this.props.isInline : true}
                 title={<> {text} {detailButton} </>} {...extraProps}>
                 {this.state.isDetail && (<p>{detail}</p>)}

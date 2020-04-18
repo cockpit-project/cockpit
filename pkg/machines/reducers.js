@@ -336,7 +336,8 @@ function storagePools(state, action) {
             return [...state, storagePool]; // initialize pool to empty object
 
         const connectionName = storagePool.connectionName;
-        const index = getFirstIndexOfResource(state, 'id', storagePool.id, connectionName);
+        const index = storagePool.id ? getFirstIndexOfResource(state, 'id', storagePool.id, connectionName)
+            : getFirstIndexOfResource(state, 'name', storagePool.name, connectionName);
         if (index < 0) {
             if (!updateOnly) {
                 const initObjIndex = state.findIndex(obj => isObjectEmpty(obj));

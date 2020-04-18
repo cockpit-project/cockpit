@@ -41,7 +41,7 @@ export class StoragePoolList extends React.Component {
     }
 
     render() {
-        const { storagePools, dispatch, loggedUser, vms, resourceHasError, onAddErrorNotification, libvirtVersion } = this.props;
+        const { storagePools, dispatch, loggedUser, vms, onAddErrorNotification, libvirtVersion } = this.props;
         const sortFunction = (storagePoolA, storagePoolB) => storagePoolA.name.localeCompare(storagePoolB.name);
         const actions = (<CreateStoragePoolAction dispatch={dispatch} loggedUser={loggedUser} libvirtVersion={libvirtVersion} />);
 
@@ -80,7 +80,7 @@ export class StoragePoolList extends React.Component {
                                         .map(storagePool => {
                                             const filterVmsByConnection = vms.filter(vm => vm.connectionName == storagePool.connectionName);
 
-                                            return getStoragePoolRow({ storagePool, vms: filterVmsByConnection, resourceHasError, onAddErrorNotification });
+                                            return getStoragePoolRow({ storagePool, vms: filterVmsByConnection, dispatch, onAddErrorNotification });
                                         })
                                 }
                             />
@@ -95,6 +95,5 @@ StoragePoolList.propTypes = {
     storagePools: PropTypes.array.isRequired,
     vms: PropTypes.array.isRequired,
     onAddErrorNotification: PropTypes.func.isRequired,
-    resourceHasError: PropTypes.object.isRequired,
     libvirtVersion: PropTypes.number,
 };

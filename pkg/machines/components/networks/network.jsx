@@ -24,6 +24,8 @@ import {
     rephraseUI,
     networkId
 } from '../../helpers.js';
+import StateIcon from '../stateIcon.jsx';
+import { updateOrAddNetwork } from '../../actions/store-actions.js';
 import { NetworkOverviewTab } from './networkOverviewTab.jsx';
 import { DeleteResourceModal, DeleteResourceButton } from '../deleteResource.jsx';
 import {
@@ -36,7 +38,7 @@ import cockpit from 'cockpit';
 
 const _ = cockpit.gettext;
 
-export const getNetworkRow = ({ dispatch, network, resourceHasError, onAddErrorNotification }) => {
+export const getNetworkRow = ({ dispatch, network, onAddErrorNotification }) => {
     const idPrefix = `${networkId(network.name, network.connectionName)}`;
     const name = (
         <span id={`${idPrefix}-name`}>
@@ -51,12 +53,14 @@ export const getNetworkRow = ({ dispatch, network, resourceHasError, onAddErrorN
             { rephraseUI('networkForward', network.forward ? network.forward.mode : "none") }
         </span>);
     const state = (
-        <>
-            { resourceHasError[network.id] ? <span className='pficon-warning-triangle-o machines-status-alert' /> : null }
-            <span id={`${idPrefix}-state`}>
-                { network.active ? _("active") : _("inactive") }
-            </span>
-        </>);
+        <StateIcon error={network.error} state={network.active ? _("active") : "inactive" }
+                   valueId={`${idPrefix}-state`}
+                   dismissError={() => dispatch(updateOrAddNetwork({
+                       connectionName: network.connectionName,
+                       name: network.name,
+                       error: null
+                   }))} />
+    );
     const cols = [
         { title: name, header: true },
         { title: device },
@@ -80,13 +84,10 @@ export const getNetworkRow = ({ dispatch, network, resourceHasError, onAddErrorN
     ];
     const extraClasses = [];
 
-    if (resourceHasError[network.id])
-        extraClasses.push('error');
-
     const expandedContent = (
         <ListingPanel
             tabRenderers={tabRenderers}
-            listingActions={<NetworkActions onAddErrorNotification={onAddErrorNotification} network={network} />} />
+            listingActions={<NetworkActions dispatch={dispatch} network={network} />} />
     );
 
     return {
@@ -110,26 +111,38 @@ class NetworkActions extends React.Component {
         const network = this.props.network;
 
         networkActivate(network.connectionName, network.id)
+                .always(() => this.setState({ operationInProgress: false }))
                 .fail(exc => {
-                    this.props.onAddErrorNotification({
-                        text: cockpit.format(_("Network $0 failed to get activated"), network.name),
-                        detail: exc.message, resourceId: network.id,
-                    });
-                })
-                .always(() => this.setState({ operationInProgress: false }));
+                    this.props.dispatch(
+                        updateOrAddNetwork({
+                            connectionName: network.connectionName,
+                            name: network.name,
+                            error: {
+                                text: cockpit.format(_("Network $0 failed to get activated"), network.name),
+                                detail: exc.message,
+                            }
+                        }, true)
+                    );
+                });
     }
 
     onDeactivate() {
         const network = this.props.network;
 
         networkDeactivate(this.props.network.connectionName, this.props.network.id)
+                .always(() => this.setState({ operationInProgress: false }))
                 .fail(exc => {
-                    this.props.onAddErrorNotification({
-                        text: cockpit.format(_("Network $0 failed to get deactivated"), network.name),
-                        detail: exc.message, resourceId: network.id,
-                    });
-                })
-                .always(() => this.setState({ operationInProgress: false }));
+                    this.props.dispatch(
+                        updateOrAddNetwork({
+                            connectionName: network.connectionName,
+                            name: network.name,
+                            error: {
+                                text: cockpit.format(_("Network $0 failed to get deactivated"), network.name),
+                                detail: exc.message,
+                            }
+                        }, true)
+                    );
+                });
     }
 
     render() {

@@ -26,6 +26,8 @@ import {
     storagePoolId,
     units
 } from '../../helpers.js';
+import StateIcon from '../stateIcon.jsx';
+import { updateOrAddStoragePool } from '../../actions/store-actions.js';
 import { StoragePoolOverviewTab } from './storagePoolOverviewTab.jsx';
 import { StoragePoolVolumesTab } from './storagePoolVolumesTab.jsx';
 import { StoragePoolDelete } from './storagePoolDelete.jsx';
@@ -35,7 +37,7 @@ import cockpit from 'cockpit';
 
 const _ = cockpit.gettext;
 
-export const getStoragePoolRow = ({ storagePool, vms, resourceHasError, onAddErrorNotification }) => {
+export const getStoragePoolRow = ({ storagePool, vms, dispatch, onAddErrorNotification }) => {
     const idPrefix = `${storagePoolId(storagePool.name, storagePool.connectionName)}`;
     const name = (
         <span id={`${idPrefix}-name`}>
@@ -51,13 +53,16 @@ export const getStoragePoolRow = ({ storagePool, vms, resourceHasError, onAddErr
                   label={sizeLabel}
                   valueText={sizeLabel} />
     );
+
     const state = (
-        <>
-            { resourceHasError[storagePool.id] ? <span className='pficon-warning-triangle-o machines-status-alert' /> : null }
-            <span id={`${idPrefix}-state`}>
-                { storagePool.active ? _("active") : _("inactive") }
-            </span>
-        </>);
+        <StateIcon error={storagePool.error} state={storagePool.active ? _("active") : "inactive" }
+                   valueId={`${idPrefix}-state`}
+                   dismissError={() => dispatch(updateOrAddStoragePool({
+                       connectionName: storagePool.connectionName,
+                       name: storagePool.name,
+                       error: null
+                   }))} />
+    );
 
     const overviewTabName = (
         <div id={`${idPrefix}-overview`}>
@@ -81,19 +86,13 @@ export const getStoragePoolRow = ({ storagePool, vms, resourceHasError, onAddErr
             data: { storagePool, vms }
         },
     ];
-    const extraClasses = [];
-
-    if (resourceHasError[storagePool.id])
-        extraClasses.push('error');
-
     const expandedContent = (
         <ListingPanel
             tabRenderers={tabRenderers}
-            listingActions={<StoragePoolActions onAddErrorNotification={onAddErrorNotification} storagePool={storagePool} vms={vms} />} />
+            listingActions={<StoragePoolActions dispatch={dispatch} storagePool={storagePool} vms={vms} />} />
     );
 
     return {
-        extraClasses: resourceHasError[storagePool.id] ? ['error'] : [],
         columns: [
             { title: name, header: true },
             { title: size },
@@ -120,10 +119,16 @@ class StoragePoolActions extends React.Component {
         this.setState({ operationInProgress: true });
         storagePoolActivate(storagePool.connectionName, storagePool.id)
                 .fail(exc => {
-                    this.props.onAddErrorNotification({
-                        text: cockpit.format(_("Storage pool $0 failed to get activated"), storagePool.name),
-                        detail: exc.message, resourceId: storagePool.id,
-                    });
+                    this.props.dispatch(
+                        updateOrAddStoragePool({
+                            connectionName: storagePool.connectionName,
+                            name: storagePool.name,
+                            error: {
+                                text: cockpit.format(_("Storage pool $0 failed to get activated"), storagePool.name),
+                                detail: exc.message,
+                            }
+                        }, true)
+                    );
                 })
                 .always(() => this.setState({ operationInProgress: false }));
     }
@@ -134,10 +139,16 @@ class StoragePoolActions extends React.Component {
         this.setState({ operationInProgress: true });
         storagePoolDeactivate(storagePool.connectionName, storagePool.id)
                 .fail(exc => {
-                    this.props.onAddErrorNotification({
-                        text: cockpit.format(_("Storage pool $0 failed to get deactivated"), storagePool.name),
-                        detail: exc.message, resourceId: storagePool.id,
-                    });
+                    this.props.dispatch(
+                        updateOrAddStoragePool({
+                            connectionName: storagePool.connectionName,
+                            name: storagePool.name,
+                            error: {
+                                text: cockpit.format(_("Storage pool $0 failed to get deactivated"), storagePool.name),
+                                detail: exc.message,
+                            }
+                        }, true)
+                    );
                 })
                 .always(() => this.setState({ operationInProgress: false }));
     }

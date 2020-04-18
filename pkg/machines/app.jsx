@@ -18,8 +18,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { ToastNotificationList } from 'patternfly-react';
-import { Alert } from "@patternfly/react-core";
+import { AlertGroup, Alert } from '@patternfly/react-core';
 import { superuser } from "superuser.js";
 import cockpit from 'cockpit';
 
@@ -176,21 +175,20 @@ class App extends React.Component {
         return (
             <>
                 {Object.keys(this.state.notifications).length > 0 &&
-                <section className="toast-notification-wrapper">
-                    <ToastNotificationList>
-                        {Object.keys(this.state.notifications).map(notificationId => {
-                            const notification = this.state.notifications[notificationId];
+                <AlertGroup isToast>
+                    {Object.keys(this.state.notifications).map(notificationId => {
+                        const notification = this.state.notifications[notificationId];
 
-                            return (
-                                <InlineNotification type='danger' key={notification.index}
-                                    isInline={false}
-                                    onDismiss={() => this.onDismissErrorNotification(notification.index)}
-                                    text={notification.text}
-                                    detail={notification.detail} />
-                            );
-                        })}
-                    </ToastNotificationList>
-                </section>}
+                        return (
+                            <InlineNotification type='danger' key={notification.index}
+                                isLiveRegion
+                                isInline={false}
+                                onDismiss={() => this.onDismissErrorNotification(notification.index)}
+                                text={notification.text}
+                                detail={notification.detail} />
+                        );
+                    })}
+                </AlertGroup>}
                 {pathVms && <HostVmsList vms={vms}
                     config={config}
                     ui={ui}
@@ -211,7 +209,6 @@ class App extends React.Component {
                     vms={vms}
                     loggedUser={systemInfo.loggedUser}
                     libvirtVersion={systemInfo.libvirtVersion}
-                    resourceHasError={this.state.resourceHasError}
                     onAddErrorNotification={this.onAddErrorNotification} />
                 }
                 {path.length > 0 && path[0] == 'networks' &&

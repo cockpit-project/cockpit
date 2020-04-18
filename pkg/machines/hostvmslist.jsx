@@ -30,16 +30,17 @@ import {
 import { cellWidth } from '@patternfly/react-table';
 
 import VmActions from './components/vm/vmActions.jsx';
+import { updateVm } from './actions/store-actions.js';
 
 import { vmId, rephraseUI, dummyVmsFilter, DOMAINSTATE } from "./helpers.js";
 
 import { ListingTable } from "cockpit-components-table.jsx";
-import StateIcon from './components/vm/stateIcon.jsx';
+import StateIcon from './components/stateIcon.jsx';
 import { AggregateStatusCards } from "./components/aggregateStatusCards.jsx";
 
 import "./hostvmslist.scss";
 
-const VmState = ({ vm, resourceHasError }) => {
+const VmState = ({ vm, dismissError }) => {
     let state = null;
 
     if (vm.installInProgress) {
@@ -50,9 +51,7 @@ const VmState = ({ vm, resourceHasError }) => {
         state = vm.state;
     }
 
-    const stateAlert = resourceHasError[vm.id] ? <span className='pficon-warning-triangle-o machines-status-alert' /> : null;
-
-    return <StateIcon state={state} valueId={`${vmId(vm.name)}-state`} extra={stateAlert} />;
+    return <StateIcon dismissError={dismissError} error={vm.error} state={state} valueId={`${vmId(vm.name)}-state`} />;
 };
 
 const _ = cockpit.gettext;
@@ -60,7 +59,7 @@ const _ = cockpit.gettext;
 /**
  * List of all VMs defined on this host
  */
-const HostVmsList = ({ vms, config, ui, storagePools, dispatch, actions, networks, resourceHasError, onAddErrorNotification }) => {
+const HostVmsList = ({ vms, config, ui, storagePools, dispatch, actions, networks, onAddErrorNotification }) => {
     const [statusSelected, setStatusSelected] = useState({ value: _("All"), toString: function() { return this.value } });
     const [currentTextFilter, setCurrentTextFilter] = useState("");
     const [statusIsExpanded, setStatusIsExpanded] = useState(false);
@@ -80,7 +79,7 @@ const HostVmsList = ({ vms, config, ui, storagePools, dispatch, actions, network
         domainStates = domainStates.concat(["_divider"]);
     const sortOptions = [{ value: _("All") }]
             .concat(domainStates
-                    .map(state => { return { value: rephraseUI('vmStates', state), apiState: state } })
+                    .map(state => { return { value: rephraseUI('resourceStates', state), apiState: state } })
                     .sort((a, b) => (prioritySorting[a.apiState] || 0) - (prioritySorting[b.apiState] || 0) || a.value.localeCompare(b.value)));
 
     const toolBar = <Toolbar>
@@ -152,19 +151,27 @@ const HostVmsList = ({ vms, config, ui, storagePools, dispatch, actions, network
                                     />;
 
                                     return {
-                                        extraClasses: resourceHasError[vm.id] ? ['error'] : [],
                                         columns: [
                                             {
                                                 title: <Button id={`${vmId(vm.name)}-${vm.connectionName}-name`}
-                                                        variant="link"
-                                                        isInline
-                                                        isDisabled={vm.isUi}
-                                                        component="a"
-                                                        href={'#' + cockpit.format("vm?name=$0&connection=$1", vm.name, vm.connectionName)}
-                                                        className="vm-list-item-name">{vm.name}</Button>
+                                                          variant="link"
+                                                          isInline
+                                                          isDisabled={vm.isUi}
+                                                          component="a"
+                                                          href={'#' + cockpit.format("vm?name=$0&connection=$1", vm.name, vm.connectionName)}
+                                                          className="vm-list-item-name">{vm.name}</Button>
                                             },
                                             { title: rephraseUI('connections', vm.connectionName) },
-                                            { title: <VmState vm={vm} resourceHasError={resourceHasError} /> },
+                                            {
+                                                title: (
+                                                    <VmState vm={vm}
+                                                             dismissError={() => dispatch(updateVm({
+                                                                 connectionName: vm.connectionName,
+                                                                 name: vm.name,
+                                                                 error: null
+                                                             }))} />
+                                                )
+                                            },
                                             { title: !vm.isUi ? vmActions : null },
                                         ],
                                         rowId: cockpit.format("$0-$1", vmId(vm.name), vm.connectionName),
@@ -183,7 +190,6 @@ HostVmsList.propTypes = {
     ui: PropTypes.object.isRequired,
     storagePools: PropTypes.array.isRequired,
     dispatch: PropTypes.func.isRequired,
-    resourceHasError: PropTypes.object.isRequired,
     onAddErrorNotification: PropTypes.func.isRequired,
 };
 

@@ -207,7 +207,7 @@ const transform = {
         system: _("System"),
         session: _("Session"),
     },
-    vmStates: {
+    resourceStates: {
         running: _("Running"),
         idle: _("Idle"),
         paused: _("Paused"),

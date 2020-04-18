@@ -1,0 +1,21 @@
+.resource-state-text {
+  margin-right: 1rem;
+
+  // In definition lists (for Overview),
+  // match text size and alignment
+  .pf-c-table &,
+  .pf-c-description-list & {
+    // Match text size
+    font-size: inherit;
+    // Compensate for padding
+    position: relative;
+    // Using margin to remove the extra padded space,
+    // instead of keeping the space and moving contents w/ just left/top
+    margin-left: calc(-1 * var(--pf-c-label--PaddingLeft));
+    margin-top: calc(-1 * var(--pf-c-label--PaddingTop));
+  }
+}
+
+.resource-state--shut-off, .resource-state--inactive {
+  background: transparent;
+}

@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-03 12:56+0000\n"
-"PO-Revision-Date: 2020-04-07 11:40+0000\n"
-"Last-Translator: Dennis ten Hoove <dennistenhoove@protonmail.com>\n"
+"POT-Creation-Date: 2020-04-11 06:10+0000\n"
+"PO-Revision-Date: 2020-04-12 17:18+0000\n"
+"Last-Translator: Geert Warrink <geert.warrink@onsnet.nu>\n"
 "Language-Team: Dutch <https://translate.fedoraproject.org/projects/cockpit/"
 "master/nl/>\n"
 "Language: nl\n"
@@ -85,6 +85,12 @@ msgid_plural "$0 bytes"
 msgstr[0] "$0 byte"
 msgstr[1] "$0 bytes"
 
+#: pkg/systemd/overview-cards/insights.jsx:155
+msgid "$0 critical hit"
+msgid_plural "$0 hits, including critical"
+msgstr[0] "$0 kritieke treffer"
+msgstr[1] "$0 treffers, inclusief de kritieke"
+
 #: pkg/storaged/vdo-details.jsx:279
 msgid "$0 data + $1 overhead used of $2 ($3)"
 msgstr "$0 data + $1 overhead gebruikt van $2 ($3)"
@@ -143,18 +149,24 @@ msgstr "De grootte van bestandssystemen kan hier niet gewijzigd worden."
 #: pkg/systemd/overview.jsx:96
 msgctxt "<date> from <host>"
 msgid "$0 from $1"
-msgstr ""
+msgstr "$0 uit $1"
 
 #: pkg/systemd/overview.jsx:94
 msgctxt "<date> from <host> on <terminal>"
 msgid "$0 from $1 on $2"
-msgstr ""
+msgstr "$0 uit $1 op $2"
 
 #: pkg/lib/plot.js:974
 msgid "$0 hour"
 msgid_plural "$0 hours"
 msgstr[0] "$0 uur"
 msgstr[1] "$0 uren"
+
+#: pkg/systemd/overview-cards/insights.jsx:160
+msgid "$0 important hit"
+msgid_plural "$0 hits, including important"
+msgstr[0] "$0 belangrijke treffer"
+msgstr[1] "$0 treffers, inclusief de belangrijke"
 
 #: pkg/machines/components/desktopConsole.jsx:56
 msgid ""
@@ -180,11 +192,23 @@ msgstr "$0 is van geen enkele repository beschikbaar."
 msgid "$0 killed with signal $1"
 msgstr "$0 is afgeschoten met signaal $1"
 
+#: pkg/systemd/overview-cards/insights.jsx:170
+msgid "$0 low severity hit"
+msgid_plural "$0 low severity hits"
+msgstr[0] "$0 treffer met lage ernst"
+msgstr[1] "$0 treffers met lage ernst"
+
 #: pkg/lib/plot.js:977
 msgid "$0 minute"
 msgid_plural "$0 minutes"
 msgstr[0] "$0 minuut"
 msgstr[1] "$0 minuten"
+
+#: pkg/systemd/overview-cards/insights.jsx:165
+msgid "$0 moderate hit"
+msgid_plural "$0 hits, including moderate"
+msgstr[0] "$0 matige treffer"
+msgstr[1] "$0 treffers, inclusief de matige"
 
 #: pkg/lib/plot.js:965
 msgid "$0 month"
@@ -203,11 +227,9 @@ msgid "$0 of $1"
 msgstr "$0 van $1"
 
 #: pkg/systemd/overview.jsx:98
-#, fuzzy
-#| msgid "$0 of $1"
 msgctxt "<date> on <terminal>"
 msgid "$0 on $1"
-msgstr "$0 van $1"
+msgstr "$0 op $1"
 
 #: pkg/systemd/init.js:424
 msgid "$0 service has failed"
@@ -577,10 +599,8 @@ msgid "ARP Ping"
 msgstr "ARP-ping"
 
 #: pkg/shell/index.html:86 pkg/shell/indexes.js:625
-#, fuzzy
-#| msgid "Web Console"
 msgid "About Web Console"
-msgstr "Webconsole"
+msgstr "Over Web Console"
 
 #: pkg/lib/machine-info.js:254
 msgid "Absent"
@@ -614,7 +634,7 @@ msgctxt "page-title"
 msgid "Accounts"
 msgstr "Accounts"
 
-#: pkg/machines/components/networks/network.jsx:157
+#: pkg/machines/components/networks/network.jsx:164
 #: pkg/machines/components/storagePools/storagePool.jsx:179
 #: pkg/storaged/content-views.jsx:287
 msgid "Activate"
@@ -690,7 +710,7 @@ msgstr "Sleutel toevoegen"
 msgid "Add Machine to Dashboard"
 msgstr "Machine aan Dashboard toevoegen"
 
-#: pkg/machines/components/vmnetworktab.jsx:266
+#: pkg/machines/components/vmnetworktab.jsx:271
 msgid "Add Network Interface"
 msgstr "Netwerkinterface toevoegen"
 
@@ -824,10 +844,10 @@ msgstr "Adres mag niet leeg zijn"
 msgid "Address is not a valid URL"
 msgstr "Adres is geen geldige URL"
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:61
-#: pkg/machines/components/networks/createNetworkDialog.jsx:68
-#: pkg/machines/components/networks/createNetworkDialog.jsx:89
-#: pkg/machines/components/networks/createNetworkDialog.jsx:96
+#: pkg/machines/components/networks/createNetworkDialog.jsx:73
+#: pkg/machines/components/networks/createNetworkDialog.jsx:80
+#: pkg/machines/components/networks/createNetworkDialog.jsx:101
+#: pkg/machines/components/networks/createNetworkDialog.jsx:108
 msgid "Address not within subnet"
 msgstr "Adres bevindt zich niet in subnet"
 
@@ -1025,7 +1045,7 @@ msgid "Authorized Public SSH Keys"
 msgstr "Geautoriseerde openbare SSH-sleutels"
 
 #: pkg/networkmanager/index.html:187
-#: pkg/machines/components/networks/createNetworkDialog.jsx:163
+#: pkg/machines/components/networks/createNetworkDialog.jsx:175
 #: pkg/networkmanager/interfaces.js:1957 pkg/networkmanager/interfaces.js:2745
 #: pkg/networkmanager/interfaces.js:3313 pkg/networkmanager/interfaces.js:3317
 #: pkg/networkmanager/interfaces.js:3323
@@ -1301,10 +1321,10 @@ msgstr "Kan image niet laden"
 #: pkg/apps/utils.jsx:84 pkg/lib/cockpit-components-dialog.jsx:158
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:947
 #: pkg/machines/components/deleteDialog.jsx:185
-#: pkg/machines/components/deleteResource.jsx:116
+#: pkg/machines/components/deleteResource.jsx:74
 #: pkg/machines/components/diskAdd.jsx:551
 #: pkg/machines/components/diskEdit.jsx:215
-#: pkg/machines/components/networks/createNetworkDialog.jsx:484
+#: pkg/machines/components/networks/createNetworkDialog.jsx:492
 #: pkg/machines/components/nicAdd.jsx:206
 #: pkg/machines/components/nicEdit.jsx:174
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:514
@@ -1760,7 +1780,7 @@ msgstr "Bevestig het verwijderen van $0"
 msgid "Confirm removal with passphrase"
 msgstr "Bevestig verwijderen met wachtzin"
 
-#: pkg/machines/components/deleteResource.jsx:108
+#: pkg/machines/components/deleteResource.jsx:66
 msgid "Confirm this action"
 msgstr "Bevestig deze actie"
 
@@ -1793,10 +1813,6 @@ msgstr "Verbind met elke $0 viewertoepassing."
 msgid "Connect with any SPICE or VNC viewer application."
 msgstr "Verbind met elke SPICE of VNC viewertoepassing."
 
-#: pkg/machines/components/vnc.jsx:106
-msgid "Connecting"
-msgstr "Verbinden"
-
 #: pkg/lib/machine-add.html:41
 msgid ""
 "Connecting simultaneously to more than {{ limit }} machines is unsupported."
@@ -1821,6 +1837,7 @@ msgid "Connecting to the machine"
 msgstr "Verbinding maken met de machine"
 
 #: pkg/machines/components/machinesConnectionSelector.jsx:34
+#: pkg/machines/components/networks/createNetworkDialog.jsx:41
 #: pkg/machines/components/networks/networkList.jsx:55
 #: pkg/machines/components/storagePools/storagePoolList.jsx:54
 #: pkg/machines/hostvmslist.jsx:74
@@ -1847,7 +1864,7 @@ msgstr "Verbinding wordt verbroken"
 msgid "Consists Of"
 msgstr "Bestaat uit"
 
-#: pkg/machines/components/consoles.jsx:80
+#: pkg/machines/components/consoles.jsx:77
 msgid "Console Type"
 msgstr "Consoletype"
 
@@ -1981,7 +1998,7 @@ msgstr "Crash systeem"
 
 #: pkg/users/index.html:200
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:944
-#: pkg/machines/components/networks/createNetworkDialog.jsx:481
+#: pkg/machines/components/networks/createNetworkDialog.jsx:489
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:511
 #: pkg/machines/components/storagePools/storageVolumeCreate.jsx:93
 #: pkg/storaged/content-views.jsx:129 pkg/storaged/content-views.jsx:275
@@ -2067,8 +2084,8 @@ msgstr "Maak VDO-apparaat aan"
 msgid "Create VM"
 msgstr "Maak VM aan"
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:471
-#: pkg/machines/components/networks/createNetworkDialog.jsx:519
+#: pkg/machines/components/networks/createNetworkDialog.jsx:479
+#: pkg/machines/components/networks/createNetworkDialog.jsx:526
 msgid "Create Virtual Network"
 msgstr "Maak virtueel netwerk aan"
 
@@ -2171,9 +2188,9 @@ msgstr "Aanmaken van VM $0 mislukte"
 msgid "Critical and above"
 msgstr "Kritiek en hoger"
 
-#: pkg/machines/components/vnc.jsx:109
-msgid "Ctrl+Alt+Del"
-msgstr "Ctrl+Alt+Del"
+#: pkg/machines/components/vnc.jsx:134
+msgid "Ctrl+Alt+$0"
+msgstr "Ctrl+Alt+$0"
 
 #: pkg/lib/cockpit-components-context-menu.jsx:104
 msgid "Ctrl+Insert"
@@ -2245,7 +2262,7 @@ msgstr "Dashboard"
 msgid "Data Used"
 msgstr "Gebruikte data"
 
-#: pkg/machines/components/networks/network.jsx:153
+#: pkg/machines/components/networks/network.jsx:160
 #: pkg/machines/components/storagePools/storagePool.jsx:170
 #: pkg/storaged/content-views.jsx:285
 msgid "Deactivate"
@@ -2282,10 +2299,10 @@ msgstr "Vertraging"
 #: pkg/machines/components/deleteDialog.jsx:146
 #: pkg/machines/components/deleteDialog.jsx:161
 #: pkg/machines/components/deleteDialog.jsx:182
-#: pkg/machines/components/deleteResource.jsx:82
-#: pkg/machines/components/deleteResource.jsx:92
-#: pkg/machines/components/deleteResource.jsx:105
-#: pkg/machines/components/deleteResource.jsx:113
+#: pkg/machines/components/deleteResource.jsx:63
+#: pkg/machines/components/deleteResource.jsx:71
+#: pkg/machines/components/deleteResource.jsx:102
+#: pkg/machines/components/deleteResource.jsx:112
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:204
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:214
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:237
@@ -2406,7 +2423,7 @@ msgstr "Details"
 msgid "Development"
 msgstr "Ontwikkeling"
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:156
+#: pkg/machines/components/networks/createNetworkDialog.jsx:168
 #: pkg/machines/components/networks/networkList.jsx:55
 #: pkg/machines/components/vm/bootOrderModal.jsx:93
 #: pkg/machines/components/vmDiskColumns.jsx:43
@@ -2477,8 +2494,7 @@ msgstr "Uitvoeren niet toestaan (masker)"
 msgid "Disconnect"
 msgstr "Verbinding verbreken"
 
-#: pkg/machines/components/vnc.jsx:107 pkg/shell/indexes.js:244
-#: pkg/shell/indexes.js:892
+#: pkg/shell/indexes.js:244 pkg/shell/indexes.js:892
 msgid "Disconnected"
 msgstr "Verbinding verbroken"
 
@@ -2741,12 +2757,12 @@ msgstr "Versleuteling"
 msgid "Encryption Options"
 msgstr "Versleutelingsopties"
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:239
+#: pkg/machines/components/networks/createNetworkDialog.jsx:251
 msgid "End"
 msgstr "Einde"
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:64
-#: pkg/machines/components/networks/createNetworkDialog.jsx:92
+#: pkg/machines/components/networks/createNetworkDialog.jsx:76
+#: pkg/machines/components/networks/createNetworkDialog.jsx:104
 msgid "End should not be empty"
 msgstr "Einde mag niet leeg zijn"
 
@@ -2955,6 +2971,10 @@ msgstr "Het ophalen van de IP-adressen van de interfaces in $0 is mislukt"
 msgid "Failed to load authorized keys."
 msgstr "Kan gemachtigde sleutels niet laden."
 
+#: pkg/machines/components/vnc.jsx:130
+msgid "Failed to send key Ctrl+Alt+$0 to VM $1"
+msgstr "Kan toets Ctrl+Alt+$0 niet verzenden naar VM $1"
+
 #: pkg/systemd/service-details.jsx:346
 msgid "Failed to start"
 msgstr "Starten mislukt"
@@ -3081,7 +3101,7 @@ msgstr "Het formatteren van een schijf zal alle data verwijderen."
 msgid "Formatting a storage device will erase all data on it."
 msgstr "Het formatteren van een opslagapparaat zal alle data verwijderen."
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:134
+#: pkg/machines/components/networks/createNetworkDialog.jsx:146
 msgid "Forward Mode"
 msgstr "Voorwaartse modus"
 
@@ -3216,7 +3236,7 @@ msgstr "Hand gehouden"
 msgid "Hardware Information"
 msgstr "Hardware informatie"
 
-#: pkg/systemd/overview-cards/healthCard.jsx:55
+#: pkg/systemd/overview-cards/healthCard.jsx:35
 msgid "Health"
 msgstr "Gezondheid"
 
@@ -3297,7 +3317,7 @@ msgstr "IP-adres"
 msgid "IP Address:"
 msgstr "IP-adres:"
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:184
+#: pkg/machines/components/networks/createNetworkDialog.jsx:196
 msgid "IP Configuration"
 msgstr "IP-configuratie"
 
@@ -3325,11 +3345,11 @@ msgstr "IPv4"
 msgid "IPv4 Address"
 msgstr "IPv4-adres"
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:266
+#: pkg/machines/components/networks/createNetworkDialog.jsx:278
 msgid "IPv4 Network"
 msgstr "IPv4-netwerk"
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:46
+#: pkg/machines/components/networks/createNetworkDialog.jsx:58
 msgid "IPv4 Network should not be empty"
 msgstr "IPv4-netwerk mag niet leeg zijn"
 
@@ -3337,11 +3357,11 @@ msgstr "IPv4-netwerk mag niet leeg zijn"
 msgid "IPv4 Settings"
 msgstr "IPv4-instellingen"
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:200
+#: pkg/machines/components/networks/createNetworkDialog.jsx:212
 msgid "IPv4 and IPv6"
 msgstr "IPv4 en IPv6"
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:194
+#: pkg/machines/components/networks/createNetworkDialog.jsx:206
 msgid "IPv4 only"
 msgstr "alleen IPv4"
 
@@ -3353,11 +3373,11 @@ msgstr "IPv6"
 msgid "IPv6 Address"
 msgstr "IPv6-adres"
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:310
+#: pkg/machines/components/networks/createNetworkDialog.jsx:322
 msgid "IPv6 Network"
 msgstr "IPv6-netwerk"
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:74
+#: pkg/machines/components/networks/createNetworkDialog.jsx:86
 msgid "IPv6 Network should not be empty"
 msgstr "IPv6-netwerk mag niet leeg zijn"
 
@@ -3365,7 +3385,7 @@ msgstr "IPv6-netwerk mag niet leeg zijn"
 msgid "IPv6 Settings"
 msgstr "IPv6-instellingen"
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:197
+#: pkg/machines/components/networks/createNetworkDialog.jsx:209
 msgid "IPv6 only"
 msgstr "Alleen IPv6"
 
@@ -3501,6 +3521,10 @@ msgstr "Initiator"
 msgid "Initiator IQN should not be empty"
 msgstr "Initiator IQN mag niet leeg zijn"
 
+#: pkg/systemd/overview-cards/insights.jsx:184
+msgid "Insights: "
+msgstr "Inzichten: "
+
 #: pkg/apps/application-list.jsx:84 pkg/apps/application.jsx:113
 #: pkg/lib/cockpit-components-install-dialog.jsx:118
 #: pkg/machines/components/vm/vmActions.jsx:99
@@ -3583,23 +3607,23 @@ msgstr "Interne fout: ongeldige exceptie koptekst"
 msgid "Internal error"
 msgstr "Interne fout"
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:48
-#: pkg/machines/components/networks/createNetworkDialog.jsx:59
-#: pkg/machines/components/networks/createNetworkDialog.jsx:66
+#: pkg/machines/components/networks/createNetworkDialog.jsx:60
+#: pkg/machines/components/networks/createNetworkDialog.jsx:71
+#: pkg/machines/components/networks/createNetworkDialog.jsx:78
 msgid "Invalid IPv4 address"
 msgstr "Ongeldig IPv4-adres"
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:53
+#: pkg/machines/components/networks/createNetworkDialog.jsx:65
 msgid "Invalid IPv4 mask or prefix length"
 msgstr "Ongeldig IPv4-masker of voorvoegsel lengte"
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:76
-#: pkg/machines/components/networks/createNetworkDialog.jsx:87
-#: pkg/machines/components/networks/createNetworkDialog.jsx:94
+#: pkg/machines/components/networks/createNetworkDialog.jsx:88
+#: pkg/machines/components/networks/createNetworkDialog.jsx:99
+#: pkg/machines/components/networks/createNetworkDialog.jsx:106
 msgid "Invalid IPv6 address"
 msgstr "Ongeldig IPv6-adres"
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:81
+#: pkg/machines/components/networks/createNetworkDialog.jsx:93
 msgid "Invalid IPv6 prefix"
 msgstr "Ongeldig IPv6-voorvoegsel"
 
@@ -3818,16 +3842,12 @@ msgid "Last checked: $0"
 msgstr "Laatst gecontroleerd: $0"
 
 #: pkg/systemd/overview.jsx:133
-#, fuzzy
-#| msgid "Last Login"
 msgid "Last failed login:"
-msgstr "Laatste aanmelding"
+msgstr "Laatste mislukte aanmelding:"
 
 #: pkg/systemd/overview.jsx:132
-#, fuzzy
-#| msgid "Last Login"
 msgid "Last login:"
-msgstr "Laatste aanmelding"
+msgstr "Laatste aanmelding:"
 
 #: pkg/machines/components/desktopConsole.jsx:128
 msgid "Launch Remote Viewer"
@@ -4183,11 +4203,11 @@ msgstr "$target als defect markeren"
 msgid "Mask Service"
 msgstr "Masker service"
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:280
+#: pkg/machines/components/networks/createNetworkDialog.jsx:292
 msgid "Mask or Prefix Length"
 msgstr "Masker of voorvoegsel lengte"
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:51
+#: pkg/machines/components/networks/createNetworkDialog.jsx:63
 msgid "Mask or Prefix Length should not be empty"
 msgstr "Masker of voorvoegsel lengte mag niet leeg zijn"
 
@@ -4495,7 +4515,7 @@ msgstr "NTP-server"
 #: pkg/networkmanager/index.html:330 pkg/docker/containers-view.jsx:363
 #: pkg/docker/containers-view.jsx:570
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:198
-#: pkg/machines/components/networks/createNetworkDialog.jsx:109
+#: pkg/machines/components/networks/createNetworkDialog.jsx:121
 #: pkg/machines/components/networks/networkList.jsx:55
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:43
 #: pkg/machines/components/storagePools/storagePoolList.jsx:54
@@ -4547,7 +4567,7 @@ msgstr "Naam mag geen spaties bevatten."
 msgid "Name must not be empty"
 msgstr "Naam mag niet leeg zijn"
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:42
+#: pkg/machines/components/networks/createNetworkDialog.jsx:54
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:54
 msgid "Name should not be empty"
 msgstr "Naam mag niet leeg zijn"
@@ -4575,11 +4595,11 @@ msgctxt "label"
 msgid "Network"
 msgstr "Netwerk"
 
-#: pkg/machines/components/networks/network.jsx:119
+#: pkg/machines/components/networks/network.jsx:120
 msgid "Network $0 failed to get activated"
 msgstr "Netwerk $0 kan niet geactiveerd worden"
 
-#: pkg/machines/components/networks/network.jsx:131
+#: pkg/machines/components/networks/network.jsx:132
 msgid "Network $0 failed to get deactivated"
 msgstr "Netwerk $0 kan niet gedeactiveerd worden"
 
@@ -4784,7 +4804,7 @@ msgstr "Geen signaal"
 msgid "No configuration found"
 msgstr "Geen configuratie gevonden"
 
-#: pkg/machines/components/consoles.jsx:98
+#: pkg/machines/components/consoles.jsx:90
 msgid "No console defined for this virtual machine."
 msgstr "Voor deze virtuele machine is geen console gedefinieerd."
 
@@ -4814,7 +4834,7 @@ msgstr "Geen beschrijving aangeboden."
 msgid "No disks are available."
 msgstr "Geen schijven beschikbaar."
 
-#: pkg/machines/components/vmDisksTab.jsx:191
+#: pkg/machines/components/vmDisksTab.jsx:198
 msgid "No disks defined for this VM"
 msgstr "Geen schijven gedefinieerd voor deze VM"
 
@@ -4872,7 +4892,7 @@ msgstr ""
 "commandoregel (bijvoorbeeld in /etc/default/grub) om tijdens het opstarten "
 "geheugen te reserveren. Voorbeeld: crashkernel=512M"
 
-#: pkg/machines/components/vmnetworktab.jsx:279
+#: pkg/machines/components/vmnetworktab.jsx:284
 msgid "No network interfaces defined for this VM"
 msgstr "Geen netwerkinterfaces gedefinieerd voor deze VM"
 
@@ -4900,6 +4920,10 @@ msgstr "Geen resultaten voor $0"
 msgid "No results found"
 msgstr "Geen resultaten gevonden"
 
+#: pkg/systemd/overview-cards/insights.jsx:143
+msgid "No rule hits"
+msgstr "Geen regeltreffers"
+
 #: pkg/docker/containers-view.jsx:368
 msgid "No running containers"
 msgstr "Geen actieve containers"
@@ -4924,7 +4948,7 @@ msgstr "Geen updates in behandeling"
 msgid "No user name specified"
 msgstr "Geen gebruikersnaam opgegeven"
 
-#: pkg/machines/components/networks/network.jsx:164
+#: pkg/machines/components/networks/network.jsx:170
 msgid ""
 "Non-persistent network cannot be deleted. It ceases to exists when it's "
 "deactivated."
@@ -4941,7 +4965,7 @@ msgstr ""
 "bestaan wanneer het wordt gedeactiveerd."
 
 #: pkg/kdump/kdump-view.jsx:423
-#: pkg/machines/components/networks/createNetworkDialog.jsx:191
+#: pkg/machines/components/networks/createNetworkDialog.jsx:203
 #: pkg/networkmanager/firewall.jsx:693 pkg/tuned/dialog.js:230
 msgid "None"
 msgstr "Geen"
@@ -4998,8 +5022,7 @@ msgstr "Niet beschikbaar"
 msgid "Not connected"
 msgstr "Niet verbonden"
 
-#: pkg/systemd/overview-cards/healthCard.jsx:62
-#: pkg/systemd/overview-cards/healthCard.jsx:63
+#: pkg/systemd/overview-cards/insights.jsx:125
 msgid "Not connected to Insights"
 msgstr "Niet verbonden met Insights"
 
@@ -5472,7 +5495,7 @@ msgstr "Start de virtuele machine om toegang te krijgen tot de console."
 msgid "Please try another term"
 msgstr "Probeer een andere term"
 
-#: pkg/machines/components/vmnetworktab.jsx:231
+#: pkg/machines/components/vmnetworktab.jsx:235
 msgid "Plug"
 msgstr "Plug"
 
@@ -5540,11 +5563,11 @@ msgstr "Gewenst aantal sockets voor de gast."
 msgid "Prefix"
 msgstr "Voorvoegsel"
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:324
+#: pkg/machines/components/networks/createNetworkDialog.jsx:336
 msgid "Prefix Length"
 msgstr "Voorvoegsel-lengte"
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:79
+#: pkg/machines/components/networks/createNetworkDialog.jsx:91
 msgid "Prefix Length should not be empty"
 msgstr "Prefixlengte mag niet leeg zijn"
 
@@ -5888,7 +5911,8 @@ msgid "Removals:"
 msgstr "Verwijderingen:"
 
 #: pkg/apps/application-list.jsx:82 pkg/apps/application.jsx:110
-#: pkg/machines/components/vmDisksTab.jsx:175
+#: pkg/machines/components/vmDisksTab.jsx:171
+#: pkg/machines/components/vmDisksTab.jsx:181
 #: pkg/storaged/crypto-keyslots.jsx:402 pkg/storaged/crypto-keyslots.jsx:439
 #: pkg/storaged/nfs-details.jsx:309
 msgid "Remove"
@@ -6351,7 +6375,7 @@ msgstr "Zenden"
 msgid "Send Non-Maskable Interrupt"
 msgstr "Verzend niet-maskeerbare onderbreking"
 
-#: pkg/machines/components/vnc.jsx:108
+#: pkg/machines/components/vnc.jsx:149
 msgid "Send key"
 msgstr "Verzend sleutel"
 
@@ -6454,7 +6478,7 @@ msgstr "Sessie verloopt binnenkort"
 msgid "Set"
 msgstr "Instellen"
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:218
+#: pkg/machines/components/networks/createNetworkDialog.jsx:230
 msgid "Set DHCP Range"
 msgstr "Stel DHCP-bereik in"
 
@@ -6730,7 +6754,7 @@ msgid "Stable"
 msgstr "Stabiel"
 
 #: pkg/docker/index.html:130 pkg/docker/containers-view.jsx:314
-#: pkg/machines/components/networks/createNetworkDialog.jsx:224
+#: pkg/machines/components/networks/createNetworkDialog.jsx:236
 #: pkg/storaged/content-views.jsx:306 pkg/storaged/mdraid-details.jsx:313
 #: pkg/storaged/vdo-details.jsx:258 pkg/systemd/service-details.jsx:179
 msgid "Start"
@@ -6760,8 +6784,8 @@ msgstr "Start libvirt"
 msgid "Start pool when host boots"
 msgstr "Start pool wanneer host opstart"
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:57
-#: pkg/machines/components/networks/createNetworkDialog.jsx:85
+#: pkg/machines/components/networks/createNetworkDialog.jsx:69
+#: pkg/machines/components/networks/createNetworkDialog.jsx:97
 msgid "Start should not be empty"
 msgstr "Start mag niet leeg zijn"
 
@@ -7117,7 +7141,7 @@ msgstr "Test kdump instellingen"
 msgid "Testing connection"
 msgstr "Verbinding testen"
 
-#: pkg/machines/components/deleteResource.jsx:51
+#: pkg/machines/components/deleteResource.jsx:48
 msgid "The $0 could not be deleted"
 msgstr "De $0 kon niet verwijderd worden"
 
@@ -7186,8 +7210,8 @@ msgstr "De VM is actief."
 msgid "The VM is suspended by guest power management."
 msgstr "De VM wordt opgeschort door gast-energiebeheer."
 
-#: pkg/machines/components/vmDisksTab.jsx:174
-#: pkg/machines/components/vmnetworktab.jsx:225
+#: pkg/machines/components/vmDisksTab.jsx:180
+#: pkg/machines/components/vmnetworktab.jsx:230
 msgid "The VM needs to be running or shut off to detach this device"
 msgstr "De VM moet actief of uitgeschakeld zijn om dit apparaat te ontkoppelen"
 
@@ -7498,7 +7522,10 @@ msgid "There was $0 failed login attempt since the last successful login."
 msgid_plural ""
 "There were $0 failed login attempts since the last successful login."
 msgstr[0] ""
+"Er was $0 mislukte aanmeldingspoging sinds de laatste succesvolle aanmelding."
 msgstr[1] ""
+"Er waren $0 mislukte aanmeldingspogingen sinds de laatste succesvolle "
+"aanmelding."
 
 #: pkg/shell/index.html:433
 msgid "There was an unexpected error while connecting to the machine."
@@ -7911,7 +7938,7 @@ msgstr "Niet beschikbaar"
 msgid "Unexpected error"
 msgstr "Onverwachte fout"
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:115
+#: pkg/machines/components/networks/createNetworkDialog.jsx:127
 msgid "Unique Network Name"
 msgstr "Unieke netwerknaam"
 
@@ -8022,7 +8049,7 @@ msgstr "$target afkoppelen"
 msgid "Unnamed"
 msgstr "Naamloos"
 
-#: pkg/machines/components/vmnetworktab.jsx:231
+#: pkg/machines/components/vmnetworktab.jsx:235
 msgid "Unplug"
 msgstr "Loskoppelen"
 
@@ -8337,7 +8364,7 @@ msgstr "Beheer van virtuele machines"
 msgid "Virtual Network"
 msgstr "Virtueel netwerk"
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:415
+#: pkg/machines/components/networks/createNetworkDialog.jsx:426
 msgid "Virtual Network failed to be created"
 msgstr "Virtueel netwerk kan niet aangemaakt worden"
 
@@ -9346,6 +9373,9 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json.in
 msgid "zone"
 msgstr "zone"
+
+#~ msgid "Connecting"
+#~ msgstr "Verbinden"
 
 #~ msgid "About Cockpit"
 #~ msgstr "Over Cockpit"

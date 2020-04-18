@@ -72,6 +72,9 @@ QUnit.test("simple request", function (assert) {
                         speed: {
                             label: "Speed Tests"
                         },
+                        journal: {
+                            label: "Logs Box"
+                        },
                         test: {
                             label: "Playground"
                         }

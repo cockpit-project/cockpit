@@ -104,7 +104,7 @@ class TestServices(MachineCase):
         m = self.machine
         b = self.browser
 
-        m.write("/etc/systemd/system/test.service",
+        self.write_file("/etc/systemd/system/test.service",
                 """
 [Unit]
 Description=Test Service
@@ -128,7 +128,7 @@ while true; do
   echo WORKING
 done
 """)
-        m.write("/etc/systemd/system/test-fail.service",
+        self.write_file("/etc/systemd/system/test-fail.service",
                 """
 [Unit]
 Description=Failing Test Service
@@ -139,7 +139,7 @@ ExecStart=/usr/bin/false
 [Install]
 WantedBy=default.target
 """)
-        m.write("/etc/systemd/system/test-template@.service",
+        self.write_file("/etc/systemd/system/test-template@.service",
                 """
 [Unit]
 Description=Test Template for %I
@@ -147,7 +147,7 @@ Description=Test Template for %I
 [Service]
 ExecStart=/usr/local/bin/test-service %I
 """)
-        m.write("/etc/systemd/system/test.timer",
+        self.write_file("/etc/systemd/system/test.timer",
                 """
 [Unit]
 Description=Test Timer
@@ -155,7 +155,7 @@ Description=Test Timer
 [Timer]
 OnCalendar=*:1/2
 """)
-        m.write("/etc/systemd/system/test-onboot.timer",
+        self.write_file("/etc/systemd/system/test-onboot.timer",
                 """
 [Unit]
 Description=Test OnBoot Timer
@@ -238,7 +238,6 @@ Unit=test.service
             b.wait_in_text(self.svc_sel('test-onboot.timer') + ' .service-unit-next-trigger', "Today")  # next run
             b.wait_in_text(self.svc_sel('test-onboot.timer') + ' .service-unit-last-trigger', "unknown")  # last trigger
         m.execute("systemctl stop test-onboot.timer")
-        m.execute("systemctl mask test-onboot.timer")
 
         # Make sure that test.service was not started by either test.timer or test-onboot.timer
         m.execute("systemctl stop test.service")
@@ -384,7 +383,7 @@ Unit=test.service
         m = self.machine
         b = self.browser
 
-        m.write("/etc/systemd/system/test.service",
+        self.write_file("/etc/systemd/system/test.service",
                 """
 [Unit]
 Description=Test Service
@@ -422,7 +421,7 @@ WantedBy=default.target
     def testConditions(self):
         m = self.machine
         b = self.browser
-        m.write("/etc/systemd/system/condtest.service",
+        self.write_file("/etc/systemd/system/condtest.service",
                 """
 [Unit]
 Description=Test Service
@@ -469,7 +468,7 @@ WantedBy=multi-user.target
         m = self.machine
         b = self.browser
 
-        m.write("/etc/systemd/system/test-a.service",
+        self.write_file("/etc/systemd/system/test-a.service",
                 """
 [Unit]
 Description=A Service
@@ -480,7 +479,7 @@ Conflicts=test-c.service
 ExecStart=/bin/sh -c "while true; do sleep 5; done"
 """)
 
-        m.write("/etc/systemd/system/test-b.service",
+        self.write_file("/etc/systemd/system/test-b.service",
                 """
 [Unit]
 Description=B Service
@@ -490,7 +489,7 @@ After=test-a.service
 ExecStart=/bin/sh -c "while true; do sleep 5; done"
 """)
 
-        m.write("/etc/systemd/system/test-c.service",
+        self.write_file("/etc/systemd/system/test-c.service",
                 """
 [Unit]
 Description=C Service
@@ -543,7 +542,7 @@ ExecStart=/bin/sh -c "while true; do sleep 5; done"
         m = self.machine
         b = self.browser
 
-        m.write("/etc/systemd/system/test.service",
+        self.write_file("/etc/systemd/system/test.service",
                 """
 [Unit]
 Description=Test Service
@@ -642,7 +641,7 @@ WantedBy=default.target
         # they always occupy the first two rows and we can check their
         # relative order depending on whether "aab" has failed or not.
 
-        m.write("/etc/systemd/system/aaa.service",
+        self.write_file("/etc/systemd/system/aaa.service",
                 """
 [Unit]
 Description=First Row Service
@@ -650,7 +649,7 @@ Description=First Row Service
 [Service]
 ExecStart=/usr/bin/true
 """)
-        m.write("/etc/systemd/system/aab-fail.service",
+        self.write_file("/etc/systemd/system/aab-fail.service",
                 """
 [Unit]
 Description=Failing Test Service
@@ -731,7 +730,7 @@ ExecStart=/usr/bin/false
         m = self.machine
         b = self.browser
 
-        m.write("/etc/systemd/system/fail.mount",
+        self.write_file("/etc/systemd/system/fail.mount",
                 """
 [Unit]
 Description=Failing Mount

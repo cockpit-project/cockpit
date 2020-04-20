@@ -632,7 +632,8 @@ class TestAD(TestRealms, CommonTests):
 
         # allow sudo access to domain admins; FIXME: Is there a server-side setting for this,
         # similar to "ipa-advise enable-admins-sudo"?
-        self.machine.write("/etc/sudoers.d/domain-admins", r"%domain\ admins@COCKPIT.LAN ALL=(ALL) ALL")
+        # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1825749: sudo with password is broken under Cockpit
+        self.machine.write("/etc/sudoers.d/domain-admins", r"%domain\ admins@COCKPIT.LAN ALL=(ALL) NOPASSWD:ALL")
 
     def checkBackendSpecifics(self):
         '''Check domain backend specific integration'''

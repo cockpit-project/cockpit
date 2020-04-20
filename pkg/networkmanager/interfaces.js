@@ -22,6 +22,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 import cockpit from 'cockpit';
+import { superuser } from 'superuser.jsx';
 
 import firewall from './firewall-client.js';
 import * as utils from './utils';
@@ -1480,16 +1481,13 @@ function make_network_plot_post_hook(unit) {
     };
 }
 
-var permission = cockpit.permission({ admin: true });
-$(permission).on("changed", update_network_privileged);
-
 function update_network_privileged() {
-    $(".network-privileged").update_privileged(
-        permission, cockpit.format(
-            _("The user <b>$0</b> is not permitted to modify network settings"),
-            permission.user ? permission.user.name : '')
-    );
+    $(".network-privileged").toggle(!!superuser.allowed);
+    $(".network-privileged-disabled").toggleClass("disabled", !superuser.allowed);
 }
+
+superuser.reload_page_on_change();
+superuser.addEventListener("changed", update_network_privileged);
 
 /* Resource usage monitoring
 */
@@ -2556,7 +2554,7 @@ PageNetworkInterface.prototype = {
         $('#network-interface-mac').empty();
         if (can_edit_mac) {
             $('#network-interface-mac').append(
-                $('<a tabindex="0">')
+                $('<a tabindex="0" class="network-privileged-disabled">')
                         .text(mac)
                         .syn_click(self.model, function () {
                             self.set_mac();
@@ -2703,7 +2701,7 @@ PageNetworkInterface.prototype = {
                             $('<td>').text(_("General")),
                             $('<td class="networking-controls">').append(
                                 $('<label for="autoreconnect">').append(
-                                    $('<input type="checkbox" id="autoreconnect">')
+                                    $('<input type="checkbox" id="autoreconnect" class="network-privileged">')
                                             .prop('checked', settings.connection.autoconnect)
                                             .change(function () {
                                                 settings.connection.autoconnect = $(this).prop('checked');
@@ -2729,7 +2727,7 @@ PageNetworkInterface.prototype = {
                             .text(title)
                             .css('vertical-align', rows.length > 1 ? "top" : "center"),
                     $('<td>').append(
-                        $('<a tabindex="0" class="network-privileged">')
+                        $('<a tabindex="0" class="network-privileged-disabled">')
                                 .append(link_text)
                                 .syn_click(self.model, function () { configure() })));
             }

@@ -495,7 +495,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # newer libvirtd versions use socket activation
         # we should test that separately, but here we test only using the service unit
-        if m.image not in ["debian-stable", "ubuntu-1804", "ubuntu-stable", "rhel-8-2-distropkg", "rhel-8-2", "centos-8-stream"]:
+        if m.image not in ["debian-stable", "ubuntu-1804", "ubuntu-stable", "rhel-8-2-distropkg", "rhel-8-2", "rhel-8-3", "centos-8-stream"]:
             m.execute("systemctl stop libvirtd-ro.socket libvirtd.socket libvirtd-admin.socket")
             self.addCleanup(m.execute, "systemctl start libvirtd-ro.socket libvirtd.socket libvirtd-admin.socket")
 

@@ -296,7 +296,7 @@ class TestSystemInfo(MachineCase):
         b.mouse('#systime-tooltip', 'mouseout')
         b.wait_not_present(tooltip_sel)
 
-    @skipImage("Uses timedatex, no NTP servers config", "rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream")
+    @skipImage("Uses timedatex, no NTP servers config", "rhel-8-2", "rhel-8-2-distropkg", "rhel-8-3", "centos-8-stream")
     def testTimeServers(self):
         m = self.machine
         b = self.browser
@@ -634,7 +634,7 @@ fi
         self.allow_authorize_journal_messages()
         self.allow_restart_journal_messages()
 
-    @allowImage("insights-client only on RHEL", "rhel-7-8", "rhel-8-2")
+    @allowImage("insights-client only on RHEL", "rhel-7-8", "rhel-8-2", "rhel-8-3")
     def testInsightsStatus(self):
         m = self.machine
         b = self.browser

@@ -44,7 +44,7 @@ class NoSubManCase(PackageCase):
 
         # Disable Subscription Manager on RHEL for these tests; subscriptions are tested in a separate class
         # On other OSes (Fedora/CentOS) we expect sub-man to be disabled in yum, so it should not get in the way there
-        if self.machine.image.startswith("rhel") or self.machine.image.startswith("centos-8"):
+        if self.machine.image in ["rhel-8-2", "rhel-8-2-distropkg", "centos-8-stream"]:
             self.machine.execute("mv /usr/libexec/rhsmd /usr/libexec/rhsmd.disabled; pkill -e rhsmd || true")
             self.addCleanup(self.machine.execute, "mv /usr/libexec/rhsmd.disabled /usr/libexec/rhsmd")
 
@@ -663,6 +663,7 @@ class TestWsUpdate(NoSubManCase):
 @skipImage("Image uses OSTree", "fedora-coreos")
 @skipImage("No subscriptions", "debian-stable", "debian-testing", "fedora-31", "centos-8-stream",
            "fedora-32", "fedora-testing", "ubuntu-1804", "ubuntu-2004", "ubuntu-stable")
+@skipImage("We fail to recognize (non)registered system, see #13935", "rhel-8-3")
 class TestUpdatesSubscriptions(PackageCase):
     provision = {
         "0": {"address": "10.111.112.1/20", "dns": "10.111.112.1"},

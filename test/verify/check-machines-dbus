@@ -1744,6 +1744,14 @@ class TestMachinesDBus(machineslib.TestMachines):
                 if "source_path" in self.source:
                     b.wait_in_text("#pool-{0}-{1}-source-path".format(self.name, connectionName), self.source["source_path"])
 
+                # Check on the volume tab of the storage pool
+                b.click("#pool-{}-{}-storage-volumes".format(self.name, connectionName))
+                if "iscsi" in self.pool_type:
+                    b.wait_present('#create-volume-button:disabled')
+                else:
+                    b.wait_present('#create-volume-button:enabled')
+
+
             def cleanup(self):
                 m.execute("virsh pool-destroy {0} && virsh pool-undefine {0}".format(self.name))
 

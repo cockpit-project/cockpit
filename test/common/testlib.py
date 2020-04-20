@@ -1044,6 +1044,10 @@ class MachineCase(unittest.TestCase):
         if "TEST_AUDIT_NO_SELINUX" not in os.environ:
             messages += machine.audit_messages("14", cursor=cursor) # 14xx is selinux
 
+        if self.image.startswith('debian'):
+            # Debian images don't have any non-C locales (mostly deliberate, to test this scenario somewhere)
+            self.allowed_messages.append("invalid or unusable locale: .*")
+
         if self.image in ['fedora-32', 'fedora-31', 'fedora-testing']:
             # Fedora >= 30 switched to dbus-broker
             self.allowed_messages.append("dbus-daemon didn't send us a dbus address; not installed?.*")

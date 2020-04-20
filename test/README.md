@@ -84,6 +84,7 @@ You can set these environment variables to configure the test suite:
                   "rhel-7-8"
                   "rhel-8-2"
                   "rhel-8-2-distropkg"
+                  "rhel-8-3"
                   "ubuntu-1804"
                   "ubuntu-2004"
                   "ubuntu-stable"

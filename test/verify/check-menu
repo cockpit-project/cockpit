@@ -67,7 +67,7 @@ class TestMenu(MachineCase):
         b.wait_visible("#login")
         b.wait_visible("#login-info-message")
         b.wait_text("#login-info-message", "You have been logged out due to inactivity.")
-        m.execute("sed -i 's/IdleTimeout = 1/IdleTimeout = 0/' /etc/cockpit/cockpit.conf")
+        m.execute("sed -i '/IdleTimeout/d' /etc/cockpit/cockpit.conf")
         m.restart_cockpit()
         b.reload()
         self.login_and_go("/system")

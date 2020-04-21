@@ -115,7 +115,7 @@ class App extends React.Component {
         };
         const createVmAction = <CreateVmAction {...properties} mode='create' />;
         const importDiskAction = <CreateVmAction {...properties} mode='import' />;
-        const vmActions = <div> {createVmAction} {importDiskAction} </div>;
+        const vmActions = <> {createVmAction} {importDiskAction} </>;
         const resources = [...storagePools, ...networks, ...nodeDevices, ...interfaces, ...vms];
         const loadingResources = resources.some(resource => isObjectEmpty(resource));
 
@@ -130,7 +130,7 @@ class App extends React.Component {
         const pathVms = path.length == 0 || (path.length > 0 && path[0] == 'vms');
 
         return (
-            <div>
+            <>
                 { pathVms &&
                 <AggregateStatusCards networks={networks} storagePools={storagePools} />
                 }
@@ -181,7 +181,7 @@ class App extends React.Component {
                     nodeDevices={nodeDevices}
                     interfaces={interfaces} />
                 }
-            </div>
+            </>
         );
     }
 }

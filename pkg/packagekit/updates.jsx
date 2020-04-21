@@ -37,7 +37,6 @@ import * as PK from "packagekit.js";
 import "listing.scss";
 
 const _ = cockpit.gettext;
-moment.locale(cockpit.language);
 
 // "available" heading is built dynamically
 const STATE_HEADINGS = {
@@ -988,5 +987,6 @@ class OsUpdates extends React.Component {
 
 document.addEventListener("DOMContentLoaded", () => {
     document.title = cockpit.gettext(document.title);
+    moment.locale(cockpit.language);
     ReactDOM.render(<OsUpdates />, document.getElementById("app"));
 });

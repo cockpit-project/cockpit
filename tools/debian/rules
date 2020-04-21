@@ -2,22 +2,10 @@
 
 DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 
-# newer firewalld ships cockpit.xml, but keep it for backports
-FIREWALLD_SERVICE = $(findstring $(shell . /etc/os-release; echo $$VERSION_ID),9 18.04)
-ifeq ($(FIREWALLD_SERVICE),)
-	WS_CONFLICTS = firewalld (<< 0.6.0)
-endif
-
 # only build deprecated cockpit-docker for stable releases (backports); Debian sid/testing has no VERSION_ID
 BUILD_DOCKER = $(filter $(shell . /etc/os-release; echo $${VERSION_ID:-unstable}),18.04 19.10)
 ifeq ($(BUILD_DOCKER),)
        export DH_OPTIONS = -Ncockpit-docker
-endif
-
-# Stop building cockpit-machines for ubuntu-1804 (backports);
-BUILD_MACHINES = $(findstring $(shell . /etc/os-release; echo $${VERSION_ID}),18.04)
-ifeq ($(BUILD_MACHINES),18.04)
-       export DH_OPTIONS = -Ncockpit-machines
 endif
 
 %:
@@ -56,7 +44,8 @@ override_dh_install:
 	dh_install --fail-missing -Xusr/src/debug
 	make install-tests DESTDIR=debian/cockpit-tests
 
-	if [ -z "$(FIREWALLD_SERVICE)" ] && [ -d debian/cockpit-ws ]; then rm debian/cockpit-ws/usr/lib/firewalld/services/cockpit.xml; rmdir -p --ignore-fail-on-non-empty debian/cockpit-ws/usr/lib/firewalld/services/; fi
+	# all supported Debian/Ubuntu releases have firewalld >= 0.6 that ships cockpit service
+	if [ -d debian/cockpit-ws ]; then rm debian/cockpit-ws/usr/lib/firewalld/services/cockpit.xml; rmdir -p --ignore-fail-on-non-empty debian/cockpit-ws/usr/lib/firewalld/services/; fi
 
 override_dh_gencontrol:
-	dh_gencontrol -- -Vbridge:minversion="$(shell tools/min-base-version)" -Vws:Conflicts="$(WS_CONFLICTS)"
+	dh_gencontrol -- -Vbridge:minversion="$(shell tools/min-base-version)"

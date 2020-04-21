@@ -213,6 +213,16 @@ class TestSystemInfo(MachineCase):
         self.login_and_go("/system")
         b.wait_text('#system_machine_id', mid)
 
+        # uptime (introduced in PR #13885)
+        if m.image not in ["rhel-8-2-distropkg"]:
+            b.wait_text_not("#system_uptime", "")
+            # replace it with a known value, it should automatically update every minute
+            m.write("/tmp/fake_uptime", "2000.12 12345.30\n")
+            m.execute("mount -o bind /tmp/fake_uptime /proc/uptime")
+            self.addCleanup(m.execute, "umount /proc/uptime")
+            with b.wait_timeout(70):
+                b.wait_text("#system_uptime", "33 minutes")
+
         self.allow_journal_messages("error loading contents of os-release: .*")
 
     def testTime(self):

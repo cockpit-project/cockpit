@@ -96,9 +96,7 @@ export class SystemInfomationCard extends React.Component {
                     const uptime = parseFloat(content.split(' ')[0]);
                     this.setState({ systemUptime: moment.duration(uptime * 1000).humanize() });
                 })
-                .fail(ex => {
-                    console.error("Error reading system uptime", ex);
-                });
+                .fail(ex => console.error("Error reading system uptime", ex));
     }
 
     render() {

@@ -33,11 +33,22 @@ var mock = mock || { }; // eslint-disable-line no-use-before-define
 var cockpit = { };
 event_mixin(cockpit, { });
 
+/*
+ * The debugging property is a global that is used
+ * by various parts of the code to show/hide debug
+ * messages in the javascript console.
+ *
+ * We supprot using storage to get/set that property
+ * so that it carries across the various frames or
+ * alternatively persists across refreshes.
+ */
 if (typeof window.debugging === "undefined") {
     try {
         // Sometimes this throws a SecurityError such as during testing
-        window.debugging = window.sessionStorage.debugging ||
-                           window.localStorage.debugging;
+        Object.defineProperty(window, "debugging", {
+            get: function() { return window.sessionStorage.debugging || window.localStorage.debugging },
+            set: function(x) { window.sessionStorage.debugging = x }
+        });
     } catch (e) { }
 }
 

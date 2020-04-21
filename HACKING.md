@@ -309,6 +309,32 @@ To revert the above logging changes:
     $ sudo systemctl daemon-reload
     $ sudo systemctl restart cockpit
 
+## Debug logging in Javascript console
+
+Various javascript methods in Cockpit can show debug messages. You
+can turn them on by setting a `window.debugging` global, or setting
+up a `debugging` property in the browser storage. To do this
+run the following in your javascript console:
+
+    >> sessionStorage.debugging = "all"
+
+You'll notice that there's a ton of messages that get shown. If you
+want to be more specific, instead of "all" use one of the following
+specific types:
+
+    "all"      // All available debug messages
+    "channel"  // All channel messages sent to server
+    "dbus"     // DBus related debug messages
+    "http"     // HTTP (via the server) related debug messages
+    "spawn"    // Debug messages related to executing processes
+
+There are other strings related to the code you may be working on.
+
+In addition, if you want your debug setting to survive a browser refresh
+or Cockpit log out, use something like:
+
+    >> localStorage.debugging = "spawn"
+
 ## Running Cockpit processes under a debugger
 
 You may want to run cockpit-ws under a debugger such as valgrind or gdb.

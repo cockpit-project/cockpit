@@ -9,7 +9,7 @@ ifeq ($(FIREWALLD_SERVICE),)
 endif
 
 # only build deprecated cockpit-docker for stable releases (backports); Debian sid/testing has no VERSION_ID
-BUILD_DOCKER = $(findstring $(shell . /etc/os-release; echo $${VERSION_ID:-unstable}),10 18.04 19.10)
+BUILD_DOCKER = $(filter $(shell . /etc/os-release; echo $${VERSION_ID:-unstable}),18.04 19.10)
 ifeq ($(BUILD_DOCKER),)
        export DH_OPTIONS = -Ncockpit-docker
 endif

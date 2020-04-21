@@ -1967,7 +1967,7 @@ class TestMachinesDBus(machineslib.TestMachines):
                 self.test_obj.assertEqual(size, int(self.size))
 
             def cleanup(self):
-                m.execute("virsh pool-destroy {0} && virsh pool-undefine {0}".format(self.name))
+                m.execute("virsh pool-destroy {0} && virsh pool-undefine {0}".format(self.pool_name))
 
             def close(self):
                 b.click("#pool-{0}-system-overview".format(self.pool_name)) # open the "Storage Volumes" subtab

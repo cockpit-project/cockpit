@@ -135,6 +135,18 @@ class CommonTests:
         b.wait_in_text("#statuses", "Not running")
         b.logout()
 
+        # should also work with capitalized domain and lower-case user (fixed in PR #13934)
+        if m.image not in ["rhel-8-2-distropkg"]:
+            # need to change URL to actually reload the page
+            b.login_and_go('/system', user='%s@COCKPIT.LAN' % self.admin_user.lower(), password=self.admin_password)
+            b.go('/system/services#/systemd-tmpfiles-clean.timer')
+            b.enter_page('/system/services')
+            b.wait_in_text("#statuses", "Not running")
+            b.click(".service-top-panel .dropdown-kebab-pf button")
+            b.click(".service-top-panel .dropdown-menu a:contains('Start')")
+            b.wait_in_text("#statuses", "Running")
+            b.logout()
+
         self.checkBackendSpecifics()
 
         # change home directory ownership back to local user
@@ -259,6 +271,11 @@ class CommonTests:
         b.password = self.admin_password
         self.login_and_go("/system", user=self.admin_user)
         b.wait_in_text(self.domain_sel, "cockpit.lan")
+
+        if m.image in ["rhel-8-2-distropkg"]:
+            # admin operations were fixed in PR #13934; on older version this causes sudo failure
+            self.allow_authorize_journal_messages()
+            return
 
         # Show domain information
         b.click(self.domain_sel)
@@ -632,8 +649,7 @@ class TestAD(TestRealms, CommonTests):
 
         # allow sudo access to domain admins; FIXME: Is there a server-side setting for this,
         # similar to "ipa-advise enable-admins-sudo"?
-        # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1825749: sudo with password is broken under Cockpit
-        self.machine.write("/etc/sudoers.d/domain-admins", r"%domain\ admins@COCKPIT.LAN ALL=(ALL) NOPASSWD:ALL")
+        self.machine.write("/etc/sudoers.d/domain-admins", r"%domain\ admins@COCKPIT.LAN ALL=(ALL) ALL")
 
     def checkBackendSpecifics(self):
         '''Check domain backend specific integration'''

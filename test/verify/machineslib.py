@@ -283,7 +283,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                   targetcli /iscsi/%(tgt)s/tpg1/acls create %(ini)s
                   """ % {"tgt": target_iqn, "ini": orig_iqn})
 
-        self.addCleanup(m.execute, "targetcli /backstores/ramdisk delete test && targetcli /iscsi delete %s" % target_iqn)
+        self.addCleanup(m.execute, "targetcli /backstores/ramdisk delete test && targetcli /iscsi delete %s && iscsiadm -m node -o delete" % target_iqn)
         return orig_iqn
 
     def testState(self):

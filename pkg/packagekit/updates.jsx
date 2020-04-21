@@ -39,34 +39,39 @@ import "listing.scss";
 const _ = cockpit.gettext;
 
 // "available" heading is built dynamically
-const STATE_HEADINGS = {
-    loading: _("Loading available updates, please wait..."),
-    locked: _("Some other program is currently using the package manager, please wait..."),
-    refreshing: _("Refreshing package information"),
-    uptodate: _("No updates pending"),
-    applying: _("Applying updates"),
-    updateSuccess: null,
-    updateError: _("Applying updates failed"),
-    loadError: _("Loading available updates failed"),
-};
+let STATE_HEADINGS = {};
+let PK_STATUS_STRINGS = {};
+let PK_STATUS_LOG_STRINGS = {};
+const packageSummaries = {};
 
-const PK_STATUS_STRINGS = {
-    [PK.Enum.STATUS_DOWNLOAD]: _("Downloading"),
-    [PK.Enum.STATUS_INSTALL]: _("Installing"),
-    [PK.Enum.STATUS_UPDATE]: _("Updating"),
-    [PK.Enum.STATUS_CLEANUP]: _("Setting up"),
-    [PK.Enum.STATUS_SIGCHECK]: _("Verifying"),
-};
+function init() {
+    STATE_HEADINGS = {
+        loading: _("Loading available updates, please wait..."),
+        locked: _("Some other program is currently using the package manager, please wait..."),
+        refreshing: _("Refreshing package information"),
+        uptodate: _("No updates pending"),
+        applying: _("Applying updates"),
+        updateSuccess: null,
+        updateError: _("Applying updates failed"),
+        loadError: _("Loading available updates failed"),
+    };
 
-const PK_STATUS_LOG_STRINGS = {
-    [PK.Enum.STATUS_DOWNLOAD]: _("Downloaded"),
-    [PK.Enum.STATUS_INSTALL]: _("Installed"),
-    [PK.Enum.STATUS_UPDATE]: _("Updated"),
-    [PK.Enum.STATUS_CLEANUP]: _("Set up"),
-    [PK.Enum.STATUS_SIGCHECK]: _("Verified"),
-};
+    PK_STATUS_STRINGS = {
+        [PK.Enum.STATUS_DOWNLOAD]: _("Downloading"),
+        [PK.Enum.STATUS_INSTALL]: _("Installing"),
+        [PK.Enum.STATUS_UPDATE]: _("Updating"),
+        [PK.Enum.STATUS_CLEANUP]: _("Setting up"),
+        [PK.Enum.STATUS_SIGCHECK]: _("Verifying"),
+    };
 
-var packageSummaries = {};
+    PK_STATUS_LOG_STRINGS = {
+        [PK.Enum.STATUS_DOWNLOAD]: _("Downloaded"),
+        [PK.Enum.STATUS_INSTALL]: _("Installed"),
+        [PK.Enum.STATUS_UPDATE]: _("Updated"),
+        [PK.Enum.STATUS_CLEANUP]: _("Set up"),
+        [PK.Enum.STATUS_SIGCHECK]: _("Verified"),
+    };
+}
 
 // parse CVEs from an arbitrary text (changelog) and return URL array
 function parseCVEs(text) {
@@ -988,5 +993,6 @@ class OsUpdates extends React.Component {
 document.addEventListener("DOMContentLoaded", () => {
     document.title = cockpit.gettext(document.title);
     moment.locale(cockpit.language);
+    init();
     ReactDOM.render(<OsUpdates />, document.getElementById("app"));
 });

@@ -217,10 +217,10 @@ ProtocolHeader = X-Forwarded-Proto
           <informalexample>
 <programlisting language="js">
 [Session]
-IdleTimeout=0
+IdleTimeout=15
 </programlisting>
-          </informalexample>		
-          <para>When not specified, the default is <literal>15</literal> minutes.</para>
+          </informalexample>
+          <para>When not specified, there is no idle timeout by default.</para>
         </listitem>
       </varlistentry>
     </variablelist>

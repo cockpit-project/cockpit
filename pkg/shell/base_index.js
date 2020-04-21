@@ -31,7 +31,7 @@ function component_checksum(machine, component) {
         return "$" + machine.manifests[pkg][".checksum"];
 }
 
-function Frames(index, setupTimers) {
+function Frames(index, setupIdleResetTimers) {
     var self = this;
     let language = document.cookie.replace(/(?:(?:^|.*;\s*)CockpitLang\s*=\s*([^;]*).*$)|^.*$/, "$1");
     if (!language)
@@ -88,8 +88,8 @@ function Frames(index, setupTimers) {
                 if (count > 0)
                     index.navigate();
             }
-            if (frame.contentWindow)
-                setupTimers(frame.contentWindow);
+            if (frame.contentWindow && setupIdleResetTimers)
+                setupIdleResetTimers(frame.contentWindow);
 
             if (frame.contentDocument && frame.contentDocument.documentElement)
                 frame.contentDocument.documentElement.lang = language;
@@ -507,11 +507,6 @@ function Index() {
     let title = "";
     const standard_login = window.localStorage['standard-login'];
 
-    function startTimer() {
-        if (session_timeout > 0 && standard_login)
-            window.setInterval(sessionTimeout, 5000);
-    }
-
     function sessionTimeout() {
         current_idle_time += 5000;
         if (!session_final_timer && current_idle_time >= session_timeout - final_countdown) {
@@ -547,32 +542,35 @@ function Index() {
         }
     }
 
-    function resetTimer() {
+    /* Auto-logout idle timer */
+    function resetTimer(ev) {
         if (!session_final_timer) {
             current_idle_time = 0;
         }
     }
 
-    function setupTimers(document) {
-        document.addEventListener("mousemove", resetTimer, false);
-        document.addEventListener("mousedown", resetTimer, false);
-        document.addEventListener("keypress", resetTimer, false);
-        document.addEventListener("touchmove", resetTimer, false);
-        document.addEventListener("onscroll", resetTimer, false);
+    function setupIdleResetTimers(win) {
+        win.addEventListener("mousemove", resetTimer, false);
+        win.addEventListener("mousedown", resetTimer, false);
+        win.addEventListener("keypress", resetTimer, false);
+        win.addEventListener("touchmove", resetTimer, false);
+        win.addEventListener("scroll", resetTimer, false);
     }
 
-    setupTimers(window);
-    cockpit.dbus(null, { bus: "internal" }).call("/config", "cockpit.Config", "GetUInt", ["Session", "IdleTimeout", 15, 240, 0], [])
+    cockpit.dbus(null, { bus: "internal" }).call("/config", "cockpit.Config", "GetUInt", ["Session", "IdleTimeout", 0, 240, 0], [])
             .then(result => {
                 session_timeout = result[0] * 60000;
-                startTimer();
+                if (session_timeout > 0 && standard_login) {
+                    setupIdleResetTimers(window);
+                    window.setInterval(sessionTimeout, 5000);
+                }
             })
             .catch(e => {
                 if (e.message.indexOf("GetUInt not available") === -1)
                     console.warn(e.message);
             });
 
-    self.frames = new Frames(self, setupTimers);
+    self.frames = new Frames(self, setupIdleResetTimers);
     self.router = new Router(self);
 
     /* Watchdog for disconnect */

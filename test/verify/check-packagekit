@@ -131,6 +131,8 @@ class TestUpdates(NoSubManCase):
         b = self.browser
         m = self.machine
 
+        self.enable_preload("packagekit", "index")
+
         m.start_cockpit()
         b.login_and_go("/system")
         # status on /system front page: no repos at all, thus no updates

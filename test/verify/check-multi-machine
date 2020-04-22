@@ -23,7 +23,6 @@ import time
 
 import parent
 from testlib import *
-from hacklib import *
 
 
 def break_hostkey(m, address, filename=None):
@@ -140,8 +139,6 @@ class TestMultiMachineAdd(MachineCase):
         self.machine2.execute("hostnamectl set-hostname machine2")
         self.machine3 = self.machines['machine3']
         self.machine3.execute("hostnamectl set-hostname machine3")
-        HACK_disable_problematic_preloads(self.machine2)
-        HACK_disable_problematic_preloads(self.machine3)
 
     def testBasic(self):
         b = self.browser
@@ -235,8 +232,6 @@ class TestMultiMachine(MachineCase):
         self.machine2 = self.machines['machine2']
         self.machine2.execute("hostnamectl set-hostname machine2")
         self.machines['machine3'].execute("hostnamectl set-hostname machine3")
-        HACK_disable_problematic_preloads(self.machine2)
-        HACK_disable_problematic_preloads(self.machines["machine3"])
 
     def checkDirectLogin(self, root='/'):
         b = self.browser

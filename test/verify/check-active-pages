@@ -19,6 +19,7 @@
 
 import parent
 from testlib import *
+from machine_core.constants import TEST_OS_DEFAULT
 
 
 class TestActivePages(MachineCase):
@@ -33,6 +34,9 @@ class TestActivePages(MachineCase):
         if m.ostree_image:
             # /playground/preloaded and /system/services
             n_extra_preloaded = 2
+        elif m.image == TEST_OS_DEFAULT:
+            # /playground/preloaded
+            n_extra_preloaded = 1
         else:
             # /playground/preloaded, /system/services, and /updates
             n_extra_preloaded = 3

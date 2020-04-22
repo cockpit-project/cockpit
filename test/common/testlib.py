@@ -766,6 +766,14 @@ class MachineCase(unittest.TestCase):
         test_method = getattr(self.__class__, self._testMethodName)
         return getattr(test_method, "_testlib__non_destructive", False)
 
+    def disable_preload(self, *packages):
+        for pkg in packages:
+            self.write_file("/usr/share/cockpit/%s/override.json" % pkg, '{ "preload": [ ] }')
+
+    def enable_preload(self, package, *pages):
+        path = "/usr/share/cockpit/%s/override.json" % package
+        self.write_file(path, '{ "preload": [%s]}' % ', '.join('"{0}"'.format(page) for page in pages))
+
     def setUp(self):
         if opts.address and self.provision is not None:
             raise unittest.SkipTest("Cannot provision multiple machines if a specific machine address is specified")
@@ -824,6 +832,12 @@ class MachineCase(unittest.TestCase):
                 machine.dhcp_server()
 
         if self.machine:
+            # Pages with debug enabled are huge and loading/executing them is heavy for browsers
+            # To make it easier for browsers and thus make tests quicker, disable packagekit and systemd preloads
+            # Only "TEST_OS_DEFAULT" has debug build enabled, see `build_and_install()` in `test/image-prepare`
+            if self.machine.image == testvm.TEST_OS_DEFAULT:
+                self.disable_preload("packagekit", "systemd")
+
             self.journal_start = self.machine.journal_cursor()
             self.browser = self.new_browser()
             # fail tests on criticals

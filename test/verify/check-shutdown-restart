@@ -21,7 +21,6 @@ import time
 
 import parent
 from testlib import *
-from hacklib import *
 
 
 
@@ -35,8 +34,6 @@ class TestShutdownRestart(MachineCase):
         super().setUp()
         self.machine.execute("hostnamectl set-hostname machine1")
         self.machines['machine2'].execute("hostnamectl set-hostname machine2")
-        HACK_disable_problematic_preloads(self.machine)
-        HACK_disable_problematic_preloads(self.machines['machine2'])
 
     def testNoAdminGroup(self):
         m = self.machine

@@ -22,7 +22,6 @@ import subprocess
 
 import parent
 from testlib import *
-from hacklib import *
 
 
 class DashBoardHelpers:
@@ -80,11 +79,6 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
         'machine2': {"address": "10.111.113.2/20"},
         'machine3': {"address": "10.111.113.3/20"}
     }
-
-    def setUp(self):
-        super().setUp()
-        HACK_disable_problematic_preloads(self.machines["machine2"])
-        HACK_disable_problematic_preloads(self.machines["machine3"])
 
     def testBasic(self):
         b = self.browser

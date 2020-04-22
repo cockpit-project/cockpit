@@ -44,7 +44,7 @@ class TestActivePages(MachineCase):
             b.mouse("#navbar-dropdown", "click", altKey=True)
             b.click("#active-pages")
             b.wait_present("#active-pages-dialog")
-            b.call_js_func("ph_count_check", "#active-pages-dialog tbody", count)
+            b.wait_js_func("ph_count_check", "#active-pages-dialog tbody", count)
 
         # Initially we have /system and maybe /playground/preloaded
         showPagesAssertCount(1 + n_extra_preloaded)

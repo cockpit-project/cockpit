@@ -194,6 +194,11 @@ class ServicesPage extends React.Component {
             }
         });
 
+        cockpit.addEventListener("visibilitychange", () => {
+            if (!cockpit.hidden)
+                this.listUnits();
+        });
+
         /* Start listening to signals for updates - when in the middle of reload mute all signals
          * - We don't need to listen to 'UnitFilesChanged' signal since everytime we
          *   perform some file operation we do call Reload which issues 'Reload' signal
@@ -223,8 +228,7 @@ class ServicesPage extends React.Component {
                                 this.path_by_id[unit_id] = path;
                             }
 
-                            this.getUnitByPath(path);
-                            this.processFailedUnits();
+                            this.getUnitByPath(path).then(this.processFailedUnits);
                         });
             });
         });
@@ -254,14 +258,15 @@ class ServicesPage extends React.Component {
          * Generally React is supposed to batch the setState calls but in this case it seems to not happen since the API
          * call results have time delay between one another
          */
-        if ((nextState.loadingUnits === true && this.state.loadingUnits === true) ||
+        if (cockpit.hidden ||
+           (nextState.loadingUnits === true && this.state.loadingUnits === true) ||
            (this.seenPaths.size == 0 || this.seenPaths.size > Object.keys(nextState.unit_by_path).length))
             return false;
         return true;
     }
 
     getLoadingInProgress() {
-        return this.state.loadingUnits || (this.seenPaths.size == 0 || this.seenPaths.size > Object.keys(this.state.unit_by_path).length);
+        return !cockpit.hidden && (this.state.loadingUnits || (this.seenPaths.size == 0 || this.seenPaths.size > Object.keys(this.state.unit_by_path).length));
     }
 
     on_navigate() {
@@ -279,6 +284,46 @@ class ServicesPage extends React.Component {
         return Object.keys(service_tabs_suffixes).includes(suffix);
     }
 
+    /* When the page is running in the background fetch only information about failed units
+     * in order to update the 'Page Status'. The whole listUnits is very expensive.
+     * We still need to maintain the 'unit_by_path' state object so that if we receive
+     * some signal we can normally parse it and update only the affected unit state
+     * instead of calling ListUnitsFiltered API call for every received signal which
+     * might have changed the failed units array
+     */
+    listFailedUnits() {
+        return systemd_manager.ListUnitsFiltered(["failed"])
+                .then(failed => {
+                    failed.forEach(result => {
+                        const path = result[6];
+                        const unit_id = result[0];
+
+                        if (!this.isUnitHandled(unit_id))
+                            return;
+
+                        if (!this.seenPaths.has(path)) {
+                            this.seenPaths.add(path);
+                            this.path_by_id[unit_id] = path;
+                        }
+
+                        const unit = Object.assign({}, this.state.unit_by_path[path]);
+                        unit.path = path;
+                        unit.Id = unit_id;
+                        unit.LoadState = result[2];
+                        unit.ActiveState = result[3];
+                        unit.SubState = result[4];
+                        this.updateComputedProperties(unit);
+                        this.setState(prevState => ({
+                            unit_by_path: {
+                                ...prevState.unit_by_path,
+                                [path]: unit,
+                            }
+                        }));
+                    });
+                    this.processFailedUnits();
+                }, ex => console.warn('ListUnitsFiltered failed: ', ex.message));
+    }
+
     listUnits() {
         function isTemplate(id) {
             const tp = id.indexOf("@");
@@ -287,6 +332,9 @@ class ServicesPage extends React.Component {
         }
         if (!systemd_manager.valid)
             return;
+
+        if (cockpit.hidden)
+            return this.listFailedUnits();
 
         // Reinitialize the state variables for the units
         this.setState({ unit_by_path: {}, loadingUnits: true });
@@ -355,16 +403,18 @@ class ServicesPage extends React.Component {
                                     promisesLoad.push(systemd_manager.LoadUnit(unit_id).catch(ex => console.warn(ex)));
                                 }
 
-                                Promise.all(promisesLoad).then(result => {
-                                    // First add the path in the seens paths to maintain the loading state
-                                    result.forEach(path => this.seenPaths.add(path));
+                                Promise.all(promisesLoad)
+                                        .then(result => {
+                                            // First add the path in the seens paths to maintain the loading state
+                                            result.forEach(path => this.seenPaths.add(path));
+                                            const allPaths = paths.concat(result);
 
-                                    const allPaths = paths.concat(result);
-
-                                    allPaths.forEach(path => this.getUnitByPath(path));
-                                    this.setState({ loadingUnits: false });
-                                    this.processFailedUnits();
-                                });
+                                            return Promise.all(allPaths.map(path => this.getUnitByPath(path)));
+                                        })
+                                        .finally(() => {
+                                            this.setState({ loadingUnits: false });
+                                            this.processFailedUnits();
+                                        });
                             }, ex => console.warn('ListUnitFiles failed: ', ex.message));
                 }, ex => console.warn('ListUnits failed: ', ex.message));
     }
@@ -550,9 +600,9 @@ class ServicesPage extends React.Component {
       * Fetches all Properties for the unit specified by path @param and add the unit to the state
       */
     getUnitByPath(path) {
-        systemd_client.call(path,
-                            "org.freedesktop.DBus.Properties", "GetAll",
-                            ["org.freedesktop.systemd1.Unit"])
+        return systemd_client.call(path,
+                                   "org.freedesktop.DBus.Properties", "GetAll",
+                                   ["org.freedesktop.systemd1.Unit"])
                 .fail(error => {
                     console.warn('GetAll failed for', path, error);
                 })

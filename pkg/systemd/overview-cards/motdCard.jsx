@@ -54,7 +54,7 @@ export class MotdCard extends React.Component {
 
         return (
             <Alert id="motd-box" isInline variant="info" className="motd-box"
-                   title={ <pre id="motd">{this.state.motdText}</pre> }
+                   title={ <pre id="motd">{this.state.motdText.trim()}</pre> }
                    action={ <AlertActionCloseButton onClose={this.hideAlert} /> } />
         );
     }

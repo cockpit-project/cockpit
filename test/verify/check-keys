@@ -126,7 +126,7 @@ class TestKeys(MachineCase):
         # Add invalid key directly
         m.execute("(echo '' && echo 'bad') >> /home/user/.ssh/authorized_keys")
         b.wait_in_text("#account-authorized-keys-list div.list-group-item:last-child", "Invalid key")
-        b.call_js_func("ph_count_check", "#account-authorized-keys-list div.list-group-item", 2)
+        b.wait_js_func("ph_count_check", "#account-authorized-keys-list div.list-group-item", 2)
 
         # Removing the key
         b.click("#account-authorized-keys-list div.list-group-item:last-child button")

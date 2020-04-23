@@ -359,7 +359,7 @@ export class ServiceDetails extends React.Component {
         if (extra_args === undefined)
             extra_args = ["fail"];
         this.setState({ waitsAction: true });
-        this.props.systemdManager.call(method, [this.props.unit.Names[0]].concat(extra_args))
+        systemd_manager.call(method, [this.props.unit.Names[0]].concat(extra_args))
                 .fail(error => this.setState({ error: error.toString() }))
                 .finally(() => this.setState({ waitsAction: false }));
     }
@@ -369,14 +369,14 @@ export class ServiceDetails extends React.Component {
         const args = [[this.props.unit.Names[0]], false];
         if (force !== undefined)
             args.push(force == "true");
-        this.props.systemdManager.call(method, args)
+        systemd_manager.call(method, args)
                 .then(results => {
                     if (results.length == 2 && !results[0])
                         this.setState({ note:_("This unit is not designed to be enabled explicitly.") });
                     /* Executing daemon reload after file operations is necessary -
                      * see https://github.com/systemd/systemd/blob/master/src/systemctl/systemctl.c [enable_unit function]
                      */
-                    this.props.systemdManager.Reload()
+                    systemd_manager.Reload()
                             .then(() => this.setState({ waitsFileAction: false }));
                 })
                 .fail(error => {
@@ -596,6 +596,5 @@ ServiceDetails.propTypes = {
     unit: PropTypes.object.isRequired,
     originTemplate: PropTypes.string,
     permitted: PropTypes.bool.isRequired,
-    systemdManager: PropTypes.object.isRequired,
     isValid: PropTypes.func.isRequired,
 };

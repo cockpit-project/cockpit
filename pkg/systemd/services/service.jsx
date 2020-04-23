@@ -36,10 +36,23 @@ export class Service extends React.Component {
     constructor(props) {
         super(props);
 
-        this.state = { error: undefined };
-
         this.getCurrentUnitTemplate = this.getCurrentUnitTemplate.bind(this);
         this.getCurrentUnitTemplate();
+        this.state = {
+            error: undefined,
+            /* The initial load of the Services page will not call GetAll for units Properties
+             * since ListUnits API call allready has provided us with a subset of the Properties.
+             * As a result, properties like the 'Requires' are not present in the state at this point.
+             * If it's the first time to open this service's details page we need to fetch
+             * the unit properties by calling getUnitByPath.
+             */
+            shouldFetchProps: (!this.cur_unit_is_template && props.unit.Names === undefined)
+        };
+    }
+
+    componentDidMount() {
+        if (this.state.shouldFetchProps)
+            this.props.getUnitByPath(this.props.unit.path).finally(() => this.setState({ shouldFetchProps: false }));
     }
 
     getCurrentUnitTemplate() {
@@ -57,6 +70,9 @@ export class Service extends React.Component {
     }
 
     render() {
+        if (this.state.shouldFetchProps || (!this.cur_unit_is_template && this.props.unit.Names === undefined))
+            return null;
+
         let serviceDetails;
         if (this.cur_unit_is_template) {
             serviceDetails = (

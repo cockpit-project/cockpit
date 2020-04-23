@@ -35,14 +35,14 @@ export const ServicesList = ({ units, isTimer }) => {
                   id="services-list"
                   onSelectDataListItem={id => cockpit.location.go([id])}
                   className="services-list">
-            { units.map(unit => <ServicesRow key={unit.Id} isTimer={isTimer} {...unit} />) }
+            { units.map(unit => <ServicesRow key={unit.path} isTimer={isTimer} {...unit} />) }
         </DataList>
     );
 };
 
 class ServicesRow extends React.PureComponent {
     render() {
-        const { Id, shortId, AutomaticStartup, UnitFileState, LoadState, HasFailed, CombinedState, LastTriggerTime, NextRunTime, Description, WantedBy, isTimer } = this.props;
+        const { Id, shortId, AutomaticStartup, UnitFileState, LoadState, HasFailed, CombinedState, LastTriggerTime, NextRunTime, Description, isTimer } = this.props;
         const props = { shortId, Description };
         const columnsMap = {
             shortId: { value: _("Name"), className: "service-unit-id", width: 2 },
@@ -67,10 +67,7 @@ class ServicesRow extends React.PureComponent {
         else if (masked)
             tooltipMessage = _("Forbidden from running");
         else if (isStatic)
-            if (WantedBy && WantedBy.length)
-                tooltipMessage = cockpit.format(_("Required by $0"), WantedBy.join(", "));
-            else
-                tooltipMessage = _("Cannot be enabled");
+            tooltipMessage = _("Cannot be enabled");
 
         return (
             <DataListItem data-goto-unit={Id} aria-labelledby={Id} id={Id}>

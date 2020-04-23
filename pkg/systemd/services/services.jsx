@@ -306,19 +306,15 @@ class ServicesPage extends React.Component {
                             this.path_by_id[unit_id] = path;
                         }
 
-                        const unit = Object.assign({}, this.state.unit_by_path[path]);
-                        unit.path = path;
-                        unit.Id = unit_id;
-                        unit.LoadState = result[2];
-                        unit.ActiveState = result[3];
-                        unit.SubState = result[4];
-                        this.updateComputedProperties(unit);
-                        this.setState(prevState => ({
-                            unit_by_path: {
-                                ...prevState.unit_by_path,
-                                [path]: unit,
-                            }
-                        }));
+                        this.updateProperties(
+                            {
+                                Id: cockpit.variant("s", unit_id),
+                                Description: cockpit.variant("s", result[1]),
+                                LoadState: cockpit.variant("s", result[2]),
+                                ActiveState: cockpit.variant("s", result[3]),
+                                SubState: cockpit.variant("s", result[4]),
+                            }, path
+                        );
                     });
                     this.processFailedUnits();
                 }, ex => console.warn('ListUnitsFiltered failed: ', ex.toString()));
@@ -340,7 +336,6 @@ class ServicesPage extends React.Component {
         this.setState({ unit_by_path: {}, loadingUnits: true });
         this.seenPaths = new Set();
 
-        const paths = [];
         const promisesLoad = [];
 
         // Run ListUnits before LIstUnitFiles so that we avoid the extra LoadUnit calls
@@ -357,8 +352,17 @@ class ServicesPage extends React.Component {
                         if (!this.seenPaths.has(path)) {
                             this.seenPaths.add(path);
                             this.path_by_id[unit_id] = path;
-                            paths.push(path);
                         }
+
+                        this.updateProperties(
+                            {
+                                Id: cockpit.variant("s", unit_id),
+                                Description: cockpit.variant("s", result[1]),
+                                LoadState: cockpit.variant("s", result[2]),
+                                ActiveState: cockpit.variant("s", result[3]),
+                                SubState: cockpit.variant("s", result[4]),
+                            }, path
+                        );
                     });
                     systemd_manager.ListUnitFiles()
                             .then(results => {
@@ -369,9 +373,17 @@ class ServicesPage extends React.Component {
 
                                     this.state_by_id[unit_id] = unitFileState;
 
-                                    if (!this.isUnitHandled(unit_id) ||
-                                       (this.seenPaths.has(this.path_by_id[unit_id])))
+                                    if (!this.isUnitHandled(unit_id))
                                         return;
+
+                                    if (this.seenPaths.has(this.path_by_id[unit_id])) {
+                                        this.updateProperties(
+                                            {
+                                                Id: cockpit.variant("s", unit_id),
+                                                UnitFileState: cockpit.variant("s", unitFileState)
+                                            }, this.path_by_id[unit_id]);
+                                        return;
+                                    }
 
                                     if (isTemplate(unit_id)) {
                                         // Remove ".service" from services as this is not necessary
@@ -384,6 +396,7 @@ class ServicesPage extends React.Component {
                                             unit_by_path: {
                                                 ...this.state.unit_by_path,
                                                 [unit_id]: {
+                                                    path: unit_id,
                                                     Id: unit_id,
                                                     shortId: shortId,
                                                     Description: cockpit.format(_("$0 Template"), unit_id),
@@ -405,9 +418,8 @@ class ServicesPage extends React.Component {
                                         .then(result => {
                                             // First add the path in the seens paths to maintain the loading state
                                             result.forEach(path => this.seenPaths.add(path));
-                                            const allPaths = paths.concat(result);
 
-                                            return Promise.all(allPaths.map(path => this.getUnitByPath(path)));
+                                            return Promise.all(result.map(path => this.getUnitByPath(path)));
                                         })
                                         .finally(() => {
                                             this.setState({ loadingUnits: false });
@@ -656,6 +668,7 @@ class ServicesPage extends React.Component {
             const unit = this.state.unit_by_path[unit_path];
             return <Service unitIsValid={unitId => { const path = get_unit_path(unitId); return path !== undefined && this.state.unit_by_path[path].LoadState != 'not-found' }}
                             key={unit_id}
+                            getUnitByPath={this.getUnitByPath}
                             unit={unit} />;
         }
 
@@ -677,7 +690,7 @@ class ServicesPage extends React.Component {
                     if (unit.LoadState == "not-found")
                         return false;
 
-                    if (currentTextFilter && unit.Description.toLowerCase().indexOf(currentTextFilter) == -1 &&
+                    if (currentTextFilter && unit.Description && unit.Description.toLowerCase().indexOf(currentTextFilter) == -1 &&
                         unit.Id.indexOf(currentTextFilter) == -1)
                         return false;
 

@@ -259,14 +259,14 @@ class ServicesPage extends React.Component {
          * call results have time delay between one another
          */
         if (cockpit.hidden ||
-           (nextState.loadingUnits === true && this.state.loadingUnits === true) ||
-           (this.seenPaths.size == 0 || this.seenPaths.size > Object.keys(nextState.unit_by_path).length))
+           (nextState.loadingUnits === true && this.state.loadingUnits === true))
             return false;
+
         return true;
     }
 
     getLoadingInProgress() {
-        return !cockpit.hidden && (this.state.loadingUnits || (this.seenPaths.size == 0 || this.seenPaths.size > Object.keys(this.state.unit_by_path).length));
+        return !cockpit.hidden && this.state.loadingUnits;
     }
 
     on_navigate() {
@@ -653,7 +653,7 @@ class ServicesPage extends React.Component {
     render() {
         const { path, unit_by_path } = this.state;
 
-        if (this.state.loadingUnits || this.seenPaths.size > Object.keys(this.state.unit_by_path).length)
+        if (this.state.loadingUnits)
             return <EmptyStatePanel loading title={_("Loading...")} />;
 
         /* Perform navigation */

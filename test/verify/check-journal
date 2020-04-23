@@ -23,12 +23,6 @@ from testlib import *
 
 class TestJournal(MachineCase):
 
-    def setUp(self):
-        super().setUp()
-        self.crash_fn = "__nanosleep"
-        if self.machine.image == "fedora-32":
-            self.crash_fn = "clock_nanosleep"
-
     def select_from_dropdown(self, browser, selector, value, click=True):
         button_text_selector = "{0} button span:nth-of-type(1)".format(selector)
 
@@ -386,7 +380,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
         self.login_and_go("/system/logs")
 
-        sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in %s')" % self.crash_fn
+        sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('(sleep) crashed in')"
 
         self.select_from_dropdown(b, "#journal-prio-menu", "Critical and above")
         b.wait_visible(sel)
@@ -430,22 +424,22 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
         self.login_and_go("/system/logs")
 
-        sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in %s')" % self.crash_fn
+        sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('(sleep) crashed in')"
         b.click(sel)
 
         b.wait_in_text("#journal-entry-heading", "sleep")
         sel = "#journal-entry-fields .nav .pf-m-danger"
         b.click(sel)
 
-        b.wait_in_text('#journal-box', "crashed in " + self.crash_fn)
+        b.wait_in_text('#journal-box', "(sleep) crashed in")
 
-        sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in %s')" % self.crash_fn
+        sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('(sleep) crashed in')"
         b.click(sel)
 
         b.wait_in_text("#journal-entry-heading", "sleep")
         # details view should hide log view
         b.wait_not_visible('.cockpit-log-panel')
-        b.wait_present("#journal-entry-message:contains('crashed in %s')" % self.crash_fn)
+        b.wait_present("#journal-entry-message:contains('(sleep) crashed in')")
         b.wait_not_present("#journal-entry-fields .nav .pf-m-danger")
 
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
@@ -480,7 +474,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
         self.login_and_go("/system/logs")
 
-        sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in %s')" % self.crash_fn
+        sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('(sleep) crashed in')"
         b.click(sel)
 
         sel = "table.reporting-table tr:first-child button:contains('Report')"
@@ -548,7 +542,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
         self.login_and_go("/system/logs")
 
-        sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in %s')" % self.crash_fn
+        sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('(sleep) crashed in')"
         b.click(sel)
 
         sel = "table.reporting-table tr:contains('Report to Cockpit') button:contains('Report')"
@@ -585,7 +579,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
         self.login_and_go("/system/logs")
 
-        sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in %s')" % self.crash_fn
+        sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('(sleep) crashed in')"
         b.click(sel)
 
         sel = "table.reporting-table tr:first-child button:contains('Report')"

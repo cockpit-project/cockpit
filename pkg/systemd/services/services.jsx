@@ -145,6 +145,7 @@ class ServicesPage extends React.Component {
             privileged: true,
             path: cockpit.location.path,
             tabErrors: {},
+            isFullyLoaded: false,
         };
         /* Functions for controlling the toolbar's components */
         this.onClearAllFilters = this.onClearAllFilters.bind(this);
@@ -197,8 +198,16 @@ class ServicesPage extends React.Component {
         });
 
         cockpit.addEventListener("visibilitychange", () => {
-            if (!cockpit.hidden)
-                this.listUnits();
+            if (!cockpit.hidden) {
+                /* If the page had only been fetched in the background we need to properly initialize the state now
+                 * else just trigger an re-render since we are receiving signals while running in the background and
+                 * we update the state but don't re-render
+                 */
+                if (!this.state.isFullyLoaded)
+                    this.listUnits();
+                else
+                    this.setState({});
+            }
         });
 
         /* Start listening to signals for updates - when in the middle of reload mute all signals
@@ -254,14 +263,7 @@ class ServicesPage extends React.Component {
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        /*
-         * Filter out some re-render, otherwise at the initial loading where all the units are loaded one by one
-         * there are too many re-renders happening which seems to freeze little bit the initial loading phase
-         * Generally React is supposed to batch the setState calls but in this case it seems to not happen since the API
-         * call results have time delay between one another
-         */
-        if (cockpit.hidden ||
-           (nextState.loadingUnits === true && this.state.loadingUnits === true))
+        if (cockpit.hidden)
             return false;
 
         return true;
@@ -335,7 +337,8 @@ class ServicesPage extends React.Component {
             return this.listFailedUnits();
 
         // Reinitialize the state variables for the units
-        this.setState({ unit_by_path: {}, loadingUnits: true });
+        this.setState({ loadingUnits: true });
+
         this.seenPaths = new Set();
 
         const promisesLoad = [];
@@ -424,7 +427,24 @@ class ServicesPage extends React.Component {
                                             return Promise.all(result.map(path => this.getUnitByPath(path)));
                                         })
                                         .finally(() => {
-                                            this.setState({ loadingUnits: false });
+                                            // Remove units from state that are not listed from the API in this iteration
+                                            const unit_by_path = Object.assign({}, this.state.unit_by_path);
+                                            let hasExtraEntries = false;
+                                            const newState = {};
+
+                                            for (const unitPath in this.state.unit_by_path) {
+                                                if (!this.seenPaths.has(unitPath)) {
+                                                    hasExtraEntries = true;
+                                                    delete unit_by_path[unitPath];
+                                                }
+                                            }
+                                            if (hasExtraEntries)
+                                                newState.unit_by_path = unit_by_path;
+
+                                            newState.loadingUnits = false;
+                                            newState.isFullyLoaded = true;
+
+                                            this.setState(newState);
                                             this.processFailedUnits();
                                         });
                             }, ex => console.warn('ListUnitFiles failed: ', ex.toString()));
@@ -466,11 +486,20 @@ class ServicesPage extends React.Component {
 
     addTimerProperties(timer_unit, path) {
         const unit = Object.assign({}, this.state.unit_by_path[path]);
+        let needsUpdate = false;
 
-        unit.LastTriggerTime = moment(timer_unit.LastTriggerUSec / 1000).calendar();
+        const lastTriggerTime = moment(timer_unit.LastTriggerUSec / 1000).calendar();
+        if (lastTriggerTime !== unit.LastTriggerTime) {
+            unit.LastTriggerTime = lastTriggerTime;
+            needsUpdate = true;
+        }
         const system_boot_time = clock_realtime_now.valueOf() * 1000 - clock_monotonic_now;
-        if (timer_unit.LastTriggerUSec === -1 || timer_unit.LastTriggerUSec === 0)
-            unit.LastTriggerTime = _("unknown");
+        if (timer_unit.LastTriggerUSec === -1 || timer_unit.LastTriggerUSec === 0) {
+            if (unit.LastTriggerTime !== _("unknown")) {
+                unit.LastTriggerTime = _("unknown");
+                needsUpdate = true;
+            }
+        }
         let next_run_time = 0;
         if (timer_unit.NextElapseUSecRealtime === 0)
             next_run_time = timer_unit.NextElapseUSecMonotonic + system_boot_time;
@@ -482,16 +511,27 @@ class ServicesPage extends React.Component {
             else
                 next_run_time = timer_unit.NextElapseUSecRealtime;
         }
-        unit.NextRunTime = moment(next_run_time / 1000).calendar();
-        if (timer_unit.NextElapseUSecMonotonic <= 0 && timer_unit.NextElapseUSecRealtime <= 0)
-            unit.NextRunTime = _("unknown");
+        const nextRunTime = moment(next_run_time / 1000).calendar();
+        if (nextRunTime !== unit.NextRunTime) {
+            unit.NextRunTime = nextRunTime;
+            needsUpdate = true;
+        }
 
-        this.setState(prevState => ({
-            unit_by_path: {
-                ...prevState.unit_by_path,
-                [unit.path]: unit,
+        if (timer_unit.NextElapseUSecMonotonic <= 0 && timer_unit.NextElapseUSecRealtime <= 0) {
+            if (unit.NextRunTime !== _("unknown")) {
+                unit.NextRunTime = _("unknown");
+                needsUpdate = true;
             }
-        }));
+        }
+
+        if (needsUpdate) {
+            this.setState(prevState => ({
+                unit_by_path: {
+                    ...prevState.unit_by_path,
+                    [unit.path]: unit,
+                }
+            }));
+        }
     }
 
     /* Add some computed properties into a unit object - does not call setState */
@@ -543,6 +583,10 @@ class ServicesPage extends React.Component {
         const unitNew = Object.assign({}, this.state.unit_by_path[path]);
         const prop = p => {
             if (props[p]) {
+                if (Array.isArray(props[p].v) && Array.isArray(unitNew[p]) && JSON.stringify(props[p].v.sort()) == JSON.stringify(unitNew[p].sort()))
+                    return;
+                else if (!Array.isArray(props[p].v) && props[p].v == unitNew[p])
+                    return;
                 shouldUpdate = true;
                 unitNew[p] = props[p].v;
             }
@@ -584,6 +628,17 @@ class ServicesPage extends React.Component {
 
         prop("ActiveEnterTimestamp");
 
+        if (unitNew.Id.slice(-5) == "timer") {
+            unitNew.is_timer = true;
+            if (unitNew.ActiveState == "active") {
+                const timer_unit = systemd_client.proxy('org.freedesktop.systemd1.Timer', unitNew.path);
+                timer_unit.wait(() => {
+                    if (timer_unit.valid)
+                        this.addTimerProperties(timer_unit, path);
+                });
+            }
+        }
+
         if (!shouldUpdate)
             return;
 
@@ -595,17 +650,6 @@ class ServicesPage extends React.Component {
                 [path]: unitNew,
             }
         }));
-
-        if (unitNew.Id.slice(-5) == "timer") {
-            unitNew.is_timer = true;
-            if (unitNew.ActiveState == "active") {
-                const timer_unit = systemd_client.proxy('org.freedesktop.systemd1.Timer', unitNew.path);
-                timer_unit.wait(() => {
-                    if (timer_unit.valid)
-                        this.addTimerProperties(timer_unit, path);
-                });
-            }
-        }
     }
 
     /**
@@ -655,7 +699,7 @@ class ServicesPage extends React.Component {
     render() {
         const { path, unit_by_path } = this.state;
 
-        if (this.state.loadingUnits)
+        if (!this.state.isFullyLoaded)
             return <EmptyStatePanel loading title={_("Loading...")} />;
 
         /* Perform navigation */

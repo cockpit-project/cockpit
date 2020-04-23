@@ -40,38 +40,39 @@ export const ServicesList = ({ units, isTimer }) => {
     );
 };
 
-const ServicesRow = ({ Id, shortId, AutomaticStartup, UnitFileState, LoadState, HasFailed, CombinedState, LastTriggerTime, NextRunTime, Description, WantedBy, isTimer }) => {
-    const props = { shortId, Description };
-    const columnsMap = {
-        shortId: { value: _("Name"), className: "service-unit-id", width: 2 },
-        Description: { value: _("Description"), className: "service-unit-description", width: 4 },
-        Triggers: { value: _("Triggers"), timerOnly: true, className: "service-unit-triggers", width: 3 },
-    };
+class ServicesRow extends React.PureComponent {
+    render() {
+        const { Id, shortId, AutomaticStartup, UnitFileState, LoadState, HasFailed, CombinedState, LastTriggerTime, NextRunTime, Description, WantedBy, isTimer } = this.props;
+        const props = { shortId, Description };
+        const columnsMap = {
+            shortId: { value: _("Name"), className: "service-unit-id", width: 2 },
+            Description: { value: _("Description"), className: "service-unit-description", width: 4 },
+            Triggers: { value: _("Triggers"), timerOnly: true, className: "service-unit-triggers", width: 3 },
+        };
 
-    const enabled = UnitFileState === "enabled";
-    const disabled = UnitFileState === "disabled";
-    const isStatic = !disabled && !enabled;
-    const masked = LoadState === "masked";
-    let unitFileState;
-    if (!isStatic && !masked)
-        unitFileState = <Badge className="service-unit-file-state" isRead={!enabled}>{AutomaticStartup}</Badge>;
-    else
-        unitFileState = <span className="service-unit-file-state service-unit-file-state-non-badge">{AutomaticStartup}</span>;
-    let tooltipMessage = "";
-    if (enabled)
-        tooltipMessage = _("Automatically starts");
-    else if (disabled)
-        tooltipMessage = _("Does not automatically start");
-    else if (masked)
-        tooltipMessage = _("Forbidden from running");
-    else if (isStatic)
-        if (WantedBy && WantedBy.length)
-            tooltipMessage = cockpit.format(_("Required by $0"), WantedBy.join(", "));
+        const enabled = UnitFileState === "enabled";
+        const disabled = UnitFileState === "disabled";
+        const isStatic = !disabled && !enabled;
+        const masked = LoadState === "masked";
+        let unitFileState;
+        if (!isStatic && !masked)
+            unitFileState = <Badge className="service-unit-file-state" isRead={!enabled}>{AutomaticStartup}</Badge>;
         else
-            tooltipMessage = _("Cannot be enabled");
+            unitFileState = <span className="service-unit-file-state service-unit-file-state-non-badge">{AutomaticStartup}</span>;
+        let tooltipMessage = "";
+        if (enabled)
+            tooltipMessage = _("Automatically starts");
+        else if (disabled)
+            tooltipMessage = _("Does not automatically start");
+        else if (masked)
+            tooltipMessage = _("Forbidden from running");
+        else if (isStatic)
+            if (WantedBy && WantedBy.length)
+                tooltipMessage = cockpit.format(_("Required by $0"), WantedBy.join(", "));
+            else
+                tooltipMessage = _("Cannot be enabled");
 
-    return (
-        <>
+        return (
             <DataListItem data-goto-unit={Id} aria-labelledby={Id} id={Id}>
                 <DataListItemRow className={HasFailed ? "service-unit-failed" : ""}>
                     <DataListItemCells
@@ -102,6 +103,6 @@ const ServicesRow = ({ Id, shortId, AutomaticStartup, UnitFileState, LoadState, 
                     </DataListAction>
                 </DataListItemRow>
             </DataListItem>
-        </>
-    );
-};
+        );
+    }
+}

@@ -38,8 +38,9 @@ export class MotdCard extends React.Component {
 
     componentDidMount() {
         cockpit.file("/etc/motd").watch(content => {
+            /* trim initial empty lines and trailing space, but keep initial spaces to not break ASCII art */
             if (content)
-                content = content.trimRight();
+                content = content.trimRight().replace(/^\s*\n/, '');
             if (content && content != cockpit.localStorage.getItem('dismissed-motd')) {
                 this.setState({ motdText: content, motdVisible: true });
             } else {

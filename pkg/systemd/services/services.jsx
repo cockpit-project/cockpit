@@ -321,7 +321,7 @@ class ServicesPage extends React.Component {
                         }));
                     });
                     this.processFailedUnits();
-                }, ex => console.warn('ListUnitsFiltered failed: ', ex.message));
+                }, ex => console.warn('ListUnitsFiltered failed: ', ex.toString()));
     }
 
     listUnits() {
@@ -415,8 +415,8 @@ class ServicesPage extends React.Component {
                                             this.setState({ loadingUnits: false });
                                             this.processFailedUnits();
                                         });
-                            }, ex => console.warn('ListUnitFiles failed: ', ex.message));
-                }, ex => console.warn('ListUnits failed: ', ex.message));
+                            }, ex => console.warn('ListUnitFiles failed: ', ex.toString()));
+                }, ex => console.warn('ListUnits failed: ', ex.toString()));
     }
 
     onPermissionChanged() {

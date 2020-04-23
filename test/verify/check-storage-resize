@@ -145,8 +145,8 @@ class TestStorage(StorageCase):
             if not b.is_present(selector):
                 return
             # HACK - https://github.com/storaged-project/udisks/pull/631
-            m.execute("udevadm trigger")
-            time.sleep(2)
+            m.execute("udevadm trigger --subsystem-match=block")
+            time.sleep(5)
         raise Error('element did not disappear')
 
     def shrink_extfs(self, fs_dev, size):

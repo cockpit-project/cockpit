@@ -245,6 +245,10 @@ class ServicesPage extends React.Component {
 
     componentWillUnmount() {
         cockpit.removeEventListener("locationchanged", this.on_navigate);
+        if (this.render_holdoff) {
+            window.clearTimeout(this.render_holdoff);
+            this.render_holdoff = 0;
+        }
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -257,6 +261,39 @@ class ServicesPage extends React.Component {
         if ((nextState.loadingUnits === true && this.state.loadingUnits === true) ||
            (this.seenPaths.size == 0 || this.seenPaths.size > Object.keys(nextState.unit_by_path).length))
             return false;
+
+        /* Throttle render rate to 5Hz when the 'deep state' changes.
+         * Things like "udevadm trigger" cause a flood of state
+         * updates, and we don't need to render them all.  However, we
+         * need to immediately render when UI state changes, such as
+         * the filter pattern.
+         */
+
+        const changed = (field) => this.state[field] != nextState[field];
+
+        if (changed('activeTab') || changed('stateDropdownIsExpanded') ||
+            changed('currentTypeFilter') || changed('currentTextFilter')) {
+            if (this.render_holdoff) {
+                window.clearTimeout(this.render_holdoff);
+                this.render_holdoff = 0;
+            }
+            return true;
+        }
+
+        if (this.render_holdoff) {
+            this.need_render += 1;
+            return false;
+        }
+
+        this.need_render = 0;
+        this.render_holdoff = window.setTimeout(() => {
+            this.render_holdoff = 0;
+            if (this.need_render) {
+                console.log("HELD", this.need_render);
+                this.setState({});
+            }
+        }, 200);
+
         return true;
     }
 

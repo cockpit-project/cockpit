@@ -20,7 +20,7 @@
 import $ from "jquery";
 import cockpit from "cockpit";
 import { mustache } from "mustache";
-import { systemd_manager, clock_realtime_now, updateTime } from "./services.jsx";
+import { systemd_client, SD_OBJ, SD_MANAGER, clock_realtime_now, updateTime } from "./services.jsx";
 import "bootstrap-datepicker/dist/js/bootstrap-datepicker";
 
 import moment from "moment";
@@ -404,8 +404,8 @@ function create_timer_file() {
     file = cockpit.file(timer_path, { superuser: 'try' });
     file.replace(timer_file)
             .then(tag => {
-                systemd_manager.EnableUnitFiles([timer_unit.name + ".timer"], false, false)
-                        .then(() => systemd_manager.Reload().then(() => {
+                systemd_client.call(SD_OBJ, SD_MANAGER, "EnableUnitFiles", [[timer_unit.name + ".timer"], false, false])
+                        .then(() => systemd_client.call(SD_OBJ, SD_MANAGER, "Reload", null).then(() => {
                             $('#create-timer-spinner').prop("hidden", true);
                             $("#timer-dialog").modal("toggle");
                         }))
@@ -415,7 +415,7 @@ function create_timer_file() {
                         });
                 // start calendar timers
                 if (timer_unit.Calendar_or_Boot == "Calendar") {
-                    systemd_manager.StartUnit(timer_unit.name + ".timer", "replace")
+                    systemd_client.call(SD_OBJ, SD_MANAGER, "StartUnit", [timer_unit.name + ".timer", "replace"])
                             .catch(error => console.warn("Failed to start timer unit:", error.toString()));
                 }
             })

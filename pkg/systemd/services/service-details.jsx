@@ -25,7 +25,7 @@ import { Modal, OverlayTrigger, Tooltip, DropdownKebab, MenuItem } from 'pattern
 
 import cockpit from "cockpit";
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
-import { systemd_manager } from "./services.jsx";
+import { systemd_client, SD_MANAGER, SD_OBJ } from "./services.jsx";
 
 import './service-details.scss';
 
@@ -113,7 +113,7 @@ export class ServiceTemplate extends React.Component {
                     s = s + cur_unit_id.substring(sp);
 
                 this.setState({ instantiateInProgress: true });
-                systemd_manager.call("StartUnit", [s, "fail"])
+                systemd_client.call(SD_OBJ, SD_MANAGER, "StartUnit", [s, "fail"])
                         .then(() => setTimeout(() => cockpit.location.go([s]), 2000))
                         .catch(error => this.setState({ error: error.toString(), instantiateInProgress: false }));
             }
@@ -359,7 +359,7 @@ export class ServiceDetails extends React.Component {
         if (extra_args === undefined)
             extra_args = ["fail"];
         this.setState({ waitsAction: true });
-        systemd_manager.call(method, [this.props.unit.Names[0]].concat(extra_args))
+        systemd_client.call(SD_OBJ, SD_MANAGER, method, [this.props.unit.Names[0]].concat(extra_args))
                 .catch(error => this.setState({ error: error.toString() }))
                 .finally(() => this.setState({ waitsAction: false }));
     }
@@ -369,14 +369,14 @@ export class ServiceDetails extends React.Component {
         const args = [[this.props.unit.Names[0]], false];
         if (force !== undefined)
             args.push(force == "true");
-        systemd_manager.call(method, args)
-                .then(results => {
+        systemd_client.call(SD_OBJ, SD_MANAGER, method, args)
+                .then(([results]) => {
                     if (results.length == 2 && !results[0])
                         this.setState({ note:_("This unit is not designed to be enabled explicitly.") });
                     /* Executing daemon reload after file operations is necessary -
                      * see https://github.com/systemd/systemd/blob/master/src/systemctl/systemctl.c [enable_unit function]
                      */
-                    systemd_manager.Reload()
+                    systemd_client.call(SD_OBJ, SD_MANAGER, "Reload", null)
                             .then(() => this.setState({ waitsFileAction: false }));
                 })
                 .catch(error => {

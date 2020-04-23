@@ -52,11 +52,12 @@ moment.locale(cockpit.language);
 const _ = cockpit.gettext;
 
 export const systemd_client = cockpit.dbus("org.freedesktop.systemd1", { superuser: "try" });
-export const systemd_manager = systemd_client.proxy("org.freedesktop.systemd1.Manager",
-                                                    "/org/freedesktop/systemd1");
 const timedate_client = cockpit.dbus('org.freedesktop.timedate1');
 export let clock_realtime_now;
 export let clock_monotonic_now;
+
+export const SD_MANAGER = "org.freedesktop.systemd1.Manager";
+export const SD_OBJ = "/org/freedesktop/systemd1";
 
 export function updateTime() {
     cockpit.spawn(["cat", "/proc/uptime"])
@@ -154,6 +155,7 @@ class ServicesPage extends React.Component {
 
         /* Function for manipulating with the API results and store the units in the React state */
         this.processFailedUnits = this.processFailedUnits.bind(this);
+        this.listUnits = this.listUnits.bind(this);
         this.getUnitByPath = this.getUnitByPath.bind(this);
         this.updateProperties = this.updateProperties.bind(this);
         this.addTimerProperties = this.addTimerProperties.bind(this);
@@ -181,19 +183,13 @@ class ServicesPage extends React.Component {
         /* Prepare the "Create Timer" dialog - TODO: this needs to be rewritten in React */
         timerDialogSetup();
 
-        systemd_manager.wait(() => {
-            if (systemd_manager.valid) {
-                this.systemd_subscription = systemd_manager.Subscribe()
-                        .catch(error => {
-                            if (error.name != "org.freedesktop.systemd1.AlreadySubscribed" &&
-                            error.name != "org.freedesktop.DBus.Error.FileExists")
-                                console.warn("Subscribing to systemd signals failed", error.toString());
-                        });
-                this.listUnits();
-            } else {
-                console.warn("Connecting to systemd failed");
-            }
-        });
+        this.systemd_subscription = systemd_client.call(SD_OBJ, SD_MANAGER, "Subscribe", null)
+                .finally(this.listUnits)
+                .catch(error => {
+                    if (error.name != "org.freedesktop.systemd1.AlreadySubscribed" &&
+                    error.name != "org.freedesktop.DBus.Error.FileExists")
+                        console.warn("Subscribing to systemd signals failed", error.toString());
+                });
 
         cockpit.addEventListener("visibilitychange", () => {
             if (!cockpit.hidden) {
@@ -225,10 +221,11 @@ class ServicesPage extends React.Component {
             this.processFailedUnits();
         });
 
-        ["JobNew", "JobRemoved"].forEach(signalType => {
-            systemd_manager.addEventListener(signalType, (event, number, job, unit_id, result) => {
-                systemd_manager.LoadUnit(unit_id)
-                        .then(path => {
+        ["JobNew", "JobRemoved"].forEach(signalName => {
+            systemd_client.subscribe({ interface: SD_MANAGER, member: signalName }, (path, iface, signal, args) => {
+                const unit_id = args[2];
+                systemd_client.call(SD_OBJ, SD_MANAGER, "LoadUnit", [unit_id])
+                        .then(([path]) => {
                             if (!this.seenPaths.has(path))
                                 this.seenPaths.add(path);
 
@@ -237,7 +234,8 @@ class ServicesPage extends React.Component {
             });
         });
 
-        systemd_manager.addEventListener("Reloading", (event, reloading) => {
+        systemd_client.subscribe({ interface: SD_MANAGER, member: "Reloading" }, (path, iface, signal, args) => {
+            const reloading = args[0];
             if (!reloading && !this.state.loadingUnits)
                 this.listUnits();
         });
@@ -283,8 +281,8 @@ class ServicesPage extends React.Component {
      * might have changed the failed units array
      */
     listFailedUnits() {
-        return systemd_manager.ListUnitsFiltered(["failed"])
-                .then(failed => {
+        return systemd_client.call(SD_OBJ, SD_MANAGER, "ListUnitsFiltered", [["failed"]])
+                .then(([failed]) => {
                     failed.forEach(result => {
                         const path = result[6];
                         const unit_id = result[0];
@@ -316,9 +314,6 @@ class ServicesPage extends React.Component {
     }
 
     listUnits() {
-        if (!systemd_manager.valid)
-            return;
-
         if (cockpit.hidden)
             return this.listFailedUnits();
 
@@ -331,8 +326,8 @@ class ServicesPage extends React.Component {
 
         // Run ListUnits before LIstUnitFiles so that we avoid the extra LoadUnit calls
         // Now we call LoadUnit only for those that ListUnits didn't tell us about
-        systemd_manager.ListUnits()
-                .then(results => {
+        systemd_client.call(SD_OBJ, SD_MANAGER, "ListUnits", null)
+                .then(([results]) => {
                     results.forEach(result => {
                         const path = result[6];
                         const unit_id = result[0];
@@ -353,8 +348,9 @@ class ServicesPage extends React.Component {
                             }, path
                         );
                     });
-                    systemd_manager.ListUnitFiles()
-                            .then(results => {
+
+                    systemd_client.call(SD_OBJ, SD_MANAGER, "ListUnitFiles", null)
+                            .then(([results]) => {
                                 results.forEach(result => {
                                     const unit_path = result[0];
                                     const unit_id = unit_path.split('/').pop();
@@ -383,7 +379,7 @@ class ServicesPage extends React.Component {
                                         return;
                                     }
 
-                                    promisesLoad.push(systemd_manager.LoadUnit(unit_id).then(unit_path => {
+                                    promisesLoad.push(systemd_client.call(SD_OBJ, SD_MANAGER, "LoadUnit", [unit_id]).then(([unit_path]) => {
                                         this.updateProperties(
                                             {
                                                 Id: cockpit.variant("s", unit_id),

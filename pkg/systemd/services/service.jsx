@@ -25,7 +25,6 @@ import {
 
 import { ServiceDetails, ServiceTemplate } from "./service-details.jsx";
 import { LogsPanel } from "cockpit-components-logs-panel.jsx";
-import { systemd_manager } from "./services.jsx";
 
 import cockpit from "cockpit";
 
@@ -83,7 +82,6 @@ export class Service extends React.Component {
                 <ServiceDetails unit={this.props.unit}
                                 originTemplate={this.cur_unit_template}
                                 permitted={permission.allowed}
-                                systemdManager={systemd_manager}
                                 loadingUnits={this.props.loadingUnits}
                                 isValid={this.props.unitIsValid} />
             );

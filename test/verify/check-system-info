@@ -362,9 +362,13 @@ class TestSystemInfo(MachineCase):
         self.login_and_go("/system")
         b.wait_not_present('#motd-box')
 
-        m.execute(r"printf '  Hello\n  World\n\n' >/etc/motd")
+        m.execute(r"printf '\n  \n  Hello\n  World\n\n' >/etc/motd")
         b.wait_visible('#motd-box')
-        b.wait_text('#motd', "  Hello\n  World")
+        # strips empty lines, but not leading spaces; fixed in PR #13951
+        if m.image in ["rhel-8-2-distropkg"]:
+            b.wait_text('#motd', "\n  \n  Hello\n  World")
+        else:
+            b.wait_text('#motd', "  Hello\n  World")
 
         b.click('#motd-box button')
         b.wait_not_present('#motd-box')

@@ -104,18 +104,18 @@ export class ServiceTemplate extends React.Component {
         const cur_unit_id = this.props.template;
 
         if (cur_unit_id) {
-            var tp = cur_unit_id.indexOf("@");
-            var sp = cur_unit_id.lastIndexOf(".");
+            const tp = cur_unit_id.indexOf("@");
+            const sp = cur_unit_id.lastIndexOf(".");
             if (tp != -1) {
-                var s = cur_unit_id.substring(0, tp + 1);
+                let s = cur_unit_id.substring(0, tp + 1);
                 s = s + this.systemd_escape(param);
                 if (sp != -1)
                     s = s + cur_unit_id.substring(sp);
 
                 this.setState({ instantiateInProgress: true });
                 systemd_manager.call("StartUnit", [s, "fail"])
-                        .done(() => setTimeout(() => cockpit.location.go([s]), 2000))
-                        .fail(error => this.setState({ error: error.toString(), instantiateInProgress: false }));
+                        .then(() => setTimeout(() => cockpit.location.go([s]), 2000))
+                        .catch(error => this.setState({ error: error.toString(), instantiateInProgress: false }));
             }
         }
     }
@@ -360,7 +360,7 @@ export class ServiceDetails extends React.Component {
             extra_args = ["fail"];
         this.setState({ waitsAction: true });
         systemd_manager.call(method, [this.props.unit.Names[0]].concat(extra_args))
-                .fail(error => this.setState({ error: error.toString() }))
+                .catch(error => this.setState({ error: error.toString() }))
                 .finally(() => this.setState({ waitsAction: false }));
     }
 
@@ -379,7 +379,7 @@ export class ServiceDetails extends React.Component {
                     systemd_manager.Reload()
                             .then(() => this.setState({ waitsFileAction: false }));
                 })
-                .fail(error => {
+                .catch(error => {
                     this.setState({
                         error: error.toString(),
                         waitsFileAction: false

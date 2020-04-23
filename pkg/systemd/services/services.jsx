@@ -64,11 +64,11 @@ export function updateTime() {
                 // first number is time since boot in seconds with two fractional digits
                 const uptime = parseFloat(contents.split(' ')[0]);
                 clock_monotonic_now = parseInt(uptime * 1000000, 10);
-            }, ex => console.log(ex));
+            }, ex => console.log(ex.toString()));
     cockpit.spawn(["date", "+%s"])
             .then(function(time) {
                 clock_realtime_now = moment.unix(parseInt(time));
-            }, ex => console.log(ex));
+            }, ex => console.log(ex.toString()));
 }
 
 /* Notes about the systemd D-Bus API
@@ -187,7 +187,7 @@ class ServicesPage extends React.Component {
                         .catch(error => {
                             if (error.name != "org.freedesktop.systemd1.AlreadySubscribed" &&
                             error.name != "org.freedesktop.DBus.Error.FileExists")
-                                console.warn("Subscribing to systemd signals failed", error);
+                                console.warn("Subscribing to systemd signals failed", error.toString());
                         });
                 this.listUnits();
             } else {
@@ -638,12 +638,8 @@ class ServicesPage extends React.Component {
         return systemd_client.call(path,
                                    "org.freedesktop.DBus.Properties", "GetAll",
                                    ["org.freedesktop.systemd1.Unit"])
-                .fail(error => {
-                    console.warn('GetAll failed for', path, error);
-                })
-                .then(result => {
-                    this.updateProperties(result[0], path);
-                });
+                .then(result => this.updateProperties(result[0], path))
+                .catch(error => console.warn('GetAll failed for', path, error.toString()));
     }
 
     processFailedUnits() {

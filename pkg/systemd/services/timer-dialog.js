@@ -399,33 +399,29 @@ function create_timer_file() {
     var service_path = "/etc/systemd/system/" + timer_unit.name + ".service";
     var file = cockpit.file(service_path, { superuser: 'try' });
     file.replace(service_file)
-            .fail(function(error) {
-                console.log(error);
-            });
+            .catch(error => console.log(error.toString()));
     var timer_path = "/etc/systemd/system/" + timer_unit.name + ".timer";
     file = cockpit.file(timer_path, { superuser: 'try' });
     file.replace(timer_file)
-            .done(function(tag) {
+            .then(tag => {
                 systemd_manager.EnableUnitFiles([timer_unit.name + ".timer"], false, false)
                         .then(() => systemd_manager.Reload().then(() => {
                             $('#create-timer-spinner').prop("hidden", true);
                             $("#timer-dialog").modal("toggle");
                         }))
-                        .fail(function(error) {
+                        .catch(error => {
                             $('#create-timer-spinner').prop("hidden", true);
-                            console.warn("Failed to enable timer unit:", error);
+                            console.warn("Failed to enable timer unit:", error.toString());
                         });
                 // start calendar timers
                 if (timer_unit.Calendar_or_Boot == "Calendar") {
                     systemd_manager.StartUnit(timer_unit.name + ".timer", "replace")
-                            .fail(function(error) {
-                                console.warn("Failed to start timer unit:", error);
-                            });
+                            .catch(error => console.warn("Failed to start timer unit:", error.toString()));
                 }
             })
-            .fail(function(error) {
+            .catch(error => {
                 $('#create-timer-spinner').prop("hidden", false);
-                console.log(error);
+                console.log(error.toString());
             });
 }
 

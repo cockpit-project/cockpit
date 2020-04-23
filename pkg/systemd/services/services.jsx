@@ -347,24 +347,22 @@ class ServicesPage extends React.Component {
         // Now we call LoadUnit only for those that ListUnits didn't tell us about
         systemd_manager.ListUnits()
                 .then(results => {
-                    for (let i = 0; i < results.length; i++) {
-                        const result = results[i];
+                    results.forEach(result => {
                         const path = result[6];
                         const unit_id = result[0];
 
                         if (!this.isUnitHandled(unit_id))
-                            continue;
+                            return;
 
                         if (!this.seenPaths.has(path)) {
                             this.seenPaths.add(path);
                             this.path_by_id[unit_id] = path;
                             paths.push(path);
                         }
-                    }
+                    });
                     systemd_manager.ListUnitFiles()
                             .then(results => {
-                                for (let i = 0; i < results.length; i++) {
-                                    const result = results[i];
+                                results.forEach(result => {
                                     const unit_path = result[0];
                                     const unit_id = unit_path.split('/').pop();
                                     const unitFileState = result[1];
@@ -373,7 +371,7 @@ class ServicesPage extends React.Component {
 
                                     if (!this.isUnitHandled(unit_id) ||
                                        (this.seenPaths.has(this.path_by_id[unit_id])))
-                                        continue;
+                                        return;
 
                                     if (isTemplate(unit_id)) {
                                         // Remove ".service" from services as this is not necessary
@@ -397,11 +395,11 @@ class ServicesPage extends React.Component {
                                         });
                                         this.path_by_id[unit_id] = unit_id;
                                         this.seenPaths.add(unit_id);
-                                        continue;
+                                        return;
                                     }
 
                                     promisesLoad.push(systemd_manager.LoadUnit(unit_id).catch(ex => console.warn(ex)));
-                                }
+                                });
 
                                 Promise.all(promisesLoad)
                                         .then(result => {

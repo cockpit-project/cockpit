@@ -93,6 +93,7 @@ export class Service extends React.Component {
             "COREDUMP_UNIT=" + cur_unit_id, "+",
             "UNIT=" + cur_unit_id,
         ];
+        const url = "/system/logs/#/?prio=debug&service=" + cur_unit_id;
 
         return (
             <Page id="service-details">
@@ -109,7 +110,7 @@ export class Service extends React.Component {
                 </PageSection>
                 {!this.cur_unit_is_template && (this.props.unit.LoadState === "loaded" || this.props.unit.LoadState === "masked") &&
                 <PageSection variant={PageSectionVariants.light}>
-                    <LogsPanel title={_("Service Logs")} match={match} emptyMessage={_("No log entries")} max={10} />
+                    <LogsPanel title={_("Service Logs")} match={match} emptyMessage={_("No log entries")} max={10} goto_url={url} />
                 </PageSection>}
             </Page>
         );

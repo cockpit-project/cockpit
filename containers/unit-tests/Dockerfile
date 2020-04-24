@@ -1,12 +1,12 @@
 ARG debian_arch=amd64
-FROM ${debian_arch}/ubuntu:19.04
+FROM ${debian_arch}/debian:stable
 
 ARG personality=linux64
 COPY setup.sh /
 RUN ${personality} /setup.sh ${personality} && rm -rf /setup.sh
 
 # HACK: Working around Node.js screwing around with stdio
-ENV NODE_PATH /usr/local/bin/node.lts
+ENV NODE_PATH /usr/bin/node
 COPY turd-polish /usr/local/bin/node
 
 # 'builder' user created in setup.sh

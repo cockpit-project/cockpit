@@ -7,8 +7,8 @@ dependencies="\
     autoconf \
     automake \
     build-essential \
-    chromium-browser \
-    clang python3 \
+    chromium \
+    clang \
     curl \
     dbus \
     gcc-multilib \
@@ -23,14 +23,10 @@ dependencies="\
     libglib2.0-0-dbgsym \
     libglib2.0-dev \
     libgnutls28-dev \
-    libgudev-1.0-dev \
     libjavascript-minifier-xs-perl \
     libjson-glib-dev \
     libjson-perl \
-    libkeyutils-dev \
     libkrb5-dev \
-    liblvm2-dev \
-    libnm-glib-dev \
     libpam0g-dev \
     libpcp-import1-dev \
     libpcp-pmda3-dev \
@@ -40,8 +36,11 @@ dependencies="\
     libssh-4-dbgsym \
     libssh-dev \
     libsystemd-dev \
+    npm \
+    nodejs:amd64 \
     pkg-config \
     pyflakes3 \
+    python3 \
     python3-pep8 \
     ssh \
     strace \
@@ -64,27 +63,14 @@ exec ${personality} -- "\$@"
 EOF
 chmod +x /entrypoint
 
+echo "deb http://deb.debian.org/debian-debug/ stable-debug main" > /etc/apt/sources.list.d/ddebs.list
+# always install amd64 nodejs version; there is e.g. no i386 version for node-sass available
+dpkg --add-architecture amd64
 apt-get update
-apt-get install -y --no-install-recommends gnupg2 eatmydata
-
-echo "deb http://ddebs.ubuntu.com disco main universe" > /etc/apt/sources.list.d/ddebs.list
-echo "deb http://ddebs.ubuntu.com disco-updates main universe" >> /etc/apt/sources.list.d/ddebs.list
-apt-key adv --keyserver keyserver.ubuntu.com --recv-keys F2EDC64DC5AEE1F6B9C621F0C8CAB6595FDFF622
-apt-get update
-
-eatmydata apt-get install -y --no-install-recommends ${dependencies}
-
-# install the npm package for just long enough to install npm from upstream
-eatmydata apt-get install -y npm
-npm install -g n
-n -a x64 lts    # no more 32bit builds, but libc6:amd64 is always installed
-rm /usr/local/bin/node
-ln -s "`n bin lts`" /usr/local/bin/node.lts
-NODE_PATH="$(n bin lts)"
-eatmydata apt-get remove -y npm nodejs
-
-apt-get clean
-
-
+apt-get install -y --no-install-recommends eatmydata
+DEBIAN_FRONTEND=noninteractive eatmydata apt-get install -y --no-install-recommends ${dependencies}
 
 adduser --system --gecos "Builder" builder
+
+# minimize image
+rm -rf /var/cache/apt /var/lib/apt /var/log/*

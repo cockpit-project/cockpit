@@ -33,9 +33,6 @@
 
 #include "cockpitsshrelay.h"
 #include "cockpitsshoptions.h"
-#if !HAVE_DECL_SSH_SESSION_HAS_KNOWN_HOSTS_ENTRY
-#include "cockpitsshknownhosts.h"
-#endif
 
 #include <libssh/libssh.h>
 #include <libssh/callbacks.h>
@@ -53,15 +50,6 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <time.h>
-
-/* libssh 0.8 offers SHA256 fingerprints, use them if available */
-#if HAVE_DECL_SSH_PUBLICKEY_HASH_SHA256
-#define SSH_PUBLICKEY_HASH SSH_PUBLICKEY_HASH_SHA256
-#define SSH_PUBLICKEY_HASH_NAME "SHA256"
-#else
-#define SSH_PUBLICKEY_HASH SSH_PUBLICKEY_HASH_MD5
-#define SSH_PUBLICKEY_HASH_NAME "MD5"
-#endif
 
 typedef struct {
   const gchar *logname;
@@ -459,7 +447,7 @@ prompt_for_host_key (CockpitSshData *data)
 
   message = g_strdup_printf ("The authenticity of host '%s:%d' can't be established. Do you want to proceed this time?",
                              host, port);
-  prompt = g_strdup_printf (SSH_PUBLICKEY_HASH_NAME " Fingerprint (%s):", data->host_key_type);
+  prompt = g_strdup_printf ("SHA256 Fingerprint (%s):", data->host_key_type);
 
   reply = prompt_with_authorize (data, prompt, message, data->host_fingerprint, data->host_key, TRUE);
 
@@ -556,17 +544,10 @@ session_has_known_host_in_file (const gchar *file,
                                 const gchar *host,
                                 const guint port)
 {
-#if !HAVE_DECL_SSH_SESSION_HAS_KNOWN_HOSTS_ENTRY
-  shim_set_knownhosts_file (file ?: data->user_known_hosts);
-#endif
   /* HACK: https://bugs.libssh.org/T108 */
   if (!file)
     g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_SSH_DIR, NULL) == 0);
-#if LIBSSH_085
   g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_GLOBAL_KNOWNHOSTS, file) == 0);
-#else
-  g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_KNOWNHOSTS, file) == 0);
-#endif
   return ssh_session_has_known_hosts_entry (data->session) == SSH_KNOWN_HOSTS_OK;
 }
 
@@ -601,17 +582,6 @@ set_knownhosts_file (CockpitSshData *data,
 
   /* first check the libssh defaults including local and global file */
   host_known = session_has_known_host_in_file (NULL, data, host, port);
-#if !LIBSSH_085
-  if (host_known)
-    data->ssh_options->knownhosts_file = data->user_known_hosts;
-
-  if (!host_known && !data->ssh_options->knownhosts_file)
-    {
-      host_known = session_has_known_host_in_file (PACKAGE_SYSCONF_DIR "/ssh/ssh_known_hosts", data, host, port);
-      if (host_known)
-        data->ssh_options->knownhosts_file = PACKAGE_SYSCONF_DIR "/ssh/ssh_known_hosts";
-    }
-#endif
 
   /* check file set by COCKPIT_SSH_KNOWN_HOSTS_FILE */
   if (!host_known)
@@ -717,11 +687,7 @@ verify_knownhost (CockpitSshData *data,
       goto done;
     }
 
-#ifdef HAVE_SSH_GET_SERVER_PUBLICKEY
   if (ssh_get_server_publickey (data->session, &key) != SSH_OK)
-#else
-  if (ssh_get_publickey (data->session, &key) != SSH_OK)
-#endif
     {
       g_warning ("Couldn't look up ssh host key");
       ret = "internal-error";
@@ -736,7 +702,7 @@ verify_knownhost (CockpitSshData *data,
       goto done;
     }
 
-  if (ssh_get_publickey_hash (key, SSH_PUBLICKEY_HASH, &hash, &len) < 0)
+  if (ssh_get_publickey_hash (key, SSH_PUBLICKEY_HASH_SHA256, &hash, &len) < 0)
     {
       g_warning ("Couldn't hash ssh public key");
       ret = "internal-error";
@@ -744,26 +710,9 @@ verify_knownhost (CockpitSshData *data,
     }
   else
     {
-#if HAVE_DECL_SSH_GET_FINGERPRINT_HASH
-      data->host_fingerprint = ssh_get_fingerprint_hash (SSH_PUBLICKEY_HASH, hash, len);
-#else
-      data->host_fingerprint = ssh_get_hexa (hash, len);
-#endif
+      data->host_fingerprint = ssh_get_fingerprint_hash (SSH_PUBLICKEY_HASH_SHA256, hash, len);
       ssh_clean_pubkey_hash (&hash);
     }
-
-  /* the shim implementation of ssh_session_export_known_hosts_entry manipulates
-   *  the knownhosts file, so set it again
-   */
-#if !HAVE_DECL_SSH_SESSION_HAS_KNOWN_HOSTS_ENTRY
-  if (ssh_options_set (data->session, SSH_OPTIONS_KNOWNHOSTS,
-                       data->ssh_options->knownhosts_file) != 0)
-    {
-      g_warning ("Couldn't set knownhosts file location");
-      ret = "internal-error";
-      goto done;
-    }
-#endif
 
   state = ssh_session_is_known_server (data->session);
   if (state == SSH_KNOWN_HOSTS_OK)
@@ -1466,9 +1415,7 @@ cockpit_ssh_connect (CockpitSshData *data,
   parse_host (host_arg, &host, &data->username, &port);
 
   g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_HOST, host) == 0);
-#if LIBSSH_085
   g_warn_if_fail (ssh_options_parse_config (data->session, NULL) == 0);
-#endif
 
   if (strrchr (host_arg, '@'))
     {

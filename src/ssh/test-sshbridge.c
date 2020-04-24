@@ -291,7 +291,6 @@ setup (TestCase *tc,
       g_free (content);
     }
 
-#if LIBSSH_085
   if (fixture->test_home_ssh_config)
     {
       g_autoptr(GString) content = g_string_new (NULL);
@@ -332,7 +331,6 @@ setup (TestCase *tc,
       host = g_strdup (new_host->str);
       argv[1] = host;
     }
-#endif
 
   if (fixture->knownhosts_sssd)
     {
@@ -673,13 +671,8 @@ test_echo_large (TestCase *tc,
 #define MOCK_RSA_KEY "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCYzo07OA0H6f7orVun9nIVjGYrkf8AuPDScqWGzlKpAqSipoQ9oY/mwONwIOu4uhKh7FTQCq5p+NaOJ6+Q4z++xBzSOLFseKX+zyLxgNG28jnF06WSmrMsSfvPdNuZKt9rZcQFKn9fRNa8oixa+RsqEEVEvTYhGtRf7w2wsV49xIoIza/bln1ABX1YLaCByZow+dK3ZlHn/UU0r4ewpAIZhve4vCvAsMe5+6KJH8ft/OKXXQY06h6jCythLV4h18gY/sYosOa+/4XgpmBiE7fDeFRKVjP3mvkxMpxce+ckOFae2+aJu51h513S9kxY2PmKaV/JU9HBYO+yO4j+j24v\n"
 #define MOCK_RSA_KEY_INVALID  "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC7YmnYAJaC579hyNFzcszH+ZFQeDuR8I2li1vCgKeM0lOIkV5TwCY4Tl1lbXI7NNffDACQnUrJfNNm6FamdhVzFEvyQAk+iQz/Wz6lHbDlY2dVvoVaJzNWyqXu/qaYs8Mb2QUmNXKtYk4IuM8PH88z5L4JwZXRbOEPOxnJNcaazP9pBhN/0TrHALaXwW29BR0SIJicJqK2r/mPuDovg/SWs8NdgY9DTAAfzdELshTigVXlc1AX6vo71x3O9NWMaPKZuy88o0BeQNI+mkVeV04Pewm3bUlDsr3VeEcd4D+Ixdyfg4+S57K1in0kHQD4PXrd/x5GoCZekxgUuBoE7HVB\n"
 
-#if HAVE_DECL_SSH_PUBLICKEY_HASH_SHA256
 static const gchar MOCK_RSA_FP[] = "SHA256:XQ8a7zGxMFstDrGecBRUP9OMnOUXd/T3vkNGtYShs2w";
 #define SSH_PUBLICKEY_HASH_NAME "SHA256"
-#else
-static const gchar MOCK_RSA_FP[] = "0e:6a:c8:b1:07:72:e2:04:95:9f:0e:b3:56:af:48:e2";
-#define SSH_PUBLICKEY_HASH_NAME "MD5"
-#endif
 
 #define MOCK_DSA_PUB_KEY "ssh-dss AAAAB3NzaC1kc3MAAACBAIK3RTEWBw+rAPcYUM2Qq4kEw59gXpUQ/WvkdeY7QDO64MHaaorySj8xsraNudmQFh4xb/i5Q1EMnNchOFxtilfU5bUJgdTvetyZEWFL+2HxqBs8GaWRyB1vtSFAw3GO8VUEnjF844N3dNyLoc0NX8IvzwNIaQho6KTsueQlG1X9AAAAFQCXUl4a5UvElL4thi/8QlxR5PtEewAAAIBqNpl5MTBxKQu5jT0+WASa7pAqwT53ofv7ZTDIEokYRb57/nwzDgkcs1fsBRrI6eczJ/VlXWwKbsgkx2Nh3ZiWYwC+HY5uqRpDaj3HERC6LMn4dzdcl29fYeziEibCbRjJX5lZF2vIaA1Ewv8yT0UlunyHZRiyw4WlEglkf/NITAAAAIBxLsdBBXn+8qEYwWK9KT+arRqNXC/lrl0Fp5YyxGNGCv82JcnuOShGGTzhYf8AtTCY1u5oixiW9kea6KXGAKgTjfJShr7n47SZVfOPOrBT3VLhRdGGO3GblDUppzfL8wsEdoqXjzrJuxSdrGnkFu8S9QjkPn9dCtScvWEcluHqMw=="
 
@@ -1467,7 +1460,6 @@ main (int argc,
   g_test_add_func ("/ssh-bridge/cannot-connect", test_cannot_connect);
   g_test_add ("/ssh-bridge/ssh-config-home", TestCase, &fixture_home_ssh_config,
               setup, test_echo_and_close, teardown);
-#if LIBSSH_085
   g_test_add ("/ssh-bridge/ssh-config-valid-user", TestCase, &fixture_ssh_config_valid_user,
               setup, test_echo_and_close, teardown);
   g_test_add ("/ssh-bridge/ssh-config-invalid-user", TestCase, &fixture_ssh_config_invalid_user,
@@ -1486,7 +1478,6 @@ main (int argc,
               setup, test_key_good, teardown);
   g_test_add ("/ssh-bridge/ssh-config-home-key-password-fallback", TestCase, &fixture_ssh_config_key_password_fallback,
               setup, test_echo_and_close, teardown);
-#endif
 
   g_test_add ("/ssh-bridge/terminate-problem", TestCase, &fixture_terminate_problem,
               setup, test_problem, teardown);

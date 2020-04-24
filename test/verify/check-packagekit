@@ -46,8 +46,8 @@ class TestUpdates(PackageCase):
 
         # Disable Subscription Manager on RHEL for these tests; subscriptions are tested in a separate class
         # On other OSes (Fedora/CentOS) we expect sub-man to be disabled in yum, so it should not get in the way there
-        if self.machine.image.startswith("rhel"):
-            self.machine.execute("mv /usr/libexec/rhsmd /usr/libexec/rhsmd.disabled")
+        if self.machine.image.startswith("rhel") or self.machine.image.startswith("centos"):
+            self.machine.execute("mv /usr/libexec/rhsm-service /usr/libexec/rhsm-service.disabled; pkill -e rhsm-service || true")
 
         # only the yum backend properly recognizes "enhancement" severity; apt
         # does not have that metadata and PackageKit-dnf does not parse it
@@ -658,9 +658,7 @@ class TestUpdatesSubscriptions(PackageCase):
         # HACK: regressed in 7.9: https://bugzilla.redhat.com/show_bug.cgi?id=1816926
         self.machine.execute("LC_ALL=en_US.UTF-8 subscription-manager attach --auto || true")
         # Make sure that subscription worked
-        self.assertEqual(
-            self.machine.execute("busctl call com.redhat.SubscriptionManager /EntitlementStatus com.redhat.SubscriptionManager.EntitlementStatus check_status").strip(),
-            "i 0")
+        self.machine.execute("until env subscription-manager status | grep -q 'Status.*Current'; do sleep 1; done")
 
     def setUp(self):
         PackageCase.setUp(self)
@@ -789,8 +787,8 @@ class TestAutoUpdates(PackageCase):
 
         # Disable Subscription Manager on RHEL for these tests; subscriptions are tested in a separate class
         # On other OSes (Fedora/CentOS) we expect sub-man to be disabled in yum, so it should not get in the way there
-        if self.machine.image.startswith("rhel"):
-            self.machine.execute("mv /usr/libexec/rhsmd /usr/libexec/rhsmd.disabled")
+        if self.machine.image.startswith("rhel") or self.machine.image.startswith("centos"):
+            self.machine.execute("mv /usr/libexec/rhsm-service /usr/libexec/rhsm-service.disabled; pkill -e rhsm-service || true")
 
         # not implemented for yum and apt yet, only dnf
         self.supported_backend = self.backend in ["dnf"]

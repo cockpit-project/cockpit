@@ -567,6 +567,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         self.allow_journal_messages("received request from bad Origin: .*",
                                     "connection unexpectedly closed by peer",
                                     "Received invalid handshake request from the client")
+        self.allow_authorize_journal_messages()
         self.allow_browser_errors(".*")
 
         m.start_cockpit()

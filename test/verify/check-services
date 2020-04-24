@@ -267,6 +267,15 @@ Unit=test.service
         self.toggle_onoff()
         self.check_service_details(["Running", "Automatically starts"], ["Reload", "Restart", "Stop", "Disallow running (mask)"], True)
 
+        # Survives a burst of events
+        b.go("#/")
+        self.wait_service_present("test.service")
+        m.execute("udevadm trigger; udevadm settle")
+        b.click(self.svc_sel("test.service"))
+        self.check_service_details(["Running", "Automatically starts"], ["Reload", "Restart", "Stop", "Disallow running (mask)"], True)
+        self.toggle_onoff()
+        self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)"], False)
+
         # Check without permissions
         self.allow_authorize_journal_messages()
         b.relogin('/system/services#/test.service', authorized=False)

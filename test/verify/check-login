@@ -573,5 +573,128 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
     def testFailingWebsocketSafariNoCA(self):
         self.testFailingWebsocket(safari=True, cacert=False)
 
+    def testTally(self):
+        m = self.machine
+        b = self.browser
+
+        if m.image.startswith('debian') or m.image.startswith('ubuntu'):
+            module = 'pam_tally2'
+            logfile = lambda user: '/var/log/tallylog'
+        elif m.image.startswith('rhel') or m.image.startswith('fedora') or m.image.startswith('cent'):
+            module = 'faillock'
+            logfile = lambda user: '/var/run/faillock/' + user
+        else:
+            raise ValueError('unexpected image name', m.image)
+
+        def expect_fail_count(expected, user="admin", must_exist=True):
+            if must_exist:
+                cksum = m.execute("cksum {}".format(logfile(user)))
+
+            output = m.execute("{} --user {}".format(module, user))
+
+            if module == 'faillock':
+                n_lines = len(output.splitlines())
+                if n_lines:
+                    n_lines -= 2 # remove the header, if it's there
+
+                self.assertEqual(expected, n_lines)
+
+            else: # pam_tally2
+                self.assertIn(' {} '.format(expected), output)
+
+            # make sure the above command didn't change the file
+            if must_exist:
+                self.assertEqual(cksum, m.execute("cksum {}".format(logfile(user))))
+
+        def expect_failed_login(user, password, n_failed):
+            b.try_login(user, password)
+            b.wait_text_not("#login-error-message", "")
+            expect_fail_count(n_failed, user=user)
+
+        def expect_successful_login(user, password):
+            b.login_and_go('/system', user=user, password=password)
+            expect_fail_count(0, user=user)
+            b.logout()
+
+        # ensure we have no module in our pam config already
+        m.execute("! grep -r '{}' /etc/pam.d".format(module))
+
+        # add it to the pam config
+        if module == 'pam_tally2':
+            self.sed_file("/common-auth/ { iauth required pam_tally2.so deny=4\n }", "/etc/pam.d/cockpit")
+        else:
+            # see https://access.redhat.com/solutions/62949
+            self.sed_file("""/pam_unix/ {
+                      s/sufficient/[success=1 default=ignore]/\n
+                      aauth [default=die] pam_faillock.so authfail audit deny=4 unlock_time=600\n
+                      aauth sufficient pam_faillock.so authsucc audit deny=4 unlock_time=600\n
+                      }""", "/etc/pam.d/password-auth")
+
+        m.execute("grep -r '{}' /etc/pam.d".format(module))
+
+        m.start_cockpit()
+
+        # pam_faillock tries to chown the file to be owned by the user itself,
+        # which is currently an selinux fail on the following distros:
+        if m.image in ['centos-8-stream', 'fedora-31', 'fedora-32', 'rhel-8-2', 'rhel-8-2-distropkg', 'rhel-8-3']:
+            # https://bugzilla.redhat.com/show_bug.cgi?id=1836182
+            self.allow_journal_messages('.*type=1400.*avc:  denied  { chown }.*comm="cockpit-session".*')
+
+        if module == 'pam_tally2':
+            # at first, we should have no log file
+            m.execute("! test -f {}".format(logfile('admin')))
+
+        # make sure we can still login
+        b.login_and_go("/system")
+        b.logout()
+
+        if module == 'pam_tally2':
+            # now we should have it
+            m.execute("test -f {}".format(logfile('admin')))
+
+        # and it should show zero fails
+        expect_fail_count(0, must_exist=False)
+
+        # try three bogus login attempts
+        for n in [1, 2, 3]:
+            expect_failed_login("admin", "bad", n)
+        expect_fail_count(3)
+
+        # make sure we can still login
+        expect_successful_login("admin", "foobar")
+
+        # after the success, try three more bogus login attempts
+        for n in [1, 2, 3]:
+            expect_failed_login("admin", "bad", n)
+        expect_successful_login("admin", "foobar")
+
+        # now try four, which should lock the account
+        for n in [1, 2, 3, 4]:
+            expect_failed_login("admin", "bad", n)
+
+        # logging in should fail now
+        if module == 'pam_tally2': # this is counted differently by each module
+            n += 1
+        expect_failed_login("admin", "foobar", n)
+
+        # having given the correct password the last time should not have helped things
+        if module == 'pam_tally2':
+            n += 1
+        expect_failed_login("admin", "foobar", n)
+
+        # but we can reset the lockout
+        m.execute(module + " --reset --user admin")
+        expect_fail_count(0)
+
+        # and login again
+        expect_successful_login("admin", "foobar")
+
+        # fedora-coreos logs in via sshd, which forbids root logging in with a password
+        if m.image not in ['fedora-coreos']:
+            # make sure root never gets locked out
+            for n in range(1, 10):
+                expect_failed_login("root", "bad", n)
+            expect_successful_login("root", "foobar")
+
 if __name__ == '__main__':
     test_main()

@@ -2,6 +2,12 @@ a {
     cursor: pointer;
 }
 
+p + p {
+    // The mix of PF3 and PF4 removes margin from paragraphs.
+    // We want successive paragraphs to have spaces between each other.
+    margin-top: var(--pf-global--spacer--md);
+}
+
 .disabled {
     pointer-events: auto;
 }

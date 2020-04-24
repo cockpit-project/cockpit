@@ -652,10 +652,13 @@ fi
         self.allow_authorize_journal_messages()
         self.allow_restart_journal_messages()
 
-    @allowImage("insights-client only on RHEL", "rhel-7-8", "rhel-8-2", "rhel-8-3")
+    @skipImage("Added in PR #13797", "rhel-8-2-distropkg")
     def testInsightsStatus(self):
         m = self.machine
         b = self.browser
+
+        if not m.image.startswith("rhel"):
+            self.skipTest("insights-client is only on RHEL")
 
         # Pretend that the Subscriptions page can do Insights stuff
         m.write("/usr/share/cockpit/subscription-manager/override.json", '{ "features": { "insights": true } }')

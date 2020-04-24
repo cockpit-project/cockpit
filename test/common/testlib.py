@@ -518,11 +518,15 @@ class Browser:
         else:
             self.click(sel + ' button:first-child')
 
-    def try_login(self, user, password, authorized=True, superuser=True):
+    def try_login(self, user=None, password=None, authorized=True, superuser=True):
         """Fills in the login dialog and clicks the button.
 
         This differs from login_and_go() by not expecting any particular result.
         """
+        if user is None:
+            user = self.default_user
+        if password is None:
+            password = self.password
         self.wait_visible("#login")
         self.set_val('#login-user-input', user)
         self.set_val('#login-password-input', password)
@@ -532,10 +536,6 @@ class Browser:
         self.click('#login-button')
 
     def login_and_go(self, path=None, user=None, host=None, authorized=True, superuser=True, urlroot=None, tls=False, password=None):
-        if user is None:
-            user = self.default_user
-        if password is None:
-            password = self.password
         href = path
         if not href:
             href = "/"

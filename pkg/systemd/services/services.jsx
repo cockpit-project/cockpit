@@ -139,7 +139,7 @@ class ServicesPage extends React.Component {
             currentTextFilter: '',
 
             unit_by_path: {},
-            loadingUnits: true,
+            loadingUnits: false,
             privileged: true,
             path: cockpit.location.path,
             tabErrors: {},
@@ -166,7 +166,6 @@ class ServicesPage extends React.Component {
         this.state_by_id = {};
         this.operationInProgress = {};
 
-        this.getLoadingInProgress = this.getLoadingInProgress.bind(this);
         this.on_navigate = this.on_navigate.bind(this);
     }
 
@@ -218,7 +217,7 @@ class ServicesPage extends React.Component {
             interface: "org.freedesktop.DBus.Properties",
             member: "PropertiesChanged"
         }, (path, iface, signal, args) => {
-            if (this.getLoadingInProgress())
+            if (this.state.loadingUnits)
                 return;
 
             this.updateProperties(args[1], path);
@@ -227,7 +226,7 @@ class ServicesPage extends React.Component {
 
         ["JobNew", "JobRemoved"].forEach(signalType => {
             systemd_manager.addEventListener(signalType, (event, number, job, unit_id, result) => {
-                if (this.getLoadingInProgress())
+                if (this.state.loadingUnits)
                     return;
 
                 systemd_manager.LoadUnit(unit_id)
@@ -243,9 +242,7 @@ class ServicesPage extends React.Component {
         });
 
         systemd_manager.addEventListener("Reloading", (event, reloading) => {
-            const currentlyLoading = this.getLoadingInProgress();
-
-            if (!reloading && !currentlyLoading)
+            if (!reloading && !this.state.loadingUnits)
                 this.listUnits();
         });
 
@@ -265,10 +262,6 @@ class ServicesPage extends React.Component {
             return false;
 
         return true;
-    }
-
-    getLoadingInProgress() {
-        return !cockpit.hidden && this.state.loadingUnits;
     }
 
     on_navigate() {
@@ -720,7 +713,7 @@ class ServicesPage extends React.Component {
             const unit = this.state.unit_by_path[unit_path];
             return <Service unitIsValid={unitId => { const path = get_unit_path(unitId); return path !== undefined && this.state.unit_by_path[path].LoadState != 'not-found' }}
                             key={unit_id}
-                            loadingUnits={this.getLoadingInProgress()}
+                            loadingUnits={this.state.loadingUnits}
                             getUnitByPath={this.getUnitByPath}
                             unit={unit} />;
         }

@@ -335,7 +335,8 @@ export class ServiceDetails extends React.Component {
     shouldComponentUpdate(nextProps, nextState) {
         // Don't update when only actions resolved, wait until API triggers some redrawing
         if ((nextState.waitsAction === false && this.state.waitsAction === true) ||
-            (nextState.waitsFileAction === false && this.state.waitsFileAction === true))
+            (nextState.waitsFileAction === false && this.state.waitsFileAction === true) ||
+            nextProps.loadingUnits)
             return false;
         return true;
     }

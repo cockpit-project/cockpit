@@ -84,6 +84,7 @@ export class Service extends React.Component {
                                 originTemplate={this.cur_unit_template}
                                 permitted={permission.allowed}
                                 systemdManager={systemd_manager}
+                                loadingUnits={this.props.loadingUnits}
                                 isValid={this.props.unitIsValid} />
             );
         }

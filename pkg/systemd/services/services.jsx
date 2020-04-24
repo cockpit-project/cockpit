@@ -720,6 +720,7 @@ class ServicesPage extends React.Component {
             const unit = this.state.unit_by_path[unit_path];
             return <Service unitIsValid={unitId => { const path = get_unit_path(unitId); return path !== undefined && this.state.unit_by_path[path].LoadState != 'not-found' }}
                             key={unit_id}
+                            loadingUnits={this.getLoadingInProgress()}
                             getUnitByPath={this.getUnitByPath}
                             unit={unit} />;
         }

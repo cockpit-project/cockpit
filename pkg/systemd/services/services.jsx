@@ -384,7 +384,7 @@ class ServicesPage extends React.Component {
                                             {
                                                 Id: cockpit.variant("s", unit_id),
                                                 UnitFileState: cockpit.variant("s", unitFileState)
-                                            }, this.path_by_id[unit_id]);
+                                            }, this.path_by_id[unit_id], true);
                                         return;
                                     }
 
@@ -414,16 +414,21 @@ class ServicesPage extends React.Component {
                                         return;
                                     }
 
-                                    promisesLoad.push(systemd_manager.LoadUnit(unit_id).catch(ex => console.warn(ex)));
+                                    promisesLoad.push(systemd_manager.LoadUnit(unit_id).then(unit_path => {
+                                        this.updateProperties(
+                                            {
+                                                Id: cockpit.variant("s", unit_id),
+                                                UnitFileState: cockpit.variant("s", unitFileState)
+                                            }, unit_path, true);
+
+                                        this.path_by_id[unit_id] = unit_path;
+                                        this.seenPaths.add(unit_path);
+
+                                        return this.getUnitByPath(unit_path);
+                                    }, ex => console.warn(ex)));
                                 });
 
                                 Promise.all(promisesLoad)
-                                        .then(result => {
-                                            // First add the path in the seens paths to maintain the loading state
-                                            result.forEach(path => this.seenPaths.add(path));
-
-                                            return Promise.all(result.map(path => this.getUnitByPath(path)));
-                                        })
                                         .finally(() => {
                                             // Remove units from state that are not listed from the API in this iteration
                                             const unit_by_path = Object.assign({}, this.state.unit_by_path);
@@ -572,7 +577,7 @@ class ServicesPage extends React.Component {
             unit.shortId = unit.Id.substring(0, unit.Id.length - 8);
     }
 
-    updateProperties(props, path) {
+    updateProperties(props, path, updateFileState = false) {
         // We received a request to update properties on a unit we are not yet aware off
         if (!this.state.unit_by_path[path] && !props.Id)
             return;
@@ -584,6 +589,8 @@ class ServicesPage extends React.Component {
                 if (Array.isArray(props[p].v) && Array.isArray(unitNew[p]) && JSON.stringify(props[p].v.sort()) == JSON.stringify(unitNew[p].sort()))
                     return;
                 else if (!Array.isArray(props[p].v) && props[p].v == unitNew[p])
+                    return;
+                else if (p == "UnitFileState" && !updateFileState)
                     return;
                 shouldUpdate = true;
                 unitNew[p] = props[p].v;
@@ -597,7 +604,8 @@ class ServicesPage extends React.Component {
         prop("LoadError");
         prop("ActiveState");
         prop("SubState");
-        prop("UnitFileState");
+        if (updateFileState)
+            prop("UnitFileState");
         prop("FragmentPath");
         unitNew.path = path;
 

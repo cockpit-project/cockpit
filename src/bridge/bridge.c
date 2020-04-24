@@ -472,7 +472,6 @@ run_bridge (const gchar *interactive,
   gboolean terminated = FALSE;
   gboolean interupted = FALSE;
   gboolean closed = FALSE;
-  gpointer polkit_agent = NULL;
   const gchar *directory;
   struct passwd *pwd;
   GPid daemon_pid = 0;
@@ -557,11 +556,14 @@ run_bridge (const gchar *interactive,
       transport = cockpit_pipe_transport_new_fds ("stdio", 0, outfd);
     }
 
+#ifdef WITH_POLKIT
+  gpointer polkit_agent = NULL;
   if (uid != 0)
     {
       if (!interactive)
         polkit_agent = cockpit_polkit_agent_register (transport, NULL);
     }
+#endif
 
   g_resources_register (cockpitassets_get_resource ());
   cockpit_web_failure_resource = "/org/cockpit-project/Cockpit/fail.html";
@@ -598,8 +600,10 @@ run_bridge (const gchar *interactive,
   while (!terminated && !closed && !interupted)
     g_main_context_iteration (NULL, TRUE);
 
+#ifdef WITH_POLKIT
   if (polkit_agent)
     cockpit_polkit_agent_unregister (polkit_agent);
+#endif
 
   g_object_unref (router);
   g_object_unref (transport);

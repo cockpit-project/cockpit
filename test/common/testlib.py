@@ -54,7 +54,6 @@ __all__ = (
     'nondestructive',
     'skipImage',
     'skipBrowser',
-    'allowImage',
     'skipPackage',
     'enableAxe',
     'timeout',
@@ -1337,12 +1336,6 @@ def skipBrowser(reason, *args):
 
 def skipImage(reason, *args):
     if testvm.DEFAULT_IMAGE in args:
-        return unittest.skip("{0}: {1}".format(testvm.DEFAULT_IMAGE, reason))
-    return lambda func: func
-
-
-def allowImage(reason, *args):
-    if testvm.DEFAULT_IMAGE not in args:
         return unittest.skip("{0}: {1}".format(testvm.DEFAULT_IMAGE, reason))
     return lambda func: func
 

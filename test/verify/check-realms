@@ -261,7 +261,7 @@ class CommonTests:
         # Tell realmd to not enable domain-qualified logins
         # (https://bugzilla.redhat.com/show_bug.cgi?id=1575538)
         m.execute("printf '[cockpit.lan]\\nfully-qualified-names = no\\n'  >> /etc/realmd.conf")
-        m.execute("echo %s | realm join -vU %s cockpit.lan" % (self.admin_password, self.admin_user))
+        m.execute("echo %s | realm join -vU %s cockpit.lan" % (self.admin_password, self.admin_user), timeout=300)
 
         # wait until domain user works
         m.execute('while ! su - -c "echo %s | sudo -S true" %s; do sleep 5; sss_cache -E || true; systemctl try-restart sssd; done' %
@@ -533,7 +533,7 @@ for s in key p12 pem; do docker cp freeipa:jane.$s .; done
 
         # join domain, wait until it works
         m.execute("printf '[cockpit.lan]\\nfully-qualified-names = no\\n'  >> /etc/realmd.conf")
-        m.execute("echo %s | realm join -vU %s cockpit.lan" % (self.admin_password, self.admin_user))
+        m.execute("echo %s | realm join -vU %s cockpit.lan" % (self.admin_password, self.admin_user), timeout=300)
         m.execute('while ! id jane; do sleep 5; systemctl restart sssd; done', timeout=300)
 
         # ensure sssd certificate lookup works

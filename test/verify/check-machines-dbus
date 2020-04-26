@@ -2016,6 +2016,18 @@ class TestMachinesDBus(machineslib.TestMachines):
             remove=True,
         ).execute()
 
+        # create disk for lvm-pool
+        m.execute("wipefs -a {0} && pvcreate {0} && vgcreate vol_grp1 {0}".format(dev))
+        m.execute("virsh pool-define-as lvm-pool --type logical --source-name vol_grp1 && virsh pool-start lvm-pool")
+
+        StorageVolumeCreateDialog(
+            self,
+            pool_name="lvm-pool",
+            vol_name="lvm_vol",
+            size="20",
+            format="",
+            remove=True,
+        ).execute()
 
     def testNICAdd(self):
         b = self.browser

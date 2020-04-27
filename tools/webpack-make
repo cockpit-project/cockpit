@@ -23,7 +23,8 @@ try {
 
 var ops = stdio.getopt({
     config: { key: "c", args: 1, description: "Path to webpack.config.js", default: "webpack.config.js" },
-    deps: { key: "d", args: 1, description: "Output dependencies in Makefile format" }
+    deps: { key: "d", args: 1, description: "Output dependencies in Makefile format" },
+    watch: { key: "w", args: 0, description: "Enable webpack watch mode" },
 });
 
 var srcdir = process.env.SRCDIR || ".";
@@ -44,7 +45,19 @@ var config = require(config_path);
 // The latest input file time updated and used below
 var latest = fs.statSync(config_path).mtime;
 
-webpack(config, function(err, stats) {
+compiler = webpack(config);
+
+if (ops.watch) {
+    compiler.hooks.watchRun.tap("WebpackInfo", compilation => {
+        const time = new Date().toTimeString().split(' ')[0];
+        process.stdout.write(`${ time  } Build started\n`);
+    });
+    compiler.watch({}, process_result);
+} else {
+    compiler.run(process_result);
+}
+
+function process_result(err, stats) {
     // process.stdout.write(stats.toString({colors: true}) + "\n");
 
     if (err) {
@@ -53,16 +66,23 @@ webpack(config, function(err, stats) {
         return;
     }
 
+    if (ops.watch) {
+        const info = stats.toJson();
+        const time = new Date().toTimeString().split(' ')[0];
+        process.stdout.write(`${ time  } Build succeeded, took ${ info.time/1000 }s\n`);
+    }
+
     // Failure exit code when compilation fails
     if (stats.hasErrors() || stats.hasWarnings()) {
         console.log(stats.toString("normal"));
-        process.exit(1);
+        if (!ops.watch)
+            process.exit(1);
         return;
     }
 
     if (makefile)
         generateDeps(makefile, stats);
-});
+}
 
 function generateDeps(makefile, stats) {
 

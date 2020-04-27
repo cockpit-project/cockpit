@@ -165,7 +165,6 @@ class ServicesPage extends React.Component {
 
         this.seenPaths = new Set();
         this.path_by_id = {};
-        this.state_by_id = {};
         this.operationInProgress = {};
 
         this.on_navigate = this.on_navigate.bind(this);
@@ -369,8 +368,6 @@ class ServicesPage extends React.Component {
                                     const unit_path = result[0];
                                     const unit_id = unit_path.split('/').pop();
                                     const unitFileState = result[1];
-
-                                    this.state_by_id[unit_id] = unitFileState;
 
                                     if (!this.isUnitHandled(unit_id))
                                         return;

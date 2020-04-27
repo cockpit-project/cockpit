@@ -198,7 +198,7 @@ class CommonTests:
                 # "More" link is part of the message component, so this looks a little funny here
                 if self.expected_server_software == 'active-directory':
                     self.assertEqual(error, "Failed to join the domain More")
-                elif m.image in ["ubuntu-1804", "debian-stable"]:
+                elif m.image in ["debian-stable"]:
                     # older ipa-client releases have a less useful error message
                     self.assertEqual(error, "Running ipa-client-install failed More")
                 else:
@@ -446,7 +446,7 @@ class TestIPA(TestRealms, CommonTests):
 
         # now try 2FA with OTP
         # This does not yet work with sssd < 2.2.2-1 on Debian/Ubuntu
-        if m.image in ["ubuntu-1804", "ubuntu-stable", "debian-stable"]:
+        if m.image in ["ubuntu-stable", "debian-stable"]:
             return
 
         # normal b.login_and_go() doesn't support 2FA
@@ -526,7 +526,7 @@ for s in key p12 pem; do docker cp freeipa:jane.$s .; done
         m.upload([jane_key, jane_pem], "/var/tmp")
 
         # On older Debian/Ubuntu D-Bus activation of ifp is disabled, enable it manually; see https://bugs.debian.org/925026
-        static_ifp_conf = m.image in ["debian-stable", "ubuntu-1804"]
+        static_ifp_conf = m.image in ["debian-stable"]
         if static_ifp_conf:
             m.write("/etc/sssd/conf.d/ifp.conf", "[sssd]\nservices = nss, sudo, pam, ssh, ifp\n")
             m.execute("chmod 600 /etc/sssd/conf.d/ifp.conf")

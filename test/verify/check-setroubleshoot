@@ -62,7 +62,7 @@ class TestSelinux(MachineCase):
         "ansible_machine": {"image": TEST_OS_DEFAULT}
     }
 
-    @skipImage("No setroubleshoot", "debian-stable", "debian-testing", "fedora-coreos", "ubuntu-1804", "ubuntu-2004", "ubuntu-stable")
+    @skipImage("No setroubleshoot", "debian-stable", "debian-testing", "fedora-coreos", "ubuntu-2004", "ubuntu-stable")
     @skipBrowser("Firefox needs http to access clipboard", "firefox")
     def testTroubleshootAlerts(self):
         b = self.browser
@@ -283,7 +283,7 @@ class TestSelinux(MachineCase):
         b.wait_text("table.listing-ct.modifications-table > thead > tr > td", "The logged in user is not permitted to view system modifications")
 
 
-    @skipImage("No cockpit-selinux", "debian-stable", "debian-testing", "fedora-coreos", "ubuntu-1804", "ubuntu-2004", "ubuntu-stable")
+    @skipImage("No cockpit-selinux", "debian-stable", "debian-testing", "fedora-coreos", "ubuntu-2004", "ubuntu-stable")
     def testEnforcingToggle(self):
         b = self.browser
         m = self.machine

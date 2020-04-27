@@ -22,7 +22,7 @@ from netlib import *
 from testlib import *
 
 
-@skipImage("No network checkpoint support", "ubuntu-1804", "ubuntu-2004", "ubuntu-stable")
+@skipImage("No network checkpoint support", "ubuntu-2004", "ubuntu-stable")
 class TestNetworking(NetworkCase):
 
     def testCheckpoint(self):
@@ -49,7 +49,7 @@ class TestNetworking(NetworkCase):
         # Wait for dialog to appear and dismiss it
         b.click("#confirm-breaking-change-popup button:contains('Keep connection')")
 
-        if m.image not in ["debian-testing", "debian-stable", "ubuntu-1804", "ubuntu-stable"]:
+        if m.image not in ["debian-testing", "debian-stable", "ubuntu-stable"]:
             # Change IP
             b.click("tr:contains('IPv4') a")
             b.wait_popup("network-ip-settings-dialog")

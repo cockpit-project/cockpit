@@ -545,7 +545,7 @@ CMD ["/bin/sh"]
         b.wait_in_text("#container-details-cpu-row", "1024 shares")
 
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-1804", "ubuntu-2004", "rhel-8-2", "rhel-8-2-distropkg", "rhel-8-3")
+               "ubuntu-2004", "rhel-8-2", "rhel-8-2-distropkg", "rhel-8-3")
     def testContainerProblems(self):
         b = self.browser
         m = self.machine

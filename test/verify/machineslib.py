@@ -495,7 +495,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # newer libvirtd versions use socket activation
         # we should test that separately, but here we test only using the service unit
-        if m.image not in ["debian-stable", "ubuntu-1804", "ubuntu-stable", "rhel-8-2-distropkg", "rhel-8-2", "rhel-8-3", "centos-8-stream"]:
+        if m.image not in ["debian-stable", "ubuntu-stable", "rhel-8-2-distropkg", "rhel-8-2", "rhel-8-3", "centos-8-stream"]:
             m.execute("systemctl stop libvirtd-ro.socket libvirtd.socket libvirtd-admin.socket")
             self.addCleanup(m.execute, "systemctl start libvirtd-ro.socket libvirtd.socket libvirtd-admin.socket")
 
@@ -1566,7 +1566,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # name already used from a VM that is currently being created
         # https://bugzilla.redhat.com/show_bug.cgi?id=1780451
         # downloadOS option exists only in virt-install >= 2.2.1 which is the reason we have the condition for the OSes list below
-        if self.machine.image in ['debian-stable', 'debian-testing', 'ubuntu-stable', 'ubuntu-1804', 'centos-8-stream']:
+        if self.machine.image in ['debian-stable', 'debian-testing', 'ubuntu-stable', 'centos-8-stream']:
             self.browser.wait_not_present('select option[data-value="Download an OS"]')
         else:
             createDownloadAnOSTest(TestMachines.VmDialog(self, name='existing-name', sourceType='downloadOS',
@@ -1607,7 +1607,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                                       {"Operating System": "You need to select the most closely matching Operating System"})
 
         # try to CREATE few machines
-        if self.machine.image in ['debian-stable', 'debian-testing', 'ubuntu-stable', 'ubuntu-1804', 'centos-8-stream']:
+        if self.machine.image in ['debian-stable', 'debian-testing', 'ubuntu-stable', 'centos-8-stream']:
             self.browser.wait_not_present('select option[data-value="Download an OS"]')
         else:
             createDownloadAnOSTest(TestMachines.VmDialog(self, sourceType='downloadOS',

@@ -252,6 +252,9 @@ var section = process.env.ONLYDIR || null;
 /* A standard nodejs and webpack pattern */
 var production = process.env.NODE_ENV === 'production';
 
+/* development options for faster iteration */
+var eslint = process.env.ESLINT !== '0';
+
 /*
  * Note that we're avoiding the use of path.join as webpack and nodejs
  * want relative paths that start with ./ explicitly.
@@ -401,7 +404,7 @@ module.exports = {
         rules: [
             {
                 enforce: 'pre',
-                test: /\.(js|jsx)$/,
+                test: eslint ? /\.(js|jsx)$/ : /dont.match.me/,
                 exclude: /\/node_modules\/.*\//, // exclude external dependencies
                 loader: "eslint-loader"
             },

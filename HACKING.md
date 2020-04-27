@@ -128,6 +128,12 @@ Violations of some rules can be fixed automatically by:
 
 Rules configuration can be found in the `.eslintrc.json` file.
 
+During fast iterative development, you can also choose to not run eslint. This
+speeds up the build and avoids build failures due to e. g.  ill-formatted
+comments or unused identifiers:
+
+    $ make ESLINT=0
+
 ## Working on your local machine: Cockpit's session pages
 
 It's easy to set up your local Linux machine for rapid development of Cockpit's

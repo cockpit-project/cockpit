@@ -469,8 +469,7 @@ class ServicesPage extends React.Component {
             return unit_a.Id.localeCompare(unit_b.Id);
     }
 
-    addTimerProperties(timer_unit, path) {
-        const unit = Object.assign({}, this.state.unit_by_path[path]);
+    addTimerProperties(timer_unit, path, unit) {
         let needsUpdate = false;
 
         const lastTriggerTime = moment(timer_unit.LastTriggerUSec / 1000).calendar();
@@ -612,20 +611,6 @@ class ServicesPage extends React.Component {
 
         prop("ActiveEnterTimestamp");
 
-        if (unitNew.Id.slice(-5) == "timer") {
-            unitNew.is_timer = true;
-            if (unitNew.ActiveState == "active" && !isTemplate) {
-                const timer_unit = systemd_client.proxy('org.freedesktop.systemd1.Timer', unitNew.path);
-                timer_unit.wait(() => {
-                    if (timer_unit.valid)
-                        this.addTimerProperties(timer_unit, path);
-                });
-            }
-        }
-
-        if (!shouldUpdate)
-            return;
-
         unitNew.shortId = unitNew.Id;
         // Remove ".service" from services as this is not necessary
         if (unitNew.Id.endsWith(".service"))
@@ -633,6 +618,20 @@ class ServicesPage extends React.Component {
 
         if (!isTemplate)
             this.updateComputedProperties(unitNew);
+
+        if (unitNew.Id.slice(-5) == "timer") {
+            unitNew.is_timer = true;
+            if (unitNew.ActiveState == "active" && !isTemplate) {
+                const timer_unit = systemd_client.proxy('org.freedesktop.systemd1.Timer', unitNew.path);
+                timer_unit.wait(() => {
+                    if (timer_unit.valid)
+                        this.addTimerProperties(timer_unit, path, unitNew);
+                });
+            }
+        }
+
+        if (!shouldUpdate)
+            return;
 
         this.setState(prevState => ({
             unit_by_path: {

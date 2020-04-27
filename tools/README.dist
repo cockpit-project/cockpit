@@ -1,10 +1,8 @@
 Webpack build output
 ====================
 
-This directory is populated with the built Cockpit packages when
-you run Webpack:
-
-    $ webpack
+This directory is populated with the built Cockpit packages from webpack (see
+HACKING.md).
 
 You can link this directory into your home directory and have
 Cockpit on your local machine use the built packages:
@@ -14,8 +12,3 @@ Cockpit on your local machine use the built packages:
 
 Make sure to log into Cockpit as the same user on the same local
 machine as you are running the commands above.
-
-If you want to setup automatic syncing as you edit javascript files
-you can:
-
-    $ webpack --progress --colors --watch

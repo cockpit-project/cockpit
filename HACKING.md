@@ -155,8 +155,14 @@ Use the same user and password that you used to log into your Linux desktop.
 
 http://localhost:9090
 
-After every change to your sources, run `make` to update all the webpacks, and
-reload cockpit in your browser.
+After every change to your sources the webpacks need to be rebuilt: You can
+just run `make` to update everything that has changed; for iterating faster,
+you can run webpack in "watch" mode on the particular page that you are working
+on, which reduces the build time to less than a third. E. g.
+
+    $ ESLINT=0 tools/webpack-make -d dist/systemd/Makefile.deps -w
+
+Then reload cockpit in your browser.
 
 To make Cockpit again use the installed code, rather than that from your
 git checkout directory, run the following, and log into Cockpit again:

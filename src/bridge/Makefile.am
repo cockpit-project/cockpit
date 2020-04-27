@@ -71,8 +71,6 @@ libcockpit_bridge_a_SOURCES = \
 	src/bridge/cockpitpeer.h \
 	src/bridge/cockpitpipechannel.c \
 	src/bridge/cockpitpipechannel.h \
-	src/bridge/cockpitpolkitagent.c \
-	src/bridge/cockpitpolkitagent.h \
 	src/bridge/cockpitrouter.c \
 	src/bridge/cockpitrouter.h \
 	src/bridge/cockpitstream.c \
@@ -81,6 +79,13 @@ libcockpit_bridge_a_SOURCES = \
 	src/bridge/cockpitwebsocketstream.h \
 	$(libcockpit_bridge_METRICS) \
 	$(NULL)
+
+if WITH_POLKIT
+libcockpit_bridge_a_SOURCES += \
+	src/bridge/cockpitpolkitagent.c \
+	src/bridge/cockpitpolkitagent.h \
+	$(NULL)
+endif
 
 libcockpit_bridge_a_CFLAGS = \
 	-I$(srcdir)/src/bridge \

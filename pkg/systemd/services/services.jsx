@@ -317,12 +317,13 @@ class ServicesPage extends React.Component {
                 }, ex => console.warn('ListUnitsFiltered failed: ', ex.toString()));
     }
 
+    isTemplate(id) {
+        const tp = id.indexOf("@");
+        const sp = id.lastIndexOf(".");
+        return (tp != -1 && (tp + 1 == sp || tp + 1 == id.length));
+    }
+
     listUnits() {
-        function isTemplate(id) {
-            const tp = id.indexOf("@");
-            const sp = id.lastIndexOf(".");
-            return (tp != -1 && (tp + 1 == sp || tp + 1 == id.length));
-        }
         if (!systemd_manager.valid)
             return;
 
@@ -383,27 +384,13 @@ class ServicesPage extends React.Component {
                                         return;
                                     }
 
-                                    if (isTemplate(unit_id)) {
-                                        // Remove ".service" from services as this is not necessary
-                                        let shortId = unit_id;
-                                        if (unit_id.endsWith(".service"))
-                                            shortId = unit_id.substring(0, unit_id.length - 8);
-
+                                    if (this.isTemplate(unit_id)) {
                                         // A template, create a fake unit for it
-                                        this.setState({
-                                            unit_by_path: {
-                                                ...this.state.unit_by_path,
-                                                [unit_id]: {
-                                                    path: unit_id,
-                                                    Id: unit_id,
-                                                    shortId: shortId,
-                                                    Description: cockpit.format(_("$0 Template"), unit_id),
-                                                    UnitFileState: unitFileState,
-                                                    is_timer: (unit_id.slice(-5) == "timer"),
-                                                    is_template: true
-                                                }
-                                            }
-                                        });
+                                        this.updateProperties({
+                                            Id: cockpit.variant("s", unit_id),
+                                            Description: cockpit.variant("s", cockpit.format(_("$0 Template"), unit_id)),
+                                            UnitFileState: cockpit.variant("s", unitFileState)
+                                        }, unit_id, true);
                                         this.path_by_id[unit_id] = unit_id;
                                         this.seenPaths.add(unit_id);
                                         return;
@@ -565,11 +552,6 @@ class ServicesPage extends React.Component {
 
         if (load_state !== "" && load_state != "masked")
             unit.CombinedState = cockpit.format("$0 ($1)", unit.CombinedState, _(load_state));
-
-        unit.shortId = unit.Id;
-        // Remove ".service" from services as this is not necessary
-        if (unit.Id.endsWith(".service"))
-            unit.shortId = unit.Id.substring(0, unit.Id.length - 8);
     }
 
     updateProperties(props, path, updateFileState = false) {
@@ -593,6 +575,7 @@ class ServicesPage extends React.Component {
         };
 
         prop("Id");
+        const isTemplate = unitNew.Id && this.isTemplate(unitNew.Id);
         prop("Description");
         prop("Names");
         prop("LoadState");
@@ -631,7 +614,7 @@ class ServicesPage extends React.Component {
 
         if (unitNew.Id.slice(-5) == "timer") {
             unitNew.is_timer = true;
-            if (unitNew.ActiveState == "active") {
+            if (unitNew.ActiveState == "active" && !isTemplate) {
                 const timer_unit = systemd_client.proxy('org.freedesktop.systemd1.Timer', unitNew.path);
                 timer_unit.wait(() => {
                     if (timer_unit.valid)
@@ -643,7 +626,13 @@ class ServicesPage extends React.Component {
         if (!shouldUpdate)
             return;
 
-        this.updateComputedProperties(unitNew);
+        unitNew.shortId = unitNew.Id;
+        // Remove ".service" from services as this is not necessary
+        if (unitNew.Id.endsWith(".service"))
+            unitNew.shortId = unitNew.Id.substring(0, unitNew.Id.length - 8);
+
+        if (!isTemplate)
+            this.updateComputedProperties(unitNew);
 
         this.setState(prevState => ({
             unit_by_path: {

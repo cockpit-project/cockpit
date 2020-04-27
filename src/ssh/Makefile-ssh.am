@@ -10,13 +10,6 @@ libcockpit_ssh_a_SOURCES = \
 	src/ssh/cockpitsshrelay.c \
 	$(NULL)
 
-if !HAVE_SSH_SESSION_HAS_KNOWN_HOSTS_ENTRY
-libcockpit_ssh_a_SOURCES += \
-	src/ssh/cockpitsshknownhosts.h \
-	src/ssh/cockpitsshknownhosts.c \
-	$(NULL)
-endif
-
 libcockpit_ssh_a_CFLAGS = \
 	-fPIC \
 	-I$(top_srcdir)/src/ssh \
@@ -69,16 +62,6 @@ test_sshoptions_LDADD = libcockpit-ssh.a $(cockpit_ssh_LDADD)
 test_sshbridge_CFLAGS = $(cockpit_ssh_CFLAGS)
 test_sshbridge_SOURCES = src/ssh/test-sshbridge.c
 test_sshbridge_LDADD = libcockpit-ssh.a $(cockpit_ssh_LDADD)
-
-if !HAVE_SSH_SESSION_HAS_KNOWN_HOSTS_ENTRY
-SSH_CHECKS += \
-	test-knownhosts \
-	$(NULL)
-
-test_knownhosts_CFLAGS = $(cockpit_ssh_CFLAGS)
-test_knownhosts_SOURCES = src/ssh/test-knownhosts.c
-test_knownhosts_LDADD = libcockpit-ssh.a $(cockpit_ssh_LDADD)
-endif
 
 test_rsa_key: src/ssh/test_rsa
 	$(AM_V_GEN) cp $< $@ && chmod 600 $@

@@ -65,7 +65,7 @@ AC_MSG_RESULT($enable_prefix_only)
 #
 
 GLIB_VERSION="2.44"
-LIBSSH_VERSION="0.8"
+LIBSSH_VERSION="0.8.5"
 GIO_VERSION="2.37.4" # For appropriate version of TLS logic
 
 GIO_REQUIREMENT="gio-unix-2.0 >= $GIO_VERSION gio-2.0 >= $GIO_VERSION"
@@ -136,18 +136,6 @@ if test "$enable_ssh" != "no"; then
   enable_ssh="yes"
   AC_MSG_RESULT([$enable_ssh])
   PKG_CHECK_MODULES(LIBSSH, [libssh >= $LIBSSH_VERSION])
-
-  AC_DEFINE_UNQUOTED(WITH_COCKPIT_SSH, 1, [Build cockpit-ssh and include libssh dependency])
-
-  PKG_CHECK_MODULES(LIBSSH_SAFE_PROXY_COMMANDS, [libssh >= 0.8.5],
-    [AC_DEFINE_UNQUOTED(LIBSSH_085, [1], [Fixes to proxy commands and knownhost parsing are available starting libssh-0.8.5])], [0])
-
-  AC_CHECK_LIB(ssh, ssh_get_server_publickey, [
-    AC_DEFINE_UNQUOTED(HAVE_SSH_GET_SERVER_PUBLICKEY, 1, Whether ssh_get_server_publickey is available)
-  ])
-
-  AC_CHECK_DECLS([SSH_PUBLICKEY_HASH_SHA256, ssh_get_fingerprint_hash, ssh_session_has_known_hosts_entry], [], [], [[#include <libssh/libssh.h>]])
-
   COCKPIT_SSH_SESSION_CFLAGS="$COCKPIT_CFLAGS $LIBSSH_CFLAGS $KRB5_CFLAGS"
   COCKPIT_SSH_SESSION_LIBS="$COCKPIT_LIBS $LIBSSH_LIBS $KRB5_LIBS"
   AC_SUBST(COCKPIT_SSH_SESSION_LIBS)
@@ -159,7 +147,6 @@ else
 fi
 
 AM_CONDITIONAL(WITH_COCKPIT_SSH, test "$enable_ssh" = "yes")
-AM_CONDITIONAL(HAVE_SSH_SESSION_HAS_KNOWN_HOSTS_ENTRY, test "$ac_cv_have_decl_ssh_session_has_known_hosts_entry" = "yes")
 
 # pam
 AC_CHECK_HEADER([security/pam_appl.h], ,

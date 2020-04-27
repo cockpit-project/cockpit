@@ -26,7 +26,7 @@ var ops = stdio.getopt({
     deps: { key: "d", args: 1, description: "Output dependencies in Makefile format" }
 });
 
-var srcdir = process.env.SRCDIR;
+var srcdir = process.env.SRCDIR || ".";
 var makefile = ops.deps;
 var prefix = "packages";
 var npm = { "dependencies": { } };

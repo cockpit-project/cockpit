@@ -227,9 +227,6 @@ class ServicesPage extends React.Component {
 
         ["JobNew", "JobRemoved"].forEach(signalType => {
             systemd_manager.addEventListener(signalType, (event, number, job, unit_id, result) => {
-                if (this.state.loadingUnits)
-                    return;
-
                 systemd_manager.LoadUnit(unit_id)
                         .then(path => {
                             if (!this.seenPaths.has(path)) {

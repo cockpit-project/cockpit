@@ -248,7 +248,7 @@ class TestBondingVirt(NetworkCase):
         "machine2": {"image": TEST_OS_DEFAULT, "address": "10.111.113.2/20", "dhcp": True}
     }
 
-    @skipImage("Main interface can't be managed", "debian-stable", "debian-testing", "ubuntu-1804", "ubuntu-2004", "ubuntu-stable")
+    @skipImage("Main interface can't be managed", "debian-stable", "debian-testing", "ubuntu-2004", "ubuntu-stable")
     def testMain(self):
         b = self.browser
         m = self.machine
@@ -278,7 +278,7 @@ class TestBondingVirt(NetworkCase):
         b.wait_not_present("#networking-interfaces tr[data-interface='tbond']")
         b.wait_present("#networking-interfaces tr[data-interface='%s']" % iface)
 
-    @skipImage("Main interface can't be managed", "debian-stable", "debian-testing", "ubuntu-1804", "ubuntu-2004", "ubuntu-stable")
+    @skipImage("Main interface can't be managed", "debian-stable", "debian-testing", "ubuntu-2004", "ubuntu-stable")
     @skipImage("not using dhclient", "fedora-coreos")
     def testSlowly(self):
         b = self.browser

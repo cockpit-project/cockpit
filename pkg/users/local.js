@@ -17,6 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'polyfills'; // once per application
+
 import $ from 'jquery';
 import cockpit from 'cockpit';
 import moment from "moment";

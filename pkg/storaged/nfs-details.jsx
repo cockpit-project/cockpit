@@ -17,8 +17,6 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import "polyfills";
-
 import cockpit from "cockpit";
 import React from "react";
 import moment from "moment";

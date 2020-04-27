@@ -17,9 +17,10 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'polyfills'; // once per application
+
 import cockpit from "cockpit";
 import moment from 'moment';
-import '../lib/polyfills.js'; // once per application
 import React from "react";
 import ReactDOM from 'react-dom';
 

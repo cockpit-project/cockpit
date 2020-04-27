@@ -148,15 +148,14 @@ $desktop: $phone + 1px;
     }
 }
 
-.pf-c-select button:hover,
-.pf-c-select button:focus,
-.pf-c-select button:active,
-.ct-header-item a:hover,
-.ct-header-item a:focus,
-.ct-header-item a:active {
-    text-decoration: none;
-    background-color: var(--pf-global--BackgroundColor--dark-400);
+.pf-c-select button,
+.ct-header-item a {
+        &:hover, &:focus &:active {
+            text-decoration: none;
+            background-color: var(--pf-global--BackgroundColor--dark-400);
+        }
 }
+
 .screenreader-text {
     position: absolute;
     left: -999px;

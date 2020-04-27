@@ -2,6 +2,7 @@
 
 /* Navigation base, used for both desktop & mobile navigation */
 
+$phone-se: 360px;
 $phone: 767px;
 $desktop: $phone + 1px;
 
@@ -388,6 +389,9 @@ $desktop: $phone + 1px;
     .pf-m-dark .pf-c-select__toggle {
         background: var(--pf-global--BackgroundColor--dark-100);
     }
+}
+
+@media (max-width: $phone-se) {
 }
 
 // Shrink nav for VMs $ 1024×768 (and below)

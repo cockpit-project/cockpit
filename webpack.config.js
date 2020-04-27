@@ -401,7 +401,7 @@ module.exports = {
         rules: [
             {
                 enforce: 'pre',
-                test: /\.(js|es6|jsx)$/,
+                test: /\.(js|jsx)$/,
                 exclude: /\/node_modules\/.*\//, // exclude external dependencies
                 loader: "eslint-loader"
             },
@@ -416,7 +416,7 @@ module.exports = {
                 use: babel_loader
             },
             {
-                test: /\.(js|jsx|es6)$/,
+                test: /\.(js|jsx)$/,
                 // exclude external dependencies; it's too slow, and they are already plain JS except the above
                 exclude: /\/node_modules\/.*\//,
                 use: babel_loader

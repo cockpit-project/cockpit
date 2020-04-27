@@ -282,13 +282,12 @@ $desktop: $phone + 1px;
 
 /* Mobile navigation */
 @media (max-width: $phone) {
-    .mobile_v {
-        display: block;
+    :root {
+        --nav-icon-size: 4rem;
     }
 
-    .view-hosts .sidebar-hosts {
-        animation: navHostsSlide 300ms ease-out;
-        transform-origin: bottom;
+    .mobile_v {
+        display: block;
     }
 
     .desktop_v {
@@ -297,29 +296,55 @@ $desktop: $phone + 1px;
 
     .area-ct-subnav {
         align-self: end;
-        height: 90%;
-        margin-left: 10px;
-        margin-right: 10px;
         z-index: 2;
-        position: relative;
-        overflow: hidden;
-        opacity: 0;
-        transform: translate(0,100%) scaleY(0);
-        transition: opacity 200ms ease-in 100ms, transform 100ms ease-in 300ms;
-        display: none;
 
-        &.interact {
-            display: block;
-            transform: none;
-            opacity: 1;
-            overflow: visible;
-            transition: bottom 300ms ease-out, box-shadow 300ms ease-out, transform 300ms ease-out;
+        &:not(.interact) {
+            display: none;
         }
     }
 
     .dropdown-menu {
         width: auto !important;
-        animation: navFadeInSlide 600ms;
+    }
+
+    .area-ct-subnav,
+    .dropdown-menu {
+        transform-origin: bottom;
+        animation: navHostsSlide 200ms ease-out;
+    }
+
+    .ct-header {
+        &-item {
+            --button-offset: 0;
+
+            .dropdown-menu {
+                right: var(--button-offset);
+                left: auto;
+                top: auto;
+                bottom: 100%;
+            }
+        }
+        &-docs {
+            // Buttons are 4rem wide
+            --button-offset: calc((-1 * var(--nav-icon-size)) + var(--pf-global--spacer--md));
+        }
+    }
+
+    .nav-system-menu {
+        left: 0;
+        right: 0;
+        height: auto;
+        overflow: auto;
+        max-height: calc(100vh - var(--nav-icon-size));
+        max-width: 29rem;
+        display: block;
+    }
+
+    .nav-hosts-menu {
+        position: absolute;
+        bottom: var(--nav-icon-size);
+        right: var(--pf-global--spacer--md);
+        max-width: 100vw;
     }
 
     .header {
@@ -328,13 +353,6 @@ $desktop: $phone + 1px;
             /* Make menu items a consistent, touch-friendly size */
             padding: 0 40px;
             line-height: 54px;
-        }
-
-        .open .dropdown-menu {
-            position: absolute;
-            bottom: 100%;
-            top: unset;
-            left: -200px; // TODO - this needs to be somehow better
         }
     }
 
@@ -391,6 +409,9 @@ $desktop: $phone + 1px;
 }
 
 @media (max-width: $phone-se) {
+    .nav-hosts-menu {
+        right: 0;
+    }
 }
 
 // Shrink nav for VMs $ 1024×768 (and below)

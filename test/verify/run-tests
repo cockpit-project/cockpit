@@ -207,6 +207,7 @@ def run(opts, image):
             poll_result = test.process.poll()
             if poll_result is not None:
                 made_progress = True
+                test.outfile.flush()
                 test.outfile.seek(0)
                 test.output = test.outfile.read()
                 test.outfile.close()
@@ -217,9 +218,9 @@ def run(opts, image):
                 if test is serial_test:
                     serial_tests_duration += (time.time() - serial_test_start)
 
-                    # sometimes our global machine gets messed up
+                    # sometimes our global machine gets messed up; also, tests that time out don't run cleanup handlers
                     # restart it to avoid an unbounded number of test retries and follow-up errors
-                    if retry_reason and b"test harness" in retry_reason:
+                    if poll_result == 124 or (retry_reason and b"test harness" in retry_reason):
                         # try hard to keep the test output consistent
                         testlib.MachineCase.kill_global_machine()
                         testlib.MachineCase.get_global_machine()

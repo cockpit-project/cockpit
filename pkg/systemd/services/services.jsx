@@ -782,8 +782,8 @@ class ServicesPage extends React.Component {
                 </PageSection>
                 <PageSection>
                     <Card isCompact>
-                        <DataToolbar
-                            id="services-toolbar">
+                        <DataToolbar data-loading={this.state.loadingUnits}
+                                     id="services-toolbar">
                             <DataToolbarContent>{toolbarItems}</DataToolbarContent>
                         </DataToolbar>
                         <ServicesList key={cockpit.format("$0-list", activeTab)}

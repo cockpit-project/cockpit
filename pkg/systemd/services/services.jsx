@@ -783,7 +783,7 @@ class ServicesPage extends React.Component {
                 <PageSection>
                     <Card isCompact>
                         <DataToolbar
-                            id="services-page">
+                            id="services-toolbar">
                             <DataToolbarContent>{toolbarItems}</DataToolbarContent>
                         </DataToolbar>
                         <ServicesList key={cockpit.format("$0-list", activeTab)}

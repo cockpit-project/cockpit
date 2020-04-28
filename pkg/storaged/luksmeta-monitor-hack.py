@@ -104,7 +104,7 @@ def info(dev):
 def monitor(dev):
     path = subprocess.check_output([ "udevadm", "info", "-q", "path", dev ]).rstrip(b"\n")
     mon = subprocess.Popen([ "stdbuf", "-o", "L", "udevadm", "monitor", "-u", "-s", "block"],
-                           bufsize=1, stdout=subprocess.PIPE)
+                           stdout=subprocess.PIPE)
 
     old_infos = info(dev)
     sys.stdout.write(json.dumps(old_infos) + "\n")

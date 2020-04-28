@@ -831,6 +831,13 @@ class TestKerberos(MachineCase):
         self.assertIn('"csrf-token"', output)
         self.allow_restart_journal_messages()
 
+        m.execute("printf '[Negotiate]\naction = none\n' >> /etc/cockpit/cockpit.conf")
+        m.restart_cockpit()
+        output = m.execute(['/usr/bin/curl', '-s', '--negotiate', '--delegation', 'always', '-u', ':', "-D", "-",
+                            '--resolve', 'x0.cockpit.lan:9090:10.111.113.1',
+                            'http://x0.cockpit.lan:9090/cockpit/login'])
+        self.assertIn("HTTP/1.1 401 Authentication disabled", output)
+
 
 @skipImage("Package (un)install does not work on OSTree", "fedora-coreos")
 class TestPackageInstall(packagelib.PackageCase):

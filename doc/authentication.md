@@ -21,8 +21,9 @@ The command is then responsible to:
  * setup an appropriate session and environment based on those credentials
  * launch a bridge that speaks the cockpit protocol on stdin and stdout.
 
-The default command is `cockpit-session` it is able to handle basic, gssapi,
-and TLS client certificate (tls-cert) authentication.
+The default command is `cockpit-session` it is able to handle Password
+(`[basic]`), Kerberos/GSSAPI (`[negotiate]`), and TLS client certificate
+(`[tls-cert]`) authentication.
 
 Authentication commands are called with a single argument which is the host that the user
 is connecting to. They communicate with their parent process using the cockpit protocol on
@@ -142,7 +143,7 @@ in cockpit.conf:
 ClientCertAuthentication = yes
 ```
 
-This uses the `tls-cert` authentication scheme.
+This uses the `[tls-cert]` authentication scheme.
 
 When enabling this mode, other authentication types commonly get disabled. See
 the next section for details.
@@ -156,11 +157,19 @@ are supported.
  * **remote-login-ssh** Use the `SSH-Login` section instead.
  * **none** Disable this auth scheme.
 
-To configure an action add the `action` option. For example to disable basic authentication.
-cockpit.conf should contain the following section.
+To configure an action add the `action` option. For example to disable basic authentication,
+cockpit.conf should contain the following section:
 
 ```
 [basic]
+action = none
+```
+
+Likewise, if the browser offers Kerberos/GSSAPI authentication, but cockpit should
+ignore it, create the following section:
+
+```
+[negotiate]
 action = none
 ```
 

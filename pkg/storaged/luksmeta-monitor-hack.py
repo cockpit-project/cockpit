@@ -8,6 +8,8 @@ import json
 import subprocess
 import re
 import base64
+import signal
+import atexit
 
 def b64_decode(data):
     # The data we get doesn't seem to have any padding, but the base64
@@ -102,6 +104,25 @@ def info(dev):
     return { "version": version, "slots": list(slots.values()), "max_slots": max_slots }
 
 def monitor(dev):
+    mon = None
+
+    # We have to kill the udevadm process explicitly when Cockpit
+    # kills us.  It will eventually exit on its own since its stdout
+    # will be closed when we exit, but that will only happen when it
+    # actually writes something.
+
+    def sigexit(signo, stack):
+        sys.exit(0)
+
+    def killmon():
+        if mon:
+            mon.terminate()
+
+    atexit.register(killmon)
+    signal.signal(signal.SIGTERM, sigexit)
+    signal.signal(signal.SIGINT, sigexit)
+    signal.signal(signal.SIGHUP, sigexit)
+
     path = subprocess.check_output([ "udevadm", "info", "-q", "path", dev ]).rstrip(b"\n")
     mon = subprocess.Popen([ "stdbuf", "-o", "L", "udevadm", "monitor", "-u", "-s", "block"],
                            stdout=subprocess.PIPE)

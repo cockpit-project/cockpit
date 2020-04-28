@@ -1,0 +1,15 @@
+#!/bin/sh
+# Calls webpack-make in watch mode for the given pkg/<page>
+
+set -eu
+mydir=$(dirname $0)
+
+if [ -z "${1:-}" ] || [ -n "${2:-}" ]; then
+    echo "Usage: $0 <page in pkg/>" >&2
+    exit 1
+fi
+
+# disable eslint by default, unless explicitly enabled
+export ESLINT=${ESLINT:-0}
+
+"$mydir/webpack-make" -d "$mydir/../dist/$1/Makefile.deps" -w

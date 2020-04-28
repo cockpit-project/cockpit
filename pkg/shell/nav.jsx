@@ -5,7 +5,6 @@ import PropTypes from 'prop-types';
 
 import {
     Nav,
-    NavGroup,
 } from '@patternfly/react-core';
 import { ExclamationCircleIcon, ExclamationTriangleIcon, InfoCircleIcon } from '@patternfly/react-icons';
 import { OverlayTrigger, Tooltip } from 'patternfly-react';
@@ -100,7 +99,7 @@ export class CockpitNav extends React.Component {
             const new_items = g.items.map(i => this.props.filtering(i, term)).filter(Boolean);
             new_items.sort(this.props.sorting);
             if (new_items.length > 0)
-                groups.push({ name: g.name, items: new_items });
+                groups.push({ name: g.name, items: new_items, action: g.action });
         });
 
         return (
@@ -111,9 +110,17 @@ export class CockpitNav extends React.Component {
                 </div>
                 <Nav onSelect={this.onSelect} theme="dark">
                     { groups.map(g =>
-                        <NavGroup key={g.name} title={g.name}>
-                            {g.items.map(i => this.props.item_render(i, this.state.search.toLowerCase()))}
-                        </NavGroup>
+                        <section className="pf-c-nav__section" aria-labelledby={"section-title-" + g.name} key={g.name}>
+                            <div className="nav-group-heading">
+                                <h2 className="pf-c-nav__section-title" id={"section-title-" + g.name}>{g.name}</h2>
+                                { g.action &&
+                                    <a className="pf-c-nav__section-title" href={g.action.path}>{g.action.label}</a>
+                                }
+                            </div>
+                            <ul className="pf-c-nav__list">
+                                {g.items.map(i => this.props.item_render(i, this.state.search.toLowerCase()))}
+                            </ul>
+                        </section>
                     )}
                     { groups.length < 1 && <span className="non-menu-item">{_("No results found")}</span> }
                     { this.state.search !== "" && <span className="non-menu-item"><button onClick={this.clearSearch} className="link-button hint">{_("Clear Search")}</button></span> }

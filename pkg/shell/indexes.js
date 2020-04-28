@@ -274,10 +274,6 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
 
         // Rendering of separate navigation menu items
         function nav_item(component, term) {
-            // Link pointing to different component
-            if (component.symlink)
-                return <a href={component.path} key={component.label}>{component.label}</a>;
-
             const active = state.component === component.path;
 
             // Parse path
@@ -320,7 +316,7 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
         ].filter(i => i.items.length > 0);
 
         if (compiled.items.apps && groups.length === 3)
-            groups[0].items.push({ label: _("Edit apps"), path: compiled.items.apps.path, symlink: true, keywords: [] });
+            groups[0].action = { label: _("Edit"), path: compiled.items.apps.path };
 
         ReactDOM.render(
             React.createElement(CockpitNav, {

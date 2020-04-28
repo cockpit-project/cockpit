@@ -483,6 +483,20 @@ $desktop: $phone + 1px;
     scrollbar-color: var(--pf-global--Color--400) var(--pf-global--BackgroundColor--dark-200)
 }
 
+.nav-group-heading {
+    display: flex;
+    justify-content: space-between;
+
+    a {
+        color: var(--pf-global--link--Color--light);
+        font-weight: normal;
+
+        &:hover {
+            color: var(--pf-global--link--Color--light--hover)
+        }
+    }
+}
+
 // Give additional style to individual menu items
 .nav-item {
 

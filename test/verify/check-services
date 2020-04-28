@@ -199,7 +199,12 @@ Unit=test.service
         self.pick_tab(2)
         b.wait_not_in_text("#services-list", "test")
         self.wait_service_state("sockets.target", "active")
+
+        # Make sure that symlinked services also appear in the list
         self.wait_service_state("reboot.target", "inactive")
+        if self.machine.image != "rhel-8-2-distropkg":  # fixed in PR #13984
+            self.wait_service_state("ctrl-alt-del.target", "inactive")
+            self.wait_service_state("runlevel6.target", "inactive")
 
         # Selects Sockets tab
         self.pick_tab(3)

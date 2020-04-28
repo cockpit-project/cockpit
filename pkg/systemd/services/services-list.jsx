@@ -35,7 +35,7 @@ export const ServicesList = ({ units, isTimer }) => {
                   id="services-list"
                   onSelectDataListItem={id => cockpit.location.go([id])}
                   className="services-list">
-            { units.map(unit => <ServicesRow key={unit.path} isTimer={isTimer} {...unit} />) }
+            { units.map(unit => <ServicesRow key={unit[0]} isTimer={isTimer} shortId={unit[0]} {...unit[1]} />) }
         </DataList>
     );
 };
@@ -43,9 +43,14 @@ export const ServicesList = ({ units, isTimer }) => {
 class ServicesRow extends React.PureComponent {
     render() {
         const { Id, shortId, AutomaticStartup, UnitFileState, LoadState, HasFailed, CombinedState, LastTriggerTime, NextRunTime, Description, isTimer } = this.props;
-        const props = { shortId, Description };
+        let displayName = shortId;
+        // Remove ".service" from services as this is not necessary
+        if (shortId.endsWith(".service"))
+            displayName = shortId.substring(0, shortId.length - 8);
+        const props = { displayName, Description };
+
         const columnsMap = {
-            shortId: { value: _("Name"), className: "service-unit-id", width: 2 },
+            displayName: { value: _("Name"), className: "service-unit-id", width: 2 },
             Description: { value: _("Description"), className: "service-unit-description", width: 4 },
             Triggers: { value: _("Triggers"), timerOnly: true, className: "service-unit-triggers", width: 3 },
         };
@@ -70,7 +75,7 @@ class ServicesRow extends React.PureComponent {
             tooltipMessage = _("Cannot be enabled");
 
         return (
-            <DataListItem data-goto-unit={Id} aria-labelledby={Id} id={Id}>
+            <DataListItem data-goto-unit={shortId} aria-labelledby={shortId} id={shortId}>
                 <DataListItemRow className={HasFailed ? "service-unit-failed" : ""}>
                     <DataListItemCells
                         dataListCells={[Object.keys(columnsMap)

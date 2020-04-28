@@ -229,10 +229,8 @@ class ServicesPage extends React.Component {
             systemd_manager.addEventListener(signalType, (event, number, job, unit_id, result) => {
                 systemd_manager.LoadUnit(unit_id)
                         .then(path => {
-                            if (!this.seenPaths.has(path)) {
+                            if (!this.seenPaths.has(path))
                                 this.seenPaths.add(path);
-                                this.path_by_id[unit_id] = path;
-                            }
 
                             this.getUnitByPath(path).then(this.processFailedUnits);
                         });
@@ -294,10 +292,8 @@ class ServicesPage extends React.Component {
                         if (!this.isUnitHandled(unit_id))
                             return;
 
-                        if (!this.seenPaths.has(path)) {
+                        if (!this.seenPaths.has(path))
                             this.seenPaths.add(path);
-                            this.path_by_id[unit_id] = path;
-                        }
 
                         this.updateProperties(
                             {
@@ -344,10 +340,8 @@ class ServicesPage extends React.Component {
                         if (!this.isUnitHandled(unit_id))
                             return;
 
-                        if (!this.seenPaths.has(path)) {
+                        if (!this.seenPaths.has(path))
                             this.seenPaths.add(path);
-                            this.path_by_id[unit_id] = path;
-                        }
 
                         this.updateProperties(
                             {
@@ -385,7 +379,6 @@ class ServicesPage extends React.Component {
                                             Description: cockpit.variant("s", cockpit.format(_("$0 Template"), unit_id)),
                                             UnitFileState: cockpit.variant("s", unitFileState)
                                         }, unit_id, true);
-                                        this.path_by_id[unit_id] = unit_id;
                                         this.seenPaths.add(unit_id);
                                         return;
                                     }
@@ -397,7 +390,6 @@ class ServicesPage extends React.Component {
                                                 UnitFileState: cockpit.variant("s", unitFileState)
                                             }, unit_path, true);
 
-                                        this.path_by_id[unit_id] = unit_path;
                                         this.seenPaths.add(unit_path);
 
                                         return this.getUnitByPath(unit_path);
@@ -415,6 +407,10 @@ class ServicesPage extends React.Component {
                                                 if (!this.seenPaths.has(unitPath)) {
                                                     hasExtraEntries = true;
                                                     delete unit_by_path[unitPath];
+                                                    Object.keys(this.path_by_id).forEach(id => {
+                                                        if (this.path_by_id[id] == unitPath)
+                                                            delete this.path_by_id[id];
+                                                    });
                                                 }
                                             }
                                             if (hasExtraEntries)
@@ -450,7 +446,9 @@ class ServicesPage extends React.Component {
     /**
       * Sort units by alphabetically - failed units go on the top of the list
       */
-    compareUnits(unit_a, unit_b) {
+    compareUnits(unit_a_t, unit_b_t) {
+        const unit_a = unit_a_t[1];
+        const unit_b = unit_b_t[1];
         const failed_a = unit_a.HasFailed ? 1 : 0;
         const failed_b = unit_b.HasFailed ? 1 : 0;
 
@@ -460,7 +458,7 @@ class ServicesPage extends React.Component {
         if (failed_a != failed_b)
             return failed_b - failed_a;
         else
-            return unit_a.Id.localeCompare(unit_b.Id);
+            return unit_a_t[0].localeCompare(unit_b_t[0]);
     }
 
     addTimerProperties(timer_unit, path, unit) {
@@ -552,6 +550,9 @@ class ServicesPage extends React.Component {
         if (!this.state.unit_by_path[path] && !props.Id)
             return;
 
+        if (props.Id && props.Id.v)
+            this.path_by_id[props.Id.v] = path;
+
         let shouldUpdate = false;
         const unitNew = Object.assign({}, this.state.unit_by_path[path]);
         const prop = p => {
@@ -604,11 +605,6 @@ class ServicesPage extends React.Component {
         prop("CanReload");
 
         prop("ActiveEnterTimestamp");
-
-        unitNew.shortId = unitNew.Id;
-        // Remove ".service" from services as this is not necessary
-        if (unitNew.Id.endsWith(".service"))
-            unitNew.shortId = unitNew.Id.substring(0, unitNew.Id.length - 8);
 
         if (!isTemplate)
             this.updateComputedProperties(unitNew);
@@ -711,9 +707,13 @@ class ServicesPage extends React.Component {
         const { currentTextFilter, activeTab } = this.state;
         const currentTypeFilter = this.state.currentTypeFilter || typeDropdownOptions[0];
 
-        const units = Object.keys(unit_by_path)
-                .map(path => unit_by_path[path])
-                .filter(unit => {
+        const units = Object.keys(this.path_by_id)
+                .filter(unit_id => {
+                    const unit = this.path_by_id[unit_id] ? unit_by_path[this.path_by_id[unit_id]] : undefined;
+
+                    if (!unit)
+                        return false;
+
                     if (!(unit.Id && activeTab && unit.Id.match(cockpit.format(".$0$", activeTab))))
                         return false;
 
@@ -729,6 +729,7 @@ class ServicesPage extends React.Component {
 
                     return true;
                 })
+                .map(unit_id => [unit_id, unit_by_path[this.path_by_id[unit_id]]])
                 .sort(this.compareUnits);
 
         const toolbarItems = <>

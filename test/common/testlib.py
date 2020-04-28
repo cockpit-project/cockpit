@@ -977,6 +977,9 @@ class MachineCase(unittest.TestCase):
 
         # our core dump retrieval is not entirely reliable
         "Failed to send coredump datagram:.*",
+
+        # Something crashed, but we don't have more info. Don't fail on that
+        "Failed to generate stack trace: (null)",
     ]
 
     # Whitelist of allowed console.error() messages during tests; these match substrings

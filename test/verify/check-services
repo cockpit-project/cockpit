@@ -192,6 +192,9 @@ Unit=test.service
         self.wait_service_state("test.service", "inactive")
         self.wait_service_in_panel("test.service", "Enabled")
 
+        if self.machine.image != "rhel-8-2-distropkg":
+            b.wait_attr("#services-toolbar", "data-loading", "false")
+
         # Selects Targets tab
         self.pick_tab(2)
         b.wait_not_in_text("#services-list", "test")

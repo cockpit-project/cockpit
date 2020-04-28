@@ -247,7 +247,7 @@ for pkg in base1 branding motd kdump networkmanager selinux shell sosreport ssh 
     rm -r %{buildroot}/%{_datadir}/cockpit/$pkg
     rm -f %{buildroot}/%{_datadir}/metainfo/org.cockpit-project.cockpit-${pkg}.metainfo.xml
 done
-for data in doc locale man pixmaps polkit-1; do
+for data in doc locale man icons polkit-1; do
     rm -r %{buildroot}/%{_datadir}/$data
 done
 for lib in systemd tmpfiles.d firewalld; do
@@ -317,7 +317,7 @@ cat kdump.list sosreport.list networkmanager.list selinux.list >> system.list
 rm -f %{buildroot}%{_datadir}/metainfo/org.cockpit-project.cockpit-sosreport.metainfo.xml
 rm -f %{buildroot}%{_datadir}/metainfo/org.cockpit-project.cockpit-kdump.metainfo.xml
 rm -f %{buildroot}%{_datadir}/metainfo/org.cockpit-project.cockpit-selinux.metainfo.xml
-rm -f %{buildroot}%{_datadir}/pixmaps/cockpit-sosreport.png
+rm -f %{buildroot}%{_datadir}/icons/hicolor/64x64/apps/org.cockpit_project.cockpit_sosreport.png
 %endif
 
 %if 0%{?build_basic}
@@ -342,7 +342,7 @@ troubleshooting, interactive command-line sessions, and more.
 %{_docdir}/cockpit/README.md
 %dir %{_datadir}/cockpit
 %{_datadir}/metainfo/cockpit.appdata.xml
-%{_datadir}/pixmaps/cockpit.png
+%{_datadir}/icons/hicolor/128x128/apps/org.cockpit_project.cockpit.png
 %doc %{_mandir}/man1/cockpit.1.gz
 
 
@@ -536,7 +536,7 @@ sosreport tool.
 
 %files sosreport -f sosreport.list
 %{_datadir}/metainfo/org.cockpit-project.cockpit-sosreport.metainfo.xml
-%{_datadir}/pixmaps/cockpit-sosreport.png
+%{_datadir}/icons/hicolor/64x64/apps/org.cockpit_project.cockpit_sosreport.png
 
 %package networkmanager
 Summary: Cockpit user interface for networking, using NetworkManager

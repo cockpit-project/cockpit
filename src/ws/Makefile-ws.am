@@ -252,8 +252,8 @@ appdata_in = src/ws/cockpit.appdata.xml.in
 $(nodist_appdata_DATA): $(appdata_in) $(PO_FILES)
 	$(AM_V_GEN) $(MSGFMT) --xml -d $(top_srcdir)/po --template $< --output $@
 
-pixmapdir = $(datadir)/pixmaps
-pixmap_DATA = src/ws/cockpit.png
+icons128dir = ${datarootdir}/icons/hicolor/128x128/apps
+icons128_DATA = src/ws/org.cockpit_project.cockpit.png
 
 CLEANFILES += \
 	$(nodist_appdata_DATA) \
@@ -261,7 +261,7 @@ CLEANFILES += \
 
 EXTRA_DIST += \
 	$(appdata_in) \
-	$(pixmap_DATA) \
+	$(icons128_DATA) \
 	$(NULL)
 
 # ----------------------------------------------------------------------------------------------------

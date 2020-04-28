@@ -22,8 +22,8 @@ metainfo_DATA = pkg/sosreport/org.cockpit-project.cockpit-sosreport.metainfo.xml
 		pkg/docker/org.cockpit-project.cockpit-docker.metainfo.xml \
 		$(NULL)
 
-pixmapsdir = ${datarootdir}/pixmaps
-pixmaps_DATA = pkg/sosreport/cockpit-sosreport.png
+icons64dir = ${datarootdir}/icons/hicolor/64x64/apps
+icons64_DATA = pkg/sosreport/org.cockpit_project.cockpit_sosreport.png
 
 EXTRA_DIST += \
 	dist/playground/extra.de.po \
@@ -33,5 +33,5 @@ EXTRA_DIST += \
 	$(playground_DATA) \
 	$(pkg_TESTS) \
 	$(metainfo_DATA) \
-	$(pixmaps_DATA) \
+	$(icons64_DATA) \
 	$(NULL)

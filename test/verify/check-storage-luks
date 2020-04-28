@@ -121,6 +121,13 @@ class TestStorage(StorageCase):
         assert m.execute("grep -v ^# /etc/crypttab || true").strip() == ""
         assert m.execute("grep %s /etc/fstab || true" % mount_point_secret) == ""
 
+        # luksmeta-monitor-hack.py might leave a udevadm process
+        # behind, so let's check that the session goes away cleanly
+        # after a logout.
+
+        b.logout()
+        wait(lambda: m.execute("(loginctl list-users | grep admin) || true") == "")
+
     @skipImage("No clevis/tang", "debian-stable", "debian-testing", "ubuntu-2004", "ubuntu-stable")
     def testClevisTang(self):
         m = self.machine

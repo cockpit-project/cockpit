@@ -160,9 +160,14 @@ just run `make` to update everything that has changed; for iterating faster,
 you can run webpack in "watch" mode on the particular page that you are working
 on, which reduces the build time to less than a third. E. g.
 
-    $ ESLINT=0 tools/webpack-make -d dist/systemd/Makefile.deps -w
+    $ tools/webpack-watch systemd
 
-Then reload cockpit in your browser.
+Note that this disables eslint by default -- if you want to enable it, run it
+as
+
+    $ ESLINT=1 tools/webpack-watch systemd
+
+Then reload cockpit in your browser after building the page.
 
 To make Cockpit again use the installed code, rather than that from your
 git checkout directory, run the following, and log into Cockpit again:

@@ -1750,7 +1750,6 @@ class TestMachinesDBus(machineslib.TestMachines):
                 else:
                     b.wait_present('#create-volume-button:enabled')
 
-
             def cleanup(self):
                 m.execute("virsh pool-destroy {0} && virsh pool-undefine {0}".format(self.name))
 
@@ -1961,9 +1960,9 @@ class TestMachinesDBus(machineslib.TestMachines):
 
                 size = int(m.execute(xmllint_element.format(prop='capacity')).strip())
                 if self.unit == "GiB":
-                   size = round(size / (1024**3));
+                   size = round(size / (1024**3))
                 else:
-                   size = round(size / (1024**2));
+                   size = round(size / (1024**2))
                 self.test_obj.assertEqual(size, int(self.size))
 
             def cleanup(self):

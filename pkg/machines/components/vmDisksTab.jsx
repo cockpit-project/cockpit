@@ -65,14 +65,14 @@ class VmDisksTab extends React.Component {
         super(props);
 
         this.state = {
-            showModal: false,
+            showAddDiskModal: false,
         };
         this.open = this.open.bind(this);
         this.close = this.close.bind(this);
     }
 
     close() {
-        this.setState({ showModal: false });
+        this.setState({ showAddDiskModal: false });
     }
 
     open() {
@@ -81,7 +81,7 @@ class VmDisksTab extends React.Component {
         // https://bugzilla.redhat.com/show_bug.cgi?id=1578836
         this.props.dispatch(getAllStoragePools(this.props.vm.connectionName))
                 .then(() => {
-                    this.setState({ showModal: true });
+                    this.setState({ showAddDiskModal: true });
                 });
     }
 
@@ -92,7 +92,7 @@ class VmDisksTab extends React.Component {
                 <Button id={`${idPrefix}-adddisk`} variant='primary' onClick={this.open} className='pull-right'>
                     {_("Add Disk")}
                 </Button>
-                {this.state.showModal && <AddDiskModalBody close={this.close} dispatch={dispatch} idPrefix={idPrefix} vm={vm} vms={vms} storagePools={storagePools.filter(pool => pool && pool.active)} />}
+                {this.state.showAddDiskModal && <AddDiskModalBody close={this.close} dispatch={dispatch} idPrefix={idPrefix} vm={vm} vms={vms} storagePools={storagePools.filter(pool => pool && pool.active)} />}
             </>
         );
         let renderCapacityUsed, renderAccess, renderAdditional;

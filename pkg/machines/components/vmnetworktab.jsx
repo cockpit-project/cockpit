@@ -24,7 +24,7 @@ import cockpit from 'cockpit';
 import { changeNetworkState, getVm } from "../actions/provider-actions.js";
 import { rephraseUI, vmId } from "../helpers.js";
 import AddNIC from './nicAdd.jsx';
-import EditNICAction from './nicEdit.jsx';
+import { EditNICModal } from './nicEdit.jsx';
 import WarningInactive from './warningInactive.jsx';
 import './nic.css';
 import { detachIface, vmInterfaceAddresses } from '../libvirt-dbus.js';
@@ -207,14 +207,24 @@ class VmNetworkTab extends React.Component {
                 name: "", value: (network, networkId) => {
                     const isUp = network.state === 'up';
                     const editNICAction = () => {
-                        if (vm.persistent && this.state.networkDevices !== undefined)
-                            return <EditNICAction dispatch={dispatch}
-                                       idPrefix={`${id}-network-${networkId}`}
-                                       vm={vm}
-                                       network={network}
-                                       nodeDevices={nodeDevices}
-                                       availableSources={availableSources}
-                                       interfaces={interfaces} />;
+                        const editNICDialogProps = {
+                            dispatch,
+                            idPrefix: `${id}-network-${networkId}`,
+                            vm,
+                            network,
+                            nodeDevices,
+                            availableSources,
+                            interfaces,
+                            onClose: () => this.setState({ editNICDialogProps: undefined }),
+                        };
+                        if (vm.persistent && this.state.networkDevices !== undefined) {
+                            return (
+                                <Button id={`${editNICDialogProps.idPrefix}-edit-dialog`} variant='secondary'
+                                        onClick={() => this.setState({ editNICDialogProps })}>
+                                    {_("Edit")}
+                                </Button>
+                            );
+                        }
                     };
 
                     const deleteDialogProps = {
@@ -267,6 +277,7 @@ class VmNetworkTab extends React.Component {
         return (
             <div className="machines-network-list">
                 {this.state.deleteDialogProps && <DeleteResourceModal {...this.state.deleteDialogProps} />}
+                {this.state.editNICDialogProps && <EditNICModal {...this.state.editNICDialogProps } />}
                 <Button id={`${id}-add-iface-button`} variant='secondary' className='pull-right' onClick={this.open}>
                     {_("Add Network Interface")}
                 </Button>

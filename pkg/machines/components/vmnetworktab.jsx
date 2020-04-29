@@ -38,7 +38,7 @@ class VmNetworkTab extends React.Component {
         super(props);
 
         this.state = {
-            showModal: false,
+            showAddNICModal: false,
             interfaceAddress: [],
             networkDevices: undefined,
         };
@@ -48,11 +48,11 @@ class VmNetworkTab extends React.Component {
     }
 
     close() {
-        this.setState({ showModal: false });
+        this.setState({ showAddNICModal: false });
     }
 
     open() {
-        this.setState({ showModal: true });
+        this.setState({ showAddNICModal: true });
     }
 
     componentDidMount() {
@@ -282,7 +282,7 @@ class VmNetworkTab extends React.Component {
                     {_("Add Network Interface")}
                 </Button>
 
-                {this.state.showModal && this.state.networkDevices !== undefined &&
+                {this.state.showAddNICModal && this.state.networkDevices !== undefined &&
                     <AddNIC dispatch={dispatch}
                         idPrefix={`${id}-add-iface`}
                         vm={vm}

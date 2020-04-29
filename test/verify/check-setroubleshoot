@@ -225,6 +225,7 @@ class TestSelinux(MachineCase):
         b.wait_in_text(ansible_script_sel, "- name: Allow zebra to write config")
 
         ansible_m = self.machines["ansible_machine"]
+        ansible_m.execute("semanage module -D")
         ansible_m.execute("mkdir -p roles/selinux/tasks/")
         ansible_m.write("tests.yml",
 """

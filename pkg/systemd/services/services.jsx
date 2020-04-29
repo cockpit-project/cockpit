@@ -537,8 +537,8 @@ class ServicesPage extends React.Component {
         } else if (unit.UnitFileState && unit.UnitFileState.indexOf('static') == 0) {
             unit.AutomaticStartup = _("Static");
             unit.AutomaticStartupKey = 'static';
-        } else if (unit.UnitFileState && unit.UnitFileState.indexOf('masked') == 0) {
-            unit.AutomaticStartup = _("Masked");
+        } else if (unit.UnitFileState) {
+            unit.AutomaticStartup = unit.UnitFileState;
         }
 
         if (load_state !== "" && load_state != "masked")

@@ -42,6 +42,8 @@ class Dropdown extends React.Component {
     }
 
     handleClick(event) {
+        event.preventDefault();
+
         if (event.button !== 0)
             return;
 
@@ -64,7 +66,7 @@ class Dropdown extends React.Component {
                         this.props.actions.map(function (action, index) {
                             return (
                                 <li key={index} className={ action.disabled ? 'disabled' : '' }>
-                                    <a data-value={index} role="link" tabIndex="0" onClick={this.handleClick}>{action.label}</a>
+                                    <a data-value={index} href="#" onClick={this.handleClick}>{action.label}</a>
                                 </li>
                             );
                         }.bind(this))
@@ -146,6 +148,7 @@ class ContainerProblems extends React.Component {
     }
 
     onItemClick(event) {
+        event.preventDefault();
         cockpit.jump(event.currentTarget.dataset.url, cockpit.transport.host);
     }
 
@@ -153,7 +156,7 @@ class ContainerProblems extends React.Component {
         var problem = this.props.problem;
         var problem_cursors = [];
         for (var i = 0; i < problem.length; i++) {
-            problem_cursors.push(<a key={i} data-url={problem[i][0]} className='list-group-item' role="link" tabIndex="0" onClick={this.onItemClick}>
+            problem_cursors.push(<a key={i} data-url={problem[i][0]} className='list-group-item' href="#" onClick={this.onItemClick}>
                 <span className="pficon pficon-warning-triangle-o fa-lg" />
                 {problem[i][1]}
             </a>);

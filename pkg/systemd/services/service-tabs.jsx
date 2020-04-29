@@ -50,8 +50,9 @@ export function ServiceTabs({ onChange, activeTab, tabErrors }) {
                     return (
                         <NavItem itemId={key}
                                  key={key}
+                                 preventDefault
                                  isActive={activeItem == key}>
-                            <a>
+                            <a href="#">
                                 {service_tabs_suffixes[key]}
                                 {tabErrors[key] ? <span className="fa fa-exclamation-circle" /> : null}
                             </a>

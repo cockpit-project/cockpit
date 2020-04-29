@@ -154,7 +154,7 @@ class TestDocker(MachineCase):
         b.click("#container-details .content-filter a")
         b.wait_visible("#containers-containers")
         b.wait_in_text('#containers-containers', "PROBE2")
-        b.click('#containers-containers tbody tr:contains("PROBE2") td.listing-ct-toggle')
+        b.click('#containers-containers tbody tr:contains("PROBE2") td.listing-ct-toggle button')
         b.click('#containers-containers tbody tr:contains("PROBE2") + tr button.btn-delete')
         with b.wait_timeout(20):
             try:
@@ -203,13 +203,13 @@ class TestDocker(MachineCase):
         b.wait_in_text("#containers-images", "busybox:latest")
 
         # Deleting an image without depending containers has no container list
-        b.click('#containers-images tr:contains("busybox:latest") td.listing-ct-toggle')
+        b.click('#containers-images tr:contains("busybox:latest") td.listing-ct-toggle button')
         b.click('#containers-images tr:contains("busybox:latest") + tr .btn-delete')
         b.wait_popup('delete-image-confirmation-dialog')
         self.assertFalse(b.is_visible('#delete-image-confirmation-dialog-containers'))
         b.click('#delete-image-confirmation-dialog-cancel')
         b.wait_popdown('delete-image-confirmation-dialog')
-        b.click('#containers-images tr:contains("busybox:latest") td.listing-ct-toggle')
+        b.click('#containers-images tr:contains("busybox:latest") td.listing-ct-toggle button')
 
         # Create some containers
         b.click('#containers-images tr:contains("busybox:latest") button.play-button')
@@ -564,7 +564,7 @@ CMD ["/bin/sh"]
         # login and go to docker page (Docker Containers)
         self.login_and_go("/docker")
 
-        sel = "#containers-containers .listing-ct-item .listing-ct-toggle"
+        sel = "#containers-containers .listing-ct-item .listing-ct-toggle button"
         b.click(sel)
 
         # wait for the Problems tab then click it

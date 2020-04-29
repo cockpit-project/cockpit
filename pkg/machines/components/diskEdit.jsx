@@ -93,7 +93,7 @@ const AccessRow = ({ onValueChanged, dialogValues, driverType, idPrefix }) => {
             <label className='control-label' htmlFor={`${idPrefix}-access`}>
                 {_("Access")}
             </label>
-            <label className="radio" onClick={e => e.stopPropagation()}>
+            <label className="radio">
                 <input id={`${idPrefix}-readonly`}
                        type="radio"
                        name="readonly"
@@ -105,7 +105,7 @@ const AccessRow = ({ onValueChanged, dialogValues, driverType, idPrefix }) => {
                        className={dialogValues.readonly ? "active" : ''} />
                 {_("Read-only")}
             </label>
-            <label className="radio" onClick={e => e.stopPropagation()}>
+            <label className="radio">
                 <input id={`${idPrefix}-writable`}
                        type="radio"
                        name="writable"
@@ -118,7 +118,7 @@ const AccessRow = ({ onValueChanged, dialogValues, driverType, idPrefix }) => {
                 {_("Writeable")}
             </label>
             {(driverType === "raw") &&
-            <label className="radio" onClick={e => e.stopPropagation()}>
+            <label className="radio">
                 <input id={`${idPrefix}-writable-shareable`}
                        type="radio"
                        name="writable-shareable"

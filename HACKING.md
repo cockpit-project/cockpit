@@ -155,17 +155,29 @@ Use the same user and password that you used to log into your Linux desktop.
 
 http://localhost:9090
 
-After every change to your sources the webpacks need to be rebuilt: You can
-just run `make` to update everything that has changed; for iterating faster,
-you can run webpack in "watch" mode on the particular page that you are working
-on, which reduces the build time to less than a third. E. g.
+After every change to your sources the webpacks need to be rebuilt, with one of
+these ways:
 
-    $ tools/webpack-watch systemd
+ * You can just run `make` to update everything that has changed. This is slow,
+   but simple and safe.
 
-Note that this disables eslint by default -- if you want to enable it, run it
-as
+ * For iterating faster, you can run webpack in "loop" mode on the particular
+   page that you are working on, which reduces the build time to less than a
+   third due to webpack re-using all of its parsed information from on-disk
+   files:
 
-    $ ESLINT=1 tools/webpack-watch systemd
+       $ ESLINT=0 tools/webpack-make -l -d dist/tuned/Makefile.deps
+
+   Press Enter to trigger a new build, or Control-C to exit.
+
+ * You can also run webpack in "watch" mode on a particular page, which will
+   automatically rebuild whenever any affected file changes:
+
+       $ tools/webpack-watch systemd
+
+   Note that this disables eslint by default -- if you want to enable it, run it as
+
+       $ ESLINT=1 tools/webpack-watch systemd
 
 Then reload cockpit in your browser after building the page.
 

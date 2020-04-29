@@ -25,7 +25,11 @@ var ops = stdio.getopt({
     config: { key: "c", args: 1, description: "Path to webpack.config.js", default: "webpack.config.js" },
     deps: { key: "d", args: 1, description: "Output dependencies in Makefile format" },
     watch: { key: "w", args: 0, description: "Enable webpack watch mode" },
+    loop: { key: "l", args: 0, description: "Enable loop mode: Keep running and rebuild when pressing Enter" },
 });
+
+if (ops.watch && ops.loop)
+    fatal("watch and loop mode are mutually exclusive");
 
 var srcdir = process.env.SRCDIR || ".";
 var makefile = ops.deps;
@@ -66,7 +70,7 @@ function process_result(err, stats) {
         return;
     }
 
-    if (ops.watch) {
+    if (ops.watch || ops.loop) {
         const info = stats.toJson();
         const time = new Date().toTimeString().split(' ')[0];
         process.stdout.write(`${ time  } Build succeeded, took ${ info.time/1000 }s\n`);
@@ -75,13 +79,18 @@ function process_result(err, stats) {
     // Failure exit code when compilation fails
     if (stats.hasErrors() || stats.hasWarnings()) {
         console.log(stats.toString("normal"));
-        if (!ops.watch)
+        if (!ops.watch && !ops.loop)
             process.exit(1);
-        return;
-    }
-
-    if (makefile)
+    } else if (makefile)
         generateDeps(makefile, stats);
+
+    if (ops.loop) {
+        process.stdout.write("Press Enter to build again, or ^C to exit...");
+        const fd = fs.openSync("/dev/stdin", "rs");
+        fs.readSync(fd, Buffer.alloc(100), 0, 100)
+        fs.closeSync(fd)
+        compiler.run(process_result);
+    }
 }
 
 function generateDeps(makefile, stats) {

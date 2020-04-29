@@ -50,12 +50,12 @@ class ServicesRow extends React.PureComponent {
             Triggers: { value: _("Triggers"), timerOnly: true, className: "service-unit-triggers", width: 3 },
         };
 
-        const enabled = UnitFileState === "enabled";
-        const disabled = UnitFileState === "disabled";
-        const isStatic = !disabled && !enabled;
-        const masked = LoadState === "masked";
+        const enabled = UnitFileState && UnitFileState.includes("enabled");
+        const disabled = UnitFileState && UnitFileState.includes("disabled");
+        const isStatic = UnitFileState && UnitFileState == "static";
+        const masked = LoadState && LoadState.includes("masked");
         let unitFileState;
-        if (!isStatic && !masked)
+        if (enabled || disabled)
             unitFileState = <Badge className="service-unit-file-state" isRead={!enabled}>{AutomaticStartup}</Badge>;
         else
             unitFileState = <span className="service-unit-file-state service-unit-file-state-non-badge">{AutomaticStartup}</span>;

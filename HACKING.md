@@ -381,7 +381,7 @@ image. This image cannot be freely distributed for licensing reasons.
 Make sure you have the ```virt-viewer``` package installed on your Linux
 machine. And then run the following from the Cockpit checkout directory:
 
-    $ bots/vm-run --network windows-10
+    $ bots/vm-run windows-10
 
 If the image is not yet downloaded, it'll take a while to download and
 you'll see progress on the command line. A screen will pop up and
@@ -391,4 +391,4 @@ started. Ignore or minimize them, before starting Edge.
 Type the following into Edge's address bar to access Cockpit running on your
 development machine:
 
-     https://10.111.112.1:9090
+     https://10.0.2.2:9090

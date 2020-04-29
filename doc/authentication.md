@@ -165,8 +165,8 @@ cockpit.conf should contain the following section:
 action = none
 ```
 
-Likewise, if the browser offers Kerberos/GSSAPI authentication, but cockpit should
-ignore it, create the following section:
+Likewise, if the machine is part of a Kerberos domain, but that should not be used to
+authenticate to cockpit, create the following section:
 
 ```
 [negotiate]

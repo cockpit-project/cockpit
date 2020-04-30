@@ -1706,11 +1706,11 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # End of tests for import existing disk as installation option
 
         cmds = [
-            "mkdir -p /var/lib/libvirt/pools/tmpPool; chmod a+rwx /var/lib/libvirt/pools/tmpPool",
-            "virsh pool-define-as tmpPool --type dir --target /var/lib/libvirt/pools/tmpPool",
-            "virsh pool-start tmpPool",
-            "qemu-img create -f qcow2 /var/lib/libvirt/pools/tmpPool/vmTmpDestination.qcow2 128M",
-            "virsh pool-refresh tmpPool"
+            "mkdir -p /var/lib/libvirt/pools/tmp\ pool; chmod a+rwx /var/lib/libvirt/pools/tmp\ pool",
+            "virsh pool-define-as tmp\ pool --type dir --target /var/lib/libvirt/pools/tmp\ pool",
+            "virsh pool-start tmp\ pool",
+            "qemu-img create -f qcow2 /var/lib/libvirt/pools/tmp\ pool/vmTmpDestination.qcow2 128M",
+            "virsh pool-refresh tmp\ pool"
         ]
         self.machine.execute(" && ".join(cmds))
 
@@ -1722,7 +1722,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         createTest(TestMachines.VmDialog(self, sourceType='file',
                                          location=config.NOVELL_MOCKUP_ISO_PATH,
                                          memory_size=256, memory_size_unit='MiB',
-                                         storage_pool="tmpPool",
+                                         storage_pool="tmp pool",
                                          storage_volume="vmTmpDestination.qcow2",
                                          start_vm=True,))
 

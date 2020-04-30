@@ -1667,7 +1667,7 @@ class TestMachinesDBus(machineslib.TestMachines):
                     b.wait_not_present("#create-storage-pool-dialog")
                 else:
                     # Check incomplete dialog
-                    if (not self.name):
+                    if (not self.name or "'" in self.name):
                         b.wait_present("#create-storage-pool-dialog .modal-body form div.has-error #storage-pool-dialog-name")
 
                     if (not self.target):
@@ -1778,6 +1778,15 @@ class TestMachinesDBus(machineslib.TestMachines):
         StoragePoolCreateDialog(
             self,
             name="",
+            pool_type="dir",
+            target="",
+            xfail=True,
+        ).execute()
+
+        # XFAIL: Try to create a pool with invalid characters in the name
+        StoragePoolCreateDialog(
+            self,
+            name="invalidname'",
             pool_type="dir",
             target="",
             xfail=True,

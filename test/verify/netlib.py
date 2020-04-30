@@ -141,8 +141,7 @@ class NetworkCase(MachineCase, NetworkHelpers):
             self.browser.wait_in_text(sel, text)
         except Error as e:
             print("Interface %s didn't show up." % iface)
-            print(self.browser.eval_js("ph_find('#networking-interfaces').outerHTML"))
-            print(self.machine.execute("grep . /sys/class/net/*/address"))
+            print(self.machine.execute("grep . /sys/class/net/*/address; nmcli con; nmcli dev; nmcli dev show %s || true" % iface))
             raise e
 
     def iface_con_id(self, iface):

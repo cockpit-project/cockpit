@@ -364,8 +364,7 @@ $(function() {
             full_grep += "start:" + query_start + " ";
 
         const prio_level = options.prio || "err";
-        if (prio_level !== "*")
-            full_grep += "priority:" + prio_level + " ";
+        full_grep += "priority:" + prio_level + " ";
 
         // Set selected item into priority select menu
         const prio_options = [...document.getElementById('journal-prio-menu').children];
@@ -419,7 +418,7 @@ $(function() {
         full_grep += grep;
         document.getElementById("journal-grep").value = full_grep;
 
-        the_journal = journalbox($("#journal-box"), query_start, match, prio_level !== "*" ? prio_level : null, options.tag, follow, grep);
+        the_journal = journalbox($("#journal-box"), query_start, match, prio_level, options.tag, follow, grep);
     }
 
     function update_entry() {

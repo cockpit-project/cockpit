@@ -26,7 +26,6 @@ class TestJournal(MachineCase):
 
     def select_priority(self, value):
         prio_map = {
-            "Everything": "*",
             "Only Emergency": "emerg",
             "Alert and above": "alert",
             "Critical and above": "crit",
@@ -186,7 +185,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         def wait_journal_empty():
             wait_log_lines(["No Logs FoundCan not find any logs using the current combination of filters."])
 
-        b.go("#/?prio=*&service=log123.service")
+        b.go("#/?prio=debug&service=log123.service")
         wait_journal_empty()
 
         def wait_log123():
@@ -232,12 +231,12 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
         wait_log123()
 
-        b.go("#/?prio=*&start=recent&service=nonexisting.service")
+        b.go("#/?prio=debug&start=recent&service=nonexisting.service")
         wait_journal_empty()
-        b.go("#/?prio=*&start=recent&service=log123.service")
+        b.go("#/?prio=debug&start=recent&service=log123.service")
         wait_log123()
 
-        b.go("#/?prio=*&start=recent&service=slow10.service")
+        b.go("#/?prio=debug&start=recent&service=slow10.service")
         wait_journal_empty()
 
         def wait_slow10():
@@ -262,9 +261,9 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
         wait_slow10()
 
-        b.go("#/?prio=*&start=recent&service=nonexisting.service")
+        b.go("#/?prio=debug&start=recent&service=nonexisting.service")
         wait_journal_empty()
-        b.go("#/?prio=*&start=recent&service=slow10.service")
+        b.go("#/?prio=debug&start=recent&service=slow10.service")
         wait_slow10()
 
         # insert messages as errors because we know these will be shown by default

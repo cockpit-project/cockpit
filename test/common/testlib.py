@@ -1214,6 +1214,8 @@ class MachineCase(unittest.TestCase):
                     attach(log)
 
     def copy_cores(self, title, label=None):
+        if self.allow_core_dumps:
+            return
         for name, m in self.machines.items():
             if m.ssh_reachable:
                 directory = "%s-%s-%s.core" % (label or self.label(), m.label, title)

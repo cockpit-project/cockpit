@@ -849,6 +849,11 @@ class MachineCase(unittest.TestCase):
 
         m = self.machine
 
+        # helps with mapping journal output to particular tests
+        name = "%s.%s" % (self.__class__.__name__, self._testMethodName)
+        m.execute("logger -p user.info 'COCKPITTEST: start %s'" % name)
+        self.addCleanup(m.execute, "logger -p user.info 'COCKPITTEST: end %s'" % name)
+
         # core dumps get copied per-test, don't clobber subsequent tests with them
         self.addCleanup(m.execute, "rm -rf /var/lib/systemd/coredump")
 

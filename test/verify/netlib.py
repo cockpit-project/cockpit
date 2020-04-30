@@ -34,6 +34,9 @@ class NetworkHelpers:
             echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="%(name)s", ENV{NM_UNMANAGED}="0"' > /run/udev/rules.d/99-nm-veth-%(name)s-test.rules
             udevadm control --reload
             ip link add name %(name)s type veth peer name v_%(name)s
+            # Trigger udev to make sure that it has been renamed to its final name
+            udevadm trigger --subsystem-match=net
+            udevadm settle
             """ % {"name": name})
         self.addCleanup(self.machine.execute, "rm /run/udev/rules.d/99-nm-veth-{0}-test.rules; ip link del dev {0}".format(name))
         if dhcp_cidr:

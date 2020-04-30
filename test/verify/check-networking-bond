@@ -120,16 +120,16 @@ class TestBonding(NetworkCase):
 
         m.execute("nmcli con add type ethernet ifname %s con-name TEST1" % iface1)
         m.execute("nmcli con add type ethernet ifname %s con-name TEST2" % iface2)
-        m.execute("nmcli con mod TEST1 ipv4.method link-local")
 
         self.login_and_go("/network")
         self.wait_for_iface(iface1)
         self.wait_for_iface(iface2)
 
-        m.execute("nmcli con up TEST1")
+        m.execute("nmcli con mod TEST1 ipv4.method link-local && nmcli con up TEST1")
         m.execute("nmcli dev dis %s" % iface2)
 
         b.wait_in_text("tr[data-interface='%s'] td:nth-child(2)" % iface1, "169.254.")
+        b.wait_not_in_text("tr[data-interface='%s'] td:nth-child(2)" % iface1, "10.111.")
         b.wait_text("tr[data-interface='%s'] td:nth-child(3)" % iface2, "Inactive")
 
         b.click("button:contains('Add Bond')")

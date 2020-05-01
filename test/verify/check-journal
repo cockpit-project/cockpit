@@ -38,6 +38,8 @@ class TestJournal(MachineCase):
                 browser.click(button_text_selector)
 
     def crash(self):
+        self.allow_core_dumps = True
+
         m = self.machine
 
         m.execute("ulimit -c unlimited")
@@ -373,7 +375,6 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
                "ubuntu-2004", "fedora-coreos", "rhel-8-2", "rhel-8-2-distropkg",
                "rhel-8-3", "centos-8-stream")
     def testAbrtSegv(self):
-        self.allow_core_dumps = True
         b = self.browser
 
         self.crash()
@@ -412,7 +413,6 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
                "ubuntu-2004", "fedora-coreos", "rhel-8-2", "rhel-8-2-distropkg",
                "rhel-8-3", "centos-8-stream")
     def testAbrtDelete(self):
-        self.allow_core_dumps = True
         b = self.browser
 
         # A bit of a race might happen if you delete the journal entry whilst
@@ -446,7 +446,6 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
                "ubuntu-2004", "fedora-coreos", "rhel-8-2", "rhel-8-2-distropkg",
                "rhel-8-3", "centos-8-stream")
     def testAbrtReport(self):
-        self.allow_core_dumps = True
         # The testing server is located at verify/files/mock-faf-server.py
         # Adjust Handler.known for for the expected succession of known/unknown problems
         b = self.browser
@@ -521,8 +520,6 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
                "ubuntu-2004", "fedora-coreos", "rhel-8-2", "rhel-8-2-distropkg",
                "rhel-8-3", "centos-8-stream")
     def testAbrtReportCancel(self):
-        self.allow_core_dumps = True
-
         b = self.browser
         m = self.machine
 
@@ -561,8 +558,6 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
                "ubuntu-2004", "fedora-coreos", "rhel-8-2", "rhel-8-2-distropkg",
                "rhel-8-3", "centos-8-stream")
     def testAbrtReportNoReportd(self):
-        self.allow_core_dumps = True
-
         b = self.browser
         m = self.machine
 

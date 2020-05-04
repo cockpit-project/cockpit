@@ -20,7 +20,7 @@ cockpit.logout([reload])
     <title>cockpit.user()</title>
 <programlisting>
 var promise = cockpit.user();
-promise.done(function (user) { ... });
+promise.then(user => { ... });
 </programlisting>
     <para>This object contains information about the user that's currently logged into cockpit.
       The following fields are defined:</para>

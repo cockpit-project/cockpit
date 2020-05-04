@@ -88,7 +88,7 @@ process = cockpit.spawn(args, [options])
     </variablelist>
 
     <para>The spawned process is a
-      <ulink url="https://www.promisejs.org/">promise</ulink>
+      <ulink url="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">promise</ulink>
       that will complete if the process exits successfully, or fail if there's a problem.
       Some additional methods besides the standard promise methods are documented
       below.</para>
@@ -118,7 +118,7 @@ process = cockpit.script(script, [args], [options])
       <link linkend="cockpit-spawn-spawn"><code>cockpit.spawn()</code></link> function.</para>
 
     <para>The spawned process is a
-      <ulink url="https://www.promisejs.org/">promise</ulink>
+      <ulink url="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">promise</ulink>
       that will complete if the script exits successfully, or fail if there's a problem.
       Some additional methods besides the standard promise methods are documented
       below.</para>
@@ -129,13 +129,13 @@ process = cockpit.script(script, [args], [options])
       The standard error is logged to the journal by default.</para>
   </refsection>
 
-  <refsection id="cockpit-spawn-done">
-    <title>process.done()</title>
+  <refsection id="cockpit-spawn-then">
+    <title>process.then()</title>
 <programlisting>
-process.done(function(data[, message]) { ... })
+process.then((data[, message]) => { ... })
 </programlisting>
     <para>This is a standard
-      <ulink url="https://www.promisejs.org/">promise</ulink>
+      <ulink url="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">promise</ulink>
       method. It sets up a handler to be called when the process finishes successfully.</para>
     <para>The <code>data</code> argument contains the standard output of the process.
       If it a string, unless the process was opened in binary mode, in which case the
@@ -148,13 +148,13 @@ process.done(function(data[, message]) { ... })
       output of the process.</para>
   </refsection>
 
-  <refsection id="cockpit-spawn-fail">
-    <title>process.fail()</title>
+  <refsection id="cockpit-spawn-catch">
+    <title>process.catch()</title>
 <programlisting>
-process.fail(function(exception[, data]) { ... })
+process.catch((exception[, data]) => { ... })
 </programlisting>
     <para>This is a standard
-      <ulink url="https://api.jquery.com/category/deferred-object/">jQuery promise</ulink> method.
+      <ulink url="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</ulink> method.
       It sets up a handler to be called when the process fails, terminates or exits.</para>
 
     <para>The <code>exception</code> object passed to the handler can have the
@@ -189,21 +189,10 @@ process.fail(function(exception[, data]) { ... })
       the <code>data</code> argument. Otherwise this argument will be <code>undefined</code>.</para>
   </refsection>
 
-  <refsection id="cockpit-spawn-always">
-    <title>process.always()</title>
-<programlisting>
-process.always(function() { ... })
-</programlisting>
-    <para>This is a standard
-      <ulink url="https://api.jquery.com/category/deferred-object/">jQuery promise</ulink> method.
-      It sets up a handler to be called when the process completes, whether it exits successfully,
-      fails, terminates, or exits with a failure.</para>
-  </refsection>
-
   <refsection id="cockpit-spawn-stream">
     <title>process.stream()</title>
 <programlisting>
-process.stream(function(data) { ... })
+process.stream(data => { ... })
 </programlisting>
     <para>This sets up a handler to be called when the process has standard output. The
       handler will be called multiple times. The handler will be called regardless of
@@ -214,7 +203,7 @@ process.stream(function(data) { ... })
       indicates the number of characters or bytes consumed from <code>data</code>. Any data
       not consumed will be included again the next time the handler is called.</para>
     <para>If a <code>process.stream()</code> handler is set up, then the
-      <code><link linkend="cockpit-spawn-done">process.done()</link></code> handlers will
+      <code><link linkend="cockpit-spawn-then">process.then()</link></code> handlers will
       only get any remaining data not consumed by the stream handler.</para>
   </refsection>
 

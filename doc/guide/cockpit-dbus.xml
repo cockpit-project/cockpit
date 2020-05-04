@@ -174,7 +174,7 @@ client.close([problem])
   <refsection id="cockpit-dbus-onclose">
     <title>client.onclose</title>
 <programlisting>
-client.addEventListener("close", function(options) { ... })
+client.addEventListener("close", options => { ... })
 </programlisting>
     <para>An event triggered when the DBus client closes. This can happen either because
       <link linkend="cockpit-dbus-close">client.close()</link> function was called,
@@ -187,7 +187,7 @@ client.addEventListener("close", function(options) { ... })
   <refsection id="cockpit-dbus-onowned">
     <title>client.onowner</title>
 <programlisting>
-client.addEventListener("owner", function(event, owner) { ... })
+client.addEventListener("owner", (event, owner) => { ... })
 </programlisting>
     <para>An event triggered when the owner of the DBus name changes. The owner
       value will be the id of the name owner on the bus or null if the name
@@ -263,26 +263,26 @@ proxy.WritableProp = value
 
 <programlisting>
 proxy.Method(arg1, arg2)
-    .done(function(retval1, retval2) {
+    .then((retval1, retval2) => {
         ...
     })
-    .fail(function(ex) {
+    .catch(ex => {
         ...
     });
 </programlisting>
     <para>All DBus methods on the <code>interface</code> that start with an upper case
       letter (as is convention) will be automatically defined on this proxy. These
       methods are called with arguments as normal javascript arguments. A
-      <ulink url="https://www.promisejs.org/">promise</ulink>
+      <ulink url="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</ulink>
       that will complete successfully when the method returns, or fail if an error occurs.
-      The return values from the DBus method will be passed to the <code>done</code> handler
+      The return values from the DBus method will be passed to the <code>then</code> handler
       function directly.</para>
 
     <para>Methods that do not start with an upper case letter can be invoked by using
       the usual <link linkend="cockpit-dbus-proxy-call"><code>proxy.call()</code></link> directly.</para>
 
 <programlisting>
-proxy.addEventListener("Signal", function(event, arg1, arg2) {
+proxy.addEventListener("Signal", (event, arg1, arg2) => {
     ...
 });
 </programlisting>
@@ -363,7 +363,7 @@ invocation = proxy.call(method, args, [options])
 
     <para>The returned value is identical to the one returned from
       <link linkend="cockpit-dbus-call">client.call()</link>. It is a
-      <ulink url="https://www.promisejs.org/">promise</ulink>
+      <ulink url="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</ulink>
       that will complete successfully when the method returns, or fail if an error occurs.</para>
   </refsection>
 
@@ -371,7 +371,7 @@ invocation = proxy.call(method, args, [options])
     <title>proxy.wait()</title>
 <programlisting>
 promise = proxy.wait()
-proxy.wait(function() {
+proxy.wait(() => {
     ...
 });
 </programlisting>
@@ -385,7 +385,7 @@ proxy.wait(function() {
   <refsection id="cockpit-dbus-proxy-onchanged">
     <title>proxy.onchanged</title>
 <programlisting>
-proxy.addEventListener("changed", function(event, data) {
+proxy.addEventListener("changed", (event, data) => {
     ...
 });
 </programlisting>
@@ -405,7 +405,7 @@ proxy.addEventListener("changed", function(event, data) {
   <refsection id="cockpit-dbus-proxy-signal">
     <title>proxy.onsignal</title>
 <programlisting>
-proxy.addEventListener("signal", function(event, name, args) {
+proxy.addEventListener("signal", (event, name, args) => {
     ...
 });
 </programlisting>
@@ -468,7 +468,7 @@ for (proxy in proxies) {
     <title>proxies.wait()</title>
 <programlisting>
 promise = proxies.wait()
-proxies.wait(function() {
+proxies.wait(() => {
     ...
 });
 </programlisting>
@@ -499,7 +499,7 @@ proxies.wait(function() {
   <refsection id="cockpit-dbus-proxies-onadded">
     <title>proxies.onadded</title>
 <programlisting>
-proxies.addEventListener("added", function(event, proxy) {
+proxies.addEventListener("added", (event, proxy) => {
     ...
 })
 </programlisting>
@@ -510,7 +510,7 @@ proxies.addEventListener("added", function(event, proxy) {
   <refsection id="cockpit-dbus-proxies-onchanged">
     <title>proxies.onchanged</title>
 <programlisting>
-proxies.addEventListener("changed", function(event, proxy) {
+proxies.addEventListener("changed", (event, proxy) => {
     ...
 })
 </programlisting>
@@ -521,7 +521,7 @@ proxies.addEventListener("changed", function(event, proxy) {
   <refsection id="cockpit-dbus-proxies-onremoved">
     <title>proxies.onremoved</title>
 <programlisting>
-proxies.addEventListener("removed", function(event, proxy) {
+proxies.addEventListener("removed", (event, proxy) => {
     ...
 })
 </programlisting>
@@ -544,7 +544,7 @@ invocation = client.call(path, interface, method, args, [options])
       <code>args</code> may be <code>null</code> if no arguments are to be sent.</para>
 
     <para>The returned value is a
-      <ulink url="https://www.promisejs.org/">promise</ulink>
+      <ulink url="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</ulink>
       that will complete successfully when the method returns, or fail if an error occurs.</para>
 
     <para>If <code>options</code> is specified it should be a plain javascript object,
@@ -573,13 +573,13 @@ invocation = client.call(path, interface, method, args, [options])
     </variablelist>
   </refsection>
 
-  <refsection id="cockpit-dbus-done">
-    <title>invocation.done()</title>
+  <refsection id="cockpit-dbus-then">
+    <title>invocation.then()</title>
 <programlisting>
-invocation.done(function(args, options) { ... })
+invocation.then((args, options) => { ... })
 </programlisting>
     <para>This is a standard
-      <ulink url="https://www.promisejs.org/">promise</ulink>
+      <ulink url="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</ulink>
       method. It sets up a handler to be called when the DBus method call finishes
       successfully.</para>
     <para>The <code>args</code> argument is an array of return values from the DBus method.
@@ -605,13 +605,13 @@ invocation.done(function(args, options) { ... })
 
   </refsection>
 
-  <refsection id="cockpit-dbus-fail">
-    <title>invocation.fail()</title>
+  <refsection id="cockpit-dbus-catch">
+    <title>invocation.catch()</title>
 <programlisting>
-invocation.fail(function(exception) { ... })
+invocation.catch(exception => { ... })
 </programlisting>
     <para>This is a standard
-      <ulink url="https://api.jquery.com/category/deferred-object/">jQuery promise</ulink> method.
+      <ulink url="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</ulink> method.
       It sets up a handler to be called when the DBus method call fails.</para>
 
     <para>The <code>exception</code> object passed to the handler can have the
@@ -637,21 +637,10 @@ invocation.fail(function(exception) { ... })
     </variablelist>
   </refsection>
 
-  <refsection id="cockpit-dbus-always">
-    <title>invocation.always()</title>
-<programlisting>
-invocation.always(function() { ... })
-</programlisting>
-    <para>This is a standard
-      <ulink url="https://api.jquery.com/category/deferred-object/">jQuery promise</ulink> method.
-      It sets up a handler to be called when the DBus method call finishes whether successfully,
-      or fails.</para>
-  </refsection>
-
   <refsection id="cockpit-dbus-subscribe">
     <title>client.subscribe()</title>
 <programlisting>
-subscription = client.subscribe(match, function(path, interface, signal, args) { ... })
+subscription = client.subscribe(match, (path, interface, signal, args) => { ... })
 </programlisting>
     <para>Subscribe to signals. The <code>match</code> argument is a javascript plain object which
       defines what signals to subscribe to. Each property in the <code>match</code> argument restricts
@@ -757,7 +746,7 @@ watch = client.watch({ "path_namespace": path_namespace, "interface": interface 
     </variablelist>
 
     <para>The returned value is a
-      <ulink url="https://www.promisejs.org/">promise</ulink>
+      <ulink url="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</ulink>
       that will complete successfully when the watch has populated its initial set of properties
       and interfaces, and these have been notified via
       <link linkend="cockpit-dbus-onnotify"><code>client.onnotify</code></link>.</para>
@@ -768,39 +757,28 @@ watch = client.watch({ "path_namespace": path_namespace, "interface": interface 
       also be removed the same number of times before the removal takes effect.</para>
   </refsection>
 
-  <refsection id="cockpit-dbus-watch-done">
-    <title>watch.done()</title>
+  <refsection id="cockpit-dbus-watch-then">
+    <title>watch.then()</title>
 <programlisting>
-watch.done(function() { ... })
+watch.then(() => { ... })
 </programlisting>
     <para>This is a standard
-      <ulink url="https://www.promisejs.org/">promise</ulink>
+      <ulink url="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</ulink>
       method. It sets up a handler to be called when the watch has populated its initial
       properties and interfaces.</para>
   </refsection>
 
-  <refsection id="cockpit-dbus-watch-fail">
-    <title>watch.fail()</title>
+  <refsection id="cockpit-dbus-watch-catch">
+    <title>watch.catch()</title>
 <programlisting>
-watch.fail(function() { ... })
+watch.catch(ex => { ... })
 </programlisting>
     <para>This is a standard
-      <ulink url="https://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
+      <ulink url="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</ulink>
       method. It sets up a handler to be called if the watch fails to populate its initial
       properties and interfaces. Note that a watch will only fail if the DBus client
       closes or is somehow disconnected. It does not fail in the case of missing
       interfaces or properties.</para>
-  </refsection>
-
-  <refsection id="cockpit-dbus-watch-always">
-    <title>watch.always()</title>
-<programlisting>
-watch.always(function() { ... })
-</programlisting>
-    <para>This is a standard
-      <ulink url="https://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
-      method. It sets up a handler to be called when the watch has populated its initial
-      properties and interfaces or has failed to do so.</para>
   </refsection>
 
   <refsection id="cockpit-dbus-watch-remove">
@@ -816,7 +794,7 @@ watch.remove()
   <refsection id="cockpit-dbus-onnotify">
     <title>client.onnotify</title>
 <programlisting>
-client.addEventListener("notify", function(data) { ... })
+client.addEventListener("notify", data => { ... })
 </programlisting>
     <para>An event triggered when
       <link linkend="cockpit-dbus-watch">watched</link> properties or interfaces change.</para>
@@ -861,7 +839,7 @@ client.notify(data)
   <refsection id="cockpit-dbus-onmeta">
     <title>client.onmeta</title>
 <programlisting>
-client.onmeta = function(ev, data) { ... }
+client.onmeta = (ev, data) => { ... }
 </programlisting>
     <para>An event triggered when the meta data about
       <link linkend="cockpit-dbus-watch">watched</link> interfaces is loaded.</para>

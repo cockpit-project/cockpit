@@ -1,15 +1,13 @@
-var address = document.getElementById("address");
-var output = document.getElementById("output");
-var result = document.getElementById("result");
-
-document.querySelector(".container-fluid").style["max-width"] = "500px";
-document.getElementById("ping").addEventListener("click", ping_run);
+const address = document.getElementById("address");
+const output = document.getElementById("output");
+const result = document.getElementById("result");
+const button = document.getElementById("ping");
 
 function ping_run() {
-    var proc = cockpit.spawn(["ping", "-c", "4", address.value]);
-    proc.done(ping_success);
-    proc.stream(ping_output);
-    proc.fail(ping_fail);
+    cockpit.spawn(["ping", "-c", "4", address.value])
+        .stream(ping_output)
+        .then(ping_success)
+        .catch(ping_fail);
 
     result.innerHTML = "";
     output.innerHTML = "";
@@ -29,5 +27,8 @@ function ping_output(data) {
     output.append(document.createTextNode(data));
 }
 
-// Send a 'init' message.  This tells the tests that we are ready to go
+// Connect the button to starting the "ping" process
+button.addEventListener("click", ping_run);
+
+// Send a 'init' message.  This tells integration tests that we are ready to go
 cockpit.transport.wait(function() { });

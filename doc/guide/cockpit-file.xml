@@ -23,20 +23,20 @@ file = cockpit.file(path,
 
 promise = file.read()
 promise
-    .done(function (content, tag) { ... })
-    .fail(function (error) { ... })
+    .then((content, tag) => { ... })
+    .catch(error => { ... })
 
 promise = file.replace(content, [ expected_tag ])
 promise
-    .done(function (new_tag) { ... })
-    .fail(function (error) { ... })
+    .then(new_tag => { ... })
+    .catch(error => { ... })
 
 promise = file.modify(callback, [ initial_content, initial_tag ]
 promise
-    .done(function (new_content, new_tag) { ... })
-    .fail(function (error) { ... })
+    .then((new_content, new_tag) => { ... })
+    .catch(error => { ... })
 
-file.watch(function (content, tag, [error]) { })
+file.watch((content, tag, [error]) => { })
 
 file.close()
 </programlisting>
@@ -48,24 +48,24 @@ file.close()
     <para>You can read a file with code like this:</para>
 <programlisting>
 cockpit.file("/path/to/file").read()
-    .done(function (content, tag) {
+    .then((content, tag) => {
         ...
     })
-    .fail(function (error) {
+    .catch(error => {
         ...
     });
 </programlisting>
     <para>The <code>read()</code> method returns a
-      <ulink url="https://www.promisejs.org/">promise</ulink>.</para>
+      <ulink url="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</ulink>.</para>
     <para>When successful, the promise will be resolved with the content of the
       file. Unless you specify options to change this (see below), the file
       is assumed to be text in the UTF-8 encoding, and <code>content</code>
       will be a string.</para>
-    <para>The tag that is passed to the <code>done()</code> callback is a short
+    <para>The tag that is passed to the <code>then()</code> callback is a short
       string that is associated with the file and changes whenever the
       content of the file changes.  It is meant to be used with <code>replace()</code>.</para>
     <para>It is not an error when the file does not exist. In this case, the
-      <code>done()</code> callback will be called with a <code>null</code>
+      <code>then()</code> callback will be called with a <code>null</code>
       value for <code>content</code> and <code>tag</code> is <code>"-"</code>.</para>
       <para>The <code>superuser</code> and <code>host</code> options can be used the same way
       as described in the <link linkend="cockpit-channels-channel">cockpit.channel()</link>
@@ -77,16 +77,16 @@ cockpit.file("/path/to/file").read()
     <para>To write to a file, use code like this:
 <programlisting>
 cockpit.file("/path/to/file").replace("my new content\n")
-    .done(function (tag) {
+    .then(tag => {
         ...
     })
-    .fail(function (error) {
+    .catch(error => {
         ...
     });
 </programlisting>
     </para>
     <para>The <code>replace()</code> method returns a
-      <ulink url="https://www.promisejs.org/">promise</ulink>.</para>
+      <ulink url="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</ulink>.</para>
     <para>When the promise is resolved, the file has been atomically replaced
       (via the <code>rename()</code> syscall) with the new content. As with
       <code>read()</code>, by default the new content is a string and will
@@ -171,7 +171,7 @@ new_content = callback (old_content)
       callbacks. Returning <code>undefined</code> from the proxy is the
       same as returning <code>old_content</code>.</para>
     <para>The <code>modify()</code> method returns a
-      <ulink url="https://www.promisejs.org/">promise</ulink>.</para>
+      <ulink url="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</ulink>.</para>
     <para>The promise will be resolved with the new content and its tag, like so
 <programlisting>
 function shout(old_content) {
@@ -179,10 +179,10 @@ function shout(old_content) {
 }
 
 cockpit.file("/path/to/file").modify(shout)
-    .done(function (content, tag) {
+    .then((content, tag) => {
         ...
     })
-    .fail(function (error) {
+    .catch(error => {
         ...
     });
 </programlisting>

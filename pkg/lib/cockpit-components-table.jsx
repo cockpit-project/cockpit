@@ -220,7 +220,7 @@ export class ListingTable extends React.Component {
         if (this.props.rows.length > 0) {
             return (
                 <Table {...tableProps}>
-                    <TableHeader />
+                    {this.props.showHeader && <TableHeader />}
                     <TableBody {...tableBodyProps} />
                 </Table>
             );
@@ -242,6 +242,7 @@ ListingTable.defaultProps = {
     columns: [],
     rows: [],
     actions: [],
+    showHeader: true,
 };
 ListingTable.propTypes = {
     caption: PropTypes.string,
@@ -250,4 +251,5 @@ ListingTable.propTypes = {
     rows: PropTypes.arrayOf(PropTypes.shape({ props: PropTypes.object })),
     actions: PropTypes.node,
     variant: PropTypes.string,
+    showHeader: PropTypes.bool,
 };

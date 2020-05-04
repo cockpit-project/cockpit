@@ -421,7 +421,7 @@ class TestUpdates(NoSubManCase):
         # history on "up to date" page should show the recent update (expanded by default)
         assertHistory("table.updates-history tbody.pf-m-expanded ul", ["buggy", "norefs-bin", "norefs-doc"])
         # and the previous one, not expaned
-        b.wait_present("table.updates-history tbody:not(.open)")
+        b.wait_present("table.updates-history tbody:not(.pf-m-expanded)")
 
         self.allow_restart_journal_messages()
 

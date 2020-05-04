@@ -47,8 +47,10 @@ export class OverviewSidePanel extends React.Component {
 
         if (this.state.collapsed && children.length > 20) {
             show_all_button = (
-                <tr>
-                    <td onClick={() => { this.setState({ collapsed: false }) }}>
+                <tr role="button" tabIndex="0"
+                    onKeyPress={ev => ev.key === "Enter" && this.setState({ collapsed: false })}
+                    onClick={() => { this.setState({ collapsed: false }) }}>
+                    <td>
                         {this.props.show_all_text || _("Show all")}
                     </td>
                 </tr>);
@@ -82,8 +84,17 @@ export class OverviewSidePanelRow extends React.Component {
         const { client, job_path } = this.props;
 
         const go = (event) => {
-            if (!event || event.button !== 0)
+            if (!event)
                 return;
+
+            // only consider primary mouse button for clicks
+            if (event.type === 'click' && event.button !== 0)
+                return;
+
+            // only consider enter button for keyboard events
+            if (event.type === 'keypress' && event.key !== "Enter")
+                return;
+
             return this.props.go();
         };
 
@@ -97,6 +108,8 @@ export class OverviewSidePanelRow extends React.Component {
 
         return (
             <tr data-testkey={this.props.testkey}
+                role="link" tabIndex="0"
+                onKeyPress={this.props.go ? go : null}
                 onClick={this.props.go ? go : null} className={this.props.highlight ? "highlight-ct" : ""}>
                 <td className={"sidepanel-row " + (this.props.highlight ? "highlight-ct" : "")}>
                     <div className="sidepanel-row-body">

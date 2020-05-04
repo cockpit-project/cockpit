@@ -120,8 +120,8 @@ export class InsightsStatus extends React.Component {
                 return (
                     <li className="system-health-insights">
                         <span className="fa fa-exclamation-triangle" />
-                        <a tabIndex='0' role="button"
-                    onClick={() => cockpit.jump("/subscriptions")}>
+                        <a href="#"
+                    onClick={ev => { ev.preventDefault(); cockpit.jump("/subscriptions") }}>
                             {_("Not connected to Insights")}
                         </a>
                     </li>);

@@ -74,9 +74,17 @@ class StorageControl extends React.Component {
 
 function checked(callback) {
     return function (event) {
-        // only consider primary mouse button
-        if (!event || event.button !== 0)
+        if (!event)
             return;
+
+        // only consider primary mouse button for clicks
+        if (event.type === 'click' && event.button !== 0)
+            return;
+
+        // only consider enter button for keyboard events
+        if (event.type === 'keypress' && event.key !== "Enter")
+            return;
+
         var promise = client.run(callback);
         if (promise)
             promise.fail(function (error) {
@@ -203,7 +211,7 @@ export const StorageUsageBar = ({ stats, critical }) => {
 };
 
 export const StorageMenuItem = ({ onClick, children }) => (
-    <li><a onClick={checked(onClick)}>{children}</a></li>
+    <li><a role="link" tabIndex="0" onKeyPress={checked(onClick)} onClick={checked(onClick)}>{children}</a></li>
 );
 
 export const StorageBarMenu = ({ label, children }) => {

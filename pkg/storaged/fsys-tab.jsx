@@ -247,7 +247,7 @@ export function mounting_dialog(client, block, mode) {
     let footer = null;
     const show_clear_button = false;
     if (old_dir && mode == "update" && show_clear_button)
-        footer = <div className="modal-footer-teardown"><a onClick={remove}>{_("Clear mount point configuration")}</a></div>;
+        footer = <div className="modal-footer-teardown"><button className="pf-c-button pf-m-link" onClick={remove}>{_("Clear mount point configuration")}</button></div>;
     if (!is_filesystem_mounted && block_fsys.MountPoints.length > 0)
         footer = (
             <>

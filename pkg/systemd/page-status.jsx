@@ -54,13 +54,13 @@ export class PageStatusNotifications extends React.Component {
                 let action;
                 if (status.details && status.details.link !== undefined) {
                     if (status.details.link)
-                        action = <a role="button" tabIndex="0"
-                                    onClick={ () => cockpit.jump("/" + status.details.link) }>{status.title}</a>;
+                        action = <a href="#"
+                                    onClick={ ev => { ev.preventDefault(); cockpit.jump("/" + status.details.link) } }>{status.title}</a>;
                     else
                         action = <span>{status.title}</span>; // no link
                 } else {
-                    action = <a role="button" tabIndex="0"
-                                onClick={ () => cockpit.jump("/" + page) }>{status.title}</a>;
+                    action = <a href="#"
+                                onClick={ ev => { ev.preventDefault(); cockpit.jump("/" + page) } }>{status.title}</a>;
                 }
 
                 let icon = status.details && status.details.icon;

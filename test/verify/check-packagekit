@@ -165,7 +165,7 @@ class TestUpdates(NoSubManCase):
 
         b.wait_text(".content-header-extra--updated", "Last checked: a few seconds ago")
 
-        b.wait_in_text("#available h2", "Available Updates")
+        b.wait_in_text("#available h3", "Available Updates")
         self.assertEqual(b.text("#state"), "2 updates")
 
         b.wait_in_text("table.available", "vanilla")
@@ -271,7 +271,7 @@ class TestUpdates(NoSubManCase):
 
         m.start_cockpit()
         b.login_and_go("/updates")
-        b.wait_in_text("#available h2", "Available Updates")
+        b.wait_in_text("#available h3", "Available Updates")
         self.assertEqual(b.text("#state"), "6 updates, including 3 security fixes")
 
         b.wait_in_text("table.available", "sevcritical")
@@ -366,7 +366,7 @@ class TestUpdates(NoSubManCase):
 
         # should have succeeded; 3 non-security updates left
         b.wait_in_text("#state", "3 updates")
-        b.wait_in_text("#updates #available h2", "Available Updates")
+        b.wait_in_text("#updates #available h3", "Available Updates")
         b.wait_in_text("table.available", "norefs-doc")
         self.assertIn("buggy", b.text("table.available"))
         self.assertNotIn("secdeclare", b.text("table.available"))
@@ -438,7 +438,7 @@ class TestUpdates(NoSubManCase):
 
         m.start_cockpit()
         b.login_and_go("/updates")
-        b.wait_in_text("#available h2", "Available Updates")
+        b.wait_in_text("#available h3", "Available Updates")
         self.assertEqual(b.text("#state"), "1 security fix")
 
         # should only have one button (only security updates)
@@ -454,7 +454,7 @@ class TestUpdates(NoSubManCase):
             # check for updates
             b.wait_in_text(".content-header-extra button", "Check for Updates")
             b.click(".content-header-extra button")
-            b.wait_in_text("#available h2", "Available Updates")
+            b.wait_in_text("#available h3", "Available Updates")
             b.wait_in_text("#state", "2")
 
             b.wait_in_text("table.available", "secnocve")
@@ -612,7 +612,7 @@ class TestUpdates(NoSubManCase):
         # getting update info is allowed to all users
         self.login_and_go("/updates", superuser=False)
         b.wait_text("#state", "1 update")
-        b.wait_in_text("#available h2", "Available Updates")
+        b.wait_in_text("#available h3", "Available Updates")
 
         # but applying updates is not; FIXME: this is a crappy UX
         b.click("#app #updates button")
@@ -631,7 +631,7 @@ class TestUpdates(NoSubManCase):
         # page adjusts automatically to privilege change
         b.switch_to_frame("cockpit1:localhost/updates")
         b.wait_text("#state", "1 update")
-        b.wait_in_text("#available h2", "Available Updates")
+        b.wait_in_text("#available h3", "Available Updates")
 
         # applying updates works now
         b.click("#app #updates button")
@@ -695,7 +695,7 @@ class TestWsUpdate(NoSubManCase):
         b.wait_in_text(".content-header-extra button", "Check for Updates")
         b.click(".content-header-extra button")
 
-        b.wait_in_text("#updates #available h2", "Available Updates")
+        b.wait_in_text("#updates #available h3", "Available Updates")
         self.assertEqual(b.text("#state"), "3 updates")
         b.wait_in_text("table.available", "cockpit-ws")
         b.wait_in_text("table.available", "cockpit-dashboard")
@@ -822,7 +822,7 @@ class TestUpdatesSubscriptions(PackageCase):
         b.go("/updates")
         b.enter_page("/updates")
         b.wait_not_present("#updates .pf-c-empty-state")
-        b.wait_in_text("#available h2", "Available Updates")
+        b.wait_in_text("#available h3", "Available Updates")
         # no update history yet
         self.assertFalse(b.is_present("table.updates-history"))
 

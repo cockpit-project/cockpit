@@ -882,7 +882,7 @@ class OsUpdates extends React.Component {
                     {unregisteredWarning}
                     <AutoUpdates onInitialized={ enabled => this.setState({ autoUpdatesEnabled: enabled }) } privileged={this.state.privileged} />
                     <div id="available" className="pk-updates--header">
-                        <h2 className="pk-updates--header--heading">{_("Available Updates")}</h2>
+                        <h3 className="pk-updates--header--heading">{_("Available Updates")}</h3>
                         <div className="pk-updates--header--actions">
                             {applySecurity}
                             {applyAll}

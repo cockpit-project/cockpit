@@ -24,7 +24,10 @@ import React, { useState, useEffect } from "react";
 import ReactDOM from 'react-dom';
 
 import moment from "moment";
-import { Button, Tooltip, Page, PageSection, PageSectionVariants } from '@patternfly/react-core';
+import {
+    Button, Tooltip, Page, PageSection, PageSectionVariants,
+    DescriptionList, DescriptionListTerm, DescriptionListGroup, DescriptionListDescription,
+} from '@patternfly/react-core';
 import { RebootingIcon, CheckIcon, ExclamationCircleIcon } from "@patternfly/react-icons";
 import { Remarkable } from "remarkable";
 
@@ -32,6 +35,7 @@ import AutoUpdates from "./autoupdates.jsx";
 import { History, PackageList } from "./history.jsx";
 import { page_status } from "notifications";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
+import { ListingTable } from 'cockpit-components-table.jsx';
 
 import { superuser } from 'superuser';
 import * as PK from "packagekit.js";
@@ -223,136 +227,127 @@ function getSeverityURL(urls) {
     return highestURL;
 }
 
-class UpdateItem extends React.Component {
-    constructor() {
-        super();
-        this.state = { expanded: false };
-        this.remarkable = new Remarkable();
+function updateItem(info, pkgNames, key) {
+    const remarkable = new Remarkable();
+    let bugs = null;
+    if (info.bug_urls && info.bug_urls.length) {
+        // we assume a bug URL ends with a number; if not, show the complete URL
+        bugs = insertCommas(info.bug_urls.map(url => (
+            <a key={url} rel="noopener noreferrer" target="_blank" href={url}>
+                {url.match(/[0-9]+$/) || url}
+            </a>)
+        ));
     }
 
-    render() {
-        const info = this.props.info;
-
-        let bugs = null;
-        if (info.bug_urls && info.bug_urls.length) {
-            // we assume a bug URL ends with a number; if not, show the complete URL
-            bugs = insertCommas(info.bug_urls.map(url => (
-                <a key={url} rel="noopener noreferrer" target="_blank" href={url}>
-                    {url.match(/[0-9]+$/) || url}
-                </a>)
-            ));
-        }
-
-        let cves = null;
-        if (info.cve_urls && info.cve_urls.length) {
-            cves = insertCommas(info.cve_urls.map(url => (
-                <a key={url} href={url} rel="noopener noreferrer" target="_blank">
-                    {url.match(/[^/=]+$/)}
-                </a>)
-            ));
-        }
-
-        let errata = null;
-        if (info.vendor_urls) {
-            errata = insertCommas(info.vendor_urls.filter(url => url.indexOf("/errata/") > 0).map(url => (
-                <a key={url} href={url} rel="noopener noreferrer" target="_blank">
-                    {url.match(/[^/=]+$/)}
-                </a>)
-            ));
-            if (!errata.length)
-                errata = null; // simpler testing below
-        }
-
-        let secSeverityURL = getSeverityURL(info.vendor_urls);
-        const secSeverity = secSeverityURL ? secSeverityURL.slice(secSeverityURL.indexOf("#") + 1) : null;
-        const iconClasses = PK.getSeverityIcon(info.severity, secSeverity);
-        let type;
-        if (info.severity === PK.Enum.INFO_SECURITY) {
-            if (secSeverityURL)
-                secSeverityURL = <a rel="noopener noreferrer" target="_blank" href={secSeverityURL}>{secSeverity}</a>;
-            type = (
-                <>
-                    <Tooltip id="tip-severity" content={ secSeverity || _("security") }>
-                        <span className={iconClasses}>&nbsp;</span>
-                    </Tooltip>
-                    { (info.cve_urls && info.cve_urls.length > 0) ? info.cve_urls.length : "" }
-                </>);
-        } else {
-            const tip = (info.severity >= PK.Enum.INFO_NORMAL) ? _("bug fix") : _("enhancement");
-            type = (
-                <>
-                    <Tooltip id="tip-severity" content={tip}>
-                        <span className={iconClasses}>&nbsp;</span>
-                    </Tooltip>
-                    { bugs ? info.bug_urls.length : "" }
-                </>);
-        }
-
-        const pkgList = this.props.pkgNames.map(n => (
-            <Tooltip key={n.name + n.arch} id="tip-summary" content={packageSummaries[n.name] + " (" + n.arch + ")"}>
-                <span>{n.name}</span>
-            </Tooltip>)
-        );
-        const pkgs = insertCommas(pkgList);
-        let pkgsTruncated = pkgs;
-        if (pkgList.length > 4)
-            pkgsTruncated = insertCommas(pkgList.slice(0, 4).concat("…"));
-
-        let descriptionFirstLine = (info.description || "").trim();
-        if (descriptionFirstLine.indexOf("\n") >= 0)
-            descriptionFirstLine = descriptionFirstLine.slice(0, descriptionFirstLine.indexOf("\n"));
-        descriptionFirstLine = cleanupChangelogLine(descriptionFirstLine);
-        let description;
-        if (info.markdown) {
-            descriptionFirstLine = <span dangerouslySetInnerHTML={{ __html: this.remarkable.render(descriptionFirstLine) }} />;
-            description = <div dangerouslySetInnerHTML={{ __html: this.remarkable.render(info.description) }} />;
-        } else {
-            description = <div className="changelog">{info.description}</div>;
-        }
-
-        let details = null;
-        if (this.state.expanded) {
-            details = (
-                <tr className="listing-ct-panel">
-                    <td colSpan="5">
-                        <div className="listing-ct-body">
-                            <dl>
-                                <dt>Packages:</dt>
-                                <dd>{pkgs}</dd>
-                                { cves ? <dt>CVE:</dt> : null }
-                                { cves ? <dd>{cves}</dd> : null }
-                                { secSeverityURL ? <dt>{_("Severity:")}</dt> : null }
-                                { secSeverityURL ? <dd className="severity">{secSeverityURL}</dd> : null }
-                                { errata ? <dt>{_("Errata:")}</dt> : null }
-                                { errata ? <dd>{errata}</dd> : null }
-                                { bugs ? <dt>{_("Bugs:")}</dt> : null }
-                                { bugs ? <dd>{bugs}</dd> : null }
-                            </dl>
-
-                            <p />
-                            {description}
-                        </div>
-                    </td>
-                </tr>
-            );
-        }
-
-        return (
-            <tbody className={ this.state.expanded ? "open" : null }>
-                <tr className={ "listing-ct-item" + (info.severity === PK.Enum.INFO_SECURITY ? " security" : "") }
-                    onClick={ () => this.setState({ expanded: !this.state.expanded }) }>
-                    <td className="listing-ct-toggle">
-                        <i className="fa fa-fw" />
-                    </td>
-                    <th scope="row">{pkgsTruncated}</th>
-                    <td className="version"><span className="truncating">{info.version}</span></td>
-                    <td className="type">{type}</td>
-                    <td className="changelog">{descriptionFirstLine}</td>
-                </tr>
-                {details}
-            </tbody>
-        );
+    let cves = null;
+    if (info.cve_urls && info.cve_urls.length) {
+        cves = insertCommas(info.cve_urls.map(url => (
+            <a key={url} href={url} rel="noopener noreferrer" target="_blank">
+                {url.match(/[^/=]+$/)}
+            </a>)
+        ));
     }
+
+    let errata = null;
+    if (info.vendor_urls) {
+        errata = insertCommas(info.vendor_urls.filter(url => url.indexOf("/errata/") > 0).map(url => (
+            <a key={url} href={url} rel="noopener noreferrer" target="_blank">
+                {url.match(/[^/=]+$/)}
+            </a>)
+        ));
+        if (!errata.length)
+            errata = null; // simpler testing below
+    }
+
+    let secSeverityURL = getSeverityURL(info.vendor_urls);
+    const secSeverity = secSeverityURL ? secSeverityURL.slice(secSeverityURL.indexOf("#") + 1) : null;
+    const iconClasses = PK.getSeverityIcon(info.severity, secSeverity);
+    let type;
+    if (info.severity === PK.Enum.INFO_SECURITY) {
+        if (secSeverityURL)
+            secSeverityURL = <a rel="noopener noreferrer" target="_blank" href={secSeverityURL}>{secSeverity}</a>;
+        type = (
+            <>
+                <Tooltip id="tip-severity" content={ secSeverity || _("security") }>
+                    <span className={iconClasses}>
+                        { (info.cve_urls && info.cve_urls.length > 0) ? info.cve_urls.length : "" }
+                    </span>
+                </Tooltip>
+            </>);
+    } else {
+        const tip = (info.severity >= PK.Enum.INFO_NORMAL) ? _("bug fix") : _("enhancement");
+        type = (
+            <>
+                <Tooltip id="tip-severity" content={tip}>
+                    <span className={iconClasses}>
+                        { bugs ? info.bug_urls.length : "" }
+                    </span>
+                </Tooltip>
+            </>);
+    }
+
+    const pkgList = pkgNames.map((n, index) => (
+        <Tooltip key={n.name + n.arch} id="tip-summary" content={packageSummaries[n.name] + " (" + n.arch + ")"}>
+            <span>{n.name + (index !== (pkgNames.length - 1) ? ", " : "")}</span>
+        </Tooltip>)
+    );
+    const pkgs = pkgList;
+    let pkgsTruncated = pkgs;
+    if (pkgList.length > 4)
+        pkgsTruncated = pkgList.slice(0, 4).concat("…");
+
+    let descriptionFirstLine = (info.description || "").trim();
+    if (descriptionFirstLine.indexOf("\n") >= 0)
+        descriptionFirstLine = descriptionFirstLine.slice(0, descriptionFirstLine.indexOf("\n"));
+    descriptionFirstLine = cleanupChangelogLine(descriptionFirstLine);
+    let description;
+    if (info.markdown) {
+        descriptionFirstLine = <span dangerouslySetInnerHTML={{ __html: remarkable.render(descriptionFirstLine) }} />;
+        description = <div dangerouslySetInnerHTML={{ __html: remarkable.render(info.description) }} />;
+    } else {
+        description = <div className="changelog">{info.description}</div>;
+    }
+
+    const expandedContent = (
+        <>
+            <DescriptionList>
+                <DescriptionListGroup>
+                    <DescriptionListTerm>{_("Packages")}</DescriptionListTerm>
+                    <DescriptionListDescription>{pkgs}</DescriptionListDescription>
+                </DescriptionListGroup>
+                { cves ? <DescriptionListGroup>
+                    <DescriptionListTerm>{_("CVE")}</DescriptionListTerm>
+                    <DescriptionListDescription>{cves}</DescriptionListDescription>
+                </DescriptionListGroup> : null }
+                { secSeverityURL ? <DescriptionListGroup>
+                    <DescriptionListTerm>{_("Severity")}</DescriptionListTerm>
+                    <DescriptionListDescription className="severity">{secSeverityURL}</DescriptionListDescription>
+                </DescriptionListGroup> : null }
+                { errata ? <DescriptionListGroup>
+                    <DescriptionListTerm>{_("Errata")}</DescriptionListTerm>
+                    <DescriptionListDescription>{errata}</DescriptionListDescription>
+                </DescriptionListGroup> : null }
+                { bugs ? <DescriptionListGroup>
+                    <DescriptionListTerm>{_("Bugs")}</DescriptionListTerm>
+                    <DescriptionListDescription>{bugs}</DescriptionListDescription>
+                </DescriptionListGroup> : null }
+            </DescriptionList>
+            {description}
+        </>
+    );
+
+    return {
+        extraClasses: info.severity === PK.Enum.INFO_SECURITY ? ["error"] : [],
+        columns: [
+            { title: pkgsTruncated },
+            { title: info.version, props: { className: "version truncating" } },
+            { title: type, props: { className: "type" } },
+            { title: descriptionFirstLine, props: { className: "changelog" } },
+        ],
+        props: { key },
+        hasPadding: true,
+        expandedContent,
+    };
 }
 
 const UpdatesList = ({ updates }) => {
@@ -387,18 +382,15 @@ const UpdatesList = ({ updates }) => {
     });
 
     return (
-        <table className="listing-ct available">
-            <thead>
-                <tr>
-                    <th />
-                    <th scope="col">{_("Name")}</th>
-                    <th scope="col">{_("Version")}</th>
-                    <th scope="col">{_("Severity")}</th>
-                    <th scope="col">{_("Details")}</th>
-                </tr>
-            </thead>
-            { update_ids.map(id => <UpdateItem key={id} pkgNames={packageNames[id].sort((a, b) => a.name > b.name)} info={updates[id]} />) }
-        </table>
+        <ListingTable className="available"
+                aria-label={_("Available Updates")}
+                columns={[
+                    { title: _("Name") },
+                    { title: _("Version") },
+                    { title: _("Severity") },
+                    { title: _("Details") },
+                ]}
+                rows={update_ids.map(id => updateItem(updates[id], packageNames[id].sort((a, b) => a.name > b.name), id))} />
     );
 };
 

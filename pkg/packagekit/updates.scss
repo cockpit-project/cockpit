@@ -1,5 +1,14 @@
 @import "~@patternfly/patternfly/components/Page/page.scss";
 
+.pf-c-table tr:nth-child(1) {
+    > td, th {
+        --pf-c-table--cell--PaddingTop: 0.5rem;
+        --pf-c-table--cell--PaddingBottom: 0.5rem;
+
+        padding: var(--pf-c-table--cell--PaddingTop) var(--pf-c-table--cell--PaddingRight) var(--pf-c-table--cell--PaddingBottom) var(--pf-c-table--cell--PaddingLeft);
+    }
+}
+
 .pk-updates--header {
     display: flex;
     flex-wrap: wrap;
@@ -48,19 +57,14 @@ table.listing-ct thead th {
     }
 }
 
-tr.listing-ct-item {
-    td, th {
-        /* We *should* align to baseline, but names wrap */
-        /* Padding and text side is the same, so top works here */
-        /* Too bad table doesn't align to "first baseline", like flex/grid */
-        vertical-align: top;
-    }
-    td:not(:first-child) {
-        padding-left: 0;
-    }
+// Make header's content bold
+.pf-c-table tr:nth-child(1) td:nth-child(2) {
+    font-weight: var(--pf-global--FontWeight--bold);
+}
 
-    th:last-child {
-        text-align: left;
+.ct-table tr {
+    td.type {
+        min-width: 10ch;
     }
 
     @media screen and (min-width: 641px) {
@@ -83,14 +87,6 @@ tr.listing-ct-item {
                     padding: 0.5em 4em 0.5em 0;
                 }
             }
-        }
-    }
-    @media screen and (max-width: 640px) {
-        /* Mobile: force wrap version strings */
-        td.version {
-            word-break: break-all;
-            width: 16ch;
-            max-width: 30vw;
         }
     }
 
@@ -159,33 +155,9 @@ div.changelog {
     white-space: pre-wrap;
 }
 
-tr.security.listing-ct-item {
-
-    &, tbody.open > & {
-        background-color: var(--color-ct-list-critical-bg) !important; /* keep red background when expanded */
-        border-top: 1px solid var(--color-ct-list-critical-border);
-        border-bottom: 1px solid var(--color-ct-list-critical-border);
-
-        &:focus,
-        &:focus-within,
-        &:hover {
-            background-color: var(--color-ct-list-critical-bg-hover) !important;
-            border-top-color: var(--color-ct-list-critical-bg-hover);
-            border-bottom-color: var(--color-ct-list-critical-bg-hover);
-        }
-    }
-
-    @media screen and (min-width: 641px) {
-        td.version:hover .truncating {
-            background: linear-gradient(to left, rgba(251, 240, 240, 0), var(--color-ct-list-critical-bg-hover) 3em);
-        }
-    }
-}
-
-
 /* Hide changelog summaries in narrow widths */
 @media screen and (max-width: 80ch) {
-    table.listing-ct {
+    table.ct-table {
         /* Hide changelog header (there's no class) & data */
         thead th:last-child,
         td.changelog {
@@ -370,4 +342,12 @@ table.header-buttons {
         display: inline-block;
         text-align: right;
     }
+}
+
+.pk-updates .pf-c-description-list + div {
+    padding-top: var(--pf-global--spacer--md);
+}
+
+table.available {
+    margin-bottom: var(--pf-global--spacer--3xl);
 }

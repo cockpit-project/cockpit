@@ -168,7 +168,7 @@ export class ListingTable extends React.Component {
                 total.push({
                     parent: rowIndex - 1,
                     cells: [{ title: currentValue.expandedContent }],
-                    fullWidth: true, noPadding: true,
+                    fullWidth: true, noPadding: !currentValue.hasPadding,
                     rowId: currentValue.rowId ? (currentValue.rowId + "-expanded") : undefined,
                     props: { key: currentValue.props.key + "-expanded" },
                 });

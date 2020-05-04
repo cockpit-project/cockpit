@@ -164,6 +164,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
                                     "pam_succeed_if\(cockpit:auth\): requirement .* not met by user .*")
 
         self.allow_restart_journal_messages()
+        self.allow_authorize_journal_messages()
 
 
     @skipImage("logs in via ssh, not cockpit-session", "fedora-coreos")

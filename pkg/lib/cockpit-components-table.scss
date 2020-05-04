@@ -86,6 +86,17 @@
         }
     }
 
+    .pf-c-table__expandable-row {
+        [data-label]::before {
+            display: None;
+        }
+    }
+
+    // Don't wrap labels
+    [data-label]::before {
+        white-space: nowrap;
+    }
+
     // Fix toggle button alignment
     .pf-c-table__toggle {
         // Workaround: Chrome sometimes oddly expands the table,

@@ -79,30 +79,31 @@ class TestUpdates(NoSubManCase):
         b = self.browser
         if arch is None:
             arch = self.primary_arch
-        row = "#app .listing-ct tbody:nth-of-type(%i) " % index
+        row = ".pk-updates .available.ct-table > tbody:nth-of-type(%i) " % index
         severity_to_icon = {"bug": "fa-bug", "enhancement": "pficon-enhancement", "security": "pficon-security"}
 
         if isinstance(pkgname, list):
             for idx, pkg in enumerate(pkgname, 1):
-                self.assertEqual(b.text(row + "th > span:nth-of-type(%i)" % idx), pkg)
+                self.assertEqual(b.text(row + "tr:first-child [data-label=Name] > span:nth-of-type(%i)" % idx).split(', ', 1)[0], pkg)
         else:
-            self.assertEqual(b.text(row + "th span"), pkgname)
-            b.mouse(row + "th span", "mouseenter")
-            b.wait_text("div.pf-c-tooltip", "dummy " + pkgname + " (" + arch + ")")
-            b.mouse(row + "th span", "mouseleave")
-            b.wait_not_present("div.pf-c-tooltip")
-        self.assertEqual(b.text(row + "td:nth-of-type(2)"), version)
+            self.assertEqual(b.text(row + " tr:first-child [data-label=Name]"), pkgname)
+            b.mouse(row + "tr:first-child [data-label=Name] span", "mouseenter")
+            b.wait_text(".pf-c-tooltip", "dummy " + pkgname + " (" + arch + ")")
+            b.mouse(row + "tr:first-child [data-label=Name] span", "mouseleave")
+            b.wait_not_present(".pf-c-tooltip")
+        self.assertEqual(b.text(row + "[data-label=Version]"), version)
         # verify type
-        self.assertTrue(b.is_present(row + "td:nth-of-type(3) span." + severity_to_icon[severity]))
-        self.assertEqual(b.text(row + "td:nth-of-type(3)").strip(),
+        self.assertTrue(b.is_present(row + "[data-label=Severity] span." + severity_to_icon[severity]))
+        self.assertEqual(b.text(row + "[data-label=Severity]").strip(),
                          num_issues is not None and str(num_issues) or "")
 
         # should not be expanded by default
-        self.assertFalse(b.is_present(row + ".listing-ct-body"))
+        self.assertFalse("pf-m-expanded" in b.attr(row, "class"))
         # expand
-        b.click(row + "td.listing-ct-toggle")
-        b.wait_in_text(row + ".listing-ct-body", "Packages:")
-        desc = b.text(row + ".listing-ct-body")
+        b.click(row + "td.pf-c-table__toggle button")
+        self.assertTrue("pf-m-expanded" in b.attr(row, "class"))
+        b.wait_in_text(row + "> tr.pf-m-expanded", "Packages")
+        desc = b.text(row + "> tr.pf-m-expanded")
 
         # details should contain all description bits, CVEs and bug numbers
         for m in desc_matches + cves + bugs:
@@ -189,8 +190,8 @@ class TestUpdates(NoSubManCase):
         self.assertFalse(b.is_present("table.updates-history"))
 
         # should only have one button (no security updates)
-        self.assertEqual(b.text("#app #updates button"), "Install All Updates")
-        b.click("#app #updates button")
+        self.assertEqual(b.text(".pk-updates--header--actions button"), "Install All Updates")
+        b.click(".pk-updates--header--actions button")
 
         b.wait_in_text("#state", "Applying updates")
         b.wait_present("#app div.progress-bar")
@@ -219,7 +220,7 @@ class TestUpdates(NoSubManCase):
 
         # should go back to updates overview, nothing pending any more
         b.wait_in_text("#state", "No updates pending")
-        b.wait_in_text(".content-header-extra--updated", "Last checked:")
+        b.wait_in_text(".content-header-extra--updated", "Last checked")
 
         # empty state visible in main area
         b.wait_present("#updates .pf-c-empty-state")
@@ -228,9 +229,9 @@ class TestUpdates(NoSubManCase):
         m.execute("test -f /stamp-vanilla-1.0-2 && test -f /stamp-chocolate-2.0-2")
 
         # history shows the two packages, expanded by default
-        b.wait_text("table.updates-history tbody.open td.history-pkgcount", "2 Packages")
-        b.wait_in_text("table.updates-history tbody.open .listing-ct-panel", "chocolate")
-        b.wait_in_text("table.updates-history tbody.open .listing-ct-panel", "vanilla")
+        b.wait_text("table.updates-history tbody.pf-m-expanded td.history-pkgcount", "2 Packages")
+        b.wait_in_text("table.updates-history tr.pf-m-expanded", "chocolate")
+        b.wait_in_text("table.updates-history tr.pf-m-expanded", "vanilla")
 
         # system page has current state as well
         b.go("/system")
@@ -291,20 +292,20 @@ class TestUpdates(NoSubManCase):
 
         if self.backend == 'yum':
             # sevcritical has a severity and errata
-            details = b.text(sel + " .listing-ct-body")
-            self.assertIn("Severity:", details)
+            details = b.text(sel + " .pf-m-expanded")
+            self.assertIn("Severity", details)
             self.assertIn("critical", details)
-            self.assertIn("Errata:", details)
+            self.assertIn("Errata", details)
             self.assertIn("RHSA-2000:0001", details)
             self.assertIn("RHSA-2000:0002", details)
             # icon has critical class
             self.assertIn("severity-critical", b.attr(sel + " td.type span", "class"))
             b.mouse(sel + " td.type span", "mouseenter")
-            b.wait_text("div.pf-c-tooltip", "critical")
+            b.wait_text(".pf-c-tooltip", "critical")
             b.mouse(sel + " td.type span", "mouseleave")
-            b.wait_not_present("div.pf-c-tooltip")
+            b.wait_not_present(".pf-c-tooltip")
             # details has link to severity definition
-            self.assertIn("access.redhat.com", b.attr(sel + " .listing-ct-body dd.severity a:first-of-type", "href"))
+            self.assertIn("access.redhat.com", b.attr(sel + " .pf-m-expanded dd.severity a:first-of-type", "href"))
 
         # buggy: bug refs, no security
         sel = self.check_nth_update(4, "buggy", "2-2", "bug", 2, bugs=["123", "456"], desc_matches=["Fixit"])
@@ -315,9 +316,9 @@ class TestUpdates(NoSubManCase):
         # should show bug fix icon and pf-c-tooltip
         self.assertIn("fa-bug", b.attr(sel + " td.type span", "class"))
         b.mouse(sel + " td.type span", "mouseenter")
-        b.wait_text("div.pf-c-tooltip", "bug fix")
+        b.wait_text(".pf-c-tooltip", "bug fix")
         b.mouse(sel + " td.type span", "mouseleave")
-        b.wait_not_present("div.pf-c-tooltip")
+        b.wait_not_present(".pf-c-tooltip")
 
         # norefs: just changelog, show both binary packages
         sel = self.check_nth_update(5, ["norefs-bin", "norefs-doc"], "2-1", self.enhancement_severity,
@@ -326,8 +327,8 @@ class TestUpdates(NoSubManCase):
         self.assertEqual(b.text(sel + " td.changelog em"), "more")  # *more*
         self.assertEqual(b.attr(sel + " td.changelog a", "href"), "http://unicorn.example.com")
         # verify Markdown formatting in details
-        self.assertEqual(b.text(sel + " .listing-ct-body em"), "more")  # *more*
-        self.assertEqual(b.attr(sel + " .listing-ct-body a:first-of-type", "href"), "http://unicorn.example.com")
+        self.assertEqual(b.text(sel + " .pf-m-expanded em"), "more")  # *more*
+        self.assertEqual(b.attr(sel + " .pf-m-expanded a:first-of-type", "href"), "http://unicorn.example.com")
 
         # updates are shown on system page
         b.go("/system")
@@ -384,8 +385,8 @@ class TestUpdates(NoSubManCase):
         m.execute("test -f /stamp-buggy-2-1 && test -f /stamp-norefs-bin-1-1 && test -f /stamp-norefs-doc-1-1")
 
         # should now only have one button (no security updates left)
-        self.assertEqual(b.text("#app #updates button"), "Install All Updates")
-        b.click("#app #updates button")
+        self.assertEqual(b.text(".pk-updates--header--actions button"), "Install All Updates")
+        b.click(".pk-updates--header--actions button")
 
         b.wait_in_text("#state", "Applying updates")
         b.wait_present("#app div.progress-bar")
@@ -418,7 +419,7 @@ class TestUpdates(NoSubManCase):
         b.wait_present("#updates .pf-c-empty-state")
 
         # history on "up to date" page should show the recent update (expanded by default)
-        assertHistory("table.updates-history tbody.open ul", ["buggy", "norefs-bin", "norefs-doc"])
+        assertHistory("table.updates-history tbody.pf-m-expanded ul", ["buggy", "norefs-bin", "norefs-doc"])
         # and the previous one, not expaned
         b.wait_present("table.updates-history tbody:not(.open)")
 
@@ -442,7 +443,7 @@ class TestUpdates(NoSubManCase):
         self.assertEqual(b.text("#state"), "1 security fix")
 
         # should only have one button (only security updates)
-        self.assertEqual(b.text("#app #updates button"), "Install Security Updates")
+        self.assertEqual(b.text(".pk-updates--header--actions button"), "Install Security Updates")
 
         # security fix without CVE URLs
         # PackageKit's dnf backend does not recognize this (https://bugs.freedesktop.org/show_bug.cgi?id=101070)
@@ -491,13 +492,13 @@ class TestUpdates(NoSubManCase):
         b.wait_in_text("table.available", "Things change")
 
         # "coarse" package list should be complete
-        t = b.text("#app .listing-ct tbody:nth-of-type(1) th")
+        t = b.text("#app .ct-table tbody:nth-of-type(1) tr:first-child [data-label=Name]")
         self.assertIn("coarse00", t)
         self.assertIn("coarse03", t)
         self.assertNotIn(u"…", t)
 
         # "fine" package list should be truncated
-        t = b.text("#app .listing-ct tbody:nth-of-type(2) th")
+        t = b.text("#app .ct-table tbody:nth-of-type(2) tr:first-child [data-label=Name]")
         self.assertIn("fine00", t)
         self.assertIn("fine03", t)
         self.assertNotIn("fine09", t)
@@ -507,7 +508,7 @@ class TestUpdates(NoSubManCase):
                               desc_matches=["fine07", "fine09"])
 
         # verbose changelog should be truncated
-        desc = b.text("#app .listing-ct tbody:nth-of-type(3) td:nth-of-type(4)")
+        desc = b.text("#app .ct-table tbody:nth-of-type(3) [data-label=Details]")
         self.assertIn("Things change #00", desc)
         self.assertNotIn("#01", desc)
         # but complete in the details
@@ -530,10 +531,10 @@ class TestUpdates(NoSubManCase):
 
         m.start_cockpit()
         b.login_and_go("/updates")
-        b.wait_in_text("#updates h2", "Available Updates")
+        b.wait_in_text("#updates h3", "Available Updates")
         self.assertEqual(b.text("#state"), "1 update")
 
-        b.click("#app #updates button")
+        b.click(".pk-updates--header--actions button")
 
         b.wait_in_text("#state", "Applying updates failed")
 
@@ -561,7 +562,7 @@ class TestUpdates(NoSubManCase):
         m.start_cockpit()
         b.login_and_go("/updates")
 
-        b.click("#app #updates button")
+        b.click(".pk-updates--header--actions button")
 
         # let updates start and zap PackageKit
         b.wait_present("#app div.progress-bar")
@@ -615,7 +616,7 @@ class TestUpdates(NoSubManCase):
         b.wait_in_text("#available h3", "Available Updates")
 
         # but applying updates is not; FIXME: this is a crappy UX
-        b.click("#app #updates button")
+        b.click(".pk-updates--header--actions button")
         b.wait_text("#state", "Applying updates failed")
         b.wait_in_text("#updates pre", "authentication")
 
@@ -634,7 +635,7 @@ class TestUpdates(NoSubManCase):
         b.wait_in_text("#available h3", "Available Updates")
 
         # applying updates works now
-        b.click("#app #updates button")
+        b.click(".pk-updates--header--actions button")
 
         b.wait_in_text("#app #updates h1", "Restart Recommended")
         self.assertEqual(b.text("#app #updates button.pf-m-primary"), "Restart Now")
@@ -667,7 +668,7 @@ class TestWsUpdate(NoSubManCase):
         m.start_cockpit()
         b.login_and_go("/updates")
 
-        b.click("#app #updates button")
+        b.click(".pk-updates--header--actions button")
         b.wait_in_text("#state", "Applying updates")
         b.wait_in_text("#app div.progress-description", "slow")
 
@@ -828,7 +829,7 @@ class TestUpdatesSubscriptions(PackageCase):
 
         # has action buttons
         b.wait_present(".content-header-extra button")
-        self.assertEqual(b.text("#app #updates button"), "Install All Updates")
+        self.assertEqual(b.text(".pk-updates--header--actions button"), "Install All Updates")
 
         # show available updates on system page too
         b.go("/system")

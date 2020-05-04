@@ -86,6 +86,7 @@ export class CockpitHosts extends React.Component {
 
     static getDerivedStateFromProps(nextProps, prevState) {
         if (nextProps.machine.key !== prevState.current_key) {
+            document.getElementById(nextProps.selector).classList.toggle("interact", false);
             return {
                 current_key: nextProps.machine.key,
                 opened: false,

@@ -22,6 +22,8 @@ import React from "react";
 import PropTypes from "prop-types";
 
 import { Tooltip } from "@patternfly/react-core";
+import { ListingTable } from "cockpit-components-table.jsx";
+import { ListingPanel } from "cockpit-components-listing-panel.jsx";
 
 import cockpit from "cockpit";
 
@@ -40,20 +42,6 @@ function formatPkgs(pkgs) {
 export const PackageList = ({ packages }) => packages ? <ul className='flow-list'>{formatPkgs(packages)}</ul> : null;
 
 export class History extends React.Component {
-    constructor() {
-        super();
-        this.state = { expanded: new Set([0]) };
-    }
-
-    onExpand(index) {
-        const e = new Set(this.state.expanded);
-        if (e.has(index))
-            e.delete(index);
-        else
-            e.add(index);
-        this.setState({ expanded: e });
-    }
-
     /* Some PackageKit transactions come in pairs with identical package list,
      * but different versions. This is an internal technicality, merge them
      * together for presentation.
@@ -100,33 +88,29 @@ export class History extends React.Component {
                     { cockpit.format(cockpit.ngettext("$0 Package", "$0 Packages", update.num_packages), update.num_packages) }
                 </div>);
 
-            const details = (
-                <tr className="listing-ct-panel">
-                    <td colSpan="3">
-                        <div className="listing-ct-body">
-                            <PackageList packages={update.packages} />
-                        </div>
-                    </td>
-                </tr>);
+            const expandedContent = (
+                <ListingPanel colSpan="3"
+                              simpleBody={<PackageList packages={update.packages} />} />
+            );
 
-            return (
-                <tbody key={index} className={ details && this.state.expanded.has(index) ? "open" : null }>
-                    <tr className="listing-ct-item" onClick={ () => this.onExpand(index) }>
-                        { details ? <td className="listing-ct-toggle"><i className="fa fa-fw" /></td> : <td /> }
-                        <th>{time}</th>
-                        <td className="history-pkgcount">{pkgcount}</td>
-                    </tr>
-                    {details}
-                </tbody>);
+            return ({
+                props: { key: index },
+                columns: [
+                    { title: time },
+                    { title: pkgcount, props: { className: "history-pkgcount" } },
+                ],
+                initiallyExpanded: index == 0,
+                expandedContent
+            });
         });
 
         return (
-            <>
-                <h2>{ _("Update History") }</h2>
-                <table className="listing-ct updates-history">
-                    {rows}
-                </table>
-            </>
+            <ListingTable caption={_("Update History")}
+                          aria-label={_("Updates History")}
+                          showHeader={false}
+                          className="updates-history"
+                          columns={[_("Time"), _("History Package Count")]}
+                          rows={rows} />
         );
     }
 }

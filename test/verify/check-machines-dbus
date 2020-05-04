@@ -1670,8 +1670,12 @@ class TestMachinesDBus(machineslib.TestMachines):
                     if (not self.name):
                         b.wait_present("#create-storage-pool-dialog .modal-body form div.has-error #storage-pool-dialog-name")
 
-                    if (not self.target):
+                    if (self.pool_type != "logical" and not self.target):
                         b.wait_present("#create-storage-pool-dialog .modal-body label:contains(Target) + div.has-error")
+
+                    if (self.pool_type == "logical" and self.name):
+                        b.wait_present("#create-storage-pool-dialog .modal-body label:contains(Source) + div.has-error")
+
                     # Check errors from backend
                     if self.xfail_error:
                         error_location = "#create-storage-pool-dialog .modal-footer .pf-m-danger"
@@ -1849,7 +1853,20 @@ class TestMachinesDBus(machineslib.TestMachines):
             name="my_logical_pool",
             pool_type="logical",
             source={"source_path": "vol_grp1"},
+            remove=False,
         ).execute()
+
+        # XFAIL: Try to create a pool with already existing source
+        StoragePoolCreateDialog(
+            self,
+            name="my_logical_pool2",
+            pool_type="logical",
+            source={"source_path": "vol_grp1"},
+            xfail=True,
+        ).execute()
+
+        m.execute("virsh pool-destroy my_logical_pool && virsh pool-undefine my_logical_pool")
+
 
     def testStorageVolumesCreate(self):
         b = self.browser

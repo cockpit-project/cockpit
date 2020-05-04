@@ -182,7 +182,7 @@ const StoragePoolInitiatorRow = ({ onValueChanged, dialogValues }) => {
     return null;
 };
 
-const StoragePoolSourceRow = ({ onValueChanged, dialogValues }) => {
+const StoragePoolSourceRow = ({ onValueChanged, dialogValues, storagePools }) => {
     let validationState;
     let placeholder;
     const diskPoolSourceFormatTypes = ['dos', 'dvh', 'gpt', 'mac'];
@@ -282,7 +282,9 @@ const StoragePoolSourceRow = ({ onValueChanged, dialogValues }) => {
                            className='form-control' />
                     { validationState == 'error' &&
                     <HelpBlock>
-                        <p className="text-danger">{_("Volume Group name should not be empty")}</p>
+                        {storagePools.findIndex(pool => pool.source.name === dialogValues.source.name) !== -1
+                            ? <p className="text-danger">{_("Pool with this Volume Group name already exists")}</p>
+                            : <p className="text-danger">{_("Volume Group name should not be empty")}</p>}
                     </HelpBlock> }
                 </FormGroup>
                 <hr />
@@ -367,6 +369,7 @@ class CreateStoragePoolModal extends React.Component {
         const { dispatch } = this.props;
         let modalIsIncomplete = false;
         const validationFailed = Object.assign({}, this.state.validationFailed);
+        const storagePools = this.props.storagePools.filter(pool => pool.connectionName === this.state.connectionName);
 
         // Mandatory props for all pool types
         ['name'].forEach(prop => {
@@ -450,6 +453,11 @@ class CreateStoragePoolModal extends React.Component {
                 modalIsIncomplete = true;
                 validationFailed.source = true;
             }
+
+            if (storagePools.findIndex(pool => pool.source.name === this.state.source.name) !== -1) {
+                modalIsIncomplete = true;
+                validationFailed.source = true;
+            }
         }
 
         this.setState({ validationFailed });
@@ -488,6 +496,7 @@ class CreateStoragePoolModal extends React.Component {
                 <StoragePoolHostRow dialogValues={this.state}
                                     onValueChanged={this.onValueChanged} />
                 <StoragePoolSourceRow dialogValues={this.state}
+                                      storagePools={this.props.storagePools.filter(pool => pool.connectionName === this.state.connectionName)}
                                       onValueChanged={this.onValueChanged} />
                 <StoragePoolInitiatorRow dialogValues={this.state}
                                       onValueChanged={this.onValueChanged} />
@@ -553,6 +562,7 @@ export class CreateStoragePoolAction extends React.Component {
                     close={this.close}
                     dispatch={this.props.dispatch}
                     libvirtVersion={this.props.libvirtVersion}
+                    storagePools={this.props.storagePools}
                     loggedUser={this.props.loggedUser} /> }
             </>
         );
@@ -562,4 +572,5 @@ CreateStoragePoolAction.propTypes = {
     dispatch: PropTypes.func.isRequired,
     libvirtVersion: PropTypes.number,
     loggedUser: PropTypes.object.isRequired,
+    storagePools: PropTypes.array.isRequired,
 };

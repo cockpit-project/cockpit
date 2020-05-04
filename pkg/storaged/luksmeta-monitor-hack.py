@@ -10,6 +10,7 @@ import re
 import base64
 import signal
 import atexit
+import os
 
 def b64_decode(data):
     # The data we get doesn't seem to have any padding, but the base64
@@ -111,12 +112,13 @@ def monitor(dev):
     # will be closed when we exit, but that will only happen when it
     # actually writes something.
 
-    def sigexit(signo, stack):
-        sys.exit(0)
-
     def killmon():
         if mon:
             mon.terminate()
+
+    def sigexit(signo, stack):
+        killmon()
+        os._exit(0)
 
     atexit.register(killmon)
     signal.signal(signal.SIGTERM, sigexit)

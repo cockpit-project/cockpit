@@ -1681,7 +1681,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                                          location=config.NOVELL_MOCKUP_ISO_PATH,
                                          memory_size=100000, memory_size_unit='MiB',
                                          storage_pool="No Storage",
-                                         os_name=config.OPENBSD_6_3,
                                          start_vm=False))
 
         # Start of tests for import existing disk as installation option
@@ -1950,8 +1949,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         NOVELL_MOCKUP_ISO_PATH = '/var/lib/libvirt/novell.iso'
         NOT_EXISTENT_PATH = '/tmp/not-existent.iso'
         ISO_URL = 'https://archive.fedoraproject.org/pub/archive/fedora/linux/releases/28/Server/x86_64/os/images/boot.iso'
-
-        OPENBSD_6_3 = 'OpenBSD 6.3'
 
         MICROSOFT_SERVER_2016 = 'Microsoft Windows Server 2016'
 

@@ -83,7 +83,7 @@ class TestFirewall(NetworkCase):
             b.relogin("/network", authorized=True)
         else:
             m.execute("systemctl stop firewalld")
-            self.login_and_go("/network")
+            self.nm_login()
 
         self.wait_onoff("#networking-firewall-switch", False)
         self.toggle_onoff("#networking-firewall-switch")

@@ -37,7 +37,7 @@ class TestNetworking(NetworkCase):
             # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1400525
             wait(lambda: m.execute("nmcli dev con %s" % iface))
 
-        self.login_and_go("/network")
+        self.nm_login(disable_checkpoints=False, checkpoint_settle_time=3.0)
         self.wait_for_iface(iface, prefix="172.")
         b.click("#networking-interfaces tr[data-interface='%s']" % iface)
         b.wait_visible("#network-interface")
@@ -112,7 +112,7 @@ class TestNetworking(NetworkCase):
 
         self.ensure_nm_uses_dhclient()
 
-        self.login_and_go("/network")
+        self.nm_login(disable_checkpoints=False, checkpoint_settle_time=3.0)
         self.wait_for_iface(iface, prefix="172.")
         b.click("#networking-interfaces tr[data-interface='%s']" % iface)
         b.wait_visible("#network-interface")

@@ -30,7 +30,7 @@ class TestBonding(NetworkCase):
         b = self.browser
         m = self.machine
 
-        self.login_and_go("/network")
+        self.nm_login()
 
         iface1 = "cockpit1"
         self.add_veth(iface1, dhcp_cidr="10.111.113.1/24", dhcp_range=['10.111.113.2', '10.111.113.254'])
@@ -122,7 +122,7 @@ class TestBonding(NetworkCase):
         m.execute("nmcli con add type ethernet ifname %s con-name TEST2" % iface2)
         m.execute("nmcli con mod TEST1 ipv4.method link-local")
 
-        self.login_and_go("/network")
+        self.nm_login()
         self.wait_for_iface(iface1)
         self.wait_for_iface(iface2)
 
@@ -148,7 +148,7 @@ class TestBonding(NetworkCase):
         b = self.browser
         m = self.machine
 
-        self.login_and_go("/network")
+        self.nm_login()
 
         # Wait until the page is really ready by waiting for some ethernet interface
         # to show up in some row.
@@ -181,7 +181,7 @@ class TestBonding(NetworkCase):
     def testActive(self):
         b = self.browser
 
-        self.login_and_go("/network")
+        self.nm_login()
 
         iface = "cockpit1"
         self.add_veth(iface, dhcp_cidr="10.111.112.2/20")
@@ -211,7 +211,7 @@ class TestBonding(NetworkCase):
         b = self.browser
         m = self.machine
 
-        self.login_and_go("/network")
+        self.nm_login()
 
         iface = "cockpit1"
         self.add_veth(iface, dhcp_cidr="10.111.113.2/20")
@@ -255,7 +255,7 @@ class TestBondingVirt(NetworkCase):
 
         iface = self.get_iface(m, m.networking["mac"])
 
-        self.login_and_go("/network")
+        self.nm_login()
         self.wait_for_iface(iface)
 
         # Put the main interface into a bond.  Everything should keep working.
@@ -287,7 +287,7 @@ class TestBondingVirt(NetworkCase):
         iface = self.get_iface(m, m.networking["mac"])
         self.ensure_nm_uses_dhclient()
 
-        self.login_and_go("/network")
+        self.nm_login()
         self.wait_for_iface(iface)
 
         # Slow down DHCP enough that it would trigger a rollback.

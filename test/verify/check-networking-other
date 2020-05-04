@@ -35,7 +35,7 @@ class TestNetworking(NetworkCase):
         wait(lambda: m.execute('nmcli device | grep %s | grep -v unavailable' % iface))
         m.execute("nmcli dev set %s managed yes" % iface)
 
-        self.login_and_go("/network")
+        self.nm_login()
         self.wait_for_iface(iface, active=False)
         b.click("#networking-interfaces tr[data-interface='%s']" % iface)
         b.wait_visible("#network-interface")

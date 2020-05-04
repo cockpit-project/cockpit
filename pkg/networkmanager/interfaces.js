@@ -2075,10 +2075,14 @@ function choice_title(choices, choice, def) {
  * settle_time too short:   Some bad changes that take time to have any
  *                          effect will be let through.
  *
- * settle_time too high:    All operations take a long time, and the
- *                          curtain needs to come up to prevent the
- *                          user from interacting with the page.  Thus settle_time
- *                          should be shorter than curtain_time.
+ * settle_time too high:    All operations take a long time and the race
+ *                          between Cockpit destroying the checkpoint
+ *                          and NetworkManager rolling it back (see
+ *                          above) gets tighter.  The curtain
+ *                          needs to come up to prevent the user from
+ *                          interacting with the page.  Thus
+ *                          settle_time should be shorter than
+ *                          curtain_time.
  *
  * rollback_time too short: Good changes that take a long time to complete
  *                          (on a loaded machine, say) are cancelled spuriously.
@@ -2093,8 +2097,8 @@ function choice_title(choices, choice, def) {
  *                          less patience than Linux in this regard.
  */
 
-var curtain_time = 4.0;
-var settle_time = 3.0;
+var curtain_time = 1.5;
+var settle_time = 1.0;
 var rollback_time = 7.0;
 
 function with_checkpoint(model, modify, options) {
@@ -2137,11 +2141,17 @@ function with_checkpoint(model, modify, options) {
     //
     // https://bugzilla.redhat.com/show_bug.cgi?id=1378393
     // https://bugzilla.redhat.com/show_bug.cgi?id=1398316
+    //
+    // We also switch off checkpoints for most of the integration
+    // tests.
 
-    if (options.hack_does_add_or_remove) {
+    if (options.hack_does_add_or_remove || window.cockpit_tests_disable_checkpoints) {
         modify();
         return;
     }
+
+    if (window.cockpit_tests_checkpoints_settle_time)
+        settle_time = window.cockpit_tests_checkpoints_settle_time;
 
     manager.checkpoint_create(options.devices || [], rollback_time)
             .done(function (cp) {

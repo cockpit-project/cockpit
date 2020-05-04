@@ -55,6 +55,13 @@ class NetworkHelpers:
         m.execute("nmcli con up %s ifname %s" % (iface, iface))
         self.addCleanup(m.execute, "nmcli con delete %s" % iface)
 
+    def nm_login(self, disable_checkpoints=True, checkpoint_settle_time=None):
+        self.login_and_go("/network")
+        if disable_checkpoints:
+            self.browser.eval_js("window.cockpit_tests_disable_checkpoints = true;")
+        if checkpoint_settle_time is not None:
+            self.browser.eval_js("window.cockpit_tests_checkpoint_settle_time = %s;" % checkpoint_settle_time)
+
 
 class NetworkCase(MachineCase, NetworkHelpers):
     def setUp(self):

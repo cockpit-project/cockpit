@@ -40,7 +40,7 @@ class TestNetworking(NetworkCase):
         m.execute(r"printf '[keyfile]\nunmanaged-devices=%s\n' > /etc/NetworkManager/conf.d/unmanaged.conf" % iface)
         m.execute("systemctl restart NetworkManager")
 
-        self.login_and_go("/network")
+        self.nm_login()
 
         b.wait_present("#networking-unmanaged-interfaces tr[data-interface='" + iface + "']")
 

@@ -34,7 +34,7 @@ class TestNetworking(NetworkCase):
         b = self.browser
         m = self.machine
 
-        self.login_and_go("/network")
+        self.nm_login()
 
         iface = self.add_iface()
         self.wait_for_iface(iface)

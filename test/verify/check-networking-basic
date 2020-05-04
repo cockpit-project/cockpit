@@ -27,7 +27,7 @@ class TestNetworking(NetworkCase):
         b = self.browser
         m = self.machine
 
-        self.login_and_go("/network")
+        self.nm_login()
 
         iface = 'cockpit1'
         self.add_veth(iface, dhcp_cidr="10.111.113.2/20")
@@ -121,7 +121,7 @@ class TestNetworking(NetworkCase):
                 b.wait_not_visible("#networking-nm-crashed")
                 b.wait_visible("#networking-nm-disabled")
 
-        self.login_and_go("/network")
+        self.nm_login()
         assert_running()
 
         # stop/start NM on CLI, page should notice

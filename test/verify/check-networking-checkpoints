@@ -38,6 +38,7 @@ class TestNetworking(NetworkCase):
             wait(lambda: m.execute("nmcli dev con %s" % iface))
 
         self.login_and_go("/network")
+        self.nm_checkpoints_enable()
         self.wait_for_iface(iface, prefix="172.")
         b.click("#networking-interfaces tr[data-interface='%s']" % iface)
         b.wait_visible("#network-interface")
@@ -113,6 +114,7 @@ class TestNetworking(NetworkCase):
         self.ensure_nm_uses_dhclient()
 
         self.login_and_go("/network")
+        self.nm_checkpoints_enable()
         self.wait_for_iface(iface, prefix="172.")
         b.click("#networking-interfaces tr[data-interface='%s']" % iface)
         b.wait_visible("#network-interface")

@@ -803,6 +803,7 @@ class TestAutoUpdates(NoSubManCase):
         super().setUp()
         # not implemented for yum and apt yet, only dnf
         self.supported_backend = self.backend in ["dnf"]
+        self.addCleanup(self.machine.execute, "systemctl disable --now dnf-automatic-install.timer 2>/dev/null; rm -rf /etc/systemd/system/dnf-automatic-*")
 
     def testBasic(self):
         b = self.browser

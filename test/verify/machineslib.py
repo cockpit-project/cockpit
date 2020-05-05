@@ -1563,7 +1563,6 @@ class TestMachines(NetworkCase):
                                          location=config.NOVELL_MOCKUP_ISO_PATH,
                                          memory_size=100000, memory_size_unit='MiB',
                                          storage_pool="No Storage",
-                                         os_name=config.OPENBSD_6_3,
                                          start_vm=False))
 
         # Start of tests for import existing disk as installation option
@@ -1858,8 +1857,6 @@ class TestMachines(NetworkCase):
         NOVELL_MOCKUP_ISO_PATH = '/var/lib/libvirt/novell.iso'  # libvirt in ubuntu-1604 does not accept /tmp
         NOT_EXISTENT_PATH = '/tmp/not-existent.iso'
         ISO_URL = 'https://localhost:8000/novell.iso'
-
-        OPENBSD_6_3 = 'OpenBSD 6.3'
 
         MICROSOFT_SERVER_2016 = 'Microsoft Windows Server 2016'
 

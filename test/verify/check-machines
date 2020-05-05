@@ -262,6 +262,14 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         if args["logfile"] is not None:
             b.wait(lambda: "NMI received" in self.machine.execute("cat {0}".format(args["logfile"])))
 
+        # pause
+        b.click("#vm-subVmTest1-pause")
+        b.wait_in_text("#vm-subVmTest1-state", "paused")
+
+        # resume
+        b.click("#vm-subVmTest1-resume")
+        b.wait_in_text("#vm-subVmTest1-state", "running")
+
         # reboot
         self.machine.execute("echo '' > {0}".format(args["logfile"]))
         b.click("#vm-subVmTest1-reboot")

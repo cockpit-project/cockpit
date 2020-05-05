@@ -383,7 +383,6 @@ class MachinesLib(SeleniumTest):
                 cond=clickable))
 
             self.check_vm_info(vm_name)
-            self.check_vm_pause_and_resume(vm_name)
             self.check_vm_reboot(vm_name, log_file)
             self.check_vm_force_reboot(vm_name, log_file)
             self.check_send_NMI_to_vm(vm_name, log_file)
@@ -399,17 +398,6 @@ class MachinesLib(SeleniumTest):
         self.wait_css('#vm-{}-cpu-model'.format(vm_name), cond=text_in, text_='custom')
         self.wait_css('#vm-{}-emulated-machine'.format(vm_name), cond=text_in, text_='pc')
         self.wait_css('#vm-{}-boot-order'.format(vm_name), cond=text_in, text_='disk,network')
-
-    def check_vm_pause_and_resume(self, vm_name):
-        self.wait_css('#vm-{}-row'.format(vm_name))
-
-        self.click(self.wait_css('#vm-{}-pause'.format(vm_name), cond=clickable))
-        self.wait_css('#vm-{}-pause'.format(vm_name), cond=invisible)
-        self.assertEqual(self.wait_css('#vm-{}-state'.format(vm_name)).text, 'paused')
-
-        self.click(self.wait_css('#vm-{}-resume'.format(vm_name), cond=clickable))
-        self.wait_css('#vm-{}-resume'.format(vm_name), cond=invisible)
-        self.assertEqual(self.wait_css('#vm-{}-state'.format(vm_name)).text, 'running')
 
     def check_vm_reboot(self, vm_name, log_file):
         self.wait_css('#vm-{}-row'.format(vm_name))

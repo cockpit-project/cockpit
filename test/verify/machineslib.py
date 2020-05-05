@@ -164,6 +164,9 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self.restore_dir("/var/lib/libvirt")
         self.restore_dir("/etc/libvirt")
 
+        # Guest Log files
+        self.addCleanup(m.execute, "rm -rf /var/log/libvirt/console*")
+
         # Cleanup pools
         self.addCleanup(m.execute, "rm -rf /run/libvirt/storage/*")
 

@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-03 12:56+0000\n"
-"PO-Revision-Date: 2020-04-02 21:38+0000\n"
+"POT-Creation-Date: 2020-04-27 07:09+0000\n"
+"PO-Revision-Date: 2020-05-05 03:40+0000\n"
 "Last-Translator: Adolfo Jayme Barrientos <fitoschido@gmail.com>\n"
 "Language-Team: Catalan <https://translate.fedoraproject.org/projects/cockpit/"
 "master/ca/>\n"
@@ -20,17 +20,17 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1\n"
-"X-Generator: Weblate 3.11.3\n"
+"X-Generator: Weblate 4.0.3\n"
 
 #: pkg/machines/components/diskAdd.jsx:234
 msgid " Attaching it will make this disk shareable for every VM using it."
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2321
+#: pkg/networkmanager/interfaces.js:2322
 msgid "$0 Active Zone"
-msgstr ""
+msgstr "$0 zona activa"
 
-#: pkg/networkmanager/interfaces.js:2321
+#: pkg/networkmanager/interfaces.js:2322
 msgid "$0 Active Zones"
 msgstr "$0 zones actives"
 
@@ -61,7 +61,8 @@ msgid_plural "$0 Packages"
 msgstr[0] "$0 paquet"
 msgstr[1] "$0 paquets"
 
-#: pkg/systemd/init.js:484 pkg/systemd/service-details.jsx:59
+#: pkg/systemd/services/service-details.jsx:130
+#: pkg/systemd/services/services.jsx:389
 msgid "$0 Template"
 msgstr "Plantilla $0"
 
@@ -85,6 +86,12 @@ msgid "$0 byte"
 msgid_plural "$0 bytes"
 msgstr[0] "$0 byte"
 msgstr[1] "$0 bytes"
+
+#: pkg/systemd/overview-cards/insights.jsx:155
+msgid "$0 critical hit"
+msgid_plural "$0 hits, including critical"
+msgstr[0] ""
+msgstr[1] ""
 
 #: pkg/storaged/vdo-details.jsx:279
 msgid "$0 data + $1 overhead used of $2 ($3)"
@@ -123,11 +130,11 @@ msgstr "Autenticació"
 msgid "$0 error"
 msgstr ""
 
-#: src/base1/cockpit.js:2785
+#: src/base1/cockpit.js:2796
 msgid "$0 exited with code $1"
 msgstr "$0 va sortir amb el codi $1"
 
-#: src/base1/cockpit.js:2787
+#: src/base1/cockpit.js:2798
 msgid "$0 failed"
 msgstr "$0 ha fallat"
 
@@ -159,6 +166,12 @@ msgid_plural "$0 hours"
 msgstr[0] "$0 hora"
 msgstr[1] "$0 hores"
 
+#: pkg/systemd/overview-cards/insights.jsx:160
+msgid "$0 important hit"
+msgid_plural "$0 hits, including important"
+msgstr[0] ""
+msgstr[1] ""
+
 #: pkg/machines/components/desktopConsole.jsx:56
 msgid ""
 "$0 is available for most operating systems. To install it, search for it in "
@@ -179,15 +192,30 @@ msgstr ""
 msgid "$0 is not available from any repository."
 msgstr ""
 
-#: src/base1/cockpit.js:2783
+#: src/base1/cockpit.js:2794
 msgid "$0 killed with signal $1"
 msgstr "$0 es va matar amb el senyal $1"
+
+#: pkg/systemd/overview-cards/insights.jsx:170
+msgid "$0 low severity hit"
+msgid_plural "$0 low severity hits"
+msgstr[0] ""
+msgstr[1] ""
 
 #: pkg/lib/plot.js:977
 msgid "$0 minute"
 msgid_plural "$0 minutes"
 msgstr[0] "$0 minut"
 msgstr[1] "$0 minuts"
+
+#: pkg/systemd/overview-cards/insights.jsx:165
+#, fuzzy
+#| msgid "$0 month"
+#| msgid_plural "$0 months"
+msgid "$0 moderate hit"
+msgid_plural "$0 hits, including moderate"
+msgstr[0] "$0 mes"
+msgstr[1] "$0 mesos"
 
 #: pkg/lib/plot.js:965
 msgid "$0 month"
@@ -212,7 +240,7 @@ msgctxt "<date> on <terminal>"
 msgid "$0 on $1"
 msgstr "$0 de $1"
 
-#: pkg/systemd/init.js:424
+#: pkg/systemd/services/services.jsx:631
 msgid "$0 service has failed"
 msgid_plural "$0 services have failed"
 msgstr[0] ""
@@ -225,7 +253,7 @@ msgstr "$0 comparticions"
 msgid "$0 slots remain"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:166
+#: pkg/packagekit/updates.jsx:170
 msgid "$0 update"
 msgid_plural "$0 updates"
 msgstr[0] "$0 actualització"
@@ -263,7 +291,7 @@ msgstr "$0 amb $1 lliures"
 msgid "$0: crash at $1"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:164
+#: pkg/packagekit/updates.jsx:168
 msgid "$1 security fix"
 msgid_plural "$1 security fixes"
 msgstr[0] "$1 correcció de seguretat"
@@ -285,7 +313,7 @@ msgstr ""
 msgid "(none)"
 msgstr "(sense)"
 
-#: pkg/packagekit/updates.jsx:168
+#: pkg/packagekit/updates.jsx:172
 msgid ", including $1 security fix"
 msgid_plural ", including $1 security fixes"
 msgstr[0] ", incloent-hi $1 correcció de seguretat"
@@ -304,13 +332,13 @@ msgid "1 Minute"
 msgstr "1 minut"
 
 #: pkg/dashboard/index.html:55 pkg/networkmanager/index.html:72
-#: pkg/networkmanager/index.html:412 pkg/systemd/graphs.html:55
+#: pkg/networkmanager/index.html:412 pkg/systemd/graphs.html:54
 #: pkg/storaged/plot.jsx:85
 msgid "1 day"
 msgstr "1 dia"
 
 #: pkg/dashboard/index.html:51 pkg/networkmanager/index.html:70
-#: pkg/networkmanager/index.html:410 pkg/systemd/graphs.html:51
+#: pkg/networkmanager/index.html:410 pkg/systemd/graphs.html:50
 #: pkg/storaged/plot.jsx:79
 msgid "1 hour"
 msgstr "1 hora"
@@ -320,16 +348,16 @@ msgid "1 min"
 msgstr "1 min"
 
 #: pkg/dashboard/index.html:57 pkg/networkmanager/index.html:73
-#: pkg/networkmanager/index.html:413 pkg/systemd/graphs.html:57
+#: pkg/networkmanager/index.html:413 pkg/systemd/graphs.html:56
 #: pkg/storaged/plot.jsx:88
 msgid "1 week"
 msgstr "1 setmana"
 
-#: pkg/systemd/services.html:164
+#: pkg/systemd/services.html:92
 msgid "10th"
 msgstr "10è"
 
-#: pkg/systemd/services.html:165
+#: pkg/systemd/services.html:93
 msgid "11th"
 msgstr "11è"
 
@@ -337,19 +365,19 @@ msgstr "11è"
 msgid "128 KiB"
 msgstr "128 KiB"
 
-#: pkg/systemd/services.html:166
+#: pkg/systemd/services.html:94
 msgid "12th"
 msgstr "12è"
 
-#: pkg/systemd/services.html:167
+#: pkg/systemd/services.html:95
 msgid "13th"
 msgstr "13è"
 
-#: pkg/systemd/services.html:168
+#: pkg/systemd/services.html:96
 msgid "14th"
 msgstr "14è"
 
-#: pkg/systemd/services.html:169
+#: pkg/systemd/services.html:97
 msgid "15th"
 msgstr "15è"
 
@@ -357,23 +385,23 @@ msgstr "15è"
 msgid "16 KiB"
 msgstr "16 KiB"
 
-#: pkg/systemd/services.html:170
+#: pkg/systemd/services.html:98
 msgid "16th"
 msgstr "16è"
 
-#: pkg/systemd/services.html:171
+#: pkg/systemd/services.html:99
 msgid "17th"
 msgstr "17è"
 
-#: pkg/systemd/services.html:172
+#: pkg/systemd/services.html:100
 msgid "18th"
 msgstr "18è"
 
-#: pkg/systemd/services.html:173
+#: pkg/systemd/services.html:101
 msgid "19th"
 msgstr "19è"
 
-#: pkg/systemd/services.html:155
+#: pkg/systemd/services.html:83
 msgid "1st"
 msgstr "1r"
 
@@ -389,47 +417,47 @@ msgstr "2 min"
 msgid "20 Minutes"
 msgstr "20 minuts"
 
-#: pkg/systemd/services.html:174
+#: pkg/systemd/services.html:102
 msgid "20th"
 msgstr "20è"
 
-#: pkg/systemd/services.html:175
+#: pkg/systemd/services.html:103
 msgid "21st"
 msgstr "21è"
 
-#: pkg/systemd/services.html:176
+#: pkg/systemd/services.html:104
 msgid "22nd"
 msgstr "22è"
 
-#: pkg/systemd/services.html:177
+#: pkg/systemd/services.html:105
 msgid "23rd"
 msgstr "23è"
 
-#: pkg/systemd/services.html:178
+#: pkg/systemd/services.html:106
 msgid "24th"
 msgstr "24è"
 
-#: pkg/systemd/services.html:179
+#: pkg/systemd/services.html:107
 msgid "25th"
 msgstr "25è"
 
-#: pkg/systemd/services.html:180
+#: pkg/systemd/services.html:108
 msgid "26th"
 msgstr "26è"
 
-#: pkg/systemd/services.html:181
+#: pkg/systemd/services.html:109
 msgid "27th"
 msgstr "27è"
 
-#: pkg/systemd/services.html:182
+#: pkg/systemd/services.html:110
 msgid "28th"
 msgstr "28è"
 
-#: pkg/systemd/services.html:183
+#: pkg/systemd/services.html:111
 msgid "29th"
 msgstr "29è"
 
-#: pkg/systemd/services.html:156
+#: pkg/systemd/services.html:84
 msgid "2nd"
 msgstr "2n"
 
@@ -437,11 +465,11 @@ msgstr "2n"
 msgid "3 min"
 msgstr "3 min"
 
-#: pkg/systemd/services.html:184
+#: pkg/systemd/services.html:112
 msgid "30th"
 msgstr "30è"
 
-#: pkg/systemd/services.html:185
+#: pkg/systemd/services.html:113
 msgid "31st"
 msgstr "31è"
 
@@ -449,7 +477,7 @@ msgstr "31è"
 msgid "32 KiB"
 msgstr "32 KiB"
 
-#: pkg/systemd/services.html:157
+#: pkg/systemd/services.html:85
 msgid "3rd"
 msgstr "3r"
 
@@ -465,7 +493,7 @@ msgstr "4 min"
 msgid "40 Minutes"
 msgstr "40 minuts"
 
-#: pkg/systemd/services.html:158
+#: pkg/systemd/services.html:86
 msgid "4th"
 msgstr "4t"
 
@@ -478,7 +506,7 @@ msgid "5 min"
 msgstr "5 min"
 
 #: pkg/dashboard/index.html:49 pkg/networkmanager/index.html:69
-#: pkg/networkmanager/index.html:409 pkg/systemd/graphs.html:49
+#: pkg/networkmanager/index.html:409 pkg/systemd/graphs.html:48
 #: pkg/storaged/plot.jsx:76
 msgid "5 minutes"
 msgstr "5 minuts"
@@ -487,12 +515,12 @@ msgstr "5 minuts"
 msgid "512 KiB"
 msgstr "512 KiB"
 
-#: pkg/systemd/services.html:159
+#: pkg/systemd/services.html:87
 msgid "5th"
 msgstr "5è"
 
 #: pkg/dashboard/index.html:53 pkg/networkmanager/index.html:71
-#: pkg/networkmanager/index.html:411 pkg/systemd/graphs.html:53
+#: pkg/networkmanager/index.html:411 pkg/systemd/graphs.html:52
 #: pkg/storaged/plot.jsx:82
 msgid "6 hours"
 msgstr "6 hores"
@@ -505,11 +533,11 @@ msgstr "60 minuts"
 msgid "64 KiB"
 msgstr "64 KiB"
 
-#: pkg/systemd/services.html:160
+#: pkg/systemd/services.html:88
 msgid "6th"
 msgstr "6è"
 
-#: pkg/systemd/services.html:161
+#: pkg/systemd/services.html:89
 msgid "7th"
 msgstr "7è"
 
@@ -517,19 +545,19 @@ msgstr "7è"
 msgid "8 KiB"
 msgstr "8 KiB"
 
-#: pkg/networkmanager/interfaces.js:1970
+#: pkg/networkmanager/interfaces.js:1971
 msgid "802.3ad"
 msgstr "802.3ad"
 
-#: pkg/networkmanager/interfaces.js:1987
+#: pkg/networkmanager/interfaces.js:1988
 msgid "802.3ad LACP"
 msgstr "802.3ad LACP"
 
-#: pkg/systemd/services.html:162
+#: pkg/systemd/services.html:90
 msgid "8th"
 msgstr "8è"
 
-#: pkg/systemd/services.html:163
+#: pkg/systemd/services.html:91
 msgid "9th"
 msgstr "9è"
 
@@ -550,7 +578,7 @@ msgid ""
 "A modern browser is required for security, reliability, and performance."
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:1717
+#: pkg/networkmanager/interfaces.js:1718
 msgid ""
 "A network bond combines multiple network interfaces into one logical "
 "interface with higher throughput or redundancy."
@@ -560,15 +588,15 @@ msgstr ""
 msgid "A spare disk needs to be added first before this disk can be removed."
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:1978
+#: pkg/networkmanager/interfaces.js:1979
 msgid "ARP"
 msgstr "ARP"
 
-#: pkg/networkmanager/interfaces.js:2772
+#: pkg/networkmanager/interfaces.js:2773
 msgid "ARP Monitoring"
 msgstr "Monitoratge ARP"
 
-#: pkg/networkmanager/interfaces.js:1999
+#: pkg/networkmanager/interfaces.js:2000
 msgid "ARP Ping"
 msgstr "Ping ARP"
 
@@ -610,7 +638,7 @@ msgctxt "page-title"
 msgid "Accounts"
 msgstr "Comptes"
 
-#: pkg/machines/components/networks/network.jsx:157
+#: pkg/machines/components/networks/network.jsx:164
 #: pkg/machines/components/storagePools/storagePool.jsx:179
 #: pkg/storaged/content-views.jsx:287
 msgid "Activate"
@@ -620,11 +648,11 @@ msgstr "Activa"
 msgid "Activating $target"
 msgstr "S'està activant $target"
 
-#: pkg/networkmanager/interfaces.js:833 pkg/networkmanager/interfaces.js:1993
+#: pkg/networkmanager/interfaces.js:834 pkg/networkmanager/interfaces.js:1994
 msgid "Active"
 msgstr "Activa"
 
-#: pkg/networkmanager/interfaces.js:1967 pkg/networkmanager/interfaces.js:1984
+#: pkg/networkmanager/interfaces.js:1968 pkg/networkmanager/interfaces.js:1985
 msgid "Active Backup"
 msgstr "Còpia de seguretat activa"
 
@@ -636,15 +664,15 @@ msgstr "Pàgines actives"
 msgid "Active since"
 msgstr ""
 
-#: pkg/systemd/service-details.jsx:358
+#: pkg/systemd/services/service-details.jsx:433
 msgid "Active since "
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:1972
+#: pkg/networkmanager/interfaces.js:1973
 msgid "Adaptive load balancing"
 msgstr "Balanceig de càrrega adaptativa"
 
-#: pkg/networkmanager/interfaces.js:1971
+#: pkg/networkmanager/interfaces.js:1972
 msgid "Adaptive transmit load balancing"
 msgstr "Balanceig de càrrega de transmissió adaptativa"
 
@@ -657,7 +685,7 @@ msgstr "Balanceig de càrrega de transmissió adaptativa"
 msgid "Add"
 msgstr "Afegeix"
 
-#: pkg/networkmanager/interfaces.js:3097
+#: pkg/networkmanager/interfaces.js:3098
 msgid "Add $0"
 msgstr "Afegeix $0"
 
@@ -686,7 +714,7 @@ msgstr "Afegeix una clau"
 msgid "Add Machine to Dashboard"
 msgstr "Afegeix la màquina al tauler de control"
 
-#: pkg/machines/components/vmnetworktab.jsx:266
+#: pkg/machines/components/vmnetworktab.jsx:271
 msgid "Add Network Interface"
 msgstr "Afegeix una interfície de xarxa"
 
@@ -748,7 +776,7 @@ msgstr ""
 msgid "Add zone"
 msgstr "Afegeix una zona"
 
-#: pkg/networkmanager/interfaces.js:3096
+#: pkg/networkmanager/interfaces.js:3097
 msgid ""
 "Adding <b>$0</b> will break the connection to the server, and will make the "
 "administration UI unavailable."
@@ -772,19 +800,19 @@ msgstr "S'està afegint el volum físic a $target"
 msgid "Additional"
 msgstr "Addicional"
 
-#: pkg/networkmanager/interfaces.js:2642
+#: pkg/networkmanager/interfaces.js:2643
 msgid "Additional DNS $val"
 msgstr "DNS addicional $val"
 
-#: pkg/networkmanager/interfaces.js:2645
+#: pkg/networkmanager/interfaces.js:2646
 msgid "Additional DNS Search Domains $val"
 msgstr "Dominis de cerca DNS addicionals $val"
 
-#: pkg/systemd/service-details.jsx:213
+#: pkg/systemd/services/service-details.jsx:285
 msgid "Additional actions"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2637
+#: pkg/networkmanager/interfaces.js:2638
 msgid "Additional address $val"
 msgstr "Adreça addicional $val"
 
@@ -806,7 +834,7 @@ msgstr "Addicional"
 msgid "Address"
 msgstr "Adreça"
 
-#: pkg/networkmanager/interfaces.js:2637
+#: pkg/networkmanager/interfaces.js:2638
 msgid "Address $val"
 msgstr "Adreça $val"
 
@@ -818,10 +846,10 @@ msgstr ""
 msgid "Address is not a valid URL"
 msgstr ""
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:61
-#: pkg/machines/components/networks/createNetworkDialog.jsx:68
-#: pkg/machines/components/networks/createNetworkDialog.jsx:89
-#: pkg/machines/components/networks/createNetworkDialog.jsx:96
+#: pkg/machines/components/networks/createNetworkDialog.jsx:73
+#: pkg/machines/components/networks/createNetworkDialog.jsx:80
+#: pkg/machines/components/networks/createNetworkDialog.jsx:101
+#: pkg/machines/components/networks/createNetworkDialog.jsx:108
 msgid "Address not within subnet"
 msgstr ""
 
@@ -829,7 +857,7 @@ msgstr ""
 msgid "Address:"
 msgstr "Adreça:"
 
-#: pkg/networkmanager/firewall.jsx:172 pkg/networkmanager/interfaces.js:3305
+#: pkg/networkmanager/firewall.jsx:172 pkg/networkmanager/interfaces.js:3306
 msgid "Addresses"
 msgstr "Adreces"
 
@@ -845,11 +873,11 @@ msgstr "Contrasenya de l'administrador"
 msgid "Advanced TCA"
 msgstr ""
 
-#: pkg/systemd/service-details.jsx:434
+#: pkg/systemd/services/service-details.jsx:509
 msgid "After"
 msgstr "Després"
 
-#: pkg/systemd/services.html:309
+#: pkg/systemd/services.html:215
 msgctxt "time-delay"
 msgid "After"
 msgstr "Després"
@@ -861,8 +889,8 @@ msgid ""
 "settings and the list of trusted CAs may change."
 msgstr ""
 
-#: pkg/systemd/services.html:300 pkg/systemd/services.html:304
-#: pkg/systemd/init.js:969
+#: pkg/systemd/services.html:206 pkg/systemd/services.html:210
+#: pkg/systemd/services/timer-dialog.js:316
 msgid "After system boot"
 msgstr "Després de l'arrencada del sistema"
 
@@ -870,7 +898,8 @@ msgstr "Després de l'arrencada del sistema"
 msgid "Alert and above"
 msgstr ""
 
-#: pkg/systemd/services.html:64 pkg/systemd/logs.js:240 pkg/systemd/logs.js:417
+#: pkg/systemd/logs.js:240 pkg/systemd/logs.js:417
+#: pkg/systemd/services/services.jsx:663
 msgid "All"
 msgstr "Tots"
 
@@ -878,7 +907,7 @@ msgstr "Tots"
 msgid "All In One"
 msgstr "Tot en un"
 
-#: pkg/systemd/service-details.jsx:162
+#: pkg/systemd/services/service-details.jsx:234
 msgid "Allow running (unmask)"
 msgstr ""
 
@@ -907,7 +936,7 @@ msgstr ""
 msgid "Appearance:"
 msgstr ""
 
-#: pkg/apps/index.html:23 pkg/apps/application-list.jsx:153
+#: pkg/apps/index.html:23 pkg/apps/application-list.jsx:151
 #: pkg/apps/application.jsx:144 pkg/apps/manifest.json.in
 msgid "Applications"
 msgstr "Aplicacions"
@@ -939,11 +968,11 @@ msgstr "Aplica aquesta solució"
 msgid "Applying solution..."
 msgstr "S'està aplicant la solució..."
 
-#: pkg/packagekit/updates.jsx:48
+#: pkg/packagekit/updates.jsx:53
 msgid "Applying updates"
 msgstr "Aplicació de les actualitzacions"
 
-#: pkg/packagekit/updates.jsx:50
+#: pkg/packagekit/updates.jsx:55
 msgid "Applying updates failed"
 msgstr "Ha fallat l'aplicació de les actualitzacions"
 
@@ -952,7 +981,7 @@ msgctxt "storage"
 msgid "Assessment"
 msgstr ""
 
-#: pkg/systemd/overview-cards/systemInformationCard.jsx:98
+#: pkg/systemd/overview-cards/systemInformationCard.jsx:116
 msgid "Asset tag"
 msgstr ""
 
@@ -965,7 +994,7 @@ msgstr "Com a mínim es necessiten $0 discs."
 msgid "At least one disk is needed."
 msgstr "Com a mínim es necessita un disc."
 
-#: pkg/systemd/services.html:305
+#: pkg/systemd/services.html:211
 msgid "At specific time"
 msgstr "A l'instant específic"
 
@@ -973,7 +1002,7 @@ msgstr "A l'instant específic"
 msgid "Audit log"
 msgstr "Registre d'auditoria"
 
-#: pkg/networkmanager/interfaces.js:825
+#: pkg/networkmanager/interfaces.js:826
 msgid "Authenticating"
 msgstr "S'està autenticant"
 
@@ -1013,25 +1042,21 @@ msgid "Authorized Public SSH Keys"
 msgstr "Claus SSH públiques autoritzades"
 
 #: pkg/networkmanager/index.html:187
-#: pkg/machines/components/networks/createNetworkDialog.jsx:163
-#: pkg/networkmanager/interfaces.js:1957 pkg/networkmanager/interfaces.js:2745
-#: pkg/networkmanager/interfaces.js:3313 pkg/networkmanager/interfaces.js:3317
-#: pkg/networkmanager/interfaces.js:3323
+#: pkg/machines/components/networks/createNetworkDialog.jsx:175
+#: pkg/networkmanager/interfaces.js:1958 pkg/networkmanager/interfaces.js:2746
+#: pkg/networkmanager/interfaces.js:3314 pkg/networkmanager/interfaces.js:3318
+#: pkg/networkmanager/interfaces.js:3324
 #: pkg/systemd/overview-cards/realmd-operation.js:338
 msgid "Automatic"
 msgstr "Automàtic"
 
-#: pkg/networkmanager/interfaces.js:1958
+#: pkg/networkmanager/interfaces.js:1959
 msgid "Automatic (DHCP only)"
 msgstr "Automàtica, tan sols DHCP"
 
-#: pkg/networkmanager/interfaces.js:1948
+#: pkg/networkmanager/interfaces.js:1949
 msgid "Automatic (DHCP)"
 msgstr "Automàtica (DHCP)"
-
-#: pkg/systemd/init.js:313
-msgid "Automatic Startup"
-msgstr ""
 
 #: pkg/packagekit/autoupdates.jsx:349
 msgid "Automatic Updates"
@@ -1041,7 +1066,8 @@ msgstr "Actualitzacions automàtiques"
 msgid "Automatically start libvirt on boot"
 msgstr "Inicia automàticament libvirt amb l'arrencada"
 
-#: pkg/systemd/service-details.jsx:402
+#: pkg/systemd/services/service-details.jsx:477
+#: pkg/systemd/services/services-list.jsx:62
 msgid "Automatically starts"
 msgstr ""
 
@@ -1069,7 +1095,7 @@ msgstr ""
 msgid "Available"
 msgstr "Disponible"
 
-#: pkg/packagekit/updates.jsx:871
+#: pkg/packagekit/updates.jsx:875
 msgid "Available Updates"
 msgstr "Actualitzacions disponibles"
 
@@ -1109,11 +1135,11 @@ msgstr "S'han passat dades dolentes al mecanisme del passwd1"
 msgid "Balancer"
 msgstr "Eina de balanceig"
 
-#: pkg/systemd/service-details.jsx:433
+#: pkg/systemd/services/service-details.jsx:508
 msgid "Before"
 msgstr ""
 
-#: pkg/systemd/service-details.jsx:424
+#: pkg/systemd/services/service-details.jsx:499
 msgid "Binds To"
 msgstr ""
 
@@ -1146,8 +1172,8 @@ msgstr "Dispositiu de blocs per al sistema de fitxers"
 msgid "Blocked"
 msgstr "Bloquejat"
 
-#: pkg/networkmanager/interfaces.js:2497 pkg/networkmanager/interfaces.js:2509
-#: pkg/networkmanager/interfaces.js:2777
+#: pkg/networkmanager/interfaces.js:2498 pkg/networkmanager/interfaces.js:2510
+#: pkg/networkmanager/interfaces.js:2778
 msgid "Bond"
 msgstr "Enllaç"
 
@@ -1164,12 +1190,12 @@ msgstr ""
 msgid "Boot order settings could not be saved"
 msgstr ""
 
-#: pkg/systemd/service-details.jsx:429
+#: pkg/systemd/services/service-details.jsx:504
 msgid "Bound By"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2503 pkg/networkmanager/interfaces.js:2515
-#: pkg/networkmanager/interfaces.js:2854
+#: pkg/networkmanager/interfaces.js:2504 pkg/networkmanager/interfaces.js:2516
+#: pkg/networkmanager/interfaces.js:2855
 msgid "Bridge"
 msgstr "Pont"
 
@@ -1181,23 +1207,23 @@ msgstr "Ajusts del port del pont"
 msgid "Bridge Settings"
 msgstr "Ajusts del pont"
 
-#: pkg/networkmanager/interfaces.js:2875
+#: pkg/networkmanager/interfaces.js:2876
 msgid "Bridge port"
 msgstr "Port del pont"
 
-#: pkg/networkmanager/interfaces.js:1969 pkg/networkmanager/interfaces.js:1986
+#: pkg/networkmanager/interfaces.js:1970 pkg/networkmanager/interfaces.js:1987
 msgid "Broadcast"
 msgstr "Difusió"
 
-#: pkg/networkmanager/interfaces.js:2790 pkg/networkmanager/interfaces.js:2824
+#: pkg/networkmanager/interfaces.js:2791 pkg/networkmanager/interfaces.js:2825
 msgid "Broken configuration"
 msgstr "Configuració trencada"
 
-#: pkg/packagekit/updates.jsx:851
+#: pkg/packagekit/updates.jsx:855
 msgid "Bug Fix Updates Available"
 msgstr "Hi ha disponibles actualitzacions de correcció d'errors"
 
-#: pkg/packagekit/updates.jsx:322
+#: pkg/packagekit/updates.jsx:326
 msgid "Bugs:"
 msgstr "Errors de programari:"
 
@@ -1253,7 +1279,7 @@ msgstr "Ús de la CPU:"
 msgid "Cache"
 msgstr "Memòria cau"
 
-#: pkg/systemd/graphs.html:162 pkg/systemd/graphs.js:392
+#: pkg/systemd/graphs.html:161 pkg/systemd/graphs.js:392
 msgid "Cached"
 msgstr "Emmagatzemat temporalment"
 
@@ -1283,16 +1309,16 @@ msgstr "No es pot carregar la imatge"
 #: pkg/systemd/index.html:123 pkg/systemd/index.html:207
 #: pkg/systemd/index.html:261
 #: pkg/systemd/overview-cards/realmd-operation.html:82
-#: pkg/systemd/services.html:377 pkg/users/index.html:201
+#: pkg/systemd/services.html:283 pkg/users/index.html:201
 #: pkg/users/index.html:240 pkg/users/index.html:279 pkg/users/index.html:318
 #: pkg/users/index.html:335 pkg/users/index.html:359 pkg/users/index.html:420
 #: pkg/apps/utils.jsx:84 pkg/lib/cockpit-components-dialog.jsx:158
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:947
 #: pkg/machines/components/deleteDialog.jsx:185
-#: pkg/machines/components/deleteResource.jsx:116
+#: pkg/machines/components/deleteResource.jsx:74
 #: pkg/machines/components/diskAdd.jsx:551
 #: pkg/machines/components/diskEdit.jsx:215
-#: pkg/machines/components/networks/createNetworkDialog.jsx:484
+#: pkg/machines/components/networks/createNetworkDialog.jsx:492
 #: pkg/machines/components/nicAdd.jsx:206
 #: pkg/machines/components/nicEdit.jsx:174
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:514
@@ -1303,18 +1329,24 @@ msgstr "No es pot carregar la imatge"
 #: pkg/machines/components/vm/firmwareModal.jsx:78
 #: pkg/machines/components/vm/memoryModal.jsx:155
 #: pkg/networkmanager/firewall.jsx:583 pkg/networkmanager/firewall.jsx:736
-#: pkg/networkmanager/firewall.jsx:759 pkg/packagekit/updates.jsx:186
+#: pkg/networkmanager/firewall.jsx:759 pkg/packagekit/updates.jsx:190
 #: pkg/sosreport/index.js:49 pkg/storaged/dialog.jsx:400
 #: pkg/storaged/jobs-panel.jsx:123 pkg/systemd/hwinfo.jsx:225
-#: pkg/systemd/reporting.jsx:420 pkg/systemd/service-details.jsx:115
+#: pkg/systemd/reporting.jsx:420 pkg/systemd/services/service-details.jsx:187
 msgid "Cancel"
 msgstr "Cancel·la"
+
+#: pkg/systemd/services/services-list.jsx:71
+#, fuzzy
+#| msgid "Size cannot be negative"
+msgid "Cannot be enabled"
+msgstr "La mida no pot ser negativa"
 
 #: pkg/shell/indexes.js:704
 msgid "Cannot connect to an unknown machine"
 msgstr "No es pot connectar a una màquina desconeguda"
 
-#: src/base1/cockpit.js:4048
+#: src/base1/cockpit.js:4059
 msgid "Cannot forward login credentials"
 msgstr ""
 
@@ -1336,7 +1368,7 @@ msgctxt "storage"
 msgid "Capacity"
 msgstr "Capacitat"
 
-#: pkg/networkmanager/interfaces.js:2576
+#: pkg/networkmanager/interfaces.js:2577
 msgid "Carrier"
 msgstr "Portadora"
 
@@ -1388,7 +1420,7 @@ msgstr "Canvia els límits dels recursos"
 msgid "Change resources limits"
 msgstr "Canvia els límits dels recursos"
 
-#: pkg/networkmanager/interfaces.js:3147
+#: pkg/networkmanager/interfaces.js:3148
 msgid "Change the settings"
 msgstr "Canvia els ajusts"
 
@@ -1400,13 +1432,13 @@ msgstr "Canvia els ajusts"
 msgid "Changes will take effect after shutting down the VM"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:3146
+#: pkg/networkmanager/interfaces.js:3147
 msgid ""
 "Changing the settings will break the connection to the server, and will make "
 "the administration UI unavailable."
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:182
+#: pkg/packagekit/updates.jsx:186
 msgid "Check for Updates"
 msgstr "Comprova si hi ha actualitzacions"
 
@@ -1414,7 +1446,7 @@ msgstr "Comprova si hi ha actualitzacions"
 msgid "Checking $target"
 msgstr "S’està comprovant $target"
 
-#: pkg/networkmanager/interfaces.js:829
+#: pkg/networkmanager/interfaces.js:830
 msgid "Checking IP"
 msgstr "S'està comprovant la IP"
 
@@ -1430,7 +1462,7 @@ msgstr ""
 msgid "Checking for new applications"
 msgstr "Comprovació per si hi ha aplicacions noves"
 
-#: pkg/packagekit/updates.jsx:810
+#: pkg/packagekit/updates.jsx:814
 msgid "Checking for package updates..."
 msgstr ""
 
@@ -1462,16 +1494,16 @@ msgstr "Classe"
 msgid "Cleaning up for $target"
 msgstr "Neteja de $target"
 
-#: pkg/systemd/service-details.jsx:191
+#: pkg/systemd/services/service-details.jsx:263
 msgid "Clear 'Failed to start'"
-msgstr ""
-
-#: pkg/systemd/services.html:85
-msgid "Clear All Filters"
 msgstr ""
 
 #: pkg/shell/indexes.js:506
 msgid "Clear Search"
+msgstr ""
+
+#: pkg/systemd/services/services.jsx:753
+msgid "Clear all filters"
 msgstr ""
 
 #: pkg/storaged/fsys-tab.jsx:250
@@ -1516,11 +1548,11 @@ msgid ""
 "port $1, or specify another port in the address."
 msgstr ""
 
-#: src/base1/cockpit.js:4054
+#: src/base1/cockpit.js:4065
 msgid "Cockpit could not contact the given host."
 msgstr "Cockpit no ha pogut contactar amb l'amfitrió indicat."
 
-#: pkg/shell/base_index.js:841
+#: pkg/shell/base_index.js:839
 msgid ""
 "Cockpit had an unexpected internal error. <br/><br/>You can try restarting "
 "Cockpit by pressing refresh in your browser. The javascript console contains "
@@ -1547,7 +1579,7 @@ msgid "Cockpit is an interactive Linux server admin interface."
 msgstr ""
 "Cockpit és una interfície interactiva d'administració del servidor Linux."
 
-#: src/base1/cockpit.js:4052
+#: src/base1/cockpit.js:4063
 msgid "Cockpit is not compatible with the software on the system."
 msgstr "Cockpit no és compatible amb el programari del sistema."
 
@@ -1555,7 +1587,7 @@ msgstr "Cockpit no és compatible amb el programari del sistema."
 msgid "Cockpit is not installed"
 msgstr "Cockpit no està instal·lat"
 
-#: src/base1/cockpit.js:4046
+#: src/base1/cockpit.js:4057
 msgid "Cockpit is not installed on the system."
 msgstr "Cockpit no està instal·lat al sistema."
 
@@ -1624,7 +1656,7 @@ msgid "Comma-separated ports, ranges, and aliases are accepted"
 msgstr ""
 
 #: pkg/docker/index.html:265 pkg/docker/index.html:409
-#: pkg/docker/index.html:673 pkg/systemd/services.html:281
+#: pkg/docker/index.html:673 pkg/systemd/services.html:187
 #: pkg/docker/containers-view.jsx:134 pkg/docker/containers-view.jsx:363
 #: pkg/docker/containers-view.jsx:415
 msgid "Command"
@@ -1680,11 +1712,11 @@ msgstr "Compressió"
 msgid "Computer OU"
 msgstr "OU de l'ordinador"
 
-#: pkg/systemd/service-details.jsx:448
+#: pkg/systemd/services/service-details.jsx:523
 msgid "Condition $0=$1 was not met"
 msgstr ""
 
-#: pkg/systemd/service-details.jsx:496
+#: pkg/systemd/services/service-details.jsx:571
 msgid "Condition failed"
 msgstr "Ha fallat la condició"
 
@@ -1692,15 +1724,15 @@ msgstr "Ha fallat la condició"
 msgid "Configuration"
 msgstr "Configuració"
 
-#: pkg/networkmanager/interfaces.js:2711
+#: pkg/networkmanager/interfaces.js:2712
 msgid "Configure"
 msgstr "Configura"
 
-#: pkg/networkmanager/interfaces.js:823
+#: pkg/networkmanager/interfaces.js:824
 msgid "Configuring"
 msgstr "S'està configurant"
 
-#: pkg/networkmanager/interfaces.js:827
+#: pkg/networkmanager/interfaces.js:828
 msgid "Configuring IP"
 msgstr "S'està configurant la IP"
 
@@ -1733,15 +1765,15 @@ msgstr ""
 msgid "Confirm removal with passphrase"
 msgstr ""
 
-#: pkg/machines/components/deleteResource.jsx:108
+#: pkg/machines/components/deleteResource.jsx:66
 msgid "Confirm this action"
 msgstr ""
 
-#: pkg/systemd/service-details.jsx:432
+#: pkg/systemd/services/service-details.jsx:507
 msgid "Conflicted By"
 msgstr ""
 
-#: pkg/systemd/service-details.jsx:431
+#: pkg/systemd/services/service-details.jsx:506
 msgid "Conflicts"
 msgstr "Conflictes"
 
@@ -1750,7 +1782,7 @@ msgstr "Conflictes"
 msgid "Connect"
 msgstr "Connecta"
 
-#: pkg/networkmanager/interfaces.js:2698
+#: pkg/networkmanager/interfaces.js:2699
 msgid "Connect automatically"
 msgstr "Connecta automàticament"
 
@@ -1765,10 +1797,6 @@ msgstr "Connecta amb qualsevol aplicació de visualització $0."
 #: pkg/machines/components/desktopConsole.jsx:185
 msgid "Connect with any SPICE or VNC viewer application."
 msgstr "Connecta amb qualsevol aplicació de visualització SPICE o VNC."
-
-#: pkg/machines/components/vnc.jsx:106
-msgid "Connecting"
-msgstr "S'està connectant"
 
 #: pkg/lib/machine-add.html:41
 msgid ""
@@ -1792,6 +1820,7 @@ msgid "Connecting to the machine"
 msgstr "S'està connectant a la màquina"
 
 #: pkg/machines/components/machinesConnectionSelector.jsx:34
+#: pkg/machines/components/networks/createNetworkDialog.jsx:41
 #: pkg/machines/components/networks/networkList.jsx:55
 #: pkg/machines/components/storagePools/storagePoolList.jsx:54
 #: pkg/machines/hostvmslist.jsx:74
@@ -1806,7 +1835,7 @@ msgstr "Error de connexió"
 msgid "Connection failed"
 msgstr "La connexió ha fallat"
 
-#: src/base1/cockpit.js:4044
+#: src/base1/cockpit.js:4055
 msgid "Connection has timed out."
 msgstr "La connexió ha excedit el temps."
 
@@ -1814,11 +1843,11 @@ msgstr "La connexió ha excedit el temps."
 msgid "Connection will be lost"
 msgstr "Es perdrà la connexió"
 
-#: pkg/systemd/service-details.jsx:430
+#: pkg/systemd/services/service-details.jsx:505
 msgid "Consists Of"
 msgstr ""
 
-#: pkg/machines/components/consoles.jsx:80
+#: pkg/machines/components/consoles.jsx:77
 msgid "Console Type"
 msgstr "Tipus de consola"
 
@@ -1952,7 +1981,7 @@ msgstr ""
 
 #: pkg/users/index.html:200
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:944
-#: pkg/machines/components/networks/createNetworkDialog.jsx:481
+#: pkg/machines/components/networks/createNetworkDialog.jsx:489
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:511
 #: pkg/machines/components/storagePools/storageVolumeCreate.jsx:93
 #: pkg/storaged/content-views.jsx:129 pkg/storaged/content-views.jsx:275
@@ -2022,11 +2051,11 @@ msgstr ""
 msgid "Create Thin Volume"
 msgstr "Crea un volum disgregat"
 
-#: pkg/systemd/services.html:57
+#: pkg/systemd/services/services.jsx:725
 msgid "Create Timer"
 msgstr "Crea un temporitzador"
 
-#: pkg/systemd/services.html:247
+#: pkg/systemd/services.html:153
 msgid "Create Timers"
 msgstr "Crea temporitzadors"
 
@@ -2034,12 +2063,12 @@ msgstr "Crea temporitzadors"
 msgid "Create VDO Device"
 msgstr "Crea un dispositiu VDO"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:1018
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:1015
 msgid "Create VM"
 msgstr "Crea la MV"
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:471
-#: pkg/machines/components/networks/createNetworkDialog.jsx:519
+#: pkg/machines/components/networks/createNetworkDialog.jsx:479
+#: pkg/machines/components/networks/createNetworkDialog.jsx:526
 msgid "Create Virtual Network"
 msgstr ""
 
@@ -2056,8 +2085,8 @@ msgstr "Crea un grup de volums"
 msgid "Create diagnostic report"
 msgstr "Crea l'informe de diagnòstic"
 
-#: pkg/networkmanager/interfaces.js:3824 pkg/networkmanager/interfaces.js:4027
-#: pkg/networkmanager/interfaces.js:4282 pkg/networkmanager/interfaces.js:4488
+#: pkg/networkmanager/interfaces.js:3825 pkg/networkmanager/interfaces.js:4028
+#: pkg/networkmanager/interfaces.js:4283 pkg/networkmanager/interfaces.js:4489
 msgid "Create it"
 msgstr "Crea-ho"
 
@@ -2098,25 +2127,25 @@ msgstr "S'està creant la partició $target"
 msgid "Creating snapshot of $target"
 msgstr "S'està creant una instantània de $target"
 
-#: pkg/networkmanager/interfaces.js:4487
+#: pkg/networkmanager/interfaces.js:4488
 msgid ""
 "Creating this VLAN will break the connection to the server, and will make "
 "the administration UI unavailable."
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:3823
+#: pkg/networkmanager/interfaces.js:3824
 msgid ""
 "Creating this bond will break the connection to the server, and will make "
 "the administration UI unavailable."
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:4281
+#: pkg/networkmanager/interfaces.js:4282
 msgid ""
 "Creating this bridge will break the connection to the server, and will make "
 "the administration UI unavailable."
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:4026
+#: pkg/networkmanager/interfaces.js:4027
 msgid ""
 "Creating this team will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -2134,8 +2163,8 @@ msgstr ""
 msgid "Critical and above"
 msgstr ""
 
-#: pkg/machines/components/vnc.jsx:109
-msgid "Ctrl+Alt+Del"
+#: pkg/machines/components/vnc.jsx:134
+msgid "Ctrl+Alt+$0"
 msgstr ""
 
 #: pkg/lib/cockpit-components-context-menu.jsx:104
@@ -2180,19 +2209,19 @@ msgstr ""
 msgid "DISK IS FAILING"
 msgstr "EL DISC ESTÀ FALLANT"
 
-#: pkg/networkmanager/interfaces.js:3312
+#: pkg/networkmanager/interfaces.js:3313
 msgid "DNS"
 msgstr "DNS"
 
-#: pkg/networkmanager/interfaces.js:2642
+#: pkg/networkmanager/interfaces.js:2643
 msgid "DNS $val"
 msgstr "DNS $val"
 
-#: pkg/networkmanager/interfaces.js:3316
+#: pkg/networkmanager/interfaces.js:3317
 msgid "DNS Search Domains"
 msgstr "Dominis de cerca DNS"
 
-#: pkg/networkmanager/interfaces.js:2645
+#: pkg/networkmanager/interfaces.js:2646
 msgid "DNS Search Domains $val"
 msgstr "Dominis de cerca DNS $val"
 
@@ -2208,13 +2237,13 @@ msgstr "Tauler de control"
 msgid "Data Used"
 msgstr "Dades utilitzades"
 
-#: pkg/machines/components/networks/network.jsx:153
+#: pkg/machines/components/networks/network.jsx:160
 #: pkg/machines/components/storagePools/storagePool.jsx:170
 #: pkg/storaged/content-views.jsx:285
 msgid "Deactivate"
 msgstr "Desactiva"
 
-#: pkg/networkmanager/interfaces.js:835
+#: pkg/networkmanager/interfaces.js:836
 msgid "Deactivating"
 msgstr "S'està desactivant"
 
@@ -2245,10 +2274,10 @@ msgstr "Retard"
 #: pkg/machines/components/deleteDialog.jsx:146
 #: pkg/machines/components/deleteDialog.jsx:161
 #: pkg/machines/components/deleteDialog.jsx:182
-#: pkg/machines/components/deleteResource.jsx:82
-#: pkg/machines/components/deleteResource.jsx:92
-#: pkg/machines/components/deleteResource.jsx:105
-#: pkg/machines/components/deleteResource.jsx:113
+#: pkg/machines/components/deleteResource.jsx:63
+#: pkg/machines/components/deleteResource.jsx:71
+#: pkg/machines/components/deleteResource.jsx:102
+#: pkg/machines/components/deleteResource.jsx:112
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:204
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:214
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:237
@@ -2260,7 +2289,7 @@ msgstr "Retard"
 msgid "Delete"
 msgstr "Suprimeix"
 
-#: pkg/networkmanager/interfaces.js:2422 pkg/users/local.js:1203
+#: pkg/networkmanager/interfaces.js:2423 pkg/users/local.js:1203
 msgid "Delete $0"
 msgstr "Suprimeix $0"
 
@@ -2293,7 +2322,7 @@ msgstr ""
 msgid "Deleting $target"
 msgstr "S'està suprimint $target"
 
-#: pkg/networkmanager/interfaces.js:2421
+#: pkg/networkmanager/interfaces.js:2422
 msgid ""
 "Deleting <b>$0</b> will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -2333,8 +2362,8 @@ msgstr ""
 msgid "Deleting volume group $target"
 msgstr "S'està suprimint el grup de volums $target"
 
-#: pkg/systemd/services.html:267 pkg/networkmanager/firewall.jsx:686
-#: pkg/systemd/init.js:307
+#: pkg/systemd/services.html:173 pkg/networkmanager/firewall.jsx:686
+#: pkg/systemd/services/services-list.jsx:47
 msgid "Description"
 msgstr "Descripció"
 
@@ -2354,7 +2383,7 @@ msgstr ""
 
 #: pkg/shell/index.html:254 pkg/docker/containers-view.jsx:340
 #: pkg/docker/containers-view.jsx:434 pkg/docker/containers-view.jsx:534
-#: pkg/packagekit/updates.jsx:391
+#: pkg/packagekit/updates.jsx:395
 msgid "Details"
 msgstr "Detalls"
 
@@ -2362,7 +2391,7 @@ msgstr "Detalls"
 msgid "Development"
 msgstr "Desenvolupament"
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:156
+#: pkg/machines/components/networks/createNetworkDialog.jsx:168
 #: pkg/machines/components/networks/networkList.jsx:55
 #: pkg/machines/components/vm/bootOrderModal.jsx:93
 #: pkg/machines/components/vmDiskColumns.jsx:43
@@ -2420,12 +2449,13 @@ msgstr ""
 msgid "Disable tuned"
 msgstr "Inhabilita tuned"
 
-#: pkg/systemd/services.html:66 pkg/networkmanager/interfaces.js:1952
-#: pkg/systemd/init.js:225 pkg/systemd/service-details.jsx:337
+#: pkg/networkmanager/interfaces.js:1953
+#: pkg/systemd/services/service-details.jsx:412
+#: pkg/systemd/services/services.jsx:505 pkg/systemd/services/services.jsx:665
 msgid "Disabled"
 msgstr "Inhabilitat"
 
-#: pkg/systemd/service-details.jsx:195
+#: pkg/systemd/services/service-details.jsx:267
 msgid "Disallow running (mask)"
 msgstr ""
 
@@ -2433,8 +2463,7 @@ msgstr ""
 msgid "Disconnect"
 msgstr "Desconnecta"
 
-#: pkg/machines/components/vnc.jsx:107 pkg/shell/indexes.js:244
-#: pkg/shell/indexes.js:892
+#: pkg/shell/indexes.js:244 pkg/shell/indexes.js:892
 msgid "Disconnected"
 msgstr "Desconnectat"
 
@@ -2505,6 +2534,12 @@ msgstr "Docker no està activat o instal·lat al sistema"
 msgid "Docking Station"
 msgstr ""
 
+#: pkg/systemd/services/services-list.jsx:64
+#, fuzzy
+#| msgid "Connect automatically"
+msgid "Does not automatically start"
+msgstr "Connecta automàticament"
+
 #: pkg/systemd/overview-cards/realmd-operation.html:11
 #: pkg/systemd/overview-cards/configurationCard.jsx:402
 #: pkg/systemd/overview-cards/realmd-operation.js:124
@@ -2531,8 +2566,8 @@ msgstr "Nom de l'administrador del domini"
 msgid "Domain Administrator Password"
 msgstr "Contrasenya de l'administrador del domini"
 
-#: pkg/systemd/services.html:337 pkg/systemd/services.html:341
-#: pkg/systemd/init.js:1152
+#: pkg/systemd/services.html:243 pkg/systemd/services.html:247
+#: pkg/systemd/services/timer-dialog.js:303
 msgid "Don't Repeat"
 msgstr "No repeteixis"
 
@@ -2540,7 +2575,7 @@ msgstr "No repeteixis"
 msgid "Don't overwrite existing data"
 msgstr "No sobreescriguis les dades existents"
 
-#: pkg/sosreport/index.html:61
+#: pkg/sosreport/index.html:60
 msgid "Done!"
 msgstr "Fet!"
 
@@ -2556,7 +2591,7 @@ msgstr ""
 msgid "Download an OS"
 msgstr ""
 
-#: pkg/sosreport/index.html:62
+#: pkg/sosreport/index.html:61
 msgid "Download report"
 msgstr "Baixa l'informe"
 
@@ -2564,11 +2599,11 @@ msgstr "Baixa l'informe"
 msgid "Download the MSI from $0"
 msgstr "Baixa el MSI de $0"
 
-#: pkg/packagekit/updates.jsx:63
+#: pkg/packagekit/updates.jsx:68
 msgid "Downloaded"
 msgstr "Baixat"
 
-#: pkg/packagekit/updates.jsx:55
+#: pkg/packagekit/updates.jsx:60
 msgid "Downloading"
 msgstr "S'està baixant"
 
@@ -2654,7 +2689,7 @@ msgstr ""
 msgid "Enable the firewall"
 msgstr ""
 
-#: pkg/systemd/services.html:65 pkg/systemd/init.js:222
+#: pkg/systemd/services/services.jsx:502 pkg/systemd/services/services.jsx:664
 msgid "Enabled"
 msgstr "Habilitat"
 
@@ -2695,12 +2730,12 @@ msgstr "Xifratge"
 msgid "Encryption Options"
 msgstr "Opcions del xifratge"
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:239
+#: pkg/machines/components/networks/createNetworkDialog.jsx:251
 msgid "End"
 msgstr ""
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:64
-#: pkg/machines/components/networks/createNetworkDialog.jsx:92
+#: pkg/machines/components/networks/createNetworkDialog.jsx:76
+#: pkg/machines/components/networks/createNetworkDialog.jsx:104
 msgid "End should not be empty"
 msgstr ""
 
@@ -2708,7 +2743,7 @@ msgstr ""
 msgid "Enforcing"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:853
+#: pkg/packagekit/updates.jsx:857
 msgid "Enhancement Updates Available"
 msgstr ""
 
@@ -2755,15 +2790,15 @@ msgstr "Esborra"
 msgid "Erasing $target"
 msgstr "S'està esborrant $target"
 
-#: pkg/packagekit/updates.jsx:320
+#: pkg/packagekit/updates.jsx:324
 msgid "Errata:"
 msgstr "Fe d'errates:"
 
 #: pkg/playground/translate.html:100 pkg/playground/translate.html:105
 #: pkg/apps/utils.jsx:96 pkg/storaged/fsys-tab.jsx:283
 #: pkg/storaged/multipath.jsx:58 pkg/storaged/storage-controls.jsx:84
-#: pkg/storaged/storage-controls.jsx:161 pkg/systemd/service-details.jsx:454
-#: pkg/users/local.js:1496
+#: pkg/storaged/storage-controls.jsx:161
+#: pkg/systemd/services/service-details.jsx:529 pkg/users/local.js:1496
 msgid "Error"
 msgstr "Error"
 
@@ -2803,7 +2838,7 @@ msgstr "MAC d'ethernet"
 msgid "Ethernet MTU"
 msgstr "MTU d'ethernet"
 
-#: pkg/networkmanager/interfaces.js:1998
+#: pkg/networkmanager/interfaces.js:1999
 msgid "Ethtool"
 msgstr "Ethtool"
 
@@ -2851,7 +2886,7 @@ msgstr "Partició estesa"
 msgid "FAILED"
 msgstr "FALLAT"
 
-#: pkg/networkmanager/interfaces.js:837
+#: pkg/networkmanager/interfaces.js:838
 msgid "Failed"
 msgstr "Ha fallat"
 
@@ -2909,7 +2944,12 @@ msgstr ""
 msgid "Failed to load authorized keys."
 msgstr "Ha fallat la càrrega de les claus autoritzades."
 
-#: pkg/systemd/service-details.jsx:346
+#: pkg/machines/components/vnc.jsx:130
+msgid "Failed to send key Ctrl+Alt+$0 to VM $1"
+msgstr ""
+
+#: pkg/systemd/services/service-details.jsx:421
+#: pkg/systemd/services/services.jsx:496
 msgid "Failed to start"
 msgstr ""
 
@@ -2950,13 +2990,19 @@ msgstr "Nom del sistema de fitxers"
 msgid "Filesystems"
 msgstr "Sistemes de fitxers"
 
+#: pkg/systemd/services/services.jsx:693
+msgid "Filter"
+msgstr ""
+
 #: pkg/networkmanager/firewall.jsx:507
 msgid "Filter Services"
 msgstr "Filtra els serveis"
 
-#: pkg/systemd/services.html:61
-msgid "Filter by name or description..."
-msgstr ""
+#: pkg/systemd/services/services.jsx:701
+#, fuzzy
+#| msgid "search by name, namespace or description"
+msgid "Filter by name or description"
+msgstr "cerqueu pel nom, per l'espai de noms o per la descripció"
 
 #: pkg/lib/machine-unknown-hostkey.html:10 pkg/shell/index.html:297
 msgid "Fingerprint"
@@ -2988,7 +3034,8 @@ msgstr "Versió"
 msgid "For legacy applications only. Reduces performance."
 msgstr ""
 
-#: pkg/systemd/service-details.jsx:328
+#: pkg/systemd/services/service-details.jsx:403
+#: pkg/systemd/services/services-list.jsx:66
 msgid "Forbidden from running"
 msgstr ""
 
@@ -3041,11 +3088,11 @@ msgstr ""
 "La formatació d'un dispositiu d'emmagatzematge eliminarà totes les dades "
 "contingudes."
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:134
+#: pkg/machines/components/networks/createNetworkDialog.jsx:146
 msgid "Forward Mode"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2847
+#: pkg/networkmanager/interfaces.js:2848
 msgid "Forward delay $forward_delay"
 msgstr "Retard del reenviament $forward_delay"
 
@@ -3067,7 +3114,7 @@ msgid ""
 "another physical volume."
 msgstr ""
 
-#: pkg/systemd/services.html:130
+#: pkg/systemd/services.html:58
 msgid "Friday"
 msgstr "Divendres"
 
@@ -3085,7 +3132,7 @@ msgstr "Passarel·la:"
 
 #: pkg/machines/components/networks/networkOverviewTab.jsx:80
 #: pkg/machines/components/vmOverviewTabLibvirt.jsx:258
-#: pkg/networkmanager/interfaces.js:2689 pkg/systemd/logs.js:553
+#: pkg/networkmanager/interfaces.js:2690 pkg/systemd/logs.js:553
 msgid "General"
 msgstr "General"
 
@@ -3093,7 +3140,7 @@ msgstr "General"
 msgid "Generate automatically"
 msgstr ""
 
-#: pkg/sosreport/index.html:55
+#: pkg/sosreport/index.html:54
 msgid "Generating report"
 msgstr "S'està generant l'informe"
 
@@ -3111,16 +3158,13 @@ msgstr "GiB"
 msgid "Go to"
 msgstr "Vés a"
 
-#: pkg/systemd/graphs.html:46
-msgid "Go to                                                now"
-msgstr ""
-
 #: pkg/apps/application.jsx:109
 msgid "Go to Application"
 msgstr "Vés a l'aplicació"
 
 #: pkg/dashboard/index.html:46 pkg/networkmanager/index.html:67
-#: pkg/networkmanager/index.html:407 pkg/storaged/plot.jsx:72
+#: pkg/networkmanager/index.html:407 pkg/systemd/graphs.html:46
+#: pkg/storaged/plot.jsx:72
 msgid "Go to now"
 msgstr "Vés a ara"
 
@@ -3162,7 +3206,7 @@ msgstr "Fes créixer per agafar tot l'espai"
 msgid "Hair Pin mode"
 msgstr "Mode hairpin"
 
-#: pkg/networkmanager/interfaces.js:2873
+#: pkg/networkmanager/interfaces.js:2874
 msgid "Hairpin mode"
 msgstr "Mode hairpin"
 
@@ -3174,11 +3218,11 @@ msgstr ""
 msgid "Hardware Information"
 msgstr "Informació del maquinari"
 
-#: pkg/systemd/overview-cards/healthCard.jsx:55
+#: pkg/systemd/overview-cards/healthCard.jsx:35
 msgid "Health"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2849
+#: pkg/networkmanager/interfaces.js:2850
 msgid "Hello time $hello_time"
 msgstr "Hello time $hello_time"
 
@@ -3208,7 +3252,7 @@ msgstr ""
 msgid "Host Name"
 msgstr "Nom d'amfitrió"
 
-#: src/base1/cockpit.js:4040
+#: src/base1/cockpit.js:4051
 msgid "Host key is incorrect"
 msgstr "La clau d'amfitrió és incorrecta"
 
@@ -3224,15 +3268,16 @@ msgstr ""
 msgid "Hostname"
 msgstr ""
 
-#: pkg/systemd/services.html:353
+#: pkg/systemd/services.html:259
 msgid "Hour : Minute"
 msgstr "hora : minut"
 
-#: pkg/systemd/init.js:1228 pkg/systemd/init.js:1257
+#: pkg/systemd/services/timer-dialog.js:108
+#: pkg/systemd/services/timer-dialog.js:137
 msgid "Hour needs to be a number between 0-23"
 msgstr "L'hora ha de ser un nombre entre 0-23"
 
-#: pkg/systemd/services.html:319
+#: pkg/systemd/services.html:225
 msgid "Hours"
 msgstr "Hores"
 
@@ -3242,7 +3287,7 @@ msgstr "Hores"
 msgid "Hypervisor Details"
 msgstr "Més detalls"
 
-#: pkg/systemd/graphs.html:147 pkg/systemd/graphs.js:295
+#: pkg/systemd/graphs.html:146 pkg/systemd/graphs.js:295
 msgid "I/O Wait"
 msgstr "Espera d'E/S"
 
@@ -3259,7 +3304,7 @@ msgstr "Adreça IP"
 msgid "IP Address:"
 msgstr "Adreça IP:"
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:184
+#: pkg/machines/components/networks/createNetworkDialog.jsx:196
 msgid "IP Configuration"
 msgstr ""
 
@@ -3277,7 +3322,7 @@ msgid ""
 "Example: 192.0.2.0/24, 2001:db8::/32"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2898
+#: pkg/networkmanager/interfaces.js:2899
 msgid "IPv4"
 msgstr "IPv4"
 
@@ -3285,27 +3330,27 @@ msgstr "IPv4"
 msgid "IPv4 Address"
 msgstr ""
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:266
+#: pkg/machines/components/networks/createNetworkDialog.jsx:278
 msgid "IPv4 Network"
 msgstr ""
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:46
+#: pkg/machines/components/networks/createNetworkDialog.jsx:58
 msgid "IPv4 Network should not be empty"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:3355
+#: pkg/networkmanager/interfaces.js:3356
 msgid "IPv4 Settings"
 msgstr "Ajusts d'IPv4"
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:200
+#: pkg/machines/components/networks/createNetworkDialog.jsx:212
 msgid "IPv4 and IPv6"
 msgstr ""
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:194
+#: pkg/machines/components/networks/createNetworkDialog.jsx:206
 msgid "IPv4 only"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2899
+#: pkg/networkmanager/interfaces.js:2900
 msgid "IPv6"
 msgstr "IPv6"
 
@@ -3313,19 +3358,19 @@ msgstr "IPv6"
 msgid "IPv6 Address"
 msgstr ""
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:310
+#: pkg/machines/components/networks/createNetworkDialog.jsx:322
 msgid "IPv6 Network"
 msgstr ""
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:74
+#: pkg/machines/components/networks/createNetworkDialog.jsx:86
 msgid "IPv6 Network should not be empty"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:3355
+#: pkg/networkmanager/interfaces.js:3356
 msgid "IPv6 Settings"
 msgstr "Ajusts d'IPv6"
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:197
+#: pkg/machines/components/networks/createNetworkDialog.jsx:209
 msgid "IPv6 only"
 msgstr ""
 
@@ -3334,7 +3379,7 @@ msgstr ""
 msgid "Id"
 msgstr "Id"
 
-#: pkg/networkmanager/interfaces.js:2890
+#: pkg/networkmanager/interfaces.js:2891
 msgid "Id $id"
 msgstr "Id. $id"
 
@@ -3346,7 +3391,7 @@ msgstr "Id:"
 msgid "If tang-show-keys is not available, run the following:"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:1961 pkg/packagekit/updates.jsx:505
+#: pkg/networkmanager/interfaces.js:1962 pkg/packagekit/updates.jsx:509
 msgid "Ignore"
 msgstr "Ignora"
 
@@ -3398,7 +3443,7 @@ msgstr ""
 msgid "Import A Virtual Machine"
 msgstr "Crea una màquina virtual nova"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:1018
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:1015
 msgid "Import VM"
 msgstr ""
 
@@ -3420,8 +3465,8 @@ msgstr ""
 "Per sincronitzar els usuaris, cal que inicieu la sessió a {{#strong}}{{host}}"
 "{{/strong}}."
 
-#: pkg/networkmanager/interfaces.js:819 pkg/networkmanager/interfaces.js:1389
-#: pkg/networkmanager/interfaces.js:1396 pkg/networkmanager/interfaces.js:2592
+#: pkg/networkmanager/interfaces.js:820 pkg/networkmanager/interfaces.js:1390
+#: pkg/networkmanager/interfaces.js:1397 pkg/networkmanager/interfaces.js:2593
 msgid "Inactive"
 msgstr "Inactiu"
 
@@ -3449,7 +3494,7 @@ msgstr ""
 msgid "Info and above"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:462
+#: pkg/packagekit/updates.jsx:466
 msgid "Initializing..."
 msgstr "S'està inicialitzant..."
 
@@ -3461,13 +3506,17 @@ msgstr ""
 msgid "Initiator IQN should not be empty"
 msgstr ""
 
+#: pkg/systemd/overview-cards/insights.jsx:184
+msgid "Insights: "
+msgstr ""
+
 #: pkg/apps/application-list.jsx:84 pkg/apps/application.jsx:113
 #: pkg/lib/cockpit-components-install-dialog.jsx:118
 #: pkg/machines/components/vm/vmActions.jsx:99
 msgid "Install"
 msgstr "Instal·la"
 
-#: pkg/packagekit/updates.jsx:838
+#: pkg/packagekit/updates.jsx:842
 msgid "Install All Updates"
 msgstr "Instal·la totes les actualitzacions"
 
@@ -3475,7 +3524,7 @@ msgstr "Instal·la totes les actualitzacions"
 msgid "Install NFS Support"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:838 pkg/packagekit/updates.jsx:844
+#: pkg/packagekit/updates.jsx:842 pkg/packagekit/updates.jsx:848
 msgid "Install Security Updates"
 msgstr "Instal·la les actualitzacions de seguretat"
 
@@ -3504,12 +3553,12 @@ msgstr ""
 msgid "Installation Type"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:64
+#: pkg/packagekit/updates.jsx:69
 msgid "Installed"
 msgstr "Instal·lat"
 
 #: pkg/apps/application-list.jsx:49 pkg/apps/application.jsx:56
-#: pkg/packagekit/updates.jsx:56
+#: pkg/packagekit/updates.jsx:61
 msgid "Installing"
 msgstr "S'està instal·lant"
 
@@ -3517,11 +3566,11 @@ msgstr "S'està instal·lant"
 msgid "Installing $0"
 msgstr ""
 
-#: pkg/systemd/service-details.jsx:491
+#: pkg/systemd/services/service-details.jsx:566
 msgid "Instance of template: "
 msgstr ""
 
-#: pkg/systemd/service-details.jsx:65
+#: pkg/systemd/services/service-details.jsx:136
 msgid "Instantiate"
 msgstr "Instancia"
 
@@ -3531,7 +3580,7 @@ msgstr ""
 
 #: pkg/networkmanager/index.html:118 pkg/networkmanager/index.html:277
 #: pkg/networkmanager/firewall.jsx:171 pkg/networkmanager/firewall.jsx:697
-#: pkg/networkmanager/interfaces.js:2972
+#: pkg/networkmanager/interfaces.js:2973
 msgid "Interfaces"
 msgstr "Interfícies"
 
@@ -3539,27 +3588,27 @@ msgstr "Interfícies"
 msgid "Internal Error: Invalid challenge header"
 msgstr ""
 
-#: src/base1/cockpit.js:4042
+#: src/base1/cockpit.js:4053
 msgid "Internal error"
 msgstr "Error intern"
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:48
-#: pkg/machines/components/networks/createNetworkDialog.jsx:59
-#: pkg/machines/components/networks/createNetworkDialog.jsx:66
+#: pkg/machines/components/networks/createNetworkDialog.jsx:60
+#: pkg/machines/components/networks/createNetworkDialog.jsx:71
+#: pkg/machines/components/networks/createNetworkDialog.jsx:78
 msgid "Invalid IPv4 address"
 msgstr ""
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:53
+#: pkg/machines/components/networks/createNetworkDialog.jsx:65
 msgid "Invalid IPv4 mask or prefix length"
 msgstr ""
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:76
-#: pkg/machines/components/networks/createNetworkDialog.jsx:87
-#: pkg/machines/components/networks/createNetworkDialog.jsx:94
+#: pkg/machines/components/networks/createNetworkDialog.jsx:88
+#: pkg/machines/components/networks/createNetworkDialog.jsx:99
+#: pkg/machines/components/networks/createNetworkDialog.jsx:106
 msgid "Invalid IPv6 address"
 msgstr ""
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:81
+#: pkg/machines/components/networks/createNetworkDialog.jsx:93
 msgid "Invalid IPv6 prefix"
 msgstr ""
 
@@ -3577,7 +3626,7 @@ msgstr "Format de data no vàlid"
 msgid "Invalid date format and invalid time format"
 msgstr "Format no vàlid de la data i l'hora"
 
-#: pkg/systemd/init.js:1263
+#: pkg/systemd/services/timer-dialog.js:143
 msgid "Invalid date format."
 msgstr "Format de data no vàlid."
 
@@ -3605,7 +3654,7 @@ msgstr "Mètrica no vàlida $0"
 msgid "Invalid number of days"
 msgstr "Nombre de dies no vàlid"
 
-#: pkg/systemd/init.js:1210
+#: pkg/systemd/services/timer-dialog.js:90
 msgid "Invalid number."
 msgstr "Número no vàlid."
 
@@ -3680,7 +3729,7 @@ msgstr "La unió a aquest domini no està admesa"
 msgid "Joining this domain is not supported"
 msgstr "La unió a aquest domini no està admesa"
 
-#: pkg/systemd/service-details.jsx:440
+#: pkg/systemd/services/service-details.jsx:515
 msgid "Joins Namespace Of"
 msgstr ""
 
@@ -3715,7 +3764,7 @@ msgstr ""
 msgid "Kerberos Ticket"
 msgstr "Tiquet de Kerberos"
 
-#: pkg/systemd/graphs.html:143 pkg/systemd/graphs.js:296
+#: pkg/systemd/graphs.html:142 pkg/systemd/graphs.js:296
 msgid "Kernel"
 msgstr "Kernel"
 
@@ -3771,11 +3820,7 @@ msgstr "Els últims 7 dies"
 msgid "Last Login"
 msgstr "Últim inici de sessió"
 
-#: pkg/systemd/init.js:311
-msgid "Last Trigger"
-msgstr "Últim disparador"
-
-#: pkg/packagekit/updates.jsx:184
+#: pkg/packagekit/updates.jsx:188
 #, fuzzy
 #| msgid "Last checked: $0 ago"
 msgid "Last checked: $0"
@@ -3797,7 +3842,7 @@ msgstr "Últim inici de sessió"
 msgid "Launch Remote Viewer"
 msgstr "Llança el visualitzador remot"
 
-#: pkg/networkmanager/interfaces.js:1718
+#: pkg/networkmanager/interfaces.js:1719
 #, fuzzy
 #| msgid "Hairpin mode"
 msgid "Learn more"
@@ -3868,7 +3913,7 @@ msgstr "Observació de l'enllaç"
 msgid "Link down delay"
 msgstr "Retard del baixament de l'enllaç"
 
-#: pkg/networkmanager/interfaces.js:1949 pkg/networkmanager/interfaces.js:1959
+#: pkg/networkmanager/interfaces.js:1950 pkg/networkmanager/interfaces.js:1960
 msgid "Link local"
 msgstr "Enllaç local"
 
@@ -3888,7 +3933,7 @@ msgstr "Enllaços"
 msgid "Links:"
 msgstr "Enllaços:"
 
-#: pkg/networkmanager/interfaces.js:1985
+#: pkg/networkmanager/interfaces.js:1986
 msgid "Load Balancing"
 msgstr "Balanceig de càrrega"
 
@@ -3900,11 +3945,11 @@ msgstr "Carrega les entrades anteriors"
 msgid "Loading Resources"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:51
+#: pkg/packagekit/updates.jsx:56
 msgid "Loading available updates failed"
 msgstr "Ha fallat la càrrega de les actualitzacions disponibles"
 
-#: pkg/packagekit/updates.jsx:44
+#: pkg/packagekit/updates.jsx:49
 msgid "Loading available updates, please wait..."
 msgstr "S'estan carregant les actualitzacions disponibles, espereu..."
 
@@ -3912,9 +3957,9 @@ msgstr "S'estan carregant les actualitzacions disponibles, espereu..."
 msgid "Loading system modifications..."
 msgstr ""
 
-#: pkg/systemd/services.html:77 pkg/kdump/kdump-view.jsx:371
-#: pkg/machines/components/serialConsole.jsx:68 pkg/storaged/devices.jsx:66
-#: pkg/systemd/logs.js:234 pkg/systemd/logs.js:283
+#: pkg/kdump/kdump-view.jsx:371 pkg/machines/components/serialConsole.jsx:68
+#: pkg/storaged/devices.jsx:66 pkg/systemd/logs.js:234 pkg/systemd/logs.js:283
+#: pkg/systemd/services/services.jsx:645
 msgid "Loading..."
 msgstr "S'està carregant..."
 
@@ -4014,7 +4059,7 @@ msgstr ""
 msgid "Login Password"
 msgstr "Contrasenya d'inici de sessió"
 
-#: src/base1/cockpit.js:4032
+#: src/base1/cockpit.js:4043
 msgid "Login failed"
 msgstr "Ha fallat l'inici de sessió"
 
@@ -4056,19 +4101,19 @@ msgstr "Adreça MAC"
 msgid "MAC Address:"
 msgstr "Adreça MAC:"
 
-#: pkg/networkmanager/interfaces.js:1977
+#: pkg/networkmanager/interfaces.js:1978
 msgid "MII (Recommended)"
 msgstr "MII (recomanat)"
 
-#: pkg/networkmanager/interfaces.js:2747
+#: pkg/networkmanager/interfaces.js:2748
 msgid "MTU"
 msgstr "MTU"
 
-#: pkg/networkmanager/interfaces.js:4553
+#: pkg/networkmanager/interfaces.js:4554
 msgid "MTU must be a positive number"
 msgstr "El valor de la MTU ha de ser un nombre positiu"
 
-#: pkg/systemd/overview-cards/systemInformationCard.jsx:104
+#: pkg/systemd/overview-cards/systemInformationCard.jsx:122
 msgid "Machine ID"
 msgstr "Id. de màquina"
 
@@ -4132,7 +4177,7 @@ msgstr ""
 msgid "Managing virtual machines"
 msgstr "Màquines virtuals"
 
-#: pkg/networkmanager/interfaces.js:1950 pkg/networkmanager/interfaces.js:1960
+#: pkg/networkmanager/interfaces.js:1951 pkg/networkmanager/interfaces.js:1961
 msgid "Manual"
 msgstr "Manual"
 
@@ -4152,30 +4197,32 @@ msgstr ""
 msgid "Marking $target as faulty"
 msgstr "S'està ficant $target com a defectuós"
 
-#: pkg/systemd/service-details.jsx:202 pkg/systemd/service-details.jsx:205
+#: pkg/systemd/services/service-details.jsx:274
+#: pkg/systemd/services/service-details.jsx:277
 msgid "Mask Service"
 msgstr ""
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:280
+#: pkg/machines/components/networks/createNetworkDialog.jsx:292
 msgid "Mask or Prefix Length"
 msgstr ""
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:51
+#: pkg/machines/components/networks/createNetworkDialog.jsx:63
 msgid "Mask or Prefix Length should not be empty"
 msgstr ""
 
-#: pkg/systemd/service-details.jsx:327
+#: pkg/systemd/services/service-details.jsx:402
+#: pkg/systemd/services/services.jsx:511
 msgid "Masked"
 msgstr ""
 
-#: pkg/systemd/service-details.jsx:203
+#: pkg/systemd/services/service-details.jsx:275
 msgid ""
 "Masking service prevents all dependant units from running. This can have "
 "bigger impact than anticipated. Please confirm that you want to mask this "
 "unit."
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2753
+#: pkg/networkmanager/interfaces.js:2754
 msgid "Master"
 msgstr "Màster"
 
@@ -4191,7 +4238,7 @@ msgstr ""
 msgid "Maximum memory could not be saved"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2851
+#: pkg/networkmanager/interfaces.js:2852
 msgid "Maximum message age $max_age"
 msgstr "Envelliment màxim del missatge $max_age"
 
@@ -4210,7 +4257,7 @@ msgid "Member of RAID Device $0"
 msgstr "Membre del dispositiu RAID $0"
 
 #: pkg/dashboard/index.html:75 pkg/docker/index.html:267
-#: pkg/playground/translate.html:90 pkg/systemd/graphs.html:82
+#: pkg/playground/translate.html:90 pkg/systemd/graphs.html:81
 #: pkg/docker/containers-view.jsx:363
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:471
 #: pkg/machines/components/vmOverviewTabLibvirt.jsx:260
@@ -4223,7 +4270,7 @@ msgctxt "page-title"
 msgid "Memory"
 msgstr "Memòria"
 
-#: pkg/systemd/graphs.html:83
+#: pkg/systemd/graphs.html:82
 msgid "Memory & Swap"
 msgstr ""
 
@@ -4282,11 +4329,13 @@ msgstr "Mini PC"
 msgid "Mini Tower"
 msgstr "Mini torre"
 
-#: pkg/systemd/init.js:1234 pkg/systemd/init.js:1243 pkg/systemd/init.js:1252
+#: pkg/systemd/services/timer-dialog.js:114
+#: pkg/systemd/services/timer-dialog.js:123
+#: pkg/systemd/services/timer-dialog.js:132
 msgid "Minute needs to be a number between 0-59"
 msgstr "El minut ha de ser un nombre entre 0-59"
 
-#: pkg/systemd/services.html:318
+#: pkg/systemd/services.html:224
 msgid "Minutes"
 msgstr "Minuts"
 
@@ -4299,7 +4348,7 @@ msgid "Mode"
 msgstr "Mode"
 
 #: pkg/machines/components/nicBody.jsx:44 pkg/systemd/hwinfo.jsx:257
-#: pkg/systemd/overview-cards/systemInformationCard.jsx:92
+#: pkg/systemd/overview-cards/systemInformationCard.jsx:110
 msgid "Model"
 msgstr "Model"
 
@@ -4319,7 +4368,7 @@ msgstr "Tipus de model"
 msgid "Modifying $target"
 msgstr "S'està modificant $target"
 
-#: pkg/systemd/services.html:126
+#: pkg/systemd/services.html:54
 msgid "Monday"
 msgstr "Dilluns"
 
@@ -4452,7 +4501,7 @@ msgstr ""
 msgid "NIC $0 of VM $1 failed to change state"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2000
+#: pkg/networkmanager/interfaces.js:2001
 msgid "NSNA Ping"
 msgstr "Ping NSNA"
 
@@ -4466,13 +4515,13 @@ msgstr "Servidor NTP"
 #: pkg/networkmanager/index.html:330 pkg/docker/containers-view.jsx:363
 #: pkg/docker/containers-view.jsx:570
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:198
-#: pkg/machines/components/networks/createNetworkDialog.jsx:109
+#: pkg/machines/components/networks/createNetworkDialog.jsx:121
 #: pkg/machines/components/networks/networkList.jsx:55
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:43
 #: pkg/machines/components/storagePools/storagePoolList.jsx:54
 #: pkg/machines/components/storagePools/storagePoolVolumesTab.jsx:79
 #: pkg/machines/components/storagePools/storageVolumeCreateBody.jsx:33
-#: pkg/machines/hostvmslist.jsx:74 pkg/packagekit/updates.jsx:388
+#: pkg/machines/hostvmslist.jsx:74 pkg/packagekit/updates.jsx:392
 #: pkg/storaged/content-views.jsx:115 pkg/storaged/content-views.jsx:271
 #: pkg/storaged/content-views.jsx:717 pkg/storaged/format-dialog.jsx:201
 #: pkg/storaged/fsys-panel.jsx:94 pkg/storaged/fsys-tab.jsx:340
@@ -4482,7 +4531,7 @@ msgstr "Servidor NTP"
 #: pkg/storaged/mdraids-panel.jsx:61 pkg/storaged/part-tab.jsx:33
 #: pkg/storaged/vdos-panel.jsx:82 pkg/storaged/vgroup-details.jsx:176
 #: pkg/storaged/vgroups-panel.jsx:74 pkg/systemd/hwinfo.jsx:70
-#: pkg/systemd/init.js:308
+#: pkg/systemd/services/services-list.jsx:46
 msgid "Name"
 msgstr "Nom"
 
@@ -4518,7 +4567,7 @@ msgstr "El nom no pot contenir l'espai en blanc."
 msgid "Name must not be empty"
 msgstr ""
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:42
+#: pkg/machines/components/networks/createNetworkDialog.jsx:54
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:54
 msgid "Name should not be empty"
 msgstr "El nom no pot estar en blanc"
@@ -4536,21 +4585,21 @@ msgid "Netmask"
 msgstr ""
 
 #: pkg/machines/components/aggregateStatusCards.jsx:72
-#, fuzzy
 msgid "Network"
 msgid_plural "Networks"
 msgstr[0] "Xarxa"
+msgstr[1] "Xarxes"
 
 #: pkg/dashboard/index.html:76
 msgctxt "label"
 msgid "Network"
 msgstr ""
 
-#: pkg/machines/components/networks/network.jsx:119
+#: pkg/machines/components/networks/network.jsx:120
 msgid "Network $0 failed to get activated"
 msgstr ""
 
-#: pkg/machines/components/networks/network.jsx:131
+#: pkg/machines/components/networks/network.jsx:132
 msgid "Network $0 failed to get deactivated"
 msgstr ""
 
@@ -4578,7 +4627,7 @@ msgstr ""
 msgid "Network Traffic"
 msgstr "Trànsit de xarxa"
 
-#: pkg/networkmanager/interfaces.js:1725
+#: pkg/networkmanager/interfaces.js:1726
 #, fuzzy
 msgid "Network bond"
 msgstr "Xarxa"
@@ -4601,7 +4650,7 @@ msgstr ""
 msgid "Networking"
 msgstr "Xarxa"
 
-#: pkg/networkmanager/interfaces.js:1603 pkg/networkmanager/interfaces.js:2199
+#: pkg/networkmanager/interfaces.js:1604 pkg/networkmanager/interfaces.js:2200
 msgctxt "page-title"
 msgid "Networking"
 msgstr "Xarxa"
@@ -4652,16 +4701,12 @@ msgstr "No s'ha acceptat la nova contrasenya"
 msgid "Next"
 msgstr "Següent"
 
-#: pkg/systemd/init.js:310
-msgid "Next Run"
-msgstr "Següent execució"
-
-#: pkg/systemd/graphs.html:135 pkg/systemd/graphs.js:298
+#: pkg/systemd/graphs.html:134 pkg/systemd/graphs.js:298
 msgid "Nice"
 msgstr "Nice"
 
 #: pkg/docker/index.html:506 pkg/docker/index.html:510 pkg/docker/run.js:239
-#: pkg/docker/util.js:103 pkg/networkmanager/interfaces.js:2580
+#: pkg/docker/util.js:103 pkg/networkmanager/interfaces.js:2581
 #: pkg/systemd/reporting.jsx:271
 msgid "No"
 msgstr "No"
@@ -4684,10 +4729,6 @@ msgstr "Sense volums lògics"
 
 #: pkg/systemd/logs.js:160 pkg/systemd/logs.js:182 pkg/systemd/logs.js:346
 msgid "No Logs Found"
-msgstr ""
-
-#: pkg/systemd/services.html:83
-msgid "No Matching Results"
 msgstr ""
 
 #: pkg/storaged/nfs-panel.jsx:100
@@ -4747,7 +4788,7 @@ msgstr ""
 msgid "No boot device found"
 msgstr "No s'ha trobat cap dispositiu d'arrencada"
 
-#: pkg/networkmanager/interfaces.js:1391
+#: pkg/networkmanager/interfaces.js:1392
 msgid "No carrier"
 msgstr "Sense portadora"
 
@@ -4755,7 +4796,7 @@ msgstr "Sense portadora"
 msgid "No configuration found"
 msgstr "No s'ha trobat cap configuració"
 
-#: pkg/machines/components/consoles.jsx:98
+#: pkg/machines/components/consoles.jsx:90
 msgid "No console defined for this virtual machine."
 msgstr ""
 
@@ -4785,7 +4826,7 @@ msgstr "No s'ha proporcionat cap descripció."
 msgid "No disks are available."
 msgstr "No hi ha disponible cap disc."
 
-#: pkg/machines/components/vmDisksTab.jsx:191
+#: pkg/machines/components/vmDisksTab.jsx:198
 msgid "No disks defined for this VM"
 msgstr "No hi ha definit cap disc per a aquesta MV"
 
@@ -4825,11 +4866,15 @@ msgstr "No s'ha trobat cap paquet d'instal·lació per a aquesta aplicació."
 msgid "No keys added"
 msgstr ""
 
-#: pkg/lib/journal.js:546
+#: pkg/lib/journal.js:546 pkg/systemd/services/service.jsx:97
 #, fuzzy
 #| msgid "Load earlier entries"
 msgid "No log entries"
 msgstr "Carrega les entrades anteriors"
+
+#: pkg/systemd/services/services.jsx:754
+msgid "No matching results"
+msgstr ""
 
 #: pkg/storaged/drive-details.jsx:75
 msgid "No media inserted"
@@ -4845,7 +4890,7 @@ msgstr ""
 "kernel (p. ex. a /etc/default/grub) per reservar memòria en temps "
 "d'arrencada. Exemple: crashkernel=512M"
 
-#: pkg/machines/components/vmnetworktab.jsx:279
+#: pkg/machines/components/vmnetworktab.jsx:284
 msgid "No network interfaces defined for this VM"
 msgstr "No s'ha definit cap interfície de xarxa per aquesta MV"
 
@@ -4873,6 +4918,15 @@ msgstr "Cap resultat per a $0"
 msgid "No results found"
 msgstr ""
 
+#: pkg/systemd/services/services.jsx:752
+msgid ""
+"No results match the filter criteria. Clear all filters to show results."
+msgstr ""
+
+#: pkg/systemd/overview-cards/insights.jsx:143
+msgid "No rule hits"
+msgstr ""
+
 #: pkg/docker/containers-view.jsx:368
 msgid "No running containers"
 msgstr "Cap contenidor en execució"
@@ -4889,7 +4943,7 @@ msgstr ""
 msgid "No such file or directory"
 msgstr "No existeix el fitxer o el directori"
 
-#: pkg/packagekit/updates.jsx:47
+#: pkg/packagekit/updates.jsx:52
 msgid "No updates pending"
 msgstr "No hi ha actualitzacions pendents"
 
@@ -4897,7 +4951,7 @@ msgstr "No hi ha actualitzacions pendents"
 msgid "No user name specified"
 msgstr "Sense especificar el nom d'usuari"
 
-#: pkg/machines/components/networks/network.jsx:164
+#: pkg/machines/components/networks/network.jsx:170
 msgid ""
 "Non-persistent network cannot be deleted. It ceases to exists when it's "
 "deactivated."
@@ -4910,7 +4964,7 @@ msgid ""
 msgstr ""
 
 #: pkg/kdump/kdump-view.jsx:423
-#: pkg/machines/components/networks/createNetworkDialog.jsx:191
+#: pkg/machines/components/networks/createNetworkDialog.jsx:203
 #: pkg/networkmanager/firewall.jsx:693 pkg/tuned/dialog.js:230
 msgid "None"
 msgstr "Cap"
@@ -4923,7 +4977,7 @@ msgstr ""
 msgid "Not Ready"
 msgstr "No a punt"
 
-#: pkg/packagekit/updates.jsx:789
+#: pkg/packagekit/updates.jsx:793
 msgid "Not Registered"
 msgstr ""
 
@@ -4959,7 +5013,7 @@ msgstr ""
 msgid "Not authorized to remove zone $0"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:817
+#: pkg/networkmanager/interfaces.js:818
 msgid "Not available"
 msgstr "No disponible"
 
@@ -4967,8 +5021,7 @@ msgstr "No disponible"
 msgid "Not connected"
 msgstr "No connectat"
 
-#: pkg/systemd/overview-cards/healthCard.jsx:62
-#: pkg/systemd/overview-cards/healthCard.jsx:63
+#: pkg/systemd/overview-cards/insights.jsx:125
 msgid "Not connected to Insights"
 msgstr ""
 
@@ -4984,11 +5037,13 @@ msgstr "No s'ha trobat"
 msgid "Not mounted"
 msgstr "No muntat"
 
-#: src/base1/cockpit.js:4030
+#: src/base1/cockpit.js:4041
 msgid "Not permitted to perform this action."
 msgstr "No es permet realitzar aquesta acció."
 
-#: pkg/storaged/mdraid-details.jsx:336 pkg/systemd/service-details.jsx:365
+#: pkg/storaged/mdraid-details.jsx:336
+#: pkg/systemd/services/service-details.jsx:440
+#: pkg/systemd/services/services.jsx:498
 msgid "Not running"
 msgstr "No s'està executant"
 
@@ -4996,7 +5051,7 @@ msgstr "No s'està executant"
 msgid "Not synchronized"
 msgstr "No sincronitzat"
 
-#: pkg/systemd/service-details.jsx:454
+#: pkg/systemd/services/service-details.jsx:529
 msgid "Note"
 msgstr "Nota"
 
@@ -5032,7 +5087,7 @@ msgstr ""
 msgid "Old password not accepted"
 msgstr "Contrasenya antiga no acceptada"
 
-#: pkg/docker/index.html:511 pkg/systemd/service-details.jsx:435
+#: pkg/docker/index.html:511 pkg/systemd/services/service-details.jsx:510
 msgid "On Failure"
 msgstr "Amb la fallada"
 
@@ -5071,7 +5126,7 @@ msgstr "Només s'utilitzen $0 de $1."
 msgid "Only Emergency"
 msgstr "Només emergències"
 
-#: pkg/systemd/init.js:1184
+#: pkg/systemd/services/timer-dialog.js:64
 msgid "Only alphabets, numbers, : , _ , . , @ , - are allowed."
 msgstr "Només es permeten lletres, números, : , _ , . , @ , -."
 
@@ -5130,7 +5185,7 @@ msgstr "Altres dispositius"
 msgid "Other Options"
 msgstr "Altres opcions"
 
-#: pkg/systemd/graphs.html:25 pkg/systemd/graphs.html:109
+#: pkg/systemd/graphs.html:25 pkg/systemd/graphs.html:108
 #: pkg/machines/components/networks/network.jsx:73
 #: pkg/machines/components/storagePools/storagePool.jsx:84
 #: pkg/machines/components/vm/vm.jsx:49 pkg/systemd/hwinfo.jsx:283
@@ -5150,7 +5205,7 @@ msgstr "PCI"
 msgid "PCP"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:508
+#: pkg/packagekit/updates.jsx:512
 msgid "Package information"
 msgstr "Informació dels paquets"
 
@@ -5158,11 +5213,11 @@ msgstr "Informació dels paquets"
 msgid "PackageKit crashed"
 msgstr "PackageKit s'ha estavellat."
 
-#: pkg/packagekit/updates.jsx:568
+#: pkg/packagekit/updates.jsx:572
 msgid "PackageKit is not installed"
 msgstr "PackageKit no està instal·lat"
 
-#: pkg/packagekit/updates.jsx:736
+#: pkg/packagekit/updates.jsx:740
 msgid "PackageKit reported error code $0"
 msgstr "PackageKit ha informat un codi d'error $0"
 
@@ -5170,15 +5225,15 @@ msgstr "PackageKit ha informat un codi d'error $0"
 msgid "Parent"
 msgstr "Pare"
 
-#: pkg/networkmanager/interfaces.js:2889
+#: pkg/networkmanager/interfaces.js:2890
 msgid "Parent $parent"
 msgstr "Pare $parent"
 
-#: pkg/systemd/service-details.jsx:425
+#: pkg/systemd/services/service-details.jsx:500
 msgid "Part Of"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:1437
+#: pkg/networkmanager/interfaces.js:1438
 msgid "Part of "
 msgstr "Part de"
 
@@ -5194,7 +5249,7 @@ msgstr "Partició de $0"
 msgid "Partitioning"
 msgstr "Particionatge"
 
-#: pkg/networkmanager/interfaces.js:1992
+#: pkg/networkmanager/interfaces.js:1993
 msgid "Passive"
 msgstr "Passiu"
 
@@ -5268,7 +5323,8 @@ msgid "Paste the contents of your public SSH key file here"
 msgstr "Enganxeu aquí el contingut del fitxer de la vostra clau SSH pública"
 
 #: pkg/machines/components/deleteDialog.jsx:46
-#: pkg/machines/components/diskEdit.jsx:39 pkg/systemd/service-details.jsx:485
+#: pkg/machines/components/diskEdit.jsx:39
+#: pkg/systemd/services/service-details.jsx:560
 msgid "Path"
 msgstr "Camí"
 
@@ -5276,7 +5332,7 @@ msgstr "Camí"
 msgid "Path cost"
 msgstr "Cost del camí"
 
-#: pkg/networkmanager/interfaces.js:2871
+#: pkg/networkmanager/interfaces.js:2872
 msgid "Path cost $path_cost"
 msgstr "Cost del camí $path_cost"
 
@@ -5304,7 +5360,7 @@ msgstr "Camí al fitxer ISO al sistema de fitxers de l'amfitrió"
 msgid "Path to file"
 msgstr "Camí al fitxer"
 
-#: pkg/systemd/services.jsx:53
+#: pkg/systemd/services/service-tabs.jsx:33
 msgid "Paths"
 msgstr "Camins"
 
@@ -5320,7 +5376,7 @@ msgstr ""
 msgid "Peripheral Chassis"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:3630
+#: pkg/networkmanager/interfaces.js:3631
 msgid "Permanent"
 msgstr "Permanent"
 
@@ -5439,7 +5495,7 @@ msgstr ""
 msgid "Please try another term"
 msgstr "Si us plau, proveu un altre terme"
 
-#: pkg/machines/components/vmnetworktab.jsx:231
+#: pkg/machines/components/vmnetworktab.jsx:235
 msgid "Plug"
 msgstr ""
 
@@ -5491,7 +5547,7 @@ msgstr "Portable"
 
 #: pkg/docker/index.html:468 pkg/networkmanager/index.html:224
 #: pkg/networkmanager/index.html:334 pkg/docker/containers-view.jsx:418
-#: pkg/networkmanager/interfaces.js:2972
+#: pkg/networkmanager/interfaces.js:2973
 msgid "Ports"
 msgstr "Ports"
 
@@ -5507,23 +5563,23 @@ msgstr ""
 msgid "Prefix"
 msgstr ""
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:324
+#: pkg/machines/components/networks/createNetworkDialog.jsx:336
 msgid "Prefix Length"
 msgstr ""
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:79
+#: pkg/machines/components/networks/createNetworkDialog.jsx:91
 msgid "Prefix Length should not be empty"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:3302
+#: pkg/networkmanager/interfaces.js:3303
 msgid "Prefix length"
 msgstr "Longitud del prefix"
 
-#: pkg/networkmanager/interfaces.js:3302
+#: pkg/networkmanager/interfaces.js:3303
 msgid "Prefix length or Netmask"
 msgstr "Longitud del prefix o Màscara de xarxa"
 
-#: pkg/networkmanager/interfaces.js:821
+#: pkg/networkmanager/interfaces.js:822
 msgid "Preparing"
 msgstr "S'està preparant"
 
@@ -5531,7 +5587,7 @@ msgstr "S'està preparant"
 msgid "Present"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:3631
+#: pkg/networkmanager/interfaces.js:3632
 msgid "Preserve"
 msgstr "Preserva"
 
@@ -5552,7 +5608,7 @@ msgstr "Principal"
 msgid "Priority"
 msgstr "Prioritat"
 
-#: pkg/networkmanager/interfaces.js:2845 pkg/networkmanager/interfaces.js:2869
+#: pkg/networkmanager/interfaces.js:2846 pkg/networkmanager/interfaces.js:2870
 msgid "Priority $priority"
 msgstr "Prioritat $priority"
 
@@ -5607,7 +5663,7 @@ msgstr "Per mitjà del temps d'espera de ssh-add"
 msgid "Prompting via ssh-keygen timed out"
 msgstr "Per mitjà del temps d'espera de ssh-keygen"
 
-#: pkg/systemd/service-details.jsx:438
+#: pkg/systemd/services/service-details.jsx:513
 msgid "Propagates Reload To"
 msgstr ""
 
@@ -5708,7 +5764,7 @@ msgstr "Membre RAID"
 msgid "Rack Mount Chassis"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:3632
+#: pkg/networkmanager/interfaces.js:3633
 msgid "Random"
 msgstr "Aleatòria"
 
@@ -5734,7 +5790,7 @@ msgstr ""
 
 #: pkg/machines/components/diskEdit.jsx:106
 #: pkg/machines/components/vmDisksTab.jsx:143
-#: pkg/systemd/service-details.jsx:392
+#: pkg/systemd/services/service-details.jsx:467
 msgid "Read-only"
 msgstr ""
 
@@ -5779,7 +5835,7 @@ msgstr ""
 msgid "Real host name must be 64 characters or less"
 msgstr "El nom d'amfitrió real pot tenir com a molt 64 caràcters"
 
-#: pkg/lib/cockpit-components-logs-panel.jsx:82 pkg/lib/journal.js:248
+#: pkg/lib/cockpit-components-logs-panel.jsx:84 pkg/lib/journal.js:248
 msgid "Reboot"
 msgstr "Rearrencada"
 
@@ -5809,7 +5865,7 @@ msgstr "Recuperació"
 msgid "Recovering RAID Device $target"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:46
+#: pkg/packagekit/updates.jsx:51
 msgid "Refreshing package information"
 msgstr "Refrescament de la informació dels paquets"
 
@@ -5825,15 +5881,15 @@ msgstr "Es nega a connectar. La clau d'amfitrió no coincideix"
 msgid "Refusing to connect. Hostkey is unknown"
 msgstr "Es nega a connectar. La clau d'amfitrió és desconeguda"
 
-#: pkg/packagekit/updates.jsx:800
+#: pkg/packagekit/updates.jsx:804
 msgid "Register…"
 msgstr "Registra..."
 
-#: pkg/systemd/service-details.jsx:168
+#: pkg/systemd/services/service-details.jsx:240
 msgid "Reload"
 msgstr "Recarrega"
 
-#: pkg/systemd/service-details.jsx:439
+#: pkg/systemd/services/service-details.jsx:514
 msgid "Reload Propagated From"
 msgstr ""
 
@@ -5859,13 +5915,14 @@ msgid "Removals:"
 msgstr ""
 
 #: pkg/apps/application-list.jsx:82 pkg/apps/application.jsx:110
-#: pkg/machines/components/vmDisksTab.jsx:175
+#: pkg/machines/components/vmDisksTab.jsx:171
+#: pkg/machines/components/vmDisksTab.jsx:181
 #: pkg/storaged/crypto-keyslots.jsx:402 pkg/storaged/crypto-keyslots.jsx:439
 #: pkg/storaged/nfs-details.jsx:309
 msgid "Remove"
 msgstr "Suprimeix"
 
-#: pkg/networkmanager/interfaces.js:3043
+#: pkg/networkmanager/interfaces.js:3044
 msgid "Remove $0"
 msgstr "Suprimeix $0"
 
@@ -5913,7 +5970,7 @@ msgstr ""
 msgid "Removing $target from RAID Device"
 msgstr "S'està eliminant $target  del dispositiu RAID"
 
-#: pkg/networkmanager/interfaces.js:3042
+#: pkg/networkmanager/interfaces.js:3043
 msgid ""
 "Removing <b>$0</b> will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -5955,23 +6012,23 @@ msgstr "S'està reanomenant $target"
 msgid "Repairing $target"
 msgstr ""
 
-#: pkg/systemd/services.html:343
+#: pkg/systemd/services.html:249
 msgid "Repeat Daily"
 msgstr "Repeteix diàriament"
 
-#: pkg/systemd/services.html:342
+#: pkg/systemd/services.html:248
 msgid "Repeat Hourly"
 msgstr "Repeteix cada hora"
 
-#: pkg/systemd/services.html:345
+#: pkg/systemd/services.html:251
 msgid "Repeat Monthly"
 msgstr "Repeteix cada mes"
 
-#: pkg/systemd/services.html:344
+#: pkg/systemd/services.html:250
 msgid "Repeat Weekly"
 msgstr "Repeteix cada setmana"
 
-#: pkg/systemd/services.html:346
+#: pkg/systemd/services.html:252
 msgid "Repeat Yearly"
 msgstr "Repeteix cada any"
 
@@ -6016,27 +6073,31 @@ msgstr "Requereix el canvi de la contrasenya cada $0 dies"
 msgid "Require password change on $0"
 msgstr "Requereix el canvi de la contrasenya el $0"
 
-#: pkg/systemd/service-details.jsx:426
+#: pkg/systemd/services/service-details.jsx:501
 msgid "Required By"
 msgstr ""
 
-#: pkg/systemd/service-details.jsx:378
+#: pkg/systemd/services/service-details.jsx:453
 msgid "Required by "
 msgstr ""
 
-#: pkg/systemd/service-details.jsx:421
+#: pkg/systemd/services/services-list.jsx:69
+msgid "Required by $0"
+msgstr ""
+
+#: pkg/systemd/services/service-details.jsx:496
 msgid "Requires"
 msgstr ""
 
-#: pkg/systemd/service-details.jsx:393
+#: pkg/systemd/services/service-details.jsx:468
 msgid "Requires administration access to edit"
 msgstr ""
 
-#: pkg/systemd/service-details.jsx:422
+#: pkg/systemd/services/service-details.jsx:497
 msgid "Requisite"
 msgstr ""
 
-#: pkg/systemd/service-details.jsx:427
+#: pkg/systemd/services/service-details.jsx:502
 msgid "Requisite Of"
 msgstr ""
 
@@ -6061,12 +6122,12 @@ msgstr ""
 
 #: pkg/docker/index.html:132 pkg/docker/containers-view.jsx:317
 #: pkg/machines/components/vm/vmActions.jsx:44 pkg/systemd/overview.jsx:209
-#: pkg/systemd/overview.jsx:230 pkg/systemd/service-details.jsx:172
+#: pkg/systemd/overview.jsx:230 pkg/systemd/services/service-details.jsx:244
 #: pkg/systemd/shutdown.js:99 pkg/systemd/shutdown.js:100
 msgid "Restart"
 msgstr "Reinicia"
 
-#: pkg/packagekit/updates.jsx:503
+#: pkg/packagekit/updates.jsx:507
 msgid "Restart Now"
 msgstr "Reinicia ara"
 
@@ -6078,11 +6139,11 @@ msgstr "Reinicia la política"
 msgid "Restart Policy:"
 msgstr "Reinicia la política:"
 
-#: pkg/packagekit/updates.jsx:501 pkg/packagekit/updates.jsx:915
+#: pkg/packagekit/updates.jsx:505 pkg/packagekit/updates.jsx:919
 msgid "Restart Recommended"
 msgstr "Reinici recomanat"
 
-#: pkg/packagekit/updates.jsx:922
+#: pkg/packagekit/updates.jsx:926
 msgid "Restarting"
 msgstr "S'està reiniciant"
 
@@ -6124,7 +6185,7 @@ msgstr "Rols"
 msgid "Root Password"
 msgstr "Estableix la contrasenya"
 
-#: pkg/networkmanager/interfaces.js:1966 pkg/networkmanager/interfaces.js:1983
+#: pkg/networkmanager/interfaces.js:1967 pkg/networkmanager/interfaces.js:1984
 msgid "Round Robin"
 msgstr "Round Robin"
 
@@ -6136,12 +6197,12 @@ msgstr ""
 msgid "Routed Network"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:3321
+#: pkg/networkmanager/interfaces.js:3322
 msgid "Routes"
 msgstr "Encaminaments"
 
 #: pkg/docker/index.html:247 pkg/docker/index.html:527
-#: pkg/systemd/services.html:295 pkg/machines/components/vm/vmActions.jsx:92
+#: pkg/systemd/services.html:201 pkg/machines/components/vm/vmActions.jsx:92
 msgid "Run"
 msgstr "Executa"
 
@@ -6162,7 +6223,9 @@ msgstr ""
 msgid "Runner"
 msgstr "Runner"
 
-#: pkg/storaged/mdraid-details.jsx:336 pkg/systemd/service-details.jsx:357
+#: pkg/storaged/mdraid-details.jsx:336
+#: pkg/systemd/services/service-details.jsx:432
+#: pkg/systemd/services/services.jsx:494
 msgid "Running"
 msgstr "En execució"
 
@@ -6235,7 +6298,7 @@ msgid ""
 "Safari users need to import and trust the certificate of the self-signing CA:"
 msgstr ""
 
-#: pkg/systemd/services.html:131
+#: pkg/systemd/services.html:59
 msgid "Saturday"
 msgstr "Dissabte"
 
@@ -6243,7 +6306,7 @@ msgstr "Dissabte"
 msgid "Saturdays"
 msgstr ""
 
-#: pkg/systemd/services.html:376 pkg/machines/components/diskEdit.jsx:212
+#: pkg/systemd/services.html:282 pkg/machines/components/diskEdit.jsx:212
 #: pkg/machines/components/nicEdit.jsx:171
 #: pkg/machines/components/vm/bootOrderModal.jsx:322
 #: pkg/machines/components/vm/firmwareModal.jsx:75
@@ -6278,8 +6341,8 @@ msgstr ""
 msgid "Search"
 msgstr ""
 
-#: pkg/systemd/services.html:313 pkg/systemd/services.html:317
-#: pkg/systemd/init.js:972
+#: pkg/systemd/services.html:219 pkg/systemd/services.html:223
+#: pkg/systemd/services/timer-dialog.js:319
 msgid "Seconds"
 msgstr "segons"
 
@@ -6291,7 +6354,7 @@ msgstr ""
 msgid "Securely erasing $target"
 msgstr "S'està eliminant de forma segura $target"
 
-#: pkg/packagekit/updates.jsx:849
+#: pkg/packagekit/updates.jsx:853
 msgid "Security Updates Available"
 msgstr ""
 
@@ -6315,7 +6378,7 @@ msgstr ""
 msgid "Send Non-Maskable Interrupt"
 msgstr ""
 
-#: pkg/machines/components/vnc.jsx:108
+#: pkg/machines/components/vnc.jsx:149
 msgid "Send key"
 msgstr ""
 
@@ -6359,7 +6422,7 @@ msgstr "L'adreça del servidor no pot estar en blanc."
 msgid "Server cannot be empty."
 msgstr "El servidor no pot estar en blanc."
 
-#: src/base1/cockpit.js:4050
+#: src/base1/cockpit.js:4061
 msgid "Server has closed the connection."
 msgstr "El servidor ha tancat la connexió."
 
@@ -6372,7 +6435,7 @@ msgstr "Servidors"
 msgid "Service"
 msgstr "Servei"
 
-#: pkg/systemd/services.html:228
+#: pkg/systemd/services/service.jsx:97
 msgid "Service Logs"
 msgstr "Registres del servei"
 
@@ -6396,12 +6459,12 @@ msgstr "El servei està aturat"
 msgid "Service is stopping"
 msgstr "El servei s'està aturant"
 
-#: pkg/systemd/services.html:253
+#: pkg/systemd/services.html:159
 msgid "Service name"
 msgstr "Nom del servei"
 
-#: pkg/systemd/services.html:4 pkg/systemd/services.html:221
-#: pkg/networkmanager/firewall.jsx:499 pkg/systemd/manifest.json.in
+#: pkg/systemd/services.html:4 pkg/networkmanager/firewall.jsx:499
+#: pkg/systemd/services/service.jsx:86 pkg/systemd/manifest.json.in
 msgid "Services"
 msgstr "Serveis"
 
@@ -6418,7 +6481,7 @@ msgstr ""
 msgid "Set"
 msgstr "Estableix"
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:218
+#: pkg/machines/components/networks/createNetworkDialog.jsx:230
 msgid "Set DHCP Range"
 msgstr ""
 
@@ -6446,7 +6509,7 @@ msgstr ""
 msgid "Set to"
 msgstr "Estableix a"
 
-#: pkg/packagekit/updates.jsx:66
+#: pkg/packagekit/updates.jsx:71
 msgid "Set up"
 msgstr "Configurat"
 
@@ -6461,7 +6524,7 @@ msgid ""
 "VM when creating it"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:58
+#: pkg/packagekit/updates.jsx:63
 msgid "Setting up"
 msgstr "S'està configurant"
 
@@ -6469,15 +6532,15 @@ msgstr "S'està configurant"
 msgid "Setting up loop device $target"
 msgstr "S'està preparant el dispositiu de bucles $target"
 
-#: pkg/systemd/logs.html:48 pkg/packagekit/updates.jsx:390
+#: pkg/systemd/logs.html:48 pkg/packagekit/updates.jsx:394
 msgid "Severity"
 msgstr "Gravetat"
 
-#: pkg/packagekit/updates.jsx:318
+#: pkg/packagekit/updates.jsx:322
 msgid "Severity:"
 msgstr "Gravetat:"
 
-#: pkg/networkmanager/interfaces.js:1951
+#: pkg/networkmanager/interfaces.js:1952
 msgid "Shared"
 msgstr "Compartida"
 
@@ -6590,7 +6653,8 @@ msgstr "Ranura"
 msgid "Slot $0"
 msgstr ""
 
-#: pkg/machines/components/vcpuModal.jsx:215 pkg/systemd/services.jsx:51
+#: pkg/machines/components/vcpuModal.jsx:215
+#: pkg/systemd/services/service-tabs.jsx:31
 msgid "Sockets"
 msgstr "Sockets"
 
@@ -6617,7 +6681,7 @@ msgstr "Ha fallat la solució"
 msgid "Solutions"
 msgstr "Solucions"
 
-#: pkg/packagekit/updates.jsx:45
+#: pkg/packagekit/updates.jsx:50
 msgid ""
 "Some other program is currently using the package manager, please wait..."
 msgstr ""
@@ -6662,7 +6726,7 @@ msgstr ""
 msgid "Space-saving Computer"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2843
+#: pkg/networkmanager/interfaces.js:2844
 msgid "Spanning Tree Protocol"
 msgstr "STP (Spanning Tree Protocol)"
 
@@ -6682,14 +6746,15 @@ msgstr "Instant concret"
 msgid "Speed"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:3633
+#: pkg/networkmanager/interfaces.js:3634
 msgid "Stable"
 msgstr "Estable"
 
 #: pkg/docker/index.html:130 pkg/docker/containers-view.jsx:314
-#: pkg/machines/components/networks/createNetworkDialog.jsx:224
+#: pkg/machines/components/networks/createNetworkDialog.jsx:236
 #: pkg/storaged/content-views.jsx:306 pkg/storaged/mdraid-details.jsx:313
-#: pkg/storaged/vdo-details.jsx:258 pkg/systemd/service-details.jsx:179
+#: pkg/storaged/vdo-details.jsx:258
+#: pkg/systemd/services/service-details.jsx:251
 msgid "Start"
 msgstr "Inicia"
 
@@ -6701,11 +6766,12 @@ msgstr "Inicia Docker"
 msgid "Start Multipath"
 msgstr "Inicia el multicamí"
 
-#: pkg/networkmanager/index.html:48 pkg/systemd/service-details.jsx:347
+#: pkg/networkmanager/index.html:48
+#: pkg/systemd/services/service-details.jsx:422
 msgid "Start Service"
 msgstr ""
 
-#: pkg/systemd/service-details.jsx:417
+#: pkg/systemd/services/service-details.jsx:492
 msgid "Start and Enable"
 msgstr ""
 
@@ -6717,8 +6783,8 @@ msgstr "Inicia libvirt"
 msgid "Start pool when host boots"
 msgstr ""
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:57
-#: pkg/machines/components/networks/createNetworkDialog.jsx:85
+#: pkg/machines/components/networks/createNetworkDialog.jsx:69
+#: pkg/machines/components/networks/createNetworkDialog.jsx:97
 msgid "Start should not be empty"
 msgstr ""
 
@@ -6738,7 +6804,7 @@ msgstr ""
 #: pkg/machines/components/networks/networkList.jsx:55
 #: pkg/machines/components/storagePools/storagePoolList.jsx:54
 #: pkg/machines/components/vmnetworktab.jsx:202 pkg/machines/hostvmslist.jsx:74
-#: pkg/systemd/hwinfo.jsx:271 pkg/systemd/init.js:312
+#: pkg/systemd/hwinfo.jsx:271 pkg/systemd/services/services-list.jsx:96
 msgid "State"
 msgstr "Estat"
 
@@ -6753,12 +6819,13 @@ msgstr "Estat"
 msgid "State:"
 msgstr "Estat:"
 
-#: pkg/systemd/services.html:67 pkg/systemd/init.js:219
-#: pkg/systemd/service-details.jsx:375
+#: pkg/systemd/services/service-details.jsx:450
+#: pkg/systemd/services/services.jsx:508 pkg/systemd/services/services.jsx:666
 msgid "Static"
 msgstr "Estàtic"
 
-#: pkg/networkmanager/interfaces.js:2599 pkg/systemd/service-details.jsx:480
+#: pkg/networkmanager/interfaces.js:2600
+#: pkg/systemd/services/service-details.jsx:555
 msgid "Status"
 msgstr "Estat"
 
@@ -6773,7 +6840,7 @@ msgstr ""
 #: pkg/docker/index.html:131 pkg/docker/containers-view.jsx:312
 #: pkg/storaged/content-views.jsx:304 pkg/storaged/mdraid-details.jsx:312
 #: pkg/storaged/vdo-details.jsx:140 pkg/storaged/vdo-details.jsx:257
-#: pkg/systemd/service-details.jsx:175
+#: pkg/systemd/services/service-details.jsx:247
 msgid "Stop"
 msgstr "Atura"
 
@@ -6781,7 +6848,7 @@ msgstr "Atura"
 msgid "Stop Device"
 msgstr "Atura el dispositiu"
 
-#: pkg/systemd/service-details.jsx:417
+#: pkg/systemd/services/service-details.jsx:492
 msgid "Stop and Disable"
 msgstr ""
 
@@ -6889,7 +6956,7 @@ msgstr ""
 msgid "Sub Notebook"
 msgstr ""
 
-#: pkg/systemd/services.html:132
+#: pkg/systemd/services.html:60
 msgid "Sunday"
 msgstr "Diumenge"
 
@@ -6910,31 +6977,31 @@ msgctxt "storage-id-desc"
 msgid "Swap Space"
 msgstr "Espai d'intercanvi"
 
-#: pkg/systemd/graphs.html:158 pkg/systemd/graphs.js:409
+#: pkg/systemd/graphs.html:157 pkg/systemd/graphs.js:409
 msgid "Swap Used"
 msgstr "Intercanvi utilitzat"
 
-#: pkg/networkmanager/interfaces.js:2479 pkg/networkmanager/interfaces.js:3026
+#: pkg/networkmanager/interfaces.js:2480 pkg/networkmanager/interfaces.js:3027
 msgid "Switch off $0"
 msgstr "Apaga $0"
 
-#: pkg/networkmanager/interfaces.js:2454 pkg/networkmanager/interfaces.js:3014
+#: pkg/networkmanager/interfaces.js:2455 pkg/networkmanager/interfaces.js:3015
 msgid "Switch on $0"
 msgstr "Engega $0"
 
-#: pkg/networkmanager/interfaces.js:2478
+#: pkg/networkmanager/interfaces.js:2479
 msgid ""
 "Switching off <b>$0</b>  will break the connection to the server, and will "
 "make the administration UI unavailable."
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:3025
+#: pkg/networkmanager/interfaces.js:3026
 msgid ""
 "Switching off <b>$0</b> will break the connection to the server, and will "
 "make the administration UI unavailable."
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2453 pkg/networkmanager/interfaces.js:3013
+#: pkg/networkmanager/interfaces.js:2454 pkg/networkmanager/interfaces.js:3014
 msgid ""
 "Switching on <b>$0</b> will break the connection to the server, and will "
 "make the administration UI unavailable."
@@ -6973,21 +7040,27 @@ msgstr "Informació del sistema"
 msgid "System Modifications"
 msgstr ""
 
-#: pkg/systemd/services.jsx:49
+#: pkg/systemd/services/service-tabs.jsx:29
 msgid "System Services"
 msgstr "Serveis del sistema"
 
-#: pkg/systemd/overview-cards/systemInformationCard.jsx:87
+#: pkg/systemd/overview-cards/systemInformationCard.jsx:105
 msgid "System information"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:927 pkg/packagekit/updates.jsx:937
+#: pkg/packagekit/updates.jsx:931 pkg/packagekit/updates.jsx:941
 msgid "System is up to date"
 msgstr "El sistema està al dia"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:392
 msgid "System time"
 msgstr ""
+
+#: pkg/systemd/services/services-list.jsx:34
+#, fuzzy
+#| msgid "System Services"
+msgid "Systemd Units"
+msgstr "Serveis del sistema"
 
 #: pkg/docker/index.html:291 pkg/docker/index.html:295
 #: pkg/networkmanager/firewall.jsx:178
@@ -7024,16 +7097,16 @@ msgstr ""
 msgid "Target path should not be empty"
 msgstr ""
 
-#: pkg/systemd/services.jsx:50
+#: pkg/systemd/services/service-tabs.jsx:30
 msgid "Targets"
 msgstr "Objectius"
 
-#: pkg/networkmanager/interfaces.js:2499 pkg/networkmanager/interfaces.js:2511
-#: pkg/networkmanager/interfaces.js:2800
+#: pkg/networkmanager/interfaces.js:2500 pkg/networkmanager/interfaces.js:2512
+#: pkg/networkmanager/interfaces.js:2801
 msgid "Team"
 msgstr "Equip"
 
-#: pkg/networkmanager/interfaces.js:2828
+#: pkg/networkmanager/interfaces.js:2829
 msgid "Team Port"
 msgstr "Port de l'equip"
 
@@ -7069,7 +7142,7 @@ msgstr "Prova els ajusts de kdump"
 msgid "Testing connection"
 msgstr ""
 
-#: pkg/machines/components/deleteResource.jsx:51
+#: pkg/machines/components/deleteResource.jsx:48
 msgid "The $0 could not be deleted"
 msgstr ""
 
@@ -7134,8 +7207,8 @@ msgstr "La MV està en execució."
 msgid "The VM is suspended by guest power management."
 msgstr "La MV està en suspensió per la gestió d'energia del convidat."
 
-#: pkg/machines/components/vmDisksTab.jsx:174
-#: pkg/machines/components/vmnetworktab.jsx:225
+#: pkg/machines/components/vmDisksTab.jsx:180
+#: pkg/machines/components/vmnetworktab.jsx:230
 msgid "The VM needs to be running or shut off to detach this device"
 msgstr ""
 
@@ -7237,7 +7310,7 @@ msgstr ""
 msgid ""
 "The generated archive contains data considered sensitive and its content "
 "should be reviewed by the originating organization before being passed to "
-"any third party.              "
+"any third party."
 msgstr ""
 
 #: pkg/lib/machine-invalid-hostkey.html:8
@@ -7302,7 +7375,7 @@ msgid ""
 "no other supported authentication methods are available."
 msgstr ""
 
-#: src/base1/cockpit.js:4034
+#: src/base1/cockpit.js:4045
 msgid "The server refused to authenticate using any supported methods."
 msgstr ""
 "El servidor ha refusat l'autenticació mitjançant qualsevol dels mètodes "
@@ -7315,6 +7388,12 @@ msgstr ""
 #: pkg/systemd/overview-cards/configurationCard.jsx:355
 msgid "The user $0 is not permitted to change the system time"
 msgstr ""
+
+#: pkg/systemd/services/services.jsx:721
+#, fuzzy
+#| msgid "The user <b>$0</b> is not permitted to modify realms"
+msgid "The user $0 is not permitted to create timers"
+msgstr "A l'usuari <b>$0</b> no se li permet modificar els reialmes"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:335
 msgid "The user $0 is not permitted to modify hostnames"
@@ -7329,10 +7408,6 @@ msgstr "A l'usuari <b>$0</b> no se li permet modificar els reialmes"
 #: pkg/systemd/overview.jsx:218
 msgid "The user $0 is not permitted to shutdown or restart this server"
 msgstr ""
-
-#: pkg/systemd/init.js:818
-msgid "The user <b>$0</b> does not have permissions for creating timers"
-msgstr "A l'usuari <b>$0</b> no se li permet crear temporitzadors"
 
 #: pkg/tuned/dialog.js:98
 msgid "The user <b>$0</b> is not permitted to change profiles"
@@ -7350,7 +7425,7 @@ msgstr "A l'usuari <b>$0</b> no se li permet gestionar l'emmagatzematge"
 msgid "The user <b>$0</b> is not permitted to modify accounts"
 msgstr "A l'usuari <b>$0</b> no se li permet modificar els comptes"
 
-#: pkg/networkmanager/interfaces.js:1488
+#: pkg/networkmanager/interfaces.js:1489
 msgid "The user <b>$0</b> is not permitted to modify network settings"
 msgstr "A l'usuari <b>$0</b> no se li permet modificar els ajusts de xarxa"
 
@@ -7428,7 +7503,7 @@ msgstr ""
 msgid "This VM is transient. Shut it down if you wish to delete it."
 msgstr ""
 
-#: pkg/systemd/init.js:1267
+#: pkg/systemd/services/timer-dialog.js:147
 msgid ""
 "This day doesn't exist in all months.<br> The timer will only be executed in "
 "months that have 31st."
@@ -7436,7 +7511,7 @@ msgstr ""
 "Aquest dia no existeix en tots els mesos.<br> El temporitzador només "
 "s'executarà en aquells mesos que en tinguin 31."
 
-#: pkg/networkmanager/interfaces.js:2610
+#: pkg/networkmanager/interfaces.js:2611
 msgid "This device cannot be managed here."
 msgstr "Aquest dispositiu no es pot gestionar aquí."
 
@@ -7474,7 +7549,9 @@ msgstr ""
 msgid "This disk cannot be removed while the device is recovering."
 msgstr "Aquest disc no es pot treure quan s'està recuperant el dispositiu."
 
-#: pkg/systemd/init.js:1179 pkg/systemd/init.js:1193 pkg/systemd/init.js:1202
+#: pkg/systemd/services/timer-dialog.js:59
+#: pkg/systemd/services/timer-dialog.js:73
+#: pkg/systemd/services/timer-dialog.js:82
 msgid "This field cannot be empty."
 msgstr "Aquest camp no pot estar en blanc."
 
@@ -7507,7 +7584,7 @@ msgstr "Aquest paquet requereix la versió %s, o posterior, de Cockpit"
 msgid "This pool type does not support Storage Volume creation"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:797
+#: pkg/packagekit/updates.jsx:801
 msgid "This system is not registered"
 msgstr "Aquest sistema no està registrat"
 
@@ -7527,7 +7604,7 @@ msgstr ""
 "Aquesta eina recopilarà la configuració i la informació de diagnòstic "
 "d'aquest sistema per a l'ús amb el diagnòstic de problemes amb el sistema."
 
-#: pkg/systemd/service-details.jsx:302
+#: pkg/systemd/services/service-details.jsx:374
 msgid "This unit is not designed to be enabled explicitly."
 msgstr "Aquesta unitat no està dissenyada per estar explícitament activada."
 
@@ -7559,7 +7636,7 @@ msgstr ""
 msgid "This web browser is too old to run Cockpit (missing $0)"
 msgstr "Aquest navegador web és massa antic per executar Cockpit (falta $0)"
 
-#: pkg/packagekit/updates.jsx:881
+#: pkg/packagekit/updates.jsx:885
 msgid "This web console will be updated."
 msgstr ""
 
@@ -7587,7 +7664,7 @@ msgstr ""
 msgid "Threads per core"
 msgstr ""
 
-#: pkg/systemd/services.html:129
+#: pkg/systemd/services.html:57
 msgid "Thursday"
 msgstr "Dijous"
 
@@ -7599,7 +7676,7 @@ msgstr ""
 msgid "Time Zone"
 msgstr "Zona horària"
 
-#: pkg/systemd/services.jsx:52
+#: pkg/systemd/services/service-tabs.jsx:32
 msgid "Timers"
 msgstr "Temporitzadors"
 
@@ -7612,7 +7689,7 @@ msgstr ""
 "contrasenya d'inici de sessió per autenticar automàticament contra altres "
 "sistemes."
 
-#: pkg/packagekit/updates.jsx:798
+#: pkg/packagekit/updates.jsx:802
 msgid ""
 "To get software updates, this system needs to be registered with Red Hat, "
 "either using the Red Hat Customer Portal or a local subscription server."
@@ -7629,7 +7706,7 @@ msgstr ""
 "Per provar un port diferent, haureu d'actualitzar cockpit-ws a una versió "
 "més recent."
 
-#: src/base1/cockpit.js:4056
+#: src/base1/cockpit.js:4067
 msgid "Too much data"
 msgstr "Hi ha massa dades"
 
@@ -7645,11 +7722,12 @@ msgstr "Torre"
 msgid "Transient VMs don't support editting firmware configuration"
 msgstr ""
 
-#: pkg/systemd/service-details.jsx:437
+#: pkg/systemd/services/service-details.jsx:512
 msgid "Triggered By"
 msgstr ""
 
-#: pkg/systemd/service-details.jsx:436
+#: pkg/systemd/services/service-details.jsx:511
+#: pkg/systemd/services/services-list.jsx:48
 msgid "Triggers"
 msgstr "Disparadors"
 
@@ -7677,7 +7755,7 @@ msgstr "Torna-ho a intentar"
 msgid "Trying to synchronize with {{Server}}"
 msgstr "S'està intentant la sincronització amb {{Server}}"
 
-#: pkg/systemd/services.html:127
+#: pkg/systemd/services.html:55
 msgid "Tuesday"
 msgstr "Dimarts"
 
@@ -7802,11 +7880,11 @@ msgid "Unavailable"
 msgstr "No disponible"
 
 #: pkg/docker/index.html:697 pkg/networkmanager/index.html:725
-#: pkg/shell/base_index.js:840 pkg/users/local.js:1505
+#: pkg/shell/base_index.js:838 pkg/users/local.js:1505
 msgid "Unexpected error"
 msgstr "Error inesperat"
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:115
+#: pkg/machines/components/networks/createNetworkDialog.jsx:127
 msgid "Unique Network Name"
 msgstr ""
 
@@ -7821,13 +7899,13 @@ msgstr ""
 
 #: pkg/lib/machine-info.js:68 pkg/lib/machine-info.js:241
 #: pkg/machines/components/vmnetworktab.jsx:165
-#: pkg/networkmanager/interfaces.js:586 pkg/networkmanager/interfaces.js:1062
-#: pkg/networkmanager/interfaces.js:2519 pkg/networkmanager/interfaces.js:2521
+#: pkg/networkmanager/interfaces.js:587 pkg/networkmanager/interfaces.js:1063
+#: pkg/networkmanager/interfaces.js:2520 pkg/networkmanager/interfaces.js:2522
 #: pkg/storaged/fsys-tab.jsx:369 pkg/storaged/swap-tab.jsx:55
 msgid "Unknown"
 msgstr "Desconegut"
 
-#: pkg/networkmanager/interfaces.js:2505 pkg/networkmanager/interfaces.js:2517
+#: pkg/networkmanager/interfaces.js:2506 pkg/networkmanager/interfaces.js:2518
 msgid "Unknown \"$0\""
 msgstr "\"$0\" desconegut"
 
@@ -7843,7 +7921,7 @@ msgstr "Aplicació desconeguda"
 msgid "Unknown Host Key"
 msgstr "Clau desconeguda d'amfitrió"
 
-#: pkg/networkmanager/interfaces.js:2626
+#: pkg/networkmanager/interfaces.js:2627
 msgid "Unknown configuration"
 msgstr "Configuració desconeguda"
 
@@ -7919,7 +7997,7 @@ msgstr "S'està desmuntat $target"
 msgid "Unnamed"
 msgstr "Sense nom"
 
-#: pkg/machines/components/vmnetworktab.jsx:231
+#: pkg/machines/components/vmnetworktab.jsx:235
 msgid "Unplug"
 msgstr ""
 
@@ -7945,7 +8023,7 @@ msgstr "Mecanisme de configuració no admès"
 msgid "Unsupported volume"
 msgstr "Volum no admès"
 
-#: src/base1/cockpit.js:4036 src/base1/cockpit.js:4038
+#: src/base1/cockpit.js:4047 src/base1/cockpit.js:4049
 msgid "Untrusted host"
 msgstr "Amfitrió no fiable"
 
@@ -7961,7 +8039,7 @@ msgstr "Actualitza"
 msgid "Update History"
 msgstr "Historial d'actualitzacions"
 
-#: pkg/packagekit/updates.jsx:480
+#: pkg/packagekit/updates.jsx:484
 msgid "Update Log"
 msgstr "Registre d'actualitzacions"
 
@@ -7971,25 +8049,29 @@ msgstr "Registre d'actualitzacions"
 msgid "Update package information"
 msgstr "Informació dels paquets"
 
-#: pkg/packagekit/updates.jsx:65
+#: pkg/packagekit/updates.jsx:70
 msgid "Updated"
 msgstr "Actualitzat"
 
-#: pkg/packagekit/updates.jsx:502
+#: pkg/packagekit/updates.jsx:506
 msgid "Updated packages may require a restart to take effect."
 msgstr ""
 "Els paquets actualitzats poden requerir un reinici perquè tinguin efecte."
 
-#: pkg/packagekit/updates.jsx:855
+#: pkg/packagekit/updates.jsx:859
 msgid "Updates Available"
 msgstr "Actualitzacions disponibles"
 
-#: pkg/packagekit/updates.jsx:57
+#: pkg/packagekit/updates.jsx:62
 msgid "Updating"
 msgstr "S'està actualitzant"
 
-#: pkg/systemd/service-details.jsx:412
+#: pkg/systemd/services/service-details.jsx:487
 msgid "Updating status..."
+msgstr ""
+
+#: pkg/systemd/overview-cards/systemInformationCard.jsx:128
+msgid "Uptime"
 msgstr ""
 
 #: pkg/machines/components/diskEdit.jsx:41
@@ -8001,7 +8083,7 @@ msgstr ""
 msgid "Usage"
 msgstr "Ús"
 
-#: pkg/systemd/graphs.html:31 pkg/systemd/graphs.html:115
+#: pkg/systemd/graphs.html:31 pkg/systemd/graphs.html:114
 msgid "Usage Graphs"
 msgstr ""
 
@@ -8023,7 +8105,7 @@ msgstr ""
 msgid "Use the following keys to authenticate against other systems"
 msgstr "Utilitza les següents claus per autenticar contra altres sistemes"
 
-#: pkg/systemd/graphs.html:166 pkg/machines/components/vm/vmUsageTab.jsx:62
+#: pkg/systemd/graphs.html:165 pkg/machines/components/vm/vmUsageTab.jsx:62
 #: pkg/machines/components/vm/vmUsageTab.jsx:73
 #: pkg/machines/components/vmDisksTab.jsx:109 pkg/storaged/fsys-tab.jsx:504
 #: pkg/storaged/swap-tab.jsx:63 pkg/systemd/graphs.js:391
@@ -8039,7 +8121,7 @@ msgid "Used by Containers"
 msgstr "Utilitzat pels contenidors"
 
 #: pkg/dashboard/index.html:156 pkg/playground/translate.html:85
-#: pkg/playground/translate.html:105 pkg/systemd/graphs.html:139
+#: pkg/playground/translate.html:105 pkg/systemd/graphs.html:138
 #: pkg/systemd/graphs.js:297
 msgid "User"
 msgstr "Usuari"
@@ -8096,8 +8178,8 @@ msgstr "Dispositiu VDO $0"
 msgid "VDO backing devices can not be made smaller"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2501 pkg/networkmanager/interfaces.js:2513
-#: pkg/networkmanager/interfaces.js:2892
+#: pkg/networkmanager/interfaces.js:2502 pkg/networkmanager/interfaces.js:2514
+#: pkg/networkmanager/interfaces.js:2893
 msgid "VLAN"
 msgstr "VLAN"
 
@@ -8186,7 +8268,7 @@ msgstr "S'està validant la clau"
 msgid "Vendor"
 msgstr "Fabricant"
 
-#: pkg/packagekit/updates.jsx:67
+#: pkg/packagekit/updates.jsx:72
 msgid "Verified"
 msgstr "Verificat"
 
@@ -8194,11 +8276,11 @@ msgstr "Verificat"
 msgid "Verify key"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:59
+#: pkg/packagekit/updates.jsx:64
 msgid "Verifying"
 msgstr "S'està verificant"
 
-#: pkg/shell/index.html:92 pkg/packagekit/updates.jsx:389
+#: pkg/shell/index.html:92 pkg/packagekit/updates.jsx:393
 #: pkg/systemd/hwinfo.jsx:74
 msgid "Version"
 msgstr "Versió"
@@ -8215,7 +8297,7 @@ msgstr ""
 msgid "View graphs"
 msgstr ""
 
-#: pkg/systemd/overview-cards/systemInformationCard.jsx:114
+#: pkg/systemd/overview-cards/systemInformationCard.jsx:138
 msgid "View hardware details"
 msgstr ""
 
@@ -8239,7 +8321,7 @@ msgstr "Màquines virtuals"
 msgid "Virtual Network"
 msgstr ""
 
-#: pkg/machines/components/networks/createNetworkDialog.jsx:415
+#: pkg/machines/components/networks/createNetworkDialog.jsx:426
 msgid "Virtual Network failed to be created"
 msgstr ""
 
@@ -8292,7 +8374,7 @@ msgstr ""
 msgid "WWPN"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:831
+#: pkg/networkmanager/interfaces.js:832
 msgid "Waiting"
 msgstr "S'està esperant"
 
@@ -8318,11 +8400,11 @@ msgstr ""
 msgid "Waiting to start…"
 msgstr ""
 
-#: pkg/systemd/service-details.jsx:428
+#: pkg/systemd/services/service-details.jsx:503
 msgid "Wanted By"
 msgstr ""
 
-#: pkg/systemd/service-details.jsx:423
+#: pkg/systemd/services/service-details.jsx:498
 msgid "Wants"
 msgstr ""
 
@@ -8340,7 +8422,7 @@ msgstr "Consoles"
 msgid "Web Console for Linux servers"
 msgstr ""
 
-#: pkg/systemd/services.html:128
+#: pkg/systemd/services.html:56
 msgid "Wednesday"
 msgstr "Dimecres"
 
@@ -8348,7 +8430,7 @@ msgstr "Dimecres"
 msgid "Wednesdays"
 msgstr ""
 
-#: pkg/systemd/services.html:320
+#: pkg/systemd/services.html:226
 msgid "Weeks"
 msgstr "Setmanes"
 
@@ -8391,11 +8473,11 @@ msgstr "Escriptura"
 msgid "Wrong user name or password"
 msgstr "Contrasenya o nom d'usuari incorrecte"
 
-#: pkg/networkmanager/interfaces.js:1968
+#: pkg/networkmanager/interfaces.js:1969
 msgid "XOR"
 msgstr "XOR"
 
-#: pkg/networkmanager/interfaces.js:2579 pkg/systemd/reporting.jsx:262
+#: pkg/networkmanager/interfaces.js:2580 pkg/systemd/reporting.jsx:262
 msgid "Yes"
 msgstr "Sí"
 
@@ -8426,7 +8508,7 @@ msgstr ""
 "No teniu el permís per visualitzar les claus públiques autoritzades per "
 "aquest compte."
 
-#: pkg/shell/base_index.js:546
+#: pkg/shell/base_index.js:541
 msgid "You have been logged out due to inactivity."
 msgstr ""
 
@@ -8442,17 +8524,17 @@ msgstr ""
 msgid "You need to select the most closely matching Operating System"
 msgstr ""
 
-#: pkg/shell/base_index.js:535
+#: pkg/shell/base_index.js:530
 msgid "You will be logged out in $0 seconds."
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:883
+#: pkg/packagekit/updates.jsx:887
 msgid ""
 "Your browser will disconnect, but this does not affect the update process. "
 "You can reconnect in a few moments to continue watching the progress."
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:923
+#: pkg/packagekit/updates.jsx:927
 msgid ""
 "Your server will close the connection soon. You can reconnect after it has "
 "restarted."
@@ -8460,11 +8542,11 @@ msgstr ""
 "El vostre servidor tancarà la connexió aviat. Podeu tornar a connectar un "
 "cop s'hagi reiniciat."
 
-#: src/base1/cockpit.js:4026
+#: src/base1/cockpit.js:4037
 msgid "Your session has been terminated."
 msgstr "La vostra sessió ha estat finalitzada."
 
-#: src/base1/cockpit.js:4028
+#: src/base1/cockpit.js:4039
 msgid "Your session has expired. Please log in again."
 msgstr "La vostra sessió ha vençut. Si us plau, torneu a iniciar la sessió."
 
@@ -8551,7 +8633,7 @@ msgstr ""
 msgid "bridge"
 msgstr "pont"
 
-#: pkg/packagekit/updates.jsx:275
+#: pkg/packagekit/updates.jsx:279
 msgid "bug fix"
 msgstr ""
 
@@ -8666,7 +8748,7 @@ msgstr "habilitat"
 msgid "encryption"
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:275
+#: pkg/packagekit/updates.jsx:279
 msgid "enhancement"
 msgstr ""
 
@@ -9001,7 +9083,7 @@ msgstr ""
 msgid "search by name, namespace or description"
 msgstr "cerqueu pel nom, per l'espai de noms o per la descripció"
 
-#: pkg/packagekit/updates.jsx:269 pkg/packagekit/manifest.json.in
+#: pkg/packagekit/updates.jsx:273 pkg/packagekit/manifest.json.in
 msgid "security"
 msgstr ""
 
@@ -9145,7 +9227,7 @@ msgstr "indefinit"
 msgid "unit"
 msgstr ""
 
-#: pkg/systemd/init.js:263 pkg/systemd/init.js:277
+#: pkg/systemd/services/services.jsx:459 pkg/systemd/services/services.jsx:473
 msgid "unknown"
 msgstr "desconegut"
 
@@ -9209,7 +9291,7 @@ msgstr ""
 msgid "vhostuser"
 msgstr ""
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:1025
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:1022
 msgid ""
 "virt-install package needs to be installed on the system in order to create "
 "new VMs"
@@ -9245,6 +9327,18 @@ msgstr ""
 #: pkg/networkmanager/manifest.json.in
 msgid "zone"
 msgstr ""
+
+#~ msgid "Last Trigger"
+#~ msgstr "Últim disparador"
+
+#~ msgid "Next Run"
+#~ msgstr "Següent execució"
+
+#~ msgid "The user <b>$0</b> does not have permissions for creating timers"
+#~ msgstr "A l'usuari <b>$0</b> no se li permet crear temporitzadors"
+
+#~ msgid "Connecting"
+#~ msgstr "S'està connectant"
 
 #~ msgid "About Cockpit"
 #~ msgstr "Quant a Cockpit"

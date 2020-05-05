@@ -41,6 +41,19 @@ def getNetworkDevice(m):
 
     return device
 
+def readFile(name):
+    content = ''
+    if os.path.exists(name):
+        with open(name, 'r') as f:
+            content = f.read().replace('\n', '')
+    return content
+
+def createUser(machine, user_group):
+    user_name = 'test_' + user_group + '_user'
+    machine.execute(
+        'useradd -G {0} {1} && echo "{1}:foobar" | chpasswd'.format(user_group, user_name))
+    return user_name
+
 # If this test fails to run, the host machine needs:
 # echo "options kvm-intel nested=1" > /etc/modprobe.d/kvm-intel.conf
 # rmmod kvm-intel && modprobe kvm-intel || true
@@ -206,12 +219,35 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         return args
 
     def testBasic(self):
+        self._testBasic()
+
+    # FIXME remove this skipImage
+    @skipImage('Fails with Rejected send message, 1 matched rules; type="method_call"', "rhel-8-2", "rhel-8-3", "rhel-8-2-distropkg", "ubuntu-stable", "ubuntu-2004", "debian-testing", "debian-stable", "centos-8-stream")
+    def testBasicLibvirtUserUnprivileged(self):
+        m = self.machine
+        user_group = 'libvirt'
+        user = createUser(m, user_group)
+        self._testBasic(user, False)
+
+    def testBasicWheelUserUnprivileged(self):
+        m = self.machine
+        user_group = 'wheel'
+        user = createUser(m, user_group)
+        self._testBasic(user, False, True)
+        self.allow_journal_messages("{0} is not in the sudoers file.  This incident will be reported.".format(user))
+
+    def _testBasic(self, user=None, authorized=True, expect_empty_list=False):
         b = self.browser
         m = self.machine
 
         args = self.startVm("subVmTest1")
 
-        self.login_and_go("/machines")
+        self.allow_authorize_journal_messages()
+        self.login_and_go("/machines", user=user, authorized=authorized, superuser=authorized)
+
+        if expect_empty_list:
+            b.wait_in_text("#virtual-machines-listing thead tr td", "No VM is running")
+            return
         b.wait_in_text("body", "Virtual Machines")
         b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
 
@@ -287,30 +323,30 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # start another one, should appear automatically
         self.startVm("subVmTest2")
-        b.wait_in_text("#virtual-machines-listing .listing-ct tbody:nth-of-type(2) th", "subVmTest2")
-        b.click("#virtual-machines-listing .listing-ct tbody:nth-of-type(2) th") # click on the row header
+        b.wait_in_text("#virtual-machines-listing .listing-ct > tbody:nth-of-type(2) th", "subVmTest2")
+        b.click("#virtual-machines-listing .listing-ct > tbody:nth-of-type(2) th") # click on the row header
         b.wait_in_text("#vm-subVmTest2-state", "running")
         b.wait_in_text("#vm-subVmTest2-vcpus-count", "1")
         b.wait_in_text("#vm-subVmTest2-boot-order", "disk,network")
 
-        # restart libvirtd
-        m.execute("systemctl stop libvirtd.service")
-        b.wait_in_text(".pf-c-empty-state", "Virtualization Service (libvirt) is Not Active")
-        m.execute("systemctl start libvirtd.service")
-        # HACK: https://launchpad.net/bugs/1802005
-        if m.image == "ubuntu-stable":
-            m.execute("until test -e /run/libvirt/libvirt-sock; do sleep 1; done")
-            m.execute("chmod o+rwx /run/libvirt/libvirt-sock")
-        b.wait_in_text("body", "Virtual Machines")
-        b.wait_present("tbody tr[data-row-id=vm-subVmTest1] th")
-        b.wait_in_text("#virtual-machines-listing .listing-ct tbody:nth-of-type(1) th", "subVmTest1")
-        b.wait_in_text("#virtual-machines-listing .listing-ct tbody:nth-of-type(2) th", "subVmTest2")
-        b.wait_in_text("#vm-subVmTest1-state", "shut off")
-        b.wait_in_text("#vm-subVmTest2-state", "running")
+        if authorized:
+            # restart libvirtd
+            m.execute("systemctl stop libvirtd.service")
+            b.wait_in_text(".pf-c-empty-state", "Virtualization Service (libvirt) is Not Active")
+            m.execute("systemctl start libvirtd.service")
+            # HACK: https://launchpad.net/bugs/1802005
+            if m.image == "ubuntu-stable":
+                m.execute("until test -e /run/libvirt/libvirt-sock; do sleep 1; done")
+                m.execute("chmod o+rwx /run/libvirt/libvirt-sock")
+            b.wait_in_text("body", "Virtual Machines")
+            b.wait_present("tbody tr[data-row-id=vm-subVmTest1] th")
+            b.wait_in_text("#virtual-machines-listing .listing-ct > tbody:nth-of-type(1) th", "subVmTest1")
+            b.wait_in_text("#virtual-machines-listing .listing-ct > tbody:nth-of-type(2) th", "subVmTest2")
+            b.wait_in_text("#vm-subVmTest1-state", "shut off")
+            b.wait_in_text("#vm-subVmTest2-state", "running")
+            b.click("#virtual-machines-listing .listing-ct > tbody:nth-of-type(2) th") # click on the row header
 
         # stop second VM, event handling should still work
-        b.wait_in_text("#virtual-machines-listing .listing-ct tbody:nth-of-type(2) th", "subVmTest2")
-        b.click("#virtual-machines-listing .listing-ct tbody:nth-of-type(2) th") # click on the row header
         b.click("#vm-subVmTest2-off-caret")
         b.click("#vm-subVmTest2-forceOff")
         b.wait_in_text("#vm-subVmTest2-state", "shut off")
@@ -345,10 +381,10 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         def tryRunDomain(index, name):
             b.wait_in_text("#virtual-machines-listing .listing-ct tbody:nth-of-type({0}) th".format(index), name)
 
-            row_classes = b.attr("#virtual-machines-listing .listing-ct tbody:nth-of-type({0})".format(index), "class")
+            row_classes = b.attr("#virtual-machines-listing .listing-ct > tbody:nth-of-type({0})".format(index), "class")
             expanded = row_classes and 'open' in row_classes
             if not expanded:
-                b.click("#virtual-machines-listing .listing-ct tbody:nth-of-type({0}) th".format(index)) # click on the row header
+                b.click("#virtual-machines-listing .listing-ct > tbody:nth-of-type({0}) th".format(index)) # click on the row header
 
             b.click("#vm-{0}-run".format(name))
 

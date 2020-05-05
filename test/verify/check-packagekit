@@ -912,6 +912,14 @@ class TestAutoUpdates(NoSubManCase):
         assertType("all")
         assertTimer("21", "Thu")
 
+        # page should parse it correctly from the timer
+        b.logout()
+        b.login_and_go("/updates")
+        b.wait_present("#automatic .onoff-ct input:checked")
+        if m.image not in ["rhel-8-2-distropkg"]:  # fixed in PR #14035
+            b.wait_in_text("#auto-update-day", "Thursday")
+            b.wait_in_text("#auto-update-time", "21:00")
+
         # change back to daily
         b.set_val("#auto-update-day", "")
         wait_pending()

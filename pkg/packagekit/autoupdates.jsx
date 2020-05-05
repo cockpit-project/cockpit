@@ -71,13 +71,16 @@ class DnfImpl extends ImplBase {
         // - the config file determines whether to apply security updates only
         // - by default this runs every day (OnUnitInactiveSec=1d), but the timer can be changed with a timer unit
         //   drop-in, so get the last line
-        cockpit.script("if rpm -q " + this.packageName + " >/dev/null; then echo installed; fi; " +
-                       "if systemctl --quiet is-enabled dnf-automatic-install.timer 2>/dev/null || " +
-                       "  (systemctl --quiet is-enabled dnf-automatic.timer 2>/dev/null && grep -q '^[ \t]*apply_updates[ \t]*=[ \t]*yes' " +
-                       "    /etc/dnf/automatic.conf); then echo enabled; fi; " +
+        cockpit.script("set -e; if rpm -q " + this.packageName + " >/dev/null; then echo installed; fi; " +
                        "if grep -q '^[ \\t]*upgrade_type[ \\t]*=[ \\t]*security' /etc/dnf/automatic.conf; then echo security; fi; " +
-                       "systemctl cat dnf-automatic-install.timer dnf-automatic.timer 2>/dev/null| grep '^OnUnitInactiveSec= *[^ ]' | tail -n1; " +
-                       "systemctl cat dnf-automatic-install.timer dnf-automatic.timer 2>/dev/null| grep '^OnCalendar= *[^ ]' | tail -n1; ",
+                       "TIMER=dnf-automatic-install.timer; " +
+                       "if systemctl --quiet is-enabled dnf-automatic-install.timer 2>/dev/null; then echo enabled; " +
+                       "elif systemctl --quiet is-enabled dnf-automatic.timer 2>/dev/null && grep -q '^[ \t]*apply_updates[ \t]*=[ \t]*yes' " +
+                       "    /etc/dnf/automatic.conf; then echo enabled; TIMER=dnf-automatic.timer; " +
+                       "fi; " +
+                       'OUT=$(systemctl cat $TIMER 2>/dev/null || true); ' +
+                       'echo "$OUT" | grep "^OnUnitInactiveSec= *[^ ]" | tail -n1; ' +
+                       'echo "$OUT" | grep "^OnCalendar= *[^ ]" | tail -n1; ',
                        [], { err: "message" })
                 .done(output => {
                     this.installed = (output.indexOf("installed\n") >= 0);

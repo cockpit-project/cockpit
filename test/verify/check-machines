@@ -132,6 +132,17 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         else:
             b.wait_not_present(pool_row)
 
+    def toggleNetworkRow(self, networkName, connectionName="system"):
+        self.browser.click("tbody tr[data-row-id=network-{0}-system] th".format(networkName)) # click on the row header
+
+    def waitNetworkRow(self, networkName, connectionName="system", present="true"):
+        b = self.browser
+        network_row = "tbody tr[data-row-id=network-{0}-{1}] th".format(networkName, connectionName)
+        if present:
+            b.wait_present(network_row)
+        else:
+            b.wait_not_present(network_row)
+
     def startLibvirt(self):
         m = self.machine
 
@@ -3242,10 +3253,10 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Check that all networks are there
         b.wait_in_text("body", "Networks")
-        b.wait_present("tbody tr[data-row-id=network-test_network2-{0}] th".format(connectionName))
+        self.waitNetworkRow("test_network2", connectionName)
 
         # Expand row for first network
-        b.click("tbody tr[data-row-id=network-test_network2-{0}] th".format(connectionName)) # click on the row header
+        self.toggleNetworkRow("test_network2", connectionName)
 
         b.wait_present("#network-test_network2-{0}-autostart-checkbox".format(connectionName))
 
@@ -3288,10 +3299,10 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Check that all networks are there
         b.wait_in_text("body", "Networks")
-        b.wait_present("tbody tr[data-row-id=network-test_network2-{0}] th".format(connectionName))
+        self.waitNetworkRow("test_network2", connectionName)
 
         # Expand row for first network
-        b.click("tbody tr[data-row-id=network-test_network2-{0}] th".format(connectionName)) # click on the row header
+        self.toggleNetworkRow("test_network2", connectionName)
 
         # activate network
         b.wait_present("#activate-network-test_network2-{0}".format(connectionName))
@@ -3311,15 +3322,15 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # Delete an inactive network
         b.click('#delete-network-test_network2-{0}'.format(connectionName))
         b.click(".modal-footer button:contains(Delete)")
-        b.wait_not_present("tbody tr[data-row-id=network-test_network2-{0}] th".format(connectionName))
+        self.waitNetworkRow("test_network2", connectionName, False)
 
         # Delete an active network
         m.execute("echo \"{0}\" > /tmp/xml && virsh net-define /tmp/xml && virsh net-start test_network2".format(TEST_NETWORK2_XML))
         b.wait_in_text("#network-test_network2-{0}-state".format(connectionName), "active")
-        b.click("tbody tr[data-row-id=network-test_network2-{0}] th".format(connectionName)) # click on the row header
+        self.toggleNetworkRow("test_network2", connectionName)
         b.click('#delete-network-test_network2-{0}'.format(connectionName))
         b.click(".modal-footer button:contains(Delete)")
-        b.wait_not_present("tbody tr[data-row-id=network-test_network2-{0}] th".format(connectionName))
+        self.waitNetworkRow("test_network2", connectionName, False)
 
     def testNetworks(self):
         b = self.browser
@@ -3345,8 +3356,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Check that all networks are there
         b.wait_in_text("body", "Networks")
-        b.wait_present("tbody tr[data-row-id=network-test_network2-{0}] th".format(connectionName))
-        b.wait_present("tbody tr[data-row-id=network-test_network3-{0}] th".format(connectionName))
+        self.waitNetworkRow("test_network2", connectionName)
+        self.waitNetworkRow("test_network3", connectionName)
 
         # Check headers of networks
         b.wait_in_text("#network-test_network2-{0}-name".format(connectionName), "test_network2")
@@ -3357,7 +3368,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("#network-test_network3-{0}-forwarding".format(connectionName), "Bridge")
 
         # Expand row for first network
-        b.click("tbody tr[data-row-id=network-test_network2-{0}] th".format(connectionName)) # click on the row header
+        self.toggleNetworkRow("test_network2", connectionName)
 
         # Check overview network properties are present
         b.wait_in_text("#network-test_network2-{0}-persistent".format(connectionName), "yes")
@@ -3373,10 +3384,10 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("#network-test_network2-{0}-ipv6-dhcp-host-1".format(connectionName), "ID: 0:1:0:1:18:aa:62:fe:0:16:3e:44:55:66, IP: 2001:db8:ca2:2:3::2")
 
         # Close expanded row for this pool
-        b.click("tbody tr[data-row-id=network-test_network2-{0}] th".format(connectionName)) # click on the row header
+        self.toggleNetworkRow("test_network2", connectionName)
 
         # Expand row for second network
-        b.click("tbody tr[data-row-id=network-test_network3-{0}] th".format(connectionName)) # click on the row header
+        self.toggleNetworkRow("test_network3", connectionName)
 
         # Check overview network properties are present
         b.wait_in_text("#network-test_network3-{0}-persistent".format(connectionName), "yes")
@@ -3393,12 +3404,12 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_not_present("#network-test_network3-{0}-ipv6-dhcp-host-0".format(connectionName))
 
         # Transient network
-        b.click("tbody tr[data-row-id=network-test_network4-{0}] th".format(connectionName)) # click on the row header
+        self.toggleNetworkRow("test_network4", connectionName)
         b.wait_in_text("#network-test_network4-{0}-persistent".format(connectionName), "no")
         b.wait_not_present("#network-test_network4-{0}-autostart-checkbox".format(connectionName)) # Transient network shouldn't have autostart option
         b.wait_present('#delete-network-test_network4-{0}:disabled'.format(connectionName)) # Transient network cannot be deleted
         b.click('#deactivate-network-test_network4-{0}'.format(connectionName)) # Deactivate transient network
-        b.wait_not_present("tbody tr[data-row-id=network-test_network4-{0}] th".format(connectionName)) # Check it's not present after deactivation
+        self.waitNetworkRow("test_network4", connectionName, False) # Check it's not present after deactivation
 
     def testPause(self):
         b = self.browser
@@ -3777,7 +3788,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 connectionName = m.execute("virsh uri | head -1 | cut -d/ -f4").strip()
 
                 b.wait_in_text("#network-{0}-{1}-forwarding".format(self.name, connectionName), modes[self.forward_mode])
-                b.click("tbody tr[data-row-id=network-{0}-{1}] th".format(self.name, connectionName)) # open network tab
+                self.test_obj.toggleNetworkRow(self.name, connectionName)
+
                 if self.ip_conf != "None":
                     if "4" in self.ip_conf:
                         b.wait_in_text("#network-{0}-{1}-ipv4-address".format(self.name, connectionName), self.ipv4_address)

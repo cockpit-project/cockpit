@@ -113,6 +113,14 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
     def toggleVmRow(self, vmName):
         self.browser.click("tbody tr[data-row-id=vm-{0}] th".format(vmName)) # click on the row header
 
+    def waitVmRow(self, vmName, present=True):
+        b = self.browser
+        vm_row = "tbody tr[data-row-id=vm-{0}] th".format(vmName)
+        if present:
+            b.wait_present(vm_row)
+        else:
+            b.wait_not_present(vm_row)
+
     def startLibvirt(self):
         m = self.machine
 
@@ -211,7 +219,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
+        self.waitVmRow(name)
 
         self.toggleVmRow("subVmTest1")
         b.wait_in_text("#vm-subVmTest1-state", "running")
@@ -252,7 +260,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             b.wait_in_text("#virtual-machines-listing thead tr td", "No VM is running")
             return
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
+        self.waitVmRow("subVmTest1")
 
         self.toggleVmRow("subVmTest1")
         b.wait_in_text("#vm-subVmTest1-state", "running")
@@ -349,7 +357,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 m.execute("until test -e /run/libvirt/libvirt-sock; do sleep 1; done")
                 m.execute("chmod o+rwx /run/libvirt/libvirt-sock")
             b.wait_in_text("body", "Virtual Machines")
-            b.wait_present("tbody tr[data-row-id=vm-subVmTest1] th")
+            self.waitVmRow("subVmTest1")
             b.wait_in_text("#virtual-machines-listing .listing-ct > tbody:nth-of-type(1) th", "subVmTest1")
             b.wait_in_text("#virtual-machines-listing .listing-ct > tbody:nth-of-type(2) th", "subVmTest2")
             b.wait_in_text("#vm-subVmTest1-state", "shut off")
@@ -452,7 +460,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self.login_and_go("/machines")
 
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
+        self.waitVmRow("subVmTest1")
 
         # newer libvirtd versions use socket activation
         # we should test that separately, but here we test only using the service unit
@@ -479,7 +487,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("body", "Virtual Machines")
         with b.wait_timeout(15):
             b.wait_not_present(".pf-c-empty-state")
-            b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
+            self.waitVmRow("subVmTest1")
 
         hack_libvirtd_crash()
         m.execute("systemctl stop {0}".format(libvirtServiceName))
@@ -495,7 +503,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("body", "Virtual Machines")
         with b.wait_timeout(15):
             b.wait_not_present(".pf-c-empty-state")
-            b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
+            self.waitVmRow("subVmTest1")
 
         m.execute("systemctl enable {0}".format(libvirtServiceName))
         hack_libvirtd_crash()
@@ -527,7 +535,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
+        self.waitVmRow("subVmTest1")
 
         self.toggleVmRow("subVmTest1")
         b.wait_in_text("#vm-subVmTest1-state", "running")
@@ -997,7 +1005,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
+        self.waitVmRow("subVmTest1")
 
         self.toggleVmRow("subVmTest1")
         b.wait_in_text("#vm-subVmTest1-state", "running")
@@ -1033,7 +1041,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
+        self.waitVmRow("subVmTest1")
         self.toggleVmRow("subVmTest1")
 
         b.wait_in_text("#vm-subVmTest1-state", "running")
@@ -1158,7 +1166,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
+        self.waitVmRow("subVmTest1")
 
         self.toggleVmRow("subVmTest1")
         b.wait_in_text("#vm-subVmTest1-state", "running") # running or paused
@@ -1189,7 +1197,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         self.login_and_go("/machines", urlroot=urlroot)
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
+        self.waitVmRow("subVmTest1")
 
         self.toggleVmRow("subVmTest1")
         b.wait_in_text("#vm-subVmTest1-state", "running") # running or paused
@@ -1220,7 +1228,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", name)
+        self.waitVmRow(name)
 
         m.execute("test -f {0}".format(img2))
 
@@ -1284,7 +1292,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("#vm-{0}-state".format(name), "paused")
         b.click("#vm-{0}-delete".format(name))
         self.browser.reload()
-        b.wait_not_present("tbody tr[data-row-id=vm-{0}] th".format(name)) # click on the row header
+        self.waitVmRow(name, False)
 
         # Try to delete a transient VM
         name = "transient-VM"
@@ -1296,7 +1304,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_present("#vm-{0}-delete:disabled".format(name))
         b.click("#vm-{0}-off-caret".format(name))
         b.click("#vm-{0}-forceOff".format(name))
-        b.wait_not_present("tbody tr[data-row-id=vm-{0}] th".format(name))
+        self.waitVmRow(name, False)
         b.wait_not_present(".toast-notifications.list-pf div.pf-c-alert")
 
     def testSerialConsole(self):
@@ -1307,7 +1315,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_in_text("tbody tr[data-row-id=vm-{0}] th".format(name), name)
+        self.waitVmRow(name)
 
         self.toggleVmRow(name)
         b.wait_in_text("#vm-{0}-state".format(name), "running") # running or paused
@@ -2455,7 +2463,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_in_text("tbody tr th", "subVmTest1")
+        self.waitVmRow("subVmTest1")
 
         b.click("tbody tr th") # click on the row header
         b.wait_in_text("#vm-subVmTest1-state", "running")
@@ -2494,7 +2502,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_in_text("tbody tr th", "subVmTest1")
+        self.waitVmRow("subVmTest1")
 
         self.toggleVmRow("subVmTest1")
         b.wait_in_text("#vm-subVmTest1-state", "running")
@@ -2584,7 +2592,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.click(".modal-footer button:contains(Create)")
         b.wait_not_present("#create-vm-dialog")
 
-        b.wait_in_text("tbody tr[data-row-id=vm-VmNotInstalled] th", "VmNotInstalled")
+        self.waitVmRow("VmNotInstalled")
 
         # Change autostart
         autostart = not b.get_checked("#vm-VmNotInstalled-autostart-checkbox")
@@ -2743,7 +2751,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
+        self.waitVmRow("subVmTest1")
         self.toggleVmRow("subVmTest1")
         b.wait_in_text("#vm-subVmTest1-state", "running")
         b.click("#vm-subVmTest1-disks") # open the "Disks" subtab
@@ -2833,7 +2841,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_in_text("tbody tr th", "subVmTest1")
+        self.waitVmRow("subVmTest1")
 
         self.toggleVmRow("subVmTest1")
         b.wait_in_text("#vm-subVmTest1-state", "running")
@@ -2920,7 +2928,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
+        self.waitVmRow("subVmTest1")
 
         # Check kernel is booted before we try detaching disks
         if args["logfile"] is not None:
@@ -2985,7 +2993,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_in_text("tbody tr th", "subVmTest1")
+        self.waitVmRow("subVmTest1")
 
         self.toggleVmRow("subVmTest1")
         b.wait_in_text("#vm-subVmTest1-state", "running")
@@ -3029,7 +3037,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_in_text("tbody tr th", "subVmTest1")
+        self.waitVmRow("subVmTest1")
 
         self.toggleVmRow("subVmTest1")
         b.wait_in_text("#vm-subVmTest1-state", "running")
@@ -3093,7 +3101,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("body", "Virtual Machines")
         b.wait_in_text(".cards-pf #card-pf-networks .card-pf-title-link", "Networks")
         b.wait_in_text("#card-pf-networks .card-pf-aggregate-status-count", "2")
-        b.wait_in_text("tbody tr th", "subVmTest1")
+        self.waitVmRow("subVmTest1")
         self.toggleVmRow("subVmTest1")
         b.click("#vm-subVmTest1-networks") # open the "Networks" subtab
 
@@ -3389,7 +3397,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_in_text("tbody tr th", "subVmTest1")
+        self.waitVmRow("subVmTest1")
 
         self.toggleVmRow("subVmTest1")
         b.wait_in_text("#vm-subVmTest1-state", "running")
@@ -3415,7 +3423,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_in_text("tbody tr th", "subVmTest1")
+        self.waitVmRow("subVmTest1")
 
         b.wait_in_text("#card-pf-storage-pools .card-pf-aggregate-status-count", "1")
         b.wait_in_text(".cards-pf #card-pf-storage-pools .card-pf-title-link", "Storage Pool")

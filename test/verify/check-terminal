@@ -30,6 +30,8 @@ class TestTerminal(MachineCase):
         m = self.machine
         b.default_user = "admin"
 
+        self.allow_journal_messages(".*external channel failed: terminated")
+
         # Make sure we get what we expect
         m.write("/tmp/bashrc-extra", """
 PS1="\\u@\\h \\W]\$ "

@@ -993,7 +993,7 @@ class MachineCase(unittest.TestCase):
         "Failed to send coredump datagram:.*",
 
         # Something crashed, but we don't have more info. Don't fail on that
-        "Failed to generate stack trace: (null)",
+        "Failed to generate stack trace: \(null\)",
 
         # The usual sudo finger wagging
         "We trust you have received the usual lecture from the local System",

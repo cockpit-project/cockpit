@@ -226,10 +226,10 @@ maintainer-clean-local::
 
 install-data-local:: $(WEBPACK_INSTALL)
 	$(MKDIR_P) $(DESTDIR)$(pkgdatadir)
-	tar -cf - $^ | tar -C $(DESTDIR)$(pkgdatadir) --strip-components=1 -xvf -
+	tar -cf - $^ | tar --no-same-owner -C $(DESTDIR)$(pkgdatadir) --strip-components=1 -xvf -
 install-data-local:: $(WEBPACK_DEBUG)
 	$(MKDIR_P) $(DESTDIR)$(debugdir)$(pkgdatadir)
-	tar -cf - $^ | tar -C $(DESTDIR)$(debugdir)$(pkgdatadir) --strip-components=1 -xvf -
+	tar -cf - $^ | tar --no-same-owner -C $(DESTDIR)$(debugdir)$(pkgdatadir) --strip-components=1 -xvf -
 uninstall-local::
 	find $(DESTDIR)$(pkgdatadir) -ignore_readdir_race -type f -exec rm -f {} \;
 	find $(DESTDIR)$(pkgdatadir) -ignore_readdir_race -type d -empty -delete

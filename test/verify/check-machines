@@ -3411,32 +3411,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.click('#deactivate-network-test_network4-{0}'.format(connectionName)) # Deactivate transient network
         self.waitNetworkRow("test_network4", connectionName, False) # Check it's not present after deactivation
 
-    def testPause(self):
-        b = self.browser
-        m = self.machine
-
-        self.startVm("subVmTest1")
-
-        self.login_and_go("/machines")
-        b.wait_in_text("body", "Virtual Machines")
-        self.waitVmRow("subVmTest1")
-
-        self.toggleVmRow("subVmTest1")
-        b.wait_in_text("#vm-subVmTest1-state", "running")
-
-
-        # pause the machine
-        b.click("#vm-subVmTest1-pause")
-        b.wait_in_text("#vm-subVmTest1-state", "paused")
-        state = m.execute("virsh dominfo subVmTest1 | grep 'State:' | awk '{print $2}'").strip()
-        self.assertEqual(state, "paused")
-
-        # resume the machine
-        b.click("#vm-subVmTest1-resume")
-        b.wait_in_text("#vm-subVmTest1-state", "running")
-        state = m.execute("virsh dominfo subVmTest1 | grep 'State:' | awk '{print $2}'").strip()
-        self.assertEqual(state, "running")
-
     def testStoragePools(self):
         b = self.browser
         m = self.machine

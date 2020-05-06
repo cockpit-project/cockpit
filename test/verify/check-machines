@@ -312,6 +312,13 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         wait(lambda: "reboot: Power down" in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
         b.wait_in_text("#vm-subVmTest1-state", "running")
 
+        # force reboot
+        self.machine.execute("echo '' > {0}".format(args["logfile"]))
+        b.click("#vm-subVmTest1-reboot-caret")
+        b.click("#vm-subVmTest1-forceReboot")
+        wait(lambda: "Initializing cgroup subsys" in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
+        b.wait_in_text("#vm-subVmTest1-state", "running")
+
         # shut off
         b.click("#vm-subVmTest1-off-caret")
         b.click("#vm-subVmTest1-forceOff")

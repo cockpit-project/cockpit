@@ -95,6 +95,7 @@ $desktop: $phone + 1px;
     }
 
     .ct-header-item > a,
+    .ct-header-item > button,
     .ct-header-item > span {
         color: var(--pf-global--Color--light-100) !important;
     }
@@ -149,6 +150,7 @@ $desktop: $phone + 1px;
 }
 
 .pf-c-select button,
+.ct-header-item button,
 .ct-header-item a {
         &:hover, &:focus &:active {
             text-decoration: none;
@@ -229,11 +231,13 @@ $desktop: $phone + 1px;
 
     .header {
         .ct-header-item > a,
+        .ct-header-item > button,
         .ct-header-item > span {
             line-height: 2rem;
             padding: 0 1rem 0 1rem;
             font-size: var(--pf-global--FontSize--md);
             margin: 0;
+            height: 100%;
         }
 
         .credential-unlocked {
@@ -349,10 +353,12 @@ $desktop: $phone + 1px;
 
     .header {
         .dropdown-menu > li > a,
+        .dropdown-menu > li > button,
         .dropdown-menu > li > span {
             /* Make menu items a consistent, touch-friendly size */
             padding: 0 40px;
             line-height: 54px;
+            color: #333;
         }
     }
 

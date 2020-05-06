@@ -65,7 +65,7 @@ else
         # default to no disk if size 0
         DISK_OPTIONS="none"
     elif [ "$STORAGE_POOL" != "NewVolume" ]; then
-        DISK_OPTIONS="vol=$STORAGE_POOL/$STORAGE_VOLUME"
+        DISK_OPTIONS="vol='$STORAGE_POOL/$STORAGE_VOLUME'"
     else
         DISK_OPTIONS="size=$STORAGE_SIZE,format=qcow2"
     fi

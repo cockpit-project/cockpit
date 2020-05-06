@@ -35,7 +35,7 @@ import './createStoragePoolDialog.css';
 const _ = cockpit.gettext;
 
 const StoragePoolNameRow = ({ onValueChanged, dialogValues }) => {
-    const validationState = dialogValues.name.length == 0 && dialogValues.validationFailed.name ? 'error' : undefined;
+    const validationState = dialogValues.validationFailed.name ? 'error' : undefined;
 
     return (
         <>
@@ -51,7 +51,7 @@ const StoragePoolNameRow = ({ onValueChanged, dialogValues }) => {
                        className='form-control' />
                 { validationState == 'error' &&
                 <HelpBlock>
-                    <p className="text-danger">{_("Name should not be empty")}</p>
+                    <p className="text-danger">{dialogValues.name.length == 0 ? _("Name should not be empty") : _("Name contains invalid characters")}</p>
                 </HelpBlock> }
             </FormGroup>
         </>
@@ -370,7 +370,7 @@ class CreateStoragePoolModal extends React.Component {
 
         // Mandatory props for all pool types
         ['name'].forEach(prop => {
-            if (this.state[prop].length == 0) {
+            if (this.state[prop].length == 0 || this.state[prop].includes("'") || this.state[prop].includes("\"")) {
                 modalIsIncomplete = true;
                 validationFailed[prop] = true;
             }

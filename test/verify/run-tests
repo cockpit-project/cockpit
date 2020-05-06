@@ -97,7 +97,8 @@ def finish_test(opts, test):
         # HACK: many tests are unstable, always retry them 3 times
         retry_reason = b"be robust against unstable tests"
 
-    if test.retries < 2:
+    unexpected_message = b"Test completed, but found unexpected" in test.output
+    if test.retries < 2 and not unexpected_message:
         test.retries += 1
         test.output += b" # RETRY %i (%s)\n" % (test.retries, retry_reason)
         print_test(test, print_tap=opts.thorough)

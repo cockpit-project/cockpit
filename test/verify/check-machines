@@ -121,6 +121,17 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         else:
             b.wait_not_present(vm_row)
 
+    def togglePoolRow(self, poolName, connectionName="system"):
+        self.browser.click("tbody tr[data-row-id=pool-{0}-system] th".format(poolName)) # click on the row header
+
+    def waitPoolRow(self, poolName, connectionName="system", present="true"):
+        b = self.browser
+        pool_row = "tbody tr[data-row-id=pool-{0}-{1}] th".format(poolName, connectionName)
+        if present:
+            b.wait_present(pool_row)
+        else:
+            b.wait_not_present(pool_row)
+
     def startLibvirt(self):
         m = self.machine
 
@@ -703,8 +714,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 if not self.use_existing_volume:
                     b.click(".cards-pf .card-pf-title span:contains(Storage Pool)")
 
-                    b.wait_present("tbody tr[data-row-id=pool-{0}-system] th".format(self.pool_name))
-                    b.click("tbody tr[data-row-id=pool-{0}-system] th".format(self.pool_name))
+                    self.test_obj.waitPoolRow(self.pool_name)
+                    self.test_obj.togglePoolRow(self.pool_name)
 
                     b.wait_present("#pool-{0}-system-storage-volumes".format(self.pool_name))
                     b.click("#pool-{0}-system-storage-volumes".format(self.pool_name)) # open the "Storage Volumes" subtab
@@ -3468,11 +3479,11 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Check that all defined pools are there
         b.wait_in_text("body", "Storage Pools")
-        b.wait_present("tbody tr[data-row-id=pool-myPoolOne-{0}] th".format(connectionName))
-        b.wait_present("tbody tr[data-row-id=pool-myPoolTwo-{0}] th".format(connectionName))
+        self.waitPoolRow("myPoolOne", connectionName)
+        self.waitPoolRow("myPoolTwo", connectionName)
 
         # Check basic pool properties
-        b.click("tbody tr[data-row-id=pool-myPoolOne-{0}] th".format(connectionName)) # click on the row header
+        self.togglePoolRow("myPoolOne", connectionName)
         b.wait_in_text("#pool-myPoolOne-{0}-target-path".format(connectionName), p1)
         b.wait_in_text("#pool-myPoolOne-{0}-type".format(connectionName), "dir")
 
@@ -3483,10 +3494,10 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                        "No Storage Volumes defined for this Storage Pool")
 
         # Close expanded row for this pool
-        b.click("tbody tr[data-row-id=pool-myPoolOne-{0}] th".format(connectionName)) # click on the row header
+        self.togglePoolRow("myPoolOne", connectionName)
 
         # Expand row for second storage pool and check list of storage volumes
-        b.click("tbody tr[data-row-id=pool-myPoolTwo-{0}] th".format(connectionName)) # click on the row header
+        self.togglePoolRow("myPoolTwo", connectionName)
         b.wait_present("#pool-myPoolTwo-{0}-storage-volumes".format(connectionName))
         b.click("#pool-myPoolTwo-{0}-storage-volumes".format(connectionName)) # open the "Storage Volumes" subtab
         b.wait_present("#pool-myPoolTwo-{0}-volume-VolumeOne-name".format(connectionName))
@@ -3500,7 +3511,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_present("#pool-myPoolTwo-{0}-volume-VolumeThree-name".format(connectionName))
         b.reload()
         b.enter_page('/machines')
-        b.click("tbody tr[data-row-id=pool-myPoolTwo-{0}] th".format(connectionName)) # click on the row header
+        self.togglePoolRow("myPoolTwo", connectionName)
         b.click("#pool-myPoolTwo-{0}-storage-volumes".format(connectionName)) # open the "Storage Volumes" subtab
         b.wait_not_present("#pool-myPoolTwo-{0}-volume-VolumeThree-name".format(connectionName))
 
@@ -3518,7 +3529,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("#storage-volumes-delete", "Delete 1 volume")
 
         # Test operations on storage pools
-        b.click("tbody tr[data-row-id=pool-myPoolOne-{0}] th".format(connectionName)) # click on the row header
+        self.togglePoolRow("myPoolOne", connectionName)
 
         # Try deactivating and activating a pool
         b.click("#deactivate-pool-myPoolOne-{0}".format(connectionName))
@@ -3533,7 +3544,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         m.execute("virsh detach-disk --domain subVmTest1 --target vdc --config")
         b.reload()
         b.enter_page('/machines')
-        b.click("tbody tr[data-row-id=pool-myPoolTwo-{0}] th".format(connectionName)) # click on the row header
+        self.togglePoolRow("myPoolTwo", connectionName)
         b.click("#pool-myPoolTwo-{0}-storage-volumes".format(connectionName)) # open the "Storage Volumes" subtab
 
         # Backup pool XML to redefine right after
@@ -3552,10 +3563,10 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Redefine the deleted Pool
         m.execute("virsh pool-define /tmp/myPoolTwo.xml")
-        b.wait_present("tbody tr[data-row-id=pool-myPoolTwo-{0}]".format(connectionName))
+        self.waitPoolRow("myPoolTwo", connectionName)
 
         # Activate the Pool
-        b.click("tbody tr[data-row-id=pool-myPoolTwo-{0}] td.listing-ct-toggle".format(connectionName)) # click on the row header
+        self.togglePoolRow("myPoolTwo", connectionName)
         b.click("#activate-pool-myPoolTwo-{0}".format(connectionName))
 
         # Delete and active Pool and also its volumes
@@ -3567,7 +3578,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_not_present("div.modal-dialog")
         b.wait_not_present("#pool-myPoolTwo-{0}-storage-volumes-list".format(connectionName))
         self.assertEqual(m.execute("ls -A {0}".format(p2)), "")
-        b.wait_not_present("tbody tr[data-row-id=pool-myPoolTwo-{0}]".format(connectionName))
+        self.waitPoolRow("myPoolTwo", connectionName, False)
 
         # Recreate the myPoolTwo to test Used By column
         m.execute("virsh pool-define-as myPoolTwo --type dir --target {0}; virsh pool-start myPoolTwo".format(p2))
@@ -3587,7 +3598,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.enter_page('/machines')
 
         # Expand row for myPoolTwo and check list of storage volumes
-        b.click("tbody tr[data-row-id=pool-myPoolTwo-{0}] td.listing-ct-toggle".format(connectionName)) # click on the row header
+        self.togglePoolRow("myPoolTwo", connectionName)
         b.wait_present("#pool-myPoolTwo-{0}-storage-volumes".format(connectionName))
         b.click("#pool-myPoolTwo-{0}-storage-volumes".format(connectionName)) # open the "Storage Volumes" subtab
 
@@ -3599,17 +3610,17 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Check activate button when pool activation is pending
         m.execute("virsh pool-define-as mypool --type netfs --source-host 127.0.0.10 --source-path /mnt/pool --target /mnt/pool")
-        b.click("tbody tr[data-row-id=pool-mypool-system] td.listing-ct-toggle") # click on the row header
+        self.togglePoolRow("mypool", connectionName)
         b.click("#activate-pool-mypool-system")
         b.wait_present("#activate-pool-mypool-system:disabled")
 
         # Transient network
-        b.click("tbody tr[data-row-id=pool-myPoolThree-{0}] td.listing-ct-toggle".format(connectionName)) # click on the row header
+        self.togglePoolRow("myPoolThree", connectionName)
         b.wait_not_present("#pool-myPoolThree-{0}-autostart".format(connectionName)) # Transient pool shouldn't have autostart option
         b.wait_present('#delete-pool-myPoolThree-{0}:disabled'.format(connectionName)) # Transient pool cannot be deleted
         b.click('#deactivate-pool-myPoolThree-{0}'.format(connectionName)) # Deactivate transient pool
         # Check it's not present after deactivation
-        b.wait_not_present("tbody tr[data-row-id=pool-myPoolThree-{0}] td.listing-ct-toggle".format(connectionName)) # click on the row header
+        self.waitPoolRow("myPoolThree", connectionName, False)
 
     def testNetworksCreate(self):
         b = self.browser
@@ -4039,12 +4050,12 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
                     # If pool creation failed make sure that the pool is not shown in the UI
                     if self.xfail_error and 'already exists' not in self.xfail_error:
-                        b.wait_not_present("tbody tr[data-row-id=pool-{0}-system] th".format(self.name))
+                        self.test_obj.waitPoolRow(self.name, "system", False)
 
             def verify_dialog(self):
                 # Check that the defined pools is now visible
                 b.wait_in_text("body", "Storage Pools")
-                b.wait_present("tbody tr[data-row-id=pool-{0}-system] th".format(self.name))
+                self.test_obj.waitPoolRow(self.name)
 
                 # Verify libvirt XML
                 pool_xml = "virsh -c qemu:///system pool-dumpxml {0}".format(self.name)
@@ -4089,7 +4100,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             def verify_overview(self):
                 # Check basic pool properties
                 connectionName = m.execute("virsh uri | head -1 | cut -d/ -f4").strip()
-                b.click("tbody tr[data-row-id=pool-{0}-{1}] th".format(self.name, connectionName)) # click on the row header
+                self.test_obj.togglePoolRow(self.name, connectionName)
 
                 if self.target:
                     b.wait_in_text("#pool-{0}-{1}-target-path".format(self.name, connectionName), self.target[:-1])
@@ -4266,7 +4277,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 self.close()
 
             def open(self):
-                b.click("tbody tr[data-row-id=pool-{0}-system] th".format(self.pool_name)) # click on the row header
+                self.test_obj.togglePoolRow(self.pool_name)
 
                 b.click("#pool-{0}-system-storage-volumes".format(self.pool_name)) # open the "Storage Volumes" subtab
 
@@ -4327,7 +4338,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             def close(self):
                 b.click("#pool-{0}-system-overview".format(self.pool_name)) # open the "Storage Volumes" subtab
 
-                b.click("tbody tr[data-row-id=pool-{0}-system] th".format(self.pool_name)) # click on the row header
+                self.test_obj.togglePoolRow(self.pool_name)
 
         # Check volume creation for various pool types
         StorageVolumeCreateDialog(

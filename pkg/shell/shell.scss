@@ -30,11 +30,11 @@
 
 html, body {
     height: 100%;
+    width: 100%;
 }
 
 html.index-page body {
     overflow: hidden;
-    display: grid;
 }
 
 .hide-before:before {
@@ -349,6 +349,8 @@ $desktop: $phone + 1px;
 
 .page {
     display: grid;
+    width: 100%;
+    height: 100%;
 
     @media (max-width: $phone) {
         grid: "main main main" "sidebar switcher header";

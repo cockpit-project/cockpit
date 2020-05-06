@@ -1143,7 +1143,7 @@ class MachineCase(unittest.TestCase):
                 if re.search(p, log):
                     break
             else:
-                raise Error(log)
+                raise Error("FAIL: Test completed, but found unexpected browser errors:\n" + log)
 
     def check_axe(self, label=None, suffix=""):
         """Run aXe check on the currently active frame

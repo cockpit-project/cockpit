@@ -92,6 +92,24 @@ $desktop: $phone + 1px;
         display: flex;
         height: 100%;
         align-items: center;
+        text-decoration: none;
+
+        .fa-caret-down {
+            margin-left: 0.5rem;
+        }
+
+        &.open {
+            background-color: var(--pf-global--BackgroundColor--dark-200);
+
+            .fa-caret-down {
+                transform: scaleY(-1) translateY(1px);
+            }
+        }
+
+        :focus {
+            outline: 1px dotted var(--pf-global--BackgroundColor--light-100);
+            text-decoration: none;
+        }
     }
 
     .ct-header-item > a,
@@ -327,6 +345,12 @@ $desktop: $phone + 1px;
                 left: auto;
                 top: auto;
                 bottom: 100%;
+            }
+
+            .dropdown-toggle {
+                .fa-caret-down {
+                    display: none;
+                }
             }
         }
         &-docs {

@@ -994,6 +994,7 @@ class MachineCase(unittest.TestCase):
 
         # Something crashed, but we don't have more info. Don't fail on that
         "Failed to generate stack trace: \(null\)",
+        "Failed to get (COMM|EXE).*: No such process",
 
         # The usual sudo finger wagging
         "We trust you have received the usual lecture from the local System",

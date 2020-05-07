@@ -1435,12 +1435,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                   .deleteVm(dialog) \
                   .checkEnvIsEmpty()
 
-        def installWithErrorTest(dialog):
-            runner.tryInstallWithError(dialog) \
-                .assertScriptFinished() \
-                .deleteVm(dialog) \
-                .checkEnvIsEmpty()
-
         def setupMockFileServer():
             self.machine.upload(["verify/files/min-openssl-config.cnf", "verify/files/mock-range-server.py"], self.vm_tmpdir)
             cmds = [
@@ -2348,30 +2342,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             b.click("#vm-{0}-off-caret".format(name))
             b.click("#vm-{0}-forceOff".format(name))
             b.wait_in_text("#vm-{0}-state".format(name), "shut off")
-
-            return self
-
-        def tryInstallWithError(self, dialog):
-            b = self.browser
-            dialog.start_vm = False
-            name = dialog.name
-
-            dialog.open() \
-                .fill() \
-                .create()
-
-            # should fail because of memory error
-            b.click("#vm-{0}-install".format(name))
-            b.wait_in_text("#vm-{0}-state".format(name), "shut off")
-            b.wait_in_text("#app .listing-ct tbody:nth-of-type(1) th", name)
-            b.wait_present("#app .listing-ct tbody:nth-of-type(1) tr td span span.pficon-warning-triangle-o")
-
-            b.wait_present("#vm-{0}-install".format(name))
-            # Overview should be opened
-            b.click("#vm-{0}-overview".format(name)) # open the "overView" subtab
-
-            b.wait_in_text("div.pf-c-alert.pf-m-danger strong", "VM {0} failed to get installed".format(name))
-            b.wait_in_text("button.alert-link.more-button", "show more")
 
             return self
 

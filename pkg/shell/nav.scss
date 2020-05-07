@@ -230,12 +230,11 @@ $desktop: $phone + 1px;
     }
 
     .header {
-        grid-gap: 1rem;
-
         .ct-header-item > a,
         .ct-header-item > button,
         .ct-header-item > span {
-            padding: 0 1rem 0 1rem;
+            // PF3 specificity needs to be overridden, hence !important here
+            padding: 0 1rem !important;
             font-size: var(--pf-global--FontSize--md);
             height: 100%;
             display: flex;

@@ -3,7 +3,6 @@
 basedir = $(pkgdatadir)/base1
 nodist_base_DATA = \
 	dist/base1/cockpit.min.css.gz \
-	dist/base1/patternfly.min.css.gz \
 	dist/base1/mustache.min.js.gz \
 	dist/base1/jquery.min.js.gz \
 	dist/base1/cockpit.min.js.gz \
@@ -15,7 +14,7 @@ base_DATA = \
 basedebugdir = $(debugdir)$(basedir)
 basedebug_DATA = \
 	dist/base1/cockpit.min.css.map \
-	dist/base1/patternfly.min.css.map \
+	dist/base1/patternfly.css.map \
 	dist/base1/mustache.min.js.map \
 	dist/base1/jquery.min.js.map \
 	dist/base1/cockpit.min.js.map \
@@ -26,8 +25,6 @@ AM_TESTS_ENVIRONMENT = export G_DEBUG=fatal-criticals,fatal-warnings ; export XD
 dist/base1/cockpit.min.css: src/base1/cockpit.css
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	$(srcdir)/tools/missing $(CLEAN_CSS) --keep-line-breaks --output=$@ --inline none --source-map --source-map-inline-sources $^
-dist/base1/patternfly.min.css: dist/base1/patternfly-base.css
-	$(MIN_CSS_RULE)
 dist/base1/jquery.js:
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	cat $(srcdir)/node_modules/jquery/dist/jquery.js $(srcdir)/node_modules/bootstrap/dist/js/bootstrap.js $(srcdir)/node_modules/patternfly/dist/js/patternfly.js > $@.tmp && $(MV) $@.tmp $@
@@ -55,29 +52,18 @@ dist/base1/mustache.min.js.map: dist/base1/mustache.min.js
 
 dist/base1/cockpit.min.css.map: dist/base1/cockpit.min.css
 
-dist/base1/patternfly.min.css.map: dist/base1/patternfly.min.css
-
-# Modify the patternfly files appropriately
-#
-# PatternFly 4 base.css: remove external font declarations, re-using the ones from our PatternFly 3 patternfly.min.css above for now
-# once that goes away, use the above seddery instead
-dist/base1/react-core-base.css:
+# PatternFly 3 with hacked CSS to look like PF4 plus the PF4 base
+dist/base1/patternfly.css.map: dist/base1/patternfly.css
+dist/base1/patternfly.css: src/base1/patternfly-cockpit.scss
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	$(AM_V_GEN) sed '/^@font-face/,/^$$/d' $(srcdir)/node_modules/@patternfly/react-core/dist/styles/base.css > $@.tmp && mv $@.tmp $@
-
-# PatternFly 3 with hacked CSS to look like PF4
-dist/base1/patternfly.css.map: dist/base1/patternfly-base.css
-dist/base1/patternfly-base.css: src/base1/patternfly-overrides.less dist/base1/react-core-base.css
-	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	F=$(srcdir)/node_modules/patternfly/dist/less/patternfly.less && \
-	sed '/import "variables.less"/d' $$F > $$F.patched && \
-	F_EXTRA=$(srcdir)/node_modules/patternfly/dist/less/patternfly-additions.less && \
-	cat $$F.patched $$F_EXTRA > $$F.tmp && \
-	echo -e '@import "../../../../src/base1/patternfly-overrides.less";\n@import "../../../../src/base1/patternfly-overrides-variables.less";' >> $$F.tmp && \
-	$(LESSC) --source-map=dist/base1/patternfly.css.map --source-map-include-source $$F.tmp $@.tmp && \
-	sed -i -f $(srcdir)/tools/patternfly.sed $@.tmp && \
-	rm $$F.tmp $$F.patched && \
-	$(MV) $@.tmp $@
+        $(SASS) $< $@ --source-map \
+			--source-map-urls absolute \
+			--style compressed \
+			--load-path=$(srcdir)/node_modules \
+			--load-path=$(srcdir)/node_modules/patternfly/dist/sass \
+			--load-path=$(srcdir)/node_modules/bootstrap-sass/assets/stylesheets \
+			--load-path=$(srcdir)/node_modules/font-awesome-sass/assets/stylesheets && \
+	sed -i -f $(srcdir)/tools/patternfly.sed $@
 
 dist/base1/fonts/fontawesome.woff:
 	$(V_COPY) $(MKDIR_P) $(dir $@) && \
@@ -206,17 +192,14 @@ EXTRA_DIST += \
 	dist/base1/mustache.js \
 	dist/base1/mustache.min.js \
 	dist/base1/mustache.min.js.map \
-	dist/base1/patternfly-base.css \
-	dist/base1/patternfly.min.css \
-	dist/base1/patternfly.min.css.map \
+	dist/base1/patternfly.css \
 	dist/base1/patternfly.css.map \
-	dist/base1/react-core-base.css \
 	dist/base1/simple-tap.js \
 	src/base1/cockpit.css \
 	src/base1/cockpit.js \
 	src/base1/deprecated.js \
 	src/base1/manifest.json \
-	src/base1/patternfly-overrides.less \
+	src/base1/patternfly-cockpit.scss \
 	src/base1/simple-tap.js \
 	src/base1/test-dbus-common.js \
 	$(base_DATA) \
@@ -247,12 +230,8 @@ MAINTAINERCLEANFILES += \
 	dist/base1/mustache.min.js \
 	dist/base1/mustache.min.js.gz \
 	dist/base1/mustache.min.js.map \
-	dist/base1/patternfly-base.css \
-	dist/base1/patternfly.min.css \
-	dist/base1/patternfly.min.css.gz \
-	dist/base1/patternfly.min.css.map \
+	dist/base1/patternfly.css \
 	dist/base1/patternfly.css.map \
-	dist/base1/react-core-base.css \
 	dist/base1/qunit.css \
 	dist/base1/qunit.js \
 	dist/base1/simple-tap.js \

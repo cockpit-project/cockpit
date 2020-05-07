@@ -1735,6 +1735,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                                                 location=config.VALID_DISK_IMAGE_PATH,
                                                 memory_size=256, memory_size_unit='MiB',
                                                 start_vm=True))
+
     def testCreateUrlSource(self):
         runner = TestMachines.CreateVmRunner(self)
         config = TestMachines.TestCreateConfig
@@ -3931,7 +3932,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             ipv4_address="192.168.110.0",
             ipv4_netmask="255.255.255.0",
         ).execute()
-
 
     def testStoragePoolsCreate(self):
         b = self.browser

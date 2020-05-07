@@ -274,6 +274,19 @@ Unit=test.service
             b.enter_page("/system/logs")
             b.wait_in_text("#journal-box .cockpit-log-panel > div:nth-child(2)", "WORKING")
             b.wait_in_text("#journal-box .cockpit-log-panel > div:nth-child(3)", "START")
+            # Debian supports grep only from 19.10, see https://bugs.launchpad.net/ubuntu/+source/systemd/+bug/1751006
+            if m.image != "debian-stable":
+                b.wait_val("#journal-grep", "priority:debug service:test.service ")
+            b.go("/system/services#test.service")
+            b.enter_page("/system/services")
+
+            b.click(".cockpit-logline:contains('WORKING')")
+            b.enter_page("/system/logs")
+            b.wait_text("#journal-entry-message", "WORKING")
+            b.click("#journal-navigate-home")
+            # Debian supports grep only from 19.10, see https://bugs.launchpad.net/ubuntu/+source/systemd/+bug/1751006
+            if m.image != "debian-stable":
+                b.wait_val("#journal-grep", "priority:debug service:test.service ")
             b.go("/system/services#test.service")
             b.enter_page("/system/services")
 

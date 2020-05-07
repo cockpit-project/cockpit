@@ -534,9 +534,25 @@ journal.renderer = function renderer(funcs_or_box) {
     };
 };
 
-journal.logbox = function logbox(match, max_entries) {
+journal.logbox = function logbox(match, max_entries, search_options) {
     var entries = [];
     var box = document.createElement("div");
+    box.addEventListener("click", goto_log);
+    box.addEventListener("keypress", goto_log);
+
+    function goto_log(ev) {
+        // only consider primary mouse button for clicks
+        if (ev.type === 'click' && ev.button !== 0)
+            return;
+
+        // only consider enter button for keyboard events
+        if (ev.type === 'keypress' && ev.key !== "Enter")
+            return;
+
+        const cursor = ev.target.closest(".cockpit-logline").getAttribute("data-cursor");
+        if (cursor)
+            cockpit.jump("system/logs#/" + cursor + "?parent_options=" + JSON.stringify(search_options || {}));
+    }
 
     function render() {
         var renderer = journal.renderer(box);

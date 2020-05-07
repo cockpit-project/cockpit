@@ -485,8 +485,7 @@ function Router(index) {
  * As a convenience, common menu items can be setup by adding the
  * selector to be used to hook them up. The accepted selectors
  * are.
- * oops_sel, logout_sel, language_sel, about_sel,
- * user_sel, account_sel
+ * oops_sel, logout_sel, language_sel, about_sel, account_sel
  *
  * Emits "disconnect" and "expect_restart" signals, that should be
  * handled by the caller.
@@ -879,11 +878,6 @@ function Index() {
         });
     }
 
-    /* User information */
-    function setup_user(id, user) {
-        $(id).text(user.full_name || user.name || '???');
-    }
-
     if (self.oops_sel)
         setup_oops(self.oops_sel);
 
@@ -898,14 +892,10 @@ function Index() {
     if (self.killer_sel)
         setup_killer(self.killer_sel);
 
-    if (self.user_sel || self.account_sel) {
+    if (self.account_sel) {
         cockpit.user().done(function (user) {
-            if (self.user_sel)
-                setup_user(self.user_sel, user);
             if (self.account_sel)
                 setup_account(self.account_sel, user);
-            if (self.user_mobile_sel)
-                setup_user(self.user_mobile_sel, user);
         });
     }
 }

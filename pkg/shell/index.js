@@ -46,8 +46,6 @@ var options = {
     language_sel: "#display-language",
     about_sel: "#about-version",
     account_sel: "#go-account",
-    user_sel: "#content-user-name",
-    user_mobile_sel: "#mobile-user-name",
     killer_sel: "#active-pages",
     default_title: "Cockpit",
 };

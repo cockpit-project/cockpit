@@ -42,7 +42,7 @@ class HostsSelector extends React.Component {
 function HostLine({ host, user }) {
     return (
         <>
-            <span className="username">{user}</span>
+            <span id="current-username" className="username">{user}</span>
             {user && <span className="at">@</span>}
             <span className="hostname">{host}</span>
         </>

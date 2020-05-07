@@ -78,8 +78,8 @@ class TestSession(MachineCase):
         # Kill session from the inside
         b.switch_to_top()
         b.wait_visible("#content")
-        b.wait_text('#content-user-name', 'Administrator')
-        b.click('#content-user-name')
+        b.wait_text('#current-username', 'admin')
+        b.click('#navbar-dropdown')
         b.click('#go-account')
         b.enter_page("/users")
         b.wait_text("#account-user-name", "admin")

@@ -116,7 +116,7 @@ class TestBastion(MachineCase):
         self.approve_key(b)
 
         b.expect_load()
-        b.wait_text("#content-user-name", "Administrator")
+        b.wait_text("#current-username", "current-username")
         b.logout()
 
     def testBasicLogin(self):
@@ -145,7 +145,7 @@ class TestBastion(MachineCase):
         self.approve_key(b)
 
         b.expect_load()
-        b.wait_text("#content-user-name", "Administrator")
+        b.wait_text("#current-username", "admin")
         b.logout()
 
 if __name__ == '__main__':

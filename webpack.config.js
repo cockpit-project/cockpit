@@ -356,6 +356,7 @@ info.tests.forEach(function(test) {
 var aliases = {
     "d3": "d3/d3.js",
     "moment": "moment/moment.js",
+    "font-awesome": path.resolve(nodedir, 'font-awesome-sass/assets/stylesheets'),
 };
 
 /* HACK: To get around redux warning about reminimizing code */
@@ -425,22 +426,84 @@ module.exports = {
                 exclude: /\/node_modules\/.*\//,
                 use: babel_loader
             },
+            /* HACK: remove unwanted fonts from PatternFly's css */
             {
-                test: /\.css$/,
+                test: /patternfly-cockpit.scss$/,
                 use: [
                     miniCssExtractPlugin.loader,
                     {
                         loader: 'css-loader',
-                        options: { url: false }
-                    }
-                ],
+                        options: {
+                            sourceMap: true,
+                            url: false,
+                        },
+                    },
+                    {
+                        loader: 'string-replace-loader',
+                        options: {
+                            multiple: [
+                                {
+                                    search: /src:url[(]"patternfly-icons-fake-path\/glyphicons-halflings-regular[^}]*/g,
+                                    replace: 'font-display:block; src:url("../base1/fonts/glyphicons.woff") format("woff");',
+                                },
+                                {
+                                    search: /src:url[(]"patternfly-fonts-fake-path\/PatternFlyIcons[^}]*/g,
+                                    replace: 'src:url("../base1/fonts/patternfly.woff") format("woff");',
+                                },
+                                {
+                                    search: /src:url[(]"patternfly-fonts-fake-path\/fontawesome[^}]*/,
+                                    replace: 'font-display:block; src:url("../base1/fonts/fontawesome.woff?v=4.2.0") format("woff");',
+                                },
+                                {
+                                    search: /src:url\("patternfly-icons-fake-path\/pficon[^}]*/g,
+                                    replace: 'src:url("../base1/fonts/patternfly.woff") format("woff");',
+                                },
+                                {
+                                    search: /@font-face[^}]*patternfly-fonts-fake-path[^}]*}/g,
+                                    replace: '',
+                                },
+                            ]
+                        },
+                    },
+                    {
+                        loader: 'sass-loader',
+                        options: {
+                            sassOptions: {
+                                includePaths: [
+                                    // Teach webpack to resolve these references in order to build PF3 scss
+                                    path.resolve(nodedir),
+                                    path.resolve(nodedir, 'font-awesome-sass', 'assets', 'stylesheets'),
+                                    path.resolve(nodedir, 'patternfly', 'dist', 'sass'),
+                                    path.resolve(nodedir, 'bootstrap-sass', 'assets', 'stylesheets'),
+                                ],
+                                outputStyle: 'compressed',
+                            },
+                            sourceMap: true,
+                        },
+                    },
+                ]
             },
             {
-                test: /\.scss$/,
+                test: /\.s?css$/,
+                exclude: /patternfly-cockpit.scss/,
                 use: [
                     miniCssExtractPlugin.loader,
-                    "css-loader",
-                    'sass-loader',
+                    {
+                        loader: 'css-loader',
+                        options: {
+                            sourceMap: true,
+                            url: false
+                        }
+                    },
+                    {
+                        loader: 'sass-loader',
+                        options: {
+                            sourceMap: true,
+                            sassOptions: {
+                                outputStyle: 'compressed',
+                            }
+                        }
+                    },
                     {
                         loader: 'sass-resources-loader',
                             // Make PF3 and PF4 variables globably accessible to be used by the components scss

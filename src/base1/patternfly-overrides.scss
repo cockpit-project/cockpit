@@ -1,13 +1,7 @@
 // Global Cockpit overrides for PatternFly variables
 
-
-// PatternFly 4 CSS first, as that resets some styles which we want to override
-@import (inline, once) "dist/base1/react-core-base.css";
-
-// Fonts
-@import (inline, once) "../../node_modules/@redhat/redhat-font/webfonts/red-hat-font.css";
-@font-family-base: "RedHatText", "Open Sans", Helvetica, Arial, sans-serif;
-@font-family-mono: SFMono-Regular, menlo, monaco, consolas, "Liberation Mono", Courier New, monospace;
+$font-family-base: "RedHatText", "Open Sans", Helvetica, Arial, sans-serif;
+$font-family-mono: SFMono-Regular, menlo, monaco, consolas, "Liberation Mono", Courier New, monospace;
 
 // Resize headings
 h1, h2, h3, h4, h5, h6 {
@@ -311,13 +305,15 @@ select.form-control {
     }
   }
 
-  &-primary,
-  &-success,
-  &-info,
-  &-warning,
-  &-danger {
-    &:active, &:focus, &:hover {
-      box-shadow: none !important;
+  @at-root .btn {
+    &-primary,
+    &-success,
+    &-info,
+    &-warning,
+    &-danger {
+      &:active, &:focus, &:hover {
+        box-shadow: none !important;
+      }
     }
   }
 
@@ -748,5 +744,5 @@ th > label {
 }
 
 :root {
-  font-size: @font-size-base;
+  font-size: $font-size-base;
 }

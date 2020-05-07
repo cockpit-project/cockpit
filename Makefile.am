@@ -86,7 +86,7 @@ GZ_RULE = \
 
 UGLIFY_JS = $(srcdir)/node_modules/.bin/uglifyjs
 CLEAN_CSS = $(srcdir)/node_modules/.bin/cleancss
-LESSC = $(srcdir)/node_modules/.bin/lessc
+SASS = $(srcdir)/node_modules/.bin/sass
 
 MIN_JS_RULE = \
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \

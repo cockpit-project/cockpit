@@ -103,6 +103,9 @@ class TestSystemInfo(MachineCase):
         if self.machine.image in ["debian-stable", "ubuntu-stable"]:
             self.machine.execute("dpkg --remove chrony");
 
+        # Most OSes don't set nosmt by default, but there are some exceptions
+        self.expect_smt_default = self.machine.image in ["fedora-coreos"]
+
     @enableAxe
     def testBasic(self):
         m = self.machine
@@ -486,9 +489,12 @@ class TestSystemInfo(MachineCase):
             b.wait_text('#memory-listing tr:nth-of-type(2) td[data-label="Memory Technology"]', "Awesome")
             b.wait_text('#memory-listing tr:nth-of-type(2) td[data-label=Rank]', "Single Rank")
 
-    def testCPUSecurityMitigations(self):
+    @nondestructive
+    def testCPUSecurityMitigationsDetect(self):
         b = self.browser
         m = self.machine
+
+        self.restore_dir("/usr/local/bin")
 
         self.login_and_go('/system/hwinfo')
         b.wait_present('#hwinfo th:contains(CPU)')
@@ -525,23 +531,26 @@ class TestSystemInfo(MachineCase):
         spoof_threads(2, True, True, 'param1 mitigations=nosmt,something param3=value3')
         spoof_threads(2, True, False, 'param1 mitigations=something param3=value3')
         spoof_threads(2, False, cmdline='param1 nosmt=someunknown param3=value3')
-        # Most OSes don't set nosmt by default, but there are some exceptions
-        expect_smt_default = m.image in ["fedora-coreos"]
-        spoof_threads(2, True, expect_smt_default, None)
+        spoof_threads(2, True, self.expect_smt_default, None)
+
+    def testCPUSecurityMitigationsEnable(self):
+        b = self.browser
+        m = self.machine
+
+        # spoof SMT
+        m.write('/usr/local/bin/lscpu', lscpu.format(2))
+        m.execute('chmod +x /usr/local/bin/lscpu')
 
         # Switch nosmt option
-        b.reload()
-        b.enter_page('/system/hwinfo')
+        self.login_and_go('/system/hwinfo')
         b.click('#hwinfo button:contains(Mitigations)')
-
-
         b.click('#cpu-mitigations-dialog #nosmt-switch input')
         b.wait_present('#cpu-mitigations-dialog #nosmt-switch input' +
-                       (expect_smt_default and ':not(:checked)' or ':checked'))
+                       (self.expect_smt_default and ':not(:checked)' or ':checked'))
         b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
 
         m.wait_reboot()
-        if expect_smt_default:
+        if self.expect_smt_default:
             self.assertNotIn('nosmt', m.execute('cat /proc/cmdline'))
         else:
             self.assertIn('nosmt', m.execute('cat /proc/cmdline'))
@@ -590,13 +599,13 @@ fi
         b.click('#hwinfo button:contains(Mitigations)')
         b.wait_present('#cpu-mitigations-dialog span:contains(nosmt)')
         b.wait_present('#cpu-mitigations-dialog #nosmt-switch input' +
-                       (expect_smt_default and ':not(:checked)' or ':checked'))
+                       (self.expect_smt_default and ':not(:checked)' or ':checked'))
         b.click('#cpu-mitigations-dialog #nosmt-switch input')
         b.wait_present('#cpu-mitigations-dialog #nosmt-switch input' +
-                       (expect_smt_default and ':checked' or ':not(:checked)'))
+                       (self.expect_smt_default and ':checked' or ':not(:checked)'))
         b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
         m.wait_reboot()
-        if expect_smt_default:
+        if self.expect_smt_default:
             self.assertIn('nosmt', m.execute('cat /proc/cmdline'))
         else:
             self.assertNotIn('nosmt', m.execute('cat /proc/cmdline'))

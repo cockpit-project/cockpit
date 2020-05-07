@@ -400,7 +400,12 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             m.execute("systemctl stop libvirtd-ro.socket libvirtd.socket libvirtd-admin.socket")
             self.addCleanup(m.execute, "systemctl start libvirtd-ro.socket libvirtd.socket libvirtd-admin.socket")
 
+        def hack_libvirtd_crash():
+            # work around libvirtd crashing when stopped too quickly; https://bugzilla.redhat.com/show_bug.cgi?id=1828207
+            m.execute("virsh domifaddr 1")
+
         m.execute("systemctl disable {0}".format(libvirtServiceName))
+        hack_libvirtd_crash()
         m.execute("systemctl stop {0}".format(libvirtServiceName))
 
         b.wait_in_text(".pf-c-empty-state", "Virtualization Service (libvirt) is Not Active")
@@ -413,8 +418,10 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             m.execute("chmod o+rwx /run/libvirt/libvirt-sock")
         b.wait_in_text("body", "Virtual Machines")
         with b.wait_timeout(15):
+            b.wait_not_present(".pf-c-empty-state")
             b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
 
+        hack_libvirtd_crash()
         m.execute("systemctl stop {0}".format(libvirtServiceName))
         b.wait_in_text(".pf-c-empty-state", "Virtualization Service (libvirt) is Not Active")
         b.wait_present("#enable-libvirt:checked")
@@ -427,9 +434,11 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             m.execute("chmod o+rwx /run/libvirt/libvirt-sock")
         b.wait_in_text("body", "Virtual Machines")
         with b.wait_timeout(15):
+            b.wait_not_present(".pf-c-empty-state")
             b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
 
         m.execute("systemctl enable {0}".format(libvirtServiceName))
+        hack_libvirtd_crash()
         m.execute("systemctl stop {0}".format(libvirtServiceName))
 
         b.wait_in_text(".pf-c-empty-state", "Virtualization Service (libvirt) is Not Active")

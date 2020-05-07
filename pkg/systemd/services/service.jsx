@@ -110,7 +110,7 @@ export class Service extends React.Component {
                 </PageSection>
                 {!this.cur_unit_is_template && (this.props.unit.LoadState === "loaded" || this.props.unit.LoadState === "masked") &&
                 <PageSection variant={PageSectionVariants.light}>
-                    <LogsPanel title={_("Service Logs")} match={match} emptyMessage={_("No log entries")} max={10} goto_url={url} />
+                    <LogsPanel title={_("Service Logs")} match={match} emptyMessage={_("No log entries")} max={10} goto_url={url} search_options={{ prio: "debug", service: cur_unit_id }} />
                 </PageSection>}
             </Page>
         );

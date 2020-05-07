@@ -1729,7 +1729,8 @@ PageNetworking.prototype = {
 
     enter: function () {
         this.log_box = journal.logbox(["_SYSTEMD_UNIT=NetworkManager.service",
-            "_SYSTEMD_UNIT=firewalld.service"], 10);
+            "_SYSTEMD_UNIT=firewalld.service"], 10,
+                                      { prio: "debug", _SYSTEMD_UNIT: "NetworkManager.service,firewalld.service" });
         $('#networking-log').empty()
                 .append(this.log_box);
 

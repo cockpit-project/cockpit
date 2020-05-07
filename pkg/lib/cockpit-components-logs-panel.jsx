@@ -31,9 +31,22 @@ const _ = cockpit.gettext;
  */
 
 class JournalOutput {
-    constructor() {
+    constructor(search_options) {
         this.logs = [];
         this.reboot_key = 0;
+        this.search_options = search_options || {};
+    }
+
+    onEvent(ev, cursor) {
+        // only consider primary mouse button for clicks
+        if (ev.type === 'click' && ev.button !== 0)
+            return;
+
+        // only consider enter button for keyboard events
+        if (ev.type === 'keypress' && ev.key !== "Enter")
+            return;
+
+        cockpit.jump("system/logs#/" + cursor + "?parent_options=" + JSON.stringify(this.search_options));
     }
 
     render_line(ident, prio, message, count, time, entry) {
@@ -48,7 +61,9 @@ class JournalOutput {
         }
 
         return (
-            <div className="cockpit-logline" role="row" key={entry.__CURSOR}>
+            <div className="cockpit-logline" role="row" tabIndex="0" key={entry.__CURSOR}
+                onClick={ev => this.onEvent(ev, entry.__CURSOR)}
+                onKeyPress={ev => this.onEvent(ev, entry.__CURSOR)}>
                 <div className="cockpit-log-warning" role="cell">
                     { warning
                         ? <i className="fa fa-exclamation-triangle" />
@@ -109,7 +124,7 @@ export class LogsPanel extends React.Component {
     componentDidMount() {
         this.journalctl = journal.journalctl(this.props.match, { count: this.props.max });
 
-        var out = new JournalOutput();
+        var out = new JournalOutput(this.props.search_options);
         var render = journal.renderer(out);
 
         this.journalctl.stream((entries) => {

@@ -982,6 +982,15 @@ $(function() {
             cockpit.location.go([cursor], { parent_options: JSON.stringify(cockpit.location.options) });
     });
 
+    $('#journal-box').on('keypress', '.cockpit-logline', function(ev) {
+        if (ev.key !== "Enter")
+            return;
+
+        var cursor = $(this).attr('data-cursor');
+        if (cursor)
+            cockpit.location.go([cursor], { parent_options: JSON.stringify(cockpit.location.options) });
+    });
+
     $('#journal-current-day-menu').on('change', function() {
         const options = parse_search(document.getElementById("journal-grep").value);
         update_services_list = true;

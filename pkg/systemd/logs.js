@@ -22,11 +22,17 @@ import cockpit from "cockpit";
 import { journal } from "journal";
 import moment from "moment";
 import { init_reporting } from "./reporting.jsx";
+import { superuser } from "superuser.jsx";
 
 import ReactDOM from 'react-dom';
 import React from 'react';
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
+
+// We open a couple of long-running channels with { superuser: "try" },
+// so we need to reload the page if the access level changes.
+//
+superuser.reload_page_on_change();
 
 $(function() {
     cockpit.translate();

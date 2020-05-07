@@ -132,6 +132,8 @@ class CommonTests:
         b.click(".service-top-panel .dropdown-kebab-pf button")
         b.click(".service-top-panel .dropdown-menu a:contains('Stop')")
         b.wait_in_text("#statuses", "Not running")
+        # stopping the unit may interrupt the D-Bus proxy inspection of that unit
+        self.allow_journal_messages(".*systemd1:.*systemd_2dtmpfiles_2dclean_2etimer: Timeout was reached")
         b.logout()
 
         # should also work with capitalized domain and lower-case user (fixed in PR #13934)

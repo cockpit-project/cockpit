@@ -1553,6 +1553,9 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                                          location=config.VALID_URL, storage_size=1,
                                          delete=False))
 
+        checkDialogFormValidationTest(TestMachines.VmDialog(self, "existing-name", storage_size=1,
+                                                            env_is_empty=False), {"Name": "already exists"})
+
         self.machine.execute("virsh undefine existing-name")
 
         # name already used from a VM that is currently being created

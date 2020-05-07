@@ -2491,25 +2491,25 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b = self.browser
         m = self.machine
 
+        # define default storage pool for system connection
+        cmds = [
+            "virsh pool-define-as default --type dir --target /var/lib/libvirt/images",
+            "virsh pool-start default"
+        ]
+        m.execute(" && ".join(cmds))
+        m.execute("touch {0}".format(TestMachines.TestCreateConfig.NOVELL_MOCKUP_ISO_PATH))
+
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
 
-        b.click("#create-new-vm")
-        b.wait_present("#create-vm-dialog")
-        b.wait_in_text(".modal-dialog .modal-header .modal-title", "Create New Virtual Machine")
-
-        b.set_input_text("#vm-name", "VmNotInstalled")
-        m.execute("touch /var/lib/libvirt/novell.iso")
-        b.select_from_dropdown("#source-type", "Local Install Media")
-        b.set_file_autocomplete_val("source-file", "/var/lib/libvirt/novell.iso")
-        b.select_from_dropdown("#storage-size-unit-select", "MiB")
-        b.set_input_text("#storage-size", "256", value_check=True)
-        b.select_from_dropdown("#memory-size-unit-select", "MiB")
-        b.set_input_text("#memory-size", "128", value_check=True)
-        b.focus("label:contains('Operating System') + div > div > div > input")
-        b.key_press("CirrOS")
-        b.key_press("\t")
-        b.set_checked("#start-vm", False)
+        dialog = TestMachines.VmDialog(self,sourceType='file',
+                                       name="VmNotInstalled",
+                                       location=TestMachines.TestCreateConfig.NOVELL_MOCKUP_ISO_PATH,
+                                       memory_size=256, memory_size_unit='MiB',
+                                       storage_size=256, storage_size_unit='MiB',
+                                       start_vm=False)
+        dialog.open() \
+                .fill() \
 
         b.click(".modal-footer button:contains(Create)")
         b.wait_not_present("#create-vm-dialog")

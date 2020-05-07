@@ -1705,7 +1705,6 @@ PageNetworking.prototype = {
         var self = this;
 
         update_network_privileged();
-        $("#networking-add-wifi").syn_click(self.model, $.proxy(this, "add_wifi"));
         $("#networking-add-bond").syn_click(self.model, $.proxy(this, "add_bond"));
         $("#networking-add-team").syn_click(self.model, $.proxy(this, "add_team"));
         $("#networking-add-bridge").syn_click(self.model, $.proxy(this, "add_bridge"));
@@ -2468,6 +2467,8 @@ PageNetworkInterface.prototype = {
     setup: function () {
         var self = this;
 
+        $("#network-interface-connect").hide();
+
         $('#network-interface .breadcrumb a').on("click", function() {
             cockpit.location.go('/');
         });
@@ -2476,6 +2477,8 @@ PageNetworkInterface.prototype = {
             cockpit.jump("/network/firewall", cockpit.transport.host);
             return false;
         });
+
+        $('#network-interface-connect').syn_click(self.model, $.proxy(this, "connect_wifi"));
 
         $('#network-interface-delete').syn_click(self.model, $.proxy(this, "delete_connections"));
 
@@ -2611,6 +2614,8 @@ PageNetworkInterface.prototype = {
         self.tx_series.clear_instances();
 
         $('#network-interface-delete').prop('hidden', true);
+        $("#network-interface-connect").hide();
+
         self.dev = null;
         self.update();
     },
@@ -2692,6 +2697,59 @@ PageNetworkInterface.prototype = {
         }
     },
 
+    connect_wifi: function() {
+        let iface;
+
+        for (let i = 0; i < 100; i++) {
+            iface = "wifi" + i;
+            if (!this.model.find_interface(iface))
+                break;
+        }
+        const uuid = generate_uuid();
+
+        PageNetworkWiFiSettings.model = this.model;
+        PageNetworkWiFiSettings.done = null;
+        PageNetworkWiFiSettings.connection = null;
+        PageNetworkWiFiSettings.apply_settings = settings_applier(this.model);
+        PageNetworkWiFiSettings.ghost_settings =
+        {
+            connection: {
+                id: iface,
+                autoconnect: true,
+                autoconnect_priority: 0,
+                secondaries: [],
+                type: "802-11-wireless",
+                uuid: uuid,
+                interface_name: ""
+            },
+            wifi: {
+                ssid: [],
+                mode: "",
+                band: "",
+                channel: 0
+            },
+            wifi_security: {
+                key_mgmt: "",
+                psk: ""
+            },
+            wifi_1x: {
+                eap: [],
+                identity: "",
+                anonymous_identity: "",
+                domain_suffix_match: "",
+                ca_cert: [],
+                client_cert: [],
+                private_key: [],
+                private_key_password: "",
+                phase1_peapver: "",
+                phase2_autheap: "",
+                password: ""
+            }
+        };
+
+        $('#network-wifi-settings-dialog').modal('show');
+    },
+
     connect: function() {
         var self = this;
 
@@ -2757,6 +2815,7 @@ PageNetworkInterface.prototype = {
 
         var desc, cs;
         if (dev) {
+            console.log(dev);
             if (dev.DeviceType == 'ethernet' || dev.IdVendor || dev.IdModel) {
                 desc = cockpit.format("$IdVendor $IdModel $Driver", dev);
             } else if (dev.DeviceType == 'bond') {
@@ -2768,11 +2827,13 @@ PageNetworkInterface.prototype = {
             } else if (dev.DeviceType == 'bridge') {
                 desc = _("Bridge");
             } else if (dev.DeviceType == 'wifi') {
+                $("#network-interface-connect").show();
                 desc = _("WiFi");
             } else
                 desc = cockpit.format(_("Unknown \"$0\""), dev.DeviceType);
         } else if (iface) {
             cs = connection_settings(iface.Connections[0]);
+            console.log(iface);
             if (cs.type == "bond")
                 desc = _("Bond");
             else if (cs.type == "team")
@@ -2781,9 +2842,10 @@ PageNetworkInterface.prototype = {
                 desc = _("VLAN");
             else if (cs.type == "bridge")
                 desc = _("Bridge");
-            else if (cs.type == "wifi")
+            else if (cs.type == "wifi") {
+                $("#network-interface-connect").show();
                 desc = _("WiFi");
-            else if (cs.type)
+            } else if (cs.type)
                 desc = cockpit.format(_("Unknown \"$0\""), cs.type);
             else
                 desc = _("Unknown");
@@ -3177,6 +3239,7 @@ PageNetworkInterface.prototype = {
                 if (!options)
                     return null;
 
+                $("#network-interface-connect").show();
                 rows.push(cockpit.format(_("SSID: $0"), options.ssid ? atob(options.ssid) : _("Not defined")));
                 parts.push(choice_title(wifi_mode_choices, options.mode, _("Not configured")));
                 parts.push(choice_title(wifi_band_choices, options.band, _("Automatic")));

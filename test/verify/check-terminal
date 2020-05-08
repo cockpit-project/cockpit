@@ -95,6 +95,10 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
         wait_line(n + 1, blank_state)
         self.assertNotIn('admin', b.text(line_sel(n + 1)))
 
+        # output flooding; FIXME: issue #12580
+        # b.key_press("seq 1000000\r")
+        # b.wait_in_text(".terminal .xterm-accessibility-tree", "9999989999991000000admin@")
+
         def select_line(sel, width):
             # Select line by dragging mouse
             # 10px padding on all sides

@@ -1045,6 +1045,53 @@ class TestAutoUpdates(NoSubManCase):
         else:
             raise NotImplementedError(self.backend)
 
+    @skipImage("superuser changing added in PR #13482", "rhel-8-2-distropkg")
+    def testPrivilegeChange(self):
+        b = self.browser
+        m = self.machine
+
+        m.execute("pkcon refresh")
+
+        self.login_and_go("/updates", superuser=False)
+
+        if not self.supported_backend:
+            self.assertFalse(b.is_present("#automatic"))
+            self.assertFalse(b.is_present("#auto-update-type"))
+            return
+
+        # detecting auto updates configuration works unprivileged, but changing does not
+        b.wait_present("#automatic .onoff-ct input:disabled:not(:checked)")
+
+        # become superuser
+        b.switch_to_top()
+        b.click("#super-user-indicator button")
+        b.wait_in_text(".modal-dialog:contains('Administrative access')", "Please authenticate")
+        b.set_input_text(".modal-dialog:contains('Administrative access') input", "foobar")
+        b.click(".modal-dialog button:contains('Authenticate')")
+        b.wait_not_present(".modal-dialog:contains('Administrative access')")
+        b.wait_text("#super-user-indicator", "Administrative access")
+        b.switch_to_frame("cockpit1:localhost/updates")
+
+        # enable auto-updates
+        b.wait_present("#automatic .onoff-ct input:not(:checked)")
+        b.wait_not_present("#auto-update-type")
+        b.click("#automatic .onoff-ct input")
+        b.wait_present("#automatic .onoff-ct input:checked")
+        b.wait_present("#auto-update-type:not(:disabled)")
+
+        # Drop privileges
+        b.switch_to_top()
+        b.click("#super-user-indicator button")
+        b.click(".modal-dialog:contains('Switch to limited access') button:contains('Limit access')")
+        b.wait_not_present(".modal-dialog:contains('Switch to limited access')")
+        b.wait_text("#super-user-indicator", "Limited access")
+        b.switch_to_frame("cockpit1:localhost/updates")
+
+        # auto-update status still visible, but disabled
+        b.wait_present("#automatic .onoff-ct input:checked")
+        b.wait_present("#automatic .onoff-ct input:disabled")
+        b.wait_present("#auto-update-type:disabled")
+
     def checkUpgradeRebootDnf(self):
         """part of testWithAvailableUpdates() for dnf backend"""
 

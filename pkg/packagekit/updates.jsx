@@ -530,6 +530,7 @@ class OsUpdates extends React.Component {
             allowCancel: null,
             history: [],
             unregistered: false,
+            privileged: false,
             autoUpdatesEnabled: undefined
         };
         this.handleLoadError = this.handleLoadError.bind(this);
@@ -537,8 +538,9 @@ class OsUpdates extends React.Component {
         this.handleRestart = this.handleRestart.bind(this);
         this.loadUpdates = this.loadUpdates.bind(this);
 
-        // get out of error state when switching from unprivileged to privileged
         superuser.addEventListener("changed", () => {
+            this.setState({ privileged: superuser.allowed });
+            // get out of error state when switching from unprivileged to privileged
             if (superuser.allowed && this.state.state.indexOf("Error") >= 0)
                 this.loadUpdates();
         });
@@ -878,7 +880,7 @@ class OsUpdates extends React.Component {
             return (
                 <div className="pk-updates">
                     {unregisteredWarning}
-                    <AutoUpdates onInitialized={ enabled => this.setState({ autoUpdatesEnabled: enabled }) } />
+                    <AutoUpdates onInitialized={ enabled => this.setState({ autoUpdatesEnabled: enabled }) } privileged={this.state.privileged} />
                     <div id="available" className="pk-updates--header">
                         <h2 className="pk-updates--header--heading">{_("Available Updates")}</h2>
                         <div className="pk-updates--header--actions">
@@ -945,7 +947,7 @@ class OsUpdates extends React.Component {
 
             return (
                 <>
-                    <AutoUpdates onInitialized={ enabled => this.setState({ autoUpdatesEnabled: enabled }) } />
+                    <AutoUpdates onInitialized={ enabled => this.setState({ autoUpdatesEnabled: enabled }) } privileged={this.state.privileged} />
                     <EmptyStatePanel icon={CheckIcon} title={ _("System is up to date") } />
 
                     { // automatic updates are not tracked by PackageKit, hide history when they are enabled

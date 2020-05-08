@@ -65,6 +65,7 @@ var info = {
         ],
         "playground/speed": [
             "playground/speed",
+            "playground/speed.css",
         ],
         "playground/test": [
             "playground/test",

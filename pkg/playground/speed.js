@@ -7,6 +7,7 @@ var timer = null;
 var start = null;
 var total = 0;
 var proc = null;
+var close_problem;
 
 function update() {
     var element = document.getElementById("speed");
@@ -194,12 +195,42 @@ function download(ev) {
     window.open(prefix + "?" + query);
 }
 
+function spawn() {
+    stop();
+
+    document.getElementById("spawn-result").innerHTML = "Running...";
+    const command = document.getElementById("spawn-command").value;
+
+    start = Date.now();
+    total = 0;
+    close_problem = "terminated";
+
+    console.log("spawning", command);
+    channel = cockpit.script(command, { err: "message" });
+    channel.stream(data => {
+        console.log("spawn: stream block length", data.length);
+        total += data.length;
+        document.getElementById("spawn-output").innerHTML = data;
+    });
+    channel.then(() => {
+        console.log("spawn: command finished successfully");
+        stop();
+        document.getElementById("spawn-result").innerHTML = "success";
+    });
+    channel.catch(ex => {
+        console.log("spawn: command failed", JSON.stringify(ex));
+        stop();
+        document.getElementById("spawn-result").innerHTML = `failed with exit code ${ex.exit_status}: ${ex.message}`;
+    });
+}
+
 function stop() {
     update();
 
     if (channel)
-        channel.close();
+        channel.close(close_problem);
     channel = null;
+    close_problem = undefined;
     var ws = websocket;
     websocket = null;
     if (ws)
@@ -215,6 +246,7 @@ cockpit.transport.wait(function() {
     document.getElementById("read-normal").addEventListener("click", read);
     document.getElementById("read-sideband").addEventListener("click", read);
     document.getElementById("download-external").addEventListener("click", download);
+    document.getElementById("spawn").addEventListener("click", spawn);
     document.getElementById("stop").addEventListener("click", stop);
     window.setInterval(update, 500);
     document.body.removeAttribute("hidden");

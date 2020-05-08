@@ -271,15 +271,25 @@ class AccountItem extends React.Component {
     }
 
     click(ev) {
-        if (ev && ev.button === 0)
-            cockpit.location.go([this.props.name]);
+        if (!ev)
+            return;
+
+        if (ev.type === 'click' && ev.button !== 0)
+            return;
+
+        if (ev.type === 'keypress' && ev.key !== "Enter")
+            return;
+
+        cockpit.location.go([this.props.name]);
     }
 
     render() {
-        return React.createElement('div', { className: "cockpit-account", onClick: this.click },
-                                   React.createElement('div', { className: "cockpit-account-pic pficon pficon-user" }),
-                                   React.createElement('div', { className: "cockpit-account-real-name" }, this.props.gecos.split(',')[0]),
-                                   React.createElement('a', { className: "cockpit-account-user-name", href: "#/" + this.props.name }, this.props.name)
+        return (
+            <div className="cockpit-account" onClick={this.click} onKeyPress={this.click}>
+                <div className="cockpit-account-pic pficon pficon-user" />
+                <div className="cockpit-account-real-name">{this.props.gecos.split(',')[0]}</div>
+                <a className="cockpit-account-user-name" href={"#/" + this.props.name}>{this.props.name}</a>
+            </div>
         );
     }
 }

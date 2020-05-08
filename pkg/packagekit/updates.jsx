@@ -27,11 +27,13 @@ import { OverlayTrigger, Tooltip } from "patternfly-react";
 import { Button } from '@patternfly/react-core';
 import { RebootingIcon, CheckIcon, ExclamationCircleIcon } from "@patternfly/react-icons";
 import { Remarkable } from "remarkable";
+
 import AutoUpdates from "./autoupdates.jsx";
 import { History, PackageList } from "./history.jsx";
 import { page_status } from "notifications";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 
+import { superuser } from 'superuser.jsx';
 import * as PK from "packagekit.js";
 
 import "listing.scss";
@@ -71,6 +73,8 @@ function init() {
         [PK.Enum.STATUS_CLEANUP]: _("Set up"),
         [PK.Enum.STATUS_SIGCHECK]: _("Verified"),
     };
+
+    superuser.reload_page_on_change();
 }
 
 // parse CVEs from an arbitrary text (changelog) and return URL array

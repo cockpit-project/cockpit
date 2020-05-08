@@ -73,8 +73,6 @@ function init() {
         [PK.Enum.STATUS_CLEANUP]: _("Set up"),
         [PK.Enum.STATUS_SIGCHECK]: _("Verified"),
     };
-
-    superuser.reload_page_on_change();
 }
 
 // parse CVEs from an arbitrary text (changelog) and return URL array
@@ -538,6 +536,12 @@ class OsUpdates extends React.Component {
         this.handleRefresh = this.handleRefresh.bind(this);
         this.handleRestart = this.handleRestart.bind(this);
         this.loadUpdates = this.loadUpdates.bind(this);
+
+        // get out of error state when switching from unprivileged to privileged
+        superuser.addEventListener("changed", () => {
+            if (superuser.allowed && this.state.state.indexOf("Error") >= 0)
+                this.loadUpdates();
+        });
     }
 
     componentDidMount() {

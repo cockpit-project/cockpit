@@ -629,7 +629,7 @@ class TestUpdates(NoSubManCase):
         b.wait_not_present(".modal-dialog:contains('Administrative access')")
         b.wait_text("#super-user-indicator", "Administrative access")
 
-        # page reloads automatically
+        # page adjusts automatically to privilege change
         b.switch_to_frame("cockpit1:localhost/updates")
         b.wait_text("#state", "1 update")
         b.wait_in_text("#available h2", "Available Updates")

@@ -38,18 +38,18 @@ import cockpit from "cockpit";
  * and it should also re-initialize itself by opening all "superuser"
  * channels again that are currently open.
  *
- * - superuser.reload_on_change()
+ * - superuser.reload_page_on_change()
  *
  * Calling this function instructs the "superuser" object to reload
  * the page whenever "superuser.allowed" changes. This is a (bad)
  * alternative to re-initializing the page and intended to be used
  * only to help with the transition.
  *
- * Even if you are using "superuser.reload_on_change" to avoid having
+ * Even if you are using "superuser.reload_page_on_change" to avoid having
  * to re-initialize your page dynamically, you should still use the
  * "changed" event to update the page appearance since
  * "superuser.allowed" might still change a couple of times right
- * after page.
+ * after page reload.
  */
 
 function Superuser() {

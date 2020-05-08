@@ -25,8 +25,11 @@ import ReactDOM from "react-dom";
 import * as troubleshootClient from "./setroubleshoot-client";
 import * as selinuxClient from "./selinux-client.js";
 import { SETroubleshootPage } from "./setroubleshoot-view.jsx";
+import { superuser } from 'superuser.jsx';
 
 const _ = cockpit.gettext;
+
+superuser.reload_page_on_change();
 
 var initStore = function(rootElement) {
     var dataStore = { };

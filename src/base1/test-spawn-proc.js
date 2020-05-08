@@ -295,4 +295,25 @@ QUnit.test("script without args", function (assert) {
     proc.input("3\n1\n");
 });
 
+QUnit.test("stream large output", function (assert) {
+    const done = assert.async();
+    assert.expect(4);
+
+    var lastblock = null;
+    cockpit.spawn(["/bin/seq", "10000000"])
+            .stream(function(resp) {
+                if (lastblock === null)
+                    assert.equal(resp.slice(0, 4), "1\n2\n", "stream data starts with first numbers");
+                lastblock = resp;
+            })
+            .then(function(resp) {
+                assert.equal(resp, "", "no done data");
+            })
+            .always(function() {
+                assert.equal(this.state(), "resolved", "didn't fail");
+                assert.equal(lastblock.slice(-18), "\n9999999\n10000000\n", "stream data has last numbers");
+                done();
+            });
+});
+
 QUnit.start();

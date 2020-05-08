@@ -18,6 +18,7 @@
  */
 
 import cockpit from "cockpit";
+import { superuser } from 'superuser.jsx';
 
 const _ = cockpit.gettext;
 
@@ -78,6 +79,9 @@ function dbus_client() {
 
     return _dbus_client;
 }
+
+// Reconnect when privileges change
+superuser.addEventListener("changed", () => { _dbus_client = null });
 
 /**
  * Call a PackageKit method

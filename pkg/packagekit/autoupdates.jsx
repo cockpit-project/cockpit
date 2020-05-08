@@ -19,6 +19,7 @@
 
 import cockpit from "cockpit";
 import React from "react";
+import PropTypes from 'prop-types';
 import { debounce } from "throttle-debounce";
 
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
@@ -355,3 +356,7 @@ export default class AutoUpdates extends React.Component {
             </div>);
     }
 }
+
+AutoUpdates.propTypes = {
+    onInitialized: PropTypes.func,
+};

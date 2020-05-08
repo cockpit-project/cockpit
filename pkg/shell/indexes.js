@@ -407,15 +407,10 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
     }
 
     function update_superuser(machine, state, compiled) {
-        if (state.host == "localhost") {
-            ReactDOM.render(React.createElement(SuperuserIndicator, { }),
-                            document.getElementById('super-user-indicator'));
-            ReactDOM.render(React.createElement(SuperuserIndicator, { }),
-                            document.getElementById('super-user-indicator-mobile'));
-        } else {
-            ReactDOM.unmountComponentAtNode(document.getElementById('super-user-indicator'));
-            ReactDOM.unmountComponentAtNode(document.getElementById('super-user-indicator-mobile'));
-        }
+        ReactDOM.render(React.createElement(SuperuserIndicator, { host: machine.connection_string }),
+                        document.getElementById('super-user-indicator'));
+        ReactDOM.render(React.createElement(SuperuserIndicator, { host: machine.connection_string }),
+                        document.getElementById('super-user-indicator-mobile'));
     }
 
     function update_title(label, machine) {
@@ -589,8 +584,7 @@ if (document.documentElement.getAttribute("class") === "index-page") {
 
     /* Tell the pages about our features. */
     window.features = {
-        // Not yet, but the Overview is already looking for this:
-        // navbar_is_for_current_machine: true
+        navbar_is_for_current_machine: true
     };
 
     /* While the index is initializing, snag any messages we receive from frames */

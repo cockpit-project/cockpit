@@ -250,10 +250,21 @@ class TestSystemInfo(MachineCase):
         self.allow_journal_messages(
             "org.freedesktop.systemd1: couldn't get property org.freedesktop.systemd1.Service ExecMain at /org/freedesktop/systemd1/unit/systemd_2dtimedated_2eservice: GDBus.Error:org.freedesktop.DBus.Error.UnknownProperty: Unknown property")
 
-        self.login_and_go("/system")
+        if m.image in [ "rhel-8-2-distropkg" ]:
+            self.login_and_go("/system")
+            b.wait_text_not("#system_information_systime_button", "")
+        else:
+            self.login_and_go("/system", superuser=False)
+            b.wait_text_not("#system_information_systime_button", "")
+            b.wait_present('#system_information_systime_button[disabled]')
 
-        # Make sure the date loads
-        b.wait_text_not("#system_information_systime_button", "")
+            # Gain admin access
+            b.click(".pf-c-alert:contains('Web console is running in limited access mode.') button:contains('Turn on')")
+            b.wait_in_text(".modal-dialog:contains('Administrative access')", "Please authenticate")
+            b.set_input_text(".modal-dialog:contains('Administrative access') input", "foobar")
+            b.click(".modal-dialog button:contains('Authenticate')")
+            b.wait_not_present(".modal-dialog:contains('Administrative access')")
+            b.wait_not_visible(".pf-c-alert:contains('Web console is running in limited access mode.')")
 
         # Change the date
         b.click("#system_information_systime_button")
@@ -302,10 +313,6 @@ class TestSystemInfo(MachineCase):
         self.assertFalse(ntp_enabled())
         self.assertIn("Mon Jun  4 06:34:", m.execute("date"))
         self.assertIn("EEST 2018\n", m.execute("date"))
-
-        self.allow_authorize_journal_messages()
-        b.relogin('/system', superuser=False)
-        b.wait_present('#system_information_systime_button[disabled]')
 
     @skipImage("Uses timedatex, no NTP servers config", "rhel-8-2", "rhel-8-2-distropkg", "rhel-8-3", "centos-8-stream")
     def testTimeServers(self):

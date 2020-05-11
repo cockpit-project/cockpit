@@ -99,10 +99,27 @@ export class ConfigurationCard extends React.Component {
         $("#system_information_ssh_keys").on("hide.bs.modal", () => this.host_keys_hide());
 
         this.realmd.addEventListener("changed", () => this.setState({}));
+
+        $(superuser).on("changed", () => {
+            this.systime_setup();
+        });
     }
 
     systime_setup() {
         const self = this;
+
+        if (self.server_time) {
+            self.server_time.close();
+        } else {
+            // First time setup
+
+            /* NTPSynchronized needs to be polled so we just do that
+             * always.
+             */
+            window.setInterval(function() {
+                self.server_time.poll_ntp_synchronized();
+            }, 5000);
+        }
 
         self.server_time = new ServerTime();
         $(self.server_time).on("changed", function() {
@@ -170,13 +187,6 @@ export class ConfigurationCard extends React.Component {
         $(self.server_time.timesyncd_service).on("changed", update_ntp_status);
         $(self.server_time.timedate).on("changed", update_ntp_status);
         update_ntp_status();
-
-        /* NTPSynchronized needs to be polled so we just do that
-         * always.
-         */
-        window.setInterval(function() {
-            self.server_time.poll_ntp_synchronized();
-        }, 5000);
     }
 
     host_keys_show() {

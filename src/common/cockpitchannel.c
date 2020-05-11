@@ -246,7 +246,10 @@ process_pong (CockpitChannel *self,
 
       /* If our sent bytes are within the window, no longer under pressure */
       if (priv->out_sequence <= priv->out_window)
-        cockpit_flow_emit_pressure (COCKPIT_FLOW (self), FALSE);
+        {
+          g_debug ("%s: got acknowledge of enough data, relieving back pressure", priv->id);
+          cockpit_flow_emit_pressure (COCKPIT_FLOW (self), FALSE);
+        }
     }
 }
 

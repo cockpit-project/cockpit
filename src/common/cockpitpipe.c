@@ -623,7 +623,10 @@ dispatch_output (gint fd,
    * buffer size becomes less than the low mark.
    */
   if (before >= QUEUE_PRESSURE && priv->out_queued < QUEUE_PRESSURE)
-    cockpit_flow_emit_pressure (COCKPIT_FLOW (self), FALSE);
+    {
+      g_debug ("%s: have %" G_GSIZE_FORMAT " bytes queued, releasing pressure", priv->name, priv->out_queued);
+      cockpit_flow_emit_pressure (COCKPIT_FLOW (self), FALSE);
+    }
 
   if (priv->out_queue->head)
     return TRUE;
@@ -1050,7 +1053,10 @@ _cockpit_pipe_write (CockpitPipe *self,
    * tell it to stop sending data, each time we cross over the high bound.
    */
   if (before < QUEUE_PRESSURE && priv->out_queued >= QUEUE_PRESSURE)
-    cockpit_flow_emit_pressure (COCKPIT_FLOW (self), TRUE);
+    {
+      g_debug ("%s: have %" G_GSIZE_FORMAT "bytes queued, emitting pressure", priv->name, priv->out_queued);
+      cockpit_flow_emit_pressure (COCKPIT_FLOW (self), TRUE);
+    }
 
   if (!priv->out_source && priv->out_fd >= 0)
     {

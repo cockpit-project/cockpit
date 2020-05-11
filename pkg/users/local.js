@@ -366,8 +366,14 @@ PageAccounts.prototype = {
     },
 
     update: function() {
+        if (!this.accounts)
+            return;
+
+        const current_user = this.permission.user;
         this.accounts.sort(function (a, b) {
-            if (!a.gecos) return -1;
+            if (current_user && current_user.name === a.name) return -1;
+            else if (current_user && current_user.name === b.name) return 1;
+            else if (!a.gecos) return -1;
             else if (!b.gecos) return 1;
             else return a.gecos.localeCompare(b.gecos);
         });

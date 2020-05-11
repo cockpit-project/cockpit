@@ -27,9 +27,17 @@ import cockpit from "cockpit";
  * - superuser.allowed
  *
  * This is true when the page can open superuser channels, and false
- * otherwise.  Right after page load, this field might be "null" until
- * the real value has been received, but you should treat this as
- * false.
+ * otherwise. This field might be "null" while the page or the Cockpit
+ * session itself is still initializing.
+ *
+ * UI elements that trigger actions that need administrative access
+ * should be hidden when the "allowed" field is false or null.  (If
+ * those elements also show information, such as with checkboxes or
+ * toggle buttons, disable them instead of hiding.)
+ *
+ * UI elements that alert the user that they don't have administrative
+ * access should be shown when the "allowed" field is exactly false,
+ * but not when it is null.
  *
  * - superuser.addEventListener("changed", () => ...)
  *

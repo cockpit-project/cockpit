@@ -18,12 +18,14 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import time
+import os
 
 import parent
 from testlib import *
 from machine_core.constants import TEST_OS_DEFAULT
 
 
+@nondestructive
 class TestPages(MachineCase):
     def checkDocs(self, items):
         m = self.machine
@@ -45,6 +47,7 @@ class TestPages(MachineCase):
     def testBasic(self):
         m = self.machine
         b = self.browser
+        self.restore_dir("/etc/systemd/system", post_restore_action="systemctl stop test.timer test.service; systemctl daemon-reload")
         m.write("/etc/systemd/system/test.service",
                 """
 [Unit]
@@ -375,6 +378,7 @@ OnCalendar=daily
     def testFrameReload(self):
         b = self.browser
         frame = "cockpit1:localhost/playground/test"
+        self.addCleanup(self.machine.execute, "rm -f /tmp/counter")
 
         self.login_and_go("/playground/test")
 
@@ -400,6 +404,7 @@ OnCalendar=daily
         self.login_and_go()
 
         b.wait_in_text("#host-apps", "Overview")
+        self.restore_dir("/home/admin")
         m.execute("mkdir -p /home/admin/.local/share/cockpit/foo")
         m.write("/home/admin/.local/share/cockpit/foo/manifest.json",
                 '{ "menu": { "index": { "label": "FOO!" } } }')
@@ -543,8 +548,9 @@ OnCalendar=daily
         b = self.browser
         m = self.machine
 
+        stuff = os.path.join(self.vm_tmpdir, "stuff")
         # prepare a directory for testing file autocomplete widget
-        m.execute("mkdir -p /tmp/stuff/dir1; touch /tmp/stuff/file1.txt")
+        m.execute("mkdir -p {0}/dir1; touch {0}/file1.txt".format(stuff))
 
         self.login_and_go("/playground/react-patterns")
         # "initially expanded" entry in demo listing
@@ -552,7 +558,7 @@ OnCalendar=daily
 
         # test file completion widget
         b.focus("#demo-file-ac input[type=text]")
-        b.key_press("/tmp/stuff/")
+        b.key_press(stuff + "/")
         # need to wait for the widget's "fast typing" inhibition delay to trigger the completion popup
         b.wait_text("#file-autocomplete-widget.dropdown-menu li:nth-of-type(1) a span span", "dir1/")
         b.wait_text("#file-autocomplete-widget.dropdown-menu li:nth-of-type(2) a span span", "file1.txt")
@@ -560,7 +566,7 @@ OnCalendar=daily
         b.wait_not_present("#file-autocomplete-widget")
 
         # now update file1, check robustness with dynamic events
-        m.execute("touch /tmp/stuff/file1.txt")
+        m.execute("touch %s/file1.txt" % stuff)
         b.focus("#demo-file-ac input[type=text]")
         time.sleep(1)
         b.key_press([" ", "\b"])
@@ -570,7 +576,7 @@ OnCalendar=daily
         b.wait_not_present("#file-autocomplete-widget")
 
         # add new file
-        m.execute("touch /tmp/stuff/other")
+        m.execute("touch %s/other" % stuff)
         b.focus("#demo-file-ac input[type=text]")
         # FIXME: need to tickle the widget to re-read the directory by changing out and back in
         b.key_press(["\b"])
@@ -583,6 +589,7 @@ OnCalendar=daily
         b = self.browser
         m = self.machine
 
+        self.addCleanup(m.execute, "systemctl stop pmcd")
         m.execute("systemctl start pmcd")
 
         self.login_and_go("/playground/plot")

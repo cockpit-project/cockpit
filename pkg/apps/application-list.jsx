@@ -24,6 +24,7 @@ import { RebootingIcon } from "@patternfly/react-icons";
 
 import * as PackageKit from "./packagekit.js";
 import { left_click, icon_url, show_error, launch, ProgressBar, CancelButton } from "./utils.jsx";
+import { superuser } from "superuser.jsx";
 
 const _ = cockpit.gettext;
 
@@ -78,7 +79,9 @@ class ApplicationRow extends React.Component {
                 summary_or_progress = comp.summary;
             }
 
-            if (comp.installed) {
+            if (!superuser.allowed) {
+                button = null;
+            } else if (comp.installed) {
                 button = <Button variant="danger" onClick={left_click(remove)}>{_("Remove")}</Button>;
             } else {
                 button = <Button variant="secondary" onClick={left_click(install)}>{_("Install")}</Button>;
@@ -120,7 +123,10 @@ export class ApplicationList extends React.Component {
         }
 
         var refresh_progress, refresh_button, empty_caption, tbody, table_classes;
-        if (this.state.progress) {
+        if (!superuser.allowed) {
+            refresh_progress = null;
+            refresh_button = null;
+        } else if (this.state.progress) {
             refresh_progress = <ProgressBar title={_("Checking for new applications")} data={this.state.progress} />;
             refresh_button = <CancelButton data={this.state.progress} />;
         } else {

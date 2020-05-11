@@ -23,6 +23,7 @@ import { Button } from "@patternfly/react-core";
 
 import * as PackageKit from "./packagekit.js";
 import { left_click, icon_url, show_error, launch, ProgressBar, CancelButton } from "./utils.jsx";
+import { superuser } from "superuser.jsx";
 
 import "./application.css";
 
@@ -112,6 +113,9 @@ export class Application extends React.Component {
                 progress_or_launch = null;
                 button = <Button variant="secondary" onClick={left_click(install)}>{_("Install")}</Button>;
             }
+
+            if (!superuser.allowed)
+                button = null;
 
             return (
                 <div>

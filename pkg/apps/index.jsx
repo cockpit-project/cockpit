@@ -27,6 +27,7 @@ import ReactDOM from 'react-dom';
 import { ApplicationList } from "./application-list.jsx";
 import { Application } from "./application.jsx";
 import { get_metainfo_db } from "./appstream.js";
+import { superuser } from "superuser.jsx";
 
 import "page.scss";
 
@@ -70,6 +71,11 @@ document.addEventListener("DOMContentLoaded", function () {
     cockpit.translate();
 
     metainfo_db.addEventListener("changed", () => {
+        render_list();
+        render_app();
+    });
+
+    superuser.addEventListener("changed", () => {
         render_list();
         render_app();
     });

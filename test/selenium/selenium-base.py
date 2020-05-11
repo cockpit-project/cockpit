@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 # we need to be able to find and import seleniumlib, so add this directory
-from testlib_avocado.seleniumlib import SeleniumTest, user, clickable, passwd, visible
+from testlib_avocado.seleniumlib import SeleniumTest, user, clickable
 import os
 import sys
 machine_test_dir = os.path.dirname(os.path.abspath(__file__))
@@ -66,36 +66,4 @@ class BasicTestSuite(SeleniumTest):
 
         self.click(self.wait_xpath("//tr[@data-interface='%s']" % out, cond=clickable))
         self.wait_text("Carrier", element="td")
-        self.mainframe()
-
-    def test80Accounts(self):
-        self.login()
-        username = "selfcheckuser"
-        self.click(self.wait_link('Accounts', cond=clickable))
-        self.wait_frame("users")
-        self.click(self.wait_xpath(
-            "//*[@class='cockpit-account-user-name' and contains(text(), '%s')]" % user, cond=clickable))
-        self.wait_id('account')
-        self.wait_text("Full Name")
-        self.mainframe()
-        self.click(self.wait_link('Accounts', cond=clickable))
-        self.wait_frame('users')
-        self.wait_id("accounts", cond=visible)
-        self.click(self.wait_id("accounts-create", cond=clickable))
-        self.wait_id("accounts-create-dialog")
-        self.wait_id('accounts-create-create', cond=clickable)
-        self.send_keys(self.wait_id('accounts-create-real-name'), username)
-        self.send_keys(self.wait_id('accounts-create-pw1'), passwd)
-        self.send_keys(self.wait_id('accounts-create-pw2'), passwd)
-        self.wait_xpath("//span[@id='accounts-create-password-meter-message' and contains(text(), '%s')]" % "Excellent")
-        self.click(self.wait_id('accounts-create-create', cond=clickable))
-        self.wait_id("accounts", cond=visible)
-        self.click(self.wait_xpath(
-            "//*[@class='cockpit-account-user-name' and contains(text(), '%s')]" % username, cond=clickable))
-
-        self.click(self.wait_id('account-delete', cond=clickable))
-        self.wait_id('account-confirm-delete-dialog')
-        self.click(self.wait_id('account-confirm-delete-apply', cond=clickable))
-        self.wait_id("accounts", cond=visible)
-        self.wait_id("accounts-list", cond=visible)
         self.mainframe()

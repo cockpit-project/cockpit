@@ -44,8 +44,6 @@ class MemorySelectRow extends React.Component {
         const { id, value, minValue, maxValue, initialUnit, onValueChange, onUnitChange, readOnly } = this.props;
         /* We have the weird key attribute in the Slider because of
          * https://github.com/patternfly/patternfly-react/issues/3186
-         * We have the condition in the onSlide callback because of
-         * https://github.com/patternfly/patternfly-react/issues/3187
          * https://github.com/patternfly/patternfly-react/issues/3179
          * We have the focus callback in the Slider because of
          * https://github.com/patternfly/patternfly-react/issues/3191
@@ -62,7 +60,7 @@ class MemorySelectRow extends React.Component {
                     title={value}
                     ref={slider => { this.slider = slider }}
                     focus={() => { this.slider.current.focus() }}
-                    onSlide={value => onValueChange(value < minValue ? minValue : value)} /> : null}
+                    onSlide={onValueChange} /> : null}
                 <div role="group" className="form-group">
                     <input id={id} className="form-control"
                         type="number"

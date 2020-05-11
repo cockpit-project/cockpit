@@ -46,6 +46,9 @@ class TestAccounts(MachineCase):
             b.wait_text('.cockpit-account-badge', 'Your account')
             b.wait_js_cond('document.querySelector(".cockpit-account-badge").previousSibling.getAttribute("href") === "#/admin"')
 
+            # The current account is the first in the list
+            b.wait_visible(".cockpit-account:first-child .cockpit-account-badge")
+
         # Set a real name
         b.go("#/anton")
         b.wait_text("#account-user-name", "anton")
@@ -182,6 +185,9 @@ class TestAccounts(MachineCase):
         if m.image != "rhel-8-2-distropkg": # Introduced in #14063
             b.wait_text('.cockpit-account-badge', 'Your account')
             b.wait_js_cond('document.querySelector(".cockpit-account-badge").previousSibling.getAttribute("href") === "#/jussi"')
+
+            # The current account is the first in the list
+            b.wait_visible(".cockpit-account:first-child .cockpit-account-badge")
 
         b.go("#/jussi")
         b.wait_text("#account-user-name", "jussi")

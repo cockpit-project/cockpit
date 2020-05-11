@@ -41,6 +41,11 @@ class TestAccounts(MachineCase):
         m.execute("echo anton:foobar | chpasswd")
         b.wait_in_text('#accounts-list', "anton")
 
+        # There is only one badge and it is for admin
+        if m.image != "rhel-8-2-distropkg": # Introduced in #14063
+            b.wait_text('.cockpit-account-badge', 'Your account')
+            b.wait_js_cond('document.querySelector(".cockpit-account-badge").previousSibling.getAttribute("href") === "#/admin"')
+
         # Set a real name
         b.go("#/anton")
         b.wait_text("#account-user-name", "anton")
@@ -172,6 +177,12 @@ class TestAccounts(MachineCase):
         # Login as jussi and change role admin for itself
         b.logout()
         b.login_and_go("/users", user="jussi", password=good_password)
+
+        # There is only one badge and it is for jussi
+        if m.image != "rhel-8-2-distropkg": # Introduced in #14063
+            b.wait_text('.cockpit-account-badge', 'Your account')
+            b.wait_js_cond('document.querySelector(".cockpit-account-badge").previousSibling.getAttribute("href") === "#/jussi"')
+
         b.go("#/jussi")
         b.wait_text("#account-user-name", "jussi")
         b.wait_present(admin_role_sel + ":checked")
@@ -231,7 +242,7 @@ class TestAccounts(MachineCase):
             b.go("/users")
             b.enter_page("/users")
             b.wait_in_text('#accounts-list', "damaged")
-            b.click('.cockpit-account-user-name[href="#/damaged"]')
+            b.click('.cockpit-account-user-name a[href="#/damaged"]')
             b.wait_in_text("#account-title", "Damaged")
 
         self.allow_journal_messages("Password quality check failed:")

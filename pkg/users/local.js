@@ -32,6 +32,8 @@ import 'patterns';
 import 'bootstrap-datepicker/dist/js/bootstrap-datepicker';
 import 'form-layout.scss';
 
+import { Badge } from '@patternfly/react-core';
+
 moment.locale(cockpit.language);
 
 const _ = cockpit.gettext;
@@ -288,7 +290,10 @@ class AccountItem extends React.Component {
             <div className="cockpit-account" onClick={this.click} onKeyPress={this.click}>
                 <div className="cockpit-account-pic pficon pficon-user" />
                 <div className="cockpit-account-real-name">{this.props.gecos.split(',')[0]}</div>
-                <a className="cockpit-account-user-name" href={"#/" + this.props.name}>{this.props.name}</a>
+                <div className="cockpit-account-user-name">
+                    <a href={"#/" + this.props.name}>{this.props.name}</a>
+                    {this.props.current && <Badge className="cockpit-account-badge">{_("Your account")}</Badge>}
+                </div>
             </div>
         );
     }
@@ -300,7 +305,10 @@ class AccountList extends React.Component {
         var i;
         var items = [];
         for (i in this.props.accounts)
-            items.push(React.createElement(AccountItem, Object.assign({ key: this.props.accounts[i].name },
+            items.push(React.createElement(AccountItem, Object.assign({
+                key: this.props.accounts[i].name,
+                current: this.props.current_user === this.props.accounts[i].name
+            },
                                                                       this.props.accounts[i])));
         return (
             <>
@@ -318,6 +326,8 @@ function log_unexpected_error(error) {
 PageAccounts.prototype = {
     _init: function() {
         this.id = "accounts";
+        this.permission = cockpit.permission({ admin: true });
+        this.permission.addEventListener("changed", () => this.update());
     },
 
     getTitle: function() {
@@ -369,7 +379,7 @@ PageAccounts.prototype = {
         });
 
         ReactDOM.render(
-            React.createElement(AccountList, { accounts: accounts }),
+            React.createElement(AccountList, { accounts: accounts, current_user: this.permission.user ? this.permission.user.name : "" }),
             document.getElementById('accounts-list')
         );
     },

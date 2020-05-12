@@ -37,40 +37,6 @@ void     cockpit_journal_log_handler    (const gchar *log_domain,
 void     cockpit_set_journal_logging    (const gchar *stderr_domain,
                                          gboolean only);
 
-/*
- * GLib doesn't have g_info() yet:
- * https://bugzilla.gnome.org/show_bug.cgi?id=711103
- */
-#ifndef g_info
-
-#if defined(G_HAVE_ISO_VARARGS)
-
-#define g_info(...)     g_log (G_LOG_DOMAIN,         \
-                               G_LOG_LEVEL_INFO,     \
-                               __VA_ARGS__)
-
-#elif defined (G_HAVE_GNUC_VARARGS)
-
-#define g_info(format...)       g_log (G_LOG_DOMAIN,         \
-                                       G_LOG_LEVEL_INFO,     \
-                                       format)
-
-#else
-
-static void
-g_info (const gchar *format,
-        ...)
-{
-  va_list args;
-  va_start (args, format);
-  g_logv (G_LOG_DOMAIN, G_LOG_LEVEL_INFO, format, args);
-  va_end (args);
-}
-
-#endif /* no varargs */
-
-#endif /* g_info */
-
 G_END_DECLS
 
 #endif /* __COCKPIT_LOG_H__ */

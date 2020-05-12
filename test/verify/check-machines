@@ -2959,9 +2959,9 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("body", "Virtual Machines")
         self.waitVmRow("subVmTest1")
 
-        # Check kernel is booted before we try detaching disks
+        # Wait for the login promt before we try detaching disks - we need the OS to be fully responsive
         if args["logfile"] is not None:
-            wait(lambda: "Linux version" in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
+            wait(lambda: "login as 'cirros' user" in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
 
         # Test detaching non permanent disk of a running domain
         self.toggleVmRow("subVmTest1")
@@ -2973,7 +2973,12 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_present(".modal-dialog")
         b.click(".modal-footer button:contains(Remove)")
         b.wait_present(".modal-footer .spinner")
-        b.wait_not_present("#vm-subVmTest1-disks-vdc-device")
+        # When live-detaching disks the guest OS needs to cooperate so that we can
+        # see the disk getting detached in the UI.
+        # Wait until we see the login prompt before attempting operation that need
+        # the OS for fully respond
+        with b.wait_timeout(180):
+            b.wait_not_present("#vm-subVmTest1-disks-vdc-device")
         b.wait_not_present(".modal-dialog")
 
         # Test that detaching disk of a running domain will affect the

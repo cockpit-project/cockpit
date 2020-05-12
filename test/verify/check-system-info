@@ -504,7 +504,7 @@ class TestSystemInfo(MachineCase):
             m.execute('chmod +x /usr/local/bin/lscpu')
             if cmdline:
                 m.write('/run/cmdline', cmdline)
-                m.execute('if type chcon >/dev/null 2>&1; then chcon --reference /proc/cmdline /run/cmdline; fi && mount --bind /run/cmdline /proc/cmdline')
+                m.execute('if selinuxenabled 2>/dev/null; then chcon --reference /proc/cmdline /run/cmdline; fi && mount --bind /run/cmdline /proc/cmdline')
 
             b.reload()
             b.enter_page('/system/hwinfo')

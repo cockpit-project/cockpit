@@ -169,7 +169,7 @@ class NetworkCase(MachineCase, NetworkHelpers):
         cp -a /usr/sbin/dhclient {0}/dhclient.real
         printf '#!/bin/sh\\nsleep {1}\\nexec {0}/dhclient.real "$@"' > {0}/dhclient
         chmod a+x {0}/dhclient
-        if type chcon >/dev/null 2>&1; then chcon --reference /usr/sbin/dhclient {0}/dhclient; fi
+        if selinuxenabled 2>&1; then chcon --reference /usr/sbin/dhclient {0}/dhclient; fi
         mount -o bind {0}/dhclient /usr/sbin/dhclient
         """.format(self.vm_tmpdir, delay))
         self.addCleanup(self.machine.execute, "umount /usr/sbin/dhclient")

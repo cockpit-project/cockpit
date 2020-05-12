@@ -3629,7 +3629,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             def __init__(
                 self, test_obj, name, forward_mode=None, ip_conf=None, ipv4_address=None, ipv4_netmask=None, ipv6_address=None, ipv6_prefix=None, device=None,
                 ipv4_dhcp_start=None, ipv4_dhcp_end=None, ipv6_dhcp_start=None, ipv6_dhcp_end=None, xfail=False, xfail_error=None, xfail_objects=None,
-                remove=True
+                remove=True, activate=False
             ):
                 self.test_obj = test_obj
                 self.name = name
@@ -3648,6 +3648,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 self.xfail_objects = xfail_objects
                 self.xfail_error = xfail_error
                 self.remove = remove
+                self.activate = activate
 
             def execute(self):
                 self.open()
@@ -3729,6 +3730,15 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 else:
                     b.wait_not_present("#create-network-dialog")
 
+            def verify_expected_error_on_head(self, error_message):
+                b.wait_present("#app > div > section > div > div")
+                # Click show more button
+                b.click("#app > div > section > div > div > h4 > button")
+                b.wait_in_text("#app > div > section > div > div > div.pf-c-alert__description > p", error_message)
+                # Close the danger alert
+                b.click("#app > div > section > div > div > div.pf-c-alert__action > button")
+                b.wait_not_present("#app > div > section > div > div")
+
             def verify_dialog(self):
                 # Check that the defined network is now visible
                 b.wait_in_text("body", "Networks")
@@ -3771,6 +3781,12 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 b.wait_in_text("#network-{0}-{1}-forwarding".format(self.name, connectionName), modes[self.forward_mode])
                 self.test_obj.toggleNetworkRow(self.name, connectionName)
 
+                if self.activate:
+                    b.click("#activate-network-{}-{}".format(self.name, connectionName))
+                    # For checking danger alter, only set xfail_objects, and don't set xfail
+                    if self.xfail_objects and 'danger_alert' in self.xfail_objects:
+                        self.verify_expected_error_on_head(self.xfail_error)
+
                 if self.ip_conf != "None":
                     if "4" in self.ip_conf:
                         b.wait_in_text("#network-{0}-{1}-ipv4-address".format(self.name, connectionName), self.ipv4_address)
@@ -3792,18 +3808,37 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                     b.wait_not_present("#network-{0}-{1}-ipv6-address".format(self.name, connectionName))
 
             def cleanup(self):
+                if self.activate and not self.xfail_objects:
+                    m.execute("virsh net-destroy {}".format(self.name))
                 m.execute("virsh net-undefine {0}".format(self.name))
 
 
         # Test various forward Modes
-        NetworkCreateDialog(
+        duplicated_net = NetworkCreateDialog(
             self,
             name="test_network",
             forward_mode="nat",
             ip_conf="IPv4 only",
             ipv4_address="192.168.110.0",
             ipv4_netmask="255.255.255.0",
+            remove=False,
+            activate=True,
+            )
+        duplicated_net.execute()
+
+        # XFail: Activate a network which has a same ipv4 address with last one
+        NetworkCreateDialog(
+            self,
+            name="test_network_duplication",
+            forward_mode="nat",
+            ip_conf="IPv4 only",
+            ipv4_address="192.168.110.0",
+            ipv4_netmask="255.255.255.0",
+            activate=True,
+            xfail_objects='danger_alert',
+            xfail_error="Network is already in use",
         ).execute()
+        duplicated_net.cleanup()
 
         NetworkCreateDialog(
             self,

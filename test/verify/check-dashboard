@@ -339,7 +339,7 @@ class TestDashboardEditLimits(MachineCase, DashBoardHelpers):
         b.click('#host-edit-color')
         b.wait_visible('#host-edit-color-popover')
         b.wait_visible('#host-edit-user[disabled]')
-        b.click('#host-edit-color-popover div.popover-content > div:first-child > div:nth-child(3)')
+        b.click('#host-edit-color-popover div.popover-content > div:nth-child(3)')
         b.wait_not_visible('#host-edit-color-popover')
         b.click('#host-edit-apply')
         b.wait_popdown('host-edit-dialog')

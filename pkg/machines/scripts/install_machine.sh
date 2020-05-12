@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -eu -o noglob
+set -xeu -o noglob
 
 CONNECTION_URI="qemu:///$1" # example: qemu:///system
 VM_NAME="$2"
@@ -91,7 +91,7 @@ DOMAIN_FILE="`mktemp`"
 
 virsh -c "$CONNECTION_URI" -q destroy "$VM_NAME" 2>/dev/null || true
 virsh -c "$CONNECTION_URI" -q dumpxml "$VM_NAME" > "$DOMAIN_FILE"
-virsh -c "$CONNECTION_URI" -q undefine "$VM_NAME" --managed-save
+virsh -c "$CONNECTION_URI" --debug undefine "$VM_NAME" --managed-save
 
 handleFailure() {
     # If virt-install returned non-zero return code but the VM exists, redefine
@@ -106,6 +106,7 @@ handleFailure() {
 }
 
 virt-install \
+    --debug \
     --connect "$CONNECTION_URI" \
     --name "$VM_NAME" \
     --os-variant "$OS" \

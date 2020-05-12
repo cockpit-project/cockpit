@@ -1415,6 +1415,7 @@ export function INSTALL_VM({ name, vcpus, cpu, currentMemory, memory, metadata, 
         ], opts)
                 .done(() => clearVmUiState(dispatch, name, connectionName))
                 .fail(ex => {
+                    console.info(JSON.stringify(ex));
                     clearVmUiState(dispatch, name, connectionName); // inProgress cleanup
                     buildScriptTimeoutFailHandler(
                         () => onAddErrorNotification({ text: cockpit.format(_("VM $0 failed to get installed"), name), detail: ex.message })

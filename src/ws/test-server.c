@@ -655,6 +655,7 @@ server_ready (void)
   GError *error = NULL;
   CockpitWebServer *server;
   gchar *url;
+  const gchar *address_fd_str = g_getenv("TEST_SERVER_ADDRESS_FD");
 
   if (!isatty (1))
     server_port = 0; /* select one automatically */
@@ -689,7 +690,14 @@ server_ready (void)
 
   cockpit_web_server_start (server);
 
-  if (!isatty (1))
+  if (address_fd_str)
+    {
+      int fd = atoi (address_fd_str);
+      int r = write (fd, url, strlen (url));
+      close (fd);
+      g_assert (r == strlen (url));
+    }
+  else if (!isatty (1))
     {
       g_print ("%s\n", url);
     }

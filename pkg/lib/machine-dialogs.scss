@@ -23,12 +23,11 @@
 #host-edit-color-popover {
     --border-color: var(--pf-global--BorderColor--200);
     border-color: var(--border-color);
-    box-shadow: var(--pf-global--BoxShadow--sm) !important;
-    top: calc(100% + var(--pf-global--spacer--sm));
-    right: auto;
-    left: 50%;
-    transform: translateX(-50%);
-    margin-top: 0.5rem;
+    box-shadow: var(--pf-global--BoxShadow--md);
+    top: 50%;
+    left: calc(100% + var(--pf-global--spacer--sm));
+    transform: translateY(-50%);
+    margin-left: 0.5rem;
     // PF3 defines a max width; we unset it to allow the dialog to size itself
     max-width: auto;
 
@@ -36,25 +35,25 @@
         --arrow-size: 11px;
         --arrow-color: var(--border-color);
         position: absolute;
-        transform: translateX(-50%);
-        top: calc(var(--arrow-size) * -1);
+        transform: translateY(-50%);
+        top: 50%;
         width: 0;
         height: 0;
-        left: 50%;
+        left: calc(var(--arrow-size) * -1);
 
         &, &::after {
             border: 0 solid transparent;
             border-width: var(--arrow-size);
-            border-top-width: 0;
-            border-bottom-color: var(--arrow-color);
+            border-left-width: 0;
+            border-right-color: var(--arrow-color);
         }
 
         &::after {
             --arrow-color: white;
             content: '';
             position: absolute;
-            top: 1px;
-            left: calc(var(--arrow-size) * -1);
+            left: 1px;
+            top: calc(var(--arrow-size) * -1);
         }
     }
 

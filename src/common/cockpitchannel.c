@@ -351,14 +351,20 @@ cockpit_channel_actual_send (CockpitChannel *self,
   /* A wraparound of our gint64 size? */
   if (priv->flow_control)
     {
+      gboolean trigger_pressure;
       size = g_bytes_get_size (payload);
       g_return_if_fail (G_MAXINT64 - size > priv->out_sequence);
 
       /* How many bytes have been sent (queued) */
       out_sequence = priv->out_sequence + size;
 
-      /* Every CHANNEL_FLOW_PING bytes we send a ping */
-      if (out_sequence / CHANNEL_FLOW_PING != priv->out_sequence / CHANNEL_FLOW_PING)
+      /* If we've sent more than the window, we just got under pressure;
+       * do an edge trigger instead of level trigger to avoid ping/signal loops */
+      trigger_pressure = (priv->out_sequence <= priv->out_window) && (out_sequence > priv->out_window);
+
+      /* Every CHANNEL_FLOW_PING bytes we send a ping; also when applying back
+       * pressure as there is otherwise nothing more to send and generate pings for */
+      if ((out_sequence / CHANNEL_FLOW_PING != priv->out_sequence / CHANNEL_FLOW_PING) || trigger_pressure)
         {
           ping = json_object_new ();
           json_object_set_int_member (ping, "sequence", out_sequence);
@@ -367,9 +373,9 @@ cockpit_channel_actual_send (CockpitChannel *self,
           json_object_unref (ping);
         }
 
-      /* If we've sent more than the window, apply back pressure */
       priv->out_sequence = out_sequence;
-      if (priv->out_sequence > priv->out_window)
+
+      if (trigger_pressure)
         {
           g_debug ("%s: sent too much data without acknowledgement, emitting back pressure until %"
                    G_GINT64_FORMAT, priv->id, priv->out_window);

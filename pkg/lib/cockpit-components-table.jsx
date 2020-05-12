@@ -181,20 +181,20 @@ export class ListingTable extends React.Component {
     }
 
     render() {
-        const props = {};
+        const tableProps = {};
 
-        props.className = "ct-table";
+        tableProps.className = "ct-table";
         if (this.props.className)
-            props.className = props.className + " " + this.props.className;
-        props.rowWrapper = this.rowWrapper;
+            tableProps.className = tableProps.className + " " + this.props.className;
+        tableProps.rowWrapper = this.rowWrapper;
         if (this.props.columns.some(col => col.sortable)) {
-            props.onSort = this.onSort;
-            props.sortBy = this.state.sortBy;
+            tableProps.onSort = this.onSort;
+            tableProps.sortBy = this.state.sortBy;
         }
         if (this.props.onSelect)
-            props.onSelect = this.props.onSelect;
+            tableProps.onSelect = this.props.onSelect;
         if (this.props.caption || this.props.actions.length != 0) {
-            props.header = (
+            tableProps.header = (
                 <header className='ct-table-header'>
                     <h3 className='ct-table-heading'> {this.props.caption} </h3>
                     {this.props.actions && <div className='ct-table-actions'> {this.props.actions} </div>}
@@ -202,33 +202,33 @@ export class ListingTable extends React.Component {
             );
         }
         if (this.props.variant)
-            props.variant = this.props.variant;
+            tableProps.variant = this.props.variant;
 
         const isExpandable = this.props.rows.some(row => row.expandedContent);
         if (isExpandable)
-            props.onCollapse = this.onCollapse;
+            tableProps.onCollapse = this.onCollapse;
 
-        props.rows = this.props.rows.length ? this.reformatRows(this.props.rows) : [];
+        tableProps.rows = this.props.rows.length ? this.reformatRows(this.props.rows) : [];
         if (this.state.sortBy.index != undefined)
-            props.rows = this.sortRows(props.rows);
-        props.cells = this.reformatColumns(this.props.columns, isExpandable);
+            tableProps.rows = this.sortRows(tableProps.rows);
+        tableProps.cells = this.reformatColumns(this.props.columns, isExpandable);
         if (this.props['aria-label'])
-            props['aria-label'] = this.props['aria-label'];
+            tableProps['aria-label'] = this.props['aria-label'];
 
         const tableBodyProps = { rowKey: ({ rowData, rowIndex }) => (rowData.props && rowData.props.key) ? rowData.props.key : rowIndex };
         if (this.props.onRowClick)
             tableBodyProps.onRowClick = this.props.onRowClick;
         if (this.props.rows.length > 0) {
             return (
-                <Table {...props}>
+                <Table {...tableProps}>
                     <TableHeader />
                     <TableBody {...tableBodyProps} />
                 </Table>
             );
         } else {
-            props.borders = false;
+            tableProps.borders = false;
             return (
-                <Table {...props}>
+                <Table {...tableProps}>
                     <thead className='ct-table-empty'>
                         <tr><td> {this.props.emptyCaption} </td></tr>
                     </thead>

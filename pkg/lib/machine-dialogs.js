@@ -317,26 +317,7 @@ function MachineColorPicker(machines_ins) {
 
         $("#host-edit-color", selector).parent()
                 .on('show.bs.dropdown', function () {
-                    var $div = $('#host-edit-color', selector);
-                    var $pop = $('#host-edit-color-popover', selector);
-                    var div_pos = $div.position();
-                    var div_width = $div.width();
-                    var div_height = $div.height();
-                    var pop_width = $pop.width();
-                    var pop_height = $pop.height();
-
-                    var top = div_pos.top - pop_height + 10;
-                    if (top < 0) {
-                        top = div_pos.top + div_height + 10;
-                        $pop.addClass("bottom");
-                        $pop.removeClass("top");
-                    } else {
-                        $pop.addClass("top");
-                        $pop.removeClass("bottom");
-                    }
-                    $pop.css('left', div_pos.left + (div_width - pop_width) / 2);
-                    $pop.css('top', top);
-                    $pop.show();
+                    $('#host-edit-color-popover', selector).show();
                 })
                 .on('hide.bs.dropdown', function () {
                     $('#host-edit-color-popover', selector).hide();

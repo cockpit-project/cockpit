@@ -275,7 +275,7 @@ SH_LOG_DRIVER = $(LOG_DRIVER)
 HTML_LOG_DRIVER = $(LOG_DRIVER)
 HTML_TEST_SERVER = $(builddir)/test-server
 
-HTML_LOG_COMPILER = $(PYTHON) $(top_srcdir)/test/common/tap-cdp --strip=$(abs_top_srcdir)/ -- $(HTML_TEST_SERVER)
+HTML_LOG_COMPILER = timeout 60 $(PYTHON) $(top_srcdir)/test/common/tap-cdp --strip=$(abs_top_srcdir)/ -- $(HTML_TEST_SERVER)
 
 VALGRIND_ARGS = --trace-children=yes --quiet --error-exitcode=33 \
 	--suppressions=valgrind-suppressions --gen-suppressions=all \

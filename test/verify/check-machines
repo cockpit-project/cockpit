@@ -317,16 +317,14 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("#vm-subVmTest1-state", "running")
 
         # Wait for the system to completely start
-        if args["logfile"] is not None:
-            wait(lambda: "login as 'cirros' user." in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
+        wait(lambda: "login as 'cirros' user." in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
 
         # Send Non-Maskable Interrupt (no change in VM state is expected)
         b.click("#vm-subVmTest1-off-caret")
         b.click("#vm-subVmTest1-sendNMI")
         b.wait_attr("#vm-subVmTest1-off-caret", "aria-expanded", "false")
 
-        if args["logfile"] is not None:
-            b.wait(lambda: "NMI received" in self.machine.execute("cat {0}".format(args["logfile"])))
+        b.wait(lambda: "NMI received" in self.machine.execute("cat {0}".format(args["logfile"])))
 
         # pause
         b.click("#vm-subVmTest1-pause")
@@ -1304,8 +1302,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self.toggleVmRow(name)
 
         # Make sure that the VM booted normally before attempting to suspend it
-        if args["logfile"] is not None:
-            wait(lambda: "Linux version" in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
+        wait(lambda: "Linux version" in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
 
         self.machine.execute("virsh -c qemu:///system suspend {0}".format(name))
         b.wait_in_text("#vm-{0}-state".format(name), "paused")
@@ -2960,8 +2957,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         self.waitVmRow("subVmTest1")
 
         # Wait for the login promt before we try detaching disks - we need the OS to be fully responsive
-        if args["logfile"] is not None:
-            wait(lambda: "login as 'cirros' user" in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
+        wait(lambda: "login as 'cirros' user" in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
 
         # Test detaching non permanent disk of a running domain
         self.toggleVmRow("subVmTest1")
@@ -2998,12 +2994,10 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_not_present(".modal-dialog")
 
         # Test detaching disk of a paused domain
-        if args["logfile"] is not None:
-            m.execute("> {0}".format(args["logfile"])) # clear logfile
+        m.execute("> {0}".format(args["logfile"])) # clear logfile
         m.execute("virsh start subVmTest1")
         # Make sure that the VM booted normally before attempting to suspend it
-        if args["logfile"] is not None:
-            wait(lambda: "Linux version" in m.execute("cat {0}".format(args["logfile"])), delay=3)
+        wait(lambda: "Linux version" in m.execute("cat {0}".format(args["logfile"])), delay=3)
         m.execute("virsh suspend subVmTest1")
         b.wait_in_text("#vm-subVmTest1-state", "paused")
         b.wait_attr("#delete-subVmTest1-disk-vde", "disabled", "")

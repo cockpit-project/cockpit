@@ -2490,12 +2490,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             self._assertScriptFinished() \
                 .checkEnvIsEmpty()
 
-        def installWithErrorTest(self, dialog):
-            self._tryInstallWithError(dialog) \
-                ._assertScriptFinished() \
-                ._deleteVm(dialog) \
-                .checkEnvIsEmpty()
-
     def testAutostart(self):
         b = self.browser
         m = self.machine

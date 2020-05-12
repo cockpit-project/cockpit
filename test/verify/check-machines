@@ -3002,7 +3002,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         b.wait_in_text("#vm-subVmTest1-state", "paused")
         b.wait_attr("#delete-subVmTest1-disk-vde", "disabled", "")
         m.execute("virsh resume subVmTest1")
-        wait(lambda: "login as 'cirros' user" in  m.execute("cat /var/log/libvirt/console-subVmTest1.log"), delay=3)
+        wait(lambda: "login as 'cirros' user." in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
 
         # Test detaching of disk on non-persistent VM
         m.execute("virsh undefine subVmTest1")

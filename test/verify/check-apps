@@ -181,6 +181,9 @@ class TestApps(PackageCase):
         b.wait_present(".app-description:contains('DESCRIPTION:none')")
         b.wait_not_present(".app-description:contains('DESCRIPTION:de')")
 
+        # like in the general whitelist, but translated
+        self.allow_journal_messages("xargs: basename: .*Signal 13.*")
+
     def testBrokenXML(self):
         b = self.browser
         m = self.machine

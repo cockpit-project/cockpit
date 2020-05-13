@@ -37,7 +37,6 @@ import {
 import { SearchIcon } from '@patternfly/react-icons';
 
 import * as Select from "cockpit-components-select.jsx";
-import { Privileged } from "cockpit-components-privileged.jsx";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import { Service } from "./service.jsx";
 import { ServiceTabs, service_tabs_suffixes } from "./service-tabs.jsx";
@@ -46,10 +45,16 @@ import { onCreateTimer, timerDialogSetup } from "./timer-dialog.js";
 import moment from "moment";
 import { page_status } from "notifications";
 import cockpit from "cockpit";
+import { superuser } from 'superuser.jsx';
 
 moment.locale(cockpit.language);
 
 const _ = cockpit.gettext;
+
+// As long as we have long-running superuser channels, we need to
+// reload the page when the access level changes.
+//
+superuser.reload_page_on_change();
 
 export const systemd_client = cockpit.dbus("org.freedesktop.systemd1", { superuser: "try" });
 const timedate_client = cockpit.dbus('org.freedesktop.timedate1');
@@ -162,7 +167,6 @@ class ServicesPage extends React.Component {
         this.updateComputedProperties = this.updateComputedProperties.bind(this);
         this.compareUnits = this.compareUnits.bind(this);
 
-        this.permission = cockpit.permission({ admin: true });
         this.onPermissionChanged = this.onPermissionChanged.bind(this);
 
         this.seenPaths = new Set();
@@ -174,7 +178,7 @@ class ServicesPage extends React.Component {
 
     componentDidMount() {
         /* Listen for permission changes for "Create Timer" button */
-        this.permission.addEventListener("changed", this.onPermissionChanged);
+        superuser.addEventListener("changed", this.onPermissionChanged);
         this.onPermissionChanged();
 
         cockpit.addEventListener("locationchanged", this.on_navigate);
@@ -423,8 +427,7 @@ class ServicesPage extends React.Component {
     }
 
     onPermissionChanged() {
-        // default to allowed while not yet initialized
-        this.setState({ privileged: this.permission.allowed !== false });
+        this.setState({ privileged: superuser.allowed });
     }
 
     onClearAllFilters() {
@@ -752,14 +755,10 @@ class ServicesPage extends React.Component {
             <>
                 <DataToolbarItem variant="separator" />
                 <DataToolbarItem>
-                    <Privileged key="create-timer-privileged"
-                                allowed={ this.state.privileged }
-                                excuse={ cockpit.format(_("The user $0 is not permitted to create timers"),
-                                                        this.permission.user ? this.permission.user.name : '') }>
-                        <Button key='create-timer-action' variant="secondary"
-                                id="create-timer"
-                                onClick={onCreateTimer}>{_("Create Timer")}</Button>
-                    </Privileged>
+                    { this.state.privileged && <Button key='create-timer-action' variant="secondary"
+                                                       id="create-timer"
+                                                       onClick={onCreateTimer}>{_("Create Timer")}</Button>
+                    }
                 </DataToolbarItem>
             </>}
         </>;

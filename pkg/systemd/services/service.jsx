@@ -25,11 +25,11 @@ import {
 
 import { ServiceDetails, ServiceTemplate } from "./service-details.jsx";
 import { LogsPanel } from "cockpit-components-logs-panel.jsx";
+import { superuser } from 'superuser.jsx';
 
 import cockpit from "cockpit";
 
 const _ = cockpit.gettext;
-const permission = cockpit.permission({ admin: true });
 
 export class Service extends React.Component {
     constructor(props) {
@@ -81,7 +81,7 @@ export class Service extends React.Component {
             serviceDetails = (
                 <ServiceDetails unit={this.props.unit}
                                 originTemplate={this.cur_unit_template}
-                                permitted={permission.allowed}
+                                permitted={superuser.allowed}
                                 loadingUnits={this.props.loadingUnits}
                                 isValid={this.props.unitIsValid} />
             );

@@ -47,10 +47,8 @@ class TestKeys(MachineCase):
             b.click('#login-button')
             b.expect_load()
             b.enter_page("/system")
-            b.switch_to_top()
 
-            b.click('#navbar-dropdown')
-            b.click('#go-account')
+            b.go("/users#/" + user)
             b.enter_page("/users")
             b.wait_text("#account-user-name", user)
 

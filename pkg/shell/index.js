@@ -45,7 +45,6 @@ var options = {
     oops_sel: "#navbar-oops",
     language_sel: "#display-language",
     about_sel: "#about-version",
-    account_sel: "#go-account",
     killer_sel: "#active-pages",
     default_title: "Cockpit",
 };

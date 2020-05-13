@@ -80,13 +80,13 @@ class TestSession(MachineCase):
         b.wait_visible("#content")
         if m.image == "rhel-8-2-distropkg": # Changed in #13663
             b.wait_text("#content-user-name", "Administrator")
+            b.click('#navbar-dropdown')
+            b.click('#go-account')
+            b.enter_page("/users")
+            b.wait_text("#account-user-name", "admin")
+            b.wait_text("#account-user-name", "admin")
         else:
             b.wait_text('#current-username', 'admin')
-        b.click('#navbar-dropdown')
-        b.click('#go-account')
-        b.enter_page("/users")
-        b.wait_text("#account-user-name", "admin")
-        b.wait_text("#account-user-name", "admin")
 
 
 if __name__ == '__main__':

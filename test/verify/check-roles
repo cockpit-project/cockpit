@@ -50,13 +50,7 @@ class TestRoles(MachineCase):
         else:
             b.wait_text('#current-username', 'user')
 
-        # Check permissions for own account
-        if m.image == "rhel-8-2-distropkg": # Changed in #13663
-            b.click("#content-user-name")
-        else:
-            b.click("#navbar-dropdown")
-
-        b.click('#go-account')
+        b.go("/users#/user")
         b.enter_page("/users")
 
         admin_role_sel = 'input[data-name="%s"]' % m.get_admin_group()

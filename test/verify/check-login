@@ -120,8 +120,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         if m.image not in ['fedora-coreos']: # logs in via ssh, not cockpit-session
             self.assertRegex(m.execute("who"), r"(^|\n)admin *web")
 
-        b.click("#navbar-dropdown")
-        b.click('#go-account')
+        b.go("/users#/admin")
         b.enter_page("/users")
         b.wait_text("#account-user-name", "admin")
         try:

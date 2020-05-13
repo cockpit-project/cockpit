@@ -411,16 +411,18 @@ parameters:
         if wait_hostapp:
             self.wait_id("host-apps")
         if add_ssh_key and not self.check_machine_execute():
-            self.add_authorised_ssh_key_to_user()
+            self.add_authorised_ssh_key_to_user(user=tmpuser)
 
-    def add_authorised_ssh_key_to_user(self, pub_key=None):
+    def add_authorised_ssh_key_to_user(self, pub_key=None, user=user):
         if pub_key is None:
             pub_key = self.ssh_identity_file
         ssh_public_key = open("%s.pub" % pub_key).read()
         ssh_key_name = ssh_public_key.rsplit(" ", 1)[1]
-        self.click(self.wait_id("navbar-dropdown", cond=clickable))
-        self.click(self.wait_id("go-account", cond=clickable))
-        self.wait_frame('users')
+
+        self.click(self.wait_link('Accounts', cond=clickable))
+        self.wait_frame("users")
+        self.click(self.wait_xpath("//*[@class='cockpit-account-user-name']//a[contains(text(), '%s')]" % user, cond=clickable))
+
         self.wait_id("account-page")
         self.click(self.wait_id("authorized-key-add", cond=clickable))
         self.send_keys(self.wait_id("authorized-keys-text", cond=visible), ssh_public_key)

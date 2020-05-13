@@ -101,7 +101,10 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.try_login("admin", "foobar")
         b.expect_load()
         b.wait_present("#content")
-        b.wait_text('#content-user-name', 'Administrator')
+        if m.image == "rhel-8-2-distropkg": # Changed in #13663
+            b.wait_text("#content-user-name", "Administrator")
+        else:
+            b.wait_text('#current-username', 'admin')
 
         if m.image not in ['fedora-coreos']: # logs in via ssh, not cockpit-session
             self.assertRegex(m.execute("who"), r"(^|\n)admin *web")
@@ -109,12 +112,15 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         # reload, which should log us in with the cookie
         b.reload()
         b.wait_present("#content")
-        b.wait_text('#content-user-name', 'Administrator')
+        if m.image == "rhel-8-2-distropkg": # Changed in #13663
+            b.wait_text("#content-user-name", "Administrator")
+        else:
+            b.wait_text('#current-username', 'admin')
 
         if m.image not in ['fedora-coreos']: # logs in via ssh, not cockpit-session
             self.assertRegex(m.execute("who"), r"(^|\n)admin *web")
 
-        b.click("#content-user-name")
+        b.click("#navbar-dropdown")
         b.click('#go-account')
         b.enter_page("/users")
         b.wait_text("#account-user-name", "admin")
@@ -327,7 +333,10 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         b.expect_load()
         b.wait_present("#content")
-        b.wait_text('#content-user-name', 'Administrator')
+        if m.image == "rhel-8-2-distropkg": # Changed in #13663
+            b.wait_text("#content-user-name", "Administrator")
+        else:
+            b.wait_text('#current-username', 'admin')
 
         self.allow_journal_messages('Error executing command as another user: Not authorized',
                                     'This incident has been reported.',
@@ -372,7 +381,10 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         b.expect_load()
         b.wait_present("#content")
-        b.wait_text('#content-user-name', 'Administrator')
+        if m.image == "rhel-8-2-distropkg": # Changed in #13663
+            b.wait_text("#content-user-name", "Administrator")
+        else:
+            b.wait_text('#current-username', 'admin')
 
         self.allow_restart_journal_messages()
         self.allow_authorize_journal_messages()

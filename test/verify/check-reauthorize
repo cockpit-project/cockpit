@@ -95,7 +95,7 @@ class TestReauthorize(MachineCase):
         b.click(".super-channel button")
         b.wait_in_text(".super-channel span", 'result: uid=0')
         b.leave_page()
-        b.wait_not_visible("#super-user-indicator")
+        b.wait_text("#super-user-indicator", "")
 
     def testSudo(self):
         self.allow_authorize_journal_messages()

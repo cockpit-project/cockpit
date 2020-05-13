@@ -7,70 +7,143 @@
     <link href="../base1/patternfly.css" rel="stylesheet">
     <link href="index.css" rel="stylesheet">
     <link href="../../static/branding.css" rel="stylesheet">
+    <link href="../shell/nav.css" rel="stylesheet">
     <script src="../base1/jquery.js"></script>
     <script src="../base1/cockpit.js"></script>
     <script src="../manifests.js"></script>
     <script src="../*/po.js"></script>
   </head>
   <body class="pf-m-redhat-font" hidden>
-    <div id="main" class="area-ct-layout">
-        <nav id="topnav" class="navbar navbar-default navbar-pf navbar-pf-vertical area-ct-navbar" role="navigation">
-          <div class="navbar-header">
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse-1">
-              <i class="fa fa-bars" alt="Toggle navigation"></i>
+    <div id="main" class="page">
+        <a class="screenreader-text skiplink desktop_v" href="#content" translate>Skip to Content</a>
+        <a class="screenreader-text skiplink desktop_v" href="#nav-hosts-sel" translate>Skip main navigation</a>
+
+        <div class="pf-c-select pf-m-dark sidebar-toggle">
+            <button type="button" class="ct-nav-toggle pf-c-select__toggle pf-m-plain" id="nav-system-item">
+                <span class="fa pficon-container-node" aria-hidden="true"></span>
+                <span translate>System</span>
             </button>
-            <div class="navbar-brand">
-              <div id="index-brand" class="hide-before"></div>
+        </div>
+
+        <div id="nav-system" class="area-ct-subnav nav-system-menu sidebar">
+            <nav id="host-apps" class="host-apps">
+                <!-- Navigation goes here !-->
+            </nav>
+        </div>
+
+        <nav id="nav-hosts-sel" class="navbar navbar-default navbar-pf navbar-pf-vertical" tabindex="-1">
+          <div class="navbar-header">
+            <div id="hosts-sel">
+                <!-- Hosts selector goes here !-->
             </div>
           </div>
-          <div class="collapse navbar-collapse navbar-collapse-1">
-            <ul class="nav navbar-nav navbar-utility">
-              <li id="machine-spinner">
-                <div class="spinner spinner-md spinner-white">
-                </div>
+        </nav>
+
+        <div id="nav-hosts" class="area-ct-subnav nav-hosts-menu sidebar">
+            <!-- Hosts go here !-->
+        </div>
+
+        <div id="topnav" class="header">
+          <div class="meta ct-header-meta"></div>
+          <div class="ct-header-item ct-header-spinner" id="machine-spinner">
+              <div class="spinner spinner-md spinner-white"></div>
+          </div>
+          <div id="super-user-indicator" class="super-user-indicator ct-header-item ct-header-lock desktop_v"></div>
+          <div class="ct-header-item ct-header-oops" id="navbar-oops" hidden>
+            <a role="link" tabindex="0" class="ct-nav-toggle"><span class="oops-status" translate="yes">Ooops!</span></a>
+          </div>
+          <div id="navbar-docs" class="dropdown ct-header-item ct-header-docs">
+            <a role="link" tabindex="0" id="navbar-docs-dropdown" class="ct-nav-toggle dropdown-toggle" data-toggle="dropdown">
+              <span class="pficon pficon-help"></span>
+              <span translate>Help</span>
+              <span class="fa fa-caret-down pf-c-dropdown__toggle-icon"></span>
+            </a>
+            <ul id="navbar-docs-items" class="dropdown-menu pull-right">
+            </ul>
+          </div>
+          <div class="dropdown ct-header-item ct-header-menu">
+            <a role="link" tabindex="0" id="navbar-dropdown" class="ct-nav-toggle dropdown-toggle" data-toggle="dropdown">
+              <span class="pficon pficon-user" aria-label="Toggle session settings" translate="aria-label"></span>
+              <span class="fa fa-caret-down pf-c-dropdown__toggle-icon"></span>
+            </a>
+            <ul class="dropdown-menu pull-right">
+              <li id="super-user-indicator-mobile" class="mobile_v"></li>
+              <li class="divider mobile_v"></li>
+              <li class="display-language-menu">
+                <a role="link" tabindex="0" data-toggle="modal" data-target="#display-language" translate="yes">Display Language</a>
               </li>
-              <li id="super-user-indicator">
+              <li class="divider display-language-menu"></li>
+              <li>
+                <a role="link" tabindex="0" id="active-pages" translate="yes" class="navbar-advanced">Active Pages</a>
               </li>
-              <li id="navbar-oops" hidden>
-                <a role="link" tabindex="0"><span class="oops-status" translate="yes">Ooops!</span></a>
+              <li id="go-account" hidden>
+                <a role="link" tabindex="0" translate="yes">Account Settings</a>
               </li>
-              <li id="navbar-docs" class=dropdown">
-                <a role="link" tabindex="0" id="navbar-docs-dropdown" class="dropdown-toggle" data-toggle="dropdown">
-                  <span class="pficon pficon-help"></span>
-                  <span translate>Help</span>
-                </a>
-                <ul id="navbar-docs-items" class="dropdown-menu">
-                </ul>
+              <li>
+                  <a role="link" tabindex="0" data-toggle="modal" data-target="#credentials-dialog"
+                      id="credentials-item" translate="yes">SSH Keys</a>
               </li>
-              <li class="dropdown">
-                <a role="link" tabindex="0" id="navbar-dropdown" class="dropdown-toggle" data-toggle="dropdown">
-                  <span class="pficon pficon-user"></span>
-                  <span id="content-user-name"></span>
-                  <i class="fa fa-caret-down pf-c-context-selector__toggle-icon" aria-hidden="true"></i>
-                </a>
-                <ul class="dropdown-menu">
-                  <li class="display-language-menu">
-                    <a role="link" tabindex="0" data-toggle="modal" data-target="#display-language" translate="yes">Display Language</a>
-                  </li>
-                  <li class="divider display-language-menu"></li>
-                  <li>
-                    <a role="link" tabindex="0" id="active-pages" translate="yes" class="navbar-advanced">Active Pages</a>
-                  </li>
-                  <li id="go-account" hidden>
-                    <a role="link" tabindex="0" translate="yes">Account Settings</a>
-                  </li>
-                  <li>
-                      <a role="link" tabindex="0" data-toggle="modal" data-target="#credentials-dialog"
-                          id="credentials-item" translate="yes">SSH Keys</a>
-                  </li>
-                  <li>
-                    <a role="link" tabindex="0" id="go-logout" translate="yes">Log Out</a>
-                  </li>
-                </ul>
+              <li>
+                <a role="link" tabindex="0" id="go-logout" translate="yes">Log Out</a>
               </li>
             </ul>
           </div>
-        </nav>
+        </div>
+
+        <div class="modal" id="hosts_setup_server_dialog" tabindex="-1" role="dialog"
+            data-backdrop="static">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                </div>
+            </div>
+        </div>
+
+        <div class="modal" id="edit-host-dialog" tabindex="-1" role="dialog" data-backdrop="static">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" translate>Edit Host</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div>
+                            <table class="form-table-ct">
+                                <tr>
+                                    <td class="top" translate="yes">Host Name</td>
+                                    <td>
+                                        <input class="form-control" id="edit-host-name"/>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr id="edit-host-user-row">
+                                    <td class="top" translate="yes">User</td>
+                                    <td>
+                                        <input class="form-control" id="edit-host-user"/>
+                                    </td>
+                                    <td>
+                                        <a tabindex="0" role="button" data-toggle="popover"
+                                            data-trigger="focus" data-placement="bottom" translate="data-content"
+                                            data-content="Leave blank to connect to this machine as the currently logged in user. If you enter a different username, that user will always be used when connecting to this machine.">
+                                            <span class="fa fa-lg fa-info-circle"></span>
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td translate="yes">Color</td>
+                                    <td id="edit-host-colorpicker"></td>
+                                    <td></td>
+                                </tr>
+                                <div id="host-edit-fail"></div>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="pf-c-button pf-m-primary" id="edit-host-apply" translate="yes">Set</button>
+                        <button class="pf-c-button pf-m-link" data-dismiss="modal" translate="yes">Cancel</button>
+                        <div class="pull-right"><a role="link" tabindex="0" id="edit-host-sync-users" translate="yes">Synchronize users</a></div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div class="modal" id="about" tabindex="-1" role="dialog" data-backdrop="static">
           <div class="modal-dialog">
@@ -111,7 +184,7 @@
                 <h4 class="modal-title" translate="yes">Display Language</h4>
               </div>
               <div class="modal-body">
-	        <p translate="yes">Choose the language to be used in the application</p>
+                <p translate="yes">Choose the language to be used in the application</p>
                 <select id="display-language-list" size="5" data-role="none">
                 </select>
               </div>
@@ -163,7 +236,7 @@
                     </div>
                     <div class="modal-body">
                         <table class="listing-ct">
-                            <thead>
+                            <tbody>
                                 <tr id="credential-keys">
                                     <td colspan="2" translate>Use the following keys to authenticate against other systems</td>
                                     <td class="listing-ct-actions">
@@ -182,7 +255,7 @@
                                         <div class="dialog-error help-block"></div>
                                     </td>
                                 </tr>
-                            </thead>
+                            </tbody>
                         </table>
                         <div class="table-scrollable">
                             <table class="listing-ct credential-listing">
@@ -336,71 +409,22 @@
                 </div>
             </div>
         </div>
-        <div class="area-ct-body">
-            <div class="nav-sidebar-wrap expanded" id="multi-dashboard">
-                <nav class="nav-sidebar nav-pf-vertical">
-                    <ul id="main-navbar" class="main-navbar list-group">
-                        <li id="host-nav-item" class="list-group-item dashboard-link has-menu">
-                            <a role="link" tabindex="0" id="host-nav-link">
-                                <span class="fa pficon-container-node"></span>
-                                <span class="list-group-item-value"></span>
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
+
+        <div id="content" role="main" class="area-ct-content" tabindex="-1">
+          <!-- This is where the iframes appear -->
+          <div class="curtains-ct blank-slate-pf" role="alertdialog" aria-labelledby="machine-error-heading" aria-describedby="machine-error-desc" hidden>
+            <div class="blank-slate-pf-icon">
+              <div class="spinner spinner-lg" hidden></div>
+              <i class="fa fa-exclamation-circle"></i>
             </div>
-
-            <div id="host-nav" class="area-ct-subnav">
-                <div id="machine-dropdown" class="nav-item-pf-header machine-dropdown">
-                    <a role="link" tabindex="0" id="machine-link" class="dropdown-toggle" data-toggle="dropdown"
-                        aria-haspopup="true" role="button" aria-expanded="false">
-                      <img src="../shell/images/server-small.png" id="machine-avatar" role="presentation" alt="" class="machine-avatar single-dashboard">
-                      <span></span>
-                       <i class="fa fa-caret-down pf-c-context-selector__toggle-icon" aria-hidden="true"></i>
-                    </a>
-
-                    <div class="dropdown-menu">
-                        <div class="form-group has-feedback">
-                            <input id="find-machine" class="form-control" type="search">
-                            <span class="fa fa-search form-control-feedback"></span>
-                        </div>
-                        <ul role="menu" aria-labelledby="machine-link">
-                        </ul>
-                    </div>
-                </div>
-                <div class="has-feedback search" id="menu-search">
-                    <input id="filter-menus" class="form-control" type="search" placeholder="Search"
-                        translate="placeholder aria-label" aria-label="Search">
-                    <span class="fa fa-search form-control-feedback"></span>
-                </div>
-
-                <nav id="host-apps" class="host-apps">
-                    <ul class="list-group" id="sidebar-menu">
-                    </ul>
-
-                    <ul class="list-group" id="sidebar-tools">
-                    </ul>
-                </nav>
+            <h1 id="machine-error-heading"></h1>
+            <p id="machine-error-desc"></p>
+            <div class="blank-slate-pf-main-action">
+              <button id="machine-reconnect" class="pf-c-button pf-m-primary btn-lg" translate="yes">Reconnect</button>
+              <button id="machine-troubleshoot" class="pf-c-button pf-m-primary btn-lg" translate="yes">Troubleshoot</button>
             </div>
-
-          <div id="content" role="main" class="area-ct-content">
-            <!-- This is where the iframes appear -->
-            <div class="curtains-ct blank-slate-pf" role="alertdialog" aria-labelledby="machine-error-heading" aria-describedby="machine-error-desc" hidden>
-              <div class="blank-slate-pf-icon">
-                <div class="spinner spinner-lg" hidden></div>
-                <i class="fa fa-exclamation-circle"></i>
-              </div>
-              <h1 id="machine-error-heading"></h1>
-              <p id="machine-error-desc"></p>
-              <div class="blank-slate-pf-main-action">
-                <button id="machine-reconnect" class="pf-c-button pf-m-primary btn-lg" translate="yes">Reconnect</button>
-                <button id="machine-troubleshoot" class="pf-c-button pf-m-primary btn-lg" translate="yes">Troubleshoot</button>
-              </div>
-            </div>
-
           </div>
         </div>
-
     </div>
 
     <div id="early-failure" class="blank-slate-pf" role="alertdialog" hidden>

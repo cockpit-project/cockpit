@@ -203,19 +203,33 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
 
         # Test switching
         b.leave_page()
-        b.wait_js_cond('ph_select("#machine-dropdown ul li").length == 3')
+        if m.image == "rhel-8-2-distropkg": # New hosts switching introduced in #13663
+            b.wait_js_cond('ph_select("#machine-dropdown ul li").length == 3')
 
-        b.click("#host-nav-link")
+            b.click("#host-nav-link")
 
-        b.click("#machine-link")
-        b.click("#machine-dropdown ul a[data-address='localhost']")
-        b.wait_js_cond('window.location.pathname == "/system"')
-        b.click("#machine-link")
-        b.click("#machine-dropdown ul a[data-address='10.111.113.2']")
-        b.wait_js_cond('window.location.pathname.indexOf("/@10.111.113.2") === 0')
-        b.click("#machine-link")
-        b.click("#machine-dropdown ul a[data-address='10.111.113.3']")
-        b.wait_js_cond('window.location.pathname.indexOf("/@10.111.113.3") === 0')
+            b.click("#machine-link")
+            b.click("#machine-dropdown ul a[data-address='localhost']")
+            b.wait_js_cond('window.location.pathname == "/system"')
+            b.click("#machine-link")
+            b.click("#machine-dropdown ul a[data-address='10.111.113.2']")
+            b.wait_js_cond('window.location.pathname.indexOf("/@10.111.113.2") === 0')
+            b.click("#machine-link")
+            b.click("#machine-dropdown ul a[data-address='10.111.113.3']")
+            b.wait_js_cond('window.location.pathname.indexOf("/@10.111.113.3") === 0')
+        else:
+            b.click("#hosts-sel button")
+            b.wait_js_cond('ph_select("#nav-hosts .nav-item a").length == 3')
+
+            b.click("#nav-hosts .nav-item a[href='/@localhost']")
+            b.wait_js_cond('window.location.pathname == "/system"')
+
+            b.click("#nav-hosts .nav-item a[href='/@10.111.113.2']")
+            b.wait_js_cond('window.location.pathname.indexOf("/@10.111.113.2") === 0')
+
+            b.click("#hosts-sel button")
+            b.click("#nav-hosts .nav-item a[href='/@10.111.113.3']")
+            b.wait_js_cond('window.location.pathname.indexOf("/@10.111.113.3") === 0')
 
         b.enter_page("/system", "10.111.113.3")
         b.wait_text_not("#system_information_systime_button", "")

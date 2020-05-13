@@ -44,6 +44,17 @@ class TestPages(MachineCase):
         b.click("#navbar-docs > a")
         b.wait_not_visible("#navbar-docs-items")
 
+    def open_lang_modal(self):
+        self.browser.switch_to_top()
+        if self.machine.image == "rhel-8-2-distropkg": # Changed in #13663
+            self.browser.click("#content-user-name")
+        else:
+            self.browser.click("#navbar-dropdown")
+
+        self.browser.click(".display-language-menu a")
+        self.browser.wait_popup('display-language')
+
+
     def testBasic(self):
         m = self.machine
         b = self.browser
@@ -156,15 +167,16 @@ OnCalendar=daily
 
         b.switch_to_top()
 
-        b.wait_present(".area-ct-body")
-        b.wait_not_present(".area-ct-body.single-nav")
-        b.wait_present("#host-nav")
+        if m.image == "rhel-8-2-distropkg": # Changed in #13663
+            b.wait_present(".area-ct-body")
+            b.wait_not_present(".area-ct-body.single-nav")
+            b.wait_present("#host-nav")
+        else:
+            b.wait_present("#nav-system")
 
         # Lets try changing the language
 
-        b.click("#content-user-name")
-        b.click(".display-language-menu a")
-        b.wait_popup('display-language')
+        self.open_lang_modal()
         b.set_val("#display-language select", "de-de")
         b.click("#display-language-select-button")
         b.expect_load()
@@ -246,10 +258,7 @@ OnCalendar=daily
         self.login_and_go('/system')
         b.wait_present('#overview')
 
-        b.switch_to_top()
-        b.click('#content-user-name')
-        b.click(".display-language-menu a")
-        b.wait_popup('display-language')
+        self.open_lang_modal()
         languages = b.eval_js("ph_select('#display-language-list option').map(function(e) { return e.value })")
         b.click("#display-language button[data-dismiss]") # Close the menu
 
@@ -257,10 +266,7 @@ OnCalendar=daily
             b.go("/system")
             b.enter_page("/system")
 
-            b.switch_to_top()
-            b.click('#content-user-name')
-            b.click(".display-language-menu a")
-            b.wait_popup('display-language')
+            self.open_lang_modal()
             b.set_val("#display-language select", language)
             b.click("#display-language-select-button")
             b.expect_load()
@@ -310,10 +316,7 @@ OnCalendar=daily
 
         self.login_and_go('/system')
         b.wait_present('#overview')
-        b.switch_to_top()
-        b.click('#content-user-name')
-        b.click('.display-language-menu a')
-        b.wait_popup('display-language')
+        self.open_lang_modal()
         b.set_val('#display-language select', 'pt-br')
         b.click('#display-language-select-button')
         b.expect_load()
@@ -402,7 +405,11 @@ OnCalendar=daily
         b = self.browser
         m = self.machine
 
-        self.login_and_go()
+        if m.image == "rhel-8-2-distropkg": # Old menu prefers dashboard, changed in #13663
+            self.login_and_go("/system")
+            b.leave_page()
+        else:
+            self.login_and_go()
 
         b.wait_in_text("#host-apps", "Overview")
         self.restore_dir("/home/admin")
@@ -421,70 +428,78 @@ OnCalendar=daily
         # On Ubuntu and Debian we would need to generate locales - just ignore it
         self.allow_journal_messages("invalid or unusable locale: de_DE.UTF-8")
 
-        self.login_and_go()
+        if m.image == "rhel-8-2-distropkg": # Old menu prefers dashboard, changed in #13663
+            self.login_and_go("/system")
+            b.leave_page()
+        else:
+            self.login_and_go()
+
+        filter_sel = ".filter-menus"
+        if m.image == "rhel-8-2-distropkg":
+            filter_sel = "#filter-menus"
 
         # Check that some page disappears and some stay
-        b.focus("#filter-menus")
-        b.set_val("#filter-menus", "se")
-        b.wait_not_present("#sidebar-menu > li > a > span:contains('Logs')")
-        b.wait_present("#sidebar-menu > li > a > span:contains('Services')")
-        b.wait_text("#sidebar-menu > li > a > span:contains('Services') mark", "Se")
+        b.focus(filter_sel)
+        b.key_press("se")
+        b.wait_not_present("#host-apps li a:contains('Logs')")
+        b.wait_present("#host-apps li a:contains('Services')")
+        b.wait_text("#host-apps li a:contains('Services') mark", "Se")
 
-        b.focus("#filter-menus")
-        b.set_val("#filter-menus", "")
-        b.wait_present("#sidebar-menu > li > a > span:contains('Logs')")
-        b.wait_present("#sidebar-menu > li > a > span:contains('Services')")
+        b.focus(filter_sel)
+        b.key_press("\b\b")
+        b.wait_present("#host-apps li a:contains('Logs')")
+        b.wait_present("#host-apps li a:contains('Services')")
 
         # Check that any substring work
-        b.focus("#filter-menus")
-        b.set_val("#filter-menus", "CoUN")
-        b.wait_not_present("#sidebar-menu > li > a > span:contains('Overview')")
-        b.wait_present("#sidebar-menu > li > a > span:contains('Accounts')")
-        b.wait_text("#sidebar-menu > li > a > span:contains('Accounts') mark", "coun")
+        b.focus(filter_sel)
+        b.key_press("CoUN")
+        b.wait_not_present("#host-apps li a:contains('Overview')")
+        b.wait_present("#host-apps li a:contains('Accounts')")
+        b.wait_text("#host-apps li a:contains('Accounts') mark", "coun")
 
         # Check it can also search by keywords
-        b.focus("#filter-menus")
-        b.set_val("#filter-menus", "systemd")
-        b.wait_present("#sidebar-menu > li > a > span:contains('Services')")
-        b.wait_text("#sidebar-menu > li > a > span:contains('Services')", "ServicesContains: systemd")
-        b.wait_text("#sidebar-menu > li > a > span:contains('Services') div mark", "systemd")
+        b.focus(filter_sel)
+        b.key_press("\b\b\b\bsystemd")
+        b.wait_present("#host-apps li a:contains('Services')")
+        b.wait_text("#host-apps li a:contains('Services')", "ServicesContains: systemd")
+        b.wait_text("#host-apps li a:contains('Services') mark", "systemd")
 
         # Check that enter activates first result
-        b.focus("#filter-menus")
-        b.set_val("#filter-menus", "logs")
-        b.wait_not_present("#sidebar-menu > li > a > span:contains('Services')")
-        b.wait_present("#sidebar-menu > li > a > span:contains('Logs')")
-        b.focus("#filter-menus")
+        b.focus(filter_sel)
+        b.key_press("\b\b\b\b\b\b\blogs")
+        b.wait_not_present("#host-apps li a:contains('Services')")
+        b.wait_present("#host-apps li a:contains('Logs')")
+        b.focus(filter_sel)
         b.key_press("\r")
         b.enter_page("/system/logs")
         b.wait_visible("#journal")
 
         # Visited page, search should be cleaned up
         b.switch_to_top()
-        b.wait_val("#filter-menus", "")
+        b.wait_val(filter_sel, "")
 
         # Check that escape cleans the search
-        b.set_val("#filter-menus", "logs")
-        b.wait_not_present("#sidebar-menu > li > a > span:contains('Services')")
-        b.wait_present("#sidebar-menu > li > a > span:contains('Logs')")
-        b.focus("#filter-menus")
+        b.key_press("logs")
+        b.wait_not_present("#host-apps li a:contains('Services')")
+        b.wait_present("#host-apps li a:contains('Logs')")
+        b.focus(filter_sel)
         b.key_press(chr(27)) # escape
-        b.wait_val("#filter-menus", "")
-        b.wait_present("#sidebar-menu > li > a > span:contains('Services')")
+        b.wait_val(filter_sel, "")
+        b.wait_present("#host-apps li a:contains('Services')")
 
         # Check that clicking on `Clear Search` cleans the search
-        b.set_val("#filter-menus", "logs")
-        b.wait_not_present("#sidebar-menu > li > a > span:contains('Services')")
-        b.wait_present("#sidebar-menu > li > a > span:contains('Logs')")
+        b.key_press("logs")
+        b.wait_not_present("#host-apps li a:contains('Services')")
+        b.wait_present("#host-apps li a:contains('Logs')")
         b.click("button:contains('Clear Search')")
-        b.wait_val("#filter-menus", "")
-        b.wait_present("#sidebar-menu > li > a > span:contains('Services')")
+        b.key_press("\b\b\b\b")
+        b.wait_present("#host-apps li a:contains('Services')")
         b.wait_not_present("button:contains('Clear Search')")
 
         # Check that arrows navigate the menu
-        b.focus("#filter-menus")
-        b.set_val("#filter-menus", "s")
-        b.wait_not_present("#sidebar-menu > li > a > span:contains('Logs')")
+        b.focus(filter_sel)
+        b.key_press("s")
+        b.wait_not_present("#host-apps li a:contains('Logs')")
         b.key_press(chr(40), use_ord=True) # arrow down
         b.key_press(chr(40), use_ord=True) # arrow down
         b.key_press("\r")
@@ -495,18 +510,15 @@ OnCalendar=daily
 
         # Check we jump into subpage when defined in manifest
         b.switch_to_top()
-        b.focus("#filter-menus")
-        b.set_val("#filter-menus", "firew")
-        b.wait_present("#sidebar-menu > li > a > span:contains('Networking')")
-        b.wait_not_present("#sidebar-menu > li > a > span:contains('Overview')")
-        b.click("#sidebar-menu > li > a > span:contains('Networking')")
+        b.focus(filter_sel)
+        b.key_press("firew")
+        b.wait_present("#host-apps li a:contains('Networking')")
+        b.wait_not_present("#host-apps li a:contains('Overview')")
+        b.click("#host-apps li a:contains('Networking')")
         b.enter_page("/network/firewall")
 
         # Search internationalized menu
-        b.switch_to_top()
-        b.click("#content-user-name")
-        b.click(".display-language-menu a")
-        b.wait_popup('display-language')
+        self.open_lang_modal()
         b.set_val("#display-language select", "de-de")
         b.click("#display-language-select-button")
         b.expect_load()
@@ -518,12 +530,13 @@ OnCalendar=daily
         b.wait_in_text(".ct-overview-header", "Neustarten")
 
         b.switch_to_top()
-        b.wait_present("#sidebar-menu > li > a > span:contains('Dienste')")
-        b.wait_present("#sidebar-menu > li > a > span:contains('Protokolle')")
-        b.set_val("#filter-menus", "dien")
-        b.wait_not_present("#sidebar-menu > li > a > span:contains('Protokolle')")
-        b.wait_present("#sidebar-menu > li > a > span:contains('Dienste')")
-        b.wait_text("#sidebar-menu > li > a > span:contains('Dienste') mark", "Dien")
+        b.wait_present("#host-apps li a:contains('Dienste')")
+        b.wait_present("#host-apps li a:contains('Protokolle')")
+        b.focus(filter_sel)
+        b.key_press("dien")
+        b.wait_not_present("#host-apps li a:contains('Protokolle')")
+        b.wait_present("#host-apps li a:contains('Dienste')")
+        b.wait_text("#host-apps li a:contains('Dienste') mark", "Dien")
 
     def testShellPreload(self):
         b = self.browser
@@ -667,6 +680,7 @@ OnCalendar=daily
 
     def testPageStatus(self):
         b = self.browser
+        m = self.machine
 
         self.login_and_go("/playground")
 
@@ -675,8 +689,13 @@ OnCalendar=daily
         b.click("#set-status")
 
         b.switch_to_top()
-        b.wait_present("#host-apps a[href='/playground'] span.fa-info-circle")
-        b.wait_present("#host-apps a[href='/playground'] span[title='My Little Page Status']")
+        if m.image == "rhel-8-2-distropkg": # Changed in #13663
+            b.wait_present("#host-apps a[href='/playground'] span.fa-info-circle")
+            b.wait_present("#host-apps a[href='/playground'] span[title='My Little Page Status']")
+        else:
+            b.wait_present("#development-info")
+            b.mouse("#development-info", "mouseover")
+            b.wait_in_text("div.tooltip", "My Little Page Status")
 
         b.go("/playground/notifications-receiver")
         b.enter_page("/playground/notifications-receiver")
@@ -689,7 +708,10 @@ OnCalendar=daily
         b.click("#clear-status")
 
         b.switch_to_top()
-        b.wait_not_present("#host-apps a[href='/playground'] span.fa")
+        if m.image == "rhel-8-2-distropkg": # Changed in #13663
+            b.wait_not_present("#host-apps a[href='/playground'] span.fa")
+        else:
+            b.wait_not_present("#development-info")
 
         b.go("/playground/notifications-receiver")
         b.enter_page("/playground/notifications-receiver")

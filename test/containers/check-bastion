@@ -113,7 +113,10 @@ class TestBastion(MachineCase):
         self.approve_key(b)
 
         b.expect_load()
-        b.wait_text("#content-user-name", "Administrator")
+        if m.image == "rhel-8-2-distropkg": # Changed in #13663
+            b.wait_text("#content-user-name", "Administrator")
+        else:
+            b.wait_text('#current-username', 'admin')
         b.logout()
 
     def testBasicLogin(self):
@@ -142,7 +145,10 @@ class TestBastion(MachineCase):
         self.approve_key(b)
 
         b.expect_load()
-        b.wait_text("#content-user-name", "Administrator")
+        if m.image == "rhel-8-2-distropkg": # Changed in #13663
+            b.wait_text("#content-user-name", "Administrator")
+        else:
+            b.wait_text('#current-username', 'admin')
         b.logout()
 
 if __name__ == '__main__':

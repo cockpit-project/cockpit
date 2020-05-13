@@ -724,7 +724,7 @@ ExecStart=/usr/bin/false
         if self.machine.image == "rhel-8-2-distropkg":
             b.wait_present('a[href="/system/services"] .fa-exclamation-triangle')
         else:
-            b.wait_present('a[href="/system/services"] .fa-exclamation-circle')
+            b.wait_present("#services-error")
 
         n_failures = self.count_failures()
         health_message = "1 service has failed" if n_failures == 1 else "%s services have failed" % n_failures
@@ -758,7 +758,7 @@ ExecStart=/usr/bin/false
             if self.machine.image == "rhel-8-2-distropkg":
                 b.wait_not_present('a[href="/system/services"] .fa-exclamation-triangle')
             else:
-                b.wait_not_present('a[href="/system/services"] .fa-exclamation-circle')
+                b.wait_not_present("#services-error")
 
             # System page should not have notification
             b.click('#host-apps a[href="/system"]')
@@ -794,7 +794,7 @@ Where=/fail
             if self.machine.image == "rhel-8-2-distropkg":
                 b.wait_not_present('a[href="/system/services"] .fa-exclamation-triangle')
             else:
-                b.wait_not_present('a[href="/system/services"] .fa-exclamation-circle')
+                b.wait_not_present("#services-error")
 
             # System page should not have notification
             b.click('#host-apps a[href="/system"]')

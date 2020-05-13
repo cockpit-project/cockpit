@@ -150,7 +150,6 @@ class TestMultiOSDirect(MachineCase):
         dev_dashboard_addresses = ["localhost"]
         wait_dashboard_addresses(b, dev_dashboard_addresses)
 
-        dev_m = self.machine
         stock_m = self.machines['centos-7']
         stock_m.execute("hostnamectl set-hostname stock")
 
@@ -176,12 +175,6 @@ class TestMultiOSDirect(MachineCase):
         b.wait_visible("body")
         b.wait_in_text('#system_information_hostname_button', "stock")
         b.switch_to_top()
-
-        # Debian/Ubuntu don't ship CentOS branding
-        if "debian" in dev_m.image or "ubuntu" in dev_m.image:
-            b.wait_in_text("#index-brand", "Cockpit")
-        else:
-            b.wait_in_text("#index-brand", "CentOS")
 
         b.wait_js_cond('window.location.pathname == "/=10.111.113.5/system"')
 

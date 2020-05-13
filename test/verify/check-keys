@@ -48,7 +48,6 @@ class TestKeys(MachineCase):
             b.expect_load()
             b.enter_page("/system")
             b.switch_to_top()
-            b.wait_text('#content-user-name', user_name)
 
             b.click('#navbar-dropdown')
             b.click('#go-account')

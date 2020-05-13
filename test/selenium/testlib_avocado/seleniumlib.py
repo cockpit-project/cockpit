@@ -418,7 +418,7 @@ parameters:
             pub_key = self.ssh_identity_file
         ssh_public_key = open("%s.pub" % pub_key).read()
         ssh_key_name = ssh_public_key.rsplit(" ", 1)[1]
-        self.click(self.wait_id("content-user-name", cond=clickable))
+        self.click(self.wait_id("navbar-dropdown", cond=clickable))
         self.click(self.wait_id("go-account", cond=clickable))
         self.wait_frame('users')
         self.wait_id("account-page")

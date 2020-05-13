@@ -48,7 +48,7 @@ export function showDialog (frames) {
                     component: component,
                     address: address,
                     name: iframe.getAttribute("name"),
-                    visible: iframe.style.display.indexOf("block") !== -1,
+                    visible: iframe.getAttribute("data-active") === 'true',
                     displayName: displayName(address, component)
                 });
             }

@@ -259,10 +259,6 @@ class TestMultiMachine(MachineCase):
 
         hostname_selector = "#system_information_hostname_text"
 
-        # Change os-release pretty name on m2
-        m2.execute("sed -i '/NAME=.*/d' /etc/os-release")
-        m2.execute("echo 'NAME=\"A Pretty Name\"' >> /etc/os-release")
-
         b.switch_to_top()
         b.go("{}/system".format(root))
         b.enter_page("/system")
@@ -290,8 +286,6 @@ class TestMultiMachine(MachineCase):
         b.wait_in_text(hostname_selector, "machine2")
         b.switch_to_top()
 
-        # Branding uses m2 pretty name
-        b.wait_in_text("#index-brand", "A Pretty Name")
         b.wait_js_cond('window.location.pathname == "{0}=10.111.113.2/system"'.format(root))
         m2_dashboard_name = "machine2"
 
@@ -451,6 +445,7 @@ class TestMultiMachine(MachineCase):
         self.allow_journal_messages(".*: Connection reset by peer",
                                     "connection unexpectedly closed by peer")
 
+    @skipImage("Incompatible changes with distropkg from #13663", "rhel-8-2-distropkg")
     def testDirectLogin(self):
         b = self.browser
 
@@ -458,6 +453,7 @@ class TestMultiMachine(MachineCase):
         add_machine(b, "10.111.113.2")
         self.checkDirectLogin('/')
 
+    @skipImage("Incompatible changes with distropkg from #13663", "rhel-8-2-distropkg")
     @skipImage("test VM image does not have FIPS support", "debian-stable",
                "debian-testing", "ubuntu-2004", "ubuntu-stable", "fedora-coreos")
     def testFIPS(self):
@@ -476,6 +472,7 @@ class TestMultiMachine(MachineCase):
         add_machine(b, "10.111.113.2")
         self.checkDirectLogin('/')
 
+    @skipImage("Incompatible changes with distropkg from #13663", "rhel-8-2-distropkg")
     def testUrlRoot(self):
         b = self.browser
         m = self.machine

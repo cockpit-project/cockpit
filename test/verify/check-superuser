@@ -361,7 +361,7 @@ class TestSuperuserDashboard(MachineCase):
 
         # The superuser indicator should be on the Overview page and not in the Shell
 
-        b.wait_not_visible("#super-user-indicator")
+        b.wait_text("#super-user-indicator", "")
         b.enter_page("/system", host="10.111.113.2")
         b.wait_in_text(".ct-overview-header-actions", "Administrative access")
         b.go("/@10.111.113.2/playground/test")

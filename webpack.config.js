@@ -463,7 +463,6 @@ module.exports = {
                 include: stylesheet => {
                     return (
                         stylesheet.includes('@patternfly/react-styles/css/components/Table/') ||
-                        stylesheet.includes('@patternfly/react-styles/css/components/Nav/') ||
                         stylesheet.includes('@patternfly/react-styles/css/components/Page/') ||
                         stylesheet.includes('@patternfly/react-styles/css/components/Toolbar/')
                     );

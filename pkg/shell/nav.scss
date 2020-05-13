@@ -1,0 +1,707 @@
+@import "variables";
+
+/* Navigation base, used for both desktop & mobile navigation */
+
+$phone-tiny: 360px;
+$phone: 767px;
+$desktop: $phone + 1px;
+
+.area-ct-subnav {
+    background: var(--color-ct-nav-sub);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+
+    mark {
+        padding-left: 0;
+        padding-right: 0;
+        font-weight: bold;
+        color: var(--color-ct-nav-active-text);
+        background: var(--pf-global--BackgroundColor--dark-400);
+    }
+
+    .search {
+        margin: 1rem 1.5rem;
+
+        > input.form-control {
+            background: var(--color-ct-nav);
+            border: 0 solid var(--color-ct-nav);
+            border-width: 2px 0;
+            color: var(--color-ct-nav-main-text) !important;
+            padding: 0 0.5rem 0 32px !important;
+            transition: var(--pf-global--Transition);
+
+            &::placeholder {
+                color: var(--color-ct-nav-text);
+                opacity: 0.8;
+            }
+
+            &:focus {
+                border-bottom-color: var(--color-ct-nav-main-text);
+            }
+        }
+
+        > .form-control-feedback {
+            color: var(--color-ct-nav-text);
+            opacity: 0.7;
+            margin: 0.5rem;
+            right: auto;
+            width: 16px;
+            height: 16px;
+            left: 0;
+            transition: var(--pf-global--Transition);
+            z-index: 0;
+        }
+
+        > input.form-control:focus ~ .form-control-feedback {
+            color: var(--color-ct-nav-active-text);
+            opacity: 1;
+        }
+    }
+
+    .hint {
+        width: 100%;
+        font-size: var(--pf-global--FontSize--sm);
+        font-weight: var(--pf-global--FontWeight--normal);
+        color: var(--pf-c-nav--m-dark__list-link--Color);
+        display: inline-block;
+        opacity: 0.8;
+    }
+
+    .link-button.hint {
+        color: var(--pf-global--active-color--300);
+    }
+
+    .non-menu-item {
+        color: var(--pf-c-nav__list-link--Color);
+        display: flex;
+        justify-content: center;
+    }
+}
+
+.header {
+    background: var(--pf-global--BackgroundColor--dark-100);
+    display: grid;
+    align-items: center;
+    grid-template-columns: auto;
+    grid-auto-columns: max-content;
+    grid-auto-flow: column;
+    overflow: visible;
+
+    .ct-header-item {
+        display: flex;
+        align-items: center;
+        height: 100%;
+
+        .fa-caret-down {
+            margin-left: 0.5rem;
+        }
+
+        &.open {
+            // Approximate --pf-global--BackgroundColor--dark-200 with opacity
+            background-color: rgba(249, 252, 255, 0.32);
+
+            .fa-caret-down {
+                transform: scaleY(-1) translateY(1px);
+            }
+        }
+    }
+
+    .pficon-user {
+        align-items: center;
+        display: inline-flex;
+        justify-content: center;
+        margin-right: 0.5rem;
+        padding-right: 0;
+        position: static;
+        vertical-align: middle;
+        height: 2rem;
+        border-radius: 50%;
+        width: 2rem;
+        font-size: 2rem;
+        background: #fff;
+        color: #bbb;
+        overflow: hidden;
+
+        &::before {
+            font-size: 80%;
+            position: relative;
+            top: 8%;
+        }
+    }
+
+    .user-name {
+        display: inline-flex;
+    }
+}
+
+.area-ct-content {
+    position: relative;
+    z-index: 1;
+    display: block;
+
+    > iframe {
+        height: 100%;
+        position: absolute;
+    }
+
+    > .curtains-ct {
+        position: static !important;
+    }
+}
+
+.screenreader-text {
+    position: absolute;
+    left: -999px;
+    width:1px;
+    height: 1px;
+    top: auto;
+
+    &:focus {
+        display: inline-block;
+        height: auto;
+        width: auto;
+        position: static;
+        padding: 19px 0;
+        width: 100%;
+        text-align: center;
+        background-color: var(--pf-global--BackgroundColor--dark-300);
+        color: white;
+    }
+}
+
+/* Desktop navigation */
+@media (min-width: $desktop) {
+    .mobile_v {
+        display: none !important;
+    }
+
+    .view-hosts .sidebar-hosts {
+        animation: navHostsSlide 300ms ease-out;
+        transform-origin: top;
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background: var(--pf-global--BackgroundColor--dark-200);
+        z-index: 999;
+
+        &.edit-hosts {
+            .pf-c-nav__list {
+                .pf-c-button {
+                    animation: navHostsEditButtonsAppear 400ms;
+                    animation-timing-function: ease-in-out;
+                }
+            }
+        }
+    }
+
+    .header {
+        border-left: 1px solid var(--pf-global--BackgroundColor--dark-100);
+        background: linear-gradient(to right,var(--pf-global--BackgroundColor--dark-100) -1rem, var(--pf-global--BackgroundColor--dark-300) 1rem);
+
+        .ct-header-item > a,
+        .ct-header-item > button,
+        .ct-header-item > span {
+            // PF3 specificity needs to be overridden, hence !important here
+            padding: 0 1rem !important;
+            font-size: var(--pf-global--FontSize--md);
+            height: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .credential-unlocked {
+            /* AAA contrast: simulate #a1a1a1 on #151515 */
+            opacity: 0.6;
+        }
+
+        .fa,
+        .pficon {
+            vertical-align: bottom;
+        }
+    }
+
+    .pf-m-dark > .pf-c-select__toggle {
+        background-color: var(--pf-global--BackgroundColor--dark-300);
+    }
+
+    .ct-switcher > .pf-c-select > button {
+        padding-left: 1.5rem;
+    }
+
+    .nav-hosts-menu {
+        display: none;
+
+        &.interact {
+            display: block;
+        }
+    }
+}
+
+/* Mobile navigation */
+@media (max-width: $phone) {
+    :root {
+        --nav-icon-size: 4rem;
+    }
+
+    .desktop_v {
+        display: none !important;
+    }
+
+    .area-ct-subnav {
+        align-self: end;
+        z-index: 2;
+
+        &:not(.interact) {
+            display: none;
+        }
+    }
+
+    .dropdown-menu {
+        width: auto !important;
+    }
+
+    .area-ct-subnav,
+    .dropdown-menu {
+        transform-origin: bottom;
+        animation: navHostsSlide 200ms ease-out;
+    }
+
+    .ct-header {
+        &-item {
+            --button-offset: 0;
+
+            .dropdown-menu {
+                right: var(--button-offset);
+                left: auto;
+                top: auto;
+                bottom: 100%;
+            }
+
+            .dropdown-toggle {
+                .fa-caret-down {
+                    display: none;
+                }
+            }
+        }
+        &-docs {
+            // Buttons are 4rem wide
+            --button-offset: calc((-1 * var(--nav-icon-size)) + var(--pf-global--spacer--md));
+        }
+    }
+
+    .nav-system-menu {
+        left: 0;
+        right: 0;
+        height: auto;
+        overflow: auto;
+        max-height: calc(100vh - var(--nav-icon-size));
+        max-width: 29rem;
+        display: block;
+    }
+
+    .nav-hosts-menu {
+        position: absolute;
+        bottom: var(--nav-icon-size);
+        right: var(--pf-global--spacer--md);
+        max-width: 100vw;
+    }
+
+    .header {
+        .dropdown-menu > li > a,
+        .dropdown-menu > li > button,
+        .dropdown-menu > li > span {
+            /* Make menu items a consistent, touch-friendly size */
+            padding: 0 40px;
+            line-height: 54px;
+            color: #333;
+        }
+    }
+
+    .pf-c-select__toggle {
+        display: block;
+        width: auto;
+    }
+
+    .pf-c-select__toggle-arrow {
+        transform: rotate(180deg) scale(1.5);
+        margin: unset;
+        margin-top: 4px;
+    }
+
+    .ct-switcher > .pf-c-select > button {
+        padding-left: 0;
+    }
+
+    .menu-toggle,
+    .sidebar-toggle .fa {
+        display: block;
+        transform: scale(1.5);
+        border-radius: 0 !important;
+    }
+
+    // Override some PF4isms to make sure the host switcher is 100% tall
+    .navbar-pf {
+        .navbar-header {
+            border: none;
+        }
+
+        .navbar-header,
+        .ct-switcher {
+            height: 100%;
+            display: flex;
+        }
+    }
+}
+
+@media (max-width: $phone-tiny) {
+    // Don't have a gap for the hosts selection
+    .nav-hosts-menu {
+        right: 0;
+    }
+
+    // Make the hosts selection fill the width of the page
+    .view-hosts .sidebar-hosts .pf-c-page__sidebar-body {
+        width: 100vw;
+    }
+}
+
+.navbar.navbar-pf-vertical {
+    border-top: 0px;
+}
+
+.ct-switcher {
+    > .pf-c-select {
+        .pf-c-select__toggle-text {
+            text-align: left;
+        }
+    }
+
+    .username {
+        display: inline-block;
+    }
+
+    .at {
+        opacity: 0.8;
+    }
+
+    .hostname {
+        display: block;
+        font-weight: 600;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+.pf-m-dark {
+    .pf-c-select__toggle {
+        //mobile
+        height: 100%;
+
+        > * {
+            color: var(--pf-global--Color--light-100);
+        }
+    }
+}
+
+.nav-action {
+    margin: 0 0 0 auto !important;
+}
+
+.host-apps {
+    flex: 1 1 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    position: relative;
+    scrollbar-color: var(--pf-global--Color--400) var(--pf-global--BackgroundColor--dark-200);
+
+    // In mobile, make the search at the top and the rest scroll
+    @media (max-width: $phone) {
+        display: grid;
+        grid-template-rows: auto 1fr;
+        max-height: calc(100vh - var(--nav-icon-size));
+        position: sticky;
+        top: 0;
+
+        > .pf-c-nav {
+            overflow: auto;
+        }
+    }
+}
+
+.nav-group-heading {
+    display: flex;
+    justify-content: space-between;
+
+    a {
+        color: var(--pf-global--link--Color--light);
+        font-weight: normal;
+
+        &:hover {
+            color: var(--pf-global--link--Color--light--hover)
+        }
+    }
+}
+
+// Give additional style to individual menu items
+.nav-item {
+
+    &:hover {
+        cursor: pointer;
+        background-color: var(--pf-global--BackgroundColor--dark-400);
+    }
+
+    a {
+        color: unset;
+        flex: auto;
+        word-break: break-word;
+
+        &:hover,
+        &:focus {
+            text-decoration: none;
+        }
+    }
+
+    button,
+    .nav-status {
+        margin-left: auto;
+        align-self: center;
+    }
+
+    .nav-status {
+        display: flex;
+    }
+
+    // Add a background to shine through the icon's gaps
+    // (for better contrast, even when hovering / selected)
+    // TODO this does not seem to actually work
+    svg {
+        // Set position for the icon sandwiching
+        position: relative;
+        // Add a shadow around the icon
+        text-shadow: 1px 0 1px var(--color-ct-nav), 0 1px 1px var(--color-ct-nav), -1px 0 1px var(--color-ct-nav), 0 -1px 1px var(--color-ct-nav);
+
+        // Move the icon up the stack
+        &::before {
+            z-index: 1;
+            position: relative;
+        }
+
+        // Fill the interior gaps
+        &::after {
+            position: absolute;
+            content: '';
+            background-color: var(--color-ct-nav);
+            border-radius: 3px;
+            top: 3px;
+            right: 5px;
+            bottom: 3px;
+            left: 5px;
+        }
+    }
+}
+
+.view-hosts .sidebar-hosts {
+    .pf-c-nav__list {
+        overflow-y: auto;
+    }
+
+    .pf-c-page__sidebar-body {
+        display: grid;
+        grid-template-rows: max-content 1fr max-content;
+
+        @media (min-width: $desktop) {
+            max-height: 100%;
+        }
+
+        @media (max-width: $phone) {
+            // Don't run off the top of the page in mobile
+            max-height: calc(100vh - var(--nav-icon-size));
+        }
+    }
+
+    .pf-c-nav {
+        overflow: auto;
+    }
+
+    .nav-hosts-actions {
+        --button-margin-x: 1rem;
+        --button-margin-y: 0.75rem;
+        display: grid;
+        grid-gap: 0.5rem;
+        margin: var(--button-margin-y) var(--button-margin-x);
+
+        > button {
+            color: var(--pf-global--BackgroundColor--200);
+
+            &::after {
+                border-color: var(--pf-global--BackgroundColor--200);
+            }
+        }
+    }
+
+    .nav-item {
+        --pf-c-nav--m-dark__item--m-current--BackgroundColor: var(--pf-global--BackgroundColor--dark-400);
+
+        > .pf-c-nav__link {
+            align-items: center;
+        }
+    }
+
+    .nav-host-action-buttons {
+        flex: none;
+        // Use grid instead of flex here, because Chrome (as of right now) doesn't support gap
+        // and Chrome thinks it does (so @supports doesn't work right in Chrome)
+        display: grid;
+        grid-gap: 0.25rem;
+        margin: -0.25rem -0.5rem -0.25rem 0.5rem;
+
+        @media (max-width: $phone) {
+            grid-auto-flow: column;
+        }
+
+        @media (min-width: $desktop) {
+            // Desktop has limited horizontal space, so stack these
+            // Ironically, mobile has more space here (due to being a popup)
+            grid-auto-flow: row;
+        }
+
+        > button {
+            --pf-c-button--m-secondary--Color: rgba(255, 255, 255, 0.75);
+            --pf-c-button--m-secondary--BorderColor: rgba(255, 255, 255, 0.75);
+            --pf-c-button--m-secondary--hover--Color: rgba(255, 255, 255, 1);
+            --pf-c-button--m-secondary--hover--BorderColor: rgba(255, 255, 255, 1);
+            // Simulate PF4's disabled icon, but with alpha
+            --pf-c-button--disabled--BackgroundColor: rgba(255, 255, 255, 0.17);
+            --pf-c-button--disabled--Color: rgba(0, 7, 13, 0.45);
+            margin: 0;
+        }
+
+    }
+}
+
+.nav-system-menu {
+    .pf-c-nav__list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(10rem, auto));
+
+        > a {
+            text-align: center;
+        }
+    }
+}
+
+// Rework navigation toggles in desktop and (especially) mobile modes
+.super-user-indicator > button,
+.ct-nav-toggle {
+    color: var(--pf-global--Color--light-100) !important;
+    background: transparent;
+
+    &:hover, &:active, &.active, &.interact, &[aria-expanded=true] {
+        text-decoration: none;
+        // approximate --pf-global--BackgroundColor--dark-400, but with opacity
+        background: rgba(249, 252, 255, 0.32);
+    }
+
+    &:focus {
+        text-decoration: none;
+        outline: 1px dotted var(--pf-global--BackgroundColor--light-100);
+    }
+}
+
+.super-user-indicator > button {
+    &:hover, &:focus {
+        text-decoration: underline;
+    }
+}
+
+.ct-nav-toggle {
+    .pficon-help {
+        font-size: 22px;
+    }
+
+    @media (min-width: $desktop) {
+        //display: flex;
+        //align-items: center;
+        //justify-content: center;
+
+        .pficon, .fa {
+            &:not(:last-child) {
+                margin-right: 0.5rem;
+            }
+        }
+    }
+
+    @media (max-width: $phone) {
+        height: 100%;
+        display: grid !important;
+        grid-template-rows: 22px 1fr;
+        align-items: end;
+        justify-content: center;
+        justify-items: center;
+
+        min-width: 4rem;
+        padding: 0.5rem 1rem !important;
+
+        > .pf-c-select__toggle-wrapper {
+            flex: none;
+            max-width: 100%;
+        }
+
+        .fa,
+        .pficon {
+            align-self: center;
+            margin: 0 !important;
+        }
+
+        .pf-c-select__toggle-arrow {
+            // This is here because Chrome is weird sometimes...
+            padding: 2px 0 5px;
+        }
+
+        .pficon-user {
+            // Fill the whole vertical content area with the user icon
+            grid-row: 1 / -1;
+        }
+    }
+}
+
+// HACK: Don't span the navigation as wide or tall as possible
+.nav-hosts-menu {
+    height: auto;
+
+    .pf-c-page__sidebar .pf-c-nav {
+        width: unset;
+    }
+}
+
+// TODO - this should come from PF, just overwrite until new version is available
+.pf-c-nav__list > .pf-c-nav__item > .pf-c-nav__link::after {
+    left: 0;
+    top: 0;
+    bottom: 0;
+    height: 100%; // We may actually need this even with the new PF version (when item has 'Contains:...'
+    width: var(--pf-c-nav__list-link--after--Height);
+}
+
+// TODO - this should come from PF, just overwrite until new version is available
+.pf-c-nav__list .pf-c-nav__link {
+    padding-bottom: var(--pf-c-nav__list-link--PaddingTop);
+}
+
+/* Navigation animation */
+
+@keyframes navHostsSlide {
+    0% { opacity: 0.25; transform: scaleY(0); }
+    25% { opacity: 0.5; transform: scaleY(0.25); }
+    100% { opacity: 1; transform: scaleY(1); }
+}
+
+@keyframes navHostsEditButtonsAppear {
+    0% { opacity: 0; max-height: 0; max-width: 0; }
+    50% { opacity: 0; max-height: 0; max-width: 0; }
+    75% { opacity: 0; max-height: 100%; max-width: 100%; }
+    100% {opacity: 1; max-height: 100%; max-width: 100%}
+}

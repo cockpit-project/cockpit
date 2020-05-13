@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 # we need to be able to find and import seleniumlib, so add this directory
-from testlib_avocado.seleniumlib import SeleniumTest, user, clickable
+from testlib_avocado.seleniumlib import SeleniumTest, clickable
 import os
 import sys
 machine_test_dir = os.path.dirname(os.path.abspath(__file__))
@@ -26,19 +26,6 @@ class BasicTestSuite(SeleniumTest):
         out = self.machine.execute("hostname")
         server_element = self.wait_id('server-name')
         self.assertIn(out.strip(), str(server_element.text))
-
-    def test20Login(self):
-        self.login()
-        user_element = self.wait_id("content-user-name")
-        self.assertEqual(user_element.text, user)
-        self.logout()
-        self.wait_id('server-name')
-        self.login("baduser", "badpasswd", wait_hostapp=False, add_ssh_key=False)
-        message_element = self.wait_id('login-error-message')
-        self.assertIn("Wrong", message_element.text)
-        self.login()
-        username_element = self.wait_id("content-user-name")
-        self.assertEqual(username_element.text, user)
 
     def test30ChangeTabServices(self):
         self.login()

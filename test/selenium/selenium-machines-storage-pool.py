@@ -124,36 +124,6 @@ class MachinesStoragePoolTestSuite(MachinesLib):
         self.assertEqual(allocation_from_page, allocation_from_cmd)
         self.assertEqual(capacity_from_page, capacity_from_cmd)
 
-    def testAddAllPhysicalDiskDevice(self):
-        name = 'pdd_' + MachinesLib.random_string()
-        pdd = Disc(self.machine)
-        device_suffix = 'test' + MachinesLib.random_string()
-        device = pdd.adddisc(device_suffix, '100M')
-
-        # Switch from 'Virtual Machines page' to the 'Storage Pool page',
-        # and click the button of storage pool creation to get the type of
-        # the physical disk device
-        parts = self.get_pdd_format_list()
-        for part in parts:
-            self.machine.execute(
-                'sudo dd if=/dev/zero of={} bs=4K count=1024'.format(device))
-            pdd.createparttable(device_suffix,
-                                parttable='msdos' if part == 'dos' else part)
-            pool_name = self.create_storage_by_ui(name=name,
-                                                  storage_type='disk',
-                                                  target_path='/media',
-                                                  source_path=device,
-                                                  parted=part)
-            self.click(self.wait_css('#{}-name'.format(pool_name), cond=clickable))
-            self.click(self.wait_css('#delete-{}'.format(pool_name), cond=clickable))
-            self.click(
-                self.wait_xpath(
-                    '/html/body/div[2]/div[2]/div/div/div[3]/button[2]',
-                    cond=clickable))
-            self.wait_css('#{}-name', cond=invisible)
-
-        pdd.clear()
-
     def testAddISCSIStoragePool(self):
         self.click(self.wait_css('#card-pf-storage-pools > h2 > button',
                                  cond=clickable))

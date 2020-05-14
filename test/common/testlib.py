@@ -1093,6 +1093,10 @@ class MachineCase(unittest.TestCase):
             # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1753991
             self.allowed_messages.append('.*type=1400.*avc:  denied  { dac_override } .* comm="rhsmd" .* scontext=system_u:system_r:rhsmcertd_t:s0-s0:c0.c1023 tcontext=system_u:system_r:rhsmcertd_t:.*')
 
+        if self.image in ['rhel-8-3']:
+            # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1835909
+            self.allowed_messages.append('.*type=1400.*avc:  denied  { read write } .* comm="qemu-kvm" path="/dev/mapper/control".*')
+
         if self.image in ['debian-testing']:
             # HACK: https://bugs.debian.org/951477
             self.allowed_messages.append('Process .* \(ip6?tables\) of user 0 dumped core.*')

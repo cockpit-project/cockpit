@@ -2708,6 +2708,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # Install the VM
         b.click("#vm-VmNotInstalled-install")
+        # Wait for virt-install to define the VM and then stop it - otherwise we get 'domain is ready being removed' error
+        wait(lambda: "VmNotInstalled" in m.execute("virsh list --persistent"), delay=3)
         b.wait_present("li.active #vm-VmNotInstalled-consoles")
         b.click("#vm-VmNotInstalled-off-caret")
         b.click("#vm-VmNotInstalled-forceOff")

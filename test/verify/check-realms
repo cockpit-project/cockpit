@@ -579,10 +579,8 @@ for s in key p12 pem; do docker cp freeipa:jane.$s .; done
 
             m.stop_cockpit()
 
-        self.allow_journal_messages("jane is not allowed to run sudo on x0.  This incident will be reported.",
-                                    "Sorry, try again.",
-                                    "sudo: no password was provided",
-                                    "sudo: 1 incorrect password attempt")
+        self.allow_journal_messages("jane is not allowed to run sudo on x0.  This incident will be reported.")
+        self.allow_authorize_journal_messages()
 
         # cert auth should not be enabled by default
         do_test(['--cert', '/var/tmp/jane.pem', '--key', '/var/tmp/jane.key'],

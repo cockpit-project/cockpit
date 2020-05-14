@@ -62,10 +62,7 @@ class TestBastion(MachineCase):
         m = self.machine
         b = self.browser
 
-        self.allow_journal_messages("Sorry, try again.",
-                                    "sudo: no password was provided",
-                                    "sudo: 1 incorrect password attempt",
-                                    "sudo: .* incorrect password attempts")
+        self.allow_authorize_journal_messages()
 
         m.start_cockpit(key_based=True)
 

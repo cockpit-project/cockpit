@@ -255,6 +255,9 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # user libvirtd instance tends to SIGABRT with "Failed to find user record for uid .." on shutdown during cleanup
         # so make sure that there are no leftover user processes that bleed into the next test
         self.addCleanup(self.machine.execute, "pkill -u {0}; while pgrep -u {0}; do sleep 0.5; done".format(user_name))
+        # HACK: ...but it still tends to crash during shutdown (without known stack trace)
+        self.allow_journal_messages('Process .*libvirtd* of user 10.* dumped core.*')
+
         return user_name
 
     # FIXME remove this skipImage

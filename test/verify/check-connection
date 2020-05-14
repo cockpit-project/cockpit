@@ -533,7 +533,7 @@ class TestConnection(MachineCase):
         rss = int(output.split(" ")[0])
 
         # This fails when flow control is not present
-        self.assertLess(rss, 200000)
+        self.assertLess(rss, 250000)
 
     @skipImage("OSTree doesn't have cockpit-ws", "fedora-coreos")
     def testLocalSession(self):

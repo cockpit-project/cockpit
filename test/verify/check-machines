@@ -48,12 +48,6 @@ def readFile(name):
             content = f.read().replace('\n', '')
     return content
 
-def createUser(machine, user_group):
-    user_name = 'test_' + user_group + '_user'
-    machine.execute(
-        'useradd -G {0} {1} && echo "{1}:foobar" | chpasswd'.format(user_group, user_name))
-    return user_name
-
 # If this test fails to run, the host machine needs:
 # echo "options kvm-intel nested=1" > /etc/modprobe.d/kvm-intel.conf
 # rmmod kvm-intel && modprobe kvm-intel || true
@@ -254,20 +248,25 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
     def testBasic(self):
         self._testBasic()
 
+    def createUser(self, user_group):
+        user_name = 'test_' + user_group + '_user'
+        self.machine.execute(
+            'useradd -G {0} {1} && echo "{1}:foobar" | chpasswd'.format(user_group, user_name))
+        # user libvirtd instance tends to SIGABRT with "Failed to find user record for uid .." on shutdown during cleanup
+        # so make sure that there are no leftover user processes that bleed into the next test
+        self.addCleanup(self.machine.execute, "pkill -u {0}; while pgrep -u {0}; do sleep 0.5; done".format(user_name))
+        return user_name
+
     # FIXME remove this skipImage
     @skipImage('Fails with Rejected send message, 1 matched rules; type="method_call"', "rhel-8-2", "rhel-8-3", "rhel-8-2-distropkg", "ubuntu-stable", "ubuntu-2004", "debian-testing", "debian-stable", "centos-8-stream")
     def testBasicLibvirtUserUnprivileged(self):
-        m = self.machine
-        user_group = 'libvirt'
-        user = createUser(m, user_group)
+        user = self.createUser(user_group='libvirt')
         self._testBasic(user, False)
 
     def testBasicWheelUserUnprivileged(self):
-        m = self.machine
-        user_group = 'wheel'
-        user = createUser(m, user_group)
+        user = self.createUser(user_group='wheel')
         self._testBasic(user, False, True)
-        self.allow_journal_messages("{0} is not in the sudoers file.  This incident will be reported.".format(user))
+        self.allow_authorize_journal_messages()
 
     def _testBasic(self, user=None, authorized=True, expect_empty_list=False):
         b = self.browser

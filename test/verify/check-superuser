@@ -124,9 +124,7 @@ session include system-auth
     def testWrongPasswd(self):
         b = self.browser
 
-        self.allow_journal_messages("Sorry, try again.",
-                                    "sudo: 3 incorrect password attempts",
-                                    "sudo: no password was provided")
+        self.allow_authorize_journal_messages()
 
         # Log in with limited access
         self.login_and_go(superuser=False)

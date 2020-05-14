@@ -375,6 +375,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.wait_text('#content-user-name', 'Administrator')
 
         self.allow_restart_journal_messages()
+        self.allow_authorize_journal_messages()
 
     @skipImage("No tlog", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-2004",
                "rhel-8-2", "rhel-8-2-distropkg", "rhel-8-3", "centos-8-stream", "fedora-coreos")

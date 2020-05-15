@@ -804,7 +804,7 @@ const StatelessSlider = ({ fraction, onChange }) => {
     if (fraction > 1) fraction = 1;
 
     return (
-        <div className="slider" onMouseDown={start_dragging}>
+        <div className="slider" role="presentation" onMouseDown={start_dragging}>
             <div className="slider-bar" style={{ width: fraction * 100 + "%" }}>
                 <div className="slider-thumb" />
             </div>

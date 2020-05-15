@@ -293,10 +293,10 @@ rm -f %{buildroot}/%{_prefix}/share/metainfo/org.cockpit-project.cockpit-docker.
 sed -i "s|%{buildroot}||" *.list
 
 %if 0%{?suse_version}
-# remove brandings that don't match the distro as they may contain
-# stale symlinks
+# remove brandings with stale symlinks. Means they don't match
+# the distro.
 pushd %{buildroot}/%{_datadir}/cockpit/branding
-ls -1 | (. /etc/os-release; grep -v "default\|$ID") | xargs rm -vr
+find -L * -type l -printf "%H\n" | sort -u | xargs rm -rv
 popd
 # need this in SUSE as post build checks dislike stale symlinks
 install -m 644 -D /dev/null %{buildroot}/run/cockpit/motd

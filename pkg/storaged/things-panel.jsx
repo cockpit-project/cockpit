@@ -21,7 +21,7 @@ import cockpit from "cockpit";
 import React from "react";
 import { install_dialog } from "cockpit-components-install-dialog.jsx";
 
-import { OverviewSidePanel } from "./overview.jsx";
+import { SidePanel } from "./side-panel.jsx";
 import { create_mdraid, mdraid_rows } from "./mdraids-panel.jsx";
 import { create_vgroup, vgroup_rows } from "./vgroups-panel.jsx";
 import { vdo_feature, create_vdo, vdo_rows } from "./vdos-panel.jsx";
@@ -75,14 +75,14 @@ export class ThingsPanel extends React.Component {
             vdo_rows(client));
 
         return (
-            <OverviewSidePanel id="devices"
-                               title={_("Devices")}
-                               actions={actions}
-                               empty_text={_("No Devices")}
-                               show_all_text={cockpit.format(_("Show all $0 devices"), devices.length)}
-                               client={client}>
+            <SidePanel id="devices"
+                       title={_("Devices")}
+                       actions={actions}
+                       empty_text={_("No Devices")}
+                       show_all_text={cockpit.format(_("Show all $0 devices"), devices.length)}
+                       client={client}>
                 { devices }
-            </OverviewSidePanel>
+            </SidePanel>
         );
     }
 }

@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import { OverviewSidePanel, OverviewSidePanelRow } from "./overview.jsx";
+import { SidePanel, SidePanelRow } from "./side-panel.jsx";
 import { fmt_size, drive_name, decode_filename, block_name } from "./utils.js";
 
 const _ = cockpit.gettext;
@@ -82,14 +82,14 @@ export class DrivesPanel extends React.Component {
             }
 
             return (
-                <OverviewSidePanelRow client={client}
-                                      name={name}
-                                      devname={block_name(block)}
-                                      detail={desc}
-                                      highlight={dev == props.highlight}
-                                      go={() => cockpit.location.go([dev])}
-                                      job_path={path}
-                                      key={path} />
+                <SidePanelRow client={client}
+                              name={name}
+                              devname={block_name(block)}
+                              detail={desc}
+                              highlight={dev == props.highlight}
+                              go={() => cockpit.location.go([dev])}
+                              job_path={path}
+                              key={path} />
             );
         }
 
@@ -97,13 +97,13 @@ export class DrivesPanel extends React.Component {
                 .map(make_drive);
 
         return (
-            <OverviewSidePanel id="drives"
-                               className="storage-drives-list"
-                               title={_("Drives")}
-                               empty_text={_("No drives attached")}
-                               show_all_text={cockpit.format(_("Show all $0 drives"), drives.length)}>
+            <SidePanel id="drives"
+                       className="storage-drives-list"
+                       title={_("Drives")}
+                       empty_text={_("No drives attached")}
+                       show_all_text={cockpit.format(_("Show all $0 drives"), drives.length)}>
                 { drives }
-            </OverviewSidePanel>
+            </SidePanel>
         );
     }
 }

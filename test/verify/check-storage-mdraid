@@ -34,13 +34,12 @@ class TestStorage(StorageCase):
           var found = { };
           var trs = ph_select('#detail-sidebar tr');
           for (i = 0; i < trs.length; ++i) {
-            var cell = trs[i].querySelector('td:nth-child(2)');
-            var name = cell.querySelector('button').textContent;
-            var state = cell.querySelector('.state').textContent;
+            var name = trs[i].querySelector('.sidepanel-row-name').textContent;
+            var state = trs[i].querySelector('.sidepanel-row-detail').textContent;
             found[name] = state;
           };
           for (s in states) {
-            if (states[s] != found[s])
+            if (!found[s] || found[s].indexOf(states[s]) < 0)
               return false;
           }
           return true;

@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import { OverviewSidePanel, OverviewSidePanelRow } from "./overview.jsx";
+import { SidePanel, SidePanelRow } from "./side-panel.jsx";
 import { block_name, fmt_size, make_block_path_cmp } from "./utils.js";
 
 const _ = cockpit.gettext;
@@ -50,14 +50,14 @@ export class OthersPanel extends React.Component {
             var dev = name.replace(/^\/dev\//, "");
 
             return (
-                <OverviewSidePanelRow client={client}
-                                      kind={false}
-                                      testkey={dev}
-                                      devname={block_name(block)}
-                                      detail={cockpit.format(_("$0 Block Device"), fmt_size(block.Size))}
-                                      go={() => cockpit.location.go([dev])}
-                                      job_path={path}
-                                      key={path} />
+                <SidePanelRow client={client}
+                              kind={false}
+                              testkey={dev}
+                              devname={block_name(block)}
+                              detail={cockpit.format(_("$0 Block Device"), fmt_size(block.Size))}
+                              go={() => cockpit.location.go([dev])}
+                              job_path={path}
+                              key={path} />
             );
         }
 
@@ -67,10 +67,10 @@ export class OthersPanel extends React.Component {
 
         if (others.length > 0)
             return (
-                <OverviewSidePanel id="others"
-                                   title={_("Other Devices")}>
+                <SidePanel id="others"
+                           title={_("Other Devices")}>
                     { others }
-                </OverviewSidePanel>
+                </SidePanel>
             );
         else
             return null;

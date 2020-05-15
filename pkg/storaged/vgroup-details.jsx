@@ -22,8 +22,9 @@ import React from "react";
 import * as utils from "./utils.js";
 import { fmt_to_fragments } from "./utilsx.jsx";
 import { StdDetailsLayout } from "./details.jsx";
+import { SidePanel, SidePanelBlockRow } from "./side-panel.jsx";
 import { VGroup } from "./content-views.jsx";
-import { StorageButton, StorageBlockNavLink } from "./storage-controls.jsx";
+import { StorageButton } from "./storage-controls.jsx";
 import {
     dialog_open, TextInput, SelectSpaces,
     BlockingMessage, TeardownMessage
@@ -102,42 +103,22 @@ class VGroupSidebar extends React.Component {
             }
 
             return (
-                <tr key={pvol.path}>
-                    <td className="storage-icon">
-                        <img src="images/storage-disk.png" alt="" />
-                    </td>
-                    <td>
-                        <StorageBlockNavLink client={client} block={ client.blocks[pvol.path] } />
-                        <div>
-                            {cockpit.format(_("$0, $1 free"),
-                                            utils.fmt_size(pvol.Size),
-                                            utils.fmt_size(pvol.FreeSize))}
-                        </div>
-                    </td>
-                    <td className="storage-action">
-                        <StorageButton onClick={remove_action} excuse={remove_excuse}>
-                            <span className="fa fa-minus" />
-                        </StorageButton>
-                    </td>
-                </tr>);
+                <SidePanelBlockRow client={client}
+                                    block={client.blocks[pvol.path]}
+                                    detail={cockpit.format(_("$0, $1 free"),
+                                                           utils.fmt_size(pvol.Size),
+                                                           utils.fmt_size(pvol.FreeSize))}
+                                    actions={<StorageButton onClick={remove_action} excuse={remove_excuse}>
+                                        <span className="fa fa-minus" />
+                                    </StorageButton>}
+                                    key={pvol.path} />);
         }
 
         return (
-            <div className="panel panel-default">
-                <div className="panel-heading">
-                    <span>{_("Physical Volumes")}</span>
-                    <span className="pull-right">
-                        <StorageButton onClick={add_disk}>
-                            <span className="fa fa-plus" />
-                        </StorageButton>
-                    </span>
-                </div>
-                <table className="table">
-                    <tbody>
-                        { pvols.map(render_pvol) }
-                    </tbody>
-                </table>
-            </div>
+            <SidePanel title={_("Physical Volumes")}
+                       actions={<StorageButton onClick={add_disk}><span className="fa fa-plus" /></StorageButton>}>
+                { pvols.map(render_pvol) }
+            </SidePanel>
         );
     }
 }

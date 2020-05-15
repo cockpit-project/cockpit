@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import { OverviewSidePanelRow } from "./overview.jsx";
+import { SidePanelRow } from "./side-panel.jsx";
 import {
     fmt_size, validate_lvm2_name,
     get_available_spaces, prepare_available_spaces
@@ -33,13 +33,13 @@ const VGroupRow = ({ client, path }) => {
     const vgroup = client.vgroups[path];
 
     return (
-        <OverviewSidePanelRow client={client}
-                              kind="array"
-                              name={vgroup.Name}
-                              devname={"/dev/" + vgroup.Name + "/"}
-                              detail={fmt_size(vgroup.Size) + " " + _("Volume Group")}
-                              go={() => cockpit.location.go(["vg", vgroup.Name])}
-                              job_path={path} />
+        <SidePanelRow client={client}
+                      kind="array"
+                      name={vgroup.Name}
+                      devname={"/dev/" + vgroup.Name + "/"}
+                      detail={fmt_size(vgroup.Size) + " " + _("Volume Group")}
+                      go={() => cockpit.location.go(["vg", vgroup.Name])}
+                      job_path={path} />
     );
 };
 

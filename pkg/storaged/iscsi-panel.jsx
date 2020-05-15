@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import { OverviewSidePanel, OverviewSidePanelRow } from "./overview.jsx";
+import { SidePanel, SidePanelRow } from "./side-panel.jsx";
 import { } from "./utils.js";
 import { StorageButton } from "./storage-controls.jsx";
 import { dialog_open, TextInput, PassInput, SelectRow } from "./dialog.jsx";
@@ -223,13 +223,13 @@ export class IscsiPanel extends React.Component {
                 );
 
             return (
-                <OverviewSidePanelRow client={client}
-                                      kind="array"
-                                      name={session.data.target_name || ""}
-                                      detail={session.data.persistent_address + ":" +
-                                              session.data.persistent_port}
-                                      actions={actions}
-                                      key={path} />
+                <SidePanelRow client={client}
+                              kind="array"
+                              name={session.data.target_name || ""}
+                              detail={session.data.persistent_address + ":" +
+                                      session.data.persistent_port}
+                              actions={actions}
+                              key={path} />
             );
         }
 
@@ -264,15 +264,15 @@ export class IscsiPanel extends React.Component {
         };
 
         return (
-            <OverviewSidePanel id="iscsi-sessions"
-                               title={_("iSCSI Targets")}
-                               empty_text={_("No iSCSI targets set up")}
-                               hover={false}
-                               actions={actions}
-                               client={client}
-                               feature={iscsi_feature}>
+            <SidePanel id="iscsi-sessions"
+                       title={_("iSCSI Targets")}
+                       empty_text={_("No iSCSI targets set up")}
+                       hover={false}
+                       actions={actions}
+                       client={client}
+                       feature={iscsi_feature}>
                 { sessions }
-            </OverviewSidePanel>
+            </SidePanel>
         );
     }
 }

@@ -627,7 +627,8 @@ scan_btmp (const char *username,
             json_print_string_property (messages, "last-fail-line", last.ut_line, UT_LINESIZE);
 
 out:
-  close (fd);
+  if (fd > -1)
+    close (fd);
 
   return success;
 }

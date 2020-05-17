@@ -93,7 +93,7 @@ setup (TestCase *tc,
   /* HACK: this should be "localhost", but this fails on COPR; https://github.com/cockpit-project/cockpit/issues/12423 */
   tc->localport = g_strdup_printf ("127.0.0.1:%d", port);
   if (str)
-    tc->hostport = g_strdup_printf ("%s:%d", str, port);
+    tc->hostport = g_strdup_printf ("[%s]:%d", str, port);
   if (inet)
     g_object_unref (inet);
   g_free (str);

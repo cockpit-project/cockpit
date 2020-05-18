@@ -26,6 +26,9 @@ import ReactDOM from "react-dom";
 
 import { KdumpPage } from "./kdump-view.jsx";
 import * as kdumpClient from "./kdump-client.js";
+import { superuser } from "superuser.jsx";
+
+superuser.reload_page_on_change();
 
 var initStore = function(rootElement) {
     var dataStore = { };

@@ -289,6 +289,14 @@ $(function() {
             load_service_filters(tags_match, options);
         }
 
+        // Show the journalctl query in inline help
+        const cmd = journal.build_cmd(match, options);
+        const filtered_cmd = cmd[0].filter(i => i !== "-q" && i !== "--output=json");
+        if (filtered_cmd[filtered_cmd.length - 1] == "--")
+            filtered_cmd.pop();
+
+        document.getElementById("journal-query").innerHTML = filtered_cmd.join(" ");
+
         procs.push(journal.journalctl(match, options)
                 .fail(query_error)
                 .stream(function(entries) {
@@ -993,6 +1001,30 @@ $(function() {
         var cursor = $(this).attr('data-cursor');
         if (cursor)
             cockpit.location.go([cursor], { parent_options: JSON.stringify(cockpit.location.options) });
+    });
+
+    $('#journal-cmd-copy').on('click', function(ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        try {
+            navigator.clipboard.writeText(document.getElementById("journal-query").innerHTML)
+                    .then(() => {
+                        let icon = ev.target;
+                        if (ev.target.nodeName == "BUTTON")
+                            icon = ev.target.firstElementChild;
+                        icon.classList.remove("fa-clipboard");
+                        icon.classList.add("fa-check");
+                        icon.classList.add("green-icon");
+                        setTimeout(() => {
+                            icon.classList.remove("fa-check");
+                            icon.classList.remove("green-icon");
+                            icon.classList.add("fa-clipboard");
+                        }, 3000);
+                    })
+                    .catch(e => console.error('Text could not be copied: ', e ? e.toString() : ""));
+        } catch (error) {
+            console.error('Text could not be copied: ', error.toString());
+        }
     });
 
     $('#journal-current-day-menu').on('change', function() {

@@ -345,10 +345,18 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         if m.image == "rhel-8-2-distropkg": # Introduced in #13905
             return
 
-        # Test following
         b.go("#/?tag=test-stream&prio=notice")
         wait_journal_empty()
 
+        # Test inline help
+        # Debian supports grep only from 19.10, see https://bugs.launchpad.net/ubuntu/+source/systemd/+bug/1751006
+        if m.image != "debian-stable":
+            b.click("#logs-help-toggle")
+            b.wait_text("#journal-query", "journalctl --no-tail --priority=notice --reverse -- SYSLOG_IDENTIFIER=test-stream")
+            b.click("#logs-help-toggle")
+            b.wait_not_visible("#journal-query")
+
+        # Test following
         m.execute("logger --tag test-stream Message 1")
         b.wait_present("#journal-box .cockpit-logline .cockpit-log-message:contains('Message 1')")
 

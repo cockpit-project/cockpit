@@ -391,6 +391,24 @@ class TestDashboardEditLimits(MachineCase, DashBoardHelpers):
             ".*refusing to connect to unknown host.*"
         )
 
+@nondestructive
+class TestLocalDashboard(MachineCase, DashBoardHelpers):
+    def testDashboard(self):
+        b = self.browser
+
+        self.login_and_go("/dashboard")
+
+        ip_addr = "127.0.0.3"
+        self.wait_dashboard_addresses(b, ["localhost"])
+
+        # Add new host
+        self.add_machine(b, ip_addr)
+        self.wait_dashboard_addresses(b, ["localhost", ip_addr])
+
+        # Remove it
+        self.machine_remove(b, ip_addr)
+        self.wait_dashboard_addresses(b, ["localhost"])
+
 
 if __name__ == '__main__':
     test_main()

@@ -268,7 +268,7 @@ AM_CPPFLAGS = \
 AM_LDFLAGS = -Wl,--as-needed
 
 LOG_DRIVER = $(PYTHON) $(top_srcdir)/tools/tap-driver
-LOG_COMPILER = sh -c '"$$0" "$$@" --tap' # For GLib < 2.62
+LOG_COMPILER = sh -c 'timeout 300 "$$0" "$$@" --tap' # For GLib < 2.62
 
 TEST_EXTENSIONS = .html .sh
 SH_LOG_DRIVER = $(LOG_DRIVER)

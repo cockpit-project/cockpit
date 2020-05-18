@@ -287,14 +287,14 @@ class AccountItem extends React.Component {
 
     render() {
         return (
-            <div className="cockpit-account" onClick={this.click} onKeyPress={this.click}>
+            <li className="cockpit-account" role="presentation" onClick={this.click} onKeyPress={this.click}>
                 <div className="cockpit-account-pic pficon pficon-user" />
                 <div className="cockpit-account-real-name">{this.props.gecos.split(',')[0]}</div>
                 <div className="cockpit-account-user-name">
                     <a href={"#/" + this.props.name}>{this.props.name}</a>
                     {this.props.current && <Badge className="cockpit-account-badge">{_("Your account")}</Badge>}
                 </div>
-            </div>
+            </li>
         );
     }
 }

@@ -140,7 +140,7 @@ $(function() {
 
         function query_error(error) {
             /* TODO: blank slate */
-            console.warn(cockpit.message(error));
+            console.error(cockpit.message(error));
         }
 
         function prepend_entries(entries) {
@@ -424,6 +424,9 @@ $(function() {
 
         full_grep += grep;
         document.getElementById("journal-grep").value = full_grep;
+
+        if (the_journal)
+            the_journal.stop();
 
         the_journal = journalbox($("#journal-box"), query_start, match, prio_level, options.tag, follow, grep);
     }

@@ -67,7 +67,30 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
         <div class="filter text-search">
             <label for="journal-grep" translate>Text</label>
-            <input id="journal-grep" class="form-control" type="text" translate="placeholder" placeholder="Type to filter">
+            <span class="filter-group">
+                <input id="journal-grep" class="form-control" type="text" translate="placeholder" placeholder="Type to filter">
+                <div id="logs-help" class="dropdown">
+                  <a role="link" tabindex="0" id="logs-help-toggle" class="dropdown-toggle dropdown-form-control" data-toggle="dropdown">
+                    <span class="pficon pficon-help"></span>
+                  </a>
+                  <div id="logs-help-menu" class="dropdown-menu">
+                    <span translate>Search the logs with a combination of terms:</span>
+                    <ul>
+                        <li><span translate>qualifiers</span>, <span translate>e.g.</span> 'priority:', 'identifier:', 'service:'</li>
+                        <li><span translate>log fields</span>, <span translate>e.g.</span> '_EXE=/usr/bin/python'</li>
+                        <li translate>any free-form string as regular expression</li>
+                    </ul>
+                    <span class="help-links">
+                        <a href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_systems_using_the_rhel_8_web_console/reviewing-logs_system-management-using-the-rhel-8-web-console#filtering-logs-in-the-web-console_reviewing-logs" target="blank" rel="noopener noreferrer"><span translate>Learn more</span><i class="fa fa-external-link fa-xs"></i></a>
+                        <a href="https://www.freedesktop.org/software/systemd/man/journalctl.html" target="blank" rel="noopener noreferrer"><span translate>journalctl manpage</span><i class="fa fa-external-link fa-xs"></i></a>
+                    </span>
+                    <span class="journal-cmd">
+                        <pre id="journal-query"></pre>
+                        <button class="copy-cmd" id="journal-cmd-copy"><i class="fa fa-clipboard fa-xs"></i></button>
+                    </span>
+                  </div>
+                </div>
+            </span>
         </div>
       </div>
 

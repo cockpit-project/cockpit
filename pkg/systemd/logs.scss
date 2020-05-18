@@ -165,6 +165,14 @@
     }
 }
 
+.filter-group {
+    width: 100%;
+    display: flex;
+    flex-grow: 1;
+    flex-wrap: nowrap;
+    align-items: baseline;
+}
+
 .filter-actions {
     display: flex;
     align-items: baseline;
@@ -207,4 +215,57 @@
 
 #accordion-markup {
     margin-bottom: 0px;
+}
+
+.dropdown-toggle:active,
+.dropdown-toggle:hover,
+.dropdown-toggle:focus,
+.dropdown.open .dropdown-toggle {
+    color: var(--pf-global--link--Color) !important;
+}
+
+#logs-help-menu {
+    left: auto;
+    right: -1rem;
+    padding: 1rem;
+
+    ul {
+        list-style: initial;
+        padding-left: 1rem;
+    }
+
+    .help-links {
+        display: flex;
+        justify-content: space-between;
+
+        > a {
+            padding: 0.2rem 0;
+            display: block;
+
+            i {
+                padding-left: 0.2rem;
+            }
+        }
+    }
+
+    .journal-cmd {
+        display: flex;
+        flex-wrap: nowrap;
+
+        > pre {
+            padding-left: 0.2rem;
+            width: 100%;
+            max-width: 26rem;
+        }
+
+        > button {
+            border-radius: 0;
+            border: 1px solid #ccc;
+            border-left: 0;
+        }
+    }
+}
+
+.green-icon {
+    color: var(--pf-global--success-color--100);
 }

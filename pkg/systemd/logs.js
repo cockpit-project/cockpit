@@ -136,12 +136,16 @@ $(function() {
 
         var loading_services = false;
 
+        let no_logs = true;
+
         function query_error(error) {
             /* TODO: blank slate */
             console.warn(cockpit.message(error));
         }
 
         function prepend_entries(entries) {
+            if (entries.length > 0)
+                no_logs = false;
             for (var i = 0; i < entries.length; i++) {
                 renderer.prepend(entries[i]);
                 current_services.add(entries[i].SYSLOG_IDENTIFIER);
@@ -151,13 +155,14 @@ $(function() {
         }
 
         function append_entries(entries) {
+            if (entries.length > 0)
+                no_logs = false;
             for (var i = 0; i < entries.length; i++)
                 renderer.append(entries[i]);
             renderer.append_flush();
         }
 
         function didnt_reach_start(first) {
-            const no_logs = document.querySelector("#journal-box .cockpit-log-panel").innerHTML === "";
             manage_start_box(false, no_logs,
                              no_logs ? _("No Logs Found") : "",
                              no_logs ? _("You may try to load older entries.") : "",
@@ -180,7 +185,7 @@ $(function() {
                                              }
                                          })
                                          .done(function() {
-                                             if (document.querySelector("#journal-box .cockpit-log-panel").innerHTML === "")
+                                             if (no_logs)
                                                  manage_start_box(false, true, _("No Logs Found"), _("Can not find any logs using the current combination of filters."));
                                              else if (count < query_more)
                                                  ReactDOM.unmountComponentAtNode(document.getElementById("start-box"));
@@ -194,11 +199,9 @@ $(function() {
                     .stream(function(entries) {
                         if (entries[0].__CURSOR == cursor)
                             entries.shift();
-                        prepend_entries(entries);
-                        const sb_title = document.querySelector("#start-box .pf-c-title");
-                        if (sb_title && sb_title.innerHTML === "No Logs Found") {
+                        if (entries.length > 0 && no_logs)
                             ReactDOM.unmountComponentAtNode(document.getElementById("start-box"));
-                        }
+                        prepend_entries(entries);
                     }));
         }
         outer.follow = follow;
@@ -303,7 +306,7 @@ $(function() {
                     }
                 })
                 .done(function() {
-                    if (document.querySelector("#journal-box .cockpit-log-panel").innerHTML === "")
+                    if (no_logs)
                         manage_start_box(false, true, _("No Logs Found"), _("Can not find any logs using the current combination of filters."));
                     else if (count < query_count)
                         ReactDOM.unmountComponentAtNode(document.getElementById("start-box"));
@@ -317,11 +320,9 @@ $(function() {
                         })
                                 .fail(query_error)
                                 .stream(function(entries) {
-                                    prepend_entries(entries);
-                                    const sb_title = document.querySelector("#start-box .pf-c-title");
-                                    if (sb_title && sb_title.innerHTML === "No Logs Found") {
+                                    if (entries.length > 0 && no_logs)
                                         ReactDOM.unmountComponentAtNode(document.getElementById("start-box"));
-                                    }
+                                    prepend_entries(entries);
                                 }));
                     }
                     if (!all || stopped)

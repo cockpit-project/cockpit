@@ -200,7 +200,11 @@ class TestSelinux(MachineCase):
         b.click(row_selector + " button{}".format(self.danger_btn_class))
         b.wait_not_present(row_selector)
 
-        b.grant_permissions("clipboardRead", "clipboardWrite")
+        try:
+            b.grant_permissions("clipboardReadWrite", "clipboardSanitizedWrite")
+        except RuntimeError:
+            # fallback for older Chrome releases
+            b.grant_permissions("clipboardRead", "clipboardWrite")
 
         b.wait_visible("tr.modification-row > td:contains(Allow zebra to write config)")
         b.wait_visible("tr.modification-row > td:contains(fcontext -a -f a -t samba_share_t -r 's0' '/var/tmp/')")

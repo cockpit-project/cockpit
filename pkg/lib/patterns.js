@@ -132,7 +132,7 @@ function display_wait(sel, promise, handle) {
     if (handle)
         display_errors(sel, []);
 
-    var wait = $("<div class='dialog-wait-ct pull-left'>");
+    var wait = $("<div class='dialog-wait-ct pull-right'>");
     $("<div class='spinner spinner-sm'>").appendTo(wait);
     var message = $("<span>").appendTo(wait);
 

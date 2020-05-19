@@ -542,11 +542,19 @@ input[type=number] {
     overflow-wrap: break-word;
 }
 
+/* WORKAROUND:  Dropdown (PF4): Caret is not properly aligned bug */
+/* See: https://github.com/patternfly/patternfly/issues/2715 */
 /* Align the icons inside of all dropdown toggles. */
 /* Part 1 of 2 */
 .pf-c-dropdown__toggle-button {
   display: flex;
   align-items: center;
+}
+
+/* Make split button dropdowns the same height as their sibling. */
+/* Part 2 of 2 */
+.pf-m-split-button {
+  align-items: stretch;
 }
 
 /* btn-lg, btn-sm don't exist in PF4 */
@@ -561,12 +569,6 @@ input[type=number] {
     font-size: .875rem;
     line-height: 1.5;
     border-radius: .2rem;
-}
-
-/* Make split button dropdowns the same height as their sibling. */
-/* Part 2 of 2 */
-.pf-m-split-button {
-  align-items: stretch;
 }
 
 /* Helper mod to wrap pf-c-nav__tertiary */

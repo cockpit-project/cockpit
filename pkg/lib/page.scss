@@ -1,3 +1,5 @@
+@import "patternfly-4-overrides.scss";
+
 a {
     cursor: pointer;
 }
@@ -533,30 +535,6 @@ input[type=number] {
 
 [hidden] { display: none !important; }
 
-/*** PF4 overrides (when a mix of PF3 + PF4 is used at the same time) ***/
-
-/* WORKAROUND: Override word-break bug */
-/* See: https://github.com/patternfly/patternfly-next/issues/2325 */
-.pf-c-table td {
-    word-break: normal;
-    overflow-wrap: break-word;
-}
-
-/* WORKAROUND:  Dropdown (PF4): Caret is not properly aligned bug */
-/* See: https://github.com/patternfly/patternfly/issues/2715 */
-/* Align the icons inside of all dropdown toggles. */
-/* Part 1 of 2 */
-.pf-c-dropdown__toggle-button {
-  display: flex;
-  align-items: center;
-}
-
-/* Make split button dropdowns the same height as their sibling. */
-/* Part 2 of 2 */
-.pf-m-split-button {
-  align-items: stretch;
-}
-
 /* btn-lg, btn-sm don't exist in PF4 */
 .pf-c-button.btn-lg {
     padding: .5rem 1rem;
@@ -569,18 +547,4 @@ input[type=number] {
     font-size: .875rem;
     line-height: 1.5;
     border-radius: .2rem;
-}
-
-/* Helper mod to wrap pf-c-nav__tertiary */
-.ct-m-nav__tertiary-wrap {
-    flex-wrap: wrap;
-
-    .pf-c-nav__scroll-button {
-        display: none;
-    }
-}
-
-/* Helper mod to center pf-c-nav__tertiary when it wraps */
-.ct-m-nav__tertiary-center {
-    justify-content: center;
 }

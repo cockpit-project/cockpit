@@ -293,8 +293,12 @@ if (window.NodeList && !NodeList.prototype.forEach)
         hide(".noscript");
 
         translate();
-        if (window.cockpit_po && window.cockpit_po[""])
-            document.documentElement.lang = window.cockpit_po[""].language || "en-us";
+        if (window.cockpit_po && window.cockpit_po[""]) {
+            var language = window.cockpit_po[""].language || "en-us";
+            var lang_dir = language.match(/he-\*/) ? 'rtl' : 'ltr';
+            document.documentElement.lang = language;
+            document.documentElement.dir = lang_dir;
+        }
 
         setup_path_globals(window.location.pathname);
 

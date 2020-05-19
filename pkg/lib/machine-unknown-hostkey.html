@@ -8,7 +8,7 @@
         <table class="form-table-ct">
             <tr>
                 <td translate="yes">Fingerprint</td>
-                <td><pre class="machine-key">{{key}} </pre></td>
+                <td><pre class="machine-key">{{key}}</pre></td>
             </tr>
         </table>
         </div>
@@ -16,9 +16,9 @@
 </div>
 
 <div class="modal-footer">
-    <button class="pf-c-button pf-m-secondary" data-dismiss="modal" translate="yes">Close</button>
-
     {{#key}}
         <button class="pf-c-button pf-m-primary" translate="yes">Connect</button>
     {{/key}}
+
+    <button class="pf-c-button pf-m-link" data-dismiss="modal" translate="yes">Cancel</button>
 </div>

@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import { OverviewSidePanelRow } from "./overview.jsx";
+import { SidePanelRow } from "./side-panel.jsx";
 import {
     fmt_size, decode_filename,
     get_available_spaces, prepare_available_spaces,
@@ -50,13 +50,13 @@ export function vdo_feature(client) {
 const VDORow = ({ client, vdo }) => {
     const block = client.slashdevs_block[vdo.dev];
     return (
-        <OverviewSidePanelRow client={client}
-                              kind="array"
-                              name={vdo.name}
-                              devname={vdo.dev}
-                              detail={fmt_size(vdo.logical_size) + " " + _("VDO Device")}
-                              go={() => cockpit.location.go(["vdo", vdo.name])}
-                              job_path={block && block.path} />
+        <SidePanelRow client={client}
+                      kind="array"
+                      name={vdo.name}
+                      devname={vdo.dev}
+                      detail={fmt_size(vdo.logical_size) + " " + _("VDO Device")}
+                      go={() => cockpit.location.go(["vdo", vdo.name])}
+                      job_path={block && block.path} />
     );
 };
 

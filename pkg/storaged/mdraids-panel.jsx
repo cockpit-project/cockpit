@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import { OverviewSidePanelRow } from "./overview.jsx";
+import { SidePanelRow } from "./side-panel.jsx";
 import {
     fmt_size, mdraid_name, block_name,
     get_available_spaces, prepare_available_spaces
@@ -34,13 +34,13 @@ const MDRaidRow = ({ client, path }) => {
     const block = client.mdraids_block[path];
 
     return (
-        <OverviewSidePanelRow client={client}
-                              kind="array"
-                              name={mdraid_name(mdraid)}
-                              devname={block && block_name(block)}
-                              detail={fmt_size(mdraid.Size) + " " + _("RAID Device")}
-                              go={() => cockpit.location.go(["mdraid", mdraid.UUID])}
-                              job_path={path} />
+        <SidePanelRow client={client}
+                      kind="array"
+                      name={mdraid_name(mdraid)}
+                      devname={block && block_name(block)}
+                      detail={fmt_size(mdraid.Size) + " " + _("RAID Device")}
+                      go={() => cockpit.location.go(["mdraid", mdraid.UUID])}
+                      job_path={path} />
     );
 };
 

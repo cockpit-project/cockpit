@@ -22,8 +22,9 @@ import React from "react";
 import { Alert } from "@patternfly/react-core";
 import * as utils from "./utils.js";
 import { StdDetailsLayout } from "./details.jsx";
+import { SidePanel, SidePanelBlockRow } from "./side-panel.jsx";
 import { Block } from "./content-views.jsx";
-import { StorageButton, StorageBlockNavLink, StorageOnOff } from "./storage-controls.jsx";
+import { StorageButton, StorageOnOff } from "./storage-controls.jsx";
 import { dialog_open, SelectSpaces, BlockingMessage, TeardownMessage } from "./dialog.jsx";
 
 const _ = cockpit.gettext;
@@ -102,6 +103,9 @@ class MDRaidSidebar extends React.Component {
             var slot = active_state && active_state[1] >= 0 && active_state[1].toString();
             var states = active_state && active_state[2].map(state_text).join(", ");
 
+            if (slot)
+                states = cockpit.format(_("Slot $0"), slot) + ", " + states;
+
             var is_in_sync = (active_state && active_state[2].indexOf("in_sync") >= 0);
             var is_recovering = (active_state && active_state[2].indexOf("spare") >= 0 && active_state[1] >= 0);
 
@@ -119,48 +123,36 @@ class MDRaidSidebar extends React.Component {
                 return mdraid.RemoveDevice(block.path, { wipe: { t: 'b', v: true } });
             }
 
+            let action = null;
+            if (dynamic_members)
+                action = (
+                    <StorageButton onClick={remove} excuse={remove_excuse}>
+                        <span className="fa fa-minus" />
+                    </StorageButton>);
+
             return (
-                <tr key={block.path}>
-                    <td className="storage-icon">
-                        <img src="images/storage-disk.png" alt="" />
-                    </td>
-                    <td>
-                        {slot || "-"} <StorageBlockNavLink client={client} block={block} />
-                        <div className="state">{states}</div>
-                    </td>
-                    { dynamic_members
-                        ? <td className="storage-action">
-                            <StorageButton onClick={remove} excuse={remove_excuse}>
-                                <span className="fa fa-minus" />
-                            </StorageButton>
-                        </td>
-                        : null }
-                </tr>);
+                <SidePanelBlockRow client={client}
+                                   block={block}
+                                   detail={states}
+                                   actions={action}
+                                   key={block.path} />);
         }
 
         var add_excuse = false;
         if (!running)
             add_excuse = _("The RAID device must be running in order to add spare disks.");
 
+        let action = null;
+        if (dynamic_members)
+            action = (
+                <StorageButton onClick={add_disk} excuse={add_excuse}>
+                    <span className="fa fa-plus" />
+                </StorageButton>);
+
         return (
-            <div className="panel panel-default">
-                <div className="panel-heading">
-                    <span>{_("Disks")}</span>
-                    {dynamic_members
-                        ? <span className="pull-right">
-                            <StorageButton onClick={add_disk} excuse={add_excuse}>
-                                <span className="fa fa-plus" />
-                            </StorageButton>
-                        </span>
-                        : null}
-                </div>
-                <table className="table">
-                    <tbody>
-                        {members.map(render_member)}
-                    </tbody>
-                </table>
-            </div>
-        );
+            <SidePanel title={_("Disks")} actions={action}>
+                { members.map(render_member) }
+            </SidePanel>);
     }
 }
 

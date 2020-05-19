@@ -35,6 +35,25 @@
   &:before {
     display: none;
   }
+
+  // Deconstruct nicely on small screen sizes (especially mobile)
+  // This will not be needed in a future PF4 update
+  //
+  // References: 
+  // - https://github.com/cockpit-project/cockpit/issues/14106
+  // - https://github.com/patternfly/patternfly/issues/3125
+  // - https://github.com/patternfly/patternfly/pull/2921
+  //
+  // When we have the upcoming version of PF4 in Cockpit, we should drop this code
+  // (and adjust things for the button to show up on the side of desktop mode instead)
+  @media (max-width: $pf-global--breakpoint--lg) {
+    grid-template-areas: "icon title" ". content" ". action";
+    grid-gap: var(--pf-global--spacer--sm) 0;
+  }
+  @media (max-width: 320px) {
+    // Allow the action button to have a bit more space on iPhone SE sized phones
+    grid-template-areas: "icon title" ". content" "action action";
+  }
 }
 
 .ct-overview-header {

@@ -98,6 +98,7 @@ export class SidePanelRow extends React.Component {
         if (this.props.actions)
             decoration = (
                 <div className="sidepanel-row-decoration"
+                     role="presentation"
                      onClick={eat_event}
                      onKeyPress={eat_event}>
                     {this.props.actions}

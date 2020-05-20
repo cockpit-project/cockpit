@@ -408,8 +408,8 @@ Requires: kexec-tools
 Recommends: polkit
 Recommends: PackageKit
 Recommends: NetworkManager-team
+Recommends: setroubleshoot-server >= 3.3.3
 Provides: cockpit-selinux = %{version}-%{release}
-Requires: setroubleshoot-server >= 3.3.3
 Provides: cockpit-sosreport = %{version}-%{release}
 Requires: sos
 %endif

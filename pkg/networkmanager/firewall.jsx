@@ -35,12 +35,16 @@ import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 import { ModalError } from "cockpit-components-inline-notification.jsx";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 
+import { superuser } from "superuser.jsx";
+
 import "page.scss";
 import "table.css";
 import "form-layout.scss";
 import "./networking.css";
 
 const _ = cockpit.gettext;
+
+superuser.reload_page_on_change();
 
 function ServiceRow(props) {
     var tcp = props.service.ports.filter(p => p.protocol.toUpperCase() == 'TCP');
@@ -61,19 +65,7 @@ function ServiceRow(props) {
         event.stopPropagation();
     }
 
-    var deleteButton;
-    if (props.readonly) {
-        deleteButton = (
-            <OverlayTrigger className="pull-right" placement="top"
-                            overlay={ <Tooltip id="tip-auth">{ _("You are not authorized to modify the firewall.") }</Tooltip> }>
-                <span>
-                    <Button key={props.service.id + "-delete-button"} variant="danger" aria-label={cockpit.format(_("Not authorized to remove service $0"), props.service.id)} style={{ pointerEvents: 'none' }} isDisabled><TrashIcon /></Button>
-                </span>
-            </OverlayTrigger>
-        );
-    } else {
-        deleteButton = <Button key={props.service.id + "-delete-button"} variant="danger" onClick={onRemoveService} aria-label={cockpit.format(_("Remove service $0"), props.service.id)}><TrashIcon /></Button>;
-    }
+    var deleteButton = <Button key={props.service.id + "-delete-button"} variant="danger" onClick={onRemoveService} aria-label={cockpit.format(_("Remove service $0"), props.service.id)}><TrashIcon /></Button>;
 
     var columns = [
         { name: props.service.id, header: true },
@@ -105,7 +97,7 @@ function ServiceRow(props) {
                        rowId={props.service.id}
                        columns={columns}
                        simpleBody={simpleBody}
-                       listingActions={[deleteButton]} />;
+                       listingActions={!props.readonly && deleteButton} />;
 }
 
 function PortRow(props) {
@@ -147,21 +139,11 @@ function ZoneSection(props) {
         deleteButton = <Button variant="danger" onClick={onRemoveZone} aria-label={cockpit.format(_("Remove zone $0"), props.zone.id)}><span className="pficon pficon-delete" /></Button>;
     }
 
-    let addServiceAction;
-    if (firewall.readonly) {
-        addServiceAction = (
-            <OverlayTrigger placement="top"
-                                overlay={ <Tooltip id="tip-auth">{ _("You are not authorized to modify the firewall.") }</Tooltip> }>
-                <Button variant="primary" className="pull-right add-services-button" aria-label={cockpit.format(_("Not authorized to add services to zone $0"), props.zone.id)} isDisabled> {_("Add Services")} </Button>
-            </OverlayTrigger>
-        );
-    } else {
-        addServiceAction = (
-            <Button variant="primary" onClick={() => props.openServicesDialog(props.zone.id, props.zone.id)} className="add-services-button" aria-label={cockpit.format(_("Add services to zone $0"), props.zone.id)}>
-                {_("Add Services")}
-            </Button>
-        );
-    }
+    const addServiceAction = (
+        <Button variant="primary" onClick={() => props.openServicesDialog(props.zone.id, props.zone.id)} className="add-services-button" aria-label={cockpit.format(_("Add services to zone $0"), props.zone.id)}>
+            {_("Add Services")}
+        </Button>
+    );
 
     return <div className="zone-section" data-id={props.zone.id}>
         <div className="zone-section-heading">
@@ -172,7 +154,7 @@ function ZoneSection(props) {
                     { props.zone.source.length > 0 && <span className="zone-section-target"><strong>{_("Addresses")}</strong> {props.zone.source.join(", ")}</span> }
                 </div>
             </span>
-            <div className="zone-section-buttons">{deleteButton}{addServiceAction}</div>
+            { !firewall.readonly && <div className="zone-section-buttons">{deleteButton}{addServiceAction}</div> }
         </div>
         {props.zone.services.length > 0 &&
         <Listing columnTitles={[_("Service"), _("TCP"), _("UDP"), ""]}
@@ -879,21 +861,11 @@ export class Firewall extends React.Component {
                                     icon={ ExclamationCircleIcon } />;
         }
 
-        var addZoneAction;
-        if (this.state.firewall.readonly) {
-            addZoneAction = (
-                <OverlayTrigger className="pull-right" placement="top"
-                                overlay={ <Tooltip id="tip-auth">{ _("You are not authorized to modify the firewall.") }</Tooltip> }>
-                    <Button variant="primary" className="pull-right" id="add-zone-button" aria-label={_("Not authorized to add a new zone")} isDisabled> {_("Add Zone")} </Button>
-                </OverlayTrigger>
-            );
-        } else {
-            addZoneAction = (
-                <Button variant="primary" onClick={this.openAddZoneDialog} className="pull-right" id="add-zone-button" aria-label={_("Add a new zone")}>
-                    {_("Add Zone")}
-                </Button>
-            );
-        }
+        var addZoneAction = (
+            <Button variant="primary" onClick={this.openAddZoneDialog} className="pull-right" id="add-zone-button" aria-label={_("Add a new zone")}>
+                {_("Add Zone")}
+            </Button>
+        );
 
         var zones = [...this.state.firewall.activeZones].sort((z1, z2) =>
             z1 === firewall.defaultZone ? -1 : z2 === firewall.defaultZone ? 1 : 0
@@ -929,7 +901,7 @@ export class Firewall extends React.Component {
                             <h1>{_("Firewall")}</h1>
                             { firewallOnOff }
                         </span>
-                        { enabled && <span className="btn-group">{addZoneAction}</span> }
+                        { enabled && !firewall.readonly && <span className="btn-group">{addZoneAction}</span> }
                     </div>
                 </div>
                 <div id="zones-listing" className="container-fluid page-ct">

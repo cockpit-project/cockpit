@@ -26,6 +26,7 @@ FP_SHA256 = "SHA256:SRvBhCmkCEVnJ6ascVH0AoVEbS3nPbowZkNevJnXtgw"
 KEY = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDG4iipTovcMg0xn+089QLNKVGpP2Pgq2duxHgAXre2XgA3dZL+kooioGFwBQSEjbWssKy82hKIN/W82/lQtL6krf7JQWnT3LZwD5DPsvHFKhOLghbiFzSI0uEL4NFFcZOMo5tGLrM5LsZsaIkkv5QkAE0tHIyeYinK6dQ2d8ZsfmgqxHDUQUWnz1T75X9fWQsUugSWI+8xAe0cfa4qZRz/IC+K7DEB3x4Ot5pl8FBuydJj/gb+Lwo2Vs27/d87W/0KHCqOHNwaVC8RBb1WcmXRDDetLGH1A9m5x7Ip/KU/cyvWWxw8S4VKZkTIcrGUhFYJDnjtE3Axz+D7agtps41t test-name"
 
 
+@skipImage("Rewritten in #14119", "rhel-8-3-distropkg")
 class TestKeys(MachineCase):
 
     def testAuthorizedKeys(self):
@@ -54,11 +55,11 @@ class TestKeys(MachineCase):
 
         def add_key(key, fp_md5, fp_sh256, comment):
             b.click('#authorized-key-add')
-            b.wait_popup("add-authorized-key-dialog")
+            b.wait_visible("#add-authorized-key-dialog")
             b.wait_val("#authorized-keys-text", "")
-            b.set_val("#authorized-keys-text", key)
-            b.click("#add-authorized-key")
-            b.wait_popdown("add-authorized-key-dialog")
+            b.set_input_text("#authorized-keys-text", key)
+            b.click("#add-authorized-key-dialog button.apply")
+            b.wait_not_present("#add-authorized-key-dialog")
 
             b.wait_in_text("#account-authorized-keys-list", comment)
 
@@ -76,12 +77,12 @@ class TestKeys(MachineCase):
 
         # add bad
         b.click('#authorized-key-add')
-        b.wait_popup("add-authorized-key-dialog")
+        b.wait_visible("#add-authorized-key-dialog")
         b.wait_val("#authorized-keys-text", "")
-        b.set_val("#authorized-keys-text", "bad")
-        b.click("#add-authorized-key")
-        b.wait_present(".dialog-error")
-        b.click("#cancel-authorized-key")
+        b.set_input_text("#authorized-keys-text", "bad")
+        b.click("#add-authorized-key-dialog button.apply")
+        b.wait_in_text("#add-authorized-key-dialog", "The key you provided was not valid")
+        b.click("#add-authorized-key-dialog button.cancel")
 
         # add good
         add_key(KEY, FP_MD5, FP_SHA256, "test-name")

@@ -3753,13 +3753,13 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                     b.wait_not_present("#create-network-dialog")
 
             def verify_expected_error_on_head(self, error_message):
-                b.wait_present("#app > div > section > div > div")
+                b.wait_present("#app > .toast-notification-wrapper .pf-m-danger")
                 # Click show more button
-                b.click("#app > div > section > div > div > h4 > button")
-                b.wait_in_text("#app > div > section > div > div > div.pf-c-alert__description > p", error_message)
+                b.click("#app > .toast-notification-wrapper .pf-m-danger .more-button")
+                b.wait_in_text("#app > .toast-notification-wrapper div.pf-c-alert__description > p", error_message)
                 # Close the danger alert
-                b.click("#app > div > section > div > div > div.pf-c-alert__action > button")
-                b.wait_not_present("#app > div > section > div > div")
+                b.click("#app > .toast-notification-wrapper div.pf-c-alert__action > button")
+                b.wait_not_present("#app > .toast-notification-wrapper .pf-m-danger")
 
             def verify_dialog(self):
                 # Check that the defined network is now visible

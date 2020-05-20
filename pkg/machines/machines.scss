@@ -20,23 +20,18 @@
     width: 200px;
 }
 
-.machines-disks .listing-ct th:nth-last-child(-n+2),
-.machines-disks .listing-ct td:nth-last-child(-n+2) :not(.machines-listing-actions) {
-    text-align: left;
-}
-
 .machines-disks-source {
-    /* Counter-act parent td padding for the table */
-    margin: -5px 0;
-
-    th, td {
-        padding: 0;
-        vertical-align: baseline;
+    &-label {
+        border-radius: var(--pf-global--BorderRadius--sm);
+        padding: var(--pf-global--spacer--xs) var(--pf-global--spacer--sm);
+        margin-right: var(--pf-global--spacer--sm);
+        background: var(--pf-global--BackgroundColor--300);
+        color: var(--pf-global--Color--300);
     }
 
-    th + td,
-    td + td {
-        padding-left: 0.5em;
+    &-label,
+    &-value {
+        font-size: var(--pf-global--FontSize--sm);
     }
 }
 
@@ -160,13 +155,14 @@
 }
 
 .machines-listing-actions {
-    display: inline-flex;
-    justify-content: space-between;
+    display: flex;
+    justify-content: end;
     flex-flow: wrap;
+    margin: -0.25rem 0;
 }
 
-.machines-listing-actions > *:not(:last-child) {
-    margin-right: 0.5rem;
+.machines-listing-actions > button {
+    margin: 0.25rem 0 0.25rem 0.5rem;
 }
 
 .machines-network-list {
@@ -398,30 +394,18 @@ $toast-anim-speed: 200ms;
     color: var(--pf-global--danger-color--200);
 }
 
-// FIXME: Target the action row with classes, not widgets based on position and hierarchy.
-// (This would make the CSS _much_ clearer and less fragile.)
-.ct-table {
-    > thead, > tbody {
-        > tr:not(.pf-c-table__expandable-row) {
-            > th, > td {
-                &:last-child:not(.first-child) {
-                    text-align: right;
-
-                    .btn-group {
-                        align-items: center;
-                    }
-
-                    .pf-c-button {
-                        // vertical: compensate for padding; fixing alignment
-                        // horizontal: add some needed padding
-                        margin: -0.25rem 0.25rem;
-                    }
-                }
-            }
-        }
-    }
-
+.pf-c-table {
     .pf-c-table__toggle {
         padding-left: 0;
+    }
+
+    .btn-group {
+        align-items: center;
+    }
+
+    > tbody > tr:not(.pf-c-table__expandable-row) > [data-label=Actions] .pf-c-button {
+        // vertical: compensate for padding; fixing alignment
+        // horizontal: add some needed padding
+        margin:  -0.25rem 0.25rem;
     }
 }

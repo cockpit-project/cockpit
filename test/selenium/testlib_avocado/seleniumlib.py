@@ -417,7 +417,15 @@ parameters:
         if pub_key is None:
             pub_key = self.ssh_identity_file
         ssh_public_key = open("%s.pub" % pub_key).read()
-        ssh_key_name = ssh_public_key.rsplit(" ", 1)[1]
+
+        # When we are called, self.machine.ssh_user is usually the
+        # "test" user, but that user can't log in yet via SSH until we
+        # have added the key here. Thus, we temporarily switch to
+        # "root" for the copy.
+        #
+        # (It would be nice if self.machine.execute had a "user"
+        # parameter, but it's probably not worth changing that just
+        # for this fringe use case here.)
 
         old_ssh_user = self.machine.ssh_user
         self.machine.ssh_user = "root"

@@ -24,6 +24,7 @@ from testlib import *
 
 
 @nondestructive
+@skipImage("Rewritten in #14119", "rhel-8-3-distropkg")
 class TestAccounts(MachineCase):
 
     def tearDown(self):
@@ -53,17 +54,16 @@ class TestAccounts(MachineCase):
         b.wait_text("#account-user-name", "anton")
         b.wait_text("#account-title", "anton")
         b.wait_not_attr("#account-delete", "disabled", "disabled")
-        b.set_val('#account-real-name', "Anton Arbitrary")
-        b.wait_not_attr('#account-real-name', 'data-dirty', 'true')
-        # don't wait for /etc/passwd to be current - this should hold true once the 'data-dirty' was removed
-        self.assertIn(":Anton Arbitrary:", m.execute("grep anton /etc/passwd"))
-        # Table title changes along
+        b.set_input_text('#account-real-name', "Anton Arbitrary")
+        b.key_press("\r")
+        b.wait_present('#account-real-name:not([disabled])')
         b.wait_text("#account-title", "Anton Arbitrary")
+        self.assertIn(":Anton Arbitrary:", m.execute("grep anton /etc/passwd"))
 
         # Add some other GECOS fields
-        b.set_val('#account-real-name', "Anton Arbitrary,1,123")
-        b.wait_not_attr('#account-real-name', 'data-dirty', 'true')
-        # don't wait for /etc/passwd to be current - this should hold true once the 'data-dirty' was removed
+        b.set_input_text('#account-real-name', "Anton Arbitrary,1,123")
+        b.key_press("\r")
+        b.wait_present('#account-real-name:not([disabled])')
         self.assertIn(":Anton Arbitrary,1,123:", m.execute("grep anton /etc/passwd"))
         # Table title only shows real name, no other GECOS fields
         b.wait_text("#account-title", "Anton Arbitrary")
@@ -75,9 +75,9 @@ class TestAccounts(MachineCase):
         good_password = "tqymuVh.ZfZnP§9Wr=LM3JyG5yx"
         # Delete it
         b.click('#account-delete')
-        b.wait_popup('account-confirm-delete-dialog')
-        b.click('#account-confirm-delete-apply')
-        b.wait_popdown('account-confirm-delete-dialog')
+        b.wait_visible('#account-confirm-delete-dialog')
+        b.click('#account-confirm-delete-dialog button.apply')
+        b.wait_not_present('#account-confirm-delete-dialog')
         b.wait_visible("#accounts")
         b.wait_not_in_text('#accounts-list', "Anton Arbitrary")
 
@@ -86,7 +86,7 @@ class TestAccounts(MachineCase):
         b.wait_text("#account-user-name", "root")
         # some operations are not allowed for root user
         b.wait_present("#account-delete[disabled]")
-        b.wait_present("#account-real-name-wrapper[disabled]")
+        b.wait_present("#account-real-name[disabled]")
         # when running against existing machines there might be an ssh root session
         if "root" in m.execute("who"):
             b.wait_visible("#account-logout:not([disabled])")
@@ -100,27 +100,27 @@ class TestAccounts(MachineCase):
         b.wait(lambda: m.execute("passwd -S root").split()[1] in ["L", "LK"])
 
         # go back to accounts overview, check breadcrumb
-        b.click("#account .breadcrumb a")
+        b.click("#account .breadcrumb button")
         b.wait_present("#accounts-create")
 
         # Create a user from the UI
         self.sed_file('s/^SHELL=.*$/SHELL=\/bin\/true/', '/etc/default/useradd')
         b.click('#accounts-create')
-        b.wait_popup('accounts-create-dialog')
-        b.set_val('#accounts-create-user-name', "berta")
-        b.set_val('#accounts-create-real-name', "Berta Bestimmt")
-        b.set_val('#accounts-create-pw1', good_password)
+        b.wait_visible('#accounts-create-dialog')
+        b.set_input_text('#accounts-create-user-name', "berta")
+        b.set_input_text('#accounts-create-real-name', "Berta Bestimmt")
+        b.set_input_text('#accounts-create-pw1', good_password)
 
         # wrong password confirmation
-        b.set_val('#accounts-create-pw2', good_password + 'b')
-        b.click('#accounts-create-create')
+        b.set_input_text('#accounts-create-pw2', good_password + 'b')
+        b.click('#accounts-create-dialog button.apply')
         b.wait_in_text("#accounts-create-dialog .dialog-error.help-block", "The passwords do not match")
 
         # correct password confirmation
-        b.set_val('#accounts-create-pw2', good_password)
-        b.click('#accounts-create-create')
-        b.wait_not_visible("#accounts-create-dialog .dialog-error")
-        b.wait_popdown('accounts-create-dialog')
+        b.set_input_text('#accounts-create-pw2', good_password)
+        b.click('#accounts-create-dialog button.apply')
+        b.wait_not_present("#accounts-create-dialog .dialog-error")
+        b.wait_not_present('#accounts-create-dialog')
         b.wait_in_text('#accounts-list', "Berta Bestimmt")
 
         # Check home directory
@@ -139,14 +139,14 @@ class TestAccounts(MachineCase):
         # Create a locked user
         m.execute("sed -i 's/^SHELL=.*$/SHELL=/' /etc/default/useradd")
         b.click('#accounts-create')
-        b.wait_popup('accounts-create-dialog')
-        b.set_val('#accounts-create-user-name', "jussi")
-        b.set_val('#accounts-create-real-name', "Jussi Junior")
-        b.set_val('#accounts-create-pw1', good_password)
-        b.set_val('#accounts-create-pw2', good_password)
+        b.wait_visible('#accounts-create-dialog')
+        b.set_input_text('#accounts-create-user-name', "jussi")
+        b.set_input_text('#accounts-create-real-name', "Jussi Junior")
+        b.set_input_text('#accounts-create-pw1', good_password)
+        b.set_input_text('#accounts-create-pw2', good_password)
         b.set_checked('#accounts-create-locked', True)
-        b.click('#accounts-create-create')
-        b.wait_popdown('accounts-create-dialog')
+        b.click('#accounts-create-dialog button.apply')
+        b.wait_not_present('#accounts-create-dialog')
         b.wait_in_text('#accounts-list', "Jussi Junior")
 
         def is_locked():
@@ -206,26 +206,26 @@ class TestAccounts(MachineCase):
         b.go("#/jussi")
         b.wait_text("#account-user-name", "jussi")
         b.click('#account-set-password')
-        b.wait_popup('account-set-password-dialog')
+        b.wait_visible('#account-set-password-dialog')
 
         # weak password
-        b.set_val("#account-set-password-pw1", 'a')
-        b.set_val("#account-set-password-pw2", 'a')
-        b.click('#account-set-password-apply')
-        b.wait_in_text(".check-passwords.has-error .dialog-error.help-block", "Password quality check failed:")
+        b.set_input_text("#account-set-password-pw1", 'a')
+        b.set_input_text("#account-set-password-pw2", 'a')
+        b.click('#account-set-password-dialog button.apply')
+        b.wait_in_text("#account-set-password-dialog .dialog-error.help-block", "Password quality check failed:")
 
         # password mismatch
-        b.set_val("#account-set-password-pw1", good_password + 'a')
-        b.set_val("#account-set-password-pw2", good_password + 'b')
-        b.click('#account-set-password-apply')
-        b.wait_in_text(".check-passwords.has-error .dialog-error.help-block", "The passwords do not match")
+        b.set_input_text("#account-set-password-pw1", good_password + 'a')
+        b.set_input_text("#account-set-password-pw2", good_password + 'b')
+        b.click('#account-set-password-dialog button.apply')
+        b.wait_in_text("#account-set-password-dialog .dialog-error.help-block", "The passwords do not match")
 
         good_password_2 = "cEwghLY§X9R&m8RLwk4Xfed9Bw="
         # Now set to something valid
-        b.set_val("#account-set-password-pw1", good_password_2)
-        b.set_val("#account-set-password-pw2", good_password_2)
-        b.click('#account-set-password-apply')
-        b.wait_popdown('account-set-password-dialog')
+        b.set_input_text("#account-set-password-pw1", good_password_2)
+        b.set_input_text("#account-set-password-pw2", good_password_2)
+        b.click('#account-set-password-dialog button.apply')
+        b.wait_not_present('#account-set-password-dialog')
 
         # Logout and login with the new password
         b.logout()
@@ -263,12 +263,12 @@ class TestAccounts(MachineCase):
         b.wait_text("#account-user-name", "anton")
         b.wait_present('#account-set-password:enabled')
         b.click('#account-set-password')
-        b.wait_popup('account-set-password-dialog')
-        b.set_val("#account-set-password-old", "foobar")
-        b.set_val("#account-set-password-pw1", new_password)
-        b.set_val("#account-set-password-pw2", new_password)
-        b.click('#account-set-password-apply')
-        b.wait_popdown('account-set-password-dialog')
+        b.wait_visible('#account-set-password-dialog')
+        b.set_input_text("#account-set-password-old", "foobar")
+        b.set_input_text("#account-set-password-pw1", new_password)
+        b.set_input_text("#account-set-password-pw2", new_password)
+        b.click('#account-set-password-dialog button.apply')
+        b.wait_not_present('#account-set-password-dialog')
 
         # Logout and login with the new password
         b.logout()
@@ -287,12 +287,12 @@ class TestAccounts(MachineCase):
         b.wait_text("#account-user-name", "anton")
         b.wait_present('#account-set-password:enabled')
         b.click('#account-set-password')
-        b.wait_popup('account-set-password-dialog')
-        b.set_val("#account-set-password-old", new_password)
-        b.set_val("#account-set-password-pw1", new_password_2)
-        b.set_val("#account-set-password-pw2", new_password_2)
-        b.click('#account-set-password-apply')
-        b.wait_in_text(".dialog-error", "must wait longer")
+        b.wait_visible('#account-set-password-dialog')
+        b.set_input_text("#account-set-password-old", new_password)
+        b.set_input_text("#account-set-password-pw1", new_password_2)
+        b.set_input_text("#account-set-password-pw2", new_password_2)
+        b.click('#account-set-password-dialog button.apply')
+        b.wait_in_text("#account-set-password-dialog .modal-footer", "must wait longer")
 
         self.allow_restart_journal_messages()
         self.allow_authorize_journal_messages()
@@ -312,14 +312,14 @@ class TestAccounts(MachineCase):
             b.wait_text("#account-user-name", user)
             b.wait_present('#account-set-password:enabled')
             b.click('#account-set-password')
-            b.wait_popup('account-set-password-dialog')
+            b.wait_visible('#account-set-password-dialog')
             b.wait_visible("#account-set-password-pw1")
             # root does not need to know old password
-            b.wait_not_visible("#account-set-password-old")
-            b.set_val("#account-set-password-pw1", new_password)
-            b.set_val("#account-set-password-pw2", new_password)
-            b.click('#account-set-password-apply')
-            b.wait_popdown('account-set-password-dialog')
+            b.wait_not_present("#account-set-password-old")
+            b.set_input_text("#account-set-password-pw1", new_password)
+            b.set_input_text("#account-set-password-pw2", new_password)
+            b.click('#account-set-password-dialog button.apply')
+            b.wait_not_present('#account-set-password-dialog')
 
         # Logout and login with the new password
         for user in ["anton", "root"]:
@@ -357,28 +357,28 @@ class TestAccounts(MachineCase):
         b.wait_text("#account-expiration-button", "Never lock account")
         self.assertEqual(self.accountExpiryInfo("scruffy", "Account expires"), "never")
         b.click("#account-expiration-button")
-        b.wait_popup("account-expiration")
+        b.wait_visible("#account-expiration")
         b.click("#account-expiration-expires")
 
         # Try an invalid date
-        b.set_val("#account-expiration-input", "blah")
+        b.set_input_text("#account-expiration-input", "blah")
         b.click("#account-expiration .modal-footer button:contains(Change)")
         b.wait_text("#account-expiration .dialog-error", "Invalid expiration date")
 
         # Now a valid date 30 days in the future
         when = datetime.datetime.now() + datetime.timedelta(days=30)
-        b.set_val("#account-expiration-input", when.isoformat().split("T")[0])
+        b.set_input_text("#account-expiration-input", when.isoformat().split("T")[0])
         b.click("#account-expiration .modal-footer button:contains(Change)")
-        b.wait_popdown("account-expiration")
+        b.wait_not_present("#account-expiration")
         b.wait_in_text("#account-expiration-button", "Lock account on")
         self.assertNotEqual(self.accountExpiryInfo("scruffy", "Account expires"), "never")
 
         # Now try and change it back
         b.click("#account-expiration-button")
-        b.wait_popup("account-expiration")
+        b.wait_visible("#account-expiration")
         b.click("#account-expiration-never")
         b.click("#account-expiration .modal-footer button:contains(Change)")
-        b.wait_popdown("account-expiration")
+        b.wait_not_present("#account-expiration")
         b.wait_text("#account-expiration-button", "Never lock account")
         self.assertEqual(self.accountExpiryInfo("scruffy", "Account expires"), "never")
 
@@ -386,37 +386,37 @@ class TestAccounts(MachineCase):
         b.wait_text("#password-expiration-button", "Never expire password")
         self.assertEqual(self.accountExpiryInfo("scruffy", "Password expires"), "never")
         b.click("#password-expiration-button")
-        b.wait_popup("password-expiration")
+        b.wait_visible("#password-expiration")
         b.click("#password-expiration-expires")
 
         # Try an invalid number
-        b.set_val("#password-expiration-input", "-3")
+        b.set_input_text("#password-expiration-input", "-3")
         b.click("#password-expiration .modal-footer button:contains(Change)")
         b.wait_text("#password-expiration .dialog-error", "Invalid number of days")
 
         # Expire password every 30 days
-        b.set_val("#password-expiration-input", "30")
+        b.set_input_text("#password-expiration-input", "30")
         b.click("#password-expiration .modal-footer button:contains(Change)")
-        b.wait_popdown("password-expiration")
+        b.wait_not_present("#password-expiration")
         b.wait_in_text("#password-expiration-button", "Require password change on")
         self.assertNotEqual(self.accountExpiryInfo("scruffy", "Password expires"), "never")
 
         # Now try and change it back
         b.click("#password-expiration-button")
-        b.wait_popup("password-expiration")
+        b.wait_visible("#password-expiration")
         b.click("#password-expiration-never")
         b.click("#password-expiration .modal-footer button:contains(Change)")
-        b.wait_popdown("password-expiration")
+        b.wait_not_present("#password-expiration")
         b.wait_text("#password-expiration-button", "Never expire password")
         self.assertEqual(self.accountExpiryInfo("scruffy", "Password expires"), "never")
 
         # Now change it to expire again
         b.click("#password-expiration-button")
-        b.wait_popup("password-expiration")
+        b.wait_visible("#password-expiration")
         b.click("#password-expiration-expires")
-        b.set_val("#password-expiration-input", "30")
+        b.set_input_text("#password-expiration-input", "30")
         b.click("#password-expiration .modal-footer button:contains(Change)")
-        b.wait_popdown("password-expiration")
+        b.wait_not_present("#password-expiration")
 
         b.logout()
         self.allow_authorize_journal_messages()
@@ -434,9 +434,9 @@ class TestAccounts(MachineCase):
         b.go("#/scruffy")
         b.wait_text("#account-user-name", "scruffy")
         b.click("#password-reset-button")
-        b.wait_popup("password-reset")
+        b.wait_visible("#password-reset")
         b.click("#password-reset .modal-footer button:contains(Reset)")
-        b.wait_popdown("password-reset")
+        b.wait_not_present("password-reset")
         b.wait_in_text("#password-expiration-button", "Password must be changed")
         self.assertEqual(self.accountExpiryInfo("scruffy", "Password expires"), "password must be changed")
 

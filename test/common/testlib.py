@@ -994,7 +994,6 @@ class MachineCase(unittest.TestCase):
         "Failed to send coredump datagram:.*",
 
         # Something crashed, but we don't have more info. Don't fail on that
-        "Failed to generate stack trace: \(null\)",
         "Failed to get (COMM|EXE).*: No such process",
 
         # The usual sudo finger wagging
@@ -1116,6 +1115,14 @@ class MachineCase(unittest.TestCase):
             if not m:
                 continue
             found = False
+
+            # When coredump could not be generated, we cannot do much with info about there being a coredump
+            # Ignore this message and all subsequent core dumps
+            # If there is more than just one line about coredump, it will fail and show this messages
+            if m == "Failed to generate stack trace: (null)":
+                self.allowed_messages.append("Process .* of user .* dumped core.*")
+                continue
+
             for p in self.allowed_messages:
                 match = re.match(p, m)
                 if match and match.group(0) == m:

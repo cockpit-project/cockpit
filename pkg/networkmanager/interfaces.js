@@ -3401,8 +3401,13 @@ PageNetworkIpSettings.prototype = {
                     });
         }
 
-        with_settings_checkpoint(PageNetworkIpSettings.model, modify,
-                                 { devices: connection_devices(PageNetworkIpSettings.connection) });
+        with_settings_checkpoint(
+            PageNetworkIpSettings.model,
+            modify,
+            {
+                devices: connection_devices(PageNetworkIpSettings.connection),
+                hack_does_add_or_remove: true
+            });
     }
 
 };

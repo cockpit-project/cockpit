@@ -2815,7 +2815,6 @@ PageNetworkInterface.prototype = {
 
         var desc, cs;
         if (dev) {
-            console.log(dev);
             if (dev.DeviceType == 'ethernet' || dev.IdVendor || dev.IdModel) {
                 desc = cockpit.format("$IdVendor $IdModel $Driver", dev);
             } else if (dev.DeviceType == 'bond') {
@@ -2833,7 +2832,6 @@ PageNetworkInterface.prototype = {
                 desc = cockpit.format(_("Unknown \"$0\""), dev.DeviceType);
         } else if (iface) {
             cs = connection_settings(iface.Connections[0]);
-            console.log(iface);
             if (cs.type == "bond")
                 desc = _("Bond");
             else if (cs.type == "team")
@@ -5207,7 +5205,7 @@ PageNetworkWiFiSettings.prototype = {
         }
 
         function change() {
-            options.ssid = select_btn_selected(ssid_btn);
+            options.ssid = btoa(select_btn_selected(ssid_btn));
             options.mode = select_btn_selected(mode_btn);
             options.band = select_btn_selected(band_btn);
             options.channel = parseInt(select_btn_selected(channel_btn), 10);
@@ -5303,10 +5301,10 @@ PageNetworkWiFiSettings.prototype = {
             });
         });
 
-        band_btn.on('click', 'option', channel_block_handler);
-        security_btn.on('click', 'option', security_block_handler);
-        eap_auth_btn.on('click', 'option', security_auth_block_handler);
-        device_btn.on('click', 'option', device_block_handler);
+        band_btn.on('change', channel_block_handler);
+        security_btn.on('change', security_block_handler);
+        eap_auth_btn.on('change', security_auth_block_handler);
+        device_btn.on('change', device_block_handler);
 
         body.find('#security-personal-password-toggle').click(function() {
             toggle_password(personal_password_input);

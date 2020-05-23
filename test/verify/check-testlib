@@ -57,12 +57,43 @@ class TestRunTestListing(unittest.TestCase):
         self.assertRegex(revtests.stdout, re.compile(b".*TestTerminal.*TestServices.*TestLogin.*TestFirewall.*TestAccounts.*", re.S))
 
     def testNonDestructive(self):
-        self.assertEqual(subprocess.check_output([os.path.join(dirname, "run-tests"), "--nondestructive", "-l", "TestExample"]).strip().decode(),
+        self.assertEqual(subprocess.check_output([run_tests, "--nondestructive", "-l", "TestExample"]).strip().decode(),
                          "1..1\nTestExample.testNondestructive")
 
         # with short option and substring
-        self.assertEqual(subprocess.check_output([os.path.join(dirname, "run-tests"), "-nl", "TestExamp"]).strip().decode(),
+        self.assertEqual(subprocess.check_output([run_tests, "-nl", "TestExamp"]).strip().decode(),
                          "1..1\nTestExample.testNondestructive")
+
+
+# This can't be @nondestructive, as we run our own @nondestructive test nested inside this test. This will already call the
+# cleanup handlers, and the outside cleanup would then fail to do that again.
+class TestRunTest(MachineCase):
+    def testExistingMachine(self):
+        env = os.environ.copy()
+        try:
+            del env["TEST_JOBS"]
+        except KeyError:
+            pass
+        out = subprocess.check_output([run_tests, "-vt",
+                                       "--machine", self.machine.ssh_address + ":" + self.machine.ssh_port,
+                                       "--browser", self.machine.web_address + ":" + self.machine.web_port,
+                                       "TestNondestructiveExample"], env=env)
+        self.assertRegex(out, b"\nok .* TestNondestructiveExample.testOne")
+        self.assertRegex(out, b"\nok .* TestNondestructiveExample.testTwo")
+        self.assertIn(b"TESTS PASSED", out)
+
+        # can't be called with concurrency
+        p = subprocess.Popen([run_tests, "--machine", "1.2.3.4:56", "--browser", "1.2.3.4:67", "-j2"],
+                             stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+        (out, err) = p.communicate()
+        self.assertGreaterEqual(p.returncode, 1)
+        self.assertIn(b"--machine cannot be used with concurrent jobs", err)
+
+        # implies --nondestructive
+        out = subprocess.check_output([run_tests, "--machine", "1.2.3.4:56", "--browser", "1.2.3.4:67",
+                                       "TestExample.testBasic"], env=env)
+        self.assertIn(b"1..0", out)
+        self.assertNotIn(b"TestExample", out)
 
 
 class TestTestlib(MachineCase):

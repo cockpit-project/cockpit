@@ -82,7 +82,7 @@ GIO_CFLAGS="$GIO_CFLAGS -DGLIB_VERSION_MAX_ALLOWED=$GLIB_VERSION_DEF"
 
 PKG_CHECK_MODULES(LIBSYSTEMD, [$LIBSYSTEMD_REQUIREMENT])
 PKG_CHECK_MODULES(JSON_GLIB, [$JSON_GLIB_REQUIREMENT])
-PKG_CHECK_MODULES(POLKIT, [$POLKIT_REQUIREMENT],enable_polkit="yes",enable_polkit="no")
+PKG_CHECK_MODULES(POLKIT, [$POLKIT_REQUIREMENT],autodetect_polkit="yes",autodetect_polkit="no")
 PKG_CHECK_MODULES(GNUTLS, [$GNUTLS_REQUIREMENT])
 PKG_CHECK_MODULES(KRB5, [$KRB5_REQUIREMENT])
 
@@ -92,11 +92,16 @@ AC_SUBST(COCKPIT_CFLAGS)
 AC_SUBST(COCKPIT_LIBS)
 
 # bridge with optional polkit
+AC_ARG_ENABLE(polkit, AC_HELP_STRING([--disable-polkit], [Disable usage of polkit]),,enable_polkit=$autodetect_polkit)
+AC_MSG_CHECKING([whether to build with polkit])
 if test "$enable_polkit" = "yes"; then
+  AC_MSG_RESULT($enable_polkit)
   COCKPIT_BRIDGE_CFLAGS="$COCKPIT_CFLAGS $POLKIT_CFLAGS"
   COCKPIT_BRIDGE_LIBS="$COCKPIT_LIBS $POLKIT_LIBS"
   AC_DEFINE_UNQUOTED([WITH_POLKIT], [], [Build with polkit])
 else
+  enable_polkit="no"
+  AC_MSG_RESULT($enable_polkit)
   COCKPIT_BRIDGE_CFLAGS="$COCKPIT_CFLAGS"
   COCKPIT_BRIDGE_LIBS="$COCKPIT_LIBS"
 fi

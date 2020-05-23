@@ -173,14 +173,19 @@ def run(opts, image):
     sys.stdout.flush()
 
     if serial_tests and not opts.list:
-        testlib.MachineCase.get_global_machine()
+        if opts.machine:
+            ssh_address = opts.machine
+            web_address = opts.browser
+        else:
+            ssh_address = "{0}:{1}".format(testlib.MachineCase.get_global_machine().ssh_address,
+                                           testlib.MachineCase.get_global_machine().ssh_port)
+            web_address = "{0}:{1}".format(testlib.MachineCase.get_global_machine().web_address,
+                                           testlib.MachineCase.get_global_machine().web_port)
         for test in serial_tests:
             test.command.insert(-2, "--machine")
-            test.command.insert(-2, "{0}:{1}".format(testlib.MachineCase.get_global_machine().ssh_address,
-                                                 testlib.MachineCase.get_global_machine().ssh_port))
+            test.command.insert(-2, ssh_address)
             test.command.insert(-2, "--browser")
-            test.command.insert(-2, "{0}:{1}".format(testlib.MachineCase.get_global_machine().web_address,
-                                                 testlib.MachineCase.get_global_machine().web_port))
+            test.command.insert(-2, web_address)
 
     running_tests = []
     serial_test = None
@@ -221,7 +226,7 @@ def run(opts, image):
 
                     # sometimes our global machine gets messed up; also, tests that time out don't run cleanup handlers
                     # restart it to avoid an unbounded number of test retries and follow-up errors
-                    if poll_result == 124 or (retry_reason and b"test harness" in retry_reason):
+                    if not opts.machine and (poll_result == 124 or (retry_reason and b"test harness" in retry_reason)):
                         # try hard to keep the test output consistent
                         testlib.MachineCase.kill_global_machine()
                         testlib.MachineCase.get_global_machine()
@@ -266,7 +271,16 @@ def main():
                         help='Thorough mode, no skipping known issues')
     parser.add_argument('-n', '--nondestructive', action='store_true',
                         help='Only consider @nondestructive tests')
+    parser.add_argument('--machine', metavar="hostname[:port]",
+                        default=None, help="Run tests against an already running machine;  implies --nondestructive")
+    parser.add_argument('--browser', metavar="hostname[:port]",
+                        default=None, help="When using --machine, use this cockpit web address")
     opts = parser.parse_args()
+
+    if opts.machine:
+        if opts.jobs > 1:
+            parser.error("--machine cannot be used with concurrent jobs")
+        opts.nondestructive = True
 
     image = testvm.DEFAULT_IMAGE
     revision = os.environ.get("TEST_REVISION")

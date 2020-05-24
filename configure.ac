@@ -96,6 +96,9 @@ AC_ARG_ENABLE(polkit, AC_HELP_STRING([--disable-polkit], [Disable usage of polki
 AC_MSG_CHECKING([whether to build with polkit])
 if test "$enable_polkit" = "yes"; then
   AC_MSG_RESULT($enable_polkit)
+  if test "$autodetect_polkit" = "no"; then
+    AC_MSG_ERROR([Couldn't find polkit. Try installing polkit])
+  fi
   COCKPIT_BRIDGE_CFLAGS="$COCKPIT_CFLAGS $POLKIT_CFLAGS"
   COCKPIT_BRIDGE_LIBS="$COCKPIT_LIBS $POLKIT_LIBS"
   AC_DEFINE_UNQUOTED([WITH_POLKIT], [], [Build with polkit])

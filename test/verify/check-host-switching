@@ -20,7 +20,6 @@
 import json
 import subprocess
 
-import time
 import parent
 from testlib import *
 from machine_core.constants import TEST_OS_DEFAULT
@@ -194,7 +193,6 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         key = m.execute("grep '10.111.113.2' /etc/ssh/ssh_known_hosts && sed -i '/10.111.113.2/d' /etc/ssh/ssh_known_hosts")
         m.execute(
             "mkdir -p ~admin/.ssh && echo '{0}' > ~admin/.ssh/known_hosts && chown -R admin:admin ~admin/.ssh""".format(key))
-        time.sleep(5) # HACK - with devel builds things are too slow, likely related to #14088
         self.add_machine(b, "10.111.113.2", True)
         self.wait_dashboard_addresses(b, ["localhost", "10.111.113.2", "10.111.113.3"])
         self.wait_connected(b, "10.111.113.2")
@@ -250,6 +248,8 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         b.click("#link-network a")
         b.enter_page("/network", "10.111.113.3")
 
+        # removing machines interrupts channels
+        self.allow_restart_journal_messages()
         self.allow_hostkey_messages()
         self.allow_journal_messages(".*server offered unsupported authentication methods: password public-key.*")
 

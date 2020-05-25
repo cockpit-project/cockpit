@@ -585,7 +585,11 @@ function Index() {
         if (ev.target.nodeName === "BUTTON") // Buttons in navigation have their own handlers
             return;
 
-        if (ev.target.className.indexOf("event-eater") > -1) // Special case for stopping propagation on disabled buttons
+        let target_class = ev.target.className;
+        if (typeof target_class !== "string")
+            target_class = "";
+
+        if (target_class.indexOf("event-eater") > -1) // Special case for stopping propagation on disabled buttons
             return;
 
         let a = this;

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>XMLHttpRequest proxy</title>
+    <meta charset="utf-8">
+    <link href="../base1/cockpit.css" type="text/css" rel="stylesheet">
+    <script src="../base1/cockpit.js"></script>
+</head>
+<body>
+    <div class="container-fluid">
+        <table class="form-table-ct">
+            <tr>
+                <th><label class="control-label" for="address">URL</label></th>
+                <td><input class="form-control" id="address" value="http://localhost:12345"></td>
+            </tr>
+            <tr>
+                <th></th>
+                <td><button class="pf-c-button pf-m-primary" id="get">GET request</button></td>
+            <tr>
+                <th>Code</th>
+                <td><span id="result"></span></td>
+            </tr>
+            <tr>
+                <th>Output</th>
+                <td><pre id="output"></pre></td>
+        </table>
+
+    </div>
+
+    <script src="xhrproxy.js"></script>
+</body>
+</html>

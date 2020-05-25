@@ -43,6 +43,14 @@ are valid for any application, just replace ```/cockpit/``` with ```/cockpit+app
 
  * ```/cockpit/channel/csrftoken?query``` External channel URLs
 
+   These are commonly used to wrap/proxy port access for Cockpit pages, as
+   their JavaScript cannot talk to them directly due to Cockpit's strict
+   [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP).
+
+   See the [xhr-proxy example](../examples/xhr-proxy) how to wrap a TCP HTTP
+   port, or the [gtk-broadway example](../examples/gtk-broadway) for a more
+   complex wrapping of a stream socket.
+
 When loading through cockpit-ws any URL that does not begin with an
 application will be handled by the shell (shell/index.html by default)
 using the default application ```cockpit```.

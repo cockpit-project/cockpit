@@ -354,7 +354,7 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
         ReactDOM.render(
             React.createElement(CockpitHosts, {
                 machine: machine || {},
-                machines: machines.list,
+                machines: machines,
                 selector: "nav-hosts",
                 hostAddr: index.href,
             }),

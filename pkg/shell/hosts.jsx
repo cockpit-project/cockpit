@@ -70,8 +70,7 @@ export class CockpitHosts extends React.Component {
         this.onHostEdit = this.onHostEdit.bind(this);
         this.onRemove = this.onRemove.bind(this);
 
-        this.machines = machines.instance();
-        this.mdialogs = new_machine_dialog_manager(this.machines);
+        this.mdialogs = new_machine_dialog_manager(this.props.machines);
     }
 
     componentDidMount() {
@@ -82,13 +81,6 @@ export class CockpitHosts extends React.Component {
         cockpit.user().then(user => {
             this.setState({ current_user: user.name || "" });
         });
-    }
-
-    componentDidUpdate(prevProps) {
-        if (prevProps.machines !== this.props.machines) {
-            this.machines = machines.instance();
-            this.mdialogs = new_machine_dialog_manager(this.machines);
-        }
     }
 
     static getDerivedStateFromProps(nextProps, prevState) {
@@ -161,7 +153,7 @@ export class CockpitHosts extends React.Component {
             if (can_change_user && machines.allow_connection_string)
                 values.user = user.value;
 
-            const promise = this.machines.change(machine.key, values);
+            const promise = this.props.machines.change(machine.key, values);
             dlg.dialog('promise', promise);
         });
         dlg.modal('show');
@@ -173,9 +165,9 @@ export class CockpitHosts extends React.Component {
 
     onRemove(event, machine) {
         event.preventDefault();
-        if (this.props.machines.length <= 2)
+        if (this.props.machines.list.length <= 2)
             this.setState({ editing: false });
-        this.machines.change(machine.key, { visible: false });
+        this.props.machines.change(machine.key, { visible: false });
     }
 
     filterHosts(host, term) {
@@ -204,7 +196,7 @@ export class CockpitHosts extends React.Component {
         const editing = this.state.editing;
         const groups = [{
             name: _("Hosts"),
-            items: this.props.machines,
+            items: this.props.machines.list,
         }];
         const render = (m, term) => <CockpitNavItem
                 term={term}
@@ -247,7 +239,7 @@ export class CockpitHosts extends React.Component {
                             <CockpitNav selector={this.props.selector} groups={groups} item_render={render} sorting={(a, b) => true} filtering={this.filterHosts} current={label} />
                             {this.state.privileged &&
                                 <div className="nav-hosts-actions">
-                                    {this.props.machines.length > 1 && <Button variant="secondary" onClick={this.onEditHosts}>{this.state.editing ? _("Stop editing hosts") : _("Edit hosts")}</Button>}
+                                    {this.props.machines.list.length > 1 && <Button variant="secondary" onClick={this.onEditHosts}>{this.state.editing ? _("Stop editing hosts") : _("Edit hosts")}</Button>}
                                     <Button variant="secondary" onClick={this.onAddNewHost}>{_("Add new host")}</Button>
                                 </div>
                             }
@@ -262,7 +254,7 @@ export class CockpitHosts extends React.Component {
 
 CockpitHosts.propTypes = {
     machine: PropTypes.object.isRequired,
-    machines: PropTypes.array.isRequired,
+    machines: PropTypes.object.isRequired,
     selector: PropTypes.string.isRequired,
     hostAddr: PropTypes.func.isRequired,
 };

@@ -39,7 +39,6 @@ Depends: ${misc:Depends},
          cockpit-system (>= ${source:Version}),
 Recommends: cockpit-storaged (>= ${source:Version}),
             cockpit-networkmanager (>= ${source:Version}),
-            cockpit-dashboard (>= ${source:Version}),
             cockpit-packagekit (>= ${source:Version}),
 Suggests: cockpit-doc (>= ${source:Version}),
           cockpit-pcp (>= ${source:Version}),
@@ -74,9 +73,8 @@ Depends: ${misc:Depends},
          cockpit-ws (>= ${source:Version}),
          cockpit-ws (<< ${source:Version}.1~),
 Replaces: cockpit-system (<< 128), cockpit-ws (<< 128)
-Description: Cockpit remote servers and dashboard
- Cockpit support for connecting to remote servers (through ssh)
- bastion hosts, and a basic dashboard.
+Description: Cockpit remote server dashboard
+ Cockpit page for showing performance graphs for up to 20 remote servers.
 
 Package: cockpit-doc
 Section: doc

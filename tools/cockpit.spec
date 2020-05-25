@@ -131,7 +131,6 @@ Recommends: (cockpit-docker if /usr/bin/docker)
 %endif
 
 %if 0%{?rhel} == 0
-Recommends: cockpit-dashboard
 Recommends: (cockpit-networkmanager if NetworkManager)
 Suggests: cockpit-selinux
 %endif
@@ -676,14 +675,13 @@ Cockpit support for reading PCP metrics and loading PCP archives.
 
 %if %{defined build_dashboard}
 %package -n cockpit-dashboard
-Summary: Cockpit remote servers and dashboard
+Summary: Cockpit remote server dashboard
 BuildArch: noarch
 Requires: cockpit-ssh >= 135
 Conflicts: cockpit-ws < 135
 
 %description -n cockpit-dashboard
-Cockpit support for connecting to remote servers (through ssh),
-bastion hosts, and a basic dashboard.
+Cockpit page for showing performance graphs for up to 20 remote servers.
 
 %files -n cockpit-dashboard -f dashboard.list
 

@@ -26,5 +26,48 @@ class TestPinger(MachineCase):
         b.wait_in_text("#output", "--- 127.0.0.1 ping statistics")
 
 
+@nondestructive
+class TestXHRProxy(MachineCase):
+    def setUp(self):
+        super().setUp()
+        self.restore_dir("/home/admin")
+        self.machine.execute("mkdir -p ~admin/.local/share/cockpit")
+        self.machine.upload([os.path.join(EXAMPLES_DIR, "xhr-proxy")], "~admin/.local/share/cockpit/")
+
+    @skipImage("No Python installed", "fedora-coreos")
+    def testBasic(self):
+        m = self.machine
+        b = self.browser
+
+        # set up served directory
+        httpdir = self.vm_tmpdir + "/root";
+        m.execute("mkdir {0} && echo world > {0}/hello.txt".format(httpdir))
+        # start webserver
+        pid = m.spawn("cd %s && exec python3 -m http.server 12345" % httpdir, "httpserver")
+        self.addCleanup(m.execute, "kill %i" % pid)
+        self.machine.wait_for_cockpit_running(port=12345)  # wait for changelog HTTP server to start up
+
+        self.login_and_go("/xhr-proxy/xhrproxy")
+
+        # directory index
+        b.set_val("#address", "http://localhost:12345/")
+        b.click("#get")
+        b.wait_text("#result", "200")
+        b.wait_in_text("#output", "Directory listing")
+        b.wait_in_text("#output", "hello.txt")
+
+        # specific file
+        b.set_val("#address", "http://localhost:12345/hello.txt")
+        b.click("#get")
+        b.wait_text("#result", "200")
+        b.wait_text("#output", "world\n")
+
+        # nonexisting path
+        b.set_val("#address", "http://localhost:12345/nosuchfile")
+        b.click("#get")
+        b.wait_text("#result", "404")
+        b.wait_in_text("#output", "File not found")
+
+
 if __name__ == '__main__':
     test_main()

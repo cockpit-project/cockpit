@@ -11,11 +11,11 @@ TEST_SCENARIO=${TEST_SCENARIO:-verify}
 case $TEST_SCENARIO in
     verify)
         test/image-prepare --verbose $TEST_OS
-        test/verify/run-tests --jobs ${TEST_JOBS:-1}
+        test/common/run-tests --jobs ${TEST_JOBS:-1} --test-dir test/verify
         ;;
     firefox)
         test/image-prepare --verbose $TEST_OS
-        TEST_BROWSER=firefox test/verify/run-tests --jobs ${TEST_JOBS:-1}
+        TEST_BROWSER=firefox test/common/run-tests --jobs ${TEST_JOBS:-1} --test-dir test/verify
         ;;
     selenium-*)
         test/image-prepare --verbose $TEST_OS

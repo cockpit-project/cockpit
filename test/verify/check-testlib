@@ -26,7 +26,8 @@ import parent
 from testlib import *
 
 dirname = os.path.dirname(__file__)
-run_tests = os.path.join(dirname, "run-tests")
+run_tests = os.path.join(TEST_DIR, "common", "run-tests")
+VERIFY_DIR = os.path.join(TEST_DIR, "verify")
 
 class TestRunTestListing(unittest.TestCase):
 
@@ -39,13 +40,13 @@ class TestRunTestListing(unittest.TestCase):
         self.assertEqual(subprocess.check_output([os.path.join(dirname, "check-example"), "-l", "TestNondestructiveExample"]).strip().decode(),
                          "TestNondestructiveExample.testOne\nTestNondestructiveExample.testTwo")
         # Filter on class
-        p = subprocess.run([run_tests, "-l", "TestNondestructiveExample"], env=forward_sort_env, capture_output=True, check=True)
+        p = subprocess.run([run_tests, "--test-dir", VERIFY_DIR, "-l", "TestNondestructiveExample"], env=forward_sort_env, capture_output=True, check=True)
         self.assertIn(b"1..2\nTestNondestructiveExample.testOne\nTestNondestructiveExample.testTwo", p.stdout.strip())
         # Filter a specific test
         self.assertIn("1..1\nTestNondestructiveExample.testOne",
-                      subprocess.check_output([run_tests, "-l", "TestNondestructiveExample.testOne"]).strip().decode())
+                      subprocess.check_output([run_tests, "--test-dir", VERIFY_DIR, "-l", "TestNondestructiveExample.testOne"]).strip().decode())
 
-        ndtests = subprocess.run([run_tests, "-n", "-l"], env=forward_sort_env, check=True, capture_output=True)
+        ndtests = subprocess.run([run_tests, "--test-dir", VERIFY_DIR, "-n", "-l"], env=forward_sort_env, check=True, capture_output=True)
         self.assertIn(b"TestExample.testNondestructive\n", ndtests.stdout)
         self.assertIn(b"TestNondestructiveExample.testOne\nTestNondestructiveExample.testTwo", ndtests.stdout)
 
@@ -53,15 +54,15 @@ class TestRunTestListing(unittest.TestCase):
         self.assertRegex(ndtests.stdout, re.compile(b".*TestAccounts.*TestFirewall.*TestLogin.*TestServices.*TestTerminal.*", re.S))
 
         # reverse direction
-        revtests = subprocess.run([run_tests, "-n", "-l"], env=rev_sort_env, check=True, capture_output=True)
+        revtests = subprocess.run([run_tests, "--test-dir", VERIFY_DIR, "-n", "-l"], env=rev_sort_env, check=True, capture_output=True)
         self.assertRegex(revtests.stdout, re.compile(b".*TestTerminal.*TestServices.*TestLogin.*TestFirewall.*TestAccounts.*", re.S))
 
     def testNonDestructive(self):
-        self.assertEqual(subprocess.check_output([run_tests, "--nondestructive", "-l", "TestExample"]).strip().decode(),
+        self.assertEqual(subprocess.check_output([run_tests, "--test-dir", VERIFY_DIR, "--nondestructive", "-l", "TestExample"]).strip().decode(),
                          "1..1\nTestExample.testNondestructive")
 
         # with short option and substring
-        self.assertEqual(subprocess.check_output([run_tests, "-nl", "TestExamp"]).strip().decode(),
+        self.assertEqual(subprocess.check_output([run_tests, "--test-dir", VERIFY_DIR, "-nl", "TestExamp"]).strip().decode(),
                          "1..1\nTestExample.testNondestructive")
 
 
@@ -74,7 +75,7 @@ class TestRunTest(MachineCase):
             del env["TEST_JOBS"]
         except KeyError:
             pass
-        out = subprocess.check_output([run_tests, "-vt",
+        out = subprocess.check_output([run_tests, "--test-dir", VERIFY_DIR, "-vt",
                                        "--machine", self.machine.ssh_address + ":" + self.machine.ssh_port,
                                        "--browser", self.machine.web_address + ":" + self.machine.web_port,
                                        "TestNondestructiveExample"], env=env)
@@ -83,14 +84,14 @@ class TestRunTest(MachineCase):
         self.assertIn(b"TESTS PASSED", out)
 
         # can't be called with concurrency
-        p = subprocess.Popen([run_tests, "--machine", "1.2.3.4:56", "--browser", "1.2.3.4:67", "-j2"],
+        p = subprocess.Popen([run_tests, "--test-dir", VERIFY_DIR, "--machine", "1.2.3.4:56", "--browser", "1.2.3.4:67", "-j2"],
                              stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
         (out, err) = p.communicate()
         self.assertGreaterEqual(p.returncode, 1)
         self.assertIn(b"--machine cannot be used with concurrent jobs", err)
 
         # implies --nondestructive
-        out = subprocess.check_output([run_tests, "--machine", "1.2.3.4:56", "--browser", "1.2.3.4:67",
+        out = subprocess.check_output([run_tests, "--test-dir", VERIFY_DIR, "--machine", "1.2.3.4:56", "--browser", "1.2.3.4:67",
                                        "TestExample.testBasic"], env=env)
         self.assertIn(b"1..0", out)
         self.assertNotIn(b"TestExample", out)

@@ -138,7 +138,10 @@ def run(opts, image):
     start_time = time.time()
     serial_tests_duration = 0
 
-    for filename in glob.glob(os.path.join(os.path.dirname(__file__), "check-*")):
+    # Make sure tests can make relative imports
+    sys.path.append(os.path.realpath(opts.test_dir))
+
+    for filename in glob.glob(os.path.join(opts.test_dir, "check-*")):
         name = check_valid(filename)
         if not name or not os.path.isfile(filename):
             continue
@@ -275,6 +278,8 @@ def main():
                         default=None, help="Run tests against an already running machine;  implies --nondestructive")
     parser.add_argument('--browser', metavar="hostname[:port]",
                         default=None, help="When using --machine, use this cockpit web address")
+    parser.add_argument('--test-dir', default=testvm.TEST_DIR,
+                        help="Directory in which to glob check-* files")
     opts = parser.parse_args()
 
     if opts.machine:

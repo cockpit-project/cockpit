@@ -2013,7 +2013,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                         b.wait_not_present("#storage-size")
                     else:
                         b.select_from_dropdown("#storage-size-unit-select", self.storage_size_unit)
-                        if self.storage_size:
+                        if self.storage_size is not None:
                             b.set_input_text("#storage-size", str(self.storage_size), value_check=False)
                             b.blur("#storage-size")
                             # helpblock will be missing if available storage size could not be calculated (no default storage pool found)

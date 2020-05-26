@@ -1897,9 +1897,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             if self.connection:
                 self.connectionText = connection.capitalize()
 
-        def getMemoryText(self):
-            return "{0} {1}".format(self.memory_size, self.memory_size_unit)
-
         def open(self):
             b = self.browser
 
@@ -2335,7 +2332,13 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
             # check memory
             b.click("#vm-{0}-usage".format(name))
-            b.wait_in_text("tbody.open .listing-ct-body td:nth-child(1) .usage-donut-caption", dialog.getMemoryText())
+            # adjust to how cockpit_format_bytes() formats sizes > 1024 MiB -- this depends on how much RAM
+            # the host has (less or more than 1 GiB), and thus needs to be dynamic
+            if dialog.memory_size >= 1024 and dialog.memory_size_unit == "MiB":
+                memory_text = "%.2f GiB" % (dialog.memory_size/1024)
+            else:
+                memory_text = "{0} {1}".format(dialog.memory_size, dialog.memory_size_unit)
+            b.wait_in_text("tbody.open .listing-ct-body td:nth-child(1) .usage-donut-caption", memory_text)
 
             # check disks
             b.click("#vm-{0}-disks".format(name)) # open the "Disks" subtab

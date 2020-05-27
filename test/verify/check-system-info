@@ -216,6 +216,15 @@ class TestSystemInfo(MachineCase):
         self.allow_journal_messages("error loading contents of os-release: .*",
                                     "sudo: unable to resolve host host1.cockpit.lan: .*")
 
+    def set_change_time_dialog_mode(self, mode):
+        b = self.browser
+        b.click("#system_information_change_systime label:contains('Set Time') + div button")
+        if self.machine.image != "rhel-8-3-distropkg":
+            b.click("#system_information_change_systime label:contains('Set Time') + div ul button:contains('%s')" % mode)
+        else:
+            b.click("#system_information_change_systime label:contains('Set Time') + div ul a:contains('%s')" % mode)
+        b.wait_in_text("#system_information_change_systime label:contains('Set Time') + div button", mode)
+
     def testTime(self):
         m = self.machine
         b = self.browser
@@ -247,15 +256,17 @@ class TestSystemInfo(MachineCase):
 
         # Change the date
         b.click("#system_information_systime_button")
-        b.wait_popup("system_information_change_systime")
-        b.click("#change_systime button")
-        b.click("#change_systime li[value=manual_time] a")
-        b.wait_in_text("#change_systime button", "Manually")
-        b.set_val("#systime-date-input", "2020-01-24")
-        b.set_val("#systime-time-hours", "08")
-        b.set_val("#systime-time-minutes", "03")
-        b.click("#systime-apply-button")
-        b.wait_popdown("system_information_change_systime")
+        b.wait_visible("#system_information_change_systime")
+        self.set_change_time_dialog_mode("Manually")
+        b.set_input_text("#systime-date-input", "2020-01-24")
+        b.set_input_text("#systime-time-hours", "08")
+        b.set_input_text("#systime-time-minutes", "03")
+        if self.machine.image != "rhel-8-3-distropkg":
+            b.click("#system_information_change_systime .apply")
+            b.wait_not_present("#system_information_change_systime")
+        else:
+            b.click("#systime-apply-button")
+            b.wait_popdown("system_information_change_systime")
 
         b.wait_text("#system_information_systime_button", "Jan 24, 2020 8:03 AM")
 
@@ -265,26 +276,30 @@ class TestSystemInfo(MachineCase):
 
         # Set to NTP
         b.click("#system_information_systime_button")
-        b.wait_popup("system_information_change_systime")
-        b.click("#change_systime button")
-        b.click("#change_systime li[value=ntp_time] a")
-        b.wait_in_text("#change_systime button", "Automatically using NTP")
-        b.click("#systime-apply-button")
-        b.wait_popdown("system_information_change_systime")
+        b.wait_visible("#system_information_change_systime")
+        self.set_change_time_dialog_mode("Automatically using NTP")
+        if self.machine.image != "rhel-8-3-distropkg":
+            b.click("#system_information_change_systime .apply")
+            b.wait_not_present("#system_information_change_systime")
+        else:
+            b.click("#systime-apply-button")
+            b.wait_popdown("system_information_change_systime")
 
         wait(ntp_enabled)
 
         # Change the date
         b.click("#system_information_systime_button")
-        b.wait_popup("system_information_change_systime")
-        b.click("#change_systime button")
-        b.click("#change_systime li[value=manual_time] a")
-        b.wait_in_text("#change_systime button", "Manually")
-        b.set_val("#systime-date-input", "2018-06-04")
-        b.set_val("#systime-time-hours", "06")
-        b.set_val("#systime-time-minutes", "34")
-        b.click("#systime-apply-button")
-        b.wait_popdown("system_information_change_systime")
+        b.wait_visible("#system_information_change_systime")
+        self.set_change_time_dialog_mode("Manually")
+        b.set_input_text("#systime-date-input", "2018-06-04")
+        b.set_input_text("#systime-time-hours", "06")
+        b.set_input_text("#systime-time-minutes", "34")
+        if self.machine.image != "rhel-8-3-distropkg":
+            b.click("#system_information_change_systime .apply")
+            b.wait_not_present("#system_information_change_systime")
+        else:
+            b.click("#systime-apply-button")
+            b.wait_popdown("system_information_change_systime")
 
         self.assertFalse(ntp_enabled())
         self.assertIn("Mon Jun  4 06:34:", m.execute("date"))
@@ -305,15 +320,13 @@ class TestSystemInfo(MachineCase):
         # Add two NTP servers.  We can't expect the servers to be used, so
         # we only test that they get added.
         b.click("#system_information_systime_button")
-        b.wait_popup("system_information_change_systime")
-        b.click("#change_systime button")
-        b.click("#change_systime li[value=ntp_time_custom] a")
-        b.wait_in_text("#change_systime button", "Automatically using specific NTP servers")
-        b.set_val("#systime-ntp-servers form:nth-child(1) input", "0.pool.ntp.org")
-        b.click('#systime-ntp-servers form:nth-child(1) button[data-action="add"]')
-        b.set_val("#systime-ntp-servers form:nth-child(2) input", "1.pool.ntp.org")
-        b.click("#systime-apply-button")
-        b.wait_popdown("system_information_change_systime")
+        b.wait_visible("#system_information_change_systime")
+        self.set_change_time_dialog_mode("Automatically using specific NTP servers")
+        b.set_input_text("#systime-ntp-servers tr:nth-child(1) input", "0.pool.ntp.org")
+        b.click('#systime-ntp-servers tr:nth-child(1) .fa-plus')
+        b.set_input_text("#systime-ntp-servers tr:nth-child(2) input", "1.pool.ntp.org")
+        b.click("#system_information_change_systime .apply")
+        b.wait_not_present("#system_information_change_systime")
 
         self.assertIn("0.pool.ntp.org", m.execute("grep '^NTP=' %s" % conf))
         self.assertIn("1.pool.ntp.org", m.execute("grep '^NTP=' %s" % conf))
@@ -322,14 +335,12 @@ class TestSystemInfo(MachineCase):
         # switch to default servers.
         m.write(conf, "[Time]\nNTP=2.pool.ntp.org\n")
         b.click("#system_information_systime_button")
-        b.wait_popup("system_information_change_systime")
-        b.wait_val("#systime-ntp-servers form:nth-child(1) input", "2.pool.ntp.org")
-        b.click("#change_systime button")
-        b.click("#change_systime li[value=ntp_time] a")
-        b.wait_in_text("#change_systime button", "Automatically using NTP")
-        b.wait_not_visible("#systime-ntp-servers")
-        b.click("#systime-apply-button")
-        b.wait_popdown("system_information_change_systime")
+        b.wait_visible("#system_information_change_systime")
+        b.wait_val("#systime-ntp-servers tr:nth-child(1) input", "2.pool.ntp.org")
+        self.set_change_time_dialog_mode("Automatically using NTP")
+        b.wait_not_present("#systime-ntp-servers")
+        b.click("#system_information_change_systime .apply")
+        b.wait_not_present("#system_information_change_systime")
 
         self.assertIn("2.pool.ntp.org", m.execute("grep '^#NTP=' %s" % conf))
 

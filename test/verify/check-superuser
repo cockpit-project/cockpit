@@ -359,23 +359,88 @@ class TestSuperuserDashboard(MachineCase):
         b.click('#troubleshoot-dialog button:contains("Connect")')
         b.wait_popdown('troubleshoot-dialog')
 
-        # The superuser indicator should be on the Overview page and not in the Shell
+        # There should be no superuser indicator in the Overview
 
-        b.wait_text("#super-user-indicator", "")
+        b.go("/@10.111.113.2/system")
         b.enter_page("/system", host="10.111.113.2")
-        b.wait_in_text(".ct-overview-header-actions", "Administrative access")
+        b.wait_not_present(".ct-overview-header-actions button:contains('Administrative access')")
+        b.wait_not_present(".ct-overview-header-actions button:contains('Limited access')")
+        b.leave_page()
+
+        # The superuser indicator in the Shell should apply to machine2
+
+        b.wait_text("#super-user-indicator", "Administrative access")
         b.go("/@10.111.113.2/playground/test")
         b.enter_page("/playground/test", host="10.111.113.2")
         b.click(".super-channel button")
         b.wait_in_text(".super-channel span", 'result: ')
         self.assertIn('result: uid=0', b.text(".super-channel span"))
 
+        b.leave_page()
+        b.click("#super-user-indicator button")
+        b.click(".modal-dialog:contains('Switch to limited access') button:contains('Limit access')")
+        b.wait_not_present(".modal-dialog:contains('Switch to limited access')")
+        b.wait_text("#super-user-indicator", "Limited access")
+        b.enter_page("/playground/test", host="10.111.113.2")
+        b.click(".super-channel button")
+        b.wait_in_text(".super-channel span", 'access-denied')
+
+        # Make sure sudo asks for a password
+        self.machines["machine2"].execute("rm /run/sudo/ts/admin")
+
+        b.leave_page()
+        b.click("#super-user-indicator button")
+        b.wait_in_text(".modal-dialog:contains('Administrative access')", "Please authenticate")
+        b.set_input_text(".modal-dialog:contains('Administrative access') input", "foobar")
+        b.click(".modal-dialog button:contains('Authenticate')")
+        b.wait_not_present(".modal-dialog:contains('Administrative access')")
+        b.wait_text("#super-user-indicator", "Administrative access")
+        b.enter_page("/playground/test", host="10.111.113.2")
+        b.click(".super-channel button")
+        b.wait_in_text(".super-channel span", 'result: ')
+        self.assertIn('result: uid=0', b.text(".super-channel span"))
+
+@skipImage("added in PR #13482", "rhel-8-2-distropkg")
+class TestSuperuserOldDashboard(MachineCase):
+    provision = {
+        "machine1": {"address": "10.111.113.1/20", "image": "centos-7" },
+        "machine2": {"address": "10.111.113.2/20" },
+    }
+
+    def test(self):
+        b = self.browser
+        m = self.machines["machine1"]
+
+        m.execute("firewall-cmd --add-service cockpit")
+        m.start_cockpit()
+
+        # Log into m1 and add m2 to the dashboard
+        b.open("/")
+        b.wait_visible("#login")
+        b.set_val("#login-user-input", "admin")
+        b.set_val("#login-password-input", "foobar")
+        b.set_checked('#authorized-input', True)
+        b.click('#login-button')
+        b.expect_load()
+        b.wait_present('#content')
+        b.wait_visible('#content')
+
         b.go("/@10.111.113.2")
+        b.wait_visible("#machine-troubleshoot")
+        b.click('#machine-troubleshoot')
+        b.wait_popup('troubleshoot-dialog')
+        b.click('#troubleshoot-dialog button:contains("Add")')
+        b.wait_in_text('#troubleshoot-dialog', "Fingerprint")
+        b.click('#troubleshoot-dialog button:contains("Connect")')
+        b.wait_popdown('troubleshoot-dialog')
+
+        # There should be a superuser button in the Overview of machine2
+
         b.enter_page("/system", host="10.111.113.2")
         b.click(".ct-overview-header-actions button:contains('Administrative access')")
         b.click(".modal-dialog:contains('Switch to limited access') button:contains('Limit access')")
         b.wait_not_present(".modal-dialog:contains('Switch to limited access')")
-        b.wait_in_text(".ct-overview-header-actions", "Limited access")
+        b.wait_present(".ct-overview-header-actions button:contains('Limited access')")
         b.go("/@10.111.113.2/playground/test")
         b.enter_page("/playground/test", host="10.111.113.2")
         b.click(".super-channel button")
@@ -391,7 +456,7 @@ class TestSuperuserDashboard(MachineCase):
         b.set_input_text(".modal-dialog:contains('Administrative access') input", "foobar")
         b.click(".modal-dialog button:contains('Authenticate')")
         b.wait_not_present(".modal-dialog:contains('Administrative access')")
-        b.wait_in_text(".ct-overview-header-actions", "Administrative access")
+        b.wait_present(".ct-overview-header-actions button:contains('Administrative access')")
         b.go("/@10.111.113.2/playground/test")
         b.enter_page("/playground/test", host="10.111.113.2")
         b.click(".super-channel button")

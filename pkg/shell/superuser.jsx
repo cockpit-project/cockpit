@@ -27,8 +27,8 @@ import "form-layout.scss";
 
 const _ = cockpit.gettext;
 
-export function can_do_sudo() {
-    return cockpit.spawn(["sudo", "-v", "-n"], { err: "out", environ: ["LC_ALL=C"] })
+export function can_do_sudo(host) {
+    return cockpit.spawn(["sudo", "-v", "-n"], { err: "out", environ: ["LC_ALL=C"], host: host })
             .then(() => true,
                   (err, out) => !(err.exit_status == 1 && out.match("Sorry, user .+ may not run sudo on .+\\.")));
 }
@@ -89,7 +89,7 @@ class UnlockDialog extends React.Component {
 }
 
 class LockDialog extends React.Component {
-    constructor(props) {
+    constructor() {
         super();
         this.state = {
             error: null
@@ -108,7 +108,7 @@ class LockDialog extends React.Component {
             this.setState({ error: null });
             proxy.Stop()
                     .then(() => {
-                        return cockpit.spawn(["sudo", "-k"]).always(() => {
+                        return cockpit.spawn(["sudo", "-k"], { host: this.props.host }).always(() => {
                             const key = window.localStorage.getItem("superuser-key");
                             if (key)
                                 window.localStorage.setItem(key, "none");
@@ -143,10 +143,23 @@ class LockDialog extends React.Component {
 }
 
 export class SuperuserDialogs extends React.Component {
-    constructor() {
+    constructor(props) {
         super();
 
-        this.superuser_connection = cockpit.dbus(null, { bus: "internal" });
+        this.state = {
+            show: false,
+            unlocked: false,
+
+            show_lock_dialog: false,
+            unlock_dialog_state: { closed: true }
+        };
+    }
+
+    connect(host) {
+        if (this.superuser_connection)
+            this.superuser_connection.close();
+
+        this.superuser_connection = cockpit.dbus(null, { bus: "internal", host: host });
         this.superuser = this.superuser_connection.proxy("cockpit.Superuser", "/superuser");
         this.superuser.addEventListener("changed", () => {
             const key = window.localStorage.getItem("superuser-key");
@@ -166,17 +179,26 @@ export class SuperuserDialogs extends React.Component {
             });
         });
 
-        this.state = {
+        this.setState({
             show: this.superuser.Current != "root" && this.superuser.Current != "init",
             unlocked: this.superuser.Current != "none",
 
             show_lock_dialog: false,
             unlock_dialog_state: { closed: true }
-        };
+        });
+    }
+
+    componentDidMount() {
+        this.componentDidUpdate({});
+    }
+
+    componentDidUpdate(prevProps) {
+        if (!this.superuser_connection || prevProps.host != this.props.host)
+            this.connect(this.props.host);
     }
 
     componentWillUnmount() {
-        this.superuser_connection.close();
+        this.connect(null);
     }
 
     /* We have to drive the unlock dialog state from here since we
@@ -193,7 +215,7 @@ export class SuperuserDialogs extends React.Component {
 
     unlock(error) {
         this.superuser.Stop().always(() => {
-            can_do_sudo().then(can_do => {
+            can_do_sudo(this.props.host).then(can_do => {
                 if (!can_do)
                     this.set_unlock_state({
                         message: _("You can not gain administrative access."),
@@ -295,6 +317,7 @@ export class SuperuserDialogs extends React.Component {
                               state={this.state.unlock_dialog_state} />
 
                 <LockDialog proxy={this.superuser}
+                            host={this.props.host}
                             show={this.state.show_lock_dialog}
                             onclose={() => this.setState({ show_lock_dialog: false })} />
             </>);
@@ -310,6 +333,6 @@ export class SuperuserIndicator extends React.Component {
                 </Button>);
         }
 
-        return <SuperuserDialogs create_trigger={create_trigger} />;
+        return <SuperuserDialogs host={this.props.host} create_trigger={create_trigger} />;
     }
 }

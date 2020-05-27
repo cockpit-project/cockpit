@@ -224,7 +224,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                   targetcli /iscsi/%(tgt)s/tpg1/acls create %(ini)s
                   """ % {"tgt": target_iqn, "ini": orig_iqn})
 
-        self.addCleanup(m.execute, "targetcli /backstores/ramdisk delete test && targetcli /iscsi delete %s && iscsiadm -m node -o delete" % target_iqn)
+        self.addCleanup(m.execute, "targetcli /backstores/ramdisk delete test && targetcli /iscsi delete %s && (iscsiadm -m node -o delete || true)" % target_iqn)
         return orig_iqn
 
     def testState(self):
@@ -4090,13 +4090,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             def create(self):
                 b.click(".modal-footer button:contains(Create)")
 
-                if (not self.xfail):
-                    # For the pool types that take some seconds to get created check that the spinner appears.
-                    # Other pool types have the spinner as well, but let's not check this in the tests to avoid race conditions,
-                    # where the spinner disappears very fast
-                    if self.pool_type  in ["netfs", "iscsi", "iscsi-direct"]:
-                        b.wait_present(".modal-footer div.spinner")
-                        b.wait_present(".modal-footer button:contains(Create):disabled")
+                if not self.xfail:
                     b.wait_not_present("#create-storage-pool-dialog")
                 else:
                     # Check incomplete dialog
@@ -4184,7 +4178,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                     b.wait_present('#create-volume-button:enabled')
 
             def cleanup(self):
-                m.execute("virsh pool-destroy {0} && virsh pool-undefine {0}".format(self.name))
+                m.execute("virsh pool-undefine {0}".format(self.name))
 
         StoragePoolCreateDialog(
             self,
@@ -4205,7 +4199,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         ).execute()
 
         # Manually remove the created pool
-        m.execute("virsh pool-destroy my_dir_pool_one && virsh pool-undefine my_dir_pool_one")
+        m.execute("virsh pool-undefine my_dir_pool_one")
 
         # XFAIL: Try to create a pool with incomplete modal dialog
         StoragePoolCreateDialog(

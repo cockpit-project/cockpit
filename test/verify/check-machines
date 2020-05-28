@@ -1615,6 +1615,17 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                                                                     start_vm=True),
                                               "Domain installation does not appear to have been successful")
 
+        runner.createThenDeleteInInstallation(TestMachines.VmDialog(self,
+                                                                    name='pxe_guest_deleted',
+                                                                    sourceType='pxe',
+                                                                    location="Virtual Network default: NAT",
+                                                                    memory_size=256,
+                                                                    memory_size_unit='MiB',
+                                                                    storage_size=100,
+                                                                    storage_size_unit='MiB',
+                                                                    start_vm=True),
+                                              None, False)
+
         if "debian" not in self.machine.image and "ubuntu" not in self.machine.image:
             # Test create VM with disk of type "network"
             target_iqn = "iqn.2019-09.cockpit.lan"
@@ -2502,7 +2513,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 ._deleteVm(dialog) \
                 .checkEnvIsEmpty()
 
-        def createThenDeleteInInstallation(self, dialog, error_msg):
+        def createThenDeleteInInstallation(self, dialog, error_msg, failed=True):
             name = dialog.name
 
             dialog.open().fill()
@@ -2516,7 +2527,10 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             self.browser.click("#vm-{}-delete-modal-dialog button.pf-c-button.pf-m-danger".format(name))
             self.browser.wait_not_present("#vm-{}-delete-modal-dialog".format(name))
 
-            self.checkErrorNotification(error_msg)
+            if failed:
+                self.checkErrorNotification(error_msg)
+            else:
+                self.browser.wait_not_present("#app div[aria-label=\"Danger Alert\"]")
             self._assertScriptFinished().checkEnvIsEmpty()
 
     def testAutostart(self):

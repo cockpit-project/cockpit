@@ -619,7 +619,16 @@ $desktop: $phone + 1px;
 
 .ct-nav-toggle {
     .pficon-help {
-        font-size: 22px;
+        width: 22px;
+        height: 22px;
+        // Replace icon-font-based help icon with SVG
+        // as the icon font is hinted and makes the display odd
+        background-image: url("data:image/svg+xml,%3Csvg height='22' viewBox='0 64 22 22' width='22' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='11' cy='75' fill='none' r='9.75' stroke='%23fff' stroke-width='2.5'/%3E%3Cpath d='m12.602 80.625v-2.25a.36.36 0 0 0 -.111-.264.36.36 0 0 0 -.264-.111h-2.25a.36.36 0 0 0 -.264.111.36.36 0 0 0 -.111.264v2.25c0 .102.037.19.111.264a.36.36 0 0 0 .264.111h2.25a.36.36 0 0 0 .264-.111.36.36 0 0 0 .111-.264zm-5.094-10.39c-.629.668-.809 1.427-.904 2.192a.249.249 0 0 0 .247.28h2.398a.249.249 0 0 0 .241-.187c.077-.3.285-.531.595-.688s.767-.256 1.2-.253c.431.003.865.093 1.21.296s.616.576.616 1.018c0 .902-.788 1.723-1.827 1.786-.452.028-.888.072-1.205.222-.127.06-.262.125-.357.268-.096.143-.119.31-.119.523v1.051a.249.249 0 0 0 .249.253h1.417c2.626 0 4.73-1.972 4.73-4.103.001-2.13-2.093-3.893-4.393-3.893s-3.469.566-4.097 1.234z' fill='%23fff'/%3E%3C/svg%3E%0A");
+        background-size: cover;
+
+        &::before {
+            display: none;
+        }
     }
 
     @media (min-width: $desktop) {

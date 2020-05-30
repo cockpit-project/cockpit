@@ -119,7 +119,7 @@ class TestFirewall(NetworkCase):
         b = self.browser
         m = self.machine
 
-        if m.image not in ["rhel-8-2-distropkg"]: # Changed in #13555
+        if m.image not in ["rhel-8-2-distropkg"]: # Changed in #13555 and #14118
             # Changed in #13686, remove all existing ports before testing
             for port in m.execute("firewall-cmd --zone 'public' --list-ports").split():
                 m.execute("firewall-cmd --remove-port='{}' --zone 'public'".format(port))
@@ -131,9 +131,9 @@ class TestFirewall(NetworkCase):
             wait_unit_state(m, "firewalld", "active")
             # Wait until the default zone is listed
             b.wait_in_text("#zones-listing .zone-section[data-id='public']", self.default_zone)
-            b.wait_present("#add-zone-button:disabled")
+            b.wait_not_present("#add-zone-button")
             # "Add Services" button should be disabled
-            b.wait_present(".zone-section[data-id='public'] .add-services-button:disabled")
+            b.wait_not_present(".zone-section[data-id='public'] .add-services-button")
             m.execute("systemctl stop firewalld")
             b.relogin("/network/firewall", superuser=True)
         else:

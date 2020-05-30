@@ -23,7 +23,7 @@ from storagelib import *
 from testlib import *
 
 
-class TestStorage(StorageCase):
+class TestStorageVDO(StorageCase):
 
     def testVdo(self):
         m = self.machine
@@ -270,7 +270,7 @@ config: !Configuration
         b.wait_in_text("#devices", "vdo1")
 
 
-class TestStoragePackages(PackageCase, StorageHelpers):
+class TestStoragePackagesVDO(PackageCase, StorageHelpers):
 
     def testVdoMissingPackages(self):
         m = self.machine

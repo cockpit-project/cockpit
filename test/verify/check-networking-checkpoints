@@ -23,7 +23,7 @@ from testlib import *
 
 
 @skipImage("No network checkpoint support", "ubuntu-2004", "ubuntu-stable")
-class TestNetworking(NetworkCase):
+class TestNetworkingCheckpoints(NetworkCase):
 
     def testCheckpoint(self):
         b = self.browser

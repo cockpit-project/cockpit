@@ -142,6 +142,7 @@ def run(opts, image):
     # Make sure tests can make relative imports
     sys.path.append(os.path.realpath(opts.test_dir))
 
+    seen_classes = {}
     for filename in glob.glob(os.path.join(opts.test_dir, "check-*")):
         name = check_valid(filename)
         if not name or not os.path.isfile(filename):
@@ -151,8 +152,14 @@ def run(opts, image):
         loader.exec_module(module)
         for test_suite in test_loader.loadTestsFromModule(module):
             for test in test_suite:
+                # ensure that test classes are unique, so that they can be selected properly
+                cls = test.__class__.__name__
+                if seen_classes.get(cls) not in [None, filename]:
+                    raise ValueError("test class %s in %s already defined in %s" % (cls, filename, seen_classes[cls]))
+                seen_classes[cls] = filename
+
                 test_method = getattr(test.__class__, test._testMethodName)
-                test_str = "{0}.{1}".format(test.__class__.__name__, test._testMethodName)
+                test_str = "{0}.{1}".format(cls, test._testMethodName)
                 # most tests should take much less than 10mins, so default to that;
                 # longer tests can be annotated with @timeout(seconds)
                 # check the test function first, fall back to the class'es timeout

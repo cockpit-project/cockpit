@@ -22,7 +22,7 @@ from storagelib import *
 from testlib import *
 
 
-class TestStorage(StorageCase):
+class TestStorageLuks(StorageCase):
 
     def testLuks(self):
         self.allow_journal_messages("Device is not initialized.*", ".*could not be opened.")

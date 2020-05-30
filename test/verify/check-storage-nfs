@@ -23,7 +23,7 @@ from storagelib import *
 from testlib import *
 
 
-class TestStorage(StorageCase):
+class TestStorageNfs(StorageCase):
 
     def testNfsClient(self):
         m = self.machine
@@ -225,7 +225,7 @@ class TestStorage(StorageCase):
 
 @skipImage("No udisks/cockpit-storaged on OSTree images", "fedora-coreos")
 @nondestructive
-class TestStoragePackages(PackageCase, StorageHelpers):
+class TestStoragePackagesNFS(PackageCase, StorageHelpers):
 
     def testNfsMissingPackages(self):
         m = self.machine

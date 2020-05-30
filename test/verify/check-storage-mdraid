@@ -27,7 +27,7 @@ def info_field(name, image_name):
     return '#detail-header label:contains("%s") + div' % name
 
 
-class TestStorage(StorageCase):
+class TestStorageMdRaid(StorageCase):
 
     def wait_states(self, states):
         self.browser.wait_js_func("""(function(states) {

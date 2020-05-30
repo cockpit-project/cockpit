@@ -6,7 +6,6 @@ import string
 import subprocess
 import sys
 import unittest
-import dataclasses
 import errno
 import time
 import re
@@ -25,15 +24,17 @@ sys.dont_write_bytecode = True
 os.environ['PYTHONUNBUFFERED'] = '1'
 
 
-@dataclasses.dataclass
 class Test:
-    test_id: int
-    command: list
-    timeout: int
-    nondestructive: bool = False
-    process: subprocess.Popen = None
-    retries: int = 0
-    output: bytes = b""
+    process = None
+    retries = 0
+    output = b""
+
+    def __init__(self, test_id, command, timeout, nondestructive):
+        self.test_id = test_id
+        self.command = command
+        self.timeout = timeout
+        self.nondestructive = nondestructive
+
 
 def test_name(test):
     return "{0} {1} {2}{3}".format(test.test_id, test.command[0], test.command[-1], " [ND]" if test.nondestructive else "")

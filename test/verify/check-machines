@@ -2229,6 +2229,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             root.find('os').find('resources').find('minimum').find('storage').text = '134217750'
             root.find('os').find('resources').find('recommended').find('ram').text = '268435500'
             root.find('os').find('resources').find('recommended').find('storage').text = '268435500'
+            if self.machine.image not in ["debian-stable"]:
+                root.find('os').find('eol-date').text = '9999-12-31'
             new_fedora_28_xml = ET.tostring(root)
             self.machine.execute("echo \'{0}\' > {1}/fedora-28.xml".format(str(new_fedora_28_xml, 'utf-8'), self.test_obj.vm_tmpdir))
             self.machine.execute("mount -o bind  {0}/fedora-28.xml /usr/share/osinfo/os/fedoraproject.org/fedora-28.xml".format(self.test_obj.vm_tmpdir))

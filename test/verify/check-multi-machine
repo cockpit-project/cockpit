@@ -459,10 +459,16 @@ class TestMultiMachine(MachineCase):
     def testFIPS(self):
         b = self.browser
 
-        # enable FIPS
-        self.machine.execute(r'grubby --update-kernel=$(grubby --default-kernel) --args=fips=1')
-        self.machine.execute(
-            r'uuid=$(findmnt -no uuid /boot); [ -n "$uuid" ] && grubby --update-kernel=$(grubby --default-kernel) --args=boot=UUID=${uuid}')
+        # enable FIPS: RHEL has and needs a convenience script for that
+        # https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/security_hardening/using-the-system-wide-cryptographic-policies_security-hardening#switching-the-system-to-fips-mode_using-the-system-wide-cryptographic-policies
+        self.machine.execute(r'''set -e;
+            if type fips-mode-setup >/dev/null 2>&1; then
+                fips-mode-setup --enable
+            else
+                grubby --update-kernel=$(grubby --default-kernel) --args=fips=1
+                uuid=$(findmnt -no uuid /boot)
+                [ -n "$uuid" ] && grubby --update-kernel=$(grubby --default-kernel) --args=boot=UUID=${uuid}
+            fi''')
         self.machine.spawn('sync && sync && sync && sleep 0.1 && reboot', 'reboot')
         self.machine.wait_reboot()
         # ensure it's really enabled

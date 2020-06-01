@@ -546,6 +546,9 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         self.allow_authorize_journal_messages()
 
+        # Might happen when user is logged out
+        self.allow_journal_messages("connection unexpectedly closed by peer")
+
     def testDisks(self):
         b = self.browser
         m = self.machine

@@ -1378,7 +1378,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         runner.cancelDialogTest(TestMachines.VmDialog(self, sourceType='url',
                                                       location=config.VALID_URL,
                                                       memory_size=256, memory_size_unit='MiB',
-                                                      os_name=config.FEDORA_28,
+                                                      os_name=config.FEDORA_30,
                                                       start_vm=False))
 
         # check if older os are filtered
@@ -1395,7 +1395,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         # location
         runner.checkDialogFormValidationTest(TestMachines.VmDialog(self, sourceType='url',
                                                             location="invalid/url",
-                                                            os_name=config.FEDORA_28), {"Source": "Source should start with"})
+                                                            os_name=config.FEDORA_30), {"Source": "Source should start with"})
 
         # memory
         runner.checkDialogFormValidationTest(TestMachines.VmDialog(self, memory_size=0, os_name=None), {"Memory": "Memory must not be 0"})
@@ -1405,7 +1405,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # start vm
         runner.checkDialogFormValidationTest(TestMachines.VmDialog(self, storage_size=1,
-                                                            os_name=config.FEDORA_28, start_vm=True),
+                                                            os_name=config.FEDORA_30, start_vm=True),
                                       {"Source": "Installation Source must not be empty"})
 
         # disallow empty OS
@@ -1436,32 +1436,32 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             runner.createDownloadAnOSTest(TestMachines.VmDialog(self, sourceType='downloadOS',
                                                                 expected_memory_size=256,
                                                                 expected_storage_size=256,
-                                                                os_name=config.FEDORA_28,
-                                                                os_short_id=config.FEDORA_28_SHORTID,
+                                                                os_name=config.FEDORA_30,
+                                                                os_short_id=config.FEDORA_30_SHORTID,
                                                                 start_vm=True))
 
             runner.createDownloadAnOSTest(TestMachines.VmDialog(self, sourceType='downloadOS',
                                                                 is_unattended=True, profile="Workstation",
                                                                 user_password="catsaremybestfr13nds", root_password="dogsaremybestfr13nds",
                                                                 storage_size=246, storage_size_unit='MiB',
-                                                                os_name=config.FEDORA_28,
-                                                                os_short_id=config.FEDORA_28_SHORTID))
+                                                                os_name=config.FEDORA_30,
+                                                                os_short_id=config.FEDORA_30_SHORTID))
 
             # Don't create user account
             runner.createDownloadAnOSTest(TestMachines.VmDialog(self, sourceType='downloadOS',
                                                                 is_unattended=True, profile="Server",
                                                                 root_password="catsaremybestfr13nds",
                                                                 storage_size=256, storage_size_unit='MiB',
-                                                                os_name=config.FEDORA_28,
-                                                                os_short_id=config.FEDORA_28_SHORTID))
+                                                                os_name=config.FEDORA_30,
+                                                                os_short_id=config.FEDORA_30_SHORTID))
 
             # Don't create root account
             runner.createDownloadAnOSTest(TestMachines.VmDialog(self, sourceType='downloadOS',
                                                                 is_unattended=True, profile="Workstation",
                                                                 user_password="catsaremybestfr13nds",
                                                                 storage_size=256, storage_size_unit='MiB',
-                                                                os_name=config.FEDORA_28,
-                                                                os_short_id=config.FEDORA_28_SHORTID))
+                                                                os_name=config.FEDORA_30,
+                                                                os_short_id=config.FEDORA_30_SHORTID))
 
 
             # name already used from a VM that is currently being created
@@ -1473,8 +1473,8 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 runner.createDownloadAnOSTest(TestMachines.VmDialog(self, name='existing-name', sourceType='downloadOS',
                                                                     expected_memory_size=256,
                                                                     expected_storage_size=256,
-                                                                    os_name=config.FEDORA_28,
-                                                                    os_short_id=config.FEDORA_28_SHORTID,
+                                                                    os_name=config.FEDORA_30,
+                                                                    os_short_id=config.FEDORA_30_SHORTID,
                                                                     start_vm=True, delete=False))
 
                 runner.checkDialogFormValidationTest(TestMachines.VmDialog(self, "existing-name", storage_size=1,
@@ -1832,15 +1832,15 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         VALID_DISK_IMAGE_PATH = '/var/lib/libvirt/images/example.img'
         NOVELL_MOCKUP_ISO_PATH = '/var/lib/libvirt/novell.iso'
         NOT_EXISTENT_PATH = '/tmp/not-existent.iso'
-        ISO_URL = 'https://archive.fedoraproject.org/pub/archive/fedora/linux/releases/28/Server/x86_64/os/images/boot.iso'
+        ISO_URL= 'https://download.fedoraproject.org/pub/fedora/linux/releases/30/Workstation/x86_64/os/images/boot.iso'
 
         MICROSOFT_SERVER_2016 = 'Microsoft Windows Server 2016'
 
         # LINUX can be filtered if 3 years old
         REDHAT_RHEL_4_7_FILTERED_OS = 'Red Hat Enterprise Linux 4.9'
 
-        FEDORA_28 = 'Fedora 28'
-        FEDORA_28_SHORTID = 'fedora28'
+        FEDORA_30 = 'Fedora 30'
+        FEDORA_30_SHORTID = 'fedora30'
 
         CIRROS = 'CirrOS'
 
@@ -2047,7 +2047,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                 b.wait_val("#memory-size", self.expected_memory_size)
 
             # check minimum memory is correctly set in the slider - the following are fake data
-            if self.os_name in [TestMachines.TestCreateConfig.CIRROS, TestMachines.TestCreateConfig.FEDORA_28]:
+            if self.os_name in [TestMachines.TestCreateConfig.CIRROS, TestMachines.TestCreateConfig.FEDORA_30]:
                 b.wait_attr("#memory-size-slider  div[role=slider].hide", "aria-valuemin", "128")
 
             b.wait_visible("#start-vm")
@@ -2191,7 +2191,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             cmds = [
                 # Generate certificate for https server
                 "cd {0}".format(self.test_obj.vm_tmpdir),
-                "openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -subj '/CN=archive.fedoraproject.org' -nodes -config {0}/min-openssl-config.cnf".format(self.test_obj.vm_tmpdir),
+                "openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -subj '/CN=download.fedoraproject.org' -nodes -config {0}/min-openssl-config.cnf".format(self.test_obj.vm_tmpdir),
                 "cat cert.pem key.pem > server.pem"
             ]
 
@@ -2220,27 +2220,27 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         def _fakeOsDBInfo(self):
             # Fake the osinfo-db data in order that it will allow spawn the installation - of course we don't expect it to succeed -
             # we just need to check that the VM was spawned
-            fedora_28_xml = self.machine.execute("cat /usr/share/osinfo/os/fedoraproject.org/fedora-28.xml")
-            root = ET.fromstring(fedora_28_xml)
+            fedora_30_xml = self.machine.execute("cat /usr/share/osinfo/os/fedoraproject.org/fedora-30.xml")
+            root = ET.fromstring(fedora_30_xml)
             root.find('os').find('resources').find('minimum').find('ram').text = '134217750'
             root.find('os').find('resources').find('minimum').find('storage').text = '134217750'
             root.find('os').find('resources').find('recommended').find('ram').text = '268435500'
             root.find('os').find('resources').find('recommended').find('storage').text = '268435500'
-            new_fedora_28_xml = ET.tostring(root)
-            self.machine.execute("echo \'{0}\' > {1}/fedora-28.xml".format(str(new_fedora_28_xml, 'utf-8'), self.test_obj.vm_tmpdir))
-            self.machine.execute("mount -o bind  {0}/fedora-28.xml /usr/share/osinfo/os/fedoraproject.org/fedora-28.xml".format(self.test_obj.vm_tmpdir))
-            self.test_obj.addCleanup(self.machine.execute, "umount /usr/share/osinfo/os/fedoraproject.org/fedora-28.xml || true")
+            new_fedora_30_xml = ET.tostring(root)
+            self.machine.execute("echo \'{0}\' > {1}/fedora-30.xml".format(str(new_fedora_30_xml, 'utf-8'), self.test_obj.vm_tmpdir))
+            self.machine.execute("mount -o bind  {0}/fedora-30.xml /usr/share/osinfo/os/fedoraproject.org/fedora-30.xml".format(self.test_obj.vm_tmpdir))
+            self.test_obj.addCleanup(self.machine.execute, "umount /usr/share/osinfo/os/fedoraproject.org/fedora-30.xml || true")
 
         def _fakeFedoraTree(self):
             self._setupMockFileServer()
-            distro_tree_path = "/var/lib/libvirt/pub/archive/fedora/linux/releases/28/Server/x86_64/os/"
+            distro_tree_path = "/var/lib/libvirt/pub/fedora/linux/releases/30/Workstation/x86_64/os/"
             self.machine.execute("mkdir -p {0}".format(distro_tree_path))
             self.machine.upload(["verify/files/fakefedoratree/.treeinfo", "verify/files/fakefedoratree/images"], distro_tree_path)
             # borrow the kernel executable for the test server
             self.machine.execute("cp /boot/vmlinuz-{0} {1}images/pxeboot/vmlinuz".format(self.machine.execute("uname -r").rstrip(), distro_tree_path))
             self.machine.execute("chown -R 777 /var/lib/libvirt/pub")
             self.test_obj.restore_file("/etc/hosts")
-            self.machine.execute('echo "127.0.0.1 archive.fedoraproject.org" >> /etc/hosts')
+            self.machine.execute('echo "127.0.0.1 download.fedoraproject.org" >> /etc/hosts')
 
         def _assertVmStates(self, name, before, after):
             b = self.browser

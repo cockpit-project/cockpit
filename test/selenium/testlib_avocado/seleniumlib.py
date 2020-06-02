@@ -419,18 +419,10 @@ parameters:
         ssh_public_key = open("%s.pub" % pub_key).read()
         ssh_key_name = ssh_public_key.rsplit(" ", 1)[1]
 
-        self.click(self.wait_link('Accounts', cond=clickable))
-        self.wait_frame("users")
-        self.click(self.wait_xpath("//*[@class='cockpit-account-user-name']//a[contains(text(), '%s')]" % user, cond=clickable))
-
-        self.wait_id("account-page")
-        self.click(self.wait_id("authorized-key-add", cond=clickable))
-        self.send_keys(self.wait_id("authorized-keys-text", cond=visible), ssh_public_key)
-        self.click((self.wait_id("add-authorized-key", cond=clickable)))
-        self.wait_id("authorized-key-add", cond=clickable)
-        self.wait_xpath("//div[@class='comment' and contains(text(), '%s')]" % ssh_key_name)
-        self.wait_id("account-page")
-        self.mainframe()
+        old_ssh_user = self.machine.ssh_user
+        self.machine.ssh_user = "root"
+        self.machine.execute("mkdir -p /home/%s/.ssh/ && echo '%s' >>/home/%s/.ssh/authorized_keys" % (user, ssh_public_key, user))
+        self.machine.ssh_user = old_ssh_user
 
     def logout(self):
         self.mainframe()

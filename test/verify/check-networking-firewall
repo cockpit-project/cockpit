@@ -119,7 +119,7 @@ class TestFirewall(NetworkCase):
         b = self.browser
         m = self.machine
 
-        if m.image not in ["rhel-8-2-distropkg"]: # Changed in #13555 and #14118
+        if m.image not in ["rhel-8-2-distropkg", "rhel-8-3-distropkg"]: # Changed in #13555 and #14118
             # Changed in #13686, remove all existing ports before testing
             for port in m.execute("firewall-cmd --zone 'public' --list-ports").split():
                 m.execute("firewall-cmd --remove-port='{}' --zone 'public'".format(port))
@@ -176,7 +176,7 @@ class TestFirewall(NetworkCase):
         m.execute("firewall-cmd --permanent --new-service=empty && firewall-cmd --reload && firewall-cmd --add-service=empty")
         b.wait_present(".zone-section[data-id='public'] tr[data-row-id='empty']")
 
-        if m.image not in ["rhel-8-2-distropkg"]: # Changed in #13686
+        if m.image not in ["rhel-8-2-distropkg", "rhel-8-3-distropkg"]: # Changed in #13686
             m.execute("firewall-cmd --add-port=9998/udp --add-port=9999/udp --add-port=6666/tcp")
             b.wait_in_text(".zone-section[data-id='public'] tr[data-row-id='public-ports'] > td:nth-of-type(3)", "6666")
             b.wait_in_text(".zone-section[data-id='public'] tr[data-row-id='public-ports'] > td:nth-of-type(4)", "9998, 9999")
@@ -248,7 +248,7 @@ class TestFirewall(NetworkCase):
         # now add pop3
         addService('public', 'pop3')
         # firewalld > 0.7.0 supports including services into another service
-        if m.image in ['rhel-8-2', 'rhel-8-3', 'debian-testing', 'fedora-31', 'fedora-testing', "fedora-32"]:
+        if m.image in ['rhel-8-2', 'rhel-8-3', 'rhel-8-3-distropkg', 'debian-testing', 'fedora-31', 'fedora-testing', "fedora-32"]:
             addService('public', 'freeipa-4')
             b.click(".zone-section[data-id='public'] tr[data-row-id='freeipa-4']")
             b.wait_present(".zone-section[data-id='public'] tbody.open .listing-ct-body:contains(Included Services)")

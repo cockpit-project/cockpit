@@ -31,7 +31,7 @@ class TestKdump(MachineCase):
         return new.join(li)
 
     def enableKdump(self):
-        if self.machine.image in ["rhel-8-2", "rhel-8-2-distropkg", "rhel-8-3"]:
+        if self.machine.image in ["rhel-8-2", "rhel-8-2-distropkg", "rhel-8-3", "rhel-8-3-distropkg"]:
             # these images use BootLoaderSpec and grubenv
             self.sed_file('/^kernelopts=/ { s/crashkernel=[^ ]*//; s/$/ crashkernel=256M/; }', '/boot/grub2/grubenv')
         else:
@@ -71,7 +71,7 @@ class TestKdump(MachineCase):
         def assertActive(active):
             b.wait_present(".onoff-ct input" + (active and ":checked" or ":not(:checked)"))
 
-        if m.image in ["rhel-8-2", "rhel-8-2-distropkg", "rhel-8-3", "centos-8-stream"]:
+        if m.image in ["rhel-8-2", "rhel-8-2-distropkg", "rhel-8-3", "rhel-8-3-distropkg", "centos-8-stream"]:
             # some OSes have kdump enabled by default (crashkernel=auto)
             b.wait_in_text("#app", "Service is running")
             assertActive(True)

@@ -1,6 +1,7 @@
 import $ from "jquery";
 import cockpit from "cockpit";
 
+import '../../src/base1/patternfly-cockpit.scss';
 import "plot.css";
 
 var metrics = [{ name: "block.device.read" }];

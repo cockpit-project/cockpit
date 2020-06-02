@@ -20,6 +20,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
+import '../../src/base1/patternfly-cockpit.scss';
 import "page.scss";
 
 import { LogsPanel } from "cockpit-components-logs-panel.jsx";

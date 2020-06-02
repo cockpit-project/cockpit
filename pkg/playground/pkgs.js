@@ -1,6 +1,8 @@
 import $ from "jquery";
 import cockpit from "cockpit";
 
+import '../../src/base1/patternfly-cockpit.scss';
+
 $(function() {
     var proxy = cockpit.dbus(null, { bus: "internal" }).proxy("cockpit.Packages", "/packages");
 

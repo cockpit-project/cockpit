@@ -1,5 +1,6 @@
 import $ from "jquery";
 
+import '../../src/base1/patternfly-cockpit.scss';
 import "patterns";
 import "page.scss";
 import "listing.scss";

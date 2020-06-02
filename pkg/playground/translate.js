@@ -2,6 +2,8 @@ import $ from "jquery";
 import cockpit from "cockpit";
 import { mustache } from "mustache";
 
+import '../../src/base1/patternfly-cockpit.scss';
+
 const _ = cockpit.gettext;
 var C_ = cockpit.gettext;
 

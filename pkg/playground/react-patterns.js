@@ -20,6 +20,7 @@
 import cockpit from "cockpit";
 import React from "react";
 
+import '../../src/base1/patternfly-cockpit.scss';
 import "table.css";
 
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";

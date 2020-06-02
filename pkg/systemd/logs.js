@@ -17,6 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+import '../../src/base1/patternfly-cockpit.scss';
+
 import $ from "jquery";
 import cockpit from "cockpit";
 import { journal } from "journal";

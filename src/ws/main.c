@@ -143,8 +143,6 @@ main (int argc,
   /* Any interaction with a krb5 ccache should be explicit */
   g_setenv ("KRB5CCNAME", "FILE:/dev/null", TRUE);
 
-  g_setenv ("G_TLS_GNUTLS_PRIORITY", "SECURE128:%LATEST_RECORD_VERSION:-VERS-SSL3.0:-VERS-TLS1.0", FALSE);
-
   memset (&data, 0, sizeof (data));
 
   context = g_option_context_new (NULL);

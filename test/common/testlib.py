@@ -1093,7 +1093,7 @@ class MachineCase(unittest.TestCase):
             # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1753991
             self.allowed_messages.append('.*type=1400.*avc:  denied  { dac_override } .* comm="rhsmd" .* scontext=system_u:system_r:rhsmcertd_t:s0-s0:c0.c1023 tcontext=system_u:system_r:rhsmcertd_t:.*')
 
-        if self.image in ['rhel-8-3']:
+        if self.image in ['rhel-8-3', 'rhel-8-3-distropkg']:
             # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1835909
             self.allowed_messages.append('.*type=1400.*avc:  denied  { read write } .* comm="qemu-kvm" path="/dev/mapper/control".*')
 

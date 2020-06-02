@@ -389,7 +389,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         self.allow_authorize_journal_messages()
 
     @skipImage("No tlog", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-2004",
-               "rhel-8-2", "rhel-8-2-distropkg", "rhel-8-3", "centos-8-stream", "fedora-coreos")
+               "rhel-8-2", "rhel-8-2-distropkg", "rhel-8-3", "rhel-8-3-distropkg", "centos-8-stream", "fedora-coreos")
     def testSessionRecordingShell(self):
         m = self.machine
         b = self.browser
@@ -463,7 +463,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
             b.wait_visible(".pf-c-alert:contains('Web console is running in limited access mode.')")
 
         # with current SELinux policy, user_u and staff_u are not allowed to read cockpit_tmpfs_t memfd: https://bugzilla.redhat.com/show_bug.cgi?id=1814052
-        if m.image in ["fedora-31", "fedora-32", "fedora-testing", "rhel-8-2", "rhel-8-2-distropkg", "rhel-8-3", "centos-8-stream"]:
+        if m.image in ["fedora-31", "fedora-32", "fedora-testing", "rhel-8-2", "rhel-8-2-distropkg", "rhel-8-3", "rhel-8-3-distropkg", "centos-8-stream"]:
             self.allow_journal_messages('Could not query seals on fd .*: not memfd.*')
             self.assertFalse(b.is_present('#last-login'))
         else:
@@ -636,7 +636,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         # pam_faillock tries to chown the file to be owned by the user itself,
         # which is currently an selinux fail on the following distros:
-        if m.image in ['centos-8-stream', 'fedora-31', 'fedora-32', 'rhel-8-2', 'rhel-8-2-distropkg', 'rhel-8-3']:
+        if m.image in ['centos-8-stream', 'fedora-31', 'fedora-32', 'rhel-8-2', 'rhel-8-2-distropkg', 'rhel-8-3', 'rhel-8-3-distropkg']:
             # https://bugzilla.redhat.com/show_bug.cgi?id=1836182
             self.allow_journal_messages('.*type=1400.*avc:  denied  { chown }.*comm="cockpit-session".*')
 

@@ -1608,16 +1608,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
                                                            storage_pool="poolDisk",
                                                            storage_volume="sda1"))
 
-        runner.createThenDeleteInInstallation(TestMachines.VmDialog(self,
-                                                                    sourceType='file',
-                                                                    location=config.NOVELL_MOCKUP_ISO_PATH,
-                                                                    memory_size=256,
-                                                                    memory_size_unit='MiB',
-                                                                    storage_size=100,
-                                                                    storage_size_unit='MiB',
-                                                                    start_vm=True),
-                                              "Domain installation does not appear to have been successful")
-
         if "debian" not in self.machine.image and "ubuntu" not in self.machine.image:
             # Test create VM with disk of type "network"
             target_iqn = "iqn.2019-09.cockpit.lan"
@@ -2496,33 +2486,11 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
             self._assertScriptFinished() \
                 .checkEnvIsEmpty()
 
-        def checkErrorNotification(self, error_msg):
-            self.browser.wait_present("#app div[aria-label=\"Danger Alert\"]")
-            self.browser.click("#app button.alert-link.more-button.link-button")
-            self.browser.wait_in_text("#app div.pf-c-alert__description", error_msg)
-
         def installWithErrorTest(self, dialog):
             self._tryInstallWithError(dialog) \
                 ._assertScriptFinished() \
                 ._deleteVm(dialog) \
                 .checkEnvIsEmpty()
-
-        def createThenDeleteInInstallation(self, dialog, error_msg):
-            name = dialog.name
-
-            dialog.open().fill()
-            self._create(dialog)
-
-            if not dialog.start_vm:
-                self.browser.click("#vm-{}-install".format(name))
-                self._assertVmStates(name, "creating VM installation", "running")
-
-            self.browser.click("#vm-{}-delete".format(name))
-            self.browser.click("#vm-{}-delete-modal-dialog button.pf-c-button.pf-m-danger".format(name))
-            self.browser.wait_not_present("#vm-{}-delete-modal-dialog".format(name))
-
-            self.checkErrorNotification(error_msg)
-            self._assertScriptFinished().checkEnvIsEmpty()
 
     def testAutostart(self):
         b = self.browser

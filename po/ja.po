@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-12 12:47+0000\n"
+"POT-Creation-Date: 2020-05-26 19:44+0000\n"
 "PO-Revision-Date: 2020-05-12 14:40+0000\n"
 "Last-Translator: Hajime Taira <htaira@pantora.net>\n"
 "Language-Team: Japanese <https://translate.fedoraproject.org/projects/"
@@ -42,11 +42,11 @@ msgstr "$0 アクティブゾーン"
 msgid "$0 Block Device"
 msgstr "$0 ブロックデバイス"
 
-#: pkg/storaged/mdraid-details.jsx:188
+#: pkg/storaged/mdraid-details.jsx:180
 msgid "$0 Chunk Size"
 msgstr "$0 チャンクサイズ"
 
-#: pkg/storaged/mdraid-details.jsx:186
+#: pkg/storaged/mdraid-details.jsx:178
 msgid "$0 Disks"
 msgstr "$0 ディスク"
 
@@ -65,7 +65,7 @@ msgid_plural "$0 Packages"
 msgstr[0] "$0 パッケージ"
 
 #: pkg/systemd/services/service-details.jsx:130
-#: pkg/systemd/services/services.jsx:375
+#: pkg/systemd/services/services.jsx:379
 msgid "$0 Template"
 msgstr "$0 テンプレート"
 
@@ -103,7 +103,7 @@ msgstr[0] "$0 日"
 
 #: src/base1/test-locale.js:65 src/base1/test-locale.js:66
 #: src/base1/test-locale.js:67 pkg/playground/translate.js:26
-#: pkg/playground/translate.js:29 pkg/storaged/mdraid-details.jsx:208
+#: pkg/playground/translate.js:29 pkg/storaged/mdraid-details.jsx:200
 msgid "$0 disk is missing"
 msgid_plural "$0 disks are missing"
 msgstr[0] "$0 本のディスクがありません"
@@ -116,7 +116,7 @@ msgid "$0 disk is missing"
 msgid_plural "$0 disks are missing"
 msgstr[0] "$0 本のディスクがありません"
 
-#: pkg/shell/indexes.js:616
+#: pkg/shell/indexes.js:388
 msgid "$0 documentation"
 msgstr "$0 ドキュメント"
 
@@ -174,9 +174,9 @@ msgstr ""
 
 #: pkg/storaged/content-views.jsx:333 pkg/storaged/content-views.jsx:573
 #: pkg/storaged/format-dialog.jsx:164 pkg/storaged/lvol-tabs.jsx:203
-#: pkg/storaged/lvol-tabs.jsx:265 pkg/storaged/mdraid-details.jsx:230
-#: pkg/storaged/mdraid-details.jsx:282 pkg/storaged/vdo-details.jsx:128
-#: pkg/storaged/vdo-details.jsx:159 pkg/storaged/vgroup-details.jsx:200
+#: pkg/storaged/lvol-tabs.jsx:265 pkg/storaged/mdraid-details.jsx:222
+#: pkg/storaged/mdraid-details.jsx:274 pkg/storaged/vdo-details.jsx:128
+#: pkg/storaged/vdo-details.jsx:159 pkg/storaged/vgroup-details.jsx:181
 msgid "$0 is in active use"
 msgstr "$0 は、アクティブに使用されています"
 
@@ -222,7 +222,7 @@ msgctxt "<date> on <terminal>"
 msgid "$0 on $1"
 msgstr "$1 の $0"
 
-#: pkg/systemd/services/services.jsx:660
+#: pkg/systemd/services/services.jsx:663
 msgid "$0 service has failed"
 msgid_plural "$0 services have failed"
 msgstr[0] "$0 サービスは失敗しました"
@@ -262,11 +262,11 @@ msgstr[0] "$0 年"
 msgid "$0 zone"
 msgstr "$0 ゾーン"
 
-#: pkg/storaged/vgroup-details.jsx:112
+#: pkg/storaged/vgroup-details.jsx:108
 msgid "$0, $1 free"
 msgstr "$0, $1 空き"
 
-#: pkg/systemd/logs.js:462
+#: pkg/systemd/logs.js:466
 msgid "$0: crash at $1"
 msgstr "$0: $1 でクラッシュ"
 
@@ -565,7 +565,7 @@ msgstr ""
 "ネットワークボンドは複数のネットワークインタフェースを高いスループットまたは"
 "冗長性の単一論理インタフェースにまとめます。"
 
-#: pkg/storaged/mdraid-details.jsx:114
+#: pkg/storaged/mdraid-details.jsx:118
 msgid "A spare disk needs to be added first before this disk can be removed."
 msgstr "このディスクを削除する前に、スペアディスクを追加する必要があります。"
 
@@ -581,7 +581,7 @@ msgstr "ARP 監視"
 msgid "ARP Ping"
 msgstr "ARP Ping"
 
-#: pkg/shell/index.html:79 pkg/shell/indexes.js:630
+#: pkg/shell/index.html:149 pkg/shell/indexes.js:402
 msgid "About Web Console"
 msgstr "Webコンソールについて"
 
@@ -599,10 +599,6 @@ msgstr "アクセス"
 msgid "Account Expiration"
 msgstr "アカウントの有効期限"
 
-#: pkg/shell/index.html:60
-msgid "Account Settings"
-msgstr "アカウント設定"
-
 #: pkg/users/index.html:63
 msgid "Account not available or cannot be edited."
 msgstr "アカウントが利用可能でないか、アカウントを編集できません。"
@@ -612,7 +608,7 @@ msgstr "アカウントが利用可能でないか、アカウントを編集で
 msgid "Accounts"
 msgstr "アカウント"
 
-#: pkg/users/local.js:314 pkg/users/local.js:638
+#: pkg/users/local.js:334 pkg/users/local.js:664
 msgctxt "page-title"
 msgid "Accounts"
 msgstr "アカウント"
@@ -635,7 +631,7 @@ msgstr "動作中"
 msgid "Active Backup"
 msgstr "アクティブなバックアップ"
 
-#: pkg/shell/index.html:57 pkg/shell/active-pages.js:95
+#: pkg/shell/index.html:77 pkg/shell/active-pages.js:95
 msgid "Active Pages"
 msgstr "アクティブページ"
 
@@ -655,12 +651,12 @@ msgstr "適応ロードバランス"
 msgid "Adaptive transmit load balancing"
 msgstr "適応送信のロードバランス"
 
-#: pkg/lib/machine-add.html:36 pkg/shell/index.html:180
+#: pkg/lib/machine-add.html:36 pkg/shell/index.html:250
 #: pkg/machines/components/diskAdd.jsx:548
 #: pkg/machines/components/nicAdd.jsx:203 pkg/storaged/crypto-keyslots.jsx:235
 #: pkg/storaged/iscsi-panel.jsx:137 pkg/storaged/iscsi-panel.jsx:161
-#: pkg/storaged/mdraid-details.jsx:59 pkg/storaged/nfs-details.jsx:189
-#: pkg/storaged/vgroup-details.jsx:66
+#: pkg/storaged/mdraid-details.jsx:60 pkg/storaged/nfs-details.jsx:189
+#: pkg/storaged/vgroup-details.jsx:67
 msgid "Add"
 msgstr "追加する"
 
@@ -681,17 +677,13 @@ msgstr "ブリッジの追加"
 msgid "Add Disk"
 msgstr "ディスクの追加"
 
-#: pkg/storaged/mdraid-details.jsx:46 pkg/storaged/vgroup-details.jsx:53
+#: pkg/storaged/mdraid-details.jsx:47 pkg/storaged/vgroup-details.jsx:54
 msgid "Add Disks"
 msgstr "ディスクの追加"
 
 #: pkg/storaged/crypto-keyslots.jsx:202
 msgid "Add Key"
 msgstr "鍵の追加"
-
-#: pkg/lib/machine-add.html:4
-msgid "Add Machine to Dashboard"
-msgstr "ダッシュボードへのマシンの追加"
 
 #: pkg/machines/components/vmnetworktab.jsx:282
 msgid "Add Network Interface"
@@ -723,6 +715,12 @@ msgstr "仮想ネットワークインターフェイスの追加"
 msgid "Add Zone"
 msgstr "ゾーンの追加"
 
+#: pkg/lib/machine-add.html:4
+#, fuzzy
+#| msgid "Add a new zone"
+msgid "Add a New Host"
+msgstr "新しいゾーンの追加"
+
 #: pkg/networkmanager/firewall.jsx:892
 msgid "Add a new zone"
 msgstr "新しいゾーンの追加"
@@ -731,9 +729,15 @@ msgstr "新しいゾーンの追加"
 msgid "Add iSCSI Portal"
 msgstr "iSCSI ポータルの追加"
 
-#: pkg/shell/index.html:172 pkg/users/index.html:419
+#: pkg/shell/index.html:242 pkg/users/index.html:419
 msgid "Add key"
 msgstr "鍵の追加"
+
+#: pkg/shell/hosts.jsx:243
+#, fuzzy
+#| msgid "Add a new zone"
+msgid "Add new host"
+msgstr "新しいゾーンの追加"
 
 #: pkg/networkmanager/firewall.jsx:488
 msgid "Add ports to $0 zone"
@@ -888,7 +892,7 @@ msgstr "システムブート後"
 msgid "Alert and above"
 msgstr "アラート以上のレベル"
 
-#: pkg/systemd/logs.js:214 pkg/systemd/services/services.jsx:694
+#: pkg/systemd/logs.js:217 pkg/systemd/services/services.jsx:697
 msgid "All"
 msgstr "すべて"
 
@@ -970,6 +974,10 @@ msgstr "アップデートの適用中"
 msgid "Applying updates failed"
 msgstr "アップデートの適用に失敗しました"
 
+#: pkg/shell/indexes.js:319
+msgid "Apps"
+msgstr ""
+
 #: pkg/storaged/drive-details.jsx:51
 msgctxt "storage"
 msgid "Assessment"
@@ -983,7 +991,7 @@ msgstr "アセットタグ"
 msgid "At least $0 disks are needed."
 msgstr "少なくとも $0 ディスクが必要です。"
 
-#: pkg/storaged/mdraid-details.jsx:53 pkg/storaged/vgroup-details.jsx:60
+#: pkg/storaged/mdraid-details.jsx:54 pkg/storaged/vgroup-details.jsx:61
 #: pkg/storaged/vgroups-panel.jsx:84
 msgid "At least one disk is needed."
 msgstr "少なくとも 1 つのディスクが必要です。"
@@ -1143,7 +1151,7 @@ msgstr "前"
 msgid "Binds To"
 msgstr "バインドする"
 
-#: pkg/storaged/mdraid-details.jsx:199
+#: pkg/storaged/mdraid-details.jsx:191
 msgctxt "storage"
 msgid "Bitmap"
 msgstr "ビットマップ"
@@ -1168,7 +1176,7 @@ msgstr "ブロック"
 msgid "Block device for filesystems"
 msgstr "ファイルシステム用ブロックデバイス"
 
-#: pkg/storaged/mdraid-details.jsx:98
+#: pkg/storaged/mdraid-details.jsx:99
 msgid "Blocked"
 msgstr "ブロック済み"
 
@@ -1283,7 +1291,7 @@ msgstr "キャッシュ"
 msgid "Cached"
 msgstr "キャッシュ済み"
 
-#: pkg/systemd/logs.js:184 pkg/systemd/logs.js:307
+#: pkg/systemd/logs.js:189 pkg/systemd/logs.js:310
 msgid "Can not find any logs using the current combination of filters."
 msgstr ""
 "現在のフィルターの組み合わせを使用して、ログを見つけることができません。"
@@ -1301,14 +1309,14 @@ msgstr "イメージをロードできません"
 #: pkg/docker/index.html:683 pkg/docker/index.html:723
 #: pkg/docker/index.html:754 pkg/lib/machine-add.html:37
 #: pkg/lib/machine-change-auth.html:92 pkg/lib/machine-change-port.html:41
-#: pkg/lib/machine-sync-users.html:77 pkg/networkmanager/index.html:499
-#: pkg/networkmanager/index.html:527 pkg/networkmanager/index.html:554
-#: pkg/networkmanager/index.html:581 pkg/networkmanager/index.html:608
-#: pkg/networkmanager/index.html:635 pkg/networkmanager/index.html:662
-#: pkg/networkmanager/index.html:689 pkg/networkmanager/index.html:716
-#: pkg/playground/translate.html:39 pkg/shell/index.html:120
-#: pkg/systemd/index.html:123 pkg/systemd/index.html:207
-#: pkg/systemd/index.html:261
+#: pkg/lib/machine-sync-users.html:77 pkg/lib/machine-unknown-hostkey.html:23
+#: pkg/networkmanager/index.html:499 pkg/networkmanager/index.html:527
+#: pkg/networkmanager/index.html:554 pkg/networkmanager/index.html:581
+#: pkg/networkmanager/index.html:608 pkg/networkmanager/index.html:635
+#: pkg/networkmanager/index.html:662 pkg/networkmanager/index.html:689
+#: pkg/networkmanager/index.html:716 pkg/playground/translate.html:39
+#: pkg/shell/index.html:138 pkg/shell/index.html:190 pkg/systemd/index.html:123
+#: pkg/systemd/index.html:207 pkg/systemd/index.html:261
 #: pkg/systemd/overview-cards/realmd-operation.html:82
 #: pkg/systemd/services.html:283 pkg/users/index.html:201
 #: pkg/users/index.html:240 pkg/users/index.html:279 pkg/users/index.html:318
@@ -1332,7 +1340,7 @@ msgstr "イメージをロードできません"
 #: pkg/networkmanager/firewall.jsx:583 pkg/networkmanager/firewall.jsx:736
 #: pkg/networkmanager/firewall.jsx:759 pkg/packagekit/updates.jsx:192
 #: pkg/shell/superuser.jsx:83 pkg/shell/superuser.jsx:138
-#: pkg/sosreport/index.js:49 pkg/storaged/dialog.jsx:400
+#: pkg/sosreport/index.js:50 pkg/storaged/dialog.jsx:400
 #: pkg/storaged/jobs-panel.jsx:123 pkg/systemd/hwinfo.jsx:226
 #: pkg/systemd/reporting.jsx:420 pkg/systemd/services/service-details.jsx:187
 msgid "Cancel"
@@ -1342,7 +1350,7 @@ msgstr "取り消し"
 msgid "Cannot be enabled"
 msgstr "有効にできません"
 
-#: pkg/shell/indexes.js:717
+#: pkg/shell/indexes.js:461
 msgid "Cannot connect to an unknown machine"
 msgstr "不明なマシンには接続できません"
 
@@ -1363,7 +1371,7 @@ msgid "Capacity"
 msgstr "容量"
 
 #: pkg/storaged/block-details.jsx:37 pkg/storaged/drive-details.jsx:75
-#: pkg/storaged/mdraid-details.jsx:327 pkg/storaged/vgroup-details.jsx:242
+#: pkg/storaged/mdraid-details.jsx:319 pkg/storaged/vgroup-details.jsx:223
 msgctxt "storage"
 msgid "Capacity"
 msgstr "容量"
@@ -1386,7 +1394,7 @@ msgstr "ファームウェアの変更"
 msgid "Change Host Name"
 msgstr "ホスト名の変更"
 
-#: pkg/shell/index.html:322
+#: pkg/shell/index.html:392
 msgid "Change Password"
 msgstr "パスワードの変更"
 
@@ -1478,7 +1486,7 @@ msgstr "インストールされたソフトウェアの確認中"
 msgid "Choose an operating system"
 msgstr "オペレーティングシステムの選択"
 
-#: pkg/shell/index.html:114
+#: pkg/shell/index.html:184
 msgid "Choose the language to be used in the application"
 msgstr "アプリケーションで使用する言語の選択"
 
@@ -1498,11 +1506,11 @@ msgstr "$target のクリーンアップ中"
 msgid "Clear 'Failed to start'"
 msgstr "'起動に失敗' を消去"
 
-#: pkg/shell/indexes.js:511
+#: pkg/shell/nav.jsx:126
 msgid "Clear Search"
 msgstr "検索の消去"
 
-#: pkg/systemd/services/services.jsx:789
+#: pkg/systemd/services/services.jsx:788
 msgid "Clear all filters"
 msgstr "すべてのフィルターの消去"
 
@@ -1523,12 +1531,11 @@ msgstr "クライアントソフトウェア"
 
 #: pkg/docker/index.html:703 pkg/lib/machine-auth-failed.html:20
 #: pkg/lib/machine-change-port.html:45 pkg/lib/machine-invalid-hostkey.html:12
-#: pkg/lib/machine-not-supported.html:8 pkg/lib/machine-unknown-hostkey.html:19
-#: pkg/networkmanager/index.html:735 pkg/shell/index.html:93
-#: pkg/shell/index.html:152 pkg/shell/index.html:334 pkg/systemd/index.html:164
-#: pkg/users/index.html:45 pkg/apps/utils.jsx:104
+#: pkg/lib/machine-not-supported.html:8 pkg/networkmanager/index.html:735
+#: pkg/shell/index.html:163 pkg/shell/index.html:222 pkg/shell/index.html:404
+#: pkg/systemd/index.html:164 pkg/users/index.html:45 pkg/apps/utils.jsx:104
 #: pkg/lib/cockpit-components-modifications.jsx:103 pkg/shell/superuser.jsx:83
-#: pkg/sosreport/index.js:43 pkg/sosreport/index.js:125
+#: pkg/sosreport/index.js:44 pkg/sosreport/index.js:126
 #: pkg/storaged/dialog.jsx:400
 msgid "Close"
 msgstr "閉じる"
@@ -1545,7 +1552,7 @@ msgstr "Cockpit"
 msgid "Cockpit authentication is configured incorrectly."
 msgstr "Cockpit の認証が間違って設定されています。"
 
-#: pkg/lib/machine-dialogs.js:435
+#: pkg/lib/machine-dialogs.js:416
 msgid ""
 "Cockpit could not contact the given host $0. Make sure it has ssh running on "
 "port $1, or specify another port in the address."
@@ -1557,7 +1564,7 @@ msgstr ""
 msgid "Cockpit could not contact the given host."
 msgstr "Cockpit は該当するホストに接続できませんでした。"
 
-#: pkg/shell/base_index.js:838
+#: pkg/shell/base_index.js:830
 msgid ""
 "Cockpit had an unexpected internal error. <br/><br/>You can try restarting "
 "Cockpit by pressing refresh in your browser. The javascript console contains "
@@ -1580,7 +1587,7 @@ msgstr ""
 "サービスは端末で停止できます。同様に、端末でエラーが発生した場合は、そのエ"
 "ラーを Cockpit ジャーナルインターフェースで確認できます。"
 
-#: pkg/shell/index.html:82
+#: pkg/shell/index.html:152
 msgid "Cockpit is an interactive Linux server admin interface."
 msgstr "Cockpit は対話型 Linux サーバー管理インターフェースです。"
 
@@ -1651,6 +1658,7 @@ msgstr ""
 "期{{/sync_link}}を実行できます。{{/can_sync}}"
 
 #: pkg/dashboard/index.html:169 pkg/lib/machine-add.html:27
+#: pkg/shell/index.html:128
 msgid "Color"
 msgstr "色"
 
@@ -1682,7 +1690,7 @@ msgstr "コマンドは空にすることができません"
 msgid "Command:"
 msgstr "コマンド:"
 
-#: pkg/shell/index.html:268
+#: pkg/shell/index.html:338
 msgid "Comment"
 msgstr "コメント"
 
@@ -1733,7 +1741,7 @@ msgstr "条件 $0=$1 を満たしていませんでした"
 msgid "Condition failed"
 msgstr "条件が満たされませんでした"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:361
+#: pkg/systemd/overview-cards/configurationCard.jsx:371
 msgid "Configuration"
 msgstr "設定"
 
@@ -1757,7 +1765,7 @@ msgstr "kdumpを設定中"
 msgid "Configuring system settings"
 msgstr "システム設定の変更"
 
-#: pkg/shell/index.html:306 pkg/users/index.html:178
+#: pkg/shell/index.html:376 pkg/users/index.html:178
 #: pkg/storaged/format-dialog.jsx:221
 msgid "Confirm"
 msgstr "確定します"
@@ -1786,7 +1794,7 @@ msgstr "競合する"
 msgid "Conflicts"
 msgstr "競合"
 
-#: pkg/lib/machine-unknown-hostkey.html:22
+#: pkg/lib/machine-unknown-hostkey.html:20
 #: pkg/machines/components/serialConsole.jsx:85
 msgid "Connect"
 msgstr "接続"
@@ -1824,7 +1832,7 @@ msgstr "SETroubleshoot デーモンへ接続中 ..."
 msgid "Connecting to Virtualization Service"
 msgstr "仮想化サービスへ接続中"
 
-#: pkg/shell/indexes.js:712
+#: pkg/shell/indexes.js:456
 msgid "Connecting to the machine"
 msgstr "マシンへ接続中"
 
@@ -1836,11 +1844,11 @@ msgstr "マシンへ接続中"
 msgid "Connection"
 msgstr "接続"
 
-#: pkg/dashboard/list.js:414
+#: pkg/dashboard/list.js:414 pkg/shell/hosts.jsx:209
 msgid "Connection Error"
 msgstr "接続エラー"
 
-#: pkg/shell/index.html:410
+#: pkg/shell/index.html:431
 msgid "Connection failed"
 msgstr "接続に失敗しました"
 
@@ -1872,7 +1880,7 @@ msgstr "接続されたドメイン"
 msgid "Container"
 msgstr "コンテナー"
 
-#: pkg/users/local.js:775
+#: pkg/users/local.js:801
 msgid "Container Administrator"
 msgstr "コンテナー管理者"
 
@@ -1904,15 +1912,17 @@ msgctxt "page-title"
 msgid "Containers"
 msgstr "コンテナー"
 
-#: pkg/shell/indexes.js:411
-msgid "Contains"
+#: pkg/shell/nav.jsx:198
+#, fuzzy
+#| msgid "Contains"
+msgid "Contains:"
 msgstr "含む"
 
 #: pkg/storaged/content-views.jsx:632
 msgid "Content"
 msgstr "コンテンツ"
 
-#: pkg/shell/index.html:136
+#: pkg/shell/index.html:206
 msgid "Continue Session"
 msgstr "セッションを続ける"
 
@@ -1955,7 +1965,7 @@ msgstr "ユーザーグループを変更できませんでした"
 msgid "Couldn't change user password"
 msgstr "ユーザーパスワードを変更できませんでした"
 
-#: pkg/shell/indexes.js:715
+#: pkg/shell/indexes.js:459
 msgid "Couldn't connect to the machine"
 msgstr "マシンに接続できませんでした"
 
@@ -2038,7 +2048,7 @@ msgstr "$0 上でのパーティションの作成"
 msgid "Create RAID Device"
 msgstr "RAID デバイスの作成"
 
-#: pkg/sosreport/index.html:36
+#: pkg/sosreport/index.html:37
 msgid "Create Report"
 msgstr "レポートの作成"
 
@@ -2059,7 +2069,7 @@ msgstr "ストレージボリュームの作成"
 msgid "Create Thin Volume"
 msgstr "シンボリュームの作成"
 
-#: pkg/systemd/services/services.jsx:761
+#: pkg/systemd/services/services.jsx:760
 msgid "Create Timer"
 msgstr "タイマーの作成"
 
@@ -2089,7 +2099,7 @@ msgstr "ボリュームの作成"
 msgid "Create Volume Group"
 msgstr "ボリュームグループの作成"
 
-#: pkg/sosreport/index.html:44
+#: pkg/sosreport/index.html:45
 msgid "Create diagnostic report"
 msgstr "診断レポートの作成"
 
@@ -2298,14 +2308,14 @@ msgstr "遅延"
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:214
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:237
 #: pkg/networkmanager/firewall.jsx:756 pkg/storaged/content-views.jsx:344
-#: pkg/storaged/content-views.jsx:360 pkg/storaged/mdraid-details.jsx:293
-#: pkg/storaged/mdraid-details.jsx:316 pkg/storaged/vdo-details.jsx:198
-#: pkg/storaged/vdo-details.jsx:261 pkg/storaged/vgroup-details.jsx:212
-#: pkg/storaged/vgroup-details.jsx:234
+#: pkg/storaged/content-views.jsx:360 pkg/storaged/mdraid-details.jsx:285
+#: pkg/storaged/mdraid-details.jsx:308 pkg/storaged/vdo-details.jsx:198
+#: pkg/storaged/vdo-details.jsx:261 pkg/storaged/vgroup-details.jsx:193
+#: pkg/storaged/vgroup-details.jsx:215
 msgid "Delete"
 msgstr "削除"
 
-#: pkg/networkmanager/interfaces.js:2435 pkg/users/local.js:1205
+#: pkg/networkmanager/interfaces.js:2435 pkg/users/local.js:1231
 msgid "Delete $0"
 msgstr "$0 の削除"
 
@@ -2346,7 +2356,7 @@ msgstr ""
 "<b>$0</b> を削除すると、サーバーへの接続が切断され、管理 UI が利用できなくな"
 "ります。"
 
-#: pkg/storaged/mdraid-details.jsx:294
+#: pkg/storaged/mdraid-details.jsx:286
 msgid "Deleting a RAID device will erase all data on it."
 msgstr ""
 "RAID デバイスを削除すると、そのデバイス上のすべてのデータが削除されます。"
@@ -2369,7 +2379,7 @@ msgid "Deleting a partition will delete all data in it."
 msgstr ""
 "パーティションを削除すると、パーティション内のすべてのデータが削除されます。"
 
-#: pkg/storaged/vgroup-details.jsx:211
+#: pkg/storaged/vgroup-details.jsx:192
 msgid "Deleting a volume group will erase all data on it."
 msgstr ""
 "ボリュームグループを削除すると、ボリュームグループ上のすべてのデータが削除さ"
@@ -2406,7 +2416,7 @@ msgstr "削除を試みる前に、このプールを使用して VM からデ�
 msgid "Detachable"
 msgstr "割り当て解除可能"
 
-#: pkg/shell/index.html:233 pkg/docker/containers-view.jsx:343
+#: pkg/shell/index.html:303 pkg/docker/containers-view.jsx:343
 #: pkg/docker/containers-view.jsx:437 pkg/docker/containers-view.jsx:537
 #: pkg/packagekit/updates.jsx:397
 msgid "Details"
@@ -2424,7 +2434,7 @@ msgstr "開発"
 msgid "Device"
 msgstr "デバイス"
 
-#: pkg/storaged/mdraid-details.jsx:321
+#: pkg/storaged/mdraid-details.jsx:313
 msgctxt "storage"
 msgid "Device"
 msgstr "デバイス"
@@ -2476,7 +2486,7 @@ msgstr "tuned の無効化"
 
 #: pkg/networkmanager/interfaces.js:1955
 #: pkg/systemd/services/service-details.jsx:413
-#: pkg/systemd/services/services.jsx:531 pkg/systemd/services/services.jsx:696
+#: pkg/systemd/services/services.jsx:534 pkg/systemd/services/services.jsx:699
 msgid "Disabled"
 msgstr "無効"
 
@@ -2488,7 +2498,7 @@ msgstr "実行を禁止 (マスク)"
 msgid "Disconnect"
 msgstr "切断"
 
-#: pkg/shell/indexes.js:248 pkg/shell/indexes.js:905
+#: pkg/shell/indexes.js:165
 msgid "Disconnected"
 msgstr "切断されています"
 
@@ -2529,9 +2539,9 @@ msgstr "ディスクのパスフレーズ"
 msgid "Disk settings could not be saved"
 msgstr "ディスク設定を保存できませんでした"
 
-#: pkg/machines/components/vm/vm.jsx:51 pkg/storaged/mdraid-details.jsx:48
-#: pkg/storaged/mdraid-details.jsx:148 pkg/storaged/mdraids-panel.jsx:110
-#: pkg/storaged/vgroup-details.jsx:55 pkg/storaged/vgroups-panel.jsx:79
+#: pkg/machines/components/vm/vm.jsx:51 pkg/storaged/mdraid-details.jsx:49
+#: pkg/storaged/mdraid-details.jsx:153 pkg/storaged/mdraids-panel.jsx:110
+#: pkg/storaged/vgroup-details.jsx:56 pkg/storaged/vgroups-panel.jsx:79
 msgid "Disks"
 msgstr "ディスク"
 
@@ -2539,7 +2549,7 @@ msgstr "ディスク"
 msgid "Dismiss"
 msgstr "廃棄"
 
-#: pkg/shell/index.html:53 pkg/shell/index.html:111
+#: pkg/shell/index.html:73 pkg/shell/index.html:181
 msgid "Display Language"
 msgstr "言語の表示"
 
@@ -2565,7 +2575,7 @@ msgid "Does not automatically start"
 msgstr "自動起動しません"
 
 #: pkg/systemd/overview-cards/realmd-operation.html:11
-#: pkg/systemd/overview-cards/configurationCard.jsx:384
+#: pkg/systemd/overview-cards/configurationCard.jsx:394
 #: pkg/systemd/overview-cards/realmd-operation.js:124
 msgid "Domain"
 msgstr "Domain"
@@ -2599,7 +2609,7 @@ msgstr "繰り返さないでください"
 msgid "Don't overwrite existing data"
 msgstr "既存のデータを上書きしないでください"
 
-#: pkg/sosreport/index.html:60
+#: pkg/sosreport/index.html:61
 msgid "Done!"
 msgstr "完了！"
 
@@ -2615,7 +2625,7 @@ msgstr "新しいブラウザーを無料でダウンロードします"
 msgid "Download an OS"
 msgstr "OS をダウンロードします"
 
-#: pkg/sosreport/index.html:61
+#: pkg/sosreport/index.html:62
 msgid "Download report"
 msgstr "レポートをダウンロードします"
 
@@ -2656,9 +2666,15 @@ msgid "Duplicate port"
 msgstr "重複するポート"
 
 #: pkg/machines/components/diskEdit.jsx:250
-#: pkg/machines/components/vmnetworktab.jsx:224 pkg/storaged/crypto-tab.jsx:129
-#: pkg/storaged/nfs-details.jsx:305
+#: pkg/machines/components/vmnetworktab.jsx:224 pkg/shell/indexes.js:331
+#: pkg/storaged/crypto-tab.jsx:129 pkg/storaged/nfs-details.jsx:305
 msgid "Edit"
+msgstr "編集"
+
+#: pkg/shell/index.html:102
+#, fuzzy
+#| msgid "Edit"
+msgid "Edit Host"
 msgstr "編集"
 
 #: pkg/dashboard/index.html:142
@@ -2668,6 +2684,10 @@ msgstr "サーバーの編集"
 #: pkg/storaged/crypto-keyslots.jsx:276
 msgid "Edit Tang keyserver"
 msgstr "Tang キーサーバーの編集"
+
+#: pkg/shell/hosts.jsx:242
+msgid "Edit hosts"
+msgstr ""
 
 #: pkg/storaged/crypto-keyslots.jsx:548
 msgid "Editing a key requires a free slot"
@@ -2705,7 +2725,7 @@ msgstr "エミュレートされたマシン"
 msgid "Enable Service"
 msgstr "サービスを有効にします"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:418
+#: pkg/systemd/overview-cards/configurationCard.jsx:428
 msgid "Enable stored metrics"
 msgstr "保存されたメトリックを有効にします"
 
@@ -2713,7 +2733,7 @@ msgstr "保存されたメトリックを有効にします"
 msgid "Enable the firewall"
 msgstr "ファイアウォールを有効にします"
 
-#: pkg/systemd/services/services.jsx:528 pkg/systemd/services/services.jsx:695
+#: pkg/systemd/services/services.jsx:531 pkg/systemd/services/services.jsx:698
 msgid "Enabled"
 msgstr "有効"
 
@@ -2772,7 +2792,7 @@ msgstr "強制"
 msgid "Enhancement Updates Available"
 msgstr "機能拡張の更新を利用できます"
 
-#: pkg/lib/machine-dialogs.js:453
+#: pkg/lib/machine-dialogs.js:434
 msgid "Enter IP address or host name"
 msgstr "IP アドレスまたはホスト名の入力"
 
@@ -2796,7 +2816,7 @@ msgstr "サブネット全体"
 msgid "Entry"
 msgstr "エントリー"
 
-#: pkg/systemd/logs.js:468
+#: pkg/systemd/logs.js:472
 msgid "Entry at $0"
 msgstr "$0 でのエントリー"
 
@@ -2824,7 +2844,7 @@ msgstr "エラータ:"
 #: pkg/apps/utils.jsx:96 pkg/storaged/fsys-tab.jsx:283
 #: pkg/storaged/multipath.jsx:58 pkg/storaged/storage-controls.jsx:87
 #: pkg/storaged/storage-controls.jsx:164
-#: pkg/systemd/services/service-details.jsx:530 pkg/users/local.js:1498
+#: pkg/systemd/services/service-details.jsx:530 pkg/users/local.js:1524
 msgid "Error"
 msgstr "エラー"
 
@@ -2880,7 +2900,7 @@ msgstr "例: 22,ssh,8080,5900-5910"
 msgid "Example: 88,2019,nfs,rsync"
 msgstr "例: 88,2019,nfs,rsync"
 
-#: pkg/users/local.js:452 pkg/users/local.js:1443
+#: pkg/users/local.js:478 pkg/users/local.js:1469
 msgid "Excellent password"
 msgstr "優れたパスワード"
 
@@ -2900,7 +2920,7 @@ msgstr "拡張シャーシ"
 msgid "Expose container ports"
 msgstr "コンテナーポートの公開"
 
-#: pkg/systemd/logs.js:552
+#: pkg/systemd/logs.js:556
 msgid "Extended Information"
 msgstr "拡張情報"
 
@@ -2908,7 +2928,7 @@ msgstr "拡張情報"
 msgid "Extended Partition"
 msgstr "拡張パーティション"
 
-#: pkg/storaged/mdraid-details.jsx:94
+#: pkg/storaged/mdraid-details.jsx:95
 msgid "FAILED"
 msgstr "失敗"
 
@@ -2916,7 +2936,7 @@ msgstr "失敗"
 msgid "Failed"
 msgstr "失敗"
 
-#: pkg/lib/machine-dialogs.js:418
+#: pkg/lib/machine-dialogs.js:399
 msgid "Failed to add machine: $0"
 msgstr "マシンの追加に失敗しました: $0"
 
@@ -2936,7 +2956,7 @@ msgstr "ゾーンの追加に失敗しました"
 msgid "Failed to change firmware"
 msgstr "ファームウェアの変更に失敗しました"
 
-#: pkg/lib/credentials.js:228 pkg/users/local.js:105 pkg/users/local.js:137
+#: pkg/lib/credentials.js:228 pkg/users/local.js:107 pkg/users/local.js:139
 msgid "Failed to change password"
 msgstr "パスワードの変更に失敗しました"
 
@@ -2952,7 +2972,7 @@ msgstr "tuned の無効化に失敗しました"
 msgid "Failed to disable tuned profile"
 msgstr "tuned プロファイルの無効化に失敗しました"
 
-#: pkg/lib/machine-dialogs.js:500
+#: pkg/lib/machine-dialogs.js:481
 msgid "Failed to edit machine: $0"
 msgstr "マシンの編集に失敗しました: $0"
 
@@ -2973,7 +2993,7 @@ msgid "Failed to send key Ctrl+Alt+$0 to VM $1"
 msgstr "VM $1 へのキー送信 Ctrl+Alt+$0 が失敗しました"
 
 #: pkg/systemd/services/service-details.jsx:422
-#: pkg/systemd/services/services.jsx:522
+#: pkg/systemd/services/services.jsx:525
 msgid "Failed to start"
 msgstr "起動に失敗しました"
 
@@ -3014,7 +3034,7 @@ msgstr "ファイルシステム名"
 msgid "Filesystems"
 msgstr "ファイルシステム"
 
-#: pkg/systemd/services/services.jsx:729
+#: pkg/systemd/services/services.jsx:732
 msgid "Filter"
 msgstr "フィルター"
 
@@ -3022,11 +3042,11 @@ msgstr "フィルター"
 msgid "Filter Services"
 msgstr "フィルターサービス"
 
-#: pkg/systemd/services/services.jsx:737
+#: pkg/systemd/services/services.jsx:740
 msgid "Filter by name or description"
 msgstr "名前または説明による絞り込み"
 
-#: pkg/lib/machine-unknown-hostkey.html:10 pkg/shell/index.html:276
+#: pkg/lib/machine-unknown-hostkey.html:10 pkg/shell/index.html:346
 msgid "Fingerprint"
 msgstr "フィンガープリント"
 
@@ -3153,7 +3173,7 @@ msgstr "ゲートウェイ:"
 
 #: pkg/machines/components/networks/networkOverviewTab.jsx:80
 #: pkg/machines/components/vmOverviewTabLibvirt.jsx:258
-#: pkg/networkmanager/interfaces.js:2702 pkg/systemd/logs.js:557
+#: pkg/networkmanager/interfaces.js:2702 pkg/systemd/logs.js:561
 msgid "General"
 msgstr "全般"
 
@@ -3161,7 +3181,7 @@ msgstr "全般"
 msgid "Generate automatically"
 msgstr "自動生成"
 
-#: pkg/sosreport/index.html:54
+#: pkg/sosreport/index.html:55
 msgid "Generating report"
 msgstr "レポートの生成"
 
@@ -3243,7 +3263,7 @@ msgstr "ヘルス"
 msgid "Hello time $hello_time"
 msgstr "Hello タイム $hello_time"
 
-#: pkg/shell/index.html:40
+#: pkg/shell/index.html:58
 msgid "Help"
 msgstr "ヘルプ"
 
@@ -3251,7 +3271,7 @@ msgstr "ヘルプ"
 msgid "Hide Additional Options"
 msgstr "その他のオプションを非表示にします"
 
-#: pkg/systemd/logs.js:940 pkg/systemd/logs.js:1045
+#: pkg/systemd/logs.js:944 pkg/systemd/logs.js:1049
 #, fuzzy
 #| msgid "Clear all filters"
 msgid "Hide filters"
@@ -3260,7 +3280,7 @@ msgstr "すべてのフィルターの消去"
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:138
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:35
 #: pkg/machines/components/vm/bootOrderModal.jsx:97
-#: pkg/machines/components/vmDiskColumns.jsx:47 pkg/shell/indexes.js:581
+#: pkg/machines/components/vmDiskColumns.jsx:47 pkg/shell/hosts.jsx:229
 msgid "Host"
 msgstr "ホスト"
 
@@ -3268,7 +3288,7 @@ msgstr "ホスト"
 msgid "Host Device"
 msgstr "ホストデバイス"
 
-#: pkg/dashboard/index.html:149
+#: pkg/dashboard/index.html:149 pkg/shell/index.html:108
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:143
 msgid "Host Name"
 msgstr "ホスト名"
@@ -3285,9 +3305,15 @@ msgstr "ドメインでホスト名は変更できません"
 msgid "Host should not be empty"
 msgstr "ホストは空にできません"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:366
+#: pkg/systemd/overview-cards/configurationCard.jsx:376
 msgid "Hostname"
 msgstr "ホスト名"
+
+#: pkg/shell/hosts.jsx:198
+#, fuzzy
+#| msgid "Host"
+msgid "Hosts"
+msgstr "ホスト"
 
 #: pkg/systemd/services.html:259
 msgid "Hour : Minute"
@@ -3429,7 +3455,7 @@ msgstr "イメージ"
 msgid "Image $0"
 msgstr "イメージ $0"
 
-#: pkg/users/local.js:776
+#: pkg/users/local.js:802
 msgid "Image Builder"
 msgstr "イメージビルダー"
 
@@ -3470,7 +3496,7 @@ msgstr "仮想マシンをインポートします"
 msgid "Import VM"
 msgstr "VM のインポート"
 
-#: pkg/storaged/mdraid-details.jsx:95
+#: pkg/storaged/mdraid-details.jsx:96
 msgid "In Sync"
 msgstr "同期"
 
@@ -3642,12 +3668,12 @@ msgstr "無効な IPv6 プレフィックス"
 msgid "Invalid address $0"
 msgstr "無効なアドレス $0"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:945
+#: pkg/systemd/overview-cards/configurationCard.jsx:955
 #: pkg/systemd/shutdown.js:154
 msgid "Invalid date format"
 msgstr "無効な日付形式"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:941
+#: pkg/systemd/overview-cards/configurationCard.jsx:951
 #: pkg/systemd/shutdown.js:150
 msgid "Invalid date format and invalid time format"
 msgstr "無効な日付形式と無効な時間形式"
@@ -3656,7 +3682,7 @@ msgstr "無効な日付形式と無効な時間形式"
 msgid "Invalid date format."
 msgstr "無効な日付形式。"
 
-#: pkg/users/local.js:1263
+#: pkg/users/local.js:1289
 msgid "Invalid expiration date"
 msgstr "無効な有効期限"
 
@@ -3676,7 +3702,7 @@ msgstr "無効な鍵"
 msgid "Invalid metric $0"
 msgstr "無効なメトリック $0"
 
-#: pkg/users/local.js:1339
+#: pkg/users/local.js:1365
 msgid "Invalid number of days"
 msgstr "無効な日数"
 
@@ -3704,7 +3730,7 @@ msgstr "無効なプレフィックスまたはネットマスク $0"
 msgid "Invalid range"
 msgstr "無効な範囲"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:943
+#: pkg/systemd/overview-cards/configurationCard.jsx:953
 #: pkg/systemd/shutdown.js:152
 msgid "Invalid time format"
 msgstr "無効な時間形式"
@@ -3761,11 +3787,11 @@ msgstr "名前空間に参加"
 msgid "Journal"
 msgstr "ジャーナル"
 
-#: pkg/systemd/logs.js:448
+#: pkg/systemd/logs.js:452
 msgid "Journal entry"
 msgstr "ジャーナルエントリー"
 
-#: pkg/systemd/logs.js:486
+#: pkg/systemd/logs.js:490
 msgid "Journal entry not found"
 msgstr "ジャーナルエントリーが見つかりません"
 
@@ -3869,7 +3895,7 @@ msgstr "もっと詳しく"
 msgid "Leave Domain"
 msgstr "ドメインの脱退"
 
-#: pkg/dashboard/index.html:161
+#: pkg/dashboard/index.html:161 pkg/shell/index.html:120
 msgid ""
 "Leave blank to connect to this machine as the currently logged in user. If "
 "you enter a different username, that user will always be used when "
@@ -3912,7 +3938,7 @@ msgstr ""
 msgid "Libvirt or hypervisor does not support UEFI"
 msgstr "libvirtまたはハイパーバイザーがUEFIをサポートしていません"
 
-#: pkg/shell/index.html:87
+#: pkg/shell/index.html:157
 msgid "Licensed under:"
 msgstr "ライセンス情報:"
 
@@ -3974,7 +4000,7 @@ msgstr "リンク:"
 msgid "Load Balancing"
 msgstr "ロードバランシング"
 
-#: pkg/systemd/logs.js:164
+#: pkg/systemd/logs.js:169
 msgid "Load earlier entries"
 msgstr "以前のエントリーのロード"
 
@@ -3995,8 +4021,8 @@ msgid "Loading system modifications..."
 msgstr "システム変更をロード中..."
 
 #: pkg/kdump/kdump-view.jsx:371 pkg/machines/components/serialConsole.jsx:68
-#: pkg/storaged/devices.jsx:67 pkg/systemd/logs.js:209 pkg/systemd/logs.js:251
-#: pkg/systemd/services/services.jsx:674
+#: pkg/storaged/devices.jsx:67 pkg/systemd/logs.js:212 pkg/systemd/logs.js:254
+#: pkg/systemd/services/services.jsx:677
 msgid "Loading..."
 msgstr "ロード中..."
 
@@ -4028,7 +4054,7 @@ msgstr "ロック"
 msgid "Lock Account"
 msgstr "アカウントのロック"
 
-#: pkg/users/local.js:906 pkg/users/local.js:1244
+#: pkg/users/local.js:932 pkg/users/local.js:1270
 msgid "Lock account on $0"
 msgstr "$0 のアカウントをロック"
 
@@ -4044,7 +4070,7 @@ msgstr "$target のロック中"
 msgid "Log In"
 msgstr "ログイン"
 
-#: pkg/shell/index.html:67
+#: pkg/shell/index.html:84
 msgid "Log Out"
 msgstr "ログアウト"
 
@@ -4060,7 +4086,7 @@ msgstr "サーバーのユーザーアカウントでログインします。"
 msgid "Log messages"
 msgstr "ログメッセージ"
 
-#: pkg/users/local.js:987
+#: pkg/users/local.js:1013
 msgid "Logged In"
 msgstr "すでにログインしています"
 
@@ -4157,10 +4183,6 @@ msgstr "マシンSSH 鍵フィンガープリント"
 #: pkg/machines/components/diskEdit.jsx:81
 msgid "Machine must be shut off before changing bus type"
 msgstr "バスタイプの変更前にマシンをシャットオフする必要があります"
-
-#: pkg/shell/indexes.js:545
-msgid "Machines"
-msgstr "マシン"
 
 #: pkg/lib/machine-info.js:83
 msgid "Main Server Chassis"
@@ -4336,7 +4358,7 @@ msgstr "メモリー使用状況:"
 msgid "Message to logged in users"
 msgstr "ログインしているユーザーへのメッセージ"
 
-#: pkg/shell/index.html:413
+#: pkg/shell/index.html:434
 msgid "Messages related to the failure might be found in the journal:"
 msgstr "障害に関連するメッセージは、ジャーナルで見つかる場合があります:"
 
@@ -4534,7 +4556,7 @@ msgstr "VM $1 の NIC $0 は、状態の変更に失敗しました"
 msgid "NSNA Ping"
 msgstr "NSNA Ping"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:1014
+#: pkg/systemd/overview-cards/configurationCard.jsx:1024
 msgid "NTP Server"
 msgstr "NTP サーバー"
 
@@ -4558,7 +4580,7 @@ msgstr "NTP サーバー"
 #: pkg/storaged/iscsi-panel.jsx:185 pkg/storaged/lvol-tabs.jsx:35
 #: pkg/storaged/lvol-tabs.jsx:380 pkg/storaged/lvol-tabs.jsx:434
 #: pkg/storaged/mdraids-panel.jsx:61 pkg/storaged/part-tab.jsx:33
-#: pkg/storaged/vdos-panel.jsx:82 pkg/storaged/vgroup-details.jsx:176
+#: pkg/storaged/vdos-panel.jsx:82 pkg/storaged/vgroup-details.jsx:157
 #: pkg/storaged/vgroups-panel.jsx:74 pkg/systemd/hwinfo.jsx:71
 #: pkg/systemd/services/services-list.jsx:53
 msgid "Name"
@@ -4611,7 +4633,7 @@ msgstr "名前は空欄にできません"
 msgid "Name: "
 msgstr "名前: "
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:841
+#: pkg/systemd/overview-cards/configurationCard.jsx:851
 msgid "Need at least one NTP server"
 msgstr "少なくとも 1 つの NTP サーバーが必要です"
 
@@ -4697,15 +4719,15 @@ msgstr "ネットワークログ"
 msgid "Networks"
 msgstr "ネットワーク"
 
-#: pkg/users/local.js:989
+#: pkg/users/local.js:1015
 msgid "Never"
 msgstr "しない"
 
-#: pkg/users/index.html:299 pkg/users/local.js:895
+#: pkg/users/index.html:299 pkg/users/local.js:921
 msgid "Never expire password"
 msgstr "パスワードを失効しない"
 
-#: pkg/users/index.html:260 pkg/users/local.js:903
+#: pkg/users/index.html:260 pkg/users/local.js:929
 msgid "Never lock account"
 msgstr "アカウントをロックしない"
 
@@ -4713,7 +4735,7 @@ msgstr "アカウントをロックしない"
 msgid "New NFS Mount"
 msgstr "NFS の新規マウント"
 
-#: pkg/shell/index.html:297 pkg/users/index.html:220
+#: pkg/shell/index.html:367 pkg/users/index.html:220
 msgid "New Password"
 msgstr "新規パスワード"
 
@@ -4725,7 +4747,7 @@ msgstr "新しいボリューム名"
 msgid "New passphrase"
 msgstr "新しいパスフレーズ"
 
-#: pkg/lib/credentials.js:237 pkg/users/local.js:114
+#: pkg/lib/credentials.js:237 pkg/users/local.js:116
 msgid "New password was not accepted"
 msgstr "新規パスワードは受け入れられませんでした"
 
@@ -4760,7 +4782,7 @@ msgstr "ファイルシステムなし"
 msgid "No Logical Volumes"
 msgstr "論理ボリュームなし"
 
-#: pkg/systemd/logs.js:162 pkg/systemd/logs.js:184 pkg/systemd/logs.js:307
+#: pkg/systemd/logs.js:167 pkg/systemd/logs.js:189 pkg/systemd/logs.js:310
 msgid "No Logs Found"
 msgstr "ログが見つかりません"
 
@@ -4809,7 +4831,7 @@ msgstr "エイリアスが指定されていません"
 msgid "No applications installed or available"
 msgstr "アプリケーションがインストールされていないか、利用できません"
 
-#: pkg/sosreport/index.js:127
+#: pkg/sosreport/index.js:128
 msgid "No archive has been created."
 msgstr "アーカイブが作成されていません。"
 
@@ -4853,8 +4875,8 @@ msgstr "利用可能な説明はありません"
 msgid "No description provided."
 msgstr "説明が入力されていません。"
 
-#: pkg/storaged/mdraid-details.jsx:50 pkg/storaged/mdraids-panel.jsx:112
-#: pkg/storaged/vdos-panel.jsx:92 pkg/storaged/vgroup-details.jsx:57
+#: pkg/storaged/mdraid-details.jsx:51 pkg/storaged/mdraids-panel.jsx:112
+#: pkg/storaged/vdos-panel.jsx:92 pkg/storaged/vgroup-details.jsx:58
 #: pkg/storaged/vgroups-panel.jsx:81
 msgid "No disks are available."
 msgstr "ディスクが利用できません。"
@@ -4903,7 +4925,7 @@ msgstr "追加されたキーはありません"
 msgid "No log entries"
 msgstr "ログエントリーなし"
 
-#: pkg/systemd/services/services.jsx:790
+#: pkg/systemd/services/services.jsx:789
 msgid "No matching results"
 msgstr "一致する結果はありません"
 
@@ -4937,7 +4959,7 @@ msgstr "利用可能なネットワークはありません"
 msgid "No partitioning"
 msgstr "パーティションなし"
 
-#: pkg/users/local.js:428
+#: pkg/users/local.js:454
 msgid "No real name specified"
 msgstr "実際の名前が指定されていません"
 
@@ -4945,11 +4967,11 @@ msgstr "実際の名前が指定されていません"
 msgid "No results for $0"
 msgstr "$0 の結果なし"
 
-#: pkg/shell/indexes.js:530
+#: pkg/shell/nav.jsx:125
 msgid "No results found"
 msgstr "結果が見つかりません"
 
-#: pkg/systemd/services/services.jsx:788
+#: pkg/systemd/services/services.jsx:787
 msgid ""
 "No results match the filter criteria. Clear all filters to show results."
 msgstr ""
@@ -4980,7 +5002,7 @@ msgstr "このようなファイルまたはディレクトリーがありませ
 msgid "No updates pending"
 msgstr "保留中の更新がありません"
 
-#: pkg/users/local.js:423
+#: pkg/users/local.js:449
 msgid "No user name specified"
 msgstr "ユーザー名が指定されていません"
 
@@ -5070,7 +5092,7 @@ msgstr "スペースが不足しています。"
 msgid "Not found"
 msgstr "見つかりません"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:355
+#: pkg/systemd/overview-cards/configurationCard.jsx:365
 #, fuzzy
 #| msgid "Not mounted"
 msgid "Not joined"
@@ -5084,9 +5106,9 @@ msgstr "マウントされていません"
 msgid "Not permitted to perform this action."
 msgstr "この動作を実行する権限がありません。"
 
-#: pkg/storaged/mdraid-details.jsx:336
+#: pkg/storaged/mdraid-details.jsx:328
 #: pkg/systemd/services/service-details.jsx:441
-#: pkg/systemd/services/services.jsx:524
+#: pkg/systemd/services/services.jsx:527
 msgid "Not running"
 msgstr "実行中ではありません"
 
@@ -5118,7 +5140,7 @@ msgstr "$0〜$1 の発生件数"
 msgid "Ok"
 msgstr "OK"
 
-#: pkg/shell/index.html:288 pkg/users/index.html:217
+#: pkg/shell/index.html:358 pkg/users/index.html:217
 msgid "Old Password"
 msgstr "古いパスワード"
 
@@ -5126,7 +5148,7 @@ msgstr "古いパスワード"
 msgid "Old passphrase"
 msgstr "古いパスフレーズ"
 
-#: pkg/lib/credentials.js:218 pkg/users/local.js:61
+#: pkg/lib/credentials.js:218 pkg/users/local.js:63
 msgid "Old password not accepted"
 msgstr "古いパスワードは受け入れられません"
 
@@ -5180,7 +5202,7 @@ msgstr "アルファベット、数字、:、 _ 、.、@、- のみを使用で�
 msgid "Only editable when the guest is shut off"
 msgstr "ゲストがシャットオフされた場合のみ、編集可能です"
 
-#: pkg/shell/index.html:35
+#: pkg/shell/index.html:53
 msgid "Ooops!"
 msgstr "問題が発生しました"
 
@@ -5247,7 +5269,7 @@ msgstr "既存のデータをゼロで上書きする"
 msgid "PCI"
 msgstr "PCI"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:415
+#: pkg/systemd/overview-cards/configurationCard.jsx:425
 msgid "PCP"
 msgstr "PCP"
 
@@ -5320,8 +5342,8 @@ msgid "Passphrases do not match"
 msgstr "パスフレーズが一致しません"
 
 #: pkg/lib/machine-auth-failed.html:8 pkg/lib/machine-change-auth.html:52
-#: pkg/lib/machine-sync-users.html:63 pkg/shell/index.html:206
-#: pkg/shell/index.html:235 pkg/shell/index.html:250 pkg/users/index.html:118
+#: pkg/lib/machine-sync-users.html:63 pkg/shell/index.html:276
+#: pkg/shell/index.html:305 pkg/shell/index.html:320 pkg/users/index.html:118
 #: pkg/users/index.html:175 src/ws/login.html:55 pkg/shell/superuser.jsx:44
 #: pkg/storaged/iscsi-panel.jsx:47 pkg/storaged/iscsi-panel.jsx:157
 msgid "Password"
@@ -5336,16 +5358,16 @@ msgid "Password for $0"
 msgstr "$0 のパスワード"
 
 #: pkg/machines/components/create-vm-dialog/password.jsx:13
-#: pkg/users/local.js:252
+#: pkg/users/local.js:254
 msgid "Password is not acceptable"
 msgstr "パスワードは受け入れられません"
 
 #: pkg/machines/components/create-vm-dialog/password.jsx:12
-#: pkg/users/local.js:240
+#: pkg/users/local.js:242
 msgid "Password is too weak"
 msgstr "パスワードが弱すぎます"
 
-#: pkg/users/local.js:897
+#: pkg/users/local.js:923
 msgid "Password must be changed"
 msgstr "パスワードを変更する必要があります"
 
@@ -5404,11 +5426,11 @@ msgid "Paths"
 msgstr "パス"
 
 #: pkg/systemd/logs.html:82 pkg/machines/components/vm/vmActions.jsx:78
-#: pkg/systemd/logs.js:399 pkg/systemd/logs.js:1019
+#: pkg/systemd/logs.js:400 pkg/systemd/logs.js:1023
 msgid "Pause"
 msgstr "一時停止"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:389
+#: pkg/systemd/overview-cards/configurationCard.jsx:399
 msgid "Performance profile"
 msgstr "パフォーマンスプロファイル"
 
@@ -5450,7 +5472,7 @@ msgstr "物理ディスクデバイス"
 msgid "Physical Volume"
 msgstr "物理ボリューム"
 
-#: pkg/storaged/vgroup-details.jsx:128
+#: pkg/storaged/vgroup-details.jsx:118
 msgid "Physical Volumes"
 msgstr "物理ボリューム"
 
@@ -5492,8 +5514,8 @@ msgstr "ボリュームを選択してください"
 
 #: pkg/docker/containers-view.jsx:205 pkg/docker/details.js:286
 #: pkg/docker/util.js:616 pkg/storaged/content-views.jsx:340
-#: pkg/storaged/mdraid-details.jsx:289 pkg/storaged/vdo-details.jsx:194
-#: pkg/storaged/vgroup-details.jsx:208
+#: pkg/storaged/mdraid-details.jsx:281 pkg/storaged/vdo-details.jsx:194
+#: pkg/storaged/vgroup-details.jsx:189
 msgid "Please confirm deletion of $0"
 msgstr "$0 の削除を確定してください"
 
@@ -5501,7 +5523,7 @@ msgstr "$0 の削除を確定してください"
 msgid "Please confirm forced deletion of $0"
 msgstr "$0 の強制削除を確定してください"
 
-#: pkg/storaged/mdraid-details.jsx:238 pkg/storaged/vdo-details.jsx:136
+#: pkg/storaged/mdraid-details.jsx:230 pkg/storaged/vdo-details.jsx:136
 msgid "Please confirm stopping of $0"
 msgstr "$0 の停止を確認してください"
 
@@ -5521,7 +5543,7 @@ msgstr "$0 パッケージをインストールしてください"
 msgid "Please set a root or a user password"
 msgstr "rootまたはユーザーパスワードを設定してください"
 
-#: pkg/users/local.js:1258
+#: pkg/users/local.js:1284
 msgid "Please specify an expiration date"
 msgstr "有効期限を指定してください"
 
@@ -5658,11 +5680,11 @@ msgstr "優先度 $priority"
 msgid "Private"
 msgstr "プライベート"
 
-#: pkg/systemd/logs.js:559
+#: pkg/systemd/logs.js:563
 msgid "Problem details"
 msgstr "問題の詳細"
 
-#: pkg/systemd/logs.js:558
+#: pkg/systemd/logs.js:562
 msgid "Problem info"
 msgstr "問題の情報"
 
@@ -5683,11 +5705,11 @@ msgstr "製品"
 msgid "Profile"
 msgstr "プロファイル"
 
-#: pkg/shell/index.html:83
+#: pkg/shell/index.html:153
 msgid "Project website"
 msgstr "プロジェクト Web サイト"
 
-#: pkg/users/local.js:66
+#: pkg/users/local.js:68
 msgid "Prompting via passwd timed out"
 msgstr "passwd によるプロンプトがタイムアウトしました"
 
@@ -5709,7 +5731,7 @@ msgstr "再ロード先を伝搬"
 msgid "Protocol"
 msgstr "プロトコル"
 
-#: pkg/lib/machine-auth-failed.html:9 pkg/shell/index.html:234
+#: pkg/lib/machine-auth-failed.html:9 pkg/shell/index.html:304
 msgid "Public Key"
 msgstr "公開鍵"
 
@@ -5717,11 +5739,11 @@ msgstr "公開鍵"
 msgid "Purpose"
 msgstr "目的"
 
-#: pkg/storaged/mdraid-details.jsx:181
+#: pkg/storaged/mdraid-details.jsx:173
 msgid "RAID ($0)"
 msgstr "RAID ($0)"
 
-#: pkg/storaged/mdraid-details.jsx:175
+#: pkg/storaged/mdraid-details.jsx:167
 msgid "RAID 0"
 msgstr "RAID 0"
 
@@ -5729,7 +5751,7 @@ msgstr "RAID 0"
 msgid "RAID 0 (Stripe)"
 msgstr "RAID 0 (ストライプ)"
 
-#: pkg/storaged/mdraid-details.jsx:176
+#: pkg/storaged/mdraid-details.jsx:168
 msgid "RAID 1"
 msgstr "RAID 1"
 
@@ -5737,7 +5759,7 @@ msgstr "RAID 1"
 msgid "RAID 1 (Mirror)"
 msgstr "RAID 1 (ミラー)"
 
-#: pkg/storaged/mdraid-details.jsx:180
+#: pkg/storaged/mdraid-details.jsx:172
 msgid "RAID 10"
 msgstr "RAID 10"
 
@@ -5745,7 +5767,7 @@ msgstr "RAID 10"
 msgid "RAID 10 (Stripe of Mirrors)"
 msgstr "RAID 10 (ミラーのストライプ)"
 
-#: pkg/storaged/mdraid-details.jsx:177
+#: pkg/storaged/mdraid-details.jsx:169
 msgid "RAID 4"
 msgstr "RAID 4"
 
@@ -5753,7 +5775,7 @@ msgstr "RAID 4"
 msgid "RAID 4 (Dedicated Parity)"
 msgstr "RAID 4 (専用パリティー)"
 
-#: pkg/storaged/mdraid-details.jsx:178
+#: pkg/storaged/mdraid-details.jsx:170
 msgid "RAID 5"
 msgstr "RAID 5"
 
@@ -5761,7 +5783,7 @@ msgstr "RAID 5"
 msgid "RAID 5 (Distributed Parity)"
 msgstr "RAID 5 (分散パリティー)"
 
-#: pkg/storaged/mdraid-details.jsx:179
+#: pkg/storaged/mdraid-details.jsx:171
 msgid "RAID 6"
 msgstr "RAID 6"
 
@@ -5777,7 +5799,7 @@ msgstr "RAID シャーシ"
 msgid "RAID Device"
 msgstr "RAID デバイス"
 
-#: pkg/storaged/mdraid-details.jsx:309 pkg/storaged/utils.js:242
+#: pkg/storaged/mdraid-details.jsx:301 pkg/storaged/utils.js:242
 msgid "RAID Device $0"
 msgstr "RAID デバイス $0"
 
@@ -5785,7 +5807,7 @@ msgstr "RAID デバイス $0"
 msgid "RAID Level"
 msgstr "RAID レベル"
 
-#: pkg/storaged/mdraid-details.jsx:330
+#: pkg/storaged/mdraid-details.jsx:322
 msgctxt "storage"
 msgid "RAID Level"
 msgstr "RAID レベル"
@@ -5857,7 +5879,7 @@ msgstr "準備ができています"
 msgid "Real Host Name"
 msgstr "実際のホスト名"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:512
+#: pkg/systemd/overview-cards/configurationCard.jsx:522
 msgid ""
 "Real host name can only contain lower-case characters, digits, dashes, and "
 "periods (with populated subdomains)"
@@ -5865,7 +5887,7 @@ msgstr ""
 "実際のホスト名には小文字、数字、ダッシュ、およびピリオドのみを使用できます "
 "(入力されたサブドメインを含む)"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:513
+#: pkg/systemd/overview-cards/configurationCard.jsx:523
 msgid "Real host name must be 64 characters or less"
 msgstr "実際のホスト名は 64 文字以下である必要があります"
 
@@ -5887,11 +5909,11 @@ msgstr "最近開いたファイル"
 msgid "Recommended default"
 msgstr "推奨されるデフォルト"
 
-#: pkg/shell/index.html:396
+#: pkg/shell/index.html:420
 msgid "Reconnect"
 msgstr "再接続"
 
-#: pkg/storaged/mdraid-details.jsx:96
+#: pkg/storaged/mdraid-details.jsx:97
 msgid "Recovering"
 msgstr "復旧"
 
@@ -6030,8 +6052,8 @@ msgstr ""
 msgid "Removing the zone will remove all services within it."
 msgstr "ゾーンを削除すると、そのゾーン内のすべてのサービスが削除されます。"
 
-#: pkg/storaged/lvol-tabs.jsx:39 pkg/storaged/vgroup-details.jsx:183
-#: pkg/storaged/vgroup-details.jsx:232
+#: pkg/storaged/lvol-tabs.jsx:39 pkg/storaged/vgroup-details.jsx:164
+#: pkg/storaged/vgroup-details.jsx:213
 msgid "Rename"
 msgstr "名前変更"
 
@@ -6039,7 +6061,7 @@ msgstr "名前変更"
 msgid "Rename Logical Volume"
 msgstr "論理ボリュームの名前変更"
 
-#: pkg/storaged/vgroup-details.jsx:174
+#: pkg/storaged/vgroup-details.jsx:155
 msgid "Rename Volume Group"
 msgstr "ボリュームグループの名前変更"
 
@@ -6104,11 +6126,11 @@ msgstr "レポート:"
 msgid "Repository"
 msgstr "リポジトリー"
 
-#: pkg/users/local.js:1322
+#: pkg/users/local.js:1348
 msgid "Require password change every $0 days"
 msgstr "$0 日ごとのパスワードの変更が必要"
 
-#: pkg/users/local.js:899
+#: pkg/users/local.js:925
 msgid "Require password change on $0"
 msgstr "$0 でパスワードの変更が必要"
 
@@ -6188,8 +6210,8 @@ msgstr "再起動中"
 msgid "Restoring connection"
 msgstr "接続の復元"
 
-#: pkg/machines/components/vm/vmActions.jsx:85 pkg/systemd/logs.js:402
-#: pkg/systemd/logs.js:1015
+#: pkg/machines/components/vm/vmActions.jsx:85 pkg/systemd/logs.js:403
+#: pkg/systemd/logs.js:1019
 msgid "Resume"
 msgstr "再開"
 
@@ -6253,9 +6275,9 @@ msgstr "ホスト起動時に実行します"
 msgid "Runner"
 msgstr "ランナー"
 
-#: pkg/storaged/mdraid-details.jsx:336
+#: pkg/storaged/mdraid-details.jsx:328
 #: pkg/systemd/services/service-details.jsx:433
-#: pkg/systemd/services/services.jsx:520
+#: pkg/systemd/services/services.jsx:523
 msgid "Running"
 msgstr "実行中"
 
@@ -6307,7 +6329,7 @@ msgstr "SPICE ポート:"
 msgid "SPICE TLS Port:"
 msgstr "SPICE TLS ポート:"
 
-#: pkg/shell/index.html:63 pkg/shell/index.html:162
+#: pkg/shell/index.html:80 pkg/shell/index.html:232
 #, fuzzy
 #| msgid "Keys"
 msgid "SSH Keys"
@@ -6329,7 +6351,7 @@ msgstr "STP メッセージ最大期間"
 msgid "STP Priority"
 msgstr "STP 優先度"
 
-#: pkg/shell/index.html:417
+#: pkg/shell/index.html:438
 msgid ""
 "Safari users need to import and trust the certificate of the self-signing CA:"
 msgstr ""
@@ -6376,7 +6398,7 @@ msgstr ""
 msgid "Sealed-case PC"
 msgstr "シールドケース PC"
 
-#: pkg/shell/index.html:372
+#: pkg/shell/nav.jsx:108
 msgid "Search"
 msgstr "検索"
 
@@ -6385,7 +6407,7 @@ msgstr "検索"
 msgid "Seconds"
 msgstr "秒"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:394
+#: pkg/systemd/overview-cards/configurationCard.jsx:404
 msgid "Secure Shell keys"
 msgstr "安全なシェルキー"
 
@@ -6397,7 +6419,7 @@ msgstr "$target を安全に削除"
 msgid "Security Updates Available"
 msgstr "セキュリティーの更新を利用できます"
 
-#: pkg/shell/index.html:119
+#: pkg/shell/index.html:189
 msgid "Select"
 msgstr "選択"
 
@@ -6443,7 +6465,7 @@ msgstr "サーバー"
 msgid "Server Address"
 msgstr "サーバーアドレス"
 
-#: pkg/users/local.js:773 pkg/users/local.js:774
+#: pkg/users/local.js:799 pkg/users/local.js:800
 msgid "Server Administrator"
 msgstr "サーバー管理者"
 
@@ -6509,11 +6531,12 @@ msgstr "サービス"
 msgid "Session"
 msgstr "セッション"
 
-#: pkg/shell/index.html:130
+#: pkg/shell/index.html:200
 msgid "Session is about to expire"
 msgstr "セッションはまもなく終了します"
 
-#: pkg/dashboard/index.html:186 pkg/users/index.html:239
+#: pkg/dashboard/index.html:186 pkg/shell/index.html:137
+#: pkg/users/index.html:239
 msgid "Set"
 msgstr "セット"
 
@@ -6521,7 +6544,7 @@ msgstr "セット"
 msgid "Set DHCP Range"
 msgstr "DHCP の範囲を設定します"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:335
+#: pkg/systemd/overview-cards/configurationCard.jsx:345
 msgid "Set Hostname"
 msgstr "ホスト名を設定します"
 
@@ -6594,7 +6617,7 @@ msgstr "Shift+Insert"
 msgid "Show Additional Options"
 msgstr "その他のオプションを表示します"
 
-#: pkg/storaged/overview.jsx:54
+#: pkg/storaged/side-panel.jsx:44
 msgid "Show all"
 msgstr "すべて表示"
 
@@ -6614,13 +6637,13 @@ msgstr "すべてのコンテナーの表示"
 msgid "Show all images"
 msgstr "すべてのイメージの表示"
 
-#: pkg/systemd/logs.html:79 pkg/systemd/logs.js:938 pkg/systemd/logs.js:1047
+#: pkg/systemd/logs.html:79 pkg/systemd/logs.js:942 pkg/systemd/logs.js:1051
 #, fuzzy
 #| msgid "Show fingerprints"
 msgid "Show filters"
 msgstr "フィンガープリントの表示"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:397
+#: pkg/systemd/overview-cards/configurationCard.jsx:407
 msgid "Show fingerprints"
 msgstr "フィンガープリントの表示"
 
@@ -6687,11 +6710,23 @@ msgstr "サイズは数値である必要があります"
 msgid "Size must be at least $0"
 msgstr "サイズは $0 以上にする必要があります"
 
+#: pkg/shell/index.html:19
+#, fuzzy
+#| msgid "mitigation"
+msgid "Skip main navigation"
+msgstr "軽減"
+
+#: pkg/shell/index.html:18
+#, fuzzy
+#| msgid "Grow Content"
+msgid "Skip to Content"
+msgstr "コンテンツを増やす"
+
 #: pkg/systemd/hwinfo.jsx:260
 msgid "Slot"
 msgstr "スロット"
 
-#: pkg/storaged/crypto-keyslots.jsx:544
+#: pkg/storaged/crypto-keyslots.jsx:544 pkg/storaged/mdraid-details.jsx:107
 msgid "Slot $0"
 msgstr "スロット $0"
 
@@ -6784,7 +6819,7 @@ msgstr "スパニング ツリープロトコル"
 msgid "Spanning Tree Protocol (STP)"
 msgstr "スパニング ツリープロトコル (STP)"
 
-#: pkg/storaged/mdraid-details.jsx:96
+#: pkg/storaged/mdraid-details.jsx:97
 msgid "Spare"
 msgstr "スペア"
 
@@ -6802,7 +6837,7 @@ msgstr "安定"
 
 #: pkg/docker/index.html:130 pkg/docker/containers-view.jsx:317
 #: pkg/machines/components/networks/createNetworkDialog.jsx:236
-#: pkg/storaged/content-views.jsx:306 pkg/storaged/mdraid-details.jsx:313
+#: pkg/storaged/content-views.jsx:306 pkg/storaged/mdraid-details.jsx:305
 #: pkg/storaged/vdo-details.jsx:258
 #: pkg/systemd/services/service-details.jsx:251
 msgid "Start"
@@ -6858,7 +6893,7 @@ msgstr "起動"
 msgid "State"
 msgstr "状態"
 
-#: pkg/storaged/mdraid-details.jsx:335
+#: pkg/storaged/mdraid-details.jsx:327
 msgctxt "storage"
 msgid "State"
 msgstr "状態"
@@ -6868,7 +6903,7 @@ msgid "State:"
 msgstr "状態:"
 
 #: pkg/systemd/services/service-details.jsx:451
-#: pkg/systemd/services/services.jsx:534 pkg/systemd/services/services.jsx:697
+#: pkg/systemd/services/services.jsx:537 pkg/systemd/services/services.jsx:700
 msgid "Static"
 msgstr "静的"
 
@@ -6886,13 +6921,13 @@ msgid "Sticky"
 msgstr "スティッキー"
 
 #: pkg/docker/index.html:131 pkg/docker/containers-view.jsx:315
-#: pkg/storaged/content-views.jsx:304 pkg/storaged/mdraid-details.jsx:312
+#: pkg/storaged/content-views.jsx:304 pkg/storaged/mdraid-details.jsx:304
 #: pkg/storaged/vdo-details.jsx:140 pkg/storaged/vdo-details.jsx:257
 #: pkg/systemd/services/service-details.jsx:247
 msgid "Stop"
 msgstr "停止"
 
-#: pkg/storaged/mdraid-details.jsx:242
+#: pkg/storaged/mdraid-details.jsx:234
 msgid "Stop Device"
 msgstr "デバイスの停止"
 
@@ -6911,6 +6946,10 @@ msgstr "停止して削除"
 #: pkg/storaged/nfs-details.jsx:283
 msgid "Stop and remove"
 msgstr "停止して削除"
+
+#: pkg/shell/hosts.jsx:242
+msgid "Stop editing hosts"
+msgstr ""
 
 #: pkg/docker/util.js:232
 msgid "Stopped"
@@ -6980,7 +7019,7 @@ msgstr "ストレージは、このシステムで管理できません。"
 msgid "Storage size must not be 0"
 msgstr "ストレージサイズは 0 であってはいけません"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:403
+#: pkg/systemd/overview-cards/configurationCard.jsx:413
 msgid "Store metrics"
 msgstr "メトリクスの保存"
 
@@ -7070,6 +7109,7 @@ msgid "Synchronize"
 msgstr "同期"
 
 #: pkg/dashboard/index.html:188 pkg/lib/machine-sync-users.html:4
+#: pkg/shell/index.html:139
 msgid "Synchronize users"
 msgstr "ユーザーの同期"
 
@@ -7085,8 +7125,9 @@ msgstr "{{Server}} と同期済み"
 msgid "Synchronizing RAID Device $target"
 msgstr "RAID デバイス $target の同期"
 
+#: pkg/shell/index.html:24
 #: pkg/machines/components/machinesConnectionSelector.jsx:43
-#: pkg/machines/helpers.js:188
+#: pkg/machines/helpers.js:188 pkg/shell/indexes.js:322
 msgid "System"
 msgstr "システム"
 
@@ -7110,7 +7151,7 @@ msgstr "システム情報"
 msgid "System is up to date"
 msgstr "システムは最新の状態です"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:374
+#: pkg/systemd/overview-cards/configurationCard.jsx:384
 msgid "System time"
 msgstr "システム時間"
 
@@ -7211,11 +7252,11 @@ msgid "The $0 package must be installed to create VDO devices."
 msgstr ""
 "VDO デバイスを作成するために $0 パッケージをインストールする必要があります。"
 
-#: pkg/lib/machine-dialogs.js:392
+#: pkg/lib/machine-dialogs.js:373
 msgid "The IP address or host name cannot contain whitespace."
 msgstr "IP アドレスまたはホスト名にはスペースを含めることができません。"
 
-#: pkg/storaged/mdraid-details.jsx:212
+#: pkg/storaged/mdraid-details.jsx:204
 msgid "The RAID Array is in a degraded state"
 msgstr "RAID アレイは劣化状態にあります"
 
@@ -7224,7 +7265,7 @@ msgid "The RAID device must be running in order to add spare disks."
 msgstr ""
 "スペアディスクを追加する場合は、RAID デバイスが実行中である必要があります。"
 
-#: pkg/storaged/mdraid-details.jsx:110
+#: pkg/storaged/mdraid-details.jsx:114
 msgid "The RAID device must be running in order to remove disks."
 msgstr "ディスクを取り外す場合は、RAID デバイスが実行中である必要があります。"
 
@@ -7277,7 +7318,7 @@ msgid "The VM needs to be running or shut off to detach this device"
 msgstr ""
 "このデバイスを切断するには、VM を実行するか、シャットオフする必要があります"
 
-#: pkg/users/local.js:1364
+#: pkg/users/local.js:1390
 msgid "The account '$0' will be forced to change their password on next login"
 msgstr "アカウント '$0' が次回ログインする際に、パスワードの変更が求められます"
 
@@ -7386,7 +7427,7 @@ msgstr "ファイルシステムはマウントされていません。"
 msgid "The following containers depend on this image and will become unusable."
 msgstr "以下のコンテナーはこのイメージに依存しており、使用できなくなります。"
 
-#: pkg/sosreport/index.html:51
+#: pkg/sosreport/index.html:52
 msgid ""
 "The generated archive contains data considered sensitive and its content "
 "should be reviewed by the originating organization before being passed to "
@@ -7409,7 +7450,7 @@ msgstr ""
 msgid "The key you provided was not valid."
 msgstr "提供した鍵が有効ではありません。"
 
-#: pkg/storaged/mdraid-details.jsx:116
+#: pkg/storaged/mdraid-details.jsx:120
 msgid "The last disk of a RAID device cannot be removed."
 msgstr "RAID デバイスの最後のディスクは取り外すことができません。"
 
@@ -7417,7 +7458,7 @@ msgstr "RAID デバイスの最後のディスクは取り外すことができ�
 msgid "The last key slot can not be removed"
 msgstr "最後のキースロットは削除できません"
 
-#: pkg/storaged/vgroup-details.jsx:91
+#: pkg/storaged/vgroup-details.jsx:92
 msgid "The last physical volume of a volume group cannot be removed."
 msgstr "ボリュームグループの最後の物理ボリュームは削除できません。"
 
@@ -7425,11 +7466,11 @@ msgstr "ボリュームグループの最後の物理ボリュームは削除で
 msgid "The logged in user is not permitted to view system modifications"
 msgstr "ログインしているユーザーには、システム変更を表示する権限がありません"
 
-#: pkg/shell/indexes.js:709
+#: pkg/shell/indexes.js:453
 msgid "The machine is restarting"
 msgstr "マシンが再起動中です"
 
-#: pkg/users/local.js:418 pkg/users/local.js:1421
+#: pkg/users/local.js:444 pkg/users/local.js:1447
 msgid "The passwords do not match"
 msgstr "パスワードが一致しません"
 
@@ -7472,15 +7513,11 @@ msgstr "サーバーはサポートされた方法を使用した認証を拒否
 msgid "The user $0 is not permitted to change cpu security mitigations"
 msgstr "ユーザー $0 は、cpu セキュリティー緩和の変更を許可されていません"
 
-#: pkg/systemd/services/services.jsx:757
-msgid "The user $0 is not permitted to create timers"
-msgstr "ユーザー $0 は、タイマーの作成を許可されていません"
-
 #: pkg/dashboard/list.js:231
 msgid "The user <b>$0</b> is not permitted to manage servers"
 msgstr "ユーザー <b>$0</b> はサーバーを管理することを許可されていません"
 
-#: pkg/users/local.js:646
+#: pkg/users/local.js:672
 msgid "The user <b>$0</b> is not permitted to modify accounts"
 msgstr "ユーザー <b>$0</b> はアカウントを変更することを許可されていません"
 
@@ -7490,7 +7527,7 @@ msgstr ""
 "ロールを完全に変更するには、ユーザーはログアウトしてからログインし直す必要が"
 "あります。"
 
-#: pkg/users/local.js:542
+#: pkg/users/local.js:568
 msgid ""
 "The user name can only consist of letters from a-z, digits, dots, dashes and "
 "underscores."
@@ -7524,7 +7561,7 @@ msgstr "このゾーンにはアクティブなサービスがありません"
 msgid "There are no authorized public keys for this account."
 msgstr "このアカウントに承認された公開鍵がありません。"
 
-#: pkg/storaged/vgroup-details.jsx:97
+#: pkg/storaged/vgroup-details.jsx:98
 msgid ""
 "There is not enough free space elsewhere to remove this physical volume. At "
 "least $0 more free space is needed."
@@ -7538,7 +7575,7 @@ msgid_plural ""
 "There were $0 failed login attempts since the last successful login."
 msgstr[0] "最後の正しいログインの後に $0 回の失敗ログインの試行があります。"
 
-#: pkg/shell/index.html:412
+#: pkg/shell/index.html:433
 msgid "There was an unexpected error while connecting to the machine."
 msgstr "マシンへの接続中に予期しないエラーが発生しました。"
 
@@ -7610,7 +7647,7 @@ msgstr ""
 msgid "This didn't work, please try again"
 msgstr ""
 
-#: pkg/storaged/mdraid-details.jsx:112
+#: pkg/storaged/mdraid-details.jsx:116
 msgid "This disk cannot be removed while the device is recovering."
 msgstr "このディスクは、デバイスが復旧中に取り外すことができません。"
 
@@ -7628,7 +7665,7 @@ msgstr "このイメージは存在しません。"
 msgid "This logical volume is not completely used by its content."
 msgstr "この論理ボリュームは、コンテンツによって完全には使用されていません。"
 
-#: pkg/lib/machine-dialogs.js:370
+#: pkg/lib/machine-dialogs.js:351
 msgid "This machine has already been added."
 msgstr "このマシンはすでに追加されています。"
 
@@ -7673,11 +7710,11 @@ msgstr ""
 msgid "This unit is not designed to be enabled explicitly."
 msgstr "このユニットは明示的に有効にするよう設計されていません。"
 
-#: pkg/users/local.js:550
+#: pkg/users/local.js:576
 msgid "This user name already exists"
 msgstr "このユーザー名はすでに存在します"
 
-#: pkg/lib/machine-dialogs.js:386
+#: pkg/lib/machine-dialogs.js:367
 msgid ""
 "This version of cockpit-ws does not support connecting to a host with an "
 "alternate user or port"
@@ -7755,7 +7792,7 @@ msgstr "タイムゾーン"
 msgid "Timers"
 msgstr "タイマー"
 
-#: pkg/shell/index.html:315
+#: pkg/shell/index.html:385
 msgid ""
 "Tip: Make your key password match your login password to automatically "
 "authenticate against other systems."
@@ -7780,9 +7817,19 @@ msgstr ""
 "別のポートを試すには、cockpit-ws を新しいバージョンにアップグレードする必要が"
 "あります。"
 
+#: pkg/shell/index.html:66
+#, fuzzy
+#| msgid "Change the settings"
+msgid "Toggle session settings"
+msgstr "設定の変更"
+
 #: src/base1/cockpit.js:4067
 msgid "Too much data"
 msgstr "データが多すぎます"
+
+#: pkg/shell/indexes.js:325
+msgid "Tools"
+msgstr ""
 
 #: pkg/lib/cockpit-components-install-dialog.jsx:98
 msgid "Total size: $0"
@@ -7805,7 +7852,7 @@ msgstr "トリガー元"
 msgid "Triggers"
 msgstr "トリガー"
 
-#: pkg/shell/index.html:397 pkg/machines/components/libvirtSlate.jsx:101
+#: pkg/shell/index.html:421 pkg/machines/components/libvirtSlate.jsx:101
 msgid "Troubleshoot"
 msgstr "トラブルシュート"
 
@@ -7859,7 +7906,7 @@ msgstr "Tuned がオフです"
 msgid "Turn on administrative access"
 msgstr "編集には管理者アクセスが必要"
 
-#: pkg/shell/index.html:272
+#: pkg/shell/index.html:342
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:86
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:74
 #: pkg/machines/components/vm/bootOrderModal.jsx:108
@@ -7905,7 +7952,7 @@ msgstr "URL"
 msgid "UUID"
 msgstr "UUID"
 
-#: pkg/storaged/mdraid-details.jsx:324 pkg/storaged/vgroup-details.jsx:239
+#: pkg/storaged/mdraid-details.jsx:316 pkg/storaged/vgroup-details.jsx:220
 msgctxt "storage"
 msgid "UUID"
 msgstr "UUID"
@@ -7922,7 +7969,7 @@ msgstr "このソリューションを自動的に適用できません"
 msgid "Unable to connect to that address"
 msgstr "そのアドレスに接続できません"
 
-#: pkg/users/local.js:665
+#: pkg/users/local.js:691
 msgid "Unable to delete root account"
 msgstr "root アカウントを削除できません"
 
@@ -7943,7 +7990,7 @@ msgstr "サーバーに到達できません"
 msgid "Unable to remove mount"
 msgstr "マウントを削除できません"
 
-#: pkg/users/local.js:667
+#: pkg/users/local.js:693
 msgid "Unable to rename root account"
 msgstr "root アカウントの名前を変更できません"
 
@@ -7964,7 +8011,7 @@ msgid "Unavailable"
 msgstr "利用できません"
 
 #: pkg/docker/index.html:697 pkg/networkmanager/index.html:728
-#: pkg/shell/base_index.js:837 pkg/users/local.js:1507
+#: pkg/shell/base_index.js:829 pkg/users/local.js:1533
 msgid "Unexpected error"
 msgstr "予期しないエラー"
 
@@ -7993,7 +8040,7 @@ msgstr "不明"
 msgid "Unknown \"$0\""
 msgstr "不明な \"$0\""
 
-#: pkg/storaged/mdraid-details.jsx:99
+#: pkg/storaged/mdraid-details.jsx:100
 msgid "Unknown ($0)"
 msgstr "不明な ($0)"
 
@@ -8034,7 +8081,7 @@ msgstr "停止されていない場合"
 msgid "Unlock"
 msgstr "ロック解除"
 
-#: pkg/shell/index.html:216 pkg/shell/index.html:260
+#: pkg/shell/index.html:286 pkg/shell/index.html:330
 msgid "Unlock Key"
 msgstr "ロック解除キー"
 
@@ -8179,7 +8226,7 @@ msgstr "512 バイトのエミュレーションを使用します"
 msgid "Use Existing"
 msgstr "既存の使用"
 
-#: pkg/shell/index.html:168
+#: pkg/shell/index.html:238
 msgid "Use the following keys to authenticate against other systems"
 msgstr "他のシステムに対して認証する場合は次の鍵を使用します"
 
@@ -8199,8 +8246,8 @@ msgid "Used by Containers"
 msgstr "コンテナーにより使用済み"
 
 #: pkg/dashboard/index.html:156 pkg/playground/translate.html:85
-#: pkg/playground/translate.html:105 pkg/systemd/graphs.html:138
-#: pkg/systemd/graphs.js:297
+#: pkg/playground/translate.html:105 pkg/shell/index.html:115
+#: pkg/systemd/graphs.html:138 pkg/systemd/graphs.js:297
 msgid "User"
 msgstr "ユーザー"
 
@@ -8358,7 +8405,7 @@ msgstr "キーを検証します"
 msgid "Verifying"
 msgstr "検証中"
 
-#: pkg/shell/index.html:85 pkg/packagekit/updates.jsx:395
+#: pkg/shell/index.html:155 pkg/packagekit/updates.jsx:395
 #: pkg/systemd/hwinfo.jsx:75
 msgid "Version"
 msgstr "バージョン"
@@ -8418,7 +8465,7 @@ msgstr "音量"
 msgid "Volume Group"
 msgstr "ボリュームグループ"
 
-#: pkg/storaged/utils.js:248 pkg/storaged/vgroup-details.jsx:230
+#: pkg/storaged/utils.js:248 pkg/storaged/vgroup-details.jsx:211
 msgid "Volume Group $0"
 msgstr "ボリュームグループ $0"
 
@@ -8489,7 +8536,7 @@ msgstr "望む"
 msgid "Warning and above"
 msgstr "警告以上のレベル"
 
-#: pkg/shell/indexes.js:618
+#: pkg/shell/indexes.js:390
 msgid "Web Console"
 msgstr "Webコンソール"
 
@@ -8530,7 +8577,7 @@ msgctxt "storage"
 msgid "World Wide Name"
 msgstr "World Wide Name"
 
-#: pkg/storaged/mdraid-details.jsx:97
+#: pkg/storaged/mdraid-details.jsx:98
 msgid "Write-mostly"
 msgstr "Write-mostly"
 
@@ -8593,17 +8640,22 @@ msgstr "このアカウントに承認された公開鍵を表示するパーミ
 msgid "You have been logged out due to inactivity."
 msgstr "アクティビティーがないためログアウトされました。"
 
-#: pkg/systemd/logs.js:163
+#: pkg/systemd/logs.js:168
 msgid "You may try to load older entries."
 msgstr "古いエントリーのロードを試行することができます。"
 
-#: pkg/users/local.js:95
+#: pkg/users/local.js:97
 msgid "You must wait longer to change your password"
 msgstr "パスワードを変更するにはより長い時間の経過が必要です"
 
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:130
 msgid "You need to select the most closely matching Operating System"
 msgstr "最も一致するオペレーティングシステムを選択する必要があります"
+
+#: pkg/sosreport/index.html:36
+msgid ""
+"You need to switch to \"Administrative Access\" in order to create reports."
+msgstr ""
 
 #: pkg/shell/superuser.jsx:257
 #, fuzzy
@@ -8614,6 +8666,12 @@ msgstr "編集には管理者アクセスが必要"
 #: pkg/shell/base_index.js:529
 msgid "You will be logged out in $0 seconds."
 msgstr "$0 秒後にログアウトされます。"
+
+#: pkg/users/local.js:295
+#, fuzzy
+#| msgid "Lock Account"
+msgid "Your account"
+msgstr "アカウントのロック"
 
 #: pkg/packagekit/updates.jsx:897
 msgid ""
@@ -8822,7 +8880,7 @@ msgstr "終了中"
 msgid "e.g. \"$0\""
 msgstr "例: \"$0\""
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:335
+#: pkg/systemd/overview-cards/configurationCard.jsx:345
 msgid "edit"
 msgstr "編集"
 
@@ -8858,7 +8916,7 @@ msgstr "毎日"
 msgid "extension"
 msgstr "拡張"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:261
+#: pkg/systemd/overview-cards/configurationCard.jsx:271
 msgid "failed to list ssh host keys: $0"
 msgstr "ssh ホスト鍵の一覧表示に失敗しました: $0"
 
@@ -9313,8 +9371,8 @@ msgstr "未定義"
 msgid "unit"
 msgstr "単位"
 
-#: pkg/systemd/services/services.jsx:470 pkg/systemd/services/services.jsx:471
-#: pkg/systemd/services/services.jsx:493 pkg/systemd/services/services.jsx:494
+#: pkg/systemd/services/services.jsx:473 pkg/systemd/services/services.jsx:474
+#: pkg/systemd/services/services.jsx:496 pkg/systemd/services/services.jsx:497
 msgid "unknown"
 msgstr "不明"
 
@@ -9416,6 +9474,18 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json.in
 msgid "zone"
 msgstr "ゾーン"
+
+#~ msgid "Account Settings"
+#~ msgstr "アカウント設定"
+
+#~ msgid "Add Machine to Dashboard"
+#~ msgstr "ダッシュボードへのマシンの追加"
+
+#~ msgid "Machines"
+#~ msgstr "マシン"
+
+#~ msgid "The user $0 is not permitted to create timers"
+#~ msgstr "ユーザー $0 は、タイマーの作成を許可されていません"
 
 #~ msgid "Go to"
 #~ msgstr "移動"

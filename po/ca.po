@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-12 12:47+0000\n"
+"POT-Creation-Date: 2020-05-26 19:44+0000\n"
 "PO-Revision-Date: 2020-05-05 03:40+0000\n"
 "Last-Translator: Adolfo Jayme Barrientos <fitoschido@gmail.com>\n"
 "Language-Team: Catalan <https://translate.fedoraproject.org/projects/cockpit/"
@@ -38,11 +38,11 @@ msgstr "$0 zones actives"
 msgid "$0 Block Device"
 msgstr "Dispositiu de blocs $0"
 
-#: pkg/storaged/mdraid-details.jsx:188
+#: pkg/storaged/mdraid-details.jsx:180
 msgid "$0 Chunk Size"
 msgstr "$0 de mida del tros"
 
-#: pkg/storaged/mdraid-details.jsx:186
+#: pkg/storaged/mdraid-details.jsx:178
 msgid "$0 Disks"
 msgstr "$0 discs"
 
@@ -62,7 +62,7 @@ msgstr[0] "$0 paquet"
 msgstr[1] "$0 paquets"
 
 #: pkg/systemd/services/service-details.jsx:130
-#: pkg/systemd/services/services.jsx:375
+#: pkg/systemd/services/services.jsx:379
 msgid "$0 Template"
 msgstr "Plantilla $0"
 
@@ -105,7 +105,7 @@ msgstr[1] "$0 dies"
 
 #: src/base1/test-locale.js:65 src/base1/test-locale.js:66
 #: src/base1/test-locale.js:67 pkg/playground/translate.js:26
-#: pkg/playground/translate.js:29 pkg/storaged/mdraid-details.jsx:208
+#: pkg/playground/translate.js:29 pkg/storaged/mdraid-details.jsx:200
 msgid "$0 disk is missing"
 msgid_plural "$0 disks are missing"
 msgstr[0] "falta $0 disc"
@@ -120,7 +120,7 @@ msgid_plural "$0 disks are missing"
 msgstr[0] "falta $0 disc"
 msgstr[1] "falten $0 discs"
 
-#: pkg/shell/indexes.js:616
+#: pkg/shell/indexes.js:388
 #, fuzzy
 #| msgid "Authentication"
 msgid "$0 documentation"
@@ -182,9 +182,9 @@ msgstr ""
 
 #: pkg/storaged/content-views.jsx:333 pkg/storaged/content-views.jsx:573
 #: pkg/storaged/format-dialog.jsx:164 pkg/storaged/lvol-tabs.jsx:203
-#: pkg/storaged/lvol-tabs.jsx:265 pkg/storaged/mdraid-details.jsx:230
-#: pkg/storaged/mdraid-details.jsx:282 pkg/storaged/vdo-details.jsx:128
-#: pkg/storaged/vdo-details.jsx:159 pkg/storaged/vgroup-details.jsx:200
+#: pkg/storaged/lvol-tabs.jsx:265 pkg/storaged/mdraid-details.jsx:222
+#: pkg/storaged/mdraid-details.jsx:274 pkg/storaged/vdo-details.jsx:128
+#: pkg/storaged/vdo-details.jsx:159 pkg/storaged/vgroup-details.jsx:181
 msgid "$0 is in active use"
 msgstr ""
 
@@ -240,7 +240,7 @@ msgctxt "<date> on <terminal>"
 msgid "$0 on $1"
 msgstr "$0 de $1"
 
-#: pkg/systemd/services/services.jsx:660
+#: pkg/systemd/services/services.jsx:663
 msgid "$0 service has failed"
 msgid_plural "$0 services have failed"
 msgstr[0] ""
@@ -283,11 +283,11 @@ msgstr[1] "$0 anys"
 msgid "$0 zone"
 msgstr ""
 
-#: pkg/storaged/vgroup-details.jsx:112
+#: pkg/storaged/vgroup-details.jsx:108
 msgid "$0, $1 free"
 msgstr "$0 amb $1 lliures"
 
-#: pkg/systemd/logs.js:462
+#: pkg/systemd/logs.js:466
 msgid "$0: crash at $1"
 msgstr ""
 
@@ -584,7 +584,7 @@ msgid ""
 "interface with higher throughput or redundancy."
 msgstr ""
 
-#: pkg/storaged/mdraid-details.jsx:114
+#: pkg/storaged/mdraid-details.jsx:118
 msgid "A spare disk needs to be added first before this disk can be removed."
 msgstr ""
 
@@ -600,7 +600,7 @@ msgstr "Monitoratge ARP"
 msgid "ARP Ping"
 msgstr "Ping ARP"
 
-#: pkg/shell/index.html:79 pkg/shell/indexes.js:630
+#: pkg/shell/index.html:149 pkg/shell/indexes.js:402
 #, fuzzy
 #| msgid "Consoles"
 msgid "About Web Console"
@@ -620,10 +620,6 @@ msgstr "Accés"
 msgid "Account Expiration"
 msgstr "Venciment del compte"
 
-#: pkg/shell/index.html:60
-msgid "Account Settings"
-msgstr "Ajusts dels comptes"
-
 #: pkg/users/index.html:63
 msgid "Account not available or cannot be edited."
 msgstr "El compte no està disponible o no es pot editar."
@@ -633,7 +629,7 @@ msgstr "El compte no està disponible o no es pot editar."
 msgid "Accounts"
 msgstr "Comptes"
 
-#: pkg/users/local.js:314 pkg/users/local.js:638
+#: pkg/users/local.js:334 pkg/users/local.js:664
 msgctxt "page-title"
 msgid "Accounts"
 msgstr "Comptes"
@@ -656,7 +652,7 @@ msgstr "Activa"
 msgid "Active Backup"
 msgstr "Còpia de seguretat activa"
 
-#: pkg/shell/index.html:57 pkg/shell/active-pages.js:95
+#: pkg/shell/index.html:77 pkg/shell/active-pages.js:95
 msgid "Active Pages"
 msgstr "Pàgines actives"
 
@@ -676,12 +672,12 @@ msgstr "Balanceig de càrrega adaptativa"
 msgid "Adaptive transmit load balancing"
 msgstr "Balanceig de càrrega de transmissió adaptativa"
 
-#: pkg/lib/machine-add.html:36 pkg/shell/index.html:180
+#: pkg/lib/machine-add.html:36 pkg/shell/index.html:250
 #: pkg/machines/components/diskAdd.jsx:548
 #: pkg/machines/components/nicAdd.jsx:203 pkg/storaged/crypto-keyslots.jsx:235
 #: pkg/storaged/iscsi-panel.jsx:137 pkg/storaged/iscsi-panel.jsx:161
-#: pkg/storaged/mdraid-details.jsx:59 pkg/storaged/nfs-details.jsx:189
-#: pkg/storaged/vgroup-details.jsx:66
+#: pkg/storaged/mdraid-details.jsx:60 pkg/storaged/nfs-details.jsx:189
+#: pkg/storaged/vgroup-details.jsx:67
 msgid "Add"
 msgstr "Afegeix"
 
@@ -702,17 +698,13 @@ msgstr "Afegeix un pont"
 msgid "Add Disk"
 msgstr "Afegeix un disc"
 
-#: pkg/storaged/mdraid-details.jsx:46 pkg/storaged/vgroup-details.jsx:53
+#: pkg/storaged/mdraid-details.jsx:47 pkg/storaged/vgroup-details.jsx:54
 msgid "Add Disks"
 msgstr "Afegeix discs"
 
 #: pkg/storaged/crypto-keyslots.jsx:202
 msgid "Add Key"
 msgstr "Afegeix una clau"
-
-#: pkg/lib/machine-add.html:4
-msgid "Add Machine to Dashboard"
-msgstr "Afegeix la màquina al tauler de control"
 
 #: pkg/machines/components/vmnetworktab.jsx:282
 msgid "Add Network Interface"
@@ -744,6 +736,12 @@ msgstr "Afegeix una interfície de xarxa virtual"
 msgid "Add Zone"
 msgstr "Afegeix una zona"
 
+#: pkg/lib/machine-add.html:4
+#, fuzzy
+#| msgid "Add a new zone"
+msgid "Add a New Host"
+msgstr "Afegeix una zona nova"
+
 #: pkg/networkmanager/firewall.jsx:892
 msgid "Add a new zone"
 msgstr "Afegeix una zona nova"
@@ -752,9 +750,15 @@ msgstr "Afegeix una zona nova"
 msgid "Add iSCSI Portal"
 msgstr "Afegeix un portal iSCSI"
 
-#: pkg/shell/index.html:172 pkg/users/index.html:419
+#: pkg/shell/index.html:242 pkg/users/index.html:419
 msgid "Add key"
 msgstr "Afegeix una clau"
+
+#: pkg/shell/hosts.jsx:243
+#, fuzzy
+#| msgid "Add a new zone"
+msgid "Add new host"
+msgstr "Afegeix una zona nova"
 
 #: pkg/networkmanager/firewall.jsx:488
 msgid "Add ports to $0 zone"
@@ -904,7 +908,7 @@ msgstr "Després de l'arrencada del sistema"
 msgid "Alert and above"
 msgstr ""
 
-#: pkg/systemd/logs.js:214 pkg/systemd/services/services.jsx:694
+#: pkg/systemd/logs.js:217 pkg/systemd/services/services.jsx:697
 msgid "All"
 msgstr "Tots"
 
@@ -986,6 +990,10 @@ msgstr "Aplicació de les actualitzacions"
 msgid "Applying updates failed"
 msgstr "Ha fallat l'aplicació de les actualitzacions"
 
+#: pkg/shell/indexes.js:319
+msgid "Apps"
+msgstr ""
+
 #: pkg/storaged/drive-details.jsx:51
 msgctxt "storage"
 msgid "Assessment"
@@ -999,7 +1007,7 @@ msgstr ""
 msgid "At least $0 disks are needed."
 msgstr "Com a mínim es necessiten $0 discs."
 
-#: pkg/storaged/mdraid-details.jsx:53 pkg/storaged/vgroup-details.jsx:60
+#: pkg/storaged/mdraid-details.jsx:54 pkg/storaged/vgroup-details.jsx:61
 #: pkg/storaged/vgroups-panel.jsx:84
 msgid "At least one disk is needed."
 msgstr "Com a mínim es necessita un disc."
@@ -1159,7 +1167,7 @@ msgstr ""
 msgid "Binds To"
 msgstr ""
 
-#: pkg/storaged/mdraid-details.jsx:199
+#: pkg/storaged/mdraid-details.jsx:191
 msgctxt "storage"
 msgid "Bitmap"
 msgstr ""
@@ -1184,7 +1192,7 @@ msgstr "Bloc"
 msgid "Block device for filesystems"
 msgstr "Dispositiu de blocs per al sistema de fitxers"
 
-#: pkg/storaged/mdraid-details.jsx:98
+#: pkg/storaged/mdraid-details.jsx:99
 msgid "Blocked"
 msgstr "Bloquejat"
 
@@ -1299,7 +1307,7 @@ msgstr "Memòria cau"
 msgid "Cached"
 msgstr "Emmagatzemat temporalment"
 
-#: pkg/systemd/logs.js:184 pkg/systemd/logs.js:307
+#: pkg/systemd/logs.js:189 pkg/systemd/logs.js:310
 msgid "Can not find any logs using the current combination of filters."
 msgstr ""
 
@@ -1316,14 +1324,14 @@ msgstr "No es pot carregar la imatge"
 #: pkg/docker/index.html:683 pkg/docker/index.html:723
 #: pkg/docker/index.html:754 pkg/lib/machine-add.html:37
 #: pkg/lib/machine-change-auth.html:92 pkg/lib/machine-change-port.html:41
-#: pkg/lib/machine-sync-users.html:77 pkg/networkmanager/index.html:499
-#: pkg/networkmanager/index.html:527 pkg/networkmanager/index.html:554
-#: pkg/networkmanager/index.html:581 pkg/networkmanager/index.html:608
-#: pkg/networkmanager/index.html:635 pkg/networkmanager/index.html:662
-#: pkg/networkmanager/index.html:689 pkg/networkmanager/index.html:716
-#: pkg/playground/translate.html:39 pkg/shell/index.html:120
-#: pkg/systemd/index.html:123 pkg/systemd/index.html:207
-#: pkg/systemd/index.html:261
+#: pkg/lib/machine-sync-users.html:77 pkg/lib/machine-unknown-hostkey.html:23
+#: pkg/networkmanager/index.html:499 pkg/networkmanager/index.html:527
+#: pkg/networkmanager/index.html:554 pkg/networkmanager/index.html:581
+#: pkg/networkmanager/index.html:608 pkg/networkmanager/index.html:635
+#: pkg/networkmanager/index.html:662 pkg/networkmanager/index.html:689
+#: pkg/networkmanager/index.html:716 pkg/playground/translate.html:39
+#: pkg/shell/index.html:138 pkg/shell/index.html:190 pkg/systemd/index.html:123
+#: pkg/systemd/index.html:207 pkg/systemd/index.html:261
 #: pkg/systemd/overview-cards/realmd-operation.html:82
 #: pkg/systemd/services.html:283 pkg/users/index.html:201
 #: pkg/users/index.html:240 pkg/users/index.html:279 pkg/users/index.html:318
@@ -1347,7 +1355,7 @@ msgstr "No es pot carregar la imatge"
 #: pkg/networkmanager/firewall.jsx:583 pkg/networkmanager/firewall.jsx:736
 #: pkg/networkmanager/firewall.jsx:759 pkg/packagekit/updates.jsx:192
 #: pkg/shell/superuser.jsx:83 pkg/shell/superuser.jsx:138
-#: pkg/sosreport/index.js:49 pkg/storaged/dialog.jsx:400
+#: pkg/sosreport/index.js:50 pkg/storaged/dialog.jsx:400
 #: pkg/storaged/jobs-panel.jsx:123 pkg/systemd/hwinfo.jsx:226
 #: pkg/systemd/reporting.jsx:420 pkg/systemd/services/service-details.jsx:187
 msgid "Cancel"
@@ -1359,7 +1367,7 @@ msgstr "Cancel·la"
 msgid "Cannot be enabled"
 msgstr "La mida no pot ser negativa"
 
-#: pkg/shell/indexes.js:717
+#: pkg/shell/indexes.js:461
 msgid "Cannot connect to an unknown machine"
 msgstr "No es pot connectar a una màquina desconeguda"
 
@@ -1380,7 +1388,7 @@ msgid "Capacity"
 msgstr "Capacitat"
 
 #: pkg/storaged/block-details.jsx:37 pkg/storaged/drive-details.jsx:75
-#: pkg/storaged/mdraid-details.jsx:327 pkg/storaged/vgroup-details.jsx:242
+#: pkg/storaged/mdraid-details.jsx:319 pkg/storaged/vgroup-details.jsx:223
 msgctxt "storage"
 msgid "Capacity"
 msgstr "Capacitat"
@@ -1405,7 +1413,7 @@ msgstr "Canvia el perfil"
 msgid "Change Host Name"
 msgstr "Canvia el nom d'amfitrió"
 
-#: pkg/shell/index.html:322
+#: pkg/shell/index.html:392
 msgid "Change Password"
 msgstr "Canvia la contrasenya"
 
@@ -1495,7 +1503,7 @@ msgstr ""
 msgid "Choose an operating system"
 msgstr ""
 
-#: pkg/shell/index.html:114
+#: pkg/shell/index.html:184
 msgid "Choose the language to be used in the application"
 msgstr "Seleccioneu l'idioma per utilitzar amb l'aplicació"
 
@@ -1515,11 +1523,11 @@ msgstr "Neteja de $target"
 msgid "Clear 'Failed to start'"
 msgstr ""
 
-#: pkg/shell/indexes.js:511
+#: pkg/shell/nav.jsx:126
 msgid "Clear Search"
 msgstr ""
 
-#: pkg/systemd/services/services.jsx:789
+#: pkg/systemd/services/services.jsx:788
 msgid "Clear all filters"
 msgstr ""
 
@@ -1538,12 +1546,11 @@ msgstr ""
 
 #: pkg/docker/index.html:703 pkg/lib/machine-auth-failed.html:20
 #: pkg/lib/machine-change-port.html:45 pkg/lib/machine-invalid-hostkey.html:12
-#: pkg/lib/machine-not-supported.html:8 pkg/lib/machine-unknown-hostkey.html:19
-#: pkg/networkmanager/index.html:735 pkg/shell/index.html:93
-#: pkg/shell/index.html:152 pkg/shell/index.html:334 pkg/systemd/index.html:164
-#: pkg/users/index.html:45 pkg/apps/utils.jsx:104
+#: pkg/lib/machine-not-supported.html:8 pkg/networkmanager/index.html:735
+#: pkg/shell/index.html:163 pkg/shell/index.html:222 pkg/shell/index.html:404
+#: pkg/systemd/index.html:164 pkg/users/index.html:45 pkg/apps/utils.jsx:104
 #: pkg/lib/cockpit-components-modifications.jsx:103 pkg/shell/superuser.jsx:83
-#: pkg/sosreport/index.js:43 pkg/sosreport/index.js:125
+#: pkg/sosreport/index.js:44 pkg/sosreport/index.js:126
 #: pkg/storaged/dialog.jsx:400
 msgid "Close"
 msgstr "Tanca"
@@ -1560,7 +1567,7 @@ msgstr "Cockpit"
 msgid "Cockpit authentication is configured incorrectly."
 msgstr "L'autenticació de Cockpit està configurada incorrectament."
 
-#: pkg/lib/machine-dialogs.js:435
+#: pkg/lib/machine-dialogs.js:416
 msgid ""
 "Cockpit could not contact the given host $0. Make sure it has ssh running on "
 "port $1, or specify another port in the address."
@@ -1570,7 +1577,7 @@ msgstr ""
 msgid "Cockpit could not contact the given host."
 msgstr "Cockpit no ha pogut contactar amb l'amfitrió indicat."
 
-#: pkg/shell/base_index.js:838
+#: pkg/shell/base_index.js:830
 msgid ""
 "Cockpit had an unexpected internal error. <br/><br/>You can try restarting "
 "Cockpit by pressing refresh in your browser. The javascript console contains "
@@ -1592,7 +1599,7 @@ msgstr ""
 "produeix un error en el terminal, es pot observar en la interfície de les "
 "publicacions de Cockpit."
 
-#: pkg/shell/index.html:82
+#: pkg/shell/index.html:152
 msgid "Cockpit is an interactive Linux server admin interface."
 msgstr ""
 "Cockpit és una interfície interactiva d'administració del servidor Linux."
@@ -1656,6 +1663,7 @@ msgid ""
 msgstr ""
 
 #: pkg/dashboard/index.html:169 pkg/lib/machine-add.html:27
+#: pkg/shell/index.html:128
 msgid "Color"
 msgstr "Color"
 
@@ -1688,7 +1696,7 @@ msgstr "L'ordre no pot estar en blanc"
 msgid "Command:"
 msgstr "Ordre:"
 
-#: pkg/shell/index.html:268
+#: pkg/shell/index.html:338
 msgid "Comment"
 msgstr "Comentari"
 
@@ -1738,7 +1746,7 @@ msgstr ""
 msgid "Condition failed"
 msgstr "Ha fallat la condició"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:361
+#: pkg/systemd/overview-cards/configurationCard.jsx:371
 msgid "Configuration"
 msgstr "Configuració"
 
@@ -1766,7 +1774,7 @@ msgstr "S'està configurant"
 msgid "Configuring system settings"
 msgstr "Canvia els ajusts"
 
-#: pkg/shell/index.html:306 pkg/users/index.html:178
+#: pkg/shell/index.html:376 pkg/users/index.html:178
 #: pkg/storaged/format-dialog.jsx:221
 msgid "Confirm"
 msgstr "Confirmació"
@@ -1795,7 +1803,7 @@ msgstr ""
 msgid "Conflicts"
 msgstr "Conflictes"
 
-#: pkg/lib/machine-unknown-hostkey.html:22
+#: pkg/lib/machine-unknown-hostkey.html:20
 #: pkg/machines/components/serialConsole.jsx:85
 msgid "Connect"
 msgstr "Connecta"
@@ -1833,7 +1841,7 @@ msgstr "S'està connectant al dimoni de SETroubleshoot..."
 msgid "Connecting to Virtualization Service"
 msgstr "Connexió al servei de virtualització"
 
-#: pkg/shell/indexes.js:712
+#: pkg/shell/indexes.js:456
 msgid "Connecting to the machine"
 msgstr "S'està connectant a la màquina"
 
@@ -1845,11 +1853,11 @@ msgstr "S'està connectant a la màquina"
 msgid "Connection"
 msgstr "Connexió"
 
-#: pkg/dashboard/list.js:414
+#: pkg/dashboard/list.js:414 pkg/shell/hosts.jsx:209
 msgid "Connection Error"
 msgstr "Error de connexió"
 
-#: pkg/shell/index.html:410
+#: pkg/shell/index.html:431
 msgid "Connection failed"
 msgstr "La connexió ha fallat"
 
@@ -1881,7 +1889,7 @@ msgstr ""
 msgid "Container"
 msgstr "Contenidor"
 
-#: pkg/users/local.js:775
+#: pkg/users/local.js:801
 msgid "Container Administrator"
 msgstr "Administrador del contenidor"
 
@@ -1914,15 +1922,17 @@ msgctxt "page-title"
 msgid "Containers"
 msgstr "Contenidors"
 
-#: pkg/shell/indexes.js:411
-msgid "Contains"
-msgstr ""
+#: pkg/shell/nav.jsx:198
+#, fuzzy
+#| msgid "Container:"
+msgid "Contains:"
+msgstr "Contenidor:"
 
 #: pkg/storaged/content-views.jsx:632
 msgid "Content"
 msgstr "Contingut"
 
-#: pkg/shell/index.html:136
+#: pkg/shell/index.html:206
 msgid "Continue Session"
 msgstr ""
 
@@ -1965,7 +1975,7 @@ msgstr "No s'han pogut canviar els grups de l'usuari"
 msgid "Couldn't change user password"
 msgstr "No s'ha pogut canviar la contrasenya de l'usuari"
 
-#: pkg/shell/indexes.js:715
+#: pkg/shell/indexes.js:459
 msgid "Couldn't connect to the machine"
 msgstr "No s'ha pogut connectar a la màquina"
 
@@ -2048,7 +2058,7 @@ msgstr "Crea la partició a $0"
 msgid "Create RAID Device"
 msgstr "Crea un dispositiu RAID"
 
-#: pkg/sosreport/index.html:36
+#: pkg/sosreport/index.html:37
 msgid "Create Report"
 msgstr "Crea l'informe"
 
@@ -2069,7 +2079,7 @@ msgstr ""
 msgid "Create Thin Volume"
 msgstr "Crea un volum disgregat"
 
-#: pkg/systemd/services/services.jsx:761
+#: pkg/systemd/services/services.jsx:760
 msgid "Create Timer"
 msgstr "Crea un temporitzador"
 
@@ -2099,7 +2109,7 @@ msgstr ""
 msgid "Create Volume Group"
 msgstr "Crea un grup de volums"
 
-#: pkg/sosreport/index.html:44
+#: pkg/sosreport/index.html:45
 msgid "Create diagnostic report"
 msgstr "Crea l'informe de diagnòstic"
 
@@ -2300,14 +2310,14 @@ msgstr "Retard"
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:214
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:237
 #: pkg/networkmanager/firewall.jsx:756 pkg/storaged/content-views.jsx:344
-#: pkg/storaged/content-views.jsx:360 pkg/storaged/mdraid-details.jsx:293
-#: pkg/storaged/mdraid-details.jsx:316 pkg/storaged/vdo-details.jsx:198
-#: pkg/storaged/vdo-details.jsx:261 pkg/storaged/vgroup-details.jsx:212
-#: pkg/storaged/vgroup-details.jsx:234
+#: pkg/storaged/content-views.jsx:360 pkg/storaged/mdraid-details.jsx:285
+#: pkg/storaged/mdraid-details.jsx:308 pkg/storaged/vdo-details.jsx:198
+#: pkg/storaged/vdo-details.jsx:261 pkg/storaged/vgroup-details.jsx:193
+#: pkg/storaged/vgroup-details.jsx:215
 msgid "Delete"
 msgstr "Suprimeix"
 
-#: pkg/networkmanager/interfaces.js:2435 pkg/users/local.js:1205
+#: pkg/networkmanager/interfaces.js:2435 pkg/users/local.js:1231
 msgid "Delete $0"
 msgstr "Suprimeix $0"
 
@@ -2346,7 +2356,7 @@ msgid ""
 "the administration UI unavailable."
 msgstr ""
 
-#: pkg/storaged/mdraid-details.jsx:294
+#: pkg/storaged/mdraid-details.jsx:286
 msgid "Deleting a RAID device will erase all data on it."
 msgstr "La supressió d'un dispositiu RAID n'esborrarà totes les dades."
 
@@ -2366,7 +2376,7 @@ msgstr "La supressió d'un volum lògic n'esborrarà totes les dades."
 msgid "Deleting a partition will delete all data in it."
 msgstr "La supressió d'una partició n'esborrarà totes les dades."
 
-#: pkg/storaged/vgroup-details.jsx:211
+#: pkg/storaged/vgroup-details.jsx:192
 msgid "Deleting a volume group will erase all data on it."
 msgstr "La supressió d'un grup de volums n'esborrarà totes les dades."
 
@@ -2399,7 +2409,7 @@ msgstr ""
 msgid "Detachable"
 msgstr ""
 
-#: pkg/shell/index.html:233 pkg/docker/containers-view.jsx:343
+#: pkg/shell/index.html:303 pkg/docker/containers-view.jsx:343
 #: pkg/docker/containers-view.jsx:437 pkg/docker/containers-view.jsx:537
 #: pkg/packagekit/updates.jsx:397
 msgid "Details"
@@ -2417,7 +2427,7 @@ msgstr "Desenvolupament"
 msgid "Device"
 msgstr "Dispositiu"
 
-#: pkg/storaged/mdraid-details.jsx:321
+#: pkg/storaged/mdraid-details.jsx:313
 msgctxt "storage"
 msgid "Device"
 msgstr "Dispositiu"
@@ -2469,7 +2479,7 @@ msgstr "Inhabilita tuned"
 
 #: pkg/networkmanager/interfaces.js:1955
 #: pkg/systemd/services/service-details.jsx:413
-#: pkg/systemd/services/services.jsx:531 pkg/systemd/services/services.jsx:696
+#: pkg/systemd/services/services.jsx:534 pkg/systemd/services/services.jsx:699
 msgid "Disabled"
 msgstr "Inhabilitat"
 
@@ -2481,7 +2491,7 @@ msgstr ""
 msgid "Disconnect"
 msgstr "Desconnecta"
 
-#: pkg/shell/indexes.js:248 pkg/shell/indexes.js:905
+#: pkg/shell/indexes.js:165
 msgid "Disconnected"
 msgstr "Desconnectat"
 
@@ -2522,9 +2532,9 @@ msgstr ""
 msgid "Disk settings could not be saved"
 msgstr ""
 
-#: pkg/machines/components/vm/vm.jsx:51 pkg/storaged/mdraid-details.jsx:48
-#: pkg/storaged/mdraid-details.jsx:148 pkg/storaged/mdraids-panel.jsx:110
-#: pkg/storaged/vgroup-details.jsx:55 pkg/storaged/vgroups-panel.jsx:79
+#: pkg/machines/components/vm/vm.jsx:51 pkg/storaged/mdraid-details.jsx:49
+#: pkg/storaged/mdraid-details.jsx:153 pkg/storaged/mdraids-panel.jsx:110
+#: pkg/storaged/vgroup-details.jsx:56 pkg/storaged/vgroups-panel.jsx:79
 msgid "Disks"
 msgstr "Discs"
 
@@ -2532,7 +2542,7 @@ msgstr "Discs"
 msgid "Dismiss"
 msgstr ""
 
-#: pkg/shell/index.html:53 pkg/shell/index.html:111
+#: pkg/shell/index.html:73 pkg/shell/index.html:181
 msgid "Display Language"
 msgstr "Idioma de visualització"
 
@@ -2559,7 +2569,7 @@ msgid "Does not automatically start"
 msgstr "Connecta automàticament"
 
 #: pkg/systemd/overview-cards/realmd-operation.html:11
-#: pkg/systemd/overview-cards/configurationCard.jsx:384
+#: pkg/systemd/overview-cards/configurationCard.jsx:394
 #: pkg/systemd/overview-cards/realmd-operation.js:124
 msgid "Domain"
 msgstr "Domini"
@@ -2593,7 +2603,7 @@ msgstr "No repeteixis"
 msgid "Don't overwrite existing data"
 msgstr "No sobreescriguis les dades existents"
 
-#: pkg/sosreport/index.html:60
+#: pkg/sosreport/index.html:61
 msgid "Done!"
 msgstr "Fet!"
 
@@ -2609,7 +2619,7 @@ msgstr ""
 msgid "Download an OS"
 msgstr ""
 
-#: pkg/sosreport/index.html:61
+#: pkg/sosreport/index.html:62
 msgid "Download report"
 msgstr "Baixa l'informe"
 
@@ -2650,9 +2660,15 @@ msgid "Duplicate port"
 msgstr "Port duplicat"
 
 #: pkg/machines/components/diskEdit.jsx:250
-#: pkg/machines/components/vmnetworktab.jsx:224 pkg/storaged/crypto-tab.jsx:129
-#: pkg/storaged/nfs-details.jsx:305
+#: pkg/machines/components/vmnetworktab.jsx:224 pkg/shell/indexes.js:331
+#: pkg/storaged/crypto-tab.jsx:129 pkg/storaged/nfs-details.jsx:305
 msgid "Edit"
+msgstr "Edita"
+
+#: pkg/shell/index.html:102
+#, fuzzy
+#| msgid "Edit"
+msgid "Edit Host"
 msgstr "Edita"
 
 #: pkg/dashboard/index.html:142
@@ -2661,6 +2677,10 @@ msgstr "Edit el servidor"
 
 #: pkg/storaged/crypto-keyslots.jsx:276
 msgid "Edit Tang keyserver"
+msgstr ""
+
+#: pkg/shell/hosts.jsx:242
+msgid "Edit hosts"
 msgstr ""
 
 #: pkg/storaged/crypto-keyslots.jsx:548
@@ -2699,7 +2719,7 @@ msgstr ""
 msgid "Enable Service"
 msgstr ""
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:418
+#: pkg/systemd/overview-cards/configurationCard.jsx:428
 msgid "Enable stored metrics"
 msgstr ""
 
@@ -2707,7 +2727,7 @@ msgstr ""
 msgid "Enable the firewall"
 msgstr ""
 
-#: pkg/systemd/services/services.jsx:528 pkg/systemd/services/services.jsx:695
+#: pkg/systemd/services/services.jsx:531 pkg/systemd/services/services.jsx:698
 msgid "Enabled"
 msgstr "Habilitat"
 
@@ -2765,7 +2785,7 @@ msgstr ""
 msgid "Enhancement Updates Available"
 msgstr ""
 
-#: pkg/lib/machine-dialogs.js:453
+#: pkg/lib/machine-dialogs.js:434
 msgid "Enter IP address or host name"
 msgstr "Introduïu l'adreça IP o el nom d'amfitrió"
 
@@ -2787,7 +2807,7 @@ msgstr "Tota la subxarxa"
 msgid "Entry"
 msgstr "Entrada"
 
-#: pkg/systemd/logs.js:468
+#: pkg/systemd/logs.js:472
 msgid "Entry at $0"
 msgstr ""
 
@@ -2816,7 +2836,7 @@ msgstr "Fe d'errates:"
 #: pkg/apps/utils.jsx:96 pkg/storaged/fsys-tab.jsx:283
 #: pkg/storaged/multipath.jsx:58 pkg/storaged/storage-controls.jsx:87
 #: pkg/storaged/storage-controls.jsx:164
-#: pkg/systemd/services/service-details.jsx:530 pkg/users/local.js:1498
+#: pkg/systemd/services/service-details.jsx:530 pkg/users/local.js:1524
 msgid "Error"
 msgstr "Error"
 
@@ -2872,7 +2892,7 @@ msgstr ""
 msgid "Example: 88,2019,nfs,rsync"
 msgstr ""
 
-#: pkg/users/local.js:452 pkg/users/local.js:1443
+#: pkg/users/local.js:478 pkg/users/local.js:1469
 msgid "Excellent password"
 msgstr "Contrasenya excel·lent"
 
@@ -2892,7 +2912,7 @@ msgstr ""
 msgid "Expose container ports"
 msgstr "Exposa els ports del contenidor"
 
-#: pkg/systemd/logs.js:552
+#: pkg/systemd/logs.js:556
 msgid "Extended Information"
 msgstr ""
 
@@ -2900,7 +2920,7 @@ msgstr ""
 msgid "Extended Partition"
 msgstr "Partició estesa"
 
-#: pkg/storaged/mdraid-details.jsx:94
+#: pkg/storaged/mdraid-details.jsx:95
 msgid "FAILED"
 msgstr "FALLAT"
 
@@ -2908,7 +2928,7 @@ msgstr "FALLAT"
 msgid "Failed"
 msgstr "Ha fallat"
 
-#: pkg/lib/machine-dialogs.js:418
+#: pkg/lib/machine-dialogs.js:399
 msgid "Failed to add machine: $0"
 msgstr "No s'ha pogut afegir la màquina: $0"
 
@@ -2930,7 +2950,7 @@ msgstr ""
 msgid "Failed to change firmware"
 msgstr "Ha fallat el canvi de contrasenya"
 
-#: pkg/lib/credentials.js:228 pkg/users/local.js:105 pkg/users/local.js:137
+#: pkg/lib/credentials.js:228 pkg/users/local.js:107 pkg/users/local.js:139
 msgid "Failed to change password"
 msgstr "Ha fallat el canvi de contrasenya"
 
@@ -2946,7 +2966,7 @@ msgstr "Ha fallat la inhabilitació de tuned"
 msgid "Failed to disable tuned profile"
 msgstr "Ha fallat la inhabilitació del perfil de tuned"
 
-#: pkg/lib/machine-dialogs.js:500
+#: pkg/lib/machine-dialogs.js:481
 msgid "Failed to edit machine: $0"
 msgstr "Ha fallat l'edició de la màquina: $0"
 
@@ -2967,7 +2987,7 @@ msgid "Failed to send key Ctrl+Alt+$0 to VM $1"
 msgstr ""
 
 #: pkg/systemd/services/service-details.jsx:422
-#: pkg/systemd/services/services.jsx:522
+#: pkg/systemd/services/services.jsx:525
 msgid "Failed to start"
 msgstr ""
 
@@ -3008,7 +3028,7 @@ msgstr "Nom del sistema de fitxers"
 msgid "Filesystems"
 msgstr "Sistemes de fitxers"
 
-#: pkg/systemd/services/services.jsx:729
+#: pkg/systemd/services/services.jsx:732
 msgid "Filter"
 msgstr ""
 
@@ -3016,13 +3036,13 @@ msgstr ""
 msgid "Filter Services"
 msgstr "Filtra els serveis"
 
-#: pkg/systemd/services/services.jsx:737
+#: pkg/systemd/services/services.jsx:740
 #, fuzzy
 #| msgid "search by name, namespace or description"
 msgid "Filter by name or description"
 msgstr "cerqueu pel nom, per l'espai de noms o per la descripció"
 
-#: pkg/lib/machine-unknown-hostkey.html:10 pkg/shell/index.html:276
+#: pkg/lib/machine-unknown-hostkey.html:10 pkg/shell/index.html:346
 msgid "Fingerprint"
 msgstr "Empremta"
 
@@ -3150,7 +3170,7 @@ msgstr "Passarel·la:"
 
 #: pkg/machines/components/networks/networkOverviewTab.jsx:80
 #: pkg/machines/components/vmOverviewTabLibvirt.jsx:258
-#: pkg/networkmanager/interfaces.js:2702 pkg/systemd/logs.js:557
+#: pkg/networkmanager/interfaces.js:2702 pkg/systemd/logs.js:561
 msgid "General"
 msgstr "General"
 
@@ -3158,7 +3178,7 @@ msgstr "General"
 msgid "Generate automatically"
 msgstr ""
 
-#: pkg/sosreport/index.html:54
+#: pkg/sosreport/index.html:55
 msgid "Generating report"
 msgstr "S'està generant l'informe"
 
@@ -3240,7 +3260,7 @@ msgstr ""
 msgid "Hello time $hello_time"
 msgstr "Hello time $hello_time"
 
-#: pkg/shell/index.html:40
+#: pkg/shell/index.html:58
 msgid "Help"
 msgstr ""
 
@@ -3250,14 +3270,14 @@ msgstr ""
 msgid "Hide Additional Options"
 msgstr "Afegeix emmagatzematge addicional"
 
-#: pkg/systemd/logs.js:940 pkg/systemd/logs.js:1045
+#: pkg/systemd/logs.js:944 pkg/systemd/logs.js:1049
 msgid "Hide filters"
 msgstr ""
 
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:138
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:35
 #: pkg/machines/components/vm/bootOrderModal.jsx:97
-#: pkg/machines/components/vmDiskColumns.jsx:47 pkg/shell/indexes.js:581
+#: pkg/machines/components/vmDiskColumns.jsx:47 pkg/shell/hosts.jsx:229
 msgid "Host"
 msgstr "Amfitrió"
 
@@ -3265,7 +3285,7 @@ msgstr "Amfitrió"
 msgid "Host Device"
 msgstr ""
 
-#: pkg/dashboard/index.html:149
+#: pkg/dashboard/index.html:149 pkg/shell/index.html:108
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:143
 msgid "Host Name"
 msgstr "Nom d'amfitrió"
@@ -3282,9 +3302,15 @@ msgstr ""
 msgid "Host should not be empty"
 msgstr ""
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:366
+#: pkg/systemd/overview-cards/configurationCard.jsx:376
 msgid "Hostname"
 msgstr ""
+
+#: pkg/shell/hosts.jsx:198
+#, fuzzy
+#| msgid "Host"
+msgid "Hosts"
+msgstr "Amfitrió"
 
 #: pkg/systemd/services.html:259
 msgid "Hour : Minute"
@@ -3426,7 +3452,7 @@ msgstr "Imatge"
 msgid "Image $0"
 msgstr "Imatge $0"
 
-#: pkg/users/local.js:776
+#: pkg/users/local.js:802
 msgid "Image Builder"
 msgstr ""
 
@@ -3469,7 +3495,7 @@ msgstr "Crea una màquina virtual nova"
 msgid "Import VM"
 msgstr ""
 
-#: pkg/storaged/mdraid-details.jsx:95
+#: pkg/storaged/mdraid-details.jsx:96
 msgid "In Sync"
 msgstr "En sincronització"
 
@@ -3638,12 +3664,12 @@ msgstr ""
 msgid "Invalid address $0"
 msgstr "Adreça no vàlida $0"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:945
+#: pkg/systemd/overview-cards/configurationCard.jsx:955
 #: pkg/systemd/shutdown.js:154
 msgid "Invalid date format"
 msgstr "Format de data no vàlid"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:941
+#: pkg/systemd/overview-cards/configurationCard.jsx:951
 #: pkg/systemd/shutdown.js:150
 msgid "Invalid date format and invalid time format"
 msgstr "Format no vàlid de la data i l'hora"
@@ -3652,7 +3678,7 @@ msgstr "Format no vàlid de la data i l'hora"
 msgid "Invalid date format."
 msgstr "Format de data no vàlid."
 
-#: pkg/users/local.js:1263
+#: pkg/users/local.js:1289
 msgid "Invalid expiration date"
 msgstr "Data de venciment no vàlida"
 
@@ -3672,7 +3698,7 @@ msgstr "Clau no vàlida"
 msgid "Invalid metric $0"
 msgstr "Mètrica no vàlida $0"
 
-#: pkg/users/local.js:1339
+#: pkg/users/local.js:1365
 msgid "Invalid number of days"
 msgstr "Nombre de dies no vàlid"
 
@@ -3700,7 +3726,7 @@ msgstr "Prefix o màscara de xarxa no vàlid $0"
 msgid "Invalid range"
 msgstr ""
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:943
+#: pkg/systemd/overview-cards/configurationCard.jsx:953
 #: pkg/systemd/shutdown.js:152
 msgid "Invalid time format"
 msgstr "Format d'hora no vàlid"
@@ -3759,11 +3785,11 @@ msgstr ""
 msgid "Journal"
 msgstr "Publicacions"
 
-#: pkg/systemd/logs.js:448
+#: pkg/systemd/logs.js:452
 msgid "Journal entry"
 msgstr "Entrada de les publicacions"
 
-#: pkg/systemd/logs.js:486
+#: pkg/systemd/logs.js:490
 msgid "Journal entry not found"
 msgstr "Entrada no trobada de les publicacions"
 
@@ -3875,7 +3901,7 @@ msgstr "Mode hairpin"
 msgid "Leave Domain"
 msgstr "Abandona el domini"
 
-#: pkg/dashboard/index.html:161
+#: pkg/dashboard/index.html:161 pkg/shell/index.html:120
 msgid ""
 "Leave blank to connect to this machine as the currently logged in user. If "
 "you enter a different username, that user will always be used when "
@@ -3915,7 +3941,7 @@ msgstr ""
 msgid "Libvirt or hypervisor does not support UEFI"
 msgstr ""
 
-#: pkg/shell/index.html:87
+#: pkg/shell/index.html:157
 msgid "Licensed under:"
 msgstr "Llicenciat sota:"
 
@@ -3973,7 +3999,7 @@ msgstr "Enllaços:"
 msgid "Load Balancing"
 msgstr "Balanceig de càrrega"
 
-#: pkg/systemd/logs.js:164
+#: pkg/systemd/logs.js:169
 msgid "Load earlier entries"
 msgstr "Carrega les entrades anteriors"
 
@@ -3994,8 +4020,8 @@ msgid "Loading system modifications..."
 msgstr ""
 
 #: pkg/kdump/kdump-view.jsx:371 pkg/machines/components/serialConsole.jsx:68
-#: pkg/storaged/devices.jsx:67 pkg/systemd/logs.js:209 pkg/systemd/logs.js:251
-#: pkg/systemd/services/services.jsx:674
+#: pkg/storaged/devices.jsx:67 pkg/systemd/logs.js:212 pkg/systemd/logs.js:254
+#: pkg/systemd/services/services.jsx:677
 msgid "Loading..."
 msgstr "S'està carregant..."
 
@@ -4027,7 +4053,7 @@ msgstr "Bloqueja"
 msgid "Lock Account"
 msgstr "Bloqueja el compte"
 
-#: pkg/users/local.js:906 pkg/users/local.js:1244
+#: pkg/users/local.js:932 pkg/users/local.js:1270
 msgid "Lock account on $0"
 msgstr "Bloqueja el compte el $0"
 
@@ -4043,7 +4069,7 @@ msgstr "S'està bloquejant $target"
 msgid "Log In"
 msgstr "Inicia la sessió"
 
-#: pkg/shell/index.html:67
+#: pkg/shell/index.html:84
 msgid "Log Out"
 msgstr "Tanca la sessió"
 
@@ -4059,7 +4085,7 @@ msgstr ""
 msgid "Log messages"
 msgstr "Missatges del registre"
 
-#: pkg/users/local.js:987
+#: pkg/users/local.js:1013
 msgid "Logged In"
 msgstr "Autenticat"
 
@@ -4156,10 +4182,6 @@ msgstr "Empremtes de les claus SSH de la màquina"
 #: pkg/machines/components/diskEdit.jsx:81
 msgid "Machine must be shut off before changing bus type"
 msgstr ""
-
-#: pkg/shell/indexes.js:545
-msgid "Machines"
-msgstr "Màquines"
 
 #: pkg/lib/machine-info.js:83
 msgid "Main Server Chassis"
@@ -4338,7 +4360,7 @@ msgstr "Ús de la memòria: "
 msgid "Message to logged in users"
 msgstr "Missatge per als usuaris que hagin iniciat la sessió"
 
-#: pkg/shell/index.html:413
+#: pkg/shell/index.html:434
 msgid "Messages related to the failure might be found in the journal:"
 msgstr ""
 
@@ -4540,7 +4562,7 @@ msgstr ""
 msgid "NSNA Ping"
 msgstr "Ping NSNA"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:1014
+#: pkg/systemd/overview-cards/configurationCard.jsx:1024
 msgid "NTP Server"
 msgstr "Servidor NTP"
 
@@ -4564,7 +4586,7 @@ msgstr "Servidor NTP"
 #: pkg/storaged/iscsi-panel.jsx:185 pkg/storaged/lvol-tabs.jsx:35
 #: pkg/storaged/lvol-tabs.jsx:380 pkg/storaged/lvol-tabs.jsx:434
 #: pkg/storaged/mdraids-panel.jsx:61 pkg/storaged/part-tab.jsx:33
-#: pkg/storaged/vdos-panel.jsx:82 pkg/storaged/vgroup-details.jsx:176
+#: pkg/storaged/vdos-panel.jsx:82 pkg/storaged/vgroup-details.jsx:157
 #: pkg/storaged/vgroups-panel.jsx:74 pkg/systemd/hwinfo.jsx:71
 #: pkg/systemd/services/services-list.jsx:53
 msgid "Name"
@@ -4617,7 +4639,7 @@ msgstr "El nom no pot estar en blanc"
 msgid "Name: "
 msgstr ""
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:841
+#: pkg/systemd/overview-cards/configurationCard.jsx:851
 msgid "Need at least one NTP server"
 msgstr "Com a mínim es necessita un servidor NTP"
 
@@ -4705,15 +4727,15 @@ msgstr "Registres de la xarxa"
 msgid "Networks"
 msgstr "Xarxes"
 
-#: pkg/users/local.js:989
+#: pkg/users/local.js:1015
 msgid "Never"
 msgstr "Mai"
 
-#: pkg/users/index.html:299 pkg/users/local.js:895
+#: pkg/users/index.html:299 pkg/users/local.js:921
 msgid "Never expire password"
 msgstr "Mai venç la contrasenya"
 
-#: pkg/users/index.html:260 pkg/users/local.js:903
+#: pkg/users/index.html:260 pkg/users/local.js:929
 msgid "Never lock account"
 msgstr "No es bloqueja mai el compte"
 
@@ -4721,7 +4743,7 @@ msgstr "No es bloqueja mai el compte"
 msgid "New NFS Mount"
 msgstr "Muntatge NFS nou"
 
-#: pkg/shell/index.html:297 pkg/users/index.html:220
+#: pkg/shell/index.html:367 pkg/users/index.html:220
 msgid "New Password"
 msgstr "Contrasenya nova"
 
@@ -4733,7 +4755,7 @@ msgstr ""
 msgid "New passphrase"
 msgstr ""
 
-#: pkg/lib/credentials.js:237 pkg/users/local.js:114
+#: pkg/lib/credentials.js:237 pkg/users/local.js:116
 msgid "New password was not accepted"
 msgstr "No s'ha acceptat la nova contrasenya"
 
@@ -4768,7 +4790,7 @@ msgstr "Sense sistema de fitxers"
 msgid "No Logical Volumes"
 msgstr "Sense volums lògics"
 
-#: pkg/systemd/logs.js:162 pkg/systemd/logs.js:184 pkg/systemd/logs.js:307
+#: pkg/systemd/logs.js:167 pkg/systemd/logs.js:189 pkg/systemd/logs.js:310
 msgid "No Logs Found"
 msgstr ""
 
@@ -4817,7 +4839,7 @@ msgstr "Sense especificar l'àlies"
 msgid "No applications installed or available"
 msgstr "No hi ha cap aplicació instal·lada o disponible"
 
-#: pkg/sosreport/index.js:127
+#: pkg/sosreport/index.js:128
 msgid "No archive has been created."
 msgstr "No s'ha creat cap arxiu."
 
@@ -4861,8 +4883,8 @@ msgstr ""
 msgid "No description provided."
 msgstr "No s'ha proporcionat cap descripció."
 
-#: pkg/storaged/mdraid-details.jsx:50 pkg/storaged/mdraids-panel.jsx:112
-#: pkg/storaged/vdos-panel.jsx:92 pkg/storaged/vgroup-details.jsx:57
+#: pkg/storaged/mdraid-details.jsx:51 pkg/storaged/mdraids-panel.jsx:112
+#: pkg/storaged/vdos-panel.jsx:92 pkg/storaged/vgroup-details.jsx:58
 #: pkg/storaged/vgroups-panel.jsx:81
 msgid "No disks are available."
 msgstr "No hi ha disponible cap disc."
@@ -4913,7 +4935,7 @@ msgstr ""
 msgid "No log entries"
 msgstr "Carrega les entrades anteriors"
 
-#: pkg/systemd/services/services.jsx:790
+#: pkg/systemd/services/services.jsx:789
 msgid "No matching results"
 msgstr ""
 
@@ -4947,7 +4969,7 @@ msgstr ""
 msgid "No partitioning"
 msgstr "Sense particionatge"
 
-#: pkg/users/local.js:428
+#: pkg/users/local.js:454
 msgid "No real name specified"
 msgstr "Sense especificar el nom real"
 
@@ -4955,11 +4977,11 @@ msgstr "Sense especificar el nom real"
 msgid "No results for $0"
 msgstr "Cap resultat per a $0"
 
-#: pkg/shell/indexes.js:530
+#: pkg/shell/nav.jsx:125
 msgid "No results found"
 msgstr ""
 
-#: pkg/systemd/services/services.jsx:788
+#: pkg/systemd/services/services.jsx:787
 msgid ""
 "No results match the filter criteria. Clear all filters to show results."
 msgstr ""
@@ -4988,7 +5010,7 @@ msgstr "No existeix el fitxer o el directori"
 msgid "No updates pending"
 msgstr "No hi ha actualitzacions pendents"
 
-#: pkg/users/local.js:423
+#: pkg/users/local.js:449
 msgid "No user name specified"
 msgstr "Sense especificar el nom d'usuari"
 
@@ -5074,7 +5096,7 @@ msgstr ""
 msgid "Not found"
 msgstr "No s'ha trobat"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:355
+#: pkg/systemd/overview-cards/configurationCard.jsx:365
 #, fuzzy
 #| msgid "Not mounted"
 msgid "Not joined"
@@ -5088,9 +5110,9 @@ msgstr "No muntat"
 msgid "Not permitted to perform this action."
 msgstr "No es permet realitzar aquesta acció."
 
-#: pkg/storaged/mdraid-details.jsx:336
+#: pkg/storaged/mdraid-details.jsx:328
 #: pkg/systemd/services/service-details.jsx:441
-#: pkg/systemd/services/services.jsx:524
+#: pkg/systemd/services/services.jsx:527
 msgid "Not running"
 msgstr "No s'està executant"
 
@@ -5122,7 +5144,7 @@ msgstr "S'ha produït entre $0 i $1"
 msgid "Ok"
 msgstr "D'acord"
 
-#: pkg/shell/index.html:288 pkg/users/index.html:217
+#: pkg/shell/index.html:358 pkg/users/index.html:217
 msgid "Old Password"
 msgstr "Contrasenya antiga"
 
@@ -5130,7 +5152,7 @@ msgstr "Contrasenya antiga"
 msgid "Old passphrase"
 msgstr ""
 
-#: pkg/lib/credentials.js:218 pkg/users/local.js:61
+#: pkg/lib/credentials.js:218 pkg/users/local.js:63
 msgid "Old password not accepted"
 msgstr "Contrasenya antiga no acceptada"
 
@@ -5181,7 +5203,7 @@ msgstr "Només es permeten lletres, números, : , _ , . , @ , -."
 msgid "Only editable when the guest is shut off"
 msgstr ""
 
-#: pkg/shell/index.html:35
+#: pkg/shell/index.html:53
 msgid "Ooops!"
 msgstr "Ooops!"
 
@@ -5248,7 +5270,7 @@ msgstr "Sobreescriu les dades existents amb zeros"
 msgid "PCI"
 msgstr "PCI"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:415
+#: pkg/systemd/overview-cards/configurationCard.jsx:425
 msgid "PCP"
 msgstr ""
 
@@ -5321,8 +5343,8 @@ msgid "Passphrases do not match"
 msgstr "Les contrasenyes no coincideixen"
 
 #: pkg/lib/machine-auth-failed.html:8 pkg/lib/machine-change-auth.html:52
-#: pkg/lib/machine-sync-users.html:63 pkg/shell/index.html:206
-#: pkg/shell/index.html:235 pkg/shell/index.html:250 pkg/users/index.html:118
+#: pkg/lib/machine-sync-users.html:63 pkg/shell/index.html:276
+#: pkg/shell/index.html:305 pkg/shell/index.html:320 pkg/users/index.html:118
 #: pkg/users/index.html:175 src/ws/login.html:55 pkg/shell/superuser.jsx:44
 #: pkg/storaged/iscsi-panel.jsx:47 pkg/storaged/iscsi-panel.jsx:157
 msgid "Password"
@@ -5339,16 +5361,16 @@ msgid "Password for $0"
 msgstr "Contrasenya"
 
 #: pkg/machines/components/create-vm-dialog/password.jsx:13
-#: pkg/users/local.js:252
+#: pkg/users/local.js:254
 msgid "Password is not acceptable"
 msgstr "La contrasenya no és acceptable"
 
 #: pkg/machines/components/create-vm-dialog/password.jsx:12
-#: pkg/users/local.js:240
+#: pkg/users/local.js:242
 msgid "Password is too weak"
 msgstr "La contrasenya és massa feble"
 
-#: pkg/users/local.js:897
+#: pkg/users/local.js:923
 msgid "Password must be changed"
 msgstr "S'ha de canviar la contrasenya"
 
@@ -5407,11 +5429,11 @@ msgid "Paths"
 msgstr "Camins"
 
 #: pkg/systemd/logs.html:82 pkg/machines/components/vm/vmActions.jsx:78
-#: pkg/systemd/logs.js:399 pkg/systemd/logs.js:1019
+#: pkg/systemd/logs.js:400 pkg/systemd/logs.js:1023
 msgid "Pause"
 msgstr ""
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:389
+#: pkg/systemd/overview-cards/configurationCard.jsx:399
 msgid "Performance profile"
 msgstr ""
 
@@ -5453,7 +5475,7 @@ msgstr ""
 msgid "Physical Volume"
 msgstr "Volum físic"
 
-#: pkg/storaged/vgroup-details.jsx:128
+#: pkg/storaged/vgroup-details.jsx:118
 msgid "Physical Volumes"
 msgstr "Volums físics"
 
@@ -5497,8 +5519,8 @@ msgstr ""
 
 #: pkg/docker/containers-view.jsx:205 pkg/docker/details.js:286
 #: pkg/docker/util.js:616 pkg/storaged/content-views.jsx:340
-#: pkg/storaged/mdraid-details.jsx:289 pkg/storaged/vdo-details.jsx:194
-#: pkg/storaged/vgroup-details.jsx:208
+#: pkg/storaged/mdraid-details.jsx:281 pkg/storaged/vdo-details.jsx:194
+#: pkg/storaged/vgroup-details.jsx:189
 msgid "Please confirm deletion of $0"
 msgstr "Si us plau, confirmeu la supressió de $0"
 
@@ -5506,7 +5528,7 @@ msgstr "Si us plau, confirmeu la supressió de $0"
 msgid "Please confirm forced deletion of $0"
 msgstr "Si us plau, confirmeu la supressió forçada de $0"
 
-#: pkg/storaged/mdraid-details.jsx:238 pkg/storaged/vdo-details.jsx:136
+#: pkg/storaged/mdraid-details.jsx:230 pkg/storaged/vdo-details.jsx:136
 msgid "Please confirm stopping of $0"
 msgstr "Confirmeu l'aturada de $0"
 
@@ -5526,7 +5548,7 @@ msgstr ""
 msgid "Please set a root or a user password"
 msgstr ""
 
-#: pkg/users/local.js:1258
+#: pkg/users/local.js:1284
 msgid "Please specify an expiration date"
 msgstr "Si us plau, especifiqueu una data de venciment"
 
@@ -5663,11 +5685,11 @@ msgstr "Prioritat $priority"
 msgid "Private"
 msgstr ""
 
-#: pkg/systemd/logs.js:559
+#: pkg/systemd/logs.js:563
 msgid "Problem details"
 msgstr "Detalls del problema"
 
-#: pkg/systemd/logs.js:558
+#: pkg/systemd/logs.js:562
 msgid "Problem info"
 msgstr "Informació del problema"
 
@@ -5690,11 +5712,11 @@ msgstr ""
 msgid "Profile"
 msgstr "Canvia el perfil"
 
-#: pkg/shell/index.html:83
+#: pkg/shell/index.html:153
 msgid "Project website"
 msgstr "Lloc web del projecte"
 
-#: pkg/users/local.js:66
+#: pkg/users/local.js:68
 msgid "Prompting via passwd timed out"
 msgstr "Per mitjà del temps d'espera de passwd"
 
@@ -5716,7 +5738,7 @@ msgstr ""
 msgid "Protocol"
 msgstr "Protocol"
 
-#: pkg/lib/machine-auth-failed.html:9 pkg/shell/index.html:234
+#: pkg/lib/machine-auth-failed.html:9 pkg/shell/index.html:304
 msgid "Public Key"
 msgstr "Clau pública"
 
@@ -5724,11 +5746,11 @@ msgstr "Clau pública"
 msgid "Purpose"
 msgstr "Propòsit"
 
-#: pkg/storaged/mdraid-details.jsx:181
+#: pkg/storaged/mdraid-details.jsx:173
 msgid "RAID ($0)"
 msgstr "RAID ($0)"
 
-#: pkg/storaged/mdraid-details.jsx:175
+#: pkg/storaged/mdraid-details.jsx:167
 msgid "RAID 0"
 msgstr "RAID 0"
 
@@ -5736,7 +5758,7 @@ msgstr "RAID 0"
 msgid "RAID 0 (Stripe)"
 msgstr "RAID 0 (segmentació)"
 
-#: pkg/storaged/mdraid-details.jsx:176
+#: pkg/storaged/mdraid-details.jsx:168
 msgid "RAID 1"
 msgstr "RAID 1"
 
@@ -5744,7 +5766,7 @@ msgstr "RAID 1"
 msgid "RAID 1 (Mirror)"
 msgstr "RAID 1 (rèplica)"
 
-#: pkg/storaged/mdraid-details.jsx:180
+#: pkg/storaged/mdraid-details.jsx:172
 msgid "RAID 10"
 msgstr "RAID 10"
 
@@ -5752,7 +5774,7 @@ msgstr "RAID 10"
 msgid "RAID 10 (Stripe of Mirrors)"
 msgstr "RAID 10 (segmentació de rèpliques)"
 
-#: pkg/storaged/mdraid-details.jsx:177
+#: pkg/storaged/mdraid-details.jsx:169
 msgid "RAID 4"
 msgstr "RAID 4"
 
@@ -5760,7 +5782,7 @@ msgstr "RAID 4"
 msgid "RAID 4 (Dedicated Parity)"
 msgstr "RAID 4 (paritat dedicada)"
 
-#: pkg/storaged/mdraid-details.jsx:178
+#: pkg/storaged/mdraid-details.jsx:170
 msgid "RAID 5"
 msgstr "RAID 5"
 
@@ -5768,7 +5790,7 @@ msgstr "RAID 5"
 msgid "RAID 5 (Distributed Parity)"
 msgstr "RAID 5 (paritat distribuïda)"
 
-#: pkg/storaged/mdraid-details.jsx:179
+#: pkg/storaged/mdraid-details.jsx:171
 msgid "RAID 6"
 msgstr "RAID 6"
 
@@ -5784,7 +5806,7 @@ msgstr ""
 msgid "RAID Device"
 msgstr "Dispositiu RAID"
 
-#: pkg/storaged/mdraid-details.jsx:309 pkg/storaged/utils.js:242
+#: pkg/storaged/mdraid-details.jsx:301 pkg/storaged/utils.js:242
 msgid "RAID Device $0"
 msgstr "Dispositiu RAID $0"
 
@@ -5792,7 +5814,7 @@ msgstr "Dispositiu RAID $0"
 msgid "RAID Level"
 msgstr "Nivell RAID"
 
-#: pkg/storaged/mdraid-details.jsx:330
+#: pkg/storaged/mdraid-details.jsx:322
 #, fuzzy
 #| msgid "RAID Level"
 msgctxt "storage"
@@ -5866,7 +5888,7 @@ msgstr ""
 msgid "Real Host Name"
 msgstr "Nom d'amfitrió real"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:512
+#: pkg/systemd/overview-cards/configurationCard.jsx:522
 msgid ""
 "Real host name can only contain lower-case characters, digits, dashes, and "
 "periods (with populated subdomains)"
@@ -5874,7 +5896,7 @@ msgstr ""
 "El nom d'amfitrió real només pot contenir caràcters en minúscules, dígits, "
 "guions i punts (amb subdominis poblats)"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:513
+#: pkg/systemd/overview-cards/configurationCard.jsx:523
 msgid "Real host name must be 64 characters or less"
 msgstr "El nom d'amfitrió real pot tenir com a molt 64 caràcters"
 
@@ -5896,11 +5918,11 @@ msgstr "Recent"
 msgid "Recommended default"
 msgstr ""
 
-#: pkg/shell/index.html:396
+#: pkg/shell/index.html:420
 msgid "Reconnect"
 msgstr "Torna a connectar"
 
-#: pkg/storaged/mdraid-details.jsx:96
+#: pkg/storaged/mdraid-details.jsx:97
 msgid "Recovering"
 msgstr "Recuperació"
 
@@ -6034,8 +6056,8 @@ msgstr ""
 msgid "Removing the zone will remove all services within it."
 msgstr ""
 
-#: pkg/storaged/lvol-tabs.jsx:39 pkg/storaged/vgroup-details.jsx:183
-#: pkg/storaged/vgroup-details.jsx:232
+#: pkg/storaged/lvol-tabs.jsx:39 pkg/storaged/vgroup-details.jsx:164
+#: pkg/storaged/vgroup-details.jsx:213
 msgid "Rename"
 msgstr "Reanomena"
 
@@ -6043,7 +6065,7 @@ msgstr "Reanomena"
 msgid "Rename Logical Volume"
 msgstr "Reanomena el volum lògic"
 
-#: pkg/storaged/vgroup-details.jsx:174
+#: pkg/storaged/vgroup-details.jsx:155
 msgid "Rename Volume Group"
 msgstr "Reanomena un grup de volums"
 
@@ -6108,11 +6130,11 @@ msgstr ""
 msgid "Repository"
 msgstr "Dipòsit"
 
-#: pkg/users/local.js:1322
+#: pkg/users/local.js:1348
 msgid "Require password change every $0 days"
 msgstr "Requereix el canvi de la contrasenya cada $0 dies"
 
-#: pkg/users/local.js:899
+#: pkg/users/local.js:925
 msgid "Require password change on $0"
 msgstr "Requereix el canvi de la contrasenya el $0"
 
@@ -6190,8 +6212,8 @@ msgstr "S'està reiniciant"
 msgid "Restoring connection"
 msgstr "S'està restaurant la connexió"
 
-#: pkg/machines/components/vm/vmActions.jsx:85 pkg/systemd/logs.js:402
-#: pkg/systemd/logs.js:1015
+#: pkg/machines/components/vm/vmActions.jsx:85 pkg/systemd/logs.js:403
+#: pkg/systemd/logs.js:1019
 msgid "Resume"
 msgstr ""
 
@@ -6259,9 +6281,9 @@ msgstr ""
 msgid "Runner"
 msgstr "Runner"
 
-#: pkg/storaged/mdraid-details.jsx:336
+#: pkg/storaged/mdraid-details.jsx:328
 #: pkg/systemd/services/service-details.jsx:433
-#: pkg/systemd/services/services.jsx:520
+#: pkg/systemd/services/services.jsx:523
 msgid "Running"
 msgstr "En execució"
 
@@ -6313,7 +6335,7 @@ msgstr "Port SPICE:"
 msgid "SPICE TLS Port:"
 msgstr "Port TLS SPICE:"
 
-#: pkg/shell/index.html:63 pkg/shell/index.html:162
+#: pkg/shell/index.html:80 pkg/shell/index.html:232
 msgid "SSH Keys"
 msgstr ""
 
@@ -6333,7 +6355,7 @@ msgstr "Envelliment màxim del missatge STP"
 msgid "STP Priority"
 msgstr "Prioritat STP"
 
-#: pkg/shell/index.html:417
+#: pkg/shell/index.html:438
 msgid ""
 "Safari users need to import and trust the certificate of the self-signing CA:"
 msgstr ""
@@ -6377,7 +6399,7 @@ msgstr ""
 msgid "Sealed-case PC"
 msgstr ""
 
-#: pkg/shell/index.html:372
+#: pkg/shell/nav.jsx:108
 msgid "Search"
 msgstr ""
 
@@ -6386,7 +6408,7 @@ msgstr ""
 msgid "Seconds"
 msgstr "segons"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:394
+#: pkg/systemd/overview-cards/configurationCard.jsx:404
 msgid "Secure Shell keys"
 msgstr ""
 
@@ -6398,7 +6420,7 @@ msgstr "S'està eliminant de forma segura $target"
 msgid "Security Updates Available"
 msgstr ""
 
-#: pkg/shell/index.html:119
+#: pkg/shell/index.html:189
 msgid "Select"
 msgstr "Selecciona"
 
@@ -6446,7 +6468,7 @@ msgstr "Servidor"
 msgid "Server Address"
 msgstr "Adreça del servidor"
 
-#: pkg/users/local.js:773 pkg/users/local.js:774
+#: pkg/users/local.js:799 pkg/users/local.js:800
 msgid "Server Administrator"
 msgstr "Administrador del servidor"
 
@@ -6512,11 +6534,12 @@ msgstr "Serveis"
 msgid "Session"
 msgstr "Sessió"
 
-#: pkg/shell/index.html:130
+#: pkg/shell/index.html:200
 msgid "Session is about to expire"
 msgstr ""
 
-#: pkg/dashboard/index.html:186 pkg/users/index.html:239
+#: pkg/dashboard/index.html:186 pkg/shell/index.html:137
+#: pkg/users/index.html:239
 msgid "Set"
 msgstr "Estableix"
 
@@ -6524,7 +6547,7 @@ msgstr "Estableix"
 msgid "Set DHCP Range"
 msgstr ""
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:335
+#: pkg/systemd/overview-cards/configurationCard.jsx:345
 msgid "Set Hostname"
 msgstr ""
 
@@ -6597,7 +6620,7 @@ msgstr ""
 msgid "Show Additional Options"
 msgstr "Emmagatzematge addicional"
 
-#: pkg/storaged/overview.jsx:54
+#: pkg/storaged/side-panel.jsx:44
 msgid "Show all"
 msgstr ""
 
@@ -6617,13 +6640,13 @@ msgstr "Mostra tots els contenidors"
 msgid "Show all images"
 msgstr "Mostra totes les imatges"
 
-#: pkg/systemd/logs.html:79 pkg/systemd/logs.js:938 pkg/systemd/logs.js:1047
+#: pkg/systemd/logs.html:79 pkg/systemd/logs.js:942 pkg/systemd/logs.js:1051
 #, fuzzy
 #| msgid "Show fingerprints"
 msgid "Show filters"
 msgstr "Mostra les empremtes"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:397
+#: pkg/systemd/overview-cards/configurationCard.jsx:407
 msgid "Show fingerprints"
 msgstr "Mostra les empremtes"
 
@@ -6690,11 +6713,21 @@ msgstr "La mida ha de ser un número"
 msgid "Size must be at least $0"
 msgstr "La mida com a mínim ha de ser $0"
 
+#: pkg/shell/index.html:19
+msgid "Skip main navigation"
+msgstr ""
+
+#: pkg/shell/index.html:18
+#, fuzzy
+#| msgid "Content"
+msgid "Skip to Content"
+msgstr "Contingut"
+
 #: pkg/systemd/hwinfo.jsx:260
 msgid "Slot"
 msgstr "Ranura"
 
-#: pkg/storaged/crypto-keyslots.jsx:544
+#: pkg/storaged/crypto-keyslots.jsx:544 pkg/storaged/mdraid-details.jsx:107
 msgid "Slot $0"
 msgstr ""
 
@@ -6783,7 +6816,7 @@ msgstr "STP (Spanning Tree Protocol)"
 msgid "Spanning Tree Protocol (STP)"
 msgstr "STP (Spanning Tree Protocol)"
 
-#: pkg/storaged/mdraid-details.jsx:96
+#: pkg/storaged/mdraid-details.jsx:97
 msgid "Spare"
 msgstr "Recanvi"
 
@@ -6801,7 +6834,7 @@ msgstr "Estable"
 
 #: pkg/docker/index.html:130 pkg/docker/containers-view.jsx:317
 #: pkg/machines/components/networks/createNetworkDialog.jsx:236
-#: pkg/storaged/content-views.jsx:306 pkg/storaged/mdraid-details.jsx:313
+#: pkg/storaged/content-views.jsx:306 pkg/storaged/mdraid-details.jsx:305
 #: pkg/storaged/vdo-details.jsx:258
 #: pkg/systemd/services/service-details.jsx:251
 msgid "Start"
@@ -6857,7 +6890,7 @@ msgstr ""
 msgid "State"
 msgstr "Estat"
 
-#: pkg/storaged/mdraid-details.jsx:335
+#: pkg/storaged/mdraid-details.jsx:327
 #, fuzzy
 #| msgid "State"
 msgctxt "storage"
@@ -6869,7 +6902,7 @@ msgid "State:"
 msgstr "Estat:"
 
 #: pkg/systemd/services/service-details.jsx:451
-#: pkg/systemd/services/services.jsx:534 pkg/systemd/services/services.jsx:697
+#: pkg/systemd/services/services.jsx:537 pkg/systemd/services/services.jsx:700
 msgid "Static"
 msgstr "Estàtic"
 
@@ -6887,13 +6920,13 @@ msgid "Sticky"
 msgstr ""
 
 #: pkg/docker/index.html:131 pkg/docker/containers-view.jsx:315
-#: pkg/storaged/content-views.jsx:304 pkg/storaged/mdraid-details.jsx:312
+#: pkg/storaged/content-views.jsx:304 pkg/storaged/mdraid-details.jsx:304
 #: pkg/storaged/vdo-details.jsx:140 pkg/storaged/vdo-details.jsx:257
 #: pkg/systemd/services/service-details.jsx:247
 msgid "Stop"
 msgstr "Atura"
 
-#: pkg/storaged/mdraid-details.jsx:242
+#: pkg/storaged/mdraid-details.jsx:234
 msgid "Stop Device"
 msgstr "Atura el dispositiu"
 
@@ -6912,6 +6945,10 @@ msgstr ""
 #: pkg/storaged/nfs-details.jsx:283
 msgid "Stop and remove"
 msgstr "Atura i treu"
+
+#: pkg/shell/hosts.jsx:242
+msgid "Stop editing hosts"
+msgstr ""
 
 #: pkg/docker/util.js:232
 msgid "Stopped"
@@ -6981,7 +7018,7 @@ msgstr ""
 msgid "Storage size must not be 0"
 msgstr ""
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:403
+#: pkg/systemd/overview-cards/configurationCard.jsx:413
 msgid "Store metrics"
 msgstr ""
 
@@ -7065,6 +7102,7 @@ msgid "Synchronize"
 msgstr "Sincronitza"
 
 #: pkg/dashboard/index.html:188 pkg/lib/machine-sync-users.html:4
+#: pkg/shell/index.html:139
 msgid "Synchronize users"
 msgstr "Sincronitza els usuaris"
 
@@ -7080,8 +7118,9 @@ msgstr "Sincronitzat amb {{Server}}"
 msgid "Synchronizing RAID Device $target"
 msgstr "Sincronització del dispositiu RAID $target"
 
+#: pkg/shell/index.html:24
 #: pkg/machines/components/machinesConnectionSelector.jsx:43
-#: pkg/machines/helpers.js:188
+#: pkg/machines/helpers.js:188 pkg/shell/indexes.js:322
 msgid "System"
 msgstr "Sistema"
 
@@ -7105,7 +7144,7 @@ msgstr ""
 msgid "System is up to date"
 msgstr "El sistema està al dia"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:374
+#: pkg/systemd/overview-cards/configurationCard.jsx:384
 msgid "System time"
 msgstr ""
 
@@ -7207,11 +7246,11 @@ msgstr ""
 msgid "The $0 package must be installed to create VDO devices."
 msgstr ""
 
-#: pkg/lib/machine-dialogs.js:392
+#: pkg/lib/machine-dialogs.js:373
 msgid "The IP address or host name cannot contain whitespace."
 msgstr "L'adreça IP o el nom d'amfitrió no poden contenir espais en blanc."
 
-#: pkg/storaged/mdraid-details.jsx:212
+#: pkg/storaged/mdraid-details.jsx:204
 msgid "The RAID Array is in a degraded state"
 msgstr ""
 
@@ -7219,7 +7258,7 @@ msgstr ""
 msgid "The RAID device must be running in order to add spare disks."
 msgstr ""
 
-#: pkg/storaged/mdraid-details.jsx:110
+#: pkg/storaged/mdraid-details.jsx:114
 msgid "The RAID device must be running in order to remove disks."
 msgstr ""
 
@@ -7269,7 +7308,7 @@ msgstr "La MV està en suspensió per la gestió d'energia del convidat."
 msgid "The VM needs to be running or shut off to detach this device"
 msgstr ""
 
-#: pkg/users/local.js:1364
+#: pkg/users/local.js:1390
 msgid "The account '$0' will be forced to change their password on next login"
 msgstr ""
 "El compte '$0' es veurà forçat a canviar de contrasenya el pròxim com que "
@@ -7363,7 +7402,7 @@ msgstr ""
 msgid "The following containers depend on this image and will become unusable."
 msgstr ""
 
-#: pkg/sosreport/index.html:51
+#: pkg/sosreport/index.html:52
 msgid ""
 "The generated archive contains data considered sensitive and its content "
 "should be reviewed by the originating organization before being passed to "
@@ -7381,7 +7420,7 @@ msgstr ""
 msgid "The key you provided was not valid."
 msgstr "La clau que heu proporcionat no era vàlida."
 
-#: pkg/storaged/mdraid-details.jsx:116
+#: pkg/storaged/mdraid-details.jsx:120
 msgid "The last disk of a RAID device cannot be removed."
 msgstr "No es pot treure l'últim disc d'un dispositiu RAID."
 
@@ -7389,7 +7428,7 @@ msgstr "No es pot treure l'últim disc d'un dispositiu RAID."
 msgid "The last key slot can not be removed"
 msgstr ""
 
-#: pkg/storaged/vgroup-details.jsx:91
+#: pkg/storaged/vgroup-details.jsx:92
 msgid "The last physical volume of a volume group cannot be removed."
 msgstr "No es pot treure l'últim volum físic d'un grup de volums."
 
@@ -7397,11 +7436,11 @@ msgstr "No es pot treure l'últim volum físic d'un grup de volums."
 msgid "The logged in user is not permitted to view system modifications"
 msgstr ""
 
-#: pkg/shell/indexes.js:709
+#: pkg/shell/indexes.js:453
 msgid "The machine is restarting"
 msgstr "La màquina s'està reiniciant"
 
-#: pkg/users/local.js:418 pkg/users/local.js:1421
+#: pkg/users/local.js:444 pkg/users/local.js:1447
 msgid "The passwords do not match"
 msgstr "Les contrasenyes no coincideixen"
 
@@ -7442,17 +7481,11 @@ msgstr ""
 msgid "The user $0 is not permitted to change cpu security mitigations"
 msgstr ""
 
-#: pkg/systemd/services/services.jsx:757
-#, fuzzy
-#| msgid "The user <b>$0</b> is not permitted to modify realms"
-msgid "The user $0 is not permitted to create timers"
-msgstr "A l'usuari <b>$0</b> no se li permet modificar els reialmes"
-
 #: pkg/dashboard/list.js:231
 msgid "The user <b>$0</b> is not permitted to manage servers"
 msgstr "A l'usuari <b>$0</b> no se li permet gestionar els servidors"
 
-#: pkg/users/local.js:646
+#: pkg/users/local.js:672
 msgid "The user <b>$0</b> is not permitted to modify accounts"
 msgstr "A l'usuari <b>$0</b> no se li permet modificar els comptes"
 
@@ -7460,7 +7493,7 @@ msgstr "A l'usuari <b>$0</b> no se li permet modificar els comptes"
 msgid "The user must log out and log back in to fully change roles."
 msgstr ""
 
-#: pkg/users/local.js:542
+#: pkg/users/local.js:568
 msgid ""
 "The user name can only consist of letters from a-z, digits, dots, dashes and "
 "underscores."
@@ -7495,7 +7528,7 @@ msgstr ""
 msgid "There are no authorized public keys for this account."
 msgstr "No hi ha cap clau pública autoritzada per aquest compte."
 
-#: pkg/storaged/vgroup-details.jsx:97
+#: pkg/storaged/vgroup-details.jsx:98
 msgid ""
 "There is not enough free space elsewhere to remove this physical volume. At "
 "least $0 more free space is needed."
@@ -7510,7 +7543,7 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: pkg/shell/index.html:412
+#: pkg/shell/index.html:433
 msgid "There was an unexpected error while connecting to the machine."
 msgstr ""
 
@@ -7576,7 +7609,7 @@ msgstr ""
 msgid "This didn't work, please try again"
 msgstr ""
 
-#: pkg/storaged/mdraid-details.jsx:112
+#: pkg/storaged/mdraid-details.jsx:116
 msgid "This disk cannot be removed while the device is recovering."
 msgstr "Aquest disc no es pot treure quan s'està recuperant el dispositiu."
 
@@ -7594,7 +7627,7 @@ msgstr "No existeix aquesta image."
 msgid "This logical volume is not completely used by its content."
 msgstr ""
 
-#: pkg/lib/machine-dialogs.js:370
+#: pkg/lib/machine-dialogs.js:351
 msgid "This machine has already been added."
 msgstr "La màquina ja ha estat afegida."
 
@@ -7639,11 +7672,11 @@ msgstr ""
 msgid "This unit is not designed to be enabled explicitly."
 msgstr "Aquesta unitat no està dissenyada per estar explícitament activada."
 
-#: pkg/users/local.js:550
+#: pkg/users/local.js:576
 msgid "This user name already exists"
 msgstr "Aquest nom d'usuari ja existeix"
 
-#: pkg/lib/machine-dialogs.js:386
+#: pkg/lib/machine-dialogs.js:367
 msgid ""
 "This version of cockpit-ws does not support connecting to a host with an "
 "alternate user or port"
@@ -7717,7 +7750,7 @@ msgstr "Zona horària"
 msgid "Timers"
 msgstr "Temporitzadors"
 
-#: pkg/shell/index.html:315
+#: pkg/shell/index.html:385
 msgid ""
 "Tip: Make your key password match your login password to automatically "
 "authenticate against other systems."
@@ -7743,9 +7776,19 @@ msgstr ""
 "Per provar un port diferent, haureu d'actualitzar cockpit-ws a una versió "
 "més recent."
 
+#: pkg/shell/index.html:66
+#, fuzzy
+#| msgid "Change the settings"
+msgid "Toggle session settings"
+msgstr "Canvia els ajusts"
+
 #: src/base1/cockpit.js:4067
 msgid "Too much data"
 msgstr "Hi ha massa dades"
+
+#: pkg/shell/indexes.js:325
+msgid "Tools"
+msgstr ""
 
 #: pkg/lib/cockpit-components-install-dialog.jsx:98
 msgid "Total size: $0"
@@ -7768,7 +7811,7 @@ msgstr ""
 msgid "Triggers"
 msgstr "Disparadors"
 
-#: pkg/shell/index.html:397 pkg/machines/components/libvirtSlate.jsx:101
+#: pkg/shell/index.html:421 pkg/machines/components/libvirtSlate.jsx:101
 msgid "Troubleshoot"
 msgstr "Soluciona el problema"
 
@@ -7820,7 +7863,7 @@ msgstr "Tuned no està aturat"
 msgid "Turn on administrative access"
 msgstr ""
 
-#: pkg/shell/index.html:272
+#: pkg/shell/index.html:342
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:86
 #: pkg/machines/components/storagePools/storagePoolOverviewTab.jsx:74
 #: pkg/machines/components/vm/bootOrderModal.jsx:108
@@ -7866,7 +7909,7 @@ msgstr "URL"
 msgid "UUID"
 msgstr "UUID"
 
-#: pkg/storaged/mdraid-details.jsx:324 pkg/storaged/vgroup-details.jsx:239
+#: pkg/storaged/mdraid-details.jsx:316 pkg/storaged/vgroup-details.jsx:220
 #, fuzzy
 #| msgid "UUID"
 msgctxt "storage"
@@ -7885,7 +7928,7 @@ msgstr "No es pot aplicar automàticament aquesta solució"
 msgid "Unable to connect to that address"
 msgstr "No es pot connectar a aquesta adreça"
 
-#: pkg/users/local.js:665
+#: pkg/users/local.js:691
 msgid "Unable to delete root account"
 msgstr "No es pot suprimir el compte de root"
 
@@ -7906,7 +7949,7 @@ msgstr "No es pot arribar al servidor"
 msgid "Unable to remove mount"
 msgstr "No es pot treure el punt de muntatge"
 
-#: pkg/users/local.js:667
+#: pkg/users/local.js:693
 msgid "Unable to rename root account"
 msgstr "No es pot reanomenar el compte de root"
 
@@ -7927,7 +7970,7 @@ msgid "Unavailable"
 msgstr "No disponible"
 
 #: pkg/docker/index.html:697 pkg/networkmanager/index.html:728
-#: pkg/shell/base_index.js:837 pkg/users/local.js:1507
+#: pkg/shell/base_index.js:829 pkg/users/local.js:1533
 msgid "Unexpected error"
 msgstr "Error inesperat"
 
@@ -7956,7 +7999,7 @@ msgstr "Desconegut"
 msgid "Unknown \"$0\""
 msgstr "\"$0\" desconegut"
 
-#: pkg/storaged/mdraid-details.jsx:99
+#: pkg/storaged/mdraid-details.jsx:100
 msgid "Unknown ($0)"
 msgstr "Desconegut ($0)"
 
@@ -7999,7 +8042,7 @@ msgstr "A menys que s'aturi"
 msgid "Unlock"
 msgstr "Desbloqueja"
 
-#: pkg/shell/index.html:216 pkg/shell/index.html:260
+#: pkg/shell/index.html:286 pkg/shell/index.html:330
 msgid "Unlock Key"
 msgstr "Clau de desbloqueig"
 
@@ -8148,7 +8191,7 @@ msgstr ""
 msgid "Use Existing"
 msgstr ""
 
-#: pkg/shell/index.html:168
+#: pkg/shell/index.html:238
 msgid "Use the following keys to authenticate against other systems"
 msgstr "Utilitza les següents claus per autenticar contra altres sistemes"
 
@@ -8168,8 +8211,8 @@ msgid "Used by Containers"
 msgstr "Utilitzat pels contenidors"
 
 #: pkg/dashboard/index.html:156 pkg/playground/translate.html:85
-#: pkg/playground/translate.html:105 pkg/systemd/graphs.html:138
-#: pkg/systemd/graphs.js:297
+#: pkg/playground/translate.html:105 pkg/shell/index.html:115
+#: pkg/systemd/graphs.html:138 pkg/systemd/graphs.js:297
 msgid "User"
 msgstr "Usuari"
 
@@ -8327,7 +8370,7 @@ msgstr ""
 msgid "Verifying"
 msgstr "S'està verificant"
 
-#: pkg/shell/index.html:85 pkg/packagekit/updates.jsx:395
+#: pkg/shell/index.html:155 pkg/packagekit/updates.jsx:395
 #: pkg/systemd/hwinfo.jsx:75
 msgid "Version"
 msgstr "Versió"
@@ -8389,7 +8432,7 @@ msgstr "Volum"
 msgid "Volume Group"
 msgstr "Grup de volums"
 
-#: pkg/storaged/utils.js:248 pkg/storaged/vgroup-details.jsx:230
+#: pkg/storaged/utils.js:248 pkg/storaged/vgroup-details.jsx:211
 msgid "Volume Group $0"
 msgstr "Grup de volums $0"
 
@@ -8459,7 +8502,7 @@ msgstr ""
 msgid "Warning and above"
 msgstr ""
 
-#: pkg/shell/indexes.js:618
+#: pkg/shell/indexes.js:390
 #, fuzzy
 #| msgid "Consoles"
 msgid "Web Console"
@@ -8502,7 +8545,7 @@ msgctxt "storage"
 msgid "World Wide Name"
 msgstr ""
 
-#: pkg/storaged/mdraid-details.jsx:97
+#: pkg/storaged/mdraid-details.jsx:98
 msgid "Write-mostly"
 msgstr "Escriptura-majoritària"
 
@@ -8567,16 +8610,21 @@ msgstr ""
 msgid "You have been logged out due to inactivity."
 msgstr ""
 
-#: pkg/systemd/logs.js:163
+#: pkg/systemd/logs.js:168
 msgid "You may try to load older entries."
 msgstr ""
 
-#: pkg/users/local.js:95
+#: pkg/users/local.js:97
 msgid "You must wait longer to change your password"
 msgstr ""
 
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:130
 msgid "You need to select the most closely matching Operating System"
+msgstr ""
+
+#: pkg/sosreport/index.html:36
+msgid ""
+"You need to switch to \"Administrative Access\" in order to create reports."
 msgstr ""
 
 #: pkg/shell/superuser.jsx:257
@@ -8586,6 +8634,12 @@ msgstr ""
 #: pkg/shell/base_index.js:529
 msgid "You will be logged out in $0 seconds."
 msgstr ""
+
+#: pkg/users/local.js:295
+#, fuzzy
+#| msgid "Lock Account"
+msgid "Your account"
+msgstr "Bloqueja el compte"
 
 #: pkg/packagekit/updates.jsx:897
 msgid ""
@@ -8795,7 +8849,7 @@ msgstr "morint"
 msgid "e.g. \"$0\""
 msgstr "p. ex. \"$0\""
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:335
+#: pkg/systemd/overview-cards/configurationCard.jsx:345
 msgid "edit"
 msgstr ""
 
@@ -8831,7 +8885,7 @@ msgstr "cada dia"
 msgid "extension"
 msgstr ""
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:261
+#: pkg/systemd/overview-cards/configurationCard.jsx:271
 msgid "failed to list ssh host keys: $0"
 msgstr "no s'han pogut llistar les claus d'amfitrions ssh: $0"
 
@@ -9290,8 +9344,8 @@ msgstr "indefinit"
 msgid "unit"
 msgstr ""
 
-#: pkg/systemd/services/services.jsx:470 pkg/systemd/services/services.jsx:471
-#: pkg/systemd/services/services.jsx:493 pkg/systemd/services/services.jsx:494
+#: pkg/systemd/services/services.jsx:473 pkg/systemd/services/services.jsx:474
+#: pkg/systemd/services/services.jsx:496 pkg/systemd/services/services.jsx:497
 msgid "unknown"
 msgstr "desconegut"
 
@@ -9391,6 +9445,20 @@ msgstr ""
 #: pkg/networkmanager/manifest.json.in
 msgid "zone"
 msgstr ""
+
+#~ msgid "Account Settings"
+#~ msgstr "Ajusts dels comptes"
+
+#~ msgid "Add Machine to Dashboard"
+#~ msgstr "Afegeix la màquina al tauler de control"
+
+#~ msgid "Machines"
+#~ msgstr "Màquines"
+
+#, fuzzy
+#~| msgid "The user <b>$0</b> is not permitted to modify realms"
+#~ msgid "The user $0 is not permitted to create timers"
+#~ msgstr "A l'usuari <b>$0</b> no se li permet modificar els reialmes"
 
 #~ msgid "Go to"
 #~ msgstr "Vés a"

@@ -17,6 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+import '../../src/base1/patternfly-cockpit.scss';
 import 'polyfills';
 import cockpit from "cockpit";
 import moment from "moment";

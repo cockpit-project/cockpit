@@ -20,6 +20,8 @@
 import cockpit from "cockpit";
 import $ from "jquery";
 
+import '../../src/base1/patternfly-cockpit.scss';
+
 const _ = cockpit.gettext;
 
 var sos_task;

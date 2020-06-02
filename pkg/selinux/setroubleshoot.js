@@ -22,6 +22,8 @@ import cockpit from "cockpit";
 import React from "react";
 import ReactDOM from "react-dom";
 
+import '../../src/base1/patternfly-cockpit.scss';
+
 import * as troubleshootClient from "./setroubleshoot-client";
 import * as selinuxClient from "./selinux-client.js";
 import { SETroubleshootPage } from "./setroubleshoot-view.jsx";

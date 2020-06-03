@@ -21,9 +21,8 @@ import React from "react";
 
 import {
     DataList, DataListItem, DataListCell, DataListItemRow, DataListItemCells, DataListAction,
-    Badge,
+    Tooltip, TooltipPosition, Badge,
 } from '@patternfly/react-core';
-import { OverlayTrigger, Tooltip } from 'patternfly-react';
 
 import cockpit from "cockpit";
 
@@ -101,7 +100,7 @@ class ServicesRow extends React.PureComponent {
                             {HasFailed && <span className='fa fa-exclamation-circle' />}
                             {CombinedState}
                         </span>}
-                        <OverlayTrigger overlay={ <Tooltip id="switch-unit-state">{ tooltipMessage }</Tooltip> } placement='left'>{unitFileState}</OverlayTrigger>
+                        <Tooltip id="switch-unit-state" content={tooltipMessage} position={TooltipPosition.left}>{unitFileState}</Tooltip>
                     </DataListAction>
                 </DataListItemRow>
             </DataListItem>

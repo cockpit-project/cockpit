@@ -51,7 +51,7 @@ export class StoragePoolList extends React.Component {
                 </Breadcrumb>
                 <div id='storage-pools-listing' className='container-fluid'>
                     <Listing title={_("Storage Pools")}
-                        columnTitles={[_("Name"), _("Size"), "", _("Connection"), _("State")]}
+                        columnTitles={[_("Name"), _("Size"), _("Connection"), _("State")]}
                         emptyCaption={_("No storage pool is defined on this host")}
                         actions={actions}>
                         {storagePools

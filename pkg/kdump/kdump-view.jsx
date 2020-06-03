@@ -21,8 +21,7 @@ import cockpit from "cockpit";
 
 import React from "react";
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
-import { OverlayTrigger, Tooltip } from "patternfly-react";
-import { Button } from "@patternfly/react-core";
+import { Button, Tooltip, TooltipPosition } from "@patternfly/react-core";
 
 import * as Select from "cockpit-components-select.jsx";
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
@@ -453,20 +452,20 @@ export class KdumpPage extends React.Component {
             if (this.props.reservedMemory == 0) {
                 const tooltip = _("No memory reserved. Append a crashkernel option to the kernel command line (e.g. in /etc/default/grub) to reserve memory at boot time. Example: crashkernel=512M");
                 serviceHint = (
-                    <OverlayTrigger overlay={ <Tooltip id="tip-service">{tooltip}</Tooltip> } placement="bottom">
+                    <Tooltip id="tip-service" content={tooltip} position={TooltipPosition.bottom}>
                         <span className="popover-ct-kdump fa fa-lg fa-info-circle" />
-                    </OverlayTrigger>
+                    </Tooltip>
                 );
             }
             kdumpServiceDetails = <button role="link" className="popover-ct-kdump link-button" onClick={this.handleServiceDetailsClick}>{serviceDescription}{serviceHint}</button>;
         } else if (this.props.kdumpStatus && !this.props.kdumpStatus.installed) {
             const tooltip = _("Kdump service not installed. Please ensure package kexec-tools is installed.");
             kdumpServiceDetails = (
-                <OverlayTrigger overlay={ <Tooltip id="tip-service">{tooltip}</Tooltip> } placement="bottom">
+                <Tooltip id="tip-service" content={tooltip} position={TooltipPosition.bottom}>
                     <button className="popover-ct-kdump link-button">
                         <span className="fa fa-lg fa-info-circle" />
                     </button>
-                </OverlayTrigger>
+                </Tooltip>
             );
         }
         var serviceWaiting;
@@ -483,11 +482,11 @@ export class KdumpPage extends React.Component {
         } else {
             const tooltip = _("Test is only available while the kdump service is running.");
             testButton = (
-                <OverlayTrigger overlay={ <Tooltip id="tip-test">{tooltip}</Tooltip> } placement="top">
+                <Tooltip id="tip-test" content={tooltip}>
                     <Button variant="secondary" isDisabled>
                         {_("Test Configuration")}
                     </Button>
-                </OverlayTrigger>
+                </Tooltip>
             );
         }
         const tooltip_info = _("This will test the kdump configuration by crashing the kernel.");
@@ -511,9 +510,9 @@ export class KdumpPage extends React.Component {
                     <div role="group">
                         {testButton}
                         <button className="popover-ct-kdump link-button">
-                            <OverlayTrigger overlay={ <Tooltip id="tip-test-info">{tooltip_info}</Tooltip> } placement="top">
+                            <Tooltip id="tip-test-info" content={tooltip_info}>
                                 <span className="fa fa-lg fa-info-circle" />
-                            </OverlayTrigger>
+                            </Tooltip>
                         </button>
                     </div>
                 </form>

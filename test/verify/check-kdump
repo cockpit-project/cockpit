@@ -77,9 +77,9 @@ class TestKdump(MachineCase):
             assertActive(True)
         else:
             # right now we have no memory reserved
-            b.mouse("#app span.popover-ct-kdump", "mouseover")
-            b.wait_in_text("div.tooltip", "No memory reserved.")
-            b.mouse("#app span.popover-ct-kdump", "mouseout")
+            b.mouse("#app span.popover-ct-kdump", "mouseenter")
+            b.wait_in_text(".pf-c-tooltip", "No memory reserved.")
+            b.mouse("#app span.popover-ct-kdump", "mouseleave")
             # service should indicate an error and the button should be off
             b.wait_in_text("#app", "Service has an error")
             assertActive(False)

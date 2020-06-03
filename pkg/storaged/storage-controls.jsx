@@ -18,8 +18,7 @@
  */
 
 import React from "react";
-import { OverlayTrigger, Tooltip } from "patternfly-react";
-import { Button, Progress, ProgressMeasureLocation, ProgressVariant } from '@patternfly/react-core';
+import { Button, Tooltip, TooltipPosition, Progress, ProgressMeasureLocation, ProgressVariant } from '@patternfly/react-core';
 import { BarsIcon } from '@patternfly/react-icons';
 
 import cockpit from "cockpit";
@@ -54,12 +53,12 @@ class StorageControl extends React.Component {
 
         if (excuse) {
             return (
-                <OverlayTrigger overlay={ <Tooltip id="tip-storage">{excuse}</Tooltip> }
-                                placement={this.props.excuse_placement || "top"}>
+                <Tooltip id="tip-storage" content={excuse}
+                         position={this.props.excuse_placement || TooltipPosition.top}>
                     <span>
                         { this.props.content(excuse) }
                     </span>
-                </OverlayTrigger>
+                </Tooltip>
             );
         } else {
             return this.props.content();

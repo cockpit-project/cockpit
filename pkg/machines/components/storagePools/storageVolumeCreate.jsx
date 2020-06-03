@@ -19,8 +19,8 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Modal, OverlayTrigger, Tooltip } from 'patternfly-react';
-import { Button } from '@patternfly/react-core';
+import { Modal } from 'patternfly-react';
+import { Button, Tooltip } from '@patternfly/react-core';
 import cockpit from 'cockpit';
 
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
@@ -138,19 +138,16 @@ export class StorageVolumeCreate extends React.Component {
                 );
             } else {
                 return (
-                    <OverlayTrigger overlay={
-                        <Tooltip id='create-tooltip'>
-                            {_("Pool type doesn't support volume creation")}
-                        </Tooltip> } placement='top'>
+                    <Tooltip id='create-tooltip'
+                             content={_("Pool type doesn't support volume creation")}>
                         <span>
                             <Button id={`${idPrefix}-button`}
-                                variant='secondary'
-                                style={{ pointerEvents: 'none' }}
-                                isDisabled>
+                                    variant='secondary'
+                                    isDisabled>
                                 {_("Create Volume")}
                             </Button>
                         </span>
-                    </OverlayTrigger>
+                    </Tooltip>
                 );
             }
         };

@@ -5,9 +5,9 @@ import PropTypes from 'prop-types';
 
 import {
     Nav,
+    Tooltip, TooltipPosition,
 } from '@patternfly/react-core';
 import { ExclamationCircleIcon, ExclamationTriangleIcon, InfoCircleIcon } from '@patternfly/react-icons';
-import { OverlayTrigger, Tooltip } from 'patternfly-react';
 
 const _ = cockpit.gettext;
 
@@ -146,13 +146,14 @@ function PageStatus({ status, name }) {
     desc = desc.join("-");
 
     return (
-        <OverlayTrigger placement="right" overlay={ <Tooltip id={desc + "-tooltip"}>{ status.title }</Tooltip> }>
+        <Tooltip id={desc + "-tooltip"} content={status.title}
+                 position={TooltipPosition.right}>
             <span id={desc} className="nav-status">
                 {status.type == "error" ? <ExclamationCircleIcon color="#f54f42" />
                     : status.type == "warning" ? <ExclamationTriangleIcon color="#f0ab00" />
                         : <InfoCircleIcon color="#73bcf7" />}
             </span>
-        </OverlayTrigger>
+        </Tooltip>
     );
 }
 

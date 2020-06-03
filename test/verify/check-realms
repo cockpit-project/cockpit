@@ -855,9 +855,14 @@ class TestPackageInstall(packagelib.PackageCase):
         with b.wait_timeout(4):
             def check():
                 try:
-                    b.mouse("#system_information_domain_tooltip", "mouseover")
-                    b.wait_in_text(".tooltip-inner", text)
-                    b.mouse("#system_information_domain_tooltip", "mouseout")
+                    if self.image in ["rhel-8-3-distropkg"]:  # changed in PR #14195
+                        b.mouse("#system_information_domain_tooltip", "mouseover")
+                        b.wait_in_text(".tooltip-inner", text)
+                        b.mouse("#system_information_domain_tooltip", "mouseout")
+                    else:
+                        b.mouse("#system_information_domain_tooltip", "mouseenter")
+                        b.wait_in_text("div.pf-c-tooltip", text)
+                        b.mouse("#system_information_domain_tooltip", "mouseleave")
                     return True
                 except (RuntimeError, Error):
                     return False

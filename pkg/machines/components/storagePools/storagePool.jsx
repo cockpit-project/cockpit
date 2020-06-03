@@ -18,8 +18,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Tooltip, OverlayTrigger, UtilizationBar } from 'patternfly-react';
-import { Button } from '@patternfly/react-core';
+import { Button, Progress, Tooltip } from '@patternfly/react-core';
 
 import { ListingRow } from 'cockpit-components-listing.jsx';
 import {
@@ -47,22 +46,13 @@ export class StoragePool extends React.Component {
             </span>);
         const allocation = parseFloat(convertToUnit(storagePool.allocation, units.B, units.GiB).toFixed(2));
         const capacity = parseFloat(convertToUnit(storagePool.capacity, units.B, units.GiB).toFixed(2));
-        const availableTooltipFunction = (max, now) => <Tooltip id='utilization-bar-tooltip-available'> Available {((max - now) / max).toFixed(2) * 100}% </Tooltip>;
-        const usedTooltipFunction = (max, now) => <Tooltip id='utilization-bar-tooltip-used'> Used {(now / max).toFixed(2) * 100}% </Tooltip>;
+        const sizeLabel = String(cockpit.format("$0 / $1 GiB", allocation, capacity));
         const size = (
-            <>
-                <UtilizationBar
-                    now={allocation}
-                    max={capacity}
-                    availableTooltipFunction={availableTooltipFunction}
-                    usedTooltipFunction={usedTooltipFunction}
-                />
-            </>
-        );
-        const sizeLabel = (
-            <>
-                {`${allocation} / ${capacity} GiB`}
-            </>
+            <Progress value={Number(storagePool.allocation)}
+                      min={0}
+                      max={Number(storagePool.capacity)}
+                      label={sizeLabel}
+                      valueText={sizeLabel} />
         );
         const state = (
             <>
@@ -74,7 +64,6 @@ export class StoragePool extends React.Component {
         const cols = [
             { name, header: true },
             size,
-            sizeLabel,
             rephraseUI('connections', storagePool.connectionName),
             state,
         ];
@@ -165,7 +154,6 @@ class StoragePoolActions extends React.Component {
             <Button id={`deactivate-${id}`}
                 variant='secondary'
                 isDisabled={this.state.operationInProgress}
-                style={this.state.operationInProgress ? { pointerEvents: 'none' } : null} // Fixes OverlayTrigger not showing up
                 onClick={this.onDeactivate}>
                 {_("Deactivate")}
             </Button>
@@ -174,25 +162,24 @@ class StoragePoolActions extends React.Component {
             <Button id={`activate-${id}`}
                 variant='secondary'
                 isDisabled={this.state.operationInProgress}
-                style={this.state.operationInProgress ? { pointerEvents: 'none' } : null} // Fixes OverlayTrigger not showing up
                 onClick={this.onActivate}>
                 {_("Activate")}
             </Button>
         );
         if (this.state.operationInProgress) {
             deactivateButton = (
-                <OverlayTrigger overlay={ <Tooltip id="tip-in-progress">{_("Operation is in progress")}</Tooltip> } placement="top">
+                <Tooltip id="tip-in-progress" content={_("Operation is in progress")}>
                     <span>
                         {deactivateButton}
                     </span>
-                </OverlayTrigger>
+                </Tooltip>
             );
             activateButton = (
-                <OverlayTrigger overlay={ <Tooltip id="tip-in-progress">{_("Operation is in progress")}</Tooltip> } placement="top">
+                <Tooltip id="tip-in-progress" content={_("Operation is in progress")}>
                     <span>
                         {activateButton}
                     </span>
-                </OverlayTrigger>
+                </Tooltip>
             );
         }
 

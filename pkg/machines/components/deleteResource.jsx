@@ -19,8 +19,8 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Modal, OverlayTrigger, Tooltip } from 'patternfly-react';
-import { Button } from '@patternfly/react-core';
+import { Modal } from 'patternfly-react';
+import { Button, Tooltip } from '@patternfly/react-core';
 
 import cockpit from 'cockpit';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
@@ -90,19 +90,16 @@ DeleteResourceModal.propTypes = {
 export const DeleteResourceButton = ({ objectId, disabled, overlayText, actionName, showDialog }) => {
     if (disabled) {
         return (
-            <OverlayTrigger overlay={
-                <Tooltip id={`delete-${objectId}-tooltip`}>
-                    { overlayText }
-                </Tooltip> } placement='top'>
+            <Tooltip id={`delete-${objectId}-tooltip`}
+                     content={overlayText}>
                 <span>
                     <Button id={`delete-${objectId}`}
                         variant='danger'
-                        style={{ pointerEvents: 'none' }}
                         isDisabled>
                         {actionName || _("Delete")}
                     </Button>
                 </span>
-            </OverlayTrigger>
+            </Tooltip>
         );
     } else {
         return (

@@ -24,8 +24,7 @@ import React, { useState, useEffect } from "react";
 import ReactDOM from 'react-dom';
 
 import moment from "moment";
-import { OverlayTrigger, Tooltip } from "patternfly-react";
-import { Button } from '@patternfly/react-core';
+import { Button, Tooltip } from '@patternfly/react-core';
 import { RebootingIcon, CheckIcon, ExclamationCircleIcon } from "@patternfly/react-icons";
 import { Remarkable } from "remarkable";
 
@@ -273,26 +272,26 @@ class UpdateItem extends React.Component {
                 secSeverityURL = <a rel="noopener noreferrer" target="_blank" href={secSeverityURL}>{secSeverity}</a>;
             type = (
                 <>
-                    <OverlayTrigger overlay={ <Tooltip id="tip-severity">{ secSeverity || _("security") }</Tooltip> } placement="top">
+                    <Tooltip id="tip-severity" content={ secSeverity || _("security") }>
                         <span className={iconClasses}>&nbsp;</span>
-                    </OverlayTrigger>
+                    </Tooltip>
                     { (info.cve_urls && info.cve_urls.length > 0) ? info.cve_urls.length : "" }
                 </>);
         } else {
             const tip = (info.severity >= PK.Enum.INFO_NORMAL) ? _("bug fix") : _("enhancement");
             type = (
                 <>
-                    <OverlayTrigger overlay={ <Tooltip id="tip-severity">{tip}</Tooltip> } placement="top">
+                    <Tooltip id="tip-severity" content={tip}>
                         <span className={iconClasses}>&nbsp;</span>
-                    </OverlayTrigger>
+                    </Tooltip>
                     { bugs ? info.bug_urls.length : "" }
                 </>);
         }
 
         const pkgList = this.props.pkgNames.map(n => (
-            <OverlayTrigger key={n.name + n.arch} overlay={ <Tooltip id="tip-summary">{packageSummaries[n.name] + " (" + n.arch + ")"}</Tooltip> } placement="top">
+            <Tooltip key={n.name + n.arch} id="tip-summary" content={packageSummaries[n.name] + " (" + n.arch + ")"}>
                 <span>{n.name}</span>
-            </OverlayTrigger>)
+            </Tooltip>)
         );
         const pkgs = insertCommas(pkgList);
         let pkgsTruncated = pkgs;

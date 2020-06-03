@@ -72,7 +72,6 @@ The verify test suite is the main test suite:
 You can set these environment variables to configure the test suite:
 
     TEST_OS    The OS to run the tests in.  Currently supported values:
-                  "centos-7"
                   "centos-8-stream"
                   "debian-stable"
                   "debian-testing"
@@ -80,10 +79,7 @@ You can set these environment variables to configure the test suite:
                   "fedora-32"
                   "fedora-coreos"
                   "fedora-testing"
-                  "rhel-7-7"
-                  "rhel-7-8"
-                  "rhel-8-2"
-                  "rhel-8-2-distropkg"
+                  "rhel-7-9"
                   "rhel-8-3"
                   "rhel-8-3-distropkg"
                   "ubuntu-2004"

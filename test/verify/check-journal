@@ -36,10 +36,7 @@ class TestJournal(MachineCase):
             "Debug and above": "debug",
         }
 
-        if self.machine.image == "rhel-8-2-distropkg": # Changed in #13905
-            self.select_from_dropdown(self.browser, "#journal-prio-menu", value)
-        else:
-            self.browser.set_val("#journal-prio-menu", prio_map[value])
+        self.browser.set_val("#journal-prio-menu", prio_map[value])
 
     def select_from_dropdown(self, browser, selector, value, click=True):
         button_text_selector = "{0} button span:nth-of-type(1)".format(selector)
@@ -240,9 +237,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         wait_journal_empty()
 
         def wait_slow10():
-            if m.image == "rhel-8-2-distropkg": # Changed in #13905
-                wait_log_lines([expected_date, ["sh", "SLOW", "10"]])
-            elif m.image.startswith("rhel") or m.image.startswith("centos"): # Older systemd does not show when unit finishes
+            if m.image.startswith("rhel") or m.image.startswith("centos"): # Older systemd does not show when unit finishes
                 wait_log_lines([expected_date, ["sh", "SLOW", "10"],
                                ["systemd", "Started Slowly log 10 identical lines.", ""]])
             else:
@@ -317,33 +312,18 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         wait_log_present("AFTER BOOT")
         m.execute("logger -p 5 --tag just-a-service WORK PLEASE")
         wait_log_present("WORK PLEASE")
-        if m.image == "rhel-8-2-distropkg": # Changed in #13905
-            self.select_from_dropdown(b, "#journal-service-menu", "check-journal", click=False)
-            self.select_from_dropdown(b, "#journal-service-menu", "just-a-service", click=True)
-        else:
-            b.wait_present("#journal-service-menu option[value='check-journal']")
-            b.set_val("#journal-service-menu", "just-a-service")
+        b.wait_present("#journal-service-menu option[value='check-journal']")
+        b.set_val("#journal-service-menu", "just-a-service")
         wait_log_not_present("AFTER BOOT")
         wait_log_present("WORK PLEASE")
-        if m.image == "rhel-8-2-distropkg": # Changed in #13905
-            self.select_from_dropdown(b, "#journal-service-menu", "All", click=True)
-        else:
-            b.set_val("#journal-service-menu", "*")
+        b.set_val("#journal-service-menu", "*")
         wait_log_present("AFTER BOOT")
         wait_log_present("WORK PLEASE")
 
         self.select_priority("Error and above")
-        if m.image == "rhel-8-2-distropkg": # Changed in #13905
-            self.select_from_dropdown(b, "#journal-service-menu", "check-journal", click=False)
-            b.click("#journal-service-menu button")
-            b.wait_not_present("#journal-services-list ul li a:contains('just-a-service')")
-        else:
-            wait_log_not_present("WORK PLEASE")
-            b.set_val("#journal-service-menu", "check-journal")
-            b.wait_not_present("#journal-service-menu option[value='just-a-service']")
-
-        if m.image == "rhel-8-2-distropkg": # Introduced in #13905
-            return
+        wait_log_not_present("WORK PLEASE")
+        b.set_val("#journal-service-menu", "check-journal")
+        b.wait_not_present("#journal-service-menu option[value='just-a-service']")
 
         b.go("#/?tag=test-stream&prio=notice")
         wait_journal_empty()
@@ -480,8 +460,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         b.wait_present(journal_line_selector.format("INFO_MESSAGE"))
 
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-2004", "fedora-coreos", "rhel-8-2", "rhel-8-2-distropkg",
-               "rhel-8-3", "rhel-8-3-distropkg", "centos-8-stream")
+               "ubuntu-2004", "fedora-coreos", "rhel-8-3", "rhel-8-3-distropkg", "centos-8-stream")
     def testAbrtSegv(self):
         b = self.browser
 
@@ -518,8 +497,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         b.wait_present(sel)
 
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-2004", "fedora-coreos", "rhel-8-2", "rhel-8-2-distropkg",
-               "rhel-8-3", "rhel-8-3-distropkg", "centos-8-stream")
+               "ubuntu-2004", "fedora-coreos", "rhel-8-3", "rhel-8-3-distropkg", "centos-8-stream")
     def testAbrtDelete(self):
         b = self.browser
 
@@ -551,8 +529,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         b.wait_not_present("#journal-entry-fields .nav .pf-m-danger")
 
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-2004", "fedora-coreos", "rhel-8-2", "rhel-8-2-distropkg",
-               "rhel-8-3", "rhel-8-3-distropkg", "centos-8-stream")
+               "ubuntu-2004", "fedora-coreos", "rhel-8-3", "rhel-8-3-distropkg", "centos-8-stream")
     def testAbrtReport(self):
         # The testing server is located at verify/files/mock-faf-server.py
         # Adjust Handler.known for for the expected succession of known/unknown problems
@@ -625,8 +602,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         b.wait_present(sel)
 
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-2004", "fedora-coreos", "rhel-8-2", "rhel-8-2-distropkg",
-               "rhel-8-3", "rhel-8-3-distropkg", "centos-8-stream")
+               "ubuntu-2004", "fedora-coreos", "rhel-8-3", "rhel-8-3-distropkg", "centos-8-stream")
     def testAbrtReportCancel(self):
         b = self.browser
         m = self.machine
@@ -663,8 +639,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         b.wait_present(sel)
 
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-2004", "fedora-coreos", "rhel-8-2", "rhel-8-2-distropkg",
-               "rhel-8-3", "rhel-8-3-distropkg", "centos-8-stream")
+               "ubuntu-2004", "fedora-coreos", "rhel-8-3", "rhel-8-3-distropkg", "centos-8-stream")
     def testAbrtReportNoReportd(self):
         b = self.browser
         m = self.machine

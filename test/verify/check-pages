@@ -46,10 +46,7 @@ class TestPages(MachineCase):
 
     def open_lang_modal(self):
         self.browser.switch_to_top()
-        if self.machine.image == "rhel-8-2-distropkg": # Changed in #13663
-            self.browser.click("#content-user-name")
-        else:
-            self.browser.click("#navbar-dropdown")
+        self.browser.click("#navbar-dropdown")
 
         self.browser.click(".display-language-menu a")
         self.browser.wait_popup('display-language')
@@ -97,17 +94,16 @@ OnCalendar=daily
         b.reload()
         b.enter_page("/system/services")
         b.wait_text(".service-name", "Test Service")
-        if m.image not in ["rhel-8-2-distropkg"]: # Changed in #13376
-            b.switch_to_top()
-            self.checkDocs(["Managing services"])
-            b.click("#navbar-docs > a")
-            b.wait_visible('#navbar-docs-items a:contains("Managing services")[href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_systems_using_the_rhel_8_web_console/managing-services-in-the-web-console_system-management-using-the-rhel-8-web-console"]')
-            b.wait_visible('#navbar-docs-items a:contains("Web Console")[href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_systems_using_the_rhel_8_web_console/index"]')
-            b.click("#navbar-docs > a")
-            b.wait_not_visible("#navbar-docs-items")
-            b.go("/network")
-            self.checkDocs(["Managing networking", "Managing firewall"])
-            b.go("/system/services")
+        b.switch_to_top()
+        self.checkDocs(["Managing services"])
+        b.click("#navbar-docs > a")
+        b.wait_visible('#navbar-docs-items a:contains("Managing services")[href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_systems_using_the_rhel_8_web_console/managing-services-in-the-web-console_system-management-using-the-rhel-8-web-console"]')
+        b.wait_visible('#navbar-docs-items a:contains("Web Console")[href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_systems_using_the_rhel_8_web_console/index"]')
+        b.click("#navbar-docs > a")
+        b.wait_not_visible("#navbar-docs-items")
+        b.go("/network")
+        self.checkDocs(["Managing networking", "Managing firewall"])
+        b.go("/system/services")
 
         m.restart_cockpit()
         b.relogin("/system/services")
@@ -119,14 +115,10 @@ OnCalendar=daily
         b.enter_page("/system")
         b.wait_present("#system_information_systime_button")
         b.switch_to_top()
-        if m.image not in ["rhel-8-2-distropkg"]: # Changed in #13376
-            self.checkDocs(["Configuring system settings"])
+        self.checkDocs(["Configuring system settings"])
         b.click("a[href='/system/services']")
         b.enter_page("/system/services")
-        if m.image == "rhel-8-2-distropkg":
-            b.wait_present("ol.breadcrumb")
-        else:
-            b.wait_present("ol.pf-c-breadcrumb__list")
+        b.wait_present("ol.pf-c-breadcrumb__list")
         b.wait_text(".service-name", "Test Service")
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname === "/system/services"')
@@ -138,10 +130,7 @@ OnCalendar=daily
         b.click("a[href='/system/services']")
         b.enter_page("/system/services")
         b.wait_present("#services-list")
-        if m.image == "rhel-8-2-distropkg":
-            b.wait_not_visible("#service-details")
-        else:
-            b.wait_not_present("#service-details")
+        b.wait_not_present("#service-details")
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname === "/system/services"')
         b.wait_js_cond('window.location.hash === ""')
@@ -167,12 +156,7 @@ OnCalendar=daily
 
         b.switch_to_top()
 
-        if m.image == "rhel-8-2-distropkg": # Changed in #13663
-            b.wait_present(".area-ct-body")
-            b.wait_not_present(".area-ct-body.single-nav")
-            b.wait_present("#host-nav")
-        else:
-            b.wait_present("#nav-system")
+        b.wait_present("#nav-system")
 
         # Lets try changing the language
 
@@ -405,11 +389,7 @@ OnCalendar=daily
         b = self.browser
         m = self.machine
 
-        if m.image == "rhel-8-2-distropkg": # Old menu prefers dashboard, changed in #13663
-            self.login_and_go("/system")
-            b.leave_page()
-        else:
-            self.login_and_go()
+        self.login_and_go()
 
         b.wait_in_text("#host-apps", "Overview")
         self.restore_dir("/home/admin")
@@ -428,15 +408,9 @@ OnCalendar=daily
         # On Ubuntu and Debian we would need to generate locales - just ignore it
         self.allow_journal_messages("invalid or unusable locale: de_DE.UTF-8")
 
-        if m.image == "rhel-8-2-distropkg": # Old menu prefers dashboard, changed in #13663
-            self.login_and_go("/system")
-            b.leave_page()
-        else:
-            self.login_and_go()
+        self.login_and_go()
 
         filter_sel = ".filter-menus"
-        if m.image == "rhel-8-2-distropkg":
-            filter_sel = "#filter-menus"
 
         # Check that some page disappears and some stay
         b.focus(filter_sel)
@@ -680,7 +654,6 @@ OnCalendar=daily
 
     def testPageStatus(self):
         b = self.browser
-        m = self.machine
 
         self.login_and_go("/playground")
 
@@ -689,13 +662,9 @@ OnCalendar=daily
         b.click("#set-status")
 
         b.switch_to_top()
-        if m.image == "rhel-8-2-distropkg": # Changed in #13663
-            b.wait_present("#host-apps a[href='/playground'] span.fa-info-circle")
-            b.wait_present("#host-apps a[href='/playground'] span[title='My Little Page Status']")
-        else:
-            b.wait_present("#development-info")
-            b.mouse("#development-info", "mouseover")
-            b.wait_in_text("div.tooltip", "My Little Page Status")
+        b.wait_present("#development-info")
+        b.mouse("#development-info", "mouseover")
+        b.wait_in_text("div.tooltip", "My Little Page Status")
 
         b.go("/playground/notifications-receiver")
         b.enter_page("/playground/notifications-receiver")
@@ -708,10 +677,7 @@ OnCalendar=daily
         b.click("#clear-status")
 
         b.switch_to_top()
-        if m.image == "rhel-8-2-distropkg": # Changed in #13663
-            b.wait_not_present("#host-apps a[href='/playground'] span.fa")
-        else:
-            b.wait_not_present("#development-info")
+        b.wait_not_present("#development-info")
 
         b.go("/playground/notifications-receiver")
         b.enter_page("/playground/notifications-receiver")

@@ -45,10 +45,7 @@ class TestRoles(MachineCase):
         b.expect_load()
         b.enter_page("/system")
         b.switch_to_top()
-        if m.image == "rhel-8-2-distropkg": # Changed in #13663
-            b.wait_text('#content-user-name', 'User')
-        else:
-            b.wait_text('#current-username', 'user')
+        b.wait_text('#current-username', 'user')
 
         b.go("/users#/user")
         b.enter_page("/users")

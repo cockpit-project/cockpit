@@ -109,10 +109,7 @@ class CommonTests:
             wait_number_domains(1)
 
         # when joined to a domain, changing the hostname is fatal, so should be disabled
-        if m.image in [ "rhel-8-2-distropkg" ]:
-            b.wait_present("#system_information_hostname_button[disabled]")
-        else:
-            b.wait_not_present("#system_information_hostname_button")
+        b.wait_not_present("#system_information_hostname_button")
 
         # should not have any leftover tickets from the joining
         m.execute("! klist")
@@ -137,16 +134,15 @@ class CommonTests:
         b.logout()
 
         # should also work with capitalized domain and lower-case user (fixed in PR #13934)
-        if m.image not in ["rhel-8-2-distropkg"]:
-            # need to change URL to actually reload the page
-            b.login_and_go('/system', user='%s@COCKPIT.LAN' % self.admin_user.lower(), password=self.admin_password)
-            b.go('/system/services#/systemd-tmpfiles-clean.timer')
-            b.enter_page('/system/services')
-            b.wait_in_text("#statuses", "Not running")
-            b.click(".service-top-panel .dropdown-kebab-pf button")
-            b.click(".service-top-panel .dropdown-menu a:contains('Start')")
-            b.wait_in_text("#statuses", "Running")
-            b.logout()
+        # need to change URL to actually reload the page
+        b.login_and_go('/system', user='%s@COCKPIT.LAN' % self.admin_user.lower(), password=self.admin_password)
+        b.go('/system/services#/systemd-tmpfiles-clean.timer')
+        b.enter_page('/system/services')
+        b.wait_in_text("#statuses", "Not running")
+        b.click(".service-top-panel .dropdown-kebab-pf button")
+        b.click(".service-top-panel .dropdown-menu a:contains('Start')")
+        b.wait_in_text("#statuses", "Running")
+        b.logout()
 
         self.checkBackendSpecifics()
 
@@ -210,13 +206,12 @@ class CommonTests:
                 # that hides the initial message and the More link
                 b.wait_not_visible(".realms-op-message")
                 b.wait_not_visible(".realms-op-more-diagnostics")
-                # and shows the raw log; fixed in PR #13802
-                if m.image not in ["rhel-8-2-distropkg"]:
-                    b.wait_visible(".realms-op-diagnostics")
-                    if self.expected_server_software == 'active-directory':
-                        b.wait_in_text(".realms-op-diagnostics", "Couldn't authenticate as: Administrator@COCKPIT.LAN")
-                    else:
-                        b.wait_in_text(".realms-op-diagnostics", "ipa-client-install command failed")
+                # and shows the raw log
+                b.wait_visible(".realms-op-diagnostics")
+                if self.expected_server_software == 'active-directory':
+                    b.wait_in_text(".realms-op-diagnostics", "Couldn't authenticate as: Administrator@COCKPIT.LAN")
+                else:
+                    b.wait_in_text(".realms-op-diagnostics", "ipa-client-install command failed")
             b.click(".realms-op-cancel")
             b.wait_popdown("realms-op")
             if not "Already running another action" in error:
@@ -272,11 +267,6 @@ class CommonTests:
         b.password = self.admin_password
         self.login_and_go("/system", user=self.admin_user)
         b.wait_in_text(self.domain_sel, "cockpit.lan")
-
-        if m.image in ["rhel-8-2-distropkg"]:
-            # admin operations were fixed in PR #13934; on older version this causes sudo failure
-            self.allow_authorize_journal_messages()
-            return
 
         # Show domain information
         b.click(self.domain_sel)
@@ -672,7 +662,6 @@ class TestAD(TestRealms, CommonTests):
 
         pass
 
-    @skipImage("AD joining fixed in #13803", "rhel-8-2-distropkg")
     def testQualifiedUsers(self):
         super().testQualifiedUsers()
 

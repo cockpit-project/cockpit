@@ -59,19 +59,10 @@ class TestTuned(MachineCase):
         check_status_tooltip("This system is using the recommended profile")
 
         # Disabled when not authorized
-        if m.image in [ "rhel-8-2-distropkg" ]: #13482
-            b.relogin('/system', authorized=False)
-        else:
-            b.relogin('/system', superuser=False)
-        if m.image != "rhel-8-2-distropkg": # Changed in #13552
-            trigger_selector = '#system-info-performance .action-trigger:disabled'
-        else:
-            trigger_selector = '#system-info-performance .action-trigger.disabled'
+        b.relogin('/system', superuser=False)
+        trigger_selector = '#system-info-performance .action-trigger:disabled'
         b.wait_text(trigger_selector, recommended_profile)
-        if m.image in [ "rhel-8-2-distropkg" ]: #13482
-            b.relogin('/system', authorized=True)
-        else:
-            b.relogin('/system', superuser=True)
+        b.relogin('/system', superuser=True)
 
         # Switch the profile
 

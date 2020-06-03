@@ -101,10 +101,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.try_login("admin", "foobar")
         b.expect_load()
         b.wait_present("#content")
-        if m.image == "rhel-8-2-distropkg": # Changed in #13663
-            b.wait_text("#content-user-name", "Administrator")
-        else:
-            b.wait_text('#current-username', 'admin')
+        b.wait_text('#current-username', 'admin')
 
         if m.image not in ['fedora-coreos']: # logs in via ssh, not cockpit-session
             self.assertRegex(m.execute("who"), r"(^|\n)admin *web")
@@ -112,10 +109,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         # reload, which should log us in with the cookie
         b.reload()
         b.wait_present("#content")
-        if m.image == "rhel-8-2-distropkg": # Changed in #13663
-            b.wait_text("#content-user-name", "Administrator")
-        else:
-            b.wait_text('#current-username', 'admin')
+        b.wait_text('#current-username', 'admin')
 
         if m.image not in ['fedora-coreos']: # logs in via ssh, not cockpit-session
             self.assertRegex(m.execute("who"), r"(^|\n)admin *web")
@@ -173,7 +167,6 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
 
     @skipImage("logs in via ssh, not cockpit-session", "fedora-coreos")
-    @skipImage("added in PR #13473", "rhel-8-2-distropkg")
     def testLogging(self):
         m = self.machine
         b = self.browser
@@ -332,10 +325,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         b.expect_load()
         b.wait_present("#content")
-        if m.image == "rhel-8-2-distropkg": # Changed in #13663
-            b.wait_text("#content-user-name", "Administrator")
-        else:
-            b.wait_text('#current-username', 'admin')
+        b.wait_text('#current-username', 'admin')
 
         self.allow_journal_messages('Error executing command as another user: Not authorized',
                                     'This incident has been reported.',
@@ -380,16 +370,13 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         b.expect_load()
         b.wait_present("#content")
-        if m.image == "rhel-8-2-distropkg": # Changed in #13663
-            b.wait_text("#content-user-name", "Administrator")
-        else:
-            b.wait_text('#current-username', 'admin')
+        b.wait_text('#current-username', 'admin')
 
         self.allow_restart_journal_messages()
         self.allow_authorize_journal_messages()
 
     @skipImage("No tlog", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-2004",
-               "rhel-8-2", "rhel-8-2-distropkg", "rhel-8-3", "rhel-8-3-distropkg", "centos-8-stream", "fedora-coreos")
+               "rhel-8-3", "rhel-8-3-distropkg", "centos-8-stream", "fedora-coreos")
     def testSessionRecordingShell(self):
         m = self.machine
         b = self.browser
@@ -456,14 +443,10 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.logout()
         b.login_and_go("/system", user="unpriv")
         # not an admin
-        if m.image in [ "rhel-8-2-distropkg" ]: # 13482
-            b.wait_present("#shutdown-group[disabled][data-stable=yes]")
-            b.wait_present("#restart-button[disabled][data-stable=yes]")
-        else:
-            b.wait_visible(".pf-c-alert:contains('Web console is running in limited access mode.')")
+        b.wait_visible(".pf-c-alert:contains('Web console is running in limited access mode.')")
 
         # with current SELinux policy, user_u and staff_u are not allowed to read cockpit_tmpfs_t memfd: https://bugzilla.redhat.com/show_bug.cgi?id=1814052
-        if m.image in ["fedora-31", "fedora-32", "fedora-testing", "rhel-8-2", "rhel-8-2-distropkg", "rhel-8-3", "rhel-8-3-distropkg", "centos-8-stream"]:
+        if m.image in ["fedora-31", "fedora-32", "fedora-testing", "rhel-8-3", "rhel-8-3-distropkg", "centos-8-stream"]:
             self.allow_journal_messages('Could not query seals on fd .*: not memfd.*')
             self.assertFalse(b.is_present('#last-login'))
         else:
@@ -491,11 +474,10 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         self.addCleanup(m.execute, "semanage login -d -s sysadm_u admin")
         b.login_and_go("/system")
         # passing login info memfd should work
-        if m.image != "rhel-8-2-distropkg":  # changed in PR #13473
-            b.logout()
-            b.login_and_go("/system")
-            b.wait_in_text('#last-login', "Last login:")
-            b.wait_in_text('#last-login', "web console")
+        b.logout()
+        b.login_and_go("/system")
+        b.wait_in_text('#last-login', "Last login:")
+        b.wait_in_text('#last-login', "web console")
 
         b.go("/playground/test")
         b.enter_page("/playground/test")
@@ -505,7 +487,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         # This should work, but it will not because of
         # https://bugzilla.redhat.com/show_bug.cgi?id=1814569
         working_images = [ ] # none yet :-(
-        if m.image in working_images or m.image in [ "rhel-8-2-distropkg" ]:
+        if m.image in working_images:
             self.assertIn('result: uid=0', b.text(".super-channel span"))
         else:
             self.assertIn('result: access-denied', b.text(".super-channel span"))
@@ -636,7 +618,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         # pam_faillock tries to chown the file to be owned by the user itself,
         # which is currently an selinux fail on the following distros:
-        if m.image in ['centos-8-stream', 'fedora-31', 'fedora-32', 'rhel-8-2', 'rhel-8-2-distropkg', 'rhel-8-3', 'rhel-8-3-distropkg']:
+        if m.image in ['centos-8-stream', 'fedora-31', 'fedora-32', 'rhel-8-3', 'rhel-8-3-distropkg']:
             # https://bugzilla.redhat.com/show_bug.cgi?id=1836182
             self.allow_journal_messages('.*type=1400.*avc:  denied  { chown }.*comm="cockpit-session".*')
 

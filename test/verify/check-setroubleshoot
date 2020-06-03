@@ -77,10 +77,7 @@ class TestSelinux(MachineCase):
 
         self.login_and_go("/selinux/setroubleshoot")
 
-        if self.machine.image == "rhel-8-2-distropkg":
-            dismiss_sel = "button.pficon-delete"
-        else:
-            dismiss_sel = "#selinux-alert-dismiss"
+        dismiss_sel = "#selinux-alert-dismiss"
 
         # there are some distros with broken SELinux policies which always appear; so first, clean these up
         while True:
@@ -142,14 +139,13 @@ class TestSelinux(MachineCase):
         # now expand again so we can apply the solution
         b.click(toggle_selector)
 
-        if m.image not in ["rhel-8-2-distropkg"]:  # fixed in PR #13822
-            b.click(sebool_selector1 + " button" + self.default_btn_class)
-            b.wait_in_text(sebool_selector1 + " .pf-c-alert__title", "Solution applied successfully")
-            self.assertIn("-> on", m.execute("getsebool httpd_enable_homedirs"))
-            # system modifications automatically update for this new sebool
-            b.wait_in_text(".modifications-table", "Allow httpd to enable homedirs")
-            # Second solution can still be applied separatelly
-            b.wait_text(sebool_selector2 + " button" + self.default_btn_class, "Apply this solution")
+        b.click(sebool_selector1 + " button" + self.default_btn_class)
+        b.wait_in_text(sebool_selector1 + " .pf-c-alert__title", "Solution applied successfully")
+        self.assertIn("-> on", m.execute("getsebool httpd_enable_homedirs"))
+        # system modifications automatically update for this new sebool
+        b.wait_in_text(".modifications-table", "Allow httpd to enable homedirs")
+        # Second solution can still be applied separatelly
+        b.wait_text(sebool_selector2 + " button" + self.default_btn_class, "Apply this solution")
 
         # now dismiss the alert
         b.click(row_selector + " " + dismiss_sel)
@@ -179,16 +175,14 @@ class TestSelinux(MachineCase):
             btn_sel = "div.list-group-item:contains('you can run restorecon') button{}".format(self.default_btn_class)
             b.click(btn_sel)
 
-            # the button should disappear; fixed in PR #13822
-            if m.image not in ["rhel-8-2-distropkg"]:
-                b.wait_not_present(btn_sel)
+            # the button should disappear
+            b.wait_not_present(btn_sel)
 
             # the fix should be applied
             b.wait_in_text(row_selector + " .pf-c-alert__title", "Solution applied successfully")
 
-            # and the button should not come back; fixed in PR #13822
-            if m.image not in ["rhel-8-2-distropkg"]:
-                b.wait_not_present(btn_sel)
+            # and the button should not come back
+            b.wait_not_present(btn_sel)
         except Error:
             print("==== sealert -l '*' ====")
             print(m.execute("sealert -l '*'"))
@@ -284,10 +278,7 @@ class TestSelinux(MachineCase):
         b.reload()
         b.enter_page("/selinux/setroubleshoot")
         b.wait_text("table.listing-ct.modifications-table > thead > tr > td", "No System Modifications")
-        if m.image in [ "rhel-8-2-distropkg" ]:
-            b.relogin("/selinux/setroubleshoot", "admin", authorized=False)
-        else:
-            b.relogin("/selinux/setroubleshoot", "admin", superuser=False)
+        b.relogin("/selinux/setroubleshoot", "admin", superuser=False)
         b.wait_text("table.listing-ct.modifications-table > thead > tr > td", "The logged in user is not permitted to view system modifications")
 
 

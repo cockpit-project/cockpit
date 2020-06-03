@@ -35,10 +35,7 @@ class TestStorageBasic(StorageCase):
         b.wait_present("#devices")
         b.wait_not_present("#devices [data-toggle=dropdown]")
 
-        if m.image in [ "rhel-8-2-distropkg" ]: #13482
-            b.relogin('/storage', authorized=True)
-        else:
-            b.relogin('/storage', superuser=True)
+        b.relogin('/storage', superuser=True)
 
         self.browser.wait_present("#devices [data-toggle=dropdown]")
 

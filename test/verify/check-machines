@@ -261,7 +261,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
         return user_name
 
     # FIXME remove this skipImage
-    @skipImage('Fails with Rejected send message, 1 matched rules; type="method_call"', "rhel-8-2", "rhel-8-2-distropkg", "rhel-8-3", "rhel-8-3-distropkg", "ubuntu-stable", "ubuntu-2004", "debian-testing", "debian-stable", "centos-8-stream")
+    @skipImage('Fails with Rejected send message, 1 matched rules; type="method_call"', "rhel-8-3", "rhel-8-3-distropkg", "ubuntu-stable", "ubuntu-2004", "debian-testing", "debian-stable", "centos-8-stream")
     def testBasicLibvirtUserUnprivileged(self):
         user = self.createUser(user_group='libvirt')
         self._testBasic(user, False)
@@ -483,7 +483,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         # newer libvirtd versions use socket activation
         # we should test that separately, but here we test only using the service unit
-        if m.image not in ["debian-stable", "ubuntu-stable", "rhel-8-2-distropkg", "rhel-8-2", "rhel-8-3", "rhel-8-3-distropkg", "centos-8-stream"]:
+        if m.image not in ["debian-stable", "ubuntu-stable", "rhel-8-3", "rhel-8-3-distropkg", "centos-8-stream"]:
             m.execute("systemctl stop libvirtd-ro.socket libvirtd.socket libvirtd-admin.socket")
             self.addCleanup(m.execute, "systemctl start libvirtd-ro.socket libvirtd.socket libvirtd-admin.socket")
 

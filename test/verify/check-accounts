@@ -42,12 +42,11 @@ class TestAccounts(MachineCase):
         b.wait_in_text('#accounts-list', "anton")
 
         # There is only one badge and it is for admin
-        if m.image != "rhel-8-2-distropkg": # Introduced in #14063
-            b.wait_text('.cockpit-account-badge', 'Your account')
-            b.wait_js_cond('document.querySelector(".cockpit-account-badge").previousSibling.getAttribute("href") === "#/admin"')
+        b.wait_text('.cockpit-account-badge', 'Your account')
+        b.wait_js_cond('document.querySelector(".cockpit-account-badge").previousSibling.getAttribute("href") === "#/admin"')
 
-            # The current account is the first in the list
-            b.wait_visible(".cockpit-account:first-child .cockpit-account-badge")
+        # The current account is the first in the list
+        b.wait_visible(".cockpit-account:first-child .cockpit-account-badge")
 
         # Set a real name
         b.go("#/anton")
@@ -173,21 +172,19 @@ class TestAccounts(MachineCase):
         b.wait_present(admin_role_sel + ":not(:checked)")
         b.set_checked(admin_role_sel, True)
         b.wait(is_admin)
-        if m.image != "rhel-8-2-distropkg": #Changed in #13492
-            b.wait_present(admin_role_sel + ":checked")
-            b.wait_not_present("#account-roles .pf-c-alert.pf-m-info")
+        b.wait_present(admin_role_sel + ":checked")
+        b.wait_not_present("#account-roles .pf-c-alert.pf-m-info")
 
         # Login as jussi and change role admin for itself
         b.logout()
         b.login_and_go("/users", user="jussi", password=good_password)
 
         # There is only one badge and it is for jussi
-        if m.image != "rhel-8-2-distropkg": # Introduced in #14063
-            b.wait_text('.cockpit-account-badge', 'Your account')
-            b.wait_js_cond('document.querySelector(".cockpit-account-badge").previousSibling.getAttribute("href") === "#/jussi"')
+        b.wait_text('.cockpit-account-badge', 'Your account')
+        b.wait_js_cond('document.querySelector(".cockpit-account-badge").previousSibling.getAttribute("href") === "#/jussi"')
 
-            # The current account is the first in the list
-            b.wait_visible(".cockpit-account:first-child .cockpit-account-badge")
+        # The current account is the first in the list
+        b.wait_visible(".cockpit-account:first-child .cockpit-account-badge")
 
         b.go("#/jussi")
         b.wait_text("#account-user-name", "jussi")
@@ -201,8 +198,7 @@ class TestAccounts(MachineCase):
         b.go("#/admin")
         b.wait_text("#account-user-name", "admin")
         b.wait_present(admin_role_sel + ":checked")
-        if m.image != "rhel-8-2-distropkg": #Changed in #13492
-            b.wait_not_present("#account-roles .pf-c-alert.pf-m-info")
+        b.wait_not_present("#account-roles .pf-c-alert.pf-m-info")
         b.logout()
         b.login_and_go("/users")
 
@@ -243,13 +239,12 @@ class TestAccounts(MachineCase):
         b.wait_present('#content')
 
         # incomplete passwd entry; fixed in PR #13384
-        if m.image not in ["rhel-8-2-distropkg"]:
-            m.execute('echo "damaged:x:1234:1234:Damaged" >> /etc/passwd')
-            b.go("/users")
-            b.enter_page("/users")
-            b.wait_in_text('#accounts-list', "damaged")
-            b.click('.cockpit-account-user-name a[href="#/damaged"]')
-            b.wait_in_text("#account-title", "Damaged")
+        m.execute('echo "damaged:x:1234:1234:Damaged" >> /etc/passwd')
+        b.go("/users")
+        b.enter_page("/users")
+        b.wait_in_text('#accounts-list', "damaged")
+        b.click('.cockpit-account-user-name a[href="#/damaged"]')
+        b.wait_in_text("#account-title", "Damaged")
 
         self.allow_journal_messages("Password quality check failed:")
         self.allow_journal_messages("The password is a palindrome")

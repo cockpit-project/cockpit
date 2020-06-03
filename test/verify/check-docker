@@ -23,7 +23,7 @@ from testlib import *
 
 
 @skipPackage("cockpit-docker")
-@skipImage("No docker packaged", "rhel-8-2", "rhel-8-2-distropkg", "rhel-8-3", "rhel-8-3-distropkg", "centos-8-stream")
+@skipImage("No docker packaged", "rhel-8-3", "rhel-8-3-distropkg", "centos-8-stream")
 @skipImage("Not supporting cockpit-docker on CoreOS", "fedora-coreos")
 @skipImage("Not supporting cockpit-docker on Debian and Ubuntu >= 20.04", "debian-stable", "debian-testing", "ubuntu-2004")
 @skipImage("Docker not available", "fedora-31", "fedora-testing", "fedora-32") # https://github.com/cockpit-project/cockpit/issues/12670
@@ -545,7 +545,7 @@ CMD ["/bin/sh"]
         b.wait_in_text("#container-details-cpu-row", "1024 shares")
 
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-2004", "rhel-8-2", "rhel-8-2-distropkg", "rhel-8-3", "rhel-8-3-distropkg")
+               "ubuntu-2004", "rhel-8-3", "rhel-8-3-distropkg")
     def testContainerProblems(self):
         b = self.browser
         m = self.machine

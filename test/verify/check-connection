@@ -330,17 +330,14 @@ class TestConnection(MachineCase):
 
         check_cert_chain()
 
-        # *.crt file also works; added in PR #13388
-        if m.image not in ["rhel-8-2-distropkg"]:
-            m.execute ("mv /etc/cockpit/ws-certs.d/cert-chain.cert /etc/cockpit/ws-certs.d/cert-chain.crt")
-            check_cert_chain()
+        # *.crt file also works
+        m.execute ("mv /etc/cockpit/ws-certs.d/cert-chain.cert /etc/cockpit/ws-certs.d/cert-chain.crt")
+        check_cert_chain()
 
-        # separate *.key file instead of merged .cert; added in PR #13388
-        if m.image not in ["rhel-8-2-distropkg"]:
-            m.execute("sed -n '/---BEGIN PRIVATE KEY/,$ p' /etc/cockpit/ws-certs.d/cert-chain.crt > /etc/cockpit/ws-certs.d/cert-chain.key")
-            m.execute("sed -i '/---BEGIN PRIVATE KEY/,$ d' /etc/cockpit/ws-certs.d/cert-chain.crt")
-            check_cert_chain()
-
+        # separate *.key file instead of merged .cert
+        m.execute("sed -n '/---BEGIN PRIVATE KEY/,$ p' /etc/cockpit/ws-certs.d/cert-chain.crt > /etc/cockpit/ws-certs.d/cert-chain.key")
+        m.execute("sed -i '/---BEGIN PRIVATE KEY/,$ d' /etc/cockpit/ws-certs.d/cert-chain.crt")
+        check_cert_chain()
 
         # login handler: correct password
         m.execute("curl -k -c cockpit.jar -s --head --header 'Authorization: Basic {}' https://127.0.0.1:9090/cockpit/login".format(
@@ -465,8 +462,7 @@ class TestConnection(MachineCase):
         self.assertIn('A Custom Title', m.execute('''curl -s -S -H "Authorization: Negotiate $(printf '%0.7000i' 1)" http://localhost:9000/'''))
 
         # Large requests are processed correctly with TLS
-        if m.image not in ["rhel-8-2-distropkg"]:  # fixed in PR #13351
-            self.assertIn('A Custom Title', m.execute('''curl -s -S -k -H "Authorization: Negotiate $(printf '%0.7000i' 1)" https://localhost:9000/'''))
+        self.assertIn('A Custom Title', m.execute('''curl -s -S -k -H "Authorization: Negotiate $(printf '%0.7000i' 1)" https://localhost:9000/'''))
 
         # Large requests are processed correctly with plain HTTP through cockpit-tls
         m.start_cockpit(tls=True)
@@ -586,9 +582,8 @@ G_MESSAGES_DEBUG=all XDG_CONFIG_DIRS=/usr/local %s -p 9999 -a 127.0.0.90 --local
                  ),
                 ]
 
-        if m.image not in ["rhel-8-2-distropkg"]:
-             # remote ssh host; added in PR #13754
-             cases.append( (['/cockpit/@localhost/manifests.json test1@localhost'], ['"system"', '"Overview"', '"HACK"']) )
+        # remote ssh host
+        cases.append( (['/cockpit/@localhost/manifests.json test1@localhost'], ['"system"', '"Overview"', '"HACK"']) )
 
         # prepare fake ssh target; to verify that we really use that, override dashboard manifest
         m.execute("""set -e; useradd test1

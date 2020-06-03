@@ -811,14 +811,9 @@ class MachineCase(unittest.TestCase):
                     print("Starting {0} {1}".format(key, machine.label))
                 machine.start()
 
-        if self.machine.image == "rhel-8-2-distropkg":
-            self.danger_btn_class = '.btn-danger'
-            self.primary_btn_class = '.btn-primary'
-            self.default_btn_class = '.btn-default'
-        else:
-            self.danger_btn_class = '.pf-m-danger'
-            self.primary_btn_class = '.pf-m-primary'
-            self.default_btn_class = '.pf-m-secondary'
+        self.danger_btn_class = '.pf-m-danger'
+        self.primary_btn_class = '.pf-m-primary'
+        self.default_btn_class = '.pf-m-secondary'
 
         # Now wait for the other machines to be up
         for key in self.machines.keys():
@@ -917,13 +912,8 @@ class MachineCase(unittest.TestCase):
             self.check_browser_errors()
         shutil.rmtree(self.tmpdir)
 
-    def login_and_go(self, path=None, user=None, host=None, authorized="unset", superuser=True, urlroot=None, tls=False):
+    def login_and_go(self, path=None, user=None, host=None, authorized=True, superuser=True, urlroot=None, tls=False):
         self.machine.start_cockpit(host, tls=tls)
-        if authorized == "unset":
-            if self.machine.image in ["rhel-8-2-distropkg"]: # 13482
-                authorized = superuser
-            else:
-                authorized = True
         self.browser.login_and_go(path, user=user, host=host, authorized=authorized, superuser=superuser, urlroot=urlroot, tls=tls)
 
     allow_core_dumps = False
@@ -1088,10 +1078,6 @@ class MachineCase(unittest.TestCase):
         if self.image in ['fedora-32', 'fedora-31', 'fedora-testing']:
             # Fedora >= 30 switched to dbus-broker
             self.allowed_messages.append("dbus-daemon didn't send us a dbus address; not installed?.*")
-
-        if self.image in ['rhel-8-2', 'rhel-8-2-distropkg']:
-            # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1753991
-            self.allowed_messages.append('.*type=1400.*avc:  denied  { dac_override } .* comm="rhsmd" .* scontext=system_u:system_r:rhsmcertd_t:s0-s0:c0.c1023 tcontext=system_u:system_r:rhsmcertd_t:.*')
 
         if self.image in ['rhel-8-3', 'rhel-8-3-distropkg']:
             # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1835909

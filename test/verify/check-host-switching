@@ -80,7 +80,6 @@ class HostSwitcherHelpers:
         b.wait_visible(".connected a[href='/@{0}']".format(address))
 
 
-@skipImage("Introduced in #13663", "rhel-8-2-distropkg")
 class TestHostSwitching(MachineCase, HostSwitcherHelpers):
     provision = {
         'machine1': {"address": "10.111.113.1/20"},
@@ -405,7 +404,6 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
 
 
 
-@skipImage("Introduced in #13663", "rhel-8-2-distropkg")
 class TestHostEditing(MachineCase, HostSwitcherHelpers):
 
     def testLimits(self):

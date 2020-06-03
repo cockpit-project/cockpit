@@ -600,7 +600,6 @@ class TestUpdates(NoSubManCase):
         b.wait_text(self.update_text, "Loading available updates failed")
         self.assertIn("exclamation", b.attr(self.update_icon, "class"))
 
-    @skipImage("superuser changing added in PR #13482", "rhel-8-2-distropkg")
     def testUnprivileged(self):
         b = self.browser
         m = self.machine
@@ -959,9 +958,8 @@ class TestAutoUpdates(NoSubManCase):
         b.logout()
         b.login_and_go("/updates")
         b.wait_present("#automatic .onoff-ct input:checked")
-        if m.image not in ["rhel-8-2-distropkg"]:  # fixed in PR #14035
-            b.wait_in_text("#auto-update-day", "Thursday")
-            b.wait_in_text("#auto-update-time", "21:00")
+        b.wait_in_text("#auto-update-day", "Thursday")
+        b.wait_in_text("#auto-update-time", "21:00")
 
         # change back to daily
         b.set_val("#auto-update-day", "")
@@ -1045,7 +1043,6 @@ class TestAutoUpdates(NoSubManCase):
         else:
             raise NotImplementedError(self.backend)
 
-    @skipImage("superuser changing added in PR #13482", "rhel-8-2-distropkg")
     def testPrivilegeChange(self):
         b = self.browser
         m = self.machine

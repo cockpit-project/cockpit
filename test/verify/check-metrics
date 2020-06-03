@@ -169,9 +169,6 @@ class TestMetrics(MachineCase, StorageHelpers):
 
         m.execute("kill %d" % net_pid)
 
-        if m.image in ["rhel-8-2-distropkg"]:
-            return  # HACK: individual graph pages broken, fixed in PR #13438
-
         el_width = "(function (sel) { return ph_find(sel).offsetWidth; })"
         el_height = "(function (sel) { return ph_find(sel).offsetHeight; })"
 
@@ -185,10 +182,7 @@ class TestMetrics(MachineCase, StorageHelpers):
         b.wait_visible(".server-graph-legend .cpu-kernel")
 
         # go back to graphs overview
-        if m.image != "rhel-8-2-distropkg": # Changed in #13589
-            b.click(".graphs-link")
-        else:
-            b.click("#graphs-link")
+        b.click(".graphs-link")
         b.wait_visible(".ct-graph-memory")
         b.wait_visible(".ct-graph-cpu")
 
@@ -208,11 +202,10 @@ class TestMetrics(MachineCase, StorageHelpers):
         b.wait_visible(".server-graph-legend .memory-used")
 
         # go back to overview
-        if m.image != "rhel-8-2-distropkg": # Changed in #13589
-            b.click("#complicated_graphs .system-link")
-            b.wait_not_visible("#memory_status_graph")
-            b.enter_page("/system")
-            b.wait_visible(".ct-overview-header-hostname")
+        b.click("#complicated_graphs .system-link")
+        b.wait_not_visible("#memory_status_graph")
+        b.enter_page("/system")
+        b.wait_visible(".ct-overview-header-hostname")
 
     @skipImage("No PCP available", "fedora-coreos")
     def testPcp(self):

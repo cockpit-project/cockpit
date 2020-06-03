@@ -44,15 +44,14 @@ class TestBonding(NetworkCase):
         # Bond them
         b.click("button:contains('Add Bond')")
         b.wait_popup("network-bond-settings-dialog")
-        if m.image != "rhel-8-2-distropkg": # Introduced in #13507
-            b.click("#network-bond-settings-dialog .close.pficon-close")
-            b.wait_popdown("network-bond-settings-dialog")
-            b.click("button:contains('Add Bond')")
-            b.wait_popup("network-bond-settings-dialog")
-            b.click("#network-bond-settings-dialog .close.pficon-help")
-            b.wait_visible(".popover .popover-title:contains('Network bond')")
-            b.click("#network-bond-settings-dialog .close.pficon-help")
-            b.wait_not_present(".popover .popover-title:contains('Network bond')")
+        b.click("#network-bond-settings-dialog .close.pficon-close")
+        b.wait_popdown("network-bond-settings-dialog")
+        b.click("button:contains('Add Bond')")
+        b.wait_popup("network-bond-settings-dialog")
+        b.click("#network-bond-settings-dialog .close.pficon-help")
+        b.wait_visible(".popover .popover-title:contains('Network bond')")
+        b.click("#network-bond-settings-dialog .close.pficon-help")
+        b.wait_not_present(".popover .popover-title:contains('Network bond')")
 
         b.set_val("#network-bond-settings-interface-name-input", "tbond")
         b.set_checked("input[data-iface='%s']" % iface1, True)
@@ -75,8 +74,7 @@ class TestBonding(NetworkCase):
         self.wait_onoff("#network-interface-slaves tr[data-interface='%s']" % iface2, True)
 
         # Check that it has the expected mode
-        if m.image not in [ "rhel-8-2-distropkg" ]: #13866
-            b.wait_in_text("#network-interface-settings", "Active Backup")
+        b.wait_in_text("#network-interface-settings", "Active Backup")
 
         # Deactivate the bond and make sure it is still there after a
         # reload.

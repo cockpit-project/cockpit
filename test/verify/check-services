@@ -66,28 +66,21 @@ class TestServices(MachineCase):
             self.browser.wait_not_present(".service-top-panel .dropdown-kebab-pf")
 
     def svc_sel(self, service):
-        if self.machine.image == "rhel-8-2-distropkg":
-            return 'tr[data-goto-unit="%s"]' % service
-        else:
-            return 'li[data-goto-unit="%s"]' % service
+        return 'li[data-goto-unit="%s"]' % service
 
     def wait_service_state(self, service, state):
         state_new = state
-        if self.machine.image != "rhel-8-2-distropkg":
-            if 'inactive' in state:
-                state_new  = 'Not running'
-            elif 'active' in state:
-                state_new = 'Running'
-            elif 'failed' in state:
-                state_new = 'Failed to'
+        if 'inactive' in state:
+            state_new  = 'Not running'
+        elif 'active' in state:
+            state_new = 'Running'
+        elif 'failed' in state:
+            state_new = 'Failed to'
 
         self.browser.wait_in_text(self.svc_sel(service), state_new)
 
     def wait_page_load(self):
-        if self.machine.image == "rhel-8-2-distropkg":
-            self.browser.wait_not_visible("#loading-fallback")
-        else:
-            self.browser.wait_not_present(".pf-c-spinner[aria-valuetext='Loading...']")
+        self.browser.wait_not_present(".pf-c-spinner[aria-valuetext='Loading...']")
 
     def wait_service_in_panel(self, service, title):
         self.wait_service_state(service, title)
@@ -95,10 +88,7 @@ class TestServices(MachineCase):
     def wait_service_present(self, service):
         if service.endswith(".service"):
             service_name = service[:-8]
-        if self.machine.image == "rhel-8-2-distropkg":
-            self.browser.wait_text('tr[data-goto-unit="{0}"] td:first-child'.format(service), service_name)
-        else:
-            self.browser.wait_text('li[data-goto-unit="{0}"] .service-unit-id'.format(service), service_name)
+        self.browser.wait_text('li[data-goto-unit="{0}"] .service-unit-id'.format(service), service_name)
 
     def testBasic(self):
         m = self.machine
@@ -192,8 +182,7 @@ Unit=test.service
         self.wait_service_state("test.service", "inactive")
         self.wait_service_in_panel("test.service", "Enabled")
 
-        if self.machine.image != "rhel-8-2-distropkg":
-            b.wait_attr("#services-toolbar", "data-loading", "false")
+        b.wait_attr("#services-toolbar", "data-loading", "false")
 
         # Selects Targets tab
         self.pick_tab(2)
@@ -202,9 +191,8 @@ Unit=test.service
 
         # Make sure that symlinked services also appear in the list
         self.wait_service_state("reboot.target", "inactive")
-        if self.machine.image != "rhel-8-2-distropkg":  # fixed in PR #13984
-            self.wait_service_state("ctrl-alt-del.target", "inactive")
-            self.wait_service_state("runlevel6.target", "inactive")
+        self.wait_service_state("ctrl-alt-del.target", "inactive")
+        self.wait_service_state("runlevel6.target", "inactive")
 
         # Selects Sockets tab
         self.pick_tab(3)
@@ -218,33 +206,17 @@ Unit=test.service
         b.wait_not_in_text("#services-list", ".target")
         b.wait_not_in_text("#services-list", ".socket")
         b.wait_present(self.svc_sel('test.timer'))
-        if self.machine.image == "rhel-8-2-distropkg":
-            b.wait_text(self.svc_sel('test.timer') + ' td:nth-child(3)', '')  # next run
-            b.wait_text(self.svc_sel('test.timer') + ' td:nth-child(4)', '')  # last trigger
-        else:
-            b.wait_text(self.svc_sel('test.timer') + ' .service-unit-triggers', '')
+        b.wait_text(self.svc_sel('test.timer') + ' .service-unit-triggers', '')
         m.execute("systemctl start test.timer")
-        if self.machine.image == "rhel-8-2-distropkg":
-            b.wait_in_text(self.svc_sel('test.timer'), "Today")  # next run
-            b.wait_in_text(self.svc_sel('test.timer'), "unknown")  # last trigger
-        else:
-            b.wait_in_text(self.svc_sel('test.timer') + ' .service-unit-next-trigger', "Today")  # next run
-            b.wait_in_text(self.svc_sel('test.timer') + ' .service-unit-last-trigger', "unknown")  # last trigger
+        b.wait_in_text(self.svc_sel('test.timer') + ' .service-unit-next-trigger', "Today")  # next run
+        b.wait_in_text(self.svc_sel('test.timer') + ' .service-unit-last-trigger', "unknown")  # last trigger
         m.execute("systemctl stop test.timer")
 
         b.wait_present(self.svc_sel('test-onboot.timer'))
-        if self.machine.image == "rhel-8-2-distropkg":
-            b.wait_text(self.svc_sel('test-onboot.timer') + ' td:nth-child(3)', '')  # next run
-            b.wait_text(self.svc_sel('test-onboot.timer') + ' td:nth-child(4)', '')  # last trigger
-        else:
-            b.wait_text(self.svc_sel('test-onboot.timer') + ' .service-unit-triggers', '')
+        b.wait_text(self.svc_sel('test-onboot.timer') + ' .service-unit-triggers', '')
         m.execute("systemctl start test-onboot.timer")
-        if self.machine.image == "rhel-8-2-distropkg":
-            b.wait_in_text(self.svc_sel('test-onboot.timer'), "Today")  # next run
-            b.wait_in_text(self.svc_sel('test-onboot.timer'), "unknown")  # last trigger
-        else:
-            b.wait_in_text(self.svc_sel('test-onboot.timer') + ' .service-unit-next-trigger', "Today")  # next run
-            b.wait_in_text(self.svc_sel('test-onboot.timer') + ' .service-unit-last-trigger', "unknown")  # last trigger
+        b.wait_in_text(self.svc_sel('test-onboot.timer') + ' .service-unit-next-trigger', "Today")  # next run
+        b.wait_in_text(self.svc_sel('test-onboot.timer') + ' .service-unit-last-trigger', "unknown")  # last trigger
         m.execute("systemctl stop test-onboot.timer")
 
         # Make sure that test.service was not started by either test.timer or test-onboot.timer
@@ -269,26 +241,25 @@ Unit=test.service
         b.wait_in_text('.cockpit-log-panel .panel-body', "START")
         b.wait_in_text('.cockpit-log-panel .panel-body', "WORKING")
 
-        if m.image != "rhel-8-2-distropkg": # Introduced in #13905
-            b.click(".cockpit-log-panel .panel-heading button")
-            b.enter_page("/system/logs")
-            b.wait_in_text("#journal-box .cockpit-log-panel > div:nth-child(2)", "WORKING")
-            b.wait_in_text("#journal-box .cockpit-log-panel > div:nth-child(3)", "START")
-            # Debian supports grep only from 19.10, see https://bugs.launchpad.net/ubuntu/+source/systemd/+bug/1751006
-            if m.image != "debian-stable":
-                b.wait_val("#journal-grep", "priority:debug service:test.service ")
-            b.go("/system/services#test.service")
-            b.enter_page("/system/services")
+        b.click(".cockpit-log-panel .panel-heading button")
+        b.enter_page("/system/logs")
+        b.wait_in_text("#journal-box .cockpit-log-panel > div:nth-child(2)", "WORKING")
+        b.wait_in_text("#journal-box .cockpit-log-panel > div:nth-child(3)", "START")
+        # Debian supports grep only from 19.10, see https://bugs.launchpad.net/ubuntu/+source/systemd/+bug/1751006
+        if m.image != "debian-stable":
+            b.wait_val("#journal-grep", "priority:debug service:test.service ")
+        b.go("/system/services#test.service")
+        b.enter_page("/system/services")
 
-            b.click(".cockpit-logline:contains('WORKING')")
-            b.enter_page("/system/logs")
-            b.wait_text("#journal-entry-message", "WORKING")
-            b.click("#journal-navigate-home")
-            # Debian supports grep only from 19.10, see https://bugs.launchpad.net/ubuntu/+source/systemd/+bug/1751006
-            if m.image != "debian-stable":
-                b.wait_val("#journal-grep", "priority:debug service:test.service ")
-            b.go("/system/services#test.service")
-            b.enter_page("/system/services")
+        b.click(".cockpit-logline:contains('WORKING')")
+        b.enter_page("/system/logs")
+        b.wait_text("#journal-entry-message", "WORKING")
+        b.click("#journal-navigate-home")
+        # Debian supports grep only from 19.10, see https://bugs.launchpad.net/ubuntu/+source/systemd/+bug/1751006
+        if m.image != "debian-stable":
+            b.wait_val("#journal-grep", "priority:debug service:test.service ")
+        b.go("/system/services#test.service")
+        b.enter_page("/system/services")
 
         # Stop and disable and back again
         self.toggle_onoff()
@@ -335,10 +306,7 @@ Unit=test.service
 
         # Mask and unmask
         self.do_action("Disallow running (mask)")
-        if self.machine.image == "rhel-8-2-distropkg":
-            b.click(".modal-dialog .btn-danger")
-        else:
-            b.click("#mask-service button.pf-m-danger")
+        b.click("#mask-service button.pf-m-danger")
         self.check_service_details(["Masked"], ["Allow running (unmask)"], False, onoff=False)
         self.do_action("Allow running (unmask)")
         self.check_service_details(["Static", "Not running"], ["Start", "Disallow running (mask)"], True, onoff=False)
@@ -351,11 +319,8 @@ Unit=test.service
         b.set_input_text("#service-details input", "//param-f//o//o//")
         b.click("#service-details button")
         b.wait_text(".service-name", "Test Template for param-f/o/o")
-        if self.machine.image == "rhel-8-2-distropkg":
-            self.check_service_details(["Static", "Not running"], ["Start", "Disallow running (mask)"], True, onoff=False)
-        else:
-            self.check_service_details(["Static", "Failed to start"],
-                                       ["Start", "Clear 'Failed to start'", "Disallow running (mask)"], False, onoff=False)
+        self.check_service_details(["Static", "Failed to start"],
+                                   ["Start", "Clear 'Failed to start'", "Disallow running (mask)"], False, onoff=False)
         b.wait_in_text("#service-details", "Instance of template: test-template@.service")
         b.click("#service-details .ct-form a:contains('test-template@.service')")
         b.wait_visible("#service-details input")
@@ -399,10 +364,7 @@ Unit=test.service
         # Check filtering and selecting together - empty state
         b.set_input_text("#services-text-filter", "failing")
         wait_service_not_present("test.service")
-        if self.machine.image == "rhel-8-2-distropkg":
-            b.wait_visible("#empty-search")
-        else:
-            b.wait_visible("#services-page .pf-c-empty-state")
+        b.wait_visible("#services-page .pf-c-empty-state")
 
         # Check resetting filter
         b.click("#clear-all-filters")
@@ -410,10 +372,7 @@ Unit=test.service
         self.wait_service_present("test-fail.service")
         self.wait_service_present("systemd-halt.service")
         self.assertEqual(b.val("#services-text-filter"), "")
-        if self.machine.image == "rhel-8-2-distropkg":
-            self.assertEqual(b.val("#services-dropdown"), "0")
-        else:
-            self.assertEqual(b.val("#services-dropdown"), "all")
+        self.assertEqual(b.val("#services-dropdown"), "all")
 
         # Check that journalbox shows empty state
         b.click(self.svc_sel("systemd-halt.service"))
@@ -664,10 +623,7 @@ WantedBy=default.target
 
         # Masking should also clear the failed status
         self.do_action("Disallow running (mask)")
-        if self.machine.image == "rhel-8-2-distropkg":
-            b.click(".modal-dialog .btn-danger")
-        else:
-            b.click("#mask-service button.pf-m-danger")
+        b.click("#mask-service button.pf-m-danger")
         self.check_service_details(["Masked"], ["Allow running (unmask)"], False, onoff=False)
 
     def count_failures(self):
@@ -710,21 +666,13 @@ ExecStart=/usr/bin/false
 
         # Services tab should have icon
         # Aab-fail should be at the top, and have failed
-        if self.machine.image == "rhel-8-2-distropkg":
-            b.wait_present('a:contains("System Services") .fa-exclamation-triangle')
-            b.wait_present('tr:nth-child(1)[data-goto-unit="aab-fail.service"]')
-            b.wait_present('tr[data-goto-unit="aab-fail.service"] td:contains("failed")')
-        else:
-            b.wait_present('a:contains("System Services") .fa-exclamation-circle')
-            b.wait_present('li[data-goto-unit="aab-fail.service"]')
-            b.wait_present('li[data-goto-unit="aab-fail.service"] .service-unit-status:contains("Failed")')
+        b.wait_present('a:contains("System Services") .fa-exclamation-circle')
+        b.wait_present('li[data-goto-unit="aab-fail.service"]')
+        b.wait_present('li[data-goto-unit="aab-fail.service"] .service-unit-status:contains("Failed")')
 
         # Nav link should have icon
         b.switch_to_top()
-        if self.machine.image == "rhel-8-2-distropkg":
-            b.wait_present('a[href="/system/services"] .fa-exclamation-triangle')
-        else:
-            b.wait_present("#services-error")
+        b.wait_present("#services-error")
 
         n_failures = self.count_failures()
         health_message = "1 service has failed" if n_failures == 1 else "%s services have failed" % n_failures
@@ -741,24 +689,15 @@ ExecStart=/usr/bin/false
         b.switch_to_top()
         b.click('#host-apps a[href="/system/services"]')
         b.enter_page('/system/services')
-        if self.machine.image == "rhel-8-2-distropkg":
-            b.wait_not_present('tr:nth-child(1)[data-goto-unit="aab-fail.service"]')
-        else:
-            b.wait_not_present('li:nth-child(1)[data-goto-unit="aab-fail.service"]')
+        b.wait_not_present('li:nth-child(1)[data-goto-unit="aab-fail.service"]')
 
         if self.count_failures() == 0:
             # Services tab should not have icon
-            if self.machine.image == "rhel-8-2-distropkg":
-                b.wait_not_present('a:contains("System Services") .fa-exclamation-triangle')
-            else:
-                b.wait_not_present('a:contains("System Services") .fa-exclamation-circle')
+            b.wait_not_present('a:contains("System Services") .fa-exclamation-circle')
 
             # Nav link should not have icon
             b.switch_to_top()
-            if self.machine.image == "rhel-8-2-distropkg":
-                b.wait_not_present('a[href="/system/services"] .fa-exclamation-triangle')
-            else:
-                b.wait_not_present("#services-error")
+            b.wait_not_present("#services-error")
 
             # System page should not have notification
             b.click('#host-apps a[href="/system"]')
@@ -791,10 +730,7 @@ Where=/fail
         if self.count_failures() == 1:
             # Nav link should not have icon
             b.switch_to_top()
-            if self.machine.image == "rhel-8-2-distropkg":
-                b.wait_not_present('a[href="/system/services"] .fa-exclamation-triangle')
-            else:
-                b.wait_not_present("#services-error")
+            b.wait_not_present("#services-error")
 
             # System page should not have notification
             b.click('#host-apps a[href="/system"]')
@@ -807,16 +743,10 @@ Where=/fail
 
 class TestTimers(MachineCase):
     def svc_sel(self, service):
-        if self.machine.image == "rhel-8-2-distropkg":
-            return 'tr[data-goto-unit="%s"]' % service
-        else:
-            return 'li[data-goto-unit="%s"]' % service
+        return 'li[data-goto-unit="%s"]' % service
 
     def wait_page_load(self):
-        if self.machine.image == "rhel-8-2-distropkg":
-            self.browser.wait_not_visible("#loading-fallback")
-        else:
-            self.browser.wait_not_present(".pf-c-spinner[aria-valuetext='Loading...']")
+        self.browser.wait_not_present(".pf-c-spinner[aria-valuetext='Loading...']")
 
     def testCreate(self):
         m = self.machine

@@ -93,10 +93,7 @@ class TestActivePages(MachineCase):
         # wait until it's highlighted
         b.wait_present('tr.listing-ct-selected[data-row-id="cockpit1:localhost/system"]')
         # close
-        if m.image == "rhel-8-2-distropkg":
-            b.click("#active-pages-dialog button.btn-primary")
-        else:
-            b.click("#active-pages-dialog button.pf-m-primary")
+        b.click("#active-pages-dialog button.pf-m-primary")
         b.wait_not_present("#active-pages-dialog")
 
         # running shell command should disappear on the system

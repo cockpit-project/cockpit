@@ -39,20 +39,16 @@ class TestMenu(MachineCase):
         self.login_and_go("/system")
 
         b.switch_to_top()
-        if m.image != "rhel-8-2-distropkg": # Changed in #13663
-            b.click('#navbar-docs-dropdown')
-            b.click('a[data-target="#about"]')
-            b.wait_popup('about')
-            b.click('#about button[data-dismiss="modal"]')
-            b.wait_popdown("about")
+        b.click('#navbar-docs-dropdown')
+        b.click('a[data-target="#about"]')
+        b.wait_popup('about')
+        b.click('#about button[data-dismiss="modal"]')
+        b.wait_popdown("about")
 
         # Test session timeout
         time.sleep(20)
         b.wait_not_visible("#session-timeout-dialog")
-        if m.image == "rhel-8-2-distropkg": # Changed in #13663
-            b.wait_present("#host-nav")
-        else:
-            b.wait_visible("#nav-system")
+        b.wait_visible("#nav-system")
         b.enter_page("/system")
         b.mouse("#system_information_hardware_text", "mousemove", 24, 24)
         b.switch_to_top()
@@ -77,10 +73,7 @@ class TestMenu(MachineCase):
         b.switch_to_top()
         time.sleep(75)
         b.wait_not_visible("#session-timeout-dialog")
-        if m.image == "rhel-8-2-distropkg": # Changed in #13663
-            b.wait_present("#host-nav")
-        else:
-            b.wait_visible("#nav-system")
+        b.wait_visible("#nav-system")
 
         self.check_axe("Test-navigation")
 

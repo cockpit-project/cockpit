@@ -20,7 +20,6 @@
 import parent
 from testlib import *
 
-@skipImage("added in PR #13482", "rhel-8-2-distropkg")
 class TestSuperuser(MachineCase):
 
     def testBasic(self):
@@ -212,7 +211,6 @@ session include system-auth
         b.wait_not_present(".modal-dialog:contains('Administrative access')")
         b.wait_not_visible(".pf-c-alert:contains('Web console is running in limited access mode.')")
 
-@skipImage("added in PR #13482", "rhel-8-2-distropkg")
 class TestSuperuserOldShell(MachineCase):
     provision = {
         "machine1": {"address": "10.111.113.1/20" },
@@ -250,7 +248,6 @@ class TestSuperuserOldShell(MachineCase):
         b.click("#shutdown-dialog button:contains('Restart')")
         b.wait_popdown("shutdown-dialog")
 
-@skipImage("added in PR #13482", "rhel-8-2-distropkg")
 class TestSuperuserOldWebserver(MachineCase):
     provision = {
         "machine1": {"address": "10.111.113.1/20", "image": "centos-7" },
@@ -339,7 +336,6 @@ class TestSuperuserOldWebserver(MachineCase):
         b.wait_in_text(".super-channel span", 'result: ')
         self.assertIn('result: uid=0', b.text(".super-channel span"))
 
-@skipImage("added in PR #13482", "rhel-8-2-distropkg")
 class TestSuperuserDashboard(MachineCase):
     provision = {
         "machine1": {"address": "10.111.113.1/20" },
@@ -400,7 +396,6 @@ class TestSuperuserDashboard(MachineCase):
         b.wait_in_text(".super-channel span", 'result: ')
         self.assertIn('result: uid=0', b.text(".super-channel span"))
 
-@skipImage("added in PR #13482", "rhel-8-2-distropkg")
 class TestSuperuserOldDashboard(MachineCase):
     provision = {
         "machine1": {"address": "10.111.113.1/20", "image": "centos-7" },
@@ -463,7 +458,6 @@ class TestSuperuserOldDashboard(MachineCase):
         b.wait_in_text(".super-channel span", 'result: ')
         self.assertIn('result: uid=0', b.text(".super-channel span"))
 
-@skipImage("added in PR #13482", "rhel-8-2-distropkg")
 class TestSuperuserDashboardOldMachine(MachineCase):
     provision = {
         "machine1": {"address": "10.111.113.1/20" },

@@ -217,18 +217,17 @@ class TestSystemInfo(MachineCase):
         b.wait_text('#system_machine_id', mid)
 
         # uptime (introduced in PR #13885)
-        if m.image not in ["rhel-8-2-distropkg"]:
-            b.wait_text_not("#system_uptime", "")
-            # replace it with a known value, it should automatically update every minute
-            m.write("/tmp/fake_uptime", "2000.12 12345.30\n")
-            m.execute("mount -o bind /tmp/fake_uptime /proc/uptime")
-            self.addCleanup(m.execute, "umount /proc/uptime")
-            with b.wait_timeout(70):
-                b.wait_text("#system_uptime", "33 minutes")
-            # 4 months and a bit, moment humanize() rounds quite aggressively; also, test a slightly different format
-            m.write("/tmp/fake_uptime", "10370000 12345.30\n")
-            with b.wait_timeout(70):
-                b.wait_text("#system_uptime", "4 months")
+        b.wait_text_not("#system_uptime", "")
+        # replace it with a known value, it should automatically update every minute
+        m.write("/tmp/fake_uptime", "2000.12 12345.30\n")
+        m.execute("mount -o bind /tmp/fake_uptime /proc/uptime")
+        self.addCleanup(m.execute, "umount /proc/uptime")
+        with b.wait_timeout(70):
+            b.wait_text("#system_uptime", "33 minutes")
+        # 4 months and a bit, moment humanize() rounds quite aggressively; also, test a slightly different format
+        m.write("/tmp/fake_uptime", "10370000 12345.30\n")
+        with b.wait_timeout(70):
+            b.wait_text("#system_uptime", "4 months")
 
         self.allow_journal_messages("error loading contents of os-release: .*",
                                     "sudo: unable to resolve host host1.cockpit.lan: .*")
@@ -250,21 +249,17 @@ class TestSystemInfo(MachineCase):
         self.allow_journal_messages(
             "org.freedesktop.systemd1: couldn't get property org.freedesktop.systemd1.Service ExecMain at /org/freedesktop/systemd1/unit/systemd_2dtimedated_2eservice: GDBus.Error:org.freedesktop.DBus.Error.UnknownProperty: Unknown property")
 
-        if m.image in [ "rhel-8-2-distropkg" ]:
-            self.login_and_go("/system")
-            b.wait_text_not("#system_information_systime_button", "")
-        else:
-            self.login_and_go("/system", superuser=False)
-            b.wait_text_not("#system_information_systime_button", "")
-            b.wait_present('#system_information_systime_button[disabled]')
+        self.login_and_go("/system", superuser=False)
+        b.wait_text_not("#system_information_systime_button", "")
+        b.wait_present('#system_information_systime_button[disabled]')
 
-            # Gain admin access
-            b.click(".pf-c-alert:contains('Web console is running in limited access mode.') button:contains('Turn on')")
-            b.wait_in_text(".modal-dialog:contains('Administrative access')", "Please authenticate")
-            b.set_input_text(".modal-dialog:contains('Administrative access') input", "foobar")
-            b.click(".modal-dialog button:contains('Authenticate')")
-            b.wait_not_present(".modal-dialog:contains('Administrative access')")
-            b.wait_not_visible(".pf-c-alert:contains('Web console is running in limited access mode.')")
+        # Gain admin access
+        b.click(".pf-c-alert:contains('Web console is running in limited access mode.') button:contains('Turn on')")
+        b.wait_in_text(".modal-dialog:contains('Administrative access')", "Please authenticate")
+        b.set_input_text(".modal-dialog:contains('Administrative access') input", "foobar")
+        b.click(".modal-dialog button:contains('Authenticate')")
+        b.wait_not_present(".modal-dialog:contains('Administrative access')")
+        b.wait_not_visible(".pf-c-alert:contains('Web console is running in limited access mode.')")
 
         # Change the date
         b.click("#system_information_systime_button")
@@ -278,10 +273,7 @@ class TestSystemInfo(MachineCase):
         b.click("#systime-apply-button")
         b.wait_popdown("system_information_change_systime")
 
-        if m.image == "rhel-8-2-distropkg": # Changed in #13489
-            b.wait_text("#system_information_systime_button", "2020-01-24 08:03")
-        else:
-            b.wait_text("#system_information_systime_button", "Jan 24, 2020 8:03 AM")
+        b.wait_text("#system_information_systime_button", "Jan 24, 2020 8:03 AM")
 
         self.assertFalse(ntp_enabled())
         self.assertIn("Fri Jan 24 08:03:", m.execute("date"))
@@ -314,7 +306,7 @@ class TestSystemInfo(MachineCase):
         self.assertIn("Mon Jun  4 06:34:", m.execute("date"))
         self.assertIn("EEST 2018\n", m.execute("date"))
 
-    @skipImage("Uses timedatex, no NTP servers config", "rhel-8-2", "rhel-8-2-distropkg", "rhel-8-3", "rhel-8-3-distropkg", "centos-8-stream")
+    @skipImage("Uses timedatex, no NTP servers config", "rhel-8-3", "rhel-8-3-distropkg", "centos-8-stream")
     def testTimeServers(self):
         m = self.machine
         b = self.browser
@@ -368,11 +360,8 @@ class TestSystemInfo(MachineCase):
 
         m.execute(r"printf '\n  \n  Hello\n  World\n\n' >/etc/motd")
         b.wait_visible('#motd-box')
-        # strips empty lines, but not leading spaces; fixed in PR #13951
-        if m.image in ["rhel-8-2-distropkg"]:
-            b.wait_text('#motd', "\n  \n  Hello\n  World")
-        else:
-            b.wait_text('#motd', "  Hello\n  World")
+        # strips empty lines, but not leading spaces
+        b.wait_text('#motd', "  Hello\n  World")
 
         b.click('#motd-box button')
         b.wait_not_present('#motd-box')
@@ -662,7 +651,6 @@ fi
         self.allow_authorize_journal_messages()
         self.allow_restart_journal_messages()
 
-    @skipImage("Added in PR #13797", "rhel-8-2-distropkg")
     def testInsightsStatus(self):
         m = self.machine
         b = self.browser

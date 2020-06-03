@@ -21,25 +21,6 @@ import { docker } from "./docker";
 import { util } from "./util";
 import QUnit from "qunit-tests";
 
-QUnit.test("bytes_from_format", function (assert) {
-    var checks = [
-        ["999", 999],
-        ["1.9 kb", 1945.6],
-        ["2.0 KB", 2048],
-        ["1.0 MB", 1048576],
-        ["1 GB", 1073741824],
-        ["1 Unknown", 1],
-    ];
-
-    var i;
-
-    assert.expect(checks.length);
-    for (i = 0; i < checks.length; i++) {
-        assert.strictEqual(docker.bytes_from_format(checks[i][0]), checks[i][1],
-                           "bytes_from_format(" + checks[i][0] + ") = " + checks[i][1]);
-    }
-});
-
 QUnit.test("json_skip", function (assert) {
     var checks = [
         ["number", "0123456789",

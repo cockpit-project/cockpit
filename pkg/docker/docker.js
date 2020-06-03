@@ -725,26 +725,6 @@ docker.unquote_cmdline = function unquote_cmdline(text) {
     return words;
 };
 
-var byte_suffixes = [null, "KB", "MB", "GB", "TB", "PB", "EB", "ZB"];
-
-docker.bytes_from_format = function bytes_from_format(formatted, separate) {
-    var factor = 1024;
-
-    if (separate === undefined)
-        separate = " ";
-
-    var format = formatted.split(separate).pop()
-            .toUpperCase();
-    var spot = byte_suffixes.indexOf(format);
-
-    /* TODO: Make the decimal separator translatable */
-    var num = parseFloat(formatted);
-
-    if (spot > 0 && !isNaN(num))
-        return num * Math.pow(factor, spot);
-    return num;
-};
-
 /*
  * Returns the short id of a docker container or image id.
  */

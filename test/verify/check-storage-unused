@@ -53,7 +53,7 @@ mkpart logical ext2 24 48"""
         m.execute("udevadm settle")
         m.execute("mke2fs -q -L TEST /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1-part5")
 
-        b.eval_js("""
+        b.inject_js("""
           ph_texts = function (sel) {
             return ph_select(sel).map(function(e) { return e.textContent });
           }""")

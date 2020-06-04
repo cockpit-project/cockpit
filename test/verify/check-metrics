@@ -46,14 +46,14 @@ class TestMetrics(MachineCase, StorageHelpers):
         b = self.browser
         m = self.machine
 
-        b.eval_js("""
+        b.inject_js("""
           ph_plot_timestamp = function (sel) {
             var data = $(sel).data("flot_data")[0]['data'];
             return data[data.length-1][0];
           }
         """)
 
-        b.eval_js("""
+        b.inject_js("""
           ph_plot_timestamp_is = function (sel, ts) {
             return ph_plot_timestamp(sel, 0) >= ts;
           }
@@ -69,7 +69,7 @@ class TestMetrics(MachineCase, StorageHelpers):
         # outlier will make us miss the expected plateau.  Such
         # outliers happen frequently with the CPU plot.
 
-        b.eval_js("""
+        b.inject_js("""
           ph_plateau = function (data, min, max, duration, label) {
               var i, j;
               var sum;  // sum of data[i..j]
@@ -90,7 +90,7 @@ class TestMetrics(MachineCase, StorageHelpers):
           }
         """)
 
-        b.eval_js("""
+        b.inject_js("""
           ph_flot_data_plateau = function (sel, min, max, duration, label) {
             return ph_plateau($(sel).data("flot_data")[0]['data'], min, max, duration, label);
           }

@@ -169,6 +169,12 @@ class Browser:
             msg += "\n" + trailer
         raise Error("%s(%s): %s" % (func, arg, msg))
 
+    # Execute js code that does not return anything
+    def inject_js(self, code):
+        self.cdp.invoke("Runtime.evaluate", expression=code, trace=code,
+                        silent=False, awaitPromise=True, returnByValue=False, no_trace=True)
+
+    # Execute js code that returns something
     def eval_js(self, code, no_trace=False):
         result = self.cdp.invoke("Runtime.evaluate", expression=code, trace=code,
                                  silent=False, awaitPromise=True, returnByValue=True, no_trace=no_trace)

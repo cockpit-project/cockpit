@@ -59,7 +59,7 @@ class TestStorageMultipath(StorageCase):
         self.login_and_go("/storage")
         b.wait_in_text("#drives", "VirtIO")
 
-        b.eval_js("""
+        b.inject_js("""
           ph_texts = function (sel) {
             return ph_select(sel).map(function (e) { return e.textContent });
           }""")

@@ -75,7 +75,7 @@ class TestJournal(MachineCase):
         m.execute("systemctl disable --now pmie pmlogger || true")
 
         def inject_extras():
-            b.eval_js("""
+            b.inject_js("""
             ph_get_log_lines = function () {
                 var lines = [ ];
                 var panels = ph_find('.cockpit-log-panel').childNodes;
@@ -145,7 +145,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         self.login_and_go("/system/logs")
         inject_extras()
 
-        b.eval_js("""
+        b.inject_js("""
             localTime = function(time) {
                 var month_names = [
                     'January',

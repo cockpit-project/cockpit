@@ -50,7 +50,8 @@ class TestMultiOS(MachineCase):
     }
 
     def check_spawn(self, b, address):
-        # Firefox cannot do `cockpit.spawn` as it returns promise
+        # HACK: Firefox cannot do `cockpit.spawn` as it returns promise
+        # Firefox can wait for promise to resolve, but then cannot get value from it
         if b.cdp.browser == "firefox":
             return
         result = b.call_js_func("""(function(address) {
@@ -59,6 +60,9 @@ class TestMultiOS(MachineCase):
         self.assertEqual(result, "hi\n")
 
     def check_dbus(self, b, address):
+        # HACK: Firefox cannot do `cockpit.dbus.proxy.call` as it returns promise
+        if b.cdp.browser == "firefox":
+            return
         b.call_js_func("""(function(address) {
             return cockpit.dbus("org.freedesktop.DBus", { host: address })
                 .proxy("org.freedesktop.DBus", "/").call("GetId");

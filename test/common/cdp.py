@@ -182,6 +182,8 @@ class CDP:
             with open(os.path.join(profile, "user.js"), "w") as f:
                 f.write("""
                     user_pref("remote.enabled", true);
+                    user_pref("remote.frames.enabled", true);
+                    user_pref("app.update.auto", false);
                     user_pref("datareporting.policy.dataSubmissionEnabled", false);
                     user_pref("toolkit.telemetry.reportingpolicy.firstRun", false);
                     user_pref("dom.disable_beforeunload", true);

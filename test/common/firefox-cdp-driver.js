@@ -396,33 +396,12 @@ CDP(options)
 
                     // run the command
                     eval(command).then(reply => {
-                        // HACK: Runtime.evaluate has option returnByValue but Firefox does not
-                        // implement it and thus returns just RemoteObject of type 'array' with no
-                        // data. These data need to be gathered differently.
-                        if (reply && reply.result && reply.result.subtype === "array") {
-                            client.Runtime.getProperties({objectId: reply.result.objectId}).then(r => {
-                                if (unhandledExceptions.length === 0) {
-                                    success({result: {
-                                        type: "array",
-                                        // HACK: getProperties has two ways how to get only own
-                                        // properties, but neither is implemented in Firefox
-                                        value: r.result.filter(x => x.isOwn && x.configurable).map(x => x.value.value),
-                                        }
-                                    });
-                                } else {
-                                    let message = unhandledExceptions[0];
-                                    fail(message.split("\n")[0]);
-                                    clearExceptions();
-                                }
-                            });
+                        if (unhandledExceptions.length === 0) {
+                            success(reply);
                         } else {
-                            if (unhandledExceptions.length === 0) {
-                                success(reply);
-                            } else {
-                                let message = unhandledExceptions[0];
-                                fail(message.split("\n")[0]);
-                                clearExceptions();
-                            }
+                            let message = unhandledExceptions[0];
+                            fail(message.split("\n")[0]);
+                            clearExceptions();
                         }
                     }, fail);
 

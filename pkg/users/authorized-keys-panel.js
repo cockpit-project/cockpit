@@ -18,7 +18,8 @@
  */
 
 import cockpit from 'cockpit';
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { useObject, useEvent } from 'hooks.js';
 
 import { Modal } from 'patternfly-react';
 import { Button } from '@patternfly/react-core';
@@ -82,28 +83,16 @@ function add_authorized_key_dialog(keys) {
 }
 
 export function AuthorizedKeys({ name, home, allow_mods }) {
-    const [manager, setManager] = useState(null);
-    const [state, setState] = useState(null);
-    const [keys, setKeys] = useState([]);
-
-    useEffect(() => {
-        const manager = authorized_keys.instance(name, home);
-        setManager(manager);
-        setState(manager.state);
-        setKeys(manager.keys);
-        manager.addEventListener("changed", () => {
-            setState(manager.state);
-            setKeys(manager.keys);
-        });
-        return () => {
-            manager.close();
-        };
-    }, [name, home]);
+    const manager = useObject(() => authorized_keys.instance(name, home),
+                              manager => manager.close(),
+                              [name, home]);
+    useEvent(manager, "changed");
 
     function remove_key(raw) {
         manager.remove_key(raw).catch(show_unexpected_error);
     }
 
+    const { state, keys } = manager;
     let key_items;
 
     if (state == "access-denied") {

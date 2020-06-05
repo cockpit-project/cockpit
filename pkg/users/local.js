@@ -25,7 +25,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { superuser } from "superuser.jsx";
 
-import { useCockpitLocation, useCockpitUser, useFile } from "./hooks.js";
+import { usePageLocation, useLoggedInUser, useFile } from "hooks.js";
 import { etc_passwd_syntax, etc_group_syntax } from "./parsers.js";
 import { AccountsList } from "./accounts-list.js";
 import { AccountDetails } from "./account-details.js";
@@ -34,11 +34,11 @@ moment.locale(cockpit.language);
 superuser.reload_page_on_change();
 
 function AccountsPage() {
-    const path = useCockpitLocation();
+    const { path } = usePageLocation();
     const accounts = useFile("/etc/passwd", { syntax: etc_passwd_syntax });
     const shadow = useFile("/etc/shadow", { superuser: true });
     const groups = useFile("/etc/group", { syntax: etc_group_syntax });
-    const current_user_info = useCockpitUser();
+    const current_user_info = useLoggedInUser();
 
     if (!accounts || !groups || !current_user_info)
         return null;

@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-import subprocess
 import time
 
 import parent
@@ -140,23 +139,10 @@ class TestSystemInfo(MachineCase):
         m.execute("chmod 600 /etc/ssh/weirdname")
         m.execute("restorecon /etc/ssh/weirdname || true")
 
-        supports_alt = False
-        try:
-            m.execute(command="ssh-keygen -l -f /etc/ssh/weirdname -E md5", quiet=True)
-            supports_alt = True
-        except subprocess.CalledProcessError:
-            pass
-
-        if supports_alt:
-            new_default = m.execute("ssh-keygen -l -f /etc/ssh/weirdname -E md5 | cut -d' ' -f2")
-            new_alt = m.execute("ssh-keygen -l -f /etc/ssh/weirdname -E sha256 | cut -d' ' -f2")
-            old_default = m.execute("ssh-keygen -l -f /etc/ssh/ssh_host_rsa_key -E md5 | cut -d' ' -f2")
-            old_alt = m.execute("ssh-keygen -l -f /etc/ssh/ssh_host_rsa_key -E sha256 | cut -d' ' -f2")
-        else:
-            new_default = m.execute("ssh-keygen -l -f /etc/ssh/weirdname | cut -d' ' -f2")
-            new_alt = None
-            old_default = m.execute("ssh-keygen -l -f /etc/ssh/ssh_host_rsa_key | cut -d' ' -f2")
-            old_alt = None
+        new_default = m.execute("ssh-keygen -l -f /etc/ssh/weirdname -E md5 | cut -d' ' -f2")
+        new_alt = m.execute("ssh-keygen -l -f /etc/ssh/weirdname -E sha256 | cut -d' ' -f2")
+        old_default = m.execute("ssh-keygen -l -f /etc/ssh/ssh_host_rsa_key -E md5 | cut -d' ' -f2")
+        old_alt = m.execute("ssh-keygen -l -f /etc/ssh/ssh_host_rsa_key -E sha256 | cut -d' ' -f2")
 
         b.click("#system-ssh-keys-link")
         b.wait_popup("system_information_ssh_keys")
@@ -167,9 +153,8 @@ class TestSystemInfo(MachineCase):
         b.wait_in_text("#system_information_ssh_keys .list-group", "ECDSA")
         b.wait_not_in_text("#system_information_ssh_keys .list-group", new_default)
         b.wait_in_text("#system_information_ssh_keys .list-group", old_default)
-        if supports_alt:
-            b.wait_not_in_text("#system_information_ssh_keys .list-group", new_alt)
-            b.wait_in_text("#system_information_ssh_keys .list-group", old_alt)
+        b.wait_not_in_text("#system_information_ssh_keys .list-group", new_alt)
+        b.wait_in_text("#system_information_ssh_keys .list-group", old_alt)
 
         b.click("#system_information_ssh_keys button")
         b.wait_popdown("system_information_ssh_keys")
@@ -189,9 +174,8 @@ class TestSystemInfo(MachineCase):
         b.wait_not_in_text("#system_information_ssh_keys .list-group", "ECDSA")
         b.wait_in_text("#system_information_ssh_keys .list-group", new_default)
         b.wait_not_in_text("#system_information_ssh_keys .list-group", old_default)
-        if supports_alt:
-            b.wait_not_in_text("#system_information_ssh_keys .list-group", old_alt)
-            b.wait_in_text("#system_information_ssh_keys .list-group", new_alt)
+        b.wait_not_in_text("#system_information_ssh_keys .list-group", old_alt)
+        b.wait_in_text("#system_information_ssh_keys .list-group", new_alt)
 
         b.wait_in_text('#system_information_os_text',
                     "Foobar Adventure Linux Server 2.0 (Day of Doom)")

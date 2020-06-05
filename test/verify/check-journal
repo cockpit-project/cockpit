@@ -140,7 +140,10 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         m.execute("if systemctl --quiet is-active chrony; then systemctl disable chrony && systemctl stop chrony; fi")
         m.execute("if systemctl --quiet is-active chronyd; then systemctl disable chronyd && systemctl stop chronyd; fi")
 
-        m.execute("timedatectl set-ntp off; timedatectl set-time 2038-01-01")
+        m.execute("timedatectl set-ntp off")
+        # this is asynchronous; must wait until timesyncd stops before the time can be set
+        m.execute("while systemctl is-active systemd-timesyncd; do sleep 1; done")
+        m.execute("timedatectl set-time 2038-01-01")
 
         self.login_and_go("/system/logs")
         inject_extras()

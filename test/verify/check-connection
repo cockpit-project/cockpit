@@ -33,22 +33,63 @@ class TestConnection(MachineCase):
         if "debian" in self.machine.image or "ubuntu" in self.machine.image:
             self.ws_executable = "/usr/lib/cockpit/cockpit-ws"
 
+    def ostree_setup_ws(self):
+        '''Overlay cockpit-ws package on OSTree image
+
+        Disable the cockpit/ws container. This is for tests that don't work with the container,
+        and to make sure that overlaying cockpit-ws works as well.
+        '''
+        m = self.machine
+        if not m.ostree_image:
+            return
+
+        # uninstall cockpit/ws container startup script
+        m.execute("rm /etc/systemd/system/cockpit.service")
+        # overlay cockpit-ws rpm
+        m.execute("rpm-ostree install --cache-only /var/tmp/build-results/cockpit-ws-*.rpm")
+        m.spawn("sync && sync && sync && sleep 0.1 && reboot", "reboot")
+        m.wait_reboot()
+
     @skipBrowser("Firefox cannot work with cookies", "firefox")
     def testBasic(self):
-        b = self.browser
         m = self.machine
 
-        m.start_cockpit()
+        # always test with the default ws install (container on OSTree, package everywhere else)
+        self.check_basic_with_start_stop(m.start_cockpit, m.stop_cockpit)
+
+        # on OSTree, also check with overlaid cockpit-ws rpm
+        if m.ostree_image:
+            def ws_start():
+                m.execute(r"""set -e;
+                    mkdir -p /etc/systemd/system/cockpit.service.d/ &&
+                    printf "[Service]\nExecStart=\n%s --no-tls" `grep ExecStart= /lib/systemd/system/cockpit.service` \
+                            > /etc/systemd/system/cockpit.service.d/notls.conf
+                    systemctl daemon-reload
+                    systemctl start cockpit.socket""")
+
+            def ws_stop():
+                m.execute("systemctl stop cockpit cockpit.socket")
+
+            self.ostree_setup_ws()
+            # HACK: Getting SELinux errors with just rpm-ostree install; there's a plethora of failures, so just allow them all
+            m.execute("setenforce 0")
+            self.allow_journal_messages('audit.*avc:  denied .*')
+            self.check_basic_with_start_stop(ws_start, ws_stop)
+
+    def check_basic_with_start_stop(self, start_cockpit, stop_cockpit):
+        m = self.machine
+        b = self.browser
+        start_cockpit()
 
         # take cockpit-ws down on the login page
         b.open("/system")
         b.wait_visible("#login")
         b.set_val("#login-user-input", "admin")
         b.set_val("#login-password-input", "foobar")
-        m.stop_cockpit()
+        stop_cockpit()
         b.click('#login-button')
         b.wait_text_not('#login-fatal-message', "")
-        m.start_cockpit()
+        start_cockpit()
         b.reload()
         b.wait_visible("#login")
         b.set_val("#login-user-input", "admin")
@@ -63,11 +104,11 @@ class TestConnection(MachineCase):
         self.assertFalse(cookie["secure"])
 
         # take cockpit-ws down on the server page
-        m.stop_cockpit()
+        stop_cockpit()
         b.switch_to_top()
         b.wait_in_text(".curtains-ct h1", "Disconnected")
 
-        m.start_cockpit()
+        start_cockpit()
         b.click("#machine-reconnect")
         b.expect_load()
         b.wait_visible("#login")
@@ -616,11 +657,12 @@ G_MESSAGES_DEBUG=all XDG_CONFIG_DIRS=/usr/local %s -p 9999 -a 127.0.0.90 --local
 
         self.allow_journal_messages("couldn't register polkit authentication agent.*")
 
-    @skipImage("does not use cockpit-ws package", "fedora-coreos")
     @skipBrowser("Firefox needs proper cert and CA", "firefox")
     def testReverseProxy(self):
         m = self.machine
         b = self.browser
+
+        self.ostree_setup_ws()
 
         # set up a poor man's reverse TLS proxy with socat
         m.upload(["../src/bridge/mock-server.crt", "../src/bridge/mock-server.key"], "/tmp")

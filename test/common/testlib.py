@@ -1528,6 +1528,8 @@ def arg_parser(enable_sit=True):
                             help="Sit and wait after test failure")
     parser.add_argument('--nonet', dest="fetch", action="store_false",
                         help="Don't go online to download images or data")
+    parser.add_argument('--enable-network', dest='enable_network', action='store_true',
+                        help="Enable network access for tests")
     parser.add_argument('tests', nargs='*')
     parser.add_argument("-l", "--list", action="store_true", help="Print the list of tests that would be executed")
 

@@ -188,10 +188,11 @@ def run(opts, image):
             ssh_address = opts.machine
             web_address = opts.browser
         else:
-            ssh_address = "{0}:{1}".format(testlib.MachineCase.get_global_machine().ssh_address,
-                                           testlib.MachineCase.get_global_machine().ssh_port)
-            web_address = "{0}:{1}".format(testlib.MachineCase.get_global_machine().web_address,
-                                           testlib.MachineCase.get_global_machine().web_port)
+            m = testlib.MachineCase.get_global_machine(restrict=not opts.enable_network)
+            ssh_address = "{0}:{1}".format(m.ssh_address,
+                                           m.ssh_port)
+            web_address = "{0}:{1}".format(m.web_address,
+                                           m.web_port)
         for test in serial_tests:
             test.command.insert(-2, "--machine")
             test.command.insert(-2, ssh_address)

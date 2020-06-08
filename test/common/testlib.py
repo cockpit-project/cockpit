@@ -1080,8 +1080,8 @@ class MachineCase(unittest.TestCase):
             # Debian images don't have any non-C locales (mostly deliberate, to test this scenario somewhere)
             self.allowed_messages.append("invalid or unusable locale: .*")
 
-        if self.image in ['fedora-32', 'fedora-31', 'fedora-testing']:
-            # Fedora >= 30 switched to dbus-broker
+        if self.image.startswith('fedora'):
+            # Fedora switched to dbus-broker
             self.allowed_messages.append("dbus-daemon didn't send us a dbus address; not installed?.*")
 
         if self.image in ['rhel-8-3', 'rhel-8-3-distropkg']:

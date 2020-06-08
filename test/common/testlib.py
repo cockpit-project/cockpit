@@ -711,9 +711,9 @@ class MachineCase(unittest.TestCase):
     provision = None
 
     @classmethod
-    def get_global_machine(klass):
+    def get_global_machine(klass, restrict=True):
         if not klass.global_machine:
-            klass.global_machine = klass.new_machine(klass, cleanup=False)
+            klass.global_machine = klass.new_machine(klass, restrict=restrict, cleanup=False)
             if opts.trace:
                 print("Starting global machine {0}".format(klass.global_machine.label))
             klass.global_machine.start()
@@ -783,7 +783,7 @@ class MachineCase(unittest.TestCase):
         path = "/usr/share/cockpit/%s/override.json" % package
         self.write_file(path, '{ "preload": [%s]}' % ', '.join('"{0}"'.format(page) for page in pages))
 
-    def setUp(self):
+    def setUp(self, restrict=True):
         if opts.address and self.provision is not None:
             raise unittest.SkipTest("Cannot provision multiple machines if a specific machine address is specified")
 
@@ -797,7 +797,7 @@ class MachineCase(unittest.TestCase):
         if self.is_nondestructive() and not opts.address:
             if self.provision:
                 raise unittest.SkipTest("Cannot provision machines if test is marked as nondestructive")
-            self.machine = self.machines['machine1'] = MachineCase.get_global_machine()
+            self.machine = self.machines['machine1'] = MachineCase.get_global_machine(restrict=restrict)
         else:
             self.machine = None
             # First create all machines, wait for them later
@@ -809,6 +809,8 @@ class MachineCase(unittest.TestCase):
                     del options['dns']
                 if 'dhcp' in options:
                     del options['dhcp']
+                if 'restrict' not in options:
+                    options['restrict'] = restrict
                 machine = self.new_machine(**options)
                 self.machines[key] = machine
                 if not self.machine:

@@ -14,21 +14,26 @@ Cockpit packages.
 
    If you have a custom-built OSTree, simply include the same packages in your build.
 
-
 2. Reboot
 
-3. Run the Cockpit web service with this privileged container (as root):
+3. Enable password based SSH logins, unless you only use [SSO logins](https://cockpit-project.org/guide/latest/sso.html):
+   ```
+   echo 'PasswordAuthentication yes' | sudo tee /etc/ssh/sshd_config.d/02-enable-passwords.conf
+   sudo systemctl try-restart sshd
+   ```
+
+4. Run the Cockpit web service with this privileged container (as root):
    ```
    podman container runlabel --name cockpit-ws RUN cockpit/ws
    ```
 
-4. Make Cockpit start on boot:
+5. Make Cockpit start on boot:
    ```
    podman container runlabel INSTALL cockpit/ws
    systemctl enable cockpit.service
    ```
 
-_Steps 3 and 4 are optional if the CoreOS machine will only be connected to from another host running Cockpit._
+_Steps 3 to 5 are optional if the CoreOS machine will only be connected to from another host running Cockpit._
 
 Afterward, use a web browser to log into port `9090` on your host IP address as usual.
 

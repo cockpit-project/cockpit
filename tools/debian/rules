@@ -8,6 +8,11 @@ ifeq ($(BUILD_DOCKER),)
        export DH_OPTIONS = -Ncockpit-docker
 endif
 
+# this is an emulated architecture for now, and too slow to run expensive unit tests
+ifeq ($(shell dpkg-architecture -qDEB_BUILD_ARCH),riscv64)
+	export COCKPIT_SKIP_SLOW_TESTS=1
+endif
+
 %:
 	dh $@
 

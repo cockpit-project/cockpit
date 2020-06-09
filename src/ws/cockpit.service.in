@@ -9,8 +9,7 @@ After=cockpit-wsinstance-http.socket cockpit-wsinstance-http-redirect.socket coc
 RuntimeDirectory=cockpit/tls
 # systemd ≥ 241 sets this automatically
 Environment=RUNTIME_DIRECTORY=/run/cockpit/tls
-ExecStartPre=@sbindir@/remotectl certificate --ensure --user=root --group=@group@ --selinux-type=@selinux_config_type@
+ExecStartPre=+@sbindir@/remotectl certificate --ensure --user=root --group=@group@ --selinux-type=@selinux_config_type@
 ExecStart=@libexecdir@/cockpit-tls
-PermissionsStartOnly=true
 User=@user@
 Group=@group@

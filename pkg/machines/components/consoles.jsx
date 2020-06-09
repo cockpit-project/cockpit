@@ -176,7 +176,9 @@ class Consoles extends React.Component {
 
         switch (this.state.consoleType) {
         case 'serial-browser':
-            return <SerialConsole connectionName={vm.connectionName} vmName={vm.name} spawnArgs={serialConsoleCommand}>{consoleSelector}</SerialConsole>;
+            if (serialConsoleCommand)
+                return <SerialConsole connectionName={vm.connectionName} vmName={vm.name} spawnArgs={serialConsoleCommand}>{consoleSelector}</SerialConsole>;
+            break;
         case 'vnc-browser':
             return <Vnc vm={vm} consoleDetail={this.state.consoleDetail} onAddErrorNotification={onAddErrorNotification}>{consoleSelector}</Vnc>;
         case 'desktop':

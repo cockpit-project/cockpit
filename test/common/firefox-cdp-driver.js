@@ -92,6 +92,12 @@ function setupLogging(client) {
         if (details.exception && details.exception.className === "PhWaitCondTimeout")
             return;
 
+        // HACK: Sometimes on Firefox >= 77 xterm.js can raise following message when Cockpit is reloaded:
+        // `InvalidStateError: An attempt was made to use an object that is not, or is no longer, usable`
+        // It does not oops, everything is functional, safe to ignore for now
+        if (details.exception && details.exception.className === "InvalidStateError")
+            return;
+
         process.stderr.write(details.description || JSON.stringify(details) + "\n");
 
         unhandledExceptions.push(details.exception.message ||

@@ -970,9 +970,6 @@ class MachineCase(unittest.TestCase):
         "(audit: )?type=1400 .*denied.*comm=\"ssh-transport-c\".*name=\"unix\".*dev=\"proc\".*",
         "(audit: )?type=1400 .*denied.*comm=\"cockpit-ssh\".*name=\"unix\".*dev=\"proc\".*",
 
-        # https://bugzilla.redhat.com/show_bug.cgi?id=1795524
-        "(audit: )?type=1400 .*denied  { setsched } .* comm=\"cockpit-ws\".*",
-
         # apparmor loading
         "(audit: )?type=1400.*apparmor=\"STATUS\".*",
 

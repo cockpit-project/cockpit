@@ -296,16 +296,16 @@ def main():
             parser.error("--machine cannot be used with concurrent jobs")
         opts.nondestructive = True
 
-    image = testvm.DEFAULT_IMAGE
-    test_browser = os.environ.get("TEST_BROWSER", "chromium")
+    # Tell any subprocesses what we are testing
     if "TEST_REVISION" not in os.environ:
         r = subprocess.run(["git", "rev-parse", "HEAD"],
                            universal_newlines=True, check=False, stdout=subprocess.PIPE)
         if r.returncode == 0:
             os.environ["TEST_REVISION"] = r.stdout.strip()
 
-    # Tell any subprocesses what we are testing
-    os.environ["TEST_BROWSER"] = test_browser
+    os.environ["TEST_BROWSER"] = os.environ.get("TEST_BROWSER", "chromium")
+
+    image = testvm.DEFAULT_IMAGE
     testvm.DEFAULT_IMAGE = image
     os.environ["TEST_OS"] = image
 

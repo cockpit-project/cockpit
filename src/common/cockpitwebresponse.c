@@ -746,6 +746,7 @@ enum {
     HEADER_DNS_PREFETCH_CONTROL = 1 << 4,
     HEADER_REFERRER_POLICY = 1 << 5,
     HEADER_CONTENT_TYPE_OPTIONS = 1 << 6,
+    HEADER_CROSS_ORIGIN_RESOURCE_POLICY = 1 << 7,
 };
 
 static GString *
@@ -786,6 +787,8 @@ append_header (GString *string,
     return HEADER_REFERRER_POLICY;
   if (g_ascii_strcasecmp ("X-Content-Type-Options", name) == 0)
     return HEADER_CONTENT_TYPE_OPTIONS;
+  if (g_ascii_strcasecmp ("Cross-Origin-Resource-Policy", name) == 0)
+    return HEADER_CROSS_ORIGIN_RESOURCE_POLICY;
   if (g_ascii_strcasecmp ("Content-Length", name) == 0 ||
       g_ascii_strcasecmp ("Transfer-Encoding", name) == 0 ||
       g_ascii_strcasecmp ("Connection", name) == 0)
@@ -893,6 +896,10 @@ finish_headers (CockpitWebResponse *self,
     g_string_append (string, "Referrer-Policy: no-referrer\r\n");
   if ((seen & HEADER_CONTENT_TYPE_OPTIONS) == 0)
     g_string_append (string, "X-Content-Type-Options: nosniff\r\n");
+  /* Be very strict here -- there is no reason that external web sites should
+   * be able to read any resource. This does *not* affect embedding with <iframe> */
+  if ((seen & HEADER_CROSS_ORIGIN_RESOURCE_POLICY) == 0)
+    g_string_append (string, "Cross-Origin-Resource-Policy: same-origin\r\n");
 
   g_string_append (string, "\r\n");
   return g_string_free_to_bytes (string);

@@ -53,7 +53,7 @@
 #define PASSWORD "this is the password"
 
 /* headers that are present in every request */
-#define STATIC_HEADERS "X-Content-Type-Options: nosniff\r\nX-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
+#define STATIC_HEADERS "X-Content-Type-Options: nosniff\r\nX-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\nCross-Origin-Resource-Policy: same-origin\r\n"
 
 typedef struct {
   CockpitWebService *service;

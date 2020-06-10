@@ -415,7 +415,10 @@ $(function() {
         }
 
         if (options.service) {
-            match.push(...['_SYSTEMD_UNIT=' + options.service, "+", "COREDUMP_UNIT=" + options.service, "+", "UNIT=" + options.service]);
+            let s = options.service;
+            if (!s.endsWith(".service"))
+                s = s + ".service";
+            match.push(...['_SYSTEMD_UNIT=' + s, "+", "COREDUMP_UNIT=" + s, "+", "UNIT=" + s]);
             full_grep += "service:" + options.service + " ";
         }
 

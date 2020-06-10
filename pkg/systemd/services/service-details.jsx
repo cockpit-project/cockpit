@@ -420,7 +420,9 @@ export class ServiceDetails extends React.Component {
                 <div key="failed" className="status-failed">
                     <span className="pficon pficon-error-circle-o status-icon" />
                     <span className="status">{ _("Failed to start") }</span>
-                    <Button variant="secondary" className="action-button" onClick={() => this.unitAction("StartUnit") }>{ _("Start Service") }</Button>
+                    { this.props.permitted &&
+                        <Button variant="secondary" className="action-button" onClick={() => this.unitAction("StartUnit") }>{ _("Start Service") }</Button>
+                    }
                 </div>
             );
         }

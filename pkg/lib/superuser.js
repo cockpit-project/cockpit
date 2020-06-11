@@ -42,9 +42,18 @@ import cockpit from "cockpit";
  * - superuser.addEventListener("changed", () => ...)
  *
  * The event handler is called whenever superuser.allowed has changed.
- * A page should update its appearance according to superuser.allowed,
- * and it should also re-initialize itself by opening all "superuser"
- * channels again that are currently open.
+ * A page should update its appearance according to superuser.allowed.
+ *
+ * - superuser.addEventListener("reconnect", () => ...)
+ *
+ * The event handler is called whenever channels should be re-opened
+ * that use the "superuser" option.
+ *
+ * The difference between "reconnect" and "connect" is that the
+ * "reconnect" signal does not trigger when superuser.allowed goes
+ * from "null" to its first real value.  You don't need to re-open
+ * channels in this case, and it happens on every page load, so this
+ * is important to avoid.
  *
  * - superuser.reload_page_on_change()
  *
@@ -77,29 +86,34 @@ function Superuser() {
 
     cockpit.event_target(self);
 
-    proxy.wait(() => {
-        if (!proxy.valid) {
-            // Fall back to cockpit.permissions
-            const permission = cockpit.permission({ admin: true });
-            const changed = () => {
-                self.allowed = permission.allowed;
-                self.dispatchEvent("changed");
-            };
-            permission.addEventListener("changed", changed);
-            changed();
-        }
-    });
-
-    proxy.addEventListener("changed", () => {
-        const allowed = compute_allowed();
+    function changed(allowed) {
         if (self.allowed != allowed) {
             if (self.allowed != null && reload_on_change) {
                 window.location.reload(true);
             } else {
+                const prev = self.allowed;
                 self.allowed = allowed;
                 self.dispatchEvent("changed");
+                if (prev != null)
+                    self.dispatchEvent("reconnect");
             }
         }
+    }
+
+    proxy.wait(() => {
+        if (!proxy.valid) {
+            // Fall back to cockpit.permissions
+            const permission = cockpit.permission({ admin: true });
+            const update = () => {
+                changed(permission.allowed);
+            };
+            permission.addEventListener("changed", update);
+            update();
+        }
+    });
+
+    proxy.addEventListener("changed", () => {
+        changed(compute_allowed());
     });
 
     function reload_page_on_change() {

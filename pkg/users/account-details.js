@@ -20,7 +20,7 @@
 import cockpit from 'cockpit';
 import React, { useState, useEffect } from 'react';
 import moment from "moment";
-import { superuser } from "superuser.jsx";
+import { superuser } from "superuser";
 
 import { Button } from '@patternfly/react-core';
 import { show_unexpected_error } from "./dialog-utils.js";

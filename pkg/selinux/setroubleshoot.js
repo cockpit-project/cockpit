@@ -27,7 +27,7 @@ import '../../src/base1/patternfly-cockpit.scss';
 import * as troubleshootClient from "./setroubleshoot-client";
 import * as selinuxClient from "./selinux-client.js";
 import { SETroubleshootPage } from "./setroubleshoot-view.jsx";
-import { superuser } from 'superuser.jsx';
+import { superuser } from 'superuser';
 
 const _ = cockpit.gettext;
 

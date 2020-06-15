@@ -24,7 +24,7 @@ import cockpit from "cockpit";
 import { journal } from "journal";
 import moment from "moment";
 import { init_reporting } from "./reporting.jsx";
-import { superuser } from "superuser.jsx";
+import { superuser } from "superuser";
 
 import ReactDOM from 'react-dom';
 import React from 'react';

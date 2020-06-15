@@ -19,7 +19,7 @@
 
 import cockpit from 'cockpit';
 import * as PK from 'packagekit.js';
-import { superuser } from 'superuser.jsx';
+import { superuser } from 'superuser';
 
 import * as utils from './utils';
 

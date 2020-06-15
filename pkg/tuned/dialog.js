@@ -22,7 +22,7 @@ import cockpit from "cockpit";
 
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 import * as service from "service";
-import { superuser } from "superuser.jsx";
+import { superuser } from "superuser";
 import React from "react";
 
 import { TunedDialogBody } from "./change-profile.jsx";

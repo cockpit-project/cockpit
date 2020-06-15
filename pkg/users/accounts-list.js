@@ -19,7 +19,7 @@
 
 import cockpit from 'cockpit';
 import React from 'react';
-import { superuser } from "superuser.jsx";
+import { superuser } from "superuser";
 
 import { Button, Badge } from '@patternfly/react-core';
 import { account_create_dialog } from "./account-create-dialog.js";

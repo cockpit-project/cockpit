@@ -23,7 +23,7 @@ import cockpit from 'cockpit';
 import moment from "moment";
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { superuser } from "superuser.jsx";
+import { superuser } from "superuser";
 
 import { usePageLocation, useLoggedInUser, useFile } from "hooks.js";
 import { etc_passwd_syntax, etc_group_syntax } from "./parsers.js";

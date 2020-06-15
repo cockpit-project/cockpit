@@ -19,7 +19,7 @@
 
 import cockpit from 'cockpit';
 import React from 'react';
-import { superuser } from "superuser.jsx";
+import { superuser } from "superuser";
 
 import { Modal } from 'patternfly-react';
 import { Validated, has_errors } from "./dialog-utils.js";

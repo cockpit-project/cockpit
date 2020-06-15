@@ -40,6 +40,15 @@ def test_name(test):
     return "{0} {1} {2}{3}".format(test.test_id, test.command[0], test.command[-1], " [ND]" if test.nondestructive else "")
 
 
+def flush_stdout():
+    while True:
+        try:
+            sys.stdout.flush()
+            break
+        except BlockingIOError:
+            time.sleep(0.1)
+
+
 def print_test(test, print_tap=True):
     for line in test.output.splitlines(keepends=True):
         while line:
@@ -49,7 +58,7 @@ def print_test(test, print_tap=True):
             except BlockingIOError as e:
                 line = line[e.characters_written:]
                 time.sleep(0.1)
-    sys.stdout.flush()
+    flush_stdout()
 
     if not print_tap:
         return
@@ -63,7 +72,7 @@ def print_test(test, print_tap=True):
                                   test.output.splitlines()[-1].strip().decode() if test.process.returncode == 77 else ""))
     else:
         print("not ok " + test_name(test))
-    sys.stdout.flush()
+    flush_stdout()
 
 def finish_test(opts, test):
     """Returns if a test should retry or not
@@ -189,7 +198,7 @@ def run(opts, image):
     serial_tests.sort(key=lambda t: t.command[-1], reverse=bool(binascii.crc32(image.encode()) & 1))
 
     print("1..{0}".format(len(parallel_tests) + len(serial_tests)))
-    sys.stdout.flush()
+    flush_stdout()
 
     if serial_tests and not opts.list:
         if opts.machine:

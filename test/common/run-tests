@@ -42,7 +42,13 @@ def test_name(test):
 
 def print_test(test, print_tap=True):
     for line in test.output.splitlines(keepends=True):
-        sys.stdout.buffer.write(line)
+        while line:
+            try:
+                sys.stdout.buffer.write(line)
+                break
+            except BlockingIOError as e:
+                line = line[e.characters_written:]
+                time.sleep(0.1)
     sys.stdout.flush()
 
     if not print_tap:

@@ -74,14 +74,24 @@ def print_test(test, print_tap=True):
         print("not ok " + test_name(test))
     flush_stdout()
 
-def finish_test(opts, test):
+def finish_test(opts, test, affected_tests):
     """Returns if a test should retry or not
 
     Call test-policy on the test's output, print if needed.
 
     Return (retry_reason, exit_code). retry_reason can be None or a string.
     """
-    if test.process.returncode in [0, 77]:
+
+    affected = test.command[0] in affected_tests
+
+    # Try affected tests 3 times
+    if test.process.returncode == 0 and affected and test.retries < 2:
+        retry_reason = b"test affected tests 3 times"
+        test.retries += 1
+        test.output += b" # RETRY %i (%s)\n" % (test.retries, retry_reason)
+        print_test(test, not opts.list)
+        return retry_reason, 0
+    elif test.process.returncode in [0, 77]:
         print_test(test, not opts.list)
         return None, 0
 
@@ -109,12 +119,14 @@ def finish_test(opts, test):
         retry_reason = m.group(1)
         # remove it from test output; we must not print it after the 3rd time, and going to print it separately
         test.output = re.sub(b"\s*# RETRY .*\\n", b"", test.output)
+    elif affected: # Don't retry affected failed tests
+        retry_reason = None
     else:
         # HACK: many tests are unstable, always retry them 3 times
         retry_reason = b"be robust against unstable tests"
 
     unexpected_message = b"Test completed, but found unexpected" in test.output
-    if test.retries < 2 and not unexpected_message:
+    if test.retries < 2 and not unexpected_message and retry_reason:
         test.retries += 1
         test.output += b" # RETRY %i (%s)\n" % (test.retries, retry_reason)
         print_test(test, print_tap=opts.thorough)
@@ -144,7 +156,7 @@ def build_command(filename, test, opts):
     return cmd
 
 def run(opts, image):
-    # Build the list of tests we'll parallellize and the ones we'll run serially
+    # Build the list of tests we'll parallelize and the ones we'll run serially
     test_loader = unittest.TestLoader()
     parallel_tests = []
     serial_tests = []
@@ -156,6 +168,19 @@ def run(opts, image):
 
     # Make sure tests can make relative imports
     sys.path.append(os.path.realpath(opts.test_dir))
+
+    # Build list of affected tests
+    # If file from `test-dir` was changed in the PR, all tests from it are considered affected
+    changed_tests = []
+    cmd = ["git", "diff", "--name-only", "HEAD", "origin/master", opts.test_dir]
+    r = subprocess.run(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    if r.returncode == 0:
+        changed_tests = [test.decode("utf-8") for test in r.stdout.strip().splitlines()]
+
+    # If more than 3 test files were changed don't consider any of them as affected
+    # as it might be a PR that changes more unrelated things.
+    if len(changed_tests) > 3:
+        changed_tests = []
 
     seen_classes = {}
     for filename in glob.glob(os.path.join(opts.test_dir, "check-*")):
@@ -247,7 +272,7 @@ def run(opts, image):
                 test.output = test.outfile.read()
                 test.outfile.close()
                 running_tests.remove(test)
-                retry_reason, test_result = finish_test(opts, test)
+                retry_reason, test_result = finish_test(opts, test, changed_tests)
                 result += test_result
 
                 if test is serial_test:

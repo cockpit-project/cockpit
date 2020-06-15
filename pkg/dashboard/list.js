@@ -265,6 +265,7 @@ PageDashboard.prototype = {
         $('#dashboard-add').click(function () {
             self.mdialogs.render_dialog("add-machine", "dashboard_setup_server_dialog");
         });
+        $('#dashboard-add').tooltip({ trigger : 'hover' });
         $('#dashboard-enable-edit').click(function () {
             self.toggle_edit(!self.edit_enabled);
         });

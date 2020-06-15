@@ -172,6 +172,8 @@ def run(opts, image):
                 test_timeout = getattr(test_method, "__timeout", getattr(test, "__timeout", 600))
                 if opts.tests and not any([t in test_str for t in opts.tests]):
                     continue
+                if test_str in opts.exclude:
+                    continue
                 nd = getattr(test_method, "_testlib__non_destructive", False)
                 test = Test(test_id, build_command(filename, test_str, opts), test_timeout, nd)
                 if nd:
@@ -294,6 +296,8 @@ def main():
                         default=None, help="When using --machine, use this cockpit web address")
     parser.add_argument('--test-dir', default=testvm.TEST_DIR,
                         help="Directory in which to glob check-* files")
+    parser.add_argument('--exclude', action="append", default=[], metavar="TestClass.testName",
+                        help="Exclude test (exact match only); can be specified multiple times")
     opts = parser.parse_args()
 
     if opts.machine:

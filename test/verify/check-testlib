@@ -45,6 +45,11 @@ class TestRunTestListing(unittest.TestCase):
         # Filter a specific test
         self.assertIn("1..1\nTestNondestructiveExample.testOne",
                       subprocess.check_output([run_tests, "--test-dir", VERIFY_DIR, "-l", "TestNondestructiveExample.testOne"]).strip().decode())
+        # Exclude test patterns
+        self.assertIn("1..1\nTestNondestructiveExample.testOne",
+                      subprocess.check_output([run_tests, "--test-dir", VERIFY_DIR, "-l",
+                                               "--exclude", "bogus", "--exclude", "TestNondestructiveExample.testTwo",
+                                               "TestNondestructiveExample"]).strip().decode())
 
         ndtests = subprocess.run([run_tests, "--test-dir", VERIFY_DIR, "-n", "-l"], env=forward_sort_env, check=True, capture_output=True)
         self.assertIn(b"TestExample.testNondestructive\n", ndtests.stdout)

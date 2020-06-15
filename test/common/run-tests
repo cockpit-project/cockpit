@@ -282,7 +282,6 @@ def run(opts, image):
 
 def main():
     parser = testlib.arg_parser(enable_sit=False)
-    parser.add_argument('--publish', action='store', help="Unused")
     parser.add_argument('-j', '--jobs', type=int,
                         default=os.environ.get("TEST_JOBS", 1), help="Number of concurrent jobs")
     parser.add_argument('--thorough', action='store_true',

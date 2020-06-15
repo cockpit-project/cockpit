@@ -83,25 +83,4 @@ getcert request -f ${CERT_FILE} -k ${KEY_FILE} -D $(hostname --fqdn) -C "sed -n 
     </programlisting>
   </section>
 
-  <section id="https-compat">
-    <title>SSL Versions and Ciphers</title>
-
-    <para>By default Cockpit will only use modern secure ciphers and versions of TLS.
-      In particular SSL v3.0 is disabled by default, as well as the RC4 cipher.</para>
-
-    <para>If you wish to enable these legacy protocols and algorithms you can do so
-      by passing an environment variable to cockpit-ws. Place the following in the
-      <code>/etc/systemd/system/cockpit.service.d/ssl.conf</code> file. Create the
-      file and directories in that path which don't already exist.</para>
-
-<programlisting>
-[Service]
-Environment=G_TLS_GNUTLS_PRIORITY=NORMAL:%COMPAT
-</programlisting>
-
-    <para>The environment variable value is a
-      <ulink url="https://gnutls.org/manual/html_node/Priority-Strings.html#Priority-Strings">GnuTLS priority string</ulink>.</para>
-
-  </section>
-
 </chapter>

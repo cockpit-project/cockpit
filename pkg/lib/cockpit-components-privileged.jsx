@@ -19,8 +19,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Button } from '@patternfly/react-core';
-import { OverlayTrigger, Tooltip } from 'patternfly-react';
+import { Button, Tooltip, TooltipPosition } from '@patternfly/react-core';
 
 import cockpit from "cockpit";
 
@@ -37,10 +36,10 @@ export function Privileged({ excuse, allowed, placement, tooltipId, children }) 
     let contents = <span id={allowed ? null : tooltipId}>{ children }</span>;
     if (!allowed) {
         contents = (
-            <OverlayTrigger placement={ placement || "top" }
-                            overlay={ <Tooltip id={ tooltipId + "_tooltip" }>{ excuse }</Tooltip> }>
+            <Tooltip position={ placement || TooltipPosition.top} id={ tooltipId + "_tooltip" }
+                     content={ excuse }>
                 { contents }
-            </OverlayTrigger>);
+            </Tooltip>);
     }
     return contents;
 }

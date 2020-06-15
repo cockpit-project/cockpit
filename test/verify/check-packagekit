@@ -87,10 +87,10 @@ class TestUpdates(NoSubManCase):
                 self.assertEqual(b.text(row + "th > span:nth-of-type(%i)" % idx), pkg)
         else:
             self.assertEqual(b.text(row + "th span"), pkgname)
-            b.mouse(row + "th span", "mouseover")
-            b.wait_text("div.tooltip", "dummy " + pkgname + " (" + arch + ")")
-            b.mouse(row + "th span", "mouseout")
-            b.wait_not_present("div.tooltip")
+            b.mouse(row + "th span", "mouseenter")
+            b.wait_text("div.pf-c-tooltip", "dummy " + pkgname + " (" + arch + ")")
+            b.mouse(row + "th span", "mouseleave")
+            b.wait_not_present("div.pf-c-tooltip")
         self.assertEqual(b.text(row + "td:nth-of-type(2)"), version)
         # verify type
         self.assertTrue(b.is_present(row + "td:nth-of-type(3) span." + severity_to_icon[severity]))
@@ -299,10 +299,10 @@ class TestUpdates(NoSubManCase):
             self.assertIn("RHSA-2000:0002", details)
             # icon has critical class
             self.assertIn("severity-critical", b.attr(sel + " td.type span", "class"))
-            b.mouse(sel + " td.type span", "mouseover")
-            b.wait_text("div.tooltip", "critical")
-            b.mouse(sel + " td.type span", "mouseout")
-            b.wait_not_present("div.tooltip")
+            b.mouse(sel + " td.type span", "mouseenter")
+            b.wait_text("div.pf-c-tooltip", "critical")
+            b.mouse(sel + " td.type span", "mouseleave")
+            b.wait_not_present("div.pf-c-tooltip")
             # details has link to severity definition
             self.assertIn("access.redhat.com", b.attr(sel + " .listing-ct-body dd.severity a:first-of-type", "href"))
 
@@ -312,12 +312,12 @@ class TestUpdates(NoSubManCase):
         ch = b.eval_js('document.querySelector("%s").innerHTML' % (sel + " td.changelog"))
         self.assertNotIn("<li>", ch)
         self.assertNotIn("*", ch)
-        # should show bug fix icon and tooltip
+        # should show bug fix icon and pf-c-tooltip
         self.assertIn("fa-bug", b.attr(sel + " td.type span", "class"))
-        b.mouse(sel + " td.type span", "mouseover")
-        b.wait_text("div.tooltip", "bug fix")
-        b.mouse(sel + " td.type span", "mouseout")
-        b.wait_not_present("div.tooltip")
+        b.mouse(sel + " td.type span", "mouseenter")
+        b.wait_text("div.pf-c-tooltip", "bug fix")
+        b.mouse(sel + " td.type span", "mouseleave")
+        b.wait_not_present("div.pf-c-tooltip")
 
         # norefs: just changelog, show both binary packages
         sel = self.check_nth_update(5, ["norefs-bin", "norefs-doc"], "2-1", self.enhancement_severity,

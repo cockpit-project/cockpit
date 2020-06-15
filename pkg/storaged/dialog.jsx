@@ -214,8 +214,8 @@
 import cockpit from "cockpit";
 
 import React from "react";
-import { OverlayTrigger, Tooltip, TypeAheadSelect } from "patternfly-react";
-import { Alert } from "@patternfly/react-core";
+import { TypeAheadSelect } from "patternfly-react";
+import { Alert, Tooltip, TooltipPosition } from "@patternfly/react-core";
 
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 import { StatelessSelect, SelectEntry } from "cockpit-components-select.jsx";
@@ -693,11 +693,11 @@ const CheckBoxComponent = ({ tag, val, title, tooltip, update_function }) => {
                        onChange={event => update_function(event.target.checked)} />
                 {title}
             </label>
-            { tooltip && <OverlayTrigger overlay={ <Tooltip id="tip-service">{tooltip}</Tooltip> } placement="right">
+            { tooltip && <Tooltip id="tip-service" content={tooltip} position={TooltipPosition.right}>
                 <button className="dialog-item-tooltip link-button">
                     <span className="fa fa-lg fa-info-circle" />
                 </button>
-            </OverlayTrigger>
+            </Tooltip>
             }
         </div>
     );

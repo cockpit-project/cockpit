@@ -19,7 +19,7 @@
 
 import cockpit from 'cockpit';
 import React, { useState } from 'react';
-import { OverlayTrigger, Tooltip } from 'patternfly-react';
+import { Tooltip, TooltipPosition } from '@patternfly/react-core';
 import { superuser } from "superuser.jsx";
 
 import { show_unexpected_error } from "./dialog-utils.js";
@@ -68,13 +68,10 @@ export function AccountRoles({ account, groups, currently_logged_in }) {
 
     groups.forEach(group => {
         if (role_groups[group.name]) {
-            const tooltip = (
-                <Tooltip id={"tooltip-unix-group-" + group.name}>
-                    {cockpit.format(_("Unix group: $0"), group.name)}
-                </Tooltip>);
             roles.push(
                 <div key={group.name} className="checkbox">
-                    <OverlayTrigger placement="right" overlay={tooltip}>
+                    <Tooltip id={ "tooltip-unix-group-" + group.name } position={ TooltipPosition.right }
+                             content={ cockpit.format(_("Unix group: $0"), group.name) }>
                         <label>
                             <input type="checkbox" disabled={!superuser.allowed || !!changing}
                             onChange={event => change_role(group, event.target.checked)}
@@ -82,7 +79,7 @@ export function AccountRoles({ account, groups, currently_logged_in }) {
                 data-name={group.name} />
                             {role_groups[group.name]}
                         </label>
-                    </OverlayTrigger>
+                    </Tooltip>
                 </div>);
         }
     });

@@ -706,12 +706,33 @@ th > label {
 
     /* Readjust the tooltip for our needs */
     .tooltip {
-        margin: -2.75rem 0 0 -2px !important;
-        /* Center horizontally based on its own width */
-        transform: translateX(-50%);
-        /* Don't trap mouse hovering */
-        pointer-events: none;
+      margin: -2.75rem 0 0 -2px !important;
+      /* Center horizontally based on its own width */
+      transform: translateX(-50%);
+      /* Don't trap mouse hovering */
+      pointer-events: none;
     }
+  }
+}
+
+/* Style tooltips to resemble PF4 */
+.tooltip {
+  // Make it 100% opaque
+  &.in { opacity: 1; }
+
+  // Recolor the arrows
+  &.top &-arrow { border-top-color: var(--pf-global--BackgroundColor--dark-100); }
+  &.right &-arrow { border-right-color: var(--pf-global--BackgroundColor--dark-100); }
+  &.bottom &-arrow { border-bottom-color: var(--pf-global--BackgroundColor--dark-100); }
+  &.left &-arrow { border-left-color: var(--pf-global--BackgroundColor--dark-100); }
+
+  // Match content background, padding, fonts, etc. to PF4 tooltips
+  &-inner {
+    background: var(--pf-global--BackgroundColor--dark-100);
+    font-size: var(--pf-global--FontSize--sm);
+    line-height: var(--pf-global--LineHeight--md);
+    padding: var(--pf-global--spacer--sm) var(--pf-global--spacer--md);
+    text-align: center;
   }
 }
 

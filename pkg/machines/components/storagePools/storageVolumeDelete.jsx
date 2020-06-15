@@ -19,8 +19,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { OverlayTrigger, Tooltip } from 'patternfly-react';
-import { Button } from '@patternfly/react-core';
+import { Button, Tooltip } from '@patternfly/react-core';
 
 import { storageVolumeDelete, storagePoolRefresh } from '../../libvirt-dbus.js';
 import cockpit from 'cockpit';
@@ -69,10 +68,9 @@ export class StorageVolumeDelete extends React.Component {
             return deleteBtn;
 
         return (
-            <OverlayTrigger placement='top'
-                            overlay={<Tooltip id='volume-delete-tooltip'>{ _("One or more selected volumes are used by domains. Detach the disks first to allow volume deletion.") }</Tooltip>}>
-                { deleteBtn }
-            </OverlayTrigger>
+            <Tooltip id='volume-delete-tooltip' content={_("One or more selected volumes are used by domains. Detach the disks first to allow volume deletion.")}>
+                <span>{ deleteBtn }</span>
+            </Tooltip>
         );
     }
 }

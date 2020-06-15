@@ -24,10 +24,8 @@ import ReactDOM from "react-dom";
 import {
     ListView,
     Modal,
-    OverlayTrigger,
-    Tooltip
 } from "patternfly-react";
-import { Alert, Button } from '@patternfly/react-core';
+import { Alert, Button, Tooltip } from '@patternfly/react-core';
 import { ExclamationCircleIcon, TrashIcon } from '@patternfly/react-icons';
 
 import firewall from "./firewall-client.js";
@@ -131,10 +129,11 @@ function ZoneSection(props) {
     let deleteButton;
     if (props.readonly) {
         deleteButton = (
-            <OverlayTrigger placement="top"
-                            overlay={ <Tooltip id="tip-auth">{ _("You are not authorized to modify the firewall.") }</Tooltip> }>
-                <Button variant="danger" aria-label={cockpit.format(_("Not authorized to remove zone $0"), props.zone.id)} isDisabled><span className="pficon pficon-delete" /></Button>
-            </OverlayTrigger>
+            <Tooltip id="tip-auth" content={ _("You are not authorized to modify the firewall.") }>
+                <span>
+                    <Button variant="danger" aria-label={cockpit.format(_("Not authorized to remove zone $0"), props.zone.id)} isDisabled><span className="pficon pficon-delete" /></Button>
+                </span>
+            </Tooltip>
         );
     } else {
         deleteButton = <Button variant="danger" onClick={onRemoveZone} aria-label={cockpit.format(_("Remove zone $0"), props.zone.id)}><span className="pficon pficon-delete" /></Button>;
@@ -876,13 +875,13 @@ export class Firewall extends React.Component {
 
         let firewallOnOff;
         if (firewall.readonly) {
-            firewallOnOff = <OverlayTrigger className="pull-right" placement="top"
-                                            overlay={ <Tooltip id="tip-auth">{ _("You are not authorized to modify the firewall.") }</Tooltip> }>
+            firewallOnOff = <Tooltip id="tip-auth"
+                                     content={ _("You are not authorized to modify the firewall.") }>
                 <OnOffSwitch state={enabled}
                              onChange={this.onSwitchChanged}
                              aria-label={enabled ? _("Not authorized to disable the firewall") : _("Not authorized to enable the firewall")}
                              disabled />
-            </OverlayTrigger>;
+            </Tooltip>;
         } else {
             firewallOnOff = <OnOffSwitch state={enabled}
                                          disabled={!!this.state.pendingTarget}

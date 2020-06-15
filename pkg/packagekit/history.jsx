@@ -21,7 +21,7 @@ import moment from 'moment';
 import React from "react";
 import PropTypes from "prop-types";
 
-import { OverlayTrigger, Tooltip } from "patternfly-react";
+import { Tooltip } from "@patternfly/react-core";
 
 import cockpit from "cockpit";
 
@@ -31,9 +31,9 @@ function formatPkgs(pkgs) {
     const names = Object.keys(pkgs).filter(i => i != "_time");
     names.sort();
     return names.map(n => (
-        <OverlayTrigger key={n} overlay={ <Tooltip id="tip-history">{ n + " " + pkgs[n] }</Tooltip> } placement="top">
+        <Tooltip key={n} id="tip-history" content={ n + " " + pkgs[n] }>
             <li>{n}</li>
-        </OverlayTrigger>)
+        </Tooltip>)
     );
 }
 

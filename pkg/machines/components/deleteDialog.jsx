@@ -19,8 +19,8 @@
 
 import cockpit from 'cockpit';
 import React from 'react';
-import { Modal, OverlayTrigger, Tooltip } from 'patternfly-react';
-import { Button } from '@patternfly/react-core';
+import { Modal } from 'patternfly-react';
+import { Button, Tooltip } from '@patternfly/react-core';
 
 import { vmId } from '../helpers.js';
 import { deleteVm } from '../actions/provider-actions.js';
@@ -149,24 +149,21 @@ export class DeleteDialog extends React.Component {
 
         if (!this.props.vm.persistent) {
             deleteButton = (
-                <OverlayTrigger overlay={
-                    <Tooltip id={`${id}-delete-tooltip`}>
-                        {_("This VM is transient. Shut it down if you wish to delete it.")}
-                    </Tooltip> } placement='top'>
+                <Tooltip id={`${id}-delete-tooltip`}
+                    content={_("This VM is transient. Shut it down if you wish to delete it.")}>
                     <span>
                         <Button id={`${id}-delete`}
                             variant='danger'
-                            style={{ pointerEvents: 'none' }}
                             isDisabled>
                             {_("Delete")}
                         </Button>
                     </span>
-                </OverlayTrigger>
+                </Tooltip>
             );
         }
 
         return (
-            <span>
+            <>
                 { deleteButton }
 
                 <Modal id={`${id}-delete-modal-dialog`} show={this.state.showModal} onHide={this.close}>
@@ -186,7 +183,7 @@ export class DeleteDialog extends React.Component {
                         </Button>
                     </Modal.Footer>
                 </Modal>
-            </span>
+            </>
         );
     }
 }

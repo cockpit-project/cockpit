@@ -2708,9 +2708,9 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
             hack_broken_caps()
 
-            b.mouse("#vm-VmNotInstalled-firmware-tooltip", "mouseover")
-            b.wait_in_text("#missing-uefi-images .tooltip-inner", "Libvirt did not detect any UEFI/OVMF firmware image installed on the host")
-            b.mouse("#vm-VmNotInstalled-firmware-tooltip", "mouseout")
+            b.mouse("#vm-VmNotInstalled-firmware-tooltip", "mouseenter")
+            b.wait_in_text(".pf-c-tooltip", "Libvirt did not detect any UEFI/OVMF firmware image installed on the host")
+            b.mouse("#vm-VmNotInstalled-firmware-tooltip", "mouseleave")
             b.wait_not_present("#missing-uefi-images")
             m.execute("umount " + ovmf_path)
 

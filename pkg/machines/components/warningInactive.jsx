@@ -2,15 +2,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
-import { OverlayTrigger, Tooltip } from "patternfly-react";
+import { Tooltip } from "@patternfly/react-core";
 
 const _ = cockpit.gettext;
 
 const WarningInactive = ({ iconId, tooltipId }) => {
     return (
-        <OverlayTrigger overlay={ <Tooltip id={tooltipId}>{ _("Changes will take effect after shutting down the VM") }</Tooltip> } placement='top'>
+        <Tooltip id={tooltipId} content={_("Changes will take effect after shutting down the VM")}>
             <i id={iconId} className='pficon pficon-pending' />
-        </OverlayTrigger>
+        </Tooltip>
     );
 };
 

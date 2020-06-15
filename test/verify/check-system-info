@@ -610,8 +610,11 @@ fi
         self.login_and_go('/system/hwinfo', superuser=False)
         b.wait_present('#hwinfo th:contains(CPU)')
         b.wait_present('#cpu_mitigations[disabled]')
-        b.mouse('#tip-cpu-security', 'mouseover')
-        b.wait_text('.tooltip-inner', 'The user admin is not permitted to change cpu security mitigations')
+        if m.image not in ["rhel-8-3-distropkg"]:  # changed in PR #14195
+            b.mouse('#tip-cpu-security', 'mouseenter')
+            b.wait_text('.pf-c-tooltip', 'The user admin is not permitted to change cpu security mitigations')
+            b.mouse('#tip-cpu-security', 'mouseleave')
+            b.wait_not_present("div.pf-c-tooltip")
 
         # Behaviour if grub update tools are missing
         b.logout()

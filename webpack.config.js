@@ -154,7 +154,6 @@ var info = {
         "lib/test-dummy",
         "lib/test-journal-renderer",
         "lib/test-machines",
-        "lib/test-patterns",
 
         "networkmanager/test-utils",
 

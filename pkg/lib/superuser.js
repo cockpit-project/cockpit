@@ -19,7 +19,7 @@
 
 import cockpit from "cockpit";
 
-/* import { superuser } from "superuser.jsx";
+/* import { superuser } from "superuser";
  *
  * The "superuser" object indicates whether or not the current page
  * can open superuser channels.

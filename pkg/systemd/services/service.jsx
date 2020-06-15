@@ -25,7 +25,7 @@ import {
 
 import { ServiceDetails, ServiceTemplate } from "./service-details.jsx";
 import { LogsPanel } from "cockpit-components-logs-panel.jsx";
-import { superuser } from 'superuser.jsx';
+import { superuser } from 'superuser';
 
 import cockpit from "cockpit";
 

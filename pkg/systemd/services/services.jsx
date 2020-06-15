@@ -46,7 +46,7 @@ import { onCreateTimer, timerDialogSetup } from "./timer-dialog.js";
 import moment from "moment";
 import { page_status } from "notifications";
 import cockpit from "cockpit";
-import { superuser } from 'superuser.jsx';
+import { superuser } from 'superuser';
 
 moment.locale(cockpit.language);
 

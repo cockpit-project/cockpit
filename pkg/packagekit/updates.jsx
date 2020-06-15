@@ -33,7 +33,7 @@ import { History, PackageList } from "./history.jsx";
 import { page_status } from "notifications";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 
-import { superuser } from 'superuser.jsx';
+import { superuser } from 'superuser';
 import * as PK from "packagekit.js";
 
 import "listing.scss";

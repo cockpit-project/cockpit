@@ -32,7 +32,7 @@ import {
 } from '@patternfly/react-core';
 
 import { shutdown, shutdown_modal_setup } from "./shutdown.js";
-import { superuser } from "superuser.jsx";
+import { superuser } from "superuser";
 
 import { SystemInfomationCard } from './overview-cards/systemInformationCard.jsx';
 import { ConfigurationCard } from './overview-cards/configurationCard.jsx';

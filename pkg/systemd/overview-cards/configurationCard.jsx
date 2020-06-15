@@ -30,7 +30,7 @@ import { install_dialog } from "cockpit-components-install-dialog.jsx";
 import { Privileged } from "cockpit-components-privileged.jsx";
 import { ServerTime } from './serverTime.js';
 import * as realmd from "./realmd-operation.js";
-import { superuser } from "superuser.jsx";
+import { superuser } from "superuser";
 
 /* These add themselves to jQuery so just including is enough */
 import "patterns";

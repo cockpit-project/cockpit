@@ -27,7 +27,7 @@ import ReactDOM from "react-dom";
 
 import { KdumpPage } from "./kdump-view.jsx";
 import * as kdumpClient from "./kdump-client.js";
-import { superuser } from "superuser.jsx";
+import { superuser } from "superuser";
 
 superuser.reload_page_on_change();
 

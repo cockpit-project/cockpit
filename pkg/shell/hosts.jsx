@@ -7,7 +7,7 @@ import { PageSidebar, Button } from '@patternfly/react-core';
 import { EditIcon, MinusIcon } from '@patternfly/react-icons';
 
 import 'polyfills';
-import { superuser } from "superuser.jsx";
+import { superuser } from "superuser";
 import { CockpitNav, CockpitNavItem } from "./nav.jsx";
 
 import { machines } from "machines";

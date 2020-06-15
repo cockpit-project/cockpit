@@ -20,7 +20,7 @@
 import cockpit from 'cockpit';
 import React, { useState } from 'react';
 import { Tooltip, TooltipPosition } from '@patternfly/react-core';
-import { superuser } from "superuser.jsx";
+import { superuser } from "superuser";
 
 import { show_unexpected_error } from "./dialog-utils.js";
 

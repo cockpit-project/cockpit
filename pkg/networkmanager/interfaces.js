@@ -23,7 +23,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 import cockpit from 'cockpit';
-import { superuser } from 'superuser.jsx';
+import { superuser } from 'superuser';
 
 import firewall from './firewall-client.js';
 import * as utils from './utils';

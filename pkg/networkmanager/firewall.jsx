@@ -34,7 +34,7 @@ import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 import { ModalError } from "cockpit-components-inline-notification.jsx";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 
-import { superuser } from "superuser.jsx";
+import { superuser } from "superuser";
 
 import "page.scss";
 import "table.css";

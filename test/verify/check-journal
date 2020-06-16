@@ -23,6 +23,11 @@ import time
 
 
 class TestJournal(MachineCase):
+    def setUp(self):
+        super().setUp()
+
+        self.restore_dir("/var/log/journal", post_restore_action="systemctl try-restart systemd-journald")
+        self.machine.execute("systemctl try-restart systemd-journald")
 
     def select_priority(self, value):
         prio_map = {
@@ -407,6 +412,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         b.wait_val("#journal-grep", "start:last-24h priority:crit identifier:logger foo")
 
 
+    @nondestructive
     def testBinary(self):
         b = self.browser
         m = self.machine
@@ -426,6 +432,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         wait_field("FOO", "bar")
         wait_field("BIN", "[6 bytes of binary data]")
 
+    @nondestructive
     def testNoMessage(self):
         b = self.browser
         m = self.machine
@@ -438,6 +445,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
         b.wait_text("#journal-entry-message", "[no data]")
 
+    @nondestructive
     def testLogLevel(self):
 
         b = self.browser
@@ -468,9 +476,15 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
                "ubuntu-2004", "fedora-coreos", "rhel-8-3", "rhel-8-3-distropkg", "centos-8-stream")
+    @nondestructive
     def testAbrtSegv(self):
         b = self.browser
+        m = self.machine
 
+        # We bind-mount over journal and restart systemd-journald (see `setUp`)
+        # Need to restart `abrt-journal-core` to see new messages
+        m.execute("systemctl try-restart abrt-journal-core")
+        self.addCleanup(m.execute, "rm -rf /var/spool/abrt/*")
         self.crash()
 
         self.login_and_go("/system/logs")
@@ -505,8 +519,15 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
                "ubuntu-2004", "fedora-coreos", "rhel-8-3", "rhel-8-3-distropkg", "centos-8-stream")
+    @nondestructive
     def testAbrtDelete(self):
         b = self.browser
+        m = self.machine
+
+        # We bind-mount over journal and restart systemd-journald (see `setUp`)
+        # Need to restart `abrt-journal-core` to see new messages
+        m.execute("systemctl try-restart abrt-journal-core")
+        self.addCleanup(m.execute, "rm -rf /var/spool/abrt/*")
 
         # A bit of a race might happen if you delete the journal entry whilst
         # the reporting code is doing its thing.
@@ -537,11 +558,17 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
                "ubuntu-2004", "fedora-coreos", "rhel-8-3", "rhel-8-3-distropkg", "centos-8-stream")
+    @nondestructive
     def testAbrtReport(self):
         # The testing server is located at verify/files/mock-faf-server.py
         # Adjust Handler.known for for the expected succession of known/unknown problems
         b = self.browser
         m = self.machine
+
+        # We bind-mount over journal and restart systemd-journald (see `setUp`)
+        # Need to restart `abrt-journal-core` to see new messages
+        m.execute("systemctl try-restart abrt-journal-core")
+        self.addCleanup(m.execute, "rm -rf /var/spool/abrt/*")
 
         # Restarting the reportd service will trigger some errors. Some depend
         # on timing (interrupting the GetWorkflows call), so let’s ignore some
@@ -551,12 +578,14 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
         m.upload(["verify/files/mock-bugzilla-server.py"], "/tmp/")
         m.spawn("setsid /tmp/mock-bugzilla-server.py", "mock-bugzilla.log")
-        m.execute("echo 'BugzillaURL=http://localhost:8080' >> /etc/libreport/plugins/bugzilla.conf")
+        self.restore_file("/etc/libreport/plugins/bugzilla.conf")
+        m.execute("echo 'BugzillaURL=http://localhost:8080' > /etc/libreport/plugins/bugzilla.conf")
 
         # start mock FAF server
         m.upload(["verify/files/mock-faf-server.py"], "/tmp/")
         m.spawn("setsid /tmp/mock-faf-server.py", "mock-faf.log")
-        m.execute("echo 'URL=http://localhost:12345' >> /etc/libreport/plugins/ureport.conf")
+        self.restore_file("/etc/libreport/plugins/ureport.conf")
+        m.execute("echo 'URL=http://localhost:12345' > /etc/libreport/plugins/ureport.conf")
 
         m.upload(["verify/files/cockpit_event.conf"], "/etc/libreport/events.d/")
         m.upload(["verify/files/workflow_Cockpit.xml"], "/usr/share/libreport/workflows/")
@@ -610,18 +639,26 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
                "ubuntu-2004", "fedora-coreos", "rhel-8-3", "rhel-8-3-distropkg", "centos-8-stream")
+    @nondestructive
     def testAbrtReportCancel(self):
         b = self.browser
         m = self.machine
 
+        # We bind-mount over journal and restart systemd-journald (see `setUp`)
+        # Need to restart `abrt-journal-core` to see new messages
+        m.execute("systemctl try-restart abrt-journal-core")
+        self.addCleanup(m.execute, "rm -rf /var/spool/abrt/*")
+
         m.upload(["verify/files/mock-bugzilla-server.py"], "/tmp/")
         m.spawn("setsid /tmp/mock-bugzilla-server.py", "mock-bugzilla.log")
-        m.execute("echo 'BugzillaURL=http://localhost:8080' >> /etc/libreport/plugins/bugzilla.conf")
+        self.restore_file("/etc/libreport/plugins/bugzilla.conf")
+        m.execute("echo 'BugzillaURL=http://localhost:8080' > /etc/libreport/plugins/bugzilla.conf")
 
         # start mock FAF server
         m.upload(["verify/files/mock-faf-server.py"], "/tmp/")
         m.spawn("setsid /tmp/mock-faf-server.py", "mock-faf.log")
-        m.execute("echo 'URL=http://localhost:12345' >> /etc/libreport/plugins/ureport.conf")
+        self.restore_file("/etc/libreport/plugins/ureport.conf")
+        m.execute("echo 'URL=http://localhost:12345' > /etc/libreport/plugins/ureport.conf")
 
         m.upload(["verify/files/cockpit_event.conf"], "/etc/libreport/events.d/")
         m.upload(["verify/files/workflow_Cockpit.xml"], "/usr/share/libreport/workflows/")
@@ -647,18 +684,26 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
                "ubuntu-2004", "fedora-coreos", "rhel-8-3", "rhel-8-3-distropkg", "centos-8-stream")
+    @nondestructive
     def testAbrtReportNoReportd(self):
         b = self.browser
         m = self.machine
 
         self.allow_browser_errors("Channel for reportd D-Bus client closed: .*")
 
+        # We bind-mount over journal and restart systemd-journald (see `setUp`)
+        # Need to restart `abrt-journal-core` to see new messages
+        m.execute("systemctl try-restart abrt-journal-core")
+        self.addCleanup(m.execute, "rm -rf /var/spool/abrt/*")
+
         # start mock FAF server
         m.upload(["verify/files/mock-faf-server.py"], "/tmp/")
         m.execute("setsid /tmp/mock-faf-server.py >/tmp/mock-faf.log 2>&1 &")
-        m.execute("echo 'URL=http://localhost:12345' >> /etc/libreport/plugins/ureport.conf")
+        self.restore_file("/etc/libreport/plugins/ureport.conf")
+        m.execute("echo 'URL=http://localhost:12345' > /etc/libreport/plugins/ureport.conf")
 
         m.execute("systemctl mask --now reportd")
+        self.addCleanup(m.execute, "systemctl unmask --now reportd")
 
         self.crash()
 

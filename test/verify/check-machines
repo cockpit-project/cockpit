@@ -2330,7 +2330,7 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
         def _commandNotRunning(self, command):
             try:
-                self.machine.execute("pgrep -fc {0}".format(command))
+                self.machine.execute("pgrep -c {0}".format(command))
                 return False
             except subprocess.CalledProcessError as e:
                 return hasattr(e, 'returncode') and e.returncode == 1
@@ -2400,11 +2400,6 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
             wait(lambda: name in self.machine.execute(listCmd))
 
-            return self
-
-        def _assertOsInfoQueryFinished(self):
-            with self.browser.wait_timeout(10):
-                self.browser.wait(functools.partial(self._commandNotRunning, "osinfo-query"))
             return self
 
         def checkEnvIsEmpty(self):

@@ -401,7 +401,7 @@ class TestSystemInfo(MachineCase):
 
         # sort by model
         b.click(pci_selector + ' thead th[data-label=Model] button')
-        b.wait_in_text(pci_selector + ' tbody tr:first-of-type td[data-label=Model]', "440FX")
+        b.wait_in_text(pci_selector + ' tbody tr:first-of-type td[data-label=Model]', "440")
         b.wait_in_text(pci_selector + ' tbody tr:last-of-type td[data-label=Model]', "Virtio SCSI")
         b.wait_not_in_text(pci_selector + ' tbody tr:last-of-type td[data-label=Model]', "Unclassified")
 

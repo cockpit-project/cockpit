@@ -182,6 +182,9 @@ def run(opts, image):
     if len(changed_tests) > 3:
         changed_tests = []
 
+    # HACK: Running all machines tests 3 times takes too long and the global timeout is reached
+    changed_tests = [test for test in changed_tests if "check-machines" not in test]
+
     seen_classes = {}
     for filename in glob.glob(os.path.join(opts.test_dir, "check-*")):
         name = check_valid(filename)

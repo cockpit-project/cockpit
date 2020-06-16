@@ -165,7 +165,13 @@ exec 2>&1
 %define testsuite_fail || true
 %endif
 %endif
-make -j4 check %{?testsuite_fail}
+# HACK: RHEL i686 builders hang after running all tests; not a supported architecture, so don't bother
+%if 0%{?rhel} >= 8
+%ifarch i686
+%define testsuite_skip #
+%endif
+%endif
+%{?testsuite_skip} make -j4 check %{?testsuite_fail}
 
 %install
 make install DESTDIR=%{buildroot}

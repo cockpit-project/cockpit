@@ -2306,6 +2306,9 @@ class TestMachines(MachineCase, StorageHelpers, NetworkHelpers):
 
             self._assertCorrectConfiguration(dialog)
 
+            # Wait for virt-install to define the VM and then stop it - otherwise we get 'domain is ready being removed' error
+            wait(lambda: name in self.machine.execute("virsh list --persistent"), delay=3)
+
             # unfinished install script runs indefinitelly, so we need to force it off
             b.click("#vm-{0}-action-kebab button".format(name))
             b.click("#vm-{0}-forceOff".format(name))

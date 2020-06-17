@@ -449,7 +449,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         m = self.machine
 
         m.execute(r"printf 'MESSAGE=Hello \01 World\nPRIORITY=3\nFOO=bar\nBIN=a\01b\02c\03\n' | logger --journald")
-        self.login_and_go("/system/logs")
+        self.login_and_go("/system/logs#/?tag=logger")
 
         sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('[13 bytes of binary data]')"
         b.click(sel)
@@ -469,7 +469,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         m = self.machine
 
         m.execute(r"printf 'PRIORITY=3\nFOO=bar\n' | logger --journald")
-        self.login_and_go("/system/logs")
+        self.login_and_go("/system/logs#/?tag=logger")
 
         sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('[no data]')"
         b.click(sel)
@@ -486,7 +486,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         m.execute("logger -p user.warn --tag check-journal WARNING_MESSAGE")
         m.execute("logger -p user.emerg --tag check-journal EMERGENCY_MESSAGE")
 
-        self.login_and_go("/system/logs")
+        self.login_and_go("/system/logs#/?tag=check-journal")
 
         journal_line_selector = "#journal-box .cockpit-logline:has(span:contains({0}))"
 

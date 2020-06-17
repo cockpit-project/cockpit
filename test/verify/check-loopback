@@ -49,8 +49,8 @@ class TestLoopback(MachineCase):
         self.assertIn("no-cockpit", b.text('#login-fatal'))
 
         m.disconnect()
-        self.sed_file('s/.*PasswordAuthentication.*/PasswordAuthentication no/', '/etc/ssh/sshd_config',
-                      '( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service')
+        m.execute("sed -i 's/.*PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config $(ls /etc/ssh/sshd_config.d/* 2>/dev/null || true)")
+        m.execute("( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service")
         m.wait_execute()
 
         b.reload()

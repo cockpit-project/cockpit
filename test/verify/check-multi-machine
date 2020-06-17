@@ -361,7 +361,7 @@ class TestMultiMachine(MachineCase):
         b.wait_in_text("#conversation-prompt", "Fingerprint")
         b.wait_in_text("#conversation-message", "Do you want to proceed this time?")
 
-        match = re.match(r'(MD5|SHA256) Fingerprint \(ssh-(.*)\):', b.text("#conversation-prompt"))
+        match = re.match(r'(MD5|SHA256) Fingerprint \((?:ssh-)?([^-]*).*\):', b.text("#conversation-prompt"))
         assert match
         (hash_fn, algo) = match.groups()
         try:

@@ -667,10 +667,9 @@ OnCalendar=daily
 
         b.switch_to_top()
         b.wait_present("#development-info")
-        if self.machine.image not in ["rhel-8-3-distropkg"]:  # changed in PR #14195
-            b.mouse("#development-info", "mouseenter")
-            b.wait_in_text(".pf-c-tooltip", "My Little Page Status")
-            b.mouse("#development-info", "mouseleave")
+        b.mouse("#development-info", "mouseenter")
+        b.wait_in_text(".pf-c-tooltip", "My Little Page Status")
+        b.mouse("#development-info", "mouseleave")
 
         b.go("/playground/notifications-receiver")
         b.enter_page("/playground/notifications-receiver")

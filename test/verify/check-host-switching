@@ -216,11 +216,10 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         b.wait_not_present("iframe.container-frame[name='cockpit1:10.111.113.3/system']")
         b.wait_visible(".nav-item span[data-for='/@10.111.113.3'] .nav-status")
         b.wait_visible(".nav-item span[data-for='/@10.111.113.3'] #localhost-error")
-        if m.image not in ["rhel-8-3-distropkg"]:  # changed in PR #14195
-            b.mouse("#localhost-error", "mouseenter")
-            b.wait_in_text(".pf-c-tooltip", "Connection Error")
-            b.mouse("#localhost-error", "mouseleave")
-            b.wait_not_present("div.pf-c-tooltip")
+        b.mouse("#localhost-error", "mouseenter")
+        b.wait_in_text(".pf-c-tooltip", "Connection Error")
+        b.mouse("#localhost-error", "mouseleave")
+        b.wait_not_present("div.pf-c-tooltip")
 
         b.click("#nav-hosts .nav-item span[data-for='/@10.111.113.3'] button.nav-action.pf-m-secondary")
         b.wait_popup('edit-host-dialog')

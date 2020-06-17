@@ -199,10 +199,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         b.go("#/?prio=debug&start=recent&service=nonexisting.service")
         wait_journal_empty()
 
-        if m.image == "rhel-8-3-distropkg": # Changed in #14221
-            b.go("#/?prio=debug&start=recent&service=log123.service")
-        else:
-            b.go("#/?prio=debug&start=recent&service=log123")
+        b.go("#/?prio=debug&start=recent&service=log123")
         wait_log123()
 
         b.go("#/?prio=debug&start=recent&service=slow10.service")

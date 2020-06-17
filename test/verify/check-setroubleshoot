@@ -118,10 +118,7 @@ class TestSelinux(MachineCase):
         # this should have two alerts, but there seems to be a known issue that some messages are delayed
         # b.wait_in_text(row_selector, "2 occurrences")
 
-        if m.image not in ["rhel-8-3-distropkg"]:  # changed in PR #13474
-            panel_selector = row_selector + " tr.ct-listing-panel"
-        else:
-            panel_selector = row_selector + " tr.listing-ct-panel"
+        panel_selector = row_selector + " tr.ct-listing-panel"
         sebool_selector1 = panel_selector + " .selinux-details:nth-of-type(1)"
         sebool_selector2 = panel_selector + " .selinux-details:nth-of-type(2)"
         fallback_selector1 = panel_selector + " .selinux-details:nth-of-type(3)"
@@ -168,14 +165,9 @@ class TestSelinux(MachineCase):
         toggle_selector = row_selector + " .listing-ct-toggle"
         b.click(toggle_selector)
 
-        if m.image not in ["rhel-8-3-distropkg"]:
-            panel_selector = row_selector + " tr.ct-listing-panel"
-        else:
-            panel_selector = row_selector + " tr.listing-ct-panel"
-
         try:
             # a solution is present
-            b.wait_in_text(panel_selector, "you can run restorecon")
+            b.wait_in_text(row_selector + " tr.ct-listing-panel", "you can run restorecon")
 
             # and it can be applied
             btn_sel = "div.list-group-item:contains('you can run restorecon') button{}".format(self.default_btn_class)

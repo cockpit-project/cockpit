@@ -215,7 +215,11 @@ Unit=test.service
         b.wait_present(self.svc_sel('test-onboot.timer'))
         b.wait_text(self.svc_sel('test-onboot.timer') + ' .service-unit-triggers', '')
         m.execute("systemctl start test-onboot.timer")
-        b.wait_in_text(self.svc_sel('test-onboot.timer') + ' .service-unit-next-trigger', "Today")  # next run
+        # Check the next run. Since it triggers 100mins after the boot, it might be today or tomorrow (after 22:20)
+        try:
+            b.wait_in_text(self.svc_sel('test-onboot.timer') + ' .service-unit-next-trigger', "Today")
+        except Error:
+            b.wait_in_text(self.svc_sel('test-onboot.timer') + ' .service-unit-next-trigger', "Tomorrow")
         b.wait_in_text(self.svc_sel('test-onboot.timer') + ' .service-unit-last-trigger', "unknown")  # last trigger
         m.execute("systemctl stop test-onboot.timer")
 

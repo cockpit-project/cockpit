@@ -29,6 +29,39 @@ class TestJournal(MachineCase):
         self.restore_dir("/var/log/journal", post_restore_action="systemctl try-restart systemd-journald")
         self.machine.execute("systemctl try-restart systemd-journald")
 
+    def injectExtras(self):
+        self.browser.inject_js("""
+        ph_get_log_lines = function () {
+            var lines = [ ];
+            var panels = ph_find('.cockpit-log-panel').childNodes;
+            for (var i = 0; i < panels.length; ++i) {
+                var e = panels[i];
+                if (e.className === 'panel-heading') {
+                    lines.push (e.textContent);
+                } else {
+                    var msg = e.querySelector('.cockpit-log-message');
+                    msg = msg ? msg.textContent : "";
+                    var ident = '';
+                    var count = '';
+                    if (e.querySelectorAll('.cockpit-log-service-container').length > 0) {
+                        ident = e.querySelector('.cockpit-log-service-reduced').textContent;
+                        // we need to slice the whitespace
+                        count = e.querySelector('.badge').textContent.slice(0, -1);
+                    } else {
+                        ident = e.querySelector('.cockpit-log-service');
+                        ident = ident ? ident.textContent : "";
+                    }
+                    lines.push ([ ident, msg, count ]);
+                }
+            }
+            var journal_start_text = ph_find('.journal-start').textContent;
+            if (journal_start_text !== "")
+                lines.push(journal_start_text);
+            // console.log(JSON.stringify(lines));
+            return lines;
+        }
+        """)
+
     def select_priority(self, value):
         prio_map = {
             "Only Emergency": "emerg",
@@ -66,51 +99,12 @@ class TestJournal(MachineCase):
         sleep = m.spawn("sleep 1m", "sleep.log")
         m.execute("kill -SEGV %d" % (sleep))
 
+    @nondestructive
     def testBasic(self):
         b = self.browser
         b.wait_timeout(120)
 
         m = self.machine
-
-        self.allow_restart_journal_messages()
-        self.allow_journal_messages(".*Failed to get realtime timestamp: Cannot assign requested address.*")
-
-        # HACK: pmie and pmlogger take a looooong time to shutdown (https://bugzilla.redhat.com/show_bug.cgi?id=1703348)
-        # so disable them for this test, we don't test PCP here
-        m.execute("systemctl disable --now pmie pmlogger || true")
-
-        def inject_extras():
-            b.inject_js("""
-            ph_get_log_lines = function () {
-                var lines = [ ];
-                var panels = ph_find('.cockpit-log-panel').childNodes;
-                for (var i = 0; i < panels.length; ++i) {
-                    var e = panels[i];
-                    if (e.className === 'panel-heading') {
-                        lines.push (e.textContent);
-                    } else {
-                        var msg = e.querySelector('.cockpit-log-message');
-                        msg = msg ? msg.textContent : "";
-                        var ident = '';
-                        var count = '';
-                        if (e.querySelectorAll('.cockpit-log-service-container').length > 0) {
-                            ident = e.querySelector('.cockpit-log-service-reduced').textContent;
-                            // we need to slice the whitespace
-                            count = e.querySelector('.badge').textContent.slice(0, -1);
-                        } else {
-                            ident = e.querySelector('.cockpit-log-service');
-                            ident = ident ? ident.textContent : "";
-                        }
-                        lines.push ([ ident, msg, count ]);
-                    }
-                }
-                var journal_start_text = ph_find('.journal-start').textContent;
-                if (journal_start_text !== "")
-                    lines.push(journal_start_text);
-                // console.log(JSON.stringify(lines));
-                return lines;
-            }
-            """)
 
         # Certain versions of journald won't set _SYSTEMD_UNIT
         # correctly for entries that are processed after the
@@ -118,7 +112,7 @@ class TestJournal(MachineCase):
         # process around for a bit longer after the last line has been
         # output.
         #
-        m.write("/etc/systemd/system/log123.service",
+        self.write_file("/etc/systemd/system/log123.service",
                 """
 [Unit]
 Description=123 different log lines
@@ -127,7 +121,7 @@ Description=123 different log lines
 ExecStart=/bin/sh -c '/usr/bin/seq 123; sleep 10'
 """)
 
-        m.write("/etc/systemd/system/slow10.service",
+        self.write_file("/etc/systemd/system/slow10.service",
                 """
 [Unit]
 Description=Slowly log 10 identical lines
@@ -135,50 +129,19 @@ Description=Slowly log 10 identical lines
 [Service]
 ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 10'
 """)
-
-        # Stop NTP and Chronyd if they are running.  Timedatectl isn't
-        # necessarily aware of them.
-        #
-        # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1352905
-        #
-        m.execute("! systemctl --quiet is-active ntp || (systemctl disable ntp && systemctl stop ntp)")
-        m.execute("if systemctl --quiet is-active chrony; then systemctl disable chrony && systemctl stop chrony; fi")
-        m.execute("if systemctl --quiet is-active chronyd; then systemctl disable chronyd && systemctl stop chronyd; fi")
-
-        m.execute("timedatectl set-ntp off")
-        # this is asynchronous; must wait until timesyncd stops before the time can be set
-        m.execute("while systemctl is-active systemd-timesyncd; do sleep 1; done")
-        m.execute("timedatectl set-time 2038-01-01")
+        self.addCleanup(m.execute, "systemctl daemon-reload")
 
         self.login_and_go("/system/logs")
-        inject_extras()
-
-        b.inject_js("""
-            localTime = function(time) {
-                var month_names = [
-                    'January',
-                    'February',
-                    'March',
-                    'April',
-                    'May',
-                    'June',
-                    'July',
-                    'August',
-                    'September',
-                    'October',
-                    'November',
-                    'December'
-                ];
-                var d = new Date(time);
-                return month_names[d.getMonth()] + ' ' + d.getDate().toFixed() + ', ' + d.getFullYear().toFixed();
-            }
-        """)
-        # January 1, 2038 00:00:00Z in browser time
-        expected_date = b.eval_js("localTime(2145916800000)")
+        self.injectExtras()
 
         def wait_log_lines(expected):
             b.wait_js_func("""(function (expected) {
           var lines = ph_get_log_lines ();
+
+          // Ignore date
+          if (lines.length > 1)
+              lines.shift();
+
           if (expected.length != lines.length)
             return false;
           for (i = 0; i < expected.length; i++)
@@ -196,9 +159,6 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         def wait_log123():
             b.wait_js_func("""(function () {
           var lines = ph_get_log_lines();
-
-          if (lines[0] != "%s")
-            return false;
 
           var seq = 123;
           var seen_day = false;
@@ -230,7 +190,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
           }
 
           return true;
-        })""" % expected_date)
+        })""")
 
         m.execute("systemctl start log123")
 
@@ -250,10 +210,10 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
         def wait_slow10():
             if m.image.startswith("rhel") or m.image.startswith("centos"): # Older systemd does not show when unit finishes
-                wait_log_lines([expected_date, ["sh", "SLOW", "10"],
+                wait_log_lines([["sh", "SLOW", "10"],
                                ["systemd", "Started Slowly log 10 identical lines.", ""]])
             else:
-                wait_log_lines([expected_date, ["systemd", "slow10.service: Succeeded.", ""], ["sh", "SLOW", "10"],
+                wait_log_lines([["systemd", "slow10.service: Succeeded.", ""], ["sh", "SLOW", "10"],
                                ["systemd", "Started Slowly log 10 identical lines.", ""]])
 
         def wait_log_present(message):
@@ -273,67 +233,24 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         b.go("#/?prio=debug&start=recent&service=slow10.service")
         wait_slow10()
 
-        # insert messages as errors because we know these will be shown by default
-        m.execute("systemctl start systemd-journald.service")
-        m.execute("logger -p user.err --tag check-journal BEFORE BOOT")
-        b.go("#/?tag=check-journal")
-        wait_log_lines([expected_date, ["check-journal", "BEFORE BOOT", ""]])
-        m.execute("systemctl stop systemd-journald.service")
+        b.go("#/?prio=debug")
 
-        # Now reboot things
-        m.spawn("sync && sync && sync && sleep 0.1 && reboot", "reboot")
-        m.wait_reboot()
-        m.execute("timedatectl set-time '2038-01-01 00:05:00'")
-        m.execute("logger -p user.err --tag check-journal AFTER BOOT")
+        m.execute("logger -p user.err --tag check-journal JUST ERROR")
+        m.execute("logger -p 5 --tag just-a-service THE SERVICE")
+        wait_log_present("THE SERVICE")
+        wait_log_present("JUST ERROR")
 
-        m.start_cockpit()
-        b.switch_to_top()
-        b.relogin('/system/logs')
-        inject_extras()
-
-        b.go("#/?tag=check-journal")
-        wait_log_lines([expected_date,
-                        ["check-journal", "AFTER BOOT", ""],
-                        ["", "Reboot", ""],
-                        ["check-journal", "BEFORE BOOT", ""]
-                        ])
-
-        b.go("#/?start=boot&tag=check-journal")
-        wait_log_lines([expected_date,
-                        ["check-journal", "AFTER BOOT", ""],
-                        "Load earlier entries",
-                        ])
-
-        b.click('#start-box button:contains("Load earlier entries")')
-
-        wait_log_lines([expected_date,
-                        ["check-journal", "AFTER BOOT", ""],
-                        ["", "Reboot", ""],
-                        ["check-journal", "BEFORE BOOT", ""]
-                        ])
-
-        # Check selecting of services
-        b.go("#/?start=previous-boot&tag=check-journal")
-        wait_log_lines([expected_date,
-                        ["check-journal", "BEFORE BOOT", ""],
-                        "Load earlier entries"
-                        ])
-
-        b.go("#/?start=boot&prio=info")
-
-        wait_log_present("AFTER BOOT")
-        m.execute("logger -p 5 --tag just-a-service WORK PLEASE")
-        wait_log_present("WORK PLEASE")
         b.wait_present("#journal-service-menu option[value='check-journal']")
         b.set_val("#journal-service-menu", "just-a-service")
-        wait_log_not_present("AFTER BOOT")
-        wait_log_present("WORK PLEASE")
+        wait_log_not_present("JUST ERROR")
+        wait_log_present("THE SERVICE")
         b.set_val("#journal-service-menu", "*")
-        wait_log_present("AFTER BOOT")
-        wait_log_present("WORK PLEASE")
+        wait_log_present("JUST ERROR")
+        wait_log_present("THE SERVICE")
 
         self.select_priority("Error and above")
-        wait_log_not_present("WORK PLEASE")
+        wait_log_not_present("THE SERVICE")
+        wait_log_present("JUST ERROR")
         b.set_val("#journal-service-menu", "check-journal")
         b.wait_not_present("#journal-service-menu option[value='just-a-service']")
 
@@ -410,6 +327,120 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
         b.go("#/?tag=logger&start=last-24h&prio=crit&grep=foo")
         b.wait_val("#journal-grep", "start:last-24h priority:crit identifier:logger foo")
+
+    def testRebootAndTime(self):
+        b = self.browser
+        m = self.machine
+
+        self.allow_restart_journal_messages()
+        self.allow_journal_messages(".*Failed to get realtime timestamp: Cannot assign requested address.*")
+
+        # HACK: pmie and pmlogger take a looooong time to shutdown (https://bugzilla.redhat.com/show_bug.cgi?id=1703348)
+        # so disable them for this test, we don't test PCP here
+        m.execute("systemctl disable --now pmie pmlogger || true")
+
+        # Stop NTP and Chronyd if they are running.  Timedatectl isn't
+        # necessarily aware of them.
+        #
+        # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1352905
+        #
+        m.execute("! systemctl --quiet is-active ntp || (systemctl disable ntp && systemctl stop ntp)")
+        m.execute("if systemctl --quiet is-active chrony; then systemctl disable chrony && systemctl stop chrony; fi")
+        m.execute("if systemctl --quiet is-active chronyd; then systemctl disable chronyd && systemctl stop chronyd; fi")
+
+        m.execute("timedatectl set-ntp off")
+        # this is asynchronous; must wait until timesyncd stops before the time can be set
+        m.execute("while systemctl is-active systemd-timesyncd; do sleep 1; done")
+        m.execute("timedatectl set-time 2038-01-01")
+
+        def wait_log_lines(expected):
+            b.wait_js_func("""(function (expected) {
+          var lines = ph_get_log_lines ();
+          if (expected.length != lines.length)
+            return false;
+          for (i = 0; i < expected.length; i++)
+            if (JSON.stringify(expected[i]) != JSON.stringify(lines[i]))
+              return false;
+          return true;
+        })""", expected)
+
+        self.login_and_go("/system/logs")
+
+        self.injectExtras()
+        b.inject_js("""
+            localTime = function(time) {
+                var month_names = [
+                    'January',
+                    'February',
+                    'March',
+                    'April',
+                    'May',
+                    'June',
+                    'July',
+                    'August',
+                    'September',
+                    'October',
+                    'November',
+                    'December'
+                ];
+                var d = new Date(time);
+                return month_names[d.getMonth()] + ' ' + d.getDate().toFixed() + ', ' + d.getFullYear().toFixed();
+            }
+        """)
+        # January 1, 2038 00:00:00Z in browser time
+        expected_date = b.eval_js("localTime(2145916800000)")
+
+        # insert messages as errors because we know these will be shown by default
+        m.execute("systemctl start systemd-journald.service")
+        m.execute("logger -p user.err --tag check-journal BEFORE BOOT")
+        b.go("#/?tag=check-journal")
+        wait_log_lines([expected_date, ["check-journal", "BEFORE BOOT", ""]])
+        m.execute("systemctl stop systemd-journald.service")
+
+        # Now reboot things
+        m.spawn("sync && sync && sync && sleep 0.1 && reboot", "reboot")
+        m.wait_reboot()
+        m.execute("timedatectl set-time '2038-01-01 00:05:00'")
+        m.execute("logger -p user.err --tag check-journal AFTER BOOT")
+
+        m.start_cockpit()
+        b.switch_to_top()
+        b.relogin('/system/logs')
+        self.injectExtras()
+
+        b.go("#/?tag=check-journal")
+        wait_log_lines([expected_date,
+                        ["check-journal", "AFTER BOOT", ""],
+                        ["", "Reboot", ""],
+                        ["check-journal", "BEFORE BOOT", ""]
+                        ])
+
+        b.go("#/?start=boot&tag=check-journal")
+        wait_log_lines([expected_date,
+                        ["check-journal", "AFTER BOOT", ""],
+                        "Load earlier entries",
+                        ])
+
+        b.click('#start-box button:contains("Load earlier entries")')
+
+        wait_log_lines([expected_date,
+                        ["check-journal", "AFTER BOOT", ""],
+                        ["", "Reboot", ""],
+                        ["check-journal", "BEFORE BOOT", ""]
+                        ])
+
+        # Check selecting of services
+        b.go("#/?start=previous-boot&tag=check-journal")
+        wait_log_lines([expected_date,
+                        ["check-journal", "BEFORE BOOT", ""],
+                        "Load earlier entries"
+                        ])
+
+        b.go("#/?start=boot&tag=check-journal")
+        wait_log_lines([expected_date,
+                        ["check-journal", "AFTER BOOT", ""],
+                        "Load earlier entries"
+                        ])
 
 
     @nondestructive

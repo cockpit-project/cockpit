@@ -74,6 +74,17 @@ pkcs15-init --store-private-key alice.p12 --format pkcs12 --auth-id 01
 ClientCertAuthentication = yes
 </programlisting>
 
+  <warning>
+    <para>Any client can generate certificates with arbitrary information, thus
+      the client certificates must be checked for validity. Cockpit currently
+      accepts any client certificate and relies on sssd to verify their validity.
+      This is secure only when the entire certificate gets matched, i.e. when
+      importing the complete certificates into Identity Management as shown above.
+      <emphasis>Do not use this with local sssd <code>certmap</code> rules</emphasis>
+      which only match on Subject/Issuer properties!
+  </para>
+ </warning>
+
   <para>When enabling this mode,
     <ulink url="https://github.com/cockpit-project/cockpit/blob/master/doc/authentication.md">
     other authentication types</ulink> commonly get disabled, so that <emphasis>only</emphasis>

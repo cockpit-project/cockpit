@@ -622,9 +622,9 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
             # https://bugzilla.redhat.com/show_bug.cgi?id=1836182
             self.allow_journal_messages('.*type=1400.*avc:  denied  { chown }.*comm="cockpit-session".*')
 
-        if module == 'pam_tally2':
-            # at first, we should have no log file
-            m.execute("! test -f {}".format(logfile('admin')))
+        # start from a clean slate
+        self.restore_file(logfile('admin'))
+        m.execute("rm -f " + logfile('admin'))
 
         # make sure we can still login
         b.login_and_go("/system")

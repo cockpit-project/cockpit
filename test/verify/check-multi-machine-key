@@ -101,7 +101,7 @@ class TestMultiMachineKeyAuth(MachineCase):
         self.machine2.disconnect()
         self.machine2.execute("useradd user -c 'User' || true", direct=True)
         self.machine2.execute(
-            "sed -i 's/.*PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config", direct=True)
+            "sed -i 's/.*PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config $(ls /etc/ssh/sshd_config.d/* 2>/dev/null || true)", direct=True)
         self.machine2.execute(
             "( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service", direct=True)
         self.machine2.wait_execute()
